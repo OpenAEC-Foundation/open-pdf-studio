@@ -20,7 +20,6 @@ import { createSinglePageFormLayer, clearSinglePageFormLayer, createFormLayer, c
 import { clearPdfVectorCache, prefetchPdfVectorGeometry } from '../tools/pdf-snap-extractor.js';
 import { clearDetectionCache } from '../tools/pdf-element-detector.js';
 import { onPageRendered, clearHighlights } from '../search/find-bar.js';
-import { showPagePlaceholder, hidePagePlaceholderWhenReady } from './page-transition.js';
 import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-anchor.js';
 import { createRerenderGate } from './continuous-rerender-gate.js';
 import { continuousRenderScale } from './continuous-render-scale.js';
@@ -2141,19 +2140,9 @@ export async function goToPage(pageNum, options = {}) {
   hideProperties();
 
   if (doc?.viewMode === 'single') {
-    // Instant feedback: blit the page's cached thumbnail as a placeholder over
-    // the canvas so the switch feels immediate even while the (possibly cold)
-    // render runs. Hidden one frame after renderPage() resolves, so the crisp
-    // page has painted underneath. No-op if the thumbnail isn't cached yet.
-    const _phGen = showPagePlaceholder(pageNum);
-    try {
-      await renderPage(pageNum);
-    } finally {
-      // Keep the placeholder up until the real page content has painted (raster
-      // bitmaps fill asynchronously after renderPage resolves) — avoids a blank
-      // flash between hiding the thumbnail and the bitmap landing.
-      hidePagePlaceholderWhenReady(_phGen);
-    }
+    // Render at the document's zoom and pan. A sidebar-sized thumbnail over
+    // the fixed viewport canvas would flash a fit-to-window page here (#854).
+    await renderPage(pageNum);
     const pdfContainer = document.getElementById('pdf-container');
     if (pdfContainer && !options.skipScroll) {
       pdfContainer.scrollTop = 0;

@@ -391,7 +391,7 @@ js/core/mcp-schermafdruk.test.mjs
 js/core/mcp-ui-boom.test.mjs
 js/core/mcp-lint-opdrachten.test.mjs
 js/pdf/wachtwoord-pdf.test.mjs
-js/pdf/page-transition.test.mjs
+js/pdf/pdf-viewport-page-transition.test.mjs
 js/mobile/mobiele-gereedschappen.test.mjs
 js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs

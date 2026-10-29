@@ -1,6 +1,6 @@
 name: open-pdf-studio
 base: core24
-version: '2026.44.2'
+version: '2026.44.13'
 summary: Free, open-source PDF editor for drawings and documents
 description: |
   Open PDF Studio is a free, open-source PDF editor and annotator for people
