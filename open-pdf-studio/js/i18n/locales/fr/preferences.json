@@ -348,7 +348,9 @@
       "other": "Autres"
     },
     "commands": {
-      "findNext": "Rechercher le suivant"
+      "findNext": "Rechercher le suivant",
+      "splitPaneLarger": "Agrandir le volet actif",
+      "splitPaneSmaller": "Réduire le volet actif"
     }
   }
 }

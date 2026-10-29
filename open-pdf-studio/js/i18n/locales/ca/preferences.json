@@ -348,7 +348,9 @@
       "other": "Altres"
     },
     "commands": {
-      "findNext": "Cerca el següent"
+      "findNext": "Cerca el següent",
+      "splitPaneLarger": "Fes més gran la subfinestra activa",
+      "splitPaneSmaller": "Fes més petita la subfinestra activa"
     }
   }
 }

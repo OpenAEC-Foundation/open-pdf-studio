@@ -348,7 +348,9 @@
       "other": "Khác"
     },
     "commands": {
-      "findNext": "Tìm tiếp"
+      "findNext": "Tìm tiếp",
+      "splitPaneLarger": "Phóng to ngăn đang hoạt động",
+      "splitPaneSmaller": "Thu nhỏ ngăn đang hoạt động"
     }
   }
 }

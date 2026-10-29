@@ -348,7 +348,9 @@
       "other": "Ostalo"
     },
     "commands": {
-      "findNext": "Traži sljedeće"
+      "findNext": "Traži sljedeće",
+      "splitPaneLarger": "Povećaj aktivno okno",
+      "splitPaneSmaller": "Smanji aktivno okno"
     }
   }
 }

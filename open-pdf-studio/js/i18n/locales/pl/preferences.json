@@ -348,7 +348,9 @@
       "other": "Inne"
     },
     "commands": {
-      "findNext": "Znajdź następny"
+      "findNext": "Znajdź następny",
+      "splitPaneLarger": "Powiększ aktywny panel",
+      "splitPaneSmaller": "Pomniejsz aktywny panel"
     }
   }
 }

@@ -348,7 +348,9 @@
       "other": "अन्य"
     },
     "commands": {
-      "findNext": "अगला खोजें"
+      "findNext": "अगला खोजें",
+      "splitPaneLarger": "सक्रिय फलक बड़ा करें",
+      "splitPaneSmaller": "सक्रिय फलक छोटा करें"
     }
   }
 }

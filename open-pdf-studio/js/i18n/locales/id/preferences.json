@@ -348,7 +348,9 @@
       "other": "Lainnya"
     },
     "commands": {
-      "findNext": "Cari berikutnya"
+      "findNext": "Cari berikutnya",
+      "splitPaneLarger": "Perbesar panel aktif",
+      "splitPaneSmaller": "Perkecil panel aktif"
     }
   }
 }

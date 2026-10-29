@@ -59,6 +59,16 @@ export function kopieerStand(s) {
 }
 
 /**
+ * De stand met een verankerde viewport: bij een andere paneelmaat (de
+ * richting wisselen, #858) houdt hij zijn zoom in plaats van opnieuw passend
+ * te worden. Een doorlopende stand houdt zijn schaal toch al.
+ */
+export function zetVerankerd(s) {
+  if (!s?.vp) return s;
+  return { ...s, vp: { ...s.vp, verankerd: true } };
+}
+
+/**
  * Nieuwe gesplitste weergave. Het tweede paneel begint op dezelfde pagina en
  * zoom als de huidige viewer (live). De echte viewer blijft in paneel 0
  * (links/boven) en blijft actief.

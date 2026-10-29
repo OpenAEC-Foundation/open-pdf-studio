@@ -348,7 +348,9 @@
       "other": "อื่น ๆ"
     },
     "commands": {
-      "findNext": "ค้นหาถัดไป"
+      "findNext": "ค้นหาถัดไป",
+      "splitPaneLarger": "ขยายบานหน้าต่างที่ใช้งานอยู่",
+      "splitPaneSmaller": "ย่อบานหน้าต่างที่ใช้งานอยู่"
     }
   }
 }

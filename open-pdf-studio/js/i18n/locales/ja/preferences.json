@@ -348,7 +348,9 @@
       "other": "その他"
     },
     "commands": {
-      "findNext": "次を検索"
+      "findNext": "次を検索",
+      "splitPaneLarger": "アクティブなペインを大きくする",
+      "splitPaneSmaller": "アクティブなペインを小さくする"
     }
   }
 }

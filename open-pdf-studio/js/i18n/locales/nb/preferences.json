@@ -348,7 +348,9 @@
       "other": "Annet"
     },
     "commands": {
-      "findNext": "Finn neste"
+      "findNext": "Finn neste",
+      "splitPaneLarger": "Gjør aktiv rute større",
+      "splitPaneSmaller": "Gjør aktiv rute mindre"
     }
   }
 }

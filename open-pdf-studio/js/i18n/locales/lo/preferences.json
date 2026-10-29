@@ -341,7 +341,9 @@
       "other": "ອື່ນໆ"
     },
     "commands": {
-      "findNext": "ຊອກຫາຖັດໄປ"
+      "findNext": "ຊອກຫາຖັດໄປ",
+      "splitPaneLarger": "ຂະຫຍາຍແຜງທີ່ໃຊ້ງານ",
+      "splitPaneSmaller": "ຫຍໍ້ແຜງທີ່ໃຊ້ງານ"
     }
   }
 }

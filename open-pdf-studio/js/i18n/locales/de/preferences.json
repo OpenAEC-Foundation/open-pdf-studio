@@ -348,7 +348,9 @@
       "other": "Sonstiges"
     },
     "commands": {
-      "findNext": "Weitersuchen"
+      "findNext": "Weitersuchen",
+      "splitPaneLarger": "Aktiven Bereich vergrößern",
+      "splitPaneSmaller": "Aktiven Bereich verkleinern"
     }
   }
 }

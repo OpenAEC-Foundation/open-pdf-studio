@@ -348,7 +348,9 @@
       "other": "기타"
     },
     "commands": {
-      "findNext": "다음 찾기"
+      "findNext": "다음 찾기",
+      "splitPaneLarger": "활성 창 크게 하기",
+      "splitPaneSmaller": "활성 창 작게 하기"
     }
   }
 }

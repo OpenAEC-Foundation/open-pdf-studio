@@ -348,7 +348,9 @@
       "other": "Övrigt"
     },
     "commands": {
-      "findNext": "Sök nästa"
+      "findNext": "Sök nästa",
+      "splitPaneLarger": "Gör aktiv ruta större",
+      "splitPaneSmaller": "Gör aktiv ruta mindre"
     }
   }
 }

@@ -348,7 +348,9 @@
       "other": "Nyingine"
     },
     "commands": {
-      "findNext": "Tafuta inayofuata"
+      "findNext": "Tafuta inayofuata",
+      "splitPaneLarger": "Panua kidirisha kinachotumika",
+      "splitPaneSmaller": "Punguza kidirisha kinachotumika"
     }
   }
 }

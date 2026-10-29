@@ -348,7 +348,9 @@
       "other": "دیگر"
     },
     "commands": {
-      "findNext": "اگلا تلاش کریں"
+      "findNext": "اگلا تلاش کریں",
+      "splitPaneLarger": "فعال پین بڑا کریں",
+      "splitPaneSmaller": "فعال پین چھوٹا کریں"
     }
   }
 }

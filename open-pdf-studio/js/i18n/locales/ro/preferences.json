@@ -348,7 +348,9 @@
       "other": "Altele"
     },
     "commands": {
-      "findNext": "Căutați următorul"
+      "findNext": "Căutați următorul",
+      "splitPaneLarger": "Mărește panoul activ",
+      "splitPaneSmaller": "Micșorează panoul activ"
     }
   }
 }

@@ -348,7 +348,9 @@
       "other": "Egyéb"
     },
     "commands": {
-      "findNext": "Következő keresése"
+      "findNext": "Következő keresése",
+      "splitPaneLarger": "Aktív panel nagyítása",
+      "splitPaneSmaller": "Aktív panel kicsinyítése"
     }
   }
 }

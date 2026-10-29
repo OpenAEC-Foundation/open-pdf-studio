@@ -348,7 +348,9 @@
       "other": "Muut"
     },
     "commands": {
-      "findNext": "Etsi seuraava"
+      "findNext": "Etsi seuraava",
+      "splitPaneLarger": "Suurenna aktiivista ruutua",
+      "splitPaneSmaller": "Pienennä aktiivista ruutua"
     }
   }
 }

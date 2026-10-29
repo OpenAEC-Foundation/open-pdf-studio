@@ -348,7 +348,9 @@
       "other": "Інше"
     },
     "commands": {
-      "findNext": "Знайти далі"
+      "findNext": "Знайти далі",
+      "splitPaneLarger": "Збільшити активну панель",
+      "splitPaneSmaller": "Зменшити активну панель"
     }
   }
 }

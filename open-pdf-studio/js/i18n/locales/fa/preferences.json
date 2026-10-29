@@ -348,7 +348,9 @@
       "other": "سایر"
     },
     "commands": {
-      "findNext": "یافتن بعدی"
+      "findNext": "یافتن بعدی",
+      "splitPaneLarger": "بزرگ‌تر کردن پنل فعال",
+      "splitPaneSmaller": "کوچک‌تر کردن پنل فعال"
     }
   }
 }

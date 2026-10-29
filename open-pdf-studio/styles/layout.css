@@ -798,21 +798,40 @@
   display: block;
 }
 
+/* De scheidingslijn (#858): een dunne zichtbare lijn met een onzichtbaar
+   grijpvlak van 4 px aan elke kant (samen 10 px), dat over de randen van de
+   panelen ligt. Licht op bij aanwijzen en tijdens het slepen. Geen eigen
+   cursor: de standaardcursor, zoals overal buiten het PDF-vlak. */
 .split-host.split-aan > .split-divider {
   display: block;
-  flex: 0 0 5px;
-  background: #d4d4d4;
-  border-left: 1px solid #c4c4c4;
-  border-right: 1px solid #c4c4c4;
+  flex: 0 0 2px;
+  position: relative;
+  z-index: 36;
+  background: #b4b4b4;
   box-sizing: border-box;
   touch-action: none;
+  cursor: default;
 }
 
-.split-host.split-aan.split-horizontaal > .split-divider {
-  border-left: none;
-  border-right: none;
-  border-top: 1px solid #c4c4c4;
-  border-bottom: 1px solid #c4c4c4;
+.split-host.split-aan > .split-divider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+
+.split-host.split-aan.split-horizontaal > .split-divider::before {
+  top: -4px;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+}
+
+.split-host.split-aan > .split-divider:hover,
+.split-host.split-aan > .split-divider.split-divider-slepen {
+  background: var(--theme-accent, #0078d4);
 }
 
 /* Het actieve paneel: een kader eroverheen (niet erin, dan zou de viewer

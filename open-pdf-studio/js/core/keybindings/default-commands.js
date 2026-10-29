@@ -51,6 +51,12 @@ export const CORE_COMMANDS = Object.freeze([
   { id: 'view.rotatePageLeft', category: 'view', labelKey: 'ribbon:home.rotateLeft', label: 'Rotate Left', defaults: ['Ctrl+Shift+-', 'Ctrl+Shift+NumpadSubtract'] },
   { id: 'view.nextPage', category: 'view', labelKey: 'common:pageNav.nextPage', label: 'Next Page', defaults: ['PageDown'] },
   { id: 'view.previousPage', category: 'view', labelKey: 'common:pageNav.previousPage', label: 'Previous Page', defaults: ['PageUp'] },
+  // Split view (#858); the keys are recognised in split-view/split-sneltoets.js.
+  { id: 'view.splitVertical', category: 'view', labelKey: 'ribbon:view.splitVertical', label: 'Split Vertical', defaults: ['Ctrl+\\'] },
+  { id: 'view.splitHorizontal', category: 'view', labelKey: 'ribbon:view.splitHorizontal', label: 'Split Horizontal', defaults: ['Ctrl+Shift+\\'] },
+  { id: 'view.unsplit', category: 'view', labelKey: 'ribbon:view.unsplit', label: 'Unsplit' },
+  { id: 'view.splitPaneLarger', category: 'view', labelKey: 'preferences:keyboardShortcuts.commands.splitPaneLarger', label: 'Make Active Pane Larger' },
+  { id: 'view.splitPaneSmaller', category: 'view', labelKey: 'preferences:keyboardShortcuts.commands.splitPaneSmaller', label: 'Make Active Pane Smaller' },
 
   // Find (also while typing in a text field)
   { id: 'search.find', category: 'search', labelKey: 'ribbon:home.find', label: 'Find', defaults: ['Ctrl+F'], allowInInput: true },

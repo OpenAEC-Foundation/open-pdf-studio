@@ -348,7 +348,9 @@
       "other": "Ostatné"
     },
     "commands": {
-      "findNext": "Nájsť ďalšie"
+      "findNext": "Nájsť ďalšie",
+      "splitPaneLarger": "Zväčšiť aktívnu tablu",
+      "splitPaneSmaller": "Zmenšiť aktívnu tablu"
     }
   }
 }

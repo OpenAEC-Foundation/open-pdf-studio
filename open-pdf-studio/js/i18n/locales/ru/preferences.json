@@ -348,7 +348,9 @@
       "other": "Прочее"
     },
     "commands": {
-      "findNext": "Найти далее"
+      "findNext": "Найти далее",
+      "splitPaneLarger": "Увеличить активную панель",
+      "splitPaneSmaller": "Уменьшить активную панель"
     }
   }
 }

@@ -348,7 +348,9 @@
       "other": "其他"
     },
     "commands": {
-      "findNext": "查找下一个"
+      "findNext": "查找下一个",
+      "splitPaneLarger": "放大活动窗格",
+      "splitPaneSmaller": "缩小活动窗格"
     }
   }
 }

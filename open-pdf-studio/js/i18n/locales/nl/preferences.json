@@ -352,7 +352,9 @@
       "other": "Overig"
     },
     "commands": {
-      "findNext": "Volgende zoeken"
+      "findNext": "Volgende zoeken",
+      "splitPaneLarger": "Actief paneel groter maken",
+      "splitPaneSmaller": "Actief paneel kleiner maken"
     }
   }
 }

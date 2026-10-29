@@ -22,7 +22,7 @@ import * as S from './split-staat.js';
 import {
   viewport, volgViewport, leesAnkers, viewportCanvasMaat, pasViewportMaatAan,
   zetViewportStand, stopPanMomentum, wielPanViewport, zoomStepAtPoint,
-  bewaarStandVoorLayoutwissel,
+  bewaarStandVoorLayoutwissel, markAnchored,
 } from '../pdf-viewport.js';
 import { renderPage, renderContinuous, setViewMode, continuousZoomBy } from '../renderer.js';
 import { renderAnnotationsForPage } from '../../annotations/rendering.js';
@@ -33,6 +33,7 @@ import { paginaMaat } from '../weergave-ruimte.js';
 import { thinLinesOn } from '../thin-lines.js';
 import { compareFocused } from '../../compare/compare-store.js';
 import { WEERGAVE_GEDRAAID } from '../weergave-draaien.js';
+import { splitOpdrachtActie } from './split-sneltoets.js';
 
 const ACHTERGROND = '#e0e0e0';
 
@@ -74,7 +75,11 @@ export function splitsWeergave(richting = 'vertical') {
   const bestaand = _staten.get(doc.id);
   if (bestaand) {
     if (bestaand.richting !== richting) {
-      zetStaat(doc, { ...bestaand, richting: S.RICHTINGEN.includes(richting) ? richting : 'vertical' });
+      // Richting wisselen (#858): elk paneel houdt zijn pagina en zoom, ook
+      // een passende pagina (die zou bij de nieuwe paneelmaat anders opnieuw
+      // passend worden en van zoom veranderen).
+      if (liveViewportToont(doc)) markAnchored();
+      zetStaat(doc, { ...bestaand, stand: S.zetVerankerd(bestaand.stand), richting: S.RICHTINGEN.includes(richting) ? richting : 'vertical' });
       pasSplitLayoutToe();
       planTekenen();
     }
@@ -115,6 +120,22 @@ export function zetSplitVerhouding(v) {
   if (!st) return;
   zetStaat(doc, { ...st, verhouding: S.klemVerhouding(v) });
   pasSplitLayoutToe();
+}
+
+/**
+ * Een splitsopdracht van het toetsenbord (#858): Split Vertical/Horizontal
+ * (die van de splitsing die er al staat heft hem op), Unsplit, en het actieve
+ * paneel 5% groter of kleiner.
+ */
+export function voerSplitOpdrachtUit(id) {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc || vergelijkingVoor()) return false;
+  const actie = splitOpdrachtActie(id, splitStaatVan(doc));
+  if (!actie) return false;
+  if (actie.soort === 'opheffen') return hefSplitsingOp();
+  if (actie.soort === 'splitsen') return splitsWeergave(actie.richting);
+  if (actie.soort === 'verhouding') { zetSplitVerhouding(actie.verhouding); return true; }
+  return false;
 }
 
 /** Maak het andere paneel actief (zoals een klik erin). */
@@ -607,6 +628,8 @@ function koppelScheiding(scheiding) {
     e.preventDefault();
     e.stopPropagation();
     slepen = true;
+    // Blijft opgelicht zolang er gesleept wordt, ook buiten het grijpvlak.
+    scheiding.classList.add('split-divider-slepen');
     try { scheiding.setPointerCapture(e.pointerId); } catch { /* oudere webview */ }
   });
   scheiding.addEventListener('pointermove', (e) => {
@@ -628,6 +651,7 @@ function koppelScheiding(scheiding) {
   const stop = (e) => {
     if (!slepen) return;
     slepen = false;
+    scheiding.classList.remove('split-divider-slepen');
     try { scheiding.releasePointerCapture(e.pointerId); } catch { /* al los */ }
   };
   scheiding.addEventListener('pointerup', stop);

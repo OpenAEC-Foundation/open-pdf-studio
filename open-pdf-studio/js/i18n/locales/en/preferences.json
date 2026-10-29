@@ -345,7 +345,9 @@
       "other": "Other"
     },
     "commands": {
-      "findNext": "Find Next"
+      "findNext": "Find Next",
+      "splitPaneLarger": "Make Active Pane Larger",
+      "splitPaneSmaller": "Make Active Pane Smaller"
     }
   }
 }

@@ -348,7 +348,9 @@
       "other": "Lain-lain"
     },
     "commands": {
-      "findNext": "Cari seterusnya"
+      "findNext": "Cari seterusnya",
+      "splitPaneLarger": "Besarkan anak tetingkap aktif",
+      "splitPaneSmaller": "Kecilkan anak tetingkap aktif"
     }
   }
 }

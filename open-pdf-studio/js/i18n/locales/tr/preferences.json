@@ -348,7 +348,9 @@
       "other": "Diğer"
     },
     "commands": {
-      "findNext": "Sonrakini bul"
+      "findNext": "Sonrakini bul",
+      "splitPaneLarger": "Etkin bölmeyi büyüt",
+      "splitPaneSmaller": "Etkin bölmeyi küçült"
     }
   }
 }

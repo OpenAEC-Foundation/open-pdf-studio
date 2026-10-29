@@ -348,7 +348,9 @@
       "other": "أخرى"
     },
     "commands": {
-      "findNext": "البحث عن التالي"
+      "findNext": "البحث عن التالي",
+      "splitPaneLarger": "تكبير الجزء النشط",
+      "splitPaneSmaller": "تصغير الجزء النشط"
     }
   }
 }

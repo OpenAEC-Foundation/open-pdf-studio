@@ -348,7 +348,9 @@
       "other": "অন্যান্য"
     },
     "commands": {
-      "findNext": "পরবর্তী খুঁজুন"
+      "findNext": "পরবর্তী খুঁজুন",
+      "splitPaneLarger": "সক্রিয় প্যান বড় করুন",
+      "splitPaneSmaller": "সক্রিয় প্যান ছোট করুন"
     }
   }
 }
