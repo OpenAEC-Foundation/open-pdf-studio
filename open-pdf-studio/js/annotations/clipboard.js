@@ -199,7 +199,7 @@ export async function pasteImageFromBlob(blob) {
 
   const _pasteDoc1 = getActiveDocument();
   if (_pasteDoc1) _pasteDoc1.annotations.push(annotation);
-  recordAdd(annotation);
+  recordAdd(annotation, { copy: true });
   if (_pasteDoc1) { _pasteDoc1.selectedAnnotation = annotation; _pasteDoc1.selectedAnnotations = [annotation]; }
   showProperties(annotation);
 
@@ -258,7 +258,7 @@ export function pasteAnnotation() {
 
   const _pasteDoc2 = getActiveDocument();
   if (_pasteDoc2) _pasteDoc2.annotations.push(newAnnotation);
-  recordAdd(newAnnotation);
+  recordAdd(newAnnotation, { copy: true });
   if (_pasteDoc2) { _pasteDoc2.selectedAnnotation = newAnnotation; _pasteDoc2.selectedAnnotations = [newAnnotation]; }
   showProperties(newAnnotation);
 
@@ -399,7 +399,7 @@ export function pasteAnnotationsInPlace() {
 
   // Ongedaan maken via het bestaande undo-command-pad.
   if (newAnnotations.length === 1) {
-    recordAdd(newAnnotations[0]);
+    recordAdd(newAnnotations[0], { copy: true });
   } else {
     recordBulkAdd(newAnnotations);
   }

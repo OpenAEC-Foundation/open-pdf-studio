@@ -1681,7 +1681,7 @@ async function handleCreateAnnotation(params) {
 
   doc.annotations.push(ann);
   const undoMod = await import('./core/undo-manager.js');
-  undoMod.recordAdd(ann);
+  undoMod.recordAdd(ann, { copy: true });
 
   if (built.scaleRegion) {
     // A new scale region changes the effective scale for everything inside
@@ -2636,7 +2636,7 @@ async function handleStructuralLayout(params) {
     for (const { opgave, merged } of klaar) {
       const ann = factory.createAnnotation(merged);
       doc.annotations.push(ann);
-      undoMod.recordAdd(ann);
+      undoMod.recordAdd(ann, { copy: true });
       gemaakt.push({ id: ann.id, role: opgave.rol, ref: opgave.id, type: opgave.type });
     }
 

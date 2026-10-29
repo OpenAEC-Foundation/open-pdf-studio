@@ -48,7 +48,8 @@
     "setScale": "تنظیم مقیاس...",
     "dimChainAdd": "افزودن نقاط به زنجیره اندازه",
     "dimChainRemove": "حذف خط رابط از زنجیره",
-    "selectRoom": "انتخاب اتاق"
+    "selectRoom": "انتخاب اتاق",
+    "saveToToolSet": "ذخیره در مجموعه ابزار"
   },
   "multiSelect": {
     "copyAnnotations": "کپی {{count}} حاشیه‌نویسی",

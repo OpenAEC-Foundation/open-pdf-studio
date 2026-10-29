@@ -48,7 +48,8 @@
     "setScale": "Defineix l'escala...",
     "dimChainAdd": "Afegeix punts a la cadena de cotes",
     "dimChainRemove": "Treu la línia d'extensió de la cadena",
-    "selectRoom": "Selecciona l'espai"
+    "selectRoom": "Selecciona l'espai",
+    "saveToToolSet": "Desa al conjunt d'eines"
   },
   "multiSelect": {
     "copyAnnotations": "Copia {{count}} anotacions",

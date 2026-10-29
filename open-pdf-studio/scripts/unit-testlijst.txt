@@ -603,3 +603,9 @@ js/pdf/page-bitmap-cache-getoond.test.mjs
 js/pdf/split-view/paneel-bitmaps.test.mjs
 js/pdf/split-view/paneel-weergave.test.mjs
 js/pdf/pdf-viewport-gesloten-bitmap.test.mjs
+js/annotations/tool-sets.test.mjs
+js/annotations/tool-sets-wiring.test.mjs
+js/annotations/measure-depth.test.mjs
+js/solid/stores/toolSetsStore.test.mjs
+js/solid/stores/toolSetsStore-opslag.test.mjs
+js/core/standaardstijl-gereedschapsset.test.mjs

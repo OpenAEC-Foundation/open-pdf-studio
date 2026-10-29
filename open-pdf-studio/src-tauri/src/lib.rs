@@ -237,10 +237,12 @@ fn veilige_catalogus_bestandsnaam(id: &str) -> String {
     format!("{}.json", schoon)
 }
 
+// Atomair (tijdelijk bestand + hernoemen, atomic_file.rs): een afgebroken
+// schrijfactie laat de vorige catalogus heel in plaats van een half bestand.
 #[tauri::command]
 fn save_catalog(id: String, data: String) -> Result<bool, String> {
     let path = get_catalogs_dir().join(veilige_catalogus_bestandsnaam(&id));
-    fs::write(&path, data).map_err(|e| e.to_string())?;
+    atomic_file::write(&path, data.as_bytes()).map_err(|e| e.to_string())?;
     Ok(true)
 }
 

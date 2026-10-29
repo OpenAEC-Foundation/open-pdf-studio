@@ -48,7 +48,8 @@
     "setScale": "Ustaw skalę...",
     "dimChainAdd": "Dodaj punkty do łańcucha wymiarowego",
     "dimChainRemove": "Usuń linię pomocniczą z łańcucha",
-    "selectRoom": "Wybierz pomieszczenie"
+    "selectRoom": "Wybierz pomieszczenie",
+    "saveToToolSet": "Zapisz w zestawie narzędzi"
   },
   "multiSelect": {
     "copyAnnotations": "Kopiuj {{count}} adnotacji",

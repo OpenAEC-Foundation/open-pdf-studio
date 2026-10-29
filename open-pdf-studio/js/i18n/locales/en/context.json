@@ -31,8 +31,8 @@
     "sendToBack": "Send to Back",
     "bringForward": "Bring Forward",
     "sendBackward": "Send Backward",
-    "rotateLeft90": "Rotate Left 90\u00b0",
-    "rotateRight90": "Rotate Right 90\u00b0",
+    "rotateLeft90": "Rotate Left 90°",
+    "rotateRight90": "Rotate Right 90°",
     "flipHorizontal": "Flip Horizontal",
     "flipVertical": "Flip Vertical",
     "transform": "Transform...",
@@ -54,7 +54,8 @@
     "wallJoinAllow": "Allow Join (This End)",
     "wallJoinDisallow": "Disallow Join (This End)",
     "properties": "Properties...",
-    "editViewportScale": "Edit Viewport Scale"
+    "editViewportScale": "Edit Viewport Scale",
+    "saveToToolSet": "Save to Tool Set"
   },
   "multiSelect": {
     "copyAnnotations": "Copy {{count}} Annotations",

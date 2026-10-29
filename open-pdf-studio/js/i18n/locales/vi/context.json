@@ -48,7 +48,8 @@
     "setScale": "Đặt tỷ lệ...",
     "dimChainAdd": "Thêm điểm vào chuỗi kích thước",
     "dimChainRemove": "Xóa đường gióng khỏi chuỗi",
-    "selectRoom": "Chọn phòng"
+    "selectRoom": "Chọn phòng",
+    "saveToToolSet": "Lưu vào bộ công cụ"
   },
   "multiSelect": {
     "copyAnnotations": "Sao chép {{count}} Chú thích",

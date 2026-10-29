@@ -110,3 +110,6 @@ export const rotateRightSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="curr
 export const flipHorizontalSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="4,6 10,6 10,18 4,18" fill="#4a90d9" stroke="#2d5a8a"/><line x1="12" y1="4" x2="12" y2="20" stroke="#999" stroke-dasharray="2,2"/><polygon points="14,6 20,6 20,18 14,18" fill="#f0f0f0" stroke="#999"/></svg>`;
 
 export const flipVerticalSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6,4 18,4 18,10 6,10" fill="#4a90d9" stroke="#2d5a8a"/><line x1="4" y1="12" x2="20" y2="12" stroke="#999" stroke-dasharray="2,2"/><polygon points="6,14 18,14 18,20 6,20" fill="#f0f0f0" stroke="#999"/></svg>`;
+
+// Tool Sets (#311): toolbox.
+export const toolSetsIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1.5" y="5.5" width="13" height="8"/><path d="M5.5 5.5v-2h5v2"/><path d="M1.5 9h13"/><path d="M7 9v1.5M9 9v1.5"/></svg>`;

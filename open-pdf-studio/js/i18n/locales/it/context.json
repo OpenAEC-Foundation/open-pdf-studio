@@ -48,7 +48,8 @@
     "setScale": "Imposta scala...",
     "dimChainAdd": "Aggiungi punti alla catena di quote",
     "dimChainRemove": "Rimuovi linea di estensione dalla catena",
-    "selectRoom": "Seleziona locale"
+    "selectRoom": "Seleziona locale",
+    "saveToToolSet": "Salva nel set di strumenti"
   },
   "multiSelect": {
     "copyAnnotations": "Copia {{count}} annotazioni",
