@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 सीलेंट",
       "nen47-maaiveld": "NEN47-25 भू-स्तर"
     },
-    "rotation": "घुमाव"
+    "rotation": "घुमाव",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "रेखा शैली",

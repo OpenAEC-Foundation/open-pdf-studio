@@ -37,7 +37,7 @@ export default function AppearanceSection() {
   // Preset-UI alleen tonen wanneer de sectie echte stijl-controls bevat.
   const showsStyleControls = () =>
     sectionVis.fillColorGroup || sectionVis.strokeColorGroup || sectionVis.colorGroup ||
-    sectionVis.opacityGroup || sectionVis.lineWidthGroup || sectionVis.borderStyleGroup;
+    sectionVis.opacityGroup || sectionVis.lineWidthGroup || sectionVis.borderStyleGroup || sectionVis.boxShapeGroup;
 
   const handleApplyPreset = (e) => {
     const id = e.target.value;
@@ -187,6 +187,22 @@ export default function AppearanceSection() {
               min={0} max={20} fallback={1} suffix="pt"
               disabled={isLocked}
             />
+          </div>
+        </Show>
+
+        <Show when={sectionVis.boxShapeGroup}>
+          <div class="property-group">
+            <label>{t('appearance.boxShape')}</label>
+            <select value={annotProps.boxShape} disabled={isLocked()}
+              onDblClick={cycleSelectNext}
+              onChange={(e) => updateAnnotProp('boxShape', e.target.value)}>
+              <Show when={annotProps.boxShape === 'mixed'}>
+                <option value="mixed" disabled hidden>{tCommon('mixed')}</option>
+              </Show>
+              <option value="rect">{t('appearance.boxShapeRect')}</option>
+              <option value="rounded">{t('appearance.boxShapeRounded')}</option>
+              <option value="ellipse">{t('appearance.boxShapeEllipse')}</option>
+            </select>
           </div>
         </Show>
 

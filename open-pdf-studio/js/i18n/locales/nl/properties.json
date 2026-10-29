@@ -121,7 +121,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Afdichtingsmiddel",
       "nen47-maaiveld": "NEN47-25 Maaiveld"
     },
-    "rotation": "Rotatie"
+    "rotation": "Rotatie",
+    "boxShape": "Vorm",
+    "boxShapeRect": "Rechthoek (scherpe hoeken)",
+    "boxShapeRounded": "Rechthoek (afgeronde hoeken)",
+    "boxShapeEllipse": "Ellips / cirkel"
   },
   "stylePresets": {
     "label": "Lijnstijl",

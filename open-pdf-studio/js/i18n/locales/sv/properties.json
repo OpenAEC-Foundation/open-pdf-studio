@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Fogmassa",
       "nen47-maaiveld": "NEN47-25 Marknivå"
     },
-    "rotation": "Rotation"
+    "rotation": "Rotation",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Linjestil",

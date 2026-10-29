@@ -121,7 +121,11 @@
       "nen47-kunststof": "NEN47-22 Plastic",
       "nen47-afdichtingsmiddel": "NEN47-23 Sealant",
       "nen47-maaiveld": "NEN47-25 Ground level"
-    }
+    },
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Line style",

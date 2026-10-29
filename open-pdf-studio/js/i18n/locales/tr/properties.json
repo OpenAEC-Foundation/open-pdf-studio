@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Sızdırmazlık malzemesi",
       "nen47-maaiveld": "NEN47-25 Zemin kotu"
     },
-    "rotation": "Döndürme"
+    "rotation": "Döndürme",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Çizgi stili",

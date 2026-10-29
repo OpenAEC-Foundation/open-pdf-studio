@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Selante",
       "nen47-maaiveld": "NEN47-25 Nível do terreno"
     },
-    "rotation": "Rotação"
+    "rotation": "Rotação",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Estilo de linha",

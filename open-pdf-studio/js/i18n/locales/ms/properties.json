@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Bahan pengedap",
       "nen47-maaiveld": "NEN47-25 Aras tanah"
     },
-    "rotation": "Putaran"
+    "rotation": "Putaran",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Gaya garisan",

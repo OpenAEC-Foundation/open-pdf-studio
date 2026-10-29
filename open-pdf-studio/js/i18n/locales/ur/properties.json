@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 سیلنٹ",
       "nen47-maaiveld": "NEN47-25 زمینی سطح"
     },
-    "rotation": "گھماؤ"
+    "rotation": "گھماؤ",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "لکیر کا انداز",

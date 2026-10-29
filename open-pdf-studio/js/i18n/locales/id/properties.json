@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Bahan penyekat",
       "nen47-maaiveld": "NEN47-25 Muka tanah"
     },
-    "rotation": "Rotasi"
+    "rotation": "Rotasi",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Gaya garis",

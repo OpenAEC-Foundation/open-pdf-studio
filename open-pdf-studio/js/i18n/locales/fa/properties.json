@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 درزگیر",
       "nen47-maaiveld": "NEN47-25 تراز زمین"
     },
-    "rotation": "چرخش"
+    "rotation": "چرخش",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "سبک خط",

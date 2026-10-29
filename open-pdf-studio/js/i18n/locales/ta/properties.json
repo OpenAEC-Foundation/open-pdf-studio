@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 அடைப்புப் பொருள்",
       "nen47-maaiveld": "NEN47-25 தரை மட்டம்"
     },
-    "rotation": "சுழற்சி"
+    "rotation": "சுழற்சி",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "கோட்டுப் பாணி",

@@ -14,6 +14,7 @@ import { calloutLeiderKoppen } from './callout-koppen.js';
 import { koppenVan } from '../pdf/lijnkoppen.js';
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape, drawVlakZijdematen } from './rendering/measurements.js';
 import { vlakZijdeTeksten } from './measurement.js';
+import { vormVan, bouwVakPad } from './rendering/textbox-vorm.js';
 import { maatlijnTekst } from './maat-label.js';
 import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
@@ -1209,6 +1210,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         if (annotation.borderEffect === 'cloudy') {
           buildCloudPath(ctx, annotation.x, annotation.y, tbWidth, tbHeight, tbPuff);
           ctx.fill();
+        } else if (vormVan(annotation) !== 'rect') {
+          bouwVakPad(ctx, annotation.x, annotation.y, tbWidth, tbHeight, vormVan(annotation));
+          ctx.fill();
         } else {
           ctx.fillRect(annotation.x, annotation.y, tbWidth, tbHeight);
         }
@@ -1221,6 +1225,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         applyBorderStyle(ctx, tbBorderStyle);
         if (annotation.borderEffect === 'cloudy') {
           buildCloudPath(ctx, annotation.x, annotation.y, tbWidth, tbHeight, tbPuff);
+          ctx.stroke();
+        } else if (vormVan(annotation) !== 'rect') {
+          bouwVakPad(ctx, annotation.x, annotation.y, tbWidth, tbHeight, vormVan(annotation));
           ctx.stroke();
         } else {
           ctx.strokeRect(annotation.x, annotation.y, tbWidth, tbHeight);

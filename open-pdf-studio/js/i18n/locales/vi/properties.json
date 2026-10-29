@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Vật liệu trám kín",
       "nen47-maaiveld": "NEN47-25 Cốt mặt đất"
     },
-    "rotation": "Góc xoay"
+    "rotation": "Góc xoay",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Kiểu đường",
