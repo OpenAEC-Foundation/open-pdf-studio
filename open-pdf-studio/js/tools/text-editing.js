@@ -21,6 +21,37 @@ import {
   getTextEditLineRuns as getLineRuns,
   openStickyPopup,
 } from '../bridge.js';
+import { setOverlayStyle as setTextEditOverlayStyle } from '../solid/stores/textEditOverlayStore.js';
+
+// Schaal van de open editor (CSS-pixels per paginapunt), voor werkEditorStijlBij.
+let _editorSchaal = 1.5;
+
+// CSS-lettertypeketen zoals shapes.js drawTextboxContent: eerst de variant
+// met spaties ("SegoeUI" → "Segoe UI"), dan de naam zelf, dan sans-serif.
+function cssLettertype(fontFamily) {
+  const raw = fontFamily || 'Arial';
+  const quote = s => `"${s.replace(/"/g, '\\"')}"`;
+  const expanded = raw.replace(/([a-z])([A-Z])/g, '$1 $2');
+  const chain = [];
+  if (expanded !== raw) chain.push(quote(expanded));
+  chain.push(/[\s"',]/.test(raw) ? quote(raw) : raw);
+  chain.push('sans-serif');
+  return chain.join(', ');
+}
+
+/**
+ * Het eigenschappenpaneel wijzigt lettertype, grootte of kleur terwijl de
+ * editor van dit vak open is (#765): pas de editor meteen aan.
+ */
+export function werkEditorStijlBij(annotation) {
+  if (!state.isEditingText || !annotation || state.editingAnnotation?.id !== annotation.id) return;
+  setTextEditOverlayStyle((stijl) => ({
+    ...stijl,
+    'font-family': cssLettertype(annotation.fontFamily),
+    'font-size': `${(annotation.fontSize || 14) * _editorSchaal}px`,
+    color: annotation.textColor || annotation.color || '#000000',
+  }));
+}
 
 // Start inline text editing for textbox/callout
 // Inline opmaak (deels vet/cursief) uit de editor overnemen: alleen bewaren
@@ -111,14 +142,8 @@ export function startTextEditing(annotation) {
   // (Times Serif on Windows), giving a font that differs from what the
   // canvas renders → user sees one shape while editing, another after
   // commit.
-  const rawFontFamily = annotation.fontFamily || 'Arial';
-  const _cssQuote = s => `"${s.replace(/"/g, '\\"')}"`;
-  const _expanded = rawFontFamily.replace(/([a-z])([A-Z])/g, '$1 $2');
-  const _chain = [];
-  if (_expanded !== rawFontFamily) _chain.push(_cssQuote(_expanded));
-  _chain.push(/[\s"',]/.test(rawFontFamily) ? _cssQuote(rawFontFamily) : rawFontFamily);
-  _chain.push('sans-serif');
-  const cssFontFamily = _chain.join(', ');
+  const cssFontFamily = cssLettertype(annotation.fontFamily);
+  _editorSchaal = scale;
 
   // Rand en opvulling zo dat de editor op dezelfde breedte afbreekt als het
   // canvas (zie text-edit-vak.js): anders sprong een woord dat op het canvas

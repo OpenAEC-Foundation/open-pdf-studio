@@ -182,6 +182,27 @@ const FALLBACK_FONTS = [
   'Yu Gothic UI'
 ];
 
+// Gangbare lettertypen op Linux en macOS (#765). De lijst hierboven komt van
+// Windows; op andere systemen bleven daarvan vaak alleen Arial, Courier New,
+// Helvetica en Times New Roman over. De detectie hieronder laat alleen
+// staan wat echt geïnstalleerd is.
+const ANDERE_PLATFORMS = [
+  // Linux
+  'Cantarell', 'DejaVu Sans', 'DejaVu Sans Mono', 'DejaVu Serif', 'Droid Sans',
+  'Fira Sans', 'Liberation Mono', 'Liberation Sans', 'Liberation Serif',
+  'Nimbus Mono PS', 'Nimbus Roman', 'Nimbus Sans', 'Noto Sans', 'Noto Sans Mono',
+  'Noto Serif', 'Open Sans', 'Roboto', 'Source Sans Pro', 'Ubuntu', 'Ubuntu Mono',
+  // macOS
+  'American Typewriter', 'Avenir', 'Avenir Next', 'Futura', 'Geneva', 'Gill Sans',
+  'Helvetica Neue', 'Menlo', 'Monaco', 'Optima',
+];
+
+/** Alle kandidaten, zonder dubbele, alfabetisch. */
+export function lettertypeKandidaten() {
+  return [...new Set([...FALLBACK_FONTS, ...ANDERE_PLATFORMS])]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+
 // Cached system fonts (populated once)
 let systemFonts = null;
 
@@ -190,7 +211,7 @@ async function getSystemFonts() {
   if (systemFonts) return systemFonts;
 
   // Use canvas-based font detection (avoids browser permission prompt from queryLocalFonts)
-  systemFonts = detectAvailableFonts(FALLBACK_FONTS);
+  systemFonts = detectAvailableFonts(lettertypeKandidaten());
   return systemFonts;
 }
 

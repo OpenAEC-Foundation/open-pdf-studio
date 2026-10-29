@@ -381,6 +381,14 @@ export function storeShowProperties(annotation) {
   if (_corrDoc && isFoldedChild(annotation, _corrDoc.annotations)) {
     annotation = _corrDoc.annotations.find(a => a.id === annotation.inReplyTo) || annotation;
   }
+  // Het paneel bewerkt het exemplaar uit het document (#765). Een net
+  // getekend tekstvak komt hier als het kale object binnen; schrijven
+  // daarop werkt de reactieve store niet bij, terwijl de weergave via de
+  // store leest. Dan bleef bijvoorbeeld het gekozen lettertype Arial.
+  if (_corrDoc && annotation?.id) {
+    const inDocument = _corrDoc.annotations.find(a => a.id === annotation.id);
+    if (inDocument) annotation = inDocument;
+  }
   currentAnnotation = annotation;
   // Fire plugin selection-listeners (separate from property-panel-registry):
   // gives plugins a direct channel to react to selection without scraping DOM.
@@ -1887,6 +1895,14 @@ function applyAnnotProp(key, value) {
 
   if (!key.startsWith('tb') && !key.includes('.') && !_EIGEN_STORE_SLEUTELS.has(key)) {
     setAnnotProps(key, value);
+  }
+  // Een open tekst-editor toont een nieuw lettertype, een andere grootte of
+  // kleur meteen (#765), zodat wat je typt al in de gekozen stijl staat.
+  if (key === 'fontFamily' || key === 'textFontSize' || key === 'fontSize' || key === 'textColor') {
+    const ann = currentAnnotation;
+    import('../../tools/text-editing.js')
+      .then(m => m.werkEditorStijlBij && m.werkEditorStijlBij(ann))
+      .catch(() => {});
   }
   // Schaalgebied (#611): zonder eigen vulkleur of vul-doorzichtigheid volgt de
   // vulling de kleur en de doorzichtigheid; het paneel toont wat er staat.
