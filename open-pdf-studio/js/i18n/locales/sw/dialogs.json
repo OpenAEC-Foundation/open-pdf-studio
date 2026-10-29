@@ -1603,5 +1603,14 @@
       "supersede": "Imepitwa",
       "expire": "Imeisha muda"
     }
+  },
+  "pageOrganizer": {
+    "title": "Panga upya kurasa",
+    "hint": "Buruta kurasa hadi mahali papya. Ctrl+bofya au Shift+bofya huchagua kurasa kadhaa.",
+    "moveLeft": "Sogeza kushoto",
+    "moveRight": "Sogeza kulia",
+    "moveToStart": "Sogeza mwanzoni",
+    "moveToEnd": "Sogeza mwishoni",
+    "selection": "Kurasa {{selected}} kati ya {{total}} zimechaguliwa"
   }
 }

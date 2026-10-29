@@ -1603,5 +1603,14 @@
       "supersede": "已取代",
       "expire": "已过期"
     }
+  },
+  "pageOrganizer": {
+    "title": "重新排列页面",
+    "hint": "将页面拖到新位置。Ctrl+单击或 Shift+单击可选择多个页面。",
+    "moveLeft": "左移",
+    "moveRight": "右移",
+    "moveToStart": "移到开头",
+    "moveToEnd": "移到末尾",
+    "selection": "已选择 {{selected}} / {{total}} 页"
   }
 }

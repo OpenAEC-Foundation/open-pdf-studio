@@ -1603,5 +1603,14 @@
       "supersede": "Substituída",
       "expire": "Expirada"
     }
+  },
+  "pageOrganizer": {
+    "title": "Reordenar páginas",
+    "hint": "Arraste as páginas para uma nova posição. Ctrl+clique ou Shift+clique seleciona várias páginas.",
+    "moveLeft": "Mover para a esquerda",
+    "moveRight": "Mover para a direita",
+    "moveToStart": "Mover para o início",
+    "moveToEnd": "Mover para o fim",
+    "selection": "{{selected}} de {{total}} páginas selecionadas"
   }
 }

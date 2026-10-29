@@ -1603,5 +1603,14 @@
       "supersede": "Erstattet",
       "expire": "Udløbet"
     }
+  },
+  "pageOrganizer": {
+    "title": "Omarranger sider",
+    "hint": "Træk sider til en ny placering. Ctrl+klik eller Skift+klik vælger flere sider.",
+    "moveLeft": "Flyt til venstre",
+    "moveRight": "Flyt til højre",
+    "moveToStart": "Flyt til start",
+    "moveToEnd": "Flyt til slut",
+    "selection": "{{selected}} af {{total}} sider valgt"
   }
 }

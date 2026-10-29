@@ -1603,5 +1603,14 @@
       "supersede": "Geçersiz kılındı",
       "expire": "Süresi doldu"
     }
+  },
+  "pageOrganizer": {
+    "title": "Sayfaları yeniden sırala",
+    "hint": "Sayfaları yeni bir konuma sürükleyin. Ctrl+tıklama veya Shift+tıklama birden çok sayfa seçer.",
+    "moveLeft": "Sola taşı",
+    "moveRight": "Sağa taşı",
+    "moveToStart": "Başa taşı",
+    "moveToEnd": "Sona taşı",
+    "selection": "{{total}} sayfadan {{selected}} tanesi seçili"
   }
 }

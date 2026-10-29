@@ -1603,5 +1603,14 @@
       "supersede": "Ersatt",
       "expire": "Förfallen"
     }
+  },
+  "pageOrganizer": {
+    "title": "Ordna om sidor",
+    "hint": "Dra sidor till en ny plats. Ctrl+klick eller Skift+klick markerar flera sidor.",
+    "moveLeft": "Flytta åt vänster",
+    "moveRight": "Flytta åt höger",
+    "moveToStart": "Flytta till början",
+    "moveToEnd": "Flytta till slutet",
+    "selection": "{{selected}} av {{total}} sidor markerade"
   }
 }

@@ -25,6 +25,8 @@ import { pdfjsBronnen } from '../core/basis-url.js';
 import { zonderKopVoetStromen } from './saver/kopvoet.js';
 import { labelsNaHerladen } from './pagina-labels-app.js';
 import { relinkZonesInPages, zoneIdsInPages, zoneIdsInAnnotations } from './spatial-zone-relink.js';
+import { isPageOrder, isIdentityOrder, pageMappingForOrder, remapBookmarkPages } from './page-order.js';
+import { reorderPageTree } from './page-tree-reorder.js';
 
 // Page clipboard for cut/copy/paste
 let pageClipboard = null; // { bytes: Uint8Array, cut: boolean, sourcePageNum: number }
@@ -791,67 +793,81 @@ export async function extractPages(pageNumbers, deleteFromOriginal) {
 }
 
 /**
- * Reorder pages in the current document.
+ * Reorder pages in the current document, as one undo step.
+ * The pages are moved inside the document itself (page-tree-reorder.js), so
+ * links, named destinations, form fields and layers keep their pages; the
+ * annotations, rotations, measure scales, page labels and bookmarks of the
+ * app model move along with their page.
  * @param {number[]} newPageOrder - Array where newPageOrder[i] = old page number that becomes page i+1
  *   e.g. [3,1,2,4] means old page 3 becomes new page 1, old page 1 becomes new page 2, etc.
+ * @returns {Promise<boolean>} true when the order was changed
  */
 export async function reorderPages(newPageOrder) {
-  const activeDoc = getActiveDocument();
-  if (!activeDoc?.pdfDoc) return;
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc) return false;
 
-  const numPages = activeDoc.pdfDoc.numPages;
-  if (newPageOrder.length !== numPages) return;
-
-  // Check if order actually changed
-  const unchanged = newPageOrder.every((p, i) => p === i + 1);
-  if (unchanged) return;
+  const numPages = doc.pdfDoc.numPages;
+  if (!isPageOrder(newPageOrder, numPages)) return false;
+  if (isIdentityOrder(newPageOrder)) return false;
 
   const cacheKey = getCacheKey();
   const currentBytes = getCachedPdfBytes(cacheKey);
-  if (!currentBytes) return;
+  if (!currentBytes) return false;
 
-  const doc = getActiveDocument();
   const oldAnnotations = doc.annotations.map(a => ({ ...a }));
   const oldRotations = { ...doc.pageRotations };
   const oldPage = doc.currentPage;
+  const oldBookmarks = Array.isArray(doc.bookmarks) ? doc.bookmarks.map(b => ({ ...b })) : null;
 
   showLoading('Reordering pages...');
   try {
-    const srcDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
-    const newDoc = await PDFDocument.create();
-
-    // Copy pages in new order
-    const indices = newPageOrder.map(p => p - 1);
-    const copiedPages = await newDoc.copyPages(srcDoc, indices);
-    for (const page of copiedPages) {
-      newDoc.addPage(page);
+    const pdfDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
+    // Filled-in form values live only in the pdf.js document, which the
+    // reload below replaces.
+    let veldenGezet = 0;
+    try {
+      const { schrijfFormulierWaarden } = await import('./saver.js');
+      veldenGezet = schrijfFormulierWaarden(pdfDoc, doc) || 0;
+    } catch (e) {
+      console.warn('[reorder] form values not carried over:', e);
     }
 
-    // Build page mapping: old page -> new page
-    const pageMapping = {};
-    for (let newP = 0; newP < newPageOrder.length; newP++) {
-      const oldP = newPageOrder[newP];
-      pageMapping[oldP] = newP + 1;
-    }
+    const orderedPages = reorderPageTree(pdfDoc, newPageOrder);
+    const pageMapping = pageMappingForOrder(newPageOrder);
 
     const newAnnotations = remapAnnotations(doc.annotations, pageMapping);
     const newRotations = remapRotations(doc.pageRotations, pageMapping);
 
-    const newBytes = new Uint8Array(await newDoc.save());
+    const newBytes = new Uint8Array(await pdfDoc.save({ updateFieldAppearances: veldenGezet > 0 }));
 
     // Navigate to the page that the current page moved to
     const targetPage = pageMapping[doc.currentPage] || 1;
 
-    // Alle pagina's zijn gekopieerd; hun meetschalen komen uit de pagina's
-    // zelf, genummerd vanaf de eerste (#400).
-    const newViewports = viewportsVanPaginas(copiedPages, 1);
+    // Measure scales come from the pages themselves, numbered from the first (#400).
+    const newViewports = viewportsVanPaginas(orderedPages, 1);
     const inModel = await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
 
-    // Record undo
-    recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, inModel || newAnnotations, newRotations, targetPage);
+    // Bookmarks are written from the model by the saver: they follow their page.
+    const newBookmarks = oldBookmarks ? remapBookmarkPages(oldBookmarks, pageMapping) : null;
+    if (newBookmarks) doc.bookmarks = newBookmarks.map(b => ({ ...b }));
+
+    recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, inModel || newAnnotations, newRotations, targetPage,
+      newBookmarks ? { bookmarks: { old: oldBookmarks, new: newBookmarks } } : {});
+    if (newBookmarks) await refreshBookmarksPanel();
+    return true;
   } finally {
     hideLoading();
   }
+}
+
+async function refreshBookmarksPanel() {
+  try {
+    const { activeTab } = await import('../solid/stores/leftPanelStore.js');
+    if (activeTab() === 'bookmarks') {
+      const { updateBookmarksList } = await import('../ui/panels/bookmarks.js');
+      updateBookmarksList();
+    }
+  } catch { /* panel not open */ }
 }
 
 /**

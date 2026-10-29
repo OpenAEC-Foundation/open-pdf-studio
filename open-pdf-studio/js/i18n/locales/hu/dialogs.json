@@ -1603,5 +1603,14 @@
       "supersede": "Felülírva",
       "expire": "Lejárt"
     }
+  },
+  "pageOrganizer": {
+    "title": "Oldalak átrendezése",
+    "hint": "Húzza az oldalakat új helyre. Ctrl+kattintás vagy Shift+kattintás több oldalt jelöl ki.",
+    "moveLeft": "Mozgatás balra",
+    "moveRight": "Mozgatás jobbra",
+    "moveToStart": "Mozgatás az elejére",
+    "moveToEnd": "Mozgatás a végére",
+    "selection": "{{selected}} / {{total}} oldal kijelölve"
   }
 }

@@ -1603,5 +1603,14 @@
       "supersede": "הוחלף",
       "expire": "פג תוקף"
     }
+  },
+  "pageOrganizer": {
+    "title": "סידור מחדש של עמודים",
+    "hint": "גררו עמודים למיקום חדש. Ctrl+לחיצה או Shift+לחיצה בוחרים כמה עמודים.",
+    "moveLeft": "הזז שמאלה",
+    "moveRight": "הזז ימינה",
+    "moveToStart": "הזז להתחלה",
+    "moveToEnd": "הזז לסוף",
+    "selection": "נבחרו {{selected}} מתוך {{total}} עמודים"
   }
 }

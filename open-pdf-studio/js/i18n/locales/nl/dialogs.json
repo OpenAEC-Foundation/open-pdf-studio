@@ -1603,5 +1603,14 @@
       "supersede": "Vervangen",
       "expire": "Verlopen"
     }
+  },
+  "pageOrganizer": {
+    "title": "Pagina's ordenen",
+    "hint": "Sleep pagina's naar een nieuwe plek. Ctrl+klik of Shift+klik selecteert meerdere pagina's.",
+    "moveLeft": "Naar links",
+    "moveRight": "Naar rechts",
+    "moveToStart": "Naar begin",
+    "moveToEnd": "Naar einde",
+    "selection": "{{selected}} van {{total}} pagina's geselecteerd"
   }
 }

@@ -1603,5 +1603,14 @@
       "supersede": "مستبدَل",
       "expire": "منتهي الصلاحية"
     }
+  },
+  "pageOrganizer": {
+    "title": "إعادة ترتيب الصفحات",
+    "hint": "اسحب الصفحات إلى موضع جديد. Ctrl+نقر أو Shift+نقر يحدد عدة صفحات.",
+    "moveLeft": "نقل لليسار",
+    "moveRight": "نقل لليمين",
+    "moveToStart": "نقل إلى البداية",
+    "moveToEnd": "نقل إلى النهاية",
+    "selection": "تم تحديد {{selected}} من {{total}} صفحة"
   }
 }

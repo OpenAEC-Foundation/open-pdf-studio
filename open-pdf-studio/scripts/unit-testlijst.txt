@@ -533,3 +533,6 @@ js/pdf/saver/opslag-annuleren.test.mjs
 js/pdf/opslaan-annuleren.test.mjs
 js/pdf/opslaan-annuleren-i18n.test.mjs
 js/ui/chrome/laad-annuleren.test.mjs
+js/pdf/page-order.test.mjs
+js/pdf/page-manager-volgorde.test.mjs
+js/solid/components/ribbon/reorder-knop.test.mjs

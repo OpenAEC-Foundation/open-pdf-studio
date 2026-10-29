@@ -1603,5 +1603,14 @@
       "supersede": "Zamijenjeno",
       "expire": "Isteklo"
     }
+  },
+  "pageOrganizer": {
+    "title": "Promijeni redoslijed stranica",
+    "hint": "Povucite stranice na novo mjesto. Ctrl+klik ili Shift+klik odabire više stranica.",
+    "moveLeft": "Pomakni lijevo",
+    "moveRight": "Pomakni desno",
+    "moveToStart": "Pomakni na početak",
+    "moveToEnd": "Pomakni na kraj",
+    "selection": "Odabrano stranica: {{selected}} od {{total}}"
   }
 }

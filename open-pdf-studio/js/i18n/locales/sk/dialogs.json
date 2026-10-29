@@ -1603,5 +1603,14 @@
       "supersede": "Nahradené",
       "expire": "Vypršané"
     }
+  },
+  "pageOrganizer": {
+    "title": "Zmeniť poradie strán",
+    "hint": "Presuňte strany na nové miesto. Ctrl+klik alebo Shift+klik vyberie viac strán.",
+    "moveLeft": "Posunúť doľava",
+    "moveRight": "Posunúť doprava",
+    "moveToStart": "Presunúť na začiatok",
+    "moveToEnd": "Presunúť na koniec",
+    "selection": "Vybraté strany: {{selected}} z {{total}}"
   }
 }

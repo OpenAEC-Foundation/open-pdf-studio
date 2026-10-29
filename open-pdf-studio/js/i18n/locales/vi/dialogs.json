@@ -1603,5 +1603,14 @@
       "supersede": "Đã bị thay thế",
       "expire": "Đã hết hạn"
     }
+  },
+  "pageOrganizer": {
+    "title": "Sắp xếp lại trang",
+    "hint": "Kéo các trang đến vị trí mới. Ctrl+nhấp hoặc Shift+nhấp để chọn nhiều trang.",
+    "moveLeft": "Chuyển sang trái",
+    "moveRight": "Chuyển sang phải",
+    "moveToStart": "Chuyển lên đầu",
+    "moveToEnd": "Chuyển xuống cuối",
+    "selection": "Đã chọn {{selected}} trên {{total}} trang"
   }
 }

@@ -1603,5 +1603,14 @@
       "supersede": "대체됨",
       "expire": "만료됨"
     }
+  },
+  "pageOrganizer": {
+    "title": "페이지 순서 변경",
+    "hint": "페이지를 새 위치로 끌어 놓으세요. Ctrl+클릭 또는 Shift+클릭으로 여러 페이지를 선택합니다.",
+    "moveLeft": "왼쪽으로 이동",
+    "moveRight": "오른쪽으로 이동",
+    "moveToStart": "처음으로 이동",
+    "moveToEnd": "끝으로 이동",
+    "selection": "{{total}}페이지 중 {{selected}}페이지 선택됨"
   }
 }

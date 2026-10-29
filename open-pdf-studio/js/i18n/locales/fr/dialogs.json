@@ -1603,5 +1603,14 @@
       "supersede": "Remplacée",
       "expire": "Expirée"
     }
+  },
+  "pageOrganizer": {
+    "title": "Réorganiser les pages",
+    "hint": "Faites glisser les pages vers une nouvelle position. Ctrl+clic ou Maj+clic sélectionne plusieurs pages.",
+    "moveLeft": "Vers la gauche",
+    "moveRight": "Vers la droite",
+    "moveToStart": "Au début",
+    "moveToEnd": "À la fin",
+    "selection": "{{selected}} pages sur {{total}} sélectionnées"
   }
 }

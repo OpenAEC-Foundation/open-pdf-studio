@@ -1603,5 +1603,14 @@
       "supersede": "Korvattu",
       "expire": "Vanhentunut"
     }
+  },
+  "pageOrganizer": {
+    "title": "Järjestä sivut",
+    "hint": "Vedä sivut uuteen kohtaan. Ctrl+napsautus tai Vaihto+napsautus valitsee useita sivuja.",
+    "moveLeft": "Siirrä vasemmalle",
+    "moveRight": "Siirrä oikealle",
+    "moveToStart": "Siirrä alkuun",
+    "moveToEnd": "Siirrä loppuun",
+    "selection": "{{selected}}/{{total}} sivua valittu"
   }
 }
