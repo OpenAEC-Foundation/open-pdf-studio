@@ -177,6 +177,10 @@
     "documentAndMarkups": "Dokument i oznake",
     "document": "Dokument",
     "printAsImage": "Ispiši kao sliku",
+    "colorMode": "Način boje:",
+    "colorModeColor": "U boji",
+    "colorModeGrayscale": "Sivi tonovi",
+    "colorModeBlackWhite": "Crno-bijelo",
     "pagesToPrint": "stranica za ispis",
     "noPrinterSelected": "Pisač nije odabran.",
     "noPagesToPrint": "Nema stranica za ispis.",
@@ -1599,5 +1603,30 @@
       "supersede": "Zamijenjeno",
       "expire": "Isteklo"
     }
+  },
+  "pageOrganizer": {
+    "title": "Uredi stranice",
+    "hint": "Povucite stranice da biste ih premjestili; ispustite PDF datoteku da biste umetnuli njezine stranice. Ctrl+klik, Shift+klik ili potvrdni okviri odabiru više stranica. Ništa se ne mijenja do Primijeni.",
+    "moveLeft": "Pomakni lijevo",
+    "moveRight": "Pomakni desno",
+    "moveToStart": "Pomakni na početak",
+    "moveToEnd": "Pomakni na kraj",
+    "selection": "Odabrano stranica: {{selected}} od {{total}}",
+    "rotateLeft": "Rotiraj lijevo",
+    "rotateRight": "Rotiraj desno",
+    "split": "Podijeli",
+    "splitTitle": "Postavi oznake dijeljenja oko odabranih stranica: svaki niz postaje zasebna datoteka",
+    "splitHere": "Podijeli ovdje (postavi ili ukloni oznaku dijeljenja)",
+    "extractTitle": "Izdvoji odabrane stranice u novu datoteku",
+    "blankPage": "Prazna stranica",
+    "pagesFromFile": "Stranice iz datoteke…",
+    "insertHere": "Umetni stranice ovdje",
+    "select": "Odaberi stranicu",
+    "zoom": "Zumiranje",
+    "parts": "Pri primjeni podijeljeno u {{count}} datoteka",
+    "chooseFolder": "Odaberite mapu za podijeljene datoteke",
+    "fileFailed": "Nije moguće pročitati {{name}}: {{error}}",
+    "applyFailed": "Primjena izmjena stranica nije uspjela: {{error}}",
+    "extractFailed": "Izdvajanje stranica nije uspjelo: {{error}}"
   }
 }

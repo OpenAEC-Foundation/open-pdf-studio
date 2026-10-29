@@ -177,6 +177,10 @@
     "documentAndMarkups": "מסמך וסימונים",
     "document": "מסמך",
     "printAsImage": "הדפסה כתמונה",
+    "colorMode": "מצב צבע:",
+    "colorModeColor": "צבעוני",
+    "colorModeGrayscale": "גווני אפור",
+    "colorModeBlackWhite": "שחור-לבן",
     "pagesToPrint": "עמודים להדפסה",
     "noPrinterSelected": "לא נבחרה מדפסת.",
     "noPagesToPrint": "אין עמודים להדפסה.",
@@ -1599,5 +1603,30 @@
       "supersede": "הוחלף",
       "expire": "פג תוקף"
     }
+  },
+  "pageOrganizer": {
+    "title": "עריכת עמודים",
+    "hint": "גררו עמודים כדי להזיז אותם; שחררו קובץ PDF כדי להוסיף את עמודיו. Ctrl+לחיצה, Shift+לחיצה או תיבות הסימון בוחרים כמה עמודים. דבר לא משתנה עד החלה.",
+    "moveLeft": "הזז שמאלה",
+    "moveRight": "הזז ימינה",
+    "moveToStart": "הזז להתחלה",
+    "moveToEnd": "הזז לסוף",
+    "selection": "נבחרו {{selected}} מתוך {{total}} עמודים",
+    "rotateLeft": "סיבוב שמאלה",
+    "rotateRight": "סיבוב ימינה",
+    "split": "פיצול",
+    "splitTitle": "הצבת סימני פיצול סביב העמודים שנבחרו: כל רצף הופך לקובץ נפרד",
+    "splitHere": "פיצול כאן (הצבה או הסרה של סימן פיצול)",
+    "extractTitle": "חילוץ העמודים שנבחרו לקובץ חדש",
+    "blankPage": "עמוד ריק",
+    "pagesFromFile": "עמודים מקובץ…",
+    "insertHere": "הוספת עמודים כאן",
+    "select": "בחירת עמוד",
+    "zoom": "זום",
+    "parts": "פיצול ל־{{count}} קבצים בעת ההחלה",
+    "chooseFolder": "בחרו את התיקייה לקבצים המפוצלים",
+    "fileFailed": "לא ניתן לקרוא את {{name}}: {{error}}",
+    "applyFailed": "החלת עריכות העמודים נכשלה: {{error}}",
+    "extractFailed": "חילוץ העמודים נכשל: {{error}}"
   }
 }

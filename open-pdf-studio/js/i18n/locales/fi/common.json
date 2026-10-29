@@ -34,6 +34,10 @@
   "draw": "Piirrä",
   "saved": "Tallennettu",
   "documentChangedDuringSave": "Asiakirja muuttui tallennuksen aikana. Tallenna uudelleen.",
+  "savingPdf": "Tallennetaan PDF:ää…",
+  "saveCancelling": "Peruutetaan tallennusta…",
+  "saveCancelled": "Tallennus peruutettiin. Tiedostoa ei muutettu.",
+  "saveCancelTooLate": "Tiedosto oli jo tallennettu; peruuttaminen oli liian myöhäistä.",
   "documentChangedDuringExport": "Asiakirja muuttui viennin aikana. Aloita uudelleen.",
   "rasterExportProgress": "Rasteroidaan sivuja: {{done}}/{{total}}",
   "search": "Hae",
@@ -249,6 +253,10 @@
     "closeTab": "Sulje välilehti",
     "nextTab": "Seuraava välilehti",
     "previousTab": "Edellinen välilehti"
+  },
+  "pageNav": {
+    "nextPage": "Seuraava sivu",
+    "previousPage": "Edellinen sivu"
   },
   "quickAccess": {
     "exportRaster": "Vie rasteri-PDF:nä (avautuu uuteen välilehteen)"

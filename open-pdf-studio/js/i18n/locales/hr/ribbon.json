@@ -328,7 +328,9 @@
     "scanText": "Uredi skenirani tekst",
     "scanTextHint": "Kliknite prepoznatu riječ da biste je zamijenili. Stara riječ u skenu bit će prekrivena.",
     "scanTextNone": "Na ovoj stranici nema prepoznatog teksta. Najprije pokrenite Prepoznavanje teksta (OCR).",
-    "shiftPage": "Pomakni stranicu"
+    "shiftPage": "Pomakni stranicu",
+    "editPages": "Uredi stranice",
+    "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje"
   },
   "help": {
     "settings": "Postavke",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Zalijepite ovdje izrezano područje uz očuvanje vektorskih podataka",
     "symbolScale": "Mjerilo",
     "symbolScaleTitle": "Veličina u kojoj se postavlja novi simbol",
-    "symbolScaleCustom": "Prilagođeno mjerilo"
+    "symbolScaleCustom": "Prilagođeno mjerilo",
+    "count": "Brojanje",
+    "arc": "Luk"
   },
   "proofread": {
     "group": "Korektura",
@@ -678,6 +682,7 @@
     "saveNote": "Bilješke i druge oznake bez izgleda na stranici ostaju oznake. Datoteka se mijenja tek pri spremanju; do tada Poništi vraća ovaj korak.",
     "ok": "Spljošti",
     "busy": "Spljoštavanje oznaka...",
+    "cancelled": "Spljoštavanje otkazano. Dokument nije promijenjen.",
     "nothing": "Ovaj dokument nema oznaka za spljoštavanje.",
     "nothingBaked": "Nijedna oznaka nema izgled na stranici, pa ništa nije spljošteno.",
     "notLoaded": "Oznake ovog dokumenta još se učitavaju. Pokušajte ponovno za trenutak.",

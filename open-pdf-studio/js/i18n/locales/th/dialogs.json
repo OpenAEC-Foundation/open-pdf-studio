@@ -177,6 +177,10 @@
     "documentAndMarkups": "เอกสารและมาร์กอัป",
     "document": "เอกสาร",
     "printAsImage": "พิมพ์เป็นรูปภาพ",
+    "colorMode": "โหมดสี:",
+    "colorModeColor": "สี",
+    "colorModeGrayscale": "ระดับสีเทา",
+    "colorModeBlackWhite": "ขาวดำ",
     "pagesToPrint": "หน้าที่จะพิมพ์",
     "noPrinterSelected": "ยังไม่ได้เลือกเครื่องพิมพ์",
     "noPagesToPrint": "ไม่มีหน้าให้พิมพ์",
@@ -1599,5 +1603,30 @@
       "supersede": "ถูกแทนที่",
       "expire": "หมดอายุ"
     }
+  },
+  "pageOrganizer": {
+    "title": "แก้ไขหน้า",
+    "hint": "ลากหน้าเพื่อย้าย วางไฟล์ PDF เพื่อแทรกหน้าของไฟล์นั้น Ctrl+คลิก, Shift+คลิก หรือช่องทำเครื่องหมายเลือกหลายหน้า ไม่มีอะไรเปลี่ยนจนกว่าจะกดนำไปใช้",
+    "moveLeft": "ย้ายไปทางซ้าย",
+    "moveRight": "ย้ายไปทางขวา",
+    "moveToStart": "ย้ายไปที่จุดเริ่มต้น",
+    "moveToEnd": "ย้ายไปที่ท้ายสุด",
+    "selection": "เลือกแล้ว {{selected}} จาก {{total}} หน้า",
+    "rotateLeft": "หมุนซ้าย",
+    "rotateRight": "หมุนขวา",
+    "split": "แบ่ง",
+    "splitTitle": "วางเครื่องหมายแบ่งรอบหน้าที่เลือก: แต่ละช่วงจะเป็นไฟล์แยก",
+    "splitHere": "แบ่งที่นี่ (วางหรือลบเครื่องหมายแบ่ง)",
+    "extractTitle": "แยกหน้าที่เลือกออกเป็นไฟล์ใหม่",
+    "blankPage": "หน้าว่าง",
+    "pagesFromFile": "หน้าจากไฟล์…",
+    "insertHere": "แทรกหน้าที่นี่",
+    "select": "เลือกหน้า",
+    "zoom": "ซูม",
+    "parts": "แบ่งเป็น {{count}} ไฟล์เมื่อนำไปใช้",
+    "chooseFolder": "เลือกโฟลเดอร์สำหรับไฟล์ที่แบ่ง",
+    "fileFailed": "ไม่สามารถอ่าน {{name}}: {{error}}",
+    "applyFailed": "นำการแก้ไขหน้าไปใช้ไม่สำเร็จ: {{error}}",
+    "extractFailed": "แยกหน้าไม่สำเร็จ: {{error}}"
   }
 }

@@ -3923,6 +3923,199 @@
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
+/* Shortcuts overview: the list follows the current shortcuts (#714) */
+.shortcuts-dialog .modal-body { max-height: 70vh; overflow-y: auto; }
+.shortcuts-or {
+  margin: 0 3px;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+  line-height: 20px;
+}
+
+/* Preferences > Keyboard Shortcuts (#714) */
+.ks-page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.ks-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #333);
+}
+
+.ks-list {
+  height: 190px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface, #fff);
+}
+
+.ks-list-head,
+.ks-row {
+  display: grid;
+  grid-template-columns: 1fr minmax(110px, 40%);
+  gap: 8px;
+  padding: 2px 6px;
+}
+
+.ks-list-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 600;
+  background: var(--theme-bg, #f5f5f5);
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+}
+
+.ks-category {
+  padding: 4px 6px 2px;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #555);
+  background: var(--theme-bg, #f5f5f5);
+}
+
+.ks-row:hover { background: var(--theme-hover, #e8e8e8); }
+
+.ks-row.selected {
+  background: var(--theme-active, #0078d7);
+  color: #fff;
+}
+
+.ks-row.modified .ks-binding { font-weight: 700; }
+
+.ks-name,
+.ks-binding {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ks-empty,
+.ks-hint,
+.ks-none,
+.ks-default {
+  color: var(--theme-text-secondary, #666);
+}
+
+.ks-empty { padding: 8px 6px; }
+
+.ks-detail { margin: 0; }
+
+.ks-current {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 24px;
+  align-items: center;
+}
+
+.ks-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 2px 1px 4px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-bg, #f5f5f5);
+}
+
+.ks-keys {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.ks-keys kbd {
+  padding: 0 4px;
+  font-size: 11px;
+  font-family: var(--ui-font);
+  border: 1px solid var(--theme-border, #ccc);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #333);
+  line-height: 16px;
+}
+
+.ks-remove {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--theme-text, #333);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.ks-remove:hover:not(:disabled) {
+  background: #e81123;
+  color: #fff;
+}
+
+.ks-default { margin-top: 4px; }
+
+.ks-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ks-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 4px 6px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-bg, #f5f5f5);
+}
+
+.ks-message.ks-conflict,
+.ks-message.ks-reserved,
+.ks-message.ks-error {
+  border-color: #c42b1c;
+}
+
+.ks-message.ks-recording {
+  border-color: var(--theme-active, #0078d7);
+}
+
+.ks-message-buttons {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ks-message-buttons .pref-btn,
+.ks-actions .pref-btn,
+.ks-footer .pref-btn {
+  padding: 3px 10px;
+  min-width: 0;
+  border-radius: 0;
+}
+
+.ks-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ks-footer-hint {
+  flex: 1;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+  text-align: center;
+}
+
 /* Extensions Panel */
 .ext-install-section {
   margin-bottom: 16px;

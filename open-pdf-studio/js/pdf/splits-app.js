@@ -44,13 +44,14 @@ function opsomming(namen) {
 
 /**
  * Splits het actieve document en schrijf de delen weg.
- * @param {{ modus:'pages'|'bookmarks'|'size', n?:number|string, maxMb?:number|string,
+ * @param {{ modus:'pages'|'bookmarks'|'size'|'ranges', n?:number|string, maxMb?:number|string,
+ *           delen?:{start:number, eind:number}[],
  *           map?:string, patroon?:string }} keuzes
  *   map: de uitvoermap (in de browser niet gebruikt: daar worden de delen
  *   gedownload).
  * @returns {Promise<{ok:boolean, aantal?:number, reden?:string}>}
  */
-export async function splitsDocument({ modus, n = 1, maxMb = 10, map = '', patroon = '' }) {
+export async function splitsDocument({ modus, n = 1, maxMb = 10, delen: gekozen = [], map = '', patroon = '' }) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return { ok: false, reden: 'geen-document' };
   if (opslaanGeweigerd(doc)) {
@@ -75,6 +76,7 @@ export async function splitsDocument({ modus, n = 1, maxMb = 10, map = '', patro
     bron = await laadBron(bytes);
     delen = await berekenDelen(bron, {
       modus,
+      delen: gekozen,
       n: geldigAantal(n, 1),
       maxBytes: mbNaarBytes(geldigeMb(maxMb, 10)),
       ...appKeuzes,

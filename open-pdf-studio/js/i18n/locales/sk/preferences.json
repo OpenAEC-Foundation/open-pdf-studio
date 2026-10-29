@@ -9,7 +9,8 @@
     "behavior": "Správanie",
     "fileAssociation": "Priradenie súborov",
     "virtualPrinter": "Virtuálna tlačiareň",
-    "pageDisplay": "Zobrazenie stránky"
+    "pageDisplay": "Zobrazenie stránky",
+    "keyboardShortcuts": "Klávesové skratky"
   },
   "resetToDefaults": "Obnoviť predvolené",
   "resetConfirm": "Obnoviť všetky predvoľby na predvolené hodnoty?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Prichytiť k obsahu výkresu PDF",
     "navigation": "Navigácia",
     "wheelZoomWithoutCtrl": "Lupa kolieskom myši (bez držania Ctrl)",
+    "middleDoubleClickFit": "Dvojklik stredným tlačidlom myši prispôsobí stránku",
     "dynamicScaling": "Automaticky meniť mierku označení"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Otvorená šípka (obrátená)",
     "closedArrowReversed": "Uzavretá šípka (obrátená)",
     "slash": "Lomka"
+  },
+  "keyboardShortcuts": {
+    "title": "Klávesové skratky",
+    "search": "Hľadať podľa príkazu alebo klávesu",
+    "command": "Príkaz",
+    "shortcuts": "Skratky",
+    "none": "Žiadna",
+    "noMatches": "Hľadaniu nezodpovedá žiadny príkaz.",
+    "selectHint": "Vyberte príkaz a zmeňte jeho skratky.",
+    "addShortcut": "Pridať skratku",
+    "remove": "Odstrániť skratku",
+    "resetCommand": "Obnoviť predvolené",
+    "resetAll": "Obnoviť všetko",
+    "resetAllConfirm": "Obnoviť všetky klávesové skratky na predvolené hodnoty?",
+    "import": "Importovať…",
+    "export": "Exportovať…",
+    "fileType": "Klávesové skratky",
+    "imported": "Skratky importované. Kliknutím na Uložiť ich použijete.",
+    "importFailed": "Toto nie je platný súbor klávesových skratiek.",
+    "exported": "Skratky exportované.",
+    "exportFailed": "Export skratiek zlyhal:",
+    "recording": "Stlačte novú kombináciu klávesov… (Esc zruší)",
+    "conflict": "{{keys}} už používa „{{command}}“.",
+    "reassign": "Priradiť znova",
+    "reserved": "{{keys}} má pevný význam a nedá sa priradiť.",
+    "defaultLabel": "Predvolené: {{keys}}",
+    "customize": "Prispôsobiť…",
+    "fixedGroup": "Pevné klávesy",
+    "applyHint": "Zmeny sa prejavia po kliknutí na Uložiť.",
+    "categories": {
+      "file": "Súbor",
+      "edit": "Úpravy",
+      "view": "Zobrazenie",
+      "search": "Hľadať",
+      "tools": "Nástroje",
+      "drafting": "Pomôcky na kreslenie",
+      "panels": "Panely",
+      "review": "Revízia",
+      "help": "Pomocník",
+      "extensions": "Rozšírenia",
+      "ribbon": "Pás s nástrojmi: {{tab}}",
+      "other": "Ostatné"
+    },
+    "commands": {
+      "findNext": "Nájsť ďalšie"
+    }
   }
 }

@@ -34,6 +34,10 @@
   "draw": "描画",
   "saved": "保存済み",
   "documentChangedDuringSave": "保存中に文書が変更されました。もう一度保存してください。",
+  "savingPdf": "PDF を保存しています…",
+  "saveCancelling": "保存をキャンセルしています…",
+  "saveCancelled": "保存をキャンセルしました。ファイルは変更されていません。",
+  "saveCancelTooLate": "ファイルはすでに保存されていたため、キャンセルできませんでした。",
   "documentChangedDuringExport": "エクスポート中に文書が変更されました。もう一度やり直してください。",
   "rasterExportProgress": "ページをラスター化しています: {{done}} / {{total}}",
   "search": "検索",
@@ -249,6 +253,10 @@
     "closeTab": "タブを閉じる",
     "nextTab": "次のタブ",
     "previousTab": "前のタブ"
+  },
+  "pageNav": {
+    "nextPage": "次のページ",
+    "previousPage": "前のページ"
   },
   "quickAccess": {
     "exportRaster": "ラスター PDF としてエクスポート（新しいタブで開く）"

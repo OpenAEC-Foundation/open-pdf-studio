@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Alüminyum/bronz/bakır",
       "nen47-kunststof": "NEN47-22 Plastik",
       "nen47-afdichtingsmiddel": "NEN47-23 Sızdırmazlık malzemesi",
-      "nen47-maaiveld": "NEN47-25 Zemin kotu"
+      "nen47-maaiveld": "NEN47-25 Zemin kotu",
+      "staal-dubbel": "Çelik (çift çizgi)",
+      "raster-liggend": "Dikdörtgen ızgara yatay",
+      "raster-staand": "Dikdörtgen ızgara dikey",
+      "tegel-halfsteens": "Fayans (şaşırtmalı derz)",
+      "plank-halfsteens": "Tahta (şaşırtmalı derz)",
+      "grond-blokjes": "Toprak (bloklar)",
+      "glas-strepen": "Cam (cephe çizgileri)",
+      "vloeistof-strepen": "Sıvı (çizgiler)",
+      "gras-pollen": "Çim (tutamlar)",
+      "honingraat": "Bal peteği",
+      "lijnen-groep-verticaal": "Dikey çizgi grupları",
+      "lood-blokken": "Kurşun (bloklar)",
+      "glas-doorsnede": "Cam (kesit)",
+      "wand-metselwerk": "Kâgir duvar (çizgi çiftleri)"
     },
-    "rotation": "Döndürme"
+    "rotation": "Döndürme",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Çizgi stili",
@@ -189,7 +207,9 @@
     "bold": "Kalın",
     "italic": "İtalik",
     "underline": "Altı Çizili",
-    "strikethrough": "Üstü Çizili"
+    "strikethrough": "Üstü Çizili",
+    "fontNotEmbedded": "{{font}} PDF'ye gömülmez. Bu yazı tipine sahip olmayan okuyucular {{fallback}} gösterir.",
+    "fontReplaced": "{{font}} PDF'ye gömülemez. Metin {{fallback}} ile kaydedilir."
   },
   "paragraph": {
     "title": "Paragraf",
@@ -198,7 +218,11 @@
     "alignCenter": "Ortala",
     "alignRight": "Sağa Hizala",
     "lineSpacing": "Satır Aralığı",
-    "rotation": "Döndürme"
+    "rotation": "Döndürme",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Yanıtlar",
@@ -722,5 +746,49 @@
     "invalid": "Konum güncellenemedi",
     "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
     "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Beton",
+      "metselwerk": "Kâgir",
+      "isolatie": "Yalıtım",
+      "zand": "Kum/çimento",
+      "algemeen": "Genel (çapraz)",
+      "inb-sloop": "Yıkım",
+      "inb-staal": "Çelik (çift çizgi)",
+      "inb-diagonaal-smal": "Çapraz tarama sık",
+      "inb-diagonaal-midden": "Çapraz tarama orta",
+      "inb-diagonaal-breed": "Çapraz tarama seyrek",
+      "inb-raster-fijn": "Izgara ince",
+      "inb-raster-midden": "Izgara orta",
+      "inb-raster-grof": "Izgara kaba",
+      "inb-raster-liggend-1": "Yatay ızgara ince",
+      "inb-raster-liggend-2": "Yatay ızgara orta",
+      "inb-raster-liggend-3": "Yatay ızgara kaba",
+      "inb-raster-staand-1": "Dikey ızgara ince",
+      "inb-raster-staand-2": "Dikey ızgara orta",
+      "inb-raster-staand-3": "Dikey ızgara kaba",
+      "inb-tegels-fijn": "Fayans küçük",
+      "inb-tegels-midden": "Fayans orta",
+      "inb-tegels-grof": "Fayans büyük",
+      "inb-planken-fijn": "Tahta dar",
+      "inb-planken-midden": "Tahta orta",
+      "inb-planken-grof": "Tahta geniş",
+      "inb-kruis-fijn": "Kafes tarama ince",
+      "inb-kruis-midden": "Kafes tarama orta",
+      "inb-kruis-grof": "Kafes tarama kaba",
+      "inb-baksteen": "Tuğla",
+      "inb-grond": "Toprak",
+      "inb-glas": "Cam (cephe)",
+      "inb-vloeistof": "Sıvı",
+      "inb-gras": "Çim",
+      "inb-honingraat": "Bal peteği",
+      "inb-hout": "Ahşap (enine kesit)",
+      "inb-zand": "Kum",
+      "inb-beton": "Beton (benekli)",
+      "inb-verticaal-smal": "Dikey tarama sık",
+      "inb-verticaal-breed": "Dikey tarama seyrek",
+      "inb-horizontaal-breed": "Yatay tarama seyrek"
+    }
   }
 }

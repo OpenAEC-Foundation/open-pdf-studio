@@ -34,6 +34,10 @@
   "draw": "Çiz",
   "saved": "Kaydedildi",
   "documentChangedDuringSave": "Belge kaydedilirken değişti. Yeniden kaydedin.",
+  "savingPdf": "PDF kaydediliyor…",
+  "saveCancelling": "Kaydetme iptal ediliyor…",
+  "saveCancelled": "Kaydetme iptal edildi. Dosya değiştirilmedi.",
+  "saveCancelTooLate": "Dosya zaten kaydedilmişti; iptal etmek için çok geçti.",
   "documentChangedDuringExport": "Belge dışa aktarma sırasında değişti. Yeniden başlatın.",
   "rasterExportProgress": "Sayfalar rasterleştiriliyor: {{done}} / {{total}}",
   "search": "Ara",
@@ -249,6 +253,10 @@
     "closeTab": "Sekmeyi kapat",
     "nextTab": "Sonraki Sekme",
     "previousTab": "Önceki Sekme"
+  },
+  "pageNav": {
+    "nextPage": "Sonraki Sayfa",
+    "previousPage": "Önceki Sayfa"
   },
   "quickAccess": {
     "exportRaster": "Raster PDF olarak dışa aktar (yeni sekmede açılır)"

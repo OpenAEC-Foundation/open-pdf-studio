@@ -9,7 +9,8 @@
     "behavior": "Oppførsel",
     "fileAssociation": "Filtilknytning",
     "virtualPrinter": "Virtuell skriver",
-    "pageDisplay": "Sidevisning"
+    "pageDisplay": "Sidevisning",
+    "keyboardShortcuts": "Hurtigtaster"
   },
   "resetToDefaults": "Tilbakestill til standardverdier",
   "resetConfirm": "Tilbakestille alle innstillinger til standardverdier?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Fest til PDF-tegningsinnhold",
     "navigation": "Navigasjon",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uten å holde inne Ctrl)",
+    "middleDoubleClickFit": "Dobbeltklikk med den midterste museknappen for å tilpasse siden",
     "dynamicScaling": "Skaler markeringer automatisk"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Åpen pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
     "slash": "Skråstrek"
+  },
+  "keyboardShortcuts": {
+    "title": "Hurtigtaster",
+    "search": "Søk etter kommando eller tast",
+    "command": "Kommando",
+    "shortcuts": "Hurtigtaster",
+    "none": "Ingen",
+    "noMatches": "Ingen kommandoer samsvarer med søket.",
+    "selectHint": "Velg en kommando for å endre hurtigtastene.",
+    "addShortcut": "Legg til hurtigtast",
+    "remove": "Fjern hurtigtast",
+    "resetCommand": "Tilbakestill til standard",
+    "resetAll": "Tilbakestill alle",
+    "resetAllConfirm": "Vil du tilbakestille alle hurtigtaster til standard?",
+    "import": "Importer…",
+    "export": "Eksporter…",
+    "fileType": "Hurtigtaster",
+    "imported": "Hurtigtaster importert. Klikk Lagre for å ta dem i bruk.",
+    "importFailed": "Dette er ikke en gyldig fil med hurtigtaster.",
+    "exported": "Hurtigtaster eksportert.",
+    "exportFailed": "Eksport av hurtigtastene mislyktes:",
+    "recording": "Trykk den nye tastekombinasjonen… (Esc avbryter)",
+    "conflict": "{{keys}} brukes allerede av «{{command}}».",
+    "reassign": "Tilordne på nytt",
+    "reserved": "{{keys}} har en fast betydning og kan ikke tilordnes.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Tilpass…",
+    "fixedGroup": "Faste taster",
+    "applyHint": "Endringene gjelder når du klikker Lagre.",
+    "categories": {
+      "file": "Fil",
+      "edit": "Rediger",
+      "view": "Vis",
+      "search": "Søk",
+      "tools": "Verktøy",
+      "drafting": "Tegnehjelp",
+      "panels": "Paneler",
+      "review": "Gjennomgang",
+      "help": "Hjelp",
+      "extensions": "Utvidelser",
+      "ribbon": "Bånd: {{tab}}",
+      "other": "Annet"
+    },
+    "commands": {
+      "findNext": "Finn neste"
+    }
   }
 }

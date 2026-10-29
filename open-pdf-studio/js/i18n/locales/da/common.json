@@ -34,6 +34,10 @@
   "draw": "Tegn",
   "saved": "Gemt",
   "documentChangedDuringSave": "Dokumentet blev ændret under gemning. Gem igen.",
+  "savingPdf": "Gemmer PDF…",
+  "saveCancelling": "Annullerer gemning…",
+  "saveCancelled": "Gemning annulleret. Filen blev ikke ændret.",
+  "saveCancelTooLate": "Filen var allerede gemt; det var for sent at annullere.",
   "documentChangedDuringExport": "Dokumentet blev ændret under eksporten. Start forfra.",
   "rasterExportProgress": "Rasteriserer sider: {{done}} af {{total}}",
   "search": "Søg",
@@ -249,6 +253,10 @@
     "closeTab": "Luk fane",
     "nextTab": "Næste fane",
     "previousTab": "Forrige fane"
+  },
+  "pageNav": {
+    "nextPage": "Næste side",
+    "previousPage": "Forrige side"
   },
   "quickAccess": {
     "exportRaster": "Eksportér som raster-PDF (åbner i en ny fane)"

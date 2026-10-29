@@ -240,3 +240,13 @@ test('schrijf: elk deel gaat meteen weg, de uitkomst houdt geen bytes vast', asy
   assert.deepEqual(geschreven, [[0, 1, 4], [1, 5, 6]]);
   assert.ok(uit.every((d) => !('bytes' in d)));
 });
+
+test('vaste delen (splitsmarkeringen van Pagina\'s bewerken, #764): gecontroleerd en gebouwd', async () => {
+  const bron = await laadBron(await bronBytes());
+  const delen = await berekenDelen(bron, { modus: 'ranges', delen: [{ start: 1, eind: 3 }, { start: 4, eind: 10 }, { start: 11, eind: 12 }] });
+  assert.deepEqual(delen, [{ start: 1, eind: 3 }, { start: 4, eind: 10 }], 'wat buiten het document valt vervalt');
+  const klaar = await maakDelen(bron, delen);
+  const aantallen = [];
+  for (const d of klaar) aantallen.push((await PDFDocument.load(d.bytes)).getPageCount());
+  assert.deepEqual(aantallen, [3, 7]);
+});

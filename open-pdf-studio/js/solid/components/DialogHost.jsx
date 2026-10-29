@@ -74,6 +74,7 @@ const PortfolioDialog = lazy(() => import('./dialogs/PortfolioDialog.jsx'));
 const FormRecognitionDialog = lazy(() => import('./dialogs/FormRecognitionDialog.jsx'));
 const SymbolSearchDialog = lazy(() => import('./dialogs/SymbolSearchDialog.jsx'));
 const WorkbookBindingsDialog = lazy(() => import('./dialogs/WorkbookBindingsDialog.jsx'));
+const PageOrganizerDialog = lazy(() => import('./dialogs/PageOrganizerDialog.jsx'));
 
 const DIALOG_MAP = {
   'portfolio': PortfolioDialog,
@@ -93,6 +94,7 @@ const DIALOG_MAP = {
   'systeemtypen': SysteemtypenDialog,
   'systeem-paneel-component': SysteemPaneelComponentDialog,
   'delete-pages': DeletePagesDialog,
+  'page-organizer': PageOrganizerDialog,
   'page-properties': PagePropertiesDialog,
   'extract-pages': ExtractPagesDialog,
   'split-document': SplitDocumentDialog,

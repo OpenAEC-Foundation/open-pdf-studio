@@ -34,6 +34,10 @@
   "draw": "Zeichnen",
   "saved": "Gespeichert",
   "documentChangedDuringSave": "Das Dokument wurde während des Speicherns geändert. Bitte erneut speichern.",
+  "savingPdf": "PDF wird gespeichert…",
+  "saveCancelling": "Speichern wird abgebrochen…",
+  "saveCancelled": "Speichern abgebrochen. Die Datei wurde nicht geändert.",
+  "saveCancelTooLate": "Die Datei war bereits gespeichert; Abbrechen war nicht mehr möglich.",
   "documentChangedDuringExport": "Das Dokument wurde während des Exports geändert. Bitte erneut starten.",
   "rasterExportProgress": "Seiten werden gerastert: {{done}} von {{total}}",
   "search": "Suchen",
@@ -249,6 +253,10 @@
     "closeTab": "Tab schließen",
     "nextTab": "Nächster Tab",
     "previousTab": "Vorheriger Tab"
+  },
+  "pageNav": {
+    "nextPage": "Nächste Seite",
+    "previousPage": "Vorherige Seite"
   },
   "quickAccess": {
     "exportRaster": "Als Raster-PDF exportieren (öffnet sich in einem neuen Tab)"

@@ -177,6 +177,10 @@
     "documentAndMarkups": "Document si marcaje",
     "document": "Document",
     "printAsImage": "Tiparire ca imagine",
+    "colorMode": "Mod culoare:",
+    "colorModeColor": "Culoare",
+    "colorModeGrayscale": "Tonuri de gri",
+    "colorModeBlackWhite": "Alb-negru",
     "pagesToPrint": "pagini de tiparit",
     "noPrinterSelected": "Nicio imprimanta selectata.",
     "noPagesToPrint": "Nicio pagina de tiparit.",
@@ -1599,5 +1603,30 @@
       "supersede": "Înlocuit",
       "expire": "Expirat"
     }
+  },
+  "pageOrganizer": {
+    "title": "Editare pagini",
+    "hint": "Trageți paginile pentru a le muta; plasați un fișier PDF pentru a-i insera paginile. Ctrl+clic, Shift+clic sau casetele de selectare aleg mai multe pagini. Nimic nu se schimbă până la Aplicare.",
+    "moveLeft": "Mută la stânga",
+    "moveRight": "Mută la dreapta",
+    "moveToStart": "Mută la început",
+    "moveToEnd": "Mută la sfârșit",
+    "selection": "{{selected}} din {{total}} pagini selectate",
+    "rotateLeft": "Rotire la stanga",
+    "rotateRight": "Rotire la dreapta",
+    "split": "Împărțire",
+    "splitTitle": "Plasați marcaje de împărțire în jurul paginilor selectate: fiecare serie devine un fișier separat",
+    "splitHere": "Împărțire aici (plasați sau eliminați un marcaj)",
+    "extractTitle": "Extrageți paginile selectate într-un fișier nou",
+    "blankPage": "Pagină goală",
+    "pagesFromFile": "Pagini din fișier…",
+    "insertHere": "Inserare pagini aici",
+    "select": "Selectare pagină",
+    "zoom": "Zoom",
+    "parts": "Împărțit în {{count}} fișiere la aplicare",
+    "chooseFolder": "Alegeți dosarul pentru fișierele împărțite",
+    "fileFailed": "{{name}} nu a putut fi citit: {{error}}",
+    "applyFailed": "Aplicarea modificărilor paginilor a eșuat: {{error}}",
+    "extractFailed": "Extragerea paginilor a eșuat: {{error}}"
   }
 }

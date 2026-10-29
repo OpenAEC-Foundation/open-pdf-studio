@@ -19,6 +19,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import {
   annotationsListIcon, annotationLayersIcon, facingPagesIcon, stampIcon,
 } from '../../data/ribbonIcons.js';
+import { sneltoetsVoor } from '../../stores/keybindingStore.js';
 
 function MenuItem(props) {
   // Zelfde regel als bij de lintknoppen: wat de webversie niet kan staat uit
@@ -129,12 +130,12 @@ export default function AppMenu() {
             <span>{t('file')}</span>
           </button>
           <div class="app-menu-items">
-            <MenuItem icon={ICONS.new} label={t('new')} shortcut="Ctrl+N" onClick={() => actionAndClose(showNewDocDialog)} />
-            <MenuItem icon={ICONS.open} label={t('open')} shortcut="Ctrl+O" active={getActivePanel() === 'open'} onClick={() => setActivePanel('open')} />
+            <MenuItem icon={ICONS.new} label={t('new')} shortcut={sneltoetsVoor('file.new')} onClick={() => actionAndClose(showNewDocDialog)} />
+            <MenuItem icon={ICONS.open} label={t('open')} shortcut={sneltoetsVoor('file.open')} active={getActivePanel() === 'open'} onClick={() => setActivePanel('open')} />
             {/* Alleen-lezen van de site (een oudere versie, #712): opslaan staat uit, Opslaan als (een download) niet. */}
-            <MenuItem icon={ICONS.save} label={t('save')} shortcut="Ctrl+S" disabled={state.documents[state.activeDocumentIndex]?.hostAlleenLezen === true} onClick={() => actionAndClose(savePDF)} />
-            <MenuItem icon={ICONS.saveAs} label={t('saveAs')} shortcut="Ctrl+Shift+S" onClick={() => actionAndClose(savePDFAs)} />
-            <MenuItem id="menu-print" icon={ICONS.print} label={t('print')} shortcut="Ctrl+P" onClick={() => actionAndClose(showPrintDialog)} />
+            <MenuItem icon={ICONS.save} label={t('save')} shortcut={sneltoetsVoor('file.save')} disabled={state.documents[state.activeDocumentIndex]?.hostAlleenLezen === true} onClick={() => actionAndClose(savePDF)} />
+            <MenuItem icon={ICONS.saveAs} label={t('saveAs')} shortcut={sneltoetsVoor('file.saveAs')} onClick={() => actionAndClose(savePDFAs)} />
+            <MenuItem id="menu-print" icon={ICONS.print} label={t('print')} shortcut={sneltoetsVoor('file.print')} onClick={() => actionAndClose(showPrintDialog)} />
             <Divider />
             <MenuItem icon={ICONS.annotateScreenshot} label={t('annotateScreenshot')} onClick={() => actionAndClose(() => import('../../../tools/screenshot-annotate.js').then((m) => m.annotateClipboardScreenshot()))} />
             <Divider />
@@ -143,13 +144,13 @@ export default function AppMenu() {
             <Divider />
             <MenuItem id="menu-extensions" icon={ICONS.extensions} label={t('extensions')} onClick={() => { closeAppMenu(); openDialog('extensions'); }} />
             <Divider />
-            <MenuItem icon={ICONS.docProperties} label={t('docProperties')} shortcut="Ctrl+D" onClick={() => actionAndClose(showDocPropertiesDialog)} />
+            <MenuItem icon={ICONS.docProperties} label={t('docProperties')} shortcut={sneltoetsVoor('file.properties')} onClick={() => actionAndClose(showDocPropertiesDialog)} />
             <MenuItem icon={ICONS.workflows} label={t('workflows')} onClick={() => actionAndClose(() => openDialog('document-workflows'))} />
             <MenuItem icon={ICONS.drawingSets} label={t('drawingSets')} onClick={() => actionAndClose(() => openDialog('drawing-sets'))} />
             <MenuItem icon={ICONS.sheetLinks} label={t('sheetLinks')} onClick={() => actionAndClose(() => openDialog('sheet-links'))} />
             <MenuItem icon={ICONS.approvalRouting} label={t('approvalRouting')} onClick={() => actionAndClose(() => openDialog('approval-routing'))} />
             <Divider />
-            <MenuItem icon={ICONS.preferences} label={t('preferences')} shortcut="Ctrl+," onClick={() => actionAndClose(showPreferencesDialog)} />
+            <MenuItem icon={ICONS.preferences} label={t('preferences')} shortcut={sneltoetsVoor('app.preferences')} onClick={() => actionAndClose(showPreferencesDialog)} />
             <Divider />
             <MenuItem icon={ICONS.about} label={t('about')} onClick={() => actionAndClose(() => openDialog('about'))} />
             <MenuItem id="menu-whats-new" icon={ICONS.about} label={t('whatsNew.title')} onClick={() => actionAndClose(() => import('../../../help/whats-new-trigger.js').then(m => m.openWhatsNewManual()))} />

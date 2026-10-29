@@ -9,12 +9,13 @@ import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../../../ui/chrome/dialogs.js';
 import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
 import { setTool } from '../../../tools/manager.js';
-import { setLeftPanelActiveTab, setLeftPanelCollapsed } from '../../../bridge.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 
 const reorderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="4"/><rect x="3" y="10" width="6" height="4"/><rect x="3" y="17" width="6" height="4"/><path d="M14 5l4 4-4 4M14 13l4 4-4 4M18 9H10M18 17H10" stroke-linecap="round"/></svg>`;
+// Edit Pages (#764): a grid of pages with a pencil — the visual page organizer.
+const editPagesIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="2.5" y="3" width="7" height="8"/><rect x="12" y="3" width="7" height="8"/><rect x="2.5" y="13.5" width="7" height="8"/><path d="M13 21.5l.6-3 6.2-6.2 2.4 2.4-6.2 6.2z"/></svg>`;
 const compressIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>`;
 
 // Eén blad dat in twee delen uiteenvalt (Document splitsen, #381).
@@ -32,16 +33,19 @@ export default function OrganizeTab() {
   // huidige pagina (#464).
   const rotateCurrentPage = (delta) => draaiVanafKnop(delta);
 
+  // Opens the page organizer: a thumbnail grid in which pages are dragged
+  // into a new order (#763). Switching the left panel to its thumbnails was
+  // all this did before, and those are already showing by default.
   function openPageReorder() {
-    // Open the left panel and switch to the page-thumbnails tab so the user
-    // can drag pages to reorder.
-    try {
-      setLeftPanelCollapsed(false);
-      setLeftPanelActiveTab('thumbnails');
-    } catch (_) {
-      // Fallback: just toggle whatever panel exists
-      import('../../../ui/panels/left-panel.js').then(m => m.toggleLeftPanel && m.toggleLeftPanel()).catch(() => {});
-    }
+    if (!getActiveDocument()?.pdfDoc) return;
+    openDialog('page-organizer', {});
+  }
+
+  // Edit Pages (#764): the same organizer, the primary entry point — there
+  // pages are also rotated, deleted, extracted, inserted and split.
+  function openEditPages() {
+    if (!getActiveDocument()?.pdfDoc) return;
+    openDialog('page-organizer', {});
   }
 
   return (
@@ -94,6 +98,8 @@ export default function OrganizeTab() {
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.pages')}>
+          <RibbonButton id="edit-pages" title={t('organize.editPagesTitle')} icon={editPagesIcon} label={t('organize.editPages')}
+            disabled={ro()} onClick={openEditPages} />
           <RibbonButton id="insert-page" title={t('organize.insertPage')} icon={insertPageIcon} label={t('organize.insert')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => showInsertPageDialog()} />
           <RibbonButton id="delete-page" title={t('organize.deletePage')} icon={deletePageIcon} label={t('organize.deleteLabel')}
@@ -106,8 +112,8 @@ export default function OrganizeTab() {
           <RibbonButton id="reorder-pages"
             title={t('organize.reorderPagesTitle') || 'Open thumbnails to drag pages into a new order'}
             icon={reorderIcon}
-            label={t('organize.reorderPages') || 'Volgorde'}
-            disabled={noPdf()} onClick={openPageReorder} />
+            label={t('organize.reorderPages') || 'Reorder'}
+            disabled={ro()} onClick={openPageReorder} />
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.combine')}>

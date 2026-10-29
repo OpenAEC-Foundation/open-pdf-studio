@@ -34,6 +34,10 @@
   "draw": "Rajzolás",
   "saved": "Mentve",
   "documentChangedDuringSave": "A dokumentum megváltozott mentés közben. Mentse újra.",
+  "savingPdf": "PDF mentése…",
+  "saveCancelling": "Mentés megszakítása…",
+  "saveCancelled": "Mentés megszakítva. A fájl nem változott.",
+  "saveCancelTooLate": "A fájl már mentve volt; a megszakításhoz túl késő volt.",
   "documentChangedDuringExport": "A dokumentum megváltozott az exportálás közben. Kezdje újra.",
   "rasterExportProgress": "Oldalak raszterizálása: {{done}} / {{total}}",
   "search": "Keresés",
@@ -249,6 +253,10 @@
     "closeTab": "Lap bezárása",
     "nextTab": "Következő lap",
     "previousTab": "Előző lap"
+  },
+  "pageNav": {
+    "nextPage": "Következő oldal",
+    "previousPage": "Előző oldal"
   },
   "quickAccess": {
     "exportRaster": "Exportálás raszteres PDF-ként (új lapon nyílik meg)"

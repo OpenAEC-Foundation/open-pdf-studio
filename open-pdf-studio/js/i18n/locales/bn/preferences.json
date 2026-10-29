@@ -9,7 +9,8 @@
     "behavior": "আচরণ",
     "fileAssociation": "ফাইল সংযুক্তি",
     "virtualPrinter": "ভার্চুয়াল প্রিন্টার",
-    "pageDisplay": "পৃষ্ঠা প্রদর্শন"
+    "pageDisplay": "পৃষ্ঠা প্রদর্শন",
+    "keyboardShortcuts": "কীবোর্ড শর্টকাট"
   },
   "resetToDefaults": "ডিফল্টে পুনরায় সেট করুন",
   "resetConfirm": "সমস্ত পছন্দ ডিফল্ট মানে পুনরায় সেট করবেন?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "PDF অঙ্কনের বিষয়বস্তুতে স্ন্যাপ করুন",
     "navigation": "নেভিগেশন",
     "wheelZoomWithoutCtrl": "মাউস হুইল দিয়ে জুম করুন (Ctrl না চেপে)",
+    "middleDoubleClickFit": "পৃষ্ঠা মানানসই করতে মাউসের মাঝের বোতামে ডাবল-ক্লিক করুন",
     "dynamicScaling": "মার্কআপ স্বয়ংক্রিয়ভাবে স্কেল করুন"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "খোলা তীর (বিপরীত)",
     "closedArrowReversed": "বন্ধ তীর (বিপরীত)",
     "slash": "স্ল্যাশ"
+  },
+  "keyboardShortcuts": {
+    "title": "কীবোর্ড শর্টকাট",
+    "search": "কমান্ড বা কী দিয়ে খুঁজুন",
+    "command": "কমান্ড",
+    "shortcuts": "শর্টকাট",
+    "none": "কোনোটি নয়",
+    "noMatches": "অনুসন্ধানের সাথে কোনো কমান্ড মেলেনি।",
+    "selectHint": "শর্টকাট বদলাতে একটি কমান্ড বেছে নিন।",
+    "addShortcut": "শর্টকাট যোগ করুন",
+    "remove": "শর্টকাট সরান",
+    "resetCommand": "ডিফল্টে ফেরান",
+    "resetAll": "সব ফেরান",
+    "resetAllConfirm": "সব কীবোর্ড শর্টকাট ডিফল্টে ফেরাবেন?",
+    "import": "আমদানি…",
+    "export": "রপ্তানি…",
+    "fileType": "কীবোর্ড শর্টকাট",
+    "imported": "শর্টকাট আমদানি হয়েছে। প্রয়োগ করতে সংরক্ষণে ক্লিক করুন।",
+    "importFailed": "এটি বৈধ কীবোর্ড শর্টকাট ফাইল নয়।",
+    "exported": "শর্টকাট রপ্তানি হয়েছে।",
+    "exportFailed": "শর্টকাট রপ্তানি ব্যর্থ হয়েছে:",
+    "recording": "নতুন কী সমন্বয় চাপুন… (Esc বাতিল করে)",
+    "conflict": "{{keys}} ইতিমধ্যে “{{command}}” ব্যবহার করছে।",
+    "reassign": "পুনরায় বরাদ্দ",
+    "reserved": "{{keys}}-এর অর্থ নির্দিষ্ট, তাই এটি বরাদ্দ করা যায় না।",
+    "defaultLabel": "ডিফল্ট: {{keys}}",
+    "customize": "কাস্টমাইজ…",
+    "fixedGroup": "নির্দিষ্ট কী",
+    "applyHint": "সংরক্ষণে ক্লিক করলে পরিবর্তন কার্যকর হয়।",
+    "categories": {
+      "file": "ফাইল",
+      "edit": "সম্পাদনা",
+      "view": "দৃশ্য",
+      "search": "খুঁজুন",
+      "tools": "সরঞ্জাম",
+      "drafting": "অঙ্কন সহায়ক",
+      "panels": "প্যানেল",
+      "review": "পর্যালোচনা",
+      "help": "সহায়তা",
+      "extensions": "এক্সটেনশন",
+      "ribbon": "রিবন: {{tab}}",
+      "other": "অন্যান্য"
+    },
+    "commands": {
+      "findNext": "পরবর্তী খুঁজুন"
+    }
   }
 }

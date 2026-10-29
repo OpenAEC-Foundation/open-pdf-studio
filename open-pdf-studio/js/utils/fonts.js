@@ -182,47 +182,89 @@ const FALLBACK_FONTS = [
   'Yu Gothic UI'
 ];
 
+// Gangbare lettertypen op Linux en macOS (#765). De lijst hierboven komt van
+// Windows; op andere systemen bleven daarvan vaak alleen Arial, Courier New,
+// Helvetica en Times New Roman over. De detectie hieronder laat alleen
+// staan wat echt geïnstalleerd is.
+const ANDERE_PLATFORMS = [
+  // Linux
+  'Cantarell', 'DejaVu Sans', 'DejaVu Sans Mono', 'DejaVu Serif', 'Droid Sans',
+  'Fira Sans', 'Liberation Mono', 'Liberation Sans', 'Liberation Serif',
+  'Nimbus Mono PS', 'Nimbus Roman', 'Nimbus Sans', 'Noto Sans', 'Noto Sans Mono',
+  'Noto Serif', 'Open Sans', 'Roboto', 'Source Sans Pro', 'Ubuntu', 'Ubuntu Mono',
+  // macOS
+  'American Typewriter', 'Avenir', 'Avenir Next', 'Futura', 'Geneva', 'Gill Sans',
+  'Helvetica Neue', 'Menlo', 'Monaco', 'Optima',
+];
+
+/** Alle kandidaten, zonder dubbele, alfabetisch. */
+export function lettertypeKandidaten() {
+  return [...new Set([...FALLBACK_FONTS, ...ANDERE_PLATFORMS])]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+
 // Cached system fonts (populated once)
 let systemFonts = null;
 
-// Get system fonts using Local Font Access API, with fallback
+// Get system fonts using canvas-based detection, with fallback
 async function getSystemFonts() {
   if (systemFonts) return systemFonts;
 
   // Use canvas-based font detection (avoids browser permission prompt from queryLocalFonts)
-  systemFonts = detectAvailableFonts(FALLBACK_FONTS);
+  systemFonts = detectAvailableFonts(lettertypeKandidaten()).then(
+    (gevonden) => (gevonden.length ? gevonden : lettertypeKandidaten()),
+    // Geen canvas of een fout tijdens het meten: dan de hele lijst, niet
+    // alleen het lettertype van de selectie (#765).
+    () => lettertypeKandidaten(),
+  );
   return systemFonts;
+}
+
+// Basisletters waartegen gemeten wordt. Een lettertype dat gelijk is aan de
+// standaard-monospace van de browser (Courier New of Consolas op Windows)
+// meet tegen 'monospace' alleen precies even breed: met maar die ene basis
+// viel het juist uit de lijst (#765). Het is er als het tegen minstens een
+// basis anders meet.
+const BASISLETTERS = ['monospace', 'sans-serif', 'serif'];
+const TEST_TEKST = 'mmmmmmmmmmlli';
+const TEST_GROOTTE = '72px';
+
+/**
+ * Is `font` op dit systeem aanwezig? `meet(cssFont)` geeft de breedte van de
+ * testtekst in dat CSS-font; `basis` de breedtes van de basisletters.
+ */
+export function lettertypeAanwezig(meet, font, basis) {
+  const naam = String(font).replace(/'/g, "\\'");
+  return BASISLETTERS.some((b) => meet(`${TEST_GROOTTE} '${naam}', ${b}`) !== basis[b]);
 }
 
 // Detect which fonts from the list are actually available on the system.
 // Probing the full list with measureText in one pass blocks the main thread
 // for up to ~1s on slower machines, so probe in batches spread across idle
-// slices and yield between them.
-async function detectAvailableFonts(fontList) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const testString = 'mmmmmmmmmmlli';
-  const testSize = '72px';
-  const baselineFont = 'monospace';
-
-  // Measure baseline
-  ctx.font = `${testSize} ${baselineFont}`;
-  const baselineWidth = ctx.measureText(testString).width;
-
-  const idle = window.requestIdleCallback
-    || ((cb) => setTimeout(() => cb({ timeRemaining: () => 8 }), 16));
+// slices and yield between them. Met een timeout: een hoofdthread die nooit
+// stil is, mag de lijst niet eindeloos leeg laten (dan stond alleen het
+// lettertype van de selectie, meestal Arial, in de keuzelijst; #765).
+export async function detectAvailableFonts(fontList, {
+  maakContext = () => document.createElement('canvas').getContext('2d'),
+  idle = (typeof window !== 'undefined' && window.requestIdleCallback)
+    ? (cb) => window.requestIdleCallback(cb, { timeout: 200 })
+    : (cb) => setTimeout(() => cb({ timeRemaining: () => 8, didTimeout: false }), 16),
+} = {}) {
+  const ctx = maakContext();
+  if (!ctx) throw new Error('canvas 2d context not available');
+  const meet = (cssFont) => { ctx.font = cssFont; return ctx.measureText(TEST_TEKST).width; };
+  const basis = Object.fromEntries(BASISLETTERS.map((b) => [b, meet(`${TEST_GROOTTE} ${b}`)]));
 
   const available = [];
   let i = 0;
   while (i < fontList.length) {
     await new Promise((resolve) => idle((deadline) => {
+      // Na een timeout is er geen vrije tijd: dan toch een klein stuk.
+      const eind = deadline.didTimeout ? Math.min(fontList.length, i + 8) : fontList.length;
       do {
         const font = fontList[i++];
-        ctx.font = `${testSize} '${font}', ${baselineFont}`;
-        if (ctx.measureText(testString).width !== baselineWidth) {
-          available.push(font);
-        }
-      } while (i < fontList.length && deadline.timeRemaining() > 4);
+        if (lettertypeAanwezig(meet, font, basis)) available.push(font);
+      } while (i < eind && (deadline.didTimeout || deadline.timeRemaining() > 4));
       resolve();
     }));
   }
@@ -231,7 +273,8 @@ async function detectAvailableFonts(fontList) {
 
 // Ensure a font exists in the store; if not, add it in sorted order
 export function ensureFontInStore(fontFamily) {
-  if (!fontFamily) return;
+  // 'mixed' is de waarde van een meervoudige selectie, geen lettertype.
+  if (!fontFamily || fontFamily === 'mixed') return;
   const fonts = systemFontList();
   if (fonts.includes(fontFamily)) return;
   const newFonts = [...fonts, fontFamily].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));

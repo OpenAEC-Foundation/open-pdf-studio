@@ -9,7 +9,8 @@
     "behavior": "Comportamento",
     "fileAssociation": "Associação de arquivos",
     "virtualPrinter": "Impressora virtual",
-    "pageDisplay": "Exibição de página"
+    "pageDisplay": "Exibição de página",
+    "keyboardShortcuts": "Atalhos de teclado"
   },
   "resetToDefaults": "Redefinir para os padrões",
   "resetConfirm": "Redefinir todas as preferências para os valores padrão?",
@@ -167,6 +168,7 @@
     "confirmBeforeDeleting": "Confirmar antes de excluir anotações",
     "navigation": "Navegação",
     "wheelZoomWithoutCtrl": "Zoom com a roda do mouse (sem segurar Ctrl)",
+    "middleDoubleClickFit": "Clicar duas vezes com o botão do meio do rato para ajustar a página",
     "dynamicScaling": "Dimensionar marcações automaticamente"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Seta aberta (invertida)",
     "closedArrowReversed": "Seta fechada (invertida)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Atalhos de teclado",
+    "search": "Pesquisar por comando ou tecla",
+    "command": "Comando",
+    "shortcuts": "Atalhos",
+    "none": "Nenhum",
+    "noMatches": "Nenhum comando corresponde à pesquisa.",
+    "selectHint": "Selecione um comando para alterar os seus atalhos.",
+    "addShortcut": "Adicionar atalho",
+    "remove": "Remover atalho",
+    "resetCommand": "Repor predefinição",
+    "resetAll": "Repor tudo",
+    "resetAllConfirm": "Repor todos os atalhos de teclado para as predefinições?",
+    "import": "Importar…",
+    "export": "Exportar…",
+    "fileType": "Atalhos de teclado",
+    "imported": "Atalhos importados. Clique em Guardar para os aplicar.",
+    "importFailed": "Este não é um ficheiro de atalhos de teclado válido.",
+    "exported": "Atalhos exportados.",
+    "exportFailed": "Falha ao exportar os atalhos:",
+    "recording": "Prima a nova combinação de teclas… (Esc cancela)",
+    "conflict": "{{keys}} já é usado por “{{command}}”.",
+    "reassign": "Reatribuir",
+    "reserved": "{{keys}} tem um significado fixo e não pode ser atribuído.",
+    "defaultLabel": "Predefinição: {{keys}}",
+    "customize": "Personalizar…",
+    "fixedGroup": "Teclas fixas",
+    "applyHint": "As alterações entram em vigor quando clicar em Guardar.",
+    "categories": {
+      "file": "Ficheiro",
+      "edit": "Editar",
+      "view": "Ver",
+      "search": "Localizar",
+      "tools": "Ferramentas",
+      "drafting": "Auxiliares de desenho",
+      "panels": "Painéis",
+      "review": "Revisão",
+      "help": "Ajuda",
+      "extensions": "Extensões",
+      "ribbon": "Friso: {{tab}}",
+      "other": "Outros"
+    },
+    "commands": {
+      "findNext": "Localizar seguinte"
+    }
   }
 }

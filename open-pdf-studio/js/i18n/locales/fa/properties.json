@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 آلومینیوم/برنز/مس",
       "nen47-kunststof": "NEN47-22 پلاستیک",
       "nen47-afdichtingsmiddel": "NEN47-23 درزگیر",
-      "nen47-maaiveld": "NEN47-25 تراز زمین"
+      "nen47-maaiveld": "NEN47-25 تراز زمین",
+      "staal-dubbel": "فولاد (خط دوتایی)",
+      "raster-liggend": "شبکه مستطیلی افقی",
+      "raster-staand": "شبکه مستطیلی عمودی",
+      "tegel-halfsteens": "کاشی (درز متناوب)",
+      "plank-halfsteens": "تخته (درز متناوب)",
+      "grond-blokjes": "خاک (بلوک)",
+      "glas-strepen": "شیشه (خطوط نما)",
+      "vloeistof-strepen": "مایع (خطوط)",
+      "gras-pollen": "چمن (بوته)",
+      "honingraat": "لانه زنبوری",
+      "lijnen-groep-verticaal": "گروه خطوط عمودی",
+      "lood-blokken": "سرب (بلوک)",
+      "glas-doorsnede": "شیشه (برش)",
+      "wand-metselwerk": "دیوار بنایی (جفت خط)"
     },
-    "rotation": "چرخش"
+    "rotation": "چرخش",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "سبک خط",
@@ -189,7 +207,9 @@
     "bold": "ضخیم",
     "italic": "کج",
     "underline": "زیرخط",
-    "strikethrough": "خط‌خورده"
+    "strikethrough": "خط‌خورده",
+    "fontNotEmbedded": "قلم {{font}} در PDF جاسازی نمی‌شود. برنامه‌هایی که این قلم را ندارند {{fallback}} را نشان می‌دهند.",
+    "fontReplaced": "قلم {{font}} را نمی‌توان در PDF جاسازی کرد. متن با {{fallback}} ذخیره می‌شود."
   },
   "paragraph": {
     "title": "پاراگراف",
@@ -198,7 +218,11 @@
     "alignCenter": "تراز وسط",
     "alignRight": "تراز راست",
     "lineSpacing": "فاصله خطوط",
-    "rotation": "چرخش"
+    "rotation": "چرخش",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "پاسخ‌ها",
@@ -722,5 +746,49 @@
     "invalid": "مکان به‌روزرسانی نشد",
     "rules": "تخصیص از مرکز کادر محصورکننده نشانه‌گذاری، با احتساب لبه‌ها، استفاده می‌کند. عمیق‌ترین ناحیه برنده است، سپس کوچک‌ترین مساحت، سپس شناسه ناحیه. از چندضلعی‌های راست‌خط بدون حفره یا کادرهای بدون چرخش استفاده کنید. هویت‌های ناحیه نامعتبر یا تکراری کنار گذاشته می‌شوند.",
     "loading": "حاشیه‌نویسی‌ها در حال بارگذاری‌اند: مکان‌ها ممکن است هنوز تغییر کنند."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "بتن",
+      "metselwerk": "بنایی",
+      "isolatie": "عایق",
+      "zand": "ماسه/سیمان",
+      "algemeen": "عمومی (مورب)",
+      "inb-sloop": "تخریب",
+      "inb-staal": "فولاد (خط دوتایی)",
+      "inb-diagonaal-smal": "مورب متراکم",
+      "inb-diagonaal-midden": "مورب متوسط",
+      "inb-diagonaal-breed": "مورب باز",
+      "inb-raster-fijn": "شبکه ریز",
+      "inb-raster-midden": "شبکه متوسط",
+      "inb-raster-grof": "شبکه درشت",
+      "inb-raster-liggend-1": "شبکه افقی ریز",
+      "inb-raster-liggend-2": "شبکه افقی متوسط",
+      "inb-raster-liggend-3": "شبکه افقی درشت",
+      "inb-raster-staand-1": "شبکه عمودی ریز",
+      "inb-raster-staand-2": "شبکه عمودی متوسط",
+      "inb-raster-staand-3": "شبکه عمودی درشت",
+      "inb-tegels-fijn": "کاشی کوچک",
+      "inb-tegels-midden": "کاشی متوسط",
+      "inb-tegels-grof": "کاشی بزرگ",
+      "inb-planken-fijn": "تخته باریک",
+      "inb-planken-midden": "تخته متوسط",
+      "inb-planken-grof": "تخته پهن",
+      "inb-kruis-fijn": "هاشور متقاطع ریز",
+      "inb-kruis-midden": "هاشور متقاطع متوسط",
+      "inb-kruis-grof": "هاشور متقاطع درشت",
+      "inb-baksteen": "آجر",
+      "inb-grond": "خاک",
+      "inb-glas": "شیشه (نما)",
+      "inb-vloeistof": "مایع",
+      "inb-gras": "چمن",
+      "inb-honingraat": "لانه زنبوری",
+      "inb-hout": "چوب (مقطع عرضی)",
+      "inb-zand": "ماسه",
+      "inb-beton": "بتن (خال‌دار)",
+      "inb-verticaal-smal": "عمودی متراکم",
+      "inb-verticaal-breed": "عمودی باز",
+      "inb-horizontaal-breed": "افقی باز"
+    }
   }
 }

@@ -515,14 +515,40 @@ export async function writeBinaryFile(path, data) {
   throw new Error('FS plugin not available');
 }
 
+let _volgendeSchrijfId = 0;
+
 // PDF saves must never truncate the original before all bytes are safely staged.
-export async function writeBinaryFileAtomic(path, data) {
-  if (!isTauri()) return writeBinaryFile(path, data);
+//
+// `annulering` (pdf/saver/opslag-annuleren.js, #766): op de desktop krijgt het
+// Rust-commando een id mee; annuleren vraagt `cancel_file_write`, en Rust stopt
+// dan vóór het hernoemen en verwijdert het tijdelijke bestand (de fout bevat
+// 'opds-write-cancelled'). Komt het annuleren pas na het hernoemen, dan slaagt
+// het schrijven gewoon. Zonder Tauri (download, gastsite) is het schrijven niet
+// te onderbreken: de annulering wordt daar vóór het schrijven vastgelegd.
+export async function writeBinaryFileAtomic(path, data, { annulering = null } = {}) {
+  if (!isTauri()) {
+    annulering?.vastleggen?.();
+    return writeBinaryFile(path, data);
+  }
   const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
   const mobile = window.__TAURI__?.os?.type?.() === 'android';
-  await getTauriCore().invoke('write_file_atomic', mobile ? { data: Array.from(bytes) } : bytes, {
-    headers: { 'x-opds-path': encodeURIComponent(path) },
-  });
+  const headers = { 'x-opds-path': encodeURIComponent(path) };
+  let afmelden = null;
+  if (annulering) {
+    annulering.controleer?.();
+    const id = `${Date.now().toString(36)}-${++_volgendeSchrijfId}`;
+    headers['x-opds-cancel-id'] = id;
+    afmelden = annulering.opWijziging?.(() => {
+      if (!annulering.geannuleerd) return;
+      Promise.resolve(getTauriCore().invoke('cancel_file_write', { id }))
+        .catch((e) => console.warn('[save] cancelling the write failed:', e));
+    }) || null;
+  }
+  try {
+    await getTauriCore().invoke('write_file_atomic', mobile ? { data: Array.from(bytes) } : bytes, { headers });
+  } finally {
+    afmelden?.();
+  }
   return true;
 }
 

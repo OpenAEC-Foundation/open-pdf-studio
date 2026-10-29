@@ -177,6 +177,10 @@
     "documentAndMarkups": "Dokument a značky",
     "document": "Dokument",
     "printAsImage": "Tisknout jako obrázek",
+    "colorMode": "Barevný režim:",
+    "colorModeColor": "Barevně",
+    "colorModeGrayscale": "Odstíny šedi",
+    "colorModeBlackWhite": "Černobíle",
     "pagesToPrint": "stránek k tisku",
     "noPrinterSelected": "Není vybrána žádná tiskárna.",
     "noPagesToPrint": "Žádné stránky k tisku.",
@@ -1599,5 +1603,30 @@
       "supersede": "Nahrazeno",
       "expire": "Vypršelo"
     }
+  },
+  "pageOrganizer": {
+    "title": "Upravit stránky",
+    "hint": "Přetažením stránky přesunete; přetažením souboru PDF vložíte jeho stránky. Ctrl+klik, Shift+klik nebo zaškrtávací políčka vyberou více stránek. Do Použít se nic nezmění.",
+    "moveLeft": "Posunout doleva",
+    "moveRight": "Posunout doprava",
+    "moveToStart": "Přesunout na začátek",
+    "moveToEnd": "Přesunout na konec",
+    "selection": "Vybráno stránek: {{selected}} z {{total}}",
+    "rotateLeft": "Otočit doleva",
+    "rotateRight": "Otočit doprava",
+    "split": "Rozdělit",
+    "splitTitle": "Umístit značky rozdělení kolem vybraných stránek: každý úsek bude samostatný soubor",
+    "splitHere": "Rozdělit zde (umístit nebo odebrat značku rozdělení)",
+    "extractTitle": "Extrahovat vybrané stránky do nového souboru",
+    "blankPage": "Prázdná stránka",
+    "pagesFromFile": "Stránky ze souboru…",
+    "insertHere": "Vložit stránky sem",
+    "select": "Vybrat stránku",
+    "zoom": "Lupa",
+    "parts": "Při použití rozděleno do {{count}} souborů",
+    "chooseFolder": "Vyberte složku pro rozdělené soubory",
+    "fileFailed": "{{name}} nelze přečíst: {{error}}",
+    "applyFailed": "Úpravy stránek se nepodařilo použít: {{error}}",
+    "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}"
   }
 }

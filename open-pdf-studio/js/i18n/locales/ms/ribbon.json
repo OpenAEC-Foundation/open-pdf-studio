@@ -328,7 +328,9 @@
     "scanText": "Sunting Teks Imbasan",
     "scanTextHint": "Klik perkataan yang dikenal pasti untuk menggantikannya. Perkataan lama dalam imbasan akan ditutup.",
     "scanTextNone": "Tiada teks yang dikenal pasti pada halaman ini. Jalankan Pengecaman Teks (OCR) dahulu.",
-    "shiftPage": "Alih halaman"
+    "shiftPage": "Alih halaman",
+    "editPages": "Edit Halaman",
+    "editPagesTitle": "Edit halaman secara visual: susun semula, putar, sisip, padam, ekstrak dan pisah"
   },
   "help": {
     "settings": "Tetapan",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Tampal kawasan yang dipotong di sini, dengan mengekalkan data vektor",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Saiz simbol baharu diletakkan",
-    "symbolScaleCustom": "Skala tersuai"
+    "symbolScaleCustom": "Skala tersuai",
+    "count": "Kira",
+    "arc": "Lengkok"
   },
   "proofread": {
     "group": "Pembacaan Pruf",
@@ -678,6 +682,7 @@
     "saveNote": "Nota dan penanda lain tanpa rupa pada halaman kekal sebagai penanda. Fail hanya berubah apabila anda menyimpan; sehingga itu Buat asal membatalkan langkah ini.",
     "ok": "Ratakan",
     "busy": "Meratakan penanda...",
+    "cancelled": "Pemerataan dibatalkan. Dokumen tidak diubah.",
     "nothing": "Dokumen ini tiada penanda untuk diratakan.",
     "nothingBaked": "Tiada penanda yang mempunyai rupa pada halaman, jadi tiada apa yang diratakan.",
     "notLoaded": "Penanda dokumen ini masih dimuatkan. Cuba lagi sebentar nanti.",

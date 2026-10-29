@@ -62,6 +62,33 @@ export function mapPdfFontName(pdfName) {
   return spaced ? { family: spaced, bold, italic } : null;
 }
 
+/**
+ * Het lettertype uit /RC (rich text, XHTML) van een FreeText: de eerste
+ * familie uit `font-family:` of uit de `font:`-verkorting ("12pt Georgia").
+ * Een generieke familie (sans-serif, serif, ...) telt niet. Zonder /DS was
+ * dit de enige plek waar het lettertype stond, en de lader las het niet: het
+ * vak kwam terug in de letter van /DA, meestal Helvetica (#765).
+ * @param {string} rc
+ * @returns {string|null}
+ */
+export function rcLettertype(rc) {
+  if (!rc) return null;
+  const tekst = String(rc).replace(/&quot;|&#34;/g, '"').replace(/&apos;|&#39;/g, "'");
+  const lijsten = [];
+  for (const m of tekst.matchAll(/font-family\s*:\s*([^;"]+|"[^"]*"[^;"]*)/gi)) lijsten.push(m[1]);
+  for (const m of tekst.matchAll(/(?:^|[;\s"'])font\s*:\s*([^;"]*)/gi)) {
+    const na = m[1].match(/[\d.]+(?:pt|px|em|%)(?:\s*\/\s*[\d.]+\w*)?\s+(.+)$/i);
+    if (na) lijsten.push(na[1]);
+  }
+  for (const lijst of lijsten) {
+    for (const deel of lijst.split(',')) {
+      const naam = deel.trim().replace(/^['"]|['"]$/g, '').trim();
+      if (naam && !/^(sans-serif|serif|monospace|cursive|fantasy|system-ui|inherit|initial)$/i.test(naam)) return naam;
+    }
+  }
+  return null;
+}
+
 // Helper to map PDF.js borderStyle.style to our border style string
 // PDF.js values: 1=SOLID, 2=DASHED, 3=BEVELED, 4=INSET, 5=UNDERLINE
 export function mapBorderStyle(annot, extraColors) {

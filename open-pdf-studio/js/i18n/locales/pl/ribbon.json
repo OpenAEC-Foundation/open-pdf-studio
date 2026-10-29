@@ -328,7 +328,9 @@
     "scanText": "Edytuj zeskanowany tekst",
     "scanTextHint": "Kliknij rozpoznane słowo, aby je zastąpić. Stare słowo na skanie zostanie zakryte.",
     "scanTextNone": "Brak rozpoznanego tekstu na tej stronie. Najpierw uruchom Rozpoznawanie tekstu (OCR).",
-    "shiftPage": "Przesuń stronę"
+    "shiftPage": "Przesuń stronę",
+    "editPages": "Edytuj strony",
+    "editPagesTitle": "Edytuj strony wizualnie: zmieniaj kolejność, obracaj, wstawiaj, usuwaj, wyodrębniaj i dziel"
   },
   "help": {
     "settings": "Ustawienia",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Wklej tutaj wycięty obszar, zachowując dane wektorowe",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Rozmiar, w jakim umieszczany jest nowy symbol",
-    "symbolScaleCustom": "Skala niestandardowa"
+    "symbolScaleCustom": "Skala niestandardowa",
+    "count": "Liczenie",
+    "arc": "Łuk"
   },
   "proofread": {
     "group": "Korekta",
@@ -678,6 +682,7 @@
     "saveNote": "Notatki i inne adnotacje bez wyglądu na stronie pozostają adnotacjami. Plik zmienia się dopiero po zapisaniu; do tego czasu Cofnij odwraca ten krok.",
     "ok": "Spłaszcz",
     "busy": "Spłaszczanie adnotacji...",
+    "cancelled": "Spłaszczanie anulowane. Dokument nie został zmieniony.",
     "nothing": "Ten dokument nie zawiera adnotacji do spłaszczenia.",
     "nothingBaked": "Żadna z adnotacji nie ma wyglądu na stronie, więc nic nie zostało spłaszczone.",
     "notLoaded": "Adnotacje tego dokumentu wciąż się wczytują. Spróbuj ponownie za chwilę.",

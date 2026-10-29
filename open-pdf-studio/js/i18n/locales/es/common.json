@@ -34,6 +34,10 @@
   "draw": "Dibujar",
   "saved": "Guardado",
   "documentChangedDuringSave": "El documento cambió mientras se guardaba. Vuelva a guardar.",
+  "savingPdf": "Guardando PDF…",
+  "saveCancelling": "Cancelando el guardado…",
+  "saveCancelled": "Guardado cancelado. El archivo no se ha modificado.",
+  "saveCancelTooLate": "El archivo ya se había guardado; era demasiado tarde para cancelar.",
   "documentChangedDuringExport": "El documento cambió durante la exportación. Vuelva a empezar.",
   "rasterExportProgress": "Rasterizando páginas: {{done}} de {{total}}",
   "search": "Buscar",
@@ -249,6 +253,10 @@
     "closeTab": "Cerrar pestaña",
     "nextTab": "Pestaña siguiente",
     "previousTab": "Pestaña anterior"
+  },
+  "pageNav": {
+    "nextPage": "Página siguiente",
+    "previousPage": "Página anterior"
   },
   "quickAccess": {
     "exportRaster": "Exportar como PDF rasterizado (se abre en una pestaña nueva)"

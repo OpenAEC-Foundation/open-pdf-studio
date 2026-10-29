@@ -161,3 +161,117 @@ test('the AUR reference PKGBUILD and .SRCINFO agree (#620)', async () => {
   assert.doesNotMatch(srcinfo, /depends = .*(tesseract|leptonica)/i);
   assert.doesNotMatch(srcinfo, /\r/, '.SRCINFO uses LF line endings');
 });
+
+test('the .deb/AppImage desktop file accepts files, so "Open with" lists the app (#748)', async () => {
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const linux = await readJson('src-tauri/tauri.linux.conf.json');
+  const template = linux.bundle.linux?.deb?.desktopTemplate ?? base.bundle.linux?.deb?.desktopTemplate;
+  assert.ok(template, 'bundle.linux.deb.desktopTemplate is set (the AppImage reuses it)');
+  const desktop = await readFile(new URL(`src-tauri/${template}`, appRoot), 'utf8');
+  // Without a field code GNOME/Cinnamon do not offer the app for files.
+  assert.match(desktop, /^Exec=\{\{exec\}\} %U$/m);
+  // The MimeType list must end with ';' (Tauri joins the types without one).
+  assert.match(desktop, /^MimeType=\{\{mime_type\}\};$/m);
+  assert.match(desktop, /^Icon=\{\{icon\}\}$/m);
+});
+
+function pngSize(bytes) {
+  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  assert.deepEqual([...bytes.subarray(0, 8)], signature, 'PNG signature');
+  assert.equal(bytes.toString('latin1', 12, 16), 'IHDR');
+  return {
+    width: bytes.readUInt32BE(16),
+    height: bytes.readUInt32BE(20),
+    bitDepth: bytes[24],
+    colorType: bytes[25],
+  };
+}
+
+function desktopEntry(text) {
+  const entry = {};
+  for (const line of text.replace(/\r\n/g, '\n').split('\n')) {
+    const match = line.trim().match(/^([A-Za-z]+)=(.*)$/);
+    if (match) entry[match[1]] = match[2];
+  }
+  return entry;
+}
+
+test('the bundle lists a complete square RGBA icon set for Linux (#774)', async () => {
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const icons = base.bundle.icon;
+  const expected = {
+    'icons/icon.png': 512,
+    'icons/32x32.png': 32,
+    'icons/64x64.png': 64,
+    'icons/128x128.png': 128,
+    'icons/128x128@2x.png': 256,
+    'icons/256x256.png': 256,
+    'icons/512x512.png': 512,
+  };
+  for (const name of [...Object.keys(expected), 'icons/icon.icns', 'icons/icon.ico']) {
+    assert.ok(icons.includes(name), `bundle.icon lists ${name}`);
+  }
+  // Tauri takes the first PNG in the list as the default window icon on Linux.
+  assert.equal(icons.find((icon) => icon.endsWith('.png')), 'icons/icon.png');
+
+  for (const [name, size] of Object.entries(expected)) {
+    const png = pngSize(await readFile(new URL(`src-tauri/${name}`, appRoot)));
+    assert.equal(png.width, size, `${name} width`);
+    assert.equal(png.height, size, `${name} height`);
+    assert.equal(png.bitDepth, 8, `${name} is 8 bits per channel`);
+    assert.equal(png.colorType, 6, `${name} is RGBA`);
+  }
+});
+
+test('desktop entries use the installed icon name and the window class (#774)', async () => {
+  // Windows checkouts use CRLF; the checks below work per line.
+  const leesLf = async (url) => (await readFile(url, 'utf8')).replace(/\r\n/g, '\n');
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const cargo = await leesLf(new URL('src-tauri/Cargo.toml', appRoot));
+  const binary = base.mainBinaryName ?? cargo.match(/^name\s*=\s*"([^"]+)"/m)[1];
+  assert.equal(binary, 'open-pdf-studio');
+  // Without enableGTKAppId GTK takes the binary name as WM_CLASS and Wayland
+  // app_id; that is what the .deb/AppImage desktop file (<binary>.desktop) and
+  // StartupWMClass below match.
+  assert.notEqual(base.app?.enableGTKAppId, true);
+
+  const flatpakId = 'org.openaec.OpenPdfStudio';
+  assert.equal(flatpakId.toLowerCase(), base.identifier.toLowerCase());
+  const manifest = await leesLf(new URL(`flatpak/${flatpakId}.yml`, repoRoot));
+  assert.match(manifest, new RegExp(`^app-id: ${flatpakId.replace(/\./g, '\\.')}$`, 'm'));
+  const flatpak = desktopEntry(
+    await leesLf(new URL(`flatpak/${flatpakId}.desktop`, repoRoot)),
+  );
+  assert.equal(flatpak.Icon, flatpakId);
+  assert.equal(flatpak.StartupWMClass, binary);
+
+  const flake = await leesLf(new URL('flake.nix', repoRoot));
+  // The scalable icon (icon-new.svg, the same design as the PNGs) stays.
+  for (const [naam, tekst] of [['flatpak', manifest], ['flake', flake]]) {
+    assert.match(tekst, /icons\/icon-new\.svg[^\n]*\n?[^\n]*hicolor\/scalable\/apps\/org\.openaec\.OpenPdfStudio\.svg/,
+      `${naam} installs the scalable icon`);
+  }
+  for (const size of ['32x32', '64x64', '128x128', '256x256', '512x512']) {
+    const target = `hicolor/${size}/apps/${flatpakId}.png`;
+    assert.ok(
+      manifest.includes(`src-tauri/icons/${size}.png \${FLATPAK_DEST}/share/icons/${target}`),
+      `flatpak installs ${target}`,
+    );
+    assert.ok(flake.includes(`src-tauri/icons/${size}.png}`), `flake installs ${size}`);
+    assert.ok(flake.includes(`/share/icons/${target}`), `flake installs ${target}`);
+  }
+
+  const snapcraft = await leesLf(new URL('snap/snapcraft.yaml', repoRoot));
+  const snapDesktop = snapcraft.match(/cat > [^\n]*open-pdf-studio\.desktop << 'EOF'\n([\s\S]*?)\n\s*EOF/);
+  assert.ok(snapDesktop, 'snapcraft.yaml writes the desktop entry');
+  const snapEntries = [
+    desktopEntry(snapDesktop[1]),
+    desktopEntry(await leesLf(new URL('snap/gui/open-pdf-studio.desktop', repoRoot))),
+  ];
+  for (const entry of snapEntries) {
+    // The .deb inside the snap puts its icons at hicolor/<size>/apps/<binary>.png;
+    // directories such as 256x256@2 are not part of the icon theme.
+    assert.equal(entry.Icon, `\${SNAP}/usr/share/icons/hicolor/512x512/apps/${binary}.png`);
+    assert.equal(entry.StartupWMClass, binary);
+  }
+});

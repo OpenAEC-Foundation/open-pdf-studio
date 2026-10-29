@@ -125,10 +125,6 @@ fn get_opened_file(state: tauri::State<OpenedFiles>) -> Vec<String> {
 ///   Op het bureaublad komt een content-URI nooit voor en telt hij niet.
 ///
 /// Andere schema's (de deep-link-plugin, https) laten we met rust.
-#[cfg_attr(
-    not(any(test, target_os = "macos", target_os = "ios", target_os = "android")),
-    allow(dead_code)
-)]
 fn geopend_pdf_document(url: &url::Url, android: bool) -> Option<String> {
     match url.scheme() {
         "file" => url
@@ -139,6 +135,28 @@ fn geopend_pdf_document(url: &url::Url, android: bool) -> Option<String> {
         "content" if android => Some(url.as_str().to_string()),
         _ => None,
     }
+}
+
+/// Welk PDF-bestand opent een opdrachtregelargument?
+///
+/// Windows en de meeste starters geven een pad door. Een Linux-starter met
+/// `Exec=open-pdf-studio %U` (GNOME/Cinnamon "Openen met", #748) geeft een
+/// `file://`-URI, met procenttekens voor spaties en andere tekens; die
+/// wordt een pad. Opties (`-...`) en andere schema's tellen niet.
+fn pdf_uit_argument(arg: &str) -> Option<String> {
+    if arg.starts_with('-') {
+        return None;
+    }
+    // `get` en geen `[..7]`: byte 7 kan midden in een UTF-8-teken vallen
+    // (bijv. "ééééé.pdf"), en dan zou de app bij de start in paniek raken.
+    if arg.len() > 7 && arg.get(..7).is_some_and(|p| p.eq_ignore_ascii_case("file://")) {
+        return url::Url::parse(arg).ok().and_then(|u| geopend_pdf_document(&u, false));
+    }
+    // Een deep link of web-URL is geen bestand (de deep-link-plugin doet die).
+    if arg.contains("://") {
+        return None;
+    }
+    arg.to_lowercase().ends_with(".pdf").then(|| arg.to_string())
 }
 
 #[tauri::command]
@@ -260,11 +278,40 @@ fn write_file(path: String, data: String) -> Result<bool, String> {
     Ok(true)
 }
 
+// Writes that can still be cancelled (#766), by the id from the
+// x-opds-cancel-id header. A cancel for an id that has not started yet is kept,
+// so the write stops before it begins.
+type SchrijfAnnuleringen = std::sync::Mutex<std::collections::HashMap<String, std::sync::Arc<std::sync::atomic::AtomicBool>>>;
+static SCHRIJF_ANNULERINGEN: std::sync::OnceLock<SchrijfAnnuleringen> = std::sync::OnceLock::new();
+
+fn schrijf_annuleringen() -> std::sync::MutexGuard<'static, std::collections::HashMap<String, std::sync::Arc<std::sync::atomic::AtomicBool>>> {
+    SCHRIJF_ANNULERINGEN.get_or_init(Default::default).lock().unwrap_or_else(|e| e.into_inner())
+}
+
+fn schrijf_annulering(id: &str) -> std::sync::Arc<std::sync::atomic::AtomicBool> {
+    schrijf_annuleringen().entry(id.to_string()).or_default().clone()
+}
+
+/// Cancel a running `write_file_atomic` before it replaces its destination.
+#[tauri::command]
+fn cancel_file_write(id: String) {
+    if id.is_empty() || id.len() > 64 { return; }
+    let mut lijst = schrijf_annuleringen();
+    // A cancel that arrived just after its write finished leaves an entry
+    // nobody uses; keep the list small.
+    if lijst.len() > 64 {
+        lijst.retain(|_, vlag| std::sync::Arc::strong_count(vlag) > 1);
+    }
+    lijst.entry(id).or_default().store(true, std::sync::atomic::Ordering::SeqCst);
+}
+
 #[tauri::command]
 async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), String> {
     let header = request.headers().get("x-opds-path")
         .ok_or("Missing destination path")?.to_str().map_err(|e| e.to_string())?;
     let path = urlencoding::decode(header).map_err(|e| e.to_string())?.into_owned();
+    let cancel_id = request.headers().get("x-opds-cancel-id")
+        .and_then(|v| v.to_str().ok()).filter(|v| !v.is_empty() && v.len() <= 64).map(str::to_string);
     let bytes = match request.body() {
         tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
         // Android cannot transport a raw IPC body.
@@ -273,9 +320,17 @@ async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), Strin
                 .map_err(|e| e.to_string())?
         }
     };
-    tauri::async_runtime::spawn_blocking(move || {
-        atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())
-    }).await.map_err(|e| e.to_string())?
+    let Some(id) = cancel_id else {
+        return tauri::async_runtime::spawn_blocking(move || {
+            atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())
+        }).await.map_err(|e| e.to_string())?;
+    };
+    let cancelled = schrijf_annulering(&id);
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        atomic_file::write_cancellable(std::path::Path::new(&path), &bytes, &cancelled).map_err(|e| e.to_string())
+    }).await.map_err(|e| e.to_string());
+    schrijf_annuleringen().remove(&id);
+    result?
 }
 
 #[tauri::command]
@@ -2739,8 +2794,7 @@ pub fn run(opts: StartupOpts) {
     // Collect any PDF file paths passed on the command line (for file associations)
     let opened_files: Vec<String> = args.iter()
         .skip(1)
-        .filter(|arg| arg.to_lowercase().ends_with(".pdf") && !arg.starts_with('-'))
-        .cloned()
+        .filter_map(|arg| pdf_uit_argument(arg))
         .collect();
 
     // Spawn the PDFium worker pool. Failures here are non-fatal — the
@@ -2859,8 +2913,7 @@ pub fn run(opts: StartupOpts) {
                         let _ = window.set_focus();
                     }
                     let files: Vec<String> = argv.iter()
-                        .filter(|arg: &&String| arg.to_lowercase().ends_with(".pdf") && !arg.starts_with('-'))
-                        .cloned()
+                        .filter_map(|arg| pdf_uit_argument(arg))
                         .collect();
                     for path in &files {
                         let _ = app.fs_scope().allow_file(path);
@@ -3095,6 +3148,7 @@ pub fn run(opts: StartupOpts) {
             read_file,
             write_file,
             write_file_atomic,
+            cancel_file_write,
             write_file_new,
             write_downloaded_file_new,
             file_exists,
@@ -3307,7 +3361,7 @@ pub fn run(opts: StartupOpts) {
 
 #[cfg(test)]
 mod geopend_document_tests {
-    use super::geopend_pdf_document;
+    use super::{geopend_pdf_document, pdf_uit_argument};
 
     fn url(s: &str) -> url::Url {
         url::Url::parse(s).expect("geldige URL")
@@ -3340,6 +3394,40 @@ mod geopend_document_tests {
         }
         let tekst = url::Url::from_file_path(std::env::temp_dir().join("notities.txt")).unwrap();
         assert_eq!(geopend_pdf_document(&tekst, true), None);
+    }
+
+    #[test]
+    fn argument_pad_of_file_uri_wordt_een_pdf_pad() {
+        // Gewoon pad (Windows, %F-starters, terminal).
+        assert_eq!(pdf_uit_argument("/home/a/Plan.PDF").as_deref(), Some("/home/a/Plan.PDF"));
+        assert_eq!(pdf_uit_argument("C:\\tekening.pdf").as_deref(), Some("C:\\tekening.pdf"));
+        // %U-starter (#748): file-URI met procentcodering.
+        let pad = std::env::temp_dir().join("Bouw tekening #2.pdf");
+        let uri = url::Url::from_file_path(&pad).expect("absoluut pad");
+        assert!(uri.as_str().contains("%20"), "{uri}");
+        assert_eq!(pdf_uit_argument(uri.as_str()), Some(pad.to_string_lossy().to_string()));
+        assert_eq!(pdf_uit_argument(&uri.as_str().replacen("file", "FILE", 1)), Some(pad.to_string_lossy().to_string()));
+    }
+
+    #[test]
+    fn argument_met_niet_ascii_tekens_raakt_niet_in_paniek() {
+        // Byte 7 valt midden in een UTF-8-teken: geen paniek bij de start.
+        for a in ["ééééé.pdf", "/tmp/€€€.pdf", "C:\\Bé€sd.pdf", "Ünterlagen/Plan.pdf"] {
+            assert_eq!(pdf_uit_argument(a).as_deref(), Some(a), "{a}");
+        }
+        assert_eq!(pdf_uit_argument("ééééé.txt"), None);
+        // Een file-URI van een pad met niet-ASCII-tekens wordt dat pad.
+        let pad = std::env::temp_dir().join("Bouwtekening é€ ü.pdf");
+        let uri = url::Url::from_file_path(&pad).expect("absoluut pad");
+        assert_eq!(pdf_uit_argument(uri.as_str()), Some(pad.to_string_lossy().to_string()));
+    }
+
+    #[test]
+    fn argument_zonder_pdf_opties_en_andere_schemas_tellen_niet() {
+        for a in ["--version", "-psn_0_123.pdf", "notities.txt", "file:///tmp/notities.txt",
+                  "openpdfstudio://open/x.pdf", "https://example.com/a.pdf", "file://"] {
+            assert_eq!(pdf_uit_argument(a), None, "{a}");
+        }
     }
 
     #[test]

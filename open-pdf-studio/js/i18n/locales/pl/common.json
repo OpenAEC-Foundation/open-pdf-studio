@@ -34,6 +34,10 @@
   "draw": "Rysuj",
   "saved": "Zapisano",
   "documentChangedDuringSave": "Dokument zmienił się podczas zapisywania. Zapisz ponownie.",
+  "savingPdf": "Zapisywanie PDF…",
+  "saveCancelling": "Anulowanie zapisu…",
+  "saveCancelled": "Zapis anulowany. Plik nie został zmieniony.",
+  "saveCancelTooLate": "Plik był już zapisany; było za późno na anulowanie.",
   "documentChangedDuringExport": "Dokument zmienił się podczas eksportu. Zacznij od nowa.",
   "rasterExportProgress": "Rasteryzowanie stron: {{done}} z {{total}}",
   "search": "Szukaj",
@@ -249,6 +253,10 @@
     "closeTab": "Zamknij kartę",
     "nextTab": "Następna karta",
     "previousTab": "Poprzednia karta"
+  },
+  "pageNav": {
+    "nextPage": "Następna strona",
+    "previousPage": "Poprzednia strona"
   },
   "quickAccess": {
     "exportRaster": "Eksportuj jako rastrowy PDF (otwiera się w nowej karcie)"

@@ -34,6 +34,10 @@
   "draw": "ציור",
   "saved": "נשמר",
   "documentChangedDuringSave": "המסמך השתנה במהלך השמירה. שמור שוב.",
+  "savingPdf": "שומר PDF…",
+  "saveCancelling": "מבטל את השמירה…",
+  "saveCancelled": "השמירה בוטלה. הקובץ לא שונה.",
+  "saveCancelTooLate": "הקובץ כבר נשמר; היה מאוחר מדי לבטל.",
   "documentChangedDuringExport": "המסמך השתנה במהלך הייצוא. התחל מחדש.",
   "rasterExportProgress": "המרת עמודים לרסטר: {{done}} מתוך {{total}}",
   "search": "חיפוש",
@@ -249,6 +253,10 @@
     "closeTab": "סגירת לשונית",
     "nextTab": "הכרטיסייה הבאה",
     "previousTab": "הכרטיסייה הקודמת"
+  },
+  "pageNav": {
+    "nextPage": "עמוד הבא",
+    "previousPage": "עמוד קודם"
   },
   "quickAccess": {
     "exportRaster": "ייצוא כ-PDF רסטרי (נפתח בלשונית חדשה)"

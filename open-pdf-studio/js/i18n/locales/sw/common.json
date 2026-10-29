@@ -34,6 +34,10 @@
   "draw": "Chora",
   "saved": "Imehifadhiwa",
   "documentChangedDuringSave": "Hati ilibadilika wakati wa kuhifadhi. Hifadhi tena.",
+  "savingPdf": "Inahifadhi PDF…",
+  "saveCancelling": "Inaghairi uhifadhi…",
+  "saveCancelled": "Uhifadhi umeghairiwa. Faili haikubadilishwa.",
+  "saveCancelTooLate": "Faili lilikuwa limeshahifadhiwa; ilikuwa kuchelewa mno kughairi.",
   "documentChangedDuringExport": "Hati ilibadilika wakati wa kuhamisha nje. Anza tena.",
   "rasterExportProgress": "Inageuza kurasa kuwa picha: {{done}} kati ya {{total}}",
   "search": "Tafuta",
@@ -249,6 +253,10 @@
     "closeTab": "Funga kichupo",
     "nextTab": "Kichupo Kinachofuata",
     "previousTab": "Kichupo Kilichotangulia"
+  },
+  "pageNav": {
+    "nextPage": "Ukurasa Ujao",
+    "previousPage": "Ukurasa Uliopita"
   },
   "quickAccess": {
     "exportRaster": "Hamisha nje kama PDF ya raster (hufunguka kwenye kichupo kipya)"

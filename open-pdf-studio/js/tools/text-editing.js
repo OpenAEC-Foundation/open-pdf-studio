@@ -7,7 +7,7 @@ import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { injectSyntheticTextSpans } from '../text/text-layer.js';
-import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
+import { invertPageRotation, resolveTextEditPageGeometry, toStandardFontName } from '../text/text-edit-appearance.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import { paginaNaarClient, weergaveRotatie } from '../pdf/weergave-ruimte.js';
@@ -21,6 +21,37 @@ import {
   getTextEditLineRuns as getLineRuns,
   openStickyPopup,
 } from '../bridge.js';
+import { setOverlayStyle as setTextEditOverlayStyle } from '../solid/stores/textEditOverlayStore.js';
+
+// Schaal van de open editor (CSS-pixels per paginapunt), voor werkEditorStijlBij.
+let _editorSchaal = 1.5;
+
+// CSS-lettertypeketen zoals shapes.js drawTextboxContent: eerst de variant
+// met spaties ("SegoeUI" → "Segoe UI"), dan de naam zelf, dan sans-serif.
+function cssLettertype(fontFamily) {
+  const raw = fontFamily || 'Arial';
+  const quote = s => `"${s.replace(/"/g, '\\"')}"`;
+  const expanded = raw.replace(/([a-z])([A-Z])/g, '$1 $2');
+  const chain = [];
+  if (expanded !== raw) chain.push(quote(expanded));
+  chain.push(/[\s"',]/.test(raw) ? quote(raw) : raw);
+  chain.push('sans-serif');
+  return chain.join(', ');
+}
+
+/**
+ * Het eigenschappenpaneel wijzigt lettertype, grootte of kleur terwijl de
+ * editor van dit vak open is (#765): pas de editor meteen aan.
+ */
+export function werkEditorStijlBij(annotation) {
+  if (!state.isEditingText || !annotation || state.editingAnnotation?.id !== annotation.id) return;
+  setTextEditOverlayStyle((stijl) => ({
+    ...stijl,
+    'font-family': cssLettertype(annotation.fontFamily),
+    'font-size': `${(annotation.fontSize || 14) * _editorSchaal}px`,
+    color: annotation.textColor || annotation.color || '#000000',
+  }));
+}
 
 // Start inline text editing for textbox/callout
 // Inline opmaak (deels vet/cursief) uit de editor overnemen: alleen bewaren
@@ -111,14 +142,8 @@ export function startTextEditing(annotation) {
   // (Times Serif on Windows), giving a font that differs from what the
   // canvas renders → user sees one shape while editing, another after
   // commit.
-  const rawFontFamily = annotation.fontFamily || 'Arial';
-  const _cssQuote = s => `"${s.replace(/"/g, '\\"')}"`;
-  const _expanded = rawFontFamily.replace(/([a-z])([A-Z])/g, '$1 $2');
-  const _chain = [];
-  if (_expanded !== rawFontFamily) _chain.push(_cssQuote(_expanded));
-  _chain.push(/[\s"',]/.test(rawFontFamily) ? _cssQuote(rawFontFamily) : rawFontFamily);
-  _chain.push('sans-serif');
-  const cssFontFamily = _chain.join(', ');
+  const cssFontFamily = cssLettertype(annotation.fontFamily);
+  _editorSchaal = scale;
 
   // Rand en opvulling zo dat de editor op dezelfde breedte afbreekt als het
   // canvas (zie text-edit-vak.js): anders sprong een woord dat op het canvas
@@ -164,6 +189,13 @@ export function startTextEditing(annotation) {
   if (annotation.fontBold) styleObj['font-weight'] = 'bold';
   if (annotation.fontItalic) styleObj['font-style'] = 'italic';
   if (annotation.textAlign) styleObj['text-align'] = annotation.textAlign;
+  // Verticale uitlijning: de tekst blijft tijdens het bewerken staan waar de
+  // canvas hem tekent (rendering/textbox-layout.js, verticaleVerschuiving).
+  if (annotation.textVAlign === 'middle' || annotation.textVAlign === 'bottom') {
+    styleObj.display = 'flex';
+    styleObj['flex-direction'] = 'column';
+    styleObj['justify-content'] = annotation.textVAlign === 'middle' ? 'center' : 'flex-end';
+  }
   // Line spacing: CSS line-height adds half-leading above first line.
   // To show spacing only below text, we shift the textarea up inside a clipping wrapper.
   // Match shapes.js DEFAULT_LINE_SPACING (=1.2) so the edit overlay shows
@@ -365,28 +397,10 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   const pdfX = unrotatedPoint.x;
   const pdfY = geometry.pageHeight - unrotatedPoint.y;
 
-  // Map dialog font family + bold/italic to standard PDF font name
-  const fn = (result.fontFamily || 'Arial').toLowerCase();
-  const isBold = result.fontBold || false;
-  const isItalic = result.fontItalic || false;
-  let fontFamily;
-  if (fn.includes('courier') || fn.includes('consolas') || fn.includes('mono')) {
-    fontFamily = isBold && isItalic ? 'Courier-BoldOblique'
-      : isBold ? 'Courier-Bold'
-      : isItalic ? 'Courier-Oblique'
-      : 'Courier';
-  } else if (fn.includes('times') || fn.includes('garamond') || fn.includes('georgia')
-      || fn.includes('palatino') || fn.includes('cambria') || fn.includes('bookman')) {
-    fontFamily = isBold && isItalic ? 'TimesRoman-BoldItalic'
-      : isBold ? 'TimesRoman-Bold'
-      : isItalic ? 'TimesRoman-Italic'
-      : 'TimesRoman';
-  } else {
-    fontFamily = isBold && isItalic ? 'Helvetica-BoldOblique'
-      : isBold ? 'Helvetica-Bold'
-      : isItalic ? 'Helvetica-Oblique'
-      : 'Helvetica';
-  }
+  // Map dialog font family + bold/italic to standard PDF font name. Tekst in
+  // de pagina komt altijd in een standaardletter; de dialoog meldt welke
+  // (lettertype-inbedding.js, #765). Zelfde indeling als PDF-tekst bewerken.
+  const fontFamily = toStandardFontName(result.fontFamily || 'Arial', !!result.fontBold, !!result.fontItalic);
 
   const fontSize = result.fontSize || 16;
 

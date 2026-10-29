@@ -328,7 +328,9 @@
     "scanText": "Editar texto escaneado",
     "scanTextHint": "Haga clic en una palabra reconocida para reemplazarla. La palabra antigua del escaneo queda cubierta.",
     "scanTextNone": "No hay texto reconocido en esta página. Ejecute primero Reconocimiento de texto (OCR).",
-    "shiftPage": "Desplazar página"
+    "shiftPage": "Desplazar página",
+    "editPages": "Editar páginas",
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir"
   },
   "help": {
     "settings": "Configuración",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Pega aquí el área recortada, conservando los datos vectoriales",
     "symbolScale": "Escala",
     "symbolScaleTitle": "Tamaño con el que se coloca un símbolo nuevo",
-    "symbolScaleCustom": "Escala personalizada"
+    "symbolScaleCustom": "Escala personalizada",
+    "count": "Contar",
+    "arc": "Arco"
   },
   "proofread": {
     "group": "Revisión",
@@ -678,6 +682,7 @@
     "saveNote": "Las notas y otras marcas sin apariencia en la página siguen siendo marcas. El archivo solo cambia al guardar; hasta entonces, Deshacer revierte este paso.",
     "ok": "Aplanar",
     "busy": "Aplanando marcas...",
+    "cancelled": "Acoplamiento cancelado. El documento no se ha modificado.",
     "nothing": "Este documento no tiene marcas que aplanar.",
     "nothingBaked": "Ninguna de las marcas tiene apariencia en la página, así que no se aplanó nada.",
     "notLoaded": "Las marcas de este documento aún se están cargando. Inténtelo de nuevo en un momento.",

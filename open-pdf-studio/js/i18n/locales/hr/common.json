@@ -34,6 +34,10 @@
   "draw": "Crtaj",
   "saved": "Spremljeno",
   "documentChangedDuringSave": "Dokument se promijenio tijekom spremanja. Spremite ponovno.",
+  "savingPdf": "Spremanje PDF-a…",
+  "saveCancelling": "Otkazivanje spremanja…",
+  "saveCancelled": "Spremanje otkazano. Datoteka nije promijenjena.",
+  "saveCancelTooLate": "Datoteka je već bila spremljena; bilo je prekasno za otkazivanje.",
   "documentChangedDuringExport": "Dokument se promijenio tijekom izvoza. Počnite ispočetka.",
   "rasterExportProgress": "Rasterizacija stranica: {{done}} od {{total}}",
   "search": "Pretraži",
@@ -249,6 +253,10 @@
     "closeTab": "Zatvori karticu",
     "nextTab": "Sljedeća kartica",
     "previousTab": "Prethodna kartica"
+  },
+  "pageNav": {
+    "nextPage": "Sljedeća stranica",
+    "previousPage": "Prethodna stranica"
   },
   "quickAccess": {
     "exportRaster": "Izvezi kao rasterski PDF (otvara se u novoj kartici)"

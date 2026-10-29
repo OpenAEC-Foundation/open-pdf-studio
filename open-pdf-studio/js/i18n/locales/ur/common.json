@@ -34,6 +34,10 @@
   "draw": "ڈرا کریں",
   "saved": "محفوظ ہو گیا",
   "documentChangedDuringSave": "محفوظ کرتے وقت دستاویز تبدیل ہو گئی۔ دوبارہ محفوظ کریں۔",
+  "savingPdf": "PDF محفوظ ہو رہی ہے…",
+  "saveCancelling": "محفوظ کرنا منسوخ ہو رہا ہے…",
+  "saveCancelled": "محفوظ کرنا منسوخ کر دیا گیا۔ فائل تبدیل نہیں ہوئی۔",
+  "saveCancelTooLate": "فائل پہلے ہی محفوظ ہو چکی تھی؛ منسوخ کرنے میں بہت دیر ہو گئی تھی۔",
   "documentChangedDuringExport": "برآمد کے دوران دستاویز تبدیل ہو گئی۔ دوبارہ شروع کریں۔",
   "rasterExportProgress": "صفحات کو راسٹر کیا جا رہا ہے: {{total}} میں سے {{done}}",
   "search": "تلاش",
@@ -249,6 +253,10 @@
     "closeTab": "ٹیب بند کریں",
     "nextTab": "اگلا ٹیب",
     "previousTab": "پچھلا ٹیب"
+  },
+  "pageNav": {
+    "nextPage": "اگلا صفحہ",
+    "previousPage": "پچھلا صفحہ"
   },
   "quickAccess": {
     "exportRaster": "راسٹر PDF کے طور پر برآمد کریں (نئے ٹیب میں کھلتا ہے)"

@@ -328,7 +328,9 @@
     "scanText": "Modifier le texte numérisé",
     "scanTextHint": "Cliquez sur un mot reconnu pour le remplacer. L'ancien mot de la numérisation est masqué.",
     "scanTextNone": "Aucun texte reconnu sur cette page. Lancez d'abord Reconnaissance de texte (OCR).",
-    "shiftPage": "Décaler la page"
+    "shiftPage": "Décaler la page",
+    "editPages": "Modifier les pages",
+    "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner"
   },
   "help": {
     "settings": "Paramètres",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Coller ici la zone découpée en conservant ses données vectorielles",
     "symbolScale": "Échelle",
     "symbolScaleTitle": "Taille à laquelle un nouveau symbole est placé",
-    "symbolScaleCustom": "Échelle personnalisée"
+    "symbolScaleCustom": "Échelle personnalisée",
+    "count": "Compter",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Relecture",
@@ -678,6 +682,7 @@
     "saveNote": "Les notes et autres annotations sans apparence sur la page restent des annotations. Le fichier ne change qu'à l'enregistrement ; d'ici là, Annuler annule cette étape.",
     "ok": "Aplatir",
     "busy": "Aplatissement des annotations...",
+    "cancelled": "Aplatissement annulé. Le document n’a pas été modifié.",
     "nothing": "Ce document ne contient aucune annotation à aplatir.",
     "nothingBaked": "Aucune annotation n'a d'apparence sur la page ; rien n'a été aplati.",
     "notLoaded": "Les annotations de ce document sont encore en cours de chargement. Réessayez dans un instant.",

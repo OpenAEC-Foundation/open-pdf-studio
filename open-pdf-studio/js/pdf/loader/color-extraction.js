@@ -1,6 +1,6 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString } from 'pdf-lib';
-import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
+import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype } from './pdf-helpers.js';
 import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
@@ -1273,6 +1273,10 @@ const result = {};
             const rcObj = context.lookup(rcRaw) || rcRaw;
             const rcStr = rcObj instanceof PDFHexString ? rcObj.decodeText() : (rcRaw.toString?.() || '');
             if (rcStr) {
+              // Lettertype uit /RC: telt als /DR en /DS er geen geven (#765).
+              const rcFont = rcLettertype(rcObj instanceof PDFHexString ? rcStr
+                : (typeof rcRaw.decodeText === 'function' ? rcRaw.decodeText() : rcStr));
+              if (rcFont) colors.rcFontFamily = rcFont;
               // Check for text-decoration in style attributes
               const decoMatch = rcStr.match(/text-decoration\s*:\s*([^;"']+)/i);
               if (decoMatch) {
@@ -1420,6 +1424,7 @@ const result = {};
             }
           } catch (e) { /* ignore DS parsing errors */ }
         }
+        if (!colors.fontFamily && colors.rcFontFamily) colors.fontFamily = colors.rcFontFamily;
 
         // /Q: uitlijning van de tekst (0 links, 1 midden, 2 rechts) (#619).
         const qRaw = annotDict.get(PDFName.of('Q'));
@@ -1436,6 +1441,22 @@ const result = {};
           if (rv !== null) colors.rotation = rv;
           // De app schrijft deze sleutel bij elke FreeText: een eigen bestand.
           colors.opsRotationKey = true;
+        }
+
+        // De vorm van het vak (afgerond of ovaal), zie rendering/textbox-vorm.js.
+        const opsVormRaw = annotDict.get(PDFName.of('OPS_BoxShape'));
+        if (opsVormRaw) {
+          const vv = context.lookup(opsVormRaw) || opsVormRaw;
+          const naam = typeof vv?.asString === 'function' ? vv.asString().replace(/^\//, '') : '';
+          if (naam === 'rounded' || naam === 'ellipse') colors.boxShape = naam;
+        }
+
+        // Verticale uitlijning van de tekst (midden of onder; boven is de standaard).
+        const opsVUitRaw = annotDict.get(PDFName.of('OPS_TextVAlign'));
+        if (opsVUitRaw) {
+          const vu = context.lookup(opsVUitRaw) || opsVUitRaw;
+          const vnaam = typeof vu?.asString === 'function' ? vu.asString().replace(/^\//, '') : '';
+          if (vnaam === 'middle' || vnaam === 'bottom') colors.textVAlign = vnaam;
         }
 
         // /LE van een callout (#612): volgens de specificatie één naam, sommige

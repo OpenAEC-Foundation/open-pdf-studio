@@ -26,8 +26,10 @@ jobs:
       # Rechtstreeks vite: `npm run build` draait via prebuild ook
       # `cargo build -p pdfium-worker`, en die vindt geen Cargo.toml omdat de
       # deploy alleen de map open-pdf-studio uitcheckt. De website heeft die
-      # native worker niet nodig.
-      build_command: cd open-pdf-studio && npx vite build && node scripts/web-statistics.mjs
+      # native worker niet nodig. OPDS_WEB_BUILD=1 markeert het als webbouw:
+      # desktopmodules zoals de sleepplugin vallen eruit (#776,
+      # open-pdf-studio/scripts/web-bouw.mjs).
+      build_command: cd open-pdf-studio && OPDS_WEB_BUILD=1 npx vite build && node scripts/web-statistics.mjs
       checkout_sparse: |
         open-pdf-studio
     secrets:

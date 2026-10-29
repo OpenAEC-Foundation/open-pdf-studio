@@ -3,6 +3,7 @@ import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import i18next from '../../i18n/config.js';
 import { invoke } from '../../core/platform.js';
+import { laadDesktopDragPlugin } from '../../core/desktop-drag-plugin.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 import {
   revealInFileManager,
@@ -295,11 +296,10 @@ let _dragModulePromise = null;
 let _dragIconPromise = null;
 function preloadDragDeps() {
   if (!_dragModulePromise) {
-    // Tab naar buiten slepen kan alleen op het bureaublad. In de gehoste build
-    // valt de import zo weg en zit de plugin niet in de webbundel (#692).
-    _dragModulePromise = import.meta.env.MODE === 'hosted'
-      ? Promise.resolve(null)
-      : import('@crabnebula/tauri-plugin-drag').catch(() => null);
+    // Tab naar buiten slepen kan alleen op het bureaublad. In elke webbouw
+    // zet Vite hier een lege vervanger neer, zodat de plugin niet in de
+    // webbundel komt (#692, #776; scripts/web-bouw.mjs).
+    _dragModulePromise = laadDesktopDragPlugin();
   }
   if (!_dragIconPromise) {
     _dragIconPromise = invoke('drag_icon_path').catch(() => '');

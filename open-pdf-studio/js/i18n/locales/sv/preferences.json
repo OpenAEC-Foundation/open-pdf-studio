@@ -9,7 +9,8 @@
     "behavior": "Beteende",
     "fileAssociation": "Filassociation",
     "virtualPrinter": "Virtuell skrivare",
-    "pageDisplay": "Sidvisning"
+    "pageDisplay": "Sidvisning",
+    "keyboardShortcuts": "Kortkommandon"
   },
   "resetToDefaults": "Återställ till standard",
   "resetConfirm": "Återställ alla inställningar till standardvärden?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll",
     "navigation": "Navigering",
     "wheelZoomWithoutCtrl": "Zooma med mushjulet (utan att hålla ned Ctrl)",
+    "middleDoubleClickFit": "Dubbelklicka med mittenknappen för att anpassa sidan",
     "dynamicScaling": "Skala markeringar automatiskt"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Öppen pil (omvänd)",
     "closedArrowReversed": "Stängd pil (omvänd)",
     "slash": "Snedstreck"
+  },
+  "keyboardShortcuts": {
+    "title": "Kortkommandon",
+    "search": "Sök efter kommando eller tangent",
+    "command": "Kommando",
+    "shortcuts": "Kortkommandon",
+    "none": "Inga",
+    "noMatches": "Inga kommandon matchar sökningen.",
+    "selectHint": "Välj ett kommando för att ändra dess kortkommandon.",
+    "addShortcut": "Lägg till kortkommando",
+    "remove": "Ta bort kortkommando",
+    "resetCommand": "Återställ standard",
+    "resetAll": "Återställ alla",
+    "resetAllConfirm": "Återställa alla kortkommandon till standard?",
+    "import": "Importera…",
+    "export": "Exportera…",
+    "fileType": "Kortkommandon",
+    "imported": "Kortkommandon importerade. Klicka på Spara för att använda dem.",
+    "importFailed": "Detta är ingen giltig fil med kortkommandon.",
+    "exported": "Kortkommandon exporterade.",
+    "exportFailed": "Det gick inte att exportera kortkommandona:",
+    "recording": "Tryck på den nya tangentkombinationen… (Esc avbryter)",
+    "conflict": "{{keys}} används redan av ”{{command}}”.",
+    "reassign": "Tilldela om",
+    "reserved": "{{keys}} har en fast betydelse och kan inte tilldelas.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Anpassa…",
+    "fixedGroup": "Fasta tangenter",
+    "applyHint": "Ändringarna gäller när du klickar på Spara.",
+    "categories": {
+      "file": "Arkiv",
+      "edit": "Redigera",
+      "view": "Visa",
+      "search": "Sök",
+      "tools": "Verktyg",
+      "drafting": "Rithjälpmedel",
+      "panels": "Paneler",
+      "review": "Granska",
+      "help": "Hjälp",
+      "extensions": "Tillägg",
+      "ribbon": "Menyfliksområde: {{tab}}",
+      "other": "Övrigt"
+    },
+    "commands": {
+      "findNext": "Sök nästa"
+    }
   }
 }

@@ -34,6 +34,10 @@
   "draw": "Lukis",
   "saved": "Disimpan",
   "documentChangedDuringSave": "Dokumen berubah semasa disimpan. Simpan semula.",
+  "savingPdf": "Menyimpan PDF…",
+  "saveCancelling": "Membatalkan penyimpanan…",
+  "saveCancelled": "Penyimpanan dibatalkan. Fail tidak diubah.",
+  "saveCancelTooLate": "Fail telah pun disimpan; sudah terlambat untuk membatalkan.",
   "documentChangedDuringExport": "Dokumen berubah semasa eksport. Mulakan semula.",
   "rasterExportProgress": "Merasterkan halaman: {{done}} daripada {{total}}",
   "search": "Cari",
@@ -249,6 +253,10 @@
     "closeTab": "Tutup tab",
     "nextTab": "Tab Seterusnya",
     "previousTab": "Tab Sebelumnya"
+  },
+  "pageNav": {
+    "nextPage": "Halaman Seterusnya",
+    "previousPage": "Halaman Sebelumnya"
   },
   "quickAccess": {
     "exportRaster": "Eksport sebagai PDF raster (dibuka dalam tab baharu)"

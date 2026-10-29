@@ -9,7 +9,8 @@
     "behavior": "Comportament",
     "fileAssociation": "Associació de fitxers",
     "virtualPrinter": "Impressora virtual",
-    "pageDisplay": "Visualització de pàgina"
+    "pageDisplay": "Visualització de pàgina",
+    "keyboardShortcuts": "Dreceres de teclat"
   },
   "resetToDefaults": "Reinicia als valors per defecte",
   "resetConfirm": "Voleu reiniciar totes les preferències als valors per defecte?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
     "navigation": "Navegació",
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
+    "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",
     "dynamicScaling": "Escala automàticament les marques"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Fletxa oberta (invertida)",
     "closedArrowReversed": "Fletxa tancada (invertida)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Dreceres de teclat",
+    "search": "Cerca per ordre o tecla",
+    "command": "Ordre",
+    "shortcuts": "Dreceres",
+    "none": "Cap",
+    "noMatches": "Cap ordre coincideix amb la cerca.",
+    "selectHint": "Seleccioneu una ordre per canviar-ne les dreceres.",
+    "addShortcut": "Afegeix una drecera",
+    "remove": "Elimina la drecera",
+    "resetCommand": "Restableix el valor per defecte",
+    "resetAll": "Restableix-ho tot",
+    "resetAllConfirm": "Voleu restablir totes les dreceres de teclat als valors per defecte?",
+    "import": "Importa…",
+    "export": "Exporta…",
+    "fileType": "Dreceres de teclat",
+    "imported": "Dreceres importades. Feu clic a Desa per aplicar-les.",
+    "importFailed": "Aquest no és un fitxer de dreceres de teclat vàlid.",
+    "exported": "Dreceres exportades.",
+    "exportFailed": "No s’han pogut exportar les dreceres:",
+    "recording": "Premeu la nova combinació de tecles… (Esc cancel·la)",
+    "conflict": "{{keys}} ja l’utilitza «{{command}}».",
+    "reassign": "Reassigna",
+    "reserved": "{{keys}} té un significat fix i no es pot assignar.",
+    "defaultLabel": "Per defecte: {{keys}}",
+    "customize": "Personalitza…",
+    "fixedGroup": "Tecles fixes",
+    "applyHint": "Els canvis s’apliquen quan feu clic a Desa.",
+    "categories": {
+      "file": "Fitxer",
+      "edit": "Edita",
+      "view": "Visualitza",
+      "search": "Cerca",
+      "tools": "Eines",
+      "drafting": "Ajudes de dibuix",
+      "panels": "Plafons",
+      "review": "Revisió",
+      "help": "Ajuda",
+      "extensions": "Extensions",
+      "ribbon": "Cinta: {{tab}}",
+      "other": "Altres"
+    },
+    "commands": {
+      "findNext": "Cerca el següent"
+    }
   }
 }

@@ -9,7 +9,8 @@
     "behavior": "Hành vi",
     "fileAssociation": "Liên kết Tệp",
     "virtualPrinter": "Máy in Ảo",
-    "pageDisplay": "Hiển thị trang"
+    "pageDisplay": "Hiển thị trang",
+    "keyboardShortcuts": "Phím tắt"
   },
   "resetToDefaults": "Đặt lại Mặc định",
   "resetConfirm": "Đặt lại tất cả tùy chọn về giá trị mặc định?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Bắt dính nội dung bản vẽ PDF",
     "navigation": "Điều hướng",
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
+    "middleDoubleClickFit": "Nhấp đúp nút giữa chuột để vừa trang",
     "dynamicScaling": "Tự động co giãn đánh dấu"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Mũi tên mở (đảo ngược)",
     "closedArrowReversed": "Mũi tên đóng (đảo ngược)",
     "slash": "Gạch chéo"
+  },
+  "keyboardShortcuts": {
+    "title": "Phím tắt",
+    "search": "Tìm theo lệnh hoặc phím",
+    "command": "Lệnh",
+    "shortcuts": "Phím tắt",
+    "none": "Không có",
+    "noMatches": "Không có lệnh nào khớp với tìm kiếm.",
+    "selectHint": "Chọn một lệnh để thay đổi phím tắt của nó.",
+    "addShortcut": "Thêm phím tắt",
+    "remove": "Xóa phím tắt",
+    "resetCommand": "Đặt lại mặc định",
+    "resetAll": "Đặt lại tất cả",
+    "resetAllConfirm": "Đặt lại tất cả phím tắt về mặc định?",
+    "import": "Nhập…",
+    "export": "Xuất…",
+    "fileType": "Phím tắt",
+    "imported": "Đã nhập phím tắt. Nhấp Lưu để áp dụng.",
+    "importFailed": "Đây không phải tệp phím tắt hợp lệ.",
+    "exported": "Đã xuất phím tắt.",
+    "exportFailed": "Xuất phím tắt thất bại:",
+    "recording": "Nhấn tổ hợp phím mới… (Esc để hủy)",
+    "conflict": "{{keys}} đã được “{{command}}” sử dụng.",
+    "reassign": "Gán lại",
+    "reserved": "{{keys}} có ý nghĩa cố định và không thể gán.",
+    "defaultLabel": "Mặc định: {{keys}}",
+    "customize": "Tùy chỉnh…",
+    "fixedGroup": "Phím cố định",
+    "applyHint": "Thay đổi có hiệu lực khi bạn nhấp Lưu.",
+    "categories": {
+      "file": "Tệp",
+      "edit": "Chỉnh sửa",
+      "view": "Xem",
+      "search": "Tìm",
+      "tools": "Công cụ",
+      "drafting": "Hỗ trợ vẽ",
+      "panels": "Bảng",
+      "review": "Xem lại",
+      "help": "Trợ giúp",
+      "extensions": "Tiện ích mở rộng",
+      "ribbon": "Ruy-băng: {{tab}}",
+      "other": "Khác"
+    },
+    "commands": {
+      "findNext": "Tìm tiếp"
+    }
   }
 }

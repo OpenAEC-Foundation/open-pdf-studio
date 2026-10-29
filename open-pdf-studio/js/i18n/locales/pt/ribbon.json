@@ -328,7 +328,9 @@
     "scanText": "Editar texto digitalizado",
     "scanTextHint": "Clique em uma palavra reconhecida para substituí-la. A palavra antiga na digitalização fica coberta.",
     "scanTextNone": "Nenhum texto reconhecido nesta página. Execute primeiro Reconhecimento de texto (OCR).",
-    "shiftPage": "Deslocar página"
+    "shiftPage": "Deslocar página",
+    "editPages": "Editar páginas",
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, inserir, excluir, extrair e dividir"
   },
   "help": {
     "settings": "Configurações",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Cole aqui a área recortada, mantendo os dados vetoriais",
     "symbolScale": "Escala",
     "symbolScaleTitle": "Tamanho com que um novo símbolo é colocado",
-    "symbolScaleCustom": "Escala personalizada"
+    "symbolScaleCustom": "Escala personalizada",
+    "count": "Contar",
+    "arc": "Arco"
   },
   "proofread": {
     "group": "Revisão",
@@ -678,6 +682,7 @@
     "saveNote": "Notas e outras marcações sem aparência na página continuam sendo marcações. O arquivo só muda ao salvar; até lá, Desfazer reverte esta etapa.",
     "ok": "Achatar",
     "busy": "Achatando marcações...",
+    "cancelled": "Achatamento cancelado. O documento não foi alterado.",
     "nothing": "Este documento não tem marcações para achatar.",
     "nothingBaked": "Nenhuma das marcações tem aparência na página, por isso nada foi achatado.",
     "notLoaded": "As marcações deste documento ainda estão carregando. Tente novamente em instantes.",

@@ -5,7 +5,7 @@ import { heeftGekozenAfbeelding, wisAfbeeldingSelectie, deleteSelectedEmbeddedIm
 import { showPreferencesDialog, setAsDefaultStyle } from '../core/preferences.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { copyAndMove } from './edit-ops.js';
-import { showDocPropertiesDialog, showNewDocDialog } from '../ui/chrome/dialogs.js';
+import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../ui/chrome/dialogs.js';
 import { copyAnnotation, copyAnnotations, pasteAnnotation, pasteAnnotations } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
@@ -37,12 +37,63 @@ import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewer
 import { gevelPreset } from '../gevelelement/herkenning.js';
 import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../annotations/corrections/model.js';
 import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
-import { installProofreadingKeys } from './proofreading-mode.js';
+import { installProofreadingKeys, toggleProofreading } from './proofreading-mode.js';
+import { paginaSneltoetsRichting, paginaToetsVoorInvoer, paginaSprongDoel, maakPaginaBladeraar } from '../pdf/pagina-sneltoets.js';
+import {
+  sneltoetsActief, eigenSneltoetsVoor, voerSneltoetsUit, sneltoetsInInvoer,
+  maakStandaardToets, zetIngebouwdeUitvoerder, isSneltoetsOpname,
+} from '../core/keybindings/app-shortcuts.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
   else redrawAnnotations();
 }
+
+// ── Aanpasbare sneltoetsen (#714) ─────────────────────────────────────────
+// De ingebouwde toetsen hieronder houden hun eigen afhandeling, met alle
+// uitzonderingen. Elke tak vraagt eerst of zijn toets nog bij zijn opdracht
+// hoort (de gebruiker kan hem verwijderd of aan een andere opdracht gegeven
+// hebben); zo niet, dan doet de tak niets. Een toets die de gebruiker zelf
+// aan een opdracht gaf, loopt via eigenSneltoetsVoor/voerSneltoetsUit; voor
+// een ingebouwde opdracht draait dan dezelfde tak hieronder, met een
+// nagebootste standaardtoets die de opdracht bij naam draagt (GEFORCEERD).
+const GEFORCEERD = '__sneltoetsOpdracht';
+function aan(e, id, combo) {
+  if (e && e[GEFORCEERD]) return e[GEFORCEERD] === id;
+  return sneltoetsActief(id, combo) !== false;
+}
+
+function modaalOpen() {
+  return !!isModalOpen() || (typeof getDialogs === 'function' && (getDialogs() || []).length > 0);
+}
+
+function wisselObjectSnap() {
+  try {
+    state.preferences.enableObjectSnap = !state.preferences.enableObjectSnap;
+    import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
+  } catch (_) {}
+}
+
+// Een ingebouwde opdracht uitvoeren voor een zelf gekozen toets.
+async function voerIngebouwdeOpdrachtUit(id, e) {
+  if (id === 'search.find') { openFindBar(); return; }
+  if (id === 'search.findNext') {
+    if (state.search.isOpen) onFindNext();
+    else openFindBar();
+    return;
+  }
+  if (id === 'drafting.objectSnap') { wisselObjectSnap(); return; }
+  // Ctrl+P staat in main.js (vóór de afdrukdialoog van de WebView), F2 in proofreading-mode.js.
+  if (id === 'file.print') { showPrintDialog(); return; }
+  if (id === 'review.proofreading') { toggleProofreading(); return; }
+  const nep = maakStandaardToets(e, id);
+  if (!nep) return;
+  nep[GEFORCEERD] = id;
+  // Volgende/vorige pagina op een zelf gekozen toets (#714, #751).
+  if (handlePaginaSneltoets(nep)) return;
+  await voerStandaardToetsUit(nep);
+}
+zetIngebouwdeUitvoerder(voerIngebouwdeOpdrachtUit);
 
 // Paginarotatie via sneltoets. Zelfde undo-bare pad als de draaiknoppen op de
 // tabbladen Beeld en Organiseren (pagina-draaien.js, #464).
@@ -125,7 +176,7 @@ const CAD_CHORDS = {
   // chord-commando geregistreerd staan: de buffer consumeert 't' als prefix
   // van 'tr'/'tx'/'tl', en alleen geregistreerde commando's vuren bij de
   // time-out — zonder deze regel deed een losse T dus helemaal niets.
-  't': () => setTool('textbox'),
+  't': () => { if (sneltoetsActief('tool.textbox', 'T') !== false) setTool('textbox'); },
   'tr': () => setTool('trim'),
   'ex': () => setTool('extend'),
   'tx': () => setTool('textbox'),
@@ -276,10 +327,98 @@ function pijlVoorBesturing(e) {
   return typeof t?.closest === 'function' && !!t.closest(PIJL_BESTURING);
 }
 
+// ── Bladeren: PageDown / PageUp naar de volgende/vorige pagina (#751, #713) ──
+// Zelfde navigatie als de knoppen Vorige/Volgende in het lint (goToPage), dus
+// de zoom blijft staan; facing springt een hele spread. De bladeraar laat bij
+// ingedrukt houden toetsherhalingen vallen zolang de vorige sprong nog loopt
+// (render, of de vloeiende scroll in de doorlopende weergave).
+
+// Doorlopende weergave: de pagina die bovenaan in beeld staat. currentPage
+// volgt daar het MIDDEN van het beeld (en loopt tijdens een vloeiende scroll
+// even mee), dus uitgezoomd zou PageDown anders een pagina overslaan.
+function paginaBovenInBeeld(doc) {
+  if (doc?.viewMode !== 'continuous' || doc.facingSpread) return doc?.currentPage || 1;
+  const container = document.getElementById('pdf-container');
+  if (!container) return doc.currentPage || 1;
+  const boven = container.getBoundingClientRect().top + 4;
+  let gevonden = null;
+  document.querySelectorAll('#continuous-container .page-wrapper').forEach((w) => {
+    const pagina = parseInt(w.dataset.page, 10);
+    if (Number.isFinite(pagina) && w.getBoundingClientRect().top <= boven
+        && (gevonden === null || pagina > gevonden)) gevonden = pagina;
+  });
+  return gevonden ?? (doc.currentPage || 1);
+}
+
+// Klaar als de sprong in beeld staat: na een frame, en in de doorlopende
+// weergave pas als de scrollpositie een paar frames stilstaat.
+function paginaSprongInBeeld() {
+  return new Promise((klaar) => {
+    const container = document.getElementById('pdf-container');
+    const scrollt = getActiveDocument()?.viewMode === 'continuous' && !getActiveDocument()?.facingSpread;
+    let vorige = container ? container.scrollTop : 0;
+    let stil = 0;
+    let gedaan = false;
+    const af = () => { if (!gedaan) { gedaan = true; klaar(); } };
+    const stap = () => {
+      if (gedaan) return;
+      if (!scrollt || !container) { setTimeout(af, 0); return; }
+      const nu = container.scrollTop;
+      stil = nu === vorige ? stil + 1 : 0;
+      vorige = nu;
+      if (stil >= 3) af();
+      else requestAnimationFrame(stap);
+    };
+    requestAnimationFrame(stap);
+    // Vangnet voor een verborgen venster waar geen frames komen.
+    setTimeout(af, scrollt ? 1500 : 250);
+  });
+}
+
+const _paginaBladeraar = maakPaginaBladeraar({
+  blader: (richting) => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) return undefined;
+    const doel = paginaSprongDoel({
+      huidig: paginaBovenInBeeld(doc),
+      totaal: doc.pdfDoc.numPages || 1,
+      facing: !!doc.facingSpread,
+    }, richting);
+    return doel ? goToPage(doel) : undefined;
+  },
+  naBeeld: paginaSprongInBeeld,
+  wacht: (ms) => new Promise((klaar) => setTimeout(klaar, ms)),
+});
+
+/**
+ * PageUp/PageDown zonder Ctrl/Shift/Alt: bladert in de hoofdweergave.
+ * Tekstvelden, keuzelijsten, contenteditable, dialogen en een lopende
+ * tekstbewerking houden de toets. De vergelijkingsweergave vangt hem al in
+ * haar eigen capture-handler af.
+ * @returns {boolean} true als de toets hier is afgehandeld
+ */
+function handlePaginaSneltoets(e) {
+  const richting = paginaSneltoetsRichting(e);
+  // Een zelf gekozen toets (GEFORCEERD) is al door de dispatcher afgevangen.
+  if (!richting || (e.defaultPrevented && !e[GEFORCEERD])) return false;
+  // De toets moet nog bij de opdracht horen (#714): een gebruiker kan
+  // PageDown/PageUp verwijderd of aan een andere opdracht gegeven hebben.
+  if (richting > 0 ? !aan(e, 'view.nextPage', 'PageDown') : !aan(e, 'view.previousPage', 'PageUp')) return false;
+  if (paginaToetsVoorInvoer(e.target)) return false;
+  if (isModalOpen() || (typeof getDialogs === 'function' && (getDialogs() || []).length > 0)) return false;
+  if (state.isEditingText || state.pdfTextEditState) return false;
+  if (!getActiveDocument()?.pdfDoc) return false;
+  e.preventDefault();
+  _paginaBladeraar.vraag(richting, !!e.repeat);
+  return true;
+}
+
 export async function handleKeydown(e) {
   // De tabwissel-toetsen zijn al afgehandeld (of bewust geweigerd) door
   // handleTabSneltoets; niets hieronder mag er nog op reageren.
   if (tabSneltoetsRichting(e)) return;
+  // De voorkeuren nemen net een nieuwe sneltoets op (#714).
+  if (isSneltoetsOpname()) return;
 
   const ctrl = e.ctrlKey || e.metaKey;
   const shift = e.shiftKey;
@@ -291,6 +430,16 @@ export async function handleKeydown(e) {
   // Allow certain shortcuts even when in input fields
   const isInInput = isTextEntryTarget(e.target);
   const isFindInput = e.target.id === 'find-input';
+
+  // Een zelf gekozen toets voor een opdracht die ook tijdens het typen werkt
+  // (Zoeken, #714); alleen met Ctrl/Alt/Meta of een functietoets.
+  const dialoogOpen = modaalOpen();
+  const vroeg = eigenSneltoetsVoor(e, { inTextEntry: isInInput, modalOpen: dialoogOpen });
+  if (vroeg && sneltoetsInInvoer(vroeg.id)) {
+    e.preventDefault();
+    await voerSneltoetsUit(vroeg.id, e);
+    return;
+  }
 
   // Keep Select All scoped to an active text-edit session, even when focus
   // temporarily moved to the properties panel or the document itself.
@@ -315,7 +464,7 @@ export async function handleKeydown(e) {
   }
 
   // Handle find-related shortcuts even in inputs
-  if (ctrl && !shift && shortcutKey === 'f') {
+  if (ctrl && !shift && shortcutKey === 'f' && aan(e, 'search.find', 'Ctrl+F')) {
     e.preventDefault();
     openFindBar();
     return;
@@ -323,14 +472,12 @@ export async function handleKeydown(e) {
 
 
 
-  if (e.key === 'F3' && !isFindInput) {
+  if (e.key === 'F3' && !isFindInput
+      && aan(e, e.shiftKey ? 'drafting.objectSnap' : 'search.findNext', e.shiftKey ? 'Shift+F3' : 'F3')) {
     e.preventDefault();
     if (e.shiftKey) {
-      // Shift+F3: toggle master Object Snap (OSNAP) setting
-      try {
-        state.preferences.enableObjectSnap = !state.preferences.enableObjectSnap;
-        import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
-      } catch (_) {}
+      // Shift+F3: toggle the master object snap setting
+      wisselObjectSnap();
       return;
     }
     if (state.search.isOpen) {
@@ -428,7 +575,9 @@ export async function handleKeydown(e) {
   // "L"=Line, "C"=Circle, "M"=Move, "CO"=Copy, "TR"=Trim, "EX"=Extend, ...).
   // Buffer alphabetic keys for ~1.2s; on each keystroke check for a match.
   // No modifier keys (ctrl/alt) and not while a tool is mid-operation.
-  if (!ctrl && !e.altKey && /^[a-zA-Z]$/.test(e.key) && !isGMoveModeActive() && !isGRotateModeActive() && !typeLengthActive()) {
+  // Een letter die de gebruiker zelf aan een opdracht gaf (#714), gaat voor.
+  if (!ctrl && !e.altKey && /^[a-zA-Z]$/.test(e.key) && !isGMoveModeActive() && !isGRotateModeActive() && !typeLengthActive()
+      && !eigenSneltoetsVoor(e, { modalOpen: dialoogOpen })) {
     if (_cadChordTry(e.key.toLowerCase())) {
       e.preventDefault();
       return;
@@ -469,20 +618,46 @@ export async function handleKeydown(e) {
     return;
   }
 
+  // PageDown / PageUp: volgende/vorige pagina (#751, #713).
+  if (handlePaginaSneltoets(e)) return;
+
+  // Een toets die de gebruiker zelf aan een opdracht gaf (#714).
+  const eigen = eigenSneltoetsVoor(e, { modalOpen: dialoogOpen });
+  if (eigen) {
+    e.preventDefault();
+    await voerSneltoetsUit(eigen.id, e);
+    return;
+  }
+
+  return voerStandaardToetsUit(e);
+}
+
+// De ingebouwde sneltoetsen. Elke tak met een opdracht begint met aan(...):
+// hoort de toets niet meer bij de opdracht, dan doet de tak niets (#714).
+async function voerStandaardToetsUit(e) {
+  const ctrl = e.ctrlKey || e.metaKey;
+  const shift = e.shiftKey;
+  const shortcutKey = typeof e.key === 'string' ? e.key.toLowerCase() : '';
+
   // File shortcuts
   if (ctrl && !shift && shortcutKey === 'n') {
+    if (!aan(e, 'file.new', 'Ctrl+N')) return;
     e.preventDefault();
     showNewDocDialog();
   } else if (ctrl && !shift && shortcutKey === 'o') {
+    if (!aan(e, 'file.open', 'Ctrl+O')) return;
     e.preventDefault();
     openPDFFile();
   } else if (ctrl && shift && shortcutKey === 's') {
+    if (!aan(e, 'file.saveAs', 'Ctrl+Shift+S')) return;
     e.preventDefault();
     savePDFAs();
   } else if (ctrl && shortcutKey === 's') {
+    if (!aan(e, 'file.save', 'Ctrl+S')) return;
     e.preventDefault();
     savePDF();
   } else if (ctrl && !shift && shortcutKey === 'w') {
+    if (!aan(e, 'file.close', 'Ctrl+W')) return;
     e.preventDefault();
     closeActiveTab();
   }
@@ -492,15 +667,19 @@ export async function handleKeydown(e) {
 
   // Edit shortcuts
   else if (ctrl && !shift && shortcutKey === 'z') {
+    if (!aan(e, 'edit.undo', 'Ctrl+Z')) return;
     e.preventDefault();
     undo();
   } else if (ctrl && shortcutKey === 'y') {
+    if (!aan(e, 'edit.redo', 'Ctrl+Y')) return;
     e.preventDefault();
     redo();
   } else if (ctrl && shift && shortcutKey === 'z') {
+    if (!aan(e, 'edit.redo', 'Ctrl+Shift+Z')) return;
     e.preventDefault();
     redo();
   } else if (ctrl && !shift && shortcutKey === 'a') {
+    if (!aan(e, 'edit.selectAll', 'Ctrl+A')) return;
     // Ctrl+A: Select all annotations on current page
     e.preventDefault();
     const _selDoc = getActiveDocument();
@@ -515,6 +694,7 @@ export async function handleKeydown(e) {
       redraw();
     }
   } else if (e.key === 'Delete') {
+    if (!aan(e, 'edit.delete', 'Delete')) return;
     e.preventDefault();
     if (heeftGekozenAfbeelding()) {
       // Afbeelding bewerken: Delete verwijdert de gekozen afbeelding uit de pagina.
@@ -633,6 +813,7 @@ export async function handleKeydown(e) {
   }
 
   else if (ctrl && shift && shortcutKey === 'c') {
+    if (!aan(e, 'edit.clearPage', 'Ctrl+Shift+C')) return;
     e.preventDefault();
     let confirmed = false;
     if (window.__TAURI__?.dialog?.ask) {
@@ -649,6 +830,7 @@ export async function handleKeydown(e) {
       redraw();
     }
   } else if (ctrl && !shift && shortcutKey === 'x') {
+    if (!aan(e, 'edit.cut', 'Ctrl+X')) return;
     // Knippen: kopieer de selectie naar het interne klembord (en, voor
     // afbeeldingen, naar het systeemklembord) en verwijder haar daarna.
     // Zonder deze tak deed Ctrl+X niets — knippen bestond alleen als naam.
@@ -669,6 +851,7 @@ export async function handleKeydown(e) {
       redraw();
     }
   } else if (ctrl && !shift && shortcutKey === 'c') {
+    if (!aan(e, 'edit.copy', 'Ctrl+C')) return;
     // Copy selected annotations (if none selected, let native copy handle text selection)
     const _copyDoc = getActiveDocument();
     const selected = _copyDoc ? _copyDoc.selectedAnnotations : [];
@@ -678,6 +861,7 @@ export async function handleKeydown(e) {
       else copyAnnotation(selected[0]);
     }
   } else if (ctrl && shift && shortcutKey === 'v') {
+    if (!aan(e, 'edit.pasteInPlace', 'Ctrl+Shift+V')) return;
     // Plakken op plaats (paste in place) — GitHub #269: plak het interne
     // clipboard op de HUIDIGE pagina op exact de gekopieerde coördinaten.
     // preventDefault mag hier wél — dit pad gebruikt alleen het interne
@@ -687,6 +871,7 @@ export async function handleKeydown(e) {
     if (isPdfAReadOnly()) return;
     import('../annotations/clipboard.js').then(({ pasteAnnotationsInPlace }) => pasteAnnotationsInPlace());
   } else if (ctrl && !shift && shortcutKey === 'v') {
+    if (!aan(e, 'edit.paste', 'Ctrl+V')) return;
     // An annotation copied inside the app must be pasted directly. Asking the
     // native Clipboard API first can open a WebView permission prompt and
     // indefinitely postpone the internal paste (notably for line annotations).
@@ -747,12 +932,15 @@ export async function handleKeydown(e) {
       else if ((clips && clips.length === 1) || state.clipboardAnnotation) pasteAnnotation();
     }, 50);
   } else if (ctrl && e.key === ',') {
+    if (!aan(e, 'app.preferences', 'Ctrl+,')) return;
     e.preventDefault();
     showPreferencesDialog();
   } else if (ctrl && !shift && shortcutKey === 'd') {
+    if (!aan(e, 'file.properties', 'Ctrl+D')) return;
     e.preventDefault();
     showDocPropertiesDialog();
   } else if (ctrl && shortcutKey === 'l') {
+    if (!aan(e, 'view.fullscreen', 'Ctrl+L')) return;
     e.preventDefault();
     toggleFullscreen();
   }
@@ -894,30 +1082,38 @@ export async function handleKeydown(e) {
   // de code van de fysieke toets niet. Staat vóór de zoom-sneltoetsen zodat
   // Ctrl+Shift nooit als Ctrl+zoom wordt gelezen.
   else if (ctrl && shift && (e.code === 'Equal' || e.code === 'NumpadAdd')) {
+    if (!aan(e, 'view.rotatePageRight', e.code === 'NumpadAdd' ? 'Ctrl+Shift+NumpadAdd' : 'Ctrl+Shift+=')) return;
     e.preventDefault();
     rotateCurrentPageBy(90);
   } else if (ctrl && shift && (e.code === 'Minus' || e.code === 'NumpadSubtract')) {
+    if (!aan(e, 'view.rotatePageLeft', e.code === 'NumpadSubtract' ? 'Ctrl+Shift+NumpadSubtract' : 'Ctrl+Shift+-')) return;
     e.preventDefault();
     rotateCurrentPageBy(-90);
   }
 
   // View shortcuts
   else if (ctrl && e.key === '=') {
+    if (!aan(e, 'view.zoomIn', 'Ctrl+=')) return;
     e.preventDefault();
     import('../pdf/renderer.js').then(m => m.zoomIn());
   } else if (ctrl && e.key === '-') {
+    if (!aan(e, 'view.zoomOut', 'Ctrl+-')) return;
     e.preventDefault();
     import('../pdf/renderer.js').then(m => m.zoomOut());
   } else if (ctrl && e.key === '0') {
+    if (!aan(e, 'view.actualSize', 'Ctrl+0')) return;
     e.preventDefault();
     actualSize();
   } else if (ctrl && e.key === '1') {
+    if (!aan(e, 'view.fitWidth', 'Ctrl+1')) return;
     e.preventDefault();
     fitWidth();
   } else if (ctrl && e.key === '2') {
+    if (!aan(e, 'view.fitPage', 'Ctrl+2')) return;
     e.preventDefault();
     fitPage();
   } else if (ctrl && e.key === '5') {
+    if (!aan(e, 'view.thinLines', 'Ctrl+5')) return;
     e.preventDefault();
     import('../pdf/thin-lines.js').then(m => m.toggleThinLines());
   }
@@ -927,30 +1123,39 @@ export async function handleKeydown(e) {
   else if (!ctrl && getActiveDocument()?.pdfDoc) {
     const pdfaLocked = isPdfAReadOnly();
     if (e.key === 'v' || e.key === 'V') {
+      if (!aan(e, 'tool.select', 'V')) return;
       e.preventDefault();
       setTool('select');
     } else if (e.key === 'h' || e.key === 'H') {
+      if (!aan(e, 'tool.hand', 'H')) return;
       e.preventDefault();
       setTool('hand');
     } else if (!pdfaLocked && (e.key === '1')) {
+      if (!aan(e, 'tool.highlight', '1')) return;
       e.preventDefault();
       setTool('highlight');
     } else if (!pdfaLocked && (e.key === '2')) {
+      if (!aan(e, 'tool.draw', '2')) return;
       e.preventDefault();
       setTool('draw');
     } else if (!pdfaLocked && (e.key === '3')) {
+      if (!aan(e, 'tool.line', '3')) return;
       e.preventDefault();
       setTool('line');
     } else if (!pdfaLocked && (e.key === '4')) {
+      if (!aan(e, 'tool.box', '4')) return;
       e.preventDefault();
       setTool('box');
     } else if (!pdfaLocked && (e.key === '5')) {
+      if (!aan(e, 'tool.circle', '5')) return;
       e.preventDefault();
       setTool('circle');
     } else if (!pdfaLocked && (e.key === 't' || e.key === 'T')) {
+      if (!aan(e, 'tool.textbox', 'T')) return;
       e.preventDefault();
       setTool('textbox');
     } else if (!pdfaLocked && (e.key === 'n' || e.key === 'N')) {
+      if (!aan(e, 'tool.comment', 'N')) return;
       e.preventDefault();
       setTool('comment');
     }
@@ -958,34 +1163,41 @@ export async function handleKeydown(e) {
 
   // Help / drafting shortcuts
   if (e.key === 'F1') {
+    if (!aan(e, 'help.shortcuts', 'F1')) return;
     e.preventDefault();
     openDialog('shortcuts');
   } else if (e.key === 'F7') {
+    if (!aan(e, 'drafting.grid', 'F7')) return;
     // F7 — toggle dot grid visibility (AutoCAD convention)
     e.preventDefault();
     state.preferences.showGrid = !state.preferences.showGrid;
     import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
     redraw();
   } else if (e.key === 'F8') {
+    if (!aan(e, 'panels.navigation', 'F8')) return;
     // F8 — toggle the document outline / left panel (was F9)
     e.preventDefault();
     toggleLeftPanel();
   } else if (e.key === 'F9') {
+    if (!aan(e, 'drafting.gridSnap', 'F9')) return;
     // F9 — toggle snap-to-grid (AutoCAD convention)
     e.preventDefault();
     state.preferences.enableGridSnap = !state.preferences.enableGridSnap;
     import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
     redraw();
   } else if (e.key === 'F10') {
+    if (!aan(e, 'drafting.polarTracking', 'F10')) return;
     // F10 — toggle polar tracking (AutoCAD convention)
     e.preventDefault();
     state.preferences.polarTrackingEnabled = !state.preferences.polarTrackingEnabled;
     import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
     redraw();
   } else if (e.key === 'F12') {
+    if (!aan(e, 'panels.properties', 'F12')) return;
     e.preventDefault();
     togglePropertiesPanel();
   } else if (e.key === 'F11') {
+    if (!aan(e, 'panels.annotationsList', 'F11')) return;
     e.preventDefault();
     toggleAnnotationsListPanel();
   }

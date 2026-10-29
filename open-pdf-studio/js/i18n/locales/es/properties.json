@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Aluminio/bronce/cobre",
       "nen47-kunststof": "NEN47-22 Plástico",
       "nen47-afdichtingsmiddel": "NEN47-23 Sellador",
-      "nen47-maaiveld": "NEN47-25 Nivel del terreno"
+      "nen47-maaiveld": "NEN47-25 Nivel del terreno",
+      "staal-dubbel": "Acero (línea doble)",
+      "raster-liggend": "Cuadrícula rectangular apaisada",
+      "raster-staand": "Cuadrícula rectangular vertical",
+      "tegel-halfsteens": "Baldosas (juntas desplazadas)",
+      "plank-halfsteens": "Tablas (juntas desplazadas)",
+      "grond-blokjes": "Tierra (bloques)",
+      "glas-strepen": "Vidrio (trazos de alzado)",
+      "vloeistof-strepen": "Líquido (trazos)",
+      "gras-pollen": "Césped (matas)",
+      "honingraat": "Panal de abeja",
+      "lijnen-groep-verticaal": "Grupos de líneas verticales",
+      "lood-blokken": "Plomo (bloques)",
+      "glas-doorsnede": "Vidrio (sección)",
+      "wand-metselwerk": "Muro de fábrica (pares de líneas)"
     },
-    "rotation": "Rotación"
+    "rotation": "Rotación",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Estilo de línea",
@@ -189,7 +207,9 @@
     "bold": "Negrita",
     "italic": "Cursiva",
     "underline": "Subrayado",
-    "strikethrough": "Tachado"
+    "strikethrough": "Tachado",
+    "fontNotEmbedded": "{{font}} no se incrusta en el PDF. Los lectores que no tienen esta fuente muestran {{fallback}}.",
+    "fontReplaced": "{{font}} no se puede incrustar en el PDF. El texto se guarda en {{fallback}}."
   },
   "paragraph": {
     "title": "Párrafo",
@@ -198,7 +218,11 @@
     "alignCenter": "Alinear al centro",
     "alignRight": "Alinear a la derecha",
     "lineSpacing": "Interlineado",
-    "rotation": "Rotación"
+    "rotation": "Rotación",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Respuestas",
@@ -722,5 +746,49 @@
     "invalid": "No se pudo actualizar la ubicación",
     "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
     "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Hormigón",
+      "metselwerk": "Mampostería",
+      "isolatie": "Aislamiento",
+      "zand": "Arena/cemento",
+      "algemeen": "General (diagonal)",
+      "inb-sloop": "Demolición",
+      "inb-staal": "Acero (línea doble)",
+      "inb-diagonaal-smal": "Diagonal estrecha",
+      "inb-diagonaal-midden": "Diagonal media",
+      "inb-diagonaal-breed": "Diagonal ancha",
+      "inb-raster-fijn": "Cuadrícula fina",
+      "inb-raster-midden": "Cuadrícula media",
+      "inb-raster-grof": "Cuadrícula gruesa",
+      "inb-raster-liggend-1": "Cuadrícula apaisada fina",
+      "inb-raster-liggend-2": "Cuadrícula apaisada media",
+      "inb-raster-liggend-3": "Cuadrícula apaisada gruesa",
+      "inb-raster-staand-1": "Cuadrícula vertical fina",
+      "inb-raster-staand-2": "Cuadrícula vertical media",
+      "inb-raster-staand-3": "Cuadrícula vertical gruesa",
+      "inb-tegels-fijn": "Baldosas pequeñas",
+      "inb-tegels-midden": "Baldosas medianas",
+      "inb-tegels-grof": "Baldosas grandes",
+      "inb-planken-fijn": "Tablas estrechas",
+      "inb-planken-midden": "Tablas medianas",
+      "inb-planken-grof": "Tablas anchas",
+      "inb-kruis-fijn": "Rayado cruzado fino",
+      "inb-kruis-midden": "Rayado cruzado medio",
+      "inb-kruis-grof": "Rayado cruzado grueso",
+      "inb-baksteen": "Ladrillo",
+      "inb-grond": "Tierra",
+      "inb-glas": "Vidrio (alzado)",
+      "inb-vloeistof": "Líquido",
+      "inb-gras": "Césped",
+      "inb-honingraat": "Panal de abeja",
+      "inb-hout": "Madera (testa)",
+      "inb-zand": "Arena",
+      "inb-beton": "Hormigón (moteado)",
+      "inb-verticaal-smal": "Vertical estrecho",
+      "inb-verticaal-breed": "Vertical ancho",
+      "inb-horizontaal-breed": "Horizontal ancho"
+    }
   }
 }

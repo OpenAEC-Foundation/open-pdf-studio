@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Алюминий/бронза/медь",
       "nen47-kunststof": "NEN47-22 Пластмасса",
       "nen47-afdichtingsmiddel": "NEN47-23 Герметик",
-      "nen47-maaiveld": "NEN47-25 Уровень земли"
+      "nen47-maaiveld": "NEN47-25 Уровень земли",
+      "staal-dubbel": "Сталь (двойная линия)",
+      "raster-liggend": "Прямоугольная сетка горизонтальная",
+      "raster-staand": "Прямоугольная сетка вертикальная",
+      "tegel-halfsteens": "Плитка (вразбежку)",
+      "plank-halfsteens": "Доски (вразбежку)",
+      "grond-blokjes": "Грунт (блоки)",
+      "glas-strepen": "Стекло (штрихи фасада)",
+      "vloeistof-strepen": "Жидкость (штрихи)",
+      "gras-pollen": "Трава (пучки)",
+      "honingraat": "Соты",
+      "lijnen-groep-verticaal": "Группы вертикальных линий",
+      "lood-blokken": "Свинец (блоки)",
+      "glas-doorsnede": "Стекло (разрез)",
+      "wand-metselwerk": "Кладка стены (пары линий)"
     },
-    "rotation": "Поворот"
+    "rotation": "Поворот",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Стиль линии",
@@ -189,7 +207,9 @@
     "bold": "Полужирный",
     "italic": "Курсив",
     "underline": "Подчеркнутый",
-    "strikethrough": "Зачеркнутый"
+    "strikethrough": "Зачеркнутый",
+    "fontNotEmbedded": "Шрифт {{font}} не встраивается в PDF. Программы без этого шрифта показывают {{fallback}}.",
+    "fontReplaced": "Шрифт {{font}} невозможно встроить в PDF. Текст сохраняется шрифтом {{fallback}}."
   },
   "paragraph": {
     "title": "Абзац",
@@ -198,7 +218,11 @@
     "alignCenter": "По центру",
     "alignRight": "По правому краю",
     "lineSpacing": "Межстрочный интервал",
-    "rotation": "Поворот"
+    "rotation": "Поворот",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Ответы",
@@ -722,5 +746,49 @@
     "invalid": "Не удалось обновить расположение",
     "rules": "Для назначения используется центр габаритного прямоугольника пометки, включая края. Приоритет у самой глубокой зоны, затем у наименьшей площади, затем по ID зоны. Используйте прямолинейные многоугольники без отверстий или прямоугольники без поворота. Недопустимые или повторяющиеся идентификаторы зон исключаются.",
     "loading": "Аннотации загружаются: расположения ещё могут измениться."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Бетон",
+      "metselwerk": "Кладка",
+      "isolatie": "Утеплитель",
+      "zand": "Песок/цемент",
+      "algemeen": "Общая (диагональная)",
+      "inb-sloop": "Демонтаж",
+      "inb-staal": "Сталь (двойная линия)",
+      "inb-diagonaal-smal": "Диагональная штриховка частая",
+      "inb-diagonaal-midden": "Диагональная штриховка средняя",
+      "inb-diagonaal-breed": "Диагональная штриховка редкая",
+      "inb-raster-fijn": "Сетка мелкая",
+      "inb-raster-midden": "Сетка средняя",
+      "inb-raster-grof": "Сетка крупная",
+      "inb-raster-liggend-1": "Горизонтальная сетка мелкая",
+      "inb-raster-liggend-2": "Горизонтальная сетка средняя",
+      "inb-raster-liggend-3": "Горизонтальная сетка крупная",
+      "inb-raster-staand-1": "Вертикальная сетка мелкая",
+      "inb-raster-staand-2": "Вертикальная сетка средняя",
+      "inb-raster-staand-3": "Вертикальная сетка крупная",
+      "inb-tegels-fijn": "Плитка мелкая",
+      "inb-tegels-midden": "Плитка средняя",
+      "inb-tegels-grof": "Плитка крупная",
+      "inb-planken-fijn": "Доски узкие",
+      "inb-planken-midden": "Доски средние",
+      "inb-planken-grof": "Доски широкие",
+      "inb-kruis-fijn": "Перекрёстная штриховка мелкая",
+      "inb-kruis-midden": "Перекрёстная штриховка средняя",
+      "inb-kruis-grof": "Перекрёстная штриховка крупная",
+      "inb-baksteen": "Кирпич",
+      "inb-grond": "Грунт",
+      "inb-glas": "Стекло (фасад)",
+      "inb-vloeistof": "Жидкость",
+      "inb-gras": "Трава",
+      "inb-honingraat": "Соты",
+      "inb-hout": "Древесина (торец)",
+      "inb-zand": "Песок",
+      "inb-beton": "Бетон (крапчатый)",
+      "inb-verticaal-smal": "Вертикальная штриховка частая",
+      "inb-verticaal-breed": "Вертикальная штриховка редкая",
+      "inb-horizontaal-breed": "Горизонтальная штриховка редкая"
+    }
   }
 }

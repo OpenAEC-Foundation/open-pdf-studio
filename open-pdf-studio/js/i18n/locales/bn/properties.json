@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 অ্যালুমিনিয়াম/ব্রোঞ্জ/তামা",
       "nen47-kunststof": "NEN47-22 প্লাস্টিক",
       "nen47-afdichtingsmiddel": "NEN47-23 সিল্যান্ট",
-      "nen47-maaiveld": "NEN47-25 ভূমিস্তর"
+      "nen47-maaiveld": "NEN47-25 ভূমিস্তর",
+      "staal-dubbel": "ইস্পাত (দ্বৈত রেখা)",
+      "raster-liggend": "আয়তাকার গ্রিড অনুভূমিক",
+      "raster-staand": "আয়তাকার গ্রিড উল্লম্ব",
+      "tegel-halfsteens": "টাইলস (অর্ধেক জোড়)",
+      "plank-halfsteens": "তক্তা (অর্ধেক জোড়)",
+      "grond-blokjes": "মাটি (ব্লক)",
+      "glas-strepen": "কাচ (এলিভেশন রেখা)",
+      "vloeistof-strepen": "তরল (রেখা)",
+      "gras-pollen": "ঘাস (গুচ্ছ)",
+      "honingraat": "মৌচাক",
+      "lijnen-groep-verticaal": "উল্লম্ব রেখার গুচ্ছ",
+      "lood-blokken": "সীসা (ব্লক)",
+      "glas-doorsnede": "কাচ (সেকশন)",
+      "wand-metselwerk": "গাঁথুনির দেয়াল (রেখা জোড়া)"
     },
-    "rotation": "ঘূর্ণন"
+    "rotation": "ঘূর্ণন",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "রেখার শৈলী",
@@ -189,7 +207,9 @@
     "bold": "গাঢ়",
     "italic": "তির্যক",
     "underline": "আন্ডারলাইন",
-    "strikethrough": "স্ট্রাইকথ্রু"
+    "strikethrough": "স্ট্রাইকথ্রু",
+    "fontNotEmbedded": "ফন্ট {{font}} PDF-এ এমবেড করা হয় না। যেসব রিডারে এই ফন্ট নেই সেগুলো {{fallback}} দেখায়।",
+    "fontReplaced": "ফন্ট {{font}} PDF-এ এমবেড করা যায় না। লেখাটি {{fallback}}-এ সংরক্ষিত হয়।"
   },
   "paragraph": {
     "title": "অনুচ্ছেদ",
@@ -198,7 +218,11 @@
     "alignCenter": "কেন্দ্রে সারিবদ্ধ",
     "alignRight": "ডানে সারিবদ্ধ",
     "lineSpacing": "লাইন ব্যবধান",
-    "rotation": "ঘূর্ণন"
+    "rotation": "ঘূর্ণন",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "উত্তর",
@@ -722,5 +746,49 @@
     "invalid": "অবস্থান হালনাগাদ করা যায়নি",
     "rules": "নির্ধারণে মার্কআপের বাউন্ডিং-বক্সের কেন্দ্র ব্যবহৃত হয়, প্রান্তসহ। সবচেয়ে গভীর জোন অগ্রাধিকার পায়, তারপর সবচেয়ে ছোট ক্ষেত্রফল, তারপর জোন ID। গর্তবিহীন সরল-বাহু বহুভুজ বা অঘোরানো বক্স ব্যবহার করুন। অবৈধ বা দ্বৈত জোন পরিচয় বাদ দেওয়া হয়।",
     "loading": "টীকা লোড হচ্ছে: অবস্থান এখনো পরিবর্তিত হতে পারে।"
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "কংক্রিট",
+      "metselwerk": "গাঁথুনি",
+      "isolatie": "ইনসুলেশন",
+      "zand": "বালি/সিমেন্ট",
+      "algemeen": "সাধারণ (কর্ণ)",
+      "inb-sloop": "ভাঙন",
+      "inb-staal": "ইস্পাত (দ্বৈত রেখা)",
+      "inb-diagonaal-smal": "কর্ণ ঘন",
+      "inb-diagonaal-midden": "কর্ণ মাঝারি",
+      "inb-diagonaal-breed": "কর্ণ বিরল",
+      "inb-raster-fijn": "গ্রিড সূক্ষ্ম",
+      "inb-raster-midden": "গ্রিড মাঝারি",
+      "inb-raster-grof": "গ্রিড মোটা",
+      "inb-raster-liggend-1": "অনুভূমিক গ্রিড সূক্ষ্ম",
+      "inb-raster-liggend-2": "অনুভূমিক গ্রিড মাঝারি",
+      "inb-raster-liggend-3": "অনুভূমিক গ্রিড মোটা",
+      "inb-raster-staand-1": "উল্লম্ব গ্রিড সূক্ষ্ম",
+      "inb-raster-staand-2": "উল্লম্ব গ্রিড মাঝারি",
+      "inb-raster-staand-3": "উল্লম্ব গ্রিড মোটা",
+      "inb-tegels-fijn": "টাইলস ছোট",
+      "inb-tegels-midden": "টাইলস মাঝারি",
+      "inb-tegels-grof": "টাইলস বড়",
+      "inb-planken-fijn": "তক্তা সরু",
+      "inb-planken-midden": "তক্তা মাঝারি",
+      "inb-planken-grof": "তক্তা চওড়া",
+      "inb-kruis-fijn": "ক্রসহ্যাচ সূক্ষ্ম",
+      "inb-kruis-midden": "ক্রসহ্যাচ মাঝারি",
+      "inb-kruis-grof": "ক্রসহ্যাচ মোটা",
+      "inb-baksteen": "ইট",
+      "inb-grond": "মাটি",
+      "inb-glas": "কাচ (এলিভেশন)",
+      "inb-vloeistof": "তরল",
+      "inb-gras": "ঘাস",
+      "inb-honingraat": "মৌচাক",
+      "inb-hout": "কাঠ (প্রান্ত)",
+      "inb-zand": "বালি",
+      "inb-beton": "কংক্রিট (ছিটছিটে)",
+      "inb-verticaal-smal": "উল্লম্ব ঘন",
+      "inb-verticaal-breed": "উল্লম্ব বিরল",
+      "inb-horizontaal-breed": "অনুভূমিক বিরল"
+    }
   }
 }

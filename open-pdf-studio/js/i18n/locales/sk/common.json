@@ -34,6 +34,10 @@
   "draw": "Kresliť",
   "saved": "Uložené",
   "documentChangedDuringSave": "Dokument sa počas ukladania zmenil. Uložte ho znova.",
+  "savingPdf": "Ukladanie PDF…",
+  "saveCancelling": "Rušenie ukladania…",
+  "saveCancelled": "Ukladanie zrušené. Súbor sa nezmenil.",
+  "saveCancelTooLate": "Súbor už bol uložený; na zrušenie bolo neskoro.",
   "documentChangedDuringExport": "Dokument sa počas exportu zmenil. Začnite znova.",
   "rasterExportProgress": "Rastrovanie strán: {{done}} z {{total}}",
   "search": "Hľadať",
@@ -249,6 +253,10 @@
     "closeTab": "Zavrieť kartu",
     "nextTab": "Nasledujúca karta",
     "previousTab": "Predchádzajúca karta"
+  },
+  "pageNav": {
+    "nextPage": "Nasledujúca strana",
+    "previousPage": "Predchádzajúca strana"
   },
   "quickAccess": {
     "exportRaster": "Exportovať ako rastrové PDF (otvorí sa na novej karte)"

@@ -45,7 +45,7 @@ function _lum(c) {
 // Display-only swatch colours: theme surface as backdrop; when BOTH the theme
 // and the hatch colour are dark, draw the lines in the theme text colour so
 // the pattern stays readable. The annotation's real colours are untouched.
-function _swatchColors(hatchColor) {
+export function hatchSwatchColors(hatchColor) {
   const bg = _cssVar('--theme-surface', '#ffffff');
   let line = hatchColor || '#000000';
   if (_lum(bg) < 0.45 && _lum(line) < 0.4) {
@@ -100,7 +100,7 @@ export default function HatchPatternSection() {
   });
 
   const patternLabel = (id) => {
-    const key = `hatchPatterns.${id}`;
+    const key = `appearance.hatchPatterns.${id}`;
     const translated = t(key);
     // i18next returns the key itself when missing — fall back to the id
     return translated && translated !== key ? translated : id;
@@ -109,7 +109,7 @@ export default function HatchPatternSection() {
   const currentSwatch = () => {
     const p = annotProps.hatchPattern;
     if (!p || p === 'none' || p === 'mixed') return '';
-    const { bg, line } = _swatchColors(annotProps.hatchColor);
+    const { bg, line } = hatchSwatchColors(annotProps.hatchColor);
     return getHatchSwatchDataUrl(p, line, 16, bg);
   };
 
@@ -201,7 +201,7 @@ export default function HatchPatternSection() {
                         'font-size': '11px',
                       }}>
                         {(() => {
-                          const k = `hatchCategories.${cat}`;
+                          const k = `appearance.hatchCategories.${cat}`;
                           const v = t(k);
                           return v && v !== k ? v : cat;
                         })()}
@@ -211,7 +211,7 @@ export default function HatchPatternSection() {
                           <PatternRow
                             active={annotProps.hatchPattern === p.id}
                             onClick={() => selectPattern(p.id)}
-                            swatch={(() => { const c = _swatchColors(annotProps.hatchColor); return getHatchSwatchDataUrl(p.id, c.line, 16, c.bg); })()}
+                            swatch={(() => { const c = hatchSwatchColors(annotProps.hatchColor); return getHatchSwatchDataUrl(p.id, c.line, 16, c.bg); })()}
                             label={patternLabel(p.id)}
                           />
                         )}

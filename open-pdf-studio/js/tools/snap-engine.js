@@ -90,11 +90,21 @@ export function collectSnapPoints(annotations, currentPage, excludeId) {
   return points;
 }
 
+// Start point of an object (the first pick that created it). Pushed BEFORE
+// the plain endpoints of the same object: findNearestSnap keeps the first
+// candidate on an exact tie, so the more specific label wins.
+function _pushStartPoint(points, ann, x, y) {
+  if (x === undefined || y === undefined) return;
+  points.push({ x, y, type: 'startpoint', annotation: ann });
+}
+
 function extractSnapPoints(ann, points, prefs, annotations) {
   const doEndpoints = prefs.snapToEndpoints;
   const doMidpoints = prefs.snapToMidpoints;
   const doCenters = prefs.snapToCenters;
   const doQuadrants = prefs.snapToQuadrant;
+  const doVertices = prefs.snapToVertices !== false;
+  const doStartPoints = prefs.snapToStartPoints !== false;
 
   switch (ann.type) {
     case 'line':
@@ -102,6 +112,7 @@ function extractSnapPoints(ann, points, prefs, annotations) {
     case 'wall':
     case 'betonbalk': {
       const sx = ann.startX, sy = ann.startY, ex = ann.endX, ey = ann.endY;
+      if (doStartPoints) _pushStartPoint(points, ann, sx, sy);
       if (doEndpoints) {
         points.push({ x: sx, y: sy, type: 'endpoint', annotation: ann });
         points.push({ x: ex, y: ey, type: 'endpoint', annotation: ann });
@@ -124,8 +135,37 @@ function extractSnapPoints(ann, points, prefs, annotations) {
       break;
     }
 
+    case 'arc': {
+      // Boog: middelpunt, startpunt en eindpunt langs de cirkel (hoeken in
+      // radialen, zoals ctx.arc ze tekent).
+      const { centerX: acx, centerY: acy, radius: ar } = ann;
+      if (acx === undefined || acy === undefined || !(ar > 0)) break;
+      if (doCenters) {
+        points.push({ x: acx, y: acy, type: 'center', annotation: ann });
+      }
+      const aStart = ann.startAngle || 0;
+      const aEnd = ann.endAngle ?? aStart;
+      const px = (a) => acx + ar * Math.cos(a);
+      const py = (a) => acy + ar * Math.sin(a);
+      if (doStartPoints) _pushStartPoint(points, ann, px(aStart), py(aStart));
+      if (doEndpoints) {
+        points.push({ x: px(aStart), y: py(aStart), type: 'endpoint', annotation: ann });
+        points.push({ x: px(aEnd), y: py(aEnd), type: 'endpoint', annotation: ann });
+      }
+      if (doMidpoints) {
+        // Middelpunt van de boog zelf (halve swep, kortste richting rond).
+        let sweep = aEnd - aStart;
+        while (sweep > Math.PI) sweep -= 2 * Math.PI;
+        while (sweep < -Math.PI) sweep += 2 * Math.PI;
+        const aMid = aStart + sweep / 2;
+        points.push({ x: px(aMid), y: py(aMid), type: 'midpoint', annotation: ann });
+      }
+      break;
+    }
+
     case 'measureDistance': {
       // Only snap to extension line ends and dimension line ends
+      if (doStartPoints) _pushStartPoint(points, ann, ann.startX, ann.startY);
       if (doEndpoints) {
         points.push({ x: ann.startX, y: ann.startY, type: 'endpoint', annotation: ann });
         points.push({ x: ann.endX, y: ann.endY, type: 'endpoint', annotation: ann });
@@ -180,7 +220,10 @@ function extractSnapPoints(ann, points, prefs, annotations) {
         const vp = veelhoekPuntenOpScherm(ann);
         vp.forEach((p, i) => {
           const q = vp[(i + 1) % vp.length];
-          if (doEndpoints) points.push({ x: p.x, y: p.y, type: 'endpoint', annotation: ann });
+          if (i === 0 && doStartPoints) _pushStartPoint(points, ann, p.x, p.y);
+          // Zelfde redenering als de polylijn: vertex-modus en eindpunten-modus
+          // zijn onafhankelijk; het label volgt wat aan staat.
+          if (doVertices || doEndpoints) points.push({ x: p.x, y: p.y, type: doVertices ? 'vertex' : 'endpoint', annotation: ann });
           if (doMidpoints) points.push({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, type: 'midpoint', annotation: ann });
         });
         if (doCenters) points.push({ x: ann.x + ann.width / 2, y: ann.y + ann.height / 2, type: 'center', annotation: ann });
@@ -196,9 +239,13 @@ function extractSnapPoints(ann, points, prefs, annotations) {
     case 'measurePerimeter': {
       const pts = ann.points;
       if (!pts || pts.length === 0) break;
+      if (doStartPoints && pts[0]) _pushStartPoint(points, ann, pts[0].x, pts[0].y);
       for (let i = 0; i < pts.length; i++) {
-        if (doEndpoints) {
-          points.push({ x: pts[i].x, y: pts[i].y, type: 'endpoint', annotation: ann });
+        // Elk tussenpunt is een VERTEX (knooppunt). De vertex-optie en de
+        // eindpunten-optie zijn onafhankelijk: aan één van beide genoeg om
+        // op de knooppunten te snappen; het label volgt wat aan staat.
+        if (doVertices || doEndpoints) {
+          points.push({ x: pts[i].x, y: pts[i].y, type: doVertices ? 'vertex' : 'endpoint', annotation: ann });
         }
         if (doMidpoints && i < pts.length - 1) {
           points.push({
@@ -224,8 +271,8 @@ function extractSnapPoints(ann, points, prefs, annotations) {
         for (const hole of ann.holes) {
           if (!hole || hole.length === 0) continue;
           for (let i = 0; i < hole.length; i++) {
-            if (doEndpoints) {
-              points.push({ x: hole[i].x, y: hole[i].y, type: 'endpoint', annotation: ann });
+            if (doVertices || doEndpoints) {
+              points.push({ x: hole[i].x, y: hole[i].y, type: doVertices ? 'vertex' : 'endpoint', annotation: ann });
             }
             if (doMidpoints && i < hole.length - 1) {
               points.push({
@@ -533,6 +580,31 @@ export function drawSnapIndicator(ctx, snapResult, scale) {
       ctx.stroke();
       break;
     }
+    case 'vertex': {
+      // Hollow square with a solid centre dot — vertex of a polyline/polygon
+      ctx.strokeRect(x - size / 2, y - size / 2, size, size);
+      const prevFillVertex = ctx.fillStyle;
+      ctx.fillStyle = '#FF00FF';
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(size / 5, 0.75 / scale), 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillStyle = prevFillVertex;
+      break;
+    }
+    case 'startpoint': {
+      // Hollow circle with a solid centre dot — where the object was started
+      ctx.beginPath();
+      ctx.arc(x, y, size / 2, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
+      const prevFillStart = ctx.fillStyle;
+      ctx.fillStyle = '#FF00FF';
+      ctx.beginPath();
+      ctx.arc(x, y, Math.max(size / 5, 0.75 / scale), 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.fillStyle = prevFillStart;
+      break;
+    }
     case 'edge': {
       // Small diamond
       ctx.beginPath();
@@ -630,6 +702,7 @@ export function drawSnapIndicator(ctx, snapResult, scale) {
     const labels = {
       endpoint: 'Endpoint', corner: 'Corner', midpoint: 'Midpoint',
       center: 'Center', edge: 'Edge',
+      vertex: 'Vertex', startpoint: 'Start point',
       intersection: 'Intersection', perpendicular: 'Perpendicular',
       quadrant: 'Quadrant', tangent: 'Tangent', nearest: 'Nearest',
       grid: 'Grid', polar: 'Polar'
@@ -835,8 +908,12 @@ export function performSnap(cursorX, cursorY, annotations, currentPage, scale, e
 
   // 3. Add in-progress points (vertices already placed in the current polyline/measure)
   if (inProgressPoints && inProgressPoints.length > 0) {
-    for (const pt of inProgressPoints) {
-      snapPoints.push({ x: pt.x, y: pt.y, type: 'endpoint', annotation: null });
+    for (let i = 0; i < inProgressPoints.length; i++) {
+      const pt = inProgressPoints[i];
+      // Het eerste punt van de keten IS het startpunt — als de start-punt-
+      // optie aan staat toont het label 'Start point' in plaats van 'Endpoint'.
+      const type = (i === 0 && prefs.snapToStartPoints !== false) ? 'startpoint' : 'endpoint';
+      snapPoints.push({ x: pt.x, y: pt.y, type, annotation: null });
     }
   }
 

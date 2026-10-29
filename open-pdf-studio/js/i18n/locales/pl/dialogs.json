@@ -177,6 +177,10 @@
     "documentAndMarkups": "Dokument i adnotacje",
     "document": "Dokument",
     "printAsImage": "Drukuj jako obraz",
+    "colorMode": "Tryb koloru:",
+    "colorModeColor": "Kolor",
+    "colorModeGrayscale": "Skala szarości",
+    "colorModeBlackWhite": "Czarno-biały",
     "pagesToPrint": "stron do druku",
     "noPrinterSelected": "Nie wybrano drukarki.",
     "noPagesToPrint": "Brak stron do wydrukowania.",
@@ -1599,5 +1603,30 @@
       "supersede": "Zastąpiono",
       "expire": "Wygasło"
     }
+  },
+  "pageOrganizer": {
+    "title": "Edytuj strony",
+    "hint": "Przeciągnij strony, aby je przenieść; upuść plik PDF, aby wstawić jego strony. Ctrl+klik, Shift+klik lub pola wyboru zaznaczają wiele stron. Nic się nie zmienia do kliknięcia Zastosuj.",
+    "moveLeft": "Przesuń w lewo",
+    "moveRight": "Przesuń w prawo",
+    "moveToStart": "Przesuń na początek",
+    "moveToEnd": "Przesuń na koniec",
+    "selection": "Zaznaczono stron: {{selected}} z {{total}}",
+    "rotateLeft": "Obróć w lewo",
+    "rotateRight": "Obróć w prawo",
+    "split": "Podziel",
+    "splitTitle": "Umieść znaczniki podziału wokół zaznaczonych stron: każdy ciąg stanie się osobnym plikiem",
+    "splitHere": "Podziel tutaj (wstaw lub usuń znacznik podziału)",
+    "extractTitle": "Wyodrębnij zaznaczone strony do nowego pliku",
+    "blankPage": "Pusta strona",
+    "pagesFromFile": "Strony z pliku…",
+    "insertHere": "Wstaw strony tutaj",
+    "select": "Zaznacz stronę",
+    "zoom": "Powiększenie",
+    "parts": "Po zastosowaniu podział na {{count}} plików",
+    "chooseFolder": "Wybierz folder dla podzielonych plików",
+    "fileFailed": "Nie można odczytać {{name}}: {{error}}",
+    "applyFailed": "Nie udało się zastosować zmian stron: {{error}}",
+    "extractFailed": "Nie udało się wyodrębnić stron: {{error}}"
   }
 }

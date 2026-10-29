@@ -328,7 +328,9 @@
     "scanText": "Modifica testo scansionato",
     "scanTextHint": "Fai clic su una parola riconosciuta per sostituirla. La vecchia parola nella scansione viene coperta.",
     "scanTextNone": "Nessun testo riconosciuto in questa pagina. Esegui prima Riconoscimento testo (OCR).",
-    "shiftPage": "Sposta pagina"
+    "shiftPage": "Sposta pagina",
+    "editPages": "Modifica pagine",
+    "editPagesTitle": "Modifica le pagine visivamente: riordina, ruota, inserisci, elimina, estrai e dividi"
   },
   "help": {
     "settings": "Impostazioni",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Incolla qui l'area ritagliata, conservandone i dati vettoriali",
     "symbolScale": "Scala",
     "symbolScaleTitle": "Dimensione con cui viene posizionato un nuovo simbolo",
-    "symbolScaleCustom": "Scala personalizzata"
+    "symbolScaleCustom": "Scala personalizzata",
+    "count": "Conteggio",
+    "arc": "Arco"
   },
   "proofread": {
     "group": "Revisione",
@@ -678,6 +682,7 @@
     "saveNote": "Le note e le altre annotazioni senza aspetto sulla pagina restano annotazioni. Il file cambia solo al salvataggio; fino ad allora Annulla revoca questo passaggio.",
     "ok": "Appiattisci",
     "busy": "Appiattimento delle annotazioni...",
+    "cancelled": "Appiattimento annullato. Il documento non è stato modificato.",
     "nothing": "Questo documento non contiene annotazioni da appiattire.",
     "nothingBaked": "Nessuna annotazione ha un aspetto sulla pagina, quindi non è stato appiattito nulla.",
     "notLoaded": "Le annotazioni di questo documento sono ancora in caricamento. Riprova tra un momento.",

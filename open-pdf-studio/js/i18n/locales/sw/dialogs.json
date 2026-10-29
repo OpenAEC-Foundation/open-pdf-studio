@@ -177,6 +177,10 @@
     "documentAndMarkups": "Hati na Alama",
     "document": "Hati",
     "printAsImage": "Chapisha kama Picha",
+    "colorMode": "Hali ya rangi:",
+    "colorModeColor": "Rangi",
+    "colorModeGrayscale": "Kijivu",
+    "colorModeBlackWhite": "Nyeusi na nyeupe",
     "pagesToPrint": "ukurasa wa kuchapisha",
     "noPrinterSelected": "Hakuna printa iliyochaguliwa.",
     "noPagesToPrint": "Hakuna kurasa za kuchapisha.",
@@ -1599,5 +1603,30 @@
       "supersede": "Imepitwa",
       "expire": "Imeisha muda"
     }
+  },
+  "pageOrganizer": {
+    "title": "Hariri Kurasa",
+    "hint": "Buruta kurasa ili kuzisogeza; dondosha faili ya PDF ili kuingiza kurasa zake. Ctrl+bofya, Shift+bofya au visanduku vya kuteua huchagua kurasa kadhaa. Hakuna kinachobadilika hadi Tekeleza.",
+    "moveLeft": "Sogeza kushoto",
+    "moveRight": "Sogeza kulia",
+    "moveToStart": "Sogeza mwanzoni",
+    "moveToEnd": "Sogeza mwishoni",
+    "selection": "Kurasa {{selected}} kati ya {{total}} zimechaguliwa",
+    "rotateLeft": "Zungusha Kushoto",
+    "rotateRight": "Zungusha Kulia",
+    "split": "Gawanya",
+    "splitTitle": "Weka alama za kugawanya kuzunguka kurasa zilizochaguliwa: kila mfululizo unakuwa faili tofauti",
+    "splitHere": "Gawanya hapa (weka au ondoa alama ya kugawanya)",
+    "extractTitle": "Toa kurasa zilizochaguliwa kwenye faili mpya",
+    "blankPage": "Ukurasa tupu",
+    "pagesFromFile": "Kurasa kutoka faili…",
+    "insertHere": "Ingiza kurasa hapa",
+    "select": "Chagua ukurasa",
+    "zoom": "Kuza",
+    "parts": "Itagawanywa katika faili {{count}} ukitekeleza",
+    "chooseFolder": "Chagua folda ya faili zilizogawanywa",
+    "fileFailed": "Imeshindwa kusoma {{name}}: {{error}}",
+    "applyFailed": "Imeshindwa kutekeleza mabadiliko ya kurasa: {{error}}",
+    "extractFailed": "Imeshindwa kutoa kurasa: {{error}}"
   }
 }

@@ -328,7 +328,9 @@
     "scanText": "Gescande tekst bewerken",
     "scanTextHint": "Klik op een herkend woord om het te vervangen. Het oude woord in de scan wordt afgedekt.",
     "scanTextNone": "Geen herkende tekst op deze pagina. Voer eerst Tekst herkennen (OCR) uit.",
-    "shiftPage": "Pagina verschuiven"
+    "shiftPage": "Pagina verschuiven",
+    "editPages": "Pagina's bewerken",
+    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen"
   },
   "help": {
     "information": "Informatie",
@@ -514,6 +516,15 @@
     "noEmbeddedImages": "Geen ingebedde afbeeldingen op deze pagina gevonden.",
     "lineContinue": "Doorlopend",
     "lineContinueTip": "Elke klik verbindt het volgende lijnsegment met het vorige. Escape, rechtsklik of dubbelklik beëindigt de reeks.",
+    "snapGroup": "Snap",
+    "snapObjectSnap": "Objectsnap",
+    "snapObjectSnapTip": "Hoofdschakelaar voor objectsnap (Shift+F3). De snapmodi hieronder werken alleen als deze aan staat.",
+    "snapEndpoint": "Eindpunt",
+    "snapMidpoint": "Middelpunt",
+    "snapVertex": "Hoekpunt",
+    "snapStartPoint": "Beginpunt",
+    "snapCenter": "Centrum",
+    "moveBasePoint": "Verplaatsen — klik op het basispunt en daarna op de bestemming (beide punten snappen op objecten)",
     "aligned": "Uitgelijnd",
     "linear": "Lineair",
     "dimension": "Maatlijn",
@@ -612,7 +623,9 @@
     "vectorSnippetPasteTitle": "Plak het geknipte gebied hier, met behoud van vectordata",
     "symbolScale": "Schaal",
     "symbolScaleTitle": "Maat waarop een nieuw symbool geplaatst wordt",
-    "symbolScaleCustom": "Eigen schaal"
+    "symbolScaleCustom": "Eigen schaal",
+    "count": "Tellen",
+    "arc": "Boog"
   },
   "theme": {
     "system": "Systeem (Automatisch)",
@@ -678,6 +691,7 @@
     "saveNote": "Notities en andere markeringen zonder uiterlijk op de pagina blijven markering. Het bestand verandert pas bij opslaan; tot dan maakt Ongedaan maken deze stap ongedaan.",
     "ok": "Afvlakken",
     "busy": "Markeringen afvlakken...",
+    "cancelled": "Vlakken geannuleerd. Het document is niet gewijzigd.",
     "nothing": "Dit document heeft geen markeringen om af te vlakken.",
     "nothingBaked": "Geen van de markeringen heeft een uiterlijk op de pagina; er is niets afgevlakt.",
     "notLoaded": "De markeringen van dit document worden nog geladen. Probeer het zo opnieuw.",

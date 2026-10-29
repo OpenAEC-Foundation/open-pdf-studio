@@ -34,6 +34,10 @@
   "draw": "Цртај",
   "saved": "Сачувано",
   "documentChangedDuringSave": "Документ се променио током чувања. Сачувајте поново.",
+  "savingPdf": "Чување PDF-а…",
+  "saveCancelling": "Отказивање чувања…",
+  "saveCancelled": "Чување је отказано. Датотека није промењена.",
+  "saveCancelTooLate": "Датотека је већ била сачувана; било је касно за отказивање.",
   "documentChangedDuringExport": "Документ се променио током извоза. Почните поново.",
   "rasterExportProgress": "Растеризација страница: {{done}} од {{total}}",
   "search": "Претрага",
@@ -249,6 +253,10 @@
     "closeTab": "Затвори картицу",
     "nextTab": "Следећа картица",
     "previousTab": "Претходна картица"
+  },
+  "pageNav": {
+    "nextPage": "Следећа страница",
+    "previousPage": "Претходна страница"
   },
   "quickAccess": {
     "exportRaster": "Извези као растерски PDF (отвара се у новој картици)"

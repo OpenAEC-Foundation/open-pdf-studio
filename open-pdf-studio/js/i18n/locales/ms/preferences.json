@@ -9,7 +9,8 @@
     "behavior": "Kelakuan",
     "fileAssociation": "Perkaitan Fail",
     "virtualPrinter": "Pencetak Maya",
-    "pageDisplay": "Paparan Halaman"
+    "pageDisplay": "Paparan Halaman",
+    "keyboardShortcuts": "Pintasan papan kekunci"
   },
   "resetToDefaults": "Tetapkan Semula kepada Lalai",
   "resetConfirm": "Tetapkan semula semua keutamaan kepada nilai lalai?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
+    "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
     "dynamicScaling": "Skala automatik penanda"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Anak Panah Terbuka (terbalik)",
     "closedArrowReversed": "Anak Panah Tertutup (terbalik)",
     "slash": "Palang"
+  },
+  "keyboardShortcuts": {
+    "title": "Pintasan papan kekunci",
+    "search": "Cari mengikut arahan atau kekunci",
+    "command": "Arahan",
+    "shortcuts": "Pintasan",
+    "none": "Tiada",
+    "noMatches": "Tiada arahan yang sepadan dengan carian.",
+    "selectHint": "Pilih arahan untuk menukar pintasannya.",
+    "addShortcut": "Tambah pintasan",
+    "remove": "Buang pintasan",
+    "resetCommand": "Set semula kepada lalai",
+    "resetAll": "Set semula semua",
+    "resetAllConfirm": "Set semula semua pintasan papan kekunci kepada lalai?",
+    "import": "Import…",
+    "export": "Eksport…",
+    "fileType": "Pintasan papan kekunci",
+    "imported": "Pintasan diimport. Klik Simpan untuk menggunakannya.",
+    "importFailed": "Ini bukan fail pintasan papan kekunci yang sah.",
+    "exported": "Pintasan dieksport.",
+    "exportFailed": "Gagal mengeksport pintasan:",
+    "recording": "Tekan gabungan kekunci baharu… (Esc membatalkan)",
+    "conflict": "{{keys}} sudah digunakan oleh “{{command}}”.",
+    "reassign": "Tetapkan semula",
+    "reserved": "{{keys}} mempunyai makna tetap dan tidak boleh ditetapkan.",
+    "defaultLabel": "Lalai: {{keys}}",
+    "customize": "Sesuaikan…",
+    "fixedGroup": "Kekunci tetap",
+    "applyHint": "Perubahan berkuat kuasa apabila anda klik Simpan.",
+    "categories": {
+      "file": "Fail",
+      "edit": "Edit",
+      "view": "Paparan",
+      "search": "Cari",
+      "tools": "Alatan",
+      "drafting": "Bantuan lukisan",
+      "panels": "Panel",
+      "review": "Semak",
+      "help": "Bantuan",
+      "extensions": "Sambungan",
+      "ribbon": "Reben: {{tab}}",
+      "other": "Lain-lain"
+    },
+    "commands": {
+      "findNext": "Cari seterusnya"
+    }
   }
 }

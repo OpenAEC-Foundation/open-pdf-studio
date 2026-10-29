@@ -28,6 +28,8 @@ export interface Preferences {
   snapToEndpoints: boolean;
   snapToMidpoints: boolean;
   snapToCenters: boolean;
+  snapToVertices: boolean;
+  snapToStartPoints: boolean;
   snapToEdges: boolean;
   snapToIntersections: boolean;
   snapToPerpendicular: boolean;
@@ -56,6 +58,7 @@ export interface Preferences {
   textboxBorderStyle: string;
   textboxOpacity: number;
   textboxFontSize: number;
+  textboxFontFamily?: string;
 
   // Callout defaults
   calloutFillColor: string;
@@ -65,6 +68,7 @@ export interface Preferences {
   calloutBorderStyle: string;
   calloutOpacity: number;
   calloutFontSize: number;
+  calloutFontFamily?: string;
 
   // Rectangle defaults
   rectFillColor: string;
@@ -200,6 +204,7 @@ export interface Preferences {
   autoSelectAfterCreate: boolean;
   confirmBeforeDelete: boolean;
   wheelZoomWithoutCtrl: boolean;
+  middleDoubleClickFit: boolean;
 
   // Startup
   restoreLastSession: boolean;
@@ -236,6 +241,8 @@ export interface Preferences {
   zoomDpi: number;
   pageSharpen: number;
   paperSizeUnit: string;
+  // Keyboard shortcuts changed by the user (#714): command id -> combinations.
+  keyboardShortcuts: Record<string, string[]>;
 
   // Panels
   propertiesPanelVisible: boolean;
@@ -308,4 +315,5 @@ export interface PrintSettings {
   autoCenter: boolean;
   content: 'doc-and-markups' | 'doc-only';
   asImage: boolean;
+  colorMode?: 'color' | 'grayscale' | 'bw';
 }

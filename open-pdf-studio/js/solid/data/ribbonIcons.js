@@ -92,6 +92,7 @@ export const polylineIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0
 export const rectIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>`;
 
 export const circleIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>`;
+export const countIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 5v14M9 5v14M13 5v14M17 5v14M2 17L21 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>`;
 export const ellipseIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="6.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>`;
 
 export const polygonIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
