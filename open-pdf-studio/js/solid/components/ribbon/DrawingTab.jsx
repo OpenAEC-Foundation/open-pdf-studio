@@ -42,6 +42,7 @@ import { openDialog } from '../../../bridge.js';
 
 // Generic placeholder icons for buttons without a dedicated icon
 const placeholderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="0" stroke-dasharray="3 2"/><path d="M9 9 L15 15 M15 9 L9 15" stroke-width="1"/></svg>`;
+const wallIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h18v8H3zM3 14l6-6M7 16l8-8M13 16l8-8M19 16l2-2"/></svg>`;
 const arcIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 Q 12 4 20 20"/></svg>`;
 const splineIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 C 7 2, 13 2, 12 12 S 17 22 21 7"/></svg>`;
 const splineArrowIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 C 8 9, 14 7, 19 9"/><path d="M14 6 L 20 9 L 16 13.5"/></svg>`;
@@ -191,6 +192,7 @@ function moveSelected() {
 // comment groups inside a single AdaptiveGroups container.
 export function DrawingGroups() {
   const { t } = useTranslation('ribbon');
+  const { t: tProperties } = useTranslation('properties');
   const ro = () => noPdf() || isPdfAReadOnly();
   const cs = t('common.comingSoon') || 'Coming soon';
 
@@ -226,11 +228,19 @@ export function DrawingGroups() {
 
         {/* DRAW — uniform grid of small icon-only buttons (CAD toolbar style).
             All buttons are 26×26 size=small; the compact group's flex-wrap CSS
-            arranges them into 2 rows × 7 cols. */}
+            wraps them into rows. */}
         <RibbonGroup label={t('drawing.draw')} compact>
           {/* Row 1 */}
           <RibbonButton size="small" id="dr-line" title={t('comment.line')} icon={lineIcon}
             disabled={ro()} active={state.currentTool === 'line'} onClick={() => setTool('line')} />
+          <RibbonButton size="small" id="dr-polyline" title={`${t('comment.polylineTitle')} — ${t('drawing.dimHint')}`} icon={polylineIcon}
+            disabled={ro()} active={state.currentTool === 'polyline'} onClick={() => setTool('polyline')} />
+          <RibbonButton size="small" id="dr-wall" title={tProperties('quantities.type.wall')} icon={wallIcon}
+            disabled={ro()} active={state.currentTool === 'wall'} onClick={() => {
+              // Palette walls keep their overrides; the ribbon starts with the standard wall.
+              state.toolOverrides = null;
+              setTool('wall');
+            }} />
           <RibbonButton size="small" id="dr-arrow" title={t('comment.arrow')} icon={arrowIcon}
             disabled={ro()} active={state.currentTool === 'arrow'} onClick={() => setTool('arrow')} />
           <RibbonButton size="small" id="dr-spline-arrow" title={t('comment.splineArrowTitle')} icon={splineArrowIcon}
@@ -243,8 +253,6 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'box'} onClick={() => setTool('box')} />
           <RibbonButton size="small" id="dr-arc" title={t('drawing.arc')} icon={arcIcon}
             disabled={ro()} active={state.currentTool === 'arc'} onClick={() => setTool('arc')} />
-          <RibbonButton size="small" id="dr-polyline" title={`${t('comment.polylineTitle')} — ${t('drawing.dimHint')}`} icon={polylineIcon}
-            disabled={ro()} active={state.currentTool === 'polyline'} onClick={() => setTool('polyline')} />
           <RibbonButton size="small" id="dr-hatch" title={t('comment.filledArea')} icon={hatchIcon}
             disabled={ro()} active={state.currentTool === 'filledArea'} onClick={() => setTool('filledArea')} />
           <RibbonButton size="small" id="dr-text" title={t('comment.textBox')} icon={textboxIcon}
