@@ -21,7 +21,8 @@ const A0 = pagina(841, 1189);
 const A4_PAGINA = pagina(210, 297);
 const A4 = { breedteMm: 210, hoogteMm: 297 };
 const A3 = { breedteMm: 297, hoogteMm: 420 };
-const KAAL = { schaal: 100, overlap: 0, snijtekens: false, labels: false, alleenGroot: false };
+// Bestaande afrondingsgevallen testen de expliciet gekozen randafsnijding.
+const KAAL = { randAfsnijden: true, schaal: 100, overlap: 0, snijtekens: false, labels: false, alleenGroot: false };
 
 function bijna(werkelijk, verwacht, speling = 1e-6, wat = '') {
   assert.ok(Math.abs(werkelijk - verwacht) <= speling, `${wat} ${werkelijk} ≠ ${verwacht} (±${speling})`);
@@ -67,7 +68,7 @@ test('rasterLangs: aantal tegels, stap en een gecentreerd raster', () => {
   // Precies passend: geen extra tegel.
   assert.equal(rasterLangs(594, 297, 0).aantal, 2);
   // Een hair te lang (binnen de speling van een halve mm): één tegel.
-  assert.equal(rasterLangs(210.3, 210, 0).aantal, 1);
+  assert.equal(rasterLangs(210.3, 210, 0, true).aantal, 1);
 });
 
 test('A1 op staande A4 op 100 %: 3 x 3 vellen', () => {
@@ -372,7 +373,7 @@ test('alle locales hebben de posterteksten, vertaald en met dezelfde plaatshoude
   const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8')).print;
   const en = lees('en');
   const sleutels = ['poster', 'posterScale', 'posterOverlap', 'posterCutMarks', 'posterLabels', 'posterOnlyLarge',
-    'posterTileInfo', 'posterNotTiled', 'posterAssumedPaper', 'perSheetPosterNote', 'posterLabelText'];
+    'posterEdgeCrop', 'posterEdgeCropHint', 'posterTileInfo', 'posterNotTiled', 'posterAssumedPaper', 'perSheetPosterNote', 'posterLabelText'];
   // Woorden die in een taal hetzelfde zijn als in het Engels.
   const gelijk = { da: ['posterOverlap'], nl: ['posterOverlap'] };
   const plaatshouders = (s) => [...s.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]).sort();
@@ -443,15 +444,15 @@ test('#855: exact multiples use the next count only beyond the rounding allowanc
   assert.equal(rasterLangs(0.1 * 3 * 2800, 420, 0).aantal, 2);
   assert.equal(rasterLangs(3 * 99.1, 99.1, 0).aantal, 3);
   // ISO and point rounding: about a mm over two or four sheets still fits.
-  assert.equal(rasterLangs(841.02, 420, 0).aantal, 2);
-  assert.equal(rasterLangs(1188.86, 297, 0).aantal, 4);
+  assert.equal(rasterLangs(841.02, 420, 0, true).aantal, 2);
+  assert.equal(rasterLangs(1188.86, 297, 0, true).aantal, 4);
   // A real excess still gets the next sheet.
   assert.equal(rasterLangs(845, 420, 0).aantal, 3);
   assert.equal(rasterLangs(842, 420, 0).aantal, 3);
   // The allowance never eats into the overlap: 2 x 420 - 10 = 830 < 841.
   assert.equal(rasterLangs(841.02, 420, 10).aantal, 3);
   // The grid stays centred: the overrun is split evenly over both edges.
-  const r = rasterLangs(841.02, 420, 0);
+  const r = rasterLangs(841.02, 420, 0, true);
   bijna(r.begin, (841.02 - 840) / 2);
 });
 
@@ -466,4 +467,47 @@ test('#855: printer margins and the cut-mark strip still count against the windo
   const m = indeling({ papier: { ...A3, bedrukbaar: { staand: marge, liggend: marge } }, orientatie: 'landscape',
     pagina: A1_PT_LIGGEND });
   assert.equal(`${m.kolommen} x ${m.rijen}`, '3 x 3');
+});
+
+
+test('#855: preserve all content by default; edge cropping requires an explicit boolean', () => {
+  assert.equal(posterOpties().randAfsnijden, false);
+  assert.equal(posterOpties({ randAfsnijden: 'true' }).randAfsnijden, false);
+  assert.equal(rasterLangs(210.3, 210, 0).aantal, 2);
+  assert.equal(rasterLangs(841, 420, 0).aantal, 3);
+  const opties = { schaal: 100, overlap: 0, snijtekens: false, labels: false, alleenGroot: false };
+  const full = posterIndeling({ papier: A3, pagina: A1, orientatie: 'portrait', opties });
+  const cropped = posterIndeling({ papier: A3, pagina: A1, orientatie: 'portrait', opties: { ...opties, randAfsnijden: true } });
+  assert.equal(full.vellen.length, 6);
+  assert.equal(cropped.vellen.length, 4);
+  bijna(cropped.vellen[0].tegel.y, 0.5);
+  bijna(full.schaal, 1);
+  bijna(cropped.schaal, 1);
+});
+
+test('#855: default tile windows cover every edge across scale, orientation, margins and overlap', () => {
+  for (const p of [A1, A1_PT, A0_PT]) for (const schaal of [10, 50, 100, 400]) {
+    for (const orientatie of ['auto', 'portrait', 'landscape']) for (const overlap of [0, 10]) {
+      for (const snijtekens of [false, true]) {
+        const r = posterIndeling({ papier: A3, pagina: p, orientatie,
+          opties: { schaal, overlap, snijtekens, labels: false, alleenGroot: false } });
+        const tiles = r.vellen.map(v => v.tegel);
+        assert.ok(Math.min(...tiles.map(t => t.x)) <= 1e-6);
+        assert.ok(Math.min(...tiles.map(t => t.y)) <= 1e-6);
+        assert.ok(Math.max(...tiles.map(t => t.x + t.breedte)) >= r.paginaMm.breedte - 1e-6);
+        assert.ok(Math.max(...tiles.map(t => t.y + t.hoogte)) >= r.paginaMm.hoogte - 1e-6);
+      }
+    }
+  }
+});
+
+test('#855: explicit crop is bounded to 0.75 mm per outer edge, even for large grids', () => {
+  for (const count of [1, 2, 4, 20]) {
+    const exact = count * 420;
+    const bounded = rasterLangs(exact + 1.5, 420, 0, true);
+    assert.equal(bounded.aantal, count);
+    bijna(bounded.begin, 0.75);
+    assert.equal(rasterLangs(exact + 1.51, 420, 0, true).aantal, count + 1);
+    assert.equal(rasterLangs(exact + 1, 420, 0).aantal, count + 1);
+  }
 });

@@ -143,6 +143,8 @@
     "posterCutMarks": "Skjæremerker",
     "posterLabels": "Etiketter (fil, side, flis)",
     "posterOnlyLarge": "Del bare store sider",
+    "posterEdgeCrop": "Beskjær små ytterkanter",
+    "posterEdgeCropHint": "Opptil {{max}} mm per ytterkant, bare for denne utskriften. Av: behold alt innhold.",
     "posterTileInfo": "Side {{page}}: flis {{row}},{{col}} (rad, kolonne) av {{rows}} × {{cols}}",
     "posterNotTiled": "Side {{page}} får plass på ett ark og deles ikke.",
     "posterAssumedPaper": "Ukjent papirstørrelse: flisene legges ut på {{paper}}.",

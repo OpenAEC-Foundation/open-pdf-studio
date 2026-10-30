@@ -34,7 +34,7 @@ import {
 } from '../../../pdf/print-doel.js';
 import {
   posterOpties, posterIndeling, posterVellen, posterLabel, geldigePosterSchaal, geldigeOverlap,
-  POSTER_SCHAAL_MIN, POSTER_SCHAAL_MAX, OVERLAP_MAX_MM, SNIJTEKEN_DIKTE_PT,
+  POSTER_SCHAAL_MIN, POSTER_SCHAAL_MAX, OVERLAP_MAX_MM, MAX_RANDAFSNIJDING_MM, SNIJTEKEN_DIKTE_PT,
 } from '../../../pdf/print-poster.js';
 import { leesGetalBegin } from '../../../core/getal-invoer.js';
 import { KLEUR_MODI, geldigeKleurModus } from '../../../pdf/print-kleur.js';
@@ -94,7 +94,7 @@ const MODUS_KNOPPEN = [
 ];
 
 export default function PrintDialog(props) {
-  const { t } = useTranslation('dialogs');
+  const { t, language } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
   // Settings of the last print action; every field is validated and falls
@@ -131,6 +131,8 @@ export default function PrintDialog(props) {
   const [posterCutMarks, setPosterCutMarks] = createSignal(bewaard.posterCutMarks);
   const [posterLabels, setPosterLabels] = createSignal(bewaard.posterLabels);
   const [posterOnlyLarge, setPosterOnlyLarge] = createSignal(bewaard.posterOnlyLarge);
+  // Randinhoud mag alleen na een keuze voor deze afdruk vervallen (#855).
+  const [posterEdgeCrop, setPosterEdgeCrop] = createSignal(false);
   const [flyerCount, setFlyerCount] = createSignal(bewaard.flyerCount);
   const [flyerCutMarks, setFlyerCutMarks] = createSignal(bewaard.flyerCutMarks);
   const [bookletSheets, setBookletSheets] = createSignal(bewaard.bookletSheets);
@@ -166,6 +168,7 @@ export default function PrintDialog(props) {
       snijtekens: posterCutMarks(),
       labels: posterLabels(),
       alleenGroot: posterOnlyLarge(),
+      randAfsnijden: posterEdgeCrop(),
     })
     : null), undefined, { equals: zelfdeKeuzes });
   // Boekje (print-boekje.js): twee pagina's per liggend vel in genietvolgorde.
@@ -1806,6 +1809,14 @@ export default function PrintDialog(props) {
             </div>
           </Show>
           <Show when={poster()}>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label">
+                <input type="checkbox" id="print-poster-edge-crop"
+                  checked={posterEdgeCrop()} onChange={e => batch(() => { setPosterEdgeCrop(e.target.checked); setPreviewIndex(0); })}
+                  aria-describedby="print-poster-edge-crop-hint" /> {t('print.posterEdgeCrop')}
+              </label>
+            </div>
+            <div class="print-row print-note" id="print-poster-edge-crop-hint">{t('print.posterEdgeCropHint', { max: MAX_RANDAFSNIJDING_MM.toLocaleString(language()) })}</div>
             <div class="print-row print-checkbox-row">
               <label class="print-checkbox-label">
                 <input

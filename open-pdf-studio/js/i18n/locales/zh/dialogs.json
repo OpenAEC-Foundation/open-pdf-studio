@@ -143,6 +143,8 @@
     "posterCutMarks": "裁切标记",
     "posterLabels": "标签（文件、页码、拼块）",
     "posterOnlyLarge": "仅拼贴大页面",
+    "posterEdgeCrop": "少量裁切外边缘",
+    "posterEdgeCropHint": "仅本次打印，每条外边缘最多裁切 {{max}} 毫米。关闭时保留全部内容。",
     "posterTileInfo": "第 {{page}} 页：拼块 {{row}},{{col}}（行，列），共 {{rows}} × {{cols}}",
     "posterNotTiled": "第 {{page}} 页可容纳在一张纸上，不进行拼贴。",
     "posterAssumedPaper": "纸张尺寸未知：拼块按 {{paper}} 排布。",

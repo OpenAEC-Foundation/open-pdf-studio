@@ -143,6 +143,8 @@
     "posterCutMarks": "Dấu cắt",
     "posterLabels": "Nhãn (tệp, trang, ô)",
     "posterOnlyLarge": "Chỉ chia trang lớn",
+    "posterEdgeCrop": "Cắt nhẹ các mép ngoài",
+    "posterEdgeCropHint": "Tối đa {{max}} mm mỗi mép ngoài, chỉ cho lần in này. Tắt: giữ nguyên mọi nội dung.",
     "posterTileInfo": "Trang {{page}}: ô {{row}},{{col}} (hàng, cột) trong {{rows}} × {{cols}}",
     "posterNotTiled": "Trang {{page}} vừa một tờ nên không bị chia.",
     "posterAssumedPaper": "Không rõ khổ giấy: các ô được sắp trên {{paper}}.",

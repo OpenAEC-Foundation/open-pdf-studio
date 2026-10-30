@@ -143,6 +143,8 @@
     "posterCutMarks": "Orezové značky",
     "posterLabels": "Popisy (súbor, strana, dlaždica)",
     "posterOnlyLarge": "Deliť iba veľké strany",
+    "posterEdgeCrop": "Mierne orezať vonkajšie okraje",
+    "posterEdgeCropHint": "Najviac {{max}} mm z každého vonkajšieho okraja, iba pre túto tlač. Vypnuté: zachovať celý obsah.",
     "posterTileInfo": "Strana {{page}}: dlaždica {{row}},{{col}} (riadok, stĺpec) z {{rows}} × {{cols}}",
     "posterNotTiled": "Strana {{page}} sa zmestí na jeden hárok a nedelí sa.",
     "posterAssumedPaper": "Formát papiera nie je známy: dlaždice sa rozmiestnia na {{paper}}.",

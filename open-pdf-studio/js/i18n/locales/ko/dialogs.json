@@ -143,6 +143,8 @@
     "posterCutMarks": "재단선 표시",
     "posterLabels": "레이블(파일, 페이지, 타일)",
     "posterOnlyLarge": "큰 페이지만 분할",
+    "posterEdgeCrop": "바깥쪽 가장자리 조금 자르기",
+    "posterEdgeCropHint": "이번 인쇄에만 각 바깥쪽 가장자리에서 최대 {{max}} mm를 자릅니다. 끄면 모든 내용이 유지됩니다.",
     "posterTileInfo": "{{page}} 페이지: 타일 {{row}},{{col}}(행, 열) / {{rows}} × {{cols}}",
     "posterNotTiled": "{{page}} 페이지는 한 장에 들어가므로 분할되지 않습니다.",
     "posterAssumedPaper": "용지 크기를 알 수 없음: 타일이 {{paper}}에 배치됩니다.",

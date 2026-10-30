@@ -143,6 +143,8 @@
     "posterCutMarks": "Leikkausmerkit",
     "posterLabels": "Tunnisteet (tiedosto, sivu, pala)",
     "posterOnlyLarge": "Jaa vain suuret sivut",
+    "posterEdgeCrop": "Rajaa hieman ulkoreunoja",
+    "posterEdgeCropHint": "Enintään {{max}} mm kustakin ulkoreunasta, vain tässä tulostuksessa. Pois: säilytä kaikki sisältö.",
     "posterTileInfo": "Sivu {{page}}: pala {{row}},{{col}} (rivi, sarake), yhteensä {{rows}} × {{cols}}",
     "posterNotTiled": "Sivu {{page}} mahtuu yhdelle arkille, eikä sitä jaeta.",
     "posterAssumedPaper": "Paperikoko on tuntematon: palat asetellaan {{paper}}-arkeille.",

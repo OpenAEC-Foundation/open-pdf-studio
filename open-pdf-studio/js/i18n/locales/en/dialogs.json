@@ -143,6 +143,8 @@
     "posterCutMarks": "Cut marks",
     "posterLabels": "Labels (file, page, tile)",
     "posterOnlyLarge": "Tile only large pages",
+    "posterEdgeCrop": "Crop small outer edges",
+    "posterEdgeCropHint": "Up to {{max}} mm per outer edge, for this print only. Off: preserve all content.",
     "posterTileInfo": "Page {{page}}: tile {{row}},{{col}} (row, column) of {{rows}} × {{cols}}",
     "posterNotTiled": "Page {{page}} fits on one sheet and is not tiled.",
     "posterAssumedPaper": "Paper size unknown: tiles are laid out on {{paper}}.",

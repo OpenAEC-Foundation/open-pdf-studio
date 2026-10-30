@@ -143,6 +143,8 @@
     "posterCutMarks": "علامت‌های برش",
     "posterLabels": "برچسب‌ها (فایل، صفحه، کاشی)",
     "posterOnlyLarge": "فقط صفحه‌های بزرگ کاشی شوند",
+    "posterEdgeCrop": "برش جزئی لبه‌های بیرونی",
+    "posterEdgeCropHint": "حداکثر {{max}} میلی‌متر از هر لبه بیرونی، فقط برای این چاپ. خاموش: حفظ تمام محتوا.",
     "posterTileInfo": "صفحه {{page}}: کاشی {{row}},{{col}} (ردیف، ستون) از {{rows}} × {{cols}}",
     "posterNotTiled": "صفحه {{page}} در یک برگه جا می‌شود و کاشی نمی‌شود.",
     "posterAssumedPaper": "اندازه کاغذ نامشخص است: کاشی‌ها روی {{paper}} چیده می‌شوند.",

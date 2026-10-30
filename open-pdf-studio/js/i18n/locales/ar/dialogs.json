@@ -143,6 +143,8 @@
     "posterCutMarks": "علامات القص",
     "posterLabels": "تسميات (الملف، الصفحة، المربع)",
     "posterOnlyLarge": "تقسيم الصفحات الكبيرة فقط",
+    "posterEdgeCrop": "قص الحواف الخارجية الصغيرة",
+    "posterEdgeCropHint": "حتى {{max}} مم لكل حافة خارجية، لهذه الطباعة فقط. عند التعطيل: الاحتفاظ بكل المحتوى.",
     "posterTileInfo": "الصفحة {{page}}: المربع {{row}},{{col}} (صف، عمود) من {{rows}} × {{cols}}",
     "posterNotTiled": "الصفحة {{page}} تتسع في ورقة واحدة ولن تُقسَّم.",
     "posterAssumedPaper": "حجم الورق غير معروف: تُوزَّع المربعات على {{paper}}.",

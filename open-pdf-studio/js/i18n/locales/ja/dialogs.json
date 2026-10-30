@@ -143,6 +143,8 @@
     "posterCutMarks": "トンボ（裁断マーク）",
     "posterLabels": "ラベル（ファイル、ページ、タイル）",
     "posterOnlyLarge": "大きいページのみ分割",
+    "posterEdgeCrop": "外周をわずかに切り取る",
+    "posterEdgeCropHint": "今回の印刷のみ、各外周から最大 {{max}} mm 切り取ります。オフの場合はすべての内容を保持します。",
     "posterTileInfo": "{{page}} ページ: タイル {{row}},{{col}}（行, 列）/ {{rows}} × {{cols}}",
     "posterNotTiled": "{{page}} ページは 1 枚の用紙に収まるため分割されません。",
     "posterAssumedPaper": "用紙サイズが不明です: タイルは {{paper}} に配置されます。",

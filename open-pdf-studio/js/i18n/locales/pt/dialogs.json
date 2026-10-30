@@ -143,6 +143,8 @@
     "posterCutMarks": "Marcas de corte",
     "posterLabels": "Rótulos (arquivo, página, bloco)",
     "posterOnlyLarge": "Dividir só páginas grandes",
+    "posterEdgeCrop": "Recortar ligeiramente as bordas externas",
+    "posterEdgeCropHint": "Até {{max}} mm por borda externa, apenas nesta impressão. Desativado: preservar todo o conteúdo.",
     "posterTileInfo": "Página {{page}}: bloco {{row}},{{col}} (linha, coluna) de {{rows}} × {{cols}}",
     "posterNotTiled": "A página {{page}} cabe em uma folha e não é dividida.",
     "posterAssumedPaper": "Tamanho do papel desconhecido: os blocos são distribuídos em {{paper}}.",

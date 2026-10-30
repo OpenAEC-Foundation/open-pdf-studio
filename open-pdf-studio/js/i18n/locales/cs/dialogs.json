@@ -143,6 +143,8 @@
     "posterCutMarks": "Ořezové značky",
     "posterLabels": "Popisky (soubor, stránka, dlaždice)",
     "posterOnlyLarge": "Dělit jen velké stránky",
+    "posterEdgeCrop": "Oříznout malé vnější okraje",
+    "posterEdgeCropHint": "Až {{max}} mm na každém vnějším okraji, pouze pro tento tisk. Vypnuto: zachovat veškerý obsah.",
     "posterTileInfo": "Stránka {{page}}: dlaždice {{row}},{{col}} (řádek, sloupec) z {{rows}} × {{cols}}",
     "posterNotTiled": "Stránka {{page}} se vejde na jeden list a nedělí se.",
     "posterAssumedPaper": "Formát papíru není znám: dlaždice se rozvrhnou na {{paper}}.",

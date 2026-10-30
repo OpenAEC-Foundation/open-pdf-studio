@@ -143,6 +143,8 @@
     "posterCutMarks": "Semne de tăiere",
     "posterLabels": "Etichete (fișier, pagină, placă)",
     "posterOnlyLarge": "Împarte doar paginile mari",
+    "posterEdgeCrop": "Decupează puțin marginile exterioare",
+    "posterEdgeCropHint": "Până la {{max}} mm pe fiecare margine exterioară, doar pentru această imprimare. Dezactivat: păstrează tot conținutul.",
     "posterTileInfo": "Pagina {{page}}: placa {{row}},{{col}} (rând, coloană) din {{rows}} × {{cols}}",
     "posterNotTiled": "Pagina {{page}} încape pe o foaie și nu este împărțită.",
     "posterAssumedPaper": "Dimensiune de hârtie necunoscută: plăcile sunt așezate pe {{paper}}.",

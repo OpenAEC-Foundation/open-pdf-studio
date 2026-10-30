@@ -143,6 +143,8 @@
     "posterCutMarks": "Snijtekens",
     "posterLabels": "Labels (bestand, pagina, tegel)",
     "posterOnlyLarge": "Alleen grote pagina's in tegels",
+    "posterEdgeCrop": "Kleine buitenranden afsnijden",
+    "posterEdgeCropHint": "Maximaal {{max}} mm per buitenrand, alleen voor deze afdruk. Uit: alle inhoud behouden.",
     "posterTileInfo": "Pagina {{page}}: tegel {{row}},{{col}} (rij, kolom) van {{rows}} × {{cols}}",
     "posterNotTiled": "Pagina {{page}} past op één vel en wordt niet in tegels gesneden.",
     "posterAssumedPaper": "Papierformaat onbekend: de tegels komen op {{paper}}.",
