@@ -1,3 +1,5 @@
+import { areaVertexHit } from '../annotations/area-vertices.js';
+import { applyAreaVertexEdit } from './area-vertex-editing.js';
 import { batch } from 'solid-js';
 import { state, getActiveDocument } from '../core/state.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen, applyToolTransform, getEffectiveScale } from './tool-context.js';
@@ -533,6 +535,21 @@ export function handleDblClick(e) {
   if (getActiveDocument()?.viewMode === 'continuous') {
     const dblClickDoc = getActiveDocument();
     if (dblClickDoc) dblClickDoc.currentPage = coords.pageNum;
+  }
+
+  // Handle selected measurement edges before the select tool's synthetic
+  // pointerdown, which would otherwise leave an unfinished resize gesture.
+  const areaDoc = getActiveDocument();
+  const areaSelection = areaDoc?.selectedAnnotations || [];
+  const area = areaSelection.length === 1 ? areaSelection[0] : null;
+  if (state.currentTool === 'select' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey
+      && area?.page === areaDoc?.currentPage) {
+    const hit = areaVertexHit(area, coords.x, coords.y, 8 / (getEffectiveScale() || 1));
+    if (hit) {
+      if (applyAreaVertexEdit(area, hit, true)) { showProperties(area); redraw(); }
+      e.preventDefault();
+      return;
+    }
   }
 
   // Delegate to current tool first — multi-click tools (polyline, spline, arc,

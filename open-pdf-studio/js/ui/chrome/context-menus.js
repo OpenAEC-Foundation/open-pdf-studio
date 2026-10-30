@@ -1,6 +1,7 @@
+import { areaVertexHit } from '../../annotations/area-vertices.js';
 import { state, getActiveDocument, isSelected } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
-import { resolvePointerCoords } from '../../tools/tool-context.js';
+import { resolvePointerCoords, getEffectiveScale } from '../../tools/tool-context.js';
 import { recordAdd } from '../../core/undo-manager.js';
 import { isBewerkbareVeelhoek, veelhoekDeelBij } from '../../annotations/veelhoek-punten.js';
 import { HANDLE_SIZE } from '../../core/constants.js';
@@ -112,6 +113,12 @@ export function initContextMenus() {
       const y = coords.y;
 
       import('../../annotations/geometry.js').then(async ({ findAnnotationAt }) => {
+        if (getActiveDocument() !== doc) return;
+        const selected = doc?.selectedAnnotations || [];
+        const area = selected.length === 1 ? selected[0] : null;
+        const areaHit = area?.page === doc?.currentPage
+          ? areaVertexHit(area, x, y, (HANDLE_SIZE / 2 + 4) / (getEffectiveScale() || 1)) : null;
+        if (areaHit) { showContextMenu(e, area, areaHit); return; }
         const annotation = findAnnotationAt(x, y);
         // In edit-contour mode, detect right-click on a vertex/edge handle so the
         // context menu can offer vertex-specific actions.
