@@ -32,7 +32,8 @@
     "aiLinkActive": "Activa a {{adres}}",
     "aiLinkViaFlag": "Activa mitjançant paràmetre d'inici ({{adres}})",
     "aiLinkOff": "Desactivada",
-    "aiLinkError": "No iniciada: {{fout}}"
+    "aiLinkError": "No iniciada: {{fout}}",
+    "interfaceScale": "Mida de la interfície"
   },
   "annotations": {
     "generalDefaults": "Valors per defecte generals",

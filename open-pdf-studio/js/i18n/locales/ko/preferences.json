@@ -32,7 +32,8 @@
     "aiLinkActive": "{{adres}}에서 활성",
     "aiLinkViaFlag": "시작 옵션으로 활성 ({{adres}})",
     "aiLinkOff": "끔",
-    "aiLinkError": "시작되지 않음: {{fout}}"
+    "aiLinkError": "시작되지 않음: {{fout}}",
+    "interfaceScale": "인터페이스 크기"
   },
   "annotations": {
     "generalDefaults": "일반 기본값",

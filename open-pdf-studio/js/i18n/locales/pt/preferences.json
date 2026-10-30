@@ -32,7 +32,8 @@
     "aiLinkActive": "Ativa em {{adres}}",
     "aiLinkViaFlag": "Ativa através de parâmetro de arranque ({{adres}})",
     "aiLinkOff": "Desligada",
-    "aiLinkError": "Não iniciada: {{fout}}"
+    "aiLinkError": "Não iniciada: {{fout}}",
+    "interfaceScale": "Tamanho da interface"
   },
   "annotations": {
     "generalDefaults": "Padrões gerais",

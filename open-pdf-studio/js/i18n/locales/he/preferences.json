@@ -32,7 +32,8 @@
     "aiLinkActive": "פעיל ב-{{adres}}",
     "aiLinkViaFlag": "פעיל דרך פרמטר הפעלה ({{adres}})",
     "aiLinkOff": "כבוי",
-    "aiLinkError": "לא הופעל: {{fout}}"
+    "aiLinkError": "לא הופעל: {{fout}}",
+    "interfaceScale": "גודל הממשק"
   },
   "annotations": {
     "generalDefaults": "ברירות מחדל כלליות",

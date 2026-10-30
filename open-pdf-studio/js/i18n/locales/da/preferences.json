@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Fra",
-    "aiLinkError": "Ikke startet: {{fout}}"
+    "aiLinkError": "Ikke startet: {{fout}}",
+    "interfaceScale": "Grænsefladestørrelse"
   },
   "annotations": {
     "generalDefaults": "Generelle standarder",

@@ -20,20 +20,22 @@ export default function useDropdown(optionCount) {
     if (!wrapperRef) return;
     const rect = wrapperRef.getBoundingClientRect();
     const count = typeof optionCount === 'function' ? optionCount() : optionCount;
-    const dropdownHeight = count * 24 + 4;
+    const scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-scale')) || 1;
+    const dropdownHeight = (count * 24 + 4) * scale;
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUpward = spaceBelow < dropdownHeight && rect.top > spaceBelow;
+    const width = Math.min(rect.width + 2, window.innerWidth - 8);
     const style = {
       position: 'fixed',
-      left: (rect.left - 1) + 'px',
-      width: (rect.width + 2) + 'px',
+      left: Math.max(4, Math.min(rect.left - 1, window.innerWidth - width - 4)) + 'px',
+      width: width + 'px',
     };
     if (openUpward) {
       style.bottom = (window.innerHeight - rect.top) + 'px';
-      style.maxHeight = (rect.top - 4) + 'px';
+      style['max-height'] = Math.max(0, rect.top - 4) + 'px';
     } else {
       style.top = rect.bottom + 'px';
-      style.maxHeight = (spaceBelow - 4) + 'px';
+      style['max-height'] = Math.max(0, spaceBelow - 4) + 'px';
     }
     setDropdownStyle(style);
   }

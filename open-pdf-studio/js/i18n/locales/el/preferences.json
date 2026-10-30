@@ -32,7 +32,8 @@
     "aiLinkActive": "Ενεργή στο {{adres}}",
     "aiLinkViaFlag": "Ενεργή μέσω παραμέτρου εκκίνησης ({{adres}})",
     "aiLinkOff": "Ανενεργή",
-    "aiLinkError": "Δεν ξεκίνησε: {{fout}}"
+    "aiLinkError": "Δεν ξεκίνησε: {{fout}}",
+    "interfaceScale": "Μέγεθος διεπαφής"
   },
   "annotations": {
     "generalDefaults": "Γενικές προεπιλογές",
