@@ -399,6 +399,12 @@ export function generateAppearanceStream(context, ann, convertY) {
         const h = ann.height;
         bbox = [0, 0, w, h];
         const lw = ann.lineWidth ?? 2;
+        // Streeppatroon van rand en kruis, gelijk aan /BS /D (buildBorderStyle)
+        // en aan het scherm (rendering.js: applyBorderStyle vóór strokeRect en
+        // het kruis). Zonder deze d-operator tekenden andere lezers een
+        // gestreepte of gestippelde rechthoek doorgetrokken. Pas ná de
+        // arcering gezet: die tekent het scherm altijd doorgetrokken.
+        const vakStreep = streepOperator(ann.borderStyle);
         // Geen rand (#431): alleen de vulling. Het kruis blijft, in de kleur
         // waarin het scherm het tekent.
         const vakArcering = ann.type === 'box' ? vormArcering(ann, [
@@ -412,7 +418,7 @@ export function generateAppearanceStream(context, ann, convertY) {
           streamContent += vakArcering;
           if (ann.cross) {
             const [kr, kg, kb] = hexToRgb(colorWithoutStroke(ann));
-            streamContent += `${lw} w\n${kr} ${kg} ${kb} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
+            streamContent += `${lw} w\n${vakStreep}${kr} ${kg} ${kb} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
           }
           break;
         }
@@ -423,7 +429,7 @@ export function generateAppearanceStream(context, ann, convertY) {
         if (onzichtbaarVlak(ann)) {
           streamContent = `0 0 ${w} ${h} re n\n${vakArcering}`;
           if (ann.type === 'box' && ann.cross) {
-            streamContent += `${lw} w\n${r} ${g} ${b} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
+            streamContent += `${lw} w\n${vakStreep}${r} ${g} ${b} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
           }
           break;
         }
@@ -438,12 +444,12 @@ export function generateAppearanceStream(context, ann, convertY) {
             const [fr, fg, fb] = hexToRgb(ann.fillColor);
             streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re f\n`;
           }
-          streamContent += `${vakArcering}0 0 ${w} ${h} re S\n`;
+          streamContent += `${vakArcering}${vakStreep}0 0 ${w} ${h} re S\n`;
         } else if (hasFill(ann.fillColor)) {
           const [fr, fg, fb] = hexToRgb(ann.fillColor);
-          streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re B\n`;
+          streamContent += `${vakStreep}${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re B\n`;
         } else {
-          streamContent += `0 0 ${w} ${h} re S\n`;
+          streamContent += `${vakStreep}0 0 ${w} ${h} re S\n`;
         }
         if (ann.type === 'box' && ann.cross) {
           streamContent += `0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
@@ -458,6 +464,8 @@ export function generateAppearanceStream(context, ann, convertY) {
         const rx = w / 2, ry = h / 2;
         const k = 0.5522847498; // Bezier approximation of circle
         const lw = ann.lineWidth ?? 2;
+        // Streeppatroon van omtrek en kruis: zie de rechthoek hierboven.
+        const ellipsStreep = streepOperator(ann.borderStyle);
         // Ellipse via Bezier curves
         const ellips = `${cx} ${cy + ry} m\n`
           + `${cx + k*rx} ${cy + ry} ${cx + rx} ${cy + k*ry} ${cx + rx} ${cy} c\n`
@@ -483,7 +491,7 @@ export function generateAppearanceStream(context, ann, convertY) {
           streamContent += ellipsArcering;
           if (kruis) {
             const [kr, kg, kb] = hexToRgb(colorWithoutStroke(ann));
-            streamContent += `${lw} w\n${kr} ${kg} ${kb} RG\n${kruis}`;
+            streamContent += `${lw} w\n${ellipsStreep}${kr} ${kg} ${kb} RG\n${kruis}`;
           }
           break;
         }
@@ -491,7 +499,7 @@ export function generateAppearanceStream(context, ann, convertY) {
         // Onzichtbaar vlak (#435): zie de rechthoek hierboven.
         if (onzichtbaarVlak(ann)) {
           streamContent = `${ellips}n\n${ellipsArcering}`;
-          if (kruis) streamContent += `${lw} w\n${r} ${g} ${b} RG\n${kruis}`;
+          if (kruis) streamContent += `${lw} w\n${ellipsStreep}${r} ${g} ${b} RG\n${kruis}`;
           break;
         }
         streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
@@ -504,9 +512,9 @@ export function generateAppearanceStream(context, ann, convertY) {
         if (ellipsArcering) {
           // Met arcering (#621): vulling, arcering, rand.
           if (ellipsVulling) streamContent += `${ellips}f\n`;
-          streamContent += `${ellipsArcering}${ellips}S\n`;
+          streamContent += `${ellipsArcering}${ellipsStreep}${ellips}S\n`;
         } else {
-          streamContent += ellips;
+          streamContent += ellipsStreep + ellips;
           streamContent += ellipsVulling ? 'B\n' : 'S\n';
         }
         streamContent += kruis;
