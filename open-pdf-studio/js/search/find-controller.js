@@ -4,6 +4,7 @@
  * and accurate text replacement via the text-edit-tool infrastructure.
  */
 
+import { shxSearchAnnotations } from '../pdf/shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { BRON_TEKST, zoekInAnnotaties } from './search-sources.js';
 import { pdfjsBronnen } from '../core/basis-url.js';
@@ -82,7 +83,9 @@ export async function extractPageText(pdfDoc, pageNum, doc) {
 
   // Page box (MediaBox/CropBox in user space). The text layers are laid out
   // in this box, so match highlights are positioned relative to it.
-  return { pageNum, text: pageText, items, view: Array.isArray(page.view) ? [...page.view] : null };
+  const view = Array.isArray(page.view) ? [...page.view] : null;
+  const shxAnnotations = shxSearchAnnotations(await page.getAnnotations(), pageNum, view);
+  return { pageNum, text: pageText, items, view, shxAnnotations };
 }
 
 /**
@@ -188,14 +191,19 @@ export function zoekBronnen() {
 
 /**
  * Treffers van één pagina uit alle aangevinkte bronnen, in leesvolgorde.
- * De annotatietreffers komen uit doc.annotations; die staan al in het
- * geheugen, dus daar hoeft geen pagina voor te worden ingelezen.
+ * Bewerkbare annotaties komen uit doc.annotations. SHX-metadata komt uit
+ * de PDF-pagina en blijft buiten dat model; alleen zoeken mag haar tonen.
  */
 export function zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen) {
   const uit = [];
   if (bronnen.tekst && pageData) uit.push(...searchPage(pageData, pattern, query));
   if (bronnen.annotaties) {
     uit.push(...zoekInAnnotaties(doc?.annotations, pageData.pageNum, pattern, pageData.view));
+    const shx = new Map((pageData.shxAnnotations || []).map(a => [a.id, a]));
+    for (const match of zoekInAnnotaties(pageData.shxAnnotations, pageData.pageNum, pattern, pageData.view)) {
+      const { x, y, width, height } = shx.get(match.annotationId);
+      uit.push({ ...match, readOnly: true, annotationBox: { x, y, width, height } });
+    }
   }
   uit.sort(compareResultsVisually);
   return uit;
@@ -585,7 +593,7 @@ function replaceAllInTextEditText(doc, edit, matches, replaceText) {
  */
 export async function replaceCurrentMatch(replaceText) {
   const result = getCurrentResult();
-  if (!result) return null;
+  if (!result || result.readOnly) return null;
 
   const doc = getActiveDocument();
   if (!doc) return null;
@@ -620,6 +628,7 @@ export async function replaceAllMatches(replaceText) {
   const pdfContentResults = [];
 
   for (const result of results) {
+    if (result.readOnly) continue; // SHX-tekst beschrijft vectoren, geen vervangbare tekst.
     const ann = findAnnotationForMatch(doc, result);
     if (ann) {
       if (!annReplacements.has(ann.id)) annReplacements.set(ann.id, []);

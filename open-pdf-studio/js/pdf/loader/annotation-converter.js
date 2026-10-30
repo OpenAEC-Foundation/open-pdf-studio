@@ -1,3 +1,4 @@
+import { isShxTextAnnotation } from '../shx-text.js';
 import { state, imageCache } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { generateImageId } from '../../utils/helpers.js';
@@ -55,6 +56,7 @@ import { inktUitBestand } from './inkt-uit-bestand.js';
  * label van een kader). Zie annotatie-opmerking.js.
  */
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
+  if (isShxTextAnnotation(annot)) return null;
   const omgezet = zonderDubbeleOpmerking(
     await converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap));
   // Naam, onderwerp, alternatieve tekst en IFC-categorie voor elke soort
@@ -506,8 +508,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       Object.assign(sqProps, vormHatchUitExtra(extraColors));
       if (extraColors.cross && sqProps.type === 'box') sqProps.cross = true;
       // Vorm zonder rand (#431): strokeColor 'none' met de lijndikte-instelling.
+      // Een expliciete nulrand van een PDF-Square is geen canvas-haarlijn.
+      // Eigen randloze vormen behouden hun opgeslagen gereedschapsinstelling.
+      if (extraColors.borderWidth === 0) sqProps.strokeColor = 'none';
       Object.assign(sqProps, randloosUitExtra(extraColors));
-      // Onzichtbaar vlak (#435): hulplijn op het scherm, geen streek bij opslaan.
+      // Onzichtbaar vlak (#435): ook geen streek in de opgeslagen appearance.
       if (onzichtbaarVlakUitExtra(extraColors)) sqProps.onzichtbaarVlak = true;
       return createAnnotation(sqProps);
     }
