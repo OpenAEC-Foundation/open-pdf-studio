@@ -994,6 +994,9 @@ async function voerStandaardToetsUit(e) {
       if (ann) {
         // Restore annotation to its pre-stretch state
         Object.assign(ann, state.originalAnnotation);
+        // Object.assign wist geen velden: een draaipunt dat pas tijdens deze
+        // sleep ontstond (#826), moet er ook weer af.
+        if (!Object.prototype.hasOwnProperty.call(state.originalAnnotation, 'draaipunt')) delete ann.draaipunt;
       }
       // Meegeschoven stramienuiteinden gaan ook terug.
       herstelStramienMeeslepen();

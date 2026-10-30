@@ -75,8 +75,13 @@ export const selectTool = {
       // greep midden in een aanhaal-tekstvak, en de labelgreep van de
       // maatvoeringen); zonder die vermelding viel Ctrl+klik daar in de
       // resize-tak en kreeg je een verplaatsing in plaats van een kopie.
+      // Het draaipunt (#826) staat standaard op de plek van de verplaatsgreep
+      // in het midden; Ctrl+slepen daar blijft dus een kopie maken. Een
+      // verplaatst draaipunt kan buiten de vorm liggen: daar blijft het slepen.
       const VERPLAATS_GREPEN = ['rect_center', 'circle_center', 'line_mid', 'callout_move', 'label_move'];
-      const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && VERPLAATS_GREPEN.includes(handleType);
+      const verplaatsGreep = VERPLAATS_GREPEN.includes(handleType)
+        || (handleType === 'pivot' && !heeftEigenDraaipunt(selAnn));
+      const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && verplaatsGreep;
       if (handleType && !ctrlKopieViaGreep) {
         // Edit-contour mode: clicking an edge midpoint inserts a new vertex
         // there and immediately enters drag mode for that new vertex.

@@ -9,7 +9,7 @@ import { noteerAanwijzer } from './tools/draw-tool.js';
 import { eindEventBijAfbreken } from './aanraak-gebaar.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
-import { kanDraaipunt, heeftEigenDraaipunt, draaipuntVoorPunt, draaiOmDraaipunt, houdDraaipuntVast } from '../annotations/draaipunt.js';
+import { kanDraaipunt, heeftEigenDraaipunt, draaipuntVoorPunt, draaiOmDraaipunt, houdDraaipuntVast, schaalDeltaOmDraaipunt } from '../annotations/draaipunt.js';
 import { redrawAnnotations, redrawContinuous, snapToGrid } from '../annotations/rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 import { startTextEditing, finishTextEditing } from './text-editing.js';
@@ -657,9 +657,14 @@ function _handleResize(ctx, e, coords) {
     Object.assign(ann, cloneAnnotation(state.originalAnnotation));
     state.shiftKeyPressed = e.shiftKey;
     const _orig = state.originalAnnotation;
-    if (kanDraaipunt(_orig) && heeftEigenDraaipunt(_orig)) {
+    if (!_orig.locked && kanDraaipunt(_orig) && heeftEigenDraaipunt(_orig)) {
       // Om het eigen draaipunt (#826), relatief aan waar de greep gepakt werd.
-      Object.assign(ann, draaiOmDraaipunt(_orig, state.dragStartX, state.dragStartY, coords.x, coords.y));
+      // Shift met hoeksnap aan: in stappen, zoals de gewone draaigreep.
+      const stap = e.shiftKey && state.preferences.enableAngleSnap ? state.preferences.angleSnapDegrees : 0;
+      const _uit = draaiOmDraaipunt(_orig, state.dragStartX, state.dragStartY, coords.x, coords.y, { stap });
+      ann.rotation = _uit.rotation;
+      // Via applyMove: een veelhoek met eigen hoekpunten schuift die mee.
+      applyMove(ann, _uit.x - ann.x, _uit.y - ann.y);
     } else {
       applyRotation(ann, coords.x, coords.y, _orig);
     }
@@ -711,6 +716,7 @@ function _handleResize(ctx, e, coords) {
   // Het snapt mee, zodat het precies op een kenmerk van de tekening kan.
   if (state.activeHandle === 'pivot') {
     Object.assign(ann, cloneAnnotation(state.originalAnnotation));
+    if (ann.locked) return;
     const dp = draaipuntVoorPunt(state.originalAnnotation, snappedX, snappedY);
     if (dp) ann.draaipunt = dp;
     else delete ann.draaipunt;
@@ -739,6 +745,16 @@ function _handleResize(ctx, e, coords) {
     deltaY = coords.y - state.dragStartY;
   }
 
+  // Schalen met een eigen draaipunt (#826): de muis bepaalt hoe ver de
+  // gesleepte greep van het draaipunt komt te staan; het vak schuift daarna
+  // terug zodat het draaipunt op de pagina blijft staan.
+  const _rhVooraf = state.activeHandle;
+  const _omDraaipunt = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'].includes(_rhVooraf)
+    && kanDraaipunt(state.originalAnnotation) && heeftEigenDraaipunt(state.originalAnnotation);
+  if (_omDraaipunt) {
+    ({ dx: deltaX, dy: deltaY } = schaalDeltaOmDraaipunt(state.originalAnnotation, _rhVooraf, deltaX, deltaY));
+  }
+
   Object.assign(ann, cloneAnnotation(state.originalAnnotation));
   // De zoom gaat mee: ondergrenzen die over het scherm gaan (schaalgebied,
   // viewport, schaalbalk) rekenen in schermpixels, niet in paginapunten.
@@ -762,7 +778,9 @@ function _handleResize(ctx, e, coords) {
   const _isBoxHandle = _rh === 'tl' || _rh === 'tr' || _rh === 'bl' || _rh === 'br' ||
     _rh === 't' || _rh === 'b' || _rh === 'l' || _rh === 'r';
   const _lockRatio = e.shiftKey || ann.lockAspectRatio;
-  if (state.preferences.enableImageAlignSnap && ann.type === 'image' && _isBoxHandle) {
+  // Niet met een eigen draaipunt: die maatsnap zet de overliggende greep vast
+  // en het terugschuiven naar het draaipunt zou de hulplijnen ernaast leggen.
+  if (!_omDraaipunt && state.preferences.enableImageAlignSnap && ann.type === 'image' && _isBoxHandle) {
     const excludeIds = new Set([ann.id]);
     const refs = collectImageAlignRefs(resizeDoc?.annotations || [], coords.pageNum, excludeIds);
     const tol = (state.preferences.objectSnapRadius || 12) / resizeScale;
@@ -783,8 +801,10 @@ function _handleResize(ctx, e, coords) {
 
   // Schalen met een eigen draaipunt (#826): het draaipunt blijft op dezelfde
   // plek op de pagina; zonder eigen draaipunt blijft de overliggende greep staan.
-  if (_isBoxHandle && kanDraaipunt(state.originalAnnotation) && heeftEigenDraaipunt(state.originalAnnotation)) {
-    Object.assign(ann, houdDraaipuntVast(state.originalAnnotation, ann));
+  if (_omDraaipunt) {
+    const _vast = houdDraaipuntVast(state.originalAnnotation, ann);
+    // Via applyMove: een veelhoek met eigen hoekpunten schuift die mee.
+    applyMove(ann, _vast.x - ann.x, _vast.y - ann.y);
   }
 
   redraw();

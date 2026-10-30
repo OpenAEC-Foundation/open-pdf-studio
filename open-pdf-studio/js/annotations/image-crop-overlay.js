@@ -27,6 +27,7 @@ import { recordPropertyChange } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { fracties, volledigVak, vensterOpVak, fractiesNaSleep, rectNaBijsnijden } from './crop-geometrie.js';
 import { weergaveRotatie } from '../pdf/weergave-ruimte.js';
+import { draaipuntNaVakWissel } from './draaipunt.js';
 import { inDocumentWeergave, eisGebeurtenisOp, installeerCropInvoer } from './crop-invoer.js';
 
 // De annotatie die bijgesneden wordt (null = inactief).
@@ -54,12 +55,37 @@ function effScale() {
   return (doc?.scale || 1.5) * dpr;
 }
 
-function maakSnapshot(ann) {
+// Het eigen draaipunt (#826) staat als losse getallen in de snapshot, zodat
+// de vergelijkingen hieronder (!==) blijven werken; null = het midden.
+export function maakSnapshot(ann) {
   return {
     x: ann.x, y: ann.y, width: ann.width, height: ann.height,
     cropLeft: ann.cropLeft || 0, cropTop: ann.cropTop || 0,
     cropRight: ann.cropRight || 0, cropBottom: ann.cropBottom || 0,
+    draaipuntU: ann.draaipunt ? ann.draaipunt.u : null,
+    draaipuntV: ann.draaipunt ? ann.draaipunt.v : null,
   };
+}
+
+/** Zet een snapshot van maakSnapshot terug op de annotatie. */
+export function pasSnapshotToe(ann, snap) {
+  const { draaipuntU, draaipuntV, ...rest } = snap;
+  Object.assign(ann, rest);
+  if (draaipuntU == null || draaipuntV == null) delete ann.draaipunt;
+  else ann.draaipunt = { u: draaipuntU, v: draaipuntV };
+}
+
+/**
+ * Nieuwe bijsnijding toepassen. De pixels blijven op hun plek, dus een eigen
+ * draaipunt (#826) blijft op hetzelfde punt van de pagina staan, ook als het
+ * daardoor buiten het nieuwe vak valt.
+ */
+export function pasBijsnijdingToe(ann, f1, nieuw) {
+  const dp = draaipuntNaVakWissel(ann, { ...nieuw, rotation: ann.rotation || 0 });
+  ann.cropLeft = f1.l; ann.cropTop = f1.t; ann.cropRight = f1.r; ann.cropBottom = f1.b;
+  ann.x = nieuw.x; ann.y = nieuw.y; ann.width = nieuw.width; ann.height = nieuw.height;
+  if (dp) ann.draaipunt = dp;
+  else delete ann.draaipunt;
 }
 
 const rectVan = (ann) => ({ x: ann.x, y: ann.y, width: ann.width, height: ann.height });
@@ -141,8 +167,7 @@ function onPointerMove(e) {
   const vak = volledigVak(rectVan(ann), f0);
   const f1 = fractiesNaSleep(vak, f0, _dragHandle, local);
   const nieuw = rectNaBijsnijden(rectVan(ann), vensterOpVak(vak, f1), ann.rotation || 0);
-  ann.cropLeft = f1.l; ann.cropTop = f1.t; ann.cropRight = f1.r; ann.cropBottom = f1.b;
-  ann.x = nieuw.x; ann.y = nieuw.y; ann.width = nieuw.width; ann.height = nieuw.height;
+  pasBijsnijdingToe(ann, f1, nieuw);
   redraw();
 }
 
@@ -159,9 +184,9 @@ function onPointerUp(e) {
     if (changed) {
       // Snapshot even terugzetten zodat recordPropertyChange de toestand van
       // vóór deze sleep vastlegt, en daarna de nieuwe toestand herstellen.
-      Object.assign(ann, _snapshot);
+      pasSnapshotToe(ann, _snapshot);
       recordPropertyChange(ann);
-      Object.assign(ann, nu);
+      pasSnapshotToe(ann, nu);
       ann.modifiedAt = new Date().toISOString();
       _snapshot = nu;
       showProperties(ann);
@@ -190,7 +215,7 @@ function herstelSnapshot() {
   const nu = maakSnapshot(ann);
   if (Object.keys(nu).some(k => nu[k] !== _snapshot[k])) {
     recordPropertyChange(ann);
-    Object.assign(ann, _snapshot);
+    pasSnapshotToe(ann, _snapshot);
     ann.modifiedAt = new Date().toISOString();
     showProperties(ann);
   }

@@ -632,3 +632,4 @@ js/solid/components/dialog-escape.test.mjs
 # Hoekpunten van meetvlakken direct bewerken (#872)
 js/annotations/area-vertices.test.mjs
 js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
+js/annotations/draaipunt-vormen.test.mjs
