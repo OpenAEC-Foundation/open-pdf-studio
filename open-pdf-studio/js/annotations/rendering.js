@@ -3462,7 +3462,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
     const m = paginaMaat(pageNum, doc);
     if (m) { wmW = m.breedte; wmH = m.hoogte; }
   }
-  renderWatermarksBehind(ctx, pageNum, wmW, wmH);
+  if (lagen.watermerken) renderWatermarksBehind(ctx, pageNum, wmW, wmH);
 
   // Draw text edits (cover-and-replace)
   drawTextEdits(ctx, pageNum);
@@ -3492,7 +3492,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   }));
 
   // Draw watermarks in front of content
-  renderWatermarksInFront(ctx, pageNum, wmW, wmH);
+  if (lagen.watermerken) renderWatermarksInFront(ctx, pageNum, wmW, wmH);
 
   // Vanaf hier alleen bewerkingstoestand: die hoort niet in een afdruk,
   // export of voorbeeld (lagen.selectie en lagen.bewerkhulp).

@@ -13,14 +13,14 @@
 // is inhoud van het document, geen markering.
 
 /**
- * @param {{ uitvoer?: boolean, markeringen?: boolean }} [opties]
+ * @param {{ uitvoer?: boolean, markeringen?: boolean, watermerken?: boolean }} [opties]
  * @returns {{ watermerken: boolean, tekstbewerkingen: boolean, markeringen: boolean,
  *             selectie: boolean, bewerkhulp: boolean, schermlijndikte: boolean }}
  */
-export function weergaveLagen({ uitvoer = false, markeringen = true } = {}) {
+export function weergaveLagen({ uitvoer = false, markeringen = true, watermerken = true } = {}) {
   const scherm = !uitvoer;
   return {
-    watermerken: true,
+    watermerken: watermerken !== false,
     tekstbewerkingen: true,
     markeringen: markeringen !== false,
     selectie: scherm,

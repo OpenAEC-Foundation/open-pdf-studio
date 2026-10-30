@@ -1,5 +1,6 @@
 import { createSignal, createMemo, Show, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
+import WatermarkPreview from './WatermarkPreview.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
 import { recordAddWatermark, recordModifyWatermark } from '../../../core/undo-manager.js';
@@ -34,6 +35,9 @@ export default function WatermarkDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
+  const previewDoc = getActiveDocument();
+  const [previewPage, setPreviewPage] = createSignal(previewDoc?.currentPage || 1);
+  const [previewSize, setPreviewSize] = createSignal(null);
   const editWm = props.data?.editWm || null;
   const isEditing = !!editWm;
   const isImageEdit = editWm?.type === 'imageWatermark';
@@ -53,7 +57,7 @@ export default function WatermarkDialog(props) {
   const [autoFit, setAutoFit] = createSignal(!isImageEdit && !!editWm?.autoFit);
   const [color, setColor] = createSignal(editWm?.color || '#ff0000');
   const [opacity, setOpacity] = createSignal(
-    isEditing && !isImageEdit ? Math.round((editWm.opacity || 0.3) * 100) : 30
+    isEditing && !isImageEdit ? Math.round((editWm.opacity ?? 0.3) * 100) : 30
   );
   const [rotation, setRotation] = createSignal(
     isEditing && !isImageEdit ? (editWm.rotation ?? -45) : -45
@@ -116,7 +120,7 @@ export default function WatermarkDialog(props) {
   // the size on the current page.
   const autoFitSize = createMemo(() => {
     const doc = getActiveDocument();
-    const maat = doc ? paginaMaat(doc.currentPage || 1, doc) : null;
+    const maat = previewSize() || (doc ? paginaMaat(previewPage(), doc) : null);
     if (!maat) return null;
     const size = watermarkAutoFitSize(
       { text: text() || t('watermark.defaultText'), fontFamily: font(), rotation: parseInt(rotation()) || 0 },
@@ -132,10 +136,10 @@ export default function WatermarkDialog(props) {
 
   // Image tab signals
   const [imgOpacity, setImgOpacity] = createSignal(
-    isImageEdit ? Math.round((editWm.opacity || 0.2) * 100) : 20
+    isImageEdit ? Math.round((editWm.opacity ?? 0.2) * 100) : 20
   );
   const [imgScale, setImgScale] = createSignal(
-    isImageEdit ? Math.round((editWm.scale || 1) * 100) : 100
+    isImageEdit ? Math.round((editWm.scale ?? 1) * 100) : 100
   );
   const [imgRotation, setImgRotation] = createSignal(
     isImageEdit ? (editWm.rotation ?? 0) : 0
@@ -231,7 +235,7 @@ export default function WatermarkDialog(props) {
   // the current page, so it stays where it is.
   function prefillCustom(wm, setX, setY) {
     const doc = getActiveDocument();
-    const maat = doc ? paginaMaat(doc.currentPage || 1, doc) : null;
+    const maat = previewSize() || (doc ? paginaMaat(previewPage(), doc) : null);
     if (!maat) return;
     const { x, y } = watermarkCustomPosition(wm, maat.breedte, maat.hoogte);
     setX(String(x));
@@ -248,7 +252,10 @@ export default function WatermarkDialog(props) {
     setImgPosition(value);
   }
 
+  const previewWatermark = createMemo(() => activeTab() === 'image' ? buildImageWatermark() : buildTextWatermark());
+
   async function handleAdd() {
+    if (getActiveDocument() !== previewDoc) return;
     const tab = activeTab();
     const wm = tab === 'image' ? buildImageWatermark() : buildTextWatermark();
 
@@ -295,6 +302,7 @@ export default function WatermarkDialog(props) {
   return (
     <Dialog
       title={isEditing ? t('watermark.editTitle') : t('watermark.addTitle')}
+      modal={false}
       overlayClass="watermark-overlay"
       dialogClass="watermark-dialog"
       headerClass="watermark-header"
@@ -303,6 +311,7 @@ export default function WatermarkDialog(props) {
       onClose={close}
       footer={footer}
     >
+      <div class="watermark-editor">
       <div class="watermark-tabs">
         <button
           class="watermark-tab"
@@ -653,6 +662,12 @@ export default function WatermarkDialog(props) {
           </Show>
         </div>
       </div>
+      </div>
+      <WatermarkPreview doc={previewDoc} editWm={editWm} watermark={previewWatermark()}
+        onPage={n => { setPreviewPage(n); setPreviewSize(null); }} onSize={setPreviewSize} onInvalid={close} onPosition={(x,y) => {
+          if (activeTab() === 'image') { setImgPosition('custom'); setImgCustomX(String(x)); setImgCustomY(String(y)); }
+          else { setPosition('custom'); setCustomX(String(x)); setCustomY(String(y)); }
+        }} />
     </Dialog>
   );
 }

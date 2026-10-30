@@ -142,7 +142,7 @@ export default function Dialog(props) {
         ref={dialogRef}
         class={`modal-dialog ${props.dialogClass || ''}`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={props.modal === false ? "false" : "true"}
         aria-label={props.title}
         onAnimationEnd={() => dialogRef?.classList.remove('bump')}
       >
