@@ -1176,3 +1176,15 @@ body.pdf-cursor-override #canvas-container * {
   border-color: #e81123;
   color: #ffffff;
 }
+
+/* Bestandsnamen in een splitsing met twee documenten (#893). */
+.split-document-name {
+  position: absolute; top: 2px; left: 4px; z-index: 3;
+  max-width: calc(100% * var(--split-ratio, .5) - 16px);
+  padding: 3px 6px; font-size: 12px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; pointer-events: none;
+  color: var(--theme-text); background: var(--theme-bg); border: 1px solid var(--theme-border);
+}
+.split-document-name[data-pane="1"] { left: calc(100% * var(--split-ratio, .5) + 8px); max-width: calc(100% * (1 - var(--split-ratio, .5)) - 16px); }
+.split-horizontaal .split-document-name { max-width: calc(100% - 16px); }
+.split-horizontaal .split-document-name[data-pane="1"] { left: 4px; top: calc(100% * var(--split-ratio, .5) + 8px); }

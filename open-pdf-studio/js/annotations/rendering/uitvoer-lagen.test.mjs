@@ -38,3 +38,11 @@ test('zonder markeringen blijft de inhoud van het document staan', () => {
   assert.equal(weergaveLagen({ markeringen: false }).markeringen, false);
   assert.equal(weergaveLagen({ markeringen: false }).selectie, true);
 });
+
+test('inactief documentpaneel houdt scherminhoud en lijndiktes, zonder actieve bewerking', () => {
+  const lagen = weergaveLagen({ inactief:true });
+  assert.deepEqual(lagen, {
+    watermerken:true, tekstbewerkingen:true, markeringen:true,
+    selectie:false, bewerkhulp:false, schermlijndikte:true,
+  });
+});

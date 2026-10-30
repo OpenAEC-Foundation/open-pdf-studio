@@ -326,6 +326,7 @@
     "detachFailed": "Kunne ikke løsne vinduet: {{error}}",
     "dragFileGone": "Denne filen finnes ikke lenger på disken — fanen kan ikke flyttes.",
     "dragNotStarted": "Fanen kunne ikke dras til et annet vindu. Prøv igjen, eller bruk høyreklikk → Åpne i nytt vindu.",
+    "openInSplitView": "Åpne i delt visning",
     "openInNewWindow": "Åpne i nytt vindu",
     "closeTab": "Lukk fane",
     "nextTab": "Neste fane",

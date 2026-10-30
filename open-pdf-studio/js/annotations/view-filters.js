@@ -1,3 +1,4 @@
+import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 // Centrale weergavefilters voor het canvas (#333).
 //
 // Eén predicaat dat bepaalt of een annotatie in de huidige WEERGAVE
@@ -24,7 +25,6 @@
 
 import { hiddenTypes as evHiddenTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isStatusHidden } from '../solid/stores/panels/annotationsStore.js';
-import { getActiveDocument } from '../core/state.js';
 import { hiddenInView, pickableInView, hiddenInOutput } from './view-filter-rules.js';
 
 function bronnen() {

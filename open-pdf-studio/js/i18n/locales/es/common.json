@@ -326,6 +326,7 @@
     "detachFailed": "No se pudo separar la ventana: {{error}}",
     "dragFileGone": "Este archivo ya no existe en el disco — la pestaña no se puede mover.",
     "dragNotStarted": "No se pudo arrastrar la pestaña a otra ventana. Inténtelo de nuevo o use clic derecho → Abrir en una ventana nueva.",
+    "openInSplitView": "Abrir en vista dividida",
     "openInNewWindow": "Abrir en una ventana nueva",
     "closeTab": "Cerrar pestaña",
     "nextTab": "Pestaña siguiente",

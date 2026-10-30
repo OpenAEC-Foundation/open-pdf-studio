@@ -1,5 +1,5 @@
+import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { createAnnotation } from './factory.js';
-import { getActiveDocument } from '../core/state.js';
 import { detectScaleInDocument, scaleFromScaleBar } from './document-scale.js';
 import { schaalOpPuntUitBronnen } from './schaal-op-punt.js';
 import { schaalBronnen } from './schaal-bronnen.js';

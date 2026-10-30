@@ -1,6 +1,7 @@
+import { tekenDocument as getActiveDocument } from './document-context.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { heeftEigenDraaipunt } from '../draaipunt.js';
-import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
+import { state, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getAnnotationHandles } from '../handles.js';
 import { schermSchaal } from '../../pdf/split-view/paneel-weergave.js';

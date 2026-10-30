@@ -1,4 +1,5 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { tekenDocument as getActiveDocument } from '../annotations/rendering/document-context.js';
+import { state } from '../core/state.js';
 import { parsePageRange } from '../pdf/exporter.js';
 import {
   KOPVOET_VAKKEN, vakPositie, vulKopVoetIn, kopVoetWaarden, toegepastePaginas, kopVoetInWeergave,

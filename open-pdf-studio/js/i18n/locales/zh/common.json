@@ -326,6 +326,7 @@
     "detachFailed": "无法分离窗口：{{error}}",
     "dragFileGone": "此文件已不在磁盘上，无法移动该标签页。",
     "dragNotStarted": "无法将标签页拖到另一个窗口。请重试，或使用右键 → 在新窗口中打开。",
+    "openInSplitView": "在拆分视图中打开",
     "openInNewWindow": "在新窗口中打开",
     "closeTab": "关闭标签页",
     "nextTab": "下一个标签页",

@@ -326,6 +326,7 @@
     "detachFailed": "No s'ha pogut separar la finestra: {{error}}",
     "dragFileGone": "Aquest fitxer ja no existeix al disc — la pestanya no es pot moure.",
     "dragNotStarted": "No s'ha pogut arrossegar la pestanya a una altra finestra. Torneu-ho a provar o feu servir clic dret → Obre en una finestra nova.",
+    "openInSplitView": "Obre en vista dividida",
     "openInNewWindow": "Obre en una finestra nova",
     "closeTab": "Tanca la pestanya",
     "nextTab": "Pestanya següent",

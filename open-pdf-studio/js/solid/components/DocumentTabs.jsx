@@ -602,6 +602,12 @@ export default function DocumentTabs() {
           onMouseLeave={hideCtxMenu}
         >
           <div
+            style={{ padding: '6px 14px', cursor: 'default' }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}
+            onMouseLeave={(e) => e.currentTarget.style.background = ''}
+            onClick={() => { const idx = ctxMenu().index; hideCtxMenu(); import('../../pdf/split-view/split-view.js').then(m => m.openDocumentInSplit(idx)); }}
+          >{tCommon('tabs.openInSplitView')}</div>
+          <div
             style={{ padding: '6px 14px', cursor: 'pointer' }}
             onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}
             onMouseLeave={(e) => e.currentTarget.style.background = ''}
