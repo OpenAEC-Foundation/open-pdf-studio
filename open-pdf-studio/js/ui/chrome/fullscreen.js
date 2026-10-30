@@ -26,16 +26,20 @@ export function initFullscreen() {
 export async function toggleFullscreen() {
   const cur = await isWindowFullscreen();
   await setWindowFullscreen(!cur);
-  setIsFullscreen(!cur);
-  return !cur;
+  // Browser permissions and native window commands can reject a request.
+  // Reflect the actual window instead of leaving the ribbon optimistically on.
+  const actual = await isWindowFullscreen();
+  setIsFullscreen(!!actual);
+  return !!actual;
 }
 
 export async function exitFullscreen() {
   const cur = await isWindowFullscreen();
   if (!cur) return false;
   await setWindowFullscreen(false);
-  setIsFullscreen(false);
-  return true;
+  const actual = await isWindowFullscreen();
+  setIsFullscreen(!!actual);
+  return !actual;
 }
 
 export function getFullscreenState() {
