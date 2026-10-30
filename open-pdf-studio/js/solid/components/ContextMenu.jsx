@@ -1,3 +1,4 @@
+import { canEditAreaVertex, applyAreaVertexEdit } from '../../tools/area-vertex-editing.js';
 import { createEffect, createMemo, onMount, onCleanup, Show, Switch, Match, For } from 'solid-js';
 import { showConfirm } from '../../ui/chrome/confirm-dialog.js';
 import {
@@ -199,6 +200,17 @@ function AnnotationMenuContent() {
     const v = vertexContext();
     const a = ann();
     if (!v || !a || a.id !== v.annotationId) return null;
+    if (v.kind === 'areaVertex' || v.kind === 'areaEdge') {
+      return <>
+        <MenuItem icon={v.kind === 'areaVertex' ? deleteIcon : undefined}
+          label={t(v.kind === 'areaVertex' ? 'contextMenu.deleteVertex' : 'contextMenu.insertVertex')}
+          disabled={!canEditAreaVertex(a, v)} onClick={() => {
+            if (applyAreaVertexEdit(a, v)) { redraw(); showProperties(a); }
+            hideMenu();
+          }} />
+        <Separator />
+      </>;
+    }
     // Wand-context draagt alleen het klikpunt (zie wandEind hieronder).
     if (v.kind === 'wand') return null;
     // Veelhoek (#622): rechtsklik op een hoekpunt haalt het weg (er blijven

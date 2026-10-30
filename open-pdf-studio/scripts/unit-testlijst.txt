@@ -629,3 +629,6 @@ js/watermark/watermark-text-history.test.mjs
 js/pdf/saver/vorm-streeppatroon.test.mjs
 js/watermark/watermark-preview.test.mjs
 js/solid/components/dialog-escape.test.mjs
+# Hoekpunten van meetvlakken direct bewerken (#872)
+js/annotations/area-vertices.test.mjs
+js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
