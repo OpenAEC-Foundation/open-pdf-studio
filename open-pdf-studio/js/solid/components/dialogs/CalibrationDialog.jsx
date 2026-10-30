@@ -8,17 +8,13 @@ import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotati
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
+import { SCALE_PRESETS, METRIC_SCALE_PRESETS, IMPERIAL_SCALE_PRESETS } from '../../../annotations/scale-presets.js';
 import {
   recordBulkModify,
   recordMeasureScale,
   beginUndoTransaction,
   endUndoTransaction,
 } from '../../../core/undo-manager.js';
-
-const SCALE_PRESETS = [
-  '1:1', '1:2', '1:5', '1:10', '1:20', '1:25', '1:50',
-  '1:100', '1:200', '1:250', '1:500', '1:1000'
-];
 
 /**
  * Auto-detect scale from the PDF title block (onderhoek).
@@ -323,9 +319,14 @@ export default function CalibrationDialog(props) {
           <select
             class="calibration-select calibration-select-wide"
             value={scalePreset()}
-            onChange={(e) => setScalePreset(e.target.value)}
+            onChange={(e) => {
+              const ratio = e.target.value;
+              setScalePreset(ratio);
+              if (IMPERIAL_SCALE_PRESETS.some(preset => preset.ratio === ratio)) setRatioUnit('ft');
+            }}
           >
-            {SCALE_PRESETS.map(s => <option value={s}>{s}</option>)}
+            {METRIC_SCALE_PRESETS.map(s => <option value={s}>{s}</option>)}
+            {IMPERIAL_SCALE_PRESETS.map(preset => <option value={preset.ratio}>{preset.label}</option>)}
             <option value="custom">{t('calibration.customRatio')}</option>
           </select>
           <Show when={scalePreset() === 'custom'}>
