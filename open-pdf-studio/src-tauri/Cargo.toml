@@ -140,6 +140,8 @@ flate2 = "1"
 tesseract-rs = { version = "0.4", default-features = false, features = ["build-tesseract"] }
 
 tauri-plugin-updater = "2"
+# Updates through the OpenAEC Installer on Windows (OpenAEC-Blueprint#33).
+openaec-update = { git = "https://github.com/OpenAEC-Foundation/openaec-installer", rev = "2b66f84" }
 # Drag-out window detach — desktop only (the crate has no mobile platform
 # backend and fails to compile for Android/iOS).
 tauri-plugin-drag = "2.1.1"

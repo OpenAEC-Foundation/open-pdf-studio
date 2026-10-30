@@ -2928,6 +2928,9 @@ pub fn run(opts: StartupOpts) {
                 }));
         }
         builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+        // Updates through the OpenAEC Installer (OpenAEC-Blueprint#33): on Windows
+        // with the installer the app hands the update over; otherwise the updater above.
+        builder = builder.plugin(openaec_update::init("open-pdf-studio"));
     }
 
     // Global system hotkey (PrtScn) for the opt-in "screenshot annotate"
