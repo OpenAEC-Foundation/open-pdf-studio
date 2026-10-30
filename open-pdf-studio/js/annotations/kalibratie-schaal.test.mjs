@@ -85,3 +85,18 @@ test('the dialog has no unit conversion of its own', () => {
   assert.doesNotMatch(dialoog, /pixelsPerUnit\s*=\s*72\b/);
   assert.doesNotMatch(dialoog, /72\s*\/\s*\(\s*S\b/);
 });
+
+
+// #885: actual paper distances with the selectable architectural/engineering
+// ratios must retain the established calibration conversion (including ft).
+const { IMPERIAL_SCALE_PRESETS } = await import('./scale-presets.js');
+test('imperial presets measure a 2.5-inch paper line in feet without a unit-ratio error', () => {
+  const expected = [80, 40, 80 / 3, 20, 40 / 3, 10, 20 / 3, 5, 10 / 3, 2.5, 5 / 3, 5 / 6,
+    25, 50, 75, 100, 125, 150, 250];
+  assert.equal(IMPERIAL_SCALE_PRESETS.length, expected.length);
+  for (const [i, preset] of IMPERIAL_SCALE_PRESETS.entries()) {
+    const scale = schaalUitKalibratie({ method: 'ratio', denominator: Number(preset.ratio.split(':')[1]), unit: 'ft' });
+    ongeveer(180 / scale.pixelsPerUnit, expected[i], preset.label);
+    assert.equal(scale.scaleRatio, preset.ratio);
+  }
+});
