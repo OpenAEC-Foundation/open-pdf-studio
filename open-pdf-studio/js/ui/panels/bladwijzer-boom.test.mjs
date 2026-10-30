@@ -196,7 +196,7 @@ test('alle 40 talen hebben de nieuwe bladwijzeropdrachten', () => {
 
 test('paneel, menu en undo zijn aangesloten', () => {
   const paneel = readFileSync(join(hier, '../../solid/components/left-panel/panels/BookmarksPanel.jsx'), 'utf8');
-  for (const s of ['onDragStart', 'onDragOver', 'onDrop', 'dropToegestaan', 'toggleBookmarkSelection', 'selectBookmarkRange', 'moveBookmarks']) {
+  for (const s of ['createBookmarkPointerDrag', 'toggleBookmarkSelection', 'selectBookmarkRange', 'moveBookmarks']) {
     assert.ok(paneel.includes(s), `paneel gebruikt ${s}`);
   }
   const menu = readFileSync(join(hier, '../../solid/components/ContextMenu.jsx'), 'utf8');
