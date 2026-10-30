@@ -3034,7 +3034,18 @@
 .header-footer-overlay,
 .manage-wm-overlay { }
 
-.watermark-dialog { width: 440px; }
+.watermark-overlay { pointer-events: none; background: transparent; }
+.watermark-dialog { width: min(860px, calc(100vw - 24px)); pointer-events: auto; }
+.watermark-content { display: flex; gap: 16px; }
+.watermark-editor { flex: 1; min-width: 0; }
+.watermark-preview-panel { flex: 0 0 370px; min-width: 0; }
+.watermark-preview-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.watermark-preview-viewport { height: 440px; overflow: auto; background: var(--theme-bg, #e0e0e0); padding: 8px; }
+.watermark-preview-viewport canvas { margin: auto; touch-action: none; }
+@media (max-width: 700px) {
+  .watermark-content { flex-direction: column; }
+  .watermark-preview-panel { flex-basis: auto; }
+}
 .header-footer-dialog { width: 520px; }
 .manage-wm-dialog { width: 500px; }
 

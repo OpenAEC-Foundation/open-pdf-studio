@@ -627,3 +627,5 @@ js/watermark/watermark-autofit.test.mjs
 js/watermark/watermark-dialog-i18n.test.mjs
 js/watermark/watermark-text-history.test.mjs
 js/pdf/saver/vorm-streeppatroon.test.mjs
+js/watermark/watermark-preview.test.mjs
+js/solid/components/dialog-escape.test.mjs

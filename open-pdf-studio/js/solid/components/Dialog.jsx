@@ -1,4 +1,5 @@
 import { onMount, onCleanup } from 'solid-js';
+import { createEscapeScope } from './dialog-escape.js';
 
 // Track when the window last gained focus (shared across all Dialog instances)
 let lastFocusTime = 0;
@@ -12,6 +13,7 @@ const openDialogen = [];
 
 export default function Dialog(props) {
   const eigen = {};
+  const escape = createEscapeScope({ modal: props.modal !== false });
   let overlayRef;
   let dialogRef;
   let isDragging = false;
@@ -70,6 +72,7 @@ export default function Dialog(props) {
       // dialoog tijdens dezelfde toetsaanslag bovenaan zet.
       if (e.__dialoogGesloten) return;
       if (openDialogen[openDialogen.length - 1] !== eigen) return;
+      if (!escape.sluitBijEscape(dialogRef, document.activeElement)) return;
       e.__dialoogGesloten = true;
       props.onClose?.();
     }
@@ -111,8 +114,11 @@ export default function Dialog(props) {
     }
   }
 
+  const onDocumentPointerDown = (e) => escape.pointerDown(e, dialogRef);
+
   onMount(() => {
     openDialogen.push(eigen);
+    document.addEventListener('pointerdown', onDocumentPointerDown, true);
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
     document.addEventListener('keydown', onKeyDown);
@@ -127,6 +133,7 @@ export default function Dialog(props) {
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
     document.removeEventListener('keydown', onKeyDown);
+    document.removeEventListener('pointerdown', onDocumentPointerDown, true);
     window.removeEventListener('resize', clampToViewport);
   });
 
@@ -142,7 +149,7 @@ export default function Dialog(props) {
         ref={dialogRef}
         class={`modal-dialog ${props.dialogClass || ''}`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={props.modal === false ? "false" : "true"}
         aria-label={props.title}
         onAnimationEnd={() => dialogRef?.classList.remove('bump')}
       >

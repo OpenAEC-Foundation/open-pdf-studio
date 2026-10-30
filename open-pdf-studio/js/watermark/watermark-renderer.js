@@ -7,7 +7,7 @@ import { watermarkPosition, watermarkTextPlacement, watermarkFont } from './wate
 
 const imageCache = new Map();
 
-function shouldRenderOnPage(watermark, pageNum, totalPages) {
+export function shouldRenderOnPage(watermark, pageNum, totalPages) {
   if (!watermark.enabled) return false;
   if (watermark.pageRange === 'all') return true;
   if (watermark.pageRange === 'first') return pageNum === 1;
@@ -19,7 +19,7 @@ function shouldRenderOnPage(watermark, pageNum, totalPages) {
 }
 
 // Same text, size, centre and baseline as the saved file (watermark-layout.js).
-function renderTextWatermark(ctx, wm, pageWidth, pageHeight) {
+export function renderTextWatermark(ctx, wm, pageWidth, pageHeight) {
   const placed = watermarkTextPlacement(wm, pageWidth, pageHeight);
   ctx.save();
   ctx.globalAlpha = wm.opacity !== undefined ? wm.opacity : 0.3;
@@ -36,10 +36,10 @@ function renderTextWatermark(ctx, wm, pageWidth, pageHeight) {
   ctx.restore();
 }
 
-function renderImageWatermark(ctx, wm, pageWidth, pageHeight) {
+export function renderImageWatermark(ctx, wm, pageWidth, pageHeight, decodedImage = null) {
   if (!wm.imageData) return;
 
-  let img = imageCache.get(wm.imageData);
+  let img = decodedImage || imageCache.get(wm.imageData);
   if (!img) {
     img = new Image();
     img.src = wm.imageData;
@@ -63,7 +63,7 @@ function renderImageWatermark(ctx, wm, pageWidth, pageHeight) {
 
 // Dezelfde vakken, variabelen en basislijnen als in het bestand
 // (pdf/saver/kopvoet.js), zodat het scherm toont wat er wordt opgeslagen.
-function renderHeaderFooter(ctx, wm, pageNum, totalPages, pageWidth, pageHeight) {
+export function renderHeaderFooter(ctx, wm, pageNum, totalPages, pageWidth, pageHeight) {
   const doc = getActiveDocument();
   const waarden = kopVoetWaarden(wm, {
     pagina: pageNum,
