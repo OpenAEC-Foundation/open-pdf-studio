@@ -282,9 +282,32 @@ export async function closeWindow() {
 }
 
 // Fullscreen
+//
+// In de browser is volledig scherm de Fullscreen API van de pagina, in Safari
+// vóór 16.4 alleen met het voorvoegsel webkit. Een verzoek kan daar mislukken:
+// zonder klik of toets van de gebruiker, in een iframe zonder
+// allow="fullscreen" (de gehoste bouw op een andere site), of omdat de browser
+// het weigert (#873). Daarom zegt setWindowFullscreen() of het verzoek is
+// aangenomen, en leest isWindowFullscreen() de werkelijke stand.
+
+function browserVolledigSchermElement() {
+  if (typeof document === 'undefined') return null;
+  return document.fullscreenElement || document.webkitFullscreenElement || null;
+}
+
+/** Mag dit venster volledig scherm worden? In de browser: staat de pagina het toe. */
+export function kanVolledigScherm() {
+  if (isTauri()) return true;
+  if (typeof document === 'undefined') return false;
+  const el = document.documentElement;
+  if (typeof (el?.requestFullscreen || el?.webkitRequestFullscreen) !== 'function') return false;
+  const toegestaan = document.fullscreenEnabled ?? document.webkitFullscreenEnabled;
+  return toegestaan !== false;
+}
+
 export async function isWindowFullscreen() {
   if (!isTauri()) {
-    return !!document.fullscreenElement;
+    return !!browserVolledigSchermElement();
   }
   const win = getTauriWindow();
   if (!win) return false;
@@ -293,28 +316,49 @@ export async function isWindowFullscreen() {
   } catch { return false; }
 }
 
+/**
+ * Volledig scherm aan of uit. Geeft `true` als het venster het verzoek heeft
+ * aangenomen en `false` bij een weigering, of als het hier niet kan (geen API,
+ * niet toegestaan, headless). Een aangenomen verzoek kan nog onderweg zijn
+ * (animatie op macOS, Safari met voorvoegsel): de stand zelf geeft
+ * isWindowFullscreen().
+ */
 export async function setWindowFullscreen(enabled) {
   if (!isTauri()) {
+    if (typeof document === 'undefined') return false;
     if (enabled) {
-      try { await document.documentElement.requestFullscreen?.(); } catch {}
-    } else if (document.fullscreenElement) {
-      try { await document.exitFullscreen?.(); } catch {}
+      if (!kanVolledigScherm()) return false;
+      const el = document.documentElement;
+      try {
+        await (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+        return true;
+      } catch { return false; }
     }
-    return;
+    if (!browserVolledigSchermElement()) return true;
+    const verlaat = document.exitFullscreen || document.webkitExitFullscreen;
+    if (typeof verlaat !== 'function') return false;
+    try {
+      await verlaat.call(document);
+      return true;
+    } catch { return false; }
   }
   // Headless: volledig scherm zet het venster op een monitor.
-  if (slaOverInHeadless('fullscreen')) return;
+  if (slaOverInHeadless('fullscreen')) return false;
   const win = getTauriWindow();
-  if (!win) return;
+  if (!win) return false;
   try {
     await win.getCurrentWindow().setFullscreen(!!enabled);
-  } catch (e) { console.error('setFullscreen failed', e); }
+    return true;
+  } catch (e) {
+    console.error('setFullscreen failed', e);
+    return false;
+  }
 }
 
 export async function toggleWindowFullscreen() {
   const cur = await isWindowFullscreen();
   await setWindowFullscreen(!cur);
-  return !cur;
+  return !!(await isWindowFullscreen());
 }
 
 // File dialogs - using Tauri commands since plugin APIs may not be globally available

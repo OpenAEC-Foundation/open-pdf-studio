@@ -200,6 +200,7 @@
     "thinLines": "Línies fines",
     "compareGroup": "Compara",
     "fullscreen": "Pantalla completa",
+    "fullscreenUnavailable": "La pantalla completa no està disponible aquí: el navegador o la pàgina que mostra l'aplicació l'ha rebutjada. Feu servir l'opció de pantalla completa del menú del navegador.",
     "window": "Finestra",
     "display": "Visualització",
     "keystrokes": "Tecles",

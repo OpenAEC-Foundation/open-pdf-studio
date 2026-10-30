@@ -200,6 +200,7 @@
     "thinLines": "Linii subțiri",
     "compareGroup": "Comparare",
     "fullscreen": "Ecran complet",
+    "fullscreenUnavailable": "Ecranul complet nu este disponibil aici: browserul sau pagina care afișează aplicația l-a refuzat. Folosiți în schimb opțiunea de ecran complet din meniul browserului.",
     "window": "Fereastră",
     "display": "Afișare",
     "keystrokes": "Taste apăsate",

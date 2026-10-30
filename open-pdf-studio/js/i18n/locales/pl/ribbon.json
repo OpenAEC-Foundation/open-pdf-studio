@@ -200,6 +200,7 @@
     "thinLines": "Cienkie linie",
     "compareGroup": "Porównaj",
     "fullscreen": "Pełny ekran",
+    "fullscreenUnavailable": "Pełny ekran nie jest tu dostępny: przeglądarka lub strona wyświetlająca aplikację odrzuciła żądanie. Zamiast tego użyj opcji pełnego ekranu w menu przeglądarki.",
     "window": "Okno",
     "display": "Wyświetlanie",
     "keystrokes": "Naciśnięcia klawiszy",

@@ -200,6 +200,7 @@
     "thinLines": "Linhas finas",
     "compareGroup": "Comparar",
     "fullscreen": "Tela cheia",
+    "fullscreenUnavailable": "A tela cheia não está disponível aqui: o navegador ou a página que mostra o aplicativo a recusou. Use a opção de tela cheia no menu do navegador.",
     "window": "Janela",
     "display": "Exibição",
     "keystrokes": "Teclas pressionadas",

@@ -200,6 +200,7 @@
     "thinLines": "Ohuet viivat",
     "compareGroup": "Vertailu",
     "fullscreen": "Koko näyttö",
+    "fullscreenUnavailable": "Koko näyttö ei ole käytettävissä tässä: selain tai sovellusta näyttävä sivu esti sen. Käytä sen sijaan selaimen valikon koko näytön valintaa.",
     "window": "Ikkuna",
     "display": "Näyttö",
     "keystrokes": "Näppäilyt",

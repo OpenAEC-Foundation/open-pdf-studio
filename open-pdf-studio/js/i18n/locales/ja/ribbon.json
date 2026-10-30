@@ -200,6 +200,7 @@
     "thinLines": "細線",
     "compareGroup": "比較",
     "fullscreen": "全画面表示",
+    "fullscreenUnavailable": "ここでは全画面表示を使用できません。ブラウザーまたはアプリを表示しているページが要求を拒否しました。代わりにブラウザーのメニューにある全画面表示を使用してください。",
     "window": "ウィンドウ",
     "display": "表示",
     "keystrokes": "キー表示",

@@ -200,6 +200,7 @@
     "thinLines": "Garis Tipis",
     "compareGroup": "Bandingkan",
     "fullscreen": "Layar Penuh",
+    "fullscreenUnavailable": "Layar penuh tidak tersedia di sini: browser atau halaman yang menampilkan aplikasi menolaknya. Gunakan opsi layar penuh di menu browser Anda.",
     "window": "Jendela",
     "display": "Tampilan",
     "keystrokes": "Penekanan tombol",
