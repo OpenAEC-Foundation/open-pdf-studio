@@ -65,6 +65,23 @@ export function patchPostscriptProgress(source) {
   return source.replace(BEFORE, AFTER);
 }
 
+// Mozilla PDF.js #22384, d7fd526d5e5176ccd6f066fc6b48d45ee1560af7.
+// Apache-2.0, Copyright Mozilla Foundation. The initial font can be null
+// after zero-size text; preserve all subsequent visible text (#878).
+const ZERO_FONT_BEFORE = 'currentTextState.font.name !== textState.font.name';
+const ZERO_FONT_AFTER = 'currentTextState.font?.name !== textState.font.name';
+export function patchZeroInitialFont(source) {
+  if (source.split(ZERO_FONT_AFTER).length === 2 && !source.includes(ZERO_FONT_BEFORE)) return source;
+  if (source.split(ZERO_FONT_BEFORE).length !== 2 || source.includes(ZERO_FONT_AFTER)) {
+    throw new Error('PDF.js zero-font backport no longer matches; qualify the worker before updating PDF.js (#878).');
+  }
+  return source.replace(ZERO_FONT_BEFORE, ZERO_FONT_AFTER);
+}
+
+export function patchPdfjsWorker(source) {
+  return patchZeroInitialFont(patchPostscriptProgress(source));
+}
+
 export function pdfjsPostscriptProgress() {
   let worker;
   let devPath;
@@ -76,8 +93,8 @@ export function pdfjsPostscriptProgress() {
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839 backport.`);
-      worker = patchPostscriptProgress(readFileSync(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'), 'utf8'));
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839/#878 backports.`);
+      worker = patchPdfjsWorker(readFileSync(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs`;
     },
     configureServer(server) {
