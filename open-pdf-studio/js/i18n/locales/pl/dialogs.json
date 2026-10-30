@@ -143,6 +143,8 @@
     "posterCutMarks": "Znaczniki cięcia",
     "posterLabels": "Etykiety (plik, strona, kafelek)",
     "posterOnlyLarge": "Dziel tylko duże strony",
+    "posterEdgeCrop": "Przytnij nieznacznie zewnętrzne krawędzie",
+    "posterEdgeCropHint": "Do {{max}} mm z każdej zewnętrznej krawędzi, tylko dla tego wydruku. Wyłączone: zachowaj całą zawartość.",
     "posterTileInfo": "Strona {{page}}: kafelek {{row}},{{col}} (wiersz, kolumna) z {{rows}} × {{cols}}",
     "posterNotTiled": "Strona {{page}} mieści się na jednym arkuszu i nie jest dzielona.",
     "posterAssumedPaper": "Nieznany rozmiar papieru: kafelki są rozmieszczane na {{paper}}.",

@@ -110,6 +110,8 @@ const vertaal = ({ file, page, row, col, rows, cols }) => `${file} - pagina ${pa
 
 test('afdruk = voorbeeld: elke tegel op het vel waar posterIndeling haar toont', async () => {
   const gevallen = [
+    { naam: 'A1 → A3, randen niet afsnijden', papier: { breedteMm: 297, hoogteMm: 420 },
+      orientatie: 'portrait', opties: { schaal: 100, overlap: 0, snijtekens: false, labels: false, alleenGroot: false, randAfsnijden: false } },
     { naam: 'A1 → A4, 100 %, overlap 10, tekens + labels, alleen groot', papier: { breedteMm: 210, hoogteMm: 297, bedrukbaar: BEDRUKBAAR },
       orientatie: 'auto', opties: { schaal: 100, overlap: 10, snijtekens: true, labels: true, alleenGroot: true } },
     { naam: 'A1 → A3, 100 %, geen overlap, kaal', papier: { breedteMm: 297, hoogteMm: 420 },

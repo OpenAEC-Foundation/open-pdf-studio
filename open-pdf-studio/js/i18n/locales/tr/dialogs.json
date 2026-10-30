@@ -143,6 +143,8 @@
     "posterCutMarks": "Kesim işaretleri",
     "posterLabels": "Etiketler (dosya, sayfa, parça)",
     "posterOnlyLarge": "Yalnızca büyük sayfaları böl",
+    "posterEdgeCrop": "Dış kenarları hafifçe kırp",
+    "posterEdgeCropHint": "Yalnızca bu baskı için her dış kenardan en fazla {{max}} mm. Kapalı: tüm içeriği koru.",
     "posterTileInfo": "Sayfa {{page}}: parça {{row}},{{col}} (satır, sütun) / {{rows}} × {{cols}}",
     "posterNotTiled": "Sayfa {{page}} tek bir kâğıda sığar ve bölünmez.",
     "posterAssumedPaper": "Kâğıt boyutu bilinmiyor: parçalar {{paper}} üzerine yerleştirilir.",

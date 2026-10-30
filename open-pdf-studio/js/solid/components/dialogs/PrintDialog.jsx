@@ -33,10 +33,10 @@ import {
   DOEL_PDF, isPdfDoel, doelIsGeopend, standaardDoelPad, isBestandsPrinter,
 } from '../../../pdf/print-doel.js';
 import {
-  posterOpties, posterIndeling, posterVellen, posterLabel, geldigePosterSchaal, geldigeOverlap,
+  posterOpties, posterIndeling, posterVellen, posterLabel, posterRandAfsnijding, geldigePosterSchaal, geldigeOverlap,
   POSTER_SCHAAL_MIN, POSTER_SCHAAL_MAX, OVERLAP_MAX_MM, SNIJTEKEN_DIKTE_PT,
 } from '../../../pdf/print-poster.js';
-import { leesGetalBegin } from '../../../core/getal-invoer.js';
+import { leesGetalBegin, toonGetal } from '../../../core/getal-invoer.js';
 import { KLEUR_MODI, geldigeKleurModus } from '../../../pdf/print-kleur.js';
 
 // Vak waarin het voorbeeld het vel tekent, in CSS-pixels.
@@ -94,7 +94,7 @@ const MODUS_KNOPPEN = [
 ];
 
 export default function PrintDialog(props) {
-  const { t } = useTranslation('dialogs');
+  const { t, language } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
   // Settings of the last print action; every field is validated and falls
@@ -131,6 +131,10 @@ export default function PrintDialog(props) {
   const [posterCutMarks, setPosterCutMarks] = createSignal(bewaard.posterCutMarks);
   const [posterLabels, setPosterLabels] = createSignal(bewaard.posterLabels);
   const [posterOnlyLarge, setPosterOnlyLarge] = createSignal(bewaard.posterOnlyLarge);
+  // Kleine buitenranden afsnijden (#855): standaard aan, zodat een A1 op
+  // randloze A3 2 x 2 blijft; uit = alle inhoud, desnoods een extra vel.
+  // Alleen voor deze afdruk: niet bewaard, bij heropenen weer aan.
+  const [posterEdgeCrop, setPosterEdgeCrop] = createSignal(true);
   const [flyerCount, setFlyerCount] = createSignal(bewaard.flyerCount);
   const [flyerCutMarks, setFlyerCutMarks] = createSignal(bewaard.flyerCutMarks);
   const [bookletSheets, setBookletSheets] = createSignal(bewaard.bookletSheets);
@@ -166,6 +170,7 @@ export default function PrintDialog(props) {
       snijtekens: posterCutMarks(),
       labels: posterLabels(),
       alleenGroot: posterOnlyLarge(),
+      randAfsnijden: posterEdgeCrop(),
     })
     : null), undefined, { equals: zelfdeKeuzes });
   // Boekje (print-boekje.js): twee pagina's per liggend vel in genietvolgorde.
@@ -1172,6 +1177,19 @@ export default function PrintDialog(props) {
     return posterVellen(maten.map((pagina) => posterIndeling({ papier, orientatie, pagina, opties })));
   });
 
+  // Hoeveel mm "Kleine buitenranden afsnijden" hooguit van een buitenrand
+  // weglaat, gerekend met de keuze aan (ook als ze uit staat), naar boven
+  // afgerond op een honderdste mm.
+  const posterAfsnijding = createMemo(() => {
+    const opties = poster();
+    const maten = posterMaten();
+    if (!opties || !maten) return 0;
+    const { papier, orientatie } = plaatsingKeuzes();
+    const aan = { ...opties, randAfsnijden: true };
+    const mm = posterRandAfsnijding(maten.map((pagina) => posterIndeling({ papier, orientatie, pagina, opties: aan })));
+    return Math.ceil(mm * 100 - 1e-6) / 100;
+  });
+
   // Het getoonde vel van de poster, of null.
   const huidigPosterVel = createMemo(() => {
     const vellen = posterVellenLijst();
@@ -1806,6 +1824,14 @@ export default function PrintDialog(props) {
             </div>
           </Show>
           <Show when={poster()}>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label">
+                <input type="checkbox" id="print-poster-edge-crop"
+                  checked={posterEdgeCrop()} onChange={e => batch(() => { setPosterEdgeCrop(e.target.checked); setPreviewIndex(0); })}
+                  aria-describedby="print-poster-edge-crop-hint" /> {t('print.posterEdgeCrop')}
+              </label>
+            </div>
+            <div class="print-row print-note" id="print-poster-edge-crop-hint">{t('print.posterEdgeCropHint', { max: toonGetal(posterAfsnijding(), language()) })}</div>
             <div class="print-row print-checkbox-row">
               <label class="print-checkbox-label">
                 <input

@@ -143,6 +143,8 @@
     "posterCutMarks": "Oznake za rezanje",
     "posterLabels": "Natpisi (datoteka, stranica, pločica)",
     "posterOnlyLarge": "Dijeli samo velike stranice",
+    "posterEdgeCrop": "Blago obreži vanjske rubove",
+    "posterEdgeCropHint": "Do {{max}} mm po vanjskom rubu, samo za ovaj ispis. Isključeno: sačuvaj sav sadržaj.",
     "posterTileInfo": "Stranica {{page}}: pločica {{row}},{{col}} (redak, stupac) od {{rows}} × {{cols}}",
     "posterNotTiled": "Stranica {{page}} stane na jedan list i ne dijeli se.",
     "posterAssumedPaper": "Veličina papira nije poznata: pločice se raspoređuju na {{paper}}.",

@@ -143,6 +143,8 @@
     "posterCutMarks": "Tanda potong",
     "posterLabels": "Label (fail, halaman, jubin)",
     "posterOnlyLarge": "Bahagi halaman besar sahaja",
+    "posterEdgeCrop": "Pangkas sedikit tepi luar",
+    "posterEdgeCropHint": "Sehingga {{max}} mm bagi setiap tepi luar, untuk cetakan ini sahaja. Dimatikan: kekalkan semua kandungan.",
     "posterTileInfo": "Halaman {{page}}: jubin {{row}},{{col}} (baris, lajur) daripada {{rows}} × {{cols}}",
     "posterNotTiled": "Halaman {{page}} muat pada satu helaian dan tidak dibahagikan.",
     "posterAssumedPaper": "Saiz kertas tidak diketahui: jubin disusun pada {{paper}}.",

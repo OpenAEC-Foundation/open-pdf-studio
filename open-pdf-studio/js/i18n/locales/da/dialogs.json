@@ -143,6 +143,8 @@
     "posterCutMarks": "Skæremærker",
     "posterLabels": "Etiketter (fil, side, felt)",
     "posterOnlyLarge": "Opdel kun store sider",
+    "posterEdgeCrop": "Beskær små ydre kanter",
+    "posterEdgeCropHint": "Op til {{max}} mm pr. yderkant, kun for denne udskrift. Fra: bevar alt indhold.",
     "posterTileInfo": "Side {{page}}: felt {{row}},{{col}} (række, kolonne) af {{rows}} × {{cols}}",
     "posterNotTiled": "Side {{page}} kan være på ét ark og opdeles ikke.",
     "posterAssumedPaper": "Papirstørrelsen er ukendt: felterne lægges ud på {{paper}}.",

@@ -143,6 +143,8 @@
     "posterCutMarks": "Segni di taglio",
     "posterLabels": "Etichette (file, pagina, riquadro)",
     "posterOnlyLarge": "Suddividi solo le pagine grandi",
+    "posterEdgeCrop": "Ritaglia leggermente i bordi esterni",
+    "posterEdgeCropHint": "Fino a {{max}} mm per bordo esterno, solo per questa stampa. Disattivato: conserva tutto il contenuto.",
     "posterTileInfo": "Pagina {{page}}: riquadro {{row}},{{col}} (riga, colonna) di {{rows}} × {{cols}}",
     "posterNotTiled": "La pagina {{page}} sta su un foglio e non viene suddivisa.",
     "posterAssumedPaper": "Formato carta sconosciuto: i riquadri vengono disposti su {{paper}}.",

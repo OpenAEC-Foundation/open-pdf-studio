@@ -143,6 +143,8 @@
     "posterCutMarks": "Tanda potong",
     "posterLabels": "Label (file, halaman, ubin)",
     "posterOnlyLarge": "Hanya bagi halaman besar",
+    "posterEdgeCrop": "Pangkas sedikit tepi luar",
+    "posterEdgeCropHint": "Hingga {{max}} mm per tepi luar, hanya untuk cetakan ini. Nonaktif: pertahankan semua konten.",
     "posterTileInfo": "Halaman {{page}}: ubin {{row}},{{col}} (baris, kolom) dari {{rows}} × {{cols}}",
     "posterNotTiled": "Halaman {{page}} muat di satu lembar dan tidak dibagi.",
     "posterAssumedPaper": "Ukuran kertas tidak diketahui: ubin ditata pada {{paper}}.",

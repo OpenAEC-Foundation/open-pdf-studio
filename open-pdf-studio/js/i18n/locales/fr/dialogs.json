@@ -143,6 +143,8 @@
     "posterCutMarks": "Traits de coupe",
     "posterLabels": "Étiquettes (fichier, page, tuile)",
     "posterOnlyLarge": "Découper uniquement les grandes pages",
+    "posterEdgeCrop": "Rogner légèrement les bords extérieurs",
+    "posterEdgeCropHint": "Jusqu’à {{max}} mm par bord extérieur, uniquement pour cette impression. Désactivé : conserver tout le contenu.",
     "posterTileInfo": "Page {{page}} : tuile {{row}},{{col}} (ligne, colonne) sur {{rows}} × {{cols}}",
     "posterNotTiled": "La page {{page}} tient sur une feuille et n'est pas découpée.",
     "posterAssumedPaper": "Format de papier inconnu : les tuiles sont réparties sur du {{paper}}.",

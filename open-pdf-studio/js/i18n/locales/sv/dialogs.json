@@ -143,6 +143,8 @@
     "posterCutMarks": "Skärmärken",
     "posterLabels": "Etiketter (fil, sida, ruta)",
     "posterOnlyLarge": "Dela bara stora sidor",
+    "posterEdgeCrop": "Beskär små ytterkanter",
+    "posterEdgeCropHint": "Upp till {{max}} mm per ytterkant, endast för denna utskrift. Av: behåll allt innehåll.",
     "posterTileInfo": "Sida {{page}}: ruta {{row}},{{col}} (rad, kolumn) av {{rows}} × {{cols}}",
     "posterNotTiled": "Sida {{page}} får plats på ett ark och delas inte.",
     "posterAssumedPaper": "Okänd pappersstorlek: rutorna läggs ut på {{paper}}.",

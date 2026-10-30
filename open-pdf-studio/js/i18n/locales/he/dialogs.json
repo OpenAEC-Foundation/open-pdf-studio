@@ -143,6 +143,8 @@
     "posterCutMarks": "סימני חיתוך",
     "posterLabels": "תוויות (קובץ, עמוד, אריח)",
     "posterOnlyLarge": "לחלק לאריחים רק עמודים גדולים",
+    "posterEdgeCrop": "חיתוך קל של השוליים החיצוניים",
+    "posterEdgeCropHint": "עד {{max}} מ״מ בכל קצה חיצוני, להדפסה זו בלבד. כבוי: שמירת כל התוכן.",
     "posterTileInfo": "עמוד {{page}}: אריח {{row}},{{col}} (שורה, עמודה) מתוך {{rows}} × {{cols}}",
     "posterNotTiled": "עמוד {{page}} נכנס בגיליון אחד ואינו מחולק.",
     "posterAssumedPaper": "גודל הנייר אינו ידוע: האריחים נפרסים על {{paper}}.",
