@@ -588,6 +588,7 @@ js/symbols/templates/wapeningsnet.test.mjs
 js/symbols/templates/staaf-plattegrond.test.mjs
 js/symbols/templates/vloer-vorstrand.test.mjs
 js/symbols/templates/bout.test.mjs
+js/symbols/templates/ankers.test.mjs
 js/solid/data/nl-ifc-bouw-iconen.test.mjs
 js/symbols/templates/staalverbindingen.test.mjs
 js/symbols/templates/wapeningskorf-staat.test.mjs
