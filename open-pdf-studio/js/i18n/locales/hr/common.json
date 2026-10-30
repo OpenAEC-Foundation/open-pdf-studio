@@ -326,6 +326,7 @@
     "detachFailed": "Odvajanje prozora nije uspjelo: {{error}}",
     "dragFileGone": "Ova datoteka više ne postoji na disku — karticu nije moguće premjestiti.",
     "dragNotStarted": "Karticu nije bilo moguće povući u drugi prozor. Pokušajte ponovno ili upotrijebite desni klik → otvori u novom prozoru.",
+    "openInSplitView": "Otvori u podijeljenom prikazu",
     "openInNewWindow": "Otvori u novom prozoru",
     "closeTab": "Zatvori karticu",
     "nextTab": "Sljedeća kartica",

@@ -1,3 +1,4 @@
+import { tekenDocument as getActiveDocument } from '../annotations/rendering/document-context.js';
 // Weergave draaien (#200): de koppeling tussen scherm en pagina voor de app.
 //
 // De weergaverotatie hoort bij het document (per tabblad), niet bij de PDF:
@@ -13,7 +14,6 @@
 //  - doorlopend/boek/naast elkaar: scherm = paginacontainer + schaal · weergavepunt
 // Het rekenwerk zelf staat in weergave-rotatie.js.
 
-import { getActiveDocument } from '../core/state.js';
 import { weergaveRotatieVan } from './split-view/paneel-weergave.js';
 import {
   normaliseerRotatie,

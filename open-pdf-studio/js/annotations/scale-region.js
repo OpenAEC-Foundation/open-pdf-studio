@@ -1,3 +1,4 @@
+import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 /**
  * Scale Region — rectangular calibration viewport that overrides the
  * document-global scale for any annotation whose centroid falls inside.
@@ -11,7 +12,6 @@
  *   1. innermost (smallest area) scaleRegion containing the point
  *   2. existing scaleBar / viewport / doc.measureScale fallbacks
  */
-import { getActiveDocument } from '../core/state.js';
 import { createAnnotation } from './factory.js';
 import { schaalgebiedenOpPagina } from './schaal-op-punt.js';
 import { schaalBronnenInDoorloop, vergeetSchaalBronnen } from './schaal-bronnen.js';

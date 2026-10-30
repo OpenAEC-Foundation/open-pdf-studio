@@ -116,7 +116,7 @@ basisTest('de uitvoer (afdruk, export, printvoorbeeld) vraagt het uitvoerpredica
   const rendering = readFileSync(new URL('./rendering.js', import.meta.url), 'utf8');
   const teken = rendering.slice(rendering.indexOf('export function drawAnnotation('));
   const kop = teken.slice(0, teken.indexOf('const _evHalftone'));
-  assert.match(kop, /_lagen\s*\?\s*isAnnotationHiddenInOutput\(annotation\)\s*:\s*isAnnotationHiddenInView\(annotation\)/);
+  assert.match(kop, /!laag\('schermlijndikte'\)\s*\?\s*isAnnotationHiddenInOutput\(annotation\)\s*:\s*isAnnotationHiddenInView\(annotation\)/);
   // Het printpad en de exports gaan door renderMarkeringenOffscreen, dat
   // altijd in uitvoermodus tekent.
   const exporter = readFileSync(new URL('../pdf/exporter.js', import.meta.url), 'utf8');

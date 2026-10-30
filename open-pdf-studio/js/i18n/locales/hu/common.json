@@ -326,6 +326,7 @@
     "detachFailed": "Az ablak leválasztása sikertelen: {{error}}",
     "dragFileGone": "Ez a fájl már nem létezik a lemezen — a lap nem helyezhető át.",
     "dragNotStarted": "A lapot nem sikerült másik ablakba húzni. Próbálja újra, vagy használja a jobb gombot → megnyitás új ablakban.",
+    "openInSplitView": "Megnyitás osztott nézetben",
     "openInNewWindow": "Megnyitás új ablakban",
     "closeTab": "Lap bezárása",
     "nextTab": "Következő lap",

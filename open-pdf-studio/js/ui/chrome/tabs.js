@@ -65,9 +65,12 @@ export function createTab(filePath = null, autoSwitch = true) {
  * @returns {Promise<void>|undefined} de eerste render van het nieuwe tabblad
  *   (undefined zonder PDF); de tabwissel-sneltoets wacht hierop (#539)
  */
-export function switchToTab(index) {
+export function switchToTab(index, { bewaarPaneel = true } = {}) {
   if (index < 0 || index >= state.documents.length) return;
   let eersteRender;
+  const splitWissel = {van:getActiveDocument(),naar:state.documents[index],annuleren:false,naRender:null};
+  if (bewaarPaneel) meldSplit('voorTabWissel',splitWissel);
+  if (splitWissel.annuleren) return;
 
   // Save scroll position of current document
   const currentDoc = getActiveDocument();
@@ -228,6 +231,7 @@ export function switchToTab(index) {
     });
   }
 
+  if (splitWissel.naRender) return Promise.resolve(eersteRender).then(splitWissel.naRender,async error=>{await splitWissel.naRender();throw error;});
   return eersteRender;
 }
 
@@ -259,6 +263,12 @@ export async function closeTab(index, force = false, dialogAction = null) {
   if (index < 0 || index >= state.documents.length) return false;
 
   const doc = state.documents[index];
+  // Een lopende paneelwissel moet klaar zijn vóór opslaan of vrijgeven.
+  const sluitWacht = { wachten: null };
+  meldSplit('wachtOpPaneel', sluitWacht);
+  if (sluitWacht.wachten) await sluitWacht.wachten;
+  index = state.documents.indexOf(doc);
+  if (index < 0) return false;
 
   // Check for unsaved changes - show Save / Don't Save / Cancel dialog.
   // `dialogAction` ('save'|'dontsave') slaat de native dialoog over — voor de
@@ -276,7 +286,8 @@ export async function closeTab(index, force = false, dialogAction = null) {
       // naar dat tabblad; na het sluiten komt het vorige tabblad terug.
       if (index !== state.activeDocumentIndex) {
         vorigActief = state.documents[state.activeDocumentIndex] || null;
-        switchToTab(index);
+        await switchToTab(index);
+        if (getActiveDocument() !== doc) return false;
       }
       // Met `dialogAction` (MCP-brug, tests) kan niemand een vraag over
       // handtekeningen beantwoorden; die keuze is dan al gemaakt.
@@ -348,6 +359,10 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // Clear thumbnail cache for this document
   clearThumbnailCache(doc.id);
 
+  index = state.documents.indexOf(doc);
+  if (index < 0) return false;
+  const splitSluiting = {doc,volgendId:null,naRender:null};
+  meldSplit('voorDocumentSluiten',splitSluiting);
   // Remove the document
   state.documents.splice(index, 1);
   // Gesloten (opgeslagen of bewust niet): de herstelmomentopname kan weg.
@@ -388,13 +403,16 @@ export async function closeTab(index, force = false, dialogAction = null) {
     updateWindowTitle();
     import('../../search/find-bar.js').then(m => m.closeFindBar());
     import('../../pdf/handtekeningen/verificatie.js').then(m => m.toonBalkVoorActiefDocument());
+  } else if (splitSluiting.volgendId && state.documents.some(d=>d.id===splitSluiting.volgendId)) {
+    await switchToTab(state.documents.findIndex(d=>d.id===splitSluiting.volgendId), { bewaarPaneel:false });
+    await splitSluiting.naRender?.();
   } else if (vorigActief) {
     state.activeDocumentIndex = actiefNaSluiten(state.documents, index, vorigActief);
-    switchToTab(state.activeDocumentIndex);
+    switchToTab(state.activeDocumentIndex, { bewaarPaneel:false });
   } else if (index <= state.activeDocumentIndex) {
     // If closing current or earlier tab, adjust index
     state.activeDocumentIndex = Math.max(0, state.activeDocumentIndex - 1);
-    switchToTab(state.activeDocumentIndex);
+    switchToTab(state.activeDocumentIndex, { bewaarPaneel:false });
   }
 
   // Update tab bar UI

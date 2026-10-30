@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.44.4'
+        default: 'v2026.44.31'
 
 jobs:
   create-release:

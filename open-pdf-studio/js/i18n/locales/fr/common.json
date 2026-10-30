@@ -326,6 +326,7 @@
     "detachFailed": "Impossible de détacher la fenêtre : {{error}}",
     "dragFileGone": "Ce fichier n'existe plus sur le disque — l'onglet ne peut pas être déplacé.",
     "dragNotStarted": "Impossible de faire glisser l'onglet vers une autre fenêtre. Réessayez ou utilisez clic droit → Ouvrir dans une nouvelle fenêtre.",
+    "openInSplitView": "Ouvrir en vue fractionnée",
     "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
     "closeTab": "Fermer l'onglet",
     "nextTab": "Onglet suivant",
