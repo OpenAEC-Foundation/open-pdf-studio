@@ -1,3 +1,4 @@
+import { isShxTextAnnotation } from '../pdf/shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { isTauri, listPdfFiles, readBinaryFile, extractFileName } from '../core/platform.js';
 import { pdfjsBronnen } from '../core/basis-url.js';
@@ -64,7 +65,7 @@ export async function searchWorkspace(request, callbacks) {
               annotations = doc.annotations;
             } else {
               const page = await pdf.getPage(pageNum);
-              annotations = (await page.getAnnotations()).filter(a => a.contentsObj?.str || a.contents).map(a => ({
+              annotations = (await page.getAnnotations()).filter(a => !isShxTextAnnotation(a) && (a.contentsObj?.str || a.contents)).map(a => ({
                 id: a.id, page: pageNum, type: 'comment', text: a.contentsObj?.str || a.contents,
                 x: (a.rect?.[0] || 0) - (data.view?.[0] || 0), y: data.view ? data.view[3] - a.rect?.[3] : 0,
                 width: a.rect?.[2] - a.rect?.[0], height: a.rect?.[3] - a.rect?.[1],
@@ -73,8 +74,8 @@ export async function searchWorkspace(request, callbacks) {
           }
           const matches = zoekPaginaAlleBronnen(data, buildPattern(options.query, !!options.matchCase, !!options.wholeWord), options.query,
             { annotations }, { tekst: options.text !== false, annotaties: options.annotations !== false });
-          return { hasText: !!data.text.trim(), matches: matches.map(m => ({ ...m, pageLabel: labels?.[pageNum - 1] || String(pageNum),
-            annotationBox: !doc && m.bron === 'annotation' ? (() => { const a = annotations.find(a => a.id === m.annotationId); return a && { x: a.x, y: a.y, width: a.width, height: a.height }; })() : undefined,
+          return { hasText: !!data.text.trim() || data.shxAnnotations.some(a => a.text.trim()), matches: matches.map(m => ({ ...m, pageLabel: labels?.[pageNum - 1] || String(pageNum),
+            annotationBox: m.annotationBox ?? (!doc && m.bron === 'annotation' ? (() => { const a = annotations.find(a => a.id === m.annotationId); return a && { x: a.x, y: a.y, width: a.width, height: a.height }; })() : undefined),
             snippet: m.bron === 'annotation' ? m.matchText : data.text.slice(Math.max(0, m.startPos - 50), m.endPos + 80), fingerprint, contentDigest })) };
         },
       };
