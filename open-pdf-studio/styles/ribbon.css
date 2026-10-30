@@ -330,6 +330,15 @@
   height: 14px;
 }
 
+/* Rotate arrows read poorly at 14px; use the full icon slot */
+#rotate-left .ribbon-btn-icon svg,
+#rotate-right .ribbon-btn-icon svg,
+#view-rotate-left .ribbon-btn-icon svg,
+#view-rotate-right .ribbon-btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
 .ribbon-btn.small .ribbon-btn-label {
   font-size: 11px;
   text-align: left;
