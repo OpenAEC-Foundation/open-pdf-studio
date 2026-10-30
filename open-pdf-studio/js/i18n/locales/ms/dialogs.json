@@ -450,7 +450,8 @@
     "styleLabel": "Gaya:",
     "nestTitle": "Sarangkan di bawah penanda buku baharu",
     "deleteTitle": "Padam penanda buku",
-    "deleteConfirm": "Padam {{count}} penanda buku yang dipilih dan semua di bawahnya?"
+    "deleteConfirm": "Padam {{count}} penanda buku yang dipilih dan semua di bawahnya?",
+    "replaceAll": "Gantikan semua penanda buku"
   },
   "formValidation": {
     "title": "Ralat Pengesahan"

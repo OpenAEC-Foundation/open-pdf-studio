@@ -450,7 +450,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Yeni yer iminin altına yerleştir",
     "deleteTitle": "Yer imlerini sil",
-    "deleteConfirm": "Seçili {{count}} yer imi ve altındaki her şey silinsin mi?"
+    "deleteConfirm": "Seçili {{count}} yer imi ve altındaki her şey silinsin mi?",
+    "replaceAll": "Tüm yer imlerini değiştir"
   },
   "formValidation": {
     "title": "Doğrulama Hatası"

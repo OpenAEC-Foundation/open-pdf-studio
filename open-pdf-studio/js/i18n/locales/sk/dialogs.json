@@ -450,7 +450,8 @@
     "styleLabel": "Štýl:",
     "nestTitle": "Vnoriť pod novú záložku",
     "deleteTitle": "Odstrániť záložky",
-    "deleteConfirm": "Odstrániť vybraté záložky ({{count}}) a všetko pod nimi?"
+    "deleteConfirm": "Odstrániť vybraté záložky ({{count}}) a všetko pod nimi?",
+    "replaceAll": "Nahradiť všetky záložky"
   },
   "formValidation": {
     "title": "Chyba overenia"

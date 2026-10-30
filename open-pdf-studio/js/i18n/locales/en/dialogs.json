@@ -450,7 +450,8 @@
     "styleLabel": "Style:",
     "nestTitle": "Nest Under New Bookmark",
     "deleteTitle": "Delete Bookmarks",
-    "deleteConfirm": "Delete {{count}} selected bookmarks and everything under them?"
+    "deleteConfirm": "Delete {{count}} selected bookmarks and everything under them?",
+    "replaceAll": "Replace all bookmarks"
   },
   "formValidation": {
     "title": "Validation Error"

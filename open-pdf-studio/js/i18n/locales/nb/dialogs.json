@@ -450,7 +450,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Legg under nytt bokmerke",
     "deleteTitle": "Slett bokmerker",
-    "deleteConfirm": "Slette {{count}} valgte bokmerker og alt under dem?"
+    "deleteConfirm": "Slette {{count}} valgte bokmerker og alt under dem?",
+    "replaceAll": "Erstatt alle bokmerker"
   },
   "formValidation": {
     "title": "Valideringsfeil"

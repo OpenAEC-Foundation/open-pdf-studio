@@ -450,7 +450,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Unter neuem Lesezeichen verschachteln",
     "deleteTitle": "Lesezeichen löschen",
-    "deleteConfirm": "{{count}} ausgewählte Lesezeichen und alles darunter löschen?"
+    "deleteConfirm": "{{count}} ausgewählte Lesezeichen und alles darunter löschen?",
+    "replaceAll": "Alle Lesezeichen ersetzen"
   },
   "formValidation": {
     "title": "Validierungsfehler"

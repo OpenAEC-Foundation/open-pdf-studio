@@ -450,7 +450,8 @@
     "styleLabel": "スタイル：",
     "nestTitle": "新しいしおりの下に入れる",
     "deleteTitle": "しおりの削除",
-    "deleteConfirm": "選択した {{count}} 件のしおりと、その下のすべてを削除しますか？"
+    "deleteConfirm": "選択した {{count}} 件のしおりと、その下のすべてを削除しますか？",
+    "replaceAll": "すべてのブックマークを置き換える"
   },
   "formValidation": {
     "title": "入力エラー"

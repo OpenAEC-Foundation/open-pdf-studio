@@ -1082,6 +1082,8 @@ function kiesEigenBladwijzerKleur(huidig) {
 
 function BookmarkMenuContent() {
   const { t } = useTranslation('context');
+  const { t: td } = useTranslation('dialogs');
+  const { t: tp } = useTranslation('properties');
   // Kleur, stijl en verplaatsen werken op de hele selectie (#689, #690); uit
   // zonder selectie of in PDF/A. Bewerken en subbladwijzer: precies één.
   const uit = () => bookmarkToolbarDisabled();
@@ -1138,6 +1140,11 @@ function BookmarkMenuContent() {
       <MenuItem label={t('bookmark.italic')} checkbox={true} checked={stijl().italic} disabled={stijlUit()} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.toggleBookmarkItalic());
       }} />
+      <Separator />
+      <MenuItem label={`${td('pageLabels.title')} → ${tp('leftPanel.bookmarks')}…`} disabled={uit().add}
+        onClick={() => openDialog('bookmark-names', { direction: 'bookmarks' })} />
+      <MenuItem label={`${tp('leftPanel.bookmarks')} → ${td('pageLabels.title')}…`} disabled={uit().add}
+        onClick={() => openDialog('bookmark-names', { direction: 'labels' })} />
       <Separator />
       <MenuItem label={t('bookmark.expandAll')} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.expandAll());
