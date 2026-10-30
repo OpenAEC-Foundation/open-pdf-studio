@@ -431,7 +431,8 @@
     "styleLabel": "Stijl:",
     "nestTitle": "Onder nieuwe bladwijzer nesten",
     "deleteTitle": "Bladwijzers verwijderen",
-    "deleteConfirm": "{{count}} geselecteerde bladwijzers en alles eronder verwijderen?"
+    "deleteConfirm": "{{count}} geselecteerde bladwijzers en alles eronder verwijderen?",
+    "replaceAll": "Alle bladwijzers vervangen"
   },
   "formValidation": {
     "title": "Validatiefout"

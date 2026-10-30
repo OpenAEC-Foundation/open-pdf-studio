@@ -450,7 +450,8 @@
     "styleLabel": "Stile:",
     "nestTitle": "Annida sotto un nuovo segnalibro",
     "deleteTitle": "Elimina segnalibri",
-    "deleteConfirm": "Eliminare {{count}} segnalibri selezionati e tutto ciò che contengono?"
+    "deleteConfirm": "Eliminare {{count}} segnalibri selezionati e tutto ciò che contengono?",
+    "replaceAll": "Sostituisci tutti i segnalibri"
   },
   "formValidation": {
     "title": "Errore di validazione"

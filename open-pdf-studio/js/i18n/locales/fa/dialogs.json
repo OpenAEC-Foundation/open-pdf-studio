@@ -450,7 +450,8 @@
     "styleLabel": "سبک:",
     "nestTitle": "قرار دادن زیر نشانک جدید",
     "deleteTitle": "حذف نشانک‌ها",
-    "deleteConfirm": "{{count}} نشانک انتخاب‌شده و هر آنچه زیر آن‌هاست حذف شود؟"
+    "deleteConfirm": "{{count}} نشانک انتخاب‌شده و هر آنچه زیر آن‌هاست حذف شود؟",
+    "replaceAll": "جایگزینی همهٔ نشانک‌ها"
   },
   "formValidation": {
     "title": "خطای اعتبارسنجی"

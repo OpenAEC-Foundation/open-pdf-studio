@@ -450,7 +450,8 @@
     "styleLabel": "Style :",
     "nestTitle": "Imbriquer sous un nouveau signet",
     "deleteTitle": "Supprimer les signets",
-    "deleteConfirm": "Supprimer les {{count}} signets sélectionnés et tout ce qu’ils contiennent ?"
+    "deleteConfirm": "Supprimer les {{count}} signets sélectionnés et tout ce qu’ils contiennent ?",
+    "replaceAll": "Remplacer tous les signets"
   },
   "formValidation": {
     "title": "Erreur de validation"
