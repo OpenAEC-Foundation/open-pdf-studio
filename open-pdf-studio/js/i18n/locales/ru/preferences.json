@@ -32,7 +32,8 @@
     "aiLinkActive": "Активна на {{adres}}",
     "aiLinkViaFlag": "Активна через параметр запуска ({{adres}})",
     "aiLinkOff": "Выкл.",
-    "aiLinkError": "Не запущена: {{fout}}"
+    "aiLinkError": "Не запущена: {{fout}}",
+    "interfaceScale": "Размер интерфейса"
   },
   "annotations": {
     "generalDefaults": "Общие настройки по умолчанию",

@@ -32,7 +32,8 @@
     "aiLinkActive": "Actief op {{adres}}",
     "aiLinkViaFlag": "Actief via startvlag ({{adres}})",
     "aiLinkOff": "Uit",
-    "aiLinkError": "Niet gestart: {{fout}}"
+    "aiLinkError": "Niet gestart: {{fout}}",
+    "interfaceScale": "Interfacegrootte"
   },
   "annotations": {
     "generalDefaults": "Algemene standaardwaarden",

@@ -32,7 +32,8 @@
     "aiLinkActive": "{{adres}}-এ সক্রিয়",
     "aiLinkViaFlag": "স্টার্টআপ প্যারামিটারের মাধ্যমে সক্রিয় ({{adres}})",
     "aiLinkOff": "বন্ধ",
-    "aiLinkError": "শুরু হয়নি: {{fout}}"
+    "aiLinkError": "শুরু হয়নি: {{fout}}",
+    "interfaceScale": "ইন্টারফেসের আকার"
   },
   "annotations": {
     "generalDefaults": "সাধারণ ডিফল্ট",

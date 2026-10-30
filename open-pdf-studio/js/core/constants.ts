@@ -47,6 +47,7 @@ export const HANDLE_TYPES = {
 export const DEFAULT_PREFERENCES: Preferences = {
   // Theme
   theme: 'default',
+  uiScale: 100,
 
   // Enkelpagina is de standaard-weergavemodus; opgeslagen 'continuous'
   // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij

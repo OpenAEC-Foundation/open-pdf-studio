@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktívne na {{adres}}",
     "aiLinkViaFlag": "Aktívne cez spúšťací parameter ({{adres}})",
     "aiLinkOff": "Vypnuté",
-    "aiLinkError": "Nespustené: {{fout}}"
+    "aiLinkError": "Nespustené: {{fout}}",
+    "interfaceScale": "Veľkosť rozhrania"
   },
   "annotations": {
     "generalDefaults": "Všeobecné predvolené nastavenia",

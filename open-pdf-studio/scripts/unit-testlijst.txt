@@ -626,3 +626,4 @@ js/watermark/watermark-custom-position.test.mjs
 js/watermark/watermark-autofit.test.mjs
 js/watermark/watermark-dialog-i18n.test.mjs
 js/watermark/watermark-text-history.test.mjs
+scripts/ui-scale.test.mjs

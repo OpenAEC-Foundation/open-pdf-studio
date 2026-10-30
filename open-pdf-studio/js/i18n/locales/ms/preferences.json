@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktif di {{adres}}",
     "aiLinkViaFlag": "Aktif melalui parameter permulaan ({{adres}})",
     "aiLinkOff": "Mati",
-    "aiLinkError": "Tidak dimulakan: {{fout}}"
+    "aiLinkError": "Tidak dimulakan: {{fout}}",
+    "interfaceScale": "Saiz antara muka"
   },
   "annotations": {
     "generalDefaults": "Lalai Umum",

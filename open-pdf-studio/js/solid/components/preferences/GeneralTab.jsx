@@ -6,6 +6,7 @@ import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../../../core/sessie-herstel.
 import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
 import { LANGUAGES } from '../../../i18n/config.js';
 import PrefSelect from './PrefSelect.jsx';
+import { UI_SCALES, normalizeUiScale } from '../../../core/ui-scale.js';
 import LanguageSelect from './LanguageSelect.jsx';
 
 export default function GeneralTab(props) {
@@ -57,6 +58,13 @@ export default function GeneralTab(props) {
         <div class="pref-row">
           <label>{t('general.applicationTheme')}</label>
           <PrefSelect value={p.theme[0]} setValue={p.theme[1]} options={themeOptions} style={{ width: '140px' }} />
+        </div>
+        <div class="pref-row">
+          <label for="pref-ui-scale">{t('general.interfaceScale')}</label>
+          <select id="pref-ui-scale" value={normalizeUiScale(p.uiScale[0]())}
+            onChange={e => p.uiScale[1](normalizeUiScale(e.currentTarget.value))}>
+            {UI_SCALES.map(value => <option value={value}>{value}%</option>)}
+          </select>
         </div>
       </fieldset>
       <fieldset class="pref-fieldset">

@@ -32,7 +32,8 @@
     "aiLinkActive": "ກຳລັງເຮັດວຽກຢູ່ {{adres}}",
     "aiLinkViaFlag": "ກຳລັງເຮັດວຽກຜ່ານຄຳສັ່ງ command-line ({{adres}})",
     "aiLinkOff": "ປິດ",
-    "aiLinkError": "ບໍ່ໄດ້ເລີ່ມຕົ້ນ: {{fout}}"
+    "aiLinkError": "ບໍ່ໄດ້ເລີ່ມຕົ້ນ: {{fout}}",
+    "interfaceScale": "ຂະໜາດສ່ວນຕິດຕໍ່"
   },
   "annotations": {
     "generalDefaults": "ຄ່າເລີ່ມຕົ້ນທົ່ວໄປ",

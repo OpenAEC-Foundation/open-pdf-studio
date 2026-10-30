@@ -32,7 +32,8 @@
     "aiLinkActive": "{{adres}} இல் செயலில்",
     "aiLinkViaFlag": "தொடக்க அளவுருவின் மூலம் செயலில் ({{adres}})",
     "aiLinkOff": "முடக்கம்",
-    "aiLinkError": "தொடங்கவில்லை: {{fout}}"
+    "aiLinkError": "தொடங்கவில்லை: {{fout}}",
+    "interfaceScale": "இடைமுக அளவு"
   },
   "annotations": {
     "generalDefaults": "பொது இயல்புநிலைகள்",
