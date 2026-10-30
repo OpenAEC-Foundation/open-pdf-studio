@@ -36,9 +36,9 @@ export const actualSizeIcon = `<svg fill="none" stroke="currentColor" viewBox="0
 
 export const fitPageIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>`;
 
-export const rotateLeftIcon = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="none"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>`;
+export const rotateLeftIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2.4 9.2A5.6 5.6 0 1 0 7.6 3.6"/><path d="M3.6 3.6 8.6 0.4 8.6 6.8z" fill="currentColor" stroke-width="0.8" stroke-linejoin="round"/></svg>`;
 
-export const rotateRightIcon = `<svg viewBox="0 0 16 16" fill="currentColor" stroke="none"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>`;
+export const rotateRightIcon = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M13.6 9.2A5.6 5.6 0 1 1 8.4 3.6"/><path d="M12.4 3.6 7.4 0.4 7.4 6.8z" fill="currentColor" stroke-width="0.8" stroke-linejoin="round"/></svg>`;
 
 // --- Home tab: Edit ---
 
