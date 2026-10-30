@@ -276,6 +276,22 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 
 ## Keyboard Shortcuts
 
+A [Bluebeam Revu-compatible preset](open-pdf-studio/public/shortcuts/bluebeam-revu.json)
+is available for the shared tools and navigation commands. Download the JSON,
+then choose **Preferences → Keyboard Shortcuts → Import**, select the file,
+and **Save**. Import replaces your custom shortcuts; export your current set
+first if you want to keep it. Cancel leaves your current shortcuts unchanged;
+Reset All restores the Open PDF Studio defaults.
+
+The preset follows the [official Revu 20/21 shortcut reference](https://support.bluebeam.com/revu/resources/keyboard-shortcuts.html).
+It covers 36 directly matching commands, including drawing, measurement,
+page navigation, split views and fit modes. Existing commands outside that
+subset retain their Open PDF Studio defaults. It is not a complete emulation:
+unsupported tools, contextual shortcuts, mouse gestures and reserved keys
+(such as G and document-tab switching) are unchanged. The file uses Open PDF
+Studio's JSON format, not Revu's native shortcut format. Ctrl bindings use the
+app's normal Cmd mapping on macOS; OS/browser-reserved keys may be intercepted.
+
 | Shortcut | Action |
 |----------|--------|
 | `Ctrl+N` | New document |

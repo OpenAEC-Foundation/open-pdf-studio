@@ -1,0 +1,114 @@
+{
+  "format": "open-pdf-studio-keyboard-shortcuts",
+  "version": 1,
+  "shortcuts": {
+    "app.preferences": [
+      "Ctrl+K"
+    ],
+    "drafting.grid": [
+      "Shift+F9"
+    ],
+    "drafting.gridSnap": [
+      "Ctrl+Shift+F9"
+    ],
+    "file.close": [
+      "Ctrl+F4"
+    ],
+    "panels.annotationsList": [
+      "Alt+L"
+    ],
+    "panels.properties": [
+      "Alt+P"
+    ],
+    "ribbon:#dr-arrow": [
+      "A"
+    ],
+    "ribbon:#dr-cloud": [
+      "C"
+    ],
+    "ribbon:#dr-count": [
+      "Alt+Shift+C"
+    ],
+    "ribbon:#dr-image": [
+      "I"
+    ],
+    "ribbon:#dr-polyline": [
+      "Shift+N"
+    ],
+    "ribbon:#extract-pages": [
+      "Ctrl+Shift+X"
+    ],
+    "ribbon:#tool-callout": [
+      "Q"
+    ],
+    "ribbon:#tool-measure-angle": [
+      "Alt+Shift+G"
+    ],
+    "ribbon:#tool-measure-area": [
+      "Alt+Shift+A"
+    ],
+    "ribbon:#tool-measure-distance": [
+      "Alt+Shift+L"
+    ],
+    "ribbon:#tool-measure-perimeter": [
+      "Alt+Shift+P"
+    ],
+    "ribbon:#tool-stamp": [
+      "S"
+    ],
+    "tool.box": [
+      "R"
+    ],
+    "tool.circle": [
+      "E"
+    ],
+    "tool.comment": [
+      "N"
+    ],
+    "tool.draw": [
+      "P"
+    ],
+    "tool.hand": [
+      "Shift+V"
+    ],
+    "tool.highlight": [
+      "H"
+    ],
+    "tool.line": [
+      "L"
+    ],
+    "tool.select": [
+      "V"
+    ],
+    "tool.textbox": [
+      "T"
+    ],
+    "view.actualSize": [
+      "Ctrl+8"
+    ],
+    "view.fitPage": [
+      "Ctrl+9"
+    ],
+    "view.fitWidth": [
+      "Ctrl+0"
+    ],
+    "view.fullscreen": [
+      "F11"
+    ],
+    "view.nextPage": [
+      "Ctrl+ArrowRight"
+    ],
+    "view.previousPage": [
+      "Ctrl+ArrowLeft"
+    ],
+    "view.splitHorizontal": [
+      "Ctrl+H"
+    ],
+    "view.splitVertical": [
+      "Ctrl+2"
+    ],
+    "view.unsplit": [
+      "Ctrl+Shift+2"
+    ]
+  }
+}
