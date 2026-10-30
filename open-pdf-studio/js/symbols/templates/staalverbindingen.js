@@ -16,7 +16,9 @@
 // (e1, e2 ≥ 1,2·d0; p1 ≥ 2,2·d0; p2 ≥ 2,4·d0), met d0 de werkelijke gatmaat.
 
 import { I_PROFIEL_TABEL, iSectionPts } from './staalprofiel.js';
-import { BOUT_MATEN } from './bout.js';
+import {
+  BOUT_MATEN, zeskantZijaanzicht, ringZijaanzicht, schachtZijaanzicht,
+} from './bout.js';
 import { getal, geheelGetal, pasIn, bboxSnapPunten, rechthoek } from './wapening-tekst.js';
 
 export const STAALSOORTEN = ['S235', 'S275', 'S355'];
@@ -182,14 +184,18 @@ function kopplaatZij(L, X, Y, S, cmds) {
   });
   cmds.push(las(yT + pr.tf, 1), las(yB - pr.tf, -1));
   if (ov > a) cmds.push(las(yT, -1), las(yB, 1));
-  // Bouten per rij: moer aan de liggerzijde, schacht door de plaat, hartlijn.
+  // Bouten per rij: ring + moer (zeskant, beide zijden afgeschuind) aan de
+  // liggerzijde, draadeind met afgeschuinde punt, schacht door de plaat,
+  // hartlijn. Zelfde tekenwijze als het boutsymbool (templates/bout.js).
   for (const ry of g.rijen) {
     const y = oy + ry;
-    const xm0 = xp - bt.m;
-    cmds.push(rechthoek(X(xm0), Y(y - bt.s / 2), bt.m * S, bt.s * S, { role: 'moer' }));
+    // u loopt van de plaat af naar links (de boutas), v dwars daarop.
+    const naarLinks = (u, v) => ({ x: X(xp - u), y: Y(y + v) });
+    const xm0 = xp - bt.ringT - bt.m;
+    cmds.push(...ringZijaanzicht(naarLinks, 0, bt.ringT, bt.ringD));
+    cmds.push(...zeskantZijaanzicht(naarLinks, bt.ringT, bt.ringT + bt.m, bt.s, { afschuining: [true, true], role: 'moer' }));
     const x0 = xm0 - 0.8 * bt.d, x1 = xp + tp + 1.4 * bt.d;
-    cmds.push({ kind: 'line', x1: X(x0), y1: Y(y - bt.d / 2), x2: X(xm0), y2: Y(y - bt.d / 2), role: 'bout' });
-    cmds.push({ kind: 'line', x1: X(x0), y1: Y(y + bt.d / 2), x2: X(xm0), y2: Y(y + bt.d / 2), role: 'bout' });
+    cmds.push(...schachtZijaanzicht(naarLinks, xp - xm0, xp - x0, bt, { uDraad: xp - xm0, punt: true, role: 'bout' }));
     cmds.push({ kind: 'line', x1: X(xp + tp), y1: Y(y - bt.d / 2), x2: X(x1), y2: Y(y - bt.d / 2), role: 'bout' });
     cmds.push({ kind: 'line', x1: X(xp + tp), y1: Y(y + bt.d / 2), x2: X(x1), y2: Y(y + bt.d / 2), role: 'bout' });
     const lijn = (x1 - x0 + bt.d) * S;
@@ -339,7 +345,7 @@ export function voetplaatLayout(params) {
   if (p.aanzicht === 'zij') {
     const uit = g.L * 0.2;                 // funderingslijn steekt uit
     const kolomH = pr.h * 0.9;
-    const boven = kolomH + an.m + 0.15 * an.d + 0.6 * an.d;
+    const boven = kolomH + an.m + an.ringT + 0.6 * an.d;
     const onder = p.plaatDikte + p.ondersabeling + p.ankerLengte;
     const breedte = g.L + 2 * uit;
     const W = Math.max(breedte + 2 * F * 0.5, tekstW);
@@ -372,7 +378,7 @@ function voetplaatBoven(L, X, Y, S, cmds) {
   for (const a of g.ankers) {
     const ax = X(cx + a.x), ay = Y(cy + a.y);
     cmds.push({ kind: 'circle', cx: ax, cy: ay, r: (g.d0 / 2) * S, role: 'gat' });
-    cmds.push({ kind: 'circle', cx: ax, cy: ay, r: (1.1 * g.anker.d) * S, role: 'ring' });
+    cmds.push({ kind: 'circle', cx: ax, cy: ay, r: (g.anker.ringD / 2) * S, role: 'ring' });
     const k = g.d0 * 0.9 * S;
     cmds.push({ kind: 'line', x1: ax - k, y1: ay, x2: ax + k, y2: ay, role: 'hartkruis' });
     cmds.push({ kind: 'line', x1: ax, y1: ay - k, x2: ax, y2: ay + k, role: 'hartkruis' });
@@ -417,18 +423,19 @@ function voetplaatZij(L, X, Y, S, cmds) {
   }
   // Ankers (unieke x-posities in dit aanzicht).
   const xs = [...new Set(g.ankers.map((q) => Math.round(q.x * 1000) / 1000))];
-  const ring = 0.15 * an.d;
+  const ring = an.ringT;
   for (const ax of xs) {
     const x = cx + ax;
-    const yTop = oy - ring - an.m - 0.6 * an.d;
     const yEind = yf + p.ankerLengte;
-    // Moer + onderlegring op de plaat.
-    cmds.push(rechthoek(X(x - an.s / 2), Y(oy - ring - an.m), an.s * S, an.m * S, { role: 'moer' }));
-    cmds.push(rechthoek(X(x - 1.1 * an.d), Y(oy - ring), 2.2 * an.d * S, ring * S, { role: 'ring' }));
-    // Schacht: het draadeind boven de moer zichtbaar; door plaat,
-    // ondersabeling en fundering verborgen (gestreept).
+    // Onderlegring + moer (zeskant, beide zijden afgeschuind) op de plaat en
+    // het draadeind erboven, getekend zoals het boutsymbool (templates/bout.js).
+    // u loopt vanaf de bovenkant plaat omhoog langs de ankeras.
+    const omhoog = (u, v) => ({ x: X(x + v), y: Y(oy - u) });
+    cmds.push(...ringZijaanzicht(omhoog, 0, ring, an.ringD));
+    cmds.push(...zeskantZijaanzicht(omhoog, ring, ring + an.m, an.s, { afschuining: [true, true], role: 'moer' }));
+    cmds.push(...schachtZijaanzicht(omhoog, ring + an.m, ring + an.m + 0.6 * an.d, an, { uDraad: ring + an.m, punt: true, role: 'anker' }));
+    // Door plaat, ondersabeling en fundering verborgen (gestreept).
     for (const dx of [-an.d / 2, an.d / 2]) {
-      cmds.push({ kind: 'line', x1: X(x + dx), y1: Y(yTop), x2: X(x + dx), y2: Y(oy - ring - an.m), role: 'anker' });
       cmds.push({ kind: 'line', x1: X(x + dx), y1: Y(oy), x2: X(x + dx), y2: Y(yEind), dash: [Math.max(2, an.d * S * 0.6), Math.max(1.5, an.d * S * 0.4)], role: 'anker' });
     }
     // Ankerplaatje aan het einde.
