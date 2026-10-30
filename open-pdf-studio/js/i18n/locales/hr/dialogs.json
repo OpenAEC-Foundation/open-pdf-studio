@@ -138,6 +138,8 @@
     "pageBorder": "Ispiši obrub stranice",
     "perSheetNote": "Svaka se stranica prilagođava svojoj ćeliji, pa se gornje skaliranje stranice ne primjenjuje.",
     "poster": "Plakat (pločice)",
+    "posterOverview": "Pregled plakata",
+    "posterOverlapLegend": "Osjenčana područja ponavljaju se na susjednim listovima",
     "posterScale": "Mjerilo pločica",
     "posterOverlap": "Preklapanje",
     "posterCutMarks": "Oznake za rezanje",

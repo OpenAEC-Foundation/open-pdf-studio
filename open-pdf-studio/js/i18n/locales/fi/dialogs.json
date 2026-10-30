@@ -138,6 +138,8 @@
     "pageBorder": "Tulosta sivun reunus",
     "perSheetNote": "Jokainen sivu skaalataan sopimaan soluunsa, joten yllä oleva sivun skaalaus ei ole käytössä.",
     "poster": "Juliste (palat)",
+    "posterOverview": "Julisteen yleiskuva",
+    "posterOverlapLegend": "Varjostetut alueet toistuvat vierekkäisillä arkeilla",
     "posterScale": "Palojen skaalaus",
     "posterOverlap": "Limitys",
     "posterCutMarks": "Leikkausmerkit",

@@ -138,6 +138,8 @@
     "pageBorder": "Imprimeix la vora de la pàgina",
     "perSheetNote": "Cada pàgina s'escala per encabir-se a la seva cel·la, de manera que l'escalat de pàgina de dalt no s'aplica.",
     "poster": "Pòster (mosaic)",
+    "posterOverview": "Vista general del pòster",
+    "posterOverlapLegend": "Les zones ombrejades es repeteixen als fulls adjacents",
     "posterScale": "Escala del mosaic",
     "posterOverlap": "Superposició",
     "posterCutMarks": "Marques de tall",

@@ -138,6 +138,8 @@
     "pageBorder": "Cetak bingkai halaman",
     "perSheetNote": "Setiap halaman diskalakan agar pas di selnya, sehingga penskalaan halaman di atas tidak berlaku.",
     "poster": "Poster (ubin)",
+    "posterOverview": "Ikhtisar poster",
+    "posterOverlapLegend": "Area berarsir diulang pada lembar yang bersebelahan",
     "posterScale": "Skala ubin",
     "posterOverlap": "Tumpang tindih",
     "posterCutMarks": "Tanda potong",

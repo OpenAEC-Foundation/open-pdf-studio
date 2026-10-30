@@ -138,6 +138,8 @@
     "pageBorder": "Cetak sempadan halaman",
     "perSheetNote": "Setiap halaman diskalakan supaya muat dalam selnya, jadi penskalaan halaman di atas tidak terpakai.",
     "poster": "Poster (jubin)",
+    "posterOverview": "Gambaran keseluruhan poster",
+    "posterOverlapLegend": "Kawasan berlorek diulang pada helaian bersebelahan",
     "posterScale": "Skala jubin",
     "posterOverlap": "Pertindihan",
     "posterCutMarks": "Tanda potong",

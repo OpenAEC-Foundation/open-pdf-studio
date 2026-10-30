@@ -138,6 +138,8 @@
     "pageBorder": "Tipărire chenar pagină",
     "perSheetNote": "Fiecare pagină este scalată pentru a încăpea în celula sa, deci scalarea paginii de mai sus nu se aplică.",
     "poster": "Afiș (plăci)",
+    "posterOverview": "Prezentare generală a posterului",
+    "posterOverlapLegend": "Zonele umbrite se repetă pe foile alăturate",
     "posterScale": "Scara plăcilor",
     "posterOverlap": "Suprapunere",
     "posterCutMarks": "Semne de tăiere",

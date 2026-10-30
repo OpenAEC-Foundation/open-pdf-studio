@@ -2857,6 +2857,30 @@
   display: flex;
   gap: 1px;
 }
+
+/* Poster overview above the existing, screen-resolution sheet detail. */
+.print-poster-preview { overflow-y: auto; }
+.print-poster-preview .print-preview-container { flex: 0 0 auto; }
+.poster-overview { padding: 6px; border-bottom: 1px solid var(--theme-border, #b0b0b0); color: var(--theme-text, #333); }
+.poster-overview-title, .poster-overlap-legend { font-size: 11px; margin-bottom: 4px; }
+.poster-overview-picture { position: relative; margin: 0 auto; background: #fff; max-width: 100%; }
+.poster-overview-picture canvas, .poster-overview-picture svg { position: absolute; width: 100%; height: 100%; inset: 0; }
+.poster-grid-tile { fill: transparent; stroke: #555; stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; cursor: default; }
+.poster-grid-tile.selected { stroke: #0078d4; stroke-width: 2; fill: rgba(0,120,215,0.08); }
+.poster-grid-tile:focus { outline: none; stroke: #000; stroke-width: 3; }
+.poster-overlap { fill: rgba(0,120,215,0.18); pointer-events: none; }
+.poster-overlap-legend { margin: 4px 0 0; }
+.poster-overlap-legend::before { content: ''; display: inline-block; width: 10px; height: 10px; background: rgba(0,120,215,0.3); margin-inline-end: 4px; }
+
+.number-stepper { position: relative; display: inline-flex; }
+.number-stepper > input.print-input { padding-inline-end: 19px; }
+.number-stepper-buttons { position: absolute; inset-inline-end: 1px; top: 1px; bottom: 1px; display: flex; flex-direction: column; opacity: 0; }
+.number-stepper:hover .number-stepper-buttons, .number-stepper:focus-within .number-stepper-buttons { opacity: 1; }
+.number-stepper-buttons button { flex: 1; width: 16px; min-height: 0; padding: 0; border: 0; border-inline-start: 1px solid var(--theme-border, #b0b0b0); background: var(--theme-bg, #f0f0f0); color: var(--theme-text, #333); font-size: 10px; line-height: 1; cursor: default; }
+.number-stepper-buttons button + button { border-top: 1px solid var(--theme-border, #b0b0b0); }
+.number-stepper-buttons button:hover:not(:disabled) { background: var(--theme-hover, #d4e8fc); }
+.number-stepper-buttons button:disabled { opacity: 0.35; }
+@media (hover: none) { .number-stepper-buttons { opacity: 1; } }
 .print-preview-nav-btn {
   background: var(--theme-surface, #f0f0f0);
   border: 1px solid var(--theme-border, #acacac);

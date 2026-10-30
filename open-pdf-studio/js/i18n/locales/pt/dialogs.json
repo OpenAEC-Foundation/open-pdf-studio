@@ -138,6 +138,8 @@
     "pageBorder": "Imprimir borda da página",
     "perSheetNote": "Cada página é dimensionada para caber em sua célula, então a escala de página acima não se aplica.",
     "poster": "Pôster (blocos)",
+    "posterOverview": "Visão geral do pôster",
+    "posterOverlapLegend": "As áreas sombreadas repetem-se nas folhas adjacentes",
     "posterScale": "Escala dos blocos",
     "posterOverlap": "Sobreposição",
     "posterCutMarks": "Marcas de corte",

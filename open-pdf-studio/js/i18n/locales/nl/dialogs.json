@@ -138,6 +138,8 @@
     "pageBorder": "Paginarand afdrukken",
     "perSheetNote": "Elke pagina wordt passend gemaakt voor zijn cel, dus de paginaschaal hierboven geldt niet.",
     "poster": "Poster (tegels)",
+    "posterOverview": "Posteroverzicht",
+    "posterOverlapLegend": "Gekleurde stroken worden op aangrenzende vellen herhaald",
     "posterScale": "Tegelschaal",
     "posterOverlap": "Overlap",
     "posterCutMarks": "Snijtekens",

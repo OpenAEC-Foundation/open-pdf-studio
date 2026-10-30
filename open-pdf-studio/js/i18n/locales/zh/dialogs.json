@@ -138,6 +138,8 @@
     "pageBorder": "打印页面边框",
     "perSheetNote": "每页都会缩放以适合其单元格，因此上方的页面缩放设置不适用。",
     "poster": "海报（拼贴）",
+    "posterOverview": "海报总览",
+    "posterOverlapLegend": "阴影区域会在相邻纸张上重复",
     "posterScale": "拼贴比例",
     "posterOverlap": "重叠",
     "posterCutMarks": "裁切标记",

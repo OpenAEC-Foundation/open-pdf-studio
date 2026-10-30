@@ -138,6 +138,8 @@
     "pageBorder": "In viền trang",
     "perSheetNote": "Mỗi trang được co giãn cho vừa ô của nó, nên tỷ lệ trang ở trên không áp dụng.",
     "poster": "Áp phích (ô ghép)",
+    "posterOverview": "Tổng quan áp phích",
+    "posterOverlapLegend": "Các vùng tô màu được lặp lại trên các tờ liền kề",
     "posterScale": "Tỷ lệ ô ghép",
     "posterOverlap": "Phần chồng lấn",
     "posterCutMarks": "Dấu cắt",

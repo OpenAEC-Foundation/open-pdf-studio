@@ -138,6 +138,8 @@
     "pageBorder": "Skriv ut sidkant",
     "perSheetNote": "Varje sida skalas för att passa sin cell, så sidskalningen ovan gäller inte.",
     "poster": "Affisch (rutor)",
+    "posterOverview": "Affischöversikt",
+    "posterOverlapLegend": "Skuggade områden upprepas på angränsande ark",
     "posterScale": "Rutskala",
     "posterOverlap": "Överlappning",
     "posterCutMarks": "Skärmärken",

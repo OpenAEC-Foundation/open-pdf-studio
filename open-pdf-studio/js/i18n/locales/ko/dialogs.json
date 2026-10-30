@@ -138,6 +138,8 @@
     "pageBorder": "페이지 테두리 인쇄",
     "perSheetNote": "각 페이지가 셀에 맞게 크기 조정되므로 위의 페이지 크기 조정은 적용되지 않습니다.",
     "poster": "포스터(타일)",
+    "posterOverview": "포스터 전체 보기",
+    "posterOverlapLegend": "음영 영역은 인접한 용지에 반복됩니다",
     "posterScale": "타일 배율",
     "posterOverlap": "겹침",
     "posterCutMarks": "재단선 표시",

@@ -138,6 +138,8 @@
     "pageBorder": "Sayfa kenarlığını yazdır",
     "perSheetNote": "Her sayfa kendi hücresine sığacak şekilde ölçeklenir; bu nedenle yukarıdaki sayfa ölçeklendirmesi uygulanmaz.",
     "poster": "Poster (parçalar)",
+    "posterOverview": "Poster genel görünümü",
+    "posterOverlapLegend": "Gölgeli alanlar bitişik sayfalarda tekrarlanır",
     "posterScale": "Parça ölçeği",
     "posterOverlap": "Örtüşme",
     "posterCutMarks": "Kesim işaretleri",

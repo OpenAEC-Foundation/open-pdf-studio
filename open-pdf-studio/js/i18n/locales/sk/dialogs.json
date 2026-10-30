@@ -138,6 +138,8 @@
     "pageBorder": "Tlačiť okraj strany",
     "perSheetNote": "Každá strana sa prispôsobí svojej bunke, takže vyššie uvedená mierka strany sa nepoužije.",
     "poster": "Plagát (dlaždice)",
+    "posterOverview": "Prehľad plagátu",
+    "posterOverlapLegend": "Zvýraznené oblasti sa opakujú na susedných listoch",
     "posterScale": "Mierka dlaždíc",
     "posterOverlap": "Presah",
     "posterCutMarks": "Orezové značky",

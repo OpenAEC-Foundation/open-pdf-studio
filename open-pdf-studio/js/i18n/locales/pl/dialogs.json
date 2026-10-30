@@ -138,6 +138,8 @@
     "pageBorder": "Drukuj obramowanie strony",
     "perSheetNote": "Każda strona jest skalowana do swojej komórki, więc powyższe skalowanie strony nie ma zastosowania.",
     "poster": "Plakat (kafelki)",
+    "posterOverview": "Podgląd plakatu",
+    "posterOverlapLegend": "Zacienione obszary powtarzają się na sąsiednich arkuszach",
     "posterScale": "Skala kafelków",
     "posterOverlap": "Zakładka",
     "posterCutMarks": "Znaczniki cięcia",

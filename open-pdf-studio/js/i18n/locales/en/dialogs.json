@@ -138,6 +138,8 @@
     "pageBorder": "Print page border",
     "perSheetNote": "Each page is scaled to fit its cell, so the page scaling above does not apply.",
     "poster": "Poster (tiles)",
+    "posterOverview": "Poster overview",
+    "posterOverlapLegend": "Shaded areas are repeated on adjacent sheets",
     "posterScale": "Tile scale",
     "posterOverlap": "Overlap",
     "posterCutMarks": "Cut marks",

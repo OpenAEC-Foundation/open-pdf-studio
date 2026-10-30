@@ -138,6 +138,8 @@
     "pageBorder": "Oldalszegély nyomtatása",
     "perSheetNote": "Minden oldal a cellájához igazodik, ezért a fenti oldalméretezés nem érvényes.",
     "poster": "Poszter (csempék)",
+    "posterOverview": "Poszter áttekintése",
+    "posterOverlapLegend": "Az árnyékolt területek a szomszédos lapokon ismétlődnek",
     "posterScale": "Csempe méretaránya",
     "posterOverlap": "Átfedés",
     "posterCutMarks": "Vágójelek",

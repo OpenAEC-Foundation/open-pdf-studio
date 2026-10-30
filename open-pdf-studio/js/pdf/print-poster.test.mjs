@@ -372,7 +372,7 @@ test('alle locales hebben de posterteksten, vertaald en met dezelfde plaatshoude
   const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8')).print;
   const en = lees('en');
   const sleutels = ['poster', 'posterScale', 'posterOverlap', 'posterCutMarks', 'posterLabels', 'posterOnlyLarge',
-    'posterEdgeCrop', 'posterEdgeCropHint', 'posterTileInfo', 'posterNotTiled', 'posterAssumedPaper', 'perSheetPosterNote', 'posterLabelText'];
+    'posterEdgeCrop', 'posterEdgeCropHint', 'posterOverview', 'posterOverlapLegend', 'posterTileInfo', 'posterNotTiled', 'posterAssumedPaper', 'perSheetPosterNote', 'posterLabelText'];
   // Woorden die in een taal hetzelfde zijn als in het Engels.
   const gelijk = { da: ['posterOverlap'], nl: ['posterOverlap'] };
   const plaatshouders = (s) => [...s.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]).sort();
