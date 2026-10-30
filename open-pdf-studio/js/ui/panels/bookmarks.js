@@ -313,6 +313,23 @@ export async function addChildBookmark() {
   updateBookmarksList();
 }
 
+// Inline rename captures the document and original title before editing. Recheck
+// after loading undo support: tab switches and external edits must not be lost.
+export async function renameBookmarkTitle(doc, id, value, originalTitle) {
+  const title = String(value ?? '').trim();
+  if (!title || title === originalTitle) return false;
+  const { recordModifyBookmark } = await import('../../core/undo-manager.js');
+  if (getActiveDocument() !== doc || isPdfAReadOnly()) return false;
+  const bm = doc?.bookmarks?.find(b => b.id === id);
+  if (!bm || bm.title !== originalTitle) return false;
+  const oldState = { ...bm };
+  bm.title = title;
+  recordModifyBookmark(id, oldState, { ...bm });
+  markDocumentModified(doc);
+  updateBookmarksList();
+  return true;
+}
+
 // Edit selected bookmark
 export async function editBookmark() {
   if (isPdfAReadOnly()) return;

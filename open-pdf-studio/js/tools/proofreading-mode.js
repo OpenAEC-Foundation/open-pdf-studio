@@ -395,6 +395,8 @@ function modelKlopt() {
 }
 
 function opToets(e) {
+  // F2 belongs to inline rename while the bookmark list has focus (#891).
+  if (e.key === 'F2' && e.target?.closest?.('.bookmarks-container')) return;
   // De voorkeuren nemen net een nieuwe sneltoets op (#714).
   if (isSneltoetsOpname()) return;
   if (!isProofreadingActive()) {

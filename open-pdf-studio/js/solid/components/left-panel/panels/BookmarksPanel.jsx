@@ -1,3 +1,5 @@
+import BookmarkTitle from './BookmarkTitle.jsx';
+import { isPdfAReadOnly } from '../../../../pdf/loader.js';
 import { For, Show, createSignal, createMemo, createEffect, on, onCleanup } from 'solid-js';
 import { activeTab, collapsed } from '../../../stores/leftPanelStore.js';
 import { tree, countText, emptyMessage, selectedId, selectedIds, toolbarDisabled } from '../../../stores/panels/bookmarksStore.js';
@@ -87,7 +89,7 @@ function BookmarkNode(props) {
         }}
         data-bm-id={props.node.id}
         style={{ 'padding-left': `${indent()}px`, '--bm-indent': `${indent() + 14}px` }}
-        draggable={bewerkbaar()}
+        draggable={bewerkbaar() && props.rename.session()?.id !== props.node.id}
         onClick={(e) => {
           // Ctrl: toevoegen/weghalen; Shift: bereik; gewoon: één en naar de pagina.
           const id = props.node.id;
@@ -104,7 +106,7 @@ function BookmarkNode(props) {
           showBookmarkMenu(e.clientX, e.clientY);
         }}
         onDragStart={(e) => {
-          if (!bewerkbaar()) { e.preventDefault(); return; }
+          if (!bewerkbaar() || props.rename.session()) { e.preventDefault(); return; }
           // Een geselecteerde sleept de hele selectie mee, een andere alleen zichzelf.
           const ids = geselecteerd() ? [...selectedIds()] : [props.node.id];
           setGesleept(ids);
@@ -165,17 +167,15 @@ function BookmarkNode(props) {
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
           </svg>
         </span>
-        <span
+        <BookmarkTitle node={props.node} rename={props.rename}
           class={`bookmark-title${props.node.bold ? ' bold' : ''}${props.node.italic ? ' italic' : ''}`}
           style={props.node.color ? { color: weergaveKleur(props.node.color, lijstAchtergrond()) } : {}}
-        >
-          {props.node.title}
-        </span>
+        />
       </div>
       <Show when={props.node.hasChildren && props.node.expanded}>
         <div class="bookmark-children">
           <For each={props.node.children}>
-            {(child) => <BookmarkNode node={child} depth={props.depth + 1} huidig={props.huidig} />}
+            {(child) => <BookmarkNode node={child} depth={props.depth + 1} huidig={props.huidig} rename={props.rename} />}
           </For>
         </div>
       </Show>
@@ -189,6 +189,30 @@ export default function BookmarksPanel() {
   let lijstRef;
   let zoekRef;
   const [geenTreffer, setGeenTreffer] = createSignal(false);
+  const [renameSession, setRenameSession] = createSignal(null);
+  const rename = {
+    session: renameSession,
+    start(id) {
+      const doc = getActiveDocument();
+      const bm = doc?.bookmarks?.find(b => b.id === id);
+      if (!bm || isPdfAReadOnly()) return;
+      setRenameSession({ doc, id, title: bm.title, draft: bm.title || '' });
+    },
+    change(draft) { setRenameSession(s => s && ({ ...s, draft })); },
+    finish(save, focusList = false) {
+      const session = renameSession();
+      setRenameSession(null);
+      if (focusList) lijstRef?.focus({ preventScroll: true });
+      if (save && session) import('../../../../ui/panels/bookmarks.js').then(m =>
+        m.renameBookmarkTitle(session.doc, session.id, session.draft, session.title));
+    },
+  };
+  createEffect(() => {
+    const session = renameSession();
+    if (session && (session.doc !== getActiveDocument() || isPdfAReadOnly()
+        || !session.doc.bookmarks.some(b => b.id === session.id))) setRenameSession(null);
+  });
+
 
   // De bladwijzer van de pagina in beeld: zachte achtergrond, hoe er ook
   // genavigeerd wordt (zelfde activePage als de actieve miniatuur).
@@ -244,6 +268,9 @@ export default function BookmarksPanel() {
   }
 
   function onLijstToets(e) {
+    if (e.key === 'F2' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+      e.preventDefault(); e.stopPropagation(); rename.start(selectedId()); return;
+    }
     if (e.key !== 'Escape' || selectedIds().length === 0) return;
     e.preventDefault();
     e.stopPropagation();
@@ -371,6 +398,7 @@ export default function BookmarksPanel() {
         classList={{ 'drop-end': dropDoel()?.id === null && dropDoel()?.positie === 'end' }}
         ref={lijstRef}
         tabIndex={-1}
+        onMouseDown={e => { if (!e.target.closest('input,textarea,button')) lijstRef.focus({ preventScroll: true }); }}
         onClick={onLijstKlik}
         on:keydown={onLijstToets}
         onDragOver={onLijstSleep}
@@ -389,7 +417,7 @@ export default function BookmarksPanel() {
         </Show>
         <Show when={!emptyMessage()}>
           <For each={tree()}>
-            {(node) => <BookmarkNode node={node} depth={0} huidig={huidig} />}
+            {(node) => <BookmarkNode node={node} depth={0} huidig={huidig} rename={rename} />}
           </For>
         </Show>
       </div>
