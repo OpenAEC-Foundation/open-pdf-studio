@@ -640,6 +640,12 @@
   min-width: 60px;
 }
 
+/* De laagkeuze op Opmaak (#865) toont namen van de gebruiker en van de
+   tekening: een lange naam mag het lint niet breder maken. */
+#fmt-layer {
+  max-width: 140px;
+}
+
 /* Themed dropdown list: WebView2/Chromium render the popup with the OS
    default unless the option colours are set explicitly, which looked wrong
    (light popup) on dark themes. De optie-achtergrond moet dekkend zijn: in

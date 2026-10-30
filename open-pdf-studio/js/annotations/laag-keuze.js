@@ -7,7 +7,7 @@
 //
 // Puur, getest in laag-keuze.test.mjs.
 
-import { DEFAULT_LAYER_ID, getLayers, layerDisplayName, layerIdOf } from './annotatie-lagen.js';
+import { DEFAULT_LAYER_ID, getLayers, layerDisplayName, layerIdOf, annotationsInDocument } from './annotatie-lagen.js';
 import { ocgVoorAnnotatieLaagId } from '../pdf/laag-ids.js';
 
 /** De waarde in de keuzelijst voor de laag van deze annotatie. */
@@ -18,6 +18,21 @@ export function laagKeuzeWaarde(ann, doc = null) {
   // Een laag die het document niet kent, valt terug op de standaardlaag.
   if (doc && !getLayers(doc).some((l) => l.id === id)) return `a:${DEFAULT_LAYER_ID}`;
   return `a:${id}`;
+}
+
+/**
+ * De waarde voor een selectie (de keuzelijst op het tabblad Opmaak, #865):
+ * '' zonder selectie, 'mixed' bij verschillende lagen. Leest de annotaties
+ * van het document zelf: een selectie kan een ander object vasthouden dan
+ * het document, en verplaatsen werkt op dat van het document.
+ */
+export function selectieLaagKeuze(selectie, doc = null) {
+  const lijst = (selectie || []).filter((a) => a && typeof a === 'object');
+  if (!lijst.length) return '';
+  const eigen = doc ? annotationsInDocument(doc, lijst) : [];
+  const bron = eigen.length === lijst.length ? eigen : lijst;
+  const eerste = laagKeuzeWaarde(bron[0], doc);
+  return bron.every((a) => laagKeuzeWaarde(a, doc) === eerste) ? eerste : 'mixed';
 }
 
 /** 'a:x' → {soort:'annotatie', id:'x'}; 'o:12R' → {soort:'tekening', id:'12R'}; anders null. */
