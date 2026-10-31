@@ -412,5 +412,13 @@
     "intersection": "Schnittpunkt",
     "polar": "Polar",
     "locked": "Gesperrt"
+  },
+  "portable": {
+    "updateTitle": "Update verfügbar",
+    "updateAvailable": "Version {{version}} ist verfügbar.\n\nDiese portable Version aktualisiert sich nicht selbst. Laden Sie {{file}} herunter und entpacken Sie die Datei über diesen Ordner; der Ordner data mit Ihren Einstellungen bleibt erhalten.\n\nDownloadseite öffnen?",
+    "fileAssoc": "Diese portable Version ist nicht bei Windows registriert. Um PDF-Dateien damit zu öffnen, klicken Sie mit der rechten Maustaste auf eine PDF, wählen Sie Öffnen mit > Andere App auswählen und wählen Sie open-pdf-studio.exe in diesem Ordner.",
+    "explorerThumbnails": "PDF-Miniaturansichten im Datei-Explorer sind nur in der installierten Version verfügbar.",
+    "virtualPrinter": "Der virtuelle Drucker ist nur in der installierten Version verfügbar: Er wird mit Administratorrechten zu Windows hinzugefügt.",
+    "notWritable": "Open PDF Studio kann nicht in den Ordner {{dir}} schreiben, daher werden Ihre Einstellungen diesmal in Ihrem Benutzerprofil gespeichert. Verschieben Sie den portablen Ordner an einen beschreibbaren Ort, z. B. einen USB-Stick oder Ihren Ordner Dokumente."
   }
 }

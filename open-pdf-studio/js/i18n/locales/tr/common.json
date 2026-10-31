@@ -412,5 +412,13 @@
     "intersection": "Kesişim",
     "polar": "Kutupsal",
     "locked": "Kilitli"
+  },
+  "portable": {
+    "updateTitle": "Güncelleme mevcut",
+    "updateAvailable": "{{version}} sürümü mevcut.\n\nBu taşınabilir kopya kendini güncellemez. {{file}} dosyasını indirip bu klasörün üzerine çıkarın; ayarlarınızın bulunduğu data klasörü korunur.\n\nİndirme sayfası açılsın mı?",
+    "fileAssoc": "Bu taşınabilir kopya Windows'a kayıtlı değil. PDF dosyalarını bununla açmak için bir PDF'ye sağ tıklayın, Birlikte aç > Başka bir uygulama seç'i seçin ve bu klasördeki open-pdf-studio.exe dosyasını seçin.",
+    "explorerThumbnails": "Dosya Gezgini'ndeki PDF küçük resimleri yalnızca yüklü sürümde kullanılabilir.",
+    "virtualPrinter": "Sanal yazıcı yalnızca yüklü sürümde kullanılabilir: Windows'a yönetici haklarıyla eklenir.",
+    "notWritable": "Open PDF Studio {{dir}} klasörüne yazamıyor, bu yüzden ayarlarınız bu sefer kullanıcı profilinizde saklanıyor. Taşınabilir klasörü USB bellek veya Belgeler klasörünüz gibi yazılabilir bir konuma taşıyın."
   }
 }

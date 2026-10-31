@@ -412,5 +412,13 @@
     "intersection": "Skæringspunkt",
     "polar": "Polær",
     "locked": "Låst"
+  },
+  "portable": {
+    "updateTitle": "Opdatering tilgængelig",
+    "updateAvailable": "Version {{version}} er tilgængelig.\n\nDenne bærbare kopi opdaterer ikke sig selv. Hent {{file}} og udpak den oven i denne mappe; mappen data med dine indstillinger bevares.\n\nÅbn downloadsiden?",
+    "fileAssoc": "Denne bærbare kopi er ikke registreret i Windows. For at åbne PDF-filer med den skal du højreklikke på en PDF, vælge Åbn med > Vælg en anden app og vælge open-pdf-studio.exe i denne mappe.",
+    "explorerThumbnails": "PDF-miniaturer i Stifinder er kun tilgængelige i den installerede version.",
+    "virtualPrinter": "Den virtuelle printer er kun tilgængelig i den installerede version: den føjes til Windows med administratorrettigheder.",
+    "notWritable": "Open PDF Studio kan ikke skrive i mappen {{dir}}, så dine indstillinger gemmes denne gang i din brugerprofil. Flyt den bærbare mappe til et sted med skriveadgang, f.eks. et USB-drev eller din mappe Dokumenter."
   }
 }

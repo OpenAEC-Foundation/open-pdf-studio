@@ -416,5 +416,13 @@
     "intersection": "Intersection",
     "polar": "Polar",
     "locked": "Locked"
+  },
+  "portable": {
+    "updateTitle": "Update available",
+    "updateAvailable": "Version {{version}} is available.\n\nThis portable copy does not update itself. Download {{file}} and extract it over this folder; the data folder with your settings is kept.\n\nOpen the download page?",
+    "fileAssoc": "This portable copy is not registered with Windows. To open PDF files with it, right-click a PDF, choose Open with > Choose another app, and select open-pdf-studio.exe in this folder.",
+    "explorerThumbnails": "PDF thumbnails in File Explorer are only available in the installed version.",
+    "virtualPrinter": "The virtual printer is only available in the installed version: it is added to Windows with administrator rights.",
+    "notWritable": "Open PDF Studio cannot write to the folder {{dir}}, so your settings are stored in your user profile this time. Move the portable folder to a writable location, such as a USB drive or your Documents folder."
   }
 }

@@ -412,5 +412,13 @@
     "intersection": "Persilangan",
     "polar": "Kutub",
     "locked": "Dikunci"
+  },
+  "portable": {
+    "updateTitle": "Kemas kini tersedia",
+    "updateAvailable": "Versi {{version}} tersedia.\n\nSalinan mudah alih ini tidak mengemas kini dirinya sendiri. Muat turun {{file}} dan ekstrak ke atas folder ini; folder data yang mengandungi tetapan anda dikekalkan.\n\nBuka halaman muat turun?",
+    "fileAssoc": "Salinan mudah alih ini tidak didaftarkan dengan Windows. Untuk membuka fail PDF dengannya, klik kanan pada PDF, pilih Buka dengan > Pilih aplikasi lain, dan pilih open-pdf-studio.exe dalam folder ini.",
+    "explorerThumbnails": "Lakaran kecil PDF dalam File Explorer hanya tersedia dalam versi yang dipasang.",
+    "virtualPrinter": "Pencetak maya hanya tersedia dalam versi yang dipasang: ia ditambahkan ke Windows dengan hak pentadbir.",
+    "notWritable": "Open PDF Studio tidak dapat menulis ke folder {{dir}}, jadi kali ini tetapan anda disimpan dalam profil pengguna anda. Alihkan folder mudah alih ke lokasi yang boleh ditulis, seperti pemacu USB atau folder Dokumen anda."
   }
 }

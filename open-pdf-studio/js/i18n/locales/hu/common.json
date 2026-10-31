@@ -412,5 +412,13 @@
     "intersection": "Metszéspont",
     "polar": "Poláris",
     "locked": "Rögzítve"
+  },
+  "portable": {
+    "updateTitle": "Frissítés érhető el",
+    "updateAvailable": "Elérhető a(z) {{version}} verzió.\n\nEz a hordozható példány nem frissíti magát. Töltse le a(z) {{file}} fájlt, és csomagolja ki ebbe a mappába; a beállításait tartalmazó data mappa megmarad.\n\nMegnyitja a letöltési oldalt?",
+    "fileAssoc": "Ez a hordozható példány nincs regisztrálva a Windowsban. Ha PDF-fájlokat szeretne megnyitni vele, kattintson jobb gombbal egy PDF-re, válassza a Társítás > Másik alkalmazás választása lehetőséget, és jelölje ki az open-pdf-studio.exe fájlt ebben a mappában.",
+    "explorerThumbnails": "A PDF-bélyegképek a Fájlkezelőben csak a telepített verzióban érhetők el.",
+    "virtualPrinter": "A virtuális nyomtató csak a telepített verzióban érhető el: rendszergazdai jogokkal adható hozzá a Windowshoz.",
+    "notWritable": "Az Open PDF Studio nem tud írni a(z) {{dir}} mappába, ezért a beállításai most a felhasználói profiljában tárolódnak. Helyezze át a hordozható mappát írható helyre, például USB-meghajtóra vagy a Dokumentumok mappába."
   }
 }

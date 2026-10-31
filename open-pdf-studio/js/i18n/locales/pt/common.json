@@ -412,5 +412,13 @@
     "intersection": "Interseção",
     "polar": "Polar",
     "locked": "Bloqueado"
+  },
+  "portable": {
+    "updateTitle": "Atualização disponível",
+    "updateAvailable": "A versão {{version}} está disponível.\n\nEsta cópia portátil não se atualiza sozinha. Transfira {{file}} e extraia-o sobre esta pasta; a pasta data com as suas definições é mantida.\n\nAbrir a página de transferência?",
+    "fileAssoc": "Esta cópia portátil não está registada no Windows. Para abrir ficheiros PDF com ela, clique com o botão direito num PDF, escolha Abrir com > Escolher outra aplicação e selecione open-pdf-studio.exe nesta pasta.",
+    "explorerThumbnails": "As miniaturas de PDF no Explorador de Ficheiros só estão disponíveis na versão instalada.",
+    "virtualPrinter": "A impressora virtual só está disponível na versão instalada: é adicionada ao Windows com direitos de administrador.",
+    "notWritable": "O Open PDF Studio não consegue escrever na pasta {{dir}}, por isso desta vez as suas definições são guardadas no seu perfil de utilizador. Mova a pasta portátil para um local com permissão de escrita, como uma pen USB ou a pasta Documentos."
   }
 }

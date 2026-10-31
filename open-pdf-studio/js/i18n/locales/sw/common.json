@@ -412,5 +412,13 @@
     "intersection": "Makutano",
     "polar": "Kipolari",
     "locked": "Imefungwa"
+  },
+  "portable": {
+    "updateTitle": "Sasisho linapatikana",
+    "updateAvailable": "Toleo {{version}} linapatikana.\n\nNakala hii inayobebeka haijisasishi yenyewe. Pakua {{file}} na uifungue juu ya folda hii; folda ya data yenye mipangilio yako inabaki.\n\nFungua ukurasa wa kupakua?",
+    "fileAssoc": "Nakala hii inayobebeka haijasajiliwa kwenye Windows. Ili kufungua faili za PDF nayo, bofya kulia PDF, chagua Fungua kwa > Chagua programu nyingine, kisha uchague open-pdf-studio.exe katika folda hii.",
+    "explorerThumbnails": "Vijipicha vya PDF katika File Explorer vinapatikana tu katika toleo lililosakinishwa.",
+    "virtualPrinter": "Printa pepe inapatikana tu katika toleo lililosakinishwa: huongezwa kwenye Windows kwa haki za msimamizi.",
+    "notWritable": "Open PDF Studio haiwezi kuandika kwenye folda {{dir}}, kwa hiyo mara hii mipangilio yako imehifadhiwa kwenye wasifu wako wa mtumiaji. Hamisha folda inayobebeka hadi mahali panapoweza kuandikwa, kama diski ya USB au folda yako ya Documents."
   }
 }

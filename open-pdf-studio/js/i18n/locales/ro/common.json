@@ -412,5 +412,13 @@
     "intersection": "Intersecție",
     "polar": "Polar",
     "locked": "Blocat"
+  },
+  "portable": {
+    "updateTitle": "Actualizare disponibilă",
+    "updateAvailable": "Versiunea {{version}} este disponibilă.\n\nAceastă copie portabilă nu se actualizează singură. Descărcați {{file}} și extrageți-l peste acest folder; folderul data cu setările dvs. se păstrează.\n\nDeschideți pagina de descărcare?",
+    "fileAssoc": "Această copie portabilă nu este înregistrată în Windows. Pentru a deschide fișiere PDF cu ea, faceți clic dreapta pe un PDF, alegeți Deschidere cu > Alegeți altă aplicație și selectați open-pdf-studio.exe din acest folder.",
+    "explorerThumbnails": "Miniaturile PDF din Explorer sunt disponibile doar în versiunea instalată.",
+    "virtualPrinter": "Imprimanta virtuală este disponibilă doar în versiunea instalată: este adăugată în Windows cu drepturi de administrator.",
+    "notWritable": "Open PDF Studio nu poate scrie în folderul {{dir}}, așa că de data aceasta setările sunt salvate în profilul dvs. de utilizator. Mutați folderul portabil într-o locație în care se poate scrie, de exemplu un stick USB sau folderul Documente."
   }
 }

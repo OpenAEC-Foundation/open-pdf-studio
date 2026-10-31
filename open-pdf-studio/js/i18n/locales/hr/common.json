@@ -412,5 +412,13 @@
     "intersection": "Sjecište",
     "polar": "Polarno",
     "locked": "Zaključano"
+  },
+  "portable": {
+    "updateTitle": "Dostupno ažuriranje",
+    "updateAvailable": "Dostupna je verzija {{version}}.\n\nOva prijenosna kopija ne ažurira se sama. Preuzmite {{file}} i raspakirajte ga preko ove mape; mapa data s vašim postavkama ostaje sačuvana.\n\nOtvoriti stranicu za preuzimanje?",
+    "fileAssoc": "Ova prijenosna kopija nije registrirana u sustavu Windows. Da biste njome otvarali PDF datoteke, desnom tipkom kliknite PDF, odaberite Otvori pomoću > Odaberite drugu aplikaciju i odaberite open-pdf-studio.exe u ovoj mapi.",
+    "explorerThumbnails": "Minijature PDF-a u Eksploreru datoteka dostupne su samo u instaliranoj verziji.",
+    "virtualPrinter": "Virtualni pisač dostupan je samo u instaliranoj verziji: dodaje se u Windows s administratorskim pravima.",
+    "notWritable": "Open PDF Studio ne može pisati u mapu {{dir}}, pa se vaše postavke ovaj put spremaju u vaš korisnički profil. Premjestite prijenosnu mapu na mjesto s pravom pisanja, primjerice na USB stick ili u mapu Dokumenti."
   }
 }

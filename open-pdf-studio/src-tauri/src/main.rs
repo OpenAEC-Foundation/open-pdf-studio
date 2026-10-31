@@ -21,6 +21,13 @@ struct Cli {
 }
 
 fn main() {
+    // Draagbare modus (#881): als eerste, want hij zet omgevingsvariabelen
+    // (gegevensmap, WebView2-profiel) die alles hierna leest.
+    let draagbaar = app_lib::draagbaar::activeer();
+    if draagbaar.portable {
+        eprintln!("[startup] portable mode, data in {:?}", draagbaar.data_dir);
+        app_lib::draagbaar::controleer_webview2();
+    }
     app_lib::linux_runtime::configure_appimage_gio_modules();
 
     // Tauri swallows unrecognized args (e.g. file-association launches), so we

@@ -20,6 +20,11 @@
 //   vastgelegd en is gedeeld met het print-subsysteem; een andere map zou
 //   geen printopdrachten meer zien.
 // - het WebView2-profiel. Zet daarvoor `WEBVIEW2_USER_DATA_FOLDER`.
+//
+// De draagbare modus (draagbaar.rs, #881) zet bij het opstarten
+// `OPDS_DATA_DIR` op `<exe-map>\data` en gebruikt dus dezelfde indeling. De
+// `<identifier>` blijft daarbij de gewone, ook al krijgt een draagbare start
+// een eigen single-instance-identifier.
 
 use std::ffi::OsString;
 use std::path::{Path, PathBuf};
@@ -105,7 +110,8 @@ pub fn tauri_map<R: tauri::Runtime>(
 ) -> tauri::Result<PathBuf> {
     use tauri::Manager;
     if let Some(basis) = override_map() {
-        return Ok(tauri_map_onder(&basis, &app.config().identifier, soort));
+        let identifier = crate::draagbaar::basis_identifier(&app.config().identifier);
+        return Ok(tauri_map_onder(&basis, &identifier, soort));
     }
     match soort {
         TauriMap::Data => app.path().app_data_dir(),

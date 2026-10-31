@@ -46,6 +46,7 @@ export function pickAssets(release) {
   return {
     winUser: vind((n) => /user-setup\.exe$/i.test(n)),
     winSystem: vind((n) => /x64-setup\.exe$/i.test(n) && !/user/i.test(n)),
+    winPortable: vind((n) => /_x64_portable\.zip$/i.test(n)),
     dmg: vind((n) => /\.dmg$/i.test(n)),
     pageUrl: release?.html_url || null,
   };
@@ -53,8 +54,11 @@ export function pickAssets(release) {
 
 // Kies per platform de beste download-URL. Windows krijgt de
 // gebruikersinstaller (geen beheerdersrechten nodig; wie systeembreed wil,
-// vindt alles op de release-pagina die als terugval dient).
-export function pickDownloadUrl(assets, userAgent) {
+// vindt alles op de release-pagina die als terugval dient). De draagbare
+// versie (#881) krijgt de zip, of de release-pagina als die er niet is (een
+// release van vóór de zip): nooit een installer.
+export function pickDownloadUrl(assets, userAgent, { portable = false } = {}) {
+  if (portable) return assets.winPortable || assets.pageUrl;
   const ua = String(userAgent || '').toLowerCase();
   if (ua.includes('mac')) return assets.dmg || assets.pageUrl;
   if (ua.includes('linux')) return assets.pageUrl;
@@ -76,7 +80,9 @@ export async function installPreviousVersion() {
         { title: i18next.t('ribbon:help.previousVersion'), kind: 'info' });
       return;
     }
-    const url = pickDownloadUrl(vorige.assets, navigator.userAgent);
+    const { isDraagbaar } = await import('../core/draagbaar.js');
+    const portable = await isDraagbaar();
+    const url = pickDownloadUrl(vorige.assets, navigator.userAgent, { portable });
     console.log('[vorige-versie] gekozen:', vorige.version, url);
     if (url) await openExtern(url);
   } catch (e) {

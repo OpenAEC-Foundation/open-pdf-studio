@@ -133,7 +133,8 @@ test('het tabblad Bestandskoppeling gebruikt de module', () => {
   assert.match(tab, /from '\.\.\/\.\.\/\.\.\/core\/verkenner-miniaturen\.js'/);
   assert.match(tab, /data-testid="prefs-explorer-thumbnails"/);
   assert.match(tab, /zetMiniaturen\(aan, miniaturen\(\), \{ vraag: vraagVervangen \}\)/);
-  assert.match(tab, /<Show when=\{miniaturen\(\)\.supported\}>/);
+  // Draagbaar (#881) staat er een uitleg in plaats van het vinkje.
+  assert.match(tab, /<Show when=\{miniaturen\(\)\.supported && !draagbaar\(\)\.portable\}>/);
   for (const k of ['title', 'show', 'help', 'unavailable', 'otherHandler', 'defaultApp', 'replaceTitle', 'replaceConfirm', 'failed']) {
     assert.match(tab, new RegExp(`'explorerThumbnails\\.${k}'`), k);
   }

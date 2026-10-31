@@ -54,7 +54,7 @@ test('pickAssets kiest per platform en verwart user/system niet', () => {
 
 test('pickAssets zonder assets geeft alleen de release-pagina', () => {
   const uit = pickAssets({ html_url: 'p', assets: [] });
-  assert.deepEqual(uit, { winUser: null, winSystem: null, dmg: null, pageUrl: 'p' });
+  assert.deepEqual(uit, { winUser: null, winSystem: null, winPortable: null, dmg: null, pageUrl: 'p' });
 });
 
 test('pickDownloadUrl kiest per platform', () => {

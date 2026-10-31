@@ -3,6 +3,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openExtern } from '../../../core/extern-openen.js';
 import { showMessage } from '../../stores/dialogStore.js';
 import { GEEN_MINIATUREN, leesMiniatuurStatus, zetMiniaturen } from '../../../core/verkenner-miniaturen.js';
+import { GEEN_DRAAGBAAR, leesDraagbaar } from '../../../core/draagbaar.js';
 
 export default function FileAssocTab() {
   const { t } = useTranslation('preferences');
@@ -14,9 +15,14 @@ export default function FileAssocTab() {
   const [miniaturen, setMiniaturen] = createSignal({ ...GEEN_MINIATUREN });
   const [miniaturenBezig, setMiniaturenBezig] = createSignal(false);
 
+  // Draagbaar (#881): niet bij Windows geregistreerd; uitleg in plaats van
+  // de knop en de miniaturen.
+  const [draagbaar, setDraagbaar] = createSignal({ ...GEEN_DRAAGBAAR });
+
   onMount(() => {
     checkDefaultPdfApp();
     leesMiniatuurStatus().then(setMiniaturen);
+    leesDraagbaar().then(setDraagbaar);
   });
 
   async function vraagVervangen(naam) {
@@ -104,16 +110,30 @@ export default function FileAssocTab() {
         <label>{t('fileAssoc.currentDefault')}</label>
         <span style="font-size:11px;color:var(--theme-text-secondary, #666);">{currentApp()}</span>
       </div>
-      <div class="pref-row" style="margin-top:12px;">
-        <button type="button" class="pref-btn pref-btn-secondary" style="width:100%;" onClick={handleSetDefault}>
-          {t('fileAssoc.setDefault')}
-        </button>
-      </div>
-      <p style="font-size:10px;color:var(--theme-text-secondary, #888);margin-top:12px;line-height:1.4;">
-        {t('fileAssoc.setDefaultHelp')}
-      </p>
+      <Show when={!draagbaar().portable} fallback={
+        <p data-testid="prefs-portable-fileassoc" style="font-size:10px;color:var(--theme-text-secondary, #888);margin-top:12px;line-height:1.4;">
+          {tCommon('portable.fileAssoc')}
+        </p>
+      }>
+        <div class="pref-row" style="margin-top:12px;">
+          <button type="button" class="pref-btn pref-btn-secondary" style="width:100%;" onClick={handleSetDefault}>
+            {t('fileAssoc.setDefault')}
+          </button>
+        </div>
+        <p style="font-size:10px;color:var(--theme-text-secondary, #888);margin-top:12px;line-height:1.4;">
+          {t('fileAssoc.setDefaultHelp')}
+        </p>
+      </Show>
     </fieldset>
-    <Show when={miniaturen().supported}>
+    <Show when={miniaturen().supported && draagbaar().portable}>
+      <fieldset class="pref-fieldset">
+        <legend>{t('explorerThumbnails.title')}</legend>
+        <p data-testid="prefs-portable-thumbnails" style="font-size:10px;color:var(--theme-text-secondary, #888);line-height:1.4;">
+          {tCommon('portable.explorerThumbnails')}
+        </p>
+      </fieldset>
+    </Show>
+    <Show when={miniaturen().supported && !draagbaar().portable}>
       <fieldset class="pref-fieldset">
         <legend>{t('explorerThumbnails.title')}</legend>
         <div class="pref-row pref-checkbox-row">

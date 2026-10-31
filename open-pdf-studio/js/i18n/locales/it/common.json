@@ -412,5 +412,13 @@
     "intersection": "Intersezione",
     "polar": "Polare",
     "locked": "Bloccato"
+  },
+  "portable": {
+    "updateTitle": "Aggiornamento disponibile",
+    "updateAvailable": "La versione {{version}} è disponibile.\n\nQuesta copia portatile non si aggiorna da sola. Scarica {{file}} ed estrailo sopra questa cartella; la cartella data con le tue impostazioni viene mantenuta.\n\nAprire la pagina di download?",
+    "fileAssoc": "Questa copia portatile non è registrata in Windows. Per aprire i file PDF con essa, fai clic con il pulsante destro su un PDF, scegli Apri con > Scegli un'altra app e seleziona open-pdf-studio.exe in questa cartella.",
+    "explorerThumbnails": "Le miniature PDF in Esplora file sono disponibili solo nella versione installata.",
+    "virtualPrinter": "La stampante virtuale è disponibile solo nella versione installata: viene aggiunta a Windows con diritti di amministratore.",
+    "notWritable": "Open PDF Studio non può scrivere nella cartella {{dir}}, quindi questa volta le impostazioni vengono salvate nel tuo profilo utente. Sposta la cartella portatile in una posizione scrivibile, ad esempio una chiavetta USB o la cartella Documenti."
   }
 }

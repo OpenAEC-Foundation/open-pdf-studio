@@ -131,6 +131,7 @@ const NAAMRUIMTE = /^https?:\/\/(www\.w3\.org|schemas\.openxmlformats\.org|purl\
 const DIENSTEN = {
   'js/help/release-notes.js': 'js/help/release-notes.js',
   'js/help/previous-version.js': null, // knop ribbon-previous-version
+  'js/core/draagbaar.js': null, // releasepagina via openExtern, knop ribbon-check-updates (#881)
   'js/solid/components/dialogs/FeedbackDialog.jsx': 'js/solid/components/dialogs/FeedbackDialog.jsx',
   'js/solid/data/symbolLibraryOnline.js': 'js/solid/stores/symbolLibraryOnlineStore.js',
   'js/solid/components/AssistantPanel.jsx': 'js/solid/components/AssistantPanel.jsx',

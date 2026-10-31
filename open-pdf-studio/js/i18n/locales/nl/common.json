@@ -416,5 +416,13 @@
     "intersection": "Snijpunt",
     "polar": "Pool",
     "locked": "Vastgezet"
+  },
+  "portable": {
+    "updateTitle": "Update beschikbaar",
+    "updateAvailable": "Versie {{version}} is beschikbaar.\n\nDeze draagbare versie werkt zichzelf niet bij. Download {{file}} en pak het uit over deze map; de map data met je instellingen blijft bewaard.\n\nDe downloadpagina openen?",
+    "fileAssoc": "Deze draagbare versie is niet bij Windows geregistreerd. Wil je er PDF-bestanden mee openen, klik dan met rechts op een PDF, kies Openen met > Een andere app kiezen en selecteer open-pdf-studio.exe in deze map.",
+    "explorerThumbnails": "PDF-miniaturen in Verkenner zijn alleen beschikbaar in de geïnstalleerde versie.",
+    "virtualPrinter": "De virtuele printer is alleen beschikbaar in de geïnstalleerde versie: hij wordt met beheerdersrechten aan Windows toegevoegd.",
+    "notWritable": "Open PDF Studio kan niet schrijven in de map {{dir}}, dus je instellingen staan deze keer in je gebruikersprofiel. Zet de draagbare map op een beschrijfbare plek, zoals een USB-stick of je map Documenten."
   }
 }

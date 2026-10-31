@@ -412,5 +412,13 @@
     "intersection": "Intersecció",
     "polar": "Polar",
     "locked": "Bloquejat"
+  },
+  "portable": {
+    "updateTitle": "Actualització disponible",
+    "updateAvailable": "La versió {{version}} està disponible.\n\nAquesta còpia portàtil no s'actualitza sola. Baixeu {{file}} i extraieu-lo sobre aquesta carpeta; la carpeta data amb la vostra configuració es conserva.\n\nVoleu obrir la pàgina de baixada?",
+    "fileAssoc": "Aquesta còpia portàtil no està registrada al Windows. Per obrir fitxers PDF amb ella, feu clic amb el botó dret en un PDF, trieu Obre amb > Tria una altra aplicació i seleccioneu open-pdf-studio.exe en aquesta carpeta.",
+    "explorerThumbnails": "Les miniatures de PDF a l'Explorador de fitxers només estan disponibles a la versió instal·lada.",
+    "virtualPrinter": "La impressora virtual només està disponible a la versió instal·lada: s'afegeix al Windows amb drets d'administrador.",
+    "notWritable": "L'Open PDF Studio no pot escriure a la carpeta {{dir}}, així que aquesta vegada la configuració es desa al vostre perfil d'usuari. Moveu la carpeta portàtil a una ubicació on es pugui escriure, com una memòria USB o la carpeta Documents."
   }
 }

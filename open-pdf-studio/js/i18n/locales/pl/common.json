@@ -412,5 +412,13 @@
     "intersection": "Przecięcie",
     "polar": "Biegunowe",
     "locked": "Zablokowane"
+  },
+  "portable": {
+    "updateTitle": "Dostępna aktualizacja",
+    "updateAvailable": "Dostępna jest wersja {{version}}.\n\nTa przenośna kopia nie aktualizuje się sama. Pobierz {{file}} i rozpakuj go do tego folderu; folder data z Twoimi ustawieniami zostanie zachowany.\n\nOtworzyć stronę pobierania?",
+    "fileAssoc": "Ta przenośna kopia nie jest zarejestrowana w systemie Windows. Aby otwierać nią pliki PDF, kliknij plik PDF prawym przyciskiem myszy, wybierz Otwórz za pomocą > Wybierz inną aplikację i wskaż open-pdf-studio.exe w tym folderze.",
+    "explorerThumbnails": "Miniatury PDF w Eksploratorze plików są dostępne tylko w wersji zainstalowanej.",
+    "virtualPrinter": "Drukarka wirtualna jest dostępna tylko w wersji zainstalowanej: jest dodawana do systemu Windows z uprawnieniami administratora.",
+    "notWritable": "Open PDF Studio nie może zapisywać w folderze {{dir}}, więc tym razem ustawienia są zapisywane w Twoim profilu użytkownika. Przenieś folder przenośny w miejsce z prawem zapisu, na przykład na pendrive lub do folderu Dokumenty."
   }
 }
