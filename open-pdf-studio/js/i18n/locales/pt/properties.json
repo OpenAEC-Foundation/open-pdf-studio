@@ -807,6 +807,24 @@
     "rules": "A atribuição usa o centro da caixa delimitadora da marcação, incluindo as bordas. Prevalece a zona mais profunda, depois a menor área e, por fim, o ID da zona. Use polígonos retos sem furos ou retângulos sem rotação. Identidades de zona inválidas ou duplicadas são excluídas.",
     "loading": "Carregando anotações: as localizações ainda podem mudar."
   },
+  "dynamicStamp": {
+    "title": "Campos do carimbo",
+    "template": "Modelo",
+    "refresh": "Atualizar data, usuário e página",
+    "lock": "Bloquear carimbo",
+    "lockConfirm": "Bloquear este carimbo? Seus campos não poderão mais ser alterados.",
+    "locked": "Este carimbo está bloqueado: seus campos não podem mais ser alterados.",
+    "field": {
+      "date": "Data",
+      "time": "Hora",
+      "datetime": "Data e hora",
+      "user": "Usuário",
+      "page": "Página",
+      "pages": "Número de páginas",
+      "filename": "Nome do arquivo",
+      "title": "Título do documento"
+    }
+  },
   "toolSets": {
     "title": "Conjuntos de ferramentas",
     "typeWall": "Parede",

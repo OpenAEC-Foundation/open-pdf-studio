@@ -807,6 +807,24 @@
     "rules": "Toewijzing gebruikt het midden van de annotatie-omhullende, inclusief randen. De diepste zone wint, daarna het kleinste oppervlak, daarna het zone-ID. Gebruik rechte polygonen zonder gaten of ongedraaide rechthoeken. Ongeldige of dubbele zone-ID’s worden uitgesloten.",
     "loading": "Annotaties laden: locaties kunnen nog veranderen."
   },
+  "dynamicStamp": {
+    "title": "Stempelvelden",
+    "template": "Sjabloon",
+    "refresh": "Datum, gebruiker en pagina bijwerken",
+    "lock": "Stempel vergrendelen",
+    "lockConfirm": "Deze stempel vergrendelen? De velden kunnen daarna niet meer worden gewijzigd.",
+    "locked": "Deze stempel is vergrendeld: de velden kunnen niet meer worden gewijzigd.",
+    "field": {
+      "date": "Datum",
+      "time": "Tijd",
+      "datetime": "Datum en tijd",
+      "user": "Gebruiker",
+      "page": "Pagina",
+      "pages": "Aantal pagina's",
+      "filename": "Bestandsnaam",
+      "title": "Documenttitel"
+    }
+  },
   "toolSets": {
     "title": "Werkkist",
     "typeWall": "Wand",

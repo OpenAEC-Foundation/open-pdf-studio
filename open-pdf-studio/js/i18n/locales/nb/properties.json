@@ -807,6 +807,24 @@
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
   },
+  "dynamicStamp": {
+    "title": "Stempelfelt",
+    "template": "Mal",
+    "refresh": "Oppdater dato, bruker og side",
+    "lock": "Lås stempel",
+    "lockConfirm": "Låse dette stempelet? Feltene kan da ikke lenger endres.",
+    "locked": "Dette stempelet er låst: feltene kan ikke lenger endres.",
+    "field": {
+      "date": "Dato",
+      "time": "Klokkeslett",
+      "datetime": "Dato og klokkeslett",
+      "user": "Bruker",
+      "page": "Side",
+      "pages": "Antall sider",
+      "filename": "Filnavn",
+      "title": "Dokumenttittel"
+    }
+  },
   "toolSets": {
     "title": "Verktøysett",
     "typeWall": "Vegg",

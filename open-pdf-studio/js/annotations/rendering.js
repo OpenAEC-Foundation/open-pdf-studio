@@ -28,6 +28,7 @@ import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { buildBetonbalk } from './betonbalk.js';
 import { betonbalkBuildOpts } from './betonbalk-scale.js';
 import { drawBetonbalkGeom } from './rendering/betonbalk-draw.js';
+import { drawDynamicStamp } from './rendering/dynamic-stamp-draw.js';
 import { effectiveDraftingLineWidth } from './drafting-rules.js';
 import { buildSysteemraster } from './systeemraster.js';
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
@@ -1607,6 +1608,11 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       break;
 
     case 'stamp': {
+      // Dynamic stamp (#629): drawn from its template and field values.
+      if (annotation.dynamicStamp) {
+        drawDynamicStamp(ctx, annotation, { onImageLoad: hertekenActieveWeergave });
+        break;
+      }
       // Render stamp - image or text-based
       // Always prefer global imageCache (plain Map, no Proxy) for reliable .complete checks.
       // SolidJS createMutable can wrap _cachedImg in a Proxy, breaking HTMLImageElement checks.

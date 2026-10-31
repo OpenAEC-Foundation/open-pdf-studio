@@ -807,6 +807,24 @@
     "rules": "Tilldelningen använder mitten av markeringens omslutande ram, kanter inräknade. Den djupaste zonen vinner, därefter minsta area och sedan zon-ID. Använd raka polygoner utan hål eller oroterade rektanglar. Ogiltiga eller dubblerade zonidentiteter undantas.",
     "loading": "Anteckningar läses in: platser kan fortfarande ändras."
   },
+  "dynamicStamp": {
+    "title": "Stämpelfält",
+    "template": "Mall",
+    "refresh": "Uppdatera datum, användare och sida",
+    "lock": "Lås stämpel",
+    "lockConfirm": "Låsa den här stämpeln? Dess fält kan sedan inte längre ändras.",
+    "locked": "Den här stämpeln är låst: dess fält kan inte längre ändras.",
+    "field": {
+      "date": "Datum",
+      "time": "Tid",
+      "datetime": "Datum och tid",
+      "user": "Användare",
+      "page": "Sida",
+      "pages": "Antal sidor",
+      "filename": "Filnamn",
+      "title": "Dokumenttitel"
+    }
+  },
   "toolSets": {
     "title": "Verktygsuppsättningar",
     "typeWall": "Vägg",

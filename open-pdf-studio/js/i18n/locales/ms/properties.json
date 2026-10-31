@@ -807,6 +807,24 @@
     "rules": "Penetapan menggunakan pusat kotak sempadan penanda, termasuk tepi. Zon paling dalam menang, kemudian keluasan terkecil, kemudian ID zon. Gunakan poligon lurus tanpa lubang atau kotak tanpa putaran. Identiti zon yang tidak sah atau pendua dikecualikan.",
     "loading": "Anotasi sedang dimuatkan: lokasi mungkin masih berubah."
   },
+  "dynamicStamp": {
+    "title": "Medan setem",
+    "template": "Templat",
+    "refresh": "Kemas kini tarikh, pengguna dan halaman",
+    "lock": "Kunci setem",
+    "lockConfirm": "Kunci setem ini? Medannya tidak boleh diubah lagi.",
+    "locked": "Setem ini dikunci: medannya tidak boleh diubah lagi.",
+    "field": {
+      "date": "Tarikh",
+      "time": "Masa",
+      "datetime": "Tarikh dan masa",
+      "user": "Pengguna",
+      "page": "Halaman",
+      "pages": "Bilangan halaman",
+      "filename": "Nama fail",
+      "title": "Tajuk dokumen"
+    }
+  },
   "toolSets": {
     "title": "Set Alat",
     "typeWall": "Dinding",

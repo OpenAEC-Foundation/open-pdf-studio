@@ -813,6 +813,24 @@
     "rules": "L'assignació utilitza el centre del quadre delimitador del marcatge, vores incloses. Guanya la zona més profunda, després l'àrea més petita i després l'identificador de zona. Utilitzeu polígons rectes sense forats o rectangles sense rotació. S'exclouen les identitats de zona no vàlides o duplicades.",
     "loading": "S'estan carregant les anotacions: les ubicacions encara poden canviar."
   },
+  "dynamicStamp": {
+    "title": "Camps del segell",
+    "template": "Plantilla",
+    "refresh": "Actualitza la data, l'usuari i la pàgina",
+    "lock": "Bloqueja el segell",
+    "lockConfirm": "Voleu bloquejar aquest segell? Els seus camps ja no es podran canviar.",
+    "locked": "Aquest segell està bloquejat: els seus camps ja no es poden canviar.",
+    "field": {
+      "date": "Data",
+      "time": "Hora",
+      "datetime": "Data i hora",
+      "user": "Usuari",
+      "page": "Pàgina",
+      "pages": "Nombre de pàgines",
+      "filename": "Nom del fitxer",
+      "title": "Títol del document"
+    }
+  },
   "toolSets": {
     "title": "Conjunts d'eines",
     "typeWall": "Mur",

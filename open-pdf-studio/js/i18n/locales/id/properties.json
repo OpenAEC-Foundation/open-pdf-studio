@@ -807,6 +807,24 @@
     "rules": "Penetapan menggunakan titik tengah kotak pembatas markup, termasuk tepinya. Zona terdalam diutamakan, lalu luas terkecil, lalu ID zona. Gunakan poligon bersisi lurus tanpa lubang atau kotak tanpa rotasi. Identitas zona yang tidak valid atau duplikat dikecualikan.",
     "loading": "Anotasi sedang dimuat: lokasi masih dapat berubah."
   },
+  "dynamicStamp": {
+    "title": "Kolom stempel",
+    "template": "Templat",
+    "refresh": "Perbarui tanggal, pengguna, dan halaman",
+    "lock": "Kunci stempel",
+    "lockConfirm": "Kunci stempel ini? Kolomnya tidak dapat diubah lagi.",
+    "locked": "Stempel ini terkunci: kolomnya tidak dapat diubah lagi.",
+    "field": {
+      "date": "Tanggal",
+      "time": "Waktu",
+      "datetime": "Tanggal dan waktu",
+      "user": "Pengguna",
+      "page": "Halaman",
+      "pages": "Jumlah halaman",
+      "filename": "Nama berkas",
+      "title": "Judul dokumen"
+    }
+  },
   "toolSets": {
     "title": "Set Alat",
     "typeWall": "Dinding",

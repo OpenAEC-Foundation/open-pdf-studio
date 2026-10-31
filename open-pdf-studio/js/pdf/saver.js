@@ -51,6 +51,7 @@ import { runsToText, dsMargeUitInzet, verticaleVerschuiving } from '../annotatio
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrLayers } from './saver/ocr-text-layer.js';
 import { maakCjkFontKeten } from './saver/cjk-fonts.js';
+import { writeDynamicStamp } from './saver/dynamic-stamp-ap.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { applyEditsToPdf, hasEdits, editsAfterSave } from '../accessibility/struct-edits.js';
 import { notifyStructEditsSaved } from '../accessibility/struct-tree-events.js';
@@ -1912,8 +1913,19 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
             annotDict = context.obj(stampDictObj);
 
-            // Generate AP stream for text-only stamps
-            if (!ann.imageData && ann.stampText) {
+            // Dynamic stamp (#629): appearance with the filled-in fields,
+            // template + values in app keys so it stays editable.
+            if (ann.dynamicStamp && !ann.imageData) {
+              await writeDynamicStamp({
+                context, annotDict, ds: ann.dynamicStamp, placement: stPlaatsing,
+                embedImage: async (dataUrl) => {
+                  const { bytes, isJpeg } = await imageBytesFromDataUrl(dataUrl);
+                  return (isJpeg ? await pdfDocLib.embedJpg(bytes) : await pdfDocLib.embedPng(bytes)).ref;
+                },
+              });
+              annotDict.set(PDFName.of('C'), context.obj(hexToColorArray(ann.dynamicStamp.template.color || ann.color || '#c00000')));
+            } else if (!ann.imageData && ann.stampText) {
+              // Generate AP stream for text-only stamps
               // De stempel tekent in visuele afmetingen binnen één draai-cm
               // (pagina-/Rotate en draaiing in de app); zonder beide is de
               // prefix leeg en zijn visW/visH gelijk aan het vak. De clip op

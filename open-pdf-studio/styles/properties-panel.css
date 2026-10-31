@@ -881,3 +881,14 @@
   line-height: 1.4;
   color: var(--theme-warning, #9a6700);
 }
+
+/* Dynamic stamp fields (#629) */
+.dynamic-stamp-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+.dynamic-stamp-actions .pref-btn { padding: 2px 8px; min-width: 0; }
+.dynamic-stamp-locked-note {
+  margin: 4px 0;
+  padding: 3px 6px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  color: var(--theme-text-secondary, #666);
+  font-size: 11px;
+}

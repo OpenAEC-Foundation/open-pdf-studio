@@ -71,6 +71,13 @@ export function applyStampLineWidth(ann) {
  * @returns {boolean} of de bron daadwerkelijk is gewijzigd.
  */
 export function applyStampColor(ann) {
+  // A dynamic stamp (#629) draws in its template colour: the colour goes there.
+  if (ann?.type === 'stamp' && ann.dynamicStamp?.template && ann.color && !ann.dynamicStamp.locked) {
+    ann.dynamicStamp.template = { ...ann.dynamicStamp.template, color: ann.color };
+    ann.stampColor = ann.color;
+    ann.strokeColor = ann.color;
+    return true;
+  }
   if (!ann || ann.type !== 'stamp' || !ann.stampSvg || !ann.color) return false;
   const next = recolorSvg(ann.stampSvg, ann.color);
   return _commitStampSvg(ann, next);

@@ -12,6 +12,7 @@ import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { readDynamicStamp } from './dynamic-stamp-load.js';
 import { leesInktSleutels } from '../saver/inkt-sleutels.js';
 import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
 import { bewaarBijlageInhoud, bijlageItem } from '../../annotations/bijlage-store.js';
@@ -378,6 +379,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           const tekst = leesPdfTekst(context, opsTekstRaw);
           if (tekst) colors.opsStampText = tekst;
         }
+        // Dynamic stamp (#629): template + field values.
+        const dynStamp = await readDynamicStamp(context, annotDict);
+        if (dynStamp) colors.opsDynamicStamp = dynStamp;
         // Vak en draaiing van een stempel of afbeelding komen uit de
         // appearance (stempel-geometrie.js).
         const stempelAp = await leesStempelAp(context, annotDict);

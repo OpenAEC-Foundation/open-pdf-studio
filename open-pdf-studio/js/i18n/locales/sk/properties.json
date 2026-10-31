@@ -807,6 +807,24 @@
     "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
     "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
   },
+  "dynamicStamp": {
+    "title": "Polia pečiatky",
+    "template": "Šablóna",
+    "refresh": "Aktualizovať dátum, používateľa a stranu",
+    "lock": "Uzamknúť pečiatku",
+    "lockConfirm": "Uzamknúť túto pečiatku? Jej polia už nebude možné zmeniť.",
+    "locked": "Táto pečiatka je uzamknutá: jej polia už nemožno zmeniť.",
+    "field": {
+      "date": "Dátum",
+      "time": "Čas",
+      "datetime": "Dátum a čas",
+      "user": "Používateľ",
+      "page": "Strana",
+      "pages": "Počet strán",
+      "filename": "Názov súboru",
+      "title": "Názov dokumentu"
+    }
+  },
   "toolSets": {
     "title": "Sady nástrojov",
     "typeWall": "Stena",

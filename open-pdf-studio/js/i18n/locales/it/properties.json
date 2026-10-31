@@ -807,6 +807,24 @@
     "rules": "L'assegnazione usa il centro del riquadro di delimitazione dell'annotazione, bordi inclusi. Prevale la zona più profonda, poi l'area più piccola, poi l'ID della zona. Usa poligoni rettilinei senza fori o rettangoli non ruotati. Le identità di zona non valide o duplicate vengono escluse.",
     "loading": "Caricamento delle annotazioni: le ubicazioni possono ancora cambiare."
   },
+  "dynamicStamp": {
+    "title": "Campi del timbro",
+    "template": "Modello",
+    "refresh": "Aggiorna data, utente e pagina",
+    "lock": "Blocca timbro",
+    "lockConfirm": "Bloccare questo timbro? I suoi campi non potranno più essere modificati.",
+    "locked": "Questo timbro è bloccato: i suoi campi non possono più essere modificati.",
+    "field": {
+      "date": "Data",
+      "time": "Ora",
+      "datetime": "Data e ora",
+      "user": "Utente",
+      "page": "Pagina",
+      "pages": "Numero di pagine",
+      "filename": "Nome file",
+      "title": "Titolo del documento"
+    }
+  },
   "toolSets": {
     "title": "Set di strumenti",
     "typeWall": "Muro",
