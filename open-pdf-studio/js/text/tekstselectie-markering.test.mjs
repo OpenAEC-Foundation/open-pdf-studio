@@ -130,3 +130,17 @@ test('the blend stays inside the page in single page view', () => {
   const blok = regelBlok(css, '#canvas-container');
   assert.match(blok, /isolation:\s*isolate;/);
 });
+
+// ── Hoogte: het selectievlak blijft binnen de regel ──────────────────────
+
+test('the selection does not stick out above or below the line', () => {
+  const css = bron('../../styles/text-layer.css');
+  // De span is één regel hoog (line-height 1); de browser tekent de selectie
+  // over het hogere inhoudsvlak van het lettertype. Alleen verticaal clippen:
+  // horizontaal moet het regeleinde-vlak naast de span blijven staan.
+  assert.match(regelBlok(css, '.textLayer'), /line-height:\s*1;/);
+  const span = regelBlok(css, '.textLayer > :not(.markedContent),\n.textLayer .markedContent span:not(.markedContent)');
+  assert.match(span, /overflow-y:\s*clip;/);
+  assert.match(span, /overflow-x:\s*visible;/);
+  assert.doesNotMatch(span, /overflow:\s*(hidden|clip)/, 'no horizontal clip');
+});

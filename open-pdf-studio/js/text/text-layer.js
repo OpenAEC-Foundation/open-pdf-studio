@@ -4,6 +4,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { resolveTextEditPageGeometry } from './text-edit-appearance.js';
 import { meetViewportVoorTekstlaag } from './tekstlaag-meetschaal.js';
 import { tekenafstandPerItem, lijktGespatieerd } from './tekenafstand.js';
+import { markeerWoordafstanden } from './tekstselectie-woordafstand.js';
 
 /**
  * Text Layer Management Module
@@ -244,9 +245,11 @@ function insertColumnBreaks(textItems, textDivs) {
  * spans uit die alleen witruimte bevatten (trailing spaties aan regeleindes,
  * inspring-spaties, kolomgaten). Bij een tekstselectie kleuren die apart op als
  * losse blauwe streepjes — o.a. een kolom in de linkermarge en slierten tussen
- * kolommen ("spook-selectie"). Deze spans dragen geen leesbare inhoud: echte
- * spaties tussen twee woorden zitten IN de woord-span zelf en blijven dus wel
- * oplichten. Het markeren raakt de DOM-volgorde, tekst en kopieer-inhoud niet.
+ * kolommen ("spook-selectie"). Deze spans dragen geen leesbare inhoud. Meestal
+ * zitten spaties tussen twee woorden IN de woord-span zelf; staat elk woord
+ * als eigen run in de PDF, dan krijgt de spatie-span ertussen zijn vlak terug
+ * via markeerWoordafstanden (tekstselectie-woordafstand.js, #506). Het
+ * markeren raakt de DOM-volgorde, tekst en kopieer-inhoud niet.
  * @param {HTMLElement} textLayerDiv
  */
 export function tagWhitespaceSpans(textLayerDiv) {
@@ -371,6 +374,9 @@ export async function createTextLayer(page, viewport, container, pageNum) {
   // Neutraliseer selectie-achtergrond op lege/witruimte-only spans (spook-
   // selectie: losse streepjes in de marge en tussen kolommen).
   tagWhitespaceSpans(textLayerDiv);
+  // Spaties tussen twee woord-runs op dezelfde regel wel markeren, op de
+  // breedte uit de PDF: anders lichte strepen tussen de woorden (#506).
+  markeerWoordafstanden(textLayerDiv);
 
   textLayers.set(pageNum, { element: textLayerDiv, textLayer });
 

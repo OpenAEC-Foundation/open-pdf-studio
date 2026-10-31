@@ -64,6 +64,16 @@
   --scale-x: 1;
   --rotate: 0deg;
   transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+  /* Selectievlak niet boven of onder de regel uit (#506). De span is één
+     regel hoog (line-height: 1, top = basislijn - ascent), maar de browser
+     tekent de selectie over het inhoudsvlak van het lettertype, dat hoger is
+     (ca. 1,15-1,35 em, per vervangend lettertype anders). Zonder deze clip
+     stak elke run een eigen stuk boven en onder de regel uit en liepen de
+     vlakken van opeenvolgende regels in elkaar. Alleen verticaal: het
+     regeleinde-vlak dat de browser rechts naast elke span tekent, dekt de
+     woordafstand tot de volgende run en moet blijven staan. */
+  overflow-x: visible;
+  overflow-y: clip;
 }
 
 /* PDF.js markedContent wrappers should not create layout boxes */
@@ -118,8 +128,9 @@
    voor grote positiesprongen — trailing spaties aan regeleindes, inspring- en
    kolomgaten) mogen GEEN selectie-achtergrond krijgen. Anders verschijnen bij
    het slepen losse blauwe streepjes/kolommen in de marge en tussen kolommen,
-   los van de eigenlijke tekst. Echte spaties tussen woorden zitten IN de
-   woord-span zelf en blijven dus gewoon oplichten.
+   los van de eigenlijke tekst. Echte spaties tussen woorden zitten meestal IN
+   de woord-span zelf; een aparte spatie-span tussen twee woord-runs verliest
+   zijn data-ws weer (markeerWoordafstanden, tekstselectie-woordafstand.js).
 
    `!important` houdt deze neutralisatie boven elke andere ::selection-regel
    (vroeger injecteerde pdf-viewport.js er een met `!important`; zonder deze
