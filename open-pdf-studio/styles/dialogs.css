@@ -6183,6 +6183,7 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .accessibility-report-page {
   flex-shrink: 0;
   color: var(--theme-text-secondary, #666);
+}
 
 /* PDF/A (#379): valideren, opslaan als PDF/A en de waarschuwing bij bewerken */
 .pdfa-dialog {
