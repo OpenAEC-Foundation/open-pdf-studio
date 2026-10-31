@@ -6,7 +6,7 @@ import { generateThumbnails, clearThumbnailCache } from '../ui/panels/left-panel
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
-import { saveFileDialog, writeBinaryFile, readBinaryFile, isTauri, unlockFile } from '../core/platform.js';
+import { saveFileDialog, writeBinaryFile, writeBinaryFileNew, readBinaryFile, isTauri, unlockFile } from '../core/platform.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { recordPageStructure } from '../core/undo-manager.js';
 import { PDFDocument, degrees } from 'pdf-lib';
@@ -754,29 +754,35 @@ export async function deletePages(pageNumbers) {
 
 /**
  * Extract pages to a new PDF file.
- * @param {number[]} pageNumbers - Page numbers to extract (1-based)
+ * @param {number[]} pageNumbers - Page numbers to extract (1-based), in the
+ *   order they appear in the new file
  * @param {boolean} deleteFromOriginal - Whether to delete extracted pages from the source
+ * @param {{savePath?: string, nieuwBestand?: boolean}} [opties] - `savePath`:
+ *   write there without a file dialog (MCP, app_extract_pages); with
+ *   `nieuwBestand` an existing file is never replaced (the write fails).
+ * @returns {Promise<{path: string, pages: number, deleted: boolean}|null>}
+ *   what was written, or null when nothing was (cancelled, no document)
  */
-export async function extractPages(pageNumbers, deleteFromOriginal) {
+export async function extractPages(pageNumbers, deleteFromOriginal, { savePath: gegevenPad = null, nieuwBestand = false } = {}) {
   const activeDoc = getActiveDocument();
-  if (!activeDoc?.pdfDoc) return;
+  if (!activeDoc?.pdfDoc) return null;
 
   if (pageNumbers.length === 0) {
     showMessage(i18next.t('noPagesSelected'));
-    return;
+    return null;
   }
 
   const cacheKey = getCacheKey();
   const currentBytes = getCachedPdfBytes(cacheKey);
-  if (!currentBytes) return;
+  if (!currentBytes) return null;
 
   // Ask user where to save
   const doc = getActiveDocument();
   const baseName = (doc.fileName || 'document').replace(/\.pdf$/i, '');
   const defaultPath = `${baseName}_extracted.pdf`;
 
-  const savePath = await saveFileDialog(defaultPath, [{ name: 'PDF Files', extensions: ['pdf'] }]);
-  if (!savePath) return;
+  const savePath = gegevenPad || await saveFileDialog(defaultPath, [{ name: 'PDF Files', extensions: ['pdf'] }]);
+  if (!savePath) return null;
 
   showLoading('Extracting pages...');
   try {
@@ -792,23 +798,27 @@ export async function extractPages(pageNumbers, deleteFromOriginal) {
 
     const extractBytes = new Uint8Array(await extractDoc.save());
     try {
-      await writeBinaryFile(savePath, extractBytes);
+      if (nieuwBestand) await writeBinaryFileNew(savePath, extractBytes);
+      else await writeBinaryFile(savePath, extractBytes);
     } catch (e) {
       // De site weigerde een nieuw bestand en de gebruiker zag dat al (#726):
       // de pagina's blijven dan ook in het origineel.
-      if (e?.gemeld) return;
+      if (e?.gemeld) return null;
       throw e;
     }
 
     // Optionally delete from original
+    let deleted = false;
     if (deleteFromOriginal) {
       const numPages = activeDoc.pdfDoc.numPages;
       if (pageNumbers.length >= numPages) {
         showMessage(i18next.t('cannotDeleteAllPagesSource'));
       } else {
         await deletePages(pageNumbers);
+        deleted = true;
       }
     }
+    return { path: savePath, pages: copiedPages.length, deleted };
   } finally {
     hideLoading();
   }

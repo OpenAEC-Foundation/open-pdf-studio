@@ -104,6 +104,38 @@
       "description": "Merge one or more PDF files into the active document at the given position."
     },
     {
+      "name": "app_rotate_pages",
+      "description": "Rotate pages of the active document by a quarter, half or three-quarter turn, as one undo step, the same way Organize > Rotate does: the markups on those pages and the measurement scales of the PDF turn along."
+    },
+    {
+      "name": "app_delete_pages",
+      "description": "Delete pages from the active document, as one undo step, the same way Organize > Delete does: the markups on the deleted pages go with them, the others, the page labels and the measurement scales move along."
+    },
+    {
+      "name": "app_insert_blank_pages",
+      "description": "Insert blank pages into the active document, as one undo step, the same way Organize > Insert does."
+    },
+    {
+      "name": "app_extract_pages",
+      "description": "Write pages of the active document, in the given order, to a new PDF file, the same way Organize > Extract does."
+    },
+    {
+      "name": "app_reorder_pages",
+      "description": "Put the pages of the active document in a new order, as one undo step, the same way dragging thumbnails does: markups, page labels and measurement scales move with their page."
+    },
+    {
+      "name": "app_shift_pages",
+      "description": "Shift the content of pages by a fixed distance, as one undo step, the same way Organize > Shift page does: the page content is moved (not rasterized), and the markups, links, form fields and measurement scales on those pages move along."
+    },
+    {
+      "name": "app_bookmarks",
+      "description": "Read and edit the bookmarks (outline) of the active document, the same way the Bookmarks panel does; every change is one undo step and is written into the file on save."
+    },
+    {
+      "name": "app_watermarks",
+      "description": "List, add and remove the watermarks and headers/footers of the active document, the same way the Watermark, Header & Footer and Manage dialogs do; every change is one undo step, shown at once and written into the pages on save."
+    },
+    {
       "name": "app_assistant_ask",
       "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel)."
     },

@@ -7,7 +7,10 @@ import { ingeklapteVoorouders } from './bladwijzer-zoeken.js';
 import { loadBookmarksFromPdf } from '../../pdf/bladwijzers-lezen.js';
 import { zetBladwijzerStijl, stijlVanSelectie } from './bladwijzer-stijl.js';
 import {
-  selectieBereik, verplaatsBladwijzers, springIn, springUit, nestOnderNieuw, verwijderBladwijzers, topSelectie,
+  voegBladwijzerToe, wijzigBladwijzer, verwijderBladwijzersUit, verplaatsBladwijzersIn, nieuweBladwijzerId,
+} from './bladwijzer-bewerken.js';
+import {
+  selectieBereik, springIn, springUit, nestOnderNieuw, verwijderBladwijzers, topSelectie,
   nieuweTitel,
 } from './bladwijzer-boom.js';
 import {
@@ -143,9 +146,7 @@ function updateToolbarState() {
 }
 
 // Generate unique id
-function generateId() {
-  return 'bm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-}
+const generateId = nieuweBladwijzerId;
 
 // Select a bookmark and navigate
 export function selectBookmark(id) {
@@ -242,33 +243,8 @@ export async function addBookmark() {
   const result = await showBookmarkDialog('Add Bookmark', '', doc.currentPage);
   if (!result) return;
 
-  if (!doc.bookmarks) doc.bookmarks = [];
-
-  const bm = {
-    id: generateId(),
-    title: result.title,
-    page: result.page,
-    top: null,
-    left: null,
-    zoom: null,
-    parentId: null,
-    expanded: true,
-    bold: !!result.bold,
-    italic: !!result.italic,
-    color: result.color || null,
-    sortOrder: doc.bookmarks.filter(b => b.parentId === null).length,
-    fromPdf: false,
-  };
-
-  doc.bookmarks.push(bm);
+  const bm = await voegBladwijzerToe(doc, { ...result, parentId: null });
   zetSelectie([bm.id]);
-  markDocumentModified();
-
-  // Record undo
-  const { recordAddBookmark } = await import('../../core/undo-manager.js');
-  recordAddBookmark(bm);
-
-  updateBookmarksList();
 }
 
 // Add child bookmark under selected
@@ -276,42 +252,13 @@ export async function addChildBookmark() {
   if (isPdfAReadOnly()) return;
   const doc = getActiveDocument();
   if (!doc || !selectedBookmarkId) return;
+  const parentId = selectedBookmarkId;
 
   const result = await showBookmarkDialog('Add Child Bookmark', '', doc.currentPage);
   if (!result) return;
 
-  if (!doc.bookmarks) doc.bookmarks = [];
-
-  const siblings = doc.bookmarks.filter(b => b.parentId === selectedBookmarkId);
-
-  const bm = {
-    id: generateId(),
-    title: result.title,
-    page: result.page,
-    top: null,
-    left: null,
-    zoom: null,
-    parentId: selectedBookmarkId,
-    expanded: true,
-    bold: !!result.bold,
-    italic: !!result.italic,
-    color: result.color || null,
-    sortOrder: siblings.length,
-    fromPdf: false,
-  };
-
-  // Ensure parent is expanded
-  const parent = doc.bookmarks.find(b => b.id === selectedBookmarkId);
-  if (parent) parent.expanded = true;
-
-  doc.bookmarks.push(bm);
+  const bm = await voegBladwijzerToe(doc, { ...result, parentId });
   zetSelectie([bm.id]);
-  markDocumentModified();
-
-  const { recordAddBookmark } = await import('../../core/undo-manager.js');
-  recordAddBookmark(bm);
-
-  updateBookmarksList();
 }
 
 // Inline hernoemen (#891): de sessie onthoudt document en oorspronkelijke
@@ -345,18 +292,9 @@ export async function editBookmark() {
     { color: bm.color || null, bold: !!bm.bold, italic: !!bm.italic });
   if (!result) return;
 
-  const oldState = { ...bm };
-  bm.title = result.title;
-  bm.page = result.page;
-  bm.color = result.color || null;
-  bm.bold = !!result.bold;
-  bm.italic = !!result.italic;
-  markDocumentModified();
-
-  const { recordModifyBookmark } = await import('../../core/undo-manager.js');
-  recordModifyBookmark(bm.id, oldState, { ...bm });
-
-  updateBookmarksList();
+  await wijzigBladwijzer(doc, bm.id, {
+    title: result.title, page: result.page, color: result.color || null, bold: !!result.bold, italic: !!result.italic,
+  });
 }
 
 // Bevestiging met de dialoog van het systeem (zoals overal in de app).
@@ -374,7 +312,7 @@ export async function deleteBookmark() {
   const ids = getSelectedBookmarkIds();
   if (!doc || ids.length === 0) return;
 
-  const { bookmarks, verwijderd, aantalGeselecteerd } = verwijderBladwijzers(doc.bookmarks, ids);
+  const { verwijderd, aantalGeselecteerd } = verwijderBladwijzers(doc.bookmarks, ids);
   if (verwijderd.length === 0) return;
 
   if (aantalGeselecteerd > 1) {
@@ -394,14 +332,8 @@ export async function deleteBookmark() {
     }
   }
 
-  doc.bookmarks = bookmarks;
   zetSelectie([]);
-  markDocumentModified();
-
-  const { recordRemoveBookmark } = await import('../../core/undo-manager.js');
-  recordRemoveBookmark(verwijderd);
-
-  updateBookmarksList();
+  await verwijderBladwijzersUit(doc, ids);
 }
 
 // Get all descendants of a bookmark
@@ -486,13 +418,7 @@ export function toggleBookmarkItalic() {
 // zichzelf of een eigen kind) of zonder verschil: er gebeurt niets.
 export async function moveBookmarks(ids, doelId, positie) {
   if (isPdfAReadOnly()) return false;
-  const doc = getActiveDocument();
-  if (!doc || !doc.bookmarks) return false;
-  const oud = doc.bookmarks.map(b => ({ ...b }));
-  const nieuw = verplaatsBladwijzers(oud, ids, doelId, positie);
-  if (!nieuw) return false;
-  await vervangLijst(doc, oud, nieuw);
-  return true;
+  return verplaatsBladwijzersIn(getActiveDocument(), ids, doelId, positie);
 }
 
 // Inspringen: de selectie wordt kind van de bladwijzer erboven.

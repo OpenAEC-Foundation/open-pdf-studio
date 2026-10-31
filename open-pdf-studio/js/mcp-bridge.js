@@ -3807,6 +3807,17 @@ const HANDLERS = {
   'mcp:click-element':      handleClickElement,
   'mcp:ui-state':           handleUiState,
   'mcp:merge-pdf':          handleMergePdf,
+  // Paginabewerkingen, bladwijzers en watermerken: de regels staan in
+  // pdf/mcp-paginabewerkingen.js, ui/panels/bladwijzers-mcp.js en
+  // watermark/watermerken-mcp.js; die roepen dezelfde functies aan als het lint.
+  'mcp:rotate-pages':       (p) => import('./pdf/mcp-paginabewerkingen.js').then((m) => m.rotatePages(p)),
+  'mcp:delete-pages':       (p) => import('./pdf/mcp-paginabewerkingen.js').then((m) => m.deletePages(p)),
+  'mcp:insert-blank-pages': (p) => import('./pdf/mcp-paginabewerkingen.js').then((m) => m.insertBlankPages(p)),
+  'mcp:extract-pages':      (p) => import('./pdf/mcp-paginabewerkingen.js').then((m) => m.extractPages(p)),
+  'mcp:reorder-pages':      (p) => import('./pdf/mcp-paginabewerkingen.js').then((m) => m.reorderPages(p)),
+  'mcp:shift-pages':        (p) => import('./pdf/mcp-paginabewerkingen.js').then((m) => m.shiftPages(p)),
+  'mcp:bookmarks':          (p) => import('./ui/panels/bladwijzers-mcp.js').then((m) => m.bookmarks(p)),
+  'mcp:watermarks':         (p) => import('./watermark/watermerken-mcp.js').then((m) => m.watermarks(p)),
   // App control: tools & annotations
   'mcp:set-tool':           handleSetTool,
   'mcp:get-current-tool':   handleGetCurrentTool,

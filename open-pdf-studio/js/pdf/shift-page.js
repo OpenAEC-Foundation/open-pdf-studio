@@ -24,9 +24,10 @@ export { resolveTargetPages };
  * space the dialog preview and the app's annotations live in.
  * @param {number} dxMm - horizontal shift in mm; positive = right on screen.
  * @param {number} dyMm - vertical shift in mm; positive = up on screen.
- * @param {'current' | 'all' | 'even' | 'odd'} applyTo
+ * @param {'current' | 'all' | 'even' | 'odd' | number[]} applyTo - or the
+ *   page numbers themselves (app_shift_pages)
  * @param {number} [fromPage=1] - first page number eligible, for 'all' /
- *   'even' / 'odd' (ignored for 'current').
+ *   'even' / 'odd' (ignored for 'current' and a list).
  * @returns {Promise<{shifted: number, reason?: 'no-shift' | 'no-pages'}>}
  *   `reason` says why nothing was shifted: no offset was given, or no page
  *   matched the selection / the matching pages are empty. Failures (an

@@ -29,3 +29,17 @@ test('createReceipt over MCP takes an explicit confirmed flag', () => {
   assert.deepEqual(tool.inputSchema.properties.confirmed, { type: 'boolean' });
   assert.match(tool.description, /createReceipt requires confirmed:true/);
 });
+
+// Paginabewerkingen, bladwijzers en watermerken: wat bestaande pagina's,
+// bladwijzers of watermerken wijzigt of verwijdert, of een bestand schrijft dat
+// de client kiest (app_extract_pages), vraagt altijd. Lege pagina's invoegen
+// voegt alleen toe, zoals app_merge_pdf.
+test('page operations, bookmarks and watermarks: modifying; inserting blank pages only adds', () => {
+  for (const name of ['app_rotate_pages', 'app_delete_pages', 'app_extract_pages', 'app_reorder_pages', 'app_shift_pages', 'app_bookmarks', 'app_watermarks']) {
+    assertModifying(name);
+  }
+  assert.match(meta, /^\s*voegt_toe\("app_insert_blank_pages",/m);
+  const insert = tools.find((t) => t.name === 'app_insert_blank_pages');
+  assert.equal(insert.annotations.readOnlyHint, false);
+  assert.equal(insert.annotations.destructiveHint, false);
+});
