@@ -10,7 +10,9 @@ import {
   BrugFout, WERKPLEK, HALLO_INTERVAL_MS, HALLO_OPGEVEN_MS, VERZOEK_TIMEOUT_MS,
   normaliseerOpslaan, opslaanMelding, AI_FOUTCODES,
   HOST_FOUTCODES, hostFoutSleutel, hostFoutMelding, versieVoorOpen,
+  normaliseerOpslaanAlsAntwoord,
 } from './host-brug.js';
+import { foutSoort } from './host-opslaan-als.js';
 
 const OUDER = 'https://cloud.example.org';
 
@@ -597,4 +599,124 @@ test('stoppen: lopende verzoeken falen, zonder melding voor de gebruiker', async
   assert.equal(meldingen.length, 0);
   assert.equal(tijd.aantal, 0, 'geen timers meer');
   assert.equal(venster.luisteraars, 0);
+});
+
+// ── Opslaan als (#726) ─────────────────────────────────────────────────────
+
+/** Brug waarvan de gastpagina bij hallo `waarde` meegeeft. */
+async function brugMetHallo(waarde) {
+  const tijd = nepKlok();
+  const venster = nepVenster();
+  const brug = maakHostBrug({ ouder: OUDER, ouderVenster: venster.parent, venster, klok: tijd.klok });
+  brug.start();
+  venster.ontvang(ok(venster.parent.verzonden[0].bericht.id, waarde));
+  await brug.verbinding;
+  return { brug, venster, ouder: venster.parent };
+}
+
+test('opslaan als (#726): alleen als de gastpagina "opslaan_als" bij hallo noemt', async () => {
+  const zonder = await brugMetHallo(undefined);
+  assert.equal(typeof zonder.brug.opslag.saveAs, 'undefined', 'geen soorten: geen saveAs, Opslaan als blijft een download');
+  assert.equal(zonder.brug.kent('opslaan_als'), false);
+  const anders = await brugMetHallo({ soorten: ['ai.vraag'] });
+  assert.equal(typeof anders.brug.opslag.saveAs, 'undefined');
+  const met = await brugMetHallo({ soorten: ['opslaan_als'] });
+  assert.equal(typeof met.brug.opslag.saveAs, 'function');
+  assert.equal(met.brug.kent('opslaan_als'), true);
+
+  // Via installeerHostBrug staat hij dan ook in het contract (zelfde object).
+  const venster = nepVenster();
+  const brug = installeerHostBrug({ venster, klok: nepKlok().klok });
+  assert.equal(typeof venster.__OPDS_HOST__.storage.saveAs, 'undefined', 'vóór de handdruk nog niet');
+  venster.ontvang(ok(venster.parent.verzonden[0].bericht.id, { soorten: ['opslaan_als'] }));
+  await brug.verbinding;
+  assert.equal(typeof venster.__OPDS_HOST__.storage.saveAs, 'function');
+  brug.stop();
+});
+
+test('opslaan als: bericht opslaan_als { naam, map, bytes } met overgedragen bytes; antwoord in contractvorm', async () => {
+  const { brug, venster, ouder } = await brugMetHallo({ soorten: ['opslaan_als'] });
+  const bytes = Uint8Array.from([1, 2, 3]);
+  const belofte = brug.opslag.saveAs(bytes, { name: 'plan (copy).pdf', folder: 'M-7' });
+  await rust();
+  const v = ouder.laatste('opslaan_als');
+  assert.equal(v.doel, OUDER);
+  assert.deepEqual(Object.keys(v.bericht).sort(), ['bytes', 'id', 'map', 'naam', 'soort', 'werkplek']);
+  assert.equal(v.bericht.naam, 'plan (copy).pdf');
+  assert.equal(v.bericht.map, 'M-7');
+  assert.ok(v.bericht.bytes instanceof ArrayBuffer);
+  assert.deepEqual([...new Uint8Array(v.bericht.bytes)], [1, 2, 3]);
+  assert.deepEqual(v.overdracht, [v.bericht.bytes], 'de kopie wordt overgedragen');
+  assert.equal(bytes.length, 3, 'de bytes van de app blijven heel');
+  venster.ontvang(ok(v.bericht.id, { bestand: 'NIEUW', naam: 'plan (copy) (2).pdf', versie: 1, hernoemd: true }));
+  assert.deepEqual(await belofte, { id: 'NIEUW', name: 'plan (copy) (2).pdf', version: 1, renamed: true });
+
+  // Zonder map: geen veld `map` (de map van het geopende document).
+  const tweede = brug.opslag.saveAs(Uint8Array.from([9]), { name: 'b.pdf' });
+  await rust();
+  const v2 = ouder.laatste('opslaan_als').bericht;
+  assert.equal('map' in v2, false);
+  venster.ontvang(ok(v2.id, { bestand: 'N2', naam: 'b.pdf', versie: 1 }));
+  assert.deepEqual(await tweede, { id: 'N2', name: 'b.pdf', version: 1, renamed: false });
+});
+
+test('opslaan als: een weigering draagt de code van de gastpagina', async () => {
+  const { brug, venster, ouder } = await brugMetHallo({ soorten: ['opslaan_als'] });
+  for (const [code, soort] of [['alleen_lezen', 'alleen_lezen'], ['quotum', 'quotum'], ['te_groot', 'te_groot'], ['read_only', 'alleen_lezen']]) {
+    const b = brug.opslag.saveAs(Uint8Array.from([1]), { name: 'a.pdf', folder: 'M' });
+    await rust();
+    venster.ontvang(mis(ouder.laatste('opslaan_als').bericht.id, 'Nope', code));
+    await assert.rejects(b, (e) => e.code === 'host' && e.hostCode === code && foutSoort(e) === soort);
+  }
+  // Geen naam: niet eens versturen.
+  const aantal = ouder.verzonden.length;
+  await assert.rejects(brug.opslag.saveAs(Uint8Array.from([1]), { name: '  ' }), (e) => e.hostCode === 'ongeldige_naam');
+  assert.equal(ouder.verzonden.length, aantal);
+  // Een antwoord zonder bestand is geen nieuw bestand.
+  const leeg = brug.opslag.saveAs(Uint8Array.from([1]), { name: 'a.pdf' });
+  await rust();
+  venster.ontvang(ok(ouder.laatste('opslaan_als').bericht.id, { naam: 'a.pdf' }));
+  await assert.rejects(leeg, (e) => e.code === 'antwoord');
+});
+
+test('opslaan als: geen antwoord binnen de tijd is een netwerkfout', async () => {
+  const tijd = nepKlok();
+  const venster = nepVenster();
+  const brug = maakHostBrug({ ouder: OUDER, ouderVenster: venster.parent, venster, klok: tijd.klok });
+  brug.start();
+  venster.ontvang(ok(venster.parent.verzonden[0].bericht.id, { soorten: ['opslaan_als'] }));
+  await brug.verbinding;
+  const b = brug.opslag.saveAs(Uint8Array.from([1]), { name: 'a.pdf' });
+  await rust();
+  tijd.vooruit(VERZOEK_TIMEOUT_MS);
+  await assert.rejects(b, (e) => e.code === 'time-out' && foutSoort(e) === 'netwerk');
+});
+
+test('lijst { map } (#726): een submap, met mappen en schrijfrechten in contractvorm', async () => {
+  const { brug, venster, ouder } = await verbondenBrug();
+  const lijst = brug.opslag.list('M-1');
+  await rust();
+  const vl = ouder.laatste('lijst').bericht;
+  assert.equal(vl.map, 'M-1');
+  venster.ontvang(ok(vl.id, [
+    { id: 'S', naam: 'Sub', soort: 'map', schrijfbaar: false },
+    { id: 'F', naam: 'f.pdf', soort: 'bestand' },
+  ]));
+  assert.deepEqual(await lijst, [
+    { id: 'S', naam: 'Sub', soort: 'map', schrijfbaar: false, name: 'Sub', kind: 'folder', writable: false },
+    { id: 'F', naam: 'f.pdf', soort: 'bestand', name: 'f.pdf', kind: 'file' },
+  ]);
+  // Zonder argument geen veld `map`, zoals voorheen.
+  const top = brug.opslag.list();
+  await rust();
+  assert.equal('map' in ouder.laatste('lijst').bericht, false);
+  venster.ontvang(ok(ouder.laatste('lijst').bericht.id, []));
+  assert.deepEqual(await top, []);
+});
+
+test('het antwoord op opslaan_als: brug- en contractvelden', () => {
+  assert.deepEqual(normaliseerOpslaanAlsAntwoord({ id: 5, name: 'a.pdf', version: 2 }, 'a.pdf'),
+    { id: '5', name: 'a.pdf', version: 2, renamed: false });
+  assert.equal(normaliseerOpslaanAlsAntwoord({ bestand: 'X', naam: 'a (2).pdf' }, 'a.pdf').renamed, true);
+  assert.throws(() => normaliseerOpslaanAlsAntwoord(null, 'a.pdf'), (e) => e.code === 'antwoord');
 });

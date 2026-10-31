@@ -1,7 +1,7 @@
 import { leesOpslag, schrijfOpslag } from '../../core/opslag.js';
 import { createSignal, For, Show, onCleanup } from 'solid-js';
 import { getActiveDocument } from '../../core/state.js';
-import { isTauri, saveFileDialog } from '../../core/platform.js';
+import { isTauri, saveFileDialog, bewaarPdfOpSite } from '../../core/platform.js';
 import { DEFAULT_PRINT_PROFILE, printProfile } from '../../pdf/print-preflight.js';
 import { preflightCurrent, prepareTrimCopy, exportTrimCopy } from '../../pdf/print-preflight-service.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
@@ -88,7 +88,10 @@ export default function PrintPreflight() {
         setResult(r.report);
       } else {
         const r = await prepareTrimCopy(documentId, profile());
-        download(r.bytes, 'trim-copy.pdf', 'application/pdf');
+        // Op de site als die dat kent (#726), anders een download.
+        const opSite = await bewaarPdfOpSite('trim-copy.pdf', r.bytes);
+        if (opSite === false) return;
+        if (opSite === null) download(r.bytes, 'trim-copy.pdf', 'application/pdf');
         setResult(r.report);
       }
     } catch (e) {

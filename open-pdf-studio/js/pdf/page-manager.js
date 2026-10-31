@@ -791,7 +791,14 @@ export async function extractPages(pageNumbers, deleteFromOriginal) {
     }
 
     const extractBytes = new Uint8Array(await extractDoc.save());
-    await writeBinaryFile(savePath, extractBytes);
+    try {
+      await writeBinaryFile(savePath, extractBytes);
+    } catch (e) {
+      // De site weigerde een nieuw bestand en de gebruiker zag dat al (#726):
+      // de pagina's blijven dan ook in het origineel.
+      if (e?.gemeld) return;
+      throw e;
+    }
 
     // Optionally delete from original
     if (deleteFromOriginal) {
@@ -1107,6 +1114,8 @@ export async function extractPlannedPages(plan, keys, { sources = {}, savePath =
     await writeBinaryFile(pad, bytes);
     return true;
   } catch (err) {
+    // Al gemeld: de site weigerde een nieuw bestand (#726).
+    if (err?.gemeld) return false;
     console.error('[edit-pages] extracting failed:', err);
     showMessage(err?.voorbeeld
       ? i18next.t('previewPdfRefused')
