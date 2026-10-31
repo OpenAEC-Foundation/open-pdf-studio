@@ -657,3 +657,7 @@ js/ui/panels/bookmark-rename.test.mjs
 js/pdf/bookmark-page-labels.test.mjs
 scripts/pdfjs-zero-font.test.mjs
 js/pdf/shx-text.test.mjs
+# Draagbare Windows-versie (#881)
+js/core/draagbaar.test.mjs
+js/i18n/draagbaar-i18n.test.mjs
+scripts/draagbare-zip.test.mjs

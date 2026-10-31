@@ -11,6 +11,7 @@
     "build": "vite build",
     "build:hosted": "vite build --mode hosted",
     "pack:hosted": "node scripts/pak-webbundel.mjs",
+    "pack:portable": "node scripts/draagbare-zip.mjs",
     "verify:hosted-bundle": "node scripts/controleer-webbundel.mjs",
     "test:hosted-csp": "node scripts/test-gehost-csp.mjs",
     "verify:hosted-popups": "node scripts/verify-gast-popups.mjs",

@@ -8,6 +8,7 @@ import { check } from '@tauri-apps/plugin-updater';
 import { openDialog } from '../../bridge.js';
 import { leesOpslag } from '../../core/opslag.js';
 import { magMelden } from '../../core/beheerd.js';
+import { isDraagbaar, RELEASES_URL, zipNaam } from '../../core/draagbaar.js';
 
 let checking = false;
 
@@ -28,7 +29,13 @@ export async function checkForUpdates(silent = true) {
   try {
     const update = await check();
 
-    if (update) {
+    if (update && await isDraagbaar()) {
+      // Draagbaar (#881): de updater zou een installer starten. Alleen melden
+      // dat er een nieuwe zip is en desgewenst de releasepagina openen.
+      const skipVersion = leesOpslag('openpdfstudio-skip-version');
+      if (silent && skipVersion === update.version) return;
+      await showPortableUpdateMessage(update.version);
+    } else if (update) {
       const skipVersion = leesOpslag('openpdfstudio-skip-version');
       if (silent && skipVersion === update.version) {
         return;
@@ -50,6 +57,20 @@ async function showUpdatesManagedMessage() {
   window.__TAURI__?.dialog?.message?.(
     i18next.t('ribbon:help.updatesManaged'),
     { title: i18next.t('ribbon:help.updatesLabel'), kind: 'info' });
+}
+
+async function showPortableUpdateMessage(version) {
+  const ask = window.__TAURI__?.dialog?.ask;
+  if (!ask) return;
+  const i18next = (await import('i18next')).default;
+  const open = await ask(
+    i18next.t('common:portable.updateAvailable', { version, file: zipNaam(version) }),
+    { title: i18next.t('common:portable.updateTitle'), kind: 'info' }
+  );
+  if (open) {
+    const { openExtern } = await import('../../core/extern-openen.js');
+    await openExtern(RELEASES_URL);
+  }
 }
 
 function showNoUpdateMessage() {
