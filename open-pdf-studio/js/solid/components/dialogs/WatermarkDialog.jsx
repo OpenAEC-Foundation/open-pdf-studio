@@ -2,7 +2,8 @@ import { createSignal, createMemo, Show, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
-import { recordAddWatermark, recordModifyWatermark } from '../../../core/undo-manager.js';
+import { recordModifyWatermark } from '../../../core/undo-manager.js';
+import { voegWatermerkToe } from '../../../watermark/watermerk-bewerken.js';
 import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -268,15 +269,14 @@ export default function WatermarkDialog(props) {
         Object.assign(watermarks[idx], wm);
         recordModifyWatermark(editWm.id, oldState, { ...watermarks[idx] });
       }
-    } else {
-      if (doc) doc.watermarks.push(wm);
-      recordAddWatermark(wm);
+      markDocumentModified();
+      refresh();
+    } else if (doc) {
+      // Zelfde stap als app_watermarks: undo, gewijzigd, opnieuw tekenen.
+      await voegWatermerkToe(doc, wm);
     }
 
     if (wm.type === 'textWatermark') rememberWatermarkText(wm.text);
-
-    markDocumentModified();
-    refresh();
     close();
   }
 

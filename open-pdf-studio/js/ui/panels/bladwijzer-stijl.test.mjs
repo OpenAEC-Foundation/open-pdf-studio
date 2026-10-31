@@ -112,5 +112,7 @@ test('menu en dialoog zijn aangesloten op het model', () => {
   const paneel = readFileSync(join(hier, 'bookmarks.js'), 'utf8');
   assert.match(paneel, /await vervangLijst\(doc, oud, bookmarks\)/, 'stijl op de selectie gaat via één lijstwissel');
   assert.match(paneel, /recordBookmarksChange\(oud, nieuw\)/, 'een lijstwissel is één undo-stap');
-  assert.match(paneel, /bm\.color = result\.color \|\| null/, 'bewerken neemt de kleur over');
+  assert.match(paneel, /color: result\.color \|\| null/, 'bewerken geeft de kleur door');
+  const bewerken = readFileSync(join(hier, 'bladwijzer-bewerken.js'), 'utf8');
+  assert.match(bewerken, /bm\.color = wijziging\.color \|\| null/, 'bewerken neemt de kleur over');
 });

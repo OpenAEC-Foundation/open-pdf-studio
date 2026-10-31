@@ -502,6 +502,10 @@ js/pdf/portfolio.test.mjs
 js/pdf/portfolio-preview.test.mjs
 js/pdf/export-path-policy.test.mjs
 js/core/mcp-wijzigt-hints.test.mjs
+js/pdf/mcp-paginabewerkingen.test.mjs
+js/pdf/mcp-paginabewerkingen-aansluiting.test.mjs
+js/ui/panels/bladwijzers-mcp.test.mjs
+js/watermark/watermerken-mcp.test.mjs
 js/core/nieuwe-kopie-schrijven.test.mjs
 js/pdf/form-recognition.test.mjs
 js/search/symbol-matcher.test.mjs

@@ -100,6 +100,7 @@ pub const TOOLS: &[ToolMeta] = &[
     voegt_toe("app_place_schedule", "Place quantity schedule"),
     voegt_toe("app_structural_layout", "Set out structural layout"),
     voegt_toe("app_merge_pdf", "Merge PDF files"),
+    voegt_toe("app_insert_blank_pages", "Insert blank pages"),
     voegt_toe("app_import_cad", "Import CAD drawing"),
     voegt_toe("app_symbol_scale", "Symbol placement scale"),
     voegt_toe("app_assistant_ask", "Ask assistant"),
@@ -139,6 +140,16 @@ pub const TOOLS: &[ToolMeta] = &[
     // app, dus wijzigt (destructiveHint) — Claude vraagt er altijd voor.
     wijzigt("app_print_to_pdf", "Print to PDF file"),
     wijzigt("app_print", "Print to printer"),
+    // Paginabewerkingen: wijzigen of verwijderen bestaande pagina's; uitnemen
+    // schrijft een bestand dat de client kiest.
+    wijzigt("app_rotate_pages", "Rotate pages"),
+    wijzigt("app_delete_pages", "Delete pages"),
+    wijzigt("app_extract_pages", "Extract pages to a new file"),
+    wijzigt("app_reorder_pages", "Reorder pages"),
+    wijzigt("app_shift_pages", "Shift page content"),
+    // delete en remove verwijderen bestaande bladwijzers en watermerken.
+    wijzigt("app_bookmarks", "Manage bookmarks"),
+    wijzigt("app_watermarks", "Manage watermarks and headers/footers"),
     wijzigt("app_set_measure_scale", "Set measurement scale"),
     wijzigt("app_snippet_flatten", "Flatten vector snippet"),
     wijzigt("app_titleblock", "Fill title block"),
