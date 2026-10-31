@@ -3,6 +3,7 @@ import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import {
   recordPropertyChange,
   recordModify,
@@ -1356,7 +1357,7 @@ function applyPropToAnnotation(ann, key, value) {
       const ratio = leesGeheelGetal(value);
       if (ratio > 0) {
         ann.scaleRatio = `1:${ratio}`;
-        ann.pixelsPerUnit = 72 / (25.4 * ratio);
+        ann.pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, 'mm', userUnitVanPagina(getActiveDocument(), ann.page));
         ann.unit = 'mm';
       }
       break;

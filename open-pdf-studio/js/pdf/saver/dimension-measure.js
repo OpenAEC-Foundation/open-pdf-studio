@@ -1,5 +1,5 @@
 import { PDFName } from 'pdf-lib';
-import { pixelsPerUnitFor } from '../../annotations/scale-region-scale.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { schaalgebiedenOpPagina, schaalOpPuntUitBronnen, verzamelSchaalBronnen } from '../../annotations/schaal-op-punt.js';
 import { pdfTextString } from './pdf-text.js';
 
@@ -19,7 +19,7 @@ export function dimensionMeasure(ann, doc, preferences = {}, sources = verzamelS
     const region = schaalgebiedenOpPagina(sources, page).find(r =>
       x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height);
     const resolved = region
-      ? { pixelsPerUnit: pixelsPerUnitFor(region.scaleString, region.units), unit: region.units || 'mm' }
+      ? { pixelsPerUnit: pixelsPerUnitFor(region.scaleString, region.units, userUnitVanPagina(doc, page)), unit: region.units || 'mm' }
       : schaalOpPuntUitBronnen(sources, doc, page, x, y);
     const fallback = preferences.measureScale;
     const effective = resolved?.pixelsPerUnit > 0 ? resolved

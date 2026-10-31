@@ -14,6 +14,9 @@
 import { setTool } from '../manager.js';
 import { applyToolTransform } from '../tool-context.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
+import { pointsToPaperMm } from '../../annotations/scale-from-measurement.js';
+import { userUnitVanPagina } from '../../annotations/scale-region-scale.js';
+import { getActiveDocument } from '../../core/state.js';
 
 // Module-level flow + picking state (survives across pointer events).
 let _flow = null; // { onDone(pixelDistance), onCancel() }
@@ -145,7 +148,9 @@ export const scaleMeasureTool = {
     const dx = curX - p1.x;
     const dy = curY - p1.y;
     const distPts = Math.sqrt(dx * dx + dy * dy);
-    const distMm = distPts * 25.4 / 72;
+    // Paper mm on this page, /UserUnit included (#884).
+    const doc = getActiveDocument();
+    const distMm = pointsToPaperMm(distPts, userUnitVanPagina(doc, doc?.currentPage));
     const midX = (p1.x + curX) / 2;
     const midY = (p1.y + curY) / 2;
     // Rechtop op het scherm, ook in een gedraaide weergave (#200).

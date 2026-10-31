@@ -4,6 +4,7 @@
  * Uses the standard shape preview pipeline via buildAnnotationProps('viewport').
  */
 import { getActiveDocument } from '../../core/state.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { openDialog } from '../../bridge.js';
@@ -63,7 +64,7 @@ export const viewportTool = {
       height: h,
       name: 'Viewport',
       scaleRatio: '1:100',
-      pixelsPerUnit: 72 / (25.4 * 100),
+      pixelsPerUnit: pixelsPerUnitFor('1:100', 'mm', userUnitVanPagina(doc, pageNum)),
       unit: 'mm',
       color: '#0066cc',
       lineWidth: 1.5,
