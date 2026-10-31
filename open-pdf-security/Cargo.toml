@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-security"
-version = "2026.43.11"
+version = "2026.44.4"
 edition = "2021"
 license = "MIT"
 description = "Standard security handler of ISO 32000-2 (AES-256, V 5 / R 6): protect a PDF, read its protection and write it back with the same key"
