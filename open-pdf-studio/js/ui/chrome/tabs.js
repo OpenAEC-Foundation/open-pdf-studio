@@ -20,6 +20,7 @@ import { hostVersieLabel } from '../../pdf/host-versies.js';
 import i18next from '../../i18n/config.js';
 import { meldWijziging, meldGesloten } from '../../herstel/haken.js';
 import { meld as meldSplit } from '../../pdf/split-view/split-haken.js';
+import { renderQueue } from '../../pdf/render-queue-state.js';
 
 /**
  * Create a new tab for a document
@@ -97,6 +98,9 @@ export function switchToTab(index) {
 
   // Switch active document
   state.activeDocumentIndex = index;
+  // Renders of the previous document that have not started yet are dropped,
+  // so this document's page does not wait behind them (#506).
+  renderQueue.activeDocumentChanged();
 
   // Update tab bar UI
   updateTabBar();
