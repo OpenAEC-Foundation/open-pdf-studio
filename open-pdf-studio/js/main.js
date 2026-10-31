@@ -97,7 +97,8 @@ import App from './solid/App.jsx';
 import { addRecentFile } from './mobile/recent-files.js';
 
 // Tauri API
-import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName, invoke } from './core/platform.js';
+import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, defaultPdfAppStatus, openDefaultAppsSettings, extractFileName, invoke } from './core/platform.js';
+import { moetBalkTonen } from './core/standaard-pdf-app.js';
 import { instantieRol, taakToegestaan } from './core/instantie-rol.js';
 import { volgendeTaak } from './core/volgende-taak.js';
 import { meldSchoonAfsluiten } from './herstel/haken.js';
@@ -615,14 +616,16 @@ async function restoreLastSession() {
   }
 }
 
-// Check if this app is the default PDF handler and show info bar if not
+// Check if this app is the default PDF handler and show info bar if not.
+// Only when another app is known to be the default and this one can change
+// that: in a Flatpak/Snap (or without xdg-mime) it cannot be checked, and
+// asking at every start would lead nowhere (standaard-pdf-app.js).
 async function checkDefaultPdfApp() {
   if (!isTauri()) return;
   if (state.preferences.dontAskDefaultPdf) return;
 
   try {
-    const isDefault = await isDefaultPdfApp();
-    if (isDefault) return;
+    if (!moetBalkTonen(await defaultPdfAppStatus())) return;
 
     const { showDefaultAppBar } = await import('./solid/stores/defaultAppBarStore.js');
     showDefaultAppBar();

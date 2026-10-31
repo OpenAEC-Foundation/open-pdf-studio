@@ -262,7 +262,12 @@
     "macInstructions": "ວິທີຕັ້ງ Open PDF Studio ເປັນຕົວເປີດ PDF ເລີ່ມຕົ້ນໃນ macOS:\n\n1. ຄລິກຂວາໃສ່ໄຟລ໌ PDF ໃດກໍໄດ້ໃນ Finder\n2. ເລືອກ \"Get Info\"\n3. ພາຍໃຕ້ \"Open with\", ເລືອກ Open PDF Studio\n4. ຄລິກ \"Change All...\"",
     "linuxInstructions": "ວິທີຕັ້ງ Open PDF Studio ເປັນຕົວເປີດ PDF ເລີ່ມຕົ້ນໃນ Linux:\n\nຮັນຄຳສັ່ງໃນ terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "ກວດເບິ່ງ Finder > Get Info",
-    "notSet": "ຍັງບໍ່ໄດ້ຕັ້ງຄ່າ"
+    "notSet": "ຍັງບໍ່ໄດ້ຕັ້ງຄ່າ",
+    "chosenInSystemSettings": "ເລືອກໄວ້ໃນການຕັ້ງຄ່າລະບົບ",
+    "sandboxInstructions": "Open PDF Studio ເຮັດວຽກເປັນແພັກເກດ {{package}} ແລະ ບໍ່ສາມາດປ່ຽນແອັບ PDF ເລີ່ມຕົ້ນໄດ້ເອງ.\n\nເລືອກ Open PDF Studio ໃນການຕັ້ງຄ່າລະບົບທີ່ ແອັບພລິເຄຊັນເລີ່ມຕົ້ນ, ຫຼື ຄລິກຂວາທີ່ໄຟລ໌ PDF ແລ້ວໃຊ້ ເປີດດ້ວຍ.",
+    "xdgMimeMissing": "ບໍ່ໄດ້ຕິດຕັ້ງ xdg-mime (ແພັກເກດ xdg-utils), ສະນັ້ນຈຶ່ງບໍ່ສາມາດຕັ້ງແອັບ PDF ເລີ່ມຕົ້ນຈາກບ່ອນນີ້ໄດ້.\n\nຕິດຕັ້ງ xdg-utils, ຫຼື ເລືອກ Open PDF Studio ໃນການຕັ້ງຄ່າລະບົບທີ່ ແອັບພລິເຄຊັນເລີ່ມຕົ້ນ.",
+    "linuxDone": "ຕອນນີ້ Open PDF Studio ເປັນແອັບເລີ່ມຕົ້ນສຳລັບໄຟລ໌ PDF ແລ້ວ.",
+    "linuxFailed": "ບໍ່ສາມາດຕັ້ງ Open PDF Studio ເປັນແອັບ PDF ເລີ່ມຕົ້ນໄດ້.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "ຕົວສຳຫຼວດໄຟລ໌",

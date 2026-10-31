@@ -193,7 +193,12 @@
     "macInstructions": "Чтобы установить Open PDF Studio как средство просмотра PDF по умолчанию в macOS:\n\n1. Щелкните правой кнопкой мыши любой PDF-файл в Finder\n2. Выберите \"Свойства\"\n3. В разделе \"Открывать в программе\" выберите Open PDF Studio\n4. Нажмите \"Изменить все...\"",
     "linuxInstructions": "Чтобы установить Open PDF Studio как средство просмотра PDF по умолчанию в Linux:\n\nВыполните в терминале:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Проверьте Finder > Свойства",
-    "notSet": "Не установлено"
+    "notSet": "Не установлено",
+    "chosenInSystemSettings": "Выбрано в настройках системы",
+    "sandboxInstructions": "Open PDF Studio работает как пакет {{package}} и не может сам изменить приложение PDF по умолчанию.\n\nВыберите Open PDF Studio в настройках системы в разделе «Приложения по умолчанию» или щёлкните правой кнопкой мыши по PDF-файлу и выберите «Открыть с помощью».",
+    "xdgMimeMissing": "xdg-mime (пакет xdg-utils) не установлен, поэтому приложение PDF по умолчанию нельзя задать отсюда.\n\nУстановите xdg-utils или выберите Open PDF Studio в настройках системы в разделе «Приложения по умолчанию».",
+    "linuxDone": "Open PDF Studio теперь приложение по умолчанию для PDF-файлов.",
+    "linuxFailed": "Не удалось сделать Open PDF Studio приложением PDF по умолчанию.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Проводник",

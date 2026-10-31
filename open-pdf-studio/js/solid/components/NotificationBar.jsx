@@ -2,12 +2,24 @@ import { Show } from 'solid-js';
 import { visible, hideDefaultAppBar } from '../stores/defaultAppBarStore.js';
 import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { showMessage } from '../stores/dialogStore.js';
 
 export default function NotificationBar() {
   const { t } = useTranslation('dialogs');
-  const handleSetDefault = () => {
-    import('../../core/platform.js').then(m => m.openDefaultAppsSettings());
+  const { t: tPrefs } = useTranslation('preferences');
+  // Set as Default: on Linux this sets the xdg-mime default, on Windows it
+  // opens the settings page. The outcome (done, instructions, or why it
+  // could not be done) is shown instead of failing silently.
+  const handleSetDefault = async () => {
     hideDefaultAppBar();
+    const platform = await import('../../core/platform.js');
+    const { zetAlsStandaard, platformUit } = await import('../../core/standaard-pdf-app.js');
+    const melding = await zetAlsStandaard({
+      invoke: platform.invoke,
+      status: await platform.defaultPdfAppStatus(),
+      platform: platformUit(navigator.platform || navigator.userAgent),
+    });
+    if (melding) showMessage(tPrefs(melding.sleutel, melding.opties));
   };
 
   const handleDontAsk = () => {

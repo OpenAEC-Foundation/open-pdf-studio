@@ -193,7 +193,12 @@
     "macInstructions": "Pro nastavení Open PDF Studio jako výchozího prohlížeče PDF v macOS:\n\n1. Klikněte pravým tlačítkem na libovolný soubor PDF ve Finderu\n2. Vyberte \"Získat informace\"\n3. V části \"Otevřít v\" vyberte Open PDF Studio\n4. Klikněte na \"Změnit vše...\"",
     "linuxInstructions": "Pro nastavení Open PDF Studio jako výchozího prohlížeče PDF v Linuxu:\n\nSpusťte v terminálu:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Zkontrolujte Finder > Získat informace",
-    "notSet": "Nenastaveno"
+    "notSet": "Nenastaveno",
+    "chosenInSystemSettings": "Zvoleno v nastavení systému",
+    "sandboxInstructions": "Open PDF Studio běží jako balíček {{package}} a nemůže samo změnit výchozí aplikaci pro PDF.\n\nZvolte Open PDF Studio v nastavení systému v části Výchozí aplikace, nebo klikněte pravým tlačítkem na soubor PDF a použijte Otevřít pomocí.",
+    "xdgMimeMissing": "xdg-mime (balíček xdg-utils) není nainstalován, takže výchozí aplikaci pro PDF nelze nastavit odsud.\n\nNainstalujte xdg-utils, nebo zvolte Open PDF Studio v nastavení systému v části Výchozí aplikace.",
+    "linuxDone": "Open PDF Studio je nyní výchozí aplikací pro soubory PDF.",
+    "linuxFailed": "Open PDF Studio se nepodařilo nastavit jako výchozí aplikaci pro PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Průzkumník souborů",

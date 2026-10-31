@@ -193,7 +193,12 @@
     "macInstructions": "macOS இல் Open PDF Studio ஐ இயல்புநிலை PDF காட்சியாக அமைக்க:\n\n1. Finder இல் எந்த PDF கோப்பையும் வலது கிளிக் செய்யவும்\n2. \"தகவல் பெறு\" என்பதைத் தேர்ந்தெடுக்கவும்\n3. \"இதனுடன் திற\" என்பதில் Open PDF Studio ஐ தேர்ந்தெடுக்கவும்\n4. \"அனைத்தையும் மாற்று...\" என்பதைக் கிளிக் செய்யவும்",
     "linuxInstructions": "Linux இல் Open PDF Studio ஐ இயல்புநிலை PDF காட்சியாக அமைக்க:\n\nமுனையத்தில் இயக்கவும்:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > தகவல் பெறு என சரிபார்க்கவும்",
-    "notSet": "அமைக்கப்படவில்லை"
+    "notSet": "அமைக்கப்படவில்லை",
+    "chosenInSystemSettings": "கணினி அமைப்புகளில் தேர்ந்தெடுக்கப்பட்டது",
+    "sandboxInstructions": "Open PDF Studio ஒரு {{package}} தொகுப்பாக இயங்குகிறது, இயல்புநிலை PDF பயன்பாட்டை தானே மாற்ற முடியாது.\n\nகணினி அமைப்புகளில் இயல்புநிலை பயன்பாடுகள் பகுதியில் Open PDF Studio-வைத் தேர்ந்தெடுக்கவும், அல்லது ஒரு PDF கோப்பில் வலது கிளிக் செய்து இதனுடன் திற என்பதைப் பயன்படுத்தவும்.",
+    "xdgMimeMissing": "xdg-mime (xdg-utils தொகுப்பு) நிறுவப்படவில்லை, எனவே இயல்புநிலை PDF பயன்பாட்டை இங்கிருந்து அமைக்க முடியாது.\n\nxdg-utils-ஐ நிறுவவும், அல்லது கணினி அமைப்புகளில் இயல்புநிலை பயன்பாடுகள் பகுதியில் Open PDF Studio-வைத் தேர்ந்தெடுக்கவும்.",
+    "linuxDone": "Open PDF Studio இப்போது PDF கோப்புகளுக்கான இயல்புநிலை பயன்பாடு.",
+    "linuxFailed": "Open PDF Studio-வை இயல்புநிலை PDF பயன்பாடாக அமைக்க முடியவில்லை.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "கோப்பு எக்ஸ்ப்ளோரர்",
