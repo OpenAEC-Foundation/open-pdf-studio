@@ -200,6 +200,7 @@
     "thinLines": "Linee sottili",
     "compareGroup": "Confronta",
     "fullscreen": "Schermo intero",
+    "fullscreenUnavailable": "Lo schermo intero non è disponibile qui: il browser o la pagina che mostra l'app lo ha rifiutato. Usa invece l'opzione schermo intero nel menu del browser.",
     "window": "Finestra",
     "display": "Visualizzazione",
     "keystrokes": "Tasti premuti",

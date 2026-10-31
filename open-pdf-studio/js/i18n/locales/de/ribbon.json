@@ -200,6 +200,7 @@
     "thinLines": "Dünne Linien",
     "compareGroup": "Vergleichen",
     "fullscreen": "Vollbild",
+    "fullscreenUnavailable": "Vollbild ist hier nicht verfügbar: Der Browser oder die Seite, die die App anzeigt, hat es abgelehnt. Verwenden Sie stattdessen die Vollbildoption im Menü des Browsers.",
     "window": "Fenster",
     "display": "Anzeige",
     "keystrokes": "Tastenanschläge",

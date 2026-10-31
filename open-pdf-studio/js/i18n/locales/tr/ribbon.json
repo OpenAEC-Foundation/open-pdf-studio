@@ -200,6 +200,7 @@
     "thinLines": "İnce Çizgiler",
     "compareGroup": "Karşılaştır",
     "fullscreen": "Tam Ekran",
+    "fullscreenUnavailable": "Tam ekran burada kullanılamıyor: tarayıcı veya uygulamayı gösteren sayfa isteği reddetti. Bunun yerine tarayıcı menüsündeki tam ekran seçeneğini kullanın.",
     "window": "Pencere",
     "display": "Görüntüleme",
     "keystrokes": "Tuş vuruşları",

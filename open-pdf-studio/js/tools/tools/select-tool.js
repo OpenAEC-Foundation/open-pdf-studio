@@ -1,3 +1,4 @@
+import { areaVertexHit, AREA_VERTEX_HIT_PX } from '../../annotations/area-vertices.js';
 import { getActiveDocument } from '../../core/state.js';
 import { heeftEigenDraaipunt } from '../../annotations/draaipunt.js';
 import { paginaVectorNaarWeergave } from '../../pdf/weergave-ruimte.js';
@@ -59,6 +60,11 @@ export const selectTool = {
     // Check resize handle on selected annotation.
     // Cursor is driven by state.isResizing + state.activeHandle (see js/ui/cursor.js).
     const selAnn = selAnns.length === 1 ? selAnns[0] : null;
+    // A hole edge may fail the filled-area hit test. Preserve the selected
+    // contour for its context menu and double-click gesture.
+    const areaHit = selAnn?.page === doc?.currentPage && isAnnotationPickableInView(selAnn)
+      ? areaVertexHit(selAnn, x, y, AREA_VERTEX_HIT_PX / (getEffectiveScale() || 1)) : null;
+    if (areaHit && e.button === 2) return;
     if (!pdfaLocked && selAnn) {
       const handleType = ctx.findHandleAt(x, y, selAnn);
       // Ctrl op een verplaats-greep (midden van rechthoek/cirkel, midden van
@@ -69,8 +75,13 @@ export const selectTool = {
       // greep midden in een aanhaal-tekstvak, en de labelgreep van de
       // maatvoeringen); zonder die vermelding viel Ctrl+klik daar in de
       // resize-tak en kreeg je een verplaatsing in plaats van een kopie.
+      // Het draaipunt (#826) staat standaard op de plek van de verplaatsgreep
+      // in het midden; Ctrl+slepen daar blijft dus een kopie maken. Een
+      // verplaatst draaipunt kan buiten de vorm liggen: daar blijft het slepen.
       const VERPLAATS_GREPEN = ['rect_center', 'circle_center', 'line_mid', 'callout_move', 'label_move'];
-      const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && VERPLAATS_GREPEN.includes(handleType);
+      const verplaatsGreep = VERPLAATS_GREPEN.includes(handleType)
+        || (handleType === 'pivot' && !heeftEigenDraaipunt(selAnn));
+      const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && verplaatsGreep;
       if (handleType && !ctrlKopieViaGreep) {
         // Edit-contour mode: clicking an edge midpoint inserts a new vertex
         // there and immediately enters drag mode for that new vertex.
@@ -190,7 +201,8 @@ export const selectTool = {
     const armedMarquee = !!state.armedMarquee;
     if (armedMarquee) state.armedMarquee = false;
 
-    const clickedAnnotation = armedMarquee ? null : ctx.findAnnotationAt(x, y);
+    const clickedAnnotation = armedMarquee ? null : (ctx.findAnnotationAt(x, y)
+      || (areaHit && !e.ctrlKey && !e.metaKey ? selAnn : null));
     // Auto-exit edit-contour mode when clicking outside the currently edited annotation
     if (state.editingContour && (!clickedAnnotation || clickedAnnotation.id !== state.editingContour)) {
       state.editingContour = null;

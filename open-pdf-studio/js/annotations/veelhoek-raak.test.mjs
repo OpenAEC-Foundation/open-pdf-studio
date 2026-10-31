@@ -73,7 +73,8 @@ test('grepen: een per hoekpunt waar het scherm het tekent, en findHandleAt vindt
     const p = scherm[g.nodeIndex];
     assert.ok(Math.abs(g.x - p.x) < 1e-6 && Math.abs(g.y - p.y) < 1e-6, `greep ${g.nodeIndex}`);
   }
-  assert.ok(grepen.some((g) => g.type === 'rect_center'), 'verplaatsgreep');
+  // Het draaipunt (#826) staat in het midden, op de plek van de verplaatsgreep.
+  assert.ok(grepen.some((g) => g.type === 'pivot'), 'draaipunt');
   assert.ok(grepen.some((g) => g.type === 'rotate'), 'draaigreep');
   assert.ok(!grepen.some((g) => ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'].includes(g.type)), 'geen maatgrepen');
   assert.equal(findHandleAt(scherm[2].x + 1, scherm[2].y, v, 1), 'polyline_node_2');

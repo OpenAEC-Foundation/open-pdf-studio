@@ -8,11 +8,15 @@
 // The extended styles (dash-dot, long-dash, ...) came back as 'dashed' for
 // every shape; the loader now recognises each pattern the saver writes.
 //
+// Rectangles and ellipses also carry the pattern in their appearance stream
+// (/AP /N): other readers draw the appearance, and it stroked `re S` without a
+// dash operator, so dashed and dotted shapes looked solid there.
+//
 // Real saver and loader (rondgang.testhulp.mjs), two rounds.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { PDFName } from 'pdf-lib';
+import { PDFName, decodePDFRawStream } from 'pdf-lib';
 import { leegBlad, opslaan, laad, woordenboeken } from './rondgang.testhulp.mjs';
 
 const basis = {
@@ -91,3 +95,38 @@ test('the loader knows exactly the dash patterns the saver writes', async () => 
   assert.equal(lijnstijlUitStreep([6, 3, 1, 3]), 'dashed');
   assert.equal(lijnstijlUitStreep([3]), null);
 });
+
+// The dash operator in the appearance of the single annotation, as the reader
+// of another program sees it ([] for none).
+async function apStreepVan(bytes) {
+  const lijst = await woordenboeken(bytes);
+  const ctx = lijst.doc.context;
+  const ap = ctx.lookup(lijst[0].dict.get(PDFName.of('AP')));
+  assert.ok(ap, 'an appearance');
+  const n = ctx.lookup(ap.get(PDFName.of('N')));
+  const ruw = n.dict.get(PDFName.of('Filter')) ? decodePDFRawStream(n).decode() : n.getContents();
+  const inhoud = Buffer.from(ruw).toString('latin1');
+  const d = /\[([^\]]*)\]\s+0\s+d\b/.exec(inhoud);
+  return d && d[1].trim() ? d[1].trim().split(/\s+/).map(Number) : [];
+}
+
+const ALLE_STIJLEN = ['solid', 'dashed', 'dotted', 'dash-dot', 'dash-dot-dot', 'long-dash',
+  'long-dash-dot', 'long-dash-dot-dot'];
+
+for (const soort of ['box', 'circle']) {
+  for (const stijl of ALLE_STIJLEN) {
+    test(`${soort} ${stijl}: the appearance draws the same dash pattern as /BS /D, also after reopening`, async () => {
+      const { dashArrayForStyle } = await import('./saver/appearance-vectors.js');
+      const patroon = dashArrayForStyle(stijl);
+      const eerste = await opslaan(await leegBlad(), [{ ...VORMEN[soort], borderStyle: stijl }]);
+      const bs = await bsVan(eerste);
+      assert.deepEqual(bs.streep, patroon, '/BS /D');
+      assert.deepEqual(await apStreepVan(eerste), patroon || [], 'appearance, first save');
+      const [m] = await laad(eerste);
+      assert.equal(m.borderStyle, stijl, 'after reopening');
+      const tweede = await opslaan(eerste, [m]);
+      assert.deepEqual(await apStreepVan(tweede), patroon || [], 'appearance, second save');
+      assert.deepEqual((await bsVan(tweede)).streep, patroon, '/BS /D, second save');
+    });
+  }
+}

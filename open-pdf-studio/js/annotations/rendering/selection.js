@@ -262,9 +262,17 @@ export function drawSelectionHandles(ctx, annotation) {
 
   // Draw resize/move handles (scale-independent size)
   const scale = schermSchaal(doc) || 1;
-  const handles = getAnnotationHandles(annotation, scale);
+  const alleGrepen = getAnnotationHandles(annotation, scale);
   const hs = HANDLE_SIZE / scale;
   const lw = 1 / scale;
+  // Het draaipunt als laatste, zodat het vizier zichtbaar blijft als het op
+  // een andere greep ligt. Bij een meervoudige selectie geen draaipunt: dat
+  // geldt alleen voor het slepen van één vorm, niet voor de groep.
+  const enkel = (doc?.selectedAnnotations?.length || 0) <= 1;
+  const handles = [
+    ...alleGrepen.filter(h => h.type !== HANDLE_TYPES.PIVOT),
+    ...(enkel ? alleGrepen.filter(h => h.type === HANDLE_TYPES.PIVOT) : []),
+  ];
 
   handles.forEach(handle => {
     const cx = handle.x + hs / 2;

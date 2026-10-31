@@ -8,9 +8,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-  posterIndeling, posterVellen, aantalPosterVellen, rasterLangs, posterOpties, posterPapier,
+  posterIndeling, posterVellen, aantalPosterVellen, rasterLangs, posterOpties, posterPapier, posterRandAfsnijding,
   geldigePosterSchaal, geldigeOverlap, posterLabel, winAnsiTekst, isWinAnsi,
-  POSTER_STANDAARD, RAND_MM, SNIJTEKEN_BEGIN_MM, SNIJTEKEN_EIND_MM, LABEL_BASIS_MM, STANDAARD_VEL,
+  POSTER_STANDAARD, SPELING_PER_TEGEL_MM, RAND_MM, SNIJTEKEN_BEGIN_MM, SNIJTEKEN_EIND_MM, LABEL_BASIS_MM, STANDAARD_VEL,
 } from './print-poster.js';
 
 const PT_PER_MM = 72 / 25.4;
@@ -372,7 +372,7 @@ test('alle locales hebben de posterteksten, vertaald en met dezelfde plaatshoude
   const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8')).print;
   const en = lees('en');
   const sleutels = ['poster', 'posterScale', 'posterOverlap', 'posterCutMarks', 'posterLabels', 'posterOnlyLarge',
-    'posterTileInfo', 'posterNotTiled', 'posterAssumedPaper', 'perSheetPosterNote', 'posterLabelText'];
+    'posterEdgeCrop', 'posterEdgeCropHint', 'posterOverview', 'posterOverlapLegend', 'posterTileInfo', 'posterNotTiled', 'posterAssumedPaper', 'perSheetPosterNote', 'posterLabelText'];
   // Woorden die in een taal hetzelfde zijn als in het Engels.
   const gelijk = { da: ['posterOverlap'], nl: ['posterOverlap'] };
   const plaatshouders = (s) => [...s.matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]).sort();
@@ -466,4 +466,109 @@ test('#855: printer margins and the cut-mark strip still count against the windo
   const m = indeling({ papier: { ...A3, bedrukbaar: { staand: marge, liggend: marge } }, orientatie: 'landscape',
     pagina: A1_PT_LIGGEND });
   assert.equal(`${m.kolommen} x ${m.rijen}`, '3 x 3');
+});
+
+// Kleine buitenranden afsnijden (#855): de speling van SPELING_PER_TEGEL_MM
+// is een keuze in de printdialoog. Standaard aan (A1 op randloze A3 blijft
+// 2 x 2); uit dekt het raster de hele pagina, desnoods met een extra vel.
+
+test('#855: edge cropping is on by default and only a boolean false turns it off', () => {
+  assert.equal(POSTER_STANDAARD.randAfsnijden, true);
+  assert.equal(posterOpties().randAfsnijden, true);
+  assert.equal(posterOpties({ randAfsnijden: 'false' }).randAfsnijden, true);
+  assert.equal(posterOpties({ randAfsnijden: 0 }).randAfsnijden, true);
+  assert.equal(posterOpties({ randAfsnijden: false }).randAfsnijden, false);
+  // rasterLangs without the fourth argument keeps the allowance.
+  assert.equal(rasterLangs(841.02, 420, 0).aantal, 2);
+  assert.equal(rasterLangs(841.02, 420, 0, true).aantal, 2);
+});
+
+test('#855: with edge cropping off the grid covers the whole page', () => {
+  assert.equal(rasterLangs(210.3, 210, 0, false).aantal, 2);
+  assert.equal(rasterLangs(841.02, 420, 0, false).aantal, 3);
+  assert.equal(rasterLangs(1188.86, 297, 0, false).aantal, 5);
+  // Exact multiples and floating-point noise still need no extra sheet.
+  assert.equal(rasterLangs(594, 297, 0, false).aantal, 2);
+  assert.equal(rasterLangs(594 + 1e-9, 297, 0, false).aantal, 2);
+  assert.equal(rasterLangs(0.1 * 3 * 2800, 420, 0, false).aantal, 2);
+  assert.ok(rasterLangs(841.02, 420, 0, false).begin <= 0);
+});
+
+test('#855: A1 on borderless A3 is 2 x 2 by default and 3 x 3 when every mm must stay', () => {
+  const papier = { ...A3, bedrukbaar: ZONDER_RAND };
+  const aan = indeling({ papier, orientatie: 'portrait', pagina: A1_PT });
+  const uit = indeling({ papier, orientatie: 'portrait', pagina: A1_PT, opties: { randAfsnijden: false } });
+  assert.equal(`${aan.kolommen} x ${aan.rijen}`, '2 x 2');
+  // In points an A1 is 1684 x 2384 pt = 594.08 x 841.02 mm: both axes
+  // overrun, so keeping every mm is the 3 x 3 that #855 reported.
+  assert.equal(`${uit.kolommen} x ${uit.rijen}`, '3 x 3');
+  // The mm-exact A1 only overruns vertically: 2 x 3.
+  const mm = indeling({ papier, orientatie: 'portrait', pagina: A1, opties: { randAfsnijden: false } });
+  assert.equal(`${mm.kolommen} x ${mm.rijen}`, '2 x 3');
+  bijna(aan.vellen[0].tegel.y, (2384 * 25.4 / 72 - 840) / 2);
+  bijna(aan.schaal, 1);
+  bijna(uit.schaal, 1);
+  // A0 on borderless A4: 4 x 4 by default, 5 x 5 without the allowance.
+  const a0 = indeling({ papier: { ...A4, bedrukbaar: ZONDER_RAND }, orientatie: 'portrait', pagina: A0_PT,
+    opties: { randAfsnijden: false } });
+  assert.equal(`${a0.kolommen} x ${a0.rijen}`, '5 x 5');
+});
+
+test('#855: without edge cropping every tile grid reaches all page edges', () => {
+  for (const p of [A1, A1_PT, A0_PT]) for (const schaal of [10, 50, 100, 400]) {
+    for (const orientatie of ['auto', 'portrait', 'landscape']) for (const overlap of [0, 10]) {
+      for (const snijtekens of [false, true]) {
+        const r = posterIndeling({ papier: A3, pagina: p, orientatie,
+          opties: { schaal, overlap, snijtekens, labels: false, alleenGroot: false, randAfsnijden: false } });
+        const tegels = r.vellen.map((v) => v.tegel);
+        const wat = `${p.breedtePt}x${p.hoogtePt} ${schaal} % ${orientatie} overlap ${overlap} tekens ${snijtekens}`;
+        assert.ok(Math.min(...tegels.map((t) => t.x)) <= 1e-6, `${wat}: left`);
+        assert.ok(Math.min(...tegels.map((t) => t.y)) <= 1e-6, `${wat}: top`);
+        assert.ok(Math.max(...tegels.map((t) => t.x + t.breedte)) >= r.paginaMm.breedte - 1e-6, `${wat}: right`);
+        assert.ok(Math.max(...tegels.map((t) => t.y + t.hoogte)) >= r.paginaMm.hoogte - 1e-6, `${wat}: bottom`);
+        assert.equal(posterRandAfsnijding([r]), 0, `${wat}: nothing cropped`);
+      }
+    }
+  }
+});
+
+test('#855: the crop per outer edge is at most half the allowance of the tiles on that axis', () => {
+  for (const aantal of [1, 2, 4, 20]) {
+    const grens = aantal * 420 + aantal * SPELING_PER_TEGEL_MM;
+    const r = rasterLangs(grens, 420, 0);
+    assert.equal(r.aantal, aantal);
+    bijna(r.begin, aantal * SPELING_PER_TEGEL_MM / 2);
+    assert.equal(rasterLangs(grens + 0.01, 420, 0).aantal, aantal + 1);
+    assert.equal(rasterLangs(aantal * 420 + 0.01, 420, 0, false).aantal, aantal + 1);
+  }
+});
+
+test('#855: posterRandAfsnijding reports the largest crop of the print', () => {
+  const papier = { ...A3, bedrukbaar: ZONDER_RAND };
+  const a1 = indeling({ papier, orientatie: 'portrait', pagina: A1_PT });
+  const a0 = indeling({ papier: { ...A4, bedrukbaar: ZONDER_RAND }, orientatie: 'portrait', pagina: A0_PT });
+  const a4 = indeling({ papier, pagina: A4_PAGINA, opties: { alleenGroot: true } });
+  assert.equal(a4.getegeld, false);
+  bijna(posterRandAfsnijding([a1]), (2384 * 25.4 / 72 - 840) / 2);
+  bijna(posterRandAfsnijding([a1, null, a4, a0]),
+    Math.max((2384 * 25.4 / 72 - 840) / 2, (3370 * 25.4 / 72 - 1188) / 2));
+  assert.equal(posterRandAfsnijding([a4]), 0);
+  assert.equal(posterRandAfsnijding([]), 0);
+  assert.equal(posterRandAfsnijding(null), 0);
+  // An exact multiple crops nothing.
+  assert.equal(posterRandAfsnijding([indeling({ papier, orientatie: 'portrait', pagina: pagina(594, 840) })]), 0);
+});
+
+test('#855: the print dialog starts with edge cropping on and never stores the choice', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const hier = dirname(fileURLToPath(import.meta.url));
+  const dialoog = readFileSync(join(hier, '../solid/components/dialogs/PrintDialog.jsx'), 'utf8');
+  const winkel = readFileSync(join(hier, '../solid/stores/print-instellingen.js'), 'utf8');
+  assert.match(dialoog, /const \[posterEdgeCrop, setPosterEdgeCrop\] = createSignal\(true\);/);
+  assert.match(dialoog, /randAfsnijden: posterEdgeCrop\(\)/);
+  // Never read from or written into the saved print settings.
+  assert.doesNotMatch(dialoog, /bewaard\.posterEdgeCrop|posterEdgeCrop:/);
+  assert.doesNotMatch(winkel, /posterEdgeCrop|randAfsnijden/);
 });

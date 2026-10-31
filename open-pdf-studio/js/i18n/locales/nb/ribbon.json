@@ -200,6 +200,7 @@
     "thinLines": "Tynne linjer",
     "compareGroup": "Sammenlign",
     "fullscreen": "Fullskjerm",
+    "fullscreenUnavailable": "Fullskjerm er ikke tilgjengelig her: nettleseren eller siden som viser appen, avviste det. Bruk heller fullskjermvalget i nettleserens meny.",
     "window": "Vindu",
     "display": "Visning",
     "keystrokes": "Tastetrykk",

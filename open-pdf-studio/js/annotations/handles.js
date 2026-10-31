@@ -1,5 +1,5 @@
 import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
-import { kanDraaipunt, draaipuntLokaal } from './draaipunt.js';
+import { kanDraaipunt, heeftEigenDraaipunt, draaipuntLokaal } from './draaipunt.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { isStramien, stramienAs, slotStatus, UITEINDEN } from './stramien-koppeling.js';
@@ -11,7 +11,7 @@ import { betonbalkTagAnchor } from './betonbalk.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import { buildSysteemraster, segmentPoint, rotToWorld } from './systeemraster.js';
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
-import { spreidMaatgrepen, kiesGreep } from './greep-keuze.js';
+import { spreidMaatgrepen, kiesGreep, MIN_GREEPKADER_PX } from './greep-keuze.js';
 import { RECHTHOEK_VORMEN } from './minimummaat.js';
 import { isBewerkbareVeelhoek, veelhoekPunten } from './veelhoek-punten.js';
 
@@ -154,6 +154,32 @@ export function greepOpScherm(annotation, x, y) {
   const center = getAnnotationCenter(annotation);
   if (!center) return { x, y };
   return rotatePoint(x, y, center.x, center.y, annotation.rotation);
+}
+
+// Eigen draaipunt (#826): een vizier op het draaipunt, standaard het midden.
+// Lokaal (ongedraaid) geplaatst; draait in getAnnotationHandles mee met het
+// vak. Vooraan in de lijst: ligt het draaipunt precies op een andere greep,
+// dan blijft het te pakken (bij gelijke afstand wint de eerste). Staat het in
+// het midden, dan vervalt de verplaatsgreep daar: die lag er precies onder en
+// zou altijd winnen. De vorm blijft verplaatsbaar aan zijn lijf of rand; is
+// het draaipunt verplaatst, dan staat de verplaatsgreep weer in het midden.
+// Een piepkleine vorm op het scherm krijgt geen standaard-draaipunt: het vizier
+// zou de hele vorm bedekken, zodat slepen aan de vorm niet meer verplaatst
+// (zie greep-keuze.js). Inzoomen maakt het weer bereikbaar.
+function _draaipuntGreep(annotation, hs, handles, scale) {
+  // Vergrendeld: niet draaien of schalen, dus ook geen draaipunt om te zetten.
+  if (!kanDraaipunt(annotation) || annotation.locked) return;
+  const eigen = heeftEigenDraaipunt(annotation);
+  const schermMaat = Math.max(annotation.width, annotation.height) * scale;
+  if (!eigen && schermMaat < MIN_GREEPKADER_PX) return;
+  if (!eigen) {
+    for (let i = handles.length - 1; i >= 0; i--) {
+      const t = handles[i].type;
+      if (t === HANDLE_TYPES.RECT_CENTER || t === HANDLE_TYPES.CIRCLE_CENTER) handles.splice(i, 1);
+    }
+  }
+  const dp = draaipuntLokaal(annotation);
+  handles.unshift({ type: HANDLE_TYPES.PIVOT, x: dp.x - hs / 2, y: dp.y - hs / 2, isPivot: true });
 }
 
 // Get handles for an annotation based on its type
@@ -664,12 +690,6 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
-      // Eigen draaipunt (#826): een vizier op het draaipunt, standaard het
-      // midden. Draait hieronder mee met het vak.
-      if (kanDraaipunt(annotation)) {
-        const _dp = draaipuntLokaal(annotation);
-        handles.push({ type: HANDLE_TYPES.PIVOT, x: _dp.x - hs / 2, y: _dp.y - hs / 2, isPivot: true });
-      }
       // Stramienlijn: slotje per uiteinde (koppeling met de andere lijnen).
       if (isStramien(annotation)) _stramienSlotGrepen(annotation, scale, handles);
       break;
@@ -730,6 +750,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
       }
       break;
   }
+
+  _draaipuntGreep(annotation, hs, handles, scale);
 
   // Piepkleine vorm op het scherm: laat de maatgrepen uitwijken naar een kader
   // van vaste schermmaat, zodat ze elkaar en de vorm niet bedekken en slepen

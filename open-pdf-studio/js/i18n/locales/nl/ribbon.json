@@ -205,6 +205,7 @@
     "thinLinesTitle": "Dunne lijnen (Ctrl+5)",
     "thinLines": "Dunne lijnen",
     "fullscreen": "Volledig scherm",
+    "fullscreenUnavailable": "Volledig scherm is hier niet beschikbaar: de browser of de pagina die de app toont, weigerde het. Gebruik in plaats daarvan de optie Volledig scherm in het menu van de browser.",
     "display": "Weergave",
     "keystrokes": "Toetsaanslagen",
     "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)",

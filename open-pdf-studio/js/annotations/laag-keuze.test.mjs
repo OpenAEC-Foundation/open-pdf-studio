@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { laagKeuzeWaarde, leesLaagKeuze, laagKeuzeOpties } from './laag-keuze.js';
+import { laagKeuzeWaarde, leesLaagKeuze, laagKeuzeOpties, selectieLaagKeuze } from './laag-keuze.js';
 import { addLayer, ensureLayers, assignLayer, layerIdOf, isLayerHidden, updateLayer } from './annotatie-lagen.js';
 
 function document() {
@@ -60,7 +60,48 @@ test('een annotatie op een laag van de tekening verdwijnt als die laag uit gaat'
   assert.equal(isLayerHidden(doc, ann), true);
 });
 
+test('de waarde voor een selectie (Opmaak, #865): leeg, één laag of gemengd', () => {
+  const { doc, opm } = document();
+  const a = { id: 'a' };
+  const b = { id: 'b', layer: opm.id };
+  const c = { id: 'c', layer: 'ocg-12-0' };
+  doc.annotations.push(a, b, c);
+  assert.equal(selectieLaagKeuze([], doc), '');
+  assert.equal(selectieLaagKeuze(null, doc), '');
+  assert.equal(selectieLaagKeuze([a], doc), 'a:default');
+  assert.equal(selectieLaagKeuze([b], doc), `a:${opm.id}`);
+  assert.equal(selectieLaagKeuze([c], doc), 'o:12R');
+  assert.equal(selectieLaagKeuze([b, b], doc), `a:${opm.id}`);
+  assert.equal(selectieLaagKeuze([a, b], doc), 'mixed');
+  assert.equal(selectieLaagKeuze([b, c], doc), 'mixed');
+});
+
+test('de waarde voor een selectie volgt het document, ook als de selectie een kopie vasthoudt', () => {
+  const { doc, opm } = document();
+  const echt = { id: 'x' };
+  doc.annotations.push(echt);
+  const kopie = { ...echt };
+  // Verplaatsen werkt op de annotatie van het document (moveAnnotationsToAnnotationLayer).
+  assignLayer([echt], opm.id);
+  assert.equal(selectieLaagKeuze([kopie], doc), `a:${opm.id}`);
+  // Een selectie die het document niet (meer) kent, telt zelf.
+  assert.equal(selectieLaagKeuze([{ id: 'weg', layer: opm.id }], doc), `a:${opm.id}`);
+});
+
 const lees = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
+
+test('bedrading: de laagkeuze op Opmaak is de keuzelijst van Eigenschappen (#865)', () => {
+  const lint = lees('../solid/components/ribbon/FormatTab.jsx');
+  assert.match(lint, /<LayerField id="fmt-layer"/);
+  assert.match(lint, /value=\{selectionLayer\(\)\}/);
+  assert.match(lint, /selectieLaagKeuze\(layerSelection\(\), getActiveDocument\(\)\)/);
+  assert.match(lint, /disabled=\{invoegen\(\) \|\| !layerSelection\(\)\.length \|\| layerSelection\(\)\.some\(ann => ann\.locked\)\}/);
+  assert.doesNotMatch(lint, /<select[^>]*id="fmt-layer"/, 'geen eigen vaste lijst met alleen "Geen" meer');
+  const veld = lees('../solid/components/properties-panel/LayerField.jsx');
+  assert.match(veld, /const value = \(\) => props\.value \?\? annotProps\.layer;/);
+  assert.match(veld, /onChange=\{\(e\) => kies\(e\.target\.value\)\}/);
+  assert.match(veld, /setAnnotationLayerProp\(waarde/);
+});
 
 test('bedrading: opslaan, afdrukken, exporteren en het paneel volgen de laagstand', () => {
   const saver = lees('../pdf/saver.js');

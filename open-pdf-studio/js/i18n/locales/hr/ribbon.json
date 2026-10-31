@@ -200,6 +200,7 @@
     "thinLines": "Tanke linije",
     "compareGroup": "Usporedba",
     "fullscreen": "Cijeli zaslon",
+    "fullscreenUnavailable": "Cijeli zaslon ovdje nije dostupan: preglednik ili stranica koja prikazuje aplikaciju odbili su ga. Umjesto toga upotrijebite opciju cijelog zaslona u izborniku preglednika.",
     "window": "Prozor",
     "display": "Prikaz",
     "keystrokes": "Pritisci tipki",

@@ -20,6 +20,7 @@
 // - letters worden niet aangenomen, net als in een getalveld.
 
 import { normaliseerGetalTekst, leesGetal, toonGetal } from '../core/getal-invoer.js';
+import { installeerGetalStappen } from './getal-stappen.js';
 
 export const GETAL_SELECTOR = 'input[data-getal]';
 
@@ -251,6 +252,7 @@ export function installeerGetalVelden({ taal } = {}) {
   const doc = globalThis.document;
   if (geinstalleerd || !doc) return;
   geinstalleerd = true;
+  installeerGetalStappen(doc);
   waardeerOp(doc.documentElement);
   new MutationObserver((mutaties) => {
     for (const m of mutaties) {

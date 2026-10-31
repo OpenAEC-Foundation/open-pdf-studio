@@ -200,6 +200,7 @@
     "thinLines": "细线",
     "compareGroup": "比较",
     "fullscreen": "全屏",
+    "fullscreenUnavailable": "此處無法使用全屏：瀏覽器或顯示此應用程式的頁面拒絕了要求。請改用瀏覽器選單中的全屏選項。",
     "window": "窗口",
     "display": "显示",
     "keystrokes": "按键显示",

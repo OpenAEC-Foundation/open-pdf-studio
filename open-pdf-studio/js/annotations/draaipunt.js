@@ -1,4 +1,4 @@
-// Eigen draaipunt voor afbeeldingen en stempels (#826).
+// Eigen draaipunt voor afbeeldingen, stempels en vormen (#826).
 //
 // Standaard draait en schaalt een vak om zijn midden (draaien) of om de
 // overliggende greep (schalen). Met een eigen draaipunt draait het vak om dat
@@ -12,14 +12,29 @@
 // en mag het ook buiten het vak liggen. Geen veld = het midden (het oude
 // gedrag). Pure functies; x/y is de ongedraaide linkerbovenhoek en `rotation`
 // draait om het midden van het vak, zoals overal in de app.
+//
+// Het draaipunt hoort bij de annotatie zolang het document open is: het gaat
+// mee met ongedaan maken, kopiëren en plakken, maar het staat niet in de PDF.
+// Na opslaan en opnieuw openen staat het weer in het midden.
 
-export const DRAAIPUNT_TYPES = Object.freeze(new Set(['image', 'stamp', 'signature']));
+import { isVreemdeTelling } from './telling.js';
+
+// Vormen met een rechthoekig vak dat om zijn midden draait (zie
+// _ROTATION_FIELD_TYPES in transforms.js). Geen tekstvak: daar zit de
+// tekstcursor in het midden. Geen telling van een ander programma: die tekent
+// stippen op de hoekpunten en draait niet mee met het vak.
+export const DRAAIPUNT_TYPES = Object.freeze(new Set([
+  'image', 'stamp', 'signature',
+  'box', 'mask', 'circle', 'highlight', 'polygon', 'cloud',
+]));
 
 const MIDDEN = Object.freeze({ u: 0.5, v: 0.5 });
 
 /** Kan dit soort annotatie een eigen draaipunt hebben? */
 export function kanDraaipunt(ann) {
-  return !!ann && DRAAIPUNT_TYPES.has(ann.type) && ann.width > 0 && ann.height > 0;
+  return !!ann && DRAAIPUNT_TYPES.has(ann.type)
+    && Number.isFinite(ann.x) && Number.isFinite(ann.y)
+    && ann.width > 0 && ann.height > 0 && !isVreemdeTelling(ann);
 }
 
 /** Heeft de annotatie een eigen draaipunt (niet het midden)? */
@@ -76,15 +91,22 @@ export function draaipuntVoorPunt(ann, px, py) {
  * waar de muis nu is: de hoek is het verschil tussen die twee, gezien vanuit
  * het draaipunt, zodat het vak niet verspringt bij het pakken. De uitkomst
  * staat met 'snap' binnen 3° van een veelvoud van 45° precies op dat veelvoud,
- * zoals bij gewoon draaien. Geeft { x, y, rotation } voor het vak.
+ * zoals bij gewoon draaien. Met 'stap' (Shift, voorkeur hoeksnap) springt
+ * de hoek in stappen van zoveel graden, zoals de gewone draaigreep.
+ * Geeft { x, y, rotation } voor het vak.
  */
-export function draaiOmDraaipunt(orig, startX, startY, muisX, muisY, { snap = true } = {}) {
+export function draaiOmDraaipunt(orig, startX, startY, muisX, muisY, { snap = true, stap = 0 } = {}) {
   const p = draaipuntOpPagina(orig);
   const hoek = (x, y) => Math.atan2(y - p.y, x - p.x) * 180 / Math.PI;
-  let delta = hoek(muisX, muisY) - hoek(startX, startY);
+  // Grijp- of muispunt precies op het draaipunt: geen richting, dus niet draaien.
+  const opPunt = (x, y) => Math.hypot(x - p.x, y - p.y) < 1e-9;
+  let delta = opPunt(startX, startY) || opPunt(muisX, muisY)
+    ? 0 : hoek(muisX, muisY) - hoek(startX, startY);
   let rotatie = (orig.rotation || 0) + delta;
   rotatie = Math.round(rotatie);
-  if (snap) {
+  if (stap > 0) {
+    rotatie = Math.round(rotatie / stap) * stap;
+  } else if (snap) {
     const dichtst = Math.round(rotatie / 45) * 45;
     if (Math.abs(rotatie - dichtst) <= 3) rotatie = dichtst;
   }
@@ -105,4 +127,47 @@ export function houdDraaipuntVast(orig, geschaald) {
   const voor = draaipuntOpPagina(orig);
   const na = draaipuntOpPagina({ ...geschaald, draaipunt: orig.draaipunt });
   return { x: geschaald.x + (voor.x - na.x), y: geschaald.y + (voor.y - na.y) };
+}
+
+const _MAATGREPEN = new Set(['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r']);
+
+/**
+ * Schalen om een eigen draaipunt: zet de muisverplaatsing (dx, dy, op de
+ * pagina) om naar de verplaatsing die applyResize met de overliggende greep
+ * vast moet krijgen, zodat de gesleepte greep na het terugschuiven
+ * (houdDraaipuntVast) precies onder de muis ligt. Zonder omrekening schuift
+ * de greep maar half zo ver als de muis bij een draaipunt in het midden.
+ * Per as: de afstand draaipunt-greep wordt (afstand + muis) / afstand keer
+ * zo groot. Ligt het draaipunt op de as van de greep, dan schaalt die as niet.
+ * Geeft { dx, dy } op de pagina.
+ */
+export function schaalDeltaOmDraaipunt(orig, greep, dx, dy) {
+  if (!_MAATGREPEN.has(greep)) return { dx, dy };
+  const { u, v } = draaipuntRelatief(orig);
+  const r = (orig.rotation || 0) * Math.PI / 180;
+  const cos = Math.cos(r), sin = Math.sin(r);
+  // Muisverplaatsing in het ongedraaide vak.
+  const lx = dx * cos + dy * sin;
+  const ly = -dx * sin + dy * cos;
+  const sx = greep.includes('l') ? -1 : greep.includes('r') ? 1 : 0;
+  const sy = greep.includes('t') ? -1 : greep.includes('b') ? 1 : 0;
+  const spanX = ((sx + 1) / 2 - u) * orig.width;
+  const spanY = ((sy + 1) / 2 - v) * orig.height;
+  const dw = sx && Math.abs(spanX) > 1e-9 ? lx / spanX * orig.width : 0;
+  const dh = sy && Math.abs(spanY) > 1e-9 ? ly / spanY * orig.height : 0;
+  // Terug naar de pagina: de greep beweegt sx·dw en sy·dh in het vak.
+  const gx = sx * dw, gy = sy * dh;
+  return { dx: gx * cos - gy * sin, dy: gx * sin + gy * cos };
+}
+
+/**
+ * Het draaipunt voor een vak dat van `oud` naar `nieuw` is veranderd zonder
+ * dat de inhoud op de pagina verschuift (bijsnijden): hetzelfde paginapunt,
+ * uitgedrukt in het nieuwe vak. Geeft het nieuwe `draaipunt` of undefined
+ * (geen eigen draaipunt, of het valt nu precies op het midden).
+ */
+export function draaipuntNaVakWissel(oud, nieuw) {
+  if (!heeftEigenDraaipunt(oud) || !(nieuw?.width > 0) || !(nieuw?.height > 0)) return undefined;
+  const p = draaipuntOpPagina(oud);
+  return draaipuntVoorPunt(nieuw, p.x, p.y);
 }

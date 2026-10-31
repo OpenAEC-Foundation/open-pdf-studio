@@ -44,8 +44,9 @@ const metRing = boutTemplate.realSizeMm({
 const hexAcrossCorners = 19 / Math.cos(Math.PI / 6);
 near(zonderRing.width, hexAcrossCorners, 1e-9, 'zonder ring volgt de zeskantmaat');
 near(zonderRing.height, hexAcrossCorners, 1e-9, 'plattegrond is vierkant');
-near(metRing.width, 2.2 * 12, 1e-9, 'met ring volgt de buitendiameter');
-near(metRing.height, 2.2 * 12, 1e-9, 'ringfootprint is vierkant');
+// Ring volgens ISO 7089: M12 heeft een buitendiameter van 24 mm.
+near(metRing.width, 24, 1e-9, 'met ring volgt de buitendiameter');
+near(metRing.height, 24, 1e-9, 'ringfootprint is vierkant');
 
 console.log('\n== Geometrie');
 const bbox = { x: 10, y: 20, width: 132, height: 132 };
@@ -59,15 +60,17 @@ ok(zonderCommands.some((command) => command.role === 'boutkop' && command.kind =
   'plattegrond bevat een zeskante boutkop');
 ok(!zonderCommands.some((command) => command.role === 'ring'),
   'ring uit verbergt de buitenring');
-const schachtZonderRing = zonderCommands.find((command) => command.role === 'boutschacht');
-ok(schachtZonderRing?.kind === 'circle',
-  'plattegrond toont de ronde boutschacht binnen de zeskant');
+// Bovenaanzicht van de kop: de schacht is onzichtbaar, de afschuincirkel
+// (over de platte kanten) staat binnen de zeskant.
+const afschuiningZonderRing = zonderCommands.find((command) => command.role === 'afschuining');
+ok(afschuiningZonderRing?.kind === 'circle',
+  'plattegrond toont de afschuincirkel binnen de zeskant');
 const ring = metCommands.find((command) => command.role === 'ring');
 ok(ring?.kind === 'circle', 'ring aan tekent een cirkel');
 ok(metCommands.some((command) => command.role === 'boutkop'),
   'boutkop blijft zichtbaar met ring');
-ok(metCommands.some((command) => command.role === 'boutschacht'),
-  'boutschacht blijft zichtbaar met ring');
+ok(metCommands.some((command) => command.role === 'afschuining'),
+  'afschuincirkel blijft zichtbaar met ring');
 ok(ring && ring.cx - ring.r >= bbox.x && ring.cx + ring.r <= bbox.x + bbox.width
   && ring.cy - ring.r >= bbox.y && ring.cy + ring.r <= bbox.y + bbox.height,
   'ring blijft volledig binnen de bbox');

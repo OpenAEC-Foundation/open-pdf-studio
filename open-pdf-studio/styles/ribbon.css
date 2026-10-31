@@ -330,6 +330,15 @@
   height: 14px;
 }
 
+/* Rotate arrows read poorly at 14px; use the full icon slot */
+#rotate-left .ribbon-btn-icon svg,
+#rotate-right .ribbon-btn-icon svg,
+#view-rotate-left .ribbon-btn-icon svg,
+#view-rotate-right .ribbon-btn-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
 .ribbon-btn.small .ribbon-btn-label {
   font-size: 11px;
   text-align: left;
@@ -629,6 +638,12 @@
   background: var(--theme-ribbon-input-bg);
   color: var(--theme-ribbon-input-text);
   min-width: 60px;
+}
+
+/* De laagkeuze op Opmaak (#865) toont namen van de gebruiker en van de
+   tekening: een lange naam mag het lint niet breder maken. */
+#fmt-layer {
+  max-width: 140px;
 }
 
 /* Themed dropdown list: WebView2/Chromium render the popup with the OS

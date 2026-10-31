@@ -200,6 +200,7 @@
     "thinLines": "Líneas finas",
     "compareGroup": "Comparar",
     "fullscreen": "Pantalla completa",
+    "fullscreenUnavailable": "La pantalla completa no está disponible aquí: el navegador o la página que muestra la aplicación la ha rechazado. Use en su lugar la opción de pantalla completa del menú del navegador.",
     "window": "Ventana",
     "display": "Visualización",
     "keystrokes": "Pulsaciones",

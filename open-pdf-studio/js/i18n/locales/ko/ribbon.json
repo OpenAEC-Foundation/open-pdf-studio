@@ -200,6 +200,7 @@
     "thinLines": "가는 선",
     "compareGroup": "비교",
     "fullscreen": "전체 화면",
+    "fullscreenUnavailable": "여기서는 전체 화면을 사용할 수 없습니다. 브라우저 또는 앱을 표시하는 페이지가 요청을 거부했습니다. 대신 브라우저 메뉴의 전체 화면 옵션을 사용하세요.",
     "window": "창",
     "display": "표시",
     "keystrokes": "키 입력 표시",

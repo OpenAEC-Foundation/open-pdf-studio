@@ -200,6 +200,7 @@
     "thinLines": "Tunna linjer",
     "compareGroup": "Jämför",
     "fullscreen": "Helskärm",
+    "fullscreenUnavailable": "Helskärm är inte tillgängligt här: webbläsaren eller sidan som visar appen nekade det. Använd i stället helskärmsalternativet i webbläsarens meny.",
     "window": "Fönster",
     "display": "Visning",
     "keystrokes": "Tangenttryck",

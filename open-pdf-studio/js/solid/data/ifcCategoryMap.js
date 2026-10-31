@@ -96,6 +96,7 @@ const PARAMETRIC_ID_DEFAULT = {
   'ifc-space': 'IfcSpace',
   'hout-balk': 'IfcBeam',
   'bout': 'IfcMechanicalFastener',
+  'anker': 'IfcMechanicalFastener',
   'staal-hea': 'IfcMember', 'staal-heb': 'IfcMember', 'staal-ipe': 'IfcMember',
   'staal-unp': 'IfcMember', 'staal-koker': 'IfcMember',
   'paal-aanzicht-type-1': 'IfcPile', 'paal-aanzicht-type-2': 'IfcPile',

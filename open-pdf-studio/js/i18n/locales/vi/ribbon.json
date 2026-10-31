@@ -200,6 +200,7 @@
     "thinLines": "Nét mảnh",
     "compareGroup": "So sánh",
     "fullscreen": "Toàn màn hình",
+    "fullscreenUnavailable": "Không thể dùng toàn màn hình ở đây: trình duyệt hoặc trang hiển thị ứng dụng đã từ chối. Hãy dùng tùy chọn toàn màn hình trong menu của trình duyệt.",
     "window": "Cửa sổ",
     "display": "Hiển thị",
     "keystrokes": "Phím bấm",

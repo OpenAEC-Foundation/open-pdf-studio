@@ -204,6 +204,7 @@
     "thinLines": "Thin Lines",
     "compareGroup": "Compare",
     "fullscreen": "Fullscreen",
+    "fullscreenUnavailable": "Full screen is not available here: the browser or the page that shows the app refused it. Use the full-screen option in your browser's menu instead.",
     "window": "Window",
     "display": "Display",
     "keystrokes": "Keystrokes",

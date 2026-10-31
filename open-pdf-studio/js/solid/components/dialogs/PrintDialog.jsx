@@ -1,5 +1,8 @@
-import { createSignal, createMemo, createEffect, on, onMount, batch, For, Show } from 'solid-js';
+import { createSignal, createMemo, createEffect, on, onMount, onCleanup, batch, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
+import NumberStepper from '../NumberStepper.jsx';
+import PosterOverview from './PosterOverview.jsx';
+import { posterSheetOverlaps } from '../../../pdf/print-poster-grid.js';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, getPageRotation } from '../../../core/state.js';
 import { invoke, saveFileDialog } from '../../../core/platform.js';
@@ -33,10 +36,10 @@ import {
   DOEL_PDF, isPdfDoel, doelIsGeopend, standaardDoelPad, isBestandsPrinter,
 } from '../../../pdf/print-doel.js';
 import {
-  posterOpties, posterIndeling, posterVellen, posterLabel, geldigePosterSchaal, geldigeOverlap,
+  posterOpties, posterIndeling, posterVellen, posterLabel, posterRandAfsnijding, geldigePosterSchaal, geldigeOverlap,
   POSTER_SCHAAL_MIN, POSTER_SCHAAL_MAX, OVERLAP_MAX_MM, SNIJTEKEN_DIKTE_PT,
 } from '../../../pdf/print-poster.js';
-import { leesGetalBegin } from '../../../core/getal-invoer.js';
+import { leesGetalBegin, toonGetal } from '../../../core/getal-invoer.js';
 import { KLEUR_MODI, geldigeKleurModus } from '../../../pdf/print-kleur.js';
 
 // Vak waarin het voorbeeld het vel tekent, in CSS-pixels.
@@ -94,7 +97,7 @@ const MODUS_KNOPPEN = [
 ];
 
 export default function PrintDialog(props) {
-  const { t } = useTranslation('dialogs');
+  const { t, language } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
   // Settings of the last print action; every field is validated and falls
@@ -131,6 +134,10 @@ export default function PrintDialog(props) {
   const [posterCutMarks, setPosterCutMarks] = createSignal(bewaard.posterCutMarks);
   const [posterLabels, setPosterLabels] = createSignal(bewaard.posterLabels);
   const [posterOnlyLarge, setPosterOnlyLarge] = createSignal(bewaard.posterOnlyLarge);
+  // Kleine buitenranden afsnijden (#855): standaard aan, zodat een A1 op
+  // randloze A3 2 x 2 blijft; uit = alle inhoud, desnoods een extra vel.
+  // Alleen voor deze afdruk: niet bewaard, bij heropenen weer aan.
+  const [posterEdgeCrop, setPosterEdgeCrop] = createSignal(true);
   const [flyerCount, setFlyerCount] = createSignal(bewaard.flyerCount);
   const [flyerCutMarks, setFlyerCutMarks] = createSignal(bewaard.flyerCutMarks);
   const [bookletSheets, setBookletSheets] = createSignal(bewaard.bookletSheets);
@@ -166,6 +173,7 @@ export default function PrintDialog(props) {
       snijtekens: posterCutMarks(),
       labels: posterLabels(),
       alleenGroot: posterOnlyLarge(),
+      randAfsnijden: posterEdgeCrop(),
     })
     : null), undefined, { equals: zelfdeKeuzes });
   // Boekje (print-boekje.js): twee pagina's per liggend vel in genietvolgorde.
@@ -238,6 +246,7 @@ export default function PrintDialog(props) {
   const [afsnijMelding, setAfsnijMelding] = createSignal('');
   // Alleen de laatst gestarte voorbeeldrender tekent (zie renderPreview).
   let voorbeeldBeurt = 0;
+  onCleanup(() => { voorbeeldBeurt++; posterMatenBeurt++; });
   // Papier per printer en per gevraagd papier (papierVerzoekSleutel) zoals
   // Rust het meldt (printer_papier, of het antwoord uit Eigenschappen).
   // Geen sleutel = nog aan het ophalen, null = onbekend.
@@ -616,6 +625,7 @@ export default function PrintDialog(props) {
   // tot het venster van de tegel, de snijtekens en het label. De navigatie
   // loopt per vel; een pagina die niet getegeld wordt is één vel.
   async function renderPosterVoorbeeld(beurt, pages, markeringen, kleur) {
+    const doc = getActiveDocument();
     try {
       const vellen = posterVellenLijst();
       setAfsnijMelding('');
@@ -631,7 +641,7 @@ export default function PrintDialog(props) {
       const beeld = deel
         ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { markeringen, kleur })
         : null;
-      if (beurt !== voorbeeldBeurt) return;
+      if (beurt !== voorbeeldBeurt || doc !== getActiveDocument() || doc?.isClosed?.()) return;
 
       const { pxPerMm } = vak;
       const ctx = begin(vak);
@@ -668,6 +678,11 @@ export default function PrintDialog(props) {
         ctx.restore();
       }
       tekenVel(ctx, vak, v);
+      // Repeated strips are a preview guide only; never part of print output.
+      ctx.fillStyle = 'rgba(0, 120, 215, 0.18)';
+      for (const r of posterSheetOverlaps(indeling, v)) {
+        ctx.fillRect(r.x * pxPerMm, r.y * pxPerMm, r.width * pxPerMm, r.height * pxPerMm);
+      }
     } catch (e) {
       console.error('Preview render error:', e);
     }
@@ -1172,12 +1187,29 @@ export default function PrintDialog(props) {
     return posterVellen(maten.map((pagina) => posterIndeling({ papier, orientatie, pagina, opties })));
   });
 
+  // Hoeveel mm "Kleine buitenranden afsnijden" hooguit van een buitenrand
+  // weglaat, gerekend met de keuze aan (ook als ze uit staat), naar boven
+  // afgerond op een honderdste mm.
+  const posterAfsnijding = createMemo(() => {
+    const opties = poster();
+    const maten = posterMaten();
+    if (!opties || !maten) return 0;
+    const { papier, orientatie } = plaatsingKeuzes();
+    const aan = { ...opties, randAfsnijden: true };
+    const mm = posterRandAfsnijding(maten.map((pagina) => posterIndeling({ papier, orientatie, pagina, opties: aan })));
+    return Math.ceil(mm * 100 - 1e-6) / 100;
+  });
+
   // Het getoonde vel van de poster, of null.
   const huidigPosterVel = createMemo(() => {
     const vellen = posterVellenLijst();
     if (!poster() || !vellen.length) return null;
     return vellen[Math.min(previewIndex(), vellen.length - 1)];
   });
+
+  createEffect(on(posterVellenLijst, sheets => {
+    if (poster() && previewIndex() >= sheets.length) setPreviewIndex(Math.max(0, sheets.length - 1));
+  }));
 
   // De regel onder de kop bij een poster: welke tegel van welke pagina, of
   // dat de pagina niet getegeld wordt; en of het vel een aanname is.
@@ -1320,6 +1352,7 @@ export default function PrintDialog(props) {
     try {
       for (const pageNum of pages) {
         const page = await doc.pdfDoc.getPage(pageNum);
+        if (beurt !== posterMatenBeurt || doc !== getActiveDocument() || doc.isClosed?.()) return;
         const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
         maten.push({ breedtePt: viewport.width, hoogtePt: viewport.height });
       }
@@ -1587,8 +1620,11 @@ export default function PrintDialog(props) {
           <Show when={poster()}>
             <div class="print-row print-zoom-row">
               <label class="print-label">{t('print.posterScale')}</label>
+              <NumberStepper label={t('print.posterScale')} value={posterScale()} min={POSTER_SCHAAL_MIN} max={POSTER_SCHAAL_MAX}
+                onStep={direction => setPosterScale(geldigePosterSchaal(posterScale() + direction))}>
               <input
                 type="text" inputmode="decimal" data-getal
+                aria-label={t('print.posterScale')}
                 class="print-input"
                 min={POSTER_SCHAAL_MIN}
                 max={POSTER_SCHAAL_MAX}
@@ -1596,12 +1632,16 @@ export default function PrintDialog(props) {
                 onInput={onPosterScaleInput}
                 onChange={onPosterScaleChange}
               />
+              </NumberStepper>
               <span>%</span>
             </div>
             <div class="print-row print-zoom-row">
               <label class="print-label">{t('print.posterOverlap')}</label>
+              <NumberStepper label={t('print.posterOverlap')} value={posterOverlap()} min={0} max={OVERLAP_MAX_MM}
+                onStep={direction => setPosterOverlap(geldigeOverlap(posterOverlap() + direction))}>
               <input
                 type="text" inputmode="decimal" data-getal
+                aria-label={t('print.posterOverlap')}
                 class="print-input"
                 min="0"
                 max={OVERLAP_MAX_MM}
@@ -1610,6 +1650,7 @@ export default function PrintDialog(props) {
                 onInput={onPosterOverlapInput}
                 onChange={onPosterOverlapChange}
               />
+              </NumberStepper>
               <span>mm</span>
             </div>
           </Show>
@@ -1808,6 +1849,14 @@ export default function PrintDialog(props) {
           <Show when={poster()}>
             <div class="print-row print-checkbox-row">
               <label class="print-checkbox-label">
+                <input type="checkbox" id="print-poster-edge-crop"
+                  checked={posterEdgeCrop()} onChange={e => batch(() => { setPosterEdgeCrop(e.target.checked); setPreviewIndex(0); })}
+                  aria-describedby="print-poster-edge-crop-hint" /> {t('print.posterEdgeCrop')}
+              </label>
+            </div>
+            <div class="print-row print-note" id="print-poster-edge-crop-hint">{t('print.posterEdgeCropHint', { max: toonGetal(posterAfsnijding(), language()) })}</div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label">
                 <input
                   type="checkbox"
                   checked={posterCutMarks()}
@@ -1876,7 +1925,7 @@ export default function PrintDialog(props) {
         </fieldset>
       </div>
 
-      <div class="print-preview-panel">
+      <div class="print-preview-panel" classList={{ 'print-poster-preview': !!poster() }}>
         <div class="print-preview-header">
           <Show when={papierKop()}>
             <span class="print-preview-paper">{papierKop()}</span>
@@ -1906,6 +1955,18 @@ export default function PrintDialog(props) {
             <div class="print-preview-note print-preview-flyer">{flyerNotitie()}</div>
           </Show>
         </div>
+        <Show when={huidigPosterVel()}>{current => <PosterOverview
+          layout={current().indeling} selected={current().vel.nummer}
+          page={previewPages()[current().paginaIndex]}
+          markups={printContent() === 'doc-and-markups'} color={colorMode()}
+          title={t('print.posterOverview')} overlapLabel={t('print.posterOverlapLegend')}
+          tileLabel={tile => t('print.posterTileInfo', { page: previewPages()[current().paginaIndex],
+            row: tile.row, col: tile.col, rows: current().indeling.rijen, cols: current().indeling.kolommen })}
+          onSelect={index => {
+            const first = posterVellenLijst().findIndex(v => v.paginaIndex === current().paginaIndex);
+            setPreviewIndex(first + index);
+          }}
+        />}</Show>
         <div class="print-preview-container">
           <canvas ref={canvasRef} id="print-preview-canvas" />
         </div>

@@ -338,6 +338,7 @@ js/pdf/print-meerperblad.test.mjs
 js/pdf/print-meerperblad-voorbeeld.test.mjs
 js/pdf/print-draaien-in-cel.test.mjs
 js/pdf/print-poster.test.mjs
+js/pdf/print-poster-grid.test.mjs
 js/pdf/print-poster-voorbeeld.test.mjs
 js/pdf/flattened-copy.test.mjs
 js/text/wrap-tekst.test.mjs
@@ -475,6 +476,7 @@ js/herstel/herladen.test.mjs
 js/core/getal-invoer.test.mjs
 js/core/getal-invoer-velden.test.mjs
 js/ui/getal-veld.test.mjs
+js/ui/getal-stappen.test.mjs
 js/getal-velden-bron.test.mjs
 scripts/versievelden.test.mjs
 js/tools/gereedschap-opmaak.test.mjs
@@ -585,6 +587,9 @@ js/symbols/templates/wapeningsdetail.test.mjs
 js/symbols/templates/wapeningsnet.test.mjs
 js/symbols/templates/staaf-plattegrond.test.mjs
 js/symbols/templates/vloer-vorstrand.test.mjs
+js/symbols/templates/bout.test.mjs
+js/symbols/templates/ankers.test.mjs
+js/solid/data/nl-ifc-bouw-iconen.test.mjs
 js/symbols/templates/staalverbindingen.test.mjs
 js/symbols/templates/wapeningskorf-staat.test.mjs
 js/pdf/wapening-rondgang.test.mjs
@@ -626,3 +631,12 @@ js/watermark/watermark-custom-position.test.mjs
 js/watermark/watermark-autofit.test.mjs
 js/watermark/watermark-dialog-i18n.test.mjs
 js/watermark/watermark-text-history.test.mjs
+js/pdf/saver/vorm-streeppatroon.test.mjs
+js/watermark/watermark-preview.test.mjs
+js/solid/components/dialog-escape.test.mjs
+# Hoekpunten van meetvlakken direct bewerken (#872)
+js/annotations/area-vertices.test.mjs
+js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
+js/annotations/draaipunt-vormen.test.mjs
+js/ui/chrome/fullscreen.test.mjs
+js/solid/components/ribbon/wand-knop.test.mjs

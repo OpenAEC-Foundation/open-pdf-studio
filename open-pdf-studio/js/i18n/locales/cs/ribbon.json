@@ -200,6 +200,7 @@
     "thinLines": "Tenké čáry",
     "compareGroup": "Porovnání",
     "fullscreen": "Celá obrazovka",
+    "fullscreenUnavailable": "Celá obrazovka zde není k dispozici: prohlížeč nebo stránka, která aplikaci zobrazuje, ji odmítla. Použijte místo toho volbu celé obrazovky v nabídce prohlížeče.",
     "window": "Okno",
     "display": "Zobrazení",
     "keystrokes": "Stisky kláves",

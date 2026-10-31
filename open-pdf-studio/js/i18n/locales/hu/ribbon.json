@@ -200,6 +200,7 @@
     "thinLines": "Vékony vonalak",
     "compareGroup": "Összehasonlítás",
     "fullscreen": "Teljes képernyő",
+    "fullscreenUnavailable": "A teljes képernyő itt nem érhető el: a böngésző vagy az alkalmazást megjelenítő oldal elutasította. Használja helyette a böngésző menüjének teljes képernyős lehetőségét.",
     "window": "Ablak",
     "display": "Megjelenítés",
     "keystrokes": "Billentyűleütések",
