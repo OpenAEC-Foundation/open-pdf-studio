@@ -71,6 +71,7 @@ import {
   canRevealInFileManager,
 } from '../../core/file-manager-reveal.js';
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
+import { submenuPlaatsing } from './submenu-plaatsing.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -109,9 +110,22 @@ function Separator() {
   return <div class="context-menu-separator" />;
 }
 
+// Open the submenu to the left / move it up when it would leave the window.
+function plaatsSubmenu(e) {
+  const inhoud = e.currentTarget.querySelector(':scope > .context-menu-submenu-content');
+  if (!inhoud) return;
+  inhoud.classList.remove('naar-links');
+  inhoud.style.marginTop = '';
+  const { naarLinks, omhoog } = submenuPlaatsing(
+    inhoud.getBoundingClientRect(), e.currentTarget.getBoundingClientRect(),
+    window.innerWidth, window.innerHeight);
+  if (naarLinks) inhoud.classList.add('naar-links');
+  if (omhoog) inhoud.style.marginTop = `${-omhoog}px`;
+}
+
 function Submenu(props) {
   return (
-    <div class={`context-menu-item context-menu-submenu${props.disabled ? ' disabled' : ''}`}>
+    <div class={`context-menu-item context-menu-submenu${props.disabled ? ' disabled' : ''}`} onMouseEnter={plaatsSubmenu}>
       <span class="context-menu-icon" innerHTML={props.icon || ''} />
       <span class="context-menu-label">{props.label}</span>
       <span class="context-menu-arrow">{'\u25B6'}</span>
@@ -1094,6 +1108,8 @@ function kiesEigenBladwijzerKleur(huidig) {
 
 function BookmarkMenuContent() {
   const { t } = useTranslation('context');
+  const { t: td } = useTranslation('dialogs');
+  const { t: tp } = useTranslation('properties');
   // Kleur, stijl en verplaatsen werken op de hele selectie (#689, #690); uit
   // zonder selectie of in PDF/A. Bewerken en subbladwijzer: precies één.
   const uit = () => bookmarkToolbarDisabled();
@@ -1150,6 +1166,11 @@ function BookmarkMenuContent() {
       <MenuItem label={t('bookmark.italic')} checkbox={true} checked={stijl().italic} disabled={stijlUit()} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.toggleBookmarkItalic());
       }} />
+      <Separator />
+      <MenuItem label={`${td('pageLabels.title')} → ${tp('leftPanel.bookmarks')}…`} disabled={uit().add}
+        onClick={() => openDialog('bookmark-names', { direction: 'bookmarks' })} />
+      <MenuItem label={`${tp('leftPanel.bookmarks')} → ${td('pageLabels.title')}…`} disabled={uit().add}
+        onClick={() => openDialog('bookmark-names', { direction: 'labels' })} />
       <Separator />
       <MenuItem label={t('bookmark.expandAll')} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.expandAll());

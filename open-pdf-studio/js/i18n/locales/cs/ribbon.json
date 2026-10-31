@@ -371,6 +371,7 @@
     "updates": "Aktualizace",
     "checkForUpdates": "Zkontrolovat aktualizace",
     "updatesLabel": "Aktualizace",
+    "updatesManaged": "Aktualizace této instalace jsou spravovány centrálně.",
     "startupDiagnosticsTitle": "Zobrazit soubor diagnostiky spuštění (bez osobních údajů)",
     "startupDiagnostics": "Diagnostika",
     "fileAssociation": "Přiřazení souborů",
@@ -717,5 +718,60 @@
     "noRecovery": "Značky v tomto dokumentu byly sloučeny bez povolení obnovení. Jsou součástí obsahu stránky a nelze je obnovit.",
     "done": "Obnovené značky: {{count}}.",
     "failed": "Obnovení se nezdařilo: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Malé ikony",
+    "largeIcons": "Velké ikony",
+    "settings": "Nastavení"
+  },
+  "symbolPalette": {
+    "search": "Hledat symboly...",
+    "noResults": "Nenalezeny žádné symboly",
+    "drawingSettings": "Nastavení výkresu",
+    "manageSystemTypes": "Spravovat typy systémů",
+    "settingsTitle": "Nastavení knihovny symbolů",
+    "industry": "Obor",
+    "country": "Země",
+    "libraryLoading": "Načítání online knihovny…",
+    "libraryOffline": "Online knihovna není dostupná — omezený seznam zemí",
+    "downloading": "Stahování {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Kolekce dostupné online: {{n}} (symbolů: {{symbols}})",
+    "activateDownloaded": "Stažené kolekce k aktivaci pro tuto zemi: {{n}}",
+    "download": "Stáhnout",
+    "downloadFailed": "Stahování se nezdařilo: {{error}}",
+    "builtIn": "Vestavěná",
+    "online": "Online",
+    "addSymbol": "+ Přidat symbol",
+    "export": "Exportovat",
+    "remove": "Odebrat",
+    "noSymbolsYet": "Zatím žádné symboly",
+    "newGroupName": "Název nové skupiny...",
+    "addGroup": "Přidat skupinu",
+    "importGroup": "Importovat skupinu",
+    "catalogLoaded": "Katalog '{{id}}' načten: rodin {{families}}, velikostí {{sizes}}",
+    "catalogNoPreview": "Bez náhledu v souboru: {{n}}",
+    "fileNotRecognized": "Soubor nebyl rozpoznán: není to skupina symbolů ani katalog",
+    "importFailed": "Import se nezdařil: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Stavba",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Staveniště",
+      "nl-sanitair": "NL Sanita",
+      "nl-keuken": "NL Kuchyně",
+      "nen1414-tb": "NL NEN 1414 — Požární ochrana",
+      "nen1414-tbk": "NL NEN 1414 — Hasicí systémy",
+      "nen1414-td": "NL NEN 1414 — Dveře",
+      "nen1414-tn": "NL NEN 1414 — Nouzové osvětlení",
+      "nen1414-tr": "NL NEN 1414 — Odvod kouře a tepla",
+      "nen1414-tv": "NL NEN 1414 — Větrání",
+      "nen1414-tw": "NL NEN 1414 — Voda/Sprinklery"
+    },
+    "sectors": {
+      "aec": "AEC (Stavebnictví)",
+      "electrical": "Elektrotechnika",
+      "process": "Procesy / P&ID",
+      "mep": "Technická zařízení budov (MEP)",
+      "infra": "Infrastruktura"
+    }
   }
 }

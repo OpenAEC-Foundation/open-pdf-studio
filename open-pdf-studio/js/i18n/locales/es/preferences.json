@@ -32,7 +32,8 @@
     "aiLinkActive": "Activa en {{adres}}",
     "aiLinkViaFlag": "Activa mediante parámetro de inicio ({{adres}})",
     "aiLinkOff": "Desactivada",
-    "aiLinkError": "No iniciada: {{fout}}"
+    "aiLinkError": "No iniciada: {{fout}}",
+    "interfaceScale": "Tamaño de la interfaz"
   },
   "annotations": {
     "generalDefaults": "Valores predeterminados generales",
@@ -193,7 +194,12 @@
     "macInstructions": "Para establecer Open PDF Studio como visor PDF predeterminado en macOS:\n\n1. Haga clic derecho en cualquier archivo PDF en Finder\n2. Seleccione \"Obtener información\"\n3. En \"Abrir con\", seleccione Open PDF Studio\n4. Haga clic en \"Cambiar todo...\"",
     "linuxInstructions": "Para establecer Open PDF Studio como visor PDF predeterminado en Linux:\n\nEjecute en la terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Verificar Finder > Obtener información",
-    "notSet": "No establecido"
+    "notSet": "No establecido",
+    "chosenInSystemSettings": "Elegido en la configuración del sistema",
+    "sandboxInstructions": "Open PDF Studio se ejecuta como paquete {{package}} y no puede cambiar por sí mismo la aplicación PDF predeterminada.\n\nElija Open PDF Studio en la configuración del sistema, en Aplicaciones predeterminadas, o haga clic derecho en un archivo PDF y use Abrir con.",
+    "xdgMimeMissing": "xdg-mime (paquete xdg-utils) no está instalado, por lo que la aplicación PDF predeterminada no se puede establecer desde aquí.\n\nInstale xdg-utils o elija Open PDF Studio en la configuración del sistema, en Aplicaciones predeterminadas.",
+    "linuxDone": "Open PDF Studio es ahora la aplicación predeterminada para archivos PDF.",
+    "linuxFailed": "No se pudo establecer Open PDF Studio como aplicación PDF predeterminada.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Explorador de archivos",
@@ -322,6 +328,11 @@
     "resetCommand": "Restablecer valor predeterminado",
     "resetAll": "Restablecer todo",
     "resetAllConfirm": "¿Restablecer todos los atajos de teclado a sus valores predeterminados?",
+    "loadPreset": "Cargar ajuste predefinido…",
+    "replaceConfirm": "Esto reemplazará sus atajos de teclado personalizados. ¿Desea continuar?",
+    "presets": {
+      "markupStyle": "Atajos estilo marcado"
+    },
     "import": "Importar…",
     "export": "Exportar…",
     "fileType": "Atajos de teclado",

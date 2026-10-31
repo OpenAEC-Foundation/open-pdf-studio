@@ -454,7 +454,8 @@
     "styleLabel": "Gaya:",
     "nestTitle": "Sarangkan di bawah penanda buku baharu",
     "deleteTitle": "Padam penanda buku",
-    "deleteConfirm": "Padam {{count}} penanda buku yang dipilih dan semua di bawahnya?"
+    "deleteConfirm": "Padam {{count}} penanda buku yang dipilih dan semua di bawahnya?",
+    "replaceAll": "Gantikan semua penanda buku"
   },
   "formValidation": {
     "title": "Ralat Pengesahan"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Simpan sebagai laporan IFC",
     "failed": "Gagal menyimpan laporan IFC: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Eksport ke IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) masih dalam pembangunan. Semak hasilnya sebelum anda bergantung padanya.",
+    "pages": "Halaman:",
+    "allPages": "Semua halaman",
+    "currentPage": "Halaman semasa",
+    "customPages": "Julat halaman",
+    "rangePlaceholder": "cth. 1-3, 5",
+    "includeRaster": "Sertakan imej",
+    "includeText": "Sertakan teks",
+    "includeAnnotations": "Anotasi pada lapisan berasingan",
+    "export": "Eksport",
+    "progress": "Mengeksport halaman {{done}} daripada {{total}}…",
+    "done": "Ditulis: {{file}} ({{sheets}} helaian, {{paths}} laluan, {{texts}} teks, {{images}} imej, {{annotations}} anotasi).",
+    "capPaths": "Halaman {{page}}: {{kept}} daripada {{total}} laluan dieksport; selebihnya melebihi had.",
+    "capTexts": "Halaman {{page}}: {{kept}} daripada {{total}} baris teks dieksport; selebihnya melebihi had.",
+    "capImages": "Halaman {{page}}: {{kept}} daripada {{total}} imej dieksport; selebihnya melebihi had.",
+    "imagesOmitted": "Imej tanpa data piksel (tidak disokong atau terlalu besar): {{count}}. Kedudukannya dikekalkan.",
+    "sizeLimit": "Halaman {{page}} dan halaman selepasnya tidak dieksport: fail mencapai had saiznya.",
+    "noPages": "Tiada halaman dipilih.",
+    "noBytes": "Data PDF dokumen ini tidak tersedia. Simpan dokumen dan cuba lagi.",
+    "failed": "Eksport IFCX gagal: {{error}}",
+    "unsavedNote": "Perubahan kandungan halaman yang belum disimpan tidak disertakan; anotasi disertakan."
   },
   "styleType": {
     "lineTypes": "Jenis garisan",

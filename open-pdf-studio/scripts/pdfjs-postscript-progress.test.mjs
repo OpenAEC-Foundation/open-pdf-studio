@@ -50,8 +50,20 @@ for (const program of ['{ pop + 0 0 }', '{ pop - 0 0 }', '{ pop 1e999 0 0 }', '{
   });
 }
 
-test('real lexer advances for malformed tokens, including an invalid operator match', () => {
-  const { Lexer, TOKEN } = lexerFrom(patchPostscriptProgress(source));
+// The separate web unit (vite.web-unit.config.js) ships the modern build.
+const modern = readFileSync(require.resolve('pdfjs-dist/build/pdf.worker.mjs'), 'utf8');
+test('modern build: backport matches once, is idempotent and rejects dependency drift', () => {
+  const fixed = patchPostscriptProgress(modern);
+  assert.notEqual(fixed, modern);
+  assert.equal(patchPostscriptProgress(fixed), fixed);
+  assert.throws(() => patchPostscriptProgress(modern + modern), /no longer matches/);
+  const stuck = new (lexerFrom(modern).Lexer)('+');
+  stuck.next();
+  assert.equal(stuck.pos, 0, 'the unpatched modern lexer is stuck as well');
+});
+
+for (const [build, worker] of [['legacy', source], ['modern', modern]]) test(`${build} build: real lexer advances for malformed tokens, including an invalid operator match`, () => {
+  const { Lexer, TOKEN } = lexerFrom(patchPostscriptProgress(worker));
   const lexer = new Lexer('+ foo - bar 1e999 baz . @');
   for (let i = 0; i < 8; i++) {
     const previous = lexer.pos;

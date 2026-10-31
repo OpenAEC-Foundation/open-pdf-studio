@@ -32,7 +32,8 @@
     "aiLinkActive": "已在 {{adres}} 运行",
     "aiLinkViaFlag": "通过启动参数运行（{{adres}}）",
     "aiLinkOff": "关闭",
-    "aiLinkError": "未启动：{{fout}}"
+    "aiLinkError": "未启动：{{fout}}",
+    "interfaceScale": "界面大小"
   },
   "annotations": {
     "generalDefaults": "常规默认值",
@@ -193,7 +194,12 @@
     "macInstructions": "在 macOS 上将 Open PDF Studio 设为默认 PDF 查看器：\n\n1. 在 Finder 中右键点击任意 PDF 文件\n2. 选择“显示简介”\n3. 在“打开方式”下选择 Open PDF Studio\n4. 点击“全部更改...”",
     "linuxInstructions": "在 Linux 上将 Open PDF Studio 设为默认 PDF 查看器：\n\n在终端中运行：\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "检查 Finder > 显示简介",
-    "notSet": "未设置"
+    "notSet": "未设置",
+    "chosenInSystemSettings": "已在系统设置中选择",
+    "sandboxInstructions": "Open PDF Studio 以 {{package}} 软件包运行，无法自行更改默认 PDF 应用。\n\n请在系统设置的“默认应用程序”中选择 Open PDF Studio，或右键单击 PDF 文件并使用“打开方式”。",
+    "xdgMimeMissing": "未安装 xdg-mime（软件包 xdg-utils），因此无法在此设置默认 PDF 应用。\n\n请安装 xdg-utils，或在系统设置的“默认应用程序”中选择 Open PDF Studio。",
+    "linuxDone": "Open PDF Studio 现在是 PDF 文件的默认应用。",
+    "linuxFailed": "无法将 Open PDF Studio 设为默认 PDF 应用。\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "文件资源管理器",
@@ -322,6 +328,11 @@
     "resetCommand": "恢复默认值",
     "resetAll": "全部恢复",
     "resetAllConfirm": "将所有键盘快捷键恢复为默认值？",
+    "loadPreset": "加载预设…",
+    "replaceConfirm": "这将替换您自定义的键盘快捷键。是否继续?",
+    "presets": {
+      "markupStyle": "标记风格快捷键"
+    },
     "import": "导入…",
     "export": "导出…",
     "fileType": "键盘快捷键",

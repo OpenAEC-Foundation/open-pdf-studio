@@ -371,6 +371,7 @@
     "updates": "আপডেট",
     "checkForUpdates": "আপডেট পরীক্ষা করুন",
     "updatesLabel": "আপডেট",
+    "updatesManaged": "এই ইনস্টলেশনের আপডেট কেন্দ্রীয়ভাবে পরিচালিত হয়।",
     "startupDiagnosticsTitle": "গোপনীয়তা-নিরাপদ স্টার্টআপ ডায়াগনস্টিক ফাইল দেখান",
     "startupDiagnostics": "ডায়াগনস্টিক",
     "fileAssociation": "ফাইল সংযুক্তি",
@@ -717,5 +718,60 @@
     "noRecovery": "এই নথির মার্কআপগুলো পুনরুদ্ধারের অনুমতি ছাড়াই সমতল করা হয়েছিল। সেগুলো পৃষ্ঠার বিষয়বস্তুর অংশ এবং পুনরুদ্ধার করা যায় না।",
     "done": "পুনরুদ্ধার করা মার্কআপ: {{count}}।",
     "failed": "পুনরুদ্ধার ব্যর্থ হয়েছে: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "ছোট আইকন",
+    "largeIcons": "বড় আইকন",
+    "settings": "সেটিংস"
+  },
+  "symbolPalette": {
+    "search": "প্রতীক খুঁজুন...",
+    "noResults": "কোনো প্রতীক পাওয়া যায়নি",
+    "drawingSettings": "অঙ্কন সেটিংস",
+    "manageSystemTypes": "সিস্টেমের ধরন পরিচালনা করুন",
+    "settingsTitle": "প্রতীক লাইব্রেরি সেটিংস",
+    "industry": "শিল্পখাত",
+    "country": "দেশ",
+    "libraryLoading": "অনলাইন লাইব্রেরি লোড হচ্ছে…",
+    "libraryOffline": "অনলাইন লাইব্রেরিতে পৌঁছানো যাচ্ছে না — সীমিত দেশের তালিকা",
+    "downloading": "ডাউনলোড হচ্ছে {{current}}/{{total}}: {{label}}",
+    "availableOnline": "অনলাইনে উপলব্ধ সংগ্রহ: {{n}} ({{symbols}}টি প্রতীক)",
+    "activateDownloaded": "এই দেশের জন্য সক্রিয় করার মতো ডাউনলোড করা সংগ্রহ: {{n}}",
+    "download": "ডাউনলোড",
+    "downloadFailed": "ডাউনলোড ব্যর্থ হয়েছে: {{error}}",
+    "builtIn": "অন্তর্নির্মিত",
+    "online": "অনলাইন",
+    "addSymbol": "+ প্রতীক যোগ করুন",
+    "export": "রপ্তানি",
+    "remove": "সরান",
+    "noSymbolsYet": "এখনও কোনো প্রতীক নেই",
+    "newGroupName": "নতুন গোষ্ঠীর নাম...",
+    "addGroup": "গোষ্ঠী যোগ করুন",
+    "importGroup": "গোষ্ঠী আমদানি করুন",
+    "catalogLoaded": "ক্যাটালগ '{{id}}' লোড হয়েছে: {{families}}টি পরিবার, {{sizes}}টি মাপ",
+    "catalogNoPreview": "ফাইলে প্রিভিউ ছাড়া: {{n}}",
+    "fileNotRecognized": "ফাইল শনাক্ত করা যায়নি: এটি প্রতীক গোষ্ঠী বা ক্যাটালগ নয়",
+    "importFailed": "আমদানি ব্যর্থ হয়েছে: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC নির্মাণ",
+      "nl-elektra": "NL বৈদ্যুতিক",
+      "nl-bouwplaats": "NL নির্মাণস্থল",
+      "nl-sanitair": "NL স্যানিটারি",
+      "nl-keuken": "NL রান্নাঘর",
+      "nen1414-tb": "NL NEN 1414 — অগ্নি সুরক্ষা",
+      "nen1414-tbk": "NL NEN 1414 — অগ্নিনির্বাপণ ব্যবস্থা",
+      "nen1414-td": "NL NEN 1414 — দরজা",
+      "nen1414-tn": "NL NEN 1414 — জরুরি আলো",
+      "nen1414-tr": "NL NEN 1414 — ধোঁয়া/তাপ নিষ্কাশন",
+      "nen1414-tv": "NL NEN 1414 — বায়ুচলাচল",
+      "nen1414-tw": "NL NEN 1414 — পানি/স্প্রিংকলার"
+    },
+    "sectors": {
+      "aec": "AEC (নির্মাণ)",
+      "electrical": "বৈদ্যুতিক প্রকৌশল",
+      "process": "প্রক্রিয়া / P&ID",
+      "mep": "ভবন পরিষেবা (MEP)",
+      "infra": "অবকাঠামো"
+    }
   }
 }

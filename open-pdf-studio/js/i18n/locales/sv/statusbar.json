@@ -148,5 +148,14 @@
     "title": "Gå till nästa renderingsanmärkning. Inga anmärkningar garanterar inte en fullständig rendering.",
     "count": "Renderingsanmärkningar: {{count}}",
     "detail": "Sida {{page}}: {{code}}. Prova en lägre zoom eller öppna dokumentet igen; fullständigheten är inte garanterad."
+  },
+  "mcpSignal": {
+    "label": "AI-anslutning (MCP)",
+    "connected": "AI-assistent ansluten",
+    "idle": "MCP-server på, inaktiv",
+    "off": "MCP-server av",
+    "port": "Port: {{port}}",
+    "lastTool": "Senaste verktyg: {{tool}} kl. {{time}}",
+    "noTool": "Inga verktygsanrop ännu"
   }
 }

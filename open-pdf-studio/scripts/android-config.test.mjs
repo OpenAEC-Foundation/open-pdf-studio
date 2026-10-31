@@ -25,6 +25,7 @@ const ALLEEN_BUREAUBLAD = new Set([
   'core:window:allow-show',
   'core:window:allow-set-focus',
   'updater:default',
+  'openaec-update:default',
   'drag:default',
 ]);
 

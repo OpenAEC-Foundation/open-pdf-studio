@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Av",
-    "aiLinkError": "Inte startad: {{fout}}"
+    "aiLinkError": "Inte startad: {{fout}}",
+    "interfaceScale": "Gränssnittsstorlek"
   },
   "annotations": {
     "generalDefaults": "Allmänna standardvärden",
@@ -193,7 +194,12 @@
     "macInstructions": "För att ange Open PDF Studio som standard-PDF-visare på macOS:\n\n1. Högerklicka på valfri PDF-fil i Finder\n2. Välj \"Visa info\"\n3. Under \"Öppna med\", välj Open PDF Studio\n4. Klicka på \"Ändra alla...\"",
     "linuxInstructions": "För att ange Open PDF Studio som standard-PDF-visare på Linux:\n\nKör i terminalen:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Kontrollera Finder > Visa info",
-    "notSet": "Inte angiven"
+    "notSet": "Inte angiven",
+    "chosenInSystemSettings": "Valt i systeminställningarna",
+    "sandboxInstructions": "Open PDF Studio körs som ett {{package}}-paket och kan inte själv ändra standardappen för PDF.\n\nVälj Open PDF Studio i systeminställningarna under Standardprogram, eller högerklicka på en PDF-fil och använd Öppna med.",
+    "xdgMimeMissing": "xdg-mime (paketet xdg-utils) är inte installerat, så standardappen för PDF kan inte anges härifrån.\n\nInstallera xdg-utils, eller välj Open PDF Studio i systeminställningarna under Standardprogram.",
+    "linuxDone": "Open PDF Studio är nu standardappen för PDF-filer.",
+    "linuxFailed": "Det gick inte att ange Open PDF Studio som standardapp för PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Utforskaren",
@@ -322,6 +328,11 @@
     "resetCommand": "Återställ standard",
     "resetAll": "Återställ alla",
     "resetAllConfirm": "Återställa alla kortkommandon till standard?",
+    "loadPreset": "Läs in förinställning…",
+    "replaceConfirm": "Detta ersätter dina egna kortkommandon. Vill du fortsätta?",
+    "presets": {
+      "markupStyle": "Kortkommandon i markeringsstil"
+    },
     "import": "Importera…",
     "export": "Exportera…",
     "fileType": "Kortkommandon",

@@ -122,6 +122,8 @@
     "pdfxNote": "Voegt een output-intent, TrimBox en PDF/X-metadata toe. Met een CMYK-drukprofiel worden RGB-kleuren, afbeeldingen en verlopen naar CMYK omgezet en wordt dat profiel de output-intent; met sRGB wordt niets omgezet. Niet-ingebedde standaardlettertypen blijven een beperking.",
     "exportCad": "CAD-tekening (DXF, DWG)",
     "exportCadDesc": "Exporteer de vectortekening naar DXF of DWG, met lagen, schaal en gebied",
+    "exportIfcx": "Exporteren naar IFCX (bèta)",
+    "exportIfcxDesc": "Bladen, vectoren, tekst, afbeeldingen en annotaties naar een IFC5-JSON-bestand",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Bewerkbare tekst en tabellen met optionele pagina-afbeeldingen",

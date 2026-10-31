@@ -371,6 +371,7 @@
     "updates": "Actualizaciones",
     "checkForUpdates": "Buscar actualizaciones",
     "updatesLabel": "Actualizaciones",
+    "updatesManaged": "Las actualizaciones de esta instalación se gestionan de forma centralizada.",
     "startupDiagnosticsTitle": "Mostrar el archivo de diagnóstico de inicio (respetuoso con la privacidad)",
     "startupDiagnostics": "Diagnóstico",
     "fileAssociation": "Asociación de archivos",
@@ -717,5 +718,60 @@
     "noRecovery": "Las marcas de este documento se aplanaron sin permitir restaurarlas. Forman parte del contenido de la página y no se pueden restaurar.",
     "done": "Marcas restauradas: {{count}}.",
     "failed": "Error al restaurar: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Iconos pequeños",
+    "largeIcons": "Iconos grandes",
+    "settings": "Configuración"
+  },
+  "symbolPalette": {
+    "search": "Buscar símbolos...",
+    "noResults": "No se encontraron símbolos",
+    "drawingSettings": "Configuración del dibujo",
+    "manageSystemTypes": "Gestionar tipos de sistema",
+    "settingsTitle": "Configuración de la biblioteca de símbolos",
+    "industry": "Sector",
+    "country": "País",
+    "libraryLoading": "Cargando la biblioteca en línea…",
+    "libraryOffline": "Biblioteca en línea no disponible — lista de países limitada",
+    "downloading": "Descargando {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Colecciones disponibles en línea: {{n}} ({{symbols}} símbolos)",
+    "activateDownloaded": "Colecciones descargadas para activar en este país: {{n}}",
+    "download": "Descargar",
+    "downloadFailed": "Error en la descarga: {{error}}",
+    "builtIn": "Integrado",
+    "online": "En línea",
+    "addSymbol": "+ Añadir símbolo",
+    "export": "Exportar",
+    "remove": "Quitar",
+    "noSymbolsYet": "Aún no hay símbolos",
+    "newGroupName": "Nombre del nuevo grupo...",
+    "addGroup": "Añadir grupo",
+    "importGroup": "Importar grupo",
+    "catalogLoaded": "Catálogo '{{id}}' cargado: {{families}} familias, {{sizes}} tamaños",
+    "catalogNoPreview": "{{n}} sin vista previa en el archivo",
+    "fileNotRecognized": "Archivo no reconocido: no es un grupo de símbolos ni un catálogo",
+    "importFailed": "Error en la importación: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construcción",
+      "nl-elektra": "NL Electricidad",
+      "nl-bouwplaats": "NL Obra",
+      "nl-sanitair": "NL Sanitarios",
+      "nl-keuken": "NL Cocina",
+      "nen1414-tb": "NL NEN 1414 — Protección contra incendios",
+      "nen1414-tbk": "NL NEN 1414 — Sistemas de extinción",
+      "nen1414-td": "NL NEN 1414 — Puertas",
+      "nen1414-tn": "NL NEN 1414 — Iluminación de emergencia",
+      "nen1414-tr": "NL NEN 1414 — Extracción de humo/calor",
+      "nen1414-tv": "NL NEN 1414 — Ventilación",
+      "nen1414-tw": "NL NEN 1414 — Agua/Rociadores"
+    },
+    "sectors": {
+      "aec": "AEC (Construcción)",
+      "electrical": "Electrotecnia",
+      "process": "Procesos / P&ID",
+      "mep": "Instalaciones (MEP)",
+      "infra": "Infraestructura"
+    }
   }
 }

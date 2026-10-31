@@ -435,7 +435,8 @@
     "styleLabel": "Stijl:",
     "nestTitle": "Onder nieuwe bladwijzer nesten",
     "deleteTitle": "Bladwijzers verwijderen",
-    "deleteConfirm": "{{count}} geselecteerde bladwijzers en alles eronder verwijderen?"
+    "deleteConfirm": "{{count}} geselecteerde bladwijzers en alles eronder verwijderen?",
+    "replaceAll": "Alle bladwijzers vervangen"
   },
   "formValidation": {
     "title": "Validatiefout"
@@ -635,6 +636,30 @@
   "ifcExport": {
     "saveTitle": "Opslaan als IFC-report",
     "failed": "IFC-report opslaan mislukt: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exporteren naar IFCX (bèta)",
+    "betaNote": "Bèta: IFCX (IFC5) is nog in ontwikkeling. Controleer het resultaat voordat u erop vertrouwt.",
+    "pages": "Pagina's:",
+    "allPages": "Alle pagina's",
+    "currentPage": "Huidige pagina",
+    "customPages": "Paginabereik",
+    "rangePlaceholder": "bijv. 1-3, 5",
+    "includeRaster": "Afbeeldingen meenemen",
+    "includeText": "Tekst meenemen",
+    "includeAnnotations": "Annotaties op een aparte laag",
+    "export": "Exporteren",
+    "progress": "Pagina {{done}} van {{total}} exporteren…",
+    "done": "Geschreven: {{file}} ({{sheets}} bladen, {{paths}} paden, {{texts}} teksten, {{images}} afbeeldingen, {{annotations}} annotaties).",
+    "capPaths": "Pagina {{page}}: {{kept}} van {{total}} paden geëxporteerd; de rest valt buiten de limiet.",
+    "capTexts": "Pagina {{page}}: {{kept}} van {{total}} tekstregels geëxporteerd; de rest valt buiten de limiet.",
+    "capImages": "Pagina {{page}}: {{kept}} van {{total}} afbeeldingen geëxporteerd; de rest valt buiten de limiet.",
+    "imagesOmitted": "Afbeeldingen zonder pixeldata (niet ondersteund of te groot): {{count}}. Hun positie blijft behouden.",
+    "sizeLimit": "Pagina {{page}} en de pagina's daarna zijn niet geëxporteerd: het bestand bereikte de maximale grootte.",
+    "noPages": "Geen pagina's gekozen.",
+    "noBytes": "De PDF-gegevens van dit document zijn niet beschikbaar. Sla het document op en probeer het opnieuw.",
+    "failed": "IFCX-export mislukt: {{error}}",
+    "unsavedNote": "Niet-opgeslagen wijzigingen in de pagina-inhoud gaan niet mee; annotaties wel."
   },
   "styleType": {
     "lineTypes": "Lijn-typen",

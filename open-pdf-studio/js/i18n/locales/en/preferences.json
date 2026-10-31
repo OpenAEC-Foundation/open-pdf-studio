@@ -32,7 +32,8 @@
     "aiLinkActive": "Active on {{adres}}",
     "aiLinkViaFlag": "Active via command-line flag ({{adres}})",
     "aiLinkOff": "Off",
-    "aiLinkError": "Not started: {{fout}}"
+    "aiLinkError": "Not started: {{fout}}",
+    "interfaceScale": "Interface size"
   },
   "annotations": {
     "generalDefaults": "General Defaults",
@@ -266,7 +267,12 @@
     "macInstructions": "To set Open PDF Studio as default PDF viewer on macOS:\n\n1. Right-click any PDF file in Finder\n2. Select \"Get Info\"\n3. Under \"Open with\", select Open PDF Studio\n4. Click \"Change All...\"",
     "linuxInstructions": "To set Open PDF Studio as default PDF viewer on Linux:\n\nRun in terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Check Finder > Get Info",
-    "notSet": "Not set"
+    "notSet": "Not set",
+    "chosenInSystemSettings": "Chosen in the system settings",
+    "sandboxInstructions": "Open PDF Studio runs as a {{package}} package and cannot change the default PDF app itself.\n\nChoose Open PDF Studio in your system settings under Default Applications, or right-click a PDF file and use Open With.",
+    "xdgMimeMissing": "xdg-mime (package xdg-utils) is not installed, so the default PDF app cannot be set from here.\n\nInstall xdg-utils, or choose Open PDF Studio in your system settings under Default Applications.",
+    "linuxDone": "Open PDF Studio is now the default app for PDF files.",
+    "linuxFailed": "Could not set Open PDF Studio as the default PDF app.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "File Explorer",
@@ -319,6 +325,11 @@
     "resetCommand": "Reset to default",
     "resetAll": "Reset all",
     "resetAllConfirm": "Reset all keyboard shortcuts to their defaults?",
+    "loadPreset": "Load preset…",
+    "replaceConfirm": "This replaces your custom keyboard shortcuts. Continue?",
+    "presets": {
+      "markupStyle": "Markup-style shortcuts"
+    },
     "import": "Import…",
     "export": "Export…",
     "fileType": "Keyboard shortcuts",

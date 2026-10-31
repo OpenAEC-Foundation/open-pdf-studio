@@ -20,9 +20,13 @@ export const MM_PER_UNIT = {
   ft: 304.8,
 };
 
-// PDF points → millimetres on paper (1 pt = 25.4/72 mm).
-export function pointsToPaperMm(distancePts) {
-  return distancePts * 25.4 / 72;
+// Page units → millimetres on paper (1 unit = UserUnit · 25.4/72 mm; #884).
+function geldig(userUnit) {
+  const u = Number(userUnit);
+  return Number.isFinite(u) && u > 0 ? u : 1;
+}
+export function pointsToPaperMm(distancePts, userUnit = 1) {
+  return distancePts * geldig(userUnit) * 25.4 / 72;
 }
 
 /**
@@ -31,16 +35,17 @@ export function pointsToPaperMm(distancePts) {
  * @param {number} distancePts  Measured distance in app-space units (PDF points).
  * @param {number} realValue    Real-world length the distance represents.
  * @param {string} realUnit     Unit of realValue: mm | cm | m | in | ft.
+ * @param {number} [userUnit]   /UserUnit of the page (default 1).
  * @returns {number|null}       Exact N (may be fractional), or null when invalid.
  */
-export function computeScaleDenominator(distancePts, realValue, realUnit) {
+export function computeScaleDenominator(distancePts, realValue, realUnit, userUnit = 1) {
   const d = Number(distancePts);
   const v = Number(realValue);
   const mmPerUnit = MM_PER_UNIT[realUnit];
   if (!isFinite(d) || d <= 0) return null;
   if (!isFinite(v) || v <= 0) return null;
   if (!mmPerUnit) return null;
-  const paperMm = pointsToPaperMm(d);
+  const paperMm = pointsToPaperMm(d, userUnit);
   const realMm = v * mmPerUnit;
   return realMm / paperMm;
 }
@@ -68,8 +73,8 @@ export function formatScaleDenominator(n) {
  * Full pipeline: measured page distance + real length → "1:N" scale string.
  * Returns null when the inputs are invalid.
  */
-export function scaleStringFromMeasurement(distancePts, realValue, realUnit) {
-  const n = computeScaleDenominator(distancePts, realValue, realUnit);
+export function scaleStringFromMeasurement(distancePts, realValue, realUnit, userUnit = 1) {
+  const n = computeScaleDenominator(distancePts, realValue, realUnit, userUnit);
   if (n === null) return null;
   const s = formatScaleDenominator(n);
   return s ? `1:${s}` : null;

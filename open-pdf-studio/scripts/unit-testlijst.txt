@@ -103,6 +103,7 @@ js/annotations/rendering/textbox-layout.test.mjs
 js/annotations/editable-numbers.test.mjs
 js/core/preferences-mirror.test.mjs
 js/core/mcp-standaard.test.mjs
+js/core/openaec-omgeving.test.mjs
 js/annotations/svg-real-size.test.mjs
 js/annotations/svg-stroke-color.test.mjs
 js/annotations/svg-stroke-width.test.mjs
@@ -128,6 +129,8 @@ js/annotations/vector-snippet-cleanup.test.mjs
 js/pdf/render-route.test.mjs
 js/pdf/titleblock-compose.test.mjs
 js/pdf/progressive-render.test.mjs
+js/pdf/render-queue.test.mjs
+js/pdf/render-queue-app.test.mjs
 js/pdf/tile-coverage.test.mjs
 js/pdf/continuous-zoom-anchor.test.mjs
 js/pdf/continuous-rerender-gate.test.mjs
@@ -176,6 +179,7 @@ js/pdf/handtekeningen/opslaan.test.mjs
 js/pdf/saver/ocr-text-layer.test.mjs
 js/pdf/saver/cjk-fonts.test.mjs
 js/pdf/saver/cff-subset-herstel.test.mjs
+js/pdf/saver/cff-boundaries.test.mjs
 js/pdf/queued-load.test.mjs
 js/annotations/document-scale.test.mjs
 js/core/reader-mode.test.mjs
@@ -203,6 +207,8 @@ js/annotations/schaal-op-punt.test.mjs
 js/pdf/cad-export.test.mjs
 js/pdf/cad-export-i18n.test.mjs
 js/pdf/cad-export-opdracht.test.mjs
+js/pdf/ifcx-export.test.mjs
+js/pdf/ifcx-export-i18n.test.mjs
 js/pdf/cad-import.test.mjs
 js/pdf/cad-import-i18n.test.mjs
 js/pdf/cad-mcp-opdracht.test.mjs
@@ -224,6 +230,7 @@ js/annotations/standaardstijl-rand.test.mjs
 js/annotations/xfdf-geen-rand.test.mjs
 js/pdf/saver/uiterlijk-vulling.test.mjs
 js/core/platform-invoke.test.mjs
+js/core/standaard-pdf-app.test.mjs
 js/core/webfuncties.test.mjs
 js/annotations/vlak-ringen.test.mjs
 js/annotations/rendering/vlak-vulling.test.mjs
@@ -304,6 +311,8 @@ js/pdf/cjk-tekstvak-rondgang.test.mjs
 js/pdf/cjk-font-ontbreekt.test.mjs
 js/annotations/kalibratie-schaal.test.mjs
 js/tools/tools/meting-documentschaal.test.mjs
+js/tools/tools/meting-blad-1-50.test.mjs
+js/annotations/userunit-schaalbronnen.test.mjs
 js/annotations/vlak-zijden.test.mjs
 js/annotations/vlak-maat.test.mjs
 js/annotations/vlak-zijdematen-wiring.test.mjs
@@ -322,6 +331,7 @@ js/core/opslag.test.mjs
 js/core/ai-sleutel.test.mjs
 js/core/host-opslag.test.mjs
 js/core/host-brug.test.mjs
+js/core/host-opslaan-als.test.mjs
 js/core/blob-worker.test.mjs
 js/core/werkplek-ai.test.mjs
 js/pdf/bijlagen.test.mjs
@@ -397,6 +407,7 @@ js/mobile/mobiele-gereedschappen.test.mjs
 js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs
 scripts/pdfjs-postscript-progress.test.mjs
+scripts/pdfjs-xref-offsets.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
 js/core/fout-bericht.test.mjs
@@ -481,6 +492,7 @@ js/getal-velden-bron.test.mjs
 scripts/versievelden.test.mjs
 js/tools/gereedschap-opmaak.test.mjs
 js/text/tekstselectie-markering.test.mjs
+js/text/tekstselectie-woordafstand.test.mjs
 js/text/text-edit-afdekking.test.mjs
 js/pdf/saver/text-edit-tabelranden.test.mjs
 js/pdf/pdf-viewport-paginaschilder.test.mjs
@@ -504,6 +516,10 @@ js/pdf/portfolio.test.mjs
 js/pdf/portfolio-preview.test.mjs
 js/pdf/export-path-policy.test.mjs
 js/core/mcp-wijzigt-hints.test.mjs
+js/pdf/mcp-paginabewerkingen.test.mjs
+js/pdf/mcp-paginabewerkingen-aansluiting.test.mjs
+js/ui/panels/bladwijzers-mcp.test.mjs
+js/watermark/watermerken-mcp.test.mjs
 js/core/nieuwe-kopie-schrijven.test.mjs
 js/pdf/form-recognition.test.mjs
 js/search/symbol-matcher.test.mjs
@@ -536,6 +552,7 @@ js/pdf/inpassen-verborgen-viewer.test.mjs
 js/pdf/weergave-na-opslaan-als.test.mjs
 js/pdf/host-versies.test.mjs
 js/pdf/host-versies-i18n.test.mjs
+js/pdf/host-opslaan-als-document.test.mjs
 js/core/volgende-taak.test.mjs
 js/solid/components/ribbon/na-lettertypen.test.mjs
 js/text/tekst-blokken.test.mjs
@@ -553,6 +570,7 @@ js/core/keybindings/registry.test.mjs
 js/core/keybindings/io.test.mjs
 js/core/keybindings/dispatch.test.mjs
 js/core/keybindings/ribbon-commands.test.mjs
+js/core/keybindings/presets.test.mjs
 js/tools/sneltoetsen-aanpasbaar.test.mjs
 js/pdf/saver/opslag-annuleren.test.mjs
 js/pdf/opslaan-annuleren.test.mjs
@@ -640,3 +658,23 @@ js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
 js/annotations/draaipunt-vormen.test.mjs
 js/ui/chrome/fullscreen.test.mjs
 js/solid/components/ribbon/wand-knop.test.mjs
+# MCP-verbindingssignaal in de statusbalk
+js/core/mcp-signaal.test.mjs
+# Beheerde modus (OPENAEC_BEHEERD=1)
+js/core/beheerd.test.mjs
+js/ui/panels/bookmark-pointer-drag.test.mjs
+js/ui/panels/bookmark-rename.test.mjs
+js/pdf/bookmark-page-labels.test.mjs
+scripts/pdfjs-zero-font.test.mjs
+js/pdf/shx-text.test.mjs
+# Draagbare Windows-versie (#881)
+js/core/draagbaar.test.mjs
+js/i18n/draagbaar-i18n.test.mjs
+scripts/draagbare-zip.test.mjs
+# Bijwerken via de OpenAEC Installer
+js/ui/chrome/installer-update.test.mjs
+js/pdf/annotatie-uitsnede.test.mjs
+js/solid/components/tool-palette-i18n.test.mjs
+scripts/ui-scale.test.mjs
+js/annotations/rendering/document-context.test.mjs
+js/pdf/monochrome-image.test.mjs

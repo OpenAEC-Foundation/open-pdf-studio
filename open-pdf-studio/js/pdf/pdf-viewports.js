@@ -256,6 +256,39 @@ export function leesPdfViewports(pdfLibDoc) {
   return viewportsVanPaginas(paginas, 1);
 }
 
+/**
+ * /UserUnit van één pdf-lib-pagina (ISO 32000, 14.11.2: niet geërfd); 1 als
+ * hij ontbreekt of geen bruikbaar getal is.
+ * @param {import('pdf-lib').PDFPage} pagina
+ */
+export function userUnitVanPdfPagina(pagina) {
+  try {
+    const u = getal(pagina.node.lookup(PDFName.of('UserUnit')));
+    return u !== null && Number.isFinite(u) && u > 0 ? u : 1;
+  } catch {
+    return 1;
+  }
+}
+
+/**
+ * De /UserUnit per pagina (1-gebaseerd) van een pdf-lib-document, alleen de
+ * pagina's waar hij niet 1 is. De app-ruimte telt in pagina-eenheden; een
+ * schaal 1:N rekent met deze waarde om naar papiermillimeters
+ * (pixelsPerUnitFor, #884).
+ * @param {import('pdf-lib').PDFDocument} pdfLibDoc
+ * @returns {Record<number, number>}
+ */
+export function leesUserUnits(pdfLibDoc) {
+  const uit = {};
+  let paginas;
+  try { paginas = pdfLibDoc.getPages(); } catch { return uit; }
+  paginas.forEach((pagina, i) => {
+    const u = userUnitVanPdfPagina(pagina);
+    if (u !== 1) uit[i + 1] = u;
+  });
+  return uit;
+}
+
 // ── Achtergrondlezing ───────────────────────────────────────────────────────
 // De viewports worden op de achtergrond gelezen (bij openen, na bijsnijden,
 // rechtzetten, ongedaan maken). Komt er intussen een andere versie van het
@@ -283,13 +316,16 @@ export function viewportLezingLoopt(doc) {
 
 /**
  * Rondt een lezing af. Alleen de laatst begonnen lezing mag haar uitkomst
- * zetten; `viewports` is `null` als het lezen mislukte.
+ * zetten; `viewports` is `null` als het lezen mislukte. `userUnits` (zie
+ * leesUserUnits) gaat mee met dezelfde lezing: dezelfde bytes, dezelfde
+ * paginanummers.
  * @returns {boolean} true als de uitkomst gezet is (of de mislukking verwerkt)
  */
-export function rondViewportLezingAf(doc, kenmerk, viewports) {
+export function rondViewportLezingAf(doc, kenmerk, viewports, userUnits) {
   if (!doc || doc._viewportLezing !== kenmerk) return false;
   doc._viewportLezing = null;
   if (viewports) doc.pdfViewports = Object.keys(viewports).length ? viewports : undefined;
+  if (viewports && userUnits) doc.pageUserUnits = Object.keys(userUnits).length ? userUnits : undefined;
   return true;
 }
 

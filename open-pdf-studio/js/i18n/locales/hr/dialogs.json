@@ -454,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Ugnijezdi pod novu knjižnu oznaku",
     "deleteTitle": "Izbriši knjižne oznake",
-    "deleteConfirm": "Izbrisati odabrane knjižne oznake ({{count}}) i sve ispod njih?"
+    "deleteConfirm": "Izbrisati odabrane knjižne oznake ({{count}}) i sve ispod njih?",
+    "replaceAll": "Zamijeni sve knjižne oznake"
   },
   "formValidation": {
     "title": "Pogreška provjere valjanosti"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Spremi kao IFC izvješće",
     "failed": "Spremanje IFC izvješća nije uspjelo: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Izvezi u IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) još je u razvoju. Provjerite rezultat prije nego što se na njega oslonite.",
+    "pages": "Stranice:",
+    "allPages": "Sve stranice",
+    "currentPage": "Trenutačna stranica",
+    "customPages": "Raspon stranica",
+    "rangePlaceholder": "npr. 1-3, 5",
+    "includeRaster": "Uključi slike",
+    "includeText": "Uključi tekst",
+    "includeAnnotations": "Bilješke na zasebnom sloju",
+    "export": "Izvezi",
+    "progress": "Izvoz stranice {{done}} od {{total}}…",
+    "done": "Zapisano: {{file}} (listovi: {{sheets}}, putanje: {{paths}}, tekstovi: {{texts}}, slike: {{images}}, bilješke: {{annotations}}).",
+    "capPaths": "Stranica {{page}}: izvezeno {{kept}} od {{total}} putanja; ostatak prelazi ograničenje.",
+    "capTexts": "Stranica {{page}}: izvezeno {{kept}} od {{total}} redaka teksta; ostatak prelazi ograničenje.",
+    "capImages": "Stranica {{page}}: izvezeno {{kept}} od {{total}} slika; ostatak prelazi ograničenje.",
+    "imagesOmitted": "Slike bez podataka o pikselima (nepodržane ili prevelike): {{count}}. Njihov položaj je zadržan.",
+    "sizeLimit": "Stranica {{page}} i sljedeće stranice nisu izvezene: datoteka je dosegla ograničenje veličine.",
+    "noPages": "Nije odabrana nijedna stranica.",
+    "noBytes": "PDF podaci ovog dokumenta nisu dostupni. Spremite dokument i pokušajte ponovno.",
+    "failed": "Izvoz u IFCX nije uspio: {{error}}",
+    "unsavedNote": "Nespremljene promjene sadržaja stranica nisu uključene; bilješke jesu."
   },
   "styleType": {
     "lineTypes": "Vrste linija",

@@ -32,7 +32,8 @@
     "aiLinkActive": "Käytössä osoitteessa {{adres}}",
     "aiLinkViaFlag": "Käytössä käynnistysparametrin kautta ({{adres}})",
     "aiLinkOff": "Pois",
-    "aiLinkError": "Ei käynnistetty: {{fout}}"
+    "aiLinkError": "Ei käynnistetty: {{fout}}",
+    "interfaceScale": "Käyttöliittymän koko"
   },
   "annotations": {
     "generalDefaults": "Yleiset oletukset",
@@ -193,7 +194,12 @@
     "macInstructions": "Aseta Open PDF Studio oletus-PDF-katseluohjelmaksi macOS:ssä:\n\n1. Napsauta mitä tahansa PDF-tiedostoa hiiren kakkospainikkeella Finderissa\n2. Valitse \"Hae tietoja\"\n3. Kohdasta \"Avaa sovelluksella\" valitse Open PDF Studio\n4. Napsauta \"Vaihda kaikki...\"",
     "linuxInstructions": "Aseta Open PDF Studio oletus-PDF-katseluohjelmaksi Linuxissa:\n\nSuorita terminaalissa:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Tarkista Finder > Hae tietoja",
-    "notSet": "Ei asetettu"
+    "notSet": "Ei asetettu",
+    "chosenInSystemSettings": "Valittu järjestelmän asetuksissa",
+    "sandboxInstructions": "Open PDF Studio toimii {{package}}-pakettina eikä voi itse vaihtaa oletus-PDF-sovellusta.\n\nValitse Open PDF Studio järjestelmän asetuksista kohdasta Oletussovellukset, tai napsauta PDF-tiedostoa hiiren oikealla painikkeella ja käytä Avaa sovelluksella.",
+    "xdgMimeMissing": "xdg-mime (paketti xdg-utils) ei ole asennettu, joten oletus-PDF-sovellusta ei voi asettaa täältä.\n\nAsenna xdg-utils tai valitse Open PDF Studio järjestelmän asetuksista kohdasta Oletussovellukset.",
+    "linuxDone": "Open PDF Studio on nyt PDF-tiedostojen oletussovellus.",
+    "linuxFailed": "Open PDF Studiota ei voitu asettaa oletus-PDF-sovellukseksi.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Resurssienhallinta",
@@ -322,6 +328,11 @@
     "resetCommand": "Palauta oletus",
     "resetAll": "Palauta kaikki",
     "resetAllConfirm": "Palautetaanko kaikki pikanäppäimet oletuksiin?",
+    "loadPreset": "Lataa esiasetus…",
+    "replaceConfirm": "Tämä korvaa omat pikanäppäimesi. Jatketaanko?",
+    "presets": {
+      "markupStyle": "Merkintätyyliset pikanäppäimet"
+    },
     "import": "Tuo…",
     "export": "Vie…",
     "fileType": "Pikanäppäimet",

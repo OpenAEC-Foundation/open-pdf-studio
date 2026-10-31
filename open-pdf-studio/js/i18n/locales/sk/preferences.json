@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktívne na {{adres}}",
     "aiLinkViaFlag": "Aktívne cez spúšťací parameter ({{adres}})",
     "aiLinkOff": "Vypnuté",
-    "aiLinkError": "Nespustené: {{fout}}"
+    "aiLinkError": "Nespustené: {{fout}}",
+    "interfaceScale": "Veľkosť rozhrania"
   },
   "annotations": {
     "generalDefaults": "Všeobecné predvolené nastavenia",
@@ -193,7 +194,12 @@
     "macInstructions": "Na nastavenie Open PDF Studio ako predvoleného PDF prehliadača na macOS:\n\n1. Kliknite pravým tlačidlom na ľubovoľný PDF súbor vo Finderi\n2. Vyberte \"Informácie\"\n3. V časti \"Otvoriť pomocou\" vyberte Open PDF Studio\n4. Kliknite na \"Zmeniť všetky...\"",
     "linuxInstructions": "Na nastavenie Open PDF Studio ako predvoleného PDF prehliadača na Linuxe:\n\nSpustite v termináli:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Skontrolujte Finder > Informácie",
-    "notSet": "Nenastavené"
+    "notSet": "Nenastavené",
+    "chosenInSystemSettings": "Zvolené v nastaveniach systému",
+    "sandboxInstructions": "Open PDF Studio beží ako balík {{package}} a nemôže samo zmeniť predvolenú aplikáciu pre PDF.\n\nZvoľte Open PDF Studio v nastaveniach systému v časti Predvolené aplikácie, alebo kliknite pravým tlačidlom na súbor PDF a použite Otvoriť pomocou.",
+    "xdgMimeMissing": "xdg-mime (balík xdg-utils) nie je nainštalovaný, takže predvolenú aplikáciu pre PDF nemožno nastaviť odtiaľto.\n\nNainštalujte xdg-utils, alebo zvoľte Open PDF Studio v nastaveniach systému v časti Predvolené aplikácie.",
+    "linuxDone": "Open PDF Studio je teraz predvolenou aplikáciou pre súbory PDF.",
+    "linuxFailed": "Open PDF Studio sa nepodarilo nastaviť ako predvolenú aplikáciu pre PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Prieskumník",
@@ -322,6 +328,11 @@
     "resetCommand": "Obnoviť predvolené",
     "resetAll": "Obnoviť všetko",
     "resetAllConfirm": "Obnoviť všetky klávesové skratky na predvolené hodnoty?",
+    "loadPreset": "Načítať predvoľbu…",
+    "replaceConfirm": "Týmto sa nahradia vaše vlastné klávesové skratky. Pokračovať?",
+    "presets": {
+      "markupStyle": "Skratky v štýle značkovania"
+    },
     "import": "Importovať…",
     "export": "Exportovať…",
     "fileType": "Klávesové skratky",

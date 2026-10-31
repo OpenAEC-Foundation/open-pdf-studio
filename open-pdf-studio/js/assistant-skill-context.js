@@ -10,7 +10,7 @@
 // (schaal-op-punt.js), with the scale region first, as findMeasureScale does.
 
 import { verzamelSchaalBronnen, schaalgebiedenOpPagina, schaalOpPuntUitBronnen, documentHeeftSchaal } from './annotations/schaal-op-punt.js';
-import { pixelsPerUnitFor } from './annotations/scale-region-scale.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from './annotations/scale-region-scale.js';
 
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
 
@@ -39,7 +39,7 @@ export function scaleAtPoint(doc, page, x, y) {
   const gebied = schaalgebiedenOpPagina(bronnen, page)
     .find((r) => x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height);
   if (gebied) {
-    return { pixelsPerUnit: pixelsPerUnitFor(gebied.scaleString || '1:100', gebied.units || 'mm'), unit: gebied.units || 'mm', method: 'scaleRegion' };
+    return { pixelsPerUnit: pixelsPerUnitFor(gebied.scaleString || '1:100', gebied.units || 'mm', userUnitVanPagina(doc, page)), unit: gebied.units || 'mm', method: 'scaleRegion' };
   }
   return schaalOpPuntUitBronnen(bronnen, doc, page, x, y);
 }

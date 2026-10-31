@@ -34,6 +34,7 @@
     "store:default",
     "os:default",
     "updater:default",
+    "openaec-update:default",
     "process:allow-restart",
     "process:allow-exit",
     "drag:default"

@@ -148,5 +148,14 @@
     "title": "Ir para o próximo aviso de renderização. A ausência de avisos não garante uma renderização completa.",
     "count": "Avisos de renderização: {{count}}",
     "detail": "Página {{page}}: {{code}}. Tente um zoom menor ou reabra o documento; a completude não é garantida."
+  },
+  "mcpSignal": {
+    "label": "Conexão de IA (MCP)",
+    "connected": "Assistente de IA conectado",
+    "idle": "Servidor MCP ligado, inativo",
+    "off": "Servidor MCP desligado",
+    "port": "Porta: {{port}}",
+    "lastTool": "Última ferramenta: {{tool}} às {{time}}",
+    "noTool": "Ainda não há chamadas de ferramentas"
   }
 }

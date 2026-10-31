@@ -454,7 +454,8 @@
     "styleLabel": "Kiểu:",
     "nestTitle": "Lồng vào dấu trang mới",
     "deleteTitle": "Xóa dấu trang",
-    "deleteConfirm": "Xóa {{count}} dấu trang đã chọn và mọi thứ bên dưới?"
+    "deleteConfirm": "Xóa {{count}} dấu trang đã chọn và mọi thứ bên dưới?",
+    "replaceAll": "Thay thế tất cả dấu trang"
   },
   "formValidation": {
     "title": "Lỗi Xác thực"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Lưu thành báo cáo IFC",
     "failed": "Lưu báo cáo IFC thất bại: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Xuất sang IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) vẫn đang được phát triển. Hãy kiểm tra kết quả trước khi dựa vào nó.",
+    "pages": "Trang:",
+    "allPages": "Tất cả các trang",
+    "currentPage": "Trang hiện tại",
+    "customPages": "Phạm vi trang",
+    "rangePlaceholder": "vd. 1-3, 5",
+    "includeRaster": "Bao gồm hình ảnh",
+    "includeText": "Bao gồm văn bản",
+    "includeAnnotations": "Chú thích trên một lớp riêng",
+    "export": "Xuất",
+    "progress": "Đang xuất trang {{done}}/{{total}}…",
+    "done": "Đã ghi: {{file}} ({{sheets}} tờ, {{paths}} đường, {{texts}} văn bản, {{images}} hình ảnh, {{annotations}} chú thích).",
+    "capPaths": "Trang {{page}}: đã xuất {{kept}}/{{total}} đường; phần còn lại vượt giới hạn.",
+    "capTexts": "Trang {{page}}: đã xuất {{kept}}/{{total}} dòng văn bản; phần còn lại vượt giới hạn.",
+    "capImages": "Trang {{page}}: đã xuất {{kept}}/{{total}} hình ảnh; phần còn lại vượt giới hạn.",
+    "imagesOmitted": "Hình ảnh không có dữ liệu điểm ảnh (không hỗ trợ hoặc quá lớn): {{count}}. Vị trí của chúng được giữ nguyên.",
+    "sizeLimit": "Trang {{page}} và các trang sau không được xuất: tệp đã đạt giới hạn kích thước.",
+    "noPages": "Chưa chọn trang nào.",
+    "noBytes": "Không có dữ liệu PDF của tài liệu này. Hãy lưu tài liệu và thử lại.",
+    "failed": "Xuất IFCX thất bại: {{error}}",
+    "unsavedNote": "Các thay đổi chưa lưu đối với nội dung trang không được bao gồm; chú thích thì có."
   },
   "styleType": {
     "lineTypes": "Kiểu đường",

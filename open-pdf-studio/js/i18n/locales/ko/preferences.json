@@ -32,7 +32,8 @@
     "aiLinkActive": "{{adres}}에서 활성",
     "aiLinkViaFlag": "시작 옵션으로 활성 ({{adres}})",
     "aiLinkOff": "끔",
-    "aiLinkError": "시작되지 않음: {{fout}}"
+    "aiLinkError": "시작되지 않음: {{fout}}",
+    "interfaceScale": "인터페이스 크기"
   },
   "annotations": {
     "generalDefaults": "일반 기본값",
@@ -193,7 +194,12 @@
     "macInstructions": "macOS에서 Open PDF Studio를 기본 PDF 뷰어로 설정하려면:\n\n1. Finder에서 아무 PDF 파일을 우클릭합니다\n2. \"정보 가져오기\"를 선택합니다\n3. \"다음으로 열기\"에서 Open PDF Studio를 선택합니다\n4. \"모두 변경...\"을 클릭합니다",
     "linuxInstructions": "Linux에서 Open PDF Studio를 기본 PDF 뷰어로 설정하려면:\n\n터미널에서 실행:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > 정보 가져오기 확인",
-    "notSet": "설정되지 않음"
+    "notSet": "설정되지 않음",
+    "chosenInSystemSettings": "시스템 설정에서 선택됨",
+    "sandboxInstructions": "Open PDF Studio는 {{package}} 패키지로 실행 중이어서 기본 PDF 앱을 직접 변경할 수 없습니다.\n\n시스템 설정의 기본 응용 프로그램에서 Open PDF Studio를 선택하거나, PDF 파일을 마우스 오른쪽 단추로 클릭하고 연결 프로그램을 사용하세요.",
+    "xdgMimeMissing": "xdg-mime(xdg-utils 패키지)이 설치되어 있지 않아 여기에서 기본 PDF 앱을 설정할 수 없습니다.\n\nxdg-utils를 설치하거나 시스템 설정의 기본 응용 프로그램에서 Open PDF Studio를 선택하세요.",
+    "linuxDone": "이제 Open PDF Studio가 PDF 파일의 기본 앱입니다.",
+    "linuxFailed": "Open PDF Studio를 기본 PDF 앱으로 설정할 수 없습니다.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "파일 탐색기",
@@ -322,6 +328,11 @@
     "resetCommand": "기본값으로 재설정",
     "resetAll": "모두 재설정",
     "resetAllConfirm": "모든 바로 가기 키를 기본값으로 재설정하시겠습니까?",
+    "loadPreset": "프리셋 불러오기…",
+    "replaceConfirm": "사용자 지정 바로 가기 키가 대체됩니다. 계속하시겠습니까?",
+    "presets": {
+      "markupStyle": "마크업 스타일 바로 가기 키"
+    },
     "import": "가져오기…",
     "export": "내보내기…",
     "fileType": "바로 가기 키",

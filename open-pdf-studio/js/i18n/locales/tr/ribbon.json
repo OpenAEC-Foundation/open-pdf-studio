@@ -371,6 +371,7 @@
     "updates": "Güncellemeler",
     "checkForUpdates": "Güncellemeleri Kontrol Et",
     "updatesLabel": "Güncellemeler",
+    "updatesManaged": "Bu kurulumun güncellemeleri merkezi olarak yönetilir.",
     "startupDiagnosticsTitle": "Gizliliği koruyan başlangıç tanılama dosyasını göster",
     "startupDiagnostics": "Tanılama",
     "fileAssociation": "Dosya İlişkilendirme",
@@ -717,5 +718,60 @@
     "noRecovery": "Bu belgedeki işaretlemeler geri yüklemeye izin verilmeden düzleştirildi. Sayfa içeriğinin parçasıdırlar ve geri yüklenemezler.",
     "done": "Geri yüklenen işaretlemeler: {{count}}.",
     "failed": "Geri yükleme başarısız: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Küçük simgeler",
+    "largeIcons": "Büyük simgeler",
+    "settings": "Ayarlar"
+  },
+  "symbolPalette": {
+    "search": "Sembol ara...",
+    "noResults": "Sembol bulunamadı",
+    "drawingSettings": "Çizim ayarları",
+    "manageSystemTypes": "Sistem türlerini yönet",
+    "settingsTitle": "Sembol kitaplığı ayarları",
+    "industry": "Sektör",
+    "country": "Ülke",
+    "libraryLoading": "Çevrimiçi kitaplık yükleniyor…",
+    "libraryOffline": "Çevrimiçi kitaplığa ulaşılamıyor — sınırlı ülke listesi",
+    "downloading": "İndiriliyor {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Çevrimiçi kullanılabilir koleksiyonlar: {{n}} ({{symbols}} sembol)",
+    "activateDownloaded": "Bu ülke için etkinleştirilecek indirilmiş koleksiyonlar: {{n}}",
+    "download": "İndir",
+    "downloadFailed": "İndirme başarısız: {{error}}",
+    "builtIn": "Yerleşik",
+    "online": "Çevrimiçi",
+    "addSymbol": "+ Sembol ekle",
+    "export": "Dışa aktar",
+    "remove": "Kaldır",
+    "noSymbolsYet": "Henüz sembol yok",
+    "newGroupName": "Yeni grup adı...",
+    "addGroup": "Grup ekle",
+    "importGroup": "Grubu içe aktar",
+    "catalogLoaded": "'{{id}}' kataloğu yüklendi: {{families}} aile, {{sizes}} boyut",
+    "catalogNoPreview": "Dosyada önizlemesi olmayan: {{n}}",
+    "fileNotRecognized": "Dosya tanınmadı: ne sembol grubu ne de katalog",
+    "importFailed": "İçe aktarma başarısız: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC İnşaat",
+      "nl-elektra": "NL Elektrik",
+      "nl-bouwplaats": "NL Şantiye",
+      "nl-sanitair": "NL Sıhhi tesisat",
+      "nl-keuken": "NL Mutfak",
+      "nen1414-tb": "NL NEN 1414 — Yangından korunma",
+      "nen1414-tbk": "NL NEN 1414 — Söndürme sistemleri",
+      "nen1414-td": "NL NEN 1414 — Kapılar",
+      "nen1414-tn": "NL NEN 1414 — Acil durum aydınlatması",
+      "nen1414-tr": "NL NEN 1414 — Duman/ısı tahliyesi",
+      "nen1414-tv": "NL NEN 1414 — Havalandırma",
+      "nen1414-tw": "NL NEN 1414 — Su/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (İnşaat)",
+      "electrical": "Elektrik mühendisliği",
+      "process": "Proses / P&ID",
+      "mep": "Bina tesisatı (MEP)",
+      "infra": "Altyapı"
+    }
   }
 }

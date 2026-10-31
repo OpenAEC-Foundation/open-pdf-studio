@@ -7,7 +7,7 @@ import test from 'node:test';
 import { PDFDocument, PDFName, PDFArray, PDFNumber } from 'pdf-lib';
 import { opslaan } from './rondgang.testhulp.mjs';
 import { loadBookmarksFromPdf, pdfjsKleurNaarHex } from './bladwijzers-lezen.js';
-import { verplaatsBladwijzers, nestOnderNieuw, selectieBereik } from '../ui/panels/bladwijzer-boom.js';
+import { verplaatsBladwijzers, nestOnderNieuw, selectieBereik, nieuweTitel } from '../ui/panels/bladwijzer-boom.js';
 
 const N = (s) => PDFName.of(s);
 const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
@@ -141,4 +141,75 @@ test('verplaatsen en nesten (#690) overleven opslaan en heropenen', async () => 
   const terug = await leesBladwijzers(uit);
   assert.deepEqual(terug.map((b) => b.title), ['STRUCTURAL', 'S-201', 'S-202', 'CIVIL', 'C-101', 'C-102', 'Cover']);
   assert.equal(terug.find((b) => b.title === 'STRUCTURAL').page, 2);
+});
+
+test('hernoemen in de lijst (#891): unicode-titel in /Outlines, rest van de boom blijft', async () => {
+  const bron = await driePaginas();
+  const eerste = await opslaan(bron, [], { document: { bookmarks: [
+    bm('a', 'CIVIL', 1, null, 0, { color: '#0078d7', bold: true }),
+    bm('b', 'C-101', 2, 'a', 0, { italic: true }),
+    bm('c', 'Cover (oud)', 3, null, 1),
+  ] } });
+  const lijst = await leesBladwijzers(eerste);
+  const kind = lijst.find((b) => b.title === 'C-101');
+  const titel = nieuweTitel(lijst, kind.id, '  Gevel – Ü 東 😀 (a\\b)  ', 'C-101');
+  assert.equal(titel, 'Gevel – Ü 東 😀 (a\\b)');
+  const hernoemd = lijst.map((b) => (b.id === kind.id ? { ...b, title: titel } : b));
+  const uit = await opslaan(eerste, [], { document: { bookmarks: hernoemd } });
+  assert.deepEqual(await rauweOutline(uit), [
+    { titel: 'CIVIL', C: [0, 120, 215], F: 2, kinderen: [
+      { titel: 'Gevel – Ü 東 😀 (a\\b)', C: null, F: 1, kinderen: [] },
+    ] },
+    { titel: 'Cover (oud)', C: null, F: null, kinderen: [] },
+  ]);
+  const terug = await leesBladwijzers(uit);
+  const nieuw = terug.find((b) => b.title === titel);
+  assert.ok(nieuw, 'titel na heropenen');
+  assert.equal(nieuw.page, 2);
+  assert.equal(nieuw.parentId, terug.find((b) => b.title === 'CIVIL').id);
+});
+
+test('namen tussen bladwijzers en paginalabels (#892) overleven opslaan en heropenen, beide kanten op', async () => {
+  const { previewBookmarkNames, bookmarksFromNames, labelsFromNames } = await import('./bookmark-page-labels.js');
+  const labelsVolgensPdfjs = async (bytes) => {
+    const pd = await pdfjs.getDocument({ data: bytes.slice(), isEvalSupported: false, verbosity: 0 }).promise;
+    try { return await pd.getPageLabels(); } finally { await pd.loadingTask.destroy(); }
+  };
+  const bron = await driePaginas();
+  // Geneste set zonder labels: CIVIL en C-101 wijzen allebei naar blad 1.
+  const eerste = await opslaan(bron, [], { document: { bookmarks: [
+    bm('g', 'CIVIL', 1, null, 0, { color: '#0078d7' }),
+    bm('c1', 'C-101 - GRADING PLAN', 1, 'g', 0, { bold: true }),
+    bm('c3', 'C-103', 3, 'g', 1),
+  ] } });
+  assert.equal(await labelsVolgensPdfjs(eerste), null, 'nog geen labels');
+
+  // Bladwijzers → paginalabels: het diepste wint, blad 2 houdt zijn nummer.
+  let lijst = await leesBladwijzers(eerste);
+  const labels = labelsFromNames(null, previewBookmarkNames(lijst, null, 3, 'labels'), 3);
+  assert.deepEqual(labels, ['C-101 - GRADING PLAN', '2', 'C-103']);
+  const tweede = await opslaan(eerste, [], { document: {
+    bookmarks: lijst, pageLabels: labels, pageLabelsDirty: true, pdfDoc: { numPages: 3 },
+  } });
+  assert.deepEqual(await labelsVolgensPdfjs(tweede), ['C-101 - GRADING PLAN', '2', 'C-103']);
+
+  // Paginalabels → bladwijzers met een bewerkte naam in het voorbeeld: de
+  // bestaande worden hernoemd, boom en stijl blijven; nogmaals = geen dubbele.
+  lijst = await leesBladwijzers(tweede);
+  const terugLabels = await labelsVolgensPdfjs(tweede);
+  const rijen = previewBookmarkNames(lijst, terugLabels, 3, 'bookmarks');
+  rijen[1].title = 'C-103 - UTILITY PLAN';
+  const nieuw = bookmarksFromNames(lijst, rijen);
+  assert.equal(nieuw.length, 3, 'geen nieuwe: elk gelabeld blad heeft al een bladwijzer');
+  const derde = await opslaan(tweede, [], { document: { bookmarks: nieuw } });
+  assert.deepEqual(await rauweOutline(derde), [
+    { titel: 'CIVIL', C: [0, 120, 215], F: null, kinderen: [
+      { titel: 'C-101 - GRADING PLAN', C: null, F: 2, kinderen: [] },
+      { titel: 'C-103 - UTILITY PLAN', C: null, F: null, kinderen: [] },
+    ] },
+  ]);
+  assert.deepEqual(await labelsVolgensPdfjs(derde), ['C-101 - GRADING PLAN', '2', 'C-103'], 'labels ongemoeid');
+  const herlezen = await leesBladwijzers(derde);
+  assert.deepEqual(bookmarksFromNames(herlezen, previewBookmarkNames(herlezen, terugLabels, 3, 'bookmarks'))
+    .map((b) => b.title), ['CIVIL', 'C-101 - GRADING PLAN', 'C-103'], 'nogmaals: hernoemen, niet toevoegen');
 });

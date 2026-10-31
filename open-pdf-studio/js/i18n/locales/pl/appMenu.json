@@ -123,6 +123,8 @@
     "pdfxNote": "Dodaje profil wyjściowy (output intent), TrimBox i metadane PDF/X. Z profilem druku CMYK kolory RGB, obrazy i gradienty są konwertowane do CMYK, a ten profil staje się profilem wyjściowym; z sRGB nic nie jest konwertowane. Nieosadzone czcionki standardowe pozostają ograniczeniem.",
     "exportCad": "Rysunek CAD (DXF, DWG)",
     "exportCadDesc": "Eksportuj rysunek wektorowy do DXF lub DWG z warstwami, skalą i obszarem",
+    "exportIfcx": "Eksportuj do IFCX (beta)",
+    "exportIfcxDesc": "Arkusze, wektory, tekst, obrazy i adnotacje do pliku JSON IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Edytowalny tekst i tabele z opcjonalnymi obrazami stron",

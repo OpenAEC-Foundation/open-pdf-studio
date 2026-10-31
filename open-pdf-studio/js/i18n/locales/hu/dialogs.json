@@ -454,7 +454,8 @@
     "styleLabel": "Stílus:",
     "nestTitle": "Beágyazás új könyvjelző alá",
     "deleteTitle": "Könyvjelzők törlése",
-    "deleteConfirm": "Törli a kijelölt {{count}} könyvjelzőt és mindent alattuk?"
+    "deleteConfirm": "Törli a kijelölt {{count}} könyvjelzőt és mindent alattuk?",
+    "replaceAll": "Az összes könyvjelző lecserélése"
   },
   "formValidation": {
     "title": "Érvényesítési hiba"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Mentés IFC-jelentésként",
     "failed": "Az IFC-jelentés mentése sikertelen: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportálás IFCX formátumba (béta)",
+    "betaNote": "Béta: az IFCX (IFC5) még fejlesztés alatt áll. Ellenőrizze az eredményt, mielőtt támaszkodna rá.",
+    "pages": "Oldalak:",
+    "allPages": "Minden oldal",
+    "currentPage": "Aktuális oldal",
+    "customPages": "Oldaltartomány",
+    "rangePlaceholder": "pl. 1-3, 5",
+    "includeRaster": "Képekkel együtt",
+    "includeText": "Szöveggel együtt",
+    "includeAnnotations": "Megjegyzések külön rétegen",
+    "export": "Exportálás",
+    "progress": "{{done}}. oldal exportálása ({{total}} oldalból)…",
+    "done": "Elkészült: {{file}} ({{sheets}} lap, {{paths}} útvonal, {{texts}} szöveg, {{images}} kép, {{annotations}} megjegyzés).",
+    "capPaths": "{{page}}. oldal: {{total}} útvonalból {{kept}} exportálva; a többi meghaladja a korlátot.",
+    "capTexts": "{{page}}. oldal: {{total}} szövegsorból {{kept}} exportálva; a többi meghaladja a korlátot.",
+    "capImages": "{{page}}. oldal: {{total}} képből {{kept}} exportálva; a többi meghaladja a korlátot.",
+    "imagesOmitted": "Képpontadatok nélküli képek (nem támogatott vagy túl nagy): {{count}}. A helyük megmarad.",
+    "sizeLimit": "A(z) {{page}}. oldal és az utána következők nem lettek exportálva: a fájl elérte a méretkorlátot.",
+    "noPages": "Nincs kijelölt oldal.",
+    "noBytes": "A dokumentum PDF-adatai nem érhetők el. Mentse a dokumentumot, és próbálja újra.",
+    "failed": "Az IFCX-exportálás sikertelen: {{error}}",
+    "unsavedNote": "Az oldaltartalom nem mentett módosításai nem kerülnek bele; a megjegyzések igen."
   },
   "styleType": {
     "lineTypes": "Vonaltípusok",

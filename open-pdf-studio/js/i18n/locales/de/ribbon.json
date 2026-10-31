@@ -371,6 +371,7 @@
     "updates": "Updates",
     "checkForUpdates": "Nach Updates suchen",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates für diese Installation werden zentral verwaltet.",
     "startupDiagnosticsTitle": "Die datenschutzfreundliche Startdiagnose-Datei anzeigen",
     "startupDiagnostics": "Diagnose",
     "fileAssociation": "Dateizuordnung",
@@ -717,5 +718,60 @@
     "noRecovery": "Die Markierungen in diesem Dokument wurden ohne erlaubte Wiederherstellung reduziert. Sie sind Teil des Seiteninhalts und können nicht wiederhergestellt werden.",
     "done": "Markierungen wiederhergestellt: {{count}}.",
     "failed": "Wiederherstellen fehlgeschlagen: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Kleine Symbole",
+    "largeIcons": "Große Symbole",
+    "settings": "Einstellungen"
+  },
+  "symbolPalette": {
+    "search": "Symbole suchen...",
+    "noResults": "Keine Symbole gefunden",
+    "drawingSettings": "Zeichnungseinstellungen",
+    "manageSystemTypes": "Systemtypen verwalten",
+    "settingsTitle": "Einstellungen der Symbolbibliothek",
+    "industry": "Branche",
+    "country": "Land",
+    "libraryLoading": "Online-Bibliothek wird geladen…",
+    "libraryOffline": "Online-Bibliothek nicht erreichbar — eingeschränkte Länderliste",
+    "downloading": "Herunterladen {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Online verfügbare Sammlungen: {{n}} ({{symbols}} Symbole)",
+    "activateDownloaded": "Heruntergeladene Sammlungen für dieses Land aktivieren: {{n}}",
+    "download": "Herunterladen",
+    "downloadFailed": "Download fehlgeschlagen: {{error}}",
+    "builtIn": "Integriert",
+    "online": "Online",
+    "addSymbol": "+ Symbol hinzufügen",
+    "export": "Exportieren",
+    "remove": "Entfernen",
+    "noSymbolsYet": "Noch keine Symbole",
+    "newGroupName": "Name der neuen Gruppe...",
+    "addGroup": "Gruppe hinzufügen",
+    "importGroup": "Gruppe importieren",
+    "catalogLoaded": "Katalog '{{id}}' geladen: {{families}} Familien, {{sizes}} Größen",
+    "catalogNoPreview": "{{n}} ohne Vorschau in der Datei",
+    "fileNotRecognized": "Datei nicht erkannt: weder Symbolgruppe noch Katalog",
+    "importFailed": "Import fehlgeschlagen: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bau",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Baustelle",
+      "nl-sanitair": "NL Sanitär",
+      "nl-keuken": "NL Küche",
+      "nen1414-tb": "NL NEN 1414 — Brandschutz",
+      "nen1414-tbk": "NL NEN 1414 — Löschanlagen",
+      "nen1414-td": "NL NEN 1414 — Türen",
+      "nen1414-tn": "NL NEN 1414 — Notbeleuchtung",
+      "nen1414-tr": "NL NEN 1414 — Rauch-/Wärmeabzug",
+      "nen1414-tv": "NL NEN 1414 — Lüftung",
+      "nen1414-tw": "NL NEN 1414 — Wasser/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bauwesen)",
+      "electrical": "Elektrotechnik",
+      "process": "Prozess / P&ID",
+      "mep": "Gebäudetechnik (TGA)",
+      "infra": "Infrastruktur"
+    }
   }
 }

@@ -3,8 +3,10 @@ import { leesOpslag, verwijderOpslag } from './opslag.js';
 import { bestandsnaamUitPad } from './bestandsnaam.js';
 import { gastObject } from './gehost.js';
 import { versieVoorOpen } from './host-brug.js';
+import { normaliseerOpslaanAls, normaliseerMapLijst, filtersZijnPdf, controleerNaam } from './host-opslaan-als.js';
 import { rustRenderPadBeschikbaar } from '../pdf/render-route.js';
 import { slaOverInHeadless } from './headless.js';
+import { leesStandaardAppStatus } from './standaard-pdf-app.js';
 
 /**
  * Tauri API wrapper module
@@ -39,8 +41,13 @@ export function cacheWebFile(name, data) {
 //                                    ArrayBuffer | Blob
 //       save(id, bytes, { name }) -> Promise<unknown>  schrijft over het
 //                                    geopende document heen (nieuwe versie)
-//       list()      (optioneel)   -> Promise<[{ id, name, modified? }]>
+//       list(folder?) (optioneel) -> Promise<[{ id, name, modified?, kind?, writable? }]>
+//                                    kind 'folder' is een map (#726); zonder
+//                                    folder de map van het geopende document
 //       versions(id) (optioneel)  -> Promise<[{ version, modified?, author? }]>
+//       saveAs(bytes, { name, folder? }) (optioneel, #726)
+//                                 -> Promise<{ id, name, version, renamed? }>
+//                                    een NIEUW bestand; zie core/host-opslaan-als.js
 //     },
 //     document: '<id>',  // optioneel: dit document gaat bij de start open
 //     // optioneel, van de brug naar de werkplek (core/host-brug.js, #704):
@@ -62,6 +69,15 @@ export function cacheWebFile(name, data) {
 // document van de site geopend is, schrijft terug; een afgeleid pad (een
 // export naast het document) wordt een download, net als in de webversie.
 // Uploaden en downloaden van en naar de pc blijven bestaan.
+//
+// Kent de site saveAs (#726), dan vraagt saveFileDialog() bij een PDF om een
+// naam en een map op de site en geeft een pad `opds-host-nieuw://<n>[;map=<id>]/<naam>`
+// terug. writeBinaryFile() maakt daarmee via saveAs een nieuw bestand; de
+// uitkomst (id, definitieve naam) staat daarna klaar in hostNieuwUitkomst().
+// Zo gaan Opslaan als en de exports die een nieuwe PDF schrijven (pagina's
+// uitnemen, gevlakte kopie) naar de site zonder dat ze dat zelf hoeven te
+// weten. Een weigering van de site toont een melding met de keuze om toch te
+// downloaden: er gaat niets verloren.
 
 const HOST_SCHEMA = 'opds-host://';
 const _hostPaden = new Map(); // pad -> id, voor elk als document geopend pad
@@ -178,6 +194,205 @@ export async function hostDocumenten() {
   if (!opslag || typeof opslag.list !== 'function') return [];
   const lijst = await opslag.list();
   return Array.isArray(lijst) ? lijst.filter((d) => d && d.id != null) : [];
+}
+
+// ── Opslaan als op de site (#726) ──────────────────────────────────────────
+const HOST_NIEUW_SCHEMA = 'opds-host-nieuw://';
+let _hostNieuwVolgnummer = 0;
+const _hostNieuw = new Map(); // nieuw pad -> uitkomst van saveAs, of { gedownload: true }
+const _hostNieuwStil = new Set(); // nieuwe paden waarvan de aanroeper zelf de uitkomst meldt
+let _hostUi = null;
+
+/** Kent de site "opslaan als" (storage.saveAs)? */
+export function hostKanOpslaanAls() {
+  const opslag = hostOpslag();
+  return !!opslag && typeof opslag.saveAs === 'function';
+}
+
+/** Pad voor een nieuw bestand op de site, nog niet geschreven. */
+export function hostNieuwPad(naam, map = null) {
+  const veilig = String(naam || 'document.pdf').replace(/[\\/]/g, '_').trim() || 'document.pdf';
+  const deel = map === null || map === undefined || map === '' ? '' : `;map=${encodeURIComponent(String(map))}`;
+  return `${HOST_NIEUW_SCHEMA}${++_hostNieuwVolgnummer}${deel}/${veilig}`;
+}
+
+/** `{ naam, map }` uit een pad van hostNieuwPad() (map null: die van het geopende document), of null. */
+export function leesHostNieuwPad(pad) {
+  if (typeof pad !== 'string' || !pad.startsWith(HOST_NIEUW_SCHEMA)) return null;
+  const rest = pad.slice(HOST_NIEUW_SCHEMA.length);
+  const schuin = rest.indexOf('/');
+  if (schuin <= 0) return null;
+  const mapDeel = rest.slice(0, schuin).split(';').find((d) => d.startsWith('map='));
+  try {
+    return {
+      naam: rest.slice(schuin + 1),
+      map: mapDeel === undefined ? null : decodeURIComponent(mapDeel.slice('map='.length)),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * De uitkomst van het schrijven naar een pad van hostNieuwPad(): die van
+ * saveAs plus `pad` (het pad van het nieuwe document), `{ gedownload: true }`
+ * als de gebruiker toch downloadde, of null.
+ */
+export function hostNieuwUitkomst(pad) {
+  return _hostNieuw.get(pad) ?? null;
+}
+
+/**
+ * Waar een geschreven bestand werkelijk staat: voor een nieuw bestand op de
+ * site het pad van dat document (opent en schrijft terug zoals elk document
+ * van de site), anders het pad zelf.
+ */
+export function opgeslagenPad(pad) {
+  return _hostNieuw.get(pad)?.pad ?? pad;
+}
+
+/**
+ * Een nieuwe PDF die de webversie anders als download aanbiedt (een opgeschoonde
+ * kopie, een herkend formulier): op de site als die saveAs kent (#726).
+ * @returns {Promise<boolean|null>} null: niet op de site (de aanroeper
+ *   downloadt zoals altijd), false: geannuleerd, true: bewaard of gedownload
+ */
+export async function bewaarPdfOpSite(naam, bytes) {
+  if (isTauri() || !hostKanOpslaanAls()) return null;
+  const pad = await saveFileDialog(naam, [{ name: 'PDF', extensions: ['pdf'] }]);
+  if (!pad) return false;
+  try {
+    await writeBinaryFile(pad, bytes);
+  } catch (e) {
+    // De site weigerde en de gebruiker koos niet voor downloaden: dat is al
+    // gemeld, dus voor de aanroeper hetzelfde als annuleren (geen tweede
+    // foutmelding).
+    if (e?.gemeld) return false;
+    throw e;
+  }
+  return true;
+}
+
+/** De aanroeper meldt de uitkomst voor dit pad zelf (Opslaan als). */
+export function meldHostNieuwStil(pad) {
+  if (leesHostNieuwPad(pad)) _hostNieuwStil.add(pad);
+}
+
+/**
+ * De dialogen voor Opslaan als op de site. Standaard die van de app
+ * (pdf/host-opslaan-als-ui.js); de tests zetten er een eigen neer.
+ * @param {null | {
+ *   kiesDoel: (o: { naam: string }) => Promise<null | { download: true, naam?: string } | { naam: string, map: string|null }>,
+ *   bijFout: (fout: unknown, o: { naam: string }) => Promise<'download' | null>,
+ *   bijOpgeslagen?: (uitkomst: object) => unknown,
+ *   download?: (naam: string, bytes: Uint8Array) => unknown,
+ * }} ui
+ */
+export function zetHostOpslaanAlsUi(ui) {
+  _hostUi = ui || null;
+}
+
+async function hostUi() {
+  if (_hostUi) return _hostUi;
+  const { HOST_OPSLAAN_ALS_UI } = await import('../pdf/host-opslaan-als-ui.js');
+  return HOST_OPSLAAN_ALS_UI;
+}
+
+/**
+ * De mappen en bestanden in `map` op de site (null: de map van het geopende
+ * document). Leeg als de site geen lijst kent.
+ * @returns {Promise<import('./host-opslaan-als.js').HostMapItem[]>}
+ */
+export async function hostMappen(map = null) {
+  const opslag = hostOpslag();
+  if (!opslag || typeof opslag.list !== 'function') return [];
+  const lijst = map === null || map === undefined ? await opslag.list() : await opslag.list(String(map));
+  return normaliseerMapLijst(lijst);
+}
+
+/**
+ * Een nieuw bestand op de site (storage.saveAs). Het pad van het nieuwe
+ * document schrijft daarna terug naar de site, zoals een geopend document.
+ * @returns {Promise<import('./host-opslaan-als.js').HostOpslaanAlsUitkomst & { pad: string }>}
+ */
+export async function hostOpslaanAls(bytes, { name, folder = null } = {}) {
+  const opslag = hostOpslag();
+  if (!opslag || typeof opslag.saveAs !== 'function') {
+    throw Object.assign(new Error('This site cannot save new files'), { code: 'unsupported' });
+  }
+  // Ook hier, los van de dialoog: alleen een kale naam die op .pdf eindigt,
+  // zonder pad- of stuurtekens. Wat er ook roept, de site krijgt nooit een pad.
+  const { naam, fout } = controleerNaam(name);
+  if (fout) throw Object.assign(new Error('The file name is not valid'), { code: 'invalid_name' });
+  const data = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const opties = { name: naam };
+  if (folder !== null && folder !== undefined && folder !== '') opties.folder = String(folder);
+  const uitkomst = normaliseerOpslaanAls(await opslag.saveAs(data, opties), opties.name);
+  const pad = hostPad(uitkomst.id, uitkomst.name);
+  _hostPaden.set(pad, uitkomst.id);
+  return { ...uitkomst, pad };
+}
+
+function downloadBytes(naam, data) {
+  const fileName = String(naam || 'download').replace(/^.*[\\/]/, '') || 'download';
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  const mimeMap = {
+    pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg',
+    jpeg: 'image/jpeg', csv: 'text/csv', xfdf: 'application/xml',
+    xml: 'application/xml',
+    ifcx: 'application/json',
+    odt: 'application/vnd.oasis.opendocument.text',
+    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  };
+  const blob = new Blob([data], { type: mimeMap[ext] || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  return true;
+}
+
+/** Een download in de browser (de terugval van de webversie). */
+export function downloadBestand(naam, data) {
+  return downloadBytes(naam, data instanceof Uint8Array ? data : new Uint8Array(data));
+}
+
+/**
+ * Schrijf naar een pad van hostNieuwPad(): een nieuw bestand op de site. Een
+ * fout toont de melding met de keuze om toch te downloaden; zonder die keuze
+ * gaat de fout (gemeld) door naar de aanroeper.
+ */
+async function schrijfHostNieuw(pad, doel, data) {
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  const ui = await hostUi();
+  const download = () => {
+    if (typeof ui.download === 'function') ui.download(doel.naam, bytes);
+    else downloadBytes(doel.naam, bytes);
+    _hostNieuw.set(pad, { gedownload: true });
+    return true;
+  };
+  try {
+    const uitkomst = await hostOpslaanAls(bytes, { name: doel.naam, folder: doel.map });
+    _hostNieuw.set(pad, uitkomst);
+    if (!_hostNieuwStil.has(pad) && typeof ui.bijOpgeslagen === 'function') {
+      try { ui.bijOpgeslagen(uitkomst); } catch (e) { console.warn('[gast] melding na opslaan als mislukt:', e); }
+    }
+    return true;
+  } catch (fout) {
+    console.warn('[gast] opslaan als op de site mislukt:', fout?.message || fout);
+    let keuze = null;
+    try { keuze = await ui.bijFout(fout, { naam: doel.naam }); } catch (e) { console.warn('[gast] foutmelding mislukt:', e); }
+    if (keuze === 'download') return download();
+    const gemeld = fout instanceof Error ? fout : new Error(String(fout?.message ?? fout));
+    gemeld.gemeld = true;
+    throw gemeld;
+  } finally {
+    _hostNieuwStil.delete(pad);
+  }
 }
 
 /** De versies van een document op de site (leeg als het contract die niet kent). */
@@ -440,6 +655,14 @@ export async function openFileDialog(extensions, options = {}) {
 }
 
 export async function saveFileDialog(defaultPath, filters) {
+  // Een PDF op de site bewaren (#726): naam en map kiezen, of toch downloaden.
+  if (!isTauri() && hostKanOpslaanAls() && filtersZijnPdf(filters, defaultPath)) {
+    const naam = extractFileName(defaultPath || 'document.pdf');
+    const keuze = await (await hostUi()).kiesDoel({ naam });
+    if (!keuze) return null;
+    if (keuze.download) return keuze.naam || naam;
+    return hostNieuwPad(keuze.naam, keuze.map ?? null);
+  }
   if (isTauri()) {
     if (!filters) {
       filters = [{ name: 'PDF Files', extensions: ['pdf'] }];
@@ -518,6 +741,10 @@ export async function readBinaryFile(path) {
 }
 
 export async function writeBinaryFile(path, data) {
+  // Een nieuw bestand op de site (#726).
+  const nieuw = leesHostNieuwPad(path);
+  if (nieuw) return schrijfHostNieuw(path, nieuw, data);
+
   // Terugschrijven naar de site: alleen voor een pad dat als document van de
   // site geopend is (#546).
   const hostId = _hostPaden.get(path);
@@ -529,25 +756,7 @@ export async function writeBinaryFile(path, data) {
 
   if (!isTauri()) {
     // Web fallback: trigger a browser download
-    const fileName = path.replace(/^.*[\\/]/, '') || 'download';
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    const mimeMap = {
-      pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg',
-      jpeg: 'image/jpeg', csv: 'text/csv', xfdf: 'application/xml',
-      xml: 'application/xml',
-      odt: 'application/vnd.oasis.opendocument.text',
-      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    };
-    const blob = new Blob([data], { type: mimeMap[ext] || 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    return true;
+    return downloadBytes(path, data);
   }
 
   // Use the fs plugin directly - no fallback to slow base64 method
@@ -912,6 +1121,12 @@ export async function isDefaultPdfApp() {
   } catch {
     return false;
   }
+}
+
+// What is known about the default PDF app and whether it can be set here
+// (standaard-pdf-app.js): { isDefault: bool|null, current, canSet, reason }.
+export async function defaultPdfAppStatus() {
+  return leesStandaardAppStatus(invoke);
 }
 
 // Open Windows Default Apps settings page

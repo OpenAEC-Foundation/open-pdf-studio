@@ -454,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Yeni yer iminin altına yerleştir",
     "deleteTitle": "Yer imlerini sil",
-    "deleteConfirm": "Seçili {{count}} yer imi ve altındaki her şey silinsin mi?"
+    "deleteConfirm": "Seçili {{count}} yer imi ve altındaki her şey silinsin mi?",
+    "replaceAll": "Tüm yer imlerini değiştir"
   },
   "formValidation": {
     "title": "Doğrulama Hatası"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "IFC raporu olarak kaydet",
     "failed": "IFC raporu kaydedilemedi: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "IFCX olarak dışa aktar (beta)",
+    "betaNote": "Beta: IFCX (IFC5) hâlâ geliştirme aşamasında. Sonuca güvenmeden önce kontrol edin.",
+    "pages": "Sayfalar:",
+    "allPages": "Tüm sayfalar",
+    "currentPage": "Geçerli sayfa",
+    "customPages": "Sayfa aralığı",
+    "rangePlaceholder": "ör. 1-3, 5",
+    "includeRaster": "Görüntüleri dahil et",
+    "includeText": "Metni dahil et",
+    "includeAnnotations": "Ek açıklamalar ayrı bir katmanda",
+    "export": "Dışa aktar",
+    "progress": "Sayfa {{done}} / {{total}} dışa aktarılıyor…",
+    "done": "Yazıldı: {{file}} ({{sheets}} pafta, {{paths}} yol, {{texts}} metin, {{images}} görüntü, {{annotations}} ek açıklama).",
+    "capPaths": "Sayfa {{page}}: {{total}} yoldan {{kept}} tanesi dışa aktarıldı; geri kalanı sınırı aşıyor.",
+    "capTexts": "Sayfa {{page}}: {{total}} metin satırından {{kept}} tanesi dışa aktarıldı; geri kalanı sınırı aşıyor.",
+    "capImages": "Sayfa {{page}}: {{total}} görüntüden {{kept}} tanesi dışa aktarıldı; geri kalanı sınırı aşıyor.",
+    "imagesOmitted": "Piksel verisi olmayan görüntüler (desteklenmiyor veya çok büyük): {{count}}. Konumları korunur.",
+    "sizeLimit": "Sayfa {{page}} ve sonraki sayfalar dışa aktarılmadı: dosya boyut sınırına ulaştı.",
+    "noPages": "Sayfa seçilmedi.",
+    "noBytes": "Bu belgenin PDF verileri kullanılamıyor. Belgeyi kaydedip yeniden deneyin.",
+    "failed": "IFCX dışa aktarımı başarısız oldu: {{error}}",
+    "unsavedNote": "Sayfa içeriğindeki kaydedilmemiş değişiklikler dahil edilmez; ek açıklamalar dahil edilir."
   },
   "styleType": {
     "lineTypes": "Çizgi türleri",

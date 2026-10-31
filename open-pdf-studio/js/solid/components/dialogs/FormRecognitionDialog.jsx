@@ -5,7 +5,7 @@ import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { openFormRecognition, exportRecognizedForm } from '../../../pdf/form-recognition-service.js';
-import { isTauri, saveFileDialog } from '../../../core/platform.js';
+import { isTauri, saveFileDialog, bewaarPdfOpSite } from '../../../core/platform.js';
 
 export default function FormRecognitionDialog() {
   const { t } = useTranslation('dialogs'),
@@ -102,6 +102,8 @@ export default function FormRecognitionDialog() {
     } else {
       const output = await session().prepare(candidates);
       if (closed) return;
+      // Op de site als die dat kent (#726), anders een download.
+      if ((await bewaarPdfOpSite('fillable-form.pdf', output.bytes)) !== null) return;
       const url = URL.createObjectURL(new Blob([output.bytes], { type: 'application/pdf' }));
       const a = document.createElement('a');
       a.href = url;

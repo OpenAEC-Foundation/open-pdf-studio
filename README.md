@@ -116,6 +116,7 @@ Professional annotation, markup, measurement, redaction and page management — 
 - One switch in Settings > General exposes the app to a local AI assistant over MCP — no start-up flags, local clients only
 - Over fifty tools: open and save documents, navigate, create and edit annotations, set the measuring scale, take off quantities and place schedules, import and export CAD, print to a PDF file, and more
 - `open-pdf-studio.mcpb` installs the connection in Claude Desktop with a double click
+- A small indicator in the status bar shows the connection: grey when the server is off, an open dot when it is on and idle, green while an assistant was active in the last 30 seconds, with a short highlight on every tool call; its tooltip names the port and the last tool
 - An assistant panel inside the app offers ready-made skills: translate, summarise, draw an element, and detect doors
 
 ### Text Recognition (OCR)
@@ -273,8 +274,17 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 - Built-in update checker with download progress
 - Skip version or remind later options
 - Automatic installation and relaunch
+- Off in managed mode (`OPENAEC_BEHEERD=1`), where the platform supplies updates
 
 ## Keyboard Shortcuts
+
+All shortcuts can be changed, exported and imported under **Preferences → Keyboard Shortcuts**.
+**Load preset → Markup-style shortcuts** switches to the single-letter drawing keys and
+Alt+Shift measurement keys common in drawing markup and takeoff tools (for example H for
+Highlight, R for Rectangle and Alt+Shift+L for Length); a command whose default key it takes
+over gets another key (Hand moves to Shift+V). If you have your own shortcuts, the app asks
+before replacing them. Nothing changes until you click **Save**; **Reset all** restores the
+defaults.
 
 | Shortcut | Action |
 |----------|--------|
@@ -317,6 +327,8 @@ From 2026.39 on, a release is named after the year and the ISO week number: `202
 
 ### Windows
 Download the latest `.exe` installer from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
+
+Prefer not to install anything? Download `Open.PDF.Studio_<version>_x64_portable.zip`, extract it and run `open-pdf-studio.exe`. The portable version keeps all its settings and data in a `data` folder next to the program. See [docs/portable-windows.md](docs/portable-windows.md).
 
 ### macOS
 Download the latest `.dmg` (universal binary for Intel and Apple Silicon) from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
@@ -371,8 +383,52 @@ Notes:
 - If the window stays blank with some GPU drivers, start it with
   `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
 
+For containers without FUSE or GPU (such as OpenAEC Linux, which runs the
+extracted AppImage under a Wayland compositor), see
+[Managed deployments](#managed-deployments).
+
 ### Android
 Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
+
+### Managed deployments
+
+When the app runs in a centrally managed environment, such as one container per
+user, start it with the environment variable `OPENAEC_BEHEERD=1` (`true`, `yes`
+and `on` work too). The app then starts without one-time prompts:
+
+- no "make Open PDF Studio the default PDF app" bar (and no registry or
+  `xdg-mime` lookup for it);
+- no "What's new" dialog after an update, and no request for the release notes;
+- no update check or update dialog; *Check for Updates* and *Previous version*
+  only say that updates are managed centrally. The updater plugin is not even
+  registered.
+
+Without the variable, or with any other value, nothing changes. The recovery
+offer after an unexpected shutdown stays, because it protects unsaved work.
+
+Further environment variables for such deployments (all optional; without
+them nothing changes):
+
+| Variable | Effect |
+|---|---|
+| `OPENAEC_MAP=/openaec` | Open and save dialogs start in this existing, absolute folder. A relative start argument (`AppRun file.pdf`) falls back to it. |
+| `OPENAEC_MCP_POORT`, `OPENAEC_MCP_GEHEIM` | Start the MCP server (AI connection) on that port. Every request needs `Authorization: Bearer <secret>` (at least 16 characters); requests with an `Origin` header (browsers) are refused. The secret is removed from the environment at startup, so child processes do not inherit it. |
+| `OPENAEC_MCP_ADRES` | Bind address of that server. Default `0.0.0.0` in managed mode (the internal container network), otherwise `127.0.0.1`. |
+| `OPENAEC_SOFTWARE_RENDERING=1` / `0` | Force or forbid the WebKitGTK software-rendering settings. Without it the app sets them only on Linux without a GPU render node (`/dev/dri/renderD*`). |
+| `OPDS_GDK_BACKEND` | GDK backend to use from the AppImage (its GTK hook overwrites `GDK_BACKEND`). In managed mode, or without an X display, the AppImage prefers Wayland. |
+
+In a container or in managed mode, `SIGTERM` writes recovery files for unsaved
+work (at most 5 seconds) and then exits cleanly. The extracted AppImage
+(`--appimage-extract`, then `squashfs-root/AppRun [file.pdf]`) runs without
+FUSE. See [docs/openaec-linux.md](docs/openaec-linux.md) for the full contract.
+
+### Network connections
+The app sends no telemetry. It connects to other hosts only for: the release
+notes after an update (GitHub API, at startup, not in managed mode), the update
+check, the previous-version download, the online symbol library, the feedback
+form, the AI assistant with your own key, opening a PDF from a URL you type, and
+OpenAEC sign-in. The full list is in
+[docs/openaec-linux.md](docs/openaec-linux.md#network).
 
 ## Building from Source
 

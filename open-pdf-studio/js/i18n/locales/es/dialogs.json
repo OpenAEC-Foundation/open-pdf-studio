@@ -454,7 +454,8 @@
     "styleLabel": "Estilo:",
     "nestTitle": "Anidar bajo un marcador nuevo",
     "deleteTitle": "Eliminar marcadores",
-    "deleteConfirm": "¿Eliminar {{count}} marcadores seleccionados y todo lo que hay debajo?"
+    "deleteConfirm": "¿Eliminar {{count}} marcadores seleccionados y todo lo que hay debajo?",
+    "replaceAll": "Reemplazar todos los marcadores"
   },
   "formValidation": {
     "title": "Error de validación"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Guardar como informe IFC",
     "failed": "Error al guardar el informe IFC: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportar a IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) aún está en desarrollo. Compruebe el resultado antes de confiar en él.",
+    "pages": "Páginas:",
+    "allPages": "Todas las páginas",
+    "currentPage": "Página actual",
+    "customPages": "Intervalo de páginas",
+    "rangePlaceholder": "p. ej. 1-3, 5",
+    "includeRaster": "Incluir imágenes",
+    "includeText": "Incluir texto",
+    "includeAnnotations": "Anotaciones en una capa aparte",
+    "export": "Exportar",
+    "progress": "Exportando página {{done}} de {{total}}…",
+    "done": "Escrito: {{file}} ({{sheets}} hojas, {{paths}} trazados, {{texts}} textos, {{images}} imágenes, {{annotations}} anotaciones).",
+    "capPaths": "Página {{page}}: se exportaron {{kept}} de {{total}} trazados; el resto supera el límite.",
+    "capTexts": "Página {{page}}: se exportaron {{kept}} de {{total}} líneas de texto; el resto supera el límite.",
+    "capImages": "Página {{page}}: se exportaron {{kept}} de {{total}} imágenes; el resto supera el límite.",
+    "imagesOmitted": "Imágenes sin datos de píxeles (no compatibles o demasiado grandes): {{count}}. Se conserva su posición.",
+    "sizeLimit": "La página {{page}} y las siguientes no se exportaron: el archivo alcanzó su límite de tamaño.",
+    "noPages": "No hay páginas seleccionadas.",
+    "noBytes": "Los datos PDF de este documento no están disponibles. Guarde el documento e inténtelo de nuevo.",
+    "failed": "Error al exportar a IFCX: {{error}}",
+    "unsavedNote": "Los cambios no guardados en el contenido de las páginas no se incluyen; las anotaciones sí."
   },
   "styleType": {
     "lineTypes": "Tipos de línea",

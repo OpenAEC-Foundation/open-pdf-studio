@@ -371,6 +371,7 @@
     "updates": "Pembaruan",
     "checkForUpdates": "Periksa Pembaruan",
     "updatesLabel": "Pembaruan",
+    "updatesManaged": "Pembaruan untuk instalasi ini dikelola secara terpusat.",
     "startupDiagnosticsTitle": "Tampilkan berkas diagnostik awal yang aman bagi privasi",
     "startupDiagnostics": "Diagnostik",
     "fileAssociation": "Asosiasi File",
@@ -717,5 +718,60 @@
     "noRecovery": "Markup dalam dokumen ini diratakan tanpa mengizinkan pemulihan. Markup tersebut merupakan bagian dari isi halaman dan tidak dapat dipulihkan.",
     "done": "Markup dipulihkan: {{count}}.",
     "failed": "Gagal memulihkan: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Ikon kecil",
+    "largeIcons": "Ikon besar",
+    "settings": "Pengaturan"
+  },
+  "symbolPalette": {
+    "search": "Cari simbol...",
+    "noResults": "Tidak ada simbol yang ditemukan",
+    "drawingSettings": "Pengaturan gambar",
+    "manageSystemTypes": "Kelola jenis sistem",
+    "settingsTitle": "Pengaturan pustaka simbol",
+    "industry": "Industri",
+    "country": "Negara",
+    "libraryLoading": "Memuat pustaka daring…",
+    "libraryOffline": "Pustaka daring tidak dapat dijangkau — daftar negara terbatas",
+    "downloading": "Mengunduh {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Koleksi tersedia daring: {{n}} ({{symbols}} simbol)",
+    "activateDownloaded": "Koleksi terunduh yang akan diaktifkan untuk negara ini: {{n}}",
+    "download": "Unduh",
+    "downloadFailed": "Unduhan gagal: {{error}}",
+    "builtIn": "Bawaan",
+    "online": "Daring",
+    "addSymbol": "+ Tambah simbol",
+    "export": "Ekspor",
+    "remove": "Hapus",
+    "noSymbolsYet": "Belum ada simbol",
+    "newGroupName": "Nama grup baru...",
+    "addGroup": "Tambah grup",
+    "importGroup": "Impor grup",
+    "catalogLoaded": "Katalog '{{id}}' dimuat: {{families}} keluarga, {{sizes}} ukuran",
+    "catalogNoPreview": "{{n}} tanpa pratinjau dalam berkas",
+    "fileNotRecognized": "Berkas tidak dikenali: bukan grup simbol dan bukan katalog",
+    "importFailed": "Impor gagal: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Konstruksi",
+      "nl-elektra": "NL Kelistrikan",
+      "nl-bouwplaats": "NL Lokasi proyek",
+      "nl-sanitair": "NL Sanitasi",
+      "nl-keuken": "NL Dapur",
+      "nen1414-tb": "NL NEN 1414 — Proteksi kebakaran",
+      "nen1414-tbk": "NL NEN 1414 — Sistem pemadam",
+      "nen1414-td": "NL NEN 1414 — Pintu",
+      "nen1414-tn": "NL NEN 1414 — Lampu darurat",
+      "nen1414-tr": "NL NEN 1414 — Pembuangan asap/panas",
+      "nen1414-tv": "NL NEN 1414 — Ventilasi",
+      "nen1414-tw": "NL NEN 1414 — Air/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Konstruksi)",
+      "electrical": "Teknik elektro",
+      "process": "Proses / P&ID",
+      "mep": "Utilitas bangunan (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

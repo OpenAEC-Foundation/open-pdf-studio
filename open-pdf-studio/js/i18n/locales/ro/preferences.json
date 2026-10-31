@@ -32,7 +32,8 @@
     "aiLinkActive": "Activă pe {{adres}}",
     "aiLinkViaFlag": "Activă prin parametru de pornire ({{adres}})",
     "aiLinkOff": "Oprită",
-    "aiLinkError": "Nepornită: {{fout}}"
+    "aiLinkError": "Nepornită: {{fout}}",
+    "interfaceScale": "Dimensiunea interfeței"
   },
   "annotations": {
     "generalDefaults": "Valori implicite generale",
@@ -193,7 +194,12 @@
     "macInstructions": "Pentru a seta Open PDF Studio ca vizualizator PDF implicit pe macOS:\n\n1. Faceti clic dreapta pe orice fisier PDF in Finder\n2. Selectati \"Informatii\"\n3. La \"Deschide cu\", selectati Open PDF Studio\n4. Faceti clic pe \"Schimba tot...\"",
     "linuxInstructions": "Pentru a seta Open PDF Studio ca vizualizator PDF implicit pe Linux:\n\nRulati in terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Verificati Finder > Informatii",
-    "notSet": "Nesetat"
+    "notSet": "Nesetat",
+    "chosenInSystemSettings": "Ales în setările sistemului",
+    "sandboxInstructions": "Open PDF Studio rulează ca pachet {{package}} și nu poate schimba singur aplicația PDF implicită.\n\nAlegeți Open PDF Studio în setările sistemului, la Aplicații implicite, sau faceți clic dreapta pe un fișier PDF și folosiți Deschide cu.",
+    "xdgMimeMissing": "xdg-mime (pachetul xdg-utils) nu este instalat, deci aplicația PDF implicită nu poate fi setată de aici.\n\nInstalați xdg-utils sau alegeți Open PDF Studio în setările sistemului, la Aplicații implicite.",
+    "linuxDone": "Open PDF Studio este acum aplicația implicită pentru fișierele PDF.",
+    "linuxFailed": "Open PDF Studio nu a putut fi setat ca aplicație PDF implicită.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Explorer de fișiere",
@@ -322,6 +328,11 @@
     "resetCommand": "Restabiliți valoarea implicită",
     "resetAll": "Restabiliți tot",
     "resetAllConfirm": "Restabiliți toate comenzile rapide la valorile implicite?",
+    "loadPreset": "Încarcă presetare…",
+    "replaceConfirm": "Aceasta va înlocui comenzile rapide de la tastatură personalizate. Continuați?",
+    "presets": {
+      "markupStyle": "Comenzi rapide în stil de marcare"
+    },
     "import": "Importați…",
     "export": "Exportați…",
     "fileType": "Comenzi rapide de la tastatură",

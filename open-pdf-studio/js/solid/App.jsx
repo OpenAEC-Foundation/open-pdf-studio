@@ -39,7 +39,9 @@ import { leftOrder, rightOrder } from './stores/paletteOrder.js';
 import { useTranslation } from '../i18n/useTranslation.js';
 import { isTauri } from '../core/platform.js';
 import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../core/sessie-herstel.js';
-import { For, ErrorBoundary, Show } from 'solid-js';
+import { For, ErrorBoundary, Show, createEffect, onCleanup } from 'solid-js';
+import { state } from '../core/state.js';
+import { pasUiSchaalToe, haalUiSchaalWeg } from '../core/ui-scale.js';
 
 function OrderedDockedPalettes(props) {
   const order = () => props.side === 'left' ? leftOrder() : rightOrder();
@@ -73,6 +75,9 @@ function OrderedDockedPalettes(props) {
 }
 
 function DesktopApp() {
+  // Interface size for low vision (#883): stylesheet sizes follow --ui-scale.
+  createEffect(() => pasUiSchaalToe(state.preferences.uiScale));
+  onCleanup(() => haalUiSchaalWeg());
   const { t } = useTranslation('common');
   const extPalettes = () => getRegisteredPalettes();
 

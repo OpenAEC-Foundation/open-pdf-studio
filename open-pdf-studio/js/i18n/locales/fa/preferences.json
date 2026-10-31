@@ -32,7 +32,8 @@
     "aiLinkActive": "فعال روی {{adres}}",
     "aiLinkViaFlag": "فعال از طریق پارامتر اجرا ({{adres}})",
     "aiLinkOff": "خاموش",
-    "aiLinkError": "راه‌اندازی نشد: {{fout}}"
+    "aiLinkError": "راه‌اندازی نشد: {{fout}}",
+    "interfaceScale": "اندازهٔ رابط کاربری"
   },
   "annotations": {
     "generalDefaults": "پیش‌فرض‌های عمومی",
@@ -193,7 +194,12 @@
     "macInstructions": "برای تنظیم Open PDF Studio به عنوان نمایشگر PDF پیش‌فرض در macOS:\n\n1. روی هر فایل PDF در Finder راست‌کلیک کنید\n2. \"دریافت اطلاعات\" را انتخاب کنید\n3. در بخش \"باز کردن با\"، Open PDF Studio را انتخاب کنید\n4. روی \"تغییر همه...\" کلیک کنید",
     "linuxInstructions": "برای تنظیم Open PDF Studio به عنوان نمایشگر PDF پیش‌فرض در Linux:\n\nدر ترمینال اجرا کنید:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "بررسی Finder > دریافت اطلاعات",
-    "notSet": "تنظیم نشده"
+    "notSet": "تنظیم نشده",
+    "chosenInSystemSettings": "در تنظیمات سیستم انتخاب شده است",
+    "sandboxInstructions": "Open PDF Studio به‌صورت بسته {{package}} اجرا می‌شود و نمی‌تواند خودش برنامه پیش‌فرض PDF را تغییر دهد.\n\nOpen PDF Studio را در تنظیمات سیستم در بخش برنامه‌های پیش‌فرض انتخاب کنید، یا روی یک فایل PDF راست‌کلیک کرده و از «باز کردن با» استفاده کنید.",
+    "xdgMimeMissing": "xdg-mime (بسته xdg-utils) نصب نیست، بنابراین برنامه پیش‌فرض PDF را نمی‌توان از اینجا تنظیم کرد.\n\nxdg-utils را نصب کنید، یا Open PDF Studio را در تنظیمات سیستم در بخش برنامه‌های پیش‌فرض انتخاب کنید.",
+    "linuxDone": "Open PDF Studio اکنون برنامه پیش‌فرض برای فایل‌های PDF است.",
+    "linuxFailed": "تنظیم Open PDF Studio به‌عنوان برنامه پیش‌فرض PDF ممکن نشد.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "کاوشگر فایل",
@@ -322,6 +328,11 @@
     "resetCommand": "بازنشانی به پیش‌فرض",
     "resetAll": "بازنشانی همه",
     "resetAllConfirm": "همه میانبرهای صفحه‌کلید به پیش‌فرض بازنشانی شوند؟",
+    "loadPreset": "بارگذاری پیش‌تنظیم…",
+    "replaceConfirm": "این کار میان‌برهای صفحه‌کلید سفارشی شما را جایگزین می‌کند. ادامه می‌دهید؟",
+    "presets": {
+      "markupStyle": "میان‌برهای سبک نشانه‌گذاری"
+    },
     "import": "وارد کردن…",
     "export": "صادر کردن…",
     "fileType": "میانبرهای صفحه‌کلید",

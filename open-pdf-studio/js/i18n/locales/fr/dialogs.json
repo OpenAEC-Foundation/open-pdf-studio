@@ -454,7 +454,8 @@
     "styleLabel": "Style :",
     "nestTitle": "Imbriquer sous un nouveau signet",
     "deleteTitle": "Supprimer les signets",
-    "deleteConfirm": "Supprimer les {{count}} signets sélectionnés et tout ce qu’ils contiennent ?"
+    "deleteConfirm": "Supprimer les {{count}} signets sélectionnés et tout ce qu’ils contiennent ?",
+    "replaceAll": "Remplacer tous les signets"
   },
   "formValidation": {
     "title": "Erreur de validation"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Enregistrer comme rapport IFC",
     "failed": "Échec de l'enregistrement du rapport IFC : {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exporter vers IFCX (bêta)",
+    "betaNote": "Bêta : IFCX (IFC5) est encore en développement. Vérifiez le résultat avant de vous y fier.",
+    "pages": "Pages :",
+    "allPages": "Toutes les pages",
+    "currentPage": "Page actuelle",
+    "customPages": "Plage de pages",
+    "rangePlaceholder": "ex. 1-3, 5",
+    "includeRaster": "Inclure les images",
+    "includeText": "Inclure le texte",
+    "includeAnnotations": "Annotations sur un calque séparé",
+    "export": "Exporter",
+    "progress": "Export de la page {{done}} sur {{total}}…",
+    "done": "Écrit : {{file}} ({{sheets}} feuilles, {{paths}} tracés, {{texts}} textes, {{images}} images, {{annotations}} annotations).",
+    "capPaths": "Page {{page}} : {{kept}} tracés sur {{total}} exportés ; le reste dépasse la limite.",
+    "capTexts": "Page {{page}} : {{kept}} lignes de texte sur {{total}} exportées ; le reste dépasse la limite.",
+    "capImages": "Page {{page}} : {{kept}} images sur {{total}} exportées ; le reste dépasse la limite.",
+    "imagesOmitted": "Images sans données de pixels (non prises en charge ou trop grandes) : {{count}}. Leur position est conservée.",
+    "sizeLimit": "La page {{page}} et les suivantes n'ont pas été exportées : le fichier a atteint sa taille maximale.",
+    "noPages": "Aucune page sélectionnée.",
+    "noBytes": "Les données PDF de ce document ne sont pas disponibles. Enregistrez le document et réessayez.",
+    "failed": "Échec de l'export IFCX : {{error}}",
+    "unsavedNote": "Les modifications non enregistrées du contenu des pages ne sont pas incluses ; les annotations le sont."
   },
   "styleType": {
     "lineTypes": "Types de lignes",

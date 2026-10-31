@@ -1,8 +1,11 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openExtern } from '../../../core/extern-openen.js';
+import { defaultPdfAppStatus, invoke } from '../../../core/platform.js';
+import { huidigeAppTekst, platformUit, zetAlsStandaard } from '../../../core/standaard-pdf-app.js';
 import { showMessage } from '../../stores/dialogStore.js';
 import { GEEN_MINIATUREN, leesMiniatuurStatus, zetMiniaturen } from '../../../core/verkenner-miniaturen.js';
+import { GEEN_DRAAGBAAR, leesDraagbaar } from '../../../core/draagbaar.js';
 
 export default function FileAssocTab() {
   const { t } = useTranslation('preferences');
@@ -14,9 +17,14 @@ export default function FileAssocTab() {
   const [miniaturen, setMiniaturen] = createSignal({ ...GEEN_MINIATUREN });
   const [miniaturenBezig, setMiniaturenBezig] = createSignal(false);
 
+  // Draagbaar (#881): niet bij Windows geregistreerd; uitleg in plaats van
+  // de knop en de miniaturen.
+  const [draagbaar, setDraagbaar] = createSignal({ ...GEEN_DRAAGBAAR });
+
   onMount(() => {
     checkDefaultPdfApp();
     leesMiniatuurStatus().then(setMiniaturen);
+    leesDraagbaar().then(setDraagbaar);
   });
 
   async function vraagVervangen(naam) {
@@ -43,57 +51,32 @@ export default function FileAssocTab() {
     setMiniaturenBezig(false);
   }
 
-  async function checkDefaultPdfApp() {
-    try {
-      const os = require('os');
-      const platform = os.platform();
+  // Huidige standaard en "Als standaard instellen" via de Rust-kant
+  // (standaard-pdf-app.js). In een Flatpak/Snap of zonder xdg-mime is het
+  // niet na te gaan of te zetten; dan uitleg in plaats van stil falen.
+  const platform = platformUit(navigator.platform || navigator.userAgent);
+  let status = null;
 
-      if (platform === 'win32') {
-        const { exec } = require('child_process');
-        exec('reg query "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.pdf\\UserChoice" /v ProgId', (err, stdout) => {
-          if (err) { setCurrentApp(tCommon('unableToDetect')); return; }
-          const match = stdout.match(/ProgId\s+REG_SZ\s+(.+)/);
-          if (match) {
-            let appName = match[1].trim();
-            if (appName.includes('AcroExch') || appName.includes('Acrobat')) appName = 'Adobe Acrobat';
-            else if (appName.includes('Edge')) appName = 'Microsoft Edge';
-            else if (appName.includes('Chrome')) appName = 'Google Chrome';
-            else if (appName.includes('Firefox')) appName = 'Mozilla Firefox';
-            else if (appName.includes('OpenPDFStudio') || appName.includes('open-pdf-studio')) appName = tCommon('appName');
-            else if (appName.includes('SumatraPDF')) appName = 'SumatraPDF';
-            setCurrentApp(appName);
-          } else {
-            setCurrentApp(t('fileAssoc.notSet'));
-          }
-        });
-      } else if (platform === 'darwin') {
-        setCurrentApp(t('fileAssoc.checkFinder'));
-      } else {
-        const { exec } = require('child_process');
-        exec('xdg-mime query default application/pdf', (err, stdout) => {
-          if (err || !stdout.trim()) { setCurrentApp(t('fileAssoc.notSet')); return; }
-          setCurrentApp(stdout.trim().replace('.desktop', ''));
-        });
-      }
-    } catch {
-      setCurrentApp(tCommon('unableToDetect'));
-    }
+  async function checkDefaultPdfApp() {
+    status = await defaultPdfAppStatus();
+    setCurrentApp(huidigeAppTekst(status, { t, tCommon, platform }));
   }
 
   async function handleSetDefault() {
-    const platform = navigator.platform.toLowerCase();
-    if (platform.includes('win')) {
+    if (platform === 'windows') {
       try {
         await openExtern('ms-settings:defaultapps');
         showMessage(t('fileAssoc.windowsInstructions'));
       } catch {
         showMessage(t('fileAssoc.windowsFailed'));
       }
-    } else if (platform.includes('mac')) {
-      showMessage(t('fileAssoc.macInstructions'));
-    } else {
-      showMessage(t('fileAssoc.linuxInstructions'));
+      return;
     }
+    if (!status) status = await defaultPdfAppStatus();
+    const melding = await zetAlsStandaard({ invoke, status, platform });
+    if (melding) showMessage(t(melding.sleutel, melding.opties));
+    // Na een gelukte xdg-mime default staat de nieuwe standaard er meteen.
+    if (melding?.sleutel === 'fileAssoc.linuxDone') checkDefaultPdfApp();
   }
 
   return (
@@ -104,16 +87,30 @@ export default function FileAssocTab() {
         <label>{t('fileAssoc.currentDefault')}</label>
         <span style="font-size:11px;color:var(--theme-text-secondary, #666);">{currentApp()}</span>
       </div>
-      <div class="pref-row" style="margin-top:12px;">
-        <button type="button" class="pref-btn pref-btn-secondary" style="width:100%;" onClick={handleSetDefault}>
-          {t('fileAssoc.setDefault')}
-        </button>
-      </div>
-      <p style="font-size:10px;color:var(--theme-text-secondary, #888);margin-top:12px;line-height:1.4;">
-        {t('fileAssoc.setDefaultHelp')}
-      </p>
+      <Show when={!draagbaar().portable} fallback={
+        <p data-testid="prefs-portable-fileassoc" style="font-size:10px;color:var(--theme-text-secondary, #888);margin-top:12px;line-height:1.4;">
+          {tCommon('portable.fileAssoc')}
+        </p>
+      }>
+        <div class="pref-row" style="margin-top:12px;">
+          <button type="button" class="pref-btn pref-btn-secondary" style="width:100%;" onClick={handleSetDefault}>
+            {t('fileAssoc.setDefault')}
+          </button>
+        </div>
+        <p style="font-size:10px;color:var(--theme-text-secondary, #888);margin-top:12px;line-height:1.4;">
+          {t('fileAssoc.setDefaultHelp')}
+        </p>
+      </Show>
     </fieldset>
-    <Show when={miniaturen().supported}>
+    <Show when={miniaturen().supported && draagbaar().portable}>
+      <fieldset class="pref-fieldset">
+        <legend>{t('explorerThumbnails.title')}</legend>
+        <p data-testid="prefs-portable-thumbnails" style="font-size:10px;color:var(--theme-text-secondary, #888);line-height:1.4;">
+          {tCommon('portable.explorerThumbnails')}
+        </p>
+      </fieldset>
+    </Show>
+    <Show when={miniaturen().supported && !draagbaar().portable}>
       <fieldset class="pref-fieldset">
         <legend>{t('explorerThumbnails.title')}</legend>
         <div class="pref-row pref-checkbox-row">

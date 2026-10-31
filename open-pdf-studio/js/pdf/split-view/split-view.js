@@ -1,4 +1,4 @@
-// Gesplitste weergave (#715): twee panelen op hetzelfde document.
+// Gesplitste weergave (#715, #893): twee panelen, op hetzelfde of twee documenten.
 //
 // Zie split-staat.js voor het ontwerp. Hier de DOM-kant:
 // - de lay-out (#split-host met #pdf-container, de scheidingslijn en het
@@ -40,10 +40,13 @@ import { achtergrondKleur, eigenAchtergrond, ACHTERGROND_GEWIJZIGD } from '../pa
 // stand bevat canvassen en bitmaps. Wat de interface nodig heeft staat op
 // doc.splitView (zie spiegelUi).
 const _staten = new Map();
+const _documentStanden = new Map();
+let _documentPaar = null;
 let _zichtbaar = false;
 let _gepland = 0;
 let _tekenBezig = false;
 let _wisselBezig = false;
+let _wisselKlaar = null;
 let _laatsteKenmerk = null;
 let _syncBasis = null;
 let _geinit = false;
@@ -56,6 +59,7 @@ const byId = (id) => (typeof document !== 'undefined' ? document.getElementById(
 
 /** De gesplitste weergave van een document (of null). */
 export function splitStaatVan(doc = getActiveDocument()) {
+  if (_documentPaar?.documentIds.includes(doc?.id)) return _documentPaar;
   return doc ? _staten.get(doc.id) || null : null;
 }
 
@@ -71,7 +75,7 @@ export function isGesplitst(doc = getActiveDocument()) {
 export function splitsWeergave(richting = 'vertical') {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return false;
-  const bestaand = _staten.get(doc.id);
+  const bestaand = splitStaatVan(doc);
   if (bestaand) {
     if (bestaand.richting !== richting) {
       // Richting wisselen (#858): elk paneel houdt zijn pagina en zoom, ook
@@ -95,11 +99,13 @@ export function splitsWeergave(richting = 'vertical') {
 /** View > Split > Unsplit: het actieve paneel houdt zijn pagina en zoom. */
 export function hefSplitsingOp() {
   const doc = getActiveDocument();
-  if (!doc || !_staten.has(doc.id)) return false;
+  if (!doc || !splitStaatVan(doc)) return false;
+  const ander = anderDocument(doc);
   zetStaat(doc, null);
   pasSplitLayoutToe();
   // Wat het tweede paneel vasthield (PDF.js-canvassen, bitmapclaims) weg.
   vergeetPaneelBeelden(doc);
+  if (ander && ander !== doc) vergeetPaneelBeelden(ander);
   return true;
 }
 
@@ -144,6 +150,14 @@ export async function activeerAnderPaneel() {
   const st = splitStaatVan(doc);
   if (!st || !_zichtbaar || !doc.pdfDoc) return false;
   if (gereedschapBezig()) return false;
+  if (st.documentIds) {
+    const ander = anderDocument(doc, st);
+    const index = state.documents.indexOf(ander);
+    if (index < 0) return false;
+    const { switchToTab } = await import('../../ui/chrome/tabs.js');
+    await switchToTab(index);
+    return getActiveDocument() === ander;
+  }
   _wisselBezig = true;
   try {
     stopPanMomentum();
@@ -214,8 +228,24 @@ export function pasSplitLayoutToe() {
     try { bewaarStandVoorLayoutwissel(doc?.filePath); } catch { /* geen viewport */ }
     try { pasViewportMaatAan(); } catch { /* geen viewport */ }
   }
+  plaatsNamen(doc,st);
   plaatsKader();
   if (zichtbaar && (!was || oudeRichting !== (st.richting === 'horizontal'))) planTekenen();
+}
+
+function plaatsNamen(doc,st) {
+  const host=byId('split-host');
+  if (!host) return;
+  host.style.setProperty('--split-ratio',String(st?.verhouding || 0.5));
+  for (const index of [0,1]) {
+    let label=byId('split-name-'+index);
+    if (!label) {label=document.createElement('div');label.id='split-name-'+index;label.className='split-document-name';host.append(label);}
+    const d=st?.documentIds ? state.documents.find(d=>d.id===st.documentIds[index]) : null;
+    label.textContent=d ? (d.fileName || d.filePath?.split(/[\\/]/).pop() || '') : '';
+    label.hidden=!d || !_zichtbaar;
+    label.dataset.pane=String(index);
+    label.title=label.textContent;
+  }
 }
 
 // ── Initialisatie ─────────────────────────────────────────────────────────
@@ -235,6 +265,9 @@ export function initSplitView() {
     _laatsteKenmerk = k;
   });
   op('weergaveGerenderd', () => { if (_zichtbaar) { syncVanLive(); planTekenen(); } });
+  op('voorTabWissel', voorTabWissel);
+  op('wachtOpPaneel', vraag => { vraag.wachten = _wisselKlaar; });
+  op('voorDocumentSluiten', voorDocumentSluiten);
   op('actiefDocument', () => {
     _laatsteKenmerk = null;
     pasSplitLayoutToe();
@@ -243,6 +276,7 @@ export function initSplitView() {
   op('documentGesloten', (doc) => {
     if (doc) {
       _staten.delete(doc.id);
+      _documentStanden.delete(doc.id);
       vergeetPaneelBeelden(doc);
     }
     pasSplitLayoutToe();
@@ -273,12 +307,154 @@ export function initSplitView() {
 
 // ── Staat en interface ────────────────────────────────────────────────────
 
+function bewaarDocumentStand(doc, stand) {
+  if (!doc || !stand) return;
+  const kopie = S.kopieerStand(stand);
+  kopie.bevroren = null;
+  if (kopie.vp) { kopie.vp.tile = null; kopie.vp.tileMeta = null; }
+  _documentStanden.set(doc.id, kopie);
+}
+
 function zetStaat(doc, staat) {
   if (!doc) return;
-  if (staat) _staten.set(doc.id, staat);
-  else _staten.delete(doc.id);
-  spiegelUi(doc, staat);
+  const vorigAnder = _documentPaar && anderDocument(null, _documentPaar);
+  if (vorigAnder && (!staat?.documentIds?.includes(vorigAnder.id))) {
+    bewaarDocumentStand(vorigAnder, _documentPaar.stand);
+    vergeetPaneelBeelden(vorigAnder);
+  }
+  if (staat?.documentIds) {
+    const oud = _documentPaar;
+    _documentPaar = staat;
+    for (const d of state.documents) {
+      if (staat.documentIds.includes(d.id)) spiegelUi(d, staat);
+      else if (oud?.documentIds.includes(d.id)) spiegelUi(d, _staten.get(d.id));
+    }
+  } else {
+    if (!staat && _documentPaar?.documentIds.includes(doc.id)) {
+      const ids = _documentPaar.documentIds;
+      _documentPaar = null;
+      for (const d of state.documents.filter(d => ids.includes(d.id))) {
+        _staten.delete(d.id);
+        spiegelUi(d, null);
+      }
+    }
+    if (staat) _staten.set(doc.id, staat);
+    else _staten.delete(doc.id);
+    spiegelUi(doc, staat);
+  }
 }
+
+function bewaarStaat(doc, staat) {
+  if (staat.documentIds) _documentPaar = staat;
+  else _staten.set(doc.id, staat);
+}
+
+function anderDocument(doc, st = splitStaatVan(doc)) {
+  return st?.documentIds
+    ? state.documents.find(d => d.id === st.documentIds[1 - st.actief]) || null
+    : doc;
+}
+
+/** Open een reeds geladen tab naast het actieve document, zonder een kopie. */
+export async function openDocumentInSplit(index) {
+  const doc = getActiveDocument();
+  const ander = state.documents[index];
+  if (!doc?.pdfDoc || !ander || _wisselBezig || gereedschapBezig()) return false;
+  if (ander === doc) return splitsWeergave('vertical');
+  if (_documentPaar?.documentIds.includes(ander.id)) return true;
+  if (!ander.pdfDoc) {
+    const { loadPDFIfNeeded } = await import('../loader.js');
+    await loadPDFIfNeeded(ander.filePath, index);
+    if (getActiveDocument() !== doc || !state.documents.includes(ander) || !ander.pdfDoc) return false;
+  }
+  let stand = S.kopieerStand(_documentStanden.get(ander.id));
+  if (!stand) {
+    const page = S.klemPagina(ander.currentPage, ander.pdfDoc.numPages);
+    if (!ander.pageDims?.[page]) {
+      const pdfPage = await ander.pdfDoc.getPage(page);
+      if (getActiveDocument() !== doc || !state.documents.includes(ander)) return false;
+      const [x0,y0,x1,y1] = pdfPage.view;
+      ander.pageDims ||= {};
+      ander.pageDims[page] = {widthPt:x1-x0,heightPt:y1-y0,offsetXPt:x0,offsetYPt:y0,rotation:pdfPage.rotate||0};
+    }
+    stand = {modus:S.modusVan(ander),page,scale:ander.scale||1,viewRotation:ander.viewRotation||0,
+      scrollLeft:ander.scrollPosition?.x||0,scrollTop:ander.scrollPosition?.y||0,
+      cssW:0,cssH:0,layout:null,vp:null,bevroren:null,naarPagina:page};
+    if (heeftRustRenderer() && stand.modus === 'single') {
+      stand.vp = {...vpMaat(ander,page),pageNum:page,zoom:stand.scale,offsetX:0,offsetY:0,
+        rotation:ander.pageRotations?.[page]||0,viewRotation:stand.viewRotation,verankerd:false,strikt:false};
+    }
+  }
+  const bestaand = splitStaatVan(doc);
+  const st = {...(bestaand || S.maakSplitStaat('vertical',stand)),stand};
+  st.documentIds = st.actief === 0 ? [doc.id,ander.id] : [ander.id,doc.id];
+  zetStaat(doc,st);
+  _syncBasis = waarnemingLive(doc);
+  pasSplitLayoutToe();
+  planTekenen();
+  return true;
+}
+
+function voorTabWissel(wissel) {
+  const { van, naar } = wissel;
+  if (van?.pdfDoc && !_wisselBezig) {
+    bewaarDocumentStand(van, leesLiveStand(van));
+  }
+  const st = _documentPaar;
+  if (!st || !van || van === naar || !st.documentIds.includes(van.id)) return;
+  if (_wisselBezig || gereedschapBezig()) { wissel.annuleren = true; return; }
+  _wisselBezig = true;
+  let klaar;
+  _wisselKlaar = new Promise(resolve => { klaar = resolve; });
+  let aankomst;
+  try {
+    stopPanMomentum();
+    if (naar.id === st.documentIds[1-st.actief]) {
+      const swap = S.wisselActiefPaneel(st,leesLiveStand(van,{metBeeld:true}));
+      aankomst = swap.aankomst;
+      zetStaat(naar,swap.staat);
+    } else {
+      const ids = [...st.documentIds]; ids[st.actief] = naar.id;
+      zetStaat(naar,{...st,documentIds:ids});
+    }
+  } catch (e) {
+    // Mislukt de paneelwissel, dan wordt het een gewone tabwissel; nooit een
+    // splitsing die geblokkeerd blijft (sluiten wacht op _wisselKlaar).
+    _wisselBezig = false;
+    _wisselKlaar = null;
+    klaar();
+    throw e;
+  }
+  // De bestaande tabwissel ververst alle documentgebonden bediening. Pas
+  // daarna de eigen paneelstand toe; geen tijdelijk actief document tijdens tekenen.
+  wissel.naRender = async () => {
+    try {
+      if (_documentPaar?.documentIds.includes(naar.id) && getActiveDocument() === naar && aankomst) await zetLiveStand(naar,aankomst);
+    } finally {
+      _wisselBezig = false;
+      _wisselKlaar = null;
+      klaar();
+      _syncBasis = waarnemingLive(getActiveDocument());
+      _laatsteKenmerk = null;
+      planTekenen();
+    }
+  };
+}
+
+function voorDocumentSluiten(sluiting) {
+  if (!_documentPaar?.documentIds.includes(sluiting.doc.id)) return;
+  const st = _documentPaar;
+  sluiting.volgendId = st.documentIds.find(id => id !== sluiting.doc.id);
+  const over = state.documents.find(d => d.id === sluiting.volgendId);
+  // Als de echte editor sluit, krijgt het overblijvende document precies
+  // de pagina, zoom en uitsnede die het spiegelpaneel liet zien.
+  if (st.documentIds[st.actief] === sluiting.doc.id && over) {
+    const stand = S.kopieerStand(st.stand);
+    sluiting.naRender = () => zetLiveStand(over, stand);
+  }
+  zetStaat(sluiting.doc,null);
+}
+
 
 // De ribbon (Solid) leest doc.splitView: alleen de vlaggen, geen standen.
 function spiegelUi(doc, staat) {
@@ -528,8 +704,8 @@ function syncVanLive() {
       const W = pane?.clientWidth || 0;
       const H = pane?.clientHeight || 0;
       if (W > 0 && H > 0) {
-        const huidig = bijgewerkteStand(doc, st.stand, W, H);
-        _staten.set(doc.id, { ...st, stand: S.pasSyncToe(huidig, delta, { cssW: W, cssH: H }) });
+        const huidig = bijgewerkteStand(anderDocument(doc,st), st.stand, W, H);
+        bewaarStaat(doc, { ...st, stand: S.pasSyncToe(huidig, delta, { cssW: W, cssH: H }) });
         planTekenen();
       }
     }
@@ -570,7 +746,8 @@ function opWiel(e) {
   const r = pane.getBoundingClientRect();
   const px = e.clientX - r.left;
   const py = e.clientY - r.top;
-  let s = bijgewerkteStand(doc, st.stand, W, H);
+  const spiegelDoc = anderDocument(doc,st);
+  let s = bijgewerkteStand(spiegelDoc, st.stand, W, H);
   if (zoomen) {
     if (!e.deltaY) return;
     const huidig = s.vp ? s.vp.zoom : s.scale;
@@ -578,7 +755,7 @@ function opWiel(e) {
     if (!(doel > 0) || doel === huidig) return;
     const factor = doel / huidig;
     if (s.vp) s = { ...s, vp: S.zoomViewportRond(s.vp, factor, px, py), scale: doel };
-    else s = S.zoomLayoutStand(s, factor, px, py, { breedte: W, cssW: W, cssH: H, maatVan: (p, schaal) => layoutMaat(doc, p, s.viewRotation, schaal) });
+    else s = S.zoomLayoutStand(s, factor, px, py, { breedte: W, cssW: W, cssH: H, maatVan: (p, schaal) => layoutMaat(spiegelDoc, p, s.viewRotation, schaal) });
   } else if (s.vp) {
     // Zoals de viewer zelf: alleen schuiven op een as waar de pagina niet
     // in het paneel past.
@@ -590,7 +767,7 @@ function opWiel(e) {
   } else {
     s = { ...s, ...S.klemScroll(s.layout, (s.scrollLeft || 0) + dx, (s.scrollTop || 0) + dy, W, H) };
   }
-  _staten.set(doc.id, { ...st, stand: s });
+  bewaarStaat(doc, { ...st, stand: s });
   planTekenen();
 }
 
@@ -667,7 +844,8 @@ function koppelScheiding(scheiding) {
 // ── Na paginabewerkingen ──────────────────────────────────────────────────
 
 function naPaginaStructuur(doc, pageMapping, numPages) {
-  const st = doc ? _staten.get(doc.id) : null;
+  const st = splitStaatVan(doc);
+  if (st?.documentIds && anderDocument(getActiveDocument(),st) !== doc) return;
   if (!st?.stand) return;
   const s = S.kopieerStand(st.stand);
   const oud = s.page;
@@ -689,7 +867,7 @@ function naPaginaStructuur(doc, pageMapping, numPages) {
     s.layout = null;
     s.naarPagina = nieuw;
   }
-  _staten.set(doc.id, { ...st, stand: s });
+  bewaarStaat(doc, { ...st, stand: s });
   // Paginamaten van pagina's die van plaats wisselden zijn verouderd.
   const paginas = s.modus === 'single' ? [nieuw] : Array.from({ length: numPages || 0 }, (_, i) => i + 1);
   vernieuwPaginaMaten(doc, paginas);
@@ -704,13 +882,14 @@ function vernieuwPaginaMaten(doc, paginas) {
       if (doc.pdfDoc !== pdfDoc) return;
       try {
         const page = await pdfDoc.getPage(p);
+        if (doc.pdfDoc !== pdfDoc || !state.documents.includes(doc)) return;
         const [x0, y0, x1, y1] = page.view;
         if (!doc.pageDims) doc.pageDims = {};
         doc.pageDims[p] = { widthPt: x1 - x0, heightPt: y1 - y0, offsetXPt: x0, offsetYPt: y0, rotation: page.rotate || 0 };
       } catch { /* pagina bestaat niet meer */ }
     }
-    const st = _staten.get(doc.id);
-    if (st?.stand?.matenVerouderd) _staten.set(doc.id, { ...st, stand: { ...st.stand, matenVerouderd: false } });
+    const st = splitStaatVan(doc);
+    if (st?.stand?.matenVerouderd) bewaarStaat(doc, { ...st, stand: { ...st.stand, matenVerouderd: false } });
     planTekenen();
   })();
 }
@@ -719,7 +898,9 @@ function vraagPaginaMaat(doc, page) {
   const sleutel = `${doc.id}|${page}`;
   if (_matenAanvragen.has(sleutel) || !doc.pdfDoc) return;
   _matenAanvragen.add(sleutel);
-  doc.pdfDoc.getPage(page).then((pg) => {
+  const pdfDoc = doc.pdfDoc;
+  pdfDoc.getPage(page).then((pg) => {
+    if (doc.pdfDoc !== pdfDoc || !state.documents.includes(doc)) return;
     const [x0, y0, x1, y1] = pg.view;
     if (!doc.pageDims) doc.pageDims = {};
     doc.pageDims[page] = { widthPt: x1 - x0, heightPt: y1 - y0, offsetXPt: x0, offsetYPt: y0, rotation: pg.rotate || 0 };
@@ -908,8 +1089,9 @@ function canvassenVan(pane, W, H, dpr) {
 
 function tekenSpiegelNu() {
   if (!_zichtbaar) return;
-  const doc = getActiveDocument();
-  const st = splitStaatVan(doc);
+  const liveDoc = getActiveDocument();
+  const st = splitStaatVan(liveDoc);
+  const doc = anderDocument(liveDoc,st);
   const pane = byId('split-pane');
   if (!st?.stand || !pane || !doc?.pdfDoc) return;
   const W = pane.clientWidth;
@@ -919,7 +1101,7 @@ function tekenSpiegelNu() {
   const doeken = canvassenVan(pane, W, H, dpr);
   if (!doeken) return;
   const stand = bijgewerkteStand(doc, st.stand, W, H);
-  _staten.set(doc.id, { ...st, stand });
+  bewaarStaat(liveDoc, { ...st, stand });
   const plaatsingen = plaatsingenVan(doc, stand, W, H);
   laadAnnotatiesVoor(doc, plaatsingen);
   _tekenBezig = true;
@@ -1041,7 +1223,7 @@ function tekenAnnotatieLaag(doc, s, plaatsingen, doek, W, H, dpr) {
           dpr * (p.z / (plaatsingen[0].z || 1)),
           { x: (vak.x - p.tx) / p.z, y: (vak.y - p.ty) / p.z },
           { w: p.sw, h: p.sh },
-          undefined,
+          doc !== getActiveDocument() ? { inactief: true } : undefined,
           p.weergave,
         );
       } catch (e) {
@@ -1059,6 +1241,7 @@ export function splitOverzicht(doc = getActiveDocument()) {
   const live = doc ? { page: doc.currentPage, scale: doc.scale, modus: S.modusVan(doc) } : null;
   const ander = st.stand ? { page: st.stand.page, scale: st.stand.vp ? st.stand.vp.zoom : st.stand.scale, modus: st.stand.modus } : null;
   return {
+    documentIds: st.documentIds || [doc.id,doc.id],
     richting: st.richting,
     actief: st.actief,
     verhouding: st.verhouding,

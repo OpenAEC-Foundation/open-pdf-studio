@@ -3,6 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   tokenizeContentStream,
+  iterContentTokens,
   interpretContentStreams,
   winAnsiMap,
   buildSimpleEncodingMap,
@@ -20,6 +21,22 @@ import {
 } from './content-stream-text.js';
 
 // ── Tokenizer ──
+
+// De generator (ifcx-inhoud.js) en de lijst (teken- en printpad) delen één
+// tokenlezer: dezelfde tokens met dezelfde posities, ook bij commentaar, een
+// losse '>', een inline-afbeelding en een ongeldig getal.
+test('tokenizer: iterContentTokens geeft precies dezelfde tokens als tokenizeContentStream', () => {
+  const src = '%kop\r\n<< /A 1 >> BDC <48656c6c6f> Tj [(a\\(b\\)) -20 (c\\101)] TJ { } > -. true null '
+    + '/N#41me BI /W 1 ID \x00\x01 EI Q 1 2 re\n%eind';
+  const lijst = tokenizeContentStream(src);
+  assert.deepEqual(Array.from(iterContentTokens(src)), lijst);
+  assert.deepEqual(lijst.map((t) => t.v), [
+    undefined, 'A', 1, undefined, 'BDC', [72, 101, 108, 108, 111], 'Tj',
+    undefined, [97, 40, 98, 41], -20, [99, 65], undefined, 'TJ', undefined, undefined,
+    '-.', true, null, 'NAme', 'BI..EI', 'Q', 1, 2, 're',
+  ]);
+  assert.equal(lijst.at(-1).e, src.indexOf('\n%eind'));
+});
 
 test('tokenizer: getallen, namen, operatoren', () => {
   const toks = tokenizeContentStream('1 0 0 1 72.5 -720 cm /F1 12 Tf BT ET');

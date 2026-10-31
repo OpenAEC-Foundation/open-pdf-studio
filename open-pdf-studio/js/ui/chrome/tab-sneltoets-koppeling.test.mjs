@@ -62,7 +62,9 @@ test('switchToTab geeft de render-belofte terug en de sneltoets gebruikt de tabb
 
 test('de doorlopende weergave zet de scrollpositie terug zodra de pagina\'s staan', () => {
   const tabs = bron('ui/chrome/tabs.js');
-  const wissel = blok(tabs, 'export function switchToTab', '\n}\n');
+  // De wissel zelf staat sinds #893 in toonTab (switchToTab rondt daaromheen
+  // een paneelwissel van de gesplitste weergave af).
+  const wissel = blok(tabs, 'function toonTab', '\n}\n');
   assert.doesNotMatch(wissel, /setTimeout\(\(\) => \{\s*pdfContainer\.scrollLeft/, 'geen vertraagde scrollsprong meer');
   assert.match(wissel, /Promise\.resolve\(firstRender\)/);
 });

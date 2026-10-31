@@ -32,7 +32,8 @@
     "aiLinkActive": "Inatumika kwenye {{adres}}",
     "aiLinkViaFlag": "Inatumika kupitia kigezo cha kuanza ({{adres}})",
     "aiLinkOff": "Imezimwa",
-    "aiLinkError": "Haijaanzishwa: {{fout}}"
+    "aiLinkError": "Haijaanzishwa: {{fout}}",
+    "interfaceScale": "Ukubwa wa kiolesura"
   },
   "annotations": {
     "generalDefaults": "Chaguo-msingi za Jumla",
@@ -193,7 +194,12 @@
     "macInstructions": "Ili kuweka Open PDF Studio kama kitazamaji chaguo-msingi cha PDF kwenye macOS:\n\n1. Bofya-kulia faili yoyote ya PDF kwenye Finder\n2. Chagua \"Pata Taarifa\"\n3. Chini ya \"Fungua na\", chagua Open PDF Studio\n4. Bofya \"Badilisha Zote...\"",
     "linuxInstructions": "Ili kuweka Open PDF Studio kama kitazamaji chaguo-msingi cha PDF kwenye Linux:\n\nEndesha kwenye terminali:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Angalia Finder > Pata Taarifa",
-    "notSet": "Haijawekwa"
+    "notSet": "Haijawekwa",
+    "chosenInSystemSettings": "Imechaguliwa katika mipangilio ya mfumo",
+    "sandboxInstructions": "Open PDF Studio inaendeshwa kama kifurushi cha {{package}} na haiwezi kubadilisha programu chaguo-msingi ya PDF yenyewe.\n\nChagua Open PDF Studio katika mipangilio ya mfumo chini ya Programu Chaguo-msingi, au bofya kulia faili ya PDF na utumie Fungua Kwa.",
+    "xdgMimeMissing": "xdg-mime (kifurushi xdg-utils) haijasakinishwa, kwa hivyo programu chaguo-msingi ya PDF haiwezi kuwekwa kutoka hapa.\n\nSakinisha xdg-utils, au chagua Open PDF Studio katika mipangilio ya mfumo chini ya Programu Chaguo-msingi.",
+    "linuxDone": "Open PDF Studio sasa ni programu chaguo-msingi ya faili za PDF.",
+    "linuxFailed": "Imeshindwa kuweka Open PDF Studio kama programu chaguo-msingi ya PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Kichunguzi Faili",
@@ -322,6 +328,11 @@
     "resetCommand": "Rejesha chaguo-msingi",
     "resetAll": "Rejesha zote",
     "resetAllConfirm": "Rejesha njia zote za mkato za kibodi kwenye chaguo-msingi?",
+    "loadPreset": "Pakia mpangilio ulioandaliwa…",
+    "replaceConfirm": "Hii itabadilisha njia zako za mkato za kibodi ulizoweka. Endelea?",
+    "presets": {
+      "markupStyle": "Njia za mkato za mtindo wa alama"
+    },
     "import": "Leta…",
     "export": "Hamisha…",
     "fileType": "Njia za mkato za kibodi",

@@ -85,3 +85,40 @@ test('the dialog has no unit conversion of its own', () => {
   assert.doesNotMatch(dialoog, /pixelsPerUnit\s*=\s*72\b/);
   assert.doesNotMatch(dialoog, /72\s*\/\s*\(\s*S\b/);
 });
+
+
+// #885: actual paper distances with the selectable architectural/engineering
+// ratios must retain the established calibration conversion (including ft).
+const { IMPERIAL_SCALE_PRESETS } = await import('./scale-presets.js');
+test('imperial presets measure a 2.5-inch paper line in feet without a unit-ratio error', () => {
+  const expected = [80, 40, 80 / 3, 20, 40 / 3, 10, 20 / 3, 5, 10 / 3, 2.5, 5 / 3, 5 / 6,
+    25, 50, 75, 100, 125, 150, 250];
+  assert.equal(IMPERIAL_SCALE_PRESETS.length, expected.length);
+  for (const [i, preset] of IMPERIAL_SCALE_PRESETS.entries()) {
+    const scale = schaalUitKalibratie({ method: 'ratio', denominator: Number(preset.ratio.split(':')[1]), unit: 'ft' });
+    ongeveer(180 / scale.pixelsPerUnit, expected[i], preset.label);
+    assert.equal(scale.scaleRatio, preset.ratio);
+  }
+});
+
+// The label is what the user picks; it must say the same scale as the stored
+// ratio, and every ratio must be recognised when the dialog reopens (#885).
+const { SCALE_PRESETS, METRIC_SCALE_PRESETS } = await import('./scale-presets.js');
+test('imperial preset labels match their ratio and every preset is recognised on reopen', () => {
+  const inches = (s) => s.trim().split(/\s+/).reduce((sum, part) => {
+    const [a, b] = part.split('/').map(Number);
+    return sum + (b ? a / b : a);
+  }, 0);
+  for (const { ratio, label } of IMPERIAL_SCALE_PRESETS) {
+    const n = Number(ratio.split(':')[1]);
+    const arch = label.match(/^([\d /]+)" = 1'-0" \(1:(\d+)\)$/);
+    const eng = label.match(/^1" = (\d+)'-0" \(1:(\d+)\)$/);
+    assert.ok(arch || eng, label);
+    const expected = arch ? 12 / inches(arch[1]) : 12 * Number(eng[1]);
+    ongeveer(n, expected, label);
+    assert.equal(Number((arch || eng)[2]), n, label);
+    assert.ok(SCALE_PRESETS.includes(ratio), `${ratio} is recognised as a preset`);
+  }
+  assert.equal(new Set(SCALE_PRESETS).size, SCALE_PRESETS.length, 'no ratio listed twice');
+  assert.ok(METRIC_SCALE_PRESETS.every((r) => SCALE_PRESETS.includes(r)));
+});

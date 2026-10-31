@@ -370,6 +370,7 @@
     "help": "Help",
     "checkForUpdates": "Check for Updates",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates for this installation are managed centrally.",
     "startupDiagnosticsTitle": "Reveal the privacy-safe startup diagnostics file",
     "startupDiagnostics": "Diagnostics",
     "setDefaultPdf": "Set Default PDF Application",
@@ -724,5 +725,60 @@
     "noRecovery": "The markups in this document were flattened without allowing unflattening. They are part of the page content and cannot be restored.",
     "done": "Markups restored: {{count}}.",
     "failed": "Unflattening failed: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Small Icons",
+    "largeIcons": "Large Icons",
+    "settings": "Settings"
+  },
+  "symbolPalette": {
+    "search": "Search symbols...",
+    "noResults": "No symbols found",
+    "drawingSettings": "Drawing settings",
+    "manageSystemTypes": "Manage system types",
+    "settingsTitle": "Symbol Library Settings",
+    "industry": "Industry",
+    "country": "Country",
+    "libraryLoading": "Loading online library…",
+    "libraryOffline": "Online library unreachable — limited country list",
+    "downloading": "Downloading {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Collections available online: {{n}} ({{symbols}} symbols)",
+    "activateDownloaded": "Downloaded collections to activate for this country: {{n}}",
+    "download": "Download",
+    "downloadFailed": "Download failed: {{error}}",
+    "builtIn": "Built-in",
+    "online": "Online",
+    "addSymbol": "+ Add Symbol",
+    "export": "Export",
+    "remove": "Remove",
+    "noSymbolsYet": "No symbols yet",
+    "newGroupName": "New group name...",
+    "addGroup": "Add Group",
+    "importGroup": "Import Group",
+    "catalogLoaded": "Catalog '{{id}}' loaded: {{families}} families, {{sizes}} sizes",
+    "catalogNoPreview": "{{n}} without a preview in the file",
+    "fileNotRecognized": "File not recognized: not a symbol group and not a catalog",
+    "importFailed": "Import failed: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construction",
+      "nl-elektra": "NL Electrical",
+      "nl-bouwplaats": "NL Construction Site",
+      "nl-sanitair": "NL Sanitary",
+      "nl-keuken": "NL Kitchen",
+      "nen1414-tb": "NL NEN 1414 — Fire Protection",
+      "nen1414-tbk": "NL NEN 1414 — Extinguishing Systems",
+      "nen1414-td": "NL NEN 1414 — Doors",
+      "nen1414-tn": "NL NEN 1414 — Emergency Lighting",
+      "nen1414-tr": "NL NEN 1414 — Smoke/Heat Extraction",
+      "nen1414-tv": "NL NEN 1414 — Ventilation",
+      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Construction)",
+      "electrical": "Electrical engineering",
+      "process": "Process / P&ID",
+      "mep": "Building services (MEP)",
+      "infra": "Infrastructure"
+    }
   }
 }

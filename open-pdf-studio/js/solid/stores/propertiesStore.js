@@ -3,6 +3,7 @@ import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
+import { parseScaleString, pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import {
   recordPropertyChange,
   recordModify,
@@ -1356,7 +1357,7 @@ function applyPropToAnnotation(ann, key, value) {
       const ratio = leesGeheelGetal(value);
       if (ratio > 0) {
         ann.scaleRatio = `1:${ratio}`;
-        ann.pixelsPerUnit = 72 / (25.4 * ratio);
+        ann.pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, 'mm', userUnitVanPagina(getActiveDocument(), ann.page));
         ann.unit = 'mm';
       }
       break;
@@ -1452,15 +1453,13 @@ function recomputeMeasureText(ann) {
  * @param {string} key   Property name. May be a dot-path for nested writes.
  * @param {*}      value New value.
  */
-// Page-pixels per real-world unit for a scaleRegion's OWN scale + units
+// Page units per real-world unit for a scaleRegion's OWN scale + units
 // (e.g. '1:50' + 'mm' → 72/25.4/50 pt per mm). Used to show/edit the
-// region's physical width/height.
+// region's physical width/height. Same conversion as measuring inside the
+// region (getScaleFromRegion), /UserUnit of its page included (#884).
 function _scaleRegionPpu(ann) {
-  const m = String(ann?.scaleString || '1:100').match(/1\s*:\s*([\d.]+)/);
-  const ratio = m ? parseFloat(m[1]) : 100;
-  const unitToMm = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
-  const mmPerUnit = unitToMm[ann?.units || 'mm'] || 1;
-  return ((72 / 25.4) * mmPerUnit) / (ratio > 0 ? ratio : 100);
+  const schaal = parseScaleString(ann?.scaleString) ? ann.scaleString : '1:100';
+  return pixelsPerUnitFor(schaal, ann?.units || 'mm', userUnitVanPagina(getActiveDocument(), ann?.page));
 }
 
 // Vlak-brede vet/cursief vanuit het paneel (niet in bewerking): ook de
@@ -1858,7 +1857,8 @@ function applyAnnotProp(key, value) {
       const vpRatio = leesGeheelGetal(value);
       if (vpRatio > 0) {
         currentAnnotation.scaleRatio = `1:${vpRatio}`;
-        currentAnnotation.pixelsPerUnit = 72 / (25.4 * vpRatio);
+        // In pagina-eenheden, /UserUnit meegerekend (#884), zoals bij meervoudige selectie.
+        currentAnnotation.pixelsPerUnit = pixelsPerUnitFor(`1:${vpRatio}`, 'mm', userUnitVanPagina(getActiveDocument(), currentAnnotation.page));
         currentAnnotation.unit = 'mm';
         currentAnnotation.name = currentAnnotation.name || `1:${vpRatio}`;
         setAnnotProps('viewportScaleRatio', `1:${vpRatio}`);

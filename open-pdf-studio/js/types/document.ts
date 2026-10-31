@@ -132,6 +132,9 @@ export interface DocumentState {
   /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
    *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */
   pdfViewports?: Record<number, Array<{ x: number; y: number; width: number; height: number; pixelsPerUnit: number; unit: string; mmPerPoint: number; ratio: string; name: string }>>;
+  /** /UserUnit per 1-gebaseerd paginanummer, alleen waar hij niet 1 is; een
+   *  schaal 1:N rekent daarmee naar pagina-eenheden (pixelsPerUnitFor, #884). */
+  pageUserUnits?: Record<number, number>;
   /** Benoemde lijnstijl-presets — persist in de PDF (catalog /OPS_StylePresets). */
   stylePresets: StylePreset[];
   /** Annotatielagen (#468); leeg = alleen de standaardlaag (js/annotations/annotatie-lagen.js). */

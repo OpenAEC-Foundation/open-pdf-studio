@@ -148,5 +148,14 @@
     "title": "Sonraki görüntüleme bulgusuna git. Bulgu olmaması görüntülemenin eksiksiz olduğunu garanti etmez.",
     "count": "Görüntüleme bulguları: {{count}}",
     "detail": "Sayfa {{page}}: {{code}}. Daha düşük bir yakınlaştırma deneyin veya belgeyi yeniden açın; eksiksizlik garanti edilmez."
+  },
+  "mcpSignal": {
+    "label": "Yapay zekâ bağlantısı (MCP)",
+    "connected": "Yapay zekâ asistanı bağlı",
+    "idle": "MCP sunucusu açık, boşta",
+    "off": "MCP sunucusu kapalı",
+    "port": "Bağlantı noktası: {{port}}",
+    "lastTool": "Son araç: {{tool}}, {{time}}",
+    "noTool": "Henüz araç çağrısı yok"
   }
 }

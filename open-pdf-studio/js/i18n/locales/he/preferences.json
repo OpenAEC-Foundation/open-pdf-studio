@@ -32,7 +32,8 @@
     "aiLinkActive": "פעיל ב-{{adres}}",
     "aiLinkViaFlag": "פעיל דרך פרמטר הפעלה ({{adres}})",
     "aiLinkOff": "כבוי",
-    "aiLinkError": "לא הופעל: {{fout}}"
+    "aiLinkError": "לא הופעל: {{fout}}",
+    "interfaceScale": "גודל הממשק"
   },
   "annotations": {
     "generalDefaults": "ברירות מחדל כלליות",
@@ -193,7 +194,12 @@
     "macInstructions": "כדי להגדיר את Open PDF Studio כמציג PDF ברירת מחדל ב-macOS:\n\n1. לחץ לחיצה ימנית על קובץ PDF כלשהו ב-Finder\n2. בחר \"קבל מידע\"\n3. תחת \"פתח עם\", בחר Open PDF Studio\n4. לחץ על \"שנה הכל...\"",
     "linuxInstructions": "כדי להגדיר את Open PDF Studio כמציג PDF ברירת מחדל ב-Linux:\n\nהפעל בטרמינל:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "בדוק Finder > קבל מידע",
-    "notSet": "לא הוגדר"
+    "notSet": "לא הוגדר",
+    "chosenInSystemSettings": "נבחר בהגדרות המערכת",
+    "sandboxInstructions": "Open PDF Studio פועל כחבילת {{package}} ואינו יכול לשנות בעצמו את יישום ה-PDF המוגדר כברירת מחדל.\n\nבחרו ב-Open PDF Studio בהגדרות המערכת תחת יישומי ברירת מחדל, או לחצו לחיצה ימנית על קובץ PDF והשתמשו ב'פתח באמצעות'.",
+    "xdgMimeMissing": "xdg-mime (החבילה xdg-utils) אינו מותקן, ולכן לא ניתן להגדיר כאן את יישום ה-PDF המוגדר כברירת מחדל.\n\nהתקינו את xdg-utils, או בחרו ב-Open PDF Studio בהגדרות המערכת תחת יישומי ברירת מחדל.",
+    "linuxDone": "Open PDF Studio הוא כעת יישום ברירת המחדל לקובצי PDF.",
+    "linuxFailed": "לא ניתן להגדיר את Open PDF Studio כיישום ה-PDF המוגדר כברירת מחדל.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "סייר הקבצים",
@@ -322,6 +328,11 @@
     "resetCommand": "איפוס לברירת המחדל",
     "resetAll": "איפוס הכול",
     "resetAllConfirm": "לאפס את כל קיצורי המקלדת לברירת המחדל?",
+    "loadPreset": "טעינת הגדרה מוכנה…",
+    "replaceConfirm": "פעולה זו תחליף את קיצורי המקלדת המותאמים שלך. להמשיך?",
+    "presets": {
+      "markupStyle": "קיצורים בסגנון סימון"
+    },
     "import": "ייבוא…",
     "export": "ייצוא…",
     "fileType": "קיצורי מקלדת",

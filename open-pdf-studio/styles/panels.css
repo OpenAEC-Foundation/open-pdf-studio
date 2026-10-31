@@ -633,18 +633,6 @@
   box-shadow: inset 0 -2px 0 #0078d7;
 }
 
-/* Sleepbeeld bij meerdere bladwijzers ("3 bladwijzers") */
-.bookmark-drag-image {
-  position: fixed;
-  left: -1000px;
-  top: 0;
-  padding: 2px 8px;
-  font-size: 12px;
-  background: #ffffff;
-  color: #333333;
-  border: 1px solid #0078d7;
-}
-
 .bookmark-arrow {
   width: 14px;
   height: 14px;
@@ -2143,4 +2131,18 @@
   padding: 2px 4px;
   border: 1px solid var(--theme-input-border, #ccc);
   border-radius: 0;
+}
+
+/* Inline bookmark rename (#891): text and control stay within the row. */
+.bookmark-title-input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  padding: 0 2px;
+  border: 1px solid var(--theme-accent, #0078d7);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #222);
+  font: inherit;
+  cursor: default;
 }

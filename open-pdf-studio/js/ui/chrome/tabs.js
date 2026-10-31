@@ -20,6 +20,7 @@ import { hostVersieLabel } from '../../pdf/host-versies.js';
 import i18next from '../../i18n/config.js';
 import { meldWijziging, meldGesloten } from '../../herstel/haken.js';
 import { meld as meldSplit } from '../../pdf/split-view/split-haken.js';
+import { renderQueue } from '../../pdf/render-queue-state.js';
 
 /**
  * Create a new tab for a document
@@ -65,8 +66,26 @@ export function createTab(filePath = null, autoSwitch = true) {
  * @returns {Promise<void>|undefined} de eerste render van het nieuwe tabblad
  *   (undefined zonder PDF); de tabwissel-sneltoets wacht hierop (#539)
  */
-export function switchToTab(index) {
+export function switchToTab(index, { bewaarPaneel = true } = {}) {
   if (index < 0 || index >= state.documents.length) return;
+  const splitWissel = {van:getActiveDocument(),naar:state.documents[index],annuleren:false,naRender:null};
+  if (bewaarPaneel) meldSplit('voorTabWissel',splitWissel);
+  if (splitWissel.annuleren) return;
+  let eersteRender;
+  try {
+    eersteRender = toonTab(index);
+  } catch (e) {
+    // Een begonnen paneelwissel (#893) altijd afronden: anders blijft de
+    // splitsing geblokkeerd en wacht sluiten er eeuwig op.
+    splitWissel.naRender?.();
+    throw e;
+  }
+  if (splitWissel.naRender) return Promise.resolve(eersteRender).then(splitWissel.naRender,async error=>{await splitWissel.naRender();throw error;});
+  return eersteRender;
+}
+
+// De eigenlijke tabwissel; geeft de eerste render terug (zie switchToTab).
+function toonTab(index) {
   let eersteRender;
 
   // Save scroll position of current document
@@ -97,6 +116,9 @@ export function switchToTab(index) {
 
   // Switch active document
   state.activeDocumentIndex = index;
+  // Renders of the previous document that have not started yet are dropped,
+  // so this document's page does not wait behind them (#506).
+  renderQueue.activeDocumentChanged();
 
   // Update tab bar UI
   updateTabBar();
@@ -259,6 +281,12 @@ export async function closeTab(index, force = false, dialogAction = null) {
   if (index < 0 || index >= state.documents.length) return false;
 
   const doc = state.documents[index];
+  // Een lopende paneelwissel moet klaar zijn vóór opslaan of vrijgeven.
+  const sluitWacht = { wachten: null };
+  meldSplit('wachtOpPaneel', sluitWacht);
+  if (sluitWacht.wachten) await sluitWacht.wachten;
+  index = state.documents.indexOf(doc);
+  if (index < 0) return false;
 
   // Check for unsaved changes - show Save / Don't Save / Cancel dialog.
   // `dialogAction` ('save'|'dontsave') slaat de native dialoog over — voor de
@@ -276,7 +304,8 @@ export async function closeTab(index, force = false, dialogAction = null) {
       // naar dat tabblad; na het sluiten komt het vorige tabblad terug.
       if (index !== state.activeDocumentIndex) {
         vorigActief = state.documents[state.activeDocumentIndex] || null;
-        switchToTab(index);
+        try { await switchToTab(index); } catch (e) { console.warn('[tabs] wisselen voor opslaan mislukt:', e); }
+        if (getActiveDocument() !== doc) return false;
       }
       // Met `dialogAction` (MCP-brug, tests) kan niemand een vraag over
       // handtekeningen beantwoorden; die keuze is dan al gemaakt.
@@ -348,6 +377,11 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // Clear thumbnail cache for this document
   clearThumbnailCache(doc.id);
 
+  index = state.documents.indexOf(doc);
+  if (index < 0) return false;
+  const splitSluiting = {doc,volgendId:null,naRender:null};
+  meldSplit('voorDocumentSluiten',splitSluiting);
+  const actiefVoorSluiten = getActiveDocument();
   // Remove the document
   state.documents.splice(index, 1);
   // Gesloten (opgeslagen of bewust niet): de herstelmomentopname kan weg.
@@ -388,13 +422,22 @@ export async function closeTab(index, force = false, dialogAction = null) {
     updateWindowTitle();
     import('../../search/find-bar.js').then(m => m.closeFindBar());
     import('../../pdf/handtekeningen/verificatie.js').then(m => m.toonBalkVoorActiefDocument());
+  } else if (splitSluiting.volgendId && state.documents.some(d=>d.id===splitSluiting.volgendId)) {
+    const volgend = state.documents.findIndex(d=>d.id===splitSluiting.volgendId);
+    // Sloot een tabblad vóór het actieve, dan schoof dat een plaats op: de
+    // index eerst bijwerken, anders bewaart de wissel de schuifstand en
+    // selectie van de viewer in een verkeerd document (#893).
+    const nogActief = state.documents.indexOf(actiefVoorSluiten);
+    state.activeDocumentIndex = nogActief !== -1 ? nogActief : volgend;
+    await switchToTab(volgend, { bewaarPaneel:false });
+    await splitSluiting.naRender?.();
   } else if (vorigActief) {
     state.activeDocumentIndex = actiefNaSluiten(state.documents, index, vorigActief);
-    switchToTab(state.activeDocumentIndex);
+    switchToTab(state.activeDocumentIndex, { bewaarPaneel:false });
   } else if (index <= state.activeDocumentIndex) {
     // If closing current or earlier tab, adjust index
     state.activeDocumentIndex = Math.max(0, state.activeDocumentIndex - 1);
-    switchToTab(state.activeDocumentIndex);
+    switchToTab(state.activeDocumentIndex, { bewaarPaneel:false });
   }
 
   // Update tab bar UI

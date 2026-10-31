@@ -11,7 +11,7 @@
 
 const STUBS = {
   'js/core/state.js': ['getActiveDocument', 'getNextUntitledName'],
-  'js/core/platform.js': ['saveFileDialog', 'writeBinaryFile', 'readBinaryFile', 'isTauri', 'invoke', 'openFileDialog', 'openFolderDialog', 'lockFile', 'unlockFile'],
+  'js/core/platform.js': ['saveFileDialog', 'writeBinaryFile', 'writeBinaryFileNew', 'readBinaryFile', 'isTauri', 'invoke', 'openFileDialog', 'openFolderDialog', 'lockFile', 'unlockFile'],
   'js/core/undo-manager.js': ['recordPageStructure'],
   'js/pdf/loader.js': ['getCachedPdfBytes', 'setCachedPdfBytes', 'clearCachedPdfBytes', 'cancelAnnotationLoading', 'markAllAnnotationPagesLoaded', 'laadAnnotatiesVoorPaginas', 'loadPDF'],
   // Wat document-release.js per pad vrijgeeft voordat een werkbestand weg mag.

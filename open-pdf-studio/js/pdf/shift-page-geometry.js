@@ -13,7 +13,9 @@ export const MAX_SHIFT_MM = 5080;
 
 /**
  * Which page numbers `applyTo` + `fromPage` select, out of `totalPages`.
- * @param {'current' | 'all' | 'even' | 'odd'} applyTo
+ * @param {'current' | 'all' | 'even' | 'odd' | number[]} applyTo - or an
+ *   explicit list of page numbers (app_shift_pages): the whole numbers in
+ *   range, once each, in ascending order
  * @param {number} fromPage - first eligible page number for 'all'/'even'/'odd'
  * @param {number} currentPage
  * @param {number} totalPages
@@ -22,6 +24,10 @@ export const MAX_SHIFT_MM = 5080;
 export function resolveTargetPages(applyTo, fromPage, currentPage, totalPages) {
   const total = Math.floor(Number(totalPages));
   if (!(total >= 1)) return [];
+  if (Array.isArray(applyTo)) {
+    const pages = new Set(applyTo.filter((p) => Number.isInteger(p) && p >= 1 && p <= total));
+    return [...pages].sort((a, b) => a - b);
+  }
   if (applyTo === "current") {
     const current = Math.floor(Number(currentPage));
     return current >= 1 && current <= total ? [current] : [];

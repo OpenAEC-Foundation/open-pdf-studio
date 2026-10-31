@@ -32,7 +32,8 @@
     "aiLinkActive": "Активно на {{adres}}",
     "aiLinkViaFlag": "Активно преко параметра покретања ({{adres}})",
     "aiLinkOff": "Искључено",
-    "aiLinkError": "Није покренуто: {{fout}}"
+    "aiLinkError": "Није покренуто: {{fout}}",
+    "interfaceScale": "Величина интерфејса"
   },
   "annotations": {
     "generalDefaults": "Опште подразумеване вредности",
@@ -193,7 +194,12 @@
     "macInstructions": "Да бисте поставили Open PDF Studio као подразумевани PDF прегледач на macOS:\n\n1. Десни клик на било који PDF фајл у Finder-у\n2. Изаберите \"Get Info\"\n3. Под \"Open with\", изаберите Open PDF Studio\n4. Кликните \"Change All...\"",
     "linuxInstructions": "Да бисте поставили Open PDF Studio као подразумевани PDF прегледач на Linux-у:\n\nПокрените у терминалу:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Проверите Finder > Get Info",
-    "notSet": "Није постављено"
+    "notSet": "Није постављено",
+    "chosenInSystemSettings": "Изабрано у подешавањима система",
+    "sandboxInstructions": "Open PDF Studio ради као {{package}} пакет и не може сам да промени подразумевану PDF апликацију.\n\nИзаберите Open PDF Studio у подешавањима система под Подразумеване апликације или десним кликом на PDF датотеку употребите Отвори помоћу.",
+    "xdgMimeMissing": "xdg-mime (пакет xdg-utils) није инсталиран, па се подразумевана PDF апликација не може подесити одавде.\n\nИнсталирајте xdg-utils или изаберите Open PDF Studio у подешавањима система под Подразумеване апликације.",
+    "linuxDone": "Open PDF Studio је сада подразумевана апликација за PDF датотеке.",
+    "linuxFailed": "Није могуће подесити Open PDF Studio као подразумевану PDF апликацију.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Истраживач датотека",
@@ -322,6 +328,11 @@
     "resetCommand": "Врати подразумевано",
     "resetAll": "Врати све",
     "resetAllConfirm": "Вратити све пречице на тастатури на подразумеване вредности?",
+    "loadPreset": "Учитај унапред подешено…",
+    "replaceConfirm": "Ово ће заменити ваше прилагођене пречице на тастатури. Наставити?",
+    "presets": {
+      "markupStyle": "Пречице у стилу означавања"
+    },
     "import": "Увези…",
     "export": "Извези…",
     "fileType": "Пречице на тастатури",

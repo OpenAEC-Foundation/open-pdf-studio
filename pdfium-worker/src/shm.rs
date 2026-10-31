@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use memmap2::{MmapMut, MmapOptions};
 use std::fs::OpenOptions;
+use std::mem::ManuallyDrop;
 
 pub const SHM_SIZE: usize = 64 * 1024 * 1024; // 64 MB per worker
 pub const HEADER_SIZE: usize = 32;
@@ -31,7 +32,22 @@ pub fn ensure_bitmap_fits(width: i32, height: i32) -> Result<()> {
 }
 
 pub struct Shm {
-    mmap: MmapMut,
+    mmap: ManuallyDrop<MmapMut>,
+    path: String,
+}
+
+/// On a graceful exit (stdin EOF when the app closes or dies, a Shutdown
+/// request, an early error return) the worker removes its own backing file,
+/// so a crashed or force-closed app does not leave 64 MB behind per worker.
+/// The mapping is released first: Windows refuses to delete a file with an
+/// open user-mapped section. Best effort: if the app still has it mapped the
+/// delete may fail, and the app removes it itself on shutdown.
+impl Drop for Shm {
+    fn drop(&mut self) {
+        // SAFETY: `mmap` is dropped exactly once, here, and never used after.
+        unsafe { ManuallyDrop::drop(&mut self.mmap) };
+        let _ = std::fs::remove_file(&self.path);
+    }
 }
 
 impl Shm {
@@ -69,7 +85,7 @@ impl Shm {
                 .map_mut(&file)
                 .context("mmap SHM file")?
         };
-        Ok(Self { mmap })
+        Ok(Self { mmap: ManuallyDrop::new(mmap), path })
     }
 
     /// Write width + height to header, copy rgba into payload starting at
@@ -117,6 +133,15 @@ mod tests {
             456
         );
         assert_eq!(file_bytes[HEADER_SIZE + 500], 0xAB);
+    }
+
+    #[test]
+    fn drop_removes_the_backing_file() {
+        let path = Shm::path_for("test", 995);
+        let shm = Shm::create("test", 995).unwrap();
+        assert!(std::path::Path::new(&path).exists());
+        drop(shm);
+        assert!(!std::path::Path::new(&path).exists());
     }
 
     #[test]

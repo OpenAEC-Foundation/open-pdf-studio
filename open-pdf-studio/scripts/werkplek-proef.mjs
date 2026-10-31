@@ -23,6 +23,11 @@
 //    versie_ongeldig, een versie die niet bestaat een gewone fout; daarna
 //    weigert opslaan met de code versie_alleen_lezen, tot een open zonder
 //    versie.
+//  - met ?opslaanals=1 (#726): hallo noemt { soorten: ['opslaan_als'] };
+//    lijst kent mappen (soort "map", schrijfbaar) en `map`; opslaan_als
+//    { naam, map?, bytes } maakt een nieuw bestand (alleen .pdf), met
+//    "naam (2).pdf" en hernoemd: true bij een bestaande naam; een map die
+//    niet schrijfbaar is weigert met de code alleen_lezen.
 //
 // De opslag van de gastpagina zit in de pagina zelf; de server levert alleen
 // de begininhoud van de documenten (/werkplek/doc/<id>), zoals de klantsite.
@@ -165,17 +170,24 @@ const PAGINA = zoek.get('pagina') || 'index.html';   // een andere pagina in de 
 const ZWIJG_MS = Number(zoek.get('zwijg') || 0);       // de gastpagina "laadt later"
 const VERVALSERS = zoek.get('vervalsers') === '1';
 const CONFLICT = zoek.get('conflict') === '1';         // de tweede opslag geeft een conflict
+const OPSLAAN_ALS = zoek.get('opslaanals') === '1';    // de gastpagina kent opslaan_als (#726)
 const UITSTEL_MS = VERVALSERS ? 300 : 0;               // eerst de vervalsers, dan wij
 // Een sessiecookie van de klantsite: die mag nooit in het iframe of bij een verzoek komen.
 document.cookie = 'sessie=geheim; path=/';
 
 const docs = ${JSON.stringify(docs)};
-for (const d of Object.values(docs)) d.versies = [];
+for (const d of Object.values(docs)) { d.versies = []; d.map = 'MAP-ROOT'; }
+// Mappen voor opslaan_als (#726): de map van het geopende document is MAP-ROOT.
+const mappen = {
+  'MAP-PROJECT': { naam: 'Project', ouder: 'MAP-ROOT', schrijfbaar: true },
+  'MAP-ARCHIEF': { naam: 'Archief', ouder: 'MAP-ROOT', schrijfbaar: false },
+};
+let nieuwVolgnummer = 0;
 const doel = new Map();                                 // id -> conflictkopie (volgende opslagen)
 const versieOpen = new Map();                           // id -> getoonde oudere versie (sessie.ts: versieOpen)
 const toegestaan = new Set([BESTAND]);
 const gast = window.__gast = {
-  log: [], opgeslagen: [], geopend: [], meldingen: [], vragen: [], vervalsingen: 0, start: 0, eersteAntwoord: null,
+  log: [], opgeslagen: [], opgeslagenAls: [], geopend: [], meldingen: [], vragen: [], vervalsingen: 0, start: 0, eersteAntwoord: null,
   // Voor de test: de laatste versie van een document als base64, en een overzicht.
   bytes(id) {
     const v = docs[id] && docs[id].versies.at(-1);
@@ -185,7 +197,7 @@ const gast = window.__gast = {
     return btoa(s);
   },
   overzicht() {
-    return Object.fromEntries(Object.entries(docs).map(([id, d]) => [id, { naam: d.naam, versies: d.versies.length }]));
+    return Object.fromEntries(Object.entries(docs).map(([id, d]) => [id, { naam: d.naam, map: d.map, versies: d.versies.length }]));
   },
 };
 
@@ -241,7 +253,7 @@ function fout(tekst, code) { const f = new Error(tekst); if (code) f.code = code
 
   async function voerUit(v) {
     switch (v.soort) {
-      case 'hallo': return true;
+      case 'hallo': return OPSLAAN_ALS ? { soorten: ['opslaan_als'] } : true;
       case 'open': {
         const id = bestandVan(v);
         const echt = doel.get(id) || id;
@@ -295,10 +307,35 @@ function fout(tekst, code) { const f = new Error(tekst); if (code) f.code = code
         return { bestand: echt, naam: d.naam, versie: d.versies.length + 1, conflict: false, melding: null, vergrendeld: true };
       }
       case 'lijst': {
-        const lijst = Object.entries(docs).filter(([id]) => !id.endsWith('-conflict'))
+        const map = OPSLAAN_ALS ? (v.map ?? 'MAP-ROOT') : null;
+        if (map !== null && map !== 'MAP-ROOT' && !mappen[map]) throw fout('Onbekende map.');
+        const lijst = Object.entries(docs).filter(([id, d]) => !id.endsWith('-conflict') && (map === null || d.map === map))
           .map(([id, d]) => ({ id, name: d.naam, modified: '2026-10-20 09:00:00' }));
         for (const b of lijst) toegestaan.add(b.id);
-        return lijst;
+        if (map === null) return lijst;
+        const submappen = Object.entries(mappen).filter(([, m]) => m.ouder === map)
+          .map(([id, m]) => ({ id, naam: m.naam, soort: 'map', schrijfbaar: m.schrijfbaar }));
+        return [...submappen, ...lijst];
+      }
+      case 'opslaan_als': {
+        if (!OPSLAAN_ALS) throw fout('Onbekend verzoek: ' + v.soort, 'onbekende_soort');
+        if (!(v.bytes instanceof ArrayBuffer)) throw fout('Geen bestand ontvangen.');
+        const naam = String(v.naam ?? '');
+        if (!/\\.pdf$/i.test(naam) || /[\\u0000-\\u001f\\u007f\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069\\/\\\\]/.test(naam)) {
+          throw fout('Deze naam kan niet.', 'ongeldige_naam');
+        }
+        const map = v.map ?? docs[BESTAND]?.map ?? 'MAP-ROOT';
+        if (map !== 'MAP-ROOT' && !mappen[map]) throw fout('Onbekende map.');
+        if (mappen[map] && !mappen[map].schrijfbaar) throw fout('Je mag in deze map niet schrijven.', 'alleen_lezen');
+        let definitief = naam;
+        const bezet = (n) => Object.values(docs).some((d) => d.map === map && d.naam === n);
+        for (let i = 2; bezet(definitief); i++) definitief = naam.replace(/\\.pdf$/i, ' (' + i + ').pdf');
+        const id = 'NIEUW-' + (++nieuwVolgnummer);
+        const bytes = new Uint8Array(v.bytes);
+        docs[id] = { naam: definitief, alleen_lezen: false, map, versies: [{ bytes, modified: new Date().toISOString() }] };
+        toegestaan.add(id);
+        gast.opgeslagenAls.push({ id, naam, map: v.map ?? null, definitief, lengte: bytes.length });
+        return { bestand: id, naam: definitief, versie: 1, hernoemd: definitief !== naam };
       }
       case 'versies': {
         const id = bestandVan(v);

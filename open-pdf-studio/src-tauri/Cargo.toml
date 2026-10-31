@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2026.44.5"
+version = "2026.44.6"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -87,7 +87,7 @@ stringprep = "0.1"
 unicode-normalization = "0.1"
 url = "2"
 urlencoding = "2"
-tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "process", "io-util", "time"] }
+tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "process", "io-util", "time", "signal"] }
 memmap2 = "0.9"
 anyhow = "1"
 
@@ -104,6 +104,8 @@ lopdf = "0.34"
 # Begrensd uitpakken van objectstromen bij het lezen van handtekeningen; zelfde
 # versie als die lopdf al gebruikt.
 flate2 = "1"
+# Byte scan that gates the render-only mesh /BBox pass (#395).
+memchr = "2"
 
 # OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
 #
@@ -140,6 +142,8 @@ flate2 = "1"
 tesseract-rs = { version = "0.4", default-features = false, features = ["build-tesseract"] }
 
 tauri-plugin-updater = "2"
+# Updates through the OpenAEC Installer on Windows (OpenAEC-Blueprint#33).
+openaec-update = { git = "https://github.com/OpenAEC-Foundation/openaec-installer", rev = "2b66f84" }
 # Drag-out window detach — desktop only (the crate has no mobile platform
 # backend and fails to compile for Android/iOS).
 tauri-plugin-drag = "2.1.1"
@@ -151,6 +155,12 @@ tauri-plugin-global-shortcut = "2"
 # OpenSSL-paden op Linux). Staat al in Cargo.lock; geen eigen X.509-lijn.
 [target.'cfg(not(windows))'.dependencies]
 rustls-native-certs = "0.8"
+
+# Het printportaal (org.freedesktop.portal.Print) als laatste printroute in een
+# Flatpak/Snap (src/print_unix.rs). Zelfde versie en features als
+# tauri-plugin-single-instance al meebrengt; staat al in Cargo.lock.
+[target.'cfg(target_os = "linux")'.dependencies]
+zbus = "5.9"
 
 # Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
 # certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de

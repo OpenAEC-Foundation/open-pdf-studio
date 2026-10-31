@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktif di {{adres}}",
     "aiLinkViaFlag": "Aktif melalui parameter permulaan ({{adres}})",
     "aiLinkOff": "Mati",
-    "aiLinkError": "Tidak dimulakan: {{fout}}"
+    "aiLinkError": "Tidak dimulakan: {{fout}}",
+    "interfaceScale": "Saiz antara muka"
   },
   "annotations": {
     "generalDefaults": "Lalai Umum",
@@ -193,7 +194,12 @@
     "macInstructions": "Untuk menetapkan Open PDF Studio sebagai pemapar PDF lalai pada macOS:\n\n1. Klik kanan mana-mana fail PDF dalam Finder\n2. Pilih \"Dapatkan Maklumat\"\n3. Di bawah \"Buka dengan\", pilih Open PDF Studio\n4. Klik \"Tukar Semua...\"",
     "linuxInstructions": "Untuk menetapkan Open PDF Studio sebagai pemapar PDF lalai pada Linux:\n\nJalankan dalam terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Semak Finder > Dapatkan Maklumat",
-    "notSet": "Tidak ditetapkan"
+    "notSet": "Tidak ditetapkan",
+    "chosenInSystemSettings": "Dipilih dalam tetapan sistem",
+    "sandboxInstructions": "Open PDF Studio berjalan sebagai pakej {{package}} dan tidak boleh menukar aplikasi PDF lalai dengan sendiri.\n\nPilih Open PDF Studio dalam tetapan sistem di bawah Aplikasi Lalai, atau klik kanan fail PDF dan gunakan Buka Dengan.",
+    "xdgMimeMissing": "xdg-mime (pakej xdg-utils) tidak dipasang, jadi aplikasi PDF lalai tidak boleh ditetapkan dari sini.\n\nPasang xdg-utils, atau pilih Open PDF Studio dalam tetapan sistem di bawah Aplikasi Lalai.",
+    "linuxDone": "Open PDF Studio kini aplikasi lalai untuk fail PDF.",
+    "linuxFailed": "Tidak dapat menetapkan Open PDF Studio sebagai aplikasi PDF lalai.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Penjelajah Fail",
@@ -322,6 +328,11 @@
     "resetCommand": "Set semula kepada lalai",
     "resetAll": "Set semula semua",
     "resetAllConfirm": "Set semula semua pintasan papan kekunci kepada lalai?",
+    "loadPreset": "Muatkan pratetap…",
+    "replaceConfirm": "Ini akan menggantikan pintasan papan kekunci tersuai anda. Teruskan?",
+    "presets": {
+      "markupStyle": "Pintasan gaya penanda"
+    },
     "import": "Import…",
     "export": "Eksport…",
     "fileType": "Pintasan papan kekunci",

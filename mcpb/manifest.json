@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "open-pdf-studio",
   "display_name": "Open PDF Studio",
-  "version": "2026.44.5",
+  "version": "2026.44.6",
   "description": "Open, measure, annotate and save PDF drawings in Open PDF Studio, the free open-source PDF editor for the construction industry.",
   "long_description": "Connects Claude to Open PDF Studio running on your computer. Claude can open PDF drawings, read and navigate pages, place scale regions, measure areas and lengths, create and edit annotations, cut vector snippets from one drawing into another, fill title blocks, place a quantity schedule on the sheet and save the result.\n\nEverything runs locally: the extension talks to the app on 127.0.0.1 and the PDF file itself is never sent to an external service. Claude only sees what it asks for, such as a picture of the current page view.\n\n**Before you start:** install Open PDF Studio (free, from open-aec.com). The AI link is on by default; check it under **Settings > General > AI link (MCP)**. Tools that change a document always ask for your permission.",
   "author": {
@@ -102,6 +102,38 @@
     {
       "name": "app_merge_pdf",
       "description": "Merge one or more PDF files into the active document at the given position."
+    },
+    {
+      "name": "app_rotate_pages",
+      "description": "Rotate pages of the active document by a quarter, half or three-quarter turn, as one undo step, the same way Organize > Rotate does: the markups on those pages and the measurement scales of the PDF turn along."
+    },
+    {
+      "name": "app_delete_pages",
+      "description": "Delete pages from the active document, as one undo step, the same way Organize > Delete does: the markups on the deleted pages go with them, the others, the page labels and the measurement scales move along."
+    },
+    {
+      "name": "app_insert_blank_pages",
+      "description": "Insert blank pages into the active document, as one undo step, the same way Organize > Insert does."
+    },
+    {
+      "name": "app_extract_pages",
+      "description": "Write pages of the active document, in the given order, to a new PDF file, the same way Organize > Extract does."
+    },
+    {
+      "name": "app_reorder_pages",
+      "description": "Put the pages of the active document in a new order, as one undo step, the same way dragging thumbnails does: markups, page labels and measurement scales move with their page."
+    },
+    {
+      "name": "app_shift_pages",
+      "description": "Shift the content of pages by a fixed distance, as one undo step, the same way Organize > Shift page does: the page content is moved (not rasterized), and the markups, links, form fields and measurement scales on those pages move along."
+    },
+    {
+      "name": "app_bookmarks",
+      "description": "Read and edit the bookmarks (outline) of the active document, the same way the Bookmarks panel does; every change is one undo step and is written into the file on save."
+    },
+    {
+      "name": "app_watermarks",
+      "description": "List, add and remove the watermarks and headers/footers of the active document, the same way the Watermark, Header & Footer and Manage dialogs do; every change is one undo step, shown at once and written into the pages on save."
     },
     {
       "name": "app_assistant_ask",
@@ -306,6 +338,10 @@
     {
       "name": "app_export_cad",
       "description": "Export pages of the current document to DXF or DWG, without opening the export dialog."
+    },
+    {
+      "name": "app_export_ifcx",
+      "description": "Convert pages of the current document to an IFCX file (beta; the JSON-based IFC5 format, alpha schema) without opening the export dialog."
     },
     {
       "name": "app_print_to_pdf",

@@ -32,7 +32,8 @@
     "aiLinkActive": "Активний на {{adres}}",
     "aiLinkViaFlag": "Активний через параметр запуску ({{adres}})",
     "aiLinkOff": "Вимк.",
-    "aiLinkError": "Не запущено: {{fout}}"
+    "aiLinkError": "Не запущено: {{fout}}",
+    "interfaceScale": "Розмір інтерфейсу"
   },
   "annotations": {
     "generalDefaults": "Загальні типові значення",
@@ -193,7 +194,12 @@
     "macInstructions": "Щоб встановити Open PDF Studio переглядачем PDF за замовчуванням на macOS:\n\n1. Клацніть правою кнопкою миші на будь-якому файлі PDF у Finder\n2. Виберіть \"Властивості\"\n3. У розділі \"Відкрити за допомогою\" виберіть Open PDF Studio\n4. Натисніть \"Змінити все...\"",
     "linuxInstructions": "Щоб встановити Open PDF Studio переглядачем PDF за замовчуванням на Linux:\n\nВиконайте в терміналі:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Перевірте Finder > Властивості",
-    "notSet": "Не встановлено"
+    "notSet": "Не встановлено",
+    "chosenInSystemSettings": "Вибрано в налаштуваннях системи",
+    "sandboxInstructions": "Open PDF Studio працює як пакет {{package}} і не може сам змінити типову програму для PDF.\n\nВиберіть Open PDF Studio в налаштуваннях системи в розділі «Типові програми» або клацніть правою кнопкою миші PDF-файл і скористайтеся «Відкрити за допомогою».",
+    "xdgMimeMissing": "xdg-mime (пакет xdg-utils) не встановлено, тому типову програму для PDF не можна задати звідси.\n\nВстановіть xdg-utils або виберіть Open PDF Studio в налаштуваннях системи в розділі «Типові програми».",
+    "linuxDone": "Open PDF Studio тепер типова програма для PDF-файлів.",
+    "linuxFailed": "Не вдалося зробити Open PDF Studio типовою програмою для PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Провідник",
@@ -322,6 +328,11 @@
     "resetCommand": "Скинути до типового",
     "resetAll": "Скинути все",
     "resetAllConfirm": "Скинути всі сполучення клавіш до типових значень?",
+    "loadPreset": "Завантажити набір…",
+    "replaceConfirm": "Це замінить ваші власні сполучення клавіш. Продовжити?",
+    "presets": {
+      "markupStyle": "Сполучення клавіш у стилі розмітки"
+    },
     "import": "Імпорт…",
     "export": "Експорт…",
     "fileType": "Сполучення клавіш",

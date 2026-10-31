@@ -40,3 +40,6 @@ export function weergaveRotatieVan(doc) {
   if (_stand && doc && doc === _stand.doc && _stand.rotatie != null) return _stand.rotatie;
   return doc ? doc.viewRotation : undefined;
 }
+
+/** Alleen tijdens de synchrone tekenbeurt; verandert het actieve tabblad niet. */
+export function paneelDocument() { return _stand?.doc || null; }

@@ -371,6 +371,7 @@
     "updates": "Ažuriranja",
     "checkForUpdates": "Provjeri ažuriranja",
     "updatesLabel": "Ažuriranja",
+    "updatesManaged": "Ažuriranjima ove instalacije upravlja se centralno.",
     "startupDiagnosticsTitle": "Prikaži datoteku dijagnostike pokretanja (bez osobnih podataka)",
     "startupDiagnostics": "Dijagnostika",
     "fileAssociation": "Asocijacija datoteka",
@@ -717,5 +718,60 @@
     "noRecovery": "Oznake u ovom dokumentu spljoštene su bez dopuštenja vraćanja. Dio su sadržaja stranice i ne mogu se vratiti.",
     "done": "Vraćene oznake: {{count}}.",
     "failed": "Vraćanje nije uspjelo: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Male ikone",
+    "largeIcons": "Velike ikone",
+    "settings": "Postavke"
+  },
+  "symbolPalette": {
+    "search": "Traži simbole...",
+    "noResults": "Nema pronađenih simbola",
+    "drawingSettings": "Postavke crteža",
+    "manageSystemTypes": "Upravljanje vrstama sustava",
+    "settingsTitle": "Postavke biblioteke simbola",
+    "industry": "Djelatnost",
+    "country": "Zemlja",
+    "libraryLoading": "Učitavanje mrežne biblioteke…",
+    "libraryOffline": "Mrežna biblioteka nije dostupna — ograničen popis zemalja",
+    "downloading": "Preuzimanje {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Zbirke dostupne na mreži: {{n}} (simbola: {{symbols}})",
+    "activateDownloaded": "Preuzete zbirke za aktivaciju za ovu zemlju: {{n}}",
+    "download": "Preuzmi",
+    "downloadFailed": "Preuzimanje nije uspjelo: {{error}}",
+    "builtIn": "Ugrađeno",
+    "online": "Na mreži",
+    "addSymbol": "+ Dodaj simbol",
+    "export": "Izvezi",
+    "remove": "Ukloni",
+    "noSymbolsYet": "Još nema simbola",
+    "newGroupName": "Naziv nove grupe...",
+    "addGroup": "Dodaj grupu",
+    "importGroup": "Uvezi grupu",
+    "catalogLoaded": "Katalog '{{id}}' učitan: obitelji {{families}}, veličina {{sizes}}",
+    "catalogNoPreview": "Bez pregleda u datoteci: {{n}}",
+    "fileNotRecognized": "Datoteka nije prepoznata: nije ni grupa simbola ni katalog",
+    "importFailed": "Uvoz nije uspio: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Gradnja",
+      "nl-elektra": "NL Elektroinstalacije",
+      "nl-bouwplaats": "NL Gradilište",
+      "nl-sanitair": "NL Sanitarije",
+      "nl-keuken": "NL Kuhinja",
+      "nen1414-tb": "NL NEN 1414 — Protupožarna zaštita",
+      "nen1414-tbk": "NL NEN 1414 — Sustavi za gašenje",
+      "nen1414-td": "NL NEN 1414 — Vrata",
+      "nen1414-tn": "NL NEN 1414 — Sigurnosna rasvjeta",
+      "nen1414-tr": "NL NEN 1414 — Odvod dima i topline",
+      "nen1414-tv": "NL NEN 1414 — Ventilacija",
+      "nen1414-tw": "NL NEN 1414 — Voda/Sprinkleri"
+    },
+    "sectors": {
+      "aec": "AEC (Graditeljstvo)",
+      "electrical": "Elektrotehnika",
+      "process": "Procesi / P&ID",
+      "mep": "Instalacije u zgradama (MEP)",
+      "infra": "Infrastruktura"
+    }
   }
 }

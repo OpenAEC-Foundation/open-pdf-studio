@@ -63,19 +63,40 @@ fn load_config() -> AccountsConfig {
 // Windows Credential Manager begrenst een blob tot ~2,5 KB; JWT's zijn al
 // gauw 1-2 KB per stuk, dus elk token krijgt zijn eigen entry.
 
+// Zonder keyring (OpenAEC Linux, een container zonder Secret Service, of een
+// platform waarvoor de keyring-crate alleen zijn tijdelijke mock-opslag
+// heeft) mag inloggen niet mislukken (#863): elk token staat daarom óók in het
+// geheugen van dit proces. Lukt de keyring, dan overleeft het een herstart;
+// anders geldt het alleen voor deze sessie.
+static GEHEUGEN: std::sync::Mutex<std::collections::BTreeMap<String, String>> =
+    std::sync::Mutex::new(std::collections::BTreeMap::new());
+
+fn geheugen() -> std::sync::MutexGuard<'static, std::collections::BTreeMap<String, String>> {
+    GEHEUGEN.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// Pure regel: de keyring wint, het geheugen vangt op.
+fn kies_token(uit_keyring: Option<String>, uit_geheugen: Option<String>) -> Option<String> {
+    uit_keyring.or(uit_geheugen)
+}
+
 fn keyring_set(user: &str, value: &str) -> Result<(), String> {
-    keyring::Entry::new(KEYRING_SERVICE, user)
-        .and_then(|e| e.set_password(value))
-        .map_err(|e| format!("keyring ({user}): {e}"))
+    geheugen().insert(user.to_string(), value.to_string());
+    if let Err(e) = keyring::Entry::new(KEYRING_SERVICE, user).and_then(|e| e.set_password(value)) {
+        log::warn!("[Accounts] no keyring ({user}: {e}); token kept in memory for this session");
+    }
+    Ok(())
 }
 
 fn keyring_get(user: &str) -> Option<String> {
-    keyring::Entry::new(KEYRING_SERVICE, user)
+    let uit_keyring = keyring::Entry::new(KEYRING_SERVICE, user)
         .ok()
-        .and_then(|e| e.get_password().ok())
+        .and_then(|e| e.get_password().ok());
+    kies_token(uit_keyring, geheugen().get(user).cloned())
 }
 
 fn keyring_delete(user: &str) {
+    geheugen().remove(user);
     if let Ok(e) = keyring::Entry::new(KEYRING_SERVICE, user) {
         let _ = e.delete_credential();
     }
@@ -600,4 +621,29 @@ pub async fn accounts_brand_logo() -> Result<Option<String>, String> {
         return Ok(Some(format!("data:{mime};base64,{b64}")));
     }
     unreachable!()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn keyring_wint_geheugen_vangt_op() {
+        assert_eq!(kies_token(Some("k".into()), Some("g".into())).as_deref(), Some("k"));
+        assert_eq!(kies_token(None, Some("g".into())).as_deref(), Some("g"));
+        assert_eq!(kies_token(None, None), None);
+    }
+
+    // Op Linux heeft de keyring-crate hier geen echte opslag (alleen de
+    // Windows-backend staat aan): precies de situatie zonder keyring.
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn zonder_keyring_blijft_het_token_voor_deze_sessie() {
+        let user = format!("test-token-{}", std::process::id());
+        assert_eq!(keyring_get(&user), None);
+        keyring_set(&user, "waarde").expect("opslaan mislukt nooit");
+        assert_eq!(keyring_get(&user).as_deref(), Some("waarde"));
+        keyring_delete(&user);
+        assert_eq!(keyring_get(&user), None);
+    }
 }

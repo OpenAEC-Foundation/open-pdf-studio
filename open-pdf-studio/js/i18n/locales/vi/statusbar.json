@@ -148,5 +148,14 @@
     "title": "Đi tới thông báo hiển thị tiếp theo. Không có thông báo không đảm bảo hiển thị đầy đủ.",
     "count": "Thông báo hiển thị: {{count}}",
     "detail": "Trang {{page}}: {{code}}. Hãy thử thu phóng nhỏ hơn hoặc mở lại tài liệu; không đảm bảo tính đầy đủ."
+  },
+  "mcpSignal": {
+    "label": "Kết nối AI (MCP)",
+    "connected": "Trợ lý AI đã kết nối",
+    "idle": "Máy chủ MCP đang bật, không hoạt động",
+    "off": "Máy chủ MCP đã tắt",
+    "port": "Cổng: {{port}}",
+    "lastTool": "Công cụ gần nhất: {{tool}} lúc {{time}}",
+    "noTool": "Chưa có lệnh gọi công cụ nào"
   }
 }

@@ -32,7 +32,8 @@
     "aiLinkActive": "Ενεργή στο {{adres}}",
     "aiLinkViaFlag": "Ενεργή μέσω παραμέτρου εκκίνησης ({{adres}})",
     "aiLinkOff": "Ανενεργή",
-    "aiLinkError": "Δεν ξεκίνησε: {{fout}}"
+    "aiLinkError": "Δεν ξεκίνησε: {{fout}}",
+    "interfaceScale": "Μέγεθος διεπαφής"
   },
   "annotations": {
     "generalDefaults": "Γενικές προεπιλογές",
@@ -193,7 +194,12 @@
     "macInstructions": "Για να ορίσετε το Open PDF Studio ως προεπιλεγμένο πρόγραμμα προβολής PDF στο macOS:\n\n1. Κάντε δεξί κλικ σε οποιοδήποτε αρχείο PDF στο Finder\n2. Επιλέξτε \"Πληροφορίες\"\n3. Στο \"Άνοιγμα με\", επιλέξτε Open PDF Studio\n4. Κάντε κλικ στο \"Αλλαγή όλων...\"",
     "linuxInstructions": "Για να ορίσετε το Open PDF Studio ως προεπιλεγμένο πρόγραμμα προβολής PDF στο Linux:\n\nΕκτελέστε στο τερματικό:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Ελέγξτε στο Finder > Πληροφορίες",
-    "notSet": "Δεν έχει οριστεί"
+    "notSet": "Δεν έχει οριστεί",
+    "chosenInSystemSettings": "Επιλέχθηκε στις ρυθμίσεις συστήματος",
+    "sandboxInstructions": "Το Open PDF Studio εκτελείται ως πακέτο {{package}} και δεν μπορεί να αλλάξει μόνο του την προεπιλεγμένη εφαρμογή PDF.\n\nΕπιλέξτε το Open PDF Studio στις ρυθμίσεις συστήματος στις Προεπιλεγμένες εφαρμογές ή κάντε δεξί κλικ σε ένα αρχείο PDF και χρησιμοποιήστε το Άνοιγμα με.",
+    "xdgMimeMissing": "Το xdg-mime (πακέτο xdg-utils) δεν είναι εγκατεστημένο, οπότε η προεπιλεγμένη εφαρμογή PDF δεν μπορεί να οριστεί από εδώ.\n\nΕγκαταστήστε το xdg-utils ή επιλέξτε το Open PDF Studio στις ρυθμίσεις συστήματος στις Προεπιλεγμένες εφαρμογές.",
+    "linuxDone": "Το Open PDF Studio είναι πλέον η προεπιλεγμένη εφαρμογή για αρχεία PDF.",
+    "linuxFailed": "Δεν ήταν δυνατό να οριστεί το Open PDF Studio ως προεπιλεγμένη εφαρμογή PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Εξερεύνηση αρχείων",
@@ -322,6 +328,11 @@
     "resetCommand": "Επαναφορά προεπιλογής",
     "resetAll": "Επαναφορά όλων",
     "resetAllConfirm": "Επαναφορά όλων των συντομεύσεων πληκτρολογίου στις προεπιλογές;",
+    "loadPreset": "Φόρτωση προεπιλογής…",
+    "replaceConfirm": "Αυτό θα αντικαταστήσει τις δικές σας συντομεύσεις πληκτρολογίου. Συνέχεια;",
+    "presets": {
+      "markupStyle": "Συντομεύσεις τύπου σήμανσης"
+    },
     "import": "Εισαγωγή…",
     "export": "Εξαγωγή…",
     "fileType": "Συντομεύσεις πληκτρολογίου",

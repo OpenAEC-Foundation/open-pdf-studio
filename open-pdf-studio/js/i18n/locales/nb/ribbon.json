@@ -371,6 +371,7 @@
     "updates": "Oppdateringer",
     "checkForUpdates": "Se etter oppdateringer",
     "updatesLabel": "Oppdateringer",
+    "updatesManaged": "Oppdateringer for denne installasjonen styres sentralt.",
     "startupDiagnosticsTitle": "Vis den personvernvennlige oppstartsdiagnosefilen",
     "startupDiagnostics": "Diagnostikk",
     "fileAssociation": "Filtilknytning",
@@ -717,5 +718,60 @@
     "noRecovery": "Markeringene i dette dokumentet ble flatet ut uten at gjenoppretting var tillatt. De er en del av sideinnholdet og kan ikke gjenopprettes.",
     "done": "Markeringer gjenopprettet: {{count}}.",
     "failed": "Gjenoppretting mislyktes: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Små ikoner",
+    "largeIcons": "Store ikoner",
+    "settings": "Innstillinger"
+  },
+  "symbolPalette": {
+    "search": "Søk etter symboler...",
+    "noResults": "Fant ingen symboler",
+    "drawingSettings": "Tegningsinnstillinger",
+    "manageSystemTypes": "Administrer systemtyper",
+    "settingsTitle": "Innstillinger for symbolbibliotek",
+    "industry": "Bransje",
+    "country": "Land",
+    "libraryLoading": "Laster inn nettbibliotek…",
+    "libraryOffline": "Nettbiblioteket er utilgjengelig — begrenset landliste",
+    "downloading": "Laster ned {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Samlinger tilgjengelig på nett: {{n}} ({{symbols}} symboler)",
+    "activateDownloaded": "Nedlastede samlinger som skal aktiveres for dette landet: {{n}}",
+    "download": "Last ned",
+    "downloadFailed": "Nedlasting mislyktes: {{error}}",
+    "builtIn": "Innebygd",
+    "online": "På nett",
+    "addSymbol": "+ Legg til symbol",
+    "export": "Eksporter",
+    "remove": "Fjern",
+    "noSymbolsYet": "Ingen symboler ennå",
+    "newGroupName": "Navn på ny gruppe...",
+    "addGroup": "Legg til gruppe",
+    "importGroup": "Importer gruppe",
+    "catalogLoaded": "Katalogen '{{id}}' er lastet inn: {{families}} familier, {{sizes}} størrelser",
+    "catalogNoPreview": "{{n}} uten forhåndsvisning i filen",
+    "fileNotRecognized": "Filen ble ikke gjenkjent: verken en symbolgruppe eller en katalog",
+    "importFailed": "Import mislyktes: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bygg",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Byggeplass",
+      "nl-sanitair": "NL Sanitær",
+      "nl-keuken": "NL Kjøkken",
+      "nen1414-tb": "NL NEN 1414 — Brannsikring",
+      "nen1414-tbk": "NL NEN 1414 — Slokkeanlegg",
+      "nen1414-td": "NL NEN 1414 — Dører",
+      "nen1414-tn": "NL NEN 1414 — Nødlys",
+      "nen1414-tr": "NL NEN 1414 — Røyk-/varmeventilasjon",
+      "nen1414-tv": "NL NEN 1414 — Ventilasjon",
+      "nen1414-tw": "NL NEN 1414 — Vann/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bygg)",
+      "electrical": "Elektroteknikk",
+      "process": "Prosess / P&ID",
+      "mep": "Byggtekniske installasjoner (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

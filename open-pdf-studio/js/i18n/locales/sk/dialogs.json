@@ -454,7 +454,8 @@
     "styleLabel": "Štýl:",
     "nestTitle": "Vnoriť pod novú záložku",
     "deleteTitle": "Odstrániť záložky",
-    "deleteConfirm": "Odstrániť vybraté záložky ({{count}}) a všetko pod nimi?"
+    "deleteConfirm": "Odstrániť vybraté záložky ({{count}}) a všetko pod nimi?",
+    "replaceAll": "Nahradiť všetky záložky"
   },
   "formValidation": {
     "title": "Chyba overenia"
@@ -587,6 +588,30 @@
   "ifcExport": {
     "saveTitle": "Uložiť ako správu IFC",
     "failed": "Uloženie správy IFC zlyhalo: {{error}}"
+  },
+  "ifcxExport": {
+    "title": "Exportovať do IFCX (beta)",
+    "betaNote": "Beta: IFCX (IFC5) je stále vo vývoji. Pred tým, ako sa na výsledok spoľahnete, ho skontrolujte.",
+    "pages": "Strany:",
+    "allPages": "Všetky strany",
+    "currentPage": "Aktuálna strana",
+    "customPages": "Rozsah strán",
+    "rangePlaceholder": "napr. 1-3, 5",
+    "includeRaster": "Zahrnúť obrázky",
+    "includeText": "Zahrnúť text",
+    "includeAnnotations": "Poznámky v samostatnej vrstve",
+    "export": "Exportovať",
+    "progress": "Exportuje sa strana {{done}} z {{total}}…",
+    "done": "Zapísané: {{file}} (listy: {{sheets}}, cesty: {{paths}}, texty: {{texts}}, obrázky: {{images}}, poznámky: {{annotations}}).",
+    "capPaths": "Strana {{page}}: exportovaných {{kept}} z {{total}} ciest; zvyšok prekračuje limit.",
+    "capTexts": "Strana {{page}}: exportovaných {{kept}} z {{total}} riadkov textu; zvyšok prekračuje limit.",
+    "capImages": "Strana {{page}}: exportovaných {{kept}} z {{total}} obrázkov; zvyšok prekračuje limit.",
+    "imagesOmitted": "Obrázky bez obrazových údajov (nepodporované alebo príliš veľké): {{count}}. Ich umiestnenie sa zachová.",
+    "sizeLimit": "Strana {{page}} a nasledujúce strany neboli exportované: súbor dosiahol limit veľkosti.",
+    "noPages": "Nie sú vybraté žiadne strany.",
+    "noBytes": "Údaje PDF tohto dokumentu nie sú k dispozícii. Uložte dokument a skúste to znova.",
+    "failed": "Export do IFCX zlyhal: {{error}}",
+    "unsavedNote": "Neuložené zmeny obsahu strán nie sú zahrnuté; poznámky áno."
   },
   "styleType": {
     "lineTypes": "Typy čiar",

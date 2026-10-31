@@ -16,6 +16,8 @@ use pdfium_render::prelude::*;
 /// so the in-process fallback thins exactly what the workers thin.
 #[path = "../../../pdfium-worker/src/thin_lines.rs"]
 pub mod thin_lines;
+#[path = "../../../pdfium-worker/src/mesh_bbox.rs"]
+pub mod mesh_bbox;
 #[path = "../../../pdfium-worker/src/render_budget.rs"]
 #[allow(dead_code)] // SCREEN_RGBA_BYTES is de worker-grens; de app gebruikt eigen budgetten.
 mod render_budget;
@@ -132,6 +134,20 @@ impl PdfiumDocumentHandle {
         if PDFIUM.get().is_none() {
             return Err("PDFium is not available — rendering is disabled on this build.".into());
         }
+        // Tiny mesh shadings get a render-only /BBox (#395). The patched copy
+        // lives only in this handle; the caller's bytes (used for saving) are
+        // left untouched. Should PDFium reject the patched copy, the original
+        // bytes load as before.
+        match mesh_bbox::bound_tiny_mesh_shadings(&bytes) {
+            Some(patched) => Self::load_exact(Arc::new(patched)).or_else(|e| {
+                eprintln!("[mesh-bbox] patched copy rejected ({}); loading the original", e);
+                Self::load_exact(bytes)
+            }),
+            None => Self::load_exact(bytes),
+        }
+    }
+
+    fn load_exact(bytes: Arc<Vec<u8>>) -> Result<Self, String> {
         // Safety: the document borrows from `bytes` and from `PDFIUM`. Both
         // live for 'static: `_bytes` is kept alive in the same struct, and
         // PDFIUM is a OnceLock<Pdfium> that is never dropped.

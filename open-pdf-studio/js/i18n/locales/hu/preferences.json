@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktív: {{adres}}",
     "aiLinkViaFlag": "Aktív indítási kapcsolóval ({{adres}})",
     "aiLinkOff": "Ki",
-    "aiLinkError": "Nem indult el: {{fout}}"
+    "aiLinkError": "Nem indult el: {{fout}}",
+    "interfaceScale": "Felület mérete"
   },
   "annotations": {
     "generalDefaults": "Általános alapértelmezések",
@@ -193,7 +194,12 @@
     "macInstructions": "A Open PDF Studio beállítása alapértelmezett PDF megjelenítőként macOS rendszeren:\n\n1. Kattintson jobb gombbal bármely PDF fájlra a Finderben\n2. Válassza az \"Információ\" menüpontot\n3. A \"Megnyitás ezzel\" alatt válassza a Open PDF Studio alkalmazást\n4. Kattintson a \"Mindent megváltoztat...\" gombra",
     "linuxInstructions": "A Open PDF Studio beállítása alapértelmezett PDF megjelenítőként Linux rendszeren:\n\nFuttassa a terminálban:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Ellenőrizze a Finder > Információ részben",
-    "notSet": "Nincs beállítva"
+    "notSet": "Nincs beállítva",
+    "chosenInSystemSettings": "A rendszerbeállításokban kiválasztva",
+    "sandboxInstructions": "Az Open PDF Studio {{package}}-csomagként fut, és nem tudja maga módosítani az alapértelmezett PDF-alkalmazást.\n\nVálassza az Open PDF Studiót a rendszerbeállítások Alapértelmezett alkalmazások részében, vagy kattintson jobb gombbal egy PDF-fájlra, és használja a Megnyitás ezzel lehetőséget.",
+    "xdgMimeMissing": "Az xdg-mime (xdg-utils csomag) nincs telepítve, ezért az alapértelmezett PDF-alkalmazás innen nem állítható be.\n\nTelepítse az xdg-utils csomagot, vagy válassza az Open PDF Studiót a rendszerbeállítások Alapértelmezett alkalmazások részében.",
+    "linuxDone": "Az Open PDF Studio most már a PDF-fájlok alapértelmezett alkalmazása.",
+    "linuxFailed": "Nem sikerült az Open PDF Studiót alapértelmezett PDF-alkalmazásként beállítani.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Fájlkezelő",
@@ -322,6 +328,11 @@
     "resetCommand": "Alapértelmezés visszaállítása",
     "resetAll": "Összes visszaállítása",
     "resetAllConfirm": "Visszaállítja az összes billentyűparancsot az alapértelmezésre?",
+    "loadPreset": "Előbeállítás betöltése…",
+    "replaceConfirm": "Ez lecseréli a saját billentyűparancsait. Folytatja?",
+    "presets": {
+      "markupStyle": "Jelölő stílusú billentyűparancsok"
+    },
     "import": "Importálás…",
     "export": "Exportálás…",
     "fileType": "Billentyűparancsok",

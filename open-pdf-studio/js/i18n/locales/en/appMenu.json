@@ -123,6 +123,8 @@
     "pdfxNote": "Adds an output intent, TrimBox and PDF/X metadata. With a CMYK printing profile, RGB colours, images and gradients are converted to CMYK and that profile becomes the output intent; with sRGB nothing is converted. Standard fonts that are not embedded remain a limitation.",
     "exportCad": "CAD drawing (DXF, DWG)",
     "exportCadDesc": "Export the vector drawing to DXF or DWG, with layers, scale and area",
+    "exportIfcx": "Export to IFCX (Beta)",
+    "exportIfcxDesc": "Sheets, vectors, text, images and annotations to an IFC5 JSON file",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Editable text and tables with optional page images",

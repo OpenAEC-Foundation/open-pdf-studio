@@ -47,3 +47,20 @@ export function matchesLocale(cat, industry, country) {
   if (hasCountry && !tagMatches(cat.country, country)) return false;
   return true;
 }
+
+// Built-in categories carry a Dutch name in their data file; the palette
+// header follows the app language (#882). Custom and downloaded groups keep
+// the name the user or the library gave them.
+export function categoryLabel(t, cat) {
+  if (!cat?.builtin) return cat?.name;
+  return t(`symbolPalette.categories.${cat.id}`, { defaultValue: cat.name });
+}
+
+// Sector names in the Industry list of the library settings. The online
+// index only gives ids; the app's own labels (SECTOR_LABELS, INDUSTRIES) are
+// Dutch, so the list follows the app language here (#882). An unknown sector
+// keeps the label it came with.
+export function industryLabel(t, ind) {
+  if (!ind?.id) return ind?.name;
+  return t(`symbolPalette.sectors.${ind.id}`, { defaultValue: ind.name || ind.id });
+}

@@ -371,6 +371,7 @@
     "updates": "Masasisho",
     "checkForUpdates": "Angalia Masasisho",
     "updatesLabel": "Masasisho",
+    "updatesManaged": "Masasisho ya usakinishaji huu yanasimamiwa kutoka kituo kikuu.",
     "startupDiagnosticsTitle": "Onyesha faili ya uchunguzi wa kuanzisha inayolinda faragha",
     "startupDiagnostics": "Uchunguzi",
     "fileAssociation": "Ushirikiano wa Faili",
@@ -717,5 +718,60 @@
     "noRecovery": "Alama katika hati hii zilisawazishwa bila kuruhusu urejeshaji. Ni sehemu ya maudhui ya ukurasa na haziwezi kurejeshwa.",
     "done": "Alama zilizorejeshwa: {{count}}.",
     "failed": "Kurejesha kumeshindikana: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Aikoni ndogo",
+    "largeIcons": "Aikoni kubwa",
+    "settings": "Mipangilio"
+  },
+  "symbolPalette": {
+    "search": "Tafuta alama...",
+    "noResults": "Hakuna alama zilizopatikana",
+    "drawingSettings": "Mipangilio ya mchoro",
+    "manageSystemTypes": "Dhibiti aina za mifumo",
+    "settingsTitle": "Mipangilio ya maktaba ya alama",
+    "industry": "Sekta",
+    "country": "Nchi",
+    "libraryLoading": "Inapakia maktaba ya mtandaoni…",
+    "libraryOffline": "Maktaba ya mtandaoni haifikiki — orodha ya nchi ni finyu",
+    "downloading": "Inapakua {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Mikusanyiko inayopatikana mtandaoni: {{n}} (alama {{symbols}})",
+    "activateDownloaded": "Mikusanyiko iliyopakuliwa ya kuwezesha kwa nchi hii: {{n}}",
+    "download": "Pakua",
+    "downloadFailed": "Upakuaji umeshindwa: {{error}}",
+    "builtIn": "Iliyojengewa ndani",
+    "online": "Mtandaoni",
+    "addSymbol": "+ Ongeza alama",
+    "export": "Hamisha nje",
+    "remove": "Ondoa",
+    "noSymbolsYet": "Bado hakuna alama",
+    "newGroupName": "Jina la kikundi kipya...",
+    "addGroup": "Ongeza kikundi",
+    "importGroup": "Leta kikundi",
+    "catalogLoaded": "Katalogi '{{id}}' imepakiwa: familia {{families}}, ukubwa {{sizes}}",
+    "catalogNoPreview": "Bila onyesho la kukagua kwenye faili: {{n}}",
+    "fileNotRecognized": "Faili haijatambuliwa: si kikundi cha alama wala katalogi",
+    "importFailed": "Kuleta kumeshindwa: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Ujenzi",
+      "nl-elektra": "NL Umeme",
+      "nl-bouwplaats": "NL Eneo la ujenzi",
+      "nl-sanitair": "NL Usafi",
+      "nl-keuken": "NL Jiko",
+      "nen1414-tb": "NL NEN 1414 — Kinga dhidi ya moto",
+      "nen1414-tbk": "NL NEN 1414 — Mifumo ya kuzima moto",
+      "nen1414-td": "NL NEN 1414 — Milango",
+      "nen1414-tn": "NL NEN 1414 — Taa za dharura",
+      "nen1414-tr": "NL NEN 1414 — Uondoaji wa moshi/joto",
+      "nen1414-tv": "NL NEN 1414 — Uingizaji hewa",
+      "nen1414-tw": "NL NEN 1414 — Maji/Vinyunyizio"
+    },
+    "sectors": {
+      "aec": "AEC (Ujenzi)",
+      "electrical": "Uhandisi wa umeme",
+      "process": "Michakato / P&ID",
+      "mep": "Huduma za majengo (MEP)",
+      "infra": "Miundombinu"
+    }
   }
 }

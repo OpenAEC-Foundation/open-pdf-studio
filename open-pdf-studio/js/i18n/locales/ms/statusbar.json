@@ -148,5 +148,14 @@
     "title": "Pergi ke dapatan pemaparan seterusnya. Tiada dapatan tidak menjamin pemaparan yang lengkap.",
     "count": "Dapatan pemaparan: {{count}}",
     "detail": "Halaman {{page}}: {{code}}. Cuba zum yang lebih rendah atau buka semula dokumen; kelengkapan tidak dijamin."
+  },
+  "mcpSignal": {
+    "label": "Sambungan AI (MCP)",
+    "connected": "Pembantu AI disambungkan",
+    "idle": "Pelayan MCP hidup, melahu",
+    "off": "Pelayan MCP mati",
+    "port": "Port: {{port}}",
+    "lastTool": "Alat terakhir: {{tool}} pada {{time}}",
+    "noTool": "Belum ada panggilan alat"
   }
 }

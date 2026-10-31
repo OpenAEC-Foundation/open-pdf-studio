@@ -77,7 +77,7 @@ export function buildPageFontInfos(context, page) {
 }
 
 // Idem voor één /Font-woordenboek (van de pagina of van een Form XObject).
-function buildFontInfos(context, fontDict) {
+export function buildFontInfos(context, fontDict) {
   const infos = new Map();
 
   for (const key of fontDict.keys()) {

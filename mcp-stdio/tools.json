@@ -33,7 +33,7 @@
       "additionalProperties": false,
       "properties": {
         "scale": {
-          "maximum": 32.0,
+          "maximum": 32,
           "minimum": 0.05,
           "type": "number"
         }
@@ -534,6 +534,511 @@
       "type": "object"
     },
     "name": "app_merge_pdf"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Rotate pages"
+    },
+    "description": "Rotate pages of the active document by a quarter, half or three-quarter turn, as one undo step, the same way Organize > Rotate does: the markups on those pages and the measurement scales of the PDF turn along. Returns { ok, angle, pages, rotations: [{ page, rotation }] }, where rotation is the app's rotation on top of the page's own /Rotate; it is written into the file on save. Refused in a read-only document (PDF/A without editing enabled, password-protected).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "angle": {
+          "description": "Degrees clockwise; -90 turns counter-clockwise.",
+          "enum": [
+            90,
+            180,
+            270,
+            -90
+          ],
+          "type": "integer"
+        },
+        "pages": {
+          "description": "Page numbers (1-based) to rotate, each once.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "pages",
+        "angle"
+      ],
+      "type": "object"
+    },
+    "name": "app_rotate_pages"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Delete pages"
+    },
+    "description": "Delete pages from the active document, as one undo step, the same way Organize > Delete does: the markups on the deleted pages go with them, the others, the page labels and the measurement scales move along. A document keeps at least one page: deleting every page is refused. Returns { ok, deleted, pagesBefore, pagesAfter, currentPage }. Refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "pages": {
+          "description": "Page numbers (1-based) to delete, each once.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "pages"
+      ],
+      "type": "object"
+    },
+    "name": "app_delete_pages"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Insert blank pages"
+    },
+    "description": "Insert blank pages into the active document, as one undo step, the same way Organize > Insert does. Without widthPt and heightPt the new pages get the size of page `after` (the first page when after is 0). Returns { ok, inserted (the new page numbers), widthPt, heightPt, pagesBefore, pagesAfter, currentPage }. Refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "after": {
+          "description": "Insert after this page number; 0 inserts before the first page.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "count": {
+          "default": 1,
+          "description": "Number of blank pages.",
+          "maximum": 500,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "heightPt": {
+          "description": "Page height in points. Give together with widthPt.",
+          "maximum": 14400,
+          "minimum": 3,
+          "type": "number"
+        },
+        "widthPt": {
+          "description": "Page width in points (1/72 inch, A4 is 595.28 x 841.89). Give together with heightPt.",
+          "maximum": 14400,
+          "minimum": 3,
+          "type": "number"
+        }
+      },
+      "required": [
+        "after"
+      ],
+      "type": "object"
+    },
+    "name": "app_insert_blank_pages"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Extract pages to a new file"
+    },
+    "description": "Write pages of the active document, in the given order, to a new PDF file, the same way Organize > Extract does. An existing file is never replaced: choose a path that does not exist yet. With deleteFromOriginal the pages are then deleted from the document (one undo step); that is refused when it would remove every page. Returns { ok, outputPath, pages, pagesExtracted, deletedFromOriginal, pagesAfter }. Refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleteFromOriginal": {
+          "default": false,
+          "description": "Also delete the extracted pages from the document.",
+          "type": "boolean"
+        },
+        "outputPath": {
+          "description": "Absolute path of the new .pdf file; it must not exist yet.",
+          "type": "string"
+        },
+        "pages": {
+          "description": "Page numbers (1-based) to extract, each once, in the order they appear in the new file.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "pages",
+        "outputPath"
+      ],
+      "type": "object"
+    },
+    "name": "app_extract_pages"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Reorder pages"
+    },
+    "description": "Put the pages of the active document in a new order, as one undo step, the same way dragging thumbnails does: markups, page labels and measurement scales move with their page. order[i] is the current page number that becomes page i+1, and lists every page exactly once (for 3 pages, [3, 1, 2] moves the last page to the front). Returns { ok, changed, order, pages, currentPage }; the current order gives changed false. Refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "order": {
+          "description": "The new order: every current page number (1-based) exactly once.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "order"
+      ],
+      "type": "object"
+    },
+    "name": "app_reorder_pages"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Shift page content"
+    },
+    "description": "Shift the content of pages by a fixed distance, as one undo step, the same way Organize > Shift page does: the page content is moved (not rasterized), and the markups, links, form fields and measurement scales on those pages move along. Directions are as the page is displayed (including its rotation): dx positive to the right, dy positive up. Returns { ok, pages, dx, dy, shifted } with shifted the number of pages that moved; pages without content and markups are left alone. Refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "dx": {
+          "default": 0,
+          "description": "Horizontal shift in millimetres; positive is to the right.",
+          "maximum": 5080,
+          "minimum": -5080,
+          "type": "number"
+        },
+        "dy": {
+          "default": 0,
+          "description": "Vertical shift in millimetres; positive is up.",
+          "maximum": 5080,
+          "minimum": -5080,
+          "type": "number"
+        },
+        "pages": {
+          "description": "Page numbers (1-based) to shift, each once.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "pages"
+      ],
+      "type": "object"
+    },
+    "name": "app_shift_pages"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Manage bookmarks"
+    },
+    "description": "Read and edit the bookmarks (outline) of the active document, the same way the Bookmarks panel does; every change is one undo step and is written into the file on save. list returns { ok, count, bookmarks: [{ id, title, page, parentId, level, children, bold, italic, color }] } in panel order (a parent before its children). add takes title, optional page (default the current page), parentId, bold, italic and color, appends the bookmark at the end of its parent and returns { ok, bookmark }. update takes id and any of title (rename), page, bold, italic, color (null clears it). delete takes ids and removes them with everything under them: { ok, deleted, count, remaining }. move takes ids, position (before, after or inside targetId, or end of the top level without targetId) and refuses a move into a bookmark's own children. Edits are refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "list",
+            "add",
+            "update",
+            "delete",
+            "move"
+          ],
+          "type": "string"
+        },
+        "bold": {
+          "description": "add, update: bold title.",
+          "type": "boolean"
+        },
+        "color": {
+          "description": "add, update: title colour #rrggbb; null clears it.",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "update: the bookmark id (from list).",
+          "type": "string"
+        },
+        "ids": {
+          "description": "delete, move: bookmark ids (from list).",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "italic": {
+          "description": "add, update: italic title.",
+          "type": "boolean"
+        },
+        "page": {
+          "description": "add, update: the page the bookmark goes to (1-based).",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "parentId": {
+          "description": "add: put the new bookmark under this bookmark; left out or null: the top level.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "position": {
+          "description": "move: before or after targetId (same parent), inside targetId (as its last children), or end of the top level.",
+          "enum": [
+            "before",
+            "after",
+            "inside",
+            "end"
+          ],
+          "type": "string"
+        },
+        "targetId": {
+          "description": "move: the bookmark to move before, after or inside. Not with position end.",
+          "type": "string"
+        },
+        "title": {
+          "description": "add, update: the bookmark title (one line).",
+          "maxLength": 1000,
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "type": "object"
+    },
+    "name": "app_bookmarks"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Manage watermarks and headers/footers"
+    },
+    "description": "List, add and remove the watermarks and headers/footers of the active document, the same way the Watermark, Header & Footer and Manage dialogs do; every change is one undo step, shown at once and written into the pages on save. list returns { ok, count, watermarks } (an image watermark without its image data). add with type text (text, fontFamily, fontSize, color, opacity 0-1, rotation, position, customX/customY, layer), image (imagePath of a PNG or JPEG file, opacity, scale, rotation, position, customX/customY, layer) or headerFooter (headerLeft/Center/Right, footerLeft/Center/Right with the variables {page} {pages} {date} {time} {filename} {title} {bates}, fontFamily, fontSize, color, margins, Bates numbering); pages limits it to those pages, otherwise every page. Fields left out take the dialog defaults. Returns { ok, watermark, count }. remove takes id: { ok, removed, remaining }. Changes are refused in a read-only document.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "enum": [
+            "list",
+            "add",
+            "remove"
+          ],
+          "type": "string"
+        },
+        "batesDigits": {
+          "description": "headerFooter: digits with leading zeros (default 6).",
+          "maximum": 12,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "batesPrefix": {
+          "description": "headerFooter: text before the Bates number.",
+          "maxLength": 500,
+          "type": "string"
+        },
+        "batesStart": {
+          "description": "headerFooter: first Bates number (default 1).",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "batesSuffix": {
+          "description": "headerFooter: text after the Bates number.",
+          "maxLength": 500,
+          "type": "string"
+        },
+        "color": {
+          "description": "text (default #ff0000), headerFooter (default #000000): colour #rrggbb.",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "type": "string"
+        },
+        "customX": {
+          "description": "text, image with position custom: centre x in points from the left.",
+          "maximum": 14400,
+          "minimum": 0,
+          "type": "number"
+        },
+        "customY": {
+          "description": "text, image with position custom: centre y in points from the top.",
+          "maximum": 14400,
+          "minimum": 0,
+          "type": "number"
+        },
+        "fontFamily": {
+          "description": "text, headerFooter (not Georgia): font. Default Helvetica.",
+          "enum": [
+            "Helvetica",
+            "Arial",
+            "Times New Roman",
+            "Courier",
+            "Georgia"
+          ],
+          "type": "string"
+        },
+        "fontSize": {
+          "description": "text (4-288, default 72), headerFooter (1-200, default 10): font size in points.",
+          "maximum": 288,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "footerCenter": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "footerLeft": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "footerRight": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "headerCenter": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "headerLeft": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "headerRight": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "id": {
+          "description": "remove: the watermark id (from list).",
+          "type": "string"
+        },
+        "imagePath": {
+          "description": "image: absolute path of a .png, .jpg or .jpeg file (at most 20 MB).",
+          "type": "string"
+        },
+        "layer": {
+          "description": "text, image: behind (default) or in front of the page content.",
+          "enum": [
+            "behind",
+            "infront"
+          ],
+          "type": "string"
+        },
+        "marginBottom": {
+          "description": "headerFooter: points (default 30).",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "marginLeft": {
+          "description": "headerFooter: points (default 40).",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "marginRight": {
+          "description": "headerFooter: points (default 40).",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "marginTop": {
+          "description": "headerFooter: points (default 30).",
+          "maximum": 1000,
+          "minimum": 0,
+          "type": "number"
+        },
+        "opacity": {
+          "description": "text (default 0.3), image (default 0.2).",
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "pages": {
+          "description": "add: only on these page numbers (1-based); left out: every page.",
+          "items": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "position": {
+          "description": "text, image: where on the page (default center); custom uses customX/customY.",
+          "enum": [
+            "center",
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "rotation": {
+          "description": "text (default -45), image (default 0): degrees.",
+          "maximum": 360,
+          "minimum": -360,
+          "type": "number"
+        },
+        "scale": {
+          "description": "image: size factor of the 200 x 200 pt image box (default 1).",
+          "maximum": 10,
+          "minimum": 0.01,
+          "type": "number"
+        },
+        "text": {
+          "description": "text: the watermark text.",
+          "maxLength": 500,
+          "type": "string"
+        },
+        "type": {
+          "description": "add: what to add.",
+          "enum": [
+            "text",
+            "image",
+            "headerFooter"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "type": "object"
+    },
+    "name": "app_watermarks"
   },
   {
     "annotations": {
@@ -2162,7 +2667,7 @@
       "readOnlyHint": false,
       "title": "Replace existing page text"
     },
-    "description": "Replace one existing PDF text span returned by app_get_page_text. Requires the exact expected text to reject stale IDs. Preserves the page artwork by refusing edits that cannot remove the original text in place; fits the replacement inside its original width and embeds a full fallback font when the subset lacks glyphs. Changes stay pending until app_save_pdf is called. One line per call; for translation, map translated lines to span IDs and call repeatedly.",
+    "description": "Replace one existing PDF text span returned by app_get_page_text. Requires the exact expected text to reject stale IDs. Preserves the page artwork by refusing edits that cannot remove the original text in place; fits the replacement inside its original width and embeds a full fallback font when the subset lacks glyphs. On a scanned page with an invisible OCR layer the scanned word is covered and the replacement is drawn visibly, as in the editor (reply: coveredScannedText). Changes stay pending until app_save_pdf is called. One line per call; for translation, map translated lines to span IDs and call repeatedly.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -2946,6 +3451,49 @@
       "type": "object"
     },
     "name": "app_export_cad"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Export to IFCX (beta)"
+    },
+    "description": "Convert pages of the current document to an IFCX file (beta; the JSON-based IFC5 format, alpha schema) without opening the export dialog. It writes one sheet node per page with the page size, label, rotation and measurement scale, the vector paths, text runs and embedded images on their own layers, and the annotations of the app on a separate layer (drafting components keep their IFC class). Page content comes from the last saved state of the PDF; annotations are current. A page with more paths than the limit keeps the first ones and the answer warns about the rest; once the file reaches its size limit (320 M characters) the remaining pages are left out with a warning. Refused for a document opened with a password. Replaces an existing file at `path`.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "annotations": {
+          "description": "Include the annotations on their own layer (default true).",
+          "type": "boolean"
+        },
+        "maxPathsPerPage": {
+          "description": "Limit of paths per page (default 50000); the rest of a heavier page is left out with a warning.",
+          "type": "integer"
+        },
+        "pages": {
+          "description": "\"all\" (default), \"current\" or a range like \"1-3,5\".",
+          "type": "string"
+        },
+        "path": {
+          "description": "Absolute path of the target file (.ifcx).",
+          "type": "string"
+        },
+        "raster": {
+          "description": "Include embedded images (default true).",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "Include the text runs of the pages (default true).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "app_export_ifcx"
   },
   {
     "annotations": {

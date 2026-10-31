@@ -20,7 +20,7 @@ export default function PrefSelect(props) {
   }
 
   return (
-    <div class="pref-combo" classList={{ disabled: isDisabled() }} style={props.style} ref={setWrapperRef}>
+    <div id={props.id} class="pref-combo" classList={{ disabled: isDisabled() }} style={props.style} ref={setWrapperRef}>
       <span class="pref-select-display" onMouseDown={(e) => toggleDropdown(e, isDisabled())}>{displayLabel()}</span>
       <button type="button" class="pref-combo-arrow" tabIndex={-1} disabled={isDisabled()} onMouseDown={(e) => toggleDropdown(e, isDisabled())}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -371,6 +371,7 @@
     "updates": "Aktualizacje",
     "checkForUpdates": "Sprawdź aktualizacje",
     "updatesLabel": "Aktualizacje",
+    "updatesManaged": "Aktualizacje tej instalacji są zarządzane centralnie.",
     "startupDiagnosticsTitle": "Pokaż plik diagnostyki uruchamiania (bez danych prywatnych)",
     "startupDiagnostics": "Diagnostyka",
     "fileAssociation": "Skojarzenie plików",
@@ -717,5 +718,60 @@
     "noRecovery": "Adnotacje w tym dokumencie zostały spłaszczone bez zezwolenia na przywrócenie. Są częścią zawartości strony i nie można ich przywrócić.",
     "done": "Przywrócone adnotacje: {{count}}.",
     "failed": "Przywracanie nie powiodło się: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Małe ikony",
+    "largeIcons": "Duże ikony",
+    "settings": "Ustawienia"
+  },
+  "symbolPalette": {
+    "search": "Szukaj symboli...",
+    "noResults": "Nie znaleziono symboli",
+    "drawingSettings": "Ustawienia rysunku",
+    "manageSystemTypes": "Zarządzaj typami systemów",
+    "settingsTitle": "Ustawienia biblioteki symboli",
+    "industry": "Branża",
+    "country": "Kraj",
+    "libraryLoading": "Wczytywanie biblioteki online…",
+    "libraryOffline": "Biblioteka online niedostępna — ograniczona lista krajów",
+    "downloading": "Pobieranie {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Kolekcje dostępne online: {{n}} (symbole: {{symbols}})",
+    "activateDownloaded": "Pobrane kolekcje do aktywacji dla tego kraju: {{n}}",
+    "download": "Pobierz",
+    "downloadFailed": "Pobieranie nie powiodło się: {{error}}",
+    "builtIn": "Wbudowana",
+    "online": "Online",
+    "addSymbol": "+ Dodaj symbol",
+    "export": "Eksportuj",
+    "remove": "Usuń",
+    "noSymbolsYet": "Brak symboli",
+    "newGroupName": "Nazwa nowej grupy...",
+    "addGroup": "Dodaj grupę",
+    "importGroup": "Importuj grupę",
+    "catalogLoaded": "Wczytano katalog '{{id}}': rodziny: {{families}}, rozmiary: {{sizes}}",
+    "catalogNoPreview": "Bez podglądu w pliku: {{n}}",
+    "fileNotRecognized": "Nie rozpoznano pliku: nie jest to ani grupa symboli, ani katalog",
+    "importFailed": "Import nie powiódł się: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Budownictwo",
+      "nl-elektra": "NL Elektryka",
+      "nl-bouwplaats": "NL Plac budowy",
+      "nl-sanitair": "NL Instalacje sanitarne",
+      "nl-keuken": "NL Kuchnia",
+      "nen1414-tb": "NL NEN 1414 — Ochrona przeciwpożarowa",
+      "nen1414-tbk": "NL NEN 1414 — Systemy gaśnicze",
+      "nen1414-td": "NL NEN 1414 — Drzwi",
+      "nen1414-tn": "NL NEN 1414 — Oświetlenie awaryjne",
+      "nen1414-tr": "NL NEN 1414 — Oddymianie",
+      "nen1414-tv": "NL NEN 1414 — Wentylacja",
+      "nen1414-tw": "NL NEN 1414 — Woda/Tryskacze"
+    },
+    "sectors": {
+      "aec": "AEC (Budownictwo)",
+      "electrical": "Elektrotechnika",
+      "process": "Procesy / P&ID",
+      "mep": "Instalacje budowlane (MEP)",
+      "infra": "Infrastruktura"
+    }
   }
 }

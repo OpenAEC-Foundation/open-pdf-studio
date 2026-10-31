@@ -434,3 +434,34 @@ test('alle 40 talen hebben de teksten van de gesplitste weergave, echt vertaald'
   }
   assert.deepEqual(gekopieerd, []);
 });
+
+// ── Twee documenten (#893) ───────────────────────────────────────────────
+
+test('twee documenten: een mislukte tabwissel laat de splitsing nooit geblokkeerd achter', () => {
+  // Gooit de tabwissel na de paneelwissel, dan rondt switchToTab die toch af
+  // (anders blijft _wisselBezig staan en wacht sluiten eeuwig).
+  const tabs = lees('ui/chrome/tabs.js');
+  const wissel = tabs.slice(tabs.indexOf('export function switchToTab('), tabs.indexOf('function toonTab('));
+  assert.match(wissel, /try \{\s*eersteRender = toonTab\(index\);\s*\} catch \(e\) \{[^}]*splitWissel\.naRender\?\.\(\);\s*throw e;/);
+  // En een fout in de paneelwissel zelf geeft de vergrendeling vrij.
+  const split = lees('pdf/split-view/split-view.js');
+  const voor = split.slice(split.indexOf('function voorTabWissel('), split.indexOf('function voorDocumentSluiten('));
+  assert.match(voor, /catch \(e\) \{[^}]*_wisselBezig = false;\s*_wisselKlaar = null;\s*klaar\(\);\s*throw e;/);
+});
+
+test('twee documenten: sluiten van een tabblad vóór het actieve werkt eerst de index bij', () => {
+  const tabs = lees('ui/chrome/tabs.js');
+  const tak = tabs.slice(tabs.indexOf('} else if (splitSluiting.volgendId'), tabs.indexOf('} else if (vorigActief)'));
+  const index = tak.indexOf('state.activeDocumentIndex =');
+  assert.ok(index > 0, 'actieve index wordt gezet');
+  assert.ok(index < tak.indexOf('await switchToTab(volgend'), 'vóór de wissel');
+  assert.match(tabs, /const actiefVoorSluiten = getActiveDocument\(\);\s*\/\/ Remove the document\s*state\.documents\.splice\(index, 1\);/);
+});
+
+test('alle 40 talen hebben "Openen in gesplitste weergave" in het tabmenu', () => {
+  const LOCALES = join(JS, 'i18n/locales');
+  for (const taal of readdirSync(LOCALES)) {
+    const tabs = JSON.parse(readFileSync(join(LOCALES, taal, 'common.json'), 'utf8')).tabs || {};
+    assert.ok(typeof tabs.openInSplitView === 'string' && tabs.openInSplitView.trim(), taal);
+  }
+});

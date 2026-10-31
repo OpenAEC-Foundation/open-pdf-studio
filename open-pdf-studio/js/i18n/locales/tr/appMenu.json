@@ -123,6 +123,8 @@
     "pdfxNote": "Çıktı amacı, TrimBox ve PDF/X meta verileri ekler. Bir CMYK baskı profiliyle RGB renkler, görüntüler ve degradeler CMYK'ye dönüştürülür ve bu profil çıktı amacı olur; sRGB ile hiçbir şey dönüştürülmez. Gömülü olmayan standart yazı tipleri bir sınırlama olarak kalır.",
     "exportCad": "CAD çizimi (DXF, DWG)",
     "exportCadDesc": "Vektör çizimi katmanlar, ölçek ve alanla DXF veya DWG olarak dışa aktarın",
+    "exportIfcx": "IFCX olarak dışa aktar (beta)",
+    "exportIfcxDesc": "Paftalar, vektörler, metin, görüntüler ve ek açıklamalar bir IFC5 JSON dosyasına",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "İsteğe bağlı sayfa görüntüleriyle düzenlenebilir metin ve tablolar",

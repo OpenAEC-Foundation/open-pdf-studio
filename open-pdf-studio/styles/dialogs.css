@@ -6184,3 +6184,80 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   flex-shrink: 0;
   color: var(--theme-text-secondary, #666);
 }
+
+/* ===== Opslaan als op de site (#726) ===== */
+.host-save-as-dialog { width: 460px; }
+.host-save-as-weg {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+.host-save-as-omhoog { flex-shrink: 0; }
+.host-save-as-lijst {
+  height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+}
+.host-save-as-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  white-space: nowrap;
+}
+.host-save-as-item:hover,
+.host-save-as-item:focus {
+  outline: none;
+  background: var(--theme-hover, #e5f3ff);
+}
+.host-save-as-item.is-bestand { color: var(--theme-text-secondary, #666); }
+.host-save-as-icoon { flex-shrink: 0; }
+.host-save-as-naam {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.host-save-as-alleen-lezen {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #666);
+}
+.host-save-as-status {
+  padding: 6px;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+}
+.host-save-as-fout { color: var(--theme-error, #c42b1c); }
+.host-keuze-footer { flex-wrap: wrap; }
+
+/* Export to IFCX (Beta, #876) */
+.ifcx-export-dialog { width: 460px; }
+
+.ifcx-export-beta,
+.ifcx-export-note {
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+  padding: 4px 6px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface-alt, #f5f5f5);
+}
+
+.ifcx-export-status {
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  user-select: text;
+}
+
+.ifcx-export-warning {
+  font-size: 11px;
+  color: #a4262c;
+  user-select: text;
+}

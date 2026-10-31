@@ -1,5 +1,6 @@
+import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { batch } from 'solid-js';
-import { state, getActiveDocument } from '../core/state.js';
+import { state } from '../core/state.js';
 import { openDialog } from '../bridge.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { savePreferences } from '../core/preferences.js';

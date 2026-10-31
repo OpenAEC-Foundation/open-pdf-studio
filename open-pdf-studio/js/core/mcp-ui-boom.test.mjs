@@ -317,9 +317,9 @@ test('app_read_ui: Rust-lijst direct na app_run_command, dispatch, metatabel (al
   assert.match(handler, /bouwUiBoom\(gebieden, \{/);
 });
 
-test('app_read_ui in tools.json (direct na app_run_command) en de manifest; 89 publieke gereedschappen', () => {
+test('app_read_ui in tools.json (direct na app_run_command) en de manifest; 98 publieke gereedschappen', () => {
   const tools = JSON.parse(lees('../../../mcp-stdio/tools.json'));
-  assert.equal(tools.length, 89);
+  assert.equal(tools.length, 98);
   const i = tools.findIndex((t) => t.name === 'app_run_command');
   assert.equal(tools[i + 1].name, 'app_read_ui');
   const def = rustDefinitie();

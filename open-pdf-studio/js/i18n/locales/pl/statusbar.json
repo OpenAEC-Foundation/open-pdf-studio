@@ -148,5 +148,14 @@
     "title": "Przejdź do następnego zgłoszenia renderowania. Brak zgłoszeń nie gwarantuje pełnego renderowania.",
     "count": "Zgłoszenia renderowania: {{count}}",
     "detail": "Strona {{page}}: {{code}}. Spróbuj mniejszego powiększenia lub otwórz dokument ponownie; kompletność nie jest gwarantowana."
+  },
+  "mcpSignal": {
+    "label": "Połączenie AI (MCP)",
+    "connected": "Asystent AI połączony",
+    "idle": "Serwer MCP włączony, bezczynny",
+    "off": "Serwer MCP wyłączony",
+    "port": "Port: {{port}}",
+    "lastTool": "Ostatnie narzędzie: {{tool}} o {{time}}",
+    "noTool": "Brak wywołań narzędzi"
   }
 }

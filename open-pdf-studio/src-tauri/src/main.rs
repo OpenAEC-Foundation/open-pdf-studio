@@ -21,11 +21,22 @@ struct Cli {
 }
 
 fn main() {
+    // Draagbare modus (#881): als eerste, want hij zet omgevingsvariabelen
+    // (gegevensmap, WebView2-profiel) die alles hierna leest.
+    let draagbaar = app_lib::draagbaar::activeer();
+    if draagbaar.portable {
+        eprintln!("[startup] portable mode, data in {:?}", draagbaar.data_dir);
+        app_lib::draagbaar::controleer_webview2();
+    }
     app_lib::linux_runtime::configure_appimage_gio_modules();
+    // OpenAEC Linux and other machines without GPU or X server (#863): detect
+    // the environment and set the WebKitGTK/GDK variables before GTK starts.
+    app_lib::openaec_omgeving::bereid_proces_voor();
 
     // Tauri swallows unrecognized args (e.g. file-association launches), so we
     // try_parse rather than parse so unknown args don't abort startup.
     let args: Vec<String> = std::env::args().collect();
+    app_lib::openaec_omgeving::stop_zonder_beeldscherm(&args);
     let cli = Cli::try_parse_from(&args).unwrap_or(Cli {
         mcp_server: false,
         mcp_port: 9223,

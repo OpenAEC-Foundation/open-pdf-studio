@@ -1,4 +1,4 @@
-import { createSignal, Show, For, onMount } from 'solid-js';
+import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
@@ -13,6 +13,7 @@ import { useTranslation } from '../../i18n/useTranslation.js';
 import { savePreferences } from '../../core/preferences.js';
 import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrder.js';
 import { leesOpslag, schrijfOpslag } from '../../core/opslag.js';
+import { uiSchaalFactor, UI_SCHAAL_EVENT } from '../../core/ui-scale.js';
 
 const handIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/></svg>`;
 const selectIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/></svg>`;
@@ -215,6 +216,7 @@ function ensureCtxListeners() {
 }
 
 function PaletteContextMenu() {
+  const { t } = useTranslation('ribbon');
   onMount(ensureCtxListeners);
 
   return (
@@ -229,14 +231,14 @@ function PaletteContextMenu() {
           onClick={() => { setPaletteIconSize('small'); setPaletteCtxMenu(null); }}
         >
           <span class="tp-ctx-check">{paletteIconSize() === 'small' ? '\u2713' : ''}</span>
-          <span>Small Icons</span>
+          <span>{t('palette.smallIcons')}</span>
         </div>
         <div
           class={`tp-ctx-menu-item${paletteIconSize() === 'large' ? ' checked' : ''}`}
           onClick={() => { setPaletteIconSize('large'); setPaletteCtxMenu(null); }}
         >
           <span class="tp-ctx-check">{paletteIconSize() === 'large' ? '\u2713' : ''}</span>
-          <span>Large Icons</span>
+          <span>{t('palette.largeIcons')}</span>
         </div>
       </div>
     </Show>
@@ -285,23 +287,31 @@ const SINGLE_COL_HEIGHT_LARGE = 935;  // 20 btns × 44px + 5 seps × 7px
 
 // Docked strip — sits in the flex layout
 export function DockedToolPalette(props) {
+  const { t } = useTranslation('ribbon');
   const side = () => props.side;
   const shouldShow = () => paletteVisible() && paletteMode() === `docked-${side()}`;
   const [twoCol, setTwoCol] = createSignal(false);
   let observer = null;
 
+  let paletteEl = null;
+  // Button sizes follow the interface size (#883), so the pixel heights do too.
+  function updateColumns() {
+    if (!paletteEl) return;
+    const schaal = uiSchaalFactor();
+    const available = paletteEl.clientHeight - 46 * schaal;
+    const threshold = (paletteIconSize() === 'large' ? SINGLE_COL_HEIGHT_LARGE : SINGLE_COL_HEIGHT_SMALL) * schaal;
+    setTwoCol(available < threshold);
+  }
+  window.addEventListener(UI_SCHAAL_EVENT, updateColumns);
+  onCleanup(() => window.removeEventListener(UI_SCHAAL_EVENT, updateColumns));
+
   function bindRef(el) {
     if (observer) { observer.disconnect(); observer = null; }
+    paletteEl = el || null;
     if (!el) return;
-    observer = new ResizeObserver(() => {
-      const available = el.clientHeight - 46;
-      const threshold = paletteIconSize() === 'large' ? SINGLE_COL_HEIGHT_LARGE : SINGLE_COL_HEIGHT_SMALL;
-      setTwoCol(available < threshold);
-    });
+    observer = new ResizeObserver(updateColumns);
     observer.observe(el);
-    const available = el.clientHeight - 46;
-    const threshold = paletteIconSize() === 'large' ? SINGLE_COL_HEIGHT_LARGE : SINGLE_COL_HEIGHT_SMALL;
-    setTwoCol(available < threshold);
+    updateColumns();
   }
 
   return (
@@ -318,13 +328,13 @@ export function DockedToolPalette(props) {
         <div class={`tp-docked-tools${twoCol() ? ' two-col' : ''}`}>
           <ToolList />
         </div>
-        <button class="tp-close" title="Settings" style={{ color: 'var(--theme-text-secondary)' }}
+        <button class="tp-close" title={t('palette.settings')} style={{ color: 'var(--theme-text-secondary)' }}
           onClick={(e) => showPaletteCtxMenu({ preventDefault: () => {}, clientX: e.clientX, clientY: e.clientY })}>
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="8" cy="8" r="2"/><path d="M8 1v2m0 10v2M1 8h2m10 0h2M3 3l1.5 1.5m7 7L13 13M3 13l1.5-1.5m7-7L13 3"/>
           </svg>
         </button>
-        <button class="tp-close" onClick={() => { setPaletteVisible(false); unregisterPaletteDock('tool'); savePaletteState(); }}>
+        <button class="tp-close" title={t('view.closePalette')} onClick={() => { setPaletteVisible(false); unregisterPaletteDock('tool'); savePaletteState(); }}>
           <svg width="8" height="8" viewBox="0 0 10 10">
             <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/>
             <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5"/>

@@ -205,25 +205,18 @@ pub fn import_dir(app_cache_dir: &Path) -> PathBuf {
 /// De map waarin de import zijn voorbeeld-PDF's zet. Dit is de enige plek waar
 /// de import een cache- of tijdelijke map kiest: het maken van een voorbeeld
 /// (`preview_cad_import`) en het opruimen bij de start lopen er allebei
-/// doorheen.
-///
-/// LET OP bij het samenvoegen met de isolatie van een losgekoppelde instantie:
-/// de helper die per instantie een eigen datamap kiest, bestaat op deze tak
-/// nog niet. Zodra die er is, hoort deze functie daarop over te stappen in
-/// plaats van rechtstreeks `app_cache_dir()` te vragen. Anders schrijft en
-/// veegt een geisoleerde instantie (de testopstelling, een tweede venster) in
-/// de cachemap van de geinstalleerde app.
+/// doorheen. Via datamap.rs, zodat een geisoleerde instantie (`OPDS_DATA_DIR`,
+/// de testopstelling) en de draagbare modus (#881) niet in de cachemap van de
+/// geinstalleerde app schrijven en vegen.
 pub fn voorbeeldmap<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<PathBuf, String> {
-    use tauri::Manager;
-    let cache = app.path().app_cache_dir().map_err(|e| format!("IMPORT_IO:{e}"))?;
+    let cache = crate::datamap::tauri_map(app, crate::datamap::TauriMap::Cache).map_err(|e| format!("IMPORT_IO:{e}"))?;
     Ok(preview_dir(&cache))
 }
 
 /// De map waarin een echte import zijn PDF zet (zie [`import_dir`]); dezelfde
 /// cachemap als de voorbeelden, dus dezelfde kanttekening als hierboven.
 pub fn importmap<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<PathBuf, String> {
-    use tauri::Manager;
-    let cache = app.path().app_cache_dir().map_err(|e| format!("IMPORT_IO:{e}"))?;
+    let cache = crate::datamap::tauri_map(app, crate::datamap::TauriMap::Cache).map_err(|e| format!("IMPORT_IO:{e}"))?;
     Ok(import_dir(&cache))
 }
 

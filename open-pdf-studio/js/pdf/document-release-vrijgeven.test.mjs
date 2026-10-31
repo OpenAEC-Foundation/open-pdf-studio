@@ -47,3 +47,24 @@ test('sluiten geeft de paginabeelden van het tweede paneel van de gesplitste wee
   assert.ok(aanroepen().some(([n, d]) => n === 'vergeetPaneelBeelden' && d === dicht),
     'vergeetPaneelBeelden met het gesloten document');
 });
+
+test('sluiten laat het renderwerk van het pad vallen; een ander tabblad op hetzelfde bestand niet (#506)', async () => {
+  reset();
+  const { renderQueue, isRenderCancelled } = await import('./render-queue.js');
+  let klaar;
+  const lopend = renderQueue.schedule(() => new Promise((r) => { klaar = r; }), { docKey: 'C:/t/zwaar.pdf' });
+  await Promise.resolve();
+  await geefDocumentVrij({ id: 9, filePath: 'C:/t/zwaar.pdf', pdfDoc: { destroy: async () => {} } }, []);
+  klaar({ close() {} });
+  await assert.rejects(lopend, (e) => isRenderCancelled(e), 'het resultaat van een gesloten document vervalt');
+
+  let klaar2;
+  const gedeeld = renderQueue.schedule(() => new Promise((r) => { klaar2 = r; }), { docKey: 'C:/t/gedeeld.pdf' });
+  await Promise.resolve();
+  await geefDocumentVrij(
+    { id: 10, filePath: 'C:/t/gedeeld.pdf', pdfDoc: { destroy: async () => {} } },
+    [{ id: 11, filePath: 'C:/t/gedeeld.pdf', pdfDoc: {} }],
+  );
+  klaar2('beeld');
+  assert.equal(await gedeeld, 'beeld');
+});

@@ -3660,7 +3660,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-cad"
-version = "2026.44.5"
+version = "2026.44.6"
 dependencies = [
  "acadrust",
  "flate2",
@@ -3672,7 +3672,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-cmyk"
-version = "2026.44.5"
+version = "2026.44.6"
 dependencies = [
  "flate2",
  "image",
@@ -3685,7 +3685,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-render"
-version = "2026.44.5"
+version = "2026.44.6"
 dependencies = [
  "flate2",
  "hayro-font",
@@ -3700,7 +3700,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "2026.44.5"
+version = "2026.44.6"
 dependencies = [
  "aes",
  "anyhow",
@@ -3721,11 +3721,13 @@ dependencies = [
  "libloading 0.9.0",
  "log",
  "lopdf",
+ "memchr",
  "memmap2",
  "open",
  "open-pdf-cad",
  "open-pdf-cmyk",
  "open-pdf-render",
+ "openaec-update",
  "p256",
  "p384",
  "pdfium-render",
@@ -3767,17 +3769,29 @@ dependencies = [
  "windows 0.61.3",
  "windows-sys 0.59.0",
  "x509-cert",
+ "zbus",
  "zeroize",
  "zip 2.4.2",
 ]
 
 [[package]]
 name = "open-pdf-thumbnails"
-version = "2026.44.5"
+version = "2026.44.6"
 dependencies = [
  "libloading 0.9.0",
  "windows 0.61.3",
  "windows-core 0.61.2",
+]
+
+[[package]]
+name = "openaec-update"
+version = "0.1.0"
+source = "git+https://github.com/OpenAEC-Foundation/openaec-installer?rev=2b66f84#2b66f84c93c0becc7d5dbb82bb4ba18d68e393df"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-plugin",
 ]
 
 [[package]]
@@ -3974,9 +3988,12 @@ dependencies = [
 
 [[package]]
 name = "pdfium-worker"
-version = "2026.44.5"
+version = "2026.44.6"
 dependencies = [
  "anyhow",
+ "flate2",
+ "lopdf",
+ "memchr",
  "memmap2",
  "pdfium-render",
  "serde",

@@ -123,6 +123,8 @@
     "pdfxNote": "Menambah output intent, TrimBox dan metadata PDF/X. Dengan profil cetakan CMYK, warna RGB, imej dan gradien ditukar kepada CMYK dan profil itu menjadi output intent; dengan sRGB tiada apa-apa yang ditukar. Fon standard yang tidak dibenamkan kekal sebagai satu batasan.",
     "exportCad": "Lukisan CAD (DXF, DWG)",
     "exportCadDesc": "Eksport lukisan vektor ke DXF atau DWG dengan lapisan, skala dan kawasan",
+    "exportIfcx": "Eksport ke IFCX (beta)",
+    "exportIfcxDesc": "Helaian, vektor, teks, imej dan anotasi ke fail JSON IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Teks dan jadual boleh sunting dengan imej halaman pilihan",

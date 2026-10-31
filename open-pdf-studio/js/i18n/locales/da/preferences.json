@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Fra",
-    "aiLinkError": "Ikke startet: {{fout}}"
+    "aiLinkError": "Ikke startet: {{fout}}",
+    "interfaceScale": "Grænsefladestørrelse"
   },
   "annotations": {
     "generalDefaults": "Generelle standarder",
@@ -193,7 +194,12 @@
     "macInstructions": "For at angive Open PDF Studio som standard PDF-fremviser på macOS:\n\n1. Højreklik på en vilkårlig PDF-fil i Finder\n2. Vælg \"Vis info\"\n3. Under \"Åbn med\" vælg Open PDF Studio\n4. Klik \"Skift alle...\"",
     "linuxInstructions": "For at angive Open PDF Studio som standard PDF-fremviser på Linux:\n\nKør i terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Tjek Finder > Vis info",
-    "notSet": "Ikke angivet"
+    "notSet": "Ikke angivet",
+    "chosenInSystemSettings": "Valgt i systemindstillingerne",
+    "sandboxInstructions": "Open PDF Studio kører som en {{package}}-pakke og kan ikke selv ændre standard-PDF-appen.\n\nVælg Open PDF Studio i systemindstillingerne under Standardprogrammer, eller højreklik på en PDF-fil og brug Åbn med.",
+    "xdgMimeMissing": "xdg-mime (pakken xdg-utils) er ikke installeret, så standard-PDF-appen kan ikke indstilles herfra.\n\nInstaller xdg-utils, eller vælg Open PDF Studio i systemindstillingerne under Standardprogrammer.",
+    "linuxDone": "Open PDF Studio er nu standardappen til PDF-filer.",
+    "linuxFailed": "Open PDF Studio kunne ikke indstilles som standard-PDF-app.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Stifinder",
@@ -322,6 +328,11 @@
     "resetCommand": "Nulstil til standard",
     "resetAll": "Nulstil alle",
     "resetAllConfirm": "Nulstil alle tastaturgenveje til standard?",
+    "loadPreset": "Indlæs forudindstilling…",
+    "replaceConfirm": "Dette erstatter dine egne tastaturgenveje. Vil du fortsætte?",
+    "presets": {
+      "markupStyle": "Genveje i markeringsstil"
+    },
     "import": "Importér…",
     "export": "Eksportér…",
     "fileType": "Tastaturgenveje",

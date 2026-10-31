@@ -8,13 +8,16 @@
 // PDF.js komt pas bij het EERSTE document binnen, niet bij het laden van het
 // unit-script. Dat scheelt de gastheer een paar honderd kB op een pagina waar
 // nog geen tekening staat.
+// De worker komt uit de patchplugin (scripts/pdfjs-postscript-progress.mjs):
+// dezelfde moderne worker, met de PDF.js-backports (#839, #878, #638) toegepast.
 let _pdfjs = null;
 async function pdfjs() {
   if (!_pdfjs) {
-    _pdfjs = await import('pdfjs-dist');
-    _pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-      'pdfjs-dist/build/pdf.worker.mjs', import.meta.url,
-    ).href;
+    const [lib, { default: workerUrl }] = await Promise.all([
+      import('pdfjs-dist'), import('virtual:opds-pdfjs-worker-url'),
+    ]);
+    _pdfjs = lib;
+    _pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
   }
   return _pdfjs;
 }

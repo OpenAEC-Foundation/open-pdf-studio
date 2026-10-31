@@ -123,6 +123,8 @@
     "pdfxNote": "Adaugă un profil de ieșire, TrimBox și metadate PDF/X. Cu un profil de tipar CMYK, culorile RGB, imaginile și degradeurile sunt convertite în CMYK, iar acel profil devine profilul de ieșire; cu sRGB nu se convertește nimic. Fonturile standard neîncorporate rămân o limitare.",
     "exportCad": "Desen CAD (DXF, DWG)",
     "exportCadDesc": "Exportă desenul vectorial în DXF sau DWG, cu straturi, scară și zonă",
+    "exportIfcx": "Exportă în IFCX (beta)",
+    "exportIfcxDesc": "Planșe, vectori, text, imagini și adnotări într-un fișier JSON IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Text și tabele editabile, cu imagini opționale ale paginilor",

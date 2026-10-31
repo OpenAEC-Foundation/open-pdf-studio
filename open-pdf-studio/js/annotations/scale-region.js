@@ -1,3 +1,4 @@
+import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 /**
  * Scale Region — rectangular calibration viewport that overrides the
  * document-global scale for any annotation whose centroid falls inside.
@@ -11,12 +12,11 @@
  *   1. innermost (smallest area) scaleRegion containing the point
  *   2. existing scaleBar / viewport / doc.measureScale fallbacks
  */
-import { getActiveDocument } from '../core/state.js';
 import { createAnnotation } from './factory.js';
 import { schaalgebiedenOpPagina } from './schaal-op-punt.js';
 import { schaalBronnenInDoorloop, vergeetSchaalBronnen } from './schaal-bronnen.js';
-import { pixelsPerUnitFor } from './scale-region-scale.js';
-export { parseScaleString, pixelsPerUnitFor } from './scale-region-scale.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from './scale-region-scale.js';
+export { parseScaleString, pixelsPerUnitFor, userUnitVanPagina } from './scale-region-scale.js';
 
 // Per-redraw cache keyed by document instance.
 // Map<doc, Map<pageNum, scaleRegion[] sorted by area asc>>
@@ -77,7 +77,8 @@ export function getScaleRegionAt(pageNum, x, y) {
 export function getScaleFromRegion(pageNum, x, y) {
   const r = getScaleRegionAt(pageNum, x, y);
   if (!r) return null;
-  const ppu = pixelsPerUnitFor(r.scaleString || '1:100', r.units || 'mm');
+  // In page units of THIS page: a /UserUnit page has bigger units (#884).
+  const ppu = pixelsPerUnitFor(r.scaleString || '1:100', r.units || 'mm', userUnitVanPagina(getActiveDocument(), pageNum));
   return {
     pixelsPerUnit: ppu,
     unit: r.units || 'mm',
@@ -95,9 +96,13 @@ export function getScaleFromRegion(pageNum, x, y) {
 const _PPU_1_100 = 72 / (25.4 * 100);
 export function getRegionScaleFactor(pageNum, x, y) {
   if (pageNum == null || x == null || y == null) return 1;
-  const region = getScaleFromRegion(pageNum, x, y);
-  if (!region || !region.pixelsPerUnit) return 1;
-  return region.pixelsPerUnit / _PPU_1_100;
+  const r = getScaleRegionAt(pageNum, x, y);
+  if (!r) return 1;
+  // The ratio of the region itself, without the page's /UserUnit: the hatch
+  // is drawn in page units and only follows the drawing scale.
+  const ppu = pixelsPerUnitFor(r.scaleString || '1:100', r.units || 'mm');
+  if (!ppu) return 1;
+  return ppu / _PPU_1_100;
 }
 
 /**

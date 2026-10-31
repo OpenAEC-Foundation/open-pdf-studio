@@ -1,4 +1,4 @@
-import { For, Show, createSignal, createMemo, createEffect, on, onCleanup } from 'solid-js';
+import { For, Show, createSignal, createMemo, createEffect, on, onCleanup, onMount } from 'solid-js';
 import { activeTab, collapsed } from '../../../stores/leftPanelStore.js';
 import { tree, countText, emptyMessage, selectedId, selectedIds, toolbarDisabled } from '../../../stores/panels/bookmarksStore.js';
 import { activePage } from '../../../stores/panels/thumbnailStore.js';
@@ -8,8 +8,9 @@ import { huidigeBladwijzer, volgendeTreffer, scrollVoorItem } from '../../../../
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { currentTheme } from '../../../stores/ribbonStore.js';
 import { weergaveKleur, leesCssKleur } from '../../../../ui/panels/bladwijzer-stijl.js';
-import { dropToegestaan, sleepPositie } from '../../../../ui/panels/bladwijzer-boom.js';
-import i18next from '../../../../i18n/config.js';
+import { createBookmarkPointerDrag } from '../../../../ui/panels/bookmark-pointer-drag.js';
+import { isPdfAReadOnly } from '../../../../pdf/loader.js';
+import BookmarkTitle from './BookmarkTitle.jsx';
 
 // Treffer van het zoekveld (#578): krijgt een streep links en wordt in beeld
 // geschoven. De lijst zelf wordt niet gefilterd.
@@ -33,45 +34,9 @@ function achtergrondVan(el) {
 const [gesleept, setGesleept] = createSignal(null);
 const [dropDoel, setDropDoel] = createSignal(null);
 
-// Een ingeklapte ouder klapt open als je er ongeveer een seconde boven blijft.
-let openklapTimer = null;
-let openklapId = null;
-function stopOpenklappen() {
-  clearTimeout(openklapTimer);
-  openklapTimer = null;
-  openklapId = null;
-}
-function planOpenklappen(id) {
-  if (openklapId === id) return;
-  stopOpenklappen();
-  openklapId = id;
-  openklapTimer = setTimeout(() => {
-    openklapTimer = null;
-    import('../../../../ui/panels/bookmarks.js').then(m => m.toggleBookmarkExpand(id));
-  }, 1000);
-}
-
-function stopSlepen() {
-  setGesleept(null);
-  setDropDoel(null);
-  stopOpenklappen();
-}
-
-// Bij meerdere bladwijzers een klein label als sleepbeeld ("3 bladwijzers").
-function sleepbeeld(e, aantal) {
-  if (aantal < 2 || !e.dataTransfer?.setDragImage) return;
-  const label = document.createElement('div');
-  label.className = 'bookmark-drag-image';
-  label.textContent = i18next.t('leftPanel.bookmarksCount', { count: aantal });
-  document.body.appendChild(label);
-  e.dataTransfer.setDragImage(label, 8, 8);
-  setTimeout(() => label.remove(), 0);
-}
-
 function BookmarkNode(props) {
   const indent = () => props.depth * 16;
   const geselecteerd = () => selectedIds().includes(props.node.id);
-  const bewerkbaar = () => !toolbarDisabled().add;
   const drop = () => (dropDoel()?.id === props.node.id ? dropDoel().positie : null);
   const bladwijzers = () => import('../../../../ui/panels/bookmarks.js');
 
@@ -87,7 +52,7 @@ function BookmarkNode(props) {
         }}
         data-bm-id={props.node.id}
         style={{ 'padding-left': `${indent()}px`, '--bm-indent': `${indent() + 14}px` }}
-        draggable={bewerkbaar()}
+        draggable={false}
         onClick={(e) => {
           // Ctrl: toevoegen/weghalen; Shift: bereik; gewoon: één en naar de pagina.
           const id = props.node.id;
@@ -103,51 +68,6 @@ function BookmarkNode(props) {
           });
           showBookmarkMenu(e.clientX, e.clientY);
         }}
-        onDragStart={(e) => {
-          if (!bewerkbaar()) { e.preventDefault(); return; }
-          // Een geselecteerde sleept de hele selectie mee, een andere alleen zichzelf.
-          const ids = geselecteerd() ? [...selectedIds()] : [props.node.id];
-          setGesleept(ids);
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', props.node.title || '');
-          sleepbeeld(e, ids.length);
-        }}
-        onDragOver={(e) => {
-          const ids = gesleept();
-          if (!ids) return;
-          // Niet stoppen: de lijst schuift mee als de rij dicht bij de rand is.
-          const lijst = getActiveDocument()?.bookmarks || [];
-          if (!dropToegestaan(lijst, ids, props.node.id)) {
-            // In zichzelf of een eigen kind: geweigerd, de cursor laat het zien.
-            // Afgehandeld met dropEffect 'none' en niet doorgeven: de algemene
-            // dragover van het document (ui/setup.js) zou er anders een
-            // verplaats-cursor van maken.
-            e.preventDefault();
-            e.stopPropagation();
-            e.dataTransfer.dropEffect = 'none';
-            setDropDoel(null);
-            stopOpenklappen();
-            return;
-          }
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          const rect = e.currentTarget.getBoundingClientRect();
-          const positie = sleepPositie(rect.top, rect.height, e.clientY);
-          const d = dropDoel();
-          if (d?.id !== props.node.id || d?.positie !== positie) setDropDoel({ id: props.node.id, positie });
-          if (positie === 'inside' && props.node.hasChildren && !props.node.expanded) planOpenklappen(props.node.id);
-          else if (openklapId === props.node.id) stopOpenklappen();
-        }}
-        onDrop={(e) => {
-          const ids = gesleept();
-          const d = dropDoel();
-          e.preventDefault();
-          e.stopPropagation();
-          stopSlepen();
-          if (!ids || !d || d.id !== props.node.id) return;
-          bladwijzers().then(m => m.moveBookmarks(ids, d.id, d.positie));
-        }}
-        onDragEnd={stopSlepen}
       >
         <span
           class={`bookmark-arrow${props.node.hasChildren ? ' has-children' : ' empty'}`}
@@ -165,17 +85,15 @@ function BookmarkNode(props) {
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
           </svg>
         </span>
-        <span
+        <BookmarkTitle node={props.node} rename={props.rename}
           class={`bookmark-title${props.node.bold ? ' bold' : ''}${props.node.italic ? ' italic' : ''}`}
           style={props.node.color ? { color: weergaveKleur(props.node.color, lijstAchtergrond()) } : {}}
-        >
-          {props.node.title}
-        </span>
+        />
       </div>
       <Show when={props.node.hasChildren && props.node.expanded}>
         <div class="bookmark-children">
           <For each={props.node.children}>
-            {(child) => <BookmarkNode node={child} depth={props.depth + 1} huidig={props.huidig} />}
+            {(child) => <BookmarkNode node={child} depth={props.depth + 1} huidig={props.huidig} rename={props.rename} />}
           </For>
         </div>
       </Show>
@@ -189,6 +107,29 @@ export default function BookmarksPanel() {
   let lijstRef;
   let zoekRef;
   const [geenTreffer, setGeenTreffer] = createSignal(false);
+  const [renameSession, setRenameSession] = createSignal(null);
+  const rename = {
+    session: renameSession,
+    start(id) {
+      const doc = getActiveDocument();
+      const bm = doc?.bookmarks?.find(b => b.id === id);
+      if (!bm || isPdfAReadOnly()) return;
+      setRenameSession({ doc, id, title: bm.title, draft: bm.title || '' });
+    },
+    change(draft) { setRenameSession(s => s && ({ ...s, draft })); },
+    finish(save, focusList = false) {
+      const session = renameSession();
+      setRenameSession(null);
+      if (focusList) lijstRef?.focus({ preventScroll: true });
+      if (save && session) import('../../../../ui/panels/bookmarks.js').then(m =>
+        m.renameBookmarkTitle(session.doc, session.id, session.draft, session.title));
+    },
+  };
+  createEffect(() => {
+    const session = renameSession();
+    if (session && (session.doc !== getActiveDocument() || isPdfAReadOnly()
+        || !session.doc.bookmarks.some(b => b.id === session.id))) setRenameSession(null);
+  });
 
   // De bladwijzer van de pagina in beeld: zachte achtergrond, hoe er ook
   // genavigeerd wordt (zelfde activePage als de actieve miniatuur).
@@ -210,32 +151,28 @@ export default function BookmarksPanel() {
     if (id && open) requestAnimationFrame(() => scrollNaar(id, 'nearest'));
   }));
 
-  onCleanup(stopSlepen);
-
-  // Slepen boven de lijst zelf: dicht bij de rand schuift hij mee; in de lege
-  // ruimte onder de laatste rij valt de selectie achteraan in de wortel.
-  function onLijstSleep(e) {
-    const ids = gesleept();
-    if (!ids || !lijstRef) return;
-    const rect = lijstRef.getBoundingClientRect();
-    const rand = 24;
-    if (e.clientY < rect.top + rand) lijstRef.scrollTop -= 12;
-    else if (e.clientY > rect.bottom - rand) lijstRef.scrollTop += 12;
-    if (e.target !== lijstRef) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    stopOpenklappen();
-    if (dropDoel()?.id !== null || dropDoel()?.positie !== 'end') setDropDoel({ id: null, positie: 'end' });
-  }
-
-  function onLijstDrop(e) {
-    const ids = gesleept();
-    const d = dropDoel();
-    e.preventDefault();
-    stopSlepen();
-    if (!ids || !d || d.id !== null) return;
-    import('../../../../ui/panels/bookmarks.js').then(m => m.moveBookmarks(ids, null, 'end'));
-  }
+  let pointerDrag;
+  onMount(() => {
+    pointerDrag = createBookmarkPointerDrag(lijstRef, {
+      getDocument: getActiveDocument,
+      getSelection: selectedIds,
+      canEdit: () => paneelOpen() && !disabled().add,
+      setDragging: setGesleept,
+      setTarget: setDropDoel,
+      async expand(doc, id, stillValid) {
+        const m = await import('../../../../ui/panels/bookmarks.js');
+        if (stillValid() && getActiveDocument() === doc) m.toggleBookmarkExpand(id);
+      },
+      async commit(doc, ids, id, position) {
+        const m = await import('../../../../ui/panels/bookmarks.js');
+        if (getActiveDocument() === doc && paneelOpen() && !disabled().add) await m.moveBookmarks(ids, id, position);
+      },
+    });
+    onCleanup(() => pointerDrag.destroy());
+  });
+  createEffect(() => {
+    if (!paneelOpen() || disabled().add) pointerDrag?.cancel();
+  });
 
   // Klik in de lege ruimte van de lijst wist de selectie; Esc ook.
   function onLijstKlik(e) {
@@ -243,7 +180,21 @@ export default function BookmarksPanel() {
     import('../../../../ui/panels/bookmarks.js').then(m => m.clearBookmarkSelection());
   }
 
+  // F2: de geselecteerde kan onder een ingeklapte ouder of buiten beeld
+  // staan; eerst tonen, anders blijft er een onzichtbaar tekstvak open.
+  async function hernoemSelectie() {
+    const id = selectedId();
+    if (!id) return;
+    const m = await import('../../../../ui/panels/bookmarks.js');
+    m.revealBookmark(id);
+    rename.start(id);
+    requestAnimationFrame(() => scrollNaar(id, 'nearest'));
+  }
+
   function onLijstToets(e) {
+    if (e.key === 'F2' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
+      e.preventDefault(); e.stopPropagation(); hernoemSelectie(); return;
+    }
     if (e.key !== 'Escape' || selectedIds().length === 0) return;
     e.preventDefault();
     e.stopPropagation();
@@ -268,6 +219,7 @@ export default function BookmarksPanel() {
     const docId = getActiveDocument()?.id ?? null;
     if (docId === laatsteDocId) return;
     laatsteDocId = docId;
+    pointerDrag?.cancel();
     wisZoeken();
     if (paneelOpen()) requestAnimationFrame(() => scrollNaar(huidig(), 'nearest'));
   }));
@@ -371,14 +323,9 @@ export default function BookmarksPanel() {
         classList={{ 'drop-end': dropDoel()?.id === null && dropDoel()?.positie === 'end' }}
         ref={lijstRef}
         tabIndex={-1}
+        onMouseDown={e => { if (!e.target.closest('input,textarea,button')) lijstRef.focus({ preventScroll: true }); }}
         onClick={onLijstKlik}
         on:keydown={onLijstToets}
-        onDragOver={onLijstSleep}
-        onDrop={onLijstDrop}
-        onDragLeave={(e) => {
-          // De lijst helemaal uit: geen doel meer tonen.
-          if (!lijstRef?.contains(e.relatedTarget)) setDropDoel(null);
-        }}
         onContextMenu={(e) => {
           e.preventDefault();
           showBookmarkMenu(e.clientX, e.clientY);
@@ -389,7 +336,7 @@ export default function BookmarksPanel() {
         </Show>
         <Show when={!emptyMessage()}>
           <For each={tree()}>
-            {(node) => <BookmarkNode node={node} depth={0} huidig={huidig} />}
+            {(node) => <BookmarkNode node={node} depth={0} huidig={huidig} rename={rename} />}
           </For>
         </Show>
       </div>

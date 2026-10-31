@@ -32,7 +32,8 @@
     "aiLinkActive": "Attivo su {{adres}}",
     "aiLinkViaFlag": "Attivo tramite parametro di avvio ({{adres}})",
     "aiLinkOff": "Disattivato",
-    "aiLinkError": "Non avviato: {{fout}}"
+    "aiLinkError": "Non avviato: {{fout}}",
+    "interfaceScale": "Dimensione interfaccia"
   },
   "annotations": {
     "generalDefaults": "Predefiniti generali",
@@ -193,7 +194,12 @@
     "macInstructions": "Per impostare Open PDF Studio come visualizzatore PDF predefinito su macOS:\n\n1. Fare clic destro su qualsiasi file PDF nel Finder\n2. Selezionare \"Ottieni informazioni\"\n3. In \"Apri con\", selezionare Open PDF Studio\n4. Fare clic su \"Modifica tutto...\"",
     "linuxInstructions": "Per impostare Open PDF Studio come visualizzatore PDF predefinito su Linux:\n\nEseguire nel terminale:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Controllare Finder > Ottieni informazioni",
-    "notSet": "Non impostato"
+    "notSet": "Non impostato",
+    "chosenInSystemSettings": "Scelto nelle impostazioni di sistema",
+    "sandboxInstructions": "Open PDF Studio è in esecuzione come pacchetto {{package}} e non può modificare da solo l'app PDF predefinita.\n\nScegli Open PDF Studio nelle impostazioni di sistema in Applicazioni predefinite, oppure fai clic con il tasto destro su un file PDF e usa Apri con.",
+    "xdgMimeMissing": "xdg-mime (pacchetto xdg-utils) non è installato, quindi l'app PDF predefinita non può essere impostata da qui.\n\nInstalla xdg-utils oppure scegli Open PDF Studio nelle impostazioni di sistema in Applicazioni predefinite.",
+    "linuxDone": "Open PDF Studio è ora l'app predefinita per i file PDF.",
+    "linuxFailed": "Impossibile impostare Open PDF Studio come app PDF predefinita.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Esplora file",
@@ -322,6 +328,11 @@
     "resetCommand": "Ripristina predefinito",
     "resetAll": "Ripristina tutto",
     "resetAllConfirm": "Ripristinare tutte le scorciatoie da tastiera ai valori predefiniti?",
+    "loadPreset": "Carica preimpostazione…",
+    "replaceConfirm": "Questo sostituirà le scorciatoie da tastiera personalizzate. Continuare?",
+    "presets": {
+      "markupStyle": "Scorciatoie in stile markup"
+    },
     "import": "Importa…",
     "export": "Esporta…",
     "fileType": "Scorciatoie da tastiera",

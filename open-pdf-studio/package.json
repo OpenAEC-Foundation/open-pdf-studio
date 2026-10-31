@@ -1,6 +1,6 @@
 {
   "name": "open-pdf-studio",
-  "version": "2026.44.5",
+  "version": "2026.44.6",
   "description": "A free, open-source PDF annotation editor built with Tauri",
   "scripts": {
     "prepare:native-runtime": "node scripts/native-runtime.mjs",
@@ -11,6 +11,7 @@
     "build": "vite build",
     "build:hosted": "vite build --mode hosted",
     "pack:hosted": "node scripts/pak-webbundel.mjs",
+    "pack:portable": "node scripts/draagbare-zip.mjs",
     "verify:hosted-bundle": "node scripts/controleer-webbundel.mjs",
     "test:hosted-csp": "node scripts/test-gehost-csp.mjs",
     "verify:hosted-popups": "node scripts/verify-gast-popups.mjs",
@@ -26,6 +27,8 @@
     "test:unit": "node scripts/draai-unit-tests.mjs",
     "test:web-unit": "node web-unit/demo-e2e.mjs",
     "test:hosted-bridge": "node scripts/gehost-brug-e2e.mjs",
+    "test:hosted-save-as": "node scripts/gehost-opslaan-als-e2e.mjs",
+    "test:text-selection": "node scripts/test-tekstselectie-browser.mjs",
     "test:render": "..\\scripts\\.venv-test\\Scripts\\python.exe ../scripts/render-regression-test.py",
     "test:render:auto": "node ../scripts/run-render-regression.mjs",
     "test:quality": "node --test scripts/native-runtime.test.mjs scripts/release-config.test.mjs scripts/square-image-annotation.test.mjs"

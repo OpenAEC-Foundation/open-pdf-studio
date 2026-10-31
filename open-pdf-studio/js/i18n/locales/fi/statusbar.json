@@ -148,5 +148,14 @@
     "title": "Siirry seuraavaan piirtohavaintoon. Havaintojen puuttuminen ei takaa täydellistä piirtoa.",
     "count": "Piirtohavainnot: {{count}}",
     "detail": "Sivu {{page}}: {{code}}. Kokeile pienempää zoomausta tai avaa asiakirja uudelleen; täydellisyyttä ei taata."
+  },
+  "mcpSignal": {
+    "label": "Tekoälyyhteys (MCP)",
+    "connected": "Tekoälyavustaja yhdistetty",
+    "idle": "MCP-palvelin päällä, joutilaana",
+    "off": "MCP-palvelin pois päältä",
+    "port": "Portti: {{port}}",
+    "lastTool": "Viimeisin työkalu: {{tool}} klo {{time}}",
+    "noTool": "Ei vielä työkalukutsuja"
   }
 }

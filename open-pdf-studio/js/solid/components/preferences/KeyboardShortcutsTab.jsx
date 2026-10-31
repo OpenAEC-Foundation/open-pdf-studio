@@ -5,14 +5,17 @@ import { bindingFromEvent, bindingParts, formatBinding, isModifierOnly } from '.
 import { assignBinding, removeBinding, resetCommand, effectiveBindings, isModified } from '../../../core/keybindings/registry.js';
 import { isReserved } from '../../../core/keybindings/dispatch.js';
 import { serializeShortcutsFile, parseShortcutsFile, FILE_EXTENSION } from '../../../core/keybindings/io.js';
+import { SHORTCUT_PRESETS, presetById, presetOverrides, vervangtEigenSneltoetsen } from '../../../core/keybindings/presets.js';
 import { commandLabel, categoryLabel, groupCommands, matchesSearch } from '../../../core/keybindings/labels.js';
 import { sneltoetsVersie } from '../../stores/keybindingStore.js';
 import { openFileDialog, saveFileDialog, readBinaryFile, writeBinaryFile } from '../../../core/platform.js';
+import PrefSelect from './PrefSelect.jsx';
 
 // Preferences > Keyboard Shortcuts (#714). Edits a working copy of the
 // overrides (prefs.keyboardShortcuts); Save in the preferences applies it,
 // Cancel throws it away. The working copy is what Export writes and what
-// Import replaces.
+// Import and Load preset replace; when that would drop the user's own
+// shortcuts, the user is asked first (#886).
 export default function KeyboardShortcutsTab(props) {
   const { t, language } = useTranslation('preferences');
   const [overrides, setOverrides] = props.prefs.keyboardShortcuts;
@@ -128,6 +131,24 @@ export default function KeyboardShortcutsTab(props) {
     setMelding(null);
   }
 
+  // Replace the working copy (Import, Load preset). false when the user
+  // keeps the current shortcuts.
+  async function vervang(nieuw) {
+    if (vervangtEigenSneltoetsen(huidig(), nieuw)) {
+      const { showConfirm } = await import('../../../ui/chrome/confirm-dialog.js');
+      const ja = await showConfirm({ title: t('keyboardShortcuts.title'), message: t('keyboardShortcuts.replaceConfirm') });
+      if (!ja) return false;
+    }
+    setOverrides(nieuw);
+    setMelding({ soort: 'info', tekst: t('keyboardShortcuts.imported') });
+    return true;
+  }
+
+  async function laadPreset(id) {
+    const preset = presetById(id);
+    if (preset) await vervang(presetOverrides(preset));
+  }
+
   // ── Export / Import ──────────────────────────────────────────────────────
   const filters = () => [{ name: t('keyboardShortcuts.fileType'), extensions: [FILE_EXTENSION] }];
 
@@ -155,8 +176,7 @@ export default function KeyboardShortcutsTab(props) {
         setMelding({ soort: 'error', tekst: t('keyboardShortcuts.importFailed') + (r.detail ? ` (${r.detail})` : '') });
         return;
       }
-      setOverrides(r.overrides);
-      setMelding({ soort: 'info', tekst: t('keyboardShortcuts.imported') });
+      await vervang(r.overrides);
     } catch (fout) {
       setMelding({ soort: 'error', tekst: `${t('keyboardShortcuts.importFailed')} ${fout?.message ?? fout}` });
     }
@@ -264,6 +284,16 @@ export default function KeyboardShortcutsTab(props) {
       <div class="ks-footer">
         <button class="pref-btn" disabled={opname()} onClick={herstelAlles}>{t('keyboardShortcuts.resetAll')}</button>
         <span class="ks-footer-hint">{t('keyboardShortcuts.applyHint')}</span>
+        <PrefSelect
+          style={{ width: '190px' }}
+          disabled={opname}
+          value={() => ''}
+          setValue={laadPreset}
+          options={[
+            { value: '', label: t('keyboardShortcuts.loadPreset') },
+            ...SHORTCUT_PRESETS.map((p) => ({ value: p.id, label: t(p.labelKey, p.label) })),
+          ]}
+        />
         <button class="pref-btn" disabled={opname()} onClick={importeer}>{t('keyboardShortcuts.import')}</button>
         <button class="pref-btn" disabled={opname()} onClick={exporteer}>{t('keyboardShortcuts.export')}</button>
       </div>

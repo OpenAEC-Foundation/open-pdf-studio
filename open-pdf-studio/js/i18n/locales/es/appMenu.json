@@ -123,6 +123,8 @@
     "pdfxNote": "Añade un perfil de salida, TrimBox y metadatos PDF/X. Con un perfil de impresión CMYK, los colores RGB, las imágenes y los degradados se convierten a CMYK y ese perfil pasa a ser el perfil de salida; con sRGB no se convierte nada. Las fuentes estándar no incrustadas siguen siendo una limitación.",
     "exportCad": "Dibujo CAD (DXF, DWG)",
     "exportCadDesc": "Exportar el dibujo vectorial a DXF o DWG, con capas, escala y zona",
+    "exportIfcx": "Exportar a IFCX (beta)",
+    "exportIfcxDesc": "Hojas, vectores, texto, imágenes y anotaciones a un archivo JSON IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Texto y tablas editables con imágenes de página opcionales",

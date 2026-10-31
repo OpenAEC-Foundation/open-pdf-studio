@@ -32,7 +32,8 @@
     "aiLinkActive": "Actief op {{adres}}",
     "aiLinkViaFlag": "Actief via startvlag ({{adres}})",
     "aiLinkOff": "Uit",
-    "aiLinkError": "Niet gestart: {{fout}}"
+    "aiLinkError": "Niet gestart: {{fout}}",
+    "interfaceScale": "Interfacegrootte"
   },
   "annotations": {
     "generalDefaults": "Algemene standaardwaarden",
@@ -197,7 +198,12 @@
     "macInstructions": "Om Open PDF Studio als standaard PDF-viewer in te stellen op macOS:\n\n1. Klik met de rechtermuisknop op een PDF-bestand in Finder\n2. Selecteer \"Toon info\"\n3. Onder \"Open met\" selecteer Open PDF Studio\n4. Klik op \"Wijzig alles...\"",
     "linuxInstructions": "Om Open PDF Studio als standaard PDF-viewer in te stellen op Linux:\n\nVoer uit in terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Controleer Finder > Toon info",
-    "notSet": "Niet ingesteld"
+    "notSet": "Niet ingesteld",
+    "chosenInSystemSettings": "Gekozen in de systeeminstellingen",
+    "sandboxInstructions": "Open PDF Studio draait als {{package}}-pakket en kan de standaard-PDF-app niet zelf wijzigen.\n\nKies Open PDF Studio in de systeeminstellingen onder Standaardtoepassingen, of klik met de rechtermuisknop op een PDF-bestand en gebruik Openen met.",
+    "xdgMimeMissing": "xdg-mime (pakket xdg-utils) is niet geïnstalleerd, dus de standaard-PDF-app kan hier niet worden ingesteld.\n\nInstalleer xdg-utils, of kies Open PDF Studio in de systeeminstellingen onder Standaardtoepassingen.",
+    "linuxDone": "Open PDF Studio is nu de standaardapp voor PDF-bestanden.",
+    "linuxFailed": "Kan Open PDF Studio niet instellen als standaard-PDF-app.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Verkenner",
@@ -326,6 +332,11 @@
     "resetCommand": "Standaard herstellen",
     "resetAll": "Alles herstellen",
     "resetAllConfirm": "Alle sneltoetsen terugzetten naar de standaard?",
+    "loadPreset": "Voorinstelling laden…",
+    "replaceConfirm": "Dit vervangt je eigen sneltoetsen. Doorgaan?",
+    "presets": {
+      "markupStyle": "Markeerstijl-sneltoetsen"
+    },
     "import": "Importeren…",
     "export": "Exporteren…",
     "fileType": "Sneltoetsen",

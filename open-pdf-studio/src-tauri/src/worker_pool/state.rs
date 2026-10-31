@@ -37,6 +37,9 @@ pub struct WorkerState {
     /// parallelle eerste render vanzelf afkoelen terwijl de actieve heet blijft.
     pub last_used_ms: AtomicU64,
     pub trimmed: AtomicBool,
+    /// Set once the pool shuts down (app exit): no respawn after that, so a
+    /// late crash report cannot start a new worker (and a new SHM file).
+    pub shutting_down: AtomicBool,
 }
 
 impl WorkerState {
@@ -54,6 +57,7 @@ impl WorkerState {
             request_lock: Arc::new(Mutex::new(())),
             last_used_ms: AtomicU64::new(0),
             trimmed: AtomicBool::new(true),
+            shutting_down: AtomicBool::new(false),
         }
     }
 
@@ -68,6 +72,10 @@ impl WorkerState {
 
     pub fn set_status(&self, s: Status) {
         self.status.store(s as u8, Ordering::Release);
+    }
+
+    pub fn is_shutting_down(&self) -> bool {
+        self.shutting_down.load(Ordering::Acquire)
     }
 }
 

@@ -114,10 +114,32 @@ test('opstarten: main.js vraagt de printers en de virtuele printer nog steeds op
   assert.match(printers, /inv\('get_printers'\)/);
 });
 
-test('macOS en Linux: ongewijzigd, get_printers vraagt CUPS via lpstat', () => {
+test('Linux: get_printers vraagt CUPS via IPP, met lpstat als terugval', () => {
+  // Een Flatpak/Snap of een kale distributie heeft geen lpstat; de lijst komt
+  // dan via IPP over de CUPS-socket (print_unix.rs, cups_ipp.rs).
   const code = zonderCommentaar(functie(lib, 'get_printers'));
-  const cups = cfgBlok(code, 'any(target_os = "linux", target_os = "macos")');
-  assert.deepEqual([...cups.matchAll(/Command::new\("([^"]+)"\)/g)].map((m) => m[1]), ['lpstat', 'lpstat']);
+  const linux = cfgBlok(code, 'target_os = "linux"');
+  assert.doesNotMatch(linux, /Command::new/, 'geen eigen proces meer in get_printers');
+  assert.match(linux, /tauri::async_runtime::spawn_blocking\(move \|\| print_unix::lijst_printers\(sandbox\)\)/);
+  const unix = zonderCommentaar(lees('print_unix.rs'));
+  assert.deepEqual([...unix.matchAll(/Command::new\("([^"]+)"\)/g)].map((m) => m[1]), ['lpstat', 'lpstat', 'lp']);
+  assert.match(zonderCommentaar(functie(unix, 'lijst_printers')), /lijst_volgorde\(macos, programma_aanwezig\("lpstat"\)\)/);
+});
+
+test('macOS: printerlijst en printopdracht ongewijzigd via lpstat en lp', () => {
+  const lijst = cfgBlok(zonderCommentaar(functie(lib, 'get_printers')), 'target_os = "macos"');
+  assert.deepEqual([...lijst.matchAll(/Command::new\("([^"]+)"\)/g)].map((m) => m[1]), ['lpstat', 'lpstat']);
+  assert.doesNotMatch(lijst, /print_unix|cups_ipp/);
+  const print = cfgBlok(zonderCommentaar(functie(lib, 'print_pdf')), 'target_os = "macos"');
+  assert.deepEqual([...print.matchAll(/Command::new\("([^"]+)"\)/g)].map((m) => m[1]), ['lp']);
+  assert.match(print, /print_instelling::lp_opties\(orientatie, papier, plaatsing\)/);
+  assert.doesNotMatch(print, /print_unix|cups_ipp|kleur_optie/);
+  // De IPP-modules worden op macOS niet eens gebouwd.
+  assert.match(lib, /#\[cfg\(any\(target_os = "linux", test\)\)\]\s*pub mod cups_ipp;/);
+  assert.match(lib, /#\[cfg\(any\(target_os = "linux", test\)\)\]\s*pub mod print_unix;/);
+});
+
+test('buiten Windows: geen virtuele printer', () => {
   for (const naam of ['is_virtual_printer_installed', 'virtual_printer_catch_enabled']) {
     const anders = cfgBlok(zonderCommentaar(functie(lib, naam)), 'not(target_os = "windows")');
     assert.match(anders, /\{\s*false\s*\}$/, `${naam} geeft buiten Windows false`);
