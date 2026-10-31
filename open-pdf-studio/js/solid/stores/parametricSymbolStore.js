@@ -46,8 +46,21 @@ export function resolveSymbolParams(symbolId) {
   );
 }
 
-export function setPendingSymbolId(symbolId) {
+/**
+ * Kies het symbool voor de volgende plaatsingen. `voorinstelling` zijn vaste
+ * parameters van een paletknop (bijv. type 'rol' voor de roloplegging): die
+ * gaan boven de onthouden gereedschapsstandaard, maar worden zelf niet als
+ * standaard onthouden.
+ */
+export function setPendingSymbolId(symbolId, voorinstelling = null) {
   setPendingSymbolIdSignal(symbolId);
+  if (voorinstelling && typeof voorinstelling === 'object') {
+    setPendingParamsSignal(validateSymbolParams(symbolId, {
+      ...(state.preferences.parametricSymbolDefaults?.[symbolId] || {}),
+      ...voorinstelling,
+    }));
+    return;
+  }
   setPendingParamsSignal(resolveSymbolParams(symbolId));
 }
 

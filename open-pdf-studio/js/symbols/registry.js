@@ -37,6 +37,9 @@ import {
   beddingsverenTemplate, windverbandTemplate, scharnierVerbindingTemplate,
 } from './templates/constructie-symbolen.js';
 import {
+  staafTemplate, knoopTemplate, verdeeldeLastTemplate, momentTemplate,
+} from './templates/schematisering.js';
+import {
   bouwkraanTemplate, draaicirkelTemplate, parkeervakTemplate, bouwkeetTemplate,
 } from './templates/bouwplaats-symbolen.js';
 import { SANITAIR_TEMPLATES } from './templates/sanitair.js';
@@ -91,6 +94,11 @@ register(qlastTemplate);
 register(beddingsverenTemplate);
 register(windverbandTemplate);
 register(scharnierVerbindingTemplate);
+// Constructieve schematisering: staaf, knoop, q-last (lijn) en moment.
+register(staafTemplate);
+register(knoopTemplate);
+register(verdeeldeLastTemplate);
+register(momentTemplate);
 register(bouwkraanTemplate);
 register(draaicirkelTemplate);
 register(parkeervakTemplate);

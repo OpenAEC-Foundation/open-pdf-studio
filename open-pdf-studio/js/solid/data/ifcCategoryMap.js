@@ -119,6 +119,11 @@ const PARAMETRIC_ID_DEFAULT = {
   'sondering': 'IfcAnnotation',
   'paalpuntniveau': 'IfcAnnotation',
   'overspanningspijl-vloer': 'IfcAnnotation',
+  // Constructieve schematisering: rekenschema, geen bouwelement.
+  'staaf': 'IfcAnnotation',
+  'knoop': 'IfcAnnotation',
+  'verdeelde-last': 'IfcAnnotation',
+  'moment': 'IfcAnnotation',
   'stenenrij': 'IfcWall',
   // Inrichting (#478): sanitaire toestellen en keukenblokken.
   'wandcloset': 'IfcSanitaryTerminal',

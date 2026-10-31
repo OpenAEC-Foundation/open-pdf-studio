@@ -111,6 +111,7 @@ js/symbols/symbol-insert-format.test.mjs
 js/symbols/catalog-opslagkeuze.test.mjs
 js/symbols/linework-catalog.test.mjs
 js/symbols/templates/constructie-bouwplaats.test.mjs
+js/symbols/templates/schematisering.test.mjs
 js/symbols/templates/wapeningskorf.test.mjs
 js/symbols/templates/staalprofiel-hoeklijn.test.mjs
 js/symbols/koker-notatie.test.mjs

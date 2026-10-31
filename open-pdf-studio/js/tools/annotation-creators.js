@@ -508,6 +508,13 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         } else {
           const ds = (template && template.defaultSize) || { width: 80, height: 80 };
           b = { x: startX, y: startY, width: ds.width, height: ds.height };
+          // Schematiseringssymbool (oplegging, last, knoop): de knoop ligt in
+          // het midden van het vak, dus komt het midden op het aangeklikte
+          // (gesnapte) punt; de breedte volgt het label bij deze hoogte.
+          if (typeof template?.breedteBijHoogte === 'function') {
+            const bw = template.breedteBijHoogte(params, ds.height) || ds.width;
+            b = { x: startX - bw / 2, y: startY - ds.height / 2, width: bw, height: ds.height };
+          }
         }
       }
       // Gekozen symboolschaal (issue #357). Alleen bij een KLIK: heeft de
