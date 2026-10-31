@@ -8,6 +8,7 @@ import { loadBookmarksFromPdf } from '../../pdf/bladwijzers-lezen.js';
 import { zetBladwijzerStijl, stijlVanSelectie } from './bladwijzer-stijl.js';
 import {
   selectieBereik, verplaatsBladwijzers, springIn, springUit, nestOnderNieuw, verwijderBladwijzers, topSelectie,
+  nieuweTitel,
 } from './bladwijzer-boom.js';
 import {
   openDialog, setBookmarkTree as setTree, setBookmarkCountText as setCountText,
@@ -311,6 +312,24 @@ export async function addChildBookmark() {
   recordAddBookmark(bm);
 
   updateBookmarksList();
+}
+
+// Inline hernoemen (#891): de sessie onthoudt document en oorspronkelijke
+// titel. Na het laden van de undo-manager opnieuw controleren: een ander
+// tabblad, alleen-lezen of een intussen gewijzigde titel krijgt niets.
+export async function renameBookmarkTitle(doc, id, value, originalTitle) {
+  if (nieuweTitel(doc?.bookmarks, id, value, originalTitle) == null) return false;
+  const { recordModifyBookmark } = await import('../../core/undo-manager.js');
+  if (getActiveDocument() !== doc || isPdfAReadOnly()) return false;
+  const title = nieuweTitel(doc.bookmarks, id, value, originalTitle);
+  if (title == null) return false;
+  const bm = doc.bookmarks.find(b => b.id === id);
+  const oldState = { ...bm };
+  bm.title = title;
+  markDocumentModified(doc);
+  recordModifyBookmark(id, oldState, { ...bm });
+  updateBookmarksList();
+  return true;
 }
 
 // Edit selected bookmark

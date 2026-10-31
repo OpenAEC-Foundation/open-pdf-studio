@@ -2132,3 +2132,17 @@
   border: 1px solid var(--theme-input-border, #ccc);
   border-radius: 0;
 }
+
+/* Inline bookmark rename (#891): text and control stay within the row. */
+.bookmark-title-input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  padding: 0 2px;
+  border: 1px solid var(--theme-accent, #0078d7);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #222);
+  font: inherit;
+  cursor: default;
+}

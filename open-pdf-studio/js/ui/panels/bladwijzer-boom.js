@@ -285,3 +285,17 @@ export function sleepPositie(top, hoogte, y) {
   if (rel > 0.75) return 'after';
   return 'inside';
 }
+
+/**
+ * Hernoemen in de lijst (#891): de nieuwe titel, of null als er niets te doen
+ * is. Leeg of alleen spaties houdt de oude titel, net als ongewijzigd. Een
+ * verdwenen bladwijzer of een titel die intussen anders is dan bij het begin
+ * van het bewerken (Edit Bookmark, undo) wordt niet overschreven.
+ */
+export function nieuweTitel(bookmarks, id, waarde, oorspronkelijk) {
+  const titel = String(waarde ?? '').trim();
+  if (!titel || titel === oorspronkelijk) return null;
+  const b = (bookmarks || []).find(x => x.id === id);
+  if (!b || b.title !== oorspronkelijk) return null;
+  return titel;
+}
