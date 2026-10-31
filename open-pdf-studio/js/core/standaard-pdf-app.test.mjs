@@ -126,7 +126,7 @@ test('bedrading: opstartbalk, meldingsbalk, Voorkeuren en platform.js gebruiken 
   assert.match(tab, /zetAlsStandaard\(\{ invoke, status, platform \}\)/);
   assert.match(tab, /showMessage\(t\(melding\.sleutel, melding\.opties\)\)/);
   // De Rust-kant registreert de opdracht.
-  const lib = readFileSync(new URL('../../src-tauri/src/lib.rs', import.meta.url), 'utf8');
+  const lib = lees('../../src-tauri/src/lib.rs');
   assert.match(lib, /\n\s+default_pdf_app_status,\n/);
   assert.match(lib, /async fn default_pdf_app_status\(\) -> standaard_app::StandaardAppStatus/);
 });
