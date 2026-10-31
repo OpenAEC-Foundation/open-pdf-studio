@@ -16,6 +16,8 @@
 // laadt de cache-modules pas op dat moment, zodat deze module zonder DOM
 // te testen is.
 
+import { renderQueue } from './render-queue.js';
+
 /** Gebruikt een van de overgebleven documenten dit pad nog? */
 export function padNogInGebruik(overgebleven, pad) {
   if (!pad) return false;
@@ -135,8 +137,15 @@ export function sleutelsMetPad(sleutels, pad) {
   return Array.from(sleutels).filter((k) => typeof k === 'string' && k.startsWith(prefix));
 }
 
-/** Haalt alles wat per bestandspad gecachet staat weg, in de webview en in Rust. */
-async function geefPadVrij(pad) {
+/**
+ * Haalt alles wat per bestandspad gecachet staat weg, in de webview en in Rust.
+ * `renders`: ook het renderwerk van dit pad laten vallen (zie
+ * geefDocumentVrij, dat dat zelf al vooraf doet).
+ */
+async function geefPadVrij(pad, renders = true) {
+  // Renders die nog wachten vervallen; wat nog loopt wordt bij aankomst
+  // weggegooid, zodat geen late bitmap de net geleegde caches weer vult (#506).
+  if (renders) renderQueue.releaseDocument(pad);
   const [loader, vector, bitmaps, progressief, weergave, tegels, renderer, snap] = await Promise.all([
     import('./loader.js'),
     import('./vector-renderer.js'),
@@ -235,6 +244,9 @@ export async function ruimWerkbestandenOp(doc, paden, middelen = schijfMiddelen(
  */
 export async function geefDocumentVrij(gesloten, overgebleven, { klembord = [] } = {}) {
   const plan = vrijgaveplan(gesloten, overgebleven);
+  // Meteen, vóór de eerste await: het renderwerk van dit document laat de
+  // pagina van het volgende document anders wachten (#506).
+  for (const pad of plan.paden) renderQueue.releaseDocument(pad);
 
   // De bestanden achter bijlage-annotaties (#376) van dit document.
   try {
@@ -264,7 +276,7 @@ export async function geefDocumentVrij(gesloten, overgebleven, { klembord = [] }
     loader.clearCachedPdfBytes(plan.memoryKey);
     snap.vergeetSnapGeometrie(plan.memoryKey);
   }
-  for (const pad of plan.paden) await geefPadVrij(pad);
+  for (const pad of plan.paden) await geefPadVrij(pad, false);
   // Pas nu de tijdelijke werkbestanden zelf: niets leest er nog uit.
   try { await ruimWerkbestandenOp(gesloten, plan.werkbestanden); } catch (e) { console.warn('[release] werkbestanden opruimen:', e); }
   return plan;
