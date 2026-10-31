@@ -78,7 +78,7 @@ jobs:
               // markers worden door de in-app "Wat is nieuw"-dialog geparsed
               // (js/help/release-notes.js) zodat de NL-tab echte Nederlandse
               // tekst toont in plaats van de Engelse fallback (#240).
-              body: `## 🇳🇱 Nederlands\n\n### Wat is nieuw in ${version}\n\nGratis, open-source PDF-annotatie-editor gebouwd met Tauri.\n\n### Downloads\n- **Windows (systeem)**: download de \`*_x64-setup.exe\`-installer voor installatie voor alle gebruikers (admin vereist)\n- **Windows (gebruiker)**: download de \`*_x64_user-setup.exe\`-installer voor alleen de huidige gebruiker (geen admin nodig)\n- **macOS**: download het \`.dmg\`-bestand (universeel - Intel en Apple Silicon)\n- **Linux**: download het \`.deb\`-pakket, de \`.AppImage\` of de \`.snap\` (ook beschikbaar in de [Snap Store](https://snapcraft.io/open-pdf-studio))\n\n### Functies\n- PDF's bekijken en navigeren\n- Tekst selecteren en zoeken\n- Annotaties: markeren, onderstrepen, doorhalen\n- Tekengereedschappen: vrije hand, vormen, tekst\n- Meerdere documenten in tabbladen\n- Miniatuurnavigatie\n- Sessieherstel\n\n---\n\n## 🇬🇧 English\n\n### What's New in ${version}\n\nFree, open-source PDF annotation editor built with Tauri.\n\n### Downloads\n- **Windows (System)**: Download the \`*_x64-setup.exe\` installer for system-wide installation (requires admin)\n- **Windows (User)**: Download the \`*_x64_user-setup.exe\` installer for current user only (no admin required)\n- **macOS**: Download the \`.dmg\` file (universal - supports Intel and Apple Silicon)\n- **Linux**: Download the \`.deb\` package, \`.AppImage\`, or \`.snap\` (also available on the [Snap Store](https://snapcraft.io/open-pdf-studio))\n\n### Features\n- PDF viewing and navigation\n- Text selection and search\n- Annotations: highlight, underline, strikethrough\n- Drawing tools: freehand, shapes, text\n- Multi-tab document support\n- Thumbnail navigation\n- Session restore`,
+              body: `## 🇳🇱 Nederlands\n\n### Wat is nieuw in ${version}\n\nGratis, open-source PDF-annotatie-editor gebouwd met Tauri.\n\n### Downloads\n- **Windows (systeem)**: download de \`*_x64-setup.exe\`-installer voor installatie voor alle gebruikers (admin vereist)\n- **Windows (gebruiker)**: download de \`*_x64_user-setup.exe\`-installer voor alleen de huidige gebruiker (geen admin nodig)\n- **Windows (draagbaar)**: download \`*_x64_portable.zip\`, pak uit en start \`open-pdf-studio.exe\`; geen installatie, alle gegevens in de map \`data\` ernaast\n- **macOS**: download het \`.dmg\`-bestand (universeel - Intel en Apple Silicon)\n- **Linux**: download het \`.deb\`-pakket, de \`.AppImage\` of de \`.snap\` (ook beschikbaar in de [Snap Store](https://snapcraft.io/open-pdf-studio))\n\n### Functies\n- PDF's bekijken en navigeren\n- Tekst selecteren en zoeken\n- Annotaties: markeren, onderstrepen, doorhalen\n- Tekengereedschappen: vrije hand, vormen, tekst\n- Meerdere documenten in tabbladen\n- Miniatuurnavigatie\n- Sessieherstel\n\n---\n\n## 🇬🇧 English\n\n### What's New in ${version}\n\nFree, open-source PDF annotation editor built with Tauri.\n\n### Downloads\n- **Windows (System)**: Download the \`*_x64-setup.exe\` installer for system-wide installation (requires admin)\n- **Windows (User)**: Download the \`*_x64_user-setup.exe\` installer for current user only (no admin required)\n- **Windows (Portable)**: Download \`*_x64_portable.zip\`, extract it and run \`open-pdf-studio.exe\`; nothing is installed, all data stays in the \`data\` folder next to it\n- **macOS**: Download the \`.dmg\` file (universal - supports Intel and Apple Silicon)\n- **Linux**: Download the \`.deb\` package, \`.AppImage\`, or \`.snap\` (also available on the [Snap Store](https://snapcraft.io/open-pdf-studio))\n\n### Features\n- PDF viewing and navigation\n- Text selection and search\n- Annotations: highlight, underline, strikethrough\n- Drawing tools: freehand, shapes, text\n- Multi-tab document support\n- Thumbnail navigation\n- Session restore`,
               draft: true,
               prerelease: false
             });
@@ -496,6 +496,55 @@ jobs:
           $uninstaller = Join-Path $dir 'uninstall.exe'
           if (Test-Path $uninstaller) { Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait }
           if ($unsigned) { Write-Error 'Installed binaries are not signed'; exit 1 }
+
+      # Portable zip (#881): the files the installer puts next to the exe
+      # (resource_dir() is the exe folder on Windows), plus portable.ini,
+      # which turns on portable mode (all user data in data\ next to the
+      # exe), and a README. Assembled from this NSIS build's target dir by
+      # scripts/draagbare-zip.mjs, which reads the resource list from the
+      # same tauri.conf.json/tauri.windows.conf.json as the installer. Our
+      # own binaries must be signed: Tauri signs them while bundling; anything
+      # still unsigned here gets the same signCommand. Then a smoke start
+      # from the extracted zip: --version exits before any window opens, but
+      # after portable mode has created data\ next to the exe.
+      - name: Build portable zip (Windows)
+        if: matrix.target == 'windows-system'
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $VERSION = "${{ needs.create-release.outputs.version }}"
+          $release = "$env:GITHUB_WORKSPACE/target/release"
+          $sign = (Get-Content src-tauri/tauri.signing.conf.json -Raw | ConvertFrom-Json).bundle.windows.signCommand
+          foreach ($bin in "$release/open-pdf-studio.exe", "$release/pdfium-worker.exe", 'src-tauri/binaries/open-pdf-thumbnails.dll') {
+            if (-not (Test-Path $bin)) { continue } # the zip script lists everything that is missing
+            if ((Get-AuthenticodeSignature $bin).Status -ne 'Valid') {
+              $full = (Resolve-Path $bin).Path
+              $signArgs = @($sign.args | ForEach-Object { $_ -replace '%1', $full })
+              & $sign.cmd @signArgs
+              if ($LASTEXITCODE -ne 0) { Write-Error "Signing $bin failed"; exit 1 }
+            }
+            $status = (Get-AuthenticodeSignature $bin).Status
+            Write-Output "${bin}: $status"
+            if ($status -ne 'Valid') { Write-Error "$bin is not signed"; exit 1 }
+          }
+
+          $out = Join-Path $env:RUNNER_TEMP 'portable'
+          node scripts/draagbare-zip.mjs --target "$env:GITHUB_WORKSPACE/target/release" --version $VERSION --out "$out"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          $zip = (Get-ChildItem "$out/*_x64_portable.zip" | Select-Object -First 1).FullName
+          if (-not $zip) { Write-Error 'Portable zip not created'; exit 1 }
+
+          $probe = Join-Path $env:RUNNER_TEMP 'portable-smoke'
+          Expand-Archive -Path $zip -DestinationPath $probe -Force
+          $exe = Join-Path $probe 'Open PDF Studio/open-pdf-studio.exe'
+          $proc = Start-Process -FilePath $exe -ArgumentList '--version' -PassThru
+          if (-not $proc.WaitForExit(60000)) { $proc.Kill(); Write-Error 'Portable smoke start timed out'; exit 1 }
+          if (-not (Test-Path (Join-Path $probe 'Open PDF Studio/data'))) { Write-Error 'Portable mode did not create data\ next to the exe'; exit 1 }
+          Write-Output "portable smoke start: exit $($proc.ExitCode), data folder created"
+
+          gh release upload $VERSION "$zip" "$zip.sha256" --clobber --repo "${{ github.repository }}"
+          Write-Host "Uploaded portable zip: $(Split-Path $zip -Leaf)"
 
       - name: Upload user installer to release
         if: matrix.target == 'windows-user'

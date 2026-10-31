@@ -412,5 +412,13 @@
     "intersection": "Skjæringspunkt",
     "polar": "Polar",
     "locked": "Låst"
+  },
+  "portable": {
+    "updateTitle": "Oppdatering tilgjengelig",
+    "updateAvailable": "Versjon {{version}} er tilgjengelig.\n\nDenne bærbare kopien oppdaterer seg ikke selv. Last ned {{file}} og pakk den ut over denne mappen; mappen data med innstillingene dine beholdes.\n\nÅpne nedlastingssiden?",
+    "fileAssoc": "Denne bærbare kopien er ikke registrert i Windows. For å åpne PDF-filer med den, høyreklikker du på en PDF, velger Åpne med > Velg en annen app og velger open-pdf-studio.exe i denne mappen.",
+    "explorerThumbnails": "PDF-miniatyrbilder i Filutforsker er bare tilgjengelige i den installerte versjonen.",
+    "virtualPrinter": "Den virtuelle skriveren er bare tilgjengelig i den installerte versjonen: den legges til i Windows med administratorrettigheter.",
+    "notWritable": "Open PDF Studio kan ikke skrive til mappen {{dir}}, så innstillingene dine lagres denne gangen i brukerprofilen din. Flytt den bærbare mappen til et sted med skrivetilgang, for eksempel en USB-pinne eller mappen Dokumenter."
   }
 }

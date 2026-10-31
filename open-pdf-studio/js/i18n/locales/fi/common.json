@@ -412,5 +412,13 @@
     "intersection": "Leikkauspiste",
     "polar": "Napa",
     "locked": "Lukittu"
+  },
+  "portable": {
+    "updateTitle": "Päivitys saatavilla",
+    "updateAvailable": "Versio {{version}} on saatavilla.\n\nTämä siirrettävä kopio ei päivitä itseään. Lataa {{file}} ja pura se tämän kansion päälle; asetuksesi sisältävä data-kansio säilyy.\n\nAvataanko lataussivu?",
+    "fileAssoc": "Tätä siirrettävää kopiota ei ole rekisteröity Windowsiin. Jos haluat avata PDF-tiedostoja sillä, napsauta PDF-tiedostoa hiiren kakkospainikkeella, valitse Avaa sovelluksessa > Valitse toinen sovellus ja valitse tämän kansion open-pdf-studio.exe.",
+    "explorerThumbnails": "PDF-pikkukuvat Resurssienhallinnassa ovat käytettävissä vain asennetussa versiossa.",
+    "virtualPrinter": "Virtuaalitulostin on käytettävissä vain asennetussa versiossa: se lisätään Windowsiin järjestelmänvalvojan oikeuksin.",
+    "notWritable": "Open PDF Studio ei voi kirjoittaa kansioon {{dir}}, joten asetuksesi tallennetaan tällä kertaa käyttäjäprofiiliisi. Siirrä siirrettävä kansio paikkaan, johon voi kirjoittaa, kuten USB-muistille tai Tiedostot-kansioon."
   }
 }

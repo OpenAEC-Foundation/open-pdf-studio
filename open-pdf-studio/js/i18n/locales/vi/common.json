@@ -412,5 +412,13 @@
     "intersection": "Giao điểm",
     "polar": "Cực",
     "locked": "Đã khóa"
+  },
+  "portable": {
+    "updateTitle": "Có bản cập nhật",
+    "updateAvailable": "Đã có phiên bản {{version}}.\n\nBản di động này không tự cập nhật. Hãy tải {{file}} và giải nén đè lên thư mục này; thư mục data chứa cài đặt của bạn được giữ nguyên.\n\nMở trang tải xuống?",
+    "fileAssoc": "Bản di động này chưa được đăng ký với Windows. Để mở tệp PDF bằng nó, hãy nhấp chuột phải vào một tệp PDF, chọn Mở bằng > Chọn ứng dụng khác, rồi chọn open-pdf-studio.exe trong thư mục này.",
+    "explorerThumbnails": "Hình thu nhỏ PDF trong File Explorer chỉ có trong phiên bản đã cài đặt.",
+    "virtualPrinter": "Máy in ảo chỉ có trong phiên bản đã cài đặt: nó được thêm vào Windows với quyền quản trị viên.",
+    "notWritable": "Open PDF Studio không thể ghi vào thư mục {{dir}}, vì vậy lần này cài đặt của bạn được lưu trong hồ sơ người dùng. Hãy chuyển thư mục di động đến vị trí có thể ghi, chẳng hạn ổ USB hoặc thư mục Documents."
   }
 }

@@ -412,5 +412,13 @@
     "intersection": "Perpotongan",
     "polar": "Polar",
     "locked": "Terkunci"
+  },
+  "portable": {
+    "updateTitle": "Pembaruan tersedia",
+    "updateAvailable": "Versi {{version}} tersedia.\n\nSalinan portabel ini tidak memperbarui dirinya sendiri. Unduh {{file}} lalu ekstrak di atas folder ini; folder data berisi pengaturan Anda tetap dipertahankan.\n\nBuka halaman unduhan?",
+    "fileAssoc": "Salinan portabel ini tidak terdaftar di Windows. Untuk membuka file PDF dengannya, klik kanan sebuah PDF, pilih Buka dengan > Pilih aplikasi lain, lalu pilih open-pdf-studio.exe di folder ini.",
+    "explorerThumbnails": "Gambar mini PDF di File Explorer hanya tersedia pada versi yang diinstal.",
+    "virtualPrinter": "Printer virtual hanya tersedia pada versi yang diinstal: printer ini ditambahkan ke Windows dengan hak administrator.",
+    "notWritable": "Open PDF Studio tidak dapat menulis ke folder {{dir}}, sehingga kali ini pengaturan Anda disimpan di profil pengguna Anda. Pindahkan folder portabel ke lokasi yang dapat ditulisi, seperti flashdisk USB atau folder Dokumen Anda."
   }
 }

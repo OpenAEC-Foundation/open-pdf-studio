@@ -412,5 +412,13 @@
     "intersection": "Skärningspunkt",
     "polar": "Polär",
     "locked": "Låst"
+  },
+  "portable": {
+    "updateTitle": "Uppdatering tillgänglig",
+    "updateAvailable": "Version {{version}} finns tillgänglig.\n\nDen här portabla kopian uppdaterar sig inte själv. Ladda ned {{file}} och packa upp den över den här mappen; mappen data med dina inställningar behålls.\n\nÖppna nedladdningssidan?",
+    "fileAssoc": "Den här portabla kopian är inte registrerad i Windows. Om du vill öppna PDF-filer med den högerklickar du på en PDF, väljer Öppna med > Välj en annan app och markerar open-pdf-studio.exe i den här mappen.",
+    "explorerThumbnails": "PDF-miniatyrer i Utforskaren finns bara i den installerade versionen.",
+    "virtualPrinter": "Den virtuella skrivaren finns bara i den installerade versionen: den läggs till i Windows med administratörsbehörighet.",
+    "notWritable": "Open PDF Studio kan inte skriva i mappen {{dir}}, så dina inställningar sparas den här gången i din användarprofil. Flytta den portabla mappen till en plats med skrivbehörighet, till exempel ett USB-minne eller mappen Dokument."
   }
 }

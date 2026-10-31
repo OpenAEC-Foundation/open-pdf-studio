@@ -8,6 +8,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { showMessage } from '../../stores/dialogStore.js';
 import { readPrinterState, openPrintQueueWindow } from '../../stores/printQueueStore.js';
 import { PRINTER_NAME } from '../../stores/print-queue-model.js';
+import { GEEN_DRAAGBAAR, leesDraagbaar } from '../../../core/draagbaar.js';
 
 const StateIcon = (props) => (
   <svg class={`vp-state-icon vp-icon-${props.state}`} viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"
@@ -30,8 +31,14 @@ export default function VirtualPrinterTab() {
   const [busy, setBusy] = createSignal(false);
   const [installedBefore, setInstalledBefore] = createSignal(false);
 
+  // Draagbaar (#881): de printer hoort bij een installatie; alleen uitleg.
+  const [draagbaar, setDraagbaar] = createSignal({ ...GEEN_DRAAGBAAR });
+
   onMount(() => {
-    checkStatus();
+    leesDraagbaar().then((s) => {
+      setDraagbaar(s);
+      if (!s.portable) checkStatus();
+    });
   });
 
   async function checkStatus() {
@@ -132,6 +139,9 @@ export default function VirtualPrinterTab() {
       <legend>{t('virtualPrinter.title')}</legend>
       <p class="vp-description">{t('virtualPrinter.description')}</p>
 
+      <Show when={!draagbaar().portable} fallback={
+        <p class="vp-note" data-testid="prefs-portable-printer">{tCommon('portable.virtualPrinter')}</p>
+      }>
       <div class={`vp-state vp-state-${iconState()}`} role="status" aria-live="polite">
         <StateIcon state={iconState()} />
         <div class="vp-state-text">
@@ -173,6 +183,7 @@ export default function VirtualPrinterTab() {
       </div>
 
       <p class="vp-note">{t('virtualPrinter.installNote')}</p>
+      </Show>
     </fieldset>
   );
 }

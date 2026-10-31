@@ -412,5 +412,13 @@
     "intersection": "Priesečník",
     "polar": "Polárne",
     "locked": "Uzamknuté"
+  },
+  "portable": {
+    "updateTitle": "K dispozícii je aktualizácia",
+    "updateAvailable": "K dispozícii je verzia {{version}}.\n\nTáto prenosná kópia sa sama neaktualizuje. Stiahnite {{file}} a rozbaľte ho cez tento priečinok; priečinok data s vašimi nastaveniami zostane zachovaný.\n\nOtvoriť stránku na stiahnutie?",
+    "fileAssoc": "Táto prenosná kópia nie je zaregistrovaná vo Windows. Ak s ňou chcete otvárať súbory PDF, kliknite pravým tlačidlom na PDF, vyberte Otvoriť pomocou > Vybrať inú aplikáciu a zvoľte open-pdf-studio.exe v tomto priečinku.",
+    "explorerThumbnails": "Miniatúry PDF v Prieskumníkovi súborov sú dostupné len v nainštalovanej verzii.",
+    "virtualPrinter": "Virtuálna tlačiareň je dostupná len v nainštalovanej verzii: pridáva sa do Windows s právami správcu.",
+    "notWritable": "Open PDF Studio nemôže zapisovať do priečinka {{dir}}, preto sa vaše nastavenia tentoraz ukladajú do vášho používateľského profilu. Presuňte prenosný priečinok na miesto s možnosťou zápisu, napríklad na USB kľúč alebo do priečinka Dokumenty."
   }
 }

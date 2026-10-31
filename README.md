@@ -318,6 +318,8 @@ From 2026.39 on, a release is named after the year and the ISO week number: `202
 ### Windows
 Download the latest `.exe` installer from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
 
+Prefer not to install anything? Download `Open.PDF.Studio_<version>_x64_portable.zip`, extract it and run `open-pdf-studio.exe`. The portable version keeps all its settings and data in a `data` folder next to the program. See [docs/portable-windows.md](docs/portable-windows.md).
+
 ### macOS
 Download the latest `.dmg` (universal binary for Intel and Apple Silicon) from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
 

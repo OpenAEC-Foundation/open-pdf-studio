@@ -11,6 +11,7 @@ pub mod cad_export;
 pub mod cad_import;
 pub mod crashlog;
 pub mod datamap;
+pub mod draagbaar;
 mod email;
 pub mod export_policy;
 pub mod extensie_installatie;
@@ -469,6 +470,11 @@ async fn explorer_thumbnails_set(
     enabled: bool,
     replace_other: bool,
 ) -> Result<verkenner_miniaturen::MiniatuurStatus, String> {
+    // Draagbaar (#881): de COM-registratie wijst naar de DLL in deze map en
+    // breekt zodra de map verhuist. Uitzetten mag wel.
+    if enabled {
+        draagbaar::weiger_als_draagbaar()?;
+    }
     let resource_dir = app
         .path()
         .resource_dir()
@@ -1118,6 +1124,9 @@ exit 1
 /// scripts the installer ships.
 #[tauri::command]
 fn install_virtual_printer(use_collection: Option<bool>) -> Result<bool, String> {
+    // Draagbaar (#881): een Windows-printer met een poort naar een vaste map
+    // hoort bij een installatie.
+    draagbaar::weiger_als_draagbaar()?;
     #[cfg(target_os = "windows")]
     {
         // Default to the silent collection port — the user wants prints
@@ -2740,6 +2749,8 @@ fn run_mobile() {
 }
 
 pub fn run(opts: StartupOpts) {
+    // Normaal al gedaan in main(); eenmalig, dus hier alleen een vangnet.
+    draagbaar::activeer();
     eprintln!(
         "[startup] mcp_server={}, mcp_port={}",
         opts.mcp_server, opts.mcp_port
@@ -2964,6 +2975,8 @@ pub fn run(opts: StartupOpts) {
     }
 
     let mut context = tauri::generate_context!();
+    // Draagbare modus (#881): eigen single-instance-sleutel per map.
+    draagbaar::pas_context_aan(&mut context);
     if let Some(browser_args) = &headless_browser_args {
         headless::pas_context_aan(&mut context, browser_args);
     }
@@ -3276,6 +3289,7 @@ pub fn run(opts: StartupOpts) {
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,
             datamap::app_data_dir_effectief,
+            draagbaar::portable_status,
             herstel::herstel_info,
             herstel::herstel_schrijf,
             herstel::herstel_lees,

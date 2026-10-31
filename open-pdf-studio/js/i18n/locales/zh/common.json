@@ -412,5 +412,13 @@
     "intersection": "交点",
     "polar": "极轴",
     "locked": "已锁定"
+  },
+  "portable": {
+    "updateTitle": "有可用更新",
+    "updateAvailable": "版本 {{version}} 已发布。\n\n此便携版不会自动更新。请下载 {{file}} 并解压覆盖到此文件夹；保存设置的 data 文件夹会被保留。\n\n是否打开下载页面？",
+    "fileAssoc": "此便携版未在 Windows 中注册。若要用它打开 PDF 文件，请右键单击 PDF，选择“打开方式”>“选择其他应用”，然后选择此文件夹中的 open-pdf-studio.exe。",
+    "explorerThumbnails": "文件资源管理器中的 PDF 缩略图仅在安装版中可用。",
+    "virtualPrinter": "虚拟打印机仅在安装版中可用：它需要以管理员权限添加到 Windows。",
+    "notWritable": "Open PDF Studio 无法写入文件夹 {{dir}}，因此这次你的设置保存在用户配置文件中。请将便携版文件夹移到可写入的位置，例如 U 盘或“文档”文件夹。"
   }
 }

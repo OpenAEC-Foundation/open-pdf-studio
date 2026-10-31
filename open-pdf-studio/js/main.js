@@ -468,6 +468,16 @@ async function init() {
   // Desktop-only: check default PDF app (deferred to avoid blocking startup)
   if (!mobile) {
     if (taakToegestaan('standaard-app', rol)) setTimeout(() => checkDefaultPdfApp(), 3000);
+    // Draagbaar (#881): melden als de map naast het programma niet
+    // beschrijfbaar is en de gegevens dus toch in het gebruikersprofiel staan.
+    import('./core/draagbaar.js')
+      .then((m) => m.leesDraagbaar())
+      .then(async (s) => {
+        if (!s.dataDirError) return;
+        const { showMessage } = await import('./solid/stores/dialogStore.js');
+        showMessage(i18next.t('common:portable.notWritable', { dir: s.exeDir || '' }));
+      })
+      .catch(() => {});
     // Geen automatische update-check meer bij het opstarten: het update-venster
     // verscheen ongevraagd. Updaten kan nog handmatig via Help → Controleren op
     // updates (checkForUpdates(false)).
@@ -619,6 +629,9 @@ async function restoreLastSession() {
 async function checkDefaultPdfApp() {
   if (!isTauri()) return;
   if (state.preferences.dontAskDefaultPdf) return;
+  // Draagbaar (#881): niet bij Windows geregistreerd, dus niet vragen.
+  const { leesDraagbaar, functieBeschikbaar } = await import('./core/draagbaar.js');
+  if (!functieBeschikbaar('defaultAppPrompt', await leesDraagbaar())) return;
 
   try {
     const isDefault = await isDefaultPdfApp();
