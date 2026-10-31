@@ -371,6 +371,7 @@
     "updates": "Обновления",
     "checkForUpdates": "Проверка за обновления",
     "updatesLabel": "Обновления",
+    "updatesManaged": "Актуализациите на тази инсталация се управляват централно.",
     "startupDiagnosticsTitle": "Показване на файла с диагностика при стартиране (без лични данни)",
     "startupDiagnostics": "Диагностика",
     "fileAssociation": "Асоцииране на файлове",

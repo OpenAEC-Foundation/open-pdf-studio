@@ -371,6 +371,7 @@
     "updates": "به‌روزرسانی‌ها",
     "checkForUpdates": "بررسی به‌روزرسانی‌ها",
     "updatesLabel": "به‌روزرسانی‌ها",
+    "updatesManaged": "به‌روزرسانی‌های این نصب به‌صورت متمرکز مدیریت می‌شوند.",
     "startupDiagnosticsTitle": "نمایش فایل عیب‌یابی راه‌اندازی (بدون اطلاعات خصوصی)",
     "startupDiagnostics": "عیب‌یابی",
     "fileAssociation": "اقتران فایل",

@@ -371,6 +371,7 @@
     "updates": "Kemas Kini",
     "checkForUpdates": "Semak Kemas Kini",
     "updatesLabel": "Kemas Kini",
+    "updatesManaged": "Kemas kini untuk pemasangan ini diurus secara berpusat.",
     "startupDiagnosticsTitle": "Tunjukkan fail diagnostik permulaan yang selamat privasi",
     "startupDiagnostics": "Diagnostik",
     "fileAssociation": "Perkaitan Fail",

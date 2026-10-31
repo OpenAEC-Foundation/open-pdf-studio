@@ -371,6 +371,7 @@
     "updates": "Updates",
     "checkForUpdates": "Nach Updates suchen",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates für diese Installation werden zentral verwaltet.",
     "startupDiagnosticsTitle": "Die datenschutzfreundliche Startdiagnose-Datei anzeigen",
     "startupDiagnostics": "Diagnose",
     "fileAssociation": "Dateizuordnung",

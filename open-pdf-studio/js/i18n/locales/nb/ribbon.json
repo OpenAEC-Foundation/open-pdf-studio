@@ -371,6 +371,7 @@
     "updates": "Oppdateringer",
     "checkForUpdates": "Se etter oppdateringer",
     "updatesLabel": "Oppdateringer",
+    "updatesManaged": "Oppdateringer for denne installasjonen styres sentralt.",
     "startupDiagnosticsTitle": "Vis den personvernvennlige oppstartsdiagnosefilen",
     "startupDiagnostics": "Diagnostikk",
     "fileAssociation": "Filtilknytning",

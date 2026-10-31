@@ -16,6 +16,7 @@ import { getAppVersion } from '../core/platform.js';
 import { state } from '../core/state.js';
 import { fetchReleases, compareVersions } from './release-notes.js';
 import { externeDienstenAan, meldAlleenBureaublad } from '../core/webfuncties.js';
+import { magMelden } from '../core/beheerd.js';
 import { openWhatsNew, setReleases, setLoading, setError } from '../solid/stores/whatsNewStore.js';
 import i18next from 'i18next';
 
@@ -29,6 +30,9 @@ function isPrerelease(version) {
 }
 
 export async function checkForNewReleaseOnStartup() {
+  // Beheerde modus (OPENAEC_BEHEERD=1): geen venster bij het opstarten en
+  // geen verzoek naar GitHub (core/beheerd.js). Via Help blijft het te openen.
+  if (!(await magMelden('wat-is-nieuw'))) return;
   // De release-notes staan op GitHub; als gast geen verzoek naar een andere
   // host (#548).
   if (!externeDienstenAan()) return;

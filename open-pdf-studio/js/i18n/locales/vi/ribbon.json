@@ -371,6 +371,7 @@
     "updates": "Cập nhật",
     "checkForUpdates": "Kiểm tra Cập nhật",
     "updatesLabel": "Cập nhật",
+    "updatesManaged": "Các bản cập nhật cho bản cài đặt này được quản lý tập trung.",
     "startupDiagnosticsTitle": "Hiển thị tệp chẩn đoán khởi động an toàn quyền riêng tư",
     "startupDiagnostics": "Chẩn đoán",
     "fileAssociation": "Liên kết Tệp",

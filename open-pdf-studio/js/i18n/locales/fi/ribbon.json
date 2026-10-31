@@ -371,6 +371,7 @@
     "updates": "Päivitykset",
     "checkForUpdates": "Tarkista päivitykset",
     "updatesLabel": "Päivitykset",
+    "updatesManaged": "Tämän asennuksen päivityksiä hallitaan keskitetysti.",
     "startupDiagnosticsTitle": "Näytä yksityisyyden suojaava käynnistyksen diagnostiikkatiedosto",
     "startupDiagnostics": "Diagnostiikka",
     "fileAssociation": "Tiedostoyhteys",

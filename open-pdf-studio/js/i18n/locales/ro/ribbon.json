@@ -371,6 +371,7 @@
     "updates": "Actualizari",
     "checkForUpdates": "Verificare actualizari",
     "updatesLabel": "Actualizari",
+    "updatesManaged": "Actualizările acestei instalări sunt gestionate central.",
     "startupDiagnosticsTitle": "Afișează fișierul de diagnosticare la pornire (sigur pentru confidențialitate)",
     "startupDiagnostics": "Diagnosticare",
     "fileAssociation": "Asociere fisiere",

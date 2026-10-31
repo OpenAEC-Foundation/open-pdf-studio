@@ -7,6 +7,7 @@ import { isTauri } from '../../core/platform.js';
 import { check } from '@tauri-apps/plugin-updater';
 import { openDialog } from '../../bridge.js';
 import { leesOpslag } from '../../core/opslag.js';
+import { magMelden } from '../../core/beheerd.js';
 
 let checking = false;
 
@@ -16,6 +17,12 @@ let checking = false;
  */
 export async function checkForUpdates(silent = true) {
   if (!isTauri() || checking) return;
+  // Beheerde modus (OPENAEC_BEHEERD=1): de omgeving regelt de versie. Geen
+  // controle en geen updatevenster; wie zelf zoekt, krijgt dat te horen.
+  if (!(await magMelden('update-controle'))) {
+    if (!silent) await showUpdatesManagedMessage();
+    return;
+  }
   checking = true;
 
   try {
@@ -36,6 +43,13 @@ export async function checkForUpdates(silent = true) {
   } finally {
     checking = false;
   }
+}
+
+async function showUpdatesManagedMessage() {
+  const i18next = (await import('i18next')).default;
+  window.__TAURI__?.dialog?.message?.(
+    i18next.t('ribbon:help.updatesManaged'),
+    { title: i18next.t('ribbon:help.updatesLabel'), kind: 'info' });
 }
 
 function showNoUpdateMessage() {

@@ -371,6 +371,7 @@
     "updates": "การอัปเดต",
     "checkForUpdates": "ตรวจสอบการอัปเดต",
     "updatesLabel": "อัปเดต",
+    "updatesManaged": "การอัปเดตของการติดตั้งนี้ได้รับการจัดการจากส่วนกลาง",
     "startupDiagnosticsTitle": "แสดงไฟล์วินิจฉัยการเริ่มต้นที่ปลอดภัยต่อความเป็นส่วนตัว",
     "startupDiagnostics": "การวินิจฉัย",
     "fileAssociation": "การเชื่อมโยงไฟล์",

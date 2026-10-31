@@ -642,3 +642,5 @@ js/ui/chrome/fullscreen.test.mjs
 js/solid/components/ribbon/wand-knop.test.mjs
 # MCP-verbindingssignaal in de statusbalk
 js/core/mcp-signaal.test.mjs
+# Beheerde modus (OPENAEC_BEHEERD=1)
+js/core/beheerd.test.mjs

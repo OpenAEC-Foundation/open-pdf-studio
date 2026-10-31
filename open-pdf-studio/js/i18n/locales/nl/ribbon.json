@@ -365,6 +365,7 @@
     "updates": "Updates",
     "checkForUpdates": "Controleren op updates",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates voor deze installatie worden centraal beheerd.",
     "startupDiagnosticsTitle": "Het privacyveilige opstart-diagnosebestand tonen",
     "startupDiagnostics": "Diagnose",
     "fileAssociation": "Bestandskoppeling",

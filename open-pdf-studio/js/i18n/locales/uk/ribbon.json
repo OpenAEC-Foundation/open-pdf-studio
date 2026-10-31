@@ -371,6 +371,7 @@
     "updates": "Оновлення",
     "checkForUpdates": "Перевірити оновлення",
     "updatesLabel": "Оновлення",
+    "updatesManaged": "Оновлення цієї інсталяції керуються централізовано.",
     "startupDiagnosticsTitle": "Показати файл діагностики запуску (без особистих даних)",
     "startupDiagnostics": "Діагностика",
     "fileAssociation": "Асоціація файлів",

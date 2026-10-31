@@ -371,6 +371,7 @@
     "updates": "עדכונים",
     "checkForUpdates": "בדיקת עדכונים",
     "updatesLabel": "עדכונים",
+    "updatesManaged": "העדכונים של התקנה זו מנוהלים באופן מרכזי.",
     "startupDiagnosticsTitle": "הצגת קובץ אבחון ההפעלה (ללא מידע פרטי)",
     "startupDiagnostics": "אבחון",
     "fileAssociation": "שיוך קבצים",

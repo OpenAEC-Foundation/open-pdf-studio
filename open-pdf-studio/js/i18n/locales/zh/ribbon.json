@@ -371,6 +371,7 @@
     "updates": "更新",
     "checkForUpdates": "检查更新",
     "updatesLabel": "更新",
+    "updatesManaged": "此安装的更新由中央统一管理。",
     "startupDiagnosticsTitle": "显示保护隐私的启动诊断文件",
     "startupDiagnostics": "诊断",
     "fileAssociation": "文件关联",

@@ -371,6 +371,7 @@
     "updates": "업데이트",
     "checkForUpdates": "업데이트 확인",
     "updatesLabel": "업데이트",
+    "updatesManaged": "이 설치의 업데이트는 중앙에서 관리됩니다.",
     "startupDiagnosticsTitle": "개인 정보를 보호하는 시작 진단 파일 표시",
     "startupDiagnostics": "진단",
     "fileAssociation": "파일 연결",

@@ -371,6 +371,7 @@
     "updates": "আপডেট",
     "checkForUpdates": "আপডেট পরীক্ষা করুন",
     "updatesLabel": "আপডেট",
+    "updatesManaged": "এই ইনস্টলেশনের আপডেট কেন্দ্রীয়ভাবে পরিচালিত হয়।",
     "startupDiagnosticsTitle": "গোপনীয়তা-নিরাপদ স্টার্টআপ ডায়াগনস্টিক ফাইল দেখান",
     "startupDiagnostics": "ডায়াগনস্টিক",
     "fileAssociation": "ফাইল সংযুক্তি",

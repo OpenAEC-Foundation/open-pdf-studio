@@ -375,6 +375,21 @@ Notes:
 ### Android
 Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
 
+### Managed deployments
+
+When the app runs in a centrally managed environment, such as one container per
+user, start it with the environment variable `OPENAEC_BEHEERD=1` (`true`, `yes`
+and `on` work too). The app then starts without one-time prompts:
+
+- no "make Open PDF Studio the default PDF app" bar (and no registry or
+  `xdg-mime` lookup for it);
+- no "What's new" dialog after an update, and no request for the release notes;
+- no update check or update dialog; *Check for Updates* and *Previous version*
+  only say that updates are managed centrally.
+
+Without the variable, or with any other value, nothing changes. The recovery
+offer after an unexpected shutdown stays, because it protects unsaved work.
+
 ## Building from Source
 
 ### Prerequisites
