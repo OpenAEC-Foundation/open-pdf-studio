@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Kipimo kimegunduliwa",
     "noScaleFound": "Hakuna kipimo kilichopatikana",
-    "detecting": "Inagundua..."
+    "detecting": "Inagundua...",
+    "scaleCheck": "Kagua kipimo",
+    "scaleCheckTitle": "Pima kipimo kinachojulikana na uonyeshe mkengeuko wa kipimo kwa asilimia"
   },
   "home": {
     "document": "Hati",

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Ölçek algılandı",
     "noScaleFound": "Ölçek bulunamadı",
-    "detecting": "Algılanıyor..."
+    "detecting": "Algılanıyor...",
+    "scaleCheck": "Ölçeği denetle",
+    "scaleCheckTitle": "Bilinen bir ölçüyü ölçün ve ölçek sapmasını yüzde olarak gösterin"
   },
   "home": {
     "document": "Belge",

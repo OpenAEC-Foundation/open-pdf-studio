@@ -307,7 +307,15 @@
     "butt": "সমতল",
     "openArrowReversed": "খোলা তীর (বিপরীত)",
     "closedArrowReversed": "বন্ধ তীর (বিপরীত)",
-    "slash": "স্ল্যাশ"
+    "slash": "স্ল্যাশ",
+    "decimalNotation": "দশমিক বিভাজক",
+    "decimalAuto": "ভাষা অনুযায়ী",
+    "decimalComma": "কমা (2,50)",
+    "decimalPoint": "বিন্দু (2.50)",
+    "digitGrouping": "হাজার আলাদা করুন (12 345)",
+    "scaleCheck": "স্কেল যাচাই",
+    "scaleCheckOk": "ঠিক-এর সীমা",
+    "scaleCheckWarn": "সতর্কতার সীমা"
   },
   "keyboardShortcuts": {
     "title": "কীবোর্ড শর্টকাট",

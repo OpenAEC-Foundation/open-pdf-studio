@@ -11,6 +11,7 @@ import { leesOpslagJson, schrijfOpslagJson, verwijderOpslag } from '../core/opsl
 import { nettoVlakOppervlak } from './vlak-ringen.js';
 import { vlakZijden, lengteEenheid } from './vlak-zijden.js';
 import { isSpotCoord, spotCoordTekst } from './spot-coord.js';
+import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -249,9 +250,12 @@ export function formatDimensionText(measurement) {
 // Default: mm → no decimals; m/cm → 1 decimal; ft/in → 2 decimals
 // Distances in mm >= 1000 are automatically shown as meters
 // Area measurements in mm² are automatically converted to m² for readability
+// The number uses the decimal separator of the app language (or the
+// preference override) via core/maat-notatie.js: "2,50 m" in Dutch (#629).
 export function formatMeasurement(measurement) {
   let val = applyRounding(measurement.value, measurement.unit);
-  let unit = measurement.unit || 'mm';
+  let unit = eenheidNotatie(measurement.unit || 'mm') || 'mm';
+  const fg = (v, d) => formatGetal(v, d);
 
   // Keep mm as mm — common architectural/CAD convention. Whole numbers only
   // (no decimals) — millimeters are already the smallest practical unit.
@@ -260,9 +264,9 @@ export function formatMeasurement(measurement) {
     const rounding = state.preferences.measureRounding;
     if (rounding && rounding !== 'none') {
       const step = parseFloat(rounding);
-      if (step >= 1) return `${Math.round(val / step) * step}${suffix}`;
+      if (step >= 1) return `${fg(Math.round(val / step) * step, 0)}${suffix}`;
     }
-    return `${Math.round(val)}${suffix}`;
+    return `${fg(Math.round(val), 0)}${suffix}`;
   }
 
   // Always convert mm² areas to m²
@@ -276,20 +280,17 @@ export function formatMeasurement(measurement) {
   const rounding = state.preferences.measureRounding;
   if (rounding && rounding !== 'none' && unit !== 'px') {
     const step = parseFloat(rounding);
-    if (step >= 1) return `${Math.round(val)}${suffix}`;
-    return `${val.toFixed(2)}${suffix}`;
+    if (step >= 1) return `${fg(Math.round(val), 0)}${suffix}`;
+    return `${fg(val, 2)}${suffix}`;
   }
   // Default formatting per unit
-  if (unit === 'm\u00B2') return `${val.toFixed(2)}${suffix}`;
-  if (unit === 'm') return `${val.toFixed(2)}${suffix}`;
-  if (unit === 'cm\u00B2') return `${val.toFixed(2)}${suffix}`;
-  if (unit === 'cm') return `${val.toFixed(1)}${suffix}`;
-  if (unit === 'ft\u00B2' || unit === 'in\u00B2') return `${val.toFixed(2)}${suffix}`;
-  if (unit === 'ft' || unit === 'in') return `${val.toFixed(2)}${suffix}`;
-  if (unit === '°') return `${val.toFixed(1)}${suffix}`;
-  if (val < 0.01) return `0${suffix}`;
-  if (val < 1) return `${val.toFixed(2)}${suffix}`;
-  return `${val.toFixed(2)}${suffix}`;
+  if (unit === 'cm') return `${fg(val, 1)}${suffix}`;
+  if (unit === '°') return `${fg(val, 1)}${suffix}`;
+  if (val < 0.01 && unit !== 'm\u00B2' && unit !== 'm' && unit !== 'cm\u00B2'
+      && unit !== 'ft\u00B2' && unit !== 'in\u00B2' && unit !== 'ft' && unit !== 'in') {
+    return `0${suffix}`;
+  }
+  return `${fg(val, 2)}${suffix}`;
 }
 
 // Show scale calibration dialog, optionally with a reference pixel length
@@ -327,7 +328,7 @@ export function setScaleFromLine(pixelLength, realValue, unit, sourceAnnotation)
     sourceAnnotation.measureScale = realValue / pixelLength;
     sourceAnnotation.measureUnit = unit;
     const prec = sourceAnnotation.measurePrecision !== undefined ? sourceAnnotation.measurePrecision : 2;
-    sourceAnnotation.measureText = `${realValue.toFixed(prec)} ${unit}`;
+    sourceAnnotation.measureText = `${formatGetal(realValue, prec)} ${unit}`;
     sourceAnnotation.modifiedAt = new Date().toISOString();
 
     // Redraw canvas

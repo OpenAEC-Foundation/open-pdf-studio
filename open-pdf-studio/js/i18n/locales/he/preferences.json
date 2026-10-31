@@ -307,7 +307,15 @@
     "butt": "ישר",
     "openArrowReversed": "חץ פתוח (הפוך)",
     "closedArrowReversed": "חץ סגור (הפוך)",
-    "slash": "קו נטוי"
+    "slash": "קו נטוי",
+    "decimalNotation": "מפריד עשרוני",
+    "decimalAuto": "לפי השפה",
+    "decimalComma": "פסיק (2,50)",
+    "decimalPoint": "נקודה (2.50)",
+    "digitGrouping": "הפרדת אלפים (12 345)",
+    "scaleCheck": "בדיקת קנה מידה",
+    "scaleCheckOk": "תקין עד",
+    "scaleCheckWarn": "אזהרה עד"
   },
   "keyboardShortcuts": {
     "title": "קיצורי מקלדת",

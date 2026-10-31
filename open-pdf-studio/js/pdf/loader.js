@@ -633,6 +633,15 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
         const pdfLibDoc = await getSharedPdfLibDoc(doc);
         const geldig = !isClosed() && pdfLibDoc;
         rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null);
+        // De eigen schalen van de app: de documentschaal en de schaal-
+        // controles per blad reizen mee in het bestand (#629).
+        if (geldig) {
+          const { pasSchalenUitBestandToe } = await import('./schaal-in-pdf.js');
+          if (!isClosed() && pasSchalenUitBestandToe(doc, pdfLibDoc).schaal) {
+            const { saveDocumentScale } = await import('../annotations/measurement.js');
+            saveDocumentScale(doc);
+          }
+        }
       } catch {
         rondViewportLezingAf(doc, kenmerk, null); // viewports zijn optioneel
       }

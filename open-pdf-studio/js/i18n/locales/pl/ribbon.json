@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Wykryto skalę",
     "noScaleFound": "Nie znaleziono skali",
-    "detecting": "Wykrywanie..."
+    "detecting": "Wykrywanie...",
+    "scaleCheck": "Sprawdź skalę",
+    "scaleCheckTitle": "Zmierz znany wymiar i pokaż odchyłkę skali w procentach"
   },
   "home": {
     "document": "Dokument",

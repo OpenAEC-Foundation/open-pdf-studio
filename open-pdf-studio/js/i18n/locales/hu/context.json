@@ -49,6 +49,7 @@
     "dimChainAdd": "Pontok hozzáadása a méretlánchoz",
     "dimChainRemove": "Segédvonal eltávolítása a láncból",
     "selectRoom": "Helyiség kijelölése",
+    "checkScale": "Lépték ellenőrzése ezzel a vonallal...",
     "saveToToolSet": "Mentés eszközkészletbe"
   },
   "multiSelect": {

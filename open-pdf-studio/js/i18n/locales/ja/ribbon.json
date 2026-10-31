@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "縮尺を検出しました",
     "noScaleFound": "縮尺が見つかりません",
-    "detecting": "検出中..."
+    "detecting": "検出中...",
+    "scaleCheck": "縮尺を確認",
+    "scaleCheckTitle": "既知の寸法を測って縮尺の偏差をパーセントで表示"
   },
   "home": {
     "document": "文書",

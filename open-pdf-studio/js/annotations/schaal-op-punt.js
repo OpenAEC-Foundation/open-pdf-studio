@@ -165,3 +165,58 @@ export function documentHeeftSchaal(doc) {
   const annotaties = Array.isArray(doc.annotations) ? doc.annotations : [];
   return annotaties.some((a) => a.type === 'scaleRegion' || a.type === 'scaleBar' || a.type === 'viewport');
 }
+
+/**
+ * Als schaalOpPunt, maar met het schaalgebied vooraan (zoals getMeasureScale)
+ * en met de bron erbij: wélk schaalgebied, welke viewport, welke schaalbalk.
+ * De schaalcontrole (#629) gebruikt dit om te zien of twee punten in dezelfde
+ * schaal liggen en om de juiste bron te herkalibreren. De volgorde is die van
+ * getMeasureScale; de legacy-voorkeursschaal valt hier weg.
+ * @param {object | null | undefined} doc
+ * @param {number} pageNum
+ * @param {number} x
+ * @param {number} y
+ * @param {(scaleString:string, unit:string) => number} ppuVoorGebied
+ *   omrekening van een schaalgebied (pixelsPerUnitFor uit scale-region-scale.js)
+ * @returns {{pixelsPerUnit:number, unit:string, method:string, bron:object|null, sleutel:string} | null}
+ */
+export function schaalBronOpPunt(doc, pageNum, x, y, ppuVoorGebied) {
+  if (!doc) return null;
+  const bronnen = verzamelSchaalBronnen(doc);
+  for (const r of schaalgebiedenOpPagina(bronnen, pageNum)) {
+    if (x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height) {
+      const unit = r.units || 'mm';
+      return {
+        pixelsPerUnit: ppuVoorGebied(r.scaleString || '1:100', unit), unit,
+        method: 'scaleRegion', bron: r, sleutel: `scaleRegion:${r.id}`,
+      };
+    }
+  }
+  const viewports = opPagina(bronnen.viewports, pageNum);
+  if (viewports) {
+    for (const a of viewports) {
+      if (x >= a.x && x <= a.x + a.width && y >= a.y && y <= a.y + a.height) {
+        return { pixelsPerUnit: a.pixelsPerUnit, unit: a.unit, method: 'viewport', bron: a, sleutel: `viewport:${a.id}` };
+      }
+    }
+  }
+  const balk = opPagina(bronnen.balkOpPagina, pageNum);
+  if (balk) return { pixelsPerUnit: balk.pixelsPerUnit, unit: balk.unit, method: 'scaleBar', bron: balk, sleutel: `scaleBar:${balk.id}` };
+  const lijst = doc.pdfViewports?.[pageNum];
+  const vp = viewportOp(lijst, x, y);
+  if (vp) {
+    return {
+      pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'pdfViewport', bron: vp,
+      sleutel: `pdfViewport:${pageNum}:${lijst.indexOf(vp)}`,
+    };
+  }
+  const docSchaal = doc.measureScale;
+  if (docSchaal && docSchaal.pixelsPerUnit > 0) {
+    return { pixelsPerUnit: docSchaal.pixelsPerUnit, unit: docSchaal.unit || 'mm', method: 'document', bron: docSchaal, sleutel: 'document' };
+  }
+  if (bronnen.schaalbalken.length) {
+    const eerste = bronnen.schaalbalken[0];
+    return { pixelsPerUnit: eerste.pixelsPerUnit, unit: eerste.unit, method: 'scaleBar', bron: eerste, sleutel: `scaleBar:${eerste.id}` };
+  }
+  return null;
+}

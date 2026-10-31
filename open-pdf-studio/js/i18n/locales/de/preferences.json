@@ -307,7 +307,15 @@
     "butt": "Stumpf",
     "openArrowReversed": "Offener Pfeil (umgekehrt)",
     "closedArrowReversed": "Geschlossener Pfeil (umgekehrt)",
-    "slash": "Schrägstrich"
+    "slash": "Schrägstrich",
+    "decimalNotation": "Dezimaltrennzeichen",
+    "decimalAuto": "Sprache folgen",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punkt (2.50)",
+    "digitGrouping": "Tausender trennen (12 345)",
+    "scaleCheck": "Maßstabsprüfung",
+    "scaleCheckOk": "In Ordnung bis",
+    "scaleCheckWarn": "Warnung bis"
   },
   "keyboardShortcuts": {
     "title": "Tastenkombinationen",

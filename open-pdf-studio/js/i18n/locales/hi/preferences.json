@@ -307,7 +307,15 @@
     "butt": "सपाट",
     "openArrowReversed": "खुला तीर (उल्टा)",
     "closedArrowReversed": "बंद तीर (उल्टा)",
-    "slash": "स्लैश"
+    "slash": "स्लैश",
+    "decimalNotation": "दशमलव विभाजक",
+    "decimalAuto": "भाषा के अनुसार",
+    "decimalComma": "अल्पविराम (2,50)",
+    "decimalPoint": "बिंदु (2.50)",
+    "digitGrouping": "हज़ार समूहित करें (12 345)",
+    "scaleCheck": "स्केल जाँच",
+    "scaleCheckOk": "ठीक की सीमा",
+    "scaleCheckWarn": "चेतावनी की सीमा"
   },
   "keyboardShortcuts": {
     "title": "कीबोर्ड शॉर्टकट",

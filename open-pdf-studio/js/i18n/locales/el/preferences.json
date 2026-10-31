@@ -307,7 +307,15 @@
     "butt": "Επίπεδο",
     "openArrowReversed": "Ανοιχτό βέλος (αντεστραμμένο)",
     "closedArrowReversed": "Κλειστό βέλος (αντεστραμμένο)",
-    "slash": "Πλάγια γραμμή"
+    "slash": "Πλάγια γραμμή",
+    "decimalNotation": "Δεκαδικό διαχωριστικό",
+    "decimalAuto": "Σύμφωνα με τη γλώσσα",
+    "decimalComma": "Κόμμα (2,50)",
+    "decimalPoint": "Τελεία (2.50)",
+    "digitGrouping": "Διαχωρισμός χιλιάδων (12 345)",
+    "scaleCheck": "Έλεγχος κλίμακας",
+    "scaleCheckOk": "Εντάξει έως",
+    "scaleCheckWarn": "Προειδοποίηση έως"
   },
   "keyboardShortcuts": {
     "title": "Συντομεύσεις πληκτρολογίου",

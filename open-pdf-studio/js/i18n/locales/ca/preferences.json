@@ -307,7 +307,15 @@
     "butt": "Pla",
     "openArrowReversed": "Fletxa oberta (invertida)",
     "closedArrowReversed": "Fletxa tancada (invertida)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separador decimal",
+    "decimalAuto": "Segons l'idioma",
+    "decimalComma": "Coma (2,50)",
+    "decimalPoint": "Punt (2.50)",
+    "digitGrouping": "Separa els milers (12 345)",
+    "scaleCheck": "Comprovació d'escala",
+    "scaleCheckOk": "Correcte fins a",
+    "scaleCheckWarn": "Avís fins a"
   },
   "keyboardShortcuts": {
     "title": "Dreceres de teclat",

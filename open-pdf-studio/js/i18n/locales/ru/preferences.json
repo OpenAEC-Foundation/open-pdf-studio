@@ -307,7 +307,15 @@
     "butt": "Прямой торец",
     "openArrowReversed": "Открытая стрелка (обратная)",
     "closedArrowReversed": "Закрытая стрелка (обратная)",
-    "slash": "Косая черта"
+    "slash": "Косая черта",
+    "decimalNotation": "Десятичный разделитель",
+    "decimalAuto": "Как в языке",
+    "decimalComma": "Запятая (2,50)",
+    "decimalPoint": "Точка (2.50)",
+    "digitGrouping": "Разделять тысячи (12 345)",
+    "scaleCheck": "Проверка масштаба",
+    "scaleCheckOk": "В норме до",
+    "scaleCheckWarn": "Предупреждение до"
   },
   "keyboardShortcuts": {
     "title": "Сочетания клавиш",

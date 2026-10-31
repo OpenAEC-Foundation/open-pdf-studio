@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "مقیاس تشخیص داده شد",
     "noScaleFound": "مقیاسی یافت نشد",
-    "detecting": "در حال تشخیص..."
+    "detecting": "در حال تشخیص...",
+    "scaleCheck": "بررسی مقیاس",
+    "scaleCheckTitle": "اندازه‌گیری یک بُعد معلوم و نمایش انحراف مقیاس به درصد"
   },
   "home": {
     "document": "سند",

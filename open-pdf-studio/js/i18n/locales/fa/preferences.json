@@ -307,7 +307,15 @@
     "butt": "صاف",
     "openArrowReversed": "فلش باز (معکوس)",
     "closedArrowReversed": "فلش بسته (معکوس)",
-    "slash": "خط مورب"
+    "slash": "خط مورب",
+    "decimalNotation": "جداکننده اعشار",
+    "decimalAuto": "مطابق زبان",
+    "decimalComma": "ویرگول (2,50)",
+    "decimalPoint": "نقطه (2.50)",
+    "digitGrouping": "جداسازی هزارگان (12 345)",
+    "scaleCheck": "بررسی مقیاس",
+    "scaleCheckOk": "درست تا",
+    "scaleCheckWarn": "هشدار تا"
   },
   "keyboardShortcuts": {
     "title": "میانبرهای صفحه‌کلید",

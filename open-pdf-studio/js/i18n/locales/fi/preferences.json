@@ -307,7 +307,15 @@
     "butt": "Suora",
     "openArrowReversed": "Avoin nuoli (käänteinen)",
     "closedArrowReversed": "Suljettu nuoli (käänteinen)",
-    "slash": "Vinoviiva"
+    "slash": "Vinoviiva",
+    "decimalNotation": "Desimaalierotin",
+    "decimalAuto": "Kielen mukaan",
+    "decimalComma": "Pilkku (2,50)",
+    "decimalPoint": "Piste (2.50)",
+    "digitGrouping": "Erota tuhannet (12 345)",
+    "scaleCheck": "Mittakaavan tarkistus",
+    "scaleCheckOk": "Kunnossa asti",
+    "scaleCheckWarn": "Varoitus asti"
   },
   "keyboardShortcuts": {
     "title": "Pikanäppäimet",

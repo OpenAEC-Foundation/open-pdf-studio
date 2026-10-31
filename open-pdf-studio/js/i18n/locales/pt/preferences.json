@@ -307,7 +307,15 @@
     "butt": "Reto",
     "openArrowReversed": "Seta aberta (invertida)",
     "closedArrowReversed": "Seta fechada (invertida)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separador decimal",
+    "decimalAuto": "Seguir o idioma",
+    "decimalComma": "Vírgula (2,50)",
+    "decimalPoint": "Ponto (2.50)",
+    "digitGrouping": "Separar milhares (12 345)",
+    "scaleCheck": "Verificação de escala",
+    "scaleCheckOk": "Correto até",
+    "scaleCheckWarn": "Aviso até"
   },
   "keyboardShortcuts": {
     "title": "Atalhos de teclado",

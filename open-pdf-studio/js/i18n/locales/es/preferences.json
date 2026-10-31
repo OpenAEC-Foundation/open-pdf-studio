@@ -307,7 +307,15 @@
     "butt": "Plano",
     "openArrowReversed": "Flecha abierta (invertida)",
     "closedArrowReversed": "Flecha cerrada (invertida)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separador decimal",
+    "decimalAuto": "Según el idioma",
+    "decimalComma": "Coma (2,50)",
+    "decimalPoint": "Punto (2.50)",
+    "digitGrouping": "Separar miles (12 345)",
+    "scaleCheck": "Comprobación de escala",
+    "scaleCheckOk": "Correcto hasta",
+    "scaleCheckWarn": "Advertencia hasta"
   },
   "keyboardShortcuts": {
     "title": "Atajos de teclado",

@@ -13,15 +13,9 @@ import {
 } from '../stores/quantitiesStore.js';
 import QuantitiesProperties from './QuantitiesProperties.jsx';
 
-function formatCell(val, col) {
-  if (val == null || val === '') return '';
-  if (typeof val === 'number') return Number.isFinite(val) ? val.toFixed(col.decimals ?? 0) : '';
-  return String(val);
-}
-function fmtTotal(val, col) {
-  if (val == null) return '';
-  return val.toFixed(col.decimals ?? 2) + (col.unit ? ` ${col.unit}` : '');
-}
+// Dezelfde celopmaak als de geplaatste staat en de CSV (schedule-templates.js),
+// met het decimaalteken van de taal (#629).
+import { formatCell, fmtTotal } from '../../quantities/schedule-templates.js';
 
 export default function SchedulePanel() {
   const { t } = useTranslation('properties');

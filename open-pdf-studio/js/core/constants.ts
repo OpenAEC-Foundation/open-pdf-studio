@@ -234,6 +234,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Measurement global
   measureRounding: 'none', // 'none', '1', '5', '10'
   measureCtrlSnap: 10,
+  // Getalnotatie van maten (#629): 'auto' volgt de taal (nl: komma),
+  // 'comma' / 'point' overschrijven het decimaalteken.
+  measureDecimalNotation: 'auto',
+  measureDigitGrouping: false,
+  // Schaalcontrole (#629): drempels in procenten.
+  scaleCheckOkPercent: 0.5,
+  scaleCheckWarnPercent: 2,
 
   // Measure Distance defaults
   measureDistStrokeColor: '#FF0000',

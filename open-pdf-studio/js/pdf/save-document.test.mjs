@@ -58,6 +58,8 @@ function harness() {
     applyEditsToPdf: (_pdf, edits) => { structWritten.push(edits); return { applied: 1, skipped: 0 }; },
     notifyStructEditsSaved: doc => structSavedNotified.push(doc),
     markDocumentModified: doc => { doc.modified = true; },
+    // Schalen en schaalcontroles als /VP (#629): geen pagina's in deze documenten.
+    schrijfSchalenInPdf() {},
     unlockFile: async () => {}, lockFile: async () => {},
     writeBinaryFileAtomic: async (path, bytes) => { writes.push({ path, source: new TextDecoder().decode(bytes) }); },
     isTauri: () => false, markeerGebakken() {}, hidePdfABar() {}, stripPdfAMetadata() {},

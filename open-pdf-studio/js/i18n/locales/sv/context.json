@@ -49,6 +49,7 @@
     "dimChainAdd": "Lägg till punkter i måttkedjan",
     "dimChainRemove": "Ta bort hjälplinje från kedjan",
     "selectRoom": "Välj rum",
+    "checkScale": "Kontrollera skala med denna linje...",
     "saveToToolSet": "Spara i verktygsuppsättning"
   },
   "multiSelect": {

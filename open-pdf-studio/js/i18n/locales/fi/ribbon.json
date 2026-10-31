@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Mittakaava tunnistettu",
     "noScaleFound": "Mittakaavaa ei löytynyt",
-    "detecting": "Tunnistetaan..."
+    "detecting": "Tunnistetaan...",
+    "scaleCheck": "Tarkista mittakaava",
+    "scaleCheckTitle": "Mittaa tunnettu mitta ja näytä mittakaavan poikkeama prosentteina"
   },
   "home": {
     "document": "Asiakirja",

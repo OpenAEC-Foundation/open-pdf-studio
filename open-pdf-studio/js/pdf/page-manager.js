@@ -32,6 +32,7 @@ import {
   A4, normRotation, isValidPlan, isStructureUnchanged, treeOrderForPlan, pageMappingForPlan,
   remapBookmarksForPlan, blankSizeNeighbour, blankSizeFor, shownSize,
 } from './page-edit-plan.js';
+import { herschikControles } from '../annotations/schaalcontrole.js';
 
 // Page clipboard for cut/copy/paste
 let pageClipboard = null; // { bytes: Uint8Array, cut: boolean, sourcePageNum: number }
@@ -329,6 +330,8 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   if (viewportUpdate?.pageMapping) {
     const lezingStondOpen = viewportLezingLoopt(doc);
     doc.pdfViewports = herschikViewports(doc.pdfViewports, viewportUpdate.pageMapping, viewportUpdate.newViewports);
+    // De schaalcontroles per blad verhuizen mee (#629).
+    if (doc.scaleChecks) doc.scaleChecks = herschikControles(doc.scaleChecks, viewportUpdate.pageMapping);
     if (lezingStondOpen) leesViewportsOpnieuw(doc, newBytes);
   } else {
     doc.pdfViewports = undefined;

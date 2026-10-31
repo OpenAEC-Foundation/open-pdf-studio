@@ -307,7 +307,15 @@
     "butt": "Ncha Bapa",
     "openArrowReversed": "Mshale Wazi (kinyume)",
     "closedArrowReversed": "Mshale Uliofungwa (kinyume)",
-    "slash": "Mstari wa Mkato"
+    "slash": "Mstari wa Mkato",
+    "decimalNotation": "Kitenganishi cha desimali",
+    "decimalAuto": "Fuata lugha",
+    "decimalComma": "Koma (2,50)",
+    "decimalPoint": "Nukta (2.50)",
+    "digitGrouping": "Tenganisha maelfu (12 345)",
+    "scaleCheck": "Ukaguzi wa kipimo",
+    "scaleCheckOk": "Sawa hadi",
+    "scaleCheckWarn": "Onyo hadi"
   },
   "keyboardShortcuts": {
     "title": "Njia za mkato za kibodi",

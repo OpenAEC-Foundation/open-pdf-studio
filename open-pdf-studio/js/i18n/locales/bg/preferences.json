@@ -307,7 +307,15 @@
     "butt": "Прав край",
     "openArrowReversed": "Отворена стрелка (обърната)",
     "closedArrowReversed": "Затворена стрелка (обърната)",
-    "slash": "Наклонена черта"
+    "slash": "Наклонена черта",
+    "decimalNotation": "Десетичен разделител",
+    "decimalAuto": "Според езика",
+    "decimalComma": "Запетая (2,50)",
+    "decimalPoint": "Точка (2.50)",
+    "digitGrouping": "Разделяне на хилядите (12 345)",
+    "scaleCheck": "Проверка на мащаба",
+    "scaleCheckOk": "Наред до",
+    "scaleCheckWarn": "Предупреждение до"
   },
   "keyboardShortcuts": {
     "title": "Клавишни комбинации",

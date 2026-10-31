@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detectar escala del quadre de titol",
     "scaleDetected": "Escala detectada",
     "noScaleFound": "Cap escala trobada",
-    "detecting": "Detectant..."
+    "detecting": "Detectant...",
+    "scaleCheck": "Comprova l'escala",
+    "scaleCheckTitle": "Mesura una cota coneguda i mostra la desviació de l'escala en percentatge"
   },
   "home": {
     "document": "Document",

@@ -49,6 +49,7 @@
     "dimChainAdd": "向尺寸链添加点",
     "dimChainRemove": "从尺寸链中移除尺寸界线",
     "selectRoom": "选择房间",
+    "checkScale": "用此线检查比例...",
     "saveToToolSet": "保存到工具集"
   },
   "multiSelect": {

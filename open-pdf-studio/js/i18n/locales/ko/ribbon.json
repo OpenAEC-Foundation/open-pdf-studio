@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "축척 감지됨",
     "noScaleFound": "축척을 찾을 수 없음",
-    "detecting": "감지 중..."
+    "detecting": "감지 중...",
+    "scaleCheck": "축척 확인",
+    "scaleCheckTitle": "알려진 치수를 측정하고 축척 편차를 백분율로 표시"
   },
   "home": {
     "document": "문서",

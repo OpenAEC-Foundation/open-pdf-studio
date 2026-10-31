@@ -49,6 +49,7 @@
     "dimChainAdd": "إضافة نقاط إلى سلسلة الأبعاد",
     "dimChainRemove": "إزالة خط الامتداد من السلسلة",
     "selectRoom": "تحديد الغرفة",
+    "checkScale": "التحقق من المقياس بهذا الخط...",
     "saveToToolSet": "حفظ في مجموعة أدوات"
   },
   "multiSelect": {

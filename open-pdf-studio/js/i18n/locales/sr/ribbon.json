@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Размера препозната",
     "noScaleFound": "Размера није пронађена",
-    "detecting": "Препознавање..."
+    "detecting": "Препознавање...",
+    "scaleCheck": "Провери размеру",
+    "scaleCheckTitle": "Измерите познату меру и прикажите одступање размере у процентима"
   },
   "home": {
     "document": "Документ",

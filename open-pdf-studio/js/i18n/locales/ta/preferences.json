@@ -307,7 +307,15 @@
     "butt": "தட்டை",
     "openArrowReversed": "திறந்த அம்பு (தலைகீழ்)",
     "closedArrowReversed": "மூடிய அம்பு (தலைகீழ்)",
-    "slash": "சாய்வுக்கோடு"
+    "slash": "சாய்வுக்கோடு",
+    "decimalNotation": "தசமப் பிரிப்பான்",
+    "decimalAuto": "மொழியைப் பின்பற்று",
+    "decimalComma": "காற்புள்ளி (2,50)",
+    "decimalPoint": "புள்ளி (2.50)",
+    "digitGrouping": "ஆயிரங்களைப் பிரி (12 345)",
+    "scaleCheck": "அளவுகோல் சரிபார்ப்பு",
+    "scaleCheckOk": "சரி வரம்பு",
+    "scaleCheckWarn": "எச்சரிக்கை வரம்பு"
   },
   "keyboardShortcuts": {
     "title": "விசைப்பலகை குறுக்குவழிகள்",

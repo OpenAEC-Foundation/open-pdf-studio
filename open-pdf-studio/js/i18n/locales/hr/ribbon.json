@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Mjerilo prepoznato",
     "noScaleFound": "Mjerilo nije pronađeno",
-    "detecting": "Otkrivanje..."
+    "detecting": "Otkrivanje...",
+    "scaleCheck": "Provjeri mjerilo",
+    "scaleCheckTitle": "Izmjerite poznatu mjeru i prikažite odstupanje mjerila u postocima"
   },
   "home": {
     "document": "Dokument",

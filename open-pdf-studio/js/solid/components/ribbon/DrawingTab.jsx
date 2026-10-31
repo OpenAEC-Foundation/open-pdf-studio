@@ -40,6 +40,9 @@ import { createFullPageScaleRegion, invalidateScaleRegionCache } from '../../../
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { openDialog } from '../../../bridge.js';
 
+// Schaalcontrole (#629): een maatlijn met een vinkje.
+const scaleCheckIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9h12M3 6v6M15 6v6"/><path d="M12 18l3 3 6-7" stroke-width="2"/></svg>`;
+
 // Generic placeholder icons for buttons without a dedicated icon
 const placeholderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="0" stroke-dasharray="3 2"/><path d="M9 9 L15 15 M15 9 L9 15" stroke-width="1"/></svg>`;
 const wallIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h18v8H3zM3 14l6-6M7 16l8-8M13 16l8-8M19 16l2-2"/></svg>`;
@@ -370,6 +373,13 @@ export function DrawingGroups() {
               else redrawAnnotations();
               openDialog('scale-region', { annotationId: ann.id, pageNum: ann.page, isNew: true });
             }} />
+          {/* Schaalcontrole (#629): een tweede bekende maat nameten. */}
+          <RibbonButton id="btn-scale-check"
+            title={t('measure.scaleCheckTitle')}
+            icon={scaleCheckIcon}
+            label={t('measure.scaleCheck')}
+            disabled={ro()}
+            onClick={() => openDialog('scale-check', {})} />
         </RibbonGroup>
 
         {/* De stavenreeks staat bewust NIET op de ribbon maar in het

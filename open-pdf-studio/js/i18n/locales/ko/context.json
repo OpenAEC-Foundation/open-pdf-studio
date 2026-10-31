@@ -49,6 +49,7 @@
     "dimChainAdd": "치수 체인에 점 추가",
     "dimChainRemove": "체인에서 치수 보조선 제거",
     "selectRoom": "실 선택",
+    "checkScale": "이 선으로 축척 확인...",
     "saveToToolSet": "도구 세트에 저장"
   },
   "multiSelect": {

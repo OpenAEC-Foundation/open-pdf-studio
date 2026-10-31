@@ -307,7 +307,15 @@
     "butt": "Đầu bằng",
     "openArrowReversed": "Mũi tên mở (đảo ngược)",
     "closedArrowReversed": "Mũi tên đóng (đảo ngược)",
-    "slash": "Gạch chéo"
+    "slash": "Gạch chéo",
+    "decimalNotation": "Dấu thập phân",
+    "decimalAuto": "Theo ngôn ngữ",
+    "decimalComma": "Dấu phẩy (2,50)",
+    "decimalPoint": "Dấu chấm (2.50)",
+    "digitGrouping": "Phân nhóm hàng nghìn (12 345)",
+    "scaleCheck": "Kiểm tra tỷ lệ",
+    "scaleCheckOk": "Đạt đến",
+    "scaleCheckWarn": "Cảnh báo đến"
   },
   "keyboardShortcuts": {
     "title": "Phím tắt",

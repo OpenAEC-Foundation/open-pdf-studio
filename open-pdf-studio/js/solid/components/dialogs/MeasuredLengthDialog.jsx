@@ -1,4 +1,5 @@
 import { createSignal, createMemo, Show } from 'solid-js';
+import { formatMaat } from '../../../core/maat-notatie.js';
 import Dialog from '../Dialog.jsx';
 import PrefSelect from '../preferences/PrefSelect.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
@@ -121,7 +122,7 @@ export default function MeasuredLengthDialog(props) {
       <div style="min-width:300px">
         <div class="ai-login-field">
           <label>{t('scaleRegion.measuredOnPaper') || 'Measured on paper'}</label>
-          <div style="padding:2px 0;opacity:0.85">{paperMm.toFixed(1)} mm</div>
+          <div style="padding:2px 0;opacity:0.85">{formatMaat(paperMm, 'mm', 1)}</div>
         </div>
 
         <div class="ai-login-field">

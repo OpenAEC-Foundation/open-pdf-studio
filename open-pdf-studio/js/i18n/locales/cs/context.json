@@ -49,6 +49,7 @@
     "dimChainAdd": "Přidat body do řetězce kót",
     "dimChainRemove": "Odebrat vynášecí čáru z řetězce",
     "selectRoom": "Vybrat místnost",
+    "checkScale": "Zkontrolovat měřítko touto čarou...",
     "saveToToolSet": "Uložit do sady nástrojů"
   },
   "multiSelect": {

@@ -311,7 +311,15 @@
     "butt": "Plat",
     "openArrowReversed": "Open pijl (omgekeerd)",
     "closedArrowReversed": "Gesloten pijl (omgekeerd)",
-    "slash": "Schuine streep"
+    "slash": "Schuine streep",
+    "decimalNotation": "Decimaalteken",
+    "decimalAuto": "Taal volgen",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punt (2.50)",
+    "digitGrouping": "Duizendtallen scheiden (12 345)",
+    "scaleCheck": "Schaalcontrole",
+    "scaleCheckOk": "Goed tot",
+    "scaleCheckWarn": "Waarschuwing tot"
   },
   "keyboardShortcuts": {
     "title": "Sneltoetsen",
