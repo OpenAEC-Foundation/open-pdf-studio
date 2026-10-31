@@ -4,7 +4,7 @@
 
 import { invoke, saveFileDialog } from '../core/platform.js';
 import { getMeasureScale } from '../annotations/measurement.js';
-import { pixelsPerUnitFor } from '../annotations/scale-region.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from '../annotations/scale-region.js';
 import {
   schaalnoemerUitMeetschaal, schaalTekst, weergaveMaat, extensieVoor, basisnaam,
 } from './cad-export-logica.js';
@@ -38,7 +38,9 @@ export function gebiedenOpPagina(doc, paginaNr) {
   for (const a of doc?.annotations || []) {
     if (a.page !== paginaNr) continue;
     if (a.type === 'scaleRegion') {
-      const ppu = pixelsPerUnitFor(a.scaleString || '1:100', a.units || 'mm');
+      // Per pagina-eenheid, zoals viewports en /VP hieronder (#884): de export
+      // rekent een pagina-eenheid als één punt.
+      const ppu = pixelsPerUnitFor(a.scaleString || '1:100', a.units || 'mm', userUnitVanPagina(doc, paginaNr));
       uit.push({
         id: `region:${a.id}`,
         soort: 'region',

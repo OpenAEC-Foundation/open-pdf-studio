@@ -11,7 +11,7 @@ import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { recordPageStructure } from '../core/undo-manager.js';
 import { PDFDocument, degrees } from 'pdf-lib';
 import {
-  herschikViewports, leesPdfViewports, viewportsVanPaginas, draaiViewports,
+  herschikViewports, leesPdfViewports, leesUserUnits, viewportsVanPaginas, draaiViewports,
   beginViewportLezing, rondViewportLezingAf, viewportLezingLoopt,
 } from './pdf-viewports.js';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -326,10 +326,17 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   // schaal nog klopt. Dan gelden er even géén viewports — de maatvoering valt
   // terug op de schaal van het document — tot de lezing klaar is. Liever kort
   // geen meetschaal uit de PDF dan die van een andere pagina of versie.
+  //
+  // De /UserUnit per pagina (#884) verhuist op dezelfde manier mee. Van een
+  // nieuwe pagina (ingevoegd, uit een ander bestand) is hij niet bekend: dan
+  // worden de bytes alsnog gelezen. Tot dan telt zo'n pagina als 1.
   if (viewportUpdate?.pageMapping) {
     const lezingStondOpen = viewportLezingLoopt(doc);
     doc.pdfViewports = herschikViewports(doc.pdfViewports, viewportUpdate.pageMapping, viewportUpdate.newViewports);
-    if (lezingStondOpen) leesViewportsOpnieuw(doc, newBytes);
+    doc.pageUserUnits = herschikViewports(doc.pageUserUnits, viewportUpdate.pageMapping);
+    const bekend = new Set(Object.values(viewportUpdate.pageMapping).filter((n) => n != null)).size;
+    const heeftNieuwe = (doc.pdfDoc?.numPages || 0) > bekend;
+    if (lezingStondOpen || heeftNieuwe) leesViewportsOpnieuw(doc, newBytes);
   } else {
     doc.pdfViewports = undefined;
     leesViewportsOpnieuw(doc, newBytes);
@@ -454,7 +461,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
 function leesViewportsOpnieuw(doc, bytes) {
   const kenmerk = beginViewportLezing(doc);
   PDFDocument.load(bytes.slice(), { ignoreEncryption: true, updateMetadata: false })
-    .then((lib) => { rondViewportLezingAf(doc, kenmerk, leesPdfViewports(lib)); })
+    .then((lib) => { rondViewportLezingAf(doc, kenmerk, leesPdfViewports(lib), leesUserUnits(lib)); })
     .catch(() => { rondViewportLezingAf(doc, kenmerk, null); /* viewports zijn optioneel */ });
 }
 

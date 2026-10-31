@@ -628,13 +628,14 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // De lezing draagt een kenmerk: wijzigt de gebruiker de pagina's terwijl
     // ze nog loopt, dan komt deze uitkomst (van de oude bytes) niet meer
     // binnen en leest de paginabeheerder de nieuwe bytes zelf.
-    import('./pdf-viewports.js').then(async ({ leesPdfViewports, beginViewportLezing, rondViewportLezingAf }) => {
+    import('./pdf-viewports.js').then(async ({ leesPdfViewports, leesUserUnits, beginViewportLezing, rondViewportLezingAf }) => {
       if (isClosed()) return;
       const kenmerk = beginViewportLezing(doc);
       try {
         const pdfLibDoc = await getSharedPdfLibDoc(doc);
         const geldig = !isClosed() && pdfLibDoc;
-        rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null);
+        // Met de /UserUnit per pagina: een schaal 1:N rekent daarmee (#884).
+        rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null, geldig ? leesUserUnits(pdfLibDoc) : null);
       } catch {
         rondViewportLezingAf(doc, kenmerk, null); // viewports zijn optioneel
       }
@@ -657,13 +658,10 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
           const result = await detectScaleFromPdf(1, doc);
           if (isClosed() || doc.measureScale) return;
           if (result && result.ratio > 0) {
-            const pixelsPerUnit = 72 / (25.4 * result.ratio);
-            doc.measureScale = {
-              pixelsPerUnit,
-              unit: 'mm',
-              method: 'auto-detect',
-              scaleRatio: `1:${result.ratio}`,
-            };
+            // In page units of page 1, /UserUnit included (#884).
+            const { measureScaleFromTitleBlock } = await import('../annotations/document-scale.js');
+            if (isClosed() || doc.measureScale) return;
+            doc.measureScale = measureScaleFromTitleBlock(result);
             const { saveDocumentScale } = await import('../annotations/measurement.js');
             saveDocumentScale(doc);
             console.log(`Auto-detected scale: 1:${result.ratio} from "${result.scaleText}"`);

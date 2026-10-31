@@ -49,7 +49,7 @@ import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { blendCanvasWaarde, isGemengd } from './blend-modes.js';
 import { tekenGemengdTegenPagina } from './rendering/mengen-tegen-pagina.js';
 import { bitmapVoor, bijNieuweTegel, KNIPSEL_UITVOER_FOUT } from './vector-snippet-preview.js';
-import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
+import { invalidateScaleRegionCache, pixelsPerUnitFor, userUnitVanPagina, getRegionScaleFactor } from './scale-region.js';
 import { metSchaalBronnen } from './schaal-bronnen.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawMoveInferenceOverlay } from '../tools/inference-overlay.js';
@@ -2340,7 +2340,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       // Default 1-meter (or 1-foot for imperial) scale bar in bottom-right corner.
       // Visual aid only; not stored in annotation data.
       try {
-        const ppu = pixelsPerUnitFor(scaleStr, unitStr);
+        const ppu = pixelsPerUnitFor(scaleStr, unitStr, userUnitVanPagina(getActiveDocument(), annotation.page));
         // Determine display unit + magnitude in that unit.
         let barUnits;        // amount in the chosen display unit
         let barUnitLabel;    // human label

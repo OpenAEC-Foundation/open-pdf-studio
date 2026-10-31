@@ -8,6 +8,7 @@ import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotati
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
+import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -109,6 +110,9 @@ export default function CalibrationDialog(props) {
   const [pageSizeText, setPageSizeText] = createSignal('');
   const [detecting, setDetecting] = createSignal(false);
   const [detectResult, setDetectResult] = createSignal(null); // null | 'found' | 'notfound'
+  // /UserUnit van de pagina: 1:N wordt daarmee pagina-eenheden (#884).
+  const [userUnit, setUserUnit] = createSignal(
+    userUnitVanPagina(getActiveDocument(), getActiveDocument()?.currentPage));
 
   onMount(async () => {
     // Pre-fill pixels from reference line if provided
@@ -139,6 +143,8 @@ export default function CalibrationDialog(props) {
       const calDoc = getActiveDocument();
       if (calDoc?.pdfDoc) {
         const page = await calDoc.pdfDoc.getPage(calDoc.currentPage);
+        setUserUnit(geldigeUserUnit(page.userUnit));
+        // De viewport van PDF.js rekent /UserUnit mee: de echte papiermaat.
         const vp = page.getViewport({ scale: 1 });
         // PDF points to mm: 1 pt = 25.4/72 mm
         const wMm = (vp.width * 25.4 / 72).toFixed(0);
@@ -187,7 +193,7 @@ export default function CalibrationDialog(props) {
     // schaalgebied (#553).
     const scaleData = method() === 'reference'
       ? schaalUitKalibratie({ method: 'reference', distance: distance(), pixels: pixels(), unit: unit() })
-      : schaalUitKalibratie({ method: 'ratio', denominator: getScaleDenominator(), unit: ratioUnit() });
+      : schaalUitKalibratie({ method: 'ratio', denominator: getScaleDenominator(), unit: ratioUnit(), userUnit: userUnit() });
 
     if (scaleData) {
       const doc = getActiveDocument();
