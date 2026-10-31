@@ -2816,6 +2816,10 @@ pub fn run(opts: StartupOpts) {
     // unavailable.
     let pool: Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>> = Arc::new(tokio::sync::OnceCell::new());
     let pool_for_init = pool.clone();
+    // Shared-memory files (64 MB per worker) of earlier app processes that
+    // crashed or were killed stay behind in the temp dir; remove them in the
+    // background. Files of running instances are left alone.
+    std::thread::spawn(worker_pool::sweep_stale_shm_files);
     tauri::async_runtime::spawn(async move {
         // De pdfium-worker-sidecar staat na bundling naast de hoofdbinary. De
         // bestandsnaam is platform-afhankelijk (`pdfium-worker.exe` op Windows,
@@ -2851,6 +2855,7 @@ pub fn run(opts: StartupOpts) {
                     });
                 } else {
                     eprintln!("[pool] no workers became ready — pool disabled");
+                    pool.shutdown().await;
                 }
             }
             Err(e) => {
@@ -3314,6 +3319,12 @@ pub fn run(opts: StartupOpts) {
             // Bij afsluiten de ontsleutelde werkkopieën van deze instantie
             // opruimen (best effort; wat blijft staan ruimt de volgende start op).
             if let tauri::RunEvent::Exit = &_event {
+                // Stop de PDFium-workers en verwijder hun SHM-bestanden
+                // (4 x 64 MB in de temp-map); anders blijven die na elke
+                // start staan.
+                if let Some(pool) = _app.try_state::<Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>() {
+                    worker_pool::shutdown_on_exit(&pool);
+                }
                 beveiligde_pdf::ruim_eigen_kopieen_op(&_app.state::<beveiligde_pdf::BeveiligdeKopieen>());
                 // De markering "draait" alleen weg na een nette afsluiting van
                 // de frontend; anders ziet de volgende start een crash.
