@@ -412,5 +412,6 @@
     "intersection": "Sjecište",
     "polar": "Polarno",
     "locked": "Zaključano"
-  }
+  },
+  "protectedPdfNoPrint": "Dopuštenja ovog dokumenta ne dopuštaju ispis."
 }

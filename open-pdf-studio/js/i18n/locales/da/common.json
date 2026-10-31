@@ -412,5 +412,6 @@
     "intersection": "Skæringspunkt",
     "polar": "Polær",
     "locked": "Låst"
-  }
+  },
+  "protectedPdfNoPrint": "Rettighederne for dette dokument tillader ikke udskrivning."
 }

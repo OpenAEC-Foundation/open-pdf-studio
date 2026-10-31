@@ -110,6 +110,7 @@
   "searchHitsOne": "1টি মিল",
   "searchHitsMany": "{{count}}টি মিল",
   "passwordProtectedBar": "পাসওয়ার্ড দিয়ে সুরক্ষিত: শুধু পড়ার জন্য খোলা হয়েছে।",
+  "passwordProtectedEditableBar": "পাসওয়ার্ড দিয়ে সুরক্ষিত। সংরক্ষণ করলে সুরক্ষা বজায় থাকে।",
   "documentSearch": {
     "title": "ডকুমেন্ট অনুসন্ধান করুন",
     "query": "অনুসন্ধানের টেক্সট",

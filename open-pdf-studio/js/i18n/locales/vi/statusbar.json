@@ -110,6 +110,7 @@
   "searchHitsOne": "1 kết quả",
   "searchHitsMany": "{{count}} kết quả",
   "passwordProtectedBar": "Được bảo vệ bằng mật khẩu: đã mở ở chế độ chỉ đọc.",
+  "passwordProtectedEditableBar": "Được bảo vệ bằng mật khẩu. Lưu sẽ giữ nguyên bảo vệ.",
   "documentSearch": {
     "title": "Tìm kiếm tài liệu",
     "query": "Văn bản tìm kiếm",

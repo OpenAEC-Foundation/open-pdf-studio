@@ -110,6 +110,7 @@
   "searchHitsOne": "1 treff",
   "searchHitsMany": "{{count}} treff",
   "passwordProtectedBar": "Beskyttet med passord: åpnet skrivebeskyttet.",
+  "passwordProtectedEditableBar": "Beskyttet med passord. Lagring beholder beskyttelsen.",
   "documentSearch": {
     "title": "Søk i dokumenter",
     "query": "Søketekst",

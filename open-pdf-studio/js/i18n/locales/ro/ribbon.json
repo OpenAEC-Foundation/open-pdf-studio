@@ -350,7 +350,10 @@
     "scanTextNone": "Nu există text recunoscut pe această pagină. Rulați mai întâi Recunoaștere text (OCR).",
     "shiftPage": "Deplasează pagina",
     "editPages": "Editare pagini",
-    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire"
+    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire",
+    "protect": "Protejare",
+    "security": "Securitate",
+    "securityTitle": "Setați sau eliminați parole și drepturi"
   },
   "help": {
     "settings": "Setări",

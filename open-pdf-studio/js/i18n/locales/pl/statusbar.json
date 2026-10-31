@@ -110,6 +110,7 @@
   "searchHitsOne": "1 dopasowanie",
   "searchHitsMany": "Dopasowania: {{count}}",
   "passwordProtectedBar": "Chroniony hasłem: otwarty tylko do odczytu.",
+  "passwordProtectedEditableBar": "Chroniony hasłem. Zapisanie zachowuje ochronę.",
   "documentSearch": {
     "title": "Przeszukaj dokumenty",
     "query": "Szukany tekst",

@@ -416,5 +416,6 @@
     "intersection": "Snijpunt",
     "polar": "Pool",
     "locked": "Vastgezet"
-  }
+  },
+  "protectedPdfNoPrint": "De rechten van dit document staan afdrukken niet toe."
 }

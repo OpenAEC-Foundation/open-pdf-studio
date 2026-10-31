@@ -412,5 +412,6 @@
     "intersection": "חיתוך",
     "polar": "קוטבי",
     "locked": "נעול"
-  }
+  },
+  "protectedPdfNoPrint": "ההרשאות של מסמך זה אינן מתירות הדפסה."
 }

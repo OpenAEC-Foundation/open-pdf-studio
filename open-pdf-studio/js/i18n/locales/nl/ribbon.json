@@ -350,7 +350,10 @@
     "scanTextNone": "Geen herkende tekst op deze pagina. Voer eerst Tekst herkennen (OCR) uit.",
     "shiftPage": "Pagina verschuiven",
     "editPages": "Pagina's bewerken",
-    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen"
+    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen",
+    "protect": "Beveiligen",
+    "security": "Beveiliging",
+    "securityTitle": "Wachtwoorden en rechten instellen of verwijderen"
   },
   "help": {
     "information": "Informatie",

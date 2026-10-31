@@ -110,6 +110,7 @@
   "searchHitsOne": "1 correspondência",
   "searchHitsMany": "{{count}} correspondências",
   "passwordProtectedBar": "Protegido por senha: aberto somente para leitura.",
+  "passwordProtectedEditableBar": "Protegido por senha. Salvar mantém a proteção.",
   "documentSearch": {
     "title": "Pesquisar documentos",
     "query": "Texto da pesquisa",

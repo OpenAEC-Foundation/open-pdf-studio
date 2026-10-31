@@ -110,6 +110,7 @@
   "searchHitsOne": "1 osuma",
   "searchHitsMany": "{{count}} osumaa",
   "passwordProtectedBar": "Suojattu salasanalla: avattu vain luku -tilassa.",
+  "passwordProtectedEditableBar": "Suojattu salasanalla. Tallennus säilyttää suojauksen.",
   "documentSearch": {
     "title": "Hae asiakirjoista",
     "query": "Hakuteksti",

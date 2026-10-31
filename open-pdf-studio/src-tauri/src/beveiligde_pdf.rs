@@ -113,12 +113,14 @@ type LaadFn = unsafe extern "system" fn(*const c_void, usize, *const c_char) -> 
 type SluitFn = unsafe extern "system" fn(FpdfDocument);
 type BewaarFn = unsafe extern "system" fn(FpdfDocument, *mut FpdfFileWrite, c_ulong) -> c_int;
 type FoutFn = unsafe extern "system" fn() -> c_ulong;
+type RechtenFn = unsafe extern "system" fn(FpdfDocument) -> c_ulong;
 
 struct Functies {
     laad: LaadFn,
     sluit: SluitFn,
     bewaar: BewaarFn,
     laatste_fout: FoutFn,
+    rechten: RechtenFn,
     // De bibliotheek moet blijven bestaan zolang de functies gebruikt worden.
     _bibliotheek: libloading::Library,
 }
@@ -138,7 +140,9 @@ impl Functies {
                 .map_err(|e| OntsleutelFout::GeenPdfium(e.to_string()))?;
             let laatste_fout = *lib.get::<FoutFn>(b"FPDF_GetLastError\0")
                 .map_err(|e| OntsleutelFout::GeenPdfium(e.to_string()))?;
-            Ok(Functies { laad, sluit, bewaar, laatste_fout, _bibliotheek: lib })
+            let rechten = *lib.get::<RechtenFn>(b"FPDF_GetDocPermissions\0")
+                .map_err(|e| OntsleutelFout::GeenPdfium(e.to_string()))?;
+            Ok(Functies { laad, sluit, bewaar, laatste_fout, rechten, _bibliotheek: lib })
         }
     }
 
@@ -176,9 +180,19 @@ impl Functies {
     }
 }
 
-/// Ontsleutelt een PDF in het geheugen. `bibliotheek` is het pad naar de
-/// PDFium-bibliotheek; PDFium moet al geïnitialiseerd zijn (init_pdfium).
-pub fn ontsleutel(bibliotheek: &Path, bytes: &[u8], wachtwoord: &str) -> Result<Vec<u8>, OntsleutelFout> {
+/// PDFium geeft alle rechten (0xFFFFFFFF) als het document met het
+/// rechtenwachtwoord geopend is.
+const ALLE_RECHTEN: c_ulong = 0xFFFF_FFFF;
+
+/// Een ontsleuteld document en of het met het rechtenwachtwoord geopend is.
+pub struct Ontsleuteld {
+    pub bytes: Vec<u8>,
+    pub eigenaar: bool,
+}
+
+/// Opent `bytes` met de vormen van `wachtwoord`; geeft het document of
+/// `VerkeerdWachtwoord`. Het document moet daarna gesloten worden.
+unsafe fn open_met_vormen(functies: &Functies, bytes: &[u8], wachtwoord: &str) -> Result<FpdfDocument, OntsleutelFout> {
     if wachtwoord.as_bytes().contains(&0) {
         // Een NUL kan nooit deel van het wachtwoord zijn; PDFium zou de rest
         // negeren en mogelijk een korter wachtwoord accepteren.
@@ -188,27 +202,45 @@ pub fn ontsleutel(bibliotheek: &Path, bytes: &[u8], wachtwoord: &str) -> Result<
     // het volgens PDF 2.0 voorbereidde (SASLprep-toewijzing, NFKC, 127 bytes)
     // opent dan niet met wat de gebruiker typt; daarom ook die vormen proberen
     // (pdf_beveiliging::wachtwoord_vormen), zoals pdf.js dat doet.
-    let vormen = crate::pdf_beveiliging::wachtwoord_vormen(wachtwoord);
+    for vorm in &crate::pdf_beveiliging::wachtwoord_vormen(wachtwoord) {
+        let mut ww: Zeroizing<Vec<u8>> = Zeroizing::new(Vec::with_capacity(vorm.len() + 1));
+        ww.extend_from_slice(vorm);
+        ww.push(0);
+        match functies.open(bytes, Some(&ww)) {
+            Ok(d) => return Ok(d),
+            Err(FPDF_ERR_PASSWORD) => continue,
+            Err(code) => return Err(OntsleutelFout::Mislukt(format!("PDFium error {code}"))),
+        }
+    }
+    Err(OntsleutelFout::VerkeerdWachtwoord)
+}
 
+/// Is `wachtwoord` het rechtenwachtwoord van `bytes`? Voor de oudere methoden
+/// (RC4, AES-128), waarvan de app de sleutel niet zelf afleidt.
+pub fn is_rechtenwachtwoord(bibliotheek: &Path, bytes: &[u8], wachtwoord: &str) -> Result<bool, OntsleutelFout> {
+    let functies = Functies::laad(bibliotheek)?;
+    let _guard = crate::pdfium_renderer::inproc_guard();
+    unsafe {
+        let doc = match open_met_vormen(&functies, bytes, wachtwoord) {
+            Ok(d) => d,
+            Err(OntsleutelFout::VerkeerdWachtwoord) => return Ok(false),
+            Err(e) => return Err(e),
+        };
+        let eigenaar = (functies.rechten)(doc) == ALLE_RECHTEN;
+        (functies.sluit)(doc);
+        Ok(eigenaar)
+    }
+}
+
+/// Ontsleutelt een PDF in het geheugen. `bibliotheek` is het pad naar de
+/// PDFium-bibliotheek; PDFium moet al geïnitialiseerd zijn (init_pdfium).
+pub fn ontsleutel(bibliotheek: &Path, bytes: &[u8], wachtwoord: &str) -> Result<Ontsleuteld, OntsleutelFout> {
     let functies = Functies::laad(bibliotheek)?;
     // In-proc PDFium-werk gaat altijd achter dezelfde vergrendeling langs.
     let _guard = crate::pdfium_renderer::inproc_guard();
     unsafe {
-        let mut geopend = None;
-        for vorm in &vormen {
-            let mut ww: Zeroizing<Vec<u8>> = Zeroizing::new(Vec::with_capacity(vorm.len() + 1));
-            ww.extend_from_slice(vorm);
-            ww.push(0);
-            match functies.open(bytes, Some(&ww)) {
-                Ok(d) => {
-                    geopend = Some(d);
-                    break;
-                }
-                Err(FPDF_ERR_PASSWORD) => continue,
-                Err(code) => return Err(OntsleutelFout::Mislukt(format!("PDFium error {code}"))),
-            }
-        }
-        let Some(doc) = geopend else { return Err(OntsleutelFout::VerkeerdWachtwoord) };
+        let doc = open_met_vormen(&functies, bytes, wachtwoord)?;
+        let eigenaar = (functies.rechten)(doc) == ALLE_RECHTEN;
         let mut resultaat = None;
         for vlag in [FPDF_REMOVE_SECURITY, FPDF_REMOVE_SECURITY_OUD] {
             if let Some(uit) = functies.bewaar_zonder_beveiliging(doc, vlag) {
@@ -219,7 +251,9 @@ pub fn ontsleutel(bibliotheek: &Path, bytes: &[u8], wachtwoord: &str) -> Result<
             }
         }
         (functies.sluit)(doc);
-        resultaat.ok_or_else(|| OntsleutelFout::Mislukt("could not write an unprotected copy".into()))
+        resultaat
+            .map(|bytes| Ontsleuteld { bytes, eigenaar })
+            .ok_or_else(|| OntsleutelFout::Mislukt("could not write an unprotected copy".into()))
     }
 }
 
@@ -384,25 +418,41 @@ pub fn ruim_oude_kopieen_op(map: &Path) -> usize {
 
 // ─── Tauri-commando's ──────────────────────────────────────────────────────
 
-/// Opent een PDF met een openingswachtwoord: schrijft een ontsleutelde
-/// werkkopie en geeft het pad ervan terug. Fout `WRONG_PASSWORD` bij een
+/// Antwoord van [`open_protected_pdf`].
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GeopendBeveiligd {
+    /// De ontsleutelde werkkopie.
+    pub path: String,
+    /// De beveiliging van het origineel (sessie om terug te schrijven, of
+    /// alleen een beschrijving); `None` als die niet te lezen was.
+    pub security: Option<crate::pdf_beveiliging::SessieInfo>,
+}
+
+/// Opent een versleutelde PDF: schrijft een ontsleutelde werkkopie en geeft
+/// het pad ervan terug, met de beveiliging van het origineel (#378), zodat
+/// opslaan die kan behouden. `password` is leeg voor een bestand dat zonder
+/// wachtwoord opent maar rechten heeft. Fout `WRONG_PASSWORD` bij een
 /// verkeerd wachtwoord.
 #[tauri::command]
 pub async fn open_protected_pdf(
     app: tauri::AppHandle,
     path: String,
     password: String,
-) -> Result<String, String> {
+) -> Result<GeopendBeveiligd, String> {
     let wachtwoord = Zeroizing::new(password);
     let Some(bibliotheek) = crate::pdfium_renderer::bibliotheek_pad() else {
         return Err(OntsleutelFout::GeenPdfium("PDFium is not loaded".into()).code());
     };
     let bron = PathBuf::from(&path);
-    let doel = tauri::async_runtime::spawn_blocking(move || -> Result<PathBuf, String> {
+    let app2 = app.clone();
+    let (doel, security) = tauri::async_runtime::spawn_blocking(move || -> Result<(PathBuf, Option<crate::pdf_beveiliging::SessieInfo>), String> {
         let bytes = fs::read(&bron).map_err(|e| format!("{FOUT_ONTSLEUTELEN}: cannot read file: {e}"))?;
         let schoon = ontsleutel(&bibliotheek, &bytes, &wachtwoord).map_err(|e| e.code())?;
+        let sessies = app2.state::<crate::pdf_beveiliging::BeveiligingsSessies>();
+        let security = crate::pdf_beveiliging::sessie_voor_bestand(&sessies, &bytes, &wachtwoord, schoon.eigenaar);
         drop(wachtwoord);
-        schrijf_werkkopie(&werkmap(), &schoon)
+        Ok((schrijf_werkkopie(&werkmap(), &schoon.bytes)?, security))
     })
     .await
     .map_err(|e| format!("{FOUT_ONTSLEUTELEN}: {e}"))??;
@@ -413,7 +463,23 @@ pub async fn open_protected_pdf(
     }
     // De webview leest de kopie via de fs-plugin (readBinaryFile).
     let _ = app.fs_scope().allow_file(&doel);
-    Ok(doel.to_string_lossy().to_string())
+    Ok(GeopendBeveiligd { path: doel.to_string_lossy().to_string(), security })
+}
+
+/// Is `password` het rechtenwachtwoord van het bestand op `path`? Voor de
+/// oudere methoden, die de app alleen via PDFium opent.
+#[tauri::command]
+pub async fn verify_pdf_owner_password(path: String, password: String) -> Result<bool, String> {
+    let wachtwoord = Zeroizing::new(password);
+    let Some(bibliotheek) = crate::pdfium_renderer::bibliotheek_pad() else {
+        return Err(OntsleutelFout::GeenPdfium("PDFium is not loaded".into()).code());
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        let bytes = fs::read(&path).map_err(|e| format!("{FOUT_ONTSLEUTELEN}: cannot read file: {e}"))?;
+        is_rechtenwachtwoord(&bibliotheek, &bytes, &wachtwoord).map_err(|e| e.code())
+    })
+    .await
+    .map_err(|e| format!("{FOUT_ONTSLEUTELEN}: {e}"))?
 }
 
 /// Verwijdert een werkkopie (alleen bestanden in de eigen map met de naam van

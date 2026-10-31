@@ -140,8 +140,8 @@
     "officeTable": "Tablo",
     "officeText": "Metin",
     "officeFailed": "Belge dışa aktarılamadı.",
-    "protect": "Parolayla koru",
-    "protectDesc": "Parolayla korunan bir kopya kaydet (AES-256)"
+    "protect": "Belge Güvenliği",
+    "protectDesc": "Parolaları ve izinleri ayarla veya kaldır (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Çıktı profili",

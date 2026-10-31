@@ -110,6 +110,7 @@
   "searchHitsOne": "1 件",
   "searchHitsMany": "{{count}} 件",
   "passwordProtectedBar": "パスワードで保護されています: 読み取り専用で開きました。",
+  "passwordProtectedEditableBar": "パスワードで保護されています。保存しても保護は維持されます。",
   "documentSearch": {
     "title": "ドキュメントを検索",
     "query": "検索テキスト",

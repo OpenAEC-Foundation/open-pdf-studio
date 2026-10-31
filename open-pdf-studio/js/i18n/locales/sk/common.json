@@ -412,5 +412,6 @@
     "intersection": "Priesečník",
     "polar": "Polárne",
     "locked": "Uzamknuté"
-  }
+  },
+  "protectedPdfNoPrint": "Oprávnenia tohto dokumentu nepovoľujú tlač."
 }

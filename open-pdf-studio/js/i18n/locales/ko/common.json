@@ -412,5 +412,6 @@
     "intersection": "교차점",
     "polar": "극좌표",
     "locked": "고정됨"
-  }
+  },
+  "protectedPdfNoPrint": "이 문서의 권한은 인쇄를 허용하지 않습니다."
 }

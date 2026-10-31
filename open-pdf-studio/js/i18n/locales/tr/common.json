@@ -412,5 +412,6 @@
     "intersection": "Kesişim",
     "polar": "Kutupsal",
     "locked": "Kilitli"
-  }
+  },
+  "protectedPdfNoPrint": "Bu belgenin izinleri yazdırmaya izin vermiyor."
 }

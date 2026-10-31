@@ -412,5 +412,6 @@
     "intersection": "Skärningspunkt",
     "polar": "Polär",
     "locked": "Låst"
-  }
+  },
+  "protectedPdfNoPrint": "Behörigheterna för det här dokumentet tillåter inte utskrift."
 }

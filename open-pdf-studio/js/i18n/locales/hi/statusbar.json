@@ -110,6 +110,7 @@
   "searchHitsOne": "1 मिलान",
   "searchHitsMany": "{{count}} मिलान",
   "passwordProtectedBar": "पासवर्ड से सुरक्षित: केवल पढ़ने के लिए खोला गया।",
+  "passwordProtectedEditableBar": "पासवर्ड से सुरक्षित। सहेजने पर सुरक्षा बनी रहती है।",
   "documentSearch": {
     "title": "दस्तावेज़ खोजें",
     "query": "खोज टेक्स्ट",

@@ -110,6 +110,7 @@
   "searchHitsOne": "Tokeo 1",
   "searchHitsMany": "Matokeo {{count}}",
   "passwordProtectedBar": "Imelindwa kwa nenosiri: imefunguliwa kwa kusoma tu.",
+  "passwordProtectedEditableBar": "Imelindwa kwa nenosiri. Kuhifadhi kunadumisha ulinzi.",
   "documentSearch": {
     "title": "Tafuta hati",
     "query": "Maandishi ya kutafuta",

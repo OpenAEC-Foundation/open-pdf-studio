@@ -110,6 +110,7 @@
   "searchHitsOne": "1 eşleşme",
   "searchHitsMany": "{{count}} eşleşme",
   "passwordProtectedBar": "Parola ile korunuyor: salt okunur açıldı.",
+  "passwordProtectedEditableBar": "Parolayla korunuyor. Kaydetmek korumayı korur.",
   "documentSearch": {
     "title": "Belgelerde ara",
     "query": "Arama metni",

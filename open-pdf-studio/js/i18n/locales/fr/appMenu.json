@@ -140,8 +140,8 @@
     "officeTable": "Tableau",
     "officeText": "Texte",
     "officeFailed": "Échec de l'exportation du document.",
-    "protect": "Protéger par mot de passe",
-    "protectDesc": "Enregistrer une copie protégée par mot de passe (AES-256)"
+    "protect": "Sécurité du document",
+    "protectDesc": "Définir ou supprimer les mots de passe et les droits (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil de sortie",

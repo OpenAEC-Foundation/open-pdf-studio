@@ -350,7 +350,10 @@
     "scanTextNone": "이 페이지에 인식된 텍스트가 없습니다. 먼저 텍스트 인식(OCR)을 실행하세요.",
     "shiftPage": "페이지 이동",
     "editPages": "페이지 편집",
-    "editPagesTitle": "페이지를 시각적으로 편집: 순서 변경, 회전, 삽입, 삭제, 추출 및 분할"
+    "editPagesTitle": "페이지를 시각적으로 편집: 순서 변경, 회전, 삽입, 삭제, 추출 및 분할",
+    "protect": "보호",
+    "security": "보안",
+    "securityTitle": "암호 및 권한 설정 또는 제거"
   },
   "help": {
     "settings": "설정",

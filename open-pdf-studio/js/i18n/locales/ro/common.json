@@ -412,5 +412,6 @@
     "intersection": "Intersecție",
     "polar": "Polar",
     "locked": "Blocat"
-  }
+  },
+  "protectedPdfNoPrint": "Drepturile acestui document nu permit tipărirea."
 }

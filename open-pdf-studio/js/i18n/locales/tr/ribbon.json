@@ -350,7 +350,10 @@
     "scanTextNone": "Bu sayfada tanınan metin yok. Önce Metin Tanıma (OCR) çalıştırın.",
     "shiftPage": "Sayfayı kaydır",
     "editPages": "Sayfaları Düzenle",
-    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün"
+    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün",
+    "protect": "Koru",
+    "security": "Güvenlik",
+    "securityTitle": "Parolaları ve izinleri ayarla veya kaldır"
   },
   "help": {
     "settings": "Ayarlar",

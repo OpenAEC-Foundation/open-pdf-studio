@@ -350,7 +350,10 @@
     "scanTextNone": "No hay texto reconocido en esta página. Ejecute primero Reconocimiento de texto (OCR).",
     "shiftPage": "Desplazar página",
     "editPages": "Editar páginas",
-    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir"
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir",
+    "protect": "Proteger",
+    "security": "Seguridad",
+    "securityTitle": "Establecer o quitar contraseñas y permisos"
   },
   "help": {
     "settings": "Configuración",

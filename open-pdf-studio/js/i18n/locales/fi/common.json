@@ -412,5 +412,6 @@
     "intersection": "Leikkauspiste",
     "polar": "Napa",
     "locked": "Lukittu"
-  }
+  },
+  "protectedPdfNoPrint": "Tämän asiakirjan oikeudet eivät salli tulostamista."
 }

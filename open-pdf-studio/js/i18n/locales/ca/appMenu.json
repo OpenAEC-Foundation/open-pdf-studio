@@ -140,8 +140,8 @@
     "officeTable": "Taula",
     "officeText": "Text",
     "officeFailed": "No s'ha pogut exportar el document.",
-    "protect": "Protegeix amb contrasenya",
-    "protectDesc": "Desa una còpia protegida amb contrasenya (AES-256)"
+    "protect": "Seguretat del document",
+    "protectDesc": "Definir o treure contrasenyes i permisos (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Perfil de sortida",

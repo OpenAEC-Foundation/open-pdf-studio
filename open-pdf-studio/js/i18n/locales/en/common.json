@@ -416,5 +416,6 @@
     "intersection": "Intersection",
     "polar": "Polar",
     "locked": "Locked"
-  }
+  },
+  "protectedPdfNoPrint": "The permissions of this document do not allow printing."
 }

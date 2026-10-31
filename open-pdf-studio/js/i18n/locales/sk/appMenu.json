@@ -140,8 +140,8 @@
     "officeTable": "Tabuľka",
     "officeText": "Text",
     "officeFailed": "Export dokumentu zlyhal.",
-    "protect": "Chrániť heslom",
-    "protectDesc": "Uložiť kópiu chránenú heslom (AES-256)"
+    "protect": "Zabezpečenie dokumentu",
+    "protectDesc": "Nastaviť alebo odstrániť heslá a oprávnenia (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Výstupný profil",

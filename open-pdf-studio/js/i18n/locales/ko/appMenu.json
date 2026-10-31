@@ -140,8 +140,8 @@
     "officeTable": "표",
     "officeText": "텍스트",
     "officeFailed": "문서를 내보내지 못했습니다.",
-    "protect": "암호로 보호",
-    "protectDesc": "암호로 보호된 사본 저장 (AES-256)"
+    "protect": "문서 보안",
+    "protectDesc": "암호 및 권한 설정 또는 제거 (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "출력 프로필",

@@ -150,6 +150,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"add-watermark","tab":"organize","labelKey":"ribbon:organize.watermarkLabel"},
   {"id":"add-header-footer","tab":"organize","labelKey":"ribbon:organize.headerFooter"},
   {"id":"manage-watermarks","tab":"organize","labelKey":"ribbon:organize.manage"},
+  {"id":"document-security","tab":"organize","labelKey":"ribbon:organize.security"},
   {"id":"arr-dist-space-h","tab":"arrange","labelKey":"ribbon:arrange.spaceH"},
   {"id":"arr-dist-space-v","tab":"arrange","labelKey":"ribbon:arrange.spaceV"},
   {"id":"arr-dist-left","tab":"arrange","labelKey":"ribbon:arrange.left"},

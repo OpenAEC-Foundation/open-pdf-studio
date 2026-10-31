@@ -350,7 +350,10 @@
     "scanTextNone": "Na této stránce není žádný rozpoznaný text. Nejprve spusťte Rozpoznávání textu (OCR).",
     "shiftPage": "Posunout stránku",
     "editPages": "Upravit stránky",
-    "editPagesTitle": "Upravit stránky vizuálně: změnit pořadí, otočit, vložit, odstranit, extrahovat a rozdělit"
+    "editPagesTitle": "Upravit stránky vizuálně: změnit pořadí, otočit, vložit, odstranit, extrahovat a rozdělit",
+    "protect": "Chránit",
+    "security": "Zabezpečení",
+    "securityTitle": "Nastavit nebo odebrat hesla a oprávnění"
   },
   "help": {
     "settings": "Nastavení",

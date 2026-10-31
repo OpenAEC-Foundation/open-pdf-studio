@@ -110,6 +110,7 @@
   "searchHitsOne": "1 съвпадение",
   "searchHitsMany": "{{count}} съвпадения",
   "passwordProtectedBar": "Защитен с парола: отворен само за четене.",
+  "passwordProtectedEditableBar": "Защитен с парола. При запазване защитата остава.",
   "documentSearch": {
     "title": "Търсене в документи",
     "query": "Текст за търсене",
