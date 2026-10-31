@@ -1,6 +1,12 @@
 // The render scheduler in the app (#506): the page bitmap cache, the tile
 // path and the tab switch together. A fake Rust bridge holds every render
 // until the test finishes it.
+//
+// The callers load their modules with dynamic imports, and under module
+// hooks that takes a varying amount of event-loop turns (it differs between
+// Node versions and machines). So the test never counts turns: it waits for
+// the render calls themselves to arrive and for the callers' promises to
+// settle.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -19,23 +25,32 @@ function wire(w = 2, h = 1) {
 }
 
 // Every render command waits for the test; other commands answer at once.
+// Each arriving render call wakes whoever waits for one.
 const calls = [];
+let waiters = [];
+function wake() {
+  const ready = waiters;
+  waiters = [];
+  for (const w of ready) w();
+}
+/** Resolves on the next render call that arrives. */
+const nextCall = () => new Promise((resolve) => waiters.push(resolve));
+
 globalThis.__TAURI__ = {
   core: {
     invoke: (cmd, args) => {
       if (cmd === 'page_content_size') return Promise.resolve(0);
-      return new Promise((resolve, reject) => calls.push({ cmd, args, resolve, reject }));
+      return new Promise((resolve, reject) => {
+        calls.push({ cmd, args, resolve, reject });
+        wake();
+      });
     },
   },
 };
-const closed = [];
 globalThis.ImageData ??= class ImageData {
   constructor(data, width, height) { this.data = data; this.width = width; this.height = height; }
 };
-globalThis.createImageBitmap = async (src) => {
-  const bmp = { width: src.width, height: src.height, close() { closed.push(bmp); } };
-  return bmp;
-};
+globalThis.createImageBitmap = async (src) => ({ width: src.width, height: src.height, close() {} });
 
 const { state } = await import('../core/state.js');
 const pbc = await import('./page-bitmap-cache.js');
@@ -43,60 +58,98 @@ const { invokeTileRegion } = await import('./progressive-render.js');
 const { renderQueue } = await import('./render-queue-state.js');
 const { isRenderCancelled } = await import('./render-queue.js');
 
-/** Lets the dynamic imports and promise callbacks of the callers run. */
-async function settle() {
-  for (let i = 0; i < 20; i++) await new Promise((r) => setImmediate(r));
-}
 const renders = (cmd, path) => calls.filter((c) => c.cmd === cmd && c.args.path === path);
-const tile = (path, i) => invokeTileRegion({
+
+/**
+ * Waits until `n` render calls of this kind for this file reached the fake
+ * Rust side. Fails instead of hanging when all of `pending` settle first
+ * (a caller that gave up before calling Rust).
+ */
+async function untilCalls(cmd, path, n, pending = []) {
+  let gaveUp = null;
+  const settled = pending.length
+    ? Promise.allSettled(pending).then((r) => { gaveUp = r; })
+    : new Promise(() => {});
+  while (renders(cmd, path).length < n) {
+    await Promise.race([nextCall(), settled]);
+    if (gaveUp && renders(cmd, path).length < n) {
+      assert.fail(`${cmd} ${path}: ${renders(cmd, path).length} of ${n} calls; callers settled with ${JSON.stringify(gaveUp)}`);
+    }
+  }
+}
+
+/** Settles to 'drawn' or 'cancelled', like a caller that only draws what it receives. */
+const outcome = (p) => p.then(
+  () => 'drawn',
+  (e) => (isRenderCancelled(e) ? 'cancelled' : `error: ${e}`),
+);
+
+const tile = (path, i) => outcome(invokeTileRegion({
   path, pageIndex: 0, scale: 2, rotation: 0,
   regionXPt: i * 10, regionYPt: 0, regionWPt: 10, regionHPt: 10,
-});
+}));
 
 function showTab(index) {
   state.activeDocumentIndex = index;
   renderQueue.activeDocumentChanged();
 }
 
-test('a tab switch drops the old tiles and renders the new page at once', async () => {
+/**
+ * Plays the PDFium pool: finishes every render it received, in order, until
+ * all `pending` promises have settled.
+ */
+async function finishEverything(pending) {
+  let done = false;
+  const all = Promise.allSettled(pending).then((r) => { done = true; return r; });
+  while (!done) {
+    const arrived = nextCall();
+    for (const c of calls) {
+      if (!c.done) { c.done = true; c.resolve(wire()); }
+    }
+    await Promise.race([all, arrived]);
+  }
+  return all;
+}
+
+function reset(documents) {
   calls.length = 0;
   pbc.clearAllBitmaps();
-  state.documents = [{ id: 1, filePath: 'A.pdf' }, { id: 2, filePath: 'B.pdf' }];
+  state.documents = documents;
   showTab(0);
+}
 
-  const tilesA = Array.from({ length: 8 }, (_, i) => tile('A.pdf', i).then(
-    () => 'drawn',
-    (e) => (isRenderCancelled(e) ? 'cancelled' : `error: ${e}`),
-  ));
-  await settle();
-  assert.equal(renders('render_pdf_page_region', 'A.pdf').length, 4, 'four tiles with the workers');
+test('a tab switch drops the old tiles and renders the new page at once', async () => {
+  reset([{ id: 1, filePath: 'A.pdf' }, { id: 2, filePath: 'B.pdf' }]);
+
+  const tilesA = Array.from({ length: 8 }, (_, i) => tile('A.pdf', i));
+  await untilCalls('render_pdf_page_region', 'A.pdf', 4, tilesA);
 
   showTab(1);
   const pageB = pbc.ensureBitmap('B.pdf', 1, 0, 1);
-  await settle();
-  assert.equal(renders('render_pdf_page', 'B.pdf').length, 1, 'B\'s page goes to Rust at once');
-  assert.equal(renders('render_pdf_page_region', 'A.pdf').length, 4, 'no further tile of A starts');
+  // B's page reaches Rust while A's four tiles are still running.
+  await untilCalls('render_pdf_page', 'B.pdf', 1, [pageB]);
+  assert.equal(renders('render_pdf_page_region', 'A.pdf').filter((c) => !c.done).length, 4);
 
+  renders('render_pdf_page', 'B.pdf')[0].done = true;
   renders('render_pdf_page', 'B.pdf')[0].resolve(wire());
   const entry = await pageB;
   assert.ok(entry?.bitmap, 'B\'s page rendered');
   assert.ok(pbc.getCachedBitmap('B.pdf', 1, 0, 1));
 
-  for (const c of renders('render_pdf_page_region', 'A.pdf')) c.resolve(wire());
+  for (const c of renders('render_pdf_page_region', 'A.pdf')) { c.done = true; c.resolve(wire()); }
   const outcomes = await Promise.all(tilesA);
   assert.deepEqual(outcomes, Array(8).fill('cancelled'), 'no stale tile is handed to a caller');
+  // Every tile of A has settled, so none can start any more: only the four
+  // that were already running ever reached Rust.
+  assert.equal(renders('render_pdf_page_region', 'A.pdf').length, 4, 'no further tile of A started');
   assert.deepEqual(renderQueue.stats(), { queued: 0, inFlight: 0, prefetchRunning: 0 });
 });
 
 test('a page render that lands after its document was closed stays out of the cache', async () => {
-  calls.length = 0;
-  pbc.clearAllBitmaps();
-  state.documents = [{ id: 1, filePath: 'C.pdf' }, { id: 2, filePath: 'D.pdf' }];
-  showTab(0);
+  reset([{ id: 1, filePath: 'C.pdf' }, { id: 2, filePath: 'D.pdf' }]);
 
   const pageC = pbc.ensureBitmap('C.pdf', 1, 0, 1);
-  await settle();
-  assert.equal(renders('render_pdf_page', 'C.pdf').length, 1);
+  await untilCalls('render_pdf_page', 'C.pdf', 1, [pageC]);
 
   // Close C (tabs.js + document-release.js): D shown, C's caches emptied.
   state.documents = [{ id: 2, filePath: 'D.pdf' }];
@@ -107,27 +160,23 @@ test('a page render that lands after its document was closed stays out of the ca
   renders('render_pdf_page', 'C.pdf')[0].resolve(wire());
   assert.equal(await pageC, null);
   assert.equal(pbc.getCachedBitmap('C.pdf', 1, 0, 1), null, 'no bitmap of the closed document comes back');
+  assert.deepEqual(renderQueue.stats(), { queued: 0, inFlight: 0, prefetchRunning: 0 });
 });
 
 test('rapid A -> B -> C switching ends with C rendered', async () => {
-  calls.length = 0;
-  pbc.clearAllBitmaps();
-  state.documents = ['E.pdf', 'F.pdf', 'G.pdf'].map((filePath, i) => ({ id: i + 10, filePath }));
+  reset(['E.pdf', 'F.pdf', 'G.pdf'].map((filePath, i) => ({ id: i + 10, filePath })));
   const pages = [];
+  const tiles = [];
   for (let i = 0; i < 3; i++) {
     showTab(i);
     const path = state.documents[i].filePath;
     pages.push(pbc.ensureBitmap(path, 1, 0, 1));
-    for (let t = 0; t < 6; t++) tile(path, t).catch(() => {});
-    await settle();
+    for (let t = 0; t < 6; t++) tiles.push(tile(path, t));
+    // The page of the shown document goes out at once, whatever is running.
+    await untilCalls('render_pdf_page', path, 1, [pages[i]]);
   }
-  // Rust works through everything it received, in order.
-  for (let round = 0; round < 10; round++) {
-    const open = calls.filter((c) => !c.done);
-    if (!open.length) break;
-    for (const c of open) { c.done = true; c.resolve(wire()); }
-    await settle();
-  }
+  await finishEverything([...pages, ...tiles]);
+
   const [e, f, g] = await Promise.all(pages);
   assert.equal(e, null);
   assert.equal(f, null);
@@ -135,8 +184,12 @@ test('rapid A -> B -> C switching ends with C rendered', async () => {
   assert.equal(pbc.getCachedBitmap('E.pdf', 1, 0, 1), null);
   assert.equal(pbc.getCachedBitmap('F.pdf', 1, 0, 1), null);
   assert.ok(pbc.getCachedBitmap('G.pdf', 1, 0, 1));
+  const results = await Promise.all(tiles);
+  assert.deepEqual(results.slice(0, 12), Array(12).fill('cancelled'), 'nothing of E or F is drawn');
+  assert.deepEqual(results.slice(12), Array(6).fill('drawn'), 'all of G\'s tiles are drawn');
   // Of E and F, only what was already running reached Rust.
   assert.ok(renders('render_pdf_page_region', 'E.pdf').length <= 4);
   assert.ok(renders('render_pdf_page_region', 'F.pdf').length <= 4);
   assert.equal(renders('render_pdf_page_region', 'G.pdf').length, 6, 'all of G\'s tiles render');
+  assert.deepEqual(renderQueue.stats(), { queued: 0, inFlight: 0, prefetchRunning: 0 });
 });
