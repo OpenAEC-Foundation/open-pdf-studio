@@ -148,5 +148,14 @@
     "title": "Go to the next render finding. No findings does not certify complete rendering.",
     "count": "Render findings: {{count}}",
     "detail": "Page {{page}}: {{code}}. Try a lower zoom or reopen the document; completeness is not certified."
+  },
+  "mcpSignal": {
+    "label": "AI connection (MCP)",
+    "connected": "AI assistant connected",
+    "idle": "MCP server on, idle",
+    "off": "MCP server off",
+    "port": "Port: {{port}}",
+    "lastTool": "Last tool: {{tool}} at {{time}}",
+    "noTool": "No tool calls yet"
   }
 }

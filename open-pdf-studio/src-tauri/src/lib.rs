@@ -20,6 +20,7 @@ pub mod mcp_app_bridge;
 pub mod mcp_extensie_tools;
 pub mod mcp_koppeling;
 pub mod mcp_server;
+pub mod mcp_signaal;
 pub mod mcp_tool_meta;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]

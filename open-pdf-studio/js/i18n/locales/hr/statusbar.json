@@ -148,5 +148,14 @@
     "title": "Idi na sljedeći nalaz iscrtavanja. Bez nalaza ne jamči potpuno iscrtavanje.",
     "count": "Nalazi iscrtavanja: {{count}}",
     "detail": "Stranica {{page}}: {{code}}. Pokušajte manje uvećanje ili ponovno otvorite dokument; potpunost nije zajamčena."
+  },
+  "mcpSignal": {
+    "label": "AI veza (MCP)",
+    "connected": "AI asistent je povezan",
+    "idle": "MCP poslužitelj uključen, neaktivan",
+    "off": "MCP poslužitelj isključen",
+    "port": "Priključak: {{port}}",
+    "lastTool": "Posljednji alat: {{tool}} u {{time}}",
+    "noTool": "Još nema poziva alata"
   }
 }

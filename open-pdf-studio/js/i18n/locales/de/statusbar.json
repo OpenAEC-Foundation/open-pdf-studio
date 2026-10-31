@@ -148,5 +148,14 @@
     "title": "Zum nächsten Darstellungshinweis wechseln. Keine Hinweise garantieren keine vollständige Darstellung.",
     "count": "Darstellungshinweise: {{count}}",
     "detail": "Seite {{page}}: {{code}}. Versuchen Sie einen kleineren Zoom oder öffnen Sie das Dokument erneut; die Vollständigkeit ist nicht garantiert."
+  },
+  "mcpSignal": {
+    "label": "KI-Verbindung (MCP)",
+    "connected": "KI-Assistent verbunden",
+    "idle": "MCP-Server an, inaktiv",
+    "off": "MCP-Server aus",
+    "port": "Port: {{port}}",
+    "lastTool": "Letztes Werkzeug: {{tool}} um {{time}}",
+    "noTool": "Noch keine Werkzeugaufrufe"
   }
 }

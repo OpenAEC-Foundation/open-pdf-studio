@@ -148,5 +148,14 @@
     "title": "Přejít na další nález vykreslování. Žádné nálezy nezaručují úplné vykreslení.",
     "count": "Nálezy vykreslování: {{count}}",
     "detail": "Strana {{page}}: {{code}}. Zkuste menší přiblížení nebo dokument znovu otevřete; úplnost není zaručena."
+  },
+  "mcpSignal": {
+    "label": "Připojení AI (MCP)",
+    "connected": "AI asistent připojen",
+    "idle": "Server MCP zapnut, nečinný",
+    "off": "Server MCP vypnut",
+    "port": "Port: {{port}}",
+    "lastTool": "Poslední nástroj: {{tool}} v {{time}}",
+    "noTool": "Zatím žádná volání nástrojů"
   }
 }
