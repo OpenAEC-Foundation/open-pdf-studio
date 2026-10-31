@@ -718,5 +718,60 @@
     "noRecovery": "Le annotazioni di questo documento sono state appiattite senza consentire il ripristino. Fanno parte del contenuto della pagina e non possono essere ripristinate.",
     "done": "Annotazioni ripristinate: {{count}}.",
     "failed": "Ripristino non riuscito: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Icone piccole",
+    "largeIcons": "Icone grandi",
+    "settings": "Impostazioni"
+  },
+  "symbolPalette": {
+    "search": "Cerca simboli...",
+    "noResults": "Nessun simbolo trovato",
+    "drawingSettings": "Impostazioni disegno",
+    "manageSystemTypes": "Gestisci tipi di sistema",
+    "settingsTitle": "Impostazioni libreria simboli",
+    "industry": "Settore",
+    "country": "Paese",
+    "libraryLoading": "Caricamento libreria online…",
+    "libraryOffline": "Libreria online non raggiungibile — elenco paesi limitato",
+    "downloading": "Download {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Raccolte disponibili online: {{n}} ({{symbols}} simboli)",
+    "activateDownloaded": "Raccolte scaricate da attivare per questo paese: {{n}}",
+    "download": "Scarica",
+    "downloadFailed": "Download non riuscito: {{error}}",
+    "builtIn": "Integrato",
+    "online": "Online",
+    "addSymbol": "+ Aggiungi simbolo",
+    "export": "Esporta",
+    "remove": "Rimuovi",
+    "noSymbolsYet": "Ancora nessun simbolo",
+    "newGroupName": "Nome nuovo gruppo...",
+    "addGroup": "Aggiungi gruppo",
+    "importGroup": "Importa gruppo",
+    "catalogLoaded": "Catalogo '{{id}}' caricato: {{families}} famiglie, {{sizes}} misure",
+    "catalogNoPreview": "{{n}} senza anteprima nel file",
+    "fileNotRecognized": "File non riconosciuto: né un gruppo di simboli né un catalogo",
+    "importFailed": "Importazione non riuscita: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Edilizia",
+      "nl-elektra": "NL Elettrico",
+      "nl-bouwplaats": "NL Cantiere",
+      "nl-sanitair": "NL Sanitari",
+      "nl-keuken": "NL Cucina",
+      "nen1414-tb": "NL NEN 1414 — Protezione antincendio",
+      "nen1414-tbk": "NL NEN 1414 — Sistemi di estinzione",
+      "nen1414-td": "NL NEN 1414 — Porte",
+      "nen1414-tn": "NL NEN 1414 — Illuminazione di emergenza",
+      "nen1414-tr": "NL NEN 1414 — Evacuazione fumo/calore",
+      "nen1414-tv": "NL NEN 1414 — Ventilazione",
+      "nen1414-tw": "NL NEN 1414 — Acqua/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Edilizia)",
+      "electrical": "Elettrotecnica",
+      "process": "Processo / P&ID",
+      "mep": "Impianti tecnici (MEP)",
+      "infra": "Infrastrutture"
+    }
   }
 }

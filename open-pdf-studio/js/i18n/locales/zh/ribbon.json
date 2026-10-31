@@ -718,5 +718,60 @@
     "noRecovery": "此文档中的标记在拼合时未允许恢复。它们是页面内容的一部分，无法恢复。",
     "done": "已恢复标记：{{count}}。",
     "failed": "恢复失败：{{error}}"
+  },
+  "palette": {
+    "smallIcons": "小图标",
+    "largeIcons": "大图标",
+    "settings": "设置"
+  },
+  "symbolPalette": {
+    "search": "搜索符号...",
+    "noResults": "未找到符号",
+    "drawingSettings": "图纸设置",
+    "manageSystemTypes": "管理系统类型",
+    "settingsTitle": "符号库设置",
+    "industry": "行业",
+    "country": "国家/地区",
+    "libraryLoading": "正在加载在线库…",
+    "libraryOffline": "无法访问在线库 — 国家/地区列表受限",
+    "downloading": "正在下载 {{current}}/{{total}}：{{label}}",
+    "availableOnline": "在线可用的集合：{{n}}（{{symbols}} 个符号）",
+    "activateDownloaded": "要为此国家/地区激活的已下载集合：{{n}}",
+    "download": "下载",
+    "downloadFailed": "下载失败：{{error}}",
+    "builtIn": "内置",
+    "online": "在线",
+    "addSymbol": "+ 添加符号",
+    "export": "导出",
+    "remove": "移除",
+    "noSymbolsYet": "暂无符号",
+    "newGroupName": "新组名称...",
+    "addGroup": "添加组",
+    "importGroup": "导入组",
+    "catalogLoaded": "已加载目录 '{{id}}'：{{families}} 个族，{{sizes}} 个尺寸",
+    "catalogNoPreview": "文件中无预览：{{n}}",
+    "fileNotRecognized": "无法识别文件：既不是符号组也不是目录",
+    "importFailed": "导入失败：{{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC 建筑",
+      "nl-elektra": "NL 电气",
+      "nl-bouwplaats": "NL 施工现场",
+      "nl-sanitair": "NL 卫浴",
+      "nl-keuken": "NL 厨房",
+      "nen1414-tb": "NL NEN 1414 — 消防",
+      "nen1414-tbk": "NL NEN 1414 — 灭火系统",
+      "nen1414-td": "NL NEN 1414 — 门",
+      "nen1414-tn": "NL NEN 1414 — 应急照明",
+      "nen1414-tr": "NL NEN 1414 — 排烟/排热",
+      "nen1414-tv": "NL NEN 1414 — 通风",
+      "nen1414-tw": "NL NEN 1414 — 给水/喷淋"
+    },
+    "sectors": {
+      "aec": "AEC（建筑）",
+      "electrical": "电气工程",
+      "process": "工艺 / P&ID",
+      "mep": "建筑设备（MEP）",
+      "infra": "基础设施"
+    }
   }
 }

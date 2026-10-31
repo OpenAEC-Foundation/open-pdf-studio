@@ -727,5 +727,60 @@
     "noRecovery": "De markeringen in dit document zijn afgevlakt zonder terughalen toe te staan. Ze zijn deel van de pagina-inhoud en kunnen niet worden teruggehaald.",
     "done": "Markeringen teruggehaald: {{count}}.",
     "failed": "Terughalen mislukt: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Kleine pictogrammen",
+    "largeIcons": "Grote pictogrammen",
+    "settings": "Instellingen"
+  },
+  "symbolPalette": {
+    "search": "Symbolen zoeken...",
+    "noResults": "Geen symbolen gevonden",
+    "drawingSettings": "Tekeninstellingen",
+    "manageSystemTypes": "Systeemtypen beheren",
+    "settingsTitle": "Instellingen symboolbibliotheek",
+    "industry": "Industrie",
+    "country": "Land",
+    "libraryLoading": "Online bibliotheek laden…",
+    "libraryOffline": "Online bibliotheek niet bereikbaar — beperkte landenlijst",
+    "downloading": "Downloaden {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Collecties online beschikbaar: {{n}} ({{symbols}} symbolen)",
+    "activateDownloaded": "Gedownloade collecties te activeren voor dit land: {{n}}",
+    "download": "Downloaden",
+    "downloadFailed": "Download mislukt: {{error}}",
+    "builtIn": "Ingebouwd",
+    "online": "Online",
+    "addSymbol": "+ Symbool toevoegen",
+    "export": "Exporteren",
+    "remove": "Verwijderen",
+    "noSymbolsYet": "Nog geen symbolen",
+    "newGroupName": "Naam nieuwe groep...",
+    "addGroup": "Groep toevoegen",
+    "importGroup": "Groep importeren",
+    "catalogLoaded": "Catalogus '{{id}}' geladen: {{families}} families, {{sizes}} maten",
+    "catalogNoPreview": "{{n}} zonder preview in het bestand",
+    "fileNotRecognized": "Bestand niet herkend: geen symboolgroep en geen catalogus",
+    "importFailed": "Import mislukt: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bouw",
+      "nl-elektra": "NL Elektra",
+      "nl-bouwplaats": "NL Bouwplaats",
+      "nl-sanitair": "NL Sanitair",
+      "nl-keuken": "NL Keuken",
+      "nen1414-tb": "NL NEN 1414 — Brandbeveiliging",
+      "nen1414-tbk": "NL NEN 1414 — Blussystemen",
+      "nen1414-td": "NL NEN 1414 — Deuren",
+      "nen1414-tn": "NL NEN 1414 — Noodverlichting",
+      "nen1414-tr": "NL NEN 1414 — Rook/Warmteafvoer",
+      "nen1414-tv": "NL NEN 1414 — Ventilatie",
+      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Bouw)",
+      "electrical": "Elektrotechniek",
+      "process": "Proces / P&ID",
+      "mep": "Installatietechniek (MEP)",
+      "infra": "Infra"
+    }
   }
 }

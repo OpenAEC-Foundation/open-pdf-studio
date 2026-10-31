@@ -718,5 +718,60 @@
     "noRecovery": "Ознаке у овом документу сравњене су без дозволе враћања. Део су садржаја странице и не могу се вратити.",
     "done": "Враћене ознаке: {{count}}.",
     "failed": "Враћање није успело: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Мале иконе",
+    "largeIcons": "Велике иконе",
+    "settings": "Подешавања"
+  },
+  "symbolPalette": {
+    "search": "Претражи симболе...",
+    "noResults": "Нема пронађених симбола",
+    "drawingSettings": "Подешавања цртежа",
+    "manageSystemTypes": "Управљање типовима система",
+    "settingsTitle": "Подешавања библиотеке симбола",
+    "industry": "Делатност",
+    "country": "Земља",
+    "libraryLoading": "Учитавање мрежне библиотеке…",
+    "libraryOffline": "Мрежна библиотека није доступна — ограничена листа земаља",
+    "downloading": "Преузимање {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Колекције доступне на мрежи: {{n}} (симбола: {{symbols}})",
+    "activateDownloaded": "Преузете колекције за активирање за ову земљу: {{n}}",
+    "download": "Преузми",
+    "downloadFailed": "Преузимање није успело: {{error}}",
+    "builtIn": "Уграђено",
+    "online": "На мрежи",
+    "addSymbol": "+ Додај симбол",
+    "export": "Извези",
+    "remove": "Уклони",
+    "noSymbolsYet": "Још нема симбола",
+    "newGroupName": "Назив нове групе...",
+    "addGroup": "Додај групу",
+    "importGroup": "Увези групу",
+    "catalogLoaded": "Каталог '{{id}}' учитан: породица {{families}}, величина {{sizes}}",
+    "catalogNoPreview": "Без прегледа у датотеци: {{n}}",
+    "fileNotRecognized": "Датотека није препозната: није ни група симбола ни каталог",
+    "importFailed": "Увоз није успео: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Градња",
+      "nl-elektra": "NL Електроинсталације",
+      "nl-bouwplaats": "NL Градилиште",
+      "nl-sanitair": "NL Санитарије",
+      "nl-keuken": "NL Кухиња",
+      "nen1414-tb": "NL NEN 1414 — Заштита од пожара",
+      "nen1414-tbk": "NL NEN 1414 — Системи за гашење",
+      "nen1414-td": "NL NEN 1414 — Врата",
+      "nen1414-tn": "NL NEN 1414 — Противпанично осветљење",
+      "nen1414-tr": "NL NEN 1414 — Одвод дима и топлоте",
+      "nen1414-tv": "NL NEN 1414 — Вентилација",
+      "nen1414-tw": "NL NEN 1414 — Вода/Спринклери"
+    },
+    "sectors": {
+      "aec": "AEC (Грађевинарство)",
+      "electrical": "Електротехника",
+      "process": "Процеси / P&ID",
+      "mep": "Инсталације у зградама (MEP)",
+      "infra": "Инфраструктура"
+    }
   }
 }

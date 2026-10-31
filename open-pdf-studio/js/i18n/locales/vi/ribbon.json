@@ -718,5 +718,60 @@
     "noRecovery": "Các đánh dấu trong tài liệu này đã được làm phẳng mà không cho phép khôi phục. Chúng là một phần nội dung trang và không thể khôi phục.",
     "done": "Đã khôi phục đánh dấu: {{count}}.",
     "failed": "Khôi phục thất bại: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Biểu tượng nhỏ",
+    "largeIcons": "Biểu tượng lớn",
+    "settings": "Cài đặt"
+  },
+  "symbolPalette": {
+    "search": "Tìm ký hiệu...",
+    "noResults": "Không tìm thấy ký hiệu",
+    "drawingSettings": "Cài đặt bản vẽ",
+    "manageSystemTypes": "Quản lý loại hệ thống",
+    "settingsTitle": "Cài đặt thư viện ký hiệu",
+    "industry": "Ngành",
+    "country": "Quốc gia",
+    "libraryLoading": "Đang tải thư viện trực tuyến…",
+    "libraryOffline": "Không truy cập được thư viện trực tuyến — danh sách quốc gia bị giới hạn",
+    "downloading": "Đang tải xuống {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Bộ sưu tập có sẵn trực tuyến: {{n}} ({{symbols}} ký hiệu)",
+    "activateDownloaded": "Bộ sưu tập đã tải xuống cần kích hoạt cho quốc gia này: {{n}}",
+    "download": "Tải xuống",
+    "downloadFailed": "Tải xuống thất bại: {{error}}",
+    "builtIn": "Tích hợp sẵn",
+    "online": "Trực tuyến",
+    "addSymbol": "+ Thêm ký hiệu",
+    "export": "Xuất",
+    "remove": "Gỡ bỏ",
+    "noSymbolsYet": "Chưa có ký hiệu",
+    "newGroupName": "Tên nhóm mới...",
+    "addGroup": "Thêm nhóm",
+    "importGroup": "Nhập nhóm",
+    "catalogLoaded": "Đã tải danh mục '{{id}}': {{families}} họ, {{sizes}} kích thước",
+    "catalogNoPreview": "{{n}} không có bản xem trước trong tệp",
+    "fileNotRecognized": "Không nhận dạng được tệp: không phải nhóm ký hiệu cũng không phải danh mục",
+    "importFailed": "Nhập thất bại: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Xây dựng",
+      "nl-elektra": "NL Điện",
+      "nl-bouwplaats": "NL Công trường",
+      "nl-sanitair": "NL Thiết bị vệ sinh",
+      "nl-keuken": "NL Nhà bếp",
+      "nen1414-tb": "NL NEN 1414 — Phòng cháy",
+      "nen1414-tbk": "NL NEN 1414 — Hệ thống chữa cháy",
+      "nen1414-td": "NL NEN 1414 — Cửa",
+      "nen1414-tn": "NL NEN 1414 — Chiếu sáng khẩn cấp",
+      "nen1414-tr": "NL NEN 1414 — Hút khói/nhiệt",
+      "nen1414-tv": "NL NEN 1414 — Thông gió",
+      "nen1414-tw": "NL NEN 1414 — Nước/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Xây dựng)",
+      "electrical": "Kỹ thuật điện",
+      "process": "Quy trình / P&ID",
+      "mep": "Hệ thống kỹ thuật tòa nhà (MEP)",
+      "infra": "Hạ tầng"
+    }
   }
 }

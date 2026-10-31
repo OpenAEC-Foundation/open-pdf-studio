@@ -718,5 +718,60 @@
     "noRecovery": "इस दस्तावेज़ के मार्कअप पुनर्स्थापना की अनुमति दिए बिना समतल किए गए थे। वे पृष्ठ सामग्री का हिस्सा हैं और पुनर्स्थापित नहीं किए जा सकते।",
     "done": "पुनर्स्थापित मार्कअप: {{count}}।",
     "failed": "पुनर्स्थापना विफल रही: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "छोटे आइकन",
+    "largeIcons": "बड़े आइकन",
+    "settings": "सेटिंग्स"
+  },
+  "symbolPalette": {
+    "search": "प्रतीक खोजें...",
+    "noResults": "कोई प्रतीक नहीं मिला",
+    "drawingSettings": "ड्रॉइंग सेटिंग्स",
+    "manageSystemTypes": "सिस्टम प्रकार प्रबंधित करें",
+    "settingsTitle": "प्रतीक लाइब्रेरी सेटिंग्स",
+    "industry": "उद्योग",
+    "country": "देश",
+    "libraryLoading": "ऑनलाइन लाइब्रेरी लोड हो रही है…",
+    "libraryOffline": "ऑनलाइन लाइब्रेरी उपलब्ध नहीं — सीमित देश सूची",
+    "downloading": "डाउनलोड हो रहा है {{current}}/{{total}}: {{label}}",
+    "availableOnline": "ऑनलाइन उपलब्ध संग्रह: {{n}} ({{symbols}} प्रतीक)",
+    "activateDownloaded": "इस देश के लिए सक्रिय करने हेतु डाउनलोड किए गए संग्रह: {{n}}",
+    "download": "डाउनलोड करें",
+    "downloadFailed": "डाउनलोड विफल: {{error}}",
+    "builtIn": "अंतर्निहित",
+    "online": "ऑनलाइन",
+    "addSymbol": "+ प्रतीक जोड़ें",
+    "export": "निर्यात करें",
+    "remove": "हटाएँ",
+    "noSymbolsYet": "अभी कोई प्रतीक नहीं",
+    "newGroupName": "नए समूह का नाम...",
+    "addGroup": "समूह जोड़ें",
+    "importGroup": "समूह आयात करें",
+    "catalogLoaded": "कैटलॉग '{{id}}' लोड हुआ: {{families}} परिवार, {{sizes}} आकार",
+    "catalogNoPreview": "फ़ाइल में पूर्वावलोकन के बिना: {{n}}",
+    "fileNotRecognized": "फ़ाइल पहचानी नहीं गई: न प्रतीक समूह है, न कैटलॉग",
+    "importFailed": "आयात विफल: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC निर्माण",
+      "nl-elektra": "NL विद्युत",
+      "nl-bouwplaats": "NL निर्माण स्थल",
+      "nl-sanitair": "NL सैनिटरी",
+      "nl-keuken": "NL रसोई",
+      "nen1414-tb": "NL NEN 1414 — अग्नि सुरक्षा",
+      "nen1414-tbk": "NL NEN 1414 — अग्निशमन प्रणालियाँ",
+      "nen1414-td": "NL NEN 1414 — दरवाज़े",
+      "nen1414-tn": "NL NEN 1414 — आपातकालीन प्रकाश",
+      "nen1414-tr": "NL NEN 1414 — धुआँ/ऊष्मा निकासी",
+      "nen1414-tv": "NL NEN 1414 — वेंटिलेशन",
+      "nen1414-tw": "NL NEN 1414 — पानी/स्प्रिंकलर"
+    },
+    "sectors": {
+      "aec": "AEC (निर्माण)",
+      "electrical": "विद्युत अभियांत्रिकी",
+      "process": "प्रक्रिया / P&ID",
+      "mep": "भवन सेवाएँ (MEP)",
+      "infra": "अवसंरचना"
+    }
   }
 }

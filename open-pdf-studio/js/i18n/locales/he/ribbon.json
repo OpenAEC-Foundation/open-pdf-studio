@@ -718,5 +718,60 @@
     "noRecovery": "הסימונים במסמך זה שוטחו בלי לאפשר שחזור. הם חלק מתוכן העמוד ולא ניתן לשחזר אותם.",
     "done": "סימונים ששוחזרו: {{count}}.",
     "failed": "השחזור נכשל: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "סמלים קטנים",
+    "largeIcons": "סמלים גדולים",
+    "settings": "הגדרות"
+  },
+  "symbolPalette": {
+    "search": "חיפוש סמלים...",
+    "noResults": "לא נמצאו סמלים",
+    "drawingSettings": "הגדרות שרטוט",
+    "manageSystemTypes": "ניהול סוגי מערכות",
+    "settingsTitle": "הגדרות ספריית סמלים",
+    "industry": "ענף",
+    "country": "מדינה",
+    "libraryLoading": "טוען ספרייה מקוונת…",
+    "libraryOffline": "הספרייה המקוונת אינה זמינה — רשימת מדינות מוגבלת",
+    "downloading": "מוריד {{current}}/{{total}}: {{label}}",
+    "availableOnline": "אוספים זמינים באינטרנט: {{n}} (סמלים: {{symbols}})",
+    "activateDownloaded": "אוספים שהורדו להפעלה עבור מדינה זו: {{n}}",
+    "download": "הורדה",
+    "downloadFailed": "ההורדה נכשלה: {{error}}",
+    "builtIn": "מובנית",
+    "online": "מקוונת",
+    "addSymbol": "+ הוספת סמל",
+    "export": "ייצוא",
+    "remove": "הסרה",
+    "noSymbolsYet": "אין עדיין סמלים",
+    "newGroupName": "שם הקבוצה החדשה...",
+    "addGroup": "הוספת קבוצה",
+    "importGroup": "ייבוא קבוצה",
+    "catalogLoaded": "הקטלוג '{{id}}' נטען: משפחות {{families}}, מידות {{sizes}}",
+    "catalogNoPreview": "ללא תצוגה מקדימה בקובץ: {{n}}",
+    "fileNotRecognized": "הקובץ לא זוהה: אינו קבוצת סמלים ואינו קטלוג",
+    "importFailed": "הייבוא נכשל: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC בנייה",
+      "nl-elektra": "NL חשמל",
+      "nl-bouwplaats": "NL אתר בנייה",
+      "nl-sanitair": "NL סניטציה",
+      "nl-keuken": "NL מטבח",
+      "nen1414-tb": "NL NEN 1414 — הגנה מפני אש",
+      "nen1414-tbk": "NL NEN 1414 — מערכות כיבוי",
+      "nen1414-td": "NL NEN 1414 — דלתות",
+      "nen1414-tn": "NL NEN 1414 — תאורת חירום",
+      "nen1414-tr": "NL NEN 1414 — שחרור עשן/חום",
+      "nen1414-tv": "NL NEN 1414 — אוורור",
+      "nen1414-tw": "NL NEN 1414 — מים/ספרינקלרים"
+    },
+    "sectors": {
+      "aec": "AEC (בנייה)",
+      "electrical": "הנדסת חשמל",
+      "process": "תהליכים / P&ID",
+      "mep": "מערכות בניין (MEP)",
+      "infra": "תשתיות"
+    }
   }
 }

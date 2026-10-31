@@ -718,5 +718,60 @@
     "noRecovery": "Marcajele din acest document au fost aplatizate fără a permite restaurarea. Fac parte din conținutul paginii și nu pot fi restaurate.",
     "done": "Marcaje restaurate: {{count}}.",
     "failed": "Restaurarea a eșuat: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Pictograme mici",
+    "largeIcons": "Pictograme mari",
+    "settings": "Setări"
+  },
+  "symbolPalette": {
+    "search": "Căutare simboluri...",
+    "noResults": "Nu s-au găsit simboluri",
+    "drawingSettings": "Setări desen",
+    "manageSystemTypes": "Gestionare tipuri de sistem",
+    "settingsTitle": "Setări bibliotecă de simboluri",
+    "industry": "Domeniu",
+    "country": "Țară",
+    "libraryLoading": "Se încarcă biblioteca online…",
+    "libraryOffline": "Biblioteca online nu poate fi accesată — listă de țări limitată",
+    "downloading": "Se descarcă {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Colecții disponibile online: {{n}} ({{symbols}} simboluri)",
+    "activateDownloaded": "Colecții descărcate de activat pentru această țară: {{n}}",
+    "download": "Descărcare",
+    "downloadFailed": "Descărcarea a eșuat: {{error}}",
+    "builtIn": "Încorporat",
+    "online": "Online",
+    "addSymbol": "+ Adăugare simbol",
+    "export": "Export",
+    "remove": "Eliminare",
+    "noSymbolsYet": "Încă nu există simboluri",
+    "newGroupName": "Numele grupului nou...",
+    "addGroup": "Adăugare grup",
+    "importGroup": "Importare grup",
+    "catalogLoaded": "Catalogul '{{id}}' a fost încărcat: {{families}} familii, {{sizes}} dimensiuni",
+    "catalogNoPreview": "{{n}} fără previzualizare în fișier",
+    "fileNotRecognized": "Fișier nerecunoscut: nu este nici grup de simboluri, nici catalog",
+    "importFailed": "Importul a eșuat: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construcții",
+      "nl-elektra": "NL Electric",
+      "nl-bouwplaats": "NL Șantier",
+      "nl-sanitair": "NL Sanitare",
+      "nl-keuken": "NL Bucătărie",
+      "nen1414-tb": "NL NEN 1414 — Protecție la incendiu",
+      "nen1414-tbk": "NL NEN 1414 — Sisteme de stingere",
+      "nen1414-td": "NL NEN 1414 — Uși",
+      "nen1414-tn": "NL NEN 1414 — Iluminat de siguranță",
+      "nen1414-tr": "NL NEN 1414 — Evacuare fum/căldură",
+      "nen1414-tv": "NL NEN 1414 — Ventilație",
+      "nen1414-tw": "NL NEN 1414 — Apă/Sprinklere"
+    },
+    "sectors": {
+      "aec": "AEC (Construcții)",
+      "electrical": "Electrotehnică",
+      "process": "Procese / P&ID",
+      "mep": "Instalații pentru construcții (MEP)",
+      "infra": "Infrastructură"
+    }
   }
 }

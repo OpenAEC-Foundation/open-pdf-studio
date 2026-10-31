@@ -718,5 +718,60 @@
     "noRecovery": "Penanda dalam dokumen ini diratakan tanpa membenarkan pemulihan. Ia sebahagian daripada kandungan halaman dan tidak boleh dipulihkan.",
     "done": "Penanda dipulihkan: {{count}}.",
     "failed": "Pemulihan gagal: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Ikon kecil",
+    "largeIcons": "Ikon besar",
+    "settings": "Tetapan"
+  },
+  "symbolPalette": {
+    "search": "Cari simbol...",
+    "noResults": "Tiada simbol ditemui",
+    "drawingSettings": "Tetapan lukisan",
+    "manageSystemTypes": "Urus jenis sistem",
+    "settingsTitle": "Tetapan pustaka simbol",
+    "industry": "Industri",
+    "country": "Negara",
+    "libraryLoading": "Memuatkan pustaka dalam talian…",
+    "libraryOffline": "Pustaka dalam talian tidak dapat dicapai — senarai negara terhad",
+    "downloading": "Memuat turun {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Koleksi tersedia dalam talian: {{n}} ({{symbols}} simbol)",
+    "activateDownloaded": "Koleksi dimuat turun untuk diaktifkan bagi negara ini: {{n}}",
+    "download": "Muat turun",
+    "downloadFailed": "Muat turun gagal: {{error}}",
+    "builtIn": "Terbina dalam",
+    "online": "Dalam talian",
+    "addSymbol": "+ Tambah simbol",
+    "export": "Eksport",
+    "remove": "Alih keluar",
+    "noSymbolsYet": "Belum ada simbol",
+    "newGroupName": "Nama kumpulan baharu...",
+    "addGroup": "Tambah kumpulan",
+    "importGroup": "Import kumpulan",
+    "catalogLoaded": "Katalog '{{id}}' dimuatkan: {{families}} keluarga, {{sizes}} saiz",
+    "catalogNoPreview": "{{n}} tanpa pratonton dalam fail",
+    "fileNotRecognized": "Fail tidak dikenali: bukan kumpulan simbol dan bukan katalog",
+    "importFailed": "Import gagal: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Pembinaan",
+      "nl-elektra": "NL Elektrik",
+      "nl-bouwplaats": "NL Tapak bina",
+      "nl-sanitair": "NL Sanitari",
+      "nl-keuken": "NL Dapur",
+      "nen1414-tb": "NL NEN 1414 — Perlindungan kebakaran",
+      "nen1414-tbk": "NL NEN 1414 — Sistem pemadam",
+      "nen1414-td": "NL NEN 1414 — Pintu",
+      "nen1414-tn": "NL NEN 1414 — Lampu kecemasan",
+      "nen1414-tr": "NL NEN 1414 — Pengeluaran asap/haba",
+      "nen1414-tv": "NL NEN 1414 — Pengudaraan",
+      "nen1414-tw": "NL NEN 1414 — Air/Pemercik"
+    },
+    "sectors": {
+      "aec": "AEC (Pembinaan)",
+      "electrical": "Kejuruteraan elektrik",
+      "process": "Proses / P&ID",
+      "mep": "Perkhidmatan bangunan (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

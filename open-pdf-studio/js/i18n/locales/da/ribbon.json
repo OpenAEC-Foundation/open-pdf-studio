@@ -718,5 +718,60 @@
     "noRecovery": "Markeringerne i dette dokument blev fladgjort uden at tillade gendannelse. De er en del af sideindholdet og kan ikke gendannes.",
     "done": "Markeringer gendannet: {{count}}.",
     "failed": "Gendannelse mislykkedes: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Små ikoner",
+    "largeIcons": "Store ikoner",
+    "settings": "Indstillinger"
+  },
+  "symbolPalette": {
+    "search": "Søg efter symboler...",
+    "noResults": "Ingen symboler fundet",
+    "drawingSettings": "Tegningsindstillinger",
+    "manageSystemTypes": "Administrer systemtyper",
+    "settingsTitle": "Indstillinger for symbolbibliotek",
+    "industry": "Branche",
+    "country": "Land",
+    "libraryLoading": "Indlæser onlinebibliotek…",
+    "libraryOffline": "Onlinebibliotek ikke tilgængeligt — begrænset landeliste",
+    "downloading": "Henter {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Samlinger tilgængelige online: {{n}} ({{symbols}} symboler)",
+    "activateDownloaded": "Hentede samlinger, der skal aktiveres for dette land: {{n}}",
+    "download": "Hent",
+    "downloadFailed": "Hentning mislykkedes: {{error}}",
+    "builtIn": "Indbygget",
+    "online": "Online",
+    "addSymbol": "+ Tilføj symbol",
+    "export": "Eksporter",
+    "remove": "Fjern",
+    "noSymbolsYet": "Ingen symboler endnu",
+    "newGroupName": "Navn på ny gruppe...",
+    "addGroup": "Tilføj gruppe",
+    "importGroup": "Importer gruppe",
+    "catalogLoaded": "Katalog '{{id}}' indlæst: {{families}} familier, {{sizes}} størrelser",
+    "catalogNoPreview": "{{n}} uden forhåndsvisning i filen",
+    "fileNotRecognized": "Filen blev ikke genkendt: hverken en symbolgruppe eller et katalog",
+    "importFailed": "Import mislykkedes: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Byggeri",
+      "nl-elektra": "NL El",
+      "nl-bouwplaats": "NL Byggeplads",
+      "nl-sanitair": "NL Sanitet",
+      "nl-keuken": "NL Køkken",
+      "nen1414-tb": "NL NEN 1414 — Brandsikring",
+      "nen1414-tbk": "NL NEN 1414 — Slukningsanlæg",
+      "nen1414-td": "NL NEN 1414 — Døre",
+      "nen1414-tn": "NL NEN 1414 — Nødbelysning",
+      "nen1414-tr": "NL NEN 1414 — Røg-/varmeafledning",
+      "nen1414-tv": "NL NEN 1414 — Ventilation",
+      "nen1414-tw": "NL NEN 1414 — Vand/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Byggeri)",
+      "electrical": "Elektroteknik",
+      "process": "Proces / P&ID",
+      "mep": "Bygningsinstallationer (MEP)",
+      "infra": "Infrastruktur"
+    }
   }
 }

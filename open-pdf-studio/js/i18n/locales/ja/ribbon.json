@@ -718,5 +718,60 @@
     "noRecovery": "この文書のマークアップは復元を許可せずにフラット化されました。ページの内容の一部であり、復元できません。",
     "done": "復元したマークアップ: {{count}}",
     "failed": "復元に失敗しました: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "小さいアイコン",
+    "largeIcons": "大きいアイコン",
+    "settings": "設定"
+  },
+  "symbolPalette": {
+    "search": "シンボルを検索...",
+    "noResults": "シンボルが見つかりません",
+    "drawingSettings": "図面設定",
+    "manageSystemTypes": "システムタイプを管理",
+    "settingsTitle": "シンボルライブラリの設定",
+    "industry": "業種",
+    "country": "国",
+    "libraryLoading": "オンラインライブラリを読み込み中…",
+    "libraryOffline": "オンラインライブラリに接続できません — 国の一覧は限定されます",
+    "downloading": "ダウンロード中 {{current}}/{{total}}: {{label}}",
+    "availableOnline": "オンラインで利用可能なコレクション: {{n}}（シンボル {{symbols}} 個）",
+    "activateDownloaded": "この国で有効にするダウンロード済みコレクション: {{n}}",
+    "download": "ダウンロード",
+    "downloadFailed": "ダウンロードに失敗しました: {{error}}",
+    "builtIn": "組み込み",
+    "online": "オンライン",
+    "addSymbol": "+ シンボルを追加",
+    "export": "エクスポート",
+    "remove": "削除",
+    "noSymbolsYet": "シンボルはまだありません",
+    "newGroupName": "新しいグループ名...",
+    "addGroup": "グループを追加",
+    "importGroup": "グループをインポート",
+    "catalogLoaded": "カタログ '{{id}}' を読み込みました: ファミリ {{families}} 件、サイズ {{sizes}} 件",
+    "catalogNoPreview": "ファイル内でプレビューなし: {{n}}",
+    "fileNotRecognized": "ファイルを認識できません: シンボルグループでもカタログでもありません",
+    "importFailed": "インポートに失敗しました: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC 建築",
+      "nl-elektra": "NL 電気",
+      "nl-bouwplaats": "NL 建設現場",
+      "nl-sanitair": "NL 衛生設備",
+      "nl-keuken": "NL キッチン",
+      "nen1414-tb": "NL NEN 1414 — 防火",
+      "nen1414-tbk": "NL NEN 1414 — 消火設備",
+      "nen1414-td": "NL NEN 1414 — ドア",
+      "nen1414-tn": "NL NEN 1414 — 非常照明",
+      "nen1414-tr": "NL NEN 1414 — 排煙・排熱",
+      "nen1414-tv": "NL NEN 1414 — 換気",
+      "nen1414-tw": "NL NEN 1414 — 水/スプリンクラー"
+    },
+    "sectors": {
+      "aec": "AEC（建設）",
+      "electrical": "電気工学",
+      "process": "プロセス / P&ID",
+      "mep": "建築設備（MEP）",
+      "infra": "インフラ"
+    }
   }
 }

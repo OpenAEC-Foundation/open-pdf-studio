@@ -718,5 +718,60 @@
     "noRecovery": "Tämän asiakirjan merkinnät litistettiin sallimatta palautusta. Ne ovat osa sivun sisältöä eikä niitä voi palauttaa.",
     "done": "Palautetut merkinnät: {{count}}.",
     "failed": "Palautus epäonnistui: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Pienet kuvakkeet",
+    "largeIcons": "Suuret kuvakkeet",
+    "settings": "Asetukset"
+  },
+  "symbolPalette": {
+    "search": "Hae symboleita...",
+    "noResults": "Symboleita ei löytynyt",
+    "drawingSettings": "Piirustuksen asetukset",
+    "manageSystemTypes": "Hallitse järjestelmätyyppejä",
+    "settingsTitle": "Symbolikirjaston asetukset",
+    "industry": "Toimiala",
+    "country": "Maa",
+    "libraryLoading": "Ladataan verkkokirjastoa…",
+    "libraryOffline": "Verkkokirjastoon ei saada yhteyttä — rajoitettu maaluettelo",
+    "downloading": "Ladataan {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Verkossa saatavilla olevat kokoelmat: {{n}} ({{symbols}} symbolia)",
+    "activateDownloaded": "Tälle maalle aktivoitavat ladatut kokoelmat: {{n}}",
+    "download": "Lataa",
+    "downloadFailed": "Lataus epäonnistui: {{error}}",
+    "builtIn": "Sisäänrakennettu",
+    "online": "Verkossa",
+    "addSymbol": "+ Lisää symboli",
+    "export": "Vie",
+    "remove": "Poista",
+    "noSymbolsYet": "Ei vielä symboleita",
+    "newGroupName": "Uuden ryhmän nimi...",
+    "addGroup": "Lisää ryhmä",
+    "importGroup": "Tuo ryhmä",
+    "catalogLoaded": "Luettelo '{{id}}' ladattu: {{families}} perhettä, {{sizes}} kokoa",
+    "catalogNoPreview": "{{n}} ilman esikatselua tiedostossa",
+    "fileNotRecognized": "Tiedostoa ei tunnistettu: ei symboliryhmä eikä luettelo",
+    "importFailed": "Tuonti epäonnistui: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Rakentaminen",
+      "nl-elektra": "NL Sähkö",
+      "nl-bouwplaats": "NL Työmaa",
+      "nl-sanitair": "NL Saniteetti",
+      "nl-keuken": "NL Keittiö",
+      "nen1414-tb": "NL NEN 1414 — Palontorjunta",
+      "nen1414-tbk": "NL NEN 1414 — Sammutusjärjestelmät",
+      "nen1414-td": "NL NEN 1414 — Ovet",
+      "nen1414-tn": "NL NEN 1414 — Turvavalaistus",
+      "nen1414-tr": "NL NEN 1414 — Savunpoisto",
+      "nen1414-tv": "NL NEN 1414 — Ilmanvaihto",
+      "nen1414-tw": "NL NEN 1414 — Vesi/Sprinkleri"
+    },
+    "sectors": {
+      "aec": "AEC (Rakentaminen)",
+      "electrical": "Sähkötekniikka",
+      "process": "Prosessi / P&ID",
+      "mep": "Talotekniikka (MEP)",
+      "infra": "Infrastruktuuri"
+    }
   }
 }

@@ -718,5 +718,60 @@
     "noRecovery": "A dokumentum jelöléseit a visszaállítás engedélyezése nélkül lapították. Az oldal tartalmának részei, és nem állíthatók vissza.",
     "done": "Visszaállított jelölések: {{count}}.",
     "failed": "A visszaállítás sikertelen: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Kis ikonok",
+    "largeIcons": "Nagy ikonok",
+    "settings": "Beállítások"
+  },
+  "symbolPalette": {
+    "search": "Szimbólumok keresése...",
+    "noResults": "Nem található szimbólum",
+    "drawingSettings": "Rajzbeállítások",
+    "manageSystemTypes": "Rendszertípusok kezelése",
+    "settingsTitle": "Szimbólumkönyvtár beállításai",
+    "industry": "Iparág",
+    "country": "Ország",
+    "libraryLoading": "Online könyvtár betöltése…",
+    "libraryOffline": "Az online könyvtár nem érhető el — korlátozott országlista",
+    "downloading": "Letöltés {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Online elérhető gyűjtemények: {{n}} ({{symbols}} szimbólum)",
+    "activateDownloaded": "Ehhez az országhoz aktiválandó letöltött gyűjtemények: {{n}}",
+    "download": "Letöltés",
+    "downloadFailed": "A letöltés sikertelen: {{error}}",
+    "builtIn": "Beépített",
+    "online": "Online",
+    "addSymbol": "+ Szimbólum hozzáadása",
+    "export": "Exportálás",
+    "remove": "Eltávolítás",
+    "noSymbolsYet": "Még nincsenek szimbólumok",
+    "newGroupName": "Új csoport neve...",
+    "addGroup": "Csoport hozzáadása",
+    "importGroup": "Csoport importálása",
+    "catalogLoaded": "A(z) '{{id}}' katalógus betöltve: {{families}} család, {{sizes}} méret",
+    "catalogNoPreview": "{{n}} előnézet nélkül a fájlban",
+    "fileNotRecognized": "A fájl nem ismerhető fel: sem szimbólumcsoport, sem katalógus",
+    "importFailed": "Az importálás sikertelen: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Építés",
+      "nl-elektra": "NL Elektromos",
+      "nl-bouwplaats": "NL Építési terület",
+      "nl-sanitair": "NL Szaniter",
+      "nl-keuken": "NL Konyha",
+      "nen1414-tb": "NL NEN 1414 — Tűzvédelem",
+      "nen1414-tbk": "NL NEN 1414 — Oltórendszerek",
+      "nen1414-td": "NL NEN 1414 — Ajtók",
+      "nen1414-tn": "NL NEN 1414 — Vészvilágítás",
+      "nen1414-tr": "NL NEN 1414 — Füst- és hőelvezetés",
+      "nen1414-tv": "NL NEN 1414 — Szellőzés",
+      "nen1414-tw": "NL NEN 1414 — Víz/Sprinkler"
+    },
+    "sectors": {
+      "aec": "AEC (Építőipar)",
+      "electrical": "Elektrotechnika",
+      "process": "Folyamat / P&ID",
+      "mep": "Épületgépészet (MEP)",
+      "infra": "Infrastruktúra"
+    }
   }
 }

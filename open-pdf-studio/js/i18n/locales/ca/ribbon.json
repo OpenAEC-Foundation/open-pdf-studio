@@ -718,5 +718,60 @@
     "noRecovery": "Les marques d'aquest document es van aplanar sense permetre restaurar-les. Formen part del contingut de la pàgina i no es poden restaurar.",
     "done": "Marques restaurades: {{count}}.",
     "failed": "No s'ha pogut restaurar: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Icones petites",
+    "largeIcons": "Icones grans",
+    "settings": "Configuració"
+  },
+  "symbolPalette": {
+    "search": "Cerca símbols...",
+    "noResults": "No s'han trobat símbols",
+    "drawingSettings": "Configuració del dibuix",
+    "manageSystemTypes": "Gestiona els tipus de sistema",
+    "settingsTitle": "Configuració de la biblioteca de símbols",
+    "industry": "Sector",
+    "country": "País",
+    "libraryLoading": "Carregant la biblioteca en línia…",
+    "libraryOffline": "Biblioteca en línia no accessible — llista de països limitada",
+    "downloading": "Baixant {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Col·leccions disponibles en línia: {{n}} ({{symbols}} símbols)",
+    "activateDownloaded": "Col·leccions baixades per activar en aquest país: {{n}}",
+    "download": "Baixa",
+    "downloadFailed": "Ha fallat la baixada: {{error}}",
+    "builtIn": "Integrat",
+    "online": "En línia",
+    "addSymbol": "+ Afegeix un símbol",
+    "export": "Exporta",
+    "remove": "Elimina",
+    "noSymbolsYet": "Encara no hi ha símbols",
+    "newGroupName": "Nom del grup nou...",
+    "addGroup": "Afegeix un grup",
+    "importGroup": "Importa un grup",
+    "catalogLoaded": "Catàleg '{{id}}' carregat: {{families}} famílies, {{sizes}} mides",
+    "catalogNoPreview": "{{n}} sense previsualització al fitxer",
+    "fileNotRecognized": "Fitxer no reconegut: no és un grup de símbols ni un catàleg",
+    "importFailed": "Ha fallat la importació: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construcció",
+      "nl-elektra": "NL Electricitat",
+      "nl-bouwplaats": "NL Obra",
+      "nl-sanitair": "NL Sanitaris",
+      "nl-keuken": "NL Cuina",
+      "nen1414-tb": "NL NEN 1414 — Protecció contra incendis",
+      "nen1414-tbk": "NL NEN 1414 — Sistemes d'extinció",
+      "nen1414-td": "NL NEN 1414 — Portes",
+      "nen1414-tn": "NL NEN 1414 — Enllumenat d'emergència",
+      "nen1414-tr": "NL NEN 1414 — Extracció de fum/calor",
+      "nen1414-tv": "NL NEN 1414 — Ventilació",
+      "nen1414-tw": "NL NEN 1414 — Aigua/Ruixadors"
+    },
+    "sectors": {
+      "aec": "AEC (Construcció)",
+      "electrical": "Electrotècnia",
+      "process": "Processos / P&ID",
+      "mep": "Instal·lacions (MEP)",
+      "infra": "Infraestructura"
+    }
   }
 }
