@@ -148,5 +148,7 @@
     "title": "Gå til næste gengivelsesfund. Ingen fund garanterer ikke en fuldstændig gengivelse.",
     "count": "Gengivelsesfund: {{count}}",
     "detail": "Side {{page}}: {{code}}. Prøv en lavere zoom, eller åbn dokumentet igen; fuldstændigheden er ikke garanteret."
-  }
+  },
+  "pdfaReadOnly": "Dette dokument overholder {{label}}-standarden og er åbnet skrivebeskyttet for at forhindre ændringer.",
+  "pdfaValidate": "Valider"
 }

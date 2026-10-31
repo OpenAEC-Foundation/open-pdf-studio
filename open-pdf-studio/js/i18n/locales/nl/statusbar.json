@@ -148,5 +148,7 @@
     "title": "Ga naar de volgende rendermelding. Geen melding garandeert geen volledige weergave.",
     "count": "Rendermeldingen: {{count}}",
     "detail": "Pagina {{page}}: {{code}}. Probeer een lagere zoom of heropen het document; de volledigheid is niet gecertificeerd."
-  }
+  },
+  "pdfaReadOnly": "Dit document voldoet aan de {{label}}-standaard en is alleen-lezen geopend om wijzigingen te voorkomen.",
+  "pdfaValidate": "Valideren"
 }

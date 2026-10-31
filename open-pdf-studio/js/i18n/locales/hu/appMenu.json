@@ -223,5 +223,6 @@
   "workflows": "Dokumentum-munkafolyamatok",
   "drawingSets": "Rajzkészletek",
   "sheetLinks": "Rajzlapok közötti hivatkozások",
-  "approvalRouting": "Jóváhagyási útvonal"
+  "approvalRouting": "Jóváhagyási útvonal",
+  "pdfa": "PDF/A..."
 }

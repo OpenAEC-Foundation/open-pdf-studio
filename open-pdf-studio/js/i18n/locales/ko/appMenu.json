@@ -223,5 +223,6 @@
   "workflows": "문서 워크플로",
   "drawingSets": "도면 세트",
   "sheetLinks": "도면 간 링크",
-  "approvalRouting": "승인 라우팅"
+  "approvalRouting": "승인 라우팅",
+  "pdfa": "PDF/A..."
 }

@@ -223,5 +223,6 @@
   "workflows": "Document workflows",
   "drawingSets": "Drawing sets",
   "sheetLinks": "Cross-sheet links",
-  "approvalRouting": "Approval routing"
+  "approvalRouting": "Approval routing",
+  "pdfa": "PDF/A..."
 }

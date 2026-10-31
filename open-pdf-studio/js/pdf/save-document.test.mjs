@@ -85,6 +85,8 @@ function harness() {
       if (path.includes('opslaan')) return { moetOpnieuwVerifieren: () => false, opslaanAlsStandaardPad: doc => doc.filePath };
       if (path.includes('cad-import')) return { isVoorbeeldPdf: () => false };
       if (path.includes('document-release')) return { losgelatenWerkbestanden: () => [], ruimWerkbestandenOp: async () => {} };
+      // PDF/A behouden bij opslaan (#379): de echte, app-vrije modules.
+      if (path === './pdfa/herconversie.js' || path === './pdfa/meldingen.js') return import(new URL(path, import.meta.url));
       throw new Error(`Unexpected import: ${path}`);
     },
   };

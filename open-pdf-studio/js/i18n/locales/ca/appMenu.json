@@ -223,5 +223,6 @@
   "workflows": "Fluxos de treball de documents",
   "drawingSets": "Jocs de plànols",
   "sheetLinks": "Enllaços entre plànols",
-  "approvalRouting": "Circuit d'aprovació"
+  "approvalRouting": "Circuit d'aprovació",
+  "pdfa": "PDF/A..."
 }

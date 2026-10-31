@@ -148,5 +148,7 @@
     "title": "Pergi ke dapatan pemaparan seterusnya. Tiada dapatan tidak menjamin pemaparan yang lengkap.",
     "count": "Dapatan pemaparan: {{count}}",
     "detail": "Halaman {{page}}: {{code}}. Cuba zum yang lebih rendah atau buka semula dokumen; kelengkapan tidak dijamin."
-  }
+  },
+  "pdfaReadOnly": "Dokumen ini mematuhi piawaian {{label}} dan telah dibuka dalam mod baca sahaja untuk mengelakkan pengubahsuaian.",
+  "pdfaValidate": "Sahkan"
 }

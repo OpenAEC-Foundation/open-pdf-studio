@@ -1,10 +1,11 @@
 import { createSignal } from 'solid-js';
 
 const [visible, setVisible] = createSignal(false);
-const [labelText, setLabelText] = createSignal('');
+// Het label van de conformiteit ('PDF/A-2b'); de balk vertaalt de zin zelf.
+const [label, setLabel] = createSignal('');
 
-export function showPdfABar(text) {
-  setLabelText(text);
+export function showPdfABar(pdfaLabel) {
+  setLabel(pdfaLabel);
   setVisible(true);
 }
 
@@ -12,4 +13,4 @@ export function hidePdfABar() {
   setVisible(false);
 }
 
-export { visible, labelText };
+export { visible, label };

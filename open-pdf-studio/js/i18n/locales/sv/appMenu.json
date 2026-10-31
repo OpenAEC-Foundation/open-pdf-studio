@@ -223,5 +223,6 @@
   "workflows": "Dokumentarbetsflöden",
   "drawingSets": "Ritningsuppsättningar",
   "sheetLinks": "Länkar mellan ritningar",
-  "approvalRouting": "Godkännandeflöde"
+  "approvalRouting": "Godkännandeflöde",
+  "pdfa": "PDF/A..."
 }

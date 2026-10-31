@@ -148,5 +148,7 @@
     "title": "Ir al siguiente aviso de renderizado. No tener avisos no garantiza un renderizado completo.",
     "count": "Avisos de renderizado: {{count}}",
     "detail": "Página {{page}}: {{code}}. Pruebe un zoom menor o vuelva a abrir el documento; no se garantiza que esté completo."
-  }
+  },
+  "pdfaReadOnly": "Este documento cumple con el estándar {{label}} y se ha abierto en modo de solo lectura para evitar modificaciones.",
+  "pdfaValidate": "Validar"
 }

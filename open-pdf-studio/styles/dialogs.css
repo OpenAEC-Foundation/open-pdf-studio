@@ -6184,3 +6184,110 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   flex-shrink: 0;
   color: var(--theme-text-secondary, #666);
 }
+
+/* PDF/A (#379): valideren, opslaan als PDF/A en de waarschuwing bij bewerken */
+.pdfa-dialog {
+  width: 640px;
+  max-width: calc(100vw - 32px);
+}
+
+.pdfa-edit-dialog {
+  width: 440px;
+}
+
+.pdfa-dialog .pdfa-label {
+  width: 120px;
+}
+
+.pdfa-tekst {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--theme-text, #333);
+}
+
+.pdfa-keuze {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+
+.pdfa-keuze > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pdfa-hint {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #666);
+  line-height: 1.35;
+}
+
+.pdfa-ok {
+  font-size: 11px;
+  color: #107c10;
+}
+
+.pdfa-fout {
+  font-size: 11px;
+  color: #c42b1c;
+}
+
+.pdfa-tabel-kader {
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface, #fff);
+}
+
+.pdfa-tabel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+
+.pdfa-tabel th {
+  position: sticky;
+  top: 0;
+  text-align: start;
+  font-weight: normal;
+  padding: 2px 6px;
+  background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.pdfa-tabel td {
+  padding: 2px 6px;
+  border-bottom: 1px solid var(--theme-border-light, #eee);
+  vertical-align: top;
+}
+
+.pdfa-tabel .pdfa-object {
+  color: var(--theme-text-secondary, #666);
+  white-space: nowrap;
+}
+
+.pdfa-pagina {
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, inherit);
+  font-size: 11px;
+  padding: 0 4px;
+}
+
+.pdfa-kop {
+  width: auto;
+}
+
+.pdfa-wijzigingen {
+  margin: 0;
+  padding-inline-start: 16px;
+  max-height: 140px;
+  overflow: auto;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}

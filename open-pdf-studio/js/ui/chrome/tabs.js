@@ -222,8 +222,7 @@ export function switchToTab(index) {
     import('../../pdf/loader.js').then(({ isPdfAReadOnly }) => {
       if (isPdfAReadOnly()) {
         const label = `PDF/A-${newDoc.pdfaCompliance.part}${newDoc.pdfaCompliance.conformance ? newDoc.pdfaCompliance.conformance.toLowerCase() : ''}`;
-        const text = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
-        import('../../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(text));
+        import('../../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(label));
       }
     });
   }

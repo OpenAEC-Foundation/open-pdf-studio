@@ -148,5 +148,7 @@
     "title": "Nenda kwenye taarifa inayofuata ya uonyeshaji. Kukosekana kwa taarifa hakuhakikishi uonyeshaji kamili.",
     "count": "Taarifa za uonyeshaji: {{count}}",
     "detail": "Ukurasa {{page}}: {{code}}. Jaribu kukuza kidogo au fungua hati upya; ukamilifu haujahakikishwa."
-  }
+  },
+  "pdfaReadOnly": "Hati hii inafuata kiwango cha {{label}} na imefunguliwa katika hali ya kusoma tu ili kuzuia mabadiliko.",
+  "pdfaValidate": "Thibitisha"
 }

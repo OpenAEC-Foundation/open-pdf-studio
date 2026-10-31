@@ -148,5 +148,7 @@
     "title": "Vai alla segnalazione di rendering successiva. L’assenza di segnalazioni non garantisce un rendering completo.",
     "count": "Segnalazioni di rendering: {{count}}",
     "detail": "Pagina {{page}}: {{code}}. Prova uno zoom inferiore o riapri il documento; la completezza non è garantita."
-  }
+  },
+  "pdfaReadOnly": "Questo documento è conforme allo standard {{label}} ed è stato aperto in sola lettura per evitare modifiche.",
+  "pdfaValidate": "Convalida"
 }

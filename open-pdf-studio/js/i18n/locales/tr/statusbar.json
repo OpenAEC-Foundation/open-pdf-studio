@@ -148,5 +148,7 @@
     "title": "Sonraki görüntüleme bulgusuna git. Bulgu olmaması görüntülemenin eksiksiz olduğunu garanti etmez.",
     "count": "Görüntüleme bulguları: {{count}}",
     "detail": "Sayfa {{page}}: {{code}}. Daha düşük bir yakınlaştırma deneyin veya belgeyi yeniden açın; eksiksizlik garanti edilmez."
-  }
+  },
+  "pdfaReadOnly": "Bu belge {{label}} standardına uygundur ve değiştirilmesini önlemek için salt okunur olarak açılmıştır.",
+  "pdfaValidate": "Doğrula"
 }

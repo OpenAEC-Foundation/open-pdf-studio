@@ -223,5 +223,6 @@
   "workflows": "ドキュメントワークフロー",
   "drawingSets": "図面セット",
   "sheetLinks": "図面間リンク",
-  "approvalRouting": "承認ルーティング"
+  "approvalRouting": "承認ルーティング",
+  "pdfa": "PDF/A..."
 }

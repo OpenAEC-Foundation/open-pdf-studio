@@ -223,5 +223,6 @@
   "workflows": "Fluxuri de lucru pentru documente",
   "drawingSets": "Seturi de planșe",
   "sheetLinks": "Legături între planșe",
-  "approvalRouting": "Circuit de aprobare"
+  "approvalRouting": "Circuit de aprobare",
+  "pdfa": "PDF/A..."
 }

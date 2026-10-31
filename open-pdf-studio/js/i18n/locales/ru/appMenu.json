@@ -223,5 +223,6 @@
   "workflows": "Рабочие процессы документов",
   "drawingSets": "Комплекты чертежей",
   "sheetLinks": "Ссылки между листами",
-  "approvalRouting": "Маршрут согласования"
+  "approvalRouting": "Маршрут согласования",
+  "pdfa": "PDF/A..."
 }

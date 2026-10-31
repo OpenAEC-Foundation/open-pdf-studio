@@ -3372,7 +3372,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // van pdf-lib genegeerd.
     const pdfBytes = await annulering.wacht(pdfDocLib.save({ updateFieldAppearances: false }));
     const outputPath = saveAsPath || activeDoc?.saveTargetPath || currentPath;
-    const savedBytes = new Uint8Array(pdfBytes);
+    let savedBytes = new Uint8Array(pdfBytes);
+    // Een bewerkt PDF/A-document (#379): bij "Bewerken inschakelen" koos de
+    // gebruiker of het PDF/A blijft. Zo ja, dan wordt het hier opnieuw
+    // geconverteerd; lukt dat niet, dan wordt het een gewone PDF en zegt een
+    // melding waarom (nooit stilzwijgend).
+    const pdfaUitkomst = await herconverteerPdfA(activeDoc, savedBytes);
+    savedBytes = pdfaUitkomst.bytes;
     // Structural edits replace the PDF and often move its working path. A
     // serialization started before that replacement must not write old bytes.
     if (!stillCurrent()) throw changedDuringSave();
@@ -3417,9 +3423,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     if (!stillCurrent()) throw changedDuringSave();
 
     if (activeDoc.pdfaCompliance) {
-      activeDoc.pdfaCompliance = null;
-      if (getActiveDocument() === activeDoc) hidePdfABar();
+      activeDoc.pdfaCompliance = pdfaUitkomst.behouden;
+      if (!pdfaUitkomst.behouden && getActiveDocument() === activeDoc) hidePdfABar();
     }
+    if (pdfaUitkomst.melding) showMessage(pdfaUitkomst.melding);
 
     // Mark document as saved
     markDocumentSaved(activeDoc);
@@ -3578,6 +3585,32 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
 
 
+
+/**
+ * PDF/A behouden bij opslaan (#379). Geeft de te schrijven bytes, de nieuwe
+ * pdfaCompliance (null = geen PDF/A meer) en eventueel een melding.
+ */
+async function herconverteerPdfA(doc, bytes) {
+  if (!doc?.pdfaCompliance) return { bytes, behouden: null, melding: null };
+  const { moetHerconverteren, herconversieDeel } = await import('./pdfa/herconversie.js');
+  if (!moetHerconverteren(doc)) return { bytes, behouden: null, melding: null };
+  const { pdfaLabel, bevindingTekst } = await import('./pdfa/meldingen.js');
+  const t = (sleutel, opties = {}) => i18next.t(sleutel, { ns: 'dialogs', ...opties });
+  const deel = herconversieDeel(doc.pdfaCompliance);
+  if (!deel) {
+    const c = doc.pdfaCompliance;
+    return { bytes, behouden: null, melding: t('pdfa.reconvertNotSupported', { label: c?.part ? pdfaLabel(c.part, c.conformance || 'b') : 'PDF/A' }) };
+  }
+  const label = pdfaLabel(deel);
+  showLoading(t('pdfa.converting', { label }));
+  const { herconverteerBijOpslaan } = await import('./pdfa/pdfa-service.js');
+  const r = await herconverteerBijOpslaan(bytes, doc);
+  if (r.behouden) return { bytes: r.bytes, behouden: r.behouden, melding: null };
+  if (r.fout) console.warn('[saver] PDF/A-conversie mislukt:', r.fout);
+  const redenen = r.redenen.slice(0, 5).map((b) => bevindingTekst(t, b));
+  if (r.fout) redenen.push(String(r.fout?.message || r.fout));
+  return { bytes, behouden: null, melding: t('pdfa.reconvertFailed', { label, reasons: redenen.join(' ') || '?' }) };
+}
 
 // Save As - prompt for new file path
 export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, opties = {}) {

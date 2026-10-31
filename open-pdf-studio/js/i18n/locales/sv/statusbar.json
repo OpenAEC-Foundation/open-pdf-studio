@@ -148,5 +148,7 @@
     "title": "Gå till nästa renderingsanmärkning. Inga anmärkningar garanterar inte en fullständig rendering.",
     "count": "Renderingsanmärkningar: {{count}}",
     "detail": "Sida {{page}}: {{code}}. Prova en lägre zoom eller öppna dokumentet igen; fullständigheten är inte garanterad."
-  }
+  },
+  "pdfaReadOnly": "Det här dokumentet uppfyller {{label}}-standarden och har öppnats skrivskyddat för att förhindra ändringar.",
+  "pdfaValidate": "Validera"
 }

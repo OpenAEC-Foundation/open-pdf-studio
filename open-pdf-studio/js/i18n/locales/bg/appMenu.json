@@ -223,5 +223,6 @@
   "workflows": "Работни процеси за документи",
   "drawingSets": "Комплекти чертежи",
   "sheetLinks": "Връзки между листове",
-  "approvalRouting": "Маршрут за одобрение"
+  "approvalRouting": "Маршрут за одобрение",
+  "pdfa": "PDF/A..."
 }
