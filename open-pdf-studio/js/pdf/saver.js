@@ -1,3 +1,4 @@
+import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
@@ -557,7 +558,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             }
             const dict = context.lookup(ref);
             const subtype = dict?.get?.(PDFName.of('Subtype'))?.toString();
-            if (!subtype || !handledSubtypes.has(subtype)) {
+            if (!subtype || !handledSubtypes.has(subtype) || isShxTextDictionary(dict, context)) {
               annotsArray.push(ref); // Keep annotations we don't manage
             } else if (subtype === '/Square' && readPluginPdfAnnotation(dict, context) &&
                        !getAnnotationType(readPluginPdfAnnotation(dict, context).type)) {
