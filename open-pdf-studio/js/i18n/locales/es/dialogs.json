@@ -454,7 +454,8 @@
     "styleLabel": "Estilo:",
     "nestTitle": "Anidar bajo un marcador nuevo",
     "deleteTitle": "Eliminar marcadores",
-    "deleteConfirm": "¿Eliminar {{count}} marcadores seleccionados y todo lo que hay debajo?"
+    "deleteConfirm": "¿Eliminar {{count}} marcadores seleccionados y todo lo que hay debajo?",
+    "replaceAll": "Reemplazar todos los marcadores"
   },
   "formValidation": {
     "title": "Error de validación"

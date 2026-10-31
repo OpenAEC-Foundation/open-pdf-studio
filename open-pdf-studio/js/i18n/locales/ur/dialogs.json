@@ -454,7 +454,8 @@
     "styleLabel": "سٹائل:",
     "nestTitle": "نئے بک مارک کے تحت رکھیں",
     "deleteTitle": "بک مارکس حذف کریں",
-    "deleteConfirm": "منتخب {{count}} بک مارکس اور ان کے تحت سب کچھ حذف کریں؟"
+    "deleteConfirm": "منتخب {{count}} بک مارکس اور ان کے تحت سب کچھ حذف کریں؟",
+    "replaceAll": "تمام بُک مارکس تبدیل کریں"
   },
   "formValidation": {
     "title": "تصدیق کی خرابی"

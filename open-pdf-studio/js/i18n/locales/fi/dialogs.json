@@ -454,7 +454,8 @@
     "styleLabel": "Tyyli:",
     "nestTitle": "Sisennä uuden kirjanmerkin alle",
     "deleteTitle": "Poista kirjanmerkit",
-    "deleteConfirm": "Poistetaanko {{count}} valittua kirjanmerkkiä ja kaikki niiden alla olevat?"
+    "deleteConfirm": "Poistetaanko {{count}} valittua kirjanmerkkiä ja kaikki niiden alla olevat?",
+    "replaceAll": "Korvaa kaikki kirjanmerkit"
   },
   "formValidation": {
     "title": "Vahvistusvirhe"

@@ -454,7 +454,8 @@
     "styleLabel": "Stílus:",
     "nestTitle": "Beágyazás új könyvjelző alá",
     "deleteTitle": "Könyvjelzők törlése",
-    "deleteConfirm": "Törli a kijelölt {{count}} könyvjelzőt és mindent alattuk?"
+    "deleteConfirm": "Törli a kijelölt {{count}} könyvjelzőt és mindent alattuk?",
+    "replaceAll": "Az összes könyvjelző lecserélése"
   },
   "formValidation": {
     "title": "Érvényesítési hiba"

@@ -454,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Placera under nytt bokmärke",
     "deleteTitle": "Ta bort bokmärken",
-    "deleteConfirm": "Ta bort {{count}} markerade bokmärken och allt under dem?"
+    "deleteConfirm": "Ta bort {{count}} markerade bokmärken och allt under dem?",
+    "replaceAll": "Ersätt alla bokmärken"
   },
   "formValidation": {
     "title": "Valideringsfel"

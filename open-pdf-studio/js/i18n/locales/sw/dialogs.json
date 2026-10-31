@@ -454,7 +454,8 @@
     "styleLabel": "Mtindo:",
     "nestTitle": "Weka chini ya alamisho jipya",
     "deleteTitle": "Futa alamisho",
-    "deleteConfirm": "Futa alamisho {{count}} zilizochaguliwa na kila kitu kilicho chini yake?"
+    "deleteConfirm": "Futa alamisho {{count}} zilizochaguliwa na kila kitu kilicho chini yake?",
+    "replaceAll": "Badilisha alamisho zote"
   },
   "formValidation": {
     "title": "Kosa la Uthibitishaji"

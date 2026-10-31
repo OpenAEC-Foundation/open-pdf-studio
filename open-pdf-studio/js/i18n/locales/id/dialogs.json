@@ -454,7 +454,8 @@
     "styleLabel": "Gaya:",
     "nestTitle": "Sarangkan di bawah penanda baru",
     "deleteTitle": "Hapus penanda",
-    "deleteConfirm": "Hapus {{count}} penanda terpilih beserta semua yang ada di bawahnya?"
+    "deleteConfirm": "Hapus {{count}} penanda terpilih beserta semua yang ada di bawahnya?",
+    "replaceAll": "Ganti semua markah buku"
   },
   "formValidation": {
     "title": "Kesalahan Validasi"

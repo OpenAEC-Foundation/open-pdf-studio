@@ -454,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Ugnijezdi pod novu knjižnu oznaku",
     "deleteTitle": "Izbriši knjižne oznake",
-    "deleteConfirm": "Izbrisati odabrane knjižne oznake ({{count}}) i sve ispod njih?"
+    "deleteConfirm": "Izbrisati odabrane knjižne oznake ({{count}}) i sve ispod njih?",
+    "replaceAll": "Zamijeni sve knjižne oznake"
   },
   "formValidation": {
     "title": "Pogreška provjere valjanosti"

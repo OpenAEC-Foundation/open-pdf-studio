@@ -454,7 +454,8 @@
     "styleLabel": "סגנון:",
     "nestTitle": "קינון תחת סימנייה חדשה",
     "deleteTitle": "מחיקת סימניות",
-    "deleteConfirm": "למחוק {{count}} סימניות נבחרות וכל מה שמתחתיהן?"
+    "deleteConfirm": "למחוק {{count}} סימניות נבחרות וכל מה שמתחתיהן?",
+    "replaceAll": "החלפת כל הסימניות"
   },
   "formValidation": {
     "title": "שגיאת אימות"

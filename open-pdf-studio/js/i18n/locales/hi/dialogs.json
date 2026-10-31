@@ -454,7 +454,8 @@
     "styleLabel": "शैली:",
     "nestTitle": "नए बुकमार्क के अंतर्गत रखें",
     "deleteTitle": "बुकमार्क हटाएँ",
-    "deleteConfirm": "चयनित {{count}} बुकमार्क और उनके अंतर्गत सब कुछ हटाएँ?"
+    "deleteConfirm": "चयनित {{count}} बुकमार्क और उनके अंतर्गत सब कुछ हटाएँ?",
+    "replaceAll": "सभी बुकमार्क बदलें"
   },
   "formValidation": {
     "title": "सत्यापन त्रुटि"

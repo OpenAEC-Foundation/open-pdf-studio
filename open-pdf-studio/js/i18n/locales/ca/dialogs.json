@@ -454,7 +454,8 @@
     "styleLabel": "Estil:",
     "nestTitle": "Niua sota un marcador nou",
     "deleteTitle": "Suprimeix els marcadors",
-    "deleteConfirm": "Voleu suprimir {{count}} marcadors seleccionats i tot el que hi ha a sota?"
+    "deleteConfirm": "Voleu suprimir {{count}} marcadors seleccionats i tot el que hi ha a sota?",
+    "replaceAll": "Substitueix tots els marcadors"
   },
   "formValidation": {
     "title": "Error de validació"

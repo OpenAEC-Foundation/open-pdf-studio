@@ -454,7 +454,8 @@
     "styleLabel": "Styl:",
     "nestTitle": "Zagnieźdź pod nową zakładką",
     "deleteTitle": "Usuń zakładki",
-    "deleteConfirm": "Usunąć zaznaczone zakładki ({{count}}) i wszystko pod nimi?"
+    "deleteConfirm": "Usunąć zaznaczone zakładki ({{count}}) i wszystko pod nimi?",
+    "replaceAll": "Zastąp wszystkie zakładki"
   },
   "formValidation": {
     "title": "Błąd walidacji"

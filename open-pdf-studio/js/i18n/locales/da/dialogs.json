@@ -454,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Indlejr under nyt bogmærke",
     "deleteTitle": "Slet bogmærker",
-    "deleteConfirm": "Slet {{count}} markerede bogmærker og alt under dem?"
+    "deleteConfirm": "Slet {{count}} markerede bogmærker og alt under dem?",
+    "replaceAll": "Erstat alle bogmærker"
   },
   "formValidation": {
     "title": "Valideringsfejl"

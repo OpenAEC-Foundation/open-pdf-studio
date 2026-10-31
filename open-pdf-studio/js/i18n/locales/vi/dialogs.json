@@ -454,7 +454,8 @@
     "styleLabel": "Kiểu:",
     "nestTitle": "Lồng vào dấu trang mới",
     "deleteTitle": "Xóa dấu trang",
-    "deleteConfirm": "Xóa {{count}} dấu trang đã chọn và mọi thứ bên dưới?"
+    "deleteConfirm": "Xóa {{count}} dấu trang đã chọn và mọi thứ bên dưới?",
+    "replaceAll": "Thay thế tất cả dấu trang"
   },
   "formValidation": {
     "title": "Lỗi Xác thực"

@@ -454,7 +454,8 @@
     "styleLabel": "Stil:",
     "nestTitle": "Imbricare sub un marcaj nou",
     "deleteTitle": "Ștergere marcaje",
-    "deleteConfirm": "Ștergeți {{count}} marcaje selectate și tot ce se află sub ele?"
+    "deleteConfirm": "Ștergeți {{count}} marcaje selectate și tot ce se află sub ele?",
+    "replaceAll": "Înlocuiește toate marcajele"
   },
   "formValidation": {
     "title": "Eroare de validare"
