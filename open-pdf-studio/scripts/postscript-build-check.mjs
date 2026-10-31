@@ -1,4 +1,6 @@
 // Run after `vite build`: exercise the worker actually shipped to users.
+// App: node scripts/postscript-build-check.mjs dist/assets; web unit
+// (vite.web-unit.config.js): node scripts/postscript-build-check.mjs dist-web-unit/brokken
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';

@@ -10,6 +10,9 @@ import { patchPdfjsWorker, pdfjsPostscriptProgress } from './pdfjs-postscript-pr
 import { xrefOffsetFixture, HUGE_OFFSETS } from './xref-offset-fixture.mjs';
 const require = createRequire(import.meta.url);
 const source = readFileSync(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'), 'utf8');
+// The separate web unit (vite.web-unit.config.js) ships the modern build.
+const modern = readFileSync(require.resolve('pdfjs-dist/build/pdf.worker.mjs'), 'utf8');
+const builds = [['legacy', source], ['modern', modern]];
 const SHIFT = 'offset = offset << 8 | offsetByte;';
 const ARITHMETIC = 'offset = offset * 256 + offsetByte;';
 
@@ -31,7 +34,7 @@ function decode({ XRef, Stream }, { bytes, startXRef }) {
   return xref;
 }
 
-test('backport matches once, is idempotent and rejects dependency drift', () => {
+for (const [build, source] of builds) test(`${build} build: backport matches once, is idempotent and rejects dependency drift`, () => {
   const fixed = patchXrefStreamOffsets(source);
   assert.notEqual(fixed, source);
   assert.ok(fixed.includes(ARITHMETIC));
@@ -42,7 +45,7 @@ test('backport matches once, is idempotent and rejects dependency drift', () => 
   assert.throws(() => patchXrefStreamOffsets(source + source), /no longer matches/);
 });
 
-test('the shipped worker gets both backports; neither undoes the other', () => {
+for (const [build, source] of builds) test(`${build} build: the shipped worker gets both backports; neither undoes the other`, () => {
   const both = patchPdfjsWorker(source);
   assert.ok(both.includes(ARITHMETIC) && !both.includes(SHIFT));
   assert.ok(both.includes('return new Token(TOKEN.number, Number.isFinite(number) ? number : 0);'));
@@ -56,6 +59,13 @@ test('plugin serves the patched worker and refuses an unqualified PDF.js version
   plugin.configureServer({ middlewares: { use: fn => fn({ url: '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs?v=1' },
     { setHeader() {}, end: body => { served = body; } }, () => assert.fail('worker route not handled')) } });
   assert.ok(served.includes(ARITHMETIC) && !served.includes(SHIFT));
+  assert.equal(served, patchPdfjsWorker(source));
+
+  const webUnit = pdfjsPostscriptProgress({ workerPath: 'build/pdf.worker.mjs' });
+  webUnit.configResolved({ command: 'serve', root: fileURLToPath(new URL('../web-unit', import.meta.url)), base: '/' });
+  webUnit.configureServer({ middlewares: { use: fn => fn({ url: '/node_modules/pdfjs-dist/build/pdf.worker.mjs' },
+    { setHeader() {}, end: body => { served = body; } }, () => assert.fail('web-unit worker route not handled')) } });
+  assert.equal(served, patchPdfjsWorker(modern));
 
   const root = join(temp, 'drift');
   mkdirSync(join(root, 'node_modules/pdfjs-dist'), { recursive: true });
@@ -80,7 +90,7 @@ test('unpatched real XRef reader corrupts offsets of 2^31 and 2^32 + 10', async 
   assert.equal(xref.getEntry(2).offset, 10);
 });
 
-test('patched real XRef reader decodes 2^31 and 2^32 + 10 exactly', async () => {
+for (const [build, source] of builds) test(`${build} build: patched real XRef reader decodes 2^31 and 2^32 + 10 exactly`, async () => {
   const worker = await workerModule(patchPdfjsWorker(source));
   const xref = new worker.XRef(new worker.StringStream(UPSTREAM), {});
   xref.setStartXRef(9);

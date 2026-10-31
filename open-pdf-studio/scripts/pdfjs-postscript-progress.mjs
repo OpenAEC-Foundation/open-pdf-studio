@@ -73,7 +73,10 @@ export function patchPdfjsWorker(source) {
   return patchXrefStreamOffsets(patchPostscriptProgress(source));
 }
 
-export function pdfjsPostscriptProgress() {
+// `workerPath` is the pdfjs-dist worker to patch: the app uses the legacy
+// build (pdfjs-dist is aliased to it in vite.config.js), the separate web unit
+// (vite.web-unit.config.js) the modern build. Both patterns match either source.
+export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.mjs' } = {}) {
   let worker;
   let devPath;
   let build;
@@ -85,8 +88,8 @@ export function pdfjsPostscriptProgress() {
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
       if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839 and #638 backports.`);
-      worker = patchPdfjsWorker(readFileSync(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'), 'utf8'));
-      devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs`;
+      worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
+      devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
     },
     configureServer(server) {
       // loader.js uses this literal URL in dev; never modify shared node_modules.

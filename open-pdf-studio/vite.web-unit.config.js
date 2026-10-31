@@ -7,6 +7,7 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { existsSync, readFileSync, realpathSync } from 'fs';
+import { pdfjsPostscriptProgress } from './scripts/pdfjs-postscript-progress.mjs';
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
 
@@ -21,6 +22,9 @@ export default defineConfig({
   // De unit heeft geen publieke map; alles wat hij nodig heeft komt uit de
   // module-graph (worker, wasm, taalbestanden).
   publicDir: false,
+  // Same PDF.js worker backports as the app (#839, #638), on the modern build
+  // the unit imports; web-unit/src/viewer.js loads it via the virtual module.
+  plugins: [pdfjsPostscriptProgress({ workerPath: 'build/pdf.worker.mjs' })],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
