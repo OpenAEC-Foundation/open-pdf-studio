@@ -38,6 +38,19 @@ function pakketVersie(toml) {
   return undefined;
 }
 
+// Versie in de [project]-tabel van een pyproject.toml.
+function projectVersie(toml) {
+  let inProject = false;
+  for (const regel of toml.split(/\r?\n/)) {
+    if (/^\s*\[/.test(regel)) inProject = /^\s*\[project\]\s*$/.test(regel);
+    else if (inProject) {
+      const m = /^\s*version\s*=\s*"([^"]*)"/.exec(regel);
+      if (m) return m[1];
+    }
+  }
+  return undefined;
+}
+
 function pakketNaam(toml) {
   const tabel = toml.split(/^\[/m).find((t) => t.startsWith('package]'));
   return tabel && /^name\s*=\s*"([^"]+)"/m.exec(tabel)?.[1];
@@ -72,6 +85,7 @@ const VELDEN = {
   'open-pdf-studio/src-tauri/Cargo.lock': lockVersies,
   'open-pdf-render/Cargo.lock': lockVersies,
   'mcp-stdio/package.json': jsonVersie,
+  'python/pyproject.toml': (tekst) => [projectVersie(tekst)],
   'mcpb/manifest.json': jsonVersie,
   '.github/workflows/release.yml': (tekst) => [/^\s+default:\s*'v([^']*)'/m.exec(tekst)?.[1]],
   'snap/snapcraft.yaml': (tekst) => [/^version:\s*'([^']*)'/m.exec(tekst)?.[1]],
@@ -222,7 +236,7 @@ test('de release-workflow controleert de tag tegen de versievelden voordat er ie
   assert.ok(controle < createRelease.indexOf('name: Create release'), 'voor het aanmaken van de release');
   assert.match(createRelease, /VERSION: \$\{\{ steps\.get-version\.outputs\.version \}\}/);
   // Alle bouwjobs wachten op create-release.
-  for (const job of ['build', 'build-android', 'mcpb']) {
+  for (const job of ['build', 'build-android', 'mcpb', 'python-library']) {
     const kop = workflow.indexOf(`\n  ${job}:\n`);
     assert.ok(kop > 0, job);
     assert.match(workflow.slice(kop, kop + 300), /needs: create-release/, job);

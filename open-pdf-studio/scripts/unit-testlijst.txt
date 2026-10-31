@@ -145,6 +145,7 @@ js/tools/embedded-image-parser.test.mjs
 js/tools/tools/eraser-hit.test.mjs
 ../mcp-stdio/brug.test.mjs
 ../mcpb/manifest.test.mjs
+../python/scripts/generate-tools.test.mjs
 js/pdf/saver/geen-rand.test.mjs
 js/pdf/saver/hatch-meta.test.mjs
 js/pdf/saver/arcering-stippen.test.mjs

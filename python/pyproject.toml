@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[project]
+name = "open-pdf-studio"
+# Follows the app version; set by open-pdf-studio/scripts/bump-version.js.
+version = "2026.43.11"
+description = "Python client for Open PDF Studio: script every PDF tool of the app through its MCP tools."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "LGPL-3.0-or-later"
+authors = [{ name = "OpenAEC Foundation" }]
+keywords = ["pdf", "annotation", "mcp", "open-pdf-studio", "automation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Office/Business",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/OpenAEC-Foundation/open-pdf-studio"
+Documentation = "https://github.com/OpenAEC-Foundation/open-pdf-studio/blob/main/docs/python-library.md"
+Issues = "https://github.com/OpenAEC-Foundation/open-pdf-studio/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/open_pdf_studio"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/open_pdf_studio", "tests", "README.md", "pyproject.toml"]
