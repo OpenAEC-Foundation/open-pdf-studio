@@ -31,8 +31,27 @@ export function pxPerMmAt(pageNum, x, y) {
 export function applyTemplateRealSize(ann, anchor = 'center') {
   if (!ann || ann.type !== 'parametricSymbol') return false;
   const tpl = getTemplate(ann.symbolId);
-  if (!tpl || typeof tpl.realSizeMm !== 'function') return false;
+  if (!tpl) return false;
+  // Paper-sized diagram symbol (schematization: support, load, node): the
+  // box height sets the drawing scale, the width follows the content (a
+  // longer label), around the centre — the node — so it stays put, rotated
+  // or not.
+  if (typeof tpl.breedteBijHoogte === 'function' && typeof tpl.realSizeMm !== 'function') {
+    const w = tpl.breedteBijHoogte(ann.params || {}, ann.height);
+    if (!(w > 0) || Math.abs(w - (ann.width || 0)) < 1e-9) return false;
+    ann.x = ann.x + (ann.width || 0) / 2 - w / 2;
+    ann.width = w;
+    return true;
+  }
+  if (typeof tpl.realSizeMm !== 'function') return false;
   const mm = tpl.realSizeMm(ann.params || {});
+  // Line symbol with a real length but a paper-sized band (staaf, q-last):
+  // only the length follows the measure scale, the band height stays.
+  if (tpl.placement === 'two-point' && mm && mm.width > 0 && !(mm.height > 0)) {
+    const ex = (ann.x || 0) + (ann.width || 0) / 2;
+    const ey = (ann.y || 0) + (ann.height || 0) / 2;
+    return resizeTwoPointGeometry(ann, mm.width * pxPerMmAt(ann.page, ex, ey), ann.height);
+  }
   // width may be null = FREE axis (line-form beam views: only the height is
   // profile-locked, the length stays whatever the user dragged it to).
   if (!mm || !(mm.height > 0)) return false;

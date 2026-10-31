@@ -1593,6 +1593,13 @@ async function _buildCreateProps(type, page, props) {
         } else {
           const ds = tpl.defaultSize || { width: 80, height: 80 };
           rect = { x: p.x, y: p.y, width: ds.width, height: ds.height };
+          // Schematization symbol: (x, y) is the node, the centre of the box.
+          if (typeof tpl.breedteBijHoogte === 'function') {
+            const bw = tpl.breedteBijHoogte(params, ds.height) || ds.width;
+            rect = ankerMod.vakUitAnker(
+              { x: p.x, y: p.y }, bw, ds.height, _isNum(p.rotation) ? p.rotation : 0, 'center',
+            );
+          }
         }
       } else {
         return { error: "type 'parametricSymbol' requires props.x, y (insert point) or a full x/y/width/height rect" };

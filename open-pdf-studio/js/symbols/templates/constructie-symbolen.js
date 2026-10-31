@@ -7,109 +7,13 @@ function num(v, d) {
   return Number.isFinite(n) && n > 0 ? n : d;
 }
 
-// Arceerstreepjes onder een lijn (maaiveld-/inklemmingsarcering).
-function arcering(x0, x1, y, slag) {
-  const cmds = [];
-  const stap = Math.max(4, (x1 - x0) / 6);
-  for (let x = x0 + stap * 0.5; x <= x1 + 0.01; x += stap) {
-    cmds.push({ kind: 'line', x1: x, y1: y, x2: x - slag, y2: y + slag });
-  }
-  return cmds;
-}
+// Oplegging en puntlast zijn opgegaan in de schematiseringssymbolen
+// (schematisering.js); de ids en hun oude opzet blijven werken.
+export { opleggingTemplate, puntlastTemplate } from './schematisering.js';
 
-// ── Oplegging (steunpunt) ──────────────────────────────────────────────────
-export const opleggingTemplate = {
-  id: 'oplegging',
-  name: 'Oplegging',
-  nameEn: 'Support',
-  category: 'NL Constructie',
-  defaultSize: { width: 64, height: 64 },
-  params: [
-    { key: 'type', label: 'Type', labelEn: 'Type', type: 'enum', options: [
-        { value: 'scharnier', label: 'Scharnier' },
-        { value: 'rol', label: 'Rol' },
-        { value: 'inklemming', label: 'Inklemming' },
-      ], default: 'scharnier' },
-  ],
-  render(params = {}, bbox) {
-    const { x, y, width: w, height: h } = bbox;
-    const cx = x + w / 2;
-    const cmds = [];
-    const slag = Math.min(w, h) * 0.14;
-    if (params.type === 'inklemming') {
-      // Inklemming: zware rand met arcering erachter.
-      const lijnY = y + h * 0.5;
-      cmds.push({ kind: 'line', x1: x + w * 0.1, y1: lijnY, x2: x + w * 0.9, y2: lijnY, lineWidth: 2.2 });
-      cmds.push(...arcering(x + w * 0.1, x + w * 0.9, lijnY, slag));
-      // Aansluitstaaf naar het aangrijpingspunt.
-      cmds.push({ kind: 'line', x1: cx, y1: y + h * 0.1, x2: cx, y2: lijnY });
-      return cmds;
-    }
-    // Scharnier/rol: driehoek met de top in het aangrijpingspunt.
-    const topY = y + h * 0.12;
-    const basisY = y + h * 0.62;
-    const halfBasis = w * 0.26;
-    cmds.push({
-      kind: 'polyline', close: true,
-      points: [
-        { x: cx, y: topY },
-        { x: cx - halfBasis, y: basisY },
-        { x: cx + halfBasis, y: basisY },
-      ],
-    });
-    let grondY = basisY;
-    if (params.type === 'rol') {
-      // Rollen tussen driehoeksbasis en de grondlijn.
-      const r = h * 0.07;
-      grondY = basisY + 2 * r;
-      for (const rx of [cx - halfBasis * 0.6, cx, cx + halfBasis * 0.6]) {
-        cmds.push({ kind: 'circle', cx: rx, cy: basisY + r, r });
-      }
-    }
-    cmds.push({ kind: 'line', x1: cx - halfBasis * 1.35, y1: grondY, x2: cx + halfBasis * 1.35, y2: grondY });
-    cmds.push(...arcering(cx - halfBasis * 1.35, cx + halfBasis * 1.35, grondY, slag));
-    return cmds;
-  },
-  snapPoints(params, bbox) {
-    return [{ kind: 'endpoint', x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height * 0.12 }];
-  },
-};
-
-// ── Puntlast ───────────────────────────────────────────────────────────────
-export const puntlastTemplate = {
-  id: 'puntlast',
-  name: 'Puntlast',
-  nameEn: 'Point load',
-  category: 'NL Constructie',
-  defaultSize: { width: 90, height: 90 },
-  params: [
-    { key: 'kracht', label: 'Kracht (kN)', labelEn: 'Force (kN)', type: 'number', default: 10, min: 0, step: 1 },
-  ],
-  render(params = {}, bbox) {
-    const { x, y, width: w, height: h } = bbox;
-    const cx = x + w / 2;
-    const topY = y + h * 0.28;
-    const puntY = y + h * 0.95;
-    const kop = Math.min(w, h) * 0.16;
-    return [
-      { kind: 'text', x: cx, y: y + h * 0.12, text: `F = ${num(params.kracht, 10)} kN`, size: Math.max(9, h * 0.16) },
-      { kind: 'line', x1: cx, y1: topY, x2: cx, y2: puntY },
-      {
-        kind: 'polyline', fill: true, close: true,
-        points: [
-          { x: cx, y: puntY },
-          { x: cx - kop * 0.38, y: puntY - kop },
-          { x: cx + kop * 0.38, y: puntY - kop },
-        ],
-      },
-    ];
-  },
-  snapPoints(params, bbox) {
-    return [{ kind: 'endpoint', x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height * 0.95 }];
-  },
-};
-
-// ── Gelijkmatig verdeelde belasting (q-last) ───────────────────────────────
+// ── Gelijkmatig verdeelde belasting (q-last), oude vak-variant ─────────────
+// Het palet plaatst de lijnvariant 'verdeelde-last' (schematisering.js); dit
+// template blijft geregistreerd voor geplaatste symbolen en de MCP-id.
 export const qlastTemplate = {
   id: 'q-last',
   name: 'q-last (verdeelde belasting)',

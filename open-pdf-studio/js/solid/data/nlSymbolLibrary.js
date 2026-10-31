@@ -100,6 +100,16 @@ const betonbalkPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" str
 const systeemplafondPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><defs><clipPath id="nlb-plafond"><path d="M6 8H58V44Q44 58 30 56Q16 54 6 44Z"/></clipPath></defs><g clip-path="url(#nlb-plafond)" stroke-width="1.25"><path d="M19 8V58M32 8V58M45 8V58M6 22H58M6 36H58"/><path d="M19 8L32 22M32 8L19 22"/><path d="M45 26L54 35M48 23L57 32M45 32L49 36"/></g><path d="M6 8H58V44Q44 58 30 56Q16 54 6 44Z"/></svg>`;
 
 // Previews constructie- en bouwplaats-symbolen (#338).
+// Constructieve schematisering: staaf, knoop, opleggingen en lasten.
+const staafPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M12 32H52" stroke-width="3"/><g fill="#000" stroke="none"><circle cx="10" cy="32" r="4"/><circle cx="54" cy="32" r="4"/></g></svg>`;
+const vakwerkstaafPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M14.8 46.7L49.2 17.3" stroke-width="3"/><circle cx="11" cy="50" r="5"/><circle cx="53" cy="14" r="5"/></svg>`;
+const knoopPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M6 36H58M32 36V58" stroke-width="3"/><circle cx="32" cy="36" r="5.5" fill="#000" stroke="none"/><text x="45" y="26" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">A</text></svg>`;
+const rolopleggingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M32 12L20 33H44Z"/><circle cx="26" cy="37" r="3.5"/><circle cx="38" cy="37" r="3.5"/><path d="M12 41.5H52"/><path d="M18 41.5L13 48.5M26 41.5L21 48.5M34 41.5L29 48.5M42 41.5L37 48.5M50 41.5L45 48.5" stroke-width="1.25"/></svg>`;
+const inklemmingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M32 10V33"/><path d="M10 34H54" stroke-width="3"/><path d="M17 35.5L10 42.5M24 35.5L17 42.5M31 35.5L24 42.5M38 35.5L31 42.5M45 35.5L38 42.5M52 35.5L45 42.5" stroke-width="1.25"/></svg>`;
+const verendeOpleggingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M32 8V14L39 17.5L25 24.5L39 31.5L25 38.5L32 42V46"/><path d="M18 46H46"/><path d="M24 46L19 52M31 46L26 52M38 46L33 52M45 46L40 52" stroke-width="1.25"/></svg>`;
+const rotatieveerPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M30 21L29.9 20.1L30.1 19.1L30.9 18.3L32 17.7L33.4 17.7L34.8 18.2L35.9 19.4L36.6 21L36.5 22.9L35.7 24.7L34.1 26.1L32 26.9L29.6 26.7L27.4 25.6L25.7 23.6L24.9 21L25.1 18.1L26.5 15.5L28.9 13.5L32 12.6L35.3 12.9L38.4 14.6L40.7 17.4L41.7 21L41.3 24.8L39.3 28.3L36.1 30.9L32 32V44"/><path d="M18 44H46" stroke-width="3"/><path d="M24 45.5L18 51.5M31 45.5L25 51.5M38 45.5L32 51.5M45 45.5L39 51.5" stroke-width="1.25"/></svg>`;
+const qlastTrapeziumPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M10 35L54 15"/><path d="M10 35V41M24.7 28.3V41M39.3 21.7V41M54 15V41"/><g fill="#000" stroke="none"><path d="M10 50L6.5 41H13.5Z"/><path d="M24.7 50L21.2 41H28.2Z"/><path d="M39.3 50L35.8 41H42.8Z"/><path d="M54 50L50.5 41H57.5Z"/></g><path d="M6 52H58"/></svg>`;
+const momentPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M21.4 45.6A15 15 0 1 1 45.3 42"/><path d="M42.6 45.6L43.2 35.9L50.3 39.6Z" fill="#000" stroke="none"/><text x="32" y="40" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">M</text></svg>`;
 const opleggingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M32 13L20 38H44Z"/><path d="M12 38H52"/><path d="M18 38L13 45M26 38L21 45M34 38L29 45M42 38L37 45M50 38L45 45" stroke-width="1.25"/></svg>`;
 const puntlastPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><text x="32" y="16" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">F</text><path d="M32 22V46"/><path d="M32 57L26.5 45H37.5Z" fill="#000" stroke="none"/></svg>`;
 const qlastPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><text x="32" y="14" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">q</text><path d="M8 20H56"/><path d="M12 20V38M32 20V38M52 20V38"/><g fill="#000" stroke="none"><path d="M12 46L8.5 37H15.5Z"/><path d="M32 46L28.5 37H35.5Z"/><path d="M52 46L48.5 37H55.5Z"/></g><path d="M6 48H58"/></svg>`;
@@ -185,13 +195,24 @@ export const NL_CATEGORIES = [
       // NL tekenwerk-symbolen horen er ook gewoon bij (één bouw-categorie).
       { id: 'param-stramien', name: 'Stramien', parametricId: 'stramien', svg: stramienPreview },
       { id: 'param-peilmaat', name: 'Peilmaat (spot elevation)', parametricId: 'peilmaat', svg: peilmaatPreview },
-      // Constructie-symbolen (#338): opleggingen, lasten, veren, verband.
-      { id: 'param-oplegging', name: 'Oplegging (steunpunt)', parametricId: 'oplegging', svg: opleggingPreview },
-      { id: 'param-puntlast', name: 'Puntlast', parametricId: 'puntlast', svg: puntlastPreview },
-      { id: 'param-q-last', name: 'q-last (verdeelde belasting)', parametricId: 'q-last', svg: qlastPreview },
-      { id: 'param-beddingsveren', name: 'Beddingsveren', parametricId: 'beddingsveren', svg: beddingsverenPreview },
-      { id: 'param-windverband', name: 'Windverband', parametricId: 'windverband', svg: windverbandPreview },
+      // Constructieve schematisering (#338 + schematisering): staven en
+      // knopen, opleggingen, lasten. Opleggingen, de vakwerkstaaf en de
+      // trapeziumlast zijn voorinstellingen (`params`) van één template.
+      { id: 'param-staaf', name: 'Staaf (systeemlijn)', parametricId: 'staaf', params: { begin: 'star', eind: 'star' }, svg: staafPreview },
+      { id: 'param-vakwerkstaaf', name: 'Vakwerkstaaf (scharnierend)', parametricId: 'staaf', params: { begin: 'scharnier', eind: 'scharnier' }, svg: vakwerkstaafPreview },
+      { id: 'param-knoop', name: 'Knoop', parametricId: 'knoop', params: { type: 'knoop' }, svg: knoopPreview },
       { id: 'param-scharnier-verbinding', name: 'Scharnierverbinding', parametricId: 'scharnier-verbinding', svg: scharnierVerbindingPreview },
+      { id: 'param-oplegging', name: 'Scharnierende oplegging', parametricId: 'oplegging', params: { type: 'scharnier' }, svg: opleggingPreview },
+      { id: 'param-oplegging-rol', name: 'Roloplegging', parametricId: 'oplegging', params: { type: 'rol' }, svg: rolopleggingPreview },
+      { id: 'param-oplegging-inklemming', name: 'Inklemming', parametricId: 'oplegging', params: { type: 'inklemming' }, svg: inklemmingPreview },
+      { id: 'param-oplegging-veer', name: 'Verende oplegging', parametricId: 'oplegging', params: { type: 'veer' }, svg: verendeOpleggingPreview },
+      { id: 'param-oplegging-rotatieveer', name: 'Rotatieveer (verende inklemming)', parametricId: 'oplegging', params: { type: 'rotatieveer' }, svg: rotatieveerPreview },
+      { id: 'param-beddingsveren', name: 'Beddingsveren', parametricId: 'beddingsveren', svg: beddingsverenPreview },
+      { id: 'param-puntlast', name: 'Puntlast', parametricId: 'puntlast', svg: puntlastPreview },
+      { id: 'param-q-last', name: 'q-last (verdeelde belasting)', parametricId: 'verdeelde-last', params: { verloop: 'gelijkmatig' }, svg: qlastPreview },
+      { id: 'param-q-last-trapezium', name: 'q-last trapezium / driehoek', parametricId: 'verdeelde-last', params: { verloop: 'trapezium', q1: 2, q2: 6 }, svg: qlastTrapeziumPreview },
+      { id: 'param-moment', name: 'Moment', parametricId: 'moment', svg: momentPreview },
+      { id: 'param-windverband', name: 'Windverband', parametricId: 'windverband', svg: windverbandPreview },
       // Maskeer: wit afdekvlak (wipeout) — rechthoek slepen dekt de
       // onderliggende tekening + eerdere annotaties af.
       { id: 'maskeer', name: 'Maskeer (afdekvlak)', tool: 'mask', svg: maskeerPreview },

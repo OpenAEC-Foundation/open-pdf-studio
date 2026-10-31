@@ -109,7 +109,9 @@ function selectSymbol(symbol) {
   // click on the page goes through the parametricSymbol tool and the params
   // stay editable in the properties panel.
   if (symbol.parametricId) {
-    setPendingSymbolId(symbol.parametricId);
+    // `params`: vaste voorinstelling van de knop (roloplegging = oplegging
+    // met type 'rol', vakwerkstaaf = staaf met twee scharnieren).
+    setPendingSymbolId(symbol.parametricId, symbol.params || null);
     setTool('parametricSymbol');
     return;
   }
