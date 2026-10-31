@@ -3,6 +3,7 @@ import Dialog from '../Dialog.jsx';
 import PrefSelect from '../preferences/PrefSelect.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { getActiveDocument } from '../../../core/state.js';
+import { pixelsPerUnitFor, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
 import {
   recordAdd,
   recordBulkModify,
@@ -76,7 +77,8 @@ export default function ViewportScaleDialog(props) {
     if (mode() === 'preset') {
       const ratio = parseInt(presetRatio());
       if (!ratio || ratio <= 0) return;
-      pixelsPerUnit = 72 / (25.4 * ratio);
+      // In pagina-eenheden, /UserUnit meegerekend (#884).
+      pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, 'mm', userUnitVanPagina(doc, ann.page));
       unit = 'mm';
       scaleRatio = `1:${ratio}`;
     } else {

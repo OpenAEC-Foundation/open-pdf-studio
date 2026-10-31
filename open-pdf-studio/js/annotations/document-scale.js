@@ -7,6 +7,8 @@
 // writing the scale to IT, gives wrong lengths and areas in both files
 // without any visible sign.
 
+import { pixelsPerUnitFor, geldigeUserUnit } from './scale-region-scale.js';
+
 // Patterns ordered from most specific (labelled) to least specific (bare 1:N).
 // The labelled pattern avoids false positives from dimensions like "2:3".
 const SCALE_PATTERNS = [
@@ -56,14 +58,31 @@ export function findScaleInText(items) {
  * Detect the scale from the text of a page of THIS document.
  * @param {object} doc - the document to read (needs doc.pdfDoc)
  * @param {number} [pageNum] - page to read; defaults to doc.currentPage
- * @returns {Promise<{ ratio: number, scaleText: string } | null>}
+ * @returns {Promise<{ ratio: number, scaleText: string, userUnit: number } | null>}
+ *   userUnit: the page's /UserUnit (1 when absent), so the caller can turn
+ *   1:N into page units of THIS page (pixelsPerUnitFor, #884).
  */
 export async function detectScaleInDocument(doc, pageNum) {
   if (!doc?.pdfDoc) return null;
 
   const page = await doc.pdfDoc.getPage(pageNum || doc.currentPage);
   const textContent = await page.getTextContent();
-  return findScaleInText(textContent.items);
+  const found = findScaleInText(textContent.items);
+  return found ? { ...found, userUnit: geldigeUserUnit(page.userUnit) } : null;
+}
+
+/**
+ * The document measure scale for a scale found in the title block: 1:N in
+ * millimetres, in page units of the page it was found on.
+ * @param {{ ratio: number, userUnit?: number }} found
+ */
+export function measureScaleFromTitleBlock(found) {
+  return {
+    pixelsPerUnit: pixelsPerUnitFor(`1:${found.ratio}`, 'mm', found.userUnit),
+    unit: 'mm',
+    method: 'auto-detect',
+    scaleRatio: `1:${found.ratio}`,
+  };
 }
 
 /**

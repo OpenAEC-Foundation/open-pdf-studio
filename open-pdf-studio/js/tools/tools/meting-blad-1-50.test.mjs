@@ -29,10 +29,12 @@ const { state, getActiveDocument } = await import('../../core/state.js');
 const meting = await import('../../annotations/measurement.js');
 const { measureDistanceTool } = await import('./measurement-tool.js');
 const { createMeasurePerimeterAnnotation } = await import('../annotation-creators.js');
-const { findScaleInText } = await import('../../annotations/document-scale.js');
+const { detectScaleInDocument, measureScaleFromTitleBlock } = await import('../../annotations/document-scale.js');
 const { schaalUitKalibratie } = await import('../../annotations/kalibratie-schaal.js');
 const { pixelsPerUnitFor } = await import('../../annotations/scale-region.js');
-const { leesPdfViewports, puntNaarAppRuimte } = await import('../../pdf/pdf-viewports.js');
+const { dimensionMeasure } = await import('../../pdf/saver/dimension-measure.js');
+const { scaleStringFromMeasurement, pointsToPaperMm } = await import('../../annotations/scale-from-measurement.js');
+const { leesPdfViewports, leesUserUnits, puntNaarAppRuimte, beginViewportLezing, rondViewportLezingAf } = await import('../../pdf/pdf-viewports.js');
 const { viewportNaarPagina, viewportNaarScherm } = await import('../../pdf/weergave-rotatie.js');
 
 const PT_PER_MM = 72 / 25.4;
@@ -100,29 +102,22 @@ const opmaak = (u, c, extra = {}) => ({ Type: 'NumberFormat', U: PDFString.of(u)
 
 /**
  * Leest het blad zoals loadPDF + renderPage: de paginaruimte uit PDF.js
- * (page.view, /Rotate), de viewports uit pdf-lib en, zonder viewports of
- * eerdere schaal, de schaal uit de titelhoek (dezelfde omrekening als het
- * automatisch herkennen in loader.js: 72 / (25,4 · N) punten per mm).
+ * (page.view, /Rotate), de viewports en de /UserUnit per pagina uit pdf-lib
+ * (zelfde lezing als loader.js) en de schaal uit de titelhoek
+ * (detectScaleInDocument + measureScaleFromTitleBlock, zoals loader.js).
  */
 async function leesBlad(bytes) {
   const taak = getDocument({ data: Uint8Array.from(bytes), useSystemFonts: true });
   const pdfjs = await taak.promise;
   try {
     const page = await pdfjs.getPage(1);
-    const tekst = await page.getTextContent();
-    const gevonden = findScaleInText(tekst.items);
+    const doc = { annotations: [], currentPage: 1, pageRotations: {}, pdfDoc: pdfjs };
+    const gevonden = await detectScaleInDocument(doc, 1);
     const pdfLib = await PDFDocument.load(bytes);
-    const pdfViewports = leesPdfViewports(pdfLib);
-    const doc = { annotations: [], currentPage: 1, pageRotations: {} };
-    if (Object.keys(pdfViewports).length) doc.pdfViewports = pdfViewports;
-    if (gevonden) {
-      doc.measureScale = {
-        pixelsPerUnit: 72 / (25.4 * gevonden.ratio),
-        unit: 'mm',
-        method: 'auto-detect',
-        scaleRatio: `1:${gevonden.ratio}`,
-      };
-    }
+    const kenmerk = beginViewportLezing(doc);
+    assert.ok(rondViewportLezingAf(doc, kenmerk, leesPdfViewports(pdfLib), leesUserUnits(pdfLib)));
+    if (gevonden) doc.measureScale = measureScaleFromTitleBlock(gevonden);
+    delete doc.pdfDoc;
     // Paginaruimte zoals renderer.js hem opzet: page.view, na /Rotate.
     const [vx0, vy0, vx1, vy1] = page.view;
     const rotate = page.rotate || 0;
@@ -266,8 +261,9 @@ test('a detail scale or a sheet number elsewhere on the sheet does not win over 
 test('the loader turns a title-block scale into points per mm the way leesBlad does', () => {
   // leesBlad herhaalt de omrekening uit loadPDF; dit houdt die twee gelijk.
   const loader = readFileSync(new URL('../../pdf/loader.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
-  assert.match(loader, /const pixelsPerUnit = 72 \/ \(25\.4 \* result\.ratio\);/);
+  assert.match(loader, /doc\.measureScale = measureScaleFromTitleBlock\(result\);/);
   assert.match(loader, /await detectScaleFromPdf\(1, doc\)/);
+  assert.match(loader, /leesPdfViewports\(pdfLibDoc\) : null, geldig \? leesUserUnits\(pdfLibDoc\) : null\)/);
 });
 
 test('the title-block scale is the same as a 1:50 scale region and the calibration dialog', () => {
@@ -380,17 +376,91 @@ test('/UserUnit 2: a /VP whose /C is per user unit measures 1200 mm in the app p
   verwacht1200mm(meetLijn(blad, lijn), '/UserUnit 2, viewport');
 });
 
-// Open punt, niet opgelost: de paginaruimte van de app telt in eenheden van
-// page.view en negeert /UserUnit, terwijl de schaal uit de titelhoek, de
-// kalibratie (tab Schaalverhouding) en een schaalgebied uitgaan van 1/72 inch
-// per eenheid. Bij /UserUnit u meet zo'n schaal de ware lengte gedeeld door u:
-// 600 mm bij u = 2, en 1361 mm (de 13% uit #884) alleen bij een ongebruikelijke
-// u ≈ 0,882. Een /VP-viewport rekent wel per eenheid en klopt (test hierboven).
-test.todo('/UserUnit 2 with "Schaal 1:50" in the title block measures 1200 mm', async () => {
-  const media = [0, 0, A3[0] / 2, A3[1] / 2];
-  const lijn = [MM(50), MM(75), MM(50) + LIJN_PAPIER_PT / 2, MM(75)];
-  const blad = await leesBlad(await maakBlad({ media, userUnit: 2, lijn, titelhoek: ['Schaal 1:50'] }));
-  verwacht1200mm(meetLijn(blad, lijn), '/UserUnit 2, titelhoek');
+// /UserUnit en elke schaalbron (#884). De paginaruimte van de app telt in
+// eenheden van page.view; één eenheid is UserUnit/72 inch. Een schaal 1:N
+// (titelhoek, kalibratie op schaalverhouding, schaalgebied) rekent daarom
+// met de /UserUnit van de pagina, net als /VP (per eenheid). Zonder dat mat
+// een 1200 mm-lijn 600 mm bij u = 2 en 1361 mm (de 13% uit #884) bij
+// u ≈ 0,882. Een referentielijn en de snelle schaal meten in
+// pagina-eenheden en kloppen vanzelf.
+
+/** Een A3 in eenheden van u/72 inch, met de lijn van 24 mm op papier. */
+async function userUnitBlad(u, extra = {}) {
+  const media = [0, 0, A3[0] / u, A3[1] / u];
+  const lijn = [MM(50) / u, MM(75) / u, (MM(50) + LIJN_PAPIER_PT) / u, MM(75) / u];
+  const blad = await leesBlad(await maakBlad({ media, userUnit: u, lijn, ...extra }));
+  assert.equal(blad.userUnit, u, 'PDF.js leest de /UserUnit');
+  if (u !== 1) assert.deepEqual(blad.doc.pageUserUnits, { 1: u }, 'de app leest de /UserUnit');
+  return { blad, lijn };
+}
+
+for (const u of [2, 0.882]) {
+  test(`/UserUnit ${u}: "Schaal 1:50" in the title block measures 1200 mm`, async () => {
+    const { blad, lijn } = await userUnitBlad(u, { titelhoek: ['Schaal 1:50'] });
+    assert.equal(blad.gevonden?.ratio, 50);
+    assert.equal(blad.gevonden?.userUnit, u);
+    verwacht1200mm(meetLijn(blad, lijn), `/UserUnit ${u}, titelhoek`);
+  });
+
+  test(`/UserUnit ${u}: calibration on the ratio tab (1:50, mm and cm) measures 1200 mm`, async () => {
+    const { blad, lijn } = await userUnitBlad(u);
+    blad.doc.measureScale = schaalUitKalibratie({ method: 'ratio', denominator: 50, unit: 'mm', userUnit: u });
+    verwacht1200mm(meetLijn(blad, lijn), `/UserUnit ${u}, kalibratie mm`);
+    blad.doc.measureScale = schaalUitKalibratie({ method: 'ratio', denominator: 50, unit: 'cm', userUnit: u });
+    bijna(meetLijn(blad, lijn).vastgelegd.measureValue, 120, 1e-9, `/UserUnit ${u}, kalibratie cm`);
+  });
+
+  test(`/UserUnit ${u}: calibration on a reference line and the quick scale measure a 2000 mm bed`, async () => {
+    const { blad, lijn } = await userUnitBlad(u);
+    const lengte = Math.hypot(lijn[2] - lijn[0], lijn[3] - lijn[1]);
+    const bed = [MM(50) / u, MM(150) / u, (MM(50) + MM(2000 / 50)) / u, MM(150) / u];
+    blad.doc.measureScale = schaalUitKalibratie({ method: 'reference', distance: 1200, pixels: lengte, unit: 'mm', userUnit: u });
+    bijna(meetLijn(blad, bed).vastgelegd.measureValue, 2000, 1e-6, `/UserUnit ${u}, referentielijn`);
+    blad.doc.measureScale = null;
+    const oudeVoorkeuren = { ...state.preferences };
+    try {
+      metDocument(blad.doc, () => meting.setScaleFromLine(lengte, 1200, 'mm', null));
+      bijna(meetLijn(blad, bed).vastgelegd.measureValue, 2000, 1e-6, `/UserUnit ${u}, snelle schaal`);
+    } finally {
+      Object.assign(state.preferences, oudeVoorkeuren);
+    }
+  });
+
+  test(`/UserUnit ${u}: a 1:50 scale region measures 1200 mm and writes /Measure per user unit`, async () => {
+    const { blad, lijn } = await userUnitBlad(u);
+    const a = blad.naarApp(lijn[0], lijn[1]);
+    const b = blad.naarApp(lijn[2], lijn[3]);
+    blad.doc.annotations.push({
+      type: 'scaleRegion', id: 'sr-uu', page: 1,
+      x: a.x - 10, y: a.y - 20, width: b.x - a.x + 20, height: 40,
+      scaleString: '1:50', units: 'mm',
+    });
+    verwacht1200mm(meetLijn(blad, lijn), `/UserUnit ${u}, schaalgebied`);
+    // Het /Measure dat de saver schrijft telt per eenheid van de pagina (/X
+    // /C), net als een /VP: na heropenen geen tweede keer de /UserUnit.
+    const maat = dimensionMeasure({ page: 1, startX: a.x, startY: a.y, endX: b.x, endY: b.y }, blad.doc);
+    assert.equal(maat.inherited, true);
+    bijna(maat.scale, C_1_50_MM * u, 1e-9, '/C in mm per eenheid');
+    bijna(Math.hypot(b.x - a.x, b.y - a.y) * maat.scale, 1200, 1e-6, 'lengte via /Measure');
+  });
+
+  test(`/UserUnit ${u}: "measure on drawing" derives 1:50 and shows 24 mm on paper`, async () => {
+    const { blad, lijn } = await userUnitBlad(u);
+    const a = blad.naarApp(lijn[0], lijn[1]);
+    const b = blad.naarApp(lijn[2], lijn[3]);
+    const lengte = Math.hypot(b.x - a.x, b.y - a.y);
+    bijna(pointsToPaperMm(lengte, u), 24, 1e-9, 'papierlengte');
+    assert.equal(scaleStringFromMeasurement(lengte, 1200, 'mm', u), '1:50');
+  });
+}
+
+test('without /UserUnit the page has no pageUserUnits and every 1:N source is unchanged', async () => {
+  const { blad } = await userUnitBlad(1, { titelhoek: ['Schaal 1:50'] });
+  assert.equal(blad.doc.pageUserUnits, undefined);
+  assert.equal(blad.gevonden?.userUnit, 1);
+  assert.equal(pixelsPerUnitFor('1:50', 'mm'), pixelsPerUnitFor('1:50', 'mm', 1));
+  assert.equal(pixelsPerUnitFor('1:50', 'mm', 0), pixelsPerUnitFor('1:50', 'mm'), 'onbruikbare /UserUnit telt als 1');
+  assert.equal(pixelsPerUnitFor('1:50', 'mm', NaN), pixelsPerUnitFor('1:50', 'mm'));
 });
 
 // ── A1-blad verkleind op A3 ─────────────────────────────────────────────────

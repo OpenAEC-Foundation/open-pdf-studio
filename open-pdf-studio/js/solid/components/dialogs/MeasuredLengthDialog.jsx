@@ -3,7 +3,7 @@ import Dialog from '../Dialog.jsx';
 import PrefSelect from '../preferences/PrefSelect.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { getActiveDocument, clearSelection, addToSelection } from '../../../core/state.js';
-import { invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
+import { invalidateScaleRegionCache, userUnitVanPagina } from '../../../annotations/scale-region.js';
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { pointsToPaperMm, scaleStringFromMeasurement } from '../../../annotations/scale-from-measurement.js';
@@ -42,11 +42,14 @@ export default function MeasuredLengthDialog(props) {
   const [value, setValue] = createSignal('');
   const [unit, setUnit] = createSignal(defaultUnit);
 
-  const paperMm = pointsToPaperMm(pixelDistance);
+  // /UserUnit of the page the two points were picked on (#884).
+  const doc0 = getActiveDocument();
+  const userUnit = userUnitVanPagina(doc0, target.pageNum ?? doc0?.currentPage);
+  const paperMm = pointsToPaperMm(pixelDistance, userUnit);
 
   const computedScale = createMemo(() => {
     const v = leesGetalBegin(value());
-    return scaleStringFromMeasurement(pixelDistance, v, unit());
+    return scaleStringFromMeasurement(pixelDistance, v, unit(), userUnit);
   });
 
   function reopenScaleRegionDialog(initial) {

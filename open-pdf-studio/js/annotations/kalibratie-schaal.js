@@ -14,12 +14,14 @@ import { pixelsPerUnitFor } from './scale-region.js';
  * @param {number|string} [invoer.pixels]    referentielijn: lengte in PDF-punten
  * @param {number} [invoer.denominator]      schaalverhouding: N van 1:N
  * @param {string} invoer.unit               'mm' | 'cm' | 'm' | 'in' | 'ft'
+ * @param {number} [invoer.userUnit]        /UserUnit van de pagina (schaalverhouding; #884)
  * @returns {{pixelsPerUnit:number, unit:string, method:string, scaleRatio:string|null}|null}
  *   null als de invoer geen schaal oplevert.
  */
-export function schaalUitKalibratie({ method, distance, pixels, denominator, unit }) {
+export function schaalUitKalibratie({ method, distance, pixels, denominator, unit, userUnit = 1 }) {
   if (method === 'reference') {
     // Punten per eenheid = gemeten punten / bekende lengte, in elke eenheid.
+    // De lijn is in pagina-eenheden gemeten, dus /UserUnit zit er al in.
     const d = parseFloat(distance);
     const p = parseFloat(pixels);
     if (!(d > 0 && p > 0)) return null;
@@ -30,5 +32,5 @@ export function schaalUitKalibratie({ method, distance, pixels, denominator, uni
   const S = Number(denominator);
   if (!Number.isFinite(S) || S <= 0) return null;
   const scaleRatio = `1:${S}`;
-  return { pixelsPerUnit: pixelsPerUnitFor(scaleRatio, unit), unit, method: 'ratio', scaleRatio };
+  return { pixelsPerUnit: pixelsPerUnitFor(scaleRatio, unit, userUnit), unit, method: 'ratio', scaleRatio };
 }
