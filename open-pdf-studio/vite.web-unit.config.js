@@ -22,7 +22,7 @@ export default defineConfig({
   // De unit heeft geen publieke map; alles wat hij nodig heeft komt uit de
   // module-graph (worker, wasm, taalbestanden).
   publicDir: false,
-  // Dezelfde PDF.js-worker-backports als de app (#839, #878), op de moderne
+  // Dezelfde PDF.js-worker-backports als de app (#839, #878, #638), op de moderne
   // build die de unit importeert; web-unit/src/viewer.js laadt hem via de
   // virtuele module, zodat dev en build nooit de ongepatchte worker krijgen.
   plugins: [pdfjsPostscriptProgress({ workerPath: 'build/pdf.worker.mjs' })],

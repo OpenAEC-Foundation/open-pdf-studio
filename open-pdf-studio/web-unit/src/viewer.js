@@ -9,7 +9,7 @@
 // unit-script. Dat scheelt de gastheer een paar honderd kB op een pagina waar
 // nog geen tekening staat.
 // De worker komt uit de patchplugin (scripts/pdfjs-postscript-progress.mjs):
-// dezelfde moderne worker, met de PDF.js-backports (#839, #878) toegepast.
+// dezelfde moderne worker, met de PDF.js-backports (#839, #878, #638) toegepast.
 let _pdfjs = null;
 async function pdfjs() {
   if (!_pdfjs) {
