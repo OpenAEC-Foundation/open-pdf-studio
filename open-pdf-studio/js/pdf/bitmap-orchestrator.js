@@ -28,6 +28,7 @@ import {
     isHeavyPage,
 } from './progressive-render.js';
 import { createInflightKeyGate } from './inflight-key-gate.js';
+import { RENDER_PRIORITY, isRenderCancelled } from './render-queue.js';
 import {
     needsVisibleTile,
     prewarmCoveragePlan,
@@ -277,7 +278,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                     regionWPt: region.w,
                     regionHPt: region.h,
                     thinLines: thin,
-                });
+                }, { priority: RENDER_PRIORITY.PREFETCH });
                 if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
                 const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
                 perfMark(`prewarm-coverage-invoke z=${zoom}-${coveragePlan.supportZoom} ${Math.round(performance.now() - started)}ms (${(bytes.length / 1048576).toFixed(1)}MB)`);
@@ -307,6 +308,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                     }
                 }
             } catch (e) {
+                if (isRenderCancelled(e)) return;
                 console.warn('[tile-orch] prewarm coverage faalde:', e);
             }
         }
@@ -363,7 +365,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                 regionWPt: region.w,
                 regionHPt: region.h,
                 thinLines: thin,
-            });
+            }, { priority: RENDER_PRIORITY.PREFETCH });
             if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
             const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
             perfMark(`prewarm-invoke z=${zoom} ${Math.round(performance.now() - _pw0)}ms (${(bytes.length / 1048576).toFixed(1)}MB)`);
@@ -386,7 +388,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
             perfMark(`prewarm-cacheSet z=${zoom} ${w}x${h} ${Math.round(performance.now() - _pw1)}ms`);
             console.log(`[tile-orch] prewarm z=${zoom} bucket=${zoomBucket} reg=${regionBucket} (${w}x${h})`);
         } catch (e) {
-            console.warn('[tile-orch] prewarm faalde:', e);
+            if (!isRenderCancelled(e)) console.warn('[tile-orch] prewarm faalde:', e);
             return;
         }
     }
@@ -544,7 +546,8 @@ export async function ensureTileForCurrentView(canvas) {
             console.log(`[tile-orch] cached p${pageNum} @ z=${requestedZoom.toFixed(2)} reg=${regionBucket}`);
         }
     } catch (e) {
-        console.warn('[tile-orch] render failed:', e);
+        // Dropped because the document closed or is no longer shown (#506).
+        if (!isRenderCancelled(e)) console.warn('[tile-orch] render failed:', e);
     } finally {
         _tileRequests.finish(requestToken);
     }

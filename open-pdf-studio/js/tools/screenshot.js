@@ -219,7 +219,7 @@ async function _paginaPixelsViaRegio(gebied, schaal, breedte, hoogte) {
         regionYPt: rect.y + t.y / schaal,
         regionWPt: t.breedte / schaal,
         regionHPt: t.hoogte / schaal,
-      }));
+      }, { keepWhenHidden: true }));
       if (!beeld) throw new Error('region render returned no image');
       // The renderer rounds up; keep exactly this tile's pixels.
       ctx.putImageData(beeld, t.x, t.y, 0, 0, Math.min(t.breedte, beeld.width), Math.min(t.hoogte, beeld.height));

@@ -31,6 +31,7 @@ import { isTextAnchored } from '../annotations/corrections/model.js';
 import { stopAlleWielScrollers } from './wiel-scroll.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { isRenderCancelled } from './render-queue.js';
 import { voerZoomAllesUit, centreerCorrectie } from './zoom-alles.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
@@ -863,6 +864,8 @@ export async function renderPageOffscreen(pageNum) {
       redrawAnnotations();
       state.renderEngine = 'Raster (PDFium)';
     } catch (e) {
+      // Dropped because the user moved to another document (#506): not an error.
+      if (isRenderCancelled(e)) return;
       state.renderEngine = 'ERROR';
       console.error('[render-offscreen] HARD ERROR: Rust render threw. NO FALLBACK.', e);
       return;
@@ -1401,6 +1404,12 @@ async function renderContinuousPage(pageNum) {
       console.timeEnd(label + ' cache-store');
       console.timeEnd(label);
     } catch (e) {
+      if (isRenderCancelled(e)) {
+        // Dropped because the user moved to another document (#506); showing
+        // that document again rebuilds the continuous view.
+        try { console.timeEnd(label); } catch {}
+        return;
+      }
       state.renderEngine = 'ERROR';
       console.error(`[render-continuous] HARD ERROR: page ${pageNum} Rust threw. NO FALLBACK.`, e);
       try { console.timeEnd(label); } catch {}

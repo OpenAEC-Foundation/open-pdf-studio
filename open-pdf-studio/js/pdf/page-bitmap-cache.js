@@ -21,6 +21,7 @@ import { invalidateRenderDiagnostics } from './render-diagnostics.js';
 import { isTauri, invoke } from '../core/platform.js';
 import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { RENDER_PRIORITY, isRenderCancelled, renderQueue } from './render-queue.js';
 
 // Map<key, { bitmap: ImageBitmap, w, h, scale }>
 const _cache = new Map();
@@ -227,7 +228,7 @@ function _evictIfNeeded(nieuw = null) {
  * one is already in flight. Resolves to the cached entry (or null on failure).
  */
 export function ensureBitmap(filePath, pageNum, rotation, zoomBucket) {
-  return _ensureBitmapAtScale(filePath, pageNum, rotation, zoomBucket, zoomBucket);
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, zoomBucket, zoomBucket, RENDER_PRIORITY.PAGE);
 }
 
 /**
@@ -243,7 +244,7 @@ export function ensureBitmap(filePath, pageNum, rotation, zoomBucket) {
  */
 export function ensureExactBitmap(filePath, pageNum, rotation, exactScale) {
   const roundedScale = Math.round(exactScale * 1000) / 1000;
-  return _ensureBitmapAtScale(filePath, pageNum, rotation, roundedScale, roundedScale);
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, roundedScale, roundedScale, RENDER_PRIORITY.TILE);
 }
 
 /**
@@ -256,10 +257,10 @@ export function ensureExactBitmap(filePath, pageNum, rotation, exactScale) {
  * targetBucket finds it via the proximity-sort search.
  */
 export function prefetchFallbackBitmap(filePath, pageNum, rotation, prefetchScale) {
-  return _ensureBitmapAtScale(filePath, pageNum, rotation, 1, prefetchScale);
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, 1, prefetchScale, RENDER_PRIORITY.PREFETCH);
 }
 
-function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderScale) {
+function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderScale, priority) {
   // Line mode captured once: the render and the cache key must agree even if
   // the user switches Thin Lines while this render is in flight.
   const thin = thinLinesOn();
@@ -268,6 +269,9 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
   if (_pending.has(key)) return _pending.get(key);
   if (!isTauri() || !filePath) return Promise.resolve(null);
 
+  // Closing the document empties this cache; a render that lands after that
+  // must not put its bitmap back (#506).
+  const docEpoch = renderQueue.documentEpoch(filePath);
   const p = (async () => {
     try {
       // PERF FIX #3: Rust now returns RGBA bytes directly via tauri::ipc::Response.
@@ -285,7 +289,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
         scale: renderScale,
         rotation: rotation || 0,
         thinLines: thin,
-      });
+      }, { priority });
       console.log(`[pbc] whole-page KLAAR p${pageNum} scale=${renderScale.toFixed(3)} @${Math.round(performance.now() - _t0)}ms`);
       const fileBytes = result instanceof Uint8Array ? result : new Uint8Array(result);
       if (!fileBytes || fileBytes.length <= 8) return null;
@@ -300,6 +304,10 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
       const rgba = sharpenPageRgba(new Uint8ClampedArray(fileBytes.buffer, fileBytes.byteOffset + 8, expected), w, h);
       const imageData = new ImageData(rgba, w, h);
       const bitmap = await createImageBitmap(imageData);
+      if (renderQueue.documentEpoch(filePath) !== docEpoch) {
+        try { bitmap.close?.(); } catch { /* already gone */ }
+        return null;
+      }
       import('../solid/stores/engineStatusStore.js')
         .then((m) => m.reportActiveEngine('pdfium', filePath, pageNum))
         .catch(() => {});
@@ -308,7 +316,9 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
       _evictIfNeeded(key);
       return entry;
     } catch (e) {
-      console.warn('[page-bitmap-cache] render failed', e);
+      // A render dropped because its document closed or is no longer shown
+      // (#506) is not a failure; nothing is cached for it.
+      if (!isRenderCancelled(e)) console.warn('[page-bitmap-cache] render failed', e);
       return null;
     } finally {
       _pending.delete(key);

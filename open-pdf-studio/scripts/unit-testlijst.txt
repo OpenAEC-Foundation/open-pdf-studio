@@ -128,6 +128,8 @@ js/annotations/vector-snippet-cleanup.test.mjs
 js/pdf/render-route.test.mjs
 js/pdf/titleblock-compose.test.mjs
 js/pdf/progressive-render.test.mjs
+js/pdf/render-queue.test.mjs
+js/pdf/render-queue-app.test.mjs
 js/pdf/tile-coverage.test.mjs
 js/pdf/continuous-zoom-anchor.test.mjs
 js/pdf/continuous-rerender-gate.test.mjs

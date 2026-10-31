@@ -12,6 +12,8 @@
 // geen top-level browser-afhankelijkheden en laadt het onder plain node, zodat
 // de pure functies (isHeavyBytes, computeTileGrid) los unit-testbaar zijn.
 
+import { RENDER_PRIORITY, isRenderCancelled, renderQueue } from './render-queue.js';
+
 // Zware-pagina drempel: gecomprimeerde content-stream > 1 MB. Gevalideerd door
 // de all-PDF-test zodat geen normale pagina onterecht als zwaar telt.
 const HEAVY_CONTENT_BYTES = 1_000_000;
@@ -96,10 +98,13 @@ export function createSceneAttemptCoordinator() {
     if (firstFailure) onFailure(error);
   };
 
+  // A cancelled render (document closed or no longer shown, #506) says
+  // nothing about the scene: pass it on instead of marking the page broken.
   const renderKnownScene = async (key, args, render, onFailure) => {
     try {
       return await render(args);
     } catch (error) {
+      if (isRenderCancelled(error)) throw error;
       markBroken(key, error, onFailure);
       return null;
     }
@@ -113,6 +118,7 @@ export function createSceneAttemptCoordinator() {
       const existing = probes.get(key);
       if (existing) {
         const outcome = await existing;
+        if (outcome.cancelled) throw outcome.cancelled;
         if (!outcome.ok || broken.has(key)) return null;
         return renderKnownScene(key, args, render, onFailure);
       }
@@ -123,6 +129,7 @@ export function createSceneAttemptCoordinator() {
           ready.add(key);
           return { ok: true, value };
         } catch (error) {
+          if (isRenderCancelled(error)) return { ok: false, value: null, cancelled: error };
           markBroken(key, error, onFailure);
           return { ok: false, value: null };
         } finally {
@@ -131,6 +138,7 @@ export function createSceneAttemptCoordinator() {
       })();
       probes.set(key, probe);
       const outcome = await probe;
+      if (outcome.cancelled) throw outcome.cancelled;
       return outcome.ok ? outcome.value : null;
     },
   };
@@ -146,9 +154,19 @@ const _sceneAttempts = createSceneAttemptCoordinator();
  * (~140 MB op een 5M-ops blad) i.p.v. PDFium-parse-state van ~1,1 GB per
  * worker; zelfde wire-format ([w u32][h u32][rgba]) en dezelfde argumenten
  * als render_pdf_page_region.
+ *
+ * Gaat via de render-planner (render-queue.js): wacht daar in plaats van in
+ * de niet te annuleren worker-rij, en vervalt (RenderCancelledError) zodra het
+ * document dicht is of niet meer getoond wordt (#506).
+ * @param {object} args  argumenten van render_pdf_page_region
+ * @param {{priority?: number, keepWhenHidden?: boolean}} [plan]  RENDER_PRIORITY
+ *   (standaard TILE: zichtbare tegel)
  */
-export async function invokeTileRegion(args) {
+export async function invokeTileRegion(args, { priority = RENDER_PRIORITY.TILE, keepWhenHidden = false } = {}) {
   const { invoke } = await import('../core/platform.js');
+  // Zet de planner op de hoogte van het getoonde document (alleen in de app).
+  await import('./render-queue-state.js').catch(() => {});
+  const docKey = args.path || null;
   // Thin Lines (#595): the caller's flag (the one its cache key uses) or the
   // preference. Both engines below draw strokes as hairlines with it.
   const { withThinLines } = await import('./thin-lines.js');
@@ -163,7 +181,10 @@ export async function invokeTileRegion(args) {
     const res = await _sceneAttempts.tryRegion(
       key,
       args,
-      (regionArgs) => invoke('render_tile_scene_region', regionArgs),
+      (regionArgs) => renderQueue.schedule(
+        () => invoke('render_tile_scene_region', regionArgs),
+        { docKey, priority, keepWhenHidden },
+      ),
       (error) => {
         perfMark(`scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 80)}`);
         console.log(`[prog] scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 140)}`);
@@ -181,10 +202,20 @@ export async function invokeTileRegion(args) {
   // scene-engine zijn afgewezen pinnen juist op één affinity-worker: anders
   // parsen vier processen elk dezelfde enorme content-stream en groeit de
   // worker-RSS tot meerdere gigabytes.
-  const res = await invoke('render_pdf_page_region', {
-    ...args,
-    spread: shouldSpreadPdfiumFallback(sceneWorthIt),
-  });
+  // Zonder spreiding pint Rust alle tegels van deze pagina op één worker, die
+  // ze één voor één afwerkt: meer dan één tegel tegelijk insturen wint niets
+  // en laat bij een wissel alleen meer onafbreekbaar werk in die rij staan.
+  const spread = shouldSpreadPdfiumFallback(sceneWorthIt);
+  const res = await renderQueue.schedule(
+    () => invoke('render_pdf_page_region', { ...args, spread }),
+    {
+      docKey,
+      priority,
+      keepWhenHidden,
+      group: spread ? null : `${args.path}|${args.pageIndex}`,
+      groupLimit: 1,
+    },
+  );
   try {
     const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
     reportActiveEngine('pdfium', args.path, args.pageIndex + 1);
@@ -395,6 +426,9 @@ export async function ensureProgressiveBitmapForCurrentView() {
     if (_inflightKey === runKey) return; // lopende run is al de juiste
   }
   const cacheBucket = computeZoomBucket(renderScale);
+  // Wordt het document tijdens de run gesloten, dan hoort het eindbeeld niet
+  // meer in de (net geleegde) cache (#506).
+  const docEpoch = renderQueue.documentEpoch(filePath);
   const myGen = ++_progGen;
   // Stale zodra een nieuwere run start (generatie) óf de viewport een andere
   // pagina/document toont (zie runVolgtViewport).
@@ -487,15 +521,24 @@ export async function ensureProgressiveBitmapForCurrentView() {
     let bytes;
     try {
       const _i0 = performance.now();
+      // De tegels vormen samen de getoonde pagina: zelfde voorrang als een
+      // whole-page render (#506).
       const res = await invokeTileRegion({
         path: filePath, pageIndex: pageNum - 1,
         scale: renderScale, rotation,
         regionXPt, regionYPt, regionWPt, regionHPt,
         thinLines: thin,
-      });
+      }, { priority: RENDER_PRIORITY.PAGE });
       bytes = res instanceof Uint8Array ? res : new Uint8Array(res);
       perfMark(`tegel-invoke ${t.pw}x${t.ph} ${Math.round(performance.now() - _i0)}ms (${(bytes.length / 1048576).toFixed(1)}MB)`);
-    } catch { failed = true; return; }
+    } catch (e) {
+      // Vervallen omdat het document weg of verborgen is (#506): geen fout,
+      // de run is dan zelf al achterhaald en mag niet terugvallen op een
+      // whole-page render van dat document.
+      if (isRenderCancelled(e)) return;
+      failed = true;
+      return;
+    }
     if (myGen !== _progGen) return;
     if (!bytes || bytes.length <= 8) return;
     const dv = new DataView(bytes.buffer, bytes.byteOffset, 8);
@@ -553,7 +596,11 @@ export async function ensureProgressiveBitmapForCurrentView() {
   const _f0 = performance.now();
   const finalBmp = await createImageBitmap(acc);
   perfMark(`finale createImageBitmap ${fullW}x${fullH} ${Math.round(performance.now() - _f0)}ms`);
-  if (myGen !== _progGen) { try { finalBmp.close && finalBmp.close(); } catch {} if (_inflightKey === runKey) _inflightKey = null; return; }
+  if (myGen !== _progGen || renderQueue.documentEpoch(filePath) !== docEpoch) {
+    try { finalBmp.close && finalBmp.close(); } catch {}
+    if (_inflightKey === runKey) _inflightKey = null;
+    return;
+  }
   if (lastIntermediate) { try { lastIntermediate.close && lastIntermediate.close(); } catch {} }
   const _c0 = performance.now();
   // Het eindbeeld is compleet en klopt voor zíjn pagina: altijd cachen (een

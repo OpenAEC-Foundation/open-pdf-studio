@@ -18,19 +18,32 @@
 import { state } from '../core/state.js';
 import { invoke } from '../core/platform.js';
 import { thinLinesOn } from './thin-lines.js';
+import { RENDER_PRIORITY } from './render-queue.js';
+import { renderQueue } from './render-queue-state.js';
 
 /**
  * Render one whole page via the user-selected engine.
  * `thinLines` (Thin Lines view mode, #595) defaults to the preference; a
  * caller that caches the result passes the flag it keyed the cache on.
+ * The request goes through the render scheduler (render-queue.js): it waits
+ * there, not in the uncancellable worker queue, and is dropped (rejects with
+ * a RenderCancelledError) once its document is closed or no longer shown.
  * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean}} args
+ * @param {{priority?:number, keepWhenHidden?:boolean}} [schedule]  RENDER_PRIORITY
+ *   (default PAGE: the page in view)
  * @returns {Promise<Uint8Array>} `[w:u32 LE][h:u32 LE][rgba…]` wire format
  */
-export async function renderPdfPage({ path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn() }) {
+export async function renderPdfPage(
+  { path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn() },
+  { priority = RENDER_PRIORITY.PAGE, keepWhenHidden = false } = {},
+) {
   const command = (state?.renderEngineOverride === 'rust-skia')
     ? 'render_pdf_page_skia'
     : 'render_pdf_page';
-  return invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines });
+  return renderQueue.schedule(
+    () => invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines }),
+    { docKey: path || null, priority, keepWhenHidden },
+  );
 }
 
 /**

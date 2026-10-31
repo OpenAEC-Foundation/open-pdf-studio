@@ -334,6 +334,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
           console.warn('[PERF] cold-open preview paint failed:', e?.message ?? e);
         }
       }).catch((e) => {
+        if (e?.renderCancelled) return; // another document was opened meanwhile (#506)
         console.warn('[PERF] cold-open pre-render failed:', e?.message ?? e);
       });
     }
