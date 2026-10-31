@@ -1,3 +1,4 @@
+use super::shm_files;
 use super::state::{Status, WorkerState};
 use anyhow::{anyhow, Context, Result};
 use memmap2::MmapOptions;
@@ -12,6 +13,9 @@ const SHM_SIZE: usize = 64 * 1024 * 1024;
 const READY_TIMEOUT: Duration = Duration::from_secs(5);
 
 pub async fn spawn_worker(worker: Arc<WorkerState>, exe_path: &std::path::Path) -> Result<()> {
+    if worker.is_shutting_down() {
+        return Err(anyhow!("worker {} not spawned: pool is shutting down", worker.slot));
+    }
     worker.set_status(Status::Spawning);
 
     // Namespace SHM by THIS app process's PID so a detached document window
@@ -23,7 +27,11 @@ pub async fn spawn_worker(worker: Arc<WorkerState>, exe_path: &std::path::Path) 
         .arg(&ns)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::inherit());
+        .stderr(Stdio::inherit())
+        // A worker that never makes it into the pool (ready timeout, failed
+        // mmap) must not linger with its SHM file open: dropping the Child on
+        // those error paths kills it.
+        .kill_on_drop(true);
     // Hide the worker's console window — the GUI parent has no console to
     // share, so without this every pool worker pops up a black console box.
     #[cfg(windows)]
@@ -46,20 +54,18 @@ pub async fn spawn_worker(worker: Arc<WorkerState>, exe_path: &std::path::Path) 
     }
 
     // mmap the SHM file the worker created (same PID-namespaced path)
-    let shm_path = format!(
-        "{}/pdfium-worker-{}-{}.shm",
-        std::env::temp_dir().to_string_lossy(),
-        ns,
-        worker.slot
-    );
+    let shm_path = shm_files::path_in(&std::env::temp_dir(), &ns, worker.slot);
     let file = std::fs::OpenOptions::new()
         .read(true).write(false)
         .open(&shm_path)
-        .with_context(|| format!("open SHM {}", shm_path))?;
+        .with_context(|| format!("open SHM {}", shm_path.display()))?;
     let mmap = unsafe {
         MmapOptions::new().len(SHM_SIZE).map(&file)
-            .with_context(|| format!("mmap SHM {}", shm_path))?
+            .with_context(|| format!("mmap SHM {}", shm_path.display()))?
     };
+    // The mapping keeps the section alive; the file handle itself is not
+    // needed any more (and must not keep the file open on Windows).
+    drop(file);
 
     // Stash handles in the WorkerState
     *worker.child.lock().await = Some(child);
