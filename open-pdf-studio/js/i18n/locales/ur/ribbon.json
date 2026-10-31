@@ -717,5 +717,53 @@
     "noRecovery": "اس دستاویز کے مارک اپس بحالی کی اجازت کے بغیر ہموار کیے گئے تھے۔ وہ صفحے کے مواد کا حصہ ہیں اور بحال نہیں کیے جا سکتے۔",
     "done": "بحال کیے گئے مارک اپس: {{count}}۔",
     "failed": "بحالی ناکام ہوئی: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "چھوٹے آئیکن",
+    "largeIcons": "بڑے آئیکن",
+    "settings": "ترتیبات"
+  },
+  "symbolPalette": {
+    "search": "علامات تلاش کریں...",
+    "noResults": "کوئی علامت نہیں ملی",
+    "drawingSettings": "ڈرائنگ کی ترتیبات",
+    "manageSystemTypes": "سسٹم کی اقسام کا انتظام کریں",
+    "settingsTitle": "علامات لائبریری کی ترتیبات",
+    "industry": "صنعت",
+    "country": "ملک",
+    "libraryLoading": "آن لائن لائبریری لوڈ ہو رہی ہے…",
+    "libraryOffline": "آن لائن لائبریری تک رسائی نہیں — ممالک کی محدود فہرست",
+    "downloading": "ڈاؤن لوڈ ہو رہا ہے {{current}}/{{total}}: {{label}}",
+    "availableOnline": "آن لائن دستیاب مجموعے: {{n}} (علامات: {{symbols}})",
+    "activateDownloaded": "اس ملک کے لیے فعال کرنے کو ڈاؤن لوڈ شدہ مجموعے: {{n}}",
+    "download": "ڈاؤن لوڈ کریں",
+    "downloadFailed": "ڈاؤن لوڈ ناکام: {{error}}",
+    "builtIn": "بلٹ اِن",
+    "online": "آن لائن",
+    "addSymbol": "+ علامت شامل کریں",
+    "export": "برآمد کریں",
+    "remove": "ہٹائیں",
+    "noSymbolsYet": "ابھی کوئی علامت نہیں",
+    "newGroupName": "نئے گروپ کا نام...",
+    "addGroup": "گروپ شامل کریں",
+    "importGroup": "گروپ درآمد کریں",
+    "catalogLoaded": "کیٹلاگ '{{id}}' لوڈ ہو گیا: خاندان {{families}}، سائز {{sizes}}",
+    "catalogNoPreview": "فائل میں پیش منظر کے بغیر: {{n}}",
+    "fileNotRecognized": "فائل کی شناخت نہیں ہوئی: نہ علامات کا گروپ ہے نہ کیٹلاگ",
+    "importFailed": "درآمد ناکام: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC تعمیرات",
+      "nl-elektra": "NL بجلی",
+      "nl-bouwplaats": "NL تعمیراتی سائٹ",
+      "nl-sanitair": "NL سینیٹری",
+      "nl-keuken": "NL باورچی خانہ",
+      "nen1414-tb": "NL NEN 1414 — آگ سے تحفظ",
+      "nen1414-tbk": "NL NEN 1414 — آگ بجھانے کے نظام",
+      "nen1414-td": "NL NEN 1414 — دروازے",
+      "nen1414-tn": "NL NEN 1414 — ہنگامی روشنی",
+      "nen1414-tr": "NL NEN 1414 — دھوئیں/حرارت کا اخراج",
+      "nen1414-tv": "NL NEN 1414 — ہوا کی آمد و رفت",
+      "nen1414-tw": "NL NEN 1414 — پانی/اسپرنکلر"
+    }
   }
 }

@@ -717,5 +717,53 @@
     "noRecovery": "Les annotations de ce document ont été aplaties sans autoriser la restauration. Elles font partie du contenu de la page et ne peuvent pas être restaurées.",
     "done": "Annotations restaurées : {{count}}.",
     "failed": "Échec de la restauration : {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Petites icônes",
+    "largeIcons": "Grandes icônes",
+    "settings": "Paramètres"
+  },
+  "symbolPalette": {
+    "search": "Rechercher des symboles...",
+    "noResults": "Aucun symbole trouvé",
+    "drawingSettings": "Paramètres du dessin",
+    "manageSystemTypes": "Gérer les types de système",
+    "settingsTitle": "Paramètres de la bibliothèque de symboles",
+    "industry": "Secteur",
+    "country": "Pays",
+    "libraryLoading": "Chargement de la bibliothèque en ligne…",
+    "libraryOffline": "Bibliothèque en ligne inaccessible — liste de pays limitée",
+    "downloading": "Téléchargement {{current}}/{{total}} : {{label}}",
+    "availableOnline": "Collections disponibles en ligne : {{n}} ({{symbols}} symboles)",
+    "activateDownloaded": "Collections téléchargées à activer pour ce pays : {{n}}",
+    "download": "Télécharger",
+    "downloadFailed": "Échec du téléchargement : {{error}}",
+    "builtIn": "Intégré",
+    "online": "En ligne",
+    "addSymbol": "+ Ajouter un symbole",
+    "export": "Exporter",
+    "remove": "Supprimer",
+    "noSymbolsYet": "Aucun symbole pour le moment",
+    "newGroupName": "Nom du nouveau groupe...",
+    "addGroup": "Ajouter un groupe",
+    "importGroup": "Importer un groupe",
+    "catalogLoaded": "Catalogue '{{id}}' chargé : {{families}} familles, {{sizes}} tailles",
+    "catalogNoPreview": "{{n}} sans aperçu dans le fichier",
+    "fileNotRecognized": "Fichier non reconnu : ni un groupe de symboles ni un catalogue",
+    "importFailed": "Échec de l'importation : {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Construction",
+      "nl-elektra": "NL Électricité",
+      "nl-bouwplaats": "NL Chantier",
+      "nl-sanitair": "NL Sanitaire",
+      "nl-keuken": "NL Cuisine",
+      "nen1414-tb": "NL NEN 1414 — Protection incendie",
+      "nen1414-tbk": "NL NEN 1414 — Systèmes d'extinction",
+      "nen1414-td": "NL NEN 1414 — Portes",
+      "nen1414-tn": "NL NEN 1414 — Éclairage de secours",
+      "nen1414-tr": "NL NEN 1414 — Désenfumage",
+      "nen1414-tv": "NL NEN 1414 — Ventilation",
+      "nen1414-tw": "NL NEN 1414 — Eau/Sprinkler"
+    }
   }
 }

@@ -717,5 +717,53 @@
     "noRecovery": "سُطّحت العلامات في هذا المستند دون السماح بالاستعادة. إنها جزء من محتوى الصفحة ولا يمكن استعادتها.",
     "done": "العلامات المستعادة: {{count}}.",
     "failed": "فشلت الاستعادة: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "أيقونات صغيرة",
+    "largeIcons": "أيقونات كبيرة",
+    "settings": "الإعدادات"
+  },
+  "symbolPalette": {
+    "search": "البحث عن رموز...",
+    "noResults": "لم يتم العثور على رموز",
+    "drawingSettings": "إعدادات الرسم",
+    "manageSystemTypes": "إدارة أنواع الأنظمة",
+    "settingsTitle": "إعدادات مكتبة الرموز",
+    "industry": "القطاع",
+    "country": "البلد",
+    "libraryLoading": "جارٍ تحميل المكتبة عبر الإنترنت…",
+    "libraryOffline": "تعذّر الوصول إلى المكتبة عبر الإنترنت — قائمة بلدان محدودة",
+    "downloading": "جارٍ التنزيل {{current}}/{{total}}: {{label}}",
+    "availableOnline": "المجموعات المتاحة عبر الإنترنت: {{n}} (الرموز: {{symbols}})",
+    "activateDownloaded": "المجموعات المنزّلة المطلوب تفعيلها لهذا البلد: {{n}}",
+    "download": "تنزيل",
+    "downloadFailed": "فشل التنزيل: {{error}}",
+    "builtIn": "مضمّنة",
+    "online": "عبر الإنترنت",
+    "addSymbol": "+ إضافة رمز",
+    "export": "تصدير",
+    "remove": "إزالة",
+    "noSymbolsYet": "لا توجد رموز بعد",
+    "newGroupName": "اسم المجموعة الجديدة...",
+    "addGroup": "إضافة مجموعة",
+    "importGroup": "استيراد مجموعة",
+    "catalogLoaded": "تم تحميل الكتالوج '{{id}}': العائلات {{families}}، المقاسات {{sizes}}",
+    "catalogNoPreview": "بدون معاينة في الملف: {{n}}",
+    "fileNotRecognized": "لم يتم التعرّف على الملف: ليس مجموعة رموز ولا كتالوجًا",
+    "importFailed": "فشل الاستيراد: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC البناء",
+      "nl-elektra": "NL الكهرباء",
+      "nl-bouwplaats": "NL موقع البناء",
+      "nl-sanitair": "NL الأدوات الصحية",
+      "nl-keuken": "NL المطبخ",
+      "nen1414-tb": "NL NEN 1414 — الحماية من الحريق",
+      "nen1414-tbk": "NL NEN 1414 — أنظمة الإطفاء",
+      "nen1414-td": "NL NEN 1414 — الأبواب",
+      "nen1414-tn": "NL NEN 1414 — إنارة الطوارئ",
+      "nen1414-tr": "NL NEN 1414 — تصريف الدخان/الحرارة",
+      "nen1414-tv": "NL NEN 1414 — التهوية",
+      "nen1414-tw": "NL NEN 1414 — المياه/الرشاشات"
+    }
   }
 }

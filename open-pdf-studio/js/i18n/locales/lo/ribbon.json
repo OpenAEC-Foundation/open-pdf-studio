@@ -715,5 +715,53 @@
     "noRecovery": "ເຄື່ອງໝາຍໃນເອກະສານນີ້ຖືກຮວມໂດຍບໍ່ອະນຸຍາດໃຫ້ກູ້ຄືນ. ມັນເປັນສ່ວນໜຶ່ງຂອງເນື້ອຫາໜ້າ ແລະ ກູ້ຄືນບໍ່ໄດ້.",
     "done": "ເຄື່ອງໝາຍທີ່ກູ້ຄືນແລ້ວ: {{count}}.",
     "failed": "ການກູ້ຄືນລົ້ມເຫຼວ: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "ໄອຄອນນ້ອຍ",
+    "largeIcons": "ໄອຄອນໃຫຍ່",
+    "settings": "ການຕັ້ງຄ່າ"
+  },
+  "symbolPalette": {
+    "search": "ຊອກຫາສັນຍາລັກ...",
+    "noResults": "ບໍ່ພົບສັນຍາລັກ",
+    "drawingSettings": "ການຕັ້ງຄ່າແບບແຕ້ມ",
+    "manageSystemTypes": "ຈັດການປະເພດລະບົບ",
+    "settingsTitle": "ການຕັ້ງຄ່າຄັງສັນຍາລັກ",
+    "industry": "ອຸດສາຫະກຳ",
+    "country": "ປະເທດ",
+    "libraryLoading": "ກຳລັງໂຫຼດຄັງອອນລາຍ…",
+    "libraryOffline": "ບໍ່ສາມາດເຂົ້າເຖິງຄັງອອນລາຍ — ລາຍຊື່ປະເທດມີຈຳກັດ",
+    "downloading": "ກຳລັງດາວໂຫຼດ {{current}}/{{total}}: {{label}}",
+    "availableOnline": "ຄໍເລັກຊັນທີ່ມີອອນລາຍ: {{n}} ({{symbols}} ສັນຍາລັກ)",
+    "activateDownloaded": "ຄໍເລັກຊັນທີ່ດາວໂຫຼດແລ້ວທີ່ຕ້ອງເປີດໃຊ້ສຳລັບປະເທດນີ້: {{n}}",
+    "download": "ດາວໂຫຼດ",
+    "downloadFailed": "ດາວໂຫຼດບໍ່ສຳເລັດ: {{error}}",
+    "builtIn": "ມີໃນຕົວ",
+    "online": "ອອນລາຍ",
+    "addSymbol": "+ ເພີ່ມສັນຍາລັກ",
+    "export": "ສົ່ງອອກ",
+    "remove": "ລຶບອອກ",
+    "noSymbolsYet": "ຍັງບໍ່ມີສັນຍາລັກ",
+    "newGroupName": "ຊື່ກຸ່ມໃໝ່...",
+    "addGroup": "ເພີ່ມກຸ່ມ",
+    "importGroup": "ນຳເຂົ້າກຸ່ມ",
+    "catalogLoaded": "ໂຫຼດແຄັດຕາລັອກ '{{id}}' ແລ້ວ: {{families}} ຕະກູນ, {{sizes}} ຂະໜາດ",
+    "catalogNoPreview": "ບໍ່ມີຕົວຢ່າງໃນໄຟລ໌: {{n}}",
+    "fileNotRecognized": "ບໍ່ຮູ້ຈັກໄຟລ໌: ບໍ່ແມ່ນກຸ່ມສັນຍາລັກ ແລະ ບໍ່ແມ່ນແຄັດຕາລັອກ",
+    "importFailed": "ນຳເຂົ້າບໍ່ສຳເລັດ: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC ກໍ່ສ້າງ",
+      "nl-elektra": "NL ໄຟຟ້າ",
+      "nl-bouwplaats": "NL ສະຖານທີ່ກໍ່ສ້າງ",
+      "nl-sanitair": "NL ສຸຂະພັນ",
+      "nl-keuken": "NL ເຮືອນຄົວ",
+      "nen1414-tb": "NL NEN 1414 — ການປ້ອງກັນອັກຄີໄພ",
+      "nen1414-tbk": "NL NEN 1414 — ລະບົບດັບເພີງ",
+      "nen1414-td": "NL NEN 1414 — ປະຕູ",
+      "nen1414-tn": "NL NEN 1414 — ໄຟສຸກເສີນ",
+      "nen1414-tr": "NL NEN 1414 — ການລະບາຍຄວັນ/ຄວາມຮ້ອນ",
+      "nen1414-tv": "NL NEN 1414 — ການລະບາຍອາກາດ",
+      "nen1414-tw": "NL NEN 1414 — ນ້ຳ/ສະປຣິງເກີ"
+    }
   }
 }

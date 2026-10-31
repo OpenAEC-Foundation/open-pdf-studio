@@ -717,5 +717,53 @@
     "noRecovery": "이 문서의 마크업은 복원을 허용하지 않고 병합되었습니다. 페이지 내용의 일부이므로 복원할 수 없습니다.",
     "done": "복원된 마크업: {{count}}",
     "failed": "복원 실패: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "작은 아이콘",
+    "largeIcons": "큰 아이콘",
+    "settings": "설정"
+  },
+  "symbolPalette": {
+    "search": "기호 검색...",
+    "noResults": "기호를 찾을 수 없음",
+    "drawingSettings": "도면 설정",
+    "manageSystemTypes": "시스템 유형 관리",
+    "settingsTitle": "기호 라이브러리 설정",
+    "industry": "업종",
+    "country": "국가",
+    "libraryLoading": "온라인 라이브러리 불러오는 중…",
+    "libraryOffline": "온라인 라이브러리에 연결할 수 없음 — 제한된 국가 목록",
+    "downloading": "다운로드 중 {{current}}/{{total}}: {{label}}",
+    "availableOnline": "온라인에서 사용 가능한 컬렉션: {{n}} (기호 {{symbols}}개)",
+    "activateDownloaded": "이 국가에 활성화할 다운로드된 컬렉션: {{n}}",
+    "download": "다운로드",
+    "downloadFailed": "다운로드 실패: {{error}}",
+    "builtIn": "기본 제공",
+    "online": "온라인",
+    "addSymbol": "+ 기호 추가",
+    "export": "내보내기",
+    "remove": "제거",
+    "noSymbolsYet": "아직 기호가 없음",
+    "newGroupName": "새 그룹 이름...",
+    "addGroup": "그룹 추가",
+    "importGroup": "그룹 가져오기",
+    "catalogLoaded": "카탈로그 '{{id}}' 불러옴: 패밀리 {{families}}개, 크기 {{sizes}}개",
+    "catalogNoPreview": "파일에 미리 보기 없음: {{n}}",
+    "fileNotRecognized": "파일을 인식할 수 없음: 기호 그룹도 카탈로그도 아님",
+    "importFailed": "가져오기 실패: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC 건축",
+      "nl-elektra": "NL 전기",
+      "nl-bouwplaats": "NL 건설 현장",
+      "nl-sanitair": "NL 위생 설비",
+      "nl-keuken": "NL 주방",
+      "nen1414-tb": "NL NEN 1414 — 방화",
+      "nen1414-tbk": "NL NEN 1414 — 소화 설비",
+      "nen1414-td": "NL NEN 1414 — 문",
+      "nen1414-tn": "NL NEN 1414 — 비상 조명",
+      "nen1414-tr": "NL NEN 1414 — 배연/배열",
+      "nen1414-tv": "NL NEN 1414 — 환기",
+      "nen1414-tw": "NL NEN 1414 — 급수/스프링클러"
+    }
   }
 }

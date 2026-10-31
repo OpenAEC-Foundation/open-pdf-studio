@@ -717,5 +717,53 @@
     "noRecovery": "نشانه‌گذاری‌های این سند بدون اجازهٔ بازگردانی مسطح شده‌اند. آن‌ها بخشی از محتوای صفحه‌اند و قابل بازگرداندن نیستند.",
     "done": "نشانه‌گذاری‌های بازگردانده‌شده: {{count}}.",
     "failed": "بازگردانی ناموفق بود: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "نمادک‌های کوچک",
+    "largeIcons": "نمادک‌های بزرگ",
+    "settings": "تنظیمات"
+  },
+  "symbolPalette": {
+    "search": "جستجوی نمادها...",
+    "noResults": "هیچ نمادی یافت نشد",
+    "drawingSettings": "تنظیمات نقشه",
+    "manageSystemTypes": "مدیریت انواع سیستم",
+    "settingsTitle": "تنظیمات کتابخانه نمادها",
+    "industry": "صنعت",
+    "country": "کشور",
+    "libraryLoading": "در حال بارگیری کتابخانه آنلاین…",
+    "libraryOffline": "کتابخانه آنلاین در دسترس نیست — فهرست محدود کشورها",
+    "downloading": "در حال دانلود {{current}}/{{total}}: {{label}}",
+    "availableOnline": "مجموعه‌های موجود به‌صورت آنلاین: {{n}} (نمادها: {{symbols}})",
+    "activateDownloaded": "مجموعه‌های دانلودشده برای فعال‌سازی در این کشور: {{n}}",
+    "download": "دانلود",
+    "downloadFailed": "دانلود ناموفق بود: {{error}}",
+    "builtIn": "داخلی",
+    "online": "آنلاین",
+    "addSymbol": "+ افزودن نماد",
+    "export": "صدور",
+    "remove": "حذف",
+    "noSymbolsYet": "هنوز نمادی وجود ندارد",
+    "newGroupName": "نام گروه جدید...",
+    "addGroup": "افزودن گروه",
+    "importGroup": "وارد کردن گروه",
+    "catalogLoaded": "کاتالوگ '{{id}}' بارگیری شد: خانواده‌ها {{families}}، اندازه‌ها {{sizes}}",
+    "catalogNoPreview": "بدون پیش‌نمایش در فایل: {{n}}",
+    "fileNotRecognized": "فایل شناسایی نشد: نه گروه نماد است و نه کاتالوگ",
+    "importFailed": "وارد کردن ناموفق بود: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC ساختمان",
+      "nl-elektra": "NL برق",
+      "nl-bouwplaats": "NL کارگاه ساختمانی",
+      "nl-sanitair": "NL بهداشتی",
+      "nl-keuken": "NL آشپزخانه",
+      "nen1414-tb": "NL NEN 1414 — حفاظت در برابر آتش",
+      "nen1414-tbk": "NL NEN 1414 — سیستم‌های اطفاء",
+      "nen1414-td": "NL NEN 1414 — درها",
+      "nen1414-tn": "NL NEN 1414 — روشنایی اضطراری",
+      "nen1414-tr": "NL NEN 1414 — تخلیه دود/گرما",
+      "nen1414-tv": "NL NEN 1414 — تهویه",
+      "nen1414-tw": "NL NEN 1414 — آب/اسپرینکلر"
+    }
   }
 }

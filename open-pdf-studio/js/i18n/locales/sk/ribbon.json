@@ -717,5 +717,53 @@
     "noRecovery": "Označenia v tomto dokumente boli sploštené bez povolenia obnovenia. Sú súčasťou obsahu strany a nemožno ich obnoviť.",
     "done": "Obnovené označenia: {{count}}.",
     "failed": "Obnovenie zlyhalo: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Malé ikony",
+    "largeIcons": "Veľké ikony",
+    "settings": "Nastavenia"
+  },
+  "symbolPalette": {
+    "search": "Hľadať symboly...",
+    "noResults": "Nenašli sa žiadne symboly",
+    "drawingSettings": "Nastavenia výkresu",
+    "manageSystemTypes": "Spravovať typy systémov",
+    "settingsTitle": "Nastavenia knižnice symbolov",
+    "industry": "Odvetvie",
+    "country": "Krajina",
+    "libraryLoading": "Načítava sa online knižnica…",
+    "libraryOffline": "Online knižnica nie je dostupná — obmedzený zoznam krajín",
+    "downloading": "Sťahovanie {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Kolekcie dostupné online: {{n}} (symbolov: {{symbols}})",
+    "activateDownloaded": "Stiahnuté kolekcie na aktiváciu pre túto krajinu: {{n}}",
+    "download": "Stiahnuť",
+    "downloadFailed": "Sťahovanie zlyhalo: {{error}}",
+    "builtIn": "Vstavaná",
+    "online": "Online",
+    "addSymbol": "+ Pridať symbol",
+    "export": "Exportovať",
+    "remove": "Odstrániť",
+    "noSymbolsYet": "Zatiaľ žiadne symboly",
+    "newGroupName": "Názov novej skupiny...",
+    "addGroup": "Pridať skupinu",
+    "importGroup": "Importovať skupinu",
+    "catalogLoaded": "Katalóg '{{id}}' načítaný: rodín {{families}}, veľkostí {{sizes}}",
+    "catalogNoPreview": "Bez náhľadu v súbore: {{n}}",
+    "fileNotRecognized": "Súbor nebol rozpoznaný: nie je to skupina symbolov ani katalóg",
+    "importFailed": "Import zlyhal: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Stavba",
+      "nl-elektra": "NL Elektro",
+      "nl-bouwplaats": "NL Stavenisko",
+      "nl-sanitair": "NL Sanita",
+      "nl-keuken": "NL Kuchyňa",
+      "nen1414-tb": "NL NEN 1414 — Požiarna ochrana",
+      "nen1414-tbk": "NL NEN 1414 — Hasiace systémy",
+      "nen1414-td": "NL NEN 1414 — Dvere",
+      "nen1414-tn": "NL NEN 1414 — Núdzové osvetlenie",
+      "nen1414-tr": "NL NEN 1414 — Odvod dymu a tepla",
+      "nen1414-tv": "NL NEN 1414 — Vetranie",
+      "nen1414-tw": "NL NEN 1414 — Voda/Sprinklery"
+    }
   }
 }

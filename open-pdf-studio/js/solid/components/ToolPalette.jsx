@@ -215,6 +215,7 @@ function ensureCtxListeners() {
 }
 
 function PaletteContextMenu() {
+  const { t } = useTranslation('ribbon');
   onMount(ensureCtxListeners);
 
   return (
@@ -229,14 +230,14 @@ function PaletteContextMenu() {
           onClick={() => { setPaletteIconSize('small'); setPaletteCtxMenu(null); }}
         >
           <span class="tp-ctx-check">{paletteIconSize() === 'small' ? '\u2713' : ''}</span>
-          <span>Small Icons</span>
+          <span>{t('palette.smallIcons')}</span>
         </div>
         <div
           class={`tp-ctx-menu-item${paletteIconSize() === 'large' ? ' checked' : ''}`}
           onClick={() => { setPaletteIconSize('large'); setPaletteCtxMenu(null); }}
         >
           <span class="tp-ctx-check">{paletteIconSize() === 'large' ? '\u2713' : ''}</span>
-          <span>Large Icons</span>
+          <span>{t('palette.largeIcons')}</span>
         </div>
       </div>
     </Show>
@@ -285,6 +286,7 @@ const SINGLE_COL_HEIGHT_LARGE = 935;  // 20 btns × 44px + 5 seps × 7px
 
 // Docked strip — sits in the flex layout
 export function DockedToolPalette(props) {
+  const { t } = useTranslation('ribbon');
   const side = () => props.side;
   const shouldShow = () => paletteVisible() && paletteMode() === `docked-${side()}`;
   const [twoCol, setTwoCol] = createSignal(false);
@@ -318,13 +320,13 @@ export function DockedToolPalette(props) {
         <div class={`tp-docked-tools${twoCol() ? ' two-col' : ''}`}>
           <ToolList />
         </div>
-        <button class="tp-close" title="Settings" style={{ color: 'var(--theme-text-secondary)' }}
+        <button class="tp-close" title={t('palette.settings')} style={{ color: 'var(--theme-text-secondary)' }}
           onClick={(e) => showPaletteCtxMenu({ preventDefault: () => {}, clientX: e.clientX, clientY: e.clientY })}>
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
             <circle cx="8" cy="8" r="2"/><path d="M8 1v2m0 10v2M1 8h2m10 0h2M3 3l1.5 1.5m7 7L13 13M3 13l1.5-1.5m7-7L13 3"/>
           </svg>
         </button>
-        <button class="tp-close" onClick={() => { setPaletteVisible(false); unregisterPaletteDock('tool'); savePaletteState(); }}>
+        <button class="tp-close" title={t('view.closePalette')} onClick={() => { setPaletteVisible(false); unregisterPaletteDock('tool'); savePaletteState(); }}>
           <svg width="8" height="8" viewBox="0 0 10 10">
             <line x1="2" y1="2" x2="8" y2="8" stroke="currentColor" stroke-width="1.5"/>
             <line x1="8" y1="2" x2="2" y2="8" stroke="currentColor" stroke-width="1.5"/>

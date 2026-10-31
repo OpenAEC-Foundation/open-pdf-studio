@@ -717,5 +717,53 @@
     "noRecovery": "Markeringarna i det här dokumentet plattades till utan att återställning tilläts. De är en del av sidinnehållet och kan inte återställas.",
     "done": "Återställda markeringar: {{count}}.",
     "failed": "Återställningen misslyckades: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "Små ikoner",
+    "largeIcons": "Stora ikoner",
+    "settings": "Inställningar"
+  },
+  "symbolPalette": {
+    "search": "Sök symboler...",
+    "noResults": "Inga symboler hittades",
+    "drawingSettings": "Ritningsinställningar",
+    "manageSystemTypes": "Hantera systemtyper",
+    "settingsTitle": "Inställningar för symbolbibliotek",
+    "industry": "Bransch",
+    "country": "Land",
+    "libraryLoading": "Läser in onlinebiblioteket…",
+    "libraryOffline": "Onlinebiblioteket kan inte nås — begränsad landslista",
+    "downloading": "Hämtar {{current}}/{{total}}: {{label}}",
+    "availableOnline": "Samlingar tillgängliga online: {{n}} ({{symbols}} symboler)",
+    "activateDownloaded": "Hämtade samlingar att aktivera för detta land: {{n}}",
+    "download": "Hämta",
+    "downloadFailed": "Hämtningen misslyckades: {{error}}",
+    "builtIn": "Inbyggd",
+    "online": "Online",
+    "addSymbol": "+ Lägg till symbol",
+    "export": "Exportera",
+    "remove": "Ta bort",
+    "noSymbolsYet": "Inga symboler ännu",
+    "newGroupName": "Namn på ny grupp...",
+    "addGroup": "Lägg till grupp",
+    "importGroup": "Importera grupp",
+    "catalogLoaded": "Katalogen '{{id}}' inläst: {{families}} familjer, {{sizes}} storlekar",
+    "catalogNoPreview": "{{n}} utan förhandsvisning i filen",
+    "fileNotRecognized": "Filen kändes inte igen: varken en symbolgrupp eller en katalog",
+    "importFailed": "Importen misslyckades: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC Bygg",
+      "nl-elektra": "NL El",
+      "nl-bouwplaats": "NL Byggarbetsplats",
+      "nl-sanitair": "NL Sanitet",
+      "nl-keuken": "NL Kök",
+      "nen1414-tb": "NL NEN 1414 — Brandskydd",
+      "nen1414-tbk": "NL NEN 1414 — Släcksystem",
+      "nen1414-td": "NL NEN 1414 — Dörrar",
+      "nen1414-tn": "NL NEN 1414 — Nödbelysning",
+      "nen1414-tr": "NL NEN 1414 — Brandgasventilation",
+      "nen1414-tv": "NL NEN 1414 — Ventilation",
+      "nen1414-tw": "NL NEN 1414 — Vatten/Sprinkler"
+    }
   }
 }

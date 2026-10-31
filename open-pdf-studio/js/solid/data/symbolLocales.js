@@ -47,3 +47,11 @@ export function matchesLocale(cat, industry, country) {
   if (hasCountry && !tagMatches(cat.country, country)) return false;
   return true;
 }
+
+// Built-in categories carry a Dutch name in their data file; the palette
+// header follows the app language (#882). Custom and downloaded groups keep
+// the name the user or the library gave them.
+export function categoryLabel(t, cat) {
+  if (!cat?.builtin) return cat?.name;
+  return t(`symbolPalette.categories.${cat.id}`, { defaultValue: cat.name });
+}

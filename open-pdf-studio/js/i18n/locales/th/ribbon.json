@@ -717,5 +717,53 @@
     "noRecovery": "มาร์กอัปในเอกสารนี้ถูกรวมโดยไม่อนุญาตให้กู้คืน จึงเป็นส่วนหนึ่งของเนื้อหาหน้าและกู้คืนไม่ได้",
     "done": "มาร์กอัปที่กู้คืนแล้ว: {{count}}",
     "failed": "กู้คืนไม่สำเร็จ: {{error}}"
+  },
+  "palette": {
+    "smallIcons": "ไอคอนเล็ก",
+    "largeIcons": "ไอคอนใหญ่",
+    "settings": "การตั้งค่า"
+  },
+  "symbolPalette": {
+    "search": "ค้นหาสัญลักษณ์...",
+    "noResults": "ไม่พบสัญลักษณ์",
+    "drawingSettings": "การตั้งค่าแบบ",
+    "manageSystemTypes": "จัดการประเภทระบบ",
+    "settingsTitle": "การตั้งค่าคลังสัญลักษณ์",
+    "industry": "อุตสาหกรรม",
+    "country": "ประเทศ",
+    "libraryLoading": "กำลังโหลดคลังออนไลน์…",
+    "libraryOffline": "ไม่สามารถเข้าถึงคลังออนไลน์ — รายชื่อประเทศมีจำกัด",
+    "downloading": "กำลังดาวน์โหลด {{current}}/{{total}}: {{label}}",
+    "availableOnline": "คอลเลกชันที่มีให้ออนไลน์: {{n}} ({{symbols}} สัญลักษณ์)",
+    "activateDownloaded": "คอลเลกชันที่ดาวน์โหลดแล้วซึ่งต้องเปิดใช้สำหรับประเทศนี้: {{n}}",
+    "download": "ดาวน์โหลด",
+    "downloadFailed": "ดาวน์โหลดล้มเหลว: {{error}}",
+    "builtIn": "ในตัว",
+    "online": "ออนไลน์",
+    "addSymbol": "+ เพิ่มสัญลักษณ์",
+    "export": "ส่งออก",
+    "remove": "นำออก",
+    "noSymbolsYet": "ยังไม่มีสัญลักษณ์",
+    "newGroupName": "ชื่อกลุ่มใหม่...",
+    "addGroup": "เพิ่มกลุ่ม",
+    "importGroup": "นำเข้ากลุ่ม",
+    "catalogLoaded": "โหลดแค็ตตาล็อก '{{id}}' แล้ว: {{families}} ตระกูล, {{sizes}} ขนาด",
+    "catalogNoPreview": "ไม่มีภาพตัวอย่างในไฟล์: {{n}}",
+    "fileNotRecognized": "ไม่รู้จักไฟล์: ไม่ใช่กลุ่มสัญลักษณ์และไม่ใช่แค็ตตาล็อก",
+    "importFailed": "นำเข้าล้มเหลว: {{error}}",
+    "categories": {
+      "nl-ifc-bouw": "NL IFC ก่อสร้าง",
+      "nl-elektra": "NL ไฟฟ้า",
+      "nl-bouwplaats": "NL สถานที่ก่อสร้าง",
+      "nl-sanitair": "NL สุขภัณฑ์",
+      "nl-keuken": "NL ห้องครัว",
+      "nen1414-tb": "NL NEN 1414 — การป้องกันอัคคีภัย",
+      "nen1414-tbk": "NL NEN 1414 — ระบบดับเพลิง",
+      "nen1414-td": "NL NEN 1414 — ประตู",
+      "nen1414-tn": "NL NEN 1414 — ไฟฉุกเฉิน",
+      "nen1414-tr": "NL NEN 1414 — การระบายควัน/ความร้อน",
+      "nen1414-tv": "NL NEN 1414 — การระบายอากาศ",
+      "nen1414-tw": "NL NEN 1414 — น้ำ/สปริงเกอร์"
+    }
   }
 }
