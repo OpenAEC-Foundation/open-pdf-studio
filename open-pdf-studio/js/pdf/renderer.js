@@ -33,6 +33,7 @@ import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
 import { isRenderCancelled } from './render-queue.js';
 import { voerZoomAllesUit, centreerCorrectie } from './zoom-alles.js';
+import { annotatieUitsnede, naScrollen } from './annotatie-uitsnede.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -126,32 +127,14 @@ const CONT_MAX_AXIS_PX = 4096;
 // alle tekenroutes geven hem als renderOffset door en alle
 // coordinaatberekeningen meten tegen de paginacontainer
 // (.canvas-container-cont), niet tegen dit canvas.
-const CONT_ANN_MARGE_PX = 256;
-
 function setupContinuousAnnotationCanvas(canvas, width, height) {
   const dpr = getCanvasDPR();
   const container = document.getElementById('pdf-container');
   const cc = canvas.parentElement;
-  let clipX = 0, clipY = 0, clipW = width, clipH = height;
-  if (container && cc) {
-    const cr = container.getBoundingClientRect();
-    const ccr = cc.getBoundingClientRect();
-    if (ccr.width > 1 && ccr.height > 1) {
-      // Verhouding huidige rect <-> doelmaat (de cc kan net geresized zijn).
-      const fx = width / ccr.width;
-      const fy = height / ccr.height;
-      const zichtL = Math.max(0, (cr.left - ccr.left) * fx - CONT_ANN_MARGE_PX);
-      const zichtT = Math.max(0, (cr.top - ccr.top) * fy - CONT_ANN_MARGE_PX);
-      const zichtR = Math.min(width, (cr.right - ccr.left) * fx + CONT_ANN_MARGE_PX);
-      const zichtB = Math.min(height, (cr.bottom - ccr.top) * fy + CONT_ANN_MARGE_PX);
-      if (zichtR > zichtL && zichtB > zichtT) {
-        clipX = zichtL; clipY = zichtT; clipW = zichtR - zichtL; clipH = zichtB - zichtT;
-      } else {
-        // Pagina (nog) niet in beeld: minimaal canvas linksboven.
-        clipW = Math.min(width, 2); clipH = Math.min(height, 2);
-      }
-    }
-  }
+  const u = (container && cc)
+    ? annotatieUitsnede(container.getBoundingClientRect(), cc.getBoundingClientRect(), width, height)
+    : { x: 0, y: 0, breedte: width, hoogte: height };
+  const clipX = u.x, clipY = u.y, clipW = u.breedte, clipH = u.hoogte;
   canvas.width = Math.max(1, Math.floor(clipW * dpr));
   canvas.height = Math.max(1, Math.floor(clipH * dpr));
   canvas.style.width = clipW + 'px';
@@ -1694,17 +1677,18 @@ function _bindContinuousScrollSync() {
   _contScrollSyncBound = true;
   let pending = null;
   container.addEventListener('scroll', () => {
-    const doc = getActiveDocument();
     // Facing toont één spread zonder scroll-navigatie; scroll mag currentPage
     // (het spread-anker) niet naar de rechterpagina verschuiven, anders breekt
-    // vorige/volgende. Daarom hier overslaan.
-    if (!doc || doc.viewMode !== 'continuous' || doc.facingSpread) return;
+    // vorige/volgende. De annotatie-uitsnedes moeten wél mee, ook in facing:
+    // anders valt een klik buiten de oude uitsnede op de tekstlaag (#506).
+    if (!naScrollen(getActiveDocument()).uitsnedesBijwerken) return;
     if (pending) return;
     pending = setTimeout(() => {
       pending = null;
-      _syncCurrentPageFromScroll(container);
+      const acties = naScrollen(getActiveDocument());
+      if (acties.paginaVolgen) _syncCurrentPageFromScroll(container);
       // Annotatie-uitsnedes op de nieuwe scrollpositie zetten.
-      reclipAllContinuousAnnotationCanvases();
+      if (acties.uitsnedesBijwerken) reclipAllContinuousAnnotationCanvases();
     }, 120);
   }, { passive: true });
 }

@@ -667,3 +667,4 @@ js/i18n/draagbaar-i18n.test.mjs
 scripts/draagbare-zip.test.mjs
 # Bijwerken via de OpenAEC Installer
 js/ui/chrome/installer-update.test.mjs
+js/pdf/annotatie-uitsnede.test.mjs
