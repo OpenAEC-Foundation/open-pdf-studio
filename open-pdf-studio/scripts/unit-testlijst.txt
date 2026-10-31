@@ -176,6 +176,7 @@ js/pdf/handtekeningen/opslaan.test.mjs
 js/pdf/saver/ocr-text-layer.test.mjs
 js/pdf/saver/cjk-fonts.test.mjs
 js/pdf/saver/cff-subset-herstel.test.mjs
+js/pdf/saver/cff-boundaries.test.mjs
 js/pdf/queued-load.test.mjs
 js/annotations/document-scale.test.mjs
 js/core/reader-mode.test.mjs
