@@ -193,7 +193,12 @@
     "macInstructions": "macOS पर Open PDF Studio को डिफ़ॉल्ट PDF व्यूअर के रूप में सेट करने के लिए:\n\n1. Finder में किसी भी PDF फ़ाइल पर राइट-क्लिक करें\n2. \"जानकारी प्राप्त करें\" चुनें\n3. \"इसके साथ खोलें\" के अंतर्गत Open PDF Studio चुनें\n4. \"सभी बदलें...\" पर क्लिक करें",
     "linuxInstructions": "Linux पर Open PDF Studio को डिफ़ॉल्ट PDF व्यूअर के रूप में सेट करने के लिए:\n\nटर्मिनल में चलाएं:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > जानकारी प्राप्त करें जांचें",
-    "notSet": "सेट नहीं है"
+    "notSet": "सेट नहीं है",
+    "chosenInSystemSettings": "सिस्टम सेटिंग्स में चुना गया",
+    "sandboxInstructions": "Open PDF Studio एक {{package}} पैकेज के रूप में चल रहा है और डिफ़ॉल्ट PDF ऐप को स्वयं नहीं बदल सकता।\n\nसिस्टम सेटिंग्स में डिफ़ॉल्ट एप्लिकेशन के अंतर्गत Open PDF Studio चुनें, या किसी PDF फ़ाइल पर राइट-क्लिक करके इसके साथ खोलें का उपयोग करें।",
+    "xdgMimeMissing": "xdg-mime (पैकेज xdg-utils) इंस्टॉल नहीं है, इसलिए डिफ़ॉल्ट PDF ऐप यहाँ से सेट नहीं किया जा सकता।\n\nxdg-utils इंस्टॉल करें, या सिस्टम सेटिंग्स में डिफ़ॉल्ट एप्लिकेशन के अंतर्गत Open PDF Studio चुनें।",
+    "linuxDone": "Open PDF Studio अब PDF फ़ाइलों के लिए डिफ़ॉल्ट ऐप है।",
+    "linuxFailed": "Open PDF Studio को डिफ़ॉल्ट PDF ऐप के रूप में सेट नहीं किया जा सका।\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "फ़ाइल एक्सप्लोरर",

@@ -99,8 +99,16 @@ test('Rust leest OPENAEC_BEHEERD en geeft hem door', () => {
   const lib = lees('../../src-tauri/src/lib.rs');
   assert.match(lib, /beheerd::managed_mode,/);
   // Ook Rust zelf: geen register- of xdg-mime-controle van de standaard-app.
-  const romp = lib.slice(lib.indexOf('async fn is_default_pdf_app'));
-  assert.match(romp.slice(0, 400), /if beheerd::is_beheerd\(\) \{\s*return true;/);
+  // is_default_pdf_app en default_pdf_app_status lezen allebei
+  // standaard_app_status, dat in de beheerde modus meteen terugkeert.
+  const romp = lib.slice(lib.indexOf('fn standaard_app_status'));
+  assert.match(romp.slice(0, 500), /if beheerd::is_beheerd\(\) \{\s*return standaard_app::beheerd_status\(\);/);
+  for (const cmd of ['async fn is_default_pdf_app', 'async fn default_pdf_app_status']) {
+    const lijf = lib.slice(lib.indexOf(cmd), lib.indexOf('\n}', lib.indexOf(cmd)));
+    assert.match(lijf, /standaard_app_status/, cmd);
+  }
+  const sa = lees('../../src-tauri/src/standaard_app.rs');
+  assert.match(sa, /pub fn beheerd_status\(\) -> StandaardAppStatus \{\s*StandaardAppStatus \{ is_default: Some\(true\)/);
 });
 
 test('de melding "centraal beheerd" staat in elke taal', () => {

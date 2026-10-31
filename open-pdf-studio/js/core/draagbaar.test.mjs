@@ -112,7 +112,7 @@ test('bijwerker: draagbaar alleen melden en naar de zip verwijzen, nooit install
 test('geen vraag om standaard-PDF-app te worden en een melding bij een alleen-lezen map', () => {
   const main = lees('js', 'main.js');
   const check = main.slice(main.indexOf('async function checkDefaultPdfApp'));
-  assert.ok(check.indexOf("functieBeschikbaar('defaultAppPrompt'") < check.indexOf('isDefaultPdfApp()'));
+  assert.ok(check.indexOf("functieBeschikbaar('defaultAppPrompt'") < check.indexOf('defaultPdfAppStatus()'));
   assert.match(main, /common:portable\.notWritable/);
 });
 

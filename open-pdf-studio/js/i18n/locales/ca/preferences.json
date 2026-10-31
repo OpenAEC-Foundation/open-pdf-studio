@@ -193,7 +193,12 @@
     "macInstructions": "Per establir Open PDF Studio com a visualitzador PDF per defecte al macOS:\n\n1. Feu clic dret sobre qualsevol fitxer PDF al Finder\n2. Seleccioneu \"Obtenir informació\"\n3. A \"Obrir amb\", seleccioneu Open PDF Studio\n4. Feu clic a \"Canvia-ho tot...\"",
     "linuxInstructions": "Per establir Open PDF Studio com a visualitzador PDF per defecte al Linux:\n\nExecuteu al terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Comproveu Finder > Obtenir informació",
-    "notSet": "No establert"
+    "notSet": "No establert",
+    "chosenInSystemSettings": "Triat a la configuració del sistema",
+    "sandboxInstructions": "Open PDF Studio s'executa com a paquet {{package}} i no pot canviar per si mateix l'aplicació PDF predeterminada.\n\nTrieu Open PDF Studio a la configuració del sistema, a Aplicacions predeterminades, o feu clic dret en un fitxer PDF i useu Obre amb.",
+    "xdgMimeMissing": "xdg-mime (paquet xdg-utils) no està instal·lat, per tant l'aplicació PDF predeterminada no es pot establir des d'aquí.\n\nInstal·leu xdg-utils o trieu Open PDF Studio a la configuració del sistema, a Aplicacions predeterminades.",
+    "linuxDone": "Open PDF Studio és ara l'aplicació predeterminada per als fitxers PDF.",
+    "linuxFailed": "No s'ha pogut establir Open PDF Studio com a aplicació PDF predeterminada.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Explorador de fitxers",

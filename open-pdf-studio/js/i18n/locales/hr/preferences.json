@@ -193,7 +193,12 @@
     "macInstructions": "Za postavljanje Open PDF Studio kao zadanog PDF preglednika na macOS:\n\n1. Desnom tipkom kliknite na bilo koji PDF u Finderu\n2. Odaberite \"Get Info\"\n3. Pod \"Open with\" odaberite Open PDF Studio\n4. Kliknite \"Change All...\"",
     "linuxInstructions": "Za postavljanje Open PDF Studio kao zadanog PDF preglednika na Linuxu:\n\nPokrenite u terminalu:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Provjerite Finder > Get Info",
-    "notSet": "Nije postavljeno"
+    "notSet": "Nije postavljeno",
+    "chosenInSystemSettings": "Odabrano u postavkama sustava",
+    "sandboxInstructions": "Open PDF Studio radi kao {{package}} paket i ne može sam promijeniti zadanu PDF aplikaciju.\n\nOdaberite Open PDF Studio u postavkama sustava pod Zadane aplikacije ili desnom tipkom kliknite PDF datoteku i upotrijebite Otvori pomoću.",
+    "xdgMimeMissing": "xdg-mime (paket xdg-utils) nije instaliran, pa se zadana PDF aplikacija ne može postaviti odavde.\n\nInstalirajte xdg-utils ili odaberite Open PDF Studio u postavkama sustava pod Zadane aplikacije.",
+    "linuxDone": "Open PDF Studio sada je zadana aplikacija za PDF datoteke.",
+    "linuxFailed": "Nije moguće postaviti Open PDF Studio kao zadanu PDF aplikaciju.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Eksplorer za datoteke",

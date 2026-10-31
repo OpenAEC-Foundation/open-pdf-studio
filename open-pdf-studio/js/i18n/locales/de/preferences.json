@@ -193,7 +193,12 @@
     "macInstructions": "Um Open PDF Studio als Standard-PDF-Betrachter auf macOS festzulegen:\n\n1. Klicken Sie mit der rechten Maustaste auf eine PDF-Datei im Finder\n2. Wählen Sie „Informationen“\n3. Unter „Öffnen mit“ wählen Sie Open PDF Studio\n4. Klicken Sie auf „Alle ändern...“",
     "linuxInstructions": "Um Open PDF Studio als Standard-PDF-Betrachter auf Linux festzulegen:\n\nFühren Sie im Terminal aus:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Überprüfen Sie Finder > Informationen",
-    "notSet": "Nicht festgelegt"
+    "notSet": "Nicht festgelegt",
+    "chosenInSystemSettings": "In den Systemeinstellungen festgelegt",
+    "sandboxInstructions": "Open PDF Studio läuft als {{package}}-Paket und kann die Standard-PDF-App nicht selbst ändern.\n\nWählen Sie Open PDF Studio in den Systemeinstellungen unter Standardanwendungen, oder klicken Sie mit der rechten Maustaste auf eine PDF-Datei und verwenden Sie Öffnen mit.",
+    "xdgMimeMissing": "xdg-mime (Paket xdg-utils) ist nicht installiert, daher kann die Standard-PDF-App hier nicht festgelegt werden.\n\nInstallieren Sie xdg-utils oder wählen Sie Open PDF Studio in den Systemeinstellungen unter Standardanwendungen.",
+    "linuxDone": "Open PDF Studio ist jetzt die Standard-App für PDF-Dateien.",
+    "linuxFailed": "Open PDF Studio konnte nicht als Standard-PDF-App festgelegt werden.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Datei-Explorer",

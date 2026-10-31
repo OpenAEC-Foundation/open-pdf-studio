@@ -154,6 +154,12 @@ tauri-plugin-global-shortcut = "2"
 [target.'cfg(not(windows))'.dependencies]
 rustls-native-certs = "0.8"
 
+# Het printportaal (org.freedesktop.portal.Print) als laatste printroute in een
+# Flatpak/Snap (src/print_unix.rs). Zelfde versie en features als
+# tauri-plugin-single-instance al meebrengt; staat al in Cargo.lock.
+[target.'cfg(target_os = "linux")'.dependencies]
+zbus = "5.9"
+
 # Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
 # certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de
 # doelen en uitschakeldata per wortel.

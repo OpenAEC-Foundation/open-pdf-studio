@@ -193,7 +193,12 @@
     "macInstructions": "macOS'te Open PDF Studio'yu varsayılan PDF görüntüleyici olarak ayarlamak için:\n\n1. Finder'da herhangi bir PDF dosyasına sağ tıklayın\n2. \"Bilgi Al\" seçeneğini seçin\n3. \"Birlikte Aç\" altında Open PDF Studio'yu seçin\n4. \"Tümünü Değiştir...\" düğmesine tıklayın",
     "linuxInstructions": "Linux'ta Open PDF Studio'yu varsayılan PDF görüntüleyici olarak ayarlamak için:\n\nTerminalde çalıştırın:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > Bilgi Al seçeneğini kontrol edin",
-    "notSet": "Ayarlanmadı"
+    "notSet": "Ayarlanmadı",
+    "chosenInSystemSettings": "Sistem ayarlarında seçildi",
+    "sandboxInstructions": "Open PDF Studio bir {{package}} paketi olarak çalışıyor ve varsayılan PDF uygulamasını kendisi değiştiremez.\n\nSistem ayarlarında Varsayılan Uygulamalar altında Open PDF Studio'yu seçin veya bir PDF dosyasına sağ tıklayıp Birlikte Aç'ı kullanın.",
+    "xdgMimeMissing": "xdg-mime (xdg-utils paketi) yüklü değil, bu nedenle varsayılan PDF uygulaması buradan ayarlanamaz.\n\nxdg-utils'i yükleyin veya sistem ayarlarında Varsayılan Uygulamalar altında Open PDF Studio'yu seçin.",
+    "linuxDone": "Open PDF Studio artık PDF dosyaları için varsayılan uygulama.",
+    "linuxFailed": "Open PDF Studio varsayılan PDF uygulaması olarak ayarlanamadı.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Dosya Gezgini",

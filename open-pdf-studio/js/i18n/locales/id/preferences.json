@@ -193,7 +193,12 @@
     "macInstructions": "Untuk mengatur Open PDF Studio sebagai penampil PDF bawaan di macOS:\n\n1. Klik kanan file PDF mana pun di Finder\n2. Pilih \"Dapatkan Info\"\n3. Di bawah \"Buka dengan\", pilih Open PDF Studio\n4. Klik \"Ubah Semua...\"",
     "linuxInstructions": "Untuk mengatur Open PDF Studio sebagai penampil PDF bawaan di Linux:\n\nJalankan di terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Periksa Finder > Dapatkan Info",
-    "notSet": "Belum diatur"
+    "notSet": "Belum diatur",
+    "chosenInSystemSettings": "Dipilih di pengaturan sistem",
+    "sandboxInstructions": "Open PDF Studio berjalan sebagai paket {{package}} dan tidak dapat mengubah aplikasi PDF default sendiri.\n\nPilih Open PDF Studio di pengaturan sistem pada Aplikasi Default, atau klik kanan file PDF dan gunakan Buka Dengan.",
+    "xdgMimeMissing": "xdg-mime (paket xdg-utils) tidak terpasang, sehingga aplikasi PDF default tidak dapat diatur dari sini.\n\nPasang xdg-utils, atau pilih Open PDF Studio di pengaturan sistem pada Aplikasi Default.",
+    "linuxDone": "Open PDF Studio sekarang menjadi aplikasi default untuk file PDF.",
+    "linuxFailed": "Tidak dapat menjadikan Open PDF Studio sebagai aplikasi PDF default.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Penjelajah File",

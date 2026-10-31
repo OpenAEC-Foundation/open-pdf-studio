@@ -33,7 +33,10 @@ function windowsTak(blok) {
 }
 
 test('is_default_pdf_app start op Windows geen proces (geen reg.exe)', () => {
-  const tak = windowsTak(functieBlok(lees('src/lib.rs'), 'is_default_pdf_app'));
+  // is_default_pdf_app en default_pdf_app_status lezen allebei standaard_app_status.
+  const lib = lees('src/lib.rs');
+  assert.match(functieBlok(lib, 'is_default_pdf_app'), /standaard_app_status\(\)/);
+  const tak = windowsTak(functieBlok(lib, 'standaard_app_status'));
   assert.doesNotMatch(tak, /no_window_command|Command::new/, 'de Windows-tak start een proces');
   assert.match(tak, /standaard_app::/, 'de Windows-tak gebruikt de registermodule');
 });

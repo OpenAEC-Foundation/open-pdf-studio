@@ -193,7 +193,12 @@
     "macInstructions": "لتعيين Open PDF Studio كعارض PDF الافتراضي على macOS:\n\n1. انقر بزر الماوس الأيمن على أي ملف PDF في Finder\n2. اختر \"الحصول على معلومات\"\n3. ضمن \"فتح باستخدام\"، اختر Open PDF Studio\n4. انقر على \"تغيير الكل...\"",
     "linuxInstructions": "لتعيين Open PDF Studio كعارض PDF الافتراضي على Linux:\n\nقم بتشغيل في الطرفية:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "تحقق من Finder > الحصول على معلومات",
-    "notSet": "غير معيّن"
+    "notSet": "غير معيّن",
+    "chosenInSystemSettings": "تم الاختيار في إعدادات النظام",
+    "sandboxInstructions": "يعمل Open PDF Studio كحزمة {{package}} ولا يمكنه تغيير تطبيق PDF الافتراضي بنفسه.\n\nاختر Open PDF Studio في إعدادات النظام ضمن التطبيقات الافتراضية، أو انقر بزر الماوس الأيمن على ملف PDF واستخدم فتح باستخدام.",
+    "xdgMimeMissing": "الأداة xdg-mime (الحزمة xdg-utils) غير مثبتة، لذلك لا يمكن تعيين تطبيق PDF الافتراضي من هنا.\n\nثبّت xdg-utils، أو اختر Open PDF Studio في إعدادات النظام ضمن التطبيقات الافتراضية.",
+    "linuxDone": "أصبح Open PDF Studio الآن التطبيق الافتراضي لملفات PDF.",
+    "linuxFailed": "تعذر تعيين Open PDF Studio كتطبيق PDF الافتراضي.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "مستكشف الملفات",

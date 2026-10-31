@@ -44,8 +44,15 @@ pub mod print_plaatsing;
 pub mod print_devmode;
 #[cfg(target_os = "windows")]
 pub mod print_lijst;
-#[cfg(target_os = "windows")]
-mod standaard_app;
+// Of de app de standaard-PDF-app is: het Windows-register, of xdg-mime en
+// de sandbox-status op Linux.
+pub mod standaard_app;
+// Printen op Linux: rechtstreeks met CUPS via IPP, met lp/lpstat en het
+// printportaal als terugval (print_unix.rs). macOS houdt lp/lpstat in lib.rs.
+#[cfg(any(target_os = "linux", test))]
+pub mod cups_ipp;
+#[cfg(any(target_os = "linux", test))]
+pub mod print_unix;
 #[cfg(target_os = "windows")]
 pub mod print_windows;
 pub mod render_to_png;
@@ -400,62 +407,97 @@ fn is_dev_mode() -> bool {
     cfg!(debug_assertions)
 }
 
-/// Check if this app is the default handler for .pdf files on Windows.
-/// Returns true if our exe is the registered handler, false otherwise.
-/// Uses spawn_blocking so the subprocess calls never block the main thread.
-#[tauri::command]
-async fn is_default_pdf_app() -> bool {
+/// What is known about the default handler for .pdf files, and whether this
+/// app can make itself the default (see standaard_app::StandaardAppStatus).
+/// Blocking: runs a registry read on Windows and `xdg-mime` on Linux.
+fn standaard_app_status() -> standaard_app::StandaardAppStatus {
     // Beheerde modus (OPENAEC_BEHEERD=1): de omgeving regelt de koppeling;
     // niet in het register of met xdg-mime kijken, en nooit om de standaard-
     // app vragen.
     if beheerd::is_beheerd() {
-        return true;
+        return standaard_app::beheerd_status();
     }
-    tauri::async_runtime::spawn_blocking(|| {
-        #[cfg(target_os = "windows")]
-        {
-            // Register lezen met de Windows-API, niet met reg.exe: een extra
-            // systeemproces kort na de start laat beveiligingssoftware de app
-            // afsluiten (#524).
-            use windows_sys::Win32::System::Registry::{HKEY_CLASSES_ROOT, HKEY_CURRENT_USER};
-            let eigen_exe = std::env::current_exe()
-                .map(|p| p.to_string_lossy().into_owned())
-                .unwrap_or_default();
-            let Some(prog_id) = standaard_app::lees_tekst(
-                HKEY_CURRENT_USER,
-                r"Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice",
-                Some("ProgId"),
-            ) else {
-                return false;
-            };
+    #[cfg(target_os = "windows")]
+    {
+        // Register lezen met de Windows-API, niet met reg.exe: een extra
+        // systeemproces kort na de start laat beveiligingssoftware de app
+        // afsluiten (#524).
+        use windows_sys::Win32::System::Registry::{HKEY_CLASSES_ROOT, HKEY_CURRENT_USER};
+        let eigen_exe = std::env::current_exe()
+            .map(|p| p.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let prog_id = standaard_app::lees_tekst(
+            HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice",
+            Some("ProgId"),
+        );
+        let is_default = prog_id.as_deref().is_some_and(|prog_id| {
             let open_opdracht = standaard_app::lees_tekst(
                 HKEY_CLASSES_ROOT,
                 &format!(r"{}\shell\open\command", prog_id.trim()),
                 None,
             );
-            standaard_app::is_onze_pdf_app(&prog_id, open_opdracht.as_deref(), &eigen_exe)
+            standaard_app::is_onze_pdf_app(prog_id, open_opdracht.as_deref(), &eigen_exe)
+        });
+        standaard_app::StandaardAppStatus {
+            is_default: Some(is_default),
+            current: prog_id.map(|p| p.trim().to_string()).filter(|p| !p.is_empty()),
+            can_set: true,
+            reason: None,
         }
+    }
 
-        #[cfg(target_os = "linux")]
-        {
-            // Use xdg-mime: works on any XDG-compliant desktop (GNOME, KDE,
-            // Cinnamon, MATE, XFCE) across distros (Mint, Ubuntu, Fedora, Arch).
-            let output = match std::process::Command::new("xdg-mime")
-                .args(&["query", "default", "application/pdf"])
+    #[cfg(target_os = "linux")]
+    {
+        // xdg-mime works on any XDG-compliant desktop (GNOME, KDE, Cinnamon,
+        // MATE, XFCE) across distros. A Flatpak or Snap has no xdg-mime and
+        // no write access to the desktop's associations: then the status says
+        // so and the UI explains where to choose the default instead.
+        let sandbox = linux_runtime::sandbox();
+        let query = if sandbox.is_some() || !print_unix::programma_aanwezig("xdg-mime") {
+            None
+        } else {
+            std::process::Command::new("xdg-mime")
+                .args(["query", "default", "application/pdf"])
                 .output()
-            {
-                Ok(o) => o,
-                Err(_) => return false,
-            };
-            let default_desktop = String::from_utf8_lossy(&output.stdout).trim().to_string();
-            default_desktop == "Open PDF Studio.desktop" || default_desktop == "open-pdf-studio.desktop"
-        }
+                .ok()
+                .filter(|o| o.status.success())
+                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
+        };
+        standaard_app::linux_status(sandbox, query.as_deref())
+    }
 
-        #[cfg(not(any(target_os = "windows", target_os = "linux")))]
-        {
-            false
-        }
-    }).await.unwrap_or(false)
+    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
+    {
+        standaard_app::StandaardAppStatus { is_default: None, current: None, can_set: false, reason: Some("unsupported") }
+    }
+}
+
+/// Check if this app is the default handler for .pdf files.
+/// Returns true if our exe/desktop entry is the registered handler, false
+/// otherwise (also when it cannot be checked; use default_pdf_app_status to
+/// tell those apart). Uses spawn_blocking so the subprocess calls never block
+/// the main thread.
+#[tauri::command]
+async fn is_default_pdf_app() -> bool {
+    tauri::async_runtime::spawn_blocking(|| standaard_app_status().is_default == Some(true))
+        .await
+        .unwrap_or(false)
+}
+
+/// The default-PDF-app status for the startup bar and the File Associations
+/// tab: { isDefault: bool|null, current: string|null, canSet: bool,
+/// reason: "flatpak"|"snap"|"xdg-mime-missing"|"unsupported"|null }.
+#[tauri::command]
+async fn default_pdf_app_status() -> standaard_app::StandaardAppStatus {
+    tauri::async_runtime::spawn_blocking(standaard_app_status)
+        .await
+        .unwrap_or(standaard_app::StandaardAppStatus {
+            is_default: None,
+            current: None,
+            can_set: false,
+            reason: Some("unsupported"),
+        })
 }
 
 /// Of de PDF-miniaturen in Windows Verkenner aan staan (#605), en of een ander
@@ -513,6 +555,15 @@ fn open_default_apps_settings() -> Result<bool, String> {
 
     #[cfg(target_os = "linux")]
     {
+        // Inside a Flatpak or Snap there is no xdg-mime and the host's mime
+        // associations cannot be written; the desktop's own settings choose
+        // the default there. The UI checks default_pdf_app_status first and
+        // explains that; this error is the backstop.
+        if let Some(sandbox) = linux_runtime::sandbox() {
+            return Err(format!(
+                "Running as a {sandbox} package: choose Open PDF Studio as the default PDF app in your desktop's settings (Default Applications), or via \"Open with\" on a PDF file."
+            ));
+        }
         // xdg-mime is the desktop-environment agnostic way to set the default
         // handler. The .desktop filename must match what tauri-bundler wrote in
         // /usr/share/applications (the bundle uses the app's productName).
@@ -623,7 +674,20 @@ async fn get_printers() -> Result<String, String> {
             .map_err(|e| format!("Failed to enumerate printers: {}", e))?
     }
 
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    // Linux: CUPS over IPP on its socket first, `lpstat` when that fails, and
+    // inside a Flatpak/Snap without any printer an entry for the desktop's
+    // print dialog (print_unix.rs). The JSON keeps the Windows shape:
+    // { Name, DriverName, PortName, Default, PrinterStatus }.
+    #[cfg(target_os = "linux")]
+    {
+        let sandbox = linux_runtime::sandbox().is_some();
+        tauri::async_runtime::spawn_blocking(move || print_unix::lijst_printers(sandbox))
+            .await
+            .map_err(|e| format!("Failed to enumerate printers: {}", e))?
+    }
+
+    // macOS: unchanged, `lpstat` (the CUPS client tools are always there).
+    #[cfg(target_os = "macos")]
     {
         // Use CUPS `lpstat -p` to list printers. Output format:
         //   printer NAME is idle. enabled since ...
@@ -704,6 +768,10 @@ async fn get_printers() -> Result<String, String> {
 /// Print dialog has already laid every page out at paper size with the
 /// chosen scale and position, so each page goes 1:1 onto the physical sheet
 /// (see print_plaatsing.rs and js/pdf/print-plaatsing.js).
+/// `kleur`: the colour mode of the Print dialog ('color' | 'grayscale' |
+/// 'bw'). The page images already carry it; CUPS additionally gets
+/// print-color-mode=monochrome for the non-colour modes, so a colour printer
+/// does not use colour ink for grey. Absent = printer default.
 /// async for the same reason as get_printers: GDI spooling is slow blocking
 /// work and runs on a blocking thread, not on the main event-loop thread.
 #[tauri::command]
@@ -713,6 +781,7 @@ async fn print_pdf(
     orientatie: Option<String>,
     papier: Option<String>,
     plaatsing: Option<String>,
+    kleur: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<bool, String> {
     // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
@@ -722,6 +791,8 @@ async fn print_pdf(
     let plaatsing = print_plaatsing::Plaatsing::uit_keuze(plaatsing.as_deref());
     #[cfg(target_os = "windows")]
     {
+        // De kleurmodus zit op Windows al in de paginabeelden.
+        let _ = &kleur;
         // Wat de gebruiker in deze sessie in het eigenschappenvenster koos.
         let opgeslagen = devmodes.ophalen(&printer);
         tauri::async_runtime::spawn_blocking(move || {
@@ -743,11 +814,32 @@ async fn print_pdf(
     // Linux/macOS: spool through CUPS. The JS side has already rasterised the
     // selected pages into a temp PDF at the right size and rotation (with
     // plaatsing "vel": at paper size, scale and position already applied),
-    // and calls this once per copy — so `lp` only has to hand one document to
-    // one queue and needs no page-range or copy options of its own.
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    // and calls this once per copy — so CUPS only has to take one document
+    // for one queue and needs no page-range or copy options of its own.
+    // Linux: sent as an IPP Print-Job over the CUPS socket, else with `lp`,
+    // else (Flatpak/Snap) through the print portal; the options are the same
+    // `lp -o` values on every route (print_unix.rs).
+    #[cfg(target_os = "linux")]
     {
         let _ = &devmodes;
+        let mut opties = print_instelling::lp_opties(orientatie, papier, plaatsing);
+        if let Some(k) = print_unix::kleur_optie(kleur.as_deref()) {
+            opties.push("-o".to_string());
+            opties.push(k);
+        }
+        let sandbox = linux_runtime::sandbox().is_some();
+        tauri::async_runtime::spawn_blocking(move || {
+            print_unix::print_bestand(std::path::Path::new(&path), &printer, &opties, sandbox, kleur.as_deref())
+        })
+        .await
+        .map_err(|e| format!("Print task failed: {e}"))??;
+        Ok(true)
+    }
+
+    // macOS: unchanged, `lp` (the colour mode is already in the page images).
+    #[cfg(target_os = "macos")]
+    {
+        let _ = (&devmodes, &kleur);
         let queue = printer.trim();
         let mut cmd = std::process::Command::new("lp");
         // No queue name means "system default", which is what lp does without -d.
@@ -779,7 +871,7 @@ async fn print_pdf(
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &devmodes);
+        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &kleur, &devmodes);
         Err("Printing is not supported on this platform".to_string())
     }
 }
@@ -3265,6 +3357,7 @@ pub fn run(opts: StartupOpts) {
             lock_file,
             unlock_file,
             is_default_pdf_app,
+            default_pdf_app_status,
             open_default_apps_settings,
             explorer_thumbnails_status,
             explorer_thumbnails_set,

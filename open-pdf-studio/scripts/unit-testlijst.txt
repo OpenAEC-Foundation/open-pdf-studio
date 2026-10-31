@@ -226,6 +226,7 @@ js/annotations/standaardstijl-rand.test.mjs
 js/annotations/xfdf-geen-rand.test.mjs
 js/pdf/saver/uiterlijk-vulling.test.mjs
 js/core/platform-invoke.test.mjs
+js/core/standaard-pdf-app.test.mjs
 js/core/webfuncties.test.mjs
 js/annotations/vlak-ringen.test.mjs
 js/annotations/rendering/vlak-vulling.test.mjs
