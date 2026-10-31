@@ -103,6 +103,7 @@ js/annotations/rendering/textbox-layout.test.mjs
 js/annotations/editable-numbers.test.mjs
 js/core/preferences-mirror.test.mjs
 js/core/mcp-standaard.test.mjs
+js/core/openaec-omgeving.test.mjs
 js/annotations/svg-real-size.test.mjs
 js/annotations/svg-stroke-color.test.mjs
 js/annotations/svg-stroke-width.test.mjs

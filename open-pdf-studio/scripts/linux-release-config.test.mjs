@@ -275,3 +275,51 @@ test('desktop entries use the installed icon name and the window class (#774)', 
     assert.equal(entry.StartupWMClass, binary);
   }
 });
+
+test('CI and release start the extracted AppImage in OpenAEC Linux conditions (#863)', async () => {
+  for (const name of ['ci.yml', 'release.yml']) {
+    const workflow = (await readFile(new URL(`.github/workflows/${name}`, repoRoot), 'utf8')).replace(/\r\n/g, '\n');
+    assert.ok(workflow.includes('Verify AppImage in OpenAEC Linux conditions (Linux)'), `${name} runs the OpenAEC Linux smoke`);
+    assert.match(workflow, /bash \/input\/openaec-linux-smoke\.sh \/tmp\/open-pdf-studio\.AppImage \d+ \/output/, name);
+    for (const pkg of ['labwc', 'grim', 'libgl1-mesa-dri', 'libgbm1']) {
+      assert.ok(workflow.includes(pkg), `${name} installs ${pkg}`);
+    }
+    // No GPU in the container: the step must not pass /dev/dri through.
+    assert.doesNotMatch(workflow, /--device[= ]\/dev\/dri/, `${name} keeps the GPU out`);
+    assert.ok(workflow.includes('name: openaec-linux-smoke'), `${name} uploads the screenshots`);
+  }
+  const release = await readFile(new URL('.github/workflows/release.yml', repoRoot), 'utf8');
+  assert.match(release, /Add memory at rest to the release notes \(Linux\)/);
+  const ci = await readFile(new URL('.github/workflows/ci.yml', repoRoot), 'utf8');
+  assert.match(ci, /bash scripts\/openaec-linux-smoke\.test\.sh/);
+
+  const smoke = (await readFile(new URL('scripts/openaec-linux-smoke.sh', appRoot), 'utf8')).replace(/\r\n/g, '\n');
+  assert.match(smoke, /--appimage-extract/);
+  assert.match(smoke, /squashfs-root\/AppRun/);
+  assert.match(smoke, /WLR_BACKENDS=headless/);
+  assert.match(smoke, /WLR_RENDERER=pixman/);
+  assert.match(smoke, /OPENAEC_BEHEERD=1/);
+  assert.match(smoke, /kill -TERM "\$app_pid"/);
+  assert.doesNotMatch(smoke, /APPIMAGE_EXTRACT_AND_RUN/, 'really extracted, not extract-and-run');
+});
+
+test('the OpenAEC environment is prepared in main before Tauri starts (#863)', async () => {
+  const main = await readFile(new URL('src-tauri/src/main.rs', appRoot), 'utf8');
+  const voorbereiding = main.indexOf('openaec_omgeving::bereid_proces_voor();');
+  const beeldscherm = main.indexOf('openaec_omgeving::stop_zonder_beeldscherm(&args);');
+  const tauri = main.indexOf('app_lib::run(');
+  assert.notEqual(voorbereiding, -1);
+  assert.notEqual(beeldscherm, -1);
+  assert.ok(voorbereiding < tauri && beeldscherm < tauri);
+
+  const cargo = await readFile(new URL('src-tauri/Cargo.toml', appRoot), 'utf8');
+  assert.match(cargo, /^tokio = .*"signal"/m, 'tokio signal for the SIGTERM handler');
+  const lib = await readFile(new URL('src-tauri/src/lib.rs', appRoot), 'utf8');
+  assert.match(lib, /openaec_omgeving::installeer_sigterm\(app\.handle\(\)\.clone\(\)\)/);
+  assert.match(lib, /mcp_server::start_beheerd\(/);
+
+  const docs = await readFile(new URL('docs/openaec-linux.md', repoRoot), 'utf8');
+  for (const variable of ['OPENAEC_BEHEERD', 'OPENAEC_MAP', 'OPENAEC_MCP_POORT', 'OPENAEC_MCP_GEHEIM', 'WEBKIT_DISABLE_DMABUF_RENDERER']) {
+    assert.ok(docs.includes(variable), `docs/openaec-linux.md documents ${variable}`);
+  }
+});

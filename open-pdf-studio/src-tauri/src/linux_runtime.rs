@@ -11,13 +11,19 @@ fn packaged_gio_module_dir(
     app_dir: Option<&OsStr>,
     configured_module_dir: Option<&OsStr>,
     extra_module_dirs: Option<&OsStr>,
+    current_exe: Option<&Path>,
 ) -> Option<PathBuf> {
-    appimage?;
     if configured_module_dir.is_some() {
         return None;
     }
 
     let app_dir = Path::new(app_dir?);
+    // A mounted AppImage sets APPIMAGE. An extracted one (`--appimage-extract`
+    // and then `squashfs-root/AppRun`, as in containers without FUSE, #863)
+    // only has APPDIR; then the running binary must live inside it.
+    if appimage.is_none() && !current_exe.is_some_and(|exe| exe.starts_with(app_dir)) {
+        return None;
+    }
     env::split_paths(extra_module_dirs?).find(|candidate| candidate.starts_with(app_dir))
 }
 
@@ -28,6 +34,7 @@ pub fn configure_appimage_gio_modules() {
         env::var_os("APPDIR").as_deref(),
         env::var_os("GIO_MODULE_DIR").as_deref(),
         env::var_os("GIO_EXTRA_MODULES").as_deref(),
+        env::current_exe().ok().as_deref(),
     ) {
         // The AppImage bundles GIO from the build host. Point its default module
         // lookup at the matching packaged directory so it cannot load a newer
@@ -56,8 +63,38 @@ mod tests {
                 Some(app_dir.as_os_str()),
                 None,
                 Some(extra_modules.as_os_str()),
+                None,
             ),
             Some(packaged_modules),
+        );
+    }
+
+    #[test]
+    fn selects_the_packaged_directory_for_an_extracted_appimage() {
+        let app_dir = PathBuf::from("squashfs-root");
+        let packaged_modules = app_dir.join("usr/lib/x86_64-linux-gnu/gio/modules");
+        let exe = app_dir.join("usr/bin/open-pdf-studio");
+
+        assert_eq!(
+            packaged_gio_module_dir(
+                None,
+                Some(app_dir.as_os_str()),
+                None,
+                Some(packaged_modules.as_os_str()),
+                Some(&exe),
+            ),
+            Some(packaged_modules.clone()),
+        );
+        // APPDIR inherited by a program that is not inside it: leave GIO alone.
+        assert_eq!(
+            packaged_gio_module_dir(
+                None,
+                Some(app_dir.as_os_str()),
+                None,
+                Some(packaged_modules.as_os_str()),
+                Some(&PathBuf::from("elsewhere/bin/other")),
+            ),
+            None,
         );
     }
 
@@ -72,6 +109,7 @@ mod tests {
                 Some(app_dir.as_os_str()),
                 Some(OsStr::new("custom-gio-modules")),
                 Some(packaged_modules.as_os_str()),
+                None,
             ),
             None,
         );
@@ -85,6 +123,7 @@ mod tests {
                 Some(OsStr::new("app-image-root")),
                 None,
                 Some(OsStr::new("host-gio-modules")),
+                None,
             ),
             None,
         );
@@ -94,6 +133,7 @@ mod tests {
                 Some(OsStr::new("app-image-root")),
                 None,
                 Some(OsStr::new("host-gio-modules")),
+                None,
             ),
             None,
         );

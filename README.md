@@ -274,6 +274,7 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 - Built-in update checker with download progress
 - Skip version or remind later options
 - Automatic installation and relaunch
+- Off in managed mode (`OPENAEC_BEHEERD=1`), where the platform supplies updates
 
 ## Keyboard Shortcuts
 
@@ -380,6 +381,10 @@ Notes:
 - If the window stays blank with some GPU drivers, start it with
   `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
 
+For containers without FUSE or GPU (such as OpenAEC Linux, which runs the
+extracted AppImage under a Wayland compositor), see
+[Managed deployments](#managed-deployments).
+
 ### Android
 Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
 
@@ -393,10 +398,35 @@ and `on` work too). The app then starts without one-time prompts:
   `xdg-mime` lookup for it);
 - no "What's new" dialog after an update, and no request for the release notes;
 - no update check or update dialog; *Check for Updates* and *Previous version*
-  only say that updates are managed centrally.
+  only say that updates are managed centrally. The updater plugin is not even
+  registered.
 
 Without the variable, or with any other value, nothing changes. The recovery
 offer after an unexpected shutdown stays, because it protects unsaved work.
+
+Further environment variables for such deployments (all optional; without
+them nothing changes):
+
+| Variable | Effect |
+|---|---|
+| `OPENAEC_MAP=/openaec` | Open and save dialogs start in this existing, absolute folder. A relative start argument (`AppRun file.pdf`) falls back to it. |
+| `OPENAEC_MCP_POORT`, `OPENAEC_MCP_GEHEIM` | Start the MCP server (AI connection) on that port. Every request needs `Authorization: Bearer <secret>` (at least 16 characters); requests with an `Origin` header (browsers) are refused. The secret is removed from the environment at startup, so child processes do not inherit it. |
+| `OPENAEC_MCP_ADRES` | Bind address of that server. Default `0.0.0.0` in managed mode (the internal container network), otherwise `127.0.0.1`. |
+| `OPENAEC_SOFTWARE_RENDERING=1` / `0` | Force or forbid the WebKitGTK software-rendering settings. Without it the app sets them only on Linux without a GPU render node (`/dev/dri/renderD*`). |
+| `OPDS_GDK_BACKEND` | GDK backend to use from the AppImage (its GTK hook overwrites `GDK_BACKEND`). In managed mode, or without an X display, the AppImage prefers Wayland. |
+
+In a container or in managed mode, `SIGTERM` writes recovery files for unsaved
+work (at most 5 seconds) and then exits cleanly. The extracted AppImage
+(`--appimage-extract`, then `squashfs-root/AppRun [file.pdf]`) runs without
+FUSE. See [docs/openaec-linux.md](docs/openaec-linux.md) for the full contract.
+
+### Network connections
+The app sends no telemetry. It connects to other hosts only for: the release
+notes after an update (GitHub API, at startup, not in managed mode), the update
+check, the previous-version download, the online symbol library, the feedback
+form, the AI assistant with your own key, opening a PDF from a URL you type, and
+OpenAEC sign-in. The full list is in
+[docs/openaec-linux.md](docs/openaec-linux.md#network).
 
 ## Building from Source
 
