@@ -1935,8 +1935,9 @@ fn worker_pool_ready(
 }
 
 /// True when a pool error means the worker process itself went away (EOF or a
-/// broken pipe), as opposed to a timeout or a bitmap that did not fit.
+/// broken pipe), or exceeded its resource deadline. Bitmap size can still fall back.
 fn worker_died(e: &anyhow::Error) -> bool {
+    if worker_pool::response::is_resource_limit(e) { return true; }
     let msg = e.to_string();
     msg.ends_with(" EOF") || msg.starts_with("write to worker") || msg.starts_with("read from worker")
 }
@@ -1998,10 +1999,10 @@ async fn render_pdf_page(
                 // PDFium crash into the app itself (observed with Tekst.pdf).
                 // The pool already retries on a second worker; keep the
                 // failure isolated and let the UI show a render error.
-                // Other failures (timeout, bitmap too large for the shared
+                // Other failures (bitmap too large for the shared
                 // memory, an older worker) still fall back to in-proc.
                 if worker_died(&e) {
-                    return Err(format!("PDFium worker render failed: {e}"));
+                    return Err(format!("PDFium worker render failed: {e:#}"));
                 }
                 eprintln!("[render_pdf_page] pool render failed: {} — falling back to in-proc", e);
             }
@@ -2150,7 +2151,7 @@ async fn render_pdf_page_region(
             }
             Err(e) => {
                 if worker_died(&e) {
-                    return Err(format!("PDFium worker region render failed: {e}"));
+                    return Err(format!("PDFium worker region render failed: {e:#}"));
                 }
                 eprintln!("[render_pdf_page_region] pool failed: {} — in-proc fallback", e);
             }
