@@ -111,8 +111,8 @@ content or other tabs. Selecting through them notifies the listeners from
 
 Check `api.features.agentTasks` before calling these methods. An extension
 can hand a structured task (for example "recognise the floor plan on this
-page") to an MCP agent and get a structured result back, without opening the
-assistant window, without a chat message and without importing host modules.
+page") to an MCP agent and get a structured result back, without a chat
+message and without importing host modules.
 
 ```js
 const doc = api.getDocumentInfo();

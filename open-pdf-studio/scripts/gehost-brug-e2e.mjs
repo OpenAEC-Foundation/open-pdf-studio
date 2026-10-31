@@ -24,9 +24,6 @@
 //  5. lijst en versies in de vorm van de host; de versielijst in "Op deze
 //     site" vraagt `versies`, toont de huidige versie bovenaan en opent die
 //     via `open` (#707);
-//  6. de assistent vraagt via ai.vraag (OpenAI-chatvorm); het antwoord van
-//     de host gaat ongewijzigd mee in de volgende beurt; de foutcode
-//     geen_tegoed wordt een vertaalde melding;
 //  7. een alleen-lezen document: opslaan weigert met een vertaalde melding,
 //     er gaat geen opslaan naar de host;
 //  8. een mislukte open toont de vertaalde melding en gaat als `melding`
@@ -263,32 +260,6 @@ try {
   eis(openNaVersie.bestand === 'DOC-1', `de huidige versie opende ${openNaVersie.bestand}`);
   await totDat(async () => !(await frame.locator('.app-menu-overlay.visible').count()), 10_000, 'menu dicht');
   await wacht(500);
-
-  // 6. De assistent via ai.vraag.
-  await frame.locator('#assistant-launcher').click();
-  const ondertitel = await frame.locator('.chat-subtitle').innerText();
-  eis(/via the OpenAEC workplace/.test(ondertitel), `ondertitel van de assistent: ${ondertitel}`);
-  eis(await frame.locator('.chat-header button[title*="API key"]').count() === 0, 'de sleutelknop staat er in de werkplek');
-  const vraag = async (tekst, verwacht) => {
-    await frame.locator('.chat-input').fill(tekst);
-    await frame.locator('.chat-input').press('Enter');
-    await totDat(() => frame.evaluate((v) => [...document.querySelectorAll('.chat-assistant .chat-bubble')]
-      .some((b) => b.innerText.includes(v)), verwacht), 60_000, `antwoord "${verwacht}"`);
-  };
-  await vraag('Hoeveel pagina\'s heeft dit document?', 'Nep-antwoord 1');
-  await vraag('En de tweede?', 'Nep-antwoord 2');
-  const geenTegoed = 'Your AI credit is used up.';
-  await vraag('Nog een vraag zonder tegoed', geenTegoed);
-  g = await gast();
-  const [v1, v2] = g.vragen;
-  noteer(`6. assistent: ${g.vragen.length} vragen; vraag 2 = ${JSON.stringify(v2.messages.map((m) => m.role))}`);
-  eis(v1.messages[0].role === 'system' && v1.messages.at(-1).content.includes('pagina'), 'de eerste vraag heeft niet de chatvorm');
-  const terug = v2.messages.find((m) => m.role === 'assistant');
-  eis(terug?.content === 'Nep-antwoord 1' && terug?.openaec_denkblokken?.[0]?.signature === 'sig-1',
-    'het antwoord van de host ging niet ongewijzigd mee in de volgende beurt');
-  eis(typeof v2.max_tokens === 'number', 'max_tokens ontbreekt');
-  await page.screenshot({ path: path.join(UIT, '2-assistent.png') });
-  await frame.locator('.chat-header .chat-close').last().click();
 
   // 7. Een alleen-lezen document.
   await frame.evaluate(() => window.dispatchEvent(new CustomEvent('opds:open-document', { detail: { id: 'DOC-RO' } })));

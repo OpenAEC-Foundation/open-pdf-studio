@@ -136,24 +136,8 @@
       "description": "List, add and remove the watermarks and headers/footers of the active document, the same way the Watermark, Header & Footer and Manage dialogs do; every change is one undo step, shown at once and written into the pages on save."
     },
     {
-      "name": "app_assistant_ask",
-      "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel)."
-    },
-    {
-      "name": "app_assistant_pending",
-      "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider)."
-    },
-    {
-      "name": "app_assistant_answer",
-      "description": "Answer a pending assistant question (id from app_assistant_pending)."
-    },
-    {
-      "name": "app_assistant_history",
-      "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }."
-    },
-    {
       "name": "app_agent_task_pending",
-      "description": "Take the oldest structured agent task that an extension submitted, without the assistant window: the task moves from pending to running and no other client gets it."
+      "description": "Take the oldest structured agent task that an extension submitted: the task moves from pending to running and no other client gets it."
     },
     {
       "name": "app_agent_task_result",

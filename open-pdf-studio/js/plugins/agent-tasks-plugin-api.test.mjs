@@ -1,6 +1,6 @@
 // Agenttaken (#556) door de echte plug-in-API heen: een kleine synthetische
-// extensie dient vanuit een lintopdracht een taak in, zonder dat het
-// assistentvenster opengaat; een MCP-client haalt de taak op via de handlers
+// extensie dient vanuit een lintopdracht een taak in, zonder chatvenster of
+// chatbericht; een MCP-client haalt de taak op via de handlers
 // van de brug en antwoordt per taak-id; het resultaat gaat in één
 // ongedaan-maakstap het document in. Daarna de aansluiting over de lagen: de
 // brug, de Rust-lijst, de metatabel, tools.json, de manifest en de README.
@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { register } from 'node:module';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 
 register('./plugin-api-stubs.mjs', import.meta.url);
 
@@ -16,7 +16,6 @@ const laad = (pad) => import(new URL(pad, import.meta.url).href);
 const { createPluginApi } = await laad('./plugin-api.js');
 const { agentTaken, handleAgentTaskPending, handleAgentTaskResult } = await laad('./agent-tasks.js');
 const { extensieOpdrachten, opdrachtId } = await laad('./extension-commands.js');
-const relay = await laad('../assistant-mcp-relay.js');
 
 const staat = globalThis.__stubState;
 const undo = () => globalThis.__undoAanroepen ?? [];
@@ -89,11 +88,9 @@ function activeerExtensie(id) {
   return { api, taken, verwerk, opdracht: opdrachtId(id, 'recognize') };
 }
 
-test('een lintopdracht dient een taak in zonder assistentvenster; de MCP-client antwoordt; één ongedaan-maakstap', async () => {
+test('een lintopdracht dient een taak in; de MCP-client antwoordt; één ongedaan-maakstap', async () => {
   const doc = maakDocument('doc-a');
   zetDocumenten(doc);
-  let assistentGeopend = 0;
-  relay.registerAssistantSubmit(() => { assistentGeopend++; });
   const ext = activeerExtensie('nl.test.agent');
   assert.equal(ext.api.features.agentTasks, true);
 
@@ -101,10 +98,6 @@ test('een lintopdracht dient een taak in zonder assistentvenster; de MCP-client 
   assert.equal(uit.ok, true, JSON.stringify(uit));
   const [taak] = ext.taken;
   assert.equal(uit.result.taskId, taak.taskId);
-  // Geen chatbericht, geen venster, geen vraag in de assistent-relay.
-  assert.equal(assistentGeopend, 0);
-  assert.deepEqual(relay.takePendingQuestion(), { ok: true, question: null });
-  assert.deepEqual(relay.getAssistantMessages(), { ok: true, messages: [] });
 
   const opgehaald = await handleAgentTaskPending({});
   assert.equal(opgehaald.task.id, taak.taskId);
@@ -130,7 +123,6 @@ test('een lintopdracht dient een taak in zonder assistentvenster; de MCP-client 
   const stappen = undo().slice(voor);
   assert.deepEqual(stappen.filter((s) => s === 'begin' || s === 'end'), ['begin', 'end'], 'één ongedaan-maakstap');
   assert.equal(stappen.filter((s) => s.startsWith('add:')).length, 2);
-  assert.equal(assistentGeopend, 0);
   ext.api._cleanup();
 });
 
@@ -258,15 +250,22 @@ test('brug, Rust-lijst, dispatch, metatabel, tools.json, manifest en README lope
     const inManifest = manifest.tools.find((t) => t.name === naam);
     assert.ok(inManifest && def.description.startsWith(inManifest.description.replace(/\.$/, '')), `${naam} in de manifest`);
   }
-  // Direct na de assistent-relay; de telling van het publieke profiel.
-  const i = tools.findIndex((t) => t.name === 'app_assistant_history');
+  // Direct na de paginagereedschappen; de telling van het publieke profiel.
+  const i = tools.findIndex((t) => t.name === 'app_watermarks');
   assert.deepEqual(tools.slice(i + 1, i + 3).map((t) => t.name), TOOLS.map((t) => t[0]));
-  assert.equal(tools.length, 98);
-  assert.match(rs, /assert_eq!\(arr\.len\(\), 98\);/);
+  assert.equal(tools.length, 94);
+  assert.match(rs, /assert_eq!\(arr\.len\(\), 94\);/);
   const leesmij = lees('mcp-stdio/README.md');
-  assert.match(leesmij, /\(98 public tools:/);
+  assert.match(leesmij, /\(94 public tools:/);
   assert.match(leesmij, /\*\*`app_agent_task_pending`\*\* → \*\*`app_agent_task_result`\*\*/);
-  // De agent krijgt nooit iets uit het assistentvenster: agent-tasks.js kent de relay en het paneel niet.
+  // Het ingebouwde assistentvenster en zijn relay zijn weg, en komen niet via
+  // de agenttaken terug: agent-tasks.js en plugin-api.js kennen ze niet.
+  for (const weg of ['open-pdf-studio/js/assistant-mcp-relay.js', 'open-pdf-studio/js/solid/components/AssistantPanel.jsx']) {
+    assert.equal(existsSync(new URL(weg, REPO)), false, `${weg} hoort niet meer te bestaan`);
+  }
+  for (const weg of ['app_assistant_ask', 'app_assistant_pending', 'app_assistant_answer', 'app_assistant_history']) {
+    assert.ok(!tools.some((t) => t.name === weg) && !rs.includes(`"${weg}"`) && !meta.includes(`"${weg}"`), `${weg} is verwijderd`);
+  }
   const bron = lees('open-pdf-studio/js/plugins/agent-tasks.js');
   const zonderCommentaar = (t) => t.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
   assert.doesNotMatch(zonderCommentaar(bron), /assistant-mcp-relay|AssistantPanel|submitAssistantMessage|setOpen/);

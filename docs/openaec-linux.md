@@ -161,7 +161,6 @@ What the desktop app connects to:
 | Help > What's new | `api.github.com` (releases) | Release notes |
 | Symbol palette settings, library download | `raw.githubusercontent.com`, `api.github.com` (symbol library repository) | Online symbol library |
 | Send feedback | the feedback service of the project | Feedback form |
-| Assistant, with the user's own API key | the AI provider's API | AI assistant |
 | Open > From URL | the URL the user typed | Download a PDF |
 | Sign in with OpenAEC | the configured OpenAEC Accounts issuer and API, plus a loopback callback on `127.0.0.1:53682` | Account sign-in |
 | SVG stamps with linked images | the linked host | Images inside the stamp |

@@ -78,7 +78,7 @@ const app = path.resolve(hier, '..', '..');
 
 test('elke dienst op een andere host heeft een knop in de tabel', () => {
   const diensten = new Set(Object.values(EXTERNE_DIENSTEN));
-  for (const d of ['feedback', 'assistant', 'symbolLibrary', 'whatsNew']) {
+  for (const d of ['feedback', 'symbolLibrary', 'whatsNew']) {
     assert.ok(diensten.has(d), `geen knop gekoppeld aan "${d}"`);
   }
   assert.equal(externeDienst('send-feedback'), 'feedback');
@@ -135,8 +135,6 @@ const DIENSTEN = {
   'js/core/draagbaar.js': null, // releasepagina via openExtern, knop ribbon-check-updates (#881)
   'js/solid/components/dialogs/FeedbackDialog.jsx': 'js/solid/components/dialogs/FeedbackDialog.jsx',
   'js/solid/data/symbolLibraryOnline.js': 'js/solid/stores/symbolLibraryOnlineStore.js',
-  'js/solid/components/AssistantPanel.jsx': 'js/solid/components/AssistantPanel.jsx',
-  'js/mcp-bridge.js': 'js/mcp-bridge.js',
 };
 
 test('elk verzoek naar een andere host vraagt eerst externeDienstenAan()', () => {

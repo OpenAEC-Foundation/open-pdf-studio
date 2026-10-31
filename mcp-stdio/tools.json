@@ -1045,90 +1045,9 @@
       "destructiveHint": false,
       "openWorldHint": false,
       "readOnlyHint": false,
-      "title": "Ask assistant"
-    },
-    "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel). Returns { ok }. The answer comes from whichever provider is available: OpenAEC AI, a personal Claude key, or the MCP relay (app_assistant_pending + app_assistant_answer).",
-    "inputSchema": {
-      "additionalProperties": false,
-      "properties": {
-        "text": {
-          "description": "The user message to submit.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "text"
-      ],
-      "type": "object"
-    },
-    "name": "app_assistant_ask"
-  },
-  {
-    "annotations": {
-      "destructiveHint": false,
-      "openWorldHint": false,
-      "readOnlyHint": false,
-      "title": "Take pending assistant question"
-    },
-    "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider). Returns { ok, question:{ id, prompt, system, docName }|null }. When non-null, compute an answer and deliver it with app_assistant_answer — this is how an external Claude becomes the assistant's AI brain.",
-    "inputSchema": {
-      "additionalProperties": false,
-      "properties": {},
-      "type": "object"
-    },
-    "name": "app_assistant_pending"
-  },
-  {
-    "annotations": {
-      "destructiveHint": false,
-      "openWorldHint": false,
-      "readOnlyHint": false,
-      "title": "Answer assistant question"
-    },
-    "description": "Answer a pending assistant question (id from app_assistant_pending). The text appears in the assistant window as the assistant's reply. Returns { ok, id }.",
-    "inputSchema": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "description": "Question id from app_assistant_pending.",
-          "type": "string"
-        },
-        "text": {
-          "description": "Answer text to show in the assistant window.",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "text"
-      ],
-      "type": "object"
-    },
-    "name": "app_assistant_answer"
-  },
-  {
-    "annotations": {
-      "destructiveHint": false,
-      "openWorldHint": false,
-      "readOnlyHint": true,
-      "title": "Get assistant conversation"
-    },
-    "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }. Use to verify a delivered answer landed in the window.",
-    "inputSchema": {
-      "additionalProperties": false,
-      "properties": {},
-      "type": "object"
-    },
-    "name": "app_assistant_history"
-  },
-  {
-    "annotations": {
-      "destructiveHint": false,
-      "openWorldHint": false,
-      "readOnlyHint": false,
       "title": "Take pending agent task"
     },
-    "description": "Take the oldest structured agent task that an extension submitted, without the assistant window: the task moves from pending to running and no other client gets it. Returns { ok, task, waiting }; task is null when no task waits. A task has id, kind, extensionId, document { id, page, pageCount, sourceFingerprint, pageRotation, scale }, context (only the fields the extension chose to share), resultSchema (what the answer must match), createdAt, deadline (ms timestamps) and attemptsLeft. No conversation, file name or other tasks are shared. Answer with app_agent_task_result before the deadline; the task is cancelled when the user switches or closes the document, or when its source, page or scale changes.",
+    "description": "Take the oldest structured agent task that an extension submitted: the task moves from pending to running and no other client gets it. Returns { ok, task, waiting }; task is null when no task waits. A task has id, kind, extensionId, document { id, page, pageCount, sourceFingerprint, pageRotation, scale }, context (only the fields the extension chose to share), resultSchema (what the answer must match), createdAt, deadline (ms timestamps) and attemptsLeft. No conversation, file name or other tasks are shared. Answer with app_agent_task_result before the deadline; the task is cancelled when the user switches or closes the document, or when its source, page or scale changes.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {

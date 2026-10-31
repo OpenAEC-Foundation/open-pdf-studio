@@ -3,11 +3,10 @@
  *
  * Een extensie dient een gestructureerde taak in (bijvoorbeeld "herken de
  * plattegrond op deze pagina") en een MCP-agent pakt hem op en levert een
- * gestructureerd resultaat terug, zonder dat het assistentvenster opengaat of
- * er een chatbericht ontstaat. Zelfde patroon als de assistent-relay
- * (assistant-mcp-relay.js: een wachtrij die de agent via de MCP-server van de
- * app leegt), maar per taak met een eigen id, een eigen resultaatkanaal en de
- * identiteit van het document vastgelegd.
+ * gestructureerd resultaat terug, zonder dat er een chatbericht ontstaat. Een
+ * wachtrij die de agent via de MCP-server van de app leegt, per taak met een
+ * eigen id, een eigen resultaatkanaal en de identiteit van het document
+ * vastgelegd.
  *
  *   extensie                         host (dit register)           MCP-agent
  *   submitAgentTask(...) ──────────► pending ──── app_agent_task_pending ──►

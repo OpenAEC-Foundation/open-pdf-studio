@@ -93,8 +93,8 @@ jobs:
       # under the host's strict CSP, load it in an opaque-origin sandboxed
       # iframe (credentialless) from a test page on another origin and drive
       # it in headless Chromium: open from bytes, save an annotation back
-      # (including a conflict), list files and versions, ask the assistant,
-      # and ignore messages from any other origin or window.
+      # (including a conflict), list files and versions, and ignore messages
+      # from any other origin or window.
       - name: Test the hosted bridge (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
