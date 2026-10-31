@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
+import { patchXrefStreamOffsets } from './pdfjs-xref-offsets.mjs';
 
 const BEFORE = String.raw`  _getNumber() {
     this._numberPattern.lastIndex = this.pos;
@@ -65,6 +66,13 @@ export function patchPostscriptProgress(source) {
   return source.replace(BEFORE, AFTER);
 }
 
+// Every backport the shipped worker needs; each one fails closed on drift.
+// #839: PostScript lexer progress (PDF.js #22365). #638: XRef stream offsets
+// above 2 GiB (PDF.js #22172, see pdfjs-xref-offsets.mjs).
+export function patchPdfjsWorker(source) {
+  return patchXrefStreamOffsets(patchPostscriptProgress(source));
+}
+
 export function pdfjsPostscriptProgress() {
   let worker;
   let devPath;
@@ -76,8 +84,8 @@ export function pdfjsPostscriptProgress() {
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839 backport.`);
-      worker = patchPostscriptProgress(readFileSync(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'), 'utf8'));
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839 and #638 backports.`);
+      worker = patchPdfjsWorker(readFileSync(require.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs'), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs`;
     },
     configureServer(server) {
