@@ -36,5 +36,19 @@
     "source": "https://raw.githubusercontent.com/storytold/pdfcraft/a6bc63a497954af87c1cd5a2a1e72e928a11c039/assets/fonts/OFL-Inter.txt",
     "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
     "license": "OFL-1.1"
+  },
+  {
+    "name": "NotoSansJP-Regular.otf",
+    "source": "https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/Sans/SubsetOTF/JP/NotoSansJP-Regular.otf",
+    "sha256": "dff723ba59d57d136764a04b9b2d03205544f7cd785a711442d6d2d085ac5073",
+    "commit": "523d033d6cb47f4a80c58a35753646f5c3608a78",
+    "license": "OFL-1.1"
+  },
+  {
+    "name": "OFL-NotoCJK.txt",
+    "source": "https://raw.githubusercontent.com/notofonts/noto-cjk/523d033d6cb47f4a80c58a35753646f5c3608a78/LICENSE",
+    "sha256": "6a73f9541c2de74158c0e7cf6b0a58ef774f5a780bf191f2d7ec9cc53efe2bf2",
+    "commit": "523d033d6cb47f4a80c58a35753646f5c3608a78",
+    "license": "OFL-1.1"
   }
 ]
