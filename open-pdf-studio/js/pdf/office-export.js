@@ -1,3 +1,6 @@
+import * as pdfjsLib from 'pdfjs-dist';
+import { pdfjsBronnen } from '../core/basis-url.js';
+import { isWachtwoordFout, vraagEnOntsleutel } from './wachtwoord-pdf.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { saveFileDialog, writeBinaryFileAtomic } from '../core/platform.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
@@ -54,8 +57,51 @@ export async function exportOffice({ format, pages, includeImages = false, decim
   const path = await saveFileDialog(`${base}.${format}`, [{ name: OFFICE_FORMATS[format].filter, extensions: [format] }]);
   if (!path) return false;
   const outputPath = path.toLowerCase().endsWith(`.${format}`) ? path : `${path}.${format}`;
+  let extractionTask;
   showLoading(t('officeWorking'));
   try {
+    ensureSource();
+    // Display stays tolerant of damaged PDFs, but export must not turn a
+    // failed extraction into an apparently successful empty document (#878).
+    // De bytes komen uit het GETOONDE document zelf, niet uit de bytecache:
+    // die loopt achter na zoeken-en-vervangen (reloadDocumentFromBytes) en
+    // kent documenten zonder bestandspad alleen onder een geheugensleutel.
+    const sourceBytes = await pdf.getData();
+    ensureSource();
+    if (!sourceBytes?.length) throw new Error('PDF source bytes are unavailable. Reopen the document before exporting.');
+    const openExtraction = async password => {
+      ensureSource();
+      extractionTask = pdfjsLib.getDocument({
+        data: sourceBytes.slice(), ...pdfjsBronnen(), password,
+        isEvalSupported: false, stopAtErrors: true,
+      });
+      try {
+        return await extractionTask.promise;
+      } catch (error) {
+        await extractionTask.destroy();
+        extractionTask = null;
+        throw error;
+      }
+    };
+    let extractionPdf;
+    try {
+      extractionPdf = await openExtraction();
+    } catch (error) {
+      if (!isWachtwoordFout(error)) throw error;
+      // Desktop uses decrypted working bytes. The browser keeps encrypted
+      // bytes and deliberately does not retain the opening password.
+      const { metWachtwoordDialoog, vraagWachtwoord } = await import('../solid/stores/wachtwoordDialoogStore.js');
+      hideLoading();
+      extractionPdf = await metWachtwoordDialoog(() => vraagEnOntsleutel({
+        vraag: ({ verkeerd }) => {
+          ensureSource();
+          return vraagWachtwoord({ fileName: doc.fileName, verkeerd });
+        },
+        ontsleutel: openExtraction,
+      }));
+      if (!extractionPdf) return false;
+      showLoading(t('officeWorking'));
+    }
     ensureSource();
     const output = [];
     for (const number of selected) {
@@ -63,7 +109,9 @@ export async function exportOffice({ format, pages, includeImages = false, decim
       ensureSource();
       const rotation = ((page.rotate + (doc.pageRotations?.[number] || 0)) % 360 + 360) % 360;
       const viewport = page.getViewport({ scale: 1, rotation });
-      const content = await page.getTextContent();
+      const textPage = await extractionPdf.getPage(number);
+      ensureSource();
+      const content = await textPage.getTextContent();
       ensureSource();
       let boxes = textItemsToBoxes(content.items, viewport);
       if (!boxes.length && doc.ocrResults?.[number]?.length) {
@@ -88,5 +136,7 @@ export async function exportOffice({ format, pages, includeImages = false, decim
     console.error('[office-export]', error);
     showMessage(`${t('officeFailed')}\n${error?.message || String(error)}`);
     return false;
-  } finally { hideLoading(); }
+  } finally {
+    try { await extractionTask?.destroy(); } finally { hideLoading(); }
+  }
 }

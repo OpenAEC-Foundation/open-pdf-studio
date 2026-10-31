@@ -647,3 +647,4 @@ js/core/beheerd.test.mjs
 js/ui/panels/bookmark-pointer-drag.test.mjs
 js/ui/panels/bookmark-rename.test.mjs
 js/pdf/bookmark-page-labels.test.mjs
+scripts/pdfjs-zero-font.test.mjs
