@@ -322,6 +322,7 @@ js/core/opslag.test.mjs
 js/core/ai-sleutel.test.mjs
 js/core/host-opslag.test.mjs
 js/core/host-brug.test.mjs
+js/core/host-opslaan-als.test.mjs
 js/core/blob-worker.test.mjs
 js/core/werkplek-ai.test.mjs
 js/pdf/bijlagen.test.mjs
@@ -534,6 +535,7 @@ js/pdf/inpassen-verborgen-viewer.test.mjs
 js/pdf/weergave-na-opslaan-als.test.mjs
 js/pdf/host-versies.test.mjs
 js/pdf/host-versies-i18n.test.mjs
+js/pdf/host-opslaan-als-document.test.mjs
 js/core/volgende-taak.test.mjs
 js/solid/components/ribbon/na-lettertypen.test.mjs
 js/text/tekst-blokken.test.mjs

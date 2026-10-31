@@ -67,6 +67,8 @@ import PrintProgressToast from './PrintProgressToast.jsx';
 // Feature dialogs that are opened rarely: loaded on first use, with their
 // services, so they stay out of the main chunk.
 const OcrReviewDialog = lazy(() => import('./dialogs/OcrReviewDialog.jsx'));
+const HostSaveAsDialog = lazy(() => import('./dialogs/HostSaveAsDialog.jsx'));
+const HostKeuzeDialog = lazy(() => import('./dialogs/HostKeuzeDialog.jsx'));
 const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
 const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
 const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
@@ -132,6 +134,8 @@ const DIALOG_MAP = {
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
   'confirm': ConfirmDialog,
+  'host-save-as': HostSaveAsDialog,
+  'host-keuze': HostKeuzeDialog,
   'tool-sets-import': ToolSetImportDialog,
   'tool-sets-confirm': ToolSetConfirmDialog,
   'handtekening-detail': HandtekeningDetailDialog,

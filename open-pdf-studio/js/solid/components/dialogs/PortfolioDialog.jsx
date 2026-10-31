@@ -4,7 +4,7 @@ import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { openPortfolioSession, writePortfolioCopy } from '../../../pdf/portfolio-service.js';
-import { isTauri, saveFileDialog, writeDownloadedFileNew } from '../../../core/platform.js';
+import { isTauri, saveFileDialog, writeDownloadedFileNew, bewaarPdfOpSite } from '../../../core/platform.js';
 export default function PortfolioDialog() {
   const {t}=useTranslation('dialogs'), documentId=getActiveDocument()?.id;
   const [model,setModel]=createSignal(null),[busy,setBusy]=createSignal(false),[error,setError]=createSignal(''),[selected,setSelected]=createSignal(''),[folder,setFolder]=createSignal(''),[folderName,setFolderName]=createSignal(''),[description,setDescription]=createSignal('');
@@ -18,7 +18,7 @@ export default function PortfolioDialog() {
   const download=(bytes,name,type='application/octet-stream')=>{const url=URL.createObjectURL(new Blob([bytes],{type}));const a=document.createElement('a');a.href=url;a.download=name.replace(/[\\/\x00-\x1f]/g,'_');a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   const exportComponent=()=>run(async()=>{const entry=item();if(!entry)return;const bytes=session.extract(entry.key);if(isTauri()){const target=await saveFileDialog(entry.name,[]);if(!target)return;session.check();await writeDownloadedFileNew(target,bytes,{restrict:false});}else download(bytes,entry.name);});
   const preview=()=>run(async()=>{const entry=item();if(!entry)return;const bytes=session.extract(entry.key);if(new TextDecoder('ascii').decode(bytes.subarray(0,1024)).indexOf('%PDF-')<0)throw new Error('PDF_PREVIEW_ONLY');const {openPortfolioPreview}=await import('../../../pdf/portfolio-preview.js');session.check();await openPortfolioPreview(bytes,entry.name);close();});
-  const save=()=>run(async()=>{await change({});if(isTauri()){const target=await saveFileDialog('collection.pdf',[{name:'PDF',extensions:['pdf']}]);if(target)await writePortfolioCopy(session,target);}else download(session.bytes(),'collection.pdf','application/pdf');});
+  const save=()=>run(async()=>{await change({});if(isTauri()){const target=await saveFileDialog('collection.pdf',[{name:'PDF',extensions:['pdf']}]);if(target)await writePortfolioCopy(session,target);}else if((await bewaarPdfOpSite('collection.pdf',session.bytes()))===null)download(session.bytes(),'collection.pdf','application/pdf');});
   return <Dialog title={t('portfolio.title')} dialogClass="portfolio-dialog" onClose={close} footer={<><button class="pref-btn pref-btn-secondary" disabled={busy()||!model()} onClick={save}>{t('portfolio.save')}</button><button class="pref-btn pref-btn-secondary" onClick={close}>{t('portfolio.close')}</button></>}>
     <p>{t('portfolio.info')}</p>
     <Show when={error()}><p role="alert">{t(`portfolio.errors.${error()}`,{defaultValue:error()})}</p></Show>

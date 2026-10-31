@@ -6,9 +6,12 @@ import { hasFill, hasStroke, colorWithoutStroke } from '../annotations/fill-util
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
 import { markDocumentSaved, markDocumentModified, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
+import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile,
+  hostKanOpslaanAls, leesHostNieuwPad, leesHostPad, hostNieuwUitkomst, meldHostNieuwStil, meldHostGeopend, extractFileName } from '../core/platform.js';
+import { kopieNaam } from '../core/host-opslaan-als.js';
+import { legDocumentVast, blijfBijOrigineel, wisselNaarNieuwBestand } from './host-opslaan-als-document.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
-import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
+import { getCachedPdfBytes, setCachedPdfBytes, clearCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { insluitBytes } from '../annotations/afbeelding-bron.js';
@@ -3392,7 +3395,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     } catch (writeErr) {
       // Re-lock before reporting error
       await lockFile(outputPath);
-      if (isOpslagGeannuleerd(writeErr)) throw writeErr;
+      // Al gemeld (een weigering van de site bij Opslaan als, #726): ongewijzigd door.
+      if (isOpslagGeannuleerd(writeErr) || writeErr?.gemeld) throw writeErr;
       const msg = writeErr?.message || String(writeErr);
       if (msg.includes('denied') || msg.includes('locked') || msg.includes('sharing') || msg.includes('used by another')) {
         throw new Error(i18next.t('fileLocked', { defaultValue: 'The file is being used by another application. Please close it and try again.' }));
@@ -3559,6 +3563,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       showMessage(i18next.t('textEditMissingGlyphsSave', { chars: tekensVoorMelding(error.tekens) }));
       return false;
     }
+    // De gebruiker zag de fout al, met de keuze om te downloaden (#726).
+    if (error?.gemeld) return false;
     // De gastsite weigerde met een bekende code (versie_alleen_lezen, #712):
     // een eigen melding, met de tekst van de site als terugval.
     const hostMelding = hostFoutMelding(error, (s, o) => i18next.t(s, o));
@@ -3579,6 +3585,57 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
 
 
+/**
+ * Opslaan als een nieuw bestand op de site (#726). savePDF() schrijft via
+ * storage.saveAs (core/platform.js); daarna kiest de gebruiker tussen het
+ * nieuwe bestand openen en verder met het origineel. Downloadde de gebruiker
+ * na een weigering van de site toch, dan blijft het document zoals het was.
+ */
+async function slaOpAlsOpSite(doc, savePath, opties) {
+  const voor = legDocumentVast(doc);
+  meldHostNieuwStil(savePath);
+  const success = await savePDF(savePath, opties, doc);
+  const uitkomst = hostNieuwUitkomst(savePath);
+  if (!success || !uitkomst) return false;
+
+  const blijf = () => {
+    const { weerGewijzigd } = blijfBijOrigineel(doc, voor);
+    if (weerGewijzigd) markDocumentModified(doc);
+    clearCachedPdfBytes(savePath);
+    updateWindowTitle();
+  };
+  if (uitkomst.gedownload) {
+    blijf();
+    return true;
+  }
+
+  const { HOST_OPSLAAN_ALS_UI } = await import('./host-opslaan-als-ui.js');
+  const keuze = await HOST_OPSLAAN_ALS_UI.naOpslaanAls(uitkomst);
+  if (keuze !== 'nieuw' || !state.documents.includes(doc)) {
+    blijf();
+    return true;
+  }
+
+  // De bytes van het nieuwe bestand onder zijn eigen pad, zodat een volgende
+  // save daarop voortbouwt.
+  const bytes = getCachedPdfBytes(savePath);
+  if (bytes) setCachedPdfBytes(uitkomst.pad, bytes);
+  clearCachedPdfBytes(savePath);
+  const { weergavePad, nieuwPad } = wisselNaarNieuwBestand(doc, uitkomst);
+  verhuisLaagstand(doc, weergavePad, nieuwPad);
+  if (weergavePad && weergavePad !== nieuwPad) {
+    try {
+      const { wisselBestandspad } = await import('./pdf-viewport.js');
+      wisselBestandspad(weergavePad, nieuwPad);
+    } catch (e) { console.warn('[save-as] view not moved to the new site file:', e); }
+  }
+  markDocumentSaved(doc);
+  updateWindowTitle();
+  window.__OPDS_SESSION_SAVE__?.();
+  void meldHostGeopend(uitkomst.id);
+  return true;
+}
+
 // Save As - prompt for new file path
 export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, opties = {}) {
   if (!doc?.pdfDoc) {
@@ -3597,9 +3654,17 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
   let savePath = explicitPath;
   if (!savePath) {
     const { opslaanAlsStandaardPad } = await import('./handtekeningen/opslaan.js');
-    const defaultPath = opslaanAlsStandaardPad(doc, map);
+    let defaultPath = opslaanAlsStandaardPad(doc, map);
+    // Een document van de site als nieuw bestand op de site (#726): standaard
+    // "<naam> (copy).pdf", zodat het origineel niet ongemerkt een tweeling krijgt.
+    if (hostKanOpslaanAls() && leesHostPad(doc.saveTargetPath || doc.filePath)) {
+      defaultPath = kopieNaam(extractFileName(defaultPath), (b) => i18next.t('hostSaveAs.copyName', { name: b }));
+    }
     savePath = await saveFileDialog(defaultPath);
   }
+
+  // Een nieuw bestand op de site (#726).
+  if (savePath && leesHostNieuwPad(savePath)) return slaOpAlsOpSite(doc, savePath, opties);
 
   if (savePath) {
     const wasUntitled = !!doc?.isUntitled || !currentPath;

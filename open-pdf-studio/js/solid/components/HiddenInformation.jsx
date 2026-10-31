@@ -1,6 +1,6 @@
 import { createSignal, For, Show } from 'solid-js';
 import { getActiveDocument } from '../../core/state.js';
-import { isTauri, saveFileDialog } from '../../core/platform.js';
+import { isTauri, saveFileDialog, bewaarPdfOpSite } from '../../core/platform.js';
 import { inspectCurrentHiddenInformation, prepareHiddenCopy, exportHiddenCopy } from '../../pdf/hidden-information-service.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 
@@ -49,7 +49,10 @@ export default function HiddenInformation() {
         setExported(await exportHiddenCopy(documentId, selected(), path));
       } else {
         const r = await prepareHiddenCopy(documentId, selected());
-        download(r.bytes, 'clean-copy.pdf', 'application/pdf');
+        // Op de site als die dat kent (#726), anders een download.
+        const opSite = await bewaarPdfOpSite('clean-copy.pdf', r.bytes);
+        if (opSite === false) return;
+        if (opSite === null) download(r.bytes, 'clean-copy.pdf', 'application/pdf');
         setExported({ report: r.report });
       }
     } catch (e) {
