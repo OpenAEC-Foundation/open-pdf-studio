@@ -367,8 +367,11 @@ function ExtToolList(props) {
       {(item) => {
         const showSep = lastGroup !== -1 && lastGroup !== item.group;
         lastGroup = item.group;
-        const translated = item.translationKey ? t(item.translationKey) : null;
-        const title = (translated && translated !== item.translationKey) ? translated : item.label;
+        // A function, so the tooltip follows a later language change (#882).
+        const title = () => {
+          const translated = item.translationKey ? t(item.translationKey) : null;
+          return (translated && translated !== item.translationKey) ? translated : item.label;
+        };
         const isGroup = Array.isArray(item.subTools) && item.subTools.length > 0;
         return (
           <>
@@ -376,10 +379,10 @@ function ExtToolList(props) {
             <Show
               when={isGroup}
               fallback={
-                <ExtToolBtn tool={item.tool} title={title} icon={item.icon} overrides={item.overrides || null} />
+                <ExtToolBtn tool={item.tool} title={title()} icon={item.icon} overrides={item.overrides || null} />
               }
             >
-              <ExtToolGroupBtn groupDef={item} title={title} side={props.side} />
+              <ExtToolGroupBtn groupDef={item} title={title()} side={props.side} />
             </Show>
           </>
         );
