@@ -322,6 +322,11 @@
     "resetCommand": "Varsayılana sıfırla",
     "resetAll": "Tümünü sıfırla",
     "resetAllConfirm": "Tüm klavye kısayolları varsayılana sıfırlansın mı?",
+    "loadPreset": "Ön ayar yükle…",
+    "replaceConfirm": "Bu, özel klavye kısayollarınızın yerini alacak. Devam edilsin mi?",
+    "presets": {
+      "markupStyle": "İşaretleme tarzı kısayollar"
+    },
     "import": "İçe aktar…",
     "export": "Dışa aktar…",
     "fileType": "Klavye kısayolları",

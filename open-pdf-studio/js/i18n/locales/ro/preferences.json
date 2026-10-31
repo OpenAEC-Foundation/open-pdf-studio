@@ -322,6 +322,11 @@
     "resetCommand": "Restabiliți valoarea implicită",
     "resetAll": "Restabiliți tot",
     "resetAllConfirm": "Restabiliți toate comenzile rapide la valorile implicite?",
+    "loadPreset": "Încarcă presetare…",
+    "replaceConfirm": "Aceasta va înlocui comenzile rapide de la tastatură personalizate. Continuați?",
+    "presets": {
+      "markupStyle": "Comenzi rapide în stil de marcare"
+    },
     "import": "Importați…",
     "export": "Exportați…",
     "fileType": "Comenzi rapide de la tastatură",

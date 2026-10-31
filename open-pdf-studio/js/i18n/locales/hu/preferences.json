@@ -322,6 +322,11 @@
     "resetCommand": "Alapértelmezés visszaállítása",
     "resetAll": "Összes visszaállítása",
     "resetAllConfirm": "Visszaállítja az összes billentyűparancsot az alapértelmezésre?",
+    "loadPreset": "Előbeállítás betöltése…",
+    "replaceConfirm": "Ez lecseréli a saját billentyűparancsait. Folytatja?",
+    "presets": {
+      "markupStyle": "Jelölő stílusú billentyűparancsok"
+    },
     "import": "Importálás…",
     "export": "Exportálás…",
     "fileType": "Billentyűparancsok",

@@ -322,6 +322,11 @@
     "resetCommand": "Vrati zadano",
     "resetAll": "Vrati sve",
     "resetAllConfirm": "Vratiti sve tipkovničke prečace na zadane vrijednosti?",
+    "loadPreset": "Učitaj predložak…",
+    "replaceConfirm": "Ovo će zamijeniti vaše prilagođene tipkovničke prečace. Nastaviti?",
+    "presets": {
+      "markupStyle": "Prečaci u stilu označavanja"
+    },
     "import": "Uvezi…",
     "export": "Izvezi…",
     "fileType": "Tipkovnički prečaci",

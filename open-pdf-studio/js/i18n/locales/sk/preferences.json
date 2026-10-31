@@ -322,6 +322,11 @@
     "resetCommand": "Obnoviť predvolené",
     "resetAll": "Obnoviť všetko",
     "resetAllConfirm": "Obnoviť všetky klávesové skratky na predvolené hodnoty?",
+    "loadPreset": "Načítať predvoľbu…",
+    "replaceConfirm": "Týmto sa nahradia vaše vlastné klávesové skratky. Pokračovať?",
+    "presets": {
+      "markupStyle": "Skratky v štýle značkovania"
+    },
     "import": "Importovať…",
     "export": "Exportovať…",
     "fileType": "Klávesové skratky",

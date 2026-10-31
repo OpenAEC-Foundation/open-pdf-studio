@@ -557,6 +557,7 @@ js/core/keybindings/registry.test.mjs
 js/core/keybindings/io.test.mjs
 js/core/keybindings/dispatch.test.mjs
 js/core/keybindings/ribbon-commands.test.mjs
+js/core/keybindings/presets.test.mjs
 js/tools/sneltoetsen-aanpasbaar.test.mjs
 js/pdf/saver/opslag-annuleren.test.mjs
 js/pdf/opslaan-annuleren.test.mjs

@@ -322,6 +322,11 @@
     "resetCommand": "Przywróć domyślne",
     "resetAll": "Przywróć wszystko",
     "resetAllConfirm": "Przywrócić wszystkie skróty klawiaturowe do wartości domyślnych?",
+    "loadPreset": "Wczytaj ustawienie wstępne…",
+    "replaceConfirm": "Spowoduje to zastąpienie Twoich własnych skrótów klawiszowych. Kontynuować?",
+    "presets": {
+      "markupStyle": "Skróty w stylu znakowania"
+    },
     "import": "Importuj…",
     "export": "Eksportuj…",
     "fileType": "Skróty klawiaturowe",

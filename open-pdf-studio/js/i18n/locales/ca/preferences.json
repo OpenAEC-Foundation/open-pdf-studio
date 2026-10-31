@@ -322,6 +322,11 @@
     "resetCommand": "Restableix el valor per defecte",
     "resetAll": "Restableix-ho tot",
     "resetAllConfirm": "Voleu restablir totes les dreceres de teclat als valors per defecte?",
+    "loadPreset": "Carrega un predefinit…",
+    "replaceConfirm": "Això substituirà les vostres dreceres de teclat personalitzades. Voleu continuar?",
+    "presets": {
+      "markupStyle": "Dreceres d’estil de marcatge"
+    },
     "import": "Importa…",
     "export": "Exporta…",
     "fileType": "Dreceres de teclat",

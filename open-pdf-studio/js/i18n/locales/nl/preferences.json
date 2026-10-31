@@ -326,6 +326,11 @@
     "resetCommand": "Standaard herstellen",
     "resetAll": "Alles herstellen",
     "resetAllConfirm": "Alle sneltoetsen terugzetten naar de standaard?",
+    "loadPreset": "Voorinstelling laden…",
+    "replaceConfirm": "Dit vervangt je eigen sneltoetsen. Doorgaan?",
+    "presets": {
+      "markupStyle": "Markeerstijl-sneltoetsen"
+    },
     "import": "Importeren…",
     "export": "Exporteren…",
     "fileType": "Sneltoetsen",

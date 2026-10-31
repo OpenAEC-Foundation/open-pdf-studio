@@ -322,6 +322,11 @@
     "resetCommand": "Återställ standard",
     "resetAll": "Återställ alla",
     "resetAllConfirm": "Återställa alla kortkommandon till standard?",
+    "loadPreset": "Läs in förinställning…",
+    "replaceConfirm": "Detta ersätter dina egna kortkommandon. Vill du fortsätta?",
+    "presets": {
+      "markupStyle": "Kortkommandon i markeringsstil"
+    },
     "import": "Importera…",
     "export": "Exportera…",
     "fileType": "Kortkommandon",

@@ -322,6 +322,11 @@
     "resetCommand": "Ripristina predefinito",
     "resetAll": "Ripristina tutto",
     "resetAllConfirm": "Ripristinare tutte le scorciatoie da tastiera ai valori predefiniti?",
+    "loadPreset": "Carica preimpostazione…",
+    "replaceConfirm": "Questo sostituirà le scorciatoie da tastiera personalizzate. Continuare?",
+    "presets": {
+      "markupStyle": "Scorciatoie in stile markup"
+    },
     "import": "Importa…",
     "export": "Esporta…",
     "fileType": "Scorciatoie da tastiera",

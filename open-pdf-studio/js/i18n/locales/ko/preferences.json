@@ -322,6 +322,11 @@
     "resetCommand": "기본값으로 재설정",
     "resetAll": "모두 재설정",
     "resetAllConfirm": "모든 바로 가기 키를 기본값으로 재설정하시겠습니까?",
+    "loadPreset": "프리셋 불러오기…",
+    "replaceConfirm": "사용자 지정 바로 가기 키가 대체됩니다. 계속하시겠습니까?",
+    "presets": {
+      "markupStyle": "마크업 스타일 바로 가기 키"
+    },
     "import": "가져오기…",
     "export": "내보내기…",
     "fileType": "바로 가기 키",

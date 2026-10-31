@@ -322,6 +322,11 @@
     "resetCommand": "既定に戻す",
     "resetAll": "すべて既定に戻す",
     "resetAllConfirm": "すべてのキーボードショートカットを既定に戻しますか？",
+    "loadPreset": "プリセットを読み込む…",
+    "replaceConfirm": "カスタムのキーボードショートカットが置き換えられます。続行しますか?",
+    "presets": {
+      "markupStyle": "マークアップ形式のショートカット"
+    },
     "import": "インポート…",
     "export": "エクスポート…",
     "fileType": "キーボードショートカット",

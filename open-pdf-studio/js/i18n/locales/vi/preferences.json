@@ -322,6 +322,11 @@
     "resetCommand": "Đặt lại mặc định",
     "resetAll": "Đặt lại tất cả",
     "resetAllConfirm": "Đặt lại tất cả phím tắt về mặc định?",
+    "loadPreset": "Tải cài đặt sẵn…",
+    "replaceConfirm": "Thao tác này sẽ thay thế các phím tắt tùy chỉnh của bạn. Tiếp tục?",
+    "presets": {
+      "markupStyle": "Phím tắt kiểu đánh dấu"
+    },
     "import": "Nhập…",
     "export": "Xuất…",
     "fileType": "Phím tắt",

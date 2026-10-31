@@ -322,6 +322,11 @@
     "resetCommand": "恢复默认值",
     "resetAll": "全部恢复",
     "resetAllConfirm": "将所有键盘快捷键恢复为默认值？",
+    "loadPreset": "加载预设…",
+    "replaceConfirm": "这将替换您自定义的键盘快捷键。是否继续?",
+    "presets": {
+      "markupStyle": "标记风格快捷键"
+    },
     "import": "导入…",
     "export": "导出…",
     "fileType": "键盘快捷键",

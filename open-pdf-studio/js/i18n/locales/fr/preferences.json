@@ -322,6 +322,11 @@
     "resetCommand": "Rétablir la valeur par défaut",
     "resetAll": "Tout rétablir",
     "resetAllConfirm": "Rétablir tous les raccourcis clavier par défaut ?",
+    "loadPreset": "Charger un préréglage…",
+    "replaceConfirm": "Cela remplacera vos raccourcis clavier personnalisés. Continuer ?",
+    "presets": {
+      "markupStyle": "Raccourcis de style annotation"
+    },
     "import": "Importer…",
     "export": "Exporter…",
     "fileType": "Raccourcis clavier",

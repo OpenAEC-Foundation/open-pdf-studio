@@ -322,6 +322,11 @@
     "resetCommand": "Rejesha chaguo-msingi",
     "resetAll": "Rejesha zote",
     "resetAllConfirm": "Rejesha njia zote za mkato za kibodi kwenye chaguo-msingi?",
+    "loadPreset": "Pakia mpangilio ulioandaliwa…",
+    "replaceConfirm": "Hii itabadilisha njia zako za mkato za kibodi ulizoweka. Endelea?",
+    "presets": {
+      "markupStyle": "Njia za mkato za mtindo wa alama"
+    },
     "import": "Leta…",
     "export": "Hamisha…",
     "fileType": "Njia za mkato za kibodi",

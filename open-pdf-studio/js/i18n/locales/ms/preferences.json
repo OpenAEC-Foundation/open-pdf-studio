@@ -322,6 +322,11 @@
     "resetCommand": "Set semula kepada lalai",
     "resetAll": "Set semula semua",
     "resetAllConfirm": "Set semula semua pintasan papan kekunci kepada lalai?",
+    "loadPreset": "Muatkan pratetap…",
+    "replaceConfirm": "Ini akan menggantikan pintasan papan kekunci tersuai anda. Teruskan?",
+    "presets": {
+      "markupStyle": "Pintasan gaya penanda"
+    },
     "import": "Import…",
     "export": "Eksport…",
     "fileType": "Pintasan papan kekunci",

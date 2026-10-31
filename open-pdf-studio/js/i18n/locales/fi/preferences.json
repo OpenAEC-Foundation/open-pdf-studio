@@ -322,6 +322,11 @@
     "resetCommand": "Palauta oletus",
     "resetAll": "Palauta kaikki",
     "resetAllConfirm": "Palautetaanko kaikki pikanäppäimet oletuksiin?",
+    "loadPreset": "Lataa esiasetus…",
+    "replaceConfirm": "Tämä korvaa omat pikanäppäimesi. Jatketaanko?",
+    "presets": {
+      "markupStyle": "Merkintätyyliset pikanäppäimet"
+    },
     "import": "Tuo…",
     "export": "Vie…",
     "fileType": "Pikanäppäimet",

@@ -322,6 +322,11 @@
     "resetCommand": "Kembalikan ke default",
     "resetAll": "Kembalikan semua",
     "resetAllConfirm": "Kembalikan semua pintasan keyboard ke default?",
+    "loadPreset": "Muat preset…",
+    "replaceConfirm": "Ini akan mengganti pintasan keyboard kustom Anda. Lanjutkan?",
+    "presets": {
+      "markupStyle": "Pintasan gaya markup"
+    },
     "import": "Impor…",
     "export": "Ekspor…",
     "fileType": "Pintasan keyboard",

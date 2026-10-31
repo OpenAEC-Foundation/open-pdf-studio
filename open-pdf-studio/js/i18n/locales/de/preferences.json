@@ -322,6 +322,11 @@
     "resetCommand": "Auf Standard zurücksetzen",
     "resetAll": "Alle zurücksetzen",
     "resetAllConfirm": "Alle Tastenkombinationen auf die Standardwerte zurücksetzen?",
+    "loadPreset": "Vorlage laden…",
+    "replaceConfirm": "Dadurch werden Ihre eigenen Tastenkürzel ersetzt. Fortfahren?",
+    "presets": {
+      "markupStyle": "Tastenkürzel im Markup-Stil"
+    },
     "import": "Importieren…",
     "export": "Exportieren…",
     "fileType": "Tastenkombinationen",

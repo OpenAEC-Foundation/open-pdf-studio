@@ -322,6 +322,11 @@
     "resetCommand": "Restablecer valor predeterminado",
     "resetAll": "Restablecer todo",
     "resetAllConfirm": "¿Restablecer todos los atajos de teclado a sus valores predeterminados?",
+    "loadPreset": "Cargar ajuste predefinido…",
+    "replaceConfirm": "Esto reemplazará sus atajos de teclado personalizados. ¿Desea continuar?",
+    "presets": {
+      "markupStyle": "Atajos estilo marcado"
+    },
     "import": "Importar…",
     "export": "Exportar…",
     "fileType": "Atajos de teclado",

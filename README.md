@@ -277,6 +277,14 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 
 ## Keyboard Shortcuts
 
+All shortcuts can be changed, exported and imported under **Preferences → Keyboard Shortcuts**.
+**Load preset → Markup-style shortcuts** switches to the single-letter drawing keys and
+Alt+Shift measurement keys common in drawing markup and takeoff tools (for example H for
+Highlight, R for Rectangle and Alt+Shift+L for Length); a command whose default key it takes
+over gets another key (Hand moves to Shift+V). If you have your own shortcuts, the app asks
+before replacing them. Nothing changes until you click **Save**; **Reset all** restores the
+defaults.
+
 | Shortcut | Action |
 |----------|--------|
 | `Ctrl+N` | New document |

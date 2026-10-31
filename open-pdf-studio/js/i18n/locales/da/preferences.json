@@ -322,6 +322,11 @@
     "resetCommand": "Nulstil til standard",
     "resetAll": "Nulstil alle",
     "resetAllConfirm": "Nulstil alle tastaturgenveje til standard?",
+    "loadPreset": "Indlæs forudindstilling…",
+    "replaceConfirm": "Dette erstatter dine egne tastaturgenveje. Vil du fortsætte?",
+    "presets": {
+      "markupStyle": "Genveje i markeringsstil"
+    },
     "import": "Importér…",
     "export": "Eksportér…",
     "fileType": "Tastaturgenveje",

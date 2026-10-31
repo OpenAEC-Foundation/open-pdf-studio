@@ -319,6 +319,11 @@
     "resetCommand": "Reset to default",
     "resetAll": "Reset all",
     "resetAllConfirm": "Reset all keyboard shortcuts to their defaults?",
+    "loadPreset": "Load preset…",
+    "replaceConfirm": "This replaces your custom keyboard shortcuts. Continue?",
+    "presets": {
+      "markupStyle": "Markup-style shortcuts"
+    },
     "import": "Import…",
     "export": "Export…",
     "fileType": "Keyboard shortcuts",
