@@ -134,6 +134,8 @@
     "callout": "Panggilan",
     "stamp": "Setem",
     "signature": "Tandatangan",
+    "digitalSign": "Tandatangan digital",
+    "digitalSignTooltip": "Tandatangan dokumen dengan sijil (.p12/.pfx). Butang Tandatangan hanya meletakkan imej.",
     "measure": "Ukur",
     "measureDistance": "Ukur Jarak",
     "distance": "Jarak",

@@ -119,6 +119,8 @@ export const stampIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24
 
 export const signatureIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/><path stroke-linecap="round" stroke-width="2" d="M3 21c2-2 4-3 6-1s4-1 6-3"/></svg>`;
 
+export const digitalSignIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="13" height="16" stroke-width="1.6"/><path stroke-linecap="round" stroke-width="1.6" d="M6 9h7M6 12h5M6 16c1-1.2 1.8-1.6 2.4-1.2.7.4.6 1.3 1.4 1.2.5 0 .9-.6 1.4-1"/><circle cx="18" cy="14" r="3" stroke-width="1.6"/><path stroke-linejoin="round" stroke-width="1.6" d="M16.6 16.7 16 21l2-1.1 2 1.1-.6-4.3"/></svg>`;
+
 export const northArrowIcon = `<svg viewBox="0 0 24 26" stroke="currentColor"><polygon points="12,3 9,15 12,15 12,21" fill="currentColor" stroke="currentColor" stroke-width="0.7"/><polygon points="12,3 15,15 12,15" fill="none" stroke="currentColor" stroke-width="0.7"/><polygon points="12,15 15,15 12,21" fill="none" stroke="currentColor" stroke-width="0.7"/><line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="0.7"/><line x1="15" y1="15" x2="20" y2="15" stroke="currentColor" stroke-width="0.7"/></svg>`;
 
 // --- Comment tab: Measure ---

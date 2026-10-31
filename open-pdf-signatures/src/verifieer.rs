@@ -1,6 +1,6 @@
 //! Handtekeningen verifiëren (spec §7): integriteit per soort, dekking,
-//! vertrouwen en de getoonde status, plus de Tauri-commando's
-//! `pdf_signature_list` en `pdf_signed_revision`.
+//! vertrouwen en de getoonde status. De Tauri-commando's `pdf_signature_list`
+//! en `pdf_signed_revision` staan als dunne schil in de app-crate.
 
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
@@ -18,6 +18,7 @@ use super::pdf_lezen::{lees_veldenlijst, HandtekeningVeld, PdfLeesFout, SigWoord
 use super::status::{leeg_veld, leid_af, signaal, Integriteit, OnleesbaarReden, Status, Vertrouwen, WantrouwenReden};
 use super::tijdstempel::controleer_token;
 use super::vertrouwen::{beoordeel_binnen, Ketenuitkomst, Rol, Vertrouwensarchief};
+use super::wijzigingen::{LatereWijziging, Vergelijker};
 
 /// Uitkomst van één ondertekenaar in een SignedData.
 #[derive(Debug, Clone)]
@@ -327,6 +328,10 @@ pub struct HandtekeningInfo {
     /// ([`super::pdf_lezen::MAX_HANDTEKENINGVELDEN`]); de lijst is onvolledig.
     /// Gelijk voor alle regels van één lijst.
     pub lijst_afgekapt: bool,
+    /// Alleen bij `daarna_gewijzigd`: wat er na deze handtekening veranderde
+    /// (alleen toevoegingen zoals annotaties, of ondertekende inhoud). Zie
+    /// [`super::wijzigingen`].
+    pub latere_wijziging: Option<LatereWijziging>,
 }
 
 #[derive(Debug, Serialize)]
@@ -362,7 +367,7 @@ fn budget_melding(keten: Option<&Ketenuitkomst>, voorvoegsel: &str) -> Option<St
         .map(|_| format!("{voorvoegsel}{ZOEKBUDGET_OP}"))
 }
 
-fn io_fout(e: impl std::fmt::Display) -> LijstFout {
+pub fn io_fout(e: impl std::fmt::Display) -> LijstFout {
     LijstFout::Onleesbaar { detail: e.to_string() }
 }
 
@@ -425,12 +430,18 @@ fn verifieer_document_binnen(
     mut budget: usize,
 ) -> Result<Vec<HandtekeningInfo>, LijstFout> {
     let (velden, afgekapt) = geordende_velden(bytes)?;
+    let mut vergelijker = Vergelijker::nieuw(bytes);
     Ok(velden
         .into_iter()
         .enumerate()
         .map(|(nummer, (veld, _))| {
             let mut info = verifieer_veld(bytes, nummer, veld, archief, nu_unix, &mut budget);
             info.lijst_afgekapt = afgekapt;
+            if info.daarna_gewijzigd {
+                if let Some(einde) = info.bereik_einde {
+                    info.latere_wijziging = Some(vergelijker.na(einde as usize));
+                }
+            }
             info
         })
         .collect())
@@ -493,6 +504,7 @@ fn verifieer_veld(
             keten: Vec::new(),
             zwak_algoritme: false,
             lijst_afgekapt: false,
+            latere_wijziging: None,
         };
     };
     let soort = match sig.subfilter.as_deref() {
@@ -527,6 +539,7 @@ fn verifieer_veld(
         keten: Vec::new(),
         zwak_algoritme: false,
         lijst_afgekapt: false,
+        latere_wijziging: None,
     };
     // Een onverwachte fout in deze handtekening blijft bij deze handtekening (spec §8).
     let basis = info.clone();
@@ -794,16 +807,12 @@ fn lees_bestand(pad: &Path, afbeelden_vanaf: u64) -> Result<Bestandsinhoud, Lijs
     Ok(Bestandsinhoud::Gelezen(inhoud))
 }
 
-/// Verifieert alle handtekeningen in `pad` (spec §4.1). Loopt op een aparte
-/// thread: het rootarchief laden en hashen houdt het openen niet op (spec §7.3).
-#[tauri::command]
-pub async fn pdf_signature_list(pad: String) -> Result<Vec<HandtekeningInfo>, LijstFout> {
-    tauri::async_runtime::spawn_blocking(move || {
-        let bytes = lees_bestand(Path::new(&pad), AFBEELDEN_VANAF)?;
-        verifieer_document(&bytes, Vertrouwensarchief::systeem(), nu_unix())
-    })
-    .await
-    .map_err(io_fout)?
+/// Verifieert alle handtekeningen in het bestand `pad` tegen het rootarchief
+/// van het systeem (spec §4.1). Blokkeert: de commando-schil draait dit op een
+/// aparte thread, zodat het openen niet ophoudt (spec §7.3).
+pub fn verifieer_bestand(pad: &Path) -> Result<Vec<HandtekeningInfo>, LijstFout> {
+    let bytes = lees_bestand(pad, AFBEELDEN_VANAF)?;
+    verifieer_document(&bytes, Vertrouwensarchief::systeem(), nu_unix())
 }
 
 /// Map voor ondertekende versies, binnen de cachemap van de app (per gebruiker).
@@ -890,29 +899,6 @@ pub fn ruim_ondertekende_versies_op(map: &Path, ouder_dan: std::time::Duration) 
             let _ = std::fs::remove_file(&pad);
         }
     }
-}
-
-/// Schrijft de ondertekende versie van handtekening `nummer` naar een nieuw
-/// bestand in de cachemap van de app en geeft het absolute pad (spec §4.1, "Toon
-/// ondertekende versie"). Het bestand komt in de fs-scope, zodat de UI het kan
-/// openen en verwijderen. `bereik_einde` (JS: `bereikEinde`, optioneel): het
-/// einde uit de lijst; wijkt het af, dan [`LijstFout::GewijzigdSindsLijst`].
-#[tauri::command]
-pub async fn pdf_signed_revision(
-    app: tauri::AppHandle,
-    pad: String,
-    nummer: usize,
-    bereik_einde: Option<u64>,
-) -> Result<String, LijstFout> {
-    use tauri_plugin_fs::FsExt;
-    let cachemap = crate::datamap::tauri_map(&app, crate::datamap::TauriMap::Cache).map_err(io_fout)?;
-    let doel = tauri::async_runtime::spawn_blocking(move || {
-        schrijf_ondertekende_versie(&map_ondertekende_versies(&cachemap), &pad, nummer, bereik_einde)
-    })
-    .await
-    .map_err(io_fout)??;
-    let _ = app.fs_scope().allow_file(&doel);
-    Ok(doel.to_string_lossy().into_owned())
 }
 
 #[cfg(test)]
@@ -1033,7 +1019,7 @@ mod tests {
 
     /// Bouwt een DER-ContentInfo opnieuw op na aanpassing van de SignedData-velden.
     fn herbouw_signed_data(cms: &[u8], pas_aan: impl FnOnce(&mut Vec<Vec<u8>>)) -> Vec<u8> {
-        use crate::handtekening::ber::{kinderen, lees_tlv};
+        use crate::ber::{kinderen, lees_tlv};
         let (ci, _) = lees_tlv(cms).unwrap();
         let ci_k = kinderen(ci.inhoud).unwrap();
         let (sd, _) = lees_tlv(ci_k[1].inhoud).unwrap();
@@ -1048,7 +1034,7 @@ mod tests {
 
     #[test]
     fn tijdstempeltoken_wordt_doorgegeven() {
-        use crate::handtekening::ber::{kinderen, lees_tlv};
+        use crate::ber::{kinderen, lees_tlv};
         let data = fixture("data.bin");
         let token = fixture("tst-data.der");
         let cms = herbouw_signed_data(&fixture("cms-rsa-sha256.der"), |velden| {
@@ -1137,7 +1123,7 @@ mod tests {
         assert_eq!(controleer_ondertekenaar(&sd, &o, &[data.as_slice()]).integriteit, Integriteit::Gewijzigd);
     }
 
-    use crate::handtekening::cms_lees::{Attribuut, ID_CONTENT_TYPE, ID_MESSAGE_DIGEST};
+    use crate::cms_lees::{Attribuut, ID_CONTENT_TYPE, ID_MESSAGE_DIGEST};
 
     #[test]
     fn attributen_buiten_der_volgorde_en_sleutel_id_zijn_intact() {
@@ -1151,7 +1137,7 @@ mod tests {
 
     #[test]
     fn hersorteerde_attributen_kloppen_niet_meer() {
-        use crate::handtekening::ber::{kinderen, lees_tlv};
+        use crate::ber::{kinderen, lees_tlv};
         let data = fixture("data.bin");
         let sd = lees_signed_data(&fixture("cms-attribuutvolgorde.der")).unwrap();
         let mut o = sd.ondertekenaars[0].clone();
@@ -1246,8 +1232,8 @@ mod tests {
         assert!(zwak.zwak_algoritme);
     }
 
-    use crate::handtekening::status::{Status, Vertrouwen, WantrouwenReden};
-    use crate::handtekening::vertrouwen::Vertrouwensarchief;
+    use crate::status::{Status, Vertrouwen, WantrouwenReden};
+    use crate::vertrouwen::Vertrouwensarchief;
 
     fn bouw_pdf(objecten: &[&str]) -> Vec<u8> {
         let mut pdf = b"%PDF-1.7\n".to_vec();
@@ -1370,7 +1356,7 @@ mod tests {
         let pad = std::env::temp_dir().join(format!("opds-verifieer-proef-{}.pdf", std::process::id()));
         std::fs::write(&pad, &pdf).unwrap();
         let pad_tekst = pad.to_string_lossy().into_owned();
-        let lijst = tauri::async_runtime::block_on(pdf_signature_list(pad_tekst.clone())).unwrap();
+        let lijst = verifieer_bestand(&pad).unwrap();
         assert_eq!(lijst.len(), 1);
         let map = std::env::temp_dir().join(format!("opds-verifieer-versies-{}", std::process::id()));
         let versie = schrijf_ondertekende_versie(&map, &pad_tekst, 0, None).unwrap();
@@ -1384,7 +1370,7 @@ mod tests {
         std::fs::remove_dir_all(&map).unwrap();
         std::fs::remove_file(&pad).unwrap();
         assert!(matches!(
-            tauri::async_runtime::block_on(pdf_signature_list("Z:/bestaat/niet.pdf".into())),
+            verifieer_bestand(Path::new("Z:/bestaat/niet.pdf")),
             Err(LijstFout::Onleesbaar { .. })
         ));
     }
@@ -1514,7 +1500,7 @@ mod tests {
 
     #[test]
     fn meer_dan_de_grens_aan_velden_markeert_de_lijst() {
-        use crate::handtekening::pdf_lezen::MAX_HANDTEKENINGVELDEN;
+        use crate::pdf_lezen::MAX_HANDTEKENINGVELDEN;
         let n = MAX_HANDTEKENINGVELDEN + 1;
         let refs: Vec<String> = (0..n).map(|i| format!("{} 0 R", i + 2)).collect();
         let mut objecten = vec![format!("<< /Type /Catalog /AcroForm << /Fields [{}] >> >>", refs.join(" "))];
@@ -1572,7 +1558,7 @@ mod tests {
     /// signaal; met het gewone budget geen enkele.
     #[test]
     fn documentbudget_over_alle_handtekeningen() {
-        let Some(map) = crate::handtekening::corpusmap("pades") else { return };
+        let Some(map) = crate::corpusmap("pades") else { return };
         let bytes = std::fs::read(map.join("pades-5-signatures-and-1-document-timestamp.pdf")).unwrap();
         let heeft = |h: &HandtekeningInfo| h.signalen.iter().any(|s| s == signaal::ZOEKBUDGET_OP);
         let gewoon = verifieer_document(&bytes, &Vertrouwensarchief::leeg(), 1_789_000_000).unwrap();
@@ -1590,7 +1576,7 @@ mod tests {
     fn intacte_uitkomst_krijgt_nooit_niet_bepaald() {
         let blad = lees_certificaat(&fixture("blad.der")).unwrap();
         let leeg = Vertrouwensarchief::leeg();
-        let keten = |c: &Certificaat| crate::handtekening::vertrouwen::beoordeel(c, &[], &leeg, 0, Rol::Ondertekenaar);
+        let keten = |c: &Certificaat| crate::vertrouwen::beoordeel(c, &[], &leeg, 0, Rol::Ondertekenaar);
         // Zonder blad (hoort bij intact niet voor te komen): geen keten, geen `NietBepaald`.
         let (v, k) = vertrouwen_bij(Integriteit::Intact, None, keten);
         assert_eq!(v, Vertrouwen::NietVertrouwd { reden: WantrouwenReden::GeenKeten });
@@ -1625,7 +1611,7 @@ mod tests {
 
     #[test]
     fn zwak_algoritme_wordt_een_waarschuwing() {
-        use crate::handtekening::ber::{kinderen, lees_tlv};
+        use crate::ber::{kinderen, lees_tlv};
         let sha1 = [0x30, 0x09, 0x06, 0x05, 0x2B, 0x0E, 0x03, 0x02, 0x1A, 0x05, 0x00];
         let cms = herbouw_signed_data(&fixture("cms-rsa-sha256.der"), |velden| {
             let set = velden.last_mut().unwrap();
@@ -1645,7 +1631,7 @@ mod tests {
 
     #[test]
     fn tijdstempel_over_een_andere_waarde_is_niet_de_getoonde_tijd() {
-        use crate::handtekening::ber::{kinderen, lees_tlv};
+        use crate::ber::{kinderen, lees_tlv};
         let token = fixture("tst-data.der");
         let cms = herbouw_signed_data(&fixture("cms-rsa-sha256.der"), |velden| {
             let set = velden.last_mut().unwrap();
@@ -1788,8 +1774,8 @@ mod tests {
     /// gemeten verwachtingen in het manifest. Ontbreekt het, dan slaat de test over.
     #[test]
     fn corpus_volgens_manifest() {
-        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let Some(map) = crate::handtekening::corpusmap("pades") else { return };
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+        let Some(map) = crate::corpusmap("pades") else { return };
         let manifest: serde_json::Value =
             serde_json::from_slice(&std::fs::read(root.join("scripts/handtekening-testdata.json")).unwrap()).unwrap();
         let bestanden = manifest["bronnen"]["pades"]["bestanden"].as_array().unwrap();

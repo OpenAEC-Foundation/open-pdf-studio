@@ -134,6 +134,8 @@
     "callout": "Kuvateksti",
     "stamp": "Leima",
     "signature": "Allekirjoitus",
+    "digitalSign": "Sähköinen allekirjoitus",
+    "digitalSignTooltip": "Allekirjoita asiakirja varmenteella (.p12/.pfx). Allekirjoitus-painike lisää vain kuvan.",
     "measure": "Mittaus",
     "measureDistance": "Mittaa etäisyys",
     "distance": "Etäisyys",

@@ -70,15 +70,36 @@ const FOUT_SLEUTEL = {
 
 const RANG = { neutraal: 0, goed: 1, waarschuwing: 2, fout: 3 };
 
+/**
+ * Heeft een latere incrementele toevoeging ondertekende inhoud gewijzigd
+ * (pagina's, inhoudsstromen, een al ondertekend veld)? Rust meldt dat als
+ * `latereWijziging: 'inhoud'` bij een intacte handtekening die niet tot het
+ * einde van het bestand reikt. Toevoegingen zoals annotaties, formuliervelden
+ * of een tweede handtekening zijn `'toevoegingen'`.
+ */
+export function inhoudLaterGewijzigd(info) {
+  return info?.daarnaGewijzigd === true && info?.latereWijziging === 'inhoud';
+}
+
 /** i18n-sleutel voor de status van één handtekening. */
 export function statusSleutel(info) {
+  // De ondertekende bytes zijn er nog, maar wat de lezer ziet is daarna veranderd.
+  if (inhoudLaterGewijzigd(info)) return `${V}.status.modified`;
   return STATUS_SLEUTEL[info?.status?.code] || `${V}.status.notVerifiable`;
+}
+
+/** i18n-sleutel voor "daarna nog gewijzigd", naar de soort latere wijziging. */
+export function daarnaSleutel(info) {
+  if (info?.latereWijziging === 'toevoegingen') return 'changedAfterwardsAdditions';
+  if (info?.latereWijziging === 'inhoud') return 'changedAfterwardsContent';
+  return 'changedAfterwards';
 }
 
 /** i18n-sleutel voor de uitleg bij de status; null als er niets uit te leggen is. */
 export function redenSleutel(info) {
   const code = info?.status?.code;
   const reden = info?.status?.reden;
+  if (inhoudLaterGewijzigd(info)) return `${V}.explanation.contentChanged`;
   if (reden && REDEN_SLEUTEL[reden]) return REDEN_SLEUTEL[reden];
   if (code === 'geldig') return `${V}.explanation.valid`;
   if (code === 'gewijzigd-na-ondertekenen') return `${V}.explanation.modified`;
@@ -152,6 +173,7 @@ export function tijdstempelStatusSleutel(tijdstempel) {
 
 /** 'goed' | 'waarschuwing' | 'fout' | 'neutraal' — voor kleur en icoon. */
 export function ernst(info) {
+  if (inhoudLaterGewijzigd(info)) return 'fout';
   switch (info?.status?.code) {
     case 'geldig': return info.daarnaGewijzigd ? 'waarschuwing' : 'goed';
     case 'onbekend-certificaat': return 'waarschuwing';
@@ -232,7 +254,7 @@ export function documenttijdstempelNaam(h, v) {
  */
 export function balkRegelDelen(h, { v, t, taal, nietOndertekend = (_h, tekst) => tekst }) {
   const basis = t(statusSleutel(h));
-  const status = h?.daarnaGewijzigd ? v('format.joined', { first: basis, second: v('changedAfterwards') }) : basis;
+  const status = h?.daarnaGewijzigd ? v('format.joined', { first: basis, second: v(daarnaSleutel(h)) }) : basis;
   let naam;
   if (h?.soort === 'leeg-veld') naam = h.veldnaam || '';
   else if (h?.soort === 'documenttijdstempel') naam = documenttijdstempelNaam(h, v);

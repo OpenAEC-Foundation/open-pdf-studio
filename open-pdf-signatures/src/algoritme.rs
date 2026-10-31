@@ -449,7 +449,7 @@ fn ecdsa(spki_der: &[u8], hash: Hashalg, delen: &[&[u8]], handtekening: &[u8]) -
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::handtekening::cms_lees::{lees_certificaat, lees_signed_data, zoek_ondertekenaar, Certificaat, SignedData};
+    use crate::cms_lees::{lees_certificaat, lees_signed_data, zoek_ondertekenaar, Certificaat, SignedData};
     use std::path::PathBuf;
 
     fn fixture(naam: &str) -> Vec<u8> {

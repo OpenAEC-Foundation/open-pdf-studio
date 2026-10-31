@@ -235,3 +235,24 @@ test('scheidingsteken volgt format.joined, met terugval', async () => {
   assert.equal(scheidingstekens((s, o) => `${o.first} | ${o.second}`), ' | ');
   assert.equal(scheidingstekens((s, o) => `${o.second} ${o.first}`), ' — ');
 });
+
+test('latere wijziging: toevoegingen blijven een waarschuwing, gewijzigde inhoud heet "gewijzigd"', async () => {
+  const { daarnaSleutel, inhoudLaterGewijzigd, balkRegelDelen } = await import('./weergave.js');
+  const toevoeging = info('onbekend-certificaat', { reden: 'geen-keten', daarnaGewijzigd: true, latereWijziging: 'toevoegingen' });
+  const inhoud = info('geldig', { daarnaGewijzigd: true, latereWijziging: 'inhoud' });
+  assert.equal(inhoudLaterGewijzigd(toevoeging), false);
+  assert.equal(inhoudLaterGewijzigd(inhoud), true);
+  // Zonder "daarna gewijzigd" telt een losse latereWijziging niet.
+  assert.equal(inhoudLaterGewijzigd(info('geldig', { latereWijziging: 'inhoud' })), false);
+  assert.equal(statusSleutel(toevoeging), 'signatureVerification.status.unknownCertificate');
+  assert.equal(statusSleutel(inhoud), 'signatureVerification.status.modified');
+  assert.equal(redenSleutel(inhoud), 'signatureVerification.explanation.contentChanged');
+  assert.equal(ernst(toevoeging), 'waarschuwing');
+  assert.equal(ernst(inhoud), 'fout');
+  assert.equal(daarnaSleutel(toevoeging), 'changedAfterwardsAdditions');
+  assert.equal(daarnaSleutel(inhoud), 'changedAfterwardsContent');
+  assert.equal(daarnaSleutel(info('geldig', { daarnaGewijzigd: true })), 'changedAfterwards');
+  const v = (k, o) => (k === 'format.joined' ? `${o.first} — ${o.second}` : k === 'format.withTime' ? `${o.text}, ${o.time}` : k);
+  const d = balkRegelDelen({ ...inhoud, ondertekenaar: 'A' }, { v, t: (k) => k, taal: 'nl' });
+  assert.equal(d.status, 'signatureVerification.status.modified — changedAfterwardsContent');
+});

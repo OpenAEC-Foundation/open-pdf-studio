@@ -3,7 +3,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import {
-  statusSleutel, redenSleutel, tijdstempelStatusSleutel, formatTijd, woordenboekNietOndertekend,
+  statusSleutel, redenSleutel, tijdstempelStatusSleutel, formatTijd, woordenboekNietOndertekend, daarnaSleutel,
   heeftZwakAlgoritme, formatGetal, voegSamen, lijstIsAfgekapt, signaalSleutels, tijdstempelSignaalSleutels,
   technischDetail, documenttijdstempelNaam,
 } from '../../../pdf/handtekeningen/weergave.js';
@@ -40,7 +40,7 @@ export default function HandtekeningDetailDialog(props) {
 
   const status = () => {
     const basis = t(statusSleutel(h));
-    return h.daarnaGewijzigd ? verbind(basis, v('changedAfterwards')) : basis;
+    return h.daarnaGewijzigd ? verbind(basis, v(daarnaSleutel(h))) : basis;
   };
   const toelichting = () => {
     const sleutel = redenSleutel(h);

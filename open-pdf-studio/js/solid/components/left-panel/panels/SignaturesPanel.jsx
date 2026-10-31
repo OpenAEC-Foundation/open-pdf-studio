@@ -44,7 +44,13 @@ export default function SignaturesPanel() {
         <Show when={!emptyMessage()}>
           <For each={items()}>
             {(sig) => (
-              <div class="signature-list-item">
+              <div class="signature-list-item" onClick={() => {
+                // Met een verificatie uit Rust: hetzelfde detailvenster als de balk.
+                if (sig.info && sig.info.soort !== 'leeg-veld') {
+                  import('../../../../pdf/handtekeningen/verificatie.js')
+                    .then((m) => m.openHandtekeningDetails(JSON.parse(JSON.stringify(sig.info))));
+                }
+              }}>
                 <div class={`signature-list-icon ${sig.status}`}>
                   <SignatureIcon status={sig.status} />
                 </div>
@@ -66,6 +72,9 @@ export default function SignaturesPanel() {
                     <div class="signature-list-detail">{tCommon('page')} {sig.page}</div>
                   </Show>
                   <div class={`signature-list-status ${sig.status}`}>{sig.statusText}</div>
+                  <Show when={sig.detailText}>
+                    <div class="signature-list-detail">{sig.detailText}</div>
+                  </Show>
                 </div>
               </div>
             )}

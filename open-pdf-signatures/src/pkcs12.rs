@@ -627,8 +627,8 @@ mod tests {
     /// dan slaat deze test over met een melding in plaats van te falen.
     #[test]
     fn corpus_volgens_manifest() {
-        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let Some(map) = crate::handtekening::corpusmap("pkcs12") else { return };
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..");
+        let Some(map) = crate::corpusmap("pkcs12") else { return };
         let manifest: serde_json::Value = serde_json::from_slice(
             &std::fs::read(root.join("scripts/handtekening-testdata.json")).unwrap(),
         )
@@ -675,7 +675,7 @@ mod tests {
 
     #[test]
     fn leeg_en_afwezig_wachtwoord_worden_onderscheiden() {
-        let Some(root) = crate::handtekening::corpusmap("pkcs12") else { return };
+        let Some(root) = crate::corpusmap("pkcs12") else { return };
         let truststore = lees(&std::fs::read(root.join("java-truststore.p12")).unwrap(), "").unwrap();
         assert_eq!(truststore.wachtwoordvorm, Wachtwoordvorm::Leeg);
         let zonder = lees(&std::fs::read(root.join("no-password.p12")).unwrap(), "").unwrap();
@@ -683,7 +683,7 @@ mod tests {
     }
 
     fn corpus(naam: &str) -> Option<Vec<u8>> {
-        let pad = crate::handtekening::corpusmap("pkcs12")?.join(naam);
+        let pad = crate::corpusmap("pkcs12")?.join(naam);
         Some(std::fs::read(&pad).unwrap_or_else(|e| panic!("corpusbestand {} onleesbaar: {e}", pad.display())))
     }
 

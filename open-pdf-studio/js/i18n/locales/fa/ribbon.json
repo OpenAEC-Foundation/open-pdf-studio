@@ -134,6 +134,8 @@
     "callout": "فراخوان",
     "stamp": "مهر",
     "signature": "امضا",
+    "digitalSign": "امضای دیجیتال",
+    "digitalSignTooltip": "سند را با یک گواهی (.p12/.pfx) امضا کنید. دکمهٔ امضا فقط یک تصویر قرار می‌دهد.",
     "measure": "اندازه‌گیری",
     "measureDistance": "اندازه‌گیری فاصله",
     "distance": "فاصله",

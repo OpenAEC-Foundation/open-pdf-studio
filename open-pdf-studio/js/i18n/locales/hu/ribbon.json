@@ -134,6 +134,8 @@
     "callout": "Kihivás",
     "stamp": "Bélyegző",
     "signature": "Aláírás",
+    "digitalSign": "Digitális aláírás",
+    "digitalSignTooltip": "A dokumentum aláírása tanúsítvánnyal (.p12/.pfx). Az Aláírás gomb csak egy képet helyez el.",
     "measure": "Mérés",
     "measureDistance": "Távolság mérése",
     "distance": "Távolság",

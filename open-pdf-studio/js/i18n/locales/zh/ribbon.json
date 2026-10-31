@@ -134,6 +134,8 @@
     "callout": "标注",
     "stamp": "图章",
     "signature": "签名",
+    "digitalSign": "数字签名",
+    "digitalSignTooltip": "使用证书（.p12/.pfx）对文档签名。“签名”按钮只放置图像。",
     "measure": "测量",
     "measureDistance": "测量距离",
     "distance": "距离",

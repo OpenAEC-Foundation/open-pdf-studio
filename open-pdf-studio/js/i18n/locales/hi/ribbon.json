@@ -134,6 +134,8 @@
     "callout": "कॉलआउट",
     "stamp": "स्टैम्प",
     "signature": "हस्ताक्षर",
+    "digitalSign": "डिजिटल हस्ताक्षर",
+    "digitalSignTooltip": "प्रमाणपत्र (.p12/.pfx) से दस्तावेज़ पर हस्ताक्षर करें। हस्ताक्षर बटन केवल एक छवि रखता है।",
     "measure": "मापन",
     "measureDistance": "दूरी मापें",
     "distance": "दूरी",

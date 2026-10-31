@@ -134,6 +134,8 @@
     "callout": "คำบรรยาย",
     "stamp": "ตราประทับ",
     "signature": "ลายเซ็น",
+    "digitalSign": "ลายเซ็นดิจิทัล",
+    "digitalSignTooltip": "ลงนามเอกสารด้วยใบรับรอง (.p12/.pfx) ปุ่มลายเซ็นจะวางเพียงรูปภาพ",
     "measure": "วัด",
     "measureDistance": "วัดระยะทาง",
     "distance": "ระยะทาง",

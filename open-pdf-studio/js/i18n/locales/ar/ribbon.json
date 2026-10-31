@@ -134,6 +134,8 @@
     "callout": "وسيلة شرح",
     "stamp": "ختم",
     "signature": "توقيع",
+    "digitalSign": "توقيع رقمي",
+    "digitalSignTooltip": "وقّع المستند بشهادة (.p12/.pfx). زر التوقيع يضع صورة فقط.",
     "measure": "قياس",
     "measureDistance": "قياس المسافة",
     "distance": "المسافة",

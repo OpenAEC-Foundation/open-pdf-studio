@@ -134,6 +134,8 @@
     "callout": "Légende",
     "stamp": "Tampon",
     "signature": "Signature",
+    "digitalSign": "Signature numérique",
+    "digitalSignTooltip": "Signer le document avec un certificat (.p12/.pfx). Le bouton Signature place seulement une image.",
     "measure": "Mesure",
     "measureDistance": "Mesurer la distance",
     "distance": "Distance",

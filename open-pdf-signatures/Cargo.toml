@@ -1,0 +1,51 @@
+[package]
+name = "open-pdf-signatures"
+version = "2026.44.4"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Digital PDF signatures: read PKCS#12, sign (PAdES, incremental update) and verify signatures"
+publish = false
+
+# Pure Rust, zonder Tauri: `cargo test -p open-pdf-signatures` bouwt alleen
+# deze crate. RustCrypto op de der 0.7-lijn; pkcs12 0.1, cms 0.2 en
+# x509-cert 0.2 hangen daar zelf aan, dus niet mengen met der 0.8.
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+sha2 = { version = "0.10", features = ["oid"] }
+pkcs12 = { version = "0.1", features = ["kdf"] }
+pkcs5 = { version = "0.7", features = ["pbes2", "3des", "sha1-insecure"] }
+cms = "0.2"
+der = { version = "0.7", features = ["alloc", "derive", "oid"] }
+spki = "0.7"
+x509-cert = "0.2"
+const-oid = { version = "0.9", features = ["db"] }
+hmac = "0.12"
+sha1 = { version = "0.10", features = ["oid"] }
+des = { version = "0.8", features = ["zeroize"] }
+rc2 = { version = "0.8", features = ["zeroize"] }
+cbc = { version = "0.1", features = ["alloc", "zeroize"] }
+rsa = "0.9"
+# ECDSA: verificatie én ondertekenen met P-256/P-384. 0.13 is de der 0.7-lijn.
+p256 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8"] }
+p384 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8"] }
+zeroize = "1"
+rand = "0.8"
+memmap2 = "0.9"
+base64 = "0.22"
+# Zelfde lopdf-lijn als de app-crate en open-pdf-render: één versie in de lock.
+lopdf = "0.34"
+flate2 = "1"
+# Afbeelding in een zichtbare handtekening (PNG/JPEG).
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
+
+# Rootarchief van het besturingssysteem als DER buiten Windows (macOS-sleutelhanger,
+# OpenSSL-paden op Linux).
+[target.'cfg(not(windows))'.dependencies]
+rustls-native-certs = "0.8"
+
+# Het Windows-rootarchief en de gewantrouwde certificaten rechtstreeks en
+# alleen-lezen lezen, met de doelen en uitschakeldata per wortel.
+[target.'cfg(target_os = "windows")'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security", "Win32_Security_Cryptography"] }

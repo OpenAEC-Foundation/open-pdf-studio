@@ -173,6 +173,8 @@ js/tools/select-doorval.test.mjs
 js/pdf/handtekeningen/i18n-sleutels.test.mjs
 js/pdf/handtekeningen/weergave.test.mjs
 js/pdf/handtekeningen/opslaan.test.mjs
+js/pdf/handtekeningen/ondertekend-mupdf.test.mjs
+js/pdf/handtekeningen/ondertekenen-regels.test.mjs
 js/pdf/saver/ocr-text-layer.test.mjs
 js/pdf/saver/cjk-fonts.test.mjs
 js/pdf/saver/cff-subset-herstel.test.mjs

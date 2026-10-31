@@ -134,6 +134,8 @@
     "callout": "Callout",
     "stamp": "Stamp",
     "signature": "Signature",
+    "digitalSign": "Digital Signature",
+    "digitalSignTooltip": "Sign the document with a certificate (.p12/.pfx). The Signature button only places an image.",
     "northArrow": "North Arrow",
     "measure": "Measure",
     "measureDistance": "Measure Distance",

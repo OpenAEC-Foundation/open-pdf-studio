@@ -134,6 +134,8 @@
     "callout": "Legende",
     "stamp": "Stempel",
     "signature": "Unterschrift",
+    "digitalSign": "Digitale Signatur",
+    "digitalSignTooltip": "Das Dokument mit einem Zertifikat (.p12/.pfx) signieren. Die Schaltfläche Unterschrift platziert nur ein Bild.",
     "northArrow": "Nordpfeil",
     "measure": "Messen",
     "measureDistance": "Entfernung messen",

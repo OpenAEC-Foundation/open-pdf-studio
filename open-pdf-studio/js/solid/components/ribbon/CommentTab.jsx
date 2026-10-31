@@ -17,7 +17,7 @@ import {
   highlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
   textAnnotIcon, textboxIcon, noteIcon, fileAttachmentIcon, calloutIcon,
-  stampIcon, signatureIcon,
+  stampIcon, signatureIcon, digitalSignIcon,
   redactionIcon, applyRedactionsIcon,
   clearPageIcon, clearAllIcon, flattenAllIcon, unflattenAllIcon,
   measureDistanceIcon, measureAreaIcon, measurePerimeterIcon, measureAngleIcon, calibrateIcon
@@ -78,6 +78,14 @@ export function CommentGroups() {
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'stamp'} onClick={() => setTool('stamp')} />
           <RibbonButton id="tool-signature" title={t('comment.signature')} icon={signatureIcon} label={t('comment.signature')}
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'signature'} onClick={() => setTool('signature')} />
+          {/* Cryptografisch ondertekenen met een certificaat (#374). Ook bij een
+              PDF/A: de handtekening komt in een incrementele toevoeging. */}
+          <RibbonButton id="btn-digital-sign" title={t('comment.digitalSignTooltip')} icon={digitalSignIcon} label={t('comment.digitalSign')}
+            disabled={noPdf()}
+            onClick={async () => {
+              const { startDigitaalOndertekenen } = await import('../../../pdf/handtekeningen/ondertekenen.js');
+              await startDigitaalOndertekenen();
+            }} />
           <RibbonButton id="tool-parametric-symbol" title={t('comment.parametricSymbol')}
             icon={stampIcon} label={t('comment.parametricSymbol')}
             disabled={noPdf() || isPdfAReadOnly()}

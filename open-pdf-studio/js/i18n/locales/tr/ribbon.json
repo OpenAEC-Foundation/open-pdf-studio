@@ -134,6 +134,8 @@
     "callout": "Açıklama Balonu",
     "stamp": "Damga",
     "signature": "İmza",
+    "digitalSign": "Dijital imza",
+    "digitalSignTooltip": "Belgeyi bir sertifikayla (.p12/.pfx) imzalayın. İmza düğmesi yalnızca bir resim yerleştirir.",
     "measure": "Ölçüm",
     "measureDistance": "Mesafe Ölç",
     "distance": "Mesafe",

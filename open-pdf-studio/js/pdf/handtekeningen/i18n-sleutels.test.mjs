@@ -12,9 +12,9 @@ function plat(obj, voorvoegsel = '') {
     typeof v === 'object' && v !== null ? plat(v, `${voorvoegsel}${k}.`) : [[`${voorvoegsel}${k}`, v]]);
 }
 
-function lees(taal) {
+function lees(taal, deel = 'signatureVerification') {
   const data = JSON.parse(readFileSync(join(MAP, taal, 'dialogs.json'), 'utf8'));
-  return Object.fromEntries(plat(data.signatureVerification || {}));
+  return Object.fromEntries(plat(data[deel] || {}));
 }
 
 const plaatshouders = (tekst) => (String(tekst).match(/\{\{\w+\}\}/g) || []).sort();
@@ -23,7 +23,7 @@ test('40 locales met identieke handtekeningsleutels en plaatshouders', () => {
   const talen = readdirSync(MAP);
   assert.equal(talen.length, 40);
   const en = lees('en');
-  assert.equal(Object.keys(en).length, 90);
+  assert.equal(Object.keys(en).length, 94);
   for (const taal of talen) {
     const t = lees(taal);
     assert.deepEqual(Object.keys(t).sort(), Object.keys(en).sort(), taal);
@@ -36,7 +36,9 @@ test('40 locales met identieke handtekeningsleutels en plaatshouders', () => {
 
 test('elk signaal uit Rust heeft een vertaling, en weergave.js kent dezelfde lijst', async () => {
   const { SIGNALEN } = await import('./weergave.js');
-  const rust = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../src-tauri/src/handtekening/status.rs'), 'utf8');
+  // Crate open-pdf-signatures (repo-root); CRLF van een Windows-checkout gelijktrekken.
+  const rust = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../../../open-pdf-signatures/src/status.rs'), 'utf8')
+    .replace(/\r\n/g, '\n');
   const blok = rust.slice(rust.indexOf('pub mod signaal'), rust.indexOf('/// Alle codes, voor tests.'));
   const codes = [...blok.matchAll(/pub const \w+: &str = "([a-z-]+)";/g)].map((m) => m[1]);
   assert.equal(codes.length, 24);
@@ -79,5 +81,56 @@ test('uitzonderingslijst bevat geen overbodige woorden', () => {
   for (const woord of [...GELIJK_TOEGESTAAN['*'], ...GELIJK_TOEGESTAAN.id]) {
     if (woord === 'OK') continue; // algemene uitzondering, staat niet in deze namespace
     assert.ok(en.includes(woord), `${woord} komt niet (meer) voor in het Engels`);
+  }
+});
+
+// "Digitaal ondertekenen" (dialogs:digitalSign, ondertekenen.js en de dialoog).
+const ONDERTEKENEN_GELIJK = { it: ['File', 'Password'] };
+
+test('ondertekenen: alle locales met dezelfde sleutels en plaatshouders, en vertaald', () => {
+  const en = lees('en', 'digitalSign');
+  assert.equal(Object.keys(en).length, 55);
+  const gevonden = [];
+  for (const taal of readdirSync(MAP)) {
+    const t = lees(taal, 'digitalSign');
+    assert.deepEqual(Object.keys(t).sort(), Object.keys(en).sort(), taal);
+    for (const [sleutel, tekst] of Object.entries(en)) {
+      assert.ok(t[sleutel].trim().length > 0, `${taal} ${sleutel} leeg`);
+      assert.deepEqual(plaatshouders(t[sleutel]), plaatshouders(tekst), `${taal} ${sleutel}`);
+      if (taal !== 'en' && t[sleutel] === tekst && !zonderTekst(tekst) && !(ONDERTEKENEN_GELIJK[taal] || []).includes(tekst)) {
+        gevonden.push(`${taal} ${sleutel}: ${tekst}`);
+      }
+    }
+  }
+  assert.deepEqual(gevonden, []);
+});
+
+test('ondertekenen: elke foutcode uit Rust heeft een melding', async () => {
+  const { foutMelding } = await import('./ondertekenen-regels.js');
+  const en = lees('en', 'digitalSign');
+  const bron = (pad) => readFileSync(join(dirname(fileURLToPath(import.meta.url)), pad), 'utf8').replace(/\r\n/g, '\n');
+  const codes = (rust, naam) => {
+    const blok = rust.slice(rust.indexOf(`pub enum ${naam}`));
+    const lijf = blok.slice(0, blok.indexOf('\n}'));
+    return [...lijf.matchAll(/^    ([A-Z]\w+)/gm)].map((m) => m[1].replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase());
+  };
+  const onderteken = codes(bron('../../../../open-pdf-signatures/src/onderteken.rs'), 'OndertekenFout');
+  const info = codes(bron('../../../../open-pdf-signatures/src/certificaat.rs'), 'InfoFout');
+  assert.ok(onderteken.length >= 14, onderteken.join());
+  for (const code of [...onderteken, ...info]) {
+    const { sleutel } = foutMelding({ code, detail: 'x' });
+    assert.notEqual(sleutel, code === 'intern' ? null : 'digitalSign.errors.internal', `${code} zonder eigen melding`);
+    assert.ok(en[sleutel.slice('digitalSign.'.length)], `${sleutel} ontbreekt`);
+  }
+});
+
+test('ribbon: knop Digitaal ondertekenen in alle locales vertaald', () => {
+  const en = JSON.parse(readFileSync(join(MAP, 'en', 'ribbon.json'), 'utf8')).comment;
+  for (const taal of readdirSync(MAP)) {
+    const c = JSON.parse(readFileSync(join(MAP, taal, 'ribbon.json'), 'utf8')).comment;
+    for (const k of ['digitalSign', 'digitalSignTooltip']) {
+      assert.ok(c[k] && c[k].trim(), `${taal} ${k}`);
+      if (taal !== 'en') assert.notEqual(c[k], en[k], `${taal} ${k} niet vertaald`);
+    }
   }
 });

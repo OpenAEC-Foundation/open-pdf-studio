@@ -134,6 +134,8 @@
     "callout": "Oblačić",
     "stamp": "Pečat",
     "signature": "Potpis",
+    "digitalSign": "Elektronički potpis",
+    "digitalSignTooltip": "Potpišite dokument certifikatom (.p12/.pfx). Gumb Potpis samo postavlja sliku.",
     "measure": "Mjerenje",
     "measureDistance": "Izmjeri udaljenost",
     "distance": "Udaljenost",

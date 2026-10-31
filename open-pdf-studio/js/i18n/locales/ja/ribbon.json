@@ -134,6 +134,8 @@
     "callout": "吹き出し",
     "stamp": "スタンプ",
     "signature": "署名",
+    "digitalSign": "デジタル署名",
+    "digitalSignTooltip": "証明書（.p12/.pfx）で文書に署名します。［署名］ボタンは画像を配置するだけです。",
     "measure": "計測",
     "measureDistance": "距離を計測",
     "distance": "距離",

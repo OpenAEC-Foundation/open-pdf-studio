@@ -134,6 +134,8 @@
     "callout": "Balão",
     "stamp": "Carimbo",
     "signature": "Assinatura",
+    "digitalSign": "Assinatura digital",
+    "digitalSignTooltip": "Assinar o documento com um certificado (.p12/.pfx). O botão Assinatura só coloca uma imagem.",
     "measure": "Medir",
     "measureDistance": "Medir distância",
     "distance": "Distância",

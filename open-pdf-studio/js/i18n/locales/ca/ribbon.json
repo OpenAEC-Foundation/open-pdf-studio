@@ -134,6 +134,8 @@
     "callout": "Crida",
     "stamp": "Segell",
     "signature": "Signatura",
+    "digitalSign": "Signatura digital",
+    "digitalSignTooltip": "Signa el document amb un certificat (.p12/.pfx). El botó Signatura només hi col·loca una imatge.",
     "measure": "Mesura",
     "measureDistance": "Mesura distància",
     "distance": "Distància",

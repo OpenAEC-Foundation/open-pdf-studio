@@ -116,6 +116,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"tool-proofread","tab":"comment","labelKey":"ribbon:proofread.button"},
   {"id":"tool-stamp","tab":"comment","labelKey":"ribbon:comment.stamp"},
   {"id":"tool-signature","tab":"comment","labelKey":"ribbon:comment.signature"},
+  {"id":"btn-digital-sign","tab":"comment","labelKey":"ribbon:comment.digitalSign"},
   {"id":"tool-parametric-symbol","tab":"comment","labelKey":"ribbon:comment.parametricSymbol"},
   {"id":"tool-redaction","tab":"comment","labelKey":"ribbon:comment.redact"},
   {"id":"btn-apply-redactions","tab":"comment","labelKey":"ribbon:comment.applyLabel"},

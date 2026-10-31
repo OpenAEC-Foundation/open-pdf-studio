@@ -134,6 +134,8 @@
     "callout": "Bildeforklaring",
     "stamp": "Stempel",
     "signature": "Signatur",
+    "digitalSign": "Digital signatur",
+    "digitalSignTooltip": "Signer dokumentet med et sertifikat (.p12/.pfx). Knappen Underskrift plasserer bare et bilde.",
     "measure": "Mål",
     "measureDistance": "Mål avstand",
     "distance": "Avstand",
