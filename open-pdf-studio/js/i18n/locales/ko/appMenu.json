@@ -123,6 +123,8 @@
     "pdfxNote": "출력 인텐트, TrimBox 및 PDF/X 메타데이터를 추가합니다. CMYK 인쇄 프로필을 사용하면 RGB 색상, 이미지 및 그라데이션이 CMYK로 변환되고 해당 프로필이 출력 인텐트가 됩니다. sRGB를 사용하면 아무것도 변환되지 않습니다. 포함되지 않은 표준 글꼴은 여전히 제한 사항입니다.",
     "exportCad": "CAD 도면(DXF, DWG)",
     "exportCadDesc": "벡터 도면을 도면층, 축척, 영역과 함께 DXF 또는 DWG로 내보내기",
+    "exportIfcx": "IFCX로 내보내기(베타)",
+    "exportIfcxDesc": "시트, 벡터, 텍스트, 이미지, 주석을 IFC5 JSON 파일로",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "편집 가능한 텍스트와 표, 선택적으로 페이지 이미지 포함",

@@ -22,7 +22,13 @@ function isRegular(ch) {
 // offsets. Stringtokens bewaren hun RUWE bytewaarden (na escape-decodering)
 // als array van getallen — de fontcodering bepaalt pas later de betekenis.
 export function tokenizeContentStream(src) {
-  const tokens = [];
+  return Array.from(iterContentTokens(src));
+}
+
+// Dezelfde tokens, één voor één (generator). Voor wie een hele pagina doorloopt
+// zonder alle tokens tegelijk in het geheugen te willen houden (zware
+// CAD-pagina's, ifcx-inhoud.js).
+export function* iterContentTokens(src) {
   const n = src.length;
   let i = 0;
   while (i < n) {
@@ -58,11 +64,11 @@ export function tokenizeContentStream(src) {
         else if (c === ')') { depth--; if (depth > 0) bytes.push(41); i++; }
         else { bytes.push(c.charCodeAt(0)); i++; }
       }
-      tokens.push({ t: 'str', v: bytes, s: start, e: i });
+      yield ({ t: 'str', v: bytes, s: start, e: i });
       continue;
     }
     if (ch === '<') {
-      if (src[i + 1] === '<') { tokens.push({ t: 'dict<<', s: i, e: i + 2 }); i += 2; continue; }
+      if (src[i + 1] === '<') { yield ({ t: 'dict<<', s: i, e: i + 2 }); i += 2; continue; }
       // hex string
       i++;
       let hex = '';
@@ -74,17 +80,17 @@ export function tokenizeContentStream(src) {
       if (hex.length % 2 === 1) hex += '0';
       const bytes = [];
       for (let k = 0; k < hex.length; k += 2) bytes.push(parseInt(hex.slice(k, k + 2), 16) & 0xFF);
-      tokens.push({ t: 'str', v: bytes, s: start, e: i });
+      yield ({ t: 'str', v: bytes, s: start, e: i });
       continue;
     }
     if (ch === '>') {
-      if (src[i + 1] === '>') { tokens.push({ t: 'dict>>', s: i, e: i + 2 }); i += 2; continue; }
+      if (src[i + 1] === '>') { yield ({ t: 'dict>>', s: i, e: i + 2 }); i += 2; continue; }
       i++; continue; // losstaand '>' — ongeldig, overslaan
     }
-    if (ch === '[') { tokens.push({ t: 'arr[', s: i, e: i + 1 }); i++; continue; }
-    if (ch === ']') { tokens.push({ t: 'arr]', s: i, e: i + 1 }); i++; continue; }
-    if (ch === '{') { tokens.push({ t: 'proc{', s: i, e: i + 1 }); i++; continue; }
-    if (ch === '}') { tokens.push({ t: 'proc}', s: i, e: i + 1 }); i++; continue; }
+    if (ch === '[') { yield ({ t: 'arr[', s: i, e: i + 1 }); i++; continue; }
+    if (ch === ']') { yield ({ t: 'arr]', s: i, e: i + 1 }); i++; continue; }
+    if (ch === '{') { yield ({ t: 'proc{', s: i, e: i + 1 }); i++; continue; }
+    if (ch === '}') { yield ({ t: 'proc}', s: i, e: i + 1 }); i++; continue; }
     if (ch === '/') { // naam
       i++;
       let name = '';
@@ -94,7 +100,7 @@ export function tokenizeContentStream(src) {
           i += 3;
         } else { name += src[i]; i++; }
       }
-      tokens.push({ t: 'name', v: name, s: start, e: i });
+      yield ({ t: 'name', v: name, s: start, e: i });
       continue;
     }
     if (/[0-9+\-.]/.test(ch)) { // getal
@@ -102,17 +108,17 @@ export function tokenizeContentStream(src) {
       while (i < n && /[0-9.]/.test(src[i])) i++;
       const raw = src.slice(start, i);
       const num = parseFloat(raw);
-      if (Number.isFinite(num)) { tokens.push({ t: 'num', v: num, s: start, e: i }); continue; }
+      if (Number.isFinite(num)) { yield ({ t: 'num', v: num, s: start, e: i }); continue; }
       // geen geldig getal (bv. losse '-'): als operator-achtig token behandelen
-      tokens.push({ t: 'op', v: raw, s: start, e: i });
+      yield ({ t: 'op', v: raw, s: start, e: i });
       continue;
     }
     // bareword: operator of true/false/null
     i++;
     while (i < n && isRegular(src[i])) i++;
     const word = src.slice(start, i);
-    if (word === 'true' || word === 'false') tokens.push({ t: 'bool', v: word === 'true', s: start, e: i });
-    else if (word === 'null') tokens.push({ t: 'null', v: null, s: start, e: i });
+    if (word === 'true' || word === 'false') yield ({ t: 'bool', v: word === 'true', s: start, e: i });
+    else if (word === 'null') yield ({ t: 'null', v: null, s: start, e: i });
     else if (word === 'BI') {
       // Inline image: dict-tokens tot 'ID', daarna binaire data tot 'EI'.
       // De binaire data mag niet door de tokenizer — zoek het einde ruw op.
@@ -133,12 +139,11 @@ export function tokenizeContentStream(src) {
         }
         j++;
       }
-      tokens.push({ t: 'op', v: 'BI..EI', s: start, e: j });
+      yield ({ t: 'op', v: 'BI..EI', s: start, e: j });
       i = j;
     }
-    else tokens.push({ t: 'op', v: word, s: start, e: i });
+    else yield ({ t: 'op', v: word, s: start, e: i });
   }
-  return tokens;
 }
 
 // ── Matrix-hulpen (rij-vector-conventie: punt · M) ──

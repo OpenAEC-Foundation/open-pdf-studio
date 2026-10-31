@@ -123,6 +123,8 @@
     "pdfxNote": "Kimeneti szándékot, TrimBoxot és PDF/X metaadatokat ad hozzá. CMYK nyomtatási profillal az RGB színek, képek és színátmenetek CMYK-ra konvertálódnak, és ez a profil lesz a kimeneti szándék; sRGB esetén semmi sem konvertálódik. A be nem ágyazott szabványos betűtípusok továbbra is korlátot jelentenek.",
     "exportCad": "CAD-rajz (DXF, DWG)",
     "exportCadDesc": "A vektoros rajz exportálása DXF vagy DWG formátumba rétegekkel, méretaránnyal és területtel",
+    "exportIfcx": "Exportálás IFCX formátumba (béta)",
+    "exportIfcxDesc": "Lapok, vektorok, szöveg, képek és megjegyzések IFC5 JSON-fájlba",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Szerkeszthető szöveg és táblázatok, opcionális oldalképekkel",

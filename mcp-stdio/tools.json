@@ -33,7 +33,7 @@
       "additionalProperties": false,
       "properties": {
         "scale": {
-          "maximum": 32.0,
+          "maximum": 32,
           "minimum": 0.05,
           "type": "number"
         }
@@ -2946,6 +2946,49 @@
       "type": "object"
     },
     "name": "app_export_cad"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Export to IFCX (beta)"
+    },
+    "description": "Convert pages of the current document to an IFCX file (beta; the JSON-based IFC5 format, alpha schema) without opening the export dialog. It writes one sheet node per page with the page size, label, rotation and measurement scale, the vector paths, text runs and embedded images on their own layers, and the annotations of the app on a separate layer (drafting components keep their IFC class). Page content comes from the last saved state of the PDF; annotations are current. A page with more paths than the limit keeps the first ones and the answer warns about the rest. Replaces an existing file at `path`.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "annotations": {
+          "description": "Include the annotations on their own layer (default true).",
+          "type": "boolean"
+        },
+        "maxPathsPerPage": {
+          "description": "Limit of paths per page (default 50000); the rest of a heavier page is left out with a warning.",
+          "type": "integer"
+        },
+        "pages": {
+          "description": "\"all\" (default), \"current\" or a range like \"1-3,5\".",
+          "type": "string"
+        },
+        "path": {
+          "description": "Absolute path of the target file (.ifcx).",
+          "type": "string"
+        },
+        "raster": {
+          "description": "Include embedded images (default true).",
+          "type": "boolean"
+        },
+        "text": {
+          "description": "Include the text runs of the pages (default true).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "app_export_ifcx"
   },
   {
     "annotations": {

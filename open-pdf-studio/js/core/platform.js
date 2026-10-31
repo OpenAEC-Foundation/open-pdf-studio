@@ -491,6 +491,7 @@ export async function writeBinaryFile(path, data) {
       pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg',
       jpeg: 'image/jpeg', csv: 'text/csv', xfdf: 'application/xml',
       xml: 'application/xml',
+      ifcx: 'application/json',
       odt: 'application/vnd.oasis.opendocument.text',
       xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     };

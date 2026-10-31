@@ -49,6 +49,7 @@ import TitleBlockDialog from './dialogs/TitleBlockDialog.jsx';
 import CompareDialog from './compare/CompareDialog.jsx';
 import CadExportDialog from './dialogs/CadExportDialog.jsx';
 import CadImportDialog from './dialogs/CadImportDialog.jsx';
+import IfcxExportDialog from './dialogs/IfcxExportDialog.jsx';
 import AnnotationLayerDeleteDialog from './dialogs/AnnotationLayerDeleteDialog.jsx';
 import FlattenAllDialog from './dialogs/FlattenAllDialog.jsx';
 import { ToolSetImportDialog, ToolSetConfirmDialog } from './dialogs/ToolSetsDialogs.jsx';
@@ -143,6 +144,7 @@ const DIALOG_MAP = {
   'compare': CompareDialog,
   'cad-export': CadExportDialog,
   'cad-import': CadImportDialog,
+  'ifcx-export': IfcxExportDialog,
   'annotation-layer-delete': AnnotationLayerDeleteDialog,
   'flatten-all': FlattenAllDialog,
   'pdf-password': PasswordDialog,

@@ -47,12 +47,12 @@ test('Rust: lijst, dispatch, metatabel en de telling van het publieke profiel', 
     assert.match(rs, new RegExp(`"${naam}"\\s+=> tool_app_request\\(state, "${gebeurtenis}",\\s+&arguments, Duration::from_secs\\(${seconden}\\)\\)`));
     assert.match(meta, new RegExp(`${soort}\\("${naam}", "[^"]+"\\)`));
   }
-  assert.match(rs, /assert_eq!\(arr\.len\(\), 89\);/);
-  assert.match(lees('../../../mcp-stdio/brug.test.mjs'), /assert\.equal\(lijst\.length, 89\);/);
+  assert.match(rs, /assert_eq!\(arr\.len\(\), 90\);/);
+  assert.match(lees('../../../mcp-stdio/brug.test.mjs'), /assert\.equal\(lijst\.length, 90\);/);
   // De README noemt dezelfde telling (twee keer).
   const leesmij = lees('../../../mcp-stdio/README.md');
-  assert.match(leesmij, /\(89 public tools:/);
-  assert.match(leesmij, /OK — 89 tools available/);
+  assert.match(leesmij, /\(90 public tools:/);
+  assert.match(leesmij, /OK — 90 tools available/);
   assert.doesNotMatch(leesmij, /\b62 (public )?tools\b/);
   assert.match(rs, /Extension actions appear as 'ext:<extensionId>:<itemId>'\./);
 });
