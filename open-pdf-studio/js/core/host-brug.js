@@ -17,7 +17,10 @@
 //  - Antwoord: { werkplek: 1, antwoord: <id>, ok: true,  waarde: … }
 //              { werkplek: 1, antwoord: <id>, ok: false, fout: '<melding>'[, code] }
 //  - Handdruk: elke 250 ms soort "hallo" tot de gastpagina antwoordt (die mag
-//    later laden dan het iframe); na 60 s opgeven.
+//    later laden dan het iframe); na 60 s opgeven. Het antwoord mag
+//    `waarde: { soorten: [...] }` meegeven: de optionele soorten die de
+//    gastpagina kent. Alleen met "opslaan_als" daarin krijgt het contract
+//    storage.saveAs (#726); anders blijft Opslaan als een download.
 //  - Soorten:
 //      open { bestand, versie? }   -> { bestand, naam, versie, alleen_lezen, bytes }
 //                                     (bytes: overgedragen ArrayBuffer); met
@@ -27,7 +30,17 @@
 //                                     versie_alleen_lezen; een ongeldig
 //                                     nummer geeft versie_ongeldig.
 //      opslaan { bestand, bytes }  -> { bestand, naam, versie, conflict, melding, vergrendeld }
-//      lijst {}                    -> [{ id, name, modified }]
+//      lijst { map? }              -> [{ id, name, modified, soort?, schrijfbaar? }]
+//                                     soort "map" is een map (#726); zonder
+//                                     `map` de map van het geopende document
+//      opslaan_als { naam, map?, bytes } (optioneel, #726)
+//                                  -> { bestand, naam, versie, hernoemd }
+//                                     een NIEUW bestand (alleen .pdf); bestaat
+//                                     de naam al, dan een kopie met een andere
+//                                     naam en hernoemd: true, nooit
+//                                     overschrijven. Weigeren met een `code`:
+//                                     alleen_lezen, ongeldige_naam, te_groot,
+//                                     quotum (of de Engelse namen uit #726).
 //      versies { bestand }         -> [{ version, modified, author }]
 //      geopend { bestand }         -> true (ter informatie)
 //      melding { tekst, toon }     -> true (de gastpagina toont hem)
@@ -206,12 +219,46 @@ const standaardTekst = (sleutel, opties) => STANDAARD_TEKSTEN[sleutel] || opties
 
 const tekst = (v) => (v === undefined || v === null ? undefined : String(v));
 
-/** Een lijst van de gastpagina in de vorm van het contract ({ id, name, modified }). */
+const MAP_SOORTEN = new Set(['map', 'folder', 'directory']);
+
+/**
+ * Een lijst van de gastpagina in de vorm van het contract ({ id, name,
+ * modified, kind?, writable? }); `soort: "map"` wordt kind 'folder' (#726).
+ */
 function normaliseerLijst(waarde) {
   if (!Array.isArray(waarde)) return [];
   return waarde
     .filter((d) => d && typeof d === 'object' && d.id !== undefined && d.id !== null)
-    .map((d) => ({ ...d, id: String(d.id), name: tekst(d.name ?? d.naam) }));
+    .map((d) => {
+      const item = { ...d, id: String(d.id), name: tekst(d.name ?? d.naam) };
+      const soort = tekst(d.kind ?? d.soort);
+      if (soort !== undefined) item.kind = MAP_SOORTEN.has(soort.toLowerCase()) ? 'folder' : 'file';
+      const schrijfbaar = d.writable ?? d.schrijfbaar;
+      if (typeof schrijfbaar === 'boolean') item.writable = schrijfbaar;
+      return item;
+    });
+}
+
+/** Het antwoord op `opslaan_als` in de vorm van het contract ({ id, name, version, renamed }). */
+export function normaliseerOpslaanAlsAntwoord(waarde, gevraagd) {
+  const w = waarde && typeof waarde === 'object' ? waarde : {};
+  const id = w.bestand ?? w.id;
+  if (id === undefined || id === null || String(id) === '') {
+    throw new BrugFout('antwoord', 'The host page returned no id for the new file');
+  }
+  const name = tekst(w.naam ?? w.name) || String(gevraagd ?? '');
+  return {
+    id: String(id),
+    name,
+    version: w.versie ?? w.version ?? null,
+    renamed: w.hernoemd === true || w.renamed === true || (!!gevraagd && name !== gevraagd),
+  };
+}
+
+/** De optionele soorten uit het antwoord op hallo. */
+function soortenUit(waarde) {
+  const lijst = waarde && typeof waarde === 'object' ? waarde.soorten : null;
+  return new Set(Array.isArray(lijst) ? lijst.filter((s) => typeof s === 'string') : []);
 }
 
 /** Versies van de gastpagina in de vorm van het contract ({ version, modified, author }). */
@@ -287,6 +334,7 @@ export function maakHostBrug({
   const verzoekTimeout = limieten.verzoek ?? VERZOEK_TIMEOUT_MS;
 
   let volgendId = 1;
+  let soorten = new Set(); // optionele soorten van de gastpagina (uit hallo)
   const wachtend = new Map(); // id -> { klaar, mis, timer }
   const halloIds = new Set();
   let toestand = 'nieuw'; // nieuw | wacht | verbonden | opgegeven | gestopt
@@ -345,6 +393,9 @@ export function maakHostBrug({
       if (data.ok === true) {
         toestand = 'verbonden';
         stopHanddruk();
+        // Wat de gastpagina optioneel kent; pas dan bestaat de aanroep (#726).
+        soorten = soortenUit(data.waarde);
+        if (soorten.has('opslaan_als')) opslag.saveAs = opslaanAls;
         verbindingKlaar();
       } else {
         geefOp(new BrugFout('geweigerd', typeof data.fout === 'string' ? data.fout : 'The host refused the connection'));
@@ -459,13 +510,30 @@ export function maakHostBrug({
       }
       return uitkomst;
     },
-    async list() {
-      return normaliseerLijst(await verzoek('lijst', {}));
+    /** Zonder `map` de map van het geopende document; met `map` die map (#726). */
+    async list(map = undefined) {
+      const velden = map === undefined || map === null || map === '' ? {} : { map: String(map) };
+      return normaliseerLijst(await verzoek('lijst', velden));
     },
     async versions(bestand) {
       return normaliseerVersies(await verzoek('versies', { bestand: String(bestand) }));
     },
   };
+
+  /**
+   * Een nieuw bestand op de site (#726). Alleen als de gastpagina
+   * "opslaan_als" in de handdruk noemde, staat dit als storage.saveAs in het
+   * contract. Een weigering draagt de `code` van de gastpagina als hostCode.
+   * @returns {Promise<{ id: string, name: string, version: unknown, renamed: boolean }>}
+   */
+  async function opslaanAls(bytes, { name, folder } = {}) {
+    const naam = String(name ?? '').trim();
+    if (!naam) throw new BrugFout('antwoord', 'The new file has no name', 'ongeldige_naam');
+    const buffer = eigenBuffer(bytes);
+    const velden = { naam, bytes: buffer };
+    if (folder !== undefined && folder !== null && folder !== '') velden.map = String(folder);
+    return normaliseerOpslaanAlsAntwoord(await verzoek('opslaan_als', velden, [buffer]), naam);
+  }
 
   /** De app meldt het document dat open staat (alleen ter informatie). */
   async function geopend(bestand) {
@@ -510,6 +578,8 @@ export function maakHostBrug({
     ai,
     /** Belofte die vervult zodra de gastpagina de handdruk beantwoordt. */
     verbinding,
+    /** Kent de gastpagina deze optionele soort (uit het antwoord op hallo)? */
+    kent(soort) { return soorten.has(soort); },
     get toestand() { return toestand; },
   };
 }

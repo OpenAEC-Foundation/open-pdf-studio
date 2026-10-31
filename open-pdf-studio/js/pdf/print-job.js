@@ -5,7 +5,7 @@
 import { PDFDocument } from 'pdf-lib';
 import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
-import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile } from '../core/platform.js';
+import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile, opgeslagenPad, leesHostPad, extractFileName } from '../core/platform.js';
 import { meldingTekst } from '../core/webfuncties.js';
 import { renderPageOffscreen, renderMarkeringenOffscreen, canvasToBytes } from './exporter.js';
 import { getCachedPdfBytes } from './loader.js';
@@ -242,10 +242,13 @@ export async function slaPrintOpAlsPdf({
       return { ok: false, afgebroken: true };
     }
     await writeBinaryFile(pad, await pdf.save());
+    // Een nieuw bestand op de site (#726): openen en tonen als dat bestand.
+    const doelPad = opgeslagenPad(pad);
+    const getoond = leesHostPad(doelPad) ? extractFileName(doelPad) : doelPad;
     finishPrintProgress(
-      i18next.t(gerasterd ? 'dialogs:print.progress.savedAsImages' : 'dialogs:print.progress.savedTo', { path: pad }),
+      i18next.t(gerasterd ? 'dialogs:print.progress.savedAsImages' : 'dialogs:print.progress.savedTo', { path: getoond }),
       {
-        actie: openen ? { label: i18next.t('common:open'), uitvoeren: () => openen(pad) } : null,
+        actie: openen ? { label: i18next.t('common:open'), uitvoeren: () => openen(doelPad) } : null,
         duur: 9000,
       },
     );

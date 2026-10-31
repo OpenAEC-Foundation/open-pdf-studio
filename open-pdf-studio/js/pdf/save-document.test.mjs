@@ -78,6 +78,8 @@ function harness() {
     meldOpgeslagen: doc => opgeslagenGemeld.push(doc),
     console: { error() {}, warn() {} },
     saveFileDialog: async () => 'copy.pdf',
+    // Opslaan als op de gastsite (#726): hier geen site.
+    hostKanOpslaanAls: () => false, leesHostNieuwPad: () => null, leesHostPad: () => null,
     // Het slot tegen een extensiewissel (#550): standaard loopt er geen.
     metOpslagSlot: async fn => fn(),
     loadModule: async path => {
