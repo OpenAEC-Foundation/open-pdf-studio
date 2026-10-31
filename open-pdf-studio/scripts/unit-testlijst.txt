@@ -203,6 +203,8 @@ js/annotations/schaal-op-punt.test.mjs
 js/pdf/cad-export.test.mjs
 js/pdf/cad-export-i18n.test.mjs
 js/pdf/cad-export-opdracht.test.mjs
+js/pdf/ifcx-export.test.mjs
+js/pdf/ifcx-export-i18n.test.mjs
 js/pdf/cad-import.test.mjs
 js/pdf/cad-import-i18n.test.mjs
 js/pdf/cad-mcp-opdracht.test.mjs

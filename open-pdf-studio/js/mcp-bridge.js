@@ -3436,6 +3436,45 @@ async function handleExportCad(params) {
 }
 
 
+// ─── IFCX-export zonder venster (issue #876, beta) ────────────────────────
+// De regels staan in pdf/ifcx-opdracht.js; het werk doet dezelfde functie
+// als het exportvenster (pdf/ifcx-export.js).
+
+let ifcxExportBezig = false;
+
+async function handleExportIfcx(params) {
+  const opdrachtMod = await import('./pdf/ifcx-opdracht.js');
+  const opdracht = opdrachtMod.leesIfcxOpdracht(params);
+  if (!opdracht.ok) return opdracht;
+  const pad = opdracht.pad;
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no document open', file_path: pad };
+  if (ifcxExportBezig) return { ok: false, error: 'another IFCX export is still running', file_path: pad };
+  const { parsePageRange } = await import('./pdf/exporter.js');
+  const totaal = doc.pdfDoc.numPages;
+  const lijst = opdracht.paginas === 'current' ? [doc.currentPage || 1]
+    : opdracht.paginas === 'all' ? Array.from({ length: totaal }, (_, i) => i + 1)
+    : parsePageRange(opdracht.paginas, totaal);
+  if (!lijst.length) return { ok: false, error: `params.pages "${opdracht.paginas}" selects no page of ${totaal}`, file_path: pad };
+  const waarschuwingen = [];
+  if (doc.modified) waarschuwingen.push('the document has unsaved changes; page content comes from the last saved state, annotations are current');
+  ifcxExportBezig = true;
+  try {
+    const { exporteerIfcx } = await import('./pdf/ifcx-export.js');
+    const r = await exporteerIfcx(doc, { pad, paginas: lijst, opties: opdracht.opties });
+    if (!r.ok) {
+      const tekst = r.code === 'noBytes' ? 'the PDF data of this document is not available; save it first' : (r.error || r.code);
+      return { ok: false, error: `IFCX export failed: ${tekst}`, code: r.code, file_path: pad };
+    }
+    return opdrachtMod.ifcxUitkomst(opdracht, r, waarschuwingen);
+  } catch (e) {
+    return { ok: false, error: `IFCX export failed: ${String(e?.message ?? e)}`, code: 'failed', file_path: pad };
+  } finally {
+    ifcxExportBezig = false;
+  }
+}
+
 // ─── Afdrukken zonder printvenster ────────────────────────────────────────
 // De regels (argumenten controleren, de keuzes van het venster, het antwoord)
 // staan in pdf/print-opdracht.js; hier alleen het werk zelf, met dezelfde
@@ -3858,6 +3897,7 @@ const HANDLERS = {
   // CAD-import zonder venster
   'mcp:import-cad':         handleImportCad,
   'mcp:export-cad':         handleExportCad,
+  'mcp:export-ifcx':        handleExportIfcx,
   // Afdrukken zonder printvenster
   'mcp:print-to-pdf':       handlePrintToPdf,
   'mcp:print':              handlePrint,

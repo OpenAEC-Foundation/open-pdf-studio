@@ -123,6 +123,8 @@
     "pdfxNote": "Lisää tulostusprofiilin (output intent), TrimBoxin ja PDF/X-metatiedot. Kun käytössä on CMYK-painoprofiili, RGB-värit, kuvat ja liukuvärit muunnetaan CMYK-muotoon ja kyseisestä profiilista tulee tulostusprofiili; sRGB:tä käytettäessä mitään ei muunneta. Upottamattomat vakiokirjasimet ovat edelleen rajoitus.",
     "exportCad": "CAD-piirustus (DXF, DWG)",
     "exportCadDesc": "Vie vektoripiirustus DXF- tai DWG-muotoon tasoineen, mittakaavoineen ja alueineen",
+    "exportIfcx": "Vie IFCX-muotoon (beta)",
+    "exportIfcxDesc": "Arkit, vektorit, teksti, kuvat ja merkinnät IFC5-JSON-tiedostoon",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Muokattava teksti ja taulukot sekä valinnaiset sivukuvat",

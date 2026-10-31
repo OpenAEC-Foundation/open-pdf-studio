@@ -308,6 +308,10 @@
       "description": "Export pages of the current document to DXF or DWG, without opening the export dialog."
     },
     {
+      "name": "app_export_ifcx",
+      "description": "Convert pages of the current document to an IFCX file (beta; the JSON-based IFC5 format, alpha schema) without opening the export dialog."
+    },
+    {
       "name": "app_print_to_pdf",
       "description": "Print the current document to a PDF file, without opening the print dialog."
     },

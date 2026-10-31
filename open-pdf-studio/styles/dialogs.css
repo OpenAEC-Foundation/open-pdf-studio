@@ -6149,3 +6149,27 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   flex-shrink: 0;
   color: var(--theme-text-secondary, #666);
 }
+
+/* Export to IFCX (Beta, #876) */
+.ifcx-export-dialog { width: 460px; }
+
+.ifcx-export-beta,
+.ifcx-export-note {
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+  padding: 4px 6px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface-alt, #f5f5f5);
+}
+
+.ifcx-export-status {
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  user-select: text;
+}
+
+.ifcx-export-warning {
+  font-size: 11px;
+  color: #a4262c;
+  user-select: text;
+}

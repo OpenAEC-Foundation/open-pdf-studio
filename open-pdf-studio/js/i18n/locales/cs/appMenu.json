@@ -123,6 +123,8 @@
     "pdfxNote": "Přidá výstupní záměr, TrimBox a metadata PDF/X. S tiskovým profilem CMYK se barvy RGB, obrázky a přechody převedou do CMYK a tento profil se stane výstupním záměrem; při použití sRGB se nic nepřevádí. Omezením zůstávají nevložená standardní písma.",
     "exportCad": "Výkres CAD (DXF, DWG)",
     "exportCadDesc": "Exportovat vektorový výkres do DXF nebo DWG s hladinami, měřítkem a oblastí",
+    "exportIfcx": "Exportovat do IFCX (beta)",
+    "exportIfcxDesc": "Listy, vektory, text, obrázky a poznámky do souboru JSON IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Upravitelný text a tabulky s volitelnými obrázky stránek",

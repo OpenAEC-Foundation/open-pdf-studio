@@ -123,6 +123,8 @@
     "pdfxNote": "מוסיף כוונת פלט, TrimBox ומטא-נתוני PDF/X. עם פרופיל הדפסה CMYK, צבעי RGB, תמונות ומעברי צבע מומרים ל-CMYK והפרופיל הזה הופך לכוונת הפלט; עם sRGB דבר אינו מומר. גופנים סטנדרטיים שאינם מוטבעים נותרים מגבלה.",
     "exportCad": "שרטוט CAD (DXF, DWG)",
     "exportCadDesc": "ייצוא השרטוט הווקטורי ל-DXF או ל-DWG עם שכבות, קנה מידה ואזור",
+    "exportIfcx": "ייצוא ל-IFCX (בטא)",
+    "exportIfcxDesc": "גיליונות, וקטורים, טקסט, תמונות והערות לקובץ JSON בתקן IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "טקסט וטבלאות הניתנים לעריכה עם תמונות עמודים אופציונליות",
