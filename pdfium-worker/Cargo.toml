@@ -13,3 +13,8 @@ memmap2 = "0.9"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 anyhow = "1"
+# Render-only /BBox for tiny mesh shadings (#395, src/mesh_bbox.rs). Same
+# lopdf line as the app crate; no rayon/chrono needed in the sidecar.
+lopdf = { version = "0.34", default-features = false, features = ["nom_parser"] }
+flate2 = "1"
+memchr = "2"

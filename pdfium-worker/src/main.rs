@@ -4,6 +4,7 @@
 // pattern in open-pdf-studio/src-tauri/src/main.rs.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod mesh_bbox;
 mod protocol;
 mod render;
 mod shm;
