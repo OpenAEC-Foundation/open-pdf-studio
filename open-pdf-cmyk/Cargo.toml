@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-cmyk"
-version = "2026.44.4"
+version = "2026.44.34"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "Converts the RGB colour of a PDF to CMYK through an ICC printing profile (PDF/X export)"
