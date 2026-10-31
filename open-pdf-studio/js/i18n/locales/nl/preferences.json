@@ -32,7 +32,10 @@
     "aiLinkActive": "Actief op {{adres}}",
     "aiLinkViaFlag": "Actief via startvlag ({{adres}})",
     "aiLinkOff": "Uit",
-    "aiLinkError": "Niet gestart: {{fout}}"
+    "aiLinkError": "Niet gestart: {{fout}}",
+    "saving": "Opslaan",
+    "incrementalSave": "Annotatie- en formulierwijzigingen incrementeel opslaan (experimenteel)",
+    "incrementalSaveHint": "Voegt de wijzigingen achter aan het bestand toe in plaats van het te herschrijven. Eerdere versies blijven uit het bestand terug te halen. Redactie, het verwijderen van verborgen informatie en andere wijzigingen worden altijd volledig herschreven."
   },
   "annotations": {
     "generalDefaults": "Algemene standaardwaarden",

@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktívne na {{adres}}",
     "aiLinkViaFlag": "Aktívne cez spúšťací parameter ({{adres}})",
     "aiLinkOff": "Vypnuté",
-    "aiLinkError": "Nespustené: {{fout}}"
+    "aiLinkError": "Nespustené: {{fout}}",
+    "saving": "Ukladanie",
+    "incrementalSave": "Ukladať zmeny poznámok a formulárov prírastkovo (experimentálne)",
+    "incrementalSaveHint": "Pripojí zmeny na koniec súboru namiesto jeho prepísania. Staršie verzie zostávajú zo súboru obnoviteľné. Začiernenie, odstránenie skrytých informácií a ďalšie zmeny sa vždy ukladajú úplným prepísaním."
   },
   "annotations": {
     "generalDefaults": "Všeobecné predvolené nastavenia",

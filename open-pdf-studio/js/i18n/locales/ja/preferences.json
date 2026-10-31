@@ -32,7 +32,10 @@
     "aiLinkActive": "{{adres}} で有効",
     "aiLinkViaFlag": "起動オプションで有効（{{adres}}）",
     "aiLinkOff": "オフ",
-    "aiLinkError": "開始できません：{{fout}}"
+    "aiLinkError": "開始できません：{{fout}}",
+    "saving": "保存",
+    "incrementalSave": "注釈とフォームの変更を増分保存する（試験的）",
+    "incrementalSaveHint": "ファイルを書き直す代わりに、変更をファイルの末尾に追加します。以前のバージョンはファイルから復元可能なまま残ります。墨消し、非表示情報の削除、その他の変更は常にファイル全体を書き直して保存します。"
   },
   "annotations": {
     "generalDefaults": "全般の既定値",

@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktív: {{adres}}",
     "aiLinkViaFlag": "Aktív indítási kapcsolóval ({{adres}})",
     "aiLinkOff": "Ki",
-    "aiLinkError": "Nem indult el: {{fout}}"
+    "aiLinkError": "Nem indult el: {{fout}}",
+    "saving": "Mentés",
+    "incrementalSave": "Megjegyzés- és űrlapmódosítások növekményes mentése (kísérleti)",
+    "incrementalSaveHint": "A módosításokat a fájl végéhez fűzi ahelyett, hogy újraírná. A korábbi verziók továbbra is visszaállíthatók a fájlból. A kitakarás, a rejtett információk eltávolítása és az egyéb módosítások mindig teljes újraírással mentődnek."
   },
   "annotations": {
     "generalDefaults": "Általános alapértelmezések",

@@ -32,7 +32,10 @@
     "aiLinkActive": "已在 {{adres}} 运行",
     "aiLinkViaFlag": "通过启动参数运行（{{adres}}）",
     "aiLinkOff": "关闭",
-    "aiLinkError": "未启动：{{fout}}"
+    "aiLinkError": "未启动：{{fout}}",
+    "saving": "保存",
+    "incrementalSave": "以增量方式保存注释和表单更改（实验性）",
+    "incrementalSaveHint": "将更改追加到文件末尾，而不是重写整个文件。早期版本仍可从文件中恢复。涂黑、删除隐藏信息及其他更改始终通过完整重写保存。"
   },
   "annotations": {
     "generalDefaults": "常规默认值",

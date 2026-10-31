@@ -32,7 +32,10 @@
     "aiLinkActive": "Inatumika kwenye {{adres}}",
     "aiLinkViaFlag": "Inatumika kupitia kigezo cha kuanza ({{adres}})",
     "aiLinkOff": "Imezimwa",
-    "aiLinkError": "Haijaanzishwa: {{fout}}"
+    "aiLinkError": "Haijaanzishwa: {{fout}}",
+    "saving": "Kuhifadhi",
+    "incrementalSave": "Hifadhi mabadiliko ya maelezo na fomu kwa nyongeza (majaribio)",
+    "incrementalSaveHint": "Huongeza mabadiliko mwishoni mwa faili badala ya kuliandika upya. Matoleo ya awali yanabaki kurejesheka kutoka kwenye faili. Kufuta maandishi (redaction), kuondoa taarifa zilizofichwa na mabadiliko mengine huhifadhiwa kila mara kwa kuandika upya kikamilifu."
   },
   "annotations": {
     "generalDefaults": "Chaguo-msingi za Jumla",

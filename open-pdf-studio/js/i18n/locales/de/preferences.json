@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktiv auf {{adres}}",
     "aiLinkViaFlag": "Aktiv über Startparameter ({{adres}})",
     "aiLinkOff": "Aus",
-    "aiLinkError": "Nicht gestartet: {{fout}}"
+    "aiLinkError": "Nicht gestartet: {{fout}}",
+    "saving": "Speichern",
+    "incrementalSave": "Anmerkungs- und Formularänderungen inkrementell speichern (experimentell)",
+    "incrementalSaveHint": "Hängt die Änderungen an das Dateiende an, statt die Datei neu zu schreiben. Frühere Versionen bleiben aus der Datei wiederherstellbar. Schwärzen, das Entfernen verborgener Informationen und andere Änderungen werden immer vollständig neu geschrieben."
   },
   "annotations": {
     "generalDefaults": "Allgemeine Standardwerte",

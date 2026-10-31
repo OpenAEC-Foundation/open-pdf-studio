@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktywne na {{adres}}",
     "aiLinkViaFlag": "Aktywne przez parametr uruchomienia ({{adres}})",
     "aiLinkOff": "Wyłączone",
-    "aiLinkError": "Nie uruchomiono: {{fout}}"
+    "aiLinkError": "Nie uruchomiono: {{fout}}",
+    "saving": "Zapisywanie",
+    "incrementalSave": "Zapisuj zmiany adnotacji i formularzy przyrostowo (eksperymentalne)",
+    "incrementalSaveHint": "Dopisuje zmiany na końcu pliku zamiast przepisywać go od nowa. Wcześniejsze wersje nadal można odzyskać z pliku. Redakcja, usuwanie ukrytych informacji i inne zmiany są zawsze zapisywane przez pełne przepisanie pliku."
   },
   "annotations": {
     "generalDefaults": "Ogólne ustawienia domyślne",

@@ -32,7 +32,10 @@
     "aiLinkActive": "Activă pe {{adres}}",
     "aiLinkViaFlag": "Activă prin parametru de pornire ({{adres}})",
     "aiLinkOff": "Oprită",
-    "aiLinkError": "Nepornită: {{fout}}"
+    "aiLinkError": "Nepornită: {{fout}}",
+    "saving": "Salvare",
+    "incrementalSave": "Salvează incremental modificările adnotărilor și formularelor (experimental)",
+    "incrementalSaveHint": "Adaugă modificările la sfârșitul fișierului în loc să-l rescrie. Versiunile anterioare rămân recuperabile din fișier. Redactarea, eliminarea informațiilor ascunse și alte modificări sunt salvate întotdeauna prin rescriere completă."
   },
   "annotations": {
     "generalDefaults": "Valori implicite generale",

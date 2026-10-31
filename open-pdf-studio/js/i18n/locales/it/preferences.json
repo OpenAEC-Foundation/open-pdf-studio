@@ -32,7 +32,10 @@
     "aiLinkActive": "Attivo su {{adres}}",
     "aiLinkViaFlag": "Attivo tramite parametro di avvio ({{adres}})",
     "aiLinkOff": "Disattivato",
-    "aiLinkError": "Non avviato: {{fout}}"
+    "aiLinkError": "Non avviato: {{fout}}",
+    "saving": "Salvataggio",
+    "incrementalSave": "Salva in modo incrementale le modifiche ad annotazioni e moduli (sperimentale)",
+    "incrementalSaveHint": "Aggiunge le modifiche alla fine del file invece di riscriverlo. Le versioni precedenti restano recuperabili dal file. Redazione, rimozione di informazioni nascoste e altre modifiche vengono sempre salvate riscrivendo l'intero file."
   },
   "annotations": {
     "generalDefaults": "Predefiniti generali",

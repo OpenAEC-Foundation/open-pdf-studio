@@ -16,6 +16,7 @@ import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from '.
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
 import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
+import { bereidIncrementeelVoor, bouwIncrementeleUpdate, vereistVolledigeHerschrijving, herstelOngewijzigdeOutline } from './saver/incrementeel.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
@@ -416,9 +417,18 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       existingPdfBytes = await annulering.wacht(readBinaryFile(currentPath));
     }
 
+    // Incrementeel opslaan (#679, voorkeur, standaard uit): alleen voor een
+    // echte save. pdf-lib werkt de documentgegevens dan pas bij ná de
+    // momentopname van de objecten (bereidIncrementeelVoor), zodat /Info
+    // onder de wijzigingen valt; het resultaat is verder hetzelfde.
+    const incrementeelGevraagd = !momentopname && !alleenAnnotaties
+      && state.preferences?.incrementalSave === true;
     const pdfDocLib = momentopname
       ? await PDFDocument.load(existingPdfBytes, { parseSpeed: MOMENTOPNAME_OBJECTEN_PER_TIK })
-      : await annulering.wacht(PDFDocument.load(existingPdfBytes));
+      : await annulering.wacht(PDFDocument.load(existingPdfBytes, incrementeelGevraagd ? { updateMetadata: false } : undefined));
+    const incrementeelPlan = incrementeelGevraagd
+      ? bereidIncrementeelVoor(existingPdfBytes, pdfDocLib, { vereistVolledig: vereistVolledigeHerschrijving(activeDoc) })
+      : null;
     // Een voorbeeld van het importvenster kan inhoud missen en wordt nooit
     // als document opgeslagen (#400).
     {
@@ -3307,8 +3317,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       await annulering.punt();
       watermerkUitkomst = await saveWatermarksToPages(pdfDocLib, pages, activeDoc, { annulering });
 
-      // Save bookmarks to PDF outline
+      // Save bookmarks to PDF outline. Incrementeel (#679): een outline die
+      // inhoudelijk gelijk bleef, houdt haar oude objecten.
+      const oudeOutline = incrementeelPlan && !incrementeelPlan.weigering
+        ? pdfDocLib.catalog.get(PDFName.of('Outlines')) : null;
       saveBookmarksToOutline(pdfDocLib, activeDoc);
+      if (oudeOutline) herstelOngewijzigdeOutline(pdfDocLib, oudeOutline);
 
       // Save named line-style presets into the catalog (travel with the PDF)
       saveStylePresetsToCatalog(pdfDocLib, activeDoc.stylePresets || null);
@@ -3359,8 +3373,28 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     await annulering.punt();
     pdfDocLib.formCache.getValue()?.updateFieldAppearances();
     await annulering.wacht(pdfDocLib.flush());
+
+    // Incrementeel (#679): alleen de gewijzigde en nieuwe objecten achter de
+    // bronbytes. Elke weigering (versleuteld, xref klopt niet, inhoud of
+    // structuur gewijzigd, redactie, DocMDP, ...) valt terug op het gewone
+    // herschrijven hieronder; dat is altijd het veilige pad.
+    let incrementeleBytes = null;
+    if (incrementeelPlan) {
+      const uitkomst = bouwIncrementeleUpdate(incrementeelPlan, pdfDocLib);
+      if (uitkomst.bytes) {
+        incrementeleBytes = uitkomst.bytes;
+        activeDoc.laatsteOpslagWijze = { wijze: 'incrementeel', objecten: uitkomst.objecten };
+        console.info(`[saver] incrementeel opgeslagen: ${uitkomst.objecten} objecten (${uitkomst.nieuw} nieuw, ${uitkomst.gewijzigd} gewijzigd)`);
+      } else {
+        activeDoc.laatsteOpslagWijze = { wijze: 'volledig', reden: uitkomst.weigering?.reden, detail: uitkomst.weigering?.detail };
+        console.info(`[saver] volledig herschreven: ${uitkomst.weigering?.message}`);
+      }
+    } else if (activeDoc) {
+      activeDoc.laatsteOpslagWijze = { wijze: 'volledig', reden: 'uitgeschakeld' };
+    }
+
     // Per partij objecten een veilig punt (#766).
-    await ruimOngebruikteObjectenOpMetPauzes(pdfDocLib, { nieuwVanaf: eersteNieuwObject, annulering });
+    if (!incrementeleBytes) await ruimOngebruikteObjectenOpMetPauzes(pdfDocLib, { nieuwVanaf: eersteNieuwObject, annulering });
 
     // Herstelmomentopname: alleen de bytes; niets wegschrijven of bijwerken.
     if (momentopname) {
@@ -3369,8 +3403,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // Save the PDF. pdf-lib serialiseert in partijen en laat zich niet
     // onderbreken: bij annuleren stopt de save meteen en wordt de uitkomst
-    // van pdf-lib genegeerd.
-    const pdfBytes = await annulering.wacht(pdfDocLib.save({ updateFieldAppearances: false }));
+    // van pdf-lib genegeerd. Incrementeel (#679) zijn de bytes al klaar.
+    const pdfBytes = incrementeleBytes || await annulering.wacht(pdfDocLib.save({ updateFieldAppearances: false }));
     const outputPath = saveAsPath || activeDoc?.saveTargetPath || currentPath;
     const savedBytes = new Uint8Array(pdfBytes);
     // Structural edits replace the PDF and often move its working path. A

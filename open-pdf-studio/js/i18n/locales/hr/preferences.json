@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktivno na {{adres}}",
     "aiLinkViaFlag": "Aktivno putem parametra pokretanja ({{adres}})",
     "aiLinkOff": "Isključeno",
-    "aiLinkError": "Nije pokrenuto: {{fout}}"
+    "aiLinkError": "Nije pokrenuto: {{fout}}",
+    "saving": "Spremanje",
+    "incrementalSave": "Spremaj promjene bilješki i obrazaca inkrementalno (eksperimentalno)",
+    "incrementalSaveHint": "Dodaje promjene na kraj datoteke umjesto da je ponovno zapiše. Ranije verzije ostaju dostupne za vraćanje iz datoteke. Zacrnjivanje, uklanjanje skrivenih informacija i ostale promjene uvijek se spremaju potpunim ponovnim zapisivanjem."
   },
   "annotations": {
     "generalDefaults": "Opće zadane postavke",

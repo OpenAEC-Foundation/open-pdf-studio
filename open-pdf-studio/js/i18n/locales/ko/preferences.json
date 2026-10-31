@@ -32,7 +32,10 @@
     "aiLinkActive": "{{adres}}에서 활성",
     "aiLinkViaFlag": "시작 옵션으로 활성 ({{adres}})",
     "aiLinkOff": "끔",
-    "aiLinkError": "시작되지 않음: {{fout}}"
+    "aiLinkError": "시작되지 않음: {{fout}}",
+    "saving": "저장",
+    "incrementalSave": "주석 및 양식 변경 사항을 증분 저장(실험적)",
+    "incrementalSaveHint": "파일을 다시 쓰는 대신 변경 사항을 파일 끝에 추가합니다. 이전 버전은 파일에서 계속 복구할 수 있습니다. 교정(가리기), 숨겨진 정보 제거 및 기타 변경 사항은 항상 전체를 다시 써서 저장합니다."
   },
   "annotations": {
     "generalDefaults": "일반 기본값",
