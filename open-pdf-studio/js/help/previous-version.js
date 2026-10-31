@@ -66,6 +66,9 @@ export function pickDownloadUrl(assets, userAgent) {
 // installer zelf zijn de bevestigingsmomenten. Alleen bij "niets gevonden"
 // of een fout komt een korte systeemmelding.
 export async function installPreviousVersion() {
+  // Beheerde modus (#863): de versie ligt vast in het image.
+  const { isBeheerd } = await import('../core/openaec-omgeving.js');
+  if (isBeheerd()) return;
   const { openExtern } = await import('../core/extern-openen.js');
   const i18next = (await import('i18next')).default;
   try {

@@ -62,6 +62,19 @@ pub struct AppState {
     pub profiel: Profiel,
     /// De poort waarop we luisteren; de Host-kop moet daarbij passen.
     pub poort: u16,
+    /// Wie de server mag gebruiken: lokale clients, of (OpenAEC Linux) wie het
+    /// geheim kent.
+    pub toegang: Toegang,
+}
+
+/// Toegangsregel van een MCP-server.
+#[derive(Clone)]
+pub enum Toegang {
+    /// Alleen 127.0.0.1/localhost (startvlag en instelling).
+    Lokaal,
+    /// OpenAEC Linux (#863): elk adres in het interne netwerk, maar alleen met
+    /// `Authorization: Bearer <geheim>` en zonder `Origin`-kop (geen browser).
+    Geheim(Arc<str>),
 }
 
 impl AppState {
@@ -73,6 +86,7 @@ impl AppState {
             app_handle,
             profiel,
             poort,
+            toegang: Toegang::Lokaal,
         }
     }
 }
@@ -3148,6 +3162,38 @@ pub fn verzoek_toegestaan(headers: &axum::http::HeaderMap, poort: u16) -> bool {
     true
 }
 
+/// OpenAEC Linux (#863): geen `Origin`-kop (een browser stuurt die altijd mee)
+/// en `Authorization: Bearer <geheim>`, in constante tijd vergeleken. De
+/// Host-kop telt hier niet: de server luistert op het interne netwerk.
+pub fn beheerd_verzoek_toegestaan(headers: &axum::http::HeaderMap, geheim: &str) -> bool {
+    if headers.contains_key("origin") {
+        return false;
+    }
+    let Some(kop) = headers.get("authorization").and_then(|v| v.to_str().ok()) else {
+        return false;
+    };
+    let kop = kop.trim();
+    let Some((schema, token)) = kop.split_once(' ') else { return false };
+    if !schema.eq_ignore_ascii_case("bearer") {
+        return false;
+    }
+    gelijk_in_constante_tijd(token.trim().as_bytes(), geheim.as_bytes())
+}
+
+fn gelijk_in_constante_tijd(a: &[u8], b: &[u8]) -> bool {
+    if a.len() != b.len() || b.is_empty() {
+        return false;
+    }
+    a.iter().zip(b).fold(0u8, |acc, (x, y)| acc | (x ^ y)) == 0
+}
+
+fn toegang_toegestaan(headers: &axum::http::HeaderMap, state: &AppState) -> bool {
+    match &state.toegang {
+        Toegang::Lokaal => verzoek_toegestaan(headers, state.poort),
+        Toegang::Geheim(geheim) => beheerd_verzoek_toegestaan(headers, geheim),
+    }
+}
+
 /// Axum POST handler for `/mcp`. Parses the JSON-RPC envelope and dispatches
 /// on the `method` field.
 async fn mcp_handler(
@@ -3159,14 +3205,14 @@ async fn mcp_handler(
     // well-formed if the client omitted it.
     let id = body.get("id").cloned().unwrap_or(Value::Null);
 
-    if !verzoek_toegestaan(&headers, state.poort) {
+    if !toegang_toegestaan(&headers, &state) {
+        let melding = match state.toegang {
+            Toegang::Lokaal => "only local clients may use this server",
+            Toegang::Geheim(_) => "a valid bearer secret is required and browser requests are refused",
+        };
         return (
             StatusCode::FORBIDDEN,
-            Json(rpc_error(
-                id,
-                jsonrpc_error::INVALID_REQUEST,
-                "only local clients may use this server",
-            )),
+            Json(rpc_error(id, jsonrpc_error::INVALID_REQUEST, melding)),
         );
     }
 
@@ -3272,6 +3318,7 @@ pub async fn start(
         app_handle,
         profiel: Profiel::Ontwikkeling,
         poort: port,
+        toegang: Toegang::Lokaal,
     };
 
     let addr: SocketAddr = format!("127.0.0.1:{port}")
@@ -3285,6 +3332,24 @@ pub async fn start(
     eprintln!("MCP server listening on http://127.0.0.1:{port}/mcp");
     crate::mcp_koppeling::markeer_startvlag(port);
 
+    serveer(listener, state, None).await
+}
+
+/// OpenAEC Linux (#863): de server uit `OPENAEC_MCP_POORT`/`OPENAEC_MCP_GEHEIM`
+/// (openaec_omgeving.rs). Publiek profiel, zoals de instelling in de app; het
+/// geheim is de toestemming, dus geen `OPS_ENABLE_MCP`.
+pub async fn start_beheerd(
+    instelling: crate::openaec_omgeving::McpInstelling,
+    app_handle: Option<AppHandle>,
+) -> Result<(), String> {
+    let adres = instelling.adres;
+    let listener = tokio::net::TcpListener::bind(adres)
+        .await
+        .map_err(|e| format!("bind {adres}: {e}"))?;
+    let mut state = AppState::nieuw(Profiel::Publiek, adres.port(), app_handle);
+    state.toegang = Toegang::Geheim(Arc::from(instelling.geheim.as_str()));
+    eprintln!("MCP server (OPENAEC_MCP_POORT) listening on http://{adres}/mcp");
+    crate::mcp_koppeling::markeer_omgeving(adres.port());
     serveer(listener, state, None).await
 }
 
@@ -3309,6 +3374,39 @@ pub async fn serveer(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn beheerde_server_wil_het_geheim_en_geen_browser() {
+        use axum::http::{HeaderMap, HeaderValue};
+        let kop = |paren: &[(&'static str, &'static str)]| {
+            let mut h = HeaderMap::new();
+            for (k, v) in paren {
+                h.insert(*k, HeaderValue::from_static(v));
+            }
+            h
+        };
+        let geheim = "0123456789abcdef";
+        let goed = [("host", "ops-container:9300"), ("authorization", "Bearer 0123456789abcdef")];
+        assert!(beheerd_verzoek_toegestaan(&kop(&goed), geheim));
+        assert!(beheerd_verzoek_toegestaan(&kop(&[("authorization", "bearer 0123456789abcdef")]), geheim));
+        assert!(!beheerd_verzoek_toegestaan(&kop(&[]), geheim), "zonder geheim");
+        assert!(!beheerd_verzoek_toegestaan(&kop(&[("authorization", "Bearer 0123456789abcdeX")]), geheim));
+        assert!(!beheerd_verzoek_toegestaan(&kop(&[("authorization", "Bearer 0123456789abcdef0")]), geheim));
+        assert!(!beheerd_verzoek_toegestaan(&kop(&[("authorization", "Basic 0123456789abcdef")]), geheim));
+        assert!(!beheerd_verzoek_toegestaan(&kop(&[("authorization", "0123456789abcdef")]), geheim));
+        // Een browser stuurt altijd Origin mee, ook met het juiste geheim.
+        let browser = [("authorization", "Bearer 0123456789abcdef"), ("origin", "http://localhost:3000")];
+        assert!(!beheerd_verzoek_toegestaan(&kop(&browser), geheim));
+        assert!(!beheerd_verzoek_toegestaan(&kop(&[("authorization", "Bearer ")]), ""), "leeg geheim nooit");
+
+        let mut state = AppState::nieuw(Profiel::Publiek, 9300, None);
+        state.toegang = Toegang::Geheim(Arc::from(geheim));
+        assert!(toegang_toegestaan(&kop(&goed), &state));
+        assert!(!toegang_toegestaan(&kop(&[("host", "127.0.0.1:9300")]), &state), "lokaal zonder geheim");
+        let lokaal = AppState::nieuw(Profiel::Publiek, 9300, None);
+        assert!(toegang_toegestaan(&kop(&[("host", "127.0.0.1:9300")]), &lokaal));
+        assert!(!toegang_toegestaan(&kop(&goed), &lokaal), "andere host blijft geweigerd");
+    }
 
     #[test]
     fn alleen_lokale_verzoeken_worden_toegelaten() {
@@ -3683,6 +3781,7 @@ mod tests {
             app_handle: None,
             profiel: Profiel::Ontwikkeling,
             poort: 9223,
+            toegang: Toegang::Lokaal,
         };
         let rt = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -3757,7 +3856,7 @@ mod tests {
         pdfs.sort_by_key(|p| std::fs::metadata(p).map(|m| m.len()).unwrap_or(u64::MAX));
         let smallest = pdfs.first().expect("no pdfs in corpus").clone();
 
-        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None, profiel: Profiel::Ontwikkeling, poort: 9223 };
+        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None, profiel: Profiel::Ontwikkeling, poort: 9223, toegang: Toegang::Lokaal };
         let args = serde_json::json!({
             "path": smallest.to_string_lossy(),
             "page_index": 0,
@@ -3810,6 +3909,7 @@ mod tests {
             app_handle: None,
             profiel: Profiel::Ontwikkeling,
             poort: 9223,
+            toegang: Toegang::Lokaal,
         };
         let args = serde_json::json!({ "path": pdf.to_string_lossy() });
         let result = tool_get_pdf_metadata(&state, &args).await.expect("metadata ok");
@@ -3862,7 +3962,7 @@ mod tests {
             .expect("no pdfs in corpus")
             .clone();
 
-        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None, profiel: Profiel::Ontwikkeling, poort: 9223 };
+        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None, profiel: Profiel::Ontwikkeling, poort: 9223, toegang: Toegang::Lokaal };
         let args = serde_json::json!({
             "path": smallest.to_string_lossy(),
             "width": 200
@@ -4001,6 +4101,7 @@ mod tests {
             app_handle: None,
             profiel: Profiel::Ontwikkeling,
             poort: 9223,
+            toegang: Toegang::Lokaal,
         };
         for (name, args) in [
             ("app_mouse_move",  serde_json::json!({"x": 100, "y": 100})),

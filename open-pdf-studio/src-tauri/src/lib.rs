@@ -21,6 +21,7 @@ pub mod mcp_extensie_tools;
 pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
+pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
 pub mod ocr;
@@ -2794,11 +2795,21 @@ pub fn run(opts: StartupOpts) {
         None
     };
 
-    // Collect any PDF file paths passed on the command line (for file associations)
+    // Collect any PDF file paths passed on the command line (for file associations).
+    // A relative path from `AppRun <path>` is resolved against the directory
+    // the user started from: AppRun itself changes to $APPDIR/usr (#863).
+    let startmap = openaec_omgeving::startmap_voor_argumenten(
+        openaec_omgeving::huidige(),
+        &openaec_omgeving::Waarneming::van_systeem(),
+    );
     let opened_files: Vec<String> = args.iter()
         .skip(1)
         .filter_map(|arg| pdf_uit_argument(arg))
+        .map(|pad| openaec_omgeving::absoluut_argument(&pad, startmap.as_deref()))
         .collect();
+    if !opened_files.is_empty() {
+        eprintln!("[startup] command-line files: {opened_files:?}");
+    }
 
     // Spawn the PDFium worker pool. Failures here are non-fatal — the
     // existing in-proc PDFium path serves as fallback when the pool is
@@ -2903,9 +2914,13 @@ pub fn run(opts: StartupOpts) {
     // instance off-screen and out of focus (headless.rs).
     #[cfg(not(target_os = "android"))]
     {
+        // Without a usable session bus address zbus would panic inside the
+        // plugin; without any bus the plugin just runs every start on its own.
         let skip_single_instance = instantie::slaat_single_instance_over(
             &args,
             std::env::var("OPDS_DETACHED").ok().as_deref(),
+        ) || !openaec_omgeving::sessiebus_bruikbaar(
+            std::env::var("DBUS_SESSION_BUS_ADDRESS").ok().as_deref(),
         );
         if !skip_single_instance {
             builder = builder
@@ -2927,8 +2942,16 @@ pub fn run(opts: StartupOpts) {
                     }
                 }));
         }
-        builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+        // Managed mode (OPENAEC_BEHEERD=1): the SuperCloud refreshes the image,
+        // so no updater plugin at all: no check, no prompt, no download.
+        if openaec_omgeving::huidige().updater_toegestaan() {
+            builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+        } else {
+            eprintln!("[openaec] managed mode: updater disabled");
+        }
     }
+    // window.__OPENAEC__ for the frontend: managed mode and the work folder.
+    builder = builder.plugin(openaec_omgeving::plugin());
 
     // Global system hotkey (PrtScn) for the opt-in "screenshot annotate"
     // feature. The shortcut is NOT registered here — the plugin only installs
@@ -2991,6 +3014,10 @@ pub fn run(opts: StartupOpts) {
             // draait" gaat pas weg bij een nette afsluiting.
             crashlog::koppel(app.handle());
             herstel::start(tweede_instantie);
+            // SIGTERM (logout in the SuperCloud, `docker stop`): recovery
+            // files for unsaved work, then a normal exit.
+            #[cfg(target_os = "linux")]
+            openaec_omgeving::installeer_sigterm(app.handle().clone());
 
             let diagnostics_path = datamap::tauri_map(app.handle(), datamap::TauriMap::Logs)
                 .map_err(|e| format!("Cannot resolve app log directory: {e}"))?
@@ -3046,7 +3073,22 @@ pub fn run(opts: StartupOpts) {
             // the AppHandle stored in the server's AppState). Refuses to
             // start in release builds unless OPS_ENABLE_MCP=1 (handled
             // inside `mcp_server::start`).
-            if mcp_enabled {
+            // OpenAEC Linux: MCP server on OPENAEC_MCP_POORT, only with the
+            // secret from OPENAEC_MCP_GEHEIM and never for a browser (#863).
+            // A second instance (torn-off tab) inherits the environment but
+            // leaves the one port to the main instance.
+            let beheerde_mcp = openaec_omgeving::huidige().mcp.clone().filter(|_| !tweede_instantie);
+            if let Some(instelling) = beheerde_mcp {
+                if mcp_enabled {
+                    eprintln!("[openaec] --mcp-server ignored: the MCP server comes from OPENAEC_MCP_POORT");
+                }
+                let app_handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(e) = mcp_server::start_beheerd(instelling, Some(app_handle)).await {
+                        eprintln!("[mcp] managed server failed: {e}");
+                    }
+                });
+            } else if mcp_enabled {
                 let app_handle = app.handle().clone();
                 let test_pdfs_dir = mcp_server::resolve_test_pdfs_dir(
                     std::env::var_os("OPS_TEST_PDFS_DIR").map(std::path::PathBuf::from),

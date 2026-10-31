@@ -16,6 +16,7 @@ import { getAppVersion } from '../core/platform.js';
 import { state } from '../core/state.js';
 import { fetchReleases, compareVersions } from './release-notes.js';
 import { externeDienstenAan, meldAlleenBureaublad } from '../core/webfuncties.js';
+import { isBeheerd } from '../core/openaec-omgeving.js';
 import { openWhatsNew, setReleases, setLoading, setError } from '../solid/stores/whatsNewStore.js';
 import i18next from 'i18next';
 
@@ -29,6 +30,8 @@ function isPrerelease(version) {
 }
 
 export async function checkForNewReleaseOnStartup() {
+  // Beheerde modus (#863): geen updatemelding en geen netwerk bij de start.
+  if (isBeheerd()) return;
   // De release-notes staan op GitHub; als gast geen verzoek naar een andere
   // host (#548).
   if (!externeDienstenAan()) return;

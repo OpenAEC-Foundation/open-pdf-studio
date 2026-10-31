@@ -7,6 +7,7 @@ import { isTauri } from '../../core/platform.js';
 import { check } from '@tauri-apps/plugin-updater';
 import { openDialog } from '../../bridge.js';
 import { leesOpslag } from '../../core/opslag.js';
+import { isBeheerd } from '../../core/openaec-omgeving.js';
 
 let checking = false;
 
@@ -15,7 +16,9 @@ let checking = false;
  * @param {boolean} silent - If true, don't show "no update" or error messages
  */
 export async function checkForUpdates(silent = true) {
-  if (!isTauri() || checking) return;
+  // Beheerde modus (OPENAEC_BEHEERD=1, #863): de SuperCloud ververst het
+  // image; geen controle, geen melding, geen download.
+  if (!isTauri() || checking || isBeheerd()) return;
   checking = true;
 
   try {
