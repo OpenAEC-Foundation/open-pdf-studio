@@ -32,7 +32,8 @@
     "aiLinkActive": "Active on {{adres}}",
     "aiLinkViaFlag": "Active via command-line flag ({{adres}})",
     "aiLinkOff": "Off",
-    "aiLinkError": "Not started: {{fout}}"
+    "aiLinkError": "Not started: {{fout}}",
+    "interfaceScale": "Interface size"
   },
   "annotations": {
     "generalDefaults": "General Defaults",

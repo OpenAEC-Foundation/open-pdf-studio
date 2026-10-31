@@ -32,7 +32,8 @@
     "aiLinkActive": "فعال روی {{adres}}",
     "aiLinkViaFlag": "فعال از طریق پارامتر اجرا ({{adres}})",
     "aiLinkOff": "خاموش",
-    "aiLinkError": "راه‌اندازی نشد: {{fout}}"
+    "aiLinkError": "راه‌اندازی نشد: {{fout}}",
+    "interfaceScale": "اندازهٔ رابط کاربری"
   },
   "annotations": {
     "generalDefaults": "پیش‌فرض‌های عمومی",

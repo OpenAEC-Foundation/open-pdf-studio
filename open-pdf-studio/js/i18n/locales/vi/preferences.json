@@ -32,7 +32,8 @@
     "aiLinkActive": "Đang hoạt động tại {{adres}}",
     "aiLinkViaFlag": "Đang hoạt động qua tham số khởi động ({{adres}})",
     "aiLinkOff": "Tắt",
-    "aiLinkError": "Chưa khởi động: {{fout}}"
+    "aiLinkError": "Chưa khởi động: {{fout}}",
+    "interfaceScale": "Kích thước giao diện"
   },
   "annotations": {
     "generalDefaults": "Mặc định Chung",

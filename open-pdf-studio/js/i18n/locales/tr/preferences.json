@@ -32,7 +32,8 @@
     "aiLinkActive": "{{adres}} üzerinde etkin",
     "aiLinkViaFlag": "Başlatma parametresiyle etkin ({{adres}})",
     "aiLinkOff": "Kapalı",
-    "aiLinkError": "Başlatılmadı: {{fout}}"
+    "aiLinkError": "Başlatılmadı: {{fout}}",
+    "interfaceScale": "Arayüz boyutu"
   },
   "annotations": {
     "generalDefaults": "Genel Varsayılanlar",

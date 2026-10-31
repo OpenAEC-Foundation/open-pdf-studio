@@ -24,3 +24,5 @@
 @import './styles/find-bar.css';
 @import './styles/rtl.css';
 @import './styles/mobile.css';
+
+@import './styles/ui-scale.css';

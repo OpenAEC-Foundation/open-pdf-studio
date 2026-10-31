@@ -32,7 +32,8 @@
     "aiLinkActive": "Active sur {{adres}}",
     "aiLinkViaFlag": "Active via l'option de démarrage ({{adres}})",
     "aiLinkOff": "Désactivée",
-    "aiLinkError": "Non démarrée : {{fout}}"
+    "aiLinkError": "Non démarrée : {{fout}}",
+    "interfaceScale": "Taille de l’interface"
   },
   "annotations": {
     "generalDefaults": "Valeurs par défaut générales",

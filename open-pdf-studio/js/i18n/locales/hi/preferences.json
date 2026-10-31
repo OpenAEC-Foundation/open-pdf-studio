@@ -32,7 +32,8 @@
     "aiLinkActive": "{{adres}} पर सक्रिय",
     "aiLinkViaFlag": "स्टार्टअप पैरामीटर से सक्रिय ({{adres}})",
     "aiLinkOff": "बंद",
-    "aiLinkError": "शुरू नहीं हुआ: {{fout}}"
+    "aiLinkError": "शुरू नहीं हुआ: {{fout}}",
+    "interfaceScale": "इंटरफ़ेस का आकार"
   },
   "annotations": {
     "generalDefaults": "सामान्य डिफ़ॉल्ट",

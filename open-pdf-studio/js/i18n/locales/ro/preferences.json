@@ -32,7 +32,8 @@
     "aiLinkActive": "Activă pe {{adres}}",
     "aiLinkViaFlag": "Activă prin parametru de pornire ({{adres}})",
     "aiLinkOff": "Oprită",
-    "aiLinkError": "Nepornită: {{fout}}"
+    "aiLinkError": "Nepornită: {{fout}}",
+    "interfaceScale": "Dimensiunea interfeței"
   },
   "annotations": {
     "generalDefaults": "Valori implicite generale",

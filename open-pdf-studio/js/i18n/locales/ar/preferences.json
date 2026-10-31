@@ -32,7 +32,8 @@
     "aiLinkActive": "نشط على {{adres}}",
     "aiLinkViaFlag": "نشط عبر معامل التشغيل ({{adres}})",
     "aiLinkOff": "متوقف",
-    "aiLinkError": "لم يبدأ: {{fout}}"
+    "aiLinkError": "لم يبدأ: {{fout}}",
+    "interfaceScale": "حجم الواجهة"
   },
   "annotations": {
     "generalDefaults": "الإعدادات الافتراضية العامة",

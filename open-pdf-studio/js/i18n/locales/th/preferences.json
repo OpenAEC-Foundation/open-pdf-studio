@@ -32,7 +32,8 @@
     "aiLinkActive": "ใช้งานที่ {{adres}}",
     "aiLinkViaFlag": "ใช้งานผ่านพารามิเตอร์ตอนเริ่ม ({{adres}})",
     "aiLinkOff": "ปิด",
-    "aiLinkError": "ไม่ได้เริ่ม: {{fout}}"
+    "aiLinkError": "ไม่ได้เริ่ม: {{fout}}",
+    "interfaceScale": "ขนาดส่วนติดต่อ"
   },
   "annotations": {
     "generalDefaults": "ค่าเริ่มต้นทั่วไป",

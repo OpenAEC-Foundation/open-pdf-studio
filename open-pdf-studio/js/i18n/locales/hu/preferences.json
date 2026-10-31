@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktív: {{adres}}",
     "aiLinkViaFlag": "Aktív indítási kapcsolóval ({{adres}})",
     "aiLinkOff": "Ki",
-    "aiLinkError": "Nem indult el: {{fout}}"
+    "aiLinkError": "Nem indult el: {{fout}}",
+    "interfaceScale": "Felület mérete"
   },
   "annotations": {
     "generalDefaults": "Általános alapértelmezések",

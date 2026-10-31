@@ -1,6 +1,7 @@
 export interface Preferences {
   // Theme
   theme: string;
+  uiScale: number;
 
   // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
   // de standaard voor nieuwe installaties) of 'single' (één pagina).

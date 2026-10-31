@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktivno na {{adres}}",
     "aiLinkViaFlag": "Aktivno putem parametra pokretanja ({{adres}})",
     "aiLinkOff": "Isključeno",
-    "aiLinkError": "Nije pokrenuto: {{fout}}"
+    "aiLinkError": "Nije pokrenuto: {{fout}}",
+    "interfaceScale": "Veličina sučelja"
   },
   "annotations": {
     "generalDefaults": "Opće zadane postavke",

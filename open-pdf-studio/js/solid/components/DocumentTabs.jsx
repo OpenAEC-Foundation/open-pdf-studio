@@ -596,8 +596,9 @@ export default function DocumentTabs() {
             border: '1px solid #7a7a7a',
             'box-shadow': '2px 2px 6px rgba(0,0,0,0.25)',
             'z-index': 2000,
-            'min-width': '200px',
-            'font-size': '13px',
+            // Interface size (#883): like the other context menus.
+            'min-width': 'calc(200px * var(--ui-scale, 1))',
+            'font-size': 'calc(13px * var(--ui-scale, 1))',
           }}
           onMouseLeave={hideCtxMenu}
         >

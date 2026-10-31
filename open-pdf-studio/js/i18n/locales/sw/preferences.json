@@ -32,7 +32,8 @@
     "aiLinkActive": "Inatumika kwenye {{adres}}",
     "aiLinkViaFlag": "Inatumika kupitia kigezo cha kuanza ({{adres}})",
     "aiLinkOff": "Imezimwa",
-    "aiLinkError": "Haijaanzishwa: {{fout}}"
+    "aiLinkError": "Haijaanzishwa: {{fout}}",
+    "interfaceScale": "Ukubwa wa kiolesura"
   },
   "annotations": {
     "generalDefaults": "Chaguo-msingi za Jumla",

@@ -32,7 +32,8 @@
     "aiLinkActive": "Attivo su {{adres}}",
     "aiLinkViaFlag": "Attivo tramite parametro di avvio ({{adres}})",
     "aiLinkOff": "Disattivato",
-    "aiLinkError": "Non avviato: {{fout}}"
+    "aiLinkError": "Non avviato: {{fout}}",
+    "interfaceScale": "Dimensione interfaccia"
   },
   "annotations": {
     "generalDefaults": "Predefiniti generali",

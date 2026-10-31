@@ -117,6 +117,12 @@
   padding: 2px 0;
 }
 
+/* Opened to the left when it would run past the window edge (#883). */
+.context-menu-submenu-content.naar-links {
+  left: auto;
+  right: 100%;
+}
+
 .context-menu-submenu-content .context-menu-item {
   padding: 4px 12px;
 }

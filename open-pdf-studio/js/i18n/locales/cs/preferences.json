@@ -32,7 +32,8 @@
     "aiLinkActive": "Aktivní na {{adres}}",
     "aiLinkViaFlag": "Aktivní přes spouštěcí parametr ({{adres}})",
     "aiLinkOff": "Vypnuto",
-    "aiLinkError": "Nespuštěno: {{fout}}"
+    "aiLinkError": "Nespuštěno: {{fout}}",
+    "interfaceScale": "Velikost rozhraní"
   },
   "annotations": {
     "generalDefaults": "Obecné výchozí hodnoty",

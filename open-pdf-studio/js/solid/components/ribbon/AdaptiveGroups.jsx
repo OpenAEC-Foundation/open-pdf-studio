@@ -1,6 +1,7 @@
 import { createSignal, createEffect, onMount, onCleanup, children as resolveChildren, Show } from 'solid-js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { naLettertypen } from './na-lettertypen.js';
+import { uiSchaalFactor, UI_SCHAAL_EVENT } from '../../../core/ui-scale.js';
 
 /**
  * AdaptiveGroups
@@ -137,7 +138,8 @@ export default function AdaptiveGroups(props) {
     if (total <= containerW) {
       cutoff = nodes.length; // everything fits
     } else {
-      const budget = Math.max(0, containerW - OVERFLOW_RESERVE_PX);
+      // The "More" button grows with the interface size (#883).
+      const budget = Math.max(0, containerW - OVERFLOW_RESERVE_PX * uiSchaalFactor());
       let used = 0;
       cutoff = nodes.length;
       for (let i = 0; i < nodes.length; i++) {
@@ -196,9 +198,14 @@ export default function AdaptiveGroups(props) {
     scheduleMeasure();
     requestAnimationFrame(() => requestAnimationFrame(() => { if (!disposed) measure(); }));
     const stopFonts = naLettertypen(() => { if (!disposed) measure(); });
+    // Another interface size (#883): group widths change while the container
+    // width may not. Measure after the labels have been shrunk again.
+    const naSchaal = () => requestAnimationFrame(() => requestAnimationFrame(() => { if (!disposed) measure(); }));
+    window.addEventListener(UI_SCHAAL_EVENT, naSchaal);
     onCleanup(() => {
       disposed = true;
       stopFonts();
+      window.removeEventListener(UI_SCHAAL_EVENT, naSchaal);
       ro.disconnect();
       mo.disconnect();
       document.removeEventListener('mousedown', onDocClick, true);

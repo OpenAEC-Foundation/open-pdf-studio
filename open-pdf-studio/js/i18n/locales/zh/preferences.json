@@ -32,7 +32,8 @@
     "aiLinkActive": "已在 {{adres}} 运行",
     "aiLinkViaFlag": "通过启动参数运行（{{adres}}）",
     "aiLinkOff": "关闭",
-    "aiLinkError": "未启动：{{fout}}"
+    "aiLinkError": "未启动：{{fout}}",
+    "interfaceScale": "界面大小"
   },
   "annotations": {
     "generalDefaults": "常规默认值",

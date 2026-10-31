@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { uiScaleCss } from './scripts/ui-scale-css.mjs';
 import solidPlugin from 'vite-plugin-solid';
 import { pdfjsPostscriptProgress } from './scripts/pdfjs-postscript-progress.mjs';
 import { pdfjsAssets } from './scripts/pdfjs-assets.mjs';
@@ -21,6 +22,7 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 // (gehost of OPDS_WEB_BUILD=1) krijgen desktopmodules als de sleepplugin een
 // lege vervanger (#776, scripts/web-bouw.mjs).
 export default defineConfig(({ mode }) => ({
+  css: { postcss: { plugins: [uiScaleCss()] } },
   plugins: [solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsPostscriptProgress(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin()],
   resolve: {
     alias: [

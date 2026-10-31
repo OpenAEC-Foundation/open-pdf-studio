@@ -1,0 +1,41 @@
+/* Enlarged desktop controls remain reachable on a small window. No CSS zoom
+   or transform is applied: client coordinates keep their normal pixel units. */
+html[data-ui-scaled] .ribbon-tabs { height: auto; min-height: calc(28px * var(--ui-scale)); overflow-x: auto; }
+html[data-ui-scaled] .ribbon-tab { flex-shrink: 0; }
+html[data-ui-scaled] .status-bar { height: auto; min-height: calc(22px * var(--ui-scale)); flex-wrap: wrap; }
+html[data-ui-scaled] .status-bar-center { max-width: 100%; overflow-x: auto; justify-content: flex-start; }
+html[data-ui-scaled] .status-bar-center > * { flex-shrink: 0; }
+html[data-ui-scaled] .status-bar-left, html[data-ui-scaled] .status-bar-right { min-width: 0; }
+html[data-ui-scaled] .modal-dialog { max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
+html[data-ui-scaled] .modal-header, html[data-ui-scaled] .modal-footer { flex-shrink: 0; }
+html[data-ui-scaled] .modal-body { min-height: 0; overflow: auto; }
+html[data-ui-scaled] .preferences-body-wrapper { overflow: hidden; }
+html[data-ui-scaled] .pref-row { flex-wrap: wrap; }
+
+html[data-ui-scaled] .title-bar-left { min-width: 0; overflow-x: auto; }
+html[data-ui-scaled] .quick-access-toolbar,
+html[data-ui-scaled] .quick-access-btn,
+html[data-ui-scaled] .window-controls { flex-shrink: 0; }
+html[data-ui-scaled] .title-bar-center {
+  position: static; transform: none; min-width: 0; overflow: hidden;
+}
+html[data-ui-scaled] .app-title,
+html[data-ui-scaled] .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html[data-ui-scaled] .status-bar-center { order: -1; flex: 1 0 100%; width: 100%; }
+html[data-ui-scaled] .status-bar-left,
+html[data-ui-scaled] .status-bar-right { overflow: hidden; flex: 1 0 50%; }
+html[data-ui-scaled] .status-item { min-width: 0; white-space: nowrap; overflow: hidden; }
+html[data-ui-scaled] .left-panel:not(.collapsed) { max-width: 30vw; }
+html[data-ui-scaled] .properties-panel-outer { min-width: 0; max-width: 30vw; }
+html[data-ui-scaled] .properties-panel { width: 100%; min-width: 0; }
+html[data-ui-scaled] .left-panel-header { flex-wrap: wrap; }
+html[data-ui-scaled] .bookmarks-search { min-width: 0; max-width: 100%; }
+html[data-ui-scaled] .bookmarks-toolbar { overflow-x: auto; }
+html[data-ui-scaled] .bookmarks-toolbar button { flex-shrink: 0; }
+@media (max-width: 1100px) {
+  html[data-ui-scaled] .file-name { display: none; }
+  html[data-ui-scaled] .bookmarks-search { flex-basis: 100%; margin: 0; }
+}
+
+html[data-ui-scaled] .content { overflow-x: auto; }
+html[data-ui-scaled] .main-view { min-width: 30vw; flex-shrink: 0; }
