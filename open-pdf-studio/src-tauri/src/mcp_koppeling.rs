@@ -25,6 +25,17 @@ pub fn markeer_startvlag(poort: u16) {
     *LOPEND.lock().unwrap() = Some(Lopend { poort, bron: "startvlag", stop: None });
 }
 
+/// OpenAEC Linux (#863): de server uit `OPENAEC_MCP_POORT` draait. De
+/// instelling in de app laat hem dan staan, net als bij de startvlag.
+pub fn markeer_omgeving(poort: u16) {
+    *LOPEND.lock().unwrap() = Some(Lopend { poort, bron: "omgeving", stop: None });
+}
+
+/// Draait er een server die de instelling niet mag stoppen of vervangen?
+fn vast_gestart(bron: &str) -> bool {
+    matches!(bron, "startvlag" | "omgeving")
+}
+
 fn status() -> Value {
     let lopend = LOPEND.lock().unwrap();
     let fout = LAATSTE_FOUT.lock().unwrap().clone();
@@ -54,7 +65,7 @@ pub fn mcp_status() -> Value {
 /// voorkeurenvenster hem kan tonen.
 #[tauri::command]
 pub async fn mcp_instellen(app: AppHandle, aan: bool, poort: u16) -> Result<Value, String> {
-    if LOPEND.lock().unwrap().as_ref().map_or(false, |l| l.bron == "startvlag") {
+    if LOPEND.lock().unwrap().as_ref().map_or(false, |l| vast_gestart(l.bron)) {
         return Ok(status());
     }
     let zelfde_poort = LOPEND.lock().unwrap().as_ref().map_or(false, |l| l.poort == poort);
@@ -85,4 +96,16 @@ pub async fn mcp_instellen(app: AppHandle, aan: bool, poort: u16) -> Result<Valu
     });
     eprintln!("MCP server (instelling) listening on http://{adres}/mcp");
     Ok(status())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::vast_gestart;
+
+    #[test]
+    fn de_instelling_laat_startvlag_en_omgeving_staan() {
+        assert!(vast_gestart("startvlag"));
+        assert!(vast_gestart("omgeving"));
+        assert!(!vast_gestart("instelling"));
+    }
 }

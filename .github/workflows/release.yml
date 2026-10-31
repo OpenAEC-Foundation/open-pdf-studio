@@ -372,6 +372,56 @@ jobs:
         if: matrix.target == 'linux'
         run: bash scripts/linux-ocr-linkage-check.sh ../target/release/open-pdf-studio
 
+      # OpenAEC Linux (#863): the SuperCloud runs the EXTRACTED AppImage in a
+      # container without FUSE or GPU, under labwc (Wayland), without a session
+      # bus, keyring, system tray or notification daemon. Same here: Debian 13,
+      # labwc on the wlroots headless backend with the pixman renderer and Mesa
+      # llvmpipe, no /dev/dri. The script starts the app twice (without and
+      # with a relative file argument), takes a screenshot, measures the memory
+      # at rest and checks a clean SIGTERM shutdown (docs/openaec-linux.md).
+      - name: Verify AppImage in OpenAEC Linux conditions (Linux)
+        if: matrix.target == 'linux'
+        shell: bash
+        run: |
+          appimage=$(find ../target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage' -print -quit)
+          test -n "$appimage"
+          appimage=$(realpath "$appimage")
+          mkdir -p "$RUNNER_TEMP/openaec-linux"
+          docker run --rm \
+            -v "$appimage:/input/open-pdf-studio.AppImage:ro" \
+            -v "$PWD/scripts/openaec-linux-smoke.sh:/input/openaec-linux-smoke.sh:ro" \
+            -v "$RUNNER_TEMP/openaec-linux:/output" \
+            debian:13-slim \
+            bash -lc 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends labwc grim libgtk-3-0t64 libegl1 libgl1 libgles2 libgbm1 libgl1-mesa-dri fonts-dejavu-core && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/openaec-linux-smoke.sh /tmp/open-pdf-studio.AppImage 15 /output'
+
+      - name: Upload OpenAEC Linux screenshots (Linux)
+        if: always() && matrix.target == 'linux'
+        uses: actions/upload-artifact@v7
+        with:
+          name: openaec-linux-smoke
+          path: ${{ runner.temp }}/openaec-linux
+          if-no-files-found: ignore
+
+      # "Light at rest" (#863): the memory of the running app without a
+      # document, measured above, goes into the release notes.
+      - name: Add memory at rest to the release notes (Linux)
+        if: matrix.target == 'linux'
+        uses: actions/github-script@v8
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+          report: ${{ runner.temp }}/openaec-linux/memory-at-rest.txt
+        with:
+          script: |
+            const fs = require('fs');
+            const line = fs.readFileSync(process.env.report, 'utf8').trim();
+            const { owner, repo } = context.repo;
+            const release_id = process.env.release_id;
+            const { data } = await github.rest.repos.getRelease({ owner, repo, release_id });
+            const marker = '<!-- openaec-memory-at-rest -->';
+            const body = (data.body || '').split(marker)[0].trimEnd()
+              + `\n\n${marker}\n### OpenAEC Linux\n\n${line}\n`;
+            await github.rest.repos.updateRelease({ owner, repo, release_id, body });
+
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding
       # both macOS architectures.

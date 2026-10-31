@@ -2,6 +2,7 @@ import { createRenderEffect } from 'solid-js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
 import { isTauri } from '../../../core/platform.js';
 import { knopUit, meldingTekst } from '../../../core/webfuncties.js';
+import { knopUitBeheerd } from '../../../core/openaec-omgeving.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { knopTitel } from '../../stores/keybindingStore.js';
 
@@ -26,7 +27,7 @@ export default function RibbonButton(props) {
       data-ext-command={props.extCommand}
       aria-pressed={props.pressed}
       title={titel()}
-      disabled={props.disabled || geenWebvariant()}
+      disabled={props.disabled || geenWebvariant() || knopUitBeheerd(props.id)}
       onClick={props.onClick}
       style={props.style}
     >

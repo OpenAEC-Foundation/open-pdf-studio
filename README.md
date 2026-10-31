@@ -273,6 +273,7 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 - Built-in update checker with download progress
 - Skip version or remind later options
 - Automatic installation and relaunch
+- Off in managed mode (`OPENAEC_BEHEERD=1`), where the platform supplies updates
 
 ## Keyboard Shortcuts
 
@@ -370,6 +371,29 @@ Notes:
   (it reads the AppImage checksum from the GitHub release; no download needed).
 - If the window stays blank with some GPU drivers, start it with
   `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
+
+**OpenAEC Linux (managed, streamed):**
+
+The OpenAEC SuperCloud runs the extracted AppImage (`--appimage-extract`, then
+`squashfs-root/AppRun [file.pdf]`) without FUSE or GPU under a Wayland
+compositor. Environment variables:
+
+| Variable | Effect |
+|---|---|
+| `OPENAEC_BEHEERD=1` | Managed mode: no update check, update prompt or download |
+| `OPENAEC_MAP=/openaec` | Open and save dialogs start in this folder |
+| `OPENAEC_MCP_POORT`, `OPENAEC_MCP_GEHEIM` | MCP server on that port, only with that bearer secret and never for browser requests |
+
+Without a GPU the app sets the WebKitGTK software-rendering variables itself.
+See [docs/openaec-linux.md](docs/openaec-linux.md) for the full contract.
+
+### Network connections
+The app sends no telemetry. It connects to other hosts only for: the release
+notes after an update (GitHub API, at startup, not in managed mode), the update
+check, the previous-version download, the online symbol library, the feedback
+form, the AI assistant with your own key, opening a PDF from a URL you type, and
+OpenAEC sign-in. The full list is in
+[docs/openaec-linux.md](docs/openaec-linux.md#network).
 
 ### Android
 Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
