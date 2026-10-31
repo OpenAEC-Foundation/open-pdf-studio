@@ -661,3 +661,5 @@ js/pdf/shx-text.test.mjs
 js/core/draagbaar.test.mjs
 js/i18n/draagbaar-i18n.test.mjs
 scripts/draagbare-zip.test.mjs
+# Bijwerken via de OpenAEC Installer
+js/ui/chrome/installer-update.test.mjs

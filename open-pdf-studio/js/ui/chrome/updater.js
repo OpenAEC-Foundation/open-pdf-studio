@@ -3,17 +3,66 @@
  * Uses Tauri Plugin Updater to check for and install updates.
  */
 
-import { isTauri } from '../../core/platform.js';
+import { invoke, isTauri } from '../../core/platform.js';
 import { check } from '@tauri-apps/plugin-updater';
 import { openDialog } from '../../bridge.js';
 import { leesOpslag } from '../../core/opslag.js';
 import { magMelden } from '../../core/beheerd.js';
 import { isDraagbaar, RELEASES_URL, zipNaam } from '../../core/draagbaar.js';
+import { maakInstallerUpdate, updateRoute } from './installer-update.js';
 
 let checking = false;
 
 /**
- * Check for updates using the Tauri updater plugin.
+ * Is the OpenAEC Installer on this computer (OpenAEC-Blueprint#33)? Only asked on
+ * Windows. Rust registers the plugin only where the installer may update this copy
+ * (not in managed mode, not portable, not headless); without the plugin the call
+ * fails and the app keeps its own updater.
+ */
+async function installerAanwezig() {
+  try {
+    return (await invoke('plugin:openaec-update|installer_present')) === true;
+  } catch {
+    return false;
+  }
+}
+
+async function platformNaam() {
+  try {
+    const { platform } = await import('@tauri-apps/plugin-os');
+    return platform();
+  } catch {
+    return '';
+  }
+}
+
+/** Close every tab, asking to save changes; throws when the user cancels. */
+async function sluitAlleTabs() {
+  const { state } = await import('../../core/state.js');
+  const { closeActiveTab } = await import('./tabs.js');
+  while (state.documents.length > 0) {
+    if (!(await closeActiveTab())) throw new Error('cancelled');
+  }
+}
+
+/** The update from the installer's status file, or null (installer-update.js). */
+async function checkViaInstaller() {
+  const available = await invoke('plugin:openaec-update|check');
+  if (!available) return null;
+  return maakInstallerUpdate(available, {
+    invoke,
+    bestaat: (path) => invoke('file_exists', { path }),
+    sluitAlleTabs,
+    meldSchoonAfsluiten: async () => (await import('../../herstel/haken.js')).meldSchoonAfsluiten(),
+    eigenUpdate: () => check(),
+    wacht: (ms) => new Promise((r) => setTimeout(r, ms)),
+  });
+}
+
+/**
+ * Check for updates: on Windows with the OpenAEC Installer through the installer,
+ * otherwise with the Tauri updater plugin. Managed mode and a portable copy only
+ * show a message (see updateRoute in installer-update.js).
  * @param {boolean} silent - If true, don't show "no update" or error messages
  */
 export async function checkForUpdates(silent = true) {
@@ -27,9 +76,16 @@ export async function checkForUpdates(silent = true) {
   checking = true;
 
   try {
-    const update = await check();
+    const draagbaar = await isDraagbaar();
+    const platform = await platformNaam();
+    const route = updateRoute({
+      draagbaar,
+      platform,
+      installerAanwezig: !draagbaar && platform === 'windows' && (await installerAanwezig()),
+    });
+    const update = route === 'installer' ? await checkViaInstaller() : await check();
 
-    if (update && await isDraagbaar()) {
+    if (update && route === 'draagbaar') {
       // Draagbaar (#881): de updater zou een installer starten. Alleen melden
       // dat er een nieuwe zip is en desgewenst de releasepagina openen.
       const skipVersion = leesOpslag('openpdfstudio-skip-version');

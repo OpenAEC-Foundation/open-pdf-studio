@@ -98,7 +98,9 @@ test('Rust registreert portable_status en weigert wat een installatie vraagt', (
 
 test('bijwerker: draagbaar alleen melden en naar de zip verwijzen, nooit installeren', () => {
   const src = lees('js', 'ui', 'chrome', 'updater.js');
-  const tak = src.indexOf('if (update && await isDraagbaar())');
+  const tak = src.indexOf("if (update && route === 'draagbaar')");
+  // De route komt uit isDraagbaar() (installer-update.js, updateRoute).
+  assert.match(src, /draagbaar = await isDraagbaar\(\)/);
   assert.ok(tak > 0, 'draagbare tak ontbreekt');
   assert.ok(tak < src.indexOf("openDialog('update'"), 'de draagbare tak komt vóór het updatevenster');
   const melding = src.slice(src.indexOf('async function showPortableUpdateMessage'));

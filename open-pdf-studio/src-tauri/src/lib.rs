@@ -2757,6 +2757,15 @@ fn run_mobile() {
     run(StartupOpts::default());
 }
 
+/// Registers the OpenAEC Installer plugin (`openaec-update`)? Only on Windows,
+/// where the installer can update this app, and not when something else decides
+/// about versions: managed mode (`OPENAEC_BEHEERD=1`, the environment manages
+/// them), a portable copy (#881, the installer would update the INSTALLED copy
+/// and close this one) or a headless test instance (no processes outside it).
+pub fn openaec_installer_plugin(windows: bool, beheerd: bool, draagbaar: bool, headless: bool) -> bool {
+    windows && !beheerd && !draagbaar && !headless
+}
+
 pub fn run(opts: StartupOpts) {
     // Normaal al gedaan in main(); eenmalig, dus hier alleen een vangnet.
     draagbaar::activeer();
@@ -2977,6 +2986,19 @@ pub fn run(opts: StartupOpts) {
             builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
         } else {
             eprintln!("[openaec] managed mode: updater disabled");
+        }
+        // Updates through the OpenAEC Installer (OpenAEC-Blueprint#33): on Windows
+        // with the installer the app hands the update over; otherwise the updater above.
+        // The plugin also lets the installer check in the background at start, so it
+        // is only registered where the installer may update this copy (see
+        // `openaec_installer_plugin`); without it the frontend uses the updater above.
+        if openaec_installer_plugin(
+            cfg!(windows),
+            beheerd::is_beheerd(),
+            draagbaar::actief(),
+            headless::actief(),
+        ) {
+            builder = builder.plugin(openaec_update::init("open-pdf-studio"));
         }
     }
     // window.__OPENAEC__ for the frontend: managed mode and the work folder.
@@ -3529,6 +3551,24 @@ mod geopend_document_tests {
         for s in ["openpdfstudio://open/x.pdf", "https://open/x.pdf", "http://example.com/a.pdf"] {
             assert_eq!(geopend_pdf_document(&url(s), true), None, "{s}");
         }
+    }
+}
+
+#[cfg(test)]
+mod openaec_installer_tests {
+    use super::openaec_installer_plugin;
+
+    #[test]
+    fn alleen_windows_zonder_beheer_draagbaar_of_headless() {
+        assert!(openaec_installer_plugin(true, false, false, false));
+        // macOS en Linux: de installer werkt die (nog) niet bij.
+        assert!(!openaec_installer_plugin(false, false, false, false));
+        // Beheerde modus: de omgeving regelt de versie.
+        assert!(!openaec_installer_plugin(true, true, false, false));
+        // Draagbaar: de installer zou de geïnstalleerde kopie bijwerken.
+        assert!(!openaec_installer_plugin(true, false, true, false));
+        // Testinstantie: geen processen buiten de instantie.
+        assert!(!openaec_installer_plugin(true, false, false, true));
     }
 }
 
