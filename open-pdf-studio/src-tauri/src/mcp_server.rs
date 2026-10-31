@@ -772,7 +772,7 @@ fn pagina_tools() -> Vec<Value> {
                     "text":         { "type": "string", "maxLength": 500, "description": "text: the watermark text." },
                     "imagePath":    { "type": "string", "description": "image: absolute path of a .png, .jpg or .jpeg file (at most 20 MB)." },
                     "fontFamily":   { "type": "string", "enum": ["Helvetica", "Arial", "Times New Roman", "Courier", "Georgia"], "description": "text, headerFooter (not Georgia): font. Default Helvetica." },
-                    "fontSize":     { "type": "integer", "minimum": 1, "maximum": 1000, "description": "text (default 72), headerFooter (default 10, at most 200): font size in points." },
+                    "fontSize":     { "type": "integer", "minimum": 1, "maximum": 288, "description": "text (4-288, default 72), headerFooter (1-200, default 10): font size in points." },
                     "color":        { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "text (default #ff0000), headerFooter (default #000000): colour #rrggbb." },
                     "opacity":      { "type": "number", "minimum": 0, "maximum": 1, "description": "text (default 0.3), image (default 0.2)." },
                     "rotation":     { "type": "number", "minimum": -360, "maximum": 360, "description": "text (default -45), image (default 0): degrees." },

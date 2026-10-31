@@ -10,6 +10,7 @@
 
 import { voegWatermerkToe, verwijderWatermerk, nieuwWatermerkId } from './watermerk-bewerken.js';
 import { batesInstellingen } from './kopvoet-tekst.js';
+import { WATERMARK_FONT_MIN, WATERMARK_FONT_MAX } from './watermark-layout.js';
 import {
   fout, onbekendArgument, bewerkbaarDocument, paginaLijst, geheelGetal, getal, padFout, hexKleur,
 } from '../core/mcp-document-regels.js';
@@ -151,7 +152,8 @@ async function bouwWatermerk(p, totaal, o) {
     const v = velden({
       text: tekstVeld(p.text, 'text'),
       fontFamily: keuze(p.fontFamily, 'fontFamily', WATERMERK_LETTERS, 'Helvetica'),
-      fontSize: geheelGetal(p.fontSize, 'fontSize', 1, 1000, 72),
+      // Dezelfde grenzen als het lettergrootteveld van de dialoog.
+      fontSize: geheelGetal(p.fontSize, 'fontSize', WATERMARK_FONT_MIN, WATERMARK_FONT_MAX, 72),
       color: kleurVeld(p.color, '#ff0000'),
       opacity: getal(p.opacity, 'opacity', 0, 1, 0.3),
       rotation: getal(p.rotation, 'rotation', -360, 360, -45),

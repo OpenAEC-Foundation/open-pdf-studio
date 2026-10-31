@@ -121,6 +121,9 @@ test('add: argumenten gecontroleerd per soort, niets toegevoegd bij een fout', a
   assert.match(await fout({ type: 'text' }), /text must be a non-empty string/);
   assert.match(await fout({ type: 'text', text: 'A', opacity: 2 }), /opacity must be a number from 0 to 1/);
   assert.match(await fout({ type: 'text', text: 'A', fontFamily: 'Comic Sans' }), /fontFamily must be one of/);
+  // Dezelfde grenzen als het lettergrootteveld van de dialoog (4-288).
+  assert.match(await fout({ type: 'text', text: 'A', fontSize: 289 }), /fontSize must be a whole number from 4 to 288/);
+  assert.match(await fout({ type: 'text', text: 'A', fontSize: 3 }), /fontSize must be a whole number from 4 to 288/);
   assert.match(await fout({ type: 'text', text: 'A', position: 'middle' }), /position must be one of/);
   assert.match(await fout({ type: 'text', text: 'A', color: 'rood' }), /#rrggbb/);
   assert.match(await fout({ type: 'text', text: 'A', pages: [5] }), /page 5 is out of range/);

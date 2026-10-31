@@ -910,8 +910,8 @@
           "type": "string"
         },
         "fontSize": {
-          "description": "text (default 72), headerFooter (default 10, at most 200): font size in points.",
-          "maximum": 1000,
+          "description": "text (4-288, default 72), headerFooter (1-200, default 10): font size in points.",
+          "maximum": 288,
           "minimum": 1,
           "type": "integer"
         },
