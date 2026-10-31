@@ -3721,6 +3721,7 @@ dependencies = [
  "libloading 0.9.0",
  "log",
  "lopdf",
+ "memchr",
  "memmap2",
  "open",
  "open-pdf-cad",
@@ -3990,6 +3991,9 @@ name = "pdfium-worker"
 version = "2026.44.5"
 dependencies = [
  "anyhow",
+ "flate2",
+ "lopdf",
+ "memchr",
  "memmap2",
  "pdfium-render",
  "serde",

@@ -104,6 +104,8 @@ lopdf = "0.34"
 # Begrensd uitpakken van objectstromen bij het lezen van handtekeningen; zelfde
 # versie als die lopdf al gebruikt.
 flate2 = "1"
+# Byte scan that gates the render-only mesh /BBox pass (#395).
+memchr = "2"
 
 # OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
 #
