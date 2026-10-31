@@ -633,18 +633,6 @@
   box-shadow: inset 0 -2px 0 #0078d7;
 }
 
-/* Sleepbeeld bij meerdere bladwijzers ("3 bladwijzers") */
-.bookmark-drag-image {
-  position: fixed;
-  left: -1000px;
-  top: 0;
-  padding: 2px 8px;
-  font-size: 12px;
-  background: #ffffff;
-  color: #333333;
-  border: 1px solid #0078d7;
-}
-
 .bookmark-arrow {
   width: 14px;
   height: 14px;
