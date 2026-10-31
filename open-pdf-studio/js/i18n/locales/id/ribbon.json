@@ -349,6 +349,11 @@
     "scanTextHint": "Klik kata yang dikenali untuk menggantinya. Kata lama pada pindaian akan ditutupi.",
     "scanTextNone": "Tidak ada teks yang dikenali di halaman ini. Jalankan Pengenalan Teks (OCR) terlebih dahulu.",
     "shiftPage": "Geser halaman",
+    "scanGroup": "Pindai",
+    "scan": "Pindai",
+    "scanTitle": "Pindai halaman ke PDF yang dapat dicari",
+    "batchOcr": "OCR folder",
+    "batchOcrTitle": "Kenali teks di semua file PDF dalam folder",
     "editPages": "Edit Halaman",
     "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan"
   },

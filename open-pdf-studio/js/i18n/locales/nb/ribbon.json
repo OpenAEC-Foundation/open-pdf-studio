@@ -349,6 +349,11 @@
     "scanTextHint": "Klikk på et gjenkjent ord for å erstatte det. Det gamle ordet i skanningen dekkes over.",
     "scanTextNone": "Ingen gjenkjent tekst på denne siden. Kjør Tekstgjenkjenning (OCR) først.",
     "shiftPage": "Forskyv side",
+    "scanGroup": "Skanning",
+    "scan": "Skann",
+    "scanTitle": "Skann sider til en søkbar PDF",
+    "batchOcr": "Mappe-OCR",
+    "batchOcrTitle": "Gjenkjenn tekst i alle PDF-filer i en mappe",
     "editPages": "Rediger sider",
     "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp"
   },

@@ -497,6 +497,9 @@ js/pdf/print-preflight-budget.test.mjs
 js/pdf/ocr-review.test.mjs
 js/pdf/ocr-review-service.test.mjs
 js/pdf/ocr-opslaan.test.mjs
+js/pdf/batch-ocr.test.mjs
+js/pdf/scan-to-pdf.test.mjs
+js/pdf/scan-batch-ocr-i18n.test.mjs
 js/solid/components/feature-ui-placement.test.mjs
 js/pdf/portfolio.test.mjs
 js/pdf/portfolio-preview.test.mjs

@@ -6,6 +6,8 @@
 mod accounts;
 mod pdf_beveiliging;
 mod atomic_file;
+pub mod batch_ocr;
+pub mod batch_ocr_walk;
 pub mod beveiligde_pdf;
 pub mod cad_export;
 pub mod cad_import;
@@ -46,6 +48,10 @@ mod standaard_app;
 pub mod print_windows;
 pub mod render_to_png;
 pub mod spraak;
+// Scanner input (#382): WIA on Windows, SANE elsewhere on Unix.
+pub mod scanner;
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+pub mod scanner_cmd;
 // Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
@@ -2863,6 +2869,8 @@ pub fn run(opts: StartupOpts) {
         .manage(pdfium_renderer::PixmapCacheState::default())
         .manage(cad_export::CadExportJobs::default())
         .manage(cad_import::CadImportState::default())
+        .manage(batch_ocr::BatchOcrDoc::default())
+        .manage(scanner::ScanJobs::default())
         .manage(pool.clone())
         .manage(mcp_app_bridge::McpAppBridge::new())
         .manage(mcp_extensie_tools::ExtensieTools::default())
@@ -3228,6 +3236,17 @@ pub fn run(opts: StartupOpts) {
             extract_draw_commands,
             extract_draw_commands_batch,
             extract_page_text,
+            batch_ocr::batch_ocr_list,
+            batch_ocr::batch_ocr_allow_output,
+            batch_ocr::batch_ocr_inspect,
+            batch_ocr::batch_ocr_page,
+            batch_ocr::batch_ocr_release,
+            scanner::scanner_backend,
+            scanner::scanner_list,
+            scanner::scanner_acquire,
+            scanner::scanner_cancel,
+            scanner::scanner_read_page,
+            scanner::scanner_discard,
             render_thumbnail,
             render_to_png::render_page_to_png,
             cad_export::export_page_to_cad,

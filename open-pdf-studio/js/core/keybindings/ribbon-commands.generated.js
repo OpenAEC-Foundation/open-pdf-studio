@@ -145,6 +145,8 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"extract-pages","tab":"organize","labelKey":"ribbon:organize.extractLabel"},
   {"id":"split-document","tab":"organize","labelKey":"ribbon:organize.splitLabel"},
   {"id":"reorder-pages","tab":"organize","labelKey":"ribbon:organize.reorderPages","label":"Reorder"},
+  {"id":"ep-scan","tab":"organize","labelKey":"ribbon:organize.scan"},
+  {"id":"ep-batch-ocr","tab":"organize","labelKey":"ribbon:organize.batchOcr"},
   {"id":"merge-pdfs","tab":"organize","labelKey":"ribbon:organize.mergeLabel"},
   {"id":"organize-compare","tab":"organize","labelKey":"ribbon:compare.title","label":"Compare"},
   {"id":"add-watermark","tab":"organize","labelKey":"ribbon:organize.watermarkLabel"},

@@ -349,6 +349,11 @@
     "scanTextHint": "Kliknutím na rozpoznané slovo jej nahradíte. Původní slovo ve skenu se zakryje.",
     "scanTextNone": "Na této stránce není žádný rozpoznaný text. Nejprve spusťte Rozpoznávání textu (OCR).",
     "shiftPage": "Posunout stránku",
+    "scanGroup": "Skenování",
+    "scan": "Skenovat",
+    "scanTitle": "Skenovat stránky do prohledávatelného PDF",
+    "batchOcr": "Hromadné OCR",
+    "batchOcrTitle": "Rozpoznat text ve všech PDF ve složce",
     "editPages": "Upravit stránky",
     "editPagesTitle": "Upravit stránky vizuálně: změnit pořadí, otočit, vložit, odstranit, extrahovat a rozdělit"
   },

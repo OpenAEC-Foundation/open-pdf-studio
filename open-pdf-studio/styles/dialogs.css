@@ -5477,6 +5477,79 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   cursor: default;
 }
 
+/* Batch OCR and Scan dialogs (#382) */
+.batch-ocr-dialog { width: 520px; }
+.scan-dialog { width: 440px; }
+
+.batch-ocr-select {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 4px;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  font-size: 11px;
+  font-family: inherit;
+  background-color: var(--theme-surface, #fff);
+  color: var(--theme-text, inherit);
+  cursor: default;
+}
+
+.batch-ocr-select:focus {
+  outline: none;
+  border-color: #0078d7;
+}
+
+.batch-ocr-indent { padding-inline-start: 20px; }
+
+.batch-ocr-suffix { width: 80px; }
+
+.split-doc-radio input[type="checkbox"] {
+  margin: 0;
+  cursor: default;
+  accent-color: #0078d7;
+}
+
+.batch-ocr-progress {
+  margin-top: 6px;
+  height: 12px;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface, #fff);
+}
+
+.batch-ocr-progress-bar {
+  height: 100%;
+  background: #06b025;
+}
+
+.batch-ocr-list {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface, #fff);
+}
+
+.batch-ocr-list table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  table-layout: fixed;
+}
+
+.batch-ocr-list td {
+  padding: 2px 6px;
+  border-bottom: 1px solid var(--theme-border, #eee);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: text;
+}
+
+.batch-ocr-name { width: 45%; }
+
+.batch-ocr-failed .batch-ocr-status { color: #a4262c; }
+.batch-ocr-done .batch-ocr-status { color: #107c10; }
+
 /* CAD-uitwisseling: export naar DXF/DWG en import van DWG/DXF (#400).
    Windows-Forms-stijl: rechte hoeken, compact, thema-kleuren. */
 .cad-dialog { width: 600px; }

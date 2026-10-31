@@ -349,6 +349,11 @@
     "scanTextHint": "单击已识别的单词即可替换。扫描中的旧单词会被遮盖。",
     "scanTextNone": "此页面上没有已识别的文本。请先运行文字識別（OCR）。",
     "shiftPage": "移動頁面",
+    "scanGroup": "扫描",
+    "scan": "扫描",
+    "scanTitle": "将页面扫描为可搜索的 PDF",
+    "batchOcr": "批量 OCR",
+    "batchOcrTitle": "识别文件夹中所有 PDF 文件的文字",
     "editPages": "编辑页面",
     "editPagesTitle": "可视化编辑页面：重新排列、旋转、插入、删除、提取和拆分"
   },

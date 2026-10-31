@@ -349,6 +349,11 @@
     "scanTextHint": "Değiştirmek için tanınan bir kelimeye tıklayın. Taramadaki eski kelime örtülür.",
     "scanTextNone": "Bu sayfada tanınan metin yok. Önce Metin Tanıma (OCR) çalıştırın.",
     "shiftPage": "Sayfayı kaydır",
+    "scanGroup": "Tarama",
+    "scan": "Tara",
+    "scanTitle": "Sayfaları aranabilir PDF'ye tara",
+    "batchOcr": "Toplu OCR",
+    "batchOcrTitle": "Bir klasördeki tüm PDF dosyalarında metni tanı",
     "editPages": "Sayfaları Düzenle",
     "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün"
   },

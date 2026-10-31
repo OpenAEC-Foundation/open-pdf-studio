@@ -349,6 +349,11 @@
     "scanTextHint": "Kliknite prepoznatu riječ da biste je zamijenili. Stara riječ u skenu bit će prekrivena.",
     "scanTextNone": "Na ovoj stranici nema prepoznatog teksta. Najprije pokrenite Prepoznavanje teksta (OCR).",
     "shiftPage": "Pomakni stranicu",
+    "scanGroup": "Skeniranje",
+    "scan": "Skeniraj",
+    "scanTitle": "Skeniraj stranice u pretraživi PDF",
+    "batchOcr": "Skupni OCR",
+    "batchOcrTitle": "Prepoznaj tekst u svim PDF datotekama mape",
     "editPages": "Uredi stranice",
     "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje"
   },

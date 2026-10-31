@@ -349,6 +349,11 @@
     "scanTextHint": "Fai clic su una parola riconosciuta per sostituirla. La vecchia parola nella scansione viene coperta.",
     "scanTextNone": "Nessun testo riconosciuto in questa pagina. Esegui prima Riconoscimento testo (OCR).",
     "shiftPage": "Sposta pagina",
+    "scanGroup": "Scansione",
+    "scan": "Scansiona",
+    "scanTitle": "Scansiona pagine in un PDF ricercabile",
+    "batchOcr": "OCR in blocco",
+    "batchOcrTitle": "Riconosci il testo in tutti i PDF di una cartella",
     "editPages": "Modifica pagine",
     "editPagesTitle": "Modifica le pagine visivamente: riordina, ruota, inserisci, elimina, estrai e dividi"
   },

@@ -67,6 +67,8 @@ import PrintProgressToast from './PrintProgressToast.jsx';
 // Feature dialogs that are opened rarely: loaded on first use, with their
 // services, so they stay out of the main chunk.
 const OcrReviewDialog = lazy(() => import('./dialogs/OcrReviewDialog.jsx'));
+const BatchOcrDialog = lazy(() => import('./dialogs/BatchOcrDialog.jsx'));
+const ScanDialog = lazy(() => import('./dialogs/ScanDialog.jsx'));
 const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
 const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
 const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
@@ -122,6 +124,8 @@ const DIALOG_MAP = {
   'protect-pdf': ProtectPdfDialog,
   'ocr-language': OcrLanguageDialog,
   'ocr-review': OcrReviewDialog,
+  'batch-ocr': BatchOcrDialog,
+  'scan': ScanDialog,
   'resize-pages': ResizePagesDialog,
   'compress': CompressDialog,
   'screenshot': ScreenshotDialog,

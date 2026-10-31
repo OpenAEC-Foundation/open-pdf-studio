@@ -236,6 +236,20 @@ pub fn page_size_pt(doc: &PdfDocument<'static>, page_index: u32) -> Result<(f32,
     Ok((page.width().value, page.height().value))
 }
 
+/// How many non-whitespace characters the page's text layer holds (also
+/// invisible OCR text). Batch OCR (#382) uses it to skip pages that already
+/// carry text.
+pub fn page_text_chars(doc: &PdfDocument<'static>, page_index: u32) -> Result<u32, String> {
+    let _guard = inproc_guard();
+    let pages = doc.pages();
+    let page = pages
+        .get(page_index as i32)
+        .map_err(|e| format!("Page {} not found: {}", page_index, e))?;
+    let text = page.text().map_err(|e| format!("Page {} text: {}", page_index, e))?;
+    let count = text.all().chars().filter(|c| !c.is_whitespace()).count();
+    Ok(u32::try_from(count).unwrap_or(u32::MAX))
+}
+
 /// Render a single page to RGBA pixel bytes at the requested scale and
 /// rotation. Returns (width, height, rgba) where rgba length is
 /// width * height * 4.

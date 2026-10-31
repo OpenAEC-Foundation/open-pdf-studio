@@ -23,6 +23,10 @@ const splitDocumentIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 
 const scanTextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><path d="M8.5 9.5h7M12 9.5v6"/></svg>`;
 
+// Scanner en map-OCR (#382).
+const scanIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 14h18v5H3z"/><path d="M6 14V5h9l3 3v6" /><path d="M15 5v3h3"/><path d="M6 16.5h4" stroke-linecap="round"/></svg>`;
+const batchOcrIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 6h6l2 2h10v11H3z"/><path d="M8 12h8M8 15h5" stroke-linecap="round"/></svg>`;
+
 export default function OrganizeTab() {
   const { t } = useTranslation('ribbon');
   const ro = () => noPdf() || isPdfAReadOnly();
@@ -114,6 +118,13 @@ export default function OrganizeTab() {
             icon={reorderIcon}
             label={t('organize.reorderPages') || 'Reorder'}
             disabled={ro()} onClick={openPageReorder} />
+        </RibbonGroup>
+
+        <RibbonGroup label={t('organize.scanGroup')}>
+          <RibbonButton id="ep-scan" title={t('organize.scanTitle')} icon={scanIcon} label={t('organize.scan')}
+            onClick={() => openDialog('scan', {})} />
+          <RibbonButton id="ep-batch-ocr" title={t('organize.batchOcrTitle')} icon={batchOcrIcon} label={t('organize.batchOcr')}
+            onClick={() => openDialog('batch-ocr', {})} />
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.combine')}>
