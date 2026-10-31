@@ -9,7 +9,7 @@ import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
-import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
+import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFDict, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { insluitBytes } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
@@ -75,6 +75,10 @@ import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
 import { draaiPunt, draaiMidden, draaiCm } from './saver/vorm-draaiing.js';
 import { schrijfAlgemeneSleutels, antwoordAnnotaties, schrijfKoppelingen } from './saver/annotatie-algemeen.js';
 import { schrijfRuweSleutels } from './saver/ruwe-sleutels.js';
+import {
+  planBronnen, zuivereVerschuiving, samenvoegen, bronNaOpslaan, veldVingerafdrukken, bewaarBronSleutels, houdSoort,
+} from './saver/bron-behoud.js';
+import { ankerVan } from './saver/bron-vingerafdruk.js';
 import { bouwTellingDict } from './saver/telling.js';
 import { isVreemdeTelling, tellingStraal } from '../annotations/telling.js';
 import { tekstvakRc, dsTekstDecoratie } from './saver/tekstvak-rc.js';
@@ -477,6 +481,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       schrijfStandaardLaagstand(pdfDocLib, laagStandaard);
     }
 
+    // Wat deze save per model schreef, om daarna pdfBron bij te werken
+    // (saver/bron-behoud.js).
+    const geschreven = [];
+
     // Group annotations by page
     const annotationsByPage = {};
     for (const ann of docAnnotations) {
@@ -597,11 +605,60 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // Bijlage-annotaties die ongemoeid blijven (#376, zie 'fileAttachment').
       const behoudenBijlagen = new Set();
 
+      // Annotaties uit het bestand die niet veranderden, blijven zoals ze
+      // waren; met alleen een andere vorm krijgen ze alleen nieuwe geometrie;
+      // anders worden ze herschreven op hun eigen objectnummer (#629, zie
+      // saver/bron-behoud.js). Niet bij Alles vlakken (dat zoekt elke
+      // annotatie op haar model-id) en niet op een pagina die de app draaide.
+      const bronPlannen = (alleenAnnotaties || appRotation) ? new Map()
+        : planBronnen(context, pageAnnotations, new Set(verwijderdeRefs.map((r) => r.tag)), {
+          verwachteLaag: (a) => ocVoorAnnotatie(laagOcgs, a),
+          standaardLaag: ocVoorAnnotatie(laagOcgs, {}),
+        });
+      const blijftStaan = new Set(); // ref.tag van wat ongewijzigd in het bestand blijft
+      const vasteDicts = new Set(); // woordenboeken die deze save niet aanraakt
+      const ouderDicts = new Map(); // model-id -> zo'n woordenboek, alleen om te lezen
+      const nmVan = (d) => { try { return d?.get?.(PDFName.of('NM'))?.decodeText?.(); } catch { return undefined; } };
+      for (const bp of bronPlannen.values()) {
+        if (bp.staat === 'gelijk' || bp.staat === 'deels') {
+          blijftStaan.add(bp.ref.tag);
+          const nm = nmVan(bp.dict);
+          if (nm) gebruikteNm.add(nm);
+        }
+        if (bp.staat === 'gelijk') vasteDicts.add(bp.dict);
+        for (const r of bp.houd) {
+          blijftStaan.add(r.tag);
+          const d = context.lookup(r);
+          vasteDicts.add(d);
+          const nm = nmVan(d);
+          if (nm) gebruikteNm.add(nm);
+        }
+      }
+      // Vóór het herschrijven: een herschreven annotatie houdt haar nummer,
+      // en daarna zou dit het nieuwe woordenboek lezen.
+      const correctieSleutels = correctionRefKeys(context, verwijderdeRefs.filter((r) => !blijftStaan.has(r.tag)));
+
       // Add our annotations
       for (const annRaw of pageAnnotations) {
         // Veilig punt per annotatie; de event-loop krijgt alleen na een
         // partij rekenwerk ruimte (saver/opslag-annuleren.js).
         await annulering.punt();
+        const bronPlan = bronPlannen.get(annRaw.id);
+        if (bronPlan?.staat === 'gelijk') {
+          // Niets veranderd: het object uit het bestand, met alles wat erbij hoort.
+          annotsArray.push(bronPlan.ref, ...bronPlan.houd);
+          refById.set(annRaw.id, bronPlan.ref);
+          ouderDicts.set(annRaw.id, bronPlan.dict);
+          geschreven.push({
+            ann: annRaw, dict: bronPlan.dict, velden: bronPlan.velden, anker: ankerVan(annRaw),
+            mee: {
+              status: (bronPlan.status || []).map((r) => context.lookup(r)),
+              antwoorden: (bronPlan.antwoorden || []).map((r) => context.lookup(r)),
+              leiders: (bronPlan.leiders || []).map((r) => context.lookup(r)),
+            },
+          });
+          continue;
+        }
         // On rotated pages, remap visual coords into the unrotated page frame
         // so the convert helpers below produce correct PDF coordinates. rot 0
         // returns the annotation unchanged (non-rotated pages untouched).
@@ -1893,7 +1950,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
-              NM: PDFString.of('stamp_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
+              // De naam uit het bestand blijft (#629); een nieuw stempel krijgt er een.
+              NM: ann.nm && !gebruikteNm.has(String(ann.nm)) ? pdfTextString(String(ann.nm))
+                : PDFString.of('stamp_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
               F: computeAnnotFlags(ann)
             };
             stampDictObj.IT = PDFName.of('Stamp');
@@ -3169,6 +3228,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           // voor alle soorten. Zonder lagen is laagOcgs null en komt er niets bij.
           const ocRef = ocVoorAnnotatie(laagOcgs, ann);
           if (ocRef && typeof annotDict.set === 'function') annotDict.set(PDFName.of('OC'), ocRef);
+          // Herschreven uit het bestand (#629): de soort en /IT blijven die van
+          // het bestand. Vóór de ruwe sleutels: die gaan alleen terug op
+          // dezelfde soort.
+          if (bronPlan?.staat === 'anders' && typeof annotDict.set === 'function') {
+            houdSoort(context, bronPlan.dict, annotDict, annRaw, bronPlan);
+          }
           // Naam, onderwerp, alternatieve tekst en IFC-categorie (#619) — ook
           // één plek voor alle soorten. Zie saver/annotatie-algemeen.js.
           schrijfAlgemeneSleutels(annotDict, ann, gebruikteNm);
@@ -3179,21 +3244,61 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           if (alleenAnnotaties && typeof annotDict.set === 'function') {
             annotDict.set(PDFName.of(MODEL_ID_SLEUTEL), PDFString.of(String(annRaw.id ?? '')));
           }
-          parentAnnotRef = context.register(annotDict);
+          if (bronPlan && annotDict instanceof PDFDict) {
+            if (bronPlan.staat === 'deels') {
+              // Alleen de vorm of iets wat niet tekent veranderde: het
+              // woordenboek uit het bestand met alleen dat nieuw. Een zuivere
+              // verplaatsing schuift de getallen op en houdt de appearance.
+              const schuif = bronPlan.vorm ? zuivereVerschuiving(annRaw) : null;
+              const anker = annRaw.pdfBron?.anker;
+              let pdfSchuif = null;
+              if (schuif && anker) {
+                const a = puntNaarPdf(anker.x, anker.y);
+                const b = puntNaarPdf(anker.x + schuif.dx, anker.y + schuif.dy);
+                pdfSchuif = { pdx: b.x - a.x, pdy: b.y - a.y };
+              }
+              annotDict = samenvoegen(context, bronPlan.dict, annotDict, {
+                vorm: bronPlan.vorm, verschuiving: pdfSchuif, metaSleutels: bronPlan.metaSleutels,
+                apErbij: bronPlan.apErbij, gewijzigd: bronPlan.gewijzigd.length > 0,
+              });
+              vasteDicts.add(annotDict);
+            } else {
+              // Herschreven: wat nooit verandert (aanmaakdatum, popup) blijft.
+              bewaarBronSleutels(context, bronPlan.dict, annotDict, bronPlan.ref, bronPlan);
+            }
+            // Op het eigen objectnummer: wat ernaar wijst, blijft kloppen.
+            context.assign(bronPlan.ref, annotDict);
+            parentAnnotRef = bronPlan.ref;
+          } else {
+            parentAnnotRef = context.register(annotDict);
+          }
           annotsArray.push(parentAnnotRef);
           // Op id, voor de vervangingen (#508) en de overige /IRT-koppelingen
           // (#619) na deze lus.
           refById.set(annRaw.id, parentAnnotRef);
-          dictById.set(annRaw.id, annotDict);
+          if (!vasteDicts.has(annotDict)) dictById.set(annRaw.id, annotDict);
+          else ouderDicts.set(annRaw.id, annotDict);
         }
+        const meeGeschreven = { status: [], antwoorden: [], leiders: [] };
 
         // Reviewstatus (#308), gemarkeerd en antwoorden (#619): elk een aparte
         // /Text met /IRT naar deze annotatie (PDF-spec), zodat ze ook in andere
         // programma's bij de annotatie horen en bij heropenen terugkomen.
         if (parentAnnotRef) {
           const ouderDict = annotDict || (behoudenRef ? context.lookup(behoudenRef) : null);
-          for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm)) {
+          // Wat uit het bestand kwam en niet veranderde, blijft zoals het was:
+          // een statusgeschiedenis van een ander programma, eigen antwoorden.
+          const houdStatus = bronPlan?.status || null;
+          const houdAntwoorden = bronPlan?.antwoorden || null;
+          for (const r of [...(houdStatus || []), ...(houdAntwoorden || [])]) annotsArray.push(r);
+          if (houdStatus) meeGeschreven.status.push(...houdStatus.map((r) => context.lookup(r)));
+          if (houdAntwoorden) meeGeschreven.antwoorden.push(...houdAntwoorden.map((r) => context.lookup(r)));
+          for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm, {
+            zonderStatus: !!houdStatus, zonderAntwoorden: !!houdAntwoorden,
+          })) {
             annotsArray.push(context.register(antwoord));
+            const eigen = antwoord.get(PDFName.of('OPS_Subtype'))?.decodeText?.() === 'reply';
+            meeGeschreven[eigen ? 'antwoorden' : 'status'].push(antwoord);
           }
         }
 
@@ -3259,21 +3364,30 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             if (ocRef) ldrDict.set(PDFName.of('OC'), ocRef);
             const ldrRef = context.register(ldrDict);
             annotsArray.push(ldrRef);
+            meeGeschreven.leiders.push(ldrDict);
           }
+        }
+        if (parentAnnotRef && !momentopname) {
+          geschreven.push({
+            ann: annRaw, dict: context.lookup(parentAnnotRef), velden: bronPlan?.velden || veldVingerafdrukken(annRaw),
+            anker: ankerVan(annRaw), mee: meeGeschreven,
+          });
         }
       }
 
       // Vervangingen koppelen (#508): /IRT + /RT /Group naar het invoegteken.
       // Popups van herschreven correcties vallen weg; die van andere
       // annotaties blijven zoals voorheen.
-      applyGroupLinks(context, plan, refById, dictById, annotsArray);
+      applyGroupLinks(context, plan, refById, dictById, annotsArray, { ouders: ouderDicts, vast: vasteDicts });
       // Overige koppelingen naar een andere annotatie (#619): /IRT en /RT.
       schrijfKoppelingen(pageAnnotations, refById, dictById);
       // Ook de popup van een herschreven bijlage-annotatie (#376) valt weg: via
       // haar /Parent hield die de oude annotatie, en daarmee een kopie van het
-      // ingesloten bestand, bij elke save in het bestand.
-      const popupOuders = correctionRefKeys(context, verwijderdeRefs);
+      // ingesloten bestand, bij elke save in het bestand. Wat ongewijzigd of
+      // alleen verschoven bleef staan (#629), houdt zijn popup.
+      const popupOuders = new Set(correctieSleutels);
       for (const ref of verwijderdeRefs) {
+        if (blijftStaan.has(ref.tag)) continue;
         if (context.lookup(ref)?.get?.(PDFName.of('Subtype'))?.toString() === '/FileAttachment') popupOuders.add(ref.toString());
       }
       annotsArray = dropOrphanPopups(context, annotsArray, popupOuders);
@@ -3361,6 +3475,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     await annulering.wacht(pdfDocLib.flush());
     // Per partij objecten een veilig punt (#766).
     await ruimOngebruikteObjectenOpMetPauzes(pdfDocLib, { nieuwVanaf: eersteNieuwObject, annulering });
+    // Na het hernummeren: waar elk model nu in het bestand staat.
+    const nieuweBronnen = momentopname ? [] : bronNaOpslaan(context, geschreven);
 
     // Herstelmomentopname: alleen de bytes; niets wegschrijven of bijwerken.
     if (momentopname) {
@@ -3423,6 +3539,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // Mark document as saved
     markDocumentSaved(activeDoc);
+    // De modellen beschrijven nu het opgeslagen bestand (saver/bron-behoud.js):
+    // een volgende save laat ongewijzigde annotaties weer staan.
+    for (const [model, bron] of nieuweBronnen) model.pdfBron = bron;
     // Lagen (#377): de bewaarde stand is nu de beginstand van het bestand, en
     // een weergavekopie volgt de nieuwe bytes.
     lagenNaOpslaan(activeDoc, { standBewaard: !!laagStandaard })

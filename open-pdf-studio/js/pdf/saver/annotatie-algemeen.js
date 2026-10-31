@@ -64,15 +64,18 @@ export function schrijfAlgemeneSleutels(dict, ann, gebruikteNm) {
  * @param {import('pdf-lib').PDFDict} ouderDict
  * @param {Set<string>} [gebruikteNm]  /NM per pagina uniek (een geplakte kopie
  *   draagt dezelfde antwoorden mee)
+ * @param {{zonderStatus?: boolean, zonderAntwoorden?: boolean}} [opties]
+ *   status of antwoorden niet maken: de saver liet die uit het bestand staan
+ *   (#629, saver/bron-behoud.js)
  * @returns {import('pdf-lib').PDFDict[]}
  */
-export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteNm) {
+export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteNm, { zonderStatus = false, zonderAntwoorden = false } = {}) {
   const uit = [];
   if (!ann || !(ouderRef instanceof PDFRef) || !ouderDict) return uit;
   const ouderRect = ouderDict.get(N('Rect'));
 
   // Reviewstatus (#308): verborgen, de status hoort bij de annotatie zelf.
-  if (ann.status && ann.status !== 'none') {
+  if (!zonderStatus && ann.status && ann.status !== 'none') {
     const stateStr = String(ann.status).charAt(0).toUpperCase() + String(ann.status).slice(1);
     const datum = pdfDatum(ann.statusAt);
     const st = context.obj({
@@ -92,7 +95,7 @@ export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteN
   }
 
   // Gemarkeerd: het statusmodel Marked, net zo verborgen.
-  if (ann.marked) {
+  if (!zonderStatus && ann.marked) {
     const datum = pdfDatum(ann.modifiedAt);
     const mk = context.obj({
       Type: 'Annot',
@@ -112,7 +115,7 @@ export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteN
 
   // Antwoorden: een notitie in de linkerbovenhoek van de annotatie, zoals een
   // lezer zonder discussievenster haar toont.
-  const replies = Array.isArray(ann.replies) ? ann.replies : [];
+  const replies = !zonderAntwoorden && Array.isArray(ann.replies) ? ann.replies : [];
   if (replies.length) {
     const r = Array.isArray(ouderRect?.asArray?.()) ? ouderRect.asArray().map((v) => v.asNumber?.() ?? 0) : null;
     const links = r ? Math.min(r[0], r[2]) : 0;

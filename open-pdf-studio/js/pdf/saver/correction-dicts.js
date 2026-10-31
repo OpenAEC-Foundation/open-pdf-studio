@@ -253,15 +253,17 @@ const kopie = (context, v) => (v && typeof v.clone === 'function' ? v.clone(cont
  * (lezers nemen die van de groepsleider over) en /Contents verdwijnt. Met
  * `annotsArray` komt het kind vóór zijn ouder te staan, zodat het invoegteken
  * erbovenop getekend wordt.
+ * `ouders`: woordenboeken die deze save uit het bestand liet staan (#629),
+ * alleen om te lezen; een kind in `vast` blijft zoals het is.
  * @returns {number} aantal gekoppelde kinderen
  */
-export function applyGroupLinks(context, plan, refById, dictById, annotsArray) {
+export function applyGroupLinks(context, plan, refById, dictById, annotsArray, { ouders = null, vast = null } = {}) {
   let aantal = 0;
   for (const { childId, parentId } of plan?.links || []) {
     const ouderRef = refById.get(parentId);
-    const ouder = dictById.get(parentId);
+    const ouder = dictById.get(parentId) || ouders?.get(parentId);
     const kind = dictById.get(childId);
-    if (!(ouderRef instanceof PDFRef) || !ouder || !kind) continue;
+    if (!(ouderRef instanceof PDFRef) || !ouder || !kind || vast?.has(kind)) continue;
     kind.set(N('IRT'), ouderRef);
     kind.set(N('RT'), N('Group'));
     for (const sleutel of ['C', 'T', 'CreationDate', 'M']) {

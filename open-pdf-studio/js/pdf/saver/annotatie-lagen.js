@@ -251,13 +251,22 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
   const refs = new Map();
   for (const laag of lagen) {
     if (!laag || typeof laag.id !== 'string' || refs.has(laag.id)) continue;
-    let ref = bestaand.get(laag.id) || vreemdeOcgTerug(pdfDoc, laag);
+    const eigen = bestaand.get(laag.id);
+    let ref = eigen || vreemdeOcgTerug(pdfDoc, laag);
     let dict = ref ? context.lookup(ref) : null;
     if (!(dict instanceof PDFDict)) {
       dict = context.obj({});
       ref = context.register(dict);
     }
     const naam = laag.id === DEFAULT_LAYER_ID ? standaardNaam : laag.name;
+    // Een laag van een ander programma die in de app niet veranderde, blijft
+    // zoals het bestand haar had (#629): de lader herkent haar weer aan haar
+    // objectnummer.
+    if (!eigen && ref && VREEMD_ID.test(laag.id || '') && !laag.color && !laag.locked && laag.printable !== false
+        && tekst(context, dict.get(N('Name'))) === (naam || laag.id)) {
+      refs.set(laag.id, ref);
+      continue;
+    }
     dict.set(N('Type'), N('OCG'));
     // Een overgenomen OCG houdt de naam die hij in het bestand heeft: de naam
     // in het paneel kan afwijken (een achtervoegsel " (2)" tegen dubbele

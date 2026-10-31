@@ -451,6 +451,7 @@ js/pdf/saver/vorm-draaiing.test.mjs
 js/pdf/saver/tekstvak-rc.test.mjs
 js/pdf/loader/annotatie-algemeen.test.mjs
 js/pdf/bewaren-rondgang.test.mjs
+js/pdf/rondgang-alle-soorten.test.mjs
 js/pdf/saver/ruwe-sleutels.test.mjs
 js/pdf/extensie-opslaan.test.mjs
 js/annotations/scale-region-style.test.mjs
