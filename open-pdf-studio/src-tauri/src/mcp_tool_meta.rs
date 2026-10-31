@@ -83,7 +83,6 @@ pub const TOOLS: &[ToolMeta] = &[
     lees("app_list_commands", "List app commands"),
     // Leest de interface; wisselt geen linttabblad (#584).
     lees("app_read_ui", "Read interface state"),
-    lees("app_assistant_history", "Get assistant conversation"),
     lees("app_list_printers", "List printers"),
     lees("app_list_layers", "List markup layers"),
     lees("app_list_system_types", "List system types"),
@@ -103,9 +102,6 @@ pub const TOOLS: &[ToolMeta] = &[
     voegt_toe("app_insert_blank_pages", "Insert blank pages"),
     voegt_toe("app_import_cad", "Import CAD drawing"),
     voegt_toe("app_symbol_scale", "Symbol placement scale"),
-    voegt_toe("app_assistant_ask", "Ask assistant"),
-    voegt_toe("app_assistant_pending", "Take pending assistant question"),
-    voegt_toe("app_assistant_answer", "Answer assistant question"),
     // Agenttaken (#556): verandert alleen de taakwachtrij; een resultaat is een
     // voorstel dat de extensie zelf toepast.
     voegt_toe("app_agent_task_pending", "Take pending agent task"),
@@ -175,7 +171,6 @@ pub const TOOLS: &[ToolMeta] = &[
     ontwikkel("screenshot_page", "Render test page", true),
     ontwikkel("screenshot_all", "Render all test pages", true),
     ontwikkel("get_pdf_metadata", "Read test PDF metadata", true),
-    ontwikkel("app_ai_complete", "Ask OpenAEC AI", false),
     ontwikkel("app_accounts_status", "OpenAEC sign-in state", true),
     ontwikkel("app_accounts_fetch", "OpenAEC account API call", false),
 ];

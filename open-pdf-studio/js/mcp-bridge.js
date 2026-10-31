@@ -2371,29 +2371,6 @@ async function handleFacadeElement(params) {
   return uit;
 }
 
-/** Ask the assistant's AI (Claude/Anthropic direct) — lets an MCP client test
- *  the assistant end-to-end without the chat UI. Uses the personal key set via
- *  the 🔑 button. */
-async function handleAiComplete(params) {
-  const prompt = params?.prompt;
-  if (typeof prompt !== 'string' || !prompt) return { ok: false, error: 'missing params.prompt' };
-  // Als gast praat de app niet met andere hosts en staat de sleutel nergens (#548).
-  const { externeDienstenAan } = await import('./core/webfuncties.js');
-  if (!externeDienstenAan()) return { ok: false, error: 'AI service is off when hosted' };
-  const { leesAiSleutel } = await import('./core/ai-sleutel.js');
-  const key = leesAiSleutel();
-  // Claude (Anthropic) direct — uses the personal key set via the 🔑 button.
-  if (!key) return { ok: false, error: 'geen Claude-key gezet (🔑)' };
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 512, system: params?.system || undefined, messages: [{ role: 'user', content: prompt }] }),
-  });
-  if (!r.ok) { const tx = await r.text().catch(() => ''); return { ok: false, error: `Claude API ${r.status}: ${tx.slice(0, 200)}` }; }
-  const data = await r.json();
-  return { ok: true, via: 'claude-direct', text: data?.content?.[0]?.text || '' };
-}
-
 /** Accounts sign-in state — deactivated (cloud accounts feature removed from
  *  this build). Reports signed-out so external MCP clients degrade gracefully. */
 async function handleAccountsStatus() {
@@ -2404,35 +2381,6 @@ async function handleAccountsStatus() {
  *  from this build). */
 async function handleAccountsFetch() {
   return { ok: false, error: 'accounts feature not available in this build' };
-}
-
-/** Assistant relay — submit a user message programmatically (app_assistant_ask). */
-async function handleAssistantAsk(params) {
-  const text = params?.text;
-  if (typeof text !== 'string' || !text) return { ok: false, error: 'missing params.text' };
-  const relay = await import('./assistant-mcp-relay.js');
-  return relay.submitAssistantMessage(text);
-}
-
-/** Assistant relay — take the oldest question awaiting an MCP answer. */
-async function handleAssistantPending() {
-  const relay = await import('./assistant-mcp-relay.js');
-  return relay.takePendingQuestion();
-}
-
-/** Assistant relay — answer a pending question; it appears in the chat window. */
-async function handleAssistantAnswer(params) {
-  const id = params?.id;
-  const text = params?.text;
-  if (!id || typeof text !== 'string') return { ok: false, error: 'need params.id and params.text' };
-  const relay = await import('./assistant-mcp-relay.js');
-  return relay.answerAssistantQuestion(id, text);
-}
-
-/** Assistant relay — read the current conversation (verify delivery). */
-async function handleAssistantHistory() {
-  const relay = await import('./assistant-mcp-relay.js');
-  return relay.getAssistantMessages();
 }
 
 /** Return take-off totals for a named schedule (or all schedules). Numeric
@@ -3941,17 +3889,10 @@ const HANDLERS = {
   // Gestructureerde opdrachten van extensies (#575); de regels staan in plugins/structured-commands.js
   'mcp:call-extension-command':   (p) => import('./plugins/structured-commands.js').then((m) => m.handleCallExtensionCommand(p)),
   'mcp:cancel-extension-command': (p) => import('./plugins/structured-commands.js').then((m) => m.handleCancelExtensionCommand(p)),
-  // Assistant — test the AI end-to-end
-  'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)
   'mcp:accounts-status':    handleAccountsStatus,
   'mcp:accounts-fetch':     handleAccountsFetch,
-  // Assistant relay — external MCP client as the AI brain
-  'mcp:assistant-ask':      handleAssistantAsk,
-  'mcp:assistant-pending':  handleAssistantPending,
-  'mcp:assistant-answer':   handleAssistantAnswer,
-  'mcp:assistant-history':  handleAssistantHistory,
-  // Agenttaken van extensies (#556): zonder assistentvenster; de regels staan in plugins/agent-tasks.js
+  // Agenttaken van extensies (#556); de regels staan in plugins/agent-tasks.js
   'mcp:agent-task-pending': (p) => import('./plugins/agent-tasks.js').then((m) => m.handleAgentTaskPending(p)),
   'mcp:agent-task-result':  (p) => import('./plugins/agent-tasks.js').then((m) => m.handleAgentTaskResult(p)),
 };

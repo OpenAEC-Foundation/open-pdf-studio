@@ -117,7 +117,6 @@ Professional annotation, markup, measurement, redaction and page management — 
 - Over fifty tools: open and save documents, navigate, create and edit annotations, set the measuring scale, take off quantities and place schedules, import and export CAD, print to a PDF file, and more
 - `open-pdf-studio.mcpb` installs the connection in Claude Desktop with a double click
 - A small indicator in the status bar shows the connection: grey when the server is off, an open dot when it is on and idle, green while an assistant was active in the last 30 seconds, with a short highlight on every tool call; its tooltip names the port and the last tool
-- An assistant panel inside the app offers ready-made skills: translate, summarise, draw an element, and detect doors
 
 ### Text Recognition (OCR)
 - Make scanned pages searchable and selectable with an invisible text layer
@@ -426,8 +425,7 @@ FUSE. See [docs/openaec-linux.md](docs/openaec-linux.md) for the full contract.
 The app sends no telemetry. It connects to other hosts only for: the release
 notes after an update (GitHub API, at startup, not in managed mode), the update
 check, the previous-version download, the online symbol library, the feedback
-form, the AI assistant with your own key, opening a PDF from a URL you type, and
-OpenAEC sign-in. The full list is in
+form, opening a PDF from a URL you type, and OpenAEC sign-in. The full list is in
 [docs/openaec-linux.md](docs/openaec-linux.md#network).
 
 ## Building from Source

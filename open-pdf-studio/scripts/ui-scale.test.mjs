@@ -23,7 +23,7 @@ test('CSS dimensions scale together, leaving zero, percentages and non-dimension
 test('the plugin excludes PDF geometry, text/form layers and mobile styles', () => {
   const plugin=uiScaleCss();
   const run=(file,selector)=>{const d={source:{input:{file:'/app/styles/'+file}},parent:{selector},prop:'width',value:'100px'};plugin.Declaration(d);return d.value;};
-  for (const file of ['text-layer.css','form-layer.css','mobile.css','layout.css','assistant.css']) assert.equal(run(file,'.pdf-page'),'100px');
+  for (const file of ['text-layer.css','form-layer.css','mobile.css','layout.css']) assert.equal(run(file,'.pdf-page'),'100px');
   assert.match(run('ribbon.css','.ribbon-tab'),/--ui-scale/);
   assert.match(run('layout.css','.left-panel'),/--ui-scale/);
 });

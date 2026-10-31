@@ -751,8 +751,8 @@ export function createPluginApi(pluginId) {
     },
 
     // --- Agent tasks (#556) ---
-    // Submit a structured task for an MCP agent without opening the assistant
-    // window. Returns a handle with taskId, result (a promise), status,
+    // Submit a structured task for an MCP agent, without a chat message.
+    // Returns a handle with taskId, result (a promise), status,
     // onStatus, cancel and applyAnnotationBatch. The task is tied to the
     // document, page, source, rotation and scale at submission; a change
     // cancels it and a late result is refused. See

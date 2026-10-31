@@ -33,7 +33,6 @@ import { DockedSymbolPalette, FloatingSymbolPalette, SymbolSettingsDialog } from
 import SchedulePanel from './components/SchedulePanel.jsx';
 import SymbolTypeEditor from './components/symbol-edit/SymbolTypeEditor.jsx';
 import MiniLog from './components/MiniLog.jsx';
-import AssistantPanel from './components/AssistantPanel.jsx';
 import { getRegisteredPalettes } from '../plugins/palette-registry.js';
 import { leftOrder, rightOrder } from './stores/paletteOrder.js';
 import { useTranslation } from '../i18n/useTranslation.js';
@@ -165,7 +164,6 @@ function DesktopApp() {
       <SymbolSettingsDialog />
       <SymbolTypeEditor />
       <SchedulePanel />
-      <AssistantPanel />
       {/* MiniLog floating engine-log overlay removed per user request. */}
       <LoadingOverlay />
       <TypeLengthHUD />

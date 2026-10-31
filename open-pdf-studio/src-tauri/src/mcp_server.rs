@@ -638,12 +638,12 @@ fn extensie_tools() -> Vec<Value> {
 }
 
 /// Agenttaken van extensies (#556): een MCP-agent pakt een gestructureerde
-/// taak op en levert een gestructureerd resultaat, zonder assistentvenster en
-/// zonder chatbericht. De regels staan in js/plugins/agent-tasks.js.
+/// taak op en levert een gestructureerd resultaat, zonder chatbericht. De
+/// regels staan in js/plugins/agent-tasks.js.
 fn agent_task_pending_tool() -> Value {
     json!({
         "name": "app_agent_task_pending",
-        "description": "Take the oldest structured agent task that an extension submitted, without the assistant window: the task moves from pending to running and no other client gets it. Returns { ok, task, waiting }; task is null when no task waits. A task has id, kind, extensionId, document { id, page, pageCount, sourceFingerprint, pageRotation, scale }, context (only the fields the extension chose to share), resultSchema (what the answer must match), createdAt, deadline (ms timestamps) and attemptsLeft. No conversation, file name or other tasks are shared. Answer with app_agent_task_result before the deadline; the task is cancelled when the user switches or closes the document, or when its source, page or scale changes.",
+        "description": "Take the oldest structured agent task that an extension submitted: the task moves from pending to running and no other client gets it. Returns { ok, task, waiting }; task is null when no task waits. A task has id, kind, extensionId, document { id, page, pageCount, sourceFingerprint, pageRotation, scale }, context (only the fields the extension chose to share), resultSchema (what the answer must match), createdAt, deadline (ms timestamps) and attemptsLeft. No conversation, file name or other tasks are shared. Answer with app_agent_task_result before the deadline; the task is cancelled when the user switches or closes the document, or when its source, page or scale changes.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -1202,19 +1202,6 @@ fn handle_tools_list() -> Value {
                 }
             },
             {
-                "name": "app_ai_complete",
-                "description": "Ask the LIVE app's OpenAEC AI assistant a question (POST /me/ai/complete via the signed-in OpenAEC account). Returns { ok, signedInAs, text, credits }. Tests the assistant end-to-end without driving the chat UI; requires the app to be signed in to OpenAEC.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "prompt": { "type": "string", "description": "The question/prompt for the assistant." },
-                        "system": { "type": "string", "description": "Optional system prompt." }
-                    },
-                    "required": ["prompt"],
-                    "additionalProperties": false
-                }
-            },
-            {
                 "name": "app_accounts_status",
                 "description": "Report the LIVE app's OpenAEC sign-in state: { ok, signedIn, user:{sub,name,email}|null, brand|null }. Use to verify login from outside the WebView.",
                 "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
@@ -1232,39 +1219,6 @@ fn handle_tools_list() -> Value {
                     "required": ["path"],
                     "additionalProperties": false
                 }
-            },
-            {
-                "name": "app_assistant_ask",
-                "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel). Returns { ok }. The answer comes from whichever provider is available: OpenAEC AI, a personal Claude key, or the MCP relay (app_assistant_pending + app_assistant_answer).",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": { "text": { "type": "string", "description": "The user message to submit." } },
-                    "required": ["text"],
-                    "additionalProperties": false
-                }
-            },
-            {
-                "name": "app_assistant_pending",
-                "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider). Returns { ok, question:{ id, prompt, system, docName }|null }. When non-null, compute an answer and deliver it with app_assistant_answer — this is how an external Claude becomes the assistant's AI brain.",
-                "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
-            },
-            {
-                "name": "app_assistant_answer",
-                "description": "Answer a pending assistant question (id from app_assistant_pending). The text appears in the assistant window as the assistant's reply. Returns { ok, id }.",
-                "inputSchema": {
-                    "type": "object",
-                    "properties": {
-                        "id":   { "type": "string", "description": "Question id from app_assistant_pending." },
-                        "text": { "type": "string", "description": "Answer text to show in the assistant window." }
-                    },
-                    "required": ["id", "text"],
-                    "additionalProperties": false
-                }
-            },
-            {
-                "name": "app_assistant_history",
-                "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }. Use to verify a delivered answer landed in the window.",
-                "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
             },
             // Agenttaken van extensies (#556)
             agent_task_pending_tool(),
@@ -2791,13 +2745,8 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_shift_pages"        => tool_app_request(state, "mcp:shift-pages",         &arguments, Duration::from_secs(120)).await,
         "app_bookmarks"          => tool_app_request(state, "mcp:bookmarks",           &arguments, Duration::from_secs(15)).await,
         "app_watermarks"         => tool_app_request(state, "mcp:watermarks",          &arguments, Duration::from_secs(30)).await,
-        "app_ai_complete"        => tool_app_request(state, "mcp:ai-complete",         &arguments, Duration::from_secs(60)).await,
         "app_accounts_status"    => tool_app_request(state, "mcp:accounts-status",     &arguments, Duration::from_secs(5)).await,
         "app_accounts_fetch"     => tool_app_request(state, "mcp:accounts-fetch",      &arguments, Duration::from_secs(30)).await,
-        "app_assistant_ask"      => tool_app_request(state, "mcp:assistant-ask",       &arguments, Duration::from_secs(10)).await,
-        "app_assistant_pending"  => tool_app_request(state, "mcp:assistant-pending",   &arguments, Duration::from_secs(10)).await,
-        "app_assistant_answer"   => tool_app_request(state, "mcp:assistant-answer",    &arguments, Duration::from_secs(10)).await,
-        "app_assistant_history"  => tool_app_request(state, "mcp:assistant-history",   &arguments, Duration::from_secs(10)).await,
         // Agenttaken van extensies (#556): alleen de wachtrij, dus korte grenzen.
         "app_agent_task_pending" => tool_app_request(state, "mcp:agent-task-pending",  &arguments, Duration::from_secs(10)).await,
         "app_agent_task_result"  => tool_app_request(state, "mcp:agent-task-result",   &arguments, Duration::from_secs(10)).await,
@@ -3669,7 +3618,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 98);
+        assert_eq!(arr.len(), 94);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -3782,9 +3731,9 @@ mod tests {
         assert_eq!(antwoord["inputSchema"]["required"], json!(["id"]));
         assert_eq!(antwoord["inputSchema"]["properties"]["error"]["required"], json!(["message"]));
         assert_eq!(antwoord["inputSchema"]["properties"]["error"]["additionalProperties"], false);
-        // Direct na de assistent-relay, in deze volgorde.
+        // Direct na de accountgereedschappen, in deze volgorde.
         let pos = |naam: &str| tools.iter().position(|t| t["name"] == naam).unwrap();
-        assert_eq!(pos("app_agent_task_pending"), pos("app_assistant_history") + 1);
+        assert_eq!(pos("app_agent_task_pending"), pos("app_accounts_fetch") + 1);
         assert_eq!(pos("app_agent_task_result"), pos("app_agent_task_pending") + 1);
         use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};
         for naam in ["app_agent_task_pending", "app_agent_task_result"] {
@@ -4259,10 +4208,6 @@ mod tests {
             "app_click_element",
             "app_ui_state",
             "app_set_window_size",
-            "app_assistant_ask",
-            "app_assistant_pending",
-            "app_assistant_answer",
-            "app_assistant_history",
             "app_create_annotation",
             "app_list_annotations",
             "app_get_annotation",
