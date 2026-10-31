@@ -354,6 +354,7 @@
     "detachFailed": "Ikkunan irrottaminen epäonnistui: {{error}}",
     "dragFileGone": "Tätä tiedostoa ei enää ole levyllä — välilehteä ei voi siirtää.",
     "dragNotStarted": "Välilehteä ei voitu vetää toiseen ikkunaan. Yritä uudelleen tai käytä hiiren oikeaa painiketta → avaa uudessa ikkunassa.",
+    "openInSplitView": "Avaa jaetussa näkymässä",
     "openInNewWindow": "Avaa uudessa ikkunassa",
     "closeTab": "Sulje välilehti",
     "nextTab": "Seuraava välilehti",

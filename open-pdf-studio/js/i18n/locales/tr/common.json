@@ -354,6 +354,7 @@
     "detachFailed": "Pencere ayrılamadı: {{error}}",
     "dragFileGone": "Bu dosya artık diskte yok — sekme taşınamaz.",
     "dragNotStarted": "Sekme başka bir pencereye sürüklenemedi. Yeniden deneyin veya sağ tık → yeni pencerede aç seçeneğini kullanın.",
+    "openInSplitView": "Bölünmüş Görünümde Aç",
     "openInNewWindow": "Yeni pencerede aç",
     "closeTab": "Sekmeyi kapat",
     "nextTab": "Sonraki Sekme",

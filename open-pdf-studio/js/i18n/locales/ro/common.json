@@ -354,6 +354,7 @@
     "detachFailed": "Fereastra nu a putut fi detașată: {{error}}",
     "dragFileGone": "Acest fișier nu mai există pe disc — fila nu poate fi mutată.",
     "dragNotStarted": "Fila nu a putut fi trasă în altă fereastră. Încercați din nou sau folosiți clic dreapta → Deschidere în fereastră nouă.",
+    "openInSplitView": "Deschide în vizualizare divizată",
     "openInNewWindow": "Deschidere în fereastră nouă",
     "closeTab": "Închidere filă",
     "nextTab": "Fila urmatoare",

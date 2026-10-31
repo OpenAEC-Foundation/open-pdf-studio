@@ -13,18 +13,18 @@
 // is inhoud van het document, geen markering.
 
 /**
- * @param {{ uitvoer?: boolean, markeringen?: boolean, watermerken?: boolean }} [opties]
+ * @param {{ uitvoer?: boolean, markeringen?: boolean, watermerken?: boolean, inactief?: boolean }} [opties]
  * @returns {{ watermerken: boolean, tekstbewerkingen: boolean, markeringen: boolean,
  *             selectie: boolean, bewerkhulp: boolean, schermlijndikte: boolean }}
  */
-export function weergaveLagen({ uitvoer = false, markeringen = true, watermerken = true } = {}) {
+export function weergaveLagen({ uitvoer = false, markeringen = true, watermerken = true, inactief = false } = {}) {
   const scherm = !uitvoer;
   return {
     watermerken: watermerken !== false,
     tekstbewerkingen: true,
     markeringen: markeringen !== false,
-    selectie: scherm,
-    bewerkhulp: scherm,
+    selectie: scherm && !inactief,
+    bewerkhulp: scherm && !inactief,
     schermlijndikte: scherm,
   };
 }

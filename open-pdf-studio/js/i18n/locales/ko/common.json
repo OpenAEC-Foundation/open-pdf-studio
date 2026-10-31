@@ -354,6 +354,7 @@
     "detachFailed": "창을 분리할 수 없습니다: {{error}}",
     "dragFileGone": "이 파일이 디스크에 더 이상 없으므로 탭을 이동할 수 없습니다.",
     "dragNotStarted": "탭을 다른 창으로 끌 수 없습니다. 다시 시도하거나 마우스 오른쪽 클릭 → 새 창에서 열기를 사용하세요.",
+    "openInSplitView": "분할 보기로 열기",
     "openInNewWindow": "새 창에서 열기",
     "closeTab": "탭 닫기",
     "nextTab": "다음 탭",

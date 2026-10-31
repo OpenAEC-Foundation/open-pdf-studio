@@ -354,6 +354,7 @@
     "detachFailed": "Impossibile staccare la finestra: {{error}}",
     "dragFileGone": "Questo file non esiste più sul disco — la scheda non può essere spostata.",
     "dragNotStarted": "Impossibile trascinare la scheda in un'altra finestra. Riprova oppure usa clic destro → Apri in una nuova finestra.",
+    "openInSplitView": "Apri in vista divisa",
     "openInNewWindow": "Apri in una nuova finestra",
     "closeTab": "Chiudi scheda",
     "nextTab": "Scheda successiva",

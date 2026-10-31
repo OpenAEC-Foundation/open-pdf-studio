@@ -354,6 +354,7 @@
     "detachFailed": "Vinduet kunne ikke løsnes: {{error}}",
     "dragFileGone": "Denne fil findes ikke længere på disken — fanen kan ikke flyttes.",
     "dragNotStarted": "Fanen kunne ikke trækkes til et andet vindue. Prøv igen, eller brug højreklik → Åbn i nyt vindue.",
+    "openInSplitView": "Åbn i delt visning",
     "openInNewWindow": "Åbn i nyt vindue",
     "closeTab": "Luk fane",
     "nextTab": "Næste fane",

@@ -354,6 +354,7 @@
     "detachFailed": "Tidak dapat menanggalkan tetingkap: {{error}}",
     "dragFileGone": "Fail ini tiada lagi pada cakera — tab tidak dapat dialihkan.",
     "dragNotStarted": "Tab tidak dapat diseret ke tetingkap lain. Cuba lagi, atau gunakan klik kanan → buka dalam tetingkap baharu.",
+    "openInSplitView": "Buka dalam Paparan Terbahagi",
     "openInNewWindow": "Buka dalam tetingkap baharu",
     "closeTab": "Tutup tab",
     "nextTab": "Tab Seterusnya",

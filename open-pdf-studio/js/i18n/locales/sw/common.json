@@ -354,6 +354,7 @@
     "detachFailed": "Haikuweza kutenganisha dirisha: {{error}}",
     "dragFileGone": "Faili hii haipo tena kwenye diski — kichupo hakiwezi kuhamishwa.",
     "dragNotStarted": "Kichupo hakikuweza kuburutwa kwenda dirisha jingine. Jaribu tena, au tumia bofya kulia → fungua kwenye dirisha jipya.",
+    "openInSplitView": "Fungua katika Mwonekano Uliogawanywa",
     "openInNewWindow": "Fungua kwenye dirisha jipya",
     "closeTab": "Funga kichupo",
     "nextTab": "Kichupo Kinachofuata",

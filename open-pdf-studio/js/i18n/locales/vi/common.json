@@ -354,6 +354,7 @@
     "detachFailed": "Không thể tách cửa sổ: {{error}}",
     "dragFileGone": "Tệp này không còn trên ổ đĩa — không thể di chuyển thẻ.",
     "dragNotStarted": "Không thể kéo thẻ sang cửa sổ khác. Hãy thử lại, hoặc dùng nhấp chuột phải → mở trong cửa sổ mới.",
+    "openInSplitView": "Mở trong chế độ xem chia đôi",
     "openInNewWindow": "Mở trong cửa sổ mới",
     "closeTab": "Đóng thẻ",
     "nextTab": "Thẻ tiếp theo",

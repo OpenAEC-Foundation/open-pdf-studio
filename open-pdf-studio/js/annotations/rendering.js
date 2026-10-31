@@ -1,4 +1,5 @@
-import { state, getActiveDocument, getPageRotation, imageCache } from '../core/state.js';
+import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
+import { state, imageCache } from '../core/state.js';
 import { annotationCanvas, annotationCtx, textHighlightCanvas, textHighlightCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
@@ -251,7 +252,7 @@ function tekstInEditor(annotation) {
 function inlineNumberHighlight(annotation) {
   // Een afdruk of export kent geen selectie: geen blauwe affordance.
   if (!laag('selectie')) return false;
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   return shouldHighlightNumbers(annotation, doc ? doc.selectedAnnotations : null);
 }
 
@@ -264,7 +265,7 @@ function thinLw(width) {
   const scherm = laag('schermlijndikte');
   if (width === 0 || !scherm) return weergaveLijndikte(width, { scherm: false });
   const vp = window.__pdfViewport;
-  const _doc = state.documents[state.activeDocumentIndex];
+  const _doc = getActiveDocument();
   // Blank docs (no filePath) bypass the viewport singleton and use doc.scale.
   const scale = (vp && vp.active && _doc?.filePath)
     ? vp.zoom
@@ -511,7 +512,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   // In een afdruk, export of printvoorbeeld (`_lagen` gezet door
   // renderAnnotationsForPage) blijft ook een niet-afdrukbare laag weg (#468).
   if (!annotation._ignoreViewFilters
-      && (_lagen ? isAnnotationHiddenInOutput(annotation) : isAnnotationHiddenInView(annotation))) return;
+      && (!laag('schermlijndikte') ? isAnnotationHiddenInOutput(annotation) : isAnnotationHiddenInView(annotation))) return;
   const _evHalftone = evHalftoneTypes().get(annotation.type) || null;
 
   // Use annotation's opacity property
@@ -661,7 +662,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       const offH = maxAY - minAY;
 
       // Create offscreen canvas at scaled resolution to avoid pixelation when zoomed
-      const arrowDoc = state.documents[state.activeDocumentIndex];
+      const arrowDoc = getActiveDocument();
       const arrowScale = (arrowDoc ? schermSchaal(arrowDoc) : 1) || 1;
       const offCanvas = document.createElement('canvas');
       offCanvas.width = offW * arrowScale;
@@ -1067,7 +1068,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         const popX = annotation.popupX !== undefined ? annotation.popupX : annotation.x + 30;
         const popY = annotation.popupY !== undefined ? annotation.popupY : annotation.y;
 
-        const doc = state.documents[state.activeDocumentIndex];
+        const doc = getActiveDocument();
         const scl = (doc ? schermSchaal(doc) : 1) || 1;
         // De popup is een rechtop staand schermvenster met zijn linkerbovenhoek
         // op (popupX, popupY). Bij een gedraaide weergave (#200) ligt dat vak in
@@ -1416,11 +1417,11 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       const vpz = window.__pdfViewport;
       const zoom = (vpz && vpz.active)
         ? vpz.zoom
-        : (schermSchaal(state.documents[state.activeDocumentIndex]) || 1);
+        : (schermSchaal(getActiveDocument()) || 1);
       // Afdruk of export: het beeld komt uit bereidKnipselsVoorUitvoer, nooit
       // uit de schermcache, en ontbreekt het, dan stopt de uitvoer in plaats
       // van het lege kader af te drukken (#511).
-      const uitvoer = !!_lagen && !laag('selectie');
+      const uitvoer = !laag('schermlijndikte');
       const bmp = snippetBitmaps ? snippetBitmaps.get(annotation) : (uitvoer ? null : bitmapVoor(annotation, zoom));
       if ((snippetBitmaps || uitvoer) && !bmp) {
         const fout = new Error('Vectorknipsel ontbreekt in uitvoer');
@@ -1580,7 +1581,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       // (#508) krijgt de kleur van haar invoegteken, zoals ze ook opgeslagen
       // wordt; een weergavetint gaat voor.
       const ouderKleur = _evHalftone?.color ? null
-        : replaceStrikeColor(annotation, state.documents[state.activeDocumentIndex]?.annotations);
+        : replaceStrikeColor(annotation, getActiveDocument()?.annotations);
       ctx.strokeStyle = ouderKleur || strokeColor;
       ctx.lineWidth = thinLw(annotation.lineWidth ?? 1);
       ctx.lineCap = 'round';
@@ -1735,7 +1736,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
     case 'wall': {
       // Plan-view wall segment with material hatch + mitred corner joins
       // (see rendering/walls.js). Needs sibling walls for the joins.
-      const _wallDoc = state.documents[state.activeDocumentIndex];
+      const _wallDoc = getActiveDocument();
       ctx.lineWidth = thinLw(annotation.lineWidth ?? 0.7);
       drawWall(ctx, annotation, _wallDoc ? _wallDoc.annotations : []);
       break;
@@ -2053,13 +2054,13 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       // PDF-appearance. Aansluitingen op ANDERE balken (hoek-verstek / T)
       // worden per render opnieuw berekend uit de sibling-annotaties; de
       // doelbalk zelf wordt nooit gemuteerd.
-      const _bbDoc = state.documents[state.activeDocumentIndex];
+      const _bbDoc = getActiveDocument();
       // Tijdens het tekenen doet het voorbeeld-lijnstuk (shape-preview) mee
       // als sibling, zodat een BESTAANDE balk zijn verstek/open-T al toont
       // vóór de tweede klik — anders ziet de gebruiker een rauwe overlap met
       // eindkap op het aansluitpunt die na het vastleggen ineens verspringt.
       const _bbAnns = _bbDoc ? (_bbDoc.annotations || []) : [];
-      const _bbSibs = (state._previewJoinAnn && state._previewJoinAnn !== annotation)
+      const _bbSibs = (laag('bewerkhulp') && state._previewJoinAnn && state._previewJoinAnn !== annotation)
         ? [..._bbAnns, state._previewJoinAnn]
         : _bbAnns;
       const bbGeom = buildBetonbalk(annotation, {
@@ -2742,7 +2743,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 // Draw text edits (cover-and-replace) for a specific page
 // ctx is already scaled by state.scale, so coordinates are in unscaled page space
 function drawTextEdits(ctx, pageNum) {
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   if (!doc) return;
   const actief = tekstEditorOpCanvas(pageNum);
   const pageEdits = (doc.textEdits || []).filter(e => e.page === pageNum);
@@ -2761,7 +2762,7 @@ function drawTextEdits(ctx, pageNum) {
   const offYPt = Number.isFinite(Number(dims?.offsetYPt)) ? Number(dims.offsetYPt) : 0;
   const pageWidth = dims?.widthPt || canvasEl.width / fallbackScale;
   const pageHeight = dims?.heightPt || canvasEl.height / fallbackScale;
-  const totalRotation = (Number(dims?.rotation) || 0) + getPageRotation(pageNum);
+  const totalRotation = (Number(dims?.rotation) || 0) + (doc?.pageRotations?.[pageNum] || 0);
 
   ctx.save();
   ctx.transform(...getPageRotationMatrix(pageWidth, pageHeight, totalRotation));
@@ -2769,7 +2770,7 @@ function drawTextEdits(ctx, pageNum) {
   const type3Sleutels = [];
   // Pagina-box in user-space: het tekenkader van deze painter (#723).
   const paginaBox = { x: offXPt, y: offYPt, width: pageWidth, height: pageHeight };
-  const uitvoerType3 = !!_lagen && !_lagen.bewerkhulp;
+  const uitvoerType3 = !laag('schermlijndikte');
 
   for (const edit of pageEdits) {
     const fontSize = edit.fontSize;
@@ -2958,7 +2959,7 @@ function tekenTekstAfdekking(ctx, doc, pageNum, edit, offX, top, sleutels) {
   sleutels.push(sleutel);
   // Een afdruk of export tekent synchroon: alleen een uitsnede die al klaar
   // ligt, geen nieuwe plannen die pas na de uitvoer binnenkomt.
-  const uitvoer = !!_lagen && !_lagen.bewerkhulp;
+  const uitvoer = !laag('schermlijndikte');
   // Ook een bewerking via de MCP-teksttools dekt op een scan het gescande
   // woord af (#720), in het bestand en dus ook hier.
   const uitsnede = afdekUitsnede(doc, pageNum, sleutel, omhullende, pxPerPt, { plannen: !uitvoer });
@@ -3003,20 +3004,20 @@ function tekstBewerkingenHandtekening(doc, pageNum) {
  * device-pixeltransform van de viewport.
  */
 export function tekenTekstBewerkingenOpPagina(ctx, pageNum) {
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   _getekendeTekstBewerkingen = tekstBewerkingenHandtekening(doc, pageNum);
   drawTextEdits(ctx, pageNum);
 }
 
 function vraagTekstBewerkingenOpPagina(vp, pageNum) {
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   if (tekstBewerkingenHandtekening(doc, pageNum) !== _getekendeTekstBewerkingen) vp.dirty = true;
 }
 
 // Een uitsnede zonder tekst is klaar: dezelfde hertekening als na een
 // wijziging aan de bewerking (doorlopend, viewport of enkele pagina).
 function hertekenTekstBewerkingen() {
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   const vp = window.__pdfViewport;
   if (doc?.viewMode === 'continuous') redrawContinuous();
   else if (vp?.active && doc?.filePath) vp.dirty = true;
@@ -3080,7 +3081,7 @@ function _buitenBeeld(annotation, vpX, vpY, vpW, vpH) {
 }
 
 export function rebuildSpatialIndex() {
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   const annotations = doc ? doc.annotations : [];
   spatialIndex.rebuild(annotations);
   _lastIndexedCount = annotations.length;
@@ -3106,7 +3107,7 @@ export function redrawAnnotations(lightweight = false) {
 
   // Read scale and annotations from the active document directly
   // (bypass createMutable proxy getter caching)
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   const scale = doc ? doc.scale : 1;
   const annotations = doc ? doc.annotations : [];
 
@@ -3146,7 +3147,7 @@ export function redrawAnnotations(lightweight = false) {
   // open real PDF.
   const dpr = window.devicePixelRatio || 1;
   const vp = window.__pdfViewport;
-  const _activeDoc = state.documents[state.activeDocumentIndex];
+  const _activeDoc = getActiveDocument();
   const useViewport = vp && vp.active && _activeDoc?.filePath;
   const effectiveScale = useViewport ? vp.zoom : scale * dpr;
 
@@ -3430,11 +3431,12 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   const lagen = weergaveLagen(opties);
   // Alleen tijdens deze (synchrone) rendering, zodat drawAnnotation weet dat
   // er geen bewerkingstoestand in de uitvoer hoort.
+  const vorigeLagen = _lagen;
   _lagen = opties ? lagen : null;
   try {
     tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave, opties?.snippetBitmaps);
   } finally {
-    _lagen = null;
+    _lagen = vorigeLagen;
   }
 }
 
@@ -3442,7 +3444,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   const scale = doc ? schermSchaal(doc) : 1;
   const annotations = lagen.markeringen && doc ? doc.annotations : [];
 
@@ -3615,7 +3617,7 @@ export function updateContinuousSharpOverlay(wrapper, pageNum) {
   sharp.style.display = '';
   // z-orde meebewegen met het basiscanvas (editText verlaagt die tijdelijk).
   sharp.style.zIndex = baseCanvas.style.zIndex || '';
-  const doc = state.documents[state.activeDocumentIndex];
+  const doc = getActiveDocument();
   const scale = doc ? doc.scale : 1;
   renderAnnotationsForPage(
     sharp.getContext('2d'), pageNum, sharp.width, sharp.height, dpr,
@@ -3679,7 +3681,7 @@ export function redrawContinuous(lightweight = false) {
       // backing-schaal en clip-offset meegeven zodat de tekening exact op de
       // uitsnede past.
       const backingScale = parseFloat(canvas.dataset.backingScale);
-      const doc = state.documents[state.activeDocumentIndex];
+      const doc = getActiveDocument();
       const schaal = (doc && doc.scale) || 1;
       const cc = canvas.parentElement;
       const ccW = cc ? parseFloat(cc.style.width) || cc.getBoundingClientRect().width : 0;

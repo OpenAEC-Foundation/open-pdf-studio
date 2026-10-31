@@ -359,6 +359,7 @@
     "detachFailed": "Window losmaken mislukt: {{error}}",
     "dragFileGone": "Dit bestand bestaat niet meer op schijf — de tab kan niet verplaatst worden.",
     "dragNotStarted": "De tab kon niet naar een ander venster gesleept worden. Probeer het opnieuw, of gebruik rechtsklik → openen in nieuw venster.",
+    "openInSplitView": "Openen in gesplitste weergave",
     "openInNewWindow": "Open in nieuw venster",
     "closeTab": "Tab sluiten",
     "nextTab": "Volgend tabblad",

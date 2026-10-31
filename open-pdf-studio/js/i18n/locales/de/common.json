@@ -354,6 +354,7 @@
     "detachFailed": "Fenster konnte nicht abgelöst werden: {{error}}",
     "dragFileGone": "Diese Datei existiert nicht mehr auf dem Datenträger — der Tab kann nicht verschoben werden.",
     "dragNotStarted": "Der Tab konnte nicht in ein anderes Fenster gezogen werden. Versuchen Sie es erneut oder verwenden Sie Rechtsklick → In neuem Fenster öffnen.",
+    "openInSplitView": "In geteilter Ansicht öffnen",
     "openInNewWindow": "In neuem Fenster öffnen",
     "closeTab": "Tab schließen",
     "nextTab": "Nächster Tab",

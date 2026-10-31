@@ -670,3 +670,4 @@ js/ui/chrome/installer-update.test.mjs
 js/pdf/annotatie-uitsnede.test.mjs
 js/solid/components/tool-palette-i18n.test.mjs
 scripts/ui-scale.test.mjs
+js/annotations/rendering/document-context.test.mjs

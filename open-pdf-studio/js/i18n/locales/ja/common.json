@@ -354,6 +354,7 @@
     "detachFailed": "ウィンドウを切り離せませんでした：{{error}}",
     "dragFileGone": "このファイルはディスク上に存在しないため、タブを移動できません。",
     "dragNotStarted": "タブを別のウィンドウにドラッグできませんでした。もう一度試すか、右クリック → 新しいウィンドウで開く を使用してください。",
+    "openInSplitView": "分割表示で開く",
     "openInNewWindow": "新しいウィンドウで開く",
     "closeTab": "タブを閉じる",
     "nextTab": "次のタブ",

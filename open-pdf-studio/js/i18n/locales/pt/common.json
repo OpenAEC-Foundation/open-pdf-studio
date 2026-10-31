@@ -354,6 +354,7 @@
     "detachFailed": "Não foi possível destacar a janela: {{error}}",
     "dragFileGone": "Este arquivo não existe mais no disco — a aba não pode ser movida.",
     "dragNotStarted": "Não foi possível arrastar a aba para outra janela. Tente novamente ou use clique direito → Abrir em nova janela.",
+    "openInSplitView": "Abrir em vista dividida",
     "openInNewWindow": "Abrir em nova janela",
     "closeTab": "Fechar aba",
     "nextTab": "Separador seguinte",
