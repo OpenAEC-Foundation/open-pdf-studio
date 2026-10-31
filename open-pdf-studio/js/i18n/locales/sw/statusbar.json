@@ -148,5 +148,14 @@
     "title": "Nenda kwenye taarifa inayofuata ya uonyeshaji. Kukosekana kwa taarifa hakuhakikishi uonyeshaji kamili.",
     "count": "Taarifa za uonyeshaji: {{count}}",
     "detail": "Ukurasa {{page}}: {{code}}. Jaribu kukuza kidogo au fungua hati upya; ukamilifu haujahakikishwa."
+  },
+  "mcpSignal": {
+    "label": "Muunganisho wa AI (MCP)",
+    "connected": "Msaidizi wa AI ameunganishwa",
+    "idle": "Seva ya MCP imewashwa, haina shughuli",
+    "off": "Seva ya MCP imezimwa",
+    "port": "Mlango: {{port}}",
+    "lastTool": "Zana ya mwisho: {{tool}} saa {{time}}",
+    "noTool": "Bado hakuna miito ya zana"
   }
 }

@@ -148,5 +148,14 @@
     "title": "Gå til næste gengivelsesfund. Ingen fund garanterer ikke en fuldstændig gengivelse.",
     "count": "Gengivelsesfund: {{count}}",
     "detail": "Side {{page}}: {{code}}. Prøv en lavere zoom, eller åbn dokumentet igen; fuldstændigheden er ikke garanteret."
+  },
+  "mcpSignal": {
+    "label": "AI-forbindelse (MCP)",
+    "connected": "AI-assistent forbundet",
+    "idle": "MCP-server tændt, inaktiv",
+    "off": "MCP-server slukket",
+    "port": "Port: {{port}}",
+    "lastTool": "Seneste værktøj: {{tool}} kl. {{time}}",
+    "noTool": "Ingen værktøjskald endnu"
   }
 }

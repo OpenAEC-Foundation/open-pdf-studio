@@ -116,6 +116,7 @@ Professional annotation, markup, measurement, redaction and page management — 
 - One switch in Settings > General exposes the app to a local AI assistant over MCP — no start-up flags, local clients only
 - Over fifty tools: open and save documents, navigate, create and edit annotations, set the measuring scale, take off quantities and place schedules, import and export CAD, print to a PDF file, and more
 - `open-pdf-studio.mcpb` installs the connection in Claude Desktop with a double click
+- A small indicator in the status bar shows the connection: grey when the server is off, an open dot when it is on and idle, green while an assistant was active in the last 30 seconds, with a short highlight on every tool call; its tooltip names the port and the last tool
 - An assistant panel inside the app offers ready-made skills: translate, summarise, draw an element, and detect doors
 
 ### Text Recognition (OCR)

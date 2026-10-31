@@ -148,5 +148,14 @@
     "title": "Prejsť na ďalšie zistenie vykresľovania. Žiadne zistenia nezaručujú úplné vykreslenie.",
     "count": "Zistenia vykresľovania: {{count}}",
     "detail": "Strana {{page}}: {{code}}. Skúste menšie priblíženie alebo dokument znova otvorte; úplnosť nie je zaručená."
+  },
+  "mcpSignal": {
+    "label": "Pripojenie AI (MCP)",
+    "connected": "AI asistent pripojený",
+    "idle": "Server MCP zapnutý, nečinný",
+    "off": "Server MCP vypnutý",
+    "port": "Port: {{port}}",
+    "lastTool": "Posledný nástroj: {{tool}} o {{time}}",
+    "noTool": "Zatiaľ žiadne volania nástrojov"
   }
 }

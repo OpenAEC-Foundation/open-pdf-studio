@@ -3184,6 +3184,20 @@ async fn mcp_handler(
         }
     };
 
+    // Signaal voor de statusbalk (mcp_signaal.rs): alleen soort, toolnaam,
+    // poort en tijd; nooit argumenten of documentinhoud.
+    match method {
+        "initialize" => crate::mcp_signaal::meld(state.app_handle.as_ref(), "connect", None, state.poort),
+        "tools/call" => {
+            let naam = body
+                .get("params")
+                .and_then(|p| p.get("name"))
+                .and_then(|v| v.as_str());
+            crate::mcp_signaal::meld(state.app_handle.as_ref(), "call", naam, state.poort);
+        }
+        _ => {}
+    }
+
     let response = match method {
         "initialize" => rpc_result(id, handle_initialize()),
         "tools/list" => rpc_result(id, tools_list_met_extensies(&state)),
@@ -3284,6 +3298,9 @@ pub async fn start(
 
     eprintln!("MCP server listening on http://127.0.0.1:{port}/mcp");
     crate::mcp_koppeling::markeer_startvlag(port);
+    if let Some(app) = state.app_handle.as_ref() {
+        crate::mcp_signaal::meld_status(app, &crate::mcp_koppeling::mcp_status());
+    }
 
     serveer(listener, state, None).await
 }

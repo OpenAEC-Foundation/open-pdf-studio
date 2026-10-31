@@ -148,5 +148,14 @@
     "title": "Vai alla segnalazione di rendering successiva. L’assenza di segnalazioni non garantisce un rendering completo.",
     "count": "Segnalazioni di rendering: {{count}}",
     "detail": "Pagina {{page}}: {{code}}. Prova uno zoom inferiore o riapri il documento; la completezza non è garantita."
+  },
+  "mcpSignal": {
+    "label": "Connessione IA (MCP)",
+    "connected": "Assistente IA connesso",
+    "idle": "Server MCP acceso, in attesa",
+    "off": "Server MCP spento",
+    "port": "Porta: {{port}}",
+    "lastTool": "Ultimo strumento: {{tool}} alle {{time}}",
+    "noTool": "Nessuna chiamata a strumenti finora"
   }
 }

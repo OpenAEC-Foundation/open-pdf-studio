@@ -54,6 +54,15 @@ pub fn mcp_status() -> Value {
 /// voorkeurenvenster hem kan tonen.
 #[tauri::command]
 pub async fn mcp_instellen(app: AppHandle, aan: bool, poort: u16) -> Result<Value, String> {
+    let uitkomst = instellen(app.clone(), aan, poort).await;
+    // De statusbalk volgt de server zonder te pollen (mcp_signaal.rs).
+    if let Ok(status) = &uitkomst {
+        crate::mcp_signaal::meld_status(&app, status);
+    }
+    uitkomst
+}
+
+async fn instellen(app: AppHandle, aan: bool, poort: u16) -> Result<Value, String> {
     if LOPEND.lock().unwrap().as_ref().map_or(false, |l| l.bron == "startvlag") {
         return Ok(status());
     }

@@ -148,5 +148,14 @@
     "title": "Gå til neste gjengivelsesfunn. Ingen funn garanterer ikke en fullstendig gjengivelse.",
     "count": "Gjengivelsesfunn: {{count}}",
     "detail": "Side {{page}}: {{code}}. Prøv lavere zoom, eller åpne dokumentet på nytt; fullstendigheten er ikke garantert."
+  },
+  "mcpSignal": {
+    "label": "KI-tilkobling (MCP)",
+    "connected": "KI-assistent tilkoblet",
+    "idle": "MCP-server på, inaktiv",
+    "off": "MCP-server av",
+    "port": "Port: {{port}}",
+    "lastTool": "Siste verktøy: {{tool}} kl. {{time}}",
+    "noTool": "Ingen verktøykall ennå"
   }
 }
