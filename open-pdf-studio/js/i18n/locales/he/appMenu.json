@@ -223,5 +223,6 @@
   "workflows": "תהליכי עבודה למסמכים",
   "drawingSets": "סטים של שרטוטים",
   "sheetLinks": "קישורים בין גיליונות",
-  "approvalRouting": "ניתוב אישורים"
+  "approvalRouting": "ניתוב אישורים",
+  "sharedReview": "סקירה משותפת"
 }

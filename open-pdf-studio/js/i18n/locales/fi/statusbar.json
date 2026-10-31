@@ -148,5 +148,9 @@
     "title": "Siirry seuraavaan piirtohavaintoon. Havaintojen puuttuminen ei takaa täydellistä piirtoa.",
     "count": "Piirtohavainnot: {{count}}",
     "detail": "Sivu {{page}}: {{code}}. Kokeile pienempää zoomausta tai avaa asiakirja uudelleen; täydellisyyttä ei taata."
-  }
+  },
+  "sharedReviewActive": "Jaettu tarkistus",
+  "sharedReviewUpdates": "Jaettu tarkistus: {{n}} uutta",
+  "sharedReviewTitle": "Merkinnät jaetaan kansion {{folder}} kautta. Avaa jaettu tarkistus napsauttamalla.",
+  "sharedReviewError": "Jaettu tarkistus: kansio ei käytettävissä"
 }

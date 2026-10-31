@@ -148,5 +148,9 @@
     "title": "Gå till nästa renderingsanmärkning. Inga anmärkningar garanterar inte en fullständig rendering.",
     "count": "Renderingsanmärkningar: {{count}}",
     "detail": "Sida {{page}}: {{code}}. Prova en lägre zoom eller öppna dokumentet igen; fullständigheten är inte garanterad."
-  }
+  },
+  "sharedReviewActive": "Delad granskning",
+  "sharedReviewUpdates": "Delad granskning: {{n}} nya",
+  "sharedReviewTitle": "Kommentarer delas via {{folder}}. Klicka för att öppna den delade granskningen.",
+  "sharedReviewError": "Delad granskning: mappen är otillgänglig"
 }

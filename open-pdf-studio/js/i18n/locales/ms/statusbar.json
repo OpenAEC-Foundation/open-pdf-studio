@@ -148,5 +148,9 @@
     "title": "Pergi ke dapatan pemaparan seterusnya. Tiada dapatan tidak menjamin pemaparan yang lengkap.",
     "count": "Dapatan pemaparan: {{count}}",
     "detail": "Halaman {{page}}: {{code}}. Cuba zum yang lebih rendah atau buka semula dokumen; kelengkapan tidak dijamin."
-  }
+  },
+  "sharedReviewActive": "Semakan bersama",
+  "sharedReviewUpdates": "Semakan bersama: {{n}} baharu",
+  "sharedReviewTitle": "Anotasi dikongsi melalui {{folder}}. Klik untuk membuka semakan bersama.",
+  "sharedReviewError": "Semakan bersama: folder tidak tersedia"
 }

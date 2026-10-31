@@ -223,5 +223,6 @@
   "workflows": "Dokument-Workflows",
   "drawingSets": "Zeichnungssätze",
   "sheetLinks": "Blattübergreifende Verknüpfungen",
-  "approvalRouting": "Freigabeweiterleitung"
+  "approvalRouting": "Freigabeweiterleitung",
+  "sharedReview": "Gemeinsame Prüfung"
 }

@@ -1,6 +1,7 @@
 import { readRenderDiagnostics, subscribeRenderDiagnostics } from '../../pdf/render-diagnostics.js';
 import { Show, createSignal, onCleanup } from 'solid-js';
 import { watchState, onWatchState } from '../../workflows/watch-status.js';
+import { reviewStatus, onReviewStatus } from '../../review/shared-review-status.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { labelVan, heeftEigenLabel } from '../../pdf/pagina-labels.js';
 import { useTranslation, localizeNumber, language } from '../../i18n/useTranslation.js';
@@ -126,6 +127,11 @@ import { scaleToPercent, percentToScale, leesZoomInvoer } from '../../core/zoom-
 import { toonGetal } from '../../core/getal-invoer.js';
 
 // Stops the document-workflow folder watch (it keeps running after its dialog closes).
+async function openSharedReview() {
+  const { openDialog } = await import('../stores/dialogStore.js');
+  openDialog('shared-review');
+}
+
 async function stopFolderWatch() {
   const { stopWorkflow } = await import('../../workflows/workflow-service.js');
   stopWorkflow();
@@ -155,6 +161,10 @@ export default function StatusBar() {
   const [watching, setWatching] = createSignal(watchState());
   onCleanup(onWatchState(setWatching));
   const watchFolder = () => String(watching()?.input || '').replace(/[\\/]+$/, '').split(/[\\/]/).pop();
+  // Gedeelde beoordeling (#237): zichtbaar zolang ze voor dit document loopt.
+  const [reviewTick, setReviewTick] = createSignal(0);
+  onCleanup(onReviewStatus(() => setReviewTick((n) => n + 1)));
+  const review = () => { reviewTick(); return reviewStatus(state.documents[state.activeDocumentIndex]?.filePath); };
 
   const toolName = () => {
     const key = `tools.${state.currentTool}`;
@@ -319,6 +329,16 @@ export default function StatusBar() {
         <Show when={findings().length > 0}>
           <button class="status-nav-btn status-item status-render-findings" tabIndex={-1} onClick={showFinding} title={t('renderDiagnostics.title')}>
             {t('renderDiagnostics.count', { count: findings().length })}
+          </button>
+        </Show>
+        <Show when={review()}>
+          <button class="status-view-rotation status-watch status-review" classList={{ 'status-watch-error': !!review()?.error, 'status-review-new': review()?.unseen > 0 }} tabIndex={-1}
+            title={t('sharedReviewTitle', { folder: review()?.folder })}
+            onClick={openSharedReview}>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="8" cy="12" r="3" stroke-width="2"/><circle cx="16" cy="12" r="3" stroke-width="2"/>
+            </svg>
+            <span>{review()?.error ? t('sharedReviewError') : review()?.unseen > 0 ? t('sharedReviewUpdates', { n: localizeNumber(review().unseen) }) : t('sharedReviewActive')}</span>
           </button>
         </Show>
         <Show when={watching()}>

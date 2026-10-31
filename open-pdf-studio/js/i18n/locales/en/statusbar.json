@@ -148,5 +148,9 @@
     "title": "Go to the next render finding. No findings does not certify complete rendering.",
     "count": "Render findings: {{count}}",
     "detail": "Page {{page}}: {{code}}. Try a lower zoom or reopen the document; completeness is not certified."
-  }
+  },
+  "sharedReviewActive": "Shared review",
+  "sharedReviewUpdates": "Shared review: {{n}} new",
+  "sharedReviewTitle": "Annotations are shared through {{folder}}. Click to open the shared review.",
+  "sharedReviewError": "Shared review: folder unavailable"
 }

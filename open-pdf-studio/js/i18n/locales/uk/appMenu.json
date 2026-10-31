@@ -223,5 +223,6 @@
   "workflows": "Робочі процеси документів",
   "drawingSets": "Комплекти креслень",
   "sheetLinks": "Посилання між аркушами",
-  "approvalRouting": "Маршрут погодження"
+  "approvalRouting": "Маршрут погодження",
+  "sharedReview": "Спільна перевірка"
 }

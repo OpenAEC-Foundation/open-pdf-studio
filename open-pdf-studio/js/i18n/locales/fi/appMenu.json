@@ -223,5 +223,6 @@
   "workflows": "Asiakirjatyönkulut",
   "drawingSets": "Piirustussarjat",
   "sheetLinks": "Piirustusten väliset linkit",
-  "approvalRouting": "Hyväksyntäkierto"
+  "approvalRouting": "Hyväksyntäkierto",
+  "sharedReview": "Jaettu tarkistus"
 }

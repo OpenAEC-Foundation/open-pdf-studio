@@ -70,6 +70,7 @@ const OcrReviewDialog = lazy(() => import('./dialogs/OcrReviewDialog.jsx'));
 const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
 const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
 const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
+const SharedReviewDialog = lazy(() => import('./dialogs/SharedReviewDialog.jsx'));
 const ApprovalRoutingDialog = lazy(() => import('./dialogs/ApprovalRoutingDialog.jsx'));
 const PortfolioDialog = lazy(() => import('./dialogs/PortfolioDialog.jsx'));
 const FormRecognitionDialog = lazy(() => import('./dialogs/FormRecognitionDialog.jsx'));
@@ -87,6 +88,7 @@ const DIALOG_MAP = {
   'document-workflows': DocumentWorkflowsDialog,
   'drawing-sets': DrawingSetsDialog,
   'sheet-links': SheetLinksDialog,
+  'shared-review': SharedReviewDialog,
   'approval-routing': ApprovalRoutingDialog,
   'doc-properties': DocPropertiesDialog,
   'preferences': PreferencesDialog,

@@ -223,5 +223,6 @@
   "workflows": "Quy trình tài liệu",
   "drawingSets": "Bộ bản vẽ",
   "sheetLinks": "Liên kết giữa các bản vẽ",
-  "approvalRouting": "Luân chuyển phê duyệt"
+  "approvalRouting": "Luân chuyển phê duyệt",
+  "sharedReview": "Xem xét chung"
 }

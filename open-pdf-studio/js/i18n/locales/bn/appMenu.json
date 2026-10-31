@@ -223,5 +223,6 @@
   "workflows": "ডকুমেন্ট ওয়ার্কফ্লো",
   "drawingSets": "ড্রয়িং সেট",
   "sheetLinks": "ক্রস-শিট লিংক",
-  "approvalRouting": "অনুমোদন রাউটিং"
+  "approvalRouting": "অনুমোদন রাউটিং",
+  "sharedReview": "যৌথ পর্যালোচনা"
 }

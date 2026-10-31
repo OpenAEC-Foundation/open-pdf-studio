@@ -148,5 +148,9 @@
     "title": "Zum nächsten Darstellungshinweis wechseln. Keine Hinweise garantieren keine vollständige Darstellung.",
     "count": "Darstellungshinweise: {{count}}",
     "detail": "Seite {{page}}: {{code}}. Versuchen Sie einen kleineren Zoom oder öffnen Sie das Dokument erneut; die Vollständigkeit ist nicht garantiert."
-  }
+  },
+  "sharedReviewActive": "Gemeinsame Prüfung",
+  "sharedReviewUpdates": "Gemeinsame Prüfung: {{n}} neu",
+  "sharedReviewTitle": "Anmerkungen werden über {{folder}} geteilt. Klicken, um die gemeinsame Prüfung zu öffnen.",
+  "sharedReviewError": "Gemeinsame Prüfung: Ordner nicht erreichbar"
 }

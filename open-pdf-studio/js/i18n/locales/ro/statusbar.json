@@ -148,5 +148,9 @@
     "title": "Mergi la următoarea constatare de randare. Lipsa constatărilor nu garantează o randare completă.",
     "count": "Constatări de randare: {{count}}",
     "detail": "Pagina {{page}}: {{code}}. Încercați un zoom mai mic sau redeschideți documentul; completitudinea nu este garantată."
-  }
+  },
+  "sharedReviewActive": "Revizuire partajată",
+  "sharedReviewUpdates": "Revizuire partajată: {{n}} noi",
+  "sharedReviewTitle": "Adnotările sunt partajate prin {{folder}}. Faceți clic pentru a deschide revizuirea partajată.",
+  "sharedReviewError": "Revizuire partajată: folder indisponibil"
 }

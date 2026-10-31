@@ -148,5 +148,9 @@
     "title": "Sonraki görüntüleme bulgusuna git. Bulgu olmaması görüntülemenin eksiksiz olduğunu garanti etmez.",
     "count": "Görüntüleme bulguları: {{count}}",
     "detail": "Sayfa {{page}}: {{code}}. Daha düşük bir yakınlaştırma deneyin veya belgeyi yeniden açın; eksiksizlik garanti edilmez."
-  }
+  },
+  "sharedReviewActive": "Paylaşılan inceleme",
+  "sharedReviewUpdates": "Paylaşılan inceleme: {{n}} yeni",
+  "sharedReviewTitle": "Ek açıklamalar {{folder}} üzerinden paylaşılıyor. Paylaşılan incelemeyi açmak için tıklayın.",
+  "sharedReviewError": "Paylaşılan inceleme: klasöre erişilemiyor"
 }

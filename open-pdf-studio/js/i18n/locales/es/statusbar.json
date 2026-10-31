@@ -148,5 +148,9 @@
     "title": "Ir al siguiente aviso de renderizado. No tener avisos no garantiza un renderizado completo.",
     "count": "Avisos de renderizado: {{count}}",
     "detail": "Página {{page}}: {{code}}. Pruebe un zoom menor o vuelva a abrir el documento; no se garantiza que esté completo."
-  }
+  },
+  "sharedReviewActive": "Revisión compartida",
+  "sharedReviewUpdates": "Revisión compartida: {{n}} nuevas",
+  "sharedReviewTitle": "Las anotaciones se comparten a través de {{folder}}. Haga clic para abrir la revisión compartida.",
+  "sharedReviewError": "Revisión compartida: carpeta no disponible"
 }

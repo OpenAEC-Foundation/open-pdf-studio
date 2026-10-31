@@ -223,5 +223,6 @@
   "workflows": "سير عمل المستندات",
   "drawingSets": "مجموعات الرسومات",
   "sheetLinks": "روابط بين اللوحات",
-  "approvalRouting": "توجيه الموافقات"
+  "approvalRouting": "توجيه الموافقات",
+  "sharedReview": "مراجعة مشتركة"
 }

@@ -428,6 +428,14 @@ async function init() {
   // Herstel van niet-opgeslagen werk (js/herstel/): momentopnamen in elke
   // instantie, het aanbod na een onverwachte afsluiting alleen in de
   // hoofdinstantie (een losgemaakt tabblad toont het niet nog eens).
+  // Gedeelde beoordeling via een map (#237): een document dat er een had,
+  // gaat bij het openen weer meedoen.
+  if (isTauri()) {
+    import('./review/shared-review-service.js')
+      .then((m) => m.installSharedReview())
+      .catch((e) => console.warn('[shared-review] install failed:', e));
+  }
+
   if (isTauri()) {
     import('./herstel/herstel.js')
       .then((m) => m.startHerstel({ hoofd: taakToegestaan('herstel-aanbieden', rol) }))

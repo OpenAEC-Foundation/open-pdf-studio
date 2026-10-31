@@ -148,5 +148,9 @@
     "title": "Ugrás a következő megjelenítési észrevételre. Az észrevételek hiánya nem garantálja a teljes megjelenítést.",
     "count": "Megjelenítési észrevételek: {{count}}",
     "detail": "{{page}}. oldal: {{code}}. Próbáljon kisebb nagyítást, vagy nyissa meg újra a dokumentumot; a teljesség nem garantált."
-  }
+  },
+  "sharedReviewActive": "Közös véleményezés",
+  "sharedReviewUpdates": "Közös véleményezés: {{n}} új",
+  "sharedReviewTitle": "A megjegyzések megosztása ezen keresztül történik: {{folder}}. Kattintson a közös véleményezés megnyitásához.",
+  "sharedReviewError": "Közös véleményezés: a mappa nem érhető el"
 }

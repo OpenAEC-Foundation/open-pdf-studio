@@ -223,5 +223,6 @@
   "workflows": "Flux de travail documentaires",
   "drawingSets": "Jeux de plans",
   "sheetLinks": "Liens entre feuilles",
-  "approvalRouting": "Circuit d'approbation"
+  "approvalRouting": "Circuit d'approbation",
+  "sharedReview": "Révision partagée"
 }

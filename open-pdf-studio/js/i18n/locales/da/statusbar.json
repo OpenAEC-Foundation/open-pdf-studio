@@ -148,5 +148,9 @@
     "title": "Gå til næste gengivelsesfund. Ingen fund garanterer ikke en fuldstændig gengivelse.",
     "count": "Gengivelsesfund: {{count}}",
     "detail": "Side {{page}}: {{code}}. Prøv en lavere zoom, eller åbn dokumentet igen; fuldstændigheden er ikke garanteret."
-  }
+  },
+  "sharedReviewActive": "Delt gennemgang",
+  "sharedReviewUpdates": "Delt gennemgang: {{n}} nye",
+  "sharedReviewTitle": "Annoteringer deles via {{folder}}. Klik for at åbne den delte gennemgang.",
+  "sharedReviewError": "Delt gennemgang: mappe utilgængelig"
 }

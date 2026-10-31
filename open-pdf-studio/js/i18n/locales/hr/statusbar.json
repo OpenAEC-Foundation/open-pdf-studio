@@ -148,5 +148,9 @@
     "title": "Idi na sljedeći nalaz iscrtavanja. Bez nalaza ne jamči potpuno iscrtavanje.",
     "count": "Nalazi iscrtavanja: {{count}}",
     "detail": "Stranica {{page}}: {{code}}. Pokušajte manje uvećanje ili ponovno otvorite dokument; potpunost nije zajamčena."
-  }
+  },
+  "sharedReviewActive": "Zajednički pregled",
+  "sharedReviewUpdates": "Zajednički pregled: novih {{n}}",
+  "sharedReviewTitle": "Bilješke se dijele putem {{folder}}. Kliknite za otvaranje zajedničkog pregleda.",
+  "sharedReviewError": "Zajednički pregled: mapa nedostupna"
 }

@@ -148,5 +148,9 @@
     "title": "Buka temuan render berikutnya. Tidak adanya temuan tidak menjamin render yang lengkap.",
     "count": "Temuan render: {{count}}",
     "detail": "Halaman {{page}}: {{code}}. Coba zoom yang lebih kecil atau buka ulang dokumen; kelengkapan tidak dijamin."
-  }
+  },
+  "sharedReviewActive": "Tinjauan bersama",
+  "sharedReviewUpdates": "Tinjauan bersama: {{n}} baru",
+  "sharedReviewTitle": "Anotasi dibagikan melalui {{folder}}. Klik untuk membuka tinjauan bersama.",
+  "sharedReviewError": "Tinjauan bersama: folder tidak tersedia"
 }

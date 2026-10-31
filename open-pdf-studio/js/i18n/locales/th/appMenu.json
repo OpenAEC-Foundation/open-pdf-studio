@@ -223,5 +223,6 @@
   "workflows": "เวิร์กโฟลว์เอกสาร",
   "drawingSets": "ชุดแบบ",
   "sheetLinks": "ลิงก์ข้ามแผ่นแบบ",
-  "approvalRouting": "การส่งต่อเพื่ออนุมัติ"
+  "approvalRouting": "การส่งต่อเพื่ออนุมัติ",
+  "sharedReview": "การตรวจทานร่วมกัน"
 }

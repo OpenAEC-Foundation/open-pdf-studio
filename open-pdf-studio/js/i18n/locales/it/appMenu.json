@@ -223,5 +223,6 @@
   "workflows": "Flussi di lavoro dei documenti",
   "drawingSets": "Set di tavole",
   "sheetLinks": "Collegamenti tra tavole",
-  "approvalRouting": "Iter di approvazione"
+  "approvalRouting": "Iter di approvazione",
+  "sharedReview": "Revisione condivisa"
 }

@@ -148,5 +148,9 @@
     "title": "Đi tới thông báo hiển thị tiếp theo. Không có thông báo không đảm bảo hiển thị đầy đủ.",
     "count": "Thông báo hiển thị: {{count}}",
     "detail": "Trang {{page}}: {{code}}. Hãy thử thu phóng nhỏ hơn hoặc mở lại tài liệu; không đảm bảo tính đầy đủ."
-  }
+  },
+  "sharedReviewActive": "Xem xét chung",
+  "sharedReviewUpdates": "Xem xét chung: {{n}} mới",
+  "sharedReviewTitle": "Chú thích được chia sẻ qua {{folder}}. Nhấp để mở xem xét chung.",
+  "sharedReviewError": "Xem xét chung: không truy cập được thư mục"
 }
