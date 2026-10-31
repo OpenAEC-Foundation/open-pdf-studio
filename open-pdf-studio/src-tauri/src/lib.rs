@@ -3498,16 +3498,17 @@ pub fn run(opts: StartupOpts) {
             // Bij afsluiten de ontsleutelde werkkopieën van deze instantie
             // opruimen (best effort; wat blijft staan ruimt de volgende start op).
             if let tauri::RunEvent::Exit = &_event {
-                // Stop de PDFium-workers en verwijder hun SHM-bestanden
-                // (4 x 64 MB in de temp-map); anders blijven die na elke
-                // start staan.
-                if let Some(pool) = _app.try_state::<Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>() {
-                    worker_pool::shutdown_on_exit(&pool);
-                }
                 beveiligde_pdf::ruim_eigen_kopieen_op(&_app.state::<beveiligde_pdf::BeveiligdeKopieen>());
                 // De markering "draait" alleen weg na een nette afsluiting van
                 // de frontend; anders ziet de volgende start een crash.
                 herstel::bij_afsluiten();
+                // Stop de PDFium-workers en verwijder hun SHM-bestanden
+                // (4 x 64 MB in de temp-map); anders blijven die na elke
+                // start staan. Als laatste, zodat een fout hier de twee
+                // stappen hierboven nooit overslaat.
+                if let Some(pool) = _app.try_state::<Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>() {
+                    worker_pool::shutdown_on_exit(&pool);
+                }
             }
             // macOS (en iOS) leveren een dubbelklik in Finder NIET als
             // argv-argument aan (zoals Windows/Linux), maar als Apple Event
