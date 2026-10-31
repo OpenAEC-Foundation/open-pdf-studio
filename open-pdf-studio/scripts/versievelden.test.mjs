@@ -75,6 +75,8 @@ const VELDEN = {
   'mcpb/manifest.json': jsonVersie,
   '.github/workflows/release.yml': (tekst) => [/^\s+default:\s*'v([^']*)'/m.exec(tekst)?.[1]],
   'snap/snapcraft.yaml': (tekst) => [/^version:\s*'([^']*)'/m.exec(tekst)?.[1]],
+  // De bovenste <release> van de AppStream-metadata (Flatpak, #389).
+  'flatpak/org.openaec.OpenPdfStudio.metainfo.xml': (tekst) => [/<release\s[^>]*version="([^"]*)"/.exec(tekst)?.[1]],
 };
 
 // Recepten van een al gepubliceerde release (met de hash van die download):
@@ -188,6 +190,19 @@ test('bump-version zet alle velden in een kopie van de repo', () => {
   } finally {
     rmSync(basis, { recursive: true, force: true });
   }
+});
+
+test('een nieuwe versie krijgt een eigen <release> bovenaan de metainfo; de oude blijven staan', () => {
+  const pad = 'flatpak/org.openaec.OpenPdfStudio.metainfo.xml';
+  const tekst = lees(pad);
+  const releases = (t) => [...t.matchAll(/<release\s[^>]*version="([^"]*)"(?:\s+date="([^"]*)")?/g)].map((m) => [m[1], m[2]]);
+  const voor = releases(tekst);
+  const nieuw = bump.metainfoRelease.werkBij(tekst, '2099.53.7', '2099-12-31');
+  assert.deepEqual(releases(nieuw), [['2099.53.7', '2099-12-31'], ...voor]);
+  assert.equal(bump.metainfoRelease.werkBij(nieuw, '2099.53.7'), nieuw, 'dezelfde versie: niets');
+  assert.equal(bump.metainfoRelease.werkBij(nieuw, appVersie), tekst, 'terugzetten haalt het item weg');
+  const crlf = tekst.replace(/\r?\n/g, '\r\n');
+  assert.doesNotMatch(bump.metainfoRelease.werkBij(crlf, '2099.53.7').replace(/\r\n/g, ''), /\n/, 'CRLF blijft CRLF');
 });
 
 test('bump-version weigert een versie buiten het schema en schrijft dan niets', () => {

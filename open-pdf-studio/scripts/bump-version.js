@@ -113,6 +113,31 @@ function cargoLock(crates) {
   };
 }
 
+// De AppStream-metadata van de Flatpak (#389): de bovenste <release> is de
+// appversie (Flathub toont hem als laatste versie). Een nieuwe versie krijgt
+// een eigen <release> bovenaan met de datum van vandaag; de oudere blijven
+// staan. Staat de versie al lager in de lijst (terugzetten), dan vallen de
+// nieuwere items erboven weg, zodat heen en terug het bestand teruggeeft.
+const RELEASE_VERSIE = /^([ \t]*)<release\b[^>]*\bversion="([^"]*)"/gm;
+
+const metainfoRelease = {
+  lees: (tekst) => {
+    const eerste = [...tekst.matchAll(RELEASE_VERSIE)][0];
+    return eerste ? [eerste[2]] : [];
+  },
+  werkBij: (tekst, versie, datum = new Date().toISOString().slice(0, 10)) => {
+    const releases = [...tekst.matchAll(RELEASE_VERSIE)];
+    if (releases.length === 0) throw new Error('no <release> in <releases>');
+    const [eerste] = releases;
+    if (eerste[2] === versie) return tekst;
+    const bestaand = releases.find((m) => m[2] === versie);
+    if (bestaand) return tekst.slice(0, eerste.index) + tekst.slice(bestaand.index);
+    const eol = tekst.includes('\r\n') ? '\r\n' : '\n';
+    const regel = `${eerste[1]}<release version="${versie}" date="${datum}"/>${eol}`;
+    return tekst.slice(0, eerste.index) + regel + tekst.slice(eerste.index);
+  },
+};
+
 // Elk versieveld in de repo: een pad (relatief aan de repo-root) met een lezer
 // en een schrijver. bump-version zet ze allemaal; --check en
 // scripts/versievelden.test.mjs eisen dat ze gelijk zijn.
@@ -163,6 +188,7 @@ function versievelden(basis = repoRoot) {
       lees: (tekst) => [...tekst.matchAll(/^version:\s*'([^']*)'/gm)].map((m) => m[1]),
       werkBij: (tekst, versie) => tekst.replace(/^version:\s*'[^']*'/m, `version: '${versie}'`),
     },
+    { pad: 'flatpak/org.openaec.OpenPdfStudio.metainfo.xml', ...metainfoRelease },
   ];
 }
 
@@ -281,6 +307,7 @@ module.exports = {
   workspaceCrates,
   versievelden,
   GEPUBLICEERDE_RELEASES,
+  metainfoRelease,
   controleer,
   zetVersie,
 };

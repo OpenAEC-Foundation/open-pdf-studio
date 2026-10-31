@@ -315,6 +315,7 @@ js/pdf/weergave-per-document.test.mjs
 js/ui/chrome/tab-sneltoets-koppeling.test.mjs
 js/pdf/pagina-sneltoets.test.mjs
 scripts/nix-flake-bijwerken.test.mjs
+scripts/flatpak-flathub.test.mjs
 js/pdf/schermkalibratie.test.mjs
 js/pdf/schermkalibratie-i18n.test.mjs
 js/core/basis-url.test.mjs

@@ -3,7 +3,7 @@
   <id>org.openaec.OpenPdfStudio</id>
 
   <name>Open PDF Studio</name>
-  <summary>A free, open-source PDF annotation editor</summary>
+  <summary>Edit and annotate PDF drawings</summary>
 
   <developer id="org.openaec">
     <name>OpenAEC Foundation</name>
@@ -12,40 +12,52 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>LGPL-3.0-or-later</project_license>
 
-  <url type="homepage">https://github.com/OpenAEC-Foundation/OpenPDFStudio</url>
-  <url type="bugtracker">https://github.com/OpenAEC-Foundation/OpenPDFStudio/issues</url>
-  <url type="vcs-browser">https://github.com/OpenAEC-Foundation/OpenPDFStudio</url>
+  <url type="homepage">https://open-aec.com/open-pdf-studio/</url>
+  <url type="bugtracker">https://github.com/OpenAEC-Foundation/open-pdf-studio/issues</url>
+  <url type="vcs-browser">https://github.com/OpenAEC-Foundation/open-pdf-studio</url>
+  <url type="contribute">https://github.com/OpenAEC-Foundation/open-pdf-studio/blob/main/CONTRIBUTING.md</url>
 
   <description>
     <p>
-      Open PDF Studio is a free and open-source PDF annotation editor built with
-      Tauri. It provides a familiar, Windows Forms-style interface for viewing,
-      annotating, and editing PDF documents.
+      Open PDF Studio is a free, open-source PDF editor and annotator for people
+      who work with drawings and documents every day: architects, engineers,
+      contractors, and anyone who needs solid tools without a subscription.
     </p>
-    <p>Features include:</p>
+    <p>Drawings and CAD:</p>
     <ul>
-      <li>View and navigate PDF documents with thumbnails, bookmarks, and page management</li>
-      <li>Add annotations: text boxes, highlights, stamps, images, shapes, arrows, freehand drawings</li>
-      <li>Add and edit form fields</li>
-      <li>Measurement tools for distance, area, and perimeter</li>
-      <li>Signature support</li>
-      <li>Watermarks and redaction</li>
-      <li>Multiple themes and language support</li>
-      <li>Undo/redo, copy/paste, and multi-selection editing</li>
+      <li>Import DWG and DXF drawings as vector PDF, with the CAD layers as PDF layers and a measuring scale</li>
+      <li>Export a page back to DXF or DWG, with layers, at real size</li>
+      <li>Measure distance, area and perimeter with scale calibration and scale regions</li>
+      <li>Parametric symbols, walls and beams that stay to scale</li>
     </ul>
+    <p>Reading, checking and editing:</p>
+    <ul>
+      <li>More than 22 annotation tools: highlights, shapes, freehand drawing, text boxes, callouts, notes, stamps and images</li>
+      <li>Compare two PDFs side by side and list every change</li>
+      <li>Verify digital signatures, recognise text (OCR) in scans, edit existing text, fill forms and redact permanently</li>
+      <li>Insert, delete, extract, reorder, replace and merge pages; add watermarks, headers and footers</li>
+    </ul>
+    <p>Printing and output:</p>
+    <ul>
+      <li>Print to scale with a live preview, including large sheets up to A0</li>
+      <li>Export pages as PNG, JPEG or raster PDF, and annotations as XFDF</li>
+    </ul>
+    <p>
+      Also: multi-tab editing with session restore, five themes, 39 languages,
+      and no telemetry, no data collection and no subscriptions.
+    </p>
   </description>
 
   <launchable type="desktop-id">org.openaec.OpenPdfStudio.desktop</launchable>
 
   <branding>
-    <color type="primary" scheme_preference="light">#e8f0fe</color>
-    <color type="primary" scheme_preference="dark">#1a3a5c</color>
+    <color type="primary" scheme_preference="light">#f6c48f</color>
+    <color type="primary" scheme_preference="dark">#7a3d00</color>
   </branding>
 
   <supports>
     <control>pointing</control>
     <control>keyboard</control>
-    <control>touch</control>
   </supports>
 
   <requires>
@@ -58,7 +70,21 @@
     <category>Graphics</category>
   </categories>
 
+  <keywords>
+    <keyword>PDF</keyword>
+    <keyword>editor</keyword>
+    <keyword>annotate</keyword>
+    <keyword>viewer</keyword>
+    <keyword>drawing</keyword>
+    <keyword>measure</keyword>
+    <keyword>CAD</keyword>
+    <keyword>DWG</keyword>
+    <keyword>DXF</keyword>
+    <keyword>OCR</keyword>
+  </keywords>
+
   <provides>
+    <binary>open-pdf-studio</binary>
     <mediatype>application/pdf</mediatype>
   </provides>
 
@@ -66,15 +92,34 @@
 
   <screenshots>
     <screenshot type="default">
-      <caption>Open PDF Studio main interface with annotation tools</caption>
-      <image>https://raw.githubusercontent.com/OpenAEC-Foundation/OpenPDFStudio/main/screenshots/main.png</image>
+      <caption>Drawing tools and area take-off on building elevations</caption>
+      <image type="source" width="2000" height="1194">https://raw.githubusercontent.com/OpenAEC-Foundation/open-pdf-studio/main/docs/screenshots/drawing-tools.jpg</image>
+    </screenshot>
+    <screenshot>
+      <caption>Comparing two revisions of a drawing side by side</caption>
+      <image type="source" width="1800" height="1191">https://raw.githubusercontent.com/OpenAEC-Foundation/open-pdf-studio/main/docs/screenshots/pdf-compare.jpg</image>
+    </screenshot>
+    <screenshot>
+      <caption>Annotation tools, stamps and page thumbnails</caption>
+      <image type="source" width="1780" height="1528">https://raw.githubusercontent.com/OpenAEC-Foundation/open-pdf-studio/main/docs/screenshots/annotation-tools.jpg</image>
     </screenshot>
   </screenshots>
 
   <releases>
+    <release version="2026.43.11" date="2026-10-24">
+      <description>
+        <p>Text editing and OCR fixes:</p>
+        <ul>
+          <li>Text edits refuse characters that no available font can show</li>
+          <li>Letter-spaced text opens without extra spaces</li>
+          <li>Redo and MCP text replacements update the text layer</li>
+          <li>MCP text replacements on scanned pages cover the recognised word like the editor does</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.33.0" date="2026-03-23">
       <description>
-        <p>Latest release with annotation hover cursors, selection borders, and panel resize improvements.</p>
+        <p>Annotation hover cursors, selection borders, and panel resize improvements.</p>
       </description>
     </release>
   </releases>

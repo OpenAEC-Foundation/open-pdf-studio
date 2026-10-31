@@ -236,6 +236,57 @@ jobs:
   # werkplek (#704: opaque sandbox, geen 'self', subpad): openen, tekenen,
   # annoteren en opslaan in headless Chromium, met nul overtredingen. Los van
   # de desktop-builds; lokaal: npm run test:hosted-csp.
+  flatpak-lint:
+    # Flathub readiness (#389): validates the desktop file and the metainfo and
+    # lints the manifest as it would be submitted (flatpak-builder-lint). Runs
+    # only when the Flatpak changes or the lockfiles its offline sources are
+    # generated from (flatpak/**, Cargo.lock, package-lock.json).
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Detect Flatpak changes
+        id: changes
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            changed=true
+          elif git diff --name-only "$base" HEAD \
+              | grep -qE '^(flatpak/|Cargo\.lock$|open-pdf-studio/package-lock\.json$|open-pdf-studio/scripts/flatpak-flathub\.test\.mjs$|\.github/workflows/ci\.yml$)'; then
+            changed=true
+          else
+            changed=false
+          fi
+          echo "flatpak=$changed" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        if: steps.changes.outputs.flatpak == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install Flatpak tooling
+        if: steps.changes.outputs.flatpak == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak appstream desktop-file-utils
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          # flatpak-builder, flathub-build and flatpak-builder-lint, the same
+          # tools the Flathub builders use.
+          flatpak install --user -y --noninteractive flathub org.flatpak.Builder
+
+      - name: Validate and lint the Flatpak
+        if: steps.changes.outputs.flatpak == 'true'
+        run: bash flatpak/ci-check.sh lint
+
   hosted-csp:
     # Vast op 24.04: Playwright 1.59 kent het nieuwere ubuntu-latest (26.04) niet.
     runs-on: ubuntu-24.04
