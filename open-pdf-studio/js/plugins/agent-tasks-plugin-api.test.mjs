@@ -261,10 +261,10 @@ test('brug, Rust-lijst, dispatch, metatabel, tools.json, manifest en README lope
   // Direct na de assistent-relay; de telling van het publieke profiel.
   const i = tools.findIndex((t) => t.name === 'app_assistant_history');
   assert.deepEqual(tools.slice(i + 1, i + 3).map((t) => t.name), TOOLS.map((t) => t[0]));
-  assert.equal(tools.length, 97);
-  assert.match(rs, /assert_eq!\(arr\.len\(\), 97\);/);
+  assert.equal(tools.length, 98);
+  assert.match(rs, /assert_eq!\(arr\.len\(\), 98\);/);
   const leesmij = lees('mcp-stdio/README.md');
-  assert.match(leesmij, /\(97 public tools:/);
+  assert.match(leesmij, /\(98 public tools:/);
   assert.match(leesmij, /\*\*`app_agent_task_pending`\*\* → \*\*`app_agent_task_result`\*\*/);
   // De agent krijgt nooit iets uit het assistentvenster: agent-tasks.js kent de relay en het paneel niet.
   const bron = lees('open-pdf-studio/js/plugins/agent-tasks.js');

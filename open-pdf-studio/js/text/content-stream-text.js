@@ -26,119 +26,147 @@ export function tokenizeContentStream(src) {
   const n = src.length;
   let i = 0;
   while (i < n) {
-    const ch = src[i];
-    if (WHITESPACE.has(ch)) { i++; continue; }
-    if (ch === '%') { // commentaar tot regel-einde
-      while (i < n && src[i] !== '\n' && src[i] !== '\r') i++;
-      continue;
-    }
-    const start = i;
-    if (ch === '(') { // literal string
-      const bytes = [];
-      let depth = 1;
-      i++;
-      while (i < n && depth > 0) {
-        const c = src[i];
-        if (c === '\\') {
-          const e = src[i + 1];
-          if (e === 'n') { bytes.push(10); i += 2; }
-          else if (e === 'r') { bytes.push(13); i += 2; }
-          else if (e === 't') { bytes.push(9); i += 2; }
-          else if (e === 'b') { bytes.push(8); i += 2; }
-          else if (e === 'f') { bytes.push(12); i += 2; }
-          else if (e === '(' || e === ')' || e === '\\') { bytes.push(e.charCodeAt(0)); i += 2; }
-          else if (e >= '0' && e <= '7') { // octaal, 1-3 cijfers
-            let oct = e; i += 2;
-            for (let k = 0; k < 2 && i < n && src[i] >= '0' && src[i] <= '7'; k++) { oct += src[i]; i++; }
-            bytes.push(parseInt(oct, 8) & 0xFF);
-          } else if (e === '\r') { i += 2; if (src[i] === '\n') i++; } // regelvervolg
-          else if (e === '\n') { i += 2; }
-          else { bytes.push(e ? e.charCodeAt(0) : 0); i += 2; } // \x → x
-        } else if (c === '(') { depth++; bytes.push(40); i++; }
-        else if (c === ')') { depth--; if (depth > 0) bytes.push(41); i++; }
-        else { bytes.push(c.charCodeAt(0)); i++; }
-      }
-      tokens.push({ t: 'str', v: bytes, s: start, e: i });
-      continue;
-    }
-    if (ch === '<') {
-      if (src[i + 1] === '<') { tokens.push({ t: 'dict<<', s: i, e: i + 2 }); i += 2; continue; }
-      // hex string
-      i++;
-      let hex = '';
-      while (i < n && src[i] !== '>') {
-        if (!WHITESPACE.has(src[i])) hex += src[i];
-        i++;
-      }
-      i++; // '>'
-      if (hex.length % 2 === 1) hex += '0';
-      const bytes = [];
-      for (let k = 0; k < hex.length; k += 2) bytes.push(parseInt(hex.slice(k, k + 2), 16) & 0xFF);
-      tokens.push({ t: 'str', v: bytes, s: start, e: i });
-      continue;
-    }
-    if (ch === '>') {
-      if (src[i + 1] === '>') { tokens.push({ t: 'dict>>', s: i, e: i + 2 }); i += 2; continue; }
-      i++; continue; // losstaand '>' — ongeldig, overslaan
-    }
-    if (ch === '[') { tokens.push({ t: 'arr[', s: i, e: i + 1 }); i++; continue; }
-    if (ch === ']') { tokens.push({ t: 'arr]', s: i, e: i + 1 }); i++; continue; }
-    if (ch === '{') { tokens.push({ t: 'proc{', s: i, e: i + 1 }); i++; continue; }
-    if (ch === '}') { tokens.push({ t: 'proc}', s: i, e: i + 1 }); i++; continue; }
-    if (ch === '/') { // naam
-      i++;
-      let name = '';
-      while (i < n && isRegular(src[i])) {
-        if (src[i] === '#' && /^[0-9a-fA-F]{2}$/.test(src.slice(i + 1, i + 3))) {
-          name += String.fromCharCode(parseInt(src.slice(i + 1, i + 3), 16));
-          i += 3;
-        } else { name += src[i]; i++; }
-      }
-      tokens.push({ t: 'name', v: name, s: start, e: i });
-      continue;
-    }
-    if (/[0-9+\-.]/.test(ch)) { // getal
-      i++;
-      while (i < n && /[0-9.]/.test(src[i])) i++;
-      const raw = src.slice(start, i);
-      const num = parseFloat(raw);
-      if (Number.isFinite(num)) { tokens.push({ t: 'num', v: num, s: start, e: i }); continue; }
-      // geen geldig getal (bv. losse '-'): als operator-achtig token behandelen
-      tokens.push({ t: 'op', v: raw, s: start, e: i });
-      continue;
-    }
-    // bareword: operator of true/false/null
-    i++;
-    while (i < n && isRegular(src[i])) i++;
-    const word = src.slice(start, i);
-    if (word === 'true' || word === 'false') tokens.push({ t: 'bool', v: word === 'true', s: start, e: i });
-    else if (word === 'null') tokens.push({ t: 'null', v: null, s: start, e: i });
-    else if (word === 'BI') {
-      // Inline image: dict-tokens tot 'ID', daarna binaire data tot 'EI'.
-      // De binaire data mag niet door de tokenizer — zoek het einde ruw op.
-      let j = i;
-      // zoek 'ID' als los token
-      while (j < n) {
-        if (src[j] === 'I' && src[j + 1] === 'D'
-            && (j === 0 || !isRegular(src[j - 1]))
-            && (j + 2 >= n || !isRegular(src[j + 2]))) { j += 2; break; }
-        j++;
-      }
-      // sla binaire data over tot whitespace-'EI'-(whitespace|einde)
-      while (j < n) {
-        if (src[j] === 'E' && src[j + 1] === 'I'
-            && WHITESPACE.has(src[j - 1] || ' ')
-            && (j + 2 >= n || WHITESPACE.has(src[j + 2]) || DELIMITERS.has(src[j + 2]))) {
-          j += 2; break;
-        }
-        j++;
-      }
-      tokens.push({ t: 'op', v: 'BI..EI', s: start, e: j });
-      i = j;
-    }
-    else tokens.push({ t: 'op', v: word, s: start, e: i });
+    const token = leesToken(src, i, n);
+    i = volgendePositie;
+    if (token) tokens.push(token);
   }
   return tokens;
+}
+
+// Dezelfde tokens, één voor één (generator). Voor wie een hele pagina doorloopt
+// zonder alle tokens tegelijk in het geheugen te willen houden (zware
+// CAD-pagina's, ifcx-inhoud.js). tokenizeContentStream blijft een gewone lus:
+// een generator is op zware pagina's merkbaar trager, en die functie zit in
+// het teken- en printpad.
+export function* iterContentTokens(src) {
+  const n = src.length;
+  let i = 0;
+  while (i < n) {
+    const token = leesToken(src, i, n);
+    i = volgendePositie;
+    if (token) yield token;
+  }
+}
+
+// Positie na het laatst gelezen token (of overgeslagen witruimte/commentaar).
+// Synchroon gezet en direct gelezen door de twee lussen hierboven.
+let volgendePositie = 0;
+
+// Leest het token dat op `i` begint; null voor witruimte, commentaar en een
+// losstaande '>'. Zet volgendePositie op de plek erna.
+function leesToken(src, i, n) {
+  const ch = src[i];
+  if (WHITESPACE.has(ch)) { volgendePositie = i + 1; return null; }
+  if (ch === '%') { // commentaar tot regel-einde
+    while (i < n && src[i] !== '\n' && src[i] !== '\r') i++;
+    volgendePositie = i;
+    return null;
+  }
+  const start = i;
+  if (ch === '(') { // literal string
+    const bytes = [];
+    let depth = 1;
+    i++;
+    while (i < n && depth > 0) {
+      const c = src[i];
+      if (c === '\\') {
+        const e = src[i + 1];
+        if (e === 'n') { bytes.push(10); i += 2; }
+        else if (e === 'r') { bytes.push(13); i += 2; }
+        else if (e === 't') { bytes.push(9); i += 2; }
+        else if (e === 'b') { bytes.push(8); i += 2; }
+        else if (e === 'f') { bytes.push(12); i += 2; }
+        else if (e === '(' || e === ')' || e === '\\') { bytes.push(e.charCodeAt(0)); i += 2; }
+        else if (e >= '0' && e <= '7') { // octaal, 1-3 cijfers
+          let oct = e; i += 2;
+          for (let k = 0; k < 2 && i < n && src[i] >= '0' && src[i] <= '7'; k++) { oct += src[i]; i++; }
+          bytes.push(parseInt(oct, 8) & 0xFF);
+        } else if (e === '\r') { i += 2; if (src[i] === '\n') i++; } // regelvervolg
+        else if (e === '\n') { i += 2; }
+        else { bytes.push(e ? e.charCodeAt(0) : 0); i += 2; } // \x → x
+      } else if (c === '(') { depth++; bytes.push(40); i++; }
+      else if (c === ')') { depth--; if (depth > 0) bytes.push(41); i++; }
+      else { bytes.push(c.charCodeAt(0)); i++; }
+    }
+    volgendePositie = i;
+    return { t: 'str', v: bytes, s: start, e: i };
+  }
+  if (ch === '<') {
+    if (src[i + 1] === '<') { volgendePositie = i + 2; return { t: 'dict<<', s: i, e: i + 2 }; }
+    // hex string
+    i++;
+    let hex = '';
+    while (i < n && src[i] !== '>') {
+      if (!WHITESPACE.has(src[i])) hex += src[i];
+      i++;
+    }
+    i++; // '>'
+    if (hex.length % 2 === 1) hex += '0';
+    const bytes = [];
+    for (let k = 0; k < hex.length; k += 2) bytes.push(parseInt(hex.slice(k, k + 2), 16) & 0xFF);
+    volgendePositie = i;
+    return { t: 'str', v: bytes, s: start, e: i };
+  }
+  if (ch === '>') {
+    if (src[i + 1] === '>') { volgendePositie = i + 2; return { t: 'dict>>', s: i, e: i + 2 }; }
+    volgendePositie = i + 1; return null; // losstaand '>' — ongeldig, overslaan
+  }
+  if (ch === '[') { volgendePositie = i + 1; return { t: 'arr[', s: i, e: i + 1 }; }
+  if (ch === ']') { volgendePositie = i + 1; return { t: 'arr]', s: i, e: i + 1 }; }
+  if (ch === '{') { volgendePositie = i + 1; return { t: 'proc{', s: i, e: i + 1 }; }
+  if (ch === '}') { volgendePositie = i + 1; return { t: 'proc}', s: i, e: i + 1 }; }
+  if (ch === '/') { // naam
+    i++;
+    let name = '';
+    while (i < n && isRegular(src[i])) {
+      if (src[i] === '#' && /^[0-9a-fA-F]{2}$/.test(src.slice(i + 1, i + 3))) {
+        name += String.fromCharCode(parseInt(src.slice(i + 1, i + 3), 16));
+        i += 3;
+      } else { name += src[i]; i++; }
+    }
+    volgendePositie = i;
+    return { t: 'name', v: name, s: start, e: i };
+  }
+  if (/[0-9+\-.]/.test(ch)) { // getal
+    i++;
+    while (i < n && /[0-9.]/.test(src[i])) i++;
+    const raw = src.slice(start, i);
+    const num = parseFloat(raw);
+    if (Number.isFinite(num)) { volgendePositie = i; return { t: 'num', v: num, s: start, e: i }; }
+    // geen geldig getal (bv. losse '-'): als operator-achtig token behandelen
+    volgendePositie = i;
+    return { t: 'op', v: raw, s: start, e: i };
+  }
+  // bareword: operator of true/false/null
+  i++;
+  while (i < n && isRegular(src[i])) i++;
+  const word = src.slice(start, i);
+  if (word === 'true' || word === 'false') { volgendePositie = i; return { t: 'bool', v: word === 'true', s: start, e: i }; }
+  else if (word === 'null') { volgendePositie = i; return { t: 'null', v: null, s: start, e: i }; }
+  else if (word === 'BI') {
+    // Inline image: dict-tokens tot 'ID', daarna binaire data tot 'EI'.
+    // De binaire data mag niet door de tokenizer — zoek het einde ruw op.
+    let j = i;
+    // zoek 'ID' als los token
+    while (j < n) {
+      if (src[j] === 'I' && src[j + 1] === 'D'
+          && (j === 0 || !isRegular(src[j - 1]))
+          && (j + 2 >= n || !isRegular(src[j + 2]))) { j += 2; break; }
+      j++;
+    }
+    // sla binaire data over tot whitespace-'EI'-(whitespace|einde)
+    while (j < n) {
+      if (src[j] === 'E' && src[j + 1] === 'I'
+          && WHITESPACE.has(src[j - 1] || ' ')
+          && (j + 2 >= n || WHITESPACE.has(src[j + 2]) || DELIMITERS.has(src[j + 2]))) {
+        j += 2; break;
+      }
+      j++;
+    }
+    volgendePositie = j;
+    return { t: 'op', v: 'BI..EI', s: start, e: j };
+  }
+  else { volgendePositie = i; return { t: 'op', v: word, s: start, e: i }; }
 }
 
 // ── Matrix-hulpen (rij-vector-conventie: punt · M) ──

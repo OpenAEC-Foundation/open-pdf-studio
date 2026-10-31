@@ -123,6 +123,8 @@
     "pdfxNote": "Dodaje izlaznu namjeru, TrimBox i PDF/X metapodatke. Uz CMYK profil za tisak, RGB boje, slike i prijelazi boja pretvaraju se u CMYK, a taj profil postaje izlazna namjera; uz sRGB ništa se ne pretvara. Neugrađeni standardni fontovi i dalje su ograničenje.",
     "exportCad": "CAD crtež (DXF, DWG)",
     "exportCadDesc": "Izvezi vektorski crtež u DXF ili DWG sa slojevima, mjerilom i područjem",
+    "exportIfcx": "Izvezi u IFCX (beta)",
+    "exportIfcxDesc": "Listovi, vektori, tekst, slike i bilješke u JSON datoteku IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Uređivi tekst i tablice s neobaveznim slikama stranica",

@@ -123,6 +123,8 @@
     "pdfxNote": "เพิ่ม output intent, TrimBox และข้อมูลเมตา PDF/X เมื่อใช้โปรไฟล์การพิมพ์ CMYK สี รูปภาพ และการไล่ระดับสีแบบ RGB จะถูกแปลงเป็น CMYK และโปรไฟล์นั้นจะกลายเป็น output intent หากใช้ sRGB จะไม่มีการแปลงใดๆ ฟอนต์มาตรฐานที่ไม่ได้ฝังไว้ยังคงเป็นข้อจำกัด",
     "exportCad": "แบบ CAD (DXF, DWG)",
     "exportCadDesc": "ส่งออกแบบเวกเตอร์เป็น DXF หรือ DWG พร้อมเลเยอร์ มาตราส่วน และพื้นที่",
+    "exportIfcx": "ส่งออกเป็น IFCX (เบตา)",
+    "exportIfcxDesc": "แผ่นงาน เวกเตอร์ ข้อความ รูปภาพ และคำอธิบายประกอบ เป็นไฟล์ JSON แบบ IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "ข้อความและตารางที่แก้ไขได้ พร้อมภาพหน้าเพิ่มเติมได้",

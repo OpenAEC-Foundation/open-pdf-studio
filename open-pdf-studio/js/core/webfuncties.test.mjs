@@ -122,8 +122,9 @@ test('elke knop uit de tabel bestaat echt', () => {
 });
 
 // XML-naamruimten zijn geen verzoeken; een link via openExtern() opent de
-// gebruiker zelf, in een nieuw venster.
-const NAAMRUIMTE = /^https?:\/\/(www\.w3\.org|schemas\.openxmlformats\.org|purl\.org|ns\.adobe\.com|www\.xfa\.org|www\.npes\.org|www\.color\.org)([/?#]|$)/;
+// gebruiker zelf, in een nieuw venster. Ook de schema- en klasse-URI's die de
+// IFCX-export (#876) in het bestand schrijft worden nooit opgevraagd.
+const NAAMRUIMTE = /^https?:\/\/(www\.w3\.org|schemas\.openxmlformats\.org|purl\.org|ns\.adobe\.com|www\.xfa\.org|www\.npes\.org|www\.color\.org|ifcx\.dev|identifier\.buildingsmart\.org|github\.com\/OpenAEC-Foundation\/open-pdf-studio\/blob\/main\/docs)([/?#]|$)/;
 
 // Bestand met een adres op een andere host → bestand dat vóór het verzoek
 // externeDienstenAan() vraagt. null: alleen bereikbaar via een knop die in

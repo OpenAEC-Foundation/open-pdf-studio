@@ -123,6 +123,8 @@
     "pdfxNote": "Thêm output intent, TrimBox và siêu dữ liệu PDF/X. Với hồ sơ in CMYK, màu RGB, hình ảnh và dải chuyển màu được chuyển sang CMYK và hồ sơ đó trở thành output intent; với sRGB thì không có gì được chuyển đổi. Phông chữ chuẩn không được nhúng vẫn là một hạn chế.",
     "exportCad": "Bản vẽ CAD (DXF, DWG)",
     "exportCadDesc": "Xuất bản vẽ vectơ sang DXF hoặc DWG kèm lớp, tỷ lệ và vùng",
+    "exportIfcx": "Xuất sang IFCX (beta)",
+    "exportIfcxDesc": "Tờ, vectơ, văn bản, hình ảnh và chú thích sang tệp JSON IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Văn bản và bảng có thể chỉnh sửa, kèm hình ảnh trang tùy chọn",

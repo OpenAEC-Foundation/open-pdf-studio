@@ -123,6 +123,8 @@
     "pdfxNote": "添加输出意图、TrimBox 和 PDF/X 元数据。使用 CMYK 印刷配置文件时，RGB 颜色、图像和渐变会转换为 CMYK，并以该配置文件作为输出意图；使用 sRGB 时不进行任何转换。未嵌入的标准字体仍是一项限制。",
     "exportCad": "CAD 图纸(DXF、DWG)",
     "exportCadDesc": "将矢量图纸连同图层、比例和范围导出为 DXF 或 DWG",
+    "exportIfcx": "导出为 IFCX（测试版）",
+    "exportIfcxDesc": "将图纸、矢量、文本、图像和注释导出为 IFC5 JSON 文件",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "可编辑的文本和表格，可选附带页面图像",

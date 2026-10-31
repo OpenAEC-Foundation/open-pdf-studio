@@ -235,6 +235,30 @@ fn export_cad_tool() -> Value {
     )
 }
 
+/// Beschrijving van `app_export_ifcx` (#876, beta): de PDF als IFCX (IFC5,
+/// JSON), langs dezelfde weg als het exportvenster (js/pdf/ifcx-export.js).
+fn export_ifcx_tool() -> Value {
+    json!(
+        {
+            "name": "app_export_ifcx",
+            "description": "Convert pages of the current document to an IFCX file (beta; the JSON-based IFC5 format, alpha schema) without opening the export dialog. It writes one sheet node per page with the page size, label, rotation and measurement scale, the vector paths, text runs and embedded images on their own layers, and the annotations of the app on a separate layer (drafting components keep their IFC class). Page content comes from the last saved state of the PDF; annotations are current. A page with more paths than the limit keeps the first ones and the answer warns about the rest; once the file reaches its size limit (320 M characters) the remaining pages are left out with a warning. Refused for a document opened with a password. Replaces an existing file at `path`.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "path":            { "type": "string", "description": "Absolute path of the target file (.ifcx)." },
+                    "pages":           { "type": "string", "description": "\"all\" (default), \"current\" or a range like \"1-3,5\"." },
+                    "raster":          { "type": "boolean", "description": "Include embedded images (default true)." },
+                    "text":            { "type": "boolean", "description": "Include the text runs of the pages (default true)." },
+                    "annotations":     { "type": "boolean", "description": "Include the annotations on their own layer (default true)." },
+                    "maxPathsPerPage": { "type": "integer", "description": "Limit of paths per page (default 50000); the rest of a heavier page is left out with a warning." }
+                },
+                "required": ["path"],
+                "additionalProperties": false
+            }
+        }
+    )
+}
+
 /// De papierformaten die de printgereedschappen kennen; dezelfde lijst en
 /// dezelfde schrijfwijze als de Pagina-instelling (js/pdf/print-pagina-
 /// instelling.js, PAPIERFORMATEN) en als js/pdf/print-opdracht.js.
@@ -2582,6 +2606,7 @@ fn handle_tools_list() -> Value {
             },
             import_cad_tool(),
             export_cad_tool(),
+            export_ifcx_tool(),
             print_to_pdf_tool(),
             print_tool(),
             {
@@ -2826,6 +2851,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_facade_element"     => tool_app_request(state, "mcp:facade-element",     &arguments, Duration::from_secs(30)).await,
         "app_import_cad"         => tool_app_request(state, "mcp:import-cad",         &arguments, Duration::from_secs(300)).await,
         "app_export_cad"         => tool_app_request(state, "mcp:export-cad",         &arguments, Duration::from_secs(300)).await,
+        "app_export_ifcx"        => tool_app_request(state, "mcp:export-ifcx",        &arguments, Duration::from_secs(300)).await,
         // Afdrukken: een A0 op 300 dpi renderen duurt minuten, dus dezelfde
         // ruime grens als de CAD-omzetting. De JS-kant breekt net eerder af
         // (print-opdracht.js TIJDGRENS_MS), zodat er na "timed out" geen
@@ -3643,7 +3669,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 97);
+        assert_eq!(arr.len(), 98);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -3843,6 +3869,24 @@ mod tests {
         assert!(!m.alleen_lezen && m.wijzigt);
         let publiek = tools_list_voor(crate::mcp_tool_meta::Profiel::Publiek);
         assert!(publiek["tools"].as_array().unwrap().iter().any(|t| t["name"] == "app_export_cad"));
+    }
+
+    #[test]
+    fn app_export_ifcx_beschrijft_de_beta_export() {
+        let v = handle_tools_list();
+        let tool = v["tools"].as_array().unwrap().iter()
+            .find(|t| t["name"] == "app_export_ifcx")
+            .expect("app_export_ifcx staat in de lijst");
+        assert!(tool["description"].as_str().unwrap().contains("(beta;"));
+        let schema = &tool["inputSchema"];
+        assert_eq!(schema["additionalProperties"], false);
+        assert_eq!(schema["required"], json!(["path"]));
+        let props = schema["properties"].as_object().unwrap();
+        for naam in ["path", "pages", "raster", "text", "annotations", "maxPathsPerPage"] {
+            assert!(props.contains_key(naam), "{naam} ontbreekt in het schema");
+        }
+        let m = crate::mcp_tool_meta::meta("app_export_ifcx").unwrap();
+        assert!(!m.alleen_lezen && m.wijzigt);
     }
 
     #[test]
@@ -4253,6 +4297,7 @@ mod tests {
             "app_facade_element",
             "app_import_cad",
             "app_export_cad",
+            "app_export_ifcx",
             "app_print_to_pdf",
             "app_print",
             "app_list_printers",

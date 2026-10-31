@@ -123,6 +123,8 @@
     "pdfxNote": "Huongeza output intent, TrimBox na metadata ya PDF/X. Ukitumia wasifu wa uchapishaji wa CMYK, rangi za RGB, picha na mipito ya rangi hubadilishwa kuwa CMYK na wasifu huo unakuwa output intent; ukitumia sRGB hakuna kinachobadilishwa. Fonti za kawaida ambazo hazijapachikwa zinabaki kuwa kizuizi.",
     "exportCad": "Mchoro wa CAD (DXF, DWG)",
     "exportCadDesc": "Hamisha mchoro wa vekta kwenda DXF au DWG pamoja na tabaka, skeli na eneo",
+    "exportIfcx": "Hamisha kwenda IFCX (beta)",
+    "exportIfcxDesc": "Laha, vekta, maandishi, picha na maelezo kwenda faili ya JSON ya IFC5",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Maandishi na majedwali yanayoharirika pamoja na picha za kurasa za hiari",

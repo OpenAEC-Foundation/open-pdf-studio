@@ -85,6 +85,22 @@ export default function ExportPanel() {
     openDialog('cad-export');
   };
 
+  // IFCX (#876, beta): own dialog with pages and content options.
+  const handleExportIfcx = () => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) {
+      showMessage(tCommon('noDocumentOpen'));
+      return;
+    }
+    // Opened with a password: its content is not copied out (wachtwoord-pdf.js).
+    if (opslaanGeweigerd(doc)) {
+      showMessage(tCommon('protectedPdfReadOnly'));
+      return;
+    }
+    closeAppMenu();
+    openDialog('ifcx-export');
+  };
+
   const loadProfiles = async () => {
     if (profilesLoaded()) return;
     try {
@@ -308,6 +324,21 @@ export default function ExportPanel() {
           <div class="bs-export-card-info">
             <h3>{t('exportPanel.exportCad')}</h3>
             <p>{t('exportPanel.exportCadDesc')}</p>
+          </div>
+        </div>
+
+        <div class="bs-export-card" onClick={handleExportIfcx}>
+          <div class="bs-export-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M12 11l-4 2.2v4.6l4 2.2 4-2.2v-4.6z"/>
+              <path d="M8 13.2l4 2.2 4-2.2M12 15.4V20"/>
+            </svg>
+          </div>
+          <div class="bs-export-card-info">
+            <h3>{t('exportPanel.exportIfcx')}</h3>
+            <p>{t('exportPanel.exportIfcxDesc')}</p>
           </div>
         </div>
 

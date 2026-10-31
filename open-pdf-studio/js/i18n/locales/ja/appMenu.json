@@ -123,6 +123,8 @@
     "pdfxNote": "出力インテント、TrimBox、PDF/X メタデータを追加します。CMYK 印刷プロファイルを使用すると、RGB の色、画像、グラデーションが CMYK に変換され、そのプロファイルが出力インテントになります。sRGB では何も変換されません。埋め込まれていない標準フォントは引き続き制限事項です。",
     "exportCad": "CAD 図面 (DXF, DWG)",
     "exportCadDesc": "ベクター図面を画層・縮尺・範囲付きで DXF または DWG にエクスポート",
+    "exportIfcx": "IFCX にエクスポート（ベータ）",
+    "exportIfcxDesc": "シート、ベクター、テキスト、画像、注釈を IFC5 の JSON ファイルへ",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "編集可能なテキストと表（ページ画像をオプションで追加）",

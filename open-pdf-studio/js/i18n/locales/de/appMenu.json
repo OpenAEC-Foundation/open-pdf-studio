@@ -123,6 +123,8 @@
     "pdfxNote": "Fügt eine Ausgabebedingung, TrimBox und PDF/X-Metadaten hinzu. Mit einem CMYK-Druckprofil werden RGB-Farben, Bilder und Verläufe nach CMYK konvertiert, und dieses Profil wird zur Ausgabebedingung; mit sRGB wird nichts konvertiert. Nicht eingebettete Standardschriften bleiben eine Einschränkung.",
     "exportCad": "CAD-Zeichnung (DXF, DWG)",
     "exportCadDesc": "Vektorzeichnung als DXF oder DWG exportieren, mit Ebenen, Maßstab und Bereich",
+    "exportIfcx": "Nach IFCX exportieren (Beta)",
+    "exportIfcxDesc": "Blätter, Vektoren, Text, Bilder und Anmerkungen in eine IFC5-JSON-Datei",
     "exportOdt": "OpenDocument (ODT)",
     "exportExcel": "Excel (XLSX)",
     "exportOdtDesc": "Bearbeitbarer Text und Tabellen mit optionalen Seitenbildern",
