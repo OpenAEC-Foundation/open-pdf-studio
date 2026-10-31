@@ -371,6 +371,7 @@
     "updates": "Aggiornamenti",
     "checkForUpdates": "Controlla aggiornamenti",
     "updatesLabel": "Aggiornamenti",
+    "updatesManaged": "Gli aggiornamenti di questa installazione sono gestiti centralmente.",
     "startupDiagnosticsTitle": "Mostra il file di diagnostica dell'avvio (rispettoso della privacy)",
     "startupDiagnostics": "Diagnostica",
     "fileAssociation": "Associazione file",

@@ -371,6 +371,7 @@
     "updates": "التحديثات",
     "checkForUpdates": "التحقق من التحديثات",
     "updatesLabel": "التحديثات",
+    "updatesManaged": "تتم إدارة تحديثات هذا التثبيت مركزيًا.",
     "startupDiagnosticsTitle": "إظهار ملف تشخيص بدء التشغيل الآمن للخصوصية",
     "startupDiagnostics": "التشخيص",
     "fileAssociation": "اقتران الملفات",

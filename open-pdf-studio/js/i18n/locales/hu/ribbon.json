@@ -371,6 +371,7 @@
     "updates": "Frissítések",
     "checkForUpdates": "Frissítések keresése",
     "updatesLabel": "Frissítések",
+    "updatesManaged": "A telepítés frissítéseit központilag kezelik.",
     "startupDiagnosticsTitle": "Az indítási diagnosztikai fájl megjelenítése (személyes adatok nélkül)",
     "startupDiagnostics": "Diagnosztika",
     "fileAssociation": "Fájltársítás",

@@ -7,6 +7,7 @@ mod accounts;
 mod pdf_beveiliging;
 mod atomic_file;
 pub mod beveiligde_pdf;
+pub mod beheerd;
 pub mod cad_export;
 pub mod cad_import;
 pub mod crashlog;
@@ -402,6 +403,12 @@ fn is_dev_mode() -> bool {
 /// Uses spawn_blocking so the subprocess calls never block the main thread.
 #[tauri::command]
 async fn is_default_pdf_app() -> bool {
+    // Beheerde modus (OPENAEC_BEHEERD=1): de omgeving regelt de koppeling;
+    // niet in het register of met xdg-mime kijken, en nooit om de standaard-
+    // app vragen.
+    if beheerd::is_beheerd() {
+        return true;
+    }
     tauri::async_runtime::spawn_blocking(|| {
         #[cfg(target_os = "windows")]
         {
@@ -2745,6 +2752,9 @@ pub fn run(opts: StartupOpts) {
         "[startup] mcp_server={}, mcp_port={}",
         opts.mcp_server, opts.mcp_port
     );
+    if beheerd::is_beheerd() {
+        eprintln!("[startup] managed mode ({}=1): first-run prompts off", beheerd::OMGEVINGSVARIABELE);
+    }
 
     // Capture the MCP options for `setup()` — we now spawn the MCP server
     // *after* Tauri has produced an `AppHandle` so the new `app_*` tools
@@ -3273,6 +3283,7 @@ pub fn run(opts: StartupOpts) {
             window_mgmt::tab_drag_preflight,
             window_mgmt::detach_diag,
             instantie::instance_role,
+            beheerd::managed_mode,
             instantie::tab_drop_target,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,

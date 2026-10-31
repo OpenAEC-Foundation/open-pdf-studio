@@ -371,6 +371,7 @@
     "updates": "Uppdateringar",
     "checkForUpdates": "Sök efter uppdateringar",
     "updatesLabel": "Uppdateringar",
+    "updatesManaged": "Uppdateringar för den här installationen hanteras centralt.",
     "startupDiagnosticsTitle": "Visa den integritetssäkra diagnostikfilen för uppstart",
     "startupDiagnostics": "Diagnostik",
     "fileAssociation": "Filassociation",

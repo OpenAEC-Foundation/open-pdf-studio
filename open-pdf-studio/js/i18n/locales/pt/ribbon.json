@@ -371,6 +371,7 @@
     "updates": "Atualizações",
     "checkForUpdates": "Verificar atualizações",
     "updatesLabel": "Atualizações",
+    "updatesManaged": "As atualizações desta instalação são geridas centralmente.",
     "startupDiagnosticsTitle": "Mostrar o arquivo de diagnóstico de inicialização (seguro para a privacidade)",
     "startupDiagnostics": "Diagnóstico",
     "fileAssociation": "Associação de arquivos",

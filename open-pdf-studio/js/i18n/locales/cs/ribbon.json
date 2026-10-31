@@ -371,6 +371,7 @@
     "updates": "Aktualizace",
     "checkForUpdates": "Zkontrolovat aktualizace",
     "updatesLabel": "Aktualizace",
+    "updatesManaged": "Aktualizace této instalace jsou spravovány centrálně.",
     "startupDiagnosticsTitle": "Zobrazit soubor diagnostiky spuštění (bez osobních údajů)",
     "startupDiagnostics": "Diagnostika",
     "fileAssociation": "Přiřazení souborů",

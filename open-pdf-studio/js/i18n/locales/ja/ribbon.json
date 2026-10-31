@@ -371,6 +371,7 @@
     "updates": "更新",
     "checkForUpdates": "更新を確認",
     "updatesLabel": "更新",
+    "updatesManaged": "このインストールの更新は一元管理されています。",
     "startupDiagnosticsTitle": "プライバシーに配慮した起動診断ファイルを表示",
     "startupDiagnostics": "診断",
     "fileAssociation": "ファイルの関連付け",

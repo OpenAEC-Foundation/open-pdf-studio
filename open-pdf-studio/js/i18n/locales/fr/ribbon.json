@@ -371,6 +371,7 @@
     "updates": "Mises à jour",
     "checkForUpdates": "Vérifier les mises à jour",
     "updatesLabel": "Mises à jour",
+    "updatesManaged": "Les mises à jour de cette installation sont gérées de manière centralisée.",
     "startupDiagnosticsTitle": "Afficher le fichier de diagnostic de démarrage (respectueux de la vie privée)",
     "startupDiagnostics": "Diagnostic",
     "fileAssociation": "Association de fichiers",

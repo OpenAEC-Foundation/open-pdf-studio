@@ -371,6 +371,7 @@
     "updates": "Обновления",
     "checkForUpdates": "Проверить обновления",
     "updatesLabel": "Обновления",
+    "updatesManaged": "Обновления этой установки управляются централизованно.",
     "startupDiagnosticsTitle": "Показать файл диагностики запуска (без личных данных)",
     "startupDiagnostics": "Диагностика",
     "fileAssociation": "Ассоциация файлов",

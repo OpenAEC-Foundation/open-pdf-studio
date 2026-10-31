@@ -68,6 +68,14 @@ export function pickDownloadUrl(assets, userAgent) {
 export async function installPreviousVersion() {
   const { openExtern } = await import('../core/extern-openen.js');
   const i18next = (await import('i18next')).default;
+  // Beheerde modus (OPENAEC_BEHEERD=1): de omgeving regelt de versie.
+  const { magMelden } = await import('../core/beheerd.js');
+  if (!(await magMelden('vorige-versie'))) {
+    window.__TAURI__?.dialog?.message?.(
+      i18next.t('ribbon:help.updatesManaged'),
+      { title: i18next.t('ribbon:help.previousVersion'), kind: 'info' });
+    return;
+  }
   try {
     const vorige = await fetchPreviousRelease(window.__APP_VERSION__ || '0.0.0');
     if (!vorige) {

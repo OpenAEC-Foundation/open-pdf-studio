@@ -370,6 +370,7 @@
     "help": "ຊ່ວຍເຫຼືອ",
     "checkForUpdates": "ກວດສອບການອັບເດດ",
     "updatesLabel": "ອັບເດດ",
+    "updatesManaged": "ການອັບເດດຂອງການຕິດຕັ້ງນີ້ຖືກຈັດການຈາກສູນກາງ.",
     "startupDiagnosticsTitle": "ສະແດງໄຟລ໌ກວດສອບລະບົບຕອນເລີ່ມຕົ້ນ (ປອດໄພຕໍ່ຄວາມເປັນສ່ວນຕົວ)",
     "startupDiagnostics": "ການກວດສອບລະບົບ",
     "setDefaultPdf": "ຕັ້ງເປັນແອັບເປີດ PDF ມາດຕະຖານ",

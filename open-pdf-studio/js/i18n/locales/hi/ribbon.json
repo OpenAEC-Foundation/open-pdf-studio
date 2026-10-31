@@ -371,6 +371,7 @@
     "updates": "अपडेट",
     "checkForUpdates": "अपडेट की जांच करें",
     "updatesLabel": "अपडेट",
+    "updatesManaged": "इस इंस्टॉलेशन के अपडेट केंद्रीय रूप से प्रबंधित किए जाते हैं।",
     "startupDiagnosticsTitle": "गोपनीयता-सुरक्षित स्टार्टअप निदान फ़ाइल दिखाएं",
     "startupDiagnostics": "निदान",
     "fileAssociation": "फ़ाइल संबद्धता",

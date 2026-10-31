@@ -371,6 +371,7 @@
     "updates": "Güncellemeler",
     "checkForUpdates": "Güncellemeleri Kontrol Et",
     "updatesLabel": "Güncellemeler",
+    "updatesManaged": "Bu kurulumun güncellemeleri merkezi olarak yönetilir.",
     "startupDiagnosticsTitle": "Gizliliği koruyan başlangıç tanılama dosyasını göster",
     "startupDiagnostics": "Tanılama",
     "fileAssociation": "Dosya İlişkilendirme",

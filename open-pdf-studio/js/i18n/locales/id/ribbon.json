@@ -371,6 +371,7 @@
     "updates": "Pembaruan",
     "checkForUpdates": "Periksa Pembaruan",
     "updatesLabel": "Pembaruan",
+    "updatesManaged": "Pembaruan untuk instalasi ini dikelola secara terpusat.",
     "startupDiagnosticsTitle": "Tampilkan berkas diagnostik awal yang aman bagi privasi",
     "startupDiagnostics": "Diagnostik",
     "fileAssociation": "Asosiasi File",

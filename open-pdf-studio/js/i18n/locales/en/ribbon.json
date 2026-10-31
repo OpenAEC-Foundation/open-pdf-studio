@@ -370,6 +370,7 @@
     "help": "Help",
     "checkForUpdates": "Check for Updates",
     "updatesLabel": "Updates",
+    "updatesManaged": "Updates for this installation are managed centrally.",
     "startupDiagnosticsTitle": "Reveal the privacy-safe startup diagnostics file",
     "startupDiagnostics": "Diagnostics",
     "setDefaultPdf": "Set Default PDF Application",

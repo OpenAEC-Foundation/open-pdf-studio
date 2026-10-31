@@ -371,6 +371,7 @@
     "updates": "Ажурирања",
     "checkForUpdates": "Провери ажурирања",
     "updatesLabel": "Ажурирања",
+    "updatesManaged": "Ажурирањима ове инсталације се управља централно.",
     "startupDiagnosticsTitle": "Прикажи датотеку дијагностике покретања (без личних података)",
     "startupDiagnostics": "Дијагностика",
     "fileAssociation": "Асоцијација фајлова",

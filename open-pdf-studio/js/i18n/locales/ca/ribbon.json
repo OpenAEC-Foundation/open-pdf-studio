@@ -371,6 +371,7 @@
     "updates": "Actualitzacions",
     "checkForUpdates": "Comprova si hi ha actualitzacions",
     "updatesLabel": "Actualitzacions",
+    "updatesManaged": "Les actualitzacions d'aquesta instal·lació es gestionen de manera centralitzada.",
     "startupDiagnosticsTitle": "Mostra el fitxer de diagnòstic d'inici (respectuós amb la privadesa)",
     "startupDiagnostics": "Diagnòstic",
     "fileAssociation": "Associació de fitxers",
