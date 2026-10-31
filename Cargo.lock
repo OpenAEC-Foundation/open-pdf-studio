@@ -3700,7 +3700,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-signatures"
-version = "2026.43.11"
+version = "2026.44.4"
 dependencies = [
  "base64 0.22.1",
  "cbc",

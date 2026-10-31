@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-signatures"
-version = "2026.43.11"
+version = "2026.44.4"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "Digital PDF signatures: read PKCS#12, sign (PAdES, incremental update) and verify signatures"
