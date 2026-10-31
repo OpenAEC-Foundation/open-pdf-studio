@@ -479,6 +479,7 @@ js/getal-velden-bron.test.mjs
 scripts/versievelden.test.mjs
 js/tools/gereedschap-opmaak.test.mjs
 js/text/tekstselectie-markering.test.mjs
+js/text/tekstselectie-woordafstand.test.mjs
 js/text/text-edit-afdekking.test.mjs
 js/pdf/saver/text-edit-tabelranden.test.mjs
 js/pdf/pdf-viewport-paginaschilder.test.mjs
