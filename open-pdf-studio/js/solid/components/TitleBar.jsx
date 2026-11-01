@@ -16,6 +16,10 @@ async function handleClose() {
     const closed = await closeActiveTab();
     if (!closed) return;
   }
+  // Alle documenten zijn dicht: een nette afsluiting, net als via het app-menu.
+  // closeWindow() is destroy(), dus de close-requested in main.js komt hier niet.
+  const { meldSchoonAfsluiten } = await import('../../herstel/haken.js');
+  await meldSchoonAfsluiten();
   closeWindow();
 }
 
