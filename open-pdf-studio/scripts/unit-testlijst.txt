@@ -313,6 +313,7 @@ js/tools/tools/meting-documentschaal.test.mjs
 js/tools/tools/meting-blad-1-50.test.mjs
 js/annotations/userunit-schaalbronnen.test.mjs
 js/annotations/userunit-gemengd-document.test.mjs
+js/solid/components/dialogs/confirm-dialog-i18n.test.mjs
 js/annotations/vlak-zijden.test.mjs
 js/annotations/vlak-maat.test.mjs
 js/annotations/vlak-zijdematen-wiring.test.mjs

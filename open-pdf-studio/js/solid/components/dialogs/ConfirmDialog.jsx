@@ -3,8 +3,10 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 
 export default function ConfirmDialog(props) {
+  const { t } = useTranslation('common');
   const data = props.data || {};
   const [dontShow, setDontShow] = createSignal(false);
 
@@ -24,7 +26,7 @@ export default function ConfirmDialog(props) {
 
   return (
     <Dialog
-      title={data.title || 'Confirm'}
+      title={data.title || t('confirm')}
       dialogClass="confirm-dialog"
       onClose={handleNo}
     >
@@ -36,15 +38,15 @@ export default function ConfirmDialog(props) {
             <line x1="12" y1="17" x2="12.01" y2="17" stroke="#e6a700" stroke-width="2"/>
           </svg>
         </div>
-        <p class="confirm-dialog-message">{data.message || 'Are you sure?'}</p>
+        <p class="confirm-dialog-message">{data.message || t('areYouSure')}</p>
       </div>
       <div class="confirm-dialog-checkbox" onClick={() => setDontShow(!dontShow())}>
         <input type="checkbox" checked={dontShow()} />
-        <span>Don't show this again</span>
+        <span>{t('dontShowAgain')}</span>
       </div>
       <div class="confirm-dialog-buttons">
-        <button class="confirm-dialog-btn confirm-dialog-btn-yes" onClick={handleYes}>Yes</button>
-        <button class="confirm-dialog-btn confirm-dialog-btn-no" onClick={handleNo}>No</button>
+        <button class="confirm-dialog-btn confirm-dialog-btn-yes" onClick={handleYes}>{t('yes')}</button>
+        <button class="confirm-dialog-btn confirm-dialog-btn-no" onClick={handleNo}>{t('no')}</button>
       </div>
     </Dialog>
   );
