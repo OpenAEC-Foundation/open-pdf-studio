@@ -276,12 +276,13 @@ export function userUnitVanPdfPagina(pagina) {
  * schaal 1:N rekent met deze waarde om naar papiermillimeters
  * (pixelsPerUnitFor, #884).
  * @param {import('pdf-lib').PDFDocument} pdfLibDoc
- * @returns {Record<number, number>}
+ * @returns {Record<number, number>|null}  null als de pagina's niet te lezen
+ *   zijn: dan is de /UserUnit niet bekend, wat iets anders is dan overal 1.
  */
 export function leesUserUnits(pdfLibDoc) {
   const uit = {};
   let paginas;
-  try { paginas = pdfLibDoc.getPages(); } catch { return uit; }
+  try { paginas = pdfLibDoc.getPages(); } catch { return null; }
   paginas.forEach((pagina, i) => {
     const u = userUnitVanPdfPagina(pagina);
     if (u !== 1) uit[i + 1] = u;
@@ -325,7 +326,12 @@ export function rondViewportLezingAf(doc, kenmerk, viewports, userUnits) {
   if (!doc || doc._viewportLezing !== kenmerk) return false;
   doc._viewportLezing = null;
   if (viewports) doc.pdfViewports = Object.keys(viewports).length ? viewports : undefined;
-  if (viewports && userUnits) doc.pageUserUnits = Object.keys(userUnits).length ? userUnits : undefined;
+  if (viewports && userUnits) {
+    doc.pageUserUnits = Object.keys(userUnits).length ? userUnits : undefined;
+    // Zonder pageUserUnits: alle pagina's zijn 1 (dit vlaggetje), of het is nog
+    // niet bekend (geen vlaggetje). Zie documentSchaalOpPagina.
+    doc.userUnitsGelezen = true;
+  }
   return true;
 }
 

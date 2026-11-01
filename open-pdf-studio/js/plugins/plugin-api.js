@@ -25,6 +25,7 @@ import { getPageInfoForDocument, readPageContentForDocument, renderPageTileForDo
 import { extractPageGeometry } from '../tools/pdf-snap-extractor.js';
 import { schaalOpPunt } from '../annotations/schaal-op-punt.js';
 import { getScaleFromRegion } from '../annotations/scale-region.js';
+import { documentSchaalOpPagina } from '../annotations/scale-region-scale.js';
 import * as systeemTypenRegistry from '../annotations/systeem-typen-registry.js';
 import { systeemInstanceGeometrie } from '../annotations/systeem-geometrie-app.js';
 import { openSysteemtypenEditor } from '../solid/stores/systeemtypenEditorStore.js';
@@ -140,7 +141,7 @@ function bronVingerafdruk(doc) {
 // De bevestigde schaal van een pagina: die van het document plus de
 // gekalibreerde gebieden op de pagina (dezelfde bronnen als scaleChanged).
 function schaalVanPagina(doc, page) {
-  const s = doc.measureScale;
+  const s = documentSchaalOpPagina(doc, page);
   const vanDocument = s && Number.isFinite(s.pixelsPerUnit) && s.pixelsPerUnit > 0
     ? { pixelsPerUnit: s.pixelsPerUnit, unit: s.unit ?? null, scaleRatio: s.scaleRatio ?? null } : null;
   const regions = [];
