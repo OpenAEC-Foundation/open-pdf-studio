@@ -9,6 +9,7 @@
 // (reloadFromBytes + recordPageStructure) that page insert/delete/reorder use.
 // ============================================================================
 
+import { paginaViewport } from '../pdf/pagina-viewport.js';
 import { PDFDocument, PDFName } from 'pdf-lib';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { getCachedPdfBytes } from '../pdf/loader.js';
@@ -66,7 +67,7 @@ export async function detectEmbeddedImages(pageNum) {
     const extraRotation = getPageRotation(pageNum);
     const vpOpts = { scale: 1 };
     if (extraRotation) vpOpts.rotation = (page.rotate + extraRotation) % 360;
-    vt = page.getViewport(vpOpts).transform;
+    vt = paginaViewport(page, vpOpts).transform;
   } catch (e) {
     console.warn('[embedded-image] viewport failed:', e);
   }

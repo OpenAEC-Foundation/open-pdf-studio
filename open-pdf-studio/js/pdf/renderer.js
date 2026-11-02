@@ -1,3 +1,4 @@
+import { paginaViewport } from './pagina-viewport.js';
 import { meld as meldSplit } from './split-view/split-haken.js';
 import { cssPxPerPtAt100, nextScaleStep } from '../core/zoom-display.js';
 import { state, getActiveDocument, getPageRotation, setPageRotation } from '../core/state.js';
@@ -279,14 +280,14 @@ async function _renderPageImpl(pageNum) {
   if (extraRotation) {
     viewportOpts.rotation = (page.rotate + extraRotation) % 360;
   }
-  const viewport = page.getViewport(viewportOpts);
+  const viewport = paginaViewport(page, viewportOpts);
   // Weergave draaien (#200). De viewport-singleton (PDFium) draait de pagina
   // zelf bij het tekenen; bitmap en lagen blijven in de paginaruimte. Tekent
   // PDF.js de pagina rechtstreeks (webversie, leeg document zonder pad), dan
   // gebeurt het draaien hier: pagina, overlay en lagen in de gedraaide stand.
   const weergaveRot = weergaveRotatie(doc);
   const beeldViewport = weergaveRot
-    ? page.getViewport({ scale, rotation: (page.rotate + extraRotation + weergaveRot) % 360 })
+    ? paginaViewport(page, { scale, rotation: (page.rotate + extraRotation + weergaveRot) % 360 })
     : viewport;
 
   // High-zoom safety cap. The browser canvas has a max ~16384 px per axis
@@ -451,7 +452,7 @@ async function _renderPageImpl(pageNum) {
             if (!rustTextOk) {
               const page = await pdfDoc.getPage(pageNum);
               if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-              const textViewport = page.getViewport({ scale: 1.0 });
+              const textViewport = paginaViewport(page, { scale: 1.0 });
               await createSinglePageTextLayer(page, textViewport);
               if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
             }
@@ -786,7 +787,7 @@ export async function renderPageOffscreen(pageNum) {
   const extraRotation = getPageRotation(pageNum);
   const viewportOpts = { scale };
   if (extraRotation) viewportOpts.rotation = (page.rotate + extraRotation) % 360;
-  const viewport = page.getViewport(viewportOpts);
+  const viewport = paginaViewport(page, viewportOpts);
   const dpr = getCanvasDPR();
 
   const pdfCanvas = getPdfCanvas();
@@ -1082,7 +1083,7 @@ async function renderLowResPreview(doc, pageNum, nogActueel = () => true) {
   const extraRotation = voorvertoningRotatie(doc, pageNum);
   const vpOpts = { scale: LOW_RES_SCALE };
   if (extraRotation) vpOpts.rotation = (page.rotate + extraRotation) % 360;
-  const viewport = page.getViewport(vpOpts);
+  const viewport = paginaViewport(page, vpOpts);
 
   const canvas = document.createElement('canvas');
   canvas.width = Math.ceil(viewport.width);
@@ -1148,7 +1149,7 @@ async function renderContinuousPage(pageNum) {
   if (extraRotation) {
     vpOpts.rotation = (page.rotate + extraRotation) % 360;
   }
-  const viewport = page.getViewport(vpOpts);
+  const viewport = paginaViewport(page, vpOpts);
   const myRenderGen = (_contPageRenderGen.get(pageNum) || 0) + 1;
   _contPageRenderGen.set(pageNum, myRenderGen);
 
@@ -1501,7 +1502,7 @@ export async function reRenderVisibleContinuousPages() {
     const extraRotation = beeldRotatie(pageNum);
     const vpOpts = { scale };
     if (extraRotation) vpOpts.rotation = (page.rotate + extraRotation) % 360;
-    jobs.push({ wrapper, viewport: page.getViewport(vpOpts) });
+    jobs.push({ wrapper, viewport: paginaViewport(page, vpOpts) });
   }
 
   // Fase 2 (synchroon, atomair): pas hier invalideren en alle maten in één
@@ -1798,7 +1799,7 @@ export async function renderContinuous(forceRebuild) {
     if (extraRotation) {
       vpOpts.rotation = (page.rotate + extraRotation) % 360;
     }
-    const viewport = page.getViewport(vpOpts);
+    const viewport = paginaViewport(page, vpOpts);
 
     const pageWrapper = document.createElement('div');
     pageWrapper.className = 'page-wrapper';
@@ -2276,7 +2277,7 @@ async function _getFitInputs() {
   const extraRot = beeldRotatie(doc.currentPage);
   const opts = { scale: 1 };
   if (extraRot) opts.rotation = (page.rotate + extraRot) % 360;
-  const pageViewport = page.getViewport(opts);
+  const pageViewport = paginaViewport(page, opts);
   const container = document.getElementById('pdf-container');
   if (!container) return null;
   // Verborgen viewer: niets om in te passen, zoom laten staan (#675).
@@ -2631,7 +2632,7 @@ export async function rotatePage(delta, targetPage, { tekenen = true } = {}) {
 
   // Get old viewport dimensions (at current rotation) for annotation transform
   const page = await doc.pdfDoc.getPage(pageNum);
-  const oldViewport = page.getViewport({ scale: 1, rotation: (page.rotate + current) % 360 });
+  const oldViewport = paginaViewport(page, { scale: 1, rotation: (page.rotate + current) % 360 });
   const normDelta = ((delta % 360) + 360) % 360;
 
   // Transform annotation coordinates to match new rotation

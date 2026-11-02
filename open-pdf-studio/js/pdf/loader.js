@@ -22,6 +22,7 @@ import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 // Sub-module imports
 import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
+import { paginaViewport } from './pagina-viewport.js';
 import { zetPaginaAnnotatiesOm } from './loader/annotaties-omzetten.js';
 import { loadIfNeeded } from './queued-load.js';
 import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
@@ -1125,7 +1126,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
   const _sp0 = performance.now();
 
   const page = await doc.pdfDoc.getPage(pageNum);
-  const viewport = page.getViewport({ scale: 1 });
+  const viewport = paginaViewport(page);
   console.log(`[PERF] page ${pageNum}: getPage: ${(performance.now() - _sp0).toFixed(0)}ms`);
 
   const annotations = await page.getAnnotations();
@@ -1152,7 +1153,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
     const _st0 = performance.now();
     try {
       const pdfPage = await doc.pdfDoc.getPage(pageNum);
-      const extractViewport = pdfPage.getViewport({ scale: 1 });
+      const extractViewport = paginaViewport(pdfPage);
       stampImageMap = await extractStampImagesHybrid(
         pdfPage, extractViewport, stampAnnots, pageNum, pdfLibDoc,
       );
@@ -1280,7 +1281,7 @@ export async function loadExistingAnnotations(doc) {
 
       const pageNum = pagesToLoad[i];
       const page = pages[i];
-      const viewport = page.getViewport({ scale: 1 });
+      const viewport = paginaViewport(page);
       const annotations = annotResults[i];
 
       if (annotations.length === 0) {
@@ -1333,7 +1334,7 @@ export async function loadExistingAnnotations(doc) {
         // Reload with full color data
         const page = await pdfDoc.getPage(pageNum);
         if (loadId !== doc._annotationLoadId || !state.documents.includes(doc)) break;
-        const viewport = page.getViewport({ scale: 1 });
+        const viewport = paginaViewport(page);
         const annotations = await page.getAnnotations();
         if (loadId !== doc._annotationLoadId || !state.documents.includes(doc)) break;
 
