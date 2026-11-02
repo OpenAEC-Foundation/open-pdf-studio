@@ -68,15 +68,15 @@ the matching Rust `tauri*` crate minor in `Cargo.lock`. Check with
 {
   "$schema": "https://schema.tauri.app/config/2",
   "bundle": {
-    "externalBin": [],
     "resources": { "binaries/linux-x64/libpdfium.so": "libpdfium.so" }
   }
 }
 ```
-- `externalBin: []` — the multi-process worker pool is **Windows-only** (the
-  spawn path hardcodes `pdfium-worker.exe`), so the sidecar is never used on
-  Linux; dropping it removes the missing-binary build failure.
-- bundles `libpdfium.so` next to the binary so the in-proc PDFium path works.
+- De Linux-configuratie erft nu `externalBin` uit de basisconfiguratie (#923).
+  De spawncode gebruikt inmiddels `pdfium-worker` zonder `.exe` op Linux.
+  CI, release en nightly bouwen de sidecar vóór het bundelen.
+- `libpdfium.so` wordt als resource in `usr/lib/Open PDF Studio` verpakt.
+  Ook de worker zoekt deze map relatief aan zijn eigen executable.
 - Tauri auto-merges `tauri.<platform>.conf.json`, so this file is a **no-op on
   Windows/macOS** — their `externalBin`/`resources` from `tauri.conf.json` are
   unchanged.
@@ -196,10 +196,12 @@ cargo test -p open-pdf-studio --release --test pdfium_smoke -- --nocapture
 ---
 
 ## Follow-ups
-- Auto-build `pdfium-worker` (remove the manual Windows pre-build) and add the
-  same step to `release.yml`.
-- Optional: native Linux worker pool (today Linux uses single-process in-proc
-  PDFium; the spawn path hardcodes `.exe`).
+- De worker wordt inmiddels in CI, release en nightly gebouwd. De pakketcontrole
+  `bash scripts/linux-worker-package-check.sh pakket.deb pakket.AppImage`
+  pakt beide formaten uit en start hun worker zonder GUI, FUSE of installatie.
+  Een `ready`-antwoord bevestigt PDFium-initialisatie. Een ontbrekende executable,
+  bibliotheek of een mislukte start laat de workflow falen. Dit vervangt geen
+  render- of praktijktest op de doelcomputer.
 - Some Wayland/Nvidia setups show a blank WebKitGTK window; workaround
   `WEBKIT_DISABLE_DMABUF_RENDERER=1` — consider baking into the AppImage
   launcher if it appears.

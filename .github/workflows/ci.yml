@@ -104,6 +104,10 @@ jobs:
       - name: Run Linux release regression tests
         run: node --test scripts/linux-release-config.test.mjs
 
+      - name: Test Linux worker package checks
+        if: matrix.platform == 'ubuntu-22.04'
+        run: bash scripts/linux-worker-package-check.test.sh
+
       - name: Test AppImage smoke checks
         if: matrix.platform == 'ubuntu-22.04'
         run: bash scripts/linux-appimage-smoke.test.sh
@@ -182,6 +186,11 @@ jobs:
       - name: Build Tauri AppImage
         if: matrix.platform == 'ubuntu-22.04'
         run: npm run tauri build -- --bundles appimage --config '{"bundle":{"createUpdaterArtifacts":false}}'
+
+      - name: Verify packaged Linux worker
+        if: matrix.platform == 'ubuntu-22.04'
+        shell: bash
+        run: bash scripts/linux-worker-package-check.sh ../target/release/bundle/appimage/*.AppImage
 
       # The binary must not need a distro-specific libtesseract/liblept soname:
       # the .deb, the AppImage and repackagers such as the AUR use it as is (#620).

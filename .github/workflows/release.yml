@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.44.8'
+        default: 'v2026.45.1'
 
 jobs:
   create-release:
@@ -365,6 +365,11 @@ jobs:
           args: ${{ matrix.target == 'windows-system' && '--config src-tauri/tauri.signing.conf.json' || matrix.args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
+
+      - name: Verify packaged Linux worker
+        if: matrix.target == 'linux'
+        shell: bash
+        run: bash scripts/linux-worker-package-check.sh ../target/release/bundle/appimage/*.AppImage ../target/release/bundle/deb/*.deb
 
       # The binary must not need a distro-specific libtesseract/liblept soname:
       # the .deb, the AppImage and repackagers such as the AUR use it as is (#620).

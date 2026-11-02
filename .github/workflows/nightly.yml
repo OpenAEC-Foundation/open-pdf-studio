@@ -199,7 +199,7 @@ jobs:
           $conf.bundle.windows.nsis.installMode = "currentUser"
           $conf | ConvertTo-Json -Depth 10 | Set-Content src-tauri/tauri.conf.json
 
-      # Linux uses in-proc PDFium (the worker sidecar is Windows-only), so the
+      # Both the Linux worker and in-proc fallback use PDFium, so the
       # AppImage must bundle libpdfium.so — referenced by tauri.linux.conf.json.
       # Fetch the same pdfium release as the committed win-x64/pdfium.dll
       # (bblanchon chromium/8076) before bundling.
@@ -280,6 +280,11 @@ jobs:
           args: ${{ matrix.args }}
           releaseId: ${{ needs.prepare-release.outputs.release_id }}
           includeUpdaterJson: false
+
+      - name: Verify packaged Linux worker
+        if: matrix.target == 'linux'
+        shell: bash
+        run: bash scripts/linux-worker-package-check.sh ../target/release/bundle/appimage/*.AppImage ../target/release/bundle/deb/*.deb
 
       # The binary must not need a distro-specific libtesseract/liblept soname:
       # the .deb, the AppImage and repackagers such as the AUR use it as is (#620).

@@ -323,3 +323,23 @@ test('the OpenAEC environment is prepared in main before Tauri starts (#863)', a
     assert.ok(docs.includes(variable), `docs/openaec-linux.md documents ${variable}`);
   }
 });
+
+
+test('Linux inherits the worker sidecar and uses the worker resource directory', async () => {
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const linux = await readJson('src-tauri/tauri.linux.conf.json');
+  assert.deepEqual(linux.bundle.externalBin ?? base.bundle.externalBin, ['binaries/pdfium-worker']);
+  const renderer = await readFile(new URL('pdfium-worker/src/render.rs', repoRoot), 'utf8');
+  assert.ok(renderer.includes(`../lib/${base.productName}`), 'worker must search the Tauri Linux resource directory');
+});
+
+test('Linux packages are checked after bundling in CI, release and nightly', async () => {
+  for (const name of ['ci', 'release', 'nightly']) {
+    const workflow = await readFile(new URL(`.github/workflows/${name}.yml`, repoRoot), 'utf8');
+    const gate = workflow.indexOf('name: Verify packaged Linux worker');
+    assert.ok(gate > workflow.indexOf('name: Build Tauri'), `${name}: package check must follow bundling`);
+    assert.match(workflow.slice(gate), /linux-worker-package-check\.sh/);
+    assert.match(workflow.slice(gate), /bundle\/appimage\/\*\.AppImage/);
+    if (name !== 'ci') assert.match(workflow.slice(gate), /bundle\/deb\/\*\.deb/);
+  }
+});
