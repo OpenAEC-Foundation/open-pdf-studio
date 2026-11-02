@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-thumbnails"
-version = "2026.44.7"
+version = "2026.44.8"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "Windows Shell thumbnail handler for PDF files (File Explorer previews, #605)"

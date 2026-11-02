@@ -1,3 +1,4 @@
+import { paginaViewport } from '../pdf/pagina-viewport.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { OPS } from 'pdfjs-dist';
 import { getPageRotation } from '../core/state.js';
@@ -274,7 +275,7 @@ export async function extractPageGeometry(pageNum, options = {}) {
   if (extraRotation) {
     vpOpts.rotation = (page.rotate + extraRotation) % 360;
   }
-  const viewport = page.getViewport(vpOpts);
+  const viewport = paginaViewport(page, vpOpts);
   const viewportTransform = viewport.transform;
 
   const opList = await page.getOperatorList();
