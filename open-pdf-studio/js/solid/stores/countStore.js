@@ -52,6 +52,14 @@ export const countTallies = createMemo(() => {
     byCat.set(k, (byCat.get(k) || 0) + 1);
   }
   const rows = categories().map(c => ({ ...c, count: byCat.get(c.id) || 0 }));
+  // Een PDF bewaart de categorie-ID, maar de categoriepresets zijn per sessie.
+  // Tel ingelezen eigen groepen ook mee; hun ID is de beschikbare naam.
+  const knownIds = new Set(rows.map(c => c.id));
+  for (const [id, count] of byCat) {
+    if (id !== '(geen)' && !knownIds.has(id)) {
+      rows.push({ id, name: id, color: '#888888', markerStyle: 'dot', count });
+    }
+  }
   if (byCat.has('(geen)')) {
     rows.push({ id: '(geen)', name: '(geen categorie)', color: '#888888', markerStyle: 'dot', count: byCat.get('(geen)') });
   }
@@ -62,5 +70,5 @@ export const countTotal = createMemo(() => countTallies().reduce((s, r) => s + r
 
 /** CSV-regels voor de telling (gebruikt door de paneel-export). */
 export function countCsvRows() {
-  return countTallies().filter(r => r.count > 0).map(r => `Telling,"${r.name}",${r.count},stuks,`);
+  return countTallies().filter(r => r.count > 0).map(r => `Telling,"${String(r.name).replace(/"/g, '""')}",${r.count},stuks,`);
 }

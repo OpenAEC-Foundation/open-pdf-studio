@@ -79,6 +79,7 @@ js/tools/snap-extractie-beleid.test.mjs
 js/tools/snap-geometrie-cache.test.mjs
 js/annotations/schaal-bronnen.test.mjs
 js/solid/stores/quantitiesStore.test.mjs
+js/solid/stores/countStore.test.mjs
 js/core/undo-manager.test.mjs
 js/core/undo-tekstlaag.test.mjs
 js/utils/date-formatter.test.mjs
