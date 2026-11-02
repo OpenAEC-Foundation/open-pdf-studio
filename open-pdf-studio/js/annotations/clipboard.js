@@ -14,9 +14,12 @@ import { plakVerschuivingPt } from './minimummaat.js';
 import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { annotationBounds } from './spatial-index.js';
 import { applyMoveGeneric } from './transforms.js';
+import { shiftAnnotation } from '../pdf/shift-page-geometry.js';
 
 // Laatste muispositie op het scherm, alleen voor plakken-op-de-muis (#928).
 // state._lastMouseAppX/Y is maar 800 ms geldig en kent geen paginanummer.
+// shortcut: punt blijft stale als het venster de focus verliest zonder
+// mouseleave, wis ook op window-blur als dat in de browser bewezen is.
 let muisPunt = null;
 if (typeof document !== 'undefined') {
   document.addEventListener('mousemove', (e) => {
@@ -55,7 +58,9 @@ export function plekOnderMuis() {
 
 // Centreer de kopieën op `plek`: de omhullende van alle kopieën komt met zijn
 // midden op de muis, elke kopie schuift even ver mee (onderlinge ligging
-// blijft). Kopieën zonder omhullende schuiven mee en gaan naar de muispagina.
+// blijft). Star schuiven via shiftAnnotation, zodat een aanhaalvak zijn pijl,
+// knie en armbasis meeneemt (#928). Kopieën zonder omhullende schuiven mee en
+// gaan naar de muispagina.
 export function centreerOp(kopieen, plek) {
   let minX = Infinity;
   let minY = Infinity;
@@ -72,7 +77,7 @@ export function centreerOp(kopieen, plek) {
   if (minX !== Infinity) {
     const dx = plek.x - (minX + maxX) / 2;
     const dy = plek.y - (minY + maxY) / 2;
-    for (const a of kopieen) applyMoveGeneric(a, dx, dy);
+    for (const a of kopieen) shiftAnnotation(a, dx, dy, applyMoveGeneric);
   }
   for (const a of kopieen) a.page = plek.page;
 }
@@ -289,17 +294,9 @@ export function pasteAnnotation() {
   // met 20 pt (1280 px bij 6400 %) buiten beeld.
   state._pasteSeq = (state._pasteSeq || 0) + 1;
   const off = plakVerschuivingPt(state._pasteSeq, getEffectiveScale());
-  if (newAnnotation.x !== undefined) newAnnotation.x += off;
-  if (newAnnotation.y !== undefined) newAnnotation.y += off;
-  if (newAnnotation.startX !== undefined) newAnnotation.startX += off;
-  if (newAnnotation.startY !== undefined) newAnnotation.startY += off;
-  if (newAnnotation.endX !== undefined) newAnnotation.endX += off;
-  if (newAnnotation.endY !== undefined) newAnnotation.endY += off;
-  if (newAnnotation.centerX !== undefined) newAnnotation.centerX += off;
-  if (newAnnotation.centerY !== undefined) newAnnotation.centerY += off;
-  if (newAnnotation.path) {
-    newAnnotation.path = newAnnotation.path.map(p => ({ x: p.x + off, y: p.y + off }));
-  }
+  // Star verschuiven via dezelfde wandelaar als de rest van de app: een
+  // aanhaalvak neemt zijn pijl, knie en armbasis mee (#928).
+  shiftAnnotation(newAnnotation, off, off, applyMoveGeneric);
 
   // Update page, id, and timestamps
   newAnnotation.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
@@ -377,18 +374,9 @@ export function pasteAnnotations() {
   for (const source of state.clipboardAnnotations) {
     const newAnn = cloneAnnotation(source);
 
-    // Offset position
-    if (newAnn.x !== undefined) newAnn.x += off;
-    if (newAnn.y !== undefined) newAnn.y += off;
-    if (newAnn.startX !== undefined) newAnn.startX += off;
-    if (newAnn.startY !== undefined) newAnn.startY += off;
-    if (newAnn.endX !== undefined) newAnn.endX += off;
-    if (newAnn.endY !== undefined) newAnn.endY += off;
-    if (newAnn.centerX !== undefined) newAnn.centerX += off;
-    if (newAnn.centerY !== undefined) newAnn.centerY += off;
-    if (newAnn.path) {
-      newAnn.path = newAnn.path.map(p => ({ x: p.x + off, y: p.y + off }));
-    }
+    // Star verschuiven via dezelfde wandelaar als de rest van de app (zie
+    // pasteAnnotation).
+    shiftAnnotation(newAnn, off, off, applyMoveGeneric);
 
     newAnn.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
     newAnn.page = getActiveDocument()?.currentPage || 1;

@@ -168,14 +168,17 @@ test("every position-bearing field of an annotation moves with the page", () => 
   }
 });
 
-test("a callout's arrow tip and knee move too, unlike an interactive move", () => {
+test("a callout's arrow tip, knee and arm origin move too, unlike an interactive move", () => {
   const calls = [];
-  const callout = { type: "callout", x: 100, y: 100, width: 80, height: 30, arrowX: 20, arrowY: 200, kneeX: 60, kneeY: 150 };
+  const callout = {
+    type: "callout", x: 100, y: 100, width: 80, height: 30,
+    arrowX: 20, arrowY: 200, kneeX: 60, kneeY: 150, armOriginX: 100, armOriginY: 115,
+  };
   shiftAnnotation(callout, 10, -5, (ann, dx, dy) => { calls.push([dx, dy]); ann.x += dx; ann.y += dy; });
   assert.deepEqual(calls, [[10, -5]], "the generic primitive is used exactly once");
   assert.deepEqual(
-    [callout.x, callout.y, callout.arrowX, callout.arrowY, callout.kneeX, callout.kneeY],
-    [110, 95, 30, 195, 70, 145],
+    [callout.x, callout.y, callout.arrowX, callout.arrowY, callout.kneeX, callout.kneeY, callout.armOriginX, callout.armOriginY],
+    [110, 95, 30, 195, 70, 145, 110, 110],
   );
 });
 

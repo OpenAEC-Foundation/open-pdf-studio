@@ -328,6 +328,22 @@ export function annotationBounds(annotation, opties) {
       return boundsFromPoints(alle, annotation.lineWidth);
     }
 
+    // Arc: alleen centerX/centerY/radius (geen x/y), dus de rect-tak hieronder
+    // sloeg hem over en gaf null (#928). Een (deel)boog ligt binnen zijn
+    // volledige cirkel; die cirkel is de omhullende.
+    if (type === 'arc'
+        && Number.isFinite(annotation.centerX) && Number.isFinite(annotation.centerY)
+        && Number.isFinite(annotation.radius)) {
+      const pad = Math.max((annotation.lineWidth || 0) / 2, 2);
+      const r = Math.abs(annotation.radius) + pad;
+      return {
+        x: annotation.centerX - r,
+        y: annotation.centerY - r,
+        width: r * 2,
+        height: r * 2,
+      };
+    }
+
     // Rect-based annotations (most common)
     if (
       annotation.x != null &&

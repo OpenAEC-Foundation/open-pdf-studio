@@ -1094,6 +1094,7 @@ const _MOVE_SCALAR_PAIRS = [
   ['leaderEndX', 'leaderEndY'],
   ['labelX', 'labelY'],
   ['cx', 'cy'],
+  ['centerX', 'centerY'],
 ];
 // Nested {x,y} objects (measureAngle vertices, plugin point-markers, …)
 const _MOVE_POINT_OBJECTS = ['at', 'vertex', 'point1', 'point2'];
