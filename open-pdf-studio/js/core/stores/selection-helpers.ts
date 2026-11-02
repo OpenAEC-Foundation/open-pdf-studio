@@ -56,6 +56,10 @@ export function selectAllOnPage(): void {
 
 export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
   switch (ann.type) {
+    case 'count':
+      // De vaste marker is gecentreerd op x/y, zonder opgeslagen breedte.
+      // Zelfde 22 pt als de geometrie voor klikken en verplaatsen.
+      return { x: ann.x! - 11, y: ann.y! - 11, width: 22, height: 22 };
     case 'draw':
       if (!ann.path || ann.path.length === 0) return null;
       const drawMinX = Math.min(...ann.path.map(p => p.x));
