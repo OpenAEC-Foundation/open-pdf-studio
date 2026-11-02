@@ -1,6 +1,6 @@
 import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, heeftRustRenderer, saveFileDialog, writeBinaryFile } from '../core/platform.js';
+import { isTauri, heeftRustRenderer, saveFileDialog, writeBinaryFile, writeClipboardPng } from '../core/platform.js';
 import { render } from 'solid-js/web';
 import ScreenshotOverlay from '../solid/components/ScreenshotOverlay.jsx';
 import { startScreenshot, endScreenshot } from '../bridge.js';
@@ -299,7 +299,7 @@ function _blob(canvas, type, kwaliteit) {
 export async function kopieerSchermafbeelding(gebied, dpi) {
   const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
   const blob = await _blob(canvas, 'image/png');
-  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  await writeClipboardPng(blob);
   _bewaarVoorOverlay(gebied, paginaCanvas);
   updateStatusMessage(i18next.t('dialogs:screenshot.copied', { width: maat.breedte, height: maat.hoogte, dpi: maat.dpi }));
   return maat;

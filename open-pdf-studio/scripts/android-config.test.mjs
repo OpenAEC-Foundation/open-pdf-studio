@@ -27,6 +27,8 @@ const ALLEEN_BUREAUBLAD = new Set([
   'updater:default',
   'openaec-update:default',
   'drag:default',
+  // De clipboard-plugin ondersteunt afbeeldingen schrijven niet op Android/iOS.
+  'clipboard-manager:allow-write-image',
 ]);
 
 test('de mobiele rechten gelden voor het hoofdvenster', () => {

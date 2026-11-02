@@ -6,6 +6,7 @@
   "windows": ["main", "pdf-*", "print-queue"],
   "permissions": [
     "core:default",
+    "clipboard-manager:allow-write-image",
     "core:webview:allow-create-webview-window",
     "core:window:allow-create",
     "core:window:allow-close",

@@ -453,6 +453,7 @@ js/pdf/saver/blend-mode-ap.test.mjs
 js/pdf/mengmodus-rondgang.test.mjs
 js/solid/components/ribbon/ribbon-popup.test.mjs
 js/tools/screenshot-keuze.test.mjs
+js/tools/screenshot-clipboard.test.mjs
 js/tools/screenshot-bedrading.test.mjs
 js/pdf/eigenschappen-rondgang.test.mjs
 js/pdf/saver/vorm-draaiing.test.mjs

@@ -890,6 +890,20 @@ export async function invoke(cmd, args = {}, options = undefined) {
   return isObservedRenderCommand(cmd) ? observeNativeRender(cmd, args, run) : run();
 }
 
+/** Write an encoded PNG through the native desktop clipboard after rendering.
+ * WebKit can reject browser image writes once transient user activation ends.
+ * The existing desktop plugin decodes the PNG; no persistent image resource is
+ * allocated. Mobile (where image writes are unsupported) keeps the web route.
+ */
+export async function writeClipboardPng(blob) {
+  if (isTauri() && !isMobile()) {
+    const image = new Uint8Array(await blob.arrayBuffer());
+    await invoke('plugin:clipboard-manager|write_image', { image });
+    return;
+  }
+  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+}
+
 // App-datamap (kaders, onderhoeken). Gaat via Rust zodat een testinstantie
 // met OPDS_DATA_DIR niet in het profiel van de gebruiker leest of schrijft;
 // terugval op Tauri's appDataDir voor oudere backends.
