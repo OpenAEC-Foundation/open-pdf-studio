@@ -38,6 +38,10 @@ function _schaalOf(params) {
   return Number.isFinite(v) && v > 0 ? v : 1;
 }
 
+function _aanzichtOf(params) {
+  return ['boven', 'zij'].includes(params?.aanzicht) ? params.aanzicht : 'doorsnede';
+}
+
 export const houtBalkTemplate = {
   id: 'hout-balk',
   name: 'Houten balk',
@@ -50,6 +54,15 @@ export const houtBalkTemplate = {
     { key: 'eigenBreedte', label: 'Eigen lengte (mm, 0 = lijst)', labelEn: 'Custom length', type: 'number', default: 0, min: 0, step: 5 },
     { key: 'eigenHoogte', label: 'Eigen hoogte (mm, 0 = lijst)', labelEn: 'Custom height', type: 'number', default: 0, min: 0, step: 5 },
     {
+      key: 'aanzicht', label: 'Aanzicht', labelEn: 'View', type: 'enum',
+      options: [
+        { value: 'doorsnede', label: 'Doorsnede' },
+        { value: 'boven', label: 'Bovenaanzicht' },
+        { value: 'zij', label: 'Zijaanzicht' },
+      ],
+      default: 'doorsnede',
+    },
+    {
       key: 'houtsoort', label: 'Houtsoort', labelEn: 'Timber type', type: 'enum',
       options: HOUTSOORTEN.map(s => ({ value: s.id, label: s.label })),
       default: 'vuren',
@@ -61,9 +74,14 @@ export const houtBalkTemplate = {
     // LIGGEND: lengte (l) horizontaal, hoogte (b) verticaal.
     const { b, l } = _maatOf(params);
     const f = _schaalOf(params);
+    // Zelfde assen als de bestaande doorsnede: l horizontaal, b verticaal.
+    // Aanzichten houden de getekende balklengte vrij, net als staalprofielen.
+    const view = _aanzichtOf(params);
+    if (view === 'boven') return { width: null, height: l * f };
+    if (view === 'zij') return { width: null, height: b * f };
     return { width: l * f, height: b * f };
   },
-  freeAxis() { return null; },
+  freeAxis(params) { return _aanzichtOf(params) === 'doorsnede' ? null : 'x'; },
   snapPoints(params, bbox) {
     const { x, y, width: w, height: h } = bbox;
     return [
@@ -81,9 +99,11 @@ export const houtBalkTemplate = {
       { x, y }, { x: x + w, y }, { x: x + w, y: y + h }, { x, y: y + h },
     ];
     const cmds = [
-      // Timber colour per houtsoort + fine diagonal grain
+      // Materiaalkleur blijft zichtbaar; alleen de doorsnede is gearceerd.
       { kind: 'hatch', loops: [loop], pattern: 'solid', color: soort.bg, scale: 100, angle: 0 },
-      { kind: 'hatch', loops: [loop], pattern: 'diagonal-left', color: soort.fg, scale: 60, angle: 0 },
+      ...(_aanzichtOf(params) === 'doorsnede'
+        ? [{ kind: 'hatch', loops: [loop], pattern: 'diagonal-left', color: soort.fg, scale: 60, angle: 0 }]
+        : []),
       { kind: 'polyline', points: loop, close: true },
     ];
     if (params?.toonLabel !== false) {
