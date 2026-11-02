@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.44.6'
+        default: 'v2026.44.7'
 
 jobs:
   create-release:
@@ -420,7 +420,12 @@ jobs:
             const marker = '<!-- openaec-memory-at-rest -->';
             const body = (data.body || '').split(marker)[0].trimEnd()
               + `\n\n${marker}\n### OpenAEC Linux\n\n${line}\n`;
-            await github.rest.repos.updateRelease({ owner, repo, release_id, body });
+            // A PATCH on a draft without tag_name drops the tag, after which the
+            // Windows upload steps (gh release upload <tag>) cannot find it.
+            await github.rest.repos.updateRelease({
+              owner, repo, release_id, body,
+              tag_name: data.tag_name, target_commitish: data.target_commitish,
+            });
 
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding

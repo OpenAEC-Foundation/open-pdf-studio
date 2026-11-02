@@ -1,8 +1,8 @@
 # Open PDF Studio — MCP for Claude Desktop / Claude Code
 
-Open PDF Studio ships a **full MCP server inside the app** (98 public tools: open /
-zoom / annotate / save PDFs, drive the assistant, call the OpenAEC AI, inspect
-viewport state, …). It is implemented in Rust (`src-tauri/src/mcp_server.rs`)
+Open PDF Studio ships a **full MCP server inside the app** (94 public tools: open /
+zoom / annotate / save PDFs, measure, take off quantities, answer extension
+tasks, inspect viewport state, …). It is implemented in Rust (`src-tauri/src/mcp_server.rs`)
 and speaks **HTTP JSON-RPC** on `127.0.0.1:9223/mcp`.
 
 Claude Desktop and Claude Code speak MCP over **stdio**, so this folder adds a
@@ -49,7 +49,7 @@ and `[mcp-bridge] WebView ready, listening for: [...]`.
 
 ```bash
 node mcp-stdio/server.mjs --probe
-# → [open-pdf-studio mcp bridge] OK — 98 tools available at http://127.0.0.1:9223/mcp
+# → [open-pdf-studio mcp bridge] OK — 94 tools available at http://127.0.0.1:9223/mcp
 ```
 
 If you used a non-default port, set it first: `OPS_MCP_PORT=9300 node mcp-stdio/server.mjs --probe`.
@@ -85,21 +85,10 @@ Restart Claude Desktop. The **open-pdf-studio** tools appear in the 🔌 menu.
 
 ---
 
-## Talking to the assistant
+## Agent tasks and accounts
 
-The reason this exists — drive Open PDF Studio's assistant from Claude:
-
-- **`app_assistant_ask`** — submit a message into the in-app assistant window,
-  exactly as if the user typed it. The answer comes from whichever provider
-  resolves: OpenAEC AI → a personal Claude key → the **MCP relay** (below).
-- **`app_assistant_pending`** → **`app_assistant_answer`** — the relay. When no
-  AI provider is configured, the app queues each assistant question. Call
-  `app_assistant_pending` to take the oldest question, compute an answer, then
-  `app_assistant_answer { id, text }` to make it appear in the window. This is
-  how *Claude itself becomes the assistant's brain*.
-- **`app_assistant_history`** — read back the conversation to confirm a reply.
 - **`app_agent_task_pending`** → **`app_agent_task_result`** — structured tasks
-  from extensions, without the assistant window or a chat message. An
+  from extensions, without a chat message. An
   extension submits a task (for example recognising the floor plan on one
   page) with the context fields it chooses to share and a `resultSchema`.
   Take the oldest task with `app_agent_task_pending` (optionally `{ kind }`),
@@ -108,8 +97,6 @@ The reason this exists — drive Open PDF Studio's assistant from Claude:
   the extension that asked, as a proposal: nothing is drawn until it applies
   it. A task is cancelled when the user switches or closes the document or
   when its source, page or scale changes.
-- **`app_ai_complete`** — call the OpenAEC AI directly (needs the app signed in
-  to OpenAEC; returns `{ ok, signedInAs, text, credits }`).
 - **`app_accounts_status`** / **`app_accounts_fetch`** — check sign-in and call
   any `/me/*` Accounts API from the signed-in app.
 

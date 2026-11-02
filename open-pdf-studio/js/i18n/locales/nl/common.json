@@ -11,6 +11,9 @@
   "update": "Bijwerken",
   "yes": "Ja",
   "no": "Nee",
+  "confirm": "Bevestigen",
+  "areYouSure": "Weet je het zeker?",
+  "dontShowAgain": "Dit niet meer tonen",
   "none": "Geen",
   "export": "Exporteren",
   "import": "Importeren",
@@ -54,149 +57,6 @@
   "hostedLinkTitle": "Koppeling",
   "hostedLinkMessage": "Koppelingen kunnen hier niet worden geopend. Kopieer het adres om het zelf te openen:",
   "hostedAttachmentMessage": "Bijlagen kunnen hier niet worden geopend. \"{{filename}}\" wordt in plaats daarvan als download aangeboden.",
-  "assistantTitle": "OpenAEC-assistent",
-  "assistant": {
-    "greeting": "Hallo! Ik ben de **{{title}}**. Ik kan: 🌐 vertalen, 📝 samenvatten, ✏️ tekenen op de tekening, en 🚪 deuren herkennen. Kies hieronder een vaardigheid of stel je vraag.",
-    "workingIn": "werkt in",
-    "viaClaude": "via Claude",
-    "notConnected": "niet verbonden",
-    "viaWorkplace": "via de OpenAEC-werkplek",
-    "keyButton": "Claude (Anthropic) API-sleutel instellen",
-    "keyPlaceholder": "Claude (Anthropic) API-sleutel — sk-ant-…",
-    "thinking": "Denken…",
-    "inputPlaceholder": "Vraag iets over deze PDF…",
-    "send": "Versturen",
-    "noAnswer": "Geen antwoord ontvangen.",
-    "errorInvalidKey": "Ongeldige Claude (Anthropic) API-sleutel. Controleer de sleutel via het 🔑-knopje bovenin het paneel.",
-    "errorApi": "De Claude-API gaf een fout.",
-    "errorNoConnection": "Geen verbinding met de AI-dienst.",
-    "errorTimeout": "Geen MCP-client beantwoordde de vraag op tijd.",
-    "errorFailed": "AI-aanroep mislukt.",
-    "detail": "Detail",
-    "unknownError": "onbekende fout",
-    "workplaceErrors": {
-      "ongeldige_vraag": "De assistent kon de vraag niet verwerken. Probeer het opnieuw of begin een nieuw gesprek.",
-      "te_groot": "De vraag is te groot voor de AI-dienst. Begin een nieuw gesprek of stel een kortere vraag.",
-      "geen_tegoed": "Je AI-tegoed is op. Vul je tegoed aan in OpenAEC om de assistent te blijven gebruiken.",
-      "plafond_bereikt": "Het AI-bestedingsplafond is bereikt. Vraag je beheerder het te verhogen.",
-      "te_druk": "De assistent is nu druk. Probeer het zo opnieuw.",
-      "te_veel_vragen": "Te veel vragen in korte tijd. Wacht een minuut en probeer het opnieuw.",
-      "al_bezig": "Je vorige vraag wordt nog beantwoord. Wacht tot die klaar is.",
-      "opnieuw_inloggen": "Log opnieuw in bij OpenAEC om de assistent te gebruiken.",
-      "dienst_onbereikbaar": "De AI-dienst is nu niet bereikbaar. Probeer het later opnieuw.",
-      "geen_antwoord": "De werkplek antwoordde niet op tijd. Probeer het opnieuw.",
-      "geen_contact": "Geen verbinding met de werkplek. Laad de pagina opnieuw en probeer het nog eens."
-    },
-    "skills": {
-      "translate": {
-        "label": "Vertaal",
-        "hint": "Vertaal de tekst van het document",
-        "prompt": "Vertaal de tekst van het geopende document."
-      },
-      "summarize": {
-        "label": "Vat samen",
-        "hint": "Vat het document of de tekening samen",
-        "prompt": "Vat het geopende document of de tekening samen."
-      },
-      "draw": {
-        "label": "Teken",
-        "hint": "Teken een element of annotatie op de tekening",
-        "prompt": "Teken op de tekening: "
-      },
-      "detect-doors": {
-        "label": "Herken deuren",
-        "hint": "Detecteer de deuren in de plattegrond en markeer ze",
-        "prompt": "Herken de deuren in de plattegrond en markeer ze."
-      },
-      "structural-layout": {
-        "label": "Zet constructie uit",
-        "hint": "Stramien, kolommen, balken, vloervelden met overspanningsrichting en de constructiestaat",
-        "prompt": "Zet de draagstructuur uit op de tekening. Opgave: "
-      },
-      "structural-overview": {
-        "label": "Constructieoverzicht",
-        "hint": "Constructieoverzicht per bouwlaag op de plattegronden van de architect: fundering, vloeren met overspanning, onderliggende dragende wanden, liggers en kolommen, legenda en toelichting",
-        "prompt": "Maak een constructieoverzicht op dit blad met knipsels uit de plattegronden van de architect. Bron, bouwlagen en constructieprincipe: "
-      },
-      "floorplan": {
-        "label": "Plattegrond",
-        "hint": "Teken een bouwkundige plattegrond: wanden, kozijnen, ruimten, maatvoering en inrichting (sanitair, keuken)",
-        "prompt": "Teken een bouwkundige plattegrond. Wat er getekend moet worden: "
-      },
-      "find-on-sheet": {
-        "label": "Zoek op blad",
-        "hint": "Zoek een term (een ruimtenaam, een doorsnedemarkering, een symbool), ga naar de pagina en markeer de treffers",
-        "prompt": "Zoek op dit blad: "
-      },
-      "explain-selection": {
-        "label": "Leg selectie uit",
-        "hint": "Beschrijf het geselecteerde gebied, de tekst of de markering in gewone taal, met maten als er een meetschaal is",
-        "prompt": "Leg de selectie uit."
-      },
-      "compare-sheets": {
-        "label": "Vergelijk bladen",
-        "hint": "Benoem en markeer wat er is toegevoegd, verwijderd of verplaatst ten opzichte van een andere pagina",
-        "prompt": "Vergelijk deze pagina met pagina: "
-      },
-      "measure": {
-        "label": "Meet dit",
-        "hint": "Meet de geselecteerde vorm of een beschreven onderdeel en geef het resultaat in de schaal van de tekening",
-        "prompt": "Meet: "
-      },
-      "take-off": {
-        "label": "Hoeveelheden",
-        "hint": "Tel of meet onderdelen van één soort en zet het resultaat als staat op het blad",
-        "prompt": "Bepaal de hoeveelheden van: "
-      },
-      "check-scale": {
-        "label": "Controleer de schaal",
-        "hint": "Bepaal de schaal uit de titelhoek of een bekende maat en stel hem in",
-        "prompt": "Controleer de schaal van deze tekening."
-      },
-      "review-sheet": {
-        "label": "Controleer blad",
-        "hint": "Zet wolken met genummerde opmerkingen bij de punten die een controleur zou aankaarten",
-        "prompt": "Controleer dit blad op: "
-      },
-      "stamp-date": {
-        "label": "Stempel en datum",
-        "hint": "Plaats een stempel, vul een veld van de titelhoek of zet een revisienotitie met de datum van vandaag",
-        "prompt": "Stempel en datum: "
-      },
-      "clean-up": {
-        "label": "Markeringen opschonen",
-        "hint": "Lijn de bestaande markeringen uit, nummer ze opnieuw of geef ze een gelijke kleur",
-        "prompt": "Schoon mijn markeringen op: "
-      },
-      "import-cad": {
-        "label": "Tekening inlezen",
-        "hint": "Lees een DWG- of DXF-tekening in als onderlegger op de juiste schaal",
-        "prompt": "Lees de tekening in (pad van het DWG- of DXF-bestand): "
-      },
-      "export-cad": {
-        "label": "Exporteer naar CAD",
-        "hint": "Schrijf deze pagina of het geselecteerde gebied naar een DXF- of DWG-bestand",
-        "prompt": "Exporteer deze pagina naar (pad van het DXF- of DWG-bestand): "
-      }
-    },
-    "groups": {
-      "document": "Vertalen en samenvatten",
-      "reading": "Tekening lezen",
-      "measuring": "Meten en hoeveelheden",
-      "markup": "Markeren",
-      "structure": "Constructie en plattegrond",
-      "cad": "CAD-tekeningen"
-    },
-    "need": {
-      "document": "Open eerst een PDF: deze vaardigheid werkt op het geopende document.",
-      "selection": "Selecteer eerst een markering of wat tekst op de tekening en klik dan opnieuw op de vaardigheid.",
-      "scale": "Deze tekening heeft nog geen meetschaal. Stel er eerst een in (bijvoorbeeld met \"Controleer de schaal\") en probeer het opnieuw.",
-      "input": "Vul de tekst in het invoervak aan na de dubbele punt en verstuur dan.",
-      "selectionOrInput": "Selecteer een vorm op de tekening, of beschrijf na de dubbele punt wat er gemeten moet worden.",
-      "page": "Geef het nummer van de andere pagina (1 tot en met {{max}}), niet de huidige pagina.",
-      "twoPages": "Dit document heeft maar één pagina. Wil je met een ander bestand vergelijken, vervang dan de tekst in het invoervak door je eigen vraag."
-    }
-  },
   "onlineSymbolLibrary": "Online symboolbibliotheek",
   "noDocumentOpen": "Er is geen document geopend.",
   "invalidPageRange": "Ongeldig paginabereik. Voer geldige paginanummers in.",

@@ -12,6 +12,9 @@
   "update": "Actualitza",
   "yes": "Sí",
   "no": "No",
+  "confirm": "Confirmació",
+  "areYouSure": "N'esteu segur?",
+  "dontShowAgain": "No ho tornis a mostrar",
   "none": "Cap",
   "mixed": "Mixt",
   "export": "Exporta",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "Enllaç",
   "hostedLinkMessage": "Els enllaços no es poden obrir des d'aquí. Copieu l'adreça per obrir-la vosaltres mateixos:",
   "hostedAttachmentMessage": "Els adjunts no es poden obrir aquí. «{{filename}}» s'ofereix com a baixada.",
-  "assistantTitle": "Assistent d'OpenAEC",
-  "assistant": {
-    "greeting": "Hola! Soc l'**{{title}}**. Puc: 🌐 traduir, 📝 resumir, ✏️ dibuixar al plànol i 🚪 reconèixer portes. Tria una habilitat a sota o fes la teva pregunta.",
-    "workingIn": "treballant a",
-    "viaClaude": "via Claude",
-    "notConnected": "no connectat",
-    "viaWorkplace": "a través de l'espai de treball d'OpenAEC",
-    "keyButton": "Configura la clau API de Claude (Anthropic)",
-    "keyPlaceholder": "Clau API de Claude (Anthropic) — sk-ant-…",
-    "thinking": "Pensant…",
-    "inputPlaceholder": "Pregunta alguna cosa sobre aquest PDF…",
-    "send": "Envia",
-    "noAnswer": "No s'ha rebut cap resposta.",
-    "errorInvalidKey": "Clau API de Claude (Anthropic) no vàlida. Comprova la clau amb el botó 🔑 a la part superior del tauler.",
-    "errorApi": "L'API de Claude ha retornat un error.",
-    "errorNoConnection": "No hi ha connexió amb el servei d'IA.",
-    "errorTimeout": "Cap client MCP no ha respost la pregunta a temps.",
-    "errorFailed": "La crida a la IA ha fallat.",
-    "detail": "Detall",
-    "unknownError": "error desconegut",
-    "workplaceErrors": {
-      "ongeldige_vraag": "L'assistent no ha pogut processar la pregunta. Torneu-ho a provar o comenceu una conversa nova.",
-      "te_groot": "La pregunta és massa gran per al servei d'IA. Comenceu una conversa nova o feu una pregunta més curta.",
-      "geen_tegoed": "El vostre crèdit d'IA s'ha esgotat. Recarregueu el crèdit a OpenAEC per continuar fent servir l'assistent.",
-      "plafond_bereikt": "S'ha arribat al límit de despesa en IA. Demaneu a l'administrador que l'augmenti.",
-      "te_druk": "L'assistent està ocupat ara mateix. Torneu-ho a provar d'aquí a un moment.",
-      "te_veel_vragen": "Massa preguntes en poc temps. Espereu un minut i torneu-ho a provar.",
-      "al_bezig": "Encara s'està responent la vostra pregunta anterior. Espereu que acabi.",
-      "opnieuw_inloggen": "Torneu a iniciar la sessió a OpenAEC per fer servir l'assistent.",
-      "dienst_onbereikbaar": "Ara mateix no es pot accedir al servei d'IA. Torneu-ho a provar més tard.",
-      "geen_antwoord": "L'espai de treball no ha respost a temps. Torneu-ho a provar.",
-      "geen_contact": "No hi ha connexió amb l'espai de treball. Torneu a carregar la pàgina i proveu-ho de nou."
-    },
-    "skills": {
-      "translate": {
-        "label": "Tradueix",
-        "hint": "Tradueix el text del document",
-        "prompt": "Tradueix el text del document obert."
-      },
-      "summarize": {
-        "label": "Resumeix",
-        "hint": "Resumeix el document o el plànol",
-        "prompt": "Resumeix el document o el plànol obert."
-      },
-      "draw": {
-        "label": "Dibuixa",
-        "hint": "Dibuixa un element o una anotació al plànol",
-        "prompt": "Dibuixa al plànol: "
-      },
-      "detect-doors": {
-        "label": "Reconeix portes",
-        "hint": "Detecta les portes a la planta i marca-les",
-        "prompt": "Reconeix les portes a la planta i marca-les."
-      },
-      "structural-layout": {
-        "label": "Traça l'estructura",
-        "hint": "Retícula, pilars, bigues, panys de forjat amb direcció de llum i la taula estructural",
-        "prompt": "Traça l'estructura portant al plànol. Dades: "
-      },
-      "structural-overview": {
-        "label": "Resum estructural",
-        "hint": "Resum estructural per planta sobre els plànols de l'arquitecte: fonaments, forjats amb llum, murs de càrrega inferiors, bigues i pilars, llegenda i notes",
-        "prompt": "Fes un resum estructural en aquest full a partir dels plànols de l'arquitecte. Origen, plantes i principi estructural: "
-      },
-      "floorplan": {
-        "label": "Planta",
-        "hint": "Dibuixa una planta arquitectònica: murs, fusteries, estances, cotes i equipament (sanitaris, cuina)",
-        "prompt": "Dibuixa una planta arquitectònica. Què cal dibuixar: "
-      },
-      "find-on-sheet": {
-        "label": "Cerca al full",
-        "hint": "Cerca un terme (un nom d'estança, una marca de secció, un símbol), ves a la seva pàgina i ressalta les coincidències",
-        "prompt": "Cerca en aquest full: "
-      },
-      "explain-selection": {
-        "label": "Explica la selecció",
-        "hint": "Descriu en llenguatge planer l'àrea, el text o la marca seleccionats, amb dimensions si hi ha una escala de mesura",
-        "prompt": "Explica'm la selecció."
-      },
-      "compare-sheets": {
-        "label": "Compara fulls",
-        "hint": "Indica i marca què s'ha afegit, eliminat o desplaçat respecte a una altra pàgina",
-        "prompt": "Compara aquesta pàgina amb la pàgina: "
-      },
-      "measure": {
-        "label": "Mesura això",
-        "hint": "Mesura la forma seleccionada o un element descrit i indica-ho a l'escala del plànol",
-        "prompt": "Mesura: "
-      },
-      "take-off": {
-        "label": "Treu amidaments",
-        "hint": "Compta o mesura elements d'un tipus i col·loca el resultat com a taula al full",
-        "prompt": "Treu els amidaments de: "
-      },
-      "check-scale": {
-        "label": "Comprova l'escala",
-        "hint": "Obté l'escala del caixetí o d'una cota coneguda i defineix-la",
-        "prompt": "Comprova l'escala d'aquest plànol."
-      },
-      "review-sheet": {
-        "label": "Revisa el full",
-        "hint": "Afegeix núvols amb comentaris numerats per als punts que assenyalaria un revisor",
-        "prompt": "Revisa aquest full pel que fa a: "
-      },
-      "stamp-date": {
-        "label": "Segella i data",
-        "hint": "Col·loca un segell, omple un camp del caixetí o afegeix una nota de revisió amb la data d'avui",
-        "prompt": "Segella i data: "
-      },
-      "clean-up": {
-        "label": "Endreça les marques",
-        "hint": "Alinea, renumera o canvia el color de les marques existents de manera coherent",
-        "prompt": "Endreça les meves marques: "
-      },
-      "import-cad": {
-        "label": "Porta un plànol",
-        "hint": "Importa un plànol DWG o DXF com a fons de referència a l'escala correcta",
-        "prompt": "Porta el plànol (camí del fitxer DWG o DXF): "
-      },
-      "export-cad": {
-        "label": "Exporta a CAD",
-        "hint": "Escriu aquesta pàgina o l'àrea seleccionada en un fitxer DXF o DWG",
-        "prompt": "Exporta aquesta pàgina a (camí del fitxer DXF o DWG): "
-      }
-    },
-    "groups": {
-      "document": "Traduir i resumir",
-      "reading": "Llegir el plànol",
-      "measuring": "Mesuraments i quantitats",
-      "markup": "Marcatge",
-      "structure": "Estructura i planta",
-      "cad": "Plànols CAD"
-    },
-    "need": {
-      "document": "Obre primer un PDF: aquesta habilitat treballa sobre el document obert.",
-      "selection": "Selecciona primer una marca o una mica de text al plànol i torna a fer clic a l'habilitat.",
-      "scale": "Aquest plànol encara no té escala de mesura. Defineix-ne una primer (per exemple amb «Comprova l'escala») i torna-ho a provar.",
-      "input": "Completa el text del quadre d'entrada després dels dos punts i envia'l.",
-      "selectionOrInput": "Selecciona una forma al plànol, o descriu després dels dos punts què cal mesurar.",
-      "page": "Introdueix el número de l'altra pàgina (de l'1 al {{max}}), no el de la pàgina actual.",
-      "twoPages": "Aquest document només té una pàgina. Per comparar-lo amb un altre fitxer, substitueix el text del quadre d'entrada per la teva pròpia pregunta."
-    }
-  },
   "onlineSymbolLibrary": "Biblioteca de símbols en línia",
   "noDocumentOpen": "No hi ha cap document obert.",
   "noPdfLoaded": "No hi ha cap PDF carregat.",

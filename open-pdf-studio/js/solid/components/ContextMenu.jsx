@@ -71,7 +71,7 @@ import {
   canRevealInFileManager,
 } from '../../core/file-manager-reveal.js';
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
-import { submenuPlaatsing } from './submenu-plaatsing.js';
+import { menuPlaatsing, submenuPlaatsing } from './submenu-plaatsing.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -110,17 +110,35 @@ function Separator() {
   return <div class="context-menu-separator" />;
 }
 
-// Open the submenu to the left / move it up when it would leave the window.
-function plaatsSubmenu(e) {
-  const inhoud = e.currentTarget.querySelector(':scope > .context-menu-submenu-content');
+const MENU_MARGE = 4;
+
+// Place a submenu next to its item, inside the window (#883). Submenus are
+// position: fixed so that a scrolling main menu (overflow-y: auto) does not
+// clip them; their spot is computed from the item's box.
+function plaatsSubmenuVan(item) {
+  const inhoud = item.querySelector(':scope > .context-menu-submenu-content');
   if (!inhoud) return;
-  inhoud.classList.remove('naar-links');
-  inhoud.style.marginTop = '';
-  const { naarLinks, omhoog } = submenuPlaatsing(
-    inhoud.getBoundingClientRect(), e.currentTarget.getBoundingClientRect(),
-    window.innerWidth, window.innerHeight);
-  if (naarLinks) inhoud.classList.add('naar-links');
-  if (omhoog) inhoud.style.marginTop = `${-omhoog}px`;
+  inhoud.style.maxHeight = '';
+  const maat = inhoud.getBoundingClientRect();
+  if (!maat.width && !maat.height) return;
+  const stijl = getComputedStyle(inhoud);
+  const inzet = (parseFloat(stijl.borderTopWidth) || 0) + (parseFloat(stijl.paddingTop) || 0);
+  const voorkeurLinks = getComputedStyle(item).direction === 'rtl';
+  const { left, top, maxHoogte, naarLinks } = submenuPlaatsing(
+    { width: maat.width, height: maat.height }, item.getBoundingClientRect(),
+    window.innerWidth, window.innerHeight, { marge: MENU_MARGE, inzet, voorkeurLinks });
+  inhoud.classList.toggle('naar-links', naarLinks);
+  inhoud.classList.toggle('scrollt', maxHoogte != null);
+  inhoud.style.top = `${top}px`;
+  inhoud.style.maxHeight = maxHoogte != null ? `${maxHoogte}px` : '';
+  inhoud.style.left = `${left}px`;
+  // The scrollbar makes it wider: stay inside the window with that width too.
+  const teVer = inhoud.getBoundingClientRect().right - (window.innerWidth - MENU_MARGE);
+  if (teVer > 0) inhoud.style.left = `${Math.max(MENU_MARGE, left - teVer)}px`;
+}
+
+function plaatsSubmenu(e) {
+  plaatsSubmenuVan(e.currentTarget);
 }
 
 function Submenu(props) {
@@ -1384,25 +1402,39 @@ export default function ContextMenu() {
   // de start zo'n vijfde van het opbouwen van het hele venster (#707).
   const inhoudOpgebouwd = createMemo((eerder) => eerder || visible(), false);
 
-  // Position the menu when it becomes visible
+  // Position the menu when it becomes visible: measured at its natural size,
+  // then shifted (and, when taller than the window, given the window height
+  // and a scrollbar) so it stays fully inside the window (#883).
   createEffect(() => {
     if (visible()) {
       const pos = position();
+      menuType();
       requestAnimationFrame(() => {
         if (!menuRef) return;
-        menuRef.style.left = `${pos.x}px`;
-        menuRef.style.top = `${pos.y}px`;
-
+        menuRef.style.maxHeight = '';
+        menuRef.classList.remove('scrollt');
+        menuRef.scrollTop = 0;
         const rect = menuRef.getBoundingClientRect();
-        if (rect.right > window.innerWidth) {
-          menuRef.style.left = `${Math.max(0, window.innerWidth - rect.width - 10)}px`;
-        }
-        if (rect.bottom > window.innerHeight) {
-          menuRef.style.top = `${Math.max(0, window.innerHeight - rect.height - 10)}px`;
+        const { left, top, maxHoogte } = menuPlaatsing(
+          { x: pos.x, y: pos.y, breedte: rect.width, hoogte: rect.height },
+          window.innerWidth, window.innerHeight, MENU_MARGE);
+        menuRef.style.left = `${left}px`;
+        menuRef.style.top = `${top}px`;
+        if (maxHoogte != null) {
+          menuRef.style.maxHeight = `${maxHoogte}px`;
+          menuRef.classList.add('scrollt');
+          // The scrollbar makes it wider: stay inside with that width too.
+          const teVer = menuRef.getBoundingClientRect().right - (window.innerWidth - MENU_MARGE);
+          if (teVer > 0) menuRef.style.left = `${Math.max(MENU_MARGE, left - teVer)}px`;
         }
       });
     }
   });
+
+  // A scrolling menu moves its items under an open submenu: place it again.
+  function handleMenuScroll() {
+    menuRef?.querySelectorAll('.context-menu-submenu:hover').forEach(plaatsSubmenuVan);
+  }
 
   // Dismiss when clicking outside the menu.
   // mousedown on document handles clicks on ribbon, panels, title bar, etc.
@@ -1440,6 +1472,7 @@ export default function ContextMenu() {
       ref={menuRef}
       class="context-menu"
       classList={{ visible: visible() }}
+      onScroll={handleMenuScroll}
       onContextMenu={(e) => e.preventDefault()}
     >
       <Show when={inhoudOpgebouwd()}>

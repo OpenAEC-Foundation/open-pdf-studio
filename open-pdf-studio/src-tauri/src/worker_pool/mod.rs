@@ -121,7 +121,11 @@ pub fn sweep_stale_shm_files() {
 /// `SHUTDOWN_TIMEOUT`.
 pub fn shutdown_on_exit(pool: &tokio::sync::OnceCell<WorkerPool>) {
     if let Some(pool) = pool.get() {
-        let _ = tauri::async_runtime::block_on(tokio::time::timeout(SHUTDOWN_TIMEOUT, pool.shutdown()));
+        // The timeout must be created INSIDE the runtime: tokio::time needs a
+        // reactor at construction, and RunEvent::Exit runs outside one.
+        let _ = tauri::async_runtime::block_on(async {
+            tokio::time::timeout(SHUTDOWN_TIMEOUT, pool.shutdown()).await
+        });
     }
 }
 

@@ -1,9 +1,9 @@
 {
   "name": "open-pdf-studio-mcp-stdio",
-  "version": "2026.44.6",
+  "version": "2026.44.7",
   "private": true,
   "type": "module",
-  "description": "Thin stdio↔HTTP bridge that exposes Open PDF Studio's in-app MCP server (assistant + PDF tools) to Claude Desktop / Claude Code.",
+  "description": "Thin stdio↔HTTP bridge that exposes Open PDF Studio's in-app MCP server (PDF tools) to Claude Desktop / Claude Code.",
   "bin": {
     "open-pdf-studio-mcp": "server.mjs"
   },

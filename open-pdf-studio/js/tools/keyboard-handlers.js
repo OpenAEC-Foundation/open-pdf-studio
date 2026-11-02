@@ -757,10 +757,11 @@ async function voerStandaardToetsUit(e) {
       // Confirmation dialog
       {
         const { showConfirm } = await import('../ui/chrome/confirm-dialog.js');
+        const { default: i18next } = await import('../i18n/config.js');
         const msg = selected.length > 1
-          ? `Delete ${selected.length} annotations?`
-          : 'Delete this annotation?';
-        const title = selected.length > 1 ? 'Delete Annotations' : 'Delete Annotation';
+          ? i18next.t('context:multiSelect.deleteConfirm', { count: selected.length })
+          : i18next.t('context:deleteAnnotation.confirmSingle');
+        const title = i18next.t(selected.length > 1 ? 'context:multiSelect.deleteTitle' : 'context:deleteAnnotation.title');
         const confirmed = await showConfirm({ title, message: msg, preferenceKey: 'confirmBeforeDelete' });
         if (!confirmed) return;
       }

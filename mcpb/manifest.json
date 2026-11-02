@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "open-pdf-studio",
   "display_name": "Open PDF Studio",
-  "version": "2026.44.6",
+  "version": "2026.44.7",
   "description": "Open, measure, annotate and save PDF drawings in Open PDF Studio, the free open-source PDF editor for the construction industry.",
   "long_description": "Connects Claude to Open PDF Studio running on your computer. Claude can open PDF drawings, read and navigate pages, place scale regions, measure areas and lengths, create and edit annotations, cut vector snippets from one drawing into another, fill title blocks, place a quantity schedule on the sheet and save the result.\n\nEverything runs locally: the extension talks to the app on 127.0.0.1 and the PDF file itself is never sent to an external service. Claude only sees what it asks for, such as a picture of the current page view.\n\n**Before you start:** install Open PDF Studio (free, from open-aec.com). The AI link is on by default; check it under **Settings > General > AI link (MCP)**. Tools that change a document always ask for your permission.",
   "author": {
@@ -136,24 +136,8 @@
       "description": "List, add and remove the watermarks and headers/footers of the active document, the same way the Watermark, Header & Footer and Manage dialogs do; every change is one undo step, shown at once and written into the pages on save."
     },
     {
-      "name": "app_assistant_ask",
-      "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel)."
-    },
-    {
-      "name": "app_assistant_pending",
-      "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider)."
-    },
-    {
-      "name": "app_assistant_answer",
-      "description": "Answer a pending assistant question (id from app_assistant_pending)."
-    },
-    {
-      "name": "app_assistant_history",
-      "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }."
-    },
-    {
       "name": "app_agent_task_pending",
-      "description": "Take the oldest structured agent task that an extension submitted, without the assistant window: the task moves from pending to running and no other client gets it."
+      "description": "Take the oldest structured agent task that an extension submitted: the task moves from pending to running and no other client gets it."
     },
     {
       "name": "app_agent_task_result",

@@ -6,6 +6,7 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { savePreferences } from '../core/preferences.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { getScaleFromRegion } from './scale-region.js';
+import { documentSchaalOpPagina } from './scale-region-scale.js';
 import { schaalBronnen, metSchaalBronnen } from './schaal-bronnen.js';
 import { cloneAnnotation } from './factory.js';
 import { leesOpslagJson, schrijfOpslagJson, verwijderOpslag } from '../core/opslag.js';
@@ -52,8 +53,8 @@ export function findMeasureScale(pageNum, x, y) {
   }
   // 2. Per-document scale
   const doc = getActiveDocument();
-  const docScale = doc?.measureScale;
-  if (docScale && docScale.pixelsPerUnit > 0) {
+  const docScale = documentSchaalOpPagina(doc, pageNum ?? doc?.currentPage);
+  if (docScale) {
     return { pixelsPerUnit: docScale.pixelsPerUnit, unit: docScale.unit || 'mm' };
   }
   // 3. Legacy global preference

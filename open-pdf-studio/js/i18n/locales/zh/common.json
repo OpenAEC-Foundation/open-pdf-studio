@@ -12,6 +12,9 @@
   "update": "更新",
   "yes": "是",
   "no": "否",
+  "confirm": "确认",
+  "areYouSure": "确定吗？",
+  "dontShowAgain": "不再显示",
   "none": "无",
   "mixed": "混合",
   "export": "导出",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "链接",
   "hostedLinkMessage": "无法从此处打开链接。请复制地址后自行打开：",
   "hostedAttachmentMessage": "无法在此处打开附件。“{{filename}}”将改为以下载方式提供。",
-  "assistantTitle": "OpenAEC 助手",
-  "assistant": {
-    "greeting": "你好！我是 **{{title}}**。我可以：🌐 翻译、📝 总结、✏️ 在图纸上绘制、🚪 识别门。请在下方选择一项技能或提出问题。",
-    "workingIn": "正在处理",
-    "viaClaude": "通过 Claude",
-    "notConnected": "未连接",
-    "viaWorkplace": "通过 OpenAEC 工作区",
-    "keyButton": "设置 Claude (Anthropic) API 密钥",
-    "keyPlaceholder": "Claude (Anthropic) API 密钥 — sk-ant-…",
-    "thinking": "思考中…",
-    "inputPlaceholder": "询问有关此 PDF 的问题…",
-    "send": "发送",
-    "noAnswer": "未收到回答。",
-    "errorInvalidKey": "Claude (Anthropic) API 密钥无效。请使用面板顶部的 🔑 按钮检查密钥。",
-    "errorApi": "Claude API 返回了错误。",
-    "errorNoConnection": "无法连接到 AI 服务。",
-    "errorTimeout": "没有 MCP 客户端及时回答该问题。",
-    "errorFailed": "AI 调用失败。",
-    "detail": "详细信息",
-    "unknownError": "未知错误",
-    "workplaceErrors": {
-      "ongeldige_vraag": "助手无法处理这个问题。请重试或开始新的对话。",
-      "te_groot": "问题太大，AI 服务无法处理。请开始新的对话或提出更简短的问题。",
-      "geen_tegoed": "你的 AI 额度已用完。请在 OpenAEC 中充值额度，以继续使用助手。",
-      "plafond_bereikt": "已达到 AI 支出上限。请让管理员提高上限。",
-      "te_druk": "助手当前繁忙。请稍后再试。",
-      "te_veel_vragen": "短时间内提问过多。请等待一分钟后再试。",
-      "al_bezig": "你上一个问题仍在回答中。请等待其完成。",
-      "opnieuw_inloggen": "请重新登录 OpenAEC 以使用助手。",
-      "dienst_onbereikbaar": "当前无法连接 AI 服务。请稍后再试。",
-      "geen_antwoord": "工作区未能及时响应。请重试。",
-      "geen_contact": "未连接到工作区。请重新加载页面后重试。"
-    },
-    "skills": {
-      "translate": {
-        "label": "翻译",
-        "hint": "翻译文档的文本",
-        "prompt": "翻译已打开文档的文本。"
-      },
-      "summarize": {
-        "label": "总结",
-        "hint": "总结文档或图纸",
-        "prompt": "总结已打开的文档或图纸。"
-      },
-      "draw": {
-        "label": "绘制",
-        "hint": "在图纸上绘制元素或批注",
-        "prompt": "在图纸上绘制："
-      },
-      "detect-doors": {
-        "label": "识别门",
-        "hint": "检测平面图中的门并进行标记",
-        "prompt": "识别平面图中的门并进行标记。"
-      },
-      "structural-layout": {
-        "label": "布置结构",
-        "hint": "轴网、柱、梁、带跨度方向的楼板区格以及结构明细表",
-        "prompt": "在图纸上布置承重结构。要求："
-      },
-      "structural-overview": {
-        "label": "结构概览",
-        "hint": "在建筑师的平面图上按楼层绘制结构概览：基础、带跨度的楼板、下层承重墙、梁和柱、图例和说明",
-        "prompt": "根据建筑师的平面图在此图纸上创建结构概览。来源、楼层和结构体系："
-      },
-      "floorplan": {
-        "label": "平面图",
-        "hint": "绘制建筑平面图：墙体、门窗、房间、尺寸标注和设施（卫浴、厨房）",
-        "prompt": "绘制建筑平面图。要绘制的内容："
-      },
-      "find-on-sheet": {
-        "label": "在图纸中查找",
-        "hint": "查找术语（房间名称、剖切符号、图例符号），跳转到所在页面并高亮匹配项",
-        "prompt": "在此图纸中查找："
-      },
-      "explain-selection": {
-        "label": "解释所选内容",
-        "hint": "用通俗的语言描述所选区域、文本或标注；若已设置测量比例，则附带尺寸",
-        "prompt": "解释所选内容。"
-      },
-      "compare-sheets": {
-        "label": "比较图纸",
-        "hint": "与另一页相比，指出并标记新增、删除或移动的内容",
-        "prompt": "将此页与以下页码比较："
-      },
-      "measure": {
-        "label": "测量此项",
-        "hint": "测量所选形状或所描述的构件，并按图纸比例报告结果",
-        "prompt": "测量："
-      },
-      "take-off": {
-        "label": "工程量统计",
-        "hint": "统计或测量同一类构件，并将结果以明细表形式放置在图纸上",
-        "prompt": "统计工程量："
-      },
-      "check-scale": {
-        "label": "检查比例",
-        "hint": "从图签或已知尺寸确定比例并进行设置",
-        "prompt": "检查此图纸的比例。"
-      },
-      "review-sheet": {
-        "label": "审查图纸",
-        "hint": "为审图人员会提出的问题添加带编号批注的云线",
-        "prompt": "审查此图纸，重点："
-      },
-      "stamp-date": {
-        "label": "盖章并注明日期",
-        "hint": "放置印章、填写图签字段或添加带今天日期的修订说明",
-        "prompt": "盖章并注明日期："
-      },
-      "clean-up": {
-        "label": "整理标注",
-        "hint": "统一对齐、重新编号或重新着色现有标注",
-        "prompt": "整理我的标注："
-      },
-      "import-cad": {
-        "label": "导入图纸",
-        "hint": "以正确比例将 DWG 或 DXF 图纸导入为底图",
-        "prompt": "导入图纸（DWG 或 DXF 文件路径）："
-      },
-      "export-cad": {
-        "label": "导出为 CAD",
-        "hint": "将此页或所选区域写入 DXF 或 DWG 文件",
-        "prompt": "将此页导出到（DXF 或 DWG 文件路径）："
-      }
-    },
-    "groups": {
-      "document": "翻译与总结",
-      "reading": "识读图纸",
-      "measuring": "测量与工程量",
-      "markup": "标注",
-      "structure": "结构与平面图",
-      "cad": "CAD 图纸"
-    },
-    "need": {
-      "document": "请先打开一个 PDF：此技能作用于已打开的文档。",
-      "selection": "请先在图纸上选择一个标注或一些文本，然后再次点击该技能。",
-      "scale": "此图纸尚未设置测量比例。请先设置（例如使用“检查比例”），然后重试。",
-      "input": "请在输入框中冒号后补全文本，然后发送。",
-      "selectionOrInput": "请在图纸上选择一个形状，或在冒号后描述要测量的内容。",
-      "page": "请输入另一页的页码（1 到 {{max}}），而不是当前页。",
-      "twoPages": "此文档只有一页。如需与其他文件比较，请将输入框中的文本替换为你自己的问题。"
-    }
-  },
   "onlineSymbolLibrary": "在线符号库",
   "noDocumentOpen": "没有打开的文档。",
   "noPdfLoaded": "未加载 PDF。",

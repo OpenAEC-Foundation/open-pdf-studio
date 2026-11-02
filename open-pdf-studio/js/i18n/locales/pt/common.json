@@ -12,6 +12,9 @@
   "update": "Atualizar",
   "yes": "Sim",
   "no": "Não",
+  "confirm": "Confirmar",
+  "areYouSure": "Tem certeza?",
+  "dontShowAgain": "Não mostrar novamente",
   "none": "Nenhum",
   "mixed": "Misto",
   "export": "Exportar",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "Ligação",
   "hostedLinkMessage": "Não é possível abrir ligações a partir daqui. Copie o endereço para o abrir manualmente:",
   "hostedAttachmentMessage": "Não é possível abrir anexos aqui. \"{{filename}}\" é disponibilizado como transferência.",
-  "assistantTitle": "Assistente OpenAEC",
-  "assistant": {
-    "greeting": "Olá! Sou o **{{title}}**. Posso: 🌐 traduzir, 📝 resumir, ✏️ desenhar no desenho e 🚪 reconhecer portas. Escolha uma habilidade abaixo ou faça a sua pergunta.",
-    "workingIn": "trabalhando em",
-    "viaClaude": "via Claude",
-    "notConnected": "não conectado",
-    "viaWorkplace": "através do espaço de trabalho OpenAEC",
-    "keyButton": "Definir a chave de API do Claude (Anthropic)",
-    "keyPlaceholder": "Chave de API do Claude (Anthropic) — sk-ant-…",
-    "thinking": "Pensando…",
-    "inputPlaceholder": "Pergunte algo sobre este PDF…",
-    "send": "Enviar",
-    "noAnswer": "Nenhuma resposta recebida.",
-    "errorInvalidKey": "Chave de API do Claude (Anthropic) inválida. Verifique a chave com o botão 🔑 no topo do painel.",
-    "errorApi": "A API do Claude devolveu um erro.",
-    "errorNoConnection": "Sem conexão com o serviço de IA.",
-    "errorTimeout": "Nenhum cliente MCP respondeu à pergunta a tempo.",
-    "errorFailed": "A chamada à IA falhou.",
-    "detail": "Detalhe",
-    "unknownError": "erro desconhecido",
-    "workplaceErrors": {
-      "ongeldige_vraag": "O assistente não conseguiu processar a pergunta. Tente novamente ou inicie uma nova conversa.",
-      "te_groot": "A pergunta é demasiado grande para o serviço de IA. Inicie uma nova conversa ou faça uma pergunta mais curta.",
-      "geen_tegoed": "O seu crédito de IA esgotou-se. Carregue o seu crédito no OpenAEC para continuar a usar o assistente.",
-      "plafond_bereikt": "Foi atingido o limite de gastos com IA. Peça ao seu administrador para o aumentar.",
-      "te_druk": "O assistente está ocupado neste momento. Tente novamente daqui a pouco.",
-      "te_veel_vragen": "Demasiadas perguntas em pouco tempo. Aguarde um minuto e tente novamente.",
-      "al_bezig": "A sua pergunta anterior ainda está a ser respondida. Aguarde até terminar.",
-      "opnieuw_inloggen": "Inicie sessão novamente no OpenAEC para usar o assistente.",
-      "dienst_onbereikbaar": "Não é possível contactar o serviço de IA neste momento. Tente mais tarde.",
-      "geen_antwoord": "O espaço de trabalho não respondeu a tempo. Tente novamente.",
-      "geen_contact": "Sem ligação ao espaço de trabalho. Recarregue a página e tente novamente."
-    },
-    "skills": {
-      "translate": {
-        "label": "Traduzir",
-        "hint": "Traduzir o texto do documento",
-        "prompt": "Traduza o texto do documento aberto."
-      },
-      "summarize": {
-        "label": "Resumir",
-        "hint": "Resumir o documento ou o desenho",
-        "prompt": "Resuma o documento ou o desenho aberto."
-      },
-      "draw": {
-        "label": "Desenhar",
-        "hint": "Desenhar um elemento ou anotação no desenho",
-        "prompt": "Desenhe no desenho: "
-      },
-      "detect-doors": {
-        "label": "Reconhecer portas",
-        "hint": "Detectar as portas na planta e marcá-las",
-        "prompt": "Reconheça as portas na planta e marque-as."
-      },
-      "structural-layout": {
-        "label": "Traçar estrutura",
-        "hint": "Malha, pilares, vigas, painéis de laje com direção do vão e o quadro estrutural",
-        "prompt": "Trace a estrutura portante no desenho. Dados: "
-      },
-      "structural-overview": {
-        "label": "Visão estrutural",
-        "hint": "Visão estrutural por pavimento sobre as plantas do arquiteto: fundação, lajes com vão, paredes portantes inferiores, vigas e pilares, legenda e notas",
-        "prompt": "Faça uma visão estrutural nesta folha a partir das plantas do arquiteto. Origem, pavimentos e princípio estrutural: "
-      },
-      "floorplan": {
-        "label": "Planta baixa",
-        "hint": "Desenhar uma planta arquitetônica: paredes, esquadrias, ambientes, cotas e equipamentos (sanitários, cozinha)",
-        "prompt": "Desenhe uma planta arquitetônica. O que desenhar: "
-      },
-      "find-on-sheet": {
-        "label": "Localizar na folha",
-        "hint": "Localizar um termo (nome de ambiente, marcador de corte, símbolo), ir até a página dele e destacar os resultados",
-        "prompt": "Localize nesta folha: "
-      },
-      "explain-selection": {
-        "label": "Explicar seleção",
-        "hint": "Descrever a área, o texto ou a marcação selecionada em linguagem simples, com dimensões quando houver uma escala de medição definida",
-        "prompt": "Explique a seleção."
-      },
-      "compare-sheets": {
-        "label": "Comparar folhas",
-        "hint": "Identificar e marcar o que foi adicionado, removido ou movido em relação a outra página",
-        "prompt": "Compare esta página com a página: "
-      },
-      "measure": {
-        "label": "Medir isto",
-        "hint": "Medir a forma selecionada ou um elemento descrito e informar o resultado na escala do desenho",
-        "prompt": "Meça: "
-      },
-      "take-off": {
-        "label": "Levantar quantitativos",
-        "hint": "Contar ou medir elementos de um mesmo tipo e colocar o resultado como quadro na folha",
-        "prompt": "Levante os quantitativos de: "
-      },
-      "check-scale": {
-        "label": "Verificar a escala",
-        "hint": "Encontrar a escala no selo ou numa cota conhecida e defini-la",
-        "prompt": "Verifique a escala deste desenho."
-      },
-      "review-sheet": {
-        "label": "Revisar folha",
-        "hint": "Adicionar nuvens com comentários numerados nos pontos que um verificador apontaria",
-        "prompt": "Revise esta folha quanto a: "
-      },
-      "stamp-date": {
-        "label": "Carimbar e datar",
-        "hint": "Colocar um carimbo, preencher um campo do selo ou adicionar uma nota de revisão com a data de hoje",
-        "prompt": "Carimbe e date: "
-      },
-      "clean-up": {
-        "label": "Organizar marcações",
-        "hint": "Alinhar, renumerar ou recolorir as marcações existentes de forma consistente",
-        "prompt": "Organize minhas marcações: "
-      },
-      "import-cad": {
-        "label": "Importar desenho",
-        "hint": "Importar um desenho DWG ou DXF como base na escala correta",
-        "prompt": "Importe o desenho (caminho do arquivo DWG ou DXF): "
-      },
-      "export-cad": {
-        "label": "Exportar para CAD",
-        "hint": "Gravar esta página ou a área selecionada num arquivo DXF ou DWG",
-        "prompt": "Exporte esta página para (caminho do arquivo DXF ou DWG): "
-      }
-    },
-    "groups": {
-      "document": "Traduzir e resumir",
-      "reading": "Leitura do desenho",
-      "measuring": "Medições e quantitativos",
-      "markup": "Marcações",
-      "structure": "Estrutura e planta baixa",
-      "cad": "Desenhos CAD"
-    },
-    "need": {
-      "document": "Abra um PDF primeiro: esta habilidade funciona no documento aberto.",
-      "selection": "Selecione primeiro uma marcação ou um trecho de texto no desenho e clique na habilidade novamente.",
-      "scale": "Este desenho ainda não tem escala de medição. Defina uma primeiro (por exemplo, com “Verificar a escala”) e tente novamente.",
-      "input": "Complete o texto na caixa de entrada após os dois-pontos e envie.",
-      "selectionOrInput": "Selecione uma forma no desenho ou descreva após os dois-pontos o que medir.",
-      "page": "Informe o número da outra página (1 a {{max}}), não da página atual.",
-      "twoPages": "Este documento tem apenas uma página. Para comparar com outro arquivo, substitua o texto na caixa de entrada pela sua própria pergunta."
-    }
-  },
   "onlineSymbolLibrary": "Biblioteca de símbolos online",
   "noDocumentOpen": "Nenhum documento aberto.",
   "noPdfLoaded": "Nenhum PDF carregado.",

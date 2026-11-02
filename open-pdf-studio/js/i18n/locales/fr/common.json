@@ -12,6 +12,9 @@
   "update": "Mettre à jour",
   "yes": "Oui",
   "no": "Non",
+  "confirm": "Confirmer",
+  "areYouSure": "Êtes-vous sûr ?",
+  "dontShowAgain": "Ne plus afficher",
   "none": "Aucun",
   "mixed": "Mixte",
   "export": "Exporter",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "Lien",
   "hostedLinkMessage": "Les liens ne peuvent pas être ouverts ici. Copiez l'adresse pour l'ouvrir vous-même :",
   "hostedAttachmentMessage": "Les pièces jointes ne peuvent pas être ouvertes ici. « {{filename}} » est proposé en téléchargement à la place.",
-  "assistantTitle": "Assistant OpenAEC",
-  "assistant": {
-    "greeting": "Bonjour ! Je suis l'**{{title}}**. Je peux : 🌐 traduire, 📝 résumer, ✏️ dessiner sur le plan et 🚪 reconnaître les portes. Choisissez une compétence ci-dessous ou posez votre question.",
-    "workingIn": "travaille dans",
-    "viaClaude": "via Claude",
-    "notConnected": "non connecté",
-    "viaWorkplace": "via l'espace de travail OpenAEC",
-    "keyButton": "Définir la clé API Claude (Anthropic)",
-    "keyPlaceholder": "Clé API Claude (Anthropic) — sk-ant-…",
-    "thinking": "Réflexion…",
-    "inputPlaceholder": "Posez une question sur ce PDF…",
-    "send": "Envoyer",
-    "noAnswer": "Aucune réponse reçue.",
-    "errorInvalidKey": "Clé API Claude (Anthropic) non valide. Vérifiez la clé avec le bouton 🔑 en haut du panneau.",
-    "errorApi": "L'API Claude a renvoyé une erreur.",
-    "errorNoConnection": "Pas de connexion au service d'IA.",
-    "errorTimeout": "Aucun client MCP n'a répondu à la question à temps.",
-    "errorFailed": "La requête IA a échoué.",
-    "detail": "Détail",
-    "unknownError": "erreur inconnue",
-    "workplaceErrors": {
-      "ongeldige_vraag": "L'assistant n'a pas pu traiter la question. Réessayez ou commencez une nouvelle conversation.",
-      "te_groot": "La question est trop volumineuse pour le service d'IA. Commencez une nouvelle conversation ou posez une question plus courte.",
-      "geen_tegoed": "Votre crédit IA est épuisé. Rechargez votre crédit dans OpenAEC pour continuer à utiliser l'assistant.",
-      "plafond_bereikt": "Le plafond de dépenses IA est atteint. Demandez à votre administrateur de le relever.",
-      "te_druk": "L'assistant est occupé pour le moment. Réessayez dans un instant.",
-      "te_veel_vragen": "Trop de questions en peu de temps. Attendez une minute et réessayez.",
-      "al_bezig": "Votre question précédente est encore en cours de traitement. Attendez qu'elle soit terminée.",
-      "opnieuw_inloggen": "Reconnectez-vous à OpenAEC pour utiliser l'assistant.",
-      "dienst_onbereikbaar": "Le service d'IA est injoignable pour le moment. Réessayez plus tard.",
-      "geen_antwoord": "L'espace de travail n'a pas répondu à temps. Réessayez.",
-      "geen_contact": "Pas de connexion avec l'espace de travail. Rechargez la page et réessayez."
-    },
-    "skills": {
-      "translate": {
-        "label": "Traduire",
-        "hint": "Traduire le texte du document",
-        "prompt": "Traduis le texte du document ouvert."
-      },
-      "summarize": {
-        "label": "Résumer",
-        "hint": "Résumer le document ou le plan",
-        "prompt": "Résume le document ou le plan ouvert."
-      },
-      "draw": {
-        "label": "Dessiner",
-        "hint": "Dessiner un élément ou une annotation sur le plan",
-        "prompt": "Dessine sur le plan : "
-      },
-      "detect-doors": {
-        "label": "Reconnaître les portes",
-        "hint": "Détecter les portes dans le plan et les marquer",
-        "prompt": "Reconnais les portes dans le plan et marque-les."
-      },
-      "structural-layout": {
-        "label": "Implanter la structure",
-        "hint": "Trame, poteaux, poutres, travées de plancher avec sens de portée et le tableau de structure",
-        "prompt": "Implante la structure porteuse sur le plan. Données : "
-      },
-      "structural-overview": {
-        "label": "Vue d'ensemble structurelle",
-        "hint": "Vue d'ensemble structurelle par niveau sur les plans de l'architecte : fondations, planchers avec portée, murs porteurs sous-jacents, poutres et poteaux, légende et notes",
-        "prompt": "Crée une vue d'ensemble structurelle sur cette feuille à partir des plans de l'architecte. Source, niveaux et principe structurel : "
-      },
-      "floorplan": {
-        "label": "Plan d'étage",
-        "hint": "Dessiner un plan d'étage architectural : murs, menuiseries, pièces, cotations et aménagement (sanitaires, cuisine)",
-        "prompt": "Dessine un plan d'étage architectural. Ce qu'il faut dessiner : "
-      },
-      "find-on-sheet": {
-        "label": "Chercher sur la feuille",
-        "hint": "Rechercher un terme (nom de pièce, repère de coupe, symbole), aller à sa page et surligner les occurrences",
-        "prompt": "Cherche sur cette feuille : "
-      },
-      "explain-selection": {
-        "label": "Expliquer la sélection",
-        "hint": "Décrire la zone, le texte ou l'annotation sélectionnés en langage clair, avec les dimensions si une échelle de mesure est définie",
-        "prompt": "Explique la sélection."
-      },
-      "compare-sheets": {
-        "label": "Comparer les feuilles",
-        "hint": "Nommer et marquer ce qui a été ajouté, supprimé ou déplacé par rapport à une autre page",
-        "prompt": "Compare cette page avec la page : "
-      },
-      "measure": {
-        "label": "Mesurer ceci",
-        "hint": "Mesurer la forme sélectionnée ou un élément décrit et donner le résultat à l'échelle du plan",
-        "prompt": "Mesure : "
-      },
-      "take-off": {
-        "label": "Métré",
-        "hint": "Compter ou mesurer les éléments d'un même type et placer le résultat sous forme de tableau sur la feuille",
-        "prompt": "Fais le métré de : "
-      },
-      "check-scale": {
-        "label": "Vérifier l'échelle",
-        "hint": "Déterminer l'échelle à partir du cartouche ou d'une cote connue et la définir",
-        "prompt": "Vérifie l'échelle de ce plan."
-      },
-      "review-sheet": {
-        "label": "Contrôler la feuille",
-        "hint": "Ajouter des nuages avec des commentaires numérotés aux points qu'un vérificateur relèverait",
-        "prompt": "Contrôle cette feuille pour : "
-      },
-      "stamp-date": {
-        "label": "Tampon et date",
-        "hint": "Placer un tampon, remplir un champ du cartouche ou ajouter une note de révision avec la date du jour",
-        "prompt": "Tamponne et date : "
-      },
-      "clean-up": {
-        "label": "Ranger les annotations",
-        "hint": "Aligner, renuméroter ou recolorer les annotations existantes de façon cohérente",
-        "prompt": "Range mes annotations : "
-      },
-      "import-cad": {
-        "label": "Importer un plan",
-        "hint": "Importer un plan DWG ou DXF comme fond de plan à la bonne échelle",
-        "prompt": "Importe le plan (chemin du fichier DWG ou DXF) : "
-      },
-      "export-cad": {
-        "label": "Exporter vers CAD",
-        "hint": "Écrire cette page ou la zone sélectionnée dans un fichier DXF ou DWG",
-        "prompt": "Exporte cette page vers (chemin du fichier DXF ou DWG) : "
-      }
-    },
-    "groups": {
-      "document": "Traduire et résumer",
-      "reading": "Lecture du plan",
-      "measuring": "Métrés et quantités",
-      "markup": "Annotation",
-      "structure": "Structure et plan d'étage",
-      "cad": "Plans CAD"
-    },
-    "need": {
-      "document": "Ouvrez d'abord un PDF : cette compétence agit sur le document ouvert.",
-      "selection": "Sélectionnez d'abord une annotation ou du texte sur le plan, puis cliquez à nouveau sur la compétence.",
-      "scale": "Ce plan n'a pas encore d'échelle de mesure. Définissez-en une d'abord (par exemple avec « Vérifier l'échelle ») et réessayez.",
-      "input": "Complétez le texte de la zone de saisie après les deux-points, puis envoyez.",
-      "selectionOrInput": "Sélectionnez une forme sur le plan, ou décrivez après les deux-points ce qu'il faut mesurer.",
-      "page": "Saisissez le numéro de l'autre page (1 à {{max}}), pas celui de la page actuelle.",
-      "twoPages": "Ce document ne comporte qu'une seule page. Pour comparer avec un autre fichier, remplacez le texte de la zone de saisie par votre propre question."
-    }
-  },
   "onlineSymbolLibrary": "Bibliothèque de symboles en ligne",
   "noDocumentOpen": "Aucun document n'est ouvert.",
   "noPdfLoaded": "Aucun PDF chargé.",

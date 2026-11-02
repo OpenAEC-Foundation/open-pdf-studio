@@ -35,6 +35,7 @@ import './core/oude-webview-start.js';
 import './pdf/split-view/split-haken.js';
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
+import { verwijderOpslag } from './core/opslag.js';
 import { initDomElements } from './ui/dom-elements.js';
 import { initPropertiesPanel } from './ui/panels/properties-panel.js';
 import { initToolPalette } from './solid/components/ToolPalette.jsx';
@@ -257,6 +258,10 @@ async function init() {
 
   // Load user preferences (before render so theme is applied)
   await loadPreferences();
+  // De ingebouwde assistent is verwijderd. Een persoonlijke sleutel die hij
+  // ooit in de browseropslag zette, wordt hier opgeruimd; staat er niets, dan
+  // doet dit niets.
+  verwijderOpslag('opds-anthropic-key');
   // Hoofdinstantie of tweede instantie (losgemaakt tabblad)? Een tweede
   // instantie laat sessie, AI-koppeling, printwachtrij en PrtScn aan de
   // hoofdinstantie over (core/instantie-rol.js).

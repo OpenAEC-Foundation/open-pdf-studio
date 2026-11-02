@@ -9,6 +9,12 @@
 // Scales measured on the page itself (reference line, quick scale, scale
 // bar) are already in page units and need no correction; a /VP /Measure
 // counts per unit too (pdf-viewports.js).
+//
+// A document scale 1:N (doc.measureScale with a scaleRatio: ratio calibration,
+// title block) holds for the whole document, and pages can differ in /UserUnit.
+// Its pixelsPerUnit only says what it is on the page it was set on; every
+// reader asks documentSchaalOpPagina, which derives it from the ratio and the
+// unit for the page at hand.
 
 /** A usable /UserUnit: a positive finite number, otherwise 1. */
 export function geldigeUserUnit(u) {
@@ -24,6 +30,34 @@ export function geldigeUserUnit(u) {
  */
 export function userUnitVanPagina(doc, pageNum) {
   return geldigeUserUnit(doc?.pageUserUnits?.[pageNum]);
+}
+
+/**
+ * The document scale as it holds on one page, or null when there is none.
+ *
+ * A scale with a ratio 1:N says how paper relates to reality, so each page
+ * applies its own /UserUnit. Scales measured on a page (reference line, quick
+ * scale, scale bar, manual) have no ratio and stay as stored, in page units.
+ *
+ * The stored pixelsPerUnit is kept for two reasons: it marks the scale as set,
+ * and it is the only usable value while the /UserUnit per page is not known
+ * (still being read, or the read failed). It holds for the page the scale was
+ * set on, read through PDF.js. Scales stored by earlier versions have the same
+ * shape, so they also get the right value per page.
+ *
+ * @param {{measureScale?: object|null, pageUserUnits?: Record<number, number>, userUnitsGelezen?: boolean}|null|undefined} doc
+ * @param {number} pageNum  1-based
+ * @returns {{pixelsPerUnit: number, unit?: string, method?: string, scaleRatio?: any}|null}
+ */
+export function documentSchaalOpPagina(doc, pageNum) {
+  const schaal = doc?.measureScale;
+  if (!schaal || !(schaal.pixelsPerUnit > 0)) return null;
+  const bekend = !!doc.pageUserUnits || doc.userUnitsGelezen === true;
+  if (!bekend || !parseScaleString(schaal.scaleRatio)) return schaal;
+  return {
+    ...schaal,
+    pixelsPerUnit: pixelsPerUnitFor(schaal.scaleRatio, schaal.unit || 'mm', userUnitVanPagina(doc, pageNum)),
+  };
 }
 
 export function parseScaleString(s) {

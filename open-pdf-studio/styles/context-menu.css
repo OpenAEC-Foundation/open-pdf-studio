@@ -17,6 +17,13 @@
   display: block;
 }
 
+/* Taller than the window: gets the window height and scrolls (#883). */
+.context-menu.scrollt,
+.context-menu-submenu-content.scrollt {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
 .context-menu-item {
   display: flex;
   align-items: center;
@@ -104,23 +111,18 @@
   display: block;
 }
 
+/* Fixed, not absolute: a scrolling parent menu would clip it otherwise. The
+   spot is computed from the item in ContextMenu.jsx (submenu-plaatsing.js). */
 .context-menu-submenu-content {
   display: none;
-  position: absolute;
-  left: 100%;
-  top: -2px;
+  position: fixed;
+  z-index: 1;
   background: #ffffff;
   border: 1px solid #c0c0c0;
   border-radius: 0;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
   min-width: 150px;
   padding: 2px 0;
-}
-
-/* Opened to the left when it would run past the window edge (#883). */
-.context-menu-submenu-content.naar-links {
-  left: auto;
-  right: 100%;
 }
 
 .context-menu-submenu-content .context-menu-item {

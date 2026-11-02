@@ -12,6 +12,9 @@
   "update": "업데이트",
   "yes": "예",
   "no": "아니요",
+  "confirm": "확인",
+  "areYouSure": "계속하시겠습니까?",
+  "dontShowAgain": "다시 표시 안 함",
   "none": "없음",
   "mixed": "혼합",
   "export": "내보내기",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "링크",
   "hostedLinkMessage": "여기에서는 링크를 열 수 없습니다. 주소를 복사하여 직접 여세요:",
   "hostedAttachmentMessage": "여기에서는 첨부 파일을 열 수 없습니다. \"{{filename}}\"은(는) 대신 다운로드로 제공됩니다.",
-  "assistantTitle": "OpenAEC 도우미",
-  "assistant": {
-    "greeting": "안녕하세요! 저는 **{{title}}**입니다. 🌐 번역, 📝 요약, ✏️ 도면에 그리기, 🚪 문 인식을 할 수 있습니다. 아래에서 기능을 선택하거나 질문해 주세요.",
-    "workingIn": "작업 중",
-    "viaClaude": "Claude 경유",
-    "notConnected": "연결되지 않음",
-    "viaWorkplace": "OpenAEC 작업 공간을 통해",
-    "keyButton": "Claude (Anthropic) API 키 설정",
-    "keyPlaceholder": "Claude (Anthropic) API 키 — sk-ant-…",
-    "thinking": "생각 중…",
-    "inputPlaceholder": "이 PDF에 대해 질문해 보세요…",
-    "send": "보내기",
-    "noAnswer": "답변을 받지 못했습니다.",
-    "errorInvalidKey": "Claude (Anthropic) API 키가 올바르지 않습니다. 패널 위쪽의 🔑 버튼으로 키를 확인하세요.",
-    "errorApi": "Claude API가 오류를 반환했습니다.",
-    "errorNoConnection": "AI 서비스에 연결할 수 없습니다.",
-    "errorTimeout": "제시간에 질문에 답한 MCP 클라이언트가 없습니다.",
-    "errorFailed": "AI 호출에 실패했습니다.",
-    "detail": "세부 정보",
-    "unknownError": "알 수 없는 오류",
-    "workplaceErrors": {
-      "ongeldige_vraag": "어시스턴트가 질문을 처리하지 못했습니다. 다시 시도하거나 새 대화를 시작하세요.",
-      "te_groot": "질문이 AI 서비스에 비해 너무 큽니다. 새 대화를 시작하거나 더 짧게 질문하세요.",
-      "geen_tegoed": "AI 크레딧을 모두 사용했습니다. 어시스턴트를 계속 사용하려면 OpenAEC에서 크레딧을 충전하세요.",
-      "plafond_bereikt": "AI 지출 한도에 도달했습니다. 관리자에게 한도를 올려 달라고 요청하세요.",
-      "te_druk": "어시스턴트가 지금 바쁩니다. 잠시 후 다시 시도하세요.",
-      "te_veel_vragen": "짧은 시간에 질문이 너무 많습니다. 1분 기다린 후 다시 시도하세요.",
-      "al_bezig": "이전 질문에 아직 답변하는 중입니다. 끝날 때까지 기다리세요.",
-      "opnieuw_inloggen": "어시스턴트를 사용하려면 OpenAEC에 다시 로그인하세요.",
-      "dienst_onbereikbaar": "지금은 AI 서비스에 연결할 수 없습니다. 나중에 다시 시도하세요.",
-      "geen_antwoord": "작업 공간이 제때 응답하지 않았습니다. 다시 시도하세요.",
-      "geen_contact": "작업 공간과 연결되어 있지 않습니다. 페이지를 새로 고친 후 다시 시도하세요."
-    },
-    "skills": {
-      "translate": {
-        "label": "번역",
-        "hint": "문서의 텍스트 번역",
-        "prompt": "열려 있는 문서의 텍스트를 번역해 주세요."
-      },
-      "summarize": {
-        "label": "요약",
-        "hint": "문서 또는 도면 요약",
-        "prompt": "열려 있는 문서 또는 도면을 요약해 주세요."
-      },
-      "draw": {
-        "label": "그리기",
-        "hint": "도면에 요소나 주석 그리기",
-        "prompt": "도면에 그려 주세요: "
-      },
-      "detect-doors": {
-        "label": "문 인식",
-        "hint": "평면도에서 문을 찾아 표시",
-        "prompt": "평면도에서 문을 인식하고 표시해 주세요."
-      },
-      "structural-layout": {
-        "label": "구조 배치",
-        "hint": "그리드, 기둥, 보, 스팬 방향이 있는 슬래브 구획, 구조 일람표",
-        "prompt": "도면에 하중을 받는 구조를 배치해 주세요. 조건: "
-      },
-      "structural-overview": {
-        "label": "구조 개요",
-        "hint": "건축가의 평면도 위에 층별 구조 개요: 기초, 스팬이 있는 슬래브, 아래층 내력벽, 보와 기둥, 범례와 설명",
-        "prompt": "건축가의 평면도로 이 시트에 구조 개요를 만들어 주세요. 출처, 층, 구조 방식: "
-      },
-      "floorplan": {
-        "label": "평면도",
-        "hint": "건축 평면도 그리기: 벽, 창호, 실, 치수, 설비(위생, 주방)",
-        "prompt": "건축 평면도를 그려 주세요. 그릴 내용: "
-      },
-      "find-on-sheet": {
-        "label": "시트에서 찾기",
-        "hint": "용어(실 이름, 단면 표시, 기호)를 찾아 해당 페이지로 이동하고 결과를 강조 표시",
-        "prompt": "이 시트에서 찾기: "
-      },
-      "explain-selection": {
-        "label": "선택 항목 설명",
-        "hint": "선택한 영역, 텍스트 또는 마크업을 쉬운 말로 설명하고, 측정 축척이 설정되어 있으면 치수도 제공",
-        "prompt": "선택 항목을 설명해 주세요."
-      },
-      "compare-sheets": {
-        "label": "시트 비교",
-        "hint": "다른 페이지와 비교하여 추가, 삭제 또는 이동된 항목을 명시하고 표시",
-        "prompt": "이 페이지와 비교할 페이지: "
-      },
-      "measure": {
-        "label": "이것 측정",
-        "hint": "선택한 도형이나 설명한 요소를 측정하여 도면 축척으로 보고",
-        "prompt": "측정해 주세요: "
-      },
-      "take-off": {
-        "label": "물량 산출",
-        "hint": "한 종류의 요소를 세거나 측정하고 결과를 일람표로 시트에 배치",
-        "prompt": "물량 산출 대상: "
-      },
-      "check-scale": {
-        "label": "축척 확인",
-        "hint": "표제란이나 알려진 치수에서 축척을 찾아 설정",
-        "prompt": "이 도면의 축척을 확인해 주세요."
-      },
-      "review-sheet": {
-        "label": "시트 검토",
-        "hint": "검토자가 지적할 부분에 번호가 매겨진 의견과 함께 구름 표시 추가",
-        "prompt": "이 시트의 검토 항목: "
-      },
-      "stamp-date": {
-        "label": "스탬프 및 날짜",
-        "hint": "스탬프 배치, 표제란 항목 입력 또는 오늘 날짜로 개정 메모 추가",
-        "prompt": "스탬프 및 날짜: "
-      },
-      "clean-up": {
-        "label": "마크업 정리",
-        "hint": "기존 마크업을 일관되게 정렬, 번호 재지정 또는 색상 변경",
-        "prompt": "내 마크업 정리: "
-      },
-      "import-cad": {
-        "label": "도면 가져오기",
-        "hint": "DWG 또는 DXF 도면을 올바른 축척의 언더레이로 가져오기",
-        "prompt": "도면 가져오기(DWG 또는 DXF 파일 경로): "
-      },
-      "export-cad": {
-        "label": "CAD로 내보내기",
-        "hint": "이 페이지나 선택 영역을 DXF 또는 DWG 파일로 쓰기",
-        "prompt": "이 페이지를 내보낼 위치(DXF 또는 DWG 파일 경로): "
-      }
-    },
-    "groups": {
-      "document": "번역 및 요약",
-      "reading": "도면 읽기",
-      "measuring": "측정 및 수량",
-      "markup": "마크업",
-      "structure": "구조 및 평면도",
-      "cad": "CAD 도면"
-    },
-    "need": {
-      "document": "먼저 PDF를 여세요. 이 기능은 열려 있는 문서에서 작동합니다.",
-      "selection": "먼저 도면에서 마크업이나 텍스트를 선택한 다음 기능을 다시 클릭하세요.",
-      "scale": "이 도면에는 아직 측정 축척이 없습니다. 먼저 축척을 설정한 후(예: \"축척 확인\" 사용) 다시 시도하세요.",
-      "input": "입력란의 콜론 뒤에 텍스트를 완성한 다음 보내세요.",
-      "selectionOrInput": "도면에서 도형을 선택하거나 콜론 뒤에 측정할 대상을 설명하세요.",
-      "page": "현재 페이지가 아닌 다른 페이지 번호(1~{{max}})를 입력하세요.",
-      "twoPages": "이 문서는 페이지가 하나뿐입니다. 다른 파일과 비교하려면 입력란의 텍스트를 직접 작성한 질문으로 바꾸세요."
-    }
-  },
   "onlineSymbolLibrary": "온라인 기호 라이브러리",
   "noDocumentOpen": "열려 있는 문서가 없습니다.",
   "noPdfLoaded": "불러온 PDF가 없습니다.",

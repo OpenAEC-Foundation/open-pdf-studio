@@ -11,6 +11,7 @@
  */
 import { state, getActiveDocument } from '../core/state.js';
 import { getScaleForPoint } from './scale-bar.js';
+import { documentSchaalOpPagina } from './scale-region-scale.js';
 
 /**
  * Get the scale factor for a point on the page.
@@ -23,8 +24,8 @@ export function getViewportScaleFactor(pageNum, x, y) {
   if (!doc) return 1;
 
   // Get the document-level (reference) scale
-  const docScale = doc.measureScale;
-  if (!docScale || docScale.pixelsPerUnit <= 0) return 1;
+  const docScale = documentSchaalOpPagina(doc, pageNum);
+  if (!docScale) return 1;
 
   // Get the scale at this specific point (may be from a viewport)
   const pointScale = getScaleForPoint(pageNum, x, y);

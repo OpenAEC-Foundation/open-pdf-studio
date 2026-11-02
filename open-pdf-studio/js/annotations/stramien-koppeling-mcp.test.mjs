@@ -1,13 +1,11 @@
 // De stramienkoppeling over MCP: opvragen via app_get_annotation
 // (gridAlignment) en omzetten via app_update_annotation (alignStart /
 // alignEnd). De brug zelf draait alleen in de app; hier bewaken we dat alle
-// lagen (JS-brug, Rust-schema, meegeleverde gereedschapslijst, skill-tekst)
-// hetzelfde zeggen.
+// lagen (JS-brug, Rust-schema, meegeleverde gereedschapslijst) hetzelfde
+// zeggen.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-
-import { SKILLS_SYSTEM_PROMPT } from '../assistant-skills.js';
 
 const lees = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
 const TOOLS = JSON.parse(lees('../../../mcp-stdio/tools.json'));
@@ -55,11 +53,4 @@ test('het schema van beide opdrachten noemt de koppeling, in Rust en in tools.js
   assert.match(beschrijving('app_update_annotation'), /alignStart/);
   assert.match(beschrijving('app_update_annotation'), /alignEnd/);
   assert.match(beschrijving('app_get_annotation'), /gridAlignment/);
-});
-
-test('de constructieskill legt de koppeling uit', () => {
-  assert.match(SKILLS_SYSTEM_PROMPT, /COUPLED/);
-  assert.match(SKILLS_SYSTEM_PROMPT, /alignStart: false/);
-  assert.match(SKILLS_SYSTEM_PROMPT, /alignEnd/);
-  assert.match(SKILLS_SYSTEM_PROMPT, /gridAlignment/);
 });

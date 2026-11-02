@@ -12,6 +12,9 @@
   "update": "Cập nhật",
   "yes": "Có",
   "no": "Không",
+  "confirm": "Xác nhận",
+  "areYouSure": "Bạn có chắc không?",
+  "dontShowAgain": "Không hiển thị lại",
   "none": "Không có",
   "mixed": "Hỗn hợp",
   "export": "Xuất",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "Liên kết",
   "hostedLinkMessage": "Không thể mở liên kết từ đây. Hãy sao chép địa chỉ để tự mở:",
   "hostedAttachmentMessage": "Không thể mở tệp đính kèm tại đây. \"{{filename}}\" được cung cấp dưới dạng tải xuống.",
-  "assistantTitle": "Trợ lý OpenAEC",
-  "assistant": {
-    "greeting": "Xin chào! Tôi là **{{title}}**. Tôi có thể: 🌐 dịch, 📝 tóm tắt, ✏️ vẽ lên bản vẽ và 🚪 nhận diện cửa. Hãy chọn một kỹ năng bên dưới hoặc đặt câu hỏi.",
-    "workingIn": "đang làm việc trong",
-    "viaClaude": "qua Claude",
-    "notConnected": "chưa kết nối",
-    "viaWorkplace": "qua không gian làm việc OpenAEC",
-    "keyButton": "Đặt khóa API Claude (Anthropic)",
-    "keyPlaceholder": "Khóa API Claude (Anthropic) — sk-ant-…",
-    "thinking": "Đang suy nghĩ…",
-    "inputPlaceholder": "Hỏi điều gì đó về PDF này…",
-    "send": "Gửi",
-    "noAnswer": "Không nhận được câu trả lời.",
-    "errorInvalidKey": "Khóa API Claude (Anthropic) không hợp lệ. Hãy kiểm tra khóa bằng nút 🔑 ở đầu bảng.",
-    "errorApi": "API Claude trả về lỗi.",
-    "errorNoConnection": "Không có kết nối tới dịch vụ AI.",
-    "errorTimeout": "Không có máy khách MCP nào trả lời câu hỏi kịp thời.",
-    "errorFailed": "Lệnh gọi AI thất bại.",
-    "detail": "Chi tiết",
-    "unknownError": "lỗi không xác định",
-    "workplaceErrors": {
-      "ongeldige_vraag": "Trợ lý không thể xử lý câu hỏi. Hãy thử lại hoặc bắt đầu cuộc trò chuyện mới.",
-      "te_groot": "Câu hỏi quá lớn đối với dịch vụ AI. Hãy bắt đầu cuộc trò chuyện mới hoặc hỏi ngắn gọn hơn.",
-      "geen_tegoed": "Tín dụng AI của bạn đã hết. Hãy nạp thêm tín dụng trong OpenAEC để tiếp tục dùng trợ lý.",
-      "plafond_bereikt": "Đã đạt hạn mức chi tiêu AI. Hãy đề nghị quản trị viên nâng hạn mức.",
-      "te_druk": "Trợ lý hiện đang bận. Hãy thử lại sau giây lát.",
-      "te_veel_vragen": "Quá nhiều câu hỏi trong thời gian ngắn. Hãy đợi một phút rồi thử lại.",
-      "al_bezig": "Câu hỏi trước của bạn vẫn đang được trả lời. Hãy đợi đến khi xong.",
-      "opnieuw_inloggen": "Hãy đăng nhập lại OpenAEC để dùng trợ lý.",
-      "dienst_onbereikbaar": "Hiện không thể kết nối tới dịch vụ AI. Hãy thử lại sau.",
-      "geen_antwoord": "Không gian làm việc không trả lời kịp thời. Hãy thử lại.",
-      "geen_contact": "Không có kết nối với không gian làm việc. Hãy tải lại trang rồi thử lại."
-    },
-    "skills": {
-      "translate": {
-        "label": "Dịch",
-        "hint": "Dịch văn bản của tài liệu",
-        "prompt": "Dịch văn bản của tài liệu đang mở."
-      },
-      "summarize": {
-        "label": "Tóm tắt",
-        "hint": "Tóm tắt tài liệu hoặc bản vẽ",
-        "prompt": "Tóm tắt tài liệu hoặc bản vẽ đang mở."
-      },
-      "draw": {
-        "label": "Vẽ",
-        "hint": "Vẽ một phần tử hoặc chú thích lên bản vẽ",
-        "prompt": "Vẽ lên bản vẽ: "
-      },
-      "detect-doors": {
-        "label": "Nhận diện cửa",
-        "hint": "Phát hiện các cửa trên mặt bằng và đánh dấu chúng",
-        "prompt": "Nhận diện các cửa trên mặt bằng và đánh dấu chúng."
-      },
-      "structural-layout": {
-        "label": "Bố trí kết cấu",
-        "hint": "Lưới trục, cột, dầm, ô sàn với hướng nhịp và bảng thống kê kết cấu",
-        "prompt": "Bố trí kết cấu chịu lực trên bản vẽ. Yêu cầu: "
-      },
-      "structural-overview": {
-        "label": "Tổng quan kết cấu",
-        "hint": "Tổng quan kết cấu theo từng tầng trên mặt bằng của kiến trúc sư: móng, sàn với nhịp, tường chịu lực bên dưới, dầm và cột, chú giải và ghi chú",
-        "prompt": "Lập tổng quan kết cấu trên tờ này từ các mặt bằng của kiến trúc sư. Nguồn, các tầng và nguyên lý kết cấu: "
-      },
-      "floorplan": {
-        "label": "Mặt bằng",
-        "hint": "Vẽ mặt bằng kiến trúc: tường, khung cửa, phòng, kích thước và trang thiết bị (vệ sinh, bếp)",
-        "prompt": "Vẽ mặt bằng kiến trúc. Nội dung cần vẽ: "
-      },
-      "find-on-sheet": {
-        "label": "Tìm trên tờ",
-        "hint": "Tìm một thuật ngữ (tên phòng, ký hiệu mặt cắt, biểu tượng), chuyển đến trang của nó và tô sáng các kết quả",
-        "prompt": "Tìm trên tờ này: "
-      },
-      "explain-selection": {
-        "label": "Giải thích vùng chọn",
-        "hint": "Mô tả vùng, văn bản hoặc ghi chú đã chọn bằng ngôn ngữ dễ hiểu, kèm kích thước khi đã đặt tỷ lệ đo",
-        "prompt": "Giải thích vùng chọn."
-      },
-      "compare-sheets": {
-        "label": "So sánh các tờ",
-        "hint": "Nêu tên và đánh dấu những gì đã được thêm, xóa hoặc di chuyển so với một trang khác",
-        "prompt": "So sánh trang này với trang: "
-      },
-      "measure": {
-        "label": "Đo phần này",
-        "hint": "Đo hình đã chọn hoặc một cấu kiện được mô tả và báo cáo theo tỷ lệ của bản vẽ",
-        "prompt": "Đo: "
-      },
-      "take-off": {
-        "label": "Bóc khối lượng",
-        "hint": "Đếm hoặc đo các cấu kiện cùng loại và đặt kết quả dưới dạng bảng thống kê trên tờ",
-        "prompt": "Bóc khối lượng: "
-      },
-      "check-scale": {
-        "label": "Kiểm tra tỷ lệ",
-        "hint": "Tìm tỷ lệ từ khung tên hoặc một kích thước đã biết và đặt tỷ lệ đó",
-        "prompt": "Kiểm tra tỷ lệ của bản vẽ này."
-      },
-      "review-sheet": {
-        "label": "Rà soát tờ",
-        "hint": "Thêm các đám mây kèm nhận xét đánh số cho những điểm mà người kiểm tra sẽ nêu ra",
-        "prompt": "Rà soát tờ này về: "
-      },
-      "stamp-date": {
-        "label": "Đóng dấu và ghi ngày",
-        "hint": "Đặt con dấu, điền một ô trong khung tên hoặc thêm ghi chú sửa đổi với ngày hôm nay",
-        "prompt": "Đóng dấu và ghi ngày: "
-      },
-      "clean-up": {
-        "label": "Sắp xếp ghi chú",
-        "hint": "Căn chỉnh, đánh số lại hoặc đổi màu các ghi chú hiện có một cách thống nhất",
-        "prompt": "Sắp xếp các ghi chú của tôi: "
-      },
-      "import-cad": {
-        "label": "Đưa bản vẽ vào",
-        "hint": "Nhập bản vẽ DWG hoặc DXF làm lớp nền theo đúng tỷ lệ",
-        "prompt": "Đưa bản vẽ vào (đường dẫn tệp DWG hoặc DXF): "
-      },
-      "export-cad": {
-        "label": "Xuất sang CAD",
-        "hint": "Ghi trang này hoặc vùng đã chọn ra tệp DXF hoặc DWG",
-        "prompt": "Xuất trang này ra (đường dẫn tệp DXF hoặc DWG): "
-      }
-    },
-    "groups": {
-      "document": "Dịch và tóm tắt",
-      "reading": "Đọc bản vẽ",
-      "measuring": "Đo đạc và khối lượng",
-      "markup": "Đánh dấu",
-      "structure": "Kết cấu và mặt bằng",
-      "cad": "Bản vẽ CAD"
-    },
-    "need": {
-      "document": "Hãy mở một tệp PDF trước: kỹ năng này hoạt động trên tài liệu đang mở.",
-      "selection": "Hãy chọn một ghi chú đánh dấu hoặc một đoạn văn bản trên bản vẽ trước, rồi nhấp lại vào kỹ năng.",
-      "scale": "Bản vẽ này chưa có tỷ lệ đo. Hãy đặt tỷ lệ trước (ví dụ bằng \"Kiểm tra tỷ lệ\") rồi thử lại.",
-      "input": "Hãy hoàn thành văn bản trong ô nhập sau dấu hai chấm, rồi gửi.",
-      "selectionOrInput": "Hãy chọn một hình trên bản vẽ, hoặc mô tả sau dấu hai chấm những gì cần đo.",
-      "page": "Hãy nhập số của trang kia (1 đến {{max}}), không phải trang hiện tại.",
-      "twoPages": "Tài liệu này chỉ có một trang. Để so sánh với tệp khác, hãy thay văn bản trong ô nhập bằng câu hỏi của riêng bạn."
-    }
-  },
   "onlineSymbolLibrary": "Thư viện ký hiệu trực tuyến",
   "noDocumentOpen": "Không có tài liệu nào đang mở.",
   "noPdfLoaded": "Chưa tải PDF nào.",

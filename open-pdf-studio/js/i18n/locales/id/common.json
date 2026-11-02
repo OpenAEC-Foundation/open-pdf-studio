@@ -12,6 +12,9 @@
   "update": "Perbarui",
   "yes": "Ya",
   "no": "Tidak",
+  "confirm": "Konfirmasi",
+  "areYouSure": "Apakah Anda yakin?",
+  "dontShowAgain": "Jangan tampilkan lagi",
   "none": "Tidak Ada",
   "mixed": "Campuran",
   "export": "Ekspor",
@@ -56,149 +59,6 @@
   "hostedLinkTitle": "Tautan",
   "hostedLinkMessage": "Tautan tidak dapat dibuka dari sini. Salin alamatnya untuk membukanya sendiri:",
   "hostedAttachmentMessage": "Lampiran tidak dapat dibuka di sini. \"{{filename}}\" ditawarkan sebagai unduhan.",
-  "assistantTitle": "Asisten OpenAEC",
-  "assistant": {
-    "greeting": "Halo! Saya **{{title}}**. Saya bisa: 🌐 menerjemahkan, 📝 meringkas, ✏️ menggambar pada gambar kerja, dan 🚪 mengenali pintu. Pilih keterampilan di bawah atau ajukan pertanyaan Anda.",
-    "workingIn": "bekerja di",
-    "viaClaude": "melalui Claude",
-    "notConnected": "tidak terhubung",
-    "viaWorkplace": "melalui ruang kerja OpenAEC",
-    "keyButton": "Atur kunci API Claude (Anthropic)",
-    "keyPlaceholder": "Kunci API Claude (Anthropic) — sk-ant-…",
-    "thinking": "Berpikir…",
-    "inputPlaceholder": "Tanyakan sesuatu tentang PDF ini…",
-    "send": "Kirim",
-    "noAnswer": "Tidak ada jawaban yang diterima.",
-    "errorInvalidKey": "Kunci API Claude (Anthropic) tidak valid. Periksa kunci dengan tombol 🔑 di bagian atas panel.",
-    "errorApi": "API Claude mengembalikan galat.",
-    "errorNoConnection": "Tidak ada koneksi ke layanan AI.",
-    "errorTimeout": "Tidak ada klien MCP yang menjawab pertanyaan tepat waktu.",
-    "errorFailed": "Panggilan AI gagal.",
-    "detail": "Rincian",
-    "unknownError": "galat tidak dikenal",
-    "workplaceErrors": {
-      "ongeldige_vraag": "Asisten tidak dapat memproses pertanyaan. Coba lagi atau mulai percakapan baru.",
-      "te_groot": "Pertanyaan terlalu besar untuk layanan AI. Mulai percakapan baru atau ajukan pertanyaan yang lebih singkat.",
-      "geen_tegoed": "Kredit AI Anda sudah habis. Isi ulang kredit di OpenAEC untuk terus menggunakan asisten.",
-      "plafond_bereikt": "Batas pengeluaran AI telah tercapai. Minta administrator Anda untuk menaikkannya.",
-      "te_druk": "Asisten sedang sibuk. Coba lagi sebentar lagi.",
-      "te_veel_vragen": "Terlalu banyak pertanyaan dalam waktu singkat. Tunggu satu menit lalu coba lagi.",
-      "al_bezig": "Pertanyaan Anda sebelumnya masih sedang dijawab. Tunggu sampai selesai.",
-      "opnieuw_inloggen": "Masuk lagi ke OpenAEC untuk menggunakan asisten.",
-      "dienst_onbereikbaar": "Layanan AI tidak dapat dijangkau saat ini. Coba lagi nanti.",
-      "geen_antwoord": "Ruang kerja tidak menjawab tepat waktu. Coba lagi.",
-      "geen_contact": "Tidak ada koneksi dengan ruang kerja. Muat ulang halaman lalu coba lagi."
-    },
-    "skills": {
-      "translate": {
-        "label": "Terjemahkan",
-        "hint": "Terjemahkan teks dokumen",
-        "prompt": "Terjemahkan teks dokumen yang terbuka."
-      },
-      "summarize": {
-        "label": "Ringkas",
-        "hint": "Ringkas dokumen atau gambar",
-        "prompt": "Ringkas dokumen atau gambar yang terbuka."
-      },
-      "draw": {
-        "label": "Gambar",
-        "hint": "Gambar elemen atau anotasi pada gambar kerja",
-        "prompt": "Gambar pada gambar kerja: "
-      },
-      "detect-doors": {
-        "label": "Kenali pintu",
-        "hint": "Deteksi pintu pada denah dan tandai",
-        "prompt": "Kenali pintu pada denah dan tandai."
-      },
-      "structural-layout": {
-        "label": "Tata struktur",
-        "hint": "Grid, kolom, balok, panel pelat dengan arah bentang dan daftar struktur",
-        "prompt": "Tata struktur pemikul pada gambar. Ketentuan: "
-      },
-      "structural-overview": {
-        "label": "Ikhtisar struktur",
-        "hint": "Ikhtisar struktur per lantai pada denah arsitek: fondasi, pelat dengan bentang, dinding pemikul di bawahnya, balok dan kolom, legenda dan catatan",
-        "prompt": "Buat ikhtisar struktur pada lembar ini dari denah arsitek. Sumber, lantai, dan prinsip struktur: "
-      },
-      "floorplan": {
-        "label": "Denah",
-        "hint": "Gambar denah arsitektur: dinding, kusen, ruang, dimensi, dan perlengkapan (sanitair, dapur)",
-        "prompt": "Gambar denah arsitektur. Yang perlu digambar: "
-      },
-      "find-on-sheet": {
-        "label": "Cari di lembar",
-        "hint": "Cari istilah (nama ruang, penanda potongan, simbol), buka halamannya, dan sorot hasil temuannya",
-        "prompt": "Cari di lembar ini: "
-      },
-      "explain-selection": {
-        "label": "Jelaskan pilihan",
-        "hint": "Jelaskan area, teks, atau anotasi yang dipilih dengan bahasa sederhana, beserta dimensinya bila skala ukur sudah diatur",
-        "prompt": "Jelaskan pilihan ini."
-      },
-      "compare-sheets": {
-        "label": "Bandingkan lembar",
-        "hint": "Sebutkan dan tandai apa yang ditambahkan, dihapus, atau dipindahkan dibandingkan halaman lain",
-        "prompt": "Bandingkan halaman ini dengan halaman: "
-      },
-      "measure": {
-        "label": "Ukur ini",
-        "hint": "Ukur bentuk yang dipilih atau elemen yang dijelaskan dan laporkan dalam skala gambar",
-        "prompt": "Ukur: "
-      },
-      "take-off": {
-        "label": "Hitung kuantitas",
-        "hint": "Hitung atau ukur elemen sejenis dan letakkan hasilnya sebagai daftar pada lembar",
-        "prompt": "Hitung kuantitas: "
-      },
-      "check-scale": {
-        "label": "Periksa skala",
-        "hint": "Tentukan skala dari kop gambar atau dimensi yang diketahui, lalu atur",
-        "prompt": "Periksa skala gambar ini."
-      },
-      "review-sheet": {
-        "label": "Tinjau lembar",
-        "hint": "Tambahkan awan dengan komentar bernomor pada poin-poin yang akan diangkat oleh pemeriksa",
-        "prompt": "Tinjau lembar ini terkait: "
-      },
-      "stamp-date": {
-        "label": "Stempel dan tanggal",
-        "hint": "Bubuhkan stempel, isi kolom kop gambar, atau tambahkan catatan revisi dengan tanggal hari ini",
-        "prompt": "Stempel dan beri tanggal: "
-      },
-      "clean-up": {
-        "label": "Rapikan anotasi",
-        "hint": "Ratakan, beri nomor ulang, atau ubah warna anotasi yang ada secara konsisten",
-        "prompt": "Rapikan anotasi saya: "
-      },
-      "import-cad": {
-        "label": "Masukkan gambar",
-        "hint": "Impor gambar DWG atau DXF sebagai lapisan dasar pada skala yang tepat",
-        "prompt": "Masukkan gambar (jalur file DWG atau DXF): "
-      },
-      "export-cad": {
-        "label": "Ekspor ke CAD",
-        "hint": "Tulis halaman ini atau area yang dipilih ke file DXF atau DWG",
-        "prompt": "Ekspor halaman ini ke (jalur file DXF atau DWG): "
-      }
-    },
-    "groups": {
-      "document": "Terjemahkan dan ringkas",
-      "reading": "Membaca gambar kerja",
-      "measuring": "Pengukuran dan kuantitas",
-      "markup": "Anotasi",
-      "structure": "Struktur dan denah",
-      "cad": "Gambar CAD"
-    },
-    "need": {
-      "document": "Buka PDF terlebih dahulu: keterampilan ini bekerja pada dokumen yang terbuka.",
-      "selection": "Pilih anotasi atau sebagian teks pada gambar terlebih dahulu, lalu klik keterampilan itu lagi.",
-      "scale": "Gambar ini belum memiliki skala ukur. Atur skala terlebih dahulu (misalnya dengan \"Periksa skala\") lalu coba lagi.",
-      "input": "Lengkapi teks di kotak input setelah titik dua, lalu kirim.",
-      "selectionOrInput": "Pilih bentuk pada gambar, atau jelaskan setelah titik dua apa yang akan diukur.",
-      "page": "Masukkan nomor halaman lain (1 sampai {{max}}), bukan halaman saat ini.",
-      "twoPages": "Dokumen ini hanya memiliki satu halaman. Untuk membandingkan dengan file lain, ganti teks di kotak input dengan pertanyaan Anda sendiri."
-    }
-  },
   "onlineSymbolLibrary": "Pustaka simbol daring",
   "noDocumentOpen": "Tidak ada dokumen yang terbuka.",
   "noPdfLoaded": "Tidak ada PDF yang dimuat.",

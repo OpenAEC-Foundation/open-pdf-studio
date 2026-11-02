@@ -135,6 +135,8 @@ export interface DocumentState {
   /** /UserUnit per 1-gebaseerd paginanummer, alleen waar hij niet 1 is; een
    *  schaal 1:N rekent daarmee naar pagina-eenheden (pixelsPerUnitFor, #884). */
   pageUserUnits?: Record<number, number>;
+  /** De /UserUnit per pagina is gelezen; zonder pageUserUnits is hij dan overal 1. */
+  userUnitsGelezen?: boolean;
   /** Benoemde lijnstijl-presets — persist in de PDF (catalog /OPS_StylePresets). */
   stylePresets: StylePreset[];
   /** Annotatielagen (#468); leeg = alleen de standaardlaag (js/annotations/annotatie-lagen.js). */

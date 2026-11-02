@@ -3,8 +3,8 @@
  *
  * Usage:
  *   const confirmed = await showConfirm({
- *     title: 'Delete Annotation',
- *     message: 'Delete this annotation?',
+ *     title: t('deleteAnnotation.title'),
+ *     message: t('deleteAnnotation.confirmSingle'),
  *     preferenceKey: 'confirmBeforeDelete'
  *   });
  *

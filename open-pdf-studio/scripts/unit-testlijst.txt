@@ -31,7 +31,6 @@ js/annotations/corrections/proofreading.test.mjs
 js/annotations/corrections/proofreading-apply.test.mjs
 js/annotations/corrections/proofreading-wiring.test.mjs
 js/pdf/proofreading-roundtrip.test.mjs
-js/constructieoverzicht/skill.test.mjs
 js/pdf/loader/tekstvak-tekst.test.mjs
 js/pdf/loader/tekstvak-marge.test.mjs
 js/pdf/lijnkoppen.test.mjs
@@ -112,6 +111,7 @@ js/symbols/symbol-insert-format.test.mjs
 js/symbols/catalog-opslagkeuze.test.mjs
 js/symbols/linework-catalog.test.mjs
 js/symbols/templates/constructie-bouwplaats.test.mjs
+js/symbols/templates/schematisering.test.mjs
 js/symbols/templates/wapeningskorf.test.mjs
 js/symbols/templates/staalprofiel-hoeklijn.test.mjs
 js/symbols/koker-notatie.test.mjs
@@ -249,7 +249,6 @@ js/plattegrond/maatvoering.test.mjs
 js/plattegrond/ruimte.test.mjs
 js/plattegrond/sparing.test.mjs
 js/plattegrond/mcp-plattegrond.test.mjs
-js/plattegrond/skill.test.mjs
 js/plugins/annotation-batch.test.mjs
 js/plugins/page-access.test.mjs
 js/plugins/plugin-pdf.test.mjs
@@ -313,6 +312,8 @@ js/annotations/kalibratie-schaal.test.mjs
 js/tools/tools/meting-documentschaal.test.mjs
 js/tools/tools/meting-blad-1-50.test.mjs
 js/annotations/userunit-schaalbronnen.test.mjs
+js/annotations/userunit-gemengd-document.test.mjs
+js/solid/components/dialogs/confirm-dialog-i18n.test.mjs
 js/annotations/vlak-zijden.test.mjs
 js/annotations/vlak-maat.test.mjs
 js/annotations/vlak-zijdematen-wiring.test.mjs
@@ -328,12 +329,10 @@ js/pdf/schermkalibratie.test.mjs
 js/pdf/schermkalibratie-i18n.test.mjs
 js/core/basis-url.test.mjs
 js/core/opslag.test.mjs
-js/core/ai-sleutel.test.mjs
 js/core/host-opslag.test.mjs
 js/core/host-brug.test.mjs
 js/core/host-opslaan-als.test.mjs
 js/core/blob-worker.test.mjs
-js/core/werkplek-ai.test.mjs
 js/pdf/bijlagen.test.mjs
 js/pdf/bijlage-annotatie.test.mjs
 js/pdf/bijlage-rondgang.test.mjs
@@ -421,9 +420,6 @@ js/annotations/opmerkingen-rapport.test.mjs
 js/annotations/xfdf-pagina.test.mjs
 js/compare/change-detect-worker.test.mjs
 js/pdf/thin-lines.test.mjs
-js/assistant-i18n.test.mjs
-js/assistant-skills-registry.test.mjs
-js/assistant-skills-gates.test.mjs
 js/pdf/three-d/u3d-reader.test.mjs
 js/pdf/three-d/pdf-3d.test.mjs
 js/pdf/three-d/camera.test.mjs
@@ -678,3 +674,4 @@ js/solid/components/tool-palette-i18n.test.mjs
 scripts/ui-scale.test.mjs
 js/annotations/rendering/document-context.test.mjs
 js/pdf/monochrome-image.test.mjs
+js/solid/components/titlebar-afsluiten.test.mjs
