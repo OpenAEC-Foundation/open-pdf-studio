@@ -20,7 +20,7 @@
 
 ---
 
-Open PDF Studio is a lightweight, native desktop application that provides professional-grade PDF annotation, markup, and editing tools without subscriptions, telemetry, or bloatware. Built with [Tauri 2](https://tauri.app/) and web technologies, it delivers a fast, modern experience with a Microsoft Office-style ribbon interface.
+Open PDF Studio is a free, open-source application for PDF annotation, markup, and editing. Built with [Tauri 2](https://tauri.app/) and web technologies, it uses a Microsoft Office-style ribbon interface.
 
 It is built for people who work with drawings: import DWG and DXF as a vector PDF with layers and a measuring scale, measure and take off quantities, export a page back to CAD, verify digital signatures, make scans searchable with OCR, and let an AI assistant operate the app through a local connection.
 
@@ -64,21 +64,23 @@ Downloads, commit activity, and star growth for this active open-source project.
 
 ## Why Open PDF Studio?
 
-Professional annotation, markup, measurement, redaction and page management — the tools that typical commercial PDF editors lock behind a subscription or a paid tier — are all included, free and fully open source. No subscriptions, no telemetry, no watermarks.
+Open PDF Studio brings drawing review, CAD interchange, calibrated measurements and quantities into an open-source editor without a paid feature tier. These are available tools, not evidence that a particular drawing task is faster or more reliable than in another product.
 
-| | Open PDF Studio | Typical commercial PDF editors |
-|---|:---:|:---:|
-| **Price** | Free & open source (LGPL-3.0) | Subscription or paid license |
-| **Annotations & markup** | All included | Often a paid tier |
-| **Measurement tools** | Included | Usually paid |
-| **DWG/DXF import & export** | Included | Rare, or a separate product |
-| **OCR** | Included | Often a paid tier |
-| **AI connection (MCP)** | Included, local and optional | Cloud service, if any |
-| **Stamps, watermarks & redaction** | Included | Usually paid |
-| **Page management** | Included | Usually paid |
-| **Multi-tab editing** | Included | Varies |
-| **Telemetry** | None | Common |
-| **Platforms** | Windows, macOS, Linux, Android | Varies (often fewer) |
+### Product comparison — verified 2026-11-02
+
+This is a review of the linked project/vendor documentation, not an independent benchmark or privacy audit. The Open PDF Studio baseline is the released [v2026.44.8](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/tag/v2026.44.8); unmerged fixes are not included. Editions, licence terms and availability can change; confirm the linked source before choosing a product.
+
+| Product / edition | Licence and platform scope | Documented construction-related capabilities and limits |
+|---|---|---|
+| **Open PDF Studio (Tauri)** | Free, [LGPL-3.0](LICENSE.md); Windows, macOS, Linux and Android | [Drawing comparison](#pdf-compare), [calibrated measurement](#measurement-tools), [CAD interchange](#cad-drawings-dwg--dxf) and [quantities](#quantities--object-counting). OCR is [desktop-only](#text-recognition-ocr). Count-group management remains incomplete ([#935](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/935)); verify the released build for your workflow. |
+| **Bluebeam Revu — Core, Complete, Max** | Annual subscriptions; Revu is Windows desktop, with separate web/mobile access | Core lists drawing overlay/compare and counts; Complete adds Quantity Link to Excel. Max explicitly advertises AI integration via MCP and AI drawing reviews/comparisons. These are edition-specific vendor claims, not tested performance results. [Official plans](https://www.bluebeam.com/pricing/). |
+| **PDF-XChange Editor / Editor Plus** | Free functions plus paid perpetual licences; optional maintenance. Windows 10 or later | Measurement and scale calibration are listed in the feature catalogue. Compare Documents and enhanced OCR are listed under **Editor Plus**; do not assume free or regular Editor has unrestricted access to them. [Features and editions](https://www.pdf-xchange.com/product/pdf-xchange-editor), [licensing](https://www.pdf-xchange.com/licensing). |
+| **PDF24 Creator** | Free for private and business use; Windows | The vendor describes an offline PDF toolkit and printer. This review does not establish parity for calibrated drawing takeoff or revision comparison. [Official product page](https://tools.pdf24.org/en/creator). |
+| **Stirling PDF — Free / Team / Enterprise** | Free individual offering, with paid organisational tiers; web, desktop and self-hosted deployment | The vendor lists general PDF tools; construction-specific task parity is untested here. Desktop downloads cover Windows, macOS and Linux, with deployment differences. [Plans](https://www.stirling.com/pricing), [downloads](https://www.stirling.com/download). |
+
+**AI and data handling:** Open PDF Studio's optional MCP connection connects an assistant to the app. A local connection does not mean AI inference stays on this device: the assistant's selected provider may receive document content. Review that provider's settings and terms. We make no comparative telemetry or privacy ranking; a feature list is not a network audit. See [network connections](#network-connections) for the project's documented connection scope.
+
+**Check a drawing workflow before switching:** on a redistributable drawing, calibrate against one known dimension, check a second dimension, then count two object groups, delete/reassign a marker and check both group totals. Compare two revisions with known changes, including a shifted drawing and an inserted sheet; reopen the exported PDF in another viewer. Relevant Open PDF Studio follow-ups are [calibration #884](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/884), [count selection #934](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/934), [groups #935](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/935) and [comparison #465](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/465). This is an evaluation checklist, not an executed cross-product test. Comparative completion time, accuracy and reliability remain unknown; the matched-task study is tracked in [#942](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/942).
 
 ## Features
 
@@ -113,7 +115,8 @@ Professional annotation, markup, measurement, redaction and page management — 
 - **Export** a page back to DXF or DWG with the PDF layers as CAD layers, at real size according to the measuring scale, with your markups on their own layers, and optionally in the drawing's original model coordinates
 
 ### AI Connection (MCP)
-- One switch in Settings > General exposes the app to a local AI assistant over MCP — no start-up flags, local clients only
+- One switch in Settings > General enables the optional local MCP connection; managed deployments have a separate bind-address configuration (see [managed deployments](#managed-deployments)).
+- The connected assistant may use an external AI provider. Local MCP transport does not imply local inference or that document content stays on this device.
 - Over fifty tools: open and save documents, navigate, create and edit annotations, set the measuring scale, take off quantities and place schedules, import and export CAD, print to a PDF file, and more
 - `open-pdf-studio.mcpb` installs the connection in Claude Desktop with a double click
 - A small indicator in the status bar shows the connection: grey when the server is off, an open dot when it is on and idle, green while an assistant was active in the last 30 seconds, with a short highlight on every tool call; its tooltip names the port and the last tool
@@ -144,7 +147,7 @@ Professional annotation, markup, measurement, redaction and page management — 
 - Dockable to either side of the canvas or floated freely
 
 ### Quantities & Object Counting
-- Count tool with named tally categories for on-drawing object counting (takeoff)
+- Count markers for on-drawing object counting (takeoff); named-group selection, reassignment and whole-group formatting need further work ([#935](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/935))
 - Live quantities schedule that aggregates counts, lengths, and areas
 - Grouping, sorting, filtering, subtotals, and grand totals
 - Configurable columns, formatting, and table appearance
@@ -422,11 +425,12 @@ work (at most 5 seconds) and then exits cleanly. The extracted AppImage
 FUSE. See [docs/openaec-linux.md](docs/openaec-linux.md) for the full contract.
 
 ### Network connections
-The app sends no telemetry. It connects to other hosts only for: the release
-notes after an update (GitHub API, at startup, not in managed mode), the update
-check, the previous-version download, the online symbol library, the feedback
-form, opening a PDF from a URL you type, and OpenAEC sign-in. The full list is in
-[docs/openaec-linux.md](docs/openaec-linux.md#network).
+The project documents its desktop network connections in
+[docs/openaec-linux.md](docs/openaec-linux.md#network), including updates,
+libraries, feedback, user-opened URLs and OpenAEC sign-in. That description
+is not an independent traffic audit. An attached AI client and its chosen
+provider have their own data flows; assess those separately from the local
+MCP connection.
 
 ## Building from Source
 
