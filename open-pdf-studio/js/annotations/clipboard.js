@@ -12,6 +12,70 @@ import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { plakVerschuivingPt } from './minimummaat.js';
 import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
+import { annotationBounds } from './spatial-index.js';
+import { applyMoveGeneric } from './transforms.js';
+
+// Laatste muispositie op het scherm, alleen voor plakken-op-de-muis (#928).
+// state._lastMouseAppX/Y is maar 800 ms geldig en kent geen paginanummer.
+let muisPunt = null;
+if (typeof document !== 'undefined') {
+  document.addEventListener('mousemove', (e) => {
+    muisPunt = { x: e.clientX, y: e.clientY };
+  }, { capture: true, passive: true });
+  // Het venster uit: de bewaarde positie is dan stale.
+  document.addEventListener('mouseleave', () => { muisPunt = null; });
+}
+
+// Punt onder de muis in paginaruimte (schaal 1, oorsprong linksboven op de
+// pagina), of null als de muis niet op een pagina staat.
+export function plekOnderMuis() {
+  const doc = getActiveDocument();
+  if (!muisPunt || !doc || !pdfContainer?.getBoundingClientRect) return null;
+  const r = pdfContainer.getBoundingClientRect();
+  const cx = muisPunt.x;
+  const cy = muisPunt.y;
+  if (cx < r.left || cx > r.right || cy < r.top || cy > r.bottom) return null;
+
+  let page = doc.currentPage || 1;
+  if (doc.viewMode === 'continuous') {
+    // De pagina onder de muis; in de kier tussen pagina's niets (geen
+    // terugval op currentPage, dan zou de kopie op de verkeerde pagina landen).
+    const raak = document.elementsFromPoint?.(cx, cy) || [];
+    const wrapper = raak.find(el => el.matches?.('.page-wrapper[data-page]'));
+    page = Number(wrapper?.dataset?.page);
+    if (!page) return null;
+  }
+
+  const maat = paginaMaat(page, doc);
+  const p = clientNaarPagina(page, cx, cy, doc);
+  if (!maat || !p) return null;
+  if (p.x < 0 || p.y < 0 || p.x > maat.breedte || p.y > maat.hoogte) return null;
+  return { page, x: p.x, y: p.y };
+}
+
+// Centreer de kopieën op `plek`: de omhullende van alle kopieën komt met zijn
+// midden op de muis, elke kopie schuift even ver mee (onderlinge ligging
+// blijft). Kopieën zonder omhullende schuiven mee en gaan naar de muispagina.
+export function centreerOp(kopieen, plek) {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const a of kopieen) {
+    const b = annotationBounds(a);
+    if (!b) continue;
+    minX = Math.min(minX, b.x);
+    minY = Math.min(minY, b.y);
+    maxX = Math.max(maxX, b.x + b.width);
+    maxY = Math.max(maxY, b.y + b.height);
+  }
+  if (minX !== Infinity) {
+    const dx = plek.x - (minX + maxX) / 2;
+    const dy = plek.y - (minY + maxY) / 2;
+    for (const a of kopieen) applyMoveGeneric(a, dx, dy);
+  }
+  for (const a of kopieen) a.page = plek.page;
+}
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
@@ -163,9 +227,10 @@ export async function pasteImageFromBlob(blob) {
     height *= ratio;
   }
 
-  // Plaats op de pagina die de gebruiker op dat moment bekijkt.
-  const targetPage = getActiveDocument()?.currentPage || 1;
-  const center = visibleCenterOnPage(targetPage);
+  // Plaats op de pagina die de gebruiker op dat moment bekijkt, of onder de muis.
+  const plek = plekOnderMuis();
+  const targetPage = plek?.page || getActiveDocument()?.currentPage || 1;
+  const center = plek || visibleCenterOnPage(targetPage);
   const x = center ? center.x - (width / 2) : 10;
   const y = center ? center.y - (height / 2) : 10;
 
@@ -241,6 +306,9 @@ export function pasteAnnotation() {
   newAnnotation.page = getActiveDocument()?.currentPage || 1;
   newAnnotation.createdAt = new Date().toISOString();
   newAnnotation.modifiedAt = new Date().toISOString();
+  // Muis op een pagina: de kopie daarheen, in plaats van de cascade-plaats.
+  const plek = plekOnderMuis();
+  if (plek) centreerOp([newAnnotation], plek);
   // Een losse helft van een vervanging (#508) hoort niet bij het origineel;
   // de kopie krijgt bij opslaan een eigen /NM.
   relinkPastedCorrections([state.clipboardAnnotation], [newAnnotation]);
@@ -336,6 +404,9 @@ export function pasteAnnotations() {
 
     newAnnotations.push(newAnn);
   }
+  // Muis op een pagina: de hele groep daarheen, onderlinge ligging intact.
+  const plek = plekOnderMuis();
+  if (plek) centreerOp(newAnnotations, plek);
   // Vervangingen (#508) koppelen aan hun eigen kopie, niet aan het origineel.
   relinkPastedCorrections(state.clipboardAnnotations, newAnnotations);
   relinkCopiedZones(state.clipboardAnnotations, newAnnotations);
