@@ -5,6 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
+import { patchSampledFunctions } from './pdfjs-sampled-functions.mjs';
 import { patchXrefStreamOffsets } from './pdfjs-xref-offsets.mjs';
 
 const BEFORE = String.raw`  _getNumber() {
@@ -82,9 +83,9 @@ export function patchZeroInitialFont(source) {
 // Every backport the shipped worker needs; each one fails closed on drift.
 // #839: PostScript lexer progress (PDF.js #22365). #878: zero-size initial
 // font in text extraction (PDF.js #22384). #638: XRef stream offsets above
-// 2 GiB (PDF.js #22172, see pdfjs-xref-offsets.mjs).
+// 2 GiB (PDF.js #22172). #949: unsigned 32-bit samples (PDF.js #22380).
 export function patchPdfjsWorker(source) {
-  return patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source)));
+  return patchSampledFunctions(patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source))));
 }
 
 // `workerPath` is the pdfjs-dist worker to patch: the app uses the legacy
@@ -101,7 +102,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878 and #638 backports.`);
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638 and #949 backports.`);
       worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
     },
