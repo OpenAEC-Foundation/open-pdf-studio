@@ -239,7 +239,9 @@
       "savedTo": "Uloženo: {{path}}",
       "savedAsImages": "Uloženo, stránky jako obrázky: {{path}}",
       "saveFailed": "Uložení se nezdařilo: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Vložit stránky",

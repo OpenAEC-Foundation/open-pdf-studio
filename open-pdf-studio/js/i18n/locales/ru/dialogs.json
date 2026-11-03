@@ -239,7 +239,9 @@
       "savedTo": "Сохранено: {{path}}",
       "savedAsImages": "Сохранено, страницы как изображения: {{path}}",
       "saveFailed": "Ошибка сохранения: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Вставка страниц",

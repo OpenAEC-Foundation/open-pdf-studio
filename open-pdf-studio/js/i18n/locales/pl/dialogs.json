@@ -239,7 +239,9 @@
       "savedTo": "Zapisano: {{path}}",
       "savedAsImages": "Zapisano, strony jako obrazy: {{path}}",
       "saveFailed": "Zapis nie powiódł się: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Wstaw strony",

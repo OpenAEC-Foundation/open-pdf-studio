@@ -239,7 +239,9 @@
     "autoRotateOverrides": "ການໝູນອັດຕະໂນມັດຈະປ່ຽນທັບລວງທີ່ເລືອກໄວ້ ({{orientation}}).",
     "filePrinterHint": "ເຄື່ອງພິມນີ້ຈະຂຽນລົງໃນໄຟລ໌. \"ບັນທຶກເປັນ PDF\" ຈະຮັກສາລວງຂອງເຈ້ຍໄວ້, ແລະ ຂໍ້ຄວາມກັບເສັ້ນຕ່າງໆຈະຍັງຄົງເປັນຮູບແບບ vector.",
     "targetIsOpenFile": "ໄຟລ໌ດັ່ງກ່າວກຳລັງເປີດຢູ່ໃນໂປຣແກຣມ. ກະລຸນາເລືອກຊື່ອື່ນ.",
-    "fileSuffix": " - ພິມ"
+    "fileSuffix": " - ພິມ",
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "ແຊກໜ້າ",

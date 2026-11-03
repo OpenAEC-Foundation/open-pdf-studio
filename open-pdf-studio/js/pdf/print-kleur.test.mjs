@@ -178,5 +178,5 @@ test('de printdialoog toont elke kleurmodus en geeft de keuze aan voorbeeld en a
   for (const sleutel of SLEUTELS) assert.ok(bron.includes(`'print.${sleutel}'`), sleutel);
   assert.match(bron, /colorMode: geldigeKleurModus\(colorMode\(\)\)/, 'onthouden');
   assert.equal((bron.match(/kleur: geldigeKleurModus\(colorMode\(\)\)/g) || []).length, 2, 'printer en Opslaan als PDF');
-  assert.equal((bron.match(/\{ markeringen, kleur \}/g) || []).length, 3, 'alle voorbeelden');
+  assert.equal((bron.match(/\{ markeringen, kleur(?:, currentView: [^}]+)? \}/g) || []).length, 3, 'alle voorbeelden');
 });

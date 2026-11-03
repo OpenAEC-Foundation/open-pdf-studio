@@ -239,7 +239,9 @@
       "savedTo": "저장됨: {{path}}",
       "savedAsImages": "저장됨, 페이지는 이미지로: {{path}}",
       "saveFailed": "저장 실패: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "페이지 삽입",

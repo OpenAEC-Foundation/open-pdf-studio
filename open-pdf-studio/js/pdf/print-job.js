@@ -1,3 +1,4 @@
+import { currentViewSize, currentViewSource, rotateViewCanvas } from './print-current-view.js';
 // Background print job: render the selected pages to a temp PDF and spool it
 // to the printer, reporting progress through printProgressStore so the print
 // dialog can close immediately and the user keeps working.
@@ -48,10 +49,12 @@ function kwartslagLinksom(canvas) {
  * zwart-wit worden de pixels omgezet, zodat voorbeeld en afdruk gelijk zijn.
  * @returns {Promise<HTMLCanvasElement>}
  */
-export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true, kleur = 'color' } = {}) {
-  const canvas = await renderPageOffscreen(pageNum, pxPerPt, {
-    deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
+export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true, kleur = 'color', currentView = null } = {}) {
+  const part = ongedraaidDeel(plaatsing, pxPerPt, deel.px);
+  let canvas = await renderPageOffscreen(pageNum, pxPerPt, {
+    deel: currentView ? currentViewSource(currentView, pxPerPt, part) : part, markeringen,
   });
+  if (currentView) canvas = rotateViewCanvas(canvas, currentView.rotation);
   return zetCanvasOm(plaatsing.gedraaid ? kwartslagLinksom(canvas) : canvas, kleur);
 }
 
@@ -77,8 +80,9 @@ export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { mark
  */
 export async function bouwPrintPdf({
   doc, pages, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
-  inhoud = 'doc-and-markups', kleur = 'color', voortgang = () => {},
+  inhoud = 'doc-and-markups', kleur = 'color', voortgang = () => {}, currentView = null,
 }) {
+  if (currentView && (doc.id !== currentView.docId || pages.length !== 1 || pages[0] !== currentView.pageNum)) throw new Error('Current view belongs to a different document or page');
   const markeringen = markeringenVoorInhoud(inhoud);
   const pdf = await PDFDocument.create();
   // Pages laid out on the sheet (the sheet is the same for every page).
@@ -91,7 +95,7 @@ export async function bouwPrintPdf({
     const plaatsing = berekenPlaatsing({
       papier: vel,
       orientatie,
-      pagina: { breedtePt: origViewport.width, hoogtePt: origViewport.height },
+      pagina: currentView ? currentViewSize(currentView) : { breedtePt: origViewport.width, hoogtePt: origViewport.height },
       schaling,
       zoom,
       centreren,
@@ -101,7 +105,7 @@ export async function bouwPrintPdf({
 
     const pxPerPt = printPxPerPt(plaatsing);
     const deel = renderDeel(plaatsing, pxPerPt);
-    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur });
+    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, currentView });
     const beeld = beeldFormaatVoor(kleur) === 'png'
       ? await pdf.embedPng(await canvasToBytes(canvas, 'png'))
       : await pdf.embedJpg(await canvasToBytes(canvas, 'jpeg', 0.92));
@@ -189,7 +193,7 @@ async function bronBytesVan(doc) {
 export async function slaPrintOpAlsPdf({
   pages, pad, orientatie = 'auto', vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100,
   centreren: centrerenKeuze = true, meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false,
-  inhoud = 'doc-and-markups', kleur = 'color', openen = null, afgebroken = () => false,
+  inhoud = 'doc-and-markups', kleur = 'color', currentView = null, openen = null, afgebroken = () => false,
 }) {
   // `orientatie` is de stand van het vel; de printpagina's krijgen bij
   // pagina's per vel en een boekje hun eigen stand (bronOrientatie, #623).
@@ -213,7 +217,7 @@ export async function slaPrintOpAlsPdf({
     let pdf;
     let gerasterd = false;
     try {
-      if (!vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
+      if (currentView || !vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
       ({ pdf } = await bouwVectorPrintPdf({
         // Met de geschakelde laagstand (#377): de afdruk toont wat in beeld is.
         bronBytes: await (await import('./lagen-schakelen.js')).bytesMetLaagstand(doc, await bronBytesVan(doc)),
@@ -223,10 +227,10 @@ export async function slaPrintOpAlsPdf({
         voortgang: (i, index) => voortgang(i, index + 1),
       }));
     } catch (e) {
-      if (vectorMogelijk(kleur)) console.warn('[print] vector print PDF failed; falling back to page images:', e);
+      if (!currentView && vectorMogelijk(kleur)) console.warn('[print] vector print PDF failed; falling back to page images:', e);
       gerasterd = true;
       ({ pdf } = await bouwPrintPdf({
-        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, voortgang,
+        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, voortgang, currentView,
       }));
     }
 
@@ -344,7 +348,7 @@ export async function runPrintJob({
   pages, copies, printer, orientatie = 'auto', papier = 'printer',
   vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100, centreren: centrerenKeuze = true,
   meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false, inhoud = 'doc-and-markups',
-  kleur = 'color', afgebroken = () => false,
+  kleur = 'color', currentView = null, afgebroken = () => false,
 }) {
   // `orientatie` is de stand van het vel (en gaat zo naar print_pdf); de
   // printpagina's krijgen bij pagina's per vel en een boekje hun eigen stand
@@ -362,7 +366,7 @@ export async function runPrintJob({
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
     const { pdf: pagePdf, opVel: paginasOpVel } = await bouwPrintPdf({
-      doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur,
+      doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, currentView,
       voortgang: (i, pageNum) => updatePrintProgress(
         i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
         i / total,

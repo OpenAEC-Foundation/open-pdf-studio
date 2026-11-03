@@ -239,7 +239,9 @@
       "savedTo": "保存しました：{{path}}",
       "savedAsImages": "保存しました（ページは画像）：{{path}}",
       "saveFailed": "保存に失敗しました：{{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "ページの挿入",

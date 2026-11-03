@@ -239,7 +239,9 @@
       "savedTo": "Uložené: {{path}}",
       "savedAsImages": "Uložené, strany ako obrázky: {{path}}",
       "saveFailed": "Uloženie zlyhalo: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Vložiť strany",

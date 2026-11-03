@@ -239,7 +239,9 @@
       "savedTo": "Mentve: {{path}}",
       "savedAsImages": "Mentve, az oldalak képként: {{path}}",
       "saveFailed": "A mentés nem sikerült: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Oldalak beszúrása",

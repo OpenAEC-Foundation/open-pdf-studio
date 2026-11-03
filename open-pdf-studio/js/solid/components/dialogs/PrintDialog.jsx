@@ -1,3 +1,5 @@
+import { capturePrintView } from '../../../pdf/print-current-view-dom.js';
+import { currentViewSize } from '../../../pdf/print-current-view.js';
 import { createSignal, createMemo, createEffect, on, onMount, onCleanup, batch, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import NumberStepper from '../NumberStepper.jsx';
@@ -102,6 +104,7 @@ export default function PrintDialog(props) {
 
   // Settings of the last print action; every field is validated and falls
   // back to the dialog default (see stores/print-instellingen.js).
+  const capturedView = capturePrintView(getActiveDocument());
   const bewaard = herstelPrintInstellingen(state.preferences?.printSettings);
   // Once the user picks a printer, the background refresh must not override it.
   let gebruikerKoosPrinter = false;
@@ -148,7 +151,7 @@ export default function PrintDialog(props) {
   // De afdrukwijze (#607): volgt uit de schaalkeuze en het aantal per vel
   // (printModus); een klik op een wijze zet die twee (naarModus). Onthouden
   // wordt de laatste gewone schaal en het laatste raster, voor de terugweg.
-  const modus = createMemo(() => printModus({ scaling: scaling(), perSheet: perSheet() }));
+  const modus = createMemo(() => activeRange() === 'view' ? 'normal' : printModus({ scaling: scaling(), perSheet: perSheet() }));
   let laatsteSchaling = bewaard.scaling === 'poster' ? 'fit' : bewaard.scaling;
   let laatsteMeer = MEER_PER_BLAD_KEUZES.includes(bewaard.perSheet) ? bewaard.perSheet : '2';
   createEffect(() => {
@@ -166,7 +169,7 @@ export default function PrintDialog(props) {
   }
   // Posterafdruk (Type "Poster", print-poster.js): de tegelkeuzes, of null.
   // De poster vervangt de schaalkeuze én het aantal pagina's per vel.
-  const poster = createMemo(() => (scaling() === 'poster'
+  const poster = createMemo(() => (activeRange() !== 'view' && scaling() === 'poster'
     ? posterOpties({
       schaal: posterScale(),
       overlap: posterOverlap(),
@@ -179,13 +182,13 @@ export default function PrintDialog(props) {
   // Boekje (print-boekje.js): twee pagina's per liggend vel in genietvolgorde.
   // Een keuze in "Pagina's per vel", dus nooit samen met meer per vel; de
   // poster gaat voor.
-  const boekje = createMemo(() => !poster() && isBoekje(perSheet()));
+  const boekje = createMemo(() => activeRange() !== 'view' && !poster() && isBoekje(perSheet()));
   // Vellen per katern van een boekje (#607); 0 = één boekje.
   const katern = createMemo(() => (boekje() ? geldigKatern(bookletSheets()) : 0));
   // Folder (#607): kopieën van dezelfde pagina op elk vel, met dezelfde vel-
   // en celregels als meerdere pagina's per vel. Ook een keuze in "Pagina's
   // per vel"; de poster gaat voor.
-  const flyer = createMemo(() => !poster() && isFlyer(perSheet()));
+  const flyer = createMemo(() => activeRange() !== 'view' && !poster() && isFlyer(perSheet()));
   // Meerdere pagina's per vel (of een folder), of null bij één per vel (en
   // bij een poster of een boekje). Een vast aantal of een folder laat het
   // raster meedraaien met het vel (draaibaar); een eigen raster blijft zoals
@@ -194,7 +197,7 @@ export default function PrintDialog(props) {
   // nooit. Een memo met waardevergelijking: het voorbeeld tekent alleen
   // opnieuw als de keuze echt verandert.
   const meerPerBlad = createMemo(() => {
-    if (poster() || boekje()) return null;
+    if (activeRange() === 'view' || poster() || boekje()) return null;
     if (flyer()) {
       return {
         ...flyerRaster(flyerCount()), volgorde: 'horizontal', rand: false, snijtekens: flyerCutMarks(),
@@ -279,6 +282,7 @@ export default function PrintDialog(props) {
   function getPrintPages() {
     const doc = getActiveDocument();
     if (!doc?.pdfDoc) return [];
+    if (activeRange() === 'view') return capturedView && doc.id === capturedView.docId ? [capturedView.pageNum] : [];
     const totalPages = doc.pdfDoc.numPages;
     let pages = [];
 
@@ -379,9 +383,10 @@ export default function PrintDialog(props) {
       if (beurt !== voorbeeldBeurt) return;
       const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
       // Vóór het renderen, zodat de kop ook klopt als het voorbeeld mislukt.
-      zetPaginaMaat(viewport.width, viewport.height);
+      const pageSize = activeRange() === 'view' && capturedView ? currentViewSize(capturedView) : { breedtePt: viewport.width, hoogtePt: viewport.height };
+      zetPaginaMaat(pageSize.breedtePt, pageSize.hoogtePt);
       const plaatsing = berekenPlaatsing({
-        ...keuzes, pagina: { breedtePt: viewport.width, hoogtePt: viewport.height },
+        ...keuzes, pagina: pageSize,
       });
       if (!plaatsing) return;
 
@@ -392,7 +397,7 @@ export default function PrintDialog(props) {
       // pagina die haaks op het vel staat.
       const deel = renderDeel(plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur })
+        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, currentView: activeRange() === 'view' ? capturedView : null })
         : null;
       if (beurt !== voorbeeldBeurt) return;
 
@@ -1058,6 +1063,7 @@ export default function PrintDialog(props) {
     if (doelPad) {
       slaPrintOpAlsPdf({
         pages,
+        currentView: activeRange() === 'view' ? capturedView : null,
         pad: doelPad,
         orientatie,
         vel: keuzes.papier,
@@ -1075,6 +1081,7 @@ export default function PrintDialog(props) {
     }
     runPrintJob({
       pages,
+      currentView: activeRange() === 'view' ? capturedView : null,
       copies: numCopies,
       printer,
       orientatie,
@@ -1170,9 +1177,9 @@ export default function PrintDialog(props) {
         docId: getActiveDocument()?.id ?? null,
         metIndeling: !!meerPerBlad(),
       }),
-      schaling: scaling(),
+      schaling: activeRange() === 'view' ? 'fit' : scaling(),
       zoom: geldigeZoom(zoom()),
-      centreren: autoCenter(),
+      centreren: activeRange() === 'view' ? true : autoCenter(),
     };
   }, undefined, { equals: zelfdeKeuzes });
 
@@ -1523,8 +1530,11 @@ export default function PrintDialog(props) {
                 classList={{ active: activeRange() === 'custom' }}
                 onClick={() => onRangeChange('custom')}
               >{t('print.custom')}</button>
+              <button class="print-page-btn" classList={{ active: activeRange() === 'view' }}
+                disabled={!capturedView} onClick={() => onRangeChange('view')}>{t('print.currentView')}</button>
             </div>
           </div>
+          <Show when={activeRange() === 'view'}><div class="print-row">{t('print.currentViewHint')}</div></Show>
           <div class="print-row print-custom-row">
             <label class="print-label">{t('print.pagesLabel')}</label>
             <input
@@ -1542,23 +1552,23 @@ export default function PrintDialog(props) {
               <button
                 class="print-subset-btn"
                 classList={{ active: activeSubset() === 'all' }}
-                onClick={() => onSubsetChange('all')}
+                disabled={activeRange() === 'view'} onClick={() => onSubsetChange('all')}
               >{t('print.all')}</button>
               <button
                 class="print-subset-btn"
                 classList={{ active: activeSubset() === 'odd' }}
-                onClick={() => onSubsetChange('odd')}
+                disabled={activeRange() === 'view'} onClick={() => onSubsetChange('odd')}
               >{t('print.odd')}</button>
               <button
                 class="print-subset-btn"
                 classList={{ active: activeSubset() === 'even' }}
-                onClick={() => onSubsetChange('even')}
+                disabled={activeRange() === 'view'} onClick={() => onSubsetChange('even')}
               >{t('print.even')}</button>
             </div>
             <label class="print-checkbox-label">
               <input
                 type="checkbox"
-                checked={reverseOrder()}
+                disabled={activeRange() === 'view'} checked={reverseOrder()}
                 onChange={(e) => onReverseChange(e.target.checked)}
               /> {t('print.reverseOrder')}
             </label>
@@ -1580,7 +1590,7 @@ export default function PrintDialog(props) {
                     classList={{ active: modus() === m.waarde }}
                     aria-pressed={modus() === m.waarde}
                     title={t(m.uitleg)}
-                    onClick={() => kiesModus(m.waarde)}
+                    disabled={activeRange() === 'view'} onClick={() => kiesModus(m.waarde)}
                   >{t(m.label)}</button>
                 )}
               </For>
@@ -1592,7 +1602,7 @@ export default function PrintDialog(props) {
               <label class="print-label">{t('print.typeLabel')}</label>
               <select
                 class="print-select"
-                value={scaling()}
+                disabled={activeRange() === 'view'} value={activeRange() === 'view' ? 'fit' : scaling()}
                 onChange={(e) => setScaling(e.target.value)}
               >
                 <option value="fit">{t('print.fit')}</option>
@@ -1609,7 +1619,7 @@ export default function PrintDialog(props) {
                 min={ZOOM_MIN}
                 max={ZOOM_MAX}
                 value={zoom()}
-                disabled={scaling() !== 'custom-scale'}
+                disabled={activeRange() === 'view' || scaling() !== 'custom-scale'}
                 onInput={onZoomInput}
                 onChange={onZoomChange}
               />
@@ -1840,7 +1850,7 @@ export default function PrintDialog(props) {
               <label class="print-checkbox-label">
                 <input
                   type="checkbox"
-                  checked={autoCenter()}
+                  disabled={activeRange() === 'view'} checked={activeRange() === 'view' || autoCenter()}
                   onChange={(e) => setAutoCenter(e.target.checked)}
                 /> {t('print.autoCenter')}
               </label>

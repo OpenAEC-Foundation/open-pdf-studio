@@ -239,7 +239,9 @@
       "savedTo": "Disimpan: {{path}}",
       "savedAsImages": "Disimpan, halaman sebagai imej: {{path}}",
       "saveFailed": "Gagal menyimpan: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Sisip Halaman",

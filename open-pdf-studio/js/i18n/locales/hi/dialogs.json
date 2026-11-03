@@ -239,7 +239,9 @@
       "savedTo": "सहेजा गया: {{path}}",
       "savedAsImages": "सहेजा गया, पृष्ठ छवियों के रूप में: {{path}}",
       "saveFailed": "सहेजना विफल: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "पृष्ठ सम्मिलित करें",

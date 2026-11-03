@@ -239,7 +239,9 @@
       "savedTo": "Lagret: {{path}}",
       "savedAsImages": "Lagret, sider som bilder: {{path}}",
       "saveFailed": "Lagring mislyktes: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Sett inn sider",

@@ -239,7 +239,9 @@
       "savedTo": "Kaydedildi: {{path}}",
       "savedAsImages": "Kaydedildi, sayfalar görüntü olarak: {{path}}",
       "saveFailed": "Kaydetme başarısız oldu: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Sayfa Ekle",

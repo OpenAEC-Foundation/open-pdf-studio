@@ -239,7 +239,9 @@
       "savedTo": "Imehifadhiwa: {{path}}",
       "savedAsImages": "Imehifadhiwa, kurasa kama picha: {{path}}",
       "saveFailed": "Kuhifadhi kumeshindwa: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Ingiza Kurasa",

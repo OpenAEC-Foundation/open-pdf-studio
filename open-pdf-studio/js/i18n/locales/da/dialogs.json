@@ -239,7 +239,9 @@
       "savedTo": "Gemt: {{path}}",
       "savedAsImages": "Gemt, sider som billeder: {{path}}",
       "saveFailed": "Kunne ikke gemme: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Indsæt sider",

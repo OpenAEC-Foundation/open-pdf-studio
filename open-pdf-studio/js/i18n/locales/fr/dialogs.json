@@ -239,7 +239,9 @@
       "savedTo": "Enregistré : {{path}}",
       "savedAsImages": "Enregistré, pages en images : {{path}}",
       "saveFailed": "Échec de l'enregistrement : {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Insérer des pages",

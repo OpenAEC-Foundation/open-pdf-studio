@@ -239,7 +239,9 @@
     "autoRotateOverrides": "Auto-Rotate overrides the chosen orientation ({{orientation}}).",
     "filePrinterHint": "This printer writes to a file. \"Save as PDF\" keeps the sheet orientation, and text and lines stay vectors.",
     "targetIsOpenFile": "That file is open in the app. Choose another name.",
-    "fileSuffix": " - print"
+    "fileSuffix": " - print",
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Insert Pages",

@@ -239,7 +239,9 @@
       "savedTo": "Đã lưu: {{path}}",
       "savedAsImages": "Đã lưu, các trang dưới dạng hình ảnh: {{path}}",
       "saveFailed": "Lưu thất bại: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Chèn Trang",

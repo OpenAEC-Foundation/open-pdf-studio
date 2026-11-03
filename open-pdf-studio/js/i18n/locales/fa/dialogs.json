@@ -239,7 +239,9 @@
       "savedTo": "ذخیره شد: {{path}}",
       "savedAsImages": "ذخیره شد، صفحه‌ها به‌صورت تصویر: {{path}}",
       "saveFailed": "ذخیره ناموفق بود: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "درج صفحات",

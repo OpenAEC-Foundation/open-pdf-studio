@@ -239,7 +239,9 @@
       "savedTo": "Sparad: {{path}}",
       "savedAsImages": "Sparad, sidor som bilder: {{path}}",
       "saveFailed": "Det gick inte att spara: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Infoga sidor",

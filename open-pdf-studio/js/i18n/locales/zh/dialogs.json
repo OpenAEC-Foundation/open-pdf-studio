@@ -239,7 +239,9 @@
       "savedTo": "已保存：{{path}}",
       "savedAsImages": "已保存，页面为图像：{{path}}",
       "saveFailed": "保存失败：{{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "插入页面",

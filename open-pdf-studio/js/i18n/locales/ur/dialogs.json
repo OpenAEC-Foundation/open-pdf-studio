@@ -239,7 +239,9 @@
       "savedTo": "محفوظ ہو گیا: {{path}}",
       "savedAsImages": "محفوظ ہو گیا، صفحات تصاویر کے طور پر: {{path}}",
       "saveFailed": "محفوظ کرنا ناکام: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "صفحات داخل کریں",

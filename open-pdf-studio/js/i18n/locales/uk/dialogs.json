@@ -239,7 +239,9 @@
       "savedTo": "Збережено: {{path}}",
       "savedAsImages": "Збережено, сторінки як зображення: {{path}}",
       "saveFailed": "Помилка збереження: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "Вставити сторінки",

@@ -239,7 +239,9 @@
       "savedTo": "சேமிக்கப்பட்டது: {{path}}",
       "savedAsImages": "சேமிக்கப்பட்டது, பக்கங்கள் படங்களாக: {{path}}",
       "saveFailed": "சேமிப்பு தோல்வியடைந்தது: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "பக்கங்களைச் செருகு",

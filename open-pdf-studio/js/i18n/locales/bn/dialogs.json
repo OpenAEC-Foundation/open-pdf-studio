@@ -239,7 +239,9 @@
       "savedTo": "সংরক্ষিত: {{path}}",
       "savedAsImages": "সংরক্ষিত, পৃষ্ঠাগুলি ছবি হিসেবে: {{path}}",
       "saveFailed": "সংরক্ষণ ব্যর্থ: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "পৃষ্ঠা সন্নিবেশ",

@@ -239,7 +239,9 @@
       "savedTo": "บันทึกแล้ว: {{path}}",
       "savedAsImages": "บันทึกแล้ว หน้าเป็นรูปภาพ: {{path}}",
       "saveFailed": "บันทึกล้มเหลว: {{error}}"
-    }
+    },
+    "currentView": "Current view",
+    "currentViewHint": "Print the visible area of the first visible page, fitted to paper (as an image)."
   },
   "insertPage": {
     "title": "แทรกหน้า",
