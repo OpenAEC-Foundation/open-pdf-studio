@@ -2162,7 +2162,10 @@ async fn render_pdf_page(
 }
 
 /// Run OCR on one page. `lang` is Tesseract's `+`-joined language spec (e.g.
-/// "chi_tra+eng"); defaults to "eng" if omitted. Tessdata is resolved from
+/// "chi_tra+eng"); defaults to "auto" if omitted.
+/// `label_region` restricts recognition to a page-label selection and tests
+/// quarter-turn orientations. Words stay in reading order with page-space boxes.
+/// Tessdata is resolved from
 /// the bundled `tessdata` resource directory — see scripts/ocr-runtime.mjs
 /// and the `resources` map in tauri.conf.json.
 #[cfg(not(target_os = "android"))]
@@ -2172,6 +2175,7 @@ async fn ocr_pdf_page(
     path: String,
     page_index: u32,
     lang: Option<String>,
+    label_region: Option<ocr::label_region::LabelRegion>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
 ) -> Result<Vec<ocr::OcrWord>, String> {
@@ -2205,7 +2209,13 @@ async fn ocr_pdf_page(
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
     tauri::async_runtime::spawn_blocking({
-        move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+        move || {
+            if let Some(region) = label_region {
+                ocr::ocr_page_label_words(handle.document(), page_index, &tessdata_dir, &lang, region)
+            } else {
+                ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+            }
+        }
     })
     .await
     .map_err(|e| format!("OCR task panicked: {}", e))?

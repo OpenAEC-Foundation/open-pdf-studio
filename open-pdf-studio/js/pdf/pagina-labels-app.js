@@ -4,10 +4,11 @@
 // pagina-labels.js.
 
 import { invoke, isTauri } from '../core/platform.js';
+import { createLabelOcrReader } from './pagina-labels-ocr.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
-  tekstInGebied, woordenInGebied, draaiVak,
+  tekstInGebied,
 } from './pagina-labels.js';
 
 /**
@@ -90,22 +91,9 @@ export async function labelsNaHerladen(doc, { oudeBytes = null, nieuweBytes = nu
 
 // ── Vakken lezen voor de naambouwer ──────────────────────────────────────
 
-// OCR-woorden per pagina. Bewust niet in doc.ocrResults: daarvan schrijft de
-// saver een onzichtbare tekstlaag in het bestand, en de naambouwer leest alleen.
-const _ocrWoorden = new Map();
-
-async function ocrWoorden(doc, pageNum) {
-  const bestaand = doc.ocrResults?.[pageNum];
-  if (Array.isArray(bestaand) && bestaand.length) return bestaand;
-  if (!doc.filePath || !isTauri()) return [];
-  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}`;
-  if (_ocrWoorden.has(sleutel)) return _ocrWoorden.get(sleutel);
-  const woorden = await invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNum - 1, lang: 'auto' });
-  if (_ocrWoorden.size > 500) _ocrWoorden.clear();
-  const lijst = Array.isArray(woorden) ? woorden : [];
-  _ocrWoorden.set(sleutel, lijst);
-  return lijst;
-}
+// Label recognition is read-only: never populate doc.ocrResults, which the
+// saver turns into an invisible text layer.
+const leesOcrGebied = createLabelOcrReader({ invoke, isTauri });
 
 // Tekstlaag van één pagina in app-ruimte: schaal 1, met /Rotate en de
 // draaiing die de gebruiker in de app gaf (zoals de annotaties).
@@ -134,15 +122,7 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
   }
   if (ocr) {
     try {
-      // OCR-woorden staan in de ruimte van de pagina mét /Rotate maar zonder
-      // de draaiing uit de app; draai ze mee naar de ruimte van het vak.
-      const extra = p?.extra || 0;
-      const woorden = (await ocrWoorden(doc, pageNum)).map((w) => {
-        if (!extra || !p) return w;
-        const r = draaiVak({ x: w.left, y: w.top, width: w.width, height: w.height }, p.breedte, p.hoogte, extra);
-        return { ...w, left: r.x, top: r.y, width: r.width, height: r.height };
-      });
-      const tekst = woordenInGebied(woorden, vak);
+      const tekst = await leesOcrGebied(doc, pageNum, vak, p);
       if (tekst) return { tekst, bron: 'ocr' };
     } catch (e) {
       console.warn('[paginalabels] OCR mislukt:', e?.message || e);

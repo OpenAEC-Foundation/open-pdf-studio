@@ -6,6 +6,8 @@
 //! usual app-coordinate → PDF-coordinate transform (CropBox + Y-flip) when it
 //! writes the invisible searchable text layer, same as everywhere else.
 
+pub mod label_region;
+
 use crate::pdfium_renderer;
 use pdfium_render::prelude::PdfDocument;
 use serde::Serialize;
@@ -94,6 +96,22 @@ pub fn ocr_page_words(
         .map_err(|e| format!("Tesseract get_tsv_text failed: {}", e))?;
 
     Ok(parse_tsv_words(&tsv, scale))
+}
+
+/// Recognize a selected page-label region, including rotated title blocks.
+/// Coordinates use the rendered page's intrinsic rotation, without app rotation.
+pub fn ocr_page_label_words(
+    doc: &PdfDocument<'static>,
+    page_index: u32,
+    tessdata_dir: &str,
+    lang: &str,
+    region: label_region::LabelRegion,
+) -> Result<Vec<OcrWord>, String> {
+    let scale = OCR_DPI / 72.0;
+    let (width, height, rgba) = pdfium_renderer::render_page_to_rgba(doc, page_index, scale, 0)?;
+    let image = image::RgbaImage::from_raw(width, height, rgba)
+        .ok_or_else(|| "Invalid OCR bitmap".to_string())?;
+    label_region::recognize(image, region, scale, tessdata_dir, lang)
 }
 
 /// Parse Tesseract's TSV output (level 5 = word) into OcrWord entries,
