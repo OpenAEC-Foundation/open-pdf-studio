@@ -41,3 +41,8 @@ export { XRef, Stream };
   assert.deepEqual(fixture.hugeObjects.map(num => xref.getEntry(num).offset), [2 ** 31, 2 ** 32 + 10]);
   console.log('PASS built worker: XRef stream offsets 2^31 and 2^32 + 10');
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+
+// #957: exact combining-mark sequence survives the emitted worker and Office files.
+const bidi = spawnSync(process.execPath, [fileURLToPath(new URL('./bidi-marks-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 30000, encoding: 'utf8' });
+assert.equal(bidi.status, 0, bidi.stdout + bidi.stderr);
+console.log('PASS built worker: BMP combining-mark order and DOCX/ODT');

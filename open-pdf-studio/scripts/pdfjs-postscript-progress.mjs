@@ -2,6 +2,7 @@
 // The lexer methods below are derived from PDF.js, Copyright Mozilla Foundation.
 // Licensed under the Apache License, Version 2.0: https://www.apache.org/licenses/LICENSE-2.0
 // Remove this backport only after qualifying a pdfjs-dist release containing the fix.
+import { patchBidiMarks } from './pdfjs-bidi-marks.mjs';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
@@ -83,8 +84,9 @@ export function patchZeroInitialFont(source) {
 // #839: PostScript lexer progress (PDF.js #22365). #878: zero-size initial
 // font in text extraction (PDF.js #22384). #638: XRef stream offsets above
 // 2 GiB (PDF.js #22172, see pdfjs-xref-offsets.mjs).
+// #957: BMP nonspacing bidi marks (local correction, PDF.js #22433).
 export function patchPdfjsWorker(source) {
-  return patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source)));
+  return patchBidiMarks(patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source))));
 }
 
 // `workerPath` is the pdfjs-dist worker to patch: the app uses the legacy
@@ -101,7 +103,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878 and #638 backports.`);
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638 and #957 patches.`);
       worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
     },
