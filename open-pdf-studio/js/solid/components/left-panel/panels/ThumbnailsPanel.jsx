@@ -1,9 +1,12 @@
-import { For, onMount } from 'solid-js';
-import { pageCount, selectAllPages, clearPageSelection, getSelectedPagesArray, formatPageRangeString, setContainerRef } from '../../../stores/panels/thumbnailStore.js';
-import { activeTab } from '../../../stores/leftPanelStore.js';
+import { For, onMount, onCleanup, createEffect } from 'solid-js';
+import { pageCount, selectAllPages, clearPageSelection, getSelectedPagesArray, formatPageRangeString, setContainerRef, setDraggedPage, setDropTarget } from '../../../stores/panels/thumbnailStore.js';
+import { activeTab, collapsed } from '../../../stores/leftPanelStore.js';
 import ThumbnailItem from '../ThumbnailItem.jsx';
 import { identityOrder, gapForDrop, moveGroupToGap } from '../../../../pdf/page-order.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
+import { getActiveDocument } from '../../../../core/state.js';
+import { isPdfAReadOnly } from '../../../../pdf/loader.js';
+import { createThumbnailPointerDrag } from '../../../../ui/panels/thumbnail-pointer-drag.js';
 
 export default function ThumbnailsPanel() {
   const { t } = useTranslation('properties');
@@ -17,16 +20,30 @@ export default function ThumbnailsPanel() {
     import('../../../../pdf/renderer.js').then(m => m.goToPage(pageNum));
   };
 
-  // Dragging a selected page takes the whole selection along (#763).
-  const handleReorder = async (fromPage, toPage, dropBefore) => {
-    const { reorderPages } = await import('../../../../pdf/page-manager.js');
-    const order = identityOrder(pageCount());
-    const selected = getSelectedPagesArray();
-    const group = selected.includes(fromPage) ? selected : [fromPage];
-    const gap = gapForDrop(order, toPage, dropBefore ? 'before' : 'after');
-    if (gap < 0) return;
-    await reorderPages(moveGroupToGap(order, group, gap));
-  };
+  let list;
+  let pointerDrag;
+  const canEdit = () => activeTab() === 'thumbnails' && !collapsed() && !!getActiveDocument()?.pdfDoc && !isPdfAReadOnly();
+  onMount(() => {
+    pointerDrag = createThumbnailPointerDrag(list, {
+      getDocument: getActiveDocument,
+      getSelection: getSelectedPagesArray,
+      canEdit,
+      setDragging: setDraggedPage,
+      setTarget: setDropTarget,
+      async commit(doc, pdf, group, toPage, dropBefore) {
+        const { reorderPages } = await import('../../../../pdf/page-manager.js');
+        if (getActiveDocument() !== doc || doc.pdfDoc !== pdf || !canEdit()) return;
+        const order = identityOrder(pdf.numPages);
+        const gap = gapForDrop(order, toPage, dropBefore ? 'before' : 'after');
+        if (gap >= 0) await reorderPages(moveGroupToGap(order, group, gap));
+      },
+    });
+    onCleanup(() => pointerDrag.destroy());
+  });
+  createEffect(() => {
+    getActiveDocument()?.pdfDoc;
+    if (!canEdit()) pointerDrag?.cancel();
+  });
 
   const handleKeyDown = async (e) => {
     // Ook met Caps Lock aan (e.key is dan 'A', #577).
@@ -66,13 +83,12 @@ export default function ThumbnailsPanel() {
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 3.5h8l4.5 4.5-4.5 4.5h-8z"/><path d="M4 6.5h4M4 9.5h5"/></svg>
         </button>
       </div>
-      <div class="thumbnails-container" id="thumbnails-container" ref={setContainerRef} tabIndex={0} onKeyDown={handleKeyDown}>
+      <div class="thumbnails-container" id="thumbnails-container" ref={el => { list = el; setContainerRef(el); }} tabIndex={0} onKeyDown={handleKeyDown}>
         <For each={pages()}>
           {(pageNum) => (
             <ThumbnailItem
               pageNum={pageNum}
               onNavigate={handleNavigate}
-              onReorder={handleReorder}
             />
           )}
         </For>

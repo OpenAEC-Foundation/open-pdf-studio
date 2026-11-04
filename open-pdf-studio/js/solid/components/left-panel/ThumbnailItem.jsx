@@ -1,23 +1,13 @@
 import { Show, createSignal } from 'solid-js';
 import {
-  activePage, thumbnailData, draggedPage, setDraggedPage, dropTarget, setDropTarget, placeholderSize,
+  activePage, thumbnailData, draggedPage, dropTarget, placeholderSize,
   selectedPages, selectPage, togglePageSelection, selectPageRange, isPageSelected
 } from '../../stores/panels/thumbnailStore.js';
 import { showThumbnailMenu } from '../../stores/contextMenuStore.js';
-import { dropPositie } from '../../../ui/panels/miniatuur-maat.js';
 import { state } from '../../../core/state.js';
 import { labelVan, heeftEigenLabel } from '../../../pdf/pagina-labels.js';
 import { zetPaginaLabel } from '../../../pdf/pagina-labels-app.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-
-// Staan de miniaturen in meerdere kolommen (breed paneel, #579)? Dan zijn de
-// buren links en rechts en valt een gesleepte pagina ervoor of erachter.
-function meerdereKolommen(item) {
-  const lijst = item?.parentElement;
-  if (!lijst) return false;
-  const kolommen = getComputedStyle(lijst).gridTemplateColumns || '';
-  return kolommen.trim().split(/\s+/).filter(Boolean).length > 1;
-}
 
 export default function ThumbnailItem(props) {
   const isActive = () => activePage() === props.pageNum;
@@ -91,40 +81,10 @@ export default function ThumbnailItem(props) {
         'drop-side': isDropNaast()
       }}
       data-page={props.pageNum}
-      draggable={!hernoemen()}
+      draggable={false}
       onClick={handleClick}
       onContextMenu={handleContextMenu}
-      onDragStart={(e) => {
-        setDraggedPage(props.pageNum);
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', String(props.pageNum));
-      }}
-      onDragOver={(e) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        if (draggedPage() === props.pageNum) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const naast = meerdereKolommen(e.currentTarget);
-        setDropTarget({ page: props.pageNum, position: dropPositie(rect, e.clientX, e.clientY, naast), naast });
-      }}
-      onDragLeave={() => {
-        if (dropTarget()?.page === props.pageNum) setDropTarget(null);
-      }}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDropTarget(null);
-        if (draggedPage() !== null && draggedPage() !== props.pageNum) {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const naast = meerdereKolommen(e.currentTarget);
-          const dropBefore = dropPositie(rect, e.clientX, e.clientY, naast) === 'before';
-          props.onReorder(draggedPage(), props.pageNum, dropBefore);
-        }
-        setDraggedPage(null);
-      }}
-      onDragEnd={() => {
-        setDraggedPage(null);
-        setDropTarget(null);
-      }}
+
     >
       <Show when={imageData()} fallback={
         <div class="thumbnail-canvas thumbnail-loading" style={{ 'aspect-ratio': `${size().width} / ${size().height}` }}>
@@ -133,7 +93,7 @@ export default function ThumbnailItem(props) {
       }>
         {/* Vult de kolombreedte (layout.css); gerenderd op die breedte maal
             devicePixelRatio, dus scherp ook als het paneel breed is (#579). */}
-        <img class="thumbnail-canvas" src={imageData().dataURL} />
+        <img class="thumbnail-canvas" draggable={false} src={imageData().dataURL} />
       </Show>
       <Show when={hernoemen()} fallback={
         <div
