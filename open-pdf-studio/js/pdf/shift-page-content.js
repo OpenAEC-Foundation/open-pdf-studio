@@ -43,8 +43,9 @@ export function assertShiftable(pdfDoc) {
  * @returns {boolean} false when the page has no content to shift (a blank
  *   page without /Contents) — the page is left untouched.
  */
-export function shiftPageContent(pdfDoc, page, cx, cy) {
+export function shiftPageContent(pdfDoc, page, cx, cy, scale = 1) {
   assertOffset(cx, cy);
+  if (!(scale > 0) || scale > 1e4) throw new RangeError(`Scale out of range: ${scale}`);
   const context = pdfDoc.context;
   const node = page.node;
   const contentsEntry = node.get(PDFName.of("Contents"));
@@ -58,7 +59,7 @@ export function shiftPageContent(pdfDoc, page, cx, cy) {
 
   // The newline before Q keeps it a separate token even when the last
   // original stream does not end in whitespace.
-  const open = context.register(context.stream(`q 1 0 0 1 ${formatNumber(cx)} ${formatNumber(cy)} cm\n`));
+  const open = context.register(context.stream(`q ${formatNumber(scale)} 0 0 ${formatNumber(scale)} ${formatNumber(cx)} ${formatNumber(cy)} cm\n`));
   const close = context.register(context.stream("\nQ\n"));
   // A NEW array: the old one may be an indirect object shared with other pages.
   node.set(PDFName.of("Contents"), context.obj([open, ...streams, close]));
@@ -69,12 +70,12 @@ export function shiftPageContent(pdfDoc, page, cx, cy) {
 // [x1 y1 x2 y2 …] array. InkList (an array of such arrays) is handled apart.
 const COORDINATE_ARRAYS = ["Rect", "QuadPoints", "Vertices", "L", "CL"];
 
-function shiftedCoordinates(context, array, cx, cy) {
+function shiftedCoordinates(context, array, cx, cy, scale = 1) {
   const values = [];
   for (let i = 0; i < array.size(); i++) {
     const item = array.lookup(i);
     if (!(item instanceof PDFNumber)) return null; // not a coordinate list: leave it alone
-    values.push(item.asNumber() + (i % 2 === 0 ? cx : cy));
+    values.push(item.asNumber() * scale + (i % 2 === 0 ? cx : cy));
   }
   return context.obj(values);
 }
@@ -89,7 +90,7 @@ function shiftedCoordinates(context, array, cx, cy) {
  *   one set for a whole run so a dictionary referenced twice moves once.
  * @returns {number} how many annotations were moved
  */
-export function shiftPageAnnotations(pdfDoc, page, cx, cy, seen = new Set()) {
+export function shiftPageAnnotations(pdfDoc, page, cx, cy, seen = new Set(), scale = 1) {
   assertOffset(cx, cy);
   const context = pdfDoc.context;
   const annots = page.node.lookup(PDFName.of("Annots"));
@@ -105,7 +106,7 @@ export function shiftPageAnnotations(pdfDoc, page, cx, cy, seen = new Set()) {
       const name = PDFName.of(key);
       const array = dict.lookup(name);
       if (!(array instanceof PDFArray)) continue;
-      const shifted = shiftedCoordinates(context, array, cx, cy);
+      const shifted = shiftedCoordinates(context, array, cx, cy, scale);
       if (shifted) dict.set(name, shifted);
     }
 
@@ -116,7 +117,7 @@ export function shiftPageAnnotations(pdfDoc, page, cx, cy, seen = new Set()) {
       let valid = true;
       for (let s = 0; s < inkList.size(); s++) {
         const stroke = inkList.lookup(s);
-        const shifted = stroke instanceof PDFArray ? shiftedCoordinates(context, stroke, cx, cy) : null;
+        const shifted = stroke instanceof PDFArray ? shiftedCoordinates(context, stroke, cx, cy, scale) : null;
         if (!shifted) { valid = false; break; }
         strokes.push(shifted);
       }

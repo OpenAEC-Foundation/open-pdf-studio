@@ -656,7 +656,11 @@
     "width": "Amplada (mm):",
     "height": "Alçada (mm):",
     "info": "{{count}} pàgina(es) al document. El contingut es centra a la mida original — sense escalat. Reversible amb Desfés.",
-    "nothingResized": "No s'ha redimensionat cap pàgina."
+    "nothingResized": "No s'ha redimensionat cap pàgina.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Comprimeix el PDF",

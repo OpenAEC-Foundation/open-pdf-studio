@@ -656,7 +656,11 @@
     "width": "רוחב (mm):",
     "height": "גובה (mm):",
     "info": "עמודים במסמך: {{count}}. התוכן ממורכז בגודלו המקורי — ללא שינוי קנה מידה. הפיך עם ביטול.",
-    "nothingResized": "לא שונה גודלו של אף עמוד."
+    "nothingResized": "לא שונה גודלו של אף עמוד.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "דחיסת PDF",

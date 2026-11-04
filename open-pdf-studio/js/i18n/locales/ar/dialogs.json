@@ -656,7 +656,11 @@
     "width": "العرض (mm):",
     "height": "الارتفاع (mm):",
     "info": "عدد الصفحات في المستند: {{count}}. يتم توسيط المحتوى بحجمه الأصلي — دون تغيير المقياس. قابل للتراجع بأمر التراجع.",
-    "nothingResized": "لم يتم تغيير حجم أي صفحة."
+    "nothingResized": "لم يتم تغيير حجم أي صفحة.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "ضغط PDF",

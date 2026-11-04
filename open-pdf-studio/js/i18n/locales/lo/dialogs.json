@@ -596,7 +596,11 @@
     "width": "ລວງກວ້າງ (ມມ):",
     "height": "ລວງສູງ (ມມ):",
     "info": "ມີ {{count}} ໜ້າໃນເອກະສານ. ເນື້ອຫາຈະຖືກຈັດໄວ້ເຄິ່ງກາງຕາມຂະໜາດເດີມ — ບໍ່ມີການປັບຂະໜາດ. ສາມາດຍົກເລີກການກະທຳ (Undo) ໄດ້.",
-    "nothingResized": "ບໍ່ມີໜ້າໃດຖືກປ່ຽນຂະໜາດ."
+    "nothingResized": "ບໍ່ມີໜ້າໃດຖືກປ່ຽນຂະໜາດ.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "ບີບອັດໄຟລ໌ PDF",

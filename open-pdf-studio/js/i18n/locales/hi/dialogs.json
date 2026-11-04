@@ -656,7 +656,11 @@
     "width": "चौड़ाई (mm):",
     "height": "ऊंचाई (mm):",
     "info": "दस्तावेज़ में {{count}} पृष्ठ हैं। सामग्री अपने मूल आकार में केंद्रित होती है — कोई स्केलिंग नहीं। «पूर्ववत करें» से वापस लाया जा सकता है।",
-    "nothingResized": "किसी भी पृष्ठ का आकार नहीं बदला गया।"
+    "nothingResized": "किसी भी पृष्ठ का आकार नहीं बदला गया।",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "PDF संपीड़ित करें",

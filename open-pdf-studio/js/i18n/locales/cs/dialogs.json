@@ -656,7 +656,11 @@
     "width": "Šířka (mm):",
     "height": "Výška (mm):",
     "info": "Počet stránek v dokumentu: {{count}}. Obsah se vycentruje v původní velikosti — bez změny měřítka. Vratné pomocí Zpět.",
-    "nothingResized": "Velikost žádné stránky nebyla změněna."
+    "nothingResized": "Velikost žádné stránky nebyla změněna.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Komprimovat PDF",

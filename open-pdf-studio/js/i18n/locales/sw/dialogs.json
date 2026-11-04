@@ -656,7 +656,11 @@
     "width": "Upana (mm):",
     "height": "Kimo (mm):",
     "info": "Kurasa {{count}} kwenye hati. Maudhui yanawekwa katikati kwa ukubwa wake asili — bila kubadilisha kipimo. Inaweza kutenduliwa kwa Tendua.",
-    "nothingResized": "Hakuna kurasa zilizobadilishwa ukubwa."
+    "nothingResized": "Hakuna kurasa zilizobadilishwa ukubwa.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Banana PDF",

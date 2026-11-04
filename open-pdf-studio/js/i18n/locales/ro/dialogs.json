@@ -656,7 +656,11 @@
     "width": "Lățime (mm):",
     "height": "Înălțime (mm):",
     "info": "{{count}} pagină(i) în document. Conținutul este centrat la dimensiunea originală — fără scalare. Reversibil cu Anulare.",
-    "nothingResized": "Nicio pagină nu a fost redimensionată."
+    "nothingResized": "Nicio pagină nu a fost redimensionată.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Comprimare PDF",

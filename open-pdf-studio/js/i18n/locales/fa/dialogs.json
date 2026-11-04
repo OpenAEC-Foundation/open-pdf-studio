@@ -656,7 +656,11 @@
     "width": "عرض (mm):",
     "height": "ارتفاع (mm):",
     "info": "تعداد صفحات سند: {{count}}. محتوا با اندازه اصلی خود در مرکز قرار می‌گیرد — بدون تغییر مقیاس. با واگرد قابل بازگشت است.",
-    "nothingResized": "اندازه هیچ صفحه‌ای تغییر نکرد."
+    "nothingResized": "اندازه هیچ صفحه‌ای تغییر نکرد.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "فشرده‌سازی PDF",

@@ -656,7 +656,11 @@
     "width": "宽度 (mm)：",
     "height": "高度 (mm)：",
     "info": "文档共 {{count}} 页。内容按原始大小居中，不进行缩放。可通过撤销还原。",
-    "nothingResized": "没有调整任何页面的大小。"
+    "nothingResized": "没有调整任何页面的大小。",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "压缩 PDF",
