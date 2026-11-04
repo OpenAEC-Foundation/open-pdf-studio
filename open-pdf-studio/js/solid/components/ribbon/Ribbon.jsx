@@ -91,7 +91,7 @@ export default function Ribbon() {
     const volgende = volgendeTab(tabs, knop.dataset.tab, e.key, rtl);
     if (!volgende) return;
     e.preventDefault();
-    setActiveTab(volgende);
+    activateTab(volgende);
     requestAnimationFrame(() => knopVan(volgende)?.focus());
   };
   // Muiswiel boven het lint (#852): één wielklik is één tabblad, zonder
@@ -132,6 +132,15 @@ export default function Ribbon() {
     activeTab() === 'comment' || activeTab() === 'measure';
 
   const ribbonCollapsed = () => state.preferences.ribbonCollapsed === true;
+  // Explicit tab selection opens its controls, including re-selecting the
+  // active tab. Background selection changes keep the collapsed preference.
+  const activateTab = (id) => {
+    setActiveTab(id);
+    if (ribbonCollapsed()) {
+      state.preferences.ribbonCollapsed = false;
+      savePreferences();
+    }
+  };
   const toggleCollapsed = () => {
     state.preferences.ribbonCollapsed = !ribbonCollapsed();
     savePreferences();
@@ -145,36 +154,36 @@ export default function Ribbon() {
           onClick={() => openAppMenu()} />
         <RibbonTab label={t('tabs.home')} dataTab="home"
           isActive={activeTab() === 'home'}
-          onClick={() => setActiveTab('home')} />
+          onClick={() => activateTab('home')} />
         <RibbonTab label={t('tabs.view')} dataTab="view"
           isActive={activeTab() === 'view'}
-          onClick={() => setActiveTab('view')} />
+          onClick={() => activateTab('view')} />
         <RibbonTab label={t('tabs.drawing')} dataTab="drawing"
           isActive={activeTab() === 'drawing'}
-          onClick={() => setActiveTab('drawing')} />
+          onClick={() => activateTab('drawing')} />
         <RibbonTab label={t('tabs.comment')} dataTab="comment"
           isActive={commentActive()}
-          onClick={() => setActiveTab('comment')} />
+          onClick={() => activateTab('comment')} />
         <RibbonTab label={t('tabs.organize')} dataTab="organize"
           isActive={activeTab() === 'organize'}
-          onClick={() => setActiveTab('organize')} />
+          onClick={() => activateTab('organize')} />
         <RibbonTab label={t('tabs.help')} dataTab="help"
           isActive={activeTab() === 'help'}
-          onClick={() => setActiveTab('help')} />
+          onClick={() => activateTab('help')} />
         {/* Linttabbladen van extensies (#551): na Instellingen, vóór de contextuele. */}
-        <ExtensionTabStrip activeTab={activeTab} setActiveTab={setActiveTab} strookOuder={() => tablistEl} />
+        <ExtensionTabStrip activeTab={activeTab} setActiveTab={activateTab} strookOuder={() => tablistEl} />
         <Show when={contextualTabsVisible()}>
           <span class="ribbon-tab-separator contextual-tabs visible" id="contextual-tabs-separator"></span>
           <RibbonTab label={t('tabs.format')} dataTab="format" isContextual={true} id="tab-format-btn"
             isActive={activeTab() === 'format'}
-            onClick={() => setActiveTab('format')} />
+            onClick={() => activateTab('format')} />
           {/* Schikken werkt op een selectie; tijdens het invoegen van
               symbolen (#587) of het tekenen met een gereedschap (#668)
               staat alleen Opmaak open. */}
           <Show when={!opmaakVoorNieuw()}>
             <RibbonTab label={t('tabs.arrange')} dataTab="arrange" isContextual={true} id="tab-arrange-btn"
               isActive={activeTab() === 'arrange'}
-              onClick={() => setActiveTab('arrange')} />
+              onClick={() => activateTab('arrange')} />
           </Show>
         </Show>
         <Show when={imageSelected()}>
@@ -183,7 +192,7 @@ export default function Ribbon() {
           </Show>
           <RibbonTab label={t('tabs.image')} dataTab="image" isContextual={true} id="tab-image-btn"
             isActive={activeTab() === 'image'}
-            onClick={() => setActiveTab('image')} />
+            onClick={() => activateTab('image')} />
         </Show>
         {/* Collapse/expand toggle (issue #278): hides the ribbon body so only
             the tab strip remains. State is remembered in preferences. */}
