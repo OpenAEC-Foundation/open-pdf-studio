@@ -97,7 +97,9 @@ test('registreren: commit met revisie, opslaan, hertekenen en precies één meld
 test('geen melding en geen opslag bij unchanged, kept-user-edit en een afwijzing', async () => {
   reg.registreerSysteemType(EXT, 'mineraal', DEF);
   reg.updateSysteemType(ID, { celXMm: 650 }); // gebruikersbewerking via het paneel
-  await rust();
+  // De twee setup-commits gebruiken asynchrone imports. Onder CI-belasting
+  // kunnen ze na 30 ms nog lopen; wis hun tellers pas na beide bijwerkingen.
+  assert.ok(await wachtTot(() => opgeslagen() === 2 && hertekend() === 2), 'setup-commits afgerond');
   globalThis.__stubCalls = {};
   const revisie = reg.getSysteemTypenData().revisie;
   const { events, stop } = luister();
