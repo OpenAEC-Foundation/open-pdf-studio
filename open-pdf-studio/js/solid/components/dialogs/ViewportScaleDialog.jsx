@@ -14,6 +14,7 @@ import { cloneAnnotation } from '../../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset } from '../../../annotations/scale-presets.js';
 
 const PRESET_SCALES = [
   { label: '1:10', ratio: 10 },
@@ -35,6 +36,10 @@ const PRESET_SCALES = [
   { label: '1:2000', ratio: 2000 },
   { label: '1:2500', ratio: 2500 },
   { label: '1:5000', ratio: 5000 },
+  // Imperial architectural/engineering scales (#972); they measure in feet.
+  ...IMPERIAL_SCALE_PRESETS.map(preset => ({
+    label: preset.label, ratio: Number(preset.ratio.slice(2)),
+  })),
 ];
 
 function redraw() {
@@ -78,8 +83,8 @@ export default function ViewportScaleDialog(props) {
       const ratio = parseInt(presetRatio());
       if (!ratio || ratio <= 0) return;
       // In pagina-eenheden, /UserUnit meegerekend (#884).
-      pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, 'mm', userUnitVanPagina(doc, ann.page));
-      unit = 'mm';
+      unit = isImperialScalePreset(`1:${ratio}`) ? 'ft' : 'mm';
+      pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, unit, userUnitVanPagina(doc, ann.page));
       scaleRatio = `1:${ratio}`;
     } else {
       const realVal = parseFloat(customValue());

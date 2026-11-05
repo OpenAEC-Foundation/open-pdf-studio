@@ -33,7 +33,7 @@ import {
   measureDistanceIcon, measureAngleIcon, measurePerimeterIcon, measureAreaIcon,
   alignLeftIcon, alignTopIcon, alignBottomIcon,
   flipHIcon, flipVIcon, rotateCwIcon,
-  clearAllIcon
+  clearAllIcon, calibrateIcon
 } from '../../data/ribbonIcons.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { createFullPageScaleRegion, invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
@@ -349,6 +349,15 @@ export function DrawingGroups() {
         {/* SCHAAL — moved here from the Opmerkingen tab: full labelled buttons
             for Schaalgebied + Schaalgebied op pagina. */}
         <RibbonGroup label={t('measure.scaleGroup') || 'Schaal'}>
+          {/* Documentschaal: referentielijn of een standaardschaal, metrisch
+              en imperiaal (#972). Was alleen via het contextmenu van een
+              meting bereikbaar. */}
+          <RibbonButton id="btn-calibrate-scale"
+            title={t('comment.calibrateTitle') || 'Scale Calibration'}
+            icon={calibrateIcon}
+            label={t('comment.calibrate') || 'Calibrate'}
+            disabled={ro()}
+            onClick={() => openDialog('calibration', { referencePixelLength: null })} />
           <RibbonButton id="btn-create-scale-region"
             title={t('comment.scaleRegion') || 'Draw a scale region with its own calibration'}
             icon={scaleRegionIcon}

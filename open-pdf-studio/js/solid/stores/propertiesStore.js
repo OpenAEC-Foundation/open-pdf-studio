@@ -4,6 +4,7 @@ import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotatio
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
 import { parseScaleString, pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
+import { isImperialScalePreset } from '../../annotations/scale-presets.js';
 import {
   recordPropertyChange,
   recordModify,
@@ -1357,8 +1358,9 @@ function applyPropToAnnotation(ann, key, value) {
       const ratio = leesGeheelGetal(value);
       if (ratio > 0) {
         ann.scaleRatio = `1:${ratio}`;
-        ann.pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, 'mm', userUnitVanPagina(getActiveDocument(), ann.page));
-        ann.unit = 'mm';
+        // Een imperiale standaardschaal meet in voeten (#972).
+        ann.unit = isImperialScalePreset(`1:${ratio}`) ? 'ft' : 'mm';
+        ann.pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, ann.unit, userUnitVanPagina(getActiveDocument(), ann.page));
       }
       break;
     }
@@ -1858,11 +1860,13 @@ function applyAnnotProp(key, value) {
       if (vpRatio > 0) {
         currentAnnotation.scaleRatio = `1:${vpRatio}`;
         // In pagina-eenheden, /UserUnit meegerekend (#884), zoals bij meervoudige selectie.
-        currentAnnotation.pixelsPerUnit = pixelsPerUnitFor(`1:${vpRatio}`, 'mm', userUnitVanPagina(getActiveDocument(), currentAnnotation.page));
-        currentAnnotation.unit = 'mm';
+        // Een imperiale standaardschaal meet in voeten (#972).
+        const vpUnit = isImperialScalePreset(`1:${vpRatio}`) ? 'ft' : 'mm';
+        currentAnnotation.pixelsPerUnit = pixelsPerUnitFor(`1:${vpRatio}`, vpUnit, userUnitVanPagina(getActiveDocument(), currentAnnotation.page));
+        currentAnnotation.unit = vpUnit;
         currentAnnotation.name = currentAnnotation.name || `1:${vpRatio}`;
         setAnnotProps('viewportScaleRatio', `1:${vpRatio}`);
-        setAnnotProps('viewportUnit', 'mm');
+        setAnnotProps('viewportUnit', vpUnit);
         recalculateAllMeasurements();
       }
       break;
