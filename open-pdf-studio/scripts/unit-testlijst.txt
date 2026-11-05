@@ -707,3 +707,11 @@ js/annotations/tekstmarkering-mcp.test.mjs
 js/text/tekst-markeren.test.mjs
 js/tools/highlight-mode-bedrading.test.mjs
 js/pdf/page-scale-geometry.test.mjs
+js/constructieoverzicht/skill.test.mjs
+js/plattegrond/skill.test.mjs
+js/core/ai-sleutel.test.mjs
+js/core/werkplek-ai.test.mjs
+js/assistant-i18n.test.mjs
+js/assistant-skills-registry.test.mjs
+js/assistant-skills-gates.test.mjs
+scripts/winget-manifest.test.mjs
