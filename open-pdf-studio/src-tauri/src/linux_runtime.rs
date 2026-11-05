@@ -46,7 +46,9 @@ pub fn configure_appimage_gio_modules() {
 // Flatpak puts /.flatpak-info in every sandbox (the documented way to detect
 // it). In there the CUPS client tools and xdg-utils are missing: printing
 // goes over the CUPS socket or the print portal, and the default PDF app is
-// chosen in the desktop's own settings.
+// chosen in the desktop's own settings. Updates then come from the Flatpak
+// remote (Flathub), not from the built-in updater: Flathub does not allow
+// apps to update themselves.
 #[cfg(any(target_os = "linux", test))]
 fn is_flatpak_sandbox(flatpak_info: &Path) -> bool {
     flatpak_info.is_file()

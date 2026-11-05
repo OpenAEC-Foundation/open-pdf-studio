@@ -75,3 +75,12 @@ __pycache__/
 
 # Lokale manifesten van de verificatiescripts (namen van testbestanden)
 open-pdf-cad/scripts/*.local.json
+
+# Flatpak: offline sources are generated from the lockfiles
+# (node flatpak/generate-sources.mjs); flatpak-builder state and output.
+flatpak/generated-sources-*.json
+.flatpak-builder/
+/builddir/
+/repo/
+/flathub-out/
+*.flatpak

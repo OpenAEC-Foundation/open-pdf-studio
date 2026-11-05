@@ -279,6 +279,14 @@ fn delete_catalog(id: String) -> Result<bool, String> {
     }
 }
 
+/// True when a package manager installs the updates (Flatpak/Flathub). The
+/// built-in updater is then not registered, and Help > Check for updates says
+/// where updates come from instead.
+#[tauri::command]
+fn updates_managed_externally() -> bool {
+    linux_runtime::running_in_flatpak()
+}
+
 #[tauri::command]
 fn get_username() -> String {
     whoami::username()
@@ -3166,9 +3174,12 @@ pub fn run(opts: StartupOpts) {
                 }));
         }
         // Managed mode (OPENAEC_BEHEERD=1): the SuperCloud refreshes the image,
-        // so no updater plugin at all: no check, no prompt, no download.
+        // so no updater plugin at all: no check, no prompt, no download. A Flatpak
+        // gets its updates from Flathub (#389), so no built-in updater there either.
         if !beheerd::is_beheerd() {
-            builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+            if !linux_runtime::running_in_flatpak() {
+                builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+            }
         } else {
             eprintln!("[openaec] managed mode: updater disabled");
         }
@@ -3435,6 +3446,7 @@ pub fn run(opts: StartupOpts) {
             spraak::tts_speak,
             spraak::tts_stop,
             get_opened_file,
+            updates_managed_externally,
             save_session,
             load_session,
             get_username,

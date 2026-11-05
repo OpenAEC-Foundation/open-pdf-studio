@@ -76,6 +76,13 @@ export async function checkForUpdates(silent = true) {
   checking = true;
 
   try {
+    // A Flatpak gets its updates from Flathub; the backend does not register
+    // the updater plugin there.
+    if (await updatesManagedExternally()) {
+      if (!silent) showManagedExternallyMessage();
+      return;
+    }
+
     const draagbaar = await isDraagbaar();
     const platform = await platformNaam();
     const route = updateRoute({
@@ -126,6 +133,23 @@ async function showPortableUpdateMessage(version) {
   if (open) {
     const { openExtern } = await import('../../core/extern-openen.js');
     await openExtern(RELEASES_URL);
+  }
+}
+
+async function updatesManagedExternally() {
+  try {
+    return (await invoke('updates_managed_externally')) === true;
+  } catch {
+    return false; // older backend without the command
+  }
+}
+
+function showManagedExternallyMessage() {
+  if (window.__TAURI__?.dialog?.message) {
+    window.__TAURI__.dialog.message(
+      'This copy of Open PDF Studio is installed as a Flatpak. Updates are installed through your software center or with "flatpak update".',
+      { title: 'Software Update', kind: 'info' }
+    );
   }
 }
 
