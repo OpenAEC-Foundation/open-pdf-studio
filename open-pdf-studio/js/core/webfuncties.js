@@ -31,6 +31,8 @@ export const MELDING_SLEUTEL = 'desktopOnly';
  */
 export const BUREAUBLAD_KNOPPEN = Object.freeze({
   'ep-ocr': 'ocr',
+  'ep-batch-ocr': 'batchOcr',
+  'ep-scan': 'scan',
   'ep-compress-pdf': 'compress',
   'btn-home-cad-export': 'cadExport',
   'btn-home-ifc-export': 'ifc',

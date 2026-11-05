@@ -75,6 +75,8 @@ import PrintProgressToast from './PrintProgressToast.jsx';
 const OcrReviewDialog = lazy(() => import('./dialogs/OcrReviewDialog.jsx'));
 const HostSaveAsDialog = lazy(() => import('./dialogs/HostSaveAsDialog.jsx'));
 const HostKeuzeDialog = lazy(() => import('./dialogs/HostKeuzeDialog.jsx'));
+const BatchOcrDialog = lazy(() => import('./dialogs/BatchOcrDialog.jsx'));
+const ScanDialog = lazy(() => import('./dialogs/ScanDialog.jsx'));
 const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
 const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
 const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
@@ -135,6 +137,8 @@ const DIALOG_MAP = {
   'protect-pdf': ProtectPdfDialog,
   'ocr-language': OcrLanguageDialog,
   'ocr-review': OcrReviewDialog,
+  'batch-ocr': BatchOcrDialog,
+  'scan': ScanDialog,
   'resize-pages': ResizePagesDialog,
   'compress': CompressDialog,
   'screenshot': ScreenshotDialog,
