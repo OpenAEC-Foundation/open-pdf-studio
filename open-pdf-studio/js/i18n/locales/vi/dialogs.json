@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Tách tài liệu",
@@ -343,7 +344,10 @@
     "pg": "tr",
     "filesAndPages": "{{files}} tệp, tổng cộng {{pages}} trang",
     "addAtLeastOne": "Vui lòng thêm ít nhất một tệp PDF để gộp.",
-    "signedWarning": "Một hoặc nhiều tệp được ký số. Việc gộp sẽ xóa các chữ ký: tài liệu đã gộp không được ký."
+    "signedWarning": "Một hoặc nhiều tệp được ký số. Việc gộp sẽ xóa các chữ ký: tài liệu đã gộp không được ký.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Thêm Hình mờ",

@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "사용"
   },
   "splitDocument": {
     "title": "문서 분할",
@@ -343,7 +344,10 @@
     "pg": "페이지",
     "filesAndPages": "{{files}}개 파일, 총 {{pages}}페이지",
     "addAtLeastOne": "병합하려면 PDF 파일을 하나 이상 추가하십시오.",
-    "signedWarning": "하나 이상의 파일에 디지털 서명이 있습니다. 병합하면 서명이 제거되며 병합된 문서는 서명되지 않습니다."
+    "signedWarning": "하나 이상의 파일에 디지털 서명이 있습니다. 병합하면 서명이 제거되며 병합된 문서는 서명되지 않습니다.",
+    "allPages": "모든 페이지",
+    "pageRangeTip": "병합할 페이지, 예: 1-3, 5 (비우면 모든 페이지)",
+    "choosePages": "페이지 선택"
   },
   "watermark": {
     "addTitle": "워터마크 추가",

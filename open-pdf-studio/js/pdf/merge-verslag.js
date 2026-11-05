@@ -49,6 +49,17 @@ export function meegenomen(carried) {
     layers: b.lagen,
     signaturesRemoved: b.handtekeningen,
     fromOpenDocument: !!b.uitApp,
+    // Alleen een deel van het bestand (#963): wat naar de andere pagina's wees.
+    ...(b.weggelaten ? {
+      omitted: {
+        pages: b.weggelaten.paginas,
+        bookmarks: b.weggelaten.bladwijzers,
+        namedDestinations: b.weggelaten.bestemmingen,
+        links: b.weggelaten.koppelingen,
+        fields: b.weggelaten.velden,
+        layers: b.weggelaten.lagen,
+      },
+    } : {}),
   }));
 }
 

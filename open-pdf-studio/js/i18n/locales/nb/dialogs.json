@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Bruk"
   },
   "splitDocument": {
     "title": "Del opp dokument",
@@ -343,7 +344,10 @@
     "pg": "s",
     "filesAndPages": "{{files}} fil(er), {{pages}} sider totalt",
     "addAtLeastOne": "Vennligst legg til minst én PDF-fil for sammenslåing.",
-    "signedWarning": "Én eller flere filer er digitalt signert. Sammenslåing fjerner signaturene: det sammenslåtte dokumentet er ikke signert."
+    "signedWarning": "Én eller flere filer er digitalt signert. Sammenslåing fjerner signaturene: det sammenslåtte dokumentet er ikke signert.",
+    "allPages": "Alle sider",
+    "pageRangeTip": "Sider som skal slås sammen, f.eks. 1-3, 5 (tom: alle sider)",
+    "choosePages": "Velg sider"
   },
   "watermark": {
     "addTitle": "Legg til vannmerke",

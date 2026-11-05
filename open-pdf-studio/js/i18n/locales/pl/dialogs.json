@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Użyj"
   },
   "splitDocument": {
     "title": "Podziel dokument",
@@ -343,7 +344,10 @@
     "pg": "str.",
     "filesAndPages": "{{files}} plik(ów), {{pages}} stron łącznie",
     "addAtLeastOne": "Proszę dodać co najmniej jeden plik PDF do scalenia.",
-    "signedWarning": "Co najmniej jeden plik jest podpisany cyfrowo. Scalanie usuwa podpisy: scalony dokument nie jest podpisany."
+    "signedWarning": "Co najmniej jeden plik jest podpisany cyfrowo. Scalanie usuwa podpisy: scalony dokument nie jest podpisany.",
+    "allPages": "Wszystkie strony",
+    "pageRangeTip": "Strony do scalenia, np. 1-3, 5 (puste: wszystkie strony)",
+    "choosePages": "Wybierz strony"
   },
   "watermark": {
     "addTitle": "Dodaj znak wodny",

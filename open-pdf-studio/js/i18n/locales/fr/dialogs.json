@@ -292,7 +292,8 @@
     "all": "Toutes",
     "none": "Aucune",
     "insert": "Insérer",
-    "replace": "Remplacer"
+    "replace": "Remplacer",
+    "use": "Utiliser"
   },
   "splitDocument": {
     "title": "Fractionner le document",
@@ -343,7 +344,10 @@
     "pg": "p.",
     "filesAndPages": "{{files}} fichier(s), {{pages}} pages au total",
     "addAtLeastOne": "Veuillez ajouter au moins un fichier PDF à fusionner.",
-    "signedWarning": "Un ou plusieurs fichiers sont signés numériquement. La fusion supprime leurs signatures : le document fusionné n'est pas signé."
+    "signedWarning": "Un ou plusieurs fichiers sont signés numériquement. La fusion supprime leurs signatures : le document fusionné n'est pas signé.",
+    "allPages": "Toutes les pages",
+    "pageRangeTip": "Pages à fusionner, p. ex. 1-3, 5 (vide : toutes les pages)",
+    "choosePages": "Choisir les pages"
   },
   "watermark": {
     "addTitle": "Ajouter un filigrane",

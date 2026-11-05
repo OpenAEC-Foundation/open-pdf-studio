@@ -292,7 +292,8 @@
     "all": "Alle",
     "none": "Keine",
     "insert": "Einfügen",
-    "replace": "Ersetzen"
+    "replace": "Ersetzen",
+    "use": "Übernehmen"
   },
   "splitDocument": {
     "title": "Dokument teilen",
@@ -343,7 +344,10 @@
     "pg": "S.",
     "filesAndPages": "{{files}} Datei(en), {{pages}} Seiten insgesamt",
     "addAtLeastOne": "Bitte fügen Sie mindestens eine PDF-Datei zum Zusammenführen hinzu.",
-    "signedWarning": "Eine oder mehrere Dateien sind digital signiert. Beim Zusammenführen werden die Signaturen entfernt: Das zusammengeführte Dokument ist nicht signiert."
+    "signedWarning": "Eine oder mehrere Dateien sind digital signiert. Beim Zusammenführen werden die Signaturen entfernt: Das zusammengeführte Dokument ist nicht signiert.",
+    "allPages": "Alle Seiten",
+    "pageRangeTip": "Zusammenzuführende Seiten, z. B. 1-3, 5 (leer: alle Seiten)",
+    "choosePages": "Seiten auswählen"
   },
   "watermark": {
     "addTitle": "Wasserzeichen hinzufügen",

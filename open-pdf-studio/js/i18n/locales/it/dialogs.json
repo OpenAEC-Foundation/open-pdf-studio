@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Usa"
   },
   "splitDocument": {
     "title": "Dividi documento",
@@ -343,7 +344,10 @@
     "pg": "pag",
     "filesAndPages": "{{files}} file, {{pages}} pagine totali",
     "addAtLeastOne": "Aggiungere almeno un file PDF da unire.",
-    "signedWarning": "Uno o più file sono firmati digitalmente. L'unione rimuove le firme: il documento unito non è firmato."
+    "signedWarning": "Uno o più file sono firmati digitalmente. L'unione rimuove le firme: il documento unito non è firmato.",
+    "allPages": "Tutte le pagine",
+    "pageRangeTip": "Pagine da unire, ad es. 1-3, 5 (vuoto: tutte le pagine)",
+    "choosePages": "Scegli pagine"
   },
   "watermark": {
     "addTitle": "Aggiungi filigrana",

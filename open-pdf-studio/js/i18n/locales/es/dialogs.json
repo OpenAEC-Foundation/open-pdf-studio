@@ -292,7 +292,8 @@
     "all": "Todas",
     "none": "Ninguna",
     "insert": "Insertar",
-    "replace": "Reemplazar"
+    "replace": "Reemplazar",
+    "use": "Usar"
   },
   "splitDocument": {
     "title": "Dividir documento",
@@ -343,7 +344,10 @@
     "pg": "pág",
     "filesAndPages": "{{files}} archivo(s), {{pages}} páginas en total",
     "addAtLeastOne": "Agregue al menos un archivo PDF para combinar.",
-    "signedWarning": "Uno o más archivos están firmados digitalmente. Al combinarlos se eliminan sus firmas: el documento combinado no está firmado."
+    "signedWarning": "Uno o más archivos están firmados digitalmente. Al combinarlos se eliminan sus firmas: el documento combinado no está firmado.",
+    "allPages": "Todas las páginas",
+    "pageRangeTip": "Páginas a combinar, p. ej. 1-3, 5 (vacío: todas las páginas)",
+    "choosePages": "Elegir páginas"
   },
   "watermark": {
     "addTitle": "Agregar marca de agua",

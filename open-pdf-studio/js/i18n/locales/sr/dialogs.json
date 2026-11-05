@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Подели документ",
@@ -343,7 +344,10 @@
     "pg": "стр",
     "filesAndPages": "{{files}} фајл(ова), {{pages}} укупно страница",
     "addAtLeastOne": "Молимо додајте бар један PDF фајл за спајање.",
-    "signedWarning": "Једна или више датотека су дигитално потписане. Спајање уклања потписе: спојени документ није потписан."
+    "signedWarning": "Једна или више датотека су дигитално потписане. Спајање уклања потписе: спојени документ није потписан.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Додај водени жиг",

@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "دستاویز تقسیم کریں",
@@ -343,7 +344,10 @@
     "pg": "صف",
     "filesAndPages": "{{files}} فائل(یں)، {{pages}} کل صفحات",
     "addAtLeastOne": "براہ کرم ضم کرنے کے لیے کم از کم ایک PDF فائل شامل کریں۔",
-    "signedWarning": "ایک یا زیادہ فائلیں ڈیجیٹل طور پر دستخط شدہ ہیں۔ ضم کرنے سے دستخط ہٹ جاتے ہیں: ضم شدہ دستاویز دستخط شدہ نہیں ہے۔"
+    "signedWarning": "ایک یا زیادہ فائلیں ڈیجیٹل طور پر دستخط شدہ ہیں۔ ضم کرنے سے دستخط ہٹ جاتے ہیں: ضم شدہ دستاویز دستخط شدہ نہیں ہے۔",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "واٹر مارک شامل کریں",

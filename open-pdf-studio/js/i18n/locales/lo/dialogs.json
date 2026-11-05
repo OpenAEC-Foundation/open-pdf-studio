@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "ແບ່ງເອກະສານ",
@@ -343,7 +344,10 @@
     "pg": "ໜ້າ",
     "filesAndPages": "{{files}} ໄຟລ໌, ລວມທັງໝົດ {{pages}} ໜ້າ",
     "addAtLeastOne": "ກະລຸນາເພີ່ມໄຟລ໌ PDF ຢ່າງໜ້ອຍໜຶ່ງໄຟລ໌ເພື່ອຮວມ.",
-    "signedWarning": "ມີໄຟລ໌ໜຶ່ງ ຫຼື ຫຼາຍໄຟລ໌ທີ່ມີລາຍເຊັນດິຈິຕອນ. ການລວມໄຟລ໌ຈະລຶບລາຍເຊັນອອກ: ເອກະສານທີ່ລວມແລ້ວບໍ່ມີລາຍເຊັນ."
+    "signedWarning": "ມີໄຟລ໌ໜຶ່ງ ຫຼື ຫຼາຍໄຟລ໌ທີ່ມີລາຍເຊັນດິຈິຕອນ. ການລວມໄຟລ໌ຈະລຶບລາຍເຊັນອອກ: ເອກະສານທີ່ລວມແລ້ວບໍ່ມີລາຍເຊັນ.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "ເພີ່ມລາຍນ້ຳ",

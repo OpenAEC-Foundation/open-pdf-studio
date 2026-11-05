@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Rozdeliť dokument",
@@ -343,7 +344,10 @@
     "pg": "str",
     "filesAndPages": "{{files}} súbor(y), {{pages}} strán celkom",
     "addAtLeastOne": "Prosím, pridajte aspoň jeden PDF súbor na zlúčenie.",
-    "signedWarning": "Jeden alebo viac súborov je digitálne podpísaných. Zlúčenie podpisy odstráni: zlúčený dokument nie je podpísaný."
+    "signedWarning": "Jeden alebo viac súborov je digitálne podpísaných. Zlúčenie podpisy odstráni: zlúčený dokument nie je podpísaný.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Pridať vodotlač",

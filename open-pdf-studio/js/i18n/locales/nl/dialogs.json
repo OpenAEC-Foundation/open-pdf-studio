@@ -273,7 +273,8 @@
     "all": "Alle",
     "none": "Geen",
     "insert": "Invoegen",
-    "replace": "Vervangen"
+    "replace": "Vervangen",
+    "use": "Gebruiken"
   },
   "splitDocument": {
     "title": "Document splitsen",
@@ -324,7 +325,10 @@
     "pg": "pag",
     "filesAndPages": "{{files}} bestand(en), {{pages}} pagina's totaal",
     "addAtLeastOne": "Voeg ten minste een PDF-bestand toe om samen te voegen.",
-    "signedWarning": "Een of meer bestanden zijn digitaal ondertekend. Samenvoegen verwijdert die handtekeningen: het samengevoegde document is niet ondertekend."
+    "signedWarning": "Een of meer bestanden zijn digitaal ondertekend. Samenvoegen verwijdert die handtekeningen: het samengevoegde document is niet ondertekend.",
+    "allPages": "Alle pagina's",
+    "pageRangeTip": "Pagina's om samen te voegen, bijv. 1-3, 5 (leeg: alle pagina's)",
+    "choosePages": "Pagina's kiezen"
   },
   "watermark": {
     "addTitle": "Watermerk toevoegen",
