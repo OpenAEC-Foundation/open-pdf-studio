@@ -173,37 +173,69 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "params": {"file_paths": "filePaths", "position": "position"},
         "required": ("filePaths",),
     },
-    "app_assistant_ask": {
-        "method": "assistant_ask",
-        "title": "Ask assistant",
+    "app_rotate_pages": {
+        "method": "rotate_pages",
+        "title": "Rotate pages",
+        "read_only": False,
+        "destructive": True,
+        "params": {"angle": "angle", "pages": "pages"},
+        "required": ("pages", "angle"),
+    },
+    "app_delete_pages": {
+        "method": "delete_pages",
+        "title": "Delete pages",
+        "read_only": False,
+        "destructive": True,
+        "params": {"pages": "pages"},
+        "required": ("pages",),
+    },
+    "app_insert_blank_pages": {
+        "method": "insert_blank_pages",
+        "title": "Insert blank pages",
         "read_only": False,
         "destructive": False,
-        "params": {"text": "text"},
-        "required": ("text",),
+        "params": {"after": "after", "count": "count", "height_pt": "heightPt", "width_pt": "widthPt"},
+        "required": ("after",),
     },
-    "app_assistant_pending": {
-        "method": "assistant_pending",
-        "title": "Take pending assistant question",
+    "app_extract_pages": {
+        "method": "extract_pages",
+        "title": "Extract pages to a new file",
         "read_only": False,
-        "destructive": False,
-        "params": {},
-        "required": (),
+        "destructive": True,
+        "params": {"delete_from_original": "deleteFromOriginal", "output_path": "outputPath", "pages": "pages"},
+        "required": ("pages", "outputPath"),
     },
-    "app_assistant_answer": {
-        "method": "assistant_answer",
-        "title": "Answer assistant question",
+    "app_reorder_pages": {
+        "method": "reorder_pages",
+        "title": "Reorder pages",
         "read_only": False,
-        "destructive": False,
-        "params": {"id": "id", "text": "text"},
-        "required": ("id", "text"),
+        "destructive": True,
+        "params": {"order": "order"},
+        "required": ("order",),
     },
-    "app_assistant_history": {
-        "method": "assistant_history",
-        "title": "Get assistant conversation",
-        "read_only": True,
-        "destructive": False,
-        "params": {},
-        "required": (),
+    "app_shift_pages": {
+        "method": "shift_pages",
+        "title": "Shift page content",
+        "read_only": False,
+        "destructive": True,
+        "params": {"dx": "dx", "dy": "dy", "pages": "pages"},
+        "required": ("pages",),
+    },
+    "app_bookmarks": {
+        "method": "bookmarks",
+        "title": "Manage bookmarks",
+        "read_only": False,
+        "destructive": True,
+        "params": {"action": "action", "bold": "bold", "color": "color", "id": "id", "ids": "ids", "italic": "italic", "page": "page", "parent_id": "parentId", "position": "position", "target_id": "targetId", "title": "title"},
+        "required": ("action",),
+    },
+    "app_watermarks": {
+        "method": "watermarks",
+        "title": "Manage watermarks and headers/footers",
+        "read_only": False,
+        "destructive": True,
+        "params": {"action": "action", "bates_digits": "batesDigits", "bates_prefix": "batesPrefix", "bates_start": "batesStart", "bates_suffix": "batesSuffix", "color": "color", "custom_x": "customX", "custom_y": "customY", "font_family": "fontFamily", "font_size": "fontSize", "footer_center": "footerCenter", "footer_left": "footerLeft", "footer_right": "footerRight", "header_center": "headerCenter", "header_left": "headerLeft", "header_right": "headerRight", "id": "id", "image_path": "imagePath", "layer": "layer", "margin_bottom": "marginBottom", "margin_left": "marginLeft", "margin_right": "marginRight", "margin_top": "marginTop", "opacity": "opacity", "pages": "pages", "position": "position", "rotation": "rotation", "scale": "scale", "text": "text", "type": "type"},
+        "required": ("action",),
     },
     "app_agent_task_pending": {
         "method": "agent_task_pending",
@@ -579,6 +611,14 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "read_only": False,
         "destructive": True,
         "params": {"allow_large": "allowLarge", "annotations": "annotations", "area": "area", "format": "format", "layers": "layers", "layers_off": "layersOff", "origin": "origin", "pages": "pages", "path": "path", "scale": "scale", "scale_mode": "scaleMode", "units": "units"},
+        "required": ("path",),
+    },
+    "app_export_ifcx": {
+        "method": "export_ifcx",
+        "title": "Export to IFCX (beta)",
+        "read_only": False,
+        "destructive": True,
+        "params": {"annotations": "annotations", "max_paths_per_page": "maxPathsPerPage", "pages": "pages", "path": "path", "raster": "raster", "text": "text"},
         "required": ("path",),
     },
     "app_print_to_pdf": {
@@ -1071,74 +1111,263 @@ class ToolMethods:
         """
         return self._call_tool("app_merge_pdf", _pack({"filePaths": file_paths, "position": position}))
 
-    def assistant_ask(self, text: str) -> Any:
-        """Ask assistant.
+    def rotate_pages(self, pages: List[int], angle: Literal[90, 180, 270, -90]) -> Any:
+        """Rotate pages.
 
-        Submit a message into the app's assistant window as if the user typed it
-        (opens the panel). Returns { ok }. The answer comes from whichever
-        provider is available: OpenAEC AI, a personal Claude key, or the MCP
-        relay (app_assistant_pending + app_assistant_answer).
-
-        Args:
-            text (string, required): The user message to submit.
-
-        MCP tool ``app_assistant_ask`` (changes state).
-        """
-        return self._call_tool("app_assistant_ask", _pack({"text": text}))
-
-    def assistant_pending(self) -> Any:
-        """Take pending assistant question.
-
-        Take the oldest assistant question waiting for an MCP client to answer
-        (the relay provider). Returns { ok, question:{ id, prompt, system,
-        docName }|null }. When non-null, compute an answer and deliver it with
-        app_assistant_answer — this is how an external Claude becomes the
-        assistant's AI brain.
-
-        MCP tool ``app_assistant_pending`` (changes state).
-        """
-        return self._call_tool("app_assistant_pending", _pack({}))
-
-    def assistant_answer(self, id: str, text: str) -> Any:
-        """Answer assistant question.
-
-        Answer a pending assistant question (id from app_assistant_pending). The
-        text appears in the assistant window as the assistant's reply. Returns {
-        ok, id }.
+        Rotate pages of the active document by a quarter, half or three-quarter
+        turn, as one undo step, the same way Organize > Rotate does: the markups
+        on those pages and the measurement scales of the PDF turn along. Returns
+        { ok, angle, pages, rotations: [{ page, rotation }] }, where rotation is
+        the app's rotation on top of the page's own /Rotate; it is written into
+        the file on save. Refused in a read-only document (PDF/A without editing
+        enabled, password-protected).
 
         Args:
-            id (string, required): Question id from app_assistant_pending.
-            text (string, required): Answer text to show in the assistant
-                window.
+            pages (array, required): Page numbers (1-based) to rotate, each
+                once.
+            angle (one of 90, 180, 270, -90, required): Degrees clockwise; -90
+                turns counter-clockwise.
 
-        MCP tool ``app_assistant_answer`` (changes state).
+        MCP tool ``app_rotate_pages`` (modifies or discards state).
         """
-        return self._call_tool("app_assistant_answer", _pack({"id": id, "text": text}))
+        return self._call_tool("app_rotate_pages", _pack({"angle": angle, "pages": pages}))
 
-    def assistant_history(self) -> Any:
-        """Get assistant conversation.
+    def delete_pages(self, pages: List[int]) -> Any:
+        """Delete pages.
 
-        Return the LIVE assistant conversation: { ok, messages:[{ role, content
-        }] }. Use to verify a delivered answer landed in the window.
+        Delete pages from the active document, as one undo step, the same way
+        Organize > Delete does: the markups on the deleted pages go with them,
+        the others, the page labels and the measurement scales move along. A
+        document keeps at least one page: deleting every page is refused.
+        Returns { ok, deleted, pagesBefore, pagesAfter, currentPage }. Refused
+        in a read-only document.
 
-        MCP tool ``app_assistant_history`` (read-only).
+        Args:
+            pages (array, required): Page numbers (1-based) to delete, each
+                once.
+
+        MCP tool ``app_delete_pages`` (modifies or discards state).
         """
-        return self._call_tool("app_assistant_history", _pack({}))
+        return self._call_tool("app_delete_pages", _pack({"pages": pages}))
+
+    def insert_blank_pages(self, after: int, *, count: Optional[int] = None, height_pt: Optional[float] = None, width_pt: Optional[float] = None) -> Any:
+        """Insert blank pages.
+
+        Insert blank pages into the active document, as one undo step, the same
+        way Organize > Insert does. Without widthPt and heightPt the new pages
+        get the size of page `after` (the first page when after is 0). Returns {
+        ok, inserted (the new page numbers), widthPt, heightPt, pagesBefore,
+        pagesAfter, currentPage }. Refused in a read-only document.
+
+        Args:
+            after (integer, required; min 0): Insert after this page number; 0
+                inserts before the first page.
+            count (integer; default 1, min 1, max 500): Number of blank pages.
+            height_pt (number; min 3, max 14400) [MCP: heightPt]: Page height in
+                points. Give together with widthPt.
+            width_pt (number; min 3, max 14400) [MCP: widthPt]: Page width in
+                points (1/72 inch, A4 is 595.28 x 841.89). Give together with
+                heightPt.
+
+        MCP tool ``app_insert_blank_pages`` (changes state).
+        """
+        return self._call_tool("app_insert_blank_pages", _pack({"after": after, "count": count, "heightPt": height_pt, "widthPt": width_pt}))
+
+    def extract_pages(self, pages: List[int], output_path: str, *, delete_from_original: Optional[bool] = None) -> Any:
+        """Extract pages to a new file.
+
+        Write pages of the active document, in the given order, to a new PDF
+        file, the same way Organize > Extract does. An existing file is never
+        replaced: choose a path that does not exist yet. With deleteFromOriginal
+        the pages are then deleted from the document (one undo step); that is
+        refused when it would remove every page. Returns { ok, outputPath,
+        pages, pagesExtracted, deletedFromOriginal, pagesAfter }. Refused in a
+        read-only document.
+
+        Args:
+            pages (array, required): Page numbers (1-based) to extract, each
+                once, in the order they appear in the new file.
+            output_path (string, required) [MCP: outputPath]: Absolute path of
+                the new .pdf file; it must not exist yet.
+            delete_from_original (boolean; default false) [MCP:
+                deleteFromOriginal]: Also delete the extracted pages from the
+                document.
+
+        MCP tool ``app_extract_pages`` (modifies or discards state).
+        """
+        return self._call_tool("app_extract_pages", _pack({"deleteFromOriginal": delete_from_original, "outputPath": output_path, "pages": pages}))
+
+    def reorder_pages(self, order: List[int]) -> Any:
+        """Reorder pages.
+
+        Put the pages of the active document in a new order, as one undo step,
+        the same way dragging thumbnails does: markups, page labels and
+        measurement scales move with their page. order[i] is the current page
+        number that becomes page i+1, and lists every page exactly once (for 3
+        pages, [3, 1, 2] moves the last page to the front). Returns { ok,
+        changed, order, pages, currentPage }; the current order gives changed
+        false. Refused in a read-only document.
+
+        Args:
+            order (array, required): The new order: every current page number
+                (1-based) exactly once.
+
+        MCP tool ``app_reorder_pages`` (modifies or discards state).
+        """
+        return self._call_tool("app_reorder_pages", _pack({"order": order}))
+
+    def shift_pages(self, pages: List[int], *, dx: Optional[float] = None, dy: Optional[float] = None) -> Any:
+        """Shift page content.
+
+        Shift the content of pages by a fixed distance, as one undo step, the
+        same way Organize > Shift page does: the page content is moved (not
+        rasterized), and the markups, links, form fields and measurement scales
+        on those pages move along. Directions are as the page is displayed
+        (including its rotation): dx positive to the right, dy positive up.
+        Returns { ok, pages, dx, dy, shifted } with shifted the number of pages
+        that moved; pages without content and markups are left alone. Refused in
+        a read-only document.
+
+        Args:
+            pages (array, required): Page numbers (1-based) to shift, each once.
+            dx (number; default 0, min -5080, max 5080): Horizontal shift in
+                millimetres; positive is to the right.
+            dy (number; default 0, min -5080, max 5080): Vertical shift in
+                millimetres; positive is up.
+
+        MCP tool ``app_shift_pages`` (modifies or discards state).
+        """
+        return self._call_tool("app_shift_pages", _pack({"dx": dx, "dy": dy, "pages": pages}))
+
+    def bookmarks(self, action: Literal["list", "add", "update", "delete", "move"], *, bold: Optional[bool] = None, color: Optional[str] = None, id: Optional[str] = None, ids: Optional[List[str]] = None, italic: Optional[bool] = None, page: Optional[int] = None, parent_id: Optional[str] = None, position: Optional[Literal["before", "after", "inside", "end"]] = None, target_id: Optional[str] = None, title: Optional[str] = None) -> Any:
+        """Manage bookmarks.
+
+        Read and edit the bookmarks (outline) of the active document, the same
+        way the Bookmarks panel does; every change is one undo step and is
+        written into the file on save. list returns { ok, count, bookmarks: [{
+        id, title, page, parentId, level, children, bold, italic, color }] } in
+        panel order (a parent before its children). add takes title, optional
+        page (default the current page), parentId, bold, italic and color,
+        appends the bookmark at the end of its parent and returns { ok, bookmark
+        }. update takes id and any of title (rename), page, bold, italic, color
+        (null clears it). delete takes ids and removes them with everything
+        under them: { ok, deleted, count, remaining }. move takes ids, position
+        (before, after or inside targetId, or end of the top level without
+        targetId) and refuses a move into a bookmark's own children. Edits are
+        refused in a read-only document.
+
+        Args:
+            action (one of "list", "add", "update", "delete", "move", required)
+            bold (boolean): add, update: bold title.
+            color (string or null): add, update: title colour #rrggbb; null
+                clears it.
+            id (string): update: the bookmark id (from list).
+            ids (array): delete, move: bookmark ids (from list).
+            italic (boolean): add, update: italic title.
+            page (integer; min 1): add, update: the page the bookmark goes to
+                (1-based).
+            parent_id (string or null) [MCP: parentId]: add: put the new
+                bookmark under this bookmark; left out or null: the top level.
+            position (one of "before", "after", "inside", "end"): move: before
+                or after targetId (same parent), inside targetId (as its last
+                children), or end of the top level.
+            target_id (string) [MCP: targetId]: move: the bookmark to move
+                before, after or inside. Not with position end.
+            title (string): add, update: the bookmark title (one line).
+
+        MCP tool ``app_bookmarks`` (modifies or discards state).
+        """
+        return self._call_tool("app_bookmarks", _pack({"action": action, "bold": bold, "color": color, "id": id, "ids": ids, "italic": italic, "page": page, "parentId": parent_id, "position": position, "targetId": target_id, "title": title}))
+
+    def watermarks(self, action: Literal["list", "add", "remove"], *, bates_digits: Optional[int] = None, bates_prefix: Optional[str] = None, bates_start: Optional[int] = None, bates_suffix: Optional[str] = None, color: Optional[str] = None, custom_x: Optional[float] = None, custom_y: Optional[float] = None, font_family: Optional[Literal["Helvetica", "Arial", "Times New Roman", "Courier", "Georgia"]] = None, font_size: Optional[int] = None, footer_center: Optional[str] = None, footer_left: Optional[str] = None, footer_right: Optional[str] = None, header_center: Optional[str] = None, header_left: Optional[str] = None, header_right: Optional[str] = None, id: Optional[str] = None, image_path: Optional[str] = None, layer: Optional[Literal["behind", "infront"]] = None, margin_bottom: Optional[float] = None, margin_left: Optional[float] = None, margin_right: Optional[float] = None, margin_top: Optional[float] = None, opacity: Optional[float] = None, pages: Optional[List[int]] = None, position: Optional[Literal["center", "top-left", "top-right", "bottom-left", "bottom-right", "custom"]] = None, rotation: Optional[float] = None, scale: Optional[float] = None, text: Optional[str] = None, type: Optional[Literal["text", "image", "headerFooter"]] = None) -> Any:
+        """Manage watermarks and headers/footers.
+
+        List, add and remove the watermarks and headers/footers of the active
+        document, the same way the Watermark, Header & Footer and Manage dialogs
+        do; every change is one undo step, shown at once and written into the
+        pages on save. list returns { ok, count, watermarks } (an image
+        watermark without its image data). add with type text (text, fontFamily,
+        fontSize, color, opacity 0-1, rotation, position, customX/customY,
+        layer), image (imagePath of a PNG or JPEG file, opacity, scale,
+        rotation, position, customX/customY, layer) or headerFooter
+        (headerLeft/Center/Right, footerLeft/Center/Right with the variables
+        {page} {pages} {date} {time} {filename} {title} {bates}, fontFamily,
+        fontSize, color, margins, Bates numbering); pages limits it to those
+        pages, otherwise every page. Fields left out take the dialog defaults.
+        Returns { ok, watermark, count }. remove takes id: { ok, removed,
+        remaining }. Changes are refused in a read-only document.
+
+        Args:
+            action (one of "list", "add", "remove", required)
+            bates_digits (integer; min 1, max 12) [MCP: batesDigits]:
+                headerFooter: digits with leading zeros (default 6).
+            bates_prefix (string) [MCP: batesPrefix]: headerFooter: text before
+                the Bates number.
+            bates_start (integer; min 0) [MCP: batesStart]: headerFooter: first
+                Bates number (default 1).
+            bates_suffix (string) [MCP: batesSuffix]: headerFooter: text after
+                the Bates number.
+            color (string): text (default #ff0000), headerFooter (default
+                #000000): colour #rrggbb.
+            custom_x (number; min 0, max 14400) [MCP: customX]: text, image with
+                position custom: centre x in points from the left.
+            custom_y (number; min 0, max 14400) [MCP: customY]: text, image with
+                position custom: centre y in points from the top.
+            font_family (one of "Helvetica", "Arial", "Times New Roman",
+                "Courier", "Georgia") [MCP: fontFamily]: text, headerFooter (not
+                Georgia): font. Default Helvetica.
+            font_size (integer; min 1, max 288) [MCP: fontSize]: text (4-288,
+                default 72), headerFooter (1-200, default 10): font size in points.
+            footer_center (string) [MCP: footerCenter]
+            footer_left (string) [MCP: footerLeft]
+            footer_right (string) [MCP: footerRight]
+            header_center (string) [MCP: headerCenter]
+            header_left (string) [MCP: headerLeft]
+            header_right (string) [MCP: headerRight]
+            id (string): remove: the watermark id (from list).
+            image_path (string) [MCP: imagePath]: image: absolute path of a
+                .png, .jpg or .jpeg file (at most 20 MB).
+            layer (one of "behind", "infront"): text, image: behind (default) or
+                in front of the page content.
+            margin_bottom (number; min 0, max 1000) [MCP: marginBottom]:
+                headerFooter: points (default 30).
+            margin_left (number; min 0, max 1000) [MCP: marginLeft]:
+                headerFooter: points (default 40).
+            margin_right (number; min 0, max 1000) [MCP: marginRight]:
+                headerFooter: points (default 40).
+            margin_top (number; min 0, max 1000) [MCP: marginTop]: headerFooter:
+                points (default 30).
+            opacity (number; min 0, max 1): text (default 0.3), image (default
+                0.2).
+            pages (array): add: only on these page numbers (1-based); left out:
+                every page.
+            position (one of "center", "top-left", "top-right", "bottom-left",
+                "bottom-right", "custom"): text, image: where on the page (default
+                center); custom uses customX/customY.
+            rotation (number; min -360, max 360): text (default -45), image
+                (default 0): degrees.
+            scale (number; min 0.01, max 10): image: size factor of the 200 x
+                200 pt image box (default 1).
+            text (string): text: the watermark text.
+            type (one of "text", "image", "headerFooter"): add: what to add.
+
+        MCP tool ``app_watermarks`` (modifies or discards state).
+        """
+        return self._call_tool("app_watermarks", _pack({"action": action, "batesDigits": bates_digits, "batesPrefix": bates_prefix, "batesStart": bates_start, "batesSuffix": bates_suffix, "color": color, "customX": custom_x, "customY": custom_y, "fontFamily": font_family, "fontSize": font_size, "footerCenter": footer_center, "footerLeft": footer_left, "footerRight": footer_right, "headerCenter": header_center, "headerLeft": header_left, "headerRight": header_right, "id": id, "imagePath": image_path, "layer": layer, "marginBottom": margin_bottom, "marginLeft": margin_left, "marginRight": margin_right, "marginTop": margin_top, "opacity": opacity, "pages": pages, "position": position, "rotation": rotation, "scale": scale, "text": text, "type": type}))
 
     def agent_task_pending(self, *, kind: Optional[str] = None) -> Any:
         """Take pending agent task.
 
-        Take the oldest structured agent task that an extension submitted,
-        without the assistant window: the task moves from pending to running and
-        no other client gets it. Returns { ok, task, waiting }; task is null
-        when no task waits. A task has id, kind, extensionId, document { id,
-        page, pageCount, sourceFingerprint, pageRotation, scale }, context (only
-        the fields the extension chose to share), resultSchema (what the answer
-        must match), createdAt, deadline (ms timestamps) and attemptsLeft. No
-        conversation, file name or other tasks are shared. Answer with
-        app_agent_task_result before the deadline; the task is cancelled when
-        the user switches or closes the document, or when its source, page or
-        scale changes.
+        Take the oldest structured agent task that an extension submitted: the
+        task moves from pending to running and no other client gets it. Returns
+        { ok, task, waiting }; task is null when no task waits. A task has id,
+        kind, extensionId, document { id, page, pageCount, sourceFingerprint,
+        pageRotation, scale }, context (only the fields the extension chose to
+        share), resultSchema (what the answer must match), createdAt, deadline
+        (ms timestamps) and attemptsLeft. No conversation, file name or other
+        tasks are shared. Answer with app_agent_task_result before the deadline;
+        the task is cancelled when the user switches or closes the document, or
+        when its source, page or scale changes.
 
         Args:
             kind (string): Only take a task of this kind, for example
@@ -1817,9 +2046,11 @@ class ToolMethods:
         Requires the exact expected text to reject stale IDs. Preserves the page
         artwork by refusing edits that cannot remove the original text in place;
         fits the replacement inside its original width and embeds a full
-        fallback font when the subset lacks glyphs. Changes stay pending until
-        app_save_pdf is called. One line per call; for translation, map
-        translated lines to span IDs and call repeatedly.
+        fallback font when the subset lacks glyphs. On a scanned page with an
+        invisible OCR layer the scanned word is covered and the replacement is
+        drawn visibly, as in the editor (reply: coveredScannedText). Changes
+        stay pending until app_save_pdf is called. One line per call; for
+        translation, map translated lines to span IDs and call repeatedly.
 
         Args:
             span_id (string, required) [MCP: spanId]: Opaque span ID from
@@ -1908,7 +2139,9 @@ class ToolMethods:
             schedule_id (string) [MCP: scheduleId]: Reuse an existing schedule
                 instead of creating one.
             template_id (string) [MCP: templateId]: Template for a new schedule:
-                area, length, count, symbol, text, image or full. Default: area.
+                area, length, count, symbol, text, image, full, buigstaat (rebar
+                bending schedule) or wapeningsstaat (rebar weight per diameter).
+                Default: area.
             x (number): Left edge in page points (default 40).
             y (number): Top edge in page points (default 40).
 
@@ -2205,6 +2438,36 @@ class ToolMethods:
         MCP tool ``app_export_cad`` (modifies or discards state).
         """
         return self._call_tool("app_export_cad", _pack({"allowLarge": allow_large, "annotations": annotations, "area": area, "format": format, "layers": layers, "layersOff": layers_off, "origin": origin, "pages": pages, "path": path, "scale": scale, "scaleMode": scale_mode, "units": units}))
+
+    def export_ifcx(self, path: str, *, annotations: Optional[bool] = None, max_paths_per_page: Optional[int] = None, pages: Optional[str] = None, raster: Optional[bool] = None, text: Optional[bool] = None) -> Any:
+        """Export to IFCX (beta).
+
+        Convert pages of the current document to an IFCX file (beta; the
+        JSON-based IFC5 format, alpha schema) without opening the export dialog.
+        It writes one sheet node per page with the page size, label, rotation
+        and measurement scale, the vector paths, text runs and embedded images
+        on their own layers, and the annotations of the app on a separate layer
+        (drafting components keep their IFC class). Page content comes from the
+        last saved state of the PDF; annotations are current. A page with more
+        paths than the limit keeps the first ones and the answer warns about the
+        rest; once the file reaches its size limit (320 M characters) the
+        remaining pages are left out with a warning. Refused for a document
+        opened with a password. Replaces an existing file at `path`.
+
+        Args:
+            path (string, required): Absolute path of the target file (.ifcx).
+            annotations (boolean): Include the annotations on their own layer
+                (default true).
+            max_paths_per_page (integer) [MCP: maxPathsPerPage]: Limit of paths
+                per page (default 50000); the rest of a heavier page is left out
+                with a warning.
+            pages (string): "all" (default), "current" or a range like "1-3,5".
+            raster (boolean): Include embedded images (default true).
+            text (boolean): Include the text runs of the pages (default true).
+
+        MCP tool ``app_export_ifcx`` (modifies or discards state).
+        """
+        return self._call_tool("app_export_ifcx", _pack({"annotations": annotations, "maxPathsPerPage": max_paths_per_page, "pages": pages, "path": path, "raster": raster, "text": text}))
 
     def print_to_pdf(self, path: str, *, auto_rotate: Optional[bool] = None, center: Optional[bool] = None, content: Optional[Literal["document", "document-and-markups"]] = None, orientation: Optional[Literal["auto", "portrait", "landscape"]] = None, pages: Optional[str] = None, paper: Optional[Literal["page", "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid"]] = None, scaling: Optional[Literal["fit", "shrink", "actual", "custom-scale"]] = None, zoom: Optional[float] = None) -> Any:
         """Print to PDF file.
