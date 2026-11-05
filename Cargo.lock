@@ -3700,7 +3700,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-security"
-version = "2026.44.4"
+version = "2026.44.8"
 dependencies = [
  "aes",
  "cbc",
@@ -3715,7 +3715,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-signatures"
-version = "2026.44.4"
+version = "2026.44.8"
 dependencies = [
  "base64 0.22.1",
  "cbc",
