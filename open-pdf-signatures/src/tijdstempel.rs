@@ -167,7 +167,7 @@ pub fn controleer_token(token: &[u8], gegevens: &[&[u8]]) -> TokenUitkomst {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::handtekening::cms_lees::lees_certificaat;
+    use crate::cms_lees::lees_certificaat;
     use std::path::PathBuf;
 
     fn fixture(naam: &str) -> Vec<u8> {

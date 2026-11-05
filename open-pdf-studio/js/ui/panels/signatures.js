@@ -2,6 +2,36 @@ import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { setSignatureItems as setItems, setSignatureCountText as setCountText, setSignatureEmptyMessage as setEmptyMessage } from '../../bridge.js';
+import { ernst, balkRegelDelen, formatTijd } from '../../pdf/handtekeningen/weergave.js';
+
+/**
+ * Regels voor het paneel uit de verificatie in Rust (doc.handtekeningen, zie
+ * pdf/handtekeningen/verificatie.js): dezelfde status als de balk boven de
+ * pagina. `paginas` koppelt een veldnaam aan het paginanummer uit pdf.js.
+ */
+export function regelsUitVerificatie(lijst, paginas, t, taal) {
+  const v = (sleutel, opties) => t(`dialogs:signatureVerification.${sleutel}`, opties);
+  return lijst.map((h) => {
+    const e = ernst(h);
+    const status = e === 'goed' ? 'valid' : e === 'fout' ? 'invalid' : 'unknown';
+    const { status: statusText } = balkRegelDelen(h, { v, t: (k, o) => t(`dialogs:${k}`, o), taal });
+    // "Geldige handtekening, certificaat niet vertrouwd": de inhoud klopt.
+    const intactNietVertrouwd = h?.status?.code === 'onbekend-certificaat' && h?.integriteit?.uitkomst === 'intact';
+    return {
+      fieldName: h.veldnaam || '',
+      name: h.ondertekenaar || h.opgegevenNaam || (h.soort === 'leeg-veld' ? (h.veldnaam || '') : t('leftPanel.unknownSigner')),
+      reason: h.reden || null,
+      location: h.plaats || null,
+      date: formatTijd(h.tijdUnix, taal),
+      contactInfo: h.contact || null,
+      status,
+      statusText,
+      detailText: intactNietVertrouwd ? v('intactNotTrusted') : null,
+      page: (h.veldnaam && paginas.get(h.veldnaam)) || null,
+      info: h,
+    };
+  });
+}
 
 // Format a date from a PDF date string
 function formatSignatureDate(dateStr) {
@@ -102,6 +132,16 @@ export async function updateSignaturesList() {
 
   try {
     const sigs = await getSignatureFields(activeDoc.pdfDoc);
+    // Gecontroleerd door Rust: echte status per handtekening in plaats van "onbekend".
+    const verificatie = activeDoc.handtekeningToestand === 'klaar' && Array.isArray(activeDoc.handtekeningen)
+      ? activeDoc.handtekeningen : null;
+    if (verificatie && verificatie.length) {
+      const paginas = new Map(sigs.filter((s) => s.page).map((s) => [s.fieldName, s.page]));
+      setEmptyMessage(null);
+      setItems(regelsUitVerificatie(verificatie, paginas, (k, o) => i18next.t(k, o), i18next.language));
+      setCountText(i18next.t('leftPanel.signaturesCount', { count: verificatie.length }));
+      return;
+    }
 
     if (sigs.length === 0) {
       setItems([]);

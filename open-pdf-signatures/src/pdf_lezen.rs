@@ -1758,7 +1758,7 @@ mod tests {
     }
 
     fn corpusmap() -> Option<PathBuf> {
-        crate::handtekening::corpusmap("pades")
+        crate::corpusmap("pades")
     }
 
     /// Ruwe meting van piekwerkgeheugen en tijd, één meting per proces:

@@ -145,18 +145,12 @@ pub fn info_uit_p12(bytes: &[u8], wachtwoord: &str) -> Result<CertificaatInfo, I
     certificaat_info(&inhoud.certificaten[i].der)
 }
 
-/// Gegevens van het ondertekencertificaat in een .p12, zonder iets te ondertekenen.
-/// Lezen en sleutelafleiding (tot miljoenen iteraties) lopen via `spawn_blocking`,
-/// zodat de hoofdthread niet blokkeert.
-#[tauri::command]
-pub async fn pdf_certificate_info(pad: String, wachtwoord: String) -> Result<CertificaatInfo, InfoFout> {
-    let wachtwoord = zeroize::Zeroizing::new(wachtwoord);
-    tauri::async_runtime::spawn_blocking(move || {
-        let bytes = std::fs::read(&pad).map_err(onleesbaar)?;
-        info_uit_p12(&bytes, &wachtwoord)
-    })
-    .await
-    .map_err(onleesbaar)?
+/// Gegevens van het ondertekencertificaat in het .p12-bestand `pad`, zonder iets
+/// te ondertekenen. Sleutelafleiding kan miljoenen iteraties kosten: de
+/// commando-schil roept dit aan via `spawn_blocking`.
+pub fn info_uit_bestand(pad: &std::path::Path, wachtwoord: &str) -> Result<CertificaatInfo, InfoFout> {
+    let bytes = std::fs::read(pad).map_err(onleesbaar)?;
+    info_uit_p12(&bytes, wachtwoord)
 }
 
 #[cfg(test)]
@@ -170,7 +164,7 @@ mod tests {
     }
 
     fn corpus(naam: &str) -> Option<Vec<u8>> {
-        let pad = crate::handtekening::corpusmap("pkcs12")?.join(naam);
+        let pad = crate::corpusmap("pkcs12")?.join(naam);
         Some(std::fs::read(&pad).unwrap_or_else(|e| panic!("corpusbestand {} onleesbaar: {e}", pad.display())))
     }
 
@@ -228,14 +222,10 @@ mod tests {
     #[test]
     fn commando_leest_van_schijf_en_meldt_ontbrekend_bestand() {
         let pad = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/pkcs12/windows-export-3des.p12");
-        let info = tauri::async_runtime::block_on(pdf_certificate_info(
-            pad.to_string_lossy().into_owned(),
-            "proef123".into(),
-        ))
-        .unwrap();
+        let info = info_uit_bestand(&pad, "proef123").unwrap();
         assert_eq!(info.naam, "OPDS Test Ondertekenaar");
         assert!(matches!(
-            tauri::async_runtime::block_on(pdf_certificate_info("Z:/bestaat/niet.p12".into(), "x".into())),
+            info_uit_bestand(std::path::Path::new("Z:/bestaat/niet.p12"), "x"),
             Err(InfoFout::Onleesbaar { .. })
         ));
     }

@@ -1,24 +1,33 @@
-//! Digitale handtekeningen met certificaten (#374).
+//! Digitale handtekeningen met certificaten (#374): PKCS#12 lezen, PDF's
+//! ondertekenen (PAdES) en handtekeningen verifiëren. Pure Rust, zonder Tauri;
+//! de app-crate bevat alleen de commando-schil (src/handtekening.rs).
 //! Ontwerp: docs/superpowers/specs/2026-09-16-digitale-handtekeningen-design.md
 
 pub mod algoritme;
 pub mod ber;
 pub mod bytebereik;
 pub mod certificaat;
+pub mod cms_bouw;
 pub mod cms_lees;
+pub mod onderteken;
+#[cfg(test)]
+mod onderteken_tests;
 pub mod pdf_lezen;
+pub mod pdf_schrijven;
 pub mod pkcs12;
 pub mod status;
 pub mod tijdstempel;
+pub mod tsa;
 pub mod verifieer;
 pub mod vertrouwen;
+pub mod wijzigingen;
 
 /// Map `testdata/handtekeningen/<deel>` van het externe corpus
 /// (`scripts/haal-handtekening-testdata.py`). Ontbreekt die, dan slaat een test
 /// over met een melding; met `OPDS_CORPUS_VERPLICHT=1` faalt hij.
 #[cfg(test)]
 pub(crate) fn corpusmap(deel: &str) -> Option<std::path::PathBuf> {
-    let map = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../testdata/handtekeningen").join(deel);
+    let map = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../testdata/handtekeningen").join(deel);
     corpusmap_in(map, std::env::var("OPDS_CORPUS_VERPLICHT").as_deref() == Ok("1"))
 }
 

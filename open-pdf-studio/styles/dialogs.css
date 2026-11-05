@@ -2083,6 +2083,48 @@
   color: #e81123;
 }
 
+/* Digitaal ondertekenen (#374): zelfde opbouw als "Beveiligen met wachtwoord" */
+.digital-sign-dialog {
+  width: 480px;
+}
+
+.digital-sign-dialog .pref-fieldset {
+  margin: 0;
+  padding: 6px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.digital-sign-dialog .digital-sign-label {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.digital-sign-knop {
+  flex-shrink: 0;
+}
+
+.digital-sign-cert {
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 4px 6px;
+  border: 1px solid #d4d4d4;
+  background: var(--theme-bg-secondary, #fafafa);
+}
+
+.digital-sign-cert-label {
+  color: var(--theme-text-secondary, #666);
+}
+
+.digital-sign-voorbeeld {
+  align-self: flex-start;
+  max-width: 200px;
+  max-height: 48px;
+  border: 1px solid #d4d4d4;
+  background: #ffffff;
+}
+
 /* Crop Margins Dialog */
 .crop-margins-dialog {
   width: 400px;

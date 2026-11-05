@@ -295,6 +295,6 @@ mod tests {
         ];
         let signalen: std::collections::HashSet<_> = fouten.iter().map(BereikFout::signaal).collect();
         assert_eq!(signalen.len(), fouten.len());
-        assert!(signalen.iter().all(|s| crate::handtekening::status::signaal::ALLE.contains(s)));
+        assert!(signalen.iter().all(|s| crate::status::signaal::ALLE.contains(s)));
     }
 }
