@@ -1152,20 +1152,6 @@ export function applyMoveGeneric(annotation, dx, dy) {
   }
 }
 
-// Star verplaatsen: als applyMoveGeneric, maar een aanhaalvak (callout)
-// neemt ook zijn pijlpunt, knik en armoorsprong mee. Voor plakken bij de muis
-// (#928) en uitlijnen op de pagina (#968): daar verhuist de hele markering,
-// niet alleen het tekstvak.
-const _MOVE_CALLOUT_PAIRS = [['arrowX', 'arrowY'], ['kneeX', 'kneeY'], ['armOriginX', 'armOriginY']];
-export function applyMoveRigid(annotation, dx, dy) {
-  if (!annotation || (dx === 0 && dy === 0)) return;
-  applyMoveGeneric(annotation, dx, dy);
-  for (const [kx, ky] of _MOVE_CALLOUT_PAIRS) {
-    if (typeof annotation[kx] === 'number') annotation[kx] += dx;
-    if (typeof annotation[ky] === 'number') annotation[ky] += dy;
-  }
-}
-
 // Apply move to annotation
 export function applyMove(annotation, deltaX, deltaY) {
   if (annotation.locked) return;
@@ -1181,6 +1167,20 @@ export function applyMove(annotation, deltaX, deltaY) {
   }
 
   annotation.modifiedAt = new Date().toISOString();
+}
+
+// Star verplaatsen: als applyMoveGeneric, maar een aanhaalvak (callout)
+// neemt ook zijn pijlpunt, knik en armoorsprong mee. Voor plakken bij de muis
+// (#928) en uitlijnen op de pagina (#968): daar verhuist de hele markering,
+// niet alleen het tekstvak.
+const _MOVE_CALLOUT_PAIRS = [['arrowX', 'arrowY'], ['kneeX', 'kneeY'], ['armOriginX', 'armOriginY']];
+export function applyMoveRigid(annotation, dx, dy) {
+  if (!annotation || (dx === 0 && dy === 0)) return;
+  applyMoveGeneric(annotation, dx, dy);
+  for (const [kx, ky] of _MOVE_CALLOUT_PAIRS) {
+    if (typeof annotation[kx] === 'number') annotation[kx] += dx;
+    if (typeof annotation[ky] === 'number') annotation[ky] += dy;
+  }
 }
 
 // ── Generic rotate walker ────────────────────────────────────────────────
