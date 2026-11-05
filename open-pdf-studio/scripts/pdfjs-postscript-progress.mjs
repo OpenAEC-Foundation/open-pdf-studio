@@ -7,6 +7,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { patchXrefStreamOffsets } from './pdfjs-xref-offsets.mjs';
 import { patchSampledFunction32 } from './pdfjs-sampled-function.mjs';
+import { patchBidiCombiningMarks } from './pdfjs-bidi-marks.mjs';
 
 const BEFORE = String.raw`  _getNumber() {
     this._numberPattern.lastIndex = this.pos;
@@ -84,10 +85,11 @@ export function patchZeroInitialFont(source) {
 // #839: PostScript lexer progress (PDF.js #22365). #878: zero-size initial
 // font in text extraction (PDF.js #22384). #638: XRef stream offsets above
 // 2 GiB (PDF.js #22172, see pdfjs-xref-offsets.mjs). #949: 32-bit samples
-// in Type 0 functions (PDF.js #22380, see pdfjs-sampled-function.mjs).
+// in Type 0 functions (PDF.js #22380, see pdfjs-sampled-function.mjs). #957:
+// combining marks typed NSM in bidi (see pdfjs-bidi-marks.mjs).
 export function patchPdfjsWorker(source) {
-  return patchSampledFunction32(
-    patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source))));
+  return patchBidiCombiningMarks(patchSampledFunction32(
+    patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source)))));
 }
 
 // `workerPath` is the pdfjs-dist worker to patch: the app uses the legacy
@@ -104,7 +106,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638 and #949 backports.`);
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949 and #957 backports.`);
       worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
     },

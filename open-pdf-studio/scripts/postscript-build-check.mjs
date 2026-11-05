@@ -48,3 +48,10 @@ const sampledRows = sampled.stdout.trim().split('\n').filter(l => l.startsWith('
 assert.equal(sampledRows.length, 4);
 for (const row of sampledRows) assert.deepEqual(row.fills, ['#808080', '#ffffff'], `${row.bps}-bit sampled function`);
 console.log('PASS built worker: 32-bit sampled functions are read unsigned');
+// #957: combining marks keep their logical order in RTL text extraction.
+const bidiMarks = spawnSync(process.execPath, [fileURLToPath(new URL('./bidi-marks-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 60000, encoding: 'utf8' });
+assert.equal(bidiMarks.status, 0, bidiMarks.stdout + bidiMarks.stderr);
+const bidiRows = bidiMarks.stdout.trim().split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+assert.equal(bidiRows.length, 4);
+for (const row of bidiRows) assert.deepEqual(row.raw, row.expected, `bidi ${row.name}`);
+console.log('PASS built worker: combining marks keep their logical order');
