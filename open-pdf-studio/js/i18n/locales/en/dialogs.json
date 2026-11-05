@@ -110,6 +110,8 @@
     "pageRange": "Page Range",
     "all": "All",
     "current": "Current:",
+    "currentView": "Current view",
+    "currentViewTitle": "Print exactly what is visible in the document window, scaled to fit the paper",
     "custom": "Custom",
     "pagesLabel": "Pages:",
     "pagesPlaceholder": "e.g. 1-3, 5, 8-10",

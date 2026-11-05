@@ -110,6 +110,8 @@
     "pageRange": "نطاق الصفحات",
     "all": "الكل",
     "current": "الحالية:",
+    "currentView": "العرض الحالي",
+    "currentViewTitle": "اطبع بالضبط ما هو مرئي في نافذة المستند، مع ملاءمته للورق",
     "custom": "مخصص",
     "pagesLabel": "الصفحات:",
     "pagesPlaceholder": "مثال: 1-3, 5, 8-10",

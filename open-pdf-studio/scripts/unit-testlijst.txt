@@ -431,6 +431,7 @@ js/pdf/splits-logica.test.mjs
 js/pdf/splits-document.test.mjs
 js/pdf/splits-i18n.test.mjs
 js/pdf/print-bereik.test.mjs
+js/pdf/print-huidige-weergave.test.mjs
 js/pdf/print-flyer.test.mjs
 js/pdf/print-katern.test.mjs
 js/pdf/print-boekje-opties.test.mjs
@@ -454,6 +455,7 @@ js/pdf/mengmodus-rondgang.test.mjs
 js/solid/components/ribbon/ribbon-popup.test.mjs
 js/tools/screenshot-keuze.test.mjs
 js/tools/screenshot-bedrading.test.mjs
+js/tools/screenshot-klembord.test.mjs
 js/pdf/eigenschappen-rondgang.test.mjs
 js/pdf/saver/vorm-draaiing.test.mjs
 js/pdf/saver/tekstvak-rc.test.mjs

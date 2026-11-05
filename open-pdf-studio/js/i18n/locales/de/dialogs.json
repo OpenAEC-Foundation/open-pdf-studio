@@ -110,6 +110,8 @@
     "pageRange": "Seitenbereich",
     "all": "Alle",
     "current": "Aktuell:",
+    "currentView": "Aktuelle Ansicht",
+    "currentViewTitle": "Genau das drucken, was im Dokumentfenster sichtbar ist, an das Papier angepasst",
     "custom": "Benutzerdefiniert",
     "pagesLabel": "Seiten:",
     "pagesPlaceholder": "z.B. 1-3, 5, 8-10",

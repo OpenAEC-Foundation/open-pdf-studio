@@ -3718,6 +3718,7 @@ dependencies = [
  "hmac",
  "image",
  "keyring",
+ "libc",
  "libloading 0.9.0",
  "log",
  "lopdf",

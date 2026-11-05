@@ -2809,6 +2809,42 @@ fn read_clipboard_image_png(app: tauri::AppHandle) -> Result<tauri::ipc::Respons
     Ok(tauri::ipc::Response::new(png))
 }
 
+// Zet een PNG (rauwe IPC-body) als bitmap op het systeemklembord. Gebruikt door
+// "Kopiëren naar klembord" in het schermafbeeldingsvenster (#925): WebKitGTK
+// (en WKWebView) weigeren navigator.clipboard.write() met een afbeelding zodra
+// een await (het renderen op 300 dpi) de gebruikersactivatie heeft verbruikt.
+// Via de clipboard-manager-plugin speelt die activatie geen rol. Het klembord
+// blijft bediend zolang de app draait (de plugin houdt arboard vast).
+#[tauri::command]
+async fn write_clipboard_image_png(
+    app: tauri::AppHandle,
+    request: tauri::ipc::Request<'_>,
+) -> Result<(), String> {
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+
+    let png = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
+        tauri::ipc::InvokeBody::Json(value) => {
+            serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing image data")?)
+                .map_err(|e| e.to_string())?
+        }
+    };
+    let rgba = tauri::async_runtime::spawn_blocking(move || {
+        image::load_from_memory_with_format(&png, image::ImageFormat::Png)
+            .map(|img| img.to_rgba8())
+            .map_err(|e| format!("PNG decode failed: {e}"))
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    let (width, height) = rgba.dimensions();
+    if width == 0 || height == 0 {
+        return Err("image is empty".into());
+    }
+    app.clipboard()
+        .write_image(&tauri::image::Image::new(rgba.as_raw(), width, height))
+        .map_err(|e| format!("clipboard write failed: {e}"))
+}
+
 // Register/unregister the PrtScn global hotkey based on the user preference.
 // Called from the frontend when the "intercept PrtScn" preference changes and
 // at startup. Idempotent. Desktop only — the global-shortcut plugin has no
@@ -3490,6 +3526,7 @@ pub fn run(opts: StartupOpts) {
             herstel::herstel_nood_klaar,
             herstel::herstel_test_paniek,
             read_clipboard_image_png,
+            write_clipboard_image_png,
             set_prtscn_hotkey,
         ])
         .build(context)

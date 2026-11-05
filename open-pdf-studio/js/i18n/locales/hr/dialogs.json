@@ -110,6 +110,8 @@
     "pageRange": "Raspon stranica",
     "all": "Sve",
     "current": "Trenutna:",
+    "currentView": "Trenutačni prikaz",
+    "currentViewTitle": "Ispis točno onoga što je vidljivo u prozoru dokumenta, prilagođeno papiru",
     "custom": "Prilagođeno",
     "pagesLabel": "Stranice:",
     "pagesPlaceholder": "npr. 1-3, 5, 8-10",

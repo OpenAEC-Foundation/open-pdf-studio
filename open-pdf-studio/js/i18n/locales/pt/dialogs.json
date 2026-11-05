@@ -110,6 +110,8 @@
     "pageRange": "Intervalo de páginas",
     "all": "Todas",
     "current": "Atual:",
+    "currentView": "Vista atual",
+    "currentViewTitle": "Imprimir exatamente o que está visível na janela do documento, ajustado ao papel",
     "custom": "Personalizado",
     "pagesLabel": "Páginas:",
     "pagesPlaceholder": "ex. 1-3, 5, 8-10",

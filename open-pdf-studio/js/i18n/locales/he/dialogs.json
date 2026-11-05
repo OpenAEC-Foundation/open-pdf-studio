@@ -110,6 +110,8 @@
     "pageRange": "טווח עמודים",
     "all": "הכל",
     "current": "נוכחי:",
+    "currentView": "התצוגה הנוכחית",
+    "currentViewTitle": "הדפסה של בדיוק מה שנראה בחלון המסמך, מותאם לנייר",
     "custom": "מותאם אישית",
     "pagesLabel": "עמודים:",
     "pagesPlaceholder": "לדוגמה: 1-3, 5, 8-10",

@@ -110,6 +110,8 @@
     "pageRange": "Zakres stron",
     "all": "Wszystkie",
     "current": "Bieżąca:",
+    "currentView": "Bieżący widok",
+    "currentViewTitle": "Drukuj dokładnie to, co widać w oknie dokumentu, dopasowane do papieru",
     "custom": "Niestandardowy",
     "pagesLabel": "Strony:",
     "pagesPlaceholder": "np. 1-3, 5, 8-10",

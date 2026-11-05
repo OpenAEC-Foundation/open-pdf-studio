@@ -110,6 +110,8 @@
     "pageRange": "Paginabereik",
     "all": "Alle",
     "current": "Huidig:",
+    "currentView": "Huidige weergave",
+    "currentViewTitle": "Precies afdrukken wat in het documentvenster te zien is, passend op het papier",
     "custom": "Aangepast",
     "pagesLabel": "Pagina's:",
     "pagesPlaceholder": "bijv. 1-3, 5, 8-10",

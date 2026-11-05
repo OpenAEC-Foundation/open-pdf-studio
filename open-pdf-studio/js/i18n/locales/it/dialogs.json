@@ -110,6 +110,8 @@
     "pageRange": "Intervallo di pagine",
     "all": "Tutte",
     "current": "Corrente:",
+    "currentView": "Vista corrente",
+    "currentViewTitle": "Stampa esattamente ciò che è visibile nella finestra del documento, adattato alla carta",
     "custom": "Personalizzato",
     "pagesLabel": "Pagine:",
     "pagesPlaceholder": "es. 1-3, 5, 8-10",

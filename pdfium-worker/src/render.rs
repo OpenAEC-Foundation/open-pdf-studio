@@ -27,19 +27,24 @@ fn pdfium() -> Result<&'static Pdfium> {
         //   3. ../Resources t.o.v. de binary — op macOS draait de sidecar in
         //      Contents/MacOS terwijl de gebundelde libpdfium.dylib als resource
         //      in Contents/Resources staat;
-        //   4. de huidige werkdirectory (dev / handmatige runs).
-        // Zonder 2/3 zou de worker op macOS geen dylib vinden en elke render
-        // laten terugvallen op in-proc PDFium in de hoofd-app.
+        //   4. ../lib/<productName> t.o.v. de binary — de .deb en de AppImage
+        //      zetten de sidecar in usr/bin en de resources (libpdfium.so) in
+        //      usr/lib/Open PDF Studio, Tauri's resource_dir op Linux (#923);
+        //   5. de huidige werkdirectory (dev / handmatige runs).
+        // Zonder 2-4 zou de worker op macOS/Linux geen bibliotheek vinden;
+        // Ready komt dan nooit en de app rendert alles in-proc.
         let exe_dir = std::env::current_exe()
             .ok()
             .and_then(|p| p.parent().map(std::path::Path::to_path_buf))
             .unwrap_or_else(|| std::path::PathBuf::from("."));
         let res_dir = exe_dir.join("../Resources");
+        let linux_res_dir = exe_dir.join("../lib/Open PDF Studio");
         let bindings = Pdfium::bind_to_system_library()
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&exe_dir)))
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&res_dir)))
+            .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&linux_res_dir)))
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path("./")))
-            .context("PDFium library not found (system, exe-dir, ../Resources, or ./)")?;
+            .context("PDFium library not found (system, exe-dir, ../Resources, ../lib/Open PDF Studio, or ./)")?;
         let _ = PDFIUM.set(Pdfium::new(bindings));
     }
     Ok(PDFIUM.get().expect("PDFIUM set above"))

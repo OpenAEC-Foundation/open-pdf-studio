@@ -110,6 +110,8 @@
     "pageRange": "Julat Halaman",
     "all": "Semua",
     "current": "Semasa:",
+    "currentView": "Paparan semasa",
+    "currentViewTitle": "Cetak tepat apa yang kelihatan dalam tetingkap dokumen, dimuatkan pada kertas",
     "custom": "Tersuai",
     "pagesLabel": "Halaman:",
     "pagesPlaceholder": "cth. 1-3, 5, 8-10",

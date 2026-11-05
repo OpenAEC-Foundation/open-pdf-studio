@@ -382,6 +382,17 @@ Notes:
 - If the window stays blank with some GPU drivers, start it with
   `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
 
+**Crashes while zooming (realtime limits):** WebKitGTK raises some of its
+internal threads to realtime priority when the session allows it (many
+audio-tuned distributions give the `audio` group `rtprio 99`) and then gives
+them a 200 ms CPU budget; a busy thread past that budget makes the kernel kill
+the whole app without a message. The app therefore lowers its own
+`RLIMIT_RTPRIO` to 0 at startup, the same as starting it with
+`prlimit --rtprio=0`. Set `OPDS_ALLOW_REALTIME=1` to keep the session's limit.
+If the window instead goes blank while zooming (the web process crashed in the
+GPU renderer), `WEBKIT_DISABLE_DMABUF_RENDERER=1` avoids it at the cost of
+slower rendering.
+
 For containers without FUSE or GPU (such as OpenAEC Linux, which runs the
 extracted AppImage under a Wayland compositor), see
 [Managed deployments](#managed-deployments).

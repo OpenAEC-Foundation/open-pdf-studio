@@ -110,6 +110,8 @@
     "pageRange": "Rango de páginas",
     "all": "Todas",
     "current": "Actual:",
+    "currentView": "Vista actual",
+    "currentViewTitle": "Imprime exactamente lo que se ve en la ventana del documento, ajustado al papel",
     "custom": "Personalizado",
     "pagesLabel": "Páginas:",
     "pagesPlaceholder": "ej. 1-3, 5, 8-10",

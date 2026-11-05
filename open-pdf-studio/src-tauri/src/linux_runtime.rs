@@ -82,6 +82,42 @@ pub fn running_in_snap() -> bool {
     }
 }
 
+/// Realtime scheduling for WebKit's IPC threads (#924). WebKitGTK promotes its
+/// `ReceiveQueue` threads to SCHED_RR when RLIMIT_RTPRIO allows it, and sets
+/// RLIMIT_RTTIME to 200 ms. A thread that then spends more than 200 ms of CPU
+/// without blocking (page-faulting in a large IPC payload while zooming) gets
+/// the whole app SIGKILLed by the kernel, without a message. Many audio-tuned
+/// distributions give the `audio` group `rtprio 99`, so this hits ordinary
+/// desktops. Lowering RLIMIT_RTPRIO to 0 at startup, before GTK and WebKit
+/// create threads, keeps every thread on normal scheduling (the same as
+/// `prlimit --rtprio=0`); the web process inherits the limit.
+/// `OPDS_ALLOW_REALTIME=1` keeps the limit as the session set it.
+#[cfg(any(target_os = "linux", test))]
+fn realtime_toegestaan(waarde: Option<&OsStr>) -> bool {
+    let Some(waarde) = waarde.and_then(OsStr::to_str) else {
+        return false;
+    };
+    matches!(waarde.trim().to_ascii_lowercase().as_str(), "1" | "true" | "yes" | "on")
+}
+
+pub fn disable_realtime_threads() {
+    #[cfg(target_os = "linux")]
+    {
+        if realtime_toegestaan(env::var_os("OPDS_ALLOW_REALTIME").as_deref()) {
+            return;
+        }
+        let limiet = libc::rlimit { rlim_cur: 0, rlim_max: 0 };
+        // SAFETY: setrlimit reads one valid rlimit struct and only lowers this
+        // process's own limit.
+        if unsafe { libc::setrlimit(libc::RLIMIT_RTPRIO, &limiet) } != 0 {
+            eprintln!(
+                "[startup] could not lower RLIMIT_RTPRIO: {}",
+                std::io::Error::last_os_error()
+            );
+        }
+    }
+}
+
 /// "flatpak", "snap" or None: the package sandbox this process runs in.
 pub fn sandbox() -> Option<&'static str> {
     if running_in_flatpak() {
@@ -95,7 +131,7 @@ pub fn sandbox() -> Option<&'static str> {
 
 #[cfg(test)]
 mod tests {
-    use super::{is_flatpak_sandbox, is_snap_omgeving, packaged_gio_module_dir};
+    use super::{is_flatpak_sandbox, is_snap_omgeving, packaged_gio_module_dir, realtime_toegestaan};
     use std::env;
     use std::ffi::OsStr;
     use std::path::PathBuf;
@@ -209,5 +245,16 @@ mod tests {
         assert!(!is_snap_omgeving(Some(snap), None));
         assert!(!is_snap_omgeving(None, Some(naam)));
         assert!(!is_snap_omgeving(Some(OsStr::new("")), Some(naam)));
+    }
+
+    #[test]
+    fn realtime_threads_stay_off_unless_explicitly_allowed() {
+        assert!(!realtime_toegestaan(None));
+        assert!(!realtime_toegestaan(Some(OsStr::new(""))));
+        assert!(!realtime_toegestaan(Some(OsStr::new("0"))));
+        assert!(!realtime_toegestaan(Some(OsStr::new("false"))));
+        for aan in ["1", "true", "YES", " on "] {
+            assert!(realtime_toegestaan(Some(OsStr::new(aan))), "{aan}");
+        }
     }
 }

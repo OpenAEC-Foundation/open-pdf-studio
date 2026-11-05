@@ -28,6 +28,9 @@ fn main() {
         eprintln!("[startup] portable mode, data in {:?}", draagbaar.data_dir);
         app_lib::draagbaar::controleer_webview2();
     }
+    // Before GTK/WebKit start threads: no realtime IPC threads that the
+    // kernel can SIGKILL the app for while zooming (#924).
+    app_lib::linux_runtime::disable_realtime_threads();
     app_lib::linux_runtime::configure_appimage_gio_modules();
     // OpenAEC Linux and other machines without GPU or X server (#863): detect
     // the environment and set the WebKitGTK/GDK variables before GTK starts.

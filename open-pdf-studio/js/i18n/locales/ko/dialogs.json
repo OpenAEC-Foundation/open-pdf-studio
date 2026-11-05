@@ -110,6 +110,8 @@
     "pageRange": "페이지 범위",
     "all": "모두",
     "current": "현재:",
+    "currentView": "현재 보기",
+    "currentViewTitle": "문서 창에 보이는 영역을 용지에 맞춰 그대로 인쇄합니다",
     "custom": "사용자 지정",
     "pagesLabel": "페이지:",
     "pagesPlaceholder": "예: 1-3, 5, 8-10",

@@ -110,6 +110,8 @@
     "pageRange": "Interval pagini",
     "all": "Toate",
     "current": "Curenta:",
+    "currentView": "Vizualizarea curentă",
+    "currentViewTitle": "Tipărește exact ce se vede în fereastra documentului, potrivit pe hârtie",
     "custom": "Personalizat",
     "pagesLabel": "Pagini:",
     "pagesPlaceholder": "ex. 1-3, 5, 8-10",
