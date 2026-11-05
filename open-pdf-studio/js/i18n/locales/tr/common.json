@@ -227,7 +227,8 @@
     "openInNewWindow": "Yeni pencerede aç",
     "closeTab": "Sekmeyi kapat",
     "nextTab": "Sonraki Sekme",
-    "previousTab": "Önceki Sekme"
+    "previousTab": "Önceki Sekme",
+    "newTabForDocument": "Bu belge için yeni sekme"
   },
   "pageNav": {
     "nextPage": "Sonraki Sayfa",

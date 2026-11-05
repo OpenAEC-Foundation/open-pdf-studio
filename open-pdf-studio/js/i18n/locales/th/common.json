@@ -227,7 +227,8 @@
     "openInNewWindow": "เปิดในหน้าต่างใหม่",
     "closeTab": "ปิดแท็บ",
     "nextTab": "แท็บถัดไป",
-    "previousTab": "แท็บก่อนหน้า"
+    "previousTab": "แท็บก่อนหน้า",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "หน้าถัดไป",

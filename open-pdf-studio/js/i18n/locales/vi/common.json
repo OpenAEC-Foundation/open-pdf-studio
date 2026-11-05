@@ -227,7 +227,8 @@
     "openInNewWindow": "Mở trong cửa sổ mới",
     "closeTab": "Đóng thẻ",
     "nextTab": "Thẻ tiếp theo",
-    "previousTab": "Thẻ trước"
+    "previousTab": "Thẻ trước",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Trang tiếp",

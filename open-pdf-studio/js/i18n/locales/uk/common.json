@@ -227,7 +227,8 @@
     "openInNewWindow": "Відкрити в новому вікні",
     "closeTab": "Закрити вкладку",
     "nextTab": "Наступна вкладка",
-    "previousTab": "Попередня вкладка"
+    "previousTab": "Попередня вкладка",
+    "newTabForDocument": "Нова вкладка для цього документа"
   },
   "pageNav": {
     "nextPage": "Наступна сторінка",

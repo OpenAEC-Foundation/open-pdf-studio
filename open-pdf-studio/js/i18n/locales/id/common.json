@@ -227,7 +227,8 @@
     "openInNewWindow": "Buka di jendela baru",
     "closeTab": "Tutup tab",
     "nextTab": "Tab Berikutnya",
-    "previousTab": "Tab Sebelumnya"
+    "previousTab": "Tab Sebelumnya",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Halaman Berikutnya",

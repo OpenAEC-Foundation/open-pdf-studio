@@ -227,7 +227,8 @@
     "openInNewWindow": "فتح في نافذة جديدة",
     "closeTab": "إغلاق علامة التبويب",
     "nextTab": "التبويب التالي",
-    "previousTab": "التبويب السابق"
+    "previousTab": "التبويب السابق",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "الصفحة التالية",

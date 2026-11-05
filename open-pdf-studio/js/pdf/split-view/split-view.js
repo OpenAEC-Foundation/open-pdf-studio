@@ -490,6 +490,27 @@ function plaatsKader() {
 
 // ── De stand van de echte viewer ──────────────────────────────────────────
 
+/**
+ * Momentopname van de viewer voor een ander tabblad van hetzelfde document
+ * (#919, ui/chrome/weergave-tabs.js): dezelfde stand als die van een paneel,
+ * zonder beelden (die horen bij het moment van opnemen).
+ */
+export function leesWeergaveStand(doc) {
+  const stand = leesLiveStand(doc);
+  if (stand.vp) { stand.vp.tile = null; stand.vp.tileMeta = null; }
+  return stand;
+}
+
+/** De viewer een eerder opgenomen stand laten aannemen (#919). */
+export async function zetWeergaveStand(doc, stand) {
+  if (!stand || getActiveDocument() !== doc) return;
+  stopPanMomentum();
+  await zetLiveStand(doc, S.kopieerStand(stand));
+  _syncBasis = waarnemingLive(doc);
+  _laatsteKenmerk = null;
+  planTekenen();
+}
+
 function liveViewportToont(doc) {
   return !!(doc?.filePath && viewport.active && viewport.filePath === doc.filePath && doc.viewMode !== 'continuous');
 }

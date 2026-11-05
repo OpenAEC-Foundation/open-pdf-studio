@@ -227,7 +227,8 @@
     "openInNewWindow": "Άνοιγμα σε νέο παράθυρο",
     "closeTab": "Κλείσιμο καρτέλας",
     "nextTab": "Επόμενη καρτέλα",
-    "previousTab": "Προηγούμενη καρτέλα"
+    "previousTab": "Προηγούμενη καρτέλα",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Επόμενη σελίδα",

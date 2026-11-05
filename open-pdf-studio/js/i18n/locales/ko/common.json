@@ -227,7 +227,8 @@
     "openInNewWindow": "새 창에서 열기",
     "closeTab": "탭 닫기",
     "nextTab": "다음 탭",
-    "previousTab": "이전 탭"
+    "previousTab": "이전 탭",
+    "newTabForDocument": "이 문서의 새 탭"
   },
   "pageNav": {
     "nextPage": "다음 페이지",

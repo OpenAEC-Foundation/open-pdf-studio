@@ -227,7 +227,8 @@
     "openInNewWindow": "Åbn i nyt vindue",
     "closeTab": "Luk fane",
     "nextTab": "Næste fane",
-    "previousTab": "Forrige fane"
+    "previousTab": "Forrige fane",
+    "newTabForDocument": "Ny fane til dette dokument"
   },
   "pageNav": {
     "nextPage": "Næste side",

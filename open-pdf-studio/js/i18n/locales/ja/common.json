@@ -227,7 +227,8 @@
     "openInNewWindow": "新しいウィンドウで開く",
     "closeTab": "タブを閉じる",
     "nextTab": "次のタブ",
-    "previousTab": "前のタブ"
+    "previousTab": "前のタブ",
+    "newTabForDocument": "このドキュメントの新しいタブ"
   },
   "pageNav": {
     "nextPage": "次のページ",

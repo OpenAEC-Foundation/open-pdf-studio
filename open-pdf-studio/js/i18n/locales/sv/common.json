@@ -227,7 +227,8 @@
     "openInNewWindow": "Öppna i nytt fönster",
     "closeTab": "Stäng flik",
     "nextTab": "Nästa flik",
-    "previousTab": "Föregående flik"
+    "previousTab": "Föregående flik",
+    "newTabForDocument": "Ny flik för det här dokumentet"
   },
   "pageNav": {
     "nextPage": "Nästa sida",

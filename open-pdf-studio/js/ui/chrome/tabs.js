@@ -217,6 +217,14 @@ function toonTab(index) {
         });
     }
 
+    // Hetzelfde document in meer tabbladen (#919): een weergave die voor
+    // kwam terwijl het document achter lag, krijgt hier haar stand.
+    Promise.resolve(firstRender)
+      .catch(() => {})
+      .then(() => import('./weergave-tabs.js'))
+      .then((m) => { if (getActiveDocument() === newDoc) return m.naTabWissel(newDoc); })
+      .catch((e) => console.warn('[tabs] weergave van tabblad niet teruggezet:', e));
+
     // Regenerate thumbnails for the new document
     generateThumbnails();
 
@@ -375,6 +383,8 @@ export async function closeTab(index, force = false, dialogAction = null) {
 
   // Clear thumbnail cache for this document
   clearThumbnailCache(doc.id);
+  // De bewaarde standen van zijn andere tabbladen (#919).
+  import('./weergave-tabs.js').then((m) => m.vergeetDocument(doc)).catch(() => {});
 
   index = state.documents.indexOf(doc);
   if (index < 0) return false;
@@ -495,12 +505,14 @@ async function showUnsavedChangesDialog(fileName) {
 }
 
 /**
- * Close the current active tab
+ * Close the current active tab. Is the document open in more tabs (#919),
+ * only this tab closes and the document stays open.
  * @returns {boolean} True if tab was closed
  */
 export async function closeActiveTab() {
   if (state.activeDocumentIndex === -1) return false;
-  return closeTab(state.activeDocumentIndex);
+  const { sluitActiefTabItem } = await import('./weergave-tabs.js');
+  return sluitActiefTabItem();
 }
 
 /**

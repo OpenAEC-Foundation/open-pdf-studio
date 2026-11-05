@@ -227,7 +227,8 @@
     "openInNewWindow": "Otwórz w nowym oknie",
     "closeTab": "Zamknij kartę",
     "nextTab": "Następna karta",
-    "previousTab": "Poprzednia karta"
+    "previousTab": "Poprzednia karta",
+    "newTabForDocument": "Nowa karta dla tego dokumentu"
   },
   "pageNav": {
     "nextPage": "Następna strona",

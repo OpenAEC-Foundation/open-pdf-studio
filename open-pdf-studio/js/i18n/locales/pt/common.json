@@ -227,7 +227,8 @@
     "openInNewWindow": "Abrir em nova janela",
     "closeTab": "Fechar aba",
     "nextTab": "Separador seguinte",
-    "previousTab": "Separador anterior"
+    "previousTab": "Separador anterior",
+    "newTabForDocument": "Nova guia para este documento"
   },
   "pageNav": {
     "nextPage": "Próxima página",

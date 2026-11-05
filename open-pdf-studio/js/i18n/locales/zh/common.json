@@ -227,7 +227,8 @@
     "openInNewWindow": "在新窗口中打开",
     "closeTab": "关闭标签页",
     "nextTab": "下一个标签页",
-    "previousTab": "上一个标签页"
+    "previousTab": "上一个标签页",
+    "newTabForDocument": "为此文档新建标签页"
   },
   "pageNav": {
     "nextPage": "下一页",

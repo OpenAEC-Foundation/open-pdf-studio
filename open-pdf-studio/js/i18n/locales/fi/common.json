@@ -227,7 +227,8 @@
     "openInNewWindow": "Avaa uudessa ikkunassa",
     "closeTab": "Sulje välilehti",
     "nextTab": "Seuraava välilehti",
-    "previousTab": "Edellinen välilehti"
+    "previousTab": "Edellinen välilehti",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Seuraava sivu",

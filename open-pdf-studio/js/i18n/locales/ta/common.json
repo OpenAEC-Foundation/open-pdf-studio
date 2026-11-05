@@ -227,7 +227,8 @@
     "openInNewWindow": "புதிய சாளரத்தில் திற",
     "closeTab": "தாவலை மூடு",
     "nextTab": "அடுத்த தாவல்",
-    "previousTab": "முந்தைய தாவல்"
+    "previousTab": "முந்தைய தாவல்",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "அடுத்த பக்கம்",

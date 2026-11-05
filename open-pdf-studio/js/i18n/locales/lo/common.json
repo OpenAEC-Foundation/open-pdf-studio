@@ -228,7 +228,8 @@
     "openInNewWindow": "ເປີດໃນໜ້າຕ່າງໃໝ່",
     "closeTab": "ປິດແທັບ",
     "nextTab": "ແທັບຖັດໄປ",
-    "previousTab": "ແທັບກ່ອນໜ້າ"
+    "previousTab": "ແທັບກ່ອນໜ້າ",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "ໜ້າຖັດໄປ",

@@ -133,6 +133,11 @@ export interface DocumentState {
   /** Gesplitste weergave (#715): null/afwezig = één paneel. Alleen wat de
    *  interface toont; de standen per paneel houdt pdf/split-view/split-view.js. */
   splitView?: { richting: 'vertical' | 'horizontal'; actief: 0 | 1; verhouding: number; sync: boolean } | null;
+  /** Hetzelfde document in meer tabbladen (#919, ui/chrome/weergave-tabs-model.js):
+   *  de ids van de tabbladen in volgorde; afwezig = een tabblad. */
+  weergaven?: string[];
+  /** Het tabblad (weergave) dat de viewer van dit document nu toont. */
+  actieveWeergave?: string;
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;

@@ -227,7 +227,8 @@
     "openInNewWindow": "Otvoriť v novom okne",
     "closeTab": "Zavrieť kartu",
     "nextTab": "Nasledujúca karta",
-    "previousTab": "Predchádzajúca karta"
+    "previousTab": "Predchádzajúca karta",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Nasledujúca strana",

@@ -227,7 +227,8 @@
     "openInNewWindow": "Apri in una nuova finestra",
     "closeTab": "Chiudi scheda",
     "nextTab": "Scheda successiva",
-    "previousTab": "Scheda precedente"
+    "previousTab": "Scheda precedente",
+    "newTabForDocument": "Nuova scheda per questo documento"
   },
   "pageNav": {
     "nextPage": "Pagina successiva",
