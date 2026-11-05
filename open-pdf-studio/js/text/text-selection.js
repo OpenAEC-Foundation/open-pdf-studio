@@ -1,8 +1,12 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { showTextSelectionContextMenu } from '../ui/chrome/context-menus.js';
 import { applyBandRestriction, clearBandRestriction } from './selection-guard.js';
-import { weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
+import { weergaveRectNaarPagina, clientNaarPagina } from '../pdf/weergave-ruimte.js';
 import { selectionTextDir } from './leesrichting.js';
+import {
+  MEERKLIK_MS, lijnRaaktRect, aaneengeslotenReeksen, woordGrenzen, dichtsteLetter, labelBereik, quadLangsTekst,
+} from './tekst-markeren.js';
+import { isSchuin, markeringUitQuads } from '../annotations/markering-quads.js';
 
 /**
  * Text Selection Module
@@ -14,6 +18,11 @@ import { selectionTextDir } from './leesrichting.js';
 let _guardRestricted = [];
 // De .endOfContent-div van de tekstlaag waarin de huidige sleep begon.
 let _activeEndOfContent = null;
+// Markeren in tekstmodus (#927): het schermpunt van de laatste mousedown met
+// de linkerknop, het begin van de sleeplijn.
+let _sleepBegin = null;
+// Wachtende dubbelklik (woord), zodat een derde klik (label) hem overneemt.
+let _woordTimer = null;
 
 /**
  * Initializes text selection event listeners
@@ -31,6 +40,10 @@ export function initTextSelection() {
   // Einde van een sleep: hef de kolom-begrenzing en endOfContent weer op.
   // Document-breed zodat het ook vuurt als de muis buiten de tekstlaag loslaat.
   document.addEventListener('mouseup', handleMouseUp);
+
+  // Markeren in tekstmodus (#927): dubbel- en driemaal klikken. In de
+  // capture-fase, zodat geen andere handler de klik inslikt.
+  document.addEventListener('click', handleMeerklik, true);
 }
 
 /**
@@ -93,6 +106,11 @@ function handleMouseDown(e) {
   // Don't clear selection if clicking on context menu
   if (e.target.closest('.context-menu')) return;
 
+  // Markeren in tekstmodus houdt alleen de tekst die de sleeplijn raakt;
+  // onthoud waar hij begint (het canvas kan deze mousedown vóór de
+  // tekstlaag krijgen).
+  if (e.button === 0) _sleepBegin = { x: e.clientX, y: e.clientY };
+
   // Don't clear selection if clicking within text layer
   const textLayer = findParentTextLayer(e.target);
   if (textLayer) {
@@ -114,8 +132,253 @@ function handleMouseDown(e) {
 /**
  * Handles mouseup: end a selection drag and lift the temporary column guard.
  */
-function handleMouseUp() {
+function handleMouseUp(e) {
+  const lijn = _sleepBegin && e ? { x1: _sleepBegin.x, y1: _sleepBegin.y, x2: e.clientX, y2: e.clientY } : null;
+  _sleepBegin = null;
   endSelectionDrag();
+  // Markeren in tekstmodus (#927): de paginatekst die deze sleep selecteerde,
+  // wordt bij het loslaten een markering; de modus blijft aan voor de
+  // volgende. Een gewone klik markeert niets; de mouseup van een dubbelklik
+  // is voor handleMeerklik.
+  if (!tekstMarkerenAan() || !lijn || (e && e.detail >= 2)) return;
+  if (Math.hypot(lijn.x2 - lijn.x1, lijn.y2 - lijn.y1) < 3) return;
+  setTimeout(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0 || sel.isCollapsed || !sel.toString().trim()) return;
+    if (!findParentTextLayer(sel.anchorNode)) return;
+    // Op tekeningen staat de tekstlaag in bestandsvolgorde, niet in
+    // leesvolgorde: een selectie van de browser pakt dan labels van elders op
+    // het blad mee. Alleen de stukken die de sleeplijn echt raakt.
+    const bereik = sel.getRangeAt(0);
+    const delen = gekruisteDelen(bereik, lijn);
+    markeerBereiken(delen || [bereik]);
+  }, 0);
+}
+
+/** Staat Markeren in tekstmodus aan (highlight-mode.js)? */
+function tekstMarkerenAan() {
+  return !!state.textHighlightMode && state.currentTool === 'select';
+}
+
+const wit = (c) => /\s/.test(c);
+
+/** De tekstlaag-spans zonder kind-spans, met tekst (of met echte letters). */
+function woordSpans(laag, alleenLetters = false) {
+  return [...laag.querySelectorAll('span')].filter((s) => !s.querySelector('span')
+    && (alleenLetters ? s.textContent.trim() : s.textContent));
+}
+
+/**
+ * De delen van `range` die de sleeplijn (schermpixels) raakt, als ranges:
+ * één per reeks opeenvolgende tekstlaag-spans. Null als de range één span
+ * beslaat of als er niets af hoeft: dan blijft de selectie zoals ze is; []
+ * als de lijn geen span raakt.
+ */
+function gekruisteDelen(range, lijn) {
+  const laag = findParentTextLayer(range.commonAncestorContainer) || findParentTextLayer(range.startContainer);
+  if (!laag) return null;
+  const spans = woordSpans(laag).filter((s) => range.intersectsNode(s));
+  if (spans.length <= 1) return null;
+  const geraakt = spans.map((s) => {
+    const r = s.getBoundingClientRect();
+    return lijnRaaktRect(lijn, r, Math.max(4, Math.min(r.width, r.height) * 0.5));
+  });
+  if (geraakt.every(Boolean)) return null;
+  const delen = [];
+  for (const [i, j] of aaneengeslotenReeksen(geraakt)) {
+    const deel = document.createRange();
+    const eerste = spans[i], laatste = spans[j];
+    if (eerste.contains(range.startContainer)) deel.setStart(range.startContainer, range.startOffset);
+    else deel.setStartBefore(eerste);
+    if (laatste.contains(range.endContainer)) deel.setEnd(range.endContainer, range.endOffset);
+    else deel.setEndAfter(laatste);
+    if (!deel.collapsed && deel.toString().trim()) delen.push(deel);
+  }
+  return delen;
+}
+
+/**
+ * Markeren in tekstmodus (#927): dubbelklik markeert het woord onder de
+ * wijzer ("150X6.0SHS"), driemaal klikken het hele label ("150X6.0SHS x 5730
+ * LENGTH"). De dubbelklik wacht even, zodat een derde klik hem overneemt.
+ * De tekst wordt op positie gezocht, niet via hit-testing: de klik landt
+ * vaak op het markeringscanvas.
+ */
+function handleMeerklik(e) {
+  if (e.detail < 2 || e.button !== 0 || !tekstMarkerenAan()) return;
+  const x = e.clientX, y = e.clientY;
+  const span = spanOpPunt(x, y);
+  if (!span) return;
+  e.preventDefault();
+  clearTimeout(_woordTimer);
+  _woordTimer = null;
+  if (e.detail === 2) {
+    _woordTimer = setTimeout(() => {
+      _woordTimer = null;
+      const bereik = woordBereik(span, x, y);
+      if (bereik) markeerBereiken([bereik]);
+    }, MEERKLIK_MS);
+    return;
+  }
+  if (e.detail !== 3) return;
+  // Tekeningen bewaren een label vaak als één span per woord ("ISSUED",
+  // "FOR", "APPROVAL"): neem de buurspans op dezelfde regel mee.
+  const regel = labelVan(span);
+  const bereik = document.createRange();
+  bereik.setStartBefore(regel[0]);
+  bereik.setEndAfter(regel[regel.length - 1]);
+  markeerBereiken([bereik]);
+}
+
+/** Het eerste tekstknooppunt van een span. */
+function tekstKnoop(span) {
+  return [...span.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.length) || null;
+}
+
+/** Midden van letter i op het scherm, of null als die niet te meten is. */
+function letterMidden(tn, i) {
+  const r = document.createRange();
+  r.setStart(tn, i);
+  r.setEnd(tn, i + 1);
+  const b = r.getBoundingClientRect();
+  if (!b.width && !b.height) return null;
+  return { x: (b.left + b.right) / 2, y: (b.top + b.bottom) / 2 };
+}
+
+/**
+ * Het woord van `span` op schermpunt (x, y), gevonden door de letters te
+ * meten: werkt ook op gedraaide tekst en als de tekstlaag niet het doel van
+ * de klik is.
+ */
+function woordBereik(span, x, y) {
+  const tn = tekstKnoop(span);
+  if (!tn) return null;
+  const tekst = tn.data;
+  const middens = Array.from({ length: tekst.length }, (_, i) => (wit(tekst[i]) ? null : letterMidden(tn, i)));
+  const grenzen = woordGrenzen(tekst, dichtsteLetter(middens, x, y));
+  if (!grenzen) return null;
+  const bereik = document.createRange();
+  bereik.setStart(tn, grenzen[0]);
+  bereik.setEnd(tn, grenzen[1]);
+  return bereik;
+}
+
+/**
+ * Maat van een span in de eigen ruimte van de tekstlaag (vóór de
+ * weergaverotatie van de pagina): oorsprong, leesrichting, lengte en
+ * letterhoogte, uit zijn CSS-transform (draaiing en schaal).
+ */
+function spanMaat(s) {
+  const m = getComputedStyle(s).transform;
+  const v = m && m !== 'none' ? (m.match(/-?[\d.]+(?:e[-+]?\d+)?/g) || []).map(Number) : [];
+  const [a = 1, b = 0, c = 0, d = 1] = v;
+  return {
+    x: s.offsetLeft, y: s.offsetTop, t: Math.atan2(b, a),
+    len: s.offsetWidth * Math.hypot(a, b), h: s.offsetHeight * Math.hypot(c, d),
+  };
+}
+
+/** De woord-spans die met `span` één label vormen (tekst-markeren.js). */
+function labelVan(span) {
+  const laag = span.closest('.textLayer');
+  if (!laag) return [span];
+  // Alleen woorden; de lege spans ertussen komen in de range mee.
+  const woorden = woordSpans(laag, true);
+  const i = woorden.indexOf(span);
+  if (i < 0) return [span];
+  const [a, b] = labelBereik(woorden.map(spanMaat), i);
+  return woorden.slice(a, b + 1);
+}
+
+/**
+ * De woord-span op een schermpunt: de span waarvan het vak het punt bevat;
+ * bij overlappende vakken (gedraaide labels) wint het dichtste midden.
+ */
+function spanOpPunt(x, y) {
+  let beste = null, bd = Infinity;
+  for (const s of document.querySelectorAll('.textLayer span')) {
+    if (s.querySelector('span') || !s.textContent.trim()) continue;
+    const r = s.getBoundingClientRect();
+    if (x < r.left - 2 || x > r.right + 2 || y < r.top - 2 || y > r.bottom + 2) continue;
+    const d = Math.hypot(x - (r.left + r.right) / 2, y - (r.top + r.bottom) / 2);
+    if (d < bd) { bd = d; beste = s; }
+  }
+  return beste;
+}
+
+/**
+ * Schuine tekst (geen veelvoud van 90 graden): de rechthoeken van de
+ * selectie zijn rechte vakken, dus de markering zou een groot vak rond het
+ * label bedekken. Hier één gedraaide quad per tekstlaag-span die de range
+ * raakt, langs de tekst, in paginaruimte. Null voor liggende of staande
+ * tekst: die houdt de gewone rechthoeken.
+ */
+function schuineMarkering(bereik) {
+  const laag = findParentTextLayer(bereik.commonAncestorContainer) || findParentTextLayer(bereik.startContainer);
+  if (!laag) return null;
+  const pagina = parseInt(laag.dataset.page, 10) || getActiveDocument()?.currentPage || 1;
+  const spans = woordSpans(laag, true).filter((s) => bereik.intersectsNode(s));
+  if (!spans.length) return null;
+  const quads = [];
+  for (const span of spans) {
+    const tn = tekstKnoop(span);
+    if (!tn) continue;
+    const tekst = tn.data;
+    let a = bereik.startContainer === tn ? bereik.startOffset : 0;
+    let b = bereik.endContainer === tn ? bereik.endOffset : tekst.length;
+    while (a < b && wit(tekst[a])) a++;
+    while (b > a && wit(tekst[b - 1])) b--;
+    if (b <= a) continue;
+    // Leesrichting op het scherm uit de eerste en laatste letter van de span.
+    let eerste = 0, laatste = tekst.length - 1;
+    while (eerste < laatste && wit(tekst[eerste])) eerste++;
+    while (laatste > eerste && wit(tekst[laatste])) laatste--;
+    if (laatste <= eerste) return null; // één letter: geen richting te lezen
+    const p0 = letterMidden(tn, eerste), p1 = letterMidden(tn, laatste);
+    const q0 = letterMidden(tn, a), q1 = letterMidden(tn, b - 1);
+    if (!p0 || !p1 || !q0 || !q1) return null;
+    const { len: lLok, h: hLok } = spanMaat(span);
+    const opScherm = quadLangsTekst({ p0, p1, stappen: laatste - eerste, letters: tekst.length, lLok, hLok, q0, q1 });
+    if (!opScherm) return null;
+    const hoeken = opScherm.map((p) => clientNaarPagina(pagina, p.x, p.y));
+    if (hoeken.some((p) => !p)) return null;
+    quads.push(hoeken.map((p) => ({ x: p.x, y: p.y })));
+  }
+  if (!quads.length || !quads.some(isSchuin)) return null;
+  return { page: pagina, ...markeringUitQuads(quads) };
+}
+
+/**
+ * Maak van elke range een tekstmarkering (hetzelfde pad als "Markering op
+ * selectie") en laat daarna niets geselecteerd: de modus blijft klaar voor
+ * de volgende, en een geselecteerde markering liet de ribbon na elke regel
+ * naar Opmaak springen. Eén ongedaan-maakstap voor alles.
+ */
+async function markeerBereiken(bereiken) {
+  const sel = window.getSelection();
+  if (!sel) return;
+  if (!bereiken.length) { clearTextSelection(); return; }
+  const [{ createTextMarkupAnnotation }, undo, keuze, weergave] = await Promise.all([
+    import('./text-markup.js'),
+    import('../core/undo-manager.js'),
+    import('../core/stores/selection-helpers.js'),
+    import('../annotations/rendering.js'),
+  ]);
+  undo.beginUndoTransaction();
+  try {
+    for (const bereik of bereiken) {
+      let schuin = null;
+      try { schuin = schuineMarkering(bereik); } catch { schuin = null; }
+      sel.removeAllRanges();
+      sel.addRange(bereik);
+      createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3, schuin, { select: false, redraw: false });
+    }
+  } finally {
+    undo.endUndoTransaction();
+  }
+  clearTextSelection();
+  keuze.clearSelection();
+  if (getActiveDocument()?.viewMode === 'continuous') weergave.redrawContinuous(); else weergave.redrawAnnotations();
 }
 
 /**

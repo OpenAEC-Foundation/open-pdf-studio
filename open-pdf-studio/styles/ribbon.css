@@ -865,6 +865,19 @@
   flex-shrink: 0;
 }
 
+/* Pictogram als innerHTML in een splitknopmenu (Markeren, #927). */
+.ribbon-split-btn-menu-icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.ribbon-split-btn-menu-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* Gekozen keuze in een splitknopmenu (bv. View > Split, #715). */
 .ribbon-split-btn-menu-item.active {
   background: var(--theme-ribbon-btn-active-bg, var(--theme-ribbon-btn-hover));

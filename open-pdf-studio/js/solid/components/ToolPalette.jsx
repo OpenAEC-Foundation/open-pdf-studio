@@ -1,9 +1,10 @@
 import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
+import { highlightMode, highlightActive, markeringKnop } from '../../tools/highlight-mode.js';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
 import {
-  highlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
+  highlightIcon, textHighlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
   textboxIcon, calloutIcon, noteIcon,
   stampIcon, signatureIcon,
@@ -250,14 +251,24 @@ function PaletteContextMenu() {
 function ToolBtn(props) {
   const toolDisabled = () => noPdf() || isPdfAReadOnly();
   const alwaysEnabled = props.tool === 'hand' || props.tool === 'select';
-  const isActive = () => state.currentTool === props.tool && !state.toolOverrides;
+  // Markeren (#927): gebied of tekst (highlight-mode.js). Nog eens klikken
+  // als hij aan staat wisselt van modus; pictogram en tooltip tonen welke.
+  const isHighlight = props.tool === 'highlight';
+  // Tekst markeren draait op Selecteren; dan staat alleen Markeren aan.
+  const isActive = () => (isHighlight
+    ? highlightActive()
+    : state.currentTool === props.tool && !(props.tool === 'select' && state.textHighlightMode)) && !state.toolOverrides;
+  const icon = () => (isHighlight && highlightMode() === 'text' ? textHighlightIcon : props.icon);
+  const title = () => (isHighlight
+    ? `${highlightMode() === 'text' ? props.textTitle : props.areaTitle}\n${props.switchTip}`
+    : props.title);
   return (
     <button
       class={`tp-btn ${isActive() ? 'active' : ''}`}
       disabled={!alwaysEnabled && toolDisabled()}
-      onClick={() => setTool(props.tool)}
-      title={props.title}
-      innerHTML={props.icon}
+      onClick={() => (isHighlight ? markeringKnop() : setTool(props.tool))}
+      title={title()}
+      innerHTML={icon()}
     />
   );
 }
@@ -273,7 +284,10 @@ function ToolList() {
         return (
           <>
             {showSep && <div class="tp-sep" />}
-            <ToolBtn tool={item.tool} title={t(item.key)} icon={item.icon} />
+            <ToolBtn tool={item.tool} title={t(item.key)} icon={item.icon}
+              areaTitle={`${t('comment.areaHighlight')}: ${t('comment.areaHighlightTitle')}`}
+              textTitle={`${t('comment.textHighlight')}: ${t('comment.textHighlightTitle')}`}
+              switchTip={t('comment.highlightSwitchTip')} />
           </>
         );
       }}

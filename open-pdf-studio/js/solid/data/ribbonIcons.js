@@ -72,6 +72,8 @@ export const findIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 
 
 // --- Comment tab: Drawing ---
 
+// Markeren in tekstmodus (#927): een T op een gele balk.
+export const textHighlightIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="7" fill="#facc15" stroke="none" opacity="0.85"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h12M12 4v14"/></svg>`;
 export const highlightIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10M3 10h18M3 14h18"/></svg>`;
 
 export const freehandIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`;
