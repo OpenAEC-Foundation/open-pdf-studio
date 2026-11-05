@@ -454,6 +454,7 @@ js/pdf/mengmodus-rondgang.test.mjs
 js/solid/components/ribbon/ribbon-popup.test.mjs
 js/tools/screenshot-keuze.test.mjs
 js/tools/screenshot-bedrading.test.mjs
+js/tools/screenshot-klembord.test.mjs
 js/pdf/eigenschappen-rondgang.test.mjs
 js/pdf/saver/vorm-draaiing.test.mjs
 js/pdf/saver/tekstvak-rc.test.mjs

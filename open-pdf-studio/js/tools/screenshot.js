@@ -1,6 +1,6 @@
 import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, heeftRustRenderer, saveFileDialog, writeBinaryFile } from '../core/platform.js';
+import { isTauri, isMobile, heeftRustRenderer, saveFileDialog, writeBinaryFile, invoke } from '../core/platform.js';
 import { render } from 'solid-js/web';
 import ScreenshotOverlay from '../solid/components/ScreenshotOverlay.jsx';
 import { startScreenshot, endScreenshot } from '../bridge.js';
@@ -18,6 +18,7 @@ import {
 } from '../pdf/weergave-ruimte.js';
 import i18next from '../i18n/config.js';
 import { kiesPagina, schermDpi, uitvoerMaat, tegelRaster, bestandsnaam } from './screenshot-keuze.js';
+import { kopieerPngNaarKlembord } from './screenshot-klembord.js';
 
 // Weergave draaien (#200): een schermafdruk hoort eruit te zien zoals de
 // gebruiker de pagina ziet. De scherpe render gebeurt in de paginaruimte;
@@ -294,12 +295,19 @@ function _blob(canvas, type, kwaliteit) {
 
 /**
  * Copy a capture to the clipboard. Always PNG: the clipboard takes a bitmap,
- * the format choice is for files.
+ * the format choice is for files. Desktop writes it from the Rust side, see
+ * screenshot-klembord.js (#925).
  */
 export async function kopieerSchermafbeelding(gebied, dpi) {
   const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
   const blob = await _blob(canvas, 'image/png');
-  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  await kopieerPngNaarKlembord(blob, {
+    desktop: isTauri() && !isMobile(),
+    invoke,
+    clipboard: navigator.clipboard,
+    ClipboardItem: globalThis.ClipboardItem,
+    waarschuw: console.warn,
+  });
   _bewaarVoorOverlay(gebied, paginaCanvas);
   updateStatusMessage(i18next.t('dialogs:screenshot.copied', { width: maat.breedte, height: maat.hoogte, dpi: maat.dpi }));
   return maat;
