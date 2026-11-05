@@ -2172,6 +2172,9 @@ async fn ocr_pdf_page(
     path: String,
     page_index: u32,
     lang: Option<String>,
+    // Extra draaiing rechtsom (0/90/180/270) vóór de herkenning, voor
+    // verticale tekst (#954); de woorden staan dan in die gedraaide ruimte.
+    rotation: Option<i32>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
 ) -> Result<Vec<ocr::OcrWord>, String> {
@@ -2205,7 +2208,7 @@ async fn ocr_pdf_page(
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
     tauri::async_runtime::spawn_blocking({
-        move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+        move || ocr::ocr_page_words_rotated(handle.document(), page_index, &tessdata_dir, &lang, rotation.unwrap_or(0))
     })
     .await
     .map_err(|e| format!("OCR task panicked: {}", e))?

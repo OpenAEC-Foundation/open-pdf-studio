@@ -391,6 +391,7 @@ js/ui/panels/bladwijzer-boom.test.mjs
 js/ui/panels/miniatuur-maat.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
+js/pdf/pagina-labels-verticaal.test.mjs
 js/pdf/page-manager-paginalabels.test.mjs
 js/plugins/structured-commands.test.mjs
 js/plugins/system-instance-panels.test.mjs

@@ -7,7 +7,8 @@ import { invoke, isTauri } from '../core/platform.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
-  tekstInGebied, woordenInGebied, draaiVak,
+  tekstInGebied, draaiVak, ocrLezing, moetGedraaidLezen, kiesBesteOcrLezing,
+  vakNaarOcrDraaiing, OCR_DRAAIINGEN,
 } from './pagina-labels.js';
 
 /**
@@ -94,13 +95,17 @@ export async function labelsNaHerladen(doc, { oudeBytes = null, nieuweBytes = nu
 // saver een onzichtbare tekstlaag in het bestand, en de naambouwer leest alleen.
 const _ocrWoorden = new Map();
 
-async function ocrWoorden(doc, pageNum) {
+// `graden`: de pagina eerst zoveel rechtsom draaien (verticale tekst, #954);
+// de woorden staan dan in die gedraaide ruimte.
+async function ocrWoorden(doc, pageNum, graden = 0) {
   const bestaand = doc.ocrResults?.[pageNum];
-  if (Array.isArray(bestaand) && bestaand.length) return bestaand;
+  if (!graden && Array.isArray(bestaand) && bestaand.length) return bestaand;
   if (!doc.filePath || !isTauri()) return [];
-  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}`;
+  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}|${graden}`;
   if (_ocrWoorden.has(sleutel)) return _ocrWoorden.get(sleutel);
-  const woorden = await invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNum - 1, lang: 'auto' });
+  const woorden = await invoke('ocr_pdf_page', {
+    path: doc.filePath, pageIndex: pageNum - 1, lang: 'auto', ...(graden ? { rotation: graden } : {}),
+  });
   if (_ocrWoorden.size > 500) _ocrWoorden.clear();
   const lijst = Array.isArray(woorden) ? woorden : [];
   _ocrWoorden.set(sleutel, lijst);
@@ -142,8 +147,21 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
         const r = draaiVak({ x: w.left, y: w.top, width: w.width, height: w.height }, p.breedte, p.hoogte, extra);
         return { ...w, left: r.x, top: r.y, width: r.width, height: r.height };
       });
-      const tekst = woordenInGebied(woorden, vak);
-      if (tekst) return { tekst, bron: 'ocr' };
+      const lezingen = [ocrLezing(woorden, vak, 0)];
+      // Leeg of onzeker: misschien staat de tekst verticaal (#954). Lees de
+      // pagina dan ook een kwartslag gedraaid en neem de zekerste lezing.
+      if (moetGedraaidLezen(lezingen[0]) && p && doc.filePath && isTauri()) {
+        for (const graden of OCR_DRAAIINGEN) {
+          try {
+            const gedraaid = await ocrWoorden(doc, pageNum, graden);
+            lezingen.push(ocrLezing(gedraaid, vakNaarOcrDraaiing(vak, p.breedte, p.hoogte, extra, graden), graden));
+          } catch (e) {
+            console.warn(`[paginalabels] OCR ${graden}° mislukt:`, e?.message || e);
+          }
+        }
+      }
+      const beste = kiesBesteOcrLezing(lezingen);
+      if (beste) return { tekst: beste.tekst, bron: 'ocr' };
     } catch (e) {
       console.warn('[paginalabels] OCR mislukt:', e?.message || e);
     }
