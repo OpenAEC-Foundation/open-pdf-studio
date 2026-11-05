@@ -922,5 +922,9 @@
     "open": "打开",
     "saveAs": "另存为...",
     "noContent": "此文件的内容未嵌入 PDF 中。"
+  },
+  "sectionOrder": {
+    "reset": "重置分区顺序",
+    "hint": "拖动标题或使用 Alt+↑/↓ 移动分区。"
   }
 }

@@ -881,3 +881,16 @@
   line-height: 1.4;
   color: var(--theme-warning, #9a6700);
 }
+
+/* DOM order follows the saved order, including the keyboard focus sequence. */
+.property-order-block:empty { display: none; }
+.property-order-reset { margin: 4px 8px; }
+.property-ordered-sections .property-section-header,
+.property-ordered-sections .prop-section-header {
+  touch-action: none;
+  cursor: default;
+}
+.property-section-header:focus-visible,
+.prop-section-header:focus-visible { outline: 2px solid var(--theme-text); outline-offset: -2px; }
+.property-ordered-sections [data-section-drop="before"] { box-shadow: inset 0 3px var(--theme-text); }
+.property-ordered-sections [data-section-drop="after"] { box-shadow: inset 0 -3px var(--theme-text); }

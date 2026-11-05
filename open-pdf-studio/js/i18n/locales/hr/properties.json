@@ -922,5 +922,9 @@
     "open": "Otvori",
     "saveAs": "Spremi kao...",
     "noContent": "Sadržaj ove datoteke nije ugrađen u PDF."
+  },
+  "sectionOrder": {
+    "reset": "Vrati redoslijed odjeljaka",
+    "hint": "Povucite zaglavlje ili upotrijebite Alt+↑/↓ za premještanje odjeljka."
   }
 }

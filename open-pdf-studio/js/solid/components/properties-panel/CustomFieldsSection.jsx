@@ -7,7 +7,8 @@ export default function CustomFieldsSection() {
   return (
     <Show when={sectionVis.customFields}>
       <div class="prop-section">
-        <div class="prop-section-header" onClick={() => toggleSection('customFields')}>
+        <div class="prop-section-header" role="button" tabIndex={0} aria-expanded={!isCollapsed()}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleSection('customFields'); } }} onClick={() => toggleSection('customFields')}>
           <span class={`prop-section-arrow ${isCollapsed() ? 'collapsed' : ''}`}>&#9660;</span>
           <span>Fields</span>
         </div>

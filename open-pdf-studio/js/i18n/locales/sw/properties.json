@@ -922,5 +922,9 @@
     "open": "Fungua",
     "saveAs": "Hifadhi kama...",
     "noContent": "Maudhui ya faili hii hayajapachikwa kwenye PDF."
+  },
+  "sectionOrder": {
+    "reset": "Rejesha mpangilio wa sehemu",
+    "hint": "Buruta kichwa au tumia Alt+↑/↓ kuhamisha sehemu."
   }
 }

@@ -922,5 +922,9 @@
     "open": "Otvoriť",
     "saveAs": "Uložiť ako...",
     "noContent": "Obsah tohto súboru nie je vložený do PDF."
+  },
+  "sectionOrder": {
+    "reset": "Obnoviť poradie sekcií",
+    "hint": "Sekciu presuňte potiahnutím záhlavia alebo pomocou Alt+↑/↓."
   }
 }

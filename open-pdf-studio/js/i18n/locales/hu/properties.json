@@ -922,5 +922,9 @@
     "open": "Megnyitás",
     "saveAs": "Mentés másként...",
     "noContent": "A fájl tartalma nincs beágyazva a PDF-be."
+  },
+  "sectionOrder": {
+    "reset": "Szakaszok sorrendjének visszaállítása",
+    "hint": "Húzza a fejlécet, vagy használja az Alt+↑/↓ billentyűket a szakasz mozgatásához."
   }
 }

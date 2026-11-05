@@ -922,5 +922,9 @@
     "open": "Öppna",
     "saveAs": "Spara som...",
     "noContent": "Innehållet i den här filen är inte inbäddat i PDF-filen."
+  },
+  "sectionOrder": {
+    "reset": "Återställ avsnittsordning",
+    "hint": "Dra en rubrik eller använd Alt+↑/↓ för att flytta ett avsnitt."
   }
 }

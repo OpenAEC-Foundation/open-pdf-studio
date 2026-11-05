@@ -928,5 +928,9 @@
     "open": "Obre",
     "saveAs": "Desa com a...",
     "noContent": "El contingut d'aquest fitxer no està incrustat al PDF."
+  },
+  "sectionOrder": {
+    "reset": "Restableix l’ordre de les seccions",
+    "hint": "Arrossegueu una capçalera o feu servir Alt+↑/↓ per moure una secció."
   }
 }

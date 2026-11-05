@@ -922,5 +922,9 @@
     "open": "Deschide",
     "saveAs": "Salvare ca...",
     "noContent": "Conținutul acestui fișier nu este încorporat în PDF."
+  },
+  "sectionOrder": {
+    "reset": "Resetează ordinea secțiunilor",
+    "hint": "Trageți un antet sau folosiți Alt+↑/↓ pentru a muta o secțiune."
   }
 }

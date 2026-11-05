@@ -922,5 +922,9 @@
     "open": "Abrir",
     "saveAs": "Guardar como...",
     "noContent": "El contenido de este archivo no está incrustado en el PDF."
+  },
+  "sectionOrder": {
+    "reset": "Restablecer orden de secciones",
+    "hint": "Arrastre un encabezado o use Alt+↑/↓ para mover una sección."
   }
 }

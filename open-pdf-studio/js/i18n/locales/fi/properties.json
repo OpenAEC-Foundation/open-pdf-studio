@@ -922,5 +922,9 @@
     "open": "Avaa",
     "saveAs": "Tallenna nimellä...",
     "noContent": "Tämän tiedoston sisältöä ei ole upotettu PDF-tiedostoon."
+  },
+  "sectionOrder": {
+    "reset": "Palauta osioiden järjestys",
+    "hint": "Siirrä osiota vetämällä otsikkoa tai painamalla Alt+↑/↓."
   }
 }

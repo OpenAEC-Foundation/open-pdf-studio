@@ -922,5 +922,9 @@
     "open": "Buka",
     "saveAs": "Simpan sebagai...",
     "noContent": "Isi file ini tidak disematkan dalam PDF."
+  },
+  "sectionOrder": {
+    "reset": "Atur ulang urutan bagian",
+    "hint": "Seret judul atau gunakan Alt+↑/↓ untuk memindahkan bagian."
   }
 }

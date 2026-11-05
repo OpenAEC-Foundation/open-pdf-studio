@@ -922,5 +922,9 @@
     "open": "Otwórz",
     "saveAs": "Zapisz jako...",
     "noContent": "Zawartość tego pliku nie jest osadzona w pliku PDF."
+  },
+  "sectionOrder": {
+    "reset": "Przywróć kolejność sekcji",
+    "hint": "Przeciągnij nagłówek lub użyj Alt+↑/↓, aby przesunąć sekcję."
   }
 }

@@ -922,5 +922,9 @@
     "open": "Ouvrir",
     "saveAs": "Enregistrer sous...",
     "noContent": "Le contenu de ce fichier n'est pas incorporé dans le PDF."
+  },
+  "sectionOrder": {
+    "reset": "Réinitialiser l’ordre des sections",
+    "hint": "Faites glisser un en-tête ou utilisez Alt+↑/↓ pour déplacer une section."
   }
 }

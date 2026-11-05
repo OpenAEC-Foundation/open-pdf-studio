@@ -922,5 +922,9 @@
     "open": "Åpne",
     "saveAs": "Lagre som...",
     "noContent": "Innholdet i denne filen er ikke innebygd i PDF-en."
+  },
+  "sectionOrder": {
+    "reset": "Tilbakestill seksjonsrekkefølge",
+    "hint": "Dra en overskrift eller bruk Alt+↑/↓ for å flytte en seksjon."
   }
 }

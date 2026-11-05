@@ -922,5 +922,9 @@
     "open": "Åbn",
     "saveAs": "Gem som...",
     "noContent": "Indholdet af denne fil er ikke indlejret i PDF'en."
+  },
+  "sectionOrder": {
+    "reset": "Nulstil sektionsrækkefølge",
+    "hint": "Træk en overskrift, eller brug Alt+↑/↓ for at flytte en sektion."
   }
 }

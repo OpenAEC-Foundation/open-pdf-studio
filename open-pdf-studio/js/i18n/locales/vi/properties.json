@@ -922,5 +922,9 @@
     "open": "Mở",
     "saveAs": "Lưu thành...",
     "noContent": "Nội dung của tệp này không được nhúng trong PDF."
+  },
+  "sectionOrder": {
+    "reset": "Đặt lại thứ tự các phần",
+    "hint": "Kéo tiêu đề hoặc dùng Alt+↑/↓ để di chuyển một phần."
   }
 }

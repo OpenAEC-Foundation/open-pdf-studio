@@ -1,8 +1,10 @@
-import { Show, onMount } from 'solid-js';
-import { panelVisible, panelCollapsed, setPanelCollapsed, annotProps, sectionVis, updateAnnotProp, cycleSelectNext, nativePanelHidden, hydrateCollapsedSections, getCurrentAnnotation, SCHAALBALK_MIN_HOOGTE_PT } from '../../stores/propertiesStore.js';
+import { Show, For, onMount, onCleanup } from 'solid-js';
+import { panelMode, panelVisible, panelCollapsed, setPanelCollapsed, annotProps, sectionVis, updateAnnotProp, cycleSelectNext, nativePanelHidden, hydrateCollapsedSections, getCurrentAnnotation, SCHAALBALK_MIN_HOOGTE_PT } from '../../stores/propertiesStore.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { propertySectionOrder, hydratePropertySectionOrder, reorderPropertySection, resetPropertySectionOrder } from '../../stores/propertySectionOrderStore.js';
+import { installSectionOrdering } from './section-order-controller.js';
 import PanelHeader from './PanelHeader.jsx';
 import DocInfoView from './DocInfoView.jsx';
 import DimensionTypeSection from './DimensionTypeSection.jsx';
@@ -57,37 +59,30 @@ export default function PropertiesPanel() {
   const { t } = useTranslation('properties');
 
   // Restore remembered section-collapse state once (preferences are loaded by now).
-  onMount(hydrateCollapsedSections);
+  onMount(() => { hydrateCollapsedSections(); hydratePropertySectionOrder(); });
 
-  function expandPanel() {
-    setPanelCollapsed(false);
-  }
-
-  return (
-    <Show when={panelVisible() && !nativePanelHidden()}>
-      <div class={`properties-panel-outer ${panelCollapsed() ? 'collapsed' : ''}`}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}>
-        <Show when={panelCollapsed()}>
-          <div class="properties-panel-collapsed-content" onClick={expandPanel}>
-            <span class="properties-panel-collapsed-text">{t('title')}</span>
-          </div>
-        </Show>
-        <Show when={!panelCollapsed()}>
-          <div class="properties-panel visible" id="properties-panel">
-            <PanelHeader />
-            <DocInfoView />
-            {/* Dimension type selector pinned at the very top for maatlijnen */}
-            <DimensionTypeSection />
-            <GeneralSection />
-            <LocationSection />
-            <RepliesSection />
-            <AppearanceSection />
-            <HatchPatternSection />
-            <LineEndingsSection />
-            <InkSection />
-            <DimensionsSection />
-            <MeasurementSection />
+  const sections = {
+    general: GeneralSection,
+    location: LocationSection,
+    replies: RepliesSection,
+    appearance: AppearanceSection,
+    hatchPattern: HatchPatternSection,
+    lineEndings: LineEndingsSection,
+    ink: InkSection,
+    dimensions: DimensionsSection,
+    measurement: MeasurementSection,
+    parametricSymbol: ParametricSymbolSection,
+    gevelelement: GevelelementSection,
+    stavenreeks: StavenreeksSection,
+    wall: WallSection,
+    betonbalk: BetonbalkSection,
+    systeemraster: SysteemrasterSection,
+    textFormat: TextFormatSection,
+    paragraph: ParagraphSection,
+    content: ContentSection,
+    image: ImageSection,
+    customFields: CustomFieldsSection,
+    viewport: () => (
             <Show when={annotProps.annotationType === 'viewport'}>
               <CollapsibleSection title="Viewport" name="viewport" id="prop-viewport-section">
                 <div class="property-group">
@@ -126,6 +121,8 @@ export default function PropertiesPanel() {
                 </div>
               </CollapsibleSection>
             </Show>
+    ),
+    scaleRegion: () => (
             <Show when={annotProps.annotationType === 'scaleRegion'}>
               <CollapsibleSection title={t('scaleRegion.title') || 'Scale Region'} name="scaleRegion" id="prop-scaleregion-section">
                 <div class="property-group">
@@ -195,6 +192,8 @@ export default function PropertiesPanel() {
                 </div>
               </CollapsibleSection>
             </Show>
+    ),
+    scaleBar: () => (
             <Show when={sectionVis.scaleBar}>
               <CollapsibleSection title={t('scaleBar.title')} name="scaleBar" id="prop-scalebar-section">
                 <div class="property-group">
@@ -241,17 +240,33 @@ export default function PropertiesPanel() {
                 </div>
               </CollapsibleSection>
             </Show>
-            <ParametricSymbolSection />
-            <GevelelementSection />
-            <StavenreeksSection />
-            <WallSection />
-            <BetonbalkSection />
-            <SysteemrasterSection />
-            <TextFormatSection />
-            <ParagraphSection />
-            <ContentSection />
-            <ImageSection />
-            <CustomFieldsSection />
+    ),
+  };
+
+  function expandPanel() {
+    setPanelCollapsed(false);
+  }
+
+  return (
+    <Show when={panelVisible() && !nativePanelHidden()}>
+      <div class={`properties-panel-outer ${panelCollapsed() ? 'collapsed' : ''}`}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}>
+        <Show when={panelCollapsed()}>
+          <div class="properties-panel-collapsed-content" onClick={expandPanel}>
+            <span class="properties-panel-collapsed-text">{t('title')}</span>
+          </div>
+        </Show>
+        <Show when={!panelCollapsed()}>
+          <div class="properties-panel visible" id="properties-panel">
+            <PanelHeader />
+            <DocInfoView />
+            {/* Dimension type selector pinned at the very top for maatlijnen */}
+            <DimensionTypeSection />
+            <Show when={panelMode() !== 'none'}>
+              <button class="pref-btn property-order-reset" onClick={resetPropertySectionOrder}>{t('sectionOrder.reset')}</button>
+            </Show>
+            <OrderedSections sections={sections} hint={() => t('sectionOrder.hint')} />
             <CustomPluginPanel />
             <ScopedInstancePanels />
             <ActionsSection />
@@ -260,4 +275,18 @@ export default function PropertiesPanel() {
       </div>
     </Show>
   );
+}
+
+function OrderedSections(props) {
+  let root;
+  onMount(() => onCleanup(installSectionOrdering(root, {
+    move: reorderPropertySection,
+    identity: () => `${annotProps.id}:${annotProps.annotationType}`,
+  })));
+  return <div class="property-ordered-sections" ref={root}>
+    <For each={propertySectionOrder()}>{id => {
+      const Section = props.sections[id];
+      return <div class="property-order-block" data-property-block={id} title={props.hint()}><Section /></div>;
+    }}</For>
+  </div>;
 }

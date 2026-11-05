@@ -7,6 +7,9 @@ export interface Preferences {
   // de standaard voor nieuwe installaties) of 'single' (één pagina).
   defaultViewMode: 'continuous' | 'single';
 
+  // Properties panel section order (missing in preferences from older versions).
+  propertySectionOrder?: string[];
+
   // General
   authorName: string;
 

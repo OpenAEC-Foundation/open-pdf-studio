@@ -922,5 +922,9 @@
     "open": "Aç",
     "saveAs": "Farklı kaydet...",
     "noContent": "Bu dosyanın içeriği PDF'e gömülü değil."
+  },
+  "sectionOrder": {
+    "reset": "Bölüm sırasını sıfırla",
+    "hint": "Bölümü taşımak için başlığı sürükleyin veya Alt+↑/↓ kullanın."
   }
 }

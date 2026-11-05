@@ -922,5 +922,9 @@
     "open": "Buka",
     "saveAs": "Simpan sebagai...",
     "noContent": "Kandungan fail ini tidak dibenamkan dalam PDF."
+  },
+  "sectionOrder": {
+    "reset": "Tetapkan semula susunan bahagian",
+    "hint": "Seret tajuk atau gunakan Alt+↑/↓ untuk mengalihkan bahagian."
   }
 }

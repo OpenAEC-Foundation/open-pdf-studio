@@ -922,5 +922,9 @@
     "open": "Apri",
     "saveAs": "Salva con nome...",
     "noContent": "Il contenuto di questo file non è incorporato nel PDF."
+  },
+  "sectionOrder": {
+    "reset": "Ripristina ordine delle sezioni",
+    "hint": "Trascina un’intestazione o usa Alt+↑/↓ per spostare una sezione."
   }
 }
