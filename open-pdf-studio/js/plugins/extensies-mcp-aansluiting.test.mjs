@@ -110,7 +110,7 @@ test('de inhoud van een tabblad blijft een direct kind van .ribbon-container (ge
   const ribbon = lees('../solid/components/ribbon/Ribbon.jsx');
   assert.doesNotMatch(ribbon.replace(/\{\/\*[\s\S]*?\*\/\}/g, ''), /ribbon-panel/);
   const eindStrook = '</button>\n      </div>';
-  const tussen = ribbon.slice(ribbon.indexOf(eindStrook) + eindStrook.length, ribbon.indexOf('<Show when={!ribbonCollapsed()}>'));
+  const tussen = ribbon.slice(ribbon.indexOf(eindStrook) + eindStrook.length, ribbon.indexOf('<Show when={inhoudZichtbaar()}>'));
   assert.doesNotMatch(tussen.replace(/\{\/\*[\s\S]*?\*\/\}/g, ''), /<div/, 'geen omhulling vóór de inhoud');
   assert.match(ribbon, /<\/Switch>\n {6}<\/Show>\n {4}<\/>/, 'en ook niet erna');
   assert.doesNotMatch(lees('../../styles/ribbon.css'), /\.ribbon-panel\b/);

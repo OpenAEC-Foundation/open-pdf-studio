@@ -6438,7 +6438,6 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   border: 1px solid transparent;
   font-size: 11px;
   color: var(--theme-text, #333);
-  cursor: default;
 }
 .choose-pages-item.is-gekozen { border-color: #0078d7; background: rgba(0, 120, 215, 0.08); }
 .choose-pages-thumb { background: #fff; box-shadow: 0 0 2px rgba(0, 0, 0, 0.4); min-width: 40px; min-height: 40px; }

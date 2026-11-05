@@ -123,7 +123,7 @@ test('the count tool shows its group controls in the ribbon; every language has 
   const tekenen = readFileSync(new URL('../components/ribbon/DrawingTab.jsx', import.meta.url), 'utf8');
   assert.match(tekenen, /<Show when=\{state\.currentTool === 'count'\}>\s*<RibbonGroup label=\{t\('drawing\.countGroup'\)\}>\s*<CountGroupRibbonControls \/>/);
   const paneel = readFileSync(new URL('../components/properties-panel/PropertiesPanel.jsx', import.meta.url), 'utf8');
-  assert.match(paneel, /<CountGroupSection \/>/);
+  assert.match(paneel, /\['countGroup', CountGroupSection\]/);
   const locales = new URL('../../i18n/locales/', import.meta.url);
   for (const taal of readdirSync(locales)) {
     const lint = JSON.parse(readFileSync(new URL(`${taal}/ribbon.json`, locales), 'utf8'));
