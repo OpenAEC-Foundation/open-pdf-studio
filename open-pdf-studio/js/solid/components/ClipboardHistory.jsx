@@ -68,7 +68,7 @@ export function ClipboardWindow() {
   const { t } = useTranslation('ribbon');
   let el;
 
-  // Verplaatsen via de titelbalk (geen verplaats-cursor, zie CLAUDE.md).
+  // Verplaatsen via de titelbalk (standaardcursor, geen verplaats-cursor).
   function startVerplaatsen(e) {
     if (e.button !== 0 || e.target.closest('button')) return;
     e.preventDefault();
