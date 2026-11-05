@@ -6733,3 +6733,46 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   font-size: 11px;
   color: var(--theme-text, #333);
 }
+
+/* ===== Werkruimten (#932) ===== */
+.workspace-dialog { width: 460px; max-width: 94vw; }
+.workspace-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+.workspace-dialog-intro { margin: 0; color: var(--theme-text-secondary, #666); line-height: 1.5; }
+.workspace-dialog-row { display: flex; align-items: center; gap: 6px; }
+.workspace-dialog-row label { flex-shrink: 0; }
+.workspace-dialog-field {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  font-size: 12px;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, inherit);
+  user-select: text;
+}
+.workspace-dialog-note { margin: 0; color: var(--theme-text-secondary, #666); }
+.workspace-dialog-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface, #fff);
+}
+.workspace-dialog-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--theme-border, #e5e5e5);
+}
+.workspace-dialog-item:last-child { border-bottom: none; }
+.workspace-dialog-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.workspace-dialog-empty { padding: 6px; font-style: italic; color: var(--theme-text-secondary, #666); }

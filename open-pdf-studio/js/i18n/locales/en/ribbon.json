@@ -899,5 +899,23 @@
     "close": "Close",
     "markups": "{{count}} markups",
     "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

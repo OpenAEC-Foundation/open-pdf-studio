@@ -11,8 +11,8 @@ if (typeof globalThis.addEventListener !== 'function') {
   globalThis.dispatchEvent = doel.dispatchEvent.bind(doel);
 }
 test('only supported persisted UI sizes are accepted', () => {
-  for (const n of [100,125,150,175,200]) assert.equal(normalizeUiScale(String(n)),n);
-  for (const n of [0,99,Infinity,NaN,null,{},'large',201]) assert.equal(normalizeUiScale(n),100);
+  for (const n of [80,90,100,110,125,150,175,200]) assert.equal(normalizeUiScale(String(n)),n);
+  for (const n of [0,79,85,99,Infinity,NaN,null,{},'large',201]) assert.equal(normalizeUiScale(n),100);
 });
 test('CSS dimensions scale together, leaving zero, percentages and non-dimensions alone', () => {
   assert.equal(scaleUiValue('padding','2px 0px 4px 5%'),'calc(2px * var(--ui-scale, 1)) 0px calc(4px * var(--ui-scale, 1)) 5%');
@@ -161,4 +161,34 @@ test('the tab context menu (inline styles) follows the interface size too', () =
   const tabs=readFileSync(new URL('../js/solid/components/DocumentTabs.jsx',import.meta.url),'utf8');
   assert.match(tabs,/'font-size': 'calc\(13px \* var\(--ui-scale, 1\)\)'/);
   assert.match(tabs,/'min-width': 'calc\(200px \* var\(--ui-scale, 1\)\)'/);
+});
+
+// #932: kleiner dan 100% geeft het document meer ruimte. Alleen de bediening
+// schaalt; de ruimtemakende regels voor grote bediening blijven uit.
+test('a smaller interface size scales the chrome without the enlarged-layout rules', async () => {
+  const { pasUiSchaalToe, uiSchaalFactor, UI_SCALES } = await import('../js/core/ui-scale.js');
+  assert.deepEqual(UI_SCALES.slice(0, 4), [80, 90, 100, 110]);
+  const props=new Map(), attrs=new Set();
+  const root={style:{setProperty:(k,v)=>props.set(k,v),getPropertyValue:k=>props.get(k)??'',removeProperty:k=>props.delete(k)},
+    toggleAttribute:(n,on)=>{on?attrs.add(n):attrs.delete(n);},removeAttribute:n=>attrs.delete(n)};
+  // Labels uit een eerdere test luisteren naar de schaalwissel.
+  const raf=globalThis.requestAnimationFrame;
+  globalThis.requestAnimationFrame=()=>0;
+  try{
+    pasUiSchaalToe(80,root);
+    assert.equal(uiSchaalFactor(root),0.8);
+    assert.ok(!attrs.has('data-ui-scaled'));
+    pasUiSchaalToe(110,root);
+    assert.equal(uiSchaalFactor(root),1.1);
+    assert.ok(attrs.has('data-ui-scaled'));
+  }finally{
+    if (raf===undefined) delete globalThis.requestAnimationFrame; else globalThis.requestAnimationFrame=raf;
+  }
+  assert.equal(scaleUiValue('font-size','11px'),'calc(11px * var(--ui-scale, 1))');
+});
+
+test('the preferences dialog previews the interface size and restores it on cancel', () => {
+  const dialoog=readFileSync(new URL('../js/solid/components/preferences/PreferencesDialog.jsx',import.meta.url),'utf8');
+  assert.match(dialoog,/createEffect\(\(\) => pasUiSchaalToe\(prefs\.uiScale\[0\]\(\)\)\)/);
+  assert.match(dialoog,/onCleanup\(\(\) => pasUiSchaalToe\(state\.preferences\.uiScale\)\)/);
 });

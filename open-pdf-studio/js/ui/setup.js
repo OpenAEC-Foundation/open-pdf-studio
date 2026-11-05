@@ -10,6 +10,7 @@ import { openGesleepteBestanden } from './setup/gesleept-bestand.js';
 import { createTab } from './chrome/tabs.js';
 import { addImageFromFile } from '../annotations/image-drop.js';
 import { maxPaneelBreedte } from './panels/miniatuur-maat.js';
+import { bewaarLayoutVoorkeur } from '../core/layout-voorkeur.js';
 import { pageDropTarget } from './page-drop-target.js';
 
 // Sub-module imports
@@ -191,6 +192,11 @@ function setupPanelResize() {
         document.body.style.cursor = '';
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
+        // Versleepte breedte blijft over een herstart bewaard (#932).
+        const breedte = parseFloat(leftPanel.style.width);
+        if (!leftPanel.classList.contains('collapsed') && Number.isFinite(breedte)) {
+          bewaarLayoutVoorkeur('leftPanelWidth', Math.round(breedte));
+        }
       };
 
       document.addEventListener('mousemove', onMouseMove);

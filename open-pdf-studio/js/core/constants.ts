@@ -372,6 +372,15 @@ export const DEFAULT_PREFERENCES: Preferences = {
   keyboardShortcuts: {},
 
   // Panels
+  // Indeling van de werkruimte (#932, core/werkruimte.js): blijft over een
+  // herstart bewaard. leftPanelWidth null = de breedte uit het stijlblad.
+  leftPanelCollapsed: false,
+  leftPanelTab: 'thumbnails',
+  leftPanelWidth: null,
+  propertiesPanelCollapsed: false,
+  // Werkruimten met een naam: [{ naam, layout }], en de laatst gekozen.
+  workspaces: [],
+  activeWorkspace: '',
   propertiesPanelVisible: true,
   toolPaletteVisible: true,
   toolPaletteMode: 'docked-left',

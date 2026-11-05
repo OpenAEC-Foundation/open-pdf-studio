@@ -267,6 +267,12 @@ export interface Preferences {
   keyboardShortcuts: Record<string, string[]>;
 
   // Panels
+  leftPanelCollapsed: boolean;
+  leftPanelTab: string;
+  leftPanelWidth: number | null;
+  propertiesPanelCollapsed: boolean;
+  workspaces: Array<{ naam: string; layout: Record<string, unknown> }>;
+  activeWorkspace: string;
   propertiesPanelVisible: boolean;
   toolPaletteVisible: boolean;
   toolPaletteMode: string;

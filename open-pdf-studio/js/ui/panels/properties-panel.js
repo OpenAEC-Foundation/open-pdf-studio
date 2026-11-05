@@ -14,6 +14,7 @@ import {
   setPropertiesPanelCollapsed as setPanelCollapsed,
   propertiesPanelCollapsed as panelCollapsed,
 } from '../../bridge.js';
+import { herstelPanelCollapsed } from '../../solid/stores/propertiesStore.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -73,7 +74,8 @@ export function togglePropertiesPanel() {
 export function initPropertiesPanel() {
   const visible = state.preferences?.propertiesPanelVisible !== false;
   setPanelVisible(visible);
-  setPanelCollapsed(false);
+  // Ingeklapt laten als de gebruiker het zo achterliet (#932).
+  herstelPanelCollapsed(state.preferences?.propertiesPanelCollapsed === true);
 }
 
 // Show properties panel for multi-selection

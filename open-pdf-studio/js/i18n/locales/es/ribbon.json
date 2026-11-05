@@ -892,5 +892,23 @@
     "close": "Cerrar",
     "markups": "{{count}} marcas",
     "picked": "La copia está en el portapapeles: pulse Ctrl+V en la hoja"
+  },
+  "workspace": {
+    "button": "Espacio de trabajo",
+    "buttonTitle": "Espacios de trabajo: cambie entre distribuciones de paneles guardadas, guarde la distribución actual, restablézcala o cambie el tamaño de la interfaz",
+    "saved": "Espacios de trabajo guardados",
+    "none": "No hay espacios de trabajo guardados",
+    "manage": "Guardar o administrar espacios de trabajo...",
+    "reset": "Restablecer la distribución predeterminada",
+    "interfaceSize": "Tamaño de la interfaz",
+    "dialogTitle": "Espacios de trabajo",
+    "intro": "Un espacio de trabajo recuerda qué paneles y paletas están abiertos, contraídos o flotantes, el ancho del panel de navegación y si la cinta está contraída.",
+    "name": "Nombre:",
+    "save": "Guardar la distribución actual",
+    "overwrite": "Sobrescribir",
+    "savedAs": "Guardado como \"{{name}}\".",
+    "full": "Puede guardar hasta {{max}} espacios de trabajo. Elimine uno primero.",
+    "apply": "Aplicar",
+    "delete": "Eliminar"
   }
 }
