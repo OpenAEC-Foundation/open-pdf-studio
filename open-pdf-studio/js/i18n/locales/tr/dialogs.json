@@ -667,7 +667,11 @@
     "width": "Genişlik (mm):",
     "height": "Yükseklik (mm):",
     "info": "Belgede {{count}} sayfa var. İçerik orijinal boyutunda ortalanır — ölçekleme yapılmaz. Geri Al ile geri alınabilir.",
-    "nothingResized": "Hiçbir sayfa yeniden boyutlandırılmadı."
+    "nothingResized": "Hiçbir sayfa yeniden boyutlandırılmadı.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "PDF'yi Sıkıştır",

@@ -667,7 +667,11 @@
     "width": "چوڑائی (mm):",
     "height": "اونچائی (mm):",
     "info": "دستاویز میں {{count}} صفحات ہیں۔ مواد اپنے اصل سائز میں مرکز میں رکھا جاتا ہے — کوئی اسکیلنگ نہیں۔ «واپس کریں» سے واپس لیا جا سکتا ہے۔",
-    "nothingResized": "کسی صفحے کا سائز تبدیل نہیں ہوا۔"
+    "nothingResized": "کسی صفحے کا سائز تبدیل نہیں ہوا۔",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "PDF کمپریس کریں",

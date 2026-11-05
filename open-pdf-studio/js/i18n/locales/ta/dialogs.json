@@ -667,7 +667,11 @@
     "width": "அகலம் (mm):",
     "height": "உயரம் (mm):",
     "info": "ஆவணத்தில் {{count}} பக்கங்கள். உள்ளடக்கம் அதன் அசல் அளவில் மையப்படுத்தப்படுகிறது — அளவிடல் இல்லை. «செயல்தவிர்» மூலம் திரும்பப் பெறலாம்.",
-    "nothingResized": "எந்தப் பக்கத்தின் அளவும் மாற்றப்படவில்லை."
+    "nothingResized": "எந்தப் பக்கத்தின் அளவும் மாற்றப்படவில்லை.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "PDF-ஐச் சுருக்கு",

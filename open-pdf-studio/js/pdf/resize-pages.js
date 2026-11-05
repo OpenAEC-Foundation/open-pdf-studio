@@ -7,6 +7,8 @@ import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
 import { applyMoveGeneric } from "../annotations/transforms.js";
 import { shiftAnnotation } from "./shift-page-geometry.js";
+import { schaalVoorPassen, scaleAnnotationGeometry } from "./page-scale-geometry.js";
+import { shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
 import { PDFDocument } from "pdf-lib";
 
 const MM_TO_POINTS = 72 / 25.4;
@@ -32,9 +34,11 @@ export function translateAnnotation(ann, dx, dy) {
  * @param {string} rangeStr - Page range string (only used when applyTo is 'range')
  * @param {number} widthMm - Target visual width in millimetres
  * @param {number} heightMm - Target visual height in millimetres
+ * @param {boolean} [scaleContent=false] - Shrink or grow the content to fit the new size
+ *   (one factor, centred) instead of keeping its size. Annotations scale with it.
  * @returns {Promise<{resized: number}>}
  */
-export async function resizePages(applyTo, rangeStr, widthMm, heightMm) {
+export async function resizePages(applyTo, rangeStr, widthMm, heightMm, scaleContent = false) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return { resized: 0 };
   if (!(widthMm > 0) || !(heightMm > 0)) return { resized: 0 };
@@ -71,6 +75,8 @@ export async function resizePages(applyTo, rangeStr, widthMm, heightMm) {
     const newAnnotations = doc.annotations.map((a) => cloneAnnotation(a));
     // Per-page visual offset applied to content, keyed by 1-based page number.
     const pageOffsets = new Map();
+    const pageScales = new Map();
+    const geziene = new Set();
 
     for (const pageNum of targetPages) {
       const pdfPage = pages[pageNum - 1];
@@ -98,6 +104,22 @@ export async function resizePages(applyTo, rangeStr, widthMm, heightMm) {
       const newX = centerX - unrotW / 2;
       const newY = centerY - unrotH / 2;
 
+      if (scaleContent) {
+        // Een nieuwe pagina op de oorsprong; de inhoud krimpt (of groeit) met één factor
+        // en staat gecentreerd. De schaal geldt in de ongedraaide ruimte van de pagina.
+        const { s, dx: ux, dy: uy } = schaalVoorPassen(crop.width, crop.height, unrotW, unrotH);
+        const tx = ux - s * crop.x;
+        const ty = uy - s * crop.y;
+        if (!shiftPageContent(pdfDoc, pdfPage, tx, ty, s)) continue;
+        shiftPageAnnotations(pdfDoc, pdfPage, tx, ty, geziene, s);
+        pdfPage.setMediaBox(0, 0, unrotW, unrotH);
+        pdfPage.setCropBox(0, 0, unrotW, unrotH);
+        const zichtbaar = schaalVoorPassen(visualOldW, visualOldH, targetWpt, targetHpt);
+        pageScales.set(pageNum, zichtbaar);
+        pageOffsets.set(pageNum, { dx: zichtbaar.dx, dy: zichtbaar.dy });
+        continue;
+      }
+
       pdfPage.setMediaBox(newX, newY, unrotW, unrotH);
       pdfPage.setCropBox(newX, newY, unrotW, unrotH);
 
@@ -112,7 +134,9 @@ export async function resizePages(applyTo, rangeStr, widthMm, heightMm) {
 
     for (const ann of newAnnotations) {
       const off = pageOffsets.get(ann.page);
-      if (off) translateAnnotation(ann, off.dx, off.dy);
+      const sc = pageScales.get(ann.page);
+      if (sc) scaleAnnotationGeometry(ann, sc.s, sc.dx, sc.dy);
+      else if (off) translateAnnotation(ann, off.dx, off.dy);
     }
 
     const newBytes = new Uint8Array(await pdfDoc.save());

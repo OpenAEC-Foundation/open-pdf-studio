@@ -667,7 +667,11 @@
     "width": "Larghezza (mm):",
     "height": "Altezza (mm):",
     "info": "{{count}} pagina/e nel documento. Il contenuto viene centrato alla dimensione originale — senza ridimensionamento. Reversibile con Annulla.",
-    "nothingResized": "Nessuna pagina è stata ridimensionata."
+    "nothingResized": "Nessuna pagina è stata ridimensionata.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Comprimi PDF",

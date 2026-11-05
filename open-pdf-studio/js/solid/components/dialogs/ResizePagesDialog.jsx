@@ -25,6 +25,7 @@ export default function ResizePagesDialog(props) {
   const [orientation, setOrientation] = createSignal('portrait');
   const [customW, setCustomW] = createSignal(210);
   const [customH, setCustomH] = createSignal(297);
+  const [scaleContent, setScaleContent] = createSignal(true);
 
   // Resolve the target width/height in mm, applying orientation.
   const dims = createMemo(() => {
@@ -50,7 +51,7 @@ export default function ResizePagesDialog(props) {
     close();
 
     const { resizePages } = await import('../../../pdf/resize-pages.js');
-    const result = await resizePages(applyToVal, rangeVal, w, h);
+    const result = await resizePages(applyToVal, rangeVal, w, h, scaleContent());
 
     if (!result.resized) {
       showMessage(t('resizePages.nothingResized'));
@@ -144,8 +145,15 @@ export default function ResizePagesDialog(props) {
             />
           </div>
         </Show>
+        <div class="crop-margins-row">
+          <label class="crop-margins-label">{t('resizePages.content')}</label>
+          <select class="crop-margins-select" value={scaleContent() ? 'scale' : 'keep'} onChange={(e) => setScaleContent(e.target.value === 'scale')}>
+            <option value="scale">{t('resizePages.scaleToFit')}</option>
+            <option value="keep">{t('resizePages.keepSize')}</option>
+          </select>
+        </div>
         <div class="crop-margins-info">
-          {t('resizePages.info', { count: totalPages })}
+          {scaleContent() ? t('resizePages.infoScale', { count: totalPages }) : t('resizePages.info', { count: totalPages })}
         </div>
       </div>
     </Dialog>

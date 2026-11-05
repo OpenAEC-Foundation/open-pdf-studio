@@ -667,7 +667,11 @@
     "width": "Širina (mm):",
     "height": "Visina (mm):",
     "info": "Broj stranica u dokumentu: {{count}}. Sadržaj se centrira u izvornoj veličini — bez skaliranja. Poništivo naredbom Poništi.",
-    "nothingResized": "Nijednoj stranici nije promijenjena veličina."
+    "nothingResized": "Nijednoj stranici nije promijenjena veličina.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Komprimiraj PDF",

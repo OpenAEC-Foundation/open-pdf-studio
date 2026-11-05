@@ -667,7 +667,11 @@
     "width": "প্রস্থ (mm):",
     "height": "উচ্চতা (mm):",
     "info": "নথিতে {{count}}টি পৃষ্ঠা। বিষয়বস্তু তার মূল আকারে কেন্দ্রে রাখা হয় — কোনো স্কেলিং নেই। «পূর্বাবস্থায় ফেরান» দিয়ে ফেরানো যায়।",
-    "nothingResized": "কোনো পৃষ্ঠার আকার পরিবর্তন করা হয়নি।"
+    "nothingResized": "কোনো পৃষ্ঠার আকার পরিবর্তন করা হয়নি।",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "PDF সংকুচিত করুন",

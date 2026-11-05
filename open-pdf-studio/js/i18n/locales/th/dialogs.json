@@ -667,7 +667,11 @@
     "width": "ความกว้าง (mm):",
     "height": "ความสูง (mm):",
     "info": "เอกสารมี {{count}} หน้า เนื้อหาจะอยู่กึ่งกลางในขนาดเดิมโดยไม่ปรับขนาด เลิกทำได้",
-    "nothingResized": "ไม่มีหน้าที่ถูกปรับขนาด"
+    "nothingResized": "ไม่มีหน้าที่ถูกปรับขนาด",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "บีบอัด PDF",

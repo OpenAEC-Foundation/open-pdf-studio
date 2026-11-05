@@ -667,7 +667,11 @@
     "width": "幅 (mm)：",
     "height": "高さ (mm)：",
     "info": "文書は {{count}} ページです。内容は元のサイズのまま中央に配置され、拡大縮小はされません。元に戻すで復元できます。",
-    "nothingResized": "サイズが変更されたページはありません。"
+    "nothingResized": "サイズが変更されたページはありません。",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "PDF を圧縮",

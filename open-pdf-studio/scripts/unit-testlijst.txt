@@ -706,3 +706,4 @@ js/pdf/gedraaide-markering-rondgang.test.mjs
 js/annotations/tekstmarkering-mcp.test.mjs
 js/text/tekst-markeren.test.mjs
 js/tools/highlight-mode-bedrading.test.mjs
+js/pdf/page-scale-geometry.test.mjs

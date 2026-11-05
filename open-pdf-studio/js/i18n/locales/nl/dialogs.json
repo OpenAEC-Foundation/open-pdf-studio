@@ -615,7 +615,11 @@
     "width": "Breedte (mm):",
     "height": "Hoogte (mm):",
     "info": "{{count}} pagina('s) in document. Inhoud wordt gecentreerd op oorspronkelijke grootte — geen schaling. Omkeerbaar met Ongedaan maken.",
-    "nothingResized": "Er zijn geen pagina's gewijzigd."
+    "nothingResized": "Er zijn geen pagina's gewijzigd.",
+    "content": "Inhoud:",
+    "scaleToFit": "Schalen naar het nieuwe formaat",
+    "keepSize": "Formaat behouden (afsnijden of marge)",
+    "infoScale": "{{count}} pagina('s) in het document. De inhoud wordt passend geschaald en gecentreerd; aantekeningen schalen mee. Maatschalen en kalibratie worden niet aangepast. Ongedaan te maken met Undo."
   },
   "compress": {
     "title": "PDF comprimeren",

@@ -667,7 +667,11 @@
     "width": "Bredde (mm):",
     "height": "Højde (mm):",
     "info": "{{count}} side(r) i dokumentet. Indholdet centreres i sin oprindelige størrelse — ingen skalering. Kan fortrydes med Fortryd.",
-    "nothingResized": "Ingen sider blev ændret i størrelse."
+    "nothingResized": "Ingen sider blev ændret i størrelse.",
+    "content": "Content:",
+    "scaleToFit": "Scale to fit the new size",
+    "keepSize": "Keep size (crop or add margin)",
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
   },
   "compress": {
     "title": "Komprimér PDF",
