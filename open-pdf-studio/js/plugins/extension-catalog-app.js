@@ -7,15 +7,21 @@
 
 import { state } from '../core/state.js';
 import { invoke } from '../core/platform.js';
+import { externeDienstenAan } from '../core/webfuncties.js';
 import { maakCatalogusDienst } from './extension-catalog.js';
 
 export {
   STANDAARD_CATALOGUS, CATALOGUS_PAGINA, catalogiUit, bronnenUit, bronSoort, isNieuwer,
 } from './extension-catalog.js';
 
+// Catalogus, GitHub en pakketten staan op andere hosts: als gast nooit.
+function magOphalen() {
+  if (!externeDienstenAan()) throw new Error('The extension catalogue is not available here');
+}
+
 export const catalogusDienst = maakCatalogusDienst({
-  haalTekst: (url) => invoke('extensie_tekst_ophalen', { url }),
-  haalPakket: ({ url, sha256, verwachtId }) => invoke('extensie_pakket_ophalen', { url, sha256, verwachtId }),
+  haalTekst: (url) => { magOphalen(); return invoke('extensie_tekst_ophalen', { url }); },
+  haalPakket: ({ url, sha256, verwachtId }) => { magOphalen(); return invoke('extensie_pakket_ophalen', { url, sha256, verwachtId }); },
   installeer: async (pad) => {
     const { installPluginFromFile } = await import('./plugin-manager.js');
     return installPluginFromFile(pad);
