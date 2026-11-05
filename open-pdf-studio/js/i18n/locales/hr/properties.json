@@ -343,6 +343,8 @@
     "deleteBookmark": "Obriši knjižnu oznaku",
     "findBookmark": "Traži...",
     "findBookmarkTip": "Upišite za skok na knjižnu oznaku. Enter je otvara, ponovni Enter ide na sljedeće podudaranje.",
+    "findPage": "Traži...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Dodaj privitak",
     "openAttachment": "Otvori privitak",
     "saveAttachment": "Spremi privitak",

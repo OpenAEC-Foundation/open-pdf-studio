@@ -320,6 +320,8 @@
     "deleteBookmark": "Bladwijzer verwijderen",
     "findBookmark": "Zoeken...",
     "findBookmarkTip": "Typ om naar een bladwijzer te springen. Enter opent hem, nog eens Enter gaat naar de volgende treffer.",
+    "findPage": "Zoeken...",
+    "findPageTip": "Typ om naar een pagina te springen op bladnaam of nummer. Enter opent haar, nog eens Enter gaat naar de volgende treffer.",
     "addAttachment": "Bijlage toevoegen",
     "openAttachment": "Bijlage openen",
     "saveAttachment": "Bijlage opslaan",

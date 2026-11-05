@@ -285,6 +285,15 @@
     "pagesCount": "kurasa.",
     "deleteAfterExtraction": "Futa kurasa kutoka chanzo baada ya kutoa"
   },
+  "choosePages": {
+    "title": "Choose Pages",
+    "from": "{{name}} has {{count}} pages. Choose the pages to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "splitDocument": {
     "title": "Gawanya Hati",
     "method": "Njia ya kugawanya",

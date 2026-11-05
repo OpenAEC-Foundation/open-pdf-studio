@@ -20,6 +20,22 @@
   cursor: default;
 }
 
+/* Ingeklapt lint, tijdelijk opengeklapt door een klik op een tabtitel (#960):
+   de inhoud ligt als paneel over het document, zonder de indeling eronder te
+   verschuiven. Een klik buiten het lint of Esc klapt hem weer in. */
+.ribbon-container.ribbon-tijdelijk-open {
+  position: relative;
+  z-index: 900;
+}
+.ribbon-container.ribbon-tijdelijk-open > .ribbon-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  border-bottom: 1px solid var(--theme-ribbon-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Ribbon Tabs */
 .ribbon-tabs {
   background: linear-gradient(to bottom, var(--theme-ribbon-tabs-bg-start) 0%, var(--theme-ribbon-tabs-bg-end) 100%);

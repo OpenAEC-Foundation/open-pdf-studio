@@ -343,6 +343,8 @@
     "deleteBookmark": "حذف نشانک",
     "findBookmark": "یافتن...",
     "findBookmarkTip": "برای رفتن به یک نشانک تایپ کنید. Enter آن را باز می‌کند و Enter دوباره به مورد بعدی می‌رود.",
+    "findPage": "یافتن...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "افزودن پیوست",
     "openAttachment": "باز کردن پیوست",
     "saveAttachment": "ذخیره پیوست",

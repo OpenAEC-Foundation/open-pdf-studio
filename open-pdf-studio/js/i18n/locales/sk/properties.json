@@ -343,6 +343,8 @@
     "deleteBookmark": "Odstrániť záložku",
     "findBookmark": "Nájsť...",
     "findBookmarkTip": "Píšte pre prechod na záložku. Enter ju otvorí, ďalší Enter prejde na ďalšiu zhodu.",
+    "findPage": "Nájsť...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Pridať prílohu",
     "openAttachment": "Otvoriť prílohu",
     "saveAttachment": "Uložiť prílohu",

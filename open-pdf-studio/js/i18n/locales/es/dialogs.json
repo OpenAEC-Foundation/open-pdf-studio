@@ -285,6 +285,15 @@
     "pagesCount": "páginas.",
     "deleteAfterExtraction": "Eliminar páginas del origen después de la extracción"
   },
+  "choosePages": {
+    "title": "Elegir páginas",
+    "from": "{{name}} tiene {{count}} páginas. Elija las páginas que desea usar.",
+    "selected": "{{count}} de {{total}} seleccionadas",
+    "all": "Todas",
+    "none": "Ninguna",
+    "insert": "Insertar",
+    "replace": "Reemplazar"
+  },
   "splitDocument": {
     "title": "Dividir documento",
     "method": "Método de división",

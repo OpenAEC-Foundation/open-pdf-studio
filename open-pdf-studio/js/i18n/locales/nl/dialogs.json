@@ -266,6 +266,15 @@
     "pagesCount": "pagina's.",
     "deleteAfterExtraction": "Pagina's uit bron verwijderen na extractie"
   },
+  "choosePages": {
+    "title": "Pagina's kiezen",
+    "from": "{{name}} heeft {{count}} pagina's. Kies de pagina's die je wilt gebruiken.",
+    "selected": "{{count}} van {{total}} gekozen",
+    "all": "Alle",
+    "none": "Geen",
+    "insert": "Invoegen",
+    "replace": "Vervangen"
+  },
   "splitDocument": {
     "title": "Document splitsen",
     "method": "Manier van splitsen",

@@ -343,6 +343,8 @@
     "deleteBookmark": "Lesezeichen löschen",
     "findBookmark": "Suchen...",
     "findBookmarkTip": "Tippen, um zu einem Lesezeichen zu springen. Enter öffnet es, erneut Enter springt zum nächsten Treffer.",
+    "findPage": "Suchen...",
+    "findPageTip": "Tippen, um per Blattname oder Nummer zu einer Seite zu springen. Enter öffnet sie, erneut Enter springt zum nächsten Treffer.",
     "addAttachment": "Anhang hinzufügen",
     "openAttachment": "Anhang öffnen",
     "saveAttachment": "Anhang speichern",

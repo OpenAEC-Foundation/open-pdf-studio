@@ -343,6 +343,8 @@
     "deleteBookmark": "Könyvjelző törlése",
     "findBookmark": "Keresés...",
     "findBookmarkTip": "Gépeljen egy könyvjelzőre ugráshoz. Az Enter megnyitja, újabb Enter a következő találatra lép.",
+    "findPage": "Keresés...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Melléklet hozzáadása",
     "openAttachment": "Melléklet megnyitása",
     "saveAttachment": "Melléklet mentése",

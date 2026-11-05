@@ -343,6 +343,8 @@
     "deleteBookmark": "Padam penanda buku",
     "findBookmark": "Cari...",
     "findBookmarkTip": "Taip untuk melompat ke penanda buku. Enter membukanya, Enter sekali lagi pergi ke padanan seterusnya.",
+    "findPage": "Cari...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Tambah lampiran",
     "openAttachment": "Buka lampiran",
     "saveAttachment": "Simpan lampiran",

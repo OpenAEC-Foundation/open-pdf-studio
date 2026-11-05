@@ -285,6 +285,15 @@
     "pagesCount": "ページです。",
     "deleteAfterExtraction": "抽出後にソースからページを削除する"
   },
+  "choosePages": {
+    "title": "Choose Pages",
+    "from": "{{name}} has {{count}} pages. Choose the pages to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "splitDocument": {
     "title": "文書を分割",
     "method": "分割方法",

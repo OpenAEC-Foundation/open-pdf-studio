@@ -343,6 +343,8 @@
     "deleteBookmark": "بک مارک حذف کریں",
     "findBookmark": "تلاش...",
     "findBookmarkTip": "کسی بک مارک پر جانے کے لیے ٹائپ کریں۔ Enter اسے کھولتا ہے، دوبارہ Enter اگلے مماثل پر لے جاتا ہے۔",
+    "findPage": "تلاش...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "منسلکہ شامل کریں",
     "openAttachment": "منسلکہ کھولیں",
     "saveAttachment": "منسلکہ محفوظ کریں",

@@ -343,6 +343,8 @@
     "deleteBookmark": "Suprimeix el marcador",
     "findBookmark": "Cerca...",
     "findBookmarkTip": "Escriviu per anar a un marcador. Retorn l'obre; Retorn de nou va a la coincidència següent.",
+    "findPage": "Cerca...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Afegeix un adjunt",
     "openAttachment": "Obre l'adjunt",
     "saveAttachment": "Desa l'adjunt",

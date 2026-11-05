@@ -343,6 +343,8 @@
     "deleteBookmark": "מחיקת סימנייה",
     "findBookmark": "חיפוש...",
     "findBookmarkTip": "הקלידו כדי לקפוץ לסימנייה. Enter פותח אותה, Enter נוסף עובר להתאמה הבאה.",
+    "findPage": "חיפוש...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "הוספת קובץ מצורף",
     "openAttachment": "פתיחת קובץ מצורף",
     "saveAttachment": "שמירת קובץ מצורף",

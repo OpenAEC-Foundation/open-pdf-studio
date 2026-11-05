@@ -343,6 +343,8 @@
     "deleteBookmark": "Slett bokmerke",
     "findBookmark": "Søk...",
     "findBookmarkTip": "Skriv for å hoppe til et bokmerke. Enter åpner det, Enter igjen går til neste treff.",
+    "findPage": "Søk...",
+    "findPageTip": "Skriv for å hoppe til en side etter arknavn eller nummer. Enter åpner den, Enter igjen går til neste treff.",
     "addAttachment": "Legg til vedlegg",
     "openAttachment": "Åpne vedlegg",
     "saveAttachment": "Lagre vedlegg",

@@ -343,6 +343,8 @@
     "deleteBookmark": "Usuń zakładkę",
     "findBookmark": "Znajdź...",
     "findBookmarkTip": "Wpisz, aby przejść do zakładki. Enter ją otwiera, kolejny Enter przechodzi do następnego wyniku.",
+    "findPage": "Znajdź...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Dodaj załącznik",
     "openAttachment": "Otwórz załącznik",
     "saveAttachment": "Zapisz załącznik",

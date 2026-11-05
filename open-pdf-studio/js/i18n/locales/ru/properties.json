@@ -343,6 +343,8 @@
     "deleteBookmark": "Удалить закладку",
     "findBookmark": "Найти...",
     "findBookmarkTip": "Начните вводить, чтобы перейти к закладке. Enter открывает её, повторный Enter — следующее совпадение.",
+    "findPage": "Найти...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Добавить вложение",
     "openAttachment": "Открыть вложение",
     "saveAttachment": "Сохранить вложение",

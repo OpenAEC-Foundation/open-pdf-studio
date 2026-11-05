@@ -64,7 +64,12 @@ test('the organizer applies all pending edits once, through applyPageEdits (#764
 
 test('the thumbnails panel drags the whole selection with the same model', () => {
   const panel = bron('../left-panel/panels/ThumbnailsPanel.jsx');
-  assert.match(panel, /moveGroupToGap\(order, group, gap\)/);
+  assert.match(panel, /volgordeNaDrop\(pageCount\(\), getSelectedPagesArray\(\)/);
+  assert.match(bron('../../../ui/panels/miniatuur-slepen.js'), /moveGroupToGap\(order, groep, gap\)/);
+  // Pointer-events, geen HTML5-drag: die gaat in de desktop-app naar de
+  // bestandsdrop van het venster (#962).
+  assert.match(panel, /createOrganizerPointerDrag\(containerRef/);
+  assert.match(bron('../left-panel/ThumbnailItem.jsx'), /draggable=\{false\}/);
 });
 
 test('the organizer styles: squared corners, default cursor, no animations', () => {

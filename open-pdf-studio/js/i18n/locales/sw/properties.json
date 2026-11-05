@@ -343,6 +343,8 @@
     "deleteBookmark": "Futa alamisho",
     "findBookmark": "Tafuta...",
     "findBookmarkTip": "Andika ili kuruka hadi alamisho. Enter inaifungua, Enter tena inaenda kwenye inayolingana inayofuata.",
+    "findPage": "Tafuta...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Ongeza kiambatisho",
     "openAttachment": "Fungua kiambatisho",
     "saveAttachment": "Hifadhi kiambatisho",

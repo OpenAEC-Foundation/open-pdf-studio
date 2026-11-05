@@ -343,6 +343,8 @@
     "deleteBookmark": "Изтриване на отметка",
     "findBookmark": "Търсене...",
     "findBookmarkTip": "Пишете, за да преминете към отметка. Enter я отваря, повторен Enter отива на следващото съвпадение.",
+    "findPage": "Търсене...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Добавяне на прикачен файл",
     "openAttachment": "Отваряне на прикачен файл",
     "saveAttachment": "Запазване на прикачен файл",

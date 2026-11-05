@@ -381,6 +381,8 @@
     "deleteBookmark": "ລຶບບຸກມາກ",
     "findBookmark": "ຊອກຫາ...",
     "findBookmarkTip": "ພິມເພື່ອໄປຫາບຸກມາກ. ກົດ Enter ເພື່ອເປີດ, ກົດ Enter ອີກຄັ້ງເພື່ອໄປຫາລາຍການທີ່ກົງກັນຕໍ່ໄປ.",
+    "findPage": "ຊອກຫາ...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "ເພີ່ມໄຟລ໌ຕິດຄັດ",
     "openAttachment": "ເປີດໄຟລ໌ຕິດຄັດ",
     "saveAttachment": "ບັນທຶກໄຟລ໌ຕິດຄັດ",

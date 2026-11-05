@@ -343,6 +343,8 @@
     "deleteBookmark": "Διαγραφή σελιδοδείκτη",
     "findBookmark": "Εύρεση...",
     "findBookmarkTip": "Πληκτρολογήστε για μετάβαση σε σελιδοδείκτη. Το Enter τον ανοίγει, ξανά Enter πηγαίνει στο επόμενο αποτέλεσμα.",
+    "findPage": "Εύρεση...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Προσθήκη συνημμένου",
     "openAttachment": "Άνοιγμα συνημμένου",
     "saveAttachment": "Αποθήκευση συνημμένου",

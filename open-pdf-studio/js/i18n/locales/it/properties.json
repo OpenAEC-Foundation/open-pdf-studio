@@ -343,6 +343,8 @@
     "deleteBookmark": "Elimina segnalibro",
     "findBookmark": "Trova...",
     "findBookmarkTip": "Digita per passare a un segnalibro. Invio lo apre, Invio di nuovo passa alla corrispondenza successiva.",
+    "findPage": "Trova...",
+    "findPageTip": "Digita per passare a una pagina tramite nome della tavola o numero. Invio la apre, di nuovo Invio passa alla corrispondenza successiva.",
     "addAttachment": "Aggiungi allegato",
     "openAttachment": "Apri allegato",
     "saveAttachment": "Salva allegato",

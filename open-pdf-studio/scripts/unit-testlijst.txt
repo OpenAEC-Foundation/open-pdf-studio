@@ -389,6 +389,9 @@ js/core/bladwijzer-undo.test.mjs
 js/ui/panels/bladwijzer-boom.test.mjs
 # Miniaturen groeien mee, kolommen en scherpte (#579)
 js/ui/panels/miniatuur-maat.test.mjs
+js/ui/panels/miniatuur-slepen.test.mjs
+js/ui/panels/miniatuur-zoeken.test.mjs
+js/pdf/bron-paginas-kiezen.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
 js/pdf/page-manager-paginalabels.test.mjs
@@ -640,6 +643,7 @@ js/pdf/organizer-pointer-drag.test.mjs
 js/pdf/blank-page-setup.test.mjs
 js/pdf/frame-labels.test.mjs
 js/solid/components/ribbon/ribbon-wiel.test.mjs
+js/solid/components/ribbon/ribbon-ingeklapt.test.mjs
 js/pdf/lijnstijl-rondgang.test.mjs
 js/watermark/watermark-save.test.mjs
 js/watermark/watermark-hersave.test.mjs
