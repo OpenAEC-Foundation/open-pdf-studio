@@ -8,6 +8,7 @@ import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
 import { laagVanOc } from '../saver/annotatie-lagen.js';
 import { leesRuweSleutels } from '../saver/ruwe-sleutels.js';
+import { dictVingerafdruk } from '../saver/bron-vingerafdruk.js';
 import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
@@ -224,9 +225,17 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
     const annots = context.lookup(annotsRaw);
     if (!annots) return colorMap;
 
+    // Per annotatie een vingerafdruk van het woordenboek, op pdf.js-id: zo
+    // weet de saver of het object nog is wat de lader las (saver/bron-behoud.js).
+    const bronnen = new Map();
+    colorMap.bronnen = bronnen;
     for (let i = 0; i < annots.size(); i++) {
       const annotDict = context.lookup(annots.get(i));
       if (!annotDict) continue;
+      const bronRef = annots.get(i);
+      if (Number.isInteger(bronRef?.objectNumber)) {
+        bronnen.set(`${bronRef.objectNumber}R${bronRef.generationNumber || ''}`, dictVingerafdruk(annotDict));
+      }
       const subtype = annotDict.get(PDFName.of('Subtype'));
       if (!subtype) continue;
       const subtypeName = subtype.toString();
