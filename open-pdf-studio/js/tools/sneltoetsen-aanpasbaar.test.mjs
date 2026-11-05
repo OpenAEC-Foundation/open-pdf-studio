@@ -20,6 +20,7 @@ register('./keyboard-handlers-stubs.mjs', import.meta.url);
 const app = await import('../core/keybindings/app-shortcuts.js');
 const { extensieOpdrachten } = await import('../plugins/extension-commands.js');
 const { isTextEntryTarget } = await import('../ui/chrome/tab-sneltoets.js');
+const { isVerwijderToets } = await import('./verwijder-toets.js');
 const pagina = await import('../pdf/pagina-sneltoets.js');
 const split = await import('../pdf/split-view/split-sneltoets.js');
 
@@ -40,6 +41,7 @@ globalThis.__khStubs = {
   isPdfAReadOnly: () => false,
   isModalOpen: () => modaal,
   isTextEntryTarget,
+  isVerwijderToets,
   typeLengthActive: () => false,
   isGMoveModeActive: () => false,
   isGRotateModeActive: () => false,
