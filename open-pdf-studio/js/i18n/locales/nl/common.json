@@ -319,5 +319,30 @@
     "virtualPrinter": "De virtuele printer is alleen beschikbaar in de geïnstalleerde versie: hij wordt met beheerdersrechten aan Windows toegevoegd.",
     "notWritable": "Open PDF Studio kan niet schrijven in de map {{dir}}, dus je instellingen staan deze keer in je gebruikersprofiel. Zet de draagbare map op een beschrijfbare plek, zoals een USB-stick of je map Documenten."
   },
-  "protectedPdfNoPrint": "De rechten van dit document staan afdrukken niet toe."
+  "protectedPdfNoPrint": "De rechten van dit document staan afdrukken niet toe.",
+  "share": {
+    "share": "Delen",
+    "unsavedTitle": "Niet-opgeslagen wijzigingen",
+    "unsavedMessage": "{{name}} heeft niet-opgeslagen wijzigingen. Het document opslaan en verzenden, of een kopie met de wijzigingen verzenden?",
+    "saveAndSend": "Opslaan en verzenden",
+    "sendCopy": "Kopie verzenden",
+    "copyFailed": "Het document kon niet klaargezet worden om te verzenden: {{error}}",
+    "failed": "Delen mislukt: {{error}}",
+    "attachManually": "Geen e-mailprogramma kon het bestand bijvoegen. Er is een concept geopend en het bestand staat in de bestandsbeheerder: sleep het in het bericht.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "Meer",
+    "insertImage": "Afbeelding invoegen",
+    "takePhoto": "Foto maken",
+    "scanDocument": "Document scannen",
+    "copyMarkup": "Markering kopiëren",
+    "pasteMarkup": "Markering plakken",
+    "deleteMarkup": "Markering verwijderen",
+    "imageFailed": "De afbeelding kon niet ingevoegd worden: {{error}}",
+    "scanWhere": "Waar moet de gescande pagina komen?",
+    "scanInsertAfter": "Na de huidige pagina",
+    "scanNewDocument": "Nieuw document",
+    "scanBusy": "Pagina maken…",
+    "scanFailed": "Van de foto kon geen pagina gemaakt worden: {{error}}"
+  }
 }

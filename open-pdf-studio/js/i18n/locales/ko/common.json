@@ -319,5 +319,30 @@
     "virtualPrinter": "가상 프린터는 설치된 버전에서만 사용할 수 있습니다. 관리자 권한으로 Windows에 추가되기 때문입니다.",
     "notWritable": "Open PDF Studio가 {{dir}} 폴더에 쓸 수 없어 이번에는 설정이 사용자 프로필에 저장됩니다. 휴대용 폴더를 USB 드라이브나 문서 폴더처럼 쓰기 가능한 위치로 옮기세요."
   },
-  "protectedPdfNoPrint": "이 문서의 권한은 인쇄를 허용하지 않습니다."
+  "protectedPdfNoPrint": "이 문서의 권한은 인쇄를 허용하지 않습니다.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
+  }
 }

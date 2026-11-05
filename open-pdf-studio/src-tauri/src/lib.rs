@@ -3616,6 +3616,7 @@ pub fn run(opts: StartupOpts) {
             accounts::accounts_download_file,
             accounts::accounts_brand_logo,
             email::email_pdf,
+            email::verzendkopie_schrijven,
             window_mgmt::spawn_window_with_pdf,
             window_mgmt::try_dock_pdf_at_screen,
             window_mgmt::close_window_by_label,

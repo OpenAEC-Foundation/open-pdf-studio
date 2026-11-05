@@ -319,5 +319,30 @@
     "virtualPrinter": "La impresora virtual solo está disponible en la versión instalada: se añade a Windows con permisos de administrador.",
     "notWritable": "Open PDF Studio no puede escribir en la carpeta {{dir}}, así que esta vez tu configuración se guarda en tu perfil de usuario. Mueve la carpeta portátil a una ubicación con permisos de escritura, como una memoria USB o tu carpeta Documentos."
   },
-  "protectedPdfNoPrint": "Los permisos de este documento no permiten imprimir."
+  "protectedPdfNoPrint": "Los permisos de este documento no permiten imprimir.",
+  "share": {
+    "share": "Compartir",
+    "unsavedTitle": "Cambios sin guardar",
+    "unsavedMessage": "{{name}} tiene cambios sin guardar. ¿Guardar el documento y enviarlo, o enviar una copia con los cambios?",
+    "saveAndSend": "Guardar y enviar",
+    "sendCopy": "Enviar una copia",
+    "copyFailed": "No se pudo preparar el documento para enviarlo: {{error}}",
+    "failed": "Error al compartir: {{error}}",
+    "attachManually": "Ningún programa de correo pudo adjuntar el archivo. Se ha abierto un borrador y el archivo se muestra en el administrador de archivos: arrástrelo al mensaje.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "Más",
+    "insertImage": "Insertar imagen",
+    "takePhoto": "Tomar foto",
+    "scanDocument": "Escanear documento",
+    "copyMarkup": "Copiar anotación",
+    "pasteMarkup": "Pegar anotación",
+    "deleteMarkup": "Eliminar anotación",
+    "imageFailed": "No se pudo insertar la imagen: {{error}}",
+    "scanWhere": "¿Dónde debe ir la página escaneada?",
+    "scanInsertAfter": "Después de la página actual",
+    "scanNewDocument": "Documento nuevo",
+    "scanBusy": "Creando la página…",
+    "scanFailed": "No se pudo crear una página a partir de la foto: {{error}}"
+  }
 }
