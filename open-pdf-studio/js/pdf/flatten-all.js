@@ -81,7 +81,7 @@ function t(sleutel, opties) {
   return i18next.t(`ribbon:${sleutel}`, opties);
 }
 
-async function huidigeBytes(doc) {
+export async function huidigeBytes(doc) {
   const { getCachedPdfBytes } = await import('./loader.js');
   const sleutel = doc.filePath || `__memory__${doc.id}`;
   let bytes = getCachedPdfBytes(sleutel);
@@ -97,7 +97,7 @@ async function huidigeBytes(doc) {
  * allemaal weg; een pagina die nog niet geladen was, zou anders na de volgende
  * save haar annotaties kwijt zijn.
  */
-async function laadAlleAnnotaties(doc) {
+export async function laadAlleAnnotaties(doc) {
   const { ensureAnnotationsForPage } = await import('./loader.js');
   const aantal = doc.pdfDoc?.numPages || 0;
   for (let p = 1; p <= aantal; p++) await ensureAnnotationsForPage(p, doc);
