@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "모든 페이지를 삭제할 수는 없습니다. 최소 한 페이지는 남아 있어야 합니다.",
   "cannotDeleteAllPagesSource": "원본 문서의 모든 페이지를 삭제할 수는 없습니다.",
   "noPagesSelected": "추출할 페이지를 선택하지 않았습니다.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "선택한 PDF에 페이지가 없습니다.",
   "failedToSavePdf": "PDF를 저장하지 못했습니다: {{error}}",
   "failedToLoadPdf": "PDF를 불러오지 못했습니다: {{error}}",

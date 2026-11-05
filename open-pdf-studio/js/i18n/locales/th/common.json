@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "ไม่สามารถลบทุกหน้าได้ ต้องเหลืออย่างน้อยหนึ่งหน้า",
   "cannotDeleteAllPagesSource": "ไม่สามารถลบทุกหน้าออกจากเอกสารต้นทางได้",
   "noPagesSelected": "ไม่ได้เลือกหน้าที่จะแยกออก",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF ที่เลือกไม่มีหน้า",
   "failedToSavePdf": "บันทึก PDF ไม่สำเร็จ: {{error}}",
   "failedToLoadPdf": "โหลด PDF ไม่สำเร็จ: {{error}}",

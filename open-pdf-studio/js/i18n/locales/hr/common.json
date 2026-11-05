@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Nije moguće obrisati sve stranice. Mora ostati barem jedna stranica.",
   "cannotDeleteAllPagesSource": "Nije moguće obrisati sve stranice iz izvornog dokumenta.",
   "noPagesSelected": "Nisu odabrane stranice za izdvajanje.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Odabrani PDF nema stranica.",
   "failedToSavePdf": "Spremanje PDF-a nije uspjelo: {{error}}",
   "failedToLoadPdf": "Učitavanje PDF-a nije uspjelo: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "すべてのページを削除することはできません。少なくとも 1 ページは残す必要があります。",
   "cannotDeleteAllPagesSource": "元の文書からすべてのページを削除することはできません。",
   "noPagesSelected": "抽出するページが選択されていません。",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "選択した PDF にはページがありません。",
   "failedToSavePdf": "PDF の保存に失敗しました：{{error}}",
   "failedToLoadPdf": "PDF の読み込みに失敗しました：{{error}}",

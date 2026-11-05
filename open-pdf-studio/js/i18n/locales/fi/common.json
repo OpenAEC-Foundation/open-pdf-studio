@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Kaikkia sivuja ei voi poistaa. Vähintään yhden sivun on jäätävä.",
   "cannotDeleteAllPagesSource": "Lähdeasiakirjan kaikkia sivuja ei voi poistaa.",
   "noPagesSelected": "Purettavia sivuja ei ole valittu.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Valitussa PDF:ssä ei ole sivuja.",
   "failedToSavePdf": "PDF:n tallennus epäonnistui: {{error}}",
   "failedToLoadPdf": "PDF:n lataus epäonnistui: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "לא ניתן למחוק את כל העמודים. חייב להישאר לפחות עמוד אחד.",
   "cannotDeleteAllPagesSource": "לא ניתן למחוק את כל העמודים ממסמך המקור.",
   "noPagesSelected": "לא נבחרו עמודים לחילוץ.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "ב-PDF שנבחר אין עמודים.",
   "failedToSavePdf": "שמירת ה-PDF נכשלה: {{error}}",
   "failedToLoadPdf": "טעינת ה-PDF נכשלה: {{error}}",

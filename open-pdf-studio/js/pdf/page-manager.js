@@ -793,15 +793,28 @@ export async function extractPages(pageNumbers, deleteFromOriginal, { savePath: 
 
   showLoading('Extracting pages...');
   try {
-    // Create new document with extracted pages
-    const srcDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
-    const extractDoc = await PDFDocument.create();
-
-    const indices = pageNumbers.map(p => p - 1);
-    const copiedPages = await extractDoc.copyPages(srcDoc, indices);
-    for (const page of copiedPages) {
-      extractDoc.addPage(page);
+    // De bron (#880): met niet-opgeslagen wijzigingen de stand zoals opslaan
+    // haar zou schrijven (annotaties, OCR-tekstlaag, tekstbewerkingen,
+    // draaiingen), anders de bytes van het document. De pagina's gaan via
+    // laadBron/bouwUittreksel: koppelingen slepen geen andere pagina's mee en
+    // nog versleutelde bytes worden geweigerd in plaats van leeg gekopieerd.
+    const { laadBron, bouwUittreksel, bronVoorUittreksel } = await import('./splits-document.js');
+    const { bytes: bronBytes, uitApp } = await bronVoorUittreksel({
+      opgeslagen: currentBytes,
+      gewijzigd: !!doc.modified,
+      maakMomentopname: async () => (await import('./saver.js')).bouwMomentopname(doc),
+    });
+    let extractDoc;
+    try {
+      extractDoc = await bouwUittreksel(await laadBron(bronBytes), pageNumbers, {
+        rotaties: uitApp ? {} : { ...(doc.pageRotations || {}) },
+      });
+    } catch (e) {
+      if (e?.code !== 'encrypted') throw e;
+      showMessage(i18next.t('extractEncrypted'));
+      return null;
     }
+    const copiedPages = extractDoc.getPages();
 
     const extractBytes = new Uint8Array(await extractDoc.save());
     try {

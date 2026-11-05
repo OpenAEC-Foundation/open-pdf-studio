@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Nelze smazat všechny stránky. Alespoň jedna stránka musí zůstat.",
   "cannotDeleteAllPagesSource": "Nelze smazat všechny stránky ze zdrojového dokumentu.",
   "noPagesSelected": "Nejsou vybrány žádné stránky k extrakci.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Vybrané PDF nemá žádné stránky.",
   "failedToSavePdf": "Uložení PDF se nezdařilo: {{error}}",
   "failedToLoadPdf": "Načtení PDF se nezdařilo: {{error}}",

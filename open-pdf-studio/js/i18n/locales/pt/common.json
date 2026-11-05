@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Não é possível excluir todas as páginas. Pelo menos uma página deve permanecer.",
   "cannotDeleteAllPagesSource": "Não é possível excluir todas as páginas do documento de origem.",
   "noPagesSelected": "Nenhuma página selecionada para extração.",
+  "extractEncrypted": "Não é possível extrair estas páginas: o conteúdo do documento ainda está encriptado. Guarde o documento sem proteção e tente novamente.",
   "selectedPdfNoPages": "O PDF selecionado não tem páginas.",
   "failedToSavePdf": "Falha ao salvar o PDF: {{error}}",
   "failedToLoadPdf": "Falha ao carregar o PDF: {{error}}",

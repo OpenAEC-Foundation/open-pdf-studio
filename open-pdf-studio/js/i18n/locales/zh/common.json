@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "无法删除所有页面。至少必须保留一页。",
   "cannotDeleteAllPagesSource": "无法删除源文档中的所有页面。",
   "noPagesSelected": "未选择要提取的页面。",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "所选 PDF 没有页面。",
   "failedToSavePdf": "保存 PDF 失败：{{error}}",
   "failedToLoadPdf": "加载 PDF 失败：{{error}}",

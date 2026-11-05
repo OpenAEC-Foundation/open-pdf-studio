@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "সব পৃষ্ঠা মুছে ফেলা যাবে না। অন্তত একটি পৃষ্ঠা থাকতে হবে।",
   "cannotDeleteAllPagesSource": "উৎস নথি থেকে সব পৃষ্ঠা মুছে ফেলা যাবে না।",
   "noPagesSelected": "নিষ্কাশনের জন্য কোনো পৃষ্ঠা নির্বাচন করা হয়নি।",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "নির্বাচিত PDF-এ কোনো পৃষ্ঠা নেই।",
   "failedToSavePdf": "PDF সংরক্ষণ করতে ব্যর্থ: {{error}}",
   "failedToLoadPdf": "PDF লোড করতে ব্যর্থ: {{error}}",

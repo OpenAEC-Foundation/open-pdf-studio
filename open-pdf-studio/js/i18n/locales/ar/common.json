@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "لا يمكن حذف جميع الصفحات. يجب أن تبقى صفحة واحدة على الأقل.",
   "cannotDeleteAllPagesSource": "لا يمكن حذف جميع الصفحات من المستند المصدر.",
   "noPagesSelected": "لم يتم تحديد صفحات للاستخراج.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "لا يحتوي ملف PDF المحدد على صفحات.",
   "failedToSavePdf": "فشل حفظ PDF: {{error}}",
   "failedToLoadPdf": "فشل تحميل PDF: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Није могуће обрисати све странице. Мора остати бар једна страница.",
   "cannotDeleteAllPagesSource": "Није могуће обрисати све странице из изворног документа.",
   "noPagesSelected": "Нису изабране странице за издвајање.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Изабрани PDF нема страница.",
   "failedToSavePdf": "Чување PDF-а није успело: {{error}}",
   "failedToLoadPdf": "Учитавање PDF-а није успело: {{error}}",

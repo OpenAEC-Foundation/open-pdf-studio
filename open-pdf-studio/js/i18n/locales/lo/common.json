@@ -82,6 +82,7 @@
   "cannotDeleteAllPages": "ບໍ່ສາມາດລຶບໝົດທຸກໜ້າໄດ້. ຕ້ອງມີຢ່າງໜ້ອຍໜຶ່ງໜ້າເຫຼືອຢູ່.",
   "cannotDeleteAllPagesSource": "ບໍ່ສາມາດລຶບທຸກໜ້າອອກຈາກເອກະສານຕົ້ນສະບັບໄດ້.",
   "noPagesSelected": "ບໍ່ມີໜ້າທີ່ຖືກເລືອກເພື່ອແຍກອອກ.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF ທີ່ເລືອກບໍ່ມີໜ້າໃດໆເລີຍ.",
   "failedToSavePdf": "ບັນທຶກ PDF ບໍ່ສຳເລັດ: {{error}}",
   "failedToLoadPdf": "ໂຫຼດ PDF ບໍ່ສຳເລັດ: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Не можна видалити всі сторінки. Має залишитися щонайменше одна сторінка.",
   "cannotDeleteAllPagesSource": "Не можна видалити всі сторінки з вихідного документа.",
   "noPagesSelected": "Не вибрано сторінок для витягування.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Вибраний PDF не містить сторінок.",
   "failedToSavePdf": "Не вдалося зберегти PDF: {{error}}",
   "failedToLoadPdf": "Не вдалося завантажити PDF: {{error}}",
