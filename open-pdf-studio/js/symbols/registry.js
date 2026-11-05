@@ -45,6 +45,7 @@ import {
 import { SANITAIR_TEMPLATES } from './templates/sanitair.js';
 import { KEUKEN_TEMPLATES } from './templates/keuken.js';
 import { vliesgevelTemplate, kozijnTemplate } from './templates/gevelelement.js';
+import { gdtKenmerkkaderTemplate } from './templates/gdt.js';
 import { rondeDoorsnedeTemplate } from './templates/ronde-doorsnede.js';
 import { paalpositieTemplate } from './templates/paalpositie.js';
 
@@ -114,6 +115,8 @@ register(kozijnTemplate);
 // Ronde doorsnede (beton/hout) en paalpositie voor het palenplan (#936).
 register(rondeDoorsnedeTemplate);
 register(paalpositieTemplate);
+// GD&T (#971): kenmerkkader met bewerkbare cellen.
+register(gdtKenmerkkaderTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).

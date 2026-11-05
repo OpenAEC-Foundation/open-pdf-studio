@@ -3,6 +3,7 @@ import { BUILT_IN_CATEGORIES } from '../data/symbolLibrary.js';
 import { NEN1414_CATEGORIES } from '../data/nen1414Library.js';
 import { NL_CATEGORIES } from '../data/nlSymbolLibrary.js';
 import { INB_CATEGORIES } from '../data/inbSymbolLibrary.js';
+import { GDT_CATEGORIES } from '../data/gdtSymbolLibrary.js';
 import { matchesLocale, DEFAULT_INDUSTRY, DEFAULT_COUNTRY } from '../data/symbolLocales.js';
 import { state } from '../../core/state.js';
 import { savePreferences } from '../../core/preferences.js';
@@ -115,6 +116,7 @@ const allCategories = createMemo(() => {
     ...INB_CATEGORIES,
     ...BUILT_IN_CATEGORIES,
     ...NEN1414_CATEGORIES,
+    ...GDT_CATEGORIES,
     ...custom
   ];
 });

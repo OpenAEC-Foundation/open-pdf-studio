@@ -764,7 +764,8 @@
       "nen1414-tn": "NL NEN 1414 — Nødlys",
       "nen1414-tr": "NL NEN 1414 — Røyk-/varmeventilasjon",
       "nen1414-tv": "NL NEN 1414 — Ventilasjon",
-      "nen1414-tw": "NL NEN 1414 — Vann/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Vann/Sprinkler",
+      "gdt-bewerking": "GD&T og maskinering"
     },
     "sectors": {
       "aec": "AEC (Bygg)",

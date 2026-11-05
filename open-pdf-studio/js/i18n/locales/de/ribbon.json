@@ -764,7 +764,8 @@
       "nen1414-tn": "NL NEN 1414 — Notbeleuchtung",
       "nen1414-tr": "NL NEN 1414 — Rauch-/Wärmeabzug",
       "nen1414-tv": "NL NEN 1414 — Lüftung",
-      "nen1414-tw": "NL NEN 1414 — Wasser/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Wasser/Sprinkler",
+      "gdt-bewerking": "GD&T und Bearbeitung"
     },
     "sectors": {
       "aec": "AEC (Bauwesen)",

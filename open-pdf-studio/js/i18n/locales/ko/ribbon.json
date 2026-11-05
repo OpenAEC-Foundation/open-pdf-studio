@@ -764,7 +764,8 @@
       "nen1414-tn": "NL NEN 1414 — 비상 조명",
       "nen1414-tr": "NL NEN 1414 — 배연/배열",
       "nen1414-tv": "NL NEN 1414 — 환기",
-      "nen1414-tw": "NL NEN 1414 — 급수/스프링클러"
+      "nen1414-tw": "NL NEN 1414 — 급수/스프링클러",
+      "gdt-bewerking": "GD&T 및 기계 가공"
     },
     "sectors": {
       "aec": "AEC(건설)",

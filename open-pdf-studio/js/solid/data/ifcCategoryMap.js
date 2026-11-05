@@ -141,6 +141,8 @@ const PARAMETRIC_ID_DEFAULT = {
   // als gevelelement is een raam (een deur erin maakt het nog geen IfcDoor).
   'vliesgevel': 'IfcCurtainWall',
   'kozijn': 'IfcWindow',
+  // GD&T-kenmerkkader (#971): maatvoeringsannotatie, geen bouwelement.
+  'gdt-kenmerkkader': 'IfcAnnotation',
 };
 
 function keywordMatch(text) {
@@ -181,6 +183,10 @@ export function ifcCategoryForSymbol(symbol) {
     if (byId !== IFC_DEFAULT) return byId;
     return keywordMatch(text) || IFC_DEFAULT;
   }
+
+  // 2b. GD&T- en bewerkingstekens (#971): annotatie, ook als een naam op een
+  //     bouwtrefwoord lijkt ("Vierkant", "Diepte").
+  if (/^gdt-/.test(id)) return 'IfcAnnotation';
 
   // 3. Generieke tool-entry (bv. 'mask'): geen bouwelement.
   if (symbol.tool) return keywordMatch(text) || IFC_DEFAULT;
