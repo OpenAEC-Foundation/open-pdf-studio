@@ -41,3 +41,10 @@ export { XRef, Stream };
   assert.deepEqual(fixture.hugeObjects.map(num => xref.getEntry(num).offset), [2 ** 31, 2 ** 32 + 10]);
   console.log('PASS built worker: XRef stream offsets 2^31 and 2^32 + 10');
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+// #949: 32-bit samples in Type 0 functions (tint transform and shading).
+const sampled = spawnSync(process.execPath, [fileURLToPath(new URL('./sampled-function-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 60000, encoding: 'utf8' });
+assert.equal(sampled.status, 0, sampled.stdout + sampled.stderr);
+const sampledRows = sampled.stdout.trim().split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+assert.equal(sampledRows.length, 4);
+for (const row of sampledRows) assert.deepEqual(row.fills, ['#808080', '#ffffff'], `${row.bps}-bit sampled function`);
+console.log('PASS built worker: 32-bit sampled functions are read unsigned');
