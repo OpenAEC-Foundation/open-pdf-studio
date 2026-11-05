@@ -47,6 +47,15 @@
 //      ai.vraag { vraag }          -> { bericht, stop, vraag_id } (OpenAI-chatvorm;
 //                                     een fout heeft een `code`)
 //  - Elk verzoek heeft 120 s; daarna geeft het op.
+//  - De andere kant op (#977): de gastpagina vraagt de app, voor de
+//    assistent van de SuperCloud, met dezelfde vorm
+//    { werkplek: 1, id, soort, ... } en krijgt { werkplek: 1, antwoord: id,
+//    ok, waarde | fout, code }. Hallo noemt ze in `soorten` als de app ze
+//    kent (window.__OPDS_APP__, core/werkplek-app.js):
+//      app.tools {}                   -> ['pdf_stand', 'pdf_go_to_page', …]
+//      app.definities {}              -> [{ name, description, inputSchema }]
+//      app.run { naam, argumenten? }  -> het antwoord van die tool; een
+//                                     weigering met code, bv. niet_in_browser
 //
 // Strikt op oorsprong: `ouder` alleen als scheme://host[:poort]; waar de
 // browser location.ancestorOrigins kent, moet de eerste daarvan `ouder` zijn;
@@ -114,6 +123,9 @@ export function versieVoorOpen(versie) {
   if (typeof versie === 'string' && /^\s*\d+\s*$/.test(versie)) return Number(versie);
   return versie;
 }
+
+/** De verzoeken van de gastpagina aan de app (#977). */
+export const APP_SOORTEN = Object.freeze(['app.tools', 'app.definities', 'app.run']);
 
 /** Een fout van de brug, met een code voor de koppeling. */
 export class BrugFout extends Error {
@@ -323,10 +335,15 @@ export function opslaanMelding(uitkomst, t, alGemeld = new Set()) {
  *                                conflict of een melding
  * @param {Function} [o.vertaal]   sleutel -> tekst voor de gebruiker
  * @param {object} [o.limieten]    { halloInterval, halloOpgeven, verzoek } in ms
+ * @param {object|Function|null} [o.app] de app voor de assistent
+ *                                ({ tools, definitions, run }, of een functie
+ *                                die hem geeft): dan beantwoordt de brug de
+ *                                verzoeken app.* van de gastpagina (#977)
  */
 export function maakHostBrug({
   ouder, ouderVenster, venster,
   klok = standaardKlok(), bijGeenContact = null, bijOpslaan = null, vertaal = standaardTekst, limieten = {},
+  app = null,
 }) {
   if (!isGeldigeOorsprong(ouder)) throw new Error('Invalid parent origin');
   const halloInterval = limieten.halloInterval ?? HALLO_INTERVAL_MS;
@@ -361,10 +378,57 @@ export function maakHostBrug({
     halloIds.clear();
   }
 
+  const appVoorAssistent = () => (typeof app === 'function' ? app() : app) || null;
+
   function zegHallo() {
     const id = volgendId++;
     halloIds.add(id);
-    stuur({ werkplek: WERKPLEK, id, soort: 'hallo' });
+    // Wat de app zelf beantwoordt (#977); een gastpagina die het niet kent,
+    // negeert het veld.
+    stuur(appVoorAssistent()
+      ? { werkplek: WERKPLEK, id, soort: 'hallo', soorten: [...APP_SOORTEN] }
+      : { werkplek: WERKPLEK, id, soort: 'hallo' });
+  }
+
+  async function voerAppVerzoekUit(data) {
+    const doel = appVoorAssistent();
+    if (!doel) throw Object.assign(new Error(`Unknown request: ${data.soort}`), { code: 'onbekende_soort' });
+    switch (data.soort) {
+      case 'app.tools': return doel.tools();
+      case 'app.definities': return doel.definitions();
+      case 'app.run': {
+        if (typeof data.naam !== 'string' || !data.naam) {
+          throw Object.assign(new Error('app.run needs a tool name (naam)'), { code: 'ongeldige_argumenten' });
+        }
+        return doel.run(data.naam, data.argumenten ?? {});
+      }
+      default: throw Object.assign(new Error(`Unknown request: ${data.soort}`), { code: 'onbekende_soort' });
+    }
+  }
+
+  /** Een verzoek van de gastpagina aan de app (#977): altijd een antwoord. */
+  async function beantwoordAppVerzoek(data) {
+    const id = data.id;
+    let antwoord;
+    try {
+      const waarde = await voerAppVerzoekUit(data);
+      antwoord = { werkplek: WERKPLEK, antwoord: id, ok: true, waarde: waarde === undefined ? null : waarde };
+    } catch (e) {
+      antwoord = {
+        werkplek: WERKPLEK, antwoord: id, ok: false,
+        fout: String(e?.message || e || 'The app could not handle the request'),
+        code: typeof e?.code === 'string' && e.code ? e.code : 'fout',
+      };
+    }
+    if (toestand === 'gestopt') return;
+    try {
+      stuur(antwoord);
+    } catch (e) {
+      // Een antwoord dat niet te kopiëren is: dan een fout in plaats daarvan.
+      try {
+        stuur({ werkplek: WERKPLEK, antwoord: id, ok: false, fout: String(e?.message || e), code: 'antwoord' });
+      } catch { /* niets meer aan te doen */ }
+    }
   }
 
   function geefOp(fout) {
@@ -386,7 +450,14 @@ export function maakHostBrug({
     const data = event.data;
     if (!data || typeof data !== 'object' || data.werkplek !== WERKPLEK) return;
     const id = data.antwoord;
-    if (typeof id !== 'number') return;
+    if (typeof id !== 'number') {
+      // Een verzoek van de gastpagina aan de app (#977).
+      if (typeof data.id === 'number' && typeof data.soort === 'string' && data.soort.startsWith('app.')
+        && toestand !== 'gestopt') {
+        void beantwoordAppVerzoek(data);
+      }
+      return;
+    }
 
     if (halloIds.has(id)) {
       if (toestand !== 'wacht') return;

@@ -7,6 +7,7 @@ import { readFileSync } from 'fs';
 import { pdfjsWorkerOudeWebview, voorafScriptPlugin } from './scripts/oude-webview.mjs';
 import { gehostHtmlPlugin } from './scripts/gehost-html.mjs';
 import { webAliassen } from './scripts/web-bouw.mjs';
+import { werkplekMcpToolsPlugin } from './scripts/werkplek-mcp-tools.mjs';
 import { fileURLToPath } from 'url';
 
 const APP = fileURLToPath(new URL('.', import.meta.url));
@@ -20,10 +21,12 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 // index.html daarna SRI en geen inline code, voor een strikte CSP (#693,
 // scripts/gehost-html.mjs); de desktopbouw blijft gelijk. In elke webbouw
 // (gehost of OPDS_WEB_BUILD=1) krijgen desktopmodules als de sleepplugin een
-// lege vervanger (#776, scripts/web-bouw.mjs).
+// lege vervanger (#776, scripts/web-bouw.mjs). De gehoste bouw krijgt ook
+// mcp-tools.json met de tools voor de assistent van de werkplek (#977,
+// scripts/werkplek-mcp-tools.mjs).
 export default defineConfig(({ mode }) => ({
   css: { postcss: { plugins: [uiScaleCss()] } },
-  plugins: [solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsPostscriptProgress(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin()],
+  plugins: [solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsPostscriptProgress(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin(), werkplekMcpToolsPlugin()],
   resolve: {
     alias: [
       // PDF.js 6's modern build calls Map.prototype.getOrInsertComputed and
