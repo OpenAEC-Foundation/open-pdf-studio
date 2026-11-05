@@ -17,6 +17,7 @@ pub mod datamap;
 pub mod draagbaar;
 mod email;
 pub mod export_policy;
+pub mod extensie_catalogus;
 pub mod extensie_installatie;
 pub mod linux_runtime;
 pub mod logboek;
@@ -3517,6 +3518,10 @@ pub fn run(opts: StartupOpts) {
             extensie_installatie::extensie_installeer,
             extensie_installatie::extensie_bevestig,
             extensie_installatie::extensie_terugdraaien,
+            // Extensiecatalogus: downloads via https (#969)
+            extensie_catalogus::extensie_tekst_ophalen,
+            extensie_catalogus::extensie_pakket_ophalen,
+            extensie_catalogus::extensie_pakket_opruimen,
             render_pdf_page,
             ocr_pdf_page,
             worker_pool_ready,

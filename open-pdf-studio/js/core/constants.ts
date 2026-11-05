@@ -56,6 +56,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
+  // Extensiecatalogus (#969): eigen catalogus-links (de standaard van het
+  // project staat altijd vooraan, zie js/plugins/extension-catalog.js) en de
+  // bron per geïnstalleerde extensie.
+  extensionCatalogs: [],
+  extensionSources: {},
 
   // General — authorName defaults to '' (resolved to OS username at load time)
   authorName: '',

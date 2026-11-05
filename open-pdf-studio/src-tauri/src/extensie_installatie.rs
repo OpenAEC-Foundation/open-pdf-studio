@@ -149,7 +149,7 @@ fn controleer_token(token: &str) -> Result<(), Fout> {
     }
 }
 
-fn nieuw_token() -> String {
+pub(crate) fn nieuw_token() -> String {
     format!("{:016x}{:016x}", rand::random::<u64>(), rand::random::<u64>())
 }
 
@@ -272,7 +272,7 @@ impl PakketInfo {
     }
 }
 
-fn sha256_hex(bytes: &[u8]) -> String {
+pub(crate) fn sha256_hex(bytes: &[u8]) -> String {
     Sha256::digest(bytes).iter().map(|b| format!("{b:02x}")).collect()
 }
 
