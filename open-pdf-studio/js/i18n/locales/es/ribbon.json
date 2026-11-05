@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detectar escala del cajetin",
     "scaleDetected": "Escala detectada",
     "noScaleFound": "No se encontro escala",
-    "detecting": "Detectando..."
+    "detecting": "Detectando...",
+    "scaleCheck": "Comprobar escala",
+    "scaleCheckTitle": "Medir una cota conocida y mostrar la desviación de la escala en porcentaje"
   },
   "home": {
     "document": "Documento",

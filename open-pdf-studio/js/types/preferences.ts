@@ -173,6 +173,10 @@ export interface Preferences {
   // Measurement global
   measureRounding: string;
   measureCtrlSnap: number;
+  measureDecimalNotation: 'auto' | 'comma' | 'point';
+  measureDigitGrouping: boolean;
+  scaleCheckOkPercent: number;
+  scaleCheckWarnPercent: number;
 
   // Measure Distance defaults
   measureDistStrokeColor: string;

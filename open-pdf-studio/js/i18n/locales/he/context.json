@@ -49,6 +49,7 @@
     "dimChainAdd": "הוספת נקודות לשרשרת המידות",
     "dimChainRemove": "הסרת קו עזר מהשרשרת",
     "selectRoom": "בחירת חדר",
+    "checkScale": "בדיקת קנה מידה עם קו זה...",
     "saveToToolSet": "שמירה בערכת כלים"
   },
   "multiSelect": {

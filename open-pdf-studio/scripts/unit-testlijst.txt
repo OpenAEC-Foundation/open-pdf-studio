@@ -722,3 +722,7 @@ js/assistant-i18n.test.mjs
 js/assistant-skills-registry.test.mjs
 js/assistant-skills-gates.test.mjs
 scripts/winget-manifest.test.mjs
+js/core/maat-notatie.test.mjs
+js/annotations/schaalcontrole.test.mjs
+js/annotations/schaalcontrole-i18n.test.mjs
+js/pdf/schaal-in-pdf.test.mjs

@@ -49,6 +49,7 @@
     "dimChainAdd": "Ölçü Zincirine Nokta Ekle",
     "dimChainRemove": "Uzatma Çizgisini Zincirden Kaldır",
     "selectRoom": "Mahal Seç",
+    "checkScale": "Ölçeği bu çizgiyle denetle...",
     "saveToToolSet": "Araç setine kaydet"
   },
   "multiSelect": {

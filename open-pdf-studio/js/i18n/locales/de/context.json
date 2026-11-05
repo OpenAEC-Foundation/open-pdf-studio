@@ -49,6 +49,7 @@
     "dimChainAdd": "Punkte zur Maßkette hinzufügen",
     "dimChainRemove": "Maßhilfslinie aus der Kette entfernen",
     "selectRoom": "Raum auswählen",
+    "checkScale": "Maßstab mit dieser Linie prüfen...",
     "saveToToolSet": "In Werkzeugsatz speichern"
   },
   "multiSelect": {

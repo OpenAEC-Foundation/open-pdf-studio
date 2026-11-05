@@ -62,7 +62,8 @@ function getDefaultUnit(a) {
   if (a.type === 'measureAngle') return '°';
   // Extract unit from measureText (e.g., "2681 mm" → "mm", "15.60 m²" → "m²")
   if (a.measureText) {
-    const match = a.measureText.match(/[\d.]+\s*(.+)$/);
+    // Komma, punt en (vaste) spaties horen bij het getal ("15,60 m²", #629).
+    const match = a.measureText.match(/\d[\d.,\u00a0\u202f]*\s*([^\d\s.,].*)$/);
     if (match && match[1].trim()) return match[1].trim();
   }
   return 'px';

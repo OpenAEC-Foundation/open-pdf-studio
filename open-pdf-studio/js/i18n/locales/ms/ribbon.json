@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Skala dikesan",
     "noScaleFound": "Tiada skala ditemui",
-    "detecting": "Mengesan..."
+    "detecting": "Mengesan...",
+    "scaleCheck": "Semak skala",
+    "scaleCheckTitle": "Ukur dimensi yang diketahui dan tunjukkan sisihan skala dalam peratus"
   },
   "home": {
     "document": "Dokumen",

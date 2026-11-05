@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block text",
     "scaleDetected": "Scale detected",
     "noScaleFound": "No scale found",
-    "detecting": "Detecting..."
+    "detecting": "Detecting...",
+    "scaleCheck": "Check Scale",
+    "scaleCheckTitle": "Measure a known dimension and show the scale deviation in percent"
   },
   "home": {
     "document": "Document",

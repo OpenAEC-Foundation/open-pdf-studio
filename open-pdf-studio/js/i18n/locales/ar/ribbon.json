@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "تم اكتشاف المقياس",
     "noScaleFound": "لم يتم العثور على مقياس",
-    "detecting": "جارٍ الاكتشاف..."
+    "detecting": "جارٍ الاكتشاف...",
+    "scaleCheck": "التحقق من المقياس",
+    "scaleCheckTitle": "قِس بُعدًا معروفًا واعرض انحراف المقياس بالنسبة المئوية"
   },
   "home": {
     "document": "المستند",

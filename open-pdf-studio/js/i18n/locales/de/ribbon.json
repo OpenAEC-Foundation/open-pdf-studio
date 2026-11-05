@@ -48,7 +48,9 @@
     "autoDetectTitle": "Massstab aus Schriftfeld erkennen",
     "scaleDetected": "Massstab erkannt",
     "noScaleFound": "Kein Massstab gefunden",
-    "detecting": "Erkennung..."
+    "detecting": "Erkennung...",
+    "scaleCheck": "Maßstab prüfen",
+    "scaleCheckTitle": "Ein bekanntes Maß messen und die Maßstabsabweichung in Prozent anzeigen"
   },
   "home": {
     "document": "Dokument",

@@ -24,6 +24,7 @@ import BookmarkNamesDialog from './dialogs/BookmarkNamesDialog.jsx';
 import FormValidationDialog from './dialogs/FormValidationDialog.jsx';
 import StampPickerDialog from './dialogs/StampPickerDialog.jsx';
 import CalibrationDialog from './dialogs/CalibrationDialog.jsx';
+import ScaleCheckDialog from './dialogs/ScaleCheckDialog.jsx';
 import ScaleDialog from './dialogs/ScaleDialog.jsx';
 import CropMarginsDialog from './dialogs/CropMarginsDialog.jsx';
 import StraightenDialog from './dialogs/StraightenDialog.jsx';
@@ -122,6 +123,7 @@ const DIALOG_MAP = {
   'form-validation': FormValidationDialog,
   'stamp-picker': StampPickerDialog,
   'calibration': CalibrationDialog,
+  'scale-check': ScaleCheckDialog,
   'scale': ScaleDialog,
   'crop-margins': CropMarginsDialog,
   'straighten-page': StraightenDialog,

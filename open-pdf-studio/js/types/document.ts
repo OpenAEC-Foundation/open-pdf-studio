@@ -129,6 +129,9 @@ export interface DocumentState {
   /** De infobalk van een beveiligde PDF is voor dit tabblad weggeklikt. */
   _beveiligdBalkVerborgen?: boolean;
   measureScale: MeasureScale | null;
+  /** Schaalcontroles per blad (#629, annotations/schaalcontrole.js); reist mee als
+   *  /OPS_ScaleChecks op de pagina (pdf/schaal-in-pdf.js). */
+  scaleChecks?: Record<number, Array<Record<string, unknown>>> | null;
   /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
    *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */
   pdfViewports?: Record<number, Array<{ x: number; y: number; width: number; height: number; pixelsPerUnit: number; unit: string; mmPerPoint: number; ratio: string; name: string }>>;

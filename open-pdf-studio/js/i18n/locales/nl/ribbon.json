@@ -48,7 +48,9 @@
     "viewport": "Viewport",
     "createViewport": "Teken een viewport-gebied met een eigen schaal",
     "viewportTitle": "Viewport-schaal instellen",
-    "dynamicScaling": "Markeringen automatisch schalen"
+    "dynamicScaling": "Markeringen automatisch schalen",
+    "scaleCheck": "Schaal controleren",
+    "scaleCheckTitle": "Meet een bekende maat en toon de afwijking van de schaal in procenten"
   },
   "home": {
     "document": "Document",

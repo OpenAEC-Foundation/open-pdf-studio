@@ -23,6 +23,7 @@ import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './sa
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
+import { schrijfSchalenInPdf } from './schaal-in-pdf.js';
 import { maatlijnAnnotatie, kopVullingSleutels } from './saver/maatlijn-opslaan.js';
 import { schrijfMeetvlakSchaal, meetvlakRect } from './saver/meetvlak-opslaan.js';
 import { vlakZijdeTeksten } from '../annotations/measurement.js';
@@ -3455,6 +3456,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         const { applyPendingRedactions } = await import('./redaction/apply.js');
         await applyPendingRedactions(pdfDocLib, { keepRecord: momentopname });
       }
+      // Schalen van de app als /VP + /Measure, en de schaalcontroles per
+      // blad (#629). Een pagina waarvan de annotaties nog niet geladen zijn
+      // blijft ongemoeid, zoals hierboven.
+      schrijfSchalenInPdf(pages, activeDoc, (n) => (activeDoc._annotationPagesReady
+        ? activeDoc._annotationPagesReady.has(n)
+        : (activeDoc._loadedAnnotationPages ? activeDoc._loadedAnnotationPages.has(n) : true)));
     }
     await annulering.punt();
 

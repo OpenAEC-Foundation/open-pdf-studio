@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Scară detectată",
     "noScaleFound": "Nu s-a găsit nicio scară",
-    "detecting": "Se detectează..."
+    "detecting": "Se detectează...",
+    "scaleCheck": "Verifică scara",
+    "scaleCheckTitle": "Măsurați o cotă cunoscută și afișați abaterea scării în procente"
   },
   "home": {
     "document": "Document",

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Масштаб определён",
     "noScaleFound": "Масштаб не найден",
-    "detecting": "Определение..."
+    "detecting": "Определение...",
+    "scaleCheck": "Проверить масштаб",
+    "scaleCheckTitle": "Измерить известный размер и показать отклонение масштаба в процентах"
   },
   "home": {
     "document": "Документ",

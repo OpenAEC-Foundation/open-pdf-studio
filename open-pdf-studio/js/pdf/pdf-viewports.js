@@ -3,7 +3,9 @@
 // DWG/DXF-import van deze app ook (#400). De maatvoering gebruikt ze nu
 // meteen, zonder dat de gebruiker hoeft te kalibreren (zie getMeasureScale).
 //
-// De viewports worden alleen gelezen; de PDF blijft ongewijzigd.
+// Hier wordt alleen gelezen. De eigen schalen van de app schrijft
+// schaal-in-pdf.js bij het opslaan, met /OPS_Bron gemarkeerd; die slaat deze
+// lezer over (#629).
 
 import { PDFName, PDFArray, PDFDict, PDFNumber, PDFString, PDFHexString } from 'pdf-lib';
 
@@ -197,6 +199,9 @@ export function leesViewportsVanPagina(pagina) {
     for (let j = 0; j < vp.size(); j++) {
       const d = vp.lookup(j);
       if (!(d instanceof PDFDict)) continue;
+      // Een eigen viewport (schaal-in-pdf.js, #629) spiegelt een schaalgebied,
+      // viewport-annotatie of de documentschaal: die komen zelf terug.
+      if (d.get(PDFName.of('OPS_Bron')) !== undefined) continue;
       const measure = d.lookup(PDFName.of('Measure'));
       const bbox = rechthoek(d.lookup(PDFName.of('BBox')));
       if (!(measure instanceof PDFDict) || !bbox) continue;

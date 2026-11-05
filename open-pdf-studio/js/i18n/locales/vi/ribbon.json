@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Đã phát hiện tỷ lệ",
     "noScaleFound": "Không tìm thấy tỷ lệ",
-    "detecting": "Đang phát hiện..."
+    "detecting": "Đang phát hiện...",
+    "scaleCheck": "Kiểm tra tỷ lệ",
+    "scaleCheckTitle": "Đo một kích thước đã biết và hiển thị sai lệch tỷ lệ theo phần trăm"
   },
   "home": {
     "document": "Tài liệu",

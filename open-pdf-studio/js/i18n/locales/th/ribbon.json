@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "ตรวจพบมาตราส่วนแล้ว",
     "noScaleFound": "ไม่พบมาตราส่วน",
-    "detecting": "กำลังตรวจหา..."
+    "detecting": "กำลังตรวจหา...",
+    "scaleCheck": "ตรวจสอบมาตราส่วน",
+    "scaleCheckTitle": "วัดขนาดที่ทราบและแสดงความคลาดเคลื่อนของมาตราส่วนเป็นร้อยละ"
   },
   "home": {
     "document": "เอกสาร",

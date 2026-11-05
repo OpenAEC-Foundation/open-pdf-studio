@@ -48,7 +48,9 @@
     "autoDetectTitle": "Rileva scala dal cartiglio",
     "scaleDetected": "Scala rilevata",
     "noScaleFound": "Nessuna scala trovata",
-    "detecting": "Rilevamento..."
+    "detecting": "Rilevamento...",
+    "scaleCheck": "Verifica scala",
+    "scaleCheckTitle": "Misura una quota nota e mostra lo scostamento della scala in percentuale"
   },
   "home": {
     "document": "Documento",

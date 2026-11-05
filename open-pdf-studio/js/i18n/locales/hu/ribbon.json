@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Méretarány felismerve",
     "noScaleFound": "Nem található méretarány",
-    "detecting": "Észlelés..."
+    "detecting": "Észlelés...",
+    "scaleCheck": "Lépték ellenőrzése",
+    "scaleCheckTitle": "Ismert méret mérése és a léptékeltérés megjelenítése százalékban"
   },
   "home": {
     "document": "Dokumentum",

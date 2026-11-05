@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "קנה המידה זוהה",
     "noScaleFound": "לא נמצא קנה מידה",
-    "detecting": "מזהה..."
+    "detecting": "מזהה...",
+    "scaleCheck": "בדיקת קנה מידה",
+    "scaleCheckTitle": "מדידת מידה ידועה והצגת סטיית קנה המידה באחוזים"
   },
   "home": {
     "document": "מסמך",

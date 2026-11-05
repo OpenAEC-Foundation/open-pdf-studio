@@ -55,6 +55,7 @@
     "dimChainRemove": "Hulplijn uit maatketting halen",
     "selectRoom": "Ruimte selecteren",
     "editViewportScale": "Viewport-schaal bewerken",
+    "checkScale": "Schaal controleren met deze lijn...",
     "saveToToolSet": "Opslaan in werkkist"
   },
   "multiSelect": {

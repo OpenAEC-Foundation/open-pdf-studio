@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Målestokk oppdaget",
     "noScaleFound": "Fant ingen målestokk",
-    "detecting": "Oppdager..."
+    "detecting": "Oppdager...",
+    "scaleCheck": "Kontroller målestokk",
+    "scaleCheckTitle": "Mål et kjent mål og vis avviket i målestokken i prosent"
   },
   "home": {
     "document": "Dokument",

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Εντοπίστηκε κλίμακα",
     "noScaleFound": "Δεν βρέθηκε κλίμακα",
-    "detecting": "Εντοπισμός..."
+    "detecting": "Εντοπισμός...",
+    "scaleCheck": "Έλεγχος κλίμακας",
+    "scaleCheckTitle": "Μετρήστε μια γνωστή διάσταση και εμφανίστε την απόκλιση της κλίμακας σε ποσοστό"
   },
   "home": {
     "document": "Έγγραφο",

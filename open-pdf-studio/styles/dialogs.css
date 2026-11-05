@@ -3673,6 +3673,46 @@
   gap: 8px;
 }
 
+/* Scale check dialog (#629) */
+.scale-check-dialog { width: 400px; }
+
+.scale-check-grid {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 4px 8px;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.scale-check-note {
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+  margin: 0 0 8px 0;
+}
+
+.scale-check-note.scale-check-warn { color: #d83b01; }
+
+.scale-check-badge {
+  display: inline-block;
+  padding: 0 5px;
+  font-size: 11px;
+  border: 1px solid currentColor;
+}
+
+.scale-check-badge.scale-check-ok { color: #107c10; }
+.scale-check-badge.scale-check-warn { color: #a86400; }
+.scale-check-badge.scale-check-fail { color: #c50f1f; }
+
+.scale-check-fieldset { margin: 4px 0 8px 0; }
+.scale-check-fieldset .pref-checkbox-label { display: flex; gap: 6px; align-items: center; font-size: 12px; margin: 2px 0; }
+
+.scale-check-history { border-top: 1px solid var(--theme-border, #e0e0e0); padding-top: 6px; }
+.scale-check-history-title { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.scale-check-history table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.scale-check-history th,
+.scale-check-history td { text-align: left; padding: 2px 4px; border-bottom: 1px solid var(--theme-border, #e8e8e8); }
+.scale-check-history th { font-weight: 600; }
+
 /* ========================================
    Feedback Dialog
    ======================================== */

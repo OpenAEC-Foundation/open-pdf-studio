@@ -71,6 +71,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"btn-vector-snippet-paste","tab":"drawing","labelKey":"ribbon:drawing.vectorSnippetPaste","label":"Plak knipsel"},
   {"id":"btn-create-scale-region","tab":"drawing","labelKey":"ribbon:comment.scaleRegion","label":"Schaalgebied"},
   {"id":"btn-create-scale-region-full-page","tab":"drawing","labelKey":"ribbon:comment.scaleRegionFullPage","label":"Schaalgebied op pagina"},
+  {"id":"btn-scale-check","tab":"drawing","labelKey":"ribbon:measure.scaleCheck"},
   {"id":"dr-area","tab":"drawing","labelKey":"ribbon:drawing.area","label":"Oppervlakte"},
   {"id":"dr-length","tab":"drawing","labelKey":"ribbon:drawing.length","label":"Lengte"},
   {"id":"dr-dimension","tab":"drawing","labelKey":"ribbon:drawing.dimension","label":"Maatlijn"},

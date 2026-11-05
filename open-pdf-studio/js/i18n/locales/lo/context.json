@@ -55,6 +55,7 @@
     "wallJoinDisallow": "ບໍ່ອະນຸຍາດໃຫ້ເຊື່ອມຕໍ່ (ສົ້ນນີ້)",
     "properties": "ຄຸນສົມບັດ...",
     "editViewportScale": "ແກ້ໄຂມາດຕາສ່ວນມຸມມອງ",
+    "checkScale": "ກວດສອບມາດຕາສ່ວນດ້ວຍເສັ້ນນີ້...",
     "saveToToolSet": "ບັນທຶກໃສ່ຊຸດເຄື່ອງມື"
   },
   "multiSelect": {

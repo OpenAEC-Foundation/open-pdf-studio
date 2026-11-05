@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "已检测到比例",
     "noScaleFound": "未找到比例",
-    "detecting": "正在检测..."
+    "detecting": "正在检测...",
+    "scaleCheck": "检查比例",
+    "scaleCheckTitle": "测量已知尺寸并以百分比显示比例偏差"
   },
   "home": {
     "document": "文档",

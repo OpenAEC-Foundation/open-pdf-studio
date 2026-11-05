@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "پیمانہ شناخت ہو گیا",
     "noScaleFound": "کوئی پیمانہ نہیں ملا",
-    "detecting": "شناخت ہو رہی ہے..."
+    "detecting": "شناخت ہو رہی ہے...",
+    "scaleCheck": "پیمانہ جانچیں",
+    "scaleCheckTitle": "معلوم ناپ لیں اور پیمانے کا انحراف فیصد میں دکھائیں"
   },
   "home": {
     "document": "دستاویز",

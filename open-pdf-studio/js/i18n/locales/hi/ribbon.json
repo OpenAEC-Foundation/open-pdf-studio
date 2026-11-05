@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "स्केल पहचाना गया",
     "noScaleFound": "कोई स्केल नहीं मिला",
-    "detecting": "पहचान हो रही है..."
+    "detecting": "पहचान हो रही है...",
+    "scaleCheck": "स्केल जाँचें",
+    "scaleCheckTitle": "ज्ञात आयाम मापें और स्केल का विचलन प्रतिशत में दिखाएँ"
   },
   "home": {
     "document": "दस्तावेज़",

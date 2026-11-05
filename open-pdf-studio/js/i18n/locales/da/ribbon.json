@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Skala registreret",
     "noScaleFound": "Ingen skala fundet",
-    "detecting": "Genkender..."
+    "detecting": "Genkender...",
+    "scaleCheck": "Kontrollér skala",
+    "scaleCheckTitle": "Mål et kendt mål, og vis skalaens afvigelse i procent"
   },
   "home": {
     "document": "Dokument",
