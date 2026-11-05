@@ -281,7 +281,7 @@ export const shapeTool = {
       const doc = state.documents[state.activeDocumentIndex];
       if (doc) { doc.selectedAnnotations = [ann]; doc.selectedAnnotation = ann; }
       ctx.showProperties(ann);
-      ctx.startTextEditing(ann);
+      ctx.startTextEditing(ann, { nieuw: true });
     }
 
     // Auto-reset to select tool
