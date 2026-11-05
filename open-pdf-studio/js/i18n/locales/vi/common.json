@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Không thể xóa tất cả các trang. Phải giữ lại ít nhất một trang.",
   "cannotDeleteAllPagesSource": "Không thể xóa tất cả các trang khỏi tài liệu nguồn.",
   "noPagesSelected": "Chưa chọn trang nào để trích xuất.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF đã chọn không có trang nào.",
   "failedToSavePdf": "Lưu PDF thất bại: {{error}}",
   "failedToLoadPdf": "Tải PDF thất bại: {{error}}",

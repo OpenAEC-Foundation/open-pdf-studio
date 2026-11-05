@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Tüm sayfalar silinemez. En az bir sayfa kalmalıdır.",
   "cannotDeleteAllPagesSource": "Kaynak belgedeki tüm sayfalar silinemez.",
   "noPagesSelected": "Çıkarmak için sayfa seçilmedi.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Seçilen PDF'de sayfa yok.",
   "failedToSavePdf": "PDF kaydedilemedi: {{error}}",
   "failedToLoadPdf": "PDF yüklenemedi: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Kan ikke slette alle sider. Mindst én side skal blive tilbage.",
   "cannotDeleteAllPagesSource": "Kan ikke slette alle sider fra kildedokumentet.",
   "noPagesSelected": "Ingen sider valgt til udtrækning.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Den valgte PDF har ingen sider.",
   "failedToSavePdf": "PDF'en kunne ikke gemmes: {{error}}",
   "failedToLoadPdf": "PDF'en kunne ikke indlæses: {{error}}",

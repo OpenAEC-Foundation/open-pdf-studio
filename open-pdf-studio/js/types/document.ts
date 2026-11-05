@@ -108,6 +108,8 @@ export interface DocumentState {
   ocrLayerPages?: number[];
   /** Fingerprint of the OCR results the last save wrote (saver/ocr-text-layer.js). */
   ocrLayerSignature?: string;
+  /** Per pagina de handtekening van de OCR-woorden die in het geladen document staan (ocr-laag.js). */
+  ocrLaagInBestand?: Record<number, string>;
   bookmarks: Bookmark[];
   /** Paginalabels (bladnamen, #580), index 0 = pagina 1; null = gewone paginanummers. */
   pageLabels?: string[] | null;

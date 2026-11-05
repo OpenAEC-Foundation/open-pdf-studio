@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Nie je možné odstrániť všetky strany. Aspoň jedna strana musí zostať.",
   "cannotDeleteAllPagesSource": "Nie je možné odstrániť všetky strany zo zdrojového dokumentu.",
   "noPagesSelected": "Nie sú vybrané žiadne strany na extrakciu.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Vybraté PDF nemá žiadne strany.",
   "failedToSavePdf": "Uloženie PDF zlyhalo: {{error}}",
   "failedToLoadPdf": "Načítanie PDF zlyhalo: {{error}}",

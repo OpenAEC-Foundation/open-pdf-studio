@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Не може да изтриете всички страници. Трябва да остане поне една страница.",
   "cannotDeleteAllPagesSource": "Не може да изтриете всички страници от изходния документ.",
   "noPagesSelected": "Не са избрани страници за извличане.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Избраният PDF няма страници.",
   "failedToSavePdf": "Запазването на PDF е неуспешно: {{error}}",
   "failedToLoadPdf": "Зареждането на PDF е неуспешно: {{error}}",

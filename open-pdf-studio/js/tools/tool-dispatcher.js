@@ -1189,7 +1189,7 @@ function _finishDrawing(ctx, e, coords) {
     showProperties(ann);
     import('./manager.js').then(m => {
       m.setTool('select');
-      startTextEditing(ann);
+      startTextEditing(ann, { nieuw: true });
     });
   } else {
     // Auto-reset to select tool for non-text annotations

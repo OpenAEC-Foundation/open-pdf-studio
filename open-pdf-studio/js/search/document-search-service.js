@@ -4,6 +4,7 @@ import { isTauri, listPdfFiles, readBinaryFile, extractFileName } from '../core/
 import { pdfjsBronnen } from '../core/basis-url.js';
 import { searchDocuments } from './document-search.js';
 import { extractPageText, zoekPaginaAlleBronnen, buildPattern } from './find-controller.js';
+import { metOcrWoorden } from '../pdf/ocr-laag.js';
 
 // Recompute rather than retain a folder index. Never use stale extracted text.
 function revision(doc, pdf) {
@@ -56,7 +57,10 @@ export async function searchWorkspace(request, callbacks) {
         revision: () => doc ? revision(doc, pdf) : fingerprint,
         close: async () => { if (task) await task.destroy(); },
         async search(pageNum, options) {
-          const data = await extractPageText(pdf, pageNum, doc);
+          // Een open document: ook de herkende woorden die nog niet zijn
+          // opgeslagen (#880, ocr-laag.js).
+          const pdfTekst = await extractPageText(pdf, pageNum, doc);
+          const data = doc ? metOcrWoorden(pdfTekst, doc) : pdfTekst;
           let annotations = [];
           if (options.annotations !== false) {
             if (doc) {

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Nie można usunąć wszystkich stron. Musi pozostać co najmniej jedna strona.",
   "cannotDeleteAllPagesSource": "Nie można usunąć wszystkich stron z dokumentu źródłowego.",
   "noPagesSelected": "Nie wybrano stron do wyodrębnienia.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Wybrany plik PDF nie ma stron.",
   "failedToSavePdf": "Nie udało się zapisać PDF: {{error}}",
   "failedToLoadPdf": "Nie udało się wczytać PDF: {{error}}",

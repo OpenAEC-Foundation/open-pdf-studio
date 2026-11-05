@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "نمی‌توان همه صفحات را حذف کرد. دست‌کم یک صفحه باید باقی بماند.",
   "cannotDeleteAllPagesSource": "نمی‌توان همه صفحات سند مبدأ را حذف کرد.",
   "noPagesSelected": "هیچ صفحه‌ای برای استخراج انتخاب نشده است.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF انتخاب‌شده هیچ صفحه‌ای ندارد.",
   "failedToSavePdf": "ذخیره PDF ناموفق بود: {{error}}",
   "failedToLoadPdf": "بارگذاری PDF ناموفق بود: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Impossible de supprimer toutes les pages. Au moins une page doit subsister.",
   "cannotDeleteAllPagesSource": "Impossible de supprimer toutes les pages du document source.",
   "noPagesSelected": "Aucune page sélectionnée pour l'extraction.",
+  "extractEncrypted": "Ces pages ne peuvent pas être extraites : le contenu du document est encore chiffré. Enregistrez le document sans protection et réessayez.",
   "selectedPdfNoPages": "Le PDF sélectionné ne contient aucune page.",
   "failedToSavePdf": "Impossible d'enregistrer le PDF : {{error}}",
   "failedToLoadPdf": "Impossible de charger le PDF : {{error}}",

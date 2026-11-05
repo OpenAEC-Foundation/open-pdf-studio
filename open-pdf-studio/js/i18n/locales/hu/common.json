@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Nem törölhető az összes oldal. Legalább egy oldalnak meg kell maradnia.",
   "cannotDeleteAllPagesSource": "A forrásdokumentum összes oldala nem törölhető.",
   "noPagesSelected": "Nincs kijelölt oldal a kibontáshoz.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "A kiválasztott PDF-nek nincsenek oldalai.",
   "failedToSavePdf": "A PDF mentése sikertelen: {{error}}",
   "failedToLoadPdf": "A PDF betöltése sikertelen: {{error}}",

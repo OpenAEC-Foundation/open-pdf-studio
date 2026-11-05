@@ -748,3 +748,6 @@ js/plugins/extension-catalog.test.mjs
 js/pdf/delen-keuze.test.mjs
 js/mobile/mobiele-acties.test.mjs
 js/mobile/foto.test.mjs
+js/tools/text-edit-esc.test.mjs
+js/pdf/pagina-uittreksel.test.mjs
+js/pdf/ocr-laag.test.mjs

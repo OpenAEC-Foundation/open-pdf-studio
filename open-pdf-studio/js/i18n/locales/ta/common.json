@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "எல்லாப் பக்கங்களையும் நீக்க முடியாது. குறைந்தது ஒரு பக்கம் இருக்க வேண்டும்.",
   "cannotDeleteAllPagesSource": "மூல ஆவணத்திலிருந்து எல்லாப் பக்கங்களையும் நீக்க முடியாது.",
   "noPagesSelected": "பிரித்தெடுக்கப் பக்கங்கள் எதுவும் தேர்ந்தெடுக்கப்படவில்லை.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "தேர்ந்தெடுத்த PDF-இல் பக்கங்கள் இல்லை.",
   "failedToSavePdf": "PDF-ஐச் சேமிக்க முடியவில்லை: {{error}}",
   "failedToLoadPdf": "PDF-ஐ ஏற்ற முடியவில்லை: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Nu se pot șterge toate paginile. Trebuie să rămână cel puțin o pagină.",
   "cannotDeleteAllPagesSource": "Nu se pot șterge toate paginile din documentul sursă.",
   "noPagesSelected": "Nu s-au selectat pagini pentru extragere.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF-ul selectat nu are pagini.",
   "failedToSavePdf": "PDF-ul nu a putut fi salvat: {{error}}",
   "failedToLoadPdf": "PDF-ul nu a putut fi încărcat: {{error}}",

@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Haiwezekani kufuta kurasa zote. Angalau ukurasa mmoja lazima ubaki.",
   "cannotDeleteAllPagesSource": "Haiwezekani kufuta kurasa zote kutoka hati chanzo.",
   "noPagesSelected": "Hakuna kurasa zilizochaguliwa kwa ajili ya kutoa.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF iliyochaguliwa haina kurasa.",
   "failedToSavePdf": "Imeshindwa kuhifadhi PDF: {{error}}",
   "failedToLoadPdf": "Imeshindwa kupakia PDF: {{error}}",

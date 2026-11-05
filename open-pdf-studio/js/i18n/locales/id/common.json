@@ -81,6 +81,7 @@
   "cannotDeleteAllPages": "Tidak dapat menghapus semua halaman. Minimal satu halaman harus tersisa.",
   "cannotDeleteAllPagesSource": "Tidak dapat menghapus semua halaman dari dokumen sumber.",
   "noPagesSelected": "Tidak ada halaman yang dipilih untuk diekstrak.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF yang dipilih tidak memiliki halaman.",
   "failedToSavePdf": "Gagal menyimpan PDF: {{error}}",
   "failedToLoadPdf": "Gagal memuat PDF: {{error}}",

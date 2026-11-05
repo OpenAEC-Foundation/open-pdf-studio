@@ -204,3 +204,16 @@ test('review metadata is written only for pages with reviews', async () => {
   assert.equal(reviewsOnly[2][0].text, 'Hello');
   assert.equal((ownedLayerText(pdf, 1).match(/Tj/g) || []).length, 2, 'the text layer still has every word');
 });
+
+// #880: tot het opslaan staan herkende woorden alleen in het geheugen (zoeken
+// neemt ze dan mee); na het opslaan staan ze in het bestand en weet het
+// document dat, zodat zoeken ze niet dubbel vindt.
+test('after a save the recognized words count as in the file; a new OCR run does not', async () => {
+  const { ongeschrevenOcrWoorden } = await import('./ocr-laag.js');
+  const h = await harness({ ocrResults: { 1: [word('Hello')] } });
+  assert.equal(ongeschrevenOcrWoorden(h.doc, 1).length, 1, 'not saved yet');
+  assert.equal(await h.save(), true);
+  assert.deepEqual(ongeschrevenOcrWoorden(h.doc, 1), [], 'saved: the layer is in the file');
+  h.doc.ocrResults[1] = [word('Hallo')];
+  assert.deepEqual(ongeschrevenOcrWoorden(h.doc, 1).map((w) => w.text), ['Hallo'], 'a new run is in memory only');
+});
