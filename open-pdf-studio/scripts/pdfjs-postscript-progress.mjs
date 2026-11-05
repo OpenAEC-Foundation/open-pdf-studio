@@ -8,6 +8,8 @@ import { resolve } from 'node:path';
 import { patchXrefStreamOffsets } from './pdfjs-xref-offsets.mjs';
 import { patchSampledFunction32 } from './pdfjs-sampled-function.mjs';
 import { patchBidiCombiningMarks } from './pdfjs-bidi-marks.mjs';
+import { patchFormXObjectCache } from './pdfjs-form-xobject-cache.mjs';
+import { patchKnockoutBounds, PDFJS_DISPLAY_MODULE } from './pdfjs-knockout-bounds.mjs';
 
 const BEFORE = String.raw`  _getNumber() {
     this._numberPattern.lastIndex = this.pos;
@@ -86,10 +88,19 @@ export function patchZeroInitialFont(source) {
 // font in text extraction (PDF.js #22384). #638: XRef stream offsets above
 // 2 GiB (PDF.js #22172, see pdfjs-xref-offsets.mjs). #949: 32-bit samples
 // in Type 0 functions (PDF.js #22380, see pdfjs-sampled-function.mjs). #957:
-// combining marks typed NSM in bidi (see pdfjs-bidi-marks.mjs).
+// combining marks typed NSM in bidi (see pdfjs-bidi-marks.mjs). #636:
+// decoded Form XObject bytes cached per page operation (PDF.js #22265, see
+// pdfjs-form-xobject-cache.mjs).
 export function patchPdfjsWorker(source) {
-  return patchBidiCombiningMarks(patchSampledFunction32(
-    patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source)))));
+  return patchFormXObjectCache(patchBidiCombiningMarks(patchSampledFunction32(
+    patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source))))));
+}
+
+// Every backport the display library (pdf.mjs, main thread) needs. #637:
+// knockout-group fills composited within their bounds (PDF.js #22260, see
+// pdfjs-knockout-bounds.mjs).
+export function patchPdfjsDisplay(source) {
+  return patchKnockoutBounds(source);
 }
 
 // `workerPath` is the pdfjs-dist worker to patch: the app uses the legacy
@@ -99,6 +110,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
   let worker;
   let devPath;
   let build;
+  let displayPatched = false;
   const virtualId = 'virtual:opds-pdfjs-worker-url';
   return {
     name: 'opds-pdfjs-postscript-progress',
@@ -106,9 +118,40 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949 and #957 backports.`);
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949, #957, #636 and #637 backports.`);
       worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
+    },
+    config() {
+      // Dev: pdfjs-dist wordt door esbuild voorgebundeld, buiten de
+      // transform-hook om; deze esbuild-plugin patcht pdf.mjs daar (#637).
+      return {
+        optimizeDeps: {
+          esbuildOptions: {
+            plugins: [{
+              name: 'opds-pdfjs-display',
+              setup(b) {
+                b.onLoad({ filter: PDFJS_DISPLAY_MODULE }, args => ({
+                  contents: patchPdfjsDisplay(readFileSync(args.path, 'utf8')),
+                  loader: 'js',
+                }));
+              },
+            }],
+          },
+        },
+      };
+    },
+    transform(code, id) {
+      // Bouw (en dev zonder voorbundeling): de weergavebibliotheek zelf.
+      if (!PDFJS_DISPLAY_MODULE.test(id.split('?')[0])) return null;
+      displayPatched = true;
+      return { code: patchPdfjsDisplay(code), map: null };
+    },
+    generateBundle(_options, bundle) {
+      // Fail closed: zit pdf.mjs in de bundel, dan moet hij gepatcht zijn.
+      const shipped = Object.values(bundle).some(chunk => chunk.type === 'chunk'
+        && Object.keys(chunk.modules ?? {}).some(id => PDFJS_DISPLAY_MODULE.test(id.split('?')[0])));
+      if (shipped && !displayPatched) this.error('PDF.js display library shipped without the #637 backport.');
     },
     configureServer(server) {
       // loader.js uses this literal URL in dev; never modify shared node_modules.

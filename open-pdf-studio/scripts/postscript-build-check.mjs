@@ -55,3 +55,14 @@ const bidiRows = bidiMarks.stdout.trim().split('\n').filter(l => l.startsWith('{
 assert.equal(bidiRows.length, 4);
 for (const row of bidiRows) assert.deepEqual(row.raw, row.expected, `bidi ${row.name}`);
 console.log('PASS built worker: combining marks keep their logical order');
+// #636: the shipped worker decodes a repeated Form XObject once per page operation.
+const formCache = spawnSync(process.execPath, [fileURLToPath(new URL('./form-xobject-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 120000, encoding: 'utf8' });
+assert.equal(formCache.status, 0, formCache.stdout + formCache.stderr);
+const formRows = formCache.stdout.trim().split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+assert.equal(formRows.length, 2);
+for (const row of formRows) assert.deepEqual([row.opsDecodes, row.textDecodes], [3, 3], `page ${row.page} decodes`);
+console.log('PASS built worker: repeated Form XObjects are decoded once per page operation');
+// #637: the shipped display library carries the knockout-bounds backport
+// (a property name, so it survives minification).
+assert.ok(chunks.some(name => fs.readFileSync(resolve(assets, name), 'utf8').includes('knockoutTempDirtyRect')), 'display library carries the #637 backport');
+console.log('PASS built display library: knockout fills composite within their bounds');
