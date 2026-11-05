@@ -321,6 +321,7 @@ js/annotations/vlak-zijden.test.mjs
 js/annotations/vlak-maat.test.mjs
 js/annotations/vlak-zijdematen-wiring.test.mjs
 js/pdf/meetvlak-rondgang.test.mjs
+js/pdf/meting-uitwisseling.test.mjs
 js/tools/tools/meetvlak-hoeksnap.test.mjs
 js/core/standaardstijl-meetvlak.test.mjs
 js/ui/chrome/tab-sneltoets.test.mjs

@@ -11,6 +11,7 @@ import { leesRuweSleutels } from '../saver/ruwe-sleutels.js';
 import { dictVingerafdruk } from '../saver/bron-vingerafdruk.js';
 import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
+import { eenheidFactor } from '../../annotations/vlak-zijden.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
 import { readDynamicStamp } from './dynamic-stamp-load.js';
@@ -496,6 +497,14 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const prec = pdfNum(context.lookup(opsPrecRaw) || opsPrecRaw);
         if (prec !== null) colors.opsPrecision = prec;
       }
+
+      // Metingen (#959): een schaal van de pagina die alleen voor andere
+      // programma's in /Measure staat (saver/dimension-measure.js), en de
+      // meettekst van de app als /Contents er de eenheid bij kreeg.
+      const opsErfRaw = annotDict.get(PDFName.of('OPS_ScaleInherited'));
+      if (opsErfRaw && String(context.lookup(opsErfRaw) || opsErfRaw) === 'true') colors.opsScaleInherited = true;
+      const opsMeettekst = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_MeasureText')));
+      if (typeof opsMeettekst === 'string' && opsMeettekst) colors.opsMeasureText = opsMeettekst;
 
       // Read /OPS_TextOffsetX/Y (user-dragged dimension-text offset from the
       // dimension-line midpoint, stored in the visual annotation frame)
@@ -1114,6 +1123,17 @@ const result = {};
           // /D = distance display format — its D value is a denominator (e.g. 100000 = 5 decimals)
           // Fallback to /X precision for annotations without /D (e.g. simple Line dimensions)
           const dFmt = readNumberFormat(measureDict.get(PDFName.of('D')));
+          // /D rekent verder vanuit de eenheid van /X (ISO 32000-1, 12.9.1):
+          // /X in m en /D in mm (C 1000) toont millimeters. De schaal van de
+          // app staat dan in de eenheid die de lezer toont (#959). Alleen als
+          // /D een zuivere omrekening is: een /D met een andere eenheid maar
+          // C 1 is een slordig etiket, daar blijft /X gelden.
+          const dFactor = dFmt?.unit ? eenheidFactor(colors.measureUnit, dFmt.unit) : null;
+          if (colors.measureScale && dFactor && dFmt.unit !== colors.measureUnit
+              && Math.abs((dFmt.scale || 1) - dFactor) <= 1e-3 * dFactor) {
+            colors.measureScale *= dFactor;
+            colors.measureUnit = dFmt.unit;
+          }
           if (dFmt && dFmt.precision !== undefined && dFmt.precision > 1) {
             colors.measurePrecision = Math.round(Math.log10(dFmt.precision));
           } else if (xFmt && xFmt.precision !== undefined) {

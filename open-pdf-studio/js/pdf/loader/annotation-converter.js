@@ -18,6 +18,7 @@ import { wandJoinUitExtra } from '../saver/wand-join-meta.js';
 import { wolkVakUitHoeken, wolkVakUitZeshoek } from '../saver/veelhoek-grondvorm.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { vlakSchaalUitMeasure } from '../../annotations/vlak-zijden.js';
+import { meettekstUitBestand } from '../saver/dimension-measure.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { migreerProfielParams } from '../../symbols/koker-notatie.js';
@@ -638,9 +639,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           };
           // Get measurement text from Contents, or auto-calculate using annotation's own scale
           let mdText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
+          // Een eigen maat in mm schreef "3530 mm" in /Contents en "3530" in
+          // OPS_MeasureText (saver/dimension-measure.js, meetContents).
+          if (extraColors.opsSubtype === 'measureDistance') mdText = meettekstUitBestand(mdText, extraColors.opsMeasureText);
           if (!mdText) {
             if (mdProps.measureScale) {
-              const prec = mdProps.measurePrecision || 2;
+              const prec = mdProps.measurePrecision ?? 2;
               const pixelDist = Math.sqrt((lex - lsx) ** 2 + (ley - lsy) ** 2);
               const scaledVal = pixelDist * mdProps.measureScale;
               const unit = mdProps.measureUnit || 'mm';
@@ -765,9 +769,14 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
                                annot.it === 'PolyLineDimension';
         if (isMeasurePerim) {
           let mpText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
+          // Een eigen schaal uit /Measure; een schaal die de saver alleen voor
+          // andere programma's schreef (OPS_ScaleInherited) volgt de pagina.
+          const mpEigenSchaal = extraColors.measureScale && !extraColors.opsScaleInherited;
           if (!mpText) {
             const perim = calculatePerimeter(plPoints, pageNum);
-            mpText = formatMeasurement(perim);
+            mpText = mpEigenSchaal
+              ? formatMeasurement({ value: perim.pixels * extraColors.measureScale, unit: extraColors.measureUnit || 'mm' })
+              : formatMeasurement(perim);
           }
           const mpProps = {
             ...baseProps,
@@ -801,7 +810,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           }
           // Puntmaat, en holle punten bij een omtrekmaat uit een ander programma.
           Object.assign(mpProps, meetlijnKoppenUitBestand(extraColors, mpProps.lineWidth));
-          if (extraColors.measureScale) {
+          if (mpEigenSchaal) {
             mpProps.measureScale = extraColors.measureScale;
             mpProps.measureUnit = extraColors.measureUnit || 'mm';
             if (extraColors.measurePrecision !== undefined) {
@@ -1104,11 +1113,24 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               }))
             : null;
           let maText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
+          // Eigen schaal uit /Measure, niet de schaal van de pagina die de
+          // saver alleen voor andere programma's schreef (OPS_ScaleInherited).
+          // Een eigen meetvlak rekent in de lengte-eenheid van /X; /A staat
+          // daar in de eenheid van het label (mm → m², dimension-measure.js).
+          const maEigenSchaal = extraColors.measureScale && !extraColors.opsScaleInherited;
+          const maSchaal = maEigenSchaal
+            ? vlakSchaalUitMeasure(extraColors.measureScale, extraColors.measureUnit,
+              extraColors.opsSubtype === 'measureArea' && extraColors.measureUnit
+                ? `${extraColors.measureUnit}²` : extraColors.measureAreaUnit)
+            : null;
           if (!maText) {
             // Zonder opgeslagen tekst zelf rekenen - inclusief de extra ringen,
             // anders staat er de oppervlakte van alleen de buitenring (#457).
             const area = calculateArea(polyPoints, maHoles || undefined, pageNum);
-            maText = formatMeasurement(area);
+            const s = maSchaal?.measureScale;
+            maText = s > 0
+              ? formatMeasurement({ value: area.pixels * s * s, unit: maSchaal.measureUnit })
+              : formatMeasurement(area);
           }
           const maProps = {
             ...baseProps,
@@ -1124,12 +1146,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             // gearceerd meetvlak zijn arcering bij de volgende save.
             ...hatchUitExtra(extraColors),
           };
-          if (extraColors.measureScale) {
+          if (maSchaal) {
             // De schaal uit /X staat in de eenheid van /X; het meetvlak rekent
             // hem in de lengte-eenheid van measureUnit (#536). Die twee laten
             // kloppen, ook bij /X in mm en /A in m² of /X in voet + inch.
-            Object.assign(maProps, vlakSchaalUitMeasure(
-              extraColors.measureScale, extraColors.measureUnit, extraColors.measureAreaUnit));
+            Object.assign(maProps, maSchaal);
             const areaPrecision = extraColors.measureAreaPrecision !== undefined
               ? extraColors.measureAreaPrecision : extraColors.measurePrecision;
             if (areaPrecision !== undefined) maProps.measurePrecision = areaPrecision;

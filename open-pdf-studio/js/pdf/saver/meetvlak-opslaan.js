@@ -1,43 +1,20 @@
 // Opslaan van een meetvlak (measureArea) met zijn eigen schaal en zijdematen
 // (GitHub #536).
 //
-// - Eigen schaal (measureScale, eenheden per punt, in de lengte-eenheid van
-//   measureUnit): een standaard /Measure-woordenboek met /X (lengte) en /A
-//   (oppervlakte). De lader leest dat terug (loader/color-extraction.js en
-//   annotation-converter.js, met vlakSchaalUitMeasure uit vlak-zijden.js, dat
-//   de schaal van /X en de eenheid van /A op elkaar laat passen). Zonder
-//   eigen schaal geen /Measure, zoals voorheen.
+// - Schaal (measureScale, eenheden per punt, in de lengte-eenheid van
+//   measureUnit, of die van de pagina): een standaard /Measure-woordenboek
+//   met /X (lengte), /D en /A (oppervlakte), geschreven door
+//   writeDimensionMeasure in dimension-measure.js (#959). De lader leest dat
+//   terug (loader/color-extraction.js en annotation-converter.js); een
+//   schaal van de pagina is gemarkeerd met OPS_ScaleInherited en blijft de
+//   pagina volgen.
 // - Zijdematen: de sleutel OPS_EdgeLengths staat in saver/plattegrond-meta.js
 //   bij de andere meetvlak-sleutels; de maten zelf komen in de appearance
 //   (appearance-vectors.js, buildMeasureAreaAP). De /Rect moet ze omvatten,
 //   anders knipt een andere lezer ze weg: meetvlakRect hieronder.
 
-import { PDFName } from 'pdf-lib';
-import { pdfTextString } from './pdf-text.js';
 import { vlakRect } from './utils.js';
-import { vlakZijden, zijdeLabel, zijdeLabelKader, lengteEenheid } from '../../annotations/vlak-zijden.js';
-
-/**
- * Schrijft de eigen schaal van een meetvlak als /Measure. Geeft true als er
- * een eigen schaal was.
- */
-export function schrijfMeetvlakSchaal(annotDict, ann, context) {
-  const schaal = Number(ann?.measureScale);
-  if (!annotDict || !(schaal > 0)) return false;
-  const eenheid = lengteEenheid(ann.measureUnit) || 'mm';
-  const precisie = Number.isInteger(ann.measurePrecision) && ann.measurePrecision >= 0
-    ? Math.min(ann.measurePrecision, 9) : 2;
-  const lengte = context.obj({ U: pdfTextString(eenheid), C: schaal });
-  const oppervlakte = context.obj({ U: pdfTextString(`${eenheid}²`), C: 1, D: 10 ** precisie });
-  annotDict.set(PDFName.of('Measure'), context.obj({
-    Type: PDFName.of('Measure'),
-    Subtype: PDFName.of('RL'),
-    R: pdfTextString(`1 pt = ${schaal} ${eenheid}`),
-    X: context.obj([lengte]),
-    A: context.obj([oppervlakte]),
-  }));
-  return true;
-}
+import { vlakZijden, zijdeLabel, zijdeLabelKader } from '../../annotations/vlak-zijden.js';
 
 /**
  * De /Rect van een meetvlak: de omhullende van alle ringen (vlakRect) en,
