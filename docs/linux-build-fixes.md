@@ -68,14 +68,19 @@ the matching Rust `tauri*` crate minor in `Cargo.lock`. Check with
 {
   "$schema": "https://schema.tauri.app/config/2",
   "bundle": {
-    "externalBin": [],
+    "externalBin": ["binaries/pdfium-worker"],
     "resources": { "binaries/linux-x64/libpdfium.so": "libpdfium.so" }
   }
 }
 ```
-- `externalBin: []` — the multi-process worker pool is **Windows-only** (the
-  spawn path hardcodes `pdfium-worker.exe`), so the sidecar is never used on
-  Linux; dropping it removes the missing-binary build failure.
+- `externalBin: ["binaries/pdfium-worker"]` — the worker pool runs on Linux
+  too (`worker_exe_path()` looks for `pdfium-worker` next to the main binary,
+  `usr/bin` in the .deb and the AppImage). It was `[]` while the spawn path
+  was Windows-only; since #923 the sidecar ships again. Build it first
+  (`cargo build --release -p pdfium-worker`; the npm `prebuild` does this) so
+  `binaries/pdfium-worker-x86_64-unknown-linux-gnu` exists, otherwise
+  tauri-build fails with *"resource path ... doesn't exist"*. The worker finds
+  `libpdfium.so` in `../lib/Open PDF Studio` relative to itself.
 - bundles `libpdfium.so` next to the binary so the in-proc PDFium path works.
 - Tauri auto-merges `tauri.<platform>.conf.json`, so this file is a **no-op on
   Windows/macOS** — their `externalBin`/`resources` from `tauri.conf.json` are

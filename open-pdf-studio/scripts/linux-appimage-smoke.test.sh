@@ -15,6 +15,11 @@ printf '%s\n' \
   '    mkdir -p "squashfs-root/usr/lib/Open PDF Studio"' \
   '    : > "squashfs-root/usr/lib/Open PDF Studio/libpdfium.so"' \
   '  fi' \
+  '  if [[ "${FAKE_MISSING_WORKER:-0}" != "1" ]]; then' \
+  '    mkdir -p squashfs-root/usr/bin' \
+  '    printf "#!/bin/sh\nexit 0\n" > squashfs-root/usr/bin/pdfium-worker' \
+  '    chmod +x squashfs-root/usr/bin/pdfium-worker' \
+  '  fi' \
   '  if [[ "${FAKE_BUNDLED_WAYLAND:-0}" == "1" ]]; then' \
   '    mkdir -p squashfs-root/usr/lib' \
   '    : > squashfs-root/usr/lib/libwayland-client.so.0' \
@@ -35,6 +40,12 @@ if FAKE_MISSING_PDFIUM=1 SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$fake" 1 >"$
   exit 1
 fi
 grep -q 'libpdfium.so is missing' "$tmp/missing.log"
+
+if FAKE_MISSING_WORKER=1 SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$fake" 1 >"$tmp/worker.log" 2>&1; then
+  echo "smoke unexpectedly accepted an AppImage without the pdfium-worker sidecar" >&2
+  exit 1
+fi
+grep -q 'pdfium-worker sidecar is missing' "$tmp/worker.log"
 
 gvfs_fake="$tmp/fake-gvfs.AppImage"
 cp "$fake" "$gvfs_fake"
