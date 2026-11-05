@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Kích thước khi đặt một ký hiệu mới",
     "symbolScaleCustom": "Tỷ lệ tùy chỉnh",
     "count": "Đếm",
-    "arc": "Cung"
+    "arc": "Cung",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Hiệu đính",

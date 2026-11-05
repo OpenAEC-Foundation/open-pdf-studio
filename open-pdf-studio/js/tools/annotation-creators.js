@@ -590,6 +590,9 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         page: getActiveDocument()?.currentPage || 1,
         x: startX, y: startY,
         categoryId: cat?.id || null,
+        // Groepsnaam op de markering zelf: zo komt de groep na opslaan en
+        // heropenen terug (#935).
+        ...(cat?.name ? { categoryName: cat.name } : {}),
         number: n,
         markerStyle: cat?.markerStyle || 'dot',
         symbolId: cat?.symbolId,

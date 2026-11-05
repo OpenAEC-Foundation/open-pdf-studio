@@ -226,7 +226,9 @@
     "viewports": "Viewports",
     "noViewports": "No viewports defined",
     "measurements": "Measurements",
-    "noMeasurements": "No measurements yet"
+    "noMeasurements": "No measurements yet",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "lineEndings": {
     "title": "Line Endings",
@@ -922,5 +924,15 @@
     "open": "Open",
     "saveAs": "Save As...",
     "noContent": "The content of this file is not embedded in the PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

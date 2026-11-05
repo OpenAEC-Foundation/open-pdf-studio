@@ -17,7 +17,9 @@
     "viewports": "व्यूपोर्ट",
     "noViewports": "कोई व्यूपोर्ट परिभाषित नहीं",
     "measurements": "माप",
-    "noMeasurements": "अभी कोई माप नहीं"
+    "noMeasurements": "अभी कोई माप नहीं",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "गुण",
   "general": {
@@ -922,5 +924,15 @@
     "open": "खोलें",
     "saveAs": "इस रूप में सहेजें...",
     "noContent": "इस फ़ाइल की सामग्री PDF में एम्बेड नहीं है।"
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

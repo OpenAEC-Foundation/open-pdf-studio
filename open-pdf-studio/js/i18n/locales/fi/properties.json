@@ -17,7 +17,9 @@
     "viewports": "Näkymäikkunat",
     "noViewports": "Näkymäikkunoita ei ole määritetty",
     "measurements": "Mittaukset",
-    "noMeasurements": "Ei vielä mittauksia"
+    "noMeasurements": "Ei vielä mittauksia",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Ominaisuudet",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Avaa",
     "saveAs": "Tallenna nimellä...",
     "noContent": "Tämän tiedoston sisältöä ei ole upotettu PDF-tiedostoon."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

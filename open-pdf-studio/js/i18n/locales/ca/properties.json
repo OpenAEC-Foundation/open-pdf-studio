@@ -17,7 +17,9 @@
     "viewports": "Finestres de visualització",
     "noViewports": "No s'ha definit cap finestra de visualització",
     "measurements": "Mesuraments",
-    "noMeasurements": "Encara no hi ha mesuraments"
+    "noMeasurements": "Encara no hi ha mesuraments",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Propietats",
   "general": {
@@ -928,5 +930,15 @@
     "open": "Obre",
     "saveAs": "Desa com a...",
     "noContent": "El contingut d'aquest fitxer no està incrustat al PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

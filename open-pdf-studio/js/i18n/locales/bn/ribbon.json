@@ -683,7 +683,14 @@
     "symbolScaleTitle": "নতুন প্রতীক যে আকারে বসানো হয়",
     "symbolScaleCustom": "কাস্টম স্কেল",
     "count": "গণনা",
-    "arc": "চাপ"
+    "arc": "চাপ",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "প্রুফ রিডিং",

@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Storlek som en ny symbol placeras i",
     "symbolScaleCustom": "Anpassad skala",
     "count": "Räkna",
-    "arc": "Båge"
+    "arc": "Båge",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Korrektur",

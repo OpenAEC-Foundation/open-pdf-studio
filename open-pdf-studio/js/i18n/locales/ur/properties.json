@@ -17,7 +17,9 @@
     "viewports": "ویو پورٹس",
     "noViewports": "کوئی ویو پورٹ متعین نہیں",
     "measurements": "پیمائشیں",
-    "noMeasurements": "ابھی کوئی پیمائش نہیں"
+    "noMeasurements": "ابھی کوئی پیمائش نہیں",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "خصوصیات",
   "general": {
@@ -922,5 +924,15 @@
     "open": "کھولیں",
     "saveAs": "بطور محفوظ کریں...",
     "noContent": "اس فائل کا مواد PDF میں شامل نہیں ہے۔"
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Veľkosť, v ktorej sa umiestni nový symbol",
     "symbolScaleCustom": "Vlastná mierka",
     "count": "Počítanie",
-    "arc": "Oblúk"
+    "arc": "Oblúk",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Korektúra",

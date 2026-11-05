@@ -17,7 +17,9 @@
     "viewports": "ভিউপোর্ট",
     "noViewports": "কোনো ভিউপোর্ট সংজ্ঞায়িত নেই",
     "measurements": "পরিমাপসমূহ",
-    "noMeasurements": "এখনও কোনো পরিমাপ নেই"
+    "noMeasurements": "এখনও কোনো পরিমাপ নেই",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "বৈশিষ্ট্য",
   "general": {
@@ -922,5 +924,15 @@
     "open": "খুলুন",
     "saveAs": "হিসাবে সংরক্ষণ করুন...",
     "noContent": "এই ফাইলের বিষয়বস্তু PDF-এ এম্বেড করা নেই।"
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

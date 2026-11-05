@@ -15,6 +15,7 @@ import LineEndingsSection from './LineEndingsSection.jsx';
 import InkSection from './InkSection.jsx';
 import DimensionsSection from './DimensionsSection.jsx';
 import MeasurementSection from './MeasurementSection.jsx';
+import CountGroupSection from './CountGroupSection.jsx';
 import TextFormatSection from './TextFormatSection.jsx';
 import ParagraphSection from './ParagraphSection.jsx';
 import ContentSection from './ContentSection.jsx';
@@ -90,6 +91,7 @@ export default function PropertiesPanel() {
             <InkSection />
             <DimensionsSection />
             <MeasurementSection />
+            <CountGroupSection />
             <Show when={annotProps.annotationType === 'viewport'}>
               <CollapsibleSection title="Viewport" name="viewport" id="prop-viewport-section">
                 <div class="property-group">

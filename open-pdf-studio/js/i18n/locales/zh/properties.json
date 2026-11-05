@@ -17,7 +17,9 @@
     "viewports": "视口",
     "noViewports": "未定义视口",
     "measurements": "测量",
-    "noMeasurements": "暂无测量"
+    "noMeasurements": "暂无测量",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "属性",
   "general": {
@@ -922,5 +924,15 @@
     "open": "打开",
     "saveAs": "另存为...",
     "noContent": "此文件的内容未嵌入 PDF 中。"
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

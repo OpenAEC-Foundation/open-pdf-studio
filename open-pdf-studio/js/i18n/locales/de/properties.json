@@ -17,7 +17,9 @@
     "viewports": "Ansichtsfenster",
     "noViewports": "Keine Ansichtsfenster definiert",
     "measurements": "Messungen",
-    "noMeasurements": "Noch keine Messungen"
+    "noMeasurements": "Noch keine Messungen",
+    "counts": "Zählungen",
+    "noCounts": "Noch keine Zählungen"
   },
   "title": "Eigenschaften",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Öffnen",
     "saveAs": "Speichern unter...",
     "noContent": "Der Inhalt dieser Datei ist nicht in die PDF eingebettet."
+  },
+  "countGroup": {
+    "title": "Zählgruppe",
+    "group": "Gruppe",
+    "none": "(keine Gruppe)",
+    "mixed": "(gemischt)",
+    "total": "In dieser Gruppe",
+    "pieces": "{{count}} Stk.",
+    "color": "Gruppenfarbe",
+    "name": "Gruppenname"
   }
 }

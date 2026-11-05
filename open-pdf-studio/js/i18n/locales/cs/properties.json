@@ -17,7 +17,9 @@
     "viewports": "Výřezy",
     "noViewports": "Nejsou definovány žádné výřezy",
     "measurements": "Měření",
-    "noMeasurements": "Zatím žádná měření"
+    "noMeasurements": "Zatím žádná měření",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Vlastnosti",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Otevřít",
     "saveAs": "Uložit jako...",
     "noContent": "Obsah tohoto souboru není vložen do PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

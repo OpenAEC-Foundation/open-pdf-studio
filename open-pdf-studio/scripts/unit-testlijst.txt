@@ -678,3 +678,5 @@ js/solid/components/titlebar-afsluiten.test.mjs
 js/pdf/pagina-viewport.test.mjs
 js/annotations/scale-presets.test.mjs
 js/annotations/telling.test.mjs
+js/solid/stores/countStore.test.mjs
+js/pdf/saver/telling.test.mjs

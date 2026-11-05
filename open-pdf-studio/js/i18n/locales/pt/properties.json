@@ -17,7 +17,9 @@
     "viewports": "Janelas de visualização",
     "noViewports": "Nenhuma janela de visualização definida",
     "measurements": "Medições",
-    "noMeasurements": "Nenhuma medição ainda"
+    "noMeasurements": "Nenhuma medição ainda",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Propriedades",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Abrir",
     "saveAs": "Salvar como...",
     "noContent": "O conteúdo deste arquivo não está incorporado no PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

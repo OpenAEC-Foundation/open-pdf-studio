@@ -17,7 +17,9 @@
     "viewports": "أطر العرض",
     "noViewports": "لم يتم تعريف أطر عرض",
     "measurements": "القياسات",
-    "noMeasurements": "لا توجد قياسات بعد"
+    "noMeasurements": "لا توجد قياسات بعد",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "الخصائص",
   "general": {
@@ -922,5 +924,15 @@
     "open": "فتح",
     "saveAs": "حفظ باسم...",
     "noContent": "محتوى هذا الملف غير مضمن في ملف PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

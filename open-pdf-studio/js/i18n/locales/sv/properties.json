@@ -17,7 +17,9 @@
     "viewports": "Visningsfönster",
     "noViewports": "Inga visningsfönster definierade",
     "measurements": "Mätningar",
-    "noMeasurements": "Inga mätningar än"
+    "noMeasurements": "Inga mätningar än",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Egenskaper",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Öppna",
     "saveAs": "Spara som...",
     "noContent": "Innehållet i den här filen är inte inbäddat i PDF-filen."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

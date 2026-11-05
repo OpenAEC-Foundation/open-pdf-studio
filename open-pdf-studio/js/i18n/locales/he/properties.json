@@ -17,7 +17,9 @@
     "viewports": "חלונות תצוגה",
     "noViewports": "לא הוגדרו חלונות תצוגה",
     "measurements": "מדידות",
-    "noMeasurements": "אין עדיין מדידות"
+    "noMeasurements": "אין עדיין מדידות",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "מאפיינים",
   "general": {
@@ -922,5 +924,15 @@
     "open": "פתיחה",
     "saveAs": "שמירה בשם...",
     "noContent": "תוכן הקובץ הזה אינו מוטמע ב-PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

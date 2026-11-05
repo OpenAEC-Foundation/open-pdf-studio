@@ -17,7 +17,9 @@
     "viewports": "ビューポート",
     "noViewports": "ビューポートが定義されていません",
     "measurements": "計測",
-    "noMeasurements": "計測はまだありません"
+    "noMeasurements": "計測はまだありません",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "プロパティ",
   "general": {
@@ -922,5 +924,15 @@
     "open": "開く",
     "saveAs": "名前を付けて保存...",
     "noContent": "このファイルの内容は PDF に埋め込まれていません。"
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

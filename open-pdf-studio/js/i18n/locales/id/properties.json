@@ -17,7 +17,9 @@
     "viewports": "Viewport",
     "noViewports": "Belum ada viewport",
     "measurements": "Pengukuran",
-    "noMeasurements": "Belum ada pengukuran"
+    "noMeasurements": "Belum ada pengukuran",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Properti",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Buka",
     "saveAs": "Simpan sebagai...",
     "noContent": "Isi file ini tidak disematkan dalam PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

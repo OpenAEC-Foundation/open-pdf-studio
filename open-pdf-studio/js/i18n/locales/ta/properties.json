@@ -17,7 +17,9 @@
     "viewports": "காட்சிச் சாளரங்கள்",
     "noViewports": "காட்சிச் சாளரங்கள் வரையறுக்கப்படவில்லை",
     "measurements": "அளவீடுகள்",
-    "noMeasurements": "இன்னும் அளவீடுகள் இல்லை"
+    "noMeasurements": "இன்னும் அளவீடுகள் இல்லை",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "பண்புகள்",
   "general": {
@@ -922,5 +924,15 @@
     "open": "திற",
     "saveAs": "இவ்வாறு சேமி...",
     "noContent": "இந்தக் கோப்பின் உள்ளடக்கம் PDF இல் உட்பொதிக்கப்படவில்லை."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

@@ -683,7 +683,14 @@
     "symbolScaleTitle": "புதிய குறியீடு வைக்கப்படும் அளவு",
     "symbolScaleCustom": "தனிப்பயன் அளவுகோல்",
     "count": "எண்ணிக்கை",
-    "arc": "வில்"
+    "arc": "வில்",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "மெய்ப்புத் திருத்தம்",
