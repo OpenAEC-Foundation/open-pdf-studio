@@ -31,26 +31,26 @@ const cps = s => [...s].map(c => c.codePointAt(0).toString(16));
 
 // [logische tekst, verwachte richting] — de PDF bevat de visuele volgorde.
 const MARKS = {
-  'CGJ U+034F (#957)': 'مَ͏رْ',
-  'U+0301 combining acute': 'بَ́اب',
-  'U+036F (end of block)': 'بَͯاب',
-  'variation selector U+FE00': 'بَ︀اب',
-  'variation selector U+FE0F': 'بَ️اب',
-  'combining half mark U+FE20': 'بَ︠اب',
-  'diacritical supplement U+1DC0': 'بَ᷀اب',
-  'Arabic Extended-A mark U+08F0': 'بࣰَاب',
-  'two marks in a row': 'م͏َ́ر',
+  'CGJ U+034F (#957)': '\u0645\u064E\u034F\u0631\u0652',
+  'U+0301 combining acute': '\u0628\u064E\u0301\u0627\u0628',
+  'U+036F (end of block)': '\u0628\u064E\u036F\u0627\u0628',
+  'variation selector U+FE00': '\u0628\u064E\uFE00\u0627\u0628',
+  'variation selector U+FE0F': '\u0628\u064E\uFE0F\u0627\u0628',
+  'combining half mark U+FE20': '\u0628\u064E\uFE20\u0627\u0628',
+  'diacritical supplement U+1DC0': '\u0628\u064E\u1DC0\u0627\u0628',
+  'Arabic Extended-A mark U+08F0': '\u0628\u064E\u08F0\u0627\u0628',
+  'two marks in a row': '\u0645\u034F\u0301\u064E\u0631',
 };
 // Gedrag dat niet mag veranderen (ongepatcht = gepatcht).
 const CONTROLS = [
-  'café au lait', // LTR met combinerend teken: geen bidi
+  'cafe\u0301 au lait', // LTR met combinerend teken: geen bidi
   'plain LTR text 123',
-  'שָׁלוֹם', // Hebreeuws met punten
-  'مرحبا', // Arabisch zonder merktekens
-  rev('عدد') + ' 12', // RTL met cijfers
-  '12.5 ' + rev('مرحبا') + ' (x)', // gemengd met leestekens
-  'abc ' + rev('مر') + ' def ghi jkl', // LTR-regel met Arabisch woord
-  'مرحبا، ١٢', // Arabische komma en cijfers
+  '\u05E9\u05B8\u05C1\u05DC\u05D5\u05B9\u05DD', // Hebreeuws met punten
+  '\u0645\u0631\u062D\u0628\u0627', // Arabisch zonder merktekens
+  rev('\u0639\u062F\u062F') + ' 12', // RTL met cijfers
+  '12.5 ' + rev('\u0645\u0631\u062D\u0628\u0627') + ' (x)', // gemengd met leestekens
+  'abc ' + rev('\u0645\u0631') + ' def ghi jkl', // LTR-regel met Arabisch woord
+  '\u0645\u0631\u062D\u0628\u0627\u060C \u0661\u0662', // Arabische komma en cijfers
 ];
 
 for (const [build, path] of builds) {

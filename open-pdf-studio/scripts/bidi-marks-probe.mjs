@@ -19,12 +19,12 @@ const [mode = 'patched', workerPath] = process.argv.slice(2);
 
 // Logische tekst; de PDF bevat de omgekeerde (visuele) volgorde.
 export const bidiMarksCases = {
-  cgj: 'مَ͏رْ', // meem, fatha, CGJ, reh, sukun (#957)
+  cgj: '\u0645\u064E\u034F\u0631\u0652', // meem, fatha, CGJ, reh, sukun (#957)
   // Een merkteken uit U+0300-036F resp. een variatiekiezer, gevolgd door een
   // Arabisch merkteken in visuele volgorde: ongepatcht wisselen ze van plaats.
-  acute: 'بَ́اب', // beh, fatha, U+0301, alef, beh
-  vs: 'بَ︀اب', // beh, fatha, U+FE00, alef, beh
-  hebrew: 'שָׁלוֹם', // Hebreeuws met punten
+  acute: '\u0628\u064E\u0301\u0627\u0628', // beh, fatha, U+0301, alef, beh
+  vs: '\u0628\u064E\uFE00\u0627\u0628', // beh, fatha, U+FE00, alef, beh
+  hebrew: '\u05E9\u05B8\u05C1\u05DC\u05D5\u05B9\u05DD', // Hebreeuws met punten
 };
 const cps = s => [...s].map(c => c.codePointAt(0).toString(16).padStart(4, '0'));
 const xmlText = xml => [...xml.matchAll(/<w:t(?: [^>]*)?>([^<]*)<\/w:t>/g)].map(m => m[1]).join('');
