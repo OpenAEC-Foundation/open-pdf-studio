@@ -545,6 +545,9 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
+  /* Slepen met pointer-events (#962): geen tekstselectie onderweg. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .thumbnail-item:hover {
