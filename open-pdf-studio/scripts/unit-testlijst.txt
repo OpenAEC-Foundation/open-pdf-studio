@@ -755,3 +755,4 @@ scripts/licenties.test.mjs
 js/core/geen-telemetrie.test.mjs
 js/pdf/saver/bron-snelheid.test.mjs
 scripts/meet-opslaan-grote-set.test.mjs
+js/annotations/tool-sets-formaat.test.mjs

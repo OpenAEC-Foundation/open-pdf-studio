@@ -102,6 +102,9 @@ const SAVED_KEYS = new Set([
   'dikteMm', 'isolatieType',
 ]);
 
+/** The keys an item keeps, for the description of the exchange file (docs/werkkist-bestandsformaat.md). */
+export const SAVED_PROPERTY_KEYS = Object.freeze([...SAVED_KEYS]);
+
 function isPlainValue(v) {
   return v === null || typeof v === 'string' || typeof v === 'boolean'
     || (typeof v === 'number' && Number.isFinite(v));
