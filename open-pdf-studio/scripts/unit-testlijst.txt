@@ -742,3 +742,4 @@ js/core/shell-acties-logica.test.mjs
 js/core/shell-acties-installer.test.mjs
 js/core/shell-acties-bedrading.test.mjs
 js/core/werkruimte.test.mjs
+js/plugins/extension-catalog.test.mjs

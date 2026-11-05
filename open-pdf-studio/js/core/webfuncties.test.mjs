@@ -135,6 +135,10 @@ const DIENSTEN = {
   'js/core/draagbaar.js': null, // releasepagina via openExtern, knop ribbon-check-updates (#881)
   'js/solid/components/dialogs/FeedbackDialog.jsx': 'js/solid/components/dialogs/FeedbackDialog.jsx',
   'js/solid/data/symbolLibraryOnline.js': 'js/solid/stores/symbolLibraryOnlineStore.js',
+  // Extensiecatalogus (#969): downloads via Rust, alleen in de app; de
+  // adressen in het paneel zijn voorbeeldtekst in invoervelden.
+  'js/plugins/extension-catalog.js': 'js/plugins/extension-catalog-app.js',
+  'js/solid/components/app-menu/ExtensionsPanel.jsx': 'js/plugins/extension-catalog-app.js',
 };
 
 test('elk verzoek naar een andere host vraagt eerst externeDienstenAan()', () => {

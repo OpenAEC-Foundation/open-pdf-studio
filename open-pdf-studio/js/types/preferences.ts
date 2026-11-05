@@ -8,6 +8,10 @@ export interface Preferences {
   defaultViewMode: 'continuous' | 'single';
   // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
   ocrEngine?: string | null;
+  // Extensiecatalogus (#969): eigen catalogus-links naast de standaard, en
+  // per extensie-id waar hij vandaan komt (js/plugins/extension-catalog.js).
+  extensionCatalogs?: string[];
+  extensionSources?: Record<string, { soort: 'catalog' | 'custom'; link: string; catalogus: string; version?: string }>;
 
   // General
   authorName: string;
