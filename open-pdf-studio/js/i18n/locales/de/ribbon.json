@@ -892,5 +892,23 @@
     "close": "Schließen",
     "markups": "{{count}} Markierungen",
     "picked": "Kopie liegt in der Zwischenablage: Strg+V auf dem Blatt drücken"
+  },
+  "workspace": {
+    "button": "Arbeitsbereich",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Gespeicherte Arbeitsbereiche",
+    "none": "Keine gespeicherten Arbeitsbereiche",
+    "manage": "Save or manage workspaces...",
+    "reset": "Standardlayout wiederherstellen",
+    "interfaceSize": "Oberflächengröße",
+    "dialogTitle": "Arbeitsbereiche",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Überschreiben",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Anwenden",
+    "delete": "Löschen"
   }
 }

@@ -1,4 +1,8 @@
-export const UI_SCALES = [100, 125, 150, 175, 200];
+// Kleiner dan 100% (#932) geeft meer ruimte aan het document op een scherm
+// waar de bediening te veel plek inneemt; groter is voor slechtziendheid (#883).
+// Alleen de bediening (lint, panelen, paletten, dialogen) schaalt; de PDF en
+// de zoom van het document niet.
+export const UI_SCALES = [80, 90, 100, 110, 125, 150, 175, 200];
 export function normalizeUiScale(value) {
   const number = Number(value);
   return UI_SCALES.includes(number) ? number : 100;
@@ -21,7 +25,9 @@ export function pasUiSchaalToe(value, root = globalThis.document?.documentElemen
   const scale = normalizeUiScale(value);
   const vorige = uiSchaalFactor(root);
   root.style.setProperty('--ui-scale', String(scale / 100));
-  root.toggleAttribute('data-ui-scaled', scale !== 100);
+  // De ruimtemakende regels (styles/ui-scale.css) zijn voor grotere
+  // bediening; kleiner past vanzelf in de gewone indeling.
+  root.toggleAttribute('data-ui-scaled', scale > 100);
   if (vorige !== scale / 100) globalThis.dispatchEvent?.(new Event(UI_SCHAAL_EVENT));
 }
 

@@ -3,6 +3,7 @@ import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import ThemePicker from './ThemePicker.jsx';
+import WorkspaceMenu from './WorkspaceMenu.jsx';
 import SplitButton from './SplitButton.jsx';
 import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigationIcon, propertiesIcon, annotationsListIcon, toolPaletteIcon, fullscreenIcon, fullscreenExitIcon, elementVisibilityIcon, annotationLayersIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { isFullscreen } from '../../stores/ribbonStore.js';
@@ -174,6 +175,8 @@ export default function ViewTab() {
               re-exposed later if needed). */}
           <RibbonButton id="ribbon-symbol-palette" title={t('view.toolPalette')} icon={toolPaletteIcon} label={t('view.toolPaletteLabel')}
             active={symbolPaletteVisible()} onClick={toggleSymbolPalette} />
+          {/* Werkruimten en interfacegrootte (#932). */}
+          <WorkspaceMenu />
         </RibbonGroup>
 
         {/* Read aloud and the structure tags (#384). */}

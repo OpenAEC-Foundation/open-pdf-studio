@@ -901,5 +901,23 @@
     "close": "Sluiten",
     "markups": "{{count}} markeringen",
     "picked": "Kopie staat op het klembord: druk Ctrl+V op het blad"
+  },
+  "workspace": {
+    "button": "Werkruimte",
+    "buttonTitle": "Werkruimten: wissel tussen opgeslagen paneelindelingen, bewaar de huidige indeling, zet hem terug of wijzig de interfacegrootte",
+    "saved": "Opgeslagen werkruimten",
+    "none": "Geen opgeslagen werkruimten",
+    "manage": "Werkruimten opslaan of beheren...",
+    "reset": "Standaardindeling herstellen",
+    "interfaceSize": "Interfacegrootte",
+    "dialogTitle": "Werkruimten",
+    "intro": "Een werkruimte onthoudt welke panelen en paletten open, ingeklapt of zwevend zijn, hoe breed het navigatiepaneel is en of het lint is ingeklapt.",
+    "name": "Naam:",
+    "save": "Huidige indeling opslaan",
+    "overwrite": "Overschrijven",
+    "savedAs": "Opgeslagen als \"{{name}}\".",
+    "full": "Je kunt hoogstens {{max}} werkruimten opslaan. Verwijder er eerst een.",
+    "apply": "Toepassen",
+    "delete": "Verwijderen"
   }
 }

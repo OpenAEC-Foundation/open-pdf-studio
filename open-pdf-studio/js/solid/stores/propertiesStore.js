@@ -3,6 +3,7 @@ import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
+import { bewaarLayoutVoorkeur } from '../../core/layout-voorkeur.js';
 import { parseScaleString, pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { isImperialScalePreset } from '../../annotations/scale-presets.js';
 import {
@@ -71,7 +72,19 @@ const _STROKE_COLOR_DRIVEN = new Set([
 
 // Panel visibility and collapsed state
 const [panelVisible, setPanelVisible] = createSignal(true);
-const [panelCollapsed, setPanelCollapsed] = createSignal(false);
+const [panelCollapsed, setPanelCollapsedRaw] = createSignal(false);
+
+// Ingeklapt tot de smalle strook blijft over een herstart bewaard (#932).
+// Alle aanroepers zijn handelingen van de gebruiker; herstellen bij de
+// opstart of een werkruimtewissel gaat via herstelPanelCollapsed.
+function setPanelCollapsed(value) {
+  setPanelCollapsedRaw(!!value);
+  bewaarLayoutVoorkeur('propertiesPanelCollapsed', !!value);
+}
+
+export function herstelPanelCollapsed(value) {
+  setPanelCollapsedRaw(!!value);
+}
 
 // Panel mode: 'none' | 'annotation' | 'multi' | 'textEdit'
 const [panelMode, setPanelMode] = createSignal('none');

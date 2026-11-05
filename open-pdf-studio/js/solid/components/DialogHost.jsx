@@ -59,6 +59,7 @@ import CadImportDialog from './dialogs/CadImportDialog.jsx';
 import IfcxExportDialog from './dialogs/IfcxExportDialog.jsx';
 import AnnotationLayerDeleteDialog from './dialogs/AnnotationLayerDeleteDialog.jsx';
 import FlattenAllDialog from './dialogs/FlattenAllDialog.jsx';
+import WorkspaceDialog from './dialogs/WorkspaceDialog.jsx';
 import { ToolSetImportDialog, ToolSetConfirmDialog } from './dialogs/ToolSetsDialogs.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
@@ -173,6 +174,7 @@ const DIALOG_MAP = {
   'ifcx-export': IfcxExportDialog,
   'annotation-layer-delete': AnnotationLayerDeleteDialog,
   'flatten-all': FlattenAllDialog,
+  'workspaces': WorkspaceDialog,
   'pdf-password': PasswordDialog,
   'recovery': RecoveryDialog,
 };

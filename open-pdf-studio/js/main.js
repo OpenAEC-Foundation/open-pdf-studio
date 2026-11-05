@@ -54,6 +54,7 @@ import { initAttachments } from './ui/panels/attachments.js';
 import { initLinks } from './ui/panels/links.js';
 import { initBookmarks } from './ui/panels/bookmarks.js';
 import { initLeftPanel } from './ui/panels/left-panel.js';
+import { herstelLinkerPaneel } from './ui/panels/werkruimte-toepassen.js';
 
 // Event setup
 import { setupEventListeners } from './ui/setup.js';
@@ -296,6 +297,8 @@ async function init() {
   initPaletteOrder();
   initToolPalette();
   initSymbolPalette();
+  // Linkerpaneel: ingeklapt, tab en breedte zoals de gebruiker het liet (#932).
+  if (!mobile) herstelLinkerPaneel();
 
   // Re-register downloaded parametric steel catalogs from preferences so the
   // palette entries (parametricId) resolve to templates after a restart.
