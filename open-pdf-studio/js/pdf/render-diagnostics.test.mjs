@@ -33,3 +33,12 @@ test('a successful render does not notify listeners; a new finding does',async()
  await assert.rejects(observe('render_pdf_page_region',{path:'a',pageIndex:0},async()=>{throw new Error('boom');}));
  assert.equal(calls,1);dispose();
 });
+
+test('isolated worker limits retain stable codes without exposing backend details',async()=>{
+ for(const code of ['PDF_RENDER_TIMEOUT','PDF_WORKER_RESPONSE_LIMIT','PDF_WORKER_UNAVAILABLE']) {
+  clear();
+  await assert.rejects(observe('render_pdf_page',{path:'a',pageIndex:0},async()=>{throw new Error(`read from worker 2: ${code}: private.pdf`);}));
+  assert.equal(read('a').pages[0].findings[0].code,code);
+  assert.ok(!JSON.stringify(read('a')).includes('private.pdf'));
+ }
+});

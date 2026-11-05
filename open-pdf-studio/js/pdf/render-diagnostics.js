@@ -59,8 +59,9 @@ export async function observeNativeRender(cmd,args,run) {
     return result;
   } catch(error) {
     const message=String(error?.message||error);
-    const code=message.includes('PDF_OUTPUT_LIMIT')||message.includes('bitmap too large')?'PDF_OUTPUT_LIMIT':
-      message.includes('PDF_INVALID_GEOMETRY')?'PDF_INVALID_GEOMETRY':message.includes('PDF_INVALID_RENDER_BUFFER')?'PDF_INVALID_RENDER_BUFFER':'RENDER_FAILED';
+    const resourceCode=['PDF_RENDER_TIMEOUT','PDF_WORKER_RESPONSE_LIMIT','PDF_WORKER_UNAVAILABLE'].find(code=>message.includes(code));
+    const code=resourceCode || (message.includes('PDF_OUTPUT_LIMIT')||message.includes('bitmap too large')?'PDF_OUTPUT_LIMIT':
+      message.includes('PDF_INVALID_GEOMETRY')?'PDF_INVALID_GEOMETRY':message.includes('PDF_INVALID_RENDER_BUFFER')?'PDF_INVALID_RENDER_BUFFER':'RENDER_FAILED');
     reportRenderObservation(token,{code,status:'failed',severity:'warning'});
     throw error;
   }
