@@ -1,7 +1,8 @@
 // Compare alignment (#465): the alignment transform (shared by detection,
 // split line and the old-page highlights), the measuring-scale fallback and
 // the automatic alignment on synthetic plots: a plot shift with a small
-// rotation, and the same drawing plotted to A1 and to A3.
+// rotation, the same drawing plotted to A1 and to A3, and near scales (1:100
+// against 1:99 and 1:101).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -182,3 +183,41 @@ test('pages that already line up keep the identity', () => {
   assert.ok(isIdentityAlignment(est.alignment));
   assert.ok(est.confidence > 0.99);
 });
+
+// Near scales (#629): the same drawing at 1:100 and at 1:99 on the same sheet
+// is 1% larger. No paper-size ratio and no measuring scale gives that factor,
+// so the refinement has to find it on its own.
+for (const [naam, s] of [['1:100 vs 1:99', 100 / 99], ['1:100 vs 1:101', 100 / 101]]) {
+  test(`near scales ${naam} align without input and the real change stands out`, () => {
+    const sheet = SHEETS_MM.A3;
+    const pt = sheetPt(sheet);
+    const plan = planPair(pt, pt);
+    const segs = drawingFor(sheet, 5, { strokes: 1200 });
+    const oldM = rasterize(sheet, segs, plan.mmPerPx);
+    // New plot: the drawing at the other scale, a little off centre, plus a 2 mm addition.
+    const map = plotMap(sheet, sheet, { scale: s, dx: 0.4, dy: -0.3 });
+    const newM = rasterize(sheet, [{ x1: 330, y1: 60, x2: 332, y2: 60, t: 0.25 }], plan.mmPerPx, null,
+      rasterize(sheet, segs, plan.mmPerPx, map));
+    const est = estimateAlignment(oldM, newM, { pxPerPt: plan.pxPerPt, oldSize: pt, newSize: pt });
+    near(est.alignment.scale, s, 0.002, 'scale');
+    near(est.alignment.dx, 0.4, 0.15, 'dx mm');
+    near(est.alignment.dy, -0.3, 0.15, 'dy mm');
+    near(est.alignment.rotation, 0, 0.05, 'rotation');
+    assert.ok(est.confidence > 0.9, `confidence ${est.confidence}`);
+    assert.notEqual(est.method, 'identity');
+
+    // Without the scale the 1% difference reads as change all over the
+    // sheet; with it the addition is found and at most a few raster crumbs
+    // are left.
+    const params = detectionParams('line', plan.mmPerPx);
+    const pixels = (cs) => cs.reduce((n, c) => n + c.pixelCount, 0);
+    const raw = detectMaskChanges(oldM, newM, params).clusters;
+    const T = pixelMatrix(est.alignment, pt, pt, plan.pxPerPt);
+    const found = detectMaskChanges(oldM, newM, { ...params, transform: T }).clusters;
+    const change = found.filter((c) => c.type === 'added' && Math.abs(c.x * plan.mmPerPx - 330) <= 1);
+    assert.equal(change.length, 1, JSON.stringify(found));
+    const rest = found.filter((c) => !change.includes(c));
+    assert.ok(rest.length <= 2 && rest.every((c) => c.pixelCount < 40), `left over: ${JSON.stringify(rest)}`);
+    assert.ok(pixels(raw) > 50 * pixels(found), `unaligned ${pixels(raw)} px, aligned ${pixels(found)} px`);
+  });
+}

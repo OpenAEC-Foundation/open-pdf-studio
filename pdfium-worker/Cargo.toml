@@ -2,6 +2,7 @@
 name = "pdfium-worker"
 version = "2026.44.8"
 edition = "2021"
+license = "LGPL-3.0-or-later"
 
 [[bin]]
 name = "pdfium-worker"

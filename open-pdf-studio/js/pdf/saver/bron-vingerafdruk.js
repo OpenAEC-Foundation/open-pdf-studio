@@ -35,15 +35,32 @@ export function dictVingerafdruk(dict) {
 const NIET_VERGELIJKEN = new Set(['pdfBron', 'modifiedAt']);
 const rondGetal = (_k, v) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 1e6) / 1e6 : v);
 
+/**
+ * De tekst die een veld vertegenwoordigt: JSON met getallen op 1e-6. Een
+ * getal, tekst of waarheidswaarde gaat zonder de (trage) replacer en geeft
+ * precies dezelfde tekst als JSON.stringify(v, rondGetal), zodat
+ * vingerafdrukken van eerder (een herstelbestand) blijven kloppen.
+ */
+function veldTekst(v) {
+  switch (typeof v) {
+    case 'number': return Number.isFinite(v) ? String(Math.round(v * 1e6) / 1e6) : 'null';
+    case 'string': return JSON.stringify(v);
+    case 'boolean': return v ? 'true' : 'false';
+    default:
+      if (v === null) return 'null';
+      try { return JSON.stringify(v, rondGetal); } catch { return String(Math.random()); }
+  }
+}
+
 /** Per modelveld een hash; getallen op 1e-6, zodat heen en terug schuiven gelijk is. */
 export function veldVingerafdrukken(ann) {
   const uit = {};
-  for (const k of Object.keys(ann || {})) {
-    if (k.startsWith('_') || NIET_VERGELIJKEN.has(k)) continue;
+  if (!ann) return uit;
+  for (const k of Object.keys(ann)) {
+    if (k.charCodeAt(0) === 95 /* _ */ || NIET_VERGELIJKEN.has(k)) continue;
     const v = ann[k];
-    if (v === undefined || typeof v === 'function') continue;
-    let s;
-    try { s = JSON.stringify(v, rondGetal); } catch { s = String(Math.random()); }
+    if (v === undefined || typeof v === 'function' || typeof v === 'symbol') continue;
+    const s = veldTekst(v);
     if (s !== undefined) uit[k] = hashTekst(s);
   }
   return uit;
@@ -51,10 +68,11 @@ export function veldVingerafdrukken(ann) {
 
 /** De modelvelden die verschillen tussen twee vingerafdrukken. */
 export function verschillendeVelden(oud, nieuw) {
+  const a = oud || {};
+  const b = nieuw || {};
   const uit = [];
-  for (const k of new Set([...Object.keys(oud || {}), ...Object.keys(nieuw || {})])) {
-    if ((oud || {})[k] !== (nieuw || {})[k]) uit.push(k);
-  }
+  for (const k in a) if (a[k] !== b[k]) uit.push(k);
+  for (const k in b) if (!(k in a) && b[k] !== undefined) uit.push(k);
   return uit;
 }
 

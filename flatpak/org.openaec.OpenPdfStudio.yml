@@ -93,6 +93,7 @@ modules:
           cp -r "open-pdf-studio/src-tauri/resources/$dir/." "$res/$dir/"
         done
       - install -Dm644 LICENSE.md ${FLATPAK_DEST}/share/licenses/${FLATPAK_ID}/LICENSE.md
+      - install -Dm644 GPL-3.0.txt ${FLATPAK_DEST}/share/licenses/${FLATPAK_ID}/GPL-3.0.txt
       - install -Dm644 pdfium/LICENSE ${FLATPAK_DEST}/share/licenses/${FLATPAK_ID}/pdfium-LICENSE
       # Install the desktop file
       - install -Dm644 flatpak/org.openaec.OpenPdfStudio.desktop ${FLATPAK_DEST}/share/applications/org.openaec.OpenPdfStudio.desktop
