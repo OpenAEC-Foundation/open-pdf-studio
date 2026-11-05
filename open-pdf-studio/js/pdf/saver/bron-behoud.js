@@ -80,12 +80,16 @@ const pdfjsId = (ref) => (ref.generationNumber ? `${ref.objectNumber}R${ref.gene
  * @param {Set<string>} teVervangen  ref.tag van de woordenboeken die de saver vervangt
  * @param {(ann: object) => PDFRef|null} [verwachteLaag]  de OCG die de saver zou schrijven
  * @param {PDFRef|null} [standaardLaag]  de OCG van de standaardlaag
+ * @param {(ann: object) => object} [ruw]  het kale object achter een model uit
+ *   de state-store (solid-js unwrap): de vingerafdrukken lezen elk veld, en dat
+ *   gaat via de proxy van de store tientallen keren trager (#581)
  * @returns {Map<string, object>} model-id -> plan
  */
-export function planBronnen(context, annotaties, teVervangen, { verwachteLaag = () => null, standaardLaag = null } = {}) {
+export function planBronnen(context, annotaties, teVervangen, { verwachteLaag = () => null, standaardLaag = null, ruw = (a) => a } = {}) {
   const plannen = new Map();
   const geclaimd = new Set();
-  for (const ann of annotaties || []) {
+  for (const model of annotaties || []) {
+    const ann = model ? ruw(model) : model;
     const b = ann?.pdfBron;
     if (!b || typeof b !== 'object' || b.id !== ann.id || plannen.has(ann.id)) continue;
     const ref = refUitId(b.ref);
@@ -114,7 +118,7 @@ export function planBronnen(context, annotaties, teVervangen, { verwachteLaag = 
       if (!zelfde) staat = 'anders';
     }
     const plan = {
-      ref, dict, staat, velden: nu, houd: [], gewijzigd: anders, apErbij,
+      ref, dict, dfp: b.dfp, staat, velden: nu, houd: [], gewijzigd: anders, apErbij,
       vorm: anders.some((k) => VORM_VELDEN.has(k)),
       metaSleutels: [...new Set(anders.filter(isMeta).flatMap((k) => META_VELDEN.get(k)))],
     };
@@ -346,18 +350,22 @@ export function bewaarBronSleutels(context, origineel, nieuw, ref, plan = null) 
  * Na een geslaagde save: de bron van elk geschreven model wijst naar zijn
  * object in het nieuwe bestand. Aanroepen na het opruimen en hernummeren
  * (saver/objecten-opruimen.js), vlak voor pdfDoc.save().
+ * Een woordenboek dat deze save niet aanraakte ('gelijk'), geeft zijn
+ * vingerafdruk van het laden mee (`dfp`): het verwijst alleen naar objecten
+ * die er al waren, en die houden hun nummer, dus zijn tekst is dezelfde.
+ * Opnieuw berekenen kost bij tienduizenden annotaties seconden (#581).
  * @param {import('pdf-lib').PDFContext} context
- * @param {Array<{ann: object, dict: PDFDict, velden: object, mee?: object}>} geschreven
+ * @param {Array<{ann: object, dict: PDFDict, dfp?: string, velden: object, mee?: object}>} geschreven
  * @returns {Array<[object, object]>} [model, nieuwe bron]; zet ze pas na het wegschrijven
  */
 export function bronNaOpslaan(context, geschreven) {
   const refVan = new Map();
   for (const [ref, obj] of context.enumerateIndirectObjects()) refVan.set(obj, ref);
   const uit = [];
-  for (const { ann, dict, velden, anker, mee } of geschreven || []) {
+  for (const { ann, dict, dfp, velden, anker, mee } of geschreven || []) {
     const ref = refVan.get(dict);
     if (!ref || !ann || ann.id == null) continue;
-    const bron = { ref: pdfjsId(ref), id: ann.id, dfp: dictVingerafdruk(dict), velden };
+    const bron = { ref: pdfjsId(ref), id: ann.id, dfp: dfp || dictVingerafdruk(dict), velden };
     if (anker) bron.anker = anker;
     const lijst = {};
     let volledig = true;

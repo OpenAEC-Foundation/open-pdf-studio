@@ -1,5 +1,6 @@
 import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
+import { $RAW } from 'solid-js/store';
 import { ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
@@ -136,6 +137,11 @@ function typemachineVoorOpslag(ann) {
   if (ann?.type !== 'textbox' || !ann.noWrap || !ann.text) return ann;
   return typemachineVak(ann, layoutTextboxForExport(winAnsiTekstvak(ann)));
 }
+
+// Het kale object achter een model uit de state-store (zonder proxy), of het
+// model zelf. Lezen en schrijven gaat zo zonder de proxy en zonder een update
+// van de store per veld; alleen voor wat geen scherm volgt, zoals pdfBron.
+const kaalModel = (m) => (m && m[$RAW]) || m;
 
 function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
   const m = _rotVisualMapper(rot, cw, ch);
@@ -644,6 +650,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         : planBronnen(context, pageAnnotations, new Set(verwijderdeRefs.map((r) => r.tag)), {
           verwachteLaag: (a) => ocVoorAnnotatie(laagOcgs, a),
           standaardLaag: ocVoorAnnotatie(laagOcgs, {}),
+          ruw: kaalModel,
         });
       const blijftStaan = new Set(); // ref.tag van wat ongewijzigd in het bestand blijft
       const vasteDicts = new Set(); // woordenboeken die deze save niet aanraakt
@@ -680,7 +687,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           refById.set(annRaw.id, bronPlan.ref);
           ouderDicts.set(annRaw.id, bronPlan.dict);
           geschreven.push({
-            ann: annRaw, dict: bronPlan.dict, velden: bronPlan.velden, anker: ankerVan(annRaw),
+            ann: annRaw, dict: bronPlan.dict, dfp: bronPlan.dfp, velden: bronPlan.velden, anker: ankerVan(kaalModel(annRaw)),
             mee: {
               status: (bronPlan.status || []).map((r) => context.lookup(r)),
               antwoorden: (bronPlan.antwoorden || []).map((r) => context.lookup(r)),
@@ -3650,7 +3657,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     markDocumentSaved(activeDoc);
     // De modellen beschrijven nu het opgeslagen bestand (saver/bron-behoud.js):
     // een volgende save laat ongewijzigde annotaties weer staan.
-    for (const [model, bron] of nieuweBronnen) model.pdfBron = bron;
+    // Alleen de saver leest pdfBron: rechtstreeks op het kale object, zonder
+    // per model een update van de state-store (bij 50.000 annotaties scheelt
+    // dat seconden, #581).
+    for (const [model, bron] of nieuweBronnen) kaalModel(model).pdfBron = bron;
     // Lagen (#377): de bewaarde stand is nu de beginstand van het bestand, en
     // een weergavekopie volgt de nieuwe bytes.
     lagenNaOpslaan(activeDoc, { standBewaard: !!laagStandaard })

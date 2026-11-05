@@ -85,6 +85,21 @@ uitgepakte bundel), op een verder rustige machine. Harde grens: een meting
 die meer dan 2x zo traag is als de vorige release (én > 1 s langzamer) blokkeert
 de release; kleinere verschuivingen in het releaseverslag vermelden.
 
+## 4a. Opslaan van een grote set (#629)
+
+```bash
+cd open-pdf-studio && node scripts/meet-opslaan-grote-set.mjs --json opslaan-grote-set.json
+```
+
+Een set van 150 A1-bladen met 100.000 objecten (bijna 50.000 markeringen,
+elk met een eigen appearance), geladen met de echte lader en opgeslagen met
+de echte saver: zonder bewerking, en met op elk blad één verplaatste en één
+nieuwe markering. Mediaan van 3 keer, op een verder rustige machine. Harde
+grens: 6 s per scenario (exit 1). De uitkomst (de JSON) hoort in het
+releaseverslag; een stijging van meer dan 25% ten opzichte van de vorige
+release eerst verklaren. Achtergrond en eerdere metingen:
+`docs/performance/2026-11-06-opslaan-grote-set.md`.
+
 ## 5. Installer-verificatie
 
 1. Bouw de installer (CI of lokaal met `CARGO_TARGET_DIR` buiten
