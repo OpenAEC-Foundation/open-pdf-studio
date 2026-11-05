@@ -676,3 +676,5 @@ js/annotations/rendering/document-context.test.mjs
 js/pdf/monochrome-image.test.mjs
 js/solid/components/titlebar-afsluiten.test.mjs
 js/pdf/pagina-viewport.test.mjs
+js/annotations/markering-quads.test.mjs
+js/pdf/gedraaide-markering-rondgang.test.mjs

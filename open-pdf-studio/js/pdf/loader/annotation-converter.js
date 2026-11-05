@@ -47,6 +47,7 @@ import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
 import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 import { inktUitBestand } from './inkt-uit-bestand.js';
+import { gedraaideMarkeringUitBestand } from '../../annotations/markering-quads.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -216,6 +217,25 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         }
       }
 
+      // Gedraaide markering (#944, #927): de eigen /QuadPoints van het
+      // bestand houden de draaiing die pdf.js weglaat. Een gedraaide
+      // vlakmarkering komt terug als vlak met haar draaiing, een markering
+      // op schuine tekst met haar quads. Zie annotations/markering-quads.js.
+      const gedraaid = gedraaideMarkeringUitBestand({
+        subtype: annot.subtype, rawQuadPoints: extraColors.rawQuadPoints,
+        rotatie: extraColors.rotation, convertPoint,
+      });
+      if (gedraaid?.vlak) {
+        return createAnnotation({
+          ...baseProps,
+          type: 'highlight',
+          ...gedraaid.vlak,
+          color: colorArrayToHex(annot.color, '#FFFF00'),
+          fillColor: colorArrayToHex(annot.color, '#FFFF00'),
+          ...textEditPropsFromPdf(annot, extraColors, convertPoint, viewport.rotation || 0)
+        });
+      }
+
       // Calculate overall bounding box
       let minX, maxX, minY, maxY;
       if (rects.length > 0) {
@@ -239,6 +259,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         width: maxX - minX,
         height: maxY - minY,
         rects: rects.length > 0 ? rects : undefined,
+        ...(gedraaid?.quads ? { quads: gedraaid.quads } : {}),
         color: colorArrayToHex(annot.color, '#FFFF00'),
         fillColor: colorArrayToHex(annot.color, '#FFFF00'),
         // Proefleescorrecties (#508): /IT, /NM, /Subj, gemarkeerde tekst en

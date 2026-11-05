@@ -2571,6 +2571,10 @@ export function rotateAnnotation(ann, normDelta, oldW, oldH) {
     ann.armOriginX = ao.x; ann.armOriginY = ao.y;
   }
 
+  // Gedraaide quads van een markering op schuine tekst (#927).
+  if (Array.isArray(ann.quads)) {
+    ann.quads = ann.quads.map(q => (Array.isArray(q) ? q.map(p => rotatePoint(p.x, p.y, normDelta, oldW, oldH)) : q));
+  }
   // Text markup rects (textHighlight, textStrikethrough, textUnderline)
   if (ann.rects && ann.rects.length > 0) {
     ann.rects = ann.rects.map(r => rotateRect(r.x, r.y, r.width, r.height, normDelta, oldW, oldH));
