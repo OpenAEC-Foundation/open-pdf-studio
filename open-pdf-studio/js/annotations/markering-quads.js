@@ -12,6 +12,7 @@
 // Puur: geen pdf-lib, geen DOM.
 
 import { draaiPunt } from '../pdf/saver/vorm-draaiing.js';
+import { textDirFromVector } from './corrections/geometry.js';
 
 const TOL_HOEK = 1; // graden: binnen 1 graad van een veelvoud van 90 is recht
 
@@ -140,4 +141,21 @@ export function gedraaideMarkeringUitBestand({ subtype, rawQuadPoints, rotatie, 
     if (vlak) return { vlak };
   }
   return quads.some(isSchuin) ? { quads } : null;
+}
+
+/**
+ * Een tekstmarkering uit quads zoals de selectie haar maakt (#927, #946):
+ * op schuine tekst met `quads`, op liggende of staande tekst alleen de
+ * vakken met de leesrichting (`textDir`, uit p1 -> p2 van de eerste quad).
+ * Null als er geen bruikbare quads zijn.
+ * @param {Array<Array<{x:number,y:number}>>} quads
+ */
+export function tekstMarkeringUitQuads(quads) {
+  if (!Array.isArray(quads) || quads.length === 0 || !quads.every(isQuad)) return null;
+  const geo = markeringUitQuads(quads);
+  if (quads.some(isSchuin)) return geo;
+  const { quads: _weg, ...recht } = geo;
+  const q = quads[0];
+  const textDir = textDirFromVector(q[1].x - q[0].x, q[1].y - q[0].y);
+  return textDir !== null ? { ...recht, textDir } : recht;
 }
