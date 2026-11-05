@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Combina PDF",
+    "combineTitle": "Combina en un sol PDF",
+    "combineButton": "Combina",
     "insertAt": "Insereix a:",
     "endOfDocument": "Final del document",
     "afterCurrentPage": "Després de la pàgina actual",

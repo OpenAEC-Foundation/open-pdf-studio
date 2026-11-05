@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "合并 PDF",
+    "combineTitle": "合并为一个 PDF",
+    "combineButton": "合并",
     "insertAt": "插入位置：",
     "endOfDocument": "文档末尾",
     "afterCurrentPage": "当前页面之后",

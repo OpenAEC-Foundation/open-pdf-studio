@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "ຮວມໄຟລ໌ PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "ແຊກໃສ່ບ່ອນ:",
     "endOfDocument": "ທ້າຍເອກະສານ",
     "afterCurrentPage": "ຖັດຈາກໜ້າປັດຈຸບັນ",

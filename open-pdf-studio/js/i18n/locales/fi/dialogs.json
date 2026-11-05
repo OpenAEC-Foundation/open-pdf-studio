@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Yhdistä PDF-tiedostot",
+    "combineTitle": "Yhdistä yhdeksi PDF:ksi",
+    "combineButton": "Yhdistä",
     "insertAt": "Lisää kohtaan:",
     "endOfDocument": "Asiakirjan loppuun",
     "afterCurrentPage": "Nykyisen sivun jälkeen",

@@ -65,6 +65,7 @@ pub mod scanner;
 pub mod scanner_cmd;
 pub mod shared_review;
 // Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
+pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
@@ -2995,6 +2996,10 @@ pub fn run(opts: StartupOpts) {
                 println!("  -h, --help       Print this help and exit");
                 println!("  -V, --version    Print version and exit");
                 println!();
+                println!("  --combine FILE...         Combine the files into one new PDF (File Explorer action)");
+                println!("  --convert-combine FILE... Same as --combine; images are converted first");
+                println!("  --convert-to-pdf FILE...  Convert each image to a PDF next to it (alias --convert)");
+                println!();
                 println!("Files:");
                 println!("  One or more .pdf files to open.");
                 std::process::exit(0);
@@ -3025,11 +3030,14 @@ pub fn run(opts: StartupOpts) {
         openaec_omgeving::huidige(),
         &openaec_omgeving::Waarneming::van_systeem(),
     );
-    let opened_files: Vec<String> = args.iter()
+    // Een rechtermuisknop-actie uit Verkenner (#945) is geen "openen": de
+    // bestanden gaan naar de wachtrij van verkenner_acties.rs.
+    let start_shell_actie = verkenner_acties::actie_uit_args(&args, startmap.as_deref());
+    let opened_files: Vec<String> = if start_shell_actie.is_some() { Vec::new() } else { args.iter()
         .skip(1)
         .filter_map(|arg| pdf_uit_argument(arg))
         .map(|pad| openaec_omgeving::absoluut_argument(&pad, startmap.as_deref()))
-        .collect();
+        .collect() };
     if !opened_files.is_empty() {
         eprintln!("[startup] command-line files: {opened_files:?}");
     }
@@ -3089,6 +3097,7 @@ pub fn run(opts: StartupOpts) {
 
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
+        .manage(verkenner_acties::ShellActieWachtrij::met(start_shell_actie))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
         .manage(spraak::SpraakProces::default())
         .manage(beveiligde_pdf::BeveiligdeKopieen::default())
@@ -3157,12 +3166,25 @@ pub fn run(opts: StartupOpts) {
             ));
         if !skip_single_instance {
             builder = builder
-                .plugin(tauri_plugin_single_instance::init(|app: &tauri::AppHandle, argv: Vec<String>, _cwd: String| {
+                .plugin(tauri_plugin_single_instance::init(|app: &tauri::AppHandle, argv: Vec<String>, cwd: String| {
                     if headless::actief() {
                         headless::meld("single-instance focus");
                     } else if let Some(window) = app.get_webview_window("main") {
                         let _ = window.unminimize();
                         let _ = window.set_focus();
+                    }
+                    // Een rechtermuisknop-actie van een volgende Verkenner-start
+                    // (#945): in de wachtrij en dan een seintje. Een start die
+                    // binnenkomt terwijl het venster nog laadt, haalt de
+                    // frontend later op met get_shell_action.
+                    let basis = (!cwd.is_empty()).then(|| std::path::Path::new(&cwd));
+                    if let Some(actie) = verkenner_acties::actie_uit_args(&argv, basis) {
+                        for path in &actie.files {
+                            let _ = app.fs_scope().allow_file(path);
+                        }
+                        app.state::<verkenner_acties::ShellActieWachtrij>().voeg_toe(actie);
+                        let _ = app.emit("shell-action", ());
+                        return;
                     }
                     let files: Vec<String> = argv.iter()
                         .filter_map(|arg| pdf_uit_argument(arg))
@@ -3315,6 +3337,9 @@ pub fn run(opts: StartupOpts) {
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
                 let _ = app.fs_scope().allow_file(path);
             }
+            for path in app.state::<verkenner_acties::ShellActieWachtrij>().paden() {
+                let _ = app.fs_scope().allow_file(&path);
+            }
 
             // Set the window icon (desktop only — not applicable on Android)
             #[cfg(not(target_os = "android"))]
@@ -3452,6 +3477,7 @@ pub fn run(opts: StartupOpts) {
             spraak::tts_speak,
             spraak::tts_stop,
             get_opened_file,
+            verkenner_acties::get_shell_action,
             updates_managed_externally,
             save_session,
             load_session,

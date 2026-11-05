@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDF-ek összefűzése",
+    "combineTitle": "Egyesítés egy PDF-be",
+    "combineButton": "Egyesítés",
     "insertAt": "Beszúrás helye:",
     "endOfDocument": "Dokumentum végére",
     "afterCurrentPage": "Az aktuális oldal után",

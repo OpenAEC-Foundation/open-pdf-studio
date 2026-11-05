@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "دمج ملفات PDF",
+    "combineTitle": "دمج في ملف PDF واحد",
+    "combineButton": "دمج",
     "insertAt": "إدراج في:",
     "endOfDocument": "نهاية المستند",
     "afterCurrentPage": "بعد الصفحة الحالية",

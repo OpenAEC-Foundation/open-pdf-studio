@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Συγχώνευση PDF",
+    "combineTitle": "Συνδυασμός σε ένα PDF",
+    "combineButton": "Συνδυασμός",
     "insertAt": "Εισαγωγή στο:",
     "endOfDocument": "Τέλος εγγράφου",
     "afterCurrentPage": "Μετά την τρέχουσα σελίδα",

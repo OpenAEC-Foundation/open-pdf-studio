@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Объединение PDF",
+    "combineTitle": "Объединить в один PDF",
+    "combineButton": "Объединить",
     "insertAt": "Вставить в:",
     "endOfDocument": "Конец документа",
     "afterCurrentPage": "После текущей страницы",

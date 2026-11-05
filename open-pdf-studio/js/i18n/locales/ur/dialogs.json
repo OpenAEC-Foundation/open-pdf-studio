@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDFs ضم کریں",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "اس مقام پر داخل کریں:",
     "endOfDocument": "دستاویز کے آخر میں",
     "afterCurrentPage": "موجودہ صفحے کے بعد",

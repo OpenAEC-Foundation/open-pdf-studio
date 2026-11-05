@@ -738,3 +738,6 @@ js/review/shared-review-core.test.mjs
 js/review/shared-review-xfdf.test.mjs
 js/review/shared-review-wiring.test.mjs
 js/pdf/pdfa/pdfa.test.mjs
+js/core/shell-acties-logica.test.mjs
+js/core/shell-acties-installer.test.mjs
+js/core/shell-acties-bedrading.test.mjs

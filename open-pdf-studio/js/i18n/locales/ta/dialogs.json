@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDF களை ஒன்றிணை",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "செருகும் இடம்:",
     "endOfDocument": "ஆவணத்தின் முடிவு",
     "afterCurrentPage": "தற்போதைய பக்கத்திற்குப் பின்",

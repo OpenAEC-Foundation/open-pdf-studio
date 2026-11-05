@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Gabung PDF",
+    "combineTitle": "Gabungkan menjadi satu PDF",
+    "combineButton": "Gabungkan",
     "insertAt": "Sisip pada:",
     "endOfDocument": "Penghujung dokumen",
     "afterCurrentPage": "Selepas halaman semasa",
