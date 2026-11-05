@@ -208,6 +208,8 @@ jobs:
         run: |
           mkdir -p src-tauri/binaries/linux-x64
           curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-linux-x64.tgz" -o /tmp/pdfium-linux.tgz
+          # Checksum and revision: src-tauri/binaries/pdfium-runtime.json (#635).
+          echo "d9d67bc40af03aef4fe28a60b19b1086f28ace019c8c9caf19cb7fe3d14ceca3  /tmp/pdfium-linux.tgz" | sha256sum -c -
           tar xzf /tmp/pdfium-linux.tgz -C /tmp lib/libpdfium.so
           cp /tmp/lib/libpdfium.so src-tauri/binaries/linux-x64/libpdfium.so
 

@@ -1,0 +1,37 @@
+{
+  "comment": "PDFium runtime revision per platform (#635). One entry per shipped PDFium library. archive_sha256 is the SHA-256 of the upstream release archive as published on the release page; library_sha256 is the SHA-256 of the library file in this directory. scripts/pdfium-runtime.test.mjs keeps this file, the committed binaries, native-runtime.mjs, the READMEs and the CI fetch steps in agreement. Change a revision only after benchmarking and visual checks; update every platform together.",
+  "platforms": {
+    "win-x64": {
+      "revision": "8076",
+      "archive": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-win-x64.tgz",
+      "archive_sha256": "808d36da9bc5a3104315fb307c80998121f565ee53953633bf33e80d7429e5ac",
+      "library": "win-x64/pdfium.dll",
+      "library_sha256": "69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6",
+      "shipped_from": "repository"
+    },
+    "win-arm64": {
+      "revision": "8076",
+      "archive": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-win-arm64.tgz",
+      "archive_sha256": "ab7c45c25fc8456fd9b94666ce3dd27a940f4984f54b328f012468f869d34346",
+      "library": "win-arm64/pdfium.dll",
+      "library_sha256": "45e414bce25cd698d25ac7e90e91b967c9d0b5b28ca5fad6cf69c5a8ce699f40",
+      "shipped_from": "repository"
+    },
+    "linux-x64": {
+      "revision": "8076",
+      "archive": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-linux-x64.tgz",
+      "archive_sha256": "d9d67bc40af03aef4fe28a60b19b1086f28ace019c8c9caf19cb7fe3d14ceca3",
+      "library": "linux-x64/libpdfium.so",
+      "library_sha256": "fd4de9f91f183476d04b1bc3fd17dacd95aba349c55d2c376512d95e082b441e",
+      "shipped_from": "ci-fetch"
+    },
+    "macos-universal": {
+      "revision": "8076",
+      "archive": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-mac-univ.tgz",
+      "archive_sha256": "3bdb93e229298dfdf083dc8ccc7d1a8cf87790b6917e5073335504fe2ff0bdc1",
+      "library": "macos-universal/libpdfium.dylib",
+      "library_sha256": "3ed692213ade3cdab960198466adf1534d68632a4bfc1756f288b056939af1f4",
+      "shipped_from": "native-runtime"
+    }
+  }
+}

@@ -423,6 +423,7 @@ scripts/pdfjs-sampled-function.test.mjs
 scripts/pdfjs-bidi-marks.test.mjs
 scripts/pdfjs-form-xobject-cache.test.mjs
 scripts/pdfjs-knockout-bounds.test.mjs
+scripts/pdfium-runtime.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
 js/core/fout-bericht.test.mjs
