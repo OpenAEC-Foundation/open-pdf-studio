@@ -88,6 +88,8 @@ export async function openHostDocument(id, { versie = null, totaal = null } = {}
   }
 }
 
+let gestart = false;
+
 /**
  * Bij de start: het document dat de site meegeeft openen en luisteren naar
  * latere verzoeken. Zonder opslagcontract gebeurt er niets.
@@ -95,6 +97,10 @@ export async function openHostDocument(id, { versie = null, totaal = null } = {}
  */
 export async function startMetGastsite() {
   if (!hostOpslag()) return false;
+  // Eén keer: het contract kan ook pas na de start komen (openaec-host-ready,
+  // core/site-host.js), en dan roept ook die koppeling dit aan.
+  if (gestart) return false;
+  gestart = true;
   window.addEventListener(OPEN_EVENT, (e) => {
     const detail = e?.detail || {};
     openHostDocument(detail.id, { versie: detail.versie ?? null, totaal: detail.totaal ?? null });

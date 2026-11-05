@@ -18,7 +18,9 @@ const {
   hostOpslag, hostPad, leesHostPad, openHostBestand, hostDocumenten, hostVersies,
   readBinaryFile, writeBinaryFile, writeBinaryFileAtomic, saveFileDialog, fileExists,
   extractFileName, hostAi, meldHostGeopend, meldBijHost, lockFile, unlockFile,
+  hostKanOpslaanAls, hostOpslaanAls,
 } = await import('./platform.js');
+const { koppelHost } = await import('./site-host.js');
 
 /** Een site die documenten in het geheugen bewaart, met versies. */
 function nepSite(begin = {}) {
@@ -247,5 +249,57 @@ test('lock_file en unlock_file alleen in Tauri', async () => {
   } finally {
     console.warn = warn;
     delete window.__TAURI__;
+  }
+});
+
+test('window.openaecHost van de SuperCloud (#977): openen, opslaan en Opslaan als via de host, geen download', async () => {
+  const docs = new Map([['DOC-7', { name: 'Doorsnede.pdf', data: Uint8Array.from([1, 2]), version: 4 }]]);
+  const opslagen = [];
+  window.openaecHost = {
+    initialFileId: 'DOC-7',
+    async open(id) {
+      const d = docs.get(id);
+      return { id, name: d.name, version: d.version, readOnly: false, bytes: d.data.slice().buffer };
+    },
+    async save(bytes, opties) {
+      opslagen.push({ ...opties, lengte: bytes.length });
+      if (opties.name) {
+        docs.set('NIEUW', { name: opties.name, data: bytes.slice(), version: 1 });
+        return { id: 'NIEUW', name: opties.name, version: 1 };
+      }
+      const d = docs.get(opties.id);
+      d.data = bytes.slice();
+      d.version += 1;
+      return { id: opties.id, name: d.name, version: d.version };
+    },
+    async list() { return [...docs].map(([id, d]) => ({ id, name: d.name, modified: '' })); },
+    async versions() { return []; },
+  };
+  try {
+    assert.equal(koppelHost({ venster: window, installeerBrug: () => null }).soort, 'site');
+    assert.ok(hostOpslag(), 'het opslagcontract staat er');
+    downloads.length = 0;
+
+    const { pad, data } = await openHostBestand(window.__OPDS_HOST__.document);
+    assert.equal(pad, 'opds-host://DOC-7/Doorsnede.pdf');
+    assert.deepEqual([...data], [1, 2]);
+
+    // Opslaan (Ctrl+S): een nieuwe versie van hetzelfde bestand, met de versie die we kenden.
+    assert.equal(await writeBinaryFileAtomic(pad, Uint8Array.from([7, 7, 7])), true);
+    assert.deepEqual(opslagen.at(-1), { id: 'DOC-7', expectedVersion: 4, lengte: 3 });
+    assert.deepEqual([...docs.get('DOC-7').data], [7, 7, 7]);
+
+    // Opslaan als: een nieuw bestand naast het geopende, daarna schrijft dat pad terug.
+    assert.equal(hostKanOpslaanAls(), true);
+    const nieuw = await hostOpslaanAls(Uint8Array.from([5]), { name: 'Doorsnede kopie.pdf' });
+    assert.equal(nieuw.id, 'NIEUW');
+    assert.deepEqual(opslagen.at(-1), { name: 'Doorsnede kopie.pdf', lengte: 1 });
+    await writeBinaryFile(nieuw.pad, Uint8Array.from([6, 6]));
+    assert.deepEqual(opslagen.at(-1), { id: 'NIEUW', expectedVersion: 1, lengte: 2 });
+
+    assert.deepEqual(downloads.filter(Boolean), [], 'geen enkele download');
+  } finally {
+    delete window.openaecHost;
+    delete window.__OPDS_HOST__;
   }
 });

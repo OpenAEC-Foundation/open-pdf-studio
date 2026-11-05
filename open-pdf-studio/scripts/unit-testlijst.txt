@@ -338,6 +338,7 @@ js/core/basis-url.test.mjs
 js/core/opslag.test.mjs
 js/core/host-opslag.test.mjs
 js/core/host-brug.test.mjs
+js/core/site-host.test.mjs
 js/core/werkplek-app.test.mjs
 js/core/host-opslaan-als.test.mjs
 js/core/blob-worker.test.mjs
