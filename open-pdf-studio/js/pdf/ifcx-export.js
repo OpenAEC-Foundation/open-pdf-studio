@@ -9,7 +9,7 @@ import { saveFileDialog, writeBinaryFileAtomic } from '../core/platform.js';
 import { meetschaalOp } from './cad-export.js';
 import { basisnaam } from './cad-export-logica.js';
 import { bouwIfcx } from './ifcx-document.js';
-import { opslaanGeweigerd } from './wachtwoord-pdf.js';
+import { heeftBeveiligdeInhoud } from './wachtwoord-pdf.js';
 
 export const IFCX_EXTENSIE = 'ifcx';
 
@@ -38,9 +38,10 @@ export async function kiesIfcxDoel(doc) {
  * @returns {Promise<{ok:true, pad:string, bytes:number, verslag:object} | {ok:false, code:string, error?:string, verslag?:object}>}
  */
 export async function exporteerIfcx(doc, { pad, paginas, opties, voortgang, afgebroken }) {
-  // Opened with a password: read-only, and its content never leaves the app
-  // as a copy (wachtwoord-pdf.js). An IFCX file carries all page content.
-  if (opslaanGeweigerd(doc)) return { ok: false, code: 'protected' };
+  // A protected document (password or permissions, #378): its decrypted
+  // content never leaves the app as an unprotected copy (wachtwoord-pdf.js).
+  // An IFCX file carries all page content.
+  if (heeftBeveiligdeInhoud(doc)) return { ok: false, code: 'protected' };
   const bron = doc?.filePath ? getCachedPdfBytes(doc.filePath) : null;
   if (!bron?.length) return { ok: false, code: 'noBytes' };
   let pdf;

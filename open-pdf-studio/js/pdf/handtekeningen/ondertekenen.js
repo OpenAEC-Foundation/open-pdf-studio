@@ -14,8 +14,7 @@ import { invoke, isTauri, openFileDialog, saveFileDialog } from '../../core/plat
 import { leesOpslagJson, schrijfOpslagJson } from '../../core/opslag.js';
 import i18next from '../../i18n/config.js';
 import { standaardDoelPad, doelIsGeopend } from '../print-doel.js';
-import { bronVoorBeveiliging } from '../protect-pdf-regels.js';
-import { opslaanGeweigerd } from '../wachtwoord-pdf.js';
+import { heeftBeveiligdeInhoud } from '../wachtwoord-pdf.js';
 import {
   pdfDatum, foutMelding, isTijdstempelFout, weergaveRegels, vakNaarPdf, weergaveMaat, normaliseerKeuzes,
 } from './ondertekenen-regels.js';
@@ -26,6 +25,19 @@ const AFBEELDINGEN = 'pdfEditorSignatures';
 export const ONDERTEKEND_ACHTERVOEGSEL = ' (signed)';
 
 const t = (sleutel, opties) => i18next.t(`dialogs:digitalSign.${sleutel}`, opties);
+
+/**
+ * Het bestand op schijf dat ondertekend wordt, of null.
+ *  - Na een paginabewerking rendert het document uit een werkkopie
+ *    (`filePath`); het opgeslagen bestand staat dan in `saveTargetPath`.
+ *  - Een beveiligd document (wachtwoord of rechten, #378) rendert uit een
+ *    ontsleutelde werkkopie en het origineel is versleuteld: niet ondertekenen.
+ *  - Een naamloos document heeft geen bestand op schijf.
+ */
+function bronVoorOndertekenen(doc) {
+  if (!doc || doc.isUntitled || heeftBeveiligdeInhoud(doc)) return null;
+  return doc.saveTargetPath || doc.filePath || null;
+}
 
 async function melding(tekst) {
   const { showMessage } = await import('../../solid/stores/dialogStore.js');
@@ -57,7 +69,7 @@ export async function startDigitaalOndertekenen() {
     await melding(t('desktopOnly'));
     return;
   }
-  if (opslaanGeweigerd(doc)) {
+  if (heeftBeveiligdeInhoud(doc)) {
     await melding(t('errors.encrypted'));
     return;
   }
@@ -67,7 +79,7 @@ export async function startDigitaalOndertekenen() {
     const { savePDF } = await import('../saver.js');
     if (!(await savePDF())) return;
   }
-  if (!bronVoorBeveiliging(doc) || doc.modified) {
+  if (!bronVoorOndertekenen(doc) || doc.modified) {
     await melding(t('notSaved'));
     return;
   }
@@ -161,7 +173,7 @@ async function vraag(bericht) {
  * @returns {Promise<{ok:true, pad:string}|{ok:false, reden:'afgebroken'|'vak-afgebroken'|'fout', tekst?:string}>}
  */
 export async function voerOndertekeningUit({ doc, keuzes, wachtwoord, certificaat }) {
-  const bron = bronVoorBeveiliging(doc);
+  const bron = bronVoorOndertekenen(doc);
   if (!bron || doc.modified) return { ok: false, reden: 'fout', tekst: t('notSaved') };
   const nu = new Date();
   let zichtbaar = null;

@@ -7,6 +7,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { showMessage, openDialog } from '../../stores/dialogStore.js';
 import { isTauri, invoke, openFileDialog, isNietInBrowser } from '../../../core/platform.js';
 import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import { heeftBeveiligdeInhoud } from '../../../pdf/wachtwoord-pdf.js';
 import { savePreferences } from '../../../core/preferences.js';
 import {
   herstelPdfxInstellingen, listCmykProfiles, inspectCmykProfile, profileErrorMessage, INTENTS,
@@ -91,8 +92,8 @@ export default function ExportPanel() {
       showMessage(tCommon('noDocumentOpen'));
       return;
     }
-    // Opened with a password: its content is not copied out (wachtwoord-pdf.js).
-    if (opslaanGeweigerd(doc)) {
+    // Protected (#378): its decrypted content is not copied out (wachtwoord-pdf.js).
+    if (heeftBeveiligdeInhoud(doc)) {
       showMessage(tCommon('protectedPdfReadOnly'));
       return;
     }
