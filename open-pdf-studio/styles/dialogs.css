@@ -915,8 +915,8 @@
 
 /* Extensions Dialog */
 .extensions-dialog {
-  width: 550px;
-  height: 450px;
+  width: 620px;
+  height: 540px;
 }
 
 .extensions-dialog .dialog-body {
@@ -4583,6 +4583,148 @@
   background: var(--theme-error-bg, #fef2f2);
   border: 1px solid var(--theme-error-border, #fca5a5);
   color: var(--theme-error-text, #991b1b);
+}
+
+/* Extensievenster: tabbladen, catalogus en eigen links (#969). Rechte hoeken,
+   standaardcursor, alleen themavariabelen. */
+.ext-tabs {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+}
+
+.ext-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 12px;
+  background: transparent;
+  color: var(--theme-text-secondary, #666);
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+
+.ext-tab:hover {
+  color: var(--theme-text, #333);
+  background: var(--theme-bg, #f5f5f5);
+}
+
+.ext-tab.is-active {
+  color: var(--theme-text, #333);
+  background: var(--theme-surface, #ffffff);
+  border-color: var(--theme-border, #d4d4d4);
+  border-bottom: 1px solid var(--theme-surface, #ffffff);
+}
+
+.ext-tab-count {
+  min-width: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  background: var(--theme-accent, #0078d4);
+  color: var(--theme-accent-text, #ffffff);
+}
+
+.ext-browse-bar {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.ext-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  font: inherit;
+  font-size: 12px;
+  background: var(--theme-input-bg, var(--theme-surface, #ffffff));
+  color: var(--theme-text, #333);
+  border: 1px solid var(--theme-border, #d4d4d4);
+  user-select: text;
+}
+
+.ext-input:focus {
+  outline: none;
+  border-color: var(--theme-accent, #0078d4);
+}
+
+.ext-action-btn {
+  padding: 4px 12px;
+  font: inherit;
+  font-size: 12px;
+  white-space: nowrap;
+  background: var(--theme-surface, #ffffff);
+  color: var(--theme-text, #333);
+  border: 1px solid var(--theme-border, #d4d4d4);
+}
+
+.ext-action-btn:hover:not(:disabled) {
+  background: var(--theme-bg, #f5f5f5);
+}
+
+.ext-action-btn:disabled {
+  opacity: 0.5;
+}
+
+.ext-action-primary {
+  background: var(--theme-accent, #0078d4);
+  border-color: var(--theme-accent, #0078d4);
+  color: var(--theme-accent-text, #ffffff);
+}
+
+.ext-action-primary:hover:not(:disabled) {
+  background: var(--theme-accent-hover, #106ebe);
+  border-color: var(--theme-accent-hover, #106ebe);
+}
+
+.ext-link {
+  color: var(--theme-accent, #0078d4);
+  text-decoration: none;
+}
+
+.ext-link:hover {
+  text-decoration: underline;
+}
+
+.ext-warning {
+  flex-shrink: 0;
+  margin: 0 0 10px 0;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: var(--theme-warning-bg, #fff8e1);
+  border: 1px solid var(--theme-warning-border, #e0b252);
+  color: var(--theme-warning-text, var(--theme-text, #333));
+}
+
+.ext-catalogs {
+  flex-shrink: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-border, #d4d4d4);
+}
+
+.ext-catalog-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  font-size: 11px;
+}
+
+.ext-catalog-url {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--theme-text-secondary, #666);
+  user-select: text;
 }
 
 /* ===== Scale Dialog ===== */
