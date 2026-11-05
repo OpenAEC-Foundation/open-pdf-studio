@@ -226,5 +226,6 @@
   "drawingSets": "Tegningssett",
   "sheetLinks": "Lenker mellom tegninger",
   "approvalRouting": "Godkjenningsflyt",
-  "sharedReview": "Delt gjennomgang"
+  "sharedReview": "Delt gjennomgang",
+  "pdfa": "PDF/A..."
 }

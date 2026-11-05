@@ -226,5 +226,6 @@
   "drawingSets": "ड्रॉइंग सेट",
   "sheetLinks": "क्रॉस-शीट लिंक",
   "approvalRouting": "अनुमोदन रूटिंग",
-  "sharedReview": "साझा समीक्षा"
+  "sharedReview": "साझा समीक्षा",
+  "pdfa": "PDF/A..."
 }

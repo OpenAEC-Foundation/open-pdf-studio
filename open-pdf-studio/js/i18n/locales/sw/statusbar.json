@@ -161,5 +161,7 @@
   "sharedReviewActive": "Ukaguzi wa pamoja",
   "sharedReviewUpdates": "Ukaguzi wa pamoja: {{n}} mapya",
   "sharedReviewTitle": "Maelezo yanashirikiwa kupitia {{folder}}. Bofya ili kufungua ukaguzi wa pamoja.",
-  "sharedReviewError": "Ukaguzi wa pamoja: folda haipatikani"
+  "sharedReviewError": "Ukaguzi wa pamoja: folda haipatikani",
+  "pdfaReadOnly": "Hati hii inafuata kiwango cha {{label}} na imefunguliwa katika hali ya kusoma tu ili kuzuia mabadiliko.",
+  "pdfaValidate": "Thibitisha"
 }

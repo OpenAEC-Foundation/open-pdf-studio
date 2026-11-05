@@ -226,5 +226,6 @@
   "drawingSets": "ชุดแบบ",
   "sheetLinks": "ลิงก์ข้ามแผ่นแบบ",
   "approvalRouting": "การส่งต่อเพื่ออนุมัติ",
-  "sharedReview": "การตรวจทานร่วมกัน"
+  "sharedReview": "การตรวจทานร่วมกัน",
+  "pdfa": "PDF/A..."
 }

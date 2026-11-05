@@ -161,5 +161,7 @@
   "sharedReviewActive": "Zajednički pregled",
   "sharedReviewUpdates": "Zajednički pregled: novih {{n}}",
   "sharedReviewTitle": "Bilješke se dijele putem {{folder}}. Kliknite za otvaranje zajedničkog pregleda.",
-  "sharedReviewError": "Zajednički pregled: mapa nedostupna"
+  "sharedReviewError": "Zajednički pregled: mapa nedostupna",
+  "pdfaReadOnly": "Ovaj dokument zadovoljava standard {{label}} i otvoren je samo za čitanje kako bi se spriječila njegova izmjena.",
+  "pdfaValidate": "Provjeri"
 }

@@ -226,5 +226,6 @@
   "drawingSets": "Kompleti nacrta",
   "sheetLinks": "Poveznice između listova",
   "approvalRouting": "Tijek odobravanja",
-  "sharedReview": "Zajednički pregled"
+  "sharedReview": "Zajednički pregled",
+  "pdfa": "PDF/A..."
 }

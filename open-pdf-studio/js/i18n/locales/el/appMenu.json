@@ -226,5 +226,6 @@
   "drawingSets": "Σύνολα σχεδίων",
   "sheetLinks": "Σύνδεσμοι μεταξύ φύλλων",
   "approvalRouting": "Δρομολόγηση εγκρίσεων",
-  "sharedReview": "Κοινή αναθεώρηση"
+  "sharedReview": "Κοινή αναθεώρηση",
+  "pdfa": "PDF/A..."
 }

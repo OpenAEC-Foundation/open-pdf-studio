@@ -161,5 +161,7 @@
   "sharedReviewActive": "공유 검토",
   "sharedReviewUpdates": "공유 검토: 새 항목 {{n}}개",
   "sharedReviewTitle": "주석이 {{folder}}을(를) 통해 공유됩니다. 클릭하면 공유 검토가 열립니다.",
-  "sharedReviewError": "공유 검토: 폴더를 사용할 수 없음"
+  "sharedReviewError": "공유 검토: 폴더를 사용할 수 없음",
+  "pdfaReadOnly": "이 문서는 {{label}} 표준을 준수하므로 수정을 방지하기 위해 읽기 전용으로 열렸습니다.",
+  "pdfaValidate": "검증"
 }

@@ -226,5 +226,6 @@
   "drawingSets": "Zeichnungssätze",
   "sheetLinks": "Blattübergreifende Verknüpfungen",
   "approvalRouting": "Freigabeweiterleitung",
-  "sharedReview": "Gemeinsame Prüfung"
+  "sharedReview": "Gemeinsame Prüfung",
+  "pdfa": "PDF/A..."
 }

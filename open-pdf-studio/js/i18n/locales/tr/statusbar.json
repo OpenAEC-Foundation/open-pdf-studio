@@ -161,5 +161,7 @@
   "sharedReviewActive": "Paylaşılan inceleme",
   "sharedReviewUpdates": "Paylaşılan inceleme: {{n}} yeni",
   "sharedReviewTitle": "Ek açıklamalar {{folder}} üzerinden paylaşılıyor. Paylaşılan incelemeyi açmak için tıklayın.",
-  "sharedReviewError": "Paylaşılan inceleme: klasöre erişilemiyor"
+  "sharedReviewError": "Paylaşılan inceleme: klasöre erişilemiyor",
+  "pdfaReadOnly": "Bu belge {{label}} standardına uygundur ve değiştirilmesini önlemek için salt okunur olarak açılmıştır.",
+  "pdfaValidate": "Doğrula"
 }

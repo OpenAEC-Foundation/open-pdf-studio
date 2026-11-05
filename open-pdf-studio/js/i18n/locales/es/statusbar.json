@@ -161,5 +161,7 @@
   "sharedReviewActive": "Revisión compartida",
   "sharedReviewUpdates": "Revisión compartida: {{n}} nuevas",
   "sharedReviewTitle": "Las anotaciones se comparten a través de {{folder}}. Haga clic para abrir la revisión compartida.",
-  "sharedReviewError": "Revisión compartida: carpeta no disponible"
+  "sharedReviewError": "Revisión compartida: carpeta no disponible",
+  "pdfaReadOnly": "Este documento cumple con el estándar {{label}} y se ha abierto en modo de solo lectura para evitar modificaciones.",
+  "pdfaValidate": "Validar"
 }

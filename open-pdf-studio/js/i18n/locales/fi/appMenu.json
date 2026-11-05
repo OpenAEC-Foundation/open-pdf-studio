@@ -226,5 +226,6 @@
   "drawingSets": "Piirustussarjat",
   "sheetLinks": "Piirustusten väliset linkit",
   "approvalRouting": "Hyväksyntäkierto",
-  "sharedReview": "Jaettu tarkistus"
+  "sharedReview": "Jaettu tarkistus",
+  "pdfa": "PDF/A..."
 }

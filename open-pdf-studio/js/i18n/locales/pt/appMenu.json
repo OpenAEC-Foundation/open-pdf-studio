@@ -226,5 +226,6 @@
   "drawingSets": "Conjuntos de pranchas",
   "sheetLinks": "Links entre pranchas",
   "approvalRouting": "Fluxo de aprovação",
-  "sharedReview": "Revisão partilhada"
+  "sharedReview": "Revisão partilhada",
+  "pdfa": "PDF/A..."
 }

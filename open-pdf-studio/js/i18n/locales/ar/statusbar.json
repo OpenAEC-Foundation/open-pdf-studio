@@ -161,5 +161,7 @@
   "sharedReviewActive": "مراجعة مشتركة",
   "sharedReviewUpdates": "مراجعة مشتركة: {{n}} جديدة",
   "sharedReviewTitle": "تُشارك التعليقات عبر {{folder}}. انقر لفتح المراجعة المشتركة.",
-  "sharedReviewError": "مراجعة مشتركة: المجلد غير متاح"
+  "sharedReviewError": "مراجعة مشتركة: المجلد غير متاح",
+  "pdfaReadOnly": "يتوافق هذا المستند مع معيار {{label}} وقد فُتح للقراءة فقط لمنع تعديله.",
+  "pdfaValidate": "التحقق"
 }

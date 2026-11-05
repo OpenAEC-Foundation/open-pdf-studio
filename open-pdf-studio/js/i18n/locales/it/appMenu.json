@@ -226,5 +226,6 @@
   "drawingSets": "Set di tavole",
   "sheetLinks": "Collegamenti tra tavole",
   "approvalRouting": "Iter di approvazione",
-  "sharedReview": "Revisione condivisa"
+  "sharedReview": "Revisione condivisa",
+  "pdfa": "PDF/A..."
 }

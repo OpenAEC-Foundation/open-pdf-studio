@@ -161,5 +161,7 @@
   "sharedReviewActive": "Közös véleményezés",
   "sharedReviewUpdates": "Közös véleményezés: {{n}} új",
   "sharedReviewTitle": "A megjegyzések megosztása ezen keresztül történik: {{folder}}. Kattintson a közös véleményezés megnyitásához.",
-  "sharedReviewError": "Közös véleményezés: a mappa nem érhető el"
+  "sharedReviewError": "Közös véleményezés: a mappa nem érhető el",
+  "pdfaReadOnly": "Ez a dokumentum megfelel a(z) {{label}} szabványnak, és írásvédetten lett megnyitva a módosítás megakadályozása érdekében.",
+  "pdfaValidate": "Ellenőrzés"
 }

@@ -226,5 +226,6 @@
   "drawingSets": "Çizim setleri",
   "sheetLinks": "Paftalar arası bağlantılar",
   "approvalRouting": "Onay akışı",
-  "sharedReview": "Paylaşılan inceleme"
+  "sharedReview": "Paylaşılan inceleme",
+  "pdfa": "PDF/A..."
 }

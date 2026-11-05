@@ -226,5 +226,6 @@
   "drawingSets": "ড্রয়িং সেট",
   "sheetLinks": "ক্রস-শিট লিংক",
   "approvalRouting": "অনুমোদন রাউটিং",
-  "sharedReview": "যৌথ পর্যালোচনা"
+  "sharedReview": "যৌথ পর্যালোচনা",
+  "pdfa": "PDF/A..."
 }

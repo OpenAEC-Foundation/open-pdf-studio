@@ -161,5 +161,7 @@
   "sharedReviewActive": "Sdílená revize",
   "sharedReviewUpdates": "Sdílená revize: nové {{n}}",
   "sharedReviewTitle": "Poznámky jsou sdíleny přes {{folder}}. Kliknutím otevřete sdílenou revizi.",
-  "sharedReviewError": "Sdílená revize: složka nedostupná"
+  "sharedReviewError": "Sdílená revize: složka nedostupná",
+  "pdfaReadOnly": "Tento dokument odpovídá standardu {{label}} a byl otevřen pouze pro čtení, aby se zabránilo jeho úpravě.",
+  "pdfaValidate": "Ověřit"
 }

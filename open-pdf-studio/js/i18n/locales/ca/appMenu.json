@@ -226,5 +226,6 @@
   "drawingSets": "Jocs de plànols",
   "sheetLinks": "Enllaços entre plànols",
   "approvalRouting": "Circuit d'aprovació",
-  "sharedReview": "Revisió compartida"
+  "sharedReview": "Revisió compartida",
+  "pdfa": "PDF/A..."
 }

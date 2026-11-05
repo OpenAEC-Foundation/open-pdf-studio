@@ -226,5 +226,6 @@
   "drawingSets": "Ritningsuppsättningar",
   "sheetLinks": "Länkar mellan ritningar",
   "approvalRouting": "Godkännandeflöde",
-  "sharedReview": "Delad granskning"
+  "sharedReview": "Delad granskning",
+  "pdfa": "PDF/A..."
 }

@@ -226,5 +226,6 @@
   "drawingSets": "도면 세트",
   "sheetLinks": "도면 간 링크",
   "approvalRouting": "승인 라우팅",
-  "sharedReview": "공유 검토"
+  "sharedReview": "공유 검토",
+  "pdfa": "PDF/A..."
 }

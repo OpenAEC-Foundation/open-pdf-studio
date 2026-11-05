@@ -161,5 +161,7 @@
   "sharedReviewActive": "Semakan bersama",
   "sharedReviewUpdates": "Semakan bersama: {{n}} baharu",
   "sharedReviewTitle": "Anotasi dikongsi melalui {{folder}}. Klik untuk membuka semakan bersama.",
-  "sharedReviewError": "Semakan bersama: folder tidak tersedia"
+  "sharedReviewError": "Semakan bersama: folder tidak tersedia",
+  "pdfaReadOnly": "Dokumen ini mematuhi piawaian {{label}} dan telah dibuka dalam mod baca sahaja untuk mengelakkan pengubahsuaian.",
+  "pdfaValidate": "Sahkan"
 }

@@ -226,5 +226,6 @@
   "drawingSets": "Sady výkresů",
   "sheetLinks": "Odkazy mezi výkresy",
   "approvalRouting": "Schvalovací oběh",
-  "sharedReview": "Sdílená revize"
+  "sharedReview": "Sdílená revize",
+  "pdfa": "PDF/A..."
 }

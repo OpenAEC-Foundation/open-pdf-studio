@@ -161,5 +161,7 @@
   "sharedReviewActive": "مشترکہ جائزہ",
   "sharedReviewUpdates": "مشترکہ جائزہ: {{n}} نئی",
   "sharedReviewTitle": "تشریحات {{folder}} کے ذریعے شیئر ہو رہی ہیں۔ مشترکہ جائزہ کھولنے کے لیے کلک کریں۔",
-  "sharedReviewError": "مشترکہ جائزہ: فولڈر دستیاب نہیں"
+  "sharedReviewError": "مشترکہ جائزہ: فولڈر دستیاب نہیں",
+  "pdfaReadOnly": "یہ دستاویز {{label}} معیار کے مطابق ہے اور ترمیم روکنے کے لیے صرف پڑھنے کے لیے کھولی گئی ہے۔",
+  "pdfaValidate": "تصدیق کریں"
 }

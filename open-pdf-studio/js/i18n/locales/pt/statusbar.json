@@ -161,5 +161,7 @@
   "sharedReviewActive": "Revisão partilhada",
   "sharedReviewUpdates": "Revisão partilhada: {{n}} novas",
   "sharedReviewTitle": "As anotações são partilhadas através de {{folder}}. Clique para abrir a revisão partilhada.",
-  "sharedReviewError": "Revisão partilhada: pasta indisponível"
+  "sharedReviewError": "Revisão partilhada: pasta indisponível",
+  "pdfaReadOnly": "Este documento está em conformidade com o padrão {{label}} e foi aberto somente leitura para evitar modificações.",
+  "pdfaValidate": "Validar"
 }

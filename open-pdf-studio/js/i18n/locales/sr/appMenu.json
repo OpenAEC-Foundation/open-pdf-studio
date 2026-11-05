@@ -226,5 +226,6 @@
   "drawingSets": "Комплети цртежа",
   "sheetLinks": "Везе између листова",
   "approvalRouting": "Ток одобравања",
-  "sharedReview": "Заједнички преглед"
+  "sharedReview": "Заједнички преглед",
+  "pdfa": "PDF/A..."
 }

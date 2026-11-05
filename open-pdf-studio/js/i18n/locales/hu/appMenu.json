@@ -226,5 +226,6 @@
   "drawingSets": "Rajzkészletek",
   "sheetLinks": "Rajzlapok közötti hivatkozások",
   "approvalRouting": "Jóváhagyási útvonal",
-  "sharedReview": "Közös véleményezés"
+  "sharedReview": "Közös véleményezés",
+  "pdfa": "PDF/A..."
 }

@@ -226,5 +226,6 @@
   "drawingSets": "Juegos de planos",
   "sheetLinks": "Vínculos entre planos",
   "approvalRouting": "Circuito de aprobación",
-  "sharedReview": "Revisión compartida"
+  "sharedReview": "Revisión compartida",
+  "pdfa": "PDF/A..."
 }

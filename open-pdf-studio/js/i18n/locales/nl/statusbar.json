@@ -161,5 +161,7 @@
   "sharedReviewActive": "Gedeelde beoordeling",
   "sharedReviewUpdates": "Gedeelde beoordeling: {{n}} nieuw",
   "sharedReviewTitle": "Annotaties worden gedeeld via {{folder}}. Klik om de gedeelde beoordeling te openen.",
-  "sharedReviewError": "Gedeelde beoordeling: map niet bereikbaar"
+  "sharedReviewError": "Gedeelde beoordeling: map niet bereikbaar",
+  "pdfaReadOnly": "Dit document voldoet aan de {{label}}-standaard en is alleen-lezen geopend om wijzigingen te voorkomen.",
+  "pdfaValidate": "Valideren"
 }

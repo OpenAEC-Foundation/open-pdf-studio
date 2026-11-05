@@ -226,5 +226,6 @@
   "drawingSets": "Комплекти креслень",
   "sheetLinks": "Посилання між аркушами",
   "approvalRouting": "Маршрут погодження",
-  "sharedReview": "Спільна перевірка"
+  "sharedReview": "Спільна перевірка",
+  "pdfa": "PDF/A..."
 }

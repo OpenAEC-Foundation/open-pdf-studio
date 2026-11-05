@@ -95,6 +95,8 @@ function harness() {
       if (path.includes('document-release')) return { losgelatenWerkbestanden: () => [], ruimWerkbestandenOp: async () => {} };
       // Redactions applied since the last save (#762): none in these documents.
       if (path.includes('redaction/apply')) return { applyPendingRedactions: async () => null };
+      // PDF/A behouden bij opslaan (#379): de echte, app-vrije modules.
+      if (path === './pdfa/herconversie.js' || path === './pdfa/meldingen.js') return import(new URL(path, import.meta.url));
       throw new Error(`Unexpected import: ${path}`);
     },
   };

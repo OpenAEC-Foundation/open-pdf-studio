@@ -161,5 +161,7 @@
   "sharedReviewActive": "共享审阅",
   "sharedReviewUpdates": "共享审阅：{{n}} 项新更改",
   "sharedReviewTitle": "批注通过 {{folder}} 共享。点击打开共享审阅。",
-  "sharedReviewError": "共享审阅：文件夹不可用"
+  "sharedReviewError": "共享审阅：文件夹不可用",
+  "pdfaReadOnly": "此文档符合 {{label}} 标准，已以只读方式打开以防止修改。",
+  "pdfaValidate": "验证"
 }

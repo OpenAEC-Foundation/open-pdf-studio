@@ -161,5 +161,7 @@
   "sharedReviewActive": "Delad granskning",
   "sharedReviewUpdates": "Delad granskning: {{n}} nya",
   "sharedReviewTitle": "Kommentarer delas via {{folder}}. Klicka för att öppna den delade granskningen.",
-  "sharedReviewError": "Delad granskning: mappen är otillgänglig"
+  "sharedReviewError": "Delad granskning: mappen är otillgänglig",
+  "pdfaReadOnly": "Det här dokumentet uppfyller {{label}}-standarden och har öppnats skrivskyddat för att förhindra ändringar.",
+  "pdfaValidate": "Validera"
 }

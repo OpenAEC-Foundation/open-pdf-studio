@@ -226,5 +226,6 @@
   "drawingSets": "Drawing sets",
   "sheetLinks": "Cross-sheet links",
   "approvalRouting": "Approval routing",
-  "sharedReview": "Shared review"
+  "sharedReview": "Shared review",
+  "pdfa": "PDF/A..."
 }

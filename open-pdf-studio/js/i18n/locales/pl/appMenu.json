@@ -226,5 +226,6 @@
   "drawingSets": "Zestawy rysunków",
   "sheetLinks": "Łącza między arkuszami",
   "approvalRouting": "Obieg zatwierdzania",
-  "sharedReview": "Wspólna recenzja"
+  "sharedReview": "Wspólna recenzja",
+  "pdfa": "PDF/A..."
 }

@@ -226,5 +226,6 @@
   "drawingSets": "Tekeningsets",
   "sheetLinks": "Verwijzingen tussen bladen",
   "approvalRouting": "Goedkeuringsroutes",
-  "sharedReview": "Gedeelde beoordeling"
+  "sharedReview": "Gedeelde beoordeling",
+  "pdfa": "PDF/A..."
 }

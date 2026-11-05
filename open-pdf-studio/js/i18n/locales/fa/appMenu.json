@@ -226,5 +226,6 @@
   "drawingSets": "مجموعه‌نقشه‌ها",
   "sheetLinks": "پیوندهای بین برگه‌ها",
   "approvalRouting": "گردش تأیید",
-  "sharedReview": "بازبینی مشترک"
+  "sharedReview": "بازبینی مشترک",
+  "pdfa": "PDF/A..."
 }

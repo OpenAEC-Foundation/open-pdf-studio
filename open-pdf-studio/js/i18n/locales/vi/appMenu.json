@@ -226,5 +226,6 @@
   "drawingSets": "Bộ bản vẽ",
   "sheetLinks": "Liên kết giữa các bản vẽ",
   "approvalRouting": "Luân chuyển phê duyệt",
-  "sharedReview": "Xem xét chung"
+  "sharedReview": "Xem xét chung",
+  "pdfa": "PDF/A..."
 }
