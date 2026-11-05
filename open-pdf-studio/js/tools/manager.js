@@ -282,6 +282,11 @@ export function setTool(tool) {
   // makes its item active again right after choosing the item's tool.
   endToolSetSession();
 
+  // Markeren in tekstmodus is het selectiegereedschap met automatisch
+  // markeren (highlight-mode.js, #927); elke keuze van een gereedschap, ook
+  // Selecteren, zet dat uit. De knop Markeren zet het direct daarna weer aan.
+  state.textHighlightMode = false;
+
   // Deactivate the current tool via lifecycle
   if (state.currentTool !== tool) {
     const currentToolObj = getTool(state.currentTool);

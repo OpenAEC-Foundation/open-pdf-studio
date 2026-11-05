@@ -13,6 +13,7 @@ import {
   syncTwoPointLengthParam,
   twoPointEndpoints,
 } from '../symbols/two-point.js';
+import { isQuad, markeringUitQuads } from './markering-quads.js';
 import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
 import { isBewerkbareVeelhoek, verplaatsVeelhoekHoekpunt } from './veelhoek-punten.js';
 import {
@@ -1132,6 +1133,10 @@ export function applyMoveGeneric(annotation, dx, dy) {
     );
   }
   // Text-markup rects + PDF quadPoints ([x1,y1,...,x4,y4] flat arrays).
+  // Gedraaide quads van een markering op schuine tekst (#927) schuiven mee.
+  if (Array.isArray(annotation.quads)) {
+    annotation.quads = annotation.quads.map(q => Array.isArray(q) ? q.map(p => _movePoint(p, dx, dy)) : q);
+  }
   if (Array.isArray(annotation.rects)) {
     annotation.rects = annotation.rects.map(r => ({ ...r, x: r.x + dx, y: r.y + dy }));
   }
@@ -1275,11 +1280,17 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
   if (Array.isArray(annotation.holes)) {
     annotation.holes = annotation.holes.map(h => (Array.isArray(h) ? h.map(rotPoint) : h));
   }
-  // Axis-aligned markup rects can't tilt — orbit their anchor rigidly.
-  if (Array.isArray(annotation.rects)) {
-    annotation.rects = annotation.rects.map(r => ({ ...r, x: rotX(r.x, r.y), y: rotY(r.x, r.y) }));
+  // Gedraaide quads (#927) draaien echt mee; vakken, quadPoints en het
+  // omhullende vak volgen er weer uit.
+  if (Array.isArray(annotation.quads) && annotation.quads.length > 0 && annotation.quads.every(isQuad)) {
+    Object.assign(annotation, markeringUitQuads(annotation.quads.map(q => q.map(rotPoint))));
+  } else {
+    // Axis-aligned markup rects can't tilt — orbit their anchor rigidly.
+    if (Array.isArray(annotation.rects)) {
+      annotation.rects = annotation.rects.map(r => ({ ...r, x: rotX(r.x, r.y), y: rotY(r.x, r.y) }));
+    }
   }
-  if (Array.isArray(annotation.quadPoints)) {
+  if (Array.isArray(annotation.quadPoints) && !Array.isArray(annotation.quads)) {
     annotation.quadPoints = annotation.quadPoints.map(quad => {
       if (!Array.isArray(quad)) return quad;
       const out = quad.slice();

@@ -76,6 +76,8 @@ export interface AppState {
    */
   renderEngineOverride: 'pdfium' | 'rust-skia' | null;
   textSelection: TextSelection;
+  /** Markeren in tekstmodus (#927): het selectiegereedschap markeert de tekst waar je overheen sleept. */
+  textHighlightMode: boolean;
   search: SearchState;
 
   // Backward compat — interaction-store
@@ -184,6 +186,7 @@ export const state = createMutable<AppState>({
     selectedText: '',
     pageNum: null
   },
+  textHighlightMode: false,
   search: {
     isOpen: false,
     query: '',

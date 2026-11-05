@@ -697,3 +697,8 @@ js/annotations/klembord-lijst.test.mjs
 js/annotations/uitlijnen-pagina.test.mjs
 js/solid/components/properties-panel/sectie-volgorde.test.mjs
 js/tools/verwijder-toets.test.mjs
+js/annotations/markering-quads.test.mjs
+js/pdf/gedraaide-markering-rondgang.test.mjs
+js/annotations/tekstmarkering-mcp.test.mjs
+js/text/tekst-markeren.test.mjs
+js/tools/highlight-mode-bedrading.test.mjs

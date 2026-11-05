@@ -1285,6 +1285,26 @@ async function _buildCreateProps(type, page, props) {
       return { base };
     }
 
+    case 'textHighlight': {
+      // Tekstmarkering zoals de selectie of de tekstmodus van Markeren haar
+      // maakt (#946): één quad per stuk tekst, [lb, rb, lo, ro] met {x, y}
+      // in paginacoördinaten op 100%; op schuine tekst gedraaid. Vak, rects en
+      // quadPoints volgen uit de quads (markering-quads.js).
+      const quads = p.quads;
+      if (!Array.isArray(quads) || quads.length === 0 || !quads.every(q => Array.isArray(q) && q.length === 4 && _validPoints(q, 4))) {
+        return { error: "type 'textHighlight' requires props.quads: [[{x,y} x4], ...] (upper left, upper right, lower left, lower right)" };
+      }
+      const { tekstMarkeringUitQuads } = await import('./annotations/markering-quads.js');
+      const geo = tekstMarkeringUitQuads(quads);
+      if (!geo || !(geo.width > 0) || !(geo.height > 0)) {
+        return { error: "type 'textHighlight': props.quads must span an area" };
+      }
+      return {
+        base: { type, page, ...geo, color: p.color || '#FFFF00', opacity: _isNum(p.opacity) ? p.opacity : 0.3 },
+        vasteGeometrie: ['quads', 'rects', 'quadPoints', 'textDir', 'x', 'y', 'width', 'height'],
+      };
+    }
+
     case 'polygon': {
       // Veelhoek (#622): de hoekpunten zoals de tool ze hoek voor hoek
       // plaatst (points, minstens drie), of een vak voor een regelmatige
@@ -1653,6 +1673,14 @@ async function handleCreateAnnotation(params) {
   // meegegeven vak of zijdenaantal beschreef alleen waar de punten liggen.
   if (built.veelhoekPunten) {
     for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
+  }
+  // Tekstmarkering (#946): vak, rects en quads komen uit de quads; een
+  // meegegeven x/y/width/height wordt genegeerd.
+  if (built.vasteGeometrie) {
+    for (const k of built.vasteGeometrie) {
+      if (k in built.base) merged[k] = built.base[k];
+      else delete merged[k];
+    }
   }
   // parametricSymbol without an explicit rect: (x,y) was an INSERT POINT —
   // the builder centred a real-size bbox on it. Keep that computed bbox
@@ -2582,6 +2610,12 @@ async function handleStructuralLayout(params) {
     // Veelhoek (#622): de geometrie komt uit de bouwer (punten en vak samen).
     if (built.veelhoekPunten) {
       for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
+    }
+    if (built.vasteGeometrie) {
+      for (const k of built.vasteGeometrie) {
+        if (k in built.base) merged[k] = built.base[k];
+        else delete merged[k];
+      }
     }
     klaar.push({ opgave, merged });
   }

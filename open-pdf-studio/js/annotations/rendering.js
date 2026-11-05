@@ -626,8 +626,19 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       break;
 
     case 'highlight':
+      // Gedraaid om het midden, zoals een rechthoek (#944); het selectiekader
+      // draaide al mee, de vulling bleef recht.
+      ctx.save();
+      if (annotation.rotation) {
+        const hcx = annotation.x + annotation.width / 2;
+        const hcy = annotation.y + annotation.height / 2;
+        ctx.translate(hcx, hcy);
+        ctx.rotate(annotation.rotation * Math.PI / 180);
+        ctx.translate(-hcx, -hcy);
+      }
       ctx.fillStyle = fillColor;
       ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
+      ctx.restore();
       break;
 
     case 'line':
@@ -1566,7 +1577,20 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       // alpha gives the cleanest multiply result.
       ctx.fillStyle = fillColor;
       ctx.globalAlpha = 1;
-      if (annotation.rects && annotation.rects.length > 0) {
+      if (Array.isArray(annotation.quads) && annotation.quads.length > 0) {
+        // Schuine tekst (#927): gedraaide quads [begin-boven, eind-boven,
+        // begin-onder, eind-onder] die de tekst volgen.
+        for (const q of annotation.quads) {
+          if (!Array.isArray(q) || q.length < 4) continue;
+          ctx.beginPath();
+          ctx.moveTo(q[0].x, q[0].y);
+          ctx.lineTo(q[1].x, q[1].y);
+          ctx.lineTo(q[3].x, q[3].y);
+          ctx.lineTo(q[2].x, q[2].y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (annotation.rects && annotation.rects.length > 0) {
         annotation.rects.forEach(rect => {
           ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
         });

@@ -203,7 +203,7 @@ export function DrawingGroups() {
         {/* SELECTION */}
         <RibbonGroup label={t('drawing.selection')}>
           <RibbonButton id="dr-select" title={t('home.select')} icon={selectCommentsIcon} label={t('home.select')}
-            disabled={noPdf()} active={state.currentTool === 'select'} onClick={() => setTool('select')} />
+            disabled={noPdf()} active={state.currentTool === 'select' && !state.textHighlightMode} onClick={() => setTool('select')} />
           <RibbonButton id="dr-pan" title={t('home.handTool')} icon={handIcon} label={t('home.hand')}
             disabled={noPdf()} active={state.currentTool === 'hand'} onClick={() => setTool('hand')} />
           <RibbonButtonStack>

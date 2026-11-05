@@ -21,10 +21,14 @@ export default function SplitButton(props) {
 
   return (
     <div class="ribbon-split-btn" id={props.id} ref={containerRef}>
-      <button class="ribbon-btn" title={props.mainTitle} disabled={props.disabled} onClick={props.onMainClick}>
-        <div class="ribbon-btn-icon" ref={el => { if (props.mainIcon) el.innerHTML = props.mainIcon; }}></div>
-        <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.mainLabel}</span>
-      </button>
+      {/* `main`: een eigen hoofdknop (een RibbonButton met vast id, zodat hij
+          een sneltoets kan dragen, #714); anders de eenvoudige knop hieronder. */}
+      {props.main || (
+        <button class="ribbon-btn" title={props.mainTitle} disabled={props.disabled} onClick={props.onMainClick}>
+          <div class="ribbon-btn-icon" ref={el => { if (props.mainIcon) el.innerHTML = props.mainIcon; }}></div>
+          <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.mainLabel}</span>
+        </button>
+      )}
       <button
         class="ribbon-split-btn-arrow"
         title={props.dropdownTitle}
