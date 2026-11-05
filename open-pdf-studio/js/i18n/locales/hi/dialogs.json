@@ -283,6 +283,15 @@
     "pagesCount": "पृष्ठ।",
     "deleteAfterExtraction": "निकालने के बाद स्रोत से पृष्ठ हटाएं"
   },
+  "choosePages": {
+    "title": "Choose Pages",
+    "from": "{{name}} has {{count}} pages. Choose the pages to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "splitDocument": {
     "title": "दस्तावेज़ विभाजित करें",
     "method": "विभाजन का तरीका",

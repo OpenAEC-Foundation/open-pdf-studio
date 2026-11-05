@@ -441,7 +441,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   clearThumbnailCache(doc.id);
   doc.modified = true;
   doc.savedUndoStackLength = -1;
-  if (getActiveDocument() !== doc) return doc.annotations;
+  if (getActiveDocument()?.id !== doc.id) return doc.annotations;
   hideProperties();
 
   // Re-render (preserve the book-spread / facing layout variants of continuous)
@@ -450,7 +450,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     : doc?.bookSpread && doc?.viewMode === 'continuous' ? 'book'
     : (doc?.viewMode || 'single')
   );
-  if (getActiveDocument() !== doc) return doc.annotations;
+  if (getActiveDocument()?.id !== doc.id) return doc.annotations;
   generateThumbnails();
   updateAllStatus();
   return doc.annotations;
@@ -628,14 +628,24 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
       }
     }
 
+    // Welke pagina's van een bron met meer pagina's (#963); een stille
+    // aanroeper (de CAD-import) neemt ze alle.
+    let indices = Array.from({ length: srcPageCount }, (_, i) => i);
+    if (!stil && srcPageCount > 1) {
+      hideLoading();
+      const { kiesBronPaginas } = await import('./bron-paginas-kiezen.js');
+      indices = await kiesBronPaginas(srcBytes, String(filePath).split(/[\\/]/).pop() || '', srcPageCount, 'insert');
+      // Geannuleerd, of intussen een ander document actief: niets doen.
+      if (!indices || getActiveDocument()?.id !== doc.id) return false;
+      showLoading('Inserting pages...');
+    }
+
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     const oldNumPages = destDoc.getPageCount();
 
     // 0-based insertion index
     const insertIdx = position === 'before' ? refPage - 1 : refPage;
 
-    const indices = [];
-    for (let i = 0; i < srcPageCount; i++) indices.push(i);
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
     for (let i = 0; i < copiedPages.length; i++) {
       destDoc.insertPage(insertIdx + i, copiedPages[i]);
@@ -654,14 +664,8 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
     }
 
     // Build page mapping for existing annotations/rotations
-    const pageMapping = {};
-    for (let oldP = 1; oldP <= oldNumPages; oldP++) {
-      if (oldP <= insertIdx) {
-        pageMapping[oldP] = oldP;
-      } else {
-        pageMapping[oldP] = oldP + srcPageCount;
-      }
-    }
+    const { mappingNaInvoegen } = await import('./bron-paginas-kiezen.js');
+    const pageMapping = mappingNaInvoegen(oldNumPages, insertIdx, copiedPages.length);
 
     const newAnnotations = remapAnnotations(doc.annotations, pageMapping);
     const newRotations = remapRotations(doc.pageRotations, pageMapping);
@@ -1202,12 +1206,19 @@ export async function replacePages(pageNumber) {
       return;
     }
 
+    // Welke pagina's van een bron met meer pagina's vervangen deze pagina (#963).
+    let indices = [0];
+    if (srcPageCount > 1) {
+      hideLoading();
+      const { kiesBronPaginas } = await import('./bron-paginas-kiezen.js');
+      indices = await kiesBronPaginas(srcBytes, String(filePath).split(/[\\/]/).pop() || '', srcPageCount, 'replace');
+      if (!indices || getActiveDocument()?.id !== doc.id) return;
+      showLoading('Replacing page...');
+    }
+
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     const oldNumPages = destDoc.getPageCount();
 
-    // Copy all pages from source
-    const indices = [];
-    for (let i = 0; i < srcPageCount; i++) indices.push(i);
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
 
     // Remove the target page
@@ -1221,18 +1232,10 @@ export async function replacePages(pageNumber) {
 
     // Build page mapping
     // Pages before the replaced page: unchanged
-    // The replaced page: mapped to null (deleted)
-    // Pages after: shifted by (srcPageCount - 1)
-    const pageMapping = {};
-    for (let oldP = 1; oldP <= oldNumPages; oldP++) {
-      if (oldP < pageNumber) {
-        pageMapping[oldP] = oldP;
-      } else if (oldP === pageNumber) {
-        pageMapping[oldP] = null; // replaced page loses its annotations
-      } else {
-        pageMapping[oldP] = oldP + srcPageCount - 1;
-      }
-    }
+    // The replaced page: mapped to null (it loses its annotations)
+    // Pages after: shifted by (number of pages brought in - 1)
+    const { mappingNaVervangen } = await import('./bron-paginas-kiezen.js');
+    const pageMapping = mappingNaVervangen(oldNumPages, pageNumber, copiedPages.length);
 
     const newAnnotations = remapAnnotations(doc.annotations, pageMapping);
     const newRotations = remapRotations(doc.pageRotations, pageMapping);

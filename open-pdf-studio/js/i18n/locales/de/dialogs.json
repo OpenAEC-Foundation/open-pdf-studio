@@ -283,6 +283,15 @@
     "pagesCount": "Seiten.",
     "deleteAfterExtraction": "Seiten nach Extraktion aus Quelle löschen"
   },
+  "choosePages": {
+    "title": "Seiten auswählen",
+    "from": "{{name}} hat {{count}} Seiten. Wählen Sie die zu verwendenden Seiten.",
+    "selected": "{{count}} von {{total}} ausgewählt",
+    "all": "Alle",
+    "none": "Keine",
+    "insert": "Einfügen",
+    "replace": "Ersetzen"
+  },
   "splitDocument": {
     "title": "Dokument teilen",
     "method": "Teilungsart",

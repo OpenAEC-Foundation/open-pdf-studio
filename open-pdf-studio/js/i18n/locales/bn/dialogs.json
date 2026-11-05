@@ -283,6 +283,15 @@
     "pagesCount": "পৃষ্ঠা।",
     "deleteAfterExtraction": "নিষ্কাশনের পরে উৎস থেকে পৃষ্ঠা মুছে ফেলুন"
   },
+  "choosePages": {
+    "title": "Choose Pages",
+    "from": "{{name}} has {{count}} pages. Choose the pages to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "splitDocument": {
     "title": "নথি বিভক্ত করুন",
     "method": "বিভাজনের পদ্ধতি",

@@ -283,6 +283,15 @@
     "pagesCount": "pages.",
     "deleteAfterExtraction": "Supprimer les pages de la source après extraction"
   },
+  "choosePages": {
+    "title": "Choisir les pages",
+    "from": "{{name}} contient {{count}} pages. Choisissez les pages à utiliser.",
+    "selected": "{{count}} sur {{total}} sélectionnées",
+    "all": "Toutes",
+    "none": "Aucune",
+    "insert": "Insérer",
+    "replace": "Remplacer"
+  },
   "splitDocument": {
     "title": "Fractionner le document",
     "method": "Méthode de fractionnement",

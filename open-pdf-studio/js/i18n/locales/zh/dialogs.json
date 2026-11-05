@@ -283,6 +283,15 @@
     "pagesCount": "页。",
     "deleteAfterExtraction": "提取后从源文件中删除页面"
   },
+  "choosePages": {
+    "title": "Choose Pages",
+    "from": "{{name}} has {{count}} pages. Choose the pages to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "splitDocument": {
     "title": "拆分文档",
     "method": "拆分方式",

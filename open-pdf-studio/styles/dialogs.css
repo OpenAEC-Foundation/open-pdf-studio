@@ -6261,3 +6261,33 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   color: #a4262c;
   user-select: text;
 }
+
+/* Pagina's van een bron-PDF kiezen (#963) */
+.choose-pages-dialog { width: 640px; max-width: 92vw; }
+.choose-pages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+  max-height: 50vh;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface-alt, #f3f3f3);
+}
+.choose-pages-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid transparent;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  cursor: default;
+}
+.choose-pages-item.is-gekozen { border-color: #0078d7; background: rgba(0, 120, 215, 0.08); }
+.choose-pages-thumb { background: #fff; box-shadow: 0 0 2px rgba(0, 0, 0, 0.4); min-width: 40px; min-height: 40px; }
+.choose-pages-item:not(.is-gekozen) .choose-pages-thumb { opacity: 0.45; }
+.choose-pages-num { display: flex; align-items: center; gap: 4px; }
+.choose-pages-fout { border-color: #e81123 !important; }
+.choose-pages-footer-left { display: flex; gap: 6px; }

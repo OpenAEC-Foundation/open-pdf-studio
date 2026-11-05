@@ -283,6 +283,15 @@
     "pagesCount": "பக்கங்கள்.",
     "deleteAfterExtraction": "பிரித்தெடுத்த பின் மூல ஆவணத்திலிருந்து பக்கங்களை நீக்கு"
   },
+  "choosePages": {
+    "title": "Choose Pages",
+    "from": "{{name}} has {{count}} pages. Choose the pages to use.",
+    "selected": "{{count}} of {{total}} selected",
+    "all": "All",
+    "none": "None",
+    "insert": "Insert",
+    "replace": "Replace"
+  },
   "splitDocument": {
     "title": "ஆவணத்தைப் பிரி",
     "method": "பிரிக்கும் முறை",

@@ -391,6 +391,7 @@ js/ui/panels/bladwijzer-boom.test.mjs
 js/ui/panels/miniatuur-maat.test.mjs
 js/ui/panels/miniatuur-slepen.test.mjs
 js/ui/panels/miniatuur-zoeken.test.mjs
+js/pdf/bron-paginas-kiezen.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
 js/pdf/page-manager-paginalabels.test.mjs
