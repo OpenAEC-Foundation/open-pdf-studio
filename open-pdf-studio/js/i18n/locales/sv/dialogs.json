@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Sammanfoga PDF:er",
+    "combineTitle": "Kombinera till en PDF",
+    "combineButton": "Kombinera",
     "insertAt": "Infoga vid:",
     "endOfDocument": "Slutet av dokumentet",
     "afterCurrentPage": "Efter aktuell sida",

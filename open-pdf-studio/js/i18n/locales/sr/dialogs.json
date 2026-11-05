@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Спајање PDF-ова",
+    "combineTitle": "Споји у један PDF",
+    "combineButton": "Споји",
     "insertAt": "Уметни на:",
     "endOfDocument": "Крај документа",
     "afterCurrentPage": "После тренутне странице",

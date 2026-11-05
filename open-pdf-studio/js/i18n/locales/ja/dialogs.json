@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDF の結合",
+    "combineTitle": "1 つの PDF に結合",
+    "combineButton": "結合",
     "insertAt": "挿入位置：",
     "endOfDocument": "ドキュメントの末尾",
     "afterCurrentPage": "現在のページの後",

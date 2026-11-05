@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Scal pliki PDF",
+    "combineTitle": "Połącz w jeden plik PDF",
+    "combineButton": "Połącz",
     "insertAt": "Wstaw w:",
     "endOfDocument": "Koniec dokumentu",
     "afterCurrentPage": "Po bieżącej stronie",

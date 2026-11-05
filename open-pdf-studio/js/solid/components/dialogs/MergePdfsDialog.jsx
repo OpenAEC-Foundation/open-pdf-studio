@@ -1,12 +1,18 @@
-import { createSignal, For, Show } from 'solid-js';
+import { createSignal, For, Show, onMount } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { mergeFiles } from '../../../pdf/page-manager.js';
+import { getActiveDocument } from '../../../core/state.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { mergeVensterModus, combineerTotNieuwDocument } from '../../../core/shell-acties-logica.js';
 
-export default function MergePdfsDialog() {
+// props.data.files: paden die er meteen in staan; props.data.combineNew: ze
+// combineren tot een NIEUW document (Verkenner "Combineren tot één PDF",
+// core/shell-acties.js) in plaats van samenvoegen in het open document.
+export default function MergePdfsDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
+  const modus = mergeVensterModus(props?.data);
 
   const [position, setPosition] = createSignal('end');
   const [fileList, setFileList] = createSignal([]);
@@ -25,8 +31,18 @@ export default function MergePdfsDialog() {
       });
 
       if (!result) return;
-      const paths = Array.isArray(result) ? result : [result];
+      await addPaths(Array.isArray(result) ? result : [result]);
+    } catch (e) {
+      console.error('Error opening file dialog:', e);
+    }
+  }
 
+  onMount(() => {
+    if (modus.beginBestanden.length) addPaths(modus.beginBestanden);
+  });
+
+  async function addPaths(paths) {
+    try {
       const newFiles = [...fileList()];
       for (const filePath of paths) {
         if (newFiles.some(f => f.path === filePath)) continue;
@@ -51,7 +67,7 @@ export default function MergePdfsDialog() {
       }
       setFileList(newFiles);
     } catch (e) {
-      console.error('Error opening file dialog:', e);
+      console.error('Error adding files:', e);
     }
   }
 
@@ -86,7 +102,7 @@ export default function MergePdfsDialog() {
     setSelectedIndex(idx + 1);
   }
 
-  function handleMerge() {
+  async function handleMerge() {
     if (fileList().length === 0) {
       showMessage(t('mergePdfs.addAtLeastOne'));
       return;
@@ -94,6 +110,16 @@ export default function MergePdfsDialog() {
     const paths = fileList().map(f => f.path);
     const pos = position();
     close();
+    if (modus.combineNew) {
+      // Een nieuw naamloos document: het eerste bestand, de rest erachter.
+      const { createDocFromTemplate } = await import('../../../pdf/loader.js');
+      await combineerTotNieuwDocument(paths, {
+        maakNieuw: (pad) => createDocFromTemplate(pad),
+        voegSamen: mergeFiles,
+        actiefDocument: getActiveDocument,
+      });
+      return;
+    }
     mergeFiles(paths, pos);
   }
 
@@ -107,7 +133,7 @@ export default function MergePdfsDialog() {
     <>
       <div class="merge-pdfs-file-count">{fileCountText()}</div>
       <div class="merge-pdfs-footer-right">
-        <button class="pref-btn pref-btn-primary" onClick={handleMerge}>{tCommon('merge')}</button>
+        <button class="pref-btn pref-btn-primary" onClick={handleMerge}>{modus.knopSleutel ? t(modus.knopSleutel) : tCommon('merge')}</button>
         <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>
       </div>
     </>
@@ -115,7 +141,7 @@ export default function MergePdfsDialog() {
 
   return (
     <Dialog
-      title={t('mergePdfs.title')}
+      title={t(modus.titelSleutel)}
       overlayClass="merge-pdfs-overlay"
       dialogClass="merge-pdfs-dialog"
       headerClass="merge-pdfs-header"
@@ -125,18 +151,20 @@ export default function MergePdfsDialog() {
       footer={footer}
     >
       <div class="merge-pdfs-form">
-        <div class="merge-pdfs-row">
-          <label class="merge-pdfs-label">{t('mergePdfs.insertAt')}</label>
-          <select
-            class="merge-pdfs-select"
-            value={position()}
-            onChange={(e) => setPosition(e.target.value)}
-          >
-            <option value="end">{t('mergePdfs.endOfDocument')}</option>
-            <option value="after">{t('mergePdfs.afterCurrentPage')}</option>
-            <option value="start">{t('mergePdfs.beginningOfDocument')}</option>
-          </select>
-        </div>
+        <Show when={modus.toonInvoegpositie}>
+          <div class="merge-pdfs-row">
+            <label class="merge-pdfs-label">{t('mergePdfs.insertAt')}</label>
+            <select
+              class="merge-pdfs-select"
+              value={position()}
+              onChange={(e) => setPosition(e.target.value)}
+            >
+              <option value="end">{t('mergePdfs.endOfDocument')}</option>
+              <option value="after">{t('mergePdfs.afterCurrentPage')}</option>
+              <option value="start">{t('mergePdfs.beginningOfDocument')}</option>
+            </select>
+          </div>
+        </Show>
         <div class="merge-pdfs-file-section">
           <div class="merge-pdfs-file-toolbar">
             <span class="merge-pdfs-file-toolbar-label">{t('mergePdfs.filesToMerge')}</span>

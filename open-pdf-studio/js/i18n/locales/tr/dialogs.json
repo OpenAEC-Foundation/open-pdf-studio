@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDF Birleştir",
+    "combineTitle": "Tek bir PDF’de birleştir",
+    "combineButton": "Birleştir",
     "insertAt": "Ekleme yeri:",
     "endOfDocument": "Belge sonu",
     "afterCurrentPage": "Geçerli sayfadan sonra",

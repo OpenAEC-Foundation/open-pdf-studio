@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Combinar PDF",
+    "combineTitle": "Combinar en un solo PDF",
+    "combineButton": "Combinar",
     "insertAt": "Insertar en:",
     "endOfDocument": "Final del documento",
     "afterCurrentPage": "Después de la página actual",

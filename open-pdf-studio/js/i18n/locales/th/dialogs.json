@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "รวม PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "แทรกที่:",
     "endOfDocument": "ท้ายเอกสาร",
     "afterCurrentPage": "หลังหน้าปัจจุบัน",

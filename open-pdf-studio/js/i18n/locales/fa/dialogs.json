@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "ادغام فایل‌های PDF",
+    "combineTitle": "ترکیب در یک PDF",
+    "combineButton": "ترکیب",
     "insertAt": "درج در:",
     "endOfDocument": "انتهای سند",
     "afterCurrentPage": "بعد از صفحه فعلی",

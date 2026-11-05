@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Slå sammen PDF-er",
+    "combineTitle": "Kombiner til én PDF",
+    "combineButton": "Kombiner",
     "insertAt": "Sett inn ved:",
     "endOfDocument": "Slutten av dokumentet",
     "afterCurrentPage": "Etter gjeldende side",

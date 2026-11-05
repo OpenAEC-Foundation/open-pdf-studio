@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "Unganisha PDF",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "Ingiza kwenye:",
     "endOfDocument": "Mwisho wa hati",
     "afterCurrentPage": "Baada ya ukurasa wa sasa",

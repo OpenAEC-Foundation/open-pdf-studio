@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDF একত্রিত করুন",
+    "combineTitle": "Combine into one PDF",
+    "combineButton": "Combine",
     "insertAt": "এখানে সন্নিবেশ করুন:",
     "endOfDocument": "নথির শেষে",
     "afterCurrentPage": "বর্তমান পৃষ্ঠার পরে",

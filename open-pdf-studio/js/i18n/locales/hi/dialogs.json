@@ -330,6 +330,8 @@
   },
   "mergePdfs": {
     "title": "PDF मर्ज करें",
+    "combineTitle": "एक PDF में संयोजित करें",
+    "combineButton": "संयोजित करें",
     "insertAt": "यहां सम्मिलित करें:",
     "endOfDocument": "दस्तावेज़ के अंत में",
     "afterCurrentPage": "वर्तमान पृष्ठ के बाद",
