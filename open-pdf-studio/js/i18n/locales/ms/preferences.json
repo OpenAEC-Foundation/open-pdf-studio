@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktif melalui parameter permulaan ({{adres}})",
     "aiLinkOff": "Mati",
     "aiLinkError": "Tidak dimulakan: {{fout}}",
-    "interfaceScale": "Saiz antara muka"
+    "interfaceScale": "Saiz antara muka",
+    "saving": "Simpanan",
+    "incrementalSave": "Simpan perubahan anotasi dan borang secara inkremental (eksperimen)",
+    "incrementalSaveHint": "Menambah perubahan pada hujung fail dan bukannya menulis semula fail. Versi terdahulu masih boleh dipulihkan daripada fail. Redaksi, pembuangan maklumat tersembunyi dan perubahan lain sentiasa disimpan dengan penulisan semula penuh."
   },
   "annotations": {
     "generalDefaults": "Lalai Umum",

@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktivní přes spouštěcí parametr ({{adres}})",
     "aiLinkOff": "Vypnuto",
     "aiLinkError": "Nespuštěno: {{fout}}",
-    "interfaceScale": "Velikost rozhraní"
+    "interfaceScale": "Velikost rozhraní",
+    "saving": "Ukládání",
+    "incrementalSave": "Ukládat změny poznámek a formulářů přírůstkově (experimentální)",
+    "incrementalSaveHint": "Připojí změny na konec souboru místo jeho přepsání. Dřívější verze zůstávají ze souboru obnovitelné. Začernění, odstranění skrytých informací a další změny se vždy ukládají úplným přepsáním."
   },
   "annotations": {
     "generalDefaults": "Obecné výchozí hodnoty",

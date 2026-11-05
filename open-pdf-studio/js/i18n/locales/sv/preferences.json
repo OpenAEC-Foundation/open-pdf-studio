@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Av",
     "aiLinkError": "Inte startad: {{fout}}",
-    "interfaceScale": "Gränssnittsstorlek"
+    "interfaceScale": "Gränssnittsstorlek",
+    "saving": "Spara",
+    "incrementalSave": "Spara ändringar i anteckningar och formulär inkrementellt (experimentellt)",
+    "incrementalSaveHint": "Lägger till ändringarna i slutet av filen i stället för att skriva om den. Tidigare versioner går fortfarande att återställa ur filen. Maskering, borttagning av dold information och andra ändringar sparas alltid med en fullständig omskrivning."
   },
   "annotations": {
     "generalDefaults": "Allmänna standardvärden",

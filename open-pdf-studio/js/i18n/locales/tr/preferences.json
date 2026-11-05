@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Başlatma parametresiyle etkin ({{adres}})",
     "aiLinkOff": "Kapalı",
     "aiLinkError": "Başlatılmadı: {{fout}}",
-    "interfaceScale": "Arayüz boyutu"
+    "interfaceScale": "Arayüz boyutu",
+    "saving": "Kaydetme",
+    "incrementalSave": "Açıklama ve form değişikliklerini artımlı kaydet (deneysel)",
+    "incrementalSaveHint": "Değişiklikleri dosyayı yeniden yazmak yerine dosyanın sonuna ekler. Önceki sürümler dosyadan geri alınabilir durumda kalır. Karartma, gizli bilgilerin kaldırılması ve diğer değişiklikler her zaman tam yeniden yazma ile kaydedilir."
   },
   "annotations": {
     "generalDefaults": "Genel Varsayılanlar",

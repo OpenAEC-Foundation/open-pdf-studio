@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktiv via oppstartsparameter ({{adres}})",
     "aiLinkOff": "Av",
     "aiLinkError": "Ikke startet: {{fout}}",
-    "interfaceScale": "Grensesnittstørrelse"
+    "interfaceScale": "Grensesnittstørrelse",
+    "saving": "Lagring",
+    "incrementalSave": "Lagre endringer i merknader og skjemaer inkrementelt (eksperimentelt)",
+    "incrementalSaveHint": "Legger endringene til på slutten av filen i stedet for å skrive den om. Tidligere versjoner kan fortsatt gjenopprettes fra filen. Sladding, fjerning av skjult informasjon og andre endringer lagres alltid med full omskriving."
   },
   "annotations": {
     "generalDefaults": "Generelle standardverdier",
