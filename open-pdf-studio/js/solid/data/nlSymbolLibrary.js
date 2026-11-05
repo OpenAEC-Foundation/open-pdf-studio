@@ -8,6 +8,12 @@
 // lokale elektra-renvooi-DXF (zie scripts/dxf-elektra-convert.mjs).
 import { ELEKTRA_SYMBOLS } from './elektraSymbols.js';
 
+const chsPreview = `<svg viewBox="0 0 64 64"><path d="M56 32a24 24 0 1 0-48 0a24 24 0 1 0 48 0M51 32a19 19 0 1 0-38 0a19 19 0 1 0 38 0" fill="#000" fill-rule="evenodd"/></svg>`;
+const betonRondPreview = `<svg viewBox="0 0 64 64" stroke="#000" stroke-width="2"><circle cx="32" cy="32" r="24" fill="#dcdcdc"/><path d="M9 38L38 9M16 50L50 16M29 56L56 29" stroke="#777" stroke-width="1"/></svg>`;
+const houtRondPreview = `<svg viewBox="0 0 64 64" stroke="#000" stroke-width="2"><circle cx="32" cy="32" r="24" fill="#ead9b0"/><path d="M9 38L38 9M16 50L50 16M29 56L56 29" stroke="#b8a37a" stroke-width="1"/></svg>`;
+const paalPlattegrondPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><circle cx="32" cy="36" r="14"/><path d="M12 36H52M32 16V56"/></svg>`;
+const overspanningsharpoenPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M8 32H56M8 32L15 39M49 25L56 32"/></svg>`;
+
 const stramienPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><circle cx="32" cy="15" r="9"/><text x="32" y="19.5" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">1</text><path d="M32 24V58" stroke-width="1.25" stroke-dasharray="7 2.5 1.5 2.5"/></svg>`;
 
 const peilmaatPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><text x="32" y="24" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none">P = 0</text><path d="M8 32H56"/><path d="M24 32L32 46L40 32"/></svg>`;
@@ -159,6 +165,10 @@ export const NL_CATEGORIES = [
       { id: 'param-staal-unp', name: 'UNP', parametricId: 'staal-unp', svg: unpPreview },
       { id: 'param-staal-koker', name: 'Koker', parametricId: 'staal-koker', svg: kokerPreview },
       { id: 'param-staal-hoeklijn', name: 'Hoeklijn', parametricId: 'staal-hoeklijn', svg: hoeklijnPreview },
+      { id: 'param-staal-chs', name: 'CHS (ronde buis)', parametricId: 'staal-chs', svg: chsPreview },
+      { id: 'param-beton-rond', name: 'Beton rond (doorsnede)', parametricId: 'beton-rond', svg: betonRondPreview },
+      { id: 'param-hout-rond', name: 'Hout rond (doorsnede)', parametricId: 'hout-rond', svg: houtRondPreview },
+      { id: 'param-paal-plattegrond', name: 'Paalpositie (palenplan)', parametricId: 'paal-plattegrond', svg: paalPlattegrondPreview },
       { id: 'param-hout-balk', name: 'Houten balk', parametricId: 'hout-balk', svg: houtBalkPreview },
       { id: 'param-paal-type-1', name: 'Paal aanzicht type 1', parametricId: 'paal-aanzicht-type-1', svg: paalType1Preview },
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalType2Preview },
@@ -177,6 +187,7 @@ export const NL_CATEGORIES = [
       { id: 'param-sondering', name: 'Sondering', parametricId: 'sondering', svg: sonderingPreview },
       { id: 'param-paalpuntniveau', name: 'Paalpuntniveau', parametricId: 'paalpuntniveau', svg: paalpuntniveauPreview },
       { id: 'param-overspanningspijl-vloer', name: 'Overspanningspijl vloer', parametricId: 'overspanningspijl-vloer', svg: overspanningspijlPreview },
+      { id: 'param-overspanningsharpoen-vloer', name: 'Overspanningsrichting vloer (⥋)', parametricId: 'overspanningsharpoen-vloer', svg: overspanningsharpoenPreview },
       { id: 'param-stenenrij', name: 'Stenenrij (lagen-/koppenmaat)', parametricId: 'stenenrij', svg: stenenrijPreview },
       // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
       // je sleept de reekslijn, net als bij Maskeer hieronder.

@@ -31,7 +31,7 @@ const { savePDF } = await import('../pdf/saver.js');
 const { zetPaginaAnnotatiesOm } = await import('../pdf/loader/annotaties-omzetten.js');
 const { extractAnnotationColors } = await import('../pdf/loader/color-extraction.js');
 
-const NL = ['staal-hea', 'staal-heb', 'staal-ipe', 'staal-unp', 'staal-koker', 'staal-hoeklijn'];
+const NL = ['staal-hea', 'staal-heb', 'staal-ipe', 'staal-unp', 'staal-koker', 'staal-hoeklijn', 'staal-chs'];
 
 function openen(annotations) {
   state.documents = [{
@@ -94,6 +94,7 @@ test('UNP 200 naar HEB, HEA, IPE, koker en hoeklijn: plek, stijl en overige para
   const verwacht = {
     'staal-heb': ['HEB 200', 200, 200], 'staal-hea': ['HEA 200', 200, 190], 'staal-ipe': ['IPE 200', 100, 200],
     'staal-koker': ['K200/10', 200, 200], 'staal-hoeklijn': ['L 200x200x20', 200, 200],
+    'staal-chs': ['CHS 193.7x6.3', 193.7, 193.7],
   };
   for (const [id, [maat, bMm, hMm]] of Object.entries(verwacht)) {
     const a = unp();
@@ -239,4 +240,31 @@ test('opslaan en heropenen: een oud bestand met UNP, gewisseld naar HEB, blijft 
   assert.equal(terug.params.hartlijn, false);
   bijna(terug.width, geladen.width, 'breedte');
   bijna(terug.height, geladen.height, 'hoogte');
+});
+
+test('new NL round sections, pile marker and span harpoon retain editable parameters after saving', async () => {
+  const source = await PDFDocument.create();
+  source.addPage([595, 842]);
+  const examples = [
+    ['staal-chs', { maat: 'CHS 168.3x6.3', aanzicht: 'zij', schaal: 1, hartlijn: false }],
+    ['hout-rond', { diameter: 250, schaal: 2, houtsoort: 'eiken', toonLabel: true }],
+    ['beton-rond', { diameter: 600, schaal: 1, toonLabel: false }],
+    ['paal-plattegrond', { nummer: 'P-12', toonLabel: true }],
+    ['overspanningsharpoen-vloer', { lengte: 4500, tekst: 'Vloer A' }],
+  ];
+  const annotations = examples.map(([symbolId, params], i) => unp(`new-${i}`, {
+    symbolId, params, x: 40, y: 60 + i * 130, width: 100, height: 100,
+    rotation: 0, flipX: false,
+  }));
+  const bytes = await opslaan(await source.save(), annotations);
+  // app-test-hooks stubs the renderer; actual PNG appearances are checked
+  // separately in the browser smoke test, with the real canvas renderer.
+  const restored = await laad(bytes);
+  assert.equal(restored.length, examples.length);
+  for (const [symbolId, params] of examples) {
+    const ann = restored.find(a => a.symbolId === symbolId);
+    assert.ok(ann, symbolId);
+    assert.deepEqual(ann.params, params, symbolId);
+    assert.ok(getTemplate(symbolId).render(ann.params, ann).length > 0);
+  }
 });
