@@ -186,7 +186,10 @@ test('het model blijft na een incrementele save ongemoeid (undo en herhaald opsl
   const kopie = JSON.stringify(modellen);
   const r = await sla(bron, modellen);
   assert.equal(r.wijze.wijze, 'incrementeel');
-  assert.equal(JSON.stringify(modellen), kopie);
+  // Alleen pdfBron (saver/bron-behoud.js) komt erbij: de verwijzing naar het
+  // object in het opgeslagen bestand. De annotatie zelf blijft gelijk.
+  assert.equal(JSON.stringify(modellen.map(({ pdfBron, ...m }) => m)), kopie);
+  assert.ok(modellen.every((m) => m.pdfBron?.ref), 'elk model wijst naar zijn object');
   // Een annotatie weghalen (zoals undo van "toevoegen") en opnieuw opslaan.
   const r2 = await sla(r.geschreven, [modellen[0]]);
   assert.equal(r2.wijze.wijze, 'incrementeel');
