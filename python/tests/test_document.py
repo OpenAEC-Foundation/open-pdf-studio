@@ -77,13 +77,6 @@ class DocumentWorkflow(FakeServerCase):
         self.assertEqual(calls[1]["format"], "jpeg")
         self.assertTrue(os.path.getsize(png) > 0)
 
-    def test_page_operations_without_a_tool_are_unsupported(self):
-        doc = self.app.open(self.make_pdf("a.pdf"))
-        with self.assertRaisesRegex(ops.UnsupportedOperationError, "app_rotate_pages"):
-            doc.pages.rotate([1], 90)
-        with self.assertRaises(ops.UnsupportedOperationError):
-            doc.pages.delete([2])
-
     def test_cad_file_needs_a_dialog(self):
         with self.assertRaisesRegex(ops.UnsupportedOperationError, "cad-import"):
             self.app.open(os.path.join(self.tmp, "plan.dwg"))
@@ -100,6 +93,19 @@ class DocumentWorkflow(FakeServerCase):
         self.app.open(self.make_pdf("b.pdf"))
         self.assertEqual(a.tools.get_page_count()["pageCount"], 3)
         self.assertEqual(self.app.tools.list_tabs()["activeIndex"], 0)
+
+
+class PageToolsWhenNotAdvertised(FakeServerCase):
+    """An app that does not advertise the page tools: the wrappers refuse."""
+
+    extra_env = {"FAKE_HIDE_TOOLS": "app_rotate_pages,app_delete_pages,app_insert_blank_pages,app_extract_pages,app_reorder_pages"}
+
+    def test_page_operations_without_a_tool_are_unsupported(self):
+        doc = self.app.open(self.make_pdf("a.pdf"))
+        with self.assertRaisesRegex(ops.UnsupportedOperationError, "app_rotate_pages"):
+            doc.pages.rotate([1], 90)
+        with self.assertRaises(ops.UnsupportedOperationError):
+            doc.pages.delete([2])
 
 
 class PageToolsWhenAdvertised(FakeServerCase):

@@ -16,7 +16,12 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 app_id=org.openaec.OpenPdfStudio
 mode=${1:-lint}
-lint=(flatpak run --command=flatpak-builder-lint org.flatpak.Builder)
+# flatpak/lint-exceptions.json: appid-url-not-reachable. The lint fetches
+# https://<reversed app-id domain> (openaec.org) and that host does not answer
+# with a valid TLS certificate. Flathub verifies the domain at submission, so
+# this exception only keeps CI meaningful until the domain (or the app id) is
+# settled; it is not a waiver for the submission itself.
+lint=(flatpak run --command=flatpak-builder-lint org.flatpak.Builder --exceptions --user-exceptions flatpak/lint-exceptions.json)
 
 node flatpak/generate-sources.mjs
 

@@ -12,6 +12,7 @@ Modes:
   --mcp-server --mcp-port N   behave like the app binary (launcher tests)
 
 Environment:
+  FAKE_HIDE_TOOLS    comma-separated tool names NOT to advertise (an older app)
   FAKE_EXTRA_TOOLS   comma-separated tool names to advertise in addition
   FAKE_READY_DELAY   app mode: seconds before the WebView is "ready"
   FAKE_NO_MARKER     app mode: never print the WebView-ready log line
@@ -53,7 +54,8 @@ LOCK = threading.Lock()
 
 
 def tool_list():
-    names = list(TOOLS) + [n for n in os.environ.get("FAKE_EXTRA_TOOLS", "").split(",") if n]
+    hidden = {n for n in os.environ.get("FAKE_HIDE_TOOLS", "").split(",") if n}
+    names = [n for n in TOOLS if n not in hidden] + [n for n in os.environ.get("FAKE_EXTRA_TOOLS", "").split(",") if n]
     out = []
     for name in names:
         meta = TOOLS.get(name, {"title": name, "read_only": False, "destructive": False, "params": {}, "required": ()})

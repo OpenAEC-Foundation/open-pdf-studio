@@ -22,7 +22,7 @@ class HttpClient(FakeServerCase):
         names = [t["name"] for t in self.app.list_tools()]
         self.assertEqual(names, list(ops.TOOLS))
         self.assertTrue(self.app.has_tool("app_open_pdf"))
-        self.assertFalse(self.app.has_tool("app_rotate_pages"))
+        self.assertFalse(self.app.has_tool("app_no_such_tool"))
 
     def test_generated_method_round_trip(self):
         res = self.app.tools.set_zoom(1.5)
