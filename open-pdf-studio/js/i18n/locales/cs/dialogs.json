@@ -110,6 +110,8 @@
     "pageRange": "Rozsah stránek",
     "all": "Vše",
     "current": "Aktuální:",
+    "currentView": "Aktuální zobrazení",
+    "currentViewTitle": "Vytiskne přesně to, co je vidět v okně dokumentu, přizpůsobené papíru",
     "custom": "Vlastní",
     "pagesLabel": "Stránky:",
     "pagesPlaceholder": "např. 1-3, 5, 8-10",

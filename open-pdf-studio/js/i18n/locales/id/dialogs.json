@@ -110,6 +110,8 @@
     "pageRange": "Rentang Halaman",
     "all": "Semua",
     "current": "Saat Ini:",
+    "currentView": "Tampilan saat ini",
+    "currentViewTitle": "Cetak persis yang terlihat di jendela dokumen, disesuaikan dengan kertas",
     "custom": "Kustom",
     "pagesLabel": "Halaman:",
     "pagesPlaceholder": "mis. 1-3, 5, 8-10",

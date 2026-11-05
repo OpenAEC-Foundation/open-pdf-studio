@@ -110,6 +110,8 @@
     "pageRange": "Phạm vi Trang",
     "all": "Tất cả",
     "current": "Hiện tại:",
+    "currentView": "Chế độ xem hiện tại",
+    "currentViewTitle": "In đúng phần đang hiển thị trong cửa sổ tài liệu, vừa với khổ giấy",
     "custom": "Tùy chỉnh",
     "pagesLabel": "Trang:",
     "pagesPlaceholder": "vd. 1-3, 5, 8-10",

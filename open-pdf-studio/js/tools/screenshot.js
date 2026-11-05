@@ -125,7 +125,8 @@ function _selectionToAppRect(sel, container) {
 const TEGEL_PX = 2048; // region tiles stay well under the render worker's shared memory
 
 /** Page rectangles on screen (client coordinates) that may hold the selection. */
-function _paginasOpScherm(doc) {
+// Ook gebruikt door Afdrukken: Huidige weergave (#947, print-huidige-weergave-dom.js).
+export function paginasOpScherm(doc) {
   if (!doc) return [];
   const volledig = (pageNum) => {
     const m = paginaMaat(pageNum, doc);
@@ -153,7 +154,7 @@ function _paginasOpScherm(doc) {
  *            schermDpi:number, afgesneden:boolean} | null}  rect in page space (points)
  */
 export function gebiedVanSelectie(selectie, doc = getActiveDocument()) {
-  const keuze = kiesPagina(selectie, _paginasOpScherm(doc));
+  const keuze = kiesPagina(selectie, paginasOpScherm(doc));
   if (!keuze) return null;
   const rect = clientRectNaarPagina(keuze.pageNum, keuze.rect, doc);
   const m = paginaMaat(keuze.pageNum, doc);

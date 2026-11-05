@@ -110,6 +110,8 @@
     "pageRange": "Oldaltartomány",
     "all": "Mind",
     "current": "Aktuális:",
+    "currentView": "Aktuális nézet",
+    "currentViewTitle": "Pontosan azt nyomtatja ki, ami a dokumentumablakban látható, a papírhoz igazítva",
     "custom": "Egyedi",
     "pagesLabel": "Oldalak:",
     "pagesPlaceholder": "pl. 1-3, 5, 8-10",

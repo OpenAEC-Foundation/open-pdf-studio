@@ -19,6 +19,7 @@ import { maakMeerPerBlad, isMeerPerBlad, bronKeuzes } from './print-meerperblad.
 import { maakPoster } from './print-poster.js';
 import { maakBoekje } from './print-boekje.js';
 import { zetCanvasOm, beeldFormaatVoor, vectorMogelijk } from './print-kleur.js';
+import { uitsnedePxPerPt, uitsnedeRenderVak } from './print-huidige-weergave.js';
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
@@ -39,6 +40,44 @@ function kwartslagLinksom(canvas) {
   return uit;
 }
 
+/** Een canvas over `graden` (0/90/180/270) rechtsom gedraaid, zoals de weergave (#200). */
+function draaiRechtsom(canvas, graden) {
+  const r = ((Math.round((Number(graden) || 0) / 90) * 90) % 360 + 360) % 360;
+  if (!r) return canvas;
+  const kwart = r === 90 || r === 270;
+  const uit = document.createElement('canvas');
+  uit.width = kwart ? canvas.height : canvas.width;
+  uit.height = kwart ? canvas.width : canvas.height;
+  const ctx = uit.getContext('2d');
+  ctx.translate(uit.width / 2, uit.height / 2);
+  ctx.rotate((r * Math.PI) / 180);
+  ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  return uit;
+}
+
+/** Het vak `px` uit `canvas`; het hele canvas blijft hetzelfde canvas. */
+function knip(canvas, px) {
+  if (px.x === 0 && px.y === 0 && px.breedte === canvas.width && px.hoogte === canvas.height) return canvas;
+  const uit = document.createElement('canvas');
+  uit.width = px.breedte;
+  uit.height = px.hoogte;
+  uit.getContext('2d').drawImage(canvas, px.x, px.y, px.breedte, px.hoogte, 0, 0, px.breedte, px.hoogte);
+  return uit;
+}
+
+/**
+ * Het beeld van een uitsnede van "Huidige weergave" (print-huidige-weergave.js)
+ * zoals ze op het scherm ligt: alleen dat deel van de pagina gerenderd, met
+ * de markeringen, en gedraaid over de weergaverotatie. Voor de plaatsing is
+ * dit beeld de hele pagina.
+ */
+async function renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen) {
+  const canvas = await renderPageOffscreen(pageNum, pxPerPt, {
+    deel: uitsnedeRenderVak(uitsnede, pxPerPt), markeringen,
+  });
+  return draaiRechtsom(canvas, uitsnede.rotatie);
+}
+
 /**
  * Het paginabeeld van `deel` (renderDeel) zoals het op het vel ligt: gerenderd
  * uit de getoonde pagina en, als de pagina haaks op het vel stond
@@ -46,9 +85,16 @@ function kwartslagLinksom(canvas) {
  * printdialoog en de printopdracht gebruiken allebei deze functie. `kleur`
  * is de kleurmodus van de afdruk (print-kleur.js): bij grijswaarden of
  * zwart-wit worden de pixels omgezet, zodat voorbeeld en afdruk gelijk zijn.
+ * `uitsnede` (Huidige weergave, #947): de plaatsing hoort dan bij de
+ * uitsnede in plaats van bij de hele pagina.
  * @returns {Promise<HTMLCanvasElement>}
  */
-export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true, kleur = 'color' } = {}) {
+export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true, kleur = 'color', uitsnede = null } = {}) {
+  if (uitsnede) {
+    const beeld = await renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen);
+    const stuk = knip(beeld, ongedraaidDeel(plaatsing, pxPerPt, deel.px));
+    return zetCanvasOm(plaatsing.gedraaid ? kwartslagLinksom(stuk) : stuk, kleur);
+  }
   const canvas = await renderPageOffscreen(pageNum, pxPerPt, {
     deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
   });
@@ -67,8 +113,10 @@ export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { mark
  * weg, alles anders drukt document én markeringen af
  * (stores/print-instellingen.js). `kleur` is de kleurmodus (print-kleur.js):
  * grijswaarden of zwart-wit zet elk paginabeeld om; zwart-wit gaat als PNG
- * het bestand in, zodat het puur zwart en wit blijft.
- * @param {{ doc: object, pages:number[], orientatie?:'auto'|'portrait'|'landscape',
+ * het bestand in, zodat het puur zwart en wit blijft. `uitsneden` (Huidige
+ * weergave, #947): per paginanummer het zichtbare deel; zo'n pagina wordt
+ * alleen dat deel, passend op het vel zoals een hele pagina.
+ * @param {{ doc: object, pages:number[], uitsneden?: Map<number, object>|null, orientatie?:'auto'|'portrait'|'landscape',
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
  *           kleur?: 'color'|'grayscale'|'bw',
@@ -77,7 +125,7 @@ export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { mark
  */
 export async function bouwPrintPdf({
   doc, pages, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
-  inhoud = 'doc-and-markups', kleur = 'color', voortgang = () => {},
+  inhoud = 'doc-and-markups', kleur = 'color', voortgang = () => {}, uitsneden = null,
 }) {
   const markeringen = markeringenVoorInhoud(inhoud);
   const pdf = await PDFDocument.create();
@@ -86,12 +134,19 @@ export async function bouwPrintPdf({
   for (let i = 0; i < pages.length; i++) {
     const pageNum = pages[i];
     voortgang(i, pageNum);
-    const origPage = await doc.pdfDoc.getPage(pageNum);
-    const origViewport = origPage.getViewport(viewportOpties(origPage, getPageRotation(pageNum)));
+    const uitsnede = uitsneden?.get?.(pageNum) || null;
+    let pagina;
+    if (uitsnede) {
+      pagina = { breedtePt: uitsnede.breedtePt, hoogtePt: uitsnede.hoogtePt };
+    } else {
+      const origPage = await doc.pdfDoc.getPage(pageNum);
+      const origViewport = origPage.getViewport(viewportOpties(origPage, getPageRotation(pageNum)));
+      pagina = { breedtePt: origViewport.width, hoogtePt: origViewport.height };
+    }
     const plaatsing = berekenPlaatsing({
       papier: vel,
       orientatie,
-      pagina: { breedtePt: origViewport.width, hoogtePt: origViewport.height },
+      pagina,
       schaling,
       zoom,
       centreren,
@@ -99,9 +154,9 @@ export async function bouwPrintPdf({
     if (!plaatsing) throw new Error(`page ${pageNum} has no usable size`);
     opVel = plaatsing.bekend;
 
-    const pxPerPt = printPxPerPt(plaatsing);
+    const pxPerPt = uitsnede ? uitsnedePxPerPt(plaatsing, uitsnede) : printPxPerPt(plaatsing);
     const deel = renderDeel(plaatsing, pxPerPt);
-    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur });
+    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, uitsnede });
     const beeld = beeldFormaatVoor(kleur) === 'png'
       ? await pdf.embedPng(await canvasToBytes(canvas, 'png'))
       : await pdf.embedJpg(await canvasToBytes(canvas, 'jpeg', 0.92));
@@ -174,6 +229,7 @@ async function bronBytesVan(doc) {
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
  *           poster?: object|null, boekje?: boolean|{katern?:number, binding?:string, kanten?:string, omgekeerd?:boolean, draaiAchter?:boolean, kruipMm?:number},
  *           openen?: ((pad:string) => void)|null,
+ *           uitsneden?: Map<number, object>|null,
  *           afgebroken?: () => boolean }} opts
  *   vel 'pagina' = elke pagina haar eigen vel, in de gekozen stand
  *   (print-plaatsing.js); poster = de tegelkeuzes van de posterafdruk
@@ -189,7 +245,7 @@ async function bronBytesVan(doc) {
 export async function slaPrintOpAlsPdf({
   pages, pad, orientatie = 'auto', vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100,
   centreren: centrerenKeuze = true, meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false,
-  inhoud = 'doc-and-markups', kleur = 'color', openen = null, afgebroken = () => false,
+  inhoud = 'doc-and-markups', kleur = 'color', openen = null, afgebroken = () => false, uitsneden = null,
 }) {
   // `orientatie` is de stand van het vel; de printpagina's krijgen bij
   // pagina's per vel en een boekje hun eigen stand (bronOrientatie, #623).
@@ -214,6 +270,8 @@ export async function slaPrintOpAlsPdf({
     let gerasterd = false;
     try {
       if (!vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
+      // Huidige weergave (#947): de uitsneden bestaan alleen als paginabeeld.
+      if (uitsneden?.size) throw new Error('current view prints page images');
       ({ pdf } = await bouwVectorPrintPdf({
         // Met de geschakelde laagstand (#377): de afdruk toont wat in beeld is.
         bronBytes: await (await import('./lagen-schakelen.js')).bytesMetLaagstand(doc, await bronBytesVan(doc)),
@@ -223,10 +281,10 @@ export async function slaPrintOpAlsPdf({
         voortgang: (i, index) => voortgang(i, index + 1),
       }));
     } catch (e) {
-      if (vectorMogelijk(kleur)) console.warn('[print] vector print PDF failed; falling back to page images:', e);
+      if (vectorMogelijk(kleur) && !uitsneden?.size) console.warn('[print] vector print PDF failed; falling back to page images:', e);
       gerasterd = true;
       ({ pdf } = await bouwPrintPdf({
-        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, voortgang,
+        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, voortgang, uitsneden,
       }));
     }
 
@@ -328,8 +386,9 @@ async function metPoster(pdf, poster, { vel, orientatie, pages, doc }) {
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
  *           poster?: object|null, boekje?: boolean|{katern?:number, binding?:string, kanten?:string, omgekeerd?:boolean, draaiAchter?:boolean, kruipMm?:number},
- *           kleur?: 'color'|'grayscale'|'bw',
+ *           kleur?: 'color'|'grayscale'|'bw', uitsneden?: Map<number, object>|null,
  *           afgebroken?: () => boolean }} opts
+ *   uitsneden: Huidige weergave (#947), zie bouwPrintPdf.
  *   kleur: de kleurmodus (print-kleur.js); de paginabeelden worden omgezet
  *   voordat ze naar de spooler gaan, dus elke driver krijgt grijs of zwart-wit.
  *   boekje: een geniet boekje (print-boekje.js), twee pagina's per liggend vel.
@@ -344,7 +403,7 @@ export async function runPrintJob({
   pages, copies, printer, orientatie = 'auto', papier = 'printer',
   vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100, centreren: centrerenKeuze = true,
   meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false, inhoud = 'doc-and-markups',
-  kleur = 'color', afgebroken = () => false,
+  kleur = 'color', afgebroken = () => false, uitsneden = null,
 }) {
   // `orientatie` is de stand van het vel (en gaat zo naar print_pdf); de
   // printpagina's krijgen bij pagina's per vel en een boekje hun eigen stand
@@ -362,7 +421,7 @@ export async function runPrintJob({
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
     const { pdf: pagePdf, opVel: paginasOpVel } = await bouwPrintPdf({
-      doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur,
+      doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, uitsneden,
       voortgang: (i, pageNum) => updatePrintProgress(
         i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
         i / total,

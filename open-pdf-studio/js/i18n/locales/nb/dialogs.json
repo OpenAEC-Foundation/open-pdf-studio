@@ -110,6 +110,8 @@
     "pageRange": "Sideområde",
     "all": "Alle",
     "current": "Gjeldende:",
+    "currentView": "Gjeldende visning",
+    "currentViewTitle": "Skriv ut nøyaktig det som er synlig i dokumentvinduet, tilpasset papiret",
     "custom": "Egendefinert",
     "pagesLabel": "Sider:",
     "pagesPlaceholder": "f.eks. 1-3, 5, 8-10",

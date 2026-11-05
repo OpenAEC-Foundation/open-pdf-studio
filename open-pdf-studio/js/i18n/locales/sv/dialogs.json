@@ -110,6 +110,8 @@
     "pageRange": "Sidintervall",
     "all": "Alla",
     "current": "Aktuell:",
+    "currentView": "Aktuell vy",
+    "currentViewTitle": "Skriv ut exakt det som syns i dokumentfönstret, anpassat till papperet",
     "custom": "Anpassad",
     "pagesLabel": "Sidor:",
     "pagesPlaceholder": "t.ex. 1-3, 5, 8-10",

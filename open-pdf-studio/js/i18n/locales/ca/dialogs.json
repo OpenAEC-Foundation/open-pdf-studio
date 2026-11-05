@@ -110,6 +110,8 @@
     "pageRange": "Interval de pàgines",
     "all": "Totes",
     "current": "Actual:",
+    "currentView": "Vista actual",
+    "currentViewTitle": "Imprimeix exactament el que es veu a la finestra del document, ajustat al paper",
     "custom": "Personalitzat",
     "pagesLabel": "Pàgines:",
     "pagesPlaceholder": "p. ex. 1-3, 5, 8-10",

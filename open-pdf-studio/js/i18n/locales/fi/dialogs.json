@@ -110,6 +110,8 @@
     "pageRange": "Sivualue",
     "all": "Kaikki",
     "current": "Nykyinen:",
+    "currentView": "Nykyinen näkymä",
+    "currentViewTitle": "Tulosta tarkalleen se, mikä näkyy asiakirjaikkunassa, paperiin sovitettuna",
     "custom": "Mukautettu",
     "pagesLabel": "Sivut:",
     "pagesPlaceholder": "esim. 1-3, 5, 8-10",

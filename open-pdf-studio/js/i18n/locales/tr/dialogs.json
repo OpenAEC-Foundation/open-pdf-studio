@@ -110,6 +110,8 @@
     "pageRange": "Sayfa Aralığı",
     "all": "Tümü",
     "current": "Geçerli:",
+    "currentView": "Geçerli görünüm",
+    "currentViewTitle": "Belge penceresinde görüneni tam olarak, kâğıda sığdırarak yazdırır",
     "custom": "Özel",
     "pagesLabel": "Sayfalar:",
     "pagesPlaceholder": "örn. 1-3, 5, 8-10",

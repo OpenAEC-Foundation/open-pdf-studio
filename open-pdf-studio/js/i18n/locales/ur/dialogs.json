@@ -110,6 +110,8 @@
     "pageRange": "صفحہ کی حد",
     "all": "سب",
     "current": "موجودہ:",
+    "currentView": "موجودہ منظر",
+    "currentViewTitle": "دستاویز کی ونڈو میں جو نظر آ رہا ہے بالکل وہی، کاغذ کے مطابق پرنٹ کریں",
     "custom": "حسب ضرورت",
     "pagesLabel": "صفحات:",
     "pagesPlaceholder": "مثلاً 1-3, 5, 8-10",

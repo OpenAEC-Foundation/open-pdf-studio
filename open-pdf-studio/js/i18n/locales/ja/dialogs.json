@@ -110,6 +110,8 @@
     "pageRange": "ページ範囲",
     "all": "すべて",
     "current": "現在のページ：",
+    "currentView": "現在の表示",
+    "currentViewTitle": "文書ウィンドウに表示されている範囲をそのまま用紙に合わせて印刷します",
     "custom": "カスタム",
     "pagesLabel": "ページ：",
     "pagesPlaceholder": "例: 1-3, 5, 8-10",
