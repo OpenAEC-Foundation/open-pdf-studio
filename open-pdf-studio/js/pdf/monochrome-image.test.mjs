@@ -181,3 +181,35 @@ test('shared images retain page pixels, search text, vectors, forms, annotations
   assert.deepEqual(reopened.getPage(0).getCropBox(), { x: 10, y: 10, width: 300, height: 220 });
   t.diagnostic(`PDF ${original.length} -> ${optimized.length} bytes; ${Math.round(performance.now() - start)} ms including independent rendering; modeled buffers ${result.workingBufferBytes} bytes; process maxRSS ${process.resourceUsage().maxRSS} KiB`);
 });
+
+test('with allowRgb, eight-bit RGB with r=g=b black/white packs to one gray bit; colour stays', async () => {
+  const width = 64, height = 64;
+  const rgbData = new Uint8Array(width * height * 3);
+  for (let i = 0; i < width * height; i++) rgbData.fill(i % 5 ? 255 : 0, i * 3, i * 3 + 3);
+  const { stream } = await image({ width, height, bits: 8, data: rgbData, values: { ColorSpace: 'DeviceRGB', Decode: [1, 0, 1, 0, 1, 0] } });
+  assert.equal((await optimizeMonochromeImage(stream)).reason, 'color-profile-or-space', 'off by default');
+  const { replacement } = await optimizeMonochromeImage(stream, { allowRgb: true });
+  assert.ok(replacement);
+  assert.equal(replacement.dict.get(PDFName.of('ColorSpace')).toString(), '/DeviceGray');
+  assert.equal(replacement.dict.get(PDFName.of('Decode')).toString(), '[ 1 0 ]');
+  const packed = contents(replacement);
+  for (let i = 0; i < width * height; i++) assert.equal((packed[(i / width | 0) * 8 + ((i % width) >> 3)] >> (7 - (i & 7))) & 1, i % 5 ? 1 : 0);
+  const tinted = Uint8Array.from(rgbData); tinted[3] = 254;
+  assert.equal((await optimizeMonochromeImage((await image({ width, height, bits: 8, data: tinted, values: { ColorSpace: 'DeviceRGB' } })).stream, { allowRgb: true })).reason, 'not-black-and-white');
+});
+
+test('eight-bit packing keeps a /SMask or stencil /Mask reference; a colour-key mask or RGB /Matte declines', async () => {
+  const { doc, stream } = await image({ bits: 8 });
+  const smask = doc.context.register(doc.context.stream(new Uint8Array(128 * 128).fill(255), { Type: 'XObject', Subtype: 'Image', Width: 128, Height: 128, BitsPerComponent: 8, ColorSpace: 'DeviceGray' }));
+  stream.dict.set(PDFName.of('SMask'), smask);
+  const { replacement } = await optimizeMonochromeImage(stream);
+  assert.ok(replacement);
+  assert.equal(replacement.dict.get(PDFName.of('SMask')), smask);
+  const stencil = await image({ bits: 8 });
+  const maskRef = stencil.doc.context.register(stencil.doc.context.stream(new Uint8Array(16 * 128), { Type: 'XObject', Subtype: 'Image', Width: 128, Height: 128, ImageMask: true }));
+  stencil.stream.dict.set(PDFName.of('Mask'), maskRef);
+  assert.equal((await optimizeMonochromeImage(stencil.stream)).replacement.dict.get(PDFName.of('Mask')), maskRef);
+  const matte = await image({ bits: 8, data: new Uint8Array(128 * 128 * 3).fill(255), values: { ColorSpace: 'DeviceRGB' } });
+  matte.stream.dict.set(PDFName.of('SMask'), matte.doc.context.register(matte.doc.context.stream(new Uint8Array(128 * 128), { Subtype: 'Image', Width: 128, Height: 128, BitsPerComponent: 8, ColorSpace: 'DeviceGray', Matte: [0, 0, 0] })));
+  assert.equal((await optimizeMonochromeImage(matte.stream, { allowRgb: true })).reason, 'masked-eight-bit');
+});
