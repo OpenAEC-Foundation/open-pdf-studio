@@ -444,7 +444,10 @@
     "batchOcr": "Hromadné OCR",
     "batchOcrTitle": "Rozpoznať text vo všetkých PDF v priečinku",
     "editPages": "Upraviť strany",
-    "editPagesTitle": "Upraviť strany vizuálne: zmeniť poradie, otočiť, vložiť, odstrániť, extrahovať a rozdeliť"
+    "editPagesTitle": "Upraviť strany vizuálne: zmeniť poradie, otočiť, vložiť, odstrániť, extrahovať a rozdeliť",
+    "protect": "Chrániť",
+    "security": "Zabezpečenie",
+    "securityTitle": "Nastaviť alebo odstrániť heslá a oprávnenia"
   },
   "help": {
     "settings": "Nastavenia",

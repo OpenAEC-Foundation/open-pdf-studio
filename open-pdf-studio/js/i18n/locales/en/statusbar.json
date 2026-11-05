@@ -110,6 +110,7 @@
   "searchHitsOne": "1 match",
   "searchHitsMany": "{{count}} matches",
   "passwordProtectedBar": "Protected with a password: opened read-only.",
+  "passwordProtectedEditableBar": "Protected with a password. Saving keeps the protection.",
   "documentSearch": {
     "title": "Search documents",
     "query": "Search text",

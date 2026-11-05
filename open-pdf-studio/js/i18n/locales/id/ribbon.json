@@ -444,7 +444,10 @@
     "batchOcr": "OCR folder",
     "batchOcrTitle": "Kenali teks di semua file PDF dalam folder",
     "editPages": "Edit Halaman",
-    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan"
+    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan",
+    "protect": "Lindungi",
+    "security": "Keamanan",
+    "securityTitle": "Atur atau hapus kata sandi dan izin"
   },
   "help": {
     "settings": "Pengaturan",

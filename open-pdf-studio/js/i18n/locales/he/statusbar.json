@@ -110,6 +110,7 @@
   "searchHitsOne": "תוצאה אחת",
   "searchHitsMany": "{{count}} תוצאות",
   "passwordProtectedBar": "מוגן בסיסמה: נפתח לקריאה בלבד.",
+  "passwordProtectedEditableBar": "מוגן בסיסמה. השמירה משמרת את ההגנה.",
   "documentSearch": {
     "title": "חיפוש במסמכים",
     "query": "טקסט לחיפוש",

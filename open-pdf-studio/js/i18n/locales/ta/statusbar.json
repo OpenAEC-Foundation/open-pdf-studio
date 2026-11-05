@@ -110,6 +110,7 @@
   "searchHitsOne": "1 பொருத்தம்",
   "searchHitsMany": "{{count}} பொருத்தங்கள்",
   "passwordProtectedBar": "கடவுச்சொல்லால் பாதுகாக்கப்பட்டது: படிக்க மட்டும் திறக்கப்பட்டது.",
+  "passwordProtectedEditableBar": "கடவுச்சொல்லால் பாதுகாக்கப்பட்டது. சேமிக்கும்போது பாதுகாப்பு தொடரும்.",
   "documentSearch": {
     "title": "ஆவணங்களில் தேடு",
     "query": "தேடல் உரை",

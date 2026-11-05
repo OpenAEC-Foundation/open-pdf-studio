@@ -444,7 +444,10 @@
     "batchOcr": "OCR ya folda",
     "batchOcrTitle": "Tambua maandishi katika faili zote za PDF za folda",
     "editPages": "Hariri Kurasa",
-    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya"
+    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya",
+    "protect": "Linda",
+    "security": "Usalama",
+    "securityTitle": "Weka au ondoa manenosiri na ruhusa"
   },
   "help": {
     "settings": "Mipangilio",

@@ -110,6 +110,7 @@
   "searchHitsOne": "1 مورد",
   "searchHitsMany": "{{count}} مورد",
   "passwordProtectedBar": "محافظت‌شده با رمز عبور: به‌صورت فقط‌خواندنی باز شد.",
+  "passwordProtectedEditableBar": "با گذرواژه محافظت شده است. ذخیره کردن محافظت را نگه می‌دارد.",
   "documentSearch": {
     "title": "جستجوی اسناد",
     "query": "متن جستجو",

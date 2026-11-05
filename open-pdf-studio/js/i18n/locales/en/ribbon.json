@@ -444,7 +444,10 @@
     "batchOcr": "Batch OCR",
     "batchOcrTitle": "Recognize text in all PDF files in a folder",
     "editPages": "Edit Pages",
-    "editPagesTitle": "Edit pages visually: reorder, rotate, insert, delete, extract and split"
+    "editPagesTitle": "Edit pages visually: reorder, rotate, insert, delete, extract and split",
+    "protect": "Protect",
+    "security": "Security",
+    "securityTitle": "Set or remove passwords and permissions"
   },
   "help": {
     "settings": "Settings",

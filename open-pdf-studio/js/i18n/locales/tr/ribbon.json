@@ -444,7 +444,10 @@
     "batchOcr": "Toplu OCR",
     "batchOcrTitle": "Bir klasördeki tüm PDF dosyalarında metni tanı",
     "editPages": "Sayfaları Düzenle",
-    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün"
+    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün",
+    "protect": "Koru",
+    "security": "Güvenlik",
+    "securityTitle": "Parolaları ve izinleri ayarla veya kaldır"
   },
   "help": {
     "settings": "Ayarlar",

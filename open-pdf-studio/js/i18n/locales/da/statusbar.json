@@ -110,6 +110,7 @@
   "searchHitsOne": "1 match",
   "searchHitsMany": "{{count}} match",
   "passwordProtectedBar": "Beskyttet med adgangskode: åbnet skrivebeskyttet.",
+  "passwordProtectedEditableBar": "Beskyttet med en adgangskode. Når du gemmer, bevares beskyttelsen.",
   "documentSearch": {
     "title": "Søg i dokumenter",
     "query": "Søgetekst",

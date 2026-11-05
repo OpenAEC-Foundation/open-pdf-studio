@@ -444,7 +444,10 @@
     "batchOcr": "Mappe-OCR",
     "batchOcrTitle": "Genkend tekst i alle PDF-filer i en mappe",
     "editPages": "Rediger sider",
-    "editPagesTitle": "Rediger sider visuelt: omarranger, roter, indsæt, slet, udtræk og opdel"
+    "editPagesTitle": "Rediger sider visuelt: omarranger, roter, indsæt, slet, udtræk og opdel",
+    "protect": "Beskyt",
+    "security": "Sikkerhed",
+    "securityTitle": "Angiv eller fjern adgangskoder og rettigheder"
   },
   "help": {
     "settings": "Indstillinger",

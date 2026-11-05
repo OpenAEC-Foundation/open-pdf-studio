@@ -110,6 +110,7 @@
   "searchHitsOne": "1 coincidencia",
   "searchHitsMany": "{{count}} coincidencias",
   "passwordProtectedBar": "Protegido con contraseña: abierto en modo de solo lectura.",
+  "passwordProtectedEditableBar": "Protegido con contraseña. Al guardar se mantiene la protección.",
   "documentSearch": {
     "title": "Buscar en documentos",
     "query": "Texto de búsqueda",

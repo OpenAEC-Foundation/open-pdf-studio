@@ -444,7 +444,10 @@
     "batchOcr": "Kansion OCR",
     "batchOcrTitle": "Tunnista teksti kaikista kansion PDF-tiedostoista",
     "editPages": "Muokkaa sivuja",
-    "editPagesTitle": "Muokkaa sivuja visuaalisesti: järjestä, kierrä, lisää, poista, irrota ja jaa"
+    "editPagesTitle": "Muokkaa sivuja visuaalisesti: järjestä, kierrä, lisää, poista, irrota ja jaa",
+    "protect": "Suojaa",
+    "security": "Suojaus",
+    "securityTitle": "Aseta tai poista salasanat ja oikeudet"
   },
   "help": {
     "settings": "Asetukset",

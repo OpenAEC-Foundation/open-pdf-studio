@@ -444,7 +444,10 @@
     "batchOcr": "Stapel-OCR",
     "batchOcrTitle": "Text in allen PDF-Dateien eines Ordners erkennen",
     "editPages": "Seiten bearbeiten",
-    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
+    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen",
+    "protect": "Schützen",
+    "security": "Sicherheit",
+    "securityTitle": "Kennwörter und Berechtigungen festlegen oder entfernen"
   },
   "help": {
     "settings": "Einstellungen",

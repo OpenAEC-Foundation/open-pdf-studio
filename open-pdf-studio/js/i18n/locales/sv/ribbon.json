@@ -444,7 +444,10 @@
     "batchOcr": "Mapp-OCR",
     "batchOcrTitle": "Känn igen text i alla PDF-filer i en mapp",
     "editPages": "Redigera sidor",
-    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela"
+    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela",
+    "protect": "Skydda",
+    "security": "Säkerhet",
+    "securityTitle": "Ange eller ta bort lösenord och behörigheter"
   },
   "help": {
     "settings": "Inställningar",

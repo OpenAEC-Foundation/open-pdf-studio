@@ -444,7 +444,10 @@
     "batchOcr": "Skupni OCR",
     "batchOcrTitle": "Prepoznaj tekst u svim PDF datotekama mape",
     "editPages": "Uredi stranice",
-    "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje"
+    "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje",
+    "protect": "Zaštita",
+    "security": "Sigurnost",
+    "securityTitle": "Postavljanje ili uklanjanje lozinki i dopuštenja"
   },
   "help": {
     "settings": "Postavke",

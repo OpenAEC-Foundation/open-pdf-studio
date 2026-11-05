@@ -110,6 +110,7 @@
   "searchHitsOne": "1 coincidència",
   "searchHitsMany": "{{count}} coincidències",
   "passwordProtectedBar": "Protegit amb contrasenya: obert només de lectura.",
+  "passwordProtectedEditableBar": "Protegit amb contrasenya. En desar es manté la protecció.",
   "documentSearch": {
     "title": "Cerca als documents",
     "query": "Text de cerca",

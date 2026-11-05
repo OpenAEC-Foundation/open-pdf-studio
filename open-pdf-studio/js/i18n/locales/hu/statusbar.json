@@ -110,6 +110,7 @@
   "searchHitsOne": "1 találat",
   "searchHitsMany": "{{count}} találat",
   "passwordProtectedBar": "Jelszóval védett: csak olvasásra megnyitva.",
+  "passwordProtectedEditableBar": "Jelszóval védett. Mentéskor a védelem megmarad.",
   "documentSearch": {
     "title": "Keresés a dokumentumokban",
     "query": "Keresett szöveg",

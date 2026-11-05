@@ -444,7 +444,10 @@
     "batchOcr": "OCR hàng loạt",
     "batchOcrTitle": "Nhận dạng văn bản trong mọi tệp PDF của một thư mục",
     "editPages": "Chỉnh sửa trang",
-    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách"
+    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách",
+    "protect": "Bảo vệ",
+    "security": "Bảo mật",
+    "securityTitle": "Đặt hoặc gỡ mật khẩu và quyền"
   },
   "help": {
     "settings": "Cài đặt",

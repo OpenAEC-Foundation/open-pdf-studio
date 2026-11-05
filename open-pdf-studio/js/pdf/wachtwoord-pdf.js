@@ -8,12 +8,20 @@
 // bestanden en het sessieherstel houden het ORIGINELE pad: na een herstart
 // vraagt de app het wachtwoord opnieuw, de werkkopie komt nooit in de sessie.
 //
-// Zo'n document is alleen-lezen en dat blijft het (anders dan PDF/A, waar
-// "Bewerken inschakelen" bestaat): opslaan, opslaan als en bewerken zijn
-// uitgeschakeld, het origineel blijft onaangetast en beveiligd.
+// Documentbeveiliging (#378): Rust neemt bij het openen ook de beveiliging
+// van het origineel over (`doc.beveiliging`, document-beveiliging.js). Is dat
+// AES-256, dan is het document bewerkbaar en schrijft opslaan het terug met
+// dezelfde wachtwoorden en rechten (naar het origineel, `saveTargetPath`).
+// Een oudere methode (RC4, AES-128), of een browser zonder Rust, blijft
+// alleen-lezen tot de gebruiker de beveiliging vervangt of verwijdert: de app
+// schrijft een ontsleuteld document nooit stil onbeveiligd weg.
+// Ook een bestand dat zonder wachtwoord opent maar rechten heeft, opent zo
+// uit een werkkopie (`passwordProtected` blijft dan false).
 //
 // Puur: geen app-state, geen DOM. De loader, de saver, de tabbladen en de
 // sessie gebruiken deze beslissingen; de unit-test toetst ze los.
+
+import { kanBeveiligingSchrijven, beperktDoorRechten } from './document-beveiliging.js';
 
 /** Foutcode van het Rust-commando bij een verkeerd wachtwoord. */
 export const FOUT_VERKEERD_WACHTWOORD = 'WRONG_PASSWORD';
@@ -64,20 +72,37 @@ export function isHostAlleenLezen(doc) {
 }
 
 /**
- * Alleen-lezen: met een wachtwoord geopend (altijd), door de gastsite
+ * Alleen-lezen: een beveiligd document dat niet beveiligd terug te schrijven
+ * is of waarvan de rechten geen bewerking toestaan, door de gastsite
  * alleen-lezen geopend, of PDF/A zolang de gebruiker bewerken niet heeft
  * ingeschakeld.
  */
 export function isAlleenLezen(doc) {
   if (!doc) return false;
-  if (isBeveiligdDocument(doc)) return true;
+  if (opslaanGeweigerd(doc) || beperktDoorRechten(doc)) return true;
   if (isHostAlleenLezen(doc)) return true;
   return !!doc.pdfaCompliance && !doc.pdfADismissed;
 }
 
-/** Mag dit document niet opgeslagen worden? (PDF/A mag wel.) */
+/**
+ * Mag dit document niet opgeslagen worden? Alleen als opslaan de beveiliging
+ * niet kan behouden: een met een wachtwoord geopend document zonder
+ * beveiligingssessie (browser, onleesbare beveiliging) of met een oudere
+ * methode die nog niet vervangen is. (PDF/A mag wel.)
+ */
 export function opslaanGeweigerd(doc) {
+  if (!doc) return false;
+  if (doc.beveiliging) return !kanBeveiligingSchrijven(doc);
   return isBeveiligdDocument(doc);
+}
+
+/**
+ * Staat er ontsleutelde inhoud van een beveiligd bestand in dit document? Dan
+ * geen herstelmomentopnamen en geen onbeveiligde afgeleide bestanden
+ * (splitsen). Na het opslaan zonder beveiliging niet meer.
+ */
+export function heeftBeveiligdeInhoud(doc) {
+  return isBeveiligdDocument(doc) || !!doc?.beveiliging;
 }
 
 /**
@@ -128,8 +153,22 @@ export async function vraagEnOntsleutel({ vraag, ontsleutel }) {
   }
 }
 
-/** Zet het document als met een wachtwoord geopend, met zijn originele pad. */
-export function markeerBeveiligd(doc, origineelPad) {
-  doc.passwordProtected = true;
+/**
+ * Zet het document als beveiligd geopend, met zijn originele pad.
+ *  - `gevraagd`: er werd om een wachtwoord gevraagd (na een herstart opnieuw).
+ *  - `beveiliging`: doc.beveiliging (document-beveiliging.js). Dan schrijft
+ *    opslaan naar het origineel, niet naar de ontsleutelde werkkopie.
+ */
+export function markeerBeveiligd(doc, origineelPad, { gevraagd = true, beveiliging = null } = {}) {
+  doc.passwordProtected = gevraagd;
   doc.originalFilePath = origineelPad || null;
+  if (beveiliging) {
+    doc.beveiliging = beveiliging;
+    if (origineelPad) doc.saveTargetPath = origineelPad;
+  }
+}
+
+/** Rendert dit document uit een ontsleutelde werkkopie? */
+export function heeftWerkkopie(doc) {
+  return !!doc?.originalFilePath && !!doc.filePath && doc.filePath !== doc.originalFilePath;
 }

@@ -444,7 +444,10 @@
     "batchOcr": "Kötegelt OCR",
     "batchOcrTitle": "Szövegfelismerés egy mappa összes PDF-fájljában",
     "editPages": "Oldalak szerkesztése",
-    "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás"
+    "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás",
+    "protect": "Védelem",
+    "security": "Biztonság",
+    "securityTitle": "Jelszavak és jogosultságok beállítása vagy eltávolítása"
   },
   "help": {
     "settings": "Beállítások",

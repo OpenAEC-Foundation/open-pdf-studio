@@ -110,6 +110,7 @@
   "searchHitsOne": "ພົບ 1 ລາຍການ",
   "searchHitsMany": "ພົບ {{count}} ລາຍການ",
   "passwordProtectedBar": "ປ້ອງກັນດ້ວຍລະຫັດຜ່ານ: ເປີດແບບອ່ານຢ່າງດຽວ.",
+  "passwordProtectedEditableBar": "ປ້ອງກັນດ້ວຍລະຫັດຜ່ານ. ການບັນທຶກຈະຮັກສາການປ້ອງກັນໄວ້.",
   "documentSearch": {
     "title": "ຄົ້ນຫາເອກະສານ",
     "query": "ຂໍ້ຄວາມທີ່ຄົ້ນຫາ",

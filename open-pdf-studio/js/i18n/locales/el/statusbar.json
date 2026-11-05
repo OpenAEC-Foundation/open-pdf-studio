@@ -110,6 +110,7 @@
   "searchHitsOne": "1 αποτέλεσμα",
   "searchHitsMany": "{{count}} αποτελέσματα",
   "passwordProtectedBar": "Προστατεύεται με κωδικό πρόσβασης: άνοιξε μόνο για ανάγνωση.",
+  "passwordProtectedEditableBar": "Προστατεύεται με κωδικό. Η αποθήκευση διατηρεί την προστασία.",
   "documentSearch": {
     "title": "Αναζήτηση εγγράφων",
     "query": "Κείμενο αναζήτησης",

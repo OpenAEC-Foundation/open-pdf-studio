@@ -444,7 +444,10 @@
     "batchOcr": "OCR în lot",
     "batchOcrTitle": "Recunoaște textul din toate PDF-urile unui dosar",
     "editPages": "Editare pagini",
-    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire"
+    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire",
+    "protect": "Protejare",
+    "security": "Securitate",
+    "securityTitle": "Setați sau eliminați parole și drepturi"
   },
   "help": {
     "settings": "Setări",

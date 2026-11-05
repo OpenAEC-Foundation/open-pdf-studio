@@ -444,7 +444,10 @@
     "batchOcr": "OCR folder",
     "batchOcrTitle": "Kenal pasti teks dalam semua fail PDF dalam folder",
     "editPages": "Edit Halaman",
-    "editPagesTitle": "Edit halaman secara visual: susun semula, putar, sisip, padam, ekstrak dan pisah"
+    "editPagesTitle": "Edit halaman secara visual: susun semula, putar, sisip, padam, ekstrak dan pisah",
+    "protect": "Lindungi",
+    "security": "Keselamatan",
+    "securityTitle": "Tetapkan atau buang kata laluan dan kebenaran"
   },
   "help": {
     "settings": "Tetapan",

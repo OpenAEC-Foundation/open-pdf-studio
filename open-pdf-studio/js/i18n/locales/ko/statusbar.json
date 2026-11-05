@@ -110,6 +110,7 @@
   "searchHitsOne": "1개 일치",
   "searchHitsMany": "{{count}}개 일치",
   "passwordProtectedBar": "암호로 보호됨: 읽기 전용으로 열렸습니다.",
+  "passwordProtectedEditableBar": "암호로 보호됨. 저장해도 보호가 유지됩니다.",
   "documentSearch": {
     "title": "문서 검색",
     "query": "검색 텍스트",

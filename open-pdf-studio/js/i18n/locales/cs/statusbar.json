@@ -110,6 +110,7 @@
   "searchHitsOne": "1 shoda",
   "searchHitsMany": "Shod: {{count}}",
   "passwordProtectedBar": "Chráněno heslem: otevřeno jen pro čtení.",
+  "passwordProtectedEditableBar": "Chráněno heslem. Uložení ochranu zachová.",
   "documentSearch": {
     "title": "Prohledat dokumenty",
     "query": "Hledaný text",

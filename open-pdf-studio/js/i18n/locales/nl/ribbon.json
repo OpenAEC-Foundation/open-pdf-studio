@@ -444,7 +444,10 @@
     "batchOcr": "Map-OCR",
     "batchOcrTitle": "Tekst herkennen in alle PDF-bestanden van een map",
     "editPages": "Pagina's bewerken",
-    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen"
+    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen",
+    "protect": "Beveiligen",
+    "security": "Beveiliging",
+    "securityTitle": "Wachtwoorden en rechten instellen of verwijderen"
   },
   "help": {
     "information": "Informatie",

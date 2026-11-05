@@ -444,7 +444,10 @@
     "batchOcr": "OCR in blocco",
     "batchOcrTitle": "Riconosci il testo in tutti i PDF di una cartella",
     "editPages": "Modifica pagine",
-    "editPagesTitle": "Modifica le pagine visivamente: riordina, ruota, inserisci, elimina, estrai e dividi"
+    "editPagesTitle": "Modifica le pagine visivamente: riordina, ruota, inserisci, elimina, estrai e dividi",
+    "protect": "Proteggi",
+    "security": "Sicurezza",
+    "securityTitle": "Imposta o rimuovi password e permessi"
   },
   "help": {
     "settings": "Impostazioni",

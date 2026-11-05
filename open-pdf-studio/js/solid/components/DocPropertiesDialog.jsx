@@ -2,6 +2,7 @@ import { For, lazy } from 'solid-js';
 import Dialog from './Dialog.jsx';
 import { closeDialog } from '../stores/dialogStore.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { RECHTEN_LIJST } from '../../pdf/document-beveiliging.js';
 
 // Loaded when the dialog opens, with their services, outside the main chunk.
 const HiddenInformation = lazy(() => import('./HiddenInformation.jsx'));
@@ -23,6 +24,17 @@ export default function DocPropertiesDialog(props) {
   const d = props.data;
 
   const close = () => closeDialog('doc-properties');
+
+  // Documentbeveiliging (#378): wat opslaan schrijft (beschrijfBeveiliging).
+  const sec = d.security || { versleuteld: false };
+  const ja = (b) => tCommon(b ? 'yes' : 'no');
+  const rechtenTekst = () => {
+    if (sec.alles) return t('docProperties.allPermissions');
+    if (!sec.rechten) return '-';
+    if (!sec.rechten.length) return t('docProperties.noPermissions');
+    const labels = new Map(RECHTEN_LIJST);
+    return sec.rechten.map((k) => t(labels.get(k))).join(', ');
+  };
 
   return (
     <Dialog
@@ -56,6 +68,13 @@ export default function DocPropertiesDialog(props) {
         <PropRow label={t('docProperties.pageSize')} value={d.pageSize} />
         <PropRow label={t('docProperties.creationDate')} value={d.created} />
         <PropRow label={t('docProperties.modifiedDate')} value={d.modified} />
+      </div>
+      <div class="doc-props-section" id="doc-props-security">
+        <h3>{t('docProperties.security')}</h3>
+        <PropRow label={t('docProperties.encryption')} value={sec.versleuteld ? (sec.methode || '-') : t('docProperties.notEncrypted')} />
+        {sec.versleuteld && <PropRow label={t('docProperties.openPassword')} value={ja(sec.openWachtwoord)} />}
+        {sec.versleuteld && <PropRow label={t('docProperties.permissions')} value={rechtenTekst()} />}
+        {sec.inAfwachting && <PropRow label="" value={t('protectPdf.pending')} />}
       </div>
       <HiddenInformation />
       <PrintPreflight />

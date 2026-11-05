@@ -444,7 +444,10 @@
     "batchOcr": "OCR per lots",
     "batchOcrTitle": "Reconeix el text de tots els PDF d'una carpeta",
     "editPages": "Edita les pàgines",
-    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix"
+    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix",
+    "protect": "Protegir",
+    "security": "Seguretat",
+    "securityTitle": "Definir o treure contrasenyes i permisos"
   },
   "help": {
     "settings": "Configuració",

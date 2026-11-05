@@ -110,6 +110,7 @@
   "searchHitsOne": "1 Treffer",
   "searchHitsMany": "{{count}} Treffer",
   "passwordProtectedBar": "Mit Kennwort geschützt: schreibgeschützt geöffnet.",
+  "passwordProtectedEditableBar": "Mit einem Kennwort geschützt. Beim Speichern bleibt der Schutz erhalten.",
   "documentSearch": {
     "title": "Dokumente durchsuchen",
     "query": "Suchtext",

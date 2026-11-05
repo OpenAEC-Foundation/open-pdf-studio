@@ -110,6 +110,7 @@
   "searchHitsOne": "1 处匹配",
   "searchHitsMany": "{{count}} 处匹配",
   "passwordProtectedBar": "受密码保护：已以只读方式打开。",
+  "passwordProtectedEditableBar": "已用密码保护。保存时会保留保护。",
   "documentSearch": {
     "title": "搜索文档",
     "query": "搜索文本",

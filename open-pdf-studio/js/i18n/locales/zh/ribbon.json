@@ -444,7 +444,10 @@
     "batchOcr": "批量 OCR",
     "batchOcrTitle": "识别文件夹中所有 PDF 文件的文字",
     "editPages": "编辑页面",
-    "editPagesTitle": "可视化编辑页面：重新排列、旋转、插入、删除、提取和拆分"
+    "editPagesTitle": "可视化编辑页面：重新排列、旋转、插入、删除、提取和拆分",
+    "protect": "保护",
+    "security": "安全性",
+    "securityTitle": "设置或移除密码和权限"
   },
   "help": {
     "settings": "设置",

@@ -444,7 +444,10 @@
     "batchOcr": "OCR em lote",
     "batchOcrTitle": "Reconhecer texto em todos os PDF de uma pasta",
     "editPages": "Editar páginas",
-    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, inserir, excluir, extrair e dividir"
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, inserir, excluir, extrair e dividir",
+    "protect": "Proteger",
+    "security": "Segurança",
+    "securityTitle": "Definir ou remover senhas e permissões"
   },
   "help": {
     "settings": "Configurações",

@@ -110,6 +110,7 @@
   "searchHitsOne": "1 träff",
   "searchHitsMany": "{{count}} träffar",
   "passwordProtectedBar": "Skyddad med lösenord: öppnad skrivskyddad.",
+  "passwordProtectedEditableBar": "Skyddat med lösenord. Skyddet behålls när du sparar.",
   "documentSearch": {
     "title": "Sök i dokument",
     "query": "Söktext",

@@ -110,6 +110,7 @@
   "searchHitsOne": "1 مماثلت",
   "searchHitsMany": "{{count}} مماثلتیں",
   "passwordProtectedBar": "پاس ورڈ سے محفوظ: صرف پڑھنے کے لیے کھولا گیا۔",
+  "passwordProtectedEditableBar": "پاس ورڈ سے محفوظ۔ محفوظ کرنے پر حفاظت برقرار رہتی ہے۔",
   "documentSearch": {
     "title": "دستاویزات میں تلاش کریں",
     "query": "تلاش کا متن",

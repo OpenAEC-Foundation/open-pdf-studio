@@ -1,7 +1,6 @@
-// De pure regels van "Beveiligen met wachtwoord" (zie protect-pdf.js): geen
-// state, geen DOM, zodat ze met node:test te toetsen zijn.
-
-import { opslaanGeweigerd } from './wachtwoord-pdf.js';
+// De pure regels van de wachtwoorden in de beveiligingsdialoog
+// (ProtectPdfDialog.jsx, #378): geen state, geen DOM, zodat ze met node:test
+// te toetsen zijn. De rest van de beveiliging: document-beveiliging.js.
 
 /** Kortste wachtwoord dat de dialoog accepteert, in tekens. */
 export const MIN_LENGTE = 6;
@@ -80,26 +79,7 @@ export function controleerWachtwoorden({ gebruiker, gebruikerHerhaald, eigenaar,
   return null;
 }
 
-/**
- * Het bestand op schijf waaruit de beveiligde kopie gemaakt wordt, of null als
- * er geen kopie gemaakt mag worden.
- *  - Na een paginabewerking rendert het document uit een werkkopie
- *    (`filePath`); het opgeslagen bestand staat dan in `saveTargetPath`. De
- *    werkkopie mist wat daarna is opgeslagen (bv. nieuwe annotaties).
- *  - Een met een wachtwoord geopend document wordt nooit opgeslagen, ook niet
- *    als kopie (wachtwoord-pdf.js): `filePath` is dan de ONTSLEUTELDE
- *    werkkopie, en een kopie met alleen een rechtenwachtwoord zou zonder
- *    wachtwoord openen.
- *  - Een naamloos document heeft geen bestand op schijf.
- * @param {{filePath?:string, saveTargetPath?:string, isUntitled?:boolean, passwordProtected?:boolean}|null} doc
- * @returns {string|null}
- */
-export function bronVoorBeveiliging(doc) {
-  if (!doc || doc.isUntitled || opslaanGeweigerd(doc)) return null;
-  return doc.saveTargetPath || doc.filePath || null;
-}
-
-// Vaste foutcodes van protect_pdf_file (src-tauri/src/pdf_beveiliging.rs) en
+// Vaste foutcodes van de beveiligingscommando's (open-pdf-security) en
 // hun melding (namespace dialogs). `detail` = de toelichting na ": ".
 const FOUTCODES = {
   NEED_PASSWORD: { sleutel: 'protectPdf.needPassword' },

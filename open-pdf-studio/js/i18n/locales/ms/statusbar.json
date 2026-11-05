@@ -110,6 +110,7 @@
   "searchHitsOne": "1 padanan",
   "searchHitsMany": "{{count}} padanan",
   "passwordProtectedBar": "Dilindungi dengan kata laluan: dibuka dalam mod baca sahaja.",
+  "passwordProtectedEditableBar": "Dilindungi kata laluan. Menyimpan mengekalkan perlindungan.",
   "documentSearch": {
     "title": "Cari dokumen",
     "query": "Teks carian",
