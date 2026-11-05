@@ -764,7 +764,8 @@
       "nen1414-tn": "NL NEN 1414 — Nødbelysning",
       "nen1414-tr": "NL NEN 1414 — Røg-/varmeafledning",
       "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Vand/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Vand/Sprinkler",
+      "gdt-bewerking": "GD&T og bearbejdning"
     },
     "sectors": {
       "aec": "AEC (Byggeri)",

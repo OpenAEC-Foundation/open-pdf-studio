@@ -132,7 +132,13 @@ test('Dutch category names match the names in the data files', () => {
     gevonden++;
   }
   assert.equal(gevonden, 12);
-  assert.equal(Object.keys(nl).length, 12);
+  const gdt = lees('../data/gdtSymbolLibrary.js');
+  for (const [, id, naam] of gdt.matchAll(/id: '(gdt-[a-z-]+)',\n\s*name: '([^']+)'/g)) {
+    assert.equal(nl[id], naam, id);
+    gevonden++;
+  }
+  assert.equal(gevonden, 13);
+  assert.equal(Object.keys(nl).length, 13);
 });
 
 // The Industry list in the library settings showed the Dutch sector labels

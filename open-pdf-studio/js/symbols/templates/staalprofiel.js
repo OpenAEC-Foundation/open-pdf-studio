@@ -145,6 +145,27 @@ const KOKER = [
   ['Koker 300x200x12.5', 200, 300, 12.5],
 ];
 
+// Ronde buisprofielen (CHS, EN 10210/10219, #936): [maat, D, t] in mm.
+const BUIS = [
+  ['CHS 48.3x3.2', 48.3, 3.2],
+  ['CHS 60.3x3.2', 60.3, 3.2],
+  ['CHS 76.1x3.2', 76.1, 3.2],
+  ['CHS 88.9x4', 88.9, 4],
+  ['CHS 101.6x4', 101.6, 4],
+  ['CHS 114.3x5', 114.3, 5],
+  ['CHS 139.7x5', 139.7, 5],
+  ['CHS 168.3x6.3', 168.3, 6.3],
+  ['CHS 193.7x8', 193.7, 8],
+  ['CHS 219.1x8', 219.1, 8],
+  ['CHS 244.5x10', 244.5, 10],
+  ['CHS 273x10', 273, 10],
+  ['CHS 323.9x10', 323.9, 10],
+  ['CHS 355.6x12.5', 355.6, 12.5],
+  ['CHS 406.4x12.5', 406.4, 12.5],
+  ['CHS 457x12.5', 457, 12.5],
+  ['CHS 508x16', 508, 16],
+];
+
 // ── Geometry helpers ───────────────────────────────────────────────────────
 // Quarter-circle fillets are approximated with short line segments so the
 // whole contour stays ONE closed polyline (the parametricSymbol renderer
@@ -456,6 +477,90 @@ function _kokerTemplate() {
 }
 
 
+// Cirkel als gesloten veelhoek (n segmenten) — de renderer vult 'rings'
+// evenodd, dus een binnencirkel snijdt de buisopening uit.
+export function cirkelPts(cx, cy, r, n = 64) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * 2 * Math.PI;
+    out.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+  }
+  return out;
+}
+
+function _buisTemplate() {
+  const byName = new Map(BUIS.map(row => [row[0], row]));
+  const defaultMaat = 'CHS 114.3x5';
+  const rij = (maat) => byName.get(maat) || byName.get(defaultMaat);
+  return {
+    id: 'staal-buis',
+    name: 'Buis (CHS)',
+    nameEn: 'Circular hollow section',
+    category: 'NL Constructie',
+    profielGroep: NL_STAAL_GROEP,
+    defaultSize: { width: 60, height: 60 },
+    fixedSize: true,
+    params: [
+      {
+        key: 'maat', label: 'Maat', labelEn: 'Size', type: 'enum',
+        options: BUIS.map(r => r[0]),
+        default: defaultMaat,
+      },
+      ..._COMMON_PARAMS,
+    ],
+    // "buis 114" en "Ø114.3" vinden dit profiel ook.
+    zoektermen: ['buis', 'ronde buis', 'CHS', ...BUIS.map(r => `Ø${r[1]}x${r[2]}`)],
+    realSizeMm(params) {
+      const row = rij(params?.maat);
+      if (!row) return null;
+      const f = _schaalOf(params);
+      const az = params?.aanzicht || 'doorsnede';
+      if (az === 'boven' || az === 'zij') return { width: null, height: row[1] * f };
+      return { width: row[1] * f, height: row[1] * f };
+    },
+    freeAxis(params) {
+      return (params?.aanzicht || 'doorsnede') !== 'doorsnede' ? 'x' : null;
+    },
+    snapPoints(params, bbox) {
+      const { x, y, width: w, height: h } = bbox;
+      if ((params?.aanzicht || 'doorsnede') !== 'doorsnede') return _snapPoints(params, bbox);
+      // Middelpunt en de vier kwadrantpunten van de buitenomtrek.
+      return [
+        { kind: 'center', x: x + w / 2, y: y + h / 2 },
+        { kind: 'endpoint', x: x + w / 2, y }, { kind: 'endpoint', x: x + w / 2, y: y + h },
+        { kind: 'endpoint', x, y: y + h / 2 }, { kind: 'endpoint', x: x + w, y: y + h / 2 },
+      ];
+    },
+    render(params, bbox) {
+      const row = rij(params?.maat);
+      if (!row) return [];
+      const [maat, D, t] = row;
+      const az = params?.aanzicht || 'doorsnede';
+      if (az === 'boven' || az === 'zij') {
+        // Buis in aanzicht: de wanden liggen uit het zicht → gestreept.
+        const cmds = _beamViewCmds(bbox, D, [
+          { offMm: t, dashed: true },
+          { offMm: D - t, dashed: true },
+        ], params?.hartlijn !== false);
+        if (params?.toonLabel) cmds.push(_labelCmd(maat, bbox));
+        return cmds;
+      }
+      const s = Math.min(bbox.width, bbox.height) / D;
+      const cx = bbox.x + bbox.width / 2;
+      const cy = bbox.y + bbox.height / 2;
+      // Wand massief zwart (NL: staal in doorsnede vol), opening open.
+      const cmds = [{
+        kind: 'rings',
+        loops: [cirkelPts(cx, cy, (D / 2) * s), cirkelPts(cx, cy, (D / 2 - t) * s)],
+        fill: true,
+      }];
+      if (params?.hartlijn !== false) cmds.push(..._hartlijnCmds(bbox));
+      if (params?.toonLabel) cmds.push(_labelCmd(maat, bbox));
+      return cmds;
+    },
+  };
+}
+
 // Hoeklijnen (L-profielen, EN 10056-1): [maat, h, b, t, r] in mm — h = de
 // staande (lange) poot, b = de liggende poot, t = dikte, r = binnenradius.
 // Gelijkzijdig en ongelijkzijdig in één familie; de maat wisselt in het
@@ -577,7 +682,8 @@ export const ipeTemplate = _iProfileTemplate('staal-ipe', 'IPE', IPE, 'IPE 200')
 export const unpTemplate = _iProfileTemplate('staal-unp', 'UNP', UNP, 'UNP 200', _uSectionPts);
 export const kokerTemplate = _kokerTemplate();
 export const hoeklijnTemplate = _hoeklijnTemplate();
-export { _hoeklijnPts as hoeklijnPts, HOEKLIJN as HOEKLIJN_TABEL, KOKER as KOKER_TABEL };
+export const buisTemplate = _buisTemplate();
+export { _hoeklijnPts as hoeklijnPts, HOEKLIJN as HOEKLIJN_TABEL, KOKER as KOKER_TABEL, BUIS as BUIS_TABEL };
 
 // I-/H-profielen ([maat, h, b, tw, tf, r] in mm) voor de staalverbindingen
 // (kopplaat bij ligger, voetplaat bij kolom — templates/staalverbindingen.js).

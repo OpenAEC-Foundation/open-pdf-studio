@@ -771,7 +771,8 @@
       "nen1414-tn": "NL NEN 1414 — Emergency Lighting",
       "nen1414-tr": "NL NEN 1414 — Smoke/Heat Extraction",
       "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler",
+      "gdt-bewerking": "GD&T and machining"
     },
     "sectors": {
       "aec": "AEC (Construction)",
