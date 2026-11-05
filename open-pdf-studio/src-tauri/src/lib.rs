@@ -1934,6 +1934,52 @@ fn read_plugin_file(plugin_id: String, file_path: String) -> Result<String, Stri
     fs::read_to_string(&full_path).map_err(|e| format!("Failed to read file: {}", e))
 }
 
+/// Grootste bestand dat `read_plugin_asset` in één keer teruggeeft (modellen).
+const PLUGIN_ASSET_MAX_BYTES: u64 = 512 * 1024 * 1024;
+
+/// Relatief pad binnen een extensiemap, zonder `..`/`.`-segmenten, absolute
+/// paden, stationsletters of andere `:`, NUL of lege segmenten. Dezelfde regel
+/// als isVeiligAssetPad in js/plugins/plugin-assets.js (#970).
+fn is_veilig_asset_pad(file_path: &str) -> bool {
+    !file_path.is_empty()
+        && file_path.len() <= 512
+        && !file_path.contains('\0')
+        && !file_path.contains(':')
+        && !file_path.starts_with('/')
+        && !file_path.starts_with('\\')
+        && file_path
+            .split(|c| c == '/' || c == '\\')
+            .all(|deel| !deel.is_empty() && deel != "." && deel != "..")
+}
+
+/// Een binair bestand uit de eigen map van een geïnstalleerde extensie
+/// (modellen, WebAssembly; #970): `read_plugin_file` geeft alleen tekst. Zelfde
+/// id-controle; het opgeloste pad (ook na symlinks) moet in de extensiemap
+/// blijven.
+#[tauri::command]
+fn read_plugin_asset(plugin_id: String, file_path: String) -> Result<tauri::ipc::Response, String> {
+    extensie_installatie::controleer_bestaand_id(&plugin_id)?;
+    if !is_veilig_asset_pad(&file_path) {
+        return Err("Invalid file path".to_string());
+    }
+    let plugin_dir = get_plugins_dir().join(&plugin_id);
+    let root = fs::canonicalize(&plugin_dir).map_err(|e| format!("Extension folder not found: {}", e))?;
+    let full_path = fs::canonicalize(plugin_dir.join(&file_path))
+        .map_err(|e| format!("Failed to read file: {}", e))?;
+    if !full_path.starts_with(&root) {
+        return Err("Path traversal detected".to_string());
+    }
+    let meta = fs::metadata(&full_path).map_err(|e| format!("Failed to read file: {}", e))?;
+    if !meta.is_file() {
+        return Err("Not a file".to_string());
+    }
+    if meta.len() > PLUGIN_ASSET_MAX_BYTES {
+        return Err(format!("Asset too large ({} bytes, max {})", meta.len(), PLUGIN_ASSET_MAX_BYTES));
+    }
+    let data = fs::read(&full_path).map_err(|e| format!("Failed to read file: {}", e))?;
+    Ok(tauri::ipc::Response::new(data))
+}
+
 // ─── Allow FS access to a path (for testing / programmatic file opens) ────
 #[tauri::command]
 fn allow_fs_scope(app: tauri::AppHandle, path: String) -> Result<bool, String> {
@@ -2172,6 +2218,9 @@ async fn ocr_pdf_page(
     path: String,
     page_index: u32,
     lang: Option<String>,
+    // Extra draaiing rechtsom (0/90/180/270) vóór de herkenning, voor
+    // verticale tekst (#954); de woorden staan dan in die gedraaide ruimte.
+    rotation: Option<i32>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
 ) -> Result<Vec<ocr::OcrWord>, String> {
@@ -2205,7 +2254,7 @@ async fn ocr_pdf_page(
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
     tauri::async_runtime::spawn_blocking({
-        move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+        move || ocr::ocr_page_words_rotated(handle.document(), page_index, &tessdata_dir, &lang, rotation.unwrap_or(0))
     })
     .await
     .map_err(|e| format!("OCR task panicked: {}", e))?
@@ -3432,6 +3481,7 @@ pub fn run(opts: StartupOpts) {
             install_plugin,
             uninstall_plugin,
             read_plugin_file,
+            read_plugin_asset,
             // Extensies installeren en herladen zonder dialoog (#550)
             extensie_installatie::extensie_lijst,
             extensie_installatie::extensie_inspecteer,

@@ -708,6 +708,8 @@
     "title": "Rozpoznawanie tekstu (OCR)",
     "run": "Rozpoznaj",
     "language": "Język:",
+    "engine": "Silnik:",
+    "builtinEngine": "Tesseract (wbudowany)",
     "info": "{{count}} stron(y) w dokumencie. Dodaje niewidoczną, przeszukiwalną warstwę tekstu — strona wygląda tak samo. W pełni odwracalne za pomocą Cofnij przed zapisaniem.",
     "options": {
       "auto": "Wykrywanie automatyczne",

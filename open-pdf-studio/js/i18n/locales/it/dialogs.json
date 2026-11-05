@@ -708,6 +708,8 @@
     "title": "Riconoscimento testo (OCR)",
     "run": "Riconosci",
     "language": "Lingua:",
+    "engine": "Motore:",
+    "builtinEngine": "Tesseract (integrato)",
     "info": "{{count}} pagina/e nel documento. Aggiunge un livello di testo invisibile e ricercabile — la pagina resta visivamente identica. Completamente reversibile con Annulla prima del salvataggio.",
     "options": {
       "auto": "Rilevamento automatico",

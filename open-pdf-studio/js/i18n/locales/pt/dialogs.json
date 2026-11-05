@@ -708,6 +708,8 @@
     "title": "Reconhecimento de texto (OCR)",
     "run": "Reconhecer",
     "language": "Idioma:",
+    "engine": "Motor:",
+    "builtinEngine": "Tesseract (integrado)",
     "info": "{{count}} página(s) no documento. Adiciona uma camada de texto invisível e pesquisável — a página continua com o mesmo aspeto. Totalmente reversível com Desfazer antes de guardar.",
     "options": {
       "auto": "Deteção automática",

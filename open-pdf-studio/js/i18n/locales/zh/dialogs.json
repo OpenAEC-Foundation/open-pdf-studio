@@ -708,6 +708,8 @@
     "title": "文字識別（OCR）",
     "run": "識別",
     "language": "語言:",
+    "engine": "引擎：",
+    "builtinEngine": "Tesseract（内置）",
     "info": "文件共有 {{count}} 頁。加入一層隱形、可搜尋的文字——頁面外觀維持不變。儲存前可用「復原」完全還原。",
     "options": {
       "auto": "自動偵測",

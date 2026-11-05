@@ -84,7 +84,8 @@ export function clearCachedPdfBytes(filePath) {
 }
 
 // Vite serves/emits the pinned worker with the PostScript progress (#839),
-// zero-size initial font (#878) and XRef stream offset (#638) backports
+// zero-size initial font (#878), XRef stream offset (#638), 32-bit sampled
+// function (#949) and bidi combining-mark (#957) backports
 // (scripts/pdfjs-postscript-progress.mjs).
 // The build hashes the patched bytes; dev retains a same-origin /node_modules/
 // URL so a fresh WebView cannot hit the historical /@fs/ access failure.

@@ -708,6 +708,8 @@
     "title": "Prepoznavanje teksta (OCR)",
     "run": "Prepoznaj",
     "language": "Jezik:",
+    "engine": "Mehanizam:",
+    "builtinEngine": "Tesseract (ugrađeni)",
     "info": "{{count}} stranica u dokumentu. Dodaje nevidljivi, pretraživi tekstualni sloj — stranica izgleda isto. Potpuno poništivo pomoću Poništi prije spremanja.",
     "options": {
       "auto": "Automatsko prepoznavanje",

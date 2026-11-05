@@ -6,6 +6,8 @@ export interface Preferences {
   // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
   // de standaard voor nieuwe installaties) of 'single' (één pagina).
   defaultViewMode: 'continuous' | 'single';
+  // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
+  ocrEngine?: string | null;
 
   // General
   authorName: string;

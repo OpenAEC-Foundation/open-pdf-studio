@@ -394,6 +394,8 @@ js/ui/panels/miniatuur-zoeken.test.mjs
 js/pdf/bron-paginas-kiezen.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
+js/pdf/pagina-labels-verticaal.test.mjs
+js/pdf/ocr-engines.test.mjs
 js/pdf/page-manager-paginalabels.test.mjs
 js/plugins/structured-commands.test.mjs
 js/plugins/system-instance-panels.test.mjs
@@ -410,6 +412,8 @@ js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs
 scripts/pdfjs-postscript-progress.test.mjs
 scripts/pdfjs-xref-offsets.test.mjs
+scripts/pdfjs-sampled-function.test.mjs
+scripts/pdfjs-bidi-marks.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
 js/core/fout-bericht.test.mjs
