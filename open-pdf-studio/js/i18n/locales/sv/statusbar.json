@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Senaste verktyg: {{tool}} kl. {{time}}",
     "noTool": "Inga verktygsanrop ännu"
-  }
+  },
+  "sharedReviewActive": "Delad granskning",
+  "sharedReviewUpdates": "Delad granskning: {{n}} nya",
+  "sharedReviewTitle": "Kommentarer delas via {{folder}}. Klicka för att öppna den delade granskningen.",
+  "sharedReviewError": "Delad granskning: mappen är otillgänglig"
 }

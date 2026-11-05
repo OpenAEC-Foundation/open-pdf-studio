@@ -738,3 +738,6 @@ js/annotations/schaalcontrole-i18n.test.mjs
 js/pdf/schaal-in-pdf.test.mjs
 js/pdf/saver/incrementeel.test.mjs
 js/pdf/incrementeel-opslaan-rondgang.test.mjs
+js/review/shared-review-core.test.mjs
+js/review/shared-review-xfdf.test.mjs
+js/review/shared-review-wiring.test.mjs

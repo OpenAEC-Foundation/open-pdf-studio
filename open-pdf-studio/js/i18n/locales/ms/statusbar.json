@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Alat terakhir: {{tool}} pada {{time}}",
     "noTool": "Belum ada panggilan alat"
-  }
+  },
+  "sharedReviewActive": "Semakan bersama",
+  "sharedReviewUpdates": "Semakan bersama: {{n}} baharu",
+  "sharedReviewTitle": "Anotasi dikongsi melalui {{folder}}. Klik untuk membuka semakan bersama.",
+  "sharedReviewError": "Semakan bersama: folder tidak tersedia"
 }

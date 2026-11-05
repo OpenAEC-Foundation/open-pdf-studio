@@ -157,5 +157,9 @@
     "port": "پورٹ: {{port}}",
     "lastTool": "آخری ٹول: {{tool}}، {{time}}",
     "noTool": "ابھی تک کوئی ٹول کال نہیں"
-  }
+  },
+  "sharedReviewActive": "مشترکہ جائزہ",
+  "sharedReviewUpdates": "مشترکہ جائزہ: {{n}} نئی",
+  "sharedReviewTitle": "تشریحات {{folder}} کے ذریعے شیئر ہو رہی ہیں۔ مشترکہ جائزہ کھولنے کے لیے کلک کریں۔",
+  "sharedReviewError": "مشترکہ جائزہ: فولڈر دستیاب نہیں"
 }

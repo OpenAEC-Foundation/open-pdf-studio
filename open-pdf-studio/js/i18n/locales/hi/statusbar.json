@@ -157,5 +157,9 @@
     "port": "पोर्ट: {{port}}",
     "lastTool": "अंतिम टूल: {{tool}}, {{time}} पर",
     "noTool": "अभी तक कोई टूल कॉल नहीं"
-  }
+  },
+  "sharedReviewActive": "साझा समीक्षा",
+  "sharedReviewUpdates": "साझा समीक्षा: {{n}} नए",
+  "sharedReviewTitle": "एनोटेशन {{folder}} के ज़रिए साझा हो रहे हैं। साझा समीक्षा खोलने के लिए क्लिक करें।",
+  "sharedReviewError": "साझा समीक्षा: फ़ोल्डर उपलब्ध नहीं"
 }

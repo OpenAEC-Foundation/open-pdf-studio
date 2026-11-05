@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Ultimul instrument: {{tool}} la {{time}}",
     "noTool": "Încă nu există apeluri de instrumente"
-  }
+  },
+  "sharedReviewActive": "Revizuire partajată",
+  "sharedReviewUpdates": "Revizuire partajată: {{n}} noi",
+  "sharedReviewTitle": "Adnotările sunt partajate prin {{folder}}. Faceți clic pentru a deschide revizuirea partajată.",
+  "sharedReviewError": "Revizuire partajată: folder indisponibil"
 }

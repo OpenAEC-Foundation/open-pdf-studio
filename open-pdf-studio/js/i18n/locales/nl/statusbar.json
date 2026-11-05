@@ -157,5 +157,9 @@
     "port": "Poort: {{port}}",
     "lastTool": "Laatste tool: {{tool}} om {{time}}",
     "noTool": "Nog geen tool-aanroepen"
-  }
+  },
+  "sharedReviewActive": "Gedeelde beoordeling",
+  "sharedReviewUpdates": "Gedeelde beoordeling: {{n}} nieuw",
+  "sharedReviewTitle": "Annotaties worden gedeeld via {{folder}}. Klik om de gedeelde beoordeling te openen.",
+  "sharedReviewError": "Gedeelde beoordeling: map niet bereikbaar"
 }

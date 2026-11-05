@@ -157,5 +157,9 @@
     "port": "Portti: {{port}}",
     "lastTool": "Viimeisin työkalu: {{tool}} klo {{time}}",
     "noTool": "Ei vielä työkalukutsuja"
-  }
+  },
+  "sharedReviewActive": "Jaettu tarkistus",
+  "sharedReviewUpdates": "Jaettu tarkistus: {{n}} uutta",
+  "sharedReviewTitle": "Merkinnät jaetaan kansion {{folder}} kautta. Avaa jaettu tarkistus napsauttamalla.",
+  "sharedReviewError": "Jaettu tarkistus: kansio ei käytettävissä"
 }

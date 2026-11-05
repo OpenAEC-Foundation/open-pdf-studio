@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Letztes Werkzeug: {{tool}} um {{time}}",
     "noTool": "Noch keine Werkzeugaufrufe"
-  }
+  },
+  "sharedReviewActive": "Gemeinsame Prüfung",
+  "sharedReviewUpdates": "Gemeinsame Prüfung: {{n}} neu",
+  "sharedReviewTitle": "Anmerkungen werden über {{folder}} geteilt. Klicken, um die gemeinsame Prüfung zu öffnen.",
+  "sharedReviewError": "Gemeinsame Prüfung: Ordner nicht erreichbar"
 }

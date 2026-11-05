@@ -157,5 +157,9 @@
     "port": "端口：{{port}}",
     "lastTool": "最近的工具：{{tool}}（{{time}}）",
     "noTool": "尚无工具调用"
-  }
+  },
+  "sharedReviewActive": "共享审阅",
+  "sharedReviewUpdates": "共享审阅：{{n}} 项新更改",
+  "sharedReviewTitle": "批注通过 {{folder}} 共享。点击打开共享审阅。",
+  "sharedReviewError": "共享审阅：文件夹不可用"
 }

@@ -157,5 +157,9 @@
     "port": "Puerto: {{port}}",
     "lastTool": "Última herramienta: {{tool}} a las {{time}}",
     "noTool": "Aún no hay llamadas a herramientas"
-  }
+  },
+  "sharedReviewActive": "Revisión compartida",
+  "sharedReviewUpdates": "Revisión compartida: {{n}} nuevas",
+  "sharedReviewTitle": "Las anotaciones se comparten a través de {{folder}}. Haga clic para abrir la revisión compartida.",
+  "sharedReviewError": "Revisión compartida: carpeta no disponible"
 }

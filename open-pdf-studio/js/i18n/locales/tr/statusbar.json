@@ -157,5 +157,9 @@
     "port": "Bağlantı noktası: {{port}}",
     "lastTool": "Son araç: {{tool}}, {{time}}",
     "noTool": "Henüz araç çağrısı yok"
-  }
+  },
+  "sharedReviewActive": "Paylaşılan inceleme",
+  "sharedReviewUpdates": "Paylaşılan inceleme: {{n}} yeni",
+  "sharedReviewTitle": "Ek açıklamalar {{folder}} üzerinden paylaşılıyor. Paylaşılan incelemeyi açmak için tıklayın.",
+  "sharedReviewError": "Paylaşılan inceleme: klasöre erişilemiyor"
 }

@@ -66,6 +66,7 @@ const ICONS = {
   drawingSets: menuSized(annotationLayersIcon),
   sheetLinks: menuSized(facingPagesIcon),
   approvalRouting: menuSized(stampIcon),
+  sharedReview: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h6l2 2h10v10H3z"/><circle cx="9" cy="14" r="2"/><circle cx="15" cy="14" r="2"/></svg>',
 };
 
 function actionAndClose(fn) {
@@ -149,6 +150,7 @@ export default function AppMenu() {
             <MenuItem icon={ICONS.drawingSets} label={t('drawingSets')} onClick={() => actionAndClose(() => openDialog('drawing-sets'))} />
             <MenuItem icon={ICONS.sheetLinks} label={t('sheetLinks')} onClick={() => actionAndClose(() => openDialog('sheet-links'))} />
             <MenuItem icon={ICONS.approvalRouting} label={t('approvalRouting')} onClick={() => actionAndClose(() => openDialog('approval-routing'))} />
+            <MenuItem icon={ICONS.sharedReview} label={t('sharedReview')} onClick={() => actionAndClose(() => openDialog('shared-review'))} />
             <Divider />
             <MenuItem icon={ICONS.preferences} label={t('preferences')} shortcut={sneltoetsVoor('app.preferences')} onClick={() => actionAndClose(showPreferencesDialog)} />
             <Divider />

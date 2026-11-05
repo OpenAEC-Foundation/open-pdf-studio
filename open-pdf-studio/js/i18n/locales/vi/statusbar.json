@@ -157,5 +157,9 @@
     "port": "Cổng: {{port}}",
     "lastTool": "Công cụ gần nhất: {{tool}} lúc {{time}}",
     "noTool": "Chưa có lệnh gọi công cụ nào"
-  }
+  },
+  "sharedReviewActive": "Xem xét chung",
+  "sharedReviewUpdates": "Xem xét chung: {{n}} mới",
+  "sharedReviewTitle": "Chú thích được chia sẻ qua {{folder}}. Nhấp để mở xem xét chung.",
+  "sharedReviewError": "Xem xét chung: không truy cập được thư mục"
 }

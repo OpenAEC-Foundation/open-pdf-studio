@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Posledný nástroj: {{tool}} o {{time}}",
     "noTool": "Zatiaľ žiadne volania nástrojov"
-  }
+  },
+  "sharedReviewActive": "Zdieľaná revízia",
+  "sharedReviewUpdates": "Zdieľaná revízia: nové {{n}}",
+  "sharedReviewTitle": "Poznámky sa zdieľajú cez {{folder}}. Kliknutím otvoríte zdieľanú revíziu.",
+  "sharedReviewError": "Zdieľaná revízia: priečinok nedostupný"
 }

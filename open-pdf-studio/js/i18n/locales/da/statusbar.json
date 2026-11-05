@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Seneste værktøj: {{tool}} kl. {{time}}",
     "noTool": "Ingen værktøjskald endnu"
-  }
+  },
+  "sharedReviewActive": "Delt gennemgang",
+  "sharedReviewUpdates": "Delt gennemgang: {{n}} nye",
+  "sharedReviewTitle": "Annoteringer deles via {{folder}}. Klik for at åbne den delte gennemgang.",
+  "sharedReviewError": "Delt gennemgang: mappe utilgængelig"
 }

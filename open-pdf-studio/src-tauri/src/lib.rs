@@ -63,6 +63,7 @@ pub mod spraak;
 pub mod scanner;
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 pub mod scanner_cmd;
+pub mod shared_review;
 // Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
@@ -3455,6 +3456,9 @@ pub fn run(opts: StartupOpts) {
             write_file_atomic,
             cancel_file_write,
             write_file_new,
+            shared_review::shared_review_list,
+            shared_review::shared_review_read,
+            shared_review::shared_review_write,
             write_downloaded_file_new,
             file_exists,
             open_url,

@@ -157,5 +157,9 @@
     "port": "Mlango: {{port}}",
     "lastTool": "Zana ya mwisho: {{tool}} saa {{time}}",
     "noTool": "Bado hakuna miito ya zana"
-  }
+  },
+  "sharedReviewActive": "Ukaguzi wa pamoja",
+  "sharedReviewUpdates": "Ukaguzi wa pamoja: {{n}} mapya",
+  "sharedReviewTitle": "Maelezo yanashirikiwa kupitia {{folder}}. Bofya ili kufungua ukaguzi wa pamoja.",
+  "sharedReviewError": "Ukaguzi wa pamoja: folda haipatikani"
 }

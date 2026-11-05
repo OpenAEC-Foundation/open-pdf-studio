@@ -157,5 +157,9 @@
     "port": "المنفذ: {{port}}",
     "lastTool": "آخر أداة: {{tool}} في {{time}}",
     "noTool": "لا توجد استدعاءات أدوات بعد"
-  }
+  },
+  "sharedReviewActive": "مراجعة مشتركة",
+  "sharedReviewUpdates": "مراجعة مشتركة: {{n}} جديدة",
+  "sharedReviewTitle": "تُشارك التعليقات عبر {{folder}}. انقر لفتح المراجعة المشتركة.",
+  "sharedReviewError": "مراجعة مشتركة: المجلد غير متاح"
 }

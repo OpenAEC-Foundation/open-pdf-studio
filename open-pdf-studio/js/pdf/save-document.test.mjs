@@ -80,6 +80,8 @@ function harness() {
     bestandsnaamUitPad,
     // Herstelmomentopname weg na opslaan (js/herstel/haken.js).
     meldOpgeslagen: doc => opgeslagenGemeld.push(doc),
+    // Gedeelde beoordeling (#237): zonder beoordeling de annotaties van het document.
+    annotationsForSharedReviewSave: doc => doc?.annotations || [], afterPdfSaved() {},
     console: { error() {}, warn() {} },
     saveFileDialog: async () => 'copy.pdf',
     // Opslaan als op de gastsite (#726): hier geen site.

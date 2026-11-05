@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Utolsó eszköz: {{tool}}, {{time}}",
     "noTool": "Még nem volt eszközhívás"
-  }
+  },
+  "sharedReviewActive": "Közös véleményezés",
+  "sharedReviewUpdates": "Közös véleményezés: {{n}} új",
+  "sharedReviewTitle": "A megjegyzések megosztása ezen keresztül történik: {{folder}}. Kattintson a közös véleményezés megnyitásához.",
+  "sharedReviewError": "Közös véleményezés: a mappa nem érhető el"
 }

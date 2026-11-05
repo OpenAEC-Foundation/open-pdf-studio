@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Última eina: {{tool}} a les {{time}}",
     "noTool": "Encara no hi ha crides a eines"
-  }
+  },
+  "sharedReviewActive": "Revisió compartida",
+  "sharedReviewUpdates": "Revisió compartida: {{n}} noves",
+  "sharedReviewTitle": "Les anotacions es comparteixen a través de {{folder}}. Feu clic per obrir la revisió compartida.",
+  "sharedReviewError": "Revisió compartida: carpeta no disponible"
 }

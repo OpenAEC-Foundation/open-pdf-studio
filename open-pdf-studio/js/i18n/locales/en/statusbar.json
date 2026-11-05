@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Last tool: {{tool}} at {{time}}",
     "noTool": "No tool calls yet"
-  }
+  },
+  "sharedReviewActive": "Shared review",
+  "sharedReviewUpdates": "Shared review: {{n}} new",
+  "sharedReviewTitle": "Annotations are shared through {{folder}}. Click to open the shared review.",
+  "sharedReviewError": "Shared review: folder unavailable"
 }

@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Siste verktøy: {{tool}} kl. {{time}}",
     "noTool": "Ingen verktøykall ennå"
-  }
+  },
+  "sharedReviewActive": "Delt gjennomgang",
+  "sharedReviewUpdates": "Delt gjennomgang: {{n}} nye",
+  "sharedReviewTitle": "Merknader deles via {{folder}}. Klikk for å åpne den delte gjennomgangen.",
+  "sharedReviewError": "Delt gjennomgang: mappen er utilgjengelig"
 }

@@ -157,5 +157,9 @@
     "port": "Port: {{port}}",
     "lastTool": "Poslední nástroj: {{tool}} v {{time}}",
     "noTool": "Zatím žádná volání nástrojů"
-  }
+  },
+  "sharedReviewActive": "Sdílená revize",
+  "sharedReviewUpdates": "Sdílená revize: nové {{n}}",
+  "sharedReviewTitle": "Poznámky jsou sdíleny přes {{folder}}. Kliknutím otevřete sdílenou revizi.",
+  "sharedReviewError": "Sdílená revize: složka nedostupná"
 }
