@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "La:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Allinea alla pagina",
+    "alignToPageTip": "Allinea la selezione ai bordi o al centro della pagina (anche con una sola annotazione)",
+    "alignPageEach": "Allinea ogni annotazione separatamente",
+    "alignPageEachTip": "Con Allinea alla pagina: ogni annotazione va da sola al bordo invece che come gruppo"
   },
   "theme": {
     "system": "Sistema (Automatico)",

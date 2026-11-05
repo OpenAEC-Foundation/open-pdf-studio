@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "An Seite ausrichten",
+    "alignToPageTip": "Auswahl an den Rändern oder der Mitte der Seite ausrichten (auch mit einer Markierung)",
+    "alignPageEach": "Jede Markierung einzeln ausrichten",
+    "alignPageEachTip": "Bei An Seite ausrichten: jede Markierung einzeln statt als Gruppe an den Seitenrand"
   },
   "theme": {
     "system": "System (Automatisch)",

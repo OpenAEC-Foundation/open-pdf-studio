@@ -501,7 +501,11 @@
     "x": "X :",
     "w": "L :",
     "y": "Y :",
-    "h": "H :"
+    "h": "H :",
+    "alignToPage": "Aligner sur la page",
+    "alignToPageTip": "Aligner la sélection sur les bords ou le centre de la page (fonctionne aussi avec une seule annotation)",
+    "alignPageEach": "Aligner chaque annotation séparément",
+    "alignPageEachTip": "Avec Aligner sur la page : chaque annotation est placée seule contre le bord, et non en groupe"
   },
   "theme": {
     "system": "Système (Automatique)",

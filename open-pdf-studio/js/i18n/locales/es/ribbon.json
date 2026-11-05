@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "An:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Alinear a la página",
+    "alignToPageTip": "Alinear la selección a los bordes o al centro de la página (también con una sola marca)",
+    "alignPageEach": "Alinear cada marca por separado",
+    "alignPageEachTip": "Con Alinear a la página: cada marca va sola al borde, no como grupo"
   },
   "theme": {
     "system": "Sistema (Autodetectar)",

@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "La:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Alinhar à página",
+    "alignToPageTip": "Alinhar a seleção às margens ou ao centro da página (também com uma só marcação)",
+    "alignPageEach": "Alinhar cada marcação separadamente",
+    "alignPageEachTip": "Com Alinhar à página: cada marcação vai sozinha para a margem, não em grupo"
   },
   "theme": {
     "system": "Sistema (Automático)",

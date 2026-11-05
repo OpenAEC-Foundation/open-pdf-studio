@@ -678,3 +678,4 @@ js/solid/components/titlebar-afsluiten.test.mjs
 js/pdf/pagina-viewport.test.mjs
 js/annotations/plak-bij-muis.test.mjs
 js/annotations/klembord-lijst.test.mjs
+js/annotations/uitlijnen-pagina.test.mjs

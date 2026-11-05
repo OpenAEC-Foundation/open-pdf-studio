@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "Ш:",
     "y": "Y:",
-    "h": "В:"
+    "h": "В:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Системна (Автоматично)",

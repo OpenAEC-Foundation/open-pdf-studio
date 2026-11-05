@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Uitlijnen op pagina",
+    "alignToPageTip": "Selectie uitlijnen op de randen of het midden van de pagina (werkt ook met een markering)",
+    "alignPageEach": "Elke markering apart uitlijnen",
+    "alignPageEachTip": "Bij Uitlijnen op pagina: elke markering apart tegen de paginarand in plaats van als groep"
   },
   "common": {
     "comingSoon": "Binnenkort beschikbaar",
