@@ -739,3 +739,4 @@ js/review/shared-review-wiring.test.mjs
 js/pdf/pdfa/pdfa.test.mjs
 js/tools/text-edit-esc.test.mjs
 js/pdf/pagina-uittreksel.test.mjs
+js/pdf/ocr-laag.test.mjs

@@ -3752,7 +3752,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         );
       }
     }
-    if (ocrUitkomst && activeDoc) activeDoc.ocrLayerSignature = ocrUitkomst.signature;
+    if (ocrUitkomst && activeDoc) {
+      activeDoc.ocrLayerSignature = ocrUitkomst.signature;
+      // Welke herkende woorden nu in het geladen document staan: zoeken neemt
+      // alleen de rest uit het geheugen mee (ocr-laag.js, #880).
+      activeDoc.ocrLaagInBestand = ocrUitkomst.pageSignatures;
+    }
 
     // Opgeslagen in het bestand dat ook de weergave is: daar staan de
     // kop-/voetteksten nu in, en het scherm tekent ze zelf. Herladen zonder

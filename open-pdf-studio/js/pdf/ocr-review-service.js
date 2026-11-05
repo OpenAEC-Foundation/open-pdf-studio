@@ -9,6 +9,7 @@ import {
   readOcrReview, reviewQueue, archivedReviewQueue, sortQueue, reviewWord, unencodableCharacters,
 } from './ocr-review.js';
 import { laadFontkit, loadDefaultOcrFontBytes } from './saver/ocr-text-layer.js';
+import { ocrPaginaSignaturen } from './ocr-laag.js';
 
 let codePointsPromise = null;
 
@@ -52,6 +53,9 @@ async function documentFor(id) {
       const { complete, reviewsOnly } = readOcrReview(parsed);
       doc.ocrResults = complete;
       doc.ocrReviewArchive = reviewsOnly;
+      // Deze woorden komen uit het bestand: hun laag staat er al in (zoeken
+      // neemt ze dan niet nog eens uit het geheugen mee, ocr-laag.js).
+      doc.ocrLaagInBestand = ocrPaginaSignaturen(complete);
     }
   }
   return doc;
