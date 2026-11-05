@@ -773,5 +773,16 @@
       "mep": "Instalações prediais (MEP)",
       "infra": "Infraestrutura"
     }
+  },
+  "clipboardPalette": {
+    "title": "Área de transferência",
+    "tip": "Clique numa cópia e prima Ctrl+V na folha: fica no rato.",
+    "empty": "Copie marcações (Ctrl+C) para as reunir aqui.",
+    "clear": "Limpar a área de transferência",
+    "clearShort": "Limpar",
+    "remove": "Remover",
+    "close": "Fechar",
+    "markups": "{{count}} marcações",
+    "picked": "A cópia está na área de transferência: prima Ctrl+V na folha"
   }
 }

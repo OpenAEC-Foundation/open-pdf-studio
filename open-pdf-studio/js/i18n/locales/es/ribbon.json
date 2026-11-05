@@ -773,5 +773,16 @@
       "mep": "Instalaciones (MEP)",
       "infra": "Infraestructura"
     }
+  },
+  "clipboardPalette": {
+    "title": "Portapapeles",
+    "tip": "Haga clic en una copia y pulse Ctrl+V en la hoja: aparece en el ratón.",
+    "empty": "Copie marcas (Ctrl+C) para reunirlas aquí.",
+    "clear": "Vaciar el portapapeles",
+    "clearShort": "Vaciar",
+    "remove": "Quitar",
+    "close": "Cerrar",
+    "markups": "{{count}} marcas",
+    "picked": "La copia está en el portapapeles: pulse Ctrl+V en la hoja"
   }
 }

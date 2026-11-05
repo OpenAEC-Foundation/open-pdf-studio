@@ -773,5 +773,16 @@
       "mep": "Gebäudetechnik (TGA)",
       "infra": "Infrastruktur"
     }
+  },
+  "clipboardPalette": {
+    "title": "Zwischenablage",
+    "tip": "Kopie anklicken, dann Strg+V auf dem Blatt: sie landet am Mauszeiger.",
+    "empty": "Markierungen kopieren (Strg+C), um sie hier zu sammeln.",
+    "clear": "Zwischenablage leeren",
+    "clearShort": "Leeren",
+    "remove": "Entfernen",
+    "close": "Schließen",
+    "markups": "{{count}} Markierungen",
+    "picked": "Kopie liegt in der Zwischenablage: Strg+V auf dem Blatt drücken"
   }
 }

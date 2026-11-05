@@ -15,6 +15,7 @@ import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } fr
 import { annotationBounds } from './spatial-index.js';
 import { applyMoveGeneric } from './transforms.js';
 import { omhullendKader, centreerVerschuiving, puntOpPagina } from './plak-bij-muis.js';
+import { addToClipboardHistory } from './clipboard-history.js';
 
 // ── Plakken bij de muis (#928) ───────────────────────────────────────────
 // Ctrl+V legt wat geplakt wordt gecentreerd op de muis wanneer de muis boven
@@ -64,12 +65,13 @@ function centreerOp(kopieen, plek) {
 }
 
 // Copy annotation to internal clipboard
-export function copyAnnotation(annotation) {
+export function copyAnnotation(annotation, { geschiedenis = true } = {}) {
   // Voor de plak-voorrangsregel: intern klembord is alleen 'verser' dan het
   // systeemklembord zolang de app sindsdien niet uit focus is geweest.
   state._internalCopyAt = Date.now();
   state.clipboardAnnotation = cloneAnnotation(annotation);
   state.clipboardAnnotations = null;
+  if (geschiedenis) addToClipboardHistory([annotation]);
   // Reset the paste cascade so the first paste lands one step from the source
   // and each subsequent paste steps a further step (instead of every paste
   // stacking on the exact same spot, which made repeated Ctrl+V look like it
@@ -331,8 +333,9 @@ export function duplicateAnnotation() {
   const _dupDoc = getActiveDocument();
   if (!_dupDoc?.selectedAnnotation) return;
 
-  // Dupliceren volgt de cascade, niet de muis.
-  copyAnnotation(_dupDoc.selectedAnnotation);
+  // Dupliceren is geen kopieeractie van de gebruiker: niet in de
+  // klembordgeschiedenis, en de kopie volgt de cascade, niet de muis.
+  copyAnnotation(_dupDoc.selectedAnnotation, { geschiedenis: false });
   pasteAnnotation({ bijMuis: false });
 }
 
@@ -344,6 +347,7 @@ export function copyAnnotations(annotations) {
   if (!annotations || annotations.length === 0) return;
   state.clipboardAnnotations = annotations.map(a => cloneAnnotation(a));
   state.clipboardAnnotation = state.clipboardAnnotations[0]; // backward compat
+  addToClipboardHistory(annotations);
   state._pasteSeq = 0; // reset paste cascade (see copyAnnotation)
   updateStatusMessage(`${annotations.length} annotations copied`);
 }

@@ -773,5 +773,16 @@
       "mep": "Impianti tecnici (MEP)",
       "infra": "Infrastrutture"
     }
+  },
+  "clipboardPalette": {
+    "title": "Appunti",
+    "tip": "Fai clic su una copia, poi premi Ctrl+V sul foglio: viene incollata sotto il mouse.",
+    "empty": "Copia le annotazioni (Ctrl+C) per raccoglierle qui.",
+    "clear": "Svuota gli appunti",
+    "clearShort": "Svuota",
+    "remove": "Rimuovi",
+    "close": "Chiudi",
+    "markups": "{{count}} annotazioni",
+    "picked": "La copia è negli appunti: premi Ctrl+V sul foglio"
   }
 }
