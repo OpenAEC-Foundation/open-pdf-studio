@@ -922,5 +922,9 @@
     "open": "Apri",
     "saveAs": "Salva con nome...",
     "noContent": "Il contenuto di questo file non è incorporato nel PDF."
+  },
+  "sectionOrder": {
+    "reset": "Ripristina l'ordine delle sezioni",
+    "dragHint": "Fai clic per comprimere o espandere. Trascina per spostare la sezione (o Alt+Su/Giù)."
   }
 }

@@ -922,5 +922,9 @@
     "open": "Openen",
     "saveAs": "Opslaan als...",
     "noContent": "De inhoud van dit bestand is niet in de PDF ingesloten."
+  },
+  "sectionOrder": {
+    "reset": "Sectievolgorde herstellen",
+    "dragHint": "Klik om in of uit te klappen. Sleep om de sectie te verplaatsen (of Alt+pijl omhoog/omlaag)."
   }
 }

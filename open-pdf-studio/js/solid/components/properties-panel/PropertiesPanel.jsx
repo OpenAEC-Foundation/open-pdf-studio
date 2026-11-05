@@ -1,4 +1,4 @@
-import { Show, onMount } from 'solid-js';
+import { Show, For, onMount } from 'solid-js';
 import { panelVisible, panelCollapsed, setPanelCollapsed, annotProps, sectionVis, updateAnnotProp, cycleSelectNext, nativePanelHidden, hydrateCollapsedSections, getCurrentAnnotation, SCHAALBALK_MIN_HOOGTE_PT } from '../../stores/propertiesStore.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
@@ -33,6 +33,7 @@ import StavenreeksSection from './StavenreeksSection.jsx';
 import WallSection from './WallSection.jsx';
 import BetonbalkSection from './BetonbalkSection.jsx';
 import SysteemrasterSection from './SysteemrasterSection.jsx';
+import { SectieContext, sectieVolgorde, zetStandaardSectieVolgorde } from '../../stores/sectieVolgordeStore.js';
 
 // "Meet op tekening" for an EXISTING scale region: temporary 2-click
 // distance pick → small "real length" dialog → the region's scale is
@@ -51,6 +52,221 @@ function measureScaleOnDrawing() {
     },
     onCancel: () => {},
   });
+}
+
+// Losse secties die direct in het paneel stonden; als component zodat ze in
+// de verplaatsbare sectielijst passen (#967).
+function ViewportSection() {
+  return (
+    <Show when={annotProps.annotationType === 'viewport'}>
+      <CollapsibleSection title="Viewport" name="viewport" id="prop-viewport-section">
+        <div class="property-group">
+          <label>Name</label>
+          <input type="text"
+            value={annotProps.viewportName || ''}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('viewportName', e.target.value)}
+          />
+        </div>
+        <div class="property-group">
+          <label>Scale</label>
+          <select
+            value={annotProps.viewportScaleRatio ? annotProps.viewportScaleRatio.replace('1:', '') : '100'}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('viewportScaleRatio', e.target.value)}
+          >
+            {[10,20,25,50,75,100,125,150,200,250,300,400,500,750,1000,1250,2000,2500,5000].map(r =>
+              <option value={r}>1:{r}</option>
+            )}
+          </select>
+        </div>
+        <div class="property-group">
+          <label>Unit</label>
+          <select
+            value={annotProps.viewportUnit || 'mm'}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('viewportUnit', e.target.value)}
+          >
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+            <option value="m">m</option>
+            <option value="in">in</option>
+            <option value="ft">ft</option>
+          </select>
+        </div>
+      </CollapsibleSection>
+    </Show>
+  );
+}
+
+function ScaleRegionSection() {
+  const { t } = useTranslation('properties');
+  return (
+    <Show when={annotProps.annotationType === 'scaleRegion'}>
+      <CollapsibleSection title={t('scaleRegion.title') || 'Scale Region'} name="scaleRegion" id="prop-scaleregion-section">
+        <div class="property-group">
+          <label>{t('scaleRegion.label') || 'Label'}</label>
+          <input type="text"
+            value={annotProps.scaleRegionLabel || ''}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleRegionLabel', e.target.value)}
+          />
+        </div>
+        <div class="property-group">
+          <label>{t('scaleRegion.scale') || 'Scale'}</label>
+          <select
+            value={annotProps.scaleRegionScale || '1:100'}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleRegionScale', e.target.value)}
+          >
+            {(() => {
+              // Standard drawing scales; prepend the region's current
+              // value when it's a custom one so the select never
+              // shows blank.
+              const presets = ['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1'];
+              const cur = annotProps.scaleRegionScale || '1:100';
+              const list = presets.includes(cur) ? presets : [cur, ...presets];
+              return list.map(s => <option value={s}>{s}</option>);
+            })()}
+          </select>
+        </div>
+        <div class="property-group">
+          <button class="pref-btn" style="width:100%"
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onClick={measureScaleOnDrawing}>
+            {t('scaleRegion.measure') || 'Meet op tekening'}
+          </button>
+        </div>
+        <div class="property-group">
+          <label>{t('scaleRegion.unit') || 'Unit'}</label>
+          <select
+            value={annotProps.scaleRegionUnits || 'mm'}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleRegionUnits', e.target.value)}
+          >
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+            <option value="m">m</option>
+            <option value="in">in</option>
+            <option value="ft">ft</option>
+          </select>
+        </div>
+        {/* Real-world size of the region itself, in its own scale +
+            units — editable, resizes the region (top-left anchored). */}
+        <div class="property-group">
+          <label>Breedte ({annotProps.scaleRegionUnits || 'mm'})</label>
+          <input type="text" inputmode="decimal" data-getal step="1" min="1"
+            value={annotProps.scaleRegionWidth ?? ''}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleRegionWidth', e.target.value)}
+          />
+        </div>
+        <div class="property-group">
+          <label>Hoogte ({annotProps.scaleRegionUnits || 'mm'})</label>
+          <input type="text" inputmode="decimal" data-getal step="1" min="1"
+            value={annotProps.scaleRegionHeight ?? ''}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleRegionHeight', e.target.value)}
+          />
+        </div>
+      </CollapsibleSection>
+    </Show>
+  );
+}
+
+function ScaleBarSection() {
+  const { t } = useTranslation('properties');
+  return (
+    <Show when={sectionVis.scaleBar}>
+      <CollapsibleSection title={t('scaleBar.title')} name="scaleBar" id="prop-scalebar-section">
+        <div class="property-group">
+          <label>{t('scaleBar.unit')}</label>
+          <select value={annotProps.scaleBarUnit}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onDblClick={cycleSelectNext}
+            onChange={(e) => updateAnnotProp('scaleBarUnit', e.target.value)}>
+            <option value="mm">mm</option>
+            <option value="cm">cm</option>
+            <option value="m">m</option>
+            <option value="in">in</option>
+            <option value="ft">ft</option>
+          </select>
+        </div>
+        <div class="property-group">
+          <label>{t('scaleBar.totalLength')}</label>
+          <input type="text" inputmode="decimal" data-getal step="1" min="1"
+            value={annotProps.scaleBarTotalUnits}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleBarTotalUnits', e.target.value)}
+          />
+        </div>
+        <div class="property-group">
+          <label>{t('scaleBar.divisions')}</label>
+          <input type="text" inputmode="decimal" data-getal step="1" min="1" max="20"
+            value={annotProps.scaleBarDivisions}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onChange={(e) => updateAnnotProp('scaleBarDivisions', e.target.value)}
+          />
+        </div>
+        {/* Balkhoogte is een papiermaat: in de gekozen eenheid (#598),
+            in het model paginapunten (4 pt of meer). */}
+        <div class="property-group">
+          <label>{t('scaleBar.barHeight')}</label>
+          <PapierMaatInvoer pt={() => annotProps.scaleBarHeight} bron={() => annotProps.id}
+            disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
+            onWijzig={(tekst) => {
+              const pt = leesInvoerInEenheid(tekst, papierEenheid(), { min: SCHAALBALK_MIN_HOOGTE_PT });
+              if (pt != null) updateAnnotProp('scaleBarHeight', pt);
+            }}
+          />
+          <PapierEenheidKeuze />
+        </div>
+      </CollapsibleSection>
+    </Show>
+  );
+}
+
+// Verplaatsbare secties (#967) in hun standaardvolgorde. De gebruiker sleept
+// een sectiekop naar een andere plek; die volgorde geldt voor elke soort
+// annotatie (secties die een soort niet heeft, tonen gewoon niets).
+const SECTIES = [
+  ['general', GeneralSection],
+  ['location', LocationSection],
+  ['replies', RepliesSection],
+  ['appearance', AppearanceSection],
+  ['hatchPattern', HatchPatternSection],
+  ['lineEndings', LineEndingsSection],
+  ['ink', InkSection],
+  ['dimensions', DimensionsSection],
+  ['measurement', MeasurementSection],
+  ['viewport', ViewportSection],
+  ['scaleRegion', ScaleRegionSection],
+  ['scaleBar', ScaleBarSection],
+  ['parametricSymbol', ParametricSymbolSection],
+  ['gevelelement', GevelelementSection],
+  ['stavenreeks', StavenreeksSection],
+  ['wall', WallSection],
+  ['betonbalk', BetonbalkSection],
+  ['systeemraster', SysteemrasterSection],
+  ['textFormat', TextFormatSection],
+  ['paragraph', ParagraphSection],
+  ['content', ContentSection],
+  ['image', ImageSection],
+];
+const SECTIE_COMPONENT = new Map(SECTIES);
+zetStandaardSectieVolgorde(SECTIES.map(([k]) => k));
+
+function VerplaatsbareSecties() {
+  return (
+    <For each={sectieVolgorde()}>
+      {(sleutel) => {
+        const Sectie = SECTIE_COMPONENT.get(sleutel);
+        return Sectie
+          ? <SectieContext.Provider value={sleutel}><Sectie /></SectieContext.Provider>
+          : null;
+      }}
+    </For>
+  );
 }
 
 export default function PropertiesPanel() {
@@ -79,178 +295,7 @@ export default function PropertiesPanel() {
             <DocInfoView />
             {/* Dimension type selector pinned at the very top for maatlijnen */}
             <DimensionTypeSection />
-            <GeneralSection />
-            <LocationSection />
-            <RepliesSection />
-            <AppearanceSection />
-            <HatchPatternSection />
-            <LineEndingsSection />
-            <InkSection />
-            <DimensionsSection />
-            <MeasurementSection />
-            <Show when={annotProps.annotationType === 'viewport'}>
-              <CollapsibleSection title="Viewport" name="viewport" id="prop-viewport-section">
-                <div class="property-group">
-                  <label>Name</label>
-                  <input type="text"
-                    value={annotProps.viewportName || ''}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('viewportName', e.target.value)}
-                  />
-                </div>
-                <div class="property-group">
-                  <label>Scale</label>
-                  <select
-                    value={annotProps.viewportScaleRatio ? annotProps.viewportScaleRatio.replace('1:', '') : '100'}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('viewportScaleRatio', e.target.value)}
-                  >
-                    {[10,20,25,50,75,100,125,150,200,250,300,400,500,750,1000,1250,2000,2500,5000].map(r =>
-                      <option value={r}>1:{r}</option>
-                    )}
-                  </select>
-                </div>
-                <div class="property-group">
-                  <label>Unit</label>
-                  <select
-                    value={annotProps.viewportUnit || 'mm'}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('viewportUnit', e.target.value)}
-                  >
-                    <option value="mm">mm</option>
-                    <option value="cm">cm</option>
-                    <option value="m">m</option>
-                    <option value="in">in</option>
-                    <option value="ft">ft</option>
-                  </select>
-                </div>
-              </CollapsibleSection>
-            </Show>
-            <Show when={annotProps.annotationType === 'scaleRegion'}>
-              <CollapsibleSection title={t('scaleRegion.title') || 'Scale Region'} name="scaleRegion" id="prop-scaleregion-section">
-                <div class="property-group">
-                  <label>{t('scaleRegion.label') || 'Label'}</label>
-                  <input type="text"
-                    value={annotProps.scaleRegionLabel || ''}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleRegionLabel', e.target.value)}
-                  />
-                </div>
-                <div class="property-group">
-                  <label>{t('scaleRegion.scale') || 'Scale'}</label>
-                  <select
-                    value={annotProps.scaleRegionScale || '1:100'}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleRegionScale', e.target.value)}
-                  >
-                    {(() => {
-                      // Standard drawing scales; prepend the region's current
-                      // value when it's a custom one so the select never
-                      // shows blank.
-                      const presets = ['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1'];
-                      const cur = annotProps.scaleRegionScale || '1:100';
-                      const list = presets.includes(cur) ? presets : [cur, ...presets];
-                      return list.map(s => <option value={s}>{s}</option>);
-                    })()}
-                  </select>
-                </div>
-                <div class="property-group">
-                  <button class="pref-btn" style="width:100%"
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onClick={measureScaleOnDrawing}>
-                    {t('scaleRegion.measure') || 'Meet op tekening'}
-                  </button>
-                </div>
-                <div class="property-group">
-                  <label>{t('scaleRegion.unit') || 'Unit'}</label>
-                  <select
-                    value={annotProps.scaleRegionUnits || 'mm'}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleRegionUnits', e.target.value)}
-                  >
-                    <option value="mm">mm</option>
-                    <option value="cm">cm</option>
-                    <option value="m">m</option>
-                    <option value="in">in</option>
-                    <option value="ft">ft</option>
-                  </select>
-                </div>
-                {/* Real-world size of the region itself, in its own scale +
-                    units — editable, resizes the region (top-left anchored). */}
-                <div class="property-group">
-                  <label>Breedte ({annotProps.scaleRegionUnits || 'mm'})</label>
-                  <input type="text" inputmode="decimal" data-getal step="1" min="1"
-                    value={annotProps.scaleRegionWidth ?? ''}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleRegionWidth', e.target.value)}
-                  />
-                </div>
-                <div class="property-group">
-                  <label>Hoogte ({annotProps.scaleRegionUnits || 'mm'})</label>
-                  <input type="text" inputmode="decimal" data-getal step="1" min="1"
-                    value={annotProps.scaleRegionHeight ?? ''}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleRegionHeight', e.target.value)}
-                  />
-                </div>
-              </CollapsibleSection>
-            </Show>
-            <Show when={sectionVis.scaleBar}>
-              <CollapsibleSection title={t('scaleBar.title')} name="scaleBar" id="prop-scalebar-section">
-                <div class="property-group">
-                  <label>{t('scaleBar.unit')}</label>
-                  <select value={annotProps.scaleBarUnit}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onDblClick={cycleSelectNext}
-                    onChange={(e) => updateAnnotProp('scaleBarUnit', e.target.value)}>
-                    <option value="mm">mm</option>
-                    <option value="cm">cm</option>
-                    <option value="m">m</option>
-                    <option value="in">in</option>
-                    <option value="ft">ft</option>
-                  </select>
-                </div>
-                <div class="property-group">
-                  <label>{t('scaleBar.totalLength')}</label>
-                  <input type="text" inputmode="decimal" data-getal step="1" min="1"
-                    value={annotProps.scaleBarTotalUnits}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleBarTotalUnits', e.target.value)}
-                  />
-                </div>
-                <div class="property-group">
-                  <label>{t('scaleBar.divisions')}</label>
-                  <input type="text" inputmode="decimal" data-getal step="1" min="1" max="20"
-                    value={annotProps.scaleBarDivisions}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleBarDivisions', e.target.value)}
-                  />
-                </div>
-                {/* Balkhoogte is een papiermaat: in de gekozen eenheid (#598),
-                    in het model paginapunten (4 pt of meer). */}
-                <div class="property-group">
-                  <label>{t('scaleBar.barHeight')}</label>
-                  <PapierMaatInvoer pt={() => annotProps.scaleBarHeight} bron={() => annotProps.id}
-                    disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onWijzig={(tekst) => {
-                      const pt = leesInvoerInEenheid(tekst, papierEenheid(), { min: SCHAALBALK_MIN_HOOGTE_PT });
-                      if (pt != null) updateAnnotProp('scaleBarHeight', pt);
-                    }}
-                  />
-                  <PapierEenheidKeuze />
-                </div>
-              </CollapsibleSection>
-            </Show>
-            <ParametricSymbolSection />
-            <GevelelementSection />
-            <StavenreeksSection />
-            <WallSection />
-            <BetonbalkSection />
-            <SysteemrasterSection />
-            <TextFormatSection />
-            <ParagraphSection />
-            <ContentSection />
-            <ImageSection />
+            <VerplaatsbareSecties />
             <CustomFieldsSection />
             <CustomPluginPanel />
             <ScopedInstancePanels />

@@ -928,5 +928,9 @@
     "open": "Obre",
     "saveAs": "Desa com a...",
     "noContent": "El contingut d'aquest fitxer no està incrustat al PDF."
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

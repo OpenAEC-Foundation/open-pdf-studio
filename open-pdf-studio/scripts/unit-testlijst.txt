@@ -679,3 +679,4 @@ js/pdf/pagina-viewport.test.mjs
 js/annotations/plak-bij-muis.test.mjs
 js/annotations/klembord-lijst.test.mjs
 js/annotations/uitlijnen-pagina.test.mjs
+js/solid/components/properties-panel/sectie-volgorde.test.mjs

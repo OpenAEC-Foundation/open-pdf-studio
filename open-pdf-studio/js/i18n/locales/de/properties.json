@@ -922,5 +922,9 @@
     "open": "Öffnen",
     "saveAs": "Speichern unter...",
     "noContent": "Der Inhalt dieser Datei ist nicht in die PDF eingebettet."
+  },
+  "sectionOrder": {
+    "reset": "Abschnittsreihenfolge zurücksetzen",
+    "dragHint": "Klicken zum Ein- oder Ausklappen. Ziehen, um den Abschnitt zu verschieben (oder Alt+Pfeil auf/ab)."
   }
 }

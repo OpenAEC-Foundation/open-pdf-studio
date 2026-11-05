@@ -881,3 +881,17 @@
   line-height: 1.4;
   color: var(--theme-warning, #9a6700);
 }
+
+/* Secties verslepen (#967): de gesleepte sectie vervaagt, een lijn toont
+   waar hij landt. De cursor blijft de standaardcursor. */
+.property-section.sectie-sleept { opacity: 0.5; }
+.property-section.sectie-drop-voor > .property-section-header {
+  box-shadow: inset 0 2px 0 0 var(--theme-accent, #0078d4);
+}
+.property-section.sectie-drop-na {
+  box-shadow: inset 0 -2px 0 0 var(--theme-accent, #0078d4);
+}
+.property-section-header:focus-visible {
+  outline: 1px dotted var(--theme-text, #333);
+  outline-offset: -2px;
+}
