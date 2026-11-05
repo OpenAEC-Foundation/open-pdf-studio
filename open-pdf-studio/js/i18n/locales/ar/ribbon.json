@@ -468,6 +468,8 @@
     "alignTo": "محاذاة إلى",
     "alignToSelection": "محاذاة إلى التحديد",
     "alignToLastSelected": "محاذاة إلى آخر عنصر محدد",
+    "alignToPage": "محاذاة إلى الصفحة",
+    "alignToPageIndividually": "محاذاة كل عنصر إلى الصفحة",
     "distribute": "توزيع",
     "spaceHorizontally": "توزيع أفقي",
     "spaceH": "أفقي",

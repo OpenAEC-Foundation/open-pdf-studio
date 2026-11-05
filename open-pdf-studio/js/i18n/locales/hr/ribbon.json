@@ -468,6 +468,8 @@
     "alignTo": "Poravnaj prema",
     "alignToSelection": "Poravnaj prema odabiru",
     "alignToLastSelected": "Poravnaj prema zadnjem odabranom",
+    "alignToPage": "Poravnaj sa stranicom",
+    "alignToPageIndividually": "Poravnaj svaki objekt sa stranicom",
     "distribute": "Rasporedi",
     "spaceHorizontally": "Rasporedi vodoravno",
     "spaceH": "Razmak V.",

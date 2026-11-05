@@ -468,6 +468,8 @@
     "alignTo": "Juster til",
     "alignToSelection": "Juster til markering",
     "alignToLastSelected": "Justér efter sidst valgte",
+    "alignToPage": "Juster til siden",
+    "alignToPageIndividually": "Juster hvert objekt til siden",
     "distribute": "Fordel",
     "spaceHorizontally": "Fordel vandret",
     "spaceH": "Fordel V.",

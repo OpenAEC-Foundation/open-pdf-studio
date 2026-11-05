@@ -468,6 +468,8 @@
     "alignTo": "Ratakan Ke",
     "alignToSelection": "Ratakan ke Pilihan",
     "alignToLastSelected": "Ratakan ke Pilihan Terakhir",
+    "alignToPage": "Ratakan ke halaman",
+    "alignToPageIndividually": "Ratakan setiap objek ke halaman",
     "distribute": "Distribusi",
     "spaceHorizontally": "Jarak Horizontal",
     "spaceH": "Jarak H.",

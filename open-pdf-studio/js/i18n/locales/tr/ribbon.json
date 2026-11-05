@@ -468,6 +468,8 @@
     "alignTo": "Hizala",
     "alignToSelection": "Seçime Hizala",
     "alignToLastSelected": "Son Seçilene Hizala",
+    "alignToPage": "Sayfaya hizala",
+    "alignToPageIndividually": "Her nesneyi sayfaya hizala",
     "distribute": "Dağıt",
     "spaceHorizontally": "Yatay Boşluk",
     "spaceH": "Yatay B.",

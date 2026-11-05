@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import { alignSelectionToPage } from './align-to-page.js';
 import { state, getActiveDocument, getAnnotationBounds } from '../core/state.js';
 import { recordBulkModify } from '../core/undo-manager.js';
 import { cloneAnnotation } from './factory.js';
@@ -89,6 +90,7 @@ function getRefBounds(selected, bounds) {
 // --- Alignment ---
 
 export function alignLeft() {
+  if (alignTarget() === 'page' || alignTarget() === 'page-each') return alignSelectionToPage('left', alignTarget() === 'page-each');
   const selected = getSelected();
   if (selected.length < 2) return;
   withUndo(selected, () => {
@@ -100,6 +102,7 @@ export function alignLeft() {
 }
 
 export function alignCenter() {
+  if (alignTarget() === 'page' || alignTarget() === 'page-each') return alignSelectionToPage('center', alignTarget() === 'page-each');
   const selected = getSelected();
   if (selected.length < 2) return;
   withUndo(selected, () => {
@@ -115,6 +118,7 @@ export function alignCenter() {
 }
 
 export function alignRight() {
+  if (alignTarget() === 'page' || alignTarget() === 'page-each') return alignSelectionToPage('right', alignTarget() === 'page-each');
   const selected = getSelected();
   if (selected.length < 2) return;
   withUndo(selected, () => {
@@ -126,6 +130,7 @@ export function alignRight() {
 }
 
 export function alignTop() {
+  if (alignTarget() === 'page' || alignTarget() === 'page-each') return alignSelectionToPage('top', alignTarget() === 'page-each');
   const selected = getSelected();
   if (selected.length < 2) return;
   withUndo(selected, () => {
@@ -137,6 +142,7 @@ export function alignTop() {
 }
 
 export function alignMiddle() {
+  if (alignTarget() === 'page' || alignTarget() === 'page-each') return alignSelectionToPage('middle', alignTarget() === 'page-each');
   const selected = getSelected();
   if (selected.length < 2) return;
   withUndo(selected, () => {
@@ -152,6 +158,7 @@ export function alignMiddle() {
 }
 
 export function alignBottom() {
+  if (alignTarget() === 'page' || alignTarget() === 'page-each') return alignSelectionToPage('bottom', alignTarget() === 'page-each');
   const selected = getSelected();
   if (selected.length < 2) return;
   withUndo(selected, () => {

@@ -468,6 +468,8 @@
     "alignTo": "Выровнять по",
     "alignToSelection": "Выровнять по выделению",
     "alignToLastSelected": "Выровнять по последнему выделенному",
+    "alignToPage": "Выровнять по странице",
+    "alignToPageIndividually": "Каждый объект по странице",
     "distribute": "Распределить",
     "spaceHorizontally": "Распределить по горизонтали",
     "spaceH": "Гориз.",

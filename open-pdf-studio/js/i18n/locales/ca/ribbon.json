@@ -468,6 +468,8 @@
     "alignTo": "Alinea a",
     "alignToSelection": "Alinea a la selecció",
     "alignToLastSelected": "Alinea amb l'últim seleccionat",
+    "alignToPage": "Alinea amb la pàgina",
+    "alignToPageIndividually": "Alinea cada objecte amb la pàgina",
     "distribute": "Distribueix",
     "spaceHorizontally": "Espaia horitzontalment",
     "spaceH": "Espai H.",

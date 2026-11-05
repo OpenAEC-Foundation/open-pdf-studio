@@ -468,6 +468,8 @@
     "alignTo": "சீரமைப்புக்கு",
     "alignToSelection": "தேர்வுக்குச் சீரமை",
     "alignToLastSelected": "கடைசியாகத் தேர்ந்தெடுத்ததுடன் சீரமை",
+    "alignToPage": "பக்கத்துடன் சீரமை",
+    "alignToPageIndividually": "ஒவ்வொரு பொருளையும் பக்கத்துடன் சீரமை",
     "distribute": "பரவலாக்கு",
     "spaceHorizontally": "கிடையாக இடமிடு",
     "spaceH": "கிடை இடம்",

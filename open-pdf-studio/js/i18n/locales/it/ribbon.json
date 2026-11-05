@@ -468,6 +468,8 @@
     "alignTo": "Allinea a",
     "alignToSelection": "Allinea alla selezione",
     "alignToLastSelected": "Allinea all'ultimo selezionato",
+    "alignToPage": "Allinea alla pagina",
+    "alignToPageIndividually": "Allinea ogni oggetto alla pagina",
     "distribute": "Distribuisci",
     "spaceHorizontally": "Spazia orizzontalmente",
     "spaceH": "Spazio O.",

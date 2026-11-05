@@ -468,6 +468,8 @@
     "alignTo": "সারিবদ্ধ করুন",
     "alignToSelection": "নির্বাচনে সারিবদ্ধ",
     "alignToLastSelected": "শেষ নির্বাচিতের সাথে সারিবদ্ধ করুন",
+    "alignToPage": "পৃষ্ঠার সাথে সারিবদ্ধ করুন",
+    "alignToPageIndividually": "প্রতিটি বস্তুকে পৃষ্ঠার সাথে সারিবদ্ধ করুন",
     "distribute": "বিতরণ",
     "spaceHorizontally": "অনুভূমিক ব্যবধান",
     "spaceH": "অনু. ব্যবধান",

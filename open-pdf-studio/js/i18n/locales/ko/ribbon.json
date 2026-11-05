@@ -468,6 +468,8 @@
     "alignTo": "맞춤 대상",
     "alignToSelection": "선택 영역에 맞춤",
     "alignToLastSelected": "마지막 선택 항목에 맞춤",
+    "alignToPage": "페이지에 맞춤",
+    "alignToPageIndividually": "각 개체를 페이지에 맞춤",
     "distribute": "배분",
     "spaceHorizontally": "가로 균등 배치",
     "spaceH": "가로 균등",

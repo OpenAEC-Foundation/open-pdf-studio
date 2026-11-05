@@ -468,6 +468,8 @@
     "alignTo": "对齐方式",
     "alignToSelection": "对齐到选区",
     "alignToLastSelected": "对齐到最后选择的对象",
+    "alignToPage": "对齐到页面",
+    "alignToPageIndividually": "逐个对齐到页面",
     "distribute": "分布",
     "spaceHorizontally": "水平分布",
     "spaceH": "水平分布",

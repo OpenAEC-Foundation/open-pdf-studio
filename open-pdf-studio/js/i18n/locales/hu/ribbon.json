@@ -468,6 +468,8 @@
     "alignTo": "Igazítás",
     "alignToSelection": "Igazítás kijelöléshez",
     "alignToLastSelected": "Igazítás az utoljára kijelölthöz",
+    "alignToPage": "Igazítás az oldalhoz",
+    "alignToPageIndividually": "Minden objektum igazítása az oldalhoz",
     "distribute": "Elosztás",
     "spaceHorizontally": "Vízszintes elosztás",
     "spaceH": "Vízszintes",

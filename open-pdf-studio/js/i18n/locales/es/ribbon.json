@@ -468,6 +468,8 @@
     "alignTo": "Alinear a",
     "alignToSelection": "Alinear a la selección",
     "alignToLastSelected": "Alinear con el último seleccionado",
+    "alignToPage": "Alinear con la página",
+    "alignToPageIndividually": "Alinear cada objeto con la página",
     "distribute": "Distribuir",
     "spaceHorizontally": "Espaciar horizontalmente",
     "spaceH": "Espacio H.",

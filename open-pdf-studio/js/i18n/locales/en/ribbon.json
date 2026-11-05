@@ -466,6 +466,8 @@
     "alignTo": "Align To",
     "alignToSelection": "Align to Selection",
     "alignToLastSelected": "Align to Last Selected",
+    "alignToPage": "Align to Page",
+    "alignToPageIndividually": "Align Each to Page",
     "distribute": "Distribute",
     "spaceHorizontally": "Space Horizontally",
     "spaceH": "Space H.",

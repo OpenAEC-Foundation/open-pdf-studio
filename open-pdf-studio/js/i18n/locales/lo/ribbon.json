@@ -466,6 +466,8 @@
     "alignTo": "ຈັດທຽບກັບ",
     "alignToSelection": "ຈັດທຽບກັບສິ່ງທີ່ເລືອກ",
     "alignToLastSelected": "ຈັດທຽບກັບສິ່ງທີ່ເລືອກລ້າສຸດ",
+    "alignToPage": "ຈັດແນວຕາມໜ້າ",
+    "alignToPageIndividually": "ຈັດແນວແຕ່ລະວັດຖຸຕາມໜ້າ",
     "distribute": "ແຈກຢາຍໄລຍະຫ່າງ",
     "spaceHorizontally": "ແຈກຢາຍໄລຍະຫ່າງລວງນອນ",
     "spaceH": "ໄລຍະຫ່າງລວງນອນ",

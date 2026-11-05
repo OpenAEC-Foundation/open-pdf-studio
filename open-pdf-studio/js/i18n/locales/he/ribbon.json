@@ -468,6 +468,8 @@
     "alignTo": "יישור אל",
     "alignToSelection": "יישור לבחירה",
     "alignToLastSelected": "יישור לפי הפריט האחרון שנבחר",
+    "alignToPage": "יישור לעמוד",
+    "alignToPageIndividually": "יישור כל פריט לעמוד",
     "distribute": "חלוקה",
     "spaceHorizontally": "ריווח אופקי",
     "spaceH": "ריווח א.",

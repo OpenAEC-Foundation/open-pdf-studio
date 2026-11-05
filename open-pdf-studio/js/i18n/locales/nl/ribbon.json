@@ -468,6 +468,8 @@
     "alignTo": "Uitlijnen op",
     "alignToSelection": "Uitlijnen op selectie",
     "alignToLastSelected": "Uitlijnen op laatst geselecteerde",
+    "alignToPage": "Uitlijnen op pagina",
+    "alignToPageIndividually": "Elk object op pagina uitlijnen",
     "distribute": "Verdelen",
     "spaceHorizontally": "Horizontaal verdelen",
     "spaceH": "Horiz. verd.",

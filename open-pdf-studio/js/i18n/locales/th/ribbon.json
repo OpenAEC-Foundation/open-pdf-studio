@@ -468,6 +468,8 @@
     "alignTo": "จัดตำแหน่งกับ",
     "alignToSelection": "จัดตำแหน่งกับที่เลือก",
     "alignToLastSelected": "จัดแนวตามรายการที่เลือกล่าสุด",
+    "alignToPage": "จัดแนวกับหน้า",
+    "alignToPageIndividually": "จัดแนวแต่ละวัตถุกับหน้า",
     "distribute": "กระจาย",
     "spaceHorizontally": "กระจายแนวนอน",
     "spaceH": "กระจาย น.",

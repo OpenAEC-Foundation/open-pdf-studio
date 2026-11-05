@@ -468,6 +468,8 @@
     "alignTo": "Вирівняти за",
     "alignToSelection": "Вирівняти за виділенням",
     "alignToLastSelected": "Вирівняти за останнім вибраним",
+    "alignToPage": "Вирівняти за сторінкою",
+    "alignToPageIndividually": "Кожен об’єкт за сторінкою",
     "distribute": "Розподілити",
     "spaceHorizontally": "Розподілити горизонтально",
     "spaceH": "Гориз.",

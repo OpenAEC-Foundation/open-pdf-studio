@@ -468,6 +468,8 @@
     "alignTo": "揃え先",
     "alignToSelection": "選択範囲に揃える",
     "alignToLastSelected": "最後に選択したオブジェクトに揃える",
+    "alignToPage": "ページに揃える",
+    "alignToPageIndividually": "各オブジェクトをページに揃える",
     "distribute": "分布",
     "spaceHorizontally": "水平方向に均等配置",
     "spaceH": "水平均等",

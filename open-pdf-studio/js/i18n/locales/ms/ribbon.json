@@ -468,6 +468,8 @@
     "alignTo": "Jajar Kepada",
     "alignToSelection": "Jajar kepada Pilihan",
     "alignToLastSelected": "Jajarkan ke Pilihan Terakhir",
+    "alignToPage": "Jajarkan ke halaman",
+    "alignToPageIndividually": "Jajarkan setiap objek ke halaman",
     "distribute": "Agih",
     "spaceHorizontally": "Jarak Mendatar",
     "spaceH": "Jarak M.",

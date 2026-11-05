@@ -468,6 +468,8 @@
     "alignTo": "Ausrichten an",
     "alignToSelection": "An Auswahl ausrichten",
     "alignToLastSelected": "An zuletzt ausgewähltem Objekt ausrichten",
+    "alignToPage": "An Seite ausrichten",
+    "alignToPageIndividually": "Einzeln an Seite ausrichten",
     "distribute": "Verteilen",
     "spaceHorizontally": "Horizontal verteilen",
     "spaceH": "Horiz. vert.",

@@ -468,6 +468,8 @@
     "alignTo": "تراز به",
     "alignToSelection": "تراز به انتخاب",
     "alignToLastSelected": "تراز با آخرین انتخاب‌شده",
+    "alignToPage": "تراز با صفحه",
+    "alignToPageIndividually": "تراز هر مورد با صفحه",
     "distribute": "توزیع",
     "spaceHorizontally": "فاصله‌گذاری افقی",
     "spaceH": "افقی",

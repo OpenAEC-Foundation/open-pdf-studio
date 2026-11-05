@@ -468,6 +468,8 @@
     "alignTo": "Στοίχιση σε",
     "alignToSelection": "Στοίχιση σε επιλογή",
     "alignToLastSelected": "Στοίχιση με το τελευταίο επιλεγμένο",
+    "alignToPage": "Στοίχιση στη σελίδα",
+    "alignToPageIndividually": "Στοίχιση κάθε αντικειμένου στη σελίδα",
     "distribute": "Κατανομή",
     "spaceHorizontally": "Οριζόντια κατανομή",
     "spaceH": "Κατ. Ο.",

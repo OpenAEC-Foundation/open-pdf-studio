@@ -468,6 +468,8 @@
     "alignTo": "Wyrównaj do",
     "alignToSelection": "Wyrównaj do zaznaczenia",
     "alignToLastSelected": "Wyrównaj do ostatnio zaznaczonego",
+    "alignToPage": "Wyrównaj do strony",
+    "alignToPageIndividually": "Wyrównaj każdy obiekt do strony",
     "distribute": "Rozprosz",
     "spaceHorizontally": "Odstęp poziomy",
     "spaceH": "Odst. poz.",

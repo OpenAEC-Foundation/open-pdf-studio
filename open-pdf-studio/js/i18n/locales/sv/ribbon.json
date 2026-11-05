@@ -468,6 +468,8 @@
     "alignTo": "Justera mot",
     "alignToSelection": "Justera mot markering",
     "alignToLastSelected": "Justera mot senast markerade",
+    "alignToPage": "Justera mot sidan",
+    "alignToPageIndividually": "Justera varje objekt mot sidan",
     "distribute": "Fördela",
     "spaceHorizontally": "Fördela horisontellt",
     "spaceH": "Horis.",

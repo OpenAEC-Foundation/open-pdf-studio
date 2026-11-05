@@ -468,6 +468,8 @@
     "alignTo": "Tasaa kohteeseen",
     "alignToSelection": "Tasaa valintaan",
     "alignToLastSelected": "Tasaa viimeksi valittuun",
+    "alignToPage": "Kohdista sivuun",
+    "alignToPageIndividually": "Kohdista jokainen kohde sivuun",
     "distribute": "Jaa tasaisesti",
     "spaceHorizontally": "Välistä vaakasuunnassa",
     "spaceH": "Väli vaaka",

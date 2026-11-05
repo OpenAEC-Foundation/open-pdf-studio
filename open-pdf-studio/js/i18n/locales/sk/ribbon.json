@@ -468,6 +468,8 @@
     "alignTo": "Zarovnať podľa",
     "alignToSelection": "Zarovnať podľa výberu",
     "alignToLastSelected": "Zarovnať podľa naposledy vybraného",
+    "alignToPage": "Zarovnať k strane",
+    "alignToPageIndividually": "Zarovnať každý objekt k strane",
     "distribute": "Rozmiestniť",
     "spaceHorizontally": "Rozmiestniť vodorovne",
     "spaceH": "Vodorovne",

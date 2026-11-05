@@ -468,6 +468,8 @@
     "alignTo": "Căn theo",
     "alignToSelection": "Căn theo Vùng chọn",
     "alignToLastSelected": "Căn theo đối tượng chọn cuối",
+    "alignToPage": "Căn theo trang",
+    "alignToPageIndividually": "Căn từng đối tượng theo trang",
     "distribute": "Phân bố",
     "spaceHorizontally": "Khoảng cách Ngang",
     "spaceH": "KC Ngang",

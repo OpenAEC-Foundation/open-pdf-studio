@@ -79,7 +79,7 @@ export default function ArrangeTab() {
             <div class="ribbon-menu-wrapper" ref={alignMenuRef}>
               <button class="ribbon-row-btn ribbon-dropdown-btn" id="arr-align-to" title={t('arrange.alignTo')} disabled={isPdfAReadOnly()} ref={alignBtnRef}
                 onClick={() => setAlignMenuOpen(!alignMenuOpen())}>
-                <span>{alignTarget() === 'last' ? t('arrange.alignToLastSelected') : t('arrange.alignToSelection')}</span>
+                <span>{alignTarget() === 'page' ? t('arrange.alignToPage') : alignTarget() === 'page-each' ? t('arrange.alignToPageIndividually') : alignTarget() === 'last' ? t('arrange.alignToLastSelected') : t('arrange.alignToSelection')}</span>
                 <svg class="dropdown-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>
               </button>
               <div class={`ribbon-menu-dropdown${alignMenuOpen() ? ' show' : ''}`} id="arr-align-to-menu" ref={alignDropdownRef}>
@@ -90,6 +90,14 @@ export default function ArrangeTab() {
                 <button class="ribbon-menu-item" onClick={() => { setAlignTarget('last'); setAlignMenuOpen(false); }}>
                   <span class="ribbon-menu-check">{alignTarget() === 'last' ? '✓' : ''}</span>
                   <span>{t('arrange.alignToLastSelected')}</span>
+                </button>
+                <button class="ribbon-menu-item" data-align-target="page" onClick={() => { setAlignTarget('page'); setAlignMenuOpen(false); }}>
+                  <span class="ribbon-menu-check">{alignTarget() === 'page' ? '✓' : ''}</span>
+                  <span>{t('arrange.alignToPage')}</span>
+                </button>
+                <button class="ribbon-menu-item" data-align-target="page-each" onClick={() => { setAlignTarget('page-each'); setAlignMenuOpen(false); }}>
+                  <span class="ribbon-menu-check">{alignTarget() === 'page-each' ? '✓' : ''}</span>
+                  <span>{t('arrange.alignToPageIndividually')}</span>
                 </button>
               </div>
             </div>

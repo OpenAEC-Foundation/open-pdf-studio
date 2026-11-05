@@ -468,6 +468,8 @@
     "alignTo": "Подравняване към",
     "alignToSelection": "Подравняване към избраното",
     "alignToLastSelected": "Подравняване към последно избрания",
+    "alignToPage": "Подравняване към страницата",
+    "alignToPageIndividually": "Всеки обект към страницата",
     "distribute": "Разпределяне",
     "spaceHorizontally": "Хоризонтално разстояние",
     "spaceH": "Хориз. разст.",
