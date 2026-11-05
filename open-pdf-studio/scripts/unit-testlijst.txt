@@ -737,3 +737,6 @@ js/review/shared-review-core.test.mjs
 js/review/shared-review-xfdf.test.mjs
 js/review/shared-review-wiring.test.mjs
 js/pdf/pdfa/pdfa.test.mjs
+js/pdf/delen-keuze.test.mjs
+js/mobile/mobiele-acties.test.mjs
+js/mobile/foto.test.mjs

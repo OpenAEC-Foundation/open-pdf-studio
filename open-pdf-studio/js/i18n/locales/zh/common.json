@@ -319,5 +319,30 @@
     "virtualPrinter": "虚拟打印机仅在安装版中可用：它需要以管理员权限添加到 Windows。",
     "notWritable": "Open PDF Studio 无法写入文件夹 {{dir}}，因此这次你的设置保存在用户配置文件中。请将便携版文件夹移到可写入的位置，例如 U 盘或“文档”文件夹。"
   },
-  "protectedPdfNoPrint": "此文档的权限不允许打印。"
+  "protectedPdfNoPrint": "此文档的权限不允许打印。",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
+  }
 }

@@ -319,5 +319,30 @@
     "virtualPrinter": "Den virtuelle skriveren er bare tilgjengelig i den installerte versjonen: den legges til i Windows med administratorrettigheter.",
     "notWritable": "Open PDF Studio kan ikke skrive til mappen {{dir}}, så innstillingene dine lagres denne gangen i brukerprofilen din. Flytt den bærbare mappen til et sted med skrivetilgang, for eksempel en USB-pinne eller mappen Dokumenter."
   },
-  "protectedPdfNoPrint": "Rettighetene til dette dokumentet tillater ikke utskrift."
+  "protectedPdfNoPrint": "Rettighetene til dette dokumentet tillater ikke utskrift.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
+  }
 }

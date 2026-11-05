@@ -20,17 +20,22 @@ import { openDialog } from './stores/dialogStore.js';
 import { setTool } from '../tools/manager.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { MOBIELE_GEREEDSCHAPPEN } from '../mobile/mobiele-gereedschappen.js';
+import { MOBIELE_ACTIES, actieUit, geselecteerdeMarkeringen } from '../mobile/mobiele-acties.js';
+import { showMessage } from './stores/dialogStore.js';
+import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { foutBericht } from '../core/fout-bericht.js';
 import { startIpcWekker } from '../mobile/ipc-wekker.js';
 
 export default function MobileApp() {
   const { t } = useTranslation('common');
   const { t: tRibbon } = useTranslation('ribbon');
+  const { t: tContext } = useTranslation('context');
   // Feedback gaat naar een andere host: als gast uit, net als in de
   // titelbalk van het bureaublad (#548). Op Android gewoon aan (#593).
   const feedbackUit = knopUit('send-feedback', { inTauri: isTauri() });
   const [drawerOpen, setDrawerOpen] = createSignal(false);
   const [toolsOpen, setToolsOpen] = createSignal(false);
+  const [moreOpen, setMoreOpen] = createSignal(false);
   const [darkMode, setDarkMode] = createSignal(false);
   const [fullscreen, setFullscreen] = createSignal(false);
   const [barsVisible, setBarsVisible] = createSignal(false);
@@ -41,6 +46,13 @@ export default function MobileApp() {
   const [copyFabVisible, setCopyFabVisible] = createSignal(false);
   const [prefsOpen, setPrefsOpen] = createSignal(false);
   let fileInputRef;
+  // Afbeelding uit de galerij, foto met de camera, en een scan met de camera
+  // (#953). `capture` laat de bestandskiezer van Android meteen de camera
+  // openen (RustWebChromeClient van wry); zonder camera-app valt hij terug
+  // op de gewone bestandskiezer.
+  let imageInputRef;
+  let photoInputRef;
+  let scanInputRef;
   let mainRef;
   let barsTimer = null;
 
@@ -223,6 +235,155 @@ export default function MobileApp() {
     setTool(tool);
   }
 
+  // --- Meer-menu (#953): delen, afbeelding/foto/scan, markeringen ---
+
+  async function handleShare() {
+    setDrawerOpen(false);
+    setMoreOpen(false);
+    const { deelHuidigDocument } = await import('../pdf/delen.js');
+    await deelHuidigDocument();
+  }
+
+  function redrawAnn() {
+    import('../annotations/rendering.js').then((m) => {
+      if (getActiveDocument()?.viewMode === 'continuous') m.redrawContinuous();
+      else m.redrawAnnotations();
+    });
+  }
+
+  async function handleImageInput(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const [foto, { addImageFromBytes }] = await Promise.all([
+        import('../mobile/foto.js'), import('../annotations/image-drop.js'),
+      ]);
+      if (foto.moetHercoderen(file.type)) {
+        const { bytes } = await foto.fotoNaarJpeg(file);
+        await addImageFromBytes(bytes, foto.jpegNaam(file.name));
+      } else {
+        await addImageFromBytes(new Uint8Array(await file.arrayBuffer()), file.name);
+      }
+    } catch (err) {
+      console.warn('Insert image failed:', err);
+      showMessage(t('mobileMore.imageFailed', { error: foutBericht(err) }));
+    }
+  }
+
+  async function handleScanInput(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      let doel = 'new';
+      if (getActiveDocument()?.pdfDoc) {
+        const { kiesUitKnoppen } = await import('../pdf/host-opslaan-als-ui.js');
+        doel = await kiesUitKnoppen({
+          title: t('mobileMore.scanDocument'),
+          message: t('mobileMore.scanWhere'),
+          knoppen: [
+            { id: 'insert', label: t('mobileMore.scanInsertAfter'), primair: true },
+            { id: 'new', label: t('mobileMore.scanNewDocument') },
+            { id: null, label: t('cancel') },
+          ],
+        });
+        if (!doel) return;
+      }
+      showLoading(t('mobileMore.scanBusy'));
+      const { fotoNaarJpeg, scanDpi, SCAN_MAX_PX } = await import('../mobile/foto.js');
+      const { bytes, breedte, hoogte } = await fotoNaarJpeg(file, { max: SCAN_MAX_PX });
+      const paginas = [{ bytes, dpi: scanDpi(breedte, hoogte) }];
+      if (doel === 'insert') {
+        const { finishScan } = await import('../pdf/scanner.js');
+        await finishScan(paginas, { ocr: false, destination: 'insert' });
+      } else {
+        // Een nieuw, naamloos document uit de bytes, zoals een PDF uit de
+        // bestandskiezer (handleFileInput); Opslaan vraagt waar.
+        const [{ imagesToPdf, scanDocumentName }, { markDocumentModified, updateWindowTitle }] = await Promise.all([
+          import('../pdf/scan-to-pdf.js'), import('../ui/chrome/tabs.js'),
+        ]);
+        // createTab hergebruikt een tabblad met dezelfde naam: een tweede
+        // scan in dezelfde minuut krijgt een eigen naam.
+        const basis = scanDocumentName();
+        let naam = basis;
+        for (let n = 2; state.documents.some((d) => d.filePath === naam); n++) {
+          naam = basis.replace(/\.pdf$/i, ` (${n}).pdf`);
+        }
+        const data = await imagesToPdf(paginas, { title: naam.replace(/\.pdf$/i, '') });
+        const { index } = createTab(naam);
+        await new Promise(r => setTimeout(r, 0));
+        initDomElements();
+        await loadPDF(naam, index, data);
+        const doc = state.documents[index];
+        if (doc) { doc.isUntitled = true; doc.fileName = naam; }
+        markDocumentModified();
+        updateWindowTitle();
+        await fitPage();
+      }
+    } catch (err) {
+      console.warn('Scan failed:', err);
+      hideLoading();
+      showMessage(t('mobileMore.scanFailed', { error: foutBericht(err) }));
+      return;
+    }
+    hideLoading();
+  }
+
+  async function handleCopyMarkup() {
+    const sel = geselecteerdeMarkeringen(getActiveDocument());
+    if (sel.length === 0) return;
+    const { copyAnnotation, copyAnnotations } = await import('../annotations/clipboard.js');
+    if (sel.length > 1) copyAnnotations(sel);
+    else copyAnnotation(sel[0]);
+  }
+
+  async function handlePasteMarkup() {
+    const { pasteAnnotation, pasteAnnotations } = await import('../annotations/clipboard.js');
+    if ((state.clipboardAnnotations?.length || 0) > 1) pasteAnnotations();
+    else pasteAnnotation({ bijMuis: false });
+  }
+
+  async function handleDeleteMarkup() {
+    const doc = getActiveDocument();
+    const sel = geselecteerdeMarkeringen(doc);
+    if (!doc || sel.length === 0) return;
+    const { showConfirm } = await import('../ui/chrome/confirm-dialog.js');
+    const ok = await showConfirm({
+      title: tContext('deleteAnnotation.title'),
+      message: sel.length > 1
+        ? `${tContext('multiSelect.deleteAnnotations', { count: sel.length })}?`
+        : tContext('deleteAnnotation.confirmSingle'),
+      preferenceKey: 'confirmBeforeDelete',
+    });
+    if (!ok) return;
+    const [{ deleteAnnotationsWithUndo }, { hideProperties }] = await Promise.all([
+      import('../annotations/mutations.js'), import('../ui/panels/properties-panel.js'),
+    ]);
+    if (!deleteAnnotationsWithUndo(doc, sel).length) return;
+    doc.selectedAnnotation = null;
+    doc.selectedAnnotations = [];
+    hideProperties();
+    redrawAnn();
+  }
+
+  // Eén handler per item van MOBIELE_ACTIES (mobiele-acties.test.mjs).
+  const ACTIE_HANDLERS = {
+    share: handleShare,
+    insertImage: () => imageInputRef?.click(),
+    takePhoto: () => photoInputRef?.click(),
+    scanDocument: () => scanInputRef?.click(),
+    copyMarkup: handleCopyMarkup,
+    pasteMarkup: handlePasteMarkup,
+    deleteMarkup: handleDeleteMarkup,
+  };
+
+  function handlePickAction(id) {
+    setMoreOpen(false);
+    setDrawerOpen(false);
+    ACTIE_HANDLERS[id]?.();
+  }
+
   // --- Dark mode toggle ---
 
   function handleToggleDarkMode() {
@@ -328,6 +489,9 @@ export default function MobileApp() {
         ref={fileInputRef}
         onChange={handleFileInput}
       />
+      <input type="file" accept="image/*" style="display:none" ref={imageInputRef} onChange={handleImageInput} />
+      <input type="file" accept="image/*" capture="environment" style="display:none" ref={photoInputRef} onChange={handleImageInput} />
+      <input type="file" accept="image/*" capture="environment" style="display:none" ref={scanInputRef} onChange={handleScanInput} />
 
       {/* Top bar */}
       <div class="mobile-topbar">
@@ -477,6 +641,14 @@ export default function MobileApp() {
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
             </button>
+
+            <button class="mobile-toolbar-btn" id="mobile-more" onClick={() => { setToolsOpen(false); setMoreOpen(!moreOpen()); }} aria-label={t('mobileMore.more')}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="19" r="2" />
+              </svg>
+            </button>
           </div>
         </div>
       </Show>
@@ -495,6 +667,27 @@ export default function MobileApp() {
                 >
                   <ToolIcon tool={item.tool} />
                   <span>{tRibbon(item.label)}</span>
+                </button>
+              )}
+            </For>
+          </div>
+        </div>
+      </Show>
+
+      {/* Meer-menu (#953) */}
+      <Show when={moreOpen()}>
+        <div class="mobile-tools-overlay" onClick={() => setMoreOpen(false)}>
+          <div class="mobile-tools-menu" onClick={(e) => e.stopPropagation()}>
+            <For each={MOBIELE_ACTIES}>
+              {(item) => (
+                <button
+                  class="mobile-tools-item"
+                  data-action={item.id}
+                  disabled={actieUit(item.id, { doc: getActiveDocument(), state })}
+                  onClick={() => handlePickAction(item.id)}
+                >
+                  <ActionIcon action={item.id} />
+                  <span>{t(item.label)}</span>
                 </button>
               )}
             </For>
@@ -571,7 +764,24 @@ export default function MobileApp() {
                 </svg>
                 <span>{t('saveAs')}</span>
               </button>
+              <button class="mobile-drawer-item" id="mobile-share" onClick={handleShare}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <line x1="8.6" y1="13.5" x2="15.4" y2="17.5" />
+                  <line x1="15.4" y1="6.5" x2="8.6" y2="10.5" />
+                </svg>
+                <span>{t('share.share')}</span>
+              </button>
             </Show>
+            <button class="mobile-drawer-item" id="mobile-scan" onClick={() => handlePickAction('scanDocument')}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span>{t('mobileMore.scanDocument')}</span>
+            </button>
             <div class="mobile-drawer-divider"></div>
 
             {/* Recent files */}
@@ -645,6 +855,21 @@ function ToolIcon(props) {
     textbox: <><rect x="3" y="4" width="18" height="16" /><polyline points="8 9 8 8 16 8 16 9" /><line x1="12" y1="8" x2="12" y2="16" /></>,
     comment: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />,
   }[props.tool];
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">{pad}</svg>
+  );
+}
+
+function ActionIcon(props) {
+  const pad = {
+    share: <><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" /><line x1="15.4" y1="6.5" x2="8.6" y2="10.5" /></>,
+    insertImage: <><rect x="3" y="3" width="18" height="18" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></>,
+    takePhoto: <><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></>,
+    scanDocument: <><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="2" y1="14" x2="22" y2="14" /></>,
+    copyMarkup: <><rect x="9" y="9" width="13" height="13" /><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1" /></>,
+    pasteMarkup: <><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /><rect x="8" y="2" width="8" height="4" /></>,
+    deleteMarkup: <><polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /><path d="M10 11v6M14 11v6M9 6V4h6v2" /></>,
+  }[props.action];
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">{pad}</svg>
   );
