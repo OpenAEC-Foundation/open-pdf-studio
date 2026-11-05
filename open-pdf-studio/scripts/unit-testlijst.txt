@@ -677,3 +677,4 @@ js/pdf/monochrome-image.test.mjs
 js/solid/components/titlebar-afsluiten.test.mjs
 js/pdf/pagina-viewport.test.mjs
 js/annotations/scale-presets.test.mjs
+js/annotations/telling.test.mjs

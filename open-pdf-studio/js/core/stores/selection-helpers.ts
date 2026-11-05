@@ -7,6 +7,8 @@ import { betonbalkHalfWidthPx } from '../../annotations/betonbalk-scale.js';
 import { systeemrasterFlatContour } from '../../annotations/systeemraster.js';
 // @ts-ignore — pure JS-module zonder typedeclaraties
 import { isAnnotationPickableInView } from '../../annotations/view-filters.js';
+// @ts-ignore — pure JS-module zonder typedeclaraties
+import { tellingKader } from '../../annotations/telling.js';
 
 export function clearSelection(): void {
   const doc = getActiveDocument();
@@ -152,6 +154,9 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
     case 'comment':
     case 'fileAttachment':
       return { x: ann.x!, y: ann.y!, width: ann.width || 24, height: ann.height || 24 };
+    case 'count':
+      // Telmarkering: alleen een middelpunt, geen breedte (#934).
+      return tellingKader(ann);
     case 'box':
     case 'mask':
     case 'circle':
