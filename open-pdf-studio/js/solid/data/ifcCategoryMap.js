@@ -98,7 +98,11 @@ const PARAMETRIC_ID_DEFAULT = {
   'bout': 'IfcMechanicalFastener',
   'anker': 'IfcMechanicalFastener',
   'staal-hea': 'IfcMember', 'staal-heb': 'IfcMember', 'staal-ipe': 'IfcMember',
-  'staal-unp': 'IfcMember', 'staal-koker': 'IfcMember',
+  'staal-unp': 'IfcMember', 'staal-koker': 'IfcMember', 'staal-buis': 'IfcMember',
+  // Ronde doorsnede (beton/hout, #936): vooral funderingspalen.
+  'ronde-doorsnede': 'IfcPile',
+  // Paalpositie op een palenplan (#936).
+  'paalpositie': 'IfcPile',
   'paal-aanzicht-type-1': 'IfcPile', 'paal-aanzicht-type-2': 'IfcPile',
   'vloer-kanaalplaatvloer': 'IfcSlab',
   'vloer-isolatieplaatvloer': 'IfcSlab',

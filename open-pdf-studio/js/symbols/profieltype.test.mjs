@@ -31,7 +31,7 @@ const { savePDF } = await import('../pdf/saver.js');
 const { zetPaginaAnnotatiesOm } = await import('../pdf/loader/annotaties-omzetten.js');
 const { extractAnnotationColors } = await import('../pdf/loader/color-extraction.js');
 
-const NL = ['staal-hea', 'staal-heb', 'staal-ipe', 'staal-unp', 'staal-koker', 'staal-hoeklijn'];
+const NL = ['staal-hea', 'staal-heb', 'staal-ipe', 'staal-unp', 'staal-koker', 'staal-hoeklijn', 'staal-buis'];
 
 function openen(annotations) {
   state.documents = [{

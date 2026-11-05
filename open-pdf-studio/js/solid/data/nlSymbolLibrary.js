@@ -86,6 +86,14 @@ const wapeningsstaafPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000
 const netwapeningPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><text x="32" y="27" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#000" stroke="none">Ø8-150</text><path d="M6 40H58"/><path d="M13 40L18.5 32.5L24 40Z" fill="#000" stroke="none"/></svg>`;
 const sonderingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M10 22H36L23 50Z" fill="#000" stroke="none"/><path d="M6 50H40"/><text x="49" y="30" font-family="Arial, sans-serif" font-size="18" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">1</text></svg>`;
 const paalpuntniveauPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="21" width="52" height="22"/><text x="32" y="36.5" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none" font-weight="bold">−14.0</text></svg>`;
+// #936: ronde buis (CHS), ronde beton-/houtdoorsnede, houten balk in
+// aanzicht, paalpositie (palenplan) en de overspanningspijl met halve
+// pijlpunten (⥋).
+const buisPreview = `<svg viewBox="0 0 64 64"><path d="M32 8A24 24 0 1 1 32 56A24 24 0 1 1 32 8ZM32 14A18 18 0 1 0 32 50A18 18 0 1 0 32 14Z" fill="#000" fill-rule="evenodd"/></svg>`;
+const rondeDoorsnedePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><circle cx="32" cy="32" r="22" fill="#b3b3b3"/><path d="M4 32H60M32 4V60" stroke-width="1.25" stroke-dasharray="7 2.5 1.5 2.5"/></svg>`;
+const houtAanzichtPreview = `<svg viewBox="0 0 64 64"><rect x="4" y="22" width="56" height="20" fill="#ead9b0" stroke="#000" stroke-width="2"/><path d="M6 28Q19 25 32 28T58 28M6 36Q19 33 32 36T58 36" fill="none" stroke="#b8a37a" stroke-width="1.25"/></svg>`;
+const paalpositiePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="10" y="22" width="32" height="32"/><path d="M10 22L42 54M10 54L42 22" stroke-width="1.25"/><text x="52" y="18" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none">1</text></svg>`;
+const overspanningHalfPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M8 32H56"/><path d="M8 32L18 39M56 32L46 25"/></svg>`;
 const overspanningspijlPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M8 32H56"/><path d="M15 25L8 32L15 39M49 25L56 32L49 39"/></svg>`;
 const stenenrijPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="21" y="6" width="22" height="52"/><path d="M21 16.4H43M21 26.8H43M21 37.2H43M21 47.6H43" stroke-width="1.25"/></svg>`;
 // Betonbalk: balk met hoek in plattegrond — twee randlijnen, dunne
@@ -159,9 +167,13 @@ export const NL_CATEGORIES = [
       { id: 'param-staal-unp', name: 'UNP', parametricId: 'staal-unp', svg: unpPreview },
       { id: 'param-staal-koker', name: 'Koker', parametricId: 'staal-koker', svg: kokerPreview },
       { id: 'param-staal-hoeklijn', name: 'Hoeklijn', parametricId: 'staal-hoeklijn', svg: hoeklijnPreview },
+      { id: 'param-staal-buis', name: 'Buis (CHS)', parametricId: 'staal-buis', svg: buisPreview },
       { id: 'param-hout-balk', name: 'Houten balk', parametricId: 'hout-balk', svg: houtBalkPreview },
+      { id: 'param-hout-balk-aanzicht', name: 'Houten balk (aanzicht)', parametricId: 'hout-balk', params: { aanzicht: 'zij' }, svg: houtAanzichtPreview },
+      { id: 'param-ronde-doorsnede', name: 'Ronde doorsnede (beton/hout, paal)', parametricId: 'ronde-doorsnede', svg: rondeDoorsnedePreview },
       { id: 'param-paal-type-1', name: 'Paal aanzicht type 1', parametricId: 'paal-aanzicht-type-1', svg: paalType1Preview },
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalType2Preview },
+      { id: 'param-paalpositie', name: 'Paalpositie (palenplan)', parametricId: 'paalpositie', svg: paalpositiePreview },
       { id: 'param-bout', name: 'Bout (M6–M24)', parametricId: 'bout', svg: boutPreview },
       { id: 'param-anker', name: 'Anker in beton (ingestort, chemisch, keil, kopbout)', parametricId: 'anker', svg: ankerPreview },
       { id: 'param-wapeningskorf', name: 'Wapeningskorf (doorsnede)', parametricId: 'wapeningskorf', svg: wapeningskorfPreview },
@@ -177,6 +189,7 @@ export const NL_CATEGORIES = [
       { id: 'param-sondering', name: 'Sondering', parametricId: 'sondering', svg: sonderingPreview },
       { id: 'param-paalpuntniveau', name: 'Paalpuntniveau', parametricId: 'paalpuntniveau', svg: paalpuntniveauPreview },
       { id: 'param-overspanningspijl-vloer', name: 'Overspanningspijl vloer', parametricId: 'overspanningspijl-vloer', svg: overspanningspijlPreview },
+      { id: 'param-overspanningspijl-half', name: 'Overspanningspijl vloer (halve pijlpunten ⥋)', parametricId: 'overspanningspijl-vloer', params: { pijlvorm: 'half' }, svg: overspanningHalfPreview },
       { id: 'param-stenenrij', name: 'Stenenrij (lagen-/koppenmaat)', parametricId: 'stenenrij', svg: stenenrijPreview },
       // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
       // je sleept de reekslijn, net als bij Maskeer hieronder.
