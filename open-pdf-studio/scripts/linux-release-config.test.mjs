@@ -323,3 +323,21 @@ test('the OpenAEC environment is prepared in main before Tauri starts (#863)', a
     assert.ok(docs.includes(variable), `docs/openaec-linux.md documents ${variable}`);
   }
 });
+
+test('Linux keeps WebKit threads off realtime scheduling before GTK starts (#924)', async () => {
+  const main = await readFile(new URL('src-tauri/src/main.rs', appRoot), 'utf8');
+  const rtprio = main.indexOf('linux_runtime::disable_realtime_threads();');
+  const gtk = main.indexOf('app_lib::run(');
+  assert.notEqual(rtprio, -1);
+  assert.ok(rtprio < gtk);
+  assert.ok(rtprio < main.indexOf('openaec_omgeving::bereid_proces_voor();'));
+
+  const runtime = await readFile(new URL('src-tauri/src/linux_runtime.rs', appRoot), 'utf8');
+  assert.match(runtime, /libc::setrlimit\(libc::RLIMIT_RTPRIO, &limiet\)/);
+  assert.match(runtime, /rlim_cur: 0, rlim_max: 0/);
+  assert.match(runtime, /OPDS_ALLOW_REALTIME/);
+
+  const readme = await readFile(new URL('README.md', repoRoot), 'utf8');
+  assert.ok(readme.includes('OPDS_ALLOW_REALTIME=1'), 'README documents the opt-out');
+  assert.ok(readme.includes('prlimit --rtprio=0'), 'README names the equivalent launcher setting');
+});

@@ -161,6 +161,9 @@ rustls-native-certs = "0.8"
 # tauri-plugin-single-instance al meebrengt; staat al in Cargo.lock.
 [target.'cfg(target_os = "linux")'.dependencies]
 zbus = "5.9"
+# setrlimit(RLIMIT_RTPRIO) bij het starten (src/linux_runtime.rs, #924); staat
+# al in Cargo.lock.
+libc = "0.2"
 
 # Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
 # certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de
