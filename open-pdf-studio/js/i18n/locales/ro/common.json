@@ -227,7 +227,8 @@
     "openInNewWindow": "Deschidere în fereastră nouă",
     "closeTab": "Închidere filă",
     "nextTab": "Fila urmatoare",
-    "previousTab": "Fila anterioara"
+    "previousTab": "Fila anterioara",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Pagina urmatoare",

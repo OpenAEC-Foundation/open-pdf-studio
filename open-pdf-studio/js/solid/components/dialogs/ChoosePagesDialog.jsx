@@ -9,15 +9,18 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 // Welke pagina's van een bron-PDF erin komen (#963), bij Invoegen uit bestand
 // en Pagina's vervangen. Een paginabereik ("1-3, 5") en een miniatuur met
 // vinkje per pagina, die met elkaar meelopen.
-// data: { bytes, naam, aantal, doel: 'insert'|'replace', onDone(pagina's|null) }
+// Ook bij Samenvoegen, per bestand (doel 'merge', met de eerdere keuze in gekozen).
+// data: { bytes, naam, aantal, doel: 'insert'|'replace'|'merge', gekozen?: number[], onDone(pagina's|null) }
 export default function ChoosePagesDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
   const aantal = Math.max(1, props.data?.aantal || 1);
   const alle = Array.from({ length: aantal }, (_, i) => i + 1);
 
-  const [gekozen, setGekozen] = createSignal(new Set(alle));
-  const [bereik, setBereik] = createSignal(bereikTekst(alle));
+  const begin = Array.isArray(props.data?.gekozen) && props.data.gekozen.length
+    ? alle.filter((p) => props.data.gekozen.includes(p)) : alle;
+  const [gekozen, setGekozen] = createSignal(new Set(begin));
+  const [bereik, setBereik] = createSignal(bereikTekst(begin));
   const [bereikFout, setBereikFout] = createSignal(false);
   const doeken = [];
   let pdf = null;
@@ -93,7 +96,8 @@ export default function ChoosePagesDialog(props) {
       </div>
       <div class="extract-pages-footer-right">
         <button class="pref-btn pref-btn-primary" disabled={!lijst().length || bereikFout()} onClick={ok}>
-          {props.data?.doel === 'replace' ? t('choosePages.replace') : t('choosePages.insert')}
+          {props.data?.doel === 'replace' ? t('choosePages.replace')
+            : props.data?.doel === 'merge' ? t('choosePages.use') : t('choosePages.insert')}
         </button>
         <button class="pref-btn pref-btn-secondary" onClick={() => sluit(null)}>{tCommon('cancel')}</button>
       </div>

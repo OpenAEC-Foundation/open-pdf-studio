@@ -227,7 +227,8 @@
     "openInNewWindow": "नई विंडो में खोलें",
     "closeTab": "टैब बंद करें",
     "nextTab": "अगला टैब",
-    "previousTab": "पिछला टैब"
+    "previousTab": "पिछला टैब",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "अगला पृष्ठ",

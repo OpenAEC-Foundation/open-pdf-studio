@@ -228,7 +228,8 @@
     "openInNewWindow": "Open in new window",
     "closeTab": "Close tab",
     "nextTab": "Next Tab",
-    "previousTab": "Previous Tab"
+    "previousTab": "Previous Tab",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Next Page",

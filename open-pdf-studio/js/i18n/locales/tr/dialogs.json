@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Kullan"
   },
   "splitDocument": {
     "title": "Belgeyi Böl",
@@ -345,7 +346,10 @@
     "pg": "sf",
     "filesAndPages": "{{files}} dosya, toplam {{pages}} sayfa",
     "addAtLeastOne": "Lütfen birleştirmek için en az bir PDF dosyası ekleyin.",
-    "signedWarning": "Bir veya daha fazla dosya dijital olarak imzalı. Birleştirme imzaları kaldırır: birleştirilen belge imzalı değildir."
+    "signedWarning": "Bir veya daha fazla dosya dijital olarak imzalı. Birleştirme imzaları kaldırır: birleştirilen belge imzalı değildir.",
+    "allPages": "Tüm sayfalar",
+    "pageRangeTip": "Birleştirilecek sayfalar, örn. 1-3, 5 (boş: tüm sayfalar)",
+    "choosePages": "Sayfaları seç"
   },
   "watermark": {
     "addTitle": "Filigran Ekle",

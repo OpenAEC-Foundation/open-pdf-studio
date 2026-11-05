@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "تقسيم المستند",
@@ -345,7 +346,10 @@
     "pg": "ص",
     "filesAndPages": "{{files}} ملف/ملفات، {{pages}} صفحة إجمالية",
     "addAtLeastOne": "يرجى إضافة ملف PDF واحد على الأقل للدمج.",
-    "signedWarning": "ملف واحد أو أكثر موقّع رقميًا. يؤدي الدمج إلى إزالة التوقيعات: المستند المدمج غير موقّع."
+    "signedWarning": "ملف واحد أو أكثر موقّع رقميًا. يؤدي الدمج إلى إزالة التوقيعات: المستند المدمج غير موقّع.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "إضافة علامة مائية",

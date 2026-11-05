@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Jaa asiakirja",
@@ -345,7 +346,10 @@
     "pg": "s.",
     "filesAndPages": "{{files}} tiedosto(a), {{pages}} sivua yhteensä",
     "addAtLeastOne": "Lisää vähintään yksi PDF-tiedosto yhdistettäväksi.",
-    "signedWarning": "Yksi tai useampi tiedosto on allekirjoitettu digitaalisesti. Yhdistäminen poistaa allekirjoitukset: yhdistetty asiakirja ei ole allekirjoitettu."
+    "signedWarning": "Yksi tai useampi tiedosto on allekirjoitettu digitaalisesti. Yhdistäminen poistaa allekirjoitukset: yhdistetty asiakirja ei ole allekirjoitettu.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Lisää vesileima",

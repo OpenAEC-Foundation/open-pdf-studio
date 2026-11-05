@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Použít"
   },
   "splitDocument": {
     "title": "Rozdělit dokument",
@@ -345,7 +346,10 @@
     "pg": "str.",
     "filesAndPages": "{{files}} soubor(ů), {{pages}} stránek celkem",
     "addAtLeastOne": "Přidejte prosím alespoň jeden soubor PDF ke sloučení.",
-    "signedWarning": "Jeden nebo více souborů je digitálně podepsáno. Sloučení podpisy odstraní: sloučený dokument není podepsán."
+    "signedWarning": "Jeden nebo více souborů je digitálně podepsáno. Sloučení podpisy odstraní: sloučený dokument není podepsán.",
+    "allPages": "Všechny stránky",
+    "pageRangeTip": "Stránky ke sloučení, např. 1-3, 5 (prázdné: všechny stránky)",
+    "choosePages": "Vybrat stránky"
   },
   "watermark": {
     "addTitle": "Přidat vodoznak",

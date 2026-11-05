@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "ஆவணத்தைப் பிரி",
@@ -345,7 +346,10 @@
     "pg": "ப",
     "filesAndPages": "{{files}} கோப்பு(கள்), {{pages}} மொத்த பக்கங்கள்",
     "addAtLeastOne": "ஒன்றிணைக்க குறைந்தது ஒரு PDF கோப்பையாவது சேர்க்கவும்.",
-    "signedWarning": "ஒன்று அல்லது அதற்கு மேற்பட்ட கோப்புகள் டிஜிட்டல் கையொப்பமிடப்பட்டுள்ளன. இணைப்பது கையொப்பங்களை நீக்கும்: இணைக்கப்பட்ட ஆவணம் கையொப்பமிடப்படவில்லை."
+    "signedWarning": "ஒன்று அல்லது அதற்கு மேற்பட்ட கோப்புகள் டிஜிட்டல் கையொப்பமிடப்பட்டுள்ளன. இணைப்பது கையொப்பங்களை நீக்கும்: இணைக்கப்பட்ட ஆவணம் கையொப்பமிடப்படவில்லை.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "நீர்முத்திரை சேர்",

@@ -227,7 +227,8 @@
     "openInNewWindow": "Отвори у новом прозору",
     "closeTab": "Затвори картицу",
     "nextTab": "Следећа картица",
-    "previousTab": "Претходна картица"
+    "previousTab": "Претходна картица",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Следећа страница",

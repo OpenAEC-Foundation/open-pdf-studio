@@ -1290,7 +1290,9 @@ async function bronBytesVoorSamenvoegen(filePath) {
  * belongs to their pages: annotations, form fields, bookmarks, links and
  * named destinations, layers and page labels (samenvoegen.js). The merged
  * annotations are loaded into the model, so they show and can be edited.
- * @param {string[]} filePaths - Paths of PDF files to merge in
+ * @param {(string|{path:string, pages?:number[]|null})[]} filePaths - Paths of
+ *   PDF files to merge in; an entry with `pages` (0-based indexes) brings only
+ *   those pages of that file (#963), without what points at the others
  * @param {'end'|'start'|'after'} position - Where to insert the merged pages
  * @returns {Promise<object>} what really happened (merge-verslag.js): the files
  *   that went in, the ones that were refused or failed, and the pages inserted.
@@ -1344,7 +1346,9 @@ export async function mergeFiles(filePaths, position) {
 
     // Read each file; what cannot go in is reported, the rest is merged.
     const bronnen = [];
-    for (const filePath of filePaths) {
+    for (const invoer of filePaths) {
+      const filePath = typeof invoer === 'string' ? invoer : invoer?.path;
+      const gekozen = typeof invoer === 'object' && Array.isArray(invoer?.pages) ? invoer.pages : null;
       try {
         const { bytes: srcBytes, uitApp } = await bronBytesVoorSamenvoegen(filePath);
         const srcDoc = await PDFDocument.load(srcBytes, { ignoreEncryption: true });
@@ -1364,7 +1368,13 @@ export async function mergeFiles(filePaths, position) {
             continue;
           }
         }
-        bronnen.push({ doc: srcDoc, naam: filePath.split(/[\\/]/).pop(), pad: filePath, uitApp });
+        // Alleen de gekozen pagina's (#963); ongeldige indexen vallen weg.
+        const paginas = gekozen ? gekozen.filter((i) => Number.isInteger(i) && i >= 0 && i < srcPageCount) : null;
+        if (paginas && !paginas.length) {
+          verslag.refused.push({ path: filePath, reason: REDEN_GEEN_PAGINAS });
+          continue;
+        }
+        bronnen.push({ doc: srcDoc, naam: filePath.split(/[\\/]/).pop(), pad: filePath, uitApp, paginas });
       } catch (err) {
         console.error(`Failed to merge file: ${filePath}`, err);
         const fileName = filePath.split(/[\\/]/).pop();
@@ -1379,7 +1389,8 @@ export async function mergeFiles(filePaths, position) {
     }
 
     const { voegPdfsSamen } = await import('./samenvoegen.js');
-    const samen = await voegPdfsSamen(destDoc, bronnen.map(({ doc: d, naam }) => ({ doc: d, naam })), {
+    const samen = await voegPdfsSamen(destDoc, bronnen.map(({ doc: d, naam, paginas }) => (
+      paginas && paginas.length < d.getPageCount() ? { doc: d, naam, paginas } : { doc: d, naam })), {
       invoegIndex: insertIdx, positie: position, zoneIds: zoneIdsInAnnotations(doc?.annotations),
     });
     const totalInserted = samen.paginasIngevoegd;

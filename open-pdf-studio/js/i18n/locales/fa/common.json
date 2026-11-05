@@ -227,7 +227,8 @@
     "openInNewWindow": "باز کردن در پنجره جدید",
     "closeTab": "بستن زبانه",
     "nextTab": "زبانه بعدی",
-    "previousTab": "زبانه قبلی"
+    "previousTab": "زبانه قبلی",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "صفحه بعدی",

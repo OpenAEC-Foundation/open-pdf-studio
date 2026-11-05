@@ -227,7 +227,8 @@
     "openInNewWindow": "Fungua kwenye dirisha jipya",
     "closeTab": "Funga kichupo",
     "nextTab": "Kichupo Kinachofuata",
-    "previousTab": "Kichupo Kilichotangulia"
+    "previousTab": "Kichupo Kilichotangulia",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Ukurasa Ujao",

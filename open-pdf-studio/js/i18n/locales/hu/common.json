@@ -227,7 +227,8 @@
     "openInNewWindow": "Megnyitás új ablakban",
     "closeTab": "Lap bezárása",
     "nextTab": "Következő lap",
-    "previousTab": "Előző lap"
+    "previousTab": "Előző lap",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Következő oldal",

@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Split Document",
@@ -345,7 +346,10 @@
     "pg": "pg",
     "filesAndPages": "{{files}} file(s), {{pages}} total pages",
     "addAtLeastOne": "Please add at least one PDF file to merge.",
-    "signedWarning": "One or more files are digitally signed. Merging removes their signatures: the merged document is not signed."
+    "signedWarning": "One or more files are digitally signed. Merging removes their signatures: the merged document is not signed.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Add Watermark",

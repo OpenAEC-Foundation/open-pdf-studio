@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Divideix el document",
@@ -345,7 +346,10 @@
     "pg": "pàg",
     "filesAndPages": "{{files}} fitxer(s), {{pages}} pàgines en total",
     "addAtLeastOne": "Afegiu almenys un fitxer PDF per combinar.",
-    "signedWarning": "Un o més fitxers estan signats digitalment. En combinar-los se n'eliminen les signatures: el document combinat no està signat."
+    "signedWarning": "Un o més fitxers estan signats digitalment. En combinar-los se n'eliminen les signatures: el document combinat no està signat.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Afegeix filigrana",

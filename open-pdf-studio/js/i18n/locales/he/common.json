@@ -227,7 +227,8 @@
     "openInNewWindow": "פתיחה בחלון חדש",
     "closeTab": "סגירת לשונית",
     "nextTab": "הכרטיסייה הבאה",
-    "previousTab": "הכרטיסייה הקודמת"
+    "previousTab": "הכרטיסייה הקודמת",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "עמוד הבא",

@@ -227,7 +227,8 @@
     "openInNewWindow": "Obre en una finestra nova",
     "closeTab": "Tanca la pestanya",
     "nextTab": "Pestanya següent",
-    "previousTab": "Pestanya anterior"
+    "previousTab": "Pestanya anterior",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Pàgina següent",

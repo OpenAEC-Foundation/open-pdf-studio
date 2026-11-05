@@ -227,7 +227,8 @@
     "openInNewWindow": "Abrir en una ventana nueva",
     "closeTab": "Cerrar pestaña",
     "nextTab": "Pestaña siguiente",
-    "previousTab": "Pestaña anterior"
+    "previousTab": "Pestaña anterior",
+    "newTabForDocument": "Nueva pestaña para este documento"
   },
   "pageNav": {
     "nextPage": "Página siguiente",

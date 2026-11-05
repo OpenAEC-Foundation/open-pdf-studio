@@ -292,7 +292,8 @@
     "all": "All",
     "none": "None",
     "insert": "Insert",
-    "replace": "Replace"
+    "replace": "Replace",
+    "use": "Use"
   },
   "splitDocument": {
     "title": "Gawanya Hati",
@@ -345,7 +346,10 @@
     "pg": "uk",
     "filesAndPages": "faili {{files}}, jumla ya kurasa {{pages}}",
     "addAtLeastOne": "Tafadhali ongeza angalau faili moja ya PDF ili kuunganisha.",
-    "signedWarning": "Faili moja au zaidi zimetiwa saini kidijitali. Kuunganisha huondoa sahihi hizo: hati iliyounganishwa haijatiwa saini."
+    "signedWarning": "Faili moja au zaidi zimetiwa saini kidijitali. Kuunganisha huondoa sahihi hizo: hati iliyounganishwa haijatiwa saini.",
+    "allPages": "All pages",
+    "pageRangeTip": "Pages to merge, e.g. 1-3, 5 (empty: all pages)",
+    "choosePages": "Choose pages"
   },
   "watermark": {
     "addTitle": "Ongeza Alama ya Maji",
