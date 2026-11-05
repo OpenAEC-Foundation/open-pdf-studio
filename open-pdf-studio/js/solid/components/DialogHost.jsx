@@ -23,6 +23,8 @@ import PageLabelsDialog from './dialogs/PageLabelsDialog.jsx';
 import BookmarkNamesDialog from './dialogs/BookmarkNamesDialog.jsx';
 import FormValidationDialog from './dialogs/FormValidationDialog.jsx';
 import StampPickerDialog from './dialogs/StampPickerDialog.jsx';
+import StampTemplatesDialog from './dialogs/StampTemplatesDialog.jsx';
+import DynamicStampFieldsDialog from './dialogs/DynamicStampFieldsDialog.jsx';
 import CalibrationDialog from './dialogs/CalibrationDialog.jsx';
 import ScaleCheckDialog from './dialogs/ScaleCheckDialog.jsx';
 import ScaleDialog from './dialogs/ScaleDialog.jsx';
@@ -122,6 +124,8 @@ const DIALOG_MAP = {
   'bookmark-names': BookmarkNamesDialog,
   'form-validation': FormValidationDialog,
   'stamp-picker': StampPickerDialog,
+  'stamp-templates': StampTemplatesDialog,
+  'dynamic-stamp-fields': DynamicStampFieldsDialog,
   'calibration': CalibrationDialog,
   'scale-check': ScaleCheckDialog,
   'scale': ScaleDialog,

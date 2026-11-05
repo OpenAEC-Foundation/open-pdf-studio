@@ -37,6 +37,7 @@ import WallSection from './WallSection.jsx';
 import BetonbalkSection from './BetonbalkSection.jsx';
 import SysteemrasterSection from './SysteemrasterSection.jsx';
 import { SectieContext, sectieVolgorde, zetStandaardSectieVolgorde } from '../../stores/sectieVolgordeStore.js';
+import DynamicStampSection from './DynamicStampSection.jsx';
 
 // "Meet op tekening" for an EXISTING scale region: temporary 2-click
 // distance pick → small "real length" dialog → the region's scale is
@@ -262,6 +263,7 @@ const SECTIES = [
   ['wall', WallSection],
   ['betonbalk', BetonbalkSection],
   ['systeemraster', SysteemrasterSection],
+  ['dynamicStamp', DynamicStampSection],
   ['textFormat', TextFormatSection],
   ['paragraph', ParagraphSection],
   ['content', ContentSection],

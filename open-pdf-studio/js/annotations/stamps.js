@@ -22,7 +22,12 @@ export { BUILT_IN_STAMPS };
 export function showStampPicker(x, y) {
   openDialog('stamp-picker', {
     onSelect: (stamp) => placeStamp(stamp, x, y),
-    onCustom: () => loadCustomStamp(x, y)
+    onCustom: () => loadCustomStamp(x, y),
+    // Template with fields (#629): date, user, page ... and own fields.
+    onDynamic: (template) => import('./dynamic-stamp-place.js')
+      .then((m) => m.placeDynamicStamp(template, x, y))
+      .catch((err) => console.error('Failed to place dynamic stamp:', err)),
+    onManage: () => openDialog('stamp-templates', {})
   });
 }
 
