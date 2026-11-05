@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Tamaño con el que se coloca un símbolo nuevo",
     "symbolScaleCustom": "Escala personalizada",
     "count": "Contar",
-    "arc": "Arco"
+    "arc": "Arco",
+    "countGroup": "Grupo de conteo",
+    "countGroupLabel": "Grupo",
+    "countGroupTip": "Las nuevas marcas de conteo van a este grupo; el número es el total del grupo",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color de todo el grupo, incluidas las marcas ya colocadas",
+    "countGroupNew": "Nuevo grupo",
+    "countGroupAdd": "Añadir grupo"
   },
   "proofread": {
     "group": "Revisión",

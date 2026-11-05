@@ -17,7 +17,9 @@
     "viewports": "Madirisha ya mwonekano",
     "noViewports": "Hakuna madirisha ya mwonekano yaliyofafanuliwa",
     "measurements": "Vipimo",
-    "noMeasurements": "Bado hakuna vipimo"
+    "noMeasurements": "Bado hakuna vipimo",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Sifa",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Fungua",
     "saveAs": "Hifadhi kama...",
     "noContent": "Maudhui ya faili hii hayajapachikwa kwenye PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

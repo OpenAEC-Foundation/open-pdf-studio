@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Dimensiunea la care este plasat un simbol nou",
     "symbolScaleCustom": "Scară personalizată",
     "count": "Numărare",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Corectură",

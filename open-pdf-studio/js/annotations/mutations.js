@@ -1,6 +1,10 @@
 import { cloneAnnotation } from './factory.js';
-import { recordModify, recordDelete, recordBulkDelete } from '../core/undo-manager.js';
+import {
+  recordModify, recordDelete, recordBulkDelete, recordBulkModify,
+  beginUndoTransaction, endUndoTransaction,
+} from '../core/undo-manager.js';
 import { expandCorrectionGroups } from './corrections/model.js';
+import { hernummerTellingen, telGroepSleutel } from './telling.js';
 
 export function commitAnnotationMutation(annotation, mutate) {
   if (!annotation?.id || typeof mutate !== 'function') return false;
@@ -25,9 +29,24 @@ export function deleteAnnotationsWithUndo(doc, selection) {
   const gekozen = new Set(selection || []);
   if (weg.some(a => a.locked && !gekozen.has(a))) return [];
   if (weg.length === 0) return [];
-  if (weg.length === 1) recordDelete(weg[0], doc.annotations.indexOf(weg[0]));
-  else recordBulkDelete(weg);
-  const set = new Set(weg);
-  doc.annotations = doc.annotations.filter(a => !set.has(a));
+  // Telmarkeringen (#935): de rest van hun groep telt opnieuw, in dezelfde stap.
+  const telGroepen = weg.filter(a => a.type === 'count').map(telGroepSleutel);
+  if (telGroepen.length > 0) beginUndoTransaction();
+  try {
+    if (weg.length === 1) recordDelete(weg[0], doc.annotations.indexOf(weg[0]));
+    else recordBulkDelete(weg);
+    const set = new Set(weg);
+    doc.annotations = doc.annotations.filter(a => !set.has(a));
+    if (telGroepen.length > 0) {
+      const nieuw = hernummerTellingen(doc.annotations, telGroepen);
+      if (nieuw.length > 0) {
+        const voor = nieuw.map(w => cloneAnnotation(w.ann));
+        for (const w of nieuw) w.ann.number = w.number;
+        recordBulkModify(nieuw.map(w => w.ann), voor);
+      }
+    }
+  } finally {
+    if (telGroepen.length > 0) endUndoTransaction();
+  }
   return weg;
 }

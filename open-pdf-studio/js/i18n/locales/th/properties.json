@@ -17,7 +17,9 @@
     "viewports": "วิวพอร์ต",
     "noViewports": "ยังไม่ได้กำหนดวิวพอร์ต",
     "measurements": "การวัด",
-    "noMeasurements": "ยังไม่มีการวัด"
+    "noMeasurements": "ยังไม่มีการวัด",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "คุณสมบัติ",
   "general": {
@@ -922,5 +924,15 @@
     "open": "เปิด",
     "saveAs": "บันทึกเป็น...",
     "noContent": "เนื้อหาของไฟล์นี้ไม่ได้ฝังอยู่ใน PDF"
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

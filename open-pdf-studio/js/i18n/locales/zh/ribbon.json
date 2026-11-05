@@ -683,7 +683,14 @@
     "symbolScaleTitle": "放置新符号时的尺寸",
     "symbolScaleCustom": "自定义比例",
     "count": "计数",
-    "arc": "圆弧"
+    "arc": "圆弧",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "校对",

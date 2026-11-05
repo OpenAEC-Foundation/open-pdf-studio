@@ -864,6 +864,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const nv = nr !== undefined ? pdfNum(context.lookup(nr) || nr) : null;
         if (nv !== null) colors.opsCountNumber = nv;
         for (const [sleutel, veld] of [['OPS_CountCategory', 'opsCountCategory'],
+          ['OPS_CountCategoryName', 'opsCountCategoryName'],
           ['OPS_MarkerStyle', 'opsMarkerStyle'], ['OPS_SymbolId', 'opsSymbolId']]) {
           const t = leesPdfTekst(context, annotDict.get(PDFName.of(sleutel)));
           if (t) colors[veld] = t;

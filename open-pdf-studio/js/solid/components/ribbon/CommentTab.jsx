@@ -13,6 +13,7 @@ import { recordClearPage, recordClearAll, recordAdd } from '../../../core/undo-m
 import { hideProperties } from '../../../ui/panels/properties-panel.js';
 import { clearSelection } from '../../../core/stores/selection-helpers.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
+import { showCalibrationDialog } from '../../../annotations/measurement.js';
 import {
   highlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
@@ -189,6 +190,12 @@ export function CommentGroups() {
               disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'measurePerimeter'} onClick={() => setTool('measurePerimeter')} />
             <RibbonButton size="small" id="tool-measure-angle" title={t('measure.measureAngle') || 'Hoek meten'} icon={measureAngleIcon} label={t('measure.angle') || 'Hoek'}
               disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'measureAngle'} onClick={() => setTool('measureAngle')} />
+          </RibbonButtonStack>
+          {/* Schaal instellen bij de meetgereedschappen (#972): referentielijn
+              of standaardschaal, metrisch en imperiaal. */}
+          <RibbonButtonStack>
+            <RibbonButton size="small" id="tool-measure-calibrate" title={t('comment.calibrateTitle') || 'Scale Calibration'} icon={calibrateIcon} label={t('comment.calibrate') || 'Calibrate'}
+              disabled={noPdf() || isPdfAReadOnly()} onClick={() => showCalibrationDialog()} />
           </RibbonButtonStack>
         </RibbonGroup>
 

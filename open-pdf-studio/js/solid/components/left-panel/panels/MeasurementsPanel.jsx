@@ -3,7 +3,8 @@ import { activeTab } from '../../../stores/leftPanelStore.js';
 import { state, getActiveDocument } from '../../../../core/state.js';
 import { getScaleForPoint } from '../../../../annotations/scale-bar.js';
 import { redrawAnnotations, redrawContinuous } from '../../../../annotations/rendering.js';
-import { showProperties } from '../../../../ui/panels/properties-panel.js';
+import { showProperties, showMultiSelectionProperties } from '../../../../ui/panels/properties-panel.js';
+import { countTallies, countGroupMembers, GEEN_TELGROEP } from '../../../stores/countStore.js';
 import { goToPage } from '../../../../pdf/renderer.js';
 import { recordDelete } from '../../../../core/undo-manager.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
@@ -102,6 +103,27 @@ export default function MeasurementsPanel() {
     redraw();
   }
 
+  // ── Tellingen per groep (#935): klik selecteert de markeringen van de
+  // groep op de huidige pagina (of op de eerste pagina waar de groep staat).
+  const countRows = createMemo(() => countTallies().filter(r => r.count > 0));
+  function selectCountGroup(groupId) {
+    const doc = getActiveDocument();
+    if (!doc) return;
+    const leden = countGroupMembers(groupId);
+    if (leden.length === 0) return;
+    let pagina = doc.currentPage;
+    if (!leden.some(a => a.page === pagina)) {
+      pagina = leden[0].page;
+      goToPage(pagina);
+    }
+    const sel = leden.filter(a => a.page === pagina);
+    doc.selectedAnnotations = sel;
+    doc.selectedAnnotation = sel[sel.length - 1] || null;
+    if (sel.length === 1) showProperties(sel[0]);
+    else showMultiSelectionProperties();
+    redraw();
+  }
+
   function deleteViewport(ann) {
     const doc = getActiveDocument();
     if (!doc) return;
@@ -156,6 +178,28 @@ export default function MeasurementsPanel() {
               <button class="measurements-item-delete" title="Delete" onClick={(e) => { e.stopPropagation(); deleteViewport(vp); }}>
                 &times;
               </button>
+            </div>
+          )}
+        </For>
+      </div>
+
+      {/* ── Counts Section (#935) ── */}
+      <div class="measurements-section">
+        <div class="measurements-section-header">
+          <span>{t('measurements.counts')}</span>
+          <span class="measurements-count">{countRows().reduce((s, r) => s + r.count, 0)}</span>
+        </div>
+        <Show when={countRows().length === 0}>
+          <div class="measurements-empty">{t('measurements.noCounts')}</div>
+        </Show>
+        <For each={countRows()}>
+          {(r) => (
+            <div class="measurements-item" onClick={() => selectCountGroup(r.id)}>
+              <div class="measurements-item-icon" style={{ color: r.color }}>&#9679;</div>
+              <div class="measurements-item-info">
+                <div class="measurements-item-name">{r.id === GEEN_TELGROEP ? t('countGroup.none') : r.name}</div>
+                <div class="measurements-item-detail">{t('countGroup.pieces', { count: r.count })}</div>
+              </div>
             </div>
           )}
         </For>

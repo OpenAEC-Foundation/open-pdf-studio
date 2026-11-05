@@ -17,7 +17,9 @@
     "viewports": "Изгледи",
     "noViewports": "Няма дефинирани изгледи",
     "measurements": "Измервания",
-    "noMeasurements": "Все още няма измервания"
+    "noMeasurements": "Все още няма измервания",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Свойства",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Отваряне",
     "saveAs": "Запиши като...",
     "noContent": "Съдържанието на този файл не е вградено в PDF файла."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

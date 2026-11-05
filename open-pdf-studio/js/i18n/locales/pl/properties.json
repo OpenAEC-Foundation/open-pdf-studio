@@ -17,7 +17,9 @@
     "viewports": "Rzutnie",
     "noViewports": "Nie zdefiniowano rzutni",
     "measurements": "Pomiary",
-    "noMeasurements": "Brak pomiarów"
+    "noMeasurements": "Brak pomiarów",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Właściwości",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Otwórz",
     "saveAs": "Zapisz jako...",
     "noContent": "Zawartość tego pliku nie jest osadzona w pliku PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

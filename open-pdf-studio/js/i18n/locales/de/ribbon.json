@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Größe, in der ein neues Symbol platziert wird",
     "symbolScaleCustom": "Eigener Maßstab",
     "count": "Zählen",
-    "arc": "Bogen"
+    "arc": "Bogen",
+    "countGroup": "Zählgruppe",
+    "countGroupLabel": "Gruppe",
+    "countGroupTip": "Neue Zählmarkierungen kommen in diese Gruppe; die Zahl ist die Summe der Gruppe",
+    "countGroupColor": "Farbe",
+    "countGroupColorTip": "Farbe der ganzen Gruppe, auch der bereits gesetzten Markierungen",
+    "countGroupNew": "Neue Gruppe",
+    "countGroupAdd": "Gruppe hinzufügen"
   },
   "proofread": {
     "group": "Korrektur",

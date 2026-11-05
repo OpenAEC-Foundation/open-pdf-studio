@@ -226,7 +226,9 @@
     "viewports": "ຊ່ອງມຸມມອງ",
     "noViewports": "ບໍ່ມີການກຳນົດຊ່ອງມຸມມອງ",
     "measurements": "ການວັດແທກ",
-    "noMeasurements": "ຍັງບໍ່ມີການວັດແທກເທື່ອ"
+    "noMeasurements": "ຍັງບໍ່ມີການວັດແທກເທື່ອ",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "lineEndings": {
     "title": "ຫົວທ້າຍເສັ້ນ",
@@ -922,5 +924,15 @@
     "open": "ເປີດ",
     "saveAs": "ບັນທຶກເປັນ...",
     "noContent": "ເນື້ອຫາຂອງໄຟລ໌ນີ້ບໍ່ໄດ້ຝັງຢູ່ໃນ PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

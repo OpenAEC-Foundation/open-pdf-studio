@@ -17,7 +17,9 @@
     "viewports": "Výrezy",
     "noViewports": "Nie sú definované žiadne výrezy",
     "measurements": "Merania",
-    "noMeasurements": "Zatiaľ žiadne merania"
+    "noMeasurements": "Zatiaľ žiadne merania",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Vlastnosti",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Otvoriť",
     "saveAs": "Uložiť ako...",
     "noContent": "Obsah tohto súboru nie je vložený do PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

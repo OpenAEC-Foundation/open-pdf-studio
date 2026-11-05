@@ -168,6 +168,7 @@ export function planSymbolCounts(matches, annotations, category) {
       x,
       y,
       categoryId: category.id,
+      ...(category.name ? { categoryName: category.name } : {}),
       number: ++number,
       markerStyle: category.markerStyle || 'dot',
       ...(category.symbolId ? { symbolId: category.symbolId } : {}),

@@ -16,11 +16,15 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { scaleSelectOptions, isImperialScalePreset } from '../../../annotations/scale-presets.js';
 
-// Standard drawing scales for the dropdown (largest → smallest denominator).
-const PRESET_SCALES = [
+// Standard drawing scales for the dropdown (largest → smallest denominator),
+// followed by the imperial architectural/engineering scales (#972).
+const METRIC_REGION_SCALES = [
   '1:200', '1:100', '1:50', '1:20', '1:10', '1:5', '1:2', '1:1',
 ];
+const SCALE_OPTIONS = scaleSelectOptions(METRIC_REGION_SCALES);
+const PRESET_SCALES = SCALE_OPTIONS.map(o => o.value);
 
 function redraw() {
   const doc = getActiveDocument();
@@ -167,10 +171,12 @@ export default function ScaleRegionDialog(props) {
               } else {
                 setCustomScale(false);
                 setScaleString(v);
+                // An imperial preset reads in feet; another unit can still be chosen.
+                if (isImperialScalePreset(v)) setUnits('ft');
               }
             }}
             options={[
-              ...PRESET_SCALES.map(s => ({ value: s, label: s })),
+              ...SCALE_OPTIONS,
               { value: '__custom__', label: t('scaleRegion.custom') || 'Aangepast…' },
             ]}
             style={{ width: '100%' }}

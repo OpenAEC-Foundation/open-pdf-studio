@@ -17,7 +17,9 @@
     "viewports": "Khung nhìn",
     "noViewports": "Chưa xác định khung nhìn nào",
     "measurements": "Phép đo",
-    "noMeasurements": "Chưa có phép đo nào"
+    "noMeasurements": "Chưa có phép đo nào",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Thuộc tính",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Mở",
     "saveAs": "Lưu thành...",
     "noContent": "Nội dung của tệp này không được nhúng trong PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

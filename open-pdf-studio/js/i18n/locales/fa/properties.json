@@ -17,7 +17,9 @@
     "viewports": "دریچه‌های دید",
     "noViewports": "هیچ دریچه دیدی تعریف نشده است",
     "measurements": "اندازه‌گیری‌ها",
-    "noMeasurements": "هنوز اندازه‌گیری‌ای وجود ندارد"
+    "noMeasurements": "هنوز اندازه‌گیری‌ای وجود ندارد",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "ویژگی‌ها",
   "general": {
@@ -922,5 +924,15 @@
     "open": "باز کردن",
     "saveAs": "ذخیره به عنوان...",
     "noContent": "محتوای این فایل در PDF جاسازی نشده است."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

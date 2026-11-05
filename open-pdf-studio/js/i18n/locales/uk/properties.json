@@ -17,7 +17,9 @@
     "viewports": "Видові екрани",
     "noViewports": "Видові екрани не визначено",
     "measurements": "Вимірювання",
-    "noMeasurements": "Вимірювань ще немає"
+    "noMeasurements": "Вимірювань ще немає",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Властивості",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Відкрити",
     "saveAs": "Зберегти як...",
     "noContent": "Вміст цього файлу не вбудовано в PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

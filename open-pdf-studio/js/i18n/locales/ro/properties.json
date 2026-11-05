@@ -17,7 +17,9 @@
     "viewports": "Ferestre de vizualizare",
     "noViewports": "Nicio fereastră de vizualizare definită",
     "measurements": "Măsurători",
-    "noMeasurements": "Încă nu există măsurători"
+    "noMeasurements": "Încă nu există măsurători",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Proprietati",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Deschide",
     "saveAs": "Salvare ca...",
     "noContent": "Conținutul acestui fișier nu este încorporat în PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

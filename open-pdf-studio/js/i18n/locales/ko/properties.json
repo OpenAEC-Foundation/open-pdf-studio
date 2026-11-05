@@ -17,7 +17,9 @@
     "viewports": "뷰포트",
     "noViewports": "정의된 뷰포트 없음",
     "measurements": "측정",
-    "noMeasurements": "아직 측정이 없습니다"
+    "noMeasurements": "아직 측정이 없습니다",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "속성",
   "general": {
@@ -922,5 +924,15 @@
     "open": "열기",
     "saveAs": "다른 이름으로 저장...",
     "noContent": "이 파일의 내용은 PDF에 포함되어 있지 않습니다."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

@@ -636,7 +636,14 @@
     "symbolScaleTitle": "ຂະໜາດທີ່ສັນຍະລັກໃໝ່ຈະຖືກວາງ",
     "symbolScaleCustom": "ມາດຕາສ່ວນກຳນົດເອງ",
     "count": "ນັບ",
-    "arc": "ເສັ້ນໂຄ້ງ"
+    "arc": "ເສັ້ນໂຄ້ງ",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "theme": {
     "system": "ຕາມລະບົບ (ກວດຫາອັດຕະໂນມັດ)",

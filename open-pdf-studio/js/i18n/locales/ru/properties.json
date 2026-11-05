@@ -17,7 +17,9 @@
     "viewports": "Видовые экраны",
     "noViewports": "Видовые экраны не определены",
     "measurements": "Измерения",
-    "noMeasurements": "Измерений пока нет"
+    "noMeasurements": "Измерений пока нет",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Свойства",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Открыть",
     "saveAs": "Сохранить как...",
     "noContent": "Содержимое этого файла не встроено в PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

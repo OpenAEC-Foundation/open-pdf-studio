@@ -15,12 +15,15 @@ import LineEndingsSection from './LineEndingsSection.jsx';
 import InkSection from './InkSection.jsx';
 import DimensionsSection from './DimensionsSection.jsx';
 import MeasurementSection from './MeasurementSection.jsx';
+import CountGroupSection from './CountGroupSection.jsx';
 import TextFormatSection from './TextFormatSection.jsx';
 import ParagraphSection from './ParagraphSection.jsx';
 import ContentSection from './ContentSection.jsx';
 import ImageSection from './ImageSection.jsx';
 import { PapierMaatInvoer, PapierEenheidKeuze } from './PapierMaat.jsx';
 import { leesInvoerInEenheid } from '../../../annotations/papiermaat-eenheid.js';
+import { scaleSelectOptions, isImperialScalePreset } from '../../../annotations/scale-presets.js';
+import { beginUndoTransaction, endUndoTransaction } from '../../../core/undo-manager.js';
 import { papierEenheid } from '../../stores/papierEenheidStore.js';
 import ActionsSection from './ActionsSection.jsx';
 import CustomFieldsSection from './CustomFieldsSection.jsx';
@@ -88,6 +91,7 @@ export default function PropertiesPanel() {
             <InkSection />
             <DimensionsSection />
             <MeasurementSection />
+            <CountGroupSection />
             <Show when={annotProps.annotationType === 'viewport'}>
               <CollapsibleSection title="Viewport" name="viewport" id="prop-viewport-section">
                 <div class="property-group">
@@ -105,9 +109,9 @@ export default function PropertiesPanel() {
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
                     onChange={(e) => updateAnnotProp('viewportScaleRatio', e.target.value)}
                   >
-                    {[10,20,25,50,75,100,125,150,200,250,300,400,500,750,1000,1250,2000,2500,5000].map(r =>
-                      <option value={r}>1:{r}</option>
-                    )}
+                    {/* Metrisch en imperiaal (#972); de waarde is de noemer. */}
+                    {scaleSelectOptions([10,20,25,50,75,100,125,150,200,250,300,400,500,750,1000,1250,2000,2500,5000].map(r => `1:${r}`))
+                      .map(o => <option value={o.value.slice(2)}>{o.label}</option>)}
                   </select>
                 </div>
                 <div class="property-group">
@@ -141,16 +145,26 @@ export default function PropertiesPanel() {
                   <select
                     value={annotProps.scaleRegionScale || '1:100'}
                     disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
-                    onChange={(e) => updateAnnotProp('scaleRegionScale', e.target.value)}
+                    onChange={(e) => {
+                      const ratio = e.target.value;
+                      // An imperial preset reads in feet (#972): one undo step.
+                      beginUndoTransaction();
+                      try {
+                        updateAnnotProp('scaleRegionScale', ratio);
+                        if (isImperialScalePreset(ratio)) updateAnnotProp('scaleRegionUnits', 'ft');
+                      } finally {
+                        endUndoTransaction();
+                      }
+                    }}
                   >
                     {(() => {
-                      // Standard drawing scales; prepend the region's current
-                      // value when it's a custom one so the select never
-                      // shows blank.
-                      const presets = ['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1'];
+                      // Standard drawing scales, metric and imperial (#972);
+                      // prepend the region's current value when it's a
+                      // custom one so the select never shows blank.
+                      const presets = scaleSelectOptions(['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1']);
                       const cur = annotProps.scaleRegionScale || '1:100';
-                      const list = presets.includes(cur) ? presets : [cur, ...presets];
-                      return list.map(s => <option value={s}>{s}</option>);
+                      const list = presets.some(o => o.value === cur) ? presets : [{ value: cur, label: cur }, ...presets];
+                      return list.map(o => <option value={o.value}>{o.label}</option>);
                     })()}
                   </select>
                 </div>

@@ -19,3 +19,23 @@ export const SCALE_PRESETS = [
   ...METRIC_SCALE_PRESETS,
   ...IMPERIAL_SCALE_PRESETS.map(preset => preset.ratio),
 ];
+
+/** Is this ratio one of the imperial presets (picking it defaults to feet)? */
+export function isImperialScalePreset(ratio) {
+  return IMPERIAL_SCALE_PRESETS.some(preset => preset.ratio === ratio);
+}
+
+/**
+ * Options for a scale dropdown (#972): the given metric ratios, then every
+ * imperial preset in inch/foot notation. Every place that offers a list of
+ * standard scales (scale regions, viewports, the properties panel) uses this,
+ * so the imperial presets are not hidden in one dialog.
+ * @param {string[]} [metric]  metric ratios in the order the list shows them
+ * @returns {{value: string, label: string}[]}
+ */
+export function scaleSelectOptions(metric = METRIC_SCALE_PRESETS) {
+  return [
+    ...metric.map(ratio => ({ value: ratio, label: ratio })),
+    ...IMPERIAL_SCALE_PRESETS.map(preset => ({ value: preset.ratio, label: preset.label })),
+  ];
+}

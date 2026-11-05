@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Taille à laquelle un nouveau symbole est placé",
     "symbolScaleCustom": "Échelle personnalisée",
     "count": "Compter",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Groupe de comptage",
+    "countGroupLabel": "Groupe",
+    "countGroupTip": "Les nouveaux repères de comptage vont dans ce groupe ; le nombre est le total du groupe",
+    "countGroupColor": "Couleur",
+    "countGroupColorTip": "Couleur de tout le groupe, y compris les repères déjà placés",
+    "countGroupNew": "Nouveau groupe",
+    "countGroupAdd": "Ajouter un groupe"
   },
   "proofread": {
     "group": "Relecture",

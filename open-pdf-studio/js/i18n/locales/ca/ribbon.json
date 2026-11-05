@@ -683,7 +683,14 @@
     "symbolScaleTitle": "Mida amb què es col·loca un símbol nou",
     "symbolScaleCustom": "Escala personalitzada",
     "count": "Comptar",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Revisió",

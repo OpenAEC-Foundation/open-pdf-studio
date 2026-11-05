@@ -151,8 +151,10 @@ export function drawSelectionHandles(ctx, annotation) {
   const isPointBased = ((annotation.type === 'measureArea' || annotation.type === 'measurePerimeter' ||
     annotation.type === 'polyline' || annotation.type === 'cloudPolyline' || annotation.type === 'splineArrow') ||
     (annotation.type === 'filledArea' && isEditingContour)) && annotation.points && annotation.points.length >= 2;
+  // Een telmarkering tekent hierboven al haar eigen ring; sinds ze een kader
+  // heeft (#934) kwam er anders een vierkantje binnen die ring bij.
   const usesGripOnlySelection = annotation.type === 'line' || annotation.type === 'arrow' || annotation.type === 'wall'
-    || annotation.type === 'stavenreeks';
+    || annotation.type === 'stavenreeks' || annotation.type === 'count';
   if (isMeasureAngle) {
     ctx.save();
     ctx.strokeStyle = '#0066cc';

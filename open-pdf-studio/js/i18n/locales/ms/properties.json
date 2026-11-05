@@ -17,7 +17,9 @@
     "viewports": "Port pandangan",
     "noViewports": "Tiada port pandangan ditakrifkan",
     "measurements": "Pengukuran",
-    "noMeasurements": "Belum ada pengukuran"
+    "noMeasurements": "Belum ada pengukuran",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Sifat",
   "general": {
@@ -922,5 +924,15 @@
     "open": "Buka",
     "saveAs": "Simpan sebagai...",
     "noContent": "Kandungan fail ini tidak dibenamkan dalam PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
   }
 }

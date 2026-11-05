@@ -683,7 +683,14 @@
     "symbolScaleTitle": "הגודל שבו ממוקם סמל חדש",
     "symbolScaleCustom": "קנה מידה מותאם",
     "count": "ספירה",
-    "arc": "קשת"
+    "arc": "קשת",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "הגהה",

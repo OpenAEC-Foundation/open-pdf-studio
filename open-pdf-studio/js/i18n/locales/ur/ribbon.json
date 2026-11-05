@@ -683,7 +683,14 @@
     "symbolScaleTitle": "وہ سائز جس پر نیا نشان رکھا جاتا ہے",
     "symbolScaleCustom": "حسب ضرورت پیمانہ",
     "count": "گنتی",
-    "arc": "قوس"
+    "arc": "قوس",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "پروف ریڈنگ",

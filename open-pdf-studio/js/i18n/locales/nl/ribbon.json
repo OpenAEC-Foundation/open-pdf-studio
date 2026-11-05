@@ -647,7 +647,14 @@
     "symbolScaleTitle": "Maat waarop een nieuw symbool geplaatst wordt",
     "symbolScaleCustom": "Eigen schaal",
     "count": "Tellen",
-    "arc": "Boog"
+    "arc": "Boog",
+    "countGroup": "Telgroep",
+    "countGroupLabel": "Groep",
+    "countGroupTip": "Nieuwe telmarkeringen komen in deze groep; het getal is het totaal in de groep",
+    "countGroupColor": "Kleur",
+    "countGroupColorTip": "Kleur van de hele groep, ook van de al geplaatste markeringen",
+    "countGroupNew": "Nieuwe groep",
+    "countGroupAdd": "Groep toevoegen"
   },
   "theme": {
     "system": "Systeem (Automatisch)",
