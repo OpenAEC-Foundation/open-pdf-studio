@@ -3699,6 +3699,55 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-security"
+version = "2026.44.4"
+dependencies = [
+ "aes",
+ "cbc",
+ "lopdf",
+ "rand 0.8.6",
+ "serde",
+ "sha2",
+ "stringprep",
+ "unicode-normalization",
+ "zeroize",
+]
+
+[[package]]
+name = "open-pdf-signatures"
+version = "2026.44.4"
+dependencies = [
+ "base64 0.22.1",
+ "cbc",
+ "cms",
+ "const-oid",
+ "der",
+ "des",
+ "flate2",
+ "hmac",
+ "image",
+ "log",
+ "lopdf",
+ "memmap2",
+ "p256",
+ "p384",
+ "pkcs12",
+ "pkcs5",
+ "rand 0.8.6",
+ "rc2",
+ "rsa",
+ "rustls-native-certs",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "spki",
+ "windows-sys 0.59.0",
+ "x509-cert",
+ "zeroize",
+]
+
+[[package]]
 name = "open-pdf-studio"
 version = "2026.44.8"
 dependencies = [
@@ -3728,6 +3777,8 @@ dependencies = [
  "open-pdf-cad",
  "open-pdf-cmyk",
  "open-pdf-render",
+ "open-pdf-security",
+ "open-pdf-signatures",
  "openaec-update",
  "p256",
  "p384",
@@ -3744,7 +3795,6 @@ dependencies = [
  "sha1",
  "sha2",
  "spki",
- "stringprep",
  "tauri",
  "tauri-build",
  "tauri-plugin-clipboard-manager",
@@ -3762,7 +3812,6 @@ dependencies = [
  "tauri-plugin-updater",
  "tesseract-rs",
  "tokio",
- "unicode-normalization",
  "url",
  "urlencoding",
  "webview2-com",
