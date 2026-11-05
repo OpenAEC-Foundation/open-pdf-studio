@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "An:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Alinear a la página",
+    "alignToPageTip": "Alinear la selección a los bordes o al centro de la página (también con una sola marca)",
+    "alignPageEach": "Alinear cada marca por separado",
+    "alignPageEachTip": "Con Alinear a la página: cada marca va sola al borde, no como grupo"
   },
   "theme": {
     "system": "Sistema (Autodetectar)",
@@ -781,5 +785,16 @@
       "mep": "Instalaciones (MEP)",
       "infra": "Infraestructura"
     }
+  },
+  "clipboardPalette": {
+    "title": "Portapapeles",
+    "tip": "Haga clic en una copia y pulse Ctrl+V en la hoja: aparece en el ratón.",
+    "empty": "Copie marcas (Ctrl+C) para reunirlas aquí.",
+    "clear": "Vaciar el portapapeles",
+    "clearShort": "Vaciar",
+    "remove": "Quitar",
+    "close": "Cerrar",
+    "markups": "{{count}} marcas",
+    "picked": "La copia está en el portapapeles: pulse Ctrl+V en la hoja"
   }
 }

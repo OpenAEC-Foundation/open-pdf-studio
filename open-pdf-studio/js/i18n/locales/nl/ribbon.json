@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Uitlijnen op pagina",
+    "alignToPageTip": "Selectie uitlijnen op de randen of het midden van de pagina (werkt ook met een markering)",
+    "alignPageEach": "Elke markering apart uitlijnen",
+    "alignPageEachTip": "Bij Uitlijnen op pagina: elke markering apart tegen de paginarand in plaats van als groep"
   },
   "common": {
     "comingSoon": "Binnenkort beschikbaar",
@@ -790,5 +794,16 @@
       "mep": "Installatietechniek (MEP)",
       "infra": "Infra"
     }
+  },
+  "clipboardPalette": {
+    "title": "Klembord",
+    "tip": "Klik een kopie aan en druk dan Ctrl+V op het blad: hij komt bij de muis.",
+    "empty": "Kopieer markeringen (Ctrl+C) om ze hier te verzamelen.",
+    "clear": "Klembord leegmaken",
+    "clearShort": "Leegmaken",
+    "remove": "Verwijderen",
+    "close": "Sluiten",
+    "markups": "{{count}} markeringen",
+    "picked": "Kopie staat op het klembord: druk Ctrl+V op het blad"
   }
 }

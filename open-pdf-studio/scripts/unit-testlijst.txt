@@ -692,3 +692,8 @@ js/annotations/scale-presets.test.mjs
 js/annotations/telling.test.mjs
 js/solid/stores/countStore.test.mjs
 js/pdf/saver/telling.test.mjs
+js/annotations/plak-bij-muis.test.mjs
+js/annotations/klembord-lijst.test.mjs
+js/annotations/uitlijnen-pagina.test.mjs
+js/solid/components/properties-panel/sectie-volgorde.test.mjs
+js/tools/verwijder-toets.test.mjs

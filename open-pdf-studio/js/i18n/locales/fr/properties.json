@@ -936,5 +936,9 @@
     "pieces": "{{count}} pcs",
     "color": "Couleur du groupe",
     "name": "Nom du groupe"
+  },
+  "sectionOrder": {
+    "reset": "Rétablir l'ordre des sections",
+    "dragHint": "Cliquez pour réduire ou développer. Faites glisser pour déplacer la section (ou Alt+Haut/Bas)."
   }
 }

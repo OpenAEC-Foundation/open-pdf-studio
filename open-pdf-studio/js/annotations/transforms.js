@@ -1169,6 +1169,20 @@ export function applyMove(annotation, deltaX, deltaY) {
   annotation.modifiedAt = new Date().toISOString();
 }
 
+// Star verplaatsen: als applyMoveGeneric, maar een aanhaalvak (callout)
+// neemt ook zijn pijlpunt, knik en armoorsprong mee. Voor plakken bij de muis
+// (#928) en uitlijnen op de pagina (#968): daar verhuist de hele markering,
+// niet alleen het tekstvak.
+const _MOVE_CALLOUT_PAIRS = [['arrowX', 'arrowY'], ['kneeX', 'kneeY'], ['armOriginX', 'armOriginY']];
+export function applyMoveRigid(annotation, dx, dy) {
+  if (!annotation || (dx === 0 && dy === 0)) return;
+  applyMoveGeneric(annotation, dx, dy);
+  for (const [kx, ky] of _MOVE_CALLOUT_PAIRS) {
+    if (typeof annotation[kx] === 'number') annotation[kx] += dx;
+    if (typeof annotation[ky] === 'number') annotation[ky] += dy;
+  }
+}
+
 // ── Generic rotate walker ────────────────────────────────────────────────
 // THE per-type rotate primitive for the interactive 'RO' session (see
 // g-rotate-mode.js). Mirrors applyMove's contract: ONE walker over the same

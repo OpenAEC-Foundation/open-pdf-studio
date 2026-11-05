@@ -501,7 +501,11 @@
     "x": "X :",
     "w": "L :",
     "y": "Y :",
-    "h": "H :"
+    "h": "H :",
+    "alignToPage": "Aligner sur la page",
+    "alignToPageTip": "Aligner la sélection sur les bords ou le centre de la page (fonctionne aussi avec une seule annotation)",
+    "alignPageEach": "Aligner chaque annotation séparément",
+    "alignPageEachTip": "Avec Aligner sur la page : chaque annotation est placée seule contre le bord, et non en groupe"
   },
   "theme": {
     "system": "Système (Automatique)",
@@ -781,5 +785,16 @@
       "mep": "Équipements techniques du bâtiment (MEP)",
       "infra": "Infrastructures"
     }
+  },
+  "clipboardPalette": {
+    "title": "Presse-papiers",
+    "tip": "Cliquez sur une copie, puis Ctrl+V sur la feuille : elle se place sous la souris.",
+    "empty": "Copiez des annotations (Ctrl+C) pour les rassembler ici.",
+    "clear": "Vider le presse-papiers",
+    "clearShort": "Vider",
+    "remove": "Supprimer",
+    "close": "Fermer",
+    "markups": "{{count}} annotations",
+    "picked": "La copie est dans le presse-papiers : appuyez sur Ctrl+V sur la feuille"
   }
 }

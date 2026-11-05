@@ -12,7 +12,8 @@ import {
   alignLeft, alignCenter, alignRight, alignTop, alignMiddle, alignBottom,
   distributeSpaceH, distributeSpaceV, distributeLeft, distributeCenter,
   distributeRight, distributeTop, distributeMiddle, distributeBottom,
-  sameSize, sameWidth, sameHeight, alignTarget, setAlignTarget
+  sameSize, sameWidth, sameHeight, alignTarget, setAlignTarget,
+  alignPageEach, setAlignPageEach
 } from '../../../annotations/alignment.js';
 import {
   alignLeftIcon, alignCenterIcon, alignRightIcon, alignTopIcon, alignMiddleIcon, alignBottomIcon,
@@ -79,7 +80,8 @@ export default function ArrangeTab() {
             <div class="ribbon-menu-wrapper" ref={alignMenuRef}>
               <button class="ribbon-row-btn ribbon-dropdown-btn" id="arr-align-to" title={t('arrange.alignTo')} disabled={isPdfAReadOnly()} ref={alignBtnRef}
                 onClick={() => setAlignMenuOpen(!alignMenuOpen())}>
-                <span>{alignTarget() === 'last' ? t('arrange.alignToLastSelected') : t('arrange.alignToSelection')}</span>
+                <span>{alignTarget() === 'last' ? t('arrange.alignToLastSelected')
+                  : alignTarget() === 'page' ? t('arrange.alignToPage') : t('arrange.alignToSelection')}</span>
                 <svg class="dropdown-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>
               </button>
               <div class={`ribbon-menu-dropdown${alignMenuOpen() ? ' show' : ''}`} id="arr-align-to-menu" ref={alignDropdownRef}>
@@ -90,6 +92,18 @@ export default function ArrangeTab() {
                 <button class="ribbon-menu-item" onClick={() => { setAlignTarget('last'); setAlignMenuOpen(false); }}>
                   <span class="ribbon-menu-check">{alignTarget() === 'last' ? '✓' : ''}</span>
                   <span>{t('arrange.alignToLastSelected')}</span>
+                </button>
+                <button class="ribbon-menu-item" id="arr-align-to-page" title={t('arrange.alignToPageTip')}
+                  onClick={() => { setAlignTarget('page'); setAlignMenuOpen(false); }}>
+                  <span class="ribbon-menu-check">{alignTarget() === 'page' ? '✓' : ''}</span>
+                  <span>{t('arrange.alignToPage')}</span>
+                </button>
+                <div class="ribbon-menu-sep"></div>
+                <button class="ribbon-menu-item" id="arr-align-page-each" title={t('arrange.alignPageEachTip')}
+                  disabled={alignTarget() !== 'page'}
+                  onClick={() => { setAlignPageEach(!alignPageEach()); setAlignMenuOpen(false); }}>
+                  <span class="ribbon-menu-check">{alignPageEach() ? '✓' : ''}</span>
+                  <span>{t('arrange.alignPageEach')}</span>
                 </button>
               </div>
             </div>

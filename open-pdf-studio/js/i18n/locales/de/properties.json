@@ -936,5 +936,9 @@
     "pieces": "{{count}} Stk.",
     "color": "Gruppenfarbe",
     "name": "Gruppenname"
+  },
+  "sectionOrder": {
+    "reset": "Abschnittsreihenfolge zurücksetzen",
+    "dragHint": "Klicken zum Ein- oder Ausklappen. Ziehen, um den Abschnitt zu verschieben (oder Alt+Pfeil auf/ab)."
   }
 }

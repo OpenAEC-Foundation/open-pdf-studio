@@ -501,7 +501,11 @@
     "x": "X:",
     "w": "La:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Allinea alla pagina",
+    "alignToPageTip": "Allinea la selezione ai bordi o al centro della pagina (anche con una sola annotazione)",
+    "alignPageEach": "Allinea ogni annotazione separatamente",
+    "alignPageEachTip": "Con Allinea alla pagina: ogni annotazione va da sola al bordo invece che come gruppo"
   },
   "theme": {
     "system": "Sistema (Automatico)",
@@ -781,5 +785,16 @@
       "mep": "Impianti tecnici (MEP)",
       "infra": "Infrastrutture"
     }
+  },
+  "clipboardPalette": {
+    "title": "Appunti",
+    "tip": "Fai clic su una copia, poi premi Ctrl+V sul foglio: viene incollata sotto il mouse.",
+    "empty": "Copia le annotazioni (Ctrl+C) per raccoglierle qui.",
+    "clear": "Svuota gli appunti",
+    "clearShort": "Svuota",
+    "remove": "Rimuovi",
+    "close": "Chiudi",
+    "markups": "{{count}} annotazioni",
+    "picked": "La copia è negli appunti: premi Ctrl+V sul foglio"
   }
 }

@@ -936,5 +936,9 @@
     "pieces": "{{count}} pcs",
     "color": "Group color",
     "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }
