@@ -50,7 +50,7 @@ test('samenvoegvenster: modus voor een nieuw document', () => {
   assert.match(d, /modus\.knopSleutel \? t\(modus\.knopSleutel\) : tCommon\('merge'\)/);
   assert.match(d, /<Show when=\{modus\.toonInvoegpositie\}>\s*<div class="merge-pdfs-row">/);
   assert.match(d, /onMount\(\(\) => \{\s*if \(modus\.beginBestanden\.length\) addPaths\(modus\.beginBestanden\);/);
-  assert.match(d, /if \(modus\.combineNew\) \{[\s\S]*?combineerTotNieuwDocument\(paths,/);
+  assert.match(d, /if \(modus\.combineNew\) \{[\s\S]*?combineerTotNieuwDocument\(entries,/);
   // Op- en neer schuiven blijft in beide modi.
   assert.match(d, /function moveUp\(\)/);
   assert.match(d, /function moveDown\(\)/);
