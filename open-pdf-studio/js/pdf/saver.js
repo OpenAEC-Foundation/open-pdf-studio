@@ -26,7 +26,8 @@ import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
 import { schrijfSchalenInPdf } from './schaal-in-pdf.js';
 import { maatlijnAnnotatie, kopVullingSleutels } from './saver/maatlijn-opslaan.js';
-import { schrijfMeetvlakSchaal, meetvlakRect } from './saver/meetvlak-opslaan.js';
+import { meetvlakRect } from './saver/meetvlak-opslaan.js';
+import { writeDimensionMeasure } from './saver/dimension-measure.js';
 import { vlakZijdeTeksten } from '../annotations/measurement.js';
 import { verzamelSchaalBronnen } from '../annotations/schaal-op-punt.js';
 import { attachVectorAP } from './saver/vector-ap.js';
@@ -2781,8 +2782,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             }
             annotDict = context.obj(maDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
-            // Eigen schaal van het vlak als /Measure (#536).
-            schrijfMeetvlakSchaal(annotDict, ann, context);
+            // Schaal van het vlak als /Measure (#536): de eigen schaal, of
+            // die van de pagina (OPS_ScaleInherited), zodat andere programma's
+            // het vlak als meting lezen (#959). /A in de eenheid van het label.
+            writeDimensionMeasure(annotDict, context, annRaw, doc, state.preferences, scaleSources, { vlak: true });
             // Arcering: de parameters mee, niet alleen de lijnen in de
             // appearance — anders is de arcering na heropenen weg en schrijft
             // de volgende save een kaal vlak.
@@ -2968,6 +2971,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Holle punten van een omtrekmaat uit een ander programma.
             Object.assign(mpDict, kopVullingSleutels(ann));
             annotDict = context.obj(mpDict);
+            // Schaal als /Measure, zoals bij een maat: andere programma's lezen
+            // de omtrekmaat zo als meting (#959).
+            writeDimensionMeasure(annotDict, context, annRaw, doc, state.preferences, scaleSources);
             // Diepte van de omtrekmaat (#311).
             schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));

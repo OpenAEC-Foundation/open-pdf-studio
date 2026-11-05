@@ -23,7 +23,7 @@ import { pdfTextString } from './pdf-text.js';
 import { schrijfPlattegrondMeta } from './plattegrond-meta.js';
 import { buildMeasureDistanceAP, buildInlineMaatAP } from './appearance-vectors.js';
 import { attachVectorAP } from './vector-ap.js';
-import { writeDimensionMeasure } from './dimension-measure.js';
+import { writeDimensionMeasure, meetContents } from './dimension-measure.js';
 import { maatlijnTekst, maatLabelRuimte } from '../../annotations/maat-label.js';
 import { maatlijnGeometrie, maatlijnVelden, papierMmNaarPt } from '../../annotations/maatlijn-geometrie.js';
 import { inlineMaatlijn, helveticaBreedte } from '../../annotations/maatlijn-inline.js';
@@ -196,7 +196,17 @@ export function maatlijnAnnotatie({ ann, annRaw = ann, doc, preferences, scaleSo
   mdDict.CP = PDFName.of('Inline');
 
   annotDict = context.obj(mdDict);
-  writeDimensionMeasure(annotDict, context, annRaw, doc, preferences, scaleSources);
+  const meting = writeDimensionMeasure(annotDict, context, annRaw, doc, preferences, scaleSources);
+  // /Contents met de eenheid erbij: een maat in mm toont alleen het getal,
+  // een andere lezer ziet "3530 mm". De tekst van de app gaat mee in
+  // OPS_MeasureText (lader: meettekstUitBestand). Een Spot Coord is geen lengte.
+  if (ann.dimKind !== SPOT_COORD) {
+    const { contents, eigen } = meetContents(ann.measureText, meting.unit);
+    if (eigen !== null) {
+      annotDict.set(PDFName.of('Contents'), pdfTextString(contents));
+      annotDict.set(PDFName.of('OPS_MeasureText'), pdfTextString(eigen));
+    }
+  }
 
   annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
   // Vector /AP so the dimension line, extension lines AND the value
