@@ -10,7 +10,7 @@ import {
   BrugFout, WERKPLEK, HALLO_INTERVAL_MS, HALLO_OPGEVEN_MS, VERZOEK_TIMEOUT_MS,
   normaliseerOpslaan, opslaanMelding, AI_FOUTCODES,
   HOST_FOUTCODES, hostFoutSleutel, hostFoutMelding, versieVoorOpen,
-  normaliseerOpslaanAlsAntwoord,
+  normaliseerOpslaanAlsAntwoord, APP_SOORTEN,
 } from './host-brug.js';
 import { foutSoort } from './host-opslaan-als.js';
 
@@ -719,4 +719,87 @@ test('het antwoord op opslaan_als: brug- en contractvelden', () => {
     { id: '5', name: 'a.pdf', version: 2, renamed: false });
   assert.equal(normaliseerOpslaanAlsAntwoord({ bestand: 'X', naam: 'a (2).pdf' }, 'a.pdf').renamed, true);
   assert.throws(() => normaliseerOpslaanAlsAntwoord(null, 'a.pdf'), (e) => e.code === 'antwoord');
+});
+
+// ── Verzoeken van de gastpagina aan de app (#977) ──────────────────────────
+function nepWerkplekApp() {
+  const aanroepen = [];
+  return {
+    aanroepen,
+    tools: async () => ['pdf_stand', 'pdf_go_to_page'],
+    definitions: async () => [{ name: 'pdf_stand', description: 'x', inputSchema: { type: 'object' } }],
+    run: async (naam, argumenten) => {
+      aanroepen.push({ naam, argumenten });
+      if (naam === 'pdf_open_pdf') throw Object.assign(new Error('niet_in_browser: pdf_open_pdf'), { code: 'niet_in_browser' });
+      return { ok: true, naam, argumenten };
+    },
+  };
+}
+
+const appVerzoek = (id, soort, velden = {}) => ({ werkplek: WERKPLEK, id, soort, ...velden });
+const antwoordOp = (ouder, id) => ouder.verzonden.map((v) => v.bericht).find((b) => b.antwoord === id);
+
+test('app.*: hallo noemt de verzoeken als de app ze kent, anders niet', () => {
+  const tijd = nepKlok();
+  const met = nepVenster();
+  maakHostBrug({ ouder: OUDER, ouderVenster: met.parent, venster: met, klok: tijd.klok, app: nepWerkplekApp() }).start();
+  assert.deepEqual(met.parent.verzonden[0].bericht.soorten, [...APP_SOORTEN]);
+  assert.deepEqual(APP_SOORTEN, ['app.tools', 'app.definities', 'app.run']);
+  const zonder = nepVenster();
+  maakHostBrug({ ouder: OUDER, ouderVenster: zonder.parent, venster: zonder, klok: tijd.klok }).start();
+  assert.equal(zonder.parent.verzonden[0].bericht.soorten, undefined);
+});
+
+test('app.*: tools, definities en run gaan naar de app, het antwoord naar alleen de ouder', async () => {
+  const app = nepWerkplekApp();
+  const { venster, ouder } = await verbondenBrug({ app: () => app });
+  venster.ontvang(appVerzoek(1, 'app.tools'));
+  venster.ontvang(appVerzoek(2, 'app.definities'));
+  venster.ontvang(appVerzoek(3, 'app.run', { naam: 'pdf_go_to_page', argumenten: { page: 2 } }));
+  venster.ontvang(appVerzoek(4, 'app.run', { naam: 'pdf_stand' }));
+  await rust();
+  assert.deepEqual(antwoordOp(ouder, 1), { werkplek: WERKPLEK, antwoord: 1, ok: true, waarde: ['pdf_stand', 'pdf_go_to_page'] });
+  assert.equal(antwoordOp(ouder, 2).waarde[0].name, 'pdf_stand');
+  assert.deepEqual(antwoordOp(ouder, 3).waarde, { ok: true, naam: 'pdf_go_to_page', argumenten: { page: 2 } });
+  assert.deepEqual(app.aanroepen[1], { naam: 'pdf_stand', argumenten: {} }, 'zonder argumenten een leeg object');
+  for (const v of ouder.verzonden) assert.equal(v.doel, OUDER);
+});
+
+test('app.*: een weigering gaat terug met de code; onbekend of zonder naam ook', async () => {
+  const { venster, ouder } = await verbondenBrug({ app: nepWerkplekApp() });
+  venster.ontvang(appVerzoek(7, 'app.run', { naam: 'pdf_open_pdf', argumenten: { path: 'C:/x.pdf' } }));
+  venster.ontvang(appVerzoek(8, 'app.run', {}));
+  venster.ontvang(appVerzoek(9, 'app.wis_alles'));
+  await rust();
+  assert.deepEqual(antwoordOp(ouder, 7), {
+    werkplek: WERKPLEK, antwoord: 7, ok: false, fout: 'niet_in_browser: pdf_open_pdf', code: 'niet_in_browser',
+  });
+  assert.equal(antwoordOp(ouder, 8).code, 'ongeldige_argumenten');
+  assert.equal(antwoordOp(ouder, 9).code, 'onbekende_soort');
+
+  // Zonder app: elk app-verzoek is onbekend, maar krijgt wel een antwoord.
+  const zonder = await verbondenBrug();
+  zonder.venster.ontvang(appVerzoek(1, 'app.tools'));
+  await rust();
+  assert.equal(antwoordOp(zonder.ouder, 1).ok, false);
+  assert.equal(antwoordOp(zonder.ouder, 1).code, 'onbekende_soort');
+});
+
+test('app.*: alleen van de pagina erboven op de oorsprong uit de hash; na stop niets meer', async () => {
+  const app = nepWerkplekApp();
+  const { brug, venster, ouder } = await verbondenBrug({ app });
+  const voor = ouder.verzonden.length;
+  venster.ontvang(appVerzoek(1, 'app.run', { naam: 'pdf_stand' }), { origin: 'https://kwaad.example' });
+  venster.ontvang(appVerzoek(2, 'app.run', { naam: 'pdf_stand' }), { source: {} });
+  venster.ontvang({ werkplek: 2, id: 3, soort: 'app.run', naam: 'pdf_stand' });
+  venster.ontvang(appVerzoek('4', 'app.run', { naam: 'pdf_stand' }));
+  venster.ontvang(appVerzoek(5, 'opslaan', { bestand: 'X' }), {});
+  await rust();
+  assert.equal(app.aanroepen.length, 0, 'geen enkel vervalst verzoek bereikte de app');
+  assert.equal(ouder.verzonden.length, voor, 'en er ging niets terug');
+
+  brug.stop();
+  venster.ontvang(appVerzoek(6, 'app.tools'));
+  await rust();
+  assert.equal(ouder.verzonden.length, voor);
 });

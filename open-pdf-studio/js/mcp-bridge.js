@@ -3939,6 +3939,24 @@ const HANDLERS = {
 };
 
 /**
+ * Eén opdracht in de app zelf: dezelfde handler die een `mcp:*`-event van de
+ * Rust-server uitvoert. Voor de assistent van de werkplek (#977,
+ * core/werkplek-app.js), die in de browser draait zonder de MCP-server van
+ * de desktop-app. Een handler die gooit, geeft { ok: false, error }, net als
+ * over de brug van Tauri; een fout met een code (NIET_IN_BROWSER van
+ * core/platform.js) gaat door, zodat de werkplek hem herkent.
+ */
+export async function runAppEvent(name, params = {}) {
+  if (!Object.hasOwn(HANDLERS, name)) throw new Error(`unknown app command: ${name}`);
+  try {
+    return await HANDLERS[name](params ?? {});
+  } catch (e) {
+    if (e && typeof e === 'object' && typeof e.code === 'string') throw e;
+    return { ok: false, error: `${e?.message ?? e}` };
+  }
+}
+
+/**
  * Gestructureerde opdrachten van extensies (#575) staan in tools/list van de
  * MCP-server: na elke wijziging gaat de hele lijst naar Rust
  * (mcp_set_extension_tools). Het volgnummer loopt ook over een herlading van
