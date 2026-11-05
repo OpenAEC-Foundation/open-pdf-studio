@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -11,12 +11,28 @@ export default function CompressDialog(props) {
   const currentSize = props.data?.currentSize ?? null;
 
   const [level, setLevel] = createSignal('medium');
+  // 'raster': elke pagina als JPEG; 'lossless': alleen zwart/witte beelden
+  // verliesloos opnieuw coderen, tekst en vectoren blijven (#902).
+  const [mode, setMode] = createSignal('raster');
 
   const close = () => closeDialog('compress');
+
+  const handleLossless = async () => {
+    const { compressPDFLossless, formatBytes: fmt } = await import('../../../pdf/compress.js');
+    const { losslessReport } = await import('../../../pdf/monochrome-rapport.js');
+    try {
+      const result = await compressPDFLossless();
+      if (!result || result.cancelled) return;
+      showMessage(losslessReport(result, t, fmt), t('compress.title'));
+    } catch (e) {
+      showMessage(t('compress.failed', { error: String(e?.message ?? e) }));
+    }
+  };
 
   const handleCompress = async () => {
     const chosen = level();
     close();
+    if (mode() === 'lossless') return handleLossless();
 
     const { compressPDF } = await import('../../../pdf/compress.js');
     try {
@@ -65,24 +81,37 @@ export default function CompressDialog(props) {
     >
       <div class="crop-margins-form">
         <div class="crop-margins-row">
-          <label class="crop-margins-label">{t('compress.quality')}</label>
+          <label class="crop-margins-label">{t('compress.mode')}</label>
           <select
             class="crop-margins-select"
-            value={level()}
-            onChange={(e) => setLevel(e.target.value)}
+            value={mode()}
+            onChange={(e) => setMode(e.target.value)}
           >
-            {levels.map((l) => (
-              <option value={l.id}>{l.name} — {l.dpi} DPI</option>
-            ))}
+            <option value="raster">{t('compress.modeRaster')}</option>
+            <option value="lossless">{t('compress.modeLossless')}</option>
           </select>
         </div>
+        <Show when={mode() === 'raster'}>
+          <div class="crop-margins-row">
+            <label class="crop-margins-label">{t('compress.quality')}</label>
+            <select
+              class="crop-margins-select"
+              value={level()}
+              onChange={(e) => setLevel(e.target.value)}
+            >
+              {levels.map((l) => (
+                <option value={l.id}>{l.name} — {l.dpi} DPI</option>
+              ))}
+            </select>
+          </div>
+        </Show>
         <div class="crop-margins-info">
           {currentSize != null
             ? t('compress.currentSize', { size: formatBytes(currentSize) })
             : ''}
         </div>
         <div class="crop-margins-info">
-          {t('compress.info')}
+          {mode() === 'lossless' ? t('compress.infoLossless') : t('compress.info')}
         </div>
       </div>
     </Dialog>
