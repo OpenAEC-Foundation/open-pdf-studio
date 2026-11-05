@@ -498,6 +498,6 @@ We are looking for someone to **own and maintain the extensions and the content 
 
 ## License
 
-Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0](LICENSE.md).
+Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0 or later](LICENSE.md). The LGPL builds on the [GNU General Public License v3.0](GPL-3.0.txt), whose text ships alongside it.
 
-PDF.js is licensed under the Apache License 2.0. pdf-lib is licensed under the MIT License. PDFium is licensed under the BSD 3-Clause License.
+[LICENSING.md](LICENSING.md) explains in plain language what that means, lists the licence of every component of this repository and of the third-party components the app ships with (PDF.js: Apache-2.0, pdf-lib: MIT, PDFium: BSD-3-Clause, and more), and answers the AGPL question around the MuPDF dependency.

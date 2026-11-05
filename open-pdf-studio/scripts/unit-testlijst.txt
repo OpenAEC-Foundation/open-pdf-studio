@@ -751,3 +751,4 @@ js/mobile/foto.test.mjs
 js/tools/text-edit-esc.test.mjs
 js/pdf/pagina-uittreksel.test.mjs
 js/pdf/ocr-laag.test.mjs
+scripts/licenties.test.mjs
