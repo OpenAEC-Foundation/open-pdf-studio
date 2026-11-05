@@ -18,6 +18,8 @@ merged into one file again.
 | Licence of the application | **LGPL-3.0-or-later** |
 | Licence files | `LICENSE.md` (LGPL v3), `GPL-3.0.txt` (GPL v3, referenced by the LGPL) |
 | Price | free, no paid edition, no licence key |
+| Telemetry | none in the desktop app, see [`PRIVACY.md`](PRIVACY.md) |
+| Watermarks | none; saving never adds a mark of the app to your pages |
 
 What the LGPL means in practice:
 

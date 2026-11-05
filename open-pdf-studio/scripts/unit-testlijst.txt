@@ -752,3 +752,4 @@ js/tools/text-edit-esc.test.mjs
 js/pdf/pagina-uittreksel.test.mjs
 js/pdf/ocr-laag.test.mjs
 scripts/licenties.test.mjs
+js/core/geen-telemetrie.test.mjs

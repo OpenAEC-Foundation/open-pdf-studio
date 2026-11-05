@@ -501,3 +501,7 @@ We are looking for someone to **own and maintain the extensions and the content 
 Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0 or later](LICENSE.md). The LGPL builds on the [GNU General Public License v3.0](GPL-3.0.txt), whose text ships alongside it.
 
 [LICENSING.md](LICENSING.md) explains in plain language what that means, lists the licence of every component of this repository and of the third-party components the app ships with (PDF.js: Apache-2.0, pdf-lib: MIT, PDFium: BSD-3-Clause, and more), and answers the AGPL question around the MuPDF dependency.
+
+## Privacy
+
+The desktop app has no telemetry and adds no watermark. [PRIVACY.md](PRIVACY.md) lists every network connection the app can make, when, and what it sends; a unit test keeps that list in step with the source.
