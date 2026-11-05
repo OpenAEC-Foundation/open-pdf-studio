@@ -13,7 +13,7 @@ import { getEffectiveScale } from '../tools/effective-scale.js';
 import { plakVerschuivingPt } from './minimummaat.js';
 import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { annotationBounds } from './spatial-index.js';
-import { applyMoveGeneric } from './transforms.js';
+import { applyMoveRigid } from './transforms.js';
 import { omhullendKader, centreerVerschuiving, puntOpPagina } from './plak-bij-muis.js';
 import { addToClipboardHistory } from './clipboard-history.js';
 
@@ -55,12 +55,13 @@ export function plekOnderMuis() {
 }
 
 // Verschuif de geplakte kopieen zodat hun omhullende kader op `plek` ligt.
-// applyMoveGeneric verplaatst ook leiders en puntenlijsten star mee.
+// applyMoveRigid verplaatst ook leiders, puntenlijsten en de pijl van een
+// aanhaalvak star mee.
 function centreerOp(kopieen, plek) {
   const kader = omhullendKader(kopieen.map(a => annotationBounds(a)));
   if (!kader) return false;
   const { dx, dy } = centreerVerschuiving(kader, plek);
-  for (const a of kopieen) { applyMoveGeneric(a, dx, dy); a.page = plek.page; }
+  for (const a of kopieen) { applyMoveRigid(a, dx, dy); a.page = plek.page; }
   return true;
 }
 
