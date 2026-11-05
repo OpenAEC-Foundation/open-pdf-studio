@@ -572,6 +572,12 @@
   border-color: var(--theme-thumbnail-active-border);
 }
 
+/* Treffer van het zoekveld (#926): dezelfde streep links als bij de
+   bladwijzers; de lijst blijft volledig. */
+.thumbnail-item.found {
+  box-shadow: inset 3px 0 0 var(--theme-thumbnail-active-border);
+}
+
 .thumbnail-canvas {
   width: 100%;
   max-width: 100%;
