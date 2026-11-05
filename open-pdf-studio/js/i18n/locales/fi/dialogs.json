@@ -697,6 +697,8 @@
     "title": "Tekstintunnistus (OCR)",
     "run": "Tunnista",
     "language": "Kieli:",
+    "engine": "Moottori:",
+    "builtinEngine": "Tesseract (sisäänrakennettu)",
     "info": "{{count}} sivu(a) asiakirjassa. Lisää näkymättömän, haettavan tekstitason — sivu näyttää edelleen samalta. Täysin peruutettavissa Kumoa-toiminnolla ennen tallennusta.",
     "options": {
       "auto": "Automaattinen tunnistus",

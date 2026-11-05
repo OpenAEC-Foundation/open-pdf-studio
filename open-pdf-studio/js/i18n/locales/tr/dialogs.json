@@ -697,6 +697,8 @@
     "title": "Metin Tanıma (OCR)",
     "run": "Tanı",
     "language": "Dil:",
+    "engine": "Motor:",
+    "builtinEngine": "Tesseract (yerleşik)",
     "info": "Belgede {{count}} sayfa var. Görünmez, aranabilir bir metin katmanı ekler — sayfa aynı görünmeye devam eder. Kaydetmeden önce Geri Al ile tamamen geri alınabilir.",
     "options": {
       "auto": "Otomatik algıla",

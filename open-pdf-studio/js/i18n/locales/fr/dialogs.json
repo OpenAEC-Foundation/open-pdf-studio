@@ -697,6 +697,8 @@
     "title": "Reconnaissance de texte (OCR)",
     "run": "Reconnaître",
     "language": "Langue :",
+    "engine": "Moteur :",
+    "builtinEngine": "Tesseract (intégré)",
     "info": "{{count}} page(s) dans le document. Ajoute une couche de texte invisible et consultable — la page reste identique visuellement. Entièrement réversible avec Annuler avant l'enregistrement.",
     "options": {
       "auto": "Détection automatique",

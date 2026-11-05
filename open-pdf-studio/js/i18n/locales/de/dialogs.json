@@ -697,6 +697,8 @@
     "title": "Text erkennen (OCR)",
     "run": "Erkennen",
     "language": "Sprache:",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (integriert)",
     "info": "{{count}} Seite(n) im Dokument. Fügt eine unsichtbare, durchsuchbare Textebene hinzu — die Seite sieht weiterhin gleich aus. Vor dem Speichern vollständig mit Rückgängig umkehrbar.",
     "options": {
       "auto": "Automatisch erkennen",

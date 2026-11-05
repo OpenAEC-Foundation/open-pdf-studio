@@ -213,3 +213,50 @@ Answers to an unknown, unclaimed or finished task are refused with
 `UNKNOWN_TASK`, `TASK_NOT_CLAIMED` or `TASK_NOT_RUNNING`; a task whose
 document changed is refused with `STALE_TASK`. Two tasks never see each
 other's results.
+
+## OCR engines
+
+Check `api.features.ocrEngines` before calling these methods. An extension
+can offer its own text recognition engine; the user picks it once under
+**Engine** in Recognize Text (OCR), and every OCR job in the app then uses
+it: the searchable text layer, page labels and form recognition.
+
+```js
+const id = await api.registerOcrEngine({
+  id: 'my-engine',            // [a-z0-9][a-z0-9._-]{0,63}; full id '<extensionId>:my-engine'
+  label: 'My OCR engine',     // shown in the Engine list
+  languages: ['eng'],         // optional, informative
+  region: true,               // optional: can read just a region
+  async recognize(request) {
+    // { documentId, pageNum, lang, region, page: { width, height }, signal, renderTile(rect, { scale }) }
+    const tile = await request.renderTile(
+      { x: 0, y: 0, width: request.page.width, height: request.page.height }, { scale: 2 });
+    return [{ text: 'A1-1', left: 72, top: 700, width: 30, height: 12, confidence: 96 }];
+  },
+});
+api.unregisterOcrEngine('my-engine');
+```
+
+Words, in and out, use the space of the built-in engine: top-left origin,
+PDF points at scale 1, the page with its `/Rotate` but without the rotation
+the user gave it in the app. `renderTile` renders in exactly that space with
+the limits of `renderPageTile`. `region` is set only for engines with
+`region: true`: it is the box of a page-label field, so the engine can read
+just that box. Output is validated: words need text and finite, non-negative
+boxes; `confidence` is clamped to 0..100.
+
+If the preferred engine is not installed, throws or returns no word list,
+the app logs a warning and falls back to the built-in Tesseract, so a broken
+extension never breaks OCR. Recognition of a page turned 90 or 270 degrees
+(vertical page-label text) and documents other than the active one always
+use the built-in engine. The engine belongs to the extension's contribution
+scope: unloading or reloading the extension removes it.
+
+## Extension assets
+
+Check `api.features.assets` before calling `api.readAsset(path)`. It returns
+an `ArrayBuffer` with a file from the extension's own package (models,
+WebAssembly). The path is relative to the extension folder; `..` and `.`
+segments, absolute paths, drive letters and empty segments are refused, and
+the resolved file must stay inside the extension folder. Files above 512 MB
+are refused.

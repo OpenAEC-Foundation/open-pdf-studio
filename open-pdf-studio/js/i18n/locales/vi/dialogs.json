@@ -697,6 +697,8 @@
     "title": "Nhận dạng văn bản (OCR)",
     "run": "Nhận dạng",
     "language": "Ngôn ngữ:",
+    "engine": "Công cụ:",
+    "builtinEngine": "Tesseract (tích hợp sẵn)",
     "info": "Tài liệu có {{count}} trang. Thêm một lớp văn bản vô hình, có thể tìm kiếm — trang vẫn trông giống như cũ. Có thể hoàn tác hoàn toàn bằng Hoàn tác trước khi lưu.",
     "options": {
       "auto": "Tự động phát hiện",

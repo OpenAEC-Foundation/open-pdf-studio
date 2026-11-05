@@ -3,7 +3,8 @@
 // (normaliseren, /PageLabels schrijven, tekst in een vak) staat in
 // pagina-labels.js.
 
-import { invoke, isTauri } from '../core/platform.js';
+import { isTauri } from '../core/platform.js';
+import { herkenPagina, actieveOcrEngine } from './ocr-engines.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
@@ -101,11 +102,11 @@ async function ocrWoorden(doc, pageNum, graden = 0) {
   const bestaand = doc.ocrResults?.[pageNum];
   if (!graden && Array.isArray(bestaand) && bestaand.length) return bestaand;
   if (!doc.filePath || !isTauri()) return [];
-  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}|${graden}`;
+  // Voorkeursengine (#970) hoort bij de sleutel: een andere keuze leest opnieuw.
+  const engine = graden ? '' : (actieveOcrEngine()?.id || '');
+  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}|${graden}|${engine}`;
   if (_ocrWoorden.has(sleutel)) return _ocrWoorden.get(sleutel);
-  const woorden = await invoke('ocr_pdf_page', {
-    path: doc.filePath, pageIndex: pageNum - 1, lang: 'auto', ...(graden ? { rotation: graden } : {}),
-  });
+  const woorden = await herkenPagina(doc, pageNum, { lang: 'auto', rotation: graden });
   if (_ocrWoorden.size > 500) _ocrWoorden.clear();
   const lijst = Array.isArray(woorden) ? woorden : [];
   _ocrWoorden.set(sleutel, lijst);
@@ -142,7 +143,15 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
       // OCR-woorden staan in de ruimte van de pagina mét /Rotate maar zonder
       // de draaiing uit de app; draai ze mee naar de ruimte van het vak.
       const extra = p?.extra || 0;
-      const woorden = (await ocrWoorden(doc, pageNum)).map((w) => {
+      // Een extensie-engine die vakken leest (#970) krijgt alleen dit vak, in
+      // zijn eigen ruimte (zonder de app-draaiing); anders de hele pagina.
+      let bron;
+      if (actieveOcrEngine()?.region && p && doc.filePath && isTauri()) {
+        bron = await herkenPagina(doc, pageNum, { lang: 'auto', region: vakNaarOcrDraaiing(vak, p.breedte, p.hoogte, extra, 0) });
+      } else {
+        bron = await ocrWoorden(doc, pageNum);
+      }
+      const woorden = bron.map((w) => {
         if (!extra || !p) return w;
         const r = draaiVak({ x: w.left, y: w.top, width: w.width, height: w.height }, p.breedte, p.hoogte, extra);
         return { ...w, left: r.x, top: r.y, width: r.width, height: r.height };

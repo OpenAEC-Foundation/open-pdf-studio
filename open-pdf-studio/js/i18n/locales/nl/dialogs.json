@@ -697,6 +697,8 @@
     "title": "Tekst herkennen (OCR)",
     "run": "Herken",
     "language": "Taal:",
+    "engine": "Engine:",
+    "builtinEngine": "Tesseract (ingebouwd)",
     "info": "{{count}} pagina('s) in het document. Voegt een onzichtbare, doorzoekbare tekstlaag toe — de pagina ziet er nog hetzelfde uit. Volledig ongedaan te maken vóór het opslaan.",
     "options": {
       "auto": "Automatisch detecteren",

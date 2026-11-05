@@ -53,6 +53,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
   // het laden teruggezet (zie preferences.js).
   defaultViewMode: 'single',
+  // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
+  // null = de ingebouwde Tesseract.
+  ocrEngine: null,
 
   // General — authorName defaults to '' (resolved to OS username at load time)
   authorName: '',

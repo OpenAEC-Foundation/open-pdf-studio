@@ -1,5 +1,5 @@
 import { getActiveDocument } from '../core/state.js';
-import { isTauri, invoke, fileExists, writeBinaryFileNew } from '../core/platform.js';
+import { isTauri, fileExists, writeBinaryFileNew } from '../core/platform.js';
 import { detectFormShapes, labelCandidates, createRecognizedForm, overlap } from './form-recognition.js';
 
 export async function openFormRecognition(documentId) {
@@ -69,7 +69,9 @@ export async function openFormRecognition(documentId) {
           });
           if (!words.length && ocr) {
             if (!isTauri() || !doc.filePath) throw new Error('DESKTOP_OCR_REQUIRED');
-            const raw = await invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNumber - 1, lang });
+            // Voorkeursengine (een extensie of de ingebouwde Tesseract, #970).
+            const { herkenPagina } = await import('./ocr-engines.js');
+            const raw = await herkenPagina(doc, pageNumber, { lang, signal });
             check();
             words = raw.map(w => ({ text: w.text, x: w.left, y: w.top, width: w.width, height: w.height }));
           }

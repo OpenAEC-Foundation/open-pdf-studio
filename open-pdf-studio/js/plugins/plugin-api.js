@@ -334,6 +334,8 @@ export function createPluginApi(pluginId) {
       systemInstanceLinks: true,
       scopedPropertyPanels: true,
       agentTasks: true,
+      ocrEngines: true,
+      assets: true,
     },
 
     // --- Annotation type registration ---
@@ -705,6 +707,41 @@ export function createPluginApi(pluginId) {
 
     focusAnnotation(request) {
       return navigation().focusAnnotation(request);
+    },
+
+    // --- OCR-engines (#970): de gebruiker kiest er één als voorkeursengine;
+    // elke OCR-taak in de app gebruikt die dan (js/pdf/ocr-engines.js). Hoort
+    // bij de bijdragescope: uitladen of herladen haalt de engine weg. ---
+    async registerOcrEngine(descriptor) {
+      scope.eisActief('ocrEngine', String(descriptor?.id));
+      const { registreerOcrEngine, verwijderOcrEngine } = await import('../pdf/ocr-engines.js');
+      // Na het laden opnieuw: de extensie kan intussen uitgeladen zijn.
+      scope.eisActief('ocrEngine', String(descriptor?.id));
+      const sleutel = registreerOcrEngine(pluginId, descriptor);
+      try {
+        scope.voegToe('ocrEngine', sleutel, () => verwijderOcrEngine(sleutel));
+      } catch (e) {
+        verwijderOcrEngine(sleutel);
+        throw e;
+      }
+      return sleutel;
+    },
+
+    unregisterOcrEngine(id) {
+      const sleutel = typeof id === 'string' && id.startsWith(`${pluginId}:`) ? id : `${pluginId}:${id}`;
+      return scope.verwijder('ocrEngine', sleutel);
+    },
+
+    /** Een binair bestand uit het eigen pakket van deze extensie (modellen, WebAssembly). */
+    async readAsset(path) {
+      const { isVeiligAssetPad } = await import('./plugin-assets.js');
+      if (!isVeiligAssetPad(path)) throw new TypeError('readAsset: a relative path inside the extension');
+      scope.eisActief('asset', path);
+      const { invoke } = await import('@tauri-apps/api/core');
+      const data = await invoke('read_plugin_asset', { pluginId, filePath: path });
+      if (data instanceof ArrayBuffer) return data;
+      if (ArrayBuffer.isView(data)) return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+      return new Uint8Array(data).buffer;
     },
 
     // --- Linttabbladen (#551): alleen data, de host tekent; zie ribbon-tab-registry.js ---
