@@ -142,6 +142,74 @@ Var VPrinterState
   !insertmacro OPDS_THUMB_MOVE_ASIDE
 !macroend
 
+; ============================================================
+; File Explorer right-click (#945): "Combine into one PDF" on PDFs, "Convert
+; to PDF" and "Convert and combine into one PDF" on images and CAD drawings.
+; The app side: src-tauri/src/verkenner_acties.rs and js/core/shell-acties.js.
+;
+; Classic shell verbs under SystemFileAssociations, so they work next to any
+; default PDF app; on Windows 11 they are under "Show more options". SHCTX is
+; HKLM for the per-machine installer and HKCU for the per-user installer
+; (SetContext in installer.nsi), so each variant writes and removes in its
+; own hive. Written on every install (also silent and update runs, and when
+; the user does not make the app the default PDF viewer) and removed on
+; uninstall; an update writes them again in POSTINSTALL.
+;
+; Explorer starts the command once per selected file (MultiSelectModel is
+; not set, so the verbs show for up to 15 files); the running app collects
+; the files of one selection. "Convert and combine" uses the same verb key as
+; "Combine", so a mixed selection of images and PDFs shows it.
+;
+; The one list below drives both writing and removing, so the two cannot
+; drift apart (checked by js/core/shell-acties-installer.test.mjs).
+; ============================================================
+!define OPDS_SHELL_SFA "Software\Classes\SystemFileAssociations"
+
+!macro OPDS_SHELL_VERB_WRITE _EXT _KEY _LABEL _FLAG
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}" "" "${_LABEL}"
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}" "MUIVerb" "${_LABEL}"
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}" "Icon" "$INSTDIR\${MAINBINARYNAME}.exe,0"
+  WriteRegStr SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}\command" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" ${_FLAG} $\"%1$\""
+!macroend
+
+; Deletes a key in SHCTX only when it has no subkeys and no values.
+!macro OPDS_DELETE_SHCTX_KEY_IF_EMPTY _KEY
+  EnumRegKey $R4 SHCTX "${_KEY}" 0
+  EnumRegValue $R5 SHCTX "${_KEY}" 0
+  ${If} $R4 == ""
+  ${AndIf} $R5 == ""
+    DeleteRegKey SHCTX "${_KEY}"
+  ${EndIf}
+  ClearErrors
+!macroend
+
+; Removes the verb, then the "shell" and extension keys when that left them
+; empty (they may hold entries of Windows or other programs).
+!macro OPDS_SHELL_VERB_REMOVE _EXT _KEY _LABEL _FLAG
+  DeleteRegKey SHCTX "${OPDS_SHELL_SFA}\${_EXT}\shell\${_KEY}"
+  !insertmacro OPDS_DELETE_SHCTX_KEY_IF_EMPTY "${OPDS_SHELL_SFA}\${_EXT}\shell"
+  !insertmacro OPDS_DELETE_SHCTX_KEY_IF_EMPTY "${OPDS_SHELL_SFA}\${_EXT}"
+!macroend
+
+; _OP: WRITE or REMOVE.
+!macro OPDS_SHELL_VERBS _OP
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".pdf" "OpenPDFStudio.Combine" "$(opdsVerbCombine)" "--combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jpg" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jpeg" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".png" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".bmp" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".gif" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".webp" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".dwg" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".dxf" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jpg" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jpeg" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".png" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".bmp" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".gif" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".webp" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+!macroend
+
 ; The check boxes for the PDF association, the printer and the desktop
 ; shortcut are on the options page (OptionsPageCreate in ui.nsh). Passive
 ; and update runs skip that page; it then sets the association and the
@@ -152,6 +220,11 @@ Var VPrinterState
 ; Post-install: apply file association, shortcut, and virtual printer
 ; ============================================================
 !macro NSIS_HOOK_POSTINSTALL
+
+  ; --- File Explorer right-click: Combine / Convert to PDF (#945) ---
+  DetailPrint "Adding Combine / Convert to PDF to the File Explorer menu..."
+  !insertmacro OPDS_SHELL_VERBS WRITE
+  System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0x0000, p 0, p 0)'
 
   ; --- PDF file association ---
   ${If} $AssocPDFState == ${BST_CHECKED}
@@ -214,6 +287,8 @@ Var VPrinterState
     DeleteRegValue SHCTX "Software\Classes\.pdf" ""
   ${EndIf}
   DeleteRegKey SHCTX "Software\Classes\OpenPDFStudio.pdf"
+  ; File Explorer right-click: Combine / Convert to PDF (#945)
+  !insertmacro OPDS_SHELL_VERBS REMOVE
   Delete "$INSTDIR\file-icon.ico"
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0x0000, p 0, p 0)'
 
