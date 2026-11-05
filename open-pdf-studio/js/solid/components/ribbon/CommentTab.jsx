@@ -7,6 +7,7 @@ import { colorPickerValue, lineWidthValue } from '../../stores/ribbonStore.js';
 import { strokeColor, fmtLineWidth, isLocked, opmaakDoel, opmaakOndersteunt, zetOpmaak } from '../../stores/formatStore.js';
 import { zetRanddikte } from '../../../annotations/rendering/textbox-layout.js';
 import { setTool } from '../../../tools/manager.js';
+import { openDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, noPdf } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { recordClearPage, recordClearAll, recordAdd } from '../../../core/undo-manager.js';
@@ -190,6 +191,10 @@ export function CommentGroups() {
             <RibbonButton size="small" id="tool-measure-angle" title={t('measure.measureAngle') || 'Hoek meten'} icon={measureAngleIcon} label={t('measure.angle') || 'Hoek'}
               disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'measureAngle'} onClick={() => setTool('measureAngle')} />
           </RibbonButtonStack>
+          <RibbonButton id="btn-calibrate" title={t('comment.calibrateTitle')}
+            icon={calibrateIcon} label={t('comment.calibrate')}
+            disabled={noPdf() || isPdfAReadOnly()}
+            onClick={() => openDialog('calibration', { method: 'ratio' })} />
         </RibbonGroup>
 
         {/* Schaal group (Schaalgebied / Schaalgebied op pagina) moved to the

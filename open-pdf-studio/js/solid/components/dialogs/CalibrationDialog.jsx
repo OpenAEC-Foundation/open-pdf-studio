@@ -92,7 +92,7 @@ export default function CalibrationDialog(props) {
   const { t: tCommon } = useTranslation('common');
 
   // Method tab: 'reference' or 'ratio'
-  const [method, setMethod] = createSignal('reference');
+  const [method, setMethod] = createSignal(props.data?.method === 'ratio' ? 'ratio' : 'reference');
 
   // Method 1: Reference line
   const [distance, setDistance] = createSignal(1);

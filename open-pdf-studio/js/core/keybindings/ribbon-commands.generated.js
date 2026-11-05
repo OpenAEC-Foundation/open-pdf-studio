@@ -128,6 +128,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"tool-measure-area","tab":"comment","labelKey":"ribbon:measure.area","label":"Oppervlakte"},
   {"id":"tool-measure-perimeter","tab":"comment","labelKey":"ribbon:measure.perimeter","label":"Omtrek"},
   {"id":"tool-measure-angle","tab":"comment","labelKey":"ribbon:measure.angle","label":"Hoek"},
+  {"id":"btn-calibrate","tab":"comment","labelKey":"ribbon:comment.calibrate"},
   {"id":"btn-open-schedule","tab":"comment","labelKey":"ribbon:measure.takeOff","label":"Hoeveelheden"},
   {"id":"ep-edit-text","tab":"organize","labelKey":"ribbon:home.editText"},
   {"id":"ep-add-text","tab":"organize","labelKey":"ribbon:home.addText"},
