@@ -3,14 +3,21 @@
 // NIEUW stempel; bestaande, reeds geplaatste stempels blijven ongewijzigd en
 // de gebruiker kan na plaatsing vrij schalen/slepen.
 //
-// Wens: stempels bij de Symbolen moeten 10x zo groot zijn als voorheen — voor
-// alle taalgebieden/landcollecties (NL/US/DE/...). Aspect-verhouding per
-// stempel blijft behouden.
+// Aspect-verhouding per stempel blijft behouden.
 
 // Symbool-/bibliotheek-stempels (SymbolPalette selectSymbol -> toolOverrides ->
-// placeOverrideStamp). Was 40x40, nu 10x = 400x400. Dit is het pad dat de
-// stempels van ALLE taalgebieden gebruiken.
-export const SYMBOL_STAMP_DEFAULT_SIZE = 400;
+// placeOverrideStamp), het pad dat de stempels van ALLE taalgebieden gebruiken.
+//
+// Een stempel uit het palet is een ANNOTATIESYMBOOL (brandveiligheid,
+// elektra, GD&T, ...): op papier altijd even groot, los van de tekeningschaal,
+// zoals tekst (#983). De hoogte staat daarom in papiermillimeters; de
+// omrekening naar paginaeenheden rekent met de /UserUnit van de pagina
+// (svg-real-size.js). Een vaste maat in paginapunten (eerst 40, later 400 =
+// 141 mm papier) kwam op een A3-plattegrond 1:50 als blok van zeven meter
+// binnen. Symbolen op werkelijke maat (staalprofielen, palen, meubilair) zijn
+// parametrische symbolen met een realSizeMm (symbols/real-size.js), of een
+// SVG die zelf een echte maat declareert; die volgen wel de tekeningschaal.
+export const SYMBOL_PAPER_HEIGHT_MM = 10;
 
 // Ingebouwde tekst-stempels (APPROVED, DRAFT, ...) via de stamp-picker.
 // Was 160x50, nu 10x = 1600x500.

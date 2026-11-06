@@ -12,6 +12,21 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { documentSchaalOpPagina } from './scale-region-scale.js';
+import { MM_PER_UNIT } from './scale-from-measurement.js';
+
+/**
+ * Paginaeenheden per echte millimeter. Schalen tellen elk in hun eigen eenheid:
+ * de documentschaal uit de titelhoek in mm, een /VP met /Measure van een
+ * CAD-plot vaak in m (#981). Pas na omrekening naar één eenheid zijn ze te
+ * vergelijken; anders leek een 1:50-viewport in een 1:50-document duizend keer
+ * zo gedetailleerd en kromp de tekst van een nieuwe tekstballon naar het minimum.
+ * Onbekende eenheid: null (dan geen correctie).
+ */
+export function pixelsPerMm(schaal) {
+  if (!schaal || !(schaal.pixelsPerUnit > 0)) return null;
+  const mm = MM_PER_UNIT[schaal.unit || 'mm'];
+  return mm ? schaal.pixelsPerUnit / mm : null;
+}
 
 /**
  * Get the scale factor for a point on the page.
@@ -31,15 +46,20 @@ export function getViewportScaleFactor(pageNum, x, y) {
   const pointScale = getScaleForPoint(pageNum, x, y);
   if (!pointScale || pointScale.pixelsPerUnit <= 0) return 1;
 
-  // If they're the same, no adjustment
-  if (Math.abs(pointScale.pixelsPerUnit - docScale.pixelsPerUnit) < 0.0001) return 1;
+  // Beide in paginaeenheden per mm: de eenheden mogen verschillen (#981).
+  const docPpm = pixelsPerMm({ ...docScale, unit: docScale.unit || 'mm' });
+  const puntPpm = pixelsPerMm(pointScale);
+  if (!docPpm || !puntPpm) return 1;
+
+  // Dezelfde schaal (relatief, los van de eenheid): geen aanpassing.
+  if (Math.abs(puntPpm - docPpm) <= 1e-6 * docPpm) return 1;
 
   // Scale factor = doc scale / viewport scale
   // If viewport is 1:50 (larger detail) and doc is 1:100:
   //   docPPU = 72/(25.4*100) = 0.02835
   //   vpPPU  = 72/(25.4*50)  = 0.05669
   //   factor = 0.02835 / 0.05669 = 0.5 (markups should be half size)
-  return docScale.pixelsPerUnit / pointScale.pixelsPerUnit;
+  return docPpm / puntPpm;
 }
 
 /**
