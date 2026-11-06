@@ -394,9 +394,11 @@ test('mobile: the picker and the deep link are guarded, the in-memory route is n
   const mobile = source('../solid/MobileApp.jsx');
   assert.match(mobile, /if \(await loadPDFIfNeeded\(path, index\)\) await fitPage\(\);/);
   // <input type=file> has no path, only a display name and the bytes: two
-  // different files may share that name, so this one always loads.
-  assert.equal(directLoads(mobile), 1);
+  // different files may share that name, so this one always loads. A scan
+  // from the camera (#953) is a new document from fresh bytes: also always.
+  assert.equal(directLoads(mobile), 2);
   assert.match(mobile, /await loadPDF\(file\.name, index, data\);/);
+  assert.match(mobile, /await loadPDF\(naam, index, data\);/);
 
   const main = source('../main.js');
   assert.match(main, /if \(await loadPDFIfNeeded\(filePath, index\)\) await fitPage\(\);/);

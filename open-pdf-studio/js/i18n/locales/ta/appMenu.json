@@ -142,8 +142,8 @@
     "officeTable": "அட்டவணை",
     "officeText": "உரை",
     "officeFailed": "ஆவண ஏற்றுமதி தோல்வியடைந்தது.",
-    "protect": "கடவுச்சொல்லால் பாதுகாக்கவும்",
-    "protectDesc": "கடவுச்சொல்லால் பாதுகாக்கப்பட்ட நகலைச் சேமிக்கவும் (AES-256)"
+    "protect": "ஆவணப் பாதுகாப்பு",
+    "protectDesc": "கடவுச்சொற்களையும் அனுமதிகளையும் அமை அல்லது நீக்கு (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "வெளியீட்டுச் சுயவிவரம்",
@@ -219,11 +219,38 @@
     "uninstallError": "நீட்சியின் நிறுவலை நீக்க முடியவில்லை",
     "by": "உருவாக்கியவர்",
     "activationFailed": "செயலில் இல்லை: {{error}}",
-    "viaMcp": "AI இணைப்பு வழியாக"
+    "viaMcp": "AI இணைப்பு வழியாக",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "கிளிப்போர்டு திரைப்பிடிப்பில் குறிப்புரை சேர்",
   "workflows": "ஆவணப் பணிப்பாய்வுகள்",
   "drawingSets": "வரைபடத் தொகுப்புகள்",
   "sheetLinks": "தாள்களுக்கு இடையிலான இணைப்புகள்",
-  "approvalRouting": "ஒப்புதல் வழித்தடம்"
+  "approvalRouting": "ஒப்புதல் வழித்தடம்",
+  "sharedReview": "பகிர்ந்த மதிப்பாய்வு",
+  "pdfa": "PDF/A..."
 }

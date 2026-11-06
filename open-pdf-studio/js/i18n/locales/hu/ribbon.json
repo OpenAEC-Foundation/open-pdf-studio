@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Méretarány felismerve",
     "noScaleFound": "Nem található méretarány",
-    "detecting": "Észlelés..."
+    "detecting": "Észlelés...",
+    "scaleCheck": "Lépték ellenőrzése",
+    "scaleCheckTitle": "Ismert méret mérése és a léptékeltérés megjelenítése százalékban"
   },
   "home": {
     "document": "Dokumentum",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "A teljes oldalt lefedő méretarány-terület elhelyezése",
     "drawing": "Rajzolás",
     "highlight": "Kiemelés",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Szabadkézi",
     "line": "Vonal",
     "arrow": "Nyíl",
@@ -134,6 +142,8 @@
     "callout": "Kihivás",
     "stamp": "Bélyegző",
     "signature": "Aláírás",
+    "digitalSign": "Digitális aláírás",
+    "digitalSignTooltip": "A dokumentum aláírása tanúsítvánnyal (.p12/.pfx). Az Aláírás gomb csak egy képet helyez el.",
     "measure": "Mérés",
     "measureDistance": "Távolság mérése",
     "distance": "Távolság",
@@ -316,7 +326,85 @@
     "modified": "Módosítva",
     "noChanges": "Nincs változás",
     "textTab": "Szöveg",
-    "noTextChanges": "Nincs szövegeltérés"
+    "noTextChanges": "Nincs szövegeltérés",
+    "previousVersion": "az utolsó mentés előtt",
+    "fromDisk": "fájl",
+    "fileLoadError": "A fájlt nem sikerült PDF-ként megnyitni.",
+    "browse": "Tallózás…",
+    "browseHint": "PDF-fájl választása a lemezről",
+    "pickSecondSide": "Válassza a másik oldalt egy lemezen lévő fájlból, vagy nyisson meg egy második PDF-et egy lapon.",
+    "sensitivity": "Érzékenység",
+    "sensitivityHint": "Egyszerre állítja be a tintaküszöböt, a legkisebb változásméretet és az összevonási távolságot",
+    "preset": {
+      "line": "Vonalas rajz",
+      "scan": "Szkennelés",
+      "text": "Szöveges dokumentum"
+    },
+    "autoAlign": "Automatikus igazítás",
+    "autoAlignHint": "Eltolás, elforgatás és méretarány becslése a rajzokból",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Minden oldalpár automatikus igazítása az első megjelenítéskor",
+    "rotation": "forg.",
+    "scale": "arány",
+    "resetAlignHint": "Igazítás eltávolítása",
+    "alignManual": "kézi",
+    "confidence": "Megbízhatóság",
+    "confidenceHint": "A tinta igazítás után egybeeső aránya",
+    "alignByMeasure": "méretarány a mérési léptékekből",
+    "alignNone": "már igazítva",
+    "alignByContent": "a rajz tartalmából",
+    "pair": "Pár",
+    "pagesTab": "Oldalak",
+    "pairing": "Oldalak párosítása…",
+    "onlyInOld": "Csak a régiben",
+    "onlyInNew": "Csak az újban",
+    "pairReason": {
+      "sheet": "Párosítva rajzszám alapján",
+      "label": "Párosítva oldalcímke alapján",
+      "content": "Párosítva tartalom alapján",
+      "index": "Párosítva oldalsorrend alapján",
+      "manual": "Kézzel párosítva"
+    },
+    "truncated": "Túl sok eltérés: ellenőrizze az igazítást vagy az érzékenységet.",
+    "selectForClouds": "Kijelölés felhőkhöz az új dokumentumon",
+    "report": {
+      "button": "Jelentés",
+      "csv": "Változáslista exportálása (CSV)…",
+      "pdf": "PDF-összefoglaló exportálása…",
+      "clouds": "Kijelölt változások elhelyezése felhőként",
+      "cloudsNeedTab": "Az új dokumentumnak nyitva kell lennie egy lapon",
+      "saved": "Jelentés mentve",
+      "failed": "A jelentést nem sikerült létrehozni",
+      "cloudsPlaced": "Felhők elhelyezve az új dokumentumon: {{count}}",
+      "title": "Összehasonlító jelentés",
+      "generated": "Létrehozva",
+      "settings": "Beállítások",
+      "fileSuffix": "valtozasok",
+      "sourcePixel": "Rajz",
+      "sourceText": "Szöveg",
+      "cloudSubject": "Összehasonlítás",
+      "before": "Előtte",
+      "after": "Utána",
+      "col": {
+        "no": "Sz.",
+        "pair": "Pár",
+        "oldPage": "Régi oldal",
+        "newPage": "Új oldal",
+        "sheet": "Rajzlap",
+        "type": "Típus",
+        "source": "Forrás",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Szélesség (mm)",
+        "heightMm": "Magasság (mm)",
+        "oldText": "Szöveg előtte",
+        "newText": "Szöveg utána"
+      },
+      "sourceVector": "Vektor"
+    },
+    "methodVector": "Vektor",
+    "methodVectorHint": "A rajzolt útvonalak pontos összehasonlítása, ahol mindkét oldal vektoros rajz; a többi oldal képpontos összehasonlítást kap",
+    "methodPixelFallback": "képpontok: nem vektoros oldal"
   },
   "organize": {
     "pages": "Oldalak",
@@ -350,8 +438,16 @@
     "scanTextHint": "Kattintson egy felismert szóra a cseréjéhez. A régi szó a szkennelt képen le lesz takarva.",
     "scanTextNone": "Ezen az oldalon nincs felismert szöveg. Először futtassa a Szövegfelismerés (OCR) funkciót.",
     "shiftPage": "Oldal eltolása",
+    "scanGroup": "Beolvasás",
+    "scan": "Beolvasás",
+    "scanTitle": "Oldalak beolvasása kereshető PDF-be",
+    "batchOcr": "Kötegelt OCR",
+    "batchOcrTitle": "Szövegfelismerés egy mappa összes PDF-fájljában",
     "editPages": "Oldalak szerkesztése",
-    "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás"
+    "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás",
+    "protect": "Védelem",
+    "security": "Biztonság",
+    "securityTitle": "Jelszavak és jogosultságok beállítása vagy eltávolítása"
   },
   "help": {
     "settings": "Beállítások",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "Sz:",
     "y": "Y:",
-    "h": "M:"
+    "h": "M:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Rendszer (Automatikus)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Az a méret, amelyben az új szimbólum elhelyezésre kerül",
     "symbolScaleCustom": "Egyéni lépték",
     "count": "Számlálás",
-    "arc": "Ív"
+    "arc": "Ív",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Korrektúra",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Vészvilágítás",
       "nen1414-tr": "NL NEN 1414 — Füst- és hőelvezetés",
       "nen1414-tv": "NL NEN 1414 — Szellőzés",
-      "nen1414-tw": "NL NEN 1414 — Víz/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Víz/Sprinkler",
+      "gdt-bewerking": "GD&T és forgácsolás"
     },
     "sectors": {
       "aec": "AEC (Építőipar)",
@@ -773,5 +881,34 @@
       "mep": "Épületgépészet (MEP)",
       "infra": "Infrastruktúra"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

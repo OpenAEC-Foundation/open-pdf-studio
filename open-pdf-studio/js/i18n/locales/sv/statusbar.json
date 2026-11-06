@@ -110,6 +110,7 @@
   "searchHitsOne": "1 träff",
   "searchHitsMany": "{{count}} träffar",
   "passwordProtectedBar": "Skyddad med lösenord: öppnad skrivskyddad.",
+  "passwordProtectedEditableBar": "Skyddat med lösenord. Skyddet behålls när du sparar.",
   "documentSearch": {
     "title": "Sök i dokument",
     "query": "Söktext",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Senaste verktyg: {{tool}} kl. {{time}}",
     "noTool": "Inga verktygsanrop ännu"
-  }
+  },
+  "sharedReviewActive": "Delad granskning",
+  "sharedReviewUpdates": "Delad granskning: {{n}} nya",
+  "sharedReviewTitle": "Kommentarer delas via {{folder}}. Klicka för att öppna den delade granskningen.",
+  "sharedReviewError": "Delad granskning: mappen är otillgänglig",
+  "pdfaReadOnly": "Det här dokumentet uppfyller {{label}}-standarden och har öppnats skrivskyddat för att förhindra ändringar.",
+  "pdfaValidate": "Validera"
 }

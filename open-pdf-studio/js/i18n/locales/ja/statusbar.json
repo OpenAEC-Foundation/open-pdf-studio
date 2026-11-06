@@ -110,6 +110,7 @@
   "searchHitsOne": "1 件",
   "searchHitsMany": "{{count}} 件",
   "passwordProtectedBar": "パスワードで保護されています: 読み取り専用で開きました。",
+  "passwordProtectedEditableBar": "パスワードで保護されています。保存しても保護は維持されます。",
   "documentSearch": {
     "title": "ドキュメントを検索",
     "query": "検索テキスト",
@@ -157,5 +158,11 @@
     "port": "ポート: {{port}}",
     "lastTool": "最後のツール: {{tool}} ({{time}})",
     "noTool": "ツール呼び出しはまだありません"
-  }
+  },
+  "sharedReviewActive": "共有レビュー",
+  "sharedReviewUpdates": "共有レビュー: 新着 {{n}}",
+  "sharedReviewTitle": "注釈は {{folder}} を通じて共有されています。クリックすると共有レビューを開きます。",
+  "sharedReviewError": "共有レビュー: フォルダーを利用できません",
+  "pdfaReadOnly": "このドキュメントは {{label}} 標準に準拠しているため、変更を防ぐために読み取り専用で開かれました。",
+  "pdfaValidate": "検証"
 }

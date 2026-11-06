@@ -320,6 +320,8 @@
     "deleteBookmark": "Bladwijzer verwijderen",
     "findBookmark": "Zoeken...",
     "findBookmarkTip": "Typ om naar een bladwijzer te springen. Enter opent hem, nog eens Enter gaat naar de volgende treffer.",
+    "findPage": "Zoeken...",
+    "findPageTip": "Typ om naar een pagina te springen op bladnaam of nummer. Enter opent haar, nog eens Enter gaat naar de volgende treffer.",
     "addAttachment": "Bijlage toevoegen",
     "openAttachment": "Bijlage openen",
     "saveAttachment": "Bijlage opslaan",
@@ -473,7 +475,9 @@
     "viewports": "Viewports",
     "noViewports": "Geen viewports gedefinieerd",
     "measurements": "Metingen",
-    "noMeasurements": "Nog geen metingen"
+    "noMeasurements": "Nog geen metingen",
+    "counts": "Tellingen",
+    "noCounts": "Nog geen tellingen"
   },
   "schedules": {
     "title": "Staten",
@@ -807,6 +811,24 @@
     "rules": "Toewijzing gebruikt het midden van de annotatie-omhullende, inclusief randen. De diepste zone wint, daarna het kleinste oppervlak, daarna het zone-ID. Gebruik rechte polygonen zonder gaten of ongedraaide rechthoeken. Ongeldige of dubbele zone-ID’s worden uitgesloten.",
     "loading": "Annotaties laden: locaties kunnen nog veranderen."
   },
+  "dynamicStamp": {
+    "title": "Stempelvelden",
+    "template": "Sjabloon",
+    "refresh": "Datum, gebruiker en pagina bijwerken",
+    "lock": "Stempel vergrendelen",
+    "lockConfirm": "Deze stempel vergrendelen? De velden kunnen daarna niet meer worden gewijzigd.",
+    "locked": "Deze stempel is vergrendeld: de velden kunnen niet meer worden gewijzigd.",
+    "field": {
+      "date": "Datum",
+      "time": "Tijd",
+      "datetime": "Datum en tijd",
+      "user": "Gebruiker",
+      "page": "Pagina",
+      "pages": "Aantal pagina's",
+      "filename": "Bestandsnaam",
+      "title": "Documenttitel"
+    }
+  },
   "toolSets": {
     "title": "Werkkist",
     "typeWall": "Wand",
@@ -922,5 +944,19 @@
     "open": "Openen",
     "saveAs": "Opslaan als...",
     "noContent": "De inhoud van dit bestand is niet in de PDF ingesloten."
+  },
+  "countGroup": {
+    "title": "Telgroep",
+    "group": "Groep",
+    "none": "(geen groep)",
+    "mixed": "(gemengd)",
+    "total": "In deze groep",
+    "pieces": "{{count}} st.",
+    "color": "Groepskleur",
+    "name": "Groepsnaam"
+  },
+  "sectionOrder": {
+    "reset": "Sectievolgorde herstellen",
+    "dragHint": "Klik om in of uit te klappen. Sleep om de sectie te verplaatsen (of Alt+pijl omhoog/omlaag)."
   }
 }

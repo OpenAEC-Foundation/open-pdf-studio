@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Fra",
     "aiLinkError": "Ikke startet: {{fout}}",
-    "interfaceScale": "Grænsefladestørrelse"
+    "interfaceScale": "Grænsefladestørrelse",
+    "saving": "Gemning",
+    "incrementalSave": "Gem ændringer af annoteringer og formularer trinvist (eksperimentel)",
+    "incrementalSaveHint": "Tilføjer ændringerne til slutningen af filen i stedet for at omskrive den. Tidligere versioner kan stadig gendannes fra filen. Sværtning, fjernelse af skjulte oplysninger og andre ændringer gemmes altid med en fuld omskrivning."
   },
   "annotations": {
     "generalDefaults": "Generelle standarder",
@@ -313,7 +316,15 @@
     "butt": "Lige",
     "openArrowReversed": "Åben pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
-    "slash": "Skråstreg"
+    "slash": "Skråstreg",
+    "decimalNotation": "Decimaltegn",
+    "decimalAuto": "Følg sproget",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punktum (2.50)",
+    "digitGrouping": "Adskil tusinder (12 345)",
+    "scaleCheck": "Skalakontrol",
+    "scaleCheckOk": "I orden op til",
+    "scaleCheckWarn": "Advarsel op til"
   },
   "keyboardShortcuts": {
     "title": "Tastaturgenveje",

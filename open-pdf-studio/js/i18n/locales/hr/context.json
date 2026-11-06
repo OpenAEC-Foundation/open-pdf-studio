@@ -49,6 +49,7 @@
     "dimChainAdd": "Dodaj točke u lanac kota",
     "dimChainRemove": "Ukloni pomoćnu liniju iz lanca",
     "selectRoom": "Odaberi prostoriju",
+    "checkScale": "Provjeri mjerilo ovom linijom...",
     "saveToToolSet": "Spremi u skup alata"
   },
   "multiSelect": {

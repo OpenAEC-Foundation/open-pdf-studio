@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Масштаб визначено",
     "noScaleFound": "Масштаб не знайдено",
-    "detecting": "Визначення..."
+    "detecting": "Визначення...",
+    "scaleCheck": "Перевірити масштаб",
+    "scaleCheckTitle": "Виміряти відомий розмір і показати відхилення масштабу у відсотках"
   },
   "home": {
     "document": "Документ",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Розмістити область масштабу на всю сторінку",
     "drawing": "Малювання",
     "highlight": "Виділення",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Від руки",
     "line": "Лінія",
     "arrow": "Стрілка",
@@ -134,6 +142,8 @@
     "callout": "Виноска",
     "stamp": "Штамп",
     "signature": "Підпис",
+    "digitalSign": "Електронний підпис",
+    "digitalSignTooltip": "Підписати документ сертифікатом (.p12/.pfx). Кнопка «Підпис» лише вставляє зображення.",
     "measure": "Вимірювання",
     "measureDistance": "Виміряти відстань",
     "distance": "Відстань",
@@ -316,7 +326,85 @@
     "modified": "Змінено",
     "noChanges": "Змін немає",
     "textTab": "Текст",
-    "noTextChanges": "Відмінностей у тексті немає"
+    "noTextChanges": "Відмінностей у тексті немає",
+    "previousVersion": "до останнього збереження",
+    "fromDisk": "файл",
+    "fileLoadError": "Не вдалося відкрити файл як PDF.",
+    "browse": "Огляд…",
+    "browseHint": "Вибрати PDF-файл на диску",
+    "pickSecondSide": "Виберіть інший бік із файлу на диску або відкрийте другий PDF у вкладці.",
+    "sensitivity": "Чутливість",
+    "sensitivityHint": "Задає разом поріг чорнила, мінімальний розмір зміни та відстань об'єднання",
+    "preset": {
+      "line": "Лінійне креслення",
+      "scan": "Скан",
+      "text": "Текстовий документ"
+    },
+    "autoAlign": "Вирівняти автоматично",
+    "autoAlignHint": "Оцінити зсув, поворот і масштаб за кресленнями",
+    "autoAlignEach": "Авто",
+    "autoAlignEachHint": "Автоматично вирівнювати кожну пару сторінок під час першого показу",
+    "rotation": "поворот",
+    "scale": "масштаб",
+    "resetAlignHint": "Прибрати вирівнювання",
+    "alignManual": "вручну",
+    "confidence": "Достовірність",
+    "confidenceHint": "Частка чорнила, що збігається після вирівнювання",
+    "alignByMeasure": "масштаб за вимірювальними масштабами",
+    "alignNone": "уже вирівняно",
+    "alignByContent": "за вмістом креслення",
+    "pair": "Пара",
+    "pagesTab": "Сторінки",
+    "pairing": "Зіставлення сторінок…",
+    "onlyInOld": "Лише в старому",
+    "onlyInNew": "Лише в новому",
+    "pairReason": {
+      "sheet": "Зіставлено за номером аркуша",
+      "label": "Зіставлено за міткою сторінки",
+      "content": "Зіставлено за вмістом",
+      "index": "Зіставлено за порядком сторінок",
+      "manual": "Зіставлено вручну"
+    },
+    "truncated": "Забагато відмінностей: перевірте вирівнювання або чутливість.",
+    "selectForClouds": "Вибрати для хмарок у новому документі",
+    "report": {
+      "button": "Звіт",
+      "csv": "Експорт списку змін (CSV)…",
+      "pdf": "Експорт зведення в PDF…",
+      "clouds": "Розмістити вибрані зміни як хмарки",
+      "cloudsNeedTab": "Новий документ має бути відкритий у вкладці",
+      "saved": "Звіт збережено",
+      "failed": "Не вдалося створити звіт",
+      "cloudsPlaced": "Хмарки розміщено в новому документі: {{count}}",
+      "title": "Звіт про порівняння",
+      "generated": "Створено",
+      "settings": "Параметри",
+      "fileSuffix": "zminy",
+      "sourcePixel": "Креслення",
+      "sourceText": "Текст",
+      "cloudSubject": "Порівняння",
+      "before": "До",
+      "after": "Після",
+      "col": {
+        "no": "№",
+        "pair": "Пара",
+        "oldPage": "Стара сторінка",
+        "newPage": "Нова сторінка",
+        "sheet": "Аркуш",
+        "type": "Тип",
+        "source": "Джерело",
+        "xMm": "X (мм)",
+        "yMm": "Y (мм)",
+        "widthMm": "Ширина (мм)",
+        "heightMm": "Висота (мм)",
+        "oldText": "Текст до",
+        "newText": "Текст після"
+      },
+      "sourceVector": "Вектор"
+    },
+    "methodVector": "Вектор",
+    "methodVectorHint": "Точно порівнювати накреслені контури, якщо обидві сторінки — векторні креслення; інші сторінки порівнюються за пікселями",
+    "methodPixelFallback": "пікселі: не векторна сторінка"
   },
   "organize": {
     "pages": "Сторінки",
@@ -350,8 +438,16 @@
     "scanTextHint": "Клацніть розпізнане слово, щоб замінити його. Старе слово на скані буде закрито.",
     "scanTextNone": "На цій сторінці немає розпізнаного тексту. Спершу виконайте Розпізнавання тексту (OCR).",
     "shiftPage": "Зсунути сторінку",
+    "scanGroup": "Сканування",
+    "scan": "Сканувати",
+    "scanTitle": "Сканувати сторінки в PDF з пошуком",
+    "batchOcr": "Пакетне OCR",
+    "batchOcrTitle": "Розпізнати текст у всіх PDF-файлах теки",
     "editPages": "Редагувати сторінки",
-    "editPagesTitle": "Візуальне редагування сторінок: порядок, поворот, вставлення, видалення, видобування та розділення"
+    "editPagesTitle": "Візуальне редагування сторінок: порядок, поворот, вставлення, видалення, видобування та розділення",
+    "protect": "Захист",
+    "security": "Безпека",
+    "securityTitle": "Установити або зняти паролі та права"
   },
   "help": {
     "settings": "Налаштування",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "Ш:",
     "y": "Y:",
-    "h": "В:"
+    "h": "В:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Системна (Автоматично)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Розмір, у якому розміщується новий символ",
     "symbolScaleCustom": "Власний масштаб",
     "count": "Підрахунок",
-    "arc": "Дуга"
+    "arc": "Дуга",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Коректура",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Аварійне освітлення",
       "nen1414-tr": "NL NEN 1414 — Димовидалення",
       "nen1414-tv": "NL NEN 1414 — Вентиляція",
-      "nen1414-tw": "NL NEN 1414 — Вода/Спринклери"
+      "nen1414-tw": "NL NEN 1414 — Вода/Спринклери",
+      "gdt-bewerking": "GD&T і механообробка"
     },
     "sectors": {
       "aec": "AEC (Будівництво)",
@@ -773,5 +881,34 @@
       "mep": "Інженерні системи будівель (MEP)",
       "infra": "Інфраструктура"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

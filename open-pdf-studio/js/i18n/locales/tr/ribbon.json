@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Ölçek algılandı",
     "noScaleFound": "Ölçek bulunamadı",
-    "detecting": "Algılanıyor..."
+    "detecting": "Algılanıyor...",
+    "scaleCheck": "Ölçeği denetle",
+    "scaleCheckTitle": "Bilinen bir ölçüyü ölçün ve ölçek sapmasını yüzde olarak gösterin"
   },
   "home": {
     "document": "Belge",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Tüm sayfayı kaplayan bir ölçek bölgesi yerleştir",
     "drawing": "Çizim",
     "highlight": "Vurgula",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Serbest Çizim",
     "line": "Çizgi",
     "arrow": "Ok",
@@ -134,6 +142,8 @@
     "callout": "Açıklama Balonu",
     "stamp": "Damga",
     "signature": "İmza",
+    "digitalSign": "Dijital imza",
+    "digitalSignTooltip": "Belgeyi bir sertifikayla (.p12/.pfx) imzalayın. İmza düğmesi yalnızca bir resim yerleştirir.",
     "measure": "Ölçüm",
     "measureDistance": "Mesafe Ölç",
     "distance": "Mesafe",
@@ -316,7 +326,85 @@
     "modified": "Değiştirildi",
     "noChanges": "Değişiklik yok",
     "textTab": "Metin",
-    "noTextChanges": "Metin farkı yok"
+    "noTextChanges": "Metin farkı yok",
+    "previousVersion": "son kaydetmeden önce",
+    "fromDisk": "dosya",
+    "fileLoadError": "Dosya PDF olarak açılamadı.",
+    "browse": "Gözat…",
+    "browseHint": "Diskten bir PDF dosyası seçin",
+    "pickSecondSide": "Diğer tarafı diskteki bir dosyadan seçin veya ikinci bir PDF'yi sekmede açın.",
+    "sensitivity": "Hassasiyet",
+    "sensitivityHint": "Mürekkep eşiğini, en küçük değişiklik boyutunu ve birleştirme mesafesini birlikte ayarlar",
+    "preset": {
+      "line": "Çizgi çizim",
+      "scan": "Tarama",
+      "text": "Metin belgesi"
+    },
+    "autoAlign": "Otomatik hizala",
+    "autoAlignHint": "Kaydırma, döndürme ve ölçeği çizimlerden tahmin et",
+    "autoAlignEach": "Oto",
+    "autoAlignEachHint": "Her sayfa çiftini ilk gösterildiğinde otomatik hizala",
+    "rotation": "döndür",
+    "scale": "ölçek",
+    "resetAlignHint": "Hizalamayı kaldır",
+    "alignManual": "elle",
+    "confidence": "Güvenilirlik",
+    "confidenceHint": "Hizalamadan sonra örtüşen mürekkep oranı",
+    "alignByMeasure": "ölçek, ölçüm ölçeklerinden",
+    "alignNone": "zaten hizalı",
+    "alignByContent": "çizim içeriğinden",
+    "pair": "Çift",
+    "pagesTab": "Sayfalar",
+    "pairing": "Sayfalar eşleştiriliyor…",
+    "onlyInOld": "Yalnızca eskide",
+    "onlyInNew": "Yalnızca yenide",
+    "pairReason": {
+      "sheet": "Pafta numarasıyla eşleşti",
+      "label": "Sayfa etiketiyle eşleşti",
+      "content": "İçerikle eşleşti",
+      "index": "Sayfa sırasıyla eşleşti",
+      "manual": "Elle eşleştirildi"
+    },
+    "truncated": "Çok fazla fark var: hizalamayı veya hassasiyeti kontrol edin.",
+    "selectForClouds": "Yeni belgede bulut için seç",
+    "report": {
+      "button": "Rapor",
+      "csv": "Değişiklik listesini dışa aktar (CSV)…",
+      "pdf": "PDF özetini dışa aktar…",
+      "clouds": "Seçili değişiklikleri bulut olarak yerleştir",
+      "cloudsNeedTab": "Yeni belge bir sekmede açık olmalıdır",
+      "saved": "Rapor kaydedildi",
+      "failed": "Rapor oluşturulamadı",
+      "cloudsPlaced": "Yeni belgeye yerleştirilen bulut: {{count}}",
+      "title": "Karşılaştırma raporu",
+      "generated": "Oluşturuldu",
+      "settings": "Ayarlar",
+      "fileSuffix": "degisiklikler",
+      "sourcePixel": "Çizim",
+      "sourceText": "Metin",
+      "cloudSubject": "Karşılaştırma",
+      "before": "Önce",
+      "after": "Sonra",
+      "col": {
+        "no": "No",
+        "pair": "Çift",
+        "oldPage": "Eski sayfa",
+        "newPage": "Yeni sayfa",
+        "sheet": "Pafta",
+        "type": "Tür",
+        "source": "Kaynak",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Genişlik (mm)",
+        "heightMm": "Yükseklik (mm)",
+        "oldText": "Önceki metin",
+        "newText": "Sonraki metin"
+      },
+      "sourceVector": "Vektör"
+    },
+    "methodVector": "Vektör",
+    "methodVectorHint": "Her iki sayfa da vektörel çizim olduğunda çizilen yolları tam olarak karşılaştır; diğer sayfalar piksel karşılaştırması kullanır",
+    "methodPixelFallback": "piksel: vektörel sayfa değil"
   },
   "organize": {
     "pages": "Sayfalar",
@@ -350,8 +438,16 @@
     "scanTextHint": "Değiştirmek için tanınan bir kelimeye tıklayın. Taramadaki eski kelime örtülür.",
     "scanTextNone": "Bu sayfada tanınan metin yok. Önce Metin Tanıma (OCR) çalıştırın.",
     "shiftPage": "Sayfayı kaydır",
+    "scanGroup": "Tarama",
+    "scan": "Tara",
+    "scanTitle": "Sayfaları aranabilir PDF'ye tara",
+    "batchOcr": "Toplu OCR",
+    "batchOcrTitle": "Bir klasördeki tüm PDF dosyalarında metni tanı",
     "editPages": "Sayfaları Düzenle",
-    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün"
+    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün",
+    "protect": "Koru",
+    "security": "Güvenlik",
+    "securityTitle": "Parolaları ve izinleri ayarla veya kaldır"
   },
   "help": {
     "settings": "Ayarlar",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "G:",
     "y": "Y:",
-    "h": "Y:"
+    "h": "Y:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Sistem (Otomatik)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Yeni bir sembolün yerleştirildiği boyut",
     "symbolScaleCustom": "Özel ölçek",
     "count": "Sayma",
-    "arc": "Yay"
+    "arc": "Yay",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Düzelti",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Acil durum aydınlatması",
       "nen1414-tr": "NL NEN 1414 — Duman/ısı tahliyesi",
       "nen1414-tv": "NL NEN 1414 — Havalandırma",
-      "nen1414-tw": "NL NEN 1414 — Su/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Su/Sprinkler",
+      "gdt-bewerking": "GD&T ve talaşlı imalat"
     },
     "sectors": {
       "aec": "AEC (İnşaat)",
@@ -773,5 +881,34 @@
       "mep": "Bina tesisatı (MEP)",
       "infra": "Altyapı"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

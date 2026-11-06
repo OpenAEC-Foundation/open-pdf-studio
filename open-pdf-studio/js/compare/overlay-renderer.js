@@ -62,10 +62,10 @@ export const HIGHLIGHT_COLORS = {
  * Draw translucent rectangles for each visible change on an overlay canvas.
  *
  * @param {HTMLCanvasElement} canvas — sized to match the base render
- * @param {Array} changes — change records from change-detector (in detection-px)
+ * @param {Array} changes — change records (page points, see compare-viewport.js)
  * @param {Object} opts
- *   @prop {number} ratio — multiplier mapping detection-px to display-px
- *                          (typically displayScale / change.detectScale)
+ *   @prop {number} ratio — multiplier mapping change coordinates to display-px
+ *                          (page points to display px: the display scale)
  *   @prop {Object} visibleTypes — { added: bool, removed: bool, modified: bool }
  *   @prop {Object|null} selected — change record currently selected, drawn with
  *                                  a thicker matching-color border (no fill)

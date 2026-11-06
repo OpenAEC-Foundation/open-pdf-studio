@@ -9,6 +9,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { bouwBeveiligingshulp } from './bouw-beveiligingshulp.mjs';
 
 const hier = path.dirname(fileURLToPath(import.meta.url));
 const app = path.resolve(hier, '..');
@@ -44,6 +45,14 @@ function draai() {
   if (ontbreekt.length) {
     console.error(`unit-testlijst.txt noemt bestanden die niet bestaan:\n  ${ontbreekt.join('\n  ')}`);
     process.exit(1);
+  }
+  // Rust-hulpprogramma's eerst, buiten de parallelle testfase: een compiler die
+  // daar alle kernen bezet, laat tijdgevoelige tests op een trage runner
+  // mislukken. De test zelf start daarna alleen het programma.
+  if (bestanden.some((b) => b.endsWith('document-beveiliging-interop.test.mjs')) && !process.env.OPDS_BEVEILIGING_BIN) {
+    const hulp = bouwBeveiligingshulp();
+    if (hulp.bin) process.env.OPDS_BEVEILIGING_BIN = hulp.bin;
+    else if (hulp.fout) console.error(`open-pdf-security example build failed:\n${hulp.fout}`);
   }
   let status = 0;
   for (const partij of inPartijen(bestanden)) {

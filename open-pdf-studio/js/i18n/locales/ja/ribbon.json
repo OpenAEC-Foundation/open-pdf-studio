@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "縮尺を検出しました",
     "noScaleFound": "縮尺が見つかりません",
-    "detecting": "検出中..."
+    "detecting": "検出中...",
+    "scaleCheck": "縮尺を確認",
+    "scaleCheckTitle": "既知の寸法を測って縮尺の偏差をパーセントで表示"
   },
   "home": {
     "document": "文書",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "ページ全体を覆う縮尺領域を配置",
     "drawing": "描画",
     "highlight": "ハイライト",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "フリーハンド",
     "line": "線",
     "arrow": "矢印",
@@ -134,6 +142,8 @@
     "callout": "吹き出し",
     "stamp": "スタンプ",
     "signature": "署名",
+    "digitalSign": "デジタル署名",
+    "digitalSignTooltip": "証明書（.p12/.pfx）で文書に署名します。［署名］ボタンは画像を配置するだけです。",
     "measure": "計測",
     "measureDistance": "距離を計測",
     "distance": "距離",
@@ -316,7 +326,85 @@
     "modified": "変更済み",
     "noChanges": "変更なし",
     "textTab": "テキスト",
-    "noTextChanges": "テキストの差異なし"
+    "noTextChanges": "テキストの差異なし",
+    "previousVersion": "最後の保存の前",
+    "fromDisk": "ファイル",
+    "fileLoadError": "ファイルを PDF として開けませんでした。",
+    "browse": "参照…",
+    "browseHint": "ディスクから PDF ファイルを選択",
+    "pickSecondSide": "もう一方をディスク上のファイルから選ぶか、2 つ目の PDF をタブで開いてください。",
+    "sensitivity": "感度",
+    "sensitivityHint": "インクのしきい値、変更の最小サイズ、結合距離をまとめて設定します",
+    "preset": {
+      "line": "線画",
+      "scan": "スキャン",
+      "text": "テキスト文書"
+    },
+    "autoAlign": "自動位置合わせ",
+    "autoAlignHint": "図面からずれ・回転・縮尺を推定します",
+    "autoAlignEach": "自動",
+    "autoAlignEachHint": "各ページペアを最初に表示したときに自動で位置合わせ",
+    "rotation": "回転",
+    "scale": "縮尺",
+    "resetAlignHint": "位置合わせを解除",
+    "alignManual": "手動",
+    "confidence": "信頼度",
+    "confidenceHint": "位置合わせ後に重なるインクの割合",
+    "alignByMeasure": "計測縮尺からの縮尺",
+    "alignNone": "位置合わせ済み",
+    "alignByContent": "図面の内容から",
+    "pair": "ペア",
+    "pagesTab": "ページ",
+    "pairing": "ページを対応付けています…",
+    "onlyInOld": "旧版のみ",
+    "onlyInNew": "新版のみ",
+    "pairReason": {
+      "sheet": "図面番号で対応付け",
+      "label": "ページラベルで対応付け",
+      "content": "内容で対応付け",
+      "index": "ページ順で対応付け",
+      "manual": "手動で対応付け"
+    },
+    "truncated": "差異が多すぎます。位置合わせまたは感度を確認してください。",
+    "selectForClouds": "新しい文書の雲マーク用に選択",
+    "report": {
+      "button": "レポート",
+      "csv": "変更一覧をエクスポート (CSV)…",
+      "pdf": "PDF 概要をエクスポート…",
+      "clouds": "選択した変更を雲マークとして配置",
+      "cloudsNeedTab": "新しい文書をタブで開いておく必要があります",
+      "saved": "レポートを保存しました",
+      "failed": "レポートを作成できませんでした",
+      "cloudsPlaced": "新しい文書に配置した雲マーク: {{count}}",
+      "title": "比較レポート",
+      "generated": "作成日時",
+      "settings": "設定",
+      "fileSuffix": "henkou",
+      "sourcePixel": "図面",
+      "sourceText": "テキスト",
+      "cloudSubject": "比較",
+      "before": "変更前",
+      "after": "変更後",
+      "col": {
+        "no": "番号",
+        "pair": "ペア",
+        "oldPage": "旧ページ",
+        "newPage": "新ページ",
+        "sheet": "図面番号",
+        "type": "種類",
+        "source": "ソース",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "幅 (mm)",
+        "heightMm": "高さ (mm)",
+        "oldText": "変更前のテキスト",
+        "newText": "変更後のテキスト"
+      },
+      "sourceVector": "ベクター"
+    },
+    "methodVector": "ベクター",
+    "methodVectorHint": "両方のページがベクター図面の場合は描画パスを正確に比較し、それ以外のページはピクセル比較を使います",
+    "methodPixelFallback": "ピクセル: ベクターページではありません"
   },
   "organize": {
     "pages": "ページ",
@@ -350,8 +438,16 @@
     "scanTextHint": "認識された単語をクリックすると置き換えられます。スキャン内の元の単語は覆い隠されます。",
     "scanTextNone": "このページには認識されたテキストがありません。先に文字認識（OCR）を実行してください。",
     "shiftPage": "ページをシフト",
+    "scanGroup": "スキャン",
+    "scan": "スキャン",
+    "scanTitle": "ページを検索可能なPDFにスキャン",
+    "batchOcr": "一括OCR",
+    "batchOcrTitle": "フォルダー内のすべてのPDFファイルのテキストを認識",
     "editPages": "ページの編集",
-    "editPagesTitle": "ページを視覚的に編集: 並べ替え、回転、挿入、削除、抽出、分割"
+    "editPagesTitle": "ページを視覚的に編集: 並べ替え、回転、挿入、削除、抽出、分割",
+    "protect": "保護",
+    "security": "セキュリティ",
+    "securityTitle": "パスワードと権限を設定または解除"
   },
   "help": {
     "settings": "設定",
@@ -501,7 +597,11 @@
     "x": "X：",
     "w": "幅：",
     "y": "Y：",
-    "h": "高さ："
+    "h": "高さ：",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "システム (自動検出)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "新しいシンボルを配置するときのサイズ",
     "symbolScaleCustom": "カスタム尺度",
     "count": "カウント",
-    "arc": "円弧"
+    "arc": "円弧",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "校正",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — 非常照明",
       "nen1414-tr": "NL NEN 1414 — 排煙・排熱",
       "nen1414-tv": "NL NEN 1414 — 換気",
-      "nen1414-tw": "NL NEN 1414 — 水/スプリンクラー"
+      "nen1414-tw": "NL NEN 1414 — 水/スプリンクラー",
+      "gdt-bewerking": "GD&T と機械加工"
     },
     "sectors": {
       "aec": "AEC（建設）",
@@ -773,5 +881,34 @@
       "mep": "建築設備（MEP）",
       "infra": "インフラ"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

@@ -17,7 +17,9 @@
     "viewports": "Ansichtsfenster",
     "noViewports": "Keine Ansichtsfenster definiert",
     "measurements": "Messungen",
-    "noMeasurements": "Noch keine Messungen"
+    "noMeasurements": "Noch keine Messungen",
+    "counts": "Zählungen",
+    "noCounts": "Noch keine Zählungen"
   },
   "title": "Eigenschaften",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Lesezeichen löschen",
     "findBookmark": "Suchen...",
     "findBookmarkTip": "Tippen, um zu einem Lesezeichen zu springen. Enter öffnet es, erneut Enter springt zum nächsten Treffer.",
+    "findPage": "Suchen...",
+    "findPageTip": "Tippen, um per Blattname oder Nummer zu einer Seite zu springen. Enter öffnet sie, erneut Enter springt zum nächsten Treffer.",
     "addAttachment": "Anhang hinzufügen",
     "openAttachment": "Anhang öffnen",
     "saveAttachment": "Anhang speichern",
@@ -807,6 +811,24 @@
     "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
     "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
   },
+  "dynamicStamp": {
+    "title": "Stempelfelder",
+    "template": "Vorlage",
+    "refresh": "Datum, Benutzer und Seite aktualisieren",
+    "lock": "Stempel sperren",
+    "lockConfirm": "Diesen Stempel sperren? Seine Felder können danach nicht mehr geändert werden.",
+    "locked": "Dieser Stempel ist gesperrt: Seine Felder können nicht mehr geändert werden.",
+    "field": {
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "datetime": "Datum und Uhrzeit",
+      "user": "Benutzer",
+      "page": "Seite",
+      "pages": "Seitenanzahl",
+      "filename": "Dateiname",
+      "title": "Dokumenttitel"
+    }
+  },
   "toolSets": {
     "title": "Werkzeugsätze",
     "typeWall": "Wand",
@@ -922,5 +944,19 @@
     "open": "Öffnen",
     "saveAs": "Speichern unter...",
     "noContent": "Der Inhalt dieser Datei ist nicht in die PDF eingebettet."
+  },
+  "countGroup": {
+    "title": "Zählgruppe",
+    "group": "Gruppe",
+    "none": "(keine Gruppe)",
+    "mixed": "(gemischt)",
+    "total": "In dieser Gruppe",
+    "pieces": "{{count}} Stk.",
+    "color": "Gruppenfarbe",
+    "name": "Gruppenname"
+  },
+  "sectionOrder": {
+    "reset": "Abschnittsreihenfolge zurücksetzen",
+    "dragHint": "Klicken zum Ein- oder Ausklappen. Ziehen, um den Abschnitt zu verschieben (oder Alt+Pfeil auf/ab)."
   }
 }

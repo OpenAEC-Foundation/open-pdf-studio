@@ -31,6 +31,8 @@ import { pdfjsBronnen } from '../core/basis-url.js';
 import { GAST_MODUS } from '../core/gehost.js';
 import { maakBlobWorker } from '../core/blob-worker.js';
 import { isWachtwoordFout, vraagEnOntsleutel, markeerBeveiligd, isAlleenLezen, isBeveiligdDocument, bronPad } from './wachtwoord-pdf.js';
+import { beveiligingUitSessie, onbekendeBeveiliging } from './document-beveiliging.js';
+import { onthoudSessie } from './beveiliging-toepassen.js';
 
 
 // Convert one batch of pdf.js annotations and push them to doc.annotations.
@@ -52,6 +54,20 @@ export function getCachedPdfBytes(filePath) {
 
 export function setCachedPdfBytes(filePath, bytes) {
   originalBytesCache.set(filePath, bytes);
+}
+
+// The bytes of a document as they were before its last save, so Compare can
+// set the saved version against the one before it (#465). Only the last one
+// per path is kept.
+const previousSavedBytes = new Map(); // filePath -> Uint8Array
+
+export function rememberPreviousPdfBytes(filePath) {
+  const bytes = originalBytesCache.get(filePath);
+  if (bytes && bytes.length) previousSavedBytes.set(filePath, bytes);
+}
+
+export function getPreviousPdfBytes(filePath) {
+  return previousSavedBytes.get(filePath) || null;
 }
 
 /**
@@ -84,7 +100,8 @@ export function clearCachedPdfBytes(filePath) {
 }
 
 // Vite serves/emits the pinned worker with the PostScript progress (#839),
-// zero-size initial font (#878) and XRef stream offset (#638) backports
+// zero-size initial font (#878), XRef stream offset (#638), 32-bit sampled
+// function (#949) and bidi combining-mark (#957) backports
 // (scripts/pdfjs-postscript-progress.mjs).
 // The build hashes the patched bytes; dev retains a same-origin /node_modules/
 // URL so a fresh WebView cannot hit the historical /@fs/ access failure.
@@ -167,8 +184,7 @@ function showPdfABar(part, conformance, doc) {
   // kan daar niet.
   if (isBeveiligdDocument(doc)) return;
   const label = `PDF/A-${part}${conformance ? conformance.toLowerCase() : ''}`;
-  const text = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
-  import('../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(text));
+  import('../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(label));
 
   // Disable annotation tool buttons
   import('../tools/manager.js').then(m => m.updatePdfAToolState());
@@ -178,9 +194,17 @@ export function hidePdfABar() {
   import('../solid/stores/pdfaBarStore.js').then(m => m.hidePdfABar());
 }
 
-export function dismissPdfAForActiveDoc() {
+/**
+ * Bewerken inschakelen in een PDF/A-document. `opslaan` is de keuze uit de
+ * waarschuwing (#379): 'herconverteer' maakt bij opslaan weer PDF/A,
+ * 'verwijder' slaat op als gewone PDF.
+ */
+export function dismissPdfAForActiveDoc(opslaan = 'herconverteer') {
   const activeDoc = state.documents[state.activeDocumentIndex];
-  if (activeDoc) activeDoc.pdfADismissed = true;
+  if (activeDoc) {
+    activeDoc.pdfADismissed = true;
+    activeDoc.pdfaOpslaan = opslaan === 'verwijder' ? 'verwijder' : 'herconverteer';
+  }
   hidePdfABar();
   import('../tools/manager.js').then(m => m.updatePdfAToolState());
 }
@@ -192,10 +216,42 @@ export function isPdfAReadOnly() {
   return isAlleenLezen(state.documents[state.activeDocumentIndex]);
 }
 
+// Desktop: Rust ontsleutelt het origineel met `wachtwoord` (leeg voor een
+// bestand dat zonder wachtwoord opent maar rechten heeft) naar een werkkopie
+// en neemt de beveiliging over (#378). Geeft { filePath, pdfDoc, bytes, security }.
+async function _openUitWerkkopie(origineelPad, wachtwoord) {
+  const { path: kopie, security } = await invoke('open_protected_pdf', { path: origineelPad, password: wachtwoord });
+  try {
+    const data = await readBinaryFile(kopie);
+    if (!data) throw new Error('File system access not available');
+    const bytes = new Uint8Array(data);
+    const pdfDoc = await pdfjsLib.getDocument({
+      data: bytes.slice(), // PDF.js neemt de buffer over
+      ...pdfjsBronnen(),
+      isEvalSupported: false,
+      verbosity: 0,
+    }).promise;
+    return { filePath: kopie, pdfDoc, bytes, security: security || null };
+  } catch (e) {
+    _laatWerkkopieLos({ filePath: kopie, security }, origineelPad);
+    throw e;
+  }
+}
+
+/** Een werkkopie (en haar beveiligingssessie) die niet gebruikt wordt, loslaten. */
+function _laatWerkkopieLos(beveiligd, origineelPad) {
+  if (beveiligd?.filePath && beveiligd.filePath !== origineelPad) {
+    invoke('release_protected_pdf', { path: beveiligd.filePath }).catch(() => {});
+  }
+  if (beveiligd?.security?.handle) {
+    invoke('pdf_security_release', { handles: [beveiligd.security.handle] }).catch(() => {});
+  }
+}
+
 // Een PDF met een openingswachtwoord: het wachtwoord vragen en het document
 // openen. In de desktop-app maakt Rust een ontsleutelde werkkopie (alle
 // renderpaden werken op pad); in de browser ontsleutelt PDF.js zelf.
-// Geeft { filePath, pdfDoc, bytes } of null (geannuleerd of tabblad dicht).
+// Geeft { filePath, pdfDoc, bytes, security } of null (geannuleerd of tabblad dicht).
 async function _openMetWachtwoord(origineelPad, isClosed) {
   const naam = extractFileName(origineelPad) || origineelPad || '';
   const { metWachtwoordDialoog, vraagWachtwoord } = await import('../solid/stores/wachtwoordDialoogStore.js');
@@ -203,24 +259,7 @@ async function _openMetWachtwoord(origineelPad, isClosed) {
   return metWachtwoordDialoog(() => vraagEnOntsleutel({
     vraag: ({ verkeerd }) => (isClosed() ? null : vraagWachtwoord({ fileName: naam, verkeerd })),
     ontsleutel: async (wachtwoord) => {
-      if (isTauri()) {
-        const kopie = await invoke('open_protected_pdf', { path: origineelPad, password: wachtwoord });
-        try {
-          const data = await readBinaryFile(kopie);
-          if (!data) throw new Error('File system access not available');
-          const bytes = new Uint8Array(data);
-          const pdfDoc = await pdfjsLib.getDocument({
-            data: bytes.slice(), // PDF.js neemt de buffer over
-            ...pdfjsBronnen(),
-            isEvalSupported: false,
-            verbosity: 0,
-          }).promise;
-          return { filePath: kopie, pdfDoc, bytes };
-        } catch (e) {
-          invoke('release_protected_pdf', { path: kopie }).catch(() => {});
-          throw e;
-        }
-      }
+      if (isTauri()) return _openUitWerkkopie(origineelPad, wachtwoord);
       // Browser: geen werkkopie; PDF.js opent de bytes met het wachtwoord
       // (een onjuist wachtwoord geeft weer een PasswordException).
       const bron = originalBytesCache.get(origineelPad);
@@ -372,6 +411,8 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
 
     // Load PDF using pdf.js (this transfers the buffer to a worker)
     let pdfDoc;
+    let beveiligd = null;
+    let gevraagd = false;
     try {
       pdfDoc = await pdfjsLib.getDocument({
         data: typedArray,
@@ -381,17 +422,16 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       }).promise;
     } catch (fout) {
       // Een openingswachtwoord: vragen, en dan openen uit een ontsleutelde
-      // werkkopie (alleen-lezen). Annuleren sluit het tabblad stil.
+      // werkkopie (bewerkbaar als de beveiliging terug te schrijven is, #378).
+      // Annuleren sluit het tabblad stil.
       if (!isWachtwoordFout(fout) || isClosed()) throw fout;
-      const origineelPad = filePath;
-      const beveiligd = await _openMetWachtwoord(origineelPad, isClosed);
+      beveiligd = await _openMetWachtwoord(filePath, isClosed);
+      gevraagd = true;
       if (!beveiligd || isClosed()) {
         if (beveiligd) {
           // Tabblad intussen gesloten: niets vasthouden.
           try { beveiligd.pdfDoc?.destroy?.(); } catch { /* best effort */ }
-          if (beveiligd.filePath !== origineelPad) {
-            invoke('release_protected_pdf', { path: beveiligd.filePath }).catch(() => {});
-          }
+          _laatWerkkopieLos(beveiligd, filePath);
         }
         if (!isClosed()) {
           const index = state.documents.indexOf(doc);
@@ -399,7 +439,40 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
         }
         return;
       }
-      markeerBeveiligd(doc, origineelPad);
+    }
+    // Versleuteld maar zonder openwachtwoord (alleen rechten, #378): PDF.js en
+    // PDFium openen het, maar pdf-lib kan het niet opslaan. Ook zo'n bestand
+    // opent uit een ontsleutelde werkkopie, zodat bewerken en opslaan de
+    // beveiliging behouden. Lukt dat niet, dan blijft het zoals het was.
+    if (!beveiligd && isTauri() && _rustPad && filePath && !preloadedData) {
+      let versleuteld = false;
+      try {
+        versleuteld = (await pdfDoc.getMetadata())?.info?.EncryptFilterName === 'Standard';
+      } catch { versleuteld = false; }
+      if (versleuteld && !isClosed()) {
+        try {
+          const r = await _openUitWerkkopie(filePath, '');
+          if (isClosed()) {
+            try { r.pdfDoc?.destroy?.(); } catch { /* best effort */ }
+            _laatWerkkopieLos(r, filePath);
+            return;
+          }
+          try { await (pdfDoc.loadingTask || pdfDoc).destroy(); } catch { /* best effort */ }
+          beveiligd = r;
+        } catch (e) {
+          console.warn('[beveiliging] werkkopie van een beveiligd bestand mislukt:', e?.message || e);
+        }
+      }
+    }
+    if (beveiligd) {
+      const origineelPad = filePath;
+      // Desktop: de beveiliging van het origineel (een sessie om terug te
+      // schrijven, of alleen een beschrijving). Onleesbaar: alleen-lezen.
+      const beveiliging = isTauri()
+        ? (beveiligingUitSessie(beveiligd.security) || onbekendeBeveiliging({ openWachtwoord: gevraagd }))
+        : null;
+      markeerBeveiligd(doc, origineelPad, { gevraagd, beveiliging });
+      onthoudSessie(doc, beveiligd.security?.handle);
       if (beveiligd.bytes) {
         // De versleutelde bytes van het origineel zijn niet meer nodig.
         originalBytesCache.delete(origineelPad);
@@ -638,6 +711,15 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
         const geldig = !isClosed() && pdfLibDoc;
         // Met de /UserUnit per pagina: een schaal 1:N rekent daarmee (#884).
         rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null, geldig ? leesUserUnits(pdfLibDoc) : null);
+        // De eigen schalen van de app: de documentschaal en de schaal-
+        // controles per blad reizen mee in het bestand (#629).
+        if (geldig) {
+          const { pasSchalenUitBestandToe } = await import('./schaal-in-pdf.js');
+          if (!isClosed() && pasSchalenUitBestandToe(doc, pdfLibDoc).schaal) {
+            const { saveDocumentScale } = await import('../annotations/measurement.js');
+            saveDocumentScale(doc);
+          }
+        }
       } catch {
         rondViewportLezingAf(doc, kenmerk, null); // viewports zijn optioneel
       }

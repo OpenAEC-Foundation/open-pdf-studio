@@ -16,6 +16,15 @@
 // elke paginaverwijzing van een koppeling door het paginanummer en haalt /P
 // weg; bouwDeel zet ze in het deel terug: naar de pagina in het deel, of de
 // koppeling verdwijnt als haar doel buiten het deel ligt.
+//
+// Pagina's uitnemen (extractPages in page-manager.js, #880) gebruikt dezelfde
+// weg met een vrije lijst pagina's (bouwUittreksel): voorheen kopieerde die
+// copyPages rechtstreeks, en sleepte zo via koppelingen andere pagina's mee.
+//
+// Bytes die nog versleuteld zijn (een beveiligd bestand dat niet via een
+// ontsleutelde werkkopie geopend is) kan pdf-lib niet lezen: het kopieert de
+// versleutelde stromen in een onversleuteld bestand en elke pagina wordt leeg
+// of onleesbaar. laadBron weigert die bytes daarom (code 'encrypted').
 
 import { PDFDocument, PDFName, PDFArray, PDFDict, PDFNumber, PDFRef, degrees } from 'pdf-lib';
 import { schrijfPaginaLabels } from './pagina-labels.js';
@@ -65,6 +74,9 @@ function bestemmingVan(annot) {
  */
 export async function laadBron(bytes) {
   const bron = await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
+  if (bron.isEncrypted) {
+    throw Object.assign(new Error('The page content is encrypted and cannot be copied'), { code: 'encrypted' });
+  }
   const context = bron.context;
   const paginas = bron.getPages();
   const index = new Map(paginas.map((p, i) => [p.ref, i]));
@@ -86,27 +98,21 @@ export async function laadBron(bytes) {
   return bron;
 }
 
-/**
- * Eén deel (pagina's `start` t/m `eind`, vanaf 1) als nieuw PDF-document.
- * @param {PDFDocument} bron  uit laadBron
- * @param {{ start:number, eind:number, rotaties?:Record<number, number>,
- *           labels?:string[]|null, bladwijzers?:object[] }} opties
- *   rotaties: de draaiing van de app per paginanummer van het hele document;
- *   labels: doc.pageLabels van het hele document; bladwijzers: doc.bookmarks.
- * @returns {Promise<PDFDocument>}
- */
-export async function bouwDeel(bron, { start, eind, rotaties = {}, labels = null, bladwijzers = [] }) {
+// De pagina's `indexen` (vanaf 0, in deze volgorde) van de bron als nieuw
+// document, met de koppelingen en /P teruggezet (zie boven). `extraDraai(j)`
+// geeft de draaiing van de app voor de j-de pagina van het nieuwe document.
+async function kopieerPaginas(bron, indexen, extraDraai) {
   const uit = await PDFDocument.create();
-  const indexen = [];
-  for (let i = start - 1; i < eind; i++) indexen.push(i);
   const gekopieerd = await uit.copyPages(bron, indexen);
   for (const p of gekopieerd) uit.addPage(p);
   const paginas = uit.getPages();
   const context = uit.context;
+  // Bronindex -> plek in het nieuwe document (de eerste, als een pagina vaker komt).
+  const plek = new Map();
+  indexen.forEach((k, j) => { if (!plek.has(k)) plek.set(k, j); });
 
-  const draai = rotatiesVoorDeel(rotaties, start, eind);
   paginas.forEach((pagina, j) => {
-    const extra = draai[j + 1];
+    const extra = extraDraai(j);
     if (extra) pagina.setRotation(degrees((pagina.getRotation().angle + extra) % 360));
 
     const weg = [];
@@ -120,7 +126,7 @@ export async function bouwDeel(bron, { start, eind, rotaties = {}, labels = null
       const doel = dest ? dest.get(0) : null;
       if (doel instanceof PDFRef) continue; // al gezet via een gedeelde bestemming
       const k = doel instanceof PDFNumber ? doel.asNumber() : -1;
-      if (k >= start - 1 && k <= eind - 1) dest.set(0, paginas[k - (start - 1)].ref);
+      if (plek.has(k)) dest.set(0, paginas[plek.get(k)].ref);
       else weg.push(ref);
     }
     if (weg.length) {
@@ -130,12 +136,75 @@ export async function bouwDeel(bron, { start, eind, rotaties = {}, labels = null
       }
     }
   });
+  return uit;
+}
+
+/**
+ * Eén deel (pagina's `start` t/m `eind`, vanaf 1) als nieuw PDF-document.
+ * @param {PDFDocument} bron  uit laadBron
+ * @param {{ start:number, eind:number, rotaties?:Record<number, number>,
+ *           labels?:string[]|null, bladwijzers?:object[] }} opties
+ *   rotaties: de draaiing van de app per paginanummer van het hele document;
+ *   labels: doc.pageLabels van het hele document; bladwijzers: doc.bookmarks.
+ * @returns {Promise<PDFDocument>}
+ */
+export async function bouwDeel(bron, { start, eind, rotaties = {}, labels = null, bladwijzers = [] }) {
+  const indexen = [];
+  for (let i = start - 1; i < eind; i++) indexen.push(i);
+  const draai = rotatiesVoorDeel(rotaties, start, eind);
+  const uit = await kopieerPaginas(bron, indexen, (j) => draai[j + 1]);
 
   const deelLabels = labelsVoorDeel(labels, start, eind);
   if (deelLabels) schrijfPaginaLabels(uit, deelLabels);
   const deelBladwijzers = bladwijzersVoorDeel(bladwijzers, start, eind);
   if (deelBladwijzers.length) saveBookmarksToOutline(uit, { bookmarks: deelBladwijzers });
   return uit;
+}
+
+/**
+ * Uitgenomen pagina's (#880): `paginaNummers` (vanaf 1, in deze volgorde) als
+ * nieuw PDF-document, met hun annotaties en de draaiing van de app. Een
+ * koppeling naar een pagina die meekomt wijst naar die pagina in het nieuwe
+ * document; naar een andere pagina valt ze weg (die pagina kwam anders, met
+ * al haar inhoud, ongezien mee).
+ * @param {PDFDocument} bron  uit laadBron
+ * @param {number[]} paginaNummers
+ * @param {{ rotaties?: Record<number, number> }} [opties]
+ * @returns {Promise<PDFDocument>}
+ */
+export async function bouwUittreksel(bron, paginaNummers, { rotaties = {} } = {}) {
+  const totaal = bron.getPageCount();
+  const nummers = (paginaNummers || []).map(Number);
+  if (!nummers.length || nummers.some((n) => !Number.isInteger(n) || n < 1 || n > totaal)) {
+    throw new RangeError(`Invalid page numbers for a document of ${totaal} pages`);
+  }
+  const draai = (j) => (((Number(rotaties?.[nummers[j]]) || 0) % 360) + 360) % 360;
+  return kopieerPaginas(bron, nummers.map((n) => n - 1), draai);
+}
+
+/**
+ * De bytes om pagina's uit te nemen (#880). Met niet-opgeslagen wijzigingen
+ * de stand die opslaan zou schrijven (`maakMomentopname`, saver.js
+ * bouwMomentopname): annotaties, de OCR-tekstlaag, tekstbewerkingen en
+ * draaiingen staan nog niet in de opgeslagen bytes, en zonder die stand was
+ * een pagina na OCR niet doorzoekbaar en een pagina met alleen nieuwe
+ * annotaties leeg. Lukt de momentopname niet (een beveiligd document wordt
+ * nooit zo gebouwd), dan de opgeslagen bytes.
+ * @param {{ opgeslagen: Uint8Array, gewijzigd?: boolean,
+ *           maakMomentopname?: (() => Promise<Uint8Array>)|null }} opties
+ * @returns {Promise<{ bytes: Uint8Array, uitApp: boolean }>} uitApp: de
+ *   bytes hebben de draaiingen van de app al
+ */
+export async function bronVoorUittreksel({ opgeslagen, gewijzigd = false, maakMomentopname = null }) {
+  if (gewijzigd && typeof maakMomentopname === 'function') {
+    try {
+      const bytes = await maakMomentopname();
+      if (bytes?.length) return { bytes, uitApp: true };
+    } catch (e) {
+      console.warn('[extract] unsaved changes not included, using the saved bytes:', e?.message || e);
+    }
+  }
+  return { bytes: opgeslagen, uitApp: false };
 }
 
 /** De bytes van één deel (zie bouwDeel). */

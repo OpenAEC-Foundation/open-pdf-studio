@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktiv via oppstartsparameter ({{adres}})",
     "aiLinkOff": "Av",
     "aiLinkError": "Ikke startet: {{fout}}",
-    "interfaceScale": "Grensesnittstørrelse"
+    "interfaceScale": "Grensesnittstørrelse",
+    "saving": "Lagring",
+    "incrementalSave": "Lagre endringer i merknader og skjemaer inkrementelt (eksperimentelt)",
+    "incrementalSaveHint": "Legger endringene til på slutten av filen i stedet for å skrive den om. Tidligere versjoner kan fortsatt gjenopprettes fra filen. Sladding, fjerning av skjult informasjon og andre endringer lagres alltid med full omskriving."
   },
   "annotations": {
     "generalDefaults": "Generelle standardverdier",
@@ -313,7 +316,15 @@
     "butt": "Rett",
     "openArrowReversed": "Åpen pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
-    "slash": "Skråstrek"
+    "slash": "Skråstrek",
+    "decimalNotation": "Desimaltegn",
+    "decimalAuto": "Følg språket",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punktum (2.50)",
+    "digitGrouping": "Skill tusener (12 345)",
+    "scaleCheck": "Målestokkontroll",
+    "scaleCheckOk": "I orden opptil",
+    "scaleCheckWarn": "Advarsel opptil"
   },
   "keyboardShortcuts": {
     "title": "Hurtigtaster",

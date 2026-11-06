@@ -49,6 +49,7 @@
     "dimChainAdd": "Legg til punkter i målkjeden",
     "dimChainRemove": "Fjern hjelpelinje fra kjeden",
     "selectRoom": "Velg rom",
+    "checkScale": "Kontroller målestokk med denne linjen...",
     "saveToToolSet": "Lagre i verktøysett"
   },
   "multiSelect": {

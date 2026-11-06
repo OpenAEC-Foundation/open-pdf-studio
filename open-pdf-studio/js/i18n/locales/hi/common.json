@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "XFDF फ़ाइल में कोई एनोटेशन नहीं मिला।",
   "noRedactionsOnPage": "वर्तमान पृष्ठ पर लागू करने के लिए कोई संपादन-रहित चिह्न नहीं।",
   "noRedactionsInDocument": "दस्तावेज़ में लागू करने के लिए कोई संपादन-रहित चिह्न नहीं।",
+  "redactTitle": "रिडैक्शन लागू करें",
+  "redactConfirmPage": "पृष्ठ {{page}} पर {{count}} रिडैक्शन चिह्न लागू करें?",
+  "redactConfirmAll": "{{pages}} पृष्ठों पर {{count}} रिडैक्शन चिह्न लागू करें?",
+  "redactConfirmBody": "चिह्नों के नीचे का टेक्स्ट, चित्र, वेक्टर ग्राफ़िक्स, टिप्पणियाँ और फ़ॉर्म फ़ील्ड दस्तावेज़ से हटा दिए जाते हैं और क्षेत्रों को चिह्न के रंग से भर दिया जाता है। फ़ाइल सहेजने पर बदलती है; सहेजना पूरी फ़ाइल को पिछले संस्करणों के बिना फिर से लिखता है।",
+  "redactDone": "{{count}} रिडैक्शन क्षेत्र लागू किए गए। बदलाव को फ़ाइल में लिखने के लिए दस्तावेज़ सहेजें।",
+  "redactNotApplied": "रिडैक्शन लागू नहीं किए गए; कुछ भी नहीं बदला। {{reason}}",
+  "redactReasonUnsupported": "किसी चिह्न के नीचे की सामग्री को विश्वसनीय रूप से हटाया नहीं जा सकता: {{detail}}",
+  "redactReasonInvalid": "एक या अधिक चिह्नों का कोई मान्य क्षेत्र नहीं है।",
+  "redactReasonTextEdits": "पहले बिना सहेजे गए टेक्स्ट संपादन सहेजें।",
   "cannotDeleteAllPages": "सभी पृष्ठ नहीं हटाए जा सकते। कम से कम एक पृष्ठ रहना चाहिए।",
   "cannotDeleteAllPagesSource": "स्रोत दस्तावेज़ से सभी पृष्ठ नहीं हटाए जा सकते।",
   "noPagesSelected": "निकालने के लिए कोई पृष्ठ नहीं चुना गया।",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "चयनित PDF में कोई पृष्ठ नहीं है।",
   "failedToSavePdf": "PDF सहेजने में विफल: {{error}}",
   "failedToLoadPdf": "PDF लोड करने में विफल: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "नई विंडो में खोलें",
     "closeTab": "टैब बंद करें",
     "nextTab": "अगला टैब",
-    "previousTab": "पिछला टैब"
+    "previousTab": "पिछला टैब",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "अगला पृष्ठ",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "फ़ाइल एक्सप्लोरर में PDF थंबनेल केवल इंस्टॉल किए गए संस्करण में उपलब्ध हैं।",
     "virtualPrinter": "वर्चुअल प्रिंटर केवल इंस्टॉल किए गए संस्करण में उपलब्ध है: इसे व्यवस्थापक अधिकारों के साथ Windows में जोड़ा जाता है।",
     "notWritable": "Open PDF Studio फ़ोल्डर {{dir}} में नहीं लिख सकता, इसलिए इस बार आपकी सेटिंग्स आपकी उपयोगकर्ता प्रोफ़ाइल में संग्रहीत हैं। पोर्टेबल फ़ोल्डर को किसी लिखने योग्य स्थान, जैसे USB ड्राइव या अपने Documents फ़ोल्डर, में ले जाएँ।"
+  },
+  "protectedPdfNoPrint": "इस दस्तावेज़ की अनुमतियाँ प्रिंट करने की अनुमति नहीं देतीं।",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "축척 감지됨",
     "noScaleFound": "축척을 찾을 수 없음",
-    "detecting": "감지 중..."
+    "detecting": "감지 중...",
+    "scaleCheck": "축척 확인",
+    "scaleCheckTitle": "알려진 치수를 측정하고 축척 편차를 백분율로 표시"
   },
   "home": {
     "document": "문서",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "페이지 전체를 덮는 축척 영역 배치",
     "drawing": "그리기",
     "highlight": "하이라이트",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "자유형",
     "line": "선",
     "arrow": "화살표",
@@ -134,6 +142,8 @@
     "callout": "설명선",
     "stamp": "스탬프",
     "signature": "서명",
+    "digitalSign": "디지털 서명",
+    "digitalSignTooltip": "인증서(.p12/.pfx)로 문서에 서명합니다. 서명 단추는 이미지만 배치합니다.",
     "measure": "측정",
     "measureDistance": "거리 측정",
     "distance": "거리",
@@ -316,7 +326,85 @@
     "modified": "수정됨",
     "noChanges": "변경 없음",
     "textTab": "텍스트",
-    "noTextChanges": "텍스트 차이 없음"
+    "noTextChanges": "텍스트 차이 없음",
+    "previousVersion": "마지막 저장 이전",
+    "fromDisk": "파일",
+    "fileLoadError": "파일을 PDF로 열 수 없습니다.",
+    "browse": "찾아보기…",
+    "browseHint": "디스크에서 PDF 파일 선택",
+    "pickSecondSide": "다른 쪽을 디스크의 파일에서 선택하거나 두 번째 PDF를 탭에서 여세요.",
+    "sensitivity": "감도",
+    "sensitivityHint": "잉크 임계값, 최소 변경 크기, 병합 거리를 함께 설정합니다",
+    "preset": {
+      "line": "선 도면",
+      "scan": "스캔",
+      "text": "텍스트 문서"
+    },
+    "autoAlign": "자동 정렬",
+    "autoAlignHint": "도면에서 이동, 회전, 축척을 추정합니다",
+    "autoAlignEach": "자동",
+    "autoAlignEachHint": "각 페이지 쌍을 처음 표시할 때 자동으로 정렬",
+    "rotation": "회전",
+    "scale": "축척",
+    "resetAlignHint": "정렬 제거",
+    "alignManual": "수동",
+    "confidence": "신뢰도",
+    "confidenceHint": "정렬 후 겹치는 잉크의 비율",
+    "alignByMeasure": "측정 축척에서 얻은 축척",
+    "alignNone": "이미 정렬됨",
+    "alignByContent": "도면 내용에서",
+    "pair": "쌍",
+    "pagesTab": "페이지",
+    "pairing": "페이지 연결 중…",
+    "onlyInOld": "이전 문서에만 있음",
+    "onlyInNew": "새 문서에만 있음",
+    "pairReason": {
+      "sheet": "도면 번호로 연결",
+      "label": "페이지 레이블로 연결",
+      "content": "내용으로 연결",
+      "index": "페이지 순서로 연결",
+      "manual": "직접 연결"
+    },
+    "truncated": "차이가 너무 많습니다. 정렬 또는 감도를 확인하세요.",
+    "selectForClouds": "새 문서의 구름 표시용으로 선택",
+    "report": {
+      "button": "보고서",
+      "csv": "변경 목록 내보내기 (CSV)…",
+      "pdf": "PDF 요약 내보내기…",
+      "clouds": "선택한 변경을 구름 표시로 배치",
+      "cloudsNeedTab": "새 문서가 탭에서 열려 있어야 합니다",
+      "saved": "보고서를 저장했습니다",
+      "failed": "보고서를 만들 수 없습니다",
+      "cloudsPlaced": "새 문서에 배치한 구름 표시: {{count}}",
+      "title": "비교 보고서",
+      "generated": "생성 시각",
+      "settings": "설정",
+      "fileSuffix": "byeongyeong",
+      "sourcePixel": "도면",
+      "sourceText": "텍스트",
+      "cloudSubject": "비교",
+      "before": "이전",
+      "after": "이후",
+      "col": {
+        "no": "번호",
+        "pair": "쌍",
+        "oldPage": "이전 페이지",
+        "newPage": "새 페이지",
+        "sheet": "도면",
+        "type": "유형",
+        "source": "출처",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "너비 (mm)",
+        "heightMm": "높이 (mm)",
+        "oldText": "이전 텍스트",
+        "newText": "이후 텍스트"
+      },
+      "sourceVector": "벡터"
+    },
+    "methodVector": "벡터",
+    "methodVectorHint": "두 페이지가 모두 벡터 도면이면 그린 경로를 정확히 비교하고, 그 밖의 페이지는 픽셀 비교를 사용합니다",
+    "methodPixelFallback": "픽셀: 벡터 페이지가 아님"
   },
   "organize": {
     "pages": "페이지",
@@ -350,8 +438,16 @@
     "scanTextHint": "인식된 단어를 클릭하여 바꿉니다. 스캔에 있는 기존 단어는 가려집니다.",
     "scanTextNone": "이 페이지에 인식된 텍스트가 없습니다. 먼저 텍스트 인식(OCR)을 실행하세요.",
     "shiftPage": "페이지 이동",
+    "scanGroup": "스캔",
+    "scan": "스캔",
+    "scanTitle": "페이지를 검색 가능한 PDF로 스캔",
+    "batchOcr": "일괄 OCR",
+    "batchOcrTitle": "폴더의 모든 PDF 파일에서 텍스트 인식",
     "editPages": "페이지 편집",
-    "editPagesTitle": "페이지를 시각적으로 편집: 순서 변경, 회전, 삽입, 삭제, 추출 및 분할"
+    "editPagesTitle": "페이지를 시각적으로 편집: 순서 변경, 회전, 삽입, 삭제, 추출 및 분할",
+    "protect": "보호",
+    "security": "보안",
+    "securityTitle": "암호 및 권한 설정 또는 제거"
   },
   "help": {
     "settings": "설정",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "너비:",
     "y": "Y:",
-    "h": "높이:"
+    "h": "높이:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "시스템 (자동 감지)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "새 기호를 배치할 때의 크기",
     "symbolScaleCustom": "사용자 지정 축척",
     "count": "개수 세기",
-    "arc": "호"
+    "arc": "호",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "교정",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — 비상 조명",
       "nen1414-tr": "NL NEN 1414 — 배연/배열",
       "nen1414-tv": "NL NEN 1414 — 환기",
-      "nen1414-tw": "NL NEN 1414 — 급수/스프링클러"
+      "nen1414-tw": "NL NEN 1414 — 급수/스프링클러",
+      "gdt-bewerking": "GD&T 및 기계 가공"
     },
     "sectors": {
       "aec": "AEC(건설)",
@@ -773,5 +881,34 @@
       "mep": "건축 설비(MEP)",
       "infra": "인프라"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

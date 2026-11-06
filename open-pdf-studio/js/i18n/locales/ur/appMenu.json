@@ -142,8 +142,8 @@
     "officeTable": "جدول",
     "officeText": "متن",
     "officeFailed": "دستاویز برآمد ناکام ہو گئی۔",
-    "protect": "پاس ورڈ سے محفوظ کریں",
-    "protectDesc": "پاس ورڈ سے محفوظ ایک نقل محفوظ کریں (AES-256)"
+    "protect": "دستاویز کی حفاظت",
+    "protectDesc": "پاس ورڈ اور اجازتیں مقرر کریں یا ہٹائیں (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "آؤٹ پٹ پروفائل",
@@ -219,11 +219,38 @@
     "uninstallError": "ایکسٹینشن ان انسٹال کرنے میں ناکامی",
     "by": "از",
     "activationFailed": "فعال نہیں: {{error}}",
-    "viaMcp": "AI کنکشن کے ذریعے"
+    "viaMcp": "AI کنکشن کے ذریعے",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "کلپ بورڈ اسکرین شاٹ پر تشریح کریں",
   "workflows": "دستاویز ورک فلوز",
   "drawingSets": "ڈرائنگ سیٹس",
   "sheetLinks": "شیٹوں کے درمیان لنکس",
-  "approvalRouting": "منظوری کی روٹنگ"
+  "approvalRouting": "منظوری کی روٹنگ",
+  "sharedReview": "مشترکہ جائزہ",
+  "pdfa": "PDF/A..."
 }

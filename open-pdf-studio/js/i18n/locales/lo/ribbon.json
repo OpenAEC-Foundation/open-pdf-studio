@@ -48,7 +48,9 @@
     "autoDetectTitle": "ກວດຫາມາດຕາສ່ວນຈາກຂໍ້ຄວາມໃນຕາຕະລາງແບບ",
     "scaleDetected": "ກວດພົບມາດຕາສ່ວນແລ້ວ",
     "noScaleFound": "ບໍ່ພົບມາດຕາສ່ວນ",
-    "detecting": "ກຳລັງກວດຫາ..."
+    "detecting": "ກຳລັງກວດຫາ...",
+    "scaleCheck": "ກວດສອບມາດຕາສ່ວນ",
+    "scaleCheckTitle": "ວັດຂະໜາດທີ່ຮູ້ ແລະ ສະແດງຄວາມຄາດເຄື່ອນຂອງມາດຕາສ່ວນເປັນເປີເຊັນ"
   },
   "home": {
     "document": "ເອກະສານ",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "ວາງພື້ນທີ່ມາດຕາສ່ວນໃຫ້ກວມເອົາທັງໝົດໜ້າ",
     "drawing": "ການແຕ້ມ",
     "highlight": "ເນັ້ນຂໍ້ຄວາມ",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "ແຕ້ມແບບອິດສະຫຼະ",
     "line": "ເສັ້ນຊື່",
     "arrow": "ລູກສອນ",
@@ -134,6 +142,8 @@
     "callout": "ກ່ອງຄຳອະທິບາຍພ້ອມຊີ້ບອກ",
     "stamp": "ກາປະທັບ",
     "signature": "ລາຍເຊັນ",
+    "digitalSign": "ລາຍເຊັນດິຈິຕອນ",
+    "digitalSignTooltip": "ລົງລາຍເຊັນເອກະສານດ້ວຍໃບຢັ້ງຢືນ (.p12/.pfx). ປຸ່ມລາຍເຊັນຈະວາງພຽງຮູບພາບ.",
     "northArrow": "ລູກສອນທິດເໜືອ",
     "measure": "ວັດແທກ",
     "measureDistance": "ວັດແທກໄລຍະຫ່າງ",
@@ -316,7 +326,85 @@
     "modified": "ຖືກດັດແກ້",
     "noChanges": "ບໍ່ມີການປ່ຽນແປງ",
     "textTab": "ຂໍ້ຄວາມ",
-    "noTextChanges": "ບໍ່ມີຄວາມແຕກຕ່າງດ້ານຂໍ້ຄວາມ"
+    "noTextChanges": "ບໍ່ມີຄວາມແຕກຕ່າງດ້ານຂໍ້ຄວາມ",
+    "previousVersion": "ກ່ອນການບັນທຶກຄັ້ງລ່າສຸດ",
+    "fromDisk": "ໄຟລ໌",
+    "fileLoadError": "ບໍ່ສາມາດເປີດໄຟລ໌ເປັນ PDF ໄດ້.",
+    "browse": "ເລືອກເບິ່ງ…",
+    "browseHint": "ເລືອກໄຟລ໌ PDF ຈາກດິສກ໌",
+    "pickSecondSide": "ເລືອກອີກດ້ານຈາກໄຟລ໌ໃນດິສກ໌ ຫຼື ເປີດ PDF ທີສອງໃນແຖບ.",
+    "sensitivity": "ຄວາມໄວ",
+    "sensitivityHint": "ຕັ້ງເກນໝຶກ, ຂະໜາດການປ່ຽນແປງຕໍ່າສຸດ ແລະ ໄລຍະການລວມໄປພ້ອມກັນ",
+    "preset": {
+      "line": "ແບບເສັ້ນ",
+      "scan": "ພາບສະແກນ",
+      "text": "ເອກະສານຂໍ້ຄວາມ"
+    },
+    "autoAlign": "ປັບແນວອັດຕະໂນມັດ",
+    "autoAlignHint": "ປະເມີນການເລື່ອນ, ການໝຸນ ແລະ ມາດຕາສ່ວນຈາກແບບ",
+    "autoAlignEach": "ອັດຕະໂນມັດ",
+    "autoAlignEachHint": "ປັບແນວແຕ່ລະຄູ່ໜ້າອັດຕະໂນມັດເມື່ອສະແດງຄັ້ງທຳອິດ",
+    "rotation": "ໝຸນ",
+    "scale": "ມາດຕາສ່ວນ",
+    "resetAlignHint": "ລຶບການປັບແນວ",
+    "alignManual": "ດ້ວຍຕົນເອງ",
+    "confidence": "ຄວາມໜ້າເຊື່ອຖື",
+    "confidenceHint": "ສ່ວນຂອງໝຶກທີ່ກົງກັນຫຼັງປັບແນວ",
+    "alignByMeasure": "ມາດຕາສ່ວນຈາກມາດຕາວັດ",
+    "alignNone": "ປັບແນວແລ້ວ",
+    "alignByContent": "ຈາກເນື້ອຫາຂອງແບບ",
+    "pair": "ຄູ່",
+    "pagesTab": "ໜ້າ",
+    "pairing": "ກຳລັງຈັບຄູ່ໜ້າ…",
+    "onlyInOld": "ມີແຕ່ໃນສະບັບເກົ່າ",
+    "onlyInNew": "ມີແຕ່ໃນສະບັບໃໝ່",
+    "pairReason": {
+      "sheet": "ຈັບຄູ່ຕາມເລກແຜ່ນ",
+      "label": "ຈັບຄູ່ຕາມປ້າຍໜ້າ",
+      "content": "ຈັບຄູ່ຕາມເນື້ອຫາ",
+      "index": "ຈັບຄູ່ຕາມລຳດັບໜ້າ",
+      "manual": "ຈັບຄູ່ດ້ວຍຕົນເອງ"
+    },
+    "truncated": "ຄວາມແຕກຕ່າງຫຼາຍເກີນໄປ: ກວດສອບການປັບແນວ ຫຼື ຄວາມໄວ.",
+    "selectForClouds": "ເລືອກເພື່ອວາງເມກໃນເອກະສານໃໝ່",
+    "report": {
+      "button": "ລາຍງານ",
+      "csv": "ສົ່ງອອກລາຍການການປ່ຽນແປງ (CSV)…",
+      "pdf": "ສົ່ງອອກສະຫຼຸບ PDF…",
+      "clouds": "ວາງການປ່ຽນແປງທີ່ເລືອກເປັນເມກ",
+      "cloudsNeedTab": "ຕ້ອງເປີດເອກະສານໃໝ່ໄວ້ໃນແຖບ",
+      "saved": "ບັນທຶກລາຍງານແລ້ວ",
+      "failed": "ບໍ່ສາມາດສ້າງລາຍງານໄດ້",
+      "cloudsPlaced": "ເມກທີ່ວາງໃນເອກະສານໃໝ່: {{count}}",
+      "title": "ລາຍງານການປຽບທຽບ",
+      "generated": "ສ້າງເມື່ອ",
+      "settings": "ການຕັ້ງຄ່າ",
+      "fileSuffix": "kanpianpaeng",
+      "sourcePixel": "ແບບ",
+      "sourceText": "ຂໍ້ຄວາມ",
+      "cloudSubject": "ການປຽບທຽບ",
+      "before": "ກ່ອນ",
+      "after": "ຫຼັງ",
+      "col": {
+        "no": "ລຳດັບ",
+        "pair": "ຄູ່",
+        "oldPage": "ໜ້າເກົ່າ",
+        "newPage": "ໜ້າໃໝ່",
+        "sheet": "ແຜ່ນ",
+        "type": "ຊະນິດ",
+        "source": "ແຫຼ່ງທີ່ມາ",
+        "xMm": "X (ມມ)",
+        "yMm": "Y (ມມ)",
+        "widthMm": "ກວ້າງ (ມມ)",
+        "heightMm": "ສູງ (ມມ)",
+        "oldText": "ຂໍ້ຄວາມກ່ອນ",
+        "newText": "ຂໍ້ຄວາມຫຼັງ"
+      },
+      "sourceVector": "ເວັກເຕີ"
+    },
+    "methodVector": "ເວັກເຕີ",
+    "methodVectorHint": "ປຽບທຽບເສັ້ນທາງທີ່ແຕ້ມຢ່າງແມ່ນຍຳເມື່ອທັງສອງໜ້າເປັນແບບເວັກເຕີ; ໜ້າອື່ນໃຊ້ການປຽບທຽບພິກເຊວ",
+    "methodPixelFallback": "ພິກເຊວ: ບໍ່ແມ່ນໜ້າເວັກເຕີ"
   },
   "organize": {
     "pages": "ໜ້າເຈ້ຍ",
@@ -350,8 +438,16 @@
     "scanTextHint": "ຄລິກໃສ່ຄຳທີ່ອ່ານໄດ້ເພື່ອແທນທີ່. ຄຳເກົ່າໃນຮູບສະແກນຈະຖືກປິດທັບ.",
     "scanTextNone": "ບໍ່ມີຂໍ້ຄວາມທີ່ອ່ານໄດ້ໃນໜ້ານີ້. ໃຫ້ໃຊ້ ອ່ານຂໍ້ຄວາມຈາກຮູບ (OCR) ກ່ອນ.",
     "shiftPage": "ເລື່ອນຕຳແໜ່ງໜ້າເຈ້ຍ",
+    "scanGroup": "ສະແກນ",
+    "scan": "ສະແກນ",
+    "scanTitle": "ສະແກນໜ້າເປັນ PDF ທີ່ຄົ້ນຫາໄດ້",
+    "batchOcr": "OCR ທັງໂຟນເດີ",
+    "batchOcrTitle": "ອ່ານຂໍ້ຄວາມໃນໄຟລ໌ PDF ທັງໝົດຂອງໂຟນເດີ",
     "editPages": "ແກ້ໄຂໜ້າ",
-    "editPagesTitle": "ແກ້ໄຂໜ້າແບບເຫັນພາບ: ຈັດລຽງ, ໝູນ, ແຊກ, ລຶບ, ແຍກອອກ ແລະ ແບ່ງ"
+    "editPagesTitle": "ແກ້ໄຂໜ້າແບບເຫັນພາບ: ຈັດລຽງ, ໝູນ, ແຊກ, ລຶບ, ແຍກອອກ ແລະ ແບ່ງ",
+    "protect": "ປ້ອງກັນ",
+    "security": "ຄວາມປອດໄພ",
+    "securityTitle": "ຕັ້ງ ຫຼື ເອົາລະຫັດຜ່ານ ແລະ ສິດອອກ"
   },
   "help": {
     "settings": "ການຕັ້ງຄ່າ",
@@ -499,7 +595,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "common": {
     "comingSoon": "ກຳລັງພັດທະນາ",
@@ -636,7 +736,14 @@
     "symbolScaleTitle": "ຂະໜາດທີ່ສັນຍະລັກໃໝ່ຈະຖືກວາງ",
     "symbolScaleCustom": "ມາດຕາສ່ວນກຳນົດເອງ",
     "count": "ນັບ",
-    "arc": "ເສັ້ນໂຄ້ງ"
+    "arc": "ເສັ້ນໂຄ້ງ",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "theme": {
     "system": "ຕາມລະບົບ (ກວດຫາອັດຕະໂນມັດ)",
@@ -762,7 +869,8 @@
       "nen1414-tn": "NL NEN 1414 — ໄຟສຸກເສີນ",
       "nen1414-tr": "NL NEN 1414 — ການລະບາຍຄວັນ/ຄວາມຮ້ອນ",
       "nen1414-tv": "NL NEN 1414 — ການລະບາຍອາກາດ",
-      "nen1414-tw": "NL NEN 1414 — ນ້ຳ/ສະປຣິງເກີ"
+      "nen1414-tw": "NL NEN 1414 — ນ້ຳ/ສະປຣິງເກີ",
+      "gdt-bewerking": "GD&T ແລະ ງານເຄື່ອງຈັກ"
     },
     "sectors": {
       "aec": "AEC (ການກໍ່ສ້າງ)",
@@ -771,5 +879,34 @@
       "mep": "ລະບົບອາຄານ (MEP)",
       "infra": "ພື້ນຖານໂຄງລ່າງ"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

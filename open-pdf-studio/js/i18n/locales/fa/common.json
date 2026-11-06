@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "هیچ حاشیه‌نویسی‌ای در فایل XFDF یافت نشد.",
   "noRedactionsOnPage": "هیچ نشانه حذف محرمانه‌ای در صفحه فعلی برای اعمال وجود ندارد.",
   "noRedactionsInDocument": "هیچ نشانه حذف محرمانه‌ای در سند برای اعمال وجود ندارد.",
+  "redactTitle": "اعمال پوشاندن‌ها",
+  "redactConfirmPage": "{{count}} علامت پوشاندن در صفحه {{page}} اعمال شود؟",
+  "redactConfirmAll": "{{count}} علامت پوشاندن در {{pages}} صفحه اعمال شود؟",
+  "redactConfirmBody": "متن، تصاویر، گرافیک برداری، یادداشت‌ها و فیلدهای فرم زیر علامت‌ها از سند حذف می‌شوند و نواحی با رنگ علامت پر می‌شوند. فایل هنگام ذخیره تغییر می‌کند؛ ذخیره کل فایل را بدون نسخه‌های قبلی بازنویسی می‌کند.",
+  "redactDone": "{{count}} ناحیه پوشاندن اعمال شد. برای نوشتن تغییر در فایل، سند را ذخیره کنید.",
+  "redactNotApplied": "پوشاندن‌ها اعمال نشدند؛ هیچ چیز تغییر نکرد. {{reason}}",
+  "redactReasonUnsupported": "محتوای زیر یک علامت را نمی‌توان به‌طور مطمئن حذف کرد: {{detail}}",
+  "redactReasonInvalid": "یک یا چند علامت ناحیه معتبری ندارند.",
+  "redactReasonTextEdits": "ابتدا ویرایش‌های ذخیره‌نشده متن را ذخیره کنید.",
   "cannotDeleteAllPages": "نمی‌توان همه صفحات را حذف کرد. دست‌کم یک صفحه باید باقی بماند.",
   "cannotDeleteAllPagesSource": "نمی‌توان همه صفحات سند مبدأ را حذف کرد.",
   "noPagesSelected": "هیچ صفحه‌ای برای استخراج انتخاب نشده است.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF انتخاب‌شده هیچ صفحه‌ای ندارد.",
   "failedToSavePdf": "ذخیره PDF ناموفق بود: {{error}}",
   "failedToLoadPdf": "بارگذاری PDF ناموفق بود: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "باز کردن در پنجره جدید",
     "closeTab": "بستن زبانه",
     "nextTab": "زبانه بعدی",
-    "previousTab": "زبانه قبلی"
+    "previousTab": "زبانه قبلی",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "صفحه بعدی",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "تصاویر بندانگشتی PDF در File Explorer فقط در نسخه نصب‌شده در دسترس است.",
     "virtualPrinter": "چاپگر مجازی فقط در نسخه نصب‌شده در دسترس است: با دسترسی مدیر به Windows افزوده می‌شود.",
     "notWritable": "Open PDF Studio نمی‌تواند در پوشه {{dir}} بنویسد، بنابراین این بار تنظیمات شما در نمایه کاربری‌تان ذخیره می‌شود. پوشه قابل‌حمل را به مکانی قابل نوشتن، مانند یک حافظه USB یا پوشه Documents، منتقل کنید."
+  },
+  "protectedPdfNoPrint": "مجوزهای این سند اجازهٔ چاپ نمی‌دهند.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

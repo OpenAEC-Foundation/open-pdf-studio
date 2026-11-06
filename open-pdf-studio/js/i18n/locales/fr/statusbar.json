@@ -110,6 +110,7 @@
   "searchHitsOne": "1 correspondance",
   "searchHitsMany": "{{count}} correspondances",
   "passwordProtectedBar": "Protégé par un mot de passe : ouvert en lecture seule.",
+  "passwordProtectedEditableBar": "Protégé par un mot de passe. L'enregistrement conserve la protection.",
   "documentSearch": {
     "title": "Rechercher dans les documents",
     "query": "Texte à rechercher",
@@ -157,5 +158,11 @@
     "port": "Port : {{port}}",
     "lastTool": "Dernier outil : {{tool}} à {{time}}",
     "noTool": "Aucun appel d'outil pour l'instant"
-  }
+  },
+  "sharedReviewActive": "Révision partagée",
+  "sharedReviewUpdates": "Révision partagée : {{n}} nouvelles",
+  "sharedReviewTitle": "Les annotations sont partagées via {{folder}}. Cliquez pour ouvrir la révision partagée.",
+  "sharedReviewError": "Révision partagée : dossier indisponible",
+  "pdfaReadOnly": "Ce document est conforme à la norme {{label}} et a été ouvert en lecture seule pour éviter toute modification.",
+  "pdfaValidate": "Valider"
 }

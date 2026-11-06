@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Aucune annotation trouvée dans le fichier XFDF.",
   "noRedactionsOnPage": "Aucune marque de caviardage à appliquer sur la page actuelle.",
   "noRedactionsInDocument": "Aucune marque de caviardage à appliquer dans le document.",
+  "redactTitle": "Appliquer les biffures",
+  "redactConfirmPage": "Appliquer {{count}} marque(s) de biffure sur la page {{page}} ?",
+  "redactConfirmAll": "Appliquer {{count}} marque(s) de biffure sur {{pages}} page(s) ?",
+  "redactConfirmBody": "Le texte, les images, les graphiques vectoriels, les annotations et les champs de formulaire sous les marques sont supprimés du document et les zones sont remplies avec la couleur de la marque. Le fichier change à l'enregistrement ; l'enregistrement réécrit tout le fichier sans versions antérieures.",
+  "redactDone": "{{count}} zone(s) de biffure appliquée(s). Enregistrez le document pour écrire la modification dans le fichier.",
+  "redactNotApplied": "Les biffures n'ont pas été appliquées ; rien n'a été modifié. {{reason}}",
+  "redactReasonUnsupported": "Le contenu sous une marque ne peut pas être supprimé de manière fiable : {{detail}}",
+  "redactReasonInvalid": "Une ou plusieurs marques n'ont pas de zone valide.",
+  "redactReasonTextEdits": "Enregistrez d'abord les modifications de texte non enregistrées.",
   "cannotDeleteAllPages": "Impossible de supprimer toutes les pages. Au moins une page doit subsister.",
   "cannotDeleteAllPagesSource": "Impossible de supprimer toutes les pages du document source.",
   "noPagesSelected": "Aucune page sélectionnée pour l'extraction.",
+  "extractEncrypted": "Ces pages ne peuvent pas être extraites : le contenu du document est encore chiffré. Enregistrez le document sans protection et réessayez.",
   "selectedPdfNoPages": "Le PDF sélectionné ne contient aucune page.",
   "failedToSavePdf": "Impossible d'enregistrer le PDF : {{error}}",
   "failedToLoadPdf": "Impossible de charger le PDF : {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
     "closeTab": "Fermer l'onglet",
     "nextTab": "Onglet suivant",
-    "previousTab": "Onglet précédent"
+    "previousTab": "Onglet précédent",
+    "newTabForDocument": "Nouvel onglet pour ce document"
   },
   "pageNav": {
     "nextPage": "Page suivante",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Les miniatures PDF dans l'Explorateur de fichiers ne sont disponibles que dans la version installée.",
     "virtualPrinter": "L'imprimante virtuelle n'est disponible que dans la version installée : elle est ajoutée à Windows avec des droits d'administrateur.",
     "notWritable": "Open PDF Studio ne peut pas écrire dans le dossier {{dir}} ; vos paramètres sont donc enregistrés cette fois dans votre profil utilisateur. Déplacez le dossier portable vers un emplacement accessible en écriture, comme une clé USB ou votre dossier Documents."
+  },
+  "protectedPdfNoPrint": "Les droits de ce document n'autorisent pas l'impression.",
+  "share": {
+    "share": "Partager",
+    "unsavedTitle": "Modifications non enregistrées",
+    "unsavedMessage": "{{name}} contient des modifications non enregistrées. Enregistrer le document et l'envoyer, ou envoyer une copie avec les modifications ?",
+    "saveAndSend": "Enregistrer et envoyer",
+    "sendCopy": "Envoyer une copie",
+    "copyFailed": "Impossible de préparer le document pour l'envoi : {{error}}",
+    "failed": "Échec du partage : {{error}}",
+    "attachManually": "Aucun programme de messagerie n'a pu joindre le fichier. Un brouillon a été ouvert et le fichier est affiché dans le gestionnaire de fichiers : faites-le glisser dans le message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "Plus",
+    "insertImage": "Insérer une image",
+    "takePhoto": "Prendre une photo",
+    "scanDocument": "Numériser un document",
+    "copyMarkup": "Copier l'annotation",
+    "pasteMarkup": "Coller l'annotation",
+    "deleteMarkup": "Supprimer l'annotation",
+    "imageFailed": "Impossible d'insérer l'image : {{error}}",
+    "scanWhere": "Où placer la page numérisée ?",
+    "scanInsertAfter": "Après la page actuelle",
+    "scanNewDocument": "Nouveau document",
+    "scanBusy": "Création de la page…",
+    "scanFailed": "Impossible de créer une page à partir de la photo : {{error}}"
   }
 }

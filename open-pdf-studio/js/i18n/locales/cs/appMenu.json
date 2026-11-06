@@ -142,8 +142,8 @@
     "officeTable": "Tabulka",
     "officeText": "Text",
     "officeFailed": "Export dokumentu se nezdařil.",
-    "protect": "Chránit heslem",
-    "protectDesc": "Uložit kopii chráněnou heslem (AES-256)"
+    "protect": "Zabezpečení dokumentu",
+    "protectDesc": "Nastavit nebo odebrat hesla a oprávnění (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Výstupní profil",
@@ -219,11 +219,38 @@
     "uninstallError": "Odinstalace rozšíření se nezdařila",
     "by": "autor:",
     "activationFailed": "Neaktivní: {{error}}",
-    "viaMcp": "Přes připojení AI"
+    "viaMcp": "Přes připojení AI",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "Anotovat snímek obrazovky ze schránky",
   "workflows": "Pracovní postupy dokumentů",
   "drawingSets": "Sady výkresů",
   "sheetLinks": "Odkazy mezi výkresy",
-  "approvalRouting": "Schvalovací oběh"
+  "approvalRouting": "Schvalovací oběh",
+  "sharedReview": "Sdílená revize",
+  "pdfa": "PDF/A..."
 }

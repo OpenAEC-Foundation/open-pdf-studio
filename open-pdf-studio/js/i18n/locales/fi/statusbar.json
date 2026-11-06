@@ -110,6 +110,7 @@
   "searchHitsOne": "1 osuma",
   "searchHitsMany": "{{count}} osumaa",
   "passwordProtectedBar": "Suojattu salasanalla: avattu vain luku -tilassa.",
+  "passwordProtectedEditableBar": "Suojattu salasanalla. Tallennus säilyttää suojauksen.",
   "documentSearch": {
     "title": "Hae asiakirjoista",
     "query": "Hakuteksti",
@@ -157,5 +158,11 @@
     "port": "Portti: {{port}}",
     "lastTool": "Viimeisin työkalu: {{tool}} klo {{time}}",
     "noTool": "Ei vielä työkalukutsuja"
-  }
+  },
+  "sharedReviewActive": "Jaettu tarkistus",
+  "sharedReviewUpdates": "Jaettu tarkistus: {{n}} uutta",
+  "sharedReviewTitle": "Merkinnät jaetaan kansion {{folder}} kautta. Avaa jaettu tarkistus napsauttamalla.",
+  "sharedReviewError": "Jaettu tarkistus: kansio ei käytettävissä",
+  "pdfaReadOnly": "Tämä asiakirja noudattaa {{label}}-standardia ja on avattu vain luku -tilassa muutosten estämiseksi.",
+  "pdfaValidate": "Validoi"
 }

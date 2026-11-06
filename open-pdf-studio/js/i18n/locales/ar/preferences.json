@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "نشط عبر معامل التشغيل ({{adres}})",
     "aiLinkOff": "متوقف",
     "aiLinkError": "لم يبدأ: {{fout}}",
-    "interfaceScale": "حجم الواجهة"
+    "interfaceScale": "حجم الواجهة",
+    "saving": "الحفظ",
+    "incrementalSave": "حفظ تغييرات التعليقات والنماذج بشكل تزايدي (تجريبي)",
+    "incrementalSaveHint": "يضيف التغييرات إلى نهاية الملف بدلًا من إعادة كتابته. تبقى الإصدارات السابقة قابلة للاستعادة من الملف. يُحفظ التنقيح وإزالة المعلومات المخفية والتغييرات الأخرى دائمًا بإعادة كتابة كاملة."
   },
   "annotations": {
     "generalDefaults": "الإعدادات الافتراضية العامة",
@@ -313,7 +316,15 @@
     "butt": "مسطح",
     "openArrowReversed": "سهم مفتوح (معكوس)",
     "closedArrowReversed": "سهم مغلق (معكوس)",
-    "slash": "شرطة مائلة"
+    "slash": "شرطة مائلة",
+    "decimalNotation": "الفاصل العشري",
+    "decimalAuto": "حسب اللغة",
+    "decimalComma": "فاصلة (2,50)",
+    "decimalPoint": "نقطة (2.50)",
+    "digitGrouping": "فصل الآلاف (12 345)",
+    "scaleCheck": "التحقق من المقياس",
+    "scaleCheckOk": "سليم حتى",
+    "scaleCheckWarn": "تحذير حتى"
   },
   "keyboardShortcuts": {
     "title": "اختصارات لوحة المفاتيح",

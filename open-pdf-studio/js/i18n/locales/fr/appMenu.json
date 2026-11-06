@@ -142,8 +142,8 @@
     "officeTable": "Tableau",
     "officeText": "Texte",
     "officeFailed": "Échec de l'exportation du document.",
-    "protect": "Protéger par mot de passe",
-    "protectDesc": "Enregistrer une copie protégée par mot de passe (AES-256)"
+    "protect": "Sécurité du document",
+    "protectDesc": "Définir ou supprimer les mots de passe et les droits (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil de sortie",
@@ -219,11 +219,38 @@
     "uninstallError": "Échec de la désinstallation de l'extension",
     "by": "par",
     "activationFailed": "Inactive : {{error}}",
-    "viaMcp": "Via la connexion IA"
+    "viaMcp": "Via la connexion IA",
+    "tabInstalled": "Installées",
+    "tabBrowse": "Parcourir",
+    "tabCustom": "Ajouter",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Lien personnel",
+    "updateTo": "Mettre à jour vers v{{version}}",
+    "updatesAvailable": "{{count}} mise(s) à jour disponible(s)",
+    "search": "Rechercher des extensions",
+    "refresh": "Actualiser",
+    "loading": "Chargement...",
+    "noResults": "Aucune extension trouvée",
+    "catalogEmpty": "Le catalogue ne contient encore aucune extension",
+    "catalogFailed": "Le catalogue {{url}} n'a pas pu être chargé",
+    "install": "Installer",
+    "isInstalled": "Installée",
+    "homepage": "Site web",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Par défaut",
+    "addCatalog": "Ajouter un catalogue",
+    "removeCatalog": "Supprimer",
+    "submitHint": "Les auteurs ajoutent leur extension au catalogue du projet par une pull request sur",
+    "customWarning": "Les extensions installées par lien ne sont pas vérifiées. N'installez que des extensions de sources de confiance.",
+    "installFromLink": "Installer depuis un lien",
+    "linkHint": "Un dépôt GitHub (le .oppx de la dernière version est installé) ou un lien https:// direct vers un fichier .oppx.",
+    "desktopOnly": "Le catalogue d'extensions est disponible dans l'application de bureau."
   },
   "annotateScreenshot": "Annoter une capture d'écran du presse-papiers",
   "workflows": "Flux de travail documentaires",
   "drawingSets": "Jeux de plans",
   "sheetLinks": "Liens entre feuilles",
-  "approvalRouting": "Circuit d'approbation"
+  "approvalRouting": "Circuit d'approbation",
+  "sharedReview": "Révision partagée",
+  "pdfa": "PDF/A..."
 }

@@ -17,7 +17,9 @@
     "viewports": "Näkymäikkunat",
     "noViewports": "Näkymäikkunoita ei ole määritetty",
     "measurements": "Mittaukset",
-    "noMeasurements": "Ei vielä mittauksia"
+    "noMeasurements": "Ei vielä mittauksia",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Ominaisuudet",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Poista kirjanmerkki",
     "findBookmark": "Etsi...",
     "findBookmarkTip": "Kirjoita siirtyäksesi kirjanmerkkiin. Enter avaa sen, uusi Enter siirtyy seuraavaan osumaan.",
+    "findPage": "Etsi...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Lisää liite",
     "openAttachment": "Avaa liite",
     "saveAttachment": "Tallenna liite",
@@ -807,6 +811,24 @@
     "rules": "Määritys käyttää merkinnän rajauslaatikon keskipistettä reunat mukaan lukien. Syvin vyöhyke voittaa, sitten pienin pinta-ala ja sitten vyöhykkeen tunnus. Käytä suorasivuisia monikulmioita ilman reikiä tai kiertämättömiä suorakulmioita. Virheelliset tai päällekkäiset vyöhyketunnisteet jätetään pois.",
     "loading": "Merkintöjä ladataan: sijainnit voivat vielä muuttua."
   },
+  "dynamicStamp": {
+    "title": "Leiman kentät",
+    "template": "Malli",
+    "refresh": "Päivitä päivämäärä, käyttäjä ja sivu",
+    "lock": "Lukitse leima",
+    "lockConfirm": "Lukitaanko tämä leima? Sen kenttiä ei voi enää muuttaa.",
+    "locked": "Tämä leima on lukittu: sen kenttiä ei voi enää muuttaa.",
+    "field": {
+      "date": "Päivämäärä",
+      "time": "Aika",
+      "datetime": "Päivämäärä ja aika",
+      "user": "Käyttäjä",
+      "page": "Sivu",
+      "pages": "Sivujen määrä",
+      "filename": "Tiedostonimi",
+      "title": "Asiakirjan otsikko"
+    }
+  },
   "toolSets": {
     "title": "Työkalusarjat",
     "typeWall": "Seinä",
@@ -922,5 +944,19 @@
     "open": "Avaa",
     "saveAs": "Tallenna nimellä...",
     "noContent": "Tämän tiedoston sisältöä ei ole upotettu PDF-tiedostoon."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

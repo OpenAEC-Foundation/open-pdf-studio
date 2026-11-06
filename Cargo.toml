@@ -7,6 +7,8 @@ members = [
   "open-pdf-cad",
   "open-pdf-cmyk",
   "open-pdf-thumbnails",
+  "open-pdf-signatures",
+  "open-pdf-security",
 ]
 
 # Upstream tesseract-rs caches its Windows/macOS build-tesseract source

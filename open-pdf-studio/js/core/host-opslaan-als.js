@@ -139,7 +139,8 @@ export function normaliseerMapLijst(lijst) {
 const CODES = {
   alleen_lezen: ['read_only', 'readonly', 'forbidden', 'permission_denied', 'no_permission', 'not_allowed',
     'alleen_lezen', 'geen_rechten', 'geen_schrijfrechten', 'geweigerd', 'niet_toegestaan'],
-  ongeldige_naam: ['invalid_name', 'bad_name', 'ongeldige_naam', 'naam_ongeldig', 'invalid_type', 'alleen_pdf'],
+  ongeldige_naam: ['invalid_name', 'bad_name', 'ongeldige_naam', 'naam_ongeldig', 'invalid_type', 'alleen_pdf',
+    'soort_niet_toegestaan'],
   te_groot: ['too_large', 'payload_too_large', 'file_too_large', 'te_groot'],
   quotum: ['quota', 'quota_exceeded', 'storage_full', 'insufficient_storage', 'no_space',
     'quotum', 'quotum_bereikt', 'geen_ruimte', 'opslag_vol'],

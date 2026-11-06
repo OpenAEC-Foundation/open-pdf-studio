@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "XFDF ファイルに注釈が見つかりません。",
   "noRedactionsOnPage": "現在のページに適用できる墨消しマークがありません。",
   "noRedactionsInDocument": "文書内に適用できる墨消しマークがありません。",
+  "redactTitle": "墨消しを適用",
+  "redactConfirmPage": "ページ {{page}} の {{count}} 件の墨消しマークを適用しますか?",
+  "redactConfirmAll": "{{pages}} ページの {{count}} 件の墨消しマークを適用しますか?",
+  "redactConfirmBody": "マークの下にあるテキスト、画像、ベクターグラフィック、注釈、フォームフィールドは文書から削除され、領域はマークの色で塗りつぶされます。ファイルは保存時に変更され、保存では以前のバージョンを含まずにファイル全体が書き直されます。",
+  "redactDone": "{{count}} 件の墨消し領域を適用しました。変更をファイルに書き込むには文書を保存してください。",
+  "redactNotApplied": "墨消しは適用されませんでした。何も変更されていません。{{reason}}",
+  "redactReasonUnsupported": "マークの下のコンテンツを確実に削除できません: {{detail}}",
+  "redactReasonInvalid": "1 つ以上のマークに有効な領域がありません。",
+  "redactReasonTextEdits": "先に未保存のテキスト編集を保存してください。",
   "cannotDeleteAllPages": "すべてのページを削除することはできません。少なくとも 1 ページは残す必要があります。",
   "cannotDeleteAllPagesSource": "元の文書からすべてのページを削除することはできません。",
   "noPagesSelected": "抽出するページが選択されていません。",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "選択した PDF にはページがありません。",
   "failedToSavePdf": "PDF の保存に失敗しました：{{error}}",
   "failedToLoadPdf": "PDF の読み込みに失敗しました：{{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "新しいウィンドウで開く",
     "closeTab": "タブを閉じる",
     "nextTab": "次のタブ",
-    "previousTab": "前のタブ"
+    "previousTab": "前のタブ",
+    "newTabForDocument": "このドキュメントの新しいタブ"
   },
   "pageNav": {
     "nextPage": "次のページ",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "エクスプローラーでの PDF のサムネイルは、インストール版でのみ利用できます。",
     "virtualPrinter": "仮想プリンターはインストール版でのみ利用できます。管理者権限で Windows に追加されるためです。",
     "notWritable": "Open PDF Studio はフォルダー {{dir}} に書き込めないため、今回は設定がユーザー プロファイルに保存されます。ポータブル版のフォルダーを、USB ドライブやドキュメント フォルダーなどの書き込み可能な場所に移動してください。"
+  },
+  "protectedPdfNoPrint": "この文書の権限では印刷が許可されていません。",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

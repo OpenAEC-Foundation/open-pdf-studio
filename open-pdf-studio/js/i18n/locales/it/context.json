@@ -49,6 +49,7 @@
     "dimChainAdd": "Aggiungi punti alla catena di quote",
     "dimChainRemove": "Rimuovi linea di estensione dalla catena",
     "selectRoom": "Seleziona locale",
+    "checkScale": "Verifica scala con questa linea...",
     "saveToToolSet": "Salva nel set di strumenti"
   },
   "multiSelect": {

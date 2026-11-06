@@ -2,7 +2,7 @@ import { plaatsTekstOpPagina } from '../text/wrap-tekst.js';
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { hasFill } from '../annotations/fill-utils.js';
-import { showProperties } from '../ui/panels/properties-panel.js';
+import { showProperties, hideProperties } from '../ui/panels/properties-panel.js';
 import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
@@ -15,6 +15,8 @@ import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-
 import { editorVakOpmaak } from './text-edit-vak.js';
 import { editorAchtergrond, caretKleur, meetOndergrond } from './editor-ondergrond.js';
 import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
+import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
+import { besluitBijEsc, ESC_VERWIJDEREN } from './text-edit-esc.js';
 import {
   showTextEditOverlay, hideTextEditOverlay,
   getTextEditValue as getTextValue, getTextEditHeightGrowth as getHeightGrowth,
@@ -66,7 +68,12 @@ function neemInlineOpmaakOver(ann, newText) {
   }
 }
 
-export function startTextEditing(annotation) {
+/**
+ * @param {object} annotation  textbox of callout
+ * @param {{ nieuw?: boolean }} [opties]  nieuw: het vak is net neergezet;
+ *   Esc haalt het dan weg zolang er niets in staat (#951).
+ */
+export function startTextEditing(annotation, { nieuw = false } = {}) {
   // Idempotency guard: if already editing this same annotation, do nothing.
   // Without this, double-firing handlers (select-tool dblclick + dispatcher dblclick)
   // call finishTextEditing on a freshly-opened overlay, wiping the existing text.
@@ -256,9 +263,16 @@ export function startTextEditing(annotation) {
     }
   };
 
-  // Cancel function: restore original text, reset state, refresh display
+  // Esc (#951): de getypte tekst blijft staan, zoals bij het verlaten van de
+  // editor met een klik ernaast. Alleen een net neergezet vak zonder tekst
+  // gaat weg (text-edit-esc.js).
   const cancelFn = () => {
     if (!state.isEditingText || !state.editingAnnotation) return;
+    const huidigeTekst = getTextValue();
+    if (besluitBijEsc({ nieuw, tekst: huidigeTekst }) !== ESC_VERWIJDEREN) {
+      commitFn(huidigeTekst);
+      return;
+    }
 
     const ann = state.editingAnnotation;
 
@@ -267,15 +281,23 @@ export function startTextEditing(annotation) {
     state.textEditElement = null;
     state._textEditSnapshot = null;
 
+    // Het lege nieuwe vak weg, als één ongedaan-stap (ongedaan maken zet het
+    // lege vak terug, zoals het neerzetten zelf ook een stap was).
+    const _doc = getActiveDocument();
+    if (_doc && _doc.annotations.includes(ann)) {
+      deleteAnnotationsWithUndo(_doc, [ann]);
+      if (_doc.selectedAnnotation === ann) _doc.selectedAnnotation = null;
+      if (Array.isArray(_doc.selectedAnnotations)) {
+        _doc.selectedAnnotations = _doc.selectedAnnotations.filter(a => a !== ann);
+      }
+      markDocumentModified(_doc);
+      hideProperties();
+    }
+
     if (getActiveDocument()?.viewMode === 'continuous') {
       redrawContinuous();
     } else {
       redrawAnnotations();
-    }
-
-    const _doc = getActiveDocument();
-    if (_doc && _doc.selectedAnnotation === ann) {
-      showProperties(ann);
     }
   };
 

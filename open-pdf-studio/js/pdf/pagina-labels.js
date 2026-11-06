@@ -280,6 +280,73 @@ export function woordenInGebied(woorden, vak) {
   return regelsTotTekst(vakken);
 }
 
+// ── Verticale tekst via OCR (#954) ───────────────────────────────────────
+// Tesseract leest alleen liggende regels. Een bladnummer dat in het
+// tekeningstempel een kwartslag gedraaid staat, komt bij 0° leeg of als
+// onzin met lage zekerheid terug. Dan lezen we de pagina nog eens een
+// kwartslag rechtsom en linksom gedraaid en nemen de zekerste lezing.
+
+/** Extra draaiingen (rechtsom, graden) die geprobeerd worden. */
+export const OCR_DRAAIINGEN = [90, 270];
+/** Vanaf deze gemiddelde zekerheid (0..100) is een lezing bij 0° goed genoeg. */
+export const OCR_GOED_GENOEG = 70;
+/** Een gedraaide lezing moet zoveel punten zekerder zijn om te winnen. */
+export const OCR_MARGE = 5;
+
+/**
+ * Lezing van OCR-woorden ({text, left, top, width, height, confidence})
+ * binnen `vak`: de tekst en de gemiddelde zekerheid, gewogen naar het aantal
+ * tekens (null als geen woord een zekerheid heeft).
+ * @returns {{tekst:string, score:number|null, graden:number}}
+ */
+export function ocrLezing(woorden, vak, graden = 0) {
+  const raak = (woorden || []).filter((w) => typeof w?.text === 'string' && w.text.trim()
+    && middenBinnen({ x: w.left, y: w.top, width: w.width, height: w.height }, vak));
+  const tekst = regelsTotTekst(raak.map((w) => ({ x: w.left, y: w.top, width: w.width, height: w.height, text: w.text })));
+  let tekens = 0;
+  let som = 0;
+  for (const w of raak) {
+    if (!Number.isFinite(w.confidence)) continue;
+    const n = w.text.trim().length;
+    tekens += n;
+    som += n * Math.max(0, Math.min(100, w.confidence));
+  }
+  return { tekst, score: tekens ? som / tekens : null, graden };
+}
+
+/** Moet het vak ook gedraaid gelezen worden? Leeg of onzeker bij 0°. */
+export function moetGedraaidLezen(lezing) {
+  if (!lezing?.tekst) return true;
+  return lezing.score !== null && lezing.score < OCR_GOED_GENOEG;
+}
+
+/**
+ * De beste lezing: de eerste niet-lege, tenzij een latere duidelijk (meer dan
+ * OCR_MARGE) zekerder is. Zet de ongedraaide lezing dus vooraan.
+ * @returns {{tekst:string, score:number|null, graden:number}|null}
+ */
+export function kiesBesteOcrLezing(lezingen) {
+  let beste = null;
+  for (const l of lezingen || []) {
+    if (!l?.tekst) continue;
+    if (!beste || (l.score ?? -1) > (beste.score ?? -1) + OCR_MARGE) beste = l;
+  }
+  return beste;
+}
+
+/**
+ * Een vak in app-ruimte (pagina met /Rotate én de draaiing `extra` uit de
+ * app) naar de ruimte van dezelfde pagina met alleen /Rotate plus `graden`
+ * rechtsom: de ruimte waarin OCR met die draaiing zijn woorden teruggeeft.
+ * `breedte` × `hoogte`: de pagina met /Rotate, zonder app-draaiing.
+ */
+export function vakNaarOcrDraaiing(vak, breedte, hoogte, extra, graden) {
+  const gedraaid = ((extra % 360) + 360) % 180 !== 0;
+  const w = gedraaid ? hoogte : breedte;
+  const h = gedraaid ? breedte : hoogte;
+  return draaiVak(vak, w, h, (((graden - extra) % 360) + 360) % 360);
+}
+
 // ── Naamsjabloon ─────────────────────────────────────────────────────────
 
 /** De vaknummers die een sjabloon gebruikt ({OCR1} → 1). */

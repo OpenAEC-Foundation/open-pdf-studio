@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "پیمانہ شناخت ہو گیا",
     "noScaleFound": "کوئی پیمانہ نہیں ملا",
-    "detecting": "شناخت ہو رہی ہے..."
+    "detecting": "شناخت ہو رہی ہے...",
+    "scaleCheck": "پیمانہ جانچیں",
+    "scaleCheckTitle": "معلوم ناپ لیں اور پیمانے کا انحراف فیصد میں دکھائیں"
   },
   "home": {
     "document": "دستاویز",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "پورے صفحے پر محیط پیمانہ علاقہ رکھیں",
     "drawing": "ڈرائنگ",
     "highlight": "نمایاں کریں",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "آزاد ہاتھ",
     "line": "لکیر",
     "arrow": "تیر",
@@ -134,6 +142,8 @@
     "callout": "کال آؤٹ",
     "stamp": "مہر",
     "signature": "دستخط",
+    "digitalSign": "ڈیجیٹل دستخط",
+    "digitalSignTooltip": "دستاویز پر سرٹیفکیٹ (.p12/.pfx) سے دستخط کریں۔ دستخط کا بٹن صرف ایک تصویر رکھتا ہے۔",
     "measure": "پیمائش",
     "measureDistance": "فاصلے کی پیمائش",
     "distance": "فاصلہ",
@@ -316,7 +326,85 @@
     "modified": "ترمیم شدہ",
     "noChanges": "کوئی تبدیلی نہیں",
     "textTab": "متن",
-    "noTextChanges": "متن میں کوئی فرق نہیں"
+    "noTextChanges": "متن میں کوئی فرق نہیں",
+    "previousVersion": "آخری محفوظ کرنے سے پہلے",
+    "fromDisk": "فائل",
+    "fileLoadError": "فائل کو PDF کے طور پر نہیں کھولا جا سکا۔",
+    "browse": "براؤز کریں…",
+    "browseHint": "ڈسک سے PDF فائل منتخب کریں",
+    "pickSecondSide": "دوسری طرف ڈسک پر موجود فائل سے منتخب کریں، یا دوسری PDF کو ٹیب میں کھولیں۔",
+    "sensitivity": "حساسیت",
+    "sensitivityHint": "سیاہی کی حد، تبدیلی کا کم از کم سائز اور ضم کرنے کا فاصلہ ایک ساتھ طے کرتا ہے",
+    "preset": {
+      "line": "لائن ڈرائنگ",
+      "scan": "اسکین",
+      "text": "متنی دستاویز"
+    },
+    "autoAlign": "خودکار سیدھ",
+    "autoAlignHint": "ڈرائنگز سے کھسکاؤ، گردش اور پیمانے کا اندازہ لگائیں",
+    "autoAlignEach": "خودکار",
+    "autoAlignEachHint": "ہر صفحہ جوڑے کو پہلی بار دکھانے پر خودکار طور پر سیدھ میں لائیں",
+    "rotation": "گردش",
+    "scale": "پیمانہ",
+    "resetAlignHint": "سیدھ ہٹائیں",
+    "alignManual": "دستی",
+    "confidence": "اعتماد",
+    "confidenceHint": "سیدھ کے بعد ملنے والی سیاہی کا تناسب",
+    "alignByMeasure": "پیمائشی پیمانوں سے پیمانہ",
+    "alignNone": "پہلے سے سیدھ میں",
+    "alignByContent": "ڈرائنگ کے مواد سے",
+    "pair": "جوڑا",
+    "pagesTab": "صفحات",
+    "pairing": "صفحات ملائے جا رہے ہیں…",
+    "onlyInOld": "صرف پرانے میں",
+    "onlyInNew": "صرف نئے میں",
+    "pairReason": {
+      "sheet": "شیٹ نمبر سے ملایا گیا",
+      "label": "صفحہ لیبل سے ملایا گیا",
+      "content": "مواد سے ملایا گیا",
+      "index": "صفحات کی ترتیب سے ملایا گیا",
+      "manual": "ہاتھ سے ملایا گیا"
+    },
+    "truncated": "بہت زیادہ فرق: سیدھ یا حساسیت چیک کریں۔",
+    "selectForClouds": "نئی دستاویز پر بادلوں کے لیے منتخب کریں",
+    "report": {
+      "button": "رپورٹ",
+      "csv": "تبدیلیوں کی فہرست برآمد کریں (CSV)…",
+      "pdf": "PDF خلاصہ برآمد کریں…",
+      "clouds": "منتخب تبدیلیوں کو بادلوں کے طور پر رکھیں",
+      "cloudsNeedTab": "نئی دستاویز کا ٹیب میں کھلا ہونا ضروری ہے",
+      "saved": "رپورٹ محفوظ ہو گئی",
+      "failed": "رپورٹ نہیں بنائی جا سکی",
+      "cloudsPlaced": "نئی دستاویز پر رکھے گئے بادل: {{count}}",
+      "title": "موازنہ رپورٹ",
+      "generated": "تیار کردہ",
+      "settings": "ترتیبات",
+      "fileSuffix": "tabdeeliyan",
+      "sourcePixel": "ڈرائنگ",
+      "sourceText": "متن",
+      "cloudSubject": "موازنہ",
+      "before": "پہلے",
+      "after": "بعد",
+      "col": {
+        "no": "نمبر",
+        "pair": "جوڑا",
+        "oldPage": "پرانا صفحہ",
+        "newPage": "نیا صفحہ",
+        "sheet": "شیٹ",
+        "type": "قسم",
+        "source": "ماخذ",
+        "xMm": "X (ملی میٹر)",
+        "yMm": "Y (ملی میٹر)",
+        "widthMm": "چوڑائی (ملی میٹر)",
+        "heightMm": "اونچائی (ملی میٹر)",
+        "oldText": "پہلے کا متن",
+        "newText": "بعد کا متن"
+      },
+      "sourceVector": "ویکٹر"
+    },
+    "methodVector": "ویکٹر",
+    "methodVectorHint": "جہاں دونوں صفحات ویکٹر ڈرائنگ ہوں وہاں کھینچے گئے راستوں کا درست موازنہ کریں؛ دوسرے صفحات پکسل موازنہ استعمال کرتے ہیں",
+    "methodPixelFallback": "پکسل: ویکٹر صفحہ نہیں"
   },
   "organize": {
     "pages": "صفحات",
@@ -350,8 +438,16 @@
     "scanTextHint": "کسی شناخت شدہ لفظ کو تبدیل کرنے کے لیے اس پر کلک کریں۔ اسکین میں پرانا لفظ ڈھک دیا جاتا ہے۔",
     "scanTextNone": "اس صفحے پر کوئی شناخت شدہ متن نہیں ہے۔ پہلے متن کی شناخت (OCR) چلائیں۔",
     "shiftPage": "صفحہ منتقل کریں",
+    "scanGroup": "اسکین",
+    "scan": "اسکین",
+    "scanTitle": "صفحات کو قابلِ تلاش PDF میں اسکین کریں",
+    "batchOcr": "فولڈر OCR",
+    "batchOcrTitle": "فولڈر کی تمام PDF فائلوں میں متن کی شناخت",
     "editPages": "صفحات میں ترمیم",
-    "editPagesTitle": "صفحات میں بصری ترمیم: ترتیب، گھمانا، داخل کرنا، حذف، نکالنا اور تقسیم"
+    "editPagesTitle": "صفحات میں بصری ترمیم: ترتیب، گھمانا، داخل کرنا، حذف، نکالنا اور تقسیم",
+    "protect": "حفاظت",
+    "security": "سیکیورٹی",
+    "securityTitle": "پاس ورڈ اور اجازتیں مقرر کریں یا ہٹائیں"
   },
   "help": {
     "settings": "ترتیبات",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "سسٹم (خودکار)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "وہ سائز جس پر نیا نشان رکھا جاتا ہے",
     "symbolScaleCustom": "حسب ضرورت پیمانہ",
     "count": "گنتی",
-    "arc": "قوس"
+    "arc": "قوس",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "پروف ریڈنگ",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — ہنگامی روشنی",
       "nen1414-tr": "NL NEN 1414 — دھوئیں/حرارت کا اخراج",
       "nen1414-tv": "NL NEN 1414 — ہوا کی آمد و رفت",
-      "nen1414-tw": "NL NEN 1414 — پانی/اسپرنکلر"
+      "nen1414-tw": "NL NEN 1414 — پانی/اسپرنکلر",
+      "gdt-bewerking": "GD&T اور مشیننگ"
     },
     "sectors": {
       "aec": "AEC (تعمیرات)",
@@ -773,5 +881,34 @@
       "mep": "عمارتی خدمات (MEP)",
       "infra": "بنیادی ڈھانچہ"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

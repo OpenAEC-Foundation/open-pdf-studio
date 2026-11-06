@@ -142,8 +142,8 @@
     "officeTable": "Tabell",
     "officeText": "Text",
     "officeFailed": "Exporten av dokumentet misslyckades.",
-    "protect": "Skydda med lösenord",
-    "protectDesc": "Spara en kopia skyddad med lösenord (AES-256)"
+    "protect": "Dokumentsäkerhet",
+    "protectDesc": "Ange eller ta bort lösenord och behörigheter (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Utdataprofil",
@@ -219,11 +219,38 @@
     "uninstallError": "Det gick inte att avinstallera tillägget",
     "by": "av",
     "activationFailed": "Inte aktiv: {{error}}",
-    "viaMcp": "Via AI-anslutningen"
+    "viaMcp": "Via AI-anslutningen",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "Kommentera skärmbild från Urklipp",
   "workflows": "Dokumentarbetsflöden",
   "drawingSets": "Ritningsuppsättningar",
   "sheetLinks": "Länkar mellan ritningar",
-  "approvalRouting": "Godkännandeflöde"
+  "approvalRouting": "Godkännandeflöde",
+  "sharedReview": "Delad granskning",
+  "pdfa": "PDF/A..."
 }

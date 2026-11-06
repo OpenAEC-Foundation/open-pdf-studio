@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Đã phát hiện tỷ lệ",
     "noScaleFound": "Không tìm thấy tỷ lệ",
-    "detecting": "Đang phát hiện..."
+    "detecting": "Đang phát hiện...",
+    "scaleCheck": "Kiểm tra tỷ lệ",
+    "scaleCheckTitle": "Đo một kích thước đã biết và hiển thị sai lệch tỷ lệ theo phần trăm"
   },
   "home": {
     "document": "Tài liệu",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Đặt một vùng tỷ lệ bao phủ toàn bộ trang",
     "drawing": "Vẽ",
     "highlight": "Tô sáng",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Vẽ tay",
     "line": "Đường thẳng",
     "arrow": "Mũi tên",
@@ -134,6 +142,8 @@
     "callout": "Chú thích",
     "stamp": "Con dấu",
     "signature": "Chữ ký",
+    "digitalSign": "Chữ ký số",
+    "digitalSignTooltip": "Ký tài liệu bằng chứng thư số (.p12/.pfx). Nút Chữ ký chỉ đặt một hình ảnh.",
     "measure": "Đo lường",
     "measureDistance": "Đo Khoảng cách",
     "distance": "Khoảng cách",
@@ -316,7 +326,85 @@
     "modified": "Đã sửa",
     "noChanges": "Không có thay đổi",
     "textTab": "Văn bản",
-    "noTextChanges": "Không có khác biệt văn bản"
+    "noTextChanges": "Không có khác biệt văn bản",
+    "previousVersion": "trước lần lưu cuối",
+    "fromDisk": "tệp",
+    "fileLoadError": "Không thể mở tệp dưới dạng PDF.",
+    "browse": "Duyệt…",
+    "browseHint": "Chọn một tệp PDF trên đĩa",
+    "pickSecondSide": "Chọn phía còn lại từ một tệp trên đĩa, hoặc mở PDF thứ hai trong một thẻ.",
+    "sensitivity": "Độ nhạy",
+    "sensitivityHint": "Đặt cùng lúc ngưỡng mực, kích thước thay đổi tối thiểu và khoảng cách gộp",
+    "preset": {
+      "line": "Bản vẽ nét",
+      "scan": "Bản quét",
+      "text": "Tài liệu văn bản"
+    },
+    "autoAlign": "Căn chỉnh tự động",
+    "autoAlignHint": "Ước tính độ dịch, góc xoay và tỷ lệ từ bản vẽ",
+    "autoAlignEach": "Tự động",
+    "autoAlignEachHint": "Tự động căn chỉnh mỗi cặp trang khi hiển thị lần đầu",
+    "rotation": "xoay",
+    "scale": "tỷ lệ",
+    "resetAlignHint": "Bỏ căn chỉnh",
+    "alignManual": "thủ công",
+    "confidence": "Độ tin cậy",
+    "confidenceHint": "Tỷ lệ mực trùng khớp sau khi căn chỉnh",
+    "alignByMeasure": "tỷ lệ từ các thước đo",
+    "alignNone": "đã căn chỉnh",
+    "alignByContent": "từ nội dung bản vẽ",
+    "pair": "Cặp",
+    "pagesTab": "Trang",
+    "pairing": "Đang ghép trang…",
+    "onlyInOld": "Chỉ có trong bản cũ",
+    "onlyInNew": "Chỉ có trong bản mới",
+    "pairReason": {
+      "sheet": "Ghép theo số tờ",
+      "label": "Ghép theo nhãn trang",
+      "content": "Ghép theo nội dung",
+      "index": "Ghép theo thứ tự trang",
+      "manual": "Ghép thủ công"
+    },
+    "truncated": "Quá nhiều khác biệt: hãy kiểm tra căn chỉnh hoặc độ nhạy.",
+    "selectForClouds": "Chọn để đặt đám mây trên tài liệu mới",
+    "report": {
+      "button": "Báo cáo",
+      "csv": "Xuất danh sách thay đổi (CSV)…",
+      "pdf": "Xuất bản tóm tắt PDF…",
+      "clouds": "Đặt các thay đổi đã chọn thành đám mây",
+      "cloudsNeedTab": "Tài liệu mới phải đang mở trong một thẻ",
+      "saved": "Đã lưu báo cáo",
+      "failed": "Không thể tạo báo cáo",
+      "cloudsPlaced": "Số đám mây đã đặt trên tài liệu mới: {{count}}",
+      "title": "Báo cáo so sánh",
+      "generated": "Tạo lúc",
+      "settings": "Cài đặt",
+      "fileSuffix": "thay-doi",
+      "sourcePixel": "Bản vẽ",
+      "sourceText": "Văn bản",
+      "cloudSubject": "So sánh",
+      "before": "Trước",
+      "after": "Sau",
+      "col": {
+        "no": "STT",
+        "pair": "Cặp",
+        "oldPage": "Trang cũ",
+        "newPage": "Trang mới",
+        "sheet": "Tờ",
+        "type": "Loại",
+        "source": "Nguồn",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Rộng (mm)",
+        "heightMm": "Cao (mm)",
+        "oldText": "Văn bản trước",
+        "newText": "Văn bản sau"
+      },
+      "sourceVector": "Vector"
+    },
+    "methodVector": "Vector",
+    "methodVectorHint": "So sánh chính xác các đường vẽ khi cả hai trang đều là bản vẽ vector; các trang khác dùng so sánh điểm ảnh",
+    "methodPixelFallback": "điểm ảnh: không phải trang vector"
   },
   "organize": {
     "pages": "Trang",
@@ -350,8 +438,16 @@
     "scanTextHint": "Nhấp vào một từ đã nhận dạng để thay thế. Từ cũ trong bản quét sẽ được che lại.",
     "scanTextNone": "Không có văn bản đã nhận dạng trên trang này. Hãy chạy Nhận dạng văn bản (OCR) trước.",
     "shiftPage": "Dịch chuyển trang",
+    "scanGroup": "Quét",
+    "scan": "Quét",
+    "scanTitle": "Quét trang thành PDF có thể tìm kiếm",
+    "batchOcr": "OCR hàng loạt",
+    "batchOcrTitle": "Nhận dạng văn bản trong mọi tệp PDF của một thư mục",
     "editPages": "Chỉnh sửa trang",
-    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách"
+    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách",
+    "protect": "Bảo vệ",
+    "security": "Bảo mật",
+    "securityTitle": "Đặt hoặc gỡ mật khẩu và quyền"
   },
   "help": {
     "settings": "Cài đặt",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "R:",
     "y": "Y:",
-    "h": "C:"
+    "h": "C:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Hệ thống (Tự động)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Kích thước khi đặt một ký hiệu mới",
     "symbolScaleCustom": "Tỷ lệ tùy chỉnh",
     "count": "Đếm",
-    "arc": "Cung"
+    "arc": "Cung",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Hiệu đính",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Chiếu sáng khẩn cấp",
       "nen1414-tr": "NL NEN 1414 — Hút khói/nhiệt",
       "nen1414-tv": "NL NEN 1414 — Thông gió",
-      "nen1414-tw": "NL NEN 1414 — Nước/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Nước/Sprinkler",
+      "gdt-bewerking": "GD&T và gia công cơ khí"
     },
     "sectors": {
       "aec": "AEC (Xây dựng)",
@@ -773,5 +881,34 @@
       "mep": "Hệ thống kỹ thuật tòa nhà (MEP)",
       "infra": "Hạ tầng"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

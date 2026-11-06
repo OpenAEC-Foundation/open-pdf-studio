@@ -3,7 +3,9 @@ import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
+import { bewaarLayoutVoorkeur } from '../../core/layout-voorkeur.js';
 import { parseScaleString, pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
+import { isImperialScalePreset } from '../../annotations/scale-presets.js';
 import {
   recordPropertyChange,
   recordModify,
@@ -70,7 +72,19 @@ const _STROKE_COLOR_DRIVEN = new Set([
 
 // Panel visibility and collapsed state
 const [panelVisible, setPanelVisible] = createSignal(true);
-const [panelCollapsed, setPanelCollapsed] = createSignal(false);
+const [panelCollapsed, setPanelCollapsedRaw] = createSignal(false);
+
+// Ingeklapt tot de smalle strook blijft over een herstart bewaard (#932).
+// Alle aanroepers zijn handelingen van de gebruiker; herstellen bij de
+// opstart of een werkruimtewissel gaat via herstelPanelCollapsed.
+function setPanelCollapsed(value) {
+  setPanelCollapsedRaw(!!value);
+  bewaarLayoutVoorkeur('propertiesPanelCollapsed', !!value);
+}
+
+export function herstelPanelCollapsed(value) {
+  setPanelCollapsedRaw(!!value);
+}
 
 // Panel mode: 'none' | 'annotation' | 'multi' | 'textEdit'
 const [panelMode, setPanelMode] = createSignal('none');
@@ -1357,8 +1371,9 @@ function applyPropToAnnotation(ann, key, value) {
       const ratio = leesGeheelGetal(value);
       if (ratio > 0) {
         ann.scaleRatio = `1:${ratio}`;
-        ann.pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, 'mm', userUnitVanPagina(getActiveDocument(), ann.page));
-        ann.unit = 'mm';
+        // Een imperiale standaardschaal meet in voeten (#972).
+        ann.unit = isImperialScalePreset(`1:${ratio}`) ? 'ft' : 'mm';
+        ann.pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, ann.unit, userUnitVanPagina(getActiveDocument(), ann.page));
       }
       break;
     }
@@ -1487,7 +1502,11 @@ function applyAnnotProp(key, value) {
     if (annotProps.locked !== false && key !== 'locked') return;
 
     const originals = selected.map(annotation => cloneAnnotation(annotation));
-    for (const ann of selected) applyPropToAnnotation(ann, key, value);
+    for (const ann of selected) {
+      // A locked dynamic stamp (#629) stays locked.
+      if ((key === 'locked' || key === 'readOnly') && ann.dynamicStamp?.locked) continue;
+      applyPropToAnnotation(ann, key, value);
+    }
     recordBulkModify(selected, originals);
     setAnnotProps(key, value);
 
@@ -1554,6 +1573,12 @@ function applyAnnotProp(key, value) {
     import('../../tools/text-edit-tool.js')
       .then(m => m.applyActiveTextEditStyle && m.applyActiveTextEditStyle(key, value))
       .catch(() => {});
+    return;
+  }
+
+  // A locked dynamic stamp (#629) is final: it cannot be unlocked again.
+  if (currentAnnotation.dynamicStamp?.locked && (key === 'locked' || key === 'readOnly')) {
+    storeShowProperties(currentAnnotation);
     return;
   }
 
@@ -1858,11 +1883,13 @@ function applyAnnotProp(key, value) {
       if (vpRatio > 0) {
         currentAnnotation.scaleRatio = `1:${vpRatio}`;
         // In pagina-eenheden, /UserUnit meegerekend (#884), zoals bij meervoudige selectie.
-        currentAnnotation.pixelsPerUnit = pixelsPerUnitFor(`1:${vpRatio}`, 'mm', userUnitVanPagina(getActiveDocument(), currentAnnotation.page));
-        currentAnnotation.unit = 'mm';
+        // Een imperiale standaardschaal meet in voeten (#972).
+        const vpUnit = isImperialScalePreset(`1:${vpRatio}`) ? 'ft' : 'mm';
+        currentAnnotation.pixelsPerUnit = pixelsPerUnitFor(`1:${vpRatio}`, vpUnit, userUnitVanPagina(getActiveDocument(), currentAnnotation.page));
+        currentAnnotation.unit = vpUnit;
         currentAnnotation.name = currentAnnotation.name || `1:${vpRatio}`;
         setAnnotProps('viewportScaleRatio', `1:${vpRatio}`);
-        setAnnotProps('viewportUnit', 'mm');
+        setAnnotProps('viewportUnit', vpUnit);
         recalculateAllMeasurements();
       }
       break;

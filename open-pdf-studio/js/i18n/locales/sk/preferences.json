@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktívne cez spúšťací parameter ({{adres}})",
     "aiLinkOff": "Vypnuté",
     "aiLinkError": "Nespustené: {{fout}}",
-    "interfaceScale": "Veľkosť rozhrania"
+    "interfaceScale": "Veľkosť rozhrania",
+    "saving": "Ukladanie",
+    "incrementalSave": "Ukladať zmeny poznámok a formulárov prírastkovo (experimentálne)",
+    "incrementalSaveHint": "Pripojí zmeny na koniec súboru namiesto jeho prepísania. Staršie verzie zostávajú zo súboru obnoviteľné. Začiernenie, odstránenie skrytých informácií a ďalšie zmeny sa vždy ukladajú úplným prepísaním."
   },
   "annotations": {
     "generalDefaults": "Všeobecné predvolené nastavenia",
@@ -313,7 +316,15 @@
     "butt": "Rovný",
     "openArrowReversed": "Otvorená šípka (obrátená)",
     "closedArrowReversed": "Uzavretá šípka (obrátená)",
-    "slash": "Lomka"
+    "slash": "Lomka",
+    "decimalNotation": "Desatinný oddeľovač",
+    "decimalAuto": "Podľa jazyka",
+    "decimalComma": "Čiarka (2,50)",
+    "decimalPoint": "Bodka (2.50)",
+    "digitGrouping": "Oddeľovať tisíce (12 345)",
+    "scaleCheck": "Kontrola mierky",
+    "scaleCheckOk": "V poriadku do",
+    "scaleCheckWarn": "Upozornenie do"
   },
   "keyboardShortcuts": {
     "title": "Klávesové skratky",

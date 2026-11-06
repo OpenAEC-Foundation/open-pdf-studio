@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "פעיל דרך פרמטר הפעלה ({{adres}})",
     "aiLinkOff": "כבוי",
     "aiLinkError": "לא הופעל: {{fout}}",
-    "interfaceScale": "גודל הממשק"
+    "interfaceScale": "גודל הממשק",
+    "saving": "שמירה",
+    "incrementalSave": "שמירה מצטברת של שינויים בהערות ובטפסים (ניסיוני)",
+    "incrementalSaveHint": "מוסיף את השינויים לסוף הקובץ במקום לכתוב אותו מחדש. גרסאות קודמות נשארות ניתנות לשחזור מהקובץ. השחרה, הסרת מידע מוסתר ושינויים אחרים נשמרים תמיד בכתיבה מחדש מלאה."
   },
   "annotations": {
     "generalDefaults": "ברירות מחדל כלליות",
@@ -313,7 +316,15 @@
     "butt": "ישר",
     "openArrowReversed": "חץ פתוח (הפוך)",
     "closedArrowReversed": "חץ סגור (הפוך)",
-    "slash": "קו נטוי"
+    "slash": "קו נטוי",
+    "decimalNotation": "מפריד עשרוני",
+    "decimalAuto": "לפי השפה",
+    "decimalComma": "פסיק (2,50)",
+    "decimalPoint": "נקודה (2.50)",
+    "digitGrouping": "הפרדת אלפים (12 345)",
+    "scaleCheck": "בדיקת קנה מידה",
+    "scaleCheckOk": "תקין עד",
+    "scaleCheckWarn": "אזהרה עד"
   },
   "keyboardShortcuts": {
     "title": "קיצורי מקלדת",

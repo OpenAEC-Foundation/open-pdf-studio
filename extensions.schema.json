@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/OpenAEC-Foundation/open-pdf-studio/main/extensions.schema.json",
+  "title": "Open PDF Studio extension catalogue",
+  "description": "The list shown under File > Extensions > Browse. Add your extension with a pull request; see CONTRIBUTING.md. The app's own check (open-pdf-studio/js/plugins/extension-catalog.js) is the reference and runs in CI.",
+  "type": "object",
+  "required": ["version", "extensions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1, "description": "Format version of this file." },
+    "extensions": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": { "$ref": "#/$defs/extension" }
+    }
+  },
+  "$defs": {
+    "extension": {
+      "type": "object",
+      "required": ["id", "name", "description", "author"],
+      "additionalProperties": false,
+      "anyOf": [
+        { "required": ["repo"] },
+        { "required": ["package", "version"] }
+      ],
+      "dependentRequired": { "package": ["version"], "sha256": ["package"] },
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Must equal the id in the extension's plugin.json.",
+          "maxLength": 64,
+          "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*$"
+        },
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 400, "description": "One or two sentences on what it does." },
+        "author": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "repo": {
+          "type": "string",
+          "description": "GitHub repository; the .oppx attached to its latest release is installed and new releases are offered as updates.",
+          "pattern": "^https://github\\.com/[A-Za-z0-9][A-Za-z0-9-]{0,38}/[A-Za-z0-9_.-]{1,100}/?$"
+        },
+        "package": {
+          "type": "string",
+          "description": "A fixed https:// link to a .oppx, instead of repo.",
+          "pattern": "^https://[^\\s?#]+\\.oppx(\\?[^\\s#]*)?$"
+        },
+        "version": {
+          "type": "string",
+          "description": "With package: the version that link installs; an update is offered when it is newer than the installed version.",
+          "maxLength": 64,
+          "pattern": "^v?\\d+(\\.\\d+){0,3}(-[0-9A-Za-z-]+(\\.[0-9A-Za-z-]+)*)?(\\+.*)?$"
+        },
+        "sha256": {
+          "type": "string",
+          "description": "With package: SHA-256 of the .oppx; a download that does not match is refused.",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "homepage": { "type": "string", "pattern": "^https://", "description": "Defaults to repo." },
+        "tags": {
+          "type": "array",
+          "maxItems": 8,
+          "items": { "type": "string", "minLength": 1, "maxLength": 32 }
+        }
+      }
+    }
+  }
+}

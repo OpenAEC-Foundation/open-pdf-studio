@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('./ocr.js', import.meta.url), 'utf8');
-const functions = source.slice(source.indexOf('function tauri()')).replaceAll('export ', '');
+const functions = source.slice(source.indexOf('async function ocrOnePage(')).replaceAll('export ', '');
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
 function harness() {
   const a = { currentPage: 1, filePath: 'a.pdf', pdfDoc: { numPages: 2 }, ocrResults: {}, modified: false };
@@ -13,6 +13,8 @@ function harness() {
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     window: { __TAURI__: { core: { invoke: async () => [{ text: 'recognized' }] } } },
+    // ocr-engines.js zonder voorkeursengine: de ingebouwde ocr_pdf_page (#970).
+    herkenPagina: (doc, pageNum, { lang }) => deps.window.__TAURI__.core.invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNum - 1, lang }),
     recordOcrPage: (doc, page, oldWords, newWords) => records.push({ doc, page, oldWords, newWords }),
     recordOcrPages: (doc, pages) => records.push({ doc, pages }),
     markDocumentModified: doc => { doc.modified = true; },

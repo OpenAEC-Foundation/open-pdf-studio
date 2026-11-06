@@ -23,6 +23,32 @@ negeert de variabele. Zie `open-pdf-studio/src-tauri/src/headless.rs`.
 cd open-pdf-studio && npm run test:unit
 ```
 
+## 1a. Annotatie-rondgang (#629)
+
+```bash
+cd open-pdf-studio && node --test js/pdf/rondgang-alle-soorten.test.mjs
+```
+
+Zit ook in stap 1, maar wordt bij elke release apart nagekeken en in het
+releaseverslag genoemd. Eén bestand met elke annotatiesoort die een
+markeringswerkstroom in de bouw maakt (ook antwoorden, groepen,
+statusgeschiedenis, lagen, eigen sleutels van andere programma's en tekst
+met ( ) \ € ² ° ± Ø, emoji, CJK en rechts-naar-links), geladen en opgeslagen
+met de echte lader en saver:
+
+- zonder bewerking komt elk annotatiewoordenboek sleutel voor sleutel terug;
+- verplaatsen, een andere auteur, een andere kleur of een andere reviewstatus
+  verandert alleen die ene annotatie, en alleen wat bij die bewerking hoort;
+- de soort (/Subtype) en de bedoeling (/IT) veranderen nooit;
+- opslaan → heropenen → opslaan verandert niets meer.
+
+Een overgeslagen geval in die test (`skip`) noemt waarom; zo'n geval hoort in
+het releaseverslag. Daarnaast met de hand: open een paar echte
+tekeningensets met markeringen uit andere programma's, sla op zonder te
+bewerken en vergelijk het aantal annotaties en hun /NM, /Subj, /IRT en
+/State voor en na (bijvoorbeeld met een pdf-lib-scriptje). Een verschil
+blokkeert de release.
+
 ## 2. Functionele poorten (rig)
 
 | Poort | Script | Dekt |
@@ -58,6 +84,21 @@ runs per meting, beide builds als échte release-build (installer of
 uitgepakte bundel), op een verder rustige machine. Harde grens: een meting
 die meer dan 2x zo traag is als de vorige release (én > 1 s langzamer) blokkeert
 de release; kleinere verschuivingen in het releaseverslag vermelden.
+
+## 4a. Opslaan van een grote set (#629)
+
+```bash
+cd open-pdf-studio && node scripts/meet-opslaan-grote-set.mjs --json opslaan-grote-set.json
+```
+
+Een set van 150 A1-bladen met 100.000 objecten (bijna 50.000 markeringen,
+elk met een eigen appearance), geladen met de echte lader en opgeslagen met
+de echte saver: zonder bewerking, en met op elk blad één verplaatste en één
+nieuwe markering. Mediaan van 3 keer, op een verder rustige machine. Harde
+grens: 6 s per scenario (exit 1). De uitkomst (de JSON) hoort in het
+releaseverslag; een stijging van meer dan 25% ten opzichte van de vorige
+release eerst verklaren. Achtergrond en eerdere metingen:
+`docs/performance/2026-11-06-opslaan-grote-set.md`.
 
 ## 5. Installer-verificatie
 

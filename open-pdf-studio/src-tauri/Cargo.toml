@@ -50,6 +50,11 @@ open-pdf-cad = { path = "../../open-pdf-cad" }
 # CMYK-omzetting voor de PDF/X-export (#422): Little CMS en de documentloop.
 # De app-crate bevat alleen de commando-schil in src/pdfx_cmyk.rs.
 open-pdf-cmyk = { path = "../../open-pdf-cmyk" }
+# Digitale handtekeningen (#374): PKCS#12, ondertekenen (PAdES) en verifiëren.
+# De app-crate bevat alleen de commando-schil in src/handtekening.rs.
+open-pdf-signatures = { path = "../../open-pdf-signatures" }
+# Documentbeveiliging: AES-256 (V 5 / R 6) instellen, behouden en lezen (#378).
+open-pdf-security = { path = "../../open-pdf-security" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 pdfium-render = { version = "0.9.4", features = ["thread_safe", "image_025"] }
 # Ontsleutelen van PDF's met een wachtwoord (src/beveiligde_pdf.rs): een paar
@@ -83,8 +88,6 @@ p384 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8
 zeroize = "1"
 rand = "0.8"
 aes = "0.8"
-stringprep = "0.1"
-unicode-normalization = "0.1"
 url = "2"
 urlencoding = "2"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "process", "io-util", "time", "signal"] }
@@ -161,6 +164,9 @@ rustls-native-certs = "0.8"
 # tauri-plugin-single-instance al meebrengt; staat al in Cargo.lock.
 [target.'cfg(target_os = "linux")'.dependencies]
 zbus = "5.9"
+# setrlimit(RLIMIT_RTPRIO) bij het starten (src/linux_runtime.rs, #924); staat
+# al in Cargo.lock.
+libc = "0.2"
 
 # Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
 # certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de

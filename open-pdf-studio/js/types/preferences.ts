@@ -6,6 +6,12 @@ export interface Preferences {
   // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
   // de standaard voor nieuwe installaties) of 'single' (één pagina).
   defaultViewMode: 'continuous' | 'single';
+  // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
+  ocrEngine?: string | null;
+  // Extensiecatalogus (#969): eigen catalogus-links naast de standaard, en
+  // per extensie-id waar hij vandaan komt (js/plugins/extension-catalog.js).
+  extensionCatalogs?: string[];
+  extensionSources?: Record<string, { soort: 'catalog' | 'custom'; link: string; catalogus: string; version?: string }>;
 
   // General
   authorName: string;
@@ -171,6 +177,10 @@ export interface Preferences {
   // Measurement global
   measureRounding: string;
   measureCtrlSnap: number;
+  measureDecimalNotation: 'auto' | 'comma' | 'point';
+  measureDigitGrouping: boolean;
+  scaleCheckOkPercent: number;
+  scaleCheckWarnPercent: number;
 
   // Measure Distance defaults
   measureDistStrokeColor: string;
@@ -251,6 +261,8 @@ export interface Preferences {
   // '' = default, or '#rrggbb' (#859).
   pageBackgroundColor: string;
   progressiveRender: boolean;
+  /** Incrementeel opslaan van annotatie- en formulierwijzigingen (#679), standaard uit. */
+  incrementalSave: boolean;
   screenCalibration: Record<string, number>;
   zoomDpi: number;
   pageSharpen: number;
@@ -259,6 +271,12 @@ export interface Preferences {
   keyboardShortcuts: Record<string, string[]>;
 
   // Panels
+  leftPanelCollapsed: boolean;
+  leftPanelTab: string;
+  leftPanelWidth: number | null;
+  propertiesPanelCollapsed: boolean;
+  workspaces: Array<{ naam: string; layout: Record<string, unknown> }>;
+  activeWorkspace: string;
   propertiesPanelVisible: boolean;
   toolPaletteVisible: boolean;
   toolPaletteMode: string;

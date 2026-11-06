@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Nu s-au găsit adnotări în fișierul XFDF.",
   "noRedactionsOnPage": "Nu există marcaje de redactare pe pagina curentă de aplicat.",
   "noRedactionsInDocument": "Nu există marcaje de redactare în document de aplicat.",
+  "redactTitle": "Aplică redactările",
+  "redactConfirmPage": "Aplicați {{count}} marcaj(e) de redactare pe pagina {{page}}?",
+  "redactConfirmAll": "Aplicați {{count}} marcaj(e) de redactare pe {{pages}} pagină(i)?",
+  "redactConfirmBody": "Textul, imaginile, grafica vectorială, adnotările și câmpurile de formular de sub marcaje sunt eliminate din document, iar zonele sunt umplute cu culoarea marcajului. Fișierul se modifică la salvare; salvarea rescrie întregul fișier fără versiunile anterioare.",
+  "redactDone": "{{count}} zonă(e) de redactare aplicată(e). Salvați documentul pentru a scrie modificarea în fișier.",
+  "redactNotApplied": "Redactările nu au fost aplicate; nu s-a modificat nimic. {{reason}}",
+  "redactReasonUnsupported": "Conținutul de sub un marcaj nu poate fi eliminat în mod sigur: {{detail}}",
+  "redactReasonInvalid": "Unul sau mai multe marcaje nu au o zonă validă.",
+  "redactReasonTextEdits": "Salvați mai întâi editările de text nesalvate.",
   "cannotDeleteAllPages": "Nu se pot șterge toate paginile. Trebuie să rămână cel puțin o pagină.",
   "cannotDeleteAllPagesSource": "Nu se pot șterge toate paginile din documentul sursă.",
   "noPagesSelected": "Nu s-au selectat pagini pentru extragere.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF-ul selectat nu are pagini.",
   "failedToSavePdf": "PDF-ul nu a putut fi salvat: {{error}}",
   "failedToLoadPdf": "PDF-ul nu a putut fi încărcat: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Deschidere în fereastră nouă",
     "closeTab": "Închidere filă",
     "nextTab": "Fila urmatoare",
-    "previousTab": "Fila anterioara"
+    "previousTab": "Fila anterioara",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Pagina urmatoare",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Miniaturile PDF din Explorer sunt disponibile doar în versiunea instalată.",
     "virtualPrinter": "Imprimanta virtuală este disponibilă doar în versiunea instalată: este adăugată în Windows cu drepturi de administrator.",
     "notWritable": "Open PDF Studio nu poate scrie în folderul {{dir}}, așa că de data aceasta setările sunt salvate în profilul dvs. de utilizator. Mutați folderul portabil într-o locație în care se poate scrie, de exemplu un stick USB sau folderul Documente."
+  },
+  "protectedPdfNoPrint": "Drepturile acestui document nu permit tipărirea.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

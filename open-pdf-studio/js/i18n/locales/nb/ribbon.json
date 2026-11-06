@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Målestokk oppdaget",
     "noScaleFound": "Fant ingen målestokk",
-    "detecting": "Oppdager..."
+    "detecting": "Oppdager...",
+    "scaleCheck": "Kontroller målestokk",
+    "scaleCheckTitle": "Mål et kjent mål og vis avviket i målestokken i prosent"
   },
   "home": {
     "document": "Dokument",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Plasser et målestokkområde som dekker hele siden",
     "drawing": "Tegning",
     "highlight": "Utheving",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Frihånd",
     "line": "Linje",
     "arrow": "Pil",
@@ -134,6 +142,8 @@
     "callout": "Bildeforklaring",
     "stamp": "Stempel",
     "signature": "Signatur",
+    "digitalSign": "Digital signatur",
+    "digitalSignTooltip": "Signer dokumentet med et sertifikat (.p12/.pfx). Knappen Underskrift plasserer bare et bilde.",
     "measure": "Mål",
     "measureDistance": "Mål avstand",
     "distance": "Avstand",
@@ -316,7 +326,85 @@
     "modified": "Endret",
     "noChanges": "Ingen endringer",
     "textTab": "Tekst",
-    "noTextChanges": "Ingen tekstforskjeller"
+    "noTextChanges": "Ingen tekstforskjeller",
+    "previousVersion": "før siste lagring",
+    "fromDisk": "fil",
+    "fileLoadError": "Filen kunne ikke åpnes som PDF.",
+    "browse": "Bla gjennom…",
+    "browseHint": "Velg en PDF-fil på disken",
+    "pickSecondSide": "Velg den andre siden fra en fil på disken, eller åpne en ny PDF i en fane.",
+    "sensitivity": "Følsomhet",
+    "sensitivityHint": "Stiller inn blekkterskel, minste endringsstørrelse og sammenslåingsavstand samtidig",
+    "preset": {
+      "line": "Strektegning",
+      "scan": "Skanning",
+      "text": "Tekstdokument"
+    },
+    "autoAlign": "Juster automatisk",
+    "autoAlignHint": "Beregn forskyvning, rotasjon og skala ut fra tegningene",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Juster hvert sidepar automatisk første gang det vises",
+    "rotation": "rot.",
+    "scale": "skala",
+    "resetAlignHint": "Fjern justeringen",
+    "alignManual": "manuell",
+    "confidence": "Pålitelighet",
+    "confidenceHint": "Andel av blekket som faller sammen etter justering",
+    "alignByMeasure": "skala fra målestokkene",
+    "alignNone": "allerede justert",
+    "alignByContent": "ut fra tegningens innhold",
+    "pair": "Par",
+    "pagesTab": "Sider",
+    "pairing": "Kobler sider…",
+    "onlyInOld": "Bare i gammel",
+    "onlyInNew": "Bare i ny",
+    "pairReason": {
+      "sheet": "Koblet på tegningsnummer",
+      "label": "Koblet på sideetikett",
+      "content": "Koblet på innhold",
+      "index": "Koblet på siderekkefølge",
+      "manual": "Koblet for hånd"
+    },
+    "truncated": "For mange forskjeller: kontroller justeringen eller følsomheten.",
+    "selectForClouds": "Velg for skyer i det nye dokumentet",
+    "report": {
+      "button": "Rapport",
+      "csv": "Eksporter endringsliste (CSV)…",
+      "pdf": "Eksporter PDF-sammendrag…",
+      "clouds": "Plasser valgte endringer som skyer",
+      "cloudsNeedTab": "Det nye dokumentet må være åpent i en fane",
+      "saved": "Rapport lagret",
+      "failed": "Rapporten kunne ikke opprettes",
+      "cloudsPlaced": "{{count}} skyer plassert i det nye dokumentet",
+      "title": "Sammenligningsrapport",
+      "generated": "Opprettet",
+      "settings": "Innstillinger",
+      "fileSuffix": "endringer",
+      "sourcePixel": "Tegning",
+      "sourceText": "Tekst",
+      "cloudSubject": "Sammenligning",
+      "before": "Før",
+      "after": "Etter",
+      "col": {
+        "no": "Nr.",
+        "pair": "Par",
+        "oldPage": "Gammel side",
+        "newPage": "Ny side",
+        "sheet": "Tegningsnr.",
+        "type": "Type",
+        "source": "Kilde",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Bredde (mm)",
+        "heightMm": "Høyde (mm)",
+        "oldText": "Tekst før",
+        "newText": "Tekst etter"
+      },
+      "sourceVector": "Vektor"
+    },
+    "methodVector": "Vektor",
+    "methodVectorHint": "Sammenlign de tegnede banene nøyaktig der begge sidene er vektortegninger; andre sider bruker pikselsammenligning",
+    "methodPixelFallback": "piksler: ikke en vektorside"
   },
   "organize": {
     "pages": "Sider",
@@ -350,8 +438,16 @@
     "scanTextHint": "Klikk på et gjenkjent ord for å erstatte det. Det gamle ordet i skanningen dekkes over.",
     "scanTextNone": "Ingen gjenkjent tekst på denne siden. Kjør Tekstgjenkjenning (OCR) først.",
     "shiftPage": "Forskyv side",
+    "scanGroup": "Skanning",
+    "scan": "Skann",
+    "scanTitle": "Skann sider til en søkbar PDF",
+    "batchOcr": "Mappe-OCR",
+    "batchOcrTitle": "Gjenkjenn tekst i alle PDF-filer i en mappe",
     "editPages": "Rediger sider",
-    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp"
+    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp",
+    "protect": "Beskytt",
+    "security": "Sikkerhet",
+    "securityTitle": "Angi eller fjern passord og rettigheter"
   },
   "help": {
     "settings": "Innstillinger",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "System (Automatisk)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Størrelsen et nytt symbol plasseres i",
     "symbolScaleCustom": "Egendefinert målestokk",
     "count": "Telling",
-    "arc": "Bue"
+    "arc": "Bue",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Korrektur",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Nødlys",
       "nen1414-tr": "NL NEN 1414 — Røyk-/varmeventilasjon",
       "nen1414-tv": "NL NEN 1414 — Ventilasjon",
-      "nen1414-tw": "NL NEN 1414 — Vann/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Vann/Sprinkler",
+      "gdt-bewerking": "GD&T og maskinering"
     },
     "sectors": {
       "aec": "AEC (Bygg)",
@@ -773,5 +881,34 @@
       "mep": "Byggtekniske installasjoner (MEP)",
       "infra": "Infrastruktur"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

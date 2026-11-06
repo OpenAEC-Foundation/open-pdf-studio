@@ -49,6 +49,7 @@
     "dimChainAdd": "Afegeix punts a la cadena de cotes",
     "dimChainRemove": "Treu la línia d'extensió de la cadena",
     "selectRoom": "Selecciona l'espai",
+    "checkScale": "Comprova l'escala amb aquesta línia...",
     "saveToToolSet": "Desa al conjunt d'eines"
   },
   "multiSelect": {

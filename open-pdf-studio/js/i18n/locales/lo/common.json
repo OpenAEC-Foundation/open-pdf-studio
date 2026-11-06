@@ -70,9 +70,19 @@
   "noAnnotationsInXfdf": "ບໍ່ພົບຄຳອະທິບາຍປະກອບໃນໄຟລ໌ XFDF.",
   "noRedactionsOnPage": "ບໍ່ມີຮອຍໝາຍເຊື່ອງຂໍ້ຄວາມໃນໜ້າປັດຈຸບັນທີ່ຈະນຳໃຊ້.",
   "noRedactionsInDocument": "ບໍ່ມີຮອຍໝາຍເຊື່ອງຂໍ້ຄວາມໃນເອກະສານທີ່ຈະນຳໃຊ້.",
+  "redactTitle": "ນຳໃຊ້ການປິດບັງ",
+  "redactConfirmPage": "ນຳໃຊ້ເຄື່ອງໝາຍປິດບັງ {{count}} ລາຍການໃນໜ້າ {{page}} ບໍ?",
+  "redactConfirmAll": "ນຳໃຊ້ເຄື່ອງໝາຍປິດບັງ {{count}} ລາຍການໃນ {{pages}} ໜ້າ ບໍ?",
+  "redactConfirmBody": "ຂໍ້ຄວາມ, ຮູບພາບ, ກາຟິກເວັກເຕີ, ຄຳອະທິບາຍ ແລະ ຊ່ອງຟອມທີ່ຢູ່ໃຕ້ເຄື່ອງໝາຍຈະຖືກລຶບອອກຈາກເອກະສານ ແລະ ພື້ນທີ່ຈະຖືກຕື່ມດ້ວຍສີຂອງເຄື່ອງໝາຍ. ໄຟລ໌ຈະປ່ຽນເມື່ອທ່ານບັນທຶກ; ການບັນທຶກຈະຂຽນໄຟລ໌ທັງໝົດໃໝ່ໂດຍບໍ່ມີສະບັບກ່ອນໜ້າ.",
+  "redactDone": "ນຳໃຊ້ພື້ນທີ່ປິດບັງແລ້ວ {{count}} ລາຍການ. ບັນທຶກເອກະສານເພື່ອຂຽນການປ່ຽນແປງລົງໃນໄຟລ໌.",
+  "redactNotApplied": "ບໍ່ໄດ້ນຳໃຊ້ການປິດບັງ; ບໍ່ມີຫຍັງປ່ຽນແປງ. {{reason}}",
+  "redactReasonUnsupported": "ບໍ່ສາມາດລຶບເນື້ອຫາໃຕ້ເຄື່ອງໝາຍໄດ້ຢ່າງໜ້າເຊື່ອຖື: {{detail}}",
+  "redactReasonInvalid": "ເຄື່ອງໝາຍໜຶ່ງ ຫຼື ຫຼາຍກວ່ານັ້ນບໍ່ມີພື້ນທີ່ທີ່ຖືກຕ້ອງ.",
+  "redactReasonTextEdits": "ບັນທຶກການແກ້ໄຂຂໍ້ຄວາມທີ່ຍັງບໍ່ໄດ້ບັນທຶກກ່ອນ.",
   "cannotDeleteAllPages": "ບໍ່ສາມາດລຶບໝົດທຸກໜ້າໄດ້. ຕ້ອງມີຢ່າງໜ້ອຍໜຶ່ງໜ້າເຫຼືອຢູ່.",
   "cannotDeleteAllPagesSource": "ບໍ່ສາມາດລຶບທຸກໜ້າອອກຈາກເອກະສານຕົ້ນສະບັບໄດ້.",
   "noPagesSelected": "ບໍ່ມີໜ້າທີ່ຖືກເລືອກເພື່ອແຍກອອກ.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF ທີ່ເລືອກບໍ່ມີໜ້າໃດໆເລີຍ.",
   "failedToSavePdf": "ບັນທຶກ PDF ບໍ່ສຳເລັດ: {{error}}",
   "failedToLoadPdf": "ໂຫຼດ PDF ບໍ່ສຳເລັດ: {{error}}",
@@ -219,7 +229,8 @@
     "openInNewWindow": "ເປີດໃນໜ້າຕ່າງໃໝ່",
     "closeTab": "ປິດແທັບ",
     "nextTab": "ແທັບຖັດໄປ",
-    "previousTab": "ແທັບກ່ອນໜ້າ"
+    "previousTab": "ແທັບກ່ອນໜ້າ",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "ໜ້າຖັດໄປ",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "ຮູບຫຍໍ້ PDF ໃນ File Explorer ມີສະເພາະໃນເວີຊັນທີ່ຕິດຕັ້ງເທົ່ານັ້ນ.",
     "virtualPrinter": "ເຄື່ອງພິມສະເໝືອນມີສະເພາະໃນເວີຊັນທີ່ຕິດຕັ້ງເທົ່ານັ້ນ: ມັນຖືກເພີ່ມເຂົ້າ Windows ດ້ວຍສິດຜູ້ເບິ່ງແຍງລະບົບ.",
     "notWritable": "Open PDF Studio ບໍ່ສາມາດຂຽນລົງໂຟນເດີ {{dir}} ໄດ້, ດັ່ງນັ້ນເທື່ອນີ້ການຕັ້ງຄ່າຂອງທ່ານຈະຖືກເກັບໄວ້ໃນໂປຣໄຟລ໌ຜູ້ໃຊ້ຂອງທ່ານ. ຍ້າຍໂຟນເດີແບບພົກພາໄປບ່ອນທີ່ຂຽນໄດ້, ເຊັ່ນ USB ຫຼື ໂຟນເດີ Documents ຂອງທ່ານ."
+  },
+  "protectedPdfNoPrint": "ສິດຂອງເອກະສານນີ້ບໍ່ອະນຸຍາດໃຫ້ພິມ.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

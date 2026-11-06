@@ -6,7 +6,7 @@ import RibbonButtonStack from './RibbonButtonStack.jsx';
 import { insertPageIcon, deletePageIcon, extractPagesIcon, mergePdfsIcon, watermarkIcon, headerFooterIcon, manageWatermarksIcon, editTextIcon, addTextIcon, ocrIcon, cropMarginsIcon, straightenIcon, shiftPageIcon, resizePagesIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { state, noPdf, getActiveDocument } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
-import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../../../ui/chrome/dialogs.js';
+import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog, showSecurityDialog } from '../../../ui/chrome/dialogs.js';
 import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
 import { setTool } from '../../../tools/manager.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -21,7 +21,14 @@ const compressIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
 // Eén blad dat in twee delen uiteenvalt (Document splitsen, #381).
 const splitDocumentIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 3h7v7H4z"/><path d="M13 14h7v7h-7z"/><path d="M11 6.5h3.5a2 2 0 012 2V12" stroke-linecap="round"/><path d="M14.5 10l2 2 2-2" stroke-linecap="round"/></svg>`;
 
+// Een slot: documentbeveiliging (#378).
+const securityIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10"/><path d="M8 10.5V7.5a4 4 0 018 0v3" stroke-linecap="round"/><path d="M12 14.5v2.5" stroke-linecap="round"/></svg>`;
+
 const scanTextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><path d="M8.5 9.5h7M12 9.5v6"/></svg>`;
+
+// Scanner en map-OCR (#382).
+const scanIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 14h18v5H3z"/><path d="M6 14V5h9l3 3v6" /><path d="M15 5v3h3"/><path d="M6 16.5h4" stroke-linecap="round"/></svg>`;
+const batchOcrIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 6h6l2 2h10v11H3z"/><path d="M8 12h8M8 15h5" stroke-linecap="round"/></svg>`;
 
 export default function OrganizeTab() {
   const { t } = useTranslation('ribbon');
@@ -116,6 +123,13 @@ export default function OrganizeTab() {
             disabled={ro()} onClick={openPageReorder} />
         </RibbonGroup>
 
+        <RibbonGroup label={t('organize.scanGroup')}>
+          <RibbonButton id="ep-scan" title={t('organize.scanTitle')} icon={scanIcon} label={t('organize.scan')}
+            onClick={() => openDialog('scan', {})} />
+          <RibbonButton id="ep-batch-ocr" title={t('organize.batchOcrTitle')} icon={batchOcrIcon} label={t('organize.batchOcr')}
+            onClick={() => openDialog('batch-ocr', {})} />
+        </RibbonGroup>
+
         <RibbonGroup label={t('organize.combine')}>
           <RibbonButton id="merge-pdfs" title={t('organize.mergePdfs')} icon={mergePdfsIcon} label={t('organize.mergeLabel')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => showMergePdfsDialog()} />
@@ -126,7 +140,7 @@ export default function OrganizeTab() {
             title={t('compare.title') || 'Compare PDFs'}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="8" height="16"/><rect x="13" y="4" width="8" height="16"/><line x1="11" y1="12" x2="13" y2="12"/></svg>`}
             label={t('compare.title') || 'Compare'}
-            disabled={(state.documents?.length || 0) < 2}
+            disabled={(state.documents?.length || 0) < 1}
             active={compareActive()}
             onClick={() => {
               if (compareActive()) exitCompare();
@@ -141,6 +155,13 @@ export default function OrganizeTab() {
             disabled={noPdf() || isPdfAReadOnly()} onClick={async () => { const { showHeaderFooterDialog } = await import('../../../watermark/watermark-dialog.js'); showHeaderFooterDialog(); }} />
           <RibbonButton id="manage-watermarks" title={t('organize.manageWatermarks')} icon={manageWatermarksIcon} label={t('organize.manage')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={async () => { const { showManageWatermarksDialog } = await import('../../../watermark/watermark-dialog.js'); showManageWatermarksDialog(); }} />
+        </RibbonGroup>
+
+        {/* Documentbeveiliging (#378): ook voor een alleen-lezen beveiligd
+            document, want daar wordt de beveiliging juist vervangen. */}
+        <RibbonGroup label={t('organize.protect')}>
+          <RibbonButton id="document-security" title={t('organize.securityTitle')} icon={securityIcon} label={t('organize.security')}
+            disabled={noPdf()} onClick={() => showSecurityDialog()} />
         </RibbonGroup>
       </AdaptiveGroups>
     </div>

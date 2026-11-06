@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Không tìm thấy chú thích nào trong tệp XFDF.",
   "noRedactionsOnPage": "Không có dấu che thông tin nào trên trang hiện tại để áp dụng.",
   "noRedactionsInDocument": "Không có dấu che thông tin nào trong tài liệu để áp dụng.",
+  "redactTitle": "Áp dụng che dữ liệu",
+  "redactConfirmPage": "Áp dụng {{count}} dấu che dữ liệu trên trang {{page}}?",
+  "redactConfirmAll": "Áp dụng {{count}} dấu che dữ liệu trên {{pages}} trang?",
+  "redactConfirmBody": "Văn bản, hình ảnh, đồ họa vector, chú thích và trường biểu mẫu dưới các dấu sẽ bị xóa khỏi tài liệu và các vùng được tô bằng màu của dấu. Tệp thay đổi khi bạn lưu; việc lưu sẽ ghi lại toàn bộ tệp mà không có các phiên bản trước.",
+  "redactDone": "Đã áp dụng {{count}} vùng che dữ liệu. Hãy lưu tài liệu để ghi thay đổi vào tệp.",
+  "redactNotApplied": "Chưa áp dụng che dữ liệu; không có gì thay đổi. {{reason}}",
+  "redactReasonUnsupported": "Không thể xóa đáng tin cậy nội dung dưới một dấu: {{detail}}",
+  "redactReasonInvalid": "Một hoặc nhiều dấu không có vùng hợp lệ.",
+  "redactReasonTextEdits": "Hãy lưu các chỉnh sửa văn bản chưa lưu trước.",
   "cannotDeleteAllPages": "Không thể xóa tất cả các trang. Phải giữ lại ít nhất một trang.",
   "cannotDeleteAllPagesSource": "Không thể xóa tất cả các trang khỏi tài liệu nguồn.",
   "noPagesSelected": "Chưa chọn trang nào để trích xuất.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF đã chọn không có trang nào.",
   "failedToSavePdf": "Lưu PDF thất bại: {{error}}",
   "failedToLoadPdf": "Tải PDF thất bại: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Mở trong cửa sổ mới",
     "closeTab": "Đóng thẻ",
     "nextTab": "Thẻ tiếp theo",
-    "previousTab": "Thẻ trước"
+    "previousTab": "Thẻ trước",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Trang tiếp",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Hình thu nhỏ PDF trong File Explorer chỉ có trong phiên bản đã cài đặt.",
     "virtualPrinter": "Máy in ảo chỉ có trong phiên bản đã cài đặt: nó được thêm vào Windows với quyền quản trị viên.",
     "notWritable": "Open PDF Studio không thể ghi vào thư mục {{dir}}, vì vậy lần này cài đặt của bạn được lưu trong hồ sơ người dùng. Hãy chuyển thư mục di động đến vị trí có thể ghi, chẳng hạn ổ USB hoặc thư mục Documents."
+  },
+  "protectedPdfNoPrint": "Quyền của tài liệu này không cho phép in.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

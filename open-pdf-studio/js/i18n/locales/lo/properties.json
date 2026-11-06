@@ -226,7 +226,9 @@
     "viewports": "ຊ່ອງມຸມມອງ",
     "noViewports": "ບໍ່ມີການກຳນົດຊ່ອງມຸມມອງ",
     "measurements": "ການວັດແທກ",
-    "noMeasurements": "ຍັງບໍ່ມີການວັດແທກເທື່ອ"
+    "noMeasurements": "ຍັງບໍ່ມີການວັດແທກເທື່ອ",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "lineEndings": {
     "title": "ຫົວທ້າຍເສັ້ນ",
@@ -379,6 +381,8 @@
     "deleteBookmark": "ລຶບບຸກມາກ",
     "findBookmark": "ຊອກຫາ...",
     "findBookmarkTip": "ພິມເພື່ອໄປຫາບຸກມາກ. ກົດ Enter ເພື່ອເປີດ, ກົດ Enter ອີກຄັ້ງເພື່ອໄປຫາລາຍການທີ່ກົງກັນຕໍ່ໄປ.",
+    "findPage": "ຊອກຫາ...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "ເພີ່ມໄຟລ໌ຕິດຄັດ",
     "openAttachment": "ເປີດໄຟລ໌ຕິດຄັດ",
     "saveAttachment": "ບັນທຶກໄຟລ໌ຕິດຄັດ",
@@ -807,6 +811,24 @@
     "rules": "ການກຳນົດໃຊ້ຈຸດກາງຂອງກອບຂອບເຂດຂອງເຄື່ອງໝາຍ, ລວມທັງຂອບ. ເຂດທີ່ຢູ່ເລິກສຸດຊະນະ, ຕາມດ້ວຍພື້ນທີ່ນ້ອຍສຸດ, ແລ້ວ ID ຂອງເຂດ. ໃຊ້ຮູບຫຼາຍຫຼ່ຽມເສັ້ນຊື່ທີ່ບໍ່ມີຮູ ຫຼື ກອບທີ່ບໍ່ໝູນ. ຕົວຕົນຂອງເຂດທີ່ບໍ່ຖືກຕ້ອງ ຫຼື ຊ້ຳກັນຈະຖືກຍົກເວັ້ນ.",
     "loading": "ກຳລັງໂຫຼດຄຳອະທິບາຍປະກອບ: ສະຖານທີ່ອາດຍັງປ່ຽນແປງໄດ້."
   },
+  "dynamicStamp": {
+    "title": "ຊ່ອງຂໍ້ມູນກາປະທັບ",
+    "template": "ແມ່ແບບ",
+    "refresh": "ອັບເດດວັນທີ, ຜູ້ໃຊ້ ແລະ ໜ້າ",
+    "lock": "ລັອກກາປະທັບ",
+    "lockConfirm": "ລັອກກາປະທັບນີ້ບໍ? ຈະບໍ່ສາມາດປ່ຽນຊ່ອງຂໍ້ມູນໄດ້ອີກ.",
+    "locked": "ກາປະທັບນີ້ຖືກລັອກ: ບໍ່ສາມາດປ່ຽນຊ່ອງຂໍ້ມູນໄດ້ອີກ.",
+    "field": {
+      "date": "ວັນທີ",
+      "time": "ເວລາ",
+      "datetime": "ວັນທີ ແລະ ເວລາ",
+      "user": "ຜູ້ໃຊ້",
+      "page": "ໜ້າ",
+      "pages": "ຈຳນວນໜ້າ",
+      "filename": "ຊື່ໄຟລ໌",
+      "title": "ຫົວຂໍ້ເອກະສານ"
+    }
+  },
   "toolSets": {
     "title": "ຊຸດເຄື່ອງມື",
     "typeWall": "ຝາ",
@@ -922,5 +944,19 @@
     "open": "ເປີດ",
     "saveAs": "ບັນທຶກເປັນ...",
     "noContent": "ເນື້ອຫາຂອງໄຟລ໌ນີ້ບໍ່ໄດ້ຝັງຢູ່ໃນ PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

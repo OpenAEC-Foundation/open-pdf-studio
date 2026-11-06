@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Attivo tramite parametro di avvio ({{adres}})",
     "aiLinkOff": "Disattivato",
     "aiLinkError": "Non avviato: {{fout}}",
-    "interfaceScale": "Dimensione interfaccia"
+    "interfaceScale": "Dimensione interfaccia",
+    "saving": "Salvataggio",
+    "incrementalSave": "Salva in modo incrementale le modifiche ad annotazioni e moduli (sperimentale)",
+    "incrementalSaveHint": "Aggiunge le modifiche alla fine del file invece di riscriverlo. Le versioni precedenti restano recuperabili dal file. Redazione, rimozione di informazioni nascoste e altre modifiche vengono sempre salvate riscrivendo l'intero file."
   },
   "annotations": {
     "generalDefaults": "Predefiniti generali",
@@ -313,7 +316,15 @@
     "butt": "Piatto",
     "openArrowReversed": "Freccia aperta (invertita)",
     "closedArrowReversed": "Freccia chiusa (invertita)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separatore decimale",
+    "decimalAuto": "Segui la lingua",
+    "decimalComma": "Virgola (2,50)",
+    "decimalPoint": "Punto (2.50)",
+    "digitGrouping": "Separa le migliaia (12 345)",
+    "scaleCheck": "Verifica della scala",
+    "scaleCheckOk": "Corretto fino a",
+    "scaleCheckWarn": "Avviso fino a"
   },
   "keyboardShortcuts": {
     "title": "Scorciatoie da tastiera",

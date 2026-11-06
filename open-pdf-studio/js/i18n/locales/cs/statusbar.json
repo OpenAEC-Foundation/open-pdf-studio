@@ -110,6 +110,7 @@
   "searchHitsOne": "1 shoda",
   "searchHitsMany": "Shod: {{count}}",
   "passwordProtectedBar": "Chráněno heslem: otevřeno jen pro čtení.",
+  "passwordProtectedEditableBar": "Chráněno heslem. Uložení ochranu zachová.",
   "documentSearch": {
     "title": "Prohledat dokumenty",
     "query": "Hledaný text",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Poslední nástroj: {{tool}} v {{time}}",
     "noTool": "Zatím žádná volání nástrojů"
-  }
+  },
+  "sharedReviewActive": "Sdílená revize",
+  "sharedReviewUpdates": "Sdílená revize: nové {{n}}",
+  "sharedReviewTitle": "Poznámky jsou sdíleny přes {{folder}}. Kliknutím otevřete sdílenou revizi.",
+  "sharedReviewError": "Sdílená revize: složka nedostupná",
+  "pdfaReadOnly": "Tento dokument odpovídá standardu {{label}} a byl otevřen pouze pro čtení, aby se zabránilo jeho úpravě.",
+  "pdfaValidate": "Ověřit"
 }

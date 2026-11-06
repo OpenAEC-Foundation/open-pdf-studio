@@ -39,6 +39,7 @@ import {
 } from 'pdf-lib';
 import { voegLagenSamen } from './cad-import-logica.js';
 import { relinkZonesInPages, zoneIdsInPages } from './spatial-zone-relink.js';
+import { kortBronIn } from './samenvoegen-deel.js';
 
 const N = (s) => PDFName.of(s);
 
@@ -342,7 +343,10 @@ function filterVolgorde(context, arr, houden) {
  * eerdere bron) krijgt een nieuw id, zodat beide geldig blijven.
  *
  * @param {import('pdf-lib').PDFDocument} doel
- * @param {{doc: import('pdf-lib').PDFDocument, naam: string}[]} bronnen
+ * Een bron met `paginas` (0-based indexen) brengt alleen die pagina's mee,
+ * en niets dat naar de andere wijst (samenvoegen-deel.js).
+ *
+ * @param {{doc: import('pdf-lib').PDFDocument, naam: string, paginas?: number[]}[]} bronnen
  * @param {{invoegIndex: number, positie?: 'start'|'after'|'end', zoneIds?: Iterable<string>}} opties
  * @returns {Promise<{bronnen: object[], paginasIngevoegd: number}>}
  */
@@ -374,7 +378,7 @@ export async function voegPdfsSamen(doel, bronnen, { invoegIndex, positie = 'end
   let vorigeGroep = null;
 
   for (let nummer = 0; nummer < bronnen.length; nummer++) {
-    const { doc: bron, naam } = bronnen[nummer];
+    const { doc: bron, naam, paginas: gekozen } = bronnen[nummer];
     const bctx = bron.context;
     const achtervoegsel = achtervoegselVoor(naam, nummer + 1);
     await bron.flush();
@@ -382,6 +386,8 @@ export async function voegPdfsSamen(doel, bronnen, { invoegIndex, positie = 'end
       naam, start: start0 + offset, aantal: 0, annotaties: 0, velden: 0, hernoemdeVelden: [],
       bestemmingen: 0, hernoemdeBestemmingen: [], bladwijzers: 0, lagen: 0, handtekeningen: 0,
     };
+    // Alleen de gekozen pagina's, en niets dat naar de andere wijst.
+    if (Array.isArray(gekozen)) info.weggelaten = kortBronIn(bron, gekozen);
 
     // Handtekeningen gelden niet meer: de waarde weg, het veld blijft.
     for (const { dict } of handtekeningKnopen(bron)) {

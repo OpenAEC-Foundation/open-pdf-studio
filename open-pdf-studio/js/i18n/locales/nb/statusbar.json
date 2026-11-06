@@ -110,6 +110,7 @@
   "searchHitsOne": "1 treff",
   "searchHitsMany": "{{count}} treff",
   "passwordProtectedBar": "Beskyttet med passord: åpnet skrivebeskyttet.",
+  "passwordProtectedEditableBar": "Beskyttet med passord. Lagring beholder beskyttelsen.",
   "documentSearch": {
     "title": "Søk i dokumenter",
     "query": "Søketekst",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Siste verktøy: {{tool}} kl. {{time}}",
     "noTool": "Ingen verktøykall ennå"
-  }
+  },
+  "sharedReviewActive": "Delt gjennomgang",
+  "sharedReviewUpdates": "Delt gjennomgang: {{n}} nye",
+  "sharedReviewTitle": "Merknader deles via {{folder}}. Klikk for å åpne den delte gjennomgangen.",
+  "sharedReviewError": "Delt gjennomgang: mappen er utilgjengelig",
+  "pdfaReadOnly": "Dette dokumentet samsvarer med {{label}}-standarden og er åpnet skrivebeskyttet for å forhindre endringer.",
+  "pdfaValidate": "Valider"
 }

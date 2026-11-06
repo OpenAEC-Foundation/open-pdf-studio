@@ -38,6 +38,19 @@ function pakketVersie(toml) {
   return undefined;
 }
 
+// Versie in de [project]-tabel van een pyproject.toml.
+function projectVersie(toml) {
+  let inProject = false;
+  for (const regel of toml.split(/\r?\n/)) {
+    if (/^\s*\[/.test(regel)) inProject = /^\s*\[project\]\s*$/.test(regel);
+    else if (inProject) {
+      const m = /^\s*version\s*=\s*"([^"]*)"/.exec(regel);
+      if (m) return m[1];
+    }
+  }
+  return undefined;
+}
+
 function pakketNaam(toml) {
   const tabel = toml.split(/^\[/m).find((t) => t.startsWith('package]'));
   return tabel && /^name\s*=\s*"([^"]+)"/m.exec(tabel)?.[1];
@@ -72,9 +85,12 @@ const VELDEN = {
   'open-pdf-studio/src-tauri/Cargo.lock': lockVersies,
   'open-pdf-render/Cargo.lock': lockVersies,
   'mcp-stdio/package.json': jsonVersie,
+  'python/pyproject.toml': (tekst) => [projectVersie(tekst)],
   'mcpb/manifest.json': jsonVersie,
   '.github/workflows/release.yml': (tekst) => [/^\s+default:\s*'v([^']*)'/m.exec(tekst)?.[1]],
   'snap/snapcraft.yaml': (tekst) => [/^version:\s*'([^']*)'/m.exec(tekst)?.[1]],
+  // De bovenste <release> van de AppStream-metadata (Flatpak, #389).
+  'flatpak/org.openaec.OpenPdfStudio.metainfo.xml': (tekst) => [/<release\s[^>]*version="([^"]*)"/.exec(tekst)?.[1]],
 };
 
 // Recepten van een al gepubliceerde release (met de hash van die download):
@@ -190,6 +206,19 @@ test('bump-version zet alle velden in een kopie van de repo', () => {
   }
 });
 
+test('een nieuwe versie krijgt een eigen <release> bovenaan de metainfo; de oude blijven staan', () => {
+  const pad = 'flatpak/org.openaec.OpenPdfStudio.metainfo.xml';
+  const tekst = lees(pad);
+  const releases = (t) => [...t.matchAll(/<release\s[^>]*version="([^"]*)"(?:\s+date="([^"]*)")?/g)].map((m) => [m[1], m[2]]);
+  const voor = releases(tekst);
+  const nieuw = bump.metainfoRelease.werkBij(tekst, '2099.53.7', '2099-12-31');
+  assert.deepEqual(releases(nieuw), [['2099.53.7', '2099-12-31'], ...voor]);
+  assert.equal(bump.metainfoRelease.werkBij(nieuw, '2099.53.7'), nieuw, 'dezelfde versie: niets');
+  assert.equal(bump.metainfoRelease.werkBij(nieuw, appVersie), tekst, 'terugzetten haalt het item weg');
+  const crlf = tekst.replace(/\r?\n/g, '\r\n');
+  assert.doesNotMatch(bump.metainfoRelease.werkBij(crlf, '2099.53.7').replace(/\r\n/g, ''), /\n/, 'CRLF blijft CRLF');
+});
+
 test('bump-version weigert een versie buiten het schema en schrijft dan niets', () => {
   const voor = Object.keys(VELDEN).map((pad) => lees(pad));
   // Het schema zelf staat in de eerste test; hier alleen de opdrachtregel.
@@ -222,7 +251,7 @@ test('de release-workflow controleert de tag tegen de versievelden voordat er ie
   assert.ok(controle < createRelease.indexOf('name: Create release'), 'voor het aanmaken van de release');
   assert.match(createRelease, /VERSION: \$\{\{ steps\.get-version\.outputs\.version \}\}/);
   // Alle bouwjobs wachten op create-release.
-  for (const job of ['build', 'build-android', 'mcpb']) {
+  for (const job of ['build', 'build-android', 'mcpb', 'python-library']) {
     const kop = workflow.indexOf(`\n  ${job}:\n`);
     assert.ok(kop > 0, job);
     assert.match(workflow.slice(kop, kop + 300), /needs: create-release/, job);

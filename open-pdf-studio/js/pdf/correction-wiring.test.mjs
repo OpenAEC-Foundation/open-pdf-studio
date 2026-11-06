@@ -45,14 +45,15 @@ test('saver.js handelt /Caret af en schrijft correcties met de gedeelde bouwsten
   assert.match(opslag, /buildTextMarkupDict\(context, annRaw, puntNaarPdf, \{[^}]*rgb: gekoppeldeKinderen\.has\(annRaw\.id\) \? hexToColorArray\(saveColor\(annRaw, pageAnnotations, plan\)\) : undefined,[^}]*\}\)/);
   // /NM is per pagina uniek: één verzameling per pagina voor alle correcties
   // en geladen markeringen (een kopie draagt de naam van het origineel mee).
-  assert.match(opslag, /const gebruikteNm = new Set\(\);[\s\S]{0,200}for \(const annRaw of pageAnnotations\)/);
+  // Daartussen het plan voor annotaties die uit het bestand blijven (#629).
+  assert.match(opslag, /const gebruikteNm = new Set\(\);[\s\S]{0,4000}for \(const annRaw of pageAnnotations\)/);
   assert.match(opslag, /addLoadedMarkupKeys\(annotDict, ann, gebruikteNm\)/);
   assert.match(opslag, /buildTextEditStrikeDict\(context, annRaw, puntNaarPdf, \{[\s\S]{0,300}gebruikteNm,/);
   assert.match(opslag, /buildCaretDict\(context, karet, puntNaarPdf, \{[\s\S]{0,300}gebruikteNm,/);
   assert.match(opslag, /refById\.set\(/);
   assert.match(opslag, /dictById\.set\(/);
   const annots = opslag.indexOf("page.node.set(PDFName.of('Annots'), context.obj(annotsArray))");
-  const koppel = opslag.indexOf('applyGroupLinks(context, plan, refById, dictById, annotsArray)');
+  const koppel = opslag.indexOf('applyGroupLinks(context, plan, refById, dictById, annotsArray');
   const popups = opslag.indexOf('dropOrphanPopups(context, annotsArray,');
   assert.ok(koppel > 0 && popups > koppel && annots > popups, 'eerst koppelen, dan popups, dan /Annots zetten');
 });

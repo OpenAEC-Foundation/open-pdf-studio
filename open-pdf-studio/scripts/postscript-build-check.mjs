@@ -41,3 +41,28 @@ export { XRef, Stream };
   assert.deepEqual(fixture.hugeObjects.map(num => xref.getEntry(num).offset), [2 ** 31, 2 ** 32 + 10]);
   console.log('PASS built worker: XRef stream offsets 2^31 and 2^32 + 10');
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }
+// #949: 32-bit samples in Type 0 functions (tint transform and shading).
+const sampled = spawnSync(process.execPath, [fileURLToPath(new URL('./sampled-function-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 60000, encoding: 'utf8' });
+assert.equal(sampled.status, 0, sampled.stdout + sampled.stderr);
+const sampledRows = sampled.stdout.trim().split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+assert.equal(sampledRows.length, 4);
+for (const row of sampledRows) assert.deepEqual(row.fills, ['#808080', '#ffffff'], `${row.bps}-bit sampled function`);
+console.log('PASS built worker: 32-bit sampled functions are read unsigned');
+// #957: combining marks keep their logical order in RTL text extraction.
+const bidiMarks = spawnSync(process.execPath, [fileURLToPath(new URL('./bidi-marks-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 60000, encoding: 'utf8' });
+assert.equal(bidiMarks.status, 0, bidiMarks.stdout + bidiMarks.stderr);
+const bidiRows = bidiMarks.stdout.trim().split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+assert.equal(bidiRows.length, 4);
+for (const row of bidiRows) assert.deepEqual(row.raw, row.expected, `bidi ${row.name}`);
+console.log('PASS built worker: combining marks keep their logical order');
+// #636: the shipped worker decodes a repeated Form XObject once per page operation.
+const formCache = spawnSync(process.execPath, [fileURLToPath(new URL('./form-xobject-probe.mjs', import.meta.url)), 'shipped', worker], { timeout: 120000, encoding: 'utf8' });
+assert.equal(formCache.status, 0, formCache.stdout + formCache.stderr);
+const formRows = formCache.stdout.trim().split('\n').filter(l => l.startsWith('{')).map(l => JSON.parse(l));
+assert.equal(formRows.length, 2);
+for (const row of formRows) assert.deepEqual([row.opsDecodes, row.textDecodes], [3, 3], `page ${row.page} decodes`);
+console.log('PASS built worker: repeated Form XObjects are decoded once per page operation');
+// #637: the shipped display library carries the knockout-bounds backport
+// (a property name, so it survives minification).
+assert.ok(chunks.some(name => fs.readFileSync(resolve(assets, name), 'utf8').includes('knockoutTempDirtyRect')), 'display library carries the #637 backport');
+console.log('PASS built display library: knockout fills composite within their bounds');

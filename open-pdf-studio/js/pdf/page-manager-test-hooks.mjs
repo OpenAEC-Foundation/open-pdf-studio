@@ -54,6 +54,19 @@ export async function resolve(specifier, context, nextResolve) {
   if (doel.endsWith('/js/i18n/config.js')) {
     return { url: dataUrl('export default { t: (sleutel) => sleutel };'), shortCircuit: true };
   }
+  // Paginakeuze bij invoegen/vervangen (#963): zonder eigen impl kiest de
+  // test alle bronpagina's, zoals een gebruiker die meteen OK geeft. De
+  // rekenhulpen van die module blijven echt.
+  if (doel.endsWith('/js/pdf/bron-paginas-kiezen.js')) {
+    return {
+      url: dataUrl(`export * from ${JSON.stringify(doel)};
+export const kiesBronPaginas = async (bytes, naam, aantal, doel) => {
+  const impl = globalThis.__pmTest?.impl?.kiesBronPaginas;
+  return impl ? impl(bytes, naam, aantal, doel) : Array.from({ length: aantal }, (_, i) => i);
+};`),
+      shortCircuit: true,
+    };
+  }
   for (const [pad, namen] of Object.entries(STUBS)) {
     if (!doel.endsWith(`/${pad}`)) continue;
     const extra = pad === 'js/core/state.js' ? 'export const state = { get documents() { return globalThis.__pmTest?.documents ?? []; } };' : '';

@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "No se encontraron anotaciones en el archivo XFDF.",
   "noRedactionsOnPage": "No hay marcas de redacción en la página actual para aplicar.",
   "noRedactionsInDocument": "No hay marcas de redacción en el documento para aplicar.",
+  "redactTitle": "Aplicar censuras",
+  "redactConfirmPage": "¿Aplicar {{count}} marca(s) de censura en la página {{page}}?",
+  "redactConfirmAll": "¿Aplicar {{count}} marca(s) de censura en {{pages}} página(s)?",
+  "redactConfirmBody": "El texto, las imágenes, los gráficos vectoriales, las anotaciones y los campos de formulario bajo las marcas se eliminan del documento y las áreas se rellenan con el color de la marca. El archivo cambia al guardar; al guardar se reescribe todo el archivo sin versiones anteriores.",
+  "redactDone": "{{count}} área(s) de censura aplicada(s). Guarde el documento para escribir el cambio en el archivo.",
+  "redactNotApplied": "No se aplicaron las censuras; no se cambió nada. {{reason}}",
+  "redactReasonUnsupported": "El contenido bajo una marca no se puede eliminar de forma fiable: {{detail}}",
+  "redactReasonInvalid": "Una o más marcas no tienen un área válida.",
+  "redactReasonTextEdits": "Guarde primero las ediciones de texto no guardadas.",
   "cannotDeleteAllPages": "No se pueden eliminar todas las páginas. Debe quedar al menos una página.",
   "cannotDeleteAllPagesSource": "No se pueden eliminar todas las páginas del documento de origen.",
   "noPagesSelected": "No se seleccionaron páginas para extraer.",
+  "extractEncrypted": "No se pueden extraer estas páginas: el contenido del documento sigue cifrado. Guarde el documento sin protección e inténtelo de nuevo.",
   "selectedPdfNoPages": "El PDF seleccionado no tiene páginas.",
   "failedToSavePdf": "No se pudo guardar el PDF: {{error}}",
   "failedToLoadPdf": "No se pudo cargar el PDF: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Abrir en una ventana nueva",
     "closeTab": "Cerrar pestaña",
     "nextTab": "Pestaña siguiente",
-    "previousTab": "Pestaña anterior"
+    "previousTab": "Pestaña anterior",
+    "newTabForDocument": "Nueva pestaña para este documento"
   },
   "pageNav": {
     "nextPage": "Página siguiente",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Las miniaturas de PDF en el Explorador de archivos solo están disponibles en la versión instalada.",
     "virtualPrinter": "La impresora virtual solo está disponible en la versión instalada: se añade a Windows con permisos de administrador.",
     "notWritable": "Open PDF Studio no puede escribir en la carpeta {{dir}}, así que esta vez tu configuración se guarda en tu perfil de usuario. Mueve la carpeta portátil a una ubicación con permisos de escritura, como una memoria USB o tu carpeta Documentos."
+  },
+  "protectedPdfNoPrint": "Los permisos de este documento no permiten imprimir.",
+  "share": {
+    "share": "Compartir",
+    "unsavedTitle": "Cambios sin guardar",
+    "unsavedMessage": "{{name}} tiene cambios sin guardar. ¿Guardar el documento y enviarlo, o enviar una copia con los cambios?",
+    "saveAndSend": "Guardar y enviar",
+    "sendCopy": "Enviar una copia",
+    "copyFailed": "No se pudo preparar el documento para enviarlo: {{error}}",
+    "failed": "Error al compartir: {{error}}",
+    "attachManually": "Ningún programa de correo pudo adjuntar el archivo. Se ha abierto un borrador y el archivo se muestra en el administrador de archivos: arrástrelo al mensaje.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "Más",
+    "insertImage": "Insertar imagen",
+    "takePhoto": "Tomar foto",
+    "scanDocument": "Escanear documento",
+    "copyMarkup": "Copiar anotación",
+    "pasteMarkup": "Pegar anotación",
+    "deleteMarkup": "Eliminar anotación",
+    "imageFailed": "No se pudo insertar la imagen: {{error}}",
+    "scanWhere": "¿Dónde debe ir la página escaneada?",
+    "scanInsertAfter": "Después de la página actual",
+    "scanNewDocument": "Documento nuevo",
+    "scanBusy": "Creando la página…",
+    "scanFailed": "No se pudo crear una página a partir de la foto: {{error}}"
   }
 }

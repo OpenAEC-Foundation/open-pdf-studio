@@ -545,6 +545,9 @@
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
+  /* Slepen met pointer-events (#962): geen tekstselectie onderweg. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .thumbnail-item:hover {
@@ -567,6 +570,12 @@
 
 .thumbnail-item.active.selected {
   border-color: var(--theme-thumbnail-active-border);
+}
+
+/* Treffer van het zoekveld (#926): dezelfde streep links als bij de
+   bladwijzers; de lijst blijft volledig. */
+.thumbnail-item.found {
+  box-shadow: inset 3px 0 0 var(--theme-thumbnail-active-border);
 }
 
 .thumbnail-canvas {

@@ -103,6 +103,34 @@ test('Linux resources exclude Windows-only runtime files', async () => {
   assert.equal(resources['binaries/win-x64/pdfium.dll'], undefined);
 });
 
+test('Linux packages ship the pdfium-worker sidecar for the render pool (#923)', async () => {
+  const config = await readJson('src-tauri/tauri.conf.json');
+  const linux = await readJson('src-tauri/tauri.linux.conf.json');
+  // Tauri merges tauri.linux.conf.json as a JSON merge patch: an array in the
+  // platform file replaces the base array instead of extending it.
+  const externalBin = linux.bundle.externalBin ?? config.bundle.externalBin;
+  assert.ok(externalBin.includes('binaries/pdfium-worker'), 'Linux bundles binaries/pdfium-worker');
+
+  // The worker runs from usr/bin; libpdfium.so is a resource in
+  // usr/lib/<productName> (Tauri's Linux resource_dir).
+  const resources = { ...config.bundle.resources, ...linux.bundle.resources };
+  assert.equal(resources['binaries/linux-x64/libpdfium.so'], 'libpdfium.so');
+  const render = await readFile(path.join(repoDir, 'pdfium-worker', 'src', 'render.rs'), 'utf8');
+  assert.ok(render.includes(`"../lib/${config.productName}"`), 'the worker looks in ../lib/<productName>');
+
+  // tauri-build requires binaries/pdfium-worker-<target-triple> before bundling.
+  for (const name of ['ci.yml', 'release.yml', 'nightly.yml']) {
+    const workflow = await readFile(path.join(repoDir, '.github', 'workflows', name), 'utf8');
+    const step = workflow.match(/- name: Build pdfium-worker sidecar \(Linux\)[\s\S]*?(?=\n\s*- name:)/);
+    assert.ok(step, `${name} builds the Linux worker`);
+    assert.match(step[0], /cargo build --release -p pdfium-worker/, name);
+    assert.match(step[0], /binaries\/pdfium-worker-x86_64-unknown-linux-gnu/, name);
+  }
+
+  const smoke = await readFile(path.join(projectDir, 'scripts', 'linux-appimage-smoke.sh'), 'utf8');
+  assert.match(smoke, /squashfs-root\/usr\/bin\/pdfium-worker/);
+});
+
 test('CI exercises macOS 26 startup and frontend readiness', async () => {
   const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'ci.yml'), 'utf8');
   const smoke = await readFile(path.join(projectDir, 'scripts', 'macos-startup-smoke.sh'), 'utf8');

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Skala terdeteksi",
     "noScaleFound": "Skala tidak ditemukan",
-    "detecting": "Mendeteksi..."
+    "detecting": "Mendeteksi...",
+    "scaleCheck": "Periksa skala",
+    "scaleCheckTitle": "Ukur dimensi yang diketahui dan tampilkan penyimpangan skala dalam persen"
   },
   "home": {
     "document": "Dokumen",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Tempatkan wilayah skala yang mencakup seluruh halaman",
     "drawing": "Gambar",
     "highlight": "Sorotan",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Bebas",
     "line": "Garis",
     "arrow": "Panah",
@@ -134,6 +142,8 @@
     "callout": "Balon Keterangan",
     "stamp": "Stempel",
     "signature": "Tanda Tangan",
+    "digitalSign": "Tanda tangan digital",
+    "digitalSignTooltip": "Tanda tangani dokumen dengan sertifikat (.p12/.pfx). Tombol Tanda tangan hanya menempatkan gambar.",
     "measure": "Ukur",
     "measureDistance": "Ukur Jarak",
     "distance": "Jarak",
@@ -316,7 +326,85 @@
     "modified": "Diubah",
     "noChanges": "Tidak ada perubahan",
     "textTab": "Teks",
-    "noTextChanges": "Tidak ada perbedaan teks"
+    "noTextChanges": "Tidak ada perbedaan teks",
+    "previousVersion": "sebelum penyimpanan terakhir",
+    "fromDisk": "berkas",
+    "fileLoadError": "Berkas tidak dapat dibuka sebagai PDF.",
+    "browse": "Telusuri…",
+    "browseHint": "Pilih berkas PDF dari disk",
+    "pickSecondSide": "Pilih sisi lainnya dari berkas di disk, atau buka PDF kedua di tab.",
+    "sensitivity": "Sensitivitas",
+    "sensitivityHint": "Mengatur ambang tinta, ukuran perubahan minimum, dan jarak penggabungan sekaligus",
+    "preset": {
+      "line": "Gambar garis",
+      "scan": "Pindaian",
+      "text": "Dokumen teks"
+    },
+    "autoAlign": "Sejajarkan otomatis",
+    "autoAlignHint": "Perkirakan pergeseran, rotasi, dan skala dari gambar",
+    "autoAlignEach": "Otomatis",
+    "autoAlignEachHint": "Sejajarkan setiap pasangan halaman secara otomatis saat pertama ditampilkan",
+    "rotation": "rotasi",
+    "scale": "skala",
+    "resetAlignHint": "Hapus penyejajaran",
+    "alignManual": "manual",
+    "confidence": "Keandalan",
+    "confidenceHint": "Bagian tinta yang berimpit setelah penyejajaran",
+    "alignByMeasure": "skala dari skala ukur",
+    "alignNone": "sudah sejajar",
+    "alignByContent": "dari isi gambar",
+    "pair": "Pasangan",
+    "pagesTab": "Halaman",
+    "pairing": "Mencocokkan halaman…",
+    "onlyInOld": "Hanya di yang lama",
+    "onlyInNew": "Hanya di yang baru",
+    "pairReason": {
+      "sheet": "Dicocokkan menurut nomor lembar",
+      "label": "Dicocokkan menurut label halaman",
+      "content": "Dicocokkan menurut isi",
+      "index": "Dicocokkan menurut urutan halaman",
+      "manual": "Dicocokkan secara manual"
+    },
+    "truncated": "Terlalu banyak perbedaan: periksa penyejajaran atau sensitivitas.",
+    "selectForClouds": "Pilih untuk awan pada dokumen baru",
+    "report": {
+      "button": "Laporan",
+      "csv": "Ekspor daftar perubahan (CSV)…",
+      "pdf": "Ekspor ringkasan PDF…",
+      "clouds": "Tempatkan perubahan terpilih sebagai awan",
+      "cloudsNeedTab": "Dokumen baru harus terbuka di tab",
+      "saved": "Laporan disimpan",
+      "failed": "Laporan tidak dapat dibuat",
+      "cloudsPlaced": "Awan yang ditempatkan pada dokumen baru: {{count}}",
+      "title": "Laporan perbandingan",
+      "generated": "Dibuat",
+      "settings": "Pengaturan",
+      "fileSuffix": "perubahan",
+      "sourcePixel": "Gambar",
+      "sourceText": "Teks",
+      "cloudSubject": "Perbandingan",
+      "before": "Sebelum",
+      "after": "Sesudah",
+      "col": {
+        "no": "No.",
+        "pair": "Pasangan",
+        "oldPage": "Halaman lama",
+        "newPage": "Halaman baru",
+        "sheet": "Lembar",
+        "type": "Jenis",
+        "source": "Sumber",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Lebar (mm)",
+        "heightMm": "Tinggi (mm)",
+        "oldText": "Teks sebelum",
+        "newText": "Teks sesudah"
+      },
+      "sourceVector": "Vektor"
+    },
+    "methodVector": "Vektor",
+    "methodVectorHint": "Bandingkan jalur yang digambar secara persis jika kedua halaman adalah gambar vektor; halaman lain memakai perbandingan piksel",
+    "methodPixelFallback": "piksel: bukan halaman vektor"
   },
   "organize": {
     "pages": "Halaman",
@@ -350,8 +438,16 @@
     "scanTextHint": "Klik kata yang dikenali untuk menggantinya. Kata lama pada pindaian akan ditutupi.",
     "scanTextNone": "Tidak ada teks yang dikenali di halaman ini. Jalankan Pengenalan Teks (OCR) terlebih dahulu.",
     "shiftPage": "Geser halaman",
+    "scanGroup": "Pindai",
+    "scan": "Pindai",
+    "scanTitle": "Pindai halaman ke PDF yang dapat dicari",
+    "batchOcr": "OCR folder",
+    "batchOcrTitle": "Kenali teks di semua file PDF dalam folder",
     "editPages": "Edit Halaman",
-    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan"
+    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan",
+    "protect": "Lindungi",
+    "security": "Keamanan",
+    "securityTitle": "Atur atau hapus kata sandi dan izin"
   },
   "help": {
     "settings": "Pengaturan",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "L:",
     "y": "Y:",
-    "h": "T:"
+    "h": "T:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Sistem (Otomatis)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Ukuran penempatan simbol baru",
     "symbolScaleCustom": "Skala kustom",
     "count": "Hitung",
-    "arc": "Busur"
+    "arc": "Busur",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Koreksi",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Lampu darurat",
       "nen1414-tr": "NL NEN 1414 — Pembuangan asap/panas",
       "nen1414-tv": "NL NEN 1414 — Ventilasi",
-      "nen1414-tw": "NL NEN 1414 — Air/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Air/Sprinkler",
+      "gdt-bewerking": "GD&T dan pemesinan"
     },
     "sectors": {
       "aec": "AEC (Konstruksi)",
@@ -773,5 +881,34 @@
       "mep": "Utilitas bangunan (MEP)",
       "infra": "Infrastruktur"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

@@ -76,9 +76,28 @@ pub fn ocr_page_words(
     tessdata_dir: &str,
     lang: &str,
 ) -> Result<Vec<OcrWord>, String> {
+    ocr_page_words_rotated(doc, page_index, tessdata_dir, lang, 0)
+}
+
+/// `ocr_page_words` on the page turned clockwise by `rotation` (0, 90, 180 or
+/// 270 degrees, on top of its /Rotate) before recognition. Tesseract reads
+/// horizontal lines only; vertical text (a sheet number turned 90 degrees in a
+/// title block, #954) becomes readable this way. The words come back in the
+/// space of that turned page (top-left origin, PDF points at scale 1); the
+/// caller maps them back.
+pub fn ocr_page_words_rotated(
+    doc: &PdfDocument<'static>,
+    page_index: u32,
+    tessdata_dir: &str,
+    lang: &str,
+    rotation: i32,
+) -> Result<Vec<OcrWord>, String> {
+    if ![0, 90, 180, 270].contains(&rotation) {
+        return Err(format!("OCR rotation must be 0, 90, 180 or 270 (got {})", rotation));
+    }
     let scale = OCR_DPI / 72.0;
     let (width_px, height_px, rgba) =
-        pdfium_renderer::render_page_to_rgba(doc, page_index, scale, 0)?;
+        pdfium_renderer::render_page_to_rgba(doc, page_index, scale, rotation)?;
 
     let resolved_lang = if lang == "auto" { AUTO_LANG } else { lang };
 

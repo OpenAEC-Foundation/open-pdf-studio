@@ -1,0 +1,15 @@
+# Build output, caches and local environments of the Python library.
+__pycache__/
+*.py[cod]
+/build/
+/dist/
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+# Copied from the repository root by the build jobs (hatchling picks it up).
+/LICENSE.md

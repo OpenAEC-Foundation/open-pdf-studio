@@ -142,8 +142,8 @@
     "officeTable": "সারণি",
     "officeText": "পাঠ্য",
     "officeFailed": "নথি রপ্তানি ব্যর্থ হয়েছে।",
-    "protect": "পাসওয়ার্ড দিয়ে সুরক্ষিত করুন",
-    "protectDesc": "পাসওয়ার্ড-সুরক্ষিত একটি কপি সংরক্ষণ করুন (AES-256)"
+    "protect": "নথির সুরক্ষা",
+    "protectDesc": "পাসওয়ার্ড ও অনুমতি নির্ধারণ বা সরান (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "আউটপুট প্রোফাইল",
@@ -219,11 +219,38 @@
     "uninstallError": "এক্সটেনশন আনইনস্টল করতে ব্যর্থ",
     "by": "নির্মাতা",
     "activationFailed": "সক্রিয় নয়: {{error}}",
-    "viaMcp": "AI সংযোগের মাধ্যমে"
+    "viaMcp": "AI সংযোগের মাধ্যমে",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "ক্লিপবোর্ডের স্ক্রিনশটে টীকা যোগ করুন",
   "workflows": "ডকুমেন্ট ওয়ার্কফ্লো",
   "drawingSets": "ড্রয়িং সেট",
   "sheetLinks": "ক্রস-শিট লিংক",
-  "approvalRouting": "অনুমোদন রাউটিং"
+  "approvalRouting": "অনুমোদন রাউটিং",
+  "sharedReview": "যৌথ পর্যালোচনা",
+  "pdfa": "PDF/A..."
 }

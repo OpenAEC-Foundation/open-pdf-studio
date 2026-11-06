@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktif melalui parameter awal ({{adres}})",
     "aiLinkOff": "Mati",
     "aiLinkError": "Tidak dimulai: {{fout}}",
-    "interfaceScale": "Ukuran antarmuka"
+    "interfaceScale": "Ukuran antarmuka",
+    "saving": "Penyimpanan",
+    "incrementalSave": "Simpan perubahan anotasi dan formulir secara inkremental (eksperimental)",
+    "incrementalSaveHint": "Menambahkan perubahan ke akhir file alih-alih menulis ulang file. Versi sebelumnya tetap dapat dipulihkan dari file. Redaksi, penghapusan informasi tersembunyi, dan perubahan lain selalu disimpan dengan penulisan ulang penuh."
   },
   "annotations": {
     "generalDefaults": "Bawaan Umum",
@@ -313,7 +316,15 @@
     "butt": "Rata",
     "openArrowReversed": "Panah Terbuka (terbalik)",
     "closedArrowReversed": "Panah Tertutup (terbalik)",
-    "slash": "Garis Miring"
+    "slash": "Garis Miring",
+    "decimalNotation": "Pemisah desimal",
+    "decimalAuto": "Ikuti bahasa",
+    "decimalComma": "Koma (2,50)",
+    "decimalPoint": "Titik (2.50)",
+    "digitGrouping": "Kelompokkan ribuan (12 345)",
+    "scaleCheck": "Pemeriksaan skala",
+    "scaleCheckOk": "Baik hingga",
+    "scaleCheckWarn": "Peringatan hingga"
   },
   "keyboardShortcuts": {
     "title": "Pintasan keyboard",

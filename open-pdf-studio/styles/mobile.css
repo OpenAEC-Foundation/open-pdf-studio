@@ -291,7 +291,8 @@
   color: #0078d4;
 }
 
-.mobile-drawer-item:disabled {
+.mobile-drawer-item:disabled,
+.mobile-tools-item:disabled {
   opacity: 0.45;
 }
 

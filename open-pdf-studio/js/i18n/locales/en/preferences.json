@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Active via command-line flag ({{adres}})",
     "aiLinkOff": "Off",
     "aiLinkError": "Not started: {{fout}}",
-    "interfaceScale": "Interface size"
+    "interfaceScale": "Interface size",
+    "saving": "Saving",
+    "incrementalSave": "Save annotation and form changes incrementally (experimental)",
+    "incrementalSaveHint": "Appends the changes to the end of the file instead of rewriting it. Earlier versions remain recoverable from the file. Redaction, removing hidden information and other changes are always saved as a full rewrite."
   },
   "annotations": {
     "generalDefaults": "General Defaults",
@@ -120,7 +123,15 @@
     "butt": "Butt",
     "openArrowReversed": "Open Arrow (reversed)",
     "closedArrowReversed": "Closed Arrow (reversed)",
-    "slash": "Slash"
+    "slash": "Slash",
+    "decimalNotation": "Decimal separator",
+    "decimalAuto": "Follow language",
+    "decimalComma": "Comma (2,50)",
+    "decimalPoint": "Point (2.50)",
+    "digitGrouping": "Group thousands (12 345)",
+    "scaleCheck": "Scale check",
+    "scaleCheckOk": "OK up to",
+    "scaleCheckWarn": "Warning up to"
   },
   "drawing": {
     "freehandDefaults": "Freehand Defaults",

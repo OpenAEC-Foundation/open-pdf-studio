@@ -48,7 +48,9 @@
     "viewport": "Viewport",
     "createViewport": "Teken een viewport-gebied met een eigen schaal",
     "viewportTitle": "Viewport-schaal instellen",
-    "dynamicScaling": "Markeringen automatisch schalen"
+    "dynamicScaling": "Markeringen automatisch schalen",
+    "scaleCheck": "Schaal controleren",
+    "scaleCheckTitle": "Meet een bekende maat en toon de afwijking van de schaal in procenten"
   },
   "home": {
     "document": "Document",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Plaats een schaalgebied over de hele pagina",
     "drawing": "Tekening",
     "highlight": "Markeren",
+    "textHighlight": "Tekst markeren",
+    "textHighlightTitle": "Sleep over tekst om die te markeren. Dubbelklik: één woord. Driemaal klikken: het hele label.",
+    "areaHighlight": "Gebied markeren",
+    "areaHighlightTitle": "Trek een vak om een gebied te markeren",
+    "highlightMode": "Markeren: gebied of tekst",
+    "highlightSwitchTip": "Klik nogmaals om te wisselen tussen gebied en tekst",
     "freehand": "Vrije hand",
     "line": "Lijn",
     "arrow": "Pijl",
@@ -133,6 +141,8 @@
     "callout": "Bijschrift",
     "stamp": "Stempel",
     "signature": "Handtekening",
+    "digitalSign": "Digitale handtekening",
+    "digitalSignTooltip": "Onderteken het document met een certificaat (.p12/.pfx). De knop Handtekening plaatst alleen een afbeelding.",
     "measure": "Meten",
     "measureDistance": "Afstand meten",
     "distance": "Afstand",
@@ -316,7 +326,85 @@
     "modified": "Gewijzigd",
     "noChanges": "Geen wijzigingen",
     "textTab": "Tekst",
-    "noTextChanges": "Geen tekstverschillen"
+    "noTextChanges": "Geen tekstverschillen",
+    "previousVersion": "vóór de laatste opslag",
+    "fromDisk": "bestand",
+    "fileLoadError": "Het bestand kon niet als PDF worden geopend.",
+    "browse": "Bladeren…",
+    "browseHint": "Kies een PDF-bestand op schijf",
+    "pickSecondSide": "Kies de andere kant uit een bestand op schijf, of open een tweede PDF in een tab.",
+    "sensitivity": "Gevoeligheid",
+    "sensitivityHint": "Stelt de inktdrempel, de minimale wijzigingsgrootte en de samenvoegafstand samen in",
+    "preset": {
+      "line": "Lijntekening",
+      "scan": "Scan",
+      "text": "Tekstdocument"
+    },
+    "autoAlign": "Automatisch uitlijnen",
+    "autoAlignHint": "Verschuiving, rotatie en schaal schatten uit de tekeningen",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Elk paginapaar automatisch uitlijnen bij de eerste weergave",
+    "rotation": "rot",
+    "scale": "schaal",
+    "resetAlignHint": "Uitlijning verwijderen",
+    "alignManual": "handmatig",
+    "confidence": "Betrouwbaarheid",
+    "confidenceHint": "Aandeel van de inkt dat na uitlijning samenvalt",
+    "alignByMeasure": "schaal uit de meetschalen",
+    "alignNone": "al uitgelijnd",
+    "alignByContent": "uit de tekeninginhoud",
+    "pair": "Paar",
+    "pagesTab": "Pagina's",
+    "pairing": "Pagina's koppelen…",
+    "onlyInOld": "Alleen in oud",
+    "onlyInNew": "Alleen in nieuw",
+    "pairReason": {
+      "sheet": "Gekoppeld op bladnummer",
+      "label": "Gekoppeld op paginalabel",
+      "content": "Gekoppeld op inhoud",
+      "index": "Gekoppeld op paginavolgorde",
+      "manual": "Met de hand gekoppeld"
+    },
+    "truncated": "Te veel verschillen: controleer de uitlijning of de gevoeligheid.",
+    "selectForClouds": "Selecteren voor wolken op het nieuwe document",
+    "report": {
+      "button": "Rapport",
+      "csv": "Wijzigingenlijst exporteren (CSV)…",
+      "pdf": "PDF-samenvatting exporteren…",
+      "clouds": "Geselecteerde wijzigingen als wolken plaatsen",
+      "cloudsNeedTab": "Het nieuwe document moet in een tab geopend zijn",
+      "saved": "Rapport opgeslagen",
+      "failed": "Het rapport kon niet worden gemaakt",
+      "cloudsPlaced": "{{count}} wolken op het nieuwe document geplaatst",
+      "title": "Vergelijkingsrapport",
+      "generated": "Gemaakt",
+      "settings": "Instellingen",
+      "fileSuffix": "wijzigingen",
+      "sourcePixel": "Tekening",
+      "sourceText": "Tekst",
+      "cloudSubject": "Vergelijking",
+      "before": "Voor",
+      "after": "Na",
+      "col": {
+        "no": "Nr.",
+        "pair": "Paar",
+        "oldPage": "Oude pagina",
+        "newPage": "Nieuwe pagina",
+        "sheet": "Blad",
+        "type": "Soort",
+        "source": "Bron",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Breedte (mm)",
+        "heightMm": "Hoogte (mm)",
+        "oldText": "Tekst ervoor",
+        "newText": "Tekst erna"
+      },
+      "sourceVector": "Vector"
+    },
+    "methodVector": "Vector",
+    "methodVectorHint": "Vergelijk de getekende paden exact waar beide pagina's vectortekeningen zijn; andere pagina's gebruiken de pixelvergelijking",
+    "methodPixelFallback": "pixels: geen vectorpagina"
   },
   "organize": {
     "pages": "Pagina's",
@@ -350,8 +438,16 @@
     "scanTextHint": "Klik op een herkend woord om het te vervangen. Het oude woord in de scan wordt afgedekt.",
     "scanTextNone": "Geen herkende tekst op deze pagina. Voer eerst Tekst herkennen (OCR) uit.",
     "shiftPage": "Pagina verschuiven",
+    "scanGroup": "Scannen",
+    "scan": "Scannen",
+    "scanTitle": "Pagina's scannen naar een doorzoekbare PDF",
+    "batchOcr": "Map-OCR",
+    "batchOcrTitle": "Tekst herkennen in alle PDF-bestanden van een map",
     "editPages": "Pagina's bewerken",
-    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen"
+    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen",
+    "protect": "Beveiligen",
+    "security": "Beveiliging",
+    "securityTitle": "Wachtwoorden en rechten instellen of verwijderen"
   },
   "help": {
     "information": "Informatie",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Uitlijnen op pagina",
+    "alignToPageTip": "Selectie uitlijnen op de randen of het midden van de pagina (werkt ook met een markering)",
+    "alignPageEach": "Elke markering apart uitlijnen",
+    "alignPageEachTip": "Bij Uitlijnen op pagina: elke markering apart tegen de paginarand in plaats van als groep"
   },
   "common": {
     "comingSoon": "Binnenkort beschikbaar",
@@ -647,7 +747,14 @@
     "symbolScaleTitle": "Maat waarop een nieuw symbool geplaatst wordt",
     "symbolScaleCustom": "Eigen schaal",
     "count": "Tellen",
-    "arc": "Boog"
+    "arc": "Boog",
+    "countGroup": "Telgroep",
+    "countGroupLabel": "Groep",
+    "countGroupTip": "Nieuwe telmarkeringen komen in deze groep; het getal is het totaal in de groep",
+    "countGroupColor": "Kleur",
+    "countGroupColorTip": "Kleur van de hele groep, ook van de al geplaatste markeringen",
+    "countGroupNew": "Nieuwe groep",
+    "countGroupAdd": "Groep toevoegen"
   },
   "theme": {
     "system": "Systeem (Automatisch)",
@@ -773,7 +880,8 @@
       "nen1414-tn": "NL NEN 1414 — Noodverlichting",
       "nen1414-tr": "NL NEN 1414 — Rook/Warmteafvoer",
       "nen1414-tv": "NL NEN 1414 — Ventilatie",
-      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler",
+      "gdt-bewerking": "GD&T en bewerking"
     },
     "sectors": {
       "aec": "AEC (Bouw)",
@@ -782,5 +890,34 @@
       "mep": "Installatietechniek (MEP)",
       "infra": "Infra"
     }
+  },
+  "clipboardPalette": {
+    "title": "Klembord",
+    "tip": "Klik een kopie aan en druk dan Ctrl+V op het blad: hij komt bij de muis.",
+    "empty": "Kopieer markeringen (Ctrl+C) om ze hier te verzamelen.",
+    "clear": "Klembord leegmaken",
+    "clearShort": "Leegmaken",
+    "remove": "Verwijderen",
+    "close": "Sluiten",
+    "markups": "{{count}} markeringen",
+    "picked": "Kopie staat op het klembord: druk Ctrl+V op het blad"
+  },
+  "workspace": {
+    "button": "Werkruimte",
+    "buttonTitle": "Werkruimten: wissel tussen opgeslagen paneelindelingen, bewaar de huidige indeling, zet hem terug of wijzig de interfacegrootte",
+    "saved": "Opgeslagen werkruimten",
+    "none": "Geen opgeslagen werkruimten",
+    "manage": "Werkruimten opslaan of beheren...",
+    "reset": "Standaardindeling herstellen",
+    "interfaceSize": "Interfacegrootte",
+    "dialogTitle": "Werkruimten",
+    "intro": "Een werkruimte onthoudt welke panelen en paletten open, ingeklapt of zwevend zijn, hoe breed het navigatiepaneel is en of het lint is ingeklapt.",
+    "name": "Naam:",
+    "save": "Huidige indeling opslaan",
+    "overwrite": "Overschrijven",
+    "savedAs": "Opgeslagen als \"{{name}}\".",
+    "full": "Je kunt hoogstens {{max}} werkruimten opslaan. Verwijder er eerst een.",
+    "apply": "Toepassen",
+    "delete": "Verwijderen"
   }
 }

@@ -53,6 +53,14 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
   // het laden teruggezet (zie preferences.js).
   defaultViewMode: 'single',
+  // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
+  // null = de ingebouwde Tesseract.
+  ocrEngine: null,
+  // Extensiecatalogus (#969): eigen catalogus-links (de standaard van het
+  // project staat altijd vooraan, zie js/plugins/extension-catalog.js) en de
+  // bron per geïnstalleerde extensie.
+  extensionCatalogs: [],
+  extensionSources: {},
 
   // General — authorName defaults to '' (resolved to OS username at load time)
   authorName: '',
@@ -235,6 +243,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Measurement global
   measureRounding: 'none', // 'none', '1', '5', '10'
   measureCtrlSnap: 10,
+  // Getalnotatie van maten (#629): 'auto' volgt de taal (nl: komma),
+  // 'comma' / 'point' overschrijven het decimaalteken.
+  measureDecimalNotation: 'auto',
+  measureDigitGrouping: false,
+  // Schaalcontrole (#629): drempels in procenten.
+  scaleCheckOkPercent: 0.5,
+  scaleCheckWarnPercent: 2,
 
   // Measure Distance defaults
   measureDistStrokeColor: '#FF0000',
@@ -338,6 +353,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // multi-proces worker-pool: parallelle eerste render (sneller), geen
   // zwart scherm, hoofdthread blijft vrij. Uitzetbaar in Voorkeuren.
   progressiveRender: true,
+  // Incrementeel opslaan (#679): annotatie- en formulierwijzigingen achter de
+  // bestaande bytes toevoegen in plaats van het hele bestand te herschrijven.
+  // Experimenteel en standaard uit (docs/incrementeel-opslaan.md); wat niet
+  // zeker past, wordt altijd volledig herschreven.
+  incrementalSave: false,
   // Schermkalibratie voor Werkelijke grootte (#520): CSS-pixels per inch per
   // schermschaal ({ "1.25": 120.5 }). Gekalibreerd scherm: 100% is de echte
   // papiermaat. Leeg = niet gekalibreerd, dan bepaalt zoomDpi wat 100% is.
@@ -357,6 +377,15 @@ export const DEFAULT_PREFERENCES: Preferences = {
   keyboardShortcuts: {},
 
   // Panels
+  // Indeling van de werkruimte (#932, core/werkruimte.js): blijft over een
+  // herstart bewaard. leftPanelWidth null = de breedte uit het stijlblad.
+  leftPanelCollapsed: false,
+  leftPanelTab: 'thumbnails',
+  leftPanelWidth: null,
+  propertiesPanelCollapsed: false,
+  // Werkruimten met een naam: [{ naam, layout }], en de laatst gekozen.
+  workspaces: [],
+  activeWorkspace: '',
   propertiesPanelVisible: true,
   toolPaletteVisible: true,
   toolPaletteMode: 'docked-left',

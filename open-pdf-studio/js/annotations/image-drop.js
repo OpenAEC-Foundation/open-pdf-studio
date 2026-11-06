@@ -133,45 +133,67 @@ export async function addImageFromFile(filePath, opts = {}) {
 
   try {
     const { img, dataUrl } = await laadAfbeeldingUitPad(filePath);
-
-    const imageId = generateImageId();
-    imageCache.set(imageId, img);
-
-    let width = img.naturalWidth;
-    let height = img.naturalHeight;
-    const maxSize = 400;
-    if (width > maxSize || height > maxSize) {
-      const ratio = Math.min(maxSize / width, maxSize / height);
-      width *= ratio;
-      height *= ratio;
-    }
-
-    // Midden van het zichtbare deel van de HUIDIGE pagina, in app-coördinaten.
-    // De oude formule (scrollTop + canvas-rect van het enkelpagina-canvas)
-    // rekende in de doorlopende weergave met een document-brede scroll en een
-    // 0×0-canvas: de afbeelding landde duizenden punten onder de pagina,
-    // onzichtbaar. Zelfde patroon-fix als plakken (clipboard.js).
-    const pageNum = getActiveDocument()?.currentPage || 1;
-    const center = visibleCenterOnPage(pageNum);
-    const x = center ? center.x - width / 2 : 10;
-    const y = center ? center.y - height / 2 : 10;
-
-    plaatsAfbeeldingAnnotatie(img, dataUrl, {
-      imageId,
-      page: getActiveDocument()?.currentPage || 1,
-      x: Math.max(10, x),
-      y: Math.max(10, y),
-      width,
-      height,
+    plaatsGeladenAfbeelding(img, dataUrl, filePath.split(/[\\/]/).pop(), {
       linkedPath: opts.linked ? filePath : undefined,
     });
-
-    const fileName = filePath.split(/[\\/]/).pop();
-    updateStatusMessage(`Image added: ${fileName}`);
   } catch (e) {
     console.error('Failed to add image from file:', e);
     updateStatusMessage('Failed to add image');
   }
+}
+
+/**
+ * Een afbeelding uit bytes (een gekozen bestand of een camerafoto op mobiel,
+ * #953) op de huidige pagina plaatsen, net als afbeelding invoegen.
+ * @param {Uint8Array} bytes
+ * @param {string} naam  bestandsnaam, voor het formaat en de statusregel
+ * @returns {Promise<object|null>} de nieuwe annotatie
+ */
+export async function addImageFromBytes(bytes, naam = 'image.jpg') {
+  if (!getActiveDocument()?.pdfDoc) {
+    updateStatusMessage('Open a PDF first to add images');
+    return null;
+  }
+  const { img, dataUrl } = await laadAfbeeldingBytes(bytes, naam);
+  return plaatsGeladenAfbeelding(img, dataUrl, naam);
+}
+
+// Midden op het zichtbare deel van de huidige pagina, hoogstens 400 pt groot.
+function plaatsGeladenAfbeelding(img, dataUrl, fileName, { linkedPath } = {}) {
+  const imageId = generateImageId();
+  imageCache.set(imageId, img);
+
+  let width = img.naturalWidth;
+  let height = img.naturalHeight;
+  const maxSize = 400;
+  if (width > maxSize || height > maxSize) {
+    const ratio = Math.min(maxSize / width, maxSize / height);
+    width *= ratio;
+    height *= ratio;
+  }
+
+  // Midden van het zichtbare deel van de HUIDIGE pagina, in app-coördinaten.
+  // De oude formule (scrollTop + canvas-rect van het enkelpagina-canvas)
+  // rekende in de doorlopende weergave met een document-brede scroll en een
+  // 0×0-canvas: de afbeelding landde duizenden punten onder de pagina,
+  // onzichtbaar. Zelfde patroon-fix als plakken (clipboard.js).
+  const pageNum = getActiveDocument()?.currentPage || 1;
+  const center = visibleCenterOnPage(pageNum);
+  const x = center ? center.x - width / 2 : 10;
+  const y = center ? center.y - height / 2 : 10;
+
+  const annotatie = plaatsAfbeeldingAnnotatie(img, dataUrl, {
+    imageId,
+    page: getActiveDocument()?.currentPage || 1,
+    x: Math.max(10, x),
+    y: Math.max(10, y),
+    width,
+    height,
+    linkedPath,
+  });
+
+  updateStatusMessage(`Image added: ${fileName}`);
+  return annotatie;
 }
 
 /**

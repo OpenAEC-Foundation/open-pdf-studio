@@ -8,10 +8,13 @@ import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
 import { laagVanOc } from '../saver/annotatie-lagen.js';
 import { leesRuweSleutels } from '../saver/ruwe-sleutels.js';
+import { dictVingerafdruk } from '../saver/bron-vingerafdruk.js';
 import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
+import { eenheidFactor } from '../../annotations/vlak-zijden.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { readDynamicStamp } from './dynamic-stamp-load.js';
 import { leesInktSleutels } from '../saver/inkt-sleutels.js';
 import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
 import { bewaarBijlageInhoud, bijlageItem } from '../../annotations/bijlage-store.js';
@@ -224,9 +227,17 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
     const annots = context.lookup(annotsRaw);
     if (!annots) return colorMap;
 
+    // Per annotatie een vingerafdruk van het woordenboek, op pdf.js-id: zo
+    // weet de saver of het object nog is wat de lader las (saver/bron-behoud.js).
+    const bronnen = new Map();
+    colorMap.bronnen = bronnen;
     for (let i = 0; i < annots.size(); i++) {
       const annotDict = context.lookup(annots.get(i));
       if (!annotDict) continue;
+      const bronRef = annots.get(i);
+      if (Number.isInteger(bronRef?.objectNumber)) {
+        bronnen.set(`${bronRef.objectNumber}R${bronRef.generationNumber || ''}`, dictVingerafdruk(annotDict));
+      }
       const subtype = annotDict.get(PDFName.of('Subtype'));
       if (!subtype) continue;
       const subtypeName = subtype.toString();
@@ -378,6 +389,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           const tekst = leesPdfTekst(context, opsTekstRaw);
           if (tekst) colors.opsStampText = tekst;
         }
+        // Dynamic stamp (#629): template + field values.
+        const dynStamp = await readDynamicStamp(context, annotDict);
+        if (dynStamp) colors.opsDynamicStamp = dynStamp;
         // Vak en draaiing van een stempel of afbeelding komen uit de
         // appearance (stempel-geometrie.js).
         const stempelAp = await leesStempelAp(context, annotDict);
@@ -483,6 +497,14 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const prec = pdfNum(context.lookup(opsPrecRaw) || opsPrecRaw);
         if (prec !== null) colors.opsPrecision = prec;
       }
+
+      // Metingen (#959): een schaal van de pagina die alleen voor andere
+      // programma's in /Measure staat (saver/dimension-measure.js), en de
+      // meettekst van de app als /Contents er de eenheid bij kreeg.
+      const opsErfRaw = annotDict.get(PDFName.of('OPS_ScaleInherited'));
+      if (opsErfRaw && String(context.lookup(opsErfRaw) || opsErfRaw) === 'true') colors.opsScaleInherited = true;
+      const opsMeettekst = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_MeasureText')));
+      if (typeof opsMeettekst === 'string' && opsMeettekst) colors.opsMeasureText = opsMeettekst;
 
       // Read /OPS_TextOffsetX/Y (user-dragged dimension-text offset from the
       // dimension-line midpoint, stored in the visual annotation frame)
@@ -864,6 +886,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const nv = nr !== undefined ? pdfNum(context.lookup(nr) || nr) : null;
         if (nv !== null) colors.opsCountNumber = nv;
         for (const [sleutel, veld] of [['OPS_CountCategory', 'opsCountCategory'],
+          ['OPS_CountCategoryName', 'opsCountCategoryName'],
           ['OPS_MarkerStyle', 'opsMarkerStyle'], ['OPS_SymbolId', 'opsSymbolId']]) {
           const t = leesPdfTekst(context, annotDict.get(PDFName.of(sleutel)));
           if (t) colors[veld] = t;
@@ -1100,6 +1123,17 @@ const result = {};
           // /D = distance display format — its D value is a denominator (e.g. 100000 = 5 decimals)
           // Fallback to /X precision for annotations without /D (e.g. simple Line dimensions)
           const dFmt = readNumberFormat(measureDict.get(PDFName.of('D')));
+          // /D rekent verder vanuit de eenheid van /X (ISO 32000-1, 12.9.1):
+          // /X in m en /D in mm (C 1000) toont millimeters. De schaal van de
+          // app staat dan in de eenheid die de lezer toont (#959). Alleen als
+          // /D een zuivere omrekening is: een /D met een andere eenheid maar
+          // C 1 is een slordig etiket, daar blijft /X gelden.
+          const dFactor = dFmt?.unit ? eenheidFactor(colors.measureUnit, dFmt.unit) : null;
+          if (colors.measureScale && dFactor && dFmt.unit !== colors.measureUnit
+              && Math.abs((dFmt.scale || 1) - dFactor) <= 1e-3 * dFactor) {
+            colors.measureScale *= dFactor;
+            colors.measureUnit = dFmt.unit;
+          }
           if (dFmt && dFmt.precision !== undefined && dFmt.precision > 1) {
             colors.measurePrecision = Math.round(Math.log10(dFmt.precision));
           } else if (xFmt && xFmt.precision !== undefined) {

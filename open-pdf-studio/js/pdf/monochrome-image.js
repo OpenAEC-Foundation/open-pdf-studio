@@ -59,11 +59,13 @@ async function transform(bytes, codec, limit, signal) {
  * Returns a smaller replacement stream, or a stable skip reason. The source
  * stream/dictionary, indirect resources and document are never modified.
  * Supports raw/Flate one-bit gray, stencil, indexed and single-channel ICC
- * samples, plus exactly black/white eight-bit DeviceGray samples. RGB packing is deliberately unsupported: a
- * conversion to gray needs all shared-use default color spaces/output intents.
+ * samples, plus exactly black/white eight-bit DeviceGray samples. Eight-bit
+ * DeviceRGB is packed only with `allowRgb`: the caller must first establish
+ * for the whole document that no DefaultRGB/DefaultGray, output intent or
+ * blending space can make RGB black/white differ from gray (monochrome-document.js).
  * Other filters/profiles/predictors remain untouched with an explicit reason.
  */
-export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = () => new Promise(r => setTimeout(r, 0)) } = {}) {
+export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = () => new Promise(r => setTimeout(r, 0)), allowRgb = false } = {}) {
   checkAbort(signal);
   if (!(stream instanceof PDFRawStream)) return { replacement: null, reason: 'not-image' };
   const context = stream.dict.context;
@@ -80,10 +82,22 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
     const bits = number(get('BitsPerComponent')) ?? (stencil ? 1 : null);
     if (bits !== 1 && bits !== 8) skip('unsupported-samples');
     const color = get('ColorSpace');
-    const channels = 1;
+    let channels = 1;
     if (bits === 8) {
-      if (stencil || get('Mask') || get('SMask') || (number(get('SMaskInData')) ?? 0) !== 0) skip('masked-eight-bit');
-      if (name(color) !== 'DeviceGray') skip('color-profile-or-space');
+      if (name(color) === 'DeviceRGB' && allowRgb) channels = 3;
+      else if (name(color) !== 'DeviceGray') skip('color-profile-or-space');
+      // Een stencilmasker (/Mask als beeldstream) en een /SMask zijn eigen
+      // beelden met eigen samples: die blijven onder hun referentie staan. Een
+      // kleursleutelmasker (/Mask als array) noemt acht-bit samplewaarden en
+      // een /Matte bij RGB drie kleurcomponenten; die passen niet meer na het
+      // pakken naar één grijsbit.
+      const mask = get('Mask'), smask = get('SMask');
+      if (stencil || (number(get('SMaskInData')) ?? 0) !== 0) skip('masked-eight-bit');
+      if (mask && mask !== PDFNull && !(mask instanceof PDFRawStream)) skip('masked-eight-bit');
+      if (smask && smask !== PDFNull) {
+        if (!(smask instanceof PDFRawStream)) skip('masked-eight-bit');
+        if (channels === 3 && smask.dict.get(PDFName.of('Matte'))) skip('masked-eight-bit');
+      }
     } else if (!stencil && name(color) !== 'DeviceGray') {
       if (!(color instanceof PDFArray)) skip('color-profile-or-space');
       const kind = name(resolve(context, color.get(0)));
@@ -143,6 +157,7 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
           const i = (y * width + x) * channels;
           const value = samples[i];
           if ((value !== 0 && value !== 255)) skip('not-black-and-white');
+          if (channels === 3 && (samples[i + 1] !== value || samples[i + 2] !== value)) skip('not-black-and-white');
           if (value === 255) packed[y * stride + (x >> 3)] |= 128 >> (x & 7);
         }
       }

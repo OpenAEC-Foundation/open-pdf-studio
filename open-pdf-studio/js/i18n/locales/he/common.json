@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "לא נמצאו הערות בקובץ XFDF.",
   "noRedactionsOnPage": "אין סימוני השחרה בעמוד הנוכחי להחלה.",
   "noRedactionsInDocument": "אין סימוני השחרה במסמך להחלה.",
+  "redactTitle": "החלת השחרות",
+  "redactConfirmPage": "להחיל {{count}} סימוני השחרה בעמוד {{page}}?",
+  "redactConfirmAll": "להחיל {{count}} סימוני השחרה ב-{{pages}} עמודים?",
+  "redactConfirmBody": "טקסט, תמונות, גרפיקה וקטורית, הערות ושדות טופס מתחת לסימונים מוסרים מהמסמך, והאזורים ממולאים בצבע הסימון. הקובץ משתנה בעת השמירה; השמירה כותבת מחדש את כל הקובץ ללא גרסאות קודמות.",
+  "redactDone": "הוחלו {{count}} אזורי השחרה. שמור את המסמך כדי לכתוב את השינוי לקובץ.",
+  "redactNotApplied": "ההשחרות לא הוחלו; דבר לא השתנה. {{reason}}",
+  "redactReasonUnsupported": "לא ניתן להסיר באופן אמין תוכן שמתחת לסימון: {{detail}}",
+  "redactReasonInvalid": "לסימון אחד או יותר אין אזור תקף.",
+  "redactReasonTextEdits": "שמור תחילה את עריכות הטקסט שלא נשמרו.",
   "cannotDeleteAllPages": "לא ניתן למחוק את כל העמודים. חייב להישאר לפחות עמוד אחד.",
   "cannotDeleteAllPagesSource": "לא ניתן למחוק את כל העמודים ממסמך המקור.",
   "noPagesSelected": "לא נבחרו עמודים לחילוץ.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "ב-PDF שנבחר אין עמודים.",
   "failedToSavePdf": "שמירת ה-PDF נכשלה: {{error}}",
   "failedToLoadPdf": "טעינת ה-PDF נכשלה: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "פתיחה בחלון חדש",
     "closeTab": "סגירת לשונית",
     "nextTab": "הכרטיסייה הבאה",
-    "previousTab": "הכרטיסייה הקודמת"
+    "previousTab": "הכרטיסייה הקודמת",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "עמוד הבא",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "תמונות ממוזערות של PDF בסייר הקבצים זמינות רק בגרסה המותקנת.",
     "virtualPrinter": "המדפסת הווירטואלית זמינה רק בגרסה המותקנת: היא מתווספת ל-Windows עם הרשאות מנהל.",
     "notWritable": "Open PDF Studio אינו יכול לכתוב לתיקייה {{dir}}, ולכן הפעם ההגדרות שלך נשמרות בפרופיל המשתמש שלך. העבר את התיקייה הניידת למיקום שניתן לכתוב בו, כמו כונן USB או תיקיית המסמכים."
+  },
+  "protectedPdfNoPrint": "ההרשאות של מסמך זה אינן מתירות הדפסה.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

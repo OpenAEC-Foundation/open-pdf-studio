@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "স্কেল শনাক্ত হয়েছে",
     "noScaleFound": "কোনো স্কেল পাওয়া যায়নি",
-    "detecting": "শনাক্ত করা হচ্ছে..."
+    "detecting": "শনাক্ত করা হচ্ছে...",
+    "scaleCheck": "স্কেল যাচাই করুন",
+    "scaleCheckTitle": "জানা মাপ নিন এবং স্কেলের বিচ্যুতি শতাংশে দেখান"
   },
   "home": {
     "document": "নথি",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "পুরো পৃষ্ঠা জুড়ে একটি স্কেল অঞ্চল স্থাপন করুন",
     "drawing": "অঙ্কন",
     "highlight": "হাইলাইট",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "ফ্রিহ্যান্ড",
     "line": "রেখা",
     "arrow": "তীর",
@@ -134,6 +142,8 @@
     "callout": "কলআউট",
     "stamp": "স্ট্যাম্প",
     "signature": "স্বাক্ষর",
+    "digitalSign": "ডিজিটাল স্বাক্ষর",
+    "digitalSignTooltip": "সার্টিফিকেট (.p12/.pfx) দিয়ে নথিতে স্বাক্ষর করুন। স্বাক্ষর বোতাম শুধু একটি ছবি বসায়।",
     "measure": "পরিমাপ",
     "measureDistance": "দূরত্ব পরিমাপ",
     "distance": "দূরত্ব",
@@ -316,7 +326,85 @@
     "modified": "পরিবর্তিত",
     "noChanges": "কোনো পরিবর্তন নেই",
     "textTab": "পাঠ্য",
-    "noTextChanges": "কোনো টেক্সট পার্থক্য নেই"
+    "noTextChanges": "কোনো টেক্সট পার্থক্য নেই",
+    "previousVersion": "শেষবার সংরক্ষণের আগে",
+    "fromDisk": "ফাইল",
+    "fileLoadError": "ফাইলটি PDF হিসেবে খোলা যায়নি।",
+    "browse": "ব্রাউজ করুন…",
+    "browseHint": "ডিস্ক থেকে একটি PDF ফাইল বেছে নিন",
+    "pickSecondSide": "অন্য দিকটি ডিস্কের একটি ফাইল থেকে বেছে নিন, অথবা দ্বিতীয় একটি PDF ট্যাবে খুলুন।",
+    "sensitivity": "সংবেদনশীলতা",
+    "sensitivityHint": "কালির সীমা, ন্যূনতম পরিবর্তনের আকার ও একীকরণের দূরত্ব একসঙ্গে নির্ধারণ করে",
+    "preset": {
+      "line": "রেখাচিত্র",
+      "scan": "স্ক্যান",
+      "text": "টেক্সট ডকুমেন্ট"
+    },
+    "autoAlign": "স্বয়ংক্রিয় সারিবদ্ধকরণ",
+    "autoAlignHint": "নকশা থেকে সরণ, ঘূর্ণন ও স্কেল অনুমান করুন",
+    "autoAlignEach": "স্বয়ং",
+    "autoAlignEachHint": "প্রতিটি পৃষ্ঠা-জোড়া প্রথমবার দেখানোর সময় স্বয়ংক্রিয়ভাবে সারিবদ্ধ করুন",
+    "rotation": "ঘূর্ণন",
+    "scale": "স্কেল",
+    "resetAlignHint": "সারিবদ্ধকরণ সরান",
+    "alignManual": "হাতে",
+    "confidence": "নির্ভরযোগ্যতা",
+    "confidenceHint": "সারিবদ্ধ করার পর মিলে যাওয়া কালির অনুপাত",
+    "alignByMeasure": "পরিমাপের স্কেল থেকে স্কেল",
+    "alignNone": "আগেই সারিবদ্ধ",
+    "alignByContent": "নকশার বিষয়বস্তু থেকে",
+    "pair": "জোড়া",
+    "pagesTab": "পৃষ্ঠা",
+    "pairing": "পৃষ্ঠা মেলানো হচ্ছে…",
+    "onlyInOld": "শুধু পুরোনোতে",
+    "onlyInNew": "শুধু নতুনে",
+    "pairReason": {
+      "sheet": "শিট নম্বর দিয়ে মেলানো",
+      "label": "পৃষ্ঠা লেবেল দিয়ে মেলানো",
+      "content": "বিষয়বস্তু দিয়ে মেলানো",
+      "index": "পৃষ্ঠার ক্রম দিয়ে মেলানো",
+      "manual": "হাতে মেলানো"
+    },
+    "truncated": "অনেক বেশি পার্থক্য: সারিবদ্ধকরণ বা সংবেদনশীলতা যাচাই করুন।",
+    "selectForClouds": "নতুন ডকুমেন্টে মেঘের জন্য নির্বাচন করুন",
+    "report": {
+      "button": "প্রতিবেদন",
+      "csv": "পরিবর্তনের তালিকা রপ্তানি করুন (CSV)…",
+      "pdf": "PDF সারাংশ রপ্তানি করুন…",
+      "clouds": "নির্বাচিত পরিবর্তনগুলো মেঘ হিসেবে বসান",
+      "cloudsNeedTab": "নতুন ডকুমেন্টটি একটি ট্যাবে খোলা থাকতে হবে",
+      "saved": "প্রতিবেদন সংরক্ষিত হয়েছে",
+      "failed": "প্রতিবেদন তৈরি করা যায়নি",
+      "cloudsPlaced": "নতুন ডকুমেন্টে বসানো মেঘ: {{count}}",
+      "title": "তুলনা প্রতিবেদন",
+      "generated": "তৈরি হয়েছে",
+      "settings": "সেটিংস",
+      "fileSuffix": "poriborton",
+      "sourcePixel": "নকশা",
+      "sourceText": "টেক্সট",
+      "cloudSubject": "তুলনা",
+      "before": "আগে",
+      "after": "পরে",
+      "col": {
+        "no": "নং",
+        "pair": "জোড়া",
+        "oldPage": "পুরোনো পৃষ্ঠা",
+        "newPage": "নতুন পৃষ্ঠা",
+        "sheet": "শিট",
+        "type": "ধরন",
+        "source": "উৎস",
+        "xMm": "X (মিমি)",
+        "yMm": "Y (মিমি)",
+        "widthMm": "প্রস্থ (মিমি)",
+        "heightMm": "উচ্চতা (মিমি)",
+        "oldText": "আগের টেক্সট",
+        "newText": "পরের টেক্সট"
+      },
+      "sourceVector": "ভেক্টর"
+    },
+    "methodVector": "ভেক্টর",
+    "methodVectorHint": "যেখানে দুই পৃষ্ঠাই ভেক্টর নকশা, সেখানে আঁকা পথগুলো হুবহু তুলনা করুন; অন্য পৃষ্ঠায় পিক্সেল তুলনা হয়",
+    "methodPixelFallback": "পিক্সেল: ভেক্টর পৃষ্ঠা নয়"
   },
   "organize": {
     "pages": "পৃষ্ঠাসমূহ",
@@ -350,8 +438,16 @@
     "scanTextHint": "প্রতিস্থাপন করতে একটি শনাক্ত করা শব্দে ক্লিক করুন। স্ক্যানের পুরনো শব্দটি ঢেকে দেওয়া হয়।",
     "scanTextNone": "এই পৃষ্ঠায় কোনো শনাক্ত করা টেক্সট নেই। আগে টেক্সট শনাক্তকরণ (OCR) চালান।",
     "shiftPage": "পৃষ্ঠা স্থানান্তর করুন",
+    "scanGroup": "স্ক্যান",
+    "scan": "স্ক্যান করুন",
+    "scanTitle": "পৃষ্ঠাগুলো অনুসন্ধানযোগ্য PDF-এ স্ক্যান করুন",
+    "batchOcr": "ফোল্ডার OCR",
+    "batchOcrTitle": "একটি ফোল্ডারের সব PDF ফাইলে টেক্সট শনাক্ত করুন",
     "editPages": "পৃষ্ঠা সম্পাদনা",
-    "editPagesTitle": "পৃষ্ঠাগুলি দৃশ্যমানভাবে সম্পাদনা করুন: ক্রম বদল, ঘোরানো, সন্নিবেশ, মোছা, নিষ্কাশন ও বিভাজন"
+    "editPagesTitle": "পৃষ্ঠাগুলি দৃশ্যমানভাবে সম্পাদনা করুন: ক্রম বদল, ঘোরানো, সন্নিবেশ, মোছা, নিষ্কাশন ও বিভাজন",
+    "protect": "সুরক্ষিত করুন",
+    "security": "সুরক্ষা",
+    "securityTitle": "পাসওয়ার্ড ও অনুমতি নির্ধারণ বা সরান"
   },
   "help": {
     "settings": "সেটিংস",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "সিস্টেম (স্বয়ংক্রিয়)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "নতুন প্রতীক যে আকারে বসানো হয়",
     "symbolScaleCustom": "কাস্টম স্কেল",
     "count": "গণনা",
-    "arc": "চাপ"
+    "arc": "চাপ",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "প্রুফ রিডিং",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — জরুরি আলো",
       "nen1414-tr": "NL NEN 1414 — ধোঁয়া/তাপ নিষ্কাশন",
       "nen1414-tv": "NL NEN 1414 — বায়ুচলাচল",
-      "nen1414-tw": "NL NEN 1414 — পানি/স্প্রিংকলার"
+      "nen1414-tw": "NL NEN 1414 — পানি/স্প্রিংকলার",
+      "gdt-bewerking": "GD&T ও মেশিনিং"
     },
     "sectors": {
       "aec": "AEC (নির্মাণ)",
@@ -773,5 +881,34 @@
       "mep": "ভবন পরিষেবা (MEP)",
       "infra": "অবকাঠামো"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

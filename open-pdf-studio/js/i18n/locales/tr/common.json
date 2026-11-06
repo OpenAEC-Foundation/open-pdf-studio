@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "XFDF dosyasında açıklama bulunamadı.",
   "noRedactionsOnPage": "Geçerli sayfada uygulanacak karartma işareti yok.",
   "noRedactionsInDocument": "Belgede uygulanacak karartma işareti yok.",
+  "redactTitle": "Karartmaları uygula",
+  "redactConfirmPage": "Sayfa {{page}} üzerindeki {{count}} karartma işareti uygulansın mı?",
+  "redactConfirmAll": "{{pages}} sayfadaki {{count}} karartma işareti uygulansın mı?",
+  "redactConfirmBody": "İşaretlerin altındaki metin, görüntüler, vektör grafikler, açıklamalar ve form alanları belgeden kaldırılır ve alanlar işaret rengiyle doldurulur. Dosya kaydettiğinizde değişir; kaydetme, önceki sürümler olmadan tüm dosyayı yeniden yazar.",
+  "redactDone": "{{count}} karartma alanı uygulandı. Değişikliği dosyaya yazmak için belgeyi kaydedin.",
+  "redactNotApplied": "Karartmalar uygulanmadı; hiçbir şey değişmedi. {{reason}}",
+  "redactReasonUnsupported": "Bir işaretin altındaki içerik güvenilir şekilde kaldırılamıyor: {{detail}}",
+  "redactReasonInvalid": "Bir veya daha fazla işaretin geçerli bir alanı yok.",
+  "redactReasonTextEdits": "Önce kaydedilmemiş metin düzenlemelerini kaydedin.",
   "cannotDeleteAllPages": "Tüm sayfalar silinemez. En az bir sayfa kalmalıdır.",
   "cannotDeleteAllPagesSource": "Kaynak belgedeki tüm sayfalar silinemez.",
   "noPagesSelected": "Çıkarmak için sayfa seçilmedi.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Seçilen PDF'de sayfa yok.",
   "failedToSavePdf": "PDF kaydedilemedi: {{error}}",
   "failedToLoadPdf": "PDF yüklenemedi: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Yeni pencerede aç",
     "closeTab": "Sekmeyi kapat",
     "nextTab": "Sonraki Sekme",
-    "previousTab": "Önceki Sekme"
+    "previousTab": "Önceki Sekme",
+    "newTabForDocument": "Bu belge için yeni sekme"
   },
   "pageNav": {
     "nextPage": "Sonraki Sayfa",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Dosya Gezgini'ndeki PDF küçük resimleri yalnızca yüklü sürümde kullanılabilir.",
     "virtualPrinter": "Sanal yazıcı yalnızca yüklü sürümde kullanılabilir: Windows'a yönetici haklarıyla eklenir.",
     "notWritable": "Open PDF Studio {{dir}} klasörüne yazamıyor, bu yüzden ayarlarınız bu sefer kullanıcı profilinizde saklanıyor. Taşınabilir klasörü USB bellek veya Belgeler klasörünüz gibi yazılabilir bir konuma taşıyın."
+  },
+  "protectedPdfNoPrint": "Bu belgenin izinleri yazdırmaya izin vermiyor.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

@@ -6,6 +6,8 @@
 mod accounts;
 mod pdf_beveiliging;
 mod atomic_file;
+pub mod batch_ocr;
+pub mod batch_ocr_walk;
 pub mod beveiligde_pdf;
 pub mod beheerd;
 pub mod cad_export;
@@ -15,6 +17,7 @@ pub mod datamap;
 pub mod draagbaar;
 mod email;
 pub mod export_policy;
+pub mod extensie_catalogus;
 pub mod extensie_installatie;
 pub mod linux_runtime;
 pub mod logboek;
@@ -57,7 +60,13 @@ pub mod print_unix;
 pub mod print_windows;
 pub mod render_to_png;
 pub mod spraak;
+// Scanner input (#382): WIA on Windows, SANE elsewhere on Unix.
+pub mod scanner;
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+pub mod scanner_cmd;
+pub mod shared_review;
 // Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
+pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
@@ -271,6 +280,14 @@ fn delete_catalog(id: String) -> Result<bool, String> {
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(false),
         Err(e) => Err(e.to_string()),
     }
+}
+
+/// True when a package manager installs the updates (Flatpak/Flathub). The
+/// built-in updater is then not registered, and Help > Check for updates says
+/// where updates come from instead.
+#[tauri::command]
+fn updates_managed_externally() -> bool {
+    linux_runtime::running_in_flatpak()
 }
 
 #[tauri::command]
@@ -1934,6 +1951,52 @@ fn read_plugin_file(plugin_id: String, file_path: String) -> Result<String, Stri
     fs::read_to_string(&full_path).map_err(|e| format!("Failed to read file: {}", e))
 }
 
+/// Grootste bestand dat `read_plugin_asset` in één keer teruggeeft (modellen).
+const PLUGIN_ASSET_MAX_BYTES: u64 = 512 * 1024 * 1024;
+
+/// Relatief pad binnen een extensiemap, zonder `..`/`.`-segmenten, absolute
+/// paden, stationsletters of andere `:`, NUL of lege segmenten. Dezelfde regel
+/// als isVeiligAssetPad in js/plugins/plugin-assets.js (#970).
+fn is_veilig_asset_pad(file_path: &str) -> bool {
+    !file_path.is_empty()
+        && file_path.len() <= 512
+        && !file_path.contains('\0')
+        && !file_path.contains(':')
+        && !file_path.starts_with('/')
+        && !file_path.starts_with('\\')
+        && file_path
+            .split(|c| c == '/' || c == '\\')
+            .all(|deel| !deel.is_empty() && deel != "." && deel != "..")
+}
+
+/// Een binair bestand uit de eigen map van een geïnstalleerde extensie
+/// (modellen, WebAssembly; #970): `read_plugin_file` geeft alleen tekst. Zelfde
+/// id-controle; het opgeloste pad (ook na symlinks) moet in de extensiemap
+/// blijven.
+#[tauri::command]
+fn read_plugin_asset(plugin_id: String, file_path: String) -> Result<tauri::ipc::Response, String> {
+    extensie_installatie::controleer_bestaand_id(&plugin_id)?;
+    if !is_veilig_asset_pad(&file_path) {
+        return Err("Invalid file path".to_string());
+    }
+    let plugin_dir = get_plugins_dir().join(&plugin_id);
+    let root = fs::canonicalize(&plugin_dir).map_err(|e| format!("Extension folder not found: {}", e))?;
+    let full_path = fs::canonicalize(plugin_dir.join(&file_path))
+        .map_err(|e| format!("Failed to read file: {}", e))?;
+    if !full_path.starts_with(&root) {
+        return Err("Path traversal detected".to_string());
+    }
+    let meta = fs::metadata(&full_path).map_err(|e| format!("Failed to read file: {}", e))?;
+    if !meta.is_file() {
+        return Err("Not a file".to_string());
+    }
+    if meta.len() > PLUGIN_ASSET_MAX_BYTES {
+        return Err(format!("Asset too large ({} bytes, max {})", meta.len(), PLUGIN_ASSET_MAX_BYTES));
+    }
+    let data = fs::read(&full_path).map_err(|e| format!("Failed to read file: {}", e))?;
+    Ok(tauri::ipc::Response::new(data))
+}
+
 // ─── Allow FS access to a path (for testing / programmatic file opens) ────
 #[tauri::command]
 fn allow_fs_scope(app: tauri::AppHandle, path: String) -> Result<bool, String> {
@@ -2045,8 +2108,9 @@ fn worker_pool_ready(
 }
 
 /// True when a pool error means the worker process itself went away (EOF or a
-/// broken pipe), as opposed to a timeout or a bitmap that did not fit.
+/// broken pipe), or exceeded its resource deadline. Bitmap size can still fall back.
 fn worker_died(e: &anyhow::Error) -> bool {
+    if worker_pool::response::is_resource_limit(e) { return true; }
     let msg = e.to_string();
     msg.ends_with(" EOF") || msg.starts_with("write to worker") || msg.starts_with("read from worker")
 }
@@ -2108,10 +2172,10 @@ async fn render_pdf_page(
                 // PDFium crash into the app itself (observed with Tekst.pdf).
                 // The pool already retries on a second worker; keep the
                 // failure isolated and let the UI show a render error.
-                // Other failures (timeout, bitmap too large for the shared
+                // Other failures (bitmap too large for the shared
                 // memory, an older worker) still fall back to in-proc.
                 if worker_died(&e) {
-                    return Err(format!("PDFium worker render failed: {e}"));
+                    return Err(format!("PDFium worker render failed: {e:#}"));
                 }
                 eprintln!("[render_pdf_page] pool render failed: {} — falling back to in-proc", e);
             }
@@ -2172,6 +2236,9 @@ async fn ocr_pdf_page(
     path: String,
     page_index: u32,
     lang: Option<String>,
+    // Extra draaiing rechtsom (0/90/180/270) vóór de herkenning, voor
+    // verticale tekst (#954); de woorden staan dan in die gedraaide ruimte.
+    rotation: Option<i32>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
 ) -> Result<Vec<ocr::OcrWord>, String> {
@@ -2205,7 +2272,7 @@ async fn ocr_pdf_page(
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
     tauri::async_runtime::spawn_blocking({
-        move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+        move || ocr::ocr_page_words_rotated(handle.document(), page_index, &tessdata_dir, &lang, rotation.unwrap_or(0))
     })
     .await
     .map_err(|e| format!("OCR task panicked: {}", e))?
@@ -2260,7 +2327,7 @@ async fn render_pdf_page_region(
             }
             Err(e) => {
                 if worker_died(&e) {
-                    return Err(format!("PDFium worker region render failed: {e}"));
+                    return Err(format!("PDFium worker region render failed: {e:#}"));
                 }
                 eprintln!("[render_pdf_page_region] pool failed: {} — in-proc fallback", e);
             }
@@ -2809,6 +2876,42 @@ fn read_clipboard_image_png(app: tauri::AppHandle) -> Result<tauri::ipc::Respons
     Ok(tauri::ipc::Response::new(png))
 }
 
+// Zet een PNG (rauwe IPC-body) als bitmap op het systeemklembord. Gebruikt door
+// "Kopiëren naar klembord" in het schermafbeeldingsvenster (#925): WebKitGTK
+// (en WKWebView) weigeren navigator.clipboard.write() met een afbeelding zodra
+// een await (het renderen op 300 dpi) de gebruikersactivatie heeft verbruikt.
+// Via de clipboard-manager-plugin speelt die activatie geen rol. Het klembord
+// blijft bediend zolang de app draait (de plugin houdt arboard vast).
+#[tauri::command]
+async fn write_clipboard_image_png(
+    app: tauri::AppHandle,
+    request: tauri::ipc::Request<'_>,
+) -> Result<(), String> {
+    use tauri_plugin_clipboard_manager::ClipboardExt;
+
+    let png = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
+        tauri::ipc::InvokeBody::Json(value) => {
+            serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing image data")?)
+                .map_err(|e| e.to_string())?
+        }
+    };
+    let rgba = tauri::async_runtime::spawn_blocking(move || {
+        image::load_from_memory_with_format(&png, image::ImageFormat::Png)
+            .map(|img| img.to_rgba8())
+            .map_err(|e| format!("PNG decode failed: {e}"))
+    })
+    .await
+    .map_err(|e| e.to_string())??;
+    let (width, height) = rgba.dimensions();
+    if width == 0 || height == 0 {
+        return Err("image is empty".into());
+    }
+    app.clipboard()
+        .write_image(&tauri::image::Image::new(rgba.as_raw(), width, height))
+        .map_err(|e| format!("clipboard write failed: {e}"))
+}
+
 // Register/unregister the PrtScn global hotkey based on the user preference.
 // Called from the frontend when the "intercept PrtScn" preference changes and
 // at startup. Idempotent. Desktop only — the global-shortcut plugin has no
@@ -2895,6 +2998,10 @@ pub fn run(opts: StartupOpts) {
                 println!("  -h, --help       Print this help and exit");
                 println!("  -V, --version    Print version and exit");
                 println!();
+                println!("  --combine FILE...         Combine the files into one new PDF (File Explorer action)");
+                println!("  --convert-combine FILE... Same as --combine; images are converted first");
+                println!("  --convert-to-pdf FILE...  Convert each image to a PDF next to it (alias --convert)");
+                println!();
                 println!("Files:");
                 println!("  One or more .pdf files to open.");
                 std::process::exit(0);
@@ -2925,11 +3032,14 @@ pub fn run(opts: StartupOpts) {
         openaec_omgeving::huidige(),
         &openaec_omgeving::Waarneming::van_systeem(),
     );
-    let opened_files: Vec<String> = args.iter()
+    // Een rechtermuisknop-actie uit Verkenner (#945) is geen "openen": de
+    // bestanden gaan naar de wachtrij van verkenner_acties.rs.
+    let start_shell_actie = verkenner_acties::actie_uit_args(&args, startmap.as_deref());
+    let opened_files: Vec<String> = if start_shell_actie.is_some() { Vec::new() } else { args.iter()
         .skip(1)
         .filter_map(|arg| pdf_uit_argument(arg))
         .map(|pad| openaec_omgeving::absoluut_argument(&pad, startmap.as_deref()))
-        .collect();
+        .collect() };
     if !opened_files.is_empty() {
         eprintln!("[startup] command-line files: {opened_files:?}");
     }
@@ -2989,9 +3099,11 @@ pub fn run(opts: StartupOpts) {
 
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
+        .manage(verkenner_acties::ShellActieWachtrij::met(start_shell_actie))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
         .manage(spraak::SpraakProces::default())
         .manage(beveiligde_pdf::BeveiligdeKopieen::default())
+        .manage(pdf_beveiliging::BeveiligingsSessies::default())
         .manage(print_instelling::PrinterDevmodes::default())
         .manage(PdfBytesCache(Mutex::new(HashMap::new())))
         .manage(DocHandleCache(Mutex::new(HashMap::new())))
@@ -3002,6 +3114,8 @@ pub fn run(opts: StartupOpts) {
         .manage(pdfium_renderer::PixmapCacheState::default())
         .manage(cad_export::CadExportJobs::default())
         .manage(cad_import::CadImportState::default())
+        .manage(batch_ocr::BatchOcrDoc::default())
+        .manage(scanner::ScanJobs::default())
         .manage(pool.clone())
         .manage(mcp_app_bridge::McpAppBridge::new())
         .manage(mcp_extensie_tools::ExtensieTools::default())
@@ -3054,12 +3168,25 @@ pub fn run(opts: StartupOpts) {
             ));
         if !skip_single_instance {
             builder = builder
-                .plugin(tauri_plugin_single_instance::init(|app: &tauri::AppHandle, argv: Vec<String>, _cwd: String| {
+                .plugin(tauri_plugin_single_instance::init(|app: &tauri::AppHandle, argv: Vec<String>, cwd: String| {
                     if headless::actief() {
                         headless::meld("single-instance focus");
                     } else if let Some(window) = app.get_webview_window("main") {
                         let _ = window.unminimize();
                         let _ = window.set_focus();
+                    }
+                    // Een rechtermuisknop-actie van een volgende Verkenner-start
+                    // (#945): in de wachtrij en dan een seintje. Een start die
+                    // binnenkomt terwijl het venster nog laadt, haalt de
+                    // frontend later op met get_shell_action.
+                    let basis = (!cwd.is_empty()).then(|| std::path::Path::new(&cwd));
+                    if let Some(actie) = verkenner_acties::actie_uit_args(&argv, basis) {
+                        for path in &actie.files {
+                            let _ = app.fs_scope().allow_file(path);
+                        }
+                        app.state::<verkenner_acties::ShellActieWachtrij>().voeg_toe(actie);
+                        let _ = app.emit("shell-action", ());
+                        return;
                     }
                     let files: Vec<String> = argv.iter()
                         .filter_map(|arg| pdf_uit_argument(arg))
@@ -3073,9 +3200,12 @@ pub fn run(opts: StartupOpts) {
                 }));
         }
         // Managed mode (OPENAEC_BEHEERD=1): the SuperCloud refreshes the image,
-        // so no updater plugin at all: no check, no prompt, no download.
+        // so no updater plugin at all: no check, no prompt, no download. A Flatpak
+        // gets its updates from Flathub (#389), so no built-in updater there either.
         if !beheerd::is_beheerd() {
-            builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+            if !linux_runtime::running_in_flatpak() {
+                builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+            }
         } else {
             eprintln!("[openaec] managed mode: updater disabled");
         }
@@ -3209,6 +3339,9 @@ pub fn run(opts: StartupOpts) {
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
                 let _ = app.fs_scope().allow_file(path);
             }
+            for path in app.state::<verkenner_acties::ShellActieWachtrij>().paden() {
+                let _ = app.fs_scope().allow_file(&path);
+            }
 
             // Set the window icon (desktop only — not applicable on Android)
             #[cfg(not(target_os = "android"))]
@@ -3337,11 +3470,17 @@ pub fn run(opts: StartupOpts) {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            pdf_beveiliging::protect_pdf_file,
+            pdf_beveiliging::pdf_security_new,
+            pdf_beveiliging::pdf_security_permissions,
+            pdf_beveiliging::pdf_security_unlock_owner,
+            pdf_beveiliging::pdf_security_release,
+            pdf_beveiliging::write_protected_pdf_atomic,
             spraak::tts_info,
             spraak::tts_speak,
             spraak::tts_stop,
             get_opened_file,
+            verkenner_acties::get_shell_action,
+            updates_managed_externally,
             save_session,
             load_session,
             get_username,
@@ -3350,6 +3489,9 @@ pub fn run(opts: StartupOpts) {
             write_file_atomic,
             cancel_file_write,
             write_file_new,
+            shared_review::shared_review_list,
+            shared_review::shared_review_read,
+            shared_review::shared_review_write,
             write_downloaded_file_new,
             file_exists,
             open_url,
@@ -3396,12 +3538,17 @@ pub fn run(opts: StartupOpts) {
             install_plugin,
             uninstall_plugin,
             read_plugin_file,
+            read_plugin_asset,
             // Extensies installeren en herladen zonder dialoog (#550)
             extensie_installatie::extensie_lijst,
             extensie_installatie::extensie_inspecteer,
             extensie_installatie::extensie_installeer,
             extensie_installatie::extensie_bevestig,
             extensie_installatie::extensie_terugdraaien,
+            // Extensiecatalogus: downloads via https (#969)
+            extensie_catalogus::extensie_tekst_ophalen,
+            extensie_catalogus::extensie_pakket_ophalen,
+            extensie_catalogus::extensie_pakket_opruimen,
             render_pdf_page,
             ocr_pdf_page,
             worker_pool_ready,
@@ -3410,9 +3557,10 @@ pub fn run(opts: StartupOpts) {
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,
-            handtekening::certificaat::pdf_certificate_info,
-            handtekening::verifieer::pdf_signature_list,
-            handtekening::verifieer::pdf_signed_revision,
+            handtekening::pdf_certificate_info,
+            handtekening::pdf_signature_list,
+            handtekening::pdf_signed_revision,
+            handtekening::pdf_sign,
             release_pdf_document,
             set_layer_view,
             clear_pdf_cache,
@@ -3422,6 +3570,17 @@ pub fn run(opts: StartupOpts) {
             extract_draw_commands,
             extract_draw_commands_batch,
             extract_page_text,
+            batch_ocr::batch_ocr_list,
+            batch_ocr::batch_ocr_allow_output,
+            batch_ocr::batch_ocr_inspect,
+            batch_ocr::batch_ocr_page,
+            batch_ocr::batch_ocr_release,
+            scanner::scanner_backend,
+            scanner::scanner_list,
+            scanner::scanner_acquire,
+            scanner::scanner_cancel,
+            scanner::scanner_read_page,
+            scanner::scanner_discard,
             render_thumbnail,
             render_to_png::render_page_to_png,
             cad_export::export_page_to_cad,
@@ -3443,6 +3602,7 @@ pub fn run(opts: StartupOpts) {
             allow_fs_scope,
             beveiligde_pdf::open_protected_pdf,
             beveiligde_pdf::release_protected_pdf,
+            beveiligde_pdf::verify_pdf_owner_password,
             mcp_app_bridge::app_response,
             mcp_app_bridge::mcp_bridge_ready,
             mcp_extensie_tools::mcp_set_extension_tools,
@@ -3457,6 +3617,7 @@ pub fn run(opts: StartupOpts) {
             accounts::accounts_download_file,
             accounts::accounts_brand_logo,
             email::email_pdf,
+            email::verzendkopie_schrijven,
             window_mgmt::spawn_window_with_pdf,
             window_mgmt::try_dock_pdf_at_screen,
             window_mgmt::close_window_by_label,
@@ -3490,6 +3651,7 @@ pub fn run(opts: StartupOpts) {
             herstel::herstel_nood_klaar,
             herstel::herstel_test_paniek,
             read_clipboard_image_png,
+            write_clipboard_image_png,
             set_prtscn_hotkey,
         ])
         .build(context)

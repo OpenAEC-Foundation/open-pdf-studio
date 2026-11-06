@@ -13,6 +13,7 @@ import {
   syncTwoPointLengthParam,
   twoPointEndpoints,
 } from '../symbols/two-point.js';
+import { isQuad, markeringUitQuads } from './markering-quads.js';
 import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
 import { isBewerkbareVeelhoek, verplaatsVeelhoekHoekpunt } from './veelhoek-punten.js';
 import {
@@ -1113,6 +1114,11 @@ export function applyMoveGeneric(annotation, dx, dy) {
     if (typeof annotation[kx] === 'number') annotation[kx] += dx;
     if (typeof annotation[ky] === 'number') annotation[ky] += dy;
   }
+  // Het middelpunt van een boog (centerX/centerY, #629): zonder dit bleef
+  // een boog bij verplaatsen staan. Niet in de tabel hierboven: de
+  // draaiwandeling draait een boog (nog) niet.
+  if (typeof annotation.centerX === 'number') annotation.centerX += dx;
+  if (typeof annotation.centerY === 'number') annotation.centerY += dy;
   for (const k of _MOVE_POINT_OBJECTS) {
     const o = annotation[k];
     if (o && typeof o === 'object') {
@@ -1132,6 +1138,10 @@ export function applyMoveGeneric(annotation, dx, dy) {
     );
   }
   // Text-markup rects + PDF quadPoints ([x1,y1,...,x4,y4] flat arrays).
+  // Gedraaide quads van een markering op schuine tekst (#927) schuiven mee.
+  if (Array.isArray(annotation.quads)) {
+    annotation.quads = annotation.quads.map(q => Array.isArray(q) ? q.map(p => _movePoint(p, dx, dy)) : q);
+  }
   if (Array.isArray(annotation.rects)) {
     annotation.rects = annotation.rects.map(r => ({ ...r, x: r.x + dx, y: r.y + dy }));
   }
@@ -1167,6 +1177,20 @@ export function applyMove(annotation, deltaX, deltaY) {
   }
 
   annotation.modifiedAt = new Date().toISOString();
+}
+
+// Star verplaatsen: als applyMoveGeneric, maar een aanhaalvak (callout)
+// neemt ook zijn pijlpunt, knik en armoorsprong mee. Voor plakken bij de muis
+// (#928) en uitlijnen op de pagina (#968): daar verhuist de hele markering,
+// niet alleen het tekstvak.
+const _MOVE_CALLOUT_PAIRS = [['arrowX', 'arrowY'], ['kneeX', 'kneeY'], ['armOriginX', 'armOriginY']];
+export function applyMoveRigid(annotation, dx, dy) {
+  if (!annotation || (dx === 0 && dy === 0)) return;
+  applyMoveGeneric(annotation, dx, dy);
+  for (const [kx, ky] of _MOVE_CALLOUT_PAIRS) {
+    if (typeof annotation[kx] === 'number') annotation[kx] += dx;
+    if (typeof annotation[ky] === 'number') annotation[ky] += dy;
+  }
 }
 
 // ── Generic rotate walker ────────────────────────────────────────────────
@@ -1261,11 +1285,17 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
   if (Array.isArray(annotation.holes)) {
     annotation.holes = annotation.holes.map(h => (Array.isArray(h) ? h.map(rotPoint) : h));
   }
-  // Axis-aligned markup rects can't tilt — orbit their anchor rigidly.
-  if (Array.isArray(annotation.rects)) {
-    annotation.rects = annotation.rects.map(r => ({ ...r, x: rotX(r.x, r.y), y: rotY(r.x, r.y) }));
+  // Gedraaide quads (#927) draaien echt mee; vakken, quadPoints en het
+  // omhullende vak volgen er weer uit.
+  if (Array.isArray(annotation.quads) && annotation.quads.length > 0 && annotation.quads.every(isQuad)) {
+    Object.assign(annotation, markeringUitQuads(annotation.quads.map(q => q.map(rotPoint))));
+  } else {
+    // Axis-aligned markup rects can't tilt — orbit their anchor rigidly.
+    if (Array.isArray(annotation.rects)) {
+      annotation.rects = annotation.rects.map(r => ({ ...r, x: rotX(r.x, r.y), y: rotY(r.x, r.y) }));
+    }
   }
-  if (Array.isArray(annotation.quadPoints)) {
+  if (Array.isArray(annotation.quadPoints) && !Array.isArray(annotation.quads)) {
     annotation.quadPoints = annotation.quadPoints.map(quad => {
       if (!Array.isArray(quad)) return quad;
       const out = quad.slice();

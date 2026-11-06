@@ -110,6 +110,7 @@
   "searchHitsOne": "نتيجة واحدة",
   "searchHitsMany": "{{count}} نتائج",
   "passwordProtectedBar": "محمي بكلمة مرور: تم الفتح للقراءة فقط.",
+  "passwordProtectedEditableBar": "محمي بكلمة مرور. الحفظ يُبقي الحماية.",
   "documentSearch": {
     "title": "البحث في المستندات",
     "query": "نص البحث",
@@ -157,5 +158,11 @@
     "port": "المنفذ: {{port}}",
     "lastTool": "آخر أداة: {{tool}} في {{time}}",
     "noTool": "لا توجد استدعاءات أدوات بعد"
-  }
+  },
+  "sharedReviewActive": "مراجعة مشتركة",
+  "sharedReviewUpdates": "مراجعة مشتركة: {{n}} جديدة",
+  "sharedReviewTitle": "تُشارك التعليقات عبر {{folder}}. انقر لفتح المراجعة المشتركة.",
+  "sharedReviewError": "مراجعة مشتركة: المجلد غير متاح",
+  "pdfaReadOnly": "يتوافق هذا المستند مع معيار {{label}} وقد فُتح للقراءة فقط لمنع تعديله.",
+  "pdfaValidate": "التحقق"
 }

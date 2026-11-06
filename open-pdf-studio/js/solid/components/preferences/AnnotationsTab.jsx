@@ -89,6 +89,12 @@ export default function AnnotationsTab(props) {
     { value: '10', label: t('measurement.rounding10mm') },
   ];
 
+  const decimalOpts = [
+    { value: 'auto', label: t('measurement.decimalAuto') },
+    { value: 'comma', label: t('measurement.decimalComma') },
+    { value: 'point', label: t('measurement.decimalPoint') },
+  ];
+
   const measureHeadOpts = lineEndingOpts('measurement');
 
   return (
@@ -488,6 +494,32 @@ export default function AnnotationsTab(props) {
                 <label>{t('measurement.ctrlSnap')}</label>
                 <PrefComboBox value={p.measureCtrlSnap[0]} setValue={p.measureCtrlSnap[1]}
                   options={[1, 5, 10, 20, 50, 100]} min={1} max={1000} suffix="" fallback={10} />
+              </div>
+              {/* Getalnotatie van maten (#629): decimaalteken per taal of vast. */}
+              <div class="pref-row">
+                <label>{t('measurement.decimalNotation')}</label>
+                <PrefSelect value={p.measureDecimalNotation[0]} setValue={p.measureDecimalNotation[1]} options={decimalOpts} />
+              </div>
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label">
+                  <input type="checkbox" checked={p.measureDigitGrouping[0]()} onChange={e => p.measureDigitGrouping[1](e.target.checked)} />
+                  <span>{t('measurement.digitGrouping')}</span>
+                </label>
+              </div>
+            </fieldset>
+
+            {/* Schaalcontrole (#629): wanneer een afwijking goed, een waarschuwing of fout is. */}
+            <fieldset class="pref-fieldset">
+              <legend>{t('measurement.scaleCheck')}</legend>
+              <div class="pref-row">
+                <label>{t('measurement.scaleCheckOk')}</label>
+                <PrefComboBox value={p.scaleCheckOkPercent[0]} setValue={p.scaleCheckOkPercent[1]}
+                  options={[0.1, 0.25, 0.5, 1]} min={0.01} max={50} suffix="%" fallback={0.5} />
+              </div>
+              <div class="pref-row">
+                <label>{t('measurement.scaleCheckWarn')}</label>
+                <PrefComboBox value={p.scaleCheckWarnPercent[0]} setValue={p.scaleCheckWarnPercent[1]}
+                  options={[1, 2, 3, 5]} min={0.01} max={100} suffix="%" fallback={2} />
               </div>
             </fieldset>
 

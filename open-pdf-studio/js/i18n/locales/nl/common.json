@@ -145,13 +145,19 @@
   "noAnnotationsInXfdf": "Geen annotaties gevonden in XFDF-bestand.",
   "noRedactionsOnPage": "Geen redactiemarkeringen op de huidige pagina om toe te passen.",
   "noRedactionsInDocument": "Geen redactiemarkeringen in het document om toe te passen.",
-  "applyRedactionsTitle": "Redacties toepassen",
-  "applyRedactionsPageConfirm": "{{count}} redactiemarkering(en) op pagina {{page}} afdekken met een zwart vlak?",
-  "applyRedactionsAllConfirm": "{{count}} redactiemarkering(en) op {{pages}} pagina('s) afdekken met een zwart vlak?",
-  "applyRedactionsOverlayWarning": "Let op: dit dekt de gemarkeerde gebieden alleen af. De tekst, afbeeldingen en tekeningen eronder worden NIET uit de PDF verwijderd en zijn nog te kopiëren, te doorzoeken of eruit te halen. Gebruik dit niet om gevoelige informatie te verwijderen.",
+  "redactTitle": "Redacties toepassen",
+  "redactConfirmPage": "{{count}} redactiemarkering(en) op pagina {{page}} toepassen?",
+  "redactConfirmAll": "{{count}} redactiemarkering(en) op {{pages}} pagina('s) toepassen?",
+  "redactConfirmBody": "Tekst, afbeeldingen, vectorafbeeldingen, opmerkingen en formuliervelden onder de markeringen worden uit het document verwijderd en de gebieden worden gevuld met de markeringskleur. Het bestand verandert pas bij opslaan; opslaan schrijft het hele bestand opnieuw, zonder eerdere versies.",
+  "redactDone": "{{count}} redactiegebied(en) toegepast. Sla het document op om de wijziging in het bestand te schrijven.",
+  "redactNotApplied": "De redacties zijn niet toegepast; er is niets gewijzigd. {{reason}}",
+  "redactReasonUnsupported": "Inhoud onder een markering kan niet betrouwbaar worden verwijderd: {{detail}}",
+  "redactReasonInvalid": "Een of meer markeringen hebben geen geldig gebied.",
+  "redactReasonTextEdits": "Sla eerst de niet-opgeslagen tekstbewerkingen op.",
   "cannotDeleteAllPages": "Kan niet alle pagina's verwijderen. Er moet minstens één pagina overblijven.",
   "cannotDeleteAllPagesSource": "Kan niet alle pagina's uit het brondocument verwijderen.",
   "noPagesSelected": "Geen pagina's geselecteerd om te extraheren.",
+  "extractEncrypted": "Deze pagina's kunnen niet worden geëxtraheerd: de inhoud van het document is nog versleuteld. Sla het document zonder beveiliging op en probeer het opnieuw.",
   "selectedPdfNoPages": "De geselecteerde PDF heeft geen pagina's.",
   "failedToSavePdf": "PDF opslaan mislukt: {{error}}",
   "failedToLoadPdf": "PDF laden mislukt: {{error}}",
@@ -223,7 +229,8 @@
     "openInNewWindow": "Open in nieuw venster",
     "closeTab": "Tab sluiten",
     "nextTab": "Volgend tabblad",
-    "previousTab": "Vorig tabblad"
+    "previousTab": "Vorig tabblad",
+    "newTabForDocument": "Nieuw tabblad voor dit document"
   },
   "pageNav": {
     "nextPage": "Volgende pagina",
@@ -313,5 +320,31 @@
     "explorerThumbnails": "PDF-miniaturen in Verkenner zijn alleen beschikbaar in de geïnstalleerde versie.",
     "virtualPrinter": "De virtuele printer is alleen beschikbaar in de geïnstalleerde versie: hij wordt met beheerdersrechten aan Windows toegevoegd.",
     "notWritable": "Open PDF Studio kan niet schrijven in de map {{dir}}, dus je instellingen staan deze keer in je gebruikersprofiel. Zet de draagbare map op een beschrijfbare plek, zoals een USB-stick of je map Documenten."
+  },
+  "protectedPdfNoPrint": "De rechten van dit document staan afdrukken niet toe.",
+  "share": {
+    "share": "Delen",
+    "unsavedTitle": "Niet-opgeslagen wijzigingen",
+    "unsavedMessage": "{{name}} heeft niet-opgeslagen wijzigingen. Het document opslaan en verzenden, of een kopie met de wijzigingen verzenden?",
+    "saveAndSend": "Opslaan en verzenden",
+    "sendCopy": "Kopie verzenden",
+    "copyFailed": "Het document kon niet klaargezet worden om te verzenden: {{error}}",
+    "failed": "Delen mislukt: {{error}}",
+    "attachManually": "Geen e-mailprogramma kon het bestand bijvoegen. Er is een concept geopend en het bestand staat in de bestandsbeheerder: sleep het in het bericht.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "Meer",
+    "insertImage": "Afbeelding invoegen",
+    "takePhoto": "Foto maken",
+    "scanDocument": "Document scannen",
+    "copyMarkup": "Markering kopiëren",
+    "pasteMarkup": "Markering plakken",
+    "deleteMarkup": "Markering verwijderen",
+    "imageFailed": "De afbeelding kon niet ingevoegd worden: {{error}}",
+    "scanWhere": "Waar moet de gescande pagina komen?",
+    "scanInsertAfter": "Na de huidige pagina",
+    "scanNewDocument": "Nieuw document",
+    "scanBusy": "Pagina maken…",
+    "scanFailed": "Van de foto kon geen pagina gemaakt worden: {{error}}"
   }
 }

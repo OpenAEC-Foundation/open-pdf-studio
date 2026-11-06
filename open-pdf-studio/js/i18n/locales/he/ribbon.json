@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "קנה המידה זוהה",
     "noScaleFound": "לא נמצא קנה מידה",
-    "detecting": "מזהה..."
+    "detecting": "מזהה...",
+    "scaleCheck": "בדיקת קנה מידה",
+    "scaleCheckTitle": "מדידת מידה ידועה והצגת סטיית קנה המידה באחוזים"
   },
   "home": {
     "document": "מסמך",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "מיקום אזור קנה מידה המכסה את כל העמוד",
     "drawing": "ציור",
     "highlight": "הדגשה",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "יד חופשית",
     "line": "קו",
     "arrow": "חץ",
@@ -134,6 +142,8 @@
     "callout": "הסבר",
     "stamp": "חותמת",
     "signature": "חתימה",
+    "digitalSign": "חתימה דיגיטלית",
+    "digitalSignTooltip": "חתימה על המסמך באמצעות אישור (.p12/.pfx). הלחצן חתימה מציב תמונה בלבד.",
     "measure": "מדידה",
     "measureDistance": "מדידת מרחק",
     "distance": "מרחק",
@@ -316,7 +326,85 @@
     "modified": "שונה",
     "noChanges": "אין שינויים",
     "textTab": "טקסט",
-    "noTextChanges": "אין הבדלי טקסט"
+    "noTextChanges": "אין הבדלי טקסט",
+    "previousVersion": "לפני השמירה האחרונה",
+    "fromDisk": "קובץ",
+    "fileLoadError": "לא ניתן היה לפתוח את הקובץ כ-PDF.",
+    "browse": "עיון…",
+    "browseHint": "בחירת קובץ PDF מהדיסק",
+    "pickSecondSide": "בחרו את הצד השני מקובץ בדיסק, או פתחו PDF שני בכרטיסייה.",
+    "sensitivity": "רגישות",
+    "sensitivityHint": "קובע יחד את סף הדיו, גודל השינוי המזערי ומרחק המיזוג",
+    "preset": {
+      "line": "שרטוט קווי",
+      "scan": "סריקה",
+      "text": "מסמך טקסט"
+    },
+    "autoAlign": "יישור אוטומטי",
+    "autoAlignHint": "הערכת הזזה, סיבוב וקנה מידה מתוך השרטוטים",
+    "autoAlignEach": "אוטו׳",
+    "autoAlignEachHint": "יישור אוטומטי של כל זוג עמודים בהצגה הראשונה",
+    "rotation": "סיבוב",
+    "scale": "קנ״מ",
+    "resetAlignHint": "הסרת היישור",
+    "alignManual": "ידני",
+    "confidence": "אמינות",
+    "confidenceHint": "חלק הדיו שחופף אחרי היישור",
+    "alignByMeasure": "קנה מידה מתוך קני המידה של המדידה",
+    "alignNone": "כבר מיושר",
+    "alignByContent": "מתוך תוכן השרטוט",
+    "pair": "זוג",
+    "pagesTab": "עמודים",
+    "pairing": "מתאים עמודים…",
+    "onlyInOld": "רק בישן",
+    "onlyInNew": "רק בחדש",
+    "pairReason": {
+      "sheet": "הותאם לפי מספר גיליון",
+      "label": "הותאם לפי תווית עמוד",
+      "content": "הותאם לפי תוכן",
+      "index": "הותאם לפי סדר העמודים",
+      "manual": "הותאם ידנית"
+    },
+    "truncated": "יותר מדי הבדלים: בדקו את היישור או את הרגישות.",
+    "selectForClouds": "בחירה לענני סימון במסמך החדש",
+    "report": {
+      "button": "דוח",
+      "csv": "ייצוא רשימת השינויים (CSV)…",
+      "pdf": "ייצוא סיכום PDF…",
+      "clouds": "הצבת השינויים שנבחרו כענני סימון",
+      "cloudsNeedTab": "המסמך החדש חייב להיות פתוח בכרטיסייה",
+      "saved": "הדוח נשמר",
+      "failed": "לא ניתן היה ליצור את הדוח",
+      "cloudsPlaced": "ענני סימון שהוצבו במסמך החדש: {{count}}",
+      "title": "דוח השוואה",
+      "generated": "נוצר",
+      "settings": "הגדרות",
+      "fileSuffix": "shinuyim",
+      "sourcePixel": "שרטוט",
+      "sourceText": "טקסט",
+      "cloudSubject": "השוואה",
+      "before": "לפני",
+      "after": "אחרי",
+      "col": {
+        "no": "מס׳",
+        "pair": "זוג",
+        "oldPage": "עמוד ישן",
+        "newPage": "עמוד חדש",
+        "sheet": "גיליון",
+        "type": "סוג",
+        "source": "מקור",
+        "xMm": "X (מ״מ)",
+        "yMm": "Y (מ״מ)",
+        "widthMm": "רוחב (מ״מ)",
+        "heightMm": "גובה (מ״מ)",
+        "oldText": "טקסט לפני",
+        "newText": "טקסט אחרי"
+      },
+      "sourceVector": "וקטורי"
+    },
+    "methodVector": "וקטורי",
+    "methodVectorHint": "השוואה מדויקת של הנתיבים המשורטטים כששני העמודים הם שרטוטים וקטוריים; שאר העמודים מושווים לפי פיקסלים",
+    "methodPixelFallback": "פיקסלים: לא עמוד וקטורי"
   },
   "organize": {
     "pages": "עמודים",
@@ -350,8 +438,16 @@
     "scanTextHint": "לחץ על מילה מזוהה כדי להחליף אותה. המילה הישנה בסריקה מכוסה.",
     "scanTextNone": "אין טקסט מזוהה בעמוד זה. הפעל תחילה את זיהוי טקסט (OCR).",
     "shiftPage": "הזזת עמוד",
+    "scanGroup": "סריקה",
+    "scan": "סרוק",
+    "scanTitle": "סרוק עמודים ל-PDF בר-חיפוש",
+    "batchOcr": "OCR לתיקייה",
+    "batchOcrTitle": "זהה טקסט בכל קובצי ה-PDF בתיקייה",
     "editPages": "עריכת עמודים",
-    "editPagesTitle": "עריכה חזותית של עמודים: סידור, סיבוב, הוספה, מחיקה, חילוץ ופיצול"
+    "editPagesTitle": "עריכה חזותית של עמודים: סידור, סיבוב, הוספה, מחיקה, חילוץ ופיצול",
+    "protect": "הגנה",
+    "security": "אבטחה",
+    "securityTitle": "הגדרה או הסרה של סיסמאות והרשאות"
   },
   "help": {
     "settings": "הגדרות",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "מערכת (אוטומטי)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "הגודל שבו ממוקם סמל חדש",
     "symbolScaleCustom": "קנה מידה מותאם",
     "count": "ספירה",
-    "arc": "קשת"
+    "arc": "קשת",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "הגהה",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — תאורת חירום",
       "nen1414-tr": "NL NEN 1414 — שחרור עשן/חום",
       "nen1414-tv": "NL NEN 1414 — אוורור",
-      "nen1414-tw": "NL NEN 1414 — מים/ספרינקלרים"
+      "nen1414-tw": "NL NEN 1414 — מים/ספרינקלרים",
+      "gdt-bewerking": "GD&T ועיבוד שבבי"
     },
     "sectors": {
       "aec": "AEC (בנייה)",
@@ -773,5 +881,34 @@
       "mep": "מערכות בניין (MEP)",
       "infra": "תשתיות"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block text",
     "scaleDetected": "Scale detected",
     "noScaleFound": "No scale found",
-    "detecting": "Detecting..."
+    "detecting": "Detecting...",
+    "scaleCheck": "Check Scale",
+    "scaleCheckTitle": "Measure a known dimension and show the scale deviation in percent"
   },
   "home": {
     "document": "Document",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Place a scale region covering the whole page",
     "drawing": "Drawing",
     "highlight": "Highlight",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Freehand",
     "line": "Line",
     "arrow": "Arrow",
@@ -134,6 +142,8 @@
     "callout": "Callout",
     "stamp": "Stamp",
     "signature": "Signature",
+    "digitalSign": "Digital Signature",
+    "digitalSignTooltip": "Sign the document with a certificate (.p12/.pfx). The Signature button only places an image.",
     "northArrow": "North Arrow",
     "measure": "Measure",
     "measureDistance": "Measure Distance",
@@ -316,7 +326,85 @@
     "modified": "Modified",
     "noChanges": "No changes",
     "textTab": "Text",
-    "noTextChanges": "No text differences"
+    "noTextChanges": "No text differences",
+    "previousVersion": "before last save",
+    "fromDisk": "file",
+    "fileLoadError": "The file could not be opened as a PDF.",
+    "browse": "Browse…",
+    "browseHint": "Pick a PDF file from disk",
+    "pickSecondSide": "Pick the other side from a file on disk, or open a second PDF in a tab.",
+    "sensitivity": "Sensitivity",
+    "sensitivityHint": "Sets the ink threshold, the minimum change size and the merge distance together",
+    "preset": {
+      "line": "Line drawing",
+      "scan": "Scan",
+      "text": "Text document"
+    },
+    "autoAlign": "Align automatically",
+    "autoAlignHint": "Estimate shift, rotation and scale from the drawings",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Align every page pair automatically when it is first shown",
+    "rotation": "rot",
+    "scale": "scale",
+    "resetAlignHint": "Remove the alignment",
+    "alignManual": "manual",
+    "confidence": "Confidence",
+    "confidenceHint": "Share of the ink that lines up after alignment",
+    "alignByMeasure": "scale from the measuring scales",
+    "alignNone": "already aligned",
+    "alignByContent": "from the drawing content",
+    "pair": "Pair",
+    "pagesTab": "Pages",
+    "pairing": "Matching pages…",
+    "onlyInOld": "Only in old",
+    "onlyInNew": "Only in new",
+    "pairReason": {
+      "sheet": "Matched on sheet number",
+      "label": "Matched on page label",
+      "content": "Matched on content",
+      "index": "Matched on page order",
+      "manual": "Paired by hand"
+    },
+    "truncated": "Too many differences: check the alignment or the sensitivity.",
+    "selectForClouds": "Select for clouds on the new document",
+    "report": {
+      "button": "Report",
+      "csv": "Export change list (CSV)…",
+      "pdf": "Export PDF summary…",
+      "clouds": "Place selected changes as clouds",
+      "cloudsNeedTab": "The new document must be open in a tab",
+      "saved": "Report saved",
+      "failed": "The report could not be created",
+      "cloudsPlaced": "{{count}} clouds placed on the new document",
+      "title": "Compare report",
+      "generated": "Generated",
+      "settings": "Settings",
+      "fileSuffix": "changes",
+      "sourcePixel": "Drawing",
+      "sourceText": "Text",
+      "cloudSubject": "Compare",
+      "before": "Before",
+      "after": "After",
+      "col": {
+        "no": "No.",
+        "pair": "Pair",
+        "oldPage": "Old page",
+        "newPage": "New page",
+        "sheet": "Sheet",
+        "type": "Type",
+        "source": "Source",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Width (mm)",
+        "heightMm": "Height (mm)",
+        "oldText": "Text before",
+        "newText": "Text after"
+      },
+      "sourceVector": "Vector"
+    },
+    "methodVector": "Vector",
+    "methodVectorHint": "Compare the drawn paths exactly where both pages are vector drawings; other pages use the pixel comparison",
+    "methodPixelFallback": "pixels: not a vector page"
   },
   "organize": {
     "pages": "Pages",
@@ -350,8 +438,16 @@
     "scanTextHint": "Click a recognised word to replace it. The old word in the scan is covered.",
     "scanTextNone": "No recognised text on this page. Run Recognize Text (OCR) first.",
     "shiftPage": "Shift Page",
+    "scanGroup": "Scan",
+    "scan": "Scan",
+    "scanTitle": "Scan pages to a searchable PDF",
+    "batchOcr": "Batch OCR",
+    "batchOcrTitle": "Recognize text in all PDF files in a folder",
     "editPages": "Edit Pages",
-    "editPagesTitle": "Edit pages visually: reorder, rotate, insert, delete, extract and split"
+    "editPagesTitle": "Edit pages visually: reorder, rotate, insert, delete, extract and split",
+    "protect": "Protect",
+    "security": "Security",
+    "securityTitle": "Set or remove passwords and permissions"
   },
   "help": {
     "settings": "Settings",
@@ -499,7 +595,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "common": {
     "comingSoon": "Coming soon",
@@ -645,7 +745,14 @@
     "symbolScaleTitle": "Size at which a new symbol is placed",
     "symbolScaleCustom": "Custom scale",
     "count": "Count",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "theme": {
     "system": "System (Auto Detect)",
@@ -771,7 +878,8 @@
       "nen1414-tn": "NL NEN 1414 — Emergency Lighting",
       "nen1414-tr": "NL NEN 1414 — Smoke/Heat Extraction",
       "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler",
+      "gdt-bewerking": "GD&T and machining"
     },
     "sectors": {
       "aec": "AEC (Construction)",
@@ -780,5 +888,34 @@
       "mep": "Building services (MEP)",
       "infra": "Infrastructure"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

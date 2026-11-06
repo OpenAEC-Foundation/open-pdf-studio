@@ -142,8 +142,8 @@
     "officeTable": "Πίνακας",
     "officeText": "Κείμενο",
     "officeFailed": "Η εξαγωγή του εγγράφου απέτυχε.",
-    "protect": "Προστασία με κωδικό",
-    "protectDesc": "Αποθήκευση αντιγράφου με προστασία κωδικού (AES-256)"
+    "protect": "Ασφάλεια εγγράφου",
+    "protectDesc": "Ορισμός ή κατάργηση κωδικών και δικαιωμάτων (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Προφίλ εξόδου",
@@ -219,11 +219,38 @@
     "uninstallError": "Η απεγκατάσταση της επέκτασης απέτυχε",
     "by": "από",
     "activationFailed": "Μη ενεργό: {{error}}",
-    "viaMcp": "Μέσω της σύνδεσης AI"
+    "viaMcp": "Μέσω της σύνδεσης AI",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "Σχολιασμός στιγμιότυπου οθόνης από το πρόχειρο",
   "workflows": "Ροές εργασιών εγγράφων",
   "drawingSets": "Σύνολα σχεδίων",
   "sheetLinks": "Σύνδεσμοι μεταξύ φύλλων",
-  "approvalRouting": "Δρομολόγηση εγκρίσεων"
+  "approvalRouting": "Δρομολόγηση εγκρίσεων",
+  "sharedReview": "Κοινή αναθεώρηση",
+  "pdfa": "PDF/A..."
 }

@@ -8,6 +8,7 @@ import { shxSearchAnnotations } from '../pdf/shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { BRON_TEKST, zoekInAnnotaties } from './search-sources.js';
 import { pdfjsBronnen } from '../core/basis-url.js';
+import { metOcrWoorden } from '../pdf/ocr-laag.js';
 
 // Cache for extracted text content per document
 const textCache = new Map();
@@ -92,7 +93,9 @@ export async function extractPageText(pdfDoc, pageNum, doc) {
   } catch (e) {
     console.warn(`[find] annotaties van pagina ${pageNum} niet gelezen:`, e?.message || e);
   }
-  return { pageNum, text: pageText, items, view, shxAnnotations };
+  // De eigen draaiing: herkende OCR-woorden staan in de gedraaide weergave
+  // (metOcrWoorden, ocr-laag.js).
+  return { pageNum, text: pageText, items, view, rotation: page.rotate || 0, shxAnnotations };
 }
 
 /**
@@ -243,7 +246,8 @@ export async function performSearch(query, options = {}) {
     const results = [];
 
     for (const pageData of pagesText) {
-      results.push(...zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen));
+      // Nog niet opgeslagen OCR-woorden doen mee (#880); de cache blijft zonder.
+      results.push(...zoekPaginaAlleBronnen(metOcrWoorden(pageData, doc), pattern, query, doc, bronnen));
     }
 
     results.sort(compareResultsVisually);
@@ -324,7 +328,8 @@ export function executeProgressiveSearch(onProgress) {
         if (cancelled || generation !== _searchGeneration) return;
       }
 
-      const pageResults = zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen);
+      // Nog niet opgeslagen OCR-woorden doen mee (#880); de cache blijft zonder.
+      const pageResults = zoekPaginaAlleBronnen(metOcrWoorden(pageData, doc), pattern, query, doc, bronnen);
       for (const r of pageResults) {
         r.index = allResults.length;
         allResults.push(r);

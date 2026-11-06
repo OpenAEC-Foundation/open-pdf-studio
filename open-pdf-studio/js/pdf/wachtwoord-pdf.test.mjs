@@ -236,7 +236,8 @@ test('wiring: loader, saver, tabs, session and MCP use the gate', () => {
   assert.match(saveAs.slice(0, 400), /weigerOpslaanBeveiligd\(doc\)/, 'savePDFAs refuses too');
 
   const tabs = bron('ui/chrome/tabs.js');
-  assert.match(tabs, /doc\.modified && !isBeveiligdDocument\(doc\)/, 'no unsaved-changes prompt');
+  // #378: alleen geen vraag als opslaan de beveiliging niet kan behouden.
+  assert.match(tabs, /doc\.modified && !opslaanGeweigerd\(doc\)/, 'no unsaved-changes prompt when it cannot be saved');
   assert.match(tabs, /release_protected_pdf/, 'working copy deleted on close');
   assert.match(tabs, /unlockFile\(doc\.originalFilePath\)/);
 

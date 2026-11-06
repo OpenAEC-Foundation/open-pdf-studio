@@ -73,7 +73,7 @@ export default function HomeTab() {
           <RibbonButton id="tool-hand" title={t('home.handTool')} icon={handIcon} label={t('home.hand')}
             disabled={noPdf()} active={state.currentTool === 'hand'} onClick={() => setTool('hand')} />
           <RibbonButton id="tool-select" title={t('home.select') || 'Select'} icon={selectTextIcon} label={t('home.select') || 'Select'}
-            disabled={noPdf()} active={state.currentTool === 'select'} onClick={() => {
+            disabled={noPdf()} active={state.currentTool === 'select' && !state.textHighlightMode} onClick={() => {
               setTool('select');
               // Arm the marquee so the next pointerdown anywhere on the canvas
               // starts a rubber-band selection — including landing on an annotation.

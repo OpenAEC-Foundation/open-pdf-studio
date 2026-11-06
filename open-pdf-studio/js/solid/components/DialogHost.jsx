@@ -7,6 +7,7 @@ import InsertPageDialog from './dialogs/InsertPageDialog.jsx';
 import DeletePagesDialog from './dialogs/DeletePagesDialog.jsx';
 import PagePropertiesDialog from './dialogs/PagePropertiesDialog.jsx';
 import ExtractPagesDialog from './dialogs/ExtractPagesDialog.jsx';
+import ChoosePagesDialog from './dialogs/ChoosePagesDialog.jsx';
 import SplitDocumentDialog from './dialogs/SplitDocumentDialog.jsx';
 import MergePdfsDialog from './dialogs/MergePdfsDialog.jsx';
 import PrintDialog from './dialogs/PrintDialog.jsx';
@@ -22,7 +23,10 @@ import PageLabelsDialog from './dialogs/PageLabelsDialog.jsx';
 import BookmarkNamesDialog from './dialogs/BookmarkNamesDialog.jsx';
 import FormValidationDialog from './dialogs/FormValidationDialog.jsx';
 import StampPickerDialog from './dialogs/StampPickerDialog.jsx';
+import StampTemplatesDialog from './dialogs/StampTemplatesDialog.jsx';
+import DynamicStampFieldsDialog from './dialogs/DynamicStampFieldsDialog.jsx';
 import CalibrationDialog from './dialogs/CalibrationDialog.jsx';
+import ScaleCheckDialog from './dialogs/ScaleCheckDialog.jsx';
 import ScaleDialog from './dialogs/ScaleDialog.jsx';
 import CropMarginsDialog from './dialogs/CropMarginsDialog.jsx';
 import StraightenDialog from './dialogs/StraightenDialog.jsx';
@@ -31,6 +35,8 @@ import ProtectPdfDialog from './dialogs/ProtectPdfDialog.jsx';
 import OcrLanguageDialog from './dialogs/OcrLanguageDialog.jsx';
 import ResizePagesDialog from './dialogs/ResizePagesDialog.jsx';
 import CompressDialog from './dialogs/CompressDialog.jsx';
+import PdfAEditDialog from './dialogs/PdfAEditDialog.jsx';
+const PdfADialog = lazy(() => import('./dialogs/PdfADialog.jsx'));
 import ScreenshotDialog from './dialogs/ScreenshotDialog.jsx';
 import FeedbackDialog from './dialogs/FeedbackDialog.jsx';
 import MessageDialog from './dialogs/MessageDialog.jsx';
@@ -53,6 +59,7 @@ import CadImportDialog from './dialogs/CadImportDialog.jsx';
 import IfcxExportDialog from './dialogs/IfcxExportDialog.jsx';
 import AnnotationLayerDeleteDialog from './dialogs/AnnotationLayerDeleteDialog.jsx';
 import FlattenAllDialog from './dialogs/FlattenAllDialog.jsx';
+import WorkspaceDialog from './dialogs/WorkspaceDialog.jsx';
 import { ToolSetImportDialog, ToolSetConfirmDialog } from './dialogs/ToolSetsDialogs.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
@@ -71,9 +78,12 @@ import PrintProgressToast from './PrintProgressToast.jsx';
 const OcrReviewDialog = lazy(() => import('./dialogs/OcrReviewDialog.jsx'));
 const HostSaveAsDialog = lazy(() => import('./dialogs/HostSaveAsDialog.jsx'));
 const HostKeuzeDialog = lazy(() => import('./dialogs/HostKeuzeDialog.jsx'));
+const BatchOcrDialog = lazy(() => import('./dialogs/BatchOcrDialog.jsx'));
+const ScanDialog = lazy(() => import('./dialogs/ScanDialog.jsx'));
 const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
 const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
 const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
+const SharedReviewDialog = lazy(() => import('./dialogs/SharedReviewDialog.jsx'));
 const ApprovalRoutingDialog = lazy(() => import('./dialogs/ApprovalRoutingDialog.jsx'));
 const PortfolioDialog = lazy(() => import('./dialogs/PortfolioDialog.jsx'));
 const FormRecognitionDialog = lazy(() => import('./dialogs/FormRecognitionDialog.jsx'));
@@ -81,6 +91,7 @@ const SymbolSearchDialog = lazy(() => import('./dialogs/SymbolSearchDialog.jsx')
 const WorkbookBindingsDialog = lazy(() => import('./dialogs/WorkbookBindingsDialog.jsx'));
 const PageOrganizerDialog = lazy(() => import('./dialogs/PageOrganizerDialog.jsx'));
 const AccessibilityReportDialog = lazy(() => import('./dialogs/AccessibilityReportDialog.jsx'));
+const DigitaalOndertekenenDialog = lazy(() => import('./dialogs/DigitaalOndertekenenDialog.jsx'));
 
 const DIALOG_MAP = {
   'portfolio': PortfolioDialog,
@@ -91,6 +102,7 @@ const DIALOG_MAP = {
   'document-workflows': DocumentWorkflowsDialog,
   'drawing-sets': DrawingSetsDialog,
   'sheet-links': SheetLinksDialog,
+  'shared-review': SharedReviewDialog,
   'approval-routing': ApprovalRoutingDialog,
   'doc-properties': DocPropertiesDialog,
   'preferences': PreferencesDialog,
@@ -104,6 +116,7 @@ const DIALOG_MAP = {
   'page-organizer': PageOrganizerDialog,
   'page-properties': PagePropertiesDialog,
   'extract-pages': ExtractPagesDialog,
+  'choose-pages': ChoosePagesDialog,
   'split-document': SplitDocumentDialog,
   'merge-pdfs': MergePdfsDialog,
   'print': PrintDialog,
@@ -119,7 +132,10 @@ const DIALOG_MAP = {
   'bookmark-names': BookmarkNamesDialog,
   'form-validation': FormValidationDialog,
   'stamp-picker': StampPickerDialog,
+  'stamp-templates': StampTemplatesDialog,
+  'dynamic-stamp-fields': DynamicStampFieldsDialog,
   'calibration': CalibrationDialog,
+  'scale-check': ScaleCheckDialog,
   'scale': ScaleDialog,
   'crop-margins': CropMarginsDialog,
   'straighten-page': StraightenDialog,
@@ -127,8 +143,12 @@ const DIALOG_MAP = {
   'protect-pdf': ProtectPdfDialog,
   'ocr-language': OcrLanguageDialog,
   'ocr-review': OcrReviewDialog,
+  'batch-ocr': BatchOcrDialog,
+  'scan': ScanDialog,
   'resize-pages': ResizePagesDialog,
   'compress': CompressDialog,
+  'pdfa': PdfADialog,
+  'pdfa-edit': PdfAEditDialog,
   'screenshot': ScreenshotDialog,
   'feedback': FeedbackDialog,
   'message': MessageDialog,
@@ -142,6 +162,7 @@ const DIALOG_MAP = {
   'tool-sets-import': ToolSetImportDialog,
   'tool-sets-confirm': ToolSetConfirmDialog,
   'handtekening-detail': HandtekeningDetailDialog,
+  'digital-sign': DigitaalOndertekenenDialog,
   'title-block-edit': TitleBlockDialog,
   'viewport-scale': ViewportScaleDialog,
   'scale-region': ScaleRegionDialog,
@@ -153,6 +174,7 @@ const DIALOG_MAP = {
   'ifcx-export': IfcxExportDialog,
   'annotation-layer-delete': AnnotationLayerDeleteDialog,
   'flatten-all': FlattenAllDialog,
+  'workspaces': WorkspaceDialog,
   'pdf-password': PasswordDialog,
   'recovery': RecoveryDialog,
 };

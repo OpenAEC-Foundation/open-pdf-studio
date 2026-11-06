@@ -49,33 +49,41 @@ const jsonVersie = {
   werkBij: (tekst, versie) => tekst.replace(/"version":\s*"[^"]*"/, `"version": "${versie}"`),
 };
 
-// De [package]-tabel van een Cargo.toml; een "version =" in een andere tabel
-// (bv. [dependencies.x]) telt niet mee.
-function pakketTabel(toml) {
-  const kop = /^\[package\][ \t]*\r?$/m.exec(toml);
+// Een tabel van een TOML-bestand: [package] van een Cargo.toml, [project] van
+// een pyproject.toml. Een "version =" in een andere tabel (bv.
+// [dependencies.x]) telt niet mee.
+function tomlTabel(toml, naam = 'package') {
+  const kop = new RegExp(`^\\[${naam}\\][ \\t]*\\r?$`, 'm').exec(toml);
   if (!kop) return null;
   const start = kop.index + kop[0].length;
   const volgende = /^\[/m.exec(toml.slice(start));
   return { start, eind: volgende ? start + volgende.index : toml.length };
 }
+const pakketTabel = (toml) => tomlTabel(toml, 'package');
 
 const PAKKET_VERSIE = /^version\s*=\s*"([^"]*)"/m;
 
-const cargoPakketVersie = {
-  lees: (toml) => {
-    const tabel = pakketTabel(toml);
-    const m = tabel && PAKKET_VERSIE.exec(toml.slice(tabel.start, tabel.eind));
-    return m ? [m[1]] : [];
-  },
-  werkBij: (toml, versie) => {
-    const tabel = pakketTabel(toml);
-    const sectie = tabel ? toml.slice(tabel.start, tabel.eind) : '';
-    if (!PAKKET_VERSIE.test(sectie)) throw new Error('no version in the [package] table');
-    return toml.slice(0, tabel.start)
-      + sectie.replace(PAKKET_VERSIE, `version = "${versie}"`)
-      + toml.slice(tabel.eind);
-  },
-};
+function tomlVersie(naam) {
+  return {
+    lees: (toml) => {
+      const tabel = tomlTabel(toml, naam);
+      const m = tabel && PAKKET_VERSIE.exec(toml.slice(tabel.start, tabel.eind));
+      return m ? [m[1]] : [];
+    },
+    werkBij: (toml, versie) => {
+      const tabel = tomlTabel(toml, naam);
+      const sectie = tabel ? toml.slice(tabel.start, tabel.eind) : '';
+      if (!PAKKET_VERSIE.test(sectie)) throw new Error(`no version in the [${naam}] table`);
+      return toml.slice(0, tabel.start)
+        + sectie.replace(PAKKET_VERSIE, `version = "${versie}"`)
+        + toml.slice(tabel.eind);
+    },
+  };
+}
+
+const cargoPakketVersie = tomlVersie('package');
+// pyproject.toml (PEP 621) van de Python-bibliotheek.
+const pyprojectVersie = tomlVersie('project');
 
 // De crates van de cargo-workspace (Cargo.toml in de repo-root), met de naam
 // uit hun eigen [package]-tabel. Een nieuw workspace-lid gaat zo vanzelf mee.
@@ -113,6 +121,31 @@ function cargoLock(crates) {
   };
 }
 
+// De AppStream-metadata van de Flatpak (#389): de bovenste <release> is de
+// appversie (Flathub toont hem als laatste versie). Een nieuwe versie krijgt
+// een eigen <release> bovenaan met de datum van vandaag; de oudere blijven
+// staan. Staat de versie al lager in de lijst (terugzetten), dan vallen de
+// nieuwere items erboven weg, zodat heen en terug het bestand teruggeeft.
+const RELEASE_VERSIE = /^([ \t]*)<release\b[^>]*\bversion="([^"]*)"/gm;
+
+const metainfoRelease = {
+  lees: (tekst) => {
+    const eerste = [...tekst.matchAll(RELEASE_VERSIE)][0];
+    return eerste ? [eerste[2]] : [];
+  },
+  werkBij: (tekst, versie, datum = new Date().toISOString().slice(0, 10)) => {
+    const releases = [...tekst.matchAll(RELEASE_VERSIE)];
+    if (releases.length === 0) throw new Error('no <release> in <releases>');
+    const [eerste] = releases;
+    if (eerste[2] === versie) return tekst;
+    const bestaand = releases.find((m) => m[2] === versie);
+    if (bestaand) return tekst.slice(0, eerste.index) + tekst.slice(bestaand.index);
+    const eol = tekst.includes('\r\n') ? '\r\n' : '\n';
+    const regel = `${eerste[1]}<release version="${versie}" date="${datum}"/>${eol}`;
+    return tekst.slice(0, eerste.index) + regel + tekst.slice(eerste.index);
+  },
+};
+
 // Elk versieveld in de repo: een pad (relatief aan de repo-root) met een lezer
 // en een schrijver. bump-version zet ze allemaal; --check en
 // scripts/versievelden.test.mjs eisen dat ze gelijk zijn.
@@ -140,6 +173,8 @@ function versievelden(basis = repoRoot) {
     { pad: 'open-pdf-render/Cargo.lock', ...cargoLock(crates) },
     // De stdio-brug meldt deze versie als serverInfo.version.
     { pad: 'mcp-stdio/package.json', ...jsonVersie },
+    // De Python-bibliotheek (#518) krijgt het appnummer.
+    { pad: 'python/pyproject.toml', ...pyprojectVersie },
     {
       // Claude Desktop-extensie: de bundelversie volgt de app.
       pad: 'mcpb/manifest.json',
@@ -163,6 +198,7 @@ function versievelden(basis = repoRoot) {
       lees: (tekst) => [...tekst.matchAll(/^version:\s*'([^']*)'/gm)].map((m) => m[1]),
       werkBij: (tekst, versie) => tekst.replace(/^version:\s*'[^']*'/m, `version: '${versie}'`),
     },
+    { pad: 'flatpak/org.openaec.OpenPdfStudio.metainfo.xml', ...metainfoRelease },
   ];
 }
 
@@ -281,6 +317,7 @@ module.exports = {
   workspaceCrates,
   versievelden,
   GEPUBLICEERDE_RELEASES,
+  metainfoRelease,
   controleer,
   zetVersie,
 };

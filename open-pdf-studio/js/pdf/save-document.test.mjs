@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { opslaanGeweigerd, isHostAlleenLezen, markeerBeveiligd } from './wachtwoord-pdf.js';
+import { opslaanGeweigerd, isHostAlleenLezen, markeerBeveiligd, heeftBeveiligdeInhoud } from './wachtwoord-pdf.js';
+import { sessieVoorOpslaan, naOpslaanBeveiliging } from './beveiliging-toepassen.js';
+import { isVersleuteld, beveiligingUitSessie } from './document-beveiliging.js';
+import { foutMelding } from './protect-pdf-regels.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
@@ -23,18 +26,20 @@ function harness() {
   const a = { id: 'a', pdfDoc: {}, filePath: 'a.pdf', annotations: [], modified: true, undoStack: [] };
   const b = { id: 'b', pdfDoc: {}, filePath: 'b.pdf', annotations: [], modified: true, undoStack: [] };
   let active = a;
-  const writes = [], owners = [], attachmentEdits = [], opgeslagenGemeld = [], structWritten = [], structSavedNotified = [];
+  const writes = [], owners = [], attachmentEdits = [], opgeslagenGemeld = [], structWritten = [], structSavedNotified = [], reloads = [];
   const laagstandVerhuisd = [];
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
-    getCachedPdfBytes: path => new TextEncoder().encode(path), setCachedPdfBytes() {},
+    getCachedPdfBytes: path => new TextEncoder().encode(path), setCachedPdfBytes() {}, rememberPreviousPdfBytes() {},
     verzamelSchaalBronnen: () => ({}),
     PDFDocument: { load: async bytes => ({ context: { largestObjectNumber: 1 }, getPages: () => [], catalog: { get: () => null },
       formCache: { getValue: () => undefined }, flush: async () => {}, save: async () => bytes }) },
     ruimOngebruikteObjectenOp() {}, ruimOngebruikteObjectenOpMetPauzes: async () => {},
     // Annuleren (#766, echt).
     maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING, updateStatusMessage() {},
+    // Geen pagina's, dus geen annotaties om pdfBron van bij te werken (saver/bron-behoud.js).
+    bronNaOpslaan: () => [],
     PDFName: { of: x => x }, KNIPSEL_CATALOGUS: 'snippets',
     getAnnotationStorage: doc => { owners.push(doc); return null; },
     getAnnotIdToFieldName: doc => { owners.push(doc); return new Map(); },
@@ -58,14 +63,20 @@ function harness() {
     applyEditsToPdf: (_pdf, edits) => { structWritten.push(edits); return { applied: 1, skipped: 0 }; },
     notifyStructEditsSaved: doc => structSavedNotified.push(doc),
     markDocumentModified: doc => { doc.modified = true; },
+    // Schalen en schaalcontroles als /VP (#629): geen pagina's in deze documenten.
+    schrijfSchalenInPdf() {},
     unlockFile: async () => {}, lockFile: async () => {},
     writeBinaryFileAtomic: async (path, bytes) => { writes.push({ path, source: new TextDecoder().decode(bytes) }); },
+    // Beveiligd (#378): Rust versleutelt met de sessie.
+    writeProtectedPdfAtomic: async (path, bytes, sessie) => { writes.push({ path, source: new TextDecoder().decode(bytes), sessie }); },
     isTauri: () => false, markeerGebakken() {}, hidePdfABar() {}, stripPdfAMetadata() {},
     i18next: { t: x => x }, showMessage() {}, window: {},
     // Met een wachtwoord geopend: nooit opslaan (wachtwoord-pdf.js, echt).
     opslaanGeweigerd,
     // Door de gastsite alleen-lezen geopend (#704, echt).
     isHostAlleenLezen,
+    // Documentbeveiliging (#378, echt).
+    heeftBeveiligdeInhoud, sessieVoorOpslaan, naOpslaanBeveiliging, isVersleuteld, foutMelding,
     // Tekens zonder font in een tekstbewerking (#717, echt).
     isOntbrekendeGlyfenFout, tekensVoorMelding,
     // Foutcodes van de gastsite (#712, echt).
@@ -76,6 +87,8 @@ function harness() {
     bestandsnaamUitPad,
     // Herstelmomentopname weg na opslaan (js/herstel/haken.js).
     meldOpgeslagen: doc => opgeslagenGemeld.push(doc),
+    // Gedeelde beoordeling (#237): zonder beoordeling de annotaties van het document.
+    annotationsForSharedReviewSave: doc => doc?.annotations || [], afterPdfSaved() {},
     console: { error() {}, warn() {} },
     saveFileDialog: async () => 'copy.pdf',
     // Opslaan als op de gastsite (#726): hier geen site.
@@ -87,12 +100,21 @@ function harness() {
       if (path.includes('opslaan')) return { moetOpnieuwVerifieren: () => false, opslaanAlsStandaardPad: doc => doc.filePath };
       if (path.includes('cad-import')) return { isVoorbeeldPdf: () => false };
       if (path.includes('document-release')) return { losgelatenWerkbestanden: () => [], ruimWerkbestandenOp: async () => {} };
+      // Redactions applied since the last save (#762): none in these documents.
+      if (path.includes('redaction/apply')) return { applyPendingRedactions: async () => null };
+      // PDF/A behouden bij opslaan (#379): de echte, app-vrije modules.
+      if (path === './pdfa/herconversie.js' || path === './pdfa/meldingen.js') return import(new URL(path, import.meta.url));
+      if (path.includes('page-manager')) return { reloadFromBytes: async (_b, _a, _r, _p, _x, doc) => {
+        reloads.push(doc.filePath);
+        doc.saveTargetPath = doc.saveTargetPath || doc.filePath;
+        doc.filePath = 'C:/Temp/opds-edit-1.pdf';
+      } };
       throw new Error(`Unexpected import: ${path}`);
     },
   };
   // A with scope keeps the injected dependencies mutable across awaits.
   const api = new Function('deps', `with (deps) { ${saved}\n${functions}\n return {savePDF, savePDFAs, bouwMomentopname}; }`)(deps);
-  return { a, b, deps, api, writes, owners, attachmentEdits, opgeslagenGemeld, structWritten, structSavedNotified, laagstandVerhuisd, switchToB: () => { active = b; } };
+  return { a, b, deps, api, writes, owners, attachmentEdits, opgeslagenGemeld, structWritten, structSavedNotified, laagstandVerhuisd, reloads, switchToB: () => { active = b; } };
 }
 
 test('tab switch during signature verification still saves A to the requested path', async () => {
@@ -450,6 +472,93 @@ test('a save writes the attachment changes of the document being saved (#376)', 
 
 // Herstelmomentopname (js/herstel/): dezelfde bytes als opslaan, maar niets
 // wegschrijven, niets als opgeslagen markeren en geen melding.
+// ─── Documentbeveiliging (#378) ───
+
+const sessieInfo = (over = {}) => ({
+  handle: 'sessie-1', methode: 'AES-256', revisie: 6, p: -4,
+  rechten: { print: true, printHogeKwaliteit: true, wijzigen: true, kopieren: true, annoteren: true, formulieren: true, samenstellen: true, toegankelijkheid: true },
+  eigenaarToegang: false, openWachtwoord: true, magWijzigen: true, ...over,
+});
+
+test('a protected PDF with a security session saves back to the original with the same protection', async () => {
+  const h = harness();
+  h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
+  markeerBeveiligd(h.a, 'D:/Projecten/contract.pdf', { beveiliging: beveiligingUitSessie(sessieInfo()) });
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), true);
+  assert.equal(h.writes.length, 1);
+  assert.equal(h.writes[0].path, 'D:/Projecten/contract.pdf', 'the original, never the decrypted working copy');
+  assert.equal(h.writes[0].sessie, 'sessie-1', 'encrypted by Rust with the session of the original');
+  assert.equal(h.a.modified, false);
+  assert.equal(h.a.filePath, 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf', 'the view stays on the working copy');
+  assert.deepEqual(h.reloads, []);
+  assert.equal(h.a.beveiliging.versleuteld, true);
+});
+
+test('removing the protection writes the original without encryption and forgets the password', async () => {
+  const h = harness();
+  h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
+  markeerBeveiligd(h.a, 'D:/Projecten/contract.pdf', { beveiliging: beveiligingUitSessie(sessieInfo()) });
+  h.a.beveiliging = { versleuteld: false, sessie: null, inAfwachting: true };
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), true);
+  assert.equal(h.writes[0].path, 'D:/Projecten/contract.pdf');
+  assert.equal(h.writes[0].sessie, undefined, 'plain write');
+  assert.equal(h.a.beveiliging, null);
+  assert.equal(h.a.passwordProtected, false, 'a restart no longer asks for a password');
+});
+
+test('protecting an unprotected file moves the view to a decrypted working copy', async () => {
+  const h = harness();
+  h.a.beveiliging = beveiligingUitSessie(sessieInfo({ eigenaarToegang: true }), { inAfwachting: true });
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), true);
+  assert.equal(h.writes[0].path, 'a.pdf');
+  assert.equal(h.writes[0].sessie, 'sessie-1');
+  // PDFium renders by path without a password: the encrypted file can no
+  // longer be the view.
+  assert.deepEqual(h.reloads, ['a.pdf']);
+  assert.equal(h.a.filePath, 'C:/Temp/opds-edit-1.pdf');
+  assert.equal(h.a.saveTargetPath, 'a.pdf');
+  assert.equal(h.a.originalFilePath, 'a.pdf');
+  assert.equal(h.a.beveiliging.inAfwachting, false);
+  assert.equal(h.a.modified, false);
+});
+
+test('Save As of a protected PDF keeps the protection and makes the copy the original', async () => {
+  const h = harness();
+  h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
+  markeerBeveiligd(h.a, 'D:/Projecten/contract.pdf', { beveiliging: beveiligingUitSessie(sessieInfo()) });
+  assert.equal(await h.api.savePDFAs(h.a, 'D:/Projecten/kopie.pdf', { zonderHandtekeningVraag: true }), true);
+  assert.equal(h.writes[0].path, 'D:/Projecten/kopie.pdf');
+  assert.equal(h.writes[0].sessie, 'sessie-1');
+  assert.equal(h.a.originalFilePath, 'D:/Projecten/kopie.pdf');
+  assert.equal(h.a.saveTargetPath, 'D:/Projecten/kopie.pdf');
+  assert.equal(h.a.fileName, 'kopie.pdf');
+  assert.notEqual(h.a.filePath, 'D:/Projecten/kopie.pdf', 'never renders from the encrypted file');
+});
+
+test('an older encryption that cannot be written back is still refused', async () => {
+  const h = harness();
+  const meldingen = [];
+  h.deps.showMessage = (m) => meldingen.push(m);
+  h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
+  markeerBeveiligd(h.a, 'D:/Projecten/oud.pdf', { beveiliging: beveiligingUitSessie(sessieInfo({ handle: null, methode: 'RC4 128-bit' })) });
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), false);
+  assert.deepEqual(h.writes, []);
+  assert.deepEqual(meldingen, ['protectedPdfReadOnly']);
+});
+
+test('a failed protected write shows the translated code and keeps the document unsaved', async () => {
+  const h = harness();
+  const meldingen = [];
+  h.deps.showMessage = (m) => meldingen.push(m);
+  h.deps.i18next = { t: (k, o) => (o && Object.keys(o).length ? `${k}:${JSON.stringify(o)}` : k) };
+  h.deps.writeProtectedPdfAtomic = async () => { throw new Error('INCOMPLETE: 2'); };
+  h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
+  markeerBeveiligd(h.a, 'D:/Projecten/contract.pdf', { beveiliging: beveiligingUitSessie(sessieInfo()) });
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), false);
+  assert.deepEqual(meldingen, ['dialogs:protectPdf.errorIncomplete']);
+  assert.equal(h.a.modified, true);
+});
+
 test('a recovery snapshot returns the bytes without writing or marking the document saved', async () => {
   const h = harness();
   let laden = 0;
@@ -468,6 +577,9 @@ test('a recovery snapshot is never made of a password-protected document', async
   h.a.filePath = 'C:/Temp/opds-beveiligd/1-0123456789abcdef.pdf';
   markeerBeveiligd(h.a, 'D:/Projecten/contract.pdf');
   await assert.rejects(h.api.bouwMomentopname(h.a), /password-protected/);
+  // Ook niet als het document beveiligd terug te schrijven is (#378).
+  markeerBeveiligd(h.b, 'D:/Projecten/b.pdf', { gevraagd: false, beveiliging: beveiligingUitSessie(sessieInfo()) });
+  await assert.rejects(h.api.bouwMomentopname(h.b), /password-protected/);
   assert.deepEqual(h.writes, []);
 });
 

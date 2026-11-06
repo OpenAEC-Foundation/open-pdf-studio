@@ -802,6 +802,11 @@ function AnnotationMenuContent() {
             showCalibrationDialog(px);
           }
         }} />
+        {/* Schaalcontrole (#629): deze maatlijn als tweede bekende maat. */}
+        <MenuItem icon={convertMeasurementIcon} label={t('annotation.checkScale')} onClick={() => {
+          const a = ann();
+          if (a) openDialog('scale-check', { annotationId: a.id });
+        }} />
         <MenuItem icon={convertMeasurementIcon} label={t('annotation.setScale')} onClick={() => {
           const a = ann();
           if (a) {
@@ -1063,7 +1068,8 @@ function PageMenuContent() {
       <Separator />
 
       <MenuItem icon={printIcon} label={t('page.printMenu')} shortcut={sneltoetsVoor('file.print')} onClick={() => {
-        import('../stores/dialogStore.js').then(m => m.openDialog('print'));
+        // Via showPrintDialog: de webversie en de rechten van een beveiligd document.
+        import('../../ui/chrome/dialogs.js').then(m => m.showPrintDialog());
       }} />
       <MenuItem icon={findIcon} label={t('page.findMenu')} shortcut={sneltoetsVoor('search.find')} onClick={() => {
         const findBar = document.getElementById('find-bar');

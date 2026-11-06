@@ -17,7 +17,9 @@
     "viewports": "Janelas de visualização",
     "noViewports": "Nenhuma janela de visualização definida",
     "measurements": "Medições",
-    "noMeasurements": "Nenhuma medição ainda"
+    "noMeasurements": "Nenhuma medição ainda",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Propriedades",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Excluir marcador",
     "findBookmark": "Localizar...",
     "findBookmarkTip": "Digite para ir até um marcador. Enter o abre; Enter novamente vai para a próxima correspondência.",
+    "findPage": "Localizar...",
+    "findPageTip": "Digite para ir para uma página pelo nome da folha ou número. Enter abre-a; Enter novamente vai para a correspondência seguinte.",
     "addAttachment": "Adicionar anexo",
     "openAttachment": "Abrir anexo",
     "saveAttachment": "Salvar anexo",
@@ -807,6 +811,24 @@
     "rules": "A atribuição usa o centro da caixa delimitadora da marcação, incluindo as bordas. Prevalece a zona mais profunda, depois a menor área e, por fim, o ID da zona. Use polígonos retos sem furos ou retângulos sem rotação. Identidades de zona inválidas ou duplicadas são excluídas.",
     "loading": "Carregando anotações: as localizações ainda podem mudar."
   },
+  "dynamicStamp": {
+    "title": "Campos do carimbo",
+    "template": "Modelo",
+    "refresh": "Atualizar data, usuário e página",
+    "lock": "Bloquear carimbo",
+    "lockConfirm": "Bloquear este carimbo? Seus campos não poderão mais ser alterados.",
+    "locked": "Este carimbo está bloqueado: seus campos não podem mais ser alterados.",
+    "field": {
+      "date": "Data",
+      "time": "Hora",
+      "datetime": "Data e hora",
+      "user": "Usuário",
+      "page": "Página",
+      "pages": "Número de páginas",
+      "filename": "Nome do arquivo",
+      "title": "Título do documento"
+    }
+  },
   "toolSets": {
     "title": "Conjuntos de ferramentas",
     "typeWall": "Parede",
@@ -922,5 +944,19 @@
     "open": "Abrir",
     "saveAs": "Salvar como...",
     "noContent": "O conteúdo deste arquivo não está incorporado no PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Repor a ordem das secções",
+    "dragHint": "Clique para recolher ou expandir. Arraste para mover a secção (ou Alt+Cima/Baixo)."
   }
 }

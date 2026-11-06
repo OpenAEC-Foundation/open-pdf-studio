@@ -91,7 +91,7 @@ Professional annotation, markup, measurement, redaction and page management — 
 - **Stamps:** 10 built-in stamps (Approved, Rejected, Draft, Confidential, Final, etc.)
 - **Images:** Insert from file, paste from clipboard, or drag-and-drop, with non-destructive cropping
 - **Signatures:** Draw multi-stroke signatures, save up to 5 for quick reuse
-- **Redaction:** Mark areas and apply to permanently remove content
+- **Redaction:** Mark areas and apply to remove the text, images, vector graphics, annotations and form fields under them from the file; saving then rewrites the whole file without earlier versions
 
 ### Measurement Tools
 - Distance, area, and perimeter measurement
@@ -382,6 +382,17 @@ Notes:
 - If the window stays blank with some GPU drivers, start it with
   `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
 
+**Crashes while zooming (realtime limits):** WebKitGTK raises some of its
+internal threads to realtime priority when the session allows it (many
+audio-tuned distributions give the `audio` group `rtprio 99`) and then gives
+them a 200 ms CPU budget; a busy thread past that budget makes the kernel kill
+the whole app without a message. The app therefore lowers its own
+`RLIMIT_RTPRIO` to 0 at startup, the same as starting it with
+`prlimit --rtprio=0`. Set `OPDS_ALLOW_REALTIME=1` to keep the session's limit.
+If the window instead goes blank while zooming (the web process crashed in the
+GPU renderer), `WEBKIT_DISABLE_DMABUF_RENDERER=1` avoids it at the cost of
+slower rendering.
+
 For containers without FUSE or GPU (such as OpenAEC Linux, which runs the
 extracted AppImage under a Wayland compositor), see
 [Managed deployments](#managed-deployments).
@@ -487,6 +498,10 @@ We are looking for someone to **own and maintain the extensions and the content 
 
 ## License
 
-Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0](LICENSE.md).
+Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0 or later](LICENSE.md). The LGPL builds on the [GNU General Public License v3.0](GPL-3.0.txt), whose text ships alongside it.
 
-PDF.js is licensed under the Apache License 2.0. pdf-lib is licensed under the MIT License. PDFium is licensed under the BSD 3-Clause License.
+[LICENSING.md](LICENSING.md) explains in plain language what that means, lists the licence of every component of this repository and of the third-party components the app ships with (PDF.js: Apache-2.0, pdf-lib: MIT, PDFium: BSD-3-Clause, and more), and answers the AGPL question around the MuPDF dependency.
+
+## Privacy
+
+The desktop app has no telemetry and adds no watermark. [PRIVACY.md](PRIVACY.md) lists every network connection the app can make, when, and what it sends; a unit test keeps that list in step with the source.

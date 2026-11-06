@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Δεν βρέθηκαν σχολιασμοί στο αρχείο XFDF.",
   "noRedactionsOnPage": "Δεν υπάρχουν σημάνσεις απαλοιφής στην τρέχουσα σελίδα για εφαρμογή.",
   "noRedactionsInDocument": "Δεν υπάρχουν σημάνσεις απαλοιφής στο έγγραφο για εφαρμογή.",
+  "redactTitle": "Εφαρμογή αποκρύψεων",
+  "redactConfirmPage": "Εφαρμογή {{count}} σημάνσεων απόκρυψης στη σελίδα {{page}};",
+  "redactConfirmAll": "Εφαρμογή {{count}} σημάνσεων απόκρυψης σε {{pages}} σελίδες;",
+  "redactConfirmBody": "Το κείμενο, οι εικόνες, τα διανυσματικά γραφικά, τα σχόλια και τα πεδία φόρμας κάτω από τις σημάνσεις αφαιρούνται από το έγγραφο και οι περιοχές γεμίζουν με το χρώμα της σήμανσης. Το αρχείο αλλάζει κατά την αποθήκευση· η αποθήκευση ξαναγράφει όλο το αρχείο χωρίς προηγούμενες εκδόσεις.",
+  "redactDone": "Εφαρμόστηκαν περιοχές απόκρυψης: {{count}}. Αποθηκεύστε το έγγραφο για να γραφτεί η αλλαγή στο αρχείο.",
+  "redactNotApplied": "Οι αποκρύψεις δεν εφαρμόστηκαν· δεν άλλαξε τίποτα. {{reason}}",
+  "redactReasonUnsupported": "Το περιεχόμενο κάτω από μια σήμανση δεν μπορεί να αφαιρεθεί αξιόπιστα: {{detail}}",
+  "redactReasonInvalid": "Μία ή περισσότερες σημάνσεις δεν έχουν έγκυρη περιοχή.",
+  "redactReasonTextEdits": "Αποθηκεύστε πρώτα τις μη αποθηκευμένες επεξεργασίες κειμένου.",
   "cannotDeleteAllPages": "Δεν είναι δυνατή η διαγραφή όλων των σελίδων. Πρέπει να μείνει τουλάχιστον μία σελίδα.",
   "cannotDeleteAllPagesSource": "Δεν είναι δυνατή η διαγραφή όλων των σελίδων από το αρχικό έγγραφο.",
   "noPagesSelected": "Δεν επιλέχθηκαν σελίδες για εξαγωγή.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Το επιλεγμένο PDF δεν έχει σελίδες.",
   "failedToSavePdf": "Η αποθήκευση του PDF απέτυχε: {{error}}",
   "failedToLoadPdf": "Η φόρτωση του PDF απέτυχε: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Άνοιγμα σε νέο παράθυρο",
     "closeTab": "Κλείσιμο καρτέλας",
     "nextTab": "Επόμενη καρτέλα",
-    "previousTab": "Προηγούμενη καρτέλα"
+    "previousTab": "Προηγούμενη καρτέλα",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Επόμενη σελίδα",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Οι μικρογραφίες PDF στην Εξερεύνηση αρχείων είναι διαθέσιμες μόνο στην εγκατεστημένη έκδοση.",
     "virtualPrinter": "Ο εικονικός εκτυπωτής είναι διαθέσιμος μόνο στην εγκατεστημένη έκδοση: προστίθεται στα Windows με δικαιώματα διαχειριστή.",
     "notWritable": "Το Open PDF Studio δεν μπορεί να γράψει στον φάκελο {{dir}}, οπότε αυτή τη φορά οι ρυθμίσεις σας αποθηκεύονται στο προφίλ χρήστη σας. Μετακινήστε τον φορητό φάκελο σε θέση με δικαίωμα εγγραφής, όπως ένα USB stick ή τον φάκελο Έγγραφα."
+  },
+  "protectedPdfNoPrint": "Τα δικαιώματα αυτού του εγγράφου δεν επιτρέπουν την εκτύπωση.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

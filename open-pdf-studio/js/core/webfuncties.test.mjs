@@ -124,7 +124,7 @@ test('elke knop uit de tabel bestaat echt', () => {
 // XML-naamruimten zijn geen verzoeken; een link via openExtern() opent de
 // gebruiker zelf, in een nieuw venster. Ook de schema- en klasse-URI's die de
 // IFCX-export (#876) in het bestand schrijft worden nooit opgevraagd.
-const NAAMRUIMTE = /^https?:\/\/(www\.w3\.org|schemas\.openxmlformats\.org|purl\.org|ns\.adobe\.com|www\.xfa\.org|www\.npes\.org|www\.color\.org|ifcx\.dev|identifier\.buildingsmart\.org|github\.com\/OpenAEC-Foundation\/open-pdf-studio\/blob\/main\/docs)([/?#]|$)/;
+const NAAMRUIMTE = /^https?:\/\/(www\.w3\.org|schemas\.openxmlformats\.org|purl\.org|ns\.adobe\.com|www\.xfa\.org|www\.npes\.org|www\.color\.org|ifcx\.dev|identifier\.buildingsmart\.org|www\.aiim\.org|github\.com\/OpenAEC-Foundation\/open-pdf-studio\/blob\/main\/docs)([/?#]|$)/;
 
 // Bestand met een adres op een andere host → bestand dat vóór het verzoek
 // externeDienstenAan() vraagt. null: alleen bereikbaar via een knop die in
@@ -135,6 +135,10 @@ const DIENSTEN = {
   'js/core/draagbaar.js': null, // releasepagina via openExtern, knop ribbon-check-updates (#881)
   'js/solid/components/dialogs/FeedbackDialog.jsx': 'js/solid/components/dialogs/FeedbackDialog.jsx',
   'js/solid/data/symbolLibraryOnline.js': 'js/solid/stores/symbolLibraryOnlineStore.js',
+  // Extensiecatalogus (#969): downloads via Rust, alleen in de app; de
+  // adressen in het paneel zijn voorbeeldtekst in invoervelden.
+  'js/plugins/extension-catalog.js': 'js/plugins/extension-catalog-app.js',
+  'js/solid/components/app-menu/ExtensionsPanel.jsx': 'js/plugins/extension-catalog-app.js',
 };
 
 test('elk verzoek naar een andere host vraagt eerst externeDienstenAan()', () => {

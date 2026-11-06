@@ -12,14 +12,67 @@ import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { plakVerschuivingPt } from './minimummaat.js';
 import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
+import { annotationBounds } from './spatial-index.js';
+import { applyMoveRigid } from './transforms.js';
+import { omhullendKader, centreerVerschuiving, puntOpPagina } from './plak-bij-muis.js';
+import { addToClipboardHistory } from './clipboard-history.js';
+
+// ── Plakken bij de muis (#928) ───────────────────────────────────────────
+// Ctrl+V legt wat geplakt wordt gecentreerd op de muis wanneer de muis boven
+// een pagina in de viewer staat. Staat de muis elders (lint, paneel, een
+// menu over de pagina, buiten het venster), dan blijft de oude plaatsing.
+let _muis = null;
+if (typeof document !== 'undefined') {
+  const onthoud = (e) => { _muis = { x: e.clientX, y: e.clientY }; };
+  document.addEventListener('mousemove', onthoud, { capture: true, passive: true });
+  // Tijdens slepen (bv. een afbeelding vanuit een andere app) vuurt geen
+  // mousemove; dragover houdt de neerzetplek bij.
+  document.addEventListener('dragover', onthoud, { capture: true, passive: true });
+  document.addEventListener('mouseout', (e) => { if (!e.relatedTarget) _muis = null; }, { capture: true, passive: true });
+  if (typeof window !== 'undefined') window.addEventListener('blur', () => { _muis = null; });
+}
+
+/** { page, x, y } in paginaruimte onder de muis, of null. */
+export function plekOnderMuis() {
+  const doc = getActiveDocument();
+  if (!_muis || !doc?.pdfDoc || !pdfContainer?.getBoundingClientRect) return null;
+  const { x, y } = _muis;
+  const vr = pdfContainer.getBoundingClientRect();
+  if (x < vr.left || x > vr.right || y < vr.top || y > vr.bottom) return null;
+  // Een zwevend paneel, menu of dialoog boven de viewer telt niet als pagina.
+  const bovenste = document.elementFromPoint?.(x, y);
+  if (!bovenste || !pdfContainer.contains(bovenste)) return null;
+  let page = doc.currentPage || 1;
+  if (doc.viewMode === 'continuous') {
+    const wrapper = bovenste.closest?.('.page-wrapper[data-page]');
+    const p = wrapper ? parseInt(wrapper.dataset.page, 10) : NaN;
+    if (!Number.isInteger(p)) return null;
+    page = p;
+  }
+  const punt = clientNaarPagina(page, x, y, doc);
+  if (!puntOpPagina(punt, paginaMaat(page, doc))) return null;
+  return { page, x: punt.x, y: punt.y };
+}
+
+// Verschuif de geplakte kopieen zodat hun omhullende kader op `plek` ligt.
+// applyMoveRigid verplaatst ook leiders, puntenlijsten en de pijl van een
+// aanhaalvak star mee.
+function centreerOp(kopieen, plek) {
+  const kader = omhullendKader(kopieen.map(a => annotationBounds(a)));
+  if (!kader) return false;
+  const { dx, dy } = centreerVerschuiving(kader, plek);
+  for (const a of kopieen) { applyMoveRigid(a, dx, dy); a.page = plek.page; }
+  return true;
+}
 
 // Copy annotation to internal clipboard
-export function copyAnnotation(annotation) {
+export function copyAnnotation(annotation, { geschiedenis = true } = {}) {
   // Voor de plak-voorrangsregel: intern klembord is alleen 'verser' dan het
   // systeemklembord zolang de app sindsdien niet uit focus is geweest.
   state._internalCopyAt = Date.now();
   state.clipboardAnnotation = cloneAnnotation(annotation);
   state.clipboardAnnotations = null;
+  if (geschiedenis) addToClipboardHistory([annotation]);
   // Reset the paste cascade so the first paste lands one step from the source
   // and each subsequent paste steps a further step (instead of every paste
   // stacking on the exact same spot, which made repeated Ctrl+V look like it
@@ -163,9 +216,11 @@ export async function pasteImageFromBlob(blob) {
     height *= ratio;
   }
 
-  // Plaats op de pagina die de gebruiker op dat moment bekijkt.
-  const targetPage = getActiveDocument()?.currentPage || 1;
-  const center = visibleCenterOnPage(targetPage);
+  // Plaats op de pagina die de gebruiker op dat moment bekijkt, of, met de
+  // muis boven een pagina, gecentreerd op de muis (#928).
+  const plek = plekOnderMuis();
+  const targetPage = plek ? plek.page : (getActiveDocument()?.currentPage || 1);
+  const center = plek || visibleCenterOnPage(targetPage);
   const x = center ? center.x - (width / 2) : 10;
   const y = center ? center.y - (height / 2) : 10;
 
@@ -213,7 +268,7 @@ export async function pasteImageFromBlob(blob) {
 }
 
 // Paste annotation from internal clipboard
-export function pasteAnnotation() {
+export function pasteAnnotation({ bijMuis = true } = {}) {
   if (!state.clipboardAnnotation || !getActiveDocument()?.pdfDoc) return;
 
   const newAnnotation = cloneAnnotation(state.clipboardAnnotation);
@@ -241,6 +296,9 @@ export function pasteAnnotation() {
   newAnnotation.page = getActiveDocument()?.currentPage || 1;
   newAnnotation.createdAt = new Date().toISOString();
   newAnnotation.modifiedAt = new Date().toISOString();
+  // Muis boven een pagina: de kopie op de muis centreren (#928).
+  const plek = bijMuis ? plekOnderMuis() : null;
+  if (plek) centreerOp([newAnnotation], plek);
   // Een losse helft van een vervanging (#508) hoort niet bij het origineel;
   // de kopie krijgt bij opslaan een eigen /NM.
   relinkPastedCorrections([state.clipboardAnnotation], [newAnnotation]);
@@ -276,8 +334,10 @@ export function duplicateAnnotation() {
   const _dupDoc = getActiveDocument();
   if (!_dupDoc?.selectedAnnotation) return;
 
-  copyAnnotation(_dupDoc.selectedAnnotation);
-  pasteAnnotation();
+  // Dupliceren is geen kopieeractie van de gebruiker: niet in de
+  // klembordgeschiedenis, en de kopie volgt de cascade, niet de muis.
+  copyAnnotation(_dupDoc.selectedAnnotation, { geschiedenis: false });
+  pasteAnnotation({ bijMuis: false });
 }
 
 // Copy multiple annotations to internal clipboard
@@ -288,6 +348,7 @@ export function copyAnnotations(annotations) {
   if (!annotations || annotations.length === 0) return;
   state.clipboardAnnotations = annotations.map(a => cloneAnnotation(a));
   state.clipboardAnnotation = state.clipboardAnnotations[0]; // backward compat
+  addToClipboardHistory(annotations);
   state._pasteSeq = 0; // reset paste cascade (see copyAnnotation)
   updateStatusMessage(`${annotations.length} annotations copied`);
 }
@@ -336,6 +397,9 @@ export function pasteAnnotations() {
 
     newAnnotations.push(newAnn);
   }
+  // Muis boven een pagina: de hele groep op de muis centreren (#928).
+  const plek = plekOnderMuis();
+  if (plek) centreerOp(newAnnotations, plek);
   // Vervangingen (#508) koppelen aan hun eigen kopie, niet aan het origineel.
   relinkPastedCorrections(state.clipboardAnnotations, newAnnotations);
   relinkCopiedZones(state.clipboardAnnotations, newAnnotations);

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Skala identifierad",
     "noScaleFound": "Ingen skala hittades",
-    "detecting": "Identifierar..."
+    "detecting": "Identifierar...",
+    "scaleCheck": "Kontrollera skala",
+    "scaleCheckTitle": "Mät ett känt mått och visa skalans avvikelse i procent"
   },
   "home": {
     "document": "Dokument",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Placera ett skalområde som täcker hela sidan",
     "drawing": "Ritning",
     "highlight": "Markering",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Frihand",
     "line": "Linje",
     "arrow": "Pil",
@@ -134,6 +142,8 @@
     "callout": "Pratbubbla",
     "stamp": "Stämpel",
     "signature": "Signatur",
+    "digitalSign": "Digital signatur",
+    "digitalSignTooltip": "Signera dokumentet med ett certifikat (.p12/.pfx). Knappen Namnteckning placerar bara en bild.",
     "measure": "Mät",
     "measureDistance": "Mät avstånd",
     "distance": "Avstånd",
@@ -316,7 +326,85 @@
     "modified": "Ändrat",
     "noChanges": "Inga ändringar",
     "textTab": "Text",
-    "noTextChanges": "Inga textskillnader"
+    "noTextChanges": "Inga textskillnader",
+    "previousVersion": "före senaste sparning",
+    "fromDisk": "fil",
+    "fileLoadError": "Filen kunde inte öppnas som PDF.",
+    "browse": "Bläddra…",
+    "browseHint": "Välj en PDF-fil på disken",
+    "pickSecondSide": "Välj den andra sidan från en fil på disken, eller öppna en andra PDF i en flik.",
+    "sensitivity": "Känslighet",
+    "sensitivityHint": "Ställer in bläcktröskel, minsta ändringsstorlek och sammanslagningsavstånd på en gång",
+    "preset": {
+      "line": "Linjeritning",
+      "scan": "Skanning",
+      "text": "Textdokument"
+    },
+    "autoAlign": "Justera automatiskt",
+    "autoAlignHint": "Uppskatta förskjutning, rotation och skala utifrån ritningarna",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Justera varje sidpar automatiskt första gången det visas",
+    "rotation": "rot.",
+    "scale": "skala",
+    "resetAlignHint": "Ta bort justeringen",
+    "alignManual": "manuell",
+    "confidence": "Tillförlitlighet",
+    "confidenceHint": "Andel av bläcket som sammanfaller efter justering",
+    "alignByMeasure": "skala från mätskalorna",
+    "alignNone": "redan justerad",
+    "alignByContent": "utifrån ritningens innehåll",
+    "pair": "Par",
+    "pagesTab": "Sidor",
+    "pairing": "Parar ihop sidor…",
+    "onlyInOld": "Bara i gammal",
+    "onlyInNew": "Bara i ny",
+    "pairReason": {
+      "sheet": "Parade efter ritningsnummer",
+      "label": "Parade efter sidetikett",
+      "content": "Parade efter innehåll",
+      "index": "Parade efter sidordning",
+      "manual": "Parade för hand"
+    },
+    "truncated": "För många skillnader: kontrollera justeringen eller känsligheten.",
+    "selectForClouds": "Välj för moln i det nya dokumentet",
+    "report": {
+      "button": "Rapport",
+      "csv": "Exportera ändringslista (CSV)…",
+      "pdf": "Exportera PDF-sammanfattning…",
+      "clouds": "Placera valda ändringar som moln",
+      "cloudsNeedTab": "Det nya dokumentet måste vara öppet i en flik",
+      "saved": "Rapporten sparad",
+      "failed": "Rapporten kunde inte skapas",
+      "cloudsPlaced": "{{count}} moln placerade i det nya dokumentet",
+      "title": "Jämförelserapport",
+      "generated": "Skapad",
+      "settings": "Inställningar",
+      "fileSuffix": "andringar",
+      "sourcePixel": "Ritning",
+      "sourceText": "Text",
+      "cloudSubject": "Jämförelse",
+      "before": "Före",
+      "after": "Efter",
+      "col": {
+        "no": "Nr",
+        "pair": "Par",
+        "oldPage": "Gammal sida",
+        "newPage": "Ny sida",
+        "sheet": "Blad",
+        "type": "Typ",
+        "source": "Källa",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Bredd (mm)",
+        "heightMm": "Höjd (mm)",
+        "oldText": "Text före",
+        "newText": "Text efter"
+      },
+      "sourceVector": "Vektor"
+    },
+    "methodVector": "Vektor",
+    "methodVectorHint": "Jämför de ritade banorna exakt där båda sidorna är vektorritningar; andra sidor använder pixeljämförelse",
+    "methodPixelFallback": "pixlar: inte en vektorsida"
   },
   "organize": {
     "pages": "Sidor",
@@ -350,8 +438,16 @@
     "scanTextHint": "Klicka på ett igenkänt ord för att ersätta det. Det gamla ordet i skanningen täcks över.",
     "scanTextNone": "Ingen igenkänd text på den här sidan. Kör Textigenkänning (OCR) först.",
     "shiftPage": "Flytta sida",
+    "scanGroup": "Skanning",
+    "scan": "Skanna",
+    "scanTitle": "Skanna sidor till en sökbar PDF",
+    "batchOcr": "Mapp-OCR",
+    "batchOcrTitle": "Känn igen text i alla PDF-filer i en mapp",
     "editPages": "Redigera sidor",
-    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela"
+    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela",
+    "protect": "Skydda",
+    "security": "Säkerhet",
+    "securityTitle": "Ange eller ta bort lösenord och behörigheter"
   },
   "help": {
     "settings": "Inställningar",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "System (Automatisk)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Storlek som en ny symbol placeras i",
     "symbolScaleCustom": "Anpassad skala",
     "count": "Räkna",
-    "arc": "Båge"
+    "arc": "Båge",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Korrektur",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Nödbelysning",
       "nen1414-tr": "NL NEN 1414 — Brandgasventilation",
       "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Vatten/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Vatten/Sprinkler",
+      "gdt-bewerking": "GD&T och bearbetning"
     },
     "sectors": {
       "aec": "AEC (Bygg)",
@@ -773,5 +881,34 @@
       "mep": "Installationsteknik (MEP)",
       "infra": "Infrastruktur"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

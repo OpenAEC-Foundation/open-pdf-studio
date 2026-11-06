@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Měřítko zjištěno",
     "noScaleFound": "Nebylo nalezeno měřítko",
-    "detecting": "Rozpoznávání..."
+    "detecting": "Rozpoznávání...",
+    "scaleCheck": "Zkontrolovat měřítko",
+    "scaleCheckTitle": "Změřit známý rozměr a zobrazit odchylku měřítka v procentech"
   },
   "home": {
     "document": "Dokument",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Umístit oblast měřítka přes celou stránku",
     "drawing": "Kreslení",
     "highlight": "Zvýraznění",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Volné kreslení",
     "line": "Čára",
     "arrow": "Šipka",
@@ -134,6 +142,8 @@
     "callout": "Popisek",
     "stamp": "Razítko",
     "signature": "Podpis",
+    "digitalSign": "Digitální podpis",
+    "digitalSignTooltip": "Podepsat dokument certifikátem (.p12/.pfx). Tlačítko Podpis vkládá pouze obrázek.",
     "measure": "Měření",
     "measureDistance": "Měřit vzdálenost",
     "distance": "Vzdálenost",
@@ -316,7 +326,85 @@
     "modified": "Změněno",
     "noChanges": "Žádné změny",
     "textTab": "Text",
-    "noTextChanges": "Žádné rozdíly v textu"
+    "noTextChanges": "Žádné rozdíly v textu",
+    "previousVersion": "před posledním uložením",
+    "fromDisk": "soubor",
+    "fileLoadError": "Soubor se nepodařilo otevřít jako PDF.",
+    "browse": "Procházet…",
+    "browseHint": "Vybrat soubor PDF z disku",
+    "pickSecondSide": "Vyberte druhou stranu ze souboru na disku nebo otevřete druhé PDF v kartě.",
+    "sensitivity": "Citlivost",
+    "sensitivityHint": "Nastaví najednou práh inkoustu, minimální velikost změny a vzdálenost slučování",
+    "preset": {
+      "line": "Čárová kresba",
+      "scan": "Sken",
+      "text": "Textový dokument"
+    },
+    "autoAlign": "Zarovnat automaticky",
+    "autoAlignHint": "Odhadnout posun, otočení a měřítko z výkresů",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Automaticky zarovnat každou dvojici stránek při prvním zobrazení",
+    "rotation": "otoč.",
+    "scale": "měřítko",
+    "resetAlignHint": "Odebrat zarovnání",
+    "alignManual": "ručně",
+    "confidence": "Spolehlivost",
+    "confidenceHint": "Podíl inkoustu, který se po zarovnání shoduje",
+    "alignByMeasure": "měřítko z měřicích měřítek",
+    "alignNone": "již zarovnáno",
+    "alignByContent": "z obsahu výkresu",
+    "pair": "Dvojice",
+    "pagesTab": "Stránky",
+    "pairing": "Párování stránek…",
+    "onlyInOld": "Jen ve starém",
+    "onlyInNew": "Jen v novém",
+    "pairReason": {
+      "sheet": "Spárováno podle čísla výkresu",
+      "label": "Spárováno podle štítku stránky",
+      "content": "Spárováno podle obsahu",
+      "index": "Spárováno podle pořadí stránek",
+      "manual": "Spárováno ručně"
+    },
+    "truncated": "Příliš mnoho rozdílů: zkontrolujte zarovnání nebo citlivost.",
+    "selectForClouds": "Vybrat pro obláčky v novém dokumentu",
+    "report": {
+      "button": "Zpráva",
+      "csv": "Exportovat seznam změn (CSV)…",
+      "pdf": "Exportovat souhrn PDF…",
+      "clouds": "Umístit vybrané změny jako obláčky",
+      "cloudsNeedTab": "Nový dokument musí být otevřen v kartě",
+      "saved": "Zpráva uložena",
+      "failed": "Zprávu se nepodařilo vytvořit",
+      "cloudsPlaced": "Obláčky umístěné v novém dokumentu: {{count}}",
+      "title": "Zpráva o porovnání",
+      "generated": "Vytvořeno",
+      "settings": "Nastavení",
+      "fileSuffix": "zmeny",
+      "sourcePixel": "Výkres",
+      "sourceText": "Text",
+      "cloudSubject": "Porovnání",
+      "before": "Před",
+      "after": "Po",
+      "col": {
+        "no": "Č.",
+        "pair": "Dvojice",
+        "oldPage": "Stará stránka",
+        "newPage": "Nová stránka",
+        "sheet": "Výkres č.",
+        "type": "Druh",
+        "source": "Zdroj",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Šířka (mm)",
+        "heightMm": "Výška (mm)",
+        "oldText": "Text před",
+        "newText": "Text po"
+      },
+      "sourceVector": "Vektor"
+    },
+    "methodVector": "Vektor",
+    "methodVectorHint": "Přesně porovnat nakreslené cesty, kde jsou obě stránky vektorové výkresy; ostatní stránky používají porovnání pixelů",
+    "methodPixelFallback": "pixely: není vektorová stránka"
   },
   "organize": {
     "pages": "Stránky",
@@ -350,8 +438,16 @@
     "scanTextHint": "Kliknutím na rozpoznané slovo jej nahradíte. Původní slovo ve skenu se zakryje.",
     "scanTextNone": "Na této stránce není žádný rozpoznaný text. Nejprve spusťte Rozpoznávání textu (OCR).",
     "shiftPage": "Posunout stránku",
+    "scanGroup": "Skenování",
+    "scan": "Skenovat",
+    "scanTitle": "Skenovat stránky do prohledávatelného PDF",
+    "batchOcr": "Hromadné OCR",
+    "batchOcrTitle": "Rozpoznat text ve všech PDF ve složce",
     "editPages": "Upravit stránky",
-    "editPagesTitle": "Upravit stránky vizuálně: změnit pořadí, otočit, vložit, odstranit, extrahovat a rozdělit"
+    "editPagesTitle": "Upravit stránky vizuálně: změnit pořadí, otočit, vložit, odstranit, extrahovat a rozdělit",
+    "protect": "Chránit",
+    "security": "Zabezpečení",
+    "securityTitle": "Nastavit nebo odebrat hesla a oprávnění"
   },
   "help": {
     "settings": "Nastavení",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "Š:",
     "y": "Y:",
-    "h": "V:"
+    "h": "V:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Systémový (Automaticky)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Velikost, ve které se umístí nový symbol",
     "symbolScaleCustom": "Vlastní měřítko",
     "count": "Počítání",
-    "arc": "Oblouk"
+    "arc": "Oblouk",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Korektura",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Nouzové osvětlení",
       "nen1414-tr": "NL NEN 1414 — Odvod kouře a tepla",
       "nen1414-tv": "NL NEN 1414 — Větrání",
-      "nen1414-tw": "NL NEN 1414 — Voda/Sprinklery"
+      "nen1414-tw": "NL NEN 1414 — Voda/Sprinklery",
+      "gdt-bewerking": "GD&T a obrábění"
     },
     "sectors": {
       "aec": "AEC (Stavebnictví)",
@@ -773,5 +881,34 @@
       "mep": "Technická zařízení budov (MEP)",
       "infra": "Infrastruktura"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

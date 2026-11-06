@@ -114,6 +114,9 @@ export default function TextEditOverlay() {
     if (e.key === 'Escape') {
       e.preventDefault();
       e.stopPropagation();
+      // Esc bewaart de getypte tekst (#951): eerst de DOM in de store, dan
+      // beslist text-editing.js (bewaren, of een leeg nieuw vak weghalen).
+      syncFromDom();
       const cancelFn = onCancel();
       if (cancelFn) cancelFn();
       hideTextEditOverlay();

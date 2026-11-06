@@ -142,8 +142,8 @@
     "officeTable": "Tabell",
     "officeText": "Tekst",
     "officeFailed": "Eksport av dokumentet mislyktes.",
-    "protect": "Beskytt med passord",
-    "protectDesc": "Lagre en kopi beskyttet med passord (AES-256)"
+    "protect": "Dokumentsikkerhet",
+    "protectDesc": "Angi eller fjern passord og rettigheter (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Utdataprofil",
@@ -219,11 +219,38 @@
     "uninstallError": "Kunne ikke avinstallere utvidelsen",
     "by": "av",
     "activationFailed": "Ikke aktiv: {{error}}",
-    "viaMcp": "Via AI-tilkoblingen"
+    "viaMcp": "Via AI-tilkoblingen",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "Lag merknad på skjermbilde fra utklippstavlen",
   "workflows": "Dokumentarbeidsflyter",
   "drawingSets": "Tegningssett",
   "sheetLinks": "Lenker mellom tegninger",
-  "approvalRouting": "Godkjenningsflyt"
+  "approvalRouting": "Godkjenningsflyt",
+  "sharedReview": "Delt gjennomgang",
+  "pdfa": "PDF/A..."
 }

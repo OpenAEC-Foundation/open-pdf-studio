@@ -84,6 +84,39 @@ We are also looking for someone to **own and maintain the extensions and the
 content repository** — curating incoming libraries and keeping the ecosystem
 organised as it grows. If you're interested, open an issue to introduce yourself.
 
+## Adding your extension to the catalogue
+
+The Extensions window (File > Extensions > Browse) lists the extensions in
+[`extensions.json`](extensions.json) at the root of this repository. Like symbol
+libraries, catalogue entries are content, so pull requests are welcome:
+
+1. Publish the extension in its own public GitHub repository.
+2. Create a release tagged with the version from `plugin.json` (for example
+   `v1.2.0`) and attach the `.oppx` package. New releases are offered to users as
+   updates.
+3. Open a pull request that adds one entry to `extensions.json`:
+
+   ```json
+   {
+     "id": "my-extension",
+     "name": "My Extension",
+     "description": "One or two sentences on what it does (up to 400 characters).",
+     "author": "Your name",
+     "repo": "https://github.com/owner/my-extension",
+     "tags": ["markup", "measure"]
+   }
+   ```
+
+   `id` must match the `id` in `plugin.json`; the app refuses a package whose id
+   differs. Instead of `repo` you can give a fixed `package` link to a `.oppx`
+   with its `version` and `sha256`. The full format is in
+   [`extensions.schema.json`](extensions.schema.json), and the unit tests check the
+   file on every pull request.
+
+Maintainers review each entry before merging: the extension should do what its
+description says and its source should be public. Extensions installed through
+Add custom (any link) are not reviewed, and the app says so.
+
 ## Ground rules
 
 - **Be respectful and constructive.** Assume good intent and keep the discussion

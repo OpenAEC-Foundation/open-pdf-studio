@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Actief via startvlag ({{adres}})",
     "aiLinkOff": "Uit",
     "aiLinkError": "Niet gestart: {{fout}}",
-    "interfaceScale": "Interfacegrootte"
+    "interfaceScale": "Interfacegrootte",
+    "saving": "Opslaan",
+    "incrementalSave": "Annotatie- en formulierwijzigingen incrementeel opslaan (experimenteel)",
+    "incrementalSaveHint": "Voegt de wijzigingen achter aan het bestand toe in plaats van het te herschrijven. Eerdere versies blijven uit het bestand terug te halen. Redactie, het verwijderen van verborgen informatie en andere wijzigingen worden altijd volledig herschreven."
   },
   "annotations": {
     "generalDefaults": "Algemene standaardwaarden",
@@ -317,7 +320,15 @@
     "butt": "Plat",
     "openArrowReversed": "Open pijl (omgekeerd)",
     "closedArrowReversed": "Gesloten pijl (omgekeerd)",
-    "slash": "Schuine streep"
+    "slash": "Schuine streep",
+    "decimalNotation": "Decimaalteken",
+    "decimalAuto": "Taal volgen",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punt (2.50)",
+    "digitGrouping": "Duizendtallen scheiden (12 345)",
+    "scaleCheck": "Schaalcontrole",
+    "scaleCheckOk": "Goed tot",
+    "scaleCheckWarn": "Waarschuwing tot"
   },
   "keyboardShortcuts": {
     "title": "Sneltoetsen",

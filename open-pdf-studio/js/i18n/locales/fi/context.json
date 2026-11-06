@@ -49,6 +49,7 @@
     "dimChainAdd": "Lisää pisteitä mittaketjuun",
     "dimChainRemove": "Poista apuviiva ketjusta",
     "selectRoom": "Valitse huone",
+    "checkScale": "Tarkista mittakaava tällä viivalla...",
     "saveToToolSet": "Tallenna työkalusarjaan"
   },
   "multiSelect": {

@@ -1,5 +1,20 @@
 import type { Annotation } from './annotation.js';
 
+/** Documentbeveiliging (#378), zie js/pdf/document-beveiliging.js. */
+export interface DocumentBeveiliging {
+  versleuteld: boolean;
+  /** Naam van de Rust-sessie die versleutelt; null bij een oudere methode. */
+  sessie: string | null;
+  methode: string | null;
+  revisie: number | null;
+  p: number | null;
+  rechten: Record<'print' | 'printHogeKwaliteit' | 'wijzigen' | 'kopieren' | 'annoteren' | 'formulieren' | 'samenstellen' | 'toegankelijkheid', boolean> | null;
+  eigenaarToegang: boolean;
+  openWachtwoord: boolean;
+  magWijzigen: boolean;
+  inAfwachting: boolean;
+}
+
 export interface MeasureScale {
   pixelsPerUnit: number;
   unit: string;
@@ -93,6 +108,8 @@ export interface DocumentState {
   ocrLayerPages?: number[];
   /** Fingerprint of the OCR results the last save wrote (saver/ocr-text-layer.js). */
   ocrLayerSignature?: string;
+  /** Per pagina de handtekening van de OCR-woorden die in het geladen document staan (ocr-laag.js). */
+  ocrLaagInBestand?: Record<number, string>;
   bookmarks: Bookmark[];
   /** Paginalabels (bladnamen, #580), index 0 = pagina 1; null = gewone paginanummers. */
   pageLabels?: string[] | null;
@@ -118,17 +135,32 @@ export interface DocumentState {
   /** Gesplitste weergave (#715): null/afwezig = één paneel. Alleen wat de
    *  interface toont; de standen per paneel houdt pdf/split-view/split-view.js. */
   splitView?: { richting: 'vertical' | 'horizontal'; actief: 0 | 1; verhouding: number; sync: boolean } | null;
+  /** Hetzelfde document in meer tabbladen (#919, ui/chrome/weergave-tabs-model.js):
+   *  de ids van de tabbladen in volgorde; afwezig = een tabblad. */
+  weergaven?: string[];
+  /** Het tabblad (weergave) dat de viewer van dit document nu toont. */
+  actieveWeergave?: string;
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
-  /** Met een openingswachtwoord geopend: alleen-lezen, kan niet opgeslagen
-   *  worden (js/pdf/wachtwoord-pdf.js). `filePath` is dan de ontsleutelde
+  /** Keuze bij "Bewerken inschakelen" in een PDF/A-document (#379). */
+  pdfaOpslaan?: 'herconverteer' | 'verwijder' | null;
+  /** Met een openingswachtwoord geopend (js/pdf/wachtwoord-pdf.js): na een
+   *  herstart vraagt de app het opnieuw. `filePath` is dan de ontsleutelde
    *  werkkopie, `originalFilePath` het bestand van de gebruiker. */
   passwordProtected?: boolean;
   originalFilePath?: string | null;
+  /** Documentbeveiliging (#378): de beveiliging die opslaan schrijft
+   *  (js/pdf/document-beveiliging.js); geen = niet versleuteld. */
+  beveiliging?: DocumentBeveiliging | null;
+  /** Namen van de beveiligingssessies in Rust, vrijgegeven bij sluiten. */
+  _beveiligingSessies?: string[];
   /** De infobalk van een beveiligde PDF is voor dit tabblad weggeklikt. */
   _beveiligdBalkVerborgen?: boolean;
   measureScale: MeasureScale | null;
+  /** Schaalcontroles per blad (#629, annotations/schaalcontrole.js); reist mee als
+   *  /OPS_ScaleChecks op de pagina (pdf/schaal-in-pdf.js). */
+  scaleChecks?: Record<number, Array<Record<string, unknown>>> | null;
   /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
    *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */
   pdfViewports?: Record<number, Array<{ x: number; y: number; width: number; height: number; pixelsPerUnit: number; unit: string; mmPerPoint: number; ratio: string; name: string }>>;

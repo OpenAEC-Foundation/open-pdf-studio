@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "시작 옵션으로 활성 ({{adres}})",
     "aiLinkOff": "끔",
     "aiLinkError": "시작되지 않음: {{fout}}",
-    "interfaceScale": "인터페이스 크기"
+    "interfaceScale": "인터페이스 크기",
+    "saving": "저장",
+    "incrementalSave": "주석 및 양식 변경 사항을 증분 저장(실험적)",
+    "incrementalSaveHint": "파일을 다시 쓰는 대신 변경 사항을 파일 끝에 추가합니다. 이전 버전은 파일에서 계속 복구할 수 있습니다. 교정(가리기), 숨겨진 정보 제거 및 기타 변경 사항은 항상 전체를 다시 써서 저장합니다."
   },
   "annotations": {
     "generalDefaults": "일반 기본값",
@@ -313,7 +316,15 @@
     "butt": "평평한 끝",
     "openArrowReversed": "열린 화살표(반대 방향)",
     "closedArrowReversed": "닫힌 화살표(반대 방향)",
-    "slash": "슬래시"
+    "slash": "슬래시",
+    "decimalNotation": "소수점 기호",
+    "decimalAuto": "언어를 따름",
+    "decimalComma": "쉼표 (2,50)",
+    "decimalPoint": "마침표 (2.50)",
+    "digitGrouping": "천 단위 구분 (12 345)",
+    "scaleCheck": "축척 확인",
+    "scaleCheckOk": "양호 한도",
+    "scaleCheckWarn": "경고 한도"
   },
   "keyboardShortcuts": {
     "title": "바로 가기 키",

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Kipimo kimegunduliwa",
     "noScaleFound": "Hakuna kipimo kilichopatikana",
-    "detecting": "Inagundua..."
+    "detecting": "Inagundua...",
+    "scaleCheck": "Kagua kipimo",
+    "scaleCheckTitle": "Pima kipimo kinachojulikana na uonyeshe mkengeuko wa kipimo kwa asilimia"
   },
   "home": {
     "document": "Hati",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Weka eneo la kipimo linalofunika ukurasa mzima",
     "drawing": "Kuchora",
     "highlight": "Angaza",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Huru",
     "line": "Mstari",
     "arrow": "Mshale",
@@ -134,6 +142,8 @@
     "callout": "Tangazo",
     "stamp": "Muhuri",
     "signature": "Saini",
+    "digitalSign": "Sahihi ya kidijitali",
+    "digitalSignTooltip": "Saini hati kwa cheti (.p12/.pfx). Kitufe cha Sahihi huweka picha tu.",
     "measure": "Pima",
     "measureDistance": "Pima Umbali",
     "distance": "Umbali",
@@ -316,7 +326,85 @@
     "modified": "Imebadilishwa",
     "noChanges": "Hakuna mabadiliko",
     "textTab": "Maandishi",
-    "noTextChanges": "Hakuna tofauti za maandishi"
+    "noTextChanges": "Hakuna tofauti za maandishi",
+    "previousVersion": "kabla ya kuhifadhi mara ya mwisho",
+    "fromDisk": "faili",
+    "fileLoadError": "Faili haikuweza kufunguliwa kama PDF.",
+    "browse": "Vinjari…",
+    "browseHint": "Chagua faili ya PDF kutoka kwenye diski",
+    "pickSecondSide": "Chagua upande mwingine kutoka faili kwenye diski, au fungua PDF ya pili kwenye kichupo.",
+    "sensitivity": "Unyeti",
+    "sensitivityHint": "Huweka kwa pamoja kizingiti cha wino, ukubwa mdogo zaidi wa badiliko na umbali wa kuunganisha",
+    "preset": {
+      "line": "Mchoro wa mistari",
+      "scan": "Skani",
+      "text": "Hati ya maandishi"
+    },
+    "autoAlign": "Panga kiotomatiki",
+    "autoAlignHint": "Kadiria msogeo, mzunguko na kipimo kutoka kwenye michoro",
+    "autoAlignEach": "Otomatiki",
+    "autoAlignEachHint": "Panga kila jozi ya kurasa kiotomatiki inapoonyeshwa mara ya kwanza",
+    "rotation": "mzunguko",
+    "scale": "kipimo",
+    "resetAlignHint": "Ondoa upangaji",
+    "alignManual": "kwa mkono",
+    "confidence": "Uhakika",
+    "confidenceHint": "Sehemu ya wino inayolingana baada ya kupanga",
+    "alignByMeasure": "kipimo kutoka kwenye vipimo vya upimaji",
+    "alignNone": "tayari imepangwa",
+    "alignByContent": "kutoka kwenye maudhui ya mchoro",
+    "pair": "Jozi",
+    "pagesTab": "Kurasa",
+    "pairing": "Inalinganisha kurasa…",
+    "onlyInOld": "Kwenye ya zamani tu",
+    "onlyInNew": "Kwenye mpya tu",
+    "pairReason": {
+      "sheet": "Imelinganishwa kwa namba ya karatasi",
+      "label": "Imelinganishwa kwa lebo ya ukurasa",
+      "content": "Imelinganishwa kwa maudhui",
+      "index": "Imelinganishwa kwa mpangilio wa kurasa",
+      "manual": "Imelinganishwa kwa mkono"
+    },
+    "truncated": "Tofauti nyingi mno: kagua upangaji au unyeti.",
+    "selectForClouds": "Chagua kwa mawingu kwenye hati mpya",
+    "report": {
+      "button": "Ripoti",
+      "csv": "Hamisha orodha ya mabadiliko (CSV)…",
+      "pdf": "Hamisha muhtasari wa PDF…",
+      "clouds": "Weka mabadiliko yaliyochaguliwa kama mawingu",
+      "cloudsNeedTab": "Hati mpya lazima iwe wazi kwenye kichupo",
+      "saved": "Ripoti imehifadhiwa",
+      "failed": "Ripoti haikuweza kuundwa",
+      "cloudsPlaced": "Mawingu yaliyowekwa kwenye hati mpya: {{count}}",
+      "title": "Ripoti ya ulinganisho",
+      "generated": "Imeundwa",
+      "settings": "Mipangilio",
+      "fileSuffix": "mabadiliko",
+      "sourcePixel": "Mchoro",
+      "sourceText": "Maandishi",
+      "cloudSubject": "Ulinganisho",
+      "before": "Kabla",
+      "after": "Baada",
+      "col": {
+        "no": "Na.",
+        "pair": "Jozi",
+        "oldPage": "Ukurasa wa zamani",
+        "newPage": "Ukurasa mpya",
+        "sheet": "Karatasi",
+        "type": "Aina",
+        "source": "Chanzo",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Upana (mm)",
+        "heightMm": "Urefu (mm)",
+        "oldText": "Maandishi kabla",
+        "newText": "Maandishi baada"
+      },
+      "sourceVector": "Vekta"
+    },
+    "methodVector": "Vekta",
+    "methodVectorHint": "Linganisha njia zilizochorwa kwa usahihi pale kurasa zote mbili ni michoro ya vekta; kurasa nyingine hutumia ulinganisho wa pikseli",
+    "methodPixelFallback": "pikseli: si ukurasa wa vekta"
   },
   "organize": {
     "pages": "Kurasa",
@@ -350,8 +438,16 @@
     "scanTextHint": "Bofya neno lililotambuliwa ili kulibadilisha. Neno la zamani kwenye skani hufunikwa.",
     "scanTextNone": "Hakuna maandishi yaliyotambuliwa kwenye ukurasa huu. Endesha Utambuzi wa Maandishi (OCR) kwanza.",
     "shiftPage": "Hamisha ukurasa",
+    "scanGroup": "Kuchanganua",
+    "scan": "Changanua",
+    "scanTitle": "Changanua kurasa kuwa PDF inayotafutika",
+    "batchOcr": "OCR ya folda",
+    "batchOcrTitle": "Tambua maandishi katika faili zote za PDF za folda",
     "editPages": "Hariri Kurasa",
-    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya"
+    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya",
+    "protect": "Linda",
+    "security": "Usalama",
+    "securityTitle": "Weka au ondoa manenosiri na ruhusa"
   },
   "help": {
     "settings": "Mipangilio",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "U:",
     "y": "Y:",
-    "h": "R:"
+    "h": "R:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Mfumo (Otomatiki)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Ukubwa wa kuweka alama mpya",
     "symbolScaleCustom": "Kipimo maalum",
     "count": "Hesabu",
-    "arc": "Tao"
+    "arc": "Tao",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Usahihishaji",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Taa za dharura",
       "nen1414-tr": "NL NEN 1414 — Uondoaji wa moshi/joto",
       "nen1414-tv": "NL NEN 1414 — Uingizaji hewa",
-      "nen1414-tw": "NL NEN 1414 — Maji/Vinyunyizio"
+      "nen1414-tw": "NL NEN 1414 — Maji/Vinyunyizio",
+      "gdt-bewerking": "GD&T na uchakataji kwa mashine"
     },
     "sectors": {
       "aec": "AEC (Ujenzi)",
@@ -773,5 +881,34 @@
       "mep": "Huduma za majengo (MEP)",
       "infra": "Miundombinu"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

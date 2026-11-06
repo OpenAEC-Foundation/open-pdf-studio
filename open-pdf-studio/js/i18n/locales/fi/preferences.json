@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Käytössä käynnistysparametrin kautta ({{adres}})",
     "aiLinkOff": "Pois",
     "aiLinkError": "Ei käynnistetty: {{fout}}",
-    "interfaceScale": "Käyttöliittymän koko"
+    "interfaceScale": "Käyttöliittymän koko",
+    "saving": "Tallennus",
+    "incrementalSave": "Tallenna merkintä- ja lomakemuutokset inkrementaalisesti (kokeellinen)",
+    "incrementalSaveHint": "Lisää muutokset tiedoston loppuun sen sijaan, että tiedosto kirjoitettaisiin uudelleen. Aiemmat versiot ovat edelleen palautettavissa tiedostosta. Peittäminen, piilotettujen tietojen poistaminen ja muut muutokset tallennetaan aina kirjoittamalla tiedosto kokonaan uudelleen."
   },
   "annotations": {
     "generalDefaults": "Yleiset oletukset",
@@ -313,7 +316,15 @@
     "butt": "Suora",
     "openArrowReversed": "Avoin nuoli (käänteinen)",
     "closedArrowReversed": "Suljettu nuoli (käänteinen)",
-    "slash": "Vinoviiva"
+    "slash": "Vinoviiva",
+    "decimalNotation": "Desimaalierotin",
+    "decimalAuto": "Kielen mukaan",
+    "decimalComma": "Pilkku (2,50)",
+    "decimalPoint": "Piste (2.50)",
+    "digitGrouping": "Erota tuhannet (12 345)",
+    "scaleCheck": "Mittakaavan tarkistus",
+    "scaleCheckOk": "Kunnossa asti",
+    "scaleCheckWarn": "Varoitus asti"
   },
   "keyboardShortcuts": {
     "title": "Pikanäppäimet",

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Размера препозната",
     "noScaleFound": "Размера није пронађена",
-    "detecting": "Препознавање..."
+    "detecting": "Препознавање...",
+    "scaleCheck": "Провери размеру",
+    "scaleCheckTitle": "Измерите познату меру и прикажите одступање размере у процентима"
   },
   "home": {
     "document": "Документ",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Постави област размере преко целе странице",
     "drawing": "Цртање",
     "highlight": "Истицање",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Слободна рука",
     "line": "Линија",
     "arrow": "Стрелица",
@@ -134,6 +142,8 @@
     "callout": "Облачић",
     "stamp": "Печат",
     "signature": "Потпис",
+    "digitalSign": "Електронски потпис",
+    "digitalSignTooltip": "Потпишите документ сертификатом (.p12/.pfx). Дугме „Потпис“ само поставља слику.",
     "measure": "Мерење",
     "measureDistance": "Мери растојање",
     "distance": "Растојање",
@@ -316,7 +326,85 @@
     "modified": "Измењено",
     "noChanges": "Нема промена",
     "textTab": "Текст",
-    "noTextChanges": "Нема разлика у тексту"
+    "noTextChanges": "Нема разлика у тексту",
+    "previousVersion": "пре последњег чувања",
+    "fromDisk": "датотека",
+    "fileLoadError": "Датотеку није могуће отворити као PDF.",
+    "browse": "Прегледај…",
+    "browseHint": "Изаберите PDF датотеку са диска",
+    "pickSecondSide": "Изаберите другу страну из датотеке на диску или отворите други PDF у картици.",
+    "sensitivity": "Осетљивост",
+    "sensitivityHint": "Заједно подешава праг мастила, најмању величину промене и растојање спајања",
+    "preset": {
+      "line": "Линијски цртеж",
+      "scan": "Скен",
+      "text": "Текстуални документ"
+    },
+    "autoAlign": "Поравнај аутоматски",
+    "autoAlignHint": "Процени помак, ротацију и размеру из цртежа",
+    "autoAlignEach": "Аутом.",
+    "autoAlignEachHint": "Аутоматски поравнај сваки пар страница при првом приказу",
+    "rotation": "рот.",
+    "scale": "размера",
+    "resetAlignHint": "Уклони поравнање",
+    "alignManual": "ручно",
+    "confidence": "Поузданост",
+    "confidenceHint": "Удео мастила који се поклапа после поравнања",
+    "alignByMeasure": "размера из мерних размера",
+    "alignNone": "већ поравнато",
+    "alignByContent": "из садржаја цртежа",
+    "pair": "Пар",
+    "pagesTab": "Странице",
+    "pairing": "Упаривање страница…",
+    "onlyInOld": "Само у старом",
+    "onlyInNew": "Само у новом",
+    "pairReason": {
+      "sheet": "Упарено по броју листа",
+      "label": "Упарено по ознаци странице",
+      "content": "Упарено по садржају",
+      "index": "Упарено по редоследу страница",
+      "manual": "Упарено ручно"
+    },
+    "truncated": "Превише разлика: проверите поравнање или осетљивост.",
+    "selectForClouds": "Изабери за облачиће на новом документу",
+    "report": {
+      "button": "Извештај",
+      "csv": "Извези листу промена (CSV)…",
+      "pdf": "Извези PDF сажетак…",
+      "clouds": "Постави изабране промене као облачиће",
+      "cloudsNeedTab": "Нови документ мора бити отворен у картици",
+      "saved": "Извештај сачуван",
+      "failed": "Извештај није могуће направити",
+      "cloudsPlaced": "Облачићи постављени на нови документ: {{count}}",
+      "title": "Извештај о поређењу",
+      "generated": "Направљено",
+      "settings": "Подешавања",
+      "fileSuffix": "promene",
+      "sourcePixel": "Цртеж",
+      "sourceText": "Текст",
+      "cloudSubject": "Поређење",
+      "before": "Пре",
+      "after": "После",
+      "col": {
+        "no": "Бр.",
+        "pair": "Пар",
+        "oldPage": "Стара страница",
+        "newPage": "Нова страница",
+        "sheet": "Лист",
+        "type": "Врста",
+        "source": "Извор",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Ширина (mm)",
+        "heightMm": "Висина (mm)",
+        "oldText": "Текст пре",
+        "newText": "Текст после"
+      },
+      "sourceVector": "Вектор"
+    },
+    "methodVector": "Вектор",
+    "methodVectorHint": "Тачно упореди нацртане путање где су обе странице векторски цртежи; остале странице користе поређење пиксела",
+    "methodPixelFallback": "пиксели: није векторска страница"
   },
   "organize": {
     "pages": "Странице",
@@ -350,8 +438,16 @@
     "scanTextHint": "Кликните на препознату реч да бисте је заменили. Стара реч на скенираној слици биће прекривена.",
     "scanTextNone": "На овој страници нема препознатог текста. Прво покрените Препознавање текста (OCR).",
     "shiftPage": "Помери страницу",
+    "scanGroup": "Скенирање",
+    "scan": "Скенирај",
+    "scanTitle": "Скенирај странице у претраживи PDF",
+    "batchOcr": "Групни OCR",
+    "batchOcrTitle": "Препознај текст у свим PDF датотекама фасцикле",
     "editPages": "Уреди странице",
-    "editPagesTitle": "Визуелно уређивање страница: промена редоследа, ротирање, уметање, брисање, издвајање и дељење"
+    "editPagesTitle": "Визуелно уређивање страница: промена редоследа, ротирање, уметање, брисање, издвајање и дељење",
+    "protect": "Заштита",
+    "security": "Безбедност",
+    "securityTitle": "Постављање или уклањање лозинки и дозвола"
   },
   "help": {
     "settings": "Подешавања",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "Ш:",
     "y": "Y:",
-    "h": "В:"
+    "h": "В:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Системска (Аутоматски)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Величина у којој се поставља нови симбол",
     "symbolScaleCustom": "Прилагођена размера",
     "count": "Бројање",
-    "arc": "Лук"
+    "arc": "Лук",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Коректура",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Противпанично осветљење",
       "nen1414-tr": "NL NEN 1414 — Одвод дима и топлоте",
       "nen1414-tv": "NL NEN 1414 — Вентилација",
-      "nen1414-tw": "NL NEN 1414 — Вода/Спринклери"
+      "nen1414-tw": "NL NEN 1414 — Вода/Спринклери",
+      "gdt-bewerking": "GD&T и машинска обрада"
     },
     "sectors": {
       "aec": "AEC (Грађевинарство)",
@@ -773,5 +881,34 @@
       "mep": "Инсталације у зградама (MEP)",
       "infra": "Инфраструктура"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

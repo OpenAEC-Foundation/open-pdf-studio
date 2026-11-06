@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "No s'han trobat anotacions al fitxer XFDF.",
   "noRedactionsOnPage": "No hi ha marques de redacció a la pàgina actual per aplicar.",
   "noRedactionsInDocument": "No hi ha marques de redacció al document per aplicar.",
+  "redactTitle": "Aplica les censures",
+  "redactConfirmPage": "Voleu aplicar {{count}} marca/ques de censura a la pàgina {{page}}?",
+  "redactConfirmAll": "Voleu aplicar {{count}} marca/ques de censura a {{pages}} pàgina/es?",
+  "redactConfirmBody": "El text, les imatges, els gràfics vectorials, les anotacions i els camps de formulari sota les marques s'eliminen del document i les àrees s'omplen amb el color de la marca. El fitxer canvia en desar; en desar es reescriu tot el fitxer sense versions anteriors.",
+  "redactDone": "S'han aplicat {{count}} àrea/es de censura. Deseu el document per escriure el canvi al fitxer.",
+  "redactNotApplied": "No s'han aplicat les censures; no s'ha canviat res. {{reason}}",
+  "redactReasonUnsupported": "El contingut sota una marca no es pot eliminar de manera fiable: {{detail}}",
+  "redactReasonInvalid": "Una o més marques no tenen una àrea vàlida.",
+  "redactReasonTextEdits": "Deseu primer les edicions de text no desades.",
   "cannotDeleteAllPages": "No es poden suprimir totes les pàgines. N'ha de quedar com a mínim una.",
   "cannotDeleteAllPagesSource": "No es poden suprimir totes les pàgines del document d'origen.",
   "noPagesSelected": "No s'ha seleccionat cap pàgina per extreure.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "El PDF seleccionat no té pàgines.",
   "failedToSavePdf": "No s'ha pogut desar el PDF: {{error}}",
   "failedToLoadPdf": "No s'ha pogut carregar el PDF: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Obre en una finestra nova",
     "closeTab": "Tanca la pestanya",
     "nextTab": "Pestanya següent",
-    "previousTab": "Pestanya anterior"
+    "previousTab": "Pestanya anterior",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Pàgina següent",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Les miniatures de PDF a l'Explorador de fitxers només estan disponibles a la versió instal·lada.",
     "virtualPrinter": "La impressora virtual només està disponible a la versió instal·lada: s'afegeix al Windows amb drets d'administrador.",
     "notWritable": "L'Open PDF Studio no pot escriure a la carpeta {{dir}}, així que aquesta vegada la configuració es desa al vostre perfil d'usuari. Moveu la carpeta portàtil a una ubicació on es pugui escriure, com una memòria USB o la carpeta Documents."
+  },
+  "protectedPdfNoPrint": "Els permisos d'aquest document no permeten imprimir.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

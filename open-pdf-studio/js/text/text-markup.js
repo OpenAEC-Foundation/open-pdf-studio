@@ -14,8 +14,12 @@ import { recordAdd } from '../core/undo-manager.js';
  * @param {string} type - 'textHighlight', 'textStrikethrough', or 'textUnderline'
  * @param {string} color - The annotation color
  * @param {number} opacity - The annotation opacity
+ * @param {object} [extra] - velden die de berekende overschrijven (bv.
+ *   `quads`, `rects`, `x`/`y`/`width`/`height` op schuine tekst, #927)
+ * @param {{ select?: boolean, redraw?: boolean }} [opties] - de nieuwe
+ *   markering selecteren (standaard) en opnieuw tekenen (standaard)
  */
-export function createTextMarkupAnnotation(type, color, opacity) {
+export function createTextMarkupAnnotation(type, color, opacity, extra = null, opties = {}) {
   const rects = getSelectionRectsForAnnotation();
   if (rects.length === 0) return null;
 
@@ -51,7 +55,8 @@ export function createTextMarkupAnnotation(type, color, opacity) {
     ...(textDir !== null ? { textDir } : {}),
     // Appearance
     color: color,
-    opacity: opacity
+    opacity: opacity,
+    ...(extra || {})
   });
 
   const doc = getActiveDocument();
@@ -59,9 +64,12 @@ export function createTextMarkupAnnotation(type, color, opacity) {
   recordAdd(annotation);
 
   // Select the newly created annotation so Delete key works immediately
-  if (doc) { doc.selectedAnnotations = [annotation]; doc.selectedAnnotation = annotation; }
+  // (niet in de tekstmodus van Markeren: dan sprong de ribbon na elke
+  // markering naar Opmaak, #927).
+  if (doc && opties.select !== false) { doc.selectedAnnotations = [annotation]; doc.selectedAnnotation = annotation; }
 
   // Redraw
+  if (opties.redraw === false) return annotation;
   if (getActiveDocument()?.viewMode === 'continuous') {
     redrawContinuous();
   } else {

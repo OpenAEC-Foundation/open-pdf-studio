@@ -1,6 +1,6 @@
 import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, heeftRustRenderer, saveFileDialog, writeBinaryFile } from '../core/platform.js';
+import { isTauri, isMobile, heeftRustRenderer, saveFileDialog, writeBinaryFile, invoke } from '../core/platform.js';
 import { render } from 'solid-js/web';
 import ScreenshotOverlay from '../solid/components/ScreenshotOverlay.jsx';
 import { startScreenshot, endScreenshot } from '../bridge.js';
@@ -18,6 +18,7 @@ import {
 } from '../pdf/weergave-ruimte.js';
 import i18next from '../i18n/config.js';
 import { kiesPagina, schermDpi, uitvoerMaat, tegelRaster, bestandsnaam } from './screenshot-keuze.js';
+import { kopieerPngNaarKlembord } from './screenshot-klembord.js';
 
 // Weergave draaien (#200): een schermafdruk hoort eruit te zien zoals de
 // gebruiker de pagina ziet. De scherpe render gebeurt in de paginaruimte;
@@ -124,7 +125,8 @@ function _selectionToAppRect(sel, container) {
 const TEGEL_PX = 2048; // region tiles stay well under the render worker's shared memory
 
 /** Page rectangles on screen (client coordinates) that may hold the selection. */
-function _paginasOpScherm(doc) {
+// Ook gebruikt door Afdrukken: Huidige weergave (#947, print-huidige-weergave-dom.js).
+export function paginasOpScherm(doc) {
   if (!doc) return [];
   const volledig = (pageNum) => {
     const m = paginaMaat(pageNum, doc);
@@ -152,7 +154,7 @@ function _paginasOpScherm(doc) {
  *            schermDpi:number, afgesneden:boolean} | null}  rect in page space (points)
  */
 export function gebiedVanSelectie(selectie, doc = getActiveDocument()) {
-  const keuze = kiesPagina(selectie, _paginasOpScherm(doc));
+  const keuze = kiesPagina(selectie, paginasOpScherm(doc));
   if (!keuze) return null;
   const rect = clientRectNaarPagina(keuze.pageNum, keuze.rect, doc);
   const m = paginaMaat(keuze.pageNum, doc);
@@ -294,12 +296,19 @@ function _blob(canvas, type, kwaliteit) {
 
 /**
  * Copy a capture to the clipboard. Always PNG: the clipboard takes a bitmap,
- * the format choice is for files.
+ * the format choice is for files. Desktop writes it from the Rust side, see
+ * screenshot-klembord.js (#925).
  */
 export async function kopieerSchermafbeelding(gebied, dpi) {
   const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
   const blob = await _blob(canvas, 'image/png');
-  await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  await kopieerPngNaarKlembord(blob, {
+    desktop: isTauri() && !isMobile(),
+    invoke,
+    clipboard: navigator.clipboard,
+    ClipboardItem: globalThis.ClipboardItem,
+    waarschuw: console.warn,
+  });
   _bewaarVoorOverlay(gebied, paginaCanvas);
   updateStatusMessage(i18next.t('dialogs:screenshot.copied', { width: maat.breedte, height: maat.hoogte, dpi: maat.dpi }));
   return maat;

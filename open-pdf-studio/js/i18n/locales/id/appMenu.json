@@ -142,8 +142,8 @@
     "officeTable": "Tabel",
     "officeText": "Teks",
     "officeFailed": "Ekspor dokumen gagal.",
-    "protect": "Lindungi dengan Kata Sandi",
-    "protectDesc": "Simpan salinan yang dilindungi kata sandi (AES-256)"
+    "protect": "Keamanan Dokumen",
+    "protectDesc": "Atur atau hapus kata sandi dan izin (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil keluaran",
@@ -219,11 +219,38 @@
     "uninstallError": "Gagal mencopot ekstensi",
     "by": "oleh",
     "activationFailed": "Tidak aktif: {{error}}",
-    "viaMcp": "Melalui koneksi AI"
+    "viaMcp": "Melalui koneksi AI",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "Anotasi Tangkapan Layar dari Papan Klip",
   "workflows": "Alur kerja dokumen",
   "drawingSets": "Set gambar",
   "sheetLinks": "Tautan antarlembar",
-  "approvalRouting": "Perutean persetujuan"
+  "approvalRouting": "Perutean persetujuan",
+  "sharedReview": "Tinjauan bersama",
+  "pdfa": "PDF/A..."
 }

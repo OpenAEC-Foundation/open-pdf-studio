@@ -17,7 +17,9 @@
     "viewports": "Fenêtres",
     "noViewports": "Aucune fenêtre définie",
     "measurements": "Mesures",
-    "noMeasurements": "Aucune mesure pour l'instant"
+    "noMeasurements": "Aucune mesure pour l'instant",
+    "counts": "Comptages",
+    "noCounts": "Aucun comptage"
   },
   "title": "Propriétés",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Supprimer le signet",
     "findBookmark": "Rechercher...",
     "findBookmarkTip": "Tapez pour aller à un signet. Entrée l'ouvre, Entrée à nouveau passe au résultat suivant.",
+    "findPage": "Rechercher...",
+    "findPageTip": "Tapez pour aller à une page par son nom de feuille ou son numéro. Entrée l'ouvre, Entrée à nouveau passe à la correspondance suivante.",
     "addAttachment": "Ajouter une pièce jointe",
     "openAttachment": "Ouvrir la pièce jointe",
     "saveAttachment": "Enregistrer la pièce jointe",
@@ -807,6 +811,24 @@
     "rules": "L'attribution utilise le centre du cadre de délimitation de l'annotation, bords compris. La zone la plus profonde l'emporte, puis la plus petite surface, puis l'ID de zone. Utilisez des polygones droits sans trous ou des rectangles non pivotés. Les identités de zone non valides ou en double sont exclues.",
     "loading": "Chargement des annotations : les emplacements peuvent encore changer."
   },
+  "dynamicStamp": {
+    "title": "Champs du tampon",
+    "template": "Modèle",
+    "refresh": "Mettre à jour la date, l'utilisateur et la page",
+    "lock": "Verrouiller le tampon",
+    "lockConfirm": "Verrouiller ce tampon ? Ses champs ne pourront plus être modifiés.",
+    "locked": "Ce tampon est verrouillé : ses champs ne peuvent plus être modifiés.",
+    "field": {
+      "date": "Date",
+      "time": "Heure",
+      "datetime": "Date et heure",
+      "user": "Utilisateur",
+      "page": "Numéro de page",
+      "pages": "Nombre de pages",
+      "filename": "Nom du fichier",
+      "title": "Titre du document"
+    }
+  },
   "toolSets": {
     "title": "Jeux d'outils",
     "typeWall": "Mur",
@@ -922,5 +944,19 @@
     "open": "Ouvrir",
     "saveAs": "Enregistrer sous...",
     "noContent": "Le contenu de ce fichier n'est pas incorporé dans le PDF."
+  },
+  "countGroup": {
+    "title": "Groupe de comptage",
+    "group": "Groupe",
+    "none": "(aucun groupe)",
+    "mixed": "(mixte)",
+    "total": "Dans ce groupe",
+    "pieces": "{{count}} pcs",
+    "color": "Couleur du groupe",
+    "name": "Nom du groupe"
+  },
+  "sectionOrder": {
+    "reset": "Rétablir l'ordre des sections",
+    "dragHint": "Cliquez pour réduire ou développer. Faites glisser pour déplacer la section (ou Alt+Haut/Bas)."
   }
 }

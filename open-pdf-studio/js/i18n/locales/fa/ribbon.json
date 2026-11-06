@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "مقیاس تشخیص داده شد",
     "noScaleFound": "مقیاسی یافت نشد",
-    "detecting": "در حال تشخیص..."
+    "detecting": "در حال تشخیص...",
+    "scaleCheck": "بررسی مقیاس",
+    "scaleCheckTitle": "اندازه‌گیری یک بُعد معلوم و نمایش انحراف مقیاس به درصد"
   },
   "home": {
     "document": "سند",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "قرار دادن ناحیه مقیاسی که کل صفحه را می‌پوشاند",
     "drawing": "ترسیم",
     "highlight": "برجسته‌سازی",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "دست‌آزاد",
     "line": "خط",
     "arrow": "فلش",
@@ -134,6 +142,8 @@
     "callout": "فراخوان",
     "stamp": "مهر",
     "signature": "امضا",
+    "digitalSign": "امضای دیجیتال",
+    "digitalSignTooltip": "سند را با یک گواهی (.p12/.pfx) امضا کنید. دکمهٔ امضا فقط یک تصویر قرار می‌دهد.",
     "measure": "اندازه‌گیری",
     "measureDistance": "اندازه‌گیری فاصله",
     "distance": "فاصله",
@@ -316,7 +326,85 @@
     "modified": "تغییریافته",
     "noChanges": "بدون تغییر",
     "textTab": "متن",
-    "noTextChanges": "تفاوت متنی وجود ندارد"
+    "noTextChanges": "تفاوت متنی وجود ندارد",
+    "previousVersion": "پیش از آخرین ذخیره",
+    "fromDisk": "فایل",
+    "fileLoadError": "فایل به‌عنوان PDF باز نشد.",
+    "browse": "مرور…",
+    "browseHint": "انتخاب فایل PDF از دیسک",
+    "pickSecondSide": "طرف دیگر را از فایلی روی دیسک انتخاب کنید یا یک PDF دوم را در زبانه باز کنید.",
+    "sensitivity": "حساسیت",
+    "sensitivityHint": "آستانهٔ جوهر، کمینهٔ اندازهٔ تغییر و فاصلهٔ ادغام را با هم تنظیم می‌کند",
+    "preset": {
+      "line": "نقشهٔ خطی",
+      "scan": "اسکن",
+      "text": "سند متنی"
+    },
+    "autoAlign": "تراز خودکار",
+    "autoAlignHint": "برآورد جابه‌جایی، چرخش و مقیاس از روی نقشه‌ها",
+    "autoAlignEach": "خودکار",
+    "autoAlignEachHint": "تراز خودکار هر جفت صفحه در نخستین نمایش",
+    "rotation": "چرخش",
+    "scale": "مقیاس",
+    "resetAlignHint": "حذف تراز",
+    "alignManual": "دستی",
+    "confidence": "اطمینان",
+    "confidenceHint": "سهم جوهری که پس از تراز روی هم می‌افتد",
+    "alignByMeasure": "مقیاس از مقیاس‌های اندازه‌گیری",
+    "alignNone": "از قبل تراز است",
+    "alignByContent": "از محتوای نقشه",
+    "pair": "جفت",
+    "pagesTab": "صفحه‌ها",
+    "pairing": "در حال جفت‌کردن صفحه‌ها…",
+    "onlyInOld": "فقط در قدیمی",
+    "onlyInNew": "فقط در جدید",
+    "pairReason": {
+      "sheet": "جفت‌شده بر اساس شمارهٔ برگه",
+      "label": "جفت‌شده بر اساس برچسب صفحه",
+      "content": "جفت‌شده بر اساس محتوا",
+      "index": "جفت‌شده بر اساس ترتیب صفحه‌ها",
+      "manual": "جفت‌شده به‌صورت دستی"
+    },
+    "truncated": "تفاوت‌ها بیش از حد است: تراز یا حساسیت را بررسی کنید.",
+    "selectForClouds": "انتخاب برای ابر روی سند جدید",
+    "report": {
+      "button": "گزارش",
+      "csv": "خروجی فهرست تغییرات (CSV)…",
+      "pdf": "خروجی خلاصهٔ PDF…",
+      "clouds": "قرار دادن تغییرات انتخاب‌شده به‌صورت ابر",
+      "cloudsNeedTab": "سند جدید باید در یک زبانه باز باشد",
+      "saved": "گزارش ذخیره شد",
+      "failed": "گزارش ساخته نشد",
+      "cloudsPlaced": "ابرهای قرارگرفته روی سند جدید: {{count}}",
+      "title": "گزارش مقایسه",
+      "generated": "ساخته‌شده در",
+      "settings": "تنظیمات",
+      "fileSuffix": "taghirat",
+      "sourcePixel": "نقشه",
+      "sourceText": "متن",
+      "cloudSubject": "مقایسه",
+      "before": "پیش",
+      "after": "پس",
+      "col": {
+        "no": "ردیف",
+        "pair": "جفت",
+        "oldPage": "صفحهٔ قدیمی",
+        "newPage": "صفحهٔ جدید",
+        "sheet": "برگه",
+        "type": "نوع",
+        "source": "منبع",
+        "xMm": "X (میلی‌متر)",
+        "yMm": "Y (میلی‌متر)",
+        "widthMm": "عرض (میلی‌متر)",
+        "heightMm": "ارتفاع (میلی‌متر)",
+        "oldText": "متن پیش",
+        "newText": "متن پس"
+      },
+      "sourceVector": "برداری"
+    },
+    "methodVector": "برداری",
+    "methodVectorHint": "مقایسهٔ دقیق مسیرهای ترسیم‌شده در جایی که هر دو صفحه نقشهٔ برداری‌اند؛ صفحه‌های دیگر با مقایسهٔ پیکسلی سنجیده می‌شوند",
+    "methodPixelFallback": "پیکسل: صفحهٔ برداری نیست"
   },
   "organize": {
     "pages": "صفحات",
@@ -350,8 +438,16 @@
     "scanTextHint": "روی یک کلمه تشخیص‌داده‌شده کلیک کنید تا جایگزین شود. کلمه قدیمی در اسکن پوشانده می‌شود.",
     "scanTextNone": "متن تشخیص‌داده‌شده‌ای در این صفحه نیست. ابتدا تشخیص متن (OCR) را اجرا کنید.",
     "shiftPage": "جابه‌جایی صفحه",
+    "scanGroup": "اسکن",
+    "scan": "اسکن",
+    "scanTitle": "اسکن صفحه‌ها به PDF قابل جستجو",
+    "batchOcr": "OCR گروهی",
+    "batchOcrTitle": "شناسایی متن در همه فایل‌های PDF یک پوشه",
     "editPages": "ویرایش صفحات",
-    "editPagesTitle": "ویرایش دیداری صفحات: مرتب‌سازی، چرخش، درج، حذف، استخراج و تقسیم"
+    "editPagesTitle": "ویرایش دیداری صفحات: مرتب‌سازی، چرخش، درج، حذف، استخراج و تقسیم",
+    "protect": "محافظت",
+    "security": "امنیت",
+    "securityTitle": "تنظیم یا برداشتن گذرواژه‌ها و مجوزها"
   },
   "help": {
     "settings": "تنظیمات",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "سیستم (خودکار)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "اندازه‌ای که نماد جدید با آن قرار می‌گیرد",
     "symbolScaleCustom": "مقیاس سفارشی",
     "count": "شمارش",
-    "arc": "کمان"
+    "arc": "کمان",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "نمونه‌خوانی",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — روشنایی اضطراری",
       "nen1414-tr": "NL NEN 1414 — تخلیه دود/گرما",
       "nen1414-tv": "NL NEN 1414 — تهویه",
-      "nen1414-tw": "NL NEN 1414 — آب/اسپرینکلر"
+      "nen1414-tw": "NL NEN 1414 — آب/اسپرینکلر",
+      "gdt-bewerking": "GD&T و ماشین‌کاری"
     },
     "sectors": {
       "aec": "AEC (ساختمان)",
@@ -773,5 +881,34 @@
       "mep": "تأسیسات ساختمان (MEP)",
       "infra": "زیرساخت"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

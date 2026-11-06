@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Aktív indítási kapcsolóval ({{adres}})",
     "aiLinkOff": "Ki",
     "aiLinkError": "Nem indult el: {{fout}}",
-    "interfaceScale": "Felület mérete"
+    "interfaceScale": "Felület mérete",
+    "saving": "Mentés",
+    "incrementalSave": "Megjegyzés- és űrlapmódosítások növekményes mentése (kísérleti)",
+    "incrementalSaveHint": "A módosításokat a fájl végéhez fűzi ahelyett, hogy újraírná. A korábbi verziók továbbra is visszaállíthatók a fájlból. A kitakarás, a rejtett információk eltávolítása és az egyéb módosítások mindig teljes újraírással mentődnek."
   },
   "annotations": {
     "generalDefaults": "Általános alapértelmezések",
@@ -313,7 +316,15 @@
     "butt": "Egyenes",
     "openArrowReversed": "Nyitott nyíl (fordított)",
     "closedArrowReversed": "Zárt nyíl (fordított)",
-    "slash": "Perjel"
+    "slash": "Perjel",
+    "decimalNotation": "Tizedesjel",
+    "decimalAuto": "Nyelv szerint",
+    "decimalComma": "Vessző (2,50)",
+    "decimalPoint": "Pont (2.50)",
+    "digitGrouping": "Ezresek tagolása (12 345)",
+    "scaleCheck": "Léptékellenőrzés",
+    "scaleCheckOk": "Megfelelő eddig",
+    "scaleCheckWarn": "Figyelmeztetés eddig"
   },
   "keyboardShortcuts": {
     "title": "Billentyűparancsok",

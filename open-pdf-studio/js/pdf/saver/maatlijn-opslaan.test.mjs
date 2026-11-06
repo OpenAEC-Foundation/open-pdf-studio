@@ -78,8 +78,10 @@ async function opgeslagen(ann) {
 
 for (const [naam, ann] of Object.entries(GEVALLEN)) {
   test(`${naam}: geometrie en appearance blijven gelijk`, async () => {
+    // De meetgegevens voor andere programma's (/Measure, en /Contents met de
+    // eenheid erbij plus OPS_MeasureText, #959): meting-uitwisseling.test.mjs.
     const zonderMeetmetadata = regels => regels.filter(regel =>
-      !/^\/(?:Measure|Cap|CP|OPS_ScaleInherited)\b/.test(regel));
+      !/^\/(?:Measure|Cap|CP|OPS_ScaleInherited|OPS_MeasureText|Contents)\b/.test(regel));
     assert.deepEqual(zonderMeetmetadata(await opgeslagen(ann)), zonderMeetmetadata(VASTGELEGD[naam]));
   });
 }

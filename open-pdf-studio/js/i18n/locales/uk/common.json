@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "У файлі XFDF не знайдено анотацій.",
   "noRedactionsOnPage": "На поточній сторінці немає позначок редагування для застосування.",
   "noRedactionsInDocument": "У документі немає позначок редагування для застосування.",
+  "redactTitle": "Застосувати затемнення",
+  "redactConfirmPage": "Застосувати {{count}} позначок затемнення на сторінці {{page}}?",
+  "redactConfirmAll": "Застосувати {{count}} позначок затемнення на {{pages}} сторінках?",
+  "redactConfirmBody": "Текст, зображення, векторна графіка, коментарі та поля форм під позначками видаляються з документа, а області заповнюються кольором позначки. Файл зміниться під час збереження; збереження повністю перезаписує файл без попередніх версій.",
+  "redactDone": "Застосовано областей затемнення: {{count}}. Збережіть документ, щоб записати зміну у файл.",
+  "redactNotApplied": "Затемнення не застосовано; нічого не змінено. {{reason}}",
+  "redactReasonUnsupported": "Вміст під позначкою не можна надійно видалити: {{detail}}",
+  "redactReasonInvalid": "Одна або кілька позначок не мають дійсної області.",
+  "redactReasonTextEdits": "Спочатку збережіть незбережені редагування тексту.",
   "cannotDeleteAllPages": "Не можна видалити всі сторінки. Має залишитися щонайменше одна сторінка.",
   "cannotDeleteAllPagesSource": "Не можна видалити всі сторінки з вихідного документа.",
   "noPagesSelected": "Не вибрано сторінок для витягування.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Вибраний PDF не містить сторінок.",
   "failedToSavePdf": "Не вдалося зберегти PDF: {{error}}",
   "failedToLoadPdf": "Не вдалося завантажити PDF: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Відкрити в новому вікні",
     "closeTab": "Закрити вкладку",
     "nextTab": "Наступна вкладка",
-    "previousTab": "Попередня вкладка"
+    "previousTab": "Попередня вкладка",
+    "newTabForDocument": "Нова вкладка для цього документа"
   },
   "pageNav": {
     "nextPage": "Наступна сторінка",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Ескізи PDF у Провіднику доступні лише в установленій версії.",
     "virtualPrinter": "Віртуальний принтер доступний лише в установленій версії: він додається до Windows із правами адміністратора.",
     "notWritable": "Open PDF Studio не може записувати в папку {{dir}}, тому цього разу налаштування зберігаються у вашому профілі користувача. Перемістіть портативну папку в місце, доступне для запису, наприклад на USB-накопичувач або в папку «Документи»."
+  },
+  "protectedPdfNoPrint": "Права цього документа не дозволяють друк.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

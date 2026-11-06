@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detectar escala del quadre de titol",
     "scaleDetected": "Escala detectada",
     "noScaleFound": "Cap escala trobada",
-    "detecting": "Detectant..."
+    "detecting": "Detectant...",
+    "scaleCheck": "Comprova l'escala",
+    "scaleCheckTitle": "Mesura una cota coneguda i mostra la desviació de l'escala en percentatge"
   },
   "home": {
     "document": "Document",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Col·loca una regió d'escala que cobreixi tota la pàgina",
     "drawing": "Dibuix",
     "highlight": "Ressalta",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Mà alçada",
     "line": "Línia",
     "arrow": "Fletxa",
@@ -134,6 +142,8 @@
     "callout": "Crida",
     "stamp": "Segell",
     "signature": "Signatura",
+    "digitalSign": "Signatura digital",
+    "digitalSignTooltip": "Signa el document amb un certificat (.p12/.pfx). El botó Signatura només hi col·loca una imatge.",
     "measure": "Mesura",
     "measureDistance": "Mesura distància",
     "distance": "Distància",
@@ -316,7 +326,85 @@
     "modified": "Modificat",
     "noChanges": "Cap canvi",
     "textTab": "Text",
-    "noTextChanges": "Cap diferència de text"
+    "noTextChanges": "Cap diferència de text",
+    "previousVersion": "abans de l'últim desament",
+    "fromDisk": "fitxer",
+    "fileLoadError": "No s'ha pogut obrir el fitxer com a PDF.",
+    "browse": "Navega…",
+    "browseHint": "Tria un fitxer PDF del disc",
+    "pickSecondSide": "Tria l'altre costat des d'un fitxer al disc o obre un segon PDF en una pestanya.",
+    "sensitivity": "Sensibilitat",
+    "sensitivityHint": "Ajusta alhora el llindar de tinta, la mida mínima del canvi i la distància d'unió",
+    "preset": {
+      "line": "Dibuix lineal",
+      "scan": "Escaneig",
+      "text": "Document de text"
+    },
+    "autoAlign": "Alinea automàticament",
+    "autoAlignHint": "Estima el desplaçament, la rotació i l'escala a partir dels dibuixos",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Alinea automàticament cada parell de pàgines en mostrar-lo per primer cop",
+    "rotation": "rot.",
+    "scale": "escala",
+    "resetAlignHint": "Elimina l'alineació",
+    "alignManual": "manual",
+    "confidence": "Fiabilitat",
+    "confidenceHint": "Proporció de la tinta que coincideix després d'alinear",
+    "alignByMeasure": "escala a partir de les escales de mesura",
+    "alignNone": "ja alineat",
+    "alignByContent": "a partir del contingut del dibuix",
+    "pair": "Parell",
+    "pagesTab": "Pàgines",
+    "pairing": "S'estan aparellant les pàgines…",
+    "onlyInOld": "Només a l'antic",
+    "onlyInNew": "Només al nou",
+    "pairReason": {
+      "sheet": "Aparellades pel número de plànol",
+      "label": "Aparellades per l'etiqueta de pàgina",
+      "content": "Aparellades pel contingut",
+      "index": "Aparellades per l'ordre de pàgines",
+      "manual": "Aparellades a mà"
+    },
+    "truncated": "Massa diferències: comproveu l'alineació o la sensibilitat.",
+    "selectForClouds": "Selecciona per a núvols al document nou",
+    "report": {
+      "button": "Informe",
+      "csv": "Exporta la llista de canvis (CSV)…",
+      "pdf": "Exporta un resum en PDF…",
+      "clouds": "Col·loca els canvis seleccionats com a núvols",
+      "cloudsNeedTab": "El document nou ha d'estar obert en una pestanya",
+      "saved": "Informe desat",
+      "failed": "No s'ha pogut crear l'informe",
+      "cloudsPlaced": "{{count}} núvols col·locats al document nou",
+      "title": "Informe de comparació",
+      "generated": "Generat",
+      "settings": "Configuració",
+      "fileSuffix": "canvis",
+      "sourcePixel": "Dibuix",
+      "sourceText": "Text",
+      "cloudSubject": "Comparació",
+      "before": "Abans",
+      "after": "Després",
+      "col": {
+        "no": "Núm.",
+        "pair": "Parell",
+        "oldPage": "Pàgina antiga",
+        "newPage": "Pàgina nova",
+        "sheet": "Plànol",
+        "type": "Tipus",
+        "source": "Origen",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Amplada (mm)",
+        "heightMm": "Alçada (mm)",
+        "oldText": "Text abans",
+        "newText": "Text després"
+      },
+      "sourceVector": "Vectorial"
+    },
+    "methodVector": "Vectorial",
+    "methodVectorHint": "Compara exactament els traços on les dues pàgines són dibuixos vectorials; les altres pàgines fan servir la comparació per píxels",
+    "methodPixelFallback": "píxels: no és una pàgina vectorial"
   },
   "organize": {
     "pages": "Pàgines",
@@ -350,8 +438,16 @@
     "scanTextHint": "Feu clic en una paraula reconeguda per substituir-la. La paraula antiga de l'escaneig queda coberta.",
     "scanTextNone": "No hi ha text reconegut en aquesta pàgina. Executeu primer Reconeixement de text (OCR).",
     "shiftPage": "Desplaça la pàgina",
+    "scanGroup": "Escaneig",
+    "scan": "Escaneja",
+    "scanTitle": "Escaneja pàgines a un PDF amb cerca",
+    "batchOcr": "OCR per lots",
+    "batchOcrTitle": "Reconeix el text de tots els PDF d'una carpeta",
     "editPages": "Edita les pàgines",
-    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix"
+    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix",
+    "protect": "Protegir",
+    "security": "Seguretat",
+    "securityTitle": "Definir o treure contrasenyes i permisos"
   },
   "help": {
     "settings": "Configuració",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "A:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Sistema (Autodetecció)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Mida amb què es col·loca un símbol nou",
     "symbolScaleCustom": "Escala personalitzada",
     "count": "Comptar",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Revisió",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Enllumenat d'emergència",
       "nen1414-tr": "NL NEN 1414 — Extracció de fum/calor",
       "nen1414-tv": "NL NEN 1414 — Ventilació",
-      "nen1414-tw": "NL NEN 1414 — Aigua/Ruixadors"
+      "nen1414-tw": "NL NEN 1414 — Aigua/Ruixadors",
+      "gdt-bewerking": "GD&T i mecanitzat"
     },
     "sectors": {
       "aec": "AEC (Construcció)",
@@ -773,5 +881,34 @@
       "mep": "Instal·lacions (MEP)",
       "infra": "Infraestructura"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

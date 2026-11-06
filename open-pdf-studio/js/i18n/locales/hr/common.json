@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "U XFDF datoteci nisu pronađene oznake.",
   "noRedactionsOnPage": "Na trenutnoj stranici nema oznaka redigiranja za primjenu.",
   "noRedactionsInDocument": "U dokumentu nema oznaka redigiranja za primjenu.",
+  "redactTitle": "Primijeni zacrnjenja",
+  "redactConfirmPage": "Primijeniti {{count}} oznaku/e zacrnjenja na stranici {{page}}?",
+  "redactConfirmAll": "Primijeniti {{count}} oznaku/e zacrnjenja na {{pages}} stranica?",
+  "redactConfirmBody": "Tekst, slike, vektorska grafika, komentari i polja obrasca ispod oznaka uklanjaju se iz dokumenta, a područja se ispunjavaju bojom oznake. Datoteka se mijenja pri spremanju; spremanje ponovno zapisuje cijelu datoteku bez ranijih verzija.",
+  "redactDone": "Primijenjena područja zacrnjenja: {{count}}. Spremite dokument kako bi se promjena zapisala u datoteku.",
+  "redactNotApplied": "Zacrnjenja nisu primijenjena; ništa nije promijenjeno. {{reason}}",
+  "redactReasonUnsupported": "Sadržaj ispod oznake ne može se pouzdano ukloniti: {{detail}}",
+  "redactReasonInvalid": "Jedna ili više oznaka nema valjano područje.",
+  "redactReasonTextEdits": "Najprije spremite nespremljene izmjene teksta.",
   "cannotDeleteAllPages": "Nije moguće obrisati sve stranice. Mora ostati barem jedna stranica.",
   "cannotDeleteAllPagesSource": "Nije moguće obrisati sve stranice iz izvornog dokumenta.",
   "noPagesSelected": "Nisu odabrane stranice za izdvajanje.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Odabrani PDF nema stranica.",
   "failedToSavePdf": "Spremanje PDF-a nije uspjelo: {{error}}",
   "failedToLoadPdf": "Učitavanje PDF-a nije uspjelo: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Otvori u novom prozoru",
     "closeTab": "Zatvori karticu",
     "nextTab": "Sljedeća kartica",
-    "previousTab": "Prethodna kartica"
+    "previousTab": "Prethodna kartica",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Sljedeća stranica",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Minijature PDF-a u Eksploreru datoteka dostupne su samo u instaliranoj verziji.",
     "virtualPrinter": "Virtualni pisač dostupan je samo u instaliranoj verziji: dodaje se u Windows s administratorskim pravima.",
     "notWritable": "Open PDF Studio ne može pisati u mapu {{dir}}, pa se vaše postavke ovaj put spremaju u vaš korisnički profil. Premjestite prijenosnu mapu na mjesto s pravom pisanja, primjerice na USB stick ili u mapu Dokumenti."
+  },
+  "protectedPdfNoPrint": "Dopuštenja ovog dokumenta ne dopuštaju ispis.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

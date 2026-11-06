@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detecter echelle du cartouche",
     "scaleDetected": "Echelle detectee",
     "noScaleFound": "Aucune echelle trouvee",
-    "detecting": "Detection..."
+    "detecting": "Detection...",
+    "scaleCheck": "Vérifier l'échelle",
+    "scaleCheckTitle": "Mesurer une cote connue et afficher l'écart d'échelle en pourcentage"
   },
   "home": {
     "document": "Document",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Placer une zone d'échelle couvrant toute la page",
     "drawing": "Dessin",
     "highlight": "Surligner",
+    "textHighlight": "Surligner le texte",
+    "textHighlightTitle": "Faites glisser sur le texte pour le surligner. Double-clic : un mot. Triple-clic : toute l'étiquette.",
+    "areaHighlight": "Surligner une zone",
+    "areaHighlightTitle": "Tracez un cadre pour surligner une zone",
+    "highlightMode": "Surligner : zone ou texte",
+    "highlightSwitchTip": "Cliquez à nouveau pour basculer entre zone et texte",
     "freehand": "Main levée",
     "line": "Ligne",
     "arrow": "Flèche",
@@ -134,6 +142,8 @@
     "callout": "Légende",
     "stamp": "Tampon",
     "signature": "Signature",
+    "digitalSign": "Signature numérique",
+    "digitalSignTooltip": "Signer le document avec un certificat (.p12/.pfx). Le bouton Signature place seulement une image.",
     "measure": "Mesure",
     "measureDistance": "Mesurer la distance",
     "distance": "Distance",
@@ -316,7 +326,85 @@
     "modified": "Modifié",
     "noChanges": "Aucune modification",
     "textTab": "Texte",
-    "noTextChanges": "Aucune différence de texte"
+    "noTextChanges": "Aucune différence de texte",
+    "previousVersion": "avant le dernier enregistrement",
+    "fromDisk": "fichier",
+    "fileLoadError": "Le fichier n'a pas pu être ouvert comme PDF.",
+    "browse": "Parcourir…",
+    "browseHint": "Choisir un fichier PDF sur le disque",
+    "pickSecondSide": "Choisissez l'autre côté dans un fichier sur le disque, ou ouvrez un second PDF dans un onglet.",
+    "sensitivity": "Sensibilité",
+    "sensitivityHint": "Règle ensemble le seuil d'encre, la taille minimale d'un changement et la distance de fusion",
+    "preset": {
+      "line": "Dessin au trait",
+      "scan": "Numérisation",
+      "text": "Document texte"
+    },
+    "autoAlign": "Aligner automatiquement",
+    "autoAlignHint": "Estimer le décalage, la rotation et l'échelle à partir des dessins",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Aligner automatiquement chaque paire de pages à son premier affichage",
+    "rotation": "rot.",
+    "scale": "échelle",
+    "resetAlignHint": "Supprimer l'alignement",
+    "alignManual": "manuel",
+    "confidence": "Fiabilité",
+    "confidenceHint": "Part de l'encre qui coïncide après l'alignement",
+    "alignByMeasure": "échelle tirée des échelles de mesure",
+    "alignNone": "déjà aligné",
+    "alignByContent": "à partir du contenu du dessin",
+    "pair": "Paire",
+    "pagesTab": "Pages",
+    "pairing": "Association des pages…",
+    "onlyInOld": "Seulement dans l'ancien",
+    "onlyInNew": "Seulement dans le nouveau",
+    "pairReason": {
+      "sheet": "Associées par numéro de feuille",
+      "label": "Associées par étiquette de page",
+      "content": "Associées par contenu",
+      "index": "Associées par ordre des pages",
+      "manual": "Associées à la main"
+    },
+    "truncated": "Trop de différences : vérifiez l'alignement ou la sensibilité.",
+    "selectForClouds": "Sélectionner pour des nuages sur le nouveau document",
+    "report": {
+      "button": "Rapport",
+      "csv": "Exporter la liste des changements (CSV)…",
+      "pdf": "Exporter un résumé PDF…",
+      "clouds": "Placer les changements sélectionnés comme nuages",
+      "cloudsNeedTab": "Le nouveau document doit être ouvert dans un onglet",
+      "saved": "Rapport enregistré",
+      "failed": "Le rapport n'a pas pu être créé",
+      "cloudsPlaced": "{{count}} nuages placés sur le nouveau document",
+      "title": "Rapport de comparaison",
+      "generated": "Créé le",
+      "settings": "Paramètres",
+      "fileSuffix": "changements",
+      "sourcePixel": "Dessin",
+      "sourceText": "Texte",
+      "cloudSubject": "Comparaison",
+      "before": "Avant",
+      "after": "Après",
+      "col": {
+        "no": "N°",
+        "pair": "Paire",
+        "oldPage": "Ancienne page",
+        "newPage": "Nouvelle page",
+        "sheet": "Feuille",
+        "type": "Type",
+        "source": "Origine",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Largeur (mm)",
+        "heightMm": "Hauteur (mm)",
+        "oldText": "Texte avant",
+        "newText": "Texte après"
+      },
+      "sourceVector": "Vectoriel"
+    },
+    "methodVector": "Vectoriel",
+    "methodVectorHint": "Comparer exactement les tracés là où les deux pages sont des dessins vectoriels ; les autres pages utilisent la comparaison par pixels",
+    "methodPixelFallback": "pixels : pas une page vectorielle"
   },
   "organize": {
     "pages": "Pages",
@@ -350,8 +438,16 @@
     "scanTextHint": "Cliquez sur un mot reconnu pour le remplacer. L'ancien mot de la numérisation est masqué.",
     "scanTextNone": "Aucun texte reconnu sur cette page. Lancez d'abord Reconnaissance de texte (OCR).",
     "shiftPage": "Décaler la page",
+    "scanGroup": "Numériser",
+    "scan": "Numériser",
+    "scanTitle": "Numériser des pages en PDF consultable",
+    "batchOcr": "OCR par lot",
+    "batchOcrTitle": "Reconnaître le texte de tous les PDF d'un dossier",
     "editPages": "Modifier les pages",
-    "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner"
+    "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner",
+    "protect": "Protéger",
+    "security": "Sécurité",
+    "securityTitle": "Définir ou supprimer les mots de passe et les droits"
   },
   "help": {
     "settings": "Paramètres",
@@ -501,7 +597,11 @@
     "x": "X :",
     "w": "L :",
     "y": "Y :",
-    "h": "H :"
+    "h": "H :",
+    "alignToPage": "Aligner sur la page",
+    "alignToPageTip": "Aligner la sélection sur les bords ou le centre de la page (fonctionne aussi avec une seule annotation)",
+    "alignPageEach": "Aligner chaque annotation séparément",
+    "alignPageEachTip": "Avec Aligner sur la page : chaque annotation est placée seule contre le bord, et non en groupe"
   },
   "theme": {
     "system": "Système (Automatique)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Taille à laquelle un nouveau symbole est placé",
     "symbolScaleCustom": "Échelle personnalisée",
     "count": "Compter",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Groupe de comptage",
+    "countGroupLabel": "Groupe",
+    "countGroupTip": "Les nouveaux repères de comptage vont dans ce groupe ; le nombre est le total du groupe",
+    "countGroupColor": "Couleur",
+    "countGroupColorTip": "Couleur de tout le groupe, y compris les repères déjà placés",
+    "countGroupNew": "Nouveau groupe",
+    "countGroupAdd": "Ajouter un groupe"
   },
   "proofread": {
     "group": "Relecture",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Éclairage de secours",
       "nen1414-tr": "NL NEN 1414 — Désenfumage",
       "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Eau/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Eau/Sprinkler",
+      "gdt-bewerking": "GD&T et usinage"
     },
     "sectors": {
       "aec": "AEC (Bâtiment)",
@@ -773,5 +881,34 @@
       "mep": "Équipements techniques du bâtiment (MEP)",
       "infra": "Infrastructures"
     }
+  },
+  "clipboardPalette": {
+    "title": "Presse-papiers",
+    "tip": "Cliquez sur une copie, puis Ctrl+V sur la feuille : elle se place sous la souris.",
+    "empty": "Copiez des annotations (Ctrl+C) pour les rassembler ici.",
+    "clear": "Vider le presse-papiers",
+    "clearShort": "Vider",
+    "remove": "Supprimer",
+    "close": "Fermer",
+    "markups": "{{count}} annotations",
+    "picked": "La copie est dans le presse-papiers : appuyez sur Ctrl+V sur la feuille"
+  },
+  "workspace": {
+    "button": "Espace de travail",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Espaces de travail enregistrés",
+    "none": "Aucun espace de travail enregistré",
+    "manage": "Save or manage workspaces...",
+    "reset": "Rétablir la disposition par défaut",
+    "interfaceSize": "Taille de l'interface",
+    "dialogTitle": "Espaces de travail",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Nom :",
+    "save": "Save current layout",
+    "overwrite": "Remplacer",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Appliquer",
+    "delete": "Supprimer"
   }
 }

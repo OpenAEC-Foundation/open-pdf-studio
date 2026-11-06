@@ -110,6 +110,7 @@
   "searchHitsOne": "1 dopasowanie",
   "searchHitsMany": "Dopasowania: {{count}}",
   "passwordProtectedBar": "Chroniony hasłem: otwarty tylko do odczytu.",
+  "passwordProtectedEditableBar": "Chroniony hasłem. Zapisanie zachowuje ochronę.",
   "documentSearch": {
     "title": "Przeszukaj dokumenty",
     "query": "Szukany tekst",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Ostatnie narzędzie: {{tool}} o {{time}}",
     "noTool": "Brak wywołań narzędzi"
-  }
+  },
+  "sharedReviewActive": "Wspólna recenzja",
+  "sharedReviewUpdates": "Wspólna recenzja: nowe {{n}}",
+  "sharedReviewTitle": "Adnotacje są udostępniane przez {{folder}}. Kliknij, aby otworzyć wspólną recenzję.",
+  "sharedReviewError": "Wspólna recenzja: folder niedostępny",
+  "pdfaReadOnly": "Ten dokument jest zgodny ze standardem {{label}} i został otwarty tylko do odczytu, aby zapobiec jego modyfikacji.",
+  "pdfaValidate": "Waliduj"
 }

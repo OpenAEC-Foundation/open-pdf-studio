@@ -15,10 +15,18 @@
 //    content:// URI with an opaque id. window.OpdsAndroid.displayName(uri)
 //    returns its display name (OpenableColumns.DISPLAY_NAME), see
 //    js/core/bestandsnaam.js.
+// 3. Delen (#952): window.OpdsAndroid.share(path, mime, title) zet de
+//    verzendkopie uit de cachemap (src-tauri/src/email.rs,
+//    verzendkopie_schrijven) in het deelvenster van Android, naar mail,
+//    Drive, berichten-apps enz. De FileProvider is die van het gegenereerde
+//    project (<applicationId>.fileprovider), dezelfde die de bestandskiezer
+//    voor camerafoto's gebruikt. Zie js/pdf/delen.js.
 
 package org.openaec.openpdfstudio
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -26,8 +34,10 @@ import android.view.View
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import androidx.activity.enableEdgeToEdge
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.io.File
 
 class MainActivity : TauriActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +75,45 @@ class OpdsAndroidBridge(private val activity: Activity) {
       }
     } catch (e: Exception) {
       null
+    }
+  }
+
+  // Lege tekst = het deelvenster is geopend; anders de foutmelding.
+  @JavascriptInterface
+  fun share(path: String?, mime: String?, title: String?): String {
+    if (path.isNullOrEmpty()) return "no file"
+    return try {
+      val file = File(path).canonicalFile
+      val cache = activity.cacheDir.canonicalFile
+      // Alleen een kopie uit de eigen cachemap, nooit een willekeurig pad.
+      if (!file.path.startsWith(cache.path + File.separator) || !file.isFile) return "not a send copy: $path"
+      val uri = deelUri(file)
+      val send = Intent(Intent.ACTION_SEND).apply {
+        type = if (mime.isNullOrEmpty()) "application/pdf" else mime
+        putExtra(Intent.EXTRA_STREAM, uri)
+        putExtra(Intent.EXTRA_SUBJECT, file.name)
+        clipData = ClipData.newRawUri(file.name, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+      }
+      val chooser = Intent.createChooser(send, title ?: file.name)
+      activity.runOnUiThread { activity.startActivity(chooser) }
+      ""
+    } catch (e: Exception) {
+      e.message ?: e.toString()
+    }
+  }
+
+  private fun deelUri(file: File): Uri {
+    val authority = activity.packageName + ".fileprovider"
+    return try {
+      FileProvider.getUriForFile(activity, authority, file)
+    } catch (e: IllegalArgumentException) {
+      // De paden van de provider dekken de cachemap niet: via de externe
+      // bestandenmap van de app (external-path), die ze wel dekken.
+      val map = File(activity.getExternalFilesDir(null), "verzenden").apply { mkdirs() }
+      val kopie = File(map, file.name)
+      file.copyTo(kopie, overwrite = true)
+      FileProvider.getUriForFile(activity, authority, kopie)
     }
   }
 }

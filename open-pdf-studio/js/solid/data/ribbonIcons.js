@@ -72,6 +72,8 @@ export const findIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 
 
 // --- Comment tab: Drawing ---
 
+// Markeren in tekstmodus (#927): een T op een gele balk.
+export const textHighlightIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="7" fill="#facc15" stroke="none" opacity="0.85"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h12M12 4v14"/></svg>`;
 export const highlightIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10M3 10h18M3 14h18"/></svg>`;
 
 export const freehandIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`;
@@ -118,6 +120,8 @@ export const calloutIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 
 export const stampIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>`;
 
 export const signatureIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/><path stroke-linecap="round" stroke-width="2" d="M3 21c2-2 4-3 6-1s4-1 6-3"/></svg>`;
+
+export const digitalSignIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="13" height="16" stroke-width="1.6"/><path stroke-linecap="round" stroke-width="1.6" d="M6 9h7M6 12h5M6 16c1-1.2 1.8-1.6 2.4-1.2.7.4.6 1.3 1.4 1.2.5 0 .9-.6 1.4-1"/><circle cx="18" cy="14" r="3" stroke-width="1.6"/><path stroke-linejoin="round" stroke-width="1.6" d="M16.6 16.7 16 21l2-1.1 2 1.1-.6-4.3"/></svg>`;
 
 export const northArrowIcon = `<svg viewBox="0 0 24 26" stroke="currentColor"><polygon points="12,3 9,15 12,15 12,21" fill="currentColor" stroke="currentColor" stroke-width="0.7"/><polygon points="12,3 15,15 12,15" fill="none" stroke="currentColor" stroke-width="0.7"/><polygon points="12,15 15,15 12,21" fill="none" stroke="currentColor" stroke-width="0.7"/><line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="0.7"/><line x1="15" y1="15" x2="20" y2="15" stroke="currentColor" stroke-width="0.7"/></svg>`;
 

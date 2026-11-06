@@ -20,6 +20,22 @@
   cursor: default;
 }
 
+/* Ingeklapt lint, tijdelijk opengeklapt door een klik op een tabtitel (#960):
+   de inhoud ligt als paneel over het document, zonder de indeling eronder te
+   verschuiven. Een klik buiten het lint of Esc klapt hem weer in. */
+.ribbon-container.ribbon-tijdelijk-open {
+  position: relative;
+  z-index: 900;
+}
+.ribbon-container.ribbon-tijdelijk-open > .ribbon-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  border-bottom: 1px solid var(--theme-ribbon-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 /* Ribbon Tabs */
 .ribbon-tabs {
   background: linear-gradient(to bottom, var(--theme-ribbon-tabs-bg-start) 0%, var(--theme-ribbon-tabs-bg-end) 100%);
@@ -865,6 +881,19 @@
   flex-shrink: 0;
 }
 
+/* Pictogram als innerHTML in een splitknopmenu (Markeren, #927). */
+.ribbon-split-btn-menu-icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.ribbon-split-btn-menu-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* Gekozen keuze in een splitknopmenu (bv. View > Split, #715). */
 .ribbon-split-btn-menu-item.active {
   background: var(--theme-ribbon-btn-active-bg, var(--theme-ribbon-btn-hover));
@@ -1675,4 +1704,49 @@
 .ribbon-checkbox-option input[type="checkbox"]:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+/* Werkruimten (#932): knop met menu op het tabblad Beeld. */
+.workspace-menu {
+  position: relative;
+  display: flex;
+}
+
+.workspace-menu-arrow {
+  flex-shrink: 0;
+  stroke: var(--theme-ribbon-dropdown-arrow);
+}
+
+.ribbon-split-btn-menu-header {
+  padding: 4px 12px 2px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--theme-ribbon-text);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.ribbon-split-btn-menu-empty {
+  padding: 4px 12px;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--theme-ribbon-text);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.ribbon-split-btn-menu-sep {
+  height: 1px;
+  margin: 3px 0;
+  background: var(--theme-ribbon-btn-hover-border);
+}
+
+.workspace-menu-scales {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.workspace-menu-scales .workspace-menu-scale {
+  justify-content: center;
+  padding: 4px 6px;
 }

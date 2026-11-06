@@ -1,5 +1,6 @@
-// OCR (Optical Character Recognition) orchestration: runs the ocr_pdf_page
-// Tauri command across a document's pages and stores the results on the
+// OCR (Optical Character Recognition) orchestration: runs the preferred OCR
+// engine (ocr-engines.js: an extension's or the built-in ocr_pdf_page Tauri
+// command) across a document's pages and stores the results on the
 // document so saver.js can write them out as an invisible, searchable text
 // layer next time the file is saved (see saver/ocr-text-layer.js).
 import { state, getActiveDocument } from '../core/state.js';
@@ -9,13 +10,12 @@ import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress, sluitPrintProgress,
 } from '../solid/stores/printProgressStore.js';
 import i18next from '../i18n/config.js';
+import { herkenPagina } from './ocr-engines.js';
 
-function tauri() {
-  return window.__TAURI__ || {};
-}
-
-async function ocrOnePage(filePath, pageIndex, lang) {
-  return await tauri().core.invoke('ocr_pdf_page', { path: filePath, pageIndex, lang });
+// De voorkeursengine: die van een extensie of de ingebouwde Tesseract
+// (ocr-engines.js, #970).
+async function ocrOnePage(doc, pageIndex, lang) {
+  return await herkenPagina(doc, pageIndex + 1, { lang });
 }
 
 /** OCR the current page only. `lang`: a Tesseract language spec (e.g.
@@ -29,7 +29,7 @@ export async function ocrCurrentPage(lang = 'auto') {
 
   startPrintProgress(i18next.t('ocr.progress.page', { ns: 'statusbar', page: doc.currentPage }) || `Recognizing text on page ${doc.currentPage}...`);
   try {
-    const words = await ocrOnePage(path, pageIndex, lang);
+    const words = await ocrOnePage(doc, pageIndex, lang);
     // A page/tab switch is harmless; replacing or closing the source is not.
     if (!state.documents.includes(doc) || doc.pdfDoc !== pdf || doc.filePath !== path) {
       sluitPrintProgress();
@@ -67,7 +67,7 @@ export async function ocrAllPages(lang = 'auto') {
         i18next.t('ocr.progress.page', { ns: 'statusbar', page: pageNum }) || `Recognizing text on page ${pageNum}...`,
         i / total,
       );
-      const words = await ocrOnePage(path, i, lang);
+      const words = await ocrOnePage(doc, i, lang);
       if (!state.documents.includes(doc) || doc.pdfDoc !== pdf || doc.filePath !== path) {
         sluitPrintProgress();
         return;

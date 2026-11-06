@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "XFDF ফাইলে কোনো টীকা পাওয়া যায়নি।",
   "noRedactionsOnPage": "বর্তমান পৃষ্ঠায় প্রয়োগ করার মতো কোনো সংশোধন চিহ্ন নেই।",
   "noRedactionsInDocument": "নথিতে প্রয়োগ করার মতো কোনো সংশোধন চিহ্ন নেই।",
+  "redactTitle": "রিড্যাকশন প্রয়োগ করুন",
+  "redactConfirmPage": "পৃষ্ঠা {{page}}-এ {{count}}টি রিড্যাকশন চিহ্ন প্রয়োগ করবেন?",
+  "redactConfirmAll": "{{pages}}টি পৃষ্ঠায় {{count}}টি রিড্যাকশন চিহ্ন প্রয়োগ করবেন?",
+  "redactConfirmBody": "চিহ্নগুলোর নিচের টেক্সট, ছবি, ভেক্টর গ্রাফিক্স, মন্তব্য ও ফর্ম ফিল্ড নথি থেকে সরানো হয় এবং এলাকাগুলো চিহ্নের রঙে ভরাট করা হয়। সংরক্ষণ করলে ফাইল বদলায়; সংরক্ষণ আগের সংস্করণ ছাড়া পুরো ফাইল নতুন করে লেখে।",
+  "redactDone": "{{count}}টি রিড্যাকশন এলাকা প্রয়োগ হয়েছে। পরিবর্তনটি ফাইলে লিখতে নথিটি সংরক্ষণ করুন।",
+  "redactNotApplied": "রিড্যাকশন প্রয়োগ হয়নি; কিছুই বদলায়নি। {{reason}}",
+  "redactReasonUnsupported": "একটি চিহ্নের নিচের বিষয়বস্তু নির্ভরযোগ্যভাবে সরানো যায় না: {{detail}}",
+  "redactReasonInvalid": "এক বা একাধিক চিহ্নের বৈধ এলাকা নেই।",
+  "redactReasonTextEdits": "আগে অসংরক্ষিত টেক্সট সম্পাদনাগুলো সংরক্ষণ করুন।",
   "cannotDeleteAllPages": "সব পৃষ্ঠা মুছে ফেলা যাবে না। অন্তত একটি পৃষ্ঠা থাকতে হবে।",
   "cannotDeleteAllPagesSource": "উৎস নথি থেকে সব পৃষ্ঠা মুছে ফেলা যাবে না।",
   "noPagesSelected": "নিষ্কাশনের জন্য কোনো পৃষ্ঠা নির্বাচন করা হয়নি।",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "নির্বাচিত PDF-এ কোনো পৃষ্ঠা নেই।",
   "failedToSavePdf": "PDF সংরক্ষণ করতে ব্যর্থ: {{error}}",
   "failedToLoadPdf": "PDF লোড করতে ব্যর্থ: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "নতুন উইন্ডোতে খুলুন",
     "closeTab": "ট্যাব বন্ধ করুন",
     "nextTab": "পরবর্তী ট্যাব",
-    "previousTab": "পূর্ববর্তী ট্যাব"
+    "previousTab": "পূর্ববর্তী ট্যাব",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "পরবর্তী পৃষ্ঠা",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "File Explorer-এ PDF থাম্বনেইল শুধু ইনস্টল করা সংস্করণে উপলব্ধ।",
     "virtualPrinter": "ভার্চুয়াল প্রিন্টার শুধু ইনস্টল করা সংস্করণে উপলব্ধ: এটি অ্যাডমিনিস্ট্রেটর অধিকার দিয়ে Windows-এ যোগ করা হয়।",
     "notWritable": "Open PDF Studio {{dir}} ফোল্ডারে লিখতে পারছে না, তাই এবার আপনার সেটিংস আপনার ব্যবহারকারী প্রোফাইলে সংরক্ষিত হচ্ছে। পোর্টেবল ফোল্ডারটি লেখা যায় এমন কোনো স্থানে সরান, যেমন একটি USB ড্রাইভ বা আপনার Documents ফোল্ডার।"
+  },
+  "protectedPdfNoPrint": "এই নথির অনুমতি মুদ্রণের অনুমতি দেয় না।",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

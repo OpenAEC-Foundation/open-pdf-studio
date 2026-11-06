@@ -17,7 +17,9 @@
     "viewports": "Výřezy",
     "noViewports": "Nejsou definovány žádné výřezy",
     "measurements": "Měření",
-    "noMeasurements": "Zatím žádná měření"
+    "noMeasurements": "Zatím žádná měření",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Vlastnosti",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Smazat záložku",
     "findBookmark": "Najít...",
     "findBookmarkTip": "Pište pro přechod na záložku. Enter ji otevře, další Enter přejde na další shodu.",
+    "findPage": "Najít...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Přidat přílohu",
     "openAttachment": "Otevřít přílohu",
     "saveAttachment": "Uložit přílohu",
@@ -807,6 +811,24 @@
     "rules": "Přiřazení vychází ze středu ohraničujícího rámečku značky, včetně okrajů. Vyhrává nejhlouběji vnořená zóna, pak nejmenší plocha, pak ID zóny. Používejte mnohoúhelníky s rovnými stranami bez otvorů nebo neotočené obdélníky. Neplatné nebo duplicitní identity zón se vylučují.",
     "loading": "Načítají se anotace: umístění se ještě mohou změnit."
   },
+  "dynamicStamp": {
+    "title": "Pole razítka",
+    "template": "Šablona",
+    "refresh": "Aktualizovat datum, uživatele a stránku",
+    "lock": "Uzamknout razítko",
+    "lockConfirm": "Uzamknout toto razítko? Jeho pole už nepůjde změnit.",
+    "locked": "Toto razítko je uzamčeno: jeho pole už nelze změnit.",
+    "field": {
+      "date": "Datum",
+      "time": "Čas",
+      "datetime": "Datum a čas",
+      "user": "Uživatel",
+      "page": "Stránka",
+      "pages": "Počet stránek",
+      "filename": "Název souboru",
+      "title": "Název dokumentu"
+    }
+  },
   "toolSets": {
     "title": "Sady nástrojů",
     "typeWall": "Stěna",
@@ -922,5 +944,19 @@
     "open": "Otevřít",
     "saveAs": "Uložit jako...",
     "noContent": "Obsah tohoto souboru není vložen do PDF."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

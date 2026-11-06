@@ -17,6 +17,7 @@ import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { pointsToPaperMm } from '../../annotations/scale-from-measurement.js';
 import { userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { getActiveDocument } from '../../core/state.js';
+import { formatMaat } from '../../core/maat-notatie.js';
 
 // Module-level flow + picking state (survives across pointer events).
 let _flow = null; // { onDone(pixelDistance), onCancel() }
@@ -29,8 +30,8 @@ function _resetPick() {
 
 /**
  * Start a temporary measure flow. Switches to the scaleMeasure tool; after
- * the user clicks two points, onDone(pixelDistance) is called with the
- * distance in app-space units (PDF points). Cancelling (Esc / right-click /
+ * the user clicks two points, onDone(pixelDistance, {p1, p2, pageNum}) is
+ * called with the distance in app-space units (PDF points) and the points. Cancelling (Esc / right-click /
  * tool switch) calls onCancel() instead.
  */
 export function startScaleMeasureFlow(handlers) {
@@ -39,12 +40,14 @@ export function startScaleMeasureFlow(handlers) {
   setTool('scaleMeasure');
 }
 
-function _finish(pixelDistance) {
+function _finish(pixelDistance, punten) {
   const flow = _flow;
   _flow = null; // clear BEFORE setTool so onDeactivate doesn't fire onCancel
   _resetPick();
   setTool('select');
-  if (flow?.onDone) flow.onDone(pixelDistance);
+  // The picked points (app space) and page go along for callers that need
+  // to know WHERE was measured, such as the scale check (#629).
+  if (flow?.onDone) flow.onDone(pixelDistance, punten);
 }
 
 function _cancel() {
@@ -90,9 +93,10 @@ export const scaleMeasureTool = {
     const pixelDist = Math.sqrt(dx * dx + dy * dy);
     if (pixelDist < 3 / scale) return; // Too close — ignore
 
+    const punten = { p1: { ..._pick.point }, p2: { x: ptX, y: ptY }, pageNum: _pick.pageNum };
     state.lastSnapResult = null;
     ctx.redraw();
-    _finish(pixelDist);
+    _finish(pixelDist, punten);
   },
 
   onPointerMove(ctx) {
@@ -158,7 +162,11 @@ export const scaleMeasureTool = {
     canvasCtx.font = `${11 / scale}px Arial`;
     canvasCtx.fillStyle = '#00AAFF';
     canvasCtx.textAlign = 'center';
-    canvasCtx.fillText(`${distMm.toFixed(1)} mm`, midX, midY - 6 / scale);
+    // A flow can show its own readout (the scale check shows the length at
+    // the current scale); otherwise the paper distance.
+    let readout = null;
+    try { readout = _flow?.readout?.(distPts, p1, { x: curX, y: curY }, _pick.pageNum) || null; } catch { readout = null; }
+    canvasCtx.fillText(readout || formatMaat(distMm, 'mm', 1), midX, midY - 6 / scale);
 
     canvasCtx.restore();
 

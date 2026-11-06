@@ -49,6 +49,7 @@
     "dimChainAdd": "Adăugare puncte la lanțul de cote",
     "dimChainRemove": "Eliminare linie ajutătoare din lanț",
     "selectRoom": "Selectare încăpere",
+    "checkScale": "Verifică scara cu această linie...",
     "saveToToolSet": "Salvează în setul de unelte"
   },
   "multiSelect": {

@@ -25,6 +25,8 @@ import {
 import { printArgumenten, overstemdeStand, vellenStand } from '../../../pdf/print-pagina-instelling.js';
 import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } from './PageSetupDialog.jsx';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
+import { uitsnedenPerPagina } from '../../../pdf/print-huidige-weergave.js';
+import { leesHuidigeWeergave } from '../../../pdf/print-huidige-weergave-dom.js';
 import {
   normaliseerPapierInfo, effectiefPapier, paginaTekst, bekendVel, velTekst, velNaam, schaalProcent,
   eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken, papierVerzoekSleutel,
@@ -113,6 +115,27 @@ export default function PrintDialog(props) {
   const [copies, setCopies] = createSignal(bewaard.copies);
   const [collate, setCollate] = createSignal(bewaard.collate);
   const [activeRange, setActiveRange] = createSignal(bewaard.range);
+  // Huidige weergave (#947): wat in het documentvenster te zien was toen de
+  // dialoog openging, per pagina het zichtbare deel. De dialoog ligt over het
+  // venster heen, maar verschuift het niet.
+  const [weergave, setWeergave] = createSignal(uitsnedenPerPagina([]));
+  leesHuidigeWeergave(getActiveDocument())
+    .then((lijst) => {
+      setWeergave(uitsnedenPerPagina(lijst));
+      if (activeRange() === 'view') updatePreviewPages();
+    })
+    .catch((e) => console.warn('[print] reading the current view failed:', e));
+  const heeftWeergave = () => weergave().paginas.length > 0;
+  /** De uitsnede van `pageNum` als Huidige weergave gekozen is, anders null. */
+  const uitsnedeVan = (pageNum) => (activeRange() === 'view' ? weergave().uitsneden.get(pageNum) || null : null);
+  /** De maat van wat van `pageNum` wordt afgedrukt (getoond, met draaiing). */
+  async function printMaat(doc, pageNum) {
+    const u = uitsnedeVan(pageNum);
+    if (u) return { breedtePt: u.breedtePt, hoogtePt: u.hoogtePt };
+    const page = await doc.pdfDoc.getPage(pageNum);
+    const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
+    return { breedtePt: viewport.width, hoogtePt: viewport.height };
+  }
   const [customPages, setCustomPages] = createSignal(bewaard.customPages);
   const [activeSubset, setActiveSubset] = createSignal(bewaard.subset);
   const [reverseOrder, setReverseOrder] = createSignal(bewaard.reverseOrder);
@@ -290,6 +313,9 @@ export default function PrintDialog(props) {
     } else if (activeRange() === 'custom') {
       // Zoals getypt: volgorde en herhalingen tellen mee (#606).
       pages = printPaginaBereik(customPages(), totalPages);
+    } else if (activeRange() === 'view') {
+      // Elke pagina in beeld haar eigen vel, van boven naar beneden (#947).
+      pages = [...weergave().paginas];
     }
 
     if (activeSubset() === 'odd') {
@@ -375,14 +401,11 @@ export default function PrintDialog(props) {
     const pageNum = pages[Math.min(previewIndex(), pages.length - 1)];
 
     try {
-      const page = await doc.pdfDoc.getPage(pageNum);
+      const maat = await printMaat(doc, pageNum);
       if (beurt !== voorbeeldBeurt) return;
-      const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
       // Vóór het renderen, zodat de kop ook klopt als het voorbeeld mislukt.
-      zetPaginaMaat(viewport.width, viewport.height);
-      const plaatsing = berekenPlaatsing({
-        ...keuzes, pagina: { breedtePt: viewport.width, hoogtePt: viewport.height },
-      });
+      zetPaginaMaat(maat.breedtePt, maat.hoogtePt);
+      const plaatsing = berekenPlaatsing({ ...keuzes, pagina: maat });
       if (!plaatsing) return;
 
       const vak = canvasVak(plaatsing.vel);
@@ -392,7 +415,7 @@ export default function PrintDialog(props) {
       // pagina die haaks op het vel staat.
       const deel = renderDeel(plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur })
+        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, uitsnede: uitsnedeVan(pageNum) })
         : null;
       if (beurt !== voorbeeldBeurt) return;
 
@@ -415,11 +438,7 @@ export default function PrintDialog(props) {
     try {
       const velIndex = Math.min(previewIndex(), aantalVellen(pages.length, raster) - 1);
       const opVel = paginasOpVel(pages, velIndex, raster);
-      const maatVan = async (pageNum) => {
-        const page = await doc.pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
-        return { breedtePt: viewport.width, hoogtePt: viewport.height };
-      };
+      const maatVan = (pageNum) => printMaat(doc, pageNum);
       // Het vel volgt de eerste pagina van de hele afdruk (kiesBlad).
       const eerstePagina = await maatVan(pages[0]);
       const maten = [];
@@ -451,11 +470,7 @@ export default function PrintDialog(props) {
       if (!lijst.length) return;
       const getoond = lijst[Math.min(previewIndex(), lijst.length - 1)];
       const zijde = getoond.paginas;
-      const maatVan = async (pageNum) => {
-        const page = await doc.pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
-        return { breedtePt: viewport.width, hoogtePt: viewport.height };
-      };
+      const maatVan = (pageNum) => printMaat(doc, pageNum);
       // Het vel volgt de eerste pagina van de hele afdruk (kiesBoekjeBlad).
       const eerstePagina = await maatVan(pages[0]);
       const maten = [];
@@ -496,7 +511,9 @@ export default function PrintDialog(props) {
       const sleutel = deel ? `${paginaVan(cel)}|${pxPerPt}|${JSON.stringify(deel.px)}` : null;
       let beeld = sleutel ? gerenderd.get(sleutel) : null;
       if (deel && !beeld) {
-        beeld = await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, { markeringen, kleur });
+        beeld = await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, {
+          markeringen, kleur, uitsnede: uitsnedeVan(paginaVan(cel)),
+        });
         gerenderd.set(sleutel, beeld);
       }
       if (beurt !== voorbeeldBeurt) return;
@@ -639,7 +656,7 @@ export default function PrintDialog(props) {
       const pxPerPt = v.plaatsing.schaal * MM_PER_PT * vak.pxPerMm;
       const deel = renderDeel(v.plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { markeringen, kleur })
+        ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { markeringen, kleur, uitsnede: uitsnedeVan(pageNum) })
         : null;
       if (beurt !== voorbeeldBeurt || doc !== getActiveDocument() || doc?.isClosed?.()) return;
 
@@ -999,7 +1016,9 @@ export default function PrintDialog(props) {
       printer,
       copies: numCopies,
       collate: collate(),
-      range: activeRange(),
+      // Huidige weergave geldt voor dit ene moment: bewaard blijft de keuze
+      // van daarvoor, anders drukt de volgende Ctrl+P ongemerkt een uitsnede af.
+      range: activeRange() === 'view' ? bewaard.range : activeRange(),
       customPages: customPages(),
       subset: activeSubset(),
       reverseOrder: reverseOrder(),
@@ -1046,6 +1065,7 @@ export default function PrintDialog(props) {
     // De stand zoals het voorbeeld hem toont (plaatsingKeuzes): bij meerdere
     // pagina's per vel of een folder geldt de gekozen stand (#606).
     const orientatie = keuzes.orientatie;
+    const uitsneden = activeRange() === 'view' ? weergave().uitsneden : null;
     savePreferences();
     close();
     // Papier: de Pagina-instelling bereikt nu echt de printer (zie
@@ -1070,6 +1090,7 @@ export default function PrintDialog(props) {
         inhoud: printContent(),
         kleur: geldigeKleurModus(colorMode()),
         openen: openOpgeslagen,
+        uitsneden,
       });
       return;
     }
@@ -1089,6 +1110,7 @@ export default function PrintDialog(props) {
       // "Afdrukken: Document" laat de markeringen ook echt weg.
       inhoud: printContent(),
       kleur: geldigeKleurModus(colorMode()),
+      uitsneden,
     });
   }
 
@@ -1351,10 +1373,9 @@ export default function PrintDialog(props) {
     const maten = [];
     try {
       for (const pageNum of pages) {
-        const page = await doc.pdfDoc.getPage(pageNum);
+        const maat = await printMaat(doc, pageNum);
         if (beurt !== posterMatenBeurt || doc !== getActiveDocument() || doc.isClosed?.()) return;
-        const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
-        maten.push({ breedtePt: viewport.width, hoogtePt: viewport.height });
+        maten.push(maat);
       }
     } catch (e) {
       console.error('Poster preview: page sizes failed:', e);
@@ -1518,6 +1539,13 @@ export default function PrintDialog(props) {
                 classList={{ active: activeRange() === 'current' }}
                 onClick={() => onRangeChange('current')}
               >{`${t('print.current')} ${currentPageNum}`}</button>
+              <button
+                class="print-page-btn"
+                classList={{ active: activeRange() === 'view' }}
+                disabled={!heeftWeergave()}
+                title={t('print.currentViewTitle')}
+                onClick={() => onRangeChange('view')}
+              >{t('print.currentView')}</button>
               <button
                 class="print-page-btn"
                 classList={{ active: activeRange() === 'custom' }}

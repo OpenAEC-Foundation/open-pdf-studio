@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "V súbore XFDF sa nenašli žiadne anotácie.",
   "noRedactionsOnPage": "Na aktuálnej strane nie sú žiadne značky redigovania na použitie.",
   "noRedactionsInDocument": "V dokumente nie sú žiadne značky redigovania na použitie.",
+  "redactTitle": "Použiť začiernenia",
+  "redactConfirmPage": "Použiť {{count}} značku/značky začiernenia na strane {{page}}?",
+  "redactConfirmAll": "Použiť {{count}} značku/značky začiernenia na {{pages}} stranách?",
+  "redactConfirmBody": "Text, obrázky, vektorová grafika, poznámky a polia formulára pod značkami sa z dokumentu odstránia a oblasti sa vyplnia farbou značky. Súbor sa zmení pri uložení; uloženie prepíše celý súbor bez starších verzií.",
+  "redactDone": "Použité oblasti začiernenia: {{count}}. Uložte dokument, aby sa zmena zapísala do súboru.",
+  "redactNotApplied": "Začiernenia neboli použité; nič sa nezmenilo. {{reason}}",
+  "redactReasonUnsupported": "Obsah pod značkou nemožno spoľahlivo odstrániť: {{detail}}",
+  "redactReasonInvalid": "Jedna alebo viac značiek nemá platnú oblasť.",
+  "redactReasonTextEdits": "Najprv uložte neuložené úpravy textu.",
   "cannotDeleteAllPages": "Nie je možné odstrániť všetky strany. Aspoň jedna strana musí zostať.",
   "cannotDeleteAllPagesSource": "Nie je možné odstrániť všetky strany zo zdrojového dokumentu.",
   "noPagesSelected": "Nie sú vybrané žiadne strany na extrakciu.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Vybraté PDF nemá žiadne strany.",
   "failedToSavePdf": "Uloženie PDF zlyhalo: {{error}}",
   "failedToLoadPdf": "Načítanie PDF zlyhalo: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Otvoriť v novom okne",
     "closeTab": "Zavrieť kartu",
     "nextTab": "Nasledujúca karta",
-    "previousTab": "Predchádzajúca karta"
+    "previousTab": "Predchádzajúca karta",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Nasledujúca strana",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Miniatúry PDF v Prieskumníkovi súborov sú dostupné len v nainštalovanej verzii.",
     "virtualPrinter": "Virtuálna tlačiareň je dostupná len v nainštalovanej verzii: pridáva sa do Windows s právami správcu.",
     "notWritable": "Open PDF Studio nemôže zapisovať do priečinka {{dir}}, preto sa vaše nastavenia tentoraz ukladajú do vášho používateľského profilu. Presuňte prenosný priečinok na miesto s možnosťou zápisu, napríklad na USB kľúč alebo do priečinka Dokumenty."
+  },
+  "protectedPdfNoPrint": "Oprávnenia tohto dokumentu nepovoľujú tlač.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

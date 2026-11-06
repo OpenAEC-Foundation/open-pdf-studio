@@ -54,6 +54,18 @@ export const houtBalkTemplate = {
       options: HOUTSOORTEN.map(s => ({ value: s.id, label: s.label })),
       default: 'vuren',
     },
+    // Aanzicht (#936): de balk in lengterichting, zoals de staalprofielen.
+    // Bovenaanzicht = band ter hoogte van de liggende maat (l), zijaanzicht =
+    // band ter hoogte van de staande maat (b); de lengte blijft vrij.
+    {
+      key: 'aanzicht', label: 'Aanzicht', labelEn: 'View', type: 'enum',
+      options: [
+        { value: 'doorsnede', label: 'Doorsnede' },
+        { value: 'boven', label: 'Bovenaanzicht' },
+        { value: 'zij', label: 'Zijaanzicht' },
+      ],
+      default: 'doorsnede',
+    },
     { key: 'schaal', label: 'Schaal', labelEn: 'Scale', type: 'number', default: 1, min: 0.1, step: 0.1 },
     { key: 'toonLabel', label: 'Maat tonen', labelEn: 'Show size', type: 'boolean', default: true },
   ],
@@ -61,9 +73,14 @@ export const houtBalkTemplate = {
     // LIGGEND: lengte (l) horizontaal, hoogte (b) verticaal.
     const { b, l } = _maatOf(params);
     const f = _schaalOf(params);
+    const az = params?.aanzicht || 'doorsnede';
+    if (az === 'boven') return { width: null, height: l * f };
+    if (az === 'zij') return { width: null, height: b * f };
     return { width: l * f, height: b * f };
   },
-  freeAxis() { return null; },
+  freeAxis(params) {
+    return (params?.aanzicht || 'doorsnede') !== 'doorsnede' ? 'x' : null;
+  },
   snapPoints(params, bbox) {
     const { x, y, width: w, height: h } = bbox;
     return [
@@ -80,10 +97,14 @@ export const houtBalkTemplate = {
     const loop = [
       { x, y }, { x: x + w, y }, { x: x + w, y: y + h }, { x, y: y + h },
     ];
+    const aanzicht = (params?.aanzicht || 'doorsnede') !== 'doorsnede';
     const cmds = [
-      // Timber colour per houtsoort + fine diagonal grain
+      // Timber colour per houtsoort + fine diagonal grain (doorsnede) of
+      // nerf in de lengterichting (aanzicht).
       { kind: 'hatch', loops: [loop], pattern: 'solid', color: soort.bg, scale: 100, angle: 0 },
-      { kind: 'hatch', loops: [loop], pattern: 'diagonal-left', color: soort.fg, scale: 60, angle: 0 },
+      aanzicht
+        ? { kind: 'hatch', loops: [loop], pattern: 'wood-grain', color: soort.fg, scale: 60, angle: 0 }
+        : { kind: 'hatch', loops: [loop], pattern: 'diagonal-left', color: soort.fg, scale: 60, angle: 0 },
       { kind: 'polyline', points: loop, close: true },
     ];
     if (params?.toonLabel !== false) {

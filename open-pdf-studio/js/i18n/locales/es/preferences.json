@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Activa mediante parámetro de inicio ({{adres}})",
     "aiLinkOff": "Desactivada",
     "aiLinkError": "No iniciada: {{fout}}",
-    "interfaceScale": "Tamaño de la interfaz"
+    "interfaceScale": "Tamaño de la interfaz",
+    "saving": "Guardado",
+    "incrementalSave": "Guardar cambios de anotaciones y formularios de forma incremental (experimental)",
+    "incrementalSaveHint": "Añade los cambios al final del archivo en lugar de reescribirlo. Las versiones anteriores siguen siendo recuperables desde el archivo. La redacción, la eliminación de información oculta y otros cambios siempre se guardan reescribiendo el archivo completo."
   },
   "annotations": {
     "generalDefaults": "Valores predeterminados generales",
@@ -313,7 +316,15 @@
     "butt": "Plano",
     "openArrowReversed": "Flecha abierta (invertida)",
     "closedArrowReversed": "Flecha cerrada (invertida)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separador decimal",
+    "decimalAuto": "Según el idioma",
+    "decimalComma": "Coma (2,50)",
+    "decimalPoint": "Punto (2.50)",
+    "digitGrouping": "Separar miles (12 345)",
+    "scaleCheck": "Comprobación de escala",
+    "scaleCheckOk": "Correcto hasta",
+    "scaleCheckWarn": "Advertencia hasta"
   },
   "keyboardShortcuts": {
     "title": "Atajos de teclado",

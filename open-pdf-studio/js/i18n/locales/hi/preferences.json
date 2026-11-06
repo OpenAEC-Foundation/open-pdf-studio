@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "स्टार्टअप पैरामीटर से सक्रिय ({{adres}})",
     "aiLinkOff": "बंद",
     "aiLinkError": "शुरू नहीं हुआ: {{fout}}",
-    "interfaceScale": "इंटरफ़ेस का आकार"
+    "interfaceScale": "इंटरफ़ेस का आकार",
+    "saving": "सहेजना",
+    "incrementalSave": "एनोटेशन और फ़ॉर्म परिवर्तनों को वृद्धिशील रूप से सहेजें (प्रायोगिक)",
+    "incrementalSaveHint": "फ़ाइल को दोबारा लिखने के बजाय परिवर्तनों को फ़ाइल के अंत में जोड़ता है। पिछले संस्करण फ़ाइल से पुनर्प्राप्त किए जा सकते हैं। रिडैक्शन, छिपी जानकारी हटाना और अन्य परिवर्तन हमेशा पूरी तरह दोबारा लिखकर सहेजे जाते हैं।"
   },
   "annotations": {
     "generalDefaults": "सामान्य डिफ़ॉल्ट",
@@ -313,7 +316,15 @@
     "butt": "सपाट",
     "openArrowReversed": "खुला तीर (उल्टा)",
     "closedArrowReversed": "बंद तीर (उल्टा)",
-    "slash": "स्लैश"
+    "slash": "स्लैश",
+    "decimalNotation": "दशमलव विभाजक",
+    "decimalAuto": "भाषा के अनुसार",
+    "decimalComma": "अल्पविराम (2,50)",
+    "decimalPoint": "बिंदु (2.50)",
+    "digitGrouping": "हज़ार समूहित करें (12 345)",
+    "scaleCheck": "स्केल जाँच",
+    "scaleCheckOk": "ठीक की सीमा",
+    "scaleCheckWarn": "चेतावनी की सीमा"
   },
   "keyboardShortcuts": {
     "title": "कीबोर्ड शॉर्टकट",

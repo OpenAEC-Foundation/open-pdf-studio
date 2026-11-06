@@ -110,6 +110,7 @@
   "searchHitsOne": "1 مورد",
   "searchHitsMany": "{{count}} مورد",
   "passwordProtectedBar": "محافظت‌شده با رمز عبور: به‌صورت فقط‌خواندنی باز شد.",
+  "passwordProtectedEditableBar": "با گذرواژه محافظت شده است. ذخیره کردن محافظت را نگه می‌دارد.",
   "documentSearch": {
     "title": "جستجوی اسناد",
     "query": "متن جستجو",
@@ -157,5 +158,11 @@
     "port": "درگاه: {{port}}",
     "lastTool": "آخرین ابزار: {{tool}} در {{time}}",
     "noTool": "هنوز هیچ ابزاری فراخوانی نشده است"
-  }
+  },
+  "sharedReviewActive": "بازبینی مشترک",
+  "sharedReviewUpdates": "بازبینی مشترک: {{n}} جدید",
+  "sharedReviewTitle": "حاشیه‌نویسی‌ها از طریق {{folder}} به اشتراک گذاشته می‌شوند. برای باز کردن بازبینی مشترک کلیک کنید.",
+  "sharedReviewError": "بازبینی مشترک: پوشه در دسترس نیست",
+  "pdfaReadOnly": "این سند با استاندارد {{label}} مطابقت دارد و برای جلوگیری از تغییر، فقط‌خواندنی باز شده است.",
+  "pdfaValidate": "اعتبارسنجی"
 }

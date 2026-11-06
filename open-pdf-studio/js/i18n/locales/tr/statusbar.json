@@ -110,6 +110,7 @@
   "searchHitsOne": "1 eşleşme",
   "searchHitsMany": "{{count}} eşleşme",
   "passwordProtectedBar": "Parola ile korunuyor: salt okunur açıldı.",
+  "passwordProtectedEditableBar": "Parolayla korunuyor. Kaydetmek korumayı korur.",
   "documentSearch": {
     "title": "Belgelerde ara",
     "query": "Arama metni",
@@ -157,5 +158,11 @@
     "port": "Bağlantı noktası: {{port}}",
     "lastTool": "Son araç: {{tool}}, {{time}}",
     "noTool": "Henüz araç çağrısı yok"
-  }
+  },
+  "sharedReviewActive": "Paylaşılan inceleme",
+  "sharedReviewUpdates": "Paylaşılan inceleme: {{n}} yeni",
+  "sharedReviewTitle": "Ek açıklamalar {{folder}} üzerinden paylaşılıyor. Paylaşılan incelemeyi açmak için tıklayın.",
+  "sharedReviewError": "Paylaşılan inceleme: klasöre erişilemiyor",
+  "pdfaReadOnly": "Bu belge {{label}} standardına uygundur ve değiştirilmesini önlemek için salt okunur olarak açılmıştır.",
+  "pdfaValidate": "Doğrula"
 }

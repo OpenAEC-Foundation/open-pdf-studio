@@ -23,6 +23,12 @@
 // is daar de regelhoogte) wordt opnieuw in leesrichting opgebouwd. Zo'n
 // markering krijgt geen /OPS_TextDir: bij het volgende laden en opslaan
 // gebeurt hetzelfde.
+//
+// Gedraaide quads (#944, #927, zie annotations/markering-quads.js): een
+// gedraaide vlakmarkering gaat als haar om het midden gedraaide vak de deur
+// uit, met /OPS_Rotation zodat de lader haar weer als vlak met die draaiing
+// opbouwt; een markering op schuine tekst schrijft haar eigen `quads`. /Rect
+// is de omhullende en de /AP vult precies die quads.
 
 import { PDFArray, PDFDict, PDFName, PDFNumber, PDFString } from 'pdf-lib';
 import { hexToColorArray } from '../../utils/colors.js';
@@ -30,6 +36,22 @@ import { normTextDir } from '../../annotations/corrections/geometry.js';
 import { pdfTextString } from './pdf-text.js';
 import { computeAnnotFlags } from './utils.js';
 import { buildStrikeQuads, buildMarkupAppearance } from './correction-dicts.js';
+import { vlakQuad, isQuad } from '../../annotations/markering-quads.js';
+
+// Zelfde afronding als buildStrikeQuads (correction-dicts.js).
+const rond = (v) => (Math.round(v * 1e4) / 1e4) || 0;
+
+// Gedraaide quads van de markering in app-ruimte, of null voor de gewone
+// rechte vakken: een gedraaide vlakmarkering (#944) of eigen quads van een
+// markering op schuine tekst (#927).
+function gedraaideQuads(ann) {
+  if (ann.type === 'highlight' && ann.rotation) {
+    const q = vlakQuad(ann);
+    return q ? [q] : null;
+  }
+  if (Array.isArray(ann.quads) && ann.quads.length > 0 && ann.quads.every(isQuad)) return ann.quads;
+  return null;
+}
 
 const alsPunten = (q) => [0, 2, 4, 6].map((k) => ({ x: q[k], y: q[k + 1] }));
 
@@ -89,7 +111,14 @@ export function buildTextMarkupDict(context, ann, map, { opacity, pageRot = 0, r
   const rects = Array.isArray(ann.rects) && ann.rects.length > 0
     ? ann.rects : [{ x: ann.x, y: ann.y, width: ann.width, height: ann.height }];
   const textDir = ann.textDir ?? 0;
-  const berekend = buildStrikeQuads(rects, textDir, map);
+  // Gedraaide quads (#944, #927): een gedraaide vlakmarkering als haar om het
+  // midden gedraaide vak, een markering op schuine tekst met haar eigen
+  // quads. Per punt omgerekend, zoals buildStrikeQuads; /Rect wordt hieronder
+  // de omhullende.
+  const eigenQuads = gedraaideQuads(ann);
+  const berekend = eigenQuads
+    ? eigenQuads.map((q) => q.map((p) => { const u = map(p.x, p.y); return { x: rond(u.x), y: rond(u.y) }; }))
+    : buildStrikeQuads(rects, textDir, map);
   const bron = neemBron(bronnen, markupSubtype, berekend);
   const quads = bron
     ? berekend.map((q, i) => (houdBronQuad(bron[i], q) ? alsPunten(bron[i]) : q))
@@ -116,6 +145,11 @@ export function buildTextMarkupDict(context, ann, map, { opacity, pageRot = 0, r
   if (!bron) dict.set(PDFName.of('OPS_TextDir'), PDFNumber.of(normTextDir(textDir - (pageRot || 0))));
   // De lijndikte van de /AP, zodat de lader haar terugvindt (een markeervlak
   // heeft geen lijn).
+  // Een gedraaide vlakmarkering houdt haar hoek, zodat de lader haar weer als
+  // vlak met dezelfde draaiing opbouwt (en niet als groter recht vak).
+  if (ann.type === 'highlight' && eigenQuads && ann.rotation) {
+    dict.set(PDFName.of('OPS_Rotation'), PDFNumber.of(ann.rotation));
+  }
   if (markupSubtype !== 'Highlight' && ann.lineWidth > 0) {
     dict.set(PDFName.of('OPS_LineWidth'), PDFNumber.of(ann.lineWidth));
   }

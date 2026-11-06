@@ -110,6 +110,7 @@
   "searchHitsOne": "1 corrispondenza",
   "searchHitsMany": "{{count}} corrispondenze",
   "passwordProtectedBar": "Protetto da password: aperto in sola lettura.",
+  "passwordProtectedEditableBar": "Protetto da password. Il salvataggio mantiene la protezione.",
   "documentSearch": {
     "title": "Cerca nei documenti",
     "query": "Testo da cercare",
@@ -157,5 +158,11 @@
     "port": "Porta: {{port}}",
     "lastTool": "Ultimo strumento: {{tool}} alle {{time}}",
     "noTool": "Nessuna chiamata a strumenti finora"
-  }
+  },
+  "sharedReviewActive": "Revisione condivisa",
+  "sharedReviewUpdates": "Revisione condivisa: {{n}} nuove",
+  "sharedReviewTitle": "Le annotazioni sono condivise tramite {{folder}}. Fai clic per aprire la revisione condivisa.",
+  "sharedReviewError": "Revisione condivisa: cartella non disponibile",
+  "pdfaReadOnly": "Questo documento è conforme allo standard {{label}} ed è stato aperto in sola lettura per evitare modifiche.",
+  "pdfaValidate": "Convalida"
 }

@@ -110,6 +110,7 @@
   "searchHitsOne": "1 hasil",
   "searchHitsMany": "{{count}} hasil",
   "passwordProtectedBar": "Dilindungi kata sandi: dibuka dalam mode hanya baca.",
+  "passwordProtectedEditableBar": "Dilindungi kata sandi. Menyimpan tetap mempertahankan perlindungan.",
   "documentSearch": {
     "title": "Cari dokumen",
     "query": "Teks pencarian",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Alat terakhir: {{tool}} pukul {{time}}",
     "noTool": "Belum ada panggilan alat"
-  }
+  },
+  "sharedReviewActive": "Tinjauan bersama",
+  "sharedReviewUpdates": "Tinjauan bersama: {{n}} baru",
+  "sharedReviewTitle": "Anotasi dibagikan melalui {{folder}}. Klik untuk membuka tinjauan bersama.",
+  "sharedReviewError": "Tinjauan bersama: folder tidak tersedia",
+  "pdfaReadOnly": "Dokumen ini mematuhi standar {{label}} dan telah dibuka dalam mode baca saja untuk mencegah modifikasi.",
+  "pdfaValidate": "Validasi"
 }

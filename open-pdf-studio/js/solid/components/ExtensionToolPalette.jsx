@@ -65,6 +65,23 @@ export function initExtPalette(id, defaults) {
   }
 }
 
+// Werkruimte gewisseld (#932): elk al geladen extensiepalet neemt zijn stand
+// opnieuw uit de voorkeuren over.
+export function herlaadExtPalettes() {
+  const prefs = state.preferences;
+  for (const id of Object.keys(paletteStates)) {
+    const ps = paletteStates[id];
+    const prefKey = `ext_${id}`;
+    if (prefs[`${prefKey}_visible`] != null) ps.visible[1](prefs[`${prefKey}_visible`]);
+    if (prefs[`${prefKey}_mode`] != null) ps.mode[1](prefs[`${prefKey}_mode`]);
+    const pos = ps.floatPos[0]();
+    ps.floatPos[1]({ x: prefs[`${prefKey}_floatX`] ?? pos.x, y: prefs[`${prefKey}_floatY`] ?? pos.y });
+    const mode = ps.mode[0]();
+    if (ps.visible[0]() && mode.startsWith('docked-')) registerPaletteDock(id, mode.replace('docked-', ''));
+    else unregisterPaletteDock(id);
+  }
+}
+
 export function toggleExtPalette(id) {
   const ps = getOrCreateState(id);
   const willBeVisible = !ps.visible[0]();

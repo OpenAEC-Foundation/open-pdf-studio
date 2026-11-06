@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Hakuna maelezo yaliyopatikana kwenye faili ya XFDF.",
   "noRedactionsOnPage": "Hakuna alama za ufutaji kwenye ukurasa huu za kutekeleza.",
   "noRedactionsInDocument": "Hakuna alama za ufutaji kwenye hati za kutekeleza.",
+  "redactTitle": "Tekeleza ufichaji",
+  "redactConfirmPage": "Tekeleza alama {{count}} za ufichaji kwenye ukurasa {{page}}?",
+  "redactConfirmAll": "Tekeleza alama {{count}} za ufichaji kwenye kurasa {{pages}}?",
+  "redactConfirmBody": "Maandishi, picha, michoro ya vekta, maelezo na sehemu za fomu zilizo chini ya alama huondolewa kwenye hati na maeneo hujazwa kwa rangi ya alama. Faili hubadilika unapohifadhi; kuhifadhi huandika upya faili lote bila matoleo ya awali.",
+  "redactDone": "Maeneo {{count}} ya ufichaji yametekelezwa. Hifadhi hati ili kuandika mabadiliko kwenye faili.",
+  "redactNotApplied": "Ufichaji haukutekelezwa; hakuna kilichobadilishwa. {{reason}}",
+  "redactReasonUnsupported": "Maudhui yaliyo chini ya alama hayawezi kuondolewa kwa uhakika: {{detail}}",
+  "redactReasonInvalid": "Alama moja au zaidi hazina eneo halali.",
+  "redactReasonTextEdits": "Hifadhi kwanza mabadiliko ya maandishi ambayo hayajahifadhiwa.",
   "cannotDeleteAllPages": "Haiwezekani kufuta kurasa zote. Angalau ukurasa mmoja lazima ubaki.",
   "cannotDeleteAllPagesSource": "Haiwezekani kufuta kurasa zote kutoka hati chanzo.",
   "noPagesSelected": "Hakuna kurasa zilizochaguliwa kwa ajili ya kutoa.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF iliyochaguliwa haina kurasa.",
   "failedToSavePdf": "Imeshindwa kuhifadhi PDF: {{error}}",
   "failedToLoadPdf": "Imeshindwa kupakia PDF: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Fungua kwenye dirisha jipya",
     "closeTab": "Funga kichupo",
     "nextTab": "Kichupo Kinachofuata",
-    "previousTab": "Kichupo Kilichotangulia"
+    "previousTab": "Kichupo Kilichotangulia",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Ukurasa Ujao",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Vijipicha vya PDF katika File Explorer vinapatikana tu katika toleo lililosakinishwa.",
     "virtualPrinter": "Printa pepe inapatikana tu katika toleo lililosakinishwa: huongezwa kwenye Windows kwa haki za msimamizi.",
     "notWritable": "Open PDF Studio haiwezi kuandika kwenye folda {{dir}}, kwa hiyo mara hii mipangilio yako imehifadhiwa kwenye wasifu wako wa mtumiaji. Hamisha folda inayobebeka hadi mahali panapoweza kuandikwa, kama diski ya USB au folda yako ya Documents."
+  },
+  "protectedPdfNoPrint": "Ruhusa za hati hii haziruhusu kuchapisha.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

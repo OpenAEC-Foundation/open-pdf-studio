@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Inga anteckningar hittades i XFDF-filen.",
   "noRedactionsOnPage": "Det finns inga maskeringsmarkeringar på den aktuella sidan att tillämpa.",
   "noRedactionsInDocument": "Det finns inga maskeringsmarkeringar i dokumentet att tillämpa.",
+  "redactTitle": "Tillämpa maskeringar",
+  "redactConfirmPage": "Tillämpa {{count}} maskeringsmarkering(ar) på sida {{page}}?",
+  "redactConfirmAll": "Tillämpa {{count}} maskeringsmarkering(ar) på {{pages}} sida/sidor?",
+  "redactConfirmBody": "Text, bilder, vektorgrafik, kommentarer och formulärfält under markeringarna tas bort från dokumentet och områdena fylls med markeringens färg. Filen ändras när du sparar; att spara skriver om hela filen utan tidigare versioner.",
+  "redactDone": "{{count}} maskeringsområde(n) tillämpade. Spara dokumentet för att skriva ändringen till filen.",
+  "redactNotApplied": "Maskeringarna tillämpades inte; inget ändrades. {{reason}}",
+  "redactReasonUnsupported": "Innehåll under en markering kan inte tas bort på ett tillförlitligt sätt: {{detail}}",
+  "redactReasonInvalid": "En eller flera markeringar saknar ett giltigt område.",
+  "redactReasonTextEdits": "Spara först de osparade textredigeringarna.",
   "cannotDeleteAllPages": "Det går inte att radera alla sidor. Minst en sida måste finnas kvar.",
   "cannotDeleteAllPagesSource": "Det går inte att radera alla sidor från källdokumentet.",
   "noPagesSelected": "Inga sidor har valts för extrahering.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Den valda PDF-filen har inga sidor.",
   "failedToSavePdf": "Det gick inte att spara PDF: {{error}}",
   "failedToLoadPdf": "Det gick inte att läsa in PDF: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Öppna i nytt fönster",
     "closeTab": "Stäng flik",
     "nextTab": "Nästa flik",
-    "previousTab": "Föregående flik"
+    "previousTab": "Föregående flik",
+    "newTabForDocument": "Ny flik för det här dokumentet"
   },
   "pageNav": {
     "nextPage": "Nästa sida",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "PDF-miniatyrer i Utforskaren finns bara i den installerade versionen.",
     "virtualPrinter": "Den virtuella skrivaren finns bara i den installerade versionen: den läggs till i Windows med administratörsbehörighet.",
     "notWritable": "Open PDF Studio kan inte skriva i mappen {{dir}}, så dina inställningar sparas den här gången i din användarprofil. Flytta den portabla mappen till en plats med skrivbehörighet, till exempel ett USB-minne eller mappen Dokument."
+  },
+  "protectedPdfNoPrint": "Behörigheterna för det här dokumentet tillåter inte utskrift.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

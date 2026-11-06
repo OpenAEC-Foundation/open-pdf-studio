@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "XFDF-tiedostosta ei löytynyt merkintöjä.",
   "noRedactionsOnPage": "Nykyisellä sivulla ei ole käytettäviä poistomerkintöjä.",
   "noRedactionsInDocument": "Asiakirjassa ei ole käytettäviä poistomerkintöjä.",
+  "redactTitle": "Käytä peitot",
+  "redactConfirmPage": "Käytetäänkö {{count}} peittomerkintää sivulla {{page}}?",
+  "redactConfirmAll": "Käytetäänkö {{count}} peittomerkintää {{pages}} sivulla?",
+  "redactConfirmBody": "Merkintöjen alla oleva teksti, kuvat, vektorigrafiikka, kommentit ja lomakekentät poistetaan asiakirjasta, ja alueet täytetään merkinnän värillä. Tiedosto muuttuu tallennettaessa; tallennus kirjoittaa koko tiedoston uudelleen ilman aiempia versioita.",
+  "redactDone": "{{count}} peittoaluetta käytetty. Tallenna asiakirja kirjoittaaksesi muutoksen tiedostoon.",
+  "redactNotApplied": "Peittoja ei käytetty; mitään ei muutettu. {{reason}}",
+  "redactReasonUnsupported": "Merkinnän alla olevaa sisältöä ei voida poistaa luotettavasti: {{detail}}",
+  "redactReasonInvalid": "Yhdellä tai useammalla merkinnällä ei ole kelvollista aluetta.",
+  "redactReasonTextEdits": "Tallenna ensin tallentamattomat tekstimuokkaukset.",
   "cannotDeleteAllPages": "Kaikkia sivuja ei voi poistaa. Vähintään yhden sivun on jäätävä.",
   "cannotDeleteAllPagesSource": "Lähdeasiakirjan kaikkia sivuja ei voi poistaa.",
   "noPagesSelected": "Purettavia sivuja ei ole valittu.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Valitussa PDF:ssä ei ole sivuja.",
   "failedToSavePdf": "PDF:n tallennus epäonnistui: {{error}}",
   "failedToLoadPdf": "PDF:n lataus epäonnistui: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Avaa uudessa ikkunassa",
     "closeTab": "Sulje välilehti",
     "nextTab": "Seuraava välilehti",
-    "previousTab": "Edellinen välilehti"
+    "previousTab": "Edellinen välilehti",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Seuraava sivu",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "PDF-pikkukuvat Resurssienhallinnassa ovat käytettävissä vain asennetussa versiossa.",
     "virtualPrinter": "Virtuaalitulostin on käytettävissä vain asennetussa versiossa: se lisätään Windowsiin järjestelmänvalvojan oikeuksin.",
     "notWritable": "Open PDF Studio ei voi kirjoittaa kansioon {{dir}}, joten asetuksesi tallennetaan tällä kertaa käyttäjäprofiiliisi. Siirrä siirrettävä kansio paikkaan, johon voi kirjoittaa, kuten USB-muistille tai Tiedostot-kansioon."
+  },
+  "protectedPdfNoPrint": "Tämän asiakirjan oikeudet eivät salli tulostamista.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

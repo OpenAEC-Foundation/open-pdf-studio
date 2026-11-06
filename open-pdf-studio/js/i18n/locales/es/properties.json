@@ -17,7 +17,9 @@
     "viewports": "Ventanas gráficas",
     "noViewports": "No hay ventanas gráficas definidas",
     "measurements": "Mediciones",
-    "noMeasurements": "Aún no hay mediciones"
+    "noMeasurements": "Aún no hay mediciones",
+    "counts": "Conteos",
+    "noCounts": "Aún no hay conteos"
   },
   "title": "Propiedades",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Eliminar marcador",
     "findBookmark": "Buscar...",
     "findBookmarkTip": "Escriba para saltar a un marcador. Intro lo abre; Intro de nuevo pasa a la siguiente coincidencia.",
+    "findPage": "Buscar...",
+    "findPageTip": "Escriba para saltar a una página por su nombre de plano o número. Intro la abre; Intro de nuevo pasa a la siguiente coincidencia.",
     "addAttachment": "Agregar adjunto",
     "openAttachment": "Abrir adjunto",
     "saveAttachment": "Guardar adjunto",
@@ -807,6 +811,24 @@
     "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
     "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
   },
+  "dynamicStamp": {
+    "title": "Campos del sello",
+    "template": "Plantilla",
+    "refresh": "Actualizar fecha, usuario y página",
+    "lock": "Bloquear sello",
+    "lockConfirm": "¿Bloquear este sello? Sus campos ya no podrán modificarse.",
+    "locked": "Este sello está bloqueado: sus campos ya no pueden modificarse.",
+    "field": {
+      "date": "Fecha",
+      "time": "Hora",
+      "datetime": "Fecha y hora",
+      "user": "Usuario",
+      "page": "Página",
+      "pages": "Número de páginas",
+      "filename": "Nombre de archivo",
+      "title": "Título del documento"
+    }
+  },
   "toolSets": {
     "title": "Conjuntos de herramientas",
     "typeWall": "Muro",
@@ -922,5 +944,19 @@
     "open": "Abrir",
     "saveAs": "Guardar como...",
     "noContent": "El contenido de este archivo no está incrustado en el PDF."
+  },
+  "countGroup": {
+    "title": "Grupo de conteo",
+    "group": "Grupo",
+    "none": "(sin grupo)",
+    "mixed": "(mixto)",
+    "total": "En este grupo",
+    "pieces": "{{count}} uds.",
+    "color": "Color del grupo",
+    "name": "Nombre del grupo"
+  },
+  "sectionOrder": {
+    "reset": "Restablecer el orden de las secciones",
+    "dragHint": "Haga clic para contraer o expandir. Arrastre para mover la sección (o Alt+Arriba/Abajo)."
   }
 }

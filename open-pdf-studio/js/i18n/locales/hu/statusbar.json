@@ -110,6 +110,7 @@
   "searchHitsOne": "1 találat",
   "searchHitsMany": "{{count}} találat",
   "passwordProtectedBar": "Jelszóval védett: csak olvasásra megnyitva.",
+  "passwordProtectedEditableBar": "Jelszóval védett. Mentéskor a védelem megmarad.",
   "documentSearch": {
     "title": "Keresés a dokumentumokban",
     "query": "Keresett szöveg",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Utolsó eszköz: {{tool}}, {{time}}",
     "noTool": "Még nem volt eszközhívás"
-  }
+  },
+  "sharedReviewActive": "Közös véleményezés",
+  "sharedReviewUpdates": "Közös véleményezés: {{n}} új",
+  "sharedReviewTitle": "A megjegyzések megosztása ezen keresztül történik: {{folder}}. Kattintson a közös véleményezés megnyitásához.",
+  "sharedReviewError": "Közös véleményezés: a mappa nem érhető el",
+  "pdfaReadOnly": "Ez a dokumentum megfelel a(z) {{label}} szabványnak, és írásvédetten lett megnyitva a módosítás megakadályozása érdekében.",
+  "pdfaValidate": "Ellenőrzés"
 }

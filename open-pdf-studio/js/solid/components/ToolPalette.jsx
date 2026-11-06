@@ -1,9 +1,11 @@
 import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
+import { ClipboardWindow, clipboardWindowOpen, toggleClipboardWindow, clipboardIcon } from './ClipboardHistory.jsx';
+import { highlightMode, highlightActive, markeringKnop } from '../../tools/highlight-mode.js';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
 import {
-  highlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
+  highlightIcon, textHighlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
   textboxIcon, calloutIcon, noteIcon,
   stampIcon, signatureIcon,
@@ -250,14 +252,24 @@ function PaletteContextMenu() {
 function ToolBtn(props) {
   const toolDisabled = () => noPdf() || isPdfAReadOnly();
   const alwaysEnabled = props.tool === 'hand' || props.tool === 'select';
-  const isActive = () => state.currentTool === props.tool && !state.toolOverrides;
+  // Markeren (#927): gebied of tekst (highlight-mode.js). Nog eens klikken
+  // als hij aan staat wisselt van modus; pictogram en tooltip tonen welke.
+  const isHighlight = props.tool === 'highlight';
+  // Tekst markeren draait op Selecteren; dan staat alleen Markeren aan.
+  const isActive = () => (isHighlight
+    ? highlightActive()
+    : state.currentTool === props.tool && !(props.tool === 'select' && state.textHighlightMode)) && !state.toolOverrides;
+  const icon = () => (isHighlight && highlightMode() === 'text' ? textHighlightIcon : props.icon);
+  const title = () => (isHighlight
+    ? `${highlightMode() === 'text' ? props.textTitle : props.areaTitle}\n${props.switchTip}`
+    : props.title);
   return (
     <button
       class={`tp-btn ${isActive() ? 'active' : ''}`}
       disabled={!alwaysEnabled && toolDisabled()}
-      onClick={() => setTool(props.tool)}
-      title={props.title}
-      innerHTML={props.icon}
+      onClick={() => (isHighlight ? markeringKnop() : setTool(props.tool))}
+      title={title()}
+      innerHTML={icon()}
     />
   );
 }
@@ -266,24 +278,39 @@ function ToolList() {
   const { t } = useTranslation('ribbon');
   let lastGroup = -1;
   return (
-    <For each={tools}>
-      {(item) => {
-        const showSep = lastGroup !== -1 && lastGroup !== item.group;
-        lastGroup = item.group;
-        return (
-          <>
-            {showSep && <div class="tp-sep" />}
-            <ToolBtn tool={item.tool} title={t(item.key)} icon={item.icon} />
-          </>
-        );
-      }}
-    </For>
+    <>
+      <For each={tools}>
+        {(item) => {
+          const showSep = lastGroup !== -1 && lastGroup !== item.group;
+          lastGroup = item.group;
+          return (
+            <>
+              {showSep && <div class="tp-sep" />}
+              <ToolBtn tool={item.tool} title={t(item.key)} icon={item.icon}
+                areaTitle={`${t('comment.areaHighlight')}: ${t('comment.areaHighlightTitle')}`}
+                textTitle={`${t('comment.textHighlight')}: ${t('comment.textHighlightTitle')}`}
+                switchTip={t('comment.highlightSwitchTip')} />
+            </>
+          );
+        }}
+      </For>
+      {/* Klembord (#929): de kopieen van deze sessie in een venster naast de palet. */}
+      <div class="tp-sep" />
+      <button
+        class={`tp-btn ${clipboardWindowOpen() ? 'active' : ''}`}
+        id="tp-clipboard"
+        title={`${t('clipboardPalette.title')}\n${t('clipboardPalette.tip')}`}
+        onClick={(e) => toggleClipboardWindow(e.currentTarget)}
+        innerHTML={clipboardIcon}
+      />
+      <ClipboardWindow />
+    </>
   );
 }
 
 // Height needed for all tools in a single column
-const SINGLE_COL_HEIGHT_SMALL = 635;  // 20 btns × 30px + 5 seps × 7px
-const SINGLE_COL_HEIGHT_LARGE = 935;  // 20 btns × 44px + 5 seps × 7px
+const SINGLE_COL_HEIGHT_SMALL = 672;  // 21 btns × 30px + 6 seps × 7px
+const SINGLE_COL_HEIGHT_LARGE = 966;  // 21 btns × 44px + 6 seps × 7px
 
 // Docked strip — sits in the flex layout
 export function DockedToolPalette(props) {

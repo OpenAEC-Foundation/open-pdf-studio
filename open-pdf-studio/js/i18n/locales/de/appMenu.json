@@ -142,8 +142,8 @@
     "officeTable": "Tabelle",
     "officeText": "Text",
     "officeFailed": "Dokumentexport fehlgeschlagen.",
-    "protect": "Mit Kennwort schützen",
-    "protectDesc": "Eine mit Kennwort geschützte Kopie speichern (AES-256)"
+    "protect": "Dokumentsicherheit",
+    "protectDesc": "Kennwörter und Berechtigungen festlegen oder entfernen (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Ausgabeprofil",
@@ -219,11 +219,38 @@
     "uninstallError": "Erweiterung konnte nicht deinstalliert werden",
     "by": "von",
     "activationFailed": "Nicht aktiv: {{error}}",
-    "viaMcp": "Über die KI-Verbindung"
+    "viaMcp": "Über die KI-Verbindung",
+    "tabInstalled": "Installiert",
+    "tabBrowse": "Durchsuchen",
+    "tabCustom": "Eigene hinzufügen",
+    "fromCatalog": "Katalog",
+    "fromCustom": "Eigener Link",
+    "updateTo": "Auf v{{version}} aktualisieren",
+    "updatesAvailable": "{{count}} Update(s) verfügbar",
+    "search": "Erweiterungen suchen",
+    "refresh": "Aktualisieren",
+    "loading": "Wird geladen...",
+    "noResults": "Keine Erweiterungen gefunden",
+    "catalogEmpty": "Der Katalog enthält noch keine Erweiterungen",
+    "catalogFailed": "Katalog {{url}} konnte nicht geladen werden",
+    "install": "Installieren",
+    "isInstalled": "Installiert",
+    "homepage": "Website",
+    "catalogs": "Kataloge",
+    "defaultCatalog": "Standard",
+    "addCatalog": "Katalog hinzufügen",
+    "removeCatalog": "Entfernen",
+    "submitHint": "Autoren fügen ihre Erweiterung per Pull Request zum Projektkatalog hinzu:",
+    "customWarning": "Per Link installierte Erweiterungen sind nicht geprüft. Installieren Sie nur Erweiterungen aus vertrauenswürdigen Quellen.",
+    "installFromLink": "Über Link installieren",
+    "linkHint": "Ein GitHub-Repository (die .oppx des neuesten Releases wird installiert) oder ein direkter https://-Link zu einer .oppx-Datei.",
+    "desktopOnly": "Der Erweiterungskatalog ist in der Desktop-App verfügbar."
   },
   "annotateScreenshot": "Screenshot aus Zwischenablage kommentieren",
   "workflows": "Dokument-Workflows",
   "drawingSets": "Zeichnungssätze",
   "sheetLinks": "Blattübergreifende Verknüpfungen",
-  "approvalRouting": "Freigabeweiterleitung"
+  "approvalRouting": "Freigabeweiterleitung",
+  "sharedReview": "Gemeinsame Prüfung",
+  "pdfa": "PDF/A..."
 }

@@ -17,7 +17,9 @@
     "viewports": "Nézetablakok",
     "noViewports": "Nincsenek definiált nézetablakok",
     "measurements": "Mérések",
-    "noMeasurements": "Még nincsenek mérések"
+    "noMeasurements": "Még nincsenek mérések",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Tulajdonságok",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Könyvjelző törlése",
     "findBookmark": "Keresés...",
     "findBookmarkTip": "Gépeljen egy könyvjelzőre ugráshoz. Az Enter megnyitja, újabb Enter a következő találatra lép.",
+    "findPage": "Keresés...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "Melléklet hozzáadása",
     "openAttachment": "Melléklet megnyitása",
     "saveAttachment": "Melléklet mentése",
@@ -807,6 +811,24 @@
     "rules": "A hozzárendelés a jelölés befoglaló téglalapjának középpontján alapul, a széleket is beleértve. A legmélyebben beágyazott zóna nyer, utána a legkisebb terület, majd a zónaazonosító. Egyenes oldalú, lyuk nélküli sokszögeket vagy elforgatás nélküli téglalapokat használjon. Az érvénytelen vagy ismétlődő zónaazonosítók kimaradnak.",
     "loading": "Az annotációk betöltése folyamatban: a helyek még változhatnak."
   },
+  "dynamicStamp": {
+    "title": "Bélyegzőmezők",
+    "template": "Sablon",
+    "refresh": "Dátum, felhasználó és oldal frissítése",
+    "lock": "Bélyegző zárolása",
+    "lockConfirm": "Zárolja ezt a bélyegzőt? A mezői ezután nem módosíthatók.",
+    "locked": "Ez a bélyegző zárolva van: a mezői már nem módosíthatók.",
+    "field": {
+      "date": "Dátum",
+      "time": "Idő",
+      "datetime": "Dátum és idő",
+      "user": "Felhasználó",
+      "page": "Oldal",
+      "pages": "Oldalak száma",
+      "filename": "Fájlnév",
+      "title": "Dokumentum címe"
+    }
+  },
   "toolSets": {
     "title": "Eszközkészletek",
     "typeWall": "Fal",
@@ -922,5 +944,19 @@
     "open": "Megnyitás",
     "saveAs": "Mentés másként...",
     "noContent": "A fájl tartalma nincs beágyazva a PDF-be."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

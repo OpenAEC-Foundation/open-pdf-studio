@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "تم اكتشاف المقياس",
     "noScaleFound": "لم يتم العثور على مقياس",
-    "detecting": "جارٍ الاكتشاف..."
+    "detecting": "جارٍ الاكتشاف...",
+    "scaleCheck": "التحقق من المقياس",
+    "scaleCheckTitle": "قِس بُعدًا معروفًا واعرض انحراف المقياس بالنسبة المئوية"
   },
   "home": {
     "document": "المستند",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "وضع منطقة مقياس تغطي الصفحة بأكملها",
     "drawing": "رسم",
     "highlight": "تمييز",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "رسم حر",
     "line": "خط",
     "arrow": "سهم",
@@ -134,6 +142,8 @@
     "callout": "وسيلة شرح",
     "stamp": "ختم",
     "signature": "توقيع",
+    "digitalSign": "توقيع رقمي",
+    "digitalSignTooltip": "وقّع المستند بشهادة (.p12/.pfx). زر التوقيع يضع صورة فقط.",
     "measure": "قياس",
     "measureDistance": "قياس المسافة",
     "distance": "المسافة",
@@ -316,7 +326,85 @@
     "modified": "معدَّل",
     "noChanges": "لا توجد تغييرات",
     "textTab": "نص",
-    "noTextChanges": "لا توجد اختلافات نصية"
+    "noTextChanges": "لا توجد اختلافات نصية",
+    "previousVersion": "قبل آخر حفظ",
+    "fromDisk": "ملف",
+    "fileLoadError": "تعذر فتح الملف كملف PDF.",
+    "browse": "استعراض…",
+    "browseHint": "اختر ملف PDF من القرص",
+    "pickSecondSide": "اختر الجانب الآخر من ملف على القرص، أو افتح ملف PDF ثانيًا في علامة تبويب.",
+    "sensitivity": "الحساسية",
+    "sensitivityHint": "يضبط معًا عتبة الحبر والحد الأدنى لحجم التغيير ومسافة الدمج",
+    "preset": {
+      "line": "رسم خطي",
+      "scan": "مسح ضوئي",
+      "text": "مستند نصي"
+    },
+    "autoAlign": "محاذاة تلقائية",
+    "autoAlignHint": "تقدير الإزاحة والدوران والمقياس من الرسومات",
+    "autoAlignEach": "تلقائي",
+    "autoAlignEachHint": "محاذاة كل زوج صفحات تلقائيًا عند عرضه أول مرة",
+    "rotation": "دوران",
+    "scale": "مقياس",
+    "resetAlignHint": "إزالة المحاذاة",
+    "alignManual": "يدوي",
+    "confidence": "الموثوقية",
+    "confidenceHint": "نسبة الحبر المتطابق بعد المحاذاة",
+    "alignByMeasure": "المقياس من مقاييس القياس",
+    "alignNone": "محاذى مسبقًا",
+    "alignByContent": "من محتوى الرسم",
+    "pair": "زوج",
+    "pagesTab": "الصفحات",
+    "pairing": "جارٍ مطابقة الصفحات…",
+    "onlyInOld": "في القديم فقط",
+    "onlyInNew": "في الجديد فقط",
+    "pairReason": {
+      "sheet": "مطابقة برقم اللوحة",
+      "label": "مطابقة بتسمية الصفحة",
+      "content": "مطابقة بالمحتوى",
+      "index": "مطابقة بترتيب الصفحات",
+      "manual": "مطابقة يدويًا"
+    },
+    "truncated": "اختلافات كثيرة جدًا: تحقق من المحاذاة أو الحساسية.",
+    "selectForClouds": "تحديد لسحابات على المستند الجديد",
+    "report": {
+      "button": "تقرير",
+      "csv": "تصدير قائمة التغييرات (CSV)…",
+      "pdf": "تصدير ملخص PDF…",
+      "clouds": "وضع التغييرات المحددة كسحابات",
+      "cloudsNeedTab": "يجب أن يكون المستند الجديد مفتوحًا في علامة تبويب",
+      "saved": "تم حفظ التقرير",
+      "failed": "تعذر إنشاء التقرير",
+      "cloudsPlaced": "السحابات الموضوعة على المستند الجديد: {{count}}",
+      "title": "تقرير المقارنة",
+      "generated": "أُنشئ في",
+      "settings": "الإعدادات",
+      "fileSuffix": "taghyirat",
+      "sourcePixel": "رسم",
+      "sourceText": "نص",
+      "cloudSubject": "مقارنة",
+      "before": "قبل",
+      "after": "بعد",
+      "col": {
+        "no": "رقم",
+        "pair": "زوج",
+        "oldPage": "الصفحة القديمة",
+        "newPage": "الصفحة الجديدة",
+        "sheet": "اللوحة",
+        "type": "النوع",
+        "source": "المصدر",
+        "xMm": "X (مم)",
+        "yMm": "Y (مم)",
+        "widthMm": "العرض (مم)",
+        "heightMm": "الارتفاع (مم)",
+        "oldText": "النص قبل",
+        "newText": "النص بعد"
+      },
+      "sourceVector": "متجهي"
+    },
+    "methodVector": "متجهي",
+    "methodVectorHint": "قارن المسارات المرسومة بدقة حيث تكون الصفحتان رسومات متجهية؛ تستخدم الصفحات الأخرى المقارنة بالبكسل",
+    "methodPixelFallback": "بكسل: ليست صفحة متجهية"
   },
   "organize": {
     "pages": "صفحات",
@@ -350,8 +438,16 @@
     "scanTextHint": "انقر على كلمة متعرَّف عليها لاستبدالها. تُغطّى الكلمة القديمة في المسح الضوئي.",
     "scanTextNone": "لا يوجد نص متعرَّف عليه في هذه الصفحة. شغّل التعرف على النص (OCR) أولاً.",
     "shiftPage": "إزاحة الصفحة",
+    "scanGroup": "مسح ضوئي",
+    "scan": "مسح ضوئي",
+    "scanTitle": "مسح الصفحات إلى PDF قابل للبحث",
+    "batchOcr": "OCR لمجلد",
+    "batchOcrTitle": "التعرف على النص في جميع ملفات PDF في مجلد",
     "editPages": "تحرير الصفحات",
-    "editPagesTitle": "تحرير الصفحات بصريًا: إعادة الترتيب والتدوير والإدراج والحذف والاستخراج والتقسيم"
+    "editPagesTitle": "تحرير الصفحات بصريًا: إعادة الترتيب والتدوير والإدراج والحذف والاستخراج والتقسيم",
+    "protect": "حماية",
+    "security": "الأمان",
+    "securityTitle": "تعيين كلمات المرور والأذونات أو إزالتها"
   },
   "help": {
     "settings": "الإعدادات",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "W:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "النظام (كشف تلقائي)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "الحجم الذي يُوضع به رمز جديد",
     "symbolScaleCustom": "مقياس مخصص",
     "count": "عدّ",
-    "arc": "قوس"
+    "arc": "قوس",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "التدقيق",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — إنارة الطوارئ",
       "nen1414-tr": "NL NEN 1414 — تصريف الدخان/الحرارة",
       "nen1414-tv": "NL NEN 1414 — التهوية",
-      "nen1414-tw": "NL NEN 1414 — المياه/الرشاشات"
+      "nen1414-tw": "NL NEN 1414 — المياه/الرشاشات",
+      "gdt-bewerking": "GD&T والتشغيل الآلي"
     },
     "sectors": {
       "aec": "AEC (البناء)",
@@ -773,5 +881,34 @@
       "mep": "الخدمات الهندسية للمباني (MEP)",
       "infra": "البنية التحتية"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

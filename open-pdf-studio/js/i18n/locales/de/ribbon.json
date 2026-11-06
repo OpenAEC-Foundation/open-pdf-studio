@@ -48,7 +48,9 @@
     "autoDetectTitle": "Massstab aus Schriftfeld erkennen",
     "scaleDetected": "Massstab erkannt",
     "noScaleFound": "Kein Massstab gefunden",
-    "detecting": "Erkennung..."
+    "detecting": "Erkennung...",
+    "scaleCheck": "Maßstab prüfen",
+    "scaleCheckTitle": "Ein bekanntes Maß messen und die Maßstabsabweichung in Prozent anzeigen"
   },
   "home": {
     "document": "Dokument",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Einen Maßstabsbereich über die ganze Seite platzieren",
     "drawing": "Zeichnung",
     "highlight": "Hervorheben",
+    "textHighlight": "Text hervorheben",
+    "textHighlightTitle": "Über Text ziehen, um ihn hervorzuheben. Doppelklick: ein Wort. Dreifachklick: die ganze Beschriftung.",
+    "areaHighlight": "Bereich hervorheben",
+    "areaHighlightTitle": "Einen Rahmen ziehen, um einen Bereich hervorzuheben",
+    "highlightMode": "Hervorheben: Bereich oder Text",
+    "highlightSwitchTip": "Erneut klicken, um zwischen Bereich und Text zu wechseln",
     "freehand": "Freihand",
     "line": "Linie",
     "arrow": "Pfeil",
@@ -134,6 +142,8 @@
     "callout": "Legende",
     "stamp": "Stempel",
     "signature": "Unterschrift",
+    "digitalSign": "Digitale Signatur",
+    "digitalSignTooltip": "Das Dokument mit einem Zertifikat (.p12/.pfx) signieren. Die Schaltfläche Unterschrift platziert nur ein Bild.",
     "northArrow": "Nordpfeil",
     "measure": "Messen",
     "measureDistance": "Entfernung messen",
@@ -316,7 +326,85 @@
     "modified": "Geändert",
     "noChanges": "Keine Änderungen",
     "textTab": "Text",
-    "noTextChanges": "Keine Textunterschiede"
+    "noTextChanges": "Keine Textunterschiede",
+    "previousVersion": "vor dem letzten Speichern",
+    "fromDisk": "Datei",
+    "fileLoadError": "Die Datei konnte nicht als PDF geöffnet werden.",
+    "browse": "Durchsuchen…",
+    "browseHint": "Eine PDF-Datei vom Datenträger wählen",
+    "pickSecondSide": "Wählen Sie die andere Seite aus einer Datei auf dem Datenträger oder öffnen Sie ein zweites PDF in einem Tab.",
+    "sensitivity": "Empfindlichkeit",
+    "sensitivityHint": "Legt Tintenschwelle, minimale Änderungsgröße und Zusammenführungsabstand gemeinsam fest",
+    "preset": {
+      "line": "Strichzeichnung",
+      "scan": "Scan",
+      "text": "Textdokument"
+    },
+    "autoAlign": "Automatisch ausrichten",
+    "autoAlignHint": "Verschiebung, Drehung und Maßstab aus den Zeichnungen schätzen",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Jedes Seitenpaar beim ersten Anzeigen automatisch ausrichten",
+    "rotation": "Drehung",
+    "scale": "Maßstab",
+    "resetAlignHint": "Ausrichtung entfernen",
+    "alignManual": "manuell",
+    "confidence": "Zuverlässigkeit",
+    "confidenceHint": "Anteil der Tinte, der nach dem Ausrichten übereinstimmt",
+    "alignByMeasure": "Maßstab aus den Messmaßstäben",
+    "alignNone": "bereits ausgerichtet",
+    "alignByContent": "aus dem Zeichnungsinhalt",
+    "pair": "Paar",
+    "pagesTab": "Seiten",
+    "pairing": "Seiten werden zugeordnet…",
+    "onlyInOld": "Nur in alt",
+    "onlyInNew": "Nur in neu",
+    "pairReason": {
+      "sheet": "Zugeordnet über Blattnummer",
+      "label": "Zugeordnet über Seitenbeschriftung",
+      "content": "Zugeordnet über Inhalt",
+      "index": "Zugeordnet über Seitenreihenfolge",
+      "manual": "Von Hand zugeordnet"
+    },
+    "truncated": "Zu viele Unterschiede: prüfen Sie die Ausrichtung oder die Empfindlichkeit.",
+    "selectForClouds": "Für Wolken im neuen Dokument auswählen",
+    "report": {
+      "button": "Bericht",
+      "csv": "Änderungsliste exportieren (CSV)…",
+      "pdf": "PDF-Zusammenfassung exportieren…",
+      "clouds": "Ausgewählte Änderungen als Wolken platzieren",
+      "cloudsNeedTab": "Das neue Dokument muss in einem Tab geöffnet sein",
+      "saved": "Bericht gespeichert",
+      "failed": "Der Bericht konnte nicht erstellt werden",
+      "cloudsPlaced": "{{count}} Wolken im neuen Dokument platziert",
+      "title": "Vergleichsbericht",
+      "generated": "Erstellt",
+      "settings": "Einstellungen",
+      "fileSuffix": "Aenderungen",
+      "sourcePixel": "Zeichnung",
+      "sourceText": "Text",
+      "cloudSubject": "Vergleich",
+      "before": "Vorher",
+      "after": "Nachher",
+      "col": {
+        "no": "Nr.",
+        "pair": "Paar",
+        "oldPage": "Alte Seite",
+        "newPage": "Neue Seite",
+        "sheet": "Blatt",
+        "type": "Art",
+        "source": "Quelle",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Breite (mm)",
+        "heightMm": "Höhe (mm)",
+        "oldText": "Text vorher",
+        "newText": "Text nachher"
+      },
+      "sourceVector": "Vektor"
+    },
+    "methodVector": "Vektor",
+    "methodVectorHint": "Gezeichnete Pfade exakt vergleichen, wo beide Seiten Vektorzeichnungen sind; andere Seiten nutzen den Pixelvergleich",
+    "methodPixelFallback": "Pixel: keine Vektorseite"
   },
   "organize": {
     "pages": "Seiten",
@@ -350,8 +438,16 @@
     "scanTextHint": "Klicken Sie auf ein erkanntes Wort, um es zu ersetzen. Das alte Wort im Scan wird abgedeckt.",
     "scanTextNone": "Kein erkannter Text auf dieser Seite. Führen Sie zuerst Text erkennen (OCR) aus.",
     "shiftPage": "Seite verschieben",
+    "scanGroup": "Scannen",
+    "scan": "Scannen",
+    "scanTitle": "Seiten in ein durchsuchbares PDF scannen",
+    "batchOcr": "Stapel-OCR",
+    "batchOcrTitle": "Text in allen PDF-Dateien eines Ordners erkennen",
     "editPages": "Seiten bearbeiten",
-    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
+    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen",
+    "protect": "Schützen",
+    "security": "Sicherheit",
+    "securityTitle": "Kennwörter und Berechtigungen festlegen oder entfernen"
   },
   "help": {
     "settings": "Einstellungen",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "B:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "An Seite ausrichten",
+    "alignToPageTip": "Auswahl an den Rändern oder der Mitte der Seite ausrichten (auch mit einer Markierung)",
+    "alignPageEach": "Jede Markierung einzeln ausrichten",
+    "alignPageEachTip": "Bei An Seite ausrichten: jede Markierung einzeln statt als Gruppe an den Seitenrand"
   },
   "theme": {
     "system": "System (Automatisch)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Größe, in der ein neues Symbol platziert wird",
     "symbolScaleCustom": "Eigener Maßstab",
     "count": "Zählen",
-    "arc": "Bogen"
+    "arc": "Bogen",
+    "countGroup": "Zählgruppe",
+    "countGroupLabel": "Gruppe",
+    "countGroupTip": "Neue Zählmarkierungen kommen in diese Gruppe; die Zahl ist die Summe der Gruppe",
+    "countGroupColor": "Farbe",
+    "countGroupColorTip": "Farbe der ganzen Gruppe, auch der bereits gesetzten Markierungen",
+    "countGroupNew": "Neue Gruppe",
+    "countGroupAdd": "Gruppe hinzufügen"
   },
   "proofread": {
     "group": "Korrektur",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Notbeleuchtung",
       "nen1414-tr": "NL NEN 1414 — Rauch-/Wärmeabzug",
       "nen1414-tv": "NL NEN 1414 — Lüftung",
-      "nen1414-tw": "NL NEN 1414 — Wasser/Sprinkler"
+      "nen1414-tw": "NL NEN 1414 — Wasser/Sprinkler",
+      "gdt-bewerking": "GD&T und Bearbeitung"
     },
     "sectors": {
       "aec": "AEC (Bauwesen)",
@@ -773,5 +881,34 @@
       "mep": "Gebäudetechnik (TGA)",
       "infra": "Infrastruktur"
     }
+  },
+  "clipboardPalette": {
+    "title": "Zwischenablage",
+    "tip": "Kopie anklicken, dann Strg+V auf dem Blatt: sie landet am Mauszeiger.",
+    "empty": "Markierungen kopieren (Strg+C), um sie hier zu sammeln.",
+    "clear": "Zwischenablage leeren",
+    "clearShort": "Leeren",
+    "remove": "Entfernen",
+    "close": "Schließen",
+    "markups": "{{count}} Markierungen",
+    "picked": "Kopie liegt in der Zwischenablage: Strg+V auf dem Blatt drücken"
+  },
+  "workspace": {
+    "button": "Arbeitsbereich",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Gespeicherte Arbeitsbereiche",
+    "none": "Keine gespeicherten Arbeitsbereiche",
+    "manage": "Save or manage workspaces...",
+    "reset": "Standardlayout wiederherstellen",
+    "interfaceSize": "Oberflächengröße",
+    "dialogTitle": "Arbeitsbereiche",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Überschreiben",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Anwenden",
+    "delete": "Löschen"
   }
 }

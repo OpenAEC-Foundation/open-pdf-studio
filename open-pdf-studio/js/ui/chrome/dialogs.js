@@ -9,6 +9,8 @@ import {
   setLoadingCancelDisabled as setCancelDisabled,
 } from '../../bridge.js';
 import i18next from '../../i18n/config.js';
+import { magPrinten, beschrijfBeveiliging } from '../../pdf/document-beveiliging.js';
+import { bronPad } from '../../pdf/wachtwoord-pdf.js';
 
 // Show loading overlay. Met `voortgang` (0..1) een voortgangsbalk, met
 // `annuleren` (functie) een knop Annuleren (ook Esc); zonder opties alleen de
@@ -59,7 +61,8 @@ export function hideDocPropertiesDialog() {
 
 async function gatherDocProperties() {
   const doc = getActiveDocument();
-  const filePath = doc?.filePath || '-';
+  // Het bestand van de gebruiker, niet een (ontsleutelde) werkkopie.
+  const filePath = doc?.saveTargetPath || bronPad(doc) || '-';
   const fileName = filePath !== '-' ? filePath.split(/[\\/]/).pop() : '-';
 
   let fileSize = '-';
@@ -109,6 +112,8 @@ async function gatherDocProperties() {
     fileName, filePath, fileSize,
     title, author, subject, keywords, creator, producer,
     pdfVersion, pageCount, pageSize, created, modified,
+    // Documentbeveiliging (#378): wat opslaan schrijft.
+    security: beschrijfBeveiliging(doc?.beveiliging || null),
   };
 }
 
@@ -220,7 +225,27 @@ export function showPrintDialog() {
     showMessage(i18next.t('noDocumentOpen'));
     return;
   }
+  // De rechten van een beveiligd document (#378) staan printen niet toe.
+  if (!magPrinten(getActiveDocument())) {
+    showMessage(i18next.t('protectedPdfNoPrint'));
+    return;
+  }
   openDialog('print', { currentPage: getActiveDocument()?.currentPage || 1 });
+}
+
+// Documentbeveiliging (#378): wachtwoorden en rechten, alleen op het bureaublad
+// (Rust versleutelt). Ook voor een alleen-lezen beveiligd document: daar
+// wordt de beveiliging juist vervangen of verwijderd.
+export function showSecurityDialog() {
+  if (!isTauri()) {
+    showMessage(meldingTekst(i18next.t.bind(i18next), i18next.t('dialogs:protectPdf.title')));
+    return;
+  }
+  if (!getActiveDocument()?.pdfDoc) {
+    showMessage(i18next.t('noDocumentOpen'));
+    return;
+  }
+  openDialog('protect-pdf');
 }
 
 export function hidePrintDialog() {

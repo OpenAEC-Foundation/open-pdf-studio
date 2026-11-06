@@ -110,6 +110,7 @@
   "searchHitsOne": "1 treffer",
   "searchHitsMany": "{{count}} treffers",
   "passwordProtectedBar": "Beveiligd met een wachtwoord: alleen-lezen geopend.",
+  "passwordProtectedEditableBar": "Beveiligd met een wachtwoord. Opslaan houdt de beveiliging.",
   "documentSearch": {
     "title": "Documenten doorzoeken",
     "query": "Zoektekst",
@@ -157,5 +158,11 @@
     "port": "Poort: {{port}}",
     "lastTool": "Laatste tool: {{tool}} om {{time}}",
     "noTool": "Nog geen tool-aanroepen"
-  }
+  },
+  "sharedReviewActive": "Gedeelde beoordeling",
+  "sharedReviewUpdates": "Gedeelde beoordeling: {{n}} nieuw",
+  "sharedReviewTitle": "Annotaties worden gedeeld via {{folder}}. Klik om de gedeelde beoordeling te openen.",
+  "sharedReviewError": "Gedeelde beoordeling: map niet bereikbaar",
+  "pdfaReadOnly": "Dit document voldoet aan de {{label}}-standaard en is alleen-lezen geopend om wijzigingen te voorkomen.",
+  "pdfaValidate": "Valideren"
 }

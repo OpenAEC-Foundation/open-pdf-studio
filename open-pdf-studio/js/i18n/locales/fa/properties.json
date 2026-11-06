@@ -17,7 +17,9 @@
     "viewports": "دریچه‌های دید",
     "noViewports": "هیچ دریچه دیدی تعریف نشده است",
     "measurements": "اندازه‌گیری‌ها",
-    "noMeasurements": "هنوز اندازه‌گیری‌ای وجود ندارد"
+    "noMeasurements": "هنوز اندازه‌گیری‌ای وجود ندارد",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "ویژگی‌ها",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "حذف نشانک",
     "findBookmark": "یافتن...",
     "findBookmarkTip": "برای رفتن به یک نشانک تایپ کنید. Enter آن را باز می‌کند و Enter دوباره به مورد بعدی می‌رود.",
+    "findPage": "یافتن...",
+    "findPageTip": "Type to jump to a page by its sheet name or number. Enter opens it, Enter again goes to the next match.",
     "addAttachment": "افزودن پیوست",
     "openAttachment": "باز کردن پیوست",
     "saveAttachment": "ذخیره پیوست",
@@ -807,6 +811,24 @@
     "rules": "تخصیص از مرکز کادر محصورکننده نشانه‌گذاری، با احتساب لبه‌ها، استفاده می‌کند. عمیق‌ترین ناحیه برنده است، سپس کوچک‌ترین مساحت، سپس شناسه ناحیه. از چندضلعی‌های راست‌خط بدون حفره یا کادرهای بدون چرخش استفاده کنید. هویت‌های ناحیه نامعتبر یا تکراری کنار گذاشته می‌شوند.",
     "loading": "حاشیه‌نویسی‌ها در حال بارگذاری‌اند: مکان‌ها ممکن است هنوز تغییر کنند."
   },
+  "dynamicStamp": {
+    "title": "فیلدهای مهر",
+    "template": "الگو",
+    "refresh": "به‌روزرسانی تاریخ، کاربر و صفحه",
+    "lock": "قفل کردن مهر",
+    "lockConfirm": "این مهر قفل شود؟ فیلدهای آن دیگر قابل تغییر نخواهند بود.",
+    "locked": "این مهر قفل است: فیلدهای آن دیگر قابل تغییر نیستند.",
+    "field": {
+      "date": "تاریخ",
+      "time": "زمان",
+      "datetime": "تاریخ و زمان",
+      "user": "کاربر",
+      "page": "صفحه",
+      "pages": "تعداد صفحات",
+      "filename": "نام فایل",
+      "title": "عنوان سند"
+    }
+  },
   "toolSets": {
     "title": "مجموعه‌های ابزار",
     "typeWall": "دیوار",
@@ -922,5 +944,19 @@
     "open": "باز کردن",
     "saveAs": "ذخیره به عنوان...",
     "noContent": "محتوای این فایل در PDF جاسازی نشده است."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

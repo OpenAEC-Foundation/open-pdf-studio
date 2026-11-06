@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Başlatma parametresiyle etkin ({{adres}})",
     "aiLinkOff": "Kapalı",
     "aiLinkError": "Başlatılmadı: {{fout}}",
-    "interfaceScale": "Arayüz boyutu"
+    "interfaceScale": "Arayüz boyutu",
+    "saving": "Kaydetme",
+    "incrementalSave": "Açıklama ve form değişikliklerini artımlı kaydet (deneysel)",
+    "incrementalSaveHint": "Değişiklikleri dosyayı yeniden yazmak yerine dosyanın sonuna ekler. Önceki sürümler dosyadan geri alınabilir durumda kalır. Karartma, gizli bilgilerin kaldırılması ve diğer değişiklikler her zaman tam yeniden yazma ile kaydedilir."
   },
   "annotations": {
     "generalDefaults": "Genel Varsayılanlar",
@@ -313,7 +316,15 @@
     "butt": "Düz",
     "openArrowReversed": "Açık Ok (ters)",
     "closedArrowReversed": "Kapalı Ok (ters)",
-    "slash": "Eğik Çizgi"
+    "slash": "Eğik Çizgi",
+    "decimalNotation": "Ondalık ayırıcı",
+    "decimalAuto": "Dile göre",
+    "decimalComma": "Virgül (2,50)",
+    "decimalPoint": "Nokta (2.50)",
+    "digitGrouping": "Binlikleri ayır (12 345)",
+    "scaleCheck": "Ölçek denetimi",
+    "scaleCheckOk": "Uygun üst sınırı",
+    "scaleCheckWarn": "Uyarı üst sınırı"
   },
   "keyboardShortcuts": {
     "title": "Klavye kısayolları",

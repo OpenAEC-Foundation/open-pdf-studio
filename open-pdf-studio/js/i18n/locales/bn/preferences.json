@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "স্টার্টআপ প্যারামিটারের মাধ্যমে সক্রিয় ({{adres}})",
     "aiLinkOff": "বন্ধ",
     "aiLinkError": "শুরু হয়নি: {{fout}}",
-    "interfaceScale": "ইন্টারফেসের আকার"
+    "interfaceScale": "ইন্টারফেসের আকার",
+    "saving": "সংরক্ষণ",
+    "incrementalSave": "টীকা ও ফর্মের পরিবর্তন ধাপে ধাপে সংরক্ষণ করুন (পরীক্ষামূলক)",
+    "incrementalSaveHint": "ফাইলটি নতুন করে লেখার বদলে পরিবর্তনগুলো ফাইলের শেষে যোগ করে। আগের সংস্করণগুলো ফাইল থেকে পুনরুদ্ধারযোগ্য থাকে। রিড্যাকশন, লুকানো তথ্য অপসারণ এবং অন্যান্য পরিবর্তন সবসময় সম্পূর্ণ নতুন করে লিখে সংরক্ষিত হয়।"
   },
   "annotations": {
     "generalDefaults": "সাধারণ ডিফল্ট",
@@ -313,7 +316,15 @@
     "butt": "সমতল",
     "openArrowReversed": "খোলা তীর (বিপরীত)",
     "closedArrowReversed": "বন্ধ তীর (বিপরীত)",
-    "slash": "স্ল্যাশ"
+    "slash": "স্ল্যাশ",
+    "decimalNotation": "দশমিক বিভাজক",
+    "decimalAuto": "ভাষা অনুযায়ী",
+    "decimalComma": "কমা (2,50)",
+    "decimalPoint": "বিন্দু (2.50)",
+    "digitGrouping": "হাজার আলাদা করুন (12 345)",
+    "scaleCheck": "স্কেল যাচাই",
+    "scaleCheckOk": "ঠিক-এর সীমা",
+    "scaleCheckWarn": "সতর্কতার সীমা"
   },
   "keyboardShortcuts": {
     "title": "কীবোর্ড শর্টকাট",

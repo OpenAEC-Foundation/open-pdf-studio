@@ -1,4 +1,5 @@
 import { state, getActiveDocument, selectAllOnPage, clearSelection } from '../core/state.js';
+import { isVerwijderToets } from './verwijder-toets.js';
 import { undo, redo, recordAdd, recordModify, recordBulkModify, recordClearPage } from '../core/undo-manager.js';
 import { setTool } from './manager.js';
 import { heeftGekozenAfbeelding, wisAfbeeldingSelectie, deleteSelectedEmbeddedImage } from './tools/remove-image-tool.js';
@@ -703,7 +704,7 @@ async function voerStandaardToetsUit(e) {
       }
       redraw();
     }
-  } else if (e.key === 'Delete') {
+  } else if (isVerwijderToets(e)) {
     if (!aan(e, 'edit.delete', 'Delete')) return;
     e.preventDefault();
     if (heeftGekozenAfbeelding()) {

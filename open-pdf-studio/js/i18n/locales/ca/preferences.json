@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "Activa mitjançant paràmetre d'inici ({{adres}})",
     "aiLinkOff": "Desactivada",
     "aiLinkError": "No iniciada: {{fout}}",
-    "interfaceScale": "Mida de la interfície"
+    "interfaceScale": "Mida de la interfície",
+    "saving": "Desament",
+    "incrementalSave": "Desa els canvis d'anotacions i formularis de manera incremental (experimental)",
+    "incrementalSaveHint": "Afegeix els canvis al final del fitxer en lloc de reescriure'l. Les versions anteriors continuen sent recuperables des del fitxer. La redacció, l'eliminació d'informació oculta i altres canvis sempre es desen reescrivint el fitxer sencer."
   },
   "annotations": {
     "generalDefaults": "Valors per defecte generals",
@@ -313,7 +316,15 @@
     "butt": "Pla",
     "openArrowReversed": "Fletxa oberta (invertida)",
     "closedArrowReversed": "Fletxa tancada (invertida)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separador decimal",
+    "decimalAuto": "Segons l'idioma",
+    "decimalComma": "Coma (2,50)",
+    "decimalPoint": "Punt (2.50)",
+    "digitGrouping": "Separa els milers (12 345)",
+    "scaleCheck": "Comprovació d'escala",
+    "scaleCheckOk": "Correcte fins a",
+    "scaleCheckWarn": "Avís fins a"
   },
   "keyboardShortcuts": {
     "title": "Dreceres de teclat",

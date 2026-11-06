@@ -28,6 +28,15 @@ if ! find "$tmp/squashfs-root" -type f -name libpdfium.so -print -quit | grep -q
   exit 1
 fi
 
+# The PDFium render pool runs as the pdfium-worker sidecar next to the main
+# binary (bundle.externalBin). Without it every render goes through the single
+# in-process PDFium fallback (issue #923).
+worker="$tmp/squashfs-root/usr/bin/pdfium-worker"
+if [[ ! -s "$worker" || ! -x "$worker" ]]; then
+  echo "pdfium-worker sidecar is missing from the AppImage (usr/bin/pdfium-worker, issue #923)" >&2
+  exit 1
+fi
+
 # Display-stack libraries must come from the host. Bundled copies abort WebKit
 # with "Could not create default EGL display: EGL_BAD_PARAMETER" on newer Mesa
 # (issue #362). Keep in sync with LINUXDEPLOY_EXCLUDED_LIBRARIES in the workflows.

@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Εντοπίστηκε κλίμακα",
     "noScaleFound": "Δεν βρέθηκε κλίμακα",
-    "detecting": "Εντοπισμός..."
+    "detecting": "Εντοπισμός...",
+    "scaleCheck": "Έλεγχος κλίμακας",
+    "scaleCheckTitle": "Μετρήστε μια γνωστή διάσταση και εμφανίστε την απόκλιση της κλίμακας σε ποσοστό"
   },
   "home": {
     "document": "Έγγραφο",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Τοποθέτηση περιοχής κλίμακας που καλύπτει ολόκληρη τη σελίδα",
     "drawing": "Σχέδιο",
     "highlight": "Επισήμανση",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Ελεύθερο χέρι",
     "line": "Γραμμή",
     "arrow": "Βέλος",
@@ -134,6 +142,8 @@
     "callout": "Επεξήγηση",
     "stamp": "Σφραγίδα",
     "signature": "Υπογραφή",
+    "digitalSign": "Ψηφιακή υπογραφή",
+    "digitalSignTooltip": "Υπογραφή του εγγράφου με πιστοποιητικό (.p12/.pfx). Το κουμπί Υπογραφή τοποθετεί μόνο μια εικόνα.",
     "measure": "Μέτρηση",
     "measureDistance": "Μέτρηση απόστασης",
     "distance": "Απόσταση",
@@ -316,7 +326,85 @@
     "modified": "Τροποποιήθηκε",
     "noChanges": "Καμία αλλαγή",
     "textTab": "Κείμενο",
-    "noTextChanges": "Καμία διαφορά κειμένου"
+    "noTextChanges": "Καμία διαφορά κειμένου",
+    "previousVersion": "πριν από την τελευταία αποθήκευση",
+    "fromDisk": "αρχείο",
+    "fileLoadError": "Δεν ήταν δυνατό να ανοίξει το αρχείο ως PDF.",
+    "browse": "Αναζήτηση…",
+    "browseHint": "Επιλογή αρχείου PDF από τον δίσκο",
+    "pickSecondSide": "Επιλέξτε την άλλη πλευρά από αρχείο στον δίσκο ή ανοίξτε δεύτερο PDF σε καρτέλα.",
+    "sensitivity": "Ευαισθησία",
+    "sensitivityHint": "Ορίζει μαζί το κατώφλι μελανιού, το ελάχιστο μέγεθος αλλαγής και την απόσταση συγχώνευσης",
+    "preset": {
+      "line": "Γραμμικό σχέδιο",
+      "scan": "Σάρωση",
+      "text": "Έγγραφο κειμένου"
+    },
+    "autoAlign": "Αυτόματη ευθυγράμμιση",
+    "autoAlignHint": "Εκτίμηση μετατόπισης, περιστροφής και κλίμακας από τα σχέδια",
+    "autoAlignEach": "Αυτόμ.",
+    "autoAlignEachHint": "Αυτόματη ευθυγράμμιση κάθε ζεύγους σελίδων στην πρώτη εμφάνιση",
+    "rotation": "περιστρ.",
+    "scale": "κλίμακα",
+    "resetAlignHint": "Κατάργηση ευθυγράμμισης",
+    "alignManual": "χειροκίνητα",
+    "confidence": "Αξιοπιστία",
+    "confidenceHint": "Ποσοστό του μελανιού που συμπίπτει μετά την ευθυγράμμιση",
+    "alignByMeasure": "κλίμακα από τις κλίμακες μέτρησης",
+    "alignNone": "ήδη ευθυγραμμισμένο",
+    "alignByContent": "από το περιεχόμενο του σχεδίου",
+    "pair": "Ζεύγος",
+    "pagesTab": "Σελίδες",
+    "pairing": "Αντιστοίχιση σελίδων…",
+    "onlyInOld": "Μόνο στο παλιό",
+    "onlyInNew": "Μόνο στο νέο",
+    "pairReason": {
+      "sheet": "Αντιστοίχιση με αριθμό φύλλου",
+      "label": "Αντιστοίχιση με ετικέτα σελίδας",
+      "content": "Αντιστοίχιση με περιεχόμενο",
+      "index": "Αντιστοίχιση με σειρά σελίδων",
+      "manual": "Αντιστοίχιση με το χέρι"
+    },
+    "truncated": "Πάρα πολλές διαφορές: ελέγξτε την ευθυγράμμιση ή την ευαισθησία.",
+    "selectForClouds": "Επιλογή για σύννεφα στο νέο έγγραφο",
+    "report": {
+      "button": "Αναφορά",
+      "csv": "Εξαγωγή λίστας αλλαγών (CSV)…",
+      "pdf": "Εξαγωγή σύνοψης PDF…",
+      "clouds": "Τοποθέτηση επιλεγμένων αλλαγών ως σύννεφα",
+      "cloudsNeedTab": "Το νέο έγγραφο πρέπει να είναι ανοιχτό σε καρτέλα",
+      "saved": "Η αναφορά αποθηκεύτηκε",
+      "failed": "Δεν ήταν δυνατή η δημιουργία της αναφοράς",
+      "cloudsPlaced": "Σύννεφα στο νέο έγγραφο: {{count}}",
+      "title": "Αναφορά σύγκρισης",
+      "generated": "Δημιουργήθηκε",
+      "settings": "Ρυθμίσεις",
+      "fileSuffix": "allages",
+      "sourcePixel": "Σχέδιο",
+      "sourceText": "Κείμενο",
+      "cloudSubject": "Σύγκριση",
+      "before": "Πριν",
+      "after": "Μετά",
+      "col": {
+        "no": "Αρ.",
+        "pair": "Ζεύγος",
+        "oldPage": "Παλιά σελίδα",
+        "newPage": "Νέα σελίδα",
+        "sheet": "Φύλλο",
+        "type": "Είδος",
+        "source": "Προέλευση",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Πλάτος (mm)",
+        "heightMm": "Ύψος (mm)",
+        "oldText": "Κείμενο πριν",
+        "newText": "Κείμενο μετά"
+      },
+      "sourceVector": "Διανυσματικό"
+    },
+    "methodVector": "Διανυσματικό",
+    "methodVectorHint": "Ακριβής σύγκριση των σχεδιασμένων διαδρομών όπου και οι δύο σελίδες είναι διανυσματικά σχέδια· οι άλλες σελίδες συγκρίνονται ανά εικονοστοιχείο",
+    "methodPixelFallback": "εικονοστοιχεία: όχι διανυσματική σελίδα"
   },
   "organize": {
     "pages": "Σελίδες",
@@ -350,8 +438,16 @@
     "scanTextHint": "Κάντε κλικ σε μια αναγνωρισμένη λέξη για να την αντικαταστήσετε. Η παλιά λέξη στη σάρωση καλύπτεται.",
     "scanTextNone": "Δεν υπάρχει αναγνωρισμένο κείμενο σε αυτή τη σελίδα. Εκτελέστε πρώτα Αναγνώριση κειμένου (OCR).",
     "shiftPage": "Μετατόπιση σελίδας",
+    "scanGroup": "Σάρωση",
+    "scan": "Σάρωση",
+    "scanTitle": "Σάρωση σελίδων σε PDF με δυνατότητα αναζήτησης",
+    "batchOcr": "Μαζική OCR",
+    "batchOcrTitle": "Αναγνώριση κειμένου σε όλα τα PDF ενός φακέλου",
     "editPages": "Επεξεργασία σελίδων",
-    "editPagesTitle": "Οπτική επεξεργασία σελίδων: αναδιάταξη, περιστροφή, εισαγωγή, διαγραφή, εξαγωγή και διαχωρισμός"
+    "editPagesTitle": "Οπτική επεξεργασία σελίδων: αναδιάταξη, περιστροφή, εισαγωγή, διαγραφή, εξαγωγή και διαχωρισμός",
+    "protect": "Προστασία",
+    "security": "Ασφάλεια",
+    "securityTitle": "Ορισμός ή κατάργηση κωδικών και δικαιωμάτων"
   },
   "help": {
     "settings": "Ρυθμίσεις",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "Π:",
     "y": "Y:",
-    "h": "Υ:"
+    "h": "Υ:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Σύστημα (Αυτόματο)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Μέγεθος με το οποίο τοποθετείται ένα νέο σύμβολο",
     "symbolScaleCustom": "Προσαρμοσμένη κλίμακα",
     "count": "Καταμέτρηση",
-    "arc": "Τόξο"
+    "arc": "Τόξο",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Διόρθωση",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Φωτισμός ασφαλείας",
       "nen1414-tr": "NL NEN 1414 — Απαγωγή καπνού/θερμότητας",
       "nen1414-tv": "NL NEN 1414 — Αερισμός",
-      "nen1414-tw": "NL NEN 1414 — Νερό/Καταιονητήρες"
+      "nen1414-tw": "NL NEN 1414 — Νερό/Καταιονητήρες",
+      "gdt-bewerking": "GD&T και κατεργασία"
     },
     "sectors": {
       "aec": "AEC (Κατασκευές)",
@@ -773,5 +881,34 @@
       "mep": "Η/Μ εγκαταστάσεις (MEP)",
       "infra": "Υποδομές"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

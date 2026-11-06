@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detectar escala del cajetin",
     "scaleDetected": "Escala detectada",
     "noScaleFound": "No se encontro escala",
-    "detecting": "Detectando..."
+    "detecting": "Detectando...",
+    "scaleCheck": "Comprobar escala",
+    "scaleCheckTitle": "Medir una cota conocida y mostrar la desviación de la escala en porcentaje"
   },
   "home": {
     "document": "Documento",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Colocar una región de escala que cubra toda la página",
     "drawing": "Dibujo",
     "highlight": "Resaltar",
+    "textHighlight": "Resaltar texto",
+    "textHighlightTitle": "Arrastre sobre el texto para resaltarlo. Doble clic: una palabra. Triple clic: toda la etiqueta.",
+    "areaHighlight": "Resaltar área",
+    "areaHighlightTitle": "Dibuje un cuadro para resaltar un área",
+    "highlightMode": "Resaltar: área o texto",
+    "highlightSwitchTip": "Haga clic de nuevo para cambiar entre área y texto",
     "freehand": "Mano alzada",
     "line": "Línea",
     "arrow": "Flecha",
@@ -134,6 +142,8 @@
     "callout": "Llamada",
     "stamp": "Sello",
     "signature": "Firma",
+    "digitalSign": "Firma digital",
+    "digitalSignTooltip": "Firmar el documento con un certificado (.p12/.pfx). El botón Firma solo coloca una imagen.",
     "measure": "Medir",
     "measureDistance": "Medir distancia",
     "distance": "Distancia",
@@ -316,7 +326,85 @@
     "modified": "Modificado",
     "noChanges": "Sin cambios",
     "textTab": "Texto",
-    "noTextChanges": "Sin diferencias de texto"
+    "noTextChanges": "Sin diferencias de texto",
+    "previousVersion": "antes del último guardado",
+    "fromDisk": "archivo",
+    "fileLoadError": "No se pudo abrir el archivo como PDF.",
+    "browse": "Examinar…",
+    "browseHint": "Elegir un archivo PDF del disco",
+    "pickSecondSide": "Elija el otro lado desde un archivo en disco o abra un segundo PDF en una pestaña.",
+    "sensitivity": "Sensibilidad",
+    "sensitivityHint": "Ajusta a la vez el umbral de tinta, el tamaño mínimo de cambio y la distancia de unión",
+    "preset": {
+      "line": "Dibujo lineal",
+      "scan": "Escaneo",
+      "text": "Documento de texto"
+    },
+    "autoAlign": "Alinear automáticamente",
+    "autoAlignHint": "Estimar desplazamiento, rotación y escala a partir de los dibujos",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Alinear automáticamente cada par de páginas al mostrarlo por primera vez",
+    "rotation": "rot.",
+    "scale": "escala",
+    "resetAlignHint": "Quitar la alineación",
+    "alignManual": "manual",
+    "confidence": "Fiabilidad",
+    "confidenceHint": "Proporción de la tinta que coincide tras alinear",
+    "alignByMeasure": "escala a partir de las escalas de medida",
+    "alignNone": "ya alineado",
+    "alignByContent": "a partir del contenido del dibujo",
+    "pair": "Par",
+    "pagesTab": "Páginas",
+    "pairing": "Emparejando páginas…",
+    "onlyInOld": "Solo en el antiguo",
+    "onlyInNew": "Solo en el nuevo",
+    "pairReason": {
+      "sheet": "Emparejadas por número de plano",
+      "label": "Emparejadas por etiqueta de página",
+      "content": "Emparejadas por contenido",
+      "index": "Emparejadas por orden de páginas",
+      "manual": "Emparejadas a mano"
+    },
+    "truncated": "Demasiadas diferencias: compruebe la alineación o la sensibilidad.",
+    "selectForClouds": "Seleccionar para nubes en el documento nuevo",
+    "report": {
+      "button": "Informe",
+      "csv": "Exportar lista de cambios (CSV)…",
+      "pdf": "Exportar resumen en PDF…",
+      "clouds": "Colocar los cambios seleccionados como nubes",
+      "cloudsNeedTab": "El documento nuevo debe estar abierto en una pestaña",
+      "saved": "Informe guardado",
+      "failed": "No se pudo crear el informe",
+      "cloudsPlaced": "{{count}} nubes colocadas en el documento nuevo",
+      "title": "Informe de comparación",
+      "generated": "Generado",
+      "settings": "Configuración",
+      "fileSuffix": "cambios",
+      "sourcePixel": "Dibujo",
+      "sourceText": "Texto",
+      "cloudSubject": "Comparación",
+      "before": "Antes",
+      "after": "Después",
+      "col": {
+        "no": "N.º",
+        "pair": "Par",
+        "oldPage": "Página antigua",
+        "newPage": "Página nueva",
+        "sheet": "Plano",
+        "type": "Tipo",
+        "source": "Origen",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Ancho (mm)",
+        "heightMm": "Alto (mm)",
+        "oldText": "Texto antes",
+        "newText": "Texto después"
+      },
+      "sourceVector": "Vectorial"
+    },
+    "methodVector": "Vectorial",
+    "methodVectorHint": "Compara exactamente los trazados donde ambas páginas son dibujos vectoriales; las demás páginas usan la comparación por píxeles",
+    "methodPixelFallback": "píxeles: no es una página vectorial"
   },
   "organize": {
     "pages": "Páginas",
@@ -350,8 +438,16 @@
     "scanTextHint": "Haga clic en una palabra reconocida para reemplazarla. La palabra antigua del escaneo queda cubierta.",
     "scanTextNone": "No hay texto reconocido en esta página. Ejecute primero Reconocimiento de texto (OCR).",
     "shiftPage": "Desplazar página",
+    "scanGroup": "Escanear",
+    "scan": "Escanear",
+    "scanTitle": "Escanear páginas a un PDF con búsqueda",
+    "batchOcr": "OCR por lotes",
+    "batchOcrTitle": "Reconocer texto en todos los PDF de una carpeta",
     "editPages": "Editar páginas",
-    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir"
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir",
+    "protect": "Proteger",
+    "security": "Seguridad",
+    "securityTitle": "Establecer o quitar contraseñas y permisos"
   },
   "help": {
     "settings": "Configuración",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "An:",
     "y": "Y:",
-    "h": "Al:"
+    "h": "Al:",
+    "alignToPage": "Alinear a la página",
+    "alignToPageTip": "Alinear la selección a los bordes o al centro de la página (también con una sola marca)",
+    "alignPageEach": "Alinear cada marca por separado",
+    "alignPageEachTip": "Con Alinear a la página: cada marca va sola al borde, no como grupo"
   },
   "theme": {
     "system": "Sistema (Autodetectar)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Tamaño con el que se coloca un símbolo nuevo",
     "symbolScaleCustom": "Escala personalizada",
     "count": "Contar",
-    "arc": "Arco"
+    "arc": "Arco",
+    "countGroup": "Grupo de conteo",
+    "countGroupLabel": "Grupo",
+    "countGroupTip": "Las nuevas marcas de conteo van a este grupo; el número es el total del grupo",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color de todo el grupo, incluidas las marcas ya colocadas",
+    "countGroupNew": "Nuevo grupo",
+    "countGroupAdd": "Añadir grupo"
   },
   "proofread": {
     "group": "Revisión",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Iluminación de emergencia",
       "nen1414-tr": "NL NEN 1414 — Extracción de humo/calor",
       "nen1414-tv": "NL NEN 1414 — Ventilación",
-      "nen1414-tw": "NL NEN 1414 — Agua/Rociadores"
+      "nen1414-tw": "NL NEN 1414 — Agua/Rociadores",
+      "gdt-bewerking": "GD&T y mecanizado"
     },
     "sectors": {
       "aec": "AEC (Construcción)",
@@ -773,5 +881,34 @@
       "mep": "Instalaciones (MEP)",
       "infra": "Infraestructura"
     }
+  },
+  "clipboardPalette": {
+    "title": "Portapapeles",
+    "tip": "Haga clic en una copia y pulse Ctrl+V en la hoja: aparece en el ratón.",
+    "empty": "Copie marcas (Ctrl+C) para reunirlas aquí.",
+    "clear": "Vaciar el portapapeles",
+    "clearShort": "Vaciar",
+    "remove": "Quitar",
+    "close": "Cerrar",
+    "markups": "{{count}} marcas",
+    "picked": "La copia está en el portapapeles: pulse Ctrl+V en la hoja"
+  },
+  "workspace": {
+    "button": "Espacio de trabajo",
+    "buttonTitle": "Espacios de trabajo: cambie entre distribuciones de paneles guardadas, guarde la distribución actual, restablézcala o cambie el tamaño de la interfaz",
+    "saved": "Espacios de trabajo guardados",
+    "none": "No hay espacios de trabajo guardados",
+    "manage": "Guardar o administrar espacios de trabajo...",
+    "reset": "Restablecer la distribución predeterminada",
+    "interfaceSize": "Tamaño de la interfaz",
+    "dialogTitle": "Espacios de trabajo",
+    "intro": "Un espacio de trabajo recuerda qué paneles y paletas están abiertos, contraídos o flotantes, el ancho del panel de navegación y si la cinta está contraída.",
+    "name": "Nombre:",
+    "save": "Guardar la distribución actual",
+    "overwrite": "Sobrescribir",
+    "savedAs": "Guardado como \"{{name}}\".",
+    "full": "Puede guardar hasta {{max}} espacios de trabajo. Elimine uno primero.",
+    "apply": "Aplicar",
+    "delete": "Eliminar"
   }
 }

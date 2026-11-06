@@ -110,6 +110,7 @@
   "searchHitsOne": "1 coincidència",
   "searchHitsMany": "{{count}} coincidències",
   "passwordProtectedBar": "Protegit amb contrasenya: obert només de lectura.",
+  "passwordProtectedEditableBar": "Protegit amb contrasenya. En desar es manté la protecció.",
   "documentSearch": {
     "title": "Cerca als documents",
     "query": "Text de cerca",
@@ -157,5 +158,11 @@
     "port": "Port: {{port}}",
     "lastTool": "Última eina: {{tool}} a les {{time}}",
     "noTool": "Encara no hi ha crides a eines"
-  }
+  },
+  "sharedReviewActive": "Revisió compartida",
+  "sharedReviewUpdates": "Revisió compartida: {{n}} noves",
+  "sharedReviewTitle": "Les anotacions es comparteixen a través de {{folder}}. Feu clic per obrir la revisió compartida.",
+  "sharedReviewError": "Revisió compartida: carpeta no disponible",
+  "pdfaReadOnly": "Aquest document compleix l'estàndard {{label}} i s'ha obert només de lectura per evitar modificacions.",
+  "pdfaValidate": "Valida"
 }

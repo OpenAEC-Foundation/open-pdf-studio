@@ -110,6 +110,7 @@
   "searchHitsOne": "1টি মিল",
   "searchHitsMany": "{{count}}টি মিল",
   "passwordProtectedBar": "পাসওয়ার্ড দিয়ে সুরক্ষিত: শুধু পড়ার জন্য খোলা হয়েছে।",
+  "passwordProtectedEditableBar": "পাসওয়ার্ড দিয়ে সুরক্ষিত। সংরক্ষণ করলে সুরক্ষা বজায় থাকে।",
   "documentSearch": {
     "title": "ডকুমেন্ট অনুসন্ধান করুন",
     "query": "অনুসন্ধানের টেক্সট",
@@ -157,5 +158,11 @@
     "port": "পোর্ট: {{port}}",
     "lastTool": "শেষ টুল: {{tool}}, {{time}}",
     "noTool": "এখনও কোনো টুল কল হয়নি"
-  }
+  },
+  "sharedReviewActive": "যৌথ পর্যালোচনা",
+  "sharedReviewUpdates": "যৌথ পর্যালোচনা: {{n}}টি নতুন",
+  "sharedReviewTitle": "টীকা {{folder}}-এর মাধ্যমে শেয়ার হচ্ছে। যৌথ পর্যালোচনা খুলতে ক্লিক করুন।",
+  "sharedReviewError": "যৌথ পর্যালোচনা: ফোল্ডার পাওয়া যাচ্ছে না",
+  "pdfaReadOnly": "এই নথিটি {{label}} মানদণ্ড মেনে চলে এবং পরিবর্তন রোধ করতে শুধুমাত্র-পঠনযোগ্য হিসেবে খোলা হয়েছে।",
+  "pdfaValidate": "যাচাই করুন"
 }

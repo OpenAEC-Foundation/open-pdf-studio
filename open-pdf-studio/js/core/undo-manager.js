@@ -161,7 +161,8 @@ function scheduleThumbnailRefresh(cmd) {
 function commandPreservesSelection(cmd) {
   if (!cmd) return false;
   if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify' ||
-      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale') {
+      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale' ||
+      cmd.type === 'modifyScaleChecks') {
     return true;
   }
   if (cmd.type !== 'compound') return false;
@@ -498,6 +499,10 @@ function applyUndo(cmd, lookup) {
       doc.measureScale = clonePlainValue(cmd.oldState);
       break;
     }
+    case 'modifyScaleChecks': {
+      doc.scaleChecks = clonePlainValue(cmd.oldState);
+      break;
+    }
     case 'bulkModify': {
       for (const item of cmd.items) restoreById(lookup, item.id, item.oldState);
       break;
@@ -650,6 +655,10 @@ function applyRedo(cmd, lookup) {
     }
     case 'modifyMeasureScale': {
       doc.measureScale = clonePlainValue(cmd.newState);
+      break;
+    }
+    case 'modifyScaleChecks': {
+      doc.scaleChecks = clonePlainValue(cmd.newState);
       break;
     }
     case 'bulkModify': {
@@ -906,6 +915,17 @@ export function recordMeasureScale(oldState, newState) {
   if (JSON.stringify(oldState) === JSON.stringify(newState)) return;
   execute({
     type: 'modifyMeasureScale',
+    oldState: clonePlainValue(oldState),
+    newState: clonePlainValue(newState),
+  });
+}
+
+// De schaalcontroles per blad (#629): een controle maakt het document
+// gewijzigd (ze gaat het bestand in) en is ongedaan te maken.
+export function recordScaleChecks(oldState, newState) {
+  if (JSON.stringify(oldState) === JSON.stringify(newState)) return;
+  execute({
+    type: 'modifyScaleChecks',
     oldState: clonePlainValue(oldState),
     newState: clonePlainValue(newState),
   });

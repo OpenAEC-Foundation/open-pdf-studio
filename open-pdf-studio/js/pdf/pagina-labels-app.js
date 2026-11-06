@@ -3,11 +3,13 @@
 // (normaliseren, /PageLabels schrijven, tekst in een vak) staat in
 // pagina-labels.js.
 
-import { invoke, isTauri } from '../core/platform.js';
+import { isTauri } from '../core/platform.js';
+import { herkenPagina, actieveOcrEngine } from './ocr-engines.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
-  tekstInGebied, woordenInGebied, draaiVak,
+  tekstInGebied, draaiVak, ocrLezing, moetGedraaidLezen, kiesBesteOcrLezing,
+  vakNaarOcrDraaiing, OCR_DRAAIINGEN,
 } from './pagina-labels.js';
 
 /**
@@ -94,13 +96,17 @@ export async function labelsNaHerladen(doc, { oudeBytes = null, nieuweBytes = nu
 // saver een onzichtbare tekstlaag in het bestand, en de naambouwer leest alleen.
 const _ocrWoorden = new Map();
 
-async function ocrWoorden(doc, pageNum) {
+// `graden`: de pagina eerst zoveel rechtsom draaien (verticale tekst, #954);
+// de woorden staan dan in die gedraaide ruimte.
+async function ocrWoorden(doc, pageNum, graden = 0) {
   const bestaand = doc.ocrResults?.[pageNum];
-  if (Array.isArray(bestaand) && bestaand.length) return bestaand;
+  if (!graden && Array.isArray(bestaand) && bestaand.length) return bestaand;
   if (!doc.filePath || !isTauri()) return [];
-  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}`;
+  // Voorkeursengine (#970) hoort bij de sleutel: een andere keuze leest opnieuw.
+  const engine = graden ? '' : (actieveOcrEngine()?.id || '');
+  const sleutel = `${doc.id}|${doc.filePath}|${pageNum}|${graden}|${engine}`;
   if (_ocrWoorden.has(sleutel)) return _ocrWoorden.get(sleutel);
-  const woorden = await invoke('ocr_pdf_page', { path: doc.filePath, pageIndex: pageNum - 1, lang: 'auto' });
+  const woorden = await herkenPagina(doc, pageNum, { lang: 'auto', rotation: graden });
   if (_ocrWoorden.size > 500) _ocrWoorden.clear();
   const lijst = Array.isArray(woorden) ? woorden : [];
   _ocrWoorden.set(sleutel, lijst);
@@ -137,13 +143,34 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
       // OCR-woorden staan in de ruimte van de pagina mét /Rotate maar zonder
       // de draaiing uit de app; draai ze mee naar de ruimte van het vak.
       const extra = p?.extra || 0;
-      const woorden = (await ocrWoorden(doc, pageNum)).map((w) => {
+      // Een extensie-engine die vakken leest (#970) krijgt alleen dit vak, in
+      // zijn eigen ruimte (zonder de app-draaiing); anders de hele pagina.
+      let bron;
+      if (actieveOcrEngine()?.region && p && doc.filePath && isTauri()) {
+        bron = await herkenPagina(doc, pageNum, { lang: 'auto', region: vakNaarOcrDraaiing(vak, p.breedte, p.hoogte, extra, 0) });
+      } else {
+        bron = await ocrWoorden(doc, pageNum);
+      }
+      const woorden = bron.map((w) => {
         if (!extra || !p) return w;
         const r = draaiVak({ x: w.left, y: w.top, width: w.width, height: w.height }, p.breedte, p.hoogte, extra);
         return { ...w, left: r.x, top: r.y, width: r.width, height: r.height };
       });
-      const tekst = woordenInGebied(woorden, vak);
-      if (tekst) return { tekst, bron: 'ocr' };
+      const lezingen = [ocrLezing(woorden, vak, 0)];
+      // Leeg of onzeker: misschien staat de tekst verticaal (#954). Lees de
+      // pagina dan ook een kwartslag gedraaid en neem de zekerste lezing.
+      if (moetGedraaidLezen(lezingen[0]) && p && doc.filePath && isTauri()) {
+        for (const graden of OCR_DRAAIINGEN) {
+          try {
+            const gedraaid = await ocrWoorden(doc, pageNum, graden);
+            lezingen.push(ocrLezing(gedraaid, vakNaarOcrDraaiing(vak, p.breedte, p.hoogte, extra, graden), graden));
+          } catch (e) {
+            console.warn(`[paginalabels] OCR ${graden}° mislukt:`, e?.message || e);
+          }
+        }
+      }
+      const beste = kiesBesteOcrLezing(lezingen);
+      if (beste) return { tekst: beste.tekst, bron: 'ocr' };
     } catch (e) {
       console.warn('[paginalabels] OCR mislukt:', e?.message || e);
     }

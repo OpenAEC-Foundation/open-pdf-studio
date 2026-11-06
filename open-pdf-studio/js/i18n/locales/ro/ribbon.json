@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Scară detectată",
     "noScaleFound": "Nu s-a găsit nicio scară",
-    "detecting": "Se detectează..."
+    "detecting": "Se detectează...",
+    "scaleCheck": "Verifică scara",
+    "scaleCheckTitle": "Măsurați o cotă cunoscută și afișați abaterea scării în procente"
   },
   "home": {
     "document": "Document",
@@ -110,6 +112,12 @@
     "scaleRegionFullPageTitle": "Plasează o regiune de scară care acoperă întreaga pagină",
     "drawing": "Desen",
     "highlight": "Evidentiator",
+    "textHighlight": "Text highlight",
+    "textHighlightTitle": "Drag across text to highlight it. Double-click: one word. Triple-click: the whole label.",
+    "areaHighlight": "Area highlight",
+    "areaHighlightTitle": "Draw a box to highlight an area",
+    "highlightMode": "Highlight: area or text",
+    "highlightSwitchTip": "Click again to switch between area and text",
     "freehand": "Mana libera",
     "line": "Linie",
     "arrow": "Sageata",
@@ -134,6 +142,8 @@
     "callout": "Explicatie",
     "stamp": "Stampila",
     "signature": "Semnatura",
+    "digitalSign": "Semnătură digitală",
+    "digitalSignTooltip": "Semnați documentul cu un certificat (.p12/.pfx). Butonul Semnătură plasează doar o imagine.",
     "measure": "Masurare",
     "measureDistance": "Masurare distanta",
     "distance": "Distanta",
@@ -316,7 +326,85 @@
     "modified": "Modificat",
     "noChanges": "Nicio modificare",
     "textTab": "Text",
-    "noTextChanges": "Nicio diferență de text"
+    "noTextChanges": "Nicio diferență de text",
+    "previousVersion": "înainte de ultima salvare",
+    "fromDisk": "fișier",
+    "fileLoadError": "Fișierul nu a putut fi deschis ca PDF.",
+    "browse": "Răsfoiește…",
+    "browseHint": "Alegeți un fișier PDF de pe disc",
+    "pickSecondSide": "Alegeți cealaltă parte dintr-un fișier de pe disc sau deschideți un al doilea PDF într-o filă.",
+    "sensitivity": "Sensibilitate",
+    "sensitivityHint": "Setează împreună pragul de cerneală, dimensiunea minimă a modificării și distanța de unire",
+    "preset": {
+      "line": "Desen liniar",
+      "scan": "Scanare",
+      "text": "Document text"
+    },
+    "autoAlign": "Aliniere automată",
+    "autoAlignHint": "Estimează deplasarea, rotația și scara din desene",
+    "autoAlignEach": "Auto",
+    "autoAlignEachHint": "Aliniază automat fiecare pereche de pagini la prima afișare",
+    "rotation": "rot.",
+    "scale": "scară",
+    "resetAlignHint": "Elimină alinierea",
+    "alignManual": "manual",
+    "confidence": "Fiabilitate",
+    "confidenceHint": "Proporția cernelii care coincide după aliniere",
+    "alignByMeasure": "scară din scările de măsurare",
+    "alignNone": "deja aliniat",
+    "alignByContent": "din conținutul desenului",
+    "pair": "Pereche",
+    "pagesTab": "Pagini",
+    "pairing": "Se asociază paginile…",
+    "onlyInOld": "Doar în vechi",
+    "onlyInNew": "Doar în nou",
+    "pairReason": {
+      "sheet": "Asociate după numărul planșei",
+      "label": "Asociate după eticheta paginii",
+      "content": "Asociate după conținut",
+      "index": "Asociate după ordinea paginilor",
+      "manual": "Asociate manual"
+    },
+    "truncated": "Prea multe diferențe: verificați alinierea sau sensibilitatea.",
+    "selectForClouds": "Selectați pentru nori în documentul nou",
+    "report": {
+      "button": "Raport",
+      "csv": "Exportă lista modificărilor (CSV)…",
+      "pdf": "Exportă rezumatul PDF…",
+      "clouds": "Plasează modificările selectate ca nori",
+      "cloudsNeedTab": "Documentul nou trebuie să fie deschis într-o filă",
+      "saved": "Raport salvat",
+      "failed": "Raportul nu a putut fi creat",
+      "cloudsPlaced": "Nori plasați în documentul nou: {{count}}",
+      "title": "Raport de comparare",
+      "generated": "Generat",
+      "settings": "Setări",
+      "fileSuffix": "modificari",
+      "sourcePixel": "Desen",
+      "sourceText": "Text",
+      "cloudSubject": "Comparare",
+      "before": "Înainte",
+      "after": "După",
+      "col": {
+        "no": "Nr.",
+        "pair": "Pereche",
+        "oldPage": "Pagina veche",
+        "newPage": "Pagina nouă",
+        "sheet": "Planșă",
+        "type": "Tip",
+        "source": "Sursă",
+        "xMm": "X (mm)",
+        "yMm": "Y (mm)",
+        "widthMm": "Lățime (mm)",
+        "heightMm": "Înălțime (mm)",
+        "oldText": "Text înainte",
+        "newText": "Text după"
+      },
+      "sourceVector": "Vectorial"
+    },
+    "methodVector": "Vectorial",
+    "methodVectorHint": "Compară exact traseele desenate acolo unde ambele pagini sunt desene vectoriale; celelalte pagini folosesc compararea pe pixeli",
+    "methodPixelFallback": "pixeli: nu este o pagină vectorială"
   },
   "organize": {
     "pages": "Pagini",
@@ -350,8 +438,16 @@
     "scanTextHint": "Faceți clic pe un cuvânt recunoscut pentru a-l înlocui. Cuvântul vechi din scanare este acoperit.",
     "scanTextNone": "Nu există text recunoscut pe această pagină. Rulați mai întâi Recunoaștere text (OCR).",
     "shiftPage": "Deplasează pagina",
+    "scanGroup": "Scanare",
+    "scan": "Scanează",
+    "scanTitle": "Scanează pagini într-un PDF căutabil",
+    "batchOcr": "OCR în lot",
+    "batchOcrTitle": "Recunoaște textul din toate PDF-urile unui dosar",
     "editPages": "Editare pagini",
-    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire"
+    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire",
+    "protect": "Protejare",
+    "security": "Securitate",
+    "securityTitle": "Setați sau eliminați parole și drepturi"
   },
   "help": {
     "settings": "Setări",
@@ -501,7 +597,11 @@
     "x": "X:",
     "w": "L:",
     "y": "Y:",
-    "h": "H:"
+    "h": "H:",
+    "alignToPage": "Align to Page",
+    "alignToPageTip": "Align the selection to the edges or the centre of the page (also works with one markup)",
+    "alignPageEach": "Align Each Markup Separately",
+    "alignPageEachTip": "With Align to Page: move every markup to the page edge on its own instead of as a group"
   },
   "theme": {
     "system": "Sistem (Automat)",
@@ -683,7 +783,14 @@
     "symbolScaleTitle": "Dimensiunea la care este plasat un simbol nou",
     "symbolScaleCustom": "Scară personalizată",
     "count": "Numărare",
-    "arc": "Arc"
+    "arc": "Arc",
+    "countGroup": "Count group",
+    "countGroupLabel": "Group",
+    "countGroupTip": "New count markers go into this group; the number is the total in the group",
+    "countGroupColor": "Color",
+    "countGroupColorTip": "Color of the whole group, including the markers already placed",
+    "countGroupNew": "New group",
+    "countGroupAdd": "Add group"
   },
   "proofread": {
     "group": "Corectură",
@@ -764,7 +871,8 @@
       "nen1414-tn": "NL NEN 1414 — Iluminat de siguranță",
       "nen1414-tr": "NL NEN 1414 — Evacuare fum/căldură",
       "nen1414-tv": "NL NEN 1414 — Ventilație",
-      "nen1414-tw": "NL NEN 1414 — Apă/Sprinklere"
+      "nen1414-tw": "NL NEN 1414 — Apă/Sprinklere",
+      "gdt-bewerking": "GD&T și prelucrare mecanică"
     },
     "sectors": {
       "aec": "AEC (Construcții)",
@@ -773,5 +881,34 @@
       "mep": "Instalații pentru construcții (MEP)",
       "infra": "Infrastructură"
     }
+  },
+  "clipboardPalette": {
+    "title": "Clipboard",
+    "tip": "Click a copy, then press Ctrl+V on the sheet: it lands at the mouse.",
+    "empty": "Copy markups (Ctrl+C) to collect them here.",
+    "clear": "Clear the clipboard",
+    "clearShort": "Clear",
+    "remove": "Remove",
+    "close": "Close",
+    "markups": "{{count}} markups",
+    "picked": "Copy is on the clipboard: press Ctrl+V on the sheet"
+  },
+  "workspace": {
+    "button": "Workspace",
+    "buttonTitle": "Workspaces: switch between saved panel layouts, save the current layout, reset it, or change the interface size",
+    "saved": "Saved workspaces",
+    "none": "No saved workspaces",
+    "manage": "Save or manage workspaces...",
+    "reset": "Reset to default layout",
+    "interfaceSize": "Interface size",
+    "dialogTitle": "Workspaces",
+    "intro": "A workspace remembers which panels and palettes are open, collapsed or floating, the width of the navigation panel and whether the ribbon is collapsed.",
+    "name": "Name:",
+    "save": "Save current layout",
+    "overwrite": "Overwrite",
+    "savedAs": "Saved as \"{{name}}\".",
+    "full": "You can save up to {{max}} workspaces. Delete one first.",
+    "apply": "Apply",
+    "delete": "Delete"
   }
 }

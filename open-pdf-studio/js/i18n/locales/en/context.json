@@ -55,6 +55,7 @@
     "wallJoinDisallow": "Disallow Join (This End)",
     "properties": "Properties...",
     "editViewportScale": "Edit Viewport Scale",
+    "checkScale": "Check Scale with this Line...",
     "saveToToolSet": "Save to Tool Set"
   },
   "multiSelect": {

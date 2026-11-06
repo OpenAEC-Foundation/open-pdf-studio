@@ -33,7 +33,10 @@
     "aiLinkViaFlag": "通过启动参数运行（{{adres}}）",
     "aiLinkOff": "关闭",
     "aiLinkError": "未启动：{{fout}}",
-    "interfaceScale": "界面大小"
+    "interfaceScale": "界面大小",
+    "saving": "保存",
+    "incrementalSave": "以增量方式保存注释和表单更改（实验性）",
+    "incrementalSaveHint": "将更改追加到文件末尾，而不是重写整个文件。早期版本仍可从文件中恢复。涂黑、删除隐藏信息及其他更改始终通过完整重写保存。"
   },
   "annotations": {
     "generalDefaults": "常规默认值",
@@ -313,7 +316,15 @@
     "butt": "平头",
     "openArrowReversed": "开放箭头（反向）",
     "closedArrowReversed": "闭合箭头（反向）",
-    "slash": "斜线"
+    "slash": "斜线",
+    "decimalNotation": "小数分隔符",
+    "decimalAuto": "跟随语言",
+    "decimalComma": "逗号 (2,50)",
+    "decimalPoint": "句点 (2.50)",
+    "digitGrouping": "千位分隔 (12 345)",
+    "scaleCheck": "比例检查",
+    "scaleCheckOk": "合格上限",
+    "scaleCheckWarn": "警告上限"
   },
   "keyboardShortcuts": {
     "title": "键盘快捷键",

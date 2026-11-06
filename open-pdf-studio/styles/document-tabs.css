@@ -85,6 +85,13 @@
 }
 
 /* Een oudere versie van een document van de site, alleen-lezen (#712). */
+/* Het nummer van het tabblad als een document in meer tabbladen open staat (#919). */
+.document-tab-view {
+  margin-left: 2px;
+  color: var(--theme-tab-text);
+  opacity: 0.75;
+}
+
 .document-tab-version {
   font-size: 10px;
   padding: 0 4px;

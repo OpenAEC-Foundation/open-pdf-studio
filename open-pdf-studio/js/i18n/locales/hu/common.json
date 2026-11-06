@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Nem található annotáció az XFDF-fájlban.",
   "noRedactionsOnPage": "Az aktuális oldalon nincs alkalmazható kitörlési jelölés.",
   "noRedactionsInDocument": "A dokumentumban nincs alkalmazható kitörlési jelölés.",
+  "redactTitle": "Kitakarások alkalmazása",
+  "redactConfirmPage": "Alkalmazza a(z) {{count}} kitakarási jelölést a(z) {{page}}. oldalon?",
+  "redactConfirmAll": "Alkalmazza a(z) {{count}} kitakarási jelölést {{pages}} oldalon?",
+  "redactConfirmBody": "A jelölések alatti szöveg, képek, vektorgrafika, megjegyzések és űrlapmezők törlődnek a dokumentumból, a területek pedig a jelölés színével töltődnek ki. A fájl mentéskor változik; a mentés a teljes fájlt korábbi verziók nélkül írja újra.",
+  "redactDone": "{{count}} kitakarási terület alkalmazva. Mentse a dokumentumot, hogy a változás a fájlba kerüljön.",
+  "redactNotApplied": "A kitakarások nem lettek alkalmazva; semmi sem változott. {{reason}}",
+  "redactReasonUnsupported": "Egy jelölés alatti tartalom nem távolítható el megbízhatóan: {{detail}}",
+  "redactReasonInvalid": "Egy vagy több jelölésnek nincs érvényes területe.",
+  "redactReasonTextEdits": "Előbb mentse a nem mentett szövegszerkesztéseket.",
   "cannotDeleteAllPages": "Nem törölhető az összes oldal. Legalább egy oldalnak meg kell maradnia.",
   "cannotDeleteAllPagesSource": "A forrásdokumentum összes oldala nem törölhető.",
   "noPagesSelected": "Nincs kijelölt oldal a kibontáshoz.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "A kiválasztott PDF-nek nincsenek oldalai.",
   "failedToSavePdf": "A PDF mentése sikertelen: {{error}}",
   "failedToLoadPdf": "A PDF betöltése sikertelen: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Megnyitás új ablakban",
     "closeTab": "Lap bezárása",
     "nextTab": "Következő lap",
-    "previousTab": "Előző lap"
+    "previousTab": "Előző lap",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Következő oldal",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "A PDF-bélyegképek a Fájlkezelőben csak a telepített verzióban érhetők el.",
     "virtualPrinter": "A virtuális nyomtató csak a telepített verzióban érhető el: rendszergazdai jogokkal adható hozzá a Windowshoz.",
     "notWritable": "Az Open PDF Studio nem tud írni a(z) {{dir}} mappába, ezért a beállításai most a felhasználói profiljában tárolódnak. Helyezze át a hordozható mappát írható helyre, például USB-meghajtóra vagy a Dokumentumok mappába."
+  },
+  "protectedPdfNoPrint": "A dokumentum jogosultságai nem engedélyezik a nyomtatást.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

@@ -98,7 +98,11 @@ const PARAMETRIC_ID_DEFAULT = {
   'bout': 'IfcMechanicalFastener',
   'anker': 'IfcMechanicalFastener',
   'staal-hea': 'IfcMember', 'staal-heb': 'IfcMember', 'staal-ipe': 'IfcMember',
-  'staal-unp': 'IfcMember', 'staal-koker': 'IfcMember',
+  'staal-unp': 'IfcMember', 'staal-koker': 'IfcMember', 'staal-buis': 'IfcMember',
+  // Ronde doorsnede (beton/hout, #936): vooral funderingspalen.
+  'ronde-doorsnede': 'IfcPile',
+  // Paalpositie op een palenplan (#936).
+  'paalpositie': 'IfcPile',
   'paal-aanzicht-type-1': 'IfcPile', 'paal-aanzicht-type-2': 'IfcPile',
   'vloer-kanaalplaatvloer': 'IfcSlab',
   'vloer-isolatieplaatvloer': 'IfcSlab',
@@ -137,6 +141,8 @@ const PARAMETRIC_ID_DEFAULT = {
   // als gevelelement is een raam (een deur erin maakt het nog geen IfcDoor).
   'vliesgevel': 'IfcCurtainWall',
   'kozijn': 'IfcWindow',
+  // GD&T-kenmerkkader (#971): maatvoeringsannotatie, geen bouwelement.
+  'gdt-kenmerkkader': 'IfcAnnotation',
 };
 
 function keywordMatch(text) {
@@ -177,6 +183,10 @@ export function ifcCategoryForSymbol(symbol) {
     if (byId !== IFC_DEFAULT) return byId;
     return keywordMatch(text) || IFC_DEFAULT;
   }
+
+  // 2b. GD&T- en bewerkingstekens (#971): annotatie, ook als een naam op een
+  //     bouwtrefwoord lijkt ("Vierkant", "Diepte").
+  if (/^gdt-/.test(id)) return 'IfcAnnotation';
 
   // 3. Generieke tool-entry (bv. 'mask'): geen bouwelement.
   if (symbol.tool) return keywordMatch(text) || IFC_DEFAULT;

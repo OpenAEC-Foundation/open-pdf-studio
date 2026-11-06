@@ -17,7 +17,9 @@
     "viewports": "Visningsvinduer",
     "noViewports": "Ingen visningsvinduer definert",
     "measurements": "Målinger",
-    "noMeasurements": "Ingen målinger ennå"
+    "noMeasurements": "Ingen målinger ennå",
+    "counts": "Counts",
+    "noCounts": "No counts yet"
   },
   "title": "Egenskaper",
   "general": {
@@ -341,6 +343,8 @@
     "deleteBookmark": "Slett bokmerke",
     "findBookmark": "Søk...",
     "findBookmarkTip": "Skriv for å hoppe til et bokmerke. Enter åpner det, Enter igjen går til neste treff.",
+    "findPage": "Søk...",
+    "findPageTip": "Skriv for å hoppe til en side etter arknavn eller nummer. Enter åpner den, Enter igjen går til neste treff.",
     "addAttachment": "Legg til vedlegg",
     "openAttachment": "Åpne vedlegg",
     "saveAttachment": "Lagre vedlegg",
@@ -807,6 +811,24 @@
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
   },
+  "dynamicStamp": {
+    "title": "Stempelfelt",
+    "template": "Mal",
+    "refresh": "Oppdater dato, bruker og side",
+    "lock": "Lås stempel",
+    "lockConfirm": "Låse dette stempelet? Feltene kan da ikke lenger endres.",
+    "locked": "Dette stempelet er låst: feltene kan ikke lenger endres.",
+    "field": {
+      "date": "Dato",
+      "time": "Klokkeslett",
+      "datetime": "Dato og klokkeslett",
+      "user": "Bruker",
+      "page": "Side",
+      "pages": "Antall sider",
+      "filename": "Filnavn",
+      "title": "Dokumenttittel"
+    }
+  },
   "toolSets": {
     "title": "Verktøysett",
     "typeWall": "Vegg",
@@ -922,5 +944,19 @@
     "open": "Åpne",
     "saveAs": "Lagre som...",
     "noContent": "Innholdet i denne filen er ikke innebygd i PDF-en."
+  },
+  "countGroup": {
+    "title": "Count group",
+    "group": "Group",
+    "none": "(no group)",
+    "mixed": "(mixed)",
+    "total": "In this group",
+    "pieces": "{{count}} pcs",
+    "color": "Group color",
+    "name": "Group name"
+  },
+  "sectionOrder": {
+    "reset": "Reset section order",
+    "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
   }
 }

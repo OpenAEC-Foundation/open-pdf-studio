@@ -3,6 +3,7 @@ import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import ThemePicker from './ThemePicker.jsx';
+import WorkspaceMenu from './WorkspaceMenu.jsx';
 import SplitButton from './SplitButton.jsx';
 import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigationIcon, propertiesIcon, annotationsListIcon, toolPaletteIcon, fullscreenIcon, fullscreenExitIcon, elementVisibilityIcon, annotationLayersIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { isFullscreen } from '../../stores/ribbonStore.js';
@@ -174,6 +175,8 @@ export default function ViewTab() {
               re-exposed later if needed). */}
           <RibbonButton id="ribbon-symbol-palette" title={t('view.toolPalette')} icon={toolPaletteIcon} label={t('view.toolPaletteLabel')}
             active={symbolPaletteVisible()} onClick={toggleSymbolPalette} />
+          {/* Werkruimten en interfacegrootte (#932). */}
+          <WorkspaceMenu />
         </RibbonGroup>
 
         {/* Read aloud and the structure tags (#384). */}
@@ -212,7 +215,7 @@ export default function ViewTab() {
             title={t('compare.title') || 'Compare PDFs'}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="8" height="16"/><rect x="13" y="4" width="8" height="16"/><line x1="11" y1="12" x2="13" y2="12"/></svg>`}
             label={t('compare.title') || 'Compare'}
-            disabled={(state.documents?.length || 0) < 2}
+            disabled={(state.documents?.length || 0) < 1}
             active={compareActive()}
             onClick={() => {
               if (compareActive()) exitCompare();

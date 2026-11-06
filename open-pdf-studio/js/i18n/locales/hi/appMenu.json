@@ -142,8 +142,8 @@
     "officeTable": "तालिका",
     "officeText": "टेक्स्ट",
     "officeFailed": "दस्तावेज़ निर्यात विफल रहा।",
-    "protect": "पासवर्ड से सुरक्षित करें",
-    "protectDesc": "पासवर्ड से सुरक्षित एक प्रति सहेजें (AES-256)"
+    "protect": "दस्तावेज़ सुरक्षा",
+    "protectDesc": "पासवर्ड और अनुमतियाँ सेट करें या हटाएँ (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "आउटपुट प्रोफ़ाइल",
@@ -219,11 +219,38 @@
     "uninstallError": "एक्सटेंशन अनइंस्टॉल करने में विफल",
     "by": "द्वारा",
     "activationFailed": "सक्रिय नहीं: {{error}}",
-    "viaMcp": "AI कनेक्शन के माध्यम से"
+    "viaMcp": "AI कनेक्शन के माध्यम से",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "क्लिपबोर्ड स्क्रीनशॉट पर एनोटेट करें",
   "workflows": "दस्तावेज़ वर्कफ़्लो",
   "drawingSets": "ड्रॉइंग सेट",
   "sheetLinks": "क्रॉस-शीट लिंक",
-  "approvalRouting": "अनुमोदन रूटिंग"
+  "approvalRouting": "अनुमोदन रूटिंग",
+  "sharedReview": "साझा समीक्षा",
+  "pdfa": "PDF/A..."
 }

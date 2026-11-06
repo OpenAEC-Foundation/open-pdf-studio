@@ -21,6 +21,9 @@ import { withUnicodeLayoutGuard } from './unicode-layout-guard.js';
 import {
   removeOwnedOcrLayer, removeOcrReview, writeOcrReview, usableOcrWords, unencodableCharacters,
 } from '../ocr-review.js';
+import { ocrWoordPlaatsing, ocrSignature, ocrPaginaSignaturen, normaalHoek } from '../ocr-laag.js';
+
+export { ocrSignature };
 
 const INVISIBLE_RENDER_MODE = 3;
 const characterSets = new WeakMap();
@@ -126,25 +129,30 @@ export async function embedOcrFont(pdfDocLib, fontBytes, { unicodeGuard = false 
  * OCR_REVIEW_TEXT_NOT_ENCODABLE before the page changes. Off (crash-recovery
  * snapshot): the word is left out of the layer with a warning; the correction
  * stays in the review metadata.
+ *
+ * rotation: de draaiing van de pagina waarin de woorden gemeten zijn (de
+ * eigen /Rotate, zoals de OCR-engine de pagina zag). De woorden worden naar
+ * het ongedraaide kader omgerekend en de tekst loopt mee met de weergave
+ * (#880; ocr-laag.js). Standaard de /Rotate van `page`.
  */
-export function writeOcrTextLayer(page, words, font, { pageNum, strictReviews = true } = {}) {
+export function writeOcrTextLayer(page, words, font, { pageNum, strictReviews = true, rotation = null } = {}) {
   if (!Array.isArray(words)) return;
   const where = Number.isInteger(pageNum) ? ` on page ${pageNum}` : '';
   const { words: usable, skipped } = usableOcrWords(words);
   if (skipped) console.warn(`[save] OCR: skipped ${skipped} invalid word(s)${where}`);
 
   const cropBox = page.getCropBox();
-  const viewLeft = cropBox.x;
-  const viewTop = cropBox.y + cropBox.height;
-  const convertX = (x) => x + viewLeft;
-  const convertY = (y) => viewTop - y;
+  const plaats = (word) => ocrWoordPlaatsing(word, {
+    rotation: rotation ?? page.getRotation().angle,
+    cropBox,
+  });
 
   const fontName = page.node.newFontDictionary(font.name, font.ref);
   const ops = [pushGraphicsState(), setTextRenderingMode(INVISIBLE_RENDER_MODE)];
   let notEncodable = 0;
 
   for (const word of usable) {
-    const wordOps = wordOperators(word, word.text, font, fontName, convertX, convertY, !!word.review);
+    const wordOps = wordOperators(word, word.text, font, fontName, plaats, !!word.review);
     // Het font kan dit woord niet (terug)coderen, bv. een teken zonder glyph
     // of een gevormde glyph zonder Unicode (UnicodeLayoutError). Een nagekeken
     // woord mag niet stil verdwijnen (#657): de opslag weigert, nog voordat de
@@ -181,14 +189,15 @@ function fontCovers(font, text) {
  * undefined when the font cannot encode it. `checkCoverage` also rejects text
  * with characters outside the font (they would silently become .notdef).
  */
-function wordOperators(word, rawText, font, fontName, convertX, convertY, checkCoverage) {
+function wordOperators(word, rawText, font, fontName, plaats, checkCoverage) {
   const text = (rawText || '').trim();
   if (!text) return null;
   if (checkCoverage && !fontCovers(font, text)) return undefined;
 
   // Font size ~= the OCR box height so the invisible selection rectangle
   // a PDF viewer draws roughly matches the word's real footprint.
-  const fontSize = Math.max(1, word.height);
+  const p = plaats(word);
+  const fontSize = p.grootte;
   let naturalWidth;
   let hexText;
   try {
@@ -203,35 +212,17 @@ function wordOperators(word, rawText, font, fontName, convertX, convertY, checkC
   // OCR-measured word width exactly, regardless of how the CJK font's
   // natural metrics compare to what Tesseract measured.
   const scalePercent = Math.max(1, Math.min(500, (word.width / naturalWidth) * 100));
-  const x = convertX(word.left);
-  const y = convertY(word.top + word.height); // anchor at box bottom, Y-flipped
+  // Begin op de onderrand van het woordvak; op een gedraaide pagina draait de
+  // tekstrichting mee, zodat de tekst in de weergave van links naar rechts loopt.
 
   return [
     beginText(),
     setFontAndSize(fontName, fontSize),
     setHorizontalScaling(scalePercent),
-    setTextMatrix(1, 0, 0, 1, x, y),
+    setTextMatrix(p.cos, p.sin, -p.sin, p.cos, p.x, p.y),
     showText(hexText),
     endText(),
   ];
-}
-
-/**
- * A short fingerprint of a document's OCR results: equal fingerprints mean
- * the saver writes the same OCR layers and review metadata.
- */
-export function ocrSignature(results) {
-  const text = JSON.stringify(results || {});
-  let h1 = 0xdeadbeef;
-  let h2 = 0x41c6ce57;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return `${text.length}:${(h2 >>> 0).toString(16)}${(h1 >>> 0).toString(16)}`;
 }
 
 /**
@@ -276,7 +267,12 @@ export async function writeOcrLayers(pdfDocLib, pages, doc, { loadFontBytes = lo
     const page = pages[pageNum - 1];
     if (!page) continue;
     if (Array.isArray(words) && words.length > 0) {
-      writeOcrTextLayer(page, words, font, { pageNum, strictReviews });
+      // De woorden zijn gemeten op de pagina zoals de engine haar zag: met de
+      // eigen /Rotate, zonder de draaiing die de app er bij deze save bij zet
+      // (saver.js telt die er vóór de OCR-laag bij op).
+      const appDraai = Number(doc?.pageRotations?.[pageNum]) || 0;
+      const rotation = normaalHoek(page.getRotation().angle - appDraai);
+      writeOcrTextLayer(page, words, font, { pageNum, strictReviews, rotation });
       layerPages.add(pageNum);
     } else if (layerPages.has(pageNum)) {
       removeOwnedOcrLayer(page);
@@ -284,5 +280,11 @@ export async function writeOcrLayers(pdfDocLib, pages, doc, { loadFontBytes = lo
       layerPages.delete(pageNum);
     }
   }
-  return { signature: ocrSignature(results), layerPages: [...layerPages].sort((a, b) => a - b) };
+  const gesorteerd = [...layerPages].sort((a, b) => a - b);
+  return {
+    signature: ocrSignature(results),
+    layerPages: gesorteerd,
+    // Per pagina wat er nu in het bestand staat (ocr-laag.js, zoeken).
+    pageSignatures: ocrPaginaSignaturen(results, gesorteerd),
+  };
 }

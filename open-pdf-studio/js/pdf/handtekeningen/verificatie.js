@@ -97,7 +97,16 @@ async function verifieer(doc, pad) {
     console.warn('[handtekening] verifiëren mislukt:', e);
     zetUitkomst(doc, 'fout', [], foutTekst(e));
   }
-  if (isActief(doc)) toonBalkVoorActiefDocument();
+  if (isActief(doc)) {
+    toonBalkVoorActiefDocument();
+    ververstPaneel();
+  }
+}
+
+/** Het paneel Digitale handtekeningen toont dezelfde status als de balk, als het open is. */
+function ververstPaneel() {
+  if (typeof document === 'undefined' || !document.getElementById('signatures-panel')?.classList.contains('active')) return;
+  import('../../ui/panels/signatures.js').then((m) => m.updateSignaturesList()).catch(() => {});
 }
 
 /** Detailvenster voor één handtekening (spec §3.2). */

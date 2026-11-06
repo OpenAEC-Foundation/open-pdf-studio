@@ -110,6 +110,7 @@
   "searchHitsOne": "1 处匹配",
   "searchHitsMany": "{{count}} 处匹配",
   "passwordProtectedBar": "受密码保护：已以只读方式打开。",
+  "passwordProtectedEditableBar": "已用密码保护。保存时会保留保护。",
   "documentSearch": {
     "title": "搜索文档",
     "query": "搜索文本",
@@ -157,5 +158,11 @@
     "port": "端口：{{port}}",
     "lastTool": "最近的工具：{{tool}}（{{time}}）",
     "noTool": "尚无工具调用"
-  }
+  },
+  "sharedReviewActive": "共享审阅",
+  "sharedReviewUpdates": "共享审阅：{{n}} 项新更改",
+  "sharedReviewTitle": "批注通过 {{folder}} 共享。点击打开共享审阅。",
+  "sharedReviewError": "共享审阅：文件夹不可用",
+  "pdfaReadOnly": "此文档符合 {{label}} 标准，已以只读方式打开以防止修改。",
+  "pdfaValidate": "验证"
 }

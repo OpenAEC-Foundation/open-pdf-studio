@@ -455,7 +455,13 @@ test('een /SquareImage van een ander programma op een /Rotate-90-blad: rechtop z
     bytes = await opslaan(bytes, modellen);
     modellen = await laadMetBeelden(bytes);
     const lijst = await woordenboeken(bytes);
-    const { dict } = lijst.find(({ dict: d }) => d.get(PDFName.of('Subtype'))?.toString() === '/Stamp');
+    // Ongewijzigd blijft het een /Square (#629: de soort verandert niet bij opslaan).
+    const { dict } = lijst.find(({ dict: d }) => ['/Stamp', '/Square'].includes(d.get(PDFName.of('Subtype'))?.toString()));
+    if (dict.get(PDFName.of('Subtype')).toString() === '/Square') {
+      // Ongewijzigd: de appearance van het bestand, die hem al rechtop tekent.
+      assert.equal(dict.get(PDFName.of('AP')).toString(), annot.get(PDFName.of('AP')).toString(), `ronde ${ronde + 1}: eigen appearance`);
+      continue;
+    }
     const s = opScherm(appearance(lijst.doc, dict), 90);
     dichtbij(s.hoek, 0, 0.01, `ronde ${ronde + 1}: rechtop in het bestand`);
     dichtbij(s.lx, 501.22, 0.01, `ronde ${ronde + 1}: breedte in het bestand`);
@@ -501,7 +507,9 @@ test('opslaan vervormt nooit: de verhouding op het scherm is die van de opgeslag
       const ext = extern(na.ap, na.rect, paginaRotatie);
       assert.ok(ext.det > 0, `${naam}, ronde ${ronde}: niet gespiegeld`);
       dichtbij(ext.lx / ext.ly, m.width / m.height, 1e-3, `${naam}, ronde ${ronde}: appearance tekent de verhouding van de app`);
-      dichtbij(norm(ext.hoek - (m.rotation || 0)), 0, 0.01, `${naam}, ronde ${ronde}: appearance tekent de draaiing van de app`);
+      // Wat al zo getekend werd, houdt zijn eigen appearance (#629): die mag
+      // een fractie van een graad van de afgeronde draaiing van de app afwijken.
+      dichtbij(norm(ext.hoek - (m.rotation || 0)), 0, zoalsGetekend ? 0.05 : 0.01, `${naam}, ronde ${ronde}: appearance tekent de draaiing van de app`);
       if (zoalsGetekend) zelfdeExtern(ext, ext0, `${naam}, ronde ${ronde}`);
       [m] = (await laadMetBeelden(bytes)).filter((a) => a.type === 'stamp');
       dichtbij(m.width / m.height, verhouding, 1e-3, `${naam}, ronde ${ronde}: verhouding blijft`);

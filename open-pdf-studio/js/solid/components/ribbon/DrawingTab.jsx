@@ -33,12 +33,16 @@ import {
   measureDistanceIcon, measureAngleIcon, measurePerimeterIcon, measureAreaIcon,
   alignLeftIcon, alignTopIcon, alignBottomIcon,
   flipHIcon, flipVIcon, rotateCwIcon,
-  clearAllIcon
+  clearAllIcon, calibrateIcon
 } from '../../data/ribbonIcons.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { createFullPageScaleRegion, invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { openDialog } from '../../../bridge.js';
+import CountGroupRibbonControls from './CountGroupRibbonControls.jsx';
+
+// Schaalcontrole (#629): een maatlijn met een vinkje.
+const scaleCheckIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9h12M3 6v6M15 6v6"/><path d="M12 18l3 3 6-7" stroke-width="2"/></svg>`;
 
 // Generic placeholder icons for buttons without a dedicated icon
 const placeholderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="0" stroke-dasharray="3 2"/><path d="M9 9 L15 15 M15 9 L9 15" stroke-width="1"/></svg>`;
@@ -202,7 +206,7 @@ export function DrawingGroups() {
         {/* SELECTION */}
         <RibbonGroup label={t('drawing.selection')}>
           <RibbonButton id="dr-select" title={t('home.select')} icon={selectCommentsIcon} label={t('home.select')}
-            disabled={noPdf()} active={state.currentTool === 'select'} onClick={() => setTool('select')} />
+            disabled={noPdf()} active={state.currentTool === 'select' && !state.textHighlightMode} onClick={() => setTool('select')} />
           <RibbonButton id="dr-pan" title={t('home.handTool')} icon={handIcon} label={t('home.hand')}
             disabled={noPdf()} active={state.currentTool === 'hand'} onClick={() => setTool('hand')} />
           <RibbonButtonStack>
@@ -315,6 +319,15 @@ export function DrawingGroups() {
           </RibbonGroup>
         </Show>
 
+        {/* TELGROEP — alleen bij het telgereedschap (#935): de groep waar
+            nieuwe markeringen in komen, met het totaal per groep, de kleur
+            van de hele groep en een nieuwe groep aanmaken. */}
+        <Show when={state.currentTool === 'count'}>
+          <RibbonGroup label={t('drawing.countGroup')}>
+            <CountGroupRibbonControls />
+          </RibbonGroup>
+        </Show>
+
         {/* VECTORKNIPSEL — een gebied uit deze tekening knippen en elders
             vectorieel plakken. Zie js/pdf/vector-embed.js. */}
         <RibbonGroup label={t('drawing.snippetGroup') || 'Knipsel'}>
@@ -349,6 +362,15 @@ export function DrawingGroups() {
         {/* SCHAAL — moved here from the Opmerkingen tab: full labelled buttons
             for Schaalgebied + Schaalgebied op pagina. */}
         <RibbonGroup label={t('measure.scaleGroup') || 'Schaal'}>
+          {/* Documentschaal: referentielijn of een standaardschaal, metrisch
+              en imperiaal (#972). Was alleen via het contextmenu van een
+              meting bereikbaar. */}
+          <RibbonButton id="btn-calibrate-scale"
+            title={t('comment.calibrateTitle') || 'Scale Calibration'}
+            icon={calibrateIcon}
+            label={t('comment.calibrate') || 'Calibrate'}
+            disabled={ro()}
+            onClick={() => openDialog('calibration', { referencePixelLength: null })} />
           <RibbonButton id="btn-create-scale-region"
             title={t('comment.scaleRegion') || 'Draw a scale region with its own calibration'}
             icon={scaleRegionIcon}
@@ -370,6 +392,13 @@ export function DrawingGroups() {
               else redrawAnnotations();
               openDialog('scale-region', { annotationId: ann.id, pageNum: ann.page, isNew: true });
             }} />
+          {/* Schaalcontrole (#629): een tweede bekende maat nameten. */}
+          <RibbonButton id="btn-scale-check"
+            title={t('measure.scaleCheckTitle')}
+            icon={scaleCheckIcon}
+            label={t('measure.scaleCheck')}
+            disabled={ro()}
+            onClick={() => openDialog('scale-check', {})} />
         </RibbonGroup>
 
         {/* De stavenreeks staat bewust NIET op de ribbon maar in het

@@ -32,6 +32,7 @@ import {
   A4, normRotation, isValidPlan, isStructureUnchanged, treeOrderForPlan, pageMappingForPlan,
   remapBookmarksForPlan, blankSizeNeighbour, blankSizeFor, shownSize,
 } from './page-edit-plan.js';
+import { herschikControles } from '../annotations/schaalcontrole.js';
 
 // Page clipboard for cut/copy/paste
 let pageClipboard = null; // { bytes: Uint8Array, cut: boolean, sourcePageNum: number }
@@ -337,6 +338,8 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     const bekend = new Set(Object.values(viewportUpdate.pageMapping).filter((n) => n != null)).size;
     const heeftNieuwe = (doc.pdfDoc?.numPages || 0) > bekend;
     if (lezingStondOpen || heeftNieuwe) leesViewportsOpnieuw(doc, newBytes);
+    // De schaalcontroles per blad verhuizen mee (#629).
+    if (doc.scaleChecks) doc.scaleChecks = herschikControles(doc.scaleChecks, viewportUpdate.pageMapping);
   } else {
     doc.pdfViewports = undefined;
     leesViewportsOpnieuw(doc, newBytes);
@@ -441,7 +444,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   clearThumbnailCache(doc.id);
   doc.modified = true;
   doc.savedUndoStackLength = -1;
-  if (getActiveDocument() !== doc) return doc.annotations;
+  if (getActiveDocument()?.id !== doc.id) return doc.annotations;
   hideProperties();
 
   // Re-render (preserve the book-spread / facing layout variants of continuous)
@@ -450,7 +453,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     : doc?.bookSpread && doc?.viewMode === 'continuous' ? 'book'
     : (doc?.viewMode || 'single')
   );
-  if (getActiveDocument() !== doc) return doc.annotations;
+  if (getActiveDocument()?.id !== doc.id) return doc.annotations;
   generateThumbnails();
   updateAllStatus();
   return doc.annotations;
@@ -628,14 +631,24 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
       }
     }
 
+    // Welke pagina's van een bron met meer pagina's (#963); een stille
+    // aanroeper (de CAD-import) neemt ze alle.
+    let indices = Array.from({ length: srcPageCount }, (_, i) => i);
+    if (!stil && srcPageCount > 1) {
+      hideLoading();
+      const { kiesBronPaginas } = await import('./bron-paginas-kiezen.js');
+      indices = await kiesBronPaginas(srcBytes, String(filePath).split(/[\\/]/).pop() || '', srcPageCount, 'insert');
+      // Geannuleerd, of intussen een ander document actief: niets doen.
+      if (!indices || getActiveDocument()?.id !== doc.id) return false;
+      showLoading('Inserting pages...');
+    }
+
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     const oldNumPages = destDoc.getPageCount();
 
     // 0-based insertion index
     const insertIdx = position === 'before' ? refPage - 1 : refPage;
 
-    const indices = [];
-    for (let i = 0; i < srcPageCount; i++) indices.push(i);
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
     for (let i = 0; i < copiedPages.length; i++) {
       destDoc.insertPage(insertIdx + i, copiedPages[i]);
@@ -654,14 +667,8 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
     }
 
     // Build page mapping for existing annotations/rotations
-    const pageMapping = {};
-    for (let oldP = 1; oldP <= oldNumPages; oldP++) {
-      if (oldP <= insertIdx) {
-        pageMapping[oldP] = oldP;
-      } else {
-        pageMapping[oldP] = oldP + srcPageCount;
-      }
-    }
+    const { mappingNaInvoegen } = await import('./bron-paginas-kiezen.js');
+    const pageMapping = mappingNaInvoegen(oldNumPages, insertIdx, copiedPages.length);
 
     const newAnnotations = remapAnnotations(doc.annotations, pageMapping);
     const newRotations = remapRotations(doc.pageRotations, pageMapping);
@@ -786,15 +793,28 @@ export async function extractPages(pageNumbers, deleteFromOriginal, { savePath: 
 
   showLoading('Extracting pages...');
   try {
-    // Create new document with extracted pages
-    const srcDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
-    const extractDoc = await PDFDocument.create();
-
-    const indices = pageNumbers.map(p => p - 1);
-    const copiedPages = await extractDoc.copyPages(srcDoc, indices);
-    for (const page of copiedPages) {
-      extractDoc.addPage(page);
+    // De bron (#880): met niet-opgeslagen wijzigingen de stand zoals opslaan
+    // haar zou schrijven (annotaties, OCR-tekstlaag, tekstbewerkingen,
+    // draaiingen), anders de bytes van het document. De pagina's gaan via
+    // laadBron/bouwUittreksel: koppelingen slepen geen andere pagina's mee en
+    // nog versleutelde bytes worden geweigerd in plaats van leeg gekopieerd.
+    const { laadBron, bouwUittreksel, bronVoorUittreksel } = await import('./splits-document.js');
+    const { bytes: bronBytes, uitApp } = await bronVoorUittreksel({
+      opgeslagen: currentBytes,
+      gewijzigd: !!doc.modified,
+      maakMomentopname: async () => (await import('./saver.js')).bouwMomentopname(doc),
+    });
+    let extractDoc;
+    try {
+      extractDoc = await bouwUittreksel(await laadBron(bronBytes), pageNumbers, {
+        rotaties: uitApp ? {} : { ...(doc.pageRotations || {}) },
+      });
+    } catch (e) {
+      if (e?.code !== 'encrypted') throw e;
+      showMessage(i18next.t('extractEncrypted'));
+      return null;
     }
+    const copiedPages = extractDoc.getPages();
 
     const extractBytes = new Uint8Array(await extractDoc.save());
     try {
@@ -1202,12 +1222,19 @@ export async function replacePages(pageNumber) {
       return;
     }
 
+    // Welke pagina's van een bron met meer pagina's vervangen deze pagina (#963).
+    let indices = [0];
+    if (srcPageCount > 1) {
+      hideLoading();
+      const { kiesBronPaginas } = await import('./bron-paginas-kiezen.js');
+      indices = await kiesBronPaginas(srcBytes, String(filePath).split(/[\\/]/).pop() || '', srcPageCount, 'replace');
+      if (!indices || getActiveDocument()?.id !== doc.id) return;
+      showLoading('Replacing page...');
+    }
+
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     const oldNumPages = destDoc.getPageCount();
 
-    // Copy all pages from source
-    const indices = [];
-    for (let i = 0; i < srcPageCount; i++) indices.push(i);
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
 
     // Remove the target page
@@ -1221,18 +1248,10 @@ export async function replacePages(pageNumber) {
 
     // Build page mapping
     // Pages before the replaced page: unchanged
-    // The replaced page: mapped to null (deleted)
-    // Pages after: shifted by (srcPageCount - 1)
-    const pageMapping = {};
-    for (let oldP = 1; oldP <= oldNumPages; oldP++) {
-      if (oldP < pageNumber) {
-        pageMapping[oldP] = oldP;
-      } else if (oldP === pageNumber) {
-        pageMapping[oldP] = null; // replaced page loses its annotations
-      } else {
-        pageMapping[oldP] = oldP + srcPageCount - 1;
-      }
-    }
+    // The replaced page: mapped to null (it loses its annotations)
+    // Pages after: shifted by (number of pages brought in - 1)
+    const { mappingNaVervangen } = await import('./bron-paginas-kiezen.js');
+    const pageMapping = mappingNaVervangen(oldNumPages, pageNumber, copiedPages.length);
 
     const newAnnotations = remapAnnotations(doc.annotations, pageMapping);
     const newRotations = remapRotations(doc.pageRotations, pageMapping);
@@ -1284,7 +1303,9 @@ async function bronBytesVoorSamenvoegen(filePath) {
  * belongs to their pages: annotations, form fields, bookmarks, links and
  * named destinations, layers and page labels (samenvoegen.js). The merged
  * annotations are loaded into the model, so they show and can be edited.
- * @param {string[]} filePaths - Paths of PDF files to merge in
+ * @param {(string|{path:string, pages?:number[]|null})[]} filePaths - Paths of
+ *   PDF files to merge in; an entry with `pages` (0-based indexes) brings only
+ *   those pages of that file (#963), without what points at the others
  * @param {'end'|'start'|'after'} position - Where to insert the merged pages
  * @returns {Promise<object>} what really happened (merge-verslag.js): the files
  *   that went in, the ones that were refused or failed, and the pages inserted.
@@ -1338,7 +1359,9 @@ export async function mergeFiles(filePaths, position) {
 
     // Read each file; what cannot go in is reported, the rest is merged.
     const bronnen = [];
-    for (const filePath of filePaths) {
+    for (const invoer of filePaths) {
+      const filePath = typeof invoer === 'string' ? invoer : invoer?.path;
+      const gekozen = typeof invoer === 'object' && Array.isArray(invoer?.pages) ? invoer.pages : null;
       try {
         const { bytes: srcBytes, uitApp } = await bronBytesVoorSamenvoegen(filePath);
         const srcDoc = await PDFDocument.load(srcBytes, { ignoreEncryption: true });
@@ -1358,7 +1381,13 @@ export async function mergeFiles(filePaths, position) {
             continue;
           }
         }
-        bronnen.push({ doc: srcDoc, naam: filePath.split(/[\\/]/).pop(), pad: filePath, uitApp });
+        // Alleen de gekozen pagina's (#963); ongeldige indexen vallen weg.
+        const paginas = gekozen ? gekozen.filter((i) => Number.isInteger(i) && i >= 0 && i < srcPageCount) : null;
+        if (paginas && !paginas.length) {
+          verslag.refused.push({ path: filePath, reason: REDEN_GEEN_PAGINAS });
+          continue;
+        }
+        bronnen.push({ doc: srcDoc, naam: filePath.split(/[\\/]/).pop(), pad: filePath, uitApp, paginas });
       } catch (err) {
         console.error(`Failed to merge file: ${filePath}`, err);
         const fileName = filePath.split(/[\\/]/).pop();
@@ -1373,7 +1402,8 @@ export async function mergeFiles(filePaths, position) {
     }
 
     const { voegPdfsSamen } = await import('./samenvoegen.js');
-    const samen = await voegPdfsSamen(destDoc, bronnen.map(({ doc: d, naam }) => ({ doc: d, naam })), {
+    const samen = await voegPdfsSamen(destDoc, bronnen.map(({ doc: d, naam, paginas }) => (
+      paginas && paginas.length < d.getPageCount() ? { doc: d, naam, paginas } : { doc: d, naam })), {
       invoegIndex: insertIdx, positie: position, zoneIds: zoneIdsInAnnotations(doc?.annotations),
     });
     const totalInserted = samen.paginasIngevoegd;

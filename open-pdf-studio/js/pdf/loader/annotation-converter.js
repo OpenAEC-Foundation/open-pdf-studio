@@ -5,9 +5,11 @@ import { generateImageId } from '../../utils/helpers.js';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
+import { formatGetal } from '../../core/maat-notatie.js';
 import { findImageForAnnotation, findImageEntryForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
 import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
+import { dynamicStampText, applyDynamicStampToAnnotation } from '../../annotations/dynamic-stamp.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra, vormHatchUitExtra } from '../saver/hatch-meta.js';
@@ -16,6 +18,7 @@ import { wandJoinUitExtra } from '../saver/wand-join-meta.js';
 import { wolkVakUitHoeken, wolkVakUitZeshoek } from '../saver/veelhoek-grondvorm.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { vlakSchaalUitMeasure } from '../../annotations/vlak-zijden.js';
+import { meettekstUitBestand } from '../saver/dimension-measure.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { migreerProfielParams } from '../../symbols/koker-notatie.js';
@@ -47,6 +50,7 @@ import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
 import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 import { inktUitBestand } from './inkt-uit-bestand.js';
+import { gedraaideMarkeringUitBestand } from '../../annotations/markering-quads.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -216,6 +220,25 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         }
       }
 
+      // Gedraaide markering (#944, #927): de eigen /QuadPoints van het
+      // bestand houden de draaiing die pdf.js weglaat. Een gedraaide
+      // vlakmarkering komt terug als vlak met haar draaiing, een markering
+      // op schuine tekst met haar quads. Zie annotations/markering-quads.js.
+      const gedraaid = gedraaideMarkeringUitBestand({
+        subtype: annot.subtype, rawQuadPoints: extraColors.rawQuadPoints,
+        rotatie: extraColors.rotation, convertPoint,
+      });
+      if (gedraaid?.vlak) {
+        return createAnnotation({
+          ...baseProps,
+          type: 'highlight',
+          ...gedraaid.vlak,
+          color: colorArrayToHex(annot.color, '#FFFF00'),
+          fillColor: colorArrayToHex(annot.color, '#FFFF00'),
+          ...textEditPropsFromPdf(annot, extraColors, convertPoint, viewport.rotation || 0)
+        });
+      }
+
       // Calculate overall bounding box
       let minX, maxX, minY, maxY;
       if (rects.length > 0) {
@@ -239,6 +262,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         width: maxX - minX,
         height: maxY - minY,
         rects: rects.length > 0 ? rects : undefined,
+        ...(gedraaid?.quads ? { quads: gedraaid.quads } : {}),
         color: colorArrayToHex(annot.color, '#FFFF00'),
         fillColor: colorArrayToHex(annot.color, '#FFFF00'),
         // Proefleescorrecties (#508): /IT, /NM, /Subj, gemarkeerde tekst en
@@ -615,13 +639,16 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           };
           // Get measurement text from Contents, or auto-calculate using annotation's own scale
           let mdText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
+          // Een eigen maat in mm schreef "3530 mm" in /Contents en "3530" in
+          // OPS_MeasureText (saver/dimension-measure.js, meetContents).
+          if (extraColors.opsSubtype === 'measureDistance') mdText = meettekstUitBestand(mdText, extraColors.opsMeasureText);
           if (!mdText) {
             if (mdProps.measureScale) {
-              const prec = mdProps.measurePrecision || 2;
+              const prec = mdProps.measurePrecision ?? 2;
               const pixelDist = Math.sqrt((lex - lsx) ** 2 + (ley - lsy) ** 2);
               const scaledVal = pixelDist * mdProps.measureScale;
               const unit = mdProps.measureUnit || 'mm';
-              mdText = `${scaledVal.toFixed(prec)} ${unit}`;
+              mdText = `${formatGetal(scaledVal, prec)} ${unit}`;
             } else {
               const dist = calculateDistance(lsx, lsy, lex, ley, pageNum);
               mdText = formatMeasurement(dist);
@@ -742,9 +769,14 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
                                annot.it === 'PolyLineDimension';
         if (isMeasurePerim) {
           let mpText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
+          // Een eigen schaal uit /Measure; een schaal die de saver alleen voor
+          // andere programma's schreef (OPS_ScaleInherited) volgt de pagina.
+          const mpEigenSchaal = extraColors.measureScale && !extraColors.opsScaleInherited;
           if (!mpText) {
             const perim = calculatePerimeter(plPoints, pageNum);
-            mpText = formatMeasurement(perim);
+            mpText = mpEigenSchaal
+              ? formatMeasurement({ value: perim.pixels * extraColors.measureScale, unit: extraColors.measureUnit || 'mm' })
+              : formatMeasurement(perim);
           }
           const mpProps = {
             ...baseProps,
@@ -778,7 +810,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           }
           // Puntmaat, en holle punten bij een omtrekmaat uit een ander programma.
           Object.assign(mpProps, meetlijnKoppenUitBestand(extraColors, mpProps.lineWidth));
-          if (extraColors.measureScale) {
+          if (mpEigenSchaal) {
             mpProps.measureScale = extraColors.measureScale;
             mpProps.measureUnit = extraColors.measureUnit || 'mm';
             if (extraColors.measurePrecision !== undefined) {
@@ -1081,11 +1113,24 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               }))
             : null;
           let maText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
+          // Eigen schaal uit /Measure, niet de schaal van de pagina die de
+          // saver alleen voor andere programma's schreef (OPS_ScaleInherited).
+          // Een eigen meetvlak rekent in de lengte-eenheid van /X; /A staat
+          // daar in de eenheid van het label (mm → m², dimension-measure.js).
+          const maEigenSchaal = extraColors.measureScale && !extraColors.opsScaleInherited;
+          const maSchaal = maEigenSchaal
+            ? vlakSchaalUitMeasure(extraColors.measureScale, extraColors.measureUnit,
+              extraColors.opsSubtype === 'measureArea' && extraColors.measureUnit
+                ? `${extraColors.measureUnit}²` : extraColors.measureAreaUnit)
+            : null;
           if (!maText) {
             // Zonder opgeslagen tekst zelf rekenen - inclusief de extra ringen,
             // anders staat er de oppervlakte van alleen de buitenring (#457).
             const area = calculateArea(polyPoints, maHoles || undefined, pageNum);
-            maText = formatMeasurement(area);
+            const s = maSchaal?.measureScale;
+            maText = s > 0
+              ? formatMeasurement({ value: area.pixels * s * s, unit: maSchaal.measureUnit })
+              : formatMeasurement(area);
           }
           const maProps = {
             ...baseProps,
@@ -1101,12 +1146,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             // gearceerd meetvlak zijn arcering bij de volgende save.
             ...hatchUitExtra(extraColors),
           };
-          if (extraColors.measureScale) {
+          if (maSchaal) {
             // De schaal uit /X staat in de eenheid van /X; het meetvlak rekent
             // hem in de lengte-eenheid van measureUnit (#536). Die twee laten
             // kloppen, ook bij /X in mm en /A in m² of /X in voet + inch.
-            Object.assign(maProps, vlakSchaalUitMeasure(
-              extraColors.measureScale, extraColors.measureUnit, extraColors.measureAreaUnit));
+            Object.assign(maProps, maSchaal);
             const areaPrecision = extraColors.measureAreaPrecision !== undefined
               ? extraColors.measureAreaPrecision : extraColors.measurePrecision;
             if (areaPrecision !== undefined) maProps.measurePrecision = areaPrecision;
@@ -1621,10 +1665,15 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
 
       const gevondenBeeld = findImageEntryForAnnotation(stampImageMap, annot, 'stamp');
       // Een tekststempel van de app: de uitsnede van de weergave is geen bron.
-      const eigenTekst = eigenTekststempel({
-        stampName: extraColors.stampName, opsStampText: extraColors.opsStampText,
-        beeldBron: gevondenBeeld ? (gevondenBeeld.source === 'render' ? 'render' : 'pdf') : null,
-      });
+      // A dynamic stamp (#629) draws itself from template + values; an image
+      // in its appearance belongs to the template, it is not the source.
+      const dynStamp = extraColors.opsDynamicStamp || null;
+      const eigenTekst = dynStamp
+        ? { stampText: dynamicStampText(dynStamp) || dynStamp.template.name }
+        : eigenTekststempel({
+          stampName: extraColors.stampName, opsStampText: extraColors.opsStampText,
+          beeldBron: gevondenBeeld ? (gevondenBeeld.source === 'render' ? 'render' : 'pdf') : null,
+        });
       const stampImgEntry = eigenTekst ? null : gevondenBeeld;
       const dataUrl = stampImgEntry?.dataUrl ?? null;
       // Pixelruimte van de bitmap; zie de saver en stempel-geometrie.js.
@@ -1709,6 +1758,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         // saver kiest daarop of hij pagina-/Rotate-compensatie schrijft.
         apImageSpace: stImageSpace
       };
+
+      if (dynStamp) {
+        stampProps.dynamicStamp = dynStamp;
+        applyDynamicStampToAnnotation(stampProps);
+      }
 
       // IFC-classificatie van symboolstempels (NEN 1414 e.d.). Voorkeur:
       // de opgeslagen OPS-sleutels; oudere bestanden zonder die sleutels

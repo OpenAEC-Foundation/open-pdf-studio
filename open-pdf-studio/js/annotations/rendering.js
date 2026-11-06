@@ -18,6 +18,7 @@ import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePeri
 import { vlakZijdeTeksten } from './measurement.js';
 import { vormVan, bouwVakPad } from './rendering/textbox-vorm.js';
 import { maatlijnTekst } from './maat-label.js';
+import { formatGetal, formatMaat } from '../core/maat-notatie.js';
 import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
@@ -29,6 +30,7 @@ import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { buildBetonbalk } from './betonbalk.js';
 import { betonbalkBuildOpts } from './betonbalk-scale.js';
 import { drawBetonbalkGeom } from './rendering/betonbalk-draw.js';
+import { drawDynamicStamp } from './rendering/dynamic-stamp-draw.js';
 import { effectiveDraftingLineWidth } from './drafting-rules.js';
 import { buildSysteemraster } from './systeemraster.js';
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
@@ -179,7 +181,7 @@ function _drawPolarOverlay(ctx, snapResult, scale) {
     }
   } catch (_) { /* ignore */ }
   const angleDeg = (angle * 180 / Math.PI + 360) % 360;
-  const text = `Polar: ${angleDeg.toFixed(2)}° < ${lenInUnits.toFixed(2)} ${unit}`;
+  const text = `Polar: ${formatGetal(angleDeg, 2)}° < ${formatMaat(lenInUnits, unit, 2)}`;
   // Rechtop op het scherm, ook in een gedraaide weergave (#200).
   zetRechtopRond(ctx, snapResult.x, snapResult.y);
   const fontSize = 11 / scale;
@@ -626,8 +628,19 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       break;
 
     case 'highlight':
+      // Gedraaid om het midden, zoals een rechthoek (#944); het selectiekader
+      // draaide al mee, de vulling bleef recht.
+      ctx.save();
+      if (annotation.rotation) {
+        const hcx = annotation.x + annotation.width / 2;
+        const hcy = annotation.y + annotation.height / 2;
+        ctx.translate(hcx, hcy);
+        ctx.rotate(annotation.rotation * Math.PI / 180);
+        ctx.translate(-hcx, -hcy);
+      }
       ctx.fillStyle = fillColor;
       ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
+      ctx.restore();
       break;
 
     case 'line':
@@ -1566,7 +1579,20 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       // alpha gives the cleanest multiply result.
       ctx.fillStyle = fillColor;
       ctx.globalAlpha = 1;
-      if (annotation.rects && annotation.rects.length > 0) {
+      if (Array.isArray(annotation.quads) && annotation.quads.length > 0) {
+        // Schuine tekst (#927): gedraaide quads [begin-boven, eind-boven,
+        // begin-onder, eind-onder] die de tekst volgen.
+        for (const q of annotation.quads) {
+          if (!Array.isArray(q) || q.length < 4) continue;
+          ctx.beginPath();
+          ctx.moveTo(q[0].x, q[0].y);
+          ctx.lineTo(q[1].x, q[1].y);
+          ctx.lineTo(q[3].x, q[3].y);
+          ctx.lineTo(q[2].x, q[2].y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (annotation.rects && annotation.rects.length > 0) {
         annotation.rects.forEach(rect => {
           ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
         });
@@ -1608,6 +1634,11 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       break;
 
     case 'stamp': {
+      // Dynamic stamp (#629): drawn from its template and field values.
+      if (annotation.dynamicStamp) {
+        drawDynamicStamp(ctx, annotation, { onImageLoad: hertekenActieveWeergave });
+        break;
+      }
       // Render stamp - image or text-based
       // Always prefer global imageCache (plain Map, no Proxy) for reliable .complete checks.
       // SolidJS createMutable can wrap _cachedImg in a Proxy, breaking HTMLImageElement checks.

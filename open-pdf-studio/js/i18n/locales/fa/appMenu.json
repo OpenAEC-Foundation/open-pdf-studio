@@ -142,8 +142,8 @@
     "officeTable": "جدول",
     "officeText": "متن",
     "officeFailed": "صدور سند ناموفق بود.",
-    "protect": "محافظت با گذرواژه",
-    "protectDesc": "ذخیرهٔ یک نسخهٔ محافظت‌شده با گذرواژه (AES-256)"
+    "protect": "امنیت سند",
+    "protectDesc": "تنظیم یا برداشتن گذرواژه‌ها و مجوزها (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "پروفایل خروجی",
@@ -219,11 +219,38 @@
     "uninstallError": "حذف نصب افزونه ناموفق بود",
     "by": "از",
     "activationFailed": "غیرفعال: {{error}}",
-    "viaMcp": "از طریق اتصال هوش مصنوعی"
+    "viaMcp": "از طریق اتصال هوش مصنوعی",
+    "tabInstalled": "Installed",
+    "tabBrowse": "Browse",
+    "tabCustom": "Add custom",
+    "fromCatalog": "Catalogue",
+    "fromCustom": "Custom",
+    "updateTo": "Update to v{{version}}",
+    "updatesAvailable": "{{count}} update(s) available",
+    "search": "Search extensions",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "noResults": "No extensions match your search",
+    "catalogEmpty": "The catalogue has no extensions yet",
+    "catalogFailed": "Catalogue {{url}} could not be loaded",
+    "install": "Install",
+    "isInstalled": "Installed",
+    "homepage": "Homepage",
+    "catalogs": "Catalogues",
+    "defaultCatalog": "Default",
+    "addCatalog": "Add catalogue",
+    "removeCatalog": "Remove",
+    "submitHint": "Extension authors add their extension to the project catalogue with a pull request on",
+    "customWarning": "Extensions installed by link are not reviewed. Only install extensions from sources you trust.",
+    "installFromLink": "Install from link",
+    "linkHint": "A GitHub repository (the .oppx of its latest release is installed) or a direct https:// link to a .oppx file.",
+    "desktopOnly": "The extension catalogue is available in the desktop app."
   },
   "annotateScreenshot": "حاشیه‌نویسی روی تصویر صفحه از کلیپ‌بورد",
   "workflows": "گردش‌کارهای سند",
   "drawingSets": "مجموعه‌نقشه‌ها",
   "sheetLinks": "پیوندهای بین برگه‌ها",
-  "approvalRouting": "گردش تأیید"
+  "approvalRouting": "گردش تأیید",
+  "sharedReview": "بازبینی مشترک",
+  "pdfa": "PDF/A..."
 }

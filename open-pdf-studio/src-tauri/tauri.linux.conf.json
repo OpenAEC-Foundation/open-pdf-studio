@@ -1,7 +1,9 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "bundle": {
-    "externalBin": [],
+    "externalBin": [
+      "binaries/pdfium-worker"
+    ],
     "resources": {
       "binaries/linux-x64/libpdfium.so": "libpdfium.so"
     }

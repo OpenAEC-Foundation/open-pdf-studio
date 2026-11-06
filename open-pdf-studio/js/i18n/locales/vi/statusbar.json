@@ -110,6 +110,7 @@
   "searchHitsOne": "1 kết quả",
   "searchHitsMany": "{{count}} kết quả",
   "passwordProtectedBar": "Được bảo vệ bằng mật khẩu: đã mở ở chế độ chỉ đọc.",
+  "passwordProtectedEditableBar": "Được bảo vệ bằng mật khẩu. Lưu sẽ giữ nguyên bảo vệ.",
   "documentSearch": {
     "title": "Tìm kiếm tài liệu",
     "query": "Văn bản tìm kiếm",
@@ -157,5 +158,11 @@
     "port": "Cổng: {{port}}",
     "lastTool": "Công cụ gần nhất: {{tool}} lúc {{time}}",
     "noTool": "Chưa có lệnh gọi công cụ nào"
-  }
+  },
+  "sharedReviewActive": "Xem xét chung",
+  "sharedReviewUpdates": "Xem xét chung: {{n}} mới",
+  "sharedReviewTitle": "Chú thích được chia sẻ qua {{folder}}. Nhấp để mở xem xét chung.",
+  "sharedReviewError": "Xem xét chung: không truy cập được thư mục",
+  "pdfaReadOnly": "Tài liệu này tuân thủ tiêu chuẩn {{label}} và đã được mở ở chế độ chỉ đọc để tránh sửa đổi.",
+  "pdfaValidate": "Xác thực"
 }

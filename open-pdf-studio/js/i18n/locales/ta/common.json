@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "XFDF கோப்பில் குறிப்புரைகள் எதுவும் இல்லை.",
   "noRedactionsOnPage": "தற்போதைய பக்கத்தில் பயன்படுத்த மறைப்புக் குறிகள் இல்லை.",
   "noRedactionsInDocument": "ஆவணத்தில் பயன்படுத்த மறைப்புக் குறிகள் இல்லை.",
+  "redactTitle": "மறைப்புகளைப் பயன்படுத்து",
+  "redactConfirmPage": "பக்கம் {{page}} இல் {{count}} மறைப்புக் குறிகளைப் பயன்படுத்தவா?",
+  "redactConfirmAll": "{{pages}} பக்கங்களில் {{count}} மறைப்புக் குறிகளைப் பயன்படுத்தவா?",
+  "redactConfirmBody": "குறிகளுக்குக் கீழுள்ள உரை, படங்கள், வெக்டர் வரைகலை, குறிப்புகள் மற்றும் படிவப் புலங்கள் ஆவணத்திலிருந்து அகற்றப்பட்டு, பகுதிகள் குறியின் நிறத்தால் நிரப்பப்படும். சேமிக்கும்போது கோப்பு மாறும்; சேமிப்பு முந்தைய பதிப்புகள் இல்லாமல் முழுக் கோப்பையும் மீண்டும் எழுதும்.",
+  "redactDone": "{{count}} மறைப்புப் பகுதிகள் பயன்படுத்தப்பட்டன. மாற்றத்தைக் கோப்பில் எழுத ஆவணத்தைச் சேமிக்கவும்.",
+  "redactNotApplied": "மறைப்புகள் பயன்படுத்தப்படவில்லை; எதுவும் மாறவில்லை. {{reason}}",
+  "redactReasonUnsupported": "ஒரு குறியின் கீழுள்ள உள்ளடக்கத்தை நம்பகமாக அகற்ற முடியாது: {{detail}}",
+  "redactReasonInvalid": "ஒன்று அல்லது அதற்கு மேற்பட்ட குறிகளுக்குச் சரியான பகுதி இல்லை.",
+  "redactReasonTextEdits": "முதலில் சேமிக்கப்படாத உரைத் திருத்தங்களைச் சேமிக்கவும்.",
   "cannotDeleteAllPages": "எல்லாப் பக்கங்களையும் நீக்க முடியாது. குறைந்தது ஒரு பக்கம் இருக்க வேண்டும்.",
   "cannotDeleteAllPagesSource": "மூல ஆவணத்திலிருந்து எல்லாப் பக்கங்களையும் நீக்க முடியாது.",
   "noPagesSelected": "பிரித்தெடுக்கப் பக்கங்கள் எதுவும் தேர்ந்தெடுக்கப்படவில்லை.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "தேர்ந்தெடுத்த PDF-இல் பக்கங்கள் இல்லை.",
   "failedToSavePdf": "PDF-ஐச் சேமிக்க முடியவில்லை: {{error}}",
   "failedToLoadPdf": "PDF-ஐ ஏற்ற முடியவில்லை: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "புதிய சாளரத்தில் திற",
     "closeTab": "தாவலை மூடு",
     "nextTab": "அடுத்த தாவல்",
-    "previousTab": "முந்தைய தாவல்"
+    "previousTab": "முந்தைய தாவல்",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "அடுத்த பக்கம்",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "File Explorer இல் PDF சிறுபடங்கள் நிறுவப்பட்ட பதிப்பில் மட்டுமே கிடைக்கும்.",
     "virtualPrinter": "மெய்நிகர் அச்சுப்பொறி நிறுவப்பட்ட பதிப்பில் மட்டுமே கிடைக்கும்: இது நிர்வாகி உரிமைகளுடன் Windows இல் சேர்க்கப்படுகிறது.",
     "notWritable": "Open PDF Studio ஆல் {{dir}} கோப்புறையில் எழுத முடியவில்லை, எனவே இம்முறை உங்கள் அமைப்புகள் உங்கள் பயனர் சுயவிவரத்தில் சேமிக்கப்படுகின்றன. கையடக்கக் கோப்புறையை USB இயக்ககம் அல்லது உங்கள் Documents கோப்புறை போன்ற எழுதக்கூடிய இடத்திற்கு நகர்த்தவும்."
+  },
+  "protectedPdfNoPrint": "இந்த ஆவணத்தின் அனுமதிகள் அச்சிட அனுமதிக்கவில்லை.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

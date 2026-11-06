@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Tidak ada anotasi dalam berkas XFDF.",
   "noRedactionsOnPage": "Tidak ada tanda redaksi di halaman ini untuk diterapkan.",
   "noRedactionsInDocument": "Tidak ada tanda redaksi di dokumen untuk diterapkan.",
+  "redactTitle": "Terapkan redaksi",
+  "redactConfirmPage": "Terapkan {{count}} tanda redaksi di halaman {{page}}?",
+  "redactConfirmAll": "Terapkan {{count}} tanda redaksi di {{pages}} halaman?",
+  "redactConfirmBody": "Teks, gambar, grafik vektor, anotasi, dan bidang formulir di bawah tanda dihapus dari dokumen dan areanya diisi dengan warna tanda. File berubah saat Anda menyimpan; penyimpanan menulis ulang seluruh file tanpa versi sebelumnya.",
+  "redactDone": "{{count}} area redaksi diterapkan. Simpan dokumen untuk menulis perubahan ke file.",
+  "redactNotApplied": "Redaksi tidak diterapkan; tidak ada yang diubah. {{reason}}",
+  "redactReasonUnsupported": "Konten di bawah tanda tidak dapat dihapus dengan andal: {{detail}}",
+  "redactReasonInvalid": "Satu atau beberapa tanda tidak memiliki area yang valid.",
+  "redactReasonTextEdits": "Simpan dulu suntingan teks yang belum disimpan.",
   "cannotDeleteAllPages": "Tidak dapat menghapus semua halaman. Minimal satu halaman harus tersisa.",
   "cannotDeleteAllPagesSource": "Tidak dapat menghapus semua halaman dari dokumen sumber.",
   "noPagesSelected": "Tidak ada halaman yang dipilih untuk diekstrak.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF yang dipilih tidak memiliki halaman.",
   "failedToSavePdf": "Gagal menyimpan PDF: {{error}}",
   "failedToLoadPdf": "Gagal memuat PDF: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Buka di jendela baru",
     "closeTab": "Tutup tab",
     "nextTab": "Tab Berikutnya",
-    "previousTab": "Tab Sebelumnya"
+    "previousTab": "Tab Sebelumnya",
+    "newTabForDocument": "New Tab for This Document"
   },
   "pageNav": {
     "nextPage": "Halaman Berikutnya",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "Gambar mini PDF di File Explorer hanya tersedia pada versi yang diinstal.",
     "virtualPrinter": "Printer virtual hanya tersedia pada versi yang diinstal: printer ini ditambahkan ke Windows dengan hak administrator.",
     "notWritable": "Open PDF Studio tidak dapat menulis ke folder {{dir}}, sehingga kali ini pengaturan Anda disimpan di profil pengguna Anda. Pindahkan folder portabel ke lokasi yang dapat ditulisi, seperti flashdisk USB atau folder Dokumen Anda."
+  },
+  "protectedPdfNoPrint": "Izin dokumen ini tidak mengizinkan pencetakan.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

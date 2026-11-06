@@ -69,9 +69,19 @@
   "noAnnotationsInXfdf": "Ingen annotationer fundet i XFDF-filen.",
   "noRedactionsOnPage": "Ingen redigeringsmærker på den aktuelle side at anvende.",
   "noRedactionsInDocument": "Ingen redigeringsmærker i dokumentet at anvende.",
+  "redactTitle": "Anvend overstregninger",
+  "redactConfirmPage": "Anvend {{count}} overstregningsmarkering(er) på side {{page}}?",
+  "redactConfirmAll": "Anvend {{count}} overstregningsmarkering(er) på {{pages}} side(r)?",
+  "redactConfirmBody": "Tekst, billeder, vektorgrafik, kommentarer og formularfelter under markeringerne fjernes fra dokumentet, og områderne udfyldes med markeringens farve. Filen ændres, når du gemmer; at gemme omskriver hele filen uden tidligere versioner.",
+  "redactDone": "{{count}} overstregningsområde(r) anvendt. Gem dokumentet for at skrive ændringen til filen.",
+  "redactNotApplied": "Overstregningerne blev ikke anvendt; intet blev ændret. {{reason}}",
+  "redactReasonUnsupported": "Indhold under en markering kan ikke fjernes pålideligt: {{detail}}",
+  "redactReasonInvalid": "En eller flere markeringer har intet gyldigt område.",
+  "redactReasonTextEdits": "Gem først de ikke-gemte tekstredigeringer.",
   "cannotDeleteAllPages": "Kan ikke slette alle sider. Mindst én side skal blive tilbage.",
   "cannotDeleteAllPagesSource": "Kan ikke slette alle sider fra kildedokumentet.",
   "noPagesSelected": "Ingen sider valgt til udtrækning.",
+  "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "Den valgte PDF har ingen sider.",
   "failedToSavePdf": "PDF'en kunne ikke gemmes: {{error}}",
   "failedToLoadPdf": "PDF'en kunne ikke indlæses: {{error}}",
@@ -218,7 +228,8 @@
     "openInNewWindow": "Åbn i nyt vindue",
     "closeTab": "Luk fane",
     "nextTab": "Næste fane",
-    "previousTab": "Forrige fane"
+    "previousTab": "Forrige fane",
+    "newTabForDocument": "Ny fane til dette dokument"
   },
   "pageNav": {
     "nextPage": "Næste side",
@@ -309,5 +320,31 @@
     "explorerThumbnails": "PDF-miniaturer i Stifinder er kun tilgængelige i den installerede version.",
     "virtualPrinter": "Den virtuelle printer er kun tilgængelig i den installerede version: den føjes til Windows med administratorrettigheder.",
     "notWritable": "Open PDF Studio kan ikke skrive i mappen {{dir}}, så dine indstillinger gemmes denne gang i din brugerprofil. Flyt den bærbare mappe til et sted med skriveadgang, f.eks. et USB-drev eller din mappe Dokumenter."
+  },
+  "protectedPdfNoPrint": "Rettighederne for dette dokument tillader ikke udskrivning.",
+  "share": {
+    "share": "Share",
+    "unsavedTitle": "Unsaved changes",
+    "unsavedMessage": "{{name}} has unsaved changes. Save the document and send it, or send a copy with the changes?",
+    "saveAndSend": "Save and send",
+    "sendCopy": "Send a copy",
+    "copyFailed": "The document could not be prepared for sending: {{error}}",
+    "failed": "Sharing failed: {{error}}",
+    "attachManually": "No email program could attach the file. A draft has been opened and the file is shown in the file manager: drag it into the message.\n\n{{path}}"
+  },
+  "mobileMore": {
+    "more": "More",
+    "insertImage": "Insert image",
+    "takePhoto": "Take photo",
+    "scanDocument": "Scan document",
+    "copyMarkup": "Copy markup",
+    "pasteMarkup": "Paste markup",
+    "deleteMarkup": "Delete markup",
+    "imageFailed": "The image could not be inserted: {{error}}",
+    "scanWhere": "Where should the scanned page go?",
+    "scanInsertAfter": "After the current page",
+    "scanNewDocument": "New document",
+    "scanBusy": "Creating the page…",
+    "scanFailed": "The photo could not be turned into a page: {{error}}"
   }
 }

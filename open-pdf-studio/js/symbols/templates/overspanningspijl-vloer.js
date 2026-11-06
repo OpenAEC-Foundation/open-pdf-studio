@@ -25,12 +25,41 @@ export const overspanningspijlVloerTemplate = {
   params: [
     { key: 'lengte', label: 'Lengte (mm)', labelEn: 'Length (mm)', type: 'number', default: 6000, min: 1, step: 100 },
     { key: 'tekst', label: 'Tekst', labelEn: 'Text', type: 'string', default: 'Overspanningsrichting vloer' },
+    // #936: de open pijlpunten lijken op een maatlijn; de halve pijlpunten
+    // (⥋, links de weerhaak omlaag, rechts omhoog) zijn het alternatief.
+    {
+      key: 'pijlvorm', label: 'Pijlpunten', labelEn: 'Arrowheads', type: 'enum',
+      options: [
+        { value: 'open', label: 'Open pijlpunten' },
+        { value: 'half', label: 'Halve pijlpunten (⥋)' },
+      ],
+      default: 'open',
+    },
   ],
   realSizeMm(params) {
     return { width: lengthMm(params), height: Math.max(500, lengthMm(params) * 0.12) };
   },
   render(params = {}, bbox) {
     const L = layout(bbox);
+    const tekst = {
+      kind: 'text',
+      x: bbox.x + bbox.width / 2,
+      y: bbox.y + bbox.height * 0.32,
+      text: String(params.tekst ?? 'Overspanningsrichting vloer'),
+      size: Math.max(10, Math.min(bbox.height * 0.30, bbox.width * 0.055)),
+    };
+    if (params.pijlvorm === 'half') {
+      // Eén weerhaak per uiteinde, langer en schuiner dan de open kop zodat
+      // hij als pijl blijft lezen.
+      const len = L.arrowLength * 1.5;
+      const rise = len * 0.6;
+      return [
+        { kind: 'line', x1: L.x0, y1: L.y, x2: L.x1, y2: L.y, role: 'pijllijn' },
+        { kind: 'line', x1: L.x0, y1: L.y, x2: L.x0 + len, y2: L.y + rise, role: 'pijlpunt' },
+        { kind: 'line', x1: L.x1, y1: L.y, x2: L.x1 - len, y2: L.y - rise, role: 'pijlpunt' },
+        tekst,
+      ];
+    }
     return [
       { kind: 'line', x1: L.x0, y1: L.y, x2: L.x1, y2: L.y, role: 'pijllijn' },
       {
@@ -51,13 +80,7 @@ export const overspanningspijlVloerTemplate = {
           { x: L.x1 - L.arrowLength, y: L.y + L.arrowRise },
         ],
       },
-      {
-        kind: 'text',
-        x: bbox.x + bbox.width / 2,
-        y: bbox.y + bbox.height * 0.32,
-        text: String(params.tekst ?? 'Overspanningsrichting vloer'),
-        size: Math.max(10, Math.min(bbox.height * 0.30, bbox.width * 0.055)),
-      },
+      tekst,
     ];
   },
   snapPoints(_params, bbox) {

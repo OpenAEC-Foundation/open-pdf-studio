@@ -36,7 +36,11 @@ export function createDocument(filePath: string | null = null): DocumentState {
     viewRotation: 0,
     pdfaCompliance: null,
     pdfADismissed: false,
+    // Bij opslaan van een bewerkt PDF/A-document (#379): 'herconverteer' of 'verwijder'.
+    pdfaOpslaan: null,
     measureScale: null,
+    // Schaalcontroles per blad (#629): uit het bestand of nieuw gemeten.
+    scaleChecks: null,
     stylePresets: [],
     // Annotatielagen (#468): leeg = alleen de standaardlaag, zodat een
     // document zonder lagen werkt en bewaard wordt zoals voorheen.

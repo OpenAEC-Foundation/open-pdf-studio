@@ -110,6 +110,7 @@
   "searchHitsOne": "1 podudaranje",
   "searchHitsMany": "Podudaranja: {{count}}",
   "passwordProtectedBar": "Zaštićeno lozinkom: otvoreno samo za čitanje.",
+  "passwordProtectedEditableBar": "Zaštićeno lozinkom. Spremanje zadržava zaštitu.",
   "documentSearch": {
     "title": "Pretraži dokumente",
     "query": "Tekst za pretraživanje",
@@ -157,5 +158,11 @@
     "port": "Priključak: {{port}}",
     "lastTool": "Posljednji alat: {{tool}} u {{time}}",
     "noTool": "Još nema poziva alata"
-  }
+  },
+  "sharedReviewActive": "Zajednički pregled",
+  "sharedReviewUpdates": "Zajednički pregled: novih {{n}}",
+  "sharedReviewTitle": "Bilješke se dijele putem {{folder}}. Kliknite za otvaranje zajedničkog pregleda.",
+  "sharedReviewError": "Zajednički pregled: mapa nedostupna",
+  "pdfaReadOnly": "Ovaj dokument zadovoljava standard {{label}} i otvoren je samo za čitanje kako bi se spriječila njegova izmjena.",
+  "pdfaValidate": "Provjeri"
 }
