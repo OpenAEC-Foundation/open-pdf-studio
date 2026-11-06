@@ -6,7 +6,8 @@
 // paginageometrie gaan ongewijzigd mee: pdf-lib schrijft hun streambytes
 // zoals ze gelezen zijn. Per beeld beslist optimizeMonochromeImage()
 // (monochrome-image.js) of het verliesloos kleiner kan; zo niet, dan blijft
-// het oorspronkelijke object staan met een reden.
+// het oorspronkelijke object staan met een reden. Eén-bit resultaten worden
+// als Flate én als CCITT Groep 4 gecodeerd; de kleinste wint (`filter`).
 //
 // Het resultaat telt pas als het complete nieuwe bestand kleiner is dan het
 // bronbestand; anders komen er geen bytes terug en schrijft de aanroeper niets.
@@ -99,7 +100,7 @@ function imageInfo(context, stream) {
 
 /**
  * Optimaliseert een PDF verliesloos: één-bit beelden worden opnieuw
- * gecomprimeerd, zuiver zwart/witte acht-bit grijs- of RGB-beelden naar één bit
+ * gecomprimeerd (Flate of CCITT G4, wat kleiner is), zuiver zwart/witte acht-bit grijs- of RGB-beelden naar één bit
  * gepakt. Alles buiten die beeldstreams blijft ongemoeid.
  *
  * @param {Uint8Array|ArrayBuffer} input  De bronbytes; worden niet gewijzigd.
@@ -107,7 +108,8 @@ function imageInfo(context, stream) {
  *          limits?: object, documentLimits?: object, checkpoint?: () => Promise<void>}} [options]
  * @returns {Promise<{bytes: Uint8Array|null, reason: string|null, origSize: number,
  *          newSize: number, replaced: number, images: Array<{ref: string, width: number|null,
- *          height: number|null, before: number, after: number|null, reason: string|null}>}>}
+ *          height: number|null, before: number, after: number|null,
+ *          filter: 'FlateDecode'|'CCITTFaxDecode'|null, reason: string|null}>}>}
  *          `bytes` is null (met een reden) als er niets kleiners te schrijven valt.
  */
 export async function optimizeMonochromeDocument(input, {
@@ -148,7 +150,7 @@ export async function optimizeMonochromeDocument(input, {
     onProgress?.({ done: i, total: candidates.length });
     const [ref, stream] = candidates[i];
     const info = imageInfo(context, stream);
-    const entry = { ref: `${ref.objectNumber} ${ref.generationNumber} R`, width: info.width, height: info.height, before: stream.sizeInBytes(), after: null, reason: null };
+    const entry = { ref: `${ref.objectNumber} ${ref.generationNumber} R`, width: info.width, height: info.height, before: stream.sizeInBytes(), after: null, filter: null, reason: null };
     images.push(entry);
     if (i >= documentLimits.images || info.decoded > budget) { entry.reason = 'document-budget'; continue; }
     const result = await optimizeMonochromeImage(stream, { signal, limits, allowRgb: !rgbBlocker, ...(checkpoint ? { checkpoint } : {}) });
@@ -160,6 +162,7 @@ export async function optimizeMonochromeDocument(input, {
     budget -= result.decodedBytes;
     entry.before = result.before;
     entry.after = result.after;
+    entry.filter = result.filter;
     context.assign(ref, result.replacement);
     replaced++;
   }
