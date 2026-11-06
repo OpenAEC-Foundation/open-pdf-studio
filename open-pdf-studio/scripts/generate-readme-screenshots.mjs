@@ -296,9 +296,11 @@ const BEELDEN = {
     async stappen(page, pdf) {
       await openPdf(page, pdf['floor-plan-rev-a.pdf']);
       await pasPaginaIn(page);
+      // Symboolschaal 1x: annotatiesymbolen komen op een vaste papiermaat
+      // binnen, los van de tekeningschaal (#983).
       const schaal = page.locator('#sp-scale-input');
       await schaal.click();
-      await schaal.fill('0.1');
+      await schaal.fill('1');
       await schaal.press('Enter');
       await pauze(page, 300);
       await page.locator('.sp-cat-header', { hasText: 'Fire Protection' }).click();

@@ -2,7 +2,7 @@ import { applyToolTransform } from '../tool-context.js';
 import { overrideStampMaat } from '../../annotations/svg-real-size.js';
 import { huidigeSymboolSchaal } from '../../symbols/symbol-scale-store.js';
 import { symbolInsertPreviewStyle } from '../../symbols/symbol-insert-format-store.js';
-import { stampPxPerMm } from '../../annotations/stamp-scale.js';
+import { stampPxPerMm, stampPtPerPapierMm } from '../../annotations/stamp-scale.js';
 import { getActiveDocument } from '../../core/state.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { blendCanvasWaarde } from '../../annotations/blend-modes.js';
@@ -79,6 +79,7 @@ export const stampTool = {
     const page = getActiveDocument()?.currentPage || 1;
     const { width: w, height: h } = overrideStampMaat(ov, {
       pxPerMm: stampPxPerMm(page, ctx.x, ctx.y),
+      ptPerMmPapier: stampPtPerPapierMm(page),
       aspect: previewImg.naturalWidth / previewImg.naturalHeight,
       schaal: huidigeSymboolSchaal(),
     });

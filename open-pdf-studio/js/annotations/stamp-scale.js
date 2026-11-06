@@ -10,6 +10,9 @@
 // stampPlacementSize() terugvalt op de standaardhoogte + beeldverhouding.
 import { getScaleFromRegion } from './scale-region.js';
 import { getScaleForPoint } from './scale-bar.js';
+import { getActiveDocument } from '../core/state.js';
+import { userUnitVanPagina } from './scale-region-scale.js';
+import { ptPerPapierMm } from './svg-real-size.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 
@@ -28,4 +31,14 @@ export function stampPxPerMm(page, x, y) {
   const mmPerUnit = UNIT_TO_MM[ms.unit || 'mm'] || 1;
   const k = ms.pixelsPerUnit / mmPerUnit;
   return Number.isFinite(k) && k > 0 ? k : 0;
+}
+
+/**
+ * Paginaeenheden per papiermillimeter op een pagina (#983): de maat van een
+ * annotatiesymbool uit het palet staat in papier-mm en hangt alleen af van
+ * de /UserUnit van de pagina, niet van de tekeningschaal.
+ * @returns {number}
+ */
+export function stampPtPerPapierMm(page) {
+  return ptPerPapierMm(userUnitVanPagina(getActiveDocument(), page));
 }
