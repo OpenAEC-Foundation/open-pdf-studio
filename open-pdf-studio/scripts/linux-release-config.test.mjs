@@ -337,7 +337,9 @@ test('Linux keeps WebKit threads off realtime scheduling before GTK starts (#924
   assert.match(runtime, /rlim_cur: 0, rlim_max: 0/);
   assert.match(runtime, /OPDS_ALLOW_REALTIME/);
 
+  const installatie = await readFile(new URL('docs/install-linux.md', repoRoot), 'utf8');
+  assert.ok(installatie.includes('OPDS_ALLOW_REALTIME=1'), 'docs/install-linux.md documents the opt-out');
+  assert.ok(installatie.includes('prlimit --rtprio=0'), 'docs/install-linux.md names the equivalent launcher setting');
   const readme = await readFile(new URL('README.md', repoRoot), 'utf8');
-  assert.ok(readme.includes('OPDS_ALLOW_REALTIME=1'), 'README documents the opt-out');
-  assert.ok(readme.includes('prlimit --rtprio=0'), 'README names the equivalent launcher setting');
+  assert.ok(readme.includes('docs/install-linux.md'), 'README links the Linux install page');
 });

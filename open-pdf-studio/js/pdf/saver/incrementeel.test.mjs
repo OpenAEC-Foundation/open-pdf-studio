@@ -301,3 +301,20 @@ test('een handtekening zelf wordt nooit incrementeel gewijzigd', async () => {
   });
   assert.equal(r.weigering?.reden, 'handtekening-gewijzigd');
 });
+
+test('alleen de tijd van laden telt niet als wijziging: een oude /ModDate geeft nog steeds geen-wijzigingen', async () => {
+  // Bron met een /ModDate ver in het verleden: pdf-lib zet bij het laden
+  // "nu", dus /Info verschilt altijd. Zonder echte wijziging mag dat geen
+  // revisie opleveren (in CI viel dit eerder over een secondegrens).
+  const d = await PDFDocument.create();
+  d.addPage([200, 200]);
+  d.setTitle('Oud');
+  d.setModificationDate(new Date(Date.UTC(2001, 0, 1)));
+  const bron = await d.save({ useObjectStreams: false, updateFieldAppearances: false });
+  const geen = await bewerk(bron, () => {});
+  assert.equal(geen.bytes, undefined);
+  assert.equal(geen.weigering.reden, 'geen-wijzigingen');
+  // Een echte wijziging aan /Info blijft wel een revisie.
+  const titel = await bewerk(bron, (doc) => doc.setTitle('Nieuw'));
+  assert.ok(titel.bytes, titel.weigering?.message);
+});

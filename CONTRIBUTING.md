@@ -131,7 +131,7 @@ Add custom (any link) are not reviewed, and the app says so.
 ## Running the app locally (optional)
 
 You don't need to build anything to contribute a good issue. If you *do* want to
-run it yourself, see the [README](README.md) for the prerequisites and the
+run it yourself, see [docs/building.md](docs/building.md) for the prerequisites and the
 `npm run tauri:dev` / `npm run tauri:build` scripts.
 
 ---

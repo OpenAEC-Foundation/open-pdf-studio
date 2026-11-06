@@ -56,8 +56,9 @@ never contacted: `ifcx.dev` and `identifier.buildingsmart.org` (IFCX export).
 
 Local only, never the internet:
 
-- the automation server (MCP) is off by default and listens on `127.0.0.1`
-  (`localhost`) when you switch it on;
+- the automation server (MCP) is on for a new installation and listens only on
+  `127.0.0.1` (`localhost`); switch it off under Settings > General (a managed
+  deployment can bind it elsewhere, see docs/managed-deployments.md);
 - printing on Linux and macOS talks to the local print service;
 - the sign-in flow returns to the app through `localhost`;
 - `ipc.localhost` is the internal channel between the window and the app.
