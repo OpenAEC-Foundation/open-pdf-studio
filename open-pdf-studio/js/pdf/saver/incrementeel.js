@@ -404,6 +404,18 @@ function gewijzigd(oud, obj) {
   return obj.toString() !== oud.tekst;
 }
 
+const INFO_AUTOMATISCH = ['ModDate', 'Producer'];
+
+/** /Info als tekst zonder de velden die pdf-lib zelf bijwerkt; null zonder /Info. */
+function infoZonderTijd(ctx) {
+  const ref = ctx.trailerInfo.Info;
+  const d = ref instanceof PDFRef ? ctx.lookup(ref) : null;
+  if (!(d instanceof PDFDict)) return null;
+  const kopie = d.clone(ctx);
+  for (const k of INFO_AUTOMATISCH) kopie.delete(PDFName.of(k));
+  return kopie.toString();
+}
+
 /**
  * Vlak na PDFDocument.load(bytes, { updateMetadata: false }): de xref-keten
  * lezen, alle objecten vastleggen, nieuwe nummers boven /Size laten beginnen
@@ -442,6 +454,9 @@ export function bereidIncrementeelVoor(bytes, pdfDocLib, { vereistVolledig = nul
     plan.momentopname = momentopname;
     plan.ondertekening = leesOndertekening(ctx, pdfDocLib.catalog);
     if (plan.ondertekening.docMdp === 1) weiger('docmdp-geen-wijzigingen');
+    // /Info zoals het bestand hem had, zonder de velden die pdf-lib bij elke
+    // opslag zelf zet: zo telt alleen een nieuwe /ModDate niet als wijziging.
+    plan.infoZonderTijd = infoZonderTijd(ctx);
   } catch (e) {
     if (!(e instanceof IncrementeelWeigering)) throw e;
     plan.weigering = e;
@@ -754,6 +769,12 @@ export function bouwIncrementeleUpdate(plan, pdfDocLib) {
   try {
     const { objecten, nieuw, gewijzigd: gew } = kiesObjecten(plan, pdfDocLib);
     if (!objecten.length) weiger('geen-wijzigingen');
+    // Alleen /Info met een nieuwe /ModDate of /Producer is ook "niets": de
+    // tijd van laden mag niet bepalen of er een revisie komt.
+    const infoRef = pdfDocLib.context.trailerInfo.Info;
+    if (nieuw === 0 && plan.infoZonderTijd != null && infoRef instanceof PDFRef
+      && objecten.every(([ref]) => ref.toString() === infoRef.toString())
+      && infoZonderTijd(pdfDocLib.context) === plan.infoZonderTijd) weiger('geen-wijzigingen');
     const info = pdfDocLib.context.trailerInfo.Info;
     const keten = { ...plan.keten, infoNieuw: info instanceof PDFRef ? info : plan.keten.info };
     const bytes = schrijfToevoeging(plan.bron, keten, objecten);
