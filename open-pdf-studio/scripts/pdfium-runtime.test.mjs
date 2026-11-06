@@ -80,3 +80,36 @@ test('CI fetches only recorded revisions and verifies their checksums', () => {
   }
   assert.ok(fetches >= 3, 'ci, nightly and release fetch the Linux library');
 });
+
+// pdfium-render bindt bij het laden ALLE functies van zijn binding-feature
+// (pdfium_xxxx); exporteert de meegeleverde PDFium er één niet, dan mislukt
+// het binden en rendert de app zonder PDFium. De standaard-feature
+// pdfium_latest volgt de crate en niet onze binary, dus elke crate kiest de
+// binding expliciet, en die mag niet nieuwer zijn dan de meegeleverde revisie.
+test('pdfium-render binds a PDFium revision no newer than the shipped one', () => {
+  const revision = Number(manifest.platforms['win-x64'].revision);
+  const crates = ['../../pdfium-worker/Cargo.toml', '../src-tauri/Cargo.toml'];
+  for (const crate of crates) {
+    const text = readFileSync(fileURLToPath(new URL(crate, import.meta.url)), 'utf8');
+    const line = text.split(/\r?\n/).find(l => /^pdfium-render\s*=/.test(l));
+    assert.ok(line, `${crate}: depends on pdfium-render`);
+    assert.match(line, /default-features\s*=\s*false/, `${crate}: no pdfium_latest via the default features`);
+    const bindings = [...line.matchAll(/"pdfium_(\d{4})"/g)].map(m => Number(m[1]));
+    assert.equal(bindings.length, 1, `${crate}: exactly one pdfium_xxxx binding feature`);
+    assert.ok(bindings[0] <= revision, `${crate}: binding ${bindings[0]} is newer than the shipped PDFium ${revision}`);
+  }
+});
+
+// #634: vóór pdfium-render 0.9.5 opende elke PdfPage meteen zijn structuurboom
+// en hield PDFium die data vast tot het document sloot. De worker herlaadt
+// getagde documenten daarom niet meer; dat mag alleen zolang de lock 0.9.5+
+// vastlegt.
+test('the lock pins a pdfium-render that loads structure trees lazily', () => {
+  const lock = readFileSync(join(app, '..', 'Cargo.lock'), 'utf8');
+  const versions = [...lock.matchAll(/name = "pdfium-render"\r?\nversion = "(\d+)\.(\d+)\.(\d+)"/g)];
+  assert.ok(versions.length >= 1, 'Cargo.lock lists pdfium-render');
+  for (const [, major, minor, patch] of versions) {
+    const v = [Number(major), Number(minor), Number(patch)];
+    assert.ok(v[0] > 0 || v[1] > 9 || (v[1] === 9 && v[2] >= 5), `pdfium-render ${v.join('.')} is older than 0.9.5`);
+  }
+});
