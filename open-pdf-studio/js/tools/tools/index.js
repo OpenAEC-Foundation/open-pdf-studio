@@ -41,6 +41,7 @@ import { dimChainAddTool, dimChainRemoveTool } from './dimension-chain-tool.js';
 import { radiusTool, diameterTool } from './dimension-radius-tool.js';
 import { filletTool, chamferTool } from './corner-tools.js';
 import { spotCoordTool } from './spot-coord-tool.js';
+import { linkTool } from './link-tool.js';
 
 export function registerAllTools() {
   // Navigation / selection
@@ -133,6 +134,8 @@ export function registerAllTools() {
   registerTool('stamp', stampTool);
   registerTool('signature', signatureTool);
   registerTool('editText', editTextTool);
+  // Hyperlink (#953): vak slepen, daarna het doel kiezen.
+  registerTool('link', linkTool);
 
   // Viewports
   registerTool('viewport', viewportTool);

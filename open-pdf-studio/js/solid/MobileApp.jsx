@@ -371,6 +371,8 @@ export default function MobileApp() {
   const ACTIE_HANDLERS = {
     share: handleShare,
     insertImage: () => imageInputRef?.click(),
+    // Hyperlink (#953): uit de tekstselectie, anders een vak slepen.
+    insertLink: () => import('../annotations/link/link-maken.js').then((m) => m.startLink()),
     takePhoto: () => photoInputRef?.click(),
     scanDocument: () => scanInputRef?.click(),
     copyMarkup: handleCopyMarkup,
@@ -864,6 +866,7 @@ function ActionIcon(props) {
   const pad = {
     share: <><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.6" y1="13.5" x2="15.4" y2="17.5" /><line x1="15.4" y1="6.5" x2="8.6" y2="10.5" /></>,
     insertImage: <><rect x="3" y="3" width="18" height="18" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></>,
+    insertLink: <path d="M10 14a4.5 4.5 0 006.36 0l3-3a4.5 4.5 0 00-6.36-6.36l-1.5 1.5M14 10a4.5 4.5 0 00-6.36 0l-3 3a4.5 4.5 0 006.36 6.36l1.5-1.5" stroke-linecap="round" stroke-linejoin="round" />,
     takePhoto: <><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" /><circle cx="12" cy="13" r="4" /></>,
     scanDocument: <><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="2" y1="14" x2="22" y2="14" /></>,
     copyMarkup: <><rect x="9" y="9" width="13" height="13" /><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1" /></>,

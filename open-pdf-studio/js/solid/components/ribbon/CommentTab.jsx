@@ -19,7 +19,7 @@ import { showCalibrationDialog } from '../../../annotations/measurement.js';
 import {
   highlightIcon, textHighlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
-  textAnnotIcon, textboxIcon, noteIcon, fileAttachmentIcon, calloutIcon,
+  textAnnotIcon, textboxIcon, noteIcon, fileAttachmentIcon, calloutIcon, linkIcon,
   stampIcon, signatureIcon, digitalSignIcon,
   redactionIcon, applyRedactionsIcon,
   clearPageIcon, clearAllIcon, flattenAllIcon, unflattenAllIcon,
@@ -33,6 +33,7 @@ import { toggleSchedule, scheduleVisible } from '../../stores/scheduleStore.js';
 import { isDynamicScalingEnabled, setDynamicScalingEnabled } from '../../../annotations/dynamic-scaling.js';
 import PrefSelect from '../preferences/PrefSelect.jsx';
 import { toggleProofreading, PROOFREAD_TOOL } from '../../../tools/proofreading-mode.js';
+import { startLink, LINK_TOOL } from '../../../annotations/link/link-maken.js';
 
 // Proofreading (#508): lines of text, a struck word (red) and an insert caret (blue).
 const proofreadIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="3" y1="5" x2="21" y2="5" stroke-width="1.5"/><line x1="3" y1="11" x2="8" y2="11" stroke-width="1.5"/><line x1="10" y1="11" x2="21" y2="11" stroke-width="1.5"/><line x1="10" y1="11" x2="16" y2="11" stroke="#FF0000" stroke-width="2"/><line x1="3" y1="17" x2="21" y2="17" stroke-width="1.5"/><path d="M6 21.5 L8.5 17.5 L11 21.5" stroke="#0066FF" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
@@ -98,6 +99,9 @@ export function CommentGroups() {
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'comment'} onClick={() => setTool('comment')} />
           <RibbonButton id="tool-file-attachment" title={t('comment.fileAttachmentTitle')} icon={fileAttachmentIcon} label={t('comment.fileAttachment')}
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'fileAttachment'} onClick={() => setTool('fileAttachment')} />
+          {/* Hyperlink (#953): uit de tekstselectie, anders een vak slepen. */}
+          <RibbonButton id="tool-link" title={t('comment.linkTitle')} icon={linkIcon} label={t('comment.link')}
+            disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === LINK_TOOL} onClick={() => startLink()} />
         </RibbonGroup>
 
         <RibbonGroup label={t('proofread.group')}>

@@ -48,6 +48,7 @@ import { drawProofreadingOverlay } from './corrections/proofreading-overlay.js';
 import { updateQuickAccessButtons, updateContextualTabs, drawGrid, snapToGrid } from './rendering/ui-state.js';
 import { drawCommentIcon } from './rendering/comment-icons.js';
 import { drawCaret, drawMarkupLines, replaceStrikeColor } from './rendering/caret.js';
+import { drawLink } from './rendering/link.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { blendCanvasWaarde, isGemengd } from './blend-modes.js';
 import { tekenGemengdTegenPagina } from './rendering/mengen-tegen-pagina.js';
@@ -2257,6 +2258,15 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       );
       break;
     }
+
+    case 'link':
+      // Hyperlink (#953): rand of onderstreping zoals in het bestand; zonder
+      // rand alleen op het scherm een hulplijn (rendering/link.js).
+      drawLink(ctx, annotation, {
+        gids: laag('selectie'),
+        schermSchaal: schermSchaal(getActiveDocument()) || 1,
+      });
+      break;
 
     case 'redaction': {
       // Redaction mark - red hatched overlay

@@ -304,6 +304,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'polygon':
     case 'cloud':
     case 'redaction':
+    case 'link':
     case 'textbox':
       // Hoekpunt van een veelhoek (#622): alleen dat hoekpunt verschuift, op
       // het scherm (ook bij een gedraaide veelhoek); het vak volgt de punten.

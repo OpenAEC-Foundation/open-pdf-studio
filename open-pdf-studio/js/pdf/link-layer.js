@@ -13,6 +13,41 @@ import { viewportRectangle } from './pdfjs-record.js';
 // Store references to link layers for cleanup
 const linkLayers = new Map();
 
+// Links van de app (#953) staan als annotatie in het model: de app tekent en
+// volgt ze zelf (annotations/link/). Hun klikvlak uit het bestand hoort dan
+// niet in deze laag: het zou na verplaatsen of verwijderen op de oude plek
+// blijven klikken, en in Selecteren het selecteren blokkeren. Per document de
+// pdf.js-id's die ooit als app-link geladen of opgeslagen zijn; een verwijderde
+// link blijft erin, zodat zijn oude klikvlak niet terugkomt.
+const appLinkIds = new WeakMap();
+
+function appLinksVan(doc) {
+  if (!doc) return new Set();
+  let ids = appLinkIds.get(doc);
+  if (!ids) { ids = new Set(); appLinkIds.set(doc, ids); }
+  for (const a of doc.annotations || []) {
+    if (a?.type !== 'link') continue;
+    if (a.pdfLinkId) ids.add(String(a.pdfLinkId));
+    if (a.pdfBron?.ref) ids.add(String(a.pdfBron.ref));
+  }
+  return ids;
+}
+
+/**
+ * Haal de klikvlakken van app-links uit de linklagen. Na het laden van de
+ * annotaties van een pagina aanroepen: de laag kan eerder klaar zijn.
+ * @param {object} [doc]
+ * @param {ParentNode} [root]
+ */
+export function verbergAppLinks(doc = getActiveDocument(), root = document) {
+  if (!root || typeof root.querySelectorAll !== 'function') return;
+  const ids = appLinksVan(doc);
+  if (ids.size === 0) return;
+  root.querySelectorAll('.linkLayer .pdf-link[data-pdf-id]').forEach((el) => {
+    if (ids.has(el.dataset.pdfId)) el.remove();
+  });
+}
+
 /**
  * Gereedschappen waarbij hyperlinks aanklikbaar horen te zijn. De
  * tekengereedschappen en 'editText' hebben de muisgebeurtenissen zelf nodig
@@ -83,8 +118,10 @@ export async function createLinkLayer(page, viewport, container, pageNum) {
   linkLayerDiv.style.transformOrigin = '0 0';
   linkLayerDiv.style.pointerEvents = 'none'; // Let clicks pass through except on links
 
-  // Create link elements for each annotation
+  // Create link elements for each annotation (behalve de links van de app)
+  const eigen = appLinksVan(getActiveDocument());
   for (const ann of linkAnnotations) {
+    if (ann.id && eigen.has(String(ann.id))) continue;
     const linkElement = createLinkElement(ann, viewport, pageNum);
     if (linkElement) {
       linkLayerDiv.appendChild(linkElement);
@@ -133,6 +170,7 @@ function createLinkElement(ann, viewport, pageNum) {
   // Create link element
   const linkEl = document.createElement('a');
   linkEl.className = 'pdf-link';
+  if (ann.id) linkEl.dataset.pdfId = String(ann.id);
   linkEl.style.position = 'absolute';
   linkEl.style.left = `${left}px`;
   linkEl.style.top = `${top}px`;

@@ -67,7 +67,11 @@ export const EIGEN_SLEUTELS = new Set([
  * heeft haar bestand in het model (bijlage-store): /FS en /AF schrijft de
  * saver daar opnieuw uit.
  */
-const EIGEN_PER_SOORT = { '/FileAttachment': new Set(['FS', 'AF']) };
+const EIGEN_PER_SOORT = {
+  '/FileAttachment': new Set(['FS', 'AF']),
+  // Een link van de app (#953): het doel en de markering staan in het model.
+  '/Link': new Set(['A', 'Dest', 'H', 'PA']),
+};
 
 /** Sleutels die vorm beschrijven; zie de kop van dit bestand. */
 export const GEOMETRIE_SLEUTELS = new Set([

@@ -116,6 +116,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"tool-callout","tab":"comment","labelKey":"ribbon:comment.callout"},
   {"id":"tool-comment","tab":"comment","labelKey":"ribbon:comment.note"},
   {"id":"tool-file-attachment","tab":"comment","labelKey":"ribbon:comment.fileAttachment"},
+  {"id":"tool-link","tab":"comment","labelKey":"ribbon:comment.link"},
   {"id":"tool-proofread","tab":"comment","labelKey":"ribbon:proofread.button"},
   {"id":"tool-stamp","tab":"comment","labelKey":"ribbon:comment.stamp"},
   {"id":"tool-signature","tab":"comment","labelKey":"ribbon:comment.signature"},

@@ -609,6 +609,14 @@ export function handleDblClick(e) {
         showProperties(clicked);
         redraw();
       }
+    } else if (clicked.type === 'link' && state.currentTool === 'select') {
+      // Hyperlink (#953): dubbelklik opent het venster om het doel te bewerken.
+      state.isDrawing = false;
+      if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }
+      showProperties(clicked);
+      import('../annotations/link/link-maken.js')
+        .then((m) => m.bewerkLink(clicked))
+        .catch((err) => console.error('[dispatcher] edit link failed', err));
     } else if (clicked.type === 'fileAttachment') {
       // Bijlage-annotatie (#376): het bestand openen in het standaardprogramma.
       state.isDrawing = false;

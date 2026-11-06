@@ -106,6 +106,7 @@ function getAnnotationCenter(annotation) {
     case 'scaleBar':
     case 'scheduleTable':
     case 'redaction':
+    case 'link':
     case 'parametricSymbol':
     case 'vectorSnippet':
       return {
@@ -697,6 +698,11 @@ export function getAnnotationHandles(annotation, scale = 1) {
     // Vectorknipsel: schalen zoals een afbeelding. Geen draaigreep — de
     // draaiing van een los knipsel komt niet in het bestand.
     case 'vectorSnippet':
+    case 'link':
+      // Hyperlink (#953) op tekst: alleen verplaatsen, zoals een tekstmarkering.
+      // Een getrokken vak heeft dezelfde grepen als een redactievlak.
+      if (Array.isArray(annotation.rects) && annotation.rects.length > 0) break;
+      // falls through
     case 'redaction':
       // Corner and edge handles for resize (no rotation)
       handles.push({ type: HANDLE_TYPES.TOP_LEFT, x: annotation.x - hs/2, y: annotation.y - hs/2 });
