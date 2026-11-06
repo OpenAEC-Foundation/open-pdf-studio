@@ -49,6 +49,7 @@ nul
 !open-pdf-studio/assets/nen1414/**
 !snap/gui/open-pdf-studio.png
 !docs/screenshots/**
+!docs/images/readme/**
 
 # Temporary files
 temp/
