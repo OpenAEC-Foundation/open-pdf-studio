@@ -167,6 +167,7 @@ js/pdf/document-release-vrijgeven.test.mjs
 js/pdf/progressive-view-guard.test.mjs
 js/pdf/print-pagina-instelling.test.mjs
 js/pdf/print-papier.test.mjs
+js/pdf/print-plan-bron.test.mjs
 js/pdf/getoonde-pagina.test.mjs
 js/tools/middelmuis-pan-beleid.test.mjs
 js/tools/middelmuis-dubbelklik.test.mjs
