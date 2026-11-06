@@ -108,6 +108,8 @@ De desktop-app heeft een ingebouwde MCP-server, zodat een AI-assistent met je do
 
 Jij houdt de regie. De server staat aan bij een nieuwe installatie en luistert alleen op je eigen computer (`127.0.0.1`, poort 9223); zet hem uit of kies een andere poort onder Settings > General. De statusbalk laat zien wanneer een assistent verbonden is en welk gereedschap hij het laatst gebruikte. `open-pdf-studio.mcpb` uit de release installeert de koppeling in MCP-clients die `.mcpb`-bundels ondersteunen; [mcp-stdio/README.md](mcp-stdio/README.md) legt de brug voor andere clients uit. Een [Python-bibliotheek](docs/python-library.md) bedient dezelfde gereedschappen vanuit een script.
 
+**Waar je document heen gaat.** De MCP-verbinding zelf blijft op je computer, maar de assistent die je koppelt bepaalt waar het werk gebeurt. Gebruikt die een online AI-dienst, dan kunnen de paginatekst, schermafbeeldingen en markeringen die hij via de gereedschappen leest naar die dienst gaan. Lees de gegevensvoorwaarden van die dienst voordat je hem op vertrouwelijke tekeningen loslaat, of gebruik een assistent met een model dat lokaal draait.
+
 ## Testen en betrouwbaarheid
 
 - **746 unittestbestanden** draaien met `npm run test:unit` op Windows, Linux en macOS in [CI](.github/workflows/ci.yml) bij elke pull request, plus 3 testbestanden voor kwaliteitsregressie (`npm run test:quality`).
