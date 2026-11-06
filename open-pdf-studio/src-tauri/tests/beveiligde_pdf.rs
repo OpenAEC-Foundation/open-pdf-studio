@@ -59,7 +59,10 @@ fn ontsleutelt_met_het_juiste_wachtwoord_en_weigert_een_verkeerd() {
     assert!(PdfiumDocumentHandle::load_from_bytes(Arc::new(versleuteld.clone())).is_err());
 
     // ... de kopie wel, en ze heeft dezelfde pagina en tekst.
-    let schoon = ontsleutel(&bibliotheek, &versleuteld, "geheim").expect("decrypt");
+    let geopend = ontsleutel(&bibliotheek, &versleuteld, "geheim").expect("decrypt");
+    // Met het gebruikerswachtwoord: geen eigenaarsrechten.
+    assert!(!geopend.eigenaar);
+    let schoon = geopend.bytes;
     assert!(schoon.starts_with(b"%PDF"));
     let handle = PdfiumDocumentHandle::load_from_bytes(Arc::new(schoon.clone())).expect("unprotected copy opens");
     let doc = handle.document();
@@ -68,7 +71,7 @@ fn ontsleutelt_met_het_juiste_wachtwoord_en_weigert_een_verkeerd() {
     assert!(tekst.contains("Protected test document"), "text: {tekst}");
 
     // Ook het eigenaarswachtwoord opent het document.
-    assert!(ontsleutel(&bibliotheek, &versleuteld, "eigenaar").is_ok());
+    assert!(ontsleutel(&bibliotheek, &versleuteld, "eigenaar").expect("owner password").eigenaar);
 
     // De werkkopie komt op schijf in de opgegeven map.
     let werkmap = std::env::temp_dir().join(format!("opds-beveiligd-itest-{}", std::process::id()));
