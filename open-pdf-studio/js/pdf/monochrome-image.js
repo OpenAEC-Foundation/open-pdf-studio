@@ -1,6 +1,7 @@
 // Conservative image-XObject building block for #902. No document parsing,
 // UI, file writes or mutation: a caller must qualify those budgets separately.
 import { PDFArray, PDFDict, PDFName, PDFNumber, PDFNull, PDFBool, PDFRef, PDFRawStream } from 'pdf-lib';
+import { encodeCcittG4, ccittG4Params, CcittOutputLimit } from './ccitt-g4.js';
 
 export const MONOCHROME_LIMITS = Object.freeze({ decodedBytes: 32 * 1024 * 1024, encodedBytes: 32 * 1024 * 1024, workingBytes: 96 * 1024 * 1024 });
 class SkipImage extends Error {}
@@ -64,6 +65,8 @@ async function transform(bytes, codec, limit, signal) {
  * for the whole document that no DefaultRGB/DefaultGray, output intent or
  * blending space can make RGB black/white differ from gray (monochrome-document.js).
  * Other filters/profiles/predictors remain untouched with an explicit reason.
+ * The one-bit result is encoded both as Flate and as CCITT Group 4 (T.6); the
+ * smaller complete stream wins (`filter` in the result names it).
  */
 export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = () => new Promise(r => setTimeout(r, 0)), allowRgb = false } = {}) {
   checkAbort(signal);
@@ -114,9 +117,12 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
     if (input.length > limits.encodedBytes) skip('encoded-limit');
     // Worst retained buffers: input, decoded input, packed samples, compressed
     // output and its final compact copy. This is NOT a total-process RSS cap.
+    // The CCITT candidate (growing buffer plus compact copy) only runs when it
+    // also fits; otherwise Flate alone decides.
     const outputCap = Math.min(limits.encodedBytes, input.length + 1024);
     const working = input.length + decodedSize + (bits === 8 ? packedSize : 0) + outputCap * 2;
     if (working > limits.workingBytes) skip('working-buffer-limit');
+    const ccittFits = working + outputCap * 2 <= limits.workingBytes;
 
     let filter = get('Filter'), params = get('DecodeParms');
     if (filter instanceof PDFArray) {
@@ -163,12 +169,41 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
       }
     }
     checkAbort(signal);
-    const compressed = await transform(packed, new CompressionStream('deflate'), outputCap, signal);
+    let flate = null;
+    try {
+      flate = await transform(packed, new CompressionStream('deflate'), outputCap, signal);
+    } catch (error) {
+      if (!(error instanceof SkipImage)) throw error;
+    }
     checkAbort(signal);
+    // CCITT codeert "zwart" en "wit"; welke samplewaarde zwart is volgt uit
+    // /Decode ([1 0]: bit 1 is zwart, anders bit 0, ook bij een stencil
+    // waar bit 0 de verfwaarde is). Decoderen geeft dezelfde samplebits terug,
+    // dus /Decode en de kleurruimte blijven ongewijzigd gelden.
+    let blackIs1 = false;
+    const sourceDecode = bits === 8 ? decode : get('Decode');
+    if (Array.isArray(sourceDecode)) blackIs1 = sourceDecode[0] > sourceDecode[1];
+    else if (sourceDecode instanceof PDFArray && sourceDecode.size() >= 2) {
+      const [d0, d1] = [0, 1].map(i => number(resolve(context, sourceDecode.get(i))));
+      blackIs1 = d0 !== null && d1 !== null && d0 > d1;
+    }
+    let ccitt = null;
+    if (ccittFits) {
+      try {
+        // Alleen interessant als het kleiner is dan Flate: daar stopt de encoder.
+        ccitt = await encodeCcittG4(packed, width, height, {
+          blackIs1,
+          maxBytes: flate ? flate.length : outputCap,
+          rowsPerCheckpoint: 512,
+          checkpoint: async () => { await checkpoint(); checkAbort(signal); },
+        });
+      } catch (error) {
+        if (!(error instanceof CcittOutputLimit)) throw error;
+      }
+    }
+    checkAbort(signal);
+    if (!flate && !ccitt) skip('decoded-or-output-limit');
     const dictionary = stream.dict.clone(context);
-    dictionary.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
-    dictionary.delete(PDFName.of('DecodeParms'));
-    dictionary.set(PDFName.of('Length'), PDFNumber.of(compressed.length));
     if (bits === 8) {
       dictionary.set(PDFName.of('BitsPerComponent'), PDFNumber.of(1));
       dictionary.set(PDFName.of('ColorSpace'), PDFName.of('DeviceGray'));
@@ -177,13 +212,31 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
       dictionary.delete(PDFName.of('DL'));
       if (decode) dictionary.set(PDFName.of('Decode'), context.obj(decode));
     }
+    const candidates = [];
+    for (const [filterName, data, decodeParms] of [
+      ['FlateDecode', flate, null],
+      ['CCITTFaxDecode', ccitt, ccittG4Params(width, height, blackIs1)],
+    ]) {
+      if (!data) continue;
+      const d = dictionary.clone(context);
+      d.set(PDFName.of('Filter'), PDFName.of(filterName));
+      if (decodeParms) d.set(PDFName.of('DecodeParms'), context.obj(decodeParms));
+      else d.delete(PDFName.of('DecodeParms'));
+      d.set(PDFName.of('Length'), PDFNumber.of(data.length));
+      candidates.push({ filter: filterName, stream: PDFRawStream.of(d, data) });
+    }
     // Compare COMPLETE serialized stream objects (dictionary + data). Masks
     // and profiles retain the same references/content, so their cost cancels.
     const original = PDFRawStream.of(stream.dict.clone(context), input);
-    const candidate = PDFRawStream.of(dictionary, compressed);
-    const before = original.sizeInBytes(), after = candidate.sizeInBytes();
+    const before = original.sizeInBytes();
+    let best = null, after = Infinity;
+    for (const candidate of candidates) {
+      const size = candidate.stream.sizeInBytes();
+      if (size < after) { best = candidate; after = size; }
+    }
     if (after >= before) skip('not-smaller');
-    return { replacement: PDFRawStream.of(dictionary, compressed.slice()), reason: null, before, after, decodedBytes: decodedSize, workingBufferBytes: working };
+    const replacement = PDFRawStream.of(best.stream.dict, best.stream.getContents().slice());
+    return { replacement, reason: null, filter: best.filter, before, after, decodedBytes: decodedSize, workingBufferBytes: working + (ccittFits ? outputCap * 2 : 0) };
   } catch (error) {
     checkAbort(signal);
     if (error instanceof SkipImage) return { replacement: null, reason: error.message };
