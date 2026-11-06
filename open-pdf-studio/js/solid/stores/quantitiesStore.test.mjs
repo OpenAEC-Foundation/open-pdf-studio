@@ -92,15 +92,6 @@ function middenVoorStaat(a) {
   return { x: 0, y: 0 };
 }
 
-function middenVoorStaten(a) {
-  if (typeof a.startX === 'number' && typeof a.endX === 'number') return { x: (a.startX + a.endX) / 2, y: (a.startY + a.endY) / 2 };
-  const pts = Array.isArray(a.points) ? a.points : (Array.isArray(a.path) ? a.path : null);
-  if (pts && pts.length) {
-    return { x: pts.reduce((s, p) => s + (p.x ?? 0), 0) / pts.length, y: pts.reduce((s, p) => s + (p.y ?? 0), 0) / pts.length };
-  }
-  return { x: 0, y: 0 };
-}
-
 function metOudeSchaal(doc, a, midden) {
   const m = midden(a);
   const s = oudeMeetschaal(doc, a.page || 1, m.x, m.y);
@@ -114,20 +105,16 @@ function oudeElementen(doc) {
     if (a.type === 'count') return { ...a, __countCatName: telNaam(a.categoryId) };
     if (LENGTH_TYPES.has(a.type) && typeof a.measureValue !== 'number') return metOudeSchaal(doc, a, middenVoorStaat);
     if (AREA_TYPES.has(a.type)) return metOudeSchaal(doc, a, middenVoorStaat);
-    if (a.type === 'measureArea' || a.type === 'measureDistance' || a.type === 'measurePerimeter') {
+    if (a.type === 'measureDistance' || a.type === 'measurePerimeter') {
       return a.measureUnit ? a : metOudeSchaal(doc, a, middenVoorStaat);
     }
     return a;
   });
 }
 
-function oudeStatenElementen(doc) {
-  return doc.annotations.map((a) => {
-    if (a.type === 'count') return { ...a, __countCatName: telNaam(a.categoryId) };
-    if (LENGTH_TYPES.has(a.type) && typeof a.measureValue !== 'number') return metOudeSchaal(doc, a, middenVoorStaten);
-    return a;
-  });
-}
+// Een opgeslagen staat verrijkt sinds #982 precies als het paneel (zie
+// staatElementen.js): ook vlakken krijgen hun schaal.
+const oudeStatenElementen = (doc) => oudeElementen(doc);
 
 const config = () => ({
   categories: q.selectedCategories(), fields: q.scheduledFields(), filters: q.filters(),
@@ -321,7 +308,7 @@ test('with the panel closed a change builds nothing, and opening shows the curre
   assert.deepEqual(vorm(q.scheduleResult()), verwacht(doc));
 });
 
-test('a saved schedule (staten) keeps the lengths of before', () => {
+test('a saved schedule (staten) gives the same lengths and areas as the panel', () => {
   const doc = openen(document('F'));
   doc.annotations.push(annotatie({ type: 'viewport', page: 1, x: 0, y: 150, width: 200, height: 150, pixelsPerUnit: PPU(10), unit: 'mm' }));
   doc.annotations.push(annotatie({ type: 'scaleBar', page: 2, x: 0, y: 0, width: 50, height: 10, pixelsPerUnit: PPU(50), unit: 'mm' }));
