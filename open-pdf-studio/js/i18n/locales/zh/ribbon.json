@@ -181,7 +181,9 @@
     "unflattenAll": "取消拼合",
     "unflattenAllTooltip": "恢复在允许恢复时拼合的标记",
     "fileAttachment": "附加文件",
-    "fileAttachmentTitle": "文件附件: 单击页面并选择一个文件"
+    "fileAttachmentTitle": "文件附件: 单击页面并选择一个文件",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "页面显示",

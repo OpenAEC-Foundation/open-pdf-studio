@@ -146,7 +146,8 @@
     "highlightSelection": "Selectie markeren",
     "strikethroughSelection": "Selectie doorhalen",
     "underlineSelection": "Selectie onderstrepen",
-    "curvedLeaderSelection": "Ronde aanhaallijn toevoegen"
+    "curvedLeaderSelection": "Ronde aanhaallijn toevoegen",
+    "linkSelection": "Link invoegen..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Deze annotatie verwijderen?",

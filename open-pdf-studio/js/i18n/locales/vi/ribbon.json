@@ -181,7 +181,9 @@
     "unflattenAll": "Hoàn tác làm phẳng",
     "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục",
     "fileAttachment": "Đính kèm tệp",
-    "fileAttachmentTitle": "Tệp đính kèm: nhấp vào trang và chọn một tệp"
+    "fileAttachmentTitle": "Tệp đính kèm: nhấp vào trang và chọn một tệp",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Hiển thị Trang",

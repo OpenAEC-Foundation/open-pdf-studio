@@ -140,7 +140,8 @@
     "highlightSelection": "تمييز التحديد",
     "strikethroughSelection": "يتوسطه خط للتحديد",
     "underlineSelection": "تسطير التحديد",
-    "curvedLeaderSelection": "إضافة وسيلة شرح منحنية"
+    "curvedLeaderSelection": "إضافة وسيلة شرح منحنية",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "هل تريد حذف هذا التعليق؟",

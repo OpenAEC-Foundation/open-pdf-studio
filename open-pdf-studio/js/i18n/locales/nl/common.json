@@ -345,6 +345,7 @@
     "scanInsertAfter": "Na de huidige pagina",
     "scanNewDocument": "Nieuw document",
     "scanBusy": "Pagina maken…",
-    "scanFailed": "Van de foto kon geen pagina gemaakt worden: {{error}}"
+    "scanFailed": "Van de foto kon geen pagina gemaakt worden: {{error}}",
+    "insertLink": "Link invoegen"
   }
 }

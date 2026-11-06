@@ -181,7 +181,9 @@
     "unflattenAll": "التراجع عن التسطيح",
     "unflattenAllTooltip": "استعادة العلامات التي سُطّحت مع السماح بالاستعادة",
     "fileAttachment": "إرفاق ملف",
-    "fileAttachmentTitle": "مرفق ملف: انقر على الصفحة واختر ملفًا"
+    "fileAttachmentTitle": "مرفق ملف: انقر على الصفحة واختر ملفًا",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "عرض الصفحة",

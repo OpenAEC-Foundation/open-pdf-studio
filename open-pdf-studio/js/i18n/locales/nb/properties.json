@@ -318,7 +318,8 @@
     "redaction": "Sladding",
     "scaleBar": "Målestokklinjal",
     "parametricSymbol": "Parametrisk symbol",
-    "fileAttachment": "Filvedlegg"
+    "fileAttachment": "Filvedlegg",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Veksle panel",

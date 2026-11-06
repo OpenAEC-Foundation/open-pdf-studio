@@ -318,7 +318,8 @@
     "redaction": "Затирание",
     "scaleBar": "Масштабная линейка",
     "parametricSymbol": "Параметрический символ",
-    "fileAttachment": "Вложенный файл"
+    "fileAttachment": "Вложенный файл",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Переключить панель",

@@ -318,7 +318,8 @@
     "redaction": "மறைப்பு",
     "scaleBar": "அளவுகோல் பட்டை",
     "parametricSymbol": "அளவுரு குறியீடு",
-    "fileAttachment": "கோப்பு இணைப்பு"
+    "fileAttachment": "கோப்பு இணைப்பு",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "பேனலை மாற்று",

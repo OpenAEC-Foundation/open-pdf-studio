@@ -140,7 +140,8 @@
     "highlightSelection": "Markera markering",
     "strikethroughSelection": "Genomstrykning av markering",
     "underlineSelection": "Understrykning av markering",
-    "curvedLeaderSelection": "Lägg till böjd callout"
+    "curvedLeaderSelection": "Lägg till böjd callout",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Radera denna anteckning?",

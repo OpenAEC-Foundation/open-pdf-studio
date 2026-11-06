@@ -318,7 +318,8 @@
     "redaction": "Poisto",
     "scaleBar": "Mittakaavajana",
     "parametricSymbol": "Parametrinen symboli",
-    "fileAttachment": "Tiedostoliite"
+    "fileAttachment": "Tiedostoliite",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Näytä/piilota paneeli",

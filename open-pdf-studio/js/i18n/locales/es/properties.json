@@ -318,7 +318,8 @@
     "redaction": "Redacción",
     "scaleBar": "Barra de escala",
     "parametricSymbol": "Símbolo paramétrico",
-    "fileAttachment": "Archivo adjunto"
+    "fileAttachment": "Archivo adjunto",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Alternar panel",

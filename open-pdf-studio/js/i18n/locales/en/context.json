@@ -146,7 +146,8 @@
     "highlightSelection": "Highlight Selection",
     "strikethroughSelection": "Strikethrough Selection",
     "underlineSelection": "Underline Selection",
-    "curvedLeaderSelection": "Add Curved Callout"
+    "curvedLeaderSelection": "Add Curved Callout",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Delete this annotation?",

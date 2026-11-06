@@ -140,7 +140,8 @@
     "highlightSelection": "برجسته‌سازی انتخاب",
     "strikethroughSelection": "خط‌خوردگی انتخاب",
     "underlineSelection": "زیرخط انتخاب",
-    "curvedLeaderSelection": "افزودن فراخوان منحنی"
+    "curvedLeaderSelection": "افزودن فراخوان منحنی",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "آیا این حاشیه‌نویسی حذف شود؟",

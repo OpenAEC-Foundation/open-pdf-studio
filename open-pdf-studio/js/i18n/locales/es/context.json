@@ -140,7 +140,8 @@
     "highlightSelection": "Resaltar selección",
     "strikethroughSelection": "Tachar selección",
     "underlineSelection": "Subrayar selección",
-    "curvedLeaderSelection": "Añadir llamada curva"
+    "curvedLeaderSelection": "Añadir llamada curva",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "¿Eliminar esta anotación?",

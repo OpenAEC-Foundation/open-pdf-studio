@@ -318,7 +318,8 @@
     "redaction": "संपादन-रहित",
     "scaleBar": "स्केल बार",
     "parametricSymbol": "पैरामीट्रिक प्रतीक",
-    "fileAttachment": "फ़ाइल अनुलग्नक"
+    "fileAttachment": "फ़ाइल अनुलग्नक",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "पैनल टॉगल करें",

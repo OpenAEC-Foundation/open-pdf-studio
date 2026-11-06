@@ -318,7 +318,8 @@
     "redaction": "Redazione",
     "scaleBar": "Barra di scala",
     "parametricSymbol": "Simbolo parametrico",
-    "fileAttachment": "Allegato file"
+    "fileAttachment": "Allegato file",
+    "link": "Collegamento"
   },
   "leftPanel": {
     "togglePanel": "Attiva/disattiva pannello",

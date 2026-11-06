@@ -140,7 +140,8 @@
     "highlightSelection": "Uthev utvalg",
     "strikethroughSelection": "Gjennomstrek utvalg",
     "underlineSelection": "Understrek utvalg",
-    "curvedLeaderSelection": "Legg til buet callout"
+    "curvedLeaderSelection": "Legg til buet callout",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Slette denne merknaden?",

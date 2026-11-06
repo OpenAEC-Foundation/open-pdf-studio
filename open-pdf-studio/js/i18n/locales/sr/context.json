@@ -140,7 +140,8 @@
     "highlightSelection": "Истакни избор",
     "strikethroughSelection": "Прецртај избор",
     "underlineSelection": "Подвуци избор",
-    "curvedLeaderSelection": "Додај закривљени облачић"
+    "curvedLeaderSelection": "Додај закривљени облачић",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Обрисати ову анотацију?",

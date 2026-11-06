@@ -181,7 +181,9 @@
     "unflattenAll": "Buat asal perataan",
     "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan",
     "fileAttachment": "Lampirkan fail",
-    "fileAttachmentTitle": "Lampiran fail: klik pada halaman dan pilih fail"
+    "fileAttachmentTitle": "Lampiran fail: klik pada halaman dan pilih fail",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Paparan Halaman",

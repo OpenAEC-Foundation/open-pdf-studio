@@ -181,7 +181,9 @@
     "unflattenAll": "Annulla appiattimento",
     "unflattenAllTooltip": "Ripristina le annotazioni appiattite con il ripristino consentito",
     "fileAttachment": "Allega file",
-    "fileAttachmentTitle": "Allegato: fai clic sulla pagina e scegli un file"
+    "fileAttachmentTitle": "Allegato: fai clic sulla pagina e scegli un file",
+    "link": "Collegamento",
+    "linkTitle": "Inserisci un collegamento: seleziona prima il testo o trascina un rettangolo sulla pagina"
   },
   "view": {
     "pageDisplay": "Visualizzazione pagina",

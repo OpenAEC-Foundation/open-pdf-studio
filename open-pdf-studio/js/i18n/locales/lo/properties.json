@@ -356,7 +356,8 @@
     "redaction": "ການປິດບັງຂໍ້ມູນ",
     "scaleBar": "ແຖບມາດຕາສ່ວນ",
     "parametricSymbol": "ສັນຍະລັກພາຣາມິເຕີ",
-    "fileAttachment": "ໄຟລ໌ແນບ"
+    "fileAttachment": "ໄຟລ໌ແນບ",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "ເປີດ/ປິດ ແຖບຂ້າງ",

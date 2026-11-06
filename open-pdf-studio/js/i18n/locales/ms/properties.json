@@ -318,7 +318,8 @@
     "redaction": "Redaksi",
     "scaleBar": "Bar Skala",
     "parametricSymbol": "Simbol Parametrik",
-    "fileAttachment": "Lampiran fail"
+    "fileAttachment": "Lampiran fail",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Togol Panel",

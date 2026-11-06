@@ -181,7 +181,9 @@
     "unflattenAll": "Afvlakken ongedaan",
     "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan",
     "fileAttachment": "Bestand bijvoegen",
-    "fileAttachmentTitle": "Bestandsbijlage: klik op de pagina en kies een bestand"
+    "fileAttachmentTitle": "Bestandsbijlage: klik op de pagina en kies een bestand",
+    "link": "Link",
+    "linkTitle": "Hyperlink invoegen: selecteer eerst tekst, of sleep een vak op de pagina"
   },
   "view": {
     "pageDisplay": "Paginaweergave",

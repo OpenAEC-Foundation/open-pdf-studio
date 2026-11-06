@@ -181,7 +181,9 @@
     "unflattenAll": "ہموار کرنا واپس لیں",
     "unflattenAllTooltip": "وہ مارک اپس بحال کریں جو بحالی کی اجازت کے ساتھ ہموار کیے گئے تھے",
     "fileAttachment": "فائل منسلک کریں",
-    "fileAttachmentTitle": "فائل منسلکہ: صفحے پر کلک کریں اور ایک فائل منتخب کریں"
+    "fileAttachmentTitle": "فائل منسلکہ: صفحے پر کلک کریں اور ایک فائل منتخب کریں",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "صفحہ کی نمائش",

@@ -140,7 +140,8 @@
     "highlightSelection": "Auswahl hervorheben",
     "strikethroughSelection": "Auswahl durchstreichen",
     "underlineSelection": "Auswahl unterstreichen",
-    "curvedLeaderSelection": "Geschwungene Sprechblase hinzufügen"
+    "curvedLeaderSelection": "Geschwungene Sprechblase hinzufügen",
+    "linkSelection": "Link einfügen..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Diese Anmerkung löschen?",

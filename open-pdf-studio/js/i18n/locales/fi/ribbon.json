@@ -181,7 +181,9 @@
     "unflattenAll": "Kumoa litistys",
     "unflattenAllTooltip": "Palauta merkinnät, jotka litistettiin palautus sallittuna",
     "fileAttachment": "Liitä tiedosto",
-    "fileAttachmentTitle": "Tiedostoliite: napsauta sivua ja valitse tiedosto"
+    "fileAttachmentTitle": "Tiedostoliite: napsauta sivua ja valitse tiedosto",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Sivun näyttö",

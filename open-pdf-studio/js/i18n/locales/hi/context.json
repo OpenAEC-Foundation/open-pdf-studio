@@ -140,7 +140,8 @@
     "highlightSelection": "चयन हाइलाइट करें",
     "strikethroughSelection": "चयन स्ट्राइकथ्रू करें",
     "underlineSelection": "चयन रेखांकित करें",
-    "curvedLeaderSelection": "घुमावदार कॉलआउट जोड़ें"
+    "curvedLeaderSelection": "घुमावदार कॉलआउट जोड़ें",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "यह एनोटेशन हटाएं?",

@@ -318,7 +318,8 @@
     "redaction": "ریڈیکشن",
     "scaleBar": "اسکیل بار",
     "parametricSymbol": "پیرامیٹرک علامت",
-    "fileAttachment": "فائل منسلکہ"
+    "fileAttachment": "فائل منسلکہ",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "پینل ٹوگل کریں",

@@ -140,7 +140,8 @@
     "highlightSelection": "Zvýrazniť výber",
     "strikethroughSelection": "Prečiarknuť výber",
     "underlineSelection": "Podčiarknuť výber",
-    "curvedLeaderSelection": "Pridať zakrivený popisok"
+    "curvedLeaderSelection": "Pridať zakrivený popisok",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Odstrániť túto anotáciu?",

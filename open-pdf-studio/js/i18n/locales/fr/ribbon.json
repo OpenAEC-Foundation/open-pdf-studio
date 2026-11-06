@@ -181,7 +181,9 @@
     "unflattenAll": "Annuler l'aplatissement",
     "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée",
     "fileAttachment": "Joindre un fichier",
-    "fileAttachmentTitle": "Pièce jointe : cliquez sur la page et choisissez un fichier"
+    "fileAttachmentTitle": "Pièce jointe : cliquez sur la page et choisissez un fichier",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Affichage de la page",

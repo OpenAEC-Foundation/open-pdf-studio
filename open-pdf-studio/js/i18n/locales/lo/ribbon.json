@@ -181,7 +181,9 @@
     "unflattenAll": "ຍົກເລີກການຮວມ",
     "unflattenAllTooltip": "ກູ້ຄືນເຄື່ອງໝາຍທີ່ຖືກຮວມໂດຍອະນຸຍາດໃຫ້ກູ້ຄືນ",
     "fileAttachment": "ແນບໄຟລ໌",
-    "fileAttachmentTitle": "ໄຟລ໌ແນບ: ຄລິກໃສ່ໜ້າ ແລ້ວເລືອກໄຟລ໌"
+    "fileAttachmentTitle": "ໄຟລ໌ແນບ: ຄລິກໃສ່ໜ້າ ແລ້ວເລືອກໄຟລ໌",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "ການສະແດງໜ້າເຈ້ຍ",

@@ -140,7 +140,8 @@
     "highlightSelection": "Sorot Pilihan",
     "strikethroughSelection": "Coret Pilihan",
     "underlineSelection": "Garis Bawahi Pilihan",
-    "curvedLeaderSelection": "Tambah Balon Keterangan Melengkung"
+    "curvedLeaderSelection": "Tambah Balon Keterangan Melengkung",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Hapus anotasi ini?",

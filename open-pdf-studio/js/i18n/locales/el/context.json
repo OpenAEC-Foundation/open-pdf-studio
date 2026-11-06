@@ -140,7 +140,8 @@
     "highlightSelection": "Επισήμανση επιλογής",
     "strikethroughSelection": "Διαγράμμιση επιλογής",
     "underlineSelection": "Υπογράμμιση επιλογής",
-    "curvedLeaderSelection": "Προσθήκη καμπύλης επεξήγησης"
+    "curvedLeaderSelection": "Προσθήκη καμπύλης επεξήγησης",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Διαγραφή αυτού του σχολιασμού;",

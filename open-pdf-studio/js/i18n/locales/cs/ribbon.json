@@ -181,7 +181,9 @@
     "unflattenAll": "Zrušit sloučení",
     "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením",
     "fileAttachment": "Připojit soubor",
-    "fileAttachmentTitle": "Příloha souboru: klikněte na stránku a vyberte soubor"
+    "fileAttachmentTitle": "Příloha souboru: klikněte na stránku a vyberte soubor",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Zobrazení stránky",

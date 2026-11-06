@@ -181,7 +181,9 @@
     "unflattenAll": "Angre utflating",
     "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt",
     "fileAttachment": "Legg ved fil",
-    "fileAttachmentTitle": "Filvedlegg: klikk på siden og velg en fil"
+    "fileAttachmentTitle": "Filvedlegg: klikk på siden og velg en fil",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Sidevisning",

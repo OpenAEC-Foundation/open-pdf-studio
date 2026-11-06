@@ -140,7 +140,8 @@
     "highlightSelection": "தேர்வை முன்னிலைப்படுத்து",
     "strikethroughSelection": "தேர்வுக்கு நடுக்கோடு இடு",
     "underlineSelection": "தேர்வுக்கு அடிக்கோடு இடு",
-    "curvedLeaderSelection": "வளைந்த அழைப்புக்குறிப்பைச் சேர்"
+    "curvedLeaderSelection": "வளைந்த அழைப்புக்குறிப்பைச் சேர்",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "இந்தக் குறிப்புரையை நீக்கவா?",
