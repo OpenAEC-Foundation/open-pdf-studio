@@ -1,507 +1,164 @@
-<p align="center">
-  <img src="open-pdf-studio/src-tauri/icons/icon.png" alt="Open PDF Studio" width="128" height="128">
-</p>
-
-<h1 align="center">Open PDF Studio</h1>
-
-<p align="center">
-  <strong>A free, open-source PDF editor and annotator for Windows, macOS, Linux, and Android.</strong>
-</p>
-
-<p align="center">
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest"><img src="https://img.shields.io/github/v/release/OpenAEC-Foundation/open-pdf-studio?style=flat-square" alt="Latest Release"></a>
-  <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-LGPL--3.0-blue?style=flat-square" alt="License"></a>
-  <a href="https://snapcraft.io/open-pdf-studio"><img src="https://img.shields.io/badge/snap-open--pdf--studio-green?style=flat-square&logo=snapcraft" alt="Snap Store"></a>
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/releases"><img src="https://img.shields.io/github/downloads/OpenAEC-Foundation/open-pdf-studio/total?style=flat-square" alt="Total downloads"></a>
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/commits"><img src="https://img.shields.io/github/commit-activity/m/OpenAEC-Foundation/open-pdf-studio?style=flat-square" alt="Commit activity"></a>
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/commits"><img src="https://img.shields.io/github/last-commit/OpenAEC-Foundation/open-pdf-studio?style=flat-square" alt="Last commit"></a>
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/stargazers"><img src="https://img.shields.io/github/stars/OpenAEC-Foundation/open-pdf-studio?style=flat-square" alt="Stars"></a>
-</p>
-
----
-
-Open PDF Studio is a lightweight, native desktop application that provides professional-grade PDF annotation, markup, and editing tools without subscriptions, telemetry, or bloatware. Built with [Tauri 2](https://tauri.app/) and web technologies, it delivers a fast, modern experience with a Microsoft Office-style ribbon interface.
-
-It is built for people who work with drawings: import DWG and DXF as a vector PDF with layers and a measuring scale, measure and take off quantities, export a page back to CAD, verify digital signatures, make scans searchable with OCR, and let an AI assistant operate the app through a local connection.
-
-<p align="center">
-  <img src="docs/screenshots/pdf-compare.jpg" alt="Open PDF Studio – side-by-side PDF compare with change list" width="100%">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/drawing-tools.jpg" alt="CAD-style drawing, measurement, and markup tools on an architectural elevation" width="100%">
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/plattegrond-demo.gif" alt="Drawing a floor plan with parametric walls: corners trim themselves, doors, windows and rooms snap into place" width="640">
-  <br><sub>Parametric walls with self-trimming corners, doors, windows and rooms — drawn to scale on a blank sheet.</sub>
-</p>
-
-## Repository activity
-
-Downloads, commit activity, and star growth for this active open-source project.
-
-<p align="center">
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/releases"><img src="https://img.shields.io/github/downloads/OpenAEC-Foundation/open-pdf-studio/total?style=for-the-badge&label=Total%20downloads&color=2563eb" alt="Total downloads"></a>
-  &nbsp;
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest"><img src="https://img.shields.io/github/downloads/OpenAEC-Foundation/open-pdf-studio/latest/total?style=for-the-badge&label=Latest%20release&color=059669" alt="Latest release downloads"></a>
-  &nbsp;
-  <a href="https://github.com/OpenAEC-Foundation/open-pdf-studio/commits"><img src="https://img.shields.io/github/commit-activity/m/OpenAEC-Foundation/open-pdf-studio?style=for-the-badge&label=Commits%2Fmonth&color=7c3aed" alt="Commits per month"></a>
-</p>
-
-**Star history**
-
-<p align="center">
-  <a href="https://www.star-history.com/?repos=openaec-foundation%2Fopen-pdf-studio&type=date&legend=top-left">
-    <img src="https://api.star-history.com/svg?repos=openaec-foundation%2Fopen-pdf-studio&type=date&legend=top-left" alt="Star History Chart" width="100%">
-  </a>
-</p>
-
-<!-- Commit & contributor activity chart: register this repo once at
-     https://repobeats.axiom.co, then paste the generated embed here for a
-     live commit-history graph:
-     ![Activity](https://repobeats.axiom.co/api/embed/<hash>.svg) -->
-
-## Why Open PDF Studio?
-
-Professional annotation, markup, measurement, redaction and page management — the tools that typical commercial PDF editors lock behind a subscription or a paid tier — are all included, free and fully open source. No subscriptions, no telemetry, no watermarks.
-
-| | Open PDF Studio | Typical commercial PDF editors |
-|---|:---:|:---:|
-| **Price** | Free & open source (LGPL-3.0) | Subscription or paid license |
-| **Annotations & markup** | All included | Often a paid tier |
-| **Measurement tools** | Included | Usually paid |
-| **DWG/DXF import & export** | Included | Rare, or a separate product |
-| **OCR** | Included | Often a paid tier |
-| **AI connection (MCP)** | Included, local and optional | Cloud service, if any |
-| **Stamps, watermarks & redaction** | Included | Usually paid |
-| **Page management** | Included | Usually paid |
-| **Multi-tab editing** | Included | Varies |
-| **Telemetry** | None | Common |
-| **Platforms** | Windows, macOS, Linux, Android | Varies (often fewer) |
-
-## Features
-
-### Annotations & Markup (20+ Tools)
-- **Text markup:** Highlight, underline, strikethrough
-- **Shapes:** Rectangle, ellipse, polygon, cloud, cloud polyline, line, arrow, polyline
-- **Hatch fill patterns:** Cross-hatch, diagonal, dots, and more for shape fills
-- **Freehand drawing:** Pen tool with configurable color, width, and opacity
-- **Text annotations:** Text box, callout with leader line, sticky notes with popup editing
-- **Stamps:** 10 built-in stamps (Approved, Rejected, Draft, Confidential, Final, etc.)
-- **Images:** Insert from file, paste from clipboard, or drag-and-drop, with non-destructive cropping
-- **Signatures:** Draw multi-stroke signatures, save up to 5 for quick reuse
-- **Redaction:** Mark areas and apply to remove the text, images, vector graphics, annotations and form fields under them from the file; saving then rewrites the whole file without earlier versions
-
-### Measurement Tools
-- Distance, area, and perimeter measurement
-- Scale calibration dialog with mm, cm, m, inches, feet, and points
-- Per-line scale override, with fallback to the document scale
-- Quick scale: right-click a dimension line and type a value (e.g. "12.3m") to recalibrate
-- Draggable dimension text and endpoints with live recalculation
-- Object snapping to endpoints, midpoints, centers, and edges
-- Angle snapping with configurable increments
-
-### CAD Drawings (DWG & DXF)
-- **Import** a DWG or DXF through File > Import, Open, or drag and drop
-- Choose layers, model space or a layout with viewports, area, scale, paper, orientation, margins and placement
-- Appearance: colours as in the file, all black, greyscale, black and white or a single colour; lineweights from the file, a colour table or a fixed width; linetypes, hatch patterns, dimensions, attributes and points
-- External references and images are loaded from the drawing's folder or from search paths you pick
-- A live preview renders with the real converter, so what you see is what you get
-- The result is a **vector PDF**: CAD layers become PDF layers and every viewport carries its own measuring scale, so measuring is correct right away
-- Target: a new document, a new page, or an **underlay** on the current page — as vector or image, to scale, below the existing content
-- **Export** a page back to DXF or DWG with the PDF layers as CAD layers, at real size according to the measuring scale, with your markups on their own layers, and optionally in the drawing's original model coordinates
-
-### AI Connection (MCP)
-- One switch in Settings > General exposes the app to a local AI assistant over MCP — no start-up flags, local clients only
-- Over fifty tools: open and save documents, navigate, create and edit annotations, set the measuring scale, take off quantities and place schedules, import and export CAD, print to a PDF file, and more
-- `open-pdf-studio.mcpb` installs the connection in Claude Desktop with a double click
-- A small indicator in the status bar shows the connection: grey when the server is off, an open dot when it is on and idle, green while an assistant was active in the last 30 seconds, with a short highlight on every tool call; its tooltip names the port and the last tool
-
-### Text Recognition (OCR)
-- Make scanned pages searchable and selectable with an invisible text layer
-- Current page or the whole document, with automatic language detection or a chosen language
-- Desktop only; the Android build ships without OCR
-
-### Digital Signatures
-- A bar above the page shows, per signature, whether it is valid, whether the certificate is trusted, and whether the document changed after signing
-- A detail dialog shows the certificate chain and the timestamp, and "show the signed version" opens the document as it was when signed
-- Reads PKCS#12 and validates against the system certificate store
-
-### PDF Compare
-- Compare two PDF revisions in a dedicated compare tab, without leaving your workspace
-- Side-by-side and overlay view modes with synchronized scrolling, panning, and zoom
-- Automatic change detection classifies differences as added, removed, or modified
-- Filterable change list with counts; click a change to jump straight to it
-- Manual alignment offset (dx, dy, rotation) to line up drawings that shifted between revisions
-- Page-pair navigation for multi-page documents
-
-### Symbol Palettes
-- Drag-and-drop symbol libraries onto the page for repetitive markup
-- Built-in libraries plus NEN 1414 and Dutch (NL) category sets
-- Searchable, collapsible categories; enable or disable groups per project
-- Create custom symbol groups saved with your preferences
-- Dockable to either side of the canvas or floated freely
-
-### Quantities & Object Counting
-- Count tool with named tally categories for on-drawing object counting (takeoff)
-- Live quantities schedule that aggregates counts, lengths, and areas
-- Grouping, sorting, filtering, subtotals, and grand totals
-- Configurable columns, formatting, and table appearance
-- Place the generated schedule back onto the page as a table
-
-### Screenshot
-- Capture full page or a selected region as an image
-- Copy to clipboard or save to file
-
-### Crop Margins
-- Auto-detect and trim whitespace around page content
-
-### Text Editing
-- Edit existing PDF text content inline
-- Add new text annotations with font, size, and color control
-
-### Page Management
-- Insert blank pages (standard or custom sizes)
-- Delete, extract, and replace pages
-- **Straighten** a skewed scan by drawing a line along something that should be level
-- **Shift page content** by dragging the preview or typing an offset in millimetres, for one page, all pages, or the odd/even pages from a chosen page
-- Reorder pages via drag-and-drop thumbnails
-- Merge multiple PDFs into one
-- Page rotation (90/180/270 degrees)
-
-### Watermarks & Headers/Footers
-- Text and image watermarks with opacity, rotation, and position control
-- Headers and footers with variables (`{page}`, `{pages}`, `{date}`, `{time}`, `{filename}`)
-- Apply to all pages or specific ranges
-
-### Forms
-- Fill interactive PDF forms (AcroForms and XFA)
-- Create text fields, checkboxes, and radio buttons
-- JavaScript validation support
-
-### Printing
-- Full print dialog with live preview, showing the sheet, its orientation and the resulting scale ("A3 landscape (420 × 297 mm) | Page: 594 × 420 mm | Scale: 71 %")
-- **Save as PDF** at the top of the printer list writes the print as vector with the sheet in the chosen orientation — landscape stays landscape
-- Paper and orientation follow the document; large and extended sheets (A1, A0, A3L up to A0L) are supported
-- Print to scale (1:1 on the sheet), fit, shrink or a custom percentage, within the printable area
-- A page perpendicular to the sheet is turned a quarter so that it fills the sheet
-- Page range, subset (odd/even), reverse order, copies, and collation
-- Print content: document only, markups only, or both; print as image option
-- Virtual printer installation (Windows)
-
-### Export
-- Export pages as PNG or JPEG (72, 150, 300, 600 DPI)
-- Export as raster PDF
-- Export/import annotations as XFDF
-
-### Find & Search
-- Text search with match case and whole word options
-- Search the **page text, the annotations, or both** (text boxes, callouts, sticky notes, stamp text and measurement labels)
-- A result list under the search bar shows the hits per page and jumps to them
-- Highlight all matches with result count; navigate results with F3
-
-### Format & Styles
-- 12 pre-defined style gallery for quick annotation styling
-- Fill color, stroke color, line width, opacity, and border style
-- Blend modes for annotation compositing
-- Per-annotation-type default styles
-
-### Multi-Select & Alignment
-- Select multiple annotations with rubber band or Ctrl+Click
-- Shared property editing across selected annotations
-- 6-point alignment (left, center, right, top, middle, bottom)
-- Horizontal and vertical distribution
-- Match size (width, height, or both)
-- Flip horizontal/vertical and rotate selected annotations
-- Z-order control (bring to front/back, forward/backward)
-
-### Object Snapping
-- Snap to endpoints, midpoints, centers, and edges
-- Snap to in-progress vertices while drawing polylines and measurements
-- Configurable snap radius (3-30px)
-- Angle snapping (1-90 degree increments)
-- Optional grid overlay with grid snapping
-
-### Tool Palette
-- Floating or dockable toolbar with all annotation tools
-- Dock to left or right side of the canvas
-- Quick access without switching ribbon tabs
-
-### PDF Viewing & Navigation
-- High-quality native rendering via a multi-process PDFium worker pool — off the UI thread and crash-isolated, so a bad page never freezes or takes down the app
-- Progressive tile rendering for very large CAD drawings: the page and its thumbnails fill in tile-by-tile across the worker pool instead of a seconds-long blank wait
-- View modes: single page, continuous scroll, and book (two-page spread, page 1 on the right)
-- Zoom: fit page, fit width, actual size, custom percentage, and cursor-anchored mouse-wheel zoom
-- Page navigation: first, previous, next, last, go to page
-- PDF/A compliance detection with read-only enforcement
-- Digital signature validation panel
-
-### Left Panel (10 Tabs)
-Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, Form Fields, Named Destinations, Links, Tags
-
-### Bookmarks
-- Create, edit, and delete bookmarks
-- Hierarchical tree with expand/collapse
-- Custom colors and text styling (bold, italic)
-
-### Document Management
-- Multi-tab interface for multiple PDFs
-- Session save/restore (named workspace snapshots)
-- Open PDF from URL
-- Bookmarked folder places for quick file access
-- Recent files with pin/unpin
-- Unsaved changes detection with save prompt
-- Document properties dialog
-- File locking to prevent external writes
-
-### Ribbon Interface
-- Primary tabs: Home, Comment, Drawing, View, Organize, Help
-- Contextual tabs: Format and Arrange appear automatically when annotations are selected
-
-### Customization
-- **5 themes:** Dark, Light, Blue, High Contrast, System (auto-detect)
-- **39 languages** including RTL support:
-  [Arabic](https://en.wikipedia.org/wiki/Arabic_language), [Bengali](https://en.wikipedia.org/wiki/Bengali_language), [Bulgarian](https://en.wikipedia.org/wiki/Bulgarian_language), [Catalan](https://en.wikipedia.org/wiki/Catalan_language), [Chinese](https://en.wikipedia.org/wiki/Chinese_language), [Croatian](https://en.wikipedia.org/wiki/Croatian_language), [Czech](https://en.wikipedia.org/wiki/Czech_language), [Danish](https://en.wikipedia.org/wiki/Danish_language), [Dutch](https://en.wikipedia.org/wiki/Dutch_language), [English](https://en.wikipedia.org/wiki/English_language), [Finnish](https://en.wikipedia.org/wiki/Finnish_language), [French](https://en.wikipedia.org/wiki/French_language), [German](https://en.wikipedia.org/wiki/German_language), [Greek](https://en.wikipedia.org/wiki/Greek_language), [Hebrew](https://en.wikipedia.org/wiki/Hebrew_language), [Hindi](https://en.wikipedia.org/wiki/Hindi), [Hungarian](https://en.wikipedia.org/wiki/Hungarian_language), [Indonesian](https://en.wikipedia.org/wiki/Indonesian_language), [Italian](https://en.wikipedia.org/wiki/Italian_language), [Japanese](https://en.wikipedia.org/wiki/Japanese_language), [Korean](https://en.wikipedia.org/wiki/Korean_language),[Lao](https://en.wikipedia.org/wiki/Lao_language), [Malay](https://en.wikipedia.org/wiki/Malay_language), [Norwegian](https://en.wikipedia.org/wiki/Norwegian_language), [Farsi (Persian)](https://en.wikipedia.org/wiki/Persian_language), [Polish](https://en.wikipedia.org/wiki/Polish_language), [Portuguese](https://en.wikipedia.org/wiki/Portuguese_language), [Romanian](https://en.wikipedia.org/wiki/Romanian_language), [Russian](https://en.wikipedia.org/wiki/Russian_language), [Serbian](https://en.wikipedia.org/wiki/Serbian_language), [Slovak](https://en.wikipedia.org/wiki/Slovak_language), [Spanish](https://en.wikipedia.org/wiki/Spanish_language), [Swahili](https://en.wikipedia.org/wiki/Swahili_language), [Swedish](https://en.wikipedia.org/wiki/Swedish_language), [Tamil](https://en.wikipedia.org/wiki/Tamil_language), [Thai](https://en.wikipedia.org/wiki/Thai_language), [Turkish](https://en.wikipedia.org/wiki/Turkish_language), [Ukrainian](https://en.wikipedia.org/wiki/Ukrainian_language), [Urdu](https://en.wikipedia.org/wiki/Urdu), [Vietnamese](https://en.wikipedia.org/wiki/Vietnamese_language)
-- Configurable preferences dialog
-
-### Undo/Redo
-- Up to 100 levels per document
-- Covers annotations, page operations, watermarks, and text edits
-
-### Auto-Update
-- Built-in update checker with download progress
-- Skip version or remind later options
-- Automatic installation and relaunch
-- Off in managed mode (`OPENAEC_BEHEERD=1`), where the platform supplies updates
-
-## Keyboard Shortcuts
-
-All shortcuts can be changed, exported and imported under **Preferences → Keyboard Shortcuts**.
-**Load preset → Markup-style shortcuts** switches to the single-letter drawing keys and
-Alt+Shift measurement keys common in drawing markup and takeoff tools (for example H for
-Highlight, R for Rectangle and Alt+Shift+L for Length); a command whose default key it takes
-over gets another key (Hand moves to Shift+V). If you have your own shortcuts, the app asks
-before replacing them. Nothing changes until you click **Save**; **Reset all** restores the
-defaults.
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+N` | New document |
-| `Ctrl+O` | Open file |
-| `Ctrl+S` | Save |
-| `Ctrl+Shift+S` | Save As |
-| `Ctrl+P` | Print |
-| `Ctrl+Z` | Undo |
-| `Ctrl+Y` / `Ctrl+Shift+Z` | Redo |
-| `Ctrl+F` | Find |
-| `F3` | Find next |
-| `Ctrl+A` | Select all annotations on page |
-| `Ctrl+C` / `Ctrl+V` | Copy / Paste annotations |
-| `Delete` | Delete selected annotation(s) |
-| `Ctrl+D` | Document properties |
-| `Ctrl+W` | Close active tab |
-| `Ctrl+Tab` / `Ctrl+PgDn` | Next tab (wraps around) |
-| `Ctrl+Shift+Tab` / `Ctrl+PgUp` | Previous tab (wraps around) |
-| `V` | Select tool |
-| `H` | Hand tool |
-| `T` | Text box tool |
-| `N` | Sticky note tool |
-| `Ctrl+=` / `Ctrl+-` | Zoom in / Zoom out |
-| `Ctrl+0` | Actual size (physical paper size once the display is calibrated in Preferences > Page Display) |
-| `Ctrl+1` | Fit width |
-| `Ctrl+2` | Fit page |
-| `F9` | Toggle navigation panel |
-| `F11` | Toggle annotations list |
-| `F12` | Toggle properties panel |
-| `F1` | Keyboard shortcuts |
-| `Arrow keys` | Nudge annotation (1px, Shift for 10px) |
-| `Enter` | Complete area/perimeter measurement |
-
-## Versions
-
-From 2026.39 on, a release is named after the year and the ISO week number: `2026.39`, tagged `v2026.39`.
-
-## Installation
-
-### Windows
-Download the latest `.exe` installer from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
-
-Prefer not to install anything? Download `Open.PDF.Studio_<version>_x64_portable.zip`, extract it and run `open-pdf-studio.exe`. The portable version keeps all its settings and data in a `data` folder next to the program. See [docs/portable-windows.md](docs/portable-windows.md).
-
-### macOS
-Download the latest `.dmg` (universal binary for Intel and Apple Silicon) from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
-
-### Linux
-
-**Snap (Ubuntu App Center):**
-```bash
-sudo snap install open-pdf-studio
-```
-
-**Debian/Ubuntu (.deb):**
-```bash
-sudo dpkg -i open-pdf-studio_*.deb
-```
-
-**AppImage:**
-```bash
-chmod +x open-pdf-studio_*.AppImage
-./open-pdf-studio_*.AppImage
-```
-
-**Nix / NixOS (x86_64):**
-
-The repository is a Nix flake. It wraps the released Linux AppImage with
-`appimageTools.wrapType2`, so nothing is compiled and no cargo or npm hashes are
-involved.
-
-```bash
-# Run once without installing
-nix run github:OpenAEC-Foundation/open-pdf-studio
-
-# Install into your user profile (adds the menu entry and icons)
-nix profile install github:OpenAEC-Foundation/open-pdf-studio
-```
-
-On NixOS you can also add it to your system configuration:
-
-```nix
-# flake.nix of your system
-inputs.open-pdf-studio.url = "github:OpenAEC-Foundation/open-pdf-studio";
-
-# configuration.nix (with `inputs` passed through specialArgs)
-environment.systemPackages = [ inputs.open-pdf-studio.packages.x86_64-linux.default ];
-```
-
-Notes:
-- Only `x86_64-linux` is packaged, because releases ship an amd64 AppImage only.
-- The flake points at a fixed release. After publishing a release, update its
-  version and hash with `node open-pdf-studio/scripts/nix-flake-bijwerken.mjs`
-  (it reads the AppImage checksum from the GitHub release; no download needed).
-- If the window stays blank with some GPU drivers, start it with
-  `WEBKIT_DISABLE_DMABUF_RENDERER=1 open-pdf-studio`.
-
-**Crashes while zooming (realtime limits):** WebKitGTK raises some of its
-internal threads to realtime priority when the session allows it (many
-audio-tuned distributions give the `audio` group `rtprio 99`) and then gives
-them a 200 ms CPU budget; a busy thread past that budget makes the kernel kill
-the whole app without a message. The app therefore lowers its own
-`RLIMIT_RTPRIO` to 0 at startup, the same as starting it with
-`prlimit --rtprio=0`. Set `OPDS_ALLOW_REALTIME=1` to keep the session's limit.
-If the window instead goes blank while zooming (the web process crashed in the
-GPU renderer), `WEBKIT_DISABLE_DMABUF_RENDERER=1` avoids it at the cost of
-slower rendering.
-
-For containers without FUSE or GPU (such as OpenAEC Linux, which runs the
-extracted AppImage under a Wayland compositor), see
-[Managed deployments](#managed-deployments).
-
-### Android
-Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest).
-
-### Managed deployments
-
-When the app runs in a centrally managed environment, such as one container per
-user, start it with the environment variable `OPENAEC_BEHEERD=1` (`true`, `yes`
-and `on` work too). The app then starts without one-time prompts:
-
-- no "make Open PDF Studio the default PDF app" bar (and no registry or
-  `xdg-mime` lookup for it);
-- no "What's new" dialog after an update, and no request for the release notes;
-- no update check or update dialog; *Check for Updates* and *Previous version*
-  only say that updates are managed centrally. The updater plugin is not even
-  registered.
-
-Without the variable, or with any other value, nothing changes. The recovery
-offer after an unexpected shutdown stays, because it protects unsaved work.
-
-Further environment variables for such deployments (all optional; without
-them nothing changes):
-
-| Variable | Effect |
+**English** · [Nederlands](README.nl.md)
+
+<div align="center">
+
+# Open PDF Studio
+
+**A free, open-source PDF editor for people who work with drawings: markup, measuring to scale, revision compare and CAD import, on Windows, macOS, Linux, Android and in the browser.**
+
+[![Release](https://img.shields.io/github/v/release/OpenAEC-Foundation/open-pdf-studio?label=release&color=D97706)](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest)
+[![CI](https://github.com/OpenAEC-Foundation/open-pdf-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenAEC-Foundation/open-pdf-studio/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-LGPL--3.0--or--later-blue)](#license)
+[![Languages](https://img.shields.io/badge/languages-40-informational)](open-pdf-studio/js/i18n/locales/)
+[![MCP tools](https://img.shields.io/badge/MCP%20tools-94-informational)](mcp-stdio/tools.json)
+
+### [Try in your browser](https://open-pdf-studio.open-aec.com/) &nbsp;·&nbsp; [Download](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest)
+
+![A floor plan with a revision cloud, a callout and a measured distance; the Format tab and the properties of the selected callout are open](docs/images/readme/hero.png)
+
+</div>
+
+Open PDF Studio is a PDF editor for architects, engineers, contractors and everyone else who reviews drawings and documents. You mark up, measure with the scale the drawing carries, compare revisions, place symbols, count quantities and organise pages, with no subscription, account or watermark.
+
+It runs as a desktop app on Windows, macOS and Linux, as an Android app, and in your browser with nothing to install. The desktop app adds what needs your computer: printing, OCR, DWG and DXF import and export, digital signatures and a local AI connection (MCP).
+
+## Try it
+
+**[Open the browser version](https://open-pdf-studio.open-aec.com/)** and open a PDF from your computer. You get the same ribbon, markup, measuring, compare, symbol and page tools as in the desktop app. Your document stays in your browser and is not uploaded; a page reload starts empty. Buttons for desktop-only features are switched off and say why.
+
+## Download
+
+Every release is on the [releases page](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest).
+
+| Platform | Files |
+|----------|-------|
+| **Windows** | `…_x64-setup.exe` (all users, needs admin), `…_x64_user-setup.exe` (current user only), `…_x64_portable.zip` (no install, [details](docs/portable-windows.md)) |
+| **macOS** | `…_universal.dmg` (Apple silicon and Intel, macOS 10.15 or later) |
+| **Linux** | `.deb`, `.AppImage` and `.snap` for x86_64, also in the [Snap Store](https://snapcraft.io/open-pdf-studio); Nix flake. See [docs/install-linux.md](docs/install-linux.md) |
+| **Android** | `open-pdf-studio-release.apk` (64-bit ARM) |
+| **Other** | `open-pdf-studio.mcpb` (AI connection for MCP clients), `open-pdf-studio-web-<version>.tar.gz` (web version to host yourself); from the next release also winget manifests and the Python library |
+
+**Updates.** The Windows installers, the macOS app, the `.deb` and the AppImage check for updates and install them through the built-in updater, which only accepts updates signed with the project's update key. The snap updates through the Snap Store. The portable version and the Android app do not update themselves.
+
+**Signing.** The Windows installers and the program files they install are Authenticode-signed with Azure Trusted Signing; the release workflow installs the signed installer and checks every signature. The macOS app is signed with a Developer ID and notarized by Apple; the workflow checks it with `codesign`, `spctl` and `stapler`. The Linux packages carry only the update signatures (`.sig`) that the built-in updater checks, no OpenPGP signature. The Android APK is signed, but with a new key for every release (see [Current limitations](#current-limitations)). The portable zip and the web bundle come with a `.sha256` file.
+
+## Why use it?
+
+- **Free and open.** LGPL-3.0-or-later. No licence fees, no account, no telemetry and no watermark ([PRIVACY.md](PRIVACY.md)).
+- **Made for drawings.** Clouds, callouts, hatches, stamps and symbol libraries, and printing to scale on sheets up to A0.
+- **Measure to scale at once.** A drawing that carries its own scale, such as a CAD plot or an imported DWG, measures correctly without calibrating.
+- **See what changed.** Compare two revisions side by side or on top of each other, with a list of every change.
+- **CAD in and out.** Import DWG and DXF as a vector PDF with layers and a measuring scale, and export a page back to DXF or DWG (desktop).
+- **Works with an AI assistant.** A local MCP server with 94 tools lets an assistant open, mark up, measure and save documents for you (desktop).
+- **Everywhere.** Windows, macOS, Linux, Android and the browser, in 40 languages.
+
+## Screenshots
+
+| | |
 |---|---|
-| `OPENAEC_MAP=/openaec` | Open and save dialogs start in this existing, absolute folder. A relative start argument (`AppRun file.pdf`) falls back to it. |
-| `OPENAEC_MCP_POORT`, `OPENAEC_MCP_GEHEIM` | Start the MCP server (AI connection) on that port. Every request needs `Authorization: Bearer <secret>` (at least 16 characters); requests with an `Origin` header (browsers) are refused. The secret is removed from the environment at startup, so child processes do not inherit it. |
-| `OPENAEC_MCP_ADRES` | Bind address of that server. Default `0.0.0.0` in managed mode (the internal container network), otherwise `127.0.0.1`. |
-| `OPENAEC_SOFTWARE_RENDERING=1` / `0` | Force or forbid the WebKitGTK software-rendering settings. Without it the app sets them only on Linux without a GPU render node (`/dev/dri/renderD*`). |
-| `OPDS_GDK_BACKEND` | GDK backend to use from the AppImage (its GTK hook overwrites `GDK_BACKEND`). In managed mode, or without an X display, the AppImage prefers Wayland. |
+| ![Area, perimeter and two distances measured on a floor plan at scale 1:50, Default theme](docs/images/readme/measure.png) **Measuring with the scale of the drawing** | ![Two revisions of a floor plan on top of each other, with the moved wall highlighted and a list of 18 changes](docs/images/readme/compare.png) **Comparing two revisions** |
+| ![Fire safety symbols from the NEN 1414 library placed on a floor plan, with the symbol palette open](docs/images/readme/symbols.png) **Symbols from the palette** | ![The Edit Pages window with six pages: a cover, two floor plans and three pages of text](docs/images/readme/pages.png) **Organising pages** |
+| ![Search results for "wall" in the text and the annotations, theme Dark](docs/images/readme/search.png) **Searching text and annotations, theme Dark** | ![The View tab with the window split in two: a floor plan on the left and the specification on the right, theme Blue](docs/images/readme/split.png) **Split view, theme Blue** |
 
-In a container or in managed mode, `SIGTERM` writes recovery files for unsaved
-work (at most 5 seconds) and then exits cleanly. The extracted AppImage
-(`--appimage-extract`, then `squashfs-root/AppRun [file.pdf]`) runs without
-FUSE. See [docs/openaec-linux.md](docs/openaec-linux.md) for the full contract.
+The screenshots come from the browser version with demo PDFs that the script makes itself: `open-pdf-studio/scripts/generate-readme-screenshots.mjs`.
 
-### Network connections
-The app sends no telemetry. It connects to other hosts only for: the release
-notes after an update (GitHub API, at startup, not in managed mode), the update
-check, the previous-version download, the online symbol library, the feedback
-form, opening a PDF from a URL you type, and OpenAEC sign-in. The full list is in
-[docs/openaec-linux.md](docs/openaec-linux.md#network).
+## Markup and measuring
 
-## Building from Source
+- **Markup.** Highlights, shapes, clouds, callouts, text boxes, sticky notes, freehand, stamps, images and signatures, with styles, layers and alignment tools.
+- **Measuring.** Distance, area, perimeter and angle, to the scale in the drawing or a scale you calibrate, with snapping to the drawing.
+- **Quantities.** Count objects by category and collect counts, lengths and areas in a schedule that you place on the page or export as CSV.
+- **Redaction.** Removes the text, images and vectors under the marked area from the file, not just from view.
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) 20+
-- [Rust](https://www.rust-lang.org/tools/install) (stable)
-- [CMake](https://cmake.org/download/) and a C/C++ toolchain
-- System dependencies:
-  - **Linux:** `libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf`
-  - **macOS:** Xcode Command Line Tools; universal release builds also need the `aarch64-apple-darwin` and `x86_64-apple-darwin` Rust targets
-  - **Windows:** Visual Studio Build Tools with C++ workload
+The full list is in [docs/features.md](docs/features.md).
 
-### Build
+## Documents and pages
 
-```bash
-cd open-pdf-studio
-npm ci
-npx tauri build
-```
+- **Pages.** Insert, delete, extract, split, rotate, reorder and merge; straighten a skewed scan or shift page content.
+- **Forms, bookmarks and attachments.** Fill and create form fields, edit bookmarks, manage attachments.
+- **Watermarks, headers and footers** with page numbers and dates.
+- **Search** in the page text and in annotations, with a result list per page.
+- **Keyboard shortcuts** that you can change, including a preset with single-letter markup keys: [docs/keyboard-shortcuts.md](docs/keyboard-shortcuts.md).
 
-The build automatically downloads the pinned macOS PDFium runtime and verifies
-its SHA-256 checksum. Build artifacts are written to the workspace-level
-`target/release/bundle/` directory, or `target/universal-apple-darwin/release/bundle/`
-for a universal macOS build.
+## Desktop features
 
-### Development
+- **CAD.** DWG and DXF import with layers, viewports and a measuring scale, and export of a page to DXF or DWG.
+- **Printing** to scale on large sheets, with a live preview and *Save as PDF*.
+- **OCR** to make scans searchable.
+- **Digital signatures**: validation with the certificate chain, and signing.
+- **Managed installs** with `OPENAEC_BEHEERD=1` and a fixed start folder: [docs/managed-deployments.md](docs/managed-deployments.md).
 
-```bash
-cd open-pdf-studio
-npm ci
-npx tauri dev
-```
+## Interoperability
 
-## Tech Stack
+| Format | Open / import | Save / export |
+|--------|---------------|---------------|
+| **PDF** | Yes, including forms (AcroForm, XFA) and layers | Yes; PDF/A validation and saving, PDF/X export, raster PDF, flattened copy |
+| **XFDF** | Annotations | Annotations |
+| **BCF 2.1** | Issues as annotations | Annotations as issues |
+| **DWG, DXF** | Yes, as a vector PDF (desktop) | A page with its layers and markups (desktop) |
+| **IFCX** (IFC5 JSON) | No | Yes, beta ([docs/ifcx-export.md](docs/ifcx-export.md)) |
+| **PNG, JPEG** | As an image on a page | Pages, at 72 to 600 DPI |
+| **DOCX, ODT, XLSX** | No | Text and tables |
+| **CSV** | No | Quantities schedule |
 
-| Layer | Technology |
-|-------|-----------|
-| Desktop framework | [Tauri 2](https://tauri.app/) (Rust backend) |
-| UI framework | [SolidJS](https://www.solidjs.com/) |
-| Build tool | [Vite](https://vitejs.dev/) |
-| Page rendering | Multi-process [PDFium](https://pdfium.googlesource.com/pdfium/) worker pool, with progressive tiling for large drawings |
-| Text layer & structure | [PDF.js](https://mozilla.github.io/pdf.js/) |
-| PDF manipulation | [pdf-lib](https://pdf-lib.js.org/) |
+What does not survive: XFDF and BCF carry annotations only, not the page content. A flattened copy leaves out form field values. DOCX, ODT and XLSX get the text and tables, and complex layouts may need correction. PDF/X keeps standard fonts that are not embedded as they are. What IFCX keeps and loses is listed in [docs/ifcx-export.md](docs/ifcx-export.md).
+
+## MCP
+
+The desktop app has a built-in MCP server, so an AI assistant can work with your documents: open and save files, navigate, create and edit annotations, set the measuring scale, take off quantities, import and export CAD and print to a PDF file. It has 94 public tools.
+
+You stay in control. The server is on for a new installation and listens only on your own computer (`127.0.0.1`, port 9223); switch it off or change the port under Settings > General. The status bar shows when an assistant is connected and which tool it used last. `open-pdf-studio.mcpb` from the release installs the connection in MCP clients that support `.mcpb` bundles; [mcp-stdio/README.md](mcp-stdio/README.md) explains the bridge for other clients. A [Python library](docs/python-library.md) drives the same tools from a script.
+
+## Testing and reliability
+
+- **746 unit test files** run with `npm run test:unit` on Windows, Linux and macOS in [CI](.github/workflows/ci.yml) for every pull request, plus 3 quality regression test files (`npm run test:quality`).
+- **CI builds the app on all three desktop platforms** and starts it: the AppImage on Debian 13, Fedora 44 and in OpenAEC Linux conditions, and the macOS app. It also tests the Python library, lints the Flatpak when it changes, and loads the hosted web bundle in headless Chromium under a strict content security policy.
+- **Pull requests that touch rendering** also run a render regression on a large-format drawing and keep the report ([render-regression.yml](.github/workflows/render-regression.yml)).
+- **Releases are checked before they are published.** The release workflow installs the signed Windows installer and checks every signature, starts the portable zip, and verifies the macOS signature, notarization and start-up.
+- **Privacy is tested.** A unit test fails when the shipped source contains an internet address that [PRIVACY.md](PRIVACY.md) does not list, or when a telemetry package is added.
+- **README images are checked.** `node open-pdf-studio/scripts/check-readme-images.mjs` fails when an image is missing, unused or larger than 150 kB.
+
+Count sources: unit test files are the non-comment lines of [`open-pdf-studio/scripts/unit-testlijst.txt`](open-pdf-studio/scripts/unit-testlijst.txt); quality tests are the `test:quality` script in [`open-pdf-studio/package.json`](open-pdf-studio/package.json); MCP tools are the entries in [`mcp-stdio/tools.json`](mcp-stdio/tools.json); languages are the folders in [`open-pdf-studio/js/i18n/locales/`](open-pdf-studio/js/i18n/locales/).
+
+## Current limitations
+
+- **Linux packages up to 2026.44.8 render without the worker pool.** They lacked the `pdfium-worker` sidecar, so every page rendered in-process and large documents were slow ([#923](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/923)). The fix is on `main` and ships with the next release.
+- **On some Linux systems the app can still crash while zooming.** Lowering the realtime limit removed one cause; the issue stays open for the rest ([#924](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/924), workarounds in [docs/install-linux.md](docs/install-linux.md)).
+- **An Android update does not install over the previous version.** Every release signs the APK with a new key, so Android refuses the update; uninstall the old version first ([#601](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/601)). The Android app has no OCR and renders with PDF.js.
+- **The browser version has no desktop features.** Printing, OCR, CAD import and export, compression, PDF/X, IFC export, document protection, extensions, updates, the MCP server and signature validation need the desktop app.
+- **Some virus scanners flag the Windows installer.** The installers are signed, but a new release has little reputation with the virus scanner built into Windows and similar scanners at first ([#761](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/761), [docs/windows-distribution.md](docs/windows-distribution.md)).
+- **Printing to some third-party virtual PDF printers crashes that printer's own program** ([#699](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/699)).
+- **Only x86_64 on Windows and Linux.** A Windows on ARM build exists only as an experimental workflow, there is no `.rpm`, and the Flatpak is not on Flathub yet ([docs/flathub.md](docs/flathub.md)).
+- **The Table button on the Drawing tab is not available yet.** Place a quantities schedule as a table instead.
+
+Found something? [Open an issue](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues).
+
+## Under the hood
+
+The app is a [Tauri 2](https://tauri.app/) desktop app with a Rust back end and a [SolidJS](https://www.solidjs.com/) front end built with [Vite](https://vitejs.dev/). Pages render through a multi-process [PDFium](https://pdfium.googlesource.com/pdfium/) worker pool, off the UI thread and isolated from crashes, with progressive tiles for very large drawings; the browser and Android versions render with [PDF.js](https://mozilla.github.io/pdf.js/), which also provides the text layer. [pdf-lib](https://pdf-lib.js.org/) writes the PDF changes. The browser version is the same front end built without the Tauri shell. The licences of all components are in [LICENSING.md](LICENSING.md).
 
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guidelines.
+- **Report a bug or ask for a feature** as an [issue](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/new). Describe what you did, what you expected and what happened. Because the code moves quickly, a precise issue is often more useful than a pull request.
+- **Share symbol libraries and other content.** Pull requests with symbol sets, hatch patterns and similar content from your country or discipline are very welcome.
+- **Write code.** Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
-In short: because the codebase moves quickly, a clear, well-described **issue** is usually more valuable than a code pull request — a precise description can be implemented against the *current* code before a branch would go stale.
+We are looking for someone to maintain the extensions and the content repository: curating incoming symbol libraries and keeping the catalogue organised. If that is you, open an issue to introduce yourself.
 
-### Symbol libraries and content — pull requests very welcome
+## Quick start (developers)
 
-Content is the exception to "prefer issues over PRs". **We want every symbol library in the world.** Symbol sets, hatch patterns, and other reusable content don't go stale the way code does, so **content pull requests are actively encouraged** — bring the standards and libraries from your country, industry, and discipline. Symbols are organised by industry (e.g. AEC) and country (e.g. NL), and localisation will keep expanding, so libraries for any region are welcome.
+```bash
+git clone https://github.com/OpenAEC-Foundation/open-pdf-studio.git
+cd open-pdf-studio/open-pdf-studio
+npm ci
+npm run tauri:dev
+```
 
-### We're looking for a content & extensions maintainer
+Requires Node.js 22, Rust stable, CMake and a C/C++ toolchain, plus the WebKitGTK development packages on Linux. Details, release builds, the web version and tests are in [docs/building.md](docs/building.md).
 
-We are looking for someone to **own and maintain the extensions and the content repository** — curating incoming symbol libraries and content contributions, and keeping the ecosystem organised as it grows. If that sounds like you, please open an issue to introduce yourself.
+Versions follow the OpenAEC scheme `YYYY.W.N`: year, ISO week without a leading zero, and a number within the week that starts at 0, such as `2026.44.8`.
+
+Open PDF Studio is part of the [OpenAEC Foundation](https://github.com/OpenAEC-Foundation) family of apps.
 
 ## License
 
-Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0 or later](LICENSE.md). The LGPL builds on the [GNU General Public License v3.0](GPL-3.0.txt), whose text ships alongside it.
-
-[LICENSING.md](LICENSING.md) explains in plain language what that means, lists the licence of every component of this repository and of the third-party components the app ships with (PDF.js: Apache-2.0, pdf-lib: MIT, PDFium: BSD-3-Clause, and more), and answers the AGPL question around the MuPDF dependency.
-
-## Privacy
-
-The desktop app has no telemetry and adds no watermark. [PRIVACY.md](PRIVACY.md) lists every network connection the app can make, when, and what it sends; a unit test keeps that list in step with the source.
+Open PDF Studio is licensed under the [GNU Lesser General Public License v3.0 or later](LICENSE.md). The LGPL builds on the [GNU General Public License v3.0](GPL-3.0.txt), whose text ships alongside it. [LICENSING.md](LICENSING.md) explains what that means in plain language, lists the licence of every component and of the third-party components the app ships with, and answers the AGPL question around the MuPDF dependency.
