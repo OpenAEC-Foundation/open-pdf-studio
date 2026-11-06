@@ -100,6 +100,8 @@ import { stempelAppearance, stempelRect } from './saver/stempel-draaiing.js';
 import { makePointMapper, buildTextEditStrikeDict, buildCaretDict, addLoadedMarkupKeys,
   applyGroupLinks, correctionRefKeys, dropOrphanPopups } from './saver/correction-dicts.js';
 import { buildTextMarkupDict, bronMarkeringen } from './saver/text-markup-dict.js';
+import { buildLinkDict } from './saver/link-opslaan.js';
+import { isEigenLink } from './loader/link-laden.js';
 import { linkPlanForSave, isTextEditStrike, saveColor } from '../annotations/corrections/model.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
@@ -601,7 +603,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             }
             const dict = context.lookup(ref);
             const subtype = dict?.get?.(PDFName.of('Subtype'))?.toString();
-            if (!subtype || !handledSubtypes.has(subtype) || isShxTextDictionary(dict, context)) {
+            // Een link van de app (#953) staat in het model en wordt herschreven;
+            // elke andere link (inhoudsopgave, webadres) blijft zoals hij was.
+            const eigenLink = subtype === '/Link' && isEigenLink(context, dict);
+            if (!subtype || (!handledSubtypes.has(subtype) && !eigenLink) || isShxTextDictionary(dict, context)) {
               annotsArray.push(ref); // Keep annotations we don't manage
             } else if (subtype === '/Square' && readPluginPdfAnnotation(dict, context) &&
                        !getAnnotationType(readPluginPdfAnnotation(dict, context).type)) {
@@ -755,6 +760,19 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             annotDict = buildCaretDict(context, karet, puntNaarPdf, {
               rgb: hexToColorArray(saveColor(karet, pageAnnotations, plan)),
               opacity, pageRot, flags: computeAnnotFlags(annRaw), gebruikteNm,
+            });
+            break;
+          }
+
+          case 'link': {
+            // Hyperlink van de app (#953): standaard /Link met /Dest of /A,
+            // /QuadPoints bij een link op tekst. Per punt omgerekend uit de NIET
+            // omgerekende annotatie, zoals de tekstmarkeringen.
+            annotDict = buildLinkDict(context, annRaw, {
+              map: puntNaarPdf,
+              paginas: pages,
+              flags: computeAnnotFlags(annRaw),
+              contents: annRaw.subject ? pdfTextString(annRaw.subject) : null,
             });
             break;
           }

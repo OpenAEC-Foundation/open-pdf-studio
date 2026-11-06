@@ -181,7 +181,9 @@
     "unflattenAll": "Unflatten All",
     "unflattenAllTooltip": "Restore markups that were flattened with unflattening allowed",
     "fileAttachment": "Attach File",
-    "fileAttachmentTitle": "File attachment: click on the page and choose a file"
+    "fileAttachmentTitle": "File attachment: click on the page and choose a file",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Page Display",

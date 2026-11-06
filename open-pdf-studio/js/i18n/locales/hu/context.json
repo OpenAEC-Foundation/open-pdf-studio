@@ -140,7 +140,8 @@
     "highlightSelection": "Kijelölés kiemelése",
     "strikethroughSelection": "Kijelölés áthúzása",
     "underlineSelection": "Kijelölés aláhúzása",
-    "curvedLeaderSelection": "Ívelt kihivás hozzáadása"
+    "curvedLeaderSelection": "Ívelt kihivás hozzáadása",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Törli ezt az annotációt?",

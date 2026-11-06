@@ -181,7 +181,9 @@
     "unflattenAll": "समतल करना पूर्ववत करें",
     "unflattenAllTooltip": "पुनर्स्थापना की अनुमति के साथ समतल किए गए मार्कअप पुनर्स्थापित करें",
     "fileAttachment": "फ़ाइल संलग्न करें",
-    "fileAttachmentTitle": "फ़ाइल अनुलग्नक: पृष्ठ पर क्लिक करें और एक फ़ाइल चुनें"
+    "fileAttachmentTitle": "फ़ाइल अनुलग्नक: पृष्ठ पर क्लिक करें और एक फ़ाइल चुनें",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "पृष्ठ प्रदर्शन",

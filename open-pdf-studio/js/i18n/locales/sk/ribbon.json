@@ -181,7 +181,9 @@
     "unflattenAll": "Zrušiť sploštenie",
     "unflattenAllTooltip": "Obnoviť označenia sploštené s povoleným obnovením",
     "fileAttachment": "Pripojiť súbor",
-    "fileAttachmentTitle": "Príloha súboru: kliknite na stranu a vyberte súbor"
+    "fileAttachmentTitle": "Príloha súboru: kliknite na stranu a vyberte súbor",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Zobrazenie strany",

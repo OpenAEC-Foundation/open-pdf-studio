@@ -140,7 +140,8 @@
     "highlightSelection": "Evidenzia selezione",
     "strikethroughSelection": "Barra selezione",
     "underlineSelection": "Sottolinea selezione",
-    "curvedLeaderSelection": "Aggiungi callout curvo"
+    "curvedLeaderSelection": "Aggiungi callout curvo",
+    "linkSelection": "Inserisci collegamento..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Eliminare questa annotazione?",

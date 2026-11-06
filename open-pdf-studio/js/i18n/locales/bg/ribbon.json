@@ -181,7 +181,9 @@
     "unflattenAll": "Отмяна на изравняването",
     "unflattenAllTooltip": "Възстановяване на маркировки, изравнени с разрешено възстановяване",
     "fileAttachment": "Прикачване на файл",
-    "fileAttachmentTitle": "Прикачен файл: щракнете върху страницата и изберете файл"
+    "fileAttachmentTitle": "Прикачен файл: щракнете върху страницата и изберете файл",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Показване на страница",

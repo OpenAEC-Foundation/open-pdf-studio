@@ -318,7 +318,8 @@
     "redaction": "تنقيح",
     "scaleBar": "شريط المقياس",
     "parametricSymbol": "رمز بارامتري",
-    "fileAttachment": "مرفق ملف"
+    "fileAttachment": "مرفق ملف",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "تبديل اللوحة",

@@ -181,7 +181,9 @@
     "unflattenAll": "Düzleştirmeyi geri al",
     "unflattenAllTooltip": "Geri yüklemeye izin verilerek düzleştirilen işaretlemeleri geri yükle",
     "fileAttachment": "Dosya ekle",
-    "fileAttachmentTitle": "Dosya eki: sayfaya tıklayın ve bir dosya seçin"
+    "fileAttachmentTitle": "Dosya eki: sayfaya tıklayın ve bir dosya seçin",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Sayfa Görüntüleme",

@@ -140,7 +140,8 @@
     "highlightSelection": "Fremhæv markering",
     "strikethroughSelection": "Gennemstreg markering",
     "underlineSelection": "Understreg markering",
-    "curvedLeaderSelection": "Tilføj buet callout"
+    "curvedLeaderSelection": "Tilføj buet callout",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Slet denne annotation?",

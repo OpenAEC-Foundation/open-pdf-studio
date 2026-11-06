@@ -140,7 +140,8 @@
     "highlightSelection": "Podkreśl zaznaczenie",
     "strikethroughSelection": "Przekreśl zaznaczenie",
     "underlineSelection": "Podkreśl zaznaczenie",
-    "curvedLeaderSelection": "Dodaj zakrzywione objaśnienie"
+    "curvedLeaderSelection": "Dodaj zakrzywione objaśnienie",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Usunąć tę adnotację?",

@@ -318,7 +318,8 @@
     "redaction": "Redigovanie",
     "scaleBar": "Grafická mierka",
     "parametricSymbol": "Parametrický symbol",
-    "fileAttachment": "Príloha súboru"
+    "fileAttachment": "Príloha súboru",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Prepnúť panel",

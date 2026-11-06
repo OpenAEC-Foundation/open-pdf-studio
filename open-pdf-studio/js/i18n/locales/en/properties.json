@@ -356,7 +356,8 @@
     "redaction": "Redaction",
     "scaleBar": "Scale Bar",
     "parametricSymbol": "Parametric Symbol",
-    "fileAttachment": "File Attachment"
+    "fileAttachment": "File Attachment",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Toggle Panel",

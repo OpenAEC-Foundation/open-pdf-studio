@@ -140,7 +140,8 @@
     "highlightSelection": "הדגשת הבחירה",
     "strikethroughSelection": "קו חוצה על הבחירה",
     "underlineSelection": "קו תחתון לבחירה",
-    "curvedLeaderSelection": "הוספת הסבר מעוקל"
+    "curvedLeaderSelection": "הוספת הסבר מעוקל",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "למחוק הערה זו?",

@@ -181,7 +181,9 @@
     "unflattenAll": "בטל שיטוח",
     "unflattenAllTooltip": "שחזור סימונים ששוטחו כשהשחזור הותר",
     "fileAttachment": "צירוף קובץ",
-    "fileAttachmentTitle": "קובץ מצורף: לחצו על העמוד ובחרו קובץ"
+    "fileAttachmentTitle": "קובץ מצורף: לחצו על העמוד ובחרו קובץ",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "תצוגת עמוד",

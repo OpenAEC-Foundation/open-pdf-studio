@@ -140,7 +140,8 @@
     "highlightSelection": "انتخاب نمایاں کریں",
     "strikethroughSelection": "انتخاب پر لکیر کھینچیں",
     "underlineSelection": "انتخاب خط کشیدہ کریں",
-    "curvedLeaderSelection": "خمیدہ کال آؤٹ شامل کریں"
+    "curvedLeaderSelection": "خمیدہ کال آؤٹ شامل کریں",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "یہ تشریح حذف کریں؟",

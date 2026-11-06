@@ -345,6 +345,7 @@
     "scanInsertAfter": "Después de la página actual",
     "scanNewDocument": "Documento nuevo",
     "scanBusy": "Creando la página…",
-    "scanFailed": "No se pudo crear una página a partir de la foto: {{error}}"
+    "scanFailed": "No se pudo crear una página a partir de la foto: {{error}}",
+    "insertLink": "Insert link"
   }
 }

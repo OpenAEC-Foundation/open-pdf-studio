@@ -80,6 +80,21 @@ export function drawSelectionHandles(ctx, annotation) {
       ctx.stroke();
       ctx.restore();
       break;
+    case 'link': {
+      // Hyperlink (#953): gestippeld kader om elk vak. Op tekst zonder grepen
+      // (alleen verplaatsen), een getrokken vak houdt zijn grepen.
+      ctx.save();
+      ctx.strokeStyle = '#0066cc';
+      ctx.lineWidth = 1 / sc;
+      ctx.setLineDash([3 / sc, 3 / sc]);
+      const regels = Array.isArray(annotation.rects) && annotation.rects.length > 0;
+      for (const r of (regels ? annotation.rects : [annotation])) {
+        ctx.strokeRect(r.x, r.y, r.width, r.height);
+      }
+      ctx.restore();
+      if (regels) return;
+      break;
+    }
     case 'comment':
       // No selection indicators — fixed-size icon, move only
       break;

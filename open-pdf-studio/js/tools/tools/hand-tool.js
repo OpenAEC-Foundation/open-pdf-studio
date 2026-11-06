@@ -2,6 +2,8 @@ import { getActiveDocument } from '../../core/state.js';
 import { selectTool } from './select-tool.js';
 import { setTool } from '../manager.js';
 import { verwerkSlotKlik } from '../../annotations/stramien-slot.js';
+import { volgLink } from '../../annotations/link/link-volgen.js';
+import { doelOmschrijving } from '../../annotations/link/link-model.js';
 
 /**
  * Hand tool — pan; on hover of an annotation, show pointer cursor;
@@ -37,6 +39,12 @@ export const handTool = {
     }
 
     const clickedAnnotation = ctx.findAnnotationAt(x, y);
+    // Een link van de app (#953) volgt de hand, zoals een link uit het
+    // bestand: bekijken, niet bewerken. Bewerken gaat met Selecteren.
+    if (clickedAnnotation?.type === 'link' && e.button === 0) {
+      volgLink(clickedAnnotation).catch((err) => console.warn('[hand] link volgen mislukt:', err));
+      return;
+    }
     if (clickedAnnotation) {
       // Switch to Select tool synchronously, then delegate this same click
       // to select-tool so the user gets selection + drag in one click.
@@ -86,7 +94,8 @@ export const handTool = {
     const hoverAnnotation = ctx.findAnnotationAt(x, y);
     state.hoverAnnotation = hoverAnnotation || null;
     canvas.title = (hoverAnnotation?.type === 'comment' && !hoverAnnotation.popupOpen && hoverAnnotation.text)
-      ? hoverAnnotation.text.split('\n').slice(0, 5).join('\n') : '';
+      ? hoverAnnotation.text.split('\n').slice(0, 5).join('\n')
+      : hoverAnnotation?.type === 'link' ? doelOmschrijving(hoverAnnotation.linkTarget) : '';
     // Direct cursor override: pointer over an annotation, grab otherwise.
     // Set on ALL annotation canvases (continuous mode) and the container.
     if (!state.isPanning && !state.isDragging && !state.isResizing) {

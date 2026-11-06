@@ -318,7 +318,8 @@
     "redaction": "Caviardage",
     "scaleBar": "Barre d'échelle",
     "parametricSymbol": "Symbole paramétrique",
-    "fileAttachment": "Pièce jointe"
+    "fileAttachment": "Pièce jointe",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Afficher/masquer le panneau",

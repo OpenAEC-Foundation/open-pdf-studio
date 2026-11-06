@@ -318,7 +318,8 @@
     "redaction": "Редакция",
     "scaleBar": "Линеен мащаб",
     "parametricSymbol": "Параметричен символ",
-    "fileAttachment": "Прикачен файл"
+    "fileAttachment": "Прикачен файл",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Превключване на панела",

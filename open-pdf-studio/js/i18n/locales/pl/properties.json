@@ -318,7 +318,8 @@
     "redaction": "Redakcja",
     "scaleBar": "Podziałka liniowa",
     "parametricSymbol": "Symbol parametryczny",
-    "fileAttachment": "Załącznik pliku"
+    "fileAttachment": "Załącznik pliku",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Przełącz Panel",

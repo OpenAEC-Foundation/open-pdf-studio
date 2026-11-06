@@ -318,7 +318,8 @@
     "redaction": "সংশোধন",
     "scaleBar": "স্কেল বার",
     "parametricSymbol": "প্যারামেট্রিক প্রতীক",
-    "fileAttachment": "ফাইল সংযুক্তি"
+    "fileAttachment": "ফাইল সংযুক্তি",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "প্যানেল টগল করুন",

@@ -318,7 +318,8 @@
     "redaction": "Redactare",
     "scaleBar": "Bară de scară",
     "parametricSymbol": "Simbol parametric",
-    "fileAttachment": "Atașament fișier"
+    "fileAttachment": "Atașament fișier",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Comutare panou",

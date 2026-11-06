@@ -140,7 +140,8 @@
     "highlightSelection": "Виділити виділене",
     "strikethroughSelection": "Закреслити виділене",
     "underlineSelection": "Підкреслити виділене",
-    "curvedLeaderSelection": "Додати криволінійну виноску"
+    "curvedLeaderSelection": "Додати криволінійну виноску",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Видалити цю анотацію?",

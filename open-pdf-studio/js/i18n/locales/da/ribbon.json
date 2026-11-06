@@ -181,7 +181,9 @@
     "unflattenAll": "Fortryd fladgøring",
     "unflattenAllTooltip": "Gendan markeringer, der blev fladgjort med gendannelse tilladt",
     "fileAttachment": "Vedhæft fil",
-    "fileAttachmentTitle": "Vedhæftet fil: klik på siden og vælg en fil"
+    "fileAttachmentTitle": "Vedhæftet fil: klik på siden og vælg en fil",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Sidevisning",

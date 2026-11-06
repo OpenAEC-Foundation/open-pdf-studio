@@ -181,7 +181,9 @@
     "unflattenAll": "Reduzieren aufheben",
     "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden",
     "fileAttachment": "Datei anhängen",
-    "fileAttachmentTitle": "Dateianhang: auf die Seite klicken und eine Datei wählen"
+    "fileAttachmentTitle": "Dateianhang: auf die Seite klicken und eine Datei wählen",
+    "link": "Link",
+    "linkTitle": "Hyperlink einfügen: zuerst Text markieren oder ein Rechteck auf der Seite aufziehen"
   },
   "view": {
     "pageDisplay": "Seitenanzeige",

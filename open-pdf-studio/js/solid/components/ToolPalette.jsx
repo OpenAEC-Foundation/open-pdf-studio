@@ -7,11 +7,12 @@ import { isPdfAReadOnly } from '../../pdf/loader.js';
 import {
   highlightIcon, textHighlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
-  textboxIcon, calloutIcon, noteIcon,
+  textboxIcon, calloutIcon, noteIcon, linkIcon,
   stampIcon, signatureIcon,
   measureDistanceIcon, measureAreaIcon, measurePerimeterIcon
 } from '../data/ribbonIcons.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { LINK_TOOL } from '../../annotations/link/link-maken.js';
 import { savePreferences } from '../../core/preferences.js';
 import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrder.js';
 import { leesOpslag, schrijfOpslag } from '../../core/opslag.js';
@@ -119,6 +120,9 @@ const tools = [
   { tool: 'textbox', key: 'comment.textBox', icon: textboxIcon, group: 3 },
   { tool: 'callout', key: 'comment.callout', icon: calloutIcon, group: 3 },
   { tool: 'comment', key: 'comment.note', icon: noteIcon, group: 3 },
+  // Hyperlink (#953): uit de tekstselectie (link-tool.js, onActivate),
+  // anders een vak slepen.
+  { tool: LINK_TOOL, key: 'comment.link', icon: linkIcon, group: 3 },
   { tool: 'stamp', key: 'comment.stamp', icon: stampIcon, group: 4 },
   { tool: 'signature', key: 'comment.signature', icon: signatureIcon, group: 4 },
   { tool: 'measureDistance', key: 'comment.measureDistance', icon: measureDistanceIcon, group: 5 },
@@ -309,8 +313,8 @@ function ToolList() {
 }
 
 // Height needed for all tools in a single column
-const SINGLE_COL_HEIGHT_SMALL = 672;  // 21 btns × 30px + 6 seps × 7px
-const SINGLE_COL_HEIGHT_LARGE = 966;  // 21 btns × 44px + 6 seps × 7px
+const SINGLE_COL_HEIGHT_SMALL = 702;  // 22 btns × 30px + 6 seps × 7px
+const SINGLE_COL_HEIGHT_LARGE = 1010; // 22 btns × 44px + 6 seps × 7px
 
 // Docked strip — sits in the flex layout
 export function DockedToolPalette(props) {

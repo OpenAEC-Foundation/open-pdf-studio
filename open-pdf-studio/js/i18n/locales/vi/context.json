@@ -140,7 +140,8 @@
     "highlightSelection": "Tô sáng Vùng chọn",
     "strikethroughSelection": "Gạch ngang Vùng chọn",
     "underlineSelection": "Gạch chân Vùng chọn",
-    "curvedLeaderSelection": "Thêm chú thích cong"
+    "curvedLeaderSelection": "Thêm chú thích cong",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Xóa chú thích này?",

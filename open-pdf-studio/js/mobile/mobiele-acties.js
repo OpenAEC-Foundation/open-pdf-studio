@@ -1,8 +1,8 @@
 // Het menu "Meer" van de mobiele werkbalk (#953): de dagelijkse functies die
 // op het bureaublad in het lint en het contextmenu staan, maar op mobiel
 // (zonder toetsenbord en rechtermuisknop) niet te bereiken waren: delen,
-// een afbeelding of foto invoegen, een document scannen met de camera, en
-// markeringen kopiëren, plakken en verwijderen.
+// een afbeelding of foto invoegen, een link invoegen, een document scannen
+// met de camera, en markeringen kopiëren, plakken en verwijderen.
 //
 // Elk item heeft een eigen handler in MobileApp.jsx en een label in
 // common.json van elke taal; mobiele-acties.test.mjs bewaakt beide. Wanneer
@@ -11,6 +11,8 @@
 export const MOBIELE_ACTIES = Object.freeze([
   Object.freeze({ id: 'share', label: 'share.share' }),
   Object.freeze({ id: 'insertImage', label: 'mobileMore.insertImage' }),
+  // Een hyperlink invoegen (#953): uit de tekstselectie of een getrokken vak.
+  Object.freeze({ id: 'insertLink', label: 'mobileMore.insertLink' }),
   Object.freeze({ id: 'takePhoto', label: 'mobileMore.takePhoto' }),
   Object.freeze({ id: 'scanDocument', label: 'mobileMore.scanDocument' }),
   Object.freeze({ id: 'copyMarkup', label: 'mobileMore.copyMarkup' }),

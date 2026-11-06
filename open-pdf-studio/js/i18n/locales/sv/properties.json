@@ -318,7 +318,8 @@
     "redaction": "Maskering",
     "scaleBar": "Skalstock",
     "parametricSymbol": "Parametrisk symbol",
-    "fileAttachment": "Filbilaga"
+    "fileAttachment": "Filbilaga",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Växla panel",

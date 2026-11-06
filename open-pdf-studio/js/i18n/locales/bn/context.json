@@ -140,7 +140,8 @@
     "highlightSelection": "নির্বাচন হাইলাইট করুন",
     "strikethroughSelection": "নির্বাচন স্ট্রাইকথ্রু করুন",
     "underlineSelection": "নির্বাচন আন্ডারলাইন করুন",
-    "curvedLeaderSelection": "বাঁকা কলআউট যোগ করুন"
+    "curvedLeaderSelection": "বাঁকা কলআউট যোগ করুন",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "এই টীকাটি মুছে ফেলবেন?",

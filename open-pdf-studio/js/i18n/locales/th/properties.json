@@ -318,7 +318,8 @@
     "redaction": "การปกปิด",
     "scaleBar": "แถบมาตราส่วน",
     "parametricSymbol": "สัญลักษณ์พาราเมตริก",
-    "fileAttachment": "ไฟล์แนบ"
+    "fileAttachment": "ไฟล์แนบ",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "สลับแผง",

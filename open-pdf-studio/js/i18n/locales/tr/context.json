@@ -140,7 +140,8 @@
     "highlightSelection": "Seçimi Vurgula",
     "strikethroughSelection": "Seçimin Üstünü Çiz",
     "underlineSelection": "Seçimin Altını Çiz",
-    "curvedLeaderSelection": "Eğri Açıklama Balonu Ekle"
+    "curvedLeaderSelection": "Eğri Açıklama Balonu Ekle",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Bu açıklama silinsin mi?",

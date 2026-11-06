@@ -181,7 +181,9 @@
     "unflattenAll": "フラット化を元に戻す",
     "unflattenAllTooltip": "復元を許可してフラット化したマークアップを復元",
     "fileAttachment": "ファイルを添付",
-    "fileAttachmentTitle": "ファイル添付: ページをクリックしてファイルを選択"
+    "fileAttachmentTitle": "ファイル添付: ページをクリックしてファイルを選択",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "ページ表示",

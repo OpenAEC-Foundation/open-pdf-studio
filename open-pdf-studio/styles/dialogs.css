@@ -6950,3 +6950,42 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .workspace-dialog-item:last-child { border-bottom: none; }
 .workspace-dialog-item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .workspace-dialog-empty { padding: 6px; font-style: italic; color: var(--theme-text-secondary, #666); }
+
+/* Hyperlink invoegen of bewerken (#953) */
+.link-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 400px;
+  max-width: calc(100vw - 48px);
+}
+.link-dialog-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 6px 8px 8px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  border-radius: 0;
+}
+.link-dialog-group legend { padding: 0 4px; }
+.link-dialog-choice { display: flex; align-items: center; gap: 6px; }
+.link-dialog-choice.disabled { color: var(--theme-text-secondary, #888); }
+.link-dialog-row { display: flex; align-items: center; gap: 6px; }
+.link-dialog-row > label { min-width: 70px; }
+.link-dialog-indent { margin-inline-start: 22px; }
+.link-dialog-field {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  font-size: 12px;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, inherit);
+  user-select: text;
+}
+.link-dialog-number { flex: 0 0 56px; }
+.link-dialog-note { color: var(--theme-text-secondary, #666); }
+.link-dialog-warning { margin: 0; font-size: 11px; color: #a15c00; }
+.link-dialog-error { margin: 0; color: #c42b1c; }

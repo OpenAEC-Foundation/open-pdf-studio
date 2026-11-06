@@ -296,7 +296,8 @@
     "redaction": "Redactie",
     "scaleBar": "Schaalbalk",
     "parametricSymbol": "Parametrisch symbool",
-    "fileAttachment": "Bestandsbijlage"
+    "fileAttachment": "Bestandsbijlage",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Paneel in-/uitschakelen",

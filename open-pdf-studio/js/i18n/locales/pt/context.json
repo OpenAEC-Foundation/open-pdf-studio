@@ -140,7 +140,8 @@
     "highlightSelection": "Realcar seleção",
     "strikethroughSelection": "Tachar seleção",
     "underlineSelection": "Sublinhar seleção",
-    "curvedLeaderSelection": "Adicionar chamada curva"
+    "curvedLeaderSelection": "Adicionar chamada curva",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Excluir esta anotação?",

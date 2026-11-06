@@ -140,7 +140,8 @@
     "highlightSelection": "Angaza Chaguo",
     "strikethroughSelection": "Piga Mstari Katikati ya Chaguo",
     "underlineSelection": "Piga Mstari Chini ya Chaguo",
-    "curvedLeaderSelection": "Ongeza Tangazo la Mkunjo"
+    "curvedLeaderSelection": "Ongeza Tangazo la Mkunjo",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Futa maoni haya?",

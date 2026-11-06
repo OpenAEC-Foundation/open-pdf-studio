@@ -181,7 +181,9 @@
     "unflattenAll": "Tendua usawazishaji",
     "unflattenAllTooltip": "Rejesha alama zilizosawazishwa huku urejeshaji ukiruhusiwa",
     "fileAttachment": "Ambatisha faili",
-    "fileAttachmentTitle": "Kiambatisho cha faili: bofya kwenye ukurasa na uchague faili"
+    "fileAttachmentTitle": "Kiambatisho cha faili: bofya kwenye ukurasa na uchague faili",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Onyesho la Ukurasa",

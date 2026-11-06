@@ -146,7 +146,8 @@
     "highlightSelection": "ເນັ້ນສີຂໍ້ຄວາມທີ່ເລືອກ",
     "strikethroughSelection": "ຂີດຂ້າຂໍ້ຄວາມທີ່ເລືອກ",
     "underlineSelection": "ຂີດກ້ອງຂໍ້ຄວາມທີ່ເລືອກ",
-    "curvedLeaderSelection": "ເພີ່ມຂໍ້ຄວາມຊີ້ບອກເສັ້ນໂຄ້ງ"
+    "curvedLeaderSelection": "ເພີ່ມຂໍ້ຄວາມຊີ້ບອກເສັ້ນໂຄ້ງ",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "ລຶບຄຳອະທິບາຍນີ້ແທ້ບໍ່?",

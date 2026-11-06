@@ -318,7 +318,8 @@
     "redaction": "Редагування тексту",
     "scaleBar": "Масштабна лінійка",
     "parametricSymbol": "Параметричний символ",
-    "fileAttachment": "Вкладений файл"
+    "fileAttachment": "Вкладений файл",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Перемкнути панель",

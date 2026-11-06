@@ -181,7 +181,9 @@
     "unflattenAll": "Cofnij spłaszczenie",
     "unflattenAllTooltip": "Przywróć adnotacje spłaszczone z dozwolonym przywracaniem",
     "fileAttachment": "Dołącz plik",
-    "fileAttachmentTitle": "Załącznik pliku: kliknij stronę i wybierz plik"
+    "fileAttachmentTitle": "Załącznik pliku: kliknij stronę i wybierz plik",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Wyświetlanie strony",

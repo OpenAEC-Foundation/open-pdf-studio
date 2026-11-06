@@ -318,7 +318,8 @@
     "redaction": "ویرایش محرمانه",
     "scaleBar": "نوار مقیاس",
     "parametricSymbol": "نماد پارامتریک",
-    "fileAttachment": "پیوست فایل"
+    "fileAttachment": "پیوست فایل",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "تغییر وضعیت پنل",

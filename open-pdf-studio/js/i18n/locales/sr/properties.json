@@ -318,7 +318,8 @@
     "redaction": "Редакција",
     "scaleBar": "Графичка размера",
     "parametricSymbol": "Параметарски симбол",
-    "fileAttachment": "Прилог датотеке"
+    "fileAttachment": "Прилог датотеке",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Прикажи/сакриј панел",

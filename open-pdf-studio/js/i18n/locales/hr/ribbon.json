@@ -181,7 +181,9 @@
     "unflattenAll": "Poništi spljoštenje",
     "unflattenAllTooltip": "Vrati oznake spljoštene uz dopušteno vraćanje",
     "fileAttachment": "Priloži datoteku",
-    "fileAttachmentTitle": "Privitak datoteke: kliknite na stranicu i odaberite datoteku"
+    "fileAttachmentTitle": "Privitak datoteke: kliknite na stranicu i odaberite datoteku",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Prikaz stranice",

@@ -140,7 +140,8 @@
     "highlightSelection": "Zvýraznit výběr",
     "strikethroughSelection": "Přeškrtnout výběr",
     "underlineSelection": "Podtrhnout výběr",
-    "curvedLeaderSelection": "Přidat zakřivený popisek"
+    "curvedLeaderSelection": "Přidat zakřivený popisek",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Smazat tuto anotaci?",

@@ -181,7 +181,9 @@
     "unflattenAll": "병합 취소",
     "unflattenAllTooltip": "복원을 허용하고 병합한 마크업 복원",
     "fileAttachment": "파일 첨부",
-    "fileAttachmentTitle": "파일 첨부: 페이지를 클릭하고 파일을 선택하세요"
+    "fileAttachmentTitle": "파일 첨부: 페이지를 클릭하고 파일을 선택하세요",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "페이지 표시",
