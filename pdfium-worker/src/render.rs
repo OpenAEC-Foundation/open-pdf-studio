@@ -66,58 +66,16 @@ struct CachedDoc {
     /// Open handle met pagina-index en parse-duur in ms. De parse-duur bepaalt
     /// of de handle na de render blijft leven (zie release_page_if_cheap).
     page: Option<OpenPage>,
-    /// Structuurboom-buffer voor getagde documenten (#634), zie StructRetention.
-    retention: StructRetention,
     document: PdfDocument<'static>,
     _bytes: Vec<u8>,
 }
 
-/// Max verschillende pagina's van een getagd document voordat de worker het
-/// document vers laadt (#634). pdfium-render 0.9.4 vraagt bij ELKE pagina die
-/// het opent de structuurboom op (`FPDF_StructTree_GetForPage`), ook als
-/// niemand hem gebruikt. PDFium houdt de daarbij geparste structuur-objecten
-/// in het document vast tot het document sluit; een pagina- of boom-handle
-/// sluiten geeft ze niet terug. Bij doorbladeren van een groot getagd document
-/// (honderden pagina's) groeit het werkgeheugen zo met ruim 100 MB. Pas
-/// pdfium-render 0.9.5 laadt de boom lui; tot die versie gekwalificeerd is,
-/// begrenst de worker hier hoeveel pagina's aan structuurdata kunnen ophopen.
-const TAGGED_PAGES_BEFORE_RECYCLE: usize = 32;
-
-/// Welke pagina's van een getagd document sinds het (her)laden open zijn
-/// geweest, en dus structuurdata in het document hebben achtergelaten.
-#[derive(Debug, Default)]
-struct StructRetention {
-    tagged: bool,
-    pages: std::collections::BTreeSet<u32>,
-}
-
-impl StructRetention {
-    fn new(tagged: bool) -> Self {
-        Self { tagged, pages: Default::default() }
-    }
-
-    /// Moet het document vers geladen worden voordat `page_index` opent? Alleen
-    /// bij een getagd document, en pas als een NIEUWE pagina de grens zou
-    /// overschrijden: een pagina die al open was, voegt niets meer toe.
-    fn must_recycle_before(&self, page_index: u32, cap: usize) -> bool {
-        self.tagged && !self.pages.contains(&page_index) && self.pages.len() >= cap
-    }
-
-    /// Bij inactiviteit: is er opgehoopte structuurdata om terug te geven?
-    fn must_recycle_when_idle(&self) -> bool {
-        self.tagged && !self.pages.is_empty()
-    }
-
-    fn note_open(&mut self, page_index: u32) {
-        if self.tagged {
-            self.pages.insert(page_index);
-        }
-    }
-
-    fn reset(&mut self) {
-        self.pages.clear();
-    }
-}
+// Structuurboom (#634): pdfium-render opent sinds 0.9.5 de structuurboom van
+// een pagina niet meer bij het openen van die pagina (vóór 0.9.5 riep ELKE
+// PdfPage `FPDF_StructTree_GetForPage` aan, en PDFium hield de geparste
+// structuur-objecten vast tot het document sloot). De worker leest de boom
+// nergens, dus een getagd document stapelt bij doorbladeren geen
+// structuurdata meer op en hoeft niet meer periodiek vers geladen te worden.
 
 /// Laad een document uit bytes die de aanroeper levend houdt (zie CachedDoc).
 ///
@@ -128,21 +86,6 @@ unsafe fn load_document(bytes: &[u8]) -> Result<PdfDocument<'static>> {
     pdfium()?
         .load_pdf_from_byte_slice(bytes_ref, None)
         .map_err(|e| anyhow!("PDFium parse: {}", e))
-}
-
-impl CachedDoc {
-    /// Sluit pagina en document en laad het document vers uit dezelfde bytes
-    /// (#634). Alleen zo geeft PDFium de structuur-objecten van eerder geopende
-    /// pagina's terug; het vers laden kost alleen de xref-parse, de bytes
-    /// (incl. een eventuele mesh-BBox-kopie, #395) blijven dezelfde.
-    fn recycle_document(&mut self) -> Result<()> {
-        self.page = None; // de pagina leent uit het document: eerst sluiten
-        // Safety: `_bytes` blijft in deze struct en ongewijzigd; het nieuwe
-        // document vervangt het oude, dat bij de toewijzing sluit.
-        self.document = unsafe { load_document(&self._bytes)? };
-        self.retention.reset();
-        Ok(())
-    }
 }
 
 /// Een open pagina-handle. Blijft bij zware pagina's tussen renders leven, dus
@@ -230,13 +173,11 @@ impl Renderer {
         if self.cache.len() >= DOC_CACHE_CAP {
             self.cache.remove(0);
         }
-        let tagged = document.catalog().is_tagged();
         self.cache.push(Box::new(CachedDoc {
             path: path.to_string(),
             mtime,
             len,
             page: None,
-            retention: StructRetention::new(tagged),
             document,
             _bytes: bytes,
         }));
@@ -247,21 +188,9 @@ impl Renderer {
     /// bytes blijven. De volgende render op die pagina betaalt eenmalig de
     /// her-parse. Aangeroepen bij pool-inactiviteit om het werkgeheugen van
     /// zware CAD-pagina's (ruim 1 GB per open handle) terug te geven.
-    /// Getagde documenten worden daarbij vers geladen (#634): alleen dat geeft
-    /// de structuurdata van eerder geopende pagina's terug.
     pub fn trim(&mut self) {
-        let mut failed = Vec::new();
-        for (i, e) in self.cache.iter_mut().enumerate() {
+        for e in self.cache.iter_mut() {
             e.page = None;
-            if e.retention.must_recycle_when_idle() {
-                if let Err(err) = e.recycle_document() {
-                    eprintln!("[struct-tree] reload of {} failed ({}); dropping it from the cache", e.path, err);
-                    failed.push(i);
-                }
-            }
-        }
-        for i in failed.into_iter().rev() {
-            self.cache.remove(i);
         }
     }
 
@@ -274,9 +203,6 @@ impl Renderer {
         let reuse = matches!(&entry.page, Some(open) if open.index == page_index);
         if !reuse {
             entry.page = None; // oude handle expliciet sluiten vóór de nieuwe opent
-            if entry.retention.must_recycle_before(page_index, TAGGED_PAGES_BEFORE_RECYCLE) {
-                entry.recycle_document()?;
-            }
             // Safety: het document zit in een Box (stabiel heap-adres, ook als de
             // cache-Vec verplaatst) en leeft zolang deze entry bestaat; `page`
             // staat vóór `document` in de struct en dropt dus altijd eerder.
@@ -288,7 +214,6 @@ impl Renderer {
                 .get(page_index as i32)
                 .map_err(|e| anyhow!("page {}: {}", page_index, e))?;
             let load_ms = t0.elapsed().as_millis() as u32;
-            entry.retention.note_open(page_index);
             entry.page = Some(OpenPage { index: page_index, load_ms, thin_originals: None, page });
         }
         let open = self.cache[doc_idx].page.as_mut().expect("zojuist gezet");
@@ -443,37 +368,14 @@ mod tests {
         assert_eq!(SCREEN_RGBA_BYTES, crate::shm::PAYLOAD_CAP as u64);
     }
 
-    /// #634: een getagd document mag niet onbegrensd structuurdata van
-    /// geopende pagina's ophopen; een ongetagd document wordt nooit herladen.
-    #[test]
-    fn tagged_documents_recycle_after_a_bounded_number_of_pages() {
-        let cap = 3;
-        let mut tagged = StructRetention::new(true);
-        for page in 0..cap as u32 {
-            assert!(!tagged.must_recycle_before(page, cap), "page {} fits", page);
-            tagged.note_open(page);
-        }
-        // Dezelfde pagina opnieuw openen voegt niets toe.
-        assert!(!tagged.must_recycle_before(1, cap));
-        // Een nieuwe pagina boven de grens: eerst vers laden.
-        assert!(tagged.must_recycle_before(cap as u32, cap));
-        assert!(tagged.must_recycle_when_idle());
-        tagged.reset();
-        assert!(!tagged.must_recycle_before(cap as u32, cap));
-        assert!(!tagged.must_recycle_when_idle(), "a fresh document has nothing to give back");
-
-        let mut untagged = StructRetention::new(false);
-        for page in 0..100 {
-            assert!(!untagged.must_recycle_before(page, cap));
-            untagged.note_open(page);
-        }
-        assert!(!untagged.must_recycle_when_idle(), "untagged documents keep their parse state");
-    }
-
+    /// De pdfium-render-binding (pdfium_xxxx-feature in Cargo.toml) moet passen
+    /// bij de meegeleverde PDFium: pdfium-render bindt alle functies bij het
+    /// laden, en één ontbrekende export laat het binden mislukken. Vraagt
+    /// PDFium op het bibliotheekpad (bijv. PATH=open-pdf-studio/src-tauri/binaries/win-x64).
     #[test]
     #[ignore]
-    fn renders_a4_at_scale_1() {
-        let _r = Renderer::new();
+    fn binds_the_bundled_pdfium() {
+        Renderer::new().expect("pdfium-render binds the bundled PDFium");
     }
 
     /// Renders `bytes` page 0 the way `Renderer::render` (whole page) or

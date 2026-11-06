@@ -9,7 +9,14 @@ name = "pdfium-worker"
 path = "src/main.rs"
 
 [dependencies]
-pdfium-render = { version = "0.9.4", features = ["thread_safe", "image_025"] }
+# Bindings voor PDFium 7881: de nieuwste binding die niet nieuwer is dan de
+# meegeleverde PDFium (chromium/8076, zie
+# open-pdf-studio/src-tauri/binaries/pdfium-runtime.json). De standaard-
+# feature pdfium_latest wijst sinds 0.9.5 naar 8125 en bindt dan bij het laden
+# ook functies die 8076 niet exporteert (FPDF_StructElement_GetRawType): het
+# binden faalt en PDFium blijft weg. Bij een PDFium-revisiewissel hier mee
+# omhoog; open-pdf-studio/scripts/pdfium-runtime.test.mjs bewaakt dat.
+pdfium-render = { version = "0.9.5", default-features = false, features = ["pdfium_7881", "thread_safe", "image_025"] }
 memmap2 = "0.9"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
