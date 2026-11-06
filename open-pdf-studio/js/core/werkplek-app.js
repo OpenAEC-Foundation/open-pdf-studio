@@ -243,6 +243,35 @@ export function kapAntwoordAf(waarde, max = MAX_ANTWOORD_TEKENS) {
 }
 
 /**
+ * Het antwoord van `pdf_stand` uit de antwoorden van `mcp:list-tabs` en
+ * `mcp:get-current-tool` en de ids van de selectie. Ook de MCP-server van de
+ * desktop gebruikt dit (`mcp:stand` in js/mcp-bridge.js), zodat `pdf_stand`
+ * daar hetzelfde antwoord geeft.
+ * @param {{ activeIndex?: number, tabs?: object[] }} tabs
+ * @param {{ tool?: string|null }} gereedschap
+ * @param {() => Array<string|number>} [selectie]
+ */
+export function standUit(tabs, gereedschap, selectie = () => []) {
+  let geselecteerd = [];
+  try { geselecteerd = (selectie() || []).map(String); } catch { geselecteerd = []; }
+  return {
+    ok: true,
+    activeIndex: tabs?.activeIndex ?? null,
+    tabs: (tabs?.tabs || []).map((t) => ({
+      index: t.index,
+      fileName: t.fileName ?? null,
+      pageCount: t.pageCount ?? 0,
+      currentPage: t.currentPage ?? null,
+      modified: !!t.modified,
+      active: !!t.active,
+      annotationCount: t.annotationCount ?? 0,
+    })),
+    tool: gereedschap?.tool ?? null,
+    selectedAnnotations: geselecteerd,
+  };
+}
+
+/**
  * `window.__OPDS_APP__` voor de werkplek.
  * @param {object} o
  * @param {Array} o.desktopTools   de publieke lijst van de desktop (tools.json)
@@ -278,23 +307,7 @@ export function maakWerkplekApp({ desktopTools, voerUit, selectie = () => [], ma
   async function stand() {
     const tabs = await handler('mcp:list-tabs', {});
     const gereedschap = await handler('mcp:get-current-tool', {});
-    let geselecteerd = [];
-    try { geselecteerd = (selectie() || []).map(String); } catch { geselecteerd = []; }
-    return {
-      ok: true,
-      activeIndex: tabs.activeIndex ?? null,
-      tabs: (tabs.tabs || []).map((t) => ({
-        index: t.index,
-        fileName: t.fileName ?? null,
-        pageCount: t.pageCount ?? 0,
-        currentPage: t.currentPage ?? null,
-        modified: !!t.modified,
-        active: !!t.active,
-        annotationCount: t.annotationCount ?? 0,
-      })),
-      tool: gereedschap.tool ?? null,
-      selectedAnnotations: geselecteerd,
-    };
+    return standUit(tabs, gereedschap, selectie);
   }
 
   async function run(naam, argumenten) {
