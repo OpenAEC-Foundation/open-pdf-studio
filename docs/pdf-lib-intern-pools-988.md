@@ -89,3 +89,14 @@ omgevingsafhankelijke skips, 0 fouten; TypeScript zonder fouten na de
 web-unit bouwen alle drie succesvol. De vier nieuwe regressietests zijn
 ook afzonderlijk met de ongewijzigde dependency als controle uitgevoerd.
 Native installer- en Tauri-lifetimekwalificatie zijn nog niet afgerond.
+
+## Platformcontrole van de testhulp
+
+De eerste Windows-CI-run kon `pdf-lib` niet vinden in de esbuild-testbundel.
+De test gebruikte een URL-`pathname` als bestandssysteempad: op Windows heeft
+dat een extra slash voor de schijfletter; spaties blijven ook URL-gecodeerd.
+Alle omzettingen in de test gebruiken nu Node `fileURLToPath`. Dezelfde
+fout is lokaal gereproduceerd in een tijdelijke map met een spatie: de oude
+test faalt met `Could not resolve "pdf-lib"`, de aangepaste test slaagt in
+alle vier gevallen. De 29 regressie- en projectcontroles slagen ook. Dit is
+geen claim dat de nieuwe Windows-CI-run al is afgerond.

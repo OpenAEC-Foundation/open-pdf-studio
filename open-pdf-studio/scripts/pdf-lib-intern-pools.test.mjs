@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { build } from 'esbuild';
 import { createWeakInternPool, patchInternPool, pdfLibInternPools, pdfLibInternEsbuild } from './pdf-lib-intern-pools.mjs';
@@ -43,7 +44,7 @@ test('exact qualified sources patched in production and optimizer, dependency dr
     const source = readFileSync(path, 'utf8');
     const fixed = patchInternPool(source, name);
     assert.ok(fixed.includes('createWeakInternPool'));
-    assert.equal(plugin.transform(source, path.pathname).code, fixed);
+    assert.equal(plugin.transform(source, fileURLToPath(path)).code, fixed);
     assert.throws(() => patchInternPool(source + '\n', name), /Unqualified/);
   }
   assert.equal(plugin.transform('unchanged', '/app/other.js'), null);
@@ -53,7 +54,7 @@ test('real parsed documents: dead names/refs collect, live lookup/copy/save/reop
   const dir = mkdtempSync(join(tmpdir(), 'opds-intern-'));
   try {
     const outfile = join(dir, 'pdf-lib.mjs');
-    await build({ stdin: { contents: "export { PDFDocument, PDFName, PDFRef, PDFNumber } from 'pdf-lib';", resolveDir: new URL('..', import.meta.url).pathname }, bundle: true, platform: 'browser', format: 'esm', outfile, plugins: [pdfLibInternEsbuild()] });
+    await build({ stdin: { contents: "export { PDFDocument, PDFName, PDFRef, PDFNumber } from 'pdf-lib';", resolveDir: fileURLToPath(new URL('..', import.meta.url)) }, bundle: true, platform: 'browser', format: 'esm', outfile, plugins: [pdfLibInternEsbuild()] });
     const child = join(dir, 'check.mjs');
     writeFileSync(child, `
 import assert from 'node:assert/strict';
@@ -88,7 +89,7 @@ console.log(JSON.stringify({heapAfterGC:samples,liveDocuments:2,closedDocuments:
     const out = execFileSync(process.execPath, ['--expose-gc', child], { encoding: 'utf8', timeout: 90000 });
     console.log('patched:', out.trim());
     // Same fixture and lifecycle against the unmodified dependency reproduces both pools.
-    await build({ stdin: { contents: "export { PDFDocument, PDFName, PDFRef, PDFNumber } from 'pdf-lib';", resolveDir: new URL('..', import.meta.url).pathname }, bundle: true, platform: 'browser', format: 'esm', outfile: join(dir, 'unpatched.mjs') });
+    await build({ stdin: { contents: "export { PDFDocument, PDFName, PDFRef, PDFNumber } from 'pdf-lib';", resolveDir: fileURLToPath(new URL('..', import.meta.url)) }, bundle: true, platform: 'browser', format: 'esm', outfile: join(dir, 'unpatched.mjs') });
     const baseline = readFileSync(child, 'utf8').replace("'./pdf-lib.mjs'", "'./unpatched.mjs'")
       .replace('assert.equal(weakName.deref(),undefined', 'assert.notEqual(weakName.deref(),undefined')
       .replace('assert.equal(weakRef.deref(),undefined', 'assert.notEqual(weakRef.deref(),undefined');
