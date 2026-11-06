@@ -8,35 +8,12 @@ import { savePreferences } from '../../core/preferences.js';
 import { buildSchedule } from '../../quantities/engine.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
-import { getMeasureScale } from '../../annotations/measurement.js';
+import { verrijkVoorStaat } from './staatElementen.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
 import { getTemplate } from '../../symbols/registry.js';
 import { STANDARD_SCHEDULE_TEMPLATES, getTemplateById } from '../../quantities/schedule-templates.js';
-
-// Lijnvormige types zónder eigen measureValue: lengte moet uit geometrie +
-// document-schaal komen (spiegelt quantitiesStore.collectElements).
-const LENGTH_TYPES = new Set(['line', 'arrow', 'polyline', 'wall', 'spline', 'arc', 'draw']);
-
-function lengthMidpoint(a) {
-  if (typeof a.startX === 'number' && typeof a.endX === 'number') {
-    return { x: (a.startX + a.endX) / 2, y: (a.startY + a.endY) / 2 };
-  }
-  const pts = Array.isArray(a.points) ? a.points : (Array.isArray(a.path) ? a.path : null);
-  if (pts && pts.length) {
-    const cx = pts.reduce((s, p) => s + (p.x ?? 0), 0) / pts.length;
-    const cy = pts.reduce((s, p) => s + (p.y ?? 0), 0) / pts.length;
-    return { x: cx, y: cy };
-  }
-  return { x: 0, y: 0 };
-}
-
-function withLengthScale(a) {
-  const mid = lengthMidpoint(a);
-  const scale = getMeasureScale(a.page || 1, mid.x, mid.y);
-  return { ...a, __pxPerUnit: scale.pixelsPerUnit, __unit: scale.unit };
-}
 
 function countCatName(categoryId) {
   const t = countTallies().find(c => c.id === categoryId);
@@ -47,11 +24,10 @@ function countCatName(categoryId) {
 function collectElements(categories = []) {
   const doc = getActiveDocument();
   // Eén doorloop: de schaalbronnen één keer verzamelen, niet per lijn (#491).
-  const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => {
-    if (a.type === 'count') return { ...a, __countCatName: countCatName(a.categoryId) };
-    if (LENGTH_TYPES.has(a.type) && typeof a.measureValue !== 'number') return withLengthScale(a);
-    return a;
-  }));
+  // Dezelfde verrijking als het hoeveelhedenpaneel (staatElementen.js): ook
+  // vlakken krijgen hun schaal, anders kwam hun oppervlakte en omtrek in
+  // pagina-eenheden in een opgeslagen staat (#982).
+  const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => verrijkVoorStaat(a, countCatName)));
   // Wapening (buigstaat/wapeningsstaat): alleen als de staat erom vraagt.
   if (!(categories || []).includes('reinforcement')) return anns;
   return [...anns, ...wapeningsElementen(doc?.annotations || [], getTemplate)];
