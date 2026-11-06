@@ -1006,7 +1006,7 @@ jobs:
         run: bash flatpak/ci-check.sh lint
 
       - name: Build the Flatpak offline and lint the build
-        run: bash flatpak/ci-check.sh build
+        run: dbus-run-session -- bash flatpak/ci-check.sh build
 
       - name: Upload the Flatpak bundle
         uses: actions/upload-artifact@v7
@@ -1028,14 +1028,19 @@ jobs:
         uses: actions/github-script@v8
         env:
           release_id: ${{ needs.create-release.outputs.release_id }}
+          release_tag: ${{ needs.create-release.outputs.version }}
+          release_sha: ${{ github.sha }}
         with:
           script: |
-            // Release blijft een concept (draft): publicatie is een bewuste,
-            // handmatige stap — builds zijn intern tot expliciete vrijgave.
-            github.rest.repos.updateRelease({
+            // Keep the verified tag when updating a draft. Omitting it can
+            // turn the release into an untagged draft and break later uploads.
+            // Publication remains an explicit maintainer action.
+            await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id,
+              tag_name: process.env.release_tag,
+              target_commitish: process.env.release_sha,
               draft: true,
               prerelease: false
             });
