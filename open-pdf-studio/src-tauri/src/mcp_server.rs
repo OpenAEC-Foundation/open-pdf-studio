@@ -2696,17 +2696,50 @@ pub fn tools_list_voor(profiel: Profiel) -> Value {
     v
 }
 
+/// Het voorvoegsel van Open PDF Studio in de OpenAEC SuperCloud (#977): daar
+/// heten de tools `pdf_*` (js/core/werkplek-app.js), zodat ze niet botsen met
+/// die van andere tools in hetzelfde gesprek. De desktop aanvaardt dezelfde
+/// namen als alias van `app_*`; tools/list blijft alleen `app_*` noemen.
+pub const WERKPLEK_VOORVOEGSEL: &str = "pdf_";
+/// De stand in één klein antwoord (`pdf_stand`), samengesteld uit dezelfde
+/// handlers als de werkplek (`mcp:stand` in js/mcp-bridge.js).
+pub const STAND_TOOL: &str = "pdf_stand";
+
+/// `pdf_go_to_page` -> `app_go_to_page`. `pdf_stand` en alle andere namen
+/// blijven zoals ze zijn.
+pub fn canonieke_toolnaam(naam: &str) -> std::borrow::Cow<'_, str> {
+    match naam.strip_prefix(WERKPLEK_VOORVOEGSEL) {
+        Some(rest) if !rest.is_empty() && naam != STAND_TOOL => std::borrow::Cow::Owned(format!("app_{rest}")),
+        _ => std::borrow::Cow::Borrowed(naam),
+    }
+}
+
+/// Mag deze (canonieke) naam in dit profiel worden aangeroepen? `pdf_stand`
+/// staat niet in tools/list, maar leest alleen wat app_list_tabs en
+/// app_get_current_tool ook geven.
+fn aanroep_beschikbaar(naam: &str, profiel: Profiel) -> bool {
+    if naam == STAND_TOOL {
+        return beschikbaar("app_list_tabs", profiel) && beschikbaar("app_get_current_tool", profiel);
+    }
+    beschikbaar(naam, profiel)
+}
+
 /// Dispatch a `tools/call` request to the matching tool handler. Returns
 /// the tool's MCP-shaped result (`content[]` + `isError`) on success, or a
 /// `(code, message)` pair that the caller wraps in a JSON-RPC error
 /// response. Tasks 7-9 add new arms to the inner `match`.
 async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i32, String)> {
-    let name = params
+    let gevraagd = params
         .get("name")
         .and_then(|v| v.as_str())
         .unwrap_or("<missing>");
+    // De namen van de werkplek (`pdf_go_to_page`) zijn aliassen van `app_*`.
+    let canoniek = canonieke_toolnaam(gevraagd);
+    let name: &str = &canoniek;
     let arguments = params.get("arguments").cloned().unwrap_or(Value::Null);
     match name {
+        // De stand in één klein antwoord (#977), net als in de werkplek.
+        STAND_TOOL => tool_app_request(state, "mcp:stand", &arguments, Duration::from_secs(10)).await,
         "list_test_pdfs" => tool_list_test_pdfs(state).await,
         "screenshot_page" => tool_screenshot_page(state, &arguments).await,
         "get_pdf_metadata" => tool_get_pdf_metadata(state, &arguments).await,
@@ -3398,7 +3431,10 @@ async fn mcp_handler(
         "tools/call" => {
             let empty = Value::Null;
             let params = body.get("params").unwrap_or(&empty);
-            let naam = params.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            let gevraagd = params.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            // `pdf_*` van de werkplek (#977) telt als de `app_*` die hij noemt.
+            let canoniek = canonieke_toolnaam(gevraagd);
+            let naam: &str = &canoniek;
             if naam.starts_with(mcp_extensie_tools::VOORVOEGSEL) {
                 // Opdracht van een extensie (#575): alleen als een geladen
                 // extensie hem registreert.
@@ -3419,11 +3455,11 @@ async fn mcp_handler(
                     Ok(value) => rpc_result(id, value),
                     Err((code, msg)) => rpc_error(id, code, msg),
                 }
-            } else if !beschikbaar(naam, state.profiel) {
+            } else if !aanroep_beschikbaar(naam, state.profiel) {
                 rpc_error(
                     id,
                     jsonrpc_error::INVALID_PARAMS,
-                    format!("tool '{naam}' is not available in this Open PDF Studio configuration"),
+                    format!("tool '{gevraagd}' is not available in this Open PDF Studio configuration"),
                 )
             } else {
                 match handle_tools_call(&state, params).await {
@@ -3603,6 +3639,31 @@ mod tests {
         for m in crate::mcp_tool_meta::TOOLS {
             assert!(namen.iter().any(|n| n == m.naam), "{} staat in de tabel maar bestaat niet", m.naam);
         }
+    }
+
+    #[test]
+    fn werkplek_namen_zijn_aliassen_van_app_tools() {
+        assert_eq!(canonieke_toolnaam("pdf_go_to_page"), "app_go_to_page");
+        assert_eq!(canonieke_toolnaam("app_go_to_page"), "app_go_to_page", "app_* blijft werken");
+        assert_eq!(canonieke_toolnaam(STAND_TOOL), STAND_TOOL);
+        assert_eq!(canonieke_toolnaam("pdf_"), "pdf_");
+        assert_eq!(canonieke_toolnaam("get_pdf_metadata"), "get_pdf_metadata");
+        assert_eq!(canonieke_toolnaam("ext_a__x"), "ext_a__x");
+        // Elke app_* van de publieke lijst is ook als pdf_* aan te roepen, en
+        // de lijst noemt geen pdf_-dubbelen.
+        let publiek = tools_list_voor(Profiel::Publiek);
+        let namen: Vec<&str> = publiek["tools"].as_array().unwrap().iter()
+            .map(|t| t["name"].as_str().unwrap()).collect();
+        assert!(!namen.iter().any(|n| n.starts_with(WERKPLEK_VOORVOEGSEL)), "geen pdf_* in tools/list");
+        for n in namen.iter().filter(|n| n.starts_with("app_")) {
+            let alias = format!("{WERKPLEK_VOORVOEGSEL}{}", &n["app_".len()..]);
+            assert_eq!(canonieke_toolnaam(&alias), *n);
+            assert!(aanroep_beschikbaar(&canonieke_toolnaam(&alias), Profiel::Publiek), "{alias}");
+        }
+        // pdf_stand mag in het publieke profiel; een alias van ontwikkelgereedschap niet.
+        assert!(aanroep_beschikbaar(STAND_TOOL, Profiel::Publiek));
+        assert!(!aanroep_beschikbaar(&canonieke_toolnaam("pdf_get_recent_console"), Profiel::Publiek));
+        assert!(aanroep_beschikbaar(&canonieke_toolnaam("pdf_get_recent_console"), Profiel::Ontwikkeling));
     }
 
     #[test]

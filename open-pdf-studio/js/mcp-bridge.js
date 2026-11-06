@@ -2085,6 +2085,17 @@ async function handleListTabs() {
   };
 }
 
+/**
+ * `pdf_stand` (#977): de stand in één klein antwoord, uit dezelfde handlers en
+ * met dezelfde samenstelling als in de werkplek (core/werkplek-app.js).
+ */
+async function handleStand() {
+  const [stateMod, { standUit }] = await Promise.all([import('./core/state.js'), import('./core/werkplek-app.js')]);
+  const doc = stateMod.state.documents?.[stateMod.state.activeDocumentIndex];
+  const selectie = () => (doc?.selectedAnnotations || []).map((a) => a?.id).filter((id) => id != null);
+  return standUit(await handleListTabs(), await handleGetCurrentTool(), selectie);
+}
+
 async function handleSwitchTab(params) {
   const index = Number(params?.index);
   const stateMod = await import('./core/state.js');
@@ -3872,6 +3883,7 @@ const HANDLERS = {
   'mcp:redo':               handleRedo,
   // App control: documents / tabs
   'mcp:list-tabs':          handleListTabs,
+  'mcp:stand':              handleStand,
   'mcp:switch-tab':         handleSwitchTab,
   'mcp:close-tab':          handleCloseTab,
   'mcp:new-blank-pdf':      handleNewBlankPdf,
