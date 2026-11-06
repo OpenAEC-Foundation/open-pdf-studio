@@ -41,6 +41,9 @@ export function cacheWebFile(name, data) {
 //       versions(id) (optioneel)  -> Promise<[{ version, modified?, author? }]>
 //     },
 //     document: '<id>',  // optioneel: dit document gaat bij de start open
+//     // optioneel: de tekeningkaders uit de huisstijl van het bedrijf, voor
+//     // Nieuw document (zie pdf/huisstijl-kaders.js)
+//     huisstijl()          -> Promise<{ merk, kaders: [...] }>
 //   };
 //
 // Een document van de site heeft als pad `opds-host://<id>/<naam>`: de naam

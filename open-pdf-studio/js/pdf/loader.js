@@ -941,17 +941,23 @@ export async function createDocFromTemplate(templatePath, titleBlockPath = null)
 //   * the tab shows an Untitled display name instead of the temp filename;
 //   * `isUntitled` routes Save → Save-As and deletes the temp file once the
 //     user picks a real location (or closes the tab).
-export async function createBlankPDF(widthPt, heightPt, numPages) {
+export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) {
   try {
     showLoading('Creating document...');
 
-    // Build the blank PDF bytes
-    const pdfDocLib = await PDFDocument.create();
-    for (let i = 0; i < numPages; i++) {
-      pdfDocLib.addPage([widthPt, heightPt]);
+    // Build the blank PDF bytes, unless the caller already made the document
+    // (a frame from the company house style, pdf/huisstijl-kaders.js): that
+    // takes the same route as a blank sheet, in the browser too.
+    let typedArray;
+    if (bytes) {
+      typedArray = new Uint8Array(bytes);
+    } else {
+      const pdfDocLib = await PDFDocument.create();
+      for (let i = 0; i < numPages; i++) {
+        pdfDocLib.addPage([widthPt, heightPt]);
+      }
+      typedArray = new Uint8Array(await pdfDocLib.save());
     }
-    const pdfBytes = await pdfDocLib.save();
-    const typedArray = new Uint8Array(pdfBytes);
 
     const displayName = getNextUntitledName();
 

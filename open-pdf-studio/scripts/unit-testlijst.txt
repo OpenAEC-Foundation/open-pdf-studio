@@ -439,3 +439,4 @@ js/core/getal-invoer.test.mjs
 js/core/getal-invoer-velden.test.mjs
 js/ui/getal-veld.test.mjs
 js/getal-velden-bron.test.mjs
+js/pdf/huisstijl-kaders.test.mjs
