@@ -3139,6 +3139,12 @@ pub fn run(opts: StartupOpts) {
     {
         builder = builder.plugin(crashlog::plugin());
     }
+    // Linux: 2D-canvasversnelling uit in elke WebView (#924, crash B in
+    // Skia's GPU-pad); OPDS_CANVAS_GPU=1 laat haar aan.
+    #[cfg(target_os = "linux")]
+    {
+        builder = builder.plugin(linux_runtime::webview_plugin());
+    }
     // Drag-out window detach is desktop-only (no mobile backend in the crate).
     #[cfg(not(target_os = "android"))]
     {
