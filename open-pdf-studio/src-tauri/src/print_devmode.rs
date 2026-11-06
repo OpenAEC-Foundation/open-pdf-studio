@@ -14,20 +14,30 @@
 //! Vellen zonder vaste `DMPAPER_*`-code (A1, A0 en de verlengde vellen A3L,
 //! A2L, A1L, A0L): biedt de driver de maat zelf aan (een eigen papiersoort of
 //! een formulier van de printserver), dan gaat diens code in de DEVMODE;
-//! anders de maat zelf (`DMPAPER_USER` met `dmPaperWidth`/`dmPaperLength`).
+//! anders de maat zelf (`DMPAPER_USER` met `dmPaperWidth`/`dmPaperLength`),
+//! maar alleen als de driver eigen maten aanbiedt (`DC_MAXEXTENT`, of
+//! `DMPAPER_USER` in `DC_PAPERS`: `print_plan::eigen_maat_ondersteund`).
 //! De driver controleert het, en wat hij ervan maakt meten we na op een
 //! informatiecontext (geen opdracht). Neemt hij het vel niet over, dan blijft
 //! het papier van de printer staan (`met_papier`). Zo'n driver is de
 //! ingebouwde pdf-driver van Windows: zijn papierlijst ligt vast, een eigen
 //! maat negeert hij. A1 en A0 biedt hij zelf aan, de verlengde vellen niet.
 //!
-//! Liggende pagina's op een printer die een document schrijft (een
-//! PDF-printer, `schrijft_document`) krijgen niet de liggende stand maar het
-//! liggende vel als eigen maat met een staande stand
-//! (`liggend_voor_opdracht`): zo'n stuurprogramma schrijft "liggend"
-//! anders als een staand medium met de inhoud een kwartslag gedraaid. Neemt
-//! het stuurprogramma de maat niet over — nagemeten op een informatiecontext
-//! — dan de liggende stand, net als bij elke papieren printer.
+//! Liggende pagina's krijgen de papiercode met de liggende stand, zoals
+//! gewone programma's het sturen. Alleen bij een printer die een document
+//! schrijft (een PDF-printer, `schrijft_document`) en een vel zonder
+//! standaardmaat (`print_plan::vel_is_standaard`) gaat het liggende vel als
+//! papiersoort of eigen maat met een staande stand (`liggend_voor_opdracht`):
+//! zo'n stuurprogramma schrijft "liggend" anders als een staand medium met de
+//! inhoud een kwartslag gedraaid. Neemt het stuurprogramma dat niet over —
+//! nagemeten op een informatiecontext — dan ook daar de liggende stand.
+//! Een standaardvel als eigen maat liet het begeleidende programma van
+//! sommige PDF-printers vastlopen (issue 699).
+//!
+//! De basis is de verse standaard van de driver via de printerhandle van
+//! deze opdracht. Een DEVMODE uit het eigenschappenvenster gaat alleen in
+//! zijn geheel mee als zijn driverdeel bij dit stuurprogramma past
+//! (`print_plan::driverdeel_past`); anders alleen zijn publieke velden.
 //!
 //! Aantal exemplaren: de app maakt kopieën zelf (één opdracht per kopie, zie
 //! print-job.js). Een opdracht-DEVMODE vraagt daarom altijd één exemplaar,
@@ -45,13 +55,17 @@ use windows_sys::Win32::Graphics::Gdi::{
 use windows_sys::Win32::Graphics::Printing::{
     ClosePrinter, DocumentPropertiesW, GetPrinterW, OpenPrinterW, PRINTER_INFO_2W,
 };
-use windows_sys::Win32::Storage::Xps::{DeviceCapabilitiesW, DC_PAPERNAMES, DC_PAPERS, DC_PAPERSIZE};
+use windows_sys::Win32::Storage::Xps::{DeviceCapabilitiesW, DC_MAXEXTENT, DC_PAPERNAMES, DC_PAPERS, DC_PAPERSIZE};
 use windows_sys::Win32::UI::WindowsAndMessaging::{IDCANCEL, IDOK};
 
 use crate::print_instelling::{
-    beschrijft_vel, dmpaper, liggend_vel_aangenomen, liggend_vel_uitgezet, liggende_eigen_maat_tiende_mm,
-    liggende_soort, meld, schrijft_document, velkeuze_regel, zelfde_maat_mm, EigenschappenKeuze, LiggendeWeg,
-    Orientatie, Papier, PapierInfo, VelKeuze, LIGGEND_VEL_OMGEVING,
+    beschrijft_vel, dmpaper, liggend_vel_aangenomen, liggende_eigen_maat_tiende_mm, liggende_soort, meld,
+    schrijft_document, velkeuze_regel, zelfde_maat_mm, EigenschappenKeuze, LiggendeWeg, Orientatie, Papier,
+    PapierInfo, VelKeuze, LIGGEND_VEL_OMGEVING,
+};
+use crate::print_plan::{
+    driverdeel_past, eigen_maat_ondersteund, liggend_vel_modus, liggende_weg, max_extent_uit, vel_is_standaard,
+    DevmodeKop, LiggendPlan, LiggendVelModus,
 };
 
 /// UTF-16 met afsluitende nul, voor de W-functies.
@@ -266,6 +280,34 @@ impl DevMode {
     /// vergelijken als geen van beide een beschrijfbaar vel heeft.
     fn papier_velden(&self) -> (Option<i16>, Option<(i32, i32)>, Option<String>) {
         (self.papiercode(), self.eigen_maat_tiende_mm(), self.formuliernaam())
+    }
+
+    /// De kop die zegt bij welk stuurprogramma het driverdeel hoort.
+    pub fn kop(&self) -> DevmodeKop {
+        let d = self.publiek();
+        DevmodeKop {
+            naam: uit_breed(&d.dmDeviceName),
+            spec_versie: d.dmSpecVersion,
+            driver_versie: d.dmDriverVersion,
+            grootte: d.dmSize,
+            driver_extra: d.dmDriverExtra,
+        }
+    }
+
+    /// Deze DEVMODE (kop en driverdeel blijven) met de publieke velden van
+    /// `ander`, vanaf `dmFields` tot het einde van het kleinste publieke deel.
+    /// Voor een bewaarde keuze waarvan het driverdeel niet bij dit
+    /// stuurprogramma past (`print_plan::driverdeel_past`): papier, stand,
+    /// kleur en de andere publieke keuzes blijven, het vreemde driverdeel
+    /// gaat niet naar de driver.
+    pub fn met_publiek_van(&self, ander: &DevMode) -> DevMode {
+        let mut uit = self.clone();
+        let begin = std::mem::offset_of!(DEVMODEW, dmFields);
+        let eind = (self.publiek().dmSize as usize).min(ander.publiek().dmSize as usize);
+        if eind > begin {
+            uit.ruwe_bytes_mut()[begin..eind].copy_from_slice(&ander.ruwe_bytes()[begin..eind]);
+        }
+        uit
     }
 }
 
@@ -482,6 +524,34 @@ pub fn papierlijst(printer: &str) -> Vec<DriverPapier> {
         .collect()
 }
 
+/// Wat het stuurprogramma over eigen maten (`DMPAPER_USER`) zegt.
+#[derive(Debug, Clone, Copy)]
+pub struct EigenMaatCapaciteit {
+    /// `DMPAPER_USER` staat in zijn papierlijst (`DC_PAPERS`).
+    pub user_in_lijst: bool,
+    /// De grootste eigen maat (`DC_MAXEXTENT`, 0,1 mm), als hij die meldt.
+    pub max_extent: Option<(i32, i32)>,
+}
+
+impl EigenMaatCapaciteit {
+    /// Uit de papierlijst (`papierlijst`) en `DC_MAXEXTENT`. Alleen lezen.
+    pub fn van(printer: &str, lijst: &[DriverPapier]) -> EigenMaatCapaciteit {
+        let naam = breed(printer);
+        let terug = unsafe {
+            DeviceCapabilitiesW(naam.as_ptr(), std::ptr::null(), DC_MAXEXTENT, std::ptr::null_mut(), std::ptr::null())
+        };
+        EigenMaatCapaciteit {
+            user_in_lijst: lijst.iter().any(|s| s.code == DMPAPER_USER as i16),
+            max_extent: max_extent_uit(terug),
+        }
+    }
+
+    /// Mag een eigen maat van `maat` (breedte, lengte in 0,1 mm) naar dit stuurprogramma?
+    pub fn mag(&self, maat: (i16, i16)) -> bool {
+        eigen_maat_ondersteund(self.user_in_lijst, self.max_extent, (maat.0 as i32, maat.1 as i32))
+    }
+}
+
 /// Speling bij het terugzoeken van een maat in de papierlijst: 1 mm, in 0,1 mm.
 const LIJST_SPELING: i32 = 10;
 
@@ -555,17 +625,40 @@ pub fn papier_info(printer: &str, dm: &DevMode) -> Option<PapierInfo> {
     PapierInfo::uit_devmode(code, maat, naam.as_deref(), dm.orientatie_code())
 }
 
-/// Leest een eerder bewaarde DEVMODE; valt terug op de standaard van de
-/// driver als er niets (bruikbaars) bewaard is. De bool zegt of het de
-/// bewaarde keuze uit het eigenschappenvenster is.
+/// De basis van een DEVMODE: de verse standaard van de driver via de
+/// printerhandle `prn` van deze opdracht, met de eerder bewaarde keuze uit
+/// het eigenschappenvenster (`opgeslagen`) erin. De bool zegt of het die
+/// bewaarde keuze is.
+///
+/// Past het driverdeel van de bewaarde keuze bij dit stuurprogramma
+/// (`driverdeel_past`: dezelfde naam, versies en groottes), dan gaat hij in
+/// zijn geheel mee, met de driver-eigen keuzes. Anders (een ander
+/// stuurprogramma of een andere versie sinds de keuze) alleen zijn publieke
+/// velden op de verse standaard (`DevMode::met_publiek_van`): een vreemd
+/// driverdeel gaat nooit naar de driver. Geeft de driver geen standaard, dan
+/// de bewaarde keuze zoals hij is.
 fn basis_devmode(prn: &Printer, opgeslagen: Option<&[u8]>) -> Result<(DevMode, bool), String> {
+    let standaard = prn.standaard();
     if let Some(bytes) = opgeslagen {
         match DevMode::uit_bytes(bytes) {
-            Ok(dm) => return Ok((dm, true)),
+            Ok(dm) => {
+                return Ok(match &standaard {
+                    Ok(vers) if !driverdeel_past(&dm.kop(), &vers.kop()) => {
+                        meld(&format!(
+                            "[print] '{}': driverdeel van de bewaarde keuze past niet ({:?} tegen {:?}); alleen de publieke velden",
+                            prn.naam(),
+                            dm.kop(),
+                            vers.kop()
+                        ));
+                        (vers.met_publiek_van(&dm), true)
+                    }
+                    _ => (dm, true),
+                });
+            }
             Err(e) => log::warn!("[print] bewaarde DEVMODE onbruikbaar, standaard van de driver: {e}"),
         }
     }
-    Ok((prn.standaard()?, false))
+    Ok((standaard?, false))
 }
 
 /// Zet het gevraagde papier in `dm`, behalve bij `Papier::Printer` of als
@@ -577,8 +670,16 @@ fn basis_devmode(prn: &Printer, opgeslagen: Option<&[u8]>) -> Result<(DevMode, b
 ///
 /// Een vel zonder vaste `DMPAPER_*`-code krijgt de code waaronder de driver
 /// die maat zelf aanbiedt (`lijst`, zie `papierlijst`), en anders de maat
-/// zelf als eigen maat.
-pub fn papier_toepassen(dm: &mut DevMode, papier: Papier, huidig: Option<&PapierInfo>, lijst: &[DriverPapier]) -> bool {
+/// zelf als eigen maat, maar alleen als de driver eigen maten van die maat
+/// aanbiedt (`eigen_maat_mag`, zie `EigenMaatCapaciteit`); anders blijft het
+/// papier staan.
+pub fn papier_toepassen(
+    dm: &mut DevMode,
+    papier: Papier,
+    huidig: Option<&PapierInfo>,
+    lijst: &[DriverPapier],
+    eigen_maat_mag: impl Fn((i16, i16)) -> bool,
+) -> bool {
     if papier == Papier::Printer || beschrijft_vel(huidig, papier) {
         return false;
     }
@@ -586,16 +687,15 @@ pub fn papier_toepassen(dm: &mut DevMode, papier: Papier, huidig: Option<&Papier
         dm.zet_papier(code);
         return true;
     }
-    match papier.eigen_maat_tiende_mm() {
-        Some(maat) => {
-            match code_op_maat(lijst, maat) {
-                Some(code) => dm.zet_papier(code),
-                None => dm.zet_eigen_maat(maat.0, maat.1),
-            }
-            true
-        }
-        None => false,
+    let Some(maat) = papier.eigen_maat_tiende_mm() else {
+        return false;
+    };
+    match code_op_maat(lijst, maat) {
+        Some(code) => dm.zet_papier(code),
+        None if eigen_maat_mag(maat) => dm.zet_eigen_maat(maat.0, maat.1),
+        None => return false,
     }
+    true
 }
 
 /// `basis` met het gevraagde papier erin (`papier_toepassen`), en of dat iets
@@ -611,8 +711,21 @@ fn met_papier(prn: &Printer, basis: &DevMode, uit_sessie: bool, papier: Papier) 
     let huidig = vel_van_sessie(prn.naam(), basis, uit_sessie);
     let zonder_code = papier.eigen_maat_tiende_mm().is_some();
     let lijst = if zonder_code { papierlijst(prn.naam()) } else { Vec::new() };
+    let capaciteit = zonder_code.then(|| EigenMaatCapaciteit::van(prn.naam(), &lijst));
     let mut dm = basis.clone();
-    if !papier_toepassen(&mut dm, papier, huidig.as_ref(), &lijst) {
+    let eigen_maat_mag = |maat: (i16, i16)| {
+        let mag = capaciteit.is_some_and(|c| c.mag(maat));
+        if !mag {
+            meld(&format!(
+                "[print] '{}' biedt geen eigen maat {} x {} (0,1 mm) aan ({capaciteit:?}); het papier van de printer blijft staan",
+                prn.naam(),
+                maat.0,
+                maat.1
+            ));
+        }
+        mag
+    };
+    if !papier_toepassen(&mut dm, papier, huidig.as_ref(), &lijst, eigen_maat_mag) {
         return (dm, false);
     }
     if zonder_code {
@@ -750,11 +863,16 @@ fn probeer_liggend_vel(
 }
 
 /// Vult onderweg `keuze` in, zodat `liggend_voor_opdracht` er één regel van
-/// kan maken (`velkeuze_regel`).
-fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode, keuze: &mut VelKeuze) -> Option<DevMode> {
-    let vel = gemeten_vel_mm(prn.naam(), staand);
-    keuze.staand_vel_mm = vel;
-    let Some(vel) = vel else {
+/// kan maken (`velkeuze_regel`). `keuze.staand_vel_mm` is het nagemeten vel
+/// van `staand`. Een eigen maat alleen als de driver die aanbiedt, behalve
+/// met `OPDS_LIGGEND_VEL=1` (`controleer_eigen_maat` onwaar).
+fn liggend_als_eigen_maat(
+    prn: &Printer,
+    staand: &DevMode,
+    keuze: &mut VelKeuze,
+    controleer_eigen_maat: bool,
+) -> Option<DevMode> {
+    let Some(vel) = keuze.staand_vel_mm else {
         keuze.reden = "vel van de staande DEVMODE niet te meten";
         return None;
     };
@@ -767,8 +885,8 @@ fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode, keuze: &mut VelKeuze)
     // Eerst een papiersoort van het stuurprogramma die zelf al liggend is
     // (bij een PostScript-stuurprogramma een echt liggend medium in de PPD);
     // die laat geen ruimte voor een eigen invoerrichting.
-    let soorten: Vec<(i16, (i32, i32))> =
-        papierlijst(prn.naam()).iter().map(|s| (s.code, s.maat_tiende_mm)).collect();
+    let lijst = papierlijst(prn.naam());
+    let soorten: Vec<(i16, (i32, i32))> = lijst.iter().map(|s| (s.code, s.maat_tiende_mm)).collect();
     if let Some(code) = liggende_soort(&soorten, maat, LIJST_SPELING) {
         if let Some(dm) = probeer_liggend_vel(prn, staand, maat, keuze, |dm| {
             dm.zet_papier(code);
@@ -778,7 +896,11 @@ fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode, keuze: &mut VelKeuze)
             return Some(dm);
         }
     }
-    // Anders het vel als eigen maat.
+    // Anders het vel als eigen maat, als het stuurprogramma die aanbiedt.
+    if controleer_eigen_maat && !EigenMaatCapaciteit::van(prn.naam(), &lijst).mag(maat) {
+        keuze.reden = "stuurprogramma biedt geen eigen maat aan";
+        return None;
+    }
     let dm = probeer_liggend_vel(prn, staand, maat, keuze, |dm| {
         dm.zet_eigen_maat(maat.0, maat.1);
         dm.zet_liggend(false);
@@ -799,21 +921,30 @@ fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode, keuze: &mut VelKeuze)
 
 /// De DEVMODE voor de liggende pagina's van een opdracht.
 ///
-/// Bij een printer die een document schrijft (`Printer::schrijft_document`)
-/// eerst het liggende vel als eigen maat: dan bepaalt het vel de stand en
-/// hoeft het stuurprogramma niets te draaien. Neemt het dat niet over, en bij
-/// elke papieren printer, de liggende stand (`met_orientatie`) zoals altijd:
-/// daar is een liggend vel als eigen maat juist verkeerd, want de printer
-/// heeft dat medium niet.
+/// Gewoon de liggende stand (`met_orientatie`) met de papiercode van het
+/// staande vel, zoals gewone programma's het sturen. Alleen bij een printer
+/// die een document schrijft (`schrijft_document`, uit `gegevens` =
+/// stuurprogramma en poort) met een vel zonder standaardmaat
+/// (`vel_is_standaard`) eerst het liggende vel als papiersoort of eigen maat
+/// (`liggend_als_eigen_maat`): dan bepaalt het vel de stand en hoeft het
+/// stuurprogramma niets te draaien. Bij een papieren printer is een liggend
+/// vel als eigen maat juist verkeerd, want de printer heeft dat medium niet.
+/// De keuze zelf is `print_plan::liggende_weg`.
 ///
-/// Met `OPDS_LIGGEND_VEL=0` in de omgeving krijgt elke printer de liggende
-/// stand, zoals vóór deze regel (`liggend_vel_uitgezet`).
+/// `OPDS_LIGGEND_VEL` in de omgeving: 0 = altijd de liggende stand, 1 = ook
+/// bij standaardvellen en zonder te kijken of eigen maten aangeboden worden
+/// eerst het liggende vel, zoals vóór issue 699 (`liggend_vel_modus`).
 ///
 /// Meldt in één regel welke weg het werd en waarom (`velkeuze_regel`,
 /// `meld`), zodat een afdruk achteraf na te gaan is.
-pub fn liggend_voor_opdracht(prn: &Printer, basis: &DevMode, staand: &DevMode, papier: Papier) -> DevMode {
-    let gegevens = prn.stuurprogramma_en_poort();
-    let (stuurprogramma, poort) = match &gegevens {
+pub fn liggend_voor_opdracht(
+    prn: &Printer,
+    basis: &DevMode,
+    staand: &DevMode,
+    papier: Papier,
+    gegevens: Option<&(String, String)>,
+) -> DevMode {
+    let (stuurprogramma, poort) = match gegevens {
         Some((s, p)) => (Some(s.as_str()), Some(p.as_str())),
         None => (None, None),
     };
@@ -821,26 +952,32 @@ pub fn liggend_voor_opdracht(prn: &Printer, basis: &DevMode, staand: &DevMode, p
         printer: prn.naam(),
         stuurprogramma,
         poort,
-        schrijft_document: gegevens.as_ref().is_some_and(|(s, p)| schrijft_document(s, p)),
+        schrijft_document: gegevens.is_some_and(|(s, p)| schrijft_document(s, p)),
         papier,
         staand_vel_mm: None,
         gevraagde_maat_tiende_mm: None,
-        papiercode: None,
-        eigen_maat_tiende_mm: None,
+        papiercode: staand.papiercode(),
+        eigen_maat_tiende_mm: staand.eigen_maat_tiende_mm(),
         devmode_liggend: None,
         gemeten_mm: None,
         weg: LiggendeWeg::Stand,
         reden: "",
     };
-    let uit = std::env::var(LIGGEND_VEL_OMGEVING).ok();
-    let dm = if liggend_vel_uitgezet(uit.as_deref()) {
-        keuze.reden = "uitgezet in de omgeving";
-        None
-    } else if !keuze.schrijft_document {
-        keuze.reden = if gegevens.is_none() { "stuurprogramma en poort onbekend" } else { "papieren printer" };
-        None
-    } else {
-        liggend_als_eigen_maat(prn, staand, &mut keuze)
+    let modus = liggend_vel_modus(std::env::var(LIGGEND_VEL_OMGEVING).ok().as_deref());
+    let document = gegevens.map(|_| keuze.schrijft_document);
+    // Alleen nameten waar het liggende vel in aanmerking komt.
+    if document == Some(true) && modus != LiggendVelModus::Uit {
+        keuze.staand_vel_mm = gemeten_vel_mm(prn.naam(), staand);
+    }
+    let standaard = vel_is_standaard(staand.papiercode(), keuze.staand_vel_mm);
+    let dm = match liggende_weg(document, modus, standaard) {
+        LiggendPlan::Stand(reden) => {
+            keuze.reden = reden;
+            None
+        }
+        LiggendPlan::LiggendVel => {
+            liggend_als_eigen_maat(prn, staand, &mut keuze, modus != LiggendVelModus::Altijd)
+        }
     };
     meld(&velkeuze_regel(&keuze));
     dm.unwrap_or_else(|| met_orientatie(prn, basis, true))
@@ -1024,18 +1161,18 @@ mod tests {
         // A4_ROTATED (77) uit het eigenschappenvenster, Pagina-instelling "a4".
         let mut dm = devmode_met(DM_PAPERSIZE | DM_ORIENTATION, 77, true);
         let huidig = PapierInfo::uit_devmode(77, None, None, 2);
-        assert!(!papier_toepassen(&mut dm, Papier::A4, huidig.as_ref(), &[]));
+        assert!(!papier_toepassen(&mut dm, Papier::A4, huidig.as_ref(), &[], |_| true));
         assert_eq!(dm.papiercode(), Some(77));
         // Ander vel gevraagd: wel overschrijven.
-        assert!(papier_toepassen(&mut dm, Papier::A3, huidig.as_ref(), &[]));
+        assert!(papier_toepassen(&mut dm, Papier::A3, huidig.as_ref(), &[], |_| true));
         assert_eq!(dm.papiercode(), Some(8));
         // Standaard van de driver (geen huidig vel): altijd zetten.
         let mut standaard = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut standaard, Papier::A4, None, &[]));
+        assert!(papier_toepassen(&mut standaard, Papier::A4, None, &[], |_| true));
         assert_eq!(standaard.papiercode(), Some(9));
         // Papier "printer": nooit iets zetten.
         let mut blijft = devmode_met(DM_PAPERSIZE, 77, false);
-        assert!(!papier_toepassen(&mut blijft, Papier::Printer, None, &[]));
+        assert!(!papier_toepassen(&mut blijft, Papier::Printer, None, &[], |_| true));
         assert_eq!(blijft.papiercode(), Some(77));
     }
 
@@ -1073,30 +1210,87 @@ mod tests {
         // De driver kent de maat niet: de maat zelf gaat in de DEVMODE.
         let lijst = vec![soort(9, 2100, 2970, "A4"), soort(8, 2970, 4200, "A3")];
         let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut dm, Papier::A3L, None, &lijst));
+        assert!(papier_toepassen(&mut dm, Papier::A3L, None, &lijst, |_| true));
         assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(256), Some((2970, 6300))));
         let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut dm, Papier::A1L, None, &[]));
+        assert!(papier_toepassen(&mut dm, Papier::A1L, None, &[], |_| true));
         assert_eq!(dm.eigen_maat_tiende_mm(), Some((5940, 10510)));
         let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut dm, Papier::A0L, None, &[]));
+        assert!(papier_toepassen(&mut dm, Papier::A0L, None, &[], |_| true));
         assert_eq!(dm.eigen_maat_tiende_mm(), Some((8410, 13990)));
 
         // De driver biedt de maat zelf aan (pdf-driver: "ISOA1" = 140; of een
         // formulier van de printserver): dan diens code, zonder eigen maat.
         let lijst = vec![soort(9, 2100, 2970, "A4"), soort(140, 5940, 8410, "ISOA1"), soort(300, 2970, 6300, "A3L")];
         let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut dm, Papier::A1, None, &lijst));
+        assert!(papier_toepassen(&mut dm, Papier::A1, None, &lijst, |_| true));
         assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(140), None));
         let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut dm, Papier::A3L, None, &lijst));
+        assert!(papier_toepassen(&mut dm, Papier::A3L, None, &lijst, |_| true));
         assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(300), None));
 
         // Hetzelfde vel al in de eigenschappen gekozen: niets overschrijven.
         let huidig = PapierInfo::uit_devmode(300, Some((2970, 6300)), Some("A3L"), 1);
         let mut dm = devmode_met(DM_PAPERSIZE, 300, false);
-        assert!(!papier_toepassen(&mut dm, Papier::A3L, huidig.as_ref(), &lijst));
+        assert!(!papier_toepassen(&mut dm, Papier::A3L, huidig.as_ref(), &lijst, |_| true));
         assert_eq!(dm.papiercode(), Some(300));
+    }
+
+    #[test]
+    fn geen_eigen_maat_als_de_driver_die_niet_aanbiedt() {
+        // Geen code in de lijst en geen eigen maten: het papier blijft staan.
+        let lijst = vec![soort(9, 2100, 2970, "A4")];
+        let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
+        assert!(!papier_toepassen(&mut dm, Papier::A3L, None, &lijst, |_| false));
+        assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(9), None));
+        // Biedt de driver de maat als soort aan, dan telt die, ook zonder eigen maten.
+        let lijst = vec![soort(140, 5940, 8410, "ISOA1")];
+        assert!(papier_toepassen(&mut dm, Papier::A1, None, &lijst, |_| false));
+        assert_eq!(dm.papiercode(), Some(140));
+        // Een vaste code van Windows heeft nooit een eigen maat nodig.
+        assert!(papier_toepassen(&mut dm, Papier::A3, None, &[], |_| false));
+        assert_eq!(dm.papiercode(), Some(8));
+    }
+
+    #[test]
+    fn publieke_velden_zonder_vreemd_driverdeel() {
+        let grootte = size_of::<DEVMODEW>() as u16;
+        // Verse standaard: A4 staand, driverdeel 0x11.
+        let mut vers = DevMode::uit_bytes(&met_publiek(grootte, 16, grootte as usize + 16)).unwrap();
+        {
+            let d = vers.publiek_mut();
+            d.dmDriverVersion = 7;
+            d.dmFields = DM_PAPERSIZE | DM_ORIENTATION;
+            d.Anonymous1.Anonymous1.dmPaperSize = 9;
+            d.dmDeviceName[..3].copy_from_slice(&[b'P' as u16, b'D' as u16, b'F' as u16]);
+        }
+        let n = vers.lengte;
+        vers.ruwe_bytes_mut()[grootte as usize..n].fill(0x11);
+        // Bewaarde keuze van een andere driverversie: A3 liggend, driverdeel 0x22.
+        let mut oud = DevMode::uit_bytes(&met_publiek(grootte, 8, grootte as usize + 8)).unwrap();
+        {
+            let d = oud.publiek_mut();
+            d.dmDriverVersion = 6;
+            d.dmFields = DM_PAPERSIZE | DM_ORIENTATION | DM_COPIES;
+            d.Anonymous1.Anonymous1.dmPaperSize = 8;
+            d.Anonymous1.Anonymous1.dmOrientation = DMORIENT_LANDSCAPE as i16;
+            d.Anonymous1.Anonymous1.dmCopies = 2;
+        }
+        let m = oud.lengte;
+        oud.ruwe_bytes_mut()[grootte as usize..m].fill(0x22);
+        assert!(!driverdeel_past(&oud.kop(), &vers.kop()));
+        assert!(driverdeel_past(&vers.kop(), &vers.clone().kop()));
+
+        let samen = vers.met_publiek_van(&oud);
+        // Publieke keuzes van de bewaarde DEVMODE.
+        assert_eq!(samen.papiercode(), Some(8));
+        assert!(samen.liggend());
+        assert_eq!(samen.exemplaren(), Some(2));
+        // Kop en driverdeel van de verse standaard.
+        assert_eq!(samen.kop(), vers.kop());
+        assert_eq!(samen.kop().naam, "PDF");
+        assert_eq!(samen.bytes().len(), vers.bytes().len());
+        assert!(samen.bytes()[grootte as usize..].iter().all(|&b| b == 0x11));
     }
 
     #[test]

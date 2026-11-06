@@ -6,19 +6,28 @@
 //! koos (anders de standaard van de driver), met het papier uit de
 //! Pagina-instelling erin en de oriëntatie van de eerste pagina. Pas als een
 //! volgende pagina de andere kant op staat volgt `ResetDCW`, met dezelfde
-//! volledige DEVMODE waarin alleen `dmOrientation` anders is.
+//! volledige DEVMODE waarin alleen `dmOrientation` anders is, en alleen als
+//! die DEVMODE echt anders is.
+//!
+//! Een printer die een document schrijft (behalve de ingebouwde pdf- en
+//! xps-stuurprogramma's van Windows) krijgt geen `ResetDCW` halverwege de
+//! opdracht: één vel en één stand voor de hele opdracht, die van de meeste
+//! pagina's, en de andere pagina's gaan een kwartslag gedraaid op dat vel
+//! (`draaiing_voor_vel`). Zo sturen gewone programma's zo'n printer aan; het
+//! begeleidende programma van sommige PDF-printers liep vast op een
+//! `ResetDC` of een eigen maat midden in een opdracht (issue 699). De
+//! beslissingen staan in `print_plan` (`plan_opdracht`, `reset_nodig`).
 //!
 //! Vroeger ging de DC open zonder DEVMODE en kreeg hij vóór elke pagina een
 //! verder lege `DEVMODEW` via `ResetDCW`. Drivers vullen de lege velden dan
 //! met hun eigen standaard aan en nemen het papier vaak alleen over uit de
 //! DEVMODE waarmee de DC gemaakt is: het papier bleef A4 (issue 406).
 //!
-//! Een printer die een document schrijft in plaats van papier (een
-//! PDF-printer, `schrijft_document`) krijgt voor liggende pagina's niet de
-//! liggende stand maar het liggende vel als eigen maat, met een staande
-//! DEVMODE (`liggend_voor_opdracht`). Een stuurprogramma dat "liggend" als
-//! een staand medium met gedraaide inhoud wegschrijft, krijgt zo een liggend
-//! medium. Neemt het die maat niet over, dan alsnog de liggende stand.
+//! Liggende pagina's krijgen de papiercode met de liggende stand. Alleen een
+//! printer die een document schrijft (een PDF-printer, `schrijft_document`)
+//! krijgt bij een vel zonder standaardmaat het liggende vel als papiersoort
+//! of eigen maat, met een staande DEVMODE (`liggend_voor_opdracht`). Neemt
+//! hij dat niet over, dan alsnog de liggende stand.
 //!
 //! Geeft een driver geen bruikbare DEVMODE, dan blijft die oude weg over als
 //! noodweg (`nood_devmode`), maar altijd mét papier: het gevraagde, of het
@@ -51,7 +60,10 @@ use crate::pdfium_renderer;
 use crate::print_devmode::{
     breed, devmode_voor_opdracht, liggend_voor_opdracht, met_orientatie, DevMode, Printer,
 };
-use crate::print_instelling::{dmpaper, liggend_voor_pagina, meld, papier_uit_maat_mm, Orientatie, Papier};
+use crate::print_instelling::{
+    dmpaper, liggend_voor_pagina, meld, papier_uit_maat_mm, schrijft_document, Orientatie, Papier,
+};
+use crate::print_plan::{plan_opdracht, reset_nodig, reset_tussen_paginas, RESETDC_OMGEVING};
 use crate::print_plaatsing::{
     deel_linksom, deel_op_vel, draai_linksom, draaiing_voor_vel, fijnste_afbeelding_dpi, inhoud_deel, marges_uit_dc,
     passend_in_bedrukbaar, render_dpi, Bedrukbaar, DcRechthoek, DcVel, PaginaDeel, Plaatsing,
@@ -97,27 +109,55 @@ impl Drop for Opdracht {
 
 /// De DEVMODE's voor staande en liggende pagina's van één opdracht.
 ///
-/// De liggende is bij een printer die een document schrijft het liggende vel
-/// als eigen maat met een staande stand (`liggend_voor_opdracht`), en anders
-/// de liggende stand zoals altijd.
+/// De liggende is de papiercode met de liggende stand; alleen bij een printer
+/// die een document schrijft en een vel zonder standaardmaat het liggende vel
+/// als papiersoort of eigen maat met een staande stand
+/// (`liggend_voor_opdracht`).
 pub struct OpdrachtDevmodes {
     pub staand: DevMode,
     pub liggend: DevMode,
+    /// Mag de opdracht tussen pagina's van stand wisselen (`reset_beleid`)?
+    pub reset_tussen_paginas: bool,
 }
 
 impl OpdrachtDevmodes {
     pub fn maak(printer: &str, opgeslagen: Option<&[u8]>, papier: Papier) -> Result<OpdrachtDevmodes, String> {
         let prn = Printer::open(printer)?;
+        let gegevens = prn.stuurprogramma_en_poort();
         let basis = devmode_voor_opdracht(&prn, opgeslagen, papier)?;
         let staand = met_orientatie(&prn, &basis, false);
-        let liggend = liggend_voor_opdracht(&prn, &basis, &staand, papier);
-        Ok(OpdrachtDevmodes { staand, liggend })
+        let liggend = liggend_voor_opdracht(&prn, &basis, &staand, papier, gegevens.as_ref());
+        let reset_tussen_paginas = reset_beleid(printer, gegevens.as_ref());
+        Ok(OpdrachtDevmodes { staand, liggend, reset_tussen_paginas })
         // `prn` gaat hier dicht (Drop).
     }
 
     pub fn voor(&self, liggend: bool) -> &DevMode {
         if liggend { &self.liggend } else { &self.staand }
     }
+
+    /// Zijn de staande en de liggende DEVMODE byte voor byte gelijk (het
+    /// stuurprogramma kent geen stand)? Dan verandert een `ResetDC` niets.
+    pub fn gelijk(&self) -> bool {
+        self.staand.bytes() == self.liggend.bytes()
+    }
+}
+
+/// Mag een opdracht op `printer` tussen pagina's van stand wisselen
+/// (`print_plan::reset_tussen_paginas`)? `gegevens` = stuurprogramma en
+/// poort, `None` als de spooler ze niet gaf: dan als papieren printer.
+fn reset_beleid(printer: &str, gegevens: Option<&(String, String)>) -> bool {
+    let document = gegevens.is_some_and(|(s, p)| schrijft_document(s, p));
+    let omgeving = std::env::var(RESETDC_OMGEVING).ok();
+    let mag = reset_tussen_paginas(document, gegevens.map(|(s, _)| s.as_str()), omgeving.as_deref());
+    meld(&format!(
+        "[print] wisselen tussen pagina's: printer '{printer}' stuurprogramma '{}' document={} {RESETDC_OMGEVING}={} -> {}",
+        gegevens.map_or("-", |(s, _)| s.as_str()),
+        if document { "ja" } else { "nee" },
+        omgeving.as_deref().unwrap_or("-"),
+        if mag { "ResetDC waar de stand wisselt" } else { "één stand voor de hele opdracht" }
+    ));
+    mag
 }
 
 /// Het vel van de DC in mm (breedte x hoogte zoals de DC staat).
@@ -317,13 +357,21 @@ fn print_met_devmodes(
         return Err("PDF has no pages".to_string());
     }
 
-    // Oriëntatie per pagina uit de paginamaat, zonder te renderen: die van de
-    // eerste pagina moet er al zijn voordat de DC bestaat.
-    let liggend_voor = |i: u32| -> Result<bool, String> {
-        let (w, h) = pdfium_renderer::page_size_pt(doc, i)?;
-        Ok(liggend_voor_pagina(orientatie, w, h))
+    // Oriëntatie per pagina uit de paginamaat, zonder te renderen: het plan
+    // (welk vel elke pagina krijgt, en of de opdracht tussen pagina's van
+    // stand wisselt) moet er al zijn voordat de DC bestaat.
+    let liggend: Vec<bool> = (0..page_count)
+        .map(|i| {
+            let (w, h) = pdfium_renderer::page_size_pt(doc, i)?;
+            Ok(liggend_voor_pagina(orientatie, w, h))
+        })
+        .collect::<Result<_, String>>()?;
+    let reset_mag = match devmodes {
+        Some(d) => d.reset_tussen_paginas,
+        None => reset_beleid(printer, Printer::open(printer).ok().and_then(|p| p.stuurprogramma_en_poort()).as_ref()),
     };
-    let eerste_liggend = liggend_voor(0)?;
+    let plan = plan_opdracht(&liggend, reset_mag, devmodes.is_some_and(|d| d.gelijk()));
+    let eerste_liggend = plan.begin_liggend;
 
     let printer_w = breed(printer);
     let begin_devmode = devmodes.map_or(std::ptr::null(), |d| d.voor(eerste_liggend).ptr());
@@ -351,11 +399,12 @@ fn print_met_devmodes(
     let eerste_vel = dc_vel(hdc);
     meld(&format!(
         "[print] opdracht: printer '{printer}' papier={} stand={orientatie:?} plaatsing={plaatsing:?} \
-         pagina's={page_count} devmode={} eerste-pagina={} | DC-vel {dc_b:.1} x {dc_h:.1} mm ({}) \
+         pagina's={page_count} devmode={} begin={} wisselen={} | DC-vel {dc_b:.1} x {dc_h:.1} mm ({}) \
          bedrukbaar {} x {} px, {} x {} dpi",
         papier.sleutel(),
         if devmodes.is_some() { "volledig" } else { "noodweg" },
         if eerste_liggend { "liggend" } else { "staand" },
+        if plan.reset_mag { "ja" } else { "nee" },
         if dc_b > dc_h { "liggend" } else { "staand" },
         eerste_vel.bedrukbaar.0,
         eerste_vel.bedrukbaar.1,
@@ -382,15 +431,19 @@ fn print_met_devmodes(
     let scale = (dpi.min(300) as f32) / 72.0;
 
     for i in 0..page_count {
-        // Papier alleen omdraaien als deze pagina de andere kant op staat;
-        // tussen pagina's, vóór StartPage. Noodweg: ook vóór de eerste pagina
-        // als er een papier gevraagd is.
-        let liggend = if i == 0 { eerste_liggend } else { liggend_voor(i)? };
-        let reset = match &stand {
-            Stand::Volledig(d) => (liggend != dc_liggend).then(|| unsafe { ResetDCW(hdc, d.voor(liggend).ptr()) }),
-            Stand::Nood { papier: code, eerst_zetten } => (liggend != dc_liggend || (i == 0 && *eerst_zetten))
-                .then(|| unsafe { ResetDCW(hdc, &nood_devmode(printer, *code, liggend)) }),
-        };
+        // Het vel uit het plan; alleen omdraaien als het plan dat vraagt en de
+        // DC nu de andere kant op staat (`reset_nodig`), tussen pagina's, vóór
+        // StartPage. Noodweg: ook vóór de eerste pagina als er een papier
+        // gevraagd is. Staat de pagina zelf de andere kant op dan het vel, dan
+        // draait het beeld hieronder (`draaiing_voor_vel`).
+        let liggend = plan.paginas[i as usize].liggend_vel;
+        let nood_papier_zetten = matches!(stand, Stand::Nood { eerst_zetten: true, .. });
+        let reset = reset_nodig(i as usize, liggend, dc_liggend, plan.reset_mag, nood_papier_zetten).then(|| {
+            match &stand {
+                Stand::Volledig(d) => unsafe { ResetDCW(hdc, d.voor(liggend).ptr()) },
+                Stand::Nood { papier: code, .. } => unsafe { ResetDCW(hdc, &nood_devmode(printer, *code, liggend)) },
+            }
+        });
         match reset {
             // De driver weigerde; de pagina gaat met de vorige stand mee in
             // plaats van de opdracht af te breken.

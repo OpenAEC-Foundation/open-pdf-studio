@@ -350,17 +350,12 @@ pub fn velkeuze_regel(k: &VelKeuze) -> String {
     )
 }
 
-/// De omgevingsvariabele waarmee het liggende vel als eigen maat uit gaat.
+/// De omgevingsvariabele die het liggende vel bij een printer die een
+/// document schrijft regelt: 0/uit = altijd de liggende stand, 1/aan/altijd =
+/// ook bij standaardvellen een liggend vel (het gedrag van vóór issue 699),
+/// niet gezet = alleen bij vellen zonder standaardmaat
+/// (`print_plan::liggend_vel_modus`).
 pub const LIGGEND_VEL_OMGEVING: &str = "OPDS_LIGGEND_VEL";
-
-/// Staat het liggende vel als eigen maat uit? Zo blijft het terug te zetten
-/// op de liggende stand (het gedrag van vóór deze regel) zonder nieuwe
-/// versie, als een stuurprogramma er iets onverwachts mee doet.
-/// `OPDS_LIGGEND_VEL=0` (of "uit", "off", "false") zet het uit; al het
-/// andere, en een lege of ontbrekende waarde, laat het aan.
-pub fn liggend_vel_uitgezet(waarde: Option<&str>) -> bool {
-    waarde.is_some_and(|v| matches!(v.trim().to_ascii_lowercase().as_str(), "0" | "uit" | "off" | "false"))
-}
 
 /// Het liggende vel als eigen maat voor een staande DEVMODE:
 /// `(dmPaperWidth, dmPaperLength)` in 0,1 mm, de lange zijde als breedte. Uit
@@ -1172,17 +1167,6 @@ mod tests {
         let regel = velkeuze_regel(&geweigerd);
         assert!(regel.contains("nagemeten=210.0 x 297.0 mm (staand)"), "{regel}");
         assert!(regel.contains("weg=liggende stand (stuurprogramma nam het vel niet over)"), "{regel}");
-    }
-
-    #[test]
-    fn liggend_vel_is_uit_te_zetten_in_de_omgeving() {
-        for uit in ["0", " 0 ", "uit", "OFF", "False"] {
-            assert!(liggend_vel_uitgezet(Some(uit)), "{uit}");
-        }
-        for aan in ["", "1", "aan", "ja", "onzin"] {
-            assert!(!liggend_vel_uitgezet(Some(aan)), "{aan}");
-        }
-        assert!(!liggend_vel_uitgezet(None));
     }
 
     #[test]

@@ -41,6 +41,8 @@ pub mod instantie;
 pub mod print_formulieren;
 pub mod print_instelling;
 pub mod print_plaatsing;
+// Beslissingen van de Windows-printkern per opdracht (issue 699), puur.
+pub mod print_plan;
 // DEVMODE-hulp, de printerlijst uit de spooler en de GDI-printkern: alleen
 // Windows.
 #[cfg(target_os = "windows")]
