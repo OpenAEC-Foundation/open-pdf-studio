@@ -1,0 +1,4 @@
+[
+  {"snap":"open-speech-studio","repo":"open-speech-studio","tag":"v0.12.3","channel":"stable"},
+  {"snap":"open-3d-viewer","repo":"open-3d-viewer","tag":"v2026.45.12","channel":"stable"}
+]

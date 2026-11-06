@@ -1,0 +1,41 @@
+name: Publish approved logo Snap updates
+on:
+  push:
+    branches: [codex/snap-store-logo-rollout]
+    paths:
+      - .github/workflows/logo-store-rollout.yml
+      - scripts/logo-store-rollout.json
+      - scripts/publish-logo-snap.py
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: approved-logo-snap-publication
+  cancel-in-progress: false
+jobs:
+  select:
+    runs-on: ubuntu-24.04
+    outputs:
+      apps: ${{ steps.apps.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: apps
+        run: echo "apps=$(jq -c . scripts/logo-store-rollout.json)" >> "$GITHUB_OUTPUT"
+  publish:
+    needs: select
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.select.outputs.apps) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the existing Store upload client
+        run: sudo snap install snapcraft --classic
+      - name: Verify and upload the requested app update
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          SNAP_NAME: ${{ matrix.app.snap }}
+        run: python3 scripts/publish-logo-snap.py "$SNAP_NAME"
