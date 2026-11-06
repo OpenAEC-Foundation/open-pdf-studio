@@ -3814,6 +3814,7 @@ dependencies = [
  "tokio",
  "url",
  "urlencoding",
+ "webkit2gtk",
  "webview2-com",
  "whoami",
  "windows 0.61.3",

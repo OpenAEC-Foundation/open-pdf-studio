@@ -91,11 +91,19 @@ audio-tuned distributions give the `audio` group `rtprio 99`) and then gives the
 a 200 ms CPU budget; a busy thread past that budget makes the kernel kill the
 whole app without a message. The app therefore lowers its own `RLIMIT_RTPRIO` to
 0 at startup, the same as starting it with `prlimit --rtprio=0`. Set
-`OPDS_ALLOW_REALTIME=1` to keep the session's limit. If the window instead goes
-blank while zooming (the web process crashed in the GPU renderer),
-`WEBKIT_DISABLE_DMABUF_RENDERER=1` avoids it at the cost of slower rendering.
-Issue [#924](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/924)
-tracks the remaining crash.
+`OPDS_ALLOW_REALTIME=1` to keep the session's limit.
+
+**The window goes blank while zooming (GPU canvas).** The web process could
+crash in the GPU path that draws the page canvas, where the WebKitGTK in the
+AppImage meets the host's Mesa driver. The app therefore turns off GPU
+acceleration of the 2D canvas (the WebKitGTK setting
+`enable-2d-canvas-acceleration`, WebKitGTK 2.46 and later) in every window it
+opens; the canvas is then drawn on the CPU and the rest of the window stays
+GPU-composited. Set `OPDS_CANVAS_GPU=1` to keep canvas acceleration on. If the
+window still goes blank, `WEBKIT_DISABLE_DMABUF_RENDERER=1` avoids the GPU
+renderer altogether, at the cost of much slower rendering. Issue
+[#924](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/924) tracks
+these crashes.
 
 **Choosing Wayland or X11.** The AppImage's GTK hook overwrites `GDK_BACKEND`.
 Set `OPDS_GDK_BACKEND=wayland` (or `x11`) to choose the backend instead.

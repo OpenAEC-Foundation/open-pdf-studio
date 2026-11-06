@@ -343,3 +343,36 @@ test('Linux keeps WebKit threads off realtime scheduling before GTK starts (#924
   const readme = await readFile(new URL('README.md', repoRoot), 'utf8');
   assert.ok(readme.includes('docs/install-linux.md'), 'README links the Linux install page');
 });
+
+test('Linux turns off 2D canvas acceleration in every WebView, with an opt-out (#924)', async () => {
+  const runtime = await readFile(new URL('src-tauri/src/linux_runtime.rs', appRoot), 'utf8');
+  // De WebKitGTK-eigenschap (2.46+) op naam, met de bestaanscontrole ervoor:
+  // set_property op een onbekende eigenschap breekt het proces af.
+  assert.match(runtime, /const CANVAS_VERSNELLING: &str = "enable-2d-canvas-acceleration";/);
+  const zoek = runtime.indexOf('find_property(CANVAS_VERSNELLING)');
+  const zet = runtime.indexOf('set_property(CANVAS_VERSNELLING, false)');
+  assert.notEqual(zoek, -1, 'the property is looked up first');
+  assert.notEqual(zet, -1, 'the property is set to false');
+  assert.ok(zoek < zet, 'look up before set');
+  assert.match(runtime, /spec\.value_type\(\) != bool::static_type\(\)/);
+  assert.match(runtime, /ParamFlags::WRITABLE/);
+  assert.match(runtime, /env::var_os\("OPDS_CANVAS_GPU"\)/);
+  assert.match(runtime, /\.on_webview_ready\(\|webview\| zet_canvas_versnelling_uit\(&webview\)\)/);
+  assert.match(runtime, /#\[cfg\(target_os = "linux"\)\]\r?\npub fn zet_canvas_versnelling_uit</);
+  assert.match(runtime, /#\[cfg\(target_os = "linux"\)\]\r?\npub fn webview_plugin</);
+
+  const lib = await readFile(new URL('src-tauri/src/lib.rs', appRoot), 'utf8');
+  assert.match(
+    lib,
+    /#\[cfg\(target_os = "linux"\)\]\s*\{\s*builder = builder\.plugin\(linux_runtime::webview_plugin\(\)\);/,
+    'the plugin is registered for every window on Linux',
+  );
+  const cargo = await readFile(new URL('src-tauri/Cargo.toml', appRoot), 'utf8');
+  const linuxDeps = cargo.slice(cargo.indexOf(`[target.'cfg(target_os = "linux")'.dependencies]`));
+  assert.match(linuxDeps.slice(0, linuxDeps.indexOf('\n[', 1)), /^webkit2gtk = "2"\r?$/m);
+
+  const installatie = await readFile(new URL('docs/install-linux.md', repoRoot), 'utf8');
+  assert.ok(installatie.includes('OPDS_CANVAS_GPU=1'), 'docs/install-linux.md documents the opt-out');
+  assert.ok(installatie.includes('enable-2d-canvas-acceleration'), 'docs/install-linux.md names the setting');
+  assert.ok(installatie.includes('WEBKIT_DISABLE_DMABUF_RENDERER=1'), 'the stronger fallback stays documented');
+});
