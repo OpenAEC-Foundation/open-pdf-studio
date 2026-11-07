@@ -28,42 +28,8 @@ function tauriInvoke() {
   return window.__TAURI__?.core?.invoke ?? null;
 }
 
-// ─── Console ring buffer for MCP/AI observability ────────────────────────
-// Captures the most recent N console messages whose text matches the
-// observer regex. The MCP tool `app_get_recent_console` reads this and
-// returns the slice the AI client wants. Default-on so an AI agent can
-// always look back at what happened during the last few seconds without
-// any setup step on the user side.
-const CONSOLE_RING = [];
-const CONSOLE_RING_MAX = 500;
-// Expose the ring on window so in-app UI (e.g. MiniLog) can read recent
-// engine events without going through the MCP/IPC round-trip. The MCP
-// tool handler still reads the same array — single source of truth.
-try { window.__consoleRing = CONSOLE_RING; } catch { /* noop */ }
-// Patterns the render pipeline uses: [render], [tile], [wheel-zoom],
-// [PERF], [pre-render], STALE markers. Adjust if more subsystems need
-// capture later.
-const CONSOLE_CAPTURE_RE = /\[render\]|\[tile\]|\[wheel-zoom\]|\[PERF\]|\[pre-render\]|\[thumb\]|\[bitmap-orch\]|\[tile-orch\]|\[prog\]|\[prog-guard\]|\[pbc\]|\[bo\]|STALE|JANK/;
-
-function _captureConsole(level, args) {
-  try {
-    const s = args.map(a => typeof a === 'string' ? a : (a && a.message) ? a.message : String(a)).join(' ');
-    if (!CONSOLE_CAPTURE_RE.test(s)) return;
-    CONSOLE_RING.push({ t: Date.now(), level, text: s });
-    if (CONSOLE_RING.length > CONSOLE_RING_MAX) CONSOLE_RING.shift();
-  } catch {
-    // Swallow — observability MUST NOT crash the app.
-  }
-}
-
-(function patchConsole() {
-  const ORIG_LOG = console.log;
-  const ORIG_WARN = console.warn;
-  const ORIG_ERROR = console.error;
-  console.log = function (...args) { _captureConsole('log', args); ORIG_LOG.apply(console, args); };
-  console.warn = function (...args) { _captureConsole('warn', args); ORIG_WARN.apply(console, args); };
-  console.error = function (...args) { _captureConsole('error', args); ORIG_ERROR.apply(console, args); };
-})();
+// Console ring buffer: js/core/console-ring.js (loaded at start by main.js).
+import { CONSOLE_RING, CONSOLE_RING_MAX } from './core/console-ring.js';
 
 /** Send the response payload back to the awaiting Rust task. */
 async function respond(requestId, result) {
@@ -1305,6 +1271,17 @@ async function _buildCreateProps(type, page, props) {
       };
     }
 
+    case 'link': {
+      // Hyperlink (#953), dezelfde annotatie als het venster maakt: props.uri
+      // of props.page (doelpagina, + view), op een vak of op quads. De
+      // annotatie zelf staat op de `page` naast props (link-mcp.js).
+      const { linkUitMcp, LINK_MCP_VASTE_VELDEN } = await import('./annotations/link/link-mcp.js');
+      const aantal = stateMod.getActiveDocument()?.pdfDoc?.numPages ?? 1;
+      const link = linkUitMcp(p, page, aantal);
+      if (link.error) return { error: link.error };
+      return { base: link.base, vasteGeometrie: LINK_MCP_VASTE_VELDEN };
+    }
+
     case 'polygon': {
       // Veelhoek (#622): de hoekpunten zoals de tool ze hoek voor hoek
       // plaatst (points, minstens drie), of een vak voor een regelmatige
@@ -1654,8 +1631,9 @@ async function handleCreateAnnotation(params) {
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
 
   // Page: top-level param wins, then props.page, then the current page.
+  // Bij een link is props.page de DOELpagina (#953), niet waar hij staat.
   let page = doc.currentPage || 1;
-  const pageArg = params?.page ?? props.page;
+  const pageArg = params?.page ?? (type === 'link' ? undefined : props.page);
   if (pageArg != null) {
     page = Number(pageArg);
     const numPages = doc.pdfDoc?.numPages ?? 1;

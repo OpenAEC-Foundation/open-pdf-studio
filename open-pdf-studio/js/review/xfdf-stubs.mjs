@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 
 const DOEL = new URL('../annotations/xfdf.js', import.meta.url).href;
-const ECHT = new Set(['./xfdf-kleur.js', './xfdf-laag.js', './xfdf-schaalgebied.js', './xfdf-pagina.js', './fill-utils.js', './annotatie-lagen.js']);
+const ECHT = new Set(['./xfdf-kleur.js', './xfdf-laag.js', './xfdf-schaalgebied.js', './xfdf-pagina.js', './fill-utils.js', './annotatie-lagen.js', './xfdf-samenvoegen.js']);
 const MARKERING = 'xfdf-stub=';
 
 let namenPerBron = null;

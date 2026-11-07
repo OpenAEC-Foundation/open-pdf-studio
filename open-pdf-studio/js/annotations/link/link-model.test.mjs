@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   normaliseerUri, normaliseerBestand, normaliseerDoel, vakUitRegels, nieuweLinkVelden,
   raaktLink, linkVakken, linkRand, linkRanddikte, linkMarkering, doelOmschrijving,
+  herschikLinkDoel, isGebrokenDoel,
 } from './link-model.js';
 
 test('a typed web address gets a scheme; unsafe schemes are refused', () => {
@@ -74,4 +75,29 @@ test('defaults for border, width and highlight mode', () => {
   assert.equal(linkMarkering({ linkHighlight: 'X' }), 'I');
   assert.equal(doelOmschrijving({ kind: 'page', page: 4 }, (k, o) => `${k}:${o.page}`), 'link.toPage:4');
   assert.equal(doelOmschrijving({ kind: 'uri', uri: 'https://a.nl' }), 'https://a.nl');
+});
+
+test('a page target follows the page mapping; a deleted target page breaks the link', () => {
+  const doel = { kind: 'page', page: 3, fit: 'xyz', left: null, top: 500, zoom: null };
+  const verplaatst = herschikLinkDoel(doel, { 1: 2, 2: 3, 3: 1 });
+  assert.deepEqual(verplaatst, { ...doel, page: 1 });
+  assert.equal(doel.page, 3, 'the old target is not changed (undo keeps it)');
+  assert.equal(herschikLinkDoel(doel, { 1: 1, 2: 2, 3: 3 }), doel, 'unchanged: the same object');
+  assert.equal(herschikLinkDoel(doel, { 1: 1 }), doel, 'outside the mapping: unchanged');
+
+  const gebroken = herschikLinkDoel(doel, { 1: 1, 2: 2, 3: null });
+  assert.equal(isGebrokenDoel(gebroken), true);
+  assert.equal(gebroken.page, null);
+  assert.equal(gebroken.top, 500, 'the view is kept for when a new page is chosen');
+  assert.equal(herschikLinkDoel(gebroken, { 1: 3 }), gebroken, 'broken stays broken');
+
+  const web = { kind: 'uri', uri: 'https://a.nl' };
+  assert.equal(herschikLinkDoel(web, { 1: null }), web);
+  assert.equal(herschikLinkDoel(null, { 1: 2 }), null);
+  assert.equal(isGebrokenDoel(doel), false);
+  assert.equal(isGebrokenDoel(web), false);
+  // Een nieuwe pagina invullen maakt hem weer heel.
+  assert.deepEqual(normaliseerDoel({ ...gebroken, page: 2 }, 4), { kind: 'page', page: 2, fit: 'xyz', left: null, top: 500, zoom: null });
+  assert.equal(normaliseerDoel(gebroken, 4), null);
+  assert.equal(doelOmschrijving(gebroken, (k) => k), 'link.brokenPage');
 });

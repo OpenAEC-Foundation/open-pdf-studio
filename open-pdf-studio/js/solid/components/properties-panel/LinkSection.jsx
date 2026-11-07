@@ -6,6 +6,7 @@ import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { wijzigLink, bewerkLink } from '../../../annotations/link/link-maken.js';
 import { volgLink } from '../../../annotations/link/link-volgen.js';
+import { isGebrokenDoel } from '../../../annotations/link/link-model.js';
 
 // Hyperlink (#953) in het eigenschappenpaneel: het doel en de rand bewerken,
 // de link volgen, of het venster openen voor de rest (kleur, dikte).
@@ -21,6 +22,9 @@ export default function LinkSection() {
     return a?.type === 'link' ? a : null;
   };
   const aantal = () => getActiveDocument()?.pdfDoc?.numPages || 1;
+  // De doelpagina is verwijderd of vervangen: de link wijst nergens heen tot
+  // er een nieuwe pagina is ingevuld.
+  const gebroken = () => isGebrokenDoel(doel());
 
   // Een andere soort doel: een redelijke beginwaarde, zodat de link geldig blijft.
   function kiesSoort(nieuw) {
@@ -62,9 +66,14 @@ export default function LinkSection() {
                 }
               }} />
           </div>
+          <Show when={gebroken()}>
+            <div class="property-group">
+              <p class="prop-link-warning" role="alert">{t('link.brokenPageWarning')}</p>
+            </div>
+          </Show>
           <div class="property-group">
             <label>{t('link.view')}</label>
-            <select value={doel()?.fit === 'fit' ? 'fit' : 'xyz'} disabled={uit()}
+            <select value={doel()?.fit === 'fit' ? 'fit' : 'xyz'} disabled={uit() || gebroken()}
               onChange={(e) => wijzigLink(ann(), { doel: { kind: 'page', page: doel()?.page || 1, fit: e.currentTarget.value } })}>
               <option value="xyz">{t('link.viewTop')}</option>
               <option value="fit">{t('link.viewFit')}</option>
@@ -93,7 +102,7 @@ export default function LinkSection() {
         </div>
         <div class="property-group">
           <div class="prop-button-row">
-            <button class="prop-action-btn" disabled={!doel()} onClick={() => ann() && volgLink(ann())}>{t('link.follow')}</button>
+            <button class="prop-action-btn" disabled={!doel() || gebroken()} onClick={() => ann() && volgLink(ann())}>{t('link.follow')}</button>
             <button class="prop-action-btn" disabled={uit()} onClick={() => ann() && bewerkLink(ann())}>{t('link.edit')}</button>
           </div>
         </div>

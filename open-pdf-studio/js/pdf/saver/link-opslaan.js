@@ -11,12 +11,20 @@
 //                een ongewijzigde link, zie saver/bron-behoud.js).
 //   /OPS_Subtype (link): de app laadt alleen deze links weer als bewerkbare
 //                annotatie (loader/link-laden.js).
+//   /OPS_BrokenDest true: de doelpagina is verwijderd (een gebroken paginadoel,
+//                link-model.js). Er staat dan geen /Dest: de link springt in
+//                geen enkele lezer naar een verkeerde pagina.
+//
+// /Dest verwijst naar de pagina zelf (een indirecte verwijzing), niet naar een
+// nummer: verplaatst een ander programma de pagina's, dan volgt de link.
 //
 // Alleen pdf-lib: ook in node te testen.
 
 import { PDFName, PDFNumber, PDFNull, PDFString, PDFHexString } from 'pdf-lib';
 import { hexToColorArray } from '../../utils/colors.js';
-import { linkRand, linkRanddikte, linkMarkering, linkVakken, LINK_STANDAARD_KLEUR } from '../../annotations/link/link-model.js';
+import {
+  linkRand, linkRanddikte, linkMarkering, linkVakken, isGebrokenDoel, LINK_STANDAARD_KLEUR,
+} from '../../annotations/link/link-model.js';
 
 const N = (n) => PDFName.of(n);
 const rond = (v) => (Math.round(v * 1e4) / 1e4) || 0;
@@ -103,6 +111,8 @@ export function linkDoelVoorPdf(context, doel, paginas) {
     });
     return { A: context.obj({ Type: 'Action', S: 'Launch', F: spec, NewWindow: true }) };
   }
+  // Gebroken: geen doel (en niet stil de eerste pagina).
+  if (isGebrokenDoel(doel)) return {};
   if (doel.kind === 'page' && paginas?.length) {
     const nr = Math.min(paginas.length, Math.max(1, Math.round(Number(doel.page)) || 1));
     const pagina = paginas[nr - 1];
@@ -146,6 +156,7 @@ export function buildLinkDict(context, ann, { map, paginas, flags, contents = nu
     OPS_Subtype: PDFString.of('link'),
     ...linkDoelVoorPdf(context, ann.linkTarget, paginas),
   };
+  if (isGebrokenDoel(ann.linkTarget)) velden.OPS_BrokenDest = true;
   if (rand !== 'none') {
     velden.C = rgb;
     velden.BS = context.obj({ Type: 'Border', W: dikte, S: N(rand === 'underline' ? 'U' : 'S') });

@@ -140,9 +140,13 @@ js/pdf/link-rondgang.test.mjs
 js/annotations/link/link-model.test.mjs
 js/annotations/link/link-maken.test.mjs
 js/annotations/link/link-i18n.test.mjs
+js/annotations/link/link-paginas.test.mjs
+js/annotations/link/link-mcp.test.mjs
 js/help/previous-version.test.mjs
 js/quantities/engine.test.mjs
 js/quantities/staat-eenheden.test.mjs
+js/quantities/eenheid-omrekening.test.mjs
+js/solid/stores/staat-gemengde-eenheden.test.mjs
 js/quantities/schedule-image.test.mjs
 js/quantities/takeoff.test.mjs
 js/text/text-edit-appearance.test.mjs
@@ -778,3 +782,7 @@ js/solid/stores/staat-omtrek.test.mjs
 js/pdf/huisstijl-kaders.test.mjs
 scripts/goedgekeurd-logo.test.mjs
 scripts/pdf-lib-intern-pools.test.mjs
+scripts/bundel-grootte.test.mjs
+js/pdf/export-verlies.test.mjs
+js/pdf/export-verlies-bedrading.test.mjs
+js/annotations/xfdf-samenvoegen.test.mjs

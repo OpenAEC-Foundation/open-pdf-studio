@@ -120,6 +120,17 @@ export function formatCell(val, col) {
   return String(val);
 }
 
+/**
+ * Cel-tekst van één rij. Een cel die niet naar de kolomeenheid om te rekenen
+ * was (zie engine.js, `foreignUnits`) draagt zijn eigen eenheid erachter, zodat
+ * hij niet ongemerkt onder de verkeerde kop staat.
+ */
+export function formatRowCell(row, col) {
+  const tekst = formatCell(row?.vals?.[col.key], col);
+  const eigen = row?.foreignUnits?.[col.key];
+  return tekst && eigen ? `${tekst} ${eenheidNotatie(eigen)}` : tekst;
+}
+
 /** True als een cel-string een teken-bare afbeelding (data-URL) is. */
 export function isImageCell(s) {
   return typeof s === 'string' && s.startsWith('data:image');
@@ -140,7 +151,7 @@ export function scheduleResultToTable(r, title) {
     if (g.key !== null) rows.push({ group: true, cells: [`${g.key} (${g.rows.length})`] });
     if (r.itemize) {
       for (const row of g.rows) {
-        rows.push({ cells: r.columns.map(c => formatCell(row.vals[c.key], c)) });
+        rows.push({ cells: r.columns.map(c => formatRowCell(row, c)) });
       }
     }
     rows.push({ total: true, cells: r.columns.map((c, i) => i === 0 ? qLabel('quantities.subtotal', 'Subtotal') : fmtTotal(g.subtotals[c.key], c)) });

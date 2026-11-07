@@ -8,6 +8,7 @@ import { showMessage } from '../bridge.js';
 import i18next from '../i18n/config.js';
 import { textItemsToBoxes, recoverLayout, recoverDrawingLayout } from './office-layout.js';
 import { buildDocx, buildOdt, buildXlsx } from './office-files.js';
+import { bevestigExportVerlies } from '../ui/chrome/export-verlies-bevestigen.js';
 
 async function pageImage(page, rotation) {
   const base = page.getViewport({ scale: 1, rotation });
@@ -53,6 +54,8 @@ export async function exportOffice({ format, pages, includeImages = false, decim
   };
   const selected = [...new Set(pages)].filter(p => Number.isInteger(p) && p >= 1 && p <= pdf.numPages).sort((a, b) => a - b);
   if (!selected.length) return false;
+  // Opmaak, markeringen en tekeningen gaan niet (of niet als zodanig) mee (#629).
+  if (!(await bevestigExportVerlies(format, doc, { afbeeldingen: includeImages })).ok) return false;
   const base = (doc.fileName || 'document.pdf').replace(/\.pdf$/i, '');
   const path = await saveFileDialog(`${base}.${format}`, [{ name: OFFICE_FORMATS[format].filter, extensions: [format] }]);
   if (!path) return false;

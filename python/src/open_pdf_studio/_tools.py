@@ -1403,7 +1403,7 @@ class ToolMethods:
         """
         return self._call_tool("app_agent_task_result", _pack({"error": error, "id": id, "result": result}))
 
-    def create_annotation(self, type: Literal["line", "arrow", "wall", "box", "mask", "redaction", "viewport", "circle", "highlight", "cloud", "polygon", "polyline", "cloudPolyline", "spline", "draw", "filledArea", "textbox", "callout", "comment", "stamp", "signature", "image", "parametricSymbol", "measureDistance", "measureArea", "measurePerimeter", "scaleRegion", "count"], props: Dict[str, Any], *, layer: Optional[str] = None, page: Optional[int] = None) -> Any:
+    def create_annotation(self, type: Literal["line", "arrow", "wall", "box", "mask", "redaction", "viewport", "circle", "highlight", "textHighlight", "link", "cloud", "polygon", "polyline", "cloudPolyline", "spline", "draw", "filledArea", "textbox", "callout", "comment", "stamp", "signature", "image", "parametricSymbol", "measureDistance", "measureArea", "measurePerimeter", "scaleRegion", "count"], props: Dict[str, Any], *, layer: Optional[str] = None, page: Optional[int] = None) -> Any:
         """Create annotation.
 
         Create an annotation on the LIVE app's active document WITHOUT synthetic
@@ -1412,11 +1412,29 @@ class ToolMethods:
         `props` (page coordinates at 100% zoom): line/arrow/measureDistance need
         startX/startY/endX/endY;
         box/circle/highlight/cloud/textbox/callout/scaleRegion need
-        x/y/width/height; polygon takes its corners as points:[{x,y},...] (>=
-        3), or x/y/width/height (+ optional sides, default 6) for a regular
-        polygon in that box; polyline/filledArea/measureArea/measurePerimeter
-        need points:[{x,y},...]; spline needs controlPoints; draw needs path;
-        comment needs x/y. Optional style props (color, strokeColor, fillColor,
+        x/y/width/height (highlight is an area highlight; optional rotation in
+        degrees turns it about its centre); textHighlight is a real text
+        highlight and needs quads:[[ul,ur,ll,lr],...], one quad per piece of
+        text with {x,y} corners in the order upper left, upper right, lower
+        left, lower right, turned along angled text (the same object as a text
+        highlight made by selecting text; default color #FFFF00, opacity 0.3;
+        its box comes from the quads, a passed x/y/width/height is ignored;
+        invalid quads give an error and create nothing); polygon takes its
+        corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional
+        sides, default 6) for a regular polygon in that box;
+        polyline/filledArea/measureArea/measurePerimeter need
+        points:[{x,y},...]; spline needs controlPoints; draw needs path; comment
+        needs x/y; link makes the same hyperlink as the Link tool and needs a
+        target, either uri (web or e-mail address: http, https, mailto, tel or
+        ftp) or page (target page in this document, 1-based; then the annotation
+        itself goes on the top-level page) with optional view "XYZ" (default,
+        top of the page), "Fit" or {type:"XYZ",left,top,zoom} (left/top in PDF
+        points), plus x/y/width/height for the click box or
+        quads:[[ul,ur,ll,lr],...] for one box per text line (written as
+        /QuadPoints), optional border "none" (default) | "solid" | "underline"
+        with color and lineWidth; a link to a page follows that page when pages
+        are moved, inserted or deleted, and becomes broken when its target page
+        is deleted. Optional style props (color, strokeColor, fillColor,
         lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y,
         leaderEndX/Y, dimShowUnit (measureDistance: false shows the number
         only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm
@@ -1428,10 +1446,10 @@ class ToolMethods:
 
         Args:
             type (one of "line", "arrow", "wall", "box", "mask", "redaction",
-                "viewport", "circle", "highlight", "cloud", "polygon", "polyline",
-                "cloudPolyline", "spline", "draw", "filledArea", "textbox",
-                "callout", "comment", "stamp", "signature", "image",
-                "parametricSymbol", "measureDistance", "measureArea",
+                "viewport", "circle", "highlight", "textHighlight", "link", "cloud",
+                "polygon", "polyline", "cloudPolyline", "spline", "draw",
+                "filledArea", "textbox", "callout", "comment", "stamp", "signature",
+                "image", "parametricSymbol", "measureDistance", "measureArea",
                 "measurePerimeter", "scaleRegion", "count", required)
             props (object, required): Geometry + style properties for the
                 annotation.

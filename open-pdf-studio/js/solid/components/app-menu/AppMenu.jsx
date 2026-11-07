@@ -1,9 +1,11 @@
-import { Show, Switch, Match, onMount, onCleanup } from 'solid-js';
+import { Show, Switch, Match, onMount, onCleanup, lazy } from 'solid-js';
 import { isAppMenuOpen, closeAppMenu, getActivePanel, setActivePanel } from '../../stores/appMenuStore.js';
 import { openDialog } from '../../stores/dialogStore.js';
-import ImportPanel from './ImportPanel.jsx';
-import ExportPanel from './ExportPanel.jsx';
-import OpenPanel from './OpenPanel.jsx';
+// De panelen van het Bestand-menu laden pas als het menu voor het eerst
+// opengaat, als eigen chunk (#454).
+const ImportPanel = lazy(() => import('./ImportPanel.jsx'));
+const ExportPanel = lazy(() => import('./ExportPanel.jsx'));
+const OpenPanel = lazy(() => import('./OpenPanel.jsx'));
 import { openPDFFile } from '../../../pdf/loader.js';
 import { savePDF, savePDFAs } from '../../../pdf/saver.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';

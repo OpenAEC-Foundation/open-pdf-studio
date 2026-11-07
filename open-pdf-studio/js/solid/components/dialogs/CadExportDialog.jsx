@@ -18,6 +18,7 @@ import {
   luisterVoortgang, kiesDoelbestand,
 } from '../../../pdf/cad-export.js';
 import { revealInFileManager } from '../../../core/file-manager-reveal.js';
+import { bevestigExportVerlies } from '../../../ui/chrome/export-verlies-bevestigen.js';
 
 // Tellen kost bij zware bladen seconden per pagina: niet meer dan dit aantal
 // pagina's vooraf tellen, de rest volgt bij de export zelf.
@@ -217,6 +218,8 @@ export default function CadExportDialog() {
       setMelding({ soort: 'fout', tekst: t('cadExport.noPages') });
       return;
     }
+    // Welke markeringen niet in de tekening komen (#629): eerst vragen.
+    if (!(await bevestigExportVerlies('cad', doc, { annotaties: !!inst.annotations })).ok) return;
     let pad = doel();
     if (!pad) {
       pad = await kiesDoelbestand(doc, inst.format, '');
