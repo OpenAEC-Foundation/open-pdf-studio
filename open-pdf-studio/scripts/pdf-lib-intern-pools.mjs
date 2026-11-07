@@ -12,6 +12,8 @@ export function createWeakInternPool(WeakReference = globalThis.WeakRef, Registr
     if (entries.get(key) === ref) entries.delete(key);
   });
   return {
+    // Aantal sleutels in de administratie, net als Map.size (meetbaar in tests).
+    get size() { return entries.size; },
     get(key) { return entries.get(key)?.deref(); },
     set(key, value) {
       const previous = entries.get(key);
