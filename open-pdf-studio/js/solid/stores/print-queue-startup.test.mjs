@@ -84,3 +84,89 @@ test('restarting the watcher presents still-pending jobs once again', async (t) 
   assert.equal(state.created.length, 2);
   assert.ok(state.commands.every(c => !c.includes('delete')));
 });
+
+// ── remembered across app starts (print-queue-presented.js) ─────────────
+
+function withStorage(state) {
+  const map = new Map();
+  globalThis.window.localStorage = {
+    getItem: (k) => (map.has(k) ? map.get(k) : null),
+    setItem: (k, v) => { map.set(k, String(v)); },
+  };
+  return map;
+}
+
+test('a job presented in an earlier session does not pop the window at start', async (t) => {
+  const state = desktop(t, [oldJob]);
+  withStorage(state);
+  await startPrintQueueWatcher();
+  assert.equal(state.created.length, 1);
+  // Next app start: the job is still in the spool (e.g. opened in Studio).
+  stopPrintQueueWatcher();
+  await startPrintQueueWatcher();
+  assert.equal(state.created.length, 1);
+});
+
+test('a job caught while the app was closed pops the window next to presented ones', async (t) => {
+  const state = desktop(t, [oldJob]);
+  withStorage(state);
+  await startPrintQueueWatcher();
+  stopPrintQueueWatcher();
+  state.list = [oldJob, { ...oldJob, file: 'job_300.pdf' }];
+  await startPrintQueueWatcher();
+  assert.equal(state.created.length, 2);
+  assert.equal(printQueueJobs().length, 2);
+});
+
+test('jobs that left the spool are forgotten; new polls still present new jobs', async (t) => {
+  const state = desktop(t, [oldJob]);
+  const map = withStorage(state);
+  await startPrintQueueWatcher();
+  state.list = [];
+  state.tick();
+  await setImmediate();
+  assert.equal(map.get('opds.printQueue.presented'), '[]');
+  state.list = [{ ...oldJob, file: 'job_400.pdf' }];
+  state.tick();
+  await setImmediate();
+  assert.equal(state.created.length, 2);
+  assert.equal(map.get('opds.printQueue.presented'), '["job_400.pdf"]');
+});
+
+test('when the window cannot be created the jobs are presented again next start', async (t) => {
+  const state = desktop(t, [oldJob]);
+  withStorage(state);
+  const W = globalThis.window.__TAURI__.webviewWindow;
+  const Original = W.WebviewWindow;
+  W.WebviewWindow = class extends Original { constructor() { throw new Error('no window'); } };
+  t.mock.method(console, 'warn', () => {});
+  await startPrintQueueWatcher();
+  stopPrintQueueWatcher();
+  W.WebviewWindow = Original;
+  await startPrintQueueWatcher();
+  assert.equal(state.created.length, 1);
+});
+
+test('a failed sweep keeps the remembered jobs', async (t) => {
+  const state = desktop(t, [oldJob]);
+  const map = withStorage(state);
+  await startPrintQueueWatcher();
+  const remembered = map.get('opds.printQueue.presented');
+  const invoke = globalThis.window.__TAURI__.core.invoke;
+  globalThis.window.__TAURI__.core.invoke = async (c) => {
+    if (c === 'virtual_printer_jobs') throw new Error('io');
+    return invoke(c);
+  };
+  state.tick();
+  await setImmediate();
+  assert.equal(map.get('opds.printQueue.presented'), remembered);
+});
+
+test('concurrent starts share one poll timer and one window', async (t) => {
+  const state = desktop(t, [oldJob]);
+  let timers = 0;
+  t.mock.method(globalThis, 'setInterval', (tick) => { timers++; state.tick = tick; return 7; });
+  await Promise.all([startPrintQueueWatcher(), startPrintQueueWatcher()]);
+  assert.equal(timers, 1);
+  assert.equal(state.created.length, 1);
+});

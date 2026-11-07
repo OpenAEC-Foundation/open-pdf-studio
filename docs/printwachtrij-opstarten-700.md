@@ -13,6 +13,24 @@ Voorheen haalde `startPrintQueueWatcher()` de opdrachten op en markeerde ze
 meteen als bekend, zonder het venster te openen. Daardoor kon ook handmatig
 starten van de app de achtergebleven opdrachten onzichtbaar laten.
 
+Opdrachten blijven na "Openen in Studio" in de spoolmap staan (alleen
+Opslaan, Samenvoegen en Verwijderen halen ze weg, en pas nadat het wegschrijven
+gelukt is). Daarom onthoudt de watcher welke opdrachtbestanden het venster al
+heeft getoond (`localStorage`-sleutel `opds.printQueue.presented`, zie
+`js/solid/stores/print-queue-presented.js`). Een start opent het venster alleen
+voor opdrachten die daar nog niet in staan, dus niet elke start opnieuw voor
+opdrachten die al getoond of geopend zijn. Lukt het aanmaken van het venster
+niet, dan wordt niets onthouden en volgt bij de volgende start een nieuwe
+poging. Namen van opdrachten die uit de spoolmap verdwenen zijn, vallen uit de
+lijst; een mislukte spoolmap-uitlezing laat de lijst ongemoeid.
+
+De spoolmap is per gebruiker (`%LOCALAPPDATA%\OpenPDFPrinter\spool`) en hangt
+niet af van de installatievorm (per gebruiker of per machine): de installer
+zet de printer op de dialoogpoort en de app zet hem op verzoek op het
+spoolbestand van de huidige gebruiker. Verwijderen gaat alleen via kale
+`job_*.pdf`-namen in die map (geen paden, geen `:`), en met de hand toegevoegde
+PDF's zijn kopieën: het origineel van de gebruiker blijft altijd staan.
+
 ## Reproductie en testbewijs
 
 De regressietest biedt via de Tauri-grens een bestaande `job_100.pdf` aan en
