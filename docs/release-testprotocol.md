@@ -110,6 +110,18 @@ release eerst verklaren. Achtergrond en eerdere metingen:
    tekstrotatie + doorlopende weergave) ertegen, of controleer visueel:
    annotaties zichtbaar en scherp, tekstrotaties intact, doorlopende modus
    zonder witte pagina's.
+4. Linux-handtekeningen (#842): de samenvatting van de job `publish-release`
+   moet "signed and verified" melden zonder ontbrekend formaat. Een
+   waarschuwing "NOT signed" betekent dat het organisatiegeheim
+   `OPENAEC_GPG_PRIVATE_KEY` niet bij deze run kon; dan niet publiceren.
+   Controleer daarna op het concept zelf: elke `.deb`, `.AppImage` en
+   `.snap` heeft een `.asc`, en `SHA256SUMS` en `SHA256SUMS.asc` staan
+   erbij. Steekproef na download (zie `docs/install-linux.md`):
+   `gpg --verify SHA256SUMS.asc SHA256SUMS` met sleutel
+   `13F6D414ADEE4ED4CD09AC60601D86C93C504D29` en
+   `sha256sum --check --ignore-missing SHA256SUMS`. Is de snap ná de
+   job `sign-linux` opnieuw geüpload, dan moet `snap.yml` de stap
+   "Sign the Linux assets again" hebben uitgevoerd.
 
 ## 6. Visuele eindcontrole
 

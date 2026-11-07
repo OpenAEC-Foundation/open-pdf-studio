@@ -1015,14 +1015,100 @@ jobs:
           path: org.openaec.OpenPdfStudio.flatpak
           if-no-files-found: error
 
+  # Detached OpenPGP signatures for the Linux packages (#842): <file>.asc for
+  # the .deb, the .AppImage and the .snap, plus SHA256SUMS and SHA256SUMS.asc,
+  # with the existing OpenAEC release key (organisation secrets
+  # OPENAEC_GPG_PRIVATE_KEY and OPENAEC_GPG_PASSPHRASE). Runs after the build
+  # job, so the .deb and the AppImage are on the draft, and waits for the snap
+  # that snap.yml builds in its own run on the same tag. It only uploads new
+  # asset names (.asc, SHA256SUMS); latest.json, which the build matrix jobs
+  # write one after another, and the Tauri updater .sig files stay untouched.
+  # Without the secret (forks, pull requests) it signs nothing and
+  # publish-release reports that.
+  sign-linux:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    needs: [create-release, build]
+    timeout-minutes: 90
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      VERSION: ${{ needs.create-release.outputs.version }}
+      RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+      HAS_OPENPGP_KEY: ${{ secrets.OPENAEC_GPG_PRIVATE_KEY != '' }}
+      OPENAEC_GPG_EXPECTED_FINGERPRINT: 13F6D414ADEE4ED4CD09AC60601D86C93C504D29
+    outputs:
+      status: ${{ steps.sign.outputs.status }}
+      missing: ${{ steps.sign.outputs.missing }}
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # snap.yml starts on the same tag push and uploads its .snap to this
+      # draft when it is done. A manual run of this workflow does not start
+      # snap.yml, so then only a snap that is already there counts.
+      - name: Wait for the snap on the draft release
+        if: env.HAS_OPENPGP_KEY == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          wait_minutes=0
+          if [ "${{ github.event_name }}" = "push" ]; then wait_minutes=60; fi
+          deadline=$(( $(date +%s) + wait_minutes * 60 ))
+          while :; do
+            # Capture first: grep -q closing the pipe early fails it under pipefail.
+            names=$(gh api "repos/$GH_REPO/releases/$RELEASE_ID/assets" --paginate \
+              --jq '.[] | select(.state == "uploaded") | .name')
+            if grep -q '\.snap$' <<< "$names"; then
+              echo "Snap found on the release."
+              break
+            fi
+            if [ "$(date +%s)" -ge "$deadline" ]; then
+              echo "::warning::No .snap on the release after ${wait_minutes} min (snap.yml): the snap is not signed now; snap.yml signs it when it uploads it later."
+              break
+            fi
+            sleep 30
+          done
+
+      - name: Sign, upload and verify the Linux assets (OpenPGP)
+        id: sign
+        shell: bash
+        env:
+          OPENAEC_GPG_PRIVATE_KEY: ${{ secrets.OPENAEC_GPG_PRIVATE_KEY }}
+          OPENAEC_GPG_PASSPHRASE: ${{ secrets.OPENAEC_GPG_PASSPHRASE }}
+          OPENAEC_GPG_FINGERPRINT: ${{ vars.OPENAEC_GPG_FINGERPRINT }}
+        run: bash scripts/sign-linux-release.sh release "$VERSION" ../docs/keys/openaec-signing-public-key.asc
+
   publish-release:
     permissions:
       contents: write
     runs-on: ubuntu-latest
     # Android intentionally omitted — it must not gate the desktop release.
-    needs: [create-release, build]
+    needs: [create-release, build, sign-linux]
 
     steps:
+      - name: Report the Linux OpenPGP signatures
+        shell: bash
+        env:
+          SIGN_STATUS: ${{ needs.sign-linux.outputs.status }}
+          SIGN_MISSING: ${{ needs.sign-linux.outputs.missing }}
+        run: |
+          if [ "$SIGN_STATUS" = "signed" ] && [ -z "$SIGN_MISSING" ]; then
+            msg="Linux OpenPGP signatures: .deb, .AppImage, .snap and SHA256SUMS signed and verified (13F6D414ADEE4ED4CD09AC60601D86C93C504D29)."
+            echo "$msg"
+          elif [ "$SIGN_STATUS" = "signed" ]; then
+            msg="Linux OpenPGP signatures: signed and verified, but no ${SIGN_MISSING} was on the release to sign."
+            echo "::warning::$msg"
+          else
+            msg="Linux OpenPGP signatures: NOT signed, the secret OPENAEC_GPG_PRIVATE_KEY is not available to this run."
+            echo "::warning::$msg"
+          fi
+          echo "$msg" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Finalize release
         id: publish-release
         uses: actions/github-script@v8
