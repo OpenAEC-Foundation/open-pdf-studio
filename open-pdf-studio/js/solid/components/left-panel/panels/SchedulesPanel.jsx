@@ -8,7 +8,7 @@ import {
   STANDARD_SCHEDULE_TEMPLATES,
 } from '../../../stores/schedulesStore.js';
 import { initScheduleDrop, SCHEDULE_DND_MIME } from '../../../../quantities/schedule-drop.js';
-import { formatCell, fmtTotal, isImageCell } from '../../../../quantities/schedule-templates.js';
+import { formatRowCell, fmtTotal, isImageCell } from '../../../../quantities/schedule-templates.js';
 import { scheduleResultToCsv } from '../../../../quantities/schedule-csv.js';
 import { saveFileDialog, writeBinaryFile } from '../../../../core/platform.js';
 import ScheduleWizard from '../../ScheduleWizard.jsx';
@@ -153,7 +153,7 @@ export default function SchedulesPanel() {
                                           {(col) => (
                                             <td class={col.align === 'right' ? 'sp-num' : ''}>
                                               <Show when={col.kind === 'image' && isImageCell(row.vals[col.key])}
-                                                fallback={formatCell(row.vals[col.key], col)}>
+                                                fallback={formatRowCell(row, col)}>
                                                 <img class="sp-thumb" src={row.vals[col.key]} alt="" loading="lazy" />
                                               </Show>
                                             </td>

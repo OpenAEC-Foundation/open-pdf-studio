@@ -8,7 +8,7 @@ import { savePreferences } from '../../core/preferences.js';
 import { buildSchedule } from '../../quantities/engine.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
-import { verrijkVoorStaat } from './staatElementen.js';
+import { verrijkVoorStaat, documentEenheid } from './staatElementen.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
@@ -108,7 +108,10 @@ export function getScheduleById(id) {
 /** Bouw het (reactieve) engine-resultaat voor een schedule tegen het actieve doc. */
 export function buildResultForSchedule(schedule) {
   if (!schedule) return null;
-  return buildSchedule(collectElements(schedule.config?.categories), schedule.config);
+  // De schedule-config gaat ongewijzigd naar de engine (de werkboek-koppeling
+  // vergelijkt hem); de documentschaal is een aparte invoer.
+  return buildSchedule(collectElements(schedule.config?.categories), schedule.config,
+    { documentUnit: documentEenheid(getActiveDocument()) });
 }
 
 export { schedules, setSchedules, STANDARD_SCHEDULE_TEMPLATES };
