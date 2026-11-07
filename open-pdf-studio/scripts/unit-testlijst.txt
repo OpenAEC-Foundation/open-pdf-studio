@@ -773,3 +773,4 @@ js/annotations/tool-sets-formaat.test.mjs
 scripts/check-readme-images.test.mjs
 js/quantities/vlak-omtrek.test.mjs
 js/solid/stores/staat-omtrek.test.mjs
+scripts/goedgekeurd-logo.test.mjs
