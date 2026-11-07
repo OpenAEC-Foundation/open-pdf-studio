@@ -2263,6 +2263,8 @@
     "followHint": "Double-click to edit; click with the Hand tool to follow the link",
     "follow": "Follow link",
     "edit": "Edit link...",
-    "section": "Link"
+    "section": "Link",
+    "brokenPage": "Target page no longer exists",
+    "brokenPageWarning": "The target page of this link was deleted or replaced. The link goes nowhere until you choose a page."
   }
 }

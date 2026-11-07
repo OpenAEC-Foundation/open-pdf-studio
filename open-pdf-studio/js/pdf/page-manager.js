@@ -33,6 +33,7 @@ import {
   remapBookmarksForPlan, blankSizeNeighbour, blankSizeFor, shownSize,
 } from './page-edit-plan.js';
 import { herschikControles } from '../annotations/schaalcontrole.js';
+import { herschikLinkDoel } from '../annotations/link/link-model.js';
 
 // Page clipboard for cut/copy/paste
 let pageClipboard = null; // { bytes: Uint8Array, cut: boolean, sourcePageNum: number }
@@ -468,13 +469,17 @@ function leesViewportsOpnieuw(doc, bytes) {
     .catch(() => { rondViewportLezingAf(doc, kenmerk, null); /* viewports zijn optioneel */ });
 }
 
-// Build remapped annotations array based on page mapping
+// Build remapped annotations array based on page mapping. Een link van de app
+// naar een pagina in dit document volgt die pagina; is de doelpagina weg, dan
+// is de link gebroken (link-model.js herschikLinkDoel).
 function remapAnnotations(annotations, pageMapping) {
   const remapped = [];
   for (const ann of annotations) {
     const newPage = pageMapping[ann.page];
     if (newPage !== undefined && newPage !== null) {
-      remapped.push({ ...ann, page: newPage });
+      const kopie = { ...ann, page: newPage };
+      if (ann.type === 'link' && ann.linkTarget) kopie.linkTarget = herschikLinkDoel(ann.linkTarget, pageMapping);
+      remapped.push(kopie);
     }
   }
   return remapped;

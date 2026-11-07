@@ -2264,6 +2264,8 @@
     "followHint": "Double-click to edit; click with the Hand tool to follow the link",
     "follow": "Follow link",
     "edit": "Edit link...",
-    "section": "Link"
+    "section": "Link",
+    "brokenPage": "La page cible n'existe plus",
+    "brokenPageWarning": "La page cible de ce lien a été supprimée ou remplacée. Le lien ne mène nulle part tant que vous ne choisissez pas de page."
   }
 }

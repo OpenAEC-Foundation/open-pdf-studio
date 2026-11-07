@@ -8,7 +8,7 @@ import { isTauri } from '../../../core/platform.js';
 import { leesGetal } from '../../../core/getal-invoer.js';
 import { bewaarLinkKeuze, LINK_DIALOOG } from '../../../annotations/link/link-maken.js';
 import {
-  normaliseerDoel, linkRand, linkRanddikte, LINK_STANDAARD_KLEUR,
+  normaliseerDoel, linkRand, linkRanddikte, isGebrokenDoel, LINK_STANDAARD_KLEUR,
 } from '../../../annotations/link/link-model.js';
 
 // Hyperlink invoegen of bewerken (#953). Het doel: een webadres, een pagina in
@@ -26,7 +26,11 @@ export default function LinkDialog(props) {
 
   const [soort, setSoort] = createSignal(doel?.kind || 'uri');
   const [uri, setUri] = createSignal(doel?.kind === 'uri' ? doel.uri : '');
-  const [pagina, setPagina] = createSignal(String(doel?.kind === 'page' ? doel.page : Math.min(aantal, (doc?.currentPage || 1))));
+  // Een gebroken paginadoel (doelpagina verwijderd) heeft geen nummer: het
+  // veld begint leeg, zodat OK pas na een nieuwe pagina iets bewaart.
+  const gebroken = isGebrokenDoel(doel);
+  const [pagina, setPagina] = createSignal(gebroken ? ''
+    : String(doel?.kind === 'page' ? doel.page : Math.min(aantal, (doc?.currentPage || 1))));
   const [weergave, setWeergave] = createSignal(doel?.kind === 'page' && doel.fit === 'fit' ? 'fit' : 'xyz');
   const [bestand, setBestand] = createSignal(doel?.kind === 'file' ? doel.file : '');
   const [rand, setRand] = createSignal(bestaand ? linkRand(bestaand) : 'none');
@@ -109,6 +113,9 @@ export default function LinkDialog(props) {
                 value={pagina()} onInput={(e) => { setPagina(e.currentTarget.value); setFout(''); }} />
               <span class="link-dialog-note">{t('link.pageOf', { count: aantal })}</span>
             </div>
+            <Show when={gebroken}>
+              <p class="link-dialog-warning link-dialog-indent">{t('link.brokenPageWarning')}</p>
+            </Show>
             <div class="link-dialog-row link-dialog-indent">
               <label>{t('link.view')}</label>
               <PrefSelect value={weergave} setValue={setWeergave} style={{ flex: '1' }}

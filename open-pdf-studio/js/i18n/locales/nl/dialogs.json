@@ -2264,6 +2264,8 @@
     "followHint": "Dubbelklik om te bewerken; klik met de Hand om de link te volgen",
     "follow": "Link volgen",
     "edit": "Link bewerken...",
-    "section": "Link"
+    "section": "Link",
+    "brokenPage": "Doelpagina bestaat niet meer",
+    "brokenPageWarning": "De doelpagina van deze link is verwijderd of vervangen. De link gaat nergens heen tot u een pagina kiest."
   }
 }

@@ -2264,6 +2264,8 @@
     "followHint": "Double-click to edit; click with the Hand tool to follow the link",
     "follow": "Follow link",
     "edit": "Edit link...",
-    "section": "Link"
+    "section": "Link",
+    "brokenPage": "La página de destino ya no existe",
+    "brokenPageWarning": "La página de destino de este enlace se eliminó o se reemplazó. El enlace no lleva a ninguna parte hasta que elija una página."
   }
 }

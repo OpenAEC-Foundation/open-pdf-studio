@@ -8,6 +8,7 @@ import { isSafeLinkUrl } from '../../pdf/link-destination.js';
 import { isTauri } from '../../core/platform.js';
 import { slaOverInHeadless } from '../../core/headless.js';
 import { getActiveDocument } from '../../core/state.js';
+import { isGebrokenDoel } from './link-model.js';
 
 const t = (sleutel, opties) => i18next.t(sleutel, { ns: 'dialogs', ...opties });
 
@@ -59,6 +60,8 @@ export async function volgLink(ann) {
     return true;
   }
   if (doel.kind === 'page') {
+    // De doelpagina bestaat niet meer: nergens heen springen.
+    if (isGebrokenDoel(doel)) return false;
     const { handleInternalLink } = await import('../../pdf/link-layer.js');
     const naam = doel.fit === 'fit' ? 'Fit' : 'XYZ';
     await handleInternalLink([Math.max(0, (doel.page || 1) - 1), { name: naam },

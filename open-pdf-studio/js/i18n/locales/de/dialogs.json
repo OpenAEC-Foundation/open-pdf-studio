@@ -2264,6 +2264,8 @@
     "followHint": "Doppelklick zum Bearbeiten; mit der Hand klicken, um dem Link zu folgen",
     "follow": "Link folgen",
     "edit": "Link bearbeiten...",
-    "section": "Link"
+    "section": "Link",
+    "brokenPage": "Zielseite existiert nicht mehr",
+    "brokenPageWarning": "Die Zielseite dieses Links wurde gelöscht oder ersetzt. Der Link führt nirgendwohin, bis Sie eine Seite wählen."
   }
 }
