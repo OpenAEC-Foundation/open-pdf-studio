@@ -115,6 +115,43 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # OpenPGP signatures (#842). The sign-linux job of release.yml signs this
+      # snap together with the .deb and the AppImage. When that job has already
+      # signed the Linux assets before this snap arrived (SHA256SUMS is on the
+      # release), or for a manual rebuild of an existing release, the .snap.asc
+      # would not match the new snap, so sign the Linux assets again here. The
+      # script and the public key come from the default branch, because an
+      # older tag that is rebuilt does not have them.
+      - name: Check out the signing script
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: release-signing
+          sparse-checkout: |
+            open-pdf-studio/scripts/sign-linux-release.sh
+            docs/keys/openaec-signing-public-key.asc
+          sparse-checkout-cone-mode: false
+
+      - name: Sign the Linux assets again (OpenPGP)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.get-version.outputs.version }}
+          OPENAEC_GPG_PRIVATE_KEY: ${{ secrets.OPENAEC_GPG_PRIVATE_KEY }}
+          OPENAEC_GPG_PASSPHRASE: ${{ secrets.OPENAEC_GPG_PASSPHRASE }}
+          OPENAEC_GPG_FINGERPRINT: ${{ vars.OPENAEC_GPG_FINGERPRINT }}
+          OPENAEC_GPG_EXPECTED_FINGERPRINT: 13F6D414ADEE4ED4CD09AC60601D86C93C504D29
+        run: |
+          set -euo pipefail
+          names=$(gh release view "$VERSION" --json assets -q '.assets[].name')
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ] && ! grep -qx 'SHA256SUMS' <<< "$names"; then
+            echo "The sign-linux job of release.yml signs this snap."
+            exit 0
+          fi
+          bash release-signing/open-pdf-studio/scripts/sign-linux-release.sh release "$VERSION" \
+            release-signing/docs/keys/openaec-signing-public-key.asc
+
       - name: Publish to Snap Store
         if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
         run: |

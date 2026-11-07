@@ -4,6 +4,37 @@ Every [release](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/l
 has a `.deb`, an `.AppImage` and a `.snap` for x86_64 (amd64). Other
 architectures are not built.
 
+## Verifying the download (OpenPGP)
+
+Each `.deb`, `.AppImage` and `.snap` on a release has a detached OpenPGP
+signature next to it (`<file>.asc`), and `SHA256SUMS` lists the checksums of
+the Linux files, signed as `SHA256SUMS.asc`. They are made with the release key
+of the OpenAEC Foundation, primary fingerprint
+`13F6D414ADEE4ED4CD09AC60601D86C93C504D29`. The public key is in this
+repository as [`docs/keys/openaec-signing-public-key.asc`](keys/openaec-signing-public-key.asc)
+and on every release as `openaec-signing-public-key.asc`.
+
+```bash
+gpg --import openaec-signing-public-key.asc
+gpg --fingerprint 13F6D414ADEE4ED4CD09AC60601D86C93C504D29
+gpg --verify Open.PDF.Studio_*_amd64.deb.asc Open.PDF.Studio_*_amd64.deb
+gpg --verify SHA256SUMS.asc SHA256SUMS
+sha256sum --check --ignore-missing SHA256SUMS
+```
+
+Only trust a "Good signature" when the fingerprint that `gpg --fingerprint`
+prints is exactly the one above. These are signatures of the files as
+downloaded; the `.deb` has no signature embedded in the package, and the Snap
+Store checks the installed snap with its own assertions. The `.sig` files next
+to the `.deb` and the AppImage belong to the built-in updater and are a
+different signature.
+
+The release workflow (`sign-linux` job in `.github/workflows/release.yml`)
+signs the files, checks that the key has the fingerprint above and verifies
+every signature against the public key from the repository before the draft
+release is finished. When `snap.yml` uploads a snap after that job (or rebuilds
+the snap of an existing release), it signs the Linux files again.
+
 ## Snap (Ubuntu App Center)
 
 ```bash
