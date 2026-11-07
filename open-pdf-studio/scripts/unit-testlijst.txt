@@ -140,6 +140,7 @@ js/pdf/link-rondgang.test.mjs
 js/annotations/link/link-model.test.mjs
 js/annotations/link/link-maken.test.mjs
 js/annotations/link/link-i18n.test.mjs
+js/annotations/link/link-paginas.test.mjs
 js/help/previous-version.test.mjs
 js/quantities/engine.test.mjs
 js/quantities/staat-eenheden.test.mjs

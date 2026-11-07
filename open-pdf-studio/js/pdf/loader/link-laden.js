@@ -10,7 +10,7 @@
 //
 // Alleen pdf-lib: ook in node te testen.
 
-import { PDFName, PDFArray, PDFDict, PDFNumber, PDFRef, PDFString, PDFHexString } from 'pdf-lib';
+import { PDFName, PDFArray, PDFBool, PDFDict, PDFNumber, PDFRef, PDFString, PDFHexString } from 'pdf-lib';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { LINK_STANDAARD_KLEUR } from '../../annotations/link/link-model.js';
 
@@ -54,13 +54,19 @@ function paginaVan(pdfDoc, ref) {
   return null;
 }
 
-/** Een /Dest-array als paginadoel. */
+/**
+ * Een /Dest-array als paginadoel. Een verwijzing naar een pagina die niet
+ * (meer) in het document staat, is een gebroken doel: niet stil een andere
+ * pagina.
+ */
 function doelUitDest(context, pdfDoc, destRaw) {
   const dest = destRaw instanceof PDFRef ? context.lookup(destRaw) : destRaw;
   if (!(dest instanceof PDFArray) || dest.size() < 2) return null;
-  const pagina = paginaVan(pdfDoc, dest.get(0));
-  if (!pagina) return null;
+  const eerste = dest.get(0);
+  const pagina = paginaVan(pdfDoc, eerste);
   const soort = naam(dest.get(1));
+  const fit = soort === 'XYZ' ? 'xyz' : 'fit';
+  if (!pagina) return eerste instanceof PDFRef ? gebrokenDoel(fit) : null;
   if (soort === 'XYZ') {
     return {
       kind: 'page', page: pagina, fit: 'xyz',
@@ -71,8 +77,13 @@ function doelUitDest(context, pdfDoc, destRaw) {
   return { kind: 'page', page: pagina, fit: 'fit' };
 }
 
+const gebrokenDoel = (fit = 'xyz') => ({ kind: 'page', page: null, broken: true, fit });
+
 /** Het doel van de link: /Dest, of /A met /GoTo, /URI of /Launch. */
 export function leesLinkDoel(context, pdfDoc, dict) {
+  // De app schreef een gebroken paginadoel (link-opslaan.js): geen /Dest.
+  if (!dict.get(N('Dest')) && !dict.get(N('A')) && context.lookup(dict.get(N('OPS_BrokenDest'))) instanceof PDFBool
+    && context.lookup(dict.get(N('OPS_BrokenDest'))).asBoolean()) return gebrokenDoel();
   if (dict.get(N('Dest'))) return doelUitDest(context, pdfDoc, dict.get(N('Dest')));
   const actie = context.lookup(dict.get(N('A')));
   if (!(actie instanceof PDFDict)) return null;

@@ -12,6 +12,11 @@
 //                                                   of [pagina /Fit])
 //     { kind: 'file', file }                        bestand (/A /S /Launch),
 //                                                   alleen op het bureaublad
+//     { kind: 'page', page: null, broken: true, fit, ... }
+//                                                   de doelpagina is
+//                                                   verwijderd of vervangen:
+//                                                   de link wijst nergens heen
+//                                                   (geen /Dest, /OPS_BrokenDest)
 //   linkBorder                  'none' | 'solid' | 'underline'
 //   color, lineWidth            kleur en dikte van de zichtbare rand
 //   linkHighlight               /H: 'I' (omkeren, standaard), 'N', 'O', 'P'
@@ -105,6 +110,31 @@ export function normaliseerDoel(doel, aantalPaginas = Infinity) {
   }
 }
 
+/** Wijst dit paginadoel nergens meer heen (doelpagina verwijderd)? */
+export function isGebrokenDoel(doel) {
+  return !!doel && doel.kind === 'page' && (doel.broken === true || doel.page == null);
+}
+
+/**
+ * Een paginadoel na een structurele bewerking (invoegen, verwijderen,
+ * verplaatsen, vervangen): `pageMapping` is oud paginanummer -> nieuw, null
+ * voor een verwijderde pagina (zoals page-manager.js hem voor annotaties,
+ * viewports en schaalcontroles gebruikt). Een verwijderde doelpagina maakt
+ * de link gebroken: hij springt niet stil naar een andere pagina. Andere
+ * doelen, een al gebroken doel en een pagina buiten de toewijzing blijven.
+ * Geeft een nieuw object als er iets verandert (het oude blijft voor
+ * ongedaan maken).
+ * @param {object|null} doel
+ * @param {Record<number, number|null>} pageMapping
+ */
+export function herschikLinkDoel(doel, pageMapping) {
+  if (!doel || doel.kind !== 'page' || !pageMapping || isGebrokenDoel(doel)) return doel;
+  const nieuw = pageMapping[doel.page];
+  if (nieuw === undefined) return doel;
+  if (nieuw === null) return { ...doel, page: null, broken: true };
+  return nieuw === doel.page ? doel : { ...doel, page: nieuw };
+}
+
 /** De zichtbare rand: altijd een van LINK_RANDEN. */
 export function linkRand(ann) {
   return LINK_RANDEN.includes(ann?.linkBorder) ? ann.linkBorder : 'none';
@@ -132,6 +162,7 @@ export function doelOmschrijving(doel, t = null) {
   if (doel.kind === 'uri') return doel.uri;
   if (doel.kind === 'file') return doel.file;
   if (doel.kind === 'page') {
+    if (isGebrokenDoel(doel)) return t ? t('link.brokenPage') : 'Target page no longer exists';
     return t ? t('link.toPage', { page: doel.page }) : `Page ${doel.page}`;
   }
   return '';

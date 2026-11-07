@@ -123,6 +123,12 @@
   font-style: italic;
 }
 
+.prop-link-warning {
+  margin: 0;
+  font-size: 11px;
+  color: #a15c00;
+}
+
 .prop-replies-list {
   max-height: 150px;
   overflow-y: auto;

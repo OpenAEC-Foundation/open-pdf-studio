@@ -2264,6 +2264,8 @@
     "followHint": "Doppio clic per modificare; clic con la Mano per seguire il collegamento",
     "follow": "Segui collegamento",
     "edit": "Modifica collegamento...",
-    "section": "Collegamento"
+    "section": "Collegamento",
+    "brokenPage": "La pagina di destinazione non esiste più",
+    "brokenPageWarning": "La pagina di destinazione di questo collegamento è stata eliminata o sostituita. Il collegamento non porta da nessuna parte finché non scegli una pagina."
   }
 }
