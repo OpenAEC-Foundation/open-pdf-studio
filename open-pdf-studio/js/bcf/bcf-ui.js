@@ -16,6 +16,7 @@ import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 import { buildBcfZip } from './bcf-export.js';
 import { parseBcfZip } from './bcf-import.js';
+import { bevestigExportVerlies } from '../ui/chrome/export-verlies-bevestigen.js';
 
 const SNAPSHOT_MAX_PX = 1400; // cap the longest snapshot side
 
@@ -46,6 +47,8 @@ export async function exportBcfToFile() {
     showMessage(i18next.t('noAnnotationsToExport'));
     return;
   }
+  // Wat BCF niet meeneemt (#629): eerst vragen, vóór het werk.
+  if (!(await bevestigExportVerlies('bcf', doc, { annotatieLijst: annotations })).ok) return;
 
   // One snapshot per referenced page, reused for every annotation on it.
   const pages = [...new Set(annotations.map(a => a.page || 1))];

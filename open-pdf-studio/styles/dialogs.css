@@ -1035,6 +1035,59 @@
   background: var(--theme-accent-hover);
 }
 
+/* Wat een export niet meeneemt (#629, ExportVerliesDialog.jsx) */
+.export-verlies-dialog {
+  width: 460px;
+}
+
+.export-verlies-lijst {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--theme-text);
+  line-height: 1.5;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.export-verlies-auteurs {
+  margin: 8px 0 0;
+  padding: 6px 8px;
+  border: 1px solid var(--theme-border);
+  font-size: 12px;
+  color: var(--theme-text);
+}
+
+.export-verlies-auteurs-lijst {
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.export-verlies-auteur,
+.export-verlies-niet-vragen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 12px;
+  user-select: none;
+}
+
+.export-verlies-niet-vragen {
+  padding: 8px 0;
+  color: var(--theme-text-secondary);
+}
+
+.export-verlies-auteurs-knoppen {
+  display: flex;
+  gap: 6px;
+  padding-top: 6px;
+}
+
+.export-verlies-auteurs-knoppen .confirm-dialog-btn {
+  padding: 3px 10px;
+}
+
 /* Title Block Edit Dialog */
 .title-block-dialog {
   width: 450px;

@@ -2,6 +2,7 @@ import { For, lazy } from 'solid-js';
 import { getDialogs } from '../stores/dialogStore.js';
 import MessageDialog from './dialogs/MessageDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
+import ExportVerliesDialog from './dialogs/ExportVerliesDialog.jsx';
 import PasswordDialog from './dialogs/PasswordDialog.jsx';
 import RecoveryDialog from './dialogs/RecoveryDialog.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
@@ -165,6 +166,7 @@ const DIALOG_MAP = {
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
   'confirm': ConfirmDialog,
+  'export-verlies': ExportVerliesDialog,
   'host-save-as': HostSaveAsDialog,
   'host-keuze': HostKeuzeDialog,
   'tool-sets-import': ToolSetImportDialog,

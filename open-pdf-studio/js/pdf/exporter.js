@@ -12,6 +12,7 @@ import { imageWithDpi } from './image-dpi.js';
 import { PDFDocument } from 'pdf-lib';
 import { pdfiumRasterBeschikbaar, kiesRasterMotor, renderPaginaPdfium, maakJpegEncoder } from './raster-export.js';
 import { maakPixelPoort, maakVolgorde } from './raster-export-plan.js';
+import { bevestigExportVerlies } from '../ui/chrome/export-verlies-bevestigen.js';
 
 const nu = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
 const RASTER_JPEG_KWALITEIT = 0.92;
@@ -329,6 +330,8 @@ export async function exportAsRasterPdf({
 
   if (getActiveDocument() !== doc) { showMessage(exportChanged().message); return false; }
   if (!outputPath) {
+    // Tekst, vectoren, markeringen en bladwijzers worden beeld of gaan weg (#629).
+    if (!(await bevestigExportVerlies('raster', doc)).ok) return;
     const baseName = getPdfBaseName(doc);
     outputPath = await saveFileDialog(`${baseName}_raster.pdf`, [
       { name: 'PDF Files', extensions: ['pdf'] }

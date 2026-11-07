@@ -4,6 +4,7 @@ import { closeDialog } from '../../stores/dialogStore.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { pdfaLabel, bevindingTekst, wijzigingTekst } from '../../../pdf/pdfa/meldingen.js';
+import { bevestigExportVerlies } from '../../../ui/chrome/export-verlies-bevestigen.js';
 
 // PDF/A valideren en opslaan als PDF/A (#379). De validatie kijkt naar het
 // bestand zoals het opgeslagen is; "Opslaan als PDF/A" neemt ook de
@@ -49,6 +50,8 @@ export default function PdfADialog() {
   const slaOp = async () => {
     const d = getActiveDocument();
     if (!d?.pdfDoc) return;
+    // Wat dit PDF/A-deel weghaalt of plat maakt (#629): eerst vragen.
+    if (!(await bevestigExportVerlies('pdfa', d, { deel: deel() })).ok) return;
     controller?.abort();
     controller = new AbortController();
     setFout(''); setMelding(''); setRapport(null); setConversie(null);

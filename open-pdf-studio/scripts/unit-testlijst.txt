@@ -783,3 +783,6 @@ js/pdf/huisstijl-kaders.test.mjs
 scripts/goedgekeurd-logo.test.mjs
 scripts/pdf-lib-intern-pools.test.mjs
 scripts/bundel-grootte.test.mjs
+js/pdf/export-verlies.test.mjs
+js/pdf/export-verlies-bedrading.test.mjs
+js/annotations/xfdf-samenvoegen.test.mjs
