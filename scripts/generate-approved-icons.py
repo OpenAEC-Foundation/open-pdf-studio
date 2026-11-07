@@ -28,6 +28,9 @@ for app in json.loads((ROOT / 'docs/branding/icons.json').read_text()):
             image.resize((256, 256), Image.Resampling.LANCZOS).save(path, sizes=[(s,s) for s in (16,24,32,48,64,128,256)])
         elif suffix == '.icns':
             image.resize((1024,1024), Image.Resampling.LANCZOS).save(path)
+        elif suffix == '.png' and size == image.size:
+            # Same size as the approved master: keep its exact bytes (and checksum).
+            path.write_bytes(source.read_bytes())
         else:
             image.resize(size, Image.Resampling.LANCZOS).save(path, optimize=True)
     print(app['name'] + ': ' + str(len(app['outputs'])) + ' icons regenerated')

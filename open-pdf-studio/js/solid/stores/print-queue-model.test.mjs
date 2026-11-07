@@ -27,6 +27,7 @@ import {
   selectedInOrder,
   selectionSummary,
   clampPage,
+  addedJobFileName,
 } from './print-queue-model.js';
 
 const A4 = [595.28, 841.89];
@@ -44,6 +45,17 @@ test('embeddedFileName: added files carry their real name after a double undersc
   assert.equal(embeddedFileName('job_1__.pdf'), null);
   assert.equal(embeddedFileName(''), null);
   assert.equal(embeddedFileName(undefined), null);
+});
+
+test('addedJobFileName: a hand-added PDF always gets a listed job_*.pdf name', () => {
+  assert.equal(addedJobFileName(1729000000000, 'Rapport fase 2.pdf'), 'job_1729000000000__Rapport fase 2.pdf');
+  // Upper-case extensions: the queue only lists names ending in ".pdf".
+  assert.equal(addedJobFileName(5, 'SCAN.PDF'), 'job_5__SCAN.pdf');
+  assert.equal(addedJobFileName(5, 'a:b*c?.pdf'), 'job_5__a_b_c_.pdf');
+  assert.equal(addedJobFileName(5, 'tab\there.pdf'), 'job_5__tab_here.pdf');
+  assert.equal(addedJobFileName(5, '.pdf'), 'job_5__document.pdf');
+  assert.equal(addedJobFileName(-3.7, 'x.pdf'), 'job_0__x.pdf');
+  assert.equal(embeddedFileName(addedJobFileName(5, 'SCAN.PDF')), 'SCAN.pdf');
 });
 
 test('cleanPrintTitle: trims, collapses white space and drops control characters', () => {
