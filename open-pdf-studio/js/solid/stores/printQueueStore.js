@@ -146,11 +146,12 @@ export async function startPrintQueueWatcher() {
   } catch (_) {
     return;
   }
-  // Seed the known set WITHOUT popping the dialog for jobs that were already
-  // sitting in the spool from a previous session.
+  // Jobs captured while the app was closed still need to be presented.
+  // Seed the known set so subsequent polls do not reopen them repeatedly.
   const initial = await refreshPrintQueue();
   _knownFiles = new Set(initial.map(j => j.file));
   _timer = setInterval(() => { _tick(); }, POLL_MS);
+  if (initial.length > 0) await openPrintQueueWindow();
 }
 
 export function stopPrintQueueWatcher() {
