@@ -25,7 +25,7 @@ import TypeLengthHUD from './components/TypeLengthHUD.jsx';
 import KeystrokeOverlay from './components/KeystrokeOverlay.jsx';
 import BoxSizeOverlay from './components/BoxSizeOverlay.jsx';
 import SketchModeBar from './components/SketchModeBar.jsx';
-import CompareView from './components/compare/CompareView.jsx';
+import CompareView from './components/compare/CompareViewLazy.jsx';
 import SplitPane from './components/SplitPane.jsx';
 import { DockedToolPalette, FloatingToolPalette, DockTargets, PaletteContextMenu } from './components/ToolPalette.jsx';
 import { DockedExtPalette, FloatingExtPalette, ExtDockTargets } from './components/ExtensionToolPalette.jsx';

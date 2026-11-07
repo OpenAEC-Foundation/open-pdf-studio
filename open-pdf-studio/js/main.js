@@ -83,8 +83,10 @@ import { initFontDropdowns } from './utils/fonts.js';
 
 // MCP bridge — wires up `mcp:*` event listeners so the in-process MCP
 // server (started with `--mcp-server`) can drive the LIVE WebView from
-// outside. Inert when Tauri isn't present.
-import { initMcpBridge } from './mcp-bridge.js';
+// outside. Inert when Tauri isn't present. De brug zelf (ruim 190 kB) laadt
+// pas in init(), als eigen chunk (#454); de console-ringbuffer die hij
+// uitleest, schrijft vanaf hier mee, net als toen de brug hier stond.
+import './core/console-ring.js';
 
 // i18n
 import i18next from './i18n/config.js';
@@ -327,8 +329,12 @@ async function init() {
   // event-listener registration on window.__TAURI__.event — it does not need
   // the window to be visible or DOM-ready. Wiring it here means the in-process
   // MCP server's `app_*` tools are available during the remaining startup.
-  // Inert outside Tauri.
-  initMcpBridge().catch(e => console.warn('initMcpBridge failed:', e));
+  // Inert outside Tauri: daar wordt de brug niet eens geladen (#454).
+  if (window.__TAURI__?.core?.invoke) {
+    import('./mcp-bridge.js')
+      .then(m => m.initMcpBridge())
+      .catch(e => console.warn('initMcpBridge failed:', e));
+  }
 
   // "Open PDF Printer" job queue: watch the spool so prints from ANY
   // application pop the in-app sort/merge dialog. No-op when the virtual
