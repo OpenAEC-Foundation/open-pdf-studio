@@ -5,6 +5,14 @@ import { startPrintQueueWatcher, stopPrintQueueWatcher, printQueueJobs } from '.
 
 function desktop(t, initial = [], existing = false) {
   const previousWindow = globalThis.window;
+  const previousStorage = globalThis.localStorage;
+  const leeg = new Map();
+  globalThis.localStorage = {
+    getItem: (k) => (leeg.has(k) ? leeg.get(k) : null),
+    setItem: (k, v) => { leeg.set(k, String(v)); },
+    removeItem: (k) => { leeg.delete(k); },
+    clear: () => { leeg.clear(); },
+  };
   const state = { list: initial, installed: true, created: [], shown: 0, focused: 0, commands: [], tick: null };
   const queueWindow = { show: async () => { state.shown++; }, setFocus: async () => { state.focused++; } };
   class WebviewWindow {
@@ -26,7 +34,12 @@ function desktop(t, initial = [], existing = false) {
     assert.equal(ms, 2500); state.tick = tick; return 123;
   });
   t.mock.method(globalThis, 'clearInterval', () => { state.tick = null; });
-  t.after(() => { stopPrintQueueWatcher(); globalThis.window = previousWindow; });
+  t.after(() => {
+    stopPrintQueueWatcher();
+    globalThis.window = previousWindow;
+    if (previousStorage === undefined) delete globalThis.localStorage;
+    else globalThis.localStorage = previousStorage;
+  });
   return state;
 }
 
@@ -80,6 +93,9 @@ test('restarting the watcher presents still-pending jobs once again', async (t) 
   await startPrintQueueWatcher();
   assert.equal(state.created.length, 1);
   stopPrintQueueWatcher();
+  // Zonder herinnering (opslag gewist) toont een herstart ze opnieuw; met
+  // herinnering niet, zie de tests hieronder.
+  globalThis.localStorage.clear();
   await startPrintQueueWatcher();
   assert.equal(state.created.length, 2);
   assert.ok(state.commands.every(c => !c.includes('delete')));
@@ -89,11 +105,15 @@ test('restarting the watcher presents still-pending jobs once again', async (t) 
 
 function withStorage(state) {
   const map = new Map();
-  globalThis.window.localStorage = {
+  globalThis.localStorage = {
     getItem: (k) => (map.has(k) ? map.get(k) : null),
     setItem: (k, v) => { map.set(k, String(v)); },
+    removeItem: (k) => { map.delete(k); },
+    clear: () => { map.clear(); },
   };
-  return map;
+  // core/opslag.js zet de sleutel van de module met het voorvoegsel 'opds:';
+  // de tests lezen hem onder de naam van de module.
+  return { get: (naam) => map.get(`opds:${naam}`) };
 }
 
 test('a job presented in an earlier session does not pop the window at start', async (t) => {

@@ -12,6 +12,7 @@
 
 import { createSignal } from 'solid-js';
 import { isTauri } from '../../core/platform.js';
+import { leesOpslag, schrijfOpslag } from '../../core/opslag.js';
 import { headlessVensterOpties, toonEnFocus } from '../../core/headless.js';
 import {
   readPresented, writePresented, unpresentedJobs, nextPresented, sameSet,
@@ -27,9 +28,14 @@ let _knownFiles = new Set();
 let _starting = null;
 let _lastSweepOk = false;
 
-/** localStorage of this WebView, or null (tests, blocked storage). */
+/** De opslag van de app (core/opslag.js) in de getItem/setItem-vorm die
+ *  print-queue-presented.js verwacht. opslag.js valt zelf terug op geheugen
+ *  als localStorage ontbreekt of geblokkeerd is. */
 function _storage() {
-  try { return globalThis.window?.localStorage || null; } catch (_) { return null; }
+  return {
+    getItem: (sleutel) => leesOpslag(sleutel),
+    setItem: (sleutel, waarde) => schrijfOpslag(sleutel, waarde),
+  };
 }
 
 /** Remember which jobs have been presented, pruned to `list`. */
