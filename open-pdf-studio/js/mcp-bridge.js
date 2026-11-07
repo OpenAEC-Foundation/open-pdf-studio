@@ -1305,6 +1305,17 @@ async function _buildCreateProps(type, page, props) {
       };
     }
 
+    case 'link': {
+      // Hyperlink (#953), dezelfde annotatie als het venster maakt: props.uri
+      // of props.page (doelpagina, + view), op een vak of op quads. De
+      // annotatie zelf staat op de `page` naast props (link-mcp.js).
+      const { linkUitMcp, LINK_MCP_VASTE_VELDEN } = await import('./annotations/link/link-mcp.js');
+      const aantal = stateMod.getActiveDocument()?.pdfDoc?.numPages ?? 1;
+      const link = linkUitMcp(p, page, aantal);
+      if (link.error) return { error: link.error };
+      return { base: link.base, vasteGeometrie: LINK_MCP_VASTE_VELDEN };
+    }
+
     case 'polygon': {
       // Veelhoek (#622): de hoekpunten zoals de tool ze hoek voor hoek
       // plaatst (points, minstens drie), of een vak voor een regelmatige
@@ -1654,8 +1665,9 @@ async function handleCreateAnnotation(params) {
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
 
   // Page: top-level param wins, then props.page, then the current page.
+  // Bij een link is props.page de DOELpagina (#953), niet waar hij staat.
   let page = doc.currentPage || 1;
-  const pageArg = params?.page ?? props.page;
+  const pageArg = params?.page ?? (type === 'link' ? undefined : props.page);
   if (pageArg != null) {
     page = Number(pageArg);
     const numPages = doc.pdfDoc?.numPages ?? 1;
