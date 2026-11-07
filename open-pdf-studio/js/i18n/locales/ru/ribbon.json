@@ -181,7 +181,9 @@
     "unflattenAll": "Отменить сглаживание",
     "unflattenAllTooltip": "Восстановить пометки, сглаженные с разрешённым восстановлением",
     "fileAttachment": "Прикрепить файл",
-    "fileAttachmentTitle": "Вложенный файл: щёлкните на странице и выберите файл"
+    "fileAttachmentTitle": "Вложенный файл: щёлкните на странице и выберите файл",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Отображение страницы",

@@ -140,7 +140,8 @@
     "highlightSelection": "เน้นข้อความที่เลือก",
     "strikethroughSelection": "ขีดฆ่าข้อความที่เลือก",
     "underlineSelection": "ขีดเส้นใต้ข้อความที่เลือก",
-    "curvedLeaderSelection": "เพิ่มคำบรรยายเส้นโค้ง"
+    "curvedLeaderSelection": "เพิ่มคำบรรยายเส้นโค้ง",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "ลบคำอธิบายประกอบนี้?",

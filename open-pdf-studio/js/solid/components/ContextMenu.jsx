@@ -49,6 +49,7 @@ import { stramienSlotStatus, schakelStramienSlot, slotLabelSleutel } from '../..
 import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
 import { getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { getSelectedText, clearTextSelection } from '../../text/text-selection.js';
+import { isPdfAReadOnly } from '../../pdf/loader.js';
 import { showCalibrationDialog } from '../../annotations/measurement.js';
 import { openDialog } from '../stores/dialogStore.js';
 import { getSelectedPagesArray, formatPageRangeString, selectAllPages, clearPageSelection } from '../stores/panels/thumbnailStore.js';
@@ -1395,6 +1396,13 @@ function TextSelectionMenuContent() {
       <MenuItem label={t('textSelection.underlineSelection')} onClick={() => {
         createTextMarkupAnnotation('textUnderline', '#0000FF', 1.0);
         clearTextSelection();
+      }} />
+
+      <Separator />
+
+      {/* Hyperlink op de geselecteerde tekst (#953): de regels worden /QuadPoints. */}
+      <MenuItem label={t('textSelection.linkSelection')} disabled={isPdfAReadOnly()} onClick={() => {
+        import('../../annotations/link/link-maken.js').then((m) => m.linkUitSelectie());
       }} />
 
     </>

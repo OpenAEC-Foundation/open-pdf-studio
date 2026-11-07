@@ -181,7 +181,9 @@
     "unflattenAll": "เลิกรวม",
     "unflattenAllTooltip": "กู้คืนมาร์กอัปที่รวมไว้โดยอนุญาตให้กู้คืน",
     "fileAttachment": "แนบไฟล์",
-    "fileAttachmentTitle": "ไฟล์แนบ: คลิกบนหน้าแล้วเลือกไฟล์"
+    "fileAttachmentTitle": "ไฟล์แนบ: คลิกบนหน้าแล้วเลือกไฟล์",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "การแสดงหน้า",

@@ -181,7 +181,9 @@
     "unflattenAll": "Desfés l'aplanat",
     "unflattenAllTooltip": "Restaura les marques aplanades amb la restauració permesa",
     "fileAttachment": "Adjunta un fitxer",
-    "fileAttachmentTitle": "Fitxer adjunt: feu clic a la pàgina i trieu un fitxer"
+    "fileAttachmentTitle": "Fitxer adjunt: feu clic a la pàgina i trieu un fitxer",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Visualització de pàgina",

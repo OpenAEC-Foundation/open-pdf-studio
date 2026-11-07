@@ -318,7 +318,8 @@
     "redaction": "Redacció",
     "scaleBar": "Barra d'escala",
     "parametricSymbol": "Símbol paramètric",
-    "fileAttachment": "Fitxer adjunt"
+    "fileAttachment": "Fitxer adjunt",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Commuta el panell",

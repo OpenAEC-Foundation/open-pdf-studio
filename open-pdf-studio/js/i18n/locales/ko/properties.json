@@ -318,7 +318,8 @@
     "redaction": "교정",
     "scaleBar": "축척 막대",
     "parametricSymbol": "파라메트릭 기호",
-    "fileAttachment": "파일 첨부"
+    "fileAttachment": "파일 첨부",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "패널 전환",

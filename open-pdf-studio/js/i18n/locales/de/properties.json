@@ -318,7 +318,8 @@
     "redaction": "Schwärzung",
     "scaleBar": "Maßstabsleiste",
     "parametricSymbol": "Parametrisches Symbol",
-    "fileAttachment": "Dateianhang"
+    "fileAttachment": "Dateianhang",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Seitenleiste ein-/ausblenden",

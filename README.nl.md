@@ -108,6 +108,8 @@ De desktop-app heeft een ingebouwde MCP-server, zodat een AI-assistent met je do
 
 Jij houdt de regie. De server staat aan bij een nieuwe installatie en luistert alleen op je eigen computer (`127.0.0.1`, poort 9223); zet hem uit of kies een andere poort onder Settings > General. De statusbalk laat zien wanneer een assistent verbonden is en welk gereedschap hij het laatst gebruikte. `open-pdf-studio.mcpb` uit de release installeert de koppeling in MCP-clients die `.mcpb`-bundels ondersteunen; [mcp-stdio/README.md](mcp-stdio/README.md) legt de brug voor andere clients uit. Een [Python-bibliotheek](docs/python-library.md) bedient dezelfde gereedschappen vanuit een script.
 
+**Waar je document heen gaat.** De MCP-verbinding zelf blijft op je computer, maar de assistent die je koppelt bepaalt waar het werk gebeurt. Gebruikt die een online AI-dienst, dan kunnen de paginatekst, schermafbeeldingen en markeringen die hij via de gereedschappen leest naar die dienst gaan. Lees de gegevensvoorwaarden van die dienst voordat je hem op vertrouwelijke tekeningen loslaat, of gebruik een assistent met een model dat lokaal draait.
+
 ## Testen en betrouwbaarheid
 
 - **746 unittestbestanden** draaien met `npm run test:unit` op Windows, Linux en macOS in [CI](.github/workflows/ci.yml) bij elke pull request, plus 3 testbestanden voor kwaliteitsregressie (`npm run test:quality`).
@@ -122,7 +124,7 @@ Bron van de getallen: de unittestbestanden zijn de regels zonder `#` in [`open-p
 ## Huidige beperkingen
 
 - **Linux-pakketten tot en met 2026.44.8 tekenen zonder de workerpool.** Ze misten de `pdfium-worker`, dus elke pagina werd in het hoofdproces getekend en grote documenten waren traag ([#923](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/923)). De oplossing staat op `main` en komt mee met de volgende release.
-- **Op sommige Linux-systemen kan de app nog vastlopen bij zoomen.** Het verlagen van de realtime-grens nam één oorzaak weg; het issue blijft open voor de rest ([#924](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/924), oplossingen in [docs/install-linux.md](docs/install-linux.md)).
+- **Op sommige Linux-systemen kan de app nog vastlopen bij zoomen.** De app verlaagt nu de realtime-grens en zet de GPU-versnelling van het paginacanvas uit, de twee bekende oorzaken; het issue blijft open tot dat op getroffen systemen bevestigd is ([#924](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/924), oplossingen in [docs/install-linux.md](docs/install-linux.md)).
 - **Een Android-update installeert niet over de vorige versie.** Elke release ondertekent de APK met een nieuwe sleutel, dus Android weigert de update; verwijder eerst de oude versie ([#601](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/601)). De Android-app heeft geen OCR en tekent met PDF.js.
 - **De browserversie heeft geen desktopfuncties.** Afdrukken, OCR, CAD-import en -export, comprimeren, PDF/X, IFC-export, documentbeveiliging, extensies, updates, de MCP-server en het controleren van handtekeningen vragen de desktop-app.
 - **Sommige virusscanners slaan aan op de Windows-installer.** De installers zijn ondertekend, maar een nieuwe release heeft eerst weinig reputatie bij de virusscanner van Windows en vergelijkbare scanners ([#761](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/761), [docs/windows-distribution.md](docs/windows-distribution.md)).

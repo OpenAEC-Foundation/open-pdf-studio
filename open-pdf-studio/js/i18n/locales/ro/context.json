@@ -140,7 +140,8 @@
     "highlightSelection": "Evidentiare selectie",
     "strikethroughSelection": "Barare selectie",
     "underlineSelection": "Subliniere selectie",
-    "curvedLeaderSelection": "Adăugare explicație curbată"
+    "curvedLeaderSelection": "Adăugare explicație curbată",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Stergeti aceasta adnotare?",

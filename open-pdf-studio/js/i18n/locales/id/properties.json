@@ -318,7 +318,8 @@
     "redaction": "Redaksi",
     "scaleBar": "Batang Skala",
     "parametricSymbol": "Simbol Parametrik",
-    "fileAttachment": "Lampiran file"
+    "fileAttachment": "Lampiran file",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Tampilkan/Sembunyikan Panel",

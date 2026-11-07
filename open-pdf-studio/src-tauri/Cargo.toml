@@ -56,7 +56,13 @@ open-pdf-signatures = { path = "../../open-pdf-signatures" }
 # Documentbeveiliging: AES-256 (V 5 / R 6) instellen, behouden en lezen (#378).
 open-pdf-security = { path = "../../open-pdf-security" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
-pdfium-render = { version = "0.9.4", features = ["thread_safe", "image_025"] }
+# Bindings voor PDFium 7881: de nieuwste binding die niet nieuwer is dan de
+# meegeleverde PDFium (chromium/8076, binaries/pdfium-runtime.json). De
+# standaard-feature pdfium_latest wijst sinds 0.9.5 naar 8125 en bindt dan bij
+# het laden ook functies die 8076 niet exporteert (FPDF_StructElement_GetRawType):
+# het binden faalt en PDFium blijft weg. Bij een PDFium-revisiewissel hier mee
+# omhoog; scripts/pdfium-runtime.test.mjs bewaakt dat.
+pdfium-render = { version = "0.9.5", default-features = false, features = ["pdfium_7881", "thread_safe", "image_025"] }
 # Ontsleutelen van PDF's met een wachtwoord (src/beveiligde_pdf.rs): een paar
 # PDFium-functies die pdfium-render niet aanbiedt. Zelfde versie als pdfium-render.
 libloading = "0.9"
@@ -167,6 +173,9 @@ zbus = "5.9"
 # setrlimit(RLIMIT_RTPRIO) bij het starten (src/linux_runtime.rs, #924); staat
 # al in Cargo.lock.
 libc = "0.2"
+# WebKitSettings van elke WebView: 2D-canvasversnelling uit (src/linux_runtime.rs,
+# #924). Dezelfde crate die tauri/wry meebrengen; staat al in Cargo.lock.
+webkit2gtk = "2"
 
 # Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
 # certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de

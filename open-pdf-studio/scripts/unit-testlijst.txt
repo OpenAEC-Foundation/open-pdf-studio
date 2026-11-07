@@ -136,6 +136,10 @@ js/pdf/continuous-zoom-anchor.test.mjs
 js/pdf/continuous-rerender-gate.test.mjs
 js/pdf/continuous-render-scale.test.mjs
 js/pdf/link-destination.test.mjs
+js/pdf/link-rondgang.test.mjs
+js/annotations/link/link-model.test.mjs
+js/annotations/link/link-maken.test.mjs
+js/annotations/link/link-i18n.test.mjs
 js/help/previous-version.test.mjs
 js/quantities/engine.test.mjs
 js/quantities/staat-eenheden.test.mjs
@@ -163,6 +167,7 @@ js/pdf/document-release-vrijgeven.test.mjs
 js/pdf/progressive-view-guard.test.mjs
 js/pdf/print-pagina-instelling.test.mjs
 js/pdf/print-papier.test.mjs
+js/pdf/print-plan-bron.test.mjs
 js/pdf/getoonde-pagina.test.mjs
 js/tools/middelmuis-pan-beleid.test.mjs
 js/tools/middelmuis-dubbelklik.test.mjs
@@ -317,6 +322,7 @@ js/tools/tools/meting-documentschaal.test.mjs
 js/tools/tools/meting-blad-1-50.test.mjs
 js/annotations/userunit-schaalbronnen.test.mjs
 js/annotations/userunit-gemengd-document.test.mjs
+js/annotations/dynamic-scaling-eenheid.test.mjs
 js/solid/components/dialogs/confirm-dialog-i18n.test.mjs
 js/annotations/vlak-zijden.test.mjs
 js/annotations/vlak-maat.test.mjs
@@ -339,6 +345,7 @@ js/core/opslag.test.mjs
 js/core/host-opslag.test.mjs
 js/core/host-brug.test.mjs
 js/core/site-host.test.mjs
+js/core/host-voorkeuren.test.mjs
 js/core/werkplek-app.test.mjs
 js/core/host-opslaan-als.test.mjs
 js/core/blob-worker.test.mjs
@@ -715,6 +722,7 @@ js/solid/components/tool-palette-i18n.test.mjs
 scripts/ui-scale.test.mjs
 js/annotations/rendering/document-context.test.mjs
 js/pdf/monochrome-image.test.mjs
+js/pdf/ccitt-g4.test.mjs
 js/solid/components/titlebar-afsluiten.test.mjs
 js/pdf/pagina-viewport.test.mjs
 js/solid/data/gdt-bibliotheek.test.mjs
@@ -763,3 +771,5 @@ js/pdf/saver/bron-snelheid.test.mjs
 scripts/meet-opslaan-grote-set.test.mjs
 js/annotations/tool-sets-formaat.test.mjs
 scripts/check-readme-images.test.mjs
+js/quantities/vlak-omtrek.test.mjs
+js/solid/stores/staat-omtrek.test.mjs

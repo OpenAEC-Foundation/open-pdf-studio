@@ -181,7 +181,9 @@
     "unflattenAll": "Скасувати зведення",
     "unflattenAllTooltip": "Відновити розмітку, зведену з дозволеним відновленням",
     "fileAttachment": "Прикріпити файл",
-    "fileAttachmentTitle": "Вкладений файл: клацніть на сторінці та виберіть файл"
+    "fileAttachmentTitle": "Вкладений файл: клацніть на сторінці та виберіть файл",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Відображення сторінки",

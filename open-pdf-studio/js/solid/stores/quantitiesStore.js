@@ -7,52 +7,12 @@ import { scheduleUsesLocation } from '../../quantities/categories.js';
 import { collectZones, locationFor } from '../../annotations/spatial-zones.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
-import { getMeasureScale } from '../../annotations/measurement.js';
+import { verrijkVoorStaat } from './staatElementen.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
 import { getTemplate } from '../../symbols/registry.js';
 import { scheduleVisible, setScheduleVisible, toggleSchedule } from './scheduleStore.js';
-
-// Lijnvormige annotatietypes zónder eigen measureValue: hun lengte moet uit de
-// geometrie + document-schaal komen (net als de meet-tools). measureDistance/
-// measurePerimeter dragen hun waarde al zelf, dus die verrijken we niet.
-const LENGTH_TYPES = new Set(['line', 'arrow', 'polyline', 'wall', 'spline', 'arc', 'draw']);
-
-// Getekende vlakken zonder eigen measureValue: idem voor de OPPERVLAKTE-kolom,
-// die voor deze typen tot nu toe leeg bleef. measureArea draagt zijn waarde al
-// zelf en wordt dus niet verrijkt.
-const AREA_TYPES = new Set([
-  'filledArea', 'polygon', 'cloud', 'cloudPolyline',
-  'box', 'mask', 'redaction', 'highlight', 'circle', 'ellipse',
-]);
-
-// Representatief punt van een lijnvormig element voor schaal-lookup
-// (scaleRegion/scaleBar zijn positie-afhankelijk).
-function lengthMidpoint(a) {
-  if (typeof a.startX === 'number' && typeof a.endX === 'number') {
-    return { x: (a.startX + a.endX) / 2, y: (a.startY + a.endY) / 2 };
-  }
-  if (typeof a.x === 'number' && typeof a.y === 'number'
-      && typeof a.width === 'number' && typeof a.height === 'number') {
-    return { x: a.x + a.width / 2, y: a.y + a.height / 2 };
-  }
-  const pts = Array.isArray(a.points) ? a.points : (Array.isArray(a.path) ? a.path : null);
-  if (pts && pts.length) {
-    const cx = pts.reduce((s, p) => s + (p.x ?? 0), 0) / pts.length;
-    const cy = pts.reduce((s, p) => s + (p.y ?? 0), 0) / pts.length;
-    return { x: cx, y: cy };
-  }
-  return { x: 0, y: 0 };
-}
-
-// Verrijk een lijn-annotatie met de opgeloste px-per-eenheid schaal zodat de
-// pure categories.js-lengteberekening pixels → meter kan omrekenen.
-function withScale(a) {
-  const mid = lengthMidpoint(a);
-  const scale = getMeasureScale(a.page || 1, mid.x, mid.y);
-  return { ...a, __pxPerUnit: scale.pixelsPerUnit, __unit: scale.unit };
-}
 
 // --- Config signals ---
 const [selectedCategories, setSelectedCategories] = createSignal(['area', 'line-based', 'count']);
@@ -83,21 +43,8 @@ function collectElements() {
   const doc = getActiveDocument();
   // Eén doorloop: de schaalbronnen van het document worden één keer verzameld
   // in plaats van per element opnieuw uit de hele annotatielijst (#491).
-  const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => {
-    if (a.type === 'count') return { ...a, __countCatName: countCatName(a.categoryId) };
-    // Lijnen/pijlen zonder eigen measureValue: schaal meegeven zodat de
-    // LENGTE-kolom een werkelijke lengte in meter kan tonen.
-    if (LENGTH_TYPES.has(a.type) && typeof a.measureValue !== 'number') return withScale(a);
-    // Getekende vlakken: schaal meegeven zodat de OPPERVLAKTE-kolom gevuld
-    // raakt in plaats van leeg te blijven.
-    if (AREA_TYPES.has(a.type)) return withScale(a);
-    // Meet-vlakken en -lijnen dragen hun eigen eenheid, maar niet altijd; geef
-    // de opgeloste schaal mee als terugval voor de kolomeenheid.
-    if (a.type === 'measureArea' || a.type === 'measureDistance' || a.type === 'measurePerimeter') {
-      return a.measureUnit ? a : withScale(a);
-    }
-    return a;
-  }));
+  // Schaal per element: zie staatElementen.js (lengte, oppervlakte, omtrek).
+  const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => verrijkVoorStaat(a, countCatName)));
   const bi = selectedCategories().includes('text-built-in') ? builtInText() : [];
   // Wapening: buigstaat-regels uit stavenreeksen en wapeningssymbolen.
   const rebar = selectedCategories().includes('reinforcement')

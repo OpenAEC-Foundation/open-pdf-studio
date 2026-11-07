@@ -318,7 +318,8 @@
     "redaction": "השחרה",
     "scaleBar": "סרגל קנה מידה",
     "parametricSymbol": "סמל פרמטרי",
-    "fileAttachment": "קובץ מצורף"
+    "fileAttachment": "קובץ מצורף",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "החלפת לוח",

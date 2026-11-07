@@ -318,7 +318,8 @@
     "redaction": "Kitörlés",
     "scaleBar": "Aránymérték",
     "parametricSymbol": "Paraméteres szimbólum",
-    "fileAttachment": "Fájlmelléklet"
+    "fileAttachment": "Fájlmelléklet",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Panel váltása",

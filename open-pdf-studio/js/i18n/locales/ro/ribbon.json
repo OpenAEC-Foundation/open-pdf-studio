@@ -181,7 +181,9 @@
     "unflattenAll": "Anulare aplatizare",
     "unflattenAllTooltip": "Restaurează marcajele aplatizate cu restaurarea permisă",
     "fileAttachment": "Atașează fișier",
-    "fileAttachmentTitle": "Atașament: faceți clic pe pagină și alegeți un fișier"
+    "fileAttachmentTitle": "Atașament: faceți clic pe pagină și alegeți un fișier",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Afisare pagina",

@@ -181,7 +181,9 @@
     "unflattenAll": "لغو مسطح‌سازی",
     "unflattenAllTooltip": "بازگرداندن نشانه‌گذاری‌هایی که با اجازهٔ بازگردانی مسطح شده‌اند",
     "fileAttachment": "پیوست کردن فایل",
-    "fileAttachmentTitle": "پیوست فایل: روی صفحه کلیک کنید و فایلی را انتخاب کنید"
+    "fileAttachmentTitle": "پیوست فایل: روی صفحه کلیک کنید و فایلی را انتخاب کنید",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "نمایش صفحه",

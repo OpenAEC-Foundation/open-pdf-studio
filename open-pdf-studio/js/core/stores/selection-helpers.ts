@@ -169,6 +169,7 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
     case 'stamp':
     case 'signature':
     case 'redaction':
+    case 'link':
     case 'viewport':
     case 'scaleRegion':
     case 'scaleBar':

@@ -10,7 +10,7 @@ import test from 'node:test';
 import {
   appEvent, appNaam, werkplekNaam, hernoemInTekst, werkplekDefinities, maakWerkplekApp, kapAntwoordAf,
   controleerArgumenten, NIET_IN_BROWSER, ARGUMENT_GRENZEN, AFBEELDING_TOOLS, STAND_TOOL, MAX_ANTWOORD_TEKENS,
-  WerkplekAppFout, FOUTCODES,
+  WerkplekAppFout, FOUTCODES, standUit,
 } from './werkplek-app.js';
 import { maakLuiApp, installeerWerkplekApp } from './werkplek-app-start.js';
 import { mcpToolsJson, MCP_TOOLS_BESTAND } from '../../scripts/werkplek-mcp-tools.mjs';
@@ -219,6 +219,38 @@ test('pdf_stand: klein, uit dezelfde handlers', async () => {
     selectedAnnotations: ['ann-1', '2'],
   });
   assert.deepEqual(aanroepen.map((a) => a.event), ['mcp:list-tabs', 'mcp:get-current-tool']);
+});
+
+test('desktop: elke pdf_-naam van de werkplek is een alias van een app_-tool in tools.json', () => {
+  const desktopNamen = new Set(DESKTOP.map((t) => t.name));
+  const defs = werkplekDefinities(DESKTOP);
+  assert.ok(defs.length > 50);
+  for (const { name } of defs) {
+    if (name === STAND_TOOL) continue;
+    const app = appNaam(name);
+    assert.ok(app && desktopNamen.has(app), `${name}: geen ${app} in mcp-stdio/tools.json`);
+  }
+  // De Rust-server kent dezelfde regel: voorvoegsel pdf_ -> app_, pdf_stand apart.
+  assert.match(RUST, /pub const WERKPLEK_VOORVOEGSEL: &str = "pdf_";/);
+  assert.match(RUST, /pub const STAND_TOOL: &str = "pdf_stand";/);
+  assert.match(RUST, /Cow::Owned\(format!\("app_\{rest\}"\)\)/);
+  assert.match(RUST, /STAND_TOOL\s*=>\s*tool_app_request\(state,\s*"mcp:stand"/);
+  assert.ok(HANDLER_NAMEN.has('mcp:stand'), 'mcp:stand staat in HANDLERS van mcp-bridge.js');
+  // Geen pdf_-dubbelen in de lijst van de desktop.
+  assert.ok(!DESKTOP.some((t) => t.name.startsWith('pdf_')));
+});
+
+test('standUit: dezelfde samenstelling voor de desktop (mcp:stand) en de werkplek', () => {
+  assert.deepEqual(standUit({ activeIndex: 1, tabs: [{ index: 1, fileName: 'a.pdf', filePath: 'C:/a.pdf' }] }, { tool: 'hand' }, () => [5]), {
+    ok: true,
+    activeIndex: 1,
+    tabs: [{ index: 1, fileName: 'a.pdf', pageCount: 0, currentPage: null, modified: false, active: false, annotationCount: 0 }],
+    tool: 'hand',
+    selectedAnnotations: ['5'],
+  });
+  assert.deepEqual(standUit(null, null, () => { throw new Error('x'); }), {
+    ok: true, activeIndex: null, tabs: [], tool: null, selectedAnnotations: [],
+  });
 });
 
 test('__OPDS_APP__ is lui: de MCP-laag laadt pas bij de eerste aanroep, en opnieuw na een mislukking', async () => {

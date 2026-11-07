@@ -41,6 +41,8 @@ pub mod instantie;
 pub mod print_formulieren;
 pub mod print_instelling;
 pub mod print_plaatsing;
+// Beslissingen van de Windows-printkern per opdracht (issue 699), puur.
+pub mod print_plan;
 // DEVMODE-hulp, de printerlijst uit de spooler en de GDI-printkern: alleen
 // Windows.
 #[cfg(target_os = "windows")]
@@ -3138,6 +3140,12 @@ pub fn run(opts: StartupOpts) {
     #[cfg(desktop)]
     {
         builder = builder.plugin(crashlog::plugin());
+    }
+    // Linux: 2D-canvasversnelling uit in elke WebView (#924, crash B in
+    // Skia's GPU-pad); OPDS_CANVAS_GPU=1 laat haar aan.
+    #[cfg(target_os = "linux")]
+    {
+        builder = builder.plugin(linux_runtime::webview_plugin());
     }
     // Drag-out window detach is desktop-only (no mobile backend in the crate).
     #[cfg(not(target_os = "android"))]

@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { svgRealSizeMm, stampPlacementSize, overrideStampMaat } from './svg-real-size.js';
-import { OVERRIDE_STAMP_DEFAULT_HEIGHT, SYMBOL_STAMP_DEFAULT_SIZE } from './stamp-defaults.js';
+import {
+  svgRealSizeMm, stampPlacementSize, overrideStampMaat, symboolMaatSoort, ptPerPapierMm, PT_PER_PAPIER_MM,
+} from './svg-real-size.js';
+import { OVERRIDE_STAMP_DEFAULT_HEIGHT, SYMBOL_PAPER_HEIGHT_MM } from './stamp-defaults.js';
 
 test('leest een werkelijke maat in mm van de SVG-root', () => {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="65.0mm" height="14.0mm" viewBox="0 0 65 14">';
@@ -107,18 +109,27 @@ test('de gemelde CAD-SVG (65 x 14 mm) komt op ware maat binnen', () => {
 // dat die ene berekening de gekozen schaal meeneemt.
 const PALET_SYMBOOL = {
   stampSvg: '<svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="32"/></svg>',
-  stampHeight: SYMBOL_STAMP_DEFAULT_SIZE,
+  stampPaperHeightMm: SYMBOL_PAPER_HEIGHT_MM,
 };
+// Hoogte van een paletsymbool op een pagina met /UserUnit 1.
+const PALET_H = SYMBOL_PAPER_HEIGHT_MM * PT_PER_PAPIER_MM;
+const bijna = (a, b, tekst = '') => assert.ok(Math.abs(a - b) <= 0.006, `${tekst}: ${a} is not ${b}`);
 
 test('overrideStampMaat: zonder schaal de bekende paletmaat', () => {
-  assert.deepEqual(overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2 }), { width: 800, height: 400 });
-  assert.deepEqual(overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2, schaal: 1 }), { width: 800, height: 400 });
+  for (const r of [
+    overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2 }),
+    overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2, schaal: 1 }),
+  ]) {
+    bijna(r.height, PALET_H, 'hoogte');
+    bijna(r.width, 2 * PALET_H, 'breedte');
+  }
 });
 
 test('overrideStampMaat: de gekozen schaal werkt op voorbeeld en plaatsing gelijk', () => {
   for (const schaal of [0.25, 0.5, 2, 3]) {
     const r = overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 2, schaal });
-    assert.deepEqual(r, { width: 800 * schaal, height: 400 * schaal }, `schaal ${schaal}`);
+    bijna(r.height, PALET_H * schaal, `hoogte bij ${schaal}`);
+    bijna(r.width, 2 * PALET_H * schaal, `breedte bij ${schaal}`);
   }
 });
 
@@ -144,5 +155,75 @@ test('voorbeeld en plaatsing gebruiken dezelfde maatbron', async () => {
     const code = bron(pad);
     assert.match(code, /overrideStampMaat\(/, `${pad} rekent niet via overrideStampMaat`);
     assert.match(code, /schaal:\s*huidigeSymboolSchaal\(\)/, `${pad} geeft de symboolschaal niet mee`);
+  }
+});
+
+// --- #983: annotatiesymbolen op papiermaat, symbolen op werkelijke maat ------
+
+test('maatsoort: paletsymbool = papier, SVG met echte maat = werkelijk, rest = standaard', () => {
+  assert.equal(symboolMaatSoort(PALET_SYMBOOL), 'papier');
+  assert.equal(symboolMaatSoort({ ...PALET_SYMBOOL, stampSvg: '<svg width="600mm" height="600mm" viewBox="0 0 6 6">' }), 'werkelijk');
+  assert.equal(symboolMaatSoort({ stampSvg: PALET_SYMBOOL.stampSvg }), 'standaard');
+  assert.equal(symboolMaatSoort({ stampImage: 'data:image/png;base64,' }), 'standaard');
+  assert.equal(symboolMaatSoort(null), 'standaard');
+});
+
+test('#983: een annotatiesymbool heeft op 1x op elke tekeningschaal dezelfde papiermaat', () => {
+  // Paginaeenheden per werkelijke mm op 1:1, 1:50, 1:100 en 1:500, en zonder schaal.
+  const maten = [PT_PER_PAPIER_MM, PT_PER_PAPIER_MM / 50, PT_PER_PAPIER_MM / 100, PT_PER_PAPIER_MM / 500, 0]
+    .map((pxPerMm) => overrideStampMaat(PALET_SYMBOOL, { pxPerMm, aspect: 1, schaal: 1 }));
+  for (const r of maten) {
+    bijna(r.height, PALET_H, 'hoogte');
+    bijna(r.width, PALET_H, 'breedte');
+  }
+  // Op papier: SYMBOL_PAPER_HEIGHT_MM millimeter.
+  bijna(maten[1].height / PT_PER_PAPIER_MM, SYMBOL_PAPER_HEIGHT_MM, 'papier-mm');
+});
+
+test('#983: een zinnige papiermaat, kleiner dan een ruimte op een A3-plattegrond 1:50', () => {
+  assert.ok(SYMBOL_PAPER_HEIGHT_MM >= 5 && SYMBOL_PAPER_HEIGHT_MM <= 15, `${SYMBOL_PAPER_HEIGHT_MM} mm`);
+  // Een kamer van 3 m op 1:50 is 60 mm papier: het symbool past er ruim in.
+  const kamer = 3000 * (PT_PER_PAPIER_MM / 50);
+  const r = overrideStampMaat(PALET_SYMBOOL, { pxPerMm: PT_PER_PAPIER_MM / 50, aspect: 1, schaal: 1 });
+  assert.ok(r.height < kamer / 4, `${r.height} pt tegen een kamer van ${kamer} pt`);
+});
+
+test('#983: de papiermaat rekent met de /UserUnit van de pagina', () => {
+  bijna(ptPerPapierMm(1), PT_PER_PAPIER_MM, 'UserUnit 1');
+  bijna(ptPerPapierMm(2), PT_PER_PAPIER_MM / 2, 'UserUnit 2');
+  bijna(ptPerPapierMm(0), PT_PER_PAPIER_MM, 'onzin');
+  const r = overrideStampMaat(PALET_SYMBOOL, { pxPerMm: 0, aspect: 1, ptPerMmPapier: ptPerPapierMm(2) });
+  bijna(r.height, PALET_H / 2, 'hoogte op UserUnit 2');
+});
+
+test('#983: de symboolschaal werkt op de papiermaat', () => {
+  const r = overrideStampMaat(PALET_SYMBOOL, { pxPerMm: PT_PER_PAPIER_MM / 50, aspect: 1, schaal: 2 });
+  bijna(r.height, 2 * PALET_H, 'hoogte bij 2x');
+});
+
+test('#983: een symbool op werkelijke maat volgt de tekeningschaal (ongewijzigd)', () => {
+  // Een SVG van 600 x 600 mm (bv. een meubelstuk) uit het palet.
+  const ov = { ...PALET_SYMBOOL, stampSvg: '<svg width="600mm" height="600mm" viewBox="0 0 6 6">' };
+  const op50 = overrideStampMaat(ov, { pxPerMm: PT_PER_PAPIER_MM / 50, aspect: 1, schaal: 1 });
+  const op100 = overrideStampMaat(ov, { pxPerMm: PT_PER_PAPIER_MM / 100, aspect: 1, schaal: 1 });
+  bijna(op50.height, 600 * PT_PER_PAPIER_MM / 50, '1:50');
+  bijna(op100.height, 600 * PT_PER_PAPIER_MM / 100, '1:100');
+  // Zonder tekeningschaal valt hij terug op de papiermaat van het palet.
+  bijna(overrideStampMaat(ov, { pxPerMm: 0, aspect: 1 }).height, PALET_H, 'zonder schaal');
+});
+
+test('#983: een extensie-stempel zonder papiermaat houdt zijn hoogte in paginaeenheden', () => {
+  const r = overrideStampMaat({ stampSvg: PALET_SYMBOOL.stampSvg, stampHeight: 120 }, { pxPerMm: PT_PER_PAPIER_MM / 50, aspect: 2 });
+  assert.deepEqual(r, { width: 240, height: 120 });
+});
+
+test('#983: het palet plaatst stempels als annotatiesymbool op papiermaat', async () => {
+  const { readFileSync } = await import('node:fs');
+  const palet = readFileSync(new URL('../solid/components/SymbolPalette.jsx', import.meta.url), 'utf8');
+  assert.match(palet, /stampPaperHeightMm: SYMBOL_PAPER_HEIGHT_MM/);
+  assert.doesNotMatch(palet, /stampHeight:/);
+  for (const pad of ['./stamps.js', '../tools/tools/text-tool.js']) {
+    const code = readFileSync(new URL(pad, import.meta.url), 'utf8');
+    assert.match(code, /ptPerMmPapier:\s*stampPtPerPapierMm\(page\)/, `${pad} geeft de papiermaat van de pagina niet mee`);
   }
 });

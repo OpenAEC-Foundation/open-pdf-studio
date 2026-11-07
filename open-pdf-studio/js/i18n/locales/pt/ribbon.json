@@ -181,7 +181,9 @@
     "unflattenAll": "Desfazer achatamento",
     "unflattenAllTooltip": "Restaurar as marcações achatadas com restauração permitida",
     "fileAttachment": "Anexar arquivo",
-    "fileAttachmentTitle": "Anexo de arquivo: clique na página e escolha um arquivo"
+    "fileAttachmentTitle": "Anexo de arquivo: clique na página e escolha um arquivo",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Exibição de página",

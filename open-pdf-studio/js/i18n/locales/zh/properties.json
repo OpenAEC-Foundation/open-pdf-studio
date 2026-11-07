@@ -318,7 +318,8 @@
     "redaction": "密文",
     "scaleBar": "比例尺",
     "parametricSymbol": "参数化符号",
-    "fileAttachment": "文件附件"
+    "fileAttachment": "文件附件",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "切换面板",

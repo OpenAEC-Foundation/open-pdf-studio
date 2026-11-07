@@ -9,7 +9,7 @@ import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { openDialog } from '../bridge.js';
 import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, BUILT_IN_STAMPS } from './stamp-defaults.js';
 import { overrideStampMaat } from './svg-real-size.js';
-import { stampPxPerMm } from './stamp-scale.js';
+import { stampPxPerMm, stampPtPerPapierMm } from './stamp-scale.js';
 import { rasterizeSvg } from './svg-raster.js';
 import { AFBEELDING_EXTENSIES } from './afbeelding-bron.js';
 import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
@@ -133,6 +133,7 @@ export async function placeOverrideStamp(x, y) {
     // (tools/text-tool.js), inclusief de gekozen symboolschaal (#357).
     const size = overrideStampMaat(overrides, {
       pxPerMm: stampPxPerMm(page, x, y),
+      ptPerMmPapier: stampPtPerPapierMm(page),
       aspect,
       schaal: huidigeSymboolSchaal(),
     });

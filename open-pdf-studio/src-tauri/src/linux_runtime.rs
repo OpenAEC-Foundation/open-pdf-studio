@@ -96,6 +96,12 @@ pub fn running_in_snap() -> bool {
 /// `OPDS_ALLOW_REALTIME=1` keeps the limit as the session set it.
 #[cfg(any(target_os = "linux", test))]
 fn realtime_toegestaan(waarde: Option<&OsStr>) -> bool {
+    omgevingsvlag_aan(waarde)
+}
+
+/// "1", "true", "yes" of "on" (hoofdletters en spaties maken niet uit).
+#[cfg(any(target_os = "linux", test))]
+fn omgevingsvlag_aan(waarde: Option<&OsStr>) -> bool {
     let Some(waarde) = waarde.and_then(OsStr::to_str) else {
         return false;
     };
@@ -120,6 +126,65 @@ pub fn disable_realtime_threads() {
     }
 }
 
+/// GPU-versnelling van het 2D-canvas (#924, crash B). Met versnelling tekent
+/// WebKitGTK (2.46+, Skia) `ctx.fill()` via Skia's GPU-pad op de Mesa van de
+/// host, terwijl de AppImage een WebKit van de bouwmachine meebrengt. Bij
+/// zoomen kwam de cache van GPU-resources daar in een ongeldige toestand en
+/// viel het webproces uit met SIGILL (leeg venster). Zonder versnelling tekent
+/// het canvas op de CPU; de rest van de compositie blijft op de GPU, anders dan
+/// bij `WEBKIT_DISABLE_DMABUF_RENDERER=1`. `OPDS_CANVAS_GPU=1` houdt de
+/// versnelling aan.
+#[cfg(any(target_os = "linux", test))]
+const CANVAS_VERSNELLING: &str = "enable-2d-canvas-acceleration";
+
+#[cfg(any(target_os = "linux", test))]
+fn canvas_gpu_toegestaan(waarde: Option<&OsStr>) -> bool {
+    omgevingsvlag_aan(waarde)
+}
+
+/// Zet de 2D-canvasversnelling uit in de WebKitSettings van deze WebView. De
+/// eigenschap bestaat pas sinds WebKitGTK 2.46 en de webkit2gtk-crate heeft er
+/// geen setter voor; daarom op naam, en alleen als ze bestaat, schrijfbaar is
+/// en een boolean is (`set_property` breekt anders af). Oudere WebKitGTK tekent
+/// het canvas met Cairo en heeft dit pad niet.
+#[cfg(target_os = "linux")]
+pub fn zet_canvas_versnelling_uit<R: tauri::Runtime>(webview: &tauri::Webview<R>) {
+    if canvas_gpu_toegestaan(env::var_os("OPDS_CANVAS_GPU").as_deref()) {
+        return;
+    }
+    let label = webview.label().to_string();
+    let resultaat = webview.with_webview(move |platform| {
+        use webkit2gtk::glib::prelude::{ObjectExt, StaticType};
+        use webkit2gtk::glib::ParamFlags;
+        use webkit2gtk::WebViewExt;
+
+        let Some(instellingen) = platform.inner().settings() else {
+            return;
+        };
+        let Some(spec) = instellingen.find_property(CANVAS_VERSNELLING) else {
+            return;
+        };
+        if spec.value_type() != bool::static_type() || !spec.flags().contains(ParamFlags::WRITABLE) {
+            return;
+        }
+        instellingen.set_property(CANVAS_VERSNELLING, false);
+        eprintln!("[startup] 2D canvas acceleration off for webview '{label}' (#924)");
+    });
+    if let Err(e) = resultaat {
+        eprintln!("[startup] could not reach the webview settings: {e}");
+    }
+}
+
+/// Plugin die elke WebView van de app (hoofdvenster, printwachtrij en elk
+/// ander venster) bij het aanmaken langs `zet_canvas_versnelling_uit` stuurt.
+/// Een losgetrokken tabblad is een eigen app-proces en krijgt deze plugin ook.
+#[cfg(target_os = "linux")]
+pub fn webview_plugin<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    tauri::plugin::Builder::new("opds-linux-webview")
+        .on_webview_ready(|webview| zet_canvas_versnelling_uit(&webview))
+        .build()
+}
+
 /// "flatpak", "snap" or None: the package sandbox this process runs in.
 pub fn sandbox() -> Option<&'static str> {
     if running_in_flatpak() {
@@ -133,7 +198,10 @@ pub fn sandbox() -> Option<&'static str> {
 
 #[cfg(test)]
 mod tests {
-    use super::{is_flatpak_sandbox, is_snap_omgeving, packaged_gio_module_dir, realtime_toegestaan};
+    use super::{
+        canvas_gpu_toegestaan, is_flatpak_sandbox, is_snap_omgeving, packaged_gio_module_dir,
+        realtime_toegestaan, CANVAS_VERSNELLING,
+    };
     use std::env;
     use std::ffi::OsStr;
     use std::path::PathBuf;
@@ -257,6 +325,17 @@ mod tests {
         assert!(!realtime_toegestaan(Some(OsStr::new("false"))));
         for aan in ["1", "true", "YES", " on "] {
             assert!(realtime_toegestaan(Some(OsStr::new(aan))), "{aan}");
+        }
+    }
+
+    #[test]
+    fn canvas_acceleration_stays_off_unless_explicitly_allowed() {
+        assert_eq!(CANVAS_VERSNELLING, "enable-2d-canvas-acceleration");
+        assert!(!canvas_gpu_toegestaan(None));
+        assert!(!canvas_gpu_toegestaan(Some(OsStr::new("0"))));
+        assert!(!canvas_gpu_toegestaan(Some(OsStr::new("off"))));
+        for aan in ["1", "true", "Yes", " ON "] {
+            assert!(canvas_gpu_toegestaan(Some(OsStr::new(aan))), "{aan}");
         }
     }
 }

@@ -318,7 +318,8 @@
     "redaction": "Ufutaji",
     "scaleBar": "Upau wa Kipimo",
     "parametricSymbol": "Ishara ya Vigezo",
-    "fileAttachment": "Kiambatisho cha faili"
+    "fileAttachment": "Kiambatisho cha faili",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Badilisha Paneli",

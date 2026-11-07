@@ -58,7 +58,11 @@ Local only, never the internet:
 
 - the automation server (MCP) is on for a new installation and listens only on
   `127.0.0.1` (`localhost`); switch it off under Settings > General (a managed
-  deployment can bind it elsewhere, see docs/managed-deployments.md);
+  deployment can bind it elsewhere, see docs/managed-deployments.md). The
+  connection is local, but the assistant that connects to it is not part of
+  the app: if that assistant uses an online AI service, what it reads through
+  the tools (page text, screenshots, annotations) can go to that service under
+  its own terms;
 - printing on Linux and macOS talks to the local print service;
 - the sign-in flow returns to the app through `localhost`;
 - `ipc.localhost` is the internal channel between the window and the app.

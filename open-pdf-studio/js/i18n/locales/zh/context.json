@@ -140,7 +140,8 @@
     "highlightSelection": "高亮选择",
     "strikethroughSelection": "删除线选择",
     "underlineSelection": "下划线选择",
-    "curvedLeaderSelection": "添加曲线标注"
+    "curvedLeaderSelection": "添加曲线标注",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "删除此批注？",

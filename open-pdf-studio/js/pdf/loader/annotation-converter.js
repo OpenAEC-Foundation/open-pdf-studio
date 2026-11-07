@@ -193,6 +193,39 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
   };
 
   switch (annot.subtype) {
+    case 'Link': {
+      // Een link van de app (#953): extraColors.link komt uit
+      // loader/link-laden.js. Een link zonder die gegevens (van een ander
+      // programma) blijft buiten het model; pdf/link-layer.js volgt hem.
+      const link = extraColors.link;
+      if (!link) return null;
+      const rects = [];
+      if (Array.isArray(link.quads)) {
+        for (let i = 0; i + 7 < link.quads.length; i += 8) {
+          const q = link.quads.slice(i, i + 8);
+          const xs = [q[0], q[2], q[4], q[6]];
+          const ys = [q[1], q[3], q[5], q[7]];
+          rects.push(convertRect([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]));
+        }
+      }
+      const vak = convertRect(rect);
+      return createAnnotation({
+        ...baseProps,
+        type: 'link',
+        x: vak.x, y: vak.y, width: vak.width, height: vak.height,
+        ...(rects.length > 0 ? { rects } : {}),
+        linkTarget: link.doel || null,
+        linkBorder: link.rand,
+        color: link.kleur,
+        strokeColor: link.kleur,
+        lineWidth: link.dikte,
+        linkHighlight: link.markering,
+        // pdf.js-id: pdf/link-layer.js laat de klikbare laag van deze link weg,
+        // de app tekent en volgt hem zelf.
+        ...(annot.id ? { pdfLinkId: annot.id } : {}),
+      });
+    }
+
     case 'Highlight':
     case 'Underline':
     case 'StrikeOut':

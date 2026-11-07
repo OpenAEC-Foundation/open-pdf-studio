@@ -50,6 +50,7 @@ import RecoveryDialog from './dialogs/RecoveryDialog.jsx';
 import HandtekeningDetailDialog from './dialogs/HandtekeningDetailDialog.jsx';
 import ViewportScaleDialog from './dialogs/ViewportScaleDialog.jsx';
 import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
+import LinkDialog from './dialogs/LinkDialog.jsx';
 import MeasuredLengthDialog from './dialogs/MeasuredLengthDialog.jsx';
 import ScreenCalibrationDialog from './dialogs/ScreenCalibrationDialog.jsx';
 import TitleBlockDialog from './dialogs/TitleBlockDialog.jsx';
@@ -166,6 +167,7 @@ const DIALOG_MAP = {
   'title-block-edit': TitleBlockDialog,
   'viewport-scale': ViewportScaleDialog,
   'scale-region': ScaleRegionDialog,
+  'link': LinkDialog,
   'measured-length': MeasuredLengthDialog,
   'screen-calibration': ScreenCalibrationDialog,
   'compare': CompareDialog,

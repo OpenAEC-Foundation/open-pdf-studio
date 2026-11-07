@@ -318,7 +318,8 @@
     "redaction": "Redigiranje",
     "scaleBar": "Grafičko mjerilo",
     "parametricSymbol": "Parametarski simbol",
-    "fileAttachment": "Privitak datoteke"
+    "fileAttachment": "Privitak datoteke",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Prebaci ploču",

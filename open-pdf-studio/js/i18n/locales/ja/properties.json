@@ -318,7 +318,8 @@
     "redaction": "墨消し",
     "scaleBar": "スケールバー",
     "parametricSymbol": "パラメトリックシンボル",
-    "fileAttachment": "ファイル添付"
+    "fileAttachment": "ファイル添付",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "パネルの切替",

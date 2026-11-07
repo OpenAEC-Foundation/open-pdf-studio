@@ -181,7 +181,9 @@
     "unflattenAll": "தட்டையாக்கலை செயல்தவிர்",
     "unflattenAllTooltip": "மீட்டெடுப்பு அனுமதியுடன் தட்டையாக்கப்பட்ட குறியீடுகளை மீட்டெடு",
     "fileAttachment": "கோப்பை இணை",
-    "fileAttachmentTitle": "கோப்பு இணைப்பு: பக்கத்தில் கிளிக் செய்து ஒரு கோப்பைத் தேர்ந்தெடுக்கவும்"
+    "fileAttachmentTitle": "கோப்பு இணைப்பு: பக்கத்தில் கிளிக் செய்து ஒரு கோப்பைத் தேர்ந்தெடுக்கவும்",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "பக்க காட்சி",

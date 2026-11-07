@@ -181,7 +181,9 @@
     "unflattenAll": "Batalkan perataan",
     "unflattenAllTooltip": "Pulihkan markup yang diratakan dengan pemulihan diizinkan",
     "fileAttachment": "Lampirkan file",
-    "fileAttachmentTitle": "Lampiran file: klik pada halaman dan pilih file"
+    "fileAttachmentTitle": "Lampiran file: klik pada halaman dan pilih file",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Tampilan Halaman",

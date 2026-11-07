@@ -185,6 +185,7 @@ impl Functies {
 const ALLE_RECHTEN: c_ulong = 0xFFFF_FFFF;
 
 /// Een ontsleuteld document en of het met het rechtenwachtwoord geopend is.
+#[derive(Debug, PartialEq, Eq)]
 pub struct Ontsleuteld {
     pub bytes: Vec<u8>,
     pub eigenaar: bool,

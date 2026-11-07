@@ -140,7 +140,8 @@
     "highlightSelection": "Выделить выделенное",
     "strikethroughSelection": "Зачеркнуть выделенное",
     "underlineSelection": "Подчеркнуть выделенное",
-    "curvedLeaderSelection": "Добавить изогнутую выноску"
+    "curvedLeaderSelection": "Добавить изогнутую выноску",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Удалить эту аннотацию?",

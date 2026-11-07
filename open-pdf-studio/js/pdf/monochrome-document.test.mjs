@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { deflateSync, inflateSync } from 'node:zlib';
+import { deflateSync } from 'node:zlib';
 import {
   PDFDocument, PDFName, PDFRawStream, PDFArray, PDFRef, StandardFonts, rgb,
   setTextRenderingMode, TextRenderingMode,
@@ -8,6 +8,7 @@ import {
 import * as mupdf from 'mupdf';
 import { optimizeMonochromeDocument } from './monochrome-document.js';
 import { losslessReport } from './monochrome-rapport.js';
+import { scanBitmap, imageSamples, withoutPadding } from './monochrome.testhulp.mjs';
 
 const W = 200, H = 160;
 // Zwart/wit patroon dat niet triviaal comprimeert, maar wel herhaalt.
@@ -25,6 +26,11 @@ function rgbSamples() {
   return out;
 }
 
+// Een getypte A4-scan op 200 dpi, als Flate opgeslagen (zoals veel scanners
+// doen): die wordt kleiner als CCITT G4.
+let scanPromise = null;
+const scanPage = () => (scanPromise ??= scanBitmap({ dpi: 200 }));
+
 // Ongecomprimeerd of met Flate niveau 0 opgeslagen, zoals sommige scanners
 // doen: herschrijven moet dan winst geven.
 function imageStream(doc, { bits, colorSpace = 'DeviceGray', data, extra = {} }) {
@@ -39,6 +45,11 @@ async function mixedPdf({ outputIntent = false, signed = false } = {}) {
   const gray = imageStream(doc, { bits: 8, data: graySamples() });
   const smask = imageStream(doc, { bits: 8, data: new Uint8Array(W * H).fill(255) });
   const rgbScan = imageStream(doc, { bits: 8, colorSpace: 'DeviceRGB', data: rgbSamples(), extra: { SMask: smask } });
+  const page = await scanPage();
+  const typed = doc.context.register(PDFRawStream.of(doc.context.obj({
+    Type: 'XObject', Subtype: 'Image', Width: page.width, Height: page.height, BitsPerComponent: 1,
+    ColorSpace: 'DeviceGray', Filter: 'FlateDecode',
+  }), deflateSync(page.samples)));
   for (let n = 0; n < 2; n++) {
     const page = doc.addPage([420, 300]);
     page.drawText(`Searchable text ${n}`, { x: 20, y: 270, size: 12, font });
@@ -55,6 +66,11 @@ async function mixedPdf({ outputIntent = false, signed = false } = {}) {
     doc.getForm().createTextField(`field${n}`).addToPage(page, { x: 300, y: 120, width: 100, height: 20 });
     doc.getForm().getTextField(`field${n}`).setText('Preserved');
   }
+  // Derde pagina: de scan op één beeldpixel per weergavepixel (render x2).
+  const scanSheet = doc.addPage([page.width / 2, page.height / 2]);
+  scanSheet.node.setXObject(PDFName.of('Typed'), typed);
+  scanSheet.node.addContentStream(doc.context.register(doc.context.flateStream(
+    `q ${page.width / 2} 0 0 ${page.height / 2} 0 0 cm /Typed Do Q`)));
   if (outputIntent) {
     const profile = doc.context.register(doc.context.stream('profile', { N: 3 }));
     doc.catalog.set(PDFName.of('OutputIntents'), doc.context.obj([{ Type: 'OutputIntent', S: 'GTS_PDFA1', DestOutputProfile: profile }]));
@@ -63,7 +79,7 @@ async function mixedPdf({ outputIntent = false, signed = false } = {}) {
     const sig = doc.context.register(doc.context.obj({ Type: 'Sig', Filter: 'Test.Handler', ByteRange: [0, 0, 0, 0] }));
     doc.catalog.set(PDFName.of('SigHolder'), sig);
   }
-  return { bytes: await doc.save({ useObjectStreams: false }), refs: { scan, gray, smask, rgbScan } };
+  return { bytes: await doc.save({ useObjectStreams: false }), refs: { scan, gray, smask, rgbScan, typed } };
 }
 
 function render(bytes) {
@@ -112,11 +128,15 @@ test('lossless mode keeps text, OCR, vectors and forms; re-encodes only black/wh
   // Per beeld een grootte of een reden.
   const byRef = Object.fromEntries(result.images.map((img) => [img.ref, img]));
   const scan = byRef[refs.scan.toString()], gray = byRef[refs.gray.toString()], rgbScan = byRef[refs.rgbScan.toString()];
+  const typed = byRef[refs.typed.toString()];
   assert.ok(scan.after < scan.before, 'one-bit scan re-encoded smaller');
+  assert.equal(typed.filter, 'CCITTFaxDecode', 'typed scan is smaller as CCITT G4');
+  assert.ok(typed.after < typed.before * 0.85, `typed scan ${typed.before} -> ${typed.after}`);
+  t.diagnostic(`typed A4 scan ${typed.before} -> ${typed.after} bytes (CCITT G4)`);
   assert.ok(rgbScan.after < rgbScan.before, 'pure black/white RGB packed to one bit');
   assert.equal(gray.after, null);
   assert.equal(gray.reason, 'not-black-and-white');
-  assert.equal(result.replaced, 3, 'scan, RGB scan and its all-white soft mask');
+  assert.equal(result.replaced, 4, 'scan, typed scan, RGB scan and its all-white soft mask');
 
   // Tekst blijft extraheerbaar (pdf.js), inclusief de onzichtbare OCR-laag.
   const [textBefore, textAfter] = [await pdfjsText(bytes), await pdfjsText(result.bytes)];
@@ -132,9 +152,9 @@ test('lossless mode keeps text, OCR, vectors and forms; re-encodes only black/wh
   assert.equal(g1.dict.toString(), g0.dict.toString());
   assert.deepEqual(Buffer.from(g1.getContents()), Buffer.from(g0.getContents()));
 
-  // Eén-bit beeld: identieke samples, Decode behouden, nu Flate-gecomprimeerd.
+  // Eén-bit beelden: identieke samples (MuPDF decodeert CCITT), Decode behouden.
   const s1 = await stream(result.bytes, refs.scan);
-  assert.deepEqual(Uint8Array.from(inflateSync(s1.getContents())), oneBitSamples());
+  assert.deepEqual(withoutPadding(imageSamples(s1), W, H), withoutPadding(oneBitSamples(), W, H));
   assert.equal(s1.dict.get(PDFName.of('Decode')).toString(), '[ 1 0 ]');
   // RGB-beeld: één grijsbit, /SMask onder dezelfde referentie.
   const r1 = await stream(result.bytes, refs.rgbScan);
@@ -144,8 +164,12 @@ test('lossless mode keeps text, OCR, vectors and forms; re-encodes only black/wh
 
   // Pixelgelijke weergave (MuPDF) op beide pagina's van het gedeelde beeld.
   const [a, b] = [render(bytes), render(result.bytes)];
-  assert.equal(b.length, 2);
-  for (let n = 0; n < 2; n++) {
+  const t1 = await stream(result.bytes, refs.typed);
+  const sheet = await scanPage();
+  assert.equal(t1.dict.get(PDFName.of('Filter')).toString(), '/CCITTFaxDecode');
+  assert.deepEqual(withoutPadding(imageSamples(t1), sheet.width, sheet.height), withoutPadding(sheet.samples, sheet.width, sheet.height));
+  assert.equal(b.length, 3);
+  for (let n = 0; n < 3; n++) {
     assert.equal(b[n].length, a[n].length);
     assert.equal(b[n].reduce((sum, v, i) => sum + (v !== a[n][i]), 0), 0, `page ${n + 1} pixel-identical`);
   }

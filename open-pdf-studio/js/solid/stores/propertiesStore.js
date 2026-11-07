@@ -347,7 +347,8 @@ function computeSectionVisibility(type) {
     crossGroup: ondersteuntKruis(type),
     textGroup: isTextContent,
     fontSizeGroup: type === 'text',
-    opacityGroup: !isScaleBar,
+    // Een link (#953) heeft geen doorzichtigheid in het bestand.
+    opacityGroup: !isScaleBar && type !== 'link',
     fillOpacityGroup: isScaleRegion || heeftVulDekking(type),
     aparteDekking: heeftVulDekking(type),
     rotationGroup: hasRotation,
@@ -563,6 +564,9 @@ export function storeShowProperties(annotation) {
     scaleRegionHeight: annotation.type === 'scaleRegion'
       ? Math.round(((annotation.height || 0) / _scaleRegionPpu(annotation)) * 10) / 10 : 0,
     annotationType: annotation.type,
+    // Hyperlink (#953): doel en rand voor de sectie Link.
+    linkTarget: annotation.type === 'link' && annotation.linkTarget ? { ...annotation.linkTarget } : null,
+    linkBorder: annotation.type === 'link' ? (annotation.linkBorder || 'none') : 'none',
     // Stavenreeks (wapeningsstaven-reeks)
     srCount: annotation.count ?? 3,
     srDiameter: annotation.diameter ?? 12,

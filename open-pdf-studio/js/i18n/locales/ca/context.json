@@ -140,7 +140,8 @@
     "highlightSelection": "Ressalta la selecció",
     "strikethroughSelection": "Ratlla la selecció",
     "underlineSelection": "Subratlla la selecció",
-    "curvedLeaderSelection": "Afegeix una crida corba"
+    "curvedLeaderSelection": "Afegeix una crida corba",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Voleu suprimir aquesta anotació?",

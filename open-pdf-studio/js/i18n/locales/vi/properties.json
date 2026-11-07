@@ -318,7 +318,8 @@
     "redaction": "Che thông tin",
     "scaleBar": "Thước tỷ lệ",
     "parametricSymbol": "Ký hiệu tham số",
-    "fileAttachment": "Tệp đính kèm"
+    "fileAttachment": "Tệp đính kèm",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Bật/Tắt Bảng",

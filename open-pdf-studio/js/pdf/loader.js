@@ -43,6 +43,11 @@ import { onthoudSessie } from './beveiliging-toepassen.js';
 // rekenen wat de lijst leest.
 async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageMap, annotColorMap, doc) {
   voegAnnotatiesToe(doc, await zetPaginaAnnotatiesOm(annots, pageNum, viewport, stampImageMap, annotColorMap));
+  // Links van de app (#953): de linklaag van deze pagina kan al staan; haal
+  // hun klikvlak uit het bestand eruit, de app volgt ze zelf.
+  if (annots.some((a) => a?.subtype === 'Link') && typeof document !== 'undefined') {
+    import('./link-layer.js').then((m) => m.verbergAppLinks(doc)).catch(() => {});
+  }
 }
 
 // Cache for original PDF bytes (used by saver to avoid re-reading)
@@ -1218,7 +1223,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
 
   const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
   const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-  const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment'].includes(a.subtype));
+  const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment', 'Link'].includes(a.subtype));
 
   let stampImageMap = null;
   let annotColorMap = null;
@@ -1373,7 +1378,7 @@ export async function loadExistingAnnotations(doc) {
 
       const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
       const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-      const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment'].includes(a.subtype));
+      const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment', 'Link'].includes(a.subtype));
 
       let stampImageMap = null;
       let annotColorMap = null;
@@ -1424,7 +1429,7 @@ export async function loadExistingAnnotations(doc) {
 
         const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
         const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-        const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment'].includes(a.subtype));
+        const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret', 'FileAttachment', 'Link'].includes(a.subtype));
 
         let stampImageMap = null;
         let annotColorMap = null;

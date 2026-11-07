@@ -181,7 +181,9 @@
     "unflattenAll": "Lapítás visszavonása",
     "unflattenAllTooltip": "Az engedélyezett visszaállítással lapított jelölések visszaállítása",
     "fileAttachment": "Fájl csatolása",
-    "fileAttachmentTitle": "Fájlmelléklet: kattintson az oldalra, és válasszon fájlt"
+    "fileAttachmentTitle": "Fájlmelléklet: kattintson az oldalra, és válasszon fájlt",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Oldal megjelenítés",

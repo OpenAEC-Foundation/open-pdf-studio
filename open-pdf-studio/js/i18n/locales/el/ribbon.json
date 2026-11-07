@@ -181,7 +181,9 @@
     "unflattenAll": "Αναίρεση ισοπέδωσης",
     "unflattenAllTooltip": "Επαναφορά σημάνσεων που ισοπεδώθηκαν με επιτρεπόμενη επαναφορά",
     "fileAttachment": "Επισύναψη αρχείου",
-    "fileAttachmentTitle": "Συνημμένο αρχείο: κάντε κλικ στη σελίδα και επιλέξτε ένα αρχείο"
+    "fileAttachmentTitle": "Συνημμένο αρχείο: κάντε κλικ στη σελίδα και επιλέξτε ένα αρχείο",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Εμφάνιση σελίδας",

@@ -318,7 +318,8 @@
     "redaction": "Redigering",
     "scaleBar": "Skalabjælke",
     "parametricSymbol": "Parametrisk symbol",
-    "fileAttachment": "Vedhæftet fil"
+    "fileAttachment": "Vedhæftet fil",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Skift panel",

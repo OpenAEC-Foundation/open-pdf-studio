@@ -20,6 +20,7 @@ import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import { gevelPreset } from '../../gevelelement/herkenning.js';
 import { onderdeelOnderPunt } from '../../gevelelement/element.js';
 import i18next from '../../i18n/config.js';
+import { doelOmschrijving } from '../../annotations/link/link-model.js';
 
 // Speling (schermpixels) om een dunne stijl van een gevelelement te raken.
 const GEVEL_RAAK_PX = 6;
@@ -510,7 +511,11 @@ export const selectTool = {
       : hoverAnnotation?.type === 'fileAttachment'
         ? [hoverAnnotation.attachment?.name, hoverAnnotation.text !== hoverAnnotation.attachment?.name ? hoverAnnotation.text : '']
           .filter(Boolean).join('\n')
-        : '';
+        // Hyperlink (#953): het doel, en hoe je hem volgt.
+        : hoverAnnotation?.type === 'link'
+          ? [doelOmschrijving(hoverAnnotation.linkTarget, (k, o) => i18next.t(k, { ns: 'dialogs', ...o })),
+            i18next.t('link.followHint', { ns: 'dialogs' })].filter(Boolean).join('\n')
+          : '';
   },
 
   // Escape: één niveau terug — sub-element → component → (dispatcher wist

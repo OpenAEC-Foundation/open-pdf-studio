@@ -318,7 +318,8 @@
     "redaction": "Karartma",
     "scaleBar": "Ölçek Çubuğu",
     "parametricSymbol": "Parametrik sembol",
-    "fileAttachment": "Dosya eki"
+    "fileAttachment": "Dosya eki",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Paneli Aç/Kapat",

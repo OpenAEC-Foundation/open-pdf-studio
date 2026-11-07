@@ -26,7 +26,7 @@ import {
 import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrder.js';
 import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
 import { nenIfcForSymbolId } from '../data/nenIfcMap.js';
-import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
+import { SYMBOL_PAPER_HEIGHT_MM } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
 import { symboolSchaal, setSymboolSchaal } from '../../symbols/symbol-scale-store.js';
 import { SCHAAL_STAPPEN, schaalLabel, leesSchaalInvoer, volgendeSchaalStap } from '../../symbols/symbol-scale.js';
@@ -143,11 +143,12 @@ function selectSymbol(symbol) {
     stampSvg: effectiveSvg,
     stampBaseSvg: symbol.svg,
     stampName: symbol.name,
-    // Alleen de hoogte vastzetten: de breedte volgt uit de beeldverhouding van
-    // de SVG (placeOverrideStamp), zodat een niet-vierkant symbool niet in een
-    // vierkant wordt geduwd. Voor de vierkante meegeleverde symbolen blijft de
-    // uitkomst 400 x 400.
-    stampHeight: SYMBOL_STAMP_DEFAULT_SIZE,
+    // Annotatiesymbool: een vaste hoogte op papier, los van de tekeningschaal
+    // (#983). De breedte volgt uit de beeldverhouding van de SVG
+    // (placeOverrideStamp), zodat een niet-vierkant symbool niet in een
+    // vierkant wordt geduwd. Declareert de SVG zelf een echte maat (mm), dan
+    // gaat die voor en volgt hij de tekeningschaal (svg-real-size.js).
+    stampPaperHeightMm: SYMBOL_PAPER_HEIGHT_MM,
     lockAspectRatio: true,
     ifcCategory: ifcCategoryForSymbol(symbol),
     // Symbool-id + IFC PredefinedType meegeven zodat de geplaatste stempel

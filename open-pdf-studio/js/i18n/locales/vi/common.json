@@ -345,6 +345,7 @@
     "scanInsertAfter": "After the current page",
     "scanNewDocument": "New document",
     "scanBusy": "Creating the page…",
-    "scanFailed": "The photo could not be turned into a page: {{error}}"
+    "scanFailed": "The photo could not be turned into a page: {{error}}",
+    "insertLink": "Insert link"
   }
 }

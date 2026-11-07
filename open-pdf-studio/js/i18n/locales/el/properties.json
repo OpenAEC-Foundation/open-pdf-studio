@@ -318,7 +318,8 @@
     "redaction": "Απαλοιφή",
     "scaleBar": "Γραμμή κλίμακας",
     "parametricSymbol": "Παραμετρικό σύμβολο",
-    "fileAttachment": "Συνημμένο αρχείο"
+    "fileAttachment": "Συνημμένο αρχείο",
+    "link": "Link"
   },
   "leftPanel": {
     "togglePanel": "Εναλλαγή πίνακα",

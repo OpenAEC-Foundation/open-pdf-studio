@@ -181,7 +181,9 @@
     "unflattenAll": "Ångra tillplattning",
     "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten",
     "fileAttachment": "Bifoga fil",
-    "fileAttachmentTitle": "Filbilaga: klicka på sidan och välj en fil"
+    "fileAttachmentTitle": "Filbilaga: klicka på sidan och välj en fil",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Sidvisning",

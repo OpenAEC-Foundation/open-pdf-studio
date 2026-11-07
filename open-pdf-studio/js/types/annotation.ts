@@ -1,6 +1,7 @@
 export type AnnotationType =
   | 'highlight' | 'textHighlight' | 'textStrikethrough' | 'textUnderline' | 'textSquiggly'
   | 'caret'
+  | 'link'
   | 'draw' | 'line' | 'arrow' | 'box' | 'circle'
   | 'textbox' | 'callout' | 'comment' | 'fileAttachment' | 'stamp' | 'image' | 'signature'
   | 'polygon' | 'cloud' | 'cloudPolyline' | 'polyline' | 'text'
@@ -62,6 +63,19 @@ export interface RectAnnotation extends AnnotationBase {
   fillColor?: string;
   fillNone?: boolean;
   strokeColor?: string;
+}
+
+/** Hyperlink van de app (#953), zie annotations/link/link-model.js. */
+export interface LinkAnnotation extends RectAnnotation {
+  rects?: Array<{ x: number; y: number; width: number; height: number }>;
+  linkTarget: null
+    | { kind: 'uri'; uri: string }
+    | { kind: 'page'; page: number; fit: 'xyz' | 'fit'; left?: number | null; top?: number | null; zoom?: number | null }
+    | { kind: 'file'; file: string };
+  linkBorder?: 'none' | 'solid' | 'underline';
+  linkHighlight?: 'I' | 'N' | 'O' | 'P';
+  /** pdf.js-id van de link in het geladen bestand (pdf/link-layer.js). */
+  pdfLinkId?: string;
 }
 
 export interface LineAnnotation extends AnnotationBase {

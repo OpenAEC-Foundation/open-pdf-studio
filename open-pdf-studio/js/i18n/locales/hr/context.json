@@ -140,7 +140,8 @@
     "highlightSelection": "Istakni odabrano",
     "strikethroughSelection": "Precrtaj odabrano",
     "underlineSelection": "Podcrtaj odabrano",
-    "curvedLeaderSelection": "Dodaj zakrivljeni oblačić"
+    "curvedLeaderSelection": "Dodaj zakrivljeni oblačić",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Obrisati ovu oznaku?",

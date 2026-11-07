@@ -140,7 +140,8 @@
     "highlightSelection": "選択範囲をハイライト",
     "strikethroughSelection": "選択範囲に取り消し線",
     "underlineSelection": "選択範囲に下線",
-    "curvedLeaderSelection": "曲線の吹き出しを追加"
+    "curvedLeaderSelection": "曲線の吹き出しを追加",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "この注釈を削除しますか？",

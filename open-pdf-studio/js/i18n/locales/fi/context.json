@@ -140,7 +140,8 @@
     "highlightSelection": "Korosta valinta",
     "strikethroughSelection": "Yliviivaa valinta",
     "underlineSelection": "Alleviivaa valinta",
-    "curvedLeaderSelection": "Lisää kaareva kuvateksti"
+    "curvedLeaderSelection": "Lisää kaareva kuvateksti",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "Poistetaanko tämä merkintä?",

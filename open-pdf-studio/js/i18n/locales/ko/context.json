@@ -140,7 +140,8 @@
     "highlightSelection": "선택 영역 하이라이트",
     "strikethroughSelection": "선택 영역 취소선",
     "underlineSelection": "선택 영역 밑줄",
-    "curvedLeaderSelection": "곡선 설명선 추가"
+    "curvedLeaderSelection": "곡선 설명선 추가",
+    "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
     "confirmSingle": "이 주석을 삭제하시겠습니까?",

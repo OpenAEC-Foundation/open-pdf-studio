@@ -109,6 +109,8 @@ import { sessieHerstelBeleid } from './core/sessie-herstel.js';
 import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
 // De brug naar de gastpagina (#694): alleen in de gehoste bouw.
 import { startHostBrug } from './core/host-brug-start.js';
+// Taal en thema van de SuperCloud (#977): ook alleen in de gehoste bouw.
+import { startHostVoorkeuren } from './core/host-voorkeuren-start.js';
 import { installeerWorkerShim } from './core/blob-worker.js';
 import { installeerWerkmapDialogen } from './core/openaec-omgeving.js';
 import { sneltoetsActief } from './core/keybindings/app-shortcuts.js';
@@ -269,6 +271,9 @@ async function init() {
 
   // Load user preferences (before render so theme is applied)
   await loadPreferences();
+  // In de werkplek: taal en thema van de host (`openaecHost.taal`/`thema`,
+  // en `openaec-host-preferences` bij een wijziging) winnen van de opslag.
+  if (import.meta.env.MODE === 'hosted') startHostVoorkeuren();
   // De ingebouwde assistent is verwijderd. Een persoonlijke sleutel die hij
   // ooit in de browseropslag zette, wordt hier opgeruimd; staat er niets, dan
   // doet dit niets.

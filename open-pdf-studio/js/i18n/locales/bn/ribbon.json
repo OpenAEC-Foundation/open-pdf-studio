@@ -181,7 +181,9 @@
     "unflattenAll": "সমতল করা পূর্বাবস্থায় ফেরান",
     "unflattenAllTooltip": "পুনরুদ্ধারের অনুমতি দিয়ে সমতল করা মার্কআপ পুনরুদ্ধার করুন",
     "fileAttachment": "ফাইল সংযুক্ত করুন",
-    "fileAttachmentTitle": "ফাইল সংযুক্তি: পৃষ্ঠায় ক্লিক করুন এবং একটি ফাইল বেছে নিন"
+    "fileAttachmentTitle": "ফাইল সংযুক্তি: পৃষ্ঠায় ক্লিক করুন এবং একটি ফাইল বেছে নিন",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "পৃষ্ঠা প্রদর্শন",

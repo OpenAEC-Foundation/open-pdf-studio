@@ -181,7 +181,9 @@
     "unflattenAll": "Поништи сравњивање",
     "unflattenAllTooltip": "Врати ознаке сравњене уз дозвољено враћање",
     "fileAttachment": "Приложи датотеку",
-    "fileAttachmentTitle": "Прилог датотеке: кликните на страницу и изаберите датотеку"
+    "fileAttachmentTitle": "Прилог датотеке: кликните на страницу и изаберите датотеку",
+    "link": "Link",
+    "linkTitle": "Insert a hyperlink: select text first, or drag a rectangle on the page"
   },
   "view": {
     "pageDisplay": "Приказ странице",

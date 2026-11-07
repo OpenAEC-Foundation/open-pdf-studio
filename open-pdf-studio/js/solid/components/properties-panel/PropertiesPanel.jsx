@@ -19,6 +19,7 @@ import CountGroupSection from './CountGroupSection.jsx';
 import TextFormatSection from './TextFormatSection.jsx';
 import ParagraphSection from './ParagraphSection.jsx';
 import ContentSection from './ContentSection.jsx';
+import LinkSection from './LinkSection.jsx';
 import ImageSection from './ImageSection.jsx';
 import { PapierMaatInvoer, PapierEenheidKeuze } from './PapierMaat.jsx';
 import { leesInvoerInEenheid } from '../../../annotations/papiermaat-eenheid.js';
@@ -245,6 +246,8 @@ function ScaleBarSection() {
 // annotatie (secties die een soort niet heeft, tonen gewoon niets).
 const SECTIES = [
   ['general', GeneralSection],
+  // Hyperlink (#953): het doel staat bovenaan, het is wat een link is.
+  ['link', LinkSection],
   ['location', LocationSection],
   ['replies', RepliesSection],
   ['appearance', AppearanceSection],

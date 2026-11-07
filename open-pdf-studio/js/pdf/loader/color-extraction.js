@@ -17,6 +17,7 @@ import { leesStempelAp } from './stempel-ap.js';
 import { readDynamicStamp } from './dynamic-stamp-load.js';
 import { leesInktSleutels } from '../saver/inkt-sleutels.js';
 import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
+import { leesEigenLink } from './link-laden.js';
 import { bewaarBijlageInhoud, bijlageItem } from '../../annotations/bijlage-store.js';
 
 // Bijlage-annotaties (#376) die al gelezen zijn, op hun /FS-object: een pagina
@@ -250,6 +251,14 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       const key = `${pdfNum(rect.get(0))},${pdfNum(rect.get(1))},${pdfNum(rect.get(2))},${pdfNum(rect.get(3))}`;
 
       const colors = {};
+      // Links (#953): alleen een link van de app wordt een annotatie in het
+      // model (loader/link-laden.js). Een link van een ander programma (een
+      // inhoudsopgave met honderden) slaat de rest van het lezen over.
+      if (subtypeName === '/Link') {
+        const link = leesEigenLink(context, annotDict, pdfDoc);
+        if (!link) continue;
+        colors.link = link;
+      }
       const pluginAnnotation = readPluginPdfAnnotation(annotDict, context);
       if (pluginAnnotation) {
         // Rectangles are not unique: overlapping plugin objects may have

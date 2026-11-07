@@ -345,6 +345,7 @@
     "scanInsertAfter": "Nach der aktuellen Seite",
     "scanNewDocument": "Neues Dokument",
     "scanBusy": "Seite wird erstellt…",
-    "scanFailed": "Aus dem Foto konnte keine Seite erstellt werden: {{error}}"
+    "scanFailed": "Aus dem Foto konnte keine Seite erstellt werden: {{error}}",
+    "insertLink": "Link einfügen"
   }
 }

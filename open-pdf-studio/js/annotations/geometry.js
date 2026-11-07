@@ -18,6 +18,7 @@ import { raakMarge, wolkUitstulping, schermPxNaarPt } from './minimummaat.js';
 import { puntInVlak } from './vlak-ringen.js';
 import { raakbaarBijKlik } from '../plattegrond/ruimte-koppeling.js';
 import { caretHit } from './corrections/geometry.js';
+import { raaktLink } from './link/link-model.js';
 import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm } from './veelhoek-punten.js';
 
 // Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
@@ -96,6 +97,7 @@ function getAnnotationCenterAndSize(ann) {
     case 'stamp':
     case 'signature':
     case 'redaction':
+    case 'link':
     case 'viewport':
     case 'scaleRegion':
     case 'scaleBar':
@@ -677,6 +679,10 @@ export function findAnnotationAt(x, y, pageNum = null) {
         // raaktolerantie.
         if (caretHit(ann, x, y, tol)) return ann;
         break;
+      case 'link':
+        // Hyperlink (#953): overal binnen een van zijn vakken.
+        if (raaktLink(ann, x, y)) return ann;
+        break;
       default: {
         const typeHandler = getAnnotationType(ann.type);
         if (typeHandler && typeHandler.hitTest) {
@@ -895,6 +901,9 @@ export function isPointInsideAnnotation(x, y, annotation) {
     case 'caret':
       // Invoegteken (#508): zelfde raakvak als in findAnnotationAt.
       return caretHit(annotation, x, y, schermPxNaarPt(10, getEffectiveScale()));
+
+    case 'link':
+      return raaktLink(annotation, x, y);
 
     default:
       return false;
