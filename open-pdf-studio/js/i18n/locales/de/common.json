@@ -347,5 +347,6 @@
     "scanBusy": "Seite wird erstellt…",
     "scanFailed": "Aus dem Foto konnte keine Seite erstellt werden: {{error}}",
     "insertLink": "Link einfügen"
-  }
+  },
+  "xfdfImportMerged": "{{count}} Anmerkungen aus XFDF importiert ({{duplicates}} bereits vorhanden, {{replies}} neue Antworten)"
 }

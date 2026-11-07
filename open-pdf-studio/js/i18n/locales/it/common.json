@@ -347,5 +347,6 @@
     "scanBusy": "Creazione della pagina…",
     "scanFailed": "Impossibile creare una pagina dalla foto: {{error}}",
     "insertLink": "Inserisci collegamento"
-  }
+  },
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
 }
