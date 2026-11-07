@@ -21,6 +21,17 @@ export function embeddedFileName(file) {
   return /^\.pdf$/i.test(m[1]) ? null : m[1];
 }
 
+/**
+ * Spool name for a PDF added by hand: `job_<stamp>__<RealName>.pdf`. Characters
+ * Windows does not allow in a file name become `_`, and the extension is
+ * always a lower-case `.pdf`: the queue only lists (and deletes) `job_*.pdf`,
+ * so "Report.PDF" would otherwise land in the spool without ever showing up.
+ */
+export function addedJobFileName(stamp, realName) {
+  const name = String(realName || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').replace(/\.pdf$/i, '');
+  return `job_${Math.max(0, Math.floor(Number(stamp) || 0))}__${name || 'document'}.pdf`;
+}
+
 // Extensions of documents people print. Only these are stripped from a name,
 // so "Report v1.2" or "Notes Q3.final" stay whole.
 const DOC_EXT = 'pdf|docx?|docm|xlsx?|xlsm|csv|pptx?|odt|ods|odp|odg|rtf|txt|md|log|xml|json|html?|mht|eml|msg|png|jpe?g|gif|bmp|tiff?|webp|svg|dwg|dxf|ifc|vsdx?|pub|xps|oxps|one';

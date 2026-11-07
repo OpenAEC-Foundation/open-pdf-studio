@@ -18,7 +18,7 @@ import {
 import {
   PRINTER_NAME, jobDisplayName, saveFileName, paperInfo, paperText, formatFileSize, syncOrder, moveSelected,
   moveBefore, emptySelection, clickSelection, keySelection, selectAll, syncSelection, selectionAfterRemoval,
-  selectedInOrder, selectionSummary, clampPage,
+  selectedInOrder, selectionSummary, clampPage, addedJobFileName,
 } from '../stores/print-queue-model.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog } from '../../core/platform.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
@@ -359,8 +359,7 @@ export default function PrintQueueWindow() {
       let i = 0;
       for (const src of pdfs) {
         const bytes = await readJobBytes(src);
-        const name = baseName(src).replace(/[\\/:*?"<>|]/g, '_');
-        const target = await P.join(dir, `job_${Date.now() + (i++)}__${name}`);
+        const target = await P.join(dir, addedJobFileName(Date.now() + (i++), baseName(src)));
         try { await invoke('allow_fs_scope', { path: target }); } catch (_) {}
         await writeBinaryFile(target, bytes);
       }
