@@ -1,7 +1,7 @@
 import { createSignal, createMemo, createEffect, Show, For, onMount } from 'solid-js';
 import * as pdfjsLib from 'pdfjs-dist';
 import Dialog from '../Dialog.jsx';
-import { closeDialog } from '../../stores/dialogStore.js';
+import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { createBlankPDF, createDocFromTemplate } from '../../../pdf/loader.js';
 import { scanFrames, openFramesFolder } from '../../../pdf/frames.js';
 import { frameStyleLabel, framePreviewText } from '../../../pdf/frame-labels.js';
@@ -123,6 +123,17 @@ export default function NewDocDialog() {
         if (g.byKey.has(`${paperSize()}|${otherR}`)) setOrientation(other);
       }
     }
+  });
+
+  // Een huisstijlkader legt maat en richting vast: zet de (uitgegrijsde)
+  // keuzes op die van het kader, zodat ze niet iets anders laten zien.
+  createEffect(() => {
+    const kader = gekozenKader();
+    if (!kader) return;
+    const { breedteMm, hoogteMm } = kaderMaat(kader);
+    setOrientation(breedteMm > hoogteMm ? 'landscape' : 'portrait');
+    const formaat = String(kader.formaat || '').toLowerCase();
+    if (PAPER_SIZES[formaat]) setPaperSize(formaat);
   });
 
   const getDimensions = createMemo(() => {
@@ -299,6 +310,7 @@ export default function NewDocDialog() {
         await createBlankPDF(widthPt, heightPt, 1, bytes);
       } catch (e) {
         console.error('[new-doc] huisstijlkader mislukt:', e);
+        showMessage(tCommon('failedToCreateDocument', { error: String(e?.message ?? e) }));
       }
       return;
     }
@@ -346,7 +358,7 @@ export default function NewDocDialog() {
           >
             <option value="">{t('newDoc.noFrame')}</option>
             <For each={huisstijlKaders()}>{(k) => (
-              <option value={k.id}>{kaderLabel(k)}</option>
+              <option value={k.id}>{kaderLabel(k, t)}</option>
             )}</For>
             <For each={frameIndex()?.stijlen || []}>{(s) => (
               <option value={s}>{frameStyleLabel(s, t)}</option>
@@ -429,7 +441,7 @@ export default function NewDocDialog() {
             </select>
           </Show>
         </div>
-        <Show when={paperSize() === 'custom'}>
+        <Show when={paperSize() === 'custom' && !gekozenKader()}>
           <div class="new-doc-row new-doc-custom-row">
             <label class="new-doc-label">{t('newDoc.widthMm')}</label>
             <input
