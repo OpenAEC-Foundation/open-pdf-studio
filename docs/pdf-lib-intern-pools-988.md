@@ -56,7 +56,25 @@ heeft 6.000 verschillende namen en een eigen bereik referentienummers.
 WeakRefs controleren het verzamelen van zowel namen als referenties.
 Lookup (ook een hex-gecodeerde naam), pagina's kopiëren en save/reopen blijven
 werken. Dezelfde proef tegen de ongewijzigde dependency bevestigt dat beide
-objectsoorten vastgehouden worden.
+objectsoorten vastgehouden worden. De test houdt zelf geen namen of
+referenties van het open document vast: de vergeleken instanties komen na de
+GC uit diens eigen woordenboek, zodat identiteit alleen uit het open document
+kan volgen.
+
+Een tweede proef meet de omvang van beide pools zelf (via een testhaakje op
+de module-variabele `pool`): naast één open document worden twaalf documenten
+met elk 2.000 eigen namen en referenties geopend en weer losgelaten. Met de
+patch blijven beide pools op de levende set (circa 2.000 sleutels), zonder
+patch groeien ze met elk gesloten document mee (circa 26.000). De proeven
+gebruiken dezelfde partijgrootte als de app (`pdf-lib-snelheid.js`, 5.000
+objecten per tik); met de pdf-lib-standaard duurde de reeks ruim een minuut.
+
+Er is geen expliciete opruimstap bij het sluiten van een tabblad nodig en die
+zou ook onjuist zijn: de app houdt pdf-lib-documenten alleen tijdelijk vast
+(per opslag- of paginabewerking), niet per tabblad, en het leegmaken van een
+pool zou een nog levend document een andere instantie voor dezelfde naam
+geven. Zodra een pdf-lib-document onbereikbaar is, mag de GC zijn namen en
+referenties opruimen.
 
 Lokale Node 24-proef, bytes heapUsed na geforceerde GC, 6 november 2026:
 
