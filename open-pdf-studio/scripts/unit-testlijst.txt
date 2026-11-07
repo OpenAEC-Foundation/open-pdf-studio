@@ -774,3 +774,4 @@ scripts/check-readme-images.test.mjs
 js/quantities/vlak-omtrek.test.mjs
 js/solid/stores/staat-omtrek.test.mjs
 js/pdf/huisstijl-kaders.test.mjs
+scripts/goedgekeurd-logo.test.mjs
