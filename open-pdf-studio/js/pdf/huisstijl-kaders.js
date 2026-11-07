@@ -5,7 +5,7 @@
 // in Beheer via het hostcontract (core/platform.js):
 //
 //   window.__OPDS_HOST__.huisstijl() -> Promise<{
-//     merk: 'Dorphout',
+//     merk: 'Voorbeeldbureau',
 //     kaders: [{
 //       naam, formaat ('A1'), orientatie ('liggend' | 'staand'),
 //       breedte_mm, hoogte_mm, standaard,
@@ -55,9 +55,20 @@ export async function laadHuisstijlKaders() {
   }
 }
 
-/** De naam in de keuzelijst: "Dorphout – Tekening A1 (liggend)". */
-export function kaderLabel(kader) {
-  const maat = [kader.formaat, kader.orientatie && `(${kader.orientatie})`].filter(Boolean).join(' ');
+// De richting komt van de site als 'liggend' | 'staand'; in de keuzelijst
+// staat hij in de taal van de app (newDoc.frameOrientation.*).
+const RICHTING = { liggend: 'landscape', landscape: 'landscape', staand: 'portrait', portrait: 'portrait' };
+
+function richtingLabel(orientatie, t) {
+  const sleutel = RICHTING[String(orientatie || '').toLowerCase()];
+  if (sleutel && typeof t === 'function') return t(`newDoc.frameOrientation.${sleutel}`);
+  return orientatie || '';
+}
+
+/** De naam in de keuzelijst: "Voorbeeldbureau – Tekening A1 (liggend)". `t` (dialogs) vertaalt de richting. */
+export function kaderLabel(kader, t = null) {
+  const richting = richtingLabel(kader.orientatie, t);
+  const maat = [kader.formaat, richting && `(${richting})`].filter(Boolean).join(' ');
   const naam = [kader.naam, maat].filter(Boolean).join(' ');
   return kader.merk ? `${kader.merk} – ${naam}` : naam;
 }
@@ -70,7 +81,7 @@ export function kaderMaat(kader) {
     const iso = ISO_MM[String(kader?.formaat || '').toLowerCase()];
     if (!iso) return null;
     [b, h] = iso;
-    if (kader.orientatie === 'liggend') [b, h] = [h, b];
+    if (RICHTING[String(kader.orientatie || '').toLowerCase()] === 'landscape') [b, h] = [h, b];
   }
   return { breedteMm: b, hoogteMm: h };
 }

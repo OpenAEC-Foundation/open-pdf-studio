@@ -28,11 +28,18 @@ test('zonder site geen kaders', async () => {
 });
 
 test('de kaders van de site, met merk en id; een kader zonder maat valt weg', async () => {
-  globalThis.window = { __OPDS_HOST__: { huisstijl: async () => ({ merk: 'Dorphout', kaders: [KADER, { naam: 'Raar', formaat: 'X9' }] }) } };
+  globalThis.window = { __OPDS_HOST__: { huisstijl: async () => ({ merk: 'Voorbeeldbureau', kaders: [KADER, { naam: 'Raar', formaat: 'X9' }] }) } };
   const kaders = await laadHuisstijlKaders();
   assert.equal(kaders.length, 1);
   assert.equal(kaders[0].id, 'huisstijl:0');
-  assert.equal(kaderLabel(kaders[0]), 'Dorphout – Tekening A3 (liggend)');
+  assert.equal(kaderLabel(kaders[0]), 'Voorbeeldbureau – Tekening A3 (liggend)');
+});
+
+test('label: de richting in de taal van de app', () => {
+  const t = (sleutel) => ({ 'newDoc.frameOrientation.landscape': 'landscape', 'newDoc.frameOrientation.portrait': 'portrait' })[sleutel];
+  assert.equal(kaderLabel({ merk: 'Voorbeeldbureau', naam: 'Tekening', formaat: 'A1', orientatie: 'liggend' }, t), 'Voorbeeldbureau – Tekening A1 (landscape)');
+  assert.equal(kaderLabel({ naam: 'Detail', formaat: 'A4', orientatie: 'staand' }, t), 'Detail A4 (portrait)');
+  assert.equal(kaderLabel({ naam: 'Vrij' }, t), 'Vrij');
 });
 
 test('een fout van de site geeft geen kaders', async () => {
@@ -44,6 +51,7 @@ test('maat: eigen breedte en hoogte, anders de ISO-maat in de richting', () => {
   assert.deepEqual(kaderMaat({ breedte_mm: 500, hoogte_mm: 300 }), { breedteMm: 500, hoogteMm: 300 });
   assert.deepEqual(kaderMaat({ formaat: 'A3', orientatie: 'liggend' }), { breedteMm: 420, hoogteMm: 297 });
   assert.deepEqual(kaderMaat({ formaat: 'a4', orientatie: 'staand' }), { breedteMm: 210, hoogteMm: 297 });
+  assert.deepEqual(kaderMaat({ formaat: 'A2', orientatie: 'landscape' }), { breedteMm: 594, hoogteMm: 420 });
   assert.equal(kaderMaat({ formaat: 'Letter' }), null);
 });
 
