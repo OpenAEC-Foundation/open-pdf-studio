@@ -73,3 +73,14 @@ export function verrijkVoorStaat(a, telNaam) {
   }
   return a;
 }
+
+/**
+ * Lengte-eenheid van de documentschaal, of null zonder documentschaal. Beslist
+ * bij gelijkspel welke eenheid een kolom met gemengde eenheden krijgt (zie
+ * quantities/eenheid-omrekening.js kiesKolomEenheid).
+ * @param {{measureScale?: {pixelsPerUnit?: number, unit?: string}|null}|null|undefined} doc
+ */
+export function documentEenheid(doc) {
+  const schaal = doc?.measureScale;
+  return schaal && schaal.pixelsPerUnit > 0 ? (schaal.unit || 'mm') : null;
+}

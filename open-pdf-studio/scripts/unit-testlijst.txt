@@ -143,6 +143,8 @@ js/annotations/link/link-i18n.test.mjs
 js/help/previous-version.test.mjs
 js/quantities/engine.test.mjs
 js/quantities/staat-eenheden.test.mjs
+js/quantities/eenheid-omrekening.test.mjs
+js/solid/stores/staat-gemengde-eenheden.test.mjs
 js/quantities/schedule-image.test.mjs
 js/quantities/takeoff.test.mjs
 js/text/text-edit-appearance.test.mjs

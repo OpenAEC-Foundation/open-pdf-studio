@@ -7,7 +7,7 @@ import { scheduleUsesLocation } from '../../quantities/categories.js';
 import { collectZones, locationFor } from '../../annotations/spatial-zones.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
-import { verrijkVoorStaat } from './staatElementen.js';
+import { verrijkVoorStaat, documentEenheid } from './staatElementen.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
@@ -65,7 +65,7 @@ function computeSchedule() {
     sort: sortLevels(),
     itemize: itemize(),
     format: format(),
-  });
+  }, { documentUnit: documentEenheid(getActiveDocument()) });
 }
 
 // Alleen zolang het hoeveelhedenpaneel open staat houdt een memo de staat bij.

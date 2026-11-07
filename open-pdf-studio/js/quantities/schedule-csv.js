@@ -1,7 +1,7 @@
 // Hoeveelheden — CSV-export van een engine-resultaat (puur, geen UI/IO-deps).
 // Kolommen → koppen, groepen → subtotaal-regels, eindtotaal. Beeldkolommen
 // exporteren geen (enorme) data-URL maar een korte placeholder.
-import { formatCell, fmtTotal, isImageCell } from './schedule-templates.js';
+import { formatRowCell, fmtTotal, isImageCell } from './schedule-templates.js';
 import { qLabel } from './categories.js';
 
 // A number, optionally negative and with a unit ("-1.50 m"), is data.
@@ -23,7 +23,7 @@ function textCell(row, col) {
     const v = row.vals[col.key];
     return isImageCell(v) ? qLabel('quantities.imageCell', '[image]') : '';
   }
-  return formatCell(row.vals[col.key], col);
+  return formatRowCell(row, col);
 }
 
 /**
