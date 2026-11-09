@@ -517,7 +517,8 @@
     "autoDetect": "Identifiera automatiskt från namnrutan",
     "detecting": "Identifierar...",
     "scaleDetected": "Skala identifierad!",
-    "scaleNotFound": "Ingen skala hittades i namnrutan"
+    "scaleNotFound": "Ingen skala hittades i namnrutan",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Sidinställningar",

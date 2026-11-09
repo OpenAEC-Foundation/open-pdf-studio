@@ -517,7 +517,8 @@
     "autoDetect": "Tự động phát hiện từ khung tên",
     "detecting": "Đang phát hiện...",
     "scaleDetected": "Đã phát hiện tỷ lệ!",
-    "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên"
+    "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Thiết lập Trang",

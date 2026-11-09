@@ -517,7 +517,8 @@
     "autoDetect": "Registrér automatisk fra tegningshovedet",
     "detecting": "Genkender...",
     "scaleDetected": "Skala registreret!",
-    "scaleNotFound": "Ingen skala fundet i tegningshovedet"
+    "scaleNotFound": "Ingen skala fundet i tegningshovedet",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Sideopsætning",

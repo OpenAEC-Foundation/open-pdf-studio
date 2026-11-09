@@ -16,7 +16,7 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { scaleSelectOptions, isImperialScalePreset } from '../../../annotations/scale-presets.js';
+import { scaleSelectOptions, isImperialScalePreset, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 
 // Standard drawing scales for the dropdown (largest → smallest denominator),
 // followed by the imperial architectural/engineering scales (#972).
@@ -190,6 +190,10 @@ export default function ScaleRegionDialog(props) {
               placeholder="1:75"
               style="width:100%;box-sizing:border-box;margin-top:4px"
             />
+            {/* Imperiaal ook in inch-notatie (#1000). */}
+            <Show when={scaleDisplayLabel(scaleString(), units(), { withRatio: false }) !== scaleString().replace(/\s+/g, '')}>
+              <div style="font-size:11px;margin-top:2px">{scaleDisplayLabel(scaleString(), units())}</div>
+            </Show>
           </Show>
           {/* Derive the scale by measuring a known distance on the drawing:
               hides this dialog, 2-click pick, asks for the real length,

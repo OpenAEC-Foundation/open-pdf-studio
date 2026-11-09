@@ -517,7 +517,8 @@
     "autoDetect": "ตรวจหาอัตโนมัติจากกรอบชื่อแบบ",
     "detecting": "กำลังตรวจหา...",
     "scaleDetected": "ตรวจพบมาตราส่วนแล้ว!",
-    "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ"
+    "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "ตั้งค่าหน้ากระดาษ",

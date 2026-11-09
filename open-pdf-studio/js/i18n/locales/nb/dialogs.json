@@ -517,7 +517,8 @@
     "autoDetect": "Oppdag automatisk fra tittelfeltet",
     "detecting": "Oppdager...",
     "scaleDetected": "Målestokk oppdaget!",
-    "scaleNotFound": "Ingen målestokk funnet i tittelfeltet"
+    "scaleNotFound": "Ingen målestokk funnet i tittelfeltet",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Sideoppsett",

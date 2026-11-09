@@ -517,7 +517,8 @@
     "autoDetect": "Аутоматски препознај из заглавља цртежа",
     "detecting": "Препознавање...",
     "scaleDetected": "Размера препозната!",
-    "scaleNotFound": "У заглављу цртежа није пронађена размера"
+    "scaleNotFound": "У заглављу цртежа није пронађена размера",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Подешавање странице",

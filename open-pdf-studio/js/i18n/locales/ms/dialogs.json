@@ -517,7 +517,8 @@
     "autoDetect": "Kesan automatik daripada blok tajuk",
     "detecting": "Mengesan...",
     "scaleDetected": "Skala dikesan!",
-    "scaleNotFound": "Tiada skala ditemui dalam blok tajuk"
+    "scaleNotFound": "Tiada skala ditemui dalam blok tajuk",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Persediaan Halaman",

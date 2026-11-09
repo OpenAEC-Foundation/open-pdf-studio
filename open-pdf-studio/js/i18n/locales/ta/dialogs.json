@@ -517,7 +517,8 @@
     "autoDetect": "தலைப்புத் தொகுதியிலிருந்து தானாகக் கண்டறி",
     "detecting": "கண்டறியப்படுகிறது...",
     "scaleDetected": "அளவுகோல் கண்டறியப்பட்டது!",
-    "scaleNotFound": "தலைப்புத் தொகுதியில் அளவுகோல் இல்லை"
+    "scaleNotFound": "தலைப்புத் தொகுதியில் அளவுகோல் இல்லை",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "பக்க அமைப்பு",

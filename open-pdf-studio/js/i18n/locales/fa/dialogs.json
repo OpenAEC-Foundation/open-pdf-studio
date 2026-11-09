@@ -517,7 +517,8 @@
     "autoDetect": "تشخیص خودکار از جدول مشخصات",
     "detecting": "در حال تشخیص...",
     "scaleDetected": "مقیاس تشخیص داده شد!",
-    "scaleNotFound": "مقیاسی در جدول مشخصات یافت نشد"
+    "scaleNotFound": "مقیاسی در جدول مشخصات یافت نشد",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "تنظیم صفحه",

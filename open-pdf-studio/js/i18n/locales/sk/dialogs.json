@@ -517,7 +517,8 @@
     "autoDetect": "Automaticky zistiť z rohovej pečiatky",
     "detecting": "Rozpoznávanie...",
     "scaleDetected": "Mierka zistená!",
-    "scaleNotFound": "V rohovej pečiatke sa nenašla mierka"
+    "scaleNotFound": "V rohovej pečiatke sa nenašla mierka",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Nastavenie strany",

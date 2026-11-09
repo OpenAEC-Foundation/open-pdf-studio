@@ -517,7 +517,8 @@
     "autoDetect": "Автовизначення з основного напису",
     "detecting": "Визначення...",
     "scaleDetected": "Масштаб визначено!",
-    "scaleNotFound": "В основному написі масштаб не знайдено"
+    "scaleNotFound": "В основному написі масштаб не знайдено",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Параметри сторінки",

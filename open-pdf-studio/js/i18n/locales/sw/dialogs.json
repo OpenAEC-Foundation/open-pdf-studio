@@ -517,7 +517,8 @@
     "autoDetect": "Gundua kiotomatiki kutoka jedwali la kichwa",
     "detecting": "Inagundua...",
     "scaleDetected": "Kipimo kimegunduliwa!",
-    "scaleNotFound": "Hakuna kipimo kilichopatikana kwenye jedwali la kichwa"
+    "scaleNotFound": "Hakuna kipimo kilichopatikana kwenye jedwali la kichwa",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Mpangilio wa Ukurasa",

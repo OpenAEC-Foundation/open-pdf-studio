@@ -517,7 +517,8 @@
     "autoDetect": "Wykryj automatycznie z tabliczki rysunkowej",
     "detecting": "Wykrywanie...",
     "scaleDetected": "Wykryto skalę!",
-    "scaleNotFound": "Nie znaleziono skali w tabliczce rysunkowej"
+    "scaleNotFound": "Nie znaleziono skali w tabliczce rysunkowej",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Ustawienia strony",

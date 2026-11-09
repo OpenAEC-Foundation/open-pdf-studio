@@ -517,7 +517,8 @@
     "autoDetect": "Détecter depuis le cartouche",
     "detecting": "Détection...",
     "scaleDetected": "Échelle détectée !",
-    "scaleNotFound": "Aucune échelle trouvée dans le cartouche"
+    "scaleNotFound": "Aucune échelle trouvée dans le cartouche",
+    "currentScale": "Échelle actuelle : {{scale}}"
   },
   "pageSetup": {
     "title": "Mise en page",

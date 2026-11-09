@@ -517,7 +517,8 @@
     "autoDetect": "ٹائٹل بلاک سے خودکار شناخت",
     "detecting": "شناخت ہو رہی ہے...",
     "scaleDetected": "پیمانہ شناخت ہو گیا!",
-    "scaleNotFound": "ٹائٹل بلاک میں کوئی پیمانہ نہیں ملا"
+    "scaleNotFound": "ٹائٹل بلاک میں کوئی پیمانہ نہیں ملا",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "صفحہ سیٹ اپ",

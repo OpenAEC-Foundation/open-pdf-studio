@@ -517,7 +517,8 @@
     "autoDetect": "Автоопределение по основной надписи",
     "detecting": "Определение...",
     "scaleDetected": "Масштаб определён!",
-    "scaleNotFound": "В основной надписи не найден масштаб"
+    "scaleNotFound": "В основной надписи не найден масштаб",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Параметры страницы",

@@ -516,7 +516,8 @@
     "autoDetect": "ກວດຫາອັດຕະໂນມັດຈາກຕາຕະລາງຂໍ້ມູນແບບ",
     "detecting": "ກຳລັງກວດຫາ...",
     "scaleDetected": "ພົບມາດຕາສ່ວນແລ້ວ!",
-    "scaleNotFound": "ບໍ່ພົບມາດຕາສ່ວນໃນຕາຕະລາງຂໍ້ມູນແບບ"
+    "scaleNotFound": "ບໍ່ພົບມາດຕາສ່ວນໃນຕາຕະລາງຂໍ້ມູນແບບ",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "ຕັ້ງຄ່າໜ້າເຈ້ຍ",

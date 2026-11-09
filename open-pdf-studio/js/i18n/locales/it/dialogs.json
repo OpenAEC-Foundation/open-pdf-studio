@@ -517,7 +517,8 @@
     "autoDetect": "Rileva automaticamente dal cartiglio",
     "detecting": "Rilevamento...",
     "scaleDetected": "Scala rilevata!",
-    "scaleNotFound": "Nessuna scala trovata nel cartiglio"
+    "scaleNotFound": "Nessuna scala trovata nel cartiglio",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Imposta pagina",

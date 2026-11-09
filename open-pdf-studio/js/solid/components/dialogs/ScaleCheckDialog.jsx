@@ -13,6 +13,7 @@ import {
   kanHerkalibreren, herkalibreer, schaalTekstVoorPpu, maakControle,
 } from '../../../annotations/schaalcontrole.js';
 import { legControleVast, drempelsUitVoorkeuren, bronLabel } from '../../../annotations/schaalcontrole-app.js';
+import { scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 
 const EENHEDEN = ['mm', 'cm', 'm', 'in', 'ft'];
 
@@ -125,7 +126,7 @@ export default function ScaleCheckDialog(props) {
     const b = bekend();
     if (!m || !b || actie() === 'none') return null;
     const ppu = herkalibreer(m.bron?.pixelsPerUnit, m.afstand, b, m.bron ? actie() : 'vervang');
-    return ppu ? schaalTekstVoorPpu(ppu, bronEenheid()) : null;
+    return ppu ? scaleDisplayLabel(schaalTekstVoorPpu(ppu, bronEenheid()), bronEenheid()) : null;
   });
 
   const bronNaam = () => {
@@ -134,7 +135,9 @@ export default function ScaleCheckDialog(props) {
     const soort = t(`scaleCheck.source_${b.method}`);
     const label = bronLabel(b);
     const schaal = schaalTekstVoorPpu(b.pixelsPerUnit, b.unit);
-    return [soort, label && label !== schaal ? `"${label}"` : '', schaal ? `(${schaal})` : ''].filter(Boolean).join(' ');
+    // Imperiaal als 1/8" = 1'-0" (1:96) (#1000).
+    const toon = schaal ? scaleDisplayLabel(schaal, b.unit) : '';
+    return [soort, label && label !== schaal && label !== toon ? `"${label}"` : '', toon ? `(${toon})` : ''].filter(Boolean).join(' ');
   };
 
   const richtingNaam = () => {
@@ -313,7 +316,7 @@ export default function ScaleCheckDialog(props) {
             <tbody>
               <For each={geschiedenis().slice(-6).reverse()}>
                 {(c) => (
-                  <tr title={[c.auteur, c.bron?.label, c.schaal].filter(Boolean).join(' · ')}>
+                  <tr title={[c.auteur, c.bron?.label, c.schaal ? scaleDisplayLabel(c.schaal, c.eenheid) : ''].filter(Boolean).join(' · ')}>
                     <td>{datumTekst(c.datum)}</td>
                     <td>{formatMaat(c.bekend, c.eenheid, decimalenVoor(c.eenheid))}</td>
                     <td>{formatProcent(c.procent, 2, undefined, { teken: true })}</td>

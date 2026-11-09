@@ -498,7 +498,8 @@
     "autoDetect": "Automatisch detecteren uit onderhoek",
     "detecting": "Detecteren...",
     "scaleDetected": "Schaal gedetecteerd!",
-    "scaleNotFound": "Geen schaal gevonden in onderhoek"
+    "scaleNotFound": "Geen schaal gevonden in onderhoek",
+    "currentScale": "Huidige schaal: {{scale}}"
   },
   "pageSetup": {
     "title": "Pagina-instelling",

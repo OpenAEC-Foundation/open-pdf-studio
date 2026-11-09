@@ -517,7 +517,8 @@
     "autoDetect": "Αυτόματος εντοπισμός από την πινακίδα",
     "detecting": "Εντοπισμός...",
     "scaleDetected": "Εντοπίστηκε κλίμακα!",
-    "scaleNotFound": "Δεν βρέθηκε κλίμακα στην πινακίδα"
+    "scaleNotFound": "Δεν βρέθηκε κλίμακα στην πινακίδα",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Ρύθμιση σελίδας",

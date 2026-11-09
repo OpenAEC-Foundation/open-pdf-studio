@@ -517,7 +517,8 @@
     "autoDetect": "Automatisch aus Schriftfeld erkennen",
     "detecting": "Erkennung...",
     "scaleDetected": "Maßstab erkannt!",
-    "scaleNotFound": "Kein Maßstab im Schriftfeld gefunden"
+    "scaleNotFound": "Kein Maßstab im Schriftfeld gefunden",
+    "currentScale": "Aktueller Maßstab: {{scale}}"
   },
   "pageSetup": {
     "title": "Seite einrichten",

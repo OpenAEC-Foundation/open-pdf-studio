@@ -8,6 +8,7 @@ import { countTallies, countGroupMembers, GEEN_TELGROEP } from '../../../stores/
 import { goToPage } from '../../../../pdf/renderer.js';
 import { recordDelete } from '../../../../core/undo-manager.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
+import { scaleDisplayLabel } from '../../../../annotations/scale-presets.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -39,7 +40,8 @@ export default function MeasurementsPanel() {
     const doc = getActiveDocument();
     const ms = doc?.measureScale;
     if (ms && ms.pixelsPerUnit > 0) {
-      if (ms.scaleRatio) return ms.scaleRatio;
+      // Imperiaal als 1/8" = 1'-0" (1:96), metrisch als 1:100 (#1000).
+      if (ms.scaleRatio) return scaleDisplayLabel(ms.scaleRatio, ms.unit);
       return `1px = ${(1 / ms.pixelsPerUnit).toFixed(4)} ${ms.unit}`;
     }
     return null;
@@ -169,9 +171,9 @@ export default function MeasurementsPanel() {
             <div class="measurements-item" onClick={() => navigateTo(vp)}>
               <div class="measurements-item-icon" style={{ color: '#0066cc' }}>&#9634;</div>
               <div class="measurements-item-info">
-                <div class="measurements-item-name">{vp.name || vp.scaleRatio || 'Viewport'}</div>
+                <div class="measurements-item-name">{(vp.name && vp.name !== vp.scaleRatio ? vp.name : scaleDisplayLabel(vp.scaleRatio, vp.unit, { withRatio: false })) || 'Viewport'}</div>
                 <div class="measurements-item-detail">
-                  {vp.scaleRatio || `1px = ${(1/vp.pixelsPerUnit).toFixed(4)} ${vp.unit}`}
+                  {vp.scaleRatio ? scaleDisplayLabel(vp.scaleRatio, vp.unit) : `1px = ${(1/vp.pixelsPerUnit).toFixed(4)} ${vp.unit}`}
                   {' \u2022 Page ' + vp.page}
                 </div>
               </div>

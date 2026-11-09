@@ -517,7 +517,8 @@
     "autoDetect": "表題欄から自動検出",
     "detecting": "検出中...",
     "scaleDetected": "縮尺を検出しました！",
-    "scaleNotFound": "表題欄に縮尺が見つかりません"
+    "scaleNotFound": "表題欄に縮尺が見つかりません",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "ページ設定",

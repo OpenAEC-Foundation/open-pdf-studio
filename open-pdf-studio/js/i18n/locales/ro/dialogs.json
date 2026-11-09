@@ -517,7 +517,8 @@
     "autoDetect": "Detectare automată din cartuș",
     "detecting": "Se detectează...",
     "scaleDetected": "Scară detectată!",
-    "scaleNotFound": "Nu s-a găsit nicio scară în cartuș"
+    "scaleNotFound": "Nu s-a găsit nicio scară în cartuș",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Configurare pagina",

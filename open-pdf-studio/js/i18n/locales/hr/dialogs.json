@@ -517,7 +517,8 @@
     "autoDetect": "Automatski prepoznaj iz sastavnice",
     "detecting": "Otkrivanje...",
     "scaleDetected": "Mjerilo prepoznato!",
-    "scaleNotFound": "U sastavnici nije pronađeno mjerilo"
+    "scaleNotFound": "U sastavnici nije pronađeno mjerilo",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Postavljanje stranice",

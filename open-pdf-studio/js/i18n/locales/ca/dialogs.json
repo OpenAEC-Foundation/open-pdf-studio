@@ -517,7 +517,8 @@
     "autoDetect": "Detecta automàticament des del quadre de títol",
     "detecting": "S'està detectant...",
     "scaleDetected": "S'ha detectat l'escala!",
-    "scaleNotFound": "No s'ha trobat cap escala al quadre de títol"
+    "scaleNotFound": "No s'ha trobat cap escala al quadre de títol",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Configuració de pàgina",

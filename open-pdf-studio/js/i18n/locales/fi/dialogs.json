@@ -517,7 +517,8 @@
     "autoDetect": "Tunnista automaattisesti nimiöstä",
     "detecting": "Tunnistetaan...",
     "scaleDetected": "Mittakaava tunnistettu!",
-    "scaleNotFound": "Nimiöstä ei löytynyt mittakaavaa"
+    "scaleNotFound": "Nimiöstä ei löytynyt mittakaavaa",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Sivun asetukset",

@@ -517,7 +517,8 @@
     "autoDetect": "Antetten otomatik algıla",
     "detecting": "Algılanıyor...",
     "scaleDetected": "Ölçek algılandı!",
-    "scaleNotFound": "Antette ölçek bulunamadı"
+    "scaleNotFound": "Antette ölçek bulunamadı",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Sayfa Ayarları",

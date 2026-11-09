@@ -517,7 +517,8 @@
     "autoDetect": "Deteksi otomatis dari kop gambar",
     "detecting": "Mendeteksi...",
     "scaleDetected": "Skala terdeteksi!",
-    "scaleNotFound": "Tidak ada skala di kop gambar"
+    "scaleNotFound": "Tidak ada skala di kop gambar",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Pengaturan Halaman",

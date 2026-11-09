@@ -517,7 +517,8 @@
     "autoDetect": "Detectar automaticamente pela legenda",
     "detecting": "Detectando...",
     "scaleDetected": "Escala detectada!",
-    "scaleNotFound": "Nenhuma escala encontrada na legenda"
+    "scaleNotFound": "Nenhuma escala encontrada na legenda",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Configurar página",

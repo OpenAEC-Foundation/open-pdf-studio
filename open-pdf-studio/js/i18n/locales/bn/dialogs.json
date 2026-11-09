@@ -517,7 +517,8 @@
     "autoDetect": "টাইটেল ব্লক থেকে স্বয়ংক্রিয়ভাবে শনাক্ত করুন",
     "detecting": "শনাক্ত করা হচ্ছে...",
     "scaleDetected": "স্কেল শনাক্ত হয়েছে!",
-    "scaleNotFound": "টাইটেল ব্লকে কোনো স্কেল পাওয়া যায়নি"
+    "scaleNotFound": "টাইটেল ব্লকে কোনো স্কেল পাওয়া যায়নি",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "পৃষ্ঠা সেটআপ",

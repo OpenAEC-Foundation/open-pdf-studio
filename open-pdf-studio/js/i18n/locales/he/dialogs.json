@@ -517,7 +517,8 @@
     "autoDetect": "זיהוי אוטומטי מטבלת הכותרת",
     "detecting": "מזהה...",
     "scaleDetected": "קנה המידה זוהה!",
-    "scaleNotFound": "לא נמצא קנה מידה בטבלת הכותרת"
+    "scaleNotFound": "לא נמצא קנה מידה בטבלת הכותרת",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "הגדרת עמוד",

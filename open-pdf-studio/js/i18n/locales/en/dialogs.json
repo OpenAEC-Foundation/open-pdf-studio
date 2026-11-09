@@ -516,7 +516,8 @@
     "autoDetect": "Auto-detect from title block",
     "detecting": "Detecting...",
     "scaleDetected": "Scale detected!",
-    "scaleNotFound": "No scale found in title block"
+    "scaleNotFound": "No scale found in title block",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Page Setup",

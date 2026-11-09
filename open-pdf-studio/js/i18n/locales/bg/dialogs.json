@@ -517,7 +517,8 @@
     "autoDetect": "Автоматично разпознаване от антетката",
     "detecting": "Разпознаване...",
     "scaleDetected": "Мащабът е разпознат!",
-    "scaleNotFound": "В антетката не е намерен мащаб"
+    "scaleNotFound": "В антетката не е намерен мащаб",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Настройка на страницата",

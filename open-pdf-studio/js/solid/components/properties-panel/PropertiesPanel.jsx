@@ -23,7 +23,7 @@ import LinkSection from './LinkSection.jsx';
 import ImageSection from './ImageSection.jsx';
 import { PapierMaatInvoer, PapierEenheidKeuze } from './PapierMaat.jsx';
 import { leesInvoerInEenheid } from '../../../annotations/papiermaat-eenheid.js';
-import { scaleSelectOptions, isImperialScalePreset } from '../../../annotations/scale-presets.js';
+import { scaleSelectOptions, isImperialScalePreset, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 import { beginUndoTransaction, endUndoTransaction } from '../../../core/undo-manager.js';
 import { papierEenheid } from '../../stores/papierEenheidStore.js';
 import ActionsSection from './ActionsSection.jsx';
@@ -140,7 +140,8 @@ function ScaleRegionSection() {
               // custom one so the select never shows blank.
               const presets = scaleSelectOptions(['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1']);
               const cur = annotProps.scaleRegionScale || '1:100';
-              const list = presets.some(o => o.value === cur) ? presets : [{ value: cur, label: cur }, ...presets];
+              const list = presets.some(o => o.value === cur) ? presets
+                : [{ value: cur, label: scaleDisplayLabel(cur, annotProps.scaleRegionUnits) }, ...presets];
               return list.map(o => <option value={o.value}>{o.label}</option>);
             })()}
           </select>

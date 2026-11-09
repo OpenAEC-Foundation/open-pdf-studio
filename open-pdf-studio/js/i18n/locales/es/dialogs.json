@@ -517,7 +517,8 @@
     "autoDetect": "Detectar desde cuadro de título",
     "detecting": "Detectando...",
     "scaleDetected": "¡Escala detectada!",
-    "scaleNotFound": "No se encontró escala en el cuadro de título"
+    "scaleNotFound": "No se encontró escala en el cuadro de título",
+    "currentScale": "Escala actual: {{scale}}"
   },
   "pageSetup": {
     "title": "Configurar página",

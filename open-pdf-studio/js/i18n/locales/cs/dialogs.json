@@ -517,7 +517,8 @@
     "autoDetect": "Automaticky zjistit z rohového razítka",
     "detecting": "Rozpoznávání...",
     "scaleDetected": "Měřítko zjištěno!",
-    "scaleNotFound": "V rohovém razítku nebylo nalezeno měřítko"
+    "scaleNotFound": "V rohovém razítku nebylo nalezeno měřítko",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "Vzhled stránky",

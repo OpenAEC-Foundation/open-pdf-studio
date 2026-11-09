@@ -517,7 +517,8 @@
     "autoDetect": "从标题栏自动检测",
     "detecting": "正在检测...",
     "scaleDetected": "已检测到比例！",
-    "scaleNotFound": "标题栏中未找到比例"
+    "scaleNotFound": "标题栏中未找到比例",
+    "currentScale": "Current scale: {{scale}}"
   },
   "pageSetup": {
     "title": "页面设置",

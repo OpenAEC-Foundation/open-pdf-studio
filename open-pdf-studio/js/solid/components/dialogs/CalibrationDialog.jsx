@@ -9,7 +9,8 @@ import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
 import { findScaleInText } from '../../../annotations/document-scale.js';
 import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
-import { SCALE_PRESETS, METRIC_SCALE_PRESETS, IMPERIAL_SCALE_PRESETS } from '../../../annotations/scale-presets.js';
+import { SCALE_PRESETS, METRIC_SCALE_PRESETS, IMPERIAL_SCALE_PRESETS, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
+import { schaalTekstVoorPpu } from '../../../annotations/schaalcontrole.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -73,6 +74,23 @@ export default function CalibrationDialog(props) {
   // /UserUnit van de pagina: 1:N wordt daarmee pagina-eenheden (#884).
   const [userUnit, setUserUnit] = createSignal(
     userUnitVanPagina(getActiveDocument(), getActiveDocument()?.currentPage));
+
+  // De schaal die nu geldt, zoals de gebruiker hem leest: imperiaal als
+  // 1/8" = 1'-0" (1:96), metrisch als 1:100 (#1000).
+  const currentScale = (() => {
+    const ms = getActiveDocument()?.measureScale;
+    if (!(ms?.pixelsPerUnit > 0)) return '';
+    const ratio = typeof ms.scaleRatio === 'string' && ms.scaleRatio
+      ? ms.scaleRatio
+      : schaalTekstVoorPpu(ms.pixelsPerUnit, ms.unit || 'mm');
+    return ratio ? scaleDisplayLabel(ratio, ms.unit) : '';
+  })();
+  // Een eigen verhouding in voet/inch ook in inch-notatie: 1:300 is 1" = 25'-0".
+  const customNotation = () => {
+    const ratio = `1:${customScale()}`;
+    const label = scaleDisplayLabel(ratio, ratioUnit(), { withRatio: false });
+    return label && label !== ratio ? label : '';
+  };
 
   onMount(async () => {
     // Pre-fill pixels from reference line if provided
@@ -242,6 +260,10 @@ export default function CalibrationDialog(props) {
         </button>
       </div>
 
+      <Show when={currentScale}>
+        <div class="calibration-page-size">{t('calibration.currentScale', { scale: currentScale })}</div>
+      </Show>
+
       {/* Method 1: Reference Line */}
       <Show when={method() === 'reference'}>
         <p class="calibration-help">
@@ -312,6 +334,9 @@ export default function CalibrationDialog(props) {
               value={customScale()}
               onInput={(e) => { const n = parseFloat(e.target.value); setCustomScale(n > 0 ? n : 1); }}
             />
+            <Show when={customNotation()}>
+              <span class="calibration-unit">{customNotation()}</span>
+            </Show>
           </Show>
         </div>
         <div class="calibration-row">
