@@ -800,3 +800,7 @@ js/core/us-papierformaten.test.mjs
 js/core/vloeiend-scrollen.test.mjs
 js/annotations/plaatsingspagina.test.mjs
 js/pdf/bestand-openen.test.mjs
+js/solid/components/ribbon/lint-tab-laden.test.mjs
+js/symbols/templates/vloer-dxf.test.mjs
+js/solid/data/nen1414-laden.test.mjs
+js/solid/components/contextmenu-lui.test.mjs
