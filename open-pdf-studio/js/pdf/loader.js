@@ -7,7 +7,8 @@ import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorkerUrl from 'virtual:opds-pdfjs-worker-url';
-import { isTauri, isMobile, heeftRustRenderer, readBinaryFile, openFileDialog, lockFile, invoke } from '../core/platform.js';
+import { isTauri, isMobile, heeftRustRenderer, readBinaryFile, openFileDialog, lockFile, unlockFile, leesHostPad, invoke } from '../core/platform.js';
+import { leesDocument, vergrendelDocument, OpenBestandFout, alleenLezenMelding } from './bestand-openen.js';
 import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
 import { addRecentFile, getRecentFiles } from '../mobile/recent-files.js';
@@ -393,20 +394,38 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       typedArray = preloadedData instanceof Uint8Array ? preloadedData : new Uint8Array(preloadedData);
       originalBytesCache.set(filePath, typedArray.slice());
     } else {
-      if (isTauri()) {
-        // Lock the file to prevent other apps from writing while we have it open
-        // (skip on Android — content:// URIs don't support filesystem locking)
-        if (!isMobile()) {
-          await lockFile(filePath);
-          if (isClosed()) return;
+      // Bureaublad: Rust leest het bestand zelf (delen voor lezen, schrijven
+      // en verwijderen, buiten de fs-scope om; een bestand dat alleen online
+      // staat wordt daarbij opgehaald) en vergrendelt het pas daarna, zodat de
+      // vergrendeling het ophalen door de synchronisatie-app niet blokkeert.
+      // Lukt vergrendelen niet, dan opent het alleen-lezen (#1005).
+      // Mobiel (content://-URI's) en de webversie lezen zoals altijd.
+      const bureaublad = isTauri() && !isMobile() && !leesHostPad(filePath);
+      let data;
+      if (bureaublad) {
+        data = await leesDocument(filePath, {
+          invoke,
+          leesTerugval: readBinaryFile,
+          t: (k, o) => i18next.t(k, o),
+        });
+        if (isClosed()) return;
+        const vergrendeling = await vergrendelDocument(filePath, { invoke, vergrendelTerugval: lockFile });
+        if (isClosed()) {
+          unlockFile(filePath).catch(() => {});
+          return;
         }
+        doc.bestandAlleenLezen = vergrendeling.alleenLezen ? { reden: vergrendeling.reden } : null;
+        if (vergrendeling.fout) console.warn('[open] file not locked, opened read-only:', vergrendeling.fout);
+      } else {
+        // Read file using Tauri fs plugin or web file cache
+        data = await readBinaryFile(filePath);
       }
-
-      // Read file using Tauri fs plugin or web file cache
-      const data = await readBinaryFile(filePath);
       if (isClosed()) return;
       if (!data) throw new Error('File system access not available');
-      typedArray = new Uint8Array(data);
+      // leesDocument geeft al een eigen array; de andere routes kunnen een
+      // gedeelde array geven (de bestandscache van de webversie) die pdf.js
+      // anders zou overdragen en leegmaken: die kopiëren zoals altijd.
+      typedArray = bureaublad ? data : new Uint8Array(data);
 
       // Cache a copy of original bytes for saver (pdf.js transfers the buffer
       // to a web worker, which detaches the original Uint8Array making it length 0)
@@ -549,6 +568,11 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       // Een beveiligde PDF heet naar het origineel, niet naar zijn werkkopie.
       const zichtbaarPad = bronPad(doc);
       doc.fileName = (zichtbaarPad && bestandsnaamUitPad(zichtbaarPad)) || 'Untitled';
+    }
+    // Alleen-lezen geopend (#1005): dat meteen zeggen, met de uitweg.
+    if (doc.bestandAlleenLezen && isActive()) {
+      showMessage(alleenLezenMelding(doc.bestandAlleenLezen.reden, doc.fileName, (k, o) => i18next.t(k, o)),
+        i18next.t('openFile.readOnly.title'));
     }
 
     // Reset annotation state (per-document)
@@ -914,7 +938,9 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     if (isClosed()) return;
     console.error('Error loading PDF:', error);
     if (isActive()) {
-      showMessage(i18next.t('failedToLoadPdf', { error: foutBericht(error) }));
+      // Een openfout zegt zelf welk pad, welke stap en wat te doen (#1005).
+      if (error instanceof OpenBestandFout) showMessage(error.message, i18next.t('openFile.title'));
+      else showMessage(i18next.t('failedToLoadPdf', { error: foutBericht(error) }));
     }
   } finally {
     doc._isLoading = false;

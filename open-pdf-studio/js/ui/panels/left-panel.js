@@ -21,6 +21,7 @@ import {
   thumbnailSelectedPages, selectThumbnailPage,
 } from '../../bridge.js';
 import { renderBreedteVoorLijst, halveerStappen, MIN_RENDER } from './miniatuur-maat.js';
+import { scrollGedrag } from '../../core/vloeiend-scrollen.js';
 
 // Renderbreedte van nieuwe miniaturen in apparaatpixels (#579): de getoonde
 // kolombreedte maal devicePixelRatio, minstens 280 px, zodat ze scherp blijven
@@ -1049,7 +1050,7 @@ export function updateActiveThumbnail(restoreScroll = false) {
       // Scroll active thumbnail into view (page navigation)
       const activeThumbnail = container.querySelector('.thumbnail-item.active');
       if (activeThumbnail) {
-        activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        activeThumbnail.scrollIntoView({ behavior: scrollGedrag(), block: 'nearest' });
       }
     }
   }, 0);

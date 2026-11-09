@@ -30,7 +30,8 @@
     "formRadio": "ປຸ່ມເລືອກຕົວດຽວແບບຟອມ",
     "screenshot": "ຖ່າຍພາບໜ້າຈໍ",
     "pageLabelPick": "ເລືອກຂໍ້ຄວາມສຳລັບປ້າຍຊື່ໜ້າ",
-    "proofread": "ກວດແກ້ຄຳຜິດ"
+    "proofread": "ກວດແກ້ຄຳຜິດ",
+    "count": "ນັບ"
   },
   "toolLabel": "ເຄື່ອງມື:",
   "annotationsLabel": "ໝາຍເຫດ:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "ໝາຍເຫດຖືກແບ່ງປັນຜ່ານ {{folder}}. ຄລິກເພື່ອເປີດການກວດທານຮ່ວມກັນ.",
   "sharedReviewError": "ການກວດທານຮ່ວມກັນ: ເຂົ້າເຖິງໂຟນເດີບໍ່ໄດ້",
   "pdfaReadOnly": "ເອກະສານນີ້ສອດຄ່ອງກັບມາດຕະຖານ {{label}} ແລະ ຖືກເປີດແບບອ່ານຢ່າງດຽວເພື່ອປ້ອງກັນການແກ້ໄຂ.",
-  "pdfaValidate": "ກວດສອບຄວາມຖືກຕ້ອງ"
+  "pdfaValidate": "ກວດສອບຄວາມຖືກຕ້ອງ",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

@@ -792,7 +792,14 @@
     "countGroupColor": "Farbe",
     "countGroupColorTip": "Farbe der ganzen Gruppe, auch der bereits gesetzten Markierungen",
     "countGroupNew": "Neue Gruppe",
-    "countGroupAdd": "Gruppe hinzufügen"
+    "countGroupAdd": "Gruppe hinzufügen",
+    "countNew": "Neue Zählung",
+    "countNewTip": "Neue Zählung: beginnt eine neue Gruppe mit eigener Farbe; die Nummerierung beginnt wieder bei 1. Frühere Zählungen behalten ihre Nummern und Farbe. Beim Zählen: Enter",
+    "countNewName": "Zählung",
+    "countNewStarted": "Neue Zählung: {{name}}",
+    "countDefaultDoors": "Türen",
+    "countDefaultWindows": "Fenster",
+    "countDefaultSockets": "Steckdosen"
   },
   "proofread": {
     "group": "Korrektur",

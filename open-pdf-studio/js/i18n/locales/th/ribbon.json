@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
-    "countGroupAdd": "Add group"
+    "countGroupAdd": "Add group",
+    "countNew": "การนับใหม่",
+    "countNewTip": "New count: starts a new group with its own colour; numbering starts again at 1. Earlier counts keep their numbers and colour. While counting: Enter",
+    "countNewName": "การนับ",
+    "countNewStarted": "การนับใหม่: {{name}}",
+    "countDefaultDoors": "ประตู",
+    "countDefaultWindows": "หน้าต่าง",
+    "countDefaultSockets": "เต้ารับ"
   },
   "proofread": {
     "group": "พิสูจน์อักษร",

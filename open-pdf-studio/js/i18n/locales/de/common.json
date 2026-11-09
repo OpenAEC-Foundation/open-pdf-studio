@@ -84,7 +84,38 @@
   "extractEncrypted": "Diese Seiten können nicht extrahiert werden: Der Inhalt des Dokuments ist noch verschlüsselt. Speichern Sie das Dokument ohne Schutz und versuchen Sie es erneut.",
   "selectedPdfNoPages": "Das ausgewählte PDF hat keine Seiten.",
   "failedToSavePdf": "PDF konnte nicht gespeichert werden: {{error}}",
+  "fileWriteDenied": "{{path}} konnte nicht gespeichert werden: Windows hat den Zugriff verweigert. Möglicherweise dürfen Sie diese Datei nicht ändern, oder eine andere App bzw. die Synchronisierungs-App hat sie geöffnet. Schließen Sie sie dort und versuchen Sie es erneut, oder speichern Sie mit „Speichern unter“ eine Kopie an einem anderen Ort.",
   "failedToLoadPdf": "PDF konnte nicht geladen werden: {{error}}",
+  "openFile": {
+    "title": "Datei konnte nicht geöffnet werden",
+    "failed": "{{path}} konnte nicht geöffnet werden beim {{step}}.",
+    "step": {
+      "scope": "Prüfen des Dateizugriffs der App",
+      "vergrendelen": "Reservieren der Datei",
+      "lezen": "Lesen der Datei"
+    },
+    "reason": {
+      "scope": "Die App konnte diesen Ort nicht prüfen. Das kommt bei manchen Netzwerkpfaden (WebDAV) vor. Synchronisieren Sie die Bibliothek mit diesem PC (zum Beispiel mit OneDrive) oder kopieren Sie die Datei in einen lokalen Ordner und öffnen Sie sie dort.",
+      "niet-gevonden": "Die Datei wurde nicht gefunden. Sie wurde möglicherweise verschoben, umbenannt oder gelöscht, oder der Netzwerkort ist nicht verfügbar.",
+      "geweigerd": "Windows hat den Zugriff verweigert. Prüfen Sie, ob Ihr Konto diese Datei öffnen darf; für eine SharePoint-Bibliothek benötigen Sie mindestens Leserechte.",
+      "in-gebruik": "Eine andere App oder die Synchronisierungs-App verwendet die Datei so, dass sie nicht gelesen werden kann. Warten Sie, bis die Synchronisierung abgeschlossen ist, oder schließen Sie die Datei dort, und versuchen Sie es erneut.",
+      "alleen-online": "Die Datei ist nur online verfügbar und konnte nicht heruntergeladen werden. Prüfen Sie, ob OneDrive läuft, angemeldet und verbunden ist, oder klicken Sie die Datei im Explorer mit rechts an und wählen Sie „Immer auf diesem Gerät beibehalten“.",
+      "netwerk": "Der Netzwerkort ist nicht erreichbar. Prüfen Sie die Verbindung und versuchen Sie es erneut.",
+      "pad-te-lang": "Der Pfad ist für Windows zu lang. Verschieben Sie die Datei in einen Ordner mit kürzerem Pfad.",
+      "anders": "Die Datei konnte nicht gelesen werden."
+    },
+    "hintWebdav": "Dies ist ein Netzwerkpfad (WebDAV). Die Bibliothek über einen synchronisierten Ordner zu öffnen (Synchronisieren in SharePoint) ist meist zuverlässiger.",
+    "hintLongPath": "Der Pfad ist länger als 260 Zeichen; ein kürzerer Pfad kann helfen.",
+    "detail": "Details: {{detail}}",
+    "readOnly": {
+      "title": "Schreibgeschützt geöffnet",
+      "kenmerk": "{{name}} ist schreibgeschützt: Die Datei hat das Attribut „Schreibgeschützt“, oder Sie haben an diesem Ort nur Leserechte.",
+      "in-gebruik": "{{name}} ist in einer anderen App geöffnet oder wird synchronisiert, daher kann Open PDF Studio sie nicht reservieren.",
+      "geweigerd": "{{name}} kann nicht reserviert werden: Windows hat das verweigert.",
+      "mislukt": "{{name}} konnte nicht reserviert werden.",
+      "saveAs": "Sie wurde schreibgeschützt geöffnet. Sie können Änderungen vornehmen; speichern Sie sie mit „Speichern unter“ in einer anderen Datei."
+    }
+  },
   "hostOpenFailed": "Die Datei konnte nicht aus dem Speicher gelesen werden. Versuchen Sie es erneut.",
   "hostInvalidPdf": "{{name}} ist keine gültige PDF-Datei und konnte nicht geöffnet werden.",
   "hostNoContact": "Die Seite um Open PDF Studio antwortet nicht, daher können Dateien nicht geöffnet oder gespeichert werden. Laden Sie die Seite neu und versuchen Sie es erneut.",

@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uden at holde Ctrl nede)",
     "middleDoubleClickFit": "Dobbeltklik med den midterste museknap for at tilpasse siden",
     "ribbonWheelSwitchesTabs": "Skift fane i båndet med musehjulet",
+    "smoothScrolling": "Blød rulning",
+    "smoothScrollingHint": "Animerer rulning med musehjulet og spring til en side, så siden glider lidt videre. Fra: siden stopper, når hjulet stopper. På Linux kan en genstart være nødvendig.",
     "dynamicScaling": "Skalér markeringer automatisk"
   },
   "fileAssoc": {

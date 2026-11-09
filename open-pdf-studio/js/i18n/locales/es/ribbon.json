@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color de todo el grupo, incluidas las marcas ya colocadas",
     "countGroupNew": "Nuevo grupo",
-    "countGroupAdd": "Añadir grupo"
+    "countGroupAdd": "Añadir grupo",
+    "countNew": "Nuevo recuento",
+    "countNewTip": "Nuevo recuento: crea un grupo nuevo con su propio color; la numeración vuelve a empezar en 1. Los recuentos anteriores conservan sus números y su color. Durante el recuento: Intro",
+    "countNewName": "Recuento",
+    "countNewStarted": "Nuevo recuento: {{name}}",
+    "countDefaultDoors": "Puertas",
+    "countDefaultWindows": "Ventanas",
+    "countDefaultSockets": "Enchufes"
   },
   "proofread": {
     "group": "Revisión",

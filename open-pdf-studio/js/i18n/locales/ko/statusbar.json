@@ -30,7 +30,8 @@
     "formRadio": "양식 라디오 버튼",
     "screenshot": "스크린샷",
     "pageLabelPick": "페이지 레이블용 텍스트 선택",
-    "proofread": "교정"
+    "proofread": "교정",
+    "count": "개수 세기"
   },
   "toolLabel": "도구:",
   "annotationsLabel": "주석:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "주석이 {{folder}}을(를) 통해 공유됩니다. 클릭하면 공유 검토가 열립니다.",
   "sharedReviewError": "공유 검토: 폴더를 사용할 수 없음",
   "pdfaReadOnly": "이 문서는 {{label}} 표준을 준수하므로 수정을 방지하기 위해 읽기 전용으로 열렸습니다.",
-  "pdfaValidate": "검증"
+  "pdfaValidate": "검증",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

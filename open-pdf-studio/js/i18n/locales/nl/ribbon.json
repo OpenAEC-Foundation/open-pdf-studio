@@ -756,7 +756,14 @@
     "countGroupColor": "Kleur",
     "countGroupColorTip": "Kleur van de hele groep, ook van de al geplaatste markeringen",
     "countGroupNew": "Nieuwe groep",
-    "countGroupAdd": "Groep toevoegen"
+    "countGroupAdd": "Groep toevoegen",
+    "countNew": "Nieuwe telling",
+    "countNewTip": "Nieuwe telling: begint een nieuwe groep met een eigen kleur; de nummering begint weer bij 1. Eerdere tellingen houden hun nummers en kleur. Tijdens het tellen: Enter",
+    "countNewName": "Telling",
+    "countNewStarted": "Nieuwe telling: {{name}}",
+    "countDefaultDoors": "Deuren",
+    "countDefaultWindows": "Ramen",
+    "countDefaultSockets": "Stopcontacten"
   },
   "theme": {
     "system": "Systeem (Automatisch)",

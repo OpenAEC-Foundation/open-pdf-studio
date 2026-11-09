@@ -30,7 +30,8 @@
     "formRadio": "Kitufe cha Kuchagua cha Fomu",
     "screenshot": "Picha ya Skrini",
     "pageLabelPick": "Chagua Maandishi kwa Lebo ya Ukurasa",
-    "proofread": "Usahihishaji"
+    "proofread": "Usahihishaji",
+    "count": "Hesabu"
   },
   "toolLabel": "Zana:",
   "annotationsLabel": "Maoni:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Maelezo yanashirikiwa kupitia {{folder}}. Bofya ili kufungua ukaguzi wa pamoja.",
   "sharedReviewError": "Ukaguzi wa pamoja: folda haipatikani",
   "pdfaReadOnly": "Hati hii inafuata kiwango cha {{label}} na imefunguliwa katika hali ya kusoma tu ili kuzuia mabadiliko.",
-  "pdfaValidate": "Thibitisha"
+  "pdfaValidate": "Thibitisha",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

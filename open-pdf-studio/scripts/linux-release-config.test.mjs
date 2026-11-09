@@ -359,7 +359,7 @@ test('Linux turns off 2D canvas acceleration in every WebView, with an opt-out (
   assert.match(runtime, /spec\.value_type\(\) != bool::static_type\(\)/);
   assert.match(runtime, /ParamFlags::WRITABLE/);
   assert.match(runtime, /env::var_os\("OPDS_CANVAS_GPU"\)/);
-  assert.match(runtime, /\.on_webview_ready\(\|webview\| zet_canvas_versnelling_uit\(&webview\)\)/);
+  assert.match(runtime, /\.on_webview_ready\(\|webview\| \{\s*zet_canvas_versnelling_uit\(&webview\);/);
   assert.match(runtime, /#\[cfg\(target_os = "linux"\)\]\r?\npub fn zet_canvas_versnelling_uit</);
   assert.match(runtime, /#\[cfg\(target_os = "linux"\)\]\r?\npub fn webview_plugin</);
 
@@ -377,6 +377,35 @@ test('Linux turns off 2D canvas acceleration in every WebView, with an opt-out (
   assert.ok(installatie.includes('OPDS_CANVAS_GPU=1'), 'docs/install-linux.md documents the opt-out');
   assert.ok(installatie.includes('enable-2d-canvas-acceleration'), 'docs/install-linux.md names the setting');
   assert.ok(installatie.includes('WEBKIT_DISABLE_DMABUF_RENDERER=1'), 'the stronger fallback stays documented');
+});
+
+test('Linux follows the smooth-scrolling preference in every WebView, off by default (#1007)', async () => {
+  const runtime = await readFile(new URL('src-tauri/src/linux_runtime.rs', appRoot), 'utf8');
+  // Zelfde patroon als de canvasversnelling: op naam, eerst opzoeken en het
+  // type en de schrijfbaarheid controleren, dan pas zetten.
+  assert.match(runtime, /const VLOEIEND_SCROLLEN: &str = "enable-smooth-scrolling";/);
+  const zoek = runtime.indexOf('find_property(VLOEIEND_SCROLLEN)');
+  const zet = runtime.indexOf('set_property(VLOEIEND_SCROLLEN, aan)');
+  assert.notEqual(zoek, -1, 'the property is looked up first');
+  assert.notEqual(zet, -1, 'the property is set to the preference');
+  assert.ok(zoek < zet, 'look up before set');
+  const functie = runtime.slice(runtime.indexOf('pub fn zet_vloeiend_scrollen<'), zet);
+  assert.match(functie, /spec\.value_type\(\) != bool::static_type\(\) \|\| !spec\.flags\(\)\.contains\(ParamFlags::WRITABLE\)/);
+  assert.match(runtime, /#\[cfg\(target_os = "linux"\)\]\r?\npub fn zet_vloeiend_scrollen<R: tauri::Runtime>\(webview: &tauri::Webview<R>, aan: bool\)/);
+  // Bij het aanmaken van elke WebView: de opgeslagen voorkeur, standaard uit.
+  assert.match(runtime, /\.on_webview_ready\(\|webview\| \{[^}]*zet_vloeiend_scrollen\(&webview, vloeiend_scrollen_bij_start\(\)\);/);
+  assert.match(runtime, /std::fs::read_to_string\(crate::get_preferences_file_path\(\)\)/);
+  assert.match(runtime, /voorkeuren\.get\("smoothScrolling"\)\.and_then\(serde_json::Value::as_bool\)\)\s*\.unwrap_or\(false\)/);
+  assert.match(runtime, /fn smooth_scrolling_follows_the_saved_preference_and_defaults_to_off\(\)/);
+
+  // Live bij een gewijzigde voorkeur, voor elk venster van het proces.
+  const lib = await readFile(new URL('src-tauri/src/lib.rs', appRoot), 'utf8');
+  assert.match(lib, /fn zet_vloeiend_scrollen\(app: tauri::AppHandle, aan: bool\) -> bool/);
+  assert.match(lib, /linux_runtime::zet_vloeiend_scrollen::<tauri::Wry>\(venster\.as_ref\(\), aan\);/);
+
+  const installatie = await readFile(new URL('docs/install-linux.md', repoRoot), 'utf8');
+  assert.ok(installatie.includes('enable-smooth-scrolling'), 'docs/install-linux.md names the setting');
+  assert.ok(installatie.includes('Smooth') && installatie.includes('restart the app'), 'docs/install-linux.md explains the preference and the restart');
 });
 
 // Losse OpenPGP-handtekeningen voor de Linux-pakketten (#842).

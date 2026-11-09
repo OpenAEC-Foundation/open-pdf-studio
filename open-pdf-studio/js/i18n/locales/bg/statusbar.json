@@ -30,7 +30,8 @@
     "formRadio": "Радио бутон на формуляр",
     "screenshot": "Екранна снимка",
     "pageLabelPick": "Избор на текст за етикет на страница",
-    "proofread": "Коректура"
+    "proofread": "Коректура",
+    "count": "Броене"
   },
   "toolLabel": "Инструмент:",
   "annotationsLabel": "Анотации:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Анотациите се споделят чрез {{folder}}. Щракнете, за да отворите споделения преглед.",
   "sharedReviewError": "Споделен преглед: папката е недостъпна",
   "pdfaReadOnly": "Този документ отговаря на стандарта {{label}} и е отворен само за четене, за да се предотврати промяната му.",
-  "pdfaValidate": "Проверка"
+  "pdfaValidate": "Проверка",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

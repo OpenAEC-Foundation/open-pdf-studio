@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
     "ribbonWheelSwitchesTabs": "Ganti tab ribbon dengan roda mouse",
+    "smoothScrolling": "Gulir halus",
+    "smoothScrollingHint": "Menganimasikan pengguliran dengan roda tetikus dan lompatan ke halaman, sehingga halaman masih meluncur sebentar. Mati: halaman berhenti saat roda berhenti. Di Linux mungkin perlu memulai ulang.",
     "dynamicScaling": "Skalakan markup otomatis"
   },
   "fileAssoc": {

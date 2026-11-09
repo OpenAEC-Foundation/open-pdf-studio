@@ -30,7 +30,8 @@
     "formRadio": "Nút chọn Biểu mẫu",
     "screenshot": "Chụp màn hình",
     "pageLabelPick": "Chọn văn bản cho nhãn trang",
-    "proofread": "Hiệu đính"
+    "proofread": "Hiệu đính",
+    "count": "Đếm"
   },
   "toolLabel": "Công cụ:",
   "annotationsLabel": "Chú thích:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Chú thích được chia sẻ qua {{folder}}. Nhấp để mở xem xét chung.",
   "sharedReviewError": "Xem xét chung: không truy cập được thư mục",
   "pdfaReadOnly": "Tài liệu này tuân thủ tiêu chuẩn {{label}} và đã được mở ở chế độ chỉ đọc để tránh sửa đổi.",
-  "pdfaValidate": "Xác thực"
+  "pdfaValidate": "Xác thực",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

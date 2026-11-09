@@ -30,7 +30,8 @@
     "formRadio": "Form Seçenek Düğmesi",
     "screenshot": "Ekran Görüntüsü",
     "pageLabelPick": "Sayfa Etiketi için Metin Seç",
-    "proofread": "Düzelti"
+    "proofread": "Düzelti",
+    "count": "Sayma"
   },
   "toolLabel": "Araç:",
   "annotationsLabel": "Açıklamalar:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Ek açıklamalar {{folder}} üzerinden paylaşılıyor. Paylaşılan incelemeyi açmak için tıklayın.",
   "sharedReviewError": "Paylaşılan inceleme: klasöre erişilemiyor",
   "pdfaReadOnly": "Bu belge {{label}} standardına uygundur ve değiştirilmesini önlemek için salt okunur olarak açılmıştır.",
-  "pdfaValidate": "Doğrula"
+  "pdfaValidate": "Doğrula",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

@@ -30,7 +30,8 @@
     "formRadio": "Радио дугме обрасца",
     "screenshot": "Снимак екрана",
     "pageLabelPick": "Избор текста за ознаку странице",
-    "proofread": "Коректура"
+    "proofread": "Коректура",
+    "count": "Бројање"
   },
   "toolLabel": "Алатка:",
   "annotationsLabel": "Анотације:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Белешке се деле преко {{folder}}. Кликните да отворите заједнички преглед.",
   "sharedReviewError": "Заједнички преглед: фасцикла недоступна",
   "pdfaReadOnly": "Овај документ је у складу са стандардом {{label}} и отворен је само за читање како би се спречила његова измена.",
-  "pdfaValidate": "Провери"
+  "pdfaValidate": "Провери",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

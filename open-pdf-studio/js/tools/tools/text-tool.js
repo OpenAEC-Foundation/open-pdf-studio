@@ -46,7 +46,9 @@ export const textTool = {
     if (ctx.viewMode === 'continuous') {
       ctx.addTextAnnotation(ctx.x, ctx.y, pageNum, canvas);
     } else {
-      ctx.addTextAnnotation(ctx.x, ctx.y);
+      // Ook hier de aangeklikte pagina mee: het tekstvenster komt ertussen
+      // (#1006).
+      ctx.addTextAnnotation(ctx.x, ctx.y, pageNum);
     }
   },
 };
@@ -59,11 +61,12 @@ export const stampTool = {
     if (e && e.button === 2) return;
     const { state } = ctx;
     if (state.toolOverrides?.stampSvg || state.toolOverrides?.stampImage) {
-      ctx.placeOverrideStamp(ctx.x, ctx.y);
+      ctx.placeOverrideStamp(ctx.x, ctx.y, ctx.pageNum);
       // Auto-reset to select tool
       import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
     } else {
-      ctx.showStampPicker(ctx.x, ctx.y);
+      // De aangeklikte pagina reist mee met het keuzevenster (#1006).
+      ctx.showStampPicker(ctx.x, ctx.y, ctx.pageNum);
     }
   },
 
@@ -76,7 +79,7 @@ export const stampTool = {
     // onder de cursor precies dekt wat er straks geplaatst wordt — ook met
     // de gekozen symboolschaal uit het palet (issue #357).
     const ov = state.toolOverrides;
-    const page = getActiveDocument()?.currentPage || 1;
+    const page = ctx.pageNum || getActiveDocument()?.currentPage || 1;
     const { width: w, height: h } = overrideStampMaat(ov, {
       pxPerMm: stampPxPerMm(page, ctx.x, ctx.y),
       ptPerMmPapier: stampPtPerPapierMm(page),
@@ -112,7 +115,9 @@ export const signatureTool = {
   cursor: 'crosshair',
 
   onPointerDown(ctx) {
-    ctx.showSignatureDialog(ctx.x, ctx.y);
+    // De pagina onder de klik, niet de huidige: in de weergave met twee
+    // pagina's is dat de linker (#1006).
+    ctx.showSignatureDialog(ctx.x, ctx.y, ctx.pageNum);
     // Auto-reset to select tool
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
   },

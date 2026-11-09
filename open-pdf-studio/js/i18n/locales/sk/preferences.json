@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Lupa kolieskom myši (bez držania Ctrl)",
     "middleDoubleClickFit": "Dvojklik stredným tlačidlom myši prispôsobí stránku",
     "ribbonWheelSwitchesTabs": "Prepínať karty pásu s nástrojmi kolieskom myši",
+    "smoothScrolling": "Plynulé posúvanie",
+    "smoothScrollingHint": "Animuje posúvanie kolieskom myši a skoky na stránku, ktorá potom chvíľu dobieha. Vypnuté: stránka sa zastaví, keď sa zastaví koliesko. V Linuxe môže byť potrebný reštart.",
     "dynamicScaling": "Automaticky meniť mierku označení"
   },
   "fileAssoc": {

@@ -30,7 +30,8 @@
     "formRadio": "ফর্ম রেডিও বোতাম",
     "screenshot": "স্ক্রিনশট",
     "pageLabelPick": "পৃষ্ঠা লেবেলের জন্য লেখা বাছুন",
-    "proofread": "প্রুফ রিডিং"
+    "proofread": "প্রুফ রিডিং",
+    "count": "গণনা"
   },
   "toolLabel": "সরঞ্জাম:",
   "annotationsLabel": "টীকা:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "টীকা {{folder}}-এর মাধ্যমে শেয়ার হচ্ছে। যৌথ পর্যালোচনা খুলতে ক্লিক করুন।",
   "sharedReviewError": "যৌথ পর্যালোচনা: ফোল্ডার পাওয়া যাচ্ছে না",
   "pdfaReadOnly": "এই নথিটি {{label}} মানদণ্ড মেনে চলে এবং পরিবর্তন রোধ করতে শুধুমাত্র-পঠনযোগ্য হিসেবে খোলা হয়েছে।",
-  "pdfaValidate": "যাচাই করুন"
+  "pdfaValidate": "যাচাই করুন",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

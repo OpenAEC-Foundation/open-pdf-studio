@@ -7,6 +7,7 @@ import { isVersleuteld, beveiligingUitSessie } from './document-beveiliging.js';
 import { foutMelding } from './protect-pdf-regels.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
+import { opslaanNaarOpslaanAls } from './bestand-openen.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
 import { hostFoutMelding } from '../core/host-brug.js';
 import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
@@ -83,6 +84,8 @@ function harness() {
     hostFoutMelding,
     // Naamloos of zonder pad: Opslaan vraagt om een plek (handtekeningen/opslaan.js, echt).
     opslaanVraagtOpslaanAls,
+    // Alleen-lezen geopend (#1005): Opslaan wordt Opslaan als (bestand-openen.js, echt).
+    opslaanNaarOpslaanAls,
     // Leesbare naam, ook voor een content://-URI van Android (#596).
     bestandsnaamUitPad,
     // Herstelmomentopname weg na opslaan (js/herstel/haken.js).
@@ -238,6 +241,25 @@ test('write failure preserves modified and PDF/A state and re-locks the file', a
   assert.equal(h.a.modified, true);
   assert.equal(h.a.pdfaCompliance, 'PDF/A-2b');
   assert.equal(locks, 1);
+});
+
+test('a document opened read-only (#1005) saves through Save As and is editable afterwards', async () => {
+  const h = harness(); let dialogs = 0;
+  h.a.bestandAlleenLezen = { reden: 'in-gebruik' };
+  h.deps.saveFileDialog = async () => { dialogs++; return 'copy-of-a.pdf'; };
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), true);
+  assert.equal(dialogs, 1, 'Save asks where to save instead of writing over the file');
+  assert.deepEqual(h.writes, [{ path: 'copy-of-a.pdf', source: 'a.pdf' }]);
+  assert.equal(h.a.bestandAlleenLezen, null);
+});
+
+test('access denied while writing (#1005) names the path instead of "in use by another application"', async () => {
+  const h = harness(); const meldingen = [];
+  h.deps.i18next = { t: (k, o) => (o?.path ? `${k}:${o.path}` : o?.error ? `${k}:${o.error}` : (o?.defaultValue ?? k)) };
+  h.deps.showMessage = (m) => meldingen.push(m);
+  h.deps.writeBinaryFileAtomic = async () => { throw 'Access is denied. (os error 5)'; };
+  assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), false);
+  assert.ok(meldingen.some(m => m.includes('fileWriteDenied:a.pdf')), meldingen.join(' | '));
 });
 
 test('a structural reload during serialization cannot overwrite the prior document', async () => {

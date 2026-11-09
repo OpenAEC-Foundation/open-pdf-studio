@@ -160,7 +160,38 @@
   "extractEncrypted": "Deze pagina's kunnen niet worden geëxtraheerd: de inhoud van het document is nog versleuteld. Sla het document zonder beveiliging op en probeer het opnieuw.",
   "selectedPdfNoPages": "De geselecteerde PDF heeft geen pagina's.",
   "failedToSavePdf": "PDF opslaan mislukt: {{error}}",
+  "fileWriteDenied": "{{path}} kon niet worden opgeslagen: Windows weigerde de toegang. Misschien mag je dit bestand niet wijzigen, of heeft een andere app of de synchronisatie-app het open. Sluit het daar en probeer het opnieuw, of gebruik Opslaan als om een kopie elders op te slaan.",
   "failedToLoadPdf": "PDF laden mislukt: {{error}}",
+  "openFile": {
+    "title": "Bestand kon niet worden geopend",
+    "failed": "{{path}} kon niet worden geopend bij het {{step}}.",
+    "step": {
+      "scope": "controleren van de bestandstoegang van de app",
+      "vergrendelen": "reserveren van het bestand",
+      "lezen": "lezen van het bestand"
+    },
+    "reason": {
+      "scope": "De app kon deze locatie niet controleren. Dat gebeurt bij sommige netwerkpaden (WebDAV). Synchroniseer de bibliotheek met deze pc (bijvoorbeeld met OneDrive), of kopieer het bestand naar een lokale map, en open het daar.",
+      "niet-gevonden": "Het bestand is niet gevonden. Het is misschien verplaatst, hernoemd of verwijderd, of de netwerklocatie is niet beschikbaar.",
+      "geweigerd": "Windows weigerde de toegang. Controleer of je account dit bestand mag openen; voor een SharePoint-bibliotheek heb je minstens leesrechten nodig.",
+      "in-gebruik": "Een andere app of de synchronisatie-app gebruikt het bestand zo dat lezen niet lukt. Wacht tot het synchroniseren klaar is, of sluit het bestand daar, en probeer het opnieuw.",
+      "alleen-online": "Het bestand staat alleen online en kon niet worden gedownload. Controleer of OneDrive draait, aangemeld is en verbinding heeft, of klik in de Verkenner met rechts op het bestand en kies \"Altijd behouden op dit apparaat\".",
+      "netwerk": "De netwerklocatie is niet bereikbaar. Controleer de verbinding en probeer het opnieuw.",
+      "pad-te-lang": "Het pad is te lang voor Windows. Verplaats het bestand naar een map met een korter pad.",
+      "anders": "Het bestand kon niet worden gelezen."
+    },
+    "hintWebdav": "Dit is een netwerkpad (WebDAV). De bibliotheek openen via een gesynchroniseerde map (Synchroniseren in SharePoint) werkt meestal betrouwbaarder.",
+    "hintLongPath": "Het pad is langer dan 260 tekens; een korter pad kan helpen.",
+    "detail": "Details: {{detail}}",
+    "readOnly": {
+      "title": "Alleen-lezen geopend",
+      "kenmerk": "{{name}} is alleen-lezen: het bestand heeft het kenmerk alleen-lezen, of je hebt op deze locatie alleen leesrechten.",
+      "in-gebruik": "{{name}} is geopend in een andere app of wordt gesynchroniseerd, daarom kan Open PDF Studio het niet reserveren.",
+      "geweigerd": "{{name}} kan niet worden gereserveerd: Windows weigerde dat.",
+      "mislukt": "{{name}} kon niet worden gereserveerd.",
+      "saveAs": "Het is alleen-lezen geopend. Je kunt wijzigingen maken; sla ze met Opslaan als op in een ander bestand."
+    }
+  },
   "hostOpenFailed": "Het bestand kon niet uit de opslag worden gelezen. Probeer het opnieuw.",
   "hostInvalidPdf": "{{name}} is geen geldig PDF-bestand en kon niet worden geopend.",
   "hostNoContact": "De pagina rond Open PDF Studio reageert niet, dus bestanden kunnen niet worden geopend of opgeslagen. Laad de pagina opnieuw en probeer het nog eens.",

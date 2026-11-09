@@ -30,7 +30,8 @@
     "screenshot": "Schermafbeelding",
     "cloudPolyline": "Wolk-polylijn",
     "pageLabelPick": "Tekst kiezen voor paginalabel",
-    "proofread": "Proeflezen"
+    "proofread": "Proeflezen",
+    "count": "Tellen"
   },
   "toolLabel": "Gereedschap:",
   "annotationsLabel": "Annotaties:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Annotaties worden gedeeld via {{folder}}. Klik om de gedeelde beoordeling te openen.",
   "sharedReviewError": "Gedeelde beoordeling: map niet bereikbaar",
   "pdfaReadOnly": "Dit document voldoet aan de {{label}}-standaard en is alleen-lezen geopend om wijzigingen te voorkomen.",
-  "pdfaValidate": "Valideren"
+  "pdfaValidate": "Valideren",
+  "countGroupTip": "Actieve telgroep: de volgende markering komt in deze groep"
 }

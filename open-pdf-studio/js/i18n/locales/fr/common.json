@@ -84,7 +84,38 @@
   "extractEncrypted": "Ces pages ne peuvent pas être extraites : le contenu du document est encore chiffré. Enregistrez le document sans protection et réessayez.",
   "selectedPdfNoPages": "Le PDF sélectionné ne contient aucune page.",
   "failedToSavePdf": "Impossible d'enregistrer le PDF : {{error}}",
+  "fileWriteDenied": "{{path}} n'a pas pu être enregistré : Windows a refusé l'accès. Vous n'avez peut-être pas le droit de modifier ce fichier, ou une autre application ou l'application de synchronisation l'a ouvert. Fermez-le là et réessayez, ou utilisez Enregistrer sous pour enregistrer une copie ailleurs.",
   "failedToLoadPdf": "Impossible de charger le PDF : {{error}}",
+  "openFile": {
+    "title": "Impossible d'ouvrir le fichier",
+    "failed": "{{path}} n'a pas pu être ouvert lors de {{step}}.",
+    "step": {
+      "scope": "la vérification de l'accès aux fichiers de l'application",
+      "vergrendelen": "la réservation du fichier",
+      "lezen": "la lecture du fichier"
+    },
+    "reason": {
+      "scope": "L'application n'a pas pu vérifier cet emplacement. Cela arrive avec certains chemins réseau (WebDAV). Synchronisez la bibliothèque avec ce PC (par exemple avec OneDrive) ou copiez le fichier dans un dossier local, puis ouvrez-le depuis là.",
+      "niet-gevonden": "Le fichier est introuvable. Il a peut-être été déplacé, renommé ou supprimé, ou l'emplacement réseau n'est pas disponible.",
+      "geweigerd": "Windows a refusé l'accès. Vérifiez que votre compte peut ouvrir ce fichier ; pour une bibliothèque SharePoint, il faut au moins le droit de lecture.",
+      "in-gebruik": "Une autre application ou l'application de synchronisation utilise le fichier d'une manière qui empêche sa lecture. Attendez la fin de la synchronisation ou fermez le fichier là, puis réessayez.",
+      "alleen-online": "Le fichier n'est disponible qu'en ligne et n'a pas pu être téléchargé. Vérifiez que OneDrive est lancé, connecté et en ligne, ou faites un clic droit sur le fichier dans l'Explorateur et choisissez « Toujours conserver sur cet appareil ».",
+      "netwerk": "L'emplacement réseau est inaccessible. Vérifiez la connexion et réessayez.",
+      "pad-te-lang": "Le chemin est trop long pour Windows. Déplacez le fichier dans un dossier au chemin plus court.",
+      "anders": "Le fichier n'a pas pu être lu."
+    },
+    "hintWebdav": "Il s'agit d'un chemin réseau (WebDAV). Ouvrir la bibliothèque via un dossier synchronisé (Synchroniser dans SharePoint) est généralement plus fiable.",
+    "hintLongPath": "Le chemin dépasse 260 caractères ; un chemin plus court peut aider.",
+    "detail": "Détails : {{detail}}",
+    "readOnly": {
+      "title": "Ouvert en lecture seule",
+      "kenmerk": "{{name}} est en lecture seule : le fichier a l'attribut lecture seule, ou vous n'avez que le droit de lecture à cet emplacement.",
+      "in-gebruik": "{{name}} est ouvert dans une autre application ou en cours de synchronisation, Open PDF Studio ne peut donc pas le réserver.",
+      "geweigerd": "{{name}} ne peut pas être réservé : Windows l’a refusé.",
+      "mislukt": "{{name}} n'a pas pu être réservé.",
+      "saveAs": "Il a été ouvert en lecture seule. Vous pouvez faire des modifications ; utilisez Enregistrer sous pour les enregistrer dans un autre fichier."
+    }
+  },
   "hostOpenFailed": "Le fichier n'a pas pu être lu depuis le stockage. Réessayez.",
   "hostInvalidPdf": "{{name}} n'est pas un fichier PDF valide et n'a pas pu être ouvert.",
   "hostNoContact": "La page qui contient Open PDF Studio ne répond pas : les fichiers ne peuvent être ni ouverts ni enregistrés. Rechargez la page et réessayez.",

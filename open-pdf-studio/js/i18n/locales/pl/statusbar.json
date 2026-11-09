@@ -30,7 +30,8 @@
     "formRadio": "Przycisk opcji formularza",
     "screenshot": "Zrzut ekranu",
     "pageLabelPick": "Wybierz tekst etykiety strony",
-    "proofread": "Korekta"
+    "proofread": "Korekta",
+    "count": "Liczenie"
   },
   "toolLabel": "Narzędzie:",
   "annotationsLabel": "Adnotacje:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Adnotacje są udostępniane przez {{folder}}. Kliknij, aby otworzyć wspólną recenzję.",
   "sharedReviewError": "Wspólna recenzja: folder niedostępny",
   "pdfaReadOnly": "Ten dokument jest zgodny ze standardem {{label}} i został otwarty tylko do odczytu, aby zapobiec jego modyfikacji.",
-  "pdfaValidate": "Waliduj"
+  "pdfaValidate": "Waliduj",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

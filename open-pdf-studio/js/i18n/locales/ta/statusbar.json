@@ -30,7 +30,8 @@
     "formRadio": "படிவ வானொலி பொத்தான்",
     "screenshot": "திரைப்பிடிப்பு",
     "pageLabelPick": "பக்க லேபிளுக்கான உரையைத் தேர்ந்தெடு",
-    "proofread": "மெய்ப்புத் திருத்தம்"
+    "proofread": "மெய்ப்புத் திருத்தம்",
+    "count": "எண்ணிக்கை"
   },
   "toolLabel": "கருவி:",
   "annotationsLabel": "குறிப்புரைகள்:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "குறிப்புகள் {{folder}} வழியாகப் பகிரப்படுகின்றன. பகிர்ந்த மதிப்பாய்வைத் திறக்கக் கிளிக் செய்யவும்.",
   "sharedReviewError": "பகிர்ந்த மதிப்பாய்வு: கோப்புறை கிடைக்கவில்லை",
   "pdfaReadOnly": "இந்த ஆவணம் {{label}} தரநிலையுடன் இணங்குகிறது, மேலும் மாற்றம் செய்யப்படுவதைத் தடுக்க படிக்க மட்டும் திறக்கப்பட்டுள்ளது.",
-  "pdfaValidate": "சரிபார்"
+  "pdfaValidate": "சரிபார்",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

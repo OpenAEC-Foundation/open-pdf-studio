@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
     "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
     "ribbonWheelSwitchesTabs": "Cambia scheda della barra multifunzione con la rotellina del mouse",
+    "smoothScrolling": "Scorrimento fluido",
+    "smoothScrollingHint": "Anima lo scorrimento con la rotellina e i salti a una pagina, che continua a scorrere per un attimo. Disattivato: la pagina si ferma quando si ferma la rotellina. Su Linux può essere necessario un riavvio.",
     "dynamicScaling": "Scala automatica delle annotazioni"
   },
   "fileAssoc": {

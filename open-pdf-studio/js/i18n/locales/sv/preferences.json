@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zooma med mushjulet (utan att hålla ned Ctrl)",
     "middleDoubleClickFit": "Dubbelklicka med mittenknappen för att anpassa sidan",
     "ribbonWheelSwitchesTabs": "Byt flik i menyfliksområdet med mushjulet",
+    "smoothScrolling": "Mjuk rullning",
+    "smoothScrollingHint": "Animerar rullning med mushjulet och hopp till en sida, så att sidan glider vidare en stund. Av: sidan stannar när hjulet stannar. På Linux kan en omstart behövas.",
     "dynamicScaling": "Skala markeringar automatiskt"
   },
   "fileAssoc": {

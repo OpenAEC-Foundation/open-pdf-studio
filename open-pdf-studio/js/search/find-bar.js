@@ -9,6 +9,7 @@ import { matchFractions, matchBoxInPageFrame, boxToLayerPercent } from './match-
 import { groepeerPerPagina, BRON_ANNOTATIE } from './search-sources.js';
 import { annotationBounds } from '../annotations/spatial-index.js';
 import { stopAlleWielScrollers } from '../pdf/wiel-scroll.js';
+import { scrollGedrag } from '../core/vloeiend-scrollen.js';
 import {
   setFindBarResultGroups as setResultGroups,
   setFindBarCurrentResultPage as setCurrentResultPage,
@@ -387,7 +388,7 @@ async function navigateToResult(result) {
       if (pageWrapper) {
         // Een lopende wieluitloop zou deze vloeiende sprong afbreken (#522).
         stopAlleWielScrollers();
-        pageWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        pageWrapper.scrollIntoView({ behavior: scrollGedrag(), block: 'center' });
       }
     } else {
       // Render the page in single page mode
@@ -419,7 +420,7 @@ function scrollToMatch(result) {
   // Een lopende wieluitloop zou de sprong naar de treffer afbreken (#522).
   stopAlleWielScrollers();
   if (panViewportToElement(highlights[0])) return true;
-  highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  highlights[0].scrollIntoView({ behavior: scrollGedrag(), block: 'center', inline: 'center' });
   return true;
 }
 

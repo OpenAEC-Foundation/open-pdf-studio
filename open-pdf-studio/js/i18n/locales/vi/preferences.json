@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
     "middleDoubleClickFit": "Nhấp đúp nút giữa chuột để vừa trang",
     "ribbonWheelSwitchesTabs": "Chuyển tab ribbon bằng con lăn chuột",
+    "smoothScrolling": "Cuộn mượt",
+    "smoothScrollingHint": "Tạo hiệu ứng khi cuộn bằng con lăn chuột và khi nhảy đến một trang, khiến trang trượt thêm một chút. Tắt: trang dừng ngay khi con lăn dừng. Trên Linux có thể cần khởi động lại.",
     "dynamicScaling": "Tự động co giãn đánh dấu"
   },
   "fileAssoc": {

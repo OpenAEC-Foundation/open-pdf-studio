@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
     "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
     "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
+    "smoothScrolling": "Pehmeä vieritys",
+    "smoothScrollingHint": "Animoi hiiren rullalla vierittämisen ja hypyt sivulle, jolloin sivu liukuu vielä hetken. Pois: sivu pysähtyy, kun rulla pysähtyy. Linuxissa uudelleenkäynnistys voi olla tarpeen.",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"
   },
   "fileAssoc": {

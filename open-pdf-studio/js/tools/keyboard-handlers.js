@@ -17,6 +17,7 @@ import { actualSize, fitWidth, fitPage, goToPage } from '../pdf/renderer.js';
 import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
 import { weergaveVectorNaarPagina } from '../pdf/weergave-ruimte.js';
 import { activeTab } from '../solid/stores/leftPanelStore.js';
+import { startNewCount } from '../solid/stores/countStore.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
 import { toggleLeftPanel } from '../ui/panels/left-panel.js';
@@ -620,6 +621,16 @@ export async function handleKeydown(e) {
     }
     state.measurePoints = null;
     redraw();
+    return;
+  }
+
+  // Enter met het telgereedschap: een nieuwe telling (#1004) - een nieuwe
+  // groep met eigen naam en kleur, de nummering begint weer bij 1. Zelfde als
+  // de knop Nieuwe telling in het lint.
+  if (e.key === 'Enter' && state.currentTool === 'count' && !ctrl && !shift && !e.altKey
+      && !isInInput && !dialoogOpen && getActiveDocument()?.pdfDoc && !isPdfAReadOnly()) {
+    e.preventDefault();
+    startNewCount();
     return;
   }
 

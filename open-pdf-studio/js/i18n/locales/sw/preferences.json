@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
     "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",
     "ribbonWheelSwitchesTabs": "Badilisha vichupo vya utepe kwa gurudumu la kipanya",
+    "smoothScrolling": "Kusogeza kwa ulaini",
+    "smoothScrollingHint": "Huhuisha kusogeza kwa gurudumu la kipanya na kurukia ukurasa, hivyo ukurasa huteleza kidogo zaidi. Imezimwa: ukurasa husimama gurudumu likisimama. Kwenye Linux huenda ukahitaji kuanzisha upya.",
     "dynamicScaling": "Badilisha ukubwa wa alama kiotomatiki"
   },
   "fileAssoc": {

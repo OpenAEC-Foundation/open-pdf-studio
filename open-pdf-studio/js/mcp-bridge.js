@@ -2164,6 +2164,11 @@ async function handleSavePdf(params) {
     // — never acceptable on a headless bridge. The caller must supply a path.
     return { ok: false, error: 'document has no saved file path — pass params.path' };
   }
+  // Alleen-lezen geopend (#1005): opslaan zonder pad wordt Opslaan als, en
+  // die dialoog kan hier niet.
+  if (!path && doc.bestandAlleenLezen) {
+    return { ok: false, error: 'document was opened read-only (the file could not be reserved or is read-only) — pass params.path to save a copy', readOnly: true };
+  }
   const invoke = tauriInvoke();
   if (path && invoke) {
     // Grant FS scope for arbitrary target paths (same mechanism as open).

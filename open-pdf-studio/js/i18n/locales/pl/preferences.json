@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
     "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
     "ribbonWheelSwitchesTabs": "Przełączaj karty wstążki kółkiem myszy",
+    "smoothScrolling": "Płynne przewijanie",
+    "smoothScrollingHint": "Animuje przewijanie kółkiem myszy i skoki do strony, która jeszcze chwilę się przesuwa. Wyłączone: strona zatrzymuje się, gdy kółko się zatrzyma. W systemie Linux może być potrzebne ponowne uruchomienie.",
     "dynamicScaling": "Automatyczne skalowanie adnotacji"
   },
   "fileAssoc": {

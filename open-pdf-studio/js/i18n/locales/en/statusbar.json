@@ -30,7 +30,8 @@
     "formRadio": "Form Radio Button",
     "screenshot": "Screenshot",
     "pageLabelPick": "Pick Text for Page Label",
-    "proofread": "Proofreading"
+    "proofread": "Proofreading",
+    "count": "Count"
   },
   "toolLabel": "Tool:",
   "annotationsLabel": "Annotations:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Annotations are shared through {{folder}}. Click to open the shared review.",
   "sharedReviewError": "Shared review: folder unavailable",
   "pdfaReadOnly": "This document complies with the {{label}} standard and has been opened read-only to prevent modification.",
-  "pdfaValidate": "Validate"
+  "pdfaValidate": "Validate",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

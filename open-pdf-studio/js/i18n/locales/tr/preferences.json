@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Fare tekerleğiyle yakınlaştır (Ctrl basılı tutmadan)",
     "middleDoubleClickFit": "Sayfayı sığdırmak için farenin orta düğmesine çift tıklayın",
     "ribbonWheelSwitchesTabs": "Şerit sekmelerini fare tekerleğiyle değiştir",
+    "smoothScrolling": "Yumuşak kaydırma",
+    "smoothScrollingHint": "Fare tekerleğiyle kaydırmayı ve bir sayfaya atlamayı canlandırır; sayfa kısa bir süre kaymaya devam eder. Kapalı: tekerlek durduğunda sayfa da durur. Linux'ta yeniden başlatma gerekebilir.",
     "dynamicScaling": "İşaretlemeleri otomatik ölçekle"
   },
   "fileAssoc": {
