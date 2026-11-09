@@ -105,6 +105,8 @@ function harness() {
       if (path.includes('document-release')) return { losgelatenWerkbestanden: () => [], ruimWerkbestandenOp: async () => {} };
       // Redactions applied since the last save (#762): none in these documents.
       if (path.includes('redaction/apply')) return { applyPendingRedactions: async () => null };
+      // Goedkeuringsaanvragen (#651): geen in deze documenten.
+      if (path.includes('approval-routing/save-hook')) return { approvalBeforeSave: async () => {} };
       // PDF/A behouden bij opslaan (#379): de echte, app-vrije modules.
       if (path === './pdfa/herconversie.js' || path === './pdfa/meldingen.js') return import(new URL(path, import.meta.url));
       if (path.includes('page-manager')) return { reloadFromBytes: async (_b, _a, _r, _p, _x, doc) => {

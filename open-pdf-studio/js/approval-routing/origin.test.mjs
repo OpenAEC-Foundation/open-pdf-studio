@@ -19,6 +19,8 @@ test('createReceipt through MCP or an extension needs confirmed: true, like the 
  assert.doesNotThrow(()=>checkAutomationRequest({action:'createReceipt',confirmed:true},'mcp'));
  assert.doesNotThrow(()=>checkAutomationRequest({action:'createReceipt'},undefined));
  assert.doesNotThrow(()=>checkAutomationRequest({action:'list'},'mcp'));
+ assert.throws(()=>checkAutomationRequest({action:'decision'},'plugin'),/CONFIRMATION_REQUIRED/);
+ assert.doesNotThrow(()=>checkAutomationRequest({action:'decision',confirmed:true},'plugin'));
 });
 test('the MCP bridge and the extension API pass their origin to approval routing',()=>{
  const bridge=readFileSync(new URL('../mcp-bridge.js',import.meta.url),'utf8');

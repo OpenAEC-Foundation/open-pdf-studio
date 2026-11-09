@@ -658,6 +658,9 @@ export function markDocumentModified(doc = getActiveDocument()) {
     doc.modified = true;
     // Direct modification bypasses undo stack, so clean point is unreachable
     doc.savedUndoStackLength = -1;
+    // Een inhoudelijke wijziging, niet alleen goedkeuringsgegevens (#651,
+    // approval-routing/document-store.js zet de vlag zelf weer).
+    doc._alleenGoedkeuringGewijzigd = false;
     meldWijziging(doc);
     updateTabBar();
     updateWindowTitle();
@@ -671,6 +674,9 @@ export function markDocumentSaved(doc = getActiveDocument()) {
   if (doc) {
     doc.modified = false;
     doc.savedUndoStackLength = (doc.undoStack || []).length;
+    // Het bestand is nu de basisversie voor goedkeuringsaanvragen (#651).
+    doc._goedkeuringBasis = doc.inhoudRevisie || 0;
+    doc._alleenGoedkeuringGewijzigd = false;
     updateTabBar();
     updateWindowTitle();
   }
