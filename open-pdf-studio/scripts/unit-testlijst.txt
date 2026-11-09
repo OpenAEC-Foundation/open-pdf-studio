@@ -786,3 +786,4 @@ scripts/bundel-grootte.test.mjs
 js/pdf/export-verlies.test.mjs
 js/pdf/export-verlies-bedrading.test.mjs
 js/annotations/xfdf-samenvoegen.test.mjs
+js/solid/components/svg-icoon-maat.test.mjs
