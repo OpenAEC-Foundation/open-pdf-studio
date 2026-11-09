@@ -658,10 +658,10 @@ export function markDocumentModified(doc = getActiveDocument()) {
     doc.modified = true;
     // Direct modification bypasses undo stack, so clean point is unreachable
     doc.savedUndoStackLength = -1;
+    meldWijziging(doc);
     // Een inhoudelijke wijziging, niet alleen goedkeuringsgegevens (#651,
     // approval-routing/document-store.js zet de vlag zelf weer).
     doc._alleenGoedkeuringGewijzigd = false;
-    meldWijziging(doc);
     updateTabBar();
     updateWindowTitle();
   }
