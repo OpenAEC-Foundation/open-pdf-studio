@@ -468,6 +468,8 @@ js/pdf/print-flyer.test.mjs
 js/pdf/print-katern.test.mjs
 js/pdf/print-boekje-opties.test.mjs
 js/solid/stores/print-queue-model.test.mjs
+js/solid/stores/print-queue-startup.test.mjs
+js/solid/stores/print-queue-presented.test.mjs
 js/solid/components/print-queue-i18n.test.mjs
 js/ui/chrome/tab-losmaken.test.mjs
 js/core/instantie-rol.test.mjs
@@ -773,3 +775,6 @@ js/annotations/tool-sets-formaat.test.mjs
 scripts/check-readme-images.test.mjs
 js/quantities/vlak-omtrek.test.mjs
 js/solid/stores/staat-omtrek.test.mjs
+js/pdf/huisstijl-kaders.test.mjs
+scripts/goedgekeurd-logo.test.mjs
+scripts/pdf-lib-intern-pools.test.mjs

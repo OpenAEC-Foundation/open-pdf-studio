@@ -1,13 +1,14 @@
 import { createSignal, createMemo, createEffect, Show, For, onMount } from 'solid-js';
 import * as pdfjsLib from 'pdfjs-dist';
 import Dialog from '../Dialog.jsx';
-import { closeDialog } from '../../stores/dialogStore.js';
+import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { createBlankPDF, createDocFromTemplate } from '../../../pdf/loader.js';
 import { scanFrames, openFramesFolder } from '../../../pdf/frames.js';
 import { frameStyleLabel, framePreviewText } from '../../../pdf/frame-labels.js';
 import { scanTitleBlocks, openTitleBlocksFolder, addTitleBlockFile, composeFrameWithTitleBlock }
   from '../../../pdf/titleblocks.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { laadHuisstijlKaders, kaderLabel, kaderMaat, maakKaderPdf } from '../../../pdf/huisstijl-kaders.js';
 
 // Preferred defaults when the dialog opens: OpenAEC Grootformaat frame,
 // A1, landscape (liggend). These only take effect when a matching frame
@@ -53,8 +54,17 @@ export default function NewDocDialog() {
   const [titleBlocks, setTitleBlocks] = createSignal([]);
   const [titleBlock, setTitleBlock] = createSignal('');
   const [stijl, setStijl] = createSignal('');
+  // Kaders uit de huisstijl van het bedrijf (als gast in de werkplek van de
+  // OpenAEC-site): een stijl `huisstijl:<n>` met een vaste maat.
+  const [huisstijlKaders, setHuisstijlKaders] = createSignal([]);
+  const gekozenKader = () => huisstijlKaders().find((k) => k.id === stijl()) || null;
 
   onMount(async () => {
+    const kaders = await laadHuisstijlKaders();
+    if (kaders.length) {
+      setHuisstijlKaders(kaders);
+      setStijl((kaders.find((k) => k.standaard) || kaders[0]).id);
+    }
     try {
       const idx = await scanFrames();
       try {
@@ -68,7 +78,7 @@ export default function NewDocDialog() {
       // Default to the Grootformaat frame (A1 liggend) when it exists on
       // disk. If that exact size/orientation isn't available the keep-valid
       // effect below will pick the closest match for the style.
-      if (idx?.byStijl?.has(DEFAULT_STIJL)) {
+      if (idx?.byStijl?.has(DEFAULT_STIJL) && !gekozenKader()) {
         setStijl(DEFAULT_STIJL);
       }
     } catch (e) {
@@ -115,7 +125,29 @@ export default function NewDocDialog() {
     }
   });
 
+  // Een huisstijlkader legt maat en richting vast: zet de (uitgegrijsde)
+  // keuzes op die van het kader, zodat ze niet iets anders laten zien.
+  createEffect(() => {
+    const kader = gekozenKader();
+    if (!kader) return;
+    const { breedteMm, hoogteMm } = kaderMaat(kader);
+    setOrientation(breedteMm > hoogteMm ? 'landscape' : 'portrait');
+    const formaat = String(kader.formaat || '').toLowerCase();
+    if (PAPER_SIZES[formaat]) setPaperSize(formaat);
+  });
+
   const getDimensions = createMemo(() => {
+    const kader = gekozenKader();
+    if (kader) {
+      const { breedteMm, hoogteMm } = kaderMaat(kader);
+      return {
+        widthPt: Math.round((breedteMm / 25.4) * 72),
+        heightPt: Math.round((hoogteMm / 25.4) * 72),
+        widthMm: breedteMm,
+        heightMm: hoogteMm,
+        label: kader.formaat || 'Custom',
+      };
+    }
     const size = paperSize();
 
     if (size === 'custom') {
@@ -193,17 +225,18 @@ export default function NewDocDialog() {
 
   createEffect(() => {
     const frame = resolvedFrame();
+    const kader = gekozenKader();
     const { w, h } = previewPx();
     const token = ++renderToken;
     setFrameReady(false);
-    if (!frame) return;
+    if (!frame && !kader) return;
 
     (async () => {
       try {
-        let bytes = await readFrameBytes(frame.path);
+        let bytes = kader ? (await maakKaderPdf(kader)).bytes : await readFrameBytes(frame.path);
         if (token !== renderToken) return;
         // Toon het vel zoals het wordt aangemaakt: kader met de gekozen onderhoek.
-        const tbPad = titleBlock();
+        const tbPad = kader ? '' : titleBlock();
         if (tbPad) {
           try {
             const tbBytes = await readFrameBytes(tbPad);
@@ -267,7 +300,20 @@ export default function NewDocDialog() {
 
   const close = () => closeDialog('new-doc');
 
-  const handleOk = () => {
+  const handleOk = async () => {
+    const kader = gekozenKader();
+    if (kader) {
+      // Nieuw vel volgens het kader uit de huisstijl van het bedrijf.
+      close();
+      try {
+        const { bytes, widthPt, heightPt } = await maakKaderPdf(kader);
+        await createBlankPDF(widthPt, heightPt, 1, bytes);
+      } catch (e) {
+        console.error('[new-doc] huisstijlkader mislukt:', e);
+        showMessage(tCommon('failedToCreateDocument', { error: String(e?.message ?? e) }));
+      }
+      return;
+    }
     const frame = resolvedFrame();
     if (frame) {
       // New document FROM the OpenAEC frame matching stijl+formaat+richting.
@@ -311,6 +357,9 @@ export default function NewDocDialog() {
             style="flex:1"
           >
             <option value="">{t('newDoc.noFrame')}</option>
+            <For each={huisstijlKaders()}>{(k) => (
+              <option value={k.id}>{kaderLabel(k, t)}</option>
+            )}</For>
             <For each={frameIndex()?.stijlen || []}>{(s) => (
               <option value={s}>{frameStyleLabel(s, t)}</option>
             )}</For>
@@ -321,7 +370,7 @@ export default function NewDocDialog() {
             onClick={() => openFramesFolder()}
           >&#128193;</button>
         </div>
-        <Show when={stijl()}>
+        <Show when={stijl() && !gekozenKader()}>
           <div class="new-doc-row">
             <label class="new-doc-label">{t('newDoc.titleBlock')}</label>
             <select
@@ -347,7 +396,7 @@ export default function NewDocDialog() {
             >&#128193;</button>
           </div>
         </Show>
-        <div class="new-doc-row">
+        <div class="new-doc-row" style={gekozenKader() ? 'opacity:0.45;pointer-events:none' : ''}>
           <label class="new-doc-label">{t('newDoc.paperSize')}</label>
           <Show when={availableFormats()} fallback={
             <select
@@ -392,7 +441,7 @@ export default function NewDocDialog() {
             </select>
           </Show>
         </div>
-        <Show when={paperSize() === 'custom'}>
+        <Show when={paperSize() === 'custom' && !gekozenKader()}>
           <div class="new-doc-row new-doc-custom-row">
             <label class="new-doc-label">{t('newDoc.widthMm')}</label>
             <input
@@ -416,7 +465,7 @@ export default function NewDocDialog() {
             />
           </div>
         </Show>
-        <div class="new-doc-row">
+        <div class="new-doc-row" style={gekozenKader() ? 'opacity:0.45;pointer-events:none' : ''}>
           <label class="new-doc-label">{t('newDoc.orientation')}</label>
           <div class="new-doc-radio-group">
             <label class="new-doc-radio-label" style={!orientationAvailable('portrait') ? 'opacity:0.4' : ''}>

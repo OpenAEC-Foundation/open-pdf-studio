@@ -7,7 +7,7 @@ export type AnnotationType =
   | 'polygon' | 'cloud' | 'cloudPolyline' | 'polyline' | 'text'
   | 'arc' | 'spline' | 'splineArrow' | 'redaction'
   | 'measureDistance' | 'measureArea' | 'measurePerimeter' | 'measureAngle'
-  | 'filledArea'
+  | 'filledArea' | 'count'
   | 'mask' | 'viewport' | 'scheduleTable' | 'scaleBar'
   | 'scaleRegion'
   | 'parametricSymbol'

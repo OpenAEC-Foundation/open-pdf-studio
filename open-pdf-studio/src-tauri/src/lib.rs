@@ -1416,10 +1416,21 @@ fn virtual_printer_jobs() -> Result<Vec<VpJob>, String> {
     Ok(jobs)
 }
 
+/// Is `file` the bare name of a collected job (`job_*.pdf`)? Rejects paths,
+/// Windows drive/stream syntax (`:`) and an empty stem, so a delete can only
+/// ever touch the queue's own files in the spool dir. (A `..` inside the name
+/// is harmless without a separator: "job_1__a..b.pdf" is one file name.)
+fn vp_job_naam_geldig(file: &str) -> bool {
+    let Some(stam) = file.strip_prefix("job_").and_then(|r| r.strip_suffix(".pdf")) else {
+        return false;
+    };
+    !stam.is_empty() && file.len() <= 260 && !file.contains(['/', '\\', ':', '\0'])
+}
+
 /// Delete one collected job. Basename only — no path traversal.
 #[tauri::command]
 fn virtual_printer_delete_job(file: String) -> Result<(), String> {
-    if file.contains('/') || file.contains('\\') || !file.starts_with("job_") || !file.ends_with(".pdf") {
+    if !vp_job_naam_geldig(&file) {
         return Err("invalid job file".into());
     }
     let p = vp_spool_dir()?.join(file);
@@ -3881,5 +3892,33 @@ mod vp_title_tests {
             "Producer" => Object::String(b"x".to_vec(), StringFormat::Literal),
         })));
         assert_eq!(vp_pdf_title(&other), None);
+    }
+}
+
+#[cfg(test)]
+mod vp_job_naam_tests {
+    use super::vp_job_naam_geldig;
+
+    #[test]
+    fn alleen_kale_jobnamen_in_de_spoolmap() {
+        for ok in ["job_1730000000000.pdf", "job_1__Report.pdf", "job_1__a..b.pdf"] {
+            assert!(vp_job_naam_geldig(ok), "{ok}");
+        }
+        let lang = format!("job_{}.pdf", "x".repeat(300));
+        for fout in [
+            "latest.pdf",
+            "job_.pdf",
+            "job_1.PDF",
+            "job_1.txt",
+            "../job_1.pdf",
+            "job_1/../../x.pdf",
+            r"job_..\..\x.pdf",
+            "job_1.pdf:stream.pdf",
+            "job_C:x.pdf",
+            "job_1\0.pdf",
+            lang.as_str(),
+        ] {
+            assert!(!vp_job_naam_geldig(fout), "{fout}");
+        }
     }
 }

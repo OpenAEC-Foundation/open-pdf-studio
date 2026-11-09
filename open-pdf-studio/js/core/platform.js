@@ -54,6 +54,9 @@ export function cacheWebFile(name, data) {
 //     ai: { vraag(vraag) -> Promise<{ bericht, stop, vraag_id }> },
 //     geopend(id)          -> Promise<true>  dit document staat open
 //     melding(tekst, toon) -> Promise<true>  melding in de statusbalk van de site
+//     // optioneel: de tekeningkaders uit de huisstijl van het bedrijf, voor
+//     // Nieuw document (zie pdf/huisstijl-kaders.js)
+//     huisstijl()          -> Promise<{ merk, kaders: [...] }>
 //   };
 //
 // open() mag ook `alleenLezen: true` (of `readOnly: true`) meegeven: dan

@@ -445,6 +445,13 @@
       },
       {
         "path": "open-pdf-studio/public/icon.svg"
+      },
+      {
+        "path": "snap/gui/open-pdf-studio.png",
+        "size": [
+          512,
+          512
+        ]
       }
     ]
   }
