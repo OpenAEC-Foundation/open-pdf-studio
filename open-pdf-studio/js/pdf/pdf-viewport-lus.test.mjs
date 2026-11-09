@@ -52,6 +52,8 @@ register('./pdf-viewport-test-hooks.mjs', import.meta.url);
 const vp = await import('./pdf-viewport.js');
 const { viewport } = vp;
 const { WIEL_DUUR_MS } = await import('./wiel-scroll.js');
+// Vloeiend scrollen staat standaard uit (#1007); de uitlooptests zetten het aan.
+const { zetVloeiendScrollen } = await import('../core/vloeiend-scrollen.js');
 
 const nepCtx = new Proxy({}, {
   get: (doel, sleutel) => (sleutel in doel ? doel[sleutel] : () => {}),
@@ -124,9 +126,26 @@ test('dirty bij een inactieve viewport wacht; active=true plant dan het frame', 
   assert.equal(wachtend(), 0, 'active zonder werk plant niets');
 });
 
-test('een wieluitloop pompt elk frame tot hij klaar is en stopt dan', (t) => {
-  t.after(() => { nepTijd = null; });
+test('vloeiend scrollen uit (standaard): een wielklik schuift direct op, zonder uitloop (#1007)', () => {
   opzet();
+  zetVloeiendScrollen(false, { doc: null });
+  viewport.zoom = 3; // 1800 x 2400 px op een canvas van 800 x 600: verticaal te pannen
+  viewport.offsetY = 0;
+  viewport.dirty = true;
+  draaiFrames();
+  const voor = renders;
+  vp.wielPanViewport(0, 100, true);
+  assert.ok(Math.abs(viewport.offsetY + 100) < 1e-6, `meteen de hele wieldelta (${viewport.offsetY})`);
+  assert.equal(wachtend(), 1, 'één frame om te tekenen');
+  draaiFrames();
+  assert.equal(renders - voor, 1);
+  assert.equal(wachtend(), 0, 'geen uitloop daarna');
+});
+
+test('een wieluitloop pompt elk frame tot hij klaar is en stopt dan', (t) => {
+  t.after(() => { nepTijd = null; zetVloeiendScrollen(false, { doc: null }); });
+  opzet();
+  zetVloeiendScrollen(true, { doc: null });
   viewport.zoom = 3; // 1800 x 2400 px op een canvas van 800 x 600: verticaal te pannen
   viewport.offsetY = 0;
   viewport.dirty = true;
@@ -151,8 +170,9 @@ test('een wieluitloop pompt elk frame tot hij klaar is en stopt dan', (t) => {
 });
 
 test('viewport uit tijdens de uitloop: één frame laat de rest vallen, daarna niets', (t) => {
-  t.after(() => { nepTijd = null; });
+  t.after(() => { nepTijd = null; zetVloeiendScrollen(false, { doc: null }); });
   opzet();
+  zetVloeiendScrollen(true, { doc: null });
   viewport.zoom = 3; // verticaal te pannen, zie de vorige test
   nepTijd = 5000;
   viewport.offsetY = 0;

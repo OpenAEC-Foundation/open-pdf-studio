@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
     "middleDoubleClickFit": "双击鼠标中键以适合页面",
     "ribbonWheelSwitchesTabs": "使用鼠标滚轮切换功能区选项卡",
+    "smoothScrolling": "平滑滚动",
+    "smoothScrollingHint": "为鼠标滚轮滚动和跳转到页面添加动画，页面会继续滑动片刻。关闭：滚轮停止时页面立即停止。在 Linux 上可能需要重新启动。",
     "dynamicScaling": "自动缩放标记"
   },
   "fileAssoc": {

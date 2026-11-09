@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
     "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
     "ribbonWheelSwitchesTabs": "Cambiar las pestañas de la cinta con la rueda del ratón",
+    "smoothScrolling": "Desplazamiento suave",
+    "smoothScrollingHint": "Anima el desplazamiento con la rueda del ratón y los saltos a una página, que sigue deslizándose un momento. Desactivado: la página se detiene cuando se detiene la rueda. En Linux puede ser necesario reiniciar.",
     "dynamicScaling": "Escalar marcas automáticamente"
   },
   "fileAssoc": {

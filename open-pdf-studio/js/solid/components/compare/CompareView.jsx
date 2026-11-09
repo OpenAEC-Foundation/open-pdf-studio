@@ -85,6 +85,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { leesGetal } from '../../../core/getal-invoer.js';
 import { state } from '../../../core/state.js';
 import { diffAnnotationsForPair } from '../../../compare/compare-annotations.js';
+import { scrollGedrag } from '../../../core/vloeiend-scrollen.js';
 import {
   isSinglePaneMode,
   splitFraction,
@@ -354,7 +355,8 @@ export default function CompareView() {
     pane.scrollTo({
       left: Math.max(0, cx - pane.clientWidth / 2),
       top: Math.max(0, cy - pane.clientHeight / 2),
-      behavior: smooth ? 'smooth' : 'auto',
+      // Vloeiend alleen als de voorkeur het toestaat (#1007).
+      behavior: smooth ? scrollGedrag() : 'auto',
     });
   };
 

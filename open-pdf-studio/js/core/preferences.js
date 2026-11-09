@@ -3,7 +3,7 @@ import { state } from './state.js';
 import { setColorPickerValue, setLineWidthValue, setCurrentTheme, openDialog } from '../bridge.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { changeLanguage } from '../i18n/useTranslation.js';
-import { isTauri, getUsername, savePreferencesFile, loadPreferencesFile } from './platform.js';
+import { isTauri, getUsername, savePreferencesFile, loadPreferencesFile, invoke } from './platform.js';
 import { preferencesMirrorJson } from './preferences-mirror.js';
 import { leesOpslag, schrijfOpslag, VOORKEUREN_NAAM } from './opslag.js';
 import { voegSamenMetStandaarden } from './preferences-merge.js';
@@ -16,6 +16,7 @@ import { setZoomDpi, setZoomDpiSource, normalizeZoomDpi } from './zoom-display.j
 import { kalibratieVoor } from '../pdf/schermkalibratie.js';
 import { pasSneltoetsVoorkeurToe } from './keybindings/app-shortcuts.js';
 import { zetPaginaAchtergrond } from '../pdf/pagina-achtergrond.js';
+import { zetVloeiendScrollen } from './vloeiend-scrollen.js';
 
 // What 100% zoom means (#523), read live so a new calibration, a changed
 // preference or a move to a screen with another scale applies at once: on a
@@ -192,6 +193,10 @@ export function applyPreferences() {
 
   // Background color around the pages (#859), at once.
   zetPaginaAchtergrond(state.preferences.pageBackgroundColor);
+
+  // Vloeiend scrollen (#1007), meteen: wieluitloop, sprongen, CSS en op
+  // Linux de webview-instelling (Rust: zet_vloeiend_scrollen).
+  zetVloeiendScrollen(state.preferences.smoothScrolling, { roep: isTauri() ? invoke : null });
 
   // Update default author from preferences
   state.defaultAuthor = state.preferences.authorName || 'User';

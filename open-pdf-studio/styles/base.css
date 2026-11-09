@@ -6,6 +6,14 @@
   scrollbar-color: var(--theme-border) var(--theme-panel-bg);
 }
 
+/* Vloeiend scrollen uit (standaard, #1007; core/vloeiend-scrollen.js): ook
+   scrollTo/scrollIntoView met behavior 'auto' springt dan direct, wat een
+   stylesheet (bijvoorbeeld van een extensie) ook voor scroll-behavior zegt. */
+:root.geen-vloeiend-scrollen,
+:root.geen-vloeiend-scrollen * {
+  scroll-behavior: auto !important;
+}
+
 /* Shared controls for locale-aware numeric fields, shown on hover/focus. */
 input.numeric-field-stepping { padding-inline-end: 19px !important; }
 .numeric-field-controls {

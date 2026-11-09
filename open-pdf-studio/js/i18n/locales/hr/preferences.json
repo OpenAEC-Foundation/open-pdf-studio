@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
     "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
     "ribbonWheelSwitchesTabs": "Mijenjaj kartice vrpce kotačićem miša",
+    "smoothScrolling": "Glatko pomicanje",
+    "smoothScrollingHint": "Animira pomicanje kotačićem miša i skokove na stranicu, koja još malo klizi. Isključeno: stranica staje kad stane kotačić. Na Linuxu može biti potrebno ponovno pokretanje.",
     "dynamicScaling": "Automatski skaliraj oznake"
   },
   "fileAssoc": {

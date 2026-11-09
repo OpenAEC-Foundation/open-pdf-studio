@@ -21,6 +21,7 @@ function harness({ highlightAfter = 0 } = {}) {
   const deps = {
     getActiveDocument: () => doc,
     stopAlleWielScrollers() {},
+    scrollGedrag: () => 'smooth',
     renderPage: async () => {},
     setTimeout: (fn) => { timers.push(fn); return timers.length; },
     document: {

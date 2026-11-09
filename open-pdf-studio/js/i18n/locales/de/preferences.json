@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
     "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
     "ribbonWheelSwitchesTabs": "Menüband-Registerkarten mit dem Mausrad wechseln",
+    "smoothScrolling": "Weiches Scrollen",
+    "smoothScrollingHint": "Scrollen mit dem Mausrad und Sprünge zu einer Seite animieren, sodass die Seite kurz nachgleitet. Aus: Die Seite stoppt, sobald das Rad stoppt. Unter Linux kann ein Neustart nötig sein.",
     "dynamicScaling": "Markierungen automatisch skalieren"
   },
   "fileAssoc": {

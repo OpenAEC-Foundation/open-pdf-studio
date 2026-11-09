@@ -212,6 +212,12 @@ export default function BehaviorTab(props) {
             <span>{t('behavior.ribbonWheelSwitchesTabs')}</span>
           </label>
         </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label" title={t('behavior.smoothScrollingHint')}>
+            <input type="checkbox" id="pref-smooth-scrolling" checked={p.smoothScrolling[0]()} onChange={e => p.smoothScrolling[1](e.target.checked)} />
+            <span>{t('behavior.smoothScrolling')}</span>
+          </label>
+        </div>
       </fieldset>
     </>
   );

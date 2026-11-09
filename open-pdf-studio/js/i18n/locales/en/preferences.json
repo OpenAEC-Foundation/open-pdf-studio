@@ -238,6 +238,8 @@
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
     "ribbonWheelSwitchesTabs": "Switch ribbon tabs with the mouse wheel",
+    "smoothScrolling": "Smooth scrolling",
+    "smoothScrollingHint": "Animate mouse-wheel scrolling and jumps to a page, so the page glides on briefly. Off: the page stops when the wheel stops. On Linux a restart may be needed.",
     "dynamicScaling": "Auto-scale markups"
   },
   "pageDisplay": {

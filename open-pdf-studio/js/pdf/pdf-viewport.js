@@ -18,6 +18,7 @@ import {
 import { tileCoversViewport } from './tile-coverage.js';
 import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
 import { maakWielScroller } from './wiel-scroll.js';
+import { vloeiendScrollenAan } from '../core/vloeiend-scrollen.js';
 import { zoomNaDprWissel } from './schermkalibratie.js';
 import { maakFramePlanner, bewaakSchrijven } from './frame-planner.js';
 import {
@@ -380,9 +381,11 @@ async function _herschaalNaarNieuweDpr() {
 // direct door. Vroeger kreeg elke klik snelheid mee die per FRAME met 0,88
 // afnam: altijd 41 frames uitloop (0,7 s bij 60 fps, ruim 2 s op een zware
 // vectorpagina die het tempo naar 20 fps drukt) over ~2x de wieldelta.
+// Met vloeiend scrollen uit (standaard, #1007) schuift een klik direct op.
 const _wielScroll = maakWielScroller({
   nu: () => performance.now(),
   verschuif: (dx, dy) => _verschuifDoorWiel(dx, dy),
+  vloeiend: vloeiendScrollenAan,
 });
 
 function _verschuifDoorWiel(dx, dy) {

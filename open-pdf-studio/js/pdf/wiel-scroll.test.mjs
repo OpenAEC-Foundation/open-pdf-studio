@@ -401,7 +401,8 @@ test('elke vloeiende sprong in het documentgebied stopt eerst de wieluitloop', (
     const regels = readFileSync(new URL(pad, import.meta.url), 'utf8').split(/\r?\n/);
     let gevonden = 0;
     regels.forEach((regel, i) => {
-      if (!/behavior:\s*'smooth'/.test(regel) || /^\s*(\/\/|\*)/.test(regel)) return;
+      // Sinds #1007 kiest scrollGedrag() 'smooth' of 'auto' (voorkeur).
+      if (!/behavior:\s*(?:'smooth'|scrollGedrag\(\))/.test(regel) || /^\s*(\/\/|\*)/.test(regel)) return;
       gevonden++;
       const ervoor = regels.slice(Math.max(0, i - 3), i).join('\n');
       assert.match(ervoor, /stopAlleWielScrollers\(\)/, `${pad}:${i + 1} scrolt vloeiend zonder eerst stopAlleWielScrollers()`);

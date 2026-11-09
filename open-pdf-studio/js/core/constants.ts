@@ -315,6 +315,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   middleDoubleClickFit: true,
   // Muiswiel boven het lint wisselt van tabblad (#852).
   ribbonWheelSwitchesTabs: true,
+  // Vloeiend (geanimeerd) scrollen, standaard uit (#1007, core/vloeiend-scrollen.js).
+  smoothScrolling: false,
 
   // Stempelkiezer: ingebouwde stempels verbergen zodra er eigen stempels zijn
   // (annotations/stamp-picker-filter.js, #998).

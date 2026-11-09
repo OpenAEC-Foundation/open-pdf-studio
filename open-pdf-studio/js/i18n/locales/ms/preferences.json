@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
     "ribbonWheelSwitchesTabs": "Tukar tab reben dengan roda tetikus",
+    "smoothScrolling": "Tatal lancar",
+    "smoothScrollingHint": "Menganimasikan tatal dengan roda tetikus dan lompatan ke halaman, supaya halaman masih meluncur seketika. Mati: halaman berhenti apabila roda berhenti. Di Linux mungkin perlu dimulakan semula.",
     "dynamicScaling": "Skala automatik penanda"
   },
   "fileAssoc": {

@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "Zoomer avec la molette de la souris (sans maintenir Ctrl)",
     "middleDoubleClickFit": "Double-cliquer avec le bouton central de la souris pour ajuster la page",
     "ribbonWheelSwitchesTabs": "Changer d’onglet du ruban avec la molette de la souris",
+    "smoothScrolling": "Défilement fluide",
+    "smoothScrollingHint": "Anime le défilement à la molette et les sauts vers une page, qui glisse encore un instant. Désactivé : la page s'arrête dès que la molette s'arrête. Sous Linux, un redémarrage peut être nécessaire.",
     "dynamicScaling": "Mise à l'échelle automatique des annotations"
   },
   "fileAssoc": {

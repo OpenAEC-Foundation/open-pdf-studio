@@ -2,6 +2,7 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
 import { viewport, zoomStepAtPoint, suppressNextFit, wielPanViewport, stopPanMomentum, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
 import { leesWielDelta, maakWielHerkenning, maakWielScroller, maakElementVerschuiver } from '../../pdf/wiel-scroll.js';
+import { vloeiendScrollenAan } from '../../core/vloeiend-scrollen.js';
 import { getTool } from '../../tools/tool-registry.js';
 import { nextScaleStep } from '../../core/zoom-display.js';
 
@@ -27,11 +28,15 @@ import { nextScaleStep } from '../../core/zoom-display.js';
 // een klik tot de rand, zoals de browser zijn eigen scrolldoel klemt.
 const _wielHerkenning = maakWielHerkenning();
 const _containerVerschuiver = maakElementVerschuiver(() => (viewport.active ? null : document.getElementById('pdf-container')));
+// Met vloeiend scrollen uit (standaard, #1007) schuift een klik direct op;
+// ook dan houdt de app het wiel zelf vast, zodat de eigen wielanimatie van de
+// webview er niet alsnog overheen komt.
 const _containerWiel = maakWielScroller({
   nu: () => performance.now(),
   vraagFrame: (f) => requestAnimationFrame(f),
   verschuif: _containerVerschuiver,
   ruimte: _containerVerschuiver.ruimte,
+  vloeiend: vloeiendScrollenAan,
 });
 
 let _pageNavCooldown = false;
