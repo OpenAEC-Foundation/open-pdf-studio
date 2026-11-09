@@ -786,3 +786,4 @@ scripts/bundel-grootte.test.mjs
 js/pdf/export-verlies.test.mjs
 js/pdf/export-verlies-bedrading.test.mjs
 js/annotations/xfdf-samenvoegen.test.mjs
+js/tools/loodrecht-snap.test.mjs

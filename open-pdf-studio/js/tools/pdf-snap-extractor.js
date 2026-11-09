@@ -291,8 +291,8 @@ export async function extractPageGeometry(pageNum, options = {}) {
   }
 }
 
-/** Snap-punten en -randen uit een PDF.js-operatorlijst. */
-async function geometrieUitOperatorlijst(opList, viewportTransform, checkActive) {
+/** Snap-punten en -randen uit een PDF.js-operatorlijst (ook voor tests). */
+export async function geometrieUitOperatorlijst(opList, viewportTransform, checkActive = () => {}) {
   // PDF transform matrix stack
   const matrixStack = [];
   let ctm = [1, 0, 0, 1, 0, 0];
@@ -329,6 +329,26 @@ async function geometrieUitOperatorlijst(opList, viewportTransform, checkActive)
         ctm = multiplyMatrices(ctm, [ta, tb, tc, td, te, tf]);
         break;
       }
+
+      // Form XObject: PDF.js zet de /Matrix van het formulier niet als eigen
+      // transform-operator in de lijst, maar als argument van deze begin-
+      // operator (net als de canvas-weergave: save + transform). Zonder dit
+      // lagen de lijnen uit een formulier met een eigen matrix verschoven of
+      // verschaald ten opzichte van de getoonde tekening.
+      case OPS.paintFormXObjectBegin: {
+        matrixStack.push(ctm.slice());
+        const m = a?.[0];
+        if (m && m.length >= 6) {
+          ctm = multiplyMatrices(ctm, [m[0], m[1], m[2], m[3], m[4], m[5]]);
+        }
+        break;
+      }
+
+      case OPS.paintFormXObjectEnd:
+        if (matrixStack.length > 0) {
+          ctm = matrixStack.pop();
+        }
+        break;
 
       case OPS.constructPath: {
         // pdf.js v5.x format:
