@@ -46,7 +46,9 @@
     "statusSetBy": "Postavio/la {{author}} dana {{date}}",
     "layer": "Sloj",
     "layerMarkupGroup": "Slojevi oznaka",
-    "layerDocumentGroup": "Slojevi dokumenta"
+    "layerDocumentGroup": "Slojevi dokumenta",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ništa",
   "moreColors": "Više boja...",

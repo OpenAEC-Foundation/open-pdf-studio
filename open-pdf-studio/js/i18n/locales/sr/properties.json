@@ -46,7 +46,9 @@
     "statusSetBy": "Поставио/ла {{author}} дана {{date}}",
     "layer": "Слој",
     "layerMarkupGroup": "Слојеви ознака",
-    "layerDocumentGroup": "Слојеви документа"
+    "layerDocumentGroup": "Слојеви документа",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ништа",
   "moreColors": "Више боја...",

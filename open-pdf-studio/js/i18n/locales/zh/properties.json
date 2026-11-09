@@ -46,7 +46,9 @@
     "statusSetBy": "由 {{author}} 于 {{date}} 设置",
     "layer": "图层",
     "layerMarkupGroup": "标记图层",
-    "layerDocumentGroup": "文档图层"
+    "layerDocumentGroup": "文档图层",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "无",
   "moreColors": "更多颜色...",

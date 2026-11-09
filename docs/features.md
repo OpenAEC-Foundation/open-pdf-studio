@@ -17,6 +17,9 @@ app and are not available in the [browser version](https://open-pdf-studio.open-
 - **Images:** insert from a file, paste from the clipboard or drag and drop, with
   non-destructive cropping.
 - **Signatures:** draw multi-stroke signatures and keep them for reuse.
+- **Review status with history:** every status change (accepted, rejected,
+  completed, ...) is kept with who set it and when, shown in the properties
+  panel and saved as standard PDF status replies, one per step.
 - **Redaction:** mark areas and apply them to remove the text, images, vector
   graphics, annotations and form fields under them from the file. Saving then
   rewrites the whole file without earlier versions.

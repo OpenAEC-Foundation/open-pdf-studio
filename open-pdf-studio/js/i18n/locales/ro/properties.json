@@ -46,7 +46,9 @@
     "statusSetBy": "Setat de {{author}} pe {{date}}",
     "layer": "Strat",
     "layerMarkupGroup": "Straturi de marcaje",
-    "layerDocumentGroup": "Straturile documentului"
+    "layerDocumentGroup": "Straturile documentului",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Niciunul",
   "moreColors": "Mai multe culori...",

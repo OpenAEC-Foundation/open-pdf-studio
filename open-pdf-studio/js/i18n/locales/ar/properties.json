@@ -46,7 +46,9 @@
     "statusSetBy": "عيّنها {{author}} في {{date}}",
     "layer": "الطبقة",
     "layerMarkupGroup": "طبقات العلامات",
-    "layerDocumentGroup": "طبقات المستند"
+    "layerDocumentGroup": "طبقات المستند",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "بدون",
   "moreColors": "ألوان أخرى...",

@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} द्वारा {{date}} को सेट किया गया",
     "layer": "परत",
     "layerMarkupGroup": "मार्कअप परतें",
-    "layerDocumentGroup": "दस्तावेज़ की परतें"
+    "layerDocumentGroup": "दस्तावेज़ की परतें",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "कोई नहीं",
   "moreColors": "और रंग...",

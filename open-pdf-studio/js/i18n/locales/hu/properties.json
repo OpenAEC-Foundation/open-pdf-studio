@@ -46,7 +46,9 @@
     "statusSetBy": "Beállította: {{author}}, {{date}}",
     "layer": "Réteg",
     "layerMarkupGroup": "Jelölésrétegek",
-    "layerDocumentGroup": "A dokumentum rétegei"
+    "layerDocumentGroup": "A dokumentum rétegei",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Nincs",
   "moreColors": "További színek...",

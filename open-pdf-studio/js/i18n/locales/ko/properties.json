@@ -46,7 +46,9 @@
     "statusSetBy": "{{date}}에 {{author}}님이 설정",
     "layer": "레이어",
     "layerMarkupGroup": "마크업 레이어",
-    "layerDocumentGroup": "문서 레이어"
+    "layerDocumentGroup": "문서 레이어",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "없음",
   "moreColors": "더 많은 색상...",

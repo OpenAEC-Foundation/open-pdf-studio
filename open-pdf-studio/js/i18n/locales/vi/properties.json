@@ -46,7 +46,9 @@
     "statusSetBy": "Đặt bởi {{author}} lúc {{date}}",
     "layer": "Lớp",
     "layerMarkupGroup": "Lớp đánh dấu",
-    "layerDocumentGroup": "Lớp của tài liệu"
+    "layerDocumentGroup": "Lớp của tài liệu",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Không có",
   "moreColors": "Thêm Màu...",

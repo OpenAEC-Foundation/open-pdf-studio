@@ -46,7 +46,9 @@
     "statusSetBy": "Установлено: {{author}}, {{date}}",
     "layer": "Шар",
     "layerMarkupGroup": "Шари розмітки",
-    "layerDocumentGroup": "Шари документа"
+    "layerDocumentGroup": "Шари документа",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Немає",
   "moreColors": "Більше кольорів...",

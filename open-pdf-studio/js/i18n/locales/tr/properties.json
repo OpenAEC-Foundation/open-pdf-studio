@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} tarafından {{date}} tarihinde ayarlandı",
     "layer": "Katman",
     "layerMarkupGroup": "İşaretleme katmanları",
-    "layerDocumentGroup": "Belge katmanları"
+    "layerDocumentGroup": "Belge katmanları",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Yok",
   "moreColors": "Daha Fazla Renk...",

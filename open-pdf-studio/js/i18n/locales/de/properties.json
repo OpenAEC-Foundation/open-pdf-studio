@@ -46,7 +46,9 @@
     "statusSetBy": "Festgelegt von {{author}} am {{date}}",
     "layer": "Ebene",
     "layerMarkupGroup": "Markierungsebenen",
-    "layerDocumentGroup": "Dokumentebenen"
+    "layerDocumentGroup": "Dokumentebenen",
+    "statusHistory": "Prüfverlauf:",
+    "statusHistoryStep": "{{status}} von {{author}} am {{date}}"
   },
   "colorNone": "Keine",
   "moreColors": "Weitere Farben...",

@@ -24,7 +24,9 @@
     "statusSetBy": "Gezet door {{author}} op {{date}}",
     "layer": "Laag",
     "layerMarkupGroup": "Markeringslagen",
-    "layerDocumentGroup": "Lagen van het document"
+    "layerDocumentGroup": "Lagen van het document",
+    "statusHistory": "Reviewgeschiedenis:",
+    "statusHistoryStep": "{{status}} door {{author}} op {{date}}"
   },
   "colorNone": "Geen",
   "moreColors": "Meer kleuren...",

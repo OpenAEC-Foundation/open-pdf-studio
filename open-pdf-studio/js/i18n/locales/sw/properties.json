@@ -46,7 +46,9 @@
     "statusSetBy": "Imewekwa na {{author}} tarehe {{date}}",
     "layer": "Tabaka",
     "layerMarkupGroup": "Tabaka za alama",
-    "layerDocumentGroup": "Tabaka za hati"
+    "layerDocumentGroup": "Tabaka za hati",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Hakuna",
   "moreColors": "Rangi Zaidi...",

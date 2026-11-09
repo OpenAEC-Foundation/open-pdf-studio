@@ -46,7 +46,9 @@
     "statusSetBy": "Nastavil(a) {{author}} dne {{date}}",
     "layer": "Vrstva",
     "layerMarkupGroup": "Vrstvy značek",
-    "layerDocumentGroup": "Vrstvy dokumentu"
+    "layerDocumentGroup": "Vrstvy dokumentu",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Žádná",
   "moreColors": "Další barvy...",

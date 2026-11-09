@@ -46,7 +46,9 @@
     "statusSetBy": "تنظیم‌شده توسط {{author}} در {{date}}",
     "layer": "لایه",
     "layerMarkupGroup": "لایه‌های نشانه‌گذاری",
-    "layerDocumentGroup": "لایه‌های سند"
+    "layerDocumentGroup": "لایه‌های سند",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "هیچ",
   "moreColors": "رنگ‌های بیشتر...",

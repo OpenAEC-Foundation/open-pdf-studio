@@ -46,7 +46,9 @@
     "statusSetBy": "Asettanut {{author}} {{date}}",
     "layer": "Taso",
     "layerMarkupGroup": "Merkintätasot",
-    "layerDocumentGroup": "Asiakirjan tasot"
+    "layerDocumentGroup": "Asiakirjan tasot",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ei mitään",
   "moreColors": "Lisää värejä...",

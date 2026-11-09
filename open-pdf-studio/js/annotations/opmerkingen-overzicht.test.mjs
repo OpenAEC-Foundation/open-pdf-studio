@@ -126,12 +126,17 @@ test('statusDoelen: vergrendeld, al goed of dubbel valt af', () => {
 test('zetStatus: stempelt wie en wanneer; none haalt alles weg', () => {
   const ann = { id: 'x' };
   zetStatus(ann, 'Completed', { door: 'Kees', nu: '2026-10-27T10:00:00.000Z' });
-  assert.deepEqual(ann, { id: 'x', status: 'completed', statusBy: 'Kees', statusAt: '2026-10-27T10:00:00.000Z', modifiedAt: '2026-10-27T10:00:00.000Z' });
+  assert.deepEqual(ann, {
+    id: 'x', status: 'completed', statusBy: 'Kees', statusAt: '2026-10-27T10:00:00.000Z', modifiedAt: '2026-10-27T10:00:00.000Z',
+    // De stap staat ook in de reviewgeschiedenis (#629).
+    statusHistory: [{ status: 'completed', by: 'Kees', at: '2026-10-27T10:00:00.000Z' }],
+  });
   zetStatus(ann, 'none', { nu: '2026-10-28T10:00:00.000Z' });
   assert.equal(ann.status, undefined);
   assert.equal('statusBy' in ann, false);
   assert.equal('statusAt' in ann, false);
   assert.equal(ann.modifiedAt, '2026-10-28T10:00:00.000Z');
+  assert.deepEqual(ann.statusHistory.map((s) => s.status), ['completed', 'none']);
 });
 
 test('uitsnedeVoor: marge rond de opmerking, binnen de pagina, kader in het deel', () => {

@@ -163,7 +163,7 @@ for (const naam of BEWERKBAAR) {
 
 // ── e) de reviewstatus veranderd ───────────────────────────────────────────
 
-test('een nieuwe reviewstatus vervangt alleen de statusantwoorden; de annotatie zelf krijgt alleen een nieuwe /M', async () => {
+test('een nieuwe reviewstatus schrijft de statusantwoorden opnieuw, met de eerdere stappen ervoor; de annotatie zelf krijgt alleen een nieuwe /M', async () => {
   const modellen = await laad(BRON);
   const model = modellen.find((m) => m.nm === 'nm-tekstvak');
   assert.equal(model.status, 'completed', 'de laatste status uit het bestand');
@@ -186,8 +186,11 @@ test('een nieuwe reviewstatus vervangt alleen de statusantwoorden; de annotatie 
   }
   const ref = [...na.naamVanRef].find(([, n]) => n === 'nm-tekstvak')[0];
   const status = [...na.perNaam.values()].filter((d) => d.get(N('State')) && d.get(N('IRT'))?.toString() === ref);
-  assert.equal(status.length, 1);
-  assert.equal(status[0].get(N('State')).decodeText(), 'Rejected');
+  // De reviewgeschiedenis (#629): de twee stappen uit het bestand blijven, de
+  // nieuwe status komt er als laatste stap achter.
+  assert.equal(status.length, 3);
+  assert.equal(status[2].get(N('State')).decodeText(), 'Rejected');
+  assert.equal(status[1].get(N('State')).decodeText(), 'Completed');
   const weer = await laad(bytes);
   assert.equal(weer.find((m) => m.nm === 'nm-tekstvak').status, 'rejected');
 });

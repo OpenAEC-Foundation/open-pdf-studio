@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} نے {{date}} کو مقرر کیا",
     "layer": "پرت",
     "layerMarkupGroup": "مارک اپ پرتیں",
-    "layerDocumentGroup": "دستاویز کی پرتیں"
+    "layerDocumentGroup": "دستاویز کی پرتیں",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "کوئی نہیں",
   "moreColors": "مزید رنگ...",

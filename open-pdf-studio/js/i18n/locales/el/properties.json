@@ -46,7 +46,9 @@
     "statusSetBy": "Ορίστηκε από {{author}} στις {{date}}",
     "layer": "Επίπεδο",
     "layerMarkupGroup": "Επίπεδα σήμανσης",
-    "layerDocumentGroup": "Επίπεδα εγγράφου"
+    "layerDocumentGroup": "Επίπεδα εγγράφου",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Κανένα",
   "moreColors": "Περισσότερα χρώματα...",

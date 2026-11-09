@@ -46,7 +46,9 @@
     "statusSetBy": "ตั้งโดย {{author}} เมื่อ {{date}}",
     "layer": "ชั้น",
     "layerMarkupGroup": "เลเยอร์มาร์กอัป",
-    "layerDocumentGroup": "ชั้นของเอกสาร"
+    "layerDocumentGroup": "ชั้นของเอกสาร",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "ไม่มี",
   "moreColors": "สีเพิ่มเติม...",

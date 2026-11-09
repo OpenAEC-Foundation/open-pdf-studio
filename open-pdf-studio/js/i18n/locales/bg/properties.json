@@ -46,7 +46,9 @@
     "statusSetBy": "Зададено от {{author}} на {{date}}",
     "layer": "Слой",
     "layerMarkupGroup": "Слоеве с маркировки",
-    "layerDocumentGroup": "Слоеве на документа"
+    "layerDocumentGroup": "Слоеве на документа",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Няма",
   "moreColors": "Повече цветове...",

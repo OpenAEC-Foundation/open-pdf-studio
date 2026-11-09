@@ -24,7 +24,9 @@
     "statusSetBy": "ກຳນົດໂດຍ {{author}} ເມື່ອ {{date}}",
     "layer": "ຊັ້ນ",
     "layerMarkupGroup": "ເລເຢີເຄື່ອງໝາຍ",
-    "layerDocumentGroup": "ຊັ້ນຂອງເອກະສານ"
+    "layerDocumentGroup": "ຊັ້ນຂອງເອກະສານ",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "ບໍ່ມີ",
   "moreColors": "ສີເພີ່ມເຕີມ...",

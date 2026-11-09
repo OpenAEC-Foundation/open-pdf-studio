@@ -46,7 +46,9 @@
     "statusSetBy": "Ditetapkan oleh {{author}} pada {{date}}",
     "layer": "Lapisan",
     "layerMarkupGroup": "Lapisan penanda",
-    "layerDocumentGroup": "Lapisan dokumen"
+    "layerDocumentGroup": "Lapisan dokumen",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Tiada",
   "moreColors": "Lagi Warna...",

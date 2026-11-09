@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} அவர்களால் {{date}} அன்று அமைக்கப்பட்டது",
     "layer": "அடுக்கு",
     "layerMarkupGroup": "குறியீட்டு அடுக்குகள்",
-    "layerDocumentGroup": "ஆவண அடுக்குகள்"
+    "layerDocumentGroup": "ஆவண அடுக்குகள்",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "எதுவுமில்லை",
   "moreColors": "மேலும் நிறங்கள்...",

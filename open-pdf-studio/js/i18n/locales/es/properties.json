@@ -46,7 +46,9 @@
     "statusSetBy": "Establecido por {{author}} el {{date}}",
     "layer": "Capa",
     "layerMarkupGroup": "Capas de marcas",
-    "layerDocumentGroup": "Capas del documento"
+    "layerDocumentGroup": "Capas del documento",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ninguno",
   "moreColors": "Más colores...",

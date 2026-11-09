@@ -46,7 +46,9 @@
     "statusSetBy": "Angivet af {{author}} den {{date}}",
     "layer": "Lag",
     "layerMarkupGroup": "Markeringslag",
-    "layerDocumentGroup": "Dokumentets lag"
+    "layerDocumentGroup": "Dokumentets lag",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ingen",
   "moreColors": "Flere farver...",

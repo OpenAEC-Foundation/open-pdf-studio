@@ -46,7 +46,9 @@
     "statusSetBy": "Diatur oleh {{author}} pada {{date}}",
     "layer": "Lapisan",
     "layerMarkupGroup": "Lapisan markup",
-    "layerDocumentGroup": "Lapisan dokumen"
+    "layerDocumentGroup": "Lapisan dokumen",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Tidak Ada",
   "moreColors": "Warna Lainnya...",

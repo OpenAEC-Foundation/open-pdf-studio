@@ -46,7 +46,9 @@
     "statusSetBy": "Установлено: {{author}}, {{date}}",
     "layer": "Слой",
     "layerMarkupGroup": "Слои пометок",
-    "layerDocumentGroup": "Слои документа"
+    "layerDocumentGroup": "Слои документа",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Нет",
   "moreColors": "Больше цветов...",

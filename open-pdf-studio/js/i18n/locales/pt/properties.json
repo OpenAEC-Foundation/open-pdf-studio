@@ -46,7 +46,9 @@
     "statusSetBy": "Definido por {{author}} em {{date}}",
     "layer": "Camada",
     "layerMarkupGroup": "Camadas de marcação",
-    "layerDocumentGroup": "Camadas do documento"
+    "layerDocumentGroup": "Camadas do documento",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Nenhuma",
   "moreColors": "Mais Cores...",

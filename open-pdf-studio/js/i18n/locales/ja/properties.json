@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} が {{date}} に設定",
     "layer": "レイヤー",
     "layerMarkupGroup": "マークアップレイヤー",
-    "layerDocumentGroup": "文書のレイヤー"
+    "layerDocumentGroup": "文書のレイヤー",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "なし",
   "moreColors": "その他の色...",

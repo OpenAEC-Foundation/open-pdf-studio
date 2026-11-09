@@ -24,7 +24,9 @@
     "statusSetBy": "Set by {{author}} on {{date}}",
     "layer": "Layer",
     "layerMarkupGroup": "Markup layers",
-    "layerDocumentGroup": "Document layers"
+    "layerDocumentGroup": "Document layers",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "None",
   "moreColors": "More Colors...",

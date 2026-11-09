@@ -46,7 +46,9 @@
     "statusSetBy": "Angiven av {{author}} den {{date}}",
     "layer": "Lager",
     "layerMarkupGroup": "Markeringslager",
-    "layerDocumentGroup": "Dokumentets lager"
+    "layerDocumentGroup": "Dokumentets lager",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ingen",
   "moreColors": "Fler färger...",

@@ -46,7 +46,9 @@
     "statusSetBy": "הוגדר על ידי {{author}} בתאריך {{date}}",
     "layer": "שכבה",
     "layerMarkupGroup": "שכבות סימון",
-    "layerDocumentGroup": "שכבות המסמך"
+    "layerDocumentGroup": "שכבות המסמך",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "ללא",
   "moreColors": "צבעים נוספים...",

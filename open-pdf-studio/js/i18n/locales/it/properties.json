@@ -46,7 +46,9 @@
     "statusSetBy": "Impostato da {{author}} il {{date}}",
     "layer": "Livello",
     "layerMarkupGroup": "Livelli di annotazione",
-    "layerDocumentGroup": "Livelli del documento"
+    "layerDocumentGroup": "Livelli del documento",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Nessuno",
   "moreColors": "Altri colori...",

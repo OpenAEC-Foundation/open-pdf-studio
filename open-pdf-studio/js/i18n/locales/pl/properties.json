@@ -46,7 +46,9 @@
     "statusSetBy": "Ustawione przez {{author}} dnia {{date}}",
     "layer": "Warstwa",
     "layerMarkupGroup": "Warstwy adnotacji",
-    "layerDocumentGroup": "Warstwy dokumentu"
+    "layerDocumentGroup": "Warstwy dokumentu",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Brak",
   "moreColors": "Więcej Kolorów...",

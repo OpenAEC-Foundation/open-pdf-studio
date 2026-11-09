@@ -46,7 +46,9 @@
     "statusSetBy": "Défini par {{author}} le {{date}}",
     "layer": "Calque",
     "layerMarkupGroup": "Calques d'annotations",
-    "layerDocumentGroup": "Calques du document"
+    "layerDocumentGroup": "Calques du document",
+    "statusHistory": "Historique de révision :",
+    "statusHistoryStep": "{{status}} par {{author}} le {{date}}"
   },
   "colorNone": "Aucune",
   "moreColors": "Plus de couleurs...",

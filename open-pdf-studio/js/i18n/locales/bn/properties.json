@@ -46,7 +46,9 @@
     "statusSetBy": "{{date}} তারিখে {{author}} নির্ধারণ করেছেন",
     "layer": "স্তর",
     "layerMarkupGroup": "মার্কআপ স্তর",
-    "layerDocumentGroup": "নথির স্তর"
+    "layerDocumentGroup": "নথির স্তর",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "কোনোটি নয়",
   "moreColors": "আরও রঙ...",
