@@ -228,6 +228,6 @@ test('een snijvak dat niet op de oorsprong begint wordt meegerekend', async () =
   assert.equal(rect[3], 600);      // y = snijvak boven
 });
 
-test('de lijst met ondersteunde soorten is die van de eerste snede', () => {
-  assert.deepEqual([...SOORTEN], ['measureDistance', 'note', 'square']);
+test('de ondersteunde soorten zijn die van het app-model', () => {
+  assert.deepEqual([...SOORTEN], ['measureDistance', 'comment', 'box']);
 });

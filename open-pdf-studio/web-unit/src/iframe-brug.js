@@ -4,7 +4,6 @@
 // unit-tests gedekt; hier staat alleen de koppeling naar het element.
 
 import { GEBEURTENISSEN, keurBericht, maakAntwoord, maakFoutAntwoord, maakBericht } from './api.js';
-import { leesSchaal } from './meten.js';
 
 export function koppelIframeBrug(element, venster = window) {
   const origins = () => element.instellingen.gastheerOrigins;
@@ -28,13 +27,13 @@ export function koppelIframeBrug(element, venster = window) {
     try {
       if (o.type === 'laad') {
         const bytes = o.bytes ? new Uint8Array(o.bytes) : null;
-        const info = bytes ? await element.laad(bytes) : await element._laadVanUrl(o.src);
+        const info = await element.load(bytes || o.src);
         naarGastheer(maakAntwoord(o, { info: info || null }));
       } else if (o.type === 'opslaan') {
         const bytes = await element.opslaan();
         naarGastheer(maakAntwoord(o, { bytes: bytes.slice().buffer }));
       } else if (o.type === 'zetSchaal') {
-        element.meetschaal = typeof o.schaal === 'string' ? leesSchaal(o.schaal, o.eenheid || 'mm') : o.schaal;
+        element.setScale(o.schaal ?? null, o.eenheid || 'mm');
         naarGastheer(maakAntwoord(o, {}));
       } else if (o.type === 'gaNaarPagina') {
         element.pagina = o.pagina;
