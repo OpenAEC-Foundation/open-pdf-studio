@@ -6,6 +6,7 @@
 mod accounts;
 mod pdf_beveiliging;
 mod atomic_file;
+pub mod bestand_openen;
 pub mod batch_ocr;
 pub mod batch_ocr_walk;
 pub mod beveiligde_pdf;
@@ -622,32 +623,84 @@ fn lock_file(path: String, state: tauri::State<LockedFiles>) -> Result<bool, Str
         return Ok(true);
     }
 
-    #[cfg(target_os = "windows")]
-    {
-        use std::os::windows::fs::OpenOptionsExt;
-        // FILE_SHARE_READ = 0x00000001 — allow others to read, but not write or delete
-        let file = fs::OpenOptions::new()
-            .read(true)
-            .custom_flags(0) // no special flags
-            .share_mode(0x00000001) // FILE_SHARE_READ only
-            .open(&path)
-            .map_err(|e| format!("Failed to lock file: {}", e))?;
-        locks.insert(path, file);
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        // On Unix, use advisory file locking (flock)
-        let file = fs::OpenOptions::new()
-            .read(true)
-            .open(&path)
-            .map_err(|e| format!("Failed to open file: {}", e))?;
-        // Advisory lock — other well-behaved apps will respect this
-        // Note: this is best-effort on non-Windows platforms
-        locks.insert(path, file);
-    }
-
+    // On Unix this is only an open handle: best-effort, like before.
+    let file = bestand_openen::vergrendel(&path).map_err(|e| format!("Failed to lock file: {}", e))?;
+    locks.insert(path, file);
     Ok(true)
+}
+
+/// Uitkomst van het vergrendelen bij het openen van een document (#1005).
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DocumentVergrendeling {
+    #[serde(flatten)]
+    modus: bestand_openen::OpenModus,
+    /// De fout van het vergrendelen, als dat mislukte.
+    fout: Option<bestand_openen::OpenFout>,
+    pad_info: bestand_openen::PadInfo,
+}
+
+/// Lees een document om te openen (#1005): met delen voor lezen, schrijven en
+/// verwijderen, zonder de fs-scope (die een WebDAV-pad niet altijd kan
+/// canonicaliseren), en op een eigen thread, want een plaatshouder die alleen
+/// online staat wordt bij het lezen eerst opgehaald. Een fout zegt welk pad,
+/// welke stap en welke soort (bestand_openen::OpenFout).
+#[tauri::command]
+async fn read_document_file(path: String) -> Result<tauri::ipc::Response, bestand_openen::OpenFout> {
+    let pad = path.clone();
+    let data = tauri::async_runtime::spawn_blocking(move || {
+        bestand_openen::lees_document(&pad, &bestand_openen::sync_wortels_uit_omgeving())
+    })
+    .await
+    .map_err(|e| bestand_openen::OpenFout::van_io(
+        bestand_openen::OpenStap::Lezen,
+        &path,
+        &std::io::Error::other(e.to_string()),
+        false,
+        bestand_openen::classificeer_pad(&path, &[]),
+    ))??;
+    Ok(tauri::ipc::Response::new(data))
+}
+
+/// Vergrendel een zojuist gelezen document en besluit of het bewerkbaar of
+/// alleen-lezen opent (#1005). Mislukt het vergrendelen (de
+/// synchronisatie-app of een andere app heeft het bestand open om te
+/// schrijven, of het mag niet), dan opent het alleen-lezen in plaats van niet.
+#[tauri::command]
+async fn lock_document_file(path: String, state: tauri::State<'_, LockedFiles>) -> Result<DocumentVergrendeling, String> {
+    let wortels = bestand_openen::sync_wortels_uit_omgeving();
+    let pad_info = bestand_openen::classificeer_pad(&path, &wortels);
+    if state.0.lock().map_err(|e| e.to_string())?.contains_key(&path) {
+        let modus = bestand_openen::beslis_openmodus(false, bestand_openen::Vergrendeling::Gelukt);
+        return Ok(DocumentVergrendeling { modus, fout: None, pad_info });
+    }
+    let pad = path.clone();
+    let (kenmerken, poging) = tauri::async_runtime::spawn_blocking(move || {
+        let kenmerken = bestand_openen::kenmerken(&pad).unwrap_or(0);
+        // Alleen-lezen bestanden hoeven geen vergrendeling: de app schrijft er
+        // niet naar, en de synchronisatie-app blijft ze kunnen bijwerken.
+        if kenmerken & bestand_openen::FILE_ATTRIBUTE_READONLY != 0 {
+            return (kenmerken, None);
+        }
+        (kenmerken, Some(bestand_openen::vergrendel(&pad)))
+    })
+    .await
+    .map_err(|e| e.to_string())?;
+    let plaatshouder = bestand_openen::is_plaatshouder(kenmerken);
+    let alleen_lezen_kenmerk = kenmerken & bestand_openen::FILE_ATTRIBUTE_READONLY != 0;
+    let (vergrendeling, fout) = match poging {
+        None => (bestand_openen::Vergrendeling::NietGeprobeerd, None),
+        Some(Ok(file)) => {
+            state.0.lock().map_err(|e| e.to_string())?.insert(path.clone(), file);
+            (bestand_openen::Vergrendeling::Gelukt, None)
+        }
+        Some(Err(e)) => {
+            let f = bestand_openen::OpenFout::van_io(bestand_openen::OpenStap::Vergrendelen, &path, &e, plaatshouder, pad_info.clone());
+            (bestand_openen::Vergrendeling::Mislukt(f.soort), Some(f))
+        }
+    };
+    let modus = bestand_openen::beslis_openmodus(alleen_lezen_kenmerk, vergrendeling);
+    Ok(DocumentVergrendeling { modus, fout, pad_info })
 }
 
 /// Unlock a previously locked file, allowing other apps to write to it.
@@ -2015,9 +2068,24 @@ fn read_plugin_asset(plugin_id: String, file_path: String) -> Result<tauri::ipc:
 fn allow_fs_scope(app: tauri::AppHandle, path: String) -> Result<bool, String> {
     app.fs_scope().allow_file(&path)
         .map_err(|e| format!("{}", e))?;
+    // Ook de andere schrijfwijzen (met en zonder \\?\, #1005): de scope
+    // vergelijkt tekst, en een lang pad of netwerkpad komt soms in de andere
+    // vorm terug.
+    for variant in bestand_openen::scope_varianten(&path).into_iter().skip(1) {
+        let _ = app.fs_scope().allow_file(&variant);
+        if let Some(parent) = std::path::Path::new(&variant).parent() {
+            let _ = app.fs_scope().allow_directory(parent, false);
+        }
+    }
     // Also allow the directory for related files
     if let Some(parent) = std::path::Path::new(&path).parent() {
         let _ = app.fs_scope().allow_directory(parent, false);
+    }
+    // De scope canonicaliseert het pad bij elke controle; lukt dat niet (soms
+    // op WebDAV), dan blijft het pad erbuiten. Het document zelf leest de app
+    // dan via read_document_file; hier alleen melden.
+    if !app.fs_scope().is_allowed(&path) {
+        eprintln!("[fs-scope] path stays outside the fs scope (cannot be canonicalized?): {}", path);
     }
     Ok(true)
 }
@@ -3517,6 +3585,8 @@ pub fn run(opts: StartupOpts) {
             is_dev_mode,
             lock_file,
             unlock_file,
+            read_document_file,
+            lock_document_file,
             is_default_pdf_app,
             default_pdf_app_status,
             open_default_apps_settings,

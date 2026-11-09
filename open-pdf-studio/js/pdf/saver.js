@@ -49,6 +49,7 @@ import { isVersleuteld } from './document-beveiliging.js';
 import { foutMelding } from './protect-pdf-regels.js';
 import { meldOpgeslagen } from '../herstel/haken.js';
 import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
+import { opslaanNaarOpslaanAls } from './bestand-openen.js';
 
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
@@ -308,6 +309,14 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
   // as untitled documents.
   const OUTLOOK_TEMP = /[\\/]INetCache[\\/]Content\.Outlook[\\/]|Microsoft\.OutlookForWindows/i;
   if (!saveAsPath && OUTLOOK_TEMP.test(currentPath)) {
+    return await savePDFAs(activeDoc);
+  }
+
+  // Alleen-lezen geopend omdat het bestand niet te vergrendelen was of het
+  // kenmerk alleen-lezen heeft (#1005, bv. een SharePoint-bibliotheek met
+  // alleen leesrechten of een bestand dat een andere app open heeft): niet
+  // terugschrijven, maar Opslaan als.
+  if (!saveAsPath && opslaanNaarOpslaanAls(activeDoc)) {
     return await savePDFAs(activeDoc);
   }
 
@@ -3641,6 +3650,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // Al gemeld (een weigering van de site bij Opslaan als, #726): ongewijzigd door.
       if (isOpslagGeannuleerd(writeErr) || writeErr?.gemeld) throw writeErr;
       const msg = writeErr?.message || String(writeErr);
+      // Toegang geweigerd (#1005): geen schrijfrechten, of Windows weigert het
+      // vervangen omdat een andere app of de synchronisatie-app het bestand
+      // open heeft. Beide uitwegen noemen, met het pad.
+      if (/access is denied|permission denied|os error 5\b/i.test(msg)) {
+        throw new Error(i18next.t('fileWriteDenied', { path: outputPath }));
+      }
       if (msg.includes('denied') || msg.includes('locked') || msg.includes('sharing') || msg.includes('used by another')) {
         throw new Error(i18next.t('fileLocked', { defaultValue: 'The file is being used by another application. Please close it and try again.' }));
       }
@@ -3972,6 +3987,9 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
     const wasUntitled = !!doc?.isUntitled || !currentPath;
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
     const success = await savePDF(savePath, opties, doc);
+    // Opgeslagen: het document staat nu in een bestand dat de app kon
+    // schrijven, dus niet langer alleen-lezen geopend (#1005).
+    if (success && doc) doc.bestandAlleenLezen = null;
 
     // Beveiligd opgeslagen (#378): de weergave blijft uit de ontsleutelde
     // werkkopie (de saver herlaadde die met de opgeslagen inhoud); het
