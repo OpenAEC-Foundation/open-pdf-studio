@@ -297,6 +297,8 @@ js/annotations/stramien-koppeling-mcp.test.mjs
 web-unit/src/api.test.mjs
 web-unit/src/meten.test.mjs
 web-unit/src/opslaan.test.mjs
+web-unit/src/inbedden.test.mjs
+web-unit/bundel-budget.test.mjs
 js/annotations/annotatie-lagen.test.mjs
 js/annotations/view-filter-rules.test.mjs
 js/solid/components/left-panel/AnnotationLayersPanel.test.mjs

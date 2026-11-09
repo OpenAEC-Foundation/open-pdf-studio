@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open PDF Studio web unit - minimal example</title>
+<style>
+  html, body { margin: 0; height: 100%; font: 13px "Segoe UI", Arial, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid #d4d4d4; }
+  #viewer { flex: 1 1 auto; min-height: 0; }
+  #viewer > open-pdf-studio { height: 100%; }
+</style>
+</head>
+<body>
+  <!--
+    The smallest useful host page: open a PDF, let the user measure and
+    comment, and take the annotated bytes back. Everything the host needs is
+    the one script below and the API on the returned element.
+  -->
+  <header>
+    <input id="file" type="file" accept="application/pdf">
+    <button id="save" type="button">Save</button>
+    <span id="status">No document</span>
+  </header>
+  <div id="viewer"></div>
+
+  <script type="module">
+    import { mount } from '../src/index.js';
+
+    const status = document.getElementById('status');
+    const unit = mount('#viewer', {
+      scale: '1:100',
+      unit: 'mm',
+      lang: document.documentElement.lang,
+      tools: ['measure', 'comment', 'shape'],
+      onLoad: (d) => { status.textContent = `${d.pages} page(s)`; },
+      onChange: (d) => { status.textContent = `${d.count} annotation(s)`; },
+      onError: (d) => { status.textContent = `Error: ${d.message}`; },
+    });
+
+    document.getElementById('file').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) unit.load(file);
+    });
+
+    document.getElementById('save').addEventListener('click', async () => {
+      const bytes = await unit.exportPdf();
+      // A real host uploads `bytes` (and/or unit.getAnnotations()) to its
+      // own back end; this example offers the file for download.
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+      a.download = 'annotated.pdf';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // For the automated check in web-unit/demo-e2e.mjs.
+    window.__voorbeeld = unit;
+  </script>
+</body>
+</html>

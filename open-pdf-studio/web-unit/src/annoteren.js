@@ -3,20 +3,32 @@
 //
 // De annotaties leven in PAGINAPUNTEN met de oorsprong linksboven (zie
 // `meten.js`), niet in beeldpunten. Zo blijven ze bij elke zoomstand hetzelfde
-// en kunnen ze zonder omrekening naar `opslaan.js`.
+// en kunnen ze zonder omrekening naar `opslaan.js`. Soorten en velden zijn die
+// van de bureaubladversie (zie `model.js`).
 
 import { meetAfstand } from './meten.js';
+import { lijstNaarAppModel } from './model.js';
 
 let _volgnummer = 0;
 const nieuwId = () => 'wu-' + (++_volgnummer) + '-' + Math.random().toString(36).slice(2, 8);
 
 export const GEREEDSCHAP_PER_SOORT = Object.freeze({
   measure: 'measureDistance',
-  comment: 'note',
-  shape: 'square',
+  comment: 'comment',
+  shape: 'box',
 });
 
-export function maakAnnotatielaag({ canvas, onWijziging }) {
+/** De meetvelden van de app (`measureText`, `measureValue`, ...) bijwerken. */
+function zetMaat(a, meetschaal) {
+  const m = meetAfstand({ x: a.startX, y: a.startY }, { x: a.endX, y: a.endY }, meetschaal);
+  a.measureText = m.tekst;
+  a.measureValue = m.waarde;
+  a.measureUnit = m.eenheid;
+  a.measurePixels = m.lengtePt;
+  a.schaal = meetschaal;
+}
+
+export function maakAnnotatielaag({ canvas, onWijziging, onNieuweOpmerking }) {
   const ctx = canvas.getContext('2d');
   let annotaties = [];
   let gereedschap = null;
@@ -24,7 +36,9 @@ export function maakAnnotatielaag({ canvas, onWijziging }) {
   let meetschaal = null;
   let pagina = 1;
   let bezig = null;
-  let opmerkingTekst = () => 'Opmerking';
+  let opmerkingTekst = () => 'Comment';
+  let auteur = () => 'Web';
+  const nu = () => new Date().toISOString();
 
   const naarPagina = (e) => {
     const r = canvas.getBoundingClientRect();
@@ -63,15 +77,15 @@ export function maakAnnotatielaag({ canvas, onWijziging }) {
         ctx.textBaseline = 'bottom';
         ctx.fillText(a.measureText, (a.startX + a.endX) / 2 * s, (a.startY + a.endY) / 2 * s - 4);
       }
-    } else if (a.type === 'square') {
+    } else if (a.type === 'box') {
       if (a.fillColor) {
         ctx.fillStyle = a.fillColor;
         ctx.globalAlpha = (voorlopig ? 0.7 : 1) * 0.3;
-        ctx.fillRect(a.x * s, a.y * s, a.breedte * s, a.hoogte * s);
+        ctx.fillRect(a.x * s, a.y * s, a.width * s, a.height * s);
         ctx.globalAlpha = voorlopig ? 0.7 : 1;
       }
-      ctx.strokeRect(a.x * s, a.y * s, a.breedte * s, a.hoogte * s);
-    } else if (a.type === 'note') {
+      ctx.strokeRect(a.x * s, a.y * s, a.width * s, a.height * s);
+    } else if (a.type === 'comment') {
       const r = Math.max(7, 9 * s);
       ctx.fillStyle = a.color || '#ffd400';
       ctx.strokeStyle = '#7a6400';
@@ -87,17 +101,22 @@ export function maakAnnotatielaag({ canvas, onWijziging }) {
     if (!gereedschap) return;
     const p = naarPagina(e);
     if (gereedschap === 'comment') {
+      const t = nu();
       annotaties = [...annotaties, {
-        id: nieuwId(), type: 'note', page: pagina, x: p.x, y: p.y,
-        contents: opmerkingTekst(), color: '#ffd400', author: 'Web',
+        id: nieuwId(), type: 'comment', page: pagina, x: p.x, y: p.y,
+        text: opmerkingTekst(), color: '#ffd400', icon: 'comment', author: auteur(),
+        createdAt: t, modifiedAt: t,
       }];
       meld();
+      onNieuweOpmerking?.(annotaties[annotaties.length - 1]);
       return;
     }
     canvas.setPointerCapture?.(e.pointerId);
+    const t = nu();
+    const basis = { id: nieuwId(), page: pagina, strokeColor: '#ff0000', author: auteur(), createdAt: t, modifiedAt: t };
     bezig = gereedschap === 'measure'
-      ? { id: nieuwId(), type: 'measureDistance', page: pagina, startX: p.x, startY: p.y, endX: p.x, endY: p.y, strokeColor: '#ff0000', lineWidth: 1, author: 'Web' }
-      : { id: nieuwId(), type: 'square', page: pagina, x: p.x, y: p.y, breedte: 0, hoogte: 0, strokeColor: '#ff0000', lineWidth: 2, author: 'Web' };
+      ? { ...basis, type: 'measureDistance', startX: p.x, startY: p.y, endX: p.x, endY: p.y, lineWidth: 1 }
+      : { ...basis, type: 'box', x: p.x, y: p.y, width: 0, height: 0, lineWidth: 2 };
     tekenAlles();
   }
 
@@ -107,12 +126,10 @@ export function maakAnnotatielaag({ canvas, onWijziging }) {
     if (bezig.type === 'measureDistance') {
       bezig.endX = p.x;
       bezig.endY = p.y;
-      const m = meetAfstand({ x: bezig.startX, y: bezig.startY }, { x: p.x, y: p.y }, meetschaal);
-      bezig.measureText = m.tekst;
-      bezig.schaal = meetschaal;
+      zetMaat(bezig, meetschaal);
     } else {
-      bezig.breedte = p.x - bezig.x;
-      bezig.hoogte = p.y - bezig.y;
+      bezig.width = p.x - bezig.x;
+      bezig.height = p.y - bezig.y;
     }
     tekenAlles();
   }
@@ -124,11 +141,11 @@ export function maakAnnotatielaag({ canvas, onWijziging }) {
     bezig = null;
     const leeg = a.type === 'measureDistance'
       ? Math.hypot(a.endX - a.startX, a.endY - a.startY) < 1
-      : Math.abs(a.breedte) < 1 || Math.abs(a.hoogte) < 1;
+      : Math.abs(a.width) < 1 || Math.abs(a.height) < 1;
     if (leeg) { tekenAlles(); return; }
-    if (a.type === 'square' && (a.breedte < 0 || a.hoogte < 0)) {
-      if (a.breedte < 0) { a.x += a.breedte; a.breedte = -a.breedte; }
-      if (a.hoogte < 0) { a.y += a.hoogte; a.hoogte = -a.hoogte; }
+    if (a.type === 'box' && (a.width < 0 || a.height < 0)) {
+      if (a.width < 0) { a.x += a.width; a.width = -a.width; }
+      if (a.height < 0) { a.y += a.height; a.height = -a.height; }
     }
     annotaties = [...annotaties, a];
     meld();
@@ -141,23 +158,31 @@ export function maakAnnotatielaag({ canvas, onWijziging }) {
 
   return {
     get annotaties() { return annotaties; },
-    zet(lijst) { annotaties = Array.isArray(lijst) ? [...lijst] : []; meld(); },
+    zet(lijst) { annotaties = lijstNaarAppModel(lijst); meld(); },
+    /** Velden van één annotatie bijwerken (bijv. de tekst van een opmerking). */
+    werkBij(id, velden) {
+      let gevonden = false;
+      annotaties = annotaties.map((a) => {
+        if (a.id !== id) return a;
+        gevonden = true;
+        return { ...a, ...velden, modifiedAt: nu() };
+      });
+      if (gevonden) meld();
+      return gevonden;
+    },
     wis() { annotaties = []; meld(); },
     zetGereedschap(g) { gereedschap = g || null; canvas.style.pointerEvents = g ? 'auto' : 'none'; },
     get gereedschap() { return gereedschap; },
     zetSchaal(s) { schaal = s; tekenAlles(); },
     zetMeetschaal(m) {
       meetschaal = m;
-      for (const a of annotaties) {
-        if (a.type !== 'measureDistance') continue;
-        a.schaal = m;
-        a.measureText = meetAfstand({ x: a.startX, y: a.startY }, { x: a.endX, y: a.endY }, m).tekst;
-      }
+      for (const a of annotaties) if (a.type === 'measureDistance') zetMaat(a, m);
       meld();
     },
     get meetschaal() { return meetschaal; },
     zetPagina(n) { pagina = n; tekenAlles(); },
     zetOpmerkingTekst(fn) { opmerkingTekst = fn; },
+    zetAuteur(fn) { auteur = fn; },
     hertekenen: tekenAlles,
   };
 }

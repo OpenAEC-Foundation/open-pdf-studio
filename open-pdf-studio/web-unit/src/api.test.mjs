@@ -82,10 +82,10 @@ test('in de bewerkstand mag alleen wat in tools staat', () => {
 });
 
 test('de attributenlijst dekt alles wat leesInstellingen kent', () => {
-  for (const naam of ['src', 'scale', 'unit', 'lang', 'engine', 'mode', 'tools', 'page', 'zoom', 'storage', 'host-origin']) {
+  for (const naam of ['src', 'scale', 'unit', 'lang', 'engine', 'mode', 'tools', 'page', 'zoom', 'storage', 'host-origin', 'toolbar', 'theme']) {
     assert.ok(ATTRIBUTEN.includes(naam), naam + ' ontbreekt');
   }
-  assert.equal(ATTRIBUTEN.length, 11);
+  assert.equal(ATTRIBUTEN.length, 13);
   assert.equal(STANDAARD.motor, 'pdfjs');
 });
 
