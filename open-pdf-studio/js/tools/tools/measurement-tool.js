@@ -473,7 +473,7 @@ function _measureMultiClickDown(ctx, e, toolType) {
 
   // Object snap (including in-progress vertices)
   const allInProgressPoints = _getAllInProgressPoints(state, isArea);
-  const snap = ctx.snap(x, y, null, allInProgressPoints);
+  const snap = ctx.snap(x, y, null, allInProgressPoints, _loodlijnOpties(state));
   let ptX = snap.snapped ? snap.x : x;
   let ptY = snap.snapped ? snap.y : y;
 
@@ -598,6 +598,14 @@ function _finishMeasureWithHoles(ctx) {
 }
 
 // Collect all in-progress points for snap exclusion
+// Loodrecht/raaklijn vanaf het laatst geplaatste punt van de ring in aanbouw.
+// In de gatenfase staan in de snap-punten na die ring nog de buitenrand en
+// de eerdere gaten; het laatste element daarvan is dan niet het laatste punt.
+function _loodlijnOpties(state) {
+  const pts = state.measurePoints;
+  return pts && pts.length > 0 ? { loodlijnVanaf: pts[pts.length - 1] } : undefined;
+}
+
 function _getAllInProgressPoints(state, isArea) {
   const points = [];
   if (state.measurePoints) {
@@ -641,7 +649,7 @@ function _measureMultiClickMove(ctx, e, toolType) {
   const mFillColor = isArea ? (prefs.measureAreaFillNone ? 'none' : (prefs.measureAreaFillColor || null)) : null;
 
   const allInProgressPoints = _getAllInProgressPoints(state, isArea);
-  const snap = ctx.snap(x, y, null, allInProgressPoints);
+  const snap = ctx.snap(x, y, null, allInProgressPoints, _loodlijnOpties(state));
   state.lastSnapResult = snap.snapped ? snap : null;
 
   let snapX = snap.snapped ? snap.x : x;

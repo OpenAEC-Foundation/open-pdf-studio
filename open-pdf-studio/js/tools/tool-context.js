@@ -163,7 +163,7 @@ export function buildToolContext(e, coords) {
     viewMode: ctxDoc?.viewMode || 'single',
 
     // Snapping
-    snap: (x, y, excludeId, extraPoints) => performSnap(x, y, ctxDoc?.annotations || [], coords.pageNum, ctxScale, excludeId, extraPoints),
+    snap: (x, y, excludeId, extraPoints, opties) => performSnap(x, y, ctxDoc?.annotations || [], coords.pageNum, ctxScale, excludeId, extraPoints, opties),
     snapToGrid,
     snapAngle,
     setPolarAnchor,

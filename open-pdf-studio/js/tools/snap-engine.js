@@ -176,6 +176,9 @@ function extractSnapPoints(ann, points, prefs, annotations) {
           points.push({ x: ann.leaderEndX, y: ann.leaderEndY, type: 'endpoint', annotation: ann });
         }
       }
+      if (doMidpoints) {
+        points.push({ x: (ann.startX + ann.endX) / 2, y: (ann.startY + ann.endY) / 2, type: 'midpoint', annotation: ann });
+      }
       break;
     }
 
@@ -428,7 +431,12 @@ export function getEdgeSegments(ann) {
       break;
 
     case 'measureDistance':
-      // No edge snapping for dimension annotations — only point snapping at endpoints
+      // De maatlijn zelf (start -> eind): daarop snappen rand, dichtstbijzijnd,
+      // snijpunt en loodrecht. De hulplijnen blijven erbuiten (kort, en ze
+      // eindigen op het gemeten punt, dat al een eindpunt-snap is).
+      if ([ann.startX, ann.startY, ann.endX, ann.endY].every(Number.isFinite)) {
+        segments.push({ x1: ann.startX, y1: ann.startY, x2: ann.endX, y2: ann.endY });
+      }
       break;
 
     case 'box':
@@ -850,9 +858,11 @@ export function drawAlignmentGuides(ctx, annotation, draggedNodeIdx, scale) {
 }
 
 // Find nearest point on PDF vector edge segments within radius.
-function nearestPointOnPdfEdge(cursorX, cursorY, currentPage, snapRadius) {
+// soort: 'edge' (voorkeur snapToEdges) of 'nearest' (voorkeur snapToNearest).
+function nearestPointOnPdfEdge(cursorX, cursorY, currentPage, snapRadius, soort = 'edge') {
   const prefs = state.preferences;
-  if (!prefs.snapToPdfContent || !prefs.snapToEdges) return null;
+  if (!prefs.snapToPdfContent) return null;
+  if (soort === 'edge' && !prefs.snapToEdges) return null;
 
   const edges = getPdfEdgeSegmentsNear(currentPage, cursorX, cursorY, snapRadius);
   if (!edges || edges.length === 0) return null;
@@ -864,7 +874,7 @@ function nearestPointOnPdfEdge(cursorX, cursorY, currentPage, snapRadius) {
     const proj = projectPointOnSegment(cursorX, cursorY, seg.x1, seg.y1, seg.x2, seg.y2);
     if (proj.dist < bestDist && proj.dist <= snapRadius) {
       bestDist = proj.dist;
-      bestPoint = { x: proj.x, y: proj.y, type: 'edge', snapped: true };
+      bestPoint = { x: proj.x, y: proj.y, type: soort, snapped: true };
     }
   }
 
@@ -874,7 +884,10 @@ function nearestPointOnPdfEdge(cursorX, cursorY, currentPage, snapRadius) {
 // Combined snap: first try point snaps, then edge snap.
 // Returns the best snap result.
 // inProgressPoints: optional array of {x,y} from the polyline/measure being drawn
-export function performSnap(cursorX, cursorY, annotations, currentPage, scale, excludeId, inProgressPoints) {
+// opties.loodlijnVanaf: optional {x,y} reference point for perpendicular and
+// tangent snaps when the tool's first point is not in inProgressPoints (e.g.
+// the line tool) or is not its last element (a hole ring of an area).
+export function performSnap(cursorX, cursorY, annotations, currentPage, scale, excludeId, inProgressPoints, opties) {
   const prefs = state.preferences;
 
   // Pre-compute grid + polar candidates (used as fallback when object snap
@@ -923,9 +936,68 @@ export function performSnap(cursorX, cursorY, annotations, currentPage, scale, e
     snapPoints.push({ x: _c2d.x, y: _c2d.y, type: 'endpoint', annotation: null });
   }
 
-  // 4. Try point snap first (endpoints, corners, midpoints, centers)
-  const pointResult = findNearestSnap(cursorX, cursorY, snapPoints, snapRadius);
-  if (pointResult.snapped) return pointResult;
+  // 4. Exacte snaps: punten (eindpunt, hoek, midden, centrum …), snijpunten,
+  // loodrecht en raaklijn. Prioriteiten volgen inference-engine.js
+  // (INFERENCE_PRIORITY / snapPriority): dit zijn allemaal exacte punten van
+  // de geometrie en die gaan vóór de 'zachte' snaps (rand, dichtstbijzijnd,
+  // pool, raster). Onderling wint het punt dat het dichtst bij de cursor ligt;
+  // bij gelijke afstand beslist de volgorde punt > snijpunt > loodrecht >
+  // raaklijn. Zo wint een eindpunt dat dichterbij ligt van het voetpunt van
+  // de loodlijn, maar verdringt een eindpunt aan de rand van de vangstraal
+  // niet langer een loodrecht-snap pal onder de cursor (#997).
+  const exact = [];
+  // opties.vermijdPunt: het eigen beginpunt van het lijnstuk in aanbouw. Een
+  // snap daarop gaf een lijn van lengte nul (bv. het eindpunt van het vorige
+  // segment bij doorlopend tekenen, of het object waarop het eerste punt viel).
+  const vermijd = opties?.vermijdPunt;
+  const isVermeden = (p) => !!vermijd && Math.hypot(p.x - vermijd.x, p.y - vermijd.y) < 1e-6;
+  const pointResult = findNearestSnap(cursorX, cursorY,
+    vermijd ? snapPoints.filter(p => !isVermeden(p)) : snapPoints, snapRadius);
+  if (pointResult.snapped) exact.push(pointResult);
+  // De vorige puntwinnaar blijft kandidaat zolang hij binnen de vangstraal ligt
+  // (hysterese in kiesDichtstbijzijnde, tegen heen-en-weer springen).
+  const vorigePunt = _vorigeExacteSnap && snapPoints.find(p => p.type === _vorigeExacteSnap.type
+    && Math.abs(p.x - _vorigeExacteSnap.x) < 1e-6 && Math.abs(p.y - _vorigeExacteSnap.y) < 1e-6
+    && Math.hypot(cursorX - p.x, cursorY - p.y) <= snapRadius);
+  if (vorigePunt && !(pointResult.snapped && pointResult.x === vorigePunt.x && pointResult.y === vorigePunt.y)) {
+    exact.push({ x: vorigePunt.x, y: vorigePunt.y, type: vorigePunt.type, snapped: true });
+  }
+
+  // 4b. Intersection snap (where edges from different annotations cross)
+  if (prefs.snapToIntersections !== false) {
+    const intersectionResult = findIntersectionSnap(cursorX, cursorY, annotations, currentPage, snapRadius, excludeId);
+    if (intersectionResult) exact.push(intersectionResult);
+  }
+
+  // 4c. PDF-content intersection snap (where two vector edges of the underlying
+  // drawing cross). Uses only edges near the cursor (spatial index), so the
+  // pairwise test is over a small local set.
+  // Ook waar een markeringslijn een lijn van de tekening kruist.
+  if (prefs.snapToIntersections !== false && prefs.snapToPdfContent) {
+    const annSegs = _annotatieSegmentenNabij(annotations, currentPage, excludeId, cursorX, cursorY, snapRadius);
+    const pdfIntersection = findPdfIntersectionSnap(cursorX, cursorY, currentPage, snapRadius, annSegs);
+    if (pdfIntersection) exact.push(pdfIntersection);
+  }
+
+  // 4d. Perpendicular snap: voetpunt van de loodlijn vanuit het laatst
+  // geplaatste punt (of het door de tool opgegeven beginpunt) op een rand van
+  // een annotatie of een lijnstuk van de PDF-tekening.
+  const refPt = opties?.loodlijnVanaf
+    || (inProgressPoints && inProgressPoints.length > 0 ? inProgressPoints[inProgressPoints.length - 1] : null);
+  if (prefs.snapToPerpendicular && refPt) {
+    const perpResult = findPerpendicularSnap(cursorX, cursorY, refPt, annotations, currentPage, snapRadius, excludeId);
+    if (perpResult) exact.push(perpResult);
+  }
+
+  // 4e. Tangent snap (from last placed point to circle/ellipse circumference)
+  if (prefs.snapToTangent && refPt) {
+    const tanResult = findTangentSnap(cursorX, cursorY, refPt, annotations, currentPage, snapRadius, excludeId);
+    if (tanResult) exact.push(tanResult);
+  }
+
+  const exactWinner = kiesDichtstbijzijnde(
+    vermijd ? exact.filter(k => !isVermeden(k)) : exact, cursorX, cursorY, SNAP_HYSTERESE_PX / scale);
+  if (exactWinner) return exactWinner;
 
   // 5. Fall back to annotation edge snap
   const edgeResult = nearestPointOnEdge(cursorX, cursorY, annotations, currentPage, snapRadius, excludeId);
@@ -937,38 +1009,15 @@ export function performSnap(cursorX, cursorY, annotations, currentPage, scale, e
     if (pdfEdgeResult) return pdfEdgeResult;
   }
 
-  // 7. Intersection snap (where edges from different annotations cross)
-  if (prefs.snapToIntersections !== false) {
-    const intersectionResult = findIntersectionSnap(cursorX, cursorY, annotations, currentPage, snapRadius, excludeId);
-    if (intersectionResult) return intersectionResult;
-  }
-
-  // 7b. PDF-content intersection snap (where two vector edges of the underlying
-  // drawing cross). Uses only edges near the cursor (spatial index), so the
-  // pairwise test is over a small local set.
-  if (prefs.snapToIntersections !== false && prefs.snapToPdfContent) {
-    const pdfIntersection = findPdfIntersectionSnap(cursorX, cursorY, currentPage, snapRadius);
-    if (pdfIntersection) return pdfIntersection;
-  }
-
-  // 8. Perpendicular snap (point on edge perpendicular from last placed point)
-  if (prefs.snapToPerpendicular && inProgressPoints && inProgressPoints.length > 0) {
-    const lastPt = inProgressPoints[inProgressPoints.length - 1];
-    const perpResult = findPerpendicularSnap(cursorX, cursorY, lastPt, annotations, currentPage, snapRadius, excludeId);
-    if (perpResult) return perpResult;
-  }
-
-  // 9. Tangent snap (from last placed point to circle/ellipse circumference)
-  if (prefs.snapToTangent && inProgressPoints && inProgressPoints.length > 0) {
-    const lastPt = inProgressPoints[inProgressPoints.length - 1];
-    const tanResult = findTangentSnap(cursorX, cursorY, lastPt, annotations, currentPage, snapRadius, excludeId);
-    if (tanResult) return tanResult;
-  }
-
-  // 10. Nearest snap — generic closest point on any segment
+  // 10. Nearest snap — generic closest point on any segment, annotations and
+  // (with "snap to PDF drawing content") the vector segments of the page.
   if (prefs.snapToNearest) {
     const nearestResult = findNearestSnap2(cursorX, cursorY, annotations, currentPage, snapRadius, excludeId);
     if (nearestResult) return nearestResult;
+    if (prefs.snapToPdfContent) {
+      const pdfNearest = nearestPointOnPdfEdge(cursorX, cursorY, currentPage, snapRadius, 'nearest');
+      if (pdfNearest) return pdfNearest;
+    }
   }
 
   // 11. Polar tracking — engages when a draw anchor is active and cursor
@@ -1098,17 +1147,19 @@ function findIntersectionSnap(cursorX, cursorY, annotations, currentPage, snapRa
 // edges of the PDF content cross, near the cursor. Only edges within the snap
 // radius are considered (spatial index), so the O(k^2) pairwise scan runs over
 // a small local candidate set, not the whole page.
-function findPdfIntersectionSnap(cursorX, cursorY, currentPage, snapRadius) {
-  const edges = getPdfEdgeSegmentsNear(currentPage, cursorX, cursorY, snapRadius);
-  if (!edges || edges.length < 2) return null;
+// annSegs: optional annotation segments near the cursor; their crossings with
+// the PDF edges count too (a markup line over a line of the drawing).
+function findPdfIntersectionSnap(cursorX, cursorY, currentPage, snapRadius, annSegs = []) {
+  const edges = getPdfEdgeSegmentsNear(currentPage, cursorX, cursorY, snapRadius) || [];
+  if (edges.length === 0 || edges.length + annSegs.length < 2) return null;
 
   let bestDist = Infinity;
   let bestPoint = null;
 
   for (let i = 0; i < edges.length; i++) {
     const a = edges[i];
-    for (let j = i + 1; j < edges.length; j++) {
-      const b = edges[j];
+    for (let j = i + 1; j < edges.length + annSegs.length; j++) {
+      const b = j < edges.length ? edges[j] : annSegs[j - edges.length];
       const inter = segmentIntersection(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1, b.x2, b.y2);
       if (!inter) continue;
       const dx = cursorX - inter.x;
@@ -1140,36 +1191,108 @@ function segmentIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
   return null;
 }
 
-// Perpendicular snap: find point on an edge where line from lastPoint is perpendicular
+// Kies uit exacte snap-kandidaten (in prioriteitsvolgorde aangeleverd) het
+// punt dat het dichtst bij de cursor ligt; bij (vrijwel) gelijke afstand wint
+// de eerder aangeleverde, hogere soort.
+//
+// Hysterese: lagen twee kandidaten bijna even ver, dan sprong de keuze bij elke
+// pixel muisbeweging heen en weer. De vorige winnaar blijft daarom staan zolang
+// hij nog kandidaat is en hooguit `hysterese` verder ligt dan de nieuwe beste.
+let _vorigeExacteSnap = null;
+const SNAP_HYSTERESE_PX = 3;
+
+/** Vergeet de vorige snap-winnaar (nieuwe tekenhandeling, tests). */
+export function vergeetVorigeSnap() {
+  _vorigeExacteSnap = null;
+}
+
+function kiesDichtstbijzijnde(kandidaten, cursorX, cursorY, hysterese = 0) {
+  let best = null;
+  let bestDist = Infinity;
+  let vorige = null;
+  let vorigeDist = Infinity;
+  const v = _vorigeExacteSnap;
+  for (const k of kandidaten) {
+    const d = Math.hypot(cursorX - k.x, cursorY - k.y);
+    if (d < bestDist - 1e-9) {
+      best = k;
+      bestDist = d;
+    }
+    if (v && k.type === v.type && Math.abs(k.x - v.x) < 1e-6 && Math.abs(k.y - v.y) < 1e-6) {
+      vorige = k;
+      vorigeDist = d;
+    }
+  }
+  if (vorige && vorigeDist <= bestDist + hysterese) best = vorige;
+  _vorigeExacteSnap = best ? { x: best.x, y: best.y, type: best.type } : null;
+  return best;
+}
+
+// Segments of annotations on the page whose bounding box lies within `r` of
+// the cursor (for crossings with the PDF drawing).
+function _annotatieSegmentenNabij(annotations, currentPage, excludeId, cx, cy, r) {
+  const out = [];
+  for (const ann of annotations) {
+    if (ann.page !== currentPage) continue;
+    if (_isExcluded(excludeId, ann)) continue;
+    if (ann.type === 'draw') continue;
+    for (const seg of getEdgeSegments(ann)) {
+      if (cx < Math.min(seg.x1, seg.x2) - r || cx > Math.max(seg.x1, seg.x2) + r) continue;
+      if (cy < Math.min(seg.y1, seg.y2) - r || cy > Math.max(seg.y1, seg.y2) + r) continue;
+      out.push(seg);
+    }
+  }
+  return out;
+}
+
+// Voetpunt van de loodlijn vanuit `ref` op lijnstuk `seg` ({x1,y1,x2,y2}),
+// of null als dat voetpunt buiten het lijnstuk valt, het lijnstuk ontaard is
+// of `ref` er zelf op ligt (dan is er geen loodlijn te trekken).
+export function loodlijnVoetpunt(ref, seg) {
+  const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq < 1e-10) return null;
+  const t = ((ref.x - seg.x1) * dx + (ref.y - seg.y1) * dy) / lenSq;
+  if (t < -1e-9 || t > 1 + 1e-9) return null;
+  const tc = Math.max(0, Math.min(1, t));
+  const x = seg.x1 + tc * dx;
+  const y = seg.y1 + tc * dy;
+  if (Math.hypot(ref.x - x, ref.y - y) < 1e-6) return null;
+  return { x, y };
+}
+
+// Perpendicular snap: the point on an edge where the line from lastPoint is
+// perpendicular to that edge. Edges: annotation outlines and, with "snap to
+// PDF drawing content" on, the vector segments of the page (lines, polyline
+// and path segments, already through the CTM and page rotation into
+// annotation space; see pdf-snap-extractor.js). A foot within the snap
+// radius of the cursor lies on an edge within that radius, so the edges near
+// the cursor (spatial index) are all candidates.
 function findPerpendicularSnap(cursorX, cursorY, lastPoint, annotations, currentPage, snapRadius, excludeId) {
+  const prefs = state.preferences;
   let bestDist = Infinity;
   let bestPoint = null;
+
+  const probeer = (seg) => {
+    const voet = loodlijnVoetpunt(lastPoint, seg);
+    if (!voet) return;
+    const dist = Math.hypot(cursorX - voet.x, cursorY - voet.y);
+    if (dist < bestDist && dist <= snapRadius) {
+      bestDist = dist;
+      bestPoint = { x: voet.x, y: voet.y, type: 'perpendicular', snapped: true };
+    }
+  };
 
   for (const ann of annotations) {
     if (ann.page !== currentPage) continue;
     if (_isExcluded(excludeId, ann)) continue;
     if (ann.type === 'draw') continue;
+    for (const seg of getEdgeSegments(ann)) probeer(seg);
+  }
 
-    const segs = getEdgeSegments(ann);
-    for (const seg of segs) {
-      const dx = seg.x2 - seg.x1, dy = seg.y2 - seg.y1;
-      const lenSq = dx * dx + dy * dy;
-      if (lenSq < 1e-10) continue;
-
-      const t = ((lastPoint.x - seg.x1) * dx + (lastPoint.y - seg.y1) * dy) / lenSq;
-      if (t < 0 || t > 1) continue;
-
-      const footX = seg.x1 + t * dx;
-      const footY = seg.y1 + t * dy;
-
-      const cdx = cursorX - footX;
-      const cdy = cursorY - footY;
-      const dist = Math.sqrt(cdx * cdx + cdy * cdy);
-      if (dist < bestDist && dist <= snapRadius) {
-        bestDist = dist;
-        bestPoint = { x: footX, y: footY, type: 'perpendicular', snapped: true };
-      }
-    }
+  if (prefs.snapToPdfContent) {
+    const pdfEdges = getPdfEdgeSegmentsNear(currentPage, cursorX, cursorY, snapRadius);
+    if (pdfEdges) for (const seg of pdfEdges) probeer(seg);
   }
 
   return bestPoint;

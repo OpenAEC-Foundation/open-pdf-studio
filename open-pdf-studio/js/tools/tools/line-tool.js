@@ -59,10 +59,12 @@ export const lineTool = {
         endX = ep.x;
         endY = ep.y;
       } else {
-        const rawX = ctx.x, rawY = ctx.y;
-        const endSnap = ctx.snap(rawX, rawY);
-        endX = endSnap.snapped ? endSnap.x : ctx.snapToGrid(rawX);
-        endY = endSnap.snapped ? endSnap.y : ctx.snapToGrid(rawY);
+        // Zelfde berekening als de voorvertoning (snap, anders Shift): het
+        // tweede punt komt precies waar de voorvertoning het toonde. Eerder
+        // negeerde de klik Shift en lag het eindpunt dan op de ruwe cursor.
+        const ep = _eindpuntVoorCursor(ctx, e, ctx.x, ctx.y);
+        endX = ep.x;
+        endY = ep.y;
       }
 
       _commitLineAt(ctx, e, endX, endY);
@@ -84,25 +86,13 @@ export const lineTool = {
     state.startX = _lineState.startX;
     state.startY = _lineState.startY;
 
-    // Snap cursor position for preview
-    const snap = ctx.snap(x, y);
-    let previewX = snap.snapped ? snap.x : x;
-    let previewY = snap.snapped ? snap.y : y;
-    state.lastSnapResult = snap.snapped ? snap : null;
-
-    // Shift = angle snap (straighten). Applied to the preview AND remembered
-    // as the type-length direction so a typed measurement commits along the
-    // straightened direction — not along the raw diagonal cursor.
-    const prefs = state.preferences;
-    if (!snap.snapped && e.shiftKey && prefs.enableAngleSnap && ctx.snapAngle) {
-      const dx = previewX - _lineState.startX;
-      const dy = previewY - _lineState.startY;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-      const snappedA = ctx.snapAngle(angle, prefs.angleSnapDegrees) * (Math.PI / 180);
-      previewX = _lineState.startX + len * Math.cos(snappedA);
-      previewY = _lineState.startY + len * Math.sin(snappedA);
-    }
+    // Snap cursor position for preview; Shift straightens when nothing
+    // snaps. Remembered as the type-length direction so a typed measurement
+    // commits along the previewed direction — not along the raw cursor.
+    const ep = _eindpuntVoorCursor(ctx, e, x, y);
+    let previewX = ep.x;
+    let previewY = ep.y;
+    state.lastSnapResult = ep.snap.snapped ? ep.snap : null;
 
     // Direction lock while typing: the FIRST buffered character freezes the
     // current (possibly Shift-straightened) direction; as long as the buffer
@@ -244,6 +234,33 @@ function _commitLineAt(ctx, e, endX, endY) {
 
   // Auto-reset to select tool
   import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
+}
+
+// Eindpunt van het lijnstuk in aanbouw voor cursor (x, y), voor voorvertoning
+// en klik allebei:
+// - object-snap op andere lijnen (PDF-tekening en markeringen): eindpunt,
+//   midden, snijpunt, loodrecht vanaf het eigen beginpunt, rand/dichtstbij;
+//   het eigen beginpunt is geen doel (dat gaf een lijn van lengte nul);
+// - snapt er niets, dan zet Shift de lijn op de hoekstap.
+// Regel, gelijk aan de meetgereedschappen: een object-snap wint van Shift.
+// Wie met Shift een rechte lijn wil, ziet dat aan de snapmarkering; het
+// eindpunt ligt altijd waar die markering staat.
+function _eindpuntVoorCursor(ctx, e, x, y) {
+  const start = { x: _lineState.startX, y: _lineState.startY };
+  const snap = ctx.snap(x, y, null, null, { loodlijnVanaf: start, vermijdPunt: start });
+  let px = snap.snapped ? snap.x : x;
+  let py = snap.snapped ? snap.y : y;
+  const prefs = state.preferences;
+  if (!snap.snapped && e?.shiftKey && prefs.enableAngleSnap && ctx.snapAngle) {
+    const dx = px - start.x;
+    const dy = py - start.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    const snappedA = ctx.snapAngle(angle, prefs.angleSnapDegrees) * (Math.PI / 180);
+    px = start.x + len * Math.cos(snappedA);
+    py = start.y + len * Math.sin(snappedA);
+  }
+  return { x: px, y: py, snap };
 }
 
 function _drawHoverSnap(ctx, x, y) {
