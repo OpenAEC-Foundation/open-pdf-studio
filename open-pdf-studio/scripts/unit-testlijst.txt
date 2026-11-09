@@ -801,3 +801,5 @@ js/core/vloeiend-scrollen.test.mjs
 js/annotations/plaatsingspagina.test.mjs
 js/pdf/bestand-openen.test.mjs
 js/annotations/segment-ops-lagen.test.mjs
+js/quantities/takeoff-tags.test.mjs
+js/quantities/takeoff-tags-wiring.test.mjs

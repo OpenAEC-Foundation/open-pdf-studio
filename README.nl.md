@@ -98,7 +98,7 @@ De volledige lijst staat in [docs/features.md](docs/features.md) (Engels).
 | **IFCX** (IFC5-JSON) | Nee | Ja, bèta ([docs/ifcx-export.md](docs/ifcx-export.md)) |
 | **PNG, JPEG** | Als afbeelding op een pagina | Pagina's, op 72 tot 600 DPI |
 | **DOCX, ODT, XLSX** | Nee | Tekst en tabellen |
-| **CSV** | Nee | Hoeveelhedenstaat |
+| **CSV** | Bewerkte kenmerken van een opgeslagen staat (label, IFC-categorie, locatie, telcategorie) | Hoeveelhedenstaat, met een ID-kolom per markering |
 
 Wat er verloren gaat: XFDF en BCF bevatten alleen markeringen, niet de inhoud van de pagina. Een platgemaakte kopie laat de waarden van formuliervelden weg. DOCX, ODT en XLSX krijgen de tekst en tabellen; een ingewikkelde opmaak moet je soms nalopen. PDF/X laat standaardlettertypen die niet zijn ingebed zoals ze zijn. Wat IFCX meeneemt en verliest, staat in [docs/ifcx-export.md](docs/ifcx-export.md).
 

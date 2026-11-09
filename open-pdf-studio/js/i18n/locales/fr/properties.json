@@ -501,7 +501,18 @@
     },
     "preview": "Aperçu",
     "exportCsv": "Exporter en CSV",
-    "workbookBindings": "Liaisons avec un tableur"
+    "workbookBindings": "Liaisons avec un tableur",
+    "importTags": "Importer les attributs depuis un CSV",
+    "importTagsTitle": "Importer les attributs",
+    "importTagsDone": "Attributs mis à jour sur {{count}} annotations.",
+    "importTagsNone": "Aucun attribut modifié : le fichier correspond au dessin.",
+    "importTagsNotFound": "{{count}} lignes renvoient à des annotations qui ne sont plus dans ce document.",
+    "importTagsLocked": "{{count}} annotations sont verrouillées et n'ont pas été modifiées.",
+    "importTagsUnknownCount": "Catégories de comptage inconnues (non appliquées) : {{names}}",
+    "importTagsNoId": "Ce fichier n'a pas de colonne ID. Exportez d'abord le métré en CSV, modifiez-le et importez ce fichier.",
+    "importTagsNoColumns": "Le fichier n'a aucune colonne d'attribut que ce métré peut reprendre (Libellé, catégorie IFC, Emplacement, Catégorie de comptage).",
+    "importTagsEmpty": "Le fichier est vide.",
+    "importTagsRead": "Le fichier n'a pas pu être lu."
   },
   "wizard": {
     "title": "Assistant de nomenclature",

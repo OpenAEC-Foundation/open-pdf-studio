@@ -114,6 +114,9 @@ app and are not available in the [browser version](https://open-pdf-studio.open-
   grouping, sorting, filtering, subtotals and grand totals.
 - Configurable columns, formatting and table appearance.
 - Place the schedule back on the page as a table, or export it as CSV or PDF.
+- Round trip of tags: a saved schedule exports with an ID column; edit the
+  label, IFC category, location or count category in a spreadsheet and import
+  the CSV to update the markups (one undo step).
 
 ## Screenshot and cropping
 

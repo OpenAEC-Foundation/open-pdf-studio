@@ -501,7 +501,18 @@
     },
     "preview": "Voorbeeld",
     "exportCsv": "CSV exporteren",
-    "workbookBindings": "Spreadsheetkoppelingen"
+    "workbookBindings": "Spreadsheetkoppelingen",
+    "importTags": "Kenmerken importeren uit CSV",
+    "importTagsTitle": "Kenmerken importeren",
+    "importTagsDone": "Kenmerken bijgewerkt op {{count}} markeringen.",
+    "importTagsNone": "Geen kenmerken gewijzigd: het bestand komt overeen met de tekening.",
+    "importTagsNotFound": "{{count}} regels verwijzen naar markeringen die niet meer in dit document staan.",
+    "importTagsLocked": "{{count}} markeringen zijn vergrendeld en niet gewijzigd.",
+    "importTagsUnknownCount": "Onbekende telcategorieën (niet toegepast): {{names}}",
+    "importTagsNoId": "Dit bestand heeft geen ID-kolom. Exporteer de staat eerst als CSV, bewerk die en importeer dat bestand.",
+    "importTagsNoColumns": "Het bestand heeft geen kenmerkkolom die deze staat terug kan nemen (Label, IFC-categorie, Locatie, Telcategorie).",
+    "importTagsEmpty": "Het bestand is leeg.",
+    "importTagsRead": "Het bestand kon niet gelezen worden."
   },
   "wizard": {
     "title": "Staten-wizard",

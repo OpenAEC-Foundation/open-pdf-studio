@@ -14,6 +14,13 @@ import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
 import { getTemplate } from '../../symbols/registry.js';
 import { STANDARD_SCHEDULE_TEMPLATES, getTemplateById } from '../../quantities/schedule-templates.js';
+import { planTagChanges, applyTagChange } from '../../quantities/takeoff-tags.js';
+import { collectZones, locationFor } from '../../annotations/spatial-zones.js';
+import { isLayerLocked } from '../../annotations/annotatie-lagen.js';
+import { getAnnotationBounds } from '../../core/state.js';
+import { cloneAnnotation } from '../../annotations/factory.js';
+import { recordBulkModify } from '../../core/undo-manager.js';
+import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 
 function countCatName(categoryId) {
   const t = countTallies().find(c => c.id === categoryId);
@@ -112,6 +119,47 @@ export function buildResultForSchedule(schedule) {
   // vergelijkt hem); de documentschaal is een aparte invoer.
   return buildSchedule(collectElements(schedule.config?.categories), schedule.config,
     { documentUnit: documentEenheid(getActiveDocument()) });
+}
+
+/**
+ * Kenmerken uit een bewerkte staat-CSV terugzetten op de annotaties van het
+ * actieve document (#629), als één stap die ongedaan te maken is.
+ * @param {{id: string, fields: object}[]} updates  uit readTagUpdates
+ * @returns {null | {changed: number, notFound: number, locked: number, unknownCountCategories: string[]}}
+ */
+export function applyScheduleTagUpdates(updates) {
+  const doc = getActiveDocument();
+  if (!doc) return null;
+  const anns = doc.annotations || [];
+  let zones = null;
+  const plan = planTagChanges(anns, updates, {
+    location: (ann) => {
+      zones ??= collectZones(anns);
+      return locationFor(ann, zones, getAnnotationBounds(ann))?.path || '';
+    },
+    countCategoryName: (id) => countCatName(id),
+    countCategoryId: (naam) => {
+      const t = countTallies().find(c => c.name === naam || c.id === naam);
+      return t ? t.id : null;
+    },
+    isEditable: (ann) => !ann.locked && !ann.readOnly && !isLayerLocked(doc, ann),
+  });
+  if (plan.changes.length) {
+    const originals = plan.changes.map(c => cloneAnnotation(c.ann));
+    const nu = new Date().toISOString();
+    for (const c of plan.changes) {
+      applyTagChange(c.ann, c.set);
+      c.ann.modifiedAt = nu;
+    }
+    recordBulkModify(plan.changes.map(c => c.ann), originals);
+    if (doc.viewMode === 'continuous') redrawContinuous(); else redrawAnnotations();
+  }
+  return {
+    changed: plan.changes.length,
+    notFound: plan.notFound.length,
+    locked: plan.locked.length,
+    unknownCountCategories: plan.unknownCountCategories,
+  };
 }
 
 export { schedules, setSchedules, STANDARD_SCHEDULE_TEMPLATES };

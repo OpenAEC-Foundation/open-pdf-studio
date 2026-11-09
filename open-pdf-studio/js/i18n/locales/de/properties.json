@@ -501,7 +501,18 @@
     },
     "preview": "Vorschau",
     "exportCsv": "CSV exportieren",
-    "workbookBindings": "Tabellenverknüpfungen"
+    "workbookBindings": "Tabellenverknüpfungen",
+    "importTags": "Merkmale aus CSV importieren",
+    "importTagsTitle": "Merkmale importieren",
+    "importTagsDone": "Merkmale bei {{count}} Markierungen aktualisiert.",
+    "importTagsNone": "Keine Merkmale geändert: Die Datei entspricht der Zeichnung.",
+    "importTagsNotFound": "{{count}} Zeilen verweisen auf Markierungen, die nicht mehr in diesem Dokument sind.",
+    "importTagsLocked": "{{count}} Markierungen sind gesperrt und wurden nicht geändert.",
+    "importTagsUnknownCount": "Unbekannte Zählkategorien (nicht angewendet): {{names}}",
+    "importTagsNoId": "Diese Datei hat keine ID-Spalte. Exportieren Sie die Aufstellung zuerst als CSV, bearbeiten Sie sie und importieren Sie diese Datei.",
+    "importTagsNoColumns": "Die Datei hat keine Merkmalspalte, die diese Aufstellung übernehmen kann (Label, IFC-Kategorie, Ort, Zählkategorie).",
+    "importTagsEmpty": "Die Datei ist leer.",
+    "importTagsRead": "Die Datei konnte nicht gelesen werden."
   },
   "wizard": {
     "title": "Listen-Assistent",

@@ -98,7 +98,7 @@ The full list is in [docs/features.md](docs/features.md).
 | **IFCX** (IFC5 JSON) | No | Yes, beta ([docs/ifcx-export.md](docs/ifcx-export.md)) |
 | **PNG, JPEG** | As an image on a page | Pages, at 72 to 600 DPI |
 | **DOCX, ODT, XLSX** | No | Text and tables |
-| **CSV** | No | Quantities schedule |
+| **CSV** | Edited tags of a saved quantities schedule (label, IFC category, location, count category) | Quantities schedule, with an ID column per markup |
 
 What does not survive: XFDF and BCF carry annotations only, not the page content. A flattened copy leaves out form field values. DOCX, ODT and XLSX get the text and tables, and complex layouts may need correction. PDF/X keeps standard fonts that are not embedded as they are. What IFCX keeps and loses is listed in [docs/ifcx-export.md](docs/ifcx-export.md).
 
