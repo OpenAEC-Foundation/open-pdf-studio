@@ -1791,14 +1791,154 @@
       "cancelled": "Geannuleerd",
       "superseded": "Vervangen",
       "waiting": "Wachtend",
-      "invalid": "Ongeldige audit"
+      "invalid": "Ongeldige audit",
+      "pending": "In afwachting",
+      "signed": "Ondertekend (gemeld)"
     },
     "events": {
       "submit": "Vrijgegeven",
       "receipt": "Ontvangst geregistreerd",
       "cancel": "Geannuleerd",
       "supersede": "Vervangen",
-      "expire": "Verlopen"
+      "expire": "Verlopen",
+      "create": "Voorbereid",
+      "dispatch": "Overgedragen aan provider"
+    },
+    "tabs": {
+      "prepare": "Voorbereiden",
+      "status": "Status en geschiedenis",
+      "receive": "Ontvangstbewijs"
+    },
+    "distinctionTypes": "Drie verschillende dingen: een getekende handtekening is een afbeelding op een pagina; een elektronische goedkeuring is hier een beslissing die een ontvanger meldt en die u vastlegt; een certificaathandtekening (Digitaal ondertekenen) is cryptografisch en wordt gecontroleerd in het handtekeningenpaneel. Deze werkstroom volgt aanvragen, beslissingen en teruggekomen kopieën. Hij maakt of controleert geen certificaathandtekeningen, verifieert geen identiteiten en claimt geen juridische geldigheid.",
+    "intro": "Bereid een aanvraag voor van de huidige opgeslagen versie van dit document. Voorbereiden verstuurt en uploadt niets; de aanvraag gaat pas weg als u hem verstuurt nadat u het exacte uitgaande verzoek hebt bekeken. Aanvragen en hun geschiedenis worden bij het document bewaard als u het opslaat.",
+    "providersTitle": "Providers (expliciet ingeschakeld)",
+    "providerConfigure": {
+      "mail-v1": "Mailprogramma: een concept met de PDF als bijlage openen; u verstuurt het zelf",
+      "local-file-v1": "Lokale bestandsoverdracht: een pakket opslaan dat u zelf doorgeeft"
+    },
+    "provider": "Provider",
+    "providers": {
+      "mail-v1": "Mailprogramma (concept)",
+      "local-file-v1": "Lokale bestandsoverdracht"
+    },
+    "message": "Bericht aan de ontvangers",
+    "recipientsTitle": "Ontvangers",
+    "role": "Rol",
+    "roles": {
+      "review": "Beoordelen",
+      "approve": "Goedkeuren",
+      "sign": "Ondertekenen"
+    },
+    "fieldsHelp2": "Optionele velden per ontvanger in punten op de weergegeven pagina: controlegebieden voor iedereen, handtekening- en parafeervakken voor ondertekenaars. Het zijn aanwijzingen in de aanvraag; de PDF-inhoud verandert niet.",
+    "fieldKind": "Soort veld",
+    "kinds": {
+      "review": "Controlegebied",
+      "signature": "Handtekeningvak",
+      "initials": "Parafeervak"
+    },
+    "prepare": "Aanvraag voorbereiden (verstuurt niets)",
+    "prepared": "Aanvraag voorbereid. Er is niets verstuurd. Bekijk hieronder het uitgaande verzoek.",
+    "containsApprovalData": "Deze opgeslagen PDF bevat al de goedkeuringsgeschiedenis van eerdere aanvragen (namen, e-mailadressen, beslissingen). Hij gaat precies zo weg als hij is opgeslagen.",
+    "enableProviderFirst": "Schakel deze provider eerst in.",
+    "refresh": "Vernieuwen",
+    "noRequests": "Dit document heeft nog geen goedkeuringsaanvragen.",
+    "documentVersion": "Documentversie",
+    "status": "Status",
+    "where": {
+      "document": "bewaard bij het document",
+      "app": "bewaard in de app-instellingen (oudere aanvraag)"
+    },
+    "delivery": {
+      "mail-draft-handoff": "overgedragen aan uw mailprogramma; verzenden en aflevering worden niet gevolgd",
+      "manual-file-handoff": "handmatige bestandsoverdracht; aflevering wordt niet gevolgd"
+    },
+    "dispatched": "Verstuurd",
+    "decidedAt": "Beslist",
+    "outgoing": "Uitgaand verzoek",
+    "previewOutgoing": "Uitgaand verzoek bekijken",
+    "to": "Aan",
+    "subject": "Onderwerp",
+    "body": "Bericht",
+    "attachment": "Bijlage",
+    "attachmentFromCopy": "de laatst teruggekomen kopie, zodat handtekeningen zich opstapelen",
+    "sourceUnavailable": "De exacte te versturen versie is niet meer op deze computer beschikbaar. Open precies die versie, of annuleer deze aanvraag en bereid een nieuwe voor.",
+    "reviewedOutgoing": "Ik heb dit exacte uitgaande verzoek bekeken",
+    "submitVia": {
+      "mail-v1": "Versturen: mailconcept openen",
+      "local-file-v1": "Versturen: overdrachtspakket opslaan"
+    },
+    "submitted": {
+      "mail-v1": "Het mailconcept is aan uw mailprogramma overgedragen. Controleer en verstuur het daar.",
+      "local-file-v1": "Het overdrachtspakket is opgeslagen. Geef het zelf aan de ontvangers door."
+    },
+    "decisionTitle": "Gemelde beslissing vastleggen",
+    "decisionHelp": "Leg vast wat een ontvanger antwoordde (bijvoorbeeld als antwoord op de mail), eventueel met de teruggestuurde PDF. Een handtekening vraagt de teruggekomen kopie. Die wordt op hash aan de verzonden versie gekoppeld en als bijlage van dit document bewaard.",
+    "decision": "Beslissing",
+    "returnedCopy": "Teruggekomen kopie (PDF)",
+    "match": {
+      "exact": "Dezelfde bytes als de verzonden versie",
+      "incremental": "De verzonden versie met een incrementele toevoeging (bijvoorbeeld een certificaathandtekening)",
+      "reference": "Past alleen op de verwijzing in de bestandsnaam bij deze aanvraag; de inhoud is niet te controleren",
+      "none": "Past niet bij deze aanvraag"
+    },
+    "evidence": {
+      "reply": "gemeld antwoord",
+      "receipt-file": "ontvangstbewijs"
+    },
+    "confirmReference": "Een kopie accepteren die alleen op de verwijzing past",
+    "recordDecision": "Beslissing vastleggen",
+    "decisionRecorded": "Beslissing vastgelegd.",
+    "keptAs": "Beslissing vastgelegd; de teruggekomen kopie is bewaard als bijlage \"{{name}}\".",
+    "unsavedNote": "Statussen, geschiedenis en bewaarde kopieën komen in het document als u het opslaat.",
+    "manage": "Beheren",
+    "exportAudit": "Auditpakket exporteren (ZIP)",
+    "exported": "Auditpakket opgeslagen: {{path}}",
+    "exportedWithoutPdf": "Auditpakket opgeslagen zonder de verzonden PDF (niet op deze computer beschikbaar): {{path}}",
+    "history": "Geschiedenis",
+    "when": "Wanneer",
+    "what": "Wat",
+    "who": "Wie",
+    "details": "Details",
+    "documentHash": "Documenthash",
+    "supersededByChange": "Het document is na het voorbereiden van deze aanvraag gewijzigd en opgeslagen",
+    "keptTitle": "Teruggekomen kopieën bij dit document",
+    "keptDescription": "Teruggekomen kopie voor {{ref}}, SHA-256 {{hash}}",
+    "packageNote": "Overdrachtspakket als bestand: de exacte PDF, de aanvraag en het auditrecord. U geeft het zelf aan de ontvangers door.",
+    "packageReadme": "Goedkeuringspakket voor lokale bestandsoverdracht. Deze app heeft geen document verstuurd. Geef dit pakket zelf aan de volgende ontvanger(s). De PDF is exact de bekeken bron, geen digitaal ondertekende afgeleide. Identiteiten in ontvangstbewijzen zijn zelf gemeld. De hashketen controleert de onderlinge consistentie, niet de identiteit van de afzender, de aflevering of juridische geldigheid. Houd request.json en de PDF bij elkaar. Teruggekomen kopieën (indien aanwezig) staan in de map returned/.",
+    "mail": {
+      "intro": "U wordt gevraagd het bijgevoegde document te behandelen:",
+      "document": "Document",
+      "pages": "pagina's: {{count}}",
+      "attachment": "Bijlage",
+      "due": "Reageren vóór",
+      "reference": "Verwijzing",
+      "routing": "Volgorde",
+      "howToRespond": "Beantwoord deze mail met \"Goedgekeurd\" of \"Afgewezen\" en laat {{ref}} in het onderwerp staan.",
+      "howToSign": "Ondertekenaars: stuur de ondertekende PDF terug en laat {{ref}} in de bestandsnaam staan.",
+      "disclaimer": "De SHA-256 hierboven identificeert de exacte documentversie. Deze mail is voorbereid in Open PDF Studio; dit is geen juridisch bindende ondertekendienst en identiteiten worden niet geverifieerd."
+    },
+    "errors": {
+      "CONFIGURE_ADAPTER_FIRST": "Schakel de provider eerst in.",
+      "OPEN_SAVED_SOURCE": "Sla het document eerst op (geen niet-opgeslagen wijzigingen, geen niet-toegepaste paginadraaiing).",
+      "SOURCE_CHANGED": "Het document veranderde tijdens het voorbereiden. Probeer het opnieuw.",
+      "OPEN_EXACT_DOCUMENT_VERSION": "De exacte te versturen versie is niet op deze computer beschikbaar.",
+      "CONFIRM_EXACT_VERSION": "Bekijk het uitgaande verzoek opnieuw voordat u verstuurt.",
+      "COPY_DOES_NOT_MATCH": "Dit bestand past niet bij de verzonden versie of de verwijzing van de aanvraag.",
+      "CONFIRM_REFERENCE_MATCH": "Deze kopie past alleen op de verwijzing; bevestig dat u hem accepteert.",
+      "WAITING_FOR_PREVIOUS_RECIPIENT": "Bij opeenvolgend beslist eerst de vorige ontvanger.",
+      "REQUEST_CLOSED": "Deze aanvraag is afgesloten.",
+      "REQUEST_EXPIRED": "Deze aanvraag is verlopen.",
+      "NOTHING_TO_SEND": "Er wacht niemand op deze aanvraag.",
+      "INVALID_REQUEST": "Vul een titel in.",
+      "INVALID_RECIPIENT": "Elke ontvanger heeft een naam, een uniek geldig e-mailadres en een rol nodig.",
+      "INVALID_RECIPIENTS": "Voeg minstens één ontvanger toe.",
+      "INVALID_FIELD": "Een veld is ongeldig; handtekening- en parafeervakken horen bij ondertekenaars.",
+      "FIELD_OUTSIDE_PAGE": "Een veld ligt buiten zijn pagina.",
+      "INVALID_EXPIRY": "De vervaldatum moet in de toekomst liggen.",
+      "INVALID_RECEIPT": "Deze beslissing past niet bij de rol van de ontvanger (een handtekening vraagt de teruggekomen kopie).",
+      "DUPLICATE_RECEIPT": "Voor deze ontvanger is al een beslissing vastgelegd.",
+      "CANCELLED": "Geannuleerd.",
+      "SIZE_LIMIT": "Het bestand is te groot."
     }
   },
   "scaleCheck": {
