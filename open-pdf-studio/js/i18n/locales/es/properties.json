@@ -885,7 +885,9 @@
     "errorFileTooLarge": "El archivo es demasiado grande para un conjunto de herramientas.",
     "errorFileInvalid": "Este archivo no es un conjunto de herramientas válido.",
     "errorFileNewer": "Este conjunto de herramientas se creó con una versión más reciente de Open PDF Studio. Actualice la aplicación para importarlo.",
-    "damagedStatus": "No se pudieron leer los conjuntos de herramientas guardados. El archivo dañado se conservó como «{{name}}»."
+    "damagedStatus": "No se pudieron leer los conjuntos de herramientas guardados. El archivo dañado se conservó como «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Файлът е твърде голям за набор инструменти.",
     "errorFileInvalid": "Този файл не е валиден набор инструменти.",
     "errorFileNewer": "Този набор е създаден с по-нова версия на Open PDF Studio. Обновете приложението, за да го импортирате.",
-    "damagedStatus": "Запазените набори инструменти не можаха да бъдат прочетени. Повреденият файл е запазен като „{{name}}“."
+    "damagedStatus": "Запазените набори инструменти не можаха да бъдат прочетени. Повреденият файл е запазен като „{{name}}“.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

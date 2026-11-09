@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Tiedosto on liian suuri työkalusarjaksi.",
     "errorFileInvalid": "Tämä tiedosto ei ole kelvollinen työkalusarja.",
     "errorFileNewer": "Tämä työkalusarja on tehty Open PDF Studion uudemmalla versiolla. Päivitä sovellus tuodaksesi sen.",
-    "damagedStatus": "Tallennettuja työkalusarjoja ei voitu lukea. Vioittunut tiedosto säilytettiin nimellä \"{{name}}\"."
+    "damagedStatus": "Tallennettuja työkalusarjoja ei voitu lukea. Vioittunut tiedosto säilytettiin nimellä \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

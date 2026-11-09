@@ -885,7 +885,9 @@
     "errorFileTooLarge": "টুল সেটের জন্য ফাইলটি খুব বড়।",
     "errorFileInvalid": "এই ফাইলটি বৈধ টুল সেট নয়।",
     "errorFileNewer": "এই টুল সেটটি Open PDF Studio-এর নতুন সংস্করণে তৈরি। আমদানি করতে অ্যাপ আপডেট করুন।",
-    "damagedStatus": "সংরক্ষিত টুল সেট পড়া যায়নি। ক্ষতিগ্রস্ত ফাইলটি \"{{name}}\" নামে রাখা হয়েছে।"
+    "damagedStatus": "সংরক্ষিত টুল সেট পড়া যায়নি। ক্ষতিগ্রস্ত ফাইলটি \"{{name}}\" নামে রাখা হয়েছে।",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

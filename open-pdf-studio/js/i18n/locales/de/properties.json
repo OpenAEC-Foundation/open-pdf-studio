@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Die Datei ist zu groß für einen Werkzeugsatz.",
     "errorFileInvalid": "Diese Datei ist kein gültiger Werkzeugsatz.",
     "errorFileNewer": "Dieser Werkzeugsatz wurde mit einer neueren Version von Open PDF Studio erstellt. Aktualisieren Sie die App, um ihn zu importieren.",
-    "damagedStatus": "Die gespeicherten Werkzeugsätze konnten nicht gelesen werden. Die beschädigte Datei wurde als „{{name}}“ aufbewahrt."
+    "damagedStatus": "Die gespeicherten Werkzeugsätze konnten nicht gelesen werden. Die beschädigte Datei wurde als „{{name}}“ aufbewahrt.",
+    "errorXfdfInvalid": "Diese Datei ist keine lesbare XFDF-Datei.",
+    "errorXfdfNoTools": "Die XFDF-Datei enthält keine Markierungen, die zu Werkzeugen werden können (Linien, Pfeile, Rechtecke, Ellipsen, Polygone, Polylinien, Wolken oder Messungen)."
   },
   "styleTypeNames": {
     "filledArea": {

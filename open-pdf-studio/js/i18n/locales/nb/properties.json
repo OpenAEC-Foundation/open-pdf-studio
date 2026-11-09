@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Filen er for stor for et verktøysett.",
     "errorFileInvalid": "Denne filen er ikke et gyldig verktøysett.",
     "errorFileNewer": "Dette verktøysettet ble laget med en nyere versjon av Open PDF Studio. Oppdater appen for å importere det.",
-    "damagedStatus": "De lagrede verktøysettene kunne ikke leses. Den skadde filen ble beholdt som «{{name}}»."
+    "damagedStatus": "De lagrede verktøysettene kunne ikke leses. Den skadde filen ble beholdt som «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

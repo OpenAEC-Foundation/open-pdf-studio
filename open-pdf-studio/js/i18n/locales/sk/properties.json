@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Súbor je pre sadu nástrojov príliš veľký.",
     "errorFileInvalid": "Tento súbor nie je platná sada nástrojov.",
     "errorFileNewer": "Táto sada nástrojov bola vytvorená v novšej verzii Open PDF Studio. Na import aktualizujte aplikáciu.",
-    "damagedStatus": "Uložené sady nástrojov sa nepodarilo prečítať. Poškodený súbor bol ponechaný ako „{{name}}“."
+    "damagedStatus": "Uložené sady nástrojov sa nepodarilo prečítať. Poškodený súbor bol ponechaný ako „{{name}}“.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

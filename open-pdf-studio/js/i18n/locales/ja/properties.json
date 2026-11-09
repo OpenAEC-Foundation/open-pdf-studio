@@ -885,7 +885,9 @@
     "errorFileTooLarge": "ツールセットとしてはファイルが大きすぎます。",
     "errorFileInvalid": "このファイルは有効なツールセットではありません。",
     "errorFileNewer": "このツールセットは新しいバージョンの Open PDF Studio で作成されています。インポートするにはアプリを更新してください。",
-    "damagedStatus": "保存されたツールセットを読み込めませんでした。破損したファイルは「{{name}}」として保管されました。"
+    "damagedStatus": "保存されたツールセットを読み込めませんでした。破損したファイルは「{{name}}」として保管されました。",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

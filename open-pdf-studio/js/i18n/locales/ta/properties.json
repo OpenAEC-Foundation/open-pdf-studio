@@ -885,7 +885,9 @@
     "errorFileTooLarge": "கருவித் தொகுப்புக்குக் கோப்பு மிகப் பெரியது.",
     "errorFileInvalid": "இந்தக் கோப்பு சரியான கருவித் தொகுப்பு அல்ல.",
     "errorFileNewer": "இந்தக் கருவித் தொகுப்பு Open PDF Studio இன் புதிய பதிப்பில் உருவாக்கப்பட்டது. இறக்குமதி செய்ய செயலியைப் புதுப்பிக்கவும்.",
-    "damagedStatus": "சேமிக்கப்பட்ட கருவித் தொகுப்புகளைப் படிக்க முடியவில்லை. சேதமடைந்த கோப்பு \"{{name}}\" என வைக்கப்பட்டது."
+    "damagedStatus": "சேமிக்கப்பட்ட கருவித் தொகுப்புகளைப் படிக்க முடியவில்லை. சேதமடைந்த கோப்பு \"{{name}}\" என வைக்கப்பட்டது.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

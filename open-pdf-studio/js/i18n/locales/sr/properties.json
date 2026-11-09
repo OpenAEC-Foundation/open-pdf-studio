@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Датотека је превелика за скуп алата.",
     "errorFileInvalid": "Ова датотека није исправан скуп алата.",
     "errorFileNewer": "Овај скуп алата је направљен новијом верзијом програма Open PDF Studio. Ажурирајте апликацију да бисте га увезли.",
-    "damagedStatus": "Сачувани скупови алата не могу да се прочитају. Оштећена датотека је задржана као „{{name}}”."
+    "damagedStatus": "Сачувани скупови алата не могу да се прочитају. Оштећена датотека је задржана као „{{name}}”.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

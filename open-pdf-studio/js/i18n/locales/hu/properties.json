@@ -885,7 +885,9 @@
     "errorFileTooLarge": "A fájl túl nagy egy eszközkészlethez.",
     "errorFileInvalid": "Ez a fájl nem érvényes eszközkészlet.",
     "errorFileNewer": "Ez az eszközkészlet az Open PDF Studio egy újabb verziójával készült. Az importáláshoz frissítse az alkalmazást.",
-    "damagedStatus": "A mentett eszközkészletek nem olvashatók. A sérült fájl „{{name}}” néven megmaradt."
+    "damagedStatus": "A mentett eszközkészletek nem olvashatók. A sérült fájl „{{name}}” néven megmaradt.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Het bestand is te groot voor een gereedschapsset.",
     "errorFileInvalid": "Dit bestand is geen geldige gereedschapsset.",
     "errorFileNewer": "Deze gereedschapsset is gemaakt met een nieuwere versie van Open PDF Studio. Werk de app bij om hem te importeren.",
-    "damagedStatus": "De opgeslagen werkkist kon niet worden gelezen. Het beschadigde bestand is bewaard als \"{{name}}\"."
+    "damagedStatus": "De opgeslagen werkkist kon niet worden gelezen. Het beschadigde bestand is bewaard als \"{{name}}\".",
+    "errorXfdfInvalid": "Dit bestand is geen leesbaar XFDF-bestand.",
+    "errorXfdfNoTools": "Het XFDF-bestand bevat geen markeringen die gereedschap kunnen worden (lijnen, pijlen, rechthoeken, ellipsen, veelhoeken, polylijnen, wolken of metingen)."
   },
   "styleTypeNames": {
     "filledArea": {

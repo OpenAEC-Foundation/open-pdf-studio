@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Fișierul este prea mare pentru un set de unelte.",
     "errorFileInvalid": "Acest fișier nu este un set de unelte valid.",
     "errorFileNewer": "Acest set de unelte a fost creat cu o versiune mai nouă de Open PDF Studio. Actualizați aplicația pentru a-l importa.",
-    "damagedStatus": "Seturile de unelte salvate nu au putut fi citite. Fișierul deteriorat a fost păstrat ca „{{name}}”."
+    "damagedStatus": "Seturile de unelte salvate nu au putut fi citite. Fișierul deteriorat a fost păstrat ca „{{name}}”.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

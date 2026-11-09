@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Filen är för stor för en verktygsuppsättning.",
     "errorFileInvalid": "Den här filen är inte en giltig verktygsuppsättning.",
     "errorFileNewer": "Den här verktygsuppsättningen skapades med en nyare version av Open PDF Studio. Uppdatera appen för att importera den.",
-    "damagedStatus": "De sparade verktygsuppsättningarna kunde inte läsas. Den skadade filen behölls som \"{{name}}\"."
+    "damagedStatus": "De sparade verktygsuppsättningarna kunde inte läsas. Den skadade filen behölls som \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

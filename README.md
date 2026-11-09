@@ -92,7 +92,7 @@ The full list is in [docs/features.md](docs/features.md).
 | Format | Open / import | Save / export |
 |--------|---------------|---------------|
 | **PDF** | Yes, including forms (AcroForm, XFA) and layers | Yes; PDF/A validation and saving, PDF/X export, raster PDF, flattened copy |
-| **XFDF** | Annotations | Annotations |
+| **XFDF** | Annotations; a tool set from sample markups | Annotations |
 | **BCF 2.1** | Issues as annotations | Annotations as issues |
 | **DWG, DXF** | Yes, as a vector PDF (desktop) | A page with its layers and markups (desktop) |
 | **IFCX** (IFC5 JSON) | No | Yes, beta ([docs/ifcx-export.md](docs/ifcx-export.md)) |

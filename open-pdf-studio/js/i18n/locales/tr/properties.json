@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Dosya bir araç seti için çok büyük.",
     "errorFileInvalid": "Bu dosya geçerli bir araç seti değil.",
     "errorFileNewer": "Bu araç seti Open PDF Studio'nun daha yeni bir sürümüyle oluşturuldu. İçe aktarmak için uygulamayı güncelleyin.",
-    "damagedStatus": "Kaydedilen araç setleri okunamadı. Bozuk dosya \"{{name}}\" olarak saklandı."
+    "damagedStatus": "Kaydedilen araç setleri okunamadı. Bozuk dosya \"{{name}}\" olarak saklandı.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

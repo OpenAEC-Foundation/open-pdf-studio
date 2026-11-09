@@ -885,7 +885,9 @@
     "errorFileTooLarge": "الملف كبير جدًا بالنسبة لمجموعة أدوات.",
     "errorFileInvalid": "هذا الملف ليس مجموعة أدوات صالحة.",
     "errorFileNewer": "أُنشئت مجموعة الأدوات هذه بإصدار أحدث من Open PDF Studio. حدّث التطبيق لاستيرادها.",
-    "damagedStatus": "تعذّرت قراءة مجموعات الأدوات المحفوظة. تم الاحتفاظ بالملف التالف باسم \"{{name}}\"."
+    "damagedStatus": "تعذّرت قراءة مجموعات الأدوات المحفوظة. تم الاحتفاظ بالملف التالف باسم \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

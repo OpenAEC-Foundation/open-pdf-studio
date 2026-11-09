@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Το αρχείο είναι πολύ μεγάλο για σύνολο εργαλείων.",
     "errorFileInvalid": "Αυτό το αρχείο δεν είναι έγκυρο σύνολο εργαλείων.",
     "errorFileNewer": "Αυτό το σύνολο δημιουργήθηκε με νεότερη έκδοση του Open PDF Studio. Ενημερώστε την εφαρμογή για να το εισαγάγετε.",
-    "damagedStatus": "Δεν ήταν δυνατή η ανάγνωση των αποθηκευμένων συνόλων εργαλείων. Το κατεστραμμένο αρχείο διατηρήθηκε ως «{{name}}»."
+    "damagedStatus": "Δεν ήταν δυνατή η ανάγνωση των αποθηκευμένων συνόλων εργαλείων. Το κατεστραμμένο αρχείο διατηρήθηκε ως «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

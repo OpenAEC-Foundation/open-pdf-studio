@@ -885,7 +885,9 @@
     "errorFileTooLarge": "文件太大，不是工具集。",
     "errorFileInvalid": "此文件不是有效的工具集。",
     "errorFileNewer": "此工具集由更新版本的 Open PDF Studio 创建。请更新应用后再导入。",
-    "damagedStatus": "无法读取已保存的工具集。损坏的文件已保留为“{{name}}”。"
+    "damagedStatus": "无法读取已保存的工具集。损坏的文件已保留为“{{name}}”。",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

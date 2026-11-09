@@ -92,7 +92,7 @@ De volledige lijst staat in [docs/features.md](docs/features.md) (Engels).
 | Formaat | Openen / importeren | Opslaan / exporteren |
 |---------|---------------------|----------------------|
 | **PDF** | Ja, ook formulieren (AcroForm, XFA) en lagen | Ja; PDF/A controleren en opslaan, PDF/X-export, raster-PDF, platgemaakte kopie |
-| **XFDF** | Markeringen | Markeringen |
+| **XFDF** | Markeringen; een werkkist uit voorbeeldmarkeringen | Markeringen |
 | **BCF 2.1** | Issues als markeringen | Markeringen als issues |
 | **DWG, DXF** | Ja, als vector-PDF (desktop) | Een pagina met lagen en markeringen (desktop) |
 | **IFCX** (IFC5-JSON) | Nee | Ja, bèta ([docs/ifcx-export.md](docs/ifcx-export.md)) |

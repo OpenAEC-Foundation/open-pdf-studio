@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Tệp quá lớn đối với một bộ công cụ.",
     "errorFileInvalid": "Tệp này không phải là bộ công cụ hợp lệ.",
     "errorFileNewer": "Bộ công cụ này được tạo bằng phiên bản Open PDF Studio mới hơn. Hãy cập nhật ứng dụng để nhập.",
-    "damagedStatus": "Không thể đọc các bộ công cụ đã lưu. Tệp bị hỏng đã được giữ lại với tên \"{{name}}\"."
+    "damagedStatus": "Không thể đọc các bộ công cụ đã lưu. Tệp bị hỏng đã được giữ lại với tên \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

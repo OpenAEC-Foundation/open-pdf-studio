@@ -885,7 +885,9 @@
     "errorFileTooLarge": "הקובץ גדול מדי עבור ערכת כלים.",
     "errorFileInvalid": "קובץ זה אינו ערכת כלים תקינה.",
     "errorFileNewer": "ערכת כלים זו נוצרה בגרסה חדשה יותר של Open PDF Studio. עדכנו את היישום כדי לייבא אותה.",
-    "damagedStatus": "לא ניתן היה לקרוא את ערכות הכלים השמורות. הקובץ הפגום נשמר בשם \"{{name}}\"."
+    "damagedStatus": "לא ניתן היה לקרוא את ערכות הכלים השמורות. הקובץ הפגום נשמר בשם \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

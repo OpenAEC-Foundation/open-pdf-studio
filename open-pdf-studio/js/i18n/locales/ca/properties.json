@@ -891,7 +891,9 @@
     "errorFileTooLarge": "El fitxer és massa gran per a un conjunt d'eines.",
     "errorFileInvalid": "Aquest fitxer no és un conjunt d'eines vàlid.",
     "errorFileNewer": "Aquest conjunt d'eines s'ha creat amb una versió més recent d'Open PDF Studio. Actualitzeu l'aplicació per importar-lo.",
-    "damagedStatus": "No s'han pogut llegir els conjunts d'eines desats. El fitxer malmès s'ha conservat com a «{{name}}»."
+    "damagedStatus": "No s'han pogut llegir els conjunts d'eines desats. El fitxer malmès s'ha conservat com a «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

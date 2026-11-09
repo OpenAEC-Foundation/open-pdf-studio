@@ -885,7 +885,9 @@
     "errorFileTooLarge": "도구 세트로 쓰기에는 파일이 너무 큽니다.",
     "errorFileInvalid": "이 파일은 올바른 도구 세트가 아닙니다.",
     "errorFileNewer": "이 도구 세트는 최신 버전의 Open PDF Studio로 만들어졌습니다. 가져오려면 앱을 업데이트하세요.",
-    "damagedStatus": "저장된 도구 세트를 읽을 수 없습니다. 손상된 파일은 \"{{name}}\"(으)로 보관되었습니다."
+    "damagedStatus": "저장된 도구 세트를 읽을 수 없습니다. 손상된 파일은 \"{{name}}\"(으)로 보관되었습니다.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

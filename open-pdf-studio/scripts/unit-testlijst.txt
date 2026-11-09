@@ -805,3 +805,4 @@ js/quantities/takeoff-tags.test.mjs
 js/quantities/takeoff-tags-wiring.test.mjs
 js/review/status-history.test.mjs
 js/review/status-history-rondgang.test.mjs
+js/annotations/tool-sets-xfdf.test.mjs

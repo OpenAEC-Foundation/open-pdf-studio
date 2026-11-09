@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Fail terlalu besar untuk set alat.",
     "errorFileInvalid": "Fail ini bukan set alat yang sah.",
     "errorFileNewer": "Set alat ini dibuat dengan versi Open PDF Studio yang lebih baharu. Kemas kini aplikasi untuk mengimportnya.",
-    "damagedStatus": "Set alat yang disimpan tidak dapat dibaca. Fail yang rosak disimpan sebagai \"{{name}}\"."
+    "damagedStatus": "Set alat yang disimpan tidak dapat dibaca. Fail yang rosak disimpan sebagai \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

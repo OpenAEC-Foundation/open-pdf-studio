@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Faili ni kubwa mno kwa seti ya zana.",
     "errorFileInvalid": "Faili hii si seti halali ya zana.",
     "errorFileNewer": "Seti hii ya zana iliundwa kwa toleo jipya zaidi la Open PDF Studio. Sasisha programu ili kuileta.",
-    "damagedStatus": "Seti za zana zilizohifadhiwa hazikuweza kusomwa. Faili iliyoharibika imehifadhiwa kama \"{{name}}\"."
+    "damagedStatus": "Seti za zana zilizohifadhiwa hazikuweza kusomwa. Faili iliyoharibika imehifadhiwa kama \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

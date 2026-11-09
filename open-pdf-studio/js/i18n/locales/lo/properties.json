@@ -885,7 +885,9 @@
     "errorFileTooLarge": "ໄຟລ໌ໃຫຍ່ເກີນໄປສຳລັບຊຸດເຄື່ອງມື.",
     "errorFileInvalid": "ໄຟລ໌ນີ້ບໍ່ແມ່ນຊຸດເຄື່ອງມືທີ່ຖືກຕ້ອງ.",
     "errorFileNewer": "ຊຸດເຄື່ອງມືນີ້ສ້າງດ້ວຍ Open PDF Studio ລຸ້ນໃໝ່ກວ່າ. ອັບເດດແອັບເພື່ອນຳເຂົ້າ.",
-    "damagedStatus": "ບໍ່ສາມາດອ່ານຊຸດເຄື່ອງມືທີ່ບັນທຶກໄວ້ໄດ້. ໄຟລ໌ທີ່ເສຍຫາຍຖືກເກັບໄວ້ເປັນ \"{{name}}\"."
+    "damagedStatus": "ບໍ່ສາມາດອ່ານຊຸດເຄື່ອງມືທີ່ບັນທຶກໄວ້ໄດ້. ໄຟລ໌ທີ່ເສຍຫາຍຖືກເກັບໄວ້ເປັນ \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

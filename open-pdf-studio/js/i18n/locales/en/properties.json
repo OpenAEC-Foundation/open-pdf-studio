@@ -885,7 +885,9 @@
     "errorFileTooLarge": "The file is too large for a tool set.",
     "errorFileInvalid": "This file is not a valid tool set.",
     "errorFileNewer": "This tool set was made with a newer version of Open PDF Studio. Update the app to import it.",
-    "damagedStatus": "The saved tool sets could not be read. The damaged file was kept as \"{{name}}\"."
+    "damagedStatus": "The saved tool sets could not be read. The damaged file was kept as \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

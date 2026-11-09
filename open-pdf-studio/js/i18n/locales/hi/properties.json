@@ -885,7 +885,9 @@
     "errorFileTooLarge": "फ़ाइल टूल सेट के लिए बहुत बड़ी है।",
     "errorFileInvalid": "यह फ़ाइल मान्य टूल सेट नहीं है।",
     "errorFileNewer": "यह टूल सेट Open PDF Studio के नए संस्करण से बनाया गया था। आयात करने के लिए ऐप अपडेट करें।",
-    "damagedStatus": "सहेजे गए टूल सेट पढ़े नहीं जा सके। क्षतिग्रस्त फ़ाइल \"{{name}}\" के रूप में रखी गई है।"
+    "damagedStatus": "सहेजे गए टूल सेट पढ़े नहीं जा सके। क्षतिग्रस्त फ़ाइल \"{{name}}\" के रूप में रखी गई है।",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -885,7 +885,9 @@
     "errorFileTooLarge": "فائل ٹول سیٹ کے لیے بہت بڑی ہے۔",
     "errorFileInvalid": "یہ فائل درست ٹول سیٹ نہیں ہے۔",
     "errorFileNewer": "یہ ٹول سیٹ Open PDF Studio کے نئے ورژن سے بنایا گیا تھا۔ درآمد کرنے کے لیے ایپ اپ ڈیٹ کریں۔",
-    "damagedStatus": "محفوظ کردہ ٹول سیٹس پڑھے نہیں جا سکے۔ خراب فائل \"{{name}}\" کے نام سے رکھی گئی ہے۔"
+    "damagedStatus": "محفوظ کردہ ٹول سیٹس پڑھے نہیں جا سکے۔ خراب فائل \"{{name}}\" کے نام سے رکھی گئی ہے۔",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -885,7 +885,9 @@
     "errorFileTooLarge": "Filen er for stor til et værktøjssæt.",
     "errorFileInvalid": "Denne fil er ikke et gyldigt værktøjssæt.",
     "errorFileNewer": "Dette værktøjssæt er lavet med en nyere version af Open PDF Studio. Opdater appen for at importere det.",
-    "damagedStatus": "De gemte værktøjssæt kunne ikke læses. Den beskadigede fil er gemt som \"{{name}}\"."
+    "damagedStatus": "De gemte værktøjssæt kunne ikke læses. Den beskadigede fil er gemt som \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {
