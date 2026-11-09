@@ -377,7 +377,20 @@ pub fn lees_document(pad: &str, sync_wortels: &[String]) -> Result<Vec<u8>, Open
     let mut bestand = open_om_te_lezen(pad).map_err(|e| fout(&e))?;
     let mut data = Vec::new();
     bestand.read_to_end(&mut data).map_err(|e| fout(&e))?;
+    // Deze opdracht leest buiten de fs-scope om; daarom geeft hij alleen
+    // bestanden terug die echt een PDF zijn, zodat hij niet als algemene
+    // leesroute voor willekeurige bestanden te gebruiken is.
+    if !is_pdf_inhoud(&data) {
+        return Err(fout(&io::Error::new(io::ErrorKind::InvalidData, "not a PDF file")));
+    }
     Ok(data)
+}
+
+/// Begint de inhoud met een PDF-kop (`%PDF-`) binnen de eerste 1024 bytes,
+/// zoals PDF-lezers toestaan?
+pub fn is_pdf_inhoud(data: &[u8]) -> bool {
+    let kop = &data[..data.len().min(1024)];
+    kop.windows(5).any(|w| w == b"%PDF-")
 }
 
 /// Vergrendel: open om te lezen, anderen mogen alleen lezen (niet schrijven
@@ -404,6 +417,17 @@ pub fn sync_wortels_uit_omgeving() -> Vec<String> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn alleen_pdf_inhoud_komt_terug() {
+        assert!(super::is_pdf_inhoud(b"%PDF-1.7\n%rest"));
+        assert!(super::is_pdf_inhoud(b"\xEF\xBB\xBFjunk\n%PDF-1.4\n"));
+        assert!(!super::is_pdf_inhoud(b"[user]\nname = x\n"));
+        assert!(!super::is_pdf_inhoud(b""));
+        let mut lang = vec![b' '; 1030];
+        lang.extend_from_slice(b"%PDF-1.7");
+        assert!(!super::is_pdf_inhoud(&lang));
+    }
+
     use super::*;
 
     fn geen() -> Vec<String> { Vec::new() }
