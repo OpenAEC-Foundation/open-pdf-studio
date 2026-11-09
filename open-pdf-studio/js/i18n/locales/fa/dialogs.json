@@ -28,7 +28,9 @@
     "noTitleBlock": "بدون جدول مشخصات",
     "addTitleBlock": "افزودن جدول مشخصات خودتان (PDF)",
     "openTitleBlocksFolder": "باز کردن پوشه جدول‌های مشخصات",
-    "style": "سبک"
+    "style": "سبک",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "عملیات کارهای چاپ",

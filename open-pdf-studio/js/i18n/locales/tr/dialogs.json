@@ -28,7 +28,9 @@
     "noTitleBlock": "Antet yok",
     "addTitleBlock": "Kendi antetinizi ekleyin (PDF)",
     "openTitleBlocksFolder": "Antetler klasörünü aç",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Yazdırma işi eylemleri",

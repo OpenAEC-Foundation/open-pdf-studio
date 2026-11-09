@@ -28,7 +28,9 @@
     "noTitleBlock": "Sem legenda",
     "addTitleBlock": "Adicionar sua própria legenda (PDF)",
     "openTitleBlocksFolder": "Abrir pasta de legendas",
-    "style": "Estilo"
+    "style": "Estilo",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Ações dos trabalhos de impressão",

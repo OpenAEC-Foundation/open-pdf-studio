@@ -28,7 +28,9 @@
     "noTitleBlock": "کوئی ٹائٹل بلاک نہیں",
     "addTitleBlock": "اپنا ٹائٹل بلاک شامل کریں (PDF)",
     "openTitleBlocksFolder": "ٹائٹل بلاکس فولڈر کھولیں",
-    "style": "انداز"
+    "style": "انداز",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "پرنٹ جاب کے اقدامات",

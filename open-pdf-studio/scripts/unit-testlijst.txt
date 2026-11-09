@@ -790,3 +790,4 @@ js/annotations/document-scale-imperiaal.test.mjs
 js/annotations/scale-weergave.test.mjs
 js/annotations/schaal-stelsel.test.mjs
 js/core/voet-inch.test.mjs
+js/core/us-papierformaten.test.mjs

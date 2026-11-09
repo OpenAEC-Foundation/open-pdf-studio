@@ -28,7 +28,9 @@
     "noTitleBlock": "ไม่มีกรอบชื่อแบบ",
     "addTitleBlock": "เพิ่มกรอบชื่อแบบของคุณเอง (PDF)",
     "openTitleBlocksFolder": "เปิดโฟลเดอร์กรอบชื่อแบบ",
-    "style": "สไตล์"
+    "style": "สไตล์",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "การทำงานของงานพิมพ์",

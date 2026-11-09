@@ -28,7 +28,9 @@
     "noTitleBlock": "ללא טבלת כותרת",
     "addTitleBlock": "הוספת טבלת כותרת משלך (PDF)",
     "openTitleBlocksFolder": "פתיחת תיקיית טבלאות הכותרת",
-    "style": "סגנון"
+    "style": "סגנון",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "פעולות על עבודות הדפסה",

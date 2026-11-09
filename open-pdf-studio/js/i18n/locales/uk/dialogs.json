@@ -28,7 +28,9 @@
     "noTitleBlock": "Без основного напису",
     "addTitleBlock": "Додати власний основний напис (PDF)",
     "openTitleBlocksFolder": "Відкрити теку основних написів",
-    "style": "Стиль"
+    "style": "Стиль",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Дії із завданнями друку",

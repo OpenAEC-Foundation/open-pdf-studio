@@ -28,7 +28,9 @@
     "noTitleBlock": "Sense quadre de títol",
     "addTitleBlock": "Afegiu el vostre propi quadre de títol (PDF)",
     "openTitleBlocksFolder": "Obre la carpeta de quadres de títol",
-    "style": "Estil"
+    "style": "Estil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Accions de les tasques d'impressió",

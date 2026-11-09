@@ -28,7 +28,9 @@
     "noTitleBlock": "Без заглавља цртежа",
     "addTitleBlock": "Додај сопствено заглавље цртежа (PDF)",
     "openTitleBlocksFolder": "Отвори фасциклу заглавља цртежа",
-    "style": "Стил"
+    "style": "Стил",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Радње за задатке штампања",

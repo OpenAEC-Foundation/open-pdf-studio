@@ -28,7 +28,9 @@
     "noTitleBlock": "Geen onderhoek",
     "addTitleBlock": "Eigen onderhoek toevoegen (PDF)",
     "openTitleBlocksFolder": "Onderhoeken-map openen",
-    "style": "Stijl"
+    "style": "Stijl",
+    "usArchitectural": "VS architectuur (ARCH)",
+    "usEngineering": "VS techniek (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Acties voor afdrukopdrachten",

@@ -28,7 +28,9 @@
     "noTitleBlock": "Tanpa kop gambar",
     "addTitleBlock": "Tambahkan kop gambar Anda sendiri (PDF)",
     "openTitleBlocksFolder": "Buka folder kop gambar",
-    "style": "Gaya"
+    "style": "Gaya",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Tindakan pekerjaan cetak",

@@ -2487,7 +2487,7 @@ class ToolMethods:
         """
         return self._call_tool("app_export_ifcx", _pack({"annotations": annotations, "maxPathsPerPage": max_paths_per_page, "pages": pages, "path": path, "raster": raster, "text": text}))
 
-    def print_to_pdf(self, path: str, *, auto_rotate: Optional[bool] = None, center: Optional[bool] = None, content: Optional[Literal["document", "document-and-markups"]] = None, orientation: Optional[Literal["auto", "portrait", "landscape"]] = None, pages: Optional[str] = None, paper: Optional[Literal["page", "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid"]] = None, scaling: Optional[Literal["fit", "shrink", "actual", "custom-scale"]] = None, zoom: Optional[float] = None) -> Any:
+    def print_to_pdf(self, path: str, *, auto_rotate: Optional[bool] = None, center: Optional[bool] = None, content: Optional[Literal["document", "document-and-markups"]] = None, orientation: Optional[Literal["auto", "portrait", "landscape"]] = None, pages: Optional[str] = None, paper: Optional[Literal["page", "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid", "ARCH A", "ARCH B", "ARCH C", "ARCH D", "ARCH E", "ARCH E1", "ANSI C", "ANSI D", "ANSI E"]] = None, scaling: Optional[Literal["fit", "shrink", "actual", "custom-scale"]] = None, zoom: Optional[float] = None) -> Any:
         """Print to PDF file.
 
         Print the current document to a PDF file, without opening the print
@@ -2514,9 +2514,11 @@ class ToolMethods:
                 does. Left out: what the next print would already get.
             pages (string): "all" (default), "current" or a range like "1-3,5".
             paper (one of "page", "A0", "A1", "A2", "A3", "A4", "A5", "A0L",
-                "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid"): Sheet size.
-                "page" = every page on a sheet of its own size. Left out: the paper
-                the Page Setup of this document asks for, otherwise "page".
+                "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid", "ARCH A", "ARCH
+                B", "ARCH C", "ARCH D", "ARCH E", "ARCH E1", "ANSI C", "ANSI D",
+                "ANSI E"): Sheet size. "page" = every page on a sheet of its own
+                size. Left out: the paper the Page Setup of this document asks for,
+                otherwise "page".
             scaling (one of "fit", "shrink", "actual", "custom-scale"): fit =
                 fit on the sheet, shrink = only shrink when the page does not fit,
                 actual = real size, custom-scale = the percentage in zoom.
@@ -2527,7 +2529,7 @@ class ToolMethods:
         """
         return self._call_tool("app_print_to_pdf", _pack({"autoRotate": auto_rotate, "center": center, "content": content, "orientation": orientation, "pages": pages, "paper": paper, "path": path, "scaling": scaling, "zoom": zoom}))
 
-    def print(self, printer: str, *, auto_rotate: Optional[bool] = None, center: Optional[bool] = None, content: Optional[Literal["document", "document-and-markups"]] = None, copies: Optional[float] = None, orientation: Optional[Literal["auto", "portrait", "landscape"]] = None, pages: Optional[str] = None, paper: Optional[Literal["printer", "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid"]] = None, scaling: Optional[Literal["fit", "shrink", "actual", "custom-scale"]] = None, zoom: Optional[float] = None) -> Any:
+    def print(self, printer: str, *, auto_rotate: Optional[bool] = None, center: Optional[bool] = None, content: Optional[Literal["document", "document-and-markups"]] = None, copies: Optional[float] = None, orientation: Optional[Literal["auto", "portrait", "landscape"]] = None, pages: Optional[str] = None, paper: Optional[Literal["printer", "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid", "ARCH A", "ARCH B", "ARCH C", "ARCH D", "ARCH E", "ARCH E1", "ANSI C", "ANSI D", "ANSI E"]] = None, scaling: Optional[Literal["fit", "shrink", "actual", "custom-scale"]] = None, zoom: Optional[float] = None) -> Any:
         """Print to printer.
 
         Print the current document to a printer, without opening the print
@@ -2557,9 +2559,11 @@ class ToolMethods:
                 does. Left out: what the next print would already get.
             pages (string): "all" (default), "current" or a range like "1-3,5".
             paper (one of "printer", "A0", "A1", "A2", "A3", "A4", "A5", "A0L",
-                "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid"): Sheet size.
-                "printer" = the paper that is in the printer. Left out: the paper
-                the Page Setup of this document asks for, otherwise "printer".
+                "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid", "ARCH A", "ARCH
+                B", "ARCH C", "ARCH D", "ARCH E", "ARCH E1", "ANSI C", "ANSI D",
+                "ANSI E"): Sheet size. "printer" = the paper that is in the printer.
+                Left out: the paper the Page Setup of this document asks for,
+                otherwise "printer".
             scaling (one of "fit", "shrink", "actual", "custom-scale"): fit =
                 fit on the sheet, shrink = only shrink when the page does not fit,
                 actual = real size, custom-scale = the percentage in zoom.

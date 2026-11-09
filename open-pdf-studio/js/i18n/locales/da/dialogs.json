@@ -28,7 +28,9 @@
     "noTitleBlock": "Intet tegningshoved",
     "addTitleBlock": "Tilføj dit eget tegningshoved (PDF)",
     "openTitleBlocksFolder": "Åbn mappen med tegningshoveder",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Handlinger for udskriftsjob",

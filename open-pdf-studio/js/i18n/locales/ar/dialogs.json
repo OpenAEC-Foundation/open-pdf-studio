@@ -28,7 +28,9 @@
     "noTitleBlock": "بلا جدول عنوان",
     "addTitleBlock": "إضافة جدول عنوان خاص بك (PDF)",
     "openTitleBlocksFolder": "فتح مجلد جداول العنوان",
-    "style": "النمط"
+    "style": "النمط",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "إجراءات مهام الطباعة",

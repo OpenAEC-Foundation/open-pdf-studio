@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez tabliczki rysunkowej",
     "addTitleBlock": "Dodaj własną tabliczkę rysunkową (PDF)",
     "openTitleBlocksFolder": "Otwórz folder tabliczek rysunkowych",
-    "style": "Styl"
+    "style": "Styl",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Akcje zadań drukowania",

@@ -28,7 +28,9 @@
     "noTitleBlock": "Không có khung tên",
     "addTitleBlock": "Thêm khung tên của riêng bạn (PDF)",
     "openTitleBlocksFolder": "Mở thư mục khung tên",
-    "style": "Kiểu"
+    "style": "Kiểu",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Thao tác với lệnh in",

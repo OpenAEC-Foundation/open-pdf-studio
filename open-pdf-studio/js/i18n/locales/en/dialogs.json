@@ -28,7 +28,9 @@
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
     "openTitleBlocksFolder": "Open title blocks folder",
-    "style": "Style"
+    "style": "Style",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Print job actions",

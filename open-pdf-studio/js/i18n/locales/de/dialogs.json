@@ -28,7 +28,9 @@
     "noTitleBlock": "Kein Schriftfeld",
     "addTitleBlock": "Eigenes Schriftfeld hinzufügen (PDF)",
     "openTitleBlocksFolder": "Schriftfeldordner öffnen",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US-Architektur (ARCH)",
+    "usEngineering": "US-Technik (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Aktionen für Druckaufträge",

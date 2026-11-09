@@ -28,7 +28,9 @@
     "noTitleBlock": "无标题栏",
     "addTitleBlock": "添加自己的标题栏 (PDF)",
     "openTitleBlocksFolder": "打开标题栏文件夹",
-    "style": "樣式"
+    "style": "樣式",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "打印作业操作",

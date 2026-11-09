@@ -28,7 +28,9 @@
     "noTitleBlock": "Fără cartuș",
     "addTitleBlock": "Adăugați propriul cartuș (PDF)",
     "openTitleBlocksFolder": "Deschidere folder cartușe",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Acțiuni pentru lucrările de tipărire",

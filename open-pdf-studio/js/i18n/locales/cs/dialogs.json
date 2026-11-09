@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez rohového razítka",
     "addTitleBlock": "Přidat vlastní rohové razítko (PDF)",
     "openTitleBlocksFolder": "Otevřít složku rohových razítek",
-    "style": "Styl"
+    "style": "Styl",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Akce tiskových úloh",

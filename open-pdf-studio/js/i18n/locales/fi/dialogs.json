@@ -28,7 +28,9 @@
     "noTitleBlock": "Ei nimiötä",
     "addTitleBlock": "Lisää oma nimiö (PDF)",
     "openTitleBlocksFolder": "Avaa nimiökansio",
-    "style": "Tyyli"
+    "style": "Tyyli",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Tulostustyön toiminnot",

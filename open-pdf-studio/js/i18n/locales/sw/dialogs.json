@@ -28,7 +28,9 @@
     "noTitleBlock": "Hakuna jedwali la kichwa",
     "addTitleBlock": "Ongeza jedwali lako la kichwa (PDF)",
     "openTitleBlocksFolder": "Fungua folda ya majedwali ya kichwa",
-    "style": "Mtindo"
+    "style": "Mtindo",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Vitendo vya kazi ya uchapishaji",

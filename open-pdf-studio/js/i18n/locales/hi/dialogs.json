@@ -28,7 +28,9 @@
     "noTitleBlock": "कोई टाइटल ब्लॉक नहीं",
     "addTitleBlock": "अपना टाइटल ब्लॉक जोड़ें (PDF)",
     "openTitleBlocksFolder": "टाइटल ब्लॉक फ़ोल्डर खोलें",
-    "style": "शैली"
+    "style": "शैली",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "प्रिंट जॉब क्रियाएं",

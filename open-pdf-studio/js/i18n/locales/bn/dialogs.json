@@ -28,7 +28,9 @@
     "noTitleBlock": "কোনো টাইটেল ব্লক নেই",
     "addTitleBlock": "আপনার নিজের টাইটেল ব্লক যোগ করুন (PDF)",
     "openTitleBlocksFolder": "টাইটেল ব্লক ফোল্ডার খুলুন",
-    "style": "শৈলী"
+    "style": "শৈলী",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "মুদ্রণ কাজের কার্যক্রম",

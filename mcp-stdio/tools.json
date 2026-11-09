@@ -3472,7 +3472,16 @@
             "A3L",
             "Letter",
             "Legal",
-            "Tabloid"
+            "Tabloid",
+            "ARCH A",
+            "ARCH B",
+            "ARCH C",
+            "ARCH D",
+            "ARCH E",
+            "ARCH E1",
+            "ANSI C",
+            "ANSI D",
+            "ANSI E"
           ],
           "type": "string"
         },
@@ -3562,7 +3571,16 @@
             "A3L",
             "Letter",
             "Legal",
-            "Tabloid"
+            "Tabloid",
+            "ARCH A",
+            "ARCH B",
+            "ARCH C",
+            "ARCH D",
+            "ARCH E",
+            "ARCH E1",
+            "ANSI C",
+            "ANSI D",
+            "ANSI E"
           ],
           "type": "string"
         },

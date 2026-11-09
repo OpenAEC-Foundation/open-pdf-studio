@@ -28,7 +28,9 @@
     "noTitleBlock": "Ingen namnruta",
     "addTitleBlock": "Lägg till en egen namnruta (PDF)",
     "openTitleBlocksFolder": "Öppna mappen med namnrutor",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Åtgärder för utskriftsjobb",

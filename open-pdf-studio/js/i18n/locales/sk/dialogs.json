@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez rohovej pečiatky",
     "addTitleBlock": "Pridať vlastnú rohovú pečiatku (PDF)",
     "openTitleBlocksFolder": "Otvoriť priečinok rohových pečiatok",
-    "style": "Štýl"
+    "style": "Štýl",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Akcie tlačových úloh",

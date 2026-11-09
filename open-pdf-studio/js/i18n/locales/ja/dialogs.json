@@ -28,7 +28,9 @@
     "noTitleBlock": "表題欄なし",
     "addTitleBlock": "独自の表題欄を追加 (PDF)",
     "openTitleBlocksFolder": "表題欄フォルダーを開く",
-    "style": "スタイル"
+    "style": "スタイル",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "印刷ジョブの操作",

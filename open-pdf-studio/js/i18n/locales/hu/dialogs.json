@@ -28,7 +28,9 @@
     "noTitleBlock": "Nincs szövegmező",
     "addTitleBlock": "Saját szövegmező hozzáadása (PDF)",
     "openTitleBlocksFolder": "Szövegmezők mappájának megnyitása",
-    "style": "Stílus"
+    "style": "Stílus",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Nyomtatási feladat műveletei",

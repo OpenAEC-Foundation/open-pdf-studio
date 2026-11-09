@@ -28,7 +28,9 @@
     "noTitleBlock": "Без основной надписи",
     "addTitleBlock": "Добавить свою основную надпись (PDF)",
     "openTitleBlocksFolder": "Открыть папку основных надписей",
-    "style": "Стиль"
+    "style": "Стиль",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Действия с заданиями печати",

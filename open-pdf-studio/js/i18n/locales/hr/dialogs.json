@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez sastavnice",
     "addTitleBlock": "Dodaj vlastitu sastavnicu (PDF)",
     "openTitleBlocksFolder": "Otvori mapu sastavnica",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Radnje za zadatke ispisa",
