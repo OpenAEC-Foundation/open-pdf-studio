@@ -4037,6 +4037,8 @@
   margin: 0;
   /* Meerregelige meldingen (zoals het CMYK-verslag, #422) houden hun regels. */
   white-space: pre-line;
+  /* Een lang pad zonder spaties (#1005) breekt af in plaats van uit te steken. */
+  overflow-wrap: anywhere;
 }
 .message-dialog-address {
   display: block;

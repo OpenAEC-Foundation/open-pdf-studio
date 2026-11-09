@@ -84,7 +84,38 @@
   "extractEncrypted": "These pages cannot be extracted: the content of the document is still encrypted. Save the document without protection and try again.",
   "selectedPdfNoPages": "PDF yang dipilih tidak memiliki halaman.",
   "failedToSavePdf": "Gagal menyimpan PDF: {{error}}",
+  "fileWriteDenied": "{{path}} could not be saved: Windows denied access. You may not have permission to change this file, or another application or the synchronization app has it open. Close it there and try again, or use Save As to save a copy elsewhere.",
   "failedToLoadPdf": "Gagal memuat PDF: {{error}}",
+  "openFile": {
+    "title": "File could not be opened",
+    "failed": "{{path}} could not be opened while {{step}}.",
+    "step": {
+      "scope": "checking the app's file access",
+      "vergrendelen": "reserving the file",
+      "lezen": "reading the file"
+    },
+    "reason": {
+      "scope": "The app could not verify this location. This can happen with some network (WebDAV) paths. Sync the library to this PC (for example with OneDrive), or copy the file to a local folder, and open it from there.",
+      "niet-gevonden": "The file was not found. It may have been moved, renamed or deleted, or the network location is not available.",
+      "geweigerd": "Windows denied access. Check that your account may open this file; for a SharePoint library you need at least read permission.",
+      "in-gebruik": "Another application or the synchronization app is using the file in a way that prevents reading. Wait until synchronization has finished, or close the file there, and try again.",
+      "alleen-online": "The file is only available online and could not be downloaded. Make sure OneDrive is running, signed in and connected to the network, or right-click the file in File Explorer and choose \"Always keep on this device\".",
+      "netwerk": "The network location could not be reached. Check the connection and try again.",
+      "pad-te-lang": "The path is too long for Windows. Move the file to a folder with a shorter path.",
+      "anders": "The file could not be read."
+    },
+    "hintWebdav": "This is a network (WebDAV) path. Opening the library through a synchronized folder (Sync in SharePoint) is usually more reliable.",
+    "hintLongPath": "The path is longer than 260 characters; a shorter path may help.",
+    "detail": "Details: {{detail}}",
+    "readOnly": {
+      "title": "Opened read-only",
+      "kenmerk": "{{name}} is read-only: it has the read-only attribute, or you only have read permission on this location.",
+      "in-gebruik": "{{name}} is open in another application or is being synchronized, so Open PDF Studio cannot reserve it.",
+      "geweigerd": "{{name}} cannot be reserved: Windows denied it.",
+      "mislukt": "{{name}} could not be reserved.",
+      "saveAs": "It has been opened read-only. You can make changes; use Save As to save them to another file."
+    }
+  },
   "hostOpenFailed": "Berkas tidak dapat dibaca dari penyimpanan. Coba lagi.",
   "hostInvalidPdf": "{{name}} bukan file PDF yang valid dan tidak dapat dibuka.",
   "hostNoContact": "Halaman yang memuat Open PDF Studio tidak merespons, sehingga berkas tidak dapat dibuka atau disimpan. Muat ulang halaman lalu coba lagi.",
