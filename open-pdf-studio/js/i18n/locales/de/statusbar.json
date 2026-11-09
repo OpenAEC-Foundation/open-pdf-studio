@@ -30,7 +30,8 @@
     "formRadio": "Formular-Optionsschaltfläche",
     "screenshot": "Bildschirmfoto",
     "pageLabelPick": "Text für Seitenbeschriftung wählen",
-    "proofread": "Korrektur"
+    "proofread": "Korrektur",
+    "count": "Zählen"
   },
   "toolLabel": "Werkzeug:",
   "annotationsLabel": "Anmerkungen:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Anmerkungen werden über {{folder}} geteilt. Klicken, um die gemeinsame Prüfung zu öffnen.",
   "sharedReviewError": "Gemeinsame Prüfung: Ordner nicht erreichbar",
   "pdfaReadOnly": "Dieses Dokument entspricht dem Standard {{label}} und wurde schreibgeschützt geöffnet, um Änderungen zu verhindern.",
-  "pdfaValidate": "Validieren"
+  "pdfaValidate": "Validieren",
+  "countGroupTip": "Aktive Zählgruppe: die nächste Markierung kommt in diese Gruppe"
 }

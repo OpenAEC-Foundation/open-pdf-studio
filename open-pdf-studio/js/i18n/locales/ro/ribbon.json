@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
-    "countGroupAdd": "Add group"
+    "countGroupAdd": "Add group",
+    "countNew": "Numărătoare nouă",
+    "countNewTip": "New count: starts a new group with its own colour; numbering starts again at 1. Earlier counts keep their numbers and colour. While counting: Enter",
+    "countNewName": "Numărătoare",
+    "countNewStarted": "Numărătoare nouă: {{name}}",
+    "countDefaultDoors": "Uși",
+    "countDefaultWindows": "Ferestre",
+    "countDefaultSockets": "Prize"
   },
   "proofread": {
     "group": "Corectură",

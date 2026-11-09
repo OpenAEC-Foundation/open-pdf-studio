@@ -30,7 +30,8 @@
     "formRadio": "Buton radio formular",
     "screenshot": "Captura de ecran",
     "pageLabelPick": "Alegeți textul pentru eticheta paginii",
-    "proofread": "Corectură"
+    "proofread": "Corectură",
+    "count": "Numărare"
   },
   "toolLabel": "Instrument:",
   "annotationsLabel": "Adnotari:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Adnotările sunt partajate prin {{folder}}. Faceți clic pentru a deschide revizuirea partajată.",
   "sharedReviewError": "Revizuire partajată: folder indisponibil",
   "pdfaReadOnly": "Acest document respectă standardul {{label}} și a fost deschis numai pentru citire pentru a preveni modificarea.",
-  "pdfaValidate": "Validare"
+  "pdfaValidate": "Validare",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

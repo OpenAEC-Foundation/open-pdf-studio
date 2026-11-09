@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
-    "countGroupAdd": "Add group"
+    "countGroupAdd": "Add group",
+    "countNew": "नई गिनती",
+    "countNewTip": "New count: starts a new group with its own colour; numbering starts again at 1. Earlier counts keep their numbers and colour. While counting: Enter",
+    "countNewName": "गिनती",
+    "countNewStarted": "नई गिनती: {{name}}",
+    "countDefaultDoors": "दरवाज़े",
+    "countDefaultWindows": "खिड़कियाँ",
+    "countDefaultSockets": "सॉकेट"
   },
   "proofread": {
     "group": "प्रूफ़रीडिंग",

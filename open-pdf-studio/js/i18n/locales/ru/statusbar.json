@@ -30,7 +30,8 @@
     "formRadio": "Переключатель формы",
     "screenshot": "Снимок экрана",
     "pageLabelPick": "Выбор текста для метки страницы",
-    "proofread": "Корректура"
+    "proofread": "Корректура",
+    "count": "Подсчёт"
   },
   "toolLabel": "Инструмент:",
   "annotationsLabel": "Аннотации:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Аннотации передаются через {{folder}}. Нажмите, чтобы открыть совместную проверку.",
   "sharedReviewError": "Совместная проверка: папка недоступна",
   "pdfaReadOnly": "Этот документ соответствует стандарту {{label}} и открыт только для чтения, чтобы предотвратить его изменение.",
-  "pdfaValidate": "Проверить"
+  "pdfaValidate": "Проверить",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

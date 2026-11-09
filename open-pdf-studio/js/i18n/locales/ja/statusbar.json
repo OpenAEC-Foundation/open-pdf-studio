@@ -30,7 +30,8 @@
     "formRadio": "フォームラジオボタン",
     "screenshot": "スクリーンショット",
     "pageLabelPick": "ページラベルの文字を選択",
-    "proofread": "校正"
+    "proofread": "校正",
+    "count": "カウント"
   },
   "toolLabel": "ツール：",
   "annotationsLabel": "注釈：",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "注釈は {{folder}} を通じて共有されています。クリックすると共有レビューを開きます。",
   "sharedReviewError": "共有レビュー: フォルダーを利用できません",
   "pdfaReadOnly": "このドキュメントは {{label}} 標準に準拠しているため、変更を防ぐために読み取り専用で開かれました。",
-  "pdfaValidate": "検証"
+  "pdfaValidate": "検証",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

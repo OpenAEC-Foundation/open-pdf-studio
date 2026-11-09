@@ -30,7 +30,8 @@
     "formRadio": "Butang Radio Borang",
     "screenshot": "Tangkap Skrin",
     "pageLabelPick": "Pilih Teks untuk Label Halaman",
-    "proofread": "Pembacaan Pruf"
+    "proofread": "Pembacaan Pruf",
+    "count": "Kira"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Anotasi:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Anotasi dikongsi melalui {{folder}}. Klik untuk membuka semakan bersama.",
   "sharedReviewError": "Semakan bersama: folder tidak tersedia",
   "pdfaReadOnly": "Dokumen ini mematuhi piawaian {{label}} dan telah dibuka dalam mod baca sahaja untuk mengelakkan pengubahsuaian.",
-  "pdfaValidate": "Sahkan"
+  "pdfaValidate": "Sahkan",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

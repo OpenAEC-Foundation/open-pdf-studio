@@ -30,7 +30,8 @@
     "formRadio": "Botão de opção de formulário",
     "screenshot": "Captura de tela",
     "pageLabelPick": "Escolher texto para o rótulo da página",
-    "proofread": "Revisão"
+    "proofread": "Revisão",
+    "count": "Contar"
   },
   "toolLabel": "Ferramenta:",
   "annotationsLabel": "Anotações:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "As anotações são partilhadas através de {{folder}}. Clique para abrir a revisão partilhada.",
   "sharedReviewError": "Revisão partilhada: pasta indisponível",
   "pdfaReadOnly": "Este documento está em conformidade com o padrão {{label}} e foi aberto somente leitura para evitar modificações.",
-  "pdfaValidate": "Validar"
+  "pdfaValidate": "Validar",
+  "countGroupTip": "Grupo de contagem ativo: o próximo marcador entra neste grupo"
 }

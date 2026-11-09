@@ -30,7 +30,8 @@
     "formRadio": "زر اختيار للنموذج",
     "screenshot": "لقطة شاشة",
     "pageLabelPick": "اختيار نص لتسمية الصفحة",
-    "proofread": "التدقيق"
+    "proofread": "التدقيق",
+    "count": "عدّ"
   },
   "toolLabel": "الأداة:",
   "annotationsLabel": "التعليقات:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "تُشارك التعليقات عبر {{folder}}. انقر لفتح المراجعة المشتركة.",
   "sharedReviewError": "مراجعة مشتركة: المجلد غير متاح",
   "pdfaReadOnly": "يتوافق هذا المستند مع معيار {{label}} وقد فُتح للقراءة فقط لمنع تعديله.",
-  "pdfaValidate": "التحقق"
+  "pdfaValidate": "التحقق",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

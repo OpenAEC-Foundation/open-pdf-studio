@@ -30,7 +30,8 @@
     "formRadio": "Перемикач форми",
     "screenshot": "Знімок екрана",
     "pageLabelPick": "Вибір тексту для мітки сторінки",
-    "proofread": "Коректура"
+    "proofread": "Коректура",
+    "count": "Підрахунок"
   },
   "toolLabel": "Інструмент:",
   "annotationsLabel": "Анотації:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Анотації передаються через {{folder}}. Натисніть, щоб відкрити спільну перевірку.",
   "sharedReviewError": "Спільна перевірка: папка недоступна",
   "pdfaReadOnly": "Цей документ відповідає стандарту {{label}} і відкритий лише для читання, щоб запобігти його зміні.",
-  "pdfaValidate": "Перевірити"
+  "pdfaValidate": "Перевірити",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

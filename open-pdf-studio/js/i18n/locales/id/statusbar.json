@@ -30,7 +30,8 @@
     "formRadio": "Tombol Radio Formulir",
     "screenshot": "Tangkapan Layar",
     "pageLabelPick": "Pilih Teks untuk Label Halaman",
-    "proofread": "Koreksi"
+    "proofread": "Koreksi",
+    "count": "Hitung"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Anotasi:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Anotasi dibagikan melalui {{folder}}. Klik untuk membuka tinjauan bersama.",
   "sharedReviewError": "Tinjauan bersama: folder tidak tersedia",
   "pdfaReadOnly": "Dokumen ini mematuhi standar {{label}} dan telah dibuka dalam mode baca saja untuk mencegah modifikasi.",
-  "pdfaValidate": "Validasi"
+  "pdfaValidate": "Validasi",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

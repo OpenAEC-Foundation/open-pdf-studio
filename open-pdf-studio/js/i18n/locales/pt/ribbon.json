@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
-    "countGroupAdd": "Add group"
+    "countGroupAdd": "Add group",
+    "countNew": "Nova contagem",
+    "countNewTip": "Nova contagem: cria um novo grupo com cor própria; a numeração recomeça em 1. As contagens anteriores mantêm os seus números e cor. Durante a contagem: Enter",
+    "countNewName": "Contagem",
+    "countNewStarted": "Nova contagem: {{name}}",
+    "countDefaultDoors": "Portas",
+    "countDefaultWindows": "Janelas",
+    "countDefaultSockets": "Tomadas"
   },
   "proofread": {
     "group": "Revisão",

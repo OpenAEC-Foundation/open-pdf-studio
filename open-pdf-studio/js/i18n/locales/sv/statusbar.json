@@ -30,7 +30,8 @@
     "formRadio": "Formuläralternativknapp",
     "screenshot": "Skärmbild",
     "pageLabelPick": "Välj text för sidetikett",
-    "proofread": "Korrektur"
+    "proofread": "Korrektur",
+    "count": "Räkna"
   },
   "toolLabel": "Verktyg:",
   "annotationsLabel": "Anteckningar:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Kommentarer delas via {{folder}}. Klicka för att öppna den delade granskningen.",
   "sharedReviewError": "Delad granskning: mappen är otillgänglig",
   "pdfaReadOnly": "Det här dokumentet uppfyller {{label}}-standarden och har öppnats skrivskyddat för att förhindra ändringar.",
-  "pdfaValidate": "Validera"
+  "pdfaValidate": "Validera",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

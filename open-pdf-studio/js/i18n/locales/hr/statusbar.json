@@ -30,7 +30,8 @@
     "formRadio": "Radio gumb obrasca",
     "screenshot": "Snimka zaslona",
     "pageLabelPick": "Odabir teksta za oznaku stranice",
-    "proofread": "Korektura"
+    "proofread": "Korektura",
+    "count": "Brojanje"
   },
   "toolLabel": "Alat:",
   "annotationsLabel": "Oznake:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Bilješke se dijele putem {{folder}}. Kliknite za otvaranje zajedničkog pregleda.",
   "sharedReviewError": "Zajednički pregled: mapa nedostupna",
   "pdfaReadOnly": "Ovaj dokument zadovoljava standard {{label}} i otvoren je samo za čitanje kako bi se spriječila njegova izmjena.",
-  "pdfaValidate": "Provjeri"
+  "pdfaValidate": "Provjeri",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

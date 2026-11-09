@@ -30,7 +30,8 @@
     "formRadio": "Lomakkeen valintapainike",
     "screenshot": "Kuvakaappaus",
     "pageLabelPick": "Valitse teksti sivun nimiöön",
-    "proofread": "Oikoluku"
+    "proofread": "Oikoluku",
+    "count": "Laske"
   },
   "toolLabel": "Työkalu:",
   "annotationsLabel": "Merkinnät:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Merkinnät jaetaan kansion {{folder}} kautta. Avaa jaettu tarkistus napsauttamalla.",
   "sharedReviewError": "Jaettu tarkistus: kansio ei käytettävissä",
   "pdfaReadOnly": "Tämä asiakirja noudattaa {{label}}-standardia ja on avattu vain luku -tilassa muutosten estämiseksi.",
-  "pdfaValidate": "Validoi"
+  "pdfaValidate": "Validoi",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

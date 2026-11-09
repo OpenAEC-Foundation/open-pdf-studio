@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
-    "countGroupAdd": "Add group"
+    "countGroupAdd": "Add group",
+    "countNew": "புதிய எண்ணிக்கை",
+    "countNewTip": "New count: starts a new group with its own colour; numbering starts again at 1. Earlier counts keep their numbers and colour. While counting: Enter",
+    "countNewName": "எண்ணிக்கை",
+    "countNewStarted": "புதிய எண்ணிக்கை: {{name}}",
+    "countDefaultDoors": "கதவுகள்",
+    "countDefaultWindows": "ஜன்னல்கள்",
+    "countDefaultSockets": "சாக்கெட்டுகள்"
   },
   "proofread": {
     "group": "மெய்ப்புத் திருத்தம்",

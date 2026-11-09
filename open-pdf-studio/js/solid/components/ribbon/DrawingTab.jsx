@@ -40,6 +40,10 @@ import { createFullPageScaleRegion, invalidateScaleRegionCache } from '../../../
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { openDialog } from '../../../bridge.js';
 import CountGroupRibbonControls from './CountGroupRibbonControls.jsx';
+import { startNewCount } from '../../stores/countStore.js';
+
+// Nieuwe telling (#1004): het telpictogram met een plusteken.
+const countNewIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-width="2"><path d="M3 6v12M7 6v12M11 6v12M1 15.5L14 9"/><path d="M18.5 12v8M14.5 16h8"/></svg>`;
 
 // Schaalcontrole (#629): een maatlijn met een vinkje.
 const scaleCheckIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9h12M3 6v6M15 6v6"/><path d="M12 18l3 3 6-7" stroke-width="2"/></svg>`;
@@ -321,9 +325,13 @@ export function DrawingGroups() {
 
         {/* TELGROEP — alleen bij het telgereedschap (#935): de groep waar
             nieuwe markeringen in komen, met het totaal per groep, de kleur
-            van de hele groep en een nieuwe groep aanmaken. */}
+            van de hele groep en een nieuwe groep aanmaken. Nieuwe telling
+            (#1004) begint met één klik een volgende groep (eigen naam en
+            kleur, nummering weer vanaf 1); Enter doet hetzelfde. */}
         <Show when={state.currentTool === 'count'}>
           <RibbonGroup label={t('drawing.countGroup')}>
+            <RibbonButton id="dr-count-new" title={t('drawing.countNewTip')} icon={countNewIcon}
+              label={t('drawing.countNew')} disabled={ro()} onClick={() => startNewCount()} />
             <CountGroupRibbonControls />
           </RibbonGroup>
         </Show>

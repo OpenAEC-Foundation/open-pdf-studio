@@ -8,9 +8,7 @@ import {
   countGroups, activeCountCategory, activeCountCategoryId, setActiveCountCategory,
   addCountCategory, updateCountGroup,
 } from '../../stores/countStore.js';
-
-// Kleuren voor nieuwe telgroepen, op volgorde (daarna weer van voren af).
-const GROEPKLEUREN = ['#e11d48', '#2563eb', '#16a34a', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d'];
+import { volgendeTelGroepKleur } from '../../../annotations/telling.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -31,7 +29,8 @@ export default function CountGroupRibbonControls() {
   function voegToe() {
     const naam = nieuweNaam().trim();
     if (!naam) return;
-    const kleur = GROEPKLEUREN[countGroups().length % GROEPKLEUREN.length];
+    // Zelfde palet als Nieuwe telling (#1004): de eerste kleur die nog vrij is.
+    const kleur = volgendeTelGroepKleur(countGroups());
     setActiveCountCategory(addCountCategory(naam, kleur));
     setNieuweNaam('');
   }

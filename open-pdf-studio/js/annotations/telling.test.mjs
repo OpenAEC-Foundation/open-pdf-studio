@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   tellingKader, TELMARKERING_HALF, hernummerTellingen, volgendTelNummer, telGroepen,
-  telGroepVelden, GEEN_TELGROEP,
+  telGroepVelden, GEEN_TELGROEP, TELGROEP_KLEUREN, volgendeTelGroepKleur, volgendeTelGroepNaam,
 } from './telling.js';
 import { inSelectieVak } from '../plattegrond/ruimte-koppeling.js';
 
@@ -82,4 +82,29 @@ test('joining a group takes its name and format; leaving all groups keeps the fo
   assert.equal(telGroepVelden({ id: 's', name: 'S', color: '#000000', markerStyle: 'symbol' }).markerStyle, 'dot',
     'a symbol style without a symbol falls back to a dot');
   assert.deepEqual(telGroepVelden(null), { categoryId: null, categoryName: undefined });
+});
+
+test('a new count takes the first palette colour no group has yet (#1004)', () => {
+  assert.equal(volgendeTelGroepKleur([]), TELGROEP_KLEUREN[0]);
+  assert.equal(volgendeTelGroepKleur([{ color: '#E11D48' }, { color: '#16a34a' }]), TELGROEP_KLEUREN[1], 'case does not matter');
+  // Opeenvolgende nieuwe groepen krijgen elk een andere kleur.
+  const groepen = [];
+  for (let i = 0; i < TELGROEP_KLEUREN.length; i++) groepen.push({ color: volgendeTelGroepKleur(groepen) });
+  assert.equal(new Set(groepen.map(g => g.color)).size, TELGROEP_KLEUREN.length, 'all distinct');
+});
+
+test('when every palette colour is taken, the palette cycles (#1004)', () => {
+  const vol = TELGROEP_KLEUREN.map(color => ({ color }));
+  assert.equal(volgendeTelGroepKleur(vol), TELGROEP_KLEUREN[0]);
+  assert.equal(volgendeTelGroepKleur([...vol, { color: '#000000' }]), TELGROEP_KLEUREN[1]);
+  assert.equal(volgendeTelGroepKleur(['#123456']), TELGROEP_KLEUREN[0], 'plain colour strings work too');
+});
+
+test('a new count gets the next free automatic name (#1004)', () => {
+  assert.equal(volgendeTelGroepNaam([], 'Count'), 'Count 1');
+  assert.equal(volgendeTelGroepNaam([{ name: 'Doors' }], 'Count'), 'Count 2');
+  assert.equal(volgendeTelGroepNaam([{ name: 'Doors' }, { name: 'Windows' }, { name: 'Sockets' }], 'Telling'), 'Telling 4');
+  assert.equal(volgendeTelGroepNaam([{ name: 'count 7' }, { name: 'Doors' }], 'Count'), 'Count 8', 'past the highest number');
+  assert.equal(volgendeTelGroepNaam(['A', 'Count 3'], 'Count'), 'Count 4', 'never a name that exists');
+  assert.equal(volgendeTelGroepNaam(['A'], ''), 'Count 2', 'empty base word: English fallback');
 });

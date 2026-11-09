@@ -30,7 +30,8 @@
     "formRadio": "Botó d'opció de formulari",
     "screenshot": "Captura de pantalla",
     "pageLabelPick": "Tria text per a l'etiqueta de pàgina",
-    "proofread": "Revisió"
+    "proofread": "Revisió",
+    "count": "Comptar"
   },
   "toolLabel": "Eina:",
   "annotationsLabel": "Anotacions:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Les anotacions es comparteixen a través de {{folder}}. Feu clic per obrir la revisió compartida.",
   "sharedReviewError": "Revisió compartida: carpeta no disponible",
   "pdfaReadOnly": "Aquest document compleix l'estàndard {{label}} i s'ha obert només de lectura per evitar modificacions.",
-  "pdfaValidate": "Valida"
+  "pdfaValidate": "Valida",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }
