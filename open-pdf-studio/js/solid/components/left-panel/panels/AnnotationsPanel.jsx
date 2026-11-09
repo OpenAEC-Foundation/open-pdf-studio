@@ -591,19 +591,19 @@ export default function AnnotationsPanel() {
         <div class="annotations-filter-bar">
           <label>{t('leftPanel.csvAuthor')}</label>
           <select value={listFilter().auteur} onChange={(e) => setListFilter({ auteur: e.target.value })}>
-            <option value="">{t('leftPanel.filterAll')}</option>
+            <option value="" selected={!listFilter().auteur}>{t('leftPanel.filterAll')}</option>
             <Show when={listFilter().auteur && !filterOptions().authors.includes(listFilter().auteur)}>
-              <option value={listFilter().auteur}>{listFilter().auteur}</option>
+              <option value={listFilter().auteur} selected>{listFilter().auteur}</option>
             </Show>
-            <For each={filterOptions().authors}>{(a) => <option value={a}>{a}</option>}</For>
+            <For each={filterOptions().authors}>{(a) => <option value={a} selected={a === listFilter().auteur}>{a}</option>}</For>
           </select>
           <label>{t('leftPanel.csvType')}</label>
           <select value={listFilter().type} onChange={(e) => setListFilter({ type: e.target.value })}>
-            <option value="">{t('leftPanel.filterAll')}</option>
+            <option value="" selected={!listFilter().type}>{t('leftPanel.filterAll')}</option>
             <Show when={listFilter().type && !filterOptions().types.some(o => o.type === listFilter().type)}>
-              <option value={listFilter().type}>{listFilter().type}</option>
+              <option value={listFilter().type} selected>{listFilter().type}</option>
             </Show>
-            <For each={filterOptions().types}>{(o) => <option value={o.type}>{o.naam}</option>}</For>
+            <For each={filterOptions().types}>{(o) => <option value={o.type} selected={o.type === listFilter().type}>{o.naam}</option>}</For>
           </select>
           <label>{t('leftPanel.filterPages')}</label>
           <div class="annotations-filter-range">
