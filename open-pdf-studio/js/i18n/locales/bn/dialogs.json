@@ -28,7 +28,9 @@
     "noTitleBlock": "কোনো টাইটেল ব্লক নেই",
     "addTitleBlock": "আপনার নিজের টাইটেল ব্লক যোগ করুন (PDF)",
     "openTitleBlocksFolder": "টাইটেল ব্লক ফোল্ডার খুলুন",
-    "style": "শৈলী"
+    "style": "শৈলী",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "মুদ্রণ কাজের কার্যক্রম",
@@ -497,7 +499,9 @@
     "title": "স্ট্যাম্প নির্বাচন করুন",
     "customFromImage": "চিত্র থেকে কাস্টম স্ট্যাম্প...",
     "dynamicTitle": "ফিল্ডসহ স্ট্যাম্প",
-    "manage": "স্ট্যাম্প টেমপ্লেট পরিচালনা..."
+    "manage": "স্ট্যাম্প টেমপ্লেট পরিচালনা...",
+    "builtInHidden": "বিল্ট-ইন স্ট্যাম্প লুকানো আছে (পছন্দসমূহ > টীকা > মন্তব্য)।",
+    "hideBuiltInNoOwn": "বিল্ট-ইন স্ট্যাম্প লুকানোর জন্য সেট করা আছে, কিন্তু আপনার এখনও নিজের কোনো স্ট্যাম্প নেই। স্ট্যাম্প টেমপ্লেট পরিচালনা থেকে একটি তৈরি করুন।"
   },
   "calibration": {
     "title": "স্কেল ক্যালিব্রেশন",
@@ -517,7 +521,9 @@
     "autoDetect": "টাইটেল ব্লক থেকে স্বয়ংক্রিয়ভাবে শনাক্ত করুন",
     "detecting": "শনাক্ত করা হচ্ছে...",
     "scaleDetected": "স্কেল শনাক্ত হয়েছে!",
-    "scaleNotFound": "টাইটেল ব্লকে কোনো স্কেল পাওয়া যায়নি"
+    "scaleNotFound": "টাইটেল ব্লকে কোনো স্কেল পাওয়া যায়নি",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "পৃষ্ঠা সেটআপ",

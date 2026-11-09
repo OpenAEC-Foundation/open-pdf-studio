@@ -85,7 +85,10 @@
     "subtabShapes": "Formas",
     "subtabMeasurement": "Medição",
     "redactionDefaults": "Padrões de redação",
-    "overlayColor": "Cor de sobreposição"
+    "overlayColor": "Cor de sobreposição",
+    "stamps": "Carimbos",
+    "hideBuiltInStamps": "Ocultar os carimbos integrados quando tenho carimbos próprios",
+    "hideBuiltInStampsHint": "O seletor de carimbos mostra então apenas os seus carimbos (pessoais, importados e partilhados). Sem carimbos próprios, os carimbos integrados continuam visíveis."
   },
   "drawing": {
     "freehandDefaults": "Padrões de mão livre",
@@ -324,7 +327,16 @@
     "digitGrouping": "Separar milhares (12 345)",
     "scaleCheck": "Verificação de escala",
     "scaleCheckOk": "Correto até",
-    "scaleCheckWarn": "Aviso até"
+    "scaleCheckWarn": "Aviso até",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Atalhos de teclado",
@@ -352,6 +364,7 @@
     "exported": "Atalhos exportados.",
     "exportFailed": "Falha ao exportar os atalhos:",
     "recording": "Prima a nova combinação de teclas… (Esc cancela)",
+    "recordingSequence": "{{keys}} … prima outra letra para uma sequência de teclas, ou aguarde (Esc cancela)",
     "conflict": "{{keys}} já é usado por “{{command}}”.",
     "reassign": "Reatribuir",
     "reserved": "{{keys}} tem um significado fixo e não pode ser atribuído.",

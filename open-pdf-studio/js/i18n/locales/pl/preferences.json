@@ -85,7 +85,10 @@
     "subtabShapes": "Kształty",
     "subtabMeasurement": "Pomiar",
     "redactionDefaults": "Ustawienia domyślne redakcji",
-    "overlayColor": "Kolor nakładki"
+    "overlayColor": "Kolor nakładki",
+    "stamps": "Pieczątki",
+    "hideBuiltInStamps": "Ukryj wbudowane pieczątki, gdy mam własne pieczątki",
+    "hideBuiltInStampsHint": "Selektor pieczątek pokazuje wtedy tylko Twoje pieczątki (osobiste, zaimportowane i udostępnione). Bez własnych pieczątek wbudowane pieczątki pozostają widoczne."
   },
   "drawing": {
     "freehandDefaults": "Ustawienia domyślne rysowania odręcznego",
@@ -324,7 +327,16 @@
     "digitGrouping": "Grupuj tysiące (12 345)",
     "scaleCheck": "Sprawdzanie skali",
     "scaleCheckOk": "Poprawnie do",
-    "scaleCheckWarn": "Ostrzeżenie do"
+    "scaleCheckWarn": "Ostrzeżenie do",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Skróty klawiaturowe",
@@ -352,6 +364,7 @@
     "exported": "Skróty wyeksportowane.",
     "exportFailed": "Eksport skrótów nie powiódł się:",
     "recording": "Naciśnij nową kombinację klawiszy… (Esc anuluje)",
+    "recordingSequence": "{{keys}} … naciśnij kolejną literę, aby utworzyć sekwencję klawiszy, lub poczekaj (Esc anuluje)",
     "conflict": "{{keys}} jest już używany przez „{{command}}”.",
     "reassign": "Przypisz ponownie",
     "reserved": "{{keys}} ma stałe znaczenie i nie można go przypisać.",

@@ -86,6 +86,7 @@ import {
 import { viewportGeometrie, rectNaarPagina } from '../pdf/weergave-rotatie.js';
 import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina, zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { schaalgebiedStijl } from './scale-region-style.js';
+import { scaleDisplayLabel } from './scale-presets.js';
 import { meld as meldSplit } from '../pdf/split-view/split-haken.js';
 import { schermSchaal, weergaveRotatieVan } from '../pdf/split-view/paneel-weergave.js';
 
@@ -2368,7 +2369,8 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       const scaleStr = annotation.scaleString || '1:100';
       const unitStr = annotation.units || 'mm';
       const labelStr = annotation.label || '';
-      const badgeText = (labelStr ? `${labelStr} · ` : '') + `${scaleStr} [${unitStr}]`;
+      // Imperiaal als 1/8" = 1'-0" (#1000).
+      const badgeText = (labelStr ? `${labelStr} · ` : '') + `${scaleDisplayLabel(scaleStr, unitStr, { withRatio: false })} [${unitStr}]`;
       ctx.font = 'bold 11px sans-serif';
       const badgeW = ctx.measureText(badgeText).width + 10;
       const badgeH = 16;
@@ -2454,7 +2456,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       ctx.setLineDash([]);
 
       // Name label (top-left corner)
-      const vpLabel = annotation.name || annotation.scaleRatio || '';
+      const vpLabel = (annotation.name && annotation.name !== annotation.scaleRatio)
+        ? annotation.name
+        : scaleDisplayLabel(annotation.scaleRatio, annotation.unit, { withRatio: false });
       if (vpLabel) {
         ctx.globalAlpha = 0.85;
         ctx.font = 'bold 9px sans-serif';
@@ -2502,7 +2506,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         ctx.font = `bold ${Math.max(8, sbH * 0.65)}px sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(String(_sbMs.scaleRatio), sbX, sbY - 2);
+        ctx.fillText(scaleDisplayLabel(_sbMs.scaleRatio, _sbMs.unit, { withRatio: false }), sbX, sbY - 2);
       }
 
       // Alternating blocks

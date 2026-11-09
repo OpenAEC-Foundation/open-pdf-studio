@@ -250,6 +250,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Schaalcontrole (#629): drempels in procenten.
   scaleCheckOkPercent: 0.5,
   scaleCheckWarnPercent: 2,
+  // Imperiale lengtes (#996): 'decimal' (12.53 ft) of 'feetInch' (12'-6 3/8"),
+  // kleinste breuk 1/2 .. 1/64 inch. Oppervlaktes blijven in sq ft.
+  imperialLengthFormat: 'decimal',
+  imperialFractionPrecision: 16,
+  // Welke standaardschalen de schaallijsten tonen (#996): 'metric',
+  // 'imperial' of 'both'.
+  scaleUnitSystem: 'both',
 
   // Measure Distance defaults
   measureDistStrokeColor: '#FF0000',
@@ -308,6 +315,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   middleDoubleClickFit: true,
   // Muiswiel boven het lint wisselt van tabblad (#852).
   ribbonWheelSwitchesTabs: true,
+
+  // Stempelkiezer: ingebouwde stempels verbergen zodra er eigen stempels zijn
+  // (annotations/stamp-picker-filter.js, #998).
+  hideBuiltInStamps: false,
 
   // Startup
   restoreLastSession: false,

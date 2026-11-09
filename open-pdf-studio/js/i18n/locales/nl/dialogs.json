@@ -28,7 +28,9 @@
     "noTitleBlock": "Geen onderhoek",
     "addTitleBlock": "Eigen onderhoek toevoegen (PDF)",
     "openTitleBlocksFolder": "Onderhoeken-map openen",
-    "style": "Stijl"
+    "style": "Stijl",
+    "usArchitectural": "VS architectuur (ARCH)",
+    "usEngineering": "VS techniek (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Acties voor afdrukopdrachten",
@@ -478,7 +480,9 @@
     "title": "Stempel selecteren",
     "customFromImage": "Aangepaste stempel van afbeelding...",
     "dynamicTitle": "Stempels met velden",
-    "manage": "Stempelsjablonen beheren..."
+    "manage": "Stempelsjablonen beheren...",
+    "builtInHidden": "Ingebouwde stempels zijn verborgen (Voorkeuren > Annotaties > Opmerkingen).",
+    "hideBuiltInNoOwn": "Ingebouwde stempels staan op verbergen, maar u hebt nog geen eigen stempels. Maak er een via Stempelsjablonen beheren."
   },
   "calibration": {
     "title": "Schaalcalibratie",
@@ -498,7 +502,9 @@
     "autoDetect": "Automatisch detecteren uit onderhoek",
     "detecting": "Detecteren...",
     "scaleDetected": "Schaal gedetecteerd!",
-    "scaleNotFound": "Geen schaal gevonden in onderhoek"
+    "scaleNotFound": "Geen schaal gevonden in onderhoek",
+    "currentScale": "Huidige schaal: {{scale}}",
+    "feetInchHint": "Voet en inch mag ook, bijvoorbeeld 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Pagina-instelling",

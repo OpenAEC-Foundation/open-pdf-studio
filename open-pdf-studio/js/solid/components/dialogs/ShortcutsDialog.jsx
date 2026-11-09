@@ -4,7 +4,7 @@ import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { sneltoetsen, platform } from '../../../core/keybindings/app-shortcuts.js';
 import { FIXED_SHORTCUTS } from '../../../core/keybindings/default-commands.js';
-import { bindingParts } from '../../../core/keybindings/binding.js';
+import { bindingParts, isSequence } from '../../../core/keybindings/binding.js';
 import { commandLabel, categoryLabel, groupCommands } from '../../../core/keybindings/labels.js';
 import { sneltoetsVersie } from '../../stores/keybindingStore.js';
 
@@ -84,7 +84,10 @@ export default function ShortcutsDialog() {
                               {(binding, i) => (
                                 <>
                                   {i() > 0 && <span class="shortcuts-or">/</span>}
-                                  <For each={bindingParts(binding, platform())}>{(key) => <kbd>{key}</kbd>}</For>
+                                  {/* Een toetsreeks (D, dan L) met komma's tussen de letters. */}
+                                  <For each={bindingParts(binding, platform())}>{(key, j) => (
+                                    <>{j() > 0 && isSequence(binding) && <span class="shortcuts-then">,</span>}<kbd>{key}</kbd></>
+                                  )}</For>
                                 </>
                               )}
                             </For>

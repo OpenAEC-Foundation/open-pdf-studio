@@ -85,7 +85,10 @@
     "subtabShapes": "الأشكال",
     "subtabMeasurement": "القياس",
     "redactionDefaults": "إعدادات التنقيح الافتراضية",
-    "overlayColor": "لون التغطية"
+    "overlayColor": "لون التغطية",
+    "stamps": "الأختام",
+    "hideBuiltInStamps": "إخفاء الأختام المضمنة عندما تكون لدي أختام خاصة",
+    "hideBuiltInStampsHint": "يعرض منتقي الأختام عندئذٍ أختامك الخاصة فقط (الشخصية والمستوردة والمشتركة). بدون أختام خاصة تبقى الأختام المضمنة ظاهرة."
   },
   "drawing": {
     "freehandDefaults": "إعدادات الرسم الحر الافتراضية",
@@ -324,7 +327,16 @@
     "digitGrouping": "فصل الآلاف (12 345)",
     "scaleCheck": "التحقق من المقياس",
     "scaleCheckOk": "سليم حتى",
-    "scaleCheckWarn": "تحذير حتى"
+    "scaleCheckWarn": "تحذير حتى",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "اختصارات لوحة المفاتيح",
@@ -352,6 +364,7 @@
     "exported": "تم تصدير الاختصارات.",
     "exportFailed": "فشل تصدير الاختصارات:",
     "recording": "اضغط مجموعة المفاتيح الجديدة… (Esc للإلغاء)",
+    "recordingSequence": "{{keys}} … اضغط حرفًا آخر لتسلسل مفاتيح، أو انتظر (Esc للإلغاء)",
     "conflict": "{{keys}} مستخدم بالفعل بواسطة «{{command}}».",
     "reassign": "إعادة التعيين للأمر",
     "reserved": "{{keys}} له معنى ثابت ولا يمكن تعيينه.",

@@ -28,7 +28,9 @@
     "noTitleBlock": "Без основного напису",
     "addTitleBlock": "Додати власний основний напис (PDF)",
     "openTitleBlocksFolder": "Відкрити теку основних написів",
-    "style": "Стиль"
+    "style": "Стиль",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Дії із завданнями друку",
@@ -497,7 +499,9 @@
     "title": "Вибрати штамп",
     "customFromImage": "Користувацький штамп із зображення...",
     "dynamicTitle": "Штампи з полями",
-    "manage": "Керування шаблонами штампів..."
+    "manage": "Керування шаблонами штампів...",
+    "builtInHidden": "Вбудовані штампи приховано (Налаштування > Анотації > Коментарі).",
+    "hideBuiltInNoOwn": "Вбудовані штампи налаштовано як приховані, але у вас ще немає власних штампів. Створіть штамп через «Керування шаблонами штампів»."
   },
   "calibration": {
     "title": "Калібрування масштабу",
@@ -517,7 +521,9 @@
     "autoDetect": "Автовизначення з основного напису",
     "detecting": "Визначення...",
     "scaleDetected": "Масштаб визначено!",
-    "scaleNotFound": "В основному написі масштаб не знайдено"
+    "scaleNotFound": "В основному написі масштаб не знайдено",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Параметри сторінки",

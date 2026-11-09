@@ -85,7 +85,10 @@
     "subtabShapes": "形状",
     "subtabMeasurement": "测量",
     "redactionDefaults": "密文默认设置",
-    "overlayColor": "覆盖颜色"
+    "overlayColor": "覆盖颜色",
+    "stamps": "图章",
+    "hideBuiltInStamps": "有自己的图章时隐藏内置图章",
+    "hideBuiltInStampsHint": "此时图章选择器只显示您自己的图章（个人、导入和共享）。没有自己的图章时，内置图章仍会显示。"
   },
   "drawing": {
     "freehandDefaults": "手绘默认值",
@@ -324,7 +327,16 @@
     "digitGrouping": "千位分隔 (12 345)",
     "scaleCheck": "比例检查",
     "scaleCheckOk": "合格上限",
-    "scaleCheckWarn": "警告上限"
+    "scaleCheckWarn": "警告上限",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "键盘快捷键",
@@ -352,6 +364,7 @@
     "exported": "快捷键已导出。",
     "exportFailed": "导出快捷键失败：",
     "recording": "请按新的组合键…（按 Esc 取消）",
+    "recordingSequence": "{{keys}} … 再按一个字母组成按键序列，或等待 (Esc 取消)",
     "conflict": "{{keys}} 已被“{{command}}”使用。",
     "reassign": "重新分配",
     "reserved": "{{keys}} 有固定用途，无法分配。",

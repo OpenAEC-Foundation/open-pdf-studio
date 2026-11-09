@@ -28,7 +28,9 @@
     "noTitleBlock": "Без основной надписи",
     "addTitleBlock": "Добавить свою основную надпись (PDF)",
     "openTitleBlocksFolder": "Открыть папку основных надписей",
-    "style": "Стиль"
+    "style": "Стиль",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Действия с заданиями печати",
@@ -497,7 +499,9 @@
     "title": "Выбор штампа",
     "customFromImage": "Пользовательский штамп из изображения...",
     "dynamicTitle": "Штампы с полями",
-    "manage": "Управление шаблонами штампов..."
+    "manage": "Управление шаблонами штампов...",
+    "builtInHidden": "Встроенные штампы скрыты (Настройки > Аннотации > Комментарии).",
+    "hideBuiltInNoOwn": "Встроенные штампы настроены как скрытые, но у вас ещё нет своих штампов. Создайте штамп через «Управление шаблонами штампов»."
   },
   "calibration": {
     "title": "Калибровка масштаба",
@@ -517,7 +521,9 @@
     "autoDetect": "Автоопределение по основной надписи",
     "detecting": "Определение...",
     "scaleDetected": "Масштаб определён!",
-    "scaleNotFound": "В основной надписи не найден масштаб"
+    "scaleNotFound": "В основной надписи не найден масштаб",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Параметры страницы",

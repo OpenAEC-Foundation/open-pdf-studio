@@ -85,7 +85,10 @@
     "subtabMeasurement": "Upimaji",
     "redactionDefaults": "Chaguo-msingi za Ufutaji",
     "overlayColor": "Rangi ya Kuwekelea",
-    "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF"
+    "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF",
+    "stamps": "Mihuri",
+    "hideBuiltInStamps": "Ficha mihuri iliyojengewa ndani ninapokuwa na mihuri yangu",
+    "hideBuiltInStampsHint": "Kichagua mihuri kisha huonyesha mihuri yako pekee (ya binafsi, iliyoingizwa na inayoshirikiwa). Bila mihuri yako, mihuri iliyojengewa ndani huendelea kuonekana."
   },
   "drawing": {
     "freehandDefaults": "Chaguo-msingi za Huru",
@@ -324,7 +327,16 @@
     "digitGrouping": "Tenganisha maelfu (12 345)",
     "scaleCheck": "Ukaguzi wa kipimo",
     "scaleCheckOk": "Sawa hadi",
-    "scaleCheckWarn": "Onyo hadi"
+    "scaleCheckWarn": "Onyo hadi",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Njia za mkato za kibodi",
@@ -352,6 +364,7 @@
     "exported": "Njia za mkato zimehamishwa.",
     "exportFailed": "Kuhamisha njia za mkato kumeshindikana:",
     "recording": "Bonyeza mchanganyiko mpya wa vitufe… (Esc inaghairi)",
+    "recordingSequence": "{{keys}} … bonyeza herufi nyingine kwa mfuatano wa vitufe, au subiri (Esc kughairi)",
     "conflict": "{{keys}} tayari inatumiwa na “{{command}}”.",
     "reassign": "Kabidhi upya",
     "reserved": "{{keys}} ina maana isiyobadilika na haiwezi kukabidhiwa.",

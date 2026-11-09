@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mittaus",
     "redactionDefaults": "Poiston oletukset",
     "overlayColor": "Peittoväri",
-    "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön"
+    "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
+    "stamps": "Leimat",
+    "hideBuiltInStamps": "Piilota sisäänrakennetut leimat, kun minulla on omia leimoja",
+    "hideBuiltInStampsHint": "Leimanvalitsin näyttää silloin vain omat leimasi (henkilökohtaiset, tuodut ja jaetut). Ilman omia leimoja sisäänrakennetut leimat pysyvät näkyvissä."
   },
   "drawing": {
     "freehandDefaults": "Vapaapiirron oletukset",
@@ -324,7 +327,16 @@
     "digitGrouping": "Erota tuhannet (12 345)",
     "scaleCheck": "Mittakaavan tarkistus",
     "scaleCheckOk": "Kunnossa asti",
-    "scaleCheckWarn": "Varoitus asti"
+    "scaleCheckWarn": "Varoitus asti",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Pikanäppäimet",
@@ -352,6 +364,7 @@
     "exported": "Pikanäppäimet viety.",
     "exportFailed": "Pikanäppäinten vienti epäonnistui:",
     "recording": "Paina uutta näppäinyhdistelmää… (Esc peruuttaa)",
+    "recordingSequence": "{{keys}} … paina vielä yksi kirjain näppäinsarjaa varten tai odota (Esc peruuttaa)",
     "conflict": "{{keys}} on jo komennon ”{{command}}” käytössä.",
     "reassign": "Määritä uudelleen",
     "reserved": "{{keys}} on varattu kiinteään käyttöön, eikä sitä voi määrittää.",

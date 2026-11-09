@@ -259,7 +259,10 @@ export function handlePointerDown(e) {
 
   // Object snap start point, fall back to grid
   const doc = getActiveDocument();
-  const scale = doc?.scale || 1.5;
+  // Zelfde zoom als ctx.snap (in een actieve viewport de viewport-zoom), zodat
+  // de vangstraal van het eerste punt in schermpixels gelijk is aan die van
+  // de volgende punten.
+  const scale = ctx?.scale || doc?.scale || 1.5;
   const startSnap = performSnap(coords.x, coords.y, doc?.annotations || [], coords.pageNum, scale);
   state.startX = startSnap.snapped ? startSnap.x : snapToGrid(coords.x);
   state.startY = startSnap.snapped ? startSnap.y : snapToGrid(coords.y);

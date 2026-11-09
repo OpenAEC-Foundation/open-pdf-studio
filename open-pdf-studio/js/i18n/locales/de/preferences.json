@@ -85,7 +85,10 @@
     "subtabShapes": "Formen",
     "subtabMeasurement": "Messung",
     "redactionDefaults": "Schwärzungs-Standardwerte",
-    "overlayColor": "Überlagerungsfarbe"
+    "overlayColor": "Überlagerungsfarbe",
+    "stamps": "Stempel",
+    "hideBuiltInStamps": "Integrierte Stempel ausblenden, wenn ich eigene Stempel habe",
+    "hideBuiltInStampsHint": "Die Stempelauswahl zeigt dann nur Ihre eigenen Stempel (persönlich, importiert und freigegeben). Ohne eigene Stempel bleiben die integrierten Stempel sichtbar."
   },
   "drawing": {
     "freehandDefaults": "Freihand-Standardwerte",
@@ -324,7 +327,16 @@
     "digitGrouping": "Tausender trennen (12 345)",
     "scaleCheck": "Maßstabsprüfung",
     "scaleCheckOk": "In Ordnung bis",
-    "scaleCheckWarn": "Warnung bis"
+    "scaleCheckWarn": "Warnung bis",
+    "units": "Einheiten",
+    "unitSystem": "Standardmaßstäbe",
+    "unitSystemBoth": "Metrisch und imperial",
+    "unitSystemMetric": "Metrisch",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperiale Längen (ft, in)",
+    "imperialDecimal": "Dezimalfuß (12,53 ft)",
+    "imperialFeetInch": "Fuß-Zoll-Bruch (12'-6 3/8\")",
+    "imperialFractionPrecision": "Kleinster Bruch"
   },
   "keyboardShortcuts": {
     "title": "Tastenkombinationen",
@@ -352,6 +364,7 @@
     "exported": "Tastenkombinationen exportiert.",
     "exportFailed": "Export der Tastenkombinationen fehlgeschlagen:",
     "recording": "Drücken Sie die neue Tastenkombination… (Esc bricht ab)",
+    "recordingSequence": "{{keys}} … weiteren Buchstaben für eine Tastenfolge drücken oder warten (Esc bricht ab)",
     "conflict": "{{keys}} wird bereits von „{{command}}“ verwendet.",
     "reassign": "Neu zuweisen",
     "reserved": "{{keys}} hat eine feste Bedeutung und kann nicht zugewiesen werden.",

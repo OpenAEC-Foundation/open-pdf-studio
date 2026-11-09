@@ -28,7 +28,9 @@
     "noTitleBlock": "Без антетка",
     "addTitleBlock": "Добавяне на собствена антетка (PDF)",
     "openTitleBlocksFolder": "Отваряне на папката с антетки",
-    "style": "Стил"
+    "style": "Стил",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Действия със задания за печат",
@@ -497,7 +499,9 @@
     "title": "Избор на печат",
     "customFromImage": "Персонализиран печат от изображение...",
     "dynamicTitle": "Печати с полета",
-    "manage": "Управление на шаблони за печати..."
+    "manage": "Управление на шаблони за печати...",
+    "builtInHidden": "Вградените печати са скрити (Настройки > Анотации > Коментари).",
+    "hideBuiltInNoOwn": "Вградените печати са настроени като скрити, но все още нямате собствени печати. Създайте такъв чрез Управление на шаблони за печати."
   },
   "calibration": {
     "title": "Калибриране на мащаба",
@@ -517,7 +521,9 @@
     "autoDetect": "Автоматично разпознаване от антетката",
     "detecting": "Разпознаване...",
     "scaleDetected": "Мащабът е разпознат!",
-    "scaleNotFound": "В антетката не е намерен мащаб"
+    "scaleNotFound": "В антетката не е намерен мащаб",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Настройка на страницата",

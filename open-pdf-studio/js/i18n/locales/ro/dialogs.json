@@ -28,7 +28,9 @@
     "noTitleBlock": "Fără cartuș",
     "addTitleBlock": "Adăugați propriul cartuș (PDF)",
     "openTitleBlocksFolder": "Deschidere folder cartușe",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Acțiuni pentru lucrările de tipărire",
@@ -497,7 +499,9 @@
     "title": "Selectare stampila",
     "customFromImage": "Stampila personalizata din imagine...",
     "dynamicTitle": "Stampile cu campuri",
-    "manage": "Gestionare sabloane de stampila..."
+    "manage": "Gestionare sabloane de stampila...",
+    "builtInHidden": "Ștampilele integrate sunt ascunse (Preferinte > Adnotari > Comentarii).",
+    "hideBuiltInNoOwn": "Ștampilele integrate sunt setate ca ascunse, dar nu aveți încă ștampile proprii. Creați una din Gestionare sabloane de stampila."
   },
   "calibration": {
     "title": "Calibrare scara",
@@ -517,7 +521,9 @@
     "autoDetect": "Detectare automată din cartuș",
     "detecting": "Se detectează...",
     "scaleDetected": "Scară detectată!",
-    "scaleNotFound": "Nu s-a găsit nicio scară în cartuș"
+    "scaleNotFound": "Nu s-a găsit nicio scară în cartuș",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Configurare pagina",

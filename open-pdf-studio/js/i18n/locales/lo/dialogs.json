@@ -28,7 +28,9 @@
     "noTitleBlock": "ບໍ່ມີຕາຕະລາງຂໍ້ມູນແບບ",
     "addTitleBlock": "ເພີ່ມຕາຕະລາງຂໍ້ມູນແບບຂອງທ່ານເອງ (PDF)",
     "openTitleBlocksFolder": "ເປີດໂຟນເດີຕາຕະລາງຂໍ້ມູນແບບ",
-    "style": "ຮູບແບບ"
+    "style": "ຮູບແບບ",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "ການດຳເນີນການຂອງລາຍການພິມ",
@@ -497,7 +499,9 @@
     "title": "ເລືອກກາປະທັບ",
     "customFromImage": "ກາປະທັບກຳນົດເອງຈາກຮູບພາບ...",
     "dynamicTitle": "ກາປະທັບທີ່ມີຊ່ອງຂໍ້ມູນ",
-    "manage": "ຈັດການແມ່ແບບກາປະທັບ..."
+    "manage": "ຈັດການແມ່ແບບກາປະທັບ...",
+    "builtInHidden": "ກາປະທັບໃນຕົວຖືກເຊື່ອງໄວ້ (ການຕັ້ງຄ່າ > ຄຳອະທິບາຍປະກອບ > ຄຳເຫັນ).",
+    "hideBuiltInNoOwn": "ຕັ້ງຄ່າໃຫ້ເຊື່ອງກາປະທັບໃນຕົວແລ້ວ ແຕ່ທ່ານຍັງບໍ່ມີກາປະທັບຂອງຕົນເອງ. ສ້າງໄດ້ທີ່ ຈັດການແມ່ແບບກາປະທັບ."
   },
   "calibration": {
     "title": "ການປັບທຽບມາດຕາສ່ວນ",
@@ -516,7 +520,9 @@
     "autoDetect": "ກວດຫາອັດຕະໂນມັດຈາກຕາຕະລາງຂໍ້ມູນແບບ",
     "detecting": "ກຳລັງກວດຫາ...",
     "scaleDetected": "ພົບມາດຕາສ່ວນແລ້ວ!",
-    "scaleNotFound": "ບໍ່ພົບມາດຕາສ່ວນໃນຕາຕະລາງຂໍ້ມູນແບບ"
+    "scaleNotFound": "ບໍ່ພົບມາດຕາສ່ວນໃນຕາຕະລາງຂໍ້ມູນແບບ",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ຕັ້ງຄ່າໜ້າເຈ້ຍ",

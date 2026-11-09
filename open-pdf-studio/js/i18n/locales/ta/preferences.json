@@ -85,7 +85,10 @@
     "subtabMeasurement": "அளவீடு",
     "redactionDefaults": "மறைப்பு இயல்புநிலைகள்",
     "overlayColor": "மேற்பூச்சு நிறம்",
-    "snapToPdfContent": "PDF வரைபட உள்ளடக்கத்திற்குப் பொருத்து"
+    "snapToPdfContent": "PDF வரைபட உள்ளடக்கத்திற்குப் பொருத்து",
+    "stamps": "முத்திரைகள்",
+    "hideBuiltInStamps": "எனது சொந்த முத்திரைகள் இருக்கும்போது உள்ளமைந்த முத்திரைகளை மறை",
+    "hideBuiltInStampsHint": "அப்போது முத்திரைத் தேர்வி உங்கள் சொந்த முத்திரைகளை (தனிப்பட்ட, இறக்குமதி செய்த மற்றும் பகிர்ந்த) மட்டும் காட்டும். சொந்த முத்திரைகள் இல்லையெனில் உள்ளமைந்த முத்திரைகள் தெரியும்."
   },
   "drawing": {
     "freehandDefaults": "கைவரை இயல்புநிலைகள்",
@@ -324,7 +327,16 @@
     "digitGrouping": "ஆயிரங்களைப் பிரி (12 345)",
     "scaleCheck": "அளவுகோல் சரிபார்ப்பு",
     "scaleCheckOk": "சரி வரம்பு",
-    "scaleCheckWarn": "எச்சரிக்கை வரம்பு"
+    "scaleCheckWarn": "எச்சரிக்கை வரம்பு",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "விசைப்பலகை குறுக்குவழிகள்",
@@ -352,6 +364,7 @@
     "exported": "குறுக்குவழிகள் ஏற்றுமதி செய்யப்பட்டன.",
     "exportFailed": "குறுக்குவழிகளை ஏற்றுமதி செய்ய முடியவில்லை:",
     "recording": "புதிய விசைச் சேர்க்கையை அழுத்தவும்… (Esc ரத்து செய்யும்)",
+    "recordingSequence": "{{keys}} … விசை வரிசைக்கு இன்னொரு எழுத்தை அழுத்தவும், அல்லது காத்திருக்கவும் (Esc ரத்து செய்யும்)",
     "conflict": "{{keys}} ஏற்கனவே “{{command}}” ஆல் பயன்படுத்தப்படுகிறது.",
     "reassign": "மீண்டும் ஒதுக்கு",
     "reserved": "{{keys}} நிலையான பொருள் கொண்டது, அதை ஒதுக்க முடியாது.",

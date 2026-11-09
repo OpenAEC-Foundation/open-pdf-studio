@@ -85,7 +85,10 @@
     "subtabMeasurement": "Måling",
     "redactionDefaults": "Standarder for sladding",
     "overlayColor": "Overleggsfarge",
-    "snapToPdfContent": "Fest til PDF-tegningsinnhold"
+    "snapToPdfContent": "Fest til PDF-tegningsinnhold",
+    "stamps": "Stempler",
+    "hideBuiltInStamps": "Skjul innebygde stempler når jeg har egne stempler",
+    "hideBuiltInStampsHint": "Stempelvelgeren viser da bare dine egne stempler (personlige, importerte og delte). Uten egne stempler forblir de innebygde stemplene synlige."
   },
   "drawing": {
     "freehandDefaults": "Frihåndsstandarder",
@@ -324,7 +327,16 @@
     "digitGrouping": "Skill tusener (12 345)",
     "scaleCheck": "Målestokkontroll",
     "scaleCheckOk": "I orden opptil",
-    "scaleCheckWarn": "Advarsel opptil"
+    "scaleCheckWarn": "Advarsel opptil",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Hurtigtaster",
@@ -352,6 +364,7 @@
     "exported": "Hurtigtaster eksportert.",
     "exportFailed": "Eksport av hurtigtastene mislyktes:",
     "recording": "Trykk den nye tastekombinasjonen… (Esc avbryter)",
+    "recordingSequence": "{{keys}} … trykk en bokstav til for en tastesekvens, eller vent (Esc avbryter)",
     "conflict": "{{keys}} brukes allerede av «{{command}}».",
     "reassign": "Tilordne på nytt",
     "reserved": "{{keys}} har en fast betydning og kan ikke tilordnes.",

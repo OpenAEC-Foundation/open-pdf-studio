@@ -85,7 +85,10 @@
     "subtabMeasurement": "Měření",
     "redactionDefaults": "Výchozí hodnoty redigování",
     "overlayColor": "Barva překrytí",
-    "snapToPdfContent": "Přichytit k obsahu výkresu PDF"
+    "snapToPdfContent": "Přichytit k obsahu výkresu PDF",
+    "stamps": "Razítka",
+    "hideBuiltInStamps": "Skrýt vestavěná razítka, když mám vlastní razítka",
+    "hideBuiltInStampsHint": "Výběr razítek pak zobrazí jen vaše vlastní razítka (osobní, importovaná a sdílená). Bez vlastních razítek zůstanou vestavěná razítka viditelná."
   },
   "drawing": {
     "freehandDefaults": "Výchozí hodnoty volného kreslení",
@@ -324,7 +327,16 @@
     "digitGrouping": "Oddělovat tisíce (12 345)",
     "scaleCheck": "Kontrola měřítka",
     "scaleCheckOk": "V pořádku do",
-    "scaleCheckWarn": "Upozornění do"
+    "scaleCheckWarn": "Upozornění do",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Klávesové zkratky",
@@ -352,6 +364,7 @@
     "exported": "Zkratky exportovány.",
     "exportFailed": "Export zkratek se nezdařil:",
     "recording": "Stiskněte novou kombinaci kláves… (Esc zruší)",
+    "recordingSequence": "{{keys}} … stiskněte další písmeno pro sekvenci kláves, nebo počkejte (Esc zruší)",
     "conflict": "{{keys}} už používá „{{command}}“.",
     "reassign": "Přiřadit znovu",
     "reserved": "{{keys}} má pevný význam a nelze ji přiřadit.",

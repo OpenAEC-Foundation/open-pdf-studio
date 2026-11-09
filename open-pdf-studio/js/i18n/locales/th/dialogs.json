@@ -28,7 +28,9 @@
     "noTitleBlock": "ไม่มีกรอบชื่อแบบ",
     "addTitleBlock": "เพิ่มกรอบชื่อแบบของคุณเอง (PDF)",
     "openTitleBlocksFolder": "เปิดโฟลเดอร์กรอบชื่อแบบ",
-    "style": "สไตล์"
+    "style": "สไตล์",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "การทำงานของงานพิมพ์",
@@ -497,7 +499,9 @@
     "title": "เลือกตราประทับ",
     "customFromImage": "ตราประทับกำหนดเองจากรูปภาพ...",
     "dynamicTitle": "ตราประทับที่มีช่องข้อมูล",
-    "manage": "จัดการแม่แบบตราประทับ..."
+    "manage": "จัดการแม่แบบตราประทับ...",
+    "builtInHidden": "ตราประทับในตัวถูกซ่อนอยู่ (การตั้งค่า > คำอธิบายประกอบ > ความคิดเห็น)",
+    "hideBuiltInNoOwn": "ตั้งค่าให้ซ่อนตราประทับในตัวแล้ว แต่คุณยังไม่มีตราประทับของตัวเอง สร้างได้ที่ จัดการแม่แบบตราประทับ"
   },
   "calibration": {
     "title": "การปรับเทียบมาตราส่วน",
@@ -517,7 +521,9 @@
     "autoDetect": "ตรวจหาอัตโนมัติจากกรอบชื่อแบบ",
     "detecting": "กำลังตรวจหา...",
     "scaleDetected": "ตรวจพบมาตราส่วนแล้ว!",
-    "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ"
+    "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ตั้งค่าหน้ากระดาษ",

@@ -85,7 +85,10 @@
     "subtabMeasurement": "Мерење",
     "redactionDefaults": "Подразумевано за редакцију",
     "overlayColor": "Боја прекривања",
-    "snapToPdfContent": "Привлачење на садржај PDF цртежа"
+    "snapToPdfContent": "Привлачење на садржај PDF цртежа",
+    "stamps": "Печати",
+    "hideBuiltInStamps": "Сакриј уграђене печате када имам сопствене печате",
+    "hideBuiltInStampsHint": "Бирач печата тада приказује само ваше сопствене печате (личне, увезене и дељене). Без сопствених печата уграђени печати остају видљиви."
   },
   "drawing": {
     "freehandDefaults": "Подразумевано за слободну руку",
@@ -324,7 +327,16 @@
     "digitGrouping": "Раздвајај хиљаде (12 345)",
     "scaleCheck": "Провера размере",
     "scaleCheckOk": "У реду до",
-    "scaleCheckWarn": "Упозорење до"
+    "scaleCheckWarn": "Упозорење до",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Пречице на тастатури",
@@ -352,6 +364,7 @@
     "exported": "Пречице су извезене.",
     "exportFailed": "Извоз пречица није успео:",
     "recording": "Притисните нову комбинацију тастера… (Esc отказује)",
+    "recordingSequence": "{{keys}} … притисните још једно слово за низ тастера или сачекајте (Esc поништава)",
     "conflict": "{{keys}} већ користи „{{command}}”.",
     "reassign": "Поново додели",
     "reserved": "{{keys}} има фиксно значење и не може се доделити.",

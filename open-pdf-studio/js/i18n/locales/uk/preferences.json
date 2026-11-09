@@ -85,7 +85,10 @@
     "subtabMeasurement": "Вимірювання",
     "redactionDefaults": "Типові значення редагування",
     "overlayColor": "Колір накладання",
-    "snapToPdfContent": "Прив'язка до вмісту креслення PDF"
+    "snapToPdfContent": "Прив'язка до вмісту креслення PDF",
+    "stamps": "Штампи",
+    "hideBuiltInStamps": "Приховувати вбудовані штампи, якщо в мене є власні штампи",
+    "hideBuiltInStampsHint": "Тоді у виборі штампів показуються лише ваші власні штампи (особисті, імпортовані та спільні). Без власних штампів вбудовані штампи залишаються видимими."
   },
   "drawing": {
     "freehandDefaults": "Типові значення малювання від руки",
@@ -324,7 +327,16 @@
     "digitGrouping": "Розділяти тисячі (12 345)",
     "scaleCheck": "Перевірка масштабу",
     "scaleCheckOk": "У нормі до",
-    "scaleCheckWarn": "Попередження до"
+    "scaleCheckWarn": "Попередження до",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Сполучення клавіш",
@@ -352,6 +364,7 @@
     "exported": "Сполучення експортовано.",
     "exportFailed": "Не вдалося експортувати сполучення:",
     "recording": "Натисніть нове сполучення клавіш… (Esc — скасувати)",
+    "recordingSequence": "{{keys}} … натисніть ще одну літеру для послідовності клавіш або зачекайте (Esc — скасувати)",
     "conflict": "{{keys}} уже використовує команда «{{command}}».",
     "reassign": "Перепризначити",
     "reserved": "{{keys}} має фіксоване призначення, його не можна призначити.",

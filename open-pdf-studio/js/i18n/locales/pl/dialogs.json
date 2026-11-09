@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez tabliczki rysunkowej",
     "addTitleBlock": "Dodaj własną tabliczkę rysunkową (PDF)",
     "openTitleBlocksFolder": "Otwórz folder tabliczek rysunkowych",
-    "style": "Styl"
+    "style": "Styl",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Akcje zadań drukowania",
@@ -497,7 +499,9 @@
     "title": "Wybierz pieczątkę",
     "customFromImage": "Niestandardowa pieczątka z obrazu...",
     "dynamicTitle": "Pieczątki z polami",
-    "manage": "Zarządzaj szablonami pieczątek..."
+    "manage": "Zarządzaj szablonami pieczątek...",
+    "builtInHidden": "Wbudowane pieczątki są ukryte (Preferencje > Adnotacje > Komentarze).",
+    "hideBuiltInNoOwn": "Wbudowane pieczątki są ustawione jako ukryte, ale nie masz jeszcze własnych pieczątek. Utwórz ją w Zarządzaj szablonami pieczątek."
   },
   "calibration": {
     "title": "Kalibracja skali",
@@ -517,7 +521,9 @@
     "autoDetect": "Wykryj automatycznie z tabliczki rysunkowej",
     "detecting": "Wykrywanie...",
     "scaleDetected": "Wykryto skalę!",
-    "scaleNotFound": "Nie znaleziono skali w tabliczce rysunkowej"
+    "scaleNotFound": "Nie znaleziono skali w tabliczce rysunkowej",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Ustawienia strony",

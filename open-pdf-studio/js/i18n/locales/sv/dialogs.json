@@ -28,7 +28,9 @@
     "noTitleBlock": "Ingen namnruta",
     "addTitleBlock": "Lägg till en egen namnruta (PDF)",
     "openTitleBlocksFolder": "Öppna mappen med namnrutor",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Åtgärder för utskriftsjobb",
@@ -497,7 +499,9 @@
     "title": "Välj stämpel",
     "customFromImage": "Anpassad stämpel från bild...",
     "dynamicTitle": "Stämplar med fält",
-    "manage": "Hantera stämpelmallar..."
+    "manage": "Hantera stämpelmallar...",
+    "builtInHidden": "Inbyggda stämplar är dolda (Inställningar > Anteckningar > Kommentarer).",
+    "hideBuiltInNoOwn": "Inbyggda stämplar är inställda på att döljas, men du har inga egna stämplar ännu. Skapa en via Hantera stämpelmallar."
   },
   "calibration": {
     "title": "Skalakalibrering",
@@ -517,7 +521,9 @@
     "autoDetect": "Identifiera automatiskt från namnrutan",
     "detecting": "Identifierar...",
     "scaleDetected": "Skala identifierad!",
-    "scaleNotFound": "Ingen skala hittades i namnrutan"
+    "scaleNotFound": "Ingen skala hittades i namnrutan",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sidinställningar",

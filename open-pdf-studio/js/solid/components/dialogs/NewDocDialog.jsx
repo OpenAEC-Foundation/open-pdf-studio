@@ -9,6 +9,7 @@ import { scanTitleBlocks, openTitleBlocksFolder, addTitleBlockFile, composeFrame
   from '../../../pdf/titleblocks.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { laadHuisstijlKaders, kaderLabel, kaderMaat, maakKaderPdf } from '../../../pdf/huisstijl-kaders.js';
+import { US_PAPIERFORMATEN, usFormatenVan, usFormaatTekst, usInPunten, usInMm } from '../../../core/us-papierformaten.js';
 
 // Preferred defaults when the dialog opens: OpenAEC Grootformaat frame,
 // A1, landscape (liggend). These only take effect when a matching frame
@@ -32,6 +33,12 @@ const PAPER_SIZES = {
   legal:   { width: 612,  height: 1008, label: 'Legal', widthMm: 216, heightMm: 356 },
   tabloid: { width: 792,  height: 1224, label: 'Tabloid', widthMm: 279, heightMm: 432 },
   ledger:  { width: 1224, height: 792,  label: 'Ledger', widthMm: 432, heightMm: 279 },
+  // US-tekenvellen ARCH A–E1 en ANSI A–E (#996), uit de gedeelde lijst.
+  ...Object.fromEntries(US_PAPIERFORMATEN.map((f) => {
+    const pt = usInPunten(f);
+    const mm = usInMm(f);
+    return [f.sleutel, { width: pt.breedte, height: pt.hoogte, label: f.label, widthMm: mm.breedte, heightMm: mm.hoogte }];
+  })),
 };
 
 export { PAPER_SIZES };
@@ -423,6 +430,12 @@ export default function NewDocDialog() {
                 <option value="legal">Legal (8.5 x 14 in)</option>
                 <option value="tabloid">Tabloid (11 x 17 in)</option>
                 <option value="ledger">Ledger (17 x 11 in)</option>
+              </optgroup>
+              <optgroup label={t('newDoc.usArchitectural')}>
+                <For each={usFormatenVan('arch')}>{(f) => <option value={f.sleutel}>{usFormaatTekst(f)}</option>}</For>
+              </optgroup>
+              <optgroup label={t('newDoc.usEngineering')}>
+                <For each={usFormatenVan('ansi')}>{(f) => <option value={f.sleutel}>{usFormaatTekst(f)}</option>}</For>
               </optgroup>
               <optgroup label={t('newDoc.other')}>
                 <option value="custom">{t('newDoc.customSize')}</option>

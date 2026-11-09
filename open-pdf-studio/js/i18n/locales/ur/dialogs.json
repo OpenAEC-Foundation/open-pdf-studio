@@ -28,7 +28,9 @@
     "noTitleBlock": "کوئی ٹائٹل بلاک نہیں",
     "addTitleBlock": "اپنا ٹائٹل بلاک شامل کریں (PDF)",
     "openTitleBlocksFolder": "ٹائٹل بلاکس فولڈر کھولیں",
-    "style": "انداز"
+    "style": "انداز",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "پرنٹ جاب کے اقدامات",
@@ -497,7 +499,9 @@
     "title": "مہر منتخب کریں",
     "customFromImage": "تصویر سے حسب ضرورت مہر...",
     "dynamicTitle": "فیلڈز والی مہریں",
-    "manage": "مہر کے سانچوں کا انتظام..."
+    "manage": "مہر کے سانچوں کا انتظام...",
+    "builtInHidden": "بلٹ اِن مہریں چھپی ہوئی ہیں (ترجیحات > تشریحات > تبصرے)۔",
+    "hideBuiltInNoOwn": "بلٹ اِن مہریں چھپانے پر سیٹ ہیں، لیکن ابھی آپ کی کوئی اپنی مہر نہیں ہے۔ مہر کے سانچوں کا انتظام سے ایک بنائیں۔"
   },
   "calibration": {
     "title": "اسکیل کیلیبریشن",
@@ -517,7 +521,9 @@
     "autoDetect": "ٹائٹل بلاک سے خودکار شناخت",
     "detecting": "شناخت ہو رہی ہے...",
     "scaleDetected": "پیمانہ شناخت ہو گیا!",
-    "scaleNotFound": "ٹائٹل بلاک میں کوئی پیمانہ نہیں ملا"
+    "scaleNotFound": "ٹائٹل بلاک میں کوئی پیمانہ نہیں ملا",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "صفحہ سیٹ اپ",

@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez sastavnice",
     "addTitleBlock": "Dodaj vlastitu sastavnicu (PDF)",
     "openTitleBlocksFolder": "Otvori mapu sastavnica",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Radnje za zadatke ispisa",
@@ -497,7 +499,9 @@
     "title": "Odaberite pečat",
     "customFromImage": "Prilagođeni pečat iz slike...",
     "dynamicTitle": "Pečati s poljima",
-    "manage": "Upravljanje predlošcima pečata..."
+    "manage": "Upravljanje predlošcima pečata...",
+    "builtInHidden": "Ugrađeni pečati su skriveni (Postavke > Oznake > Komentari).",
+    "hideBuiltInNoOwn": "Ugrađeni pečati postavljeni su kao skriveni, ali još nemate vlastitih pečata. Izradite jedan putem Upravljanje predlošcima pečata."
   },
   "calibration": {
     "title": "Kalibracija mjerila",
@@ -517,7 +521,9 @@
     "autoDetect": "Automatski prepoznaj iz sastavnice",
     "detecting": "Otkrivanje...",
     "scaleDetected": "Mjerilo prepoznato!",
-    "scaleNotFound": "U sastavnici nije pronađeno mjerilo"
+    "scaleNotFound": "U sastavnici nije pronađeno mjerilo",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Postavljanje stranice",

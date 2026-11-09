@@ -5,6 +5,8 @@
 // afleiden uit de pagina, een handmatige keuze per document onthouden, en de
 // argumenten voor print_pdf. Geen DOM, geen state — volledig te testen.
 
+import { US_PAPIERFORMATEN, usInMm } from '../core/us-papierformaten.js';
+
 /** Een verlengd vel is het basisvel plus één A4-breedte in de lengte; het vouwt terug naar A4. */
 export const VERLENGING_MM = 210;
 
@@ -33,12 +35,19 @@ export const PAPIERFORMATEN = Object.freeze({
   letter: { breedte: 216, hoogte: 279, label: 'Letter' },
   legal: { breedte: 216, hoogte: 356, label: 'Legal' },
   tabloid: { breedte: 279, hoogte: 432, label: 'Tabloid' },
+  // US-tekenvellen (#996) uit de gedeelde lijst, in mm op 0,1 mm; ANSI A en
+  // ANSI B zijn Letter en Tabloid en staan hierboven al. Rust kent dezelfde
+  // vellen (print_instelling.rs, Papier::ArchA ...).
+  ...Object.fromEntries(US_PAPIERFORMATEN
+    .filter((f) => f.sleutel !== 'ansi-a' && f.sleutel !== 'ansi-b')
+    .map((f) => [f.sleutel, { ...usInMm(f), label: f.label, inch: [f.breedteIn, f.hoogteIn] }])),
 });
 
-/** Tekst in de keuzelijst en in de kop van de printdialoog: "A3L (297 x 630 mm)". */
+/** Tekst in de keuzelijst en in de kop van de printdialoog: "A3L (297 x 630 mm)", "ARCH D (24 x 36 in)". */
 export function formaatTekst(sleutel) {
   const f = PAPIERFORMATEN[sleutel];
-  return f ? `${f.label} (${f.breedte} x ${f.hoogte} mm)` : null;
+  if (!f) return null;
+  return f.inch ? `${f.label} (${f.inch[0]} x ${f.inch[1]} in)` : `${f.label} (${f.breedte} x ${f.hoogte} mm)`;
 }
 
 const TOLERANTIE_MM = 3;

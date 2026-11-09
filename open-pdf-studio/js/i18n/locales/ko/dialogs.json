@@ -28,7 +28,9 @@
     "noTitleBlock": "표제란 없음",
     "addTitleBlock": "나만의 표제란 추가(PDF)",
     "openTitleBlocksFolder": "표제란 폴더 열기",
-    "style": "스타일"
+    "style": "스타일",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "인쇄 작업 동작",
@@ -497,7 +499,9 @@
     "title": "스탬프 선택",
     "customFromImage": "이미지에서 사용자 지정 스탬프 만들기...",
     "dynamicTitle": "필드가 있는 스탬프",
-    "manage": "스탬프 템플릿 관리..."
+    "manage": "스탬프 템플릿 관리...",
+    "builtInHidden": "기본 제공 스탬프가 숨겨져 있습니다(환경 설정 > 주석 > 댓글).",
+    "hideBuiltInNoOwn": "기본 제공 스탬프가 숨김으로 설정되어 있지만 아직 내 스탬프가 없습니다. 스탬프 템플릿 관리에서 하나 만드세요."
   },
   "calibration": {
     "title": "배율 보정",
@@ -517,7 +521,9 @@
     "autoDetect": "표제란에서 자동 감지",
     "detecting": "감지 중...",
     "scaleDetected": "축척을 감지했습니다!",
-    "scaleNotFound": "표제란에서 축척을 찾을 수 없습니다"
+    "scaleNotFound": "표제란에서 축척을 찾을 수 없습니다",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "페이지 설정",

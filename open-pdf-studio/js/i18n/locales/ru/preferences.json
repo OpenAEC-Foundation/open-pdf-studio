@@ -85,7 +85,10 @@
     "subtabMeasurement": "Измерение",
     "redactionDefaults": "Настройки затирания по умолчанию",
     "overlayColor": "Цвет наложения",
-    "snapToPdfContent": "Привязка к содержимому PDF-чертежа"
+    "snapToPdfContent": "Привязка к содержимому PDF-чертежа",
+    "stamps": "Штампы",
+    "hideBuiltInStamps": "Скрывать встроенные штампы, если у меня есть свои штампы",
+    "hideBuiltInStampsHint": "Тогда в окне выбора штампов показываются только ваши штампы (личные, импортированные и общие). Если своих штампов нет, встроенные штампы остаются видимыми."
   },
   "drawing": {
     "freehandDefaults": "Настройки рисования от руки по умолчанию",
@@ -324,7 +327,16 @@
     "digitGrouping": "Разделять тысячи (12 345)",
     "scaleCheck": "Проверка масштаба",
     "scaleCheckOk": "В норме до",
-    "scaleCheckWarn": "Предупреждение до"
+    "scaleCheckWarn": "Предупреждение до",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Сочетания клавиш",
@@ -352,6 +364,7 @@
     "exported": "Сочетания экспортированы.",
     "exportFailed": "Не удалось экспортировать сочетания:",
     "recording": "Нажмите новое сочетание клавиш… (Esc — отмена)",
+    "recordingSequence": "{{keys}} … нажмите ещё одну букву для последовательности клавиш или подождите (Esc — отмена)",
     "conflict": "{{keys}} уже используется командой «{{command}}».",
     "reassign": "Переназначить",
     "reserved": "{{keys}} имеет фиксированное назначение и не может быть назначено.",

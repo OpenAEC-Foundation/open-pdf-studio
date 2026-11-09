@@ -85,7 +85,10 @@
     "subtabMeasurement": "Pengukuran",
     "redactionDefaults": "Bawaan Redaksi",
     "overlayColor": "Warna Lapisan Atas",
-    "snapToPdfContent": "Snap ke Konten Gambar PDF"
+    "snapToPdfContent": "Snap ke Konten Gambar PDF",
+    "stamps": "Stempel",
+    "hideBuiltInStamps": "Sembunyikan stempel bawaan saat saya punya stempel sendiri",
+    "hideBuiltInStampsHint": "Pemilih stempel kemudian hanya menampilkan stempel Anda sendiri (pribadi, impor, dan bersama). Tanpa stempel sendiri, stempel bawaan tetap terlihat."
   },
   "drawing": {
     "freehandDefaults": "Bawaan Gambar Bebas",
@@ -324,7 +327,16 @@
     "digitGrouping": "Kelompokkan ribuan (12 345)",
     "scaleCheck": "Pemeriksaan skala",
     "scaleCheckOk": "Baik hingga",
-    "scaleCheckWarn": "Peringatan hingga"
+    "scaleCheckWarn": "Peringatan hingga",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Pintasan keyboard",
@@ -352,6 +364,7 @@
     "exported": "Pintasan diekspor.",
     "exportFailed": "Gagal mengekspor pintasan:",
     "recording": "Tekan kombinasi tombol baru… (Esc membatalkan)",
+    "recordingSequence": "{{keys}} … tekan huruf lain untuk urutan tombol, atau tunggu (Esc membatalkan)",
     "conflict": "{{keys}} sudah dipakai oleh “{{command}}”.",
     "reassign": "Tetapkan ulang",
     "reserved": "{{keys}} memiliki arti tetap dan tidak dapat ditetapkan.",

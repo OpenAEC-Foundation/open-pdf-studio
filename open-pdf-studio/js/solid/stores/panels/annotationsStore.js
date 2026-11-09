@@ -57,7 +57,12 @@ function toggleHiddenStatus(statusKey) {
 // datumbereik. Werkt alleen op de lijst (en daarmee op CSV en rapport); het
 // statusfilter hierboven werkt ook op het canvas.
 const [listFilter, setListFilterSignal] = createSignal(leegFilter());
-const [filterOptions, setFilterOptions] = createSignal({ authors: [], types: [] });
+// Gelijke keuzes niet opnieuw zetten: elke lijstverversing maakte nieuwe
+// soort-objecten, waardoor de <option>-elementen opnieuw gemaakt werden en de
+// gekozen soort uit de keuzelijst viel terwijl het filter nog actief was (#1002).
+const [filterOptions, setFilterOptions] = createSignal({ authors: [], types: [] }, {
+  equals: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+});
 const [filterBarOpen, setFilterBarOpen] = createSignal(false);
 
 function updateListFilter(patch) {

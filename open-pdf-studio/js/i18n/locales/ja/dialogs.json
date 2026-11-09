@@ -28,7 +28,9 @@
     "noTitleBlock": "表題欄なし",
     "addTitleBlock": "独自の表題欄を追加 (PDF)",
     "openTitleBlocksFolder": "表題欄フォルダーを開く",
-    "style": "スタイル"
+    "style": "スタイル",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "印刷ジョブの操作",
@@ -497,7 +499,9 @@
     "title": "スタンプを選択",
     "customFromImage": "画像からカスタムスタンプを作成...",
     "dynamicTitle": "フィールド付きスタンプ",
-    "manage": "スタンプテンプレートの管理..."
+    "manage": "スタンプテンプレートの管理...",
+    "builtInHidden": "組み込みスタンプは非表示です（環境設定 > 注釈 > コメント）。",
+    "hideBuiltInNoOwn": "組み込みスタンプは非表示に設定されていますが、自分のスタンプがまだありません。「スタンプテンプレートの管理」から作成してください。"
   },
   "calibration": {
     "title": "スケール校正",
@@ -517,7 +521,9 @@
     "autoDetect": "表題欄から自動検出",
     "detecting": "検出中...",
     "scaleDetected": "縮尺を検出しました！",
-    "scaleNotFound": "表題欄に縮尺が見つかりません"
+    "scaleNotFound": "表題欄に縮尺が見つかりません",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ページ設定",

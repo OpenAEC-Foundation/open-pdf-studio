@@ -85,7 +85,10 @@
     "subtabMeasurement": "Pengukuran",
     "redactionDefaults": "Lalai Redaksi",
     "overlayColor": "Warna Tindihan",
-    "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF"
+    "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF",
+    "stamps": "Setem",
+    "hideBuiltInStamps": "Sembunyikan setem terbina dalam apabila saya mempunyai setem sendiri",
+    "hideBuiltInStampsHint": "Pemilih setem kemudian hanya memaparkan setem anda sendiri (peribadi, diimport dan dikongsi). Tanpa setem sendiri, setem terbina dalam kekal kelihatan."
   },
   "drawing": {
     "freehandDefaults": "Lalai Bebas",
@@ -324,7 +327,16 @@
     "digitGrouping": "Kumpulkan ribuan (12 345)",
     "scaleCheck": "Semakan skala",
     "scaleCheckOk": "Baik hingga",
-    "scaleCheckWarn": "Amaran hingga"
+    "scaleCheckWarn": "Amaran hingga",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Pintasan papan kekunci",
@@ -352,6 +364,7 @@
     "exported": "Pintasan dieksport.",
     "exportFailed": "Gagal mengeksport pintasan:",
     "recording": "Tekan gabungan kekunci baharu… (Esc membatalkan)",
+    "recordingSequence": "{{keys}} … tekan huruf lain untuk jujukan kekunci, atau tunggu (Esc membatalkan)",
     "conflict": "{{keys}} sudah digunakan oleh “{{command}}”.",
     "reassign": "Tetapkan semula",
     "reserved": "{{keys}} mempunyai makna tetap dan tidak boleh ditetapkan.",

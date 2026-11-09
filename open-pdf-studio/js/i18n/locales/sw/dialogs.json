@@ -28,7 +28,9 @@
     "noTitleBlock": "Hakuna jedwali la kichwa",
     "addTitleBlock": "Ongeza jedwali lako la kichwa (PDF)",
     "openTitleBlocksFolder": "Fungua folda ya majedwali ya kichwa",
-    "style": "Mtindo"
+    "style": "Mtindo",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Vitendo vya kazi ya uchapishaji",
@@ -497,7 +499,9 @@
     "title": "Chagua Muhuri",
     "customFromImage": "Muhuri wa Desturi kutoka Picha...",
     "dynamicTitle": "Mihuri yenye sehemu",
-    "manage": "Dhibiti violezo vya muhuri..."
+    "manage": "Dhibiti violezo vya muhuri...",
+    "builtInHidden": "Mihuri iliyojengewa ndani imefichwa (Mapendeleo > Maoni > Maoni).",
+    "hideBuiltInNoOwn": "Mihuri iliyojengewa ndani imewekwa kufichwa, lakini bado huna mihuri yako. Unda mmoja kupitia Dhibiti violezo vya muhuri."
   },
   "calibration": {
     "title": "Urekebishaji wa Kipimo",
@@ -517,7 +521,9 @@
     "autoDetect": "Gundua kiotomatiki kutoka jedwali la kichwa",
     "detecting": "Inagundua...",
     "scaleDetected": "Kipimo kimegunduliwa!",
-    "scaleNotFound": "Hakuna kipimo kilichopatikana kwenye jedwali la kichwa"
+    "scaleNotFound": "Hakuna kipimo kilichopatikana kwenye jedwali la kichwa",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Mpangilio wa Ukurasa",

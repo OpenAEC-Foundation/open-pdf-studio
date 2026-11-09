@@ -16,15 +16,16 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { scaleSelectOptions, isImperialScalePreset } from '../../../annotations/scale-presets.js';
+import { scaleSelectOptions, isImperialScalePreset, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 
 // Standard drawing scales for the dropdown (largest → smallest denominator),
 // followed by the imperial architectural/engineering scales (#972).
 const METRIC_REGION_SCALES = [
   '1:200', '1:100', '1:50', '1:20', '1:10', '1:5', '1:2', '1:1',
 ];
-const SCALE_OPTIONS = scaleSelectOptions(METRIC_REGION_SCALES);
-const PRESET_SCALES = SCALE_OPTIONS.map(o => o.value);
+// Alle standaardschalen (ongeacht het gekozen stelsel): wat hierin staat is
+// geen eigen schaal.
+const PRESET_SCALES = scaleSelectOptions(METRIC_REGION_SCALES, { system: 'both' }).map(o => o.value);
 
 function redraw() {
   const doc = getActiveDocument();
@@ -176,7 +177,8 @@ export default function ScaleRegionDialog(props) {
               }
             }}
             options={[
-              ...SCALE_OPTIONS,
+              // Metrisch, imperiaal of beide volgens de voorkeur (#996).
+              ...scaleSelectOptions(METRIC_REGION_SCALES, { current: scaleString() }),
               { value: '__custom__', label: t('scaleRegion.custom') || 'Aangepast…' },
             ]}
             style={{ width: '100%' }}
@@ -190,6 +192,10 @@ export default function ScaleRegionDialog(props) {
               placeholder="1:75"
               style="width:100%;box-sizing:border-box;margin-top:4px"
             />
+            {/* Imperiaal ook in inch-notatie (#1000). */}
+            <Show when={scaleDisplayLabel(scaleString(), units(), { withRatio: false }) !== scaleString().replace(/\s+/g, '')}>
+              <div style="font-size:11px;margin-top:2px">{scaleDisplayLabel(scaleString(), units())}</div>
+            </Show>
           </Show>
           {/* Derive the scale by measuring a known distance on the drawing:
               hides this dialog, 2-click pick, asks for the real length,

@@ -85,7 +85,10 @@
     "subtabMeasurement": "Măsurare",
     "redactionDefaults": "Valori implicite redactare",
     "overlayColor": "Culoare suprapunere",
-    "snapToPdfContent": "Fixare la conținutul desenului PDF"
+    "snapToPdfContent": "Fixare la conținutul desenului PDF",
+    "stamps": "Ștampile",
+    "hideBuiltInStamps": "Ascunde ștampilele integrate când am ștampile proprii",
+    "hideBuiltInStampsHint": "Selectorul de ștampile afișează atunci doar ștampilele dvs. (personale, importate și partajate). Fără ștampile proprii, ștampilele integrate rămân vizibile."
   },
   "drawing": {
     "freehandDefaults": "Valori implicite mana libera",
@@ -324,7 +327,16 @@
     "digitGrouping": "Grupează miile (12 345)",
     "scaleCheck": "Verificarea scării",
     "scaleCheckOk": "Corect până la",
-    "scaleCheckWarn": "Avertisment până la"
+    "scaleCheckWarn": "Avertisment până la",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Comenzi rapide de la tastatură",
@@ -352,6 +364,7 @@
     "exported": "Comenzi rapide exportate.",
     "exportFailed": "Exportul comenzilor rapide a eșuat:",
     "recording": "Apăsați noua combinație de taste… (Esc anulează)",
+    "recordingSequence": "{{keys}} … apăsați încă o literă pentru o secvență de taste sau așteptați (Esc anulează)",
     "conflict": "{{keys}} este deja folosită de „{{command}}”.",
     "reassign": "Reatribuiți",
     "reserved": "{{keys}} are o semnificație fixă și nu poate fi atribuită.",

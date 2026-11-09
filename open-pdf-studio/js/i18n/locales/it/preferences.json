@@ -85,7 +85,10 @@
     "subtabShapes": "Forme",
     "subtabMeasurement": "Misurazione",
     "redactionDefaults": "Predefiniti oscuramento",
-    "overlayColor": "Colore di sovrapposizione"
+    "overlayColor": "Colore di sovrapposizione",
+    "stamps": "Timbri",
+    "hideBuiltInStamps": "Nascondi i timbri integrati quando ho timbri personali",
+    "hideBuiltInStampsHint": "Il selettore di timbri mostra allora solo i tuoi timbri (personali, importati e condivisi). Senza timbri personali, i timbri integrati restano visibili."
   },
   "drawing": {
     "freehandDefaults": "Predefiniti mano libera",
@@ -324,7 +327,16 @@
     "digitGrouping": "Separa le migliaia (12 345)",
     "scaleCheck": "Verifica della scala",
     "scaleCheckOk": "Corretto fino a",
-    "scaleCheckWarn": "Avviso fino a"
+    "scaleCheckWarn": "Avviso fino a",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Scorciatoie da tastiera",
@@ -352,6 +364,7 @@
     "exported": "Scorciatoie esportate.",
     "exportFailed": "Esportazione delle scorciatoie non riuscita:",
     "recording": "Premi la nuova combinazione di tasti… (Esc annulla)",
+    "recordingSequence": "{{keys}} … premi un'altra lettera per una sequenza di tasti, oppure attendi (Esc annulla)",
     "conflict": "{{keys}} è già usato da «{{command}}».",
     "reassign": "Riassegna",
     "reserved": "{{keys}} ha un significato fisso e non può essere assegnato.",

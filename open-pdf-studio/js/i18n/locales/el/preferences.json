@@ -85,7 +85,10 @@
     "subtabMeasurement": "Μέτρηση",
     "redactionDefaults": "Προεπιλογές απαλοιφής",
     "overlayColor": "Χρώμα επικάλυψης",
-    "snapToPdfContent": "Κούμπωμα στο περιεχόμενο σχεδίου PDF"
+    "snapToPdfContent": "Κούμπωμα στο περιεχόμενο σχεδίου PDF",
+    "stamps": "Σφραγίδες",
+    "hideBuiltInStamps": "Απόκρυψη ενσωματωμένων σφραγίδων όταν έχω δικές μου σφραγίδες",
+    "hideBuiltInStampsHint": "Η επιλογή σφραγίδων εμφανίζει τότε μόνο τις δικές σας σφραγίδες (προσωπικές, εισαγόμενες και κοινόχρηστες). Χωρίς δικές σας σφραγίδες, οι ενσωματωμένες παραμένουν ορατές."
   },
   "drawing": {
     "freehandDefaults": "Προεπιλογές ελεύθερου χεριού",
@@ -324,7 +327,16 @@
     "digitGrouping": "Διαχωρισμός χιλιάδων (12 345)",
     "scaleCheck": "Έλεγχος κλίμακας",
     "scaleCheckOk": "Εντάξει έως",
-    "scaleCheckWarn": "Προειδοποίηση έως"
+    "scaleCheckWarn": "Προειδοποίηση έως",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Συντομεύσεις πληκτρολογίου",
@@ -352,6 +364,7 @@
     "exported": "Οι συντομεύσεις εξήχθησαν.",
     "exportFailed": "Η εξαγωγή των συντομεύσεων απέτυχε:",
     "recording": "Πατήστε τον νέο συνδυασμό πλήκτρων… (Esc για ακύρωση)",
+    "recordingSequence": "{{keys}} … πατήστε άλλο ένα γράμμα για ακολουθία πλήκτρων ή περιμένετε (Esc για ακύρωση)",
     "conflict": "Το {{keys}} χρησιμοποιείται ήδη από «{{command}}».",
     "reassign": "Εκ νέου ανάθεση",
     "reserved": "Το {{keys}} έχει σταθερή λειτουργία και δεν μπορεί να ανατεθεί.",

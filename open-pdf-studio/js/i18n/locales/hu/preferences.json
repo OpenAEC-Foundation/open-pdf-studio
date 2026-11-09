@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mérés",
     "redactionDefaults": "Kitörlés alapértelmezései",
     "overlayColor": "Fedő szín",
-    "snapToPdfContent": "Bekötés a PDF-rajz tartalmához"
+    "snapToPdfContent": "Bekötés a PDF-rajz tartalmához",
+    "stamps": "Bélyegzők",
+    "hideBuiltInStamps": "Beépített bélyegzők elrejtése, ha vannak saját bélyegzőim",
+    "hideBuiltInStampsHint": "A bélyegzőválasztó ekkor csak a saját bélyegzőit mutatja (személyes, importált és megosztott). Saját bélyegzők nélkül a beépített bélyegzők láthatók maradnak."
   },
   "drawing": {
     "freehandDefaults": "Szabadkézi alapértelmezések",
@@ -324,7 +327,16 @@
     "digitGrouping": "Ezresek tagolása (12 345)",
     "scaleCheck": "Léptékellenőrzés",
     "scaleCheckOk": "Megfelelő eddig",
-    "scaleCheckWarn": "Figyelmeztetés eddig"
+    "scaleCheckWarn": "Figyelmeztetés eddig",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Billentyűparancsok",
@@ -352,6 +364,7 @@
     "exported": "Billentyűparancsok exportálva.",
     "exportFailed": "A billentyűparancsok exportálása nem sikerült:",
     "recording": "Nyomja le az új billentyűkombinációt… (Esc: mégse)",
+    "recordingSequence": "{{keys}} … nyomjon le még egy betűt a billentyűsorozathoz, vagy várjon (Esc: mégse)",
     "conflict": "A(z) {{keys}} billentyűt már a(z) „{{command}}” használja.",
     "reassign": "Átrendelés",
     "reserved": "A(z) {{keys}} rögzített jelentésű, nem rendelhető hozzá.",

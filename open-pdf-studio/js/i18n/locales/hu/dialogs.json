@@ -28,7 +28,9 @@
     "noTitleBlock": "Nincs szövegmező",
     "addTitleBlock": "Saját szövegmező hozzáadása (PDF)",
     "openTitleBlocksFolder": "Szövegmezők mappájának megnyitása",
-    "style": "Stílus"
+    "style": "Stílus",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Nyomtatási feladat műveletei",
@@ -497,7 +499,9 @@
     "title": "Bélyegző választása",
     "customFromImage": "Egyedi bélyegző képből...",
     "dynamicTitle": "Mezőket tartalmazó bélyegzők",
-    "manage": "Bélyegzősablonok kezelése..."
+    "manage": "Bélyegzősablonok kezelése...",
+    "builtInHidden": "A beépített bélyegzők el vannak rejtve (Beállítások > Annotációk > Megjegyzések).",
+    "hideBuiltInNoOwn": "A beépített bélyegzők elrejtésre vannak állítva, de még nincs saját bélyegzője. Hozzon létre egyet a Bélyegzősablonok kezelése menüben."
   },
   "calibration": {
     "title": "Lépték kalibrálás",
@@ -517,7 +521,9 @@
     "autoDetect": "Automatikus felismerés a szövegmezőből",
     "detecting": "Észlelés...",
     "scaleDetected": "Méretarány felismerve!",
-    "scaleNotFound": "Nem található méretarány a szövegmezőben"
+    "scaleNotFound": "Nem található méretarány a szövegmezőben",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Oldalbeállítás",

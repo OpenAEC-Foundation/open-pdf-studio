@@ -85,7 +85,10 @@
     "subtabShapes": "図形",
     "subtabMeasurement": "計測",
     "redactionDefaults": "墨消しの既定値",
-    "overlayColor": "オーバーレイの色"
+    "overlayColor": "オーバーレイの色",
+    "stamps": "スタンプ",
+    "hideBuiltInStamps": "自分のスタンプがあるときは組み込みスタンプを非表示にする",
+    "hideBuiltInStampsHint": "スタンプの選択には自分のスタンプ（個人、インポート、共有）だけが表示されます。自分のスタンプがない場合は、組み込みスタンプが表示されたままになります。"
   },
   "drawing": {
     "freehandDefaults": "フリーハンドの既定値",
@@ -324,7 +327,16 @@
     "digitGrouping": "桁区切り (12 345)",
     "scaleCheck": "縮尺の確認",
     "scaleCheckOk": "良好の上限",
-    "scaleCheckWarn": "警告の上限"
+    "scaleCheckWarn": "警告の上限",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "キーボードショートカット",
@@ -352,6 +364,7 @@
     "exported": "ショートカットをエクスポートしました。",
     "exportFailed": "ショートカットのエクスポートに失敗しました：",
     "recording": "新しいキーの組み合わせを押してください…（Esc でキャンセル）",
+    "recordingSequence": "{{keys}} … キーシーケンスにするには次の文字を押すか、そのまま待ちます (Esc でキャンセル)",
     "conflict": "{{keys}} は既に「{{command}}」で使用されています。",
     "reassign": "割り当て直す",
     "reserved": "{{keys}} は固定の役割があるため割り当てできません。",

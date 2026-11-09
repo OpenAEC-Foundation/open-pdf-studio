@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mätning",
     "redactionDefaults": "Standardvärden för maskering",
     "overlayColor": "Överlagringsfärg",
-    "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll"
+    "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll",
+    "stamps": "Stämplar",
+    "hideBuiltInStamps": "Dölj inbyggda stämplar när jag har egna stämplar",
+    "hideBuiltInStampsHint": "Stämpelväljaren visar då bara dina egna stämplar (personliga, importerade och delade). Utan egna stämplar förblir de inbyggda stämplarna synliga."
   },
   "drawing": {
     "freehandDefaults": "Standardvärden för frihand",
@@ -324,7 +327,16 @@
     "digitGrouping": "Gruppera tusental (12 345)",
     "scaleCheck": "Skalkontroll",
     "scaleCheckOk": "Godkänd upp till",
-    "scaleCheckWarn": "Varning upp till"
+    "scaleCheckWarn": "Varning upp till",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Kortkommandon",
@@ -352,6 +364,7 @@
     "exported": "Kortkommandon exporterade.",
     "exportFailed": "Det gick inte att exportera kortkommandona:",
     "recording": "Tryck på den nya tangentkombinationen… (Esc avbryter)",
+    "recordingSequence": "{{keys}} … tryck på ytterligare en bokstav för en tangentsekvens, eller vänta (Esc avbryter)",
     "conflict": "{{keys}} används redan av ”{{command}}”.",
     "reassign": "Tilldela om",
     "reserved": "{{keys}} har en fast betydelse och kan inte tilldelas.",

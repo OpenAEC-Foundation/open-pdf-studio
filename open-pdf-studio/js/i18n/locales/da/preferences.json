@@ -85,7 +85,10 @@
     "subtabMeasurement": "Måling",
     "redactionDefaults": "Standarder for redigering",
     "overlayColor": "Overlejringsfarve",
-    "snapToPdfContent": "Snap til PDF-tegningsindhold"
+    "snapToPdfContent": "Snap til PDF-tegningsindhold",
+    "stamps": "Stempler",
+    "hideBuiltInStamps": "Skjul indbyggede stempler, når jeg har egne stempler",
+    "hideBuiltInStampsHint": "Stempelvælgeren viser så kun dine egne stempler (personlige, importerede og delte). Uden egne stempler forbliver de indbyggede stempler synlige."
   },
   "drawing": {
     "freehandDefaults": "Frihåndsstandarder",
@@ -324,7 +327,16 @@
     "digitGrouping": "Adskil tusinder (12 345)",
     "scaleCheck": "Skalakontrol",
     "scaleCheckOk": "I orden op til",
-    "scaleCheckWarn": "Advarsel op til"
+    "scaleCheckWarn": "Advarsel op til",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Tastaturgenveje",
@@ -352,6 +364,7 @@
     "exported": "Genveje eksporteret.",
     "exportFailed": "Eksport af genvejene mislykkedes:",
     "recording": "Tryk på den nye tastekombination… (Esc annullerer)",
+    "recordingSequence": "{{keys}} … tryk på endnu et bogstav for en tastesekvens, eller vent (Esc annullerer)",
     "conflict": "{{keys}} bruges allerede af “{{command}}”.",
     "reassign": "Tildel igen",
     "reserved": "{{keys}} har en fast betydning og kan ikke tildeles.",

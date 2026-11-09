@@ -13,11 +13,13 @@
 //     only with Ctrl/Alt/Meta or a function key; a single letter or digit
 //     never fires while typing,
 //   - a combination that is the command's own default goes to the built-in
-//     handling, not here.
+//     handling, not here,
+//   - a key sequence ("D L") never comes through here: it is recognised
+//     letter by letter in sequences.js.
 //
 // Pure module.
 
-import { eventCandidates, parseBinding, isSingleKey, isFunctionKey } from './binding.js';
+import { eventCandidates, parseBinding, isSingleKey, isFunctionKey, isSequence, sequenceKeys } from './binding.js';
 
 /**
  * Keys that cannot be assigned: they have a fixed meaning that depends on
@@ -34,6 +36,8 @@ const RESERVED_SET = new Set(RESERVED);
 
 export function isReserved(combo) {
   const c = parseBinding(combo);
+  // A key sequence with a reserved letter (G starts moving at once).
+  if (c && isSequence(c)) return sequenceKeys(c).some((k) => RESERVED_SET.has(k));
   return !c || RESERVED_SET.has(c);
 }
 

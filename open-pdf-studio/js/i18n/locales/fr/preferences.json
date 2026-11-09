@@ -85,7 +85,10 @@
     "subtabShapes": "Formes",
     "subtabMeasurement": "Mesure",
     "redactionDefaults": "Valeurs par défaut du caviardage",
-    "overlayColor": "Couleur de superposition"
+    "overlayColor": "Couleur de superposition",
+    "stamps": "Tampons",
+    "hideBuiltInStamps": "Masquer les tampons intégrés lorsque j'ai mes propres tampons",
+    "hideBuiltInStampsHint": "Le sélecteur de tampons n'affiche alors que vos propres tampons (personnels, importés et partagés). Sans tampons personnels, les tampons intégrés restent visibles."
   },
   "drawing": {
     "freehandDefaults": "Valeurs par défaut du dessin à main levée",
@@ -324,7 +327,16 @@
     "digitGrouping": "Séparer les milliers (12 345)",
     "scaleCheck": "Vérification d'échelle",
     "scaleCheckOk": "Correct jusqu'à",
-    "scaleCheckWarn": "Avertissement jusqu'à"
+    "scaleCheckWarn": "Avertissement jusqu'à",
+    "units": "Unités",
+    "unitSystem": "Échelles standard",
+    "unitSystemBoth": "Métrique et impérial",
+    "unitSystemMetric": "Métrique",
+    "unitSystemImperial": "Impérial",
+    "imperialLengthFormat": "Longueurs impériales (ft, in)",
+    "imperialDecimal": "Pieds décimaux (12,53 ft)",
+    "imperialFeetInch": "Pieds-pouces-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Plus petite fraction"
   },
   "keyboardShortcuts": {
     "title": "Raccourcis clavier",
@@ -352,6 +364,7 @@
     "exported": "Raccourcis exportés.",
     "exportFailed": "L’exportation des raccourcis a échoué :",
     "recording": "Appuyez sur la nouvelle combinaison de touches… (Échap pour annuler)",
+    "recordingSequence": "{{keys}} … appuyez sur une autre lettre pour une séquence de touches, ou attendez (Échap annule)",
     "conflict": "{{keys}} est déjà utilisé par « {{command}} ».",
     "reassign": "Réattribuer",
     "reserved": "{{keys}} a une fonction fixe et ne peut pas être attribué.",

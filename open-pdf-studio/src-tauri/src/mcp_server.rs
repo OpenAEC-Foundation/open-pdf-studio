@@ -264,6 +264,7 @@ fn export_ifcx_tool() -> Value {
 /// instelling.js, PAPIERFORMATEN) en als js/pdf/print-opdracht.js.
 const PRINT_PAPIERFORMATEN: &[&str] = &[
     "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid",
+    "ARCH A", "ARCH B", "ARCH C", "ARCH D", "ARCH E", "ARCH E1", "ANSI C", "ANSI D", "ANSI E",
 ];
 
 /// De papierkeuzes van een printgereedschap: de formaten plus één keuze die

@@ -85,7 +85,10 @@
     "subtabMeasurement": "پیمائش",
     "redactionDefaults": "ریڈیکشن ڈیفالٹس",
     "overlayColor": "اوورلے رنگ",
-    "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں"
+    "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں",
+    "stamps": "مہریں",
+    "hideBuiltInStamps": "جب میری اپنی مہریں ہوں تو بلٹ اِن مہریں چھپائیں",
+    "hideBuiltInStampsHint": "تب مہر منتخب کنندہ صرف آپ کی اپنی مہریں (ذاتی، درآمد شدہ اور مشترکہ) دکھاتا ہے۔ اپنی مہروں کے بغیر بلٹ اِن مہریں نظر آتی رہتی ہیں۔"
   },
   "drawing": {
     "freehandDefaults": "آزاد ہاتھ ڈیفالٹس",
@@ -324,7 +327,16 @@
     "digitGrouping": "ہزاروں کو الگ کریں (12 345)",
     "scaleCheck": "پیمانے کی جانچ",
     "scaleCheckOk": "درست کی حد",
-    "scaleCheckWarn": "انتباہ کی حد"
+    "scaleCheckWarn": "انتباہ کی حد",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "کی بورڈ شارٹ کٹس",
@@ -352,6 +364,7 @@
     "exported": "شارٹ کٹس برآمد ہو گئے۔",
     "exportFailed": "شارٹ کٹس برآمد نہیں ہو سکے:",
     "recording": "نیا کلیدی مجموعہ دبائیں… (Esc منسوخ کرتا ہے)",
+    "recordingSequence": "{{keys}} … کلیدوں کی ترتیب کے لیے ایک اور حرف دبائیں، یا انتظار کریں (Esc منسوخ کرتا ہے)",
     "conflict": "{{keys}} پہلے ہی «{{command}}» استعمال کر رہی ہے۔",
     "reassign": "دوبارہ تفویض کریں",
     "reserved": "{{keys}} کا مطلب مقرر ہے اور اسے تفویض نہیں کیا جا سکتا۔",

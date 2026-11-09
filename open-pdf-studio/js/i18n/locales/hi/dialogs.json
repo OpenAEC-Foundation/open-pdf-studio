@@ -28,7 +28,9 @@
     "noTitleBlock": "कोई टाइटल ब्लॉक नहीं",
     "addTitleBlock": "अपना टाइटल ब्लॉक जोड़ें (PDF)",
     "openTitleBlocksFolder": "टाइटल ब्लॉक फ़ोल्डर खोलें",
-    "style": "शैली"
+    "style": "शैली",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "प्रिंट जॉब क्रियाएं",
@@ -497,7 +499,9 @@
     "title": "स्टैम्प चुनें",
     "customFromImage": "छवि से कस्टम स्टैम्प...",
     "dynamicTitle": "फ़ील्ड वाले स्टैम्प",
-    "manage": "स्टैम्प टेम्पलेट प्रबंधित करें..."
+    "manage": "स्टैम्प टेम्पलेट प्रबंधित करें...",
+    "builtInHidden": "बिल्ट-इन स्टैम्प छिपे हुए हैं (प्राथमिकताएं > एनोटेशन > टिप्पणियां)।",
+    "hideBuiltInNoOwn": "बिल्ट-इन स्टैम्प छिपाने पर सेट हैं, लेकिन अभी आपके पास अपना कोई स्टैम्प नहीं है। स्टैम्प टेम्पलेट प्रबंधित करें से एक बनाएँ।"
   },
   "calibration": {
     "title": "स्केल कैलिब्रेशन",
@@ -517,7 +521,9 @@
     "autoDetect": "टाइटल ब्लॉक से स्वतः पहचानें",
     "detecting": "पहचान हो रही है...",
     "scaleDetected": "स्केल पहचाना गया!",
-    "scaleNotFound": "टाइटल ब्लॉक में कोई स्केल नहीं मिला"
+    "scaleNotFound": "टाइटल ब्लॉक में कोई स्केल नहीं मिला",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "पृष्ठ सेटअप",

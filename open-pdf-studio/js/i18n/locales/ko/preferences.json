@@ -85,7 +85,10 @@
     "subtabShapes": "도형",
     "subtabMeasurement": "측정",
     "redactionDefaults": "교정 기본값",
-    "overlayColor": "오버레이 색"
+    "overlayColor": "오버레이 색",
+    "stamps": "스탬프",
+    "hideBuiltInStamps": "내 스탬프가 있으면 기본 제공 스탬프 숨기기",
+    "hideBuiltInStampsHint": "그러면 스탬프 선택기에는 내 스탬프(개인, 가져온 스탬프, 공유)만 표시됩니다. 내 스탬프가 없으면 기본 제공 스탬프가 계속 표시됩니다."
   },
   "drawing": {
     "freehandDefaults": "자유형 기본값",
@@ -324,7 +327,16 @@
     "digitGrouping": "천 단위 구분 (12 345)",
     "scaleCheck": "축척 확인",
     "scaleCheckOk": "양호 한도",
-    "scaleCheckWarn": "경고 한도"
+    "scaleCheckWarn": "경고 한도",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "바로 가기 키",
@@ -352,6 +364,7 @@
     "exported": "바로 가기 키를 내보냈습니다.",
     "exportFailed": "바로 가기 키를 내보내지 못했습니다:",
     "recording": "새 키 조합을 누르세요… (Esc로 취소)",
+    "recordingSequence": "{{keys}} … 키 시퀀스를 만들려면 다른 글자를 누르거나 기다리세요 (Esc로 취소)",
     "conflict": "{{keys}}은(는) 이미 “{{command}}”에서 사용 중입니다.",
     "reassign": "다시 할당",
     "reserved": "{{keys}}은(는) 고정된 의미가 있어 할당할 수 없습니다.",

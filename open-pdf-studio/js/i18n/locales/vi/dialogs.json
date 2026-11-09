@@ -28,7 +28,9 @@
     "noTitleBlock": "Không có khung tên",
     "addTitleBlock": "Thêm khung tên của riêng bạn (PDF)",
     "openTitleBlocksFolder": "Mở thư mục khung tên",
-    "style": "Kiểu"
+    "style": "Kiểu",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Thao tác với lệnh in",
@@ -497,7 +499,9 @@
     "title": "Chọn Con dấu",
     "customFromImage": "Con dấu Tùy chỉnh từ Hình ảnh...",
     "dynamicTitle": "Con dấu có trường",
-    "manage": "Quản lý mẫu con dấu..."
+    "manage": "Quản lý mẫu con dấu...",
+    "builtInHidden": "Con dấu tích hợp đang bị ẩn (Tùy chọn > Chú thích > Nhận xét).",
+    "hideBuiltInNoOwn": "Con dấu tích hợp được đặt là ẩn, nhưng bạn chưa có con dấu riêng nào. Hãy tạo một con dấu trong Quản lý mẫu con dấu."
   },
   "calibration": {
     "title": "Hiệu chuẩn Tỷ lệ",
@@ -517,7 +521,9 @@
     "autoDetect": "Tự động phát hiện từ khung tên",
     "detecting": "Đang phát hiện...",
     "scaleDetected": "Đã phát hiện tỷ lệ!",
-    "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên"
+    "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Thiết lập Trang",

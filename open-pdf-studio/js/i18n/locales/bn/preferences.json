@@ -85,7 +85,10 @@
     "subtabMeasurement": "পরিমাপ",
     "redactionDefaults": "সংশোধন ডিফল্ট",
     "overlayColor": "ওভারলে রঙ",
-    "snapToPdfContent": "PDF অঙ্কনের বিষয়বস্তুতে স্ন্যাপ করুন"
+    "snapToPdfContent": "PDF অঙ্কনের বিষয়বস্তুতে স্ন্যাপ করুন",
+    "stamps": "স্ট্যাম্প",
+    "hideBuiltInStamps": "আমার নিজের স্ট্যাম্প থাকলে বিল্ট-ইন স্ট্যাম্প লুকান",
+    "hideBuiltInStampsHint": "তখন স্ট্যাম্প নির্বাচক কেবল আপনার নিজের স্ট্যাম্প (ব্যক্তিগত, আমদানি করা ও শেয়ার করা) দেখায়। নিজের স্ট্যাম্প না থাকলে বিল্ট-ইন স্ট্যাম্প দৃশ্যমান থাকে।"
   },
   "drawing": {
     "freehandDefaults": "ফ্রিহ্যান্ড ডিফল্ট",
@@ -324,7 +327,16 @@
     "digitGrouping": "হাজার আলাদা করুন (12 345)",
     "scaleCheck": "স্কেল যাচাই",
     "scaleCheckOk": "ঠিক-এর সীমা",
-    "scaleCheckWarn": "সতর্কতার সীমা"
+    "scaleCheckWarn": "সতর্কতার সীমা",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "কীবোর্ড শর্টকাট",
@@ -352,6 +364,7 @@
     "exported": "শর্টকাট রপ্তানি হয়েছে।",
     "exportFailed": "শর্টকাট রপ্তানি ব্যর্থ হয়েছে:",
     "recording": "নতুন কী সমন্বয় চাপুন… (Esc বাতিল করে)",
+    "recordingSequence": "{{keys}} … কী-ক্রমের জন্য আরেকটি অক্ষর চাপুন, অথবা অপেক্ষা করুন (Esc বাতিল করে)",
     "conflict": "{{keys}} ইতিমধ্যে “{{command}}” ব্যবহার করছে।",
     "reassign": "পুনরায় বরাদ্দ",
     "reserved": "{{keys}}-এর অর্থ নির্দিষ্ট, তাই এটি বরাদ্দ করা যায় না।",

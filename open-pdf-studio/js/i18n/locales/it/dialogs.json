@@ -28,7 +28,9 @@
     "noTitleBlock": "Nessun cartiglio",
     "addTitleBlock": "Aggiungi il tuo cartiglio (PDF)",
     "openTitleBlocksFolder": "Apri cartella dei cartigli",
-    "style": "Stile"
+    "style": "Stile",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Azioni sui processi di stampa",
@@ -497,7 +499,9 @@
     "title": "Seleziona timbro",
     "customFromImage": "Timbro personalizzato da immagine...",
     "dynamicTitle": "Timbri con campi",
-    "manage": "Gestisci modelli di timbro..."
+    "manage": "Gestisci modelli di timbro...",
+    "builtInHidden": "I timbri integrati sono nascosti (Preferenze > Annotazioni > Commenti).",
+    "hideBuiltInNoOwn": "I timbri integrati sono impostati come nascosti, ma non hai ancora timbri personali. Creane uno con Gestisci modelli di timbro."
   },
   "calibration": {
     "title": "Calibrazione scala",
@@ -517,7 +521,9 @@
     "autoDetect": "Rileva automaticamente dal cartiglio",
     "detecting": "Rilevamento...",
     "scaleDetected": "Scala rilevata!",
-    "scaleNotFound": "Nessuna scala trovata nel cartiglio"
+    "scaleNotFound": "Nessuna scala trovata nel cartiglio",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Imposta pagina",

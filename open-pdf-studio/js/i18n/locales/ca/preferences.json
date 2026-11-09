@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mesurament",
     "redactionDefaults": "Valors per defecte de redacció",
     "overlayColor": "Color de superposició",
-    "snapToPdfContent": "Ajusta al contingut del dibuix PDF"
+    "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
+    "stamps": "Segells",
+    "hideBuiltInStamps": "Amaga els segells integrats quan tinc segells propis",
+    "hideBuiltInStampsHint": "El selector de segells mostra llavors només els vostres segells (personals, importats i compartits). Sense segells propis, els segells integrats continuen visibles."
   },
   "drawing": {
     "freehandDefaults": "Valors per defecte de mà alçada",
@@ -324,7 +327,16 @@
     "digitGrouping": "Separa els milers (12 345)",
     "scaleCheck": "Comprovació d'escala",
     "scaleCheckOk": "Correcte fins a",
-    "scaleCheckWarn": "Avís fins a"
+    "scaleCheckWarn": "Avís fins a",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Dreceres de teclat",
@@ -352,6 +364,7 @@
     "exported": "Dreceres exportades.",
     "exportFailed": "No s’han pogut exportar les dreceres:",
     "recording": "Premeu la nova combinació de tecles… (Esc cancel·la)",
+    "recordingSequence": "{{keys}} … premeu una altra lletra per a una seqüència de tecles, o espereu (Esc cancel·la)",
     "conflict": "{{keys}} ja l’utilitza «{{command}}».",
     "reassign": "Reassigna",
     "reserved": "{{keys}} té un significat fix i no es pot assignar.",

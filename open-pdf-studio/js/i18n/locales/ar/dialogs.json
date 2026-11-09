@@ -28,7 +28,9 @@
     "noTitleBlock": "بلا جدول عنوان",
     "addTitleBlock": "إضافة جدول عنوان خاص بك (PDF)",
     "openTitleBlocksFolder": "فتح مجلد جداول العنوان",
-    "style": "النمط"
+    "style": "النمط",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "إجراءات مهام الطباعة",
@@ -497,7 +499,9 @@
     "title": "اختيار ختم",
     "customFromImage": "ختم مخصص من صورة...",
     "dynamicTitle": "أختام بحقول",
-    "manage": "إدارة قوالب الأختام..."
+    "manage": "إدارة قوالب الأختام...",
+    "builtInHidden": "الأختام المضمنة مخفية (التفضيلات > التعليقات > التعليقات).",
+    "hideBuiltInNoOwn": "تم ضبط الأختام المضمنة على الإخفاء، لكن ليست لديك أختام خاصة بعد. أنشئ ختمًا من إدارة قوالب الأختام."
   },
   "calibration": {
     "title": "معايرة المقياس",
@@ -517,7 +521,9 @@
     "autoDetect": "اكتشاف تلقائي من جدول العنوان",
     "detecting": "جارٍ الاكتشاف...",
     "scaleDetected": "تم اكتشاف المقياس!",
-    "scaleNotFound": "لم يتم العثور على مقياس في جدول العنوان"
+    "scaleNotFound": "لم يتم العثور على مقياس في جدول العنوان",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "إعداد الصفحة",

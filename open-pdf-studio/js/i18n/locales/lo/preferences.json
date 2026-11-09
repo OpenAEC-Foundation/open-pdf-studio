@@ -85,7 +85,10 @@
     "subtabShapes": "ຮູບຮ່າງ",
     "subtabMeasurement": "ການວັດແທກ",
     "redactionDefaults": "ຄ່າເລີ່ມຕົ້ນການປິດບັງຂໍ້ມູນ (Redaction)",
-    "overlayColor": "ສີທັບຊ້ອນ"
+    "overlayColor": "ສີທັບຊ້ອນ",
+    "stamps": "ກາປະທັບ",
+    "hideBuiltInStamps": "ເຊື່ອງກາປະທັບໃນຕົວເມື່ອຂ້ອຍມີກາປະທັບຂອງຕົນເອງ",
+    "hideBuiltInStampsHint": "ຕົວເລືອກກາປະທັບຈະສະແດງສະເພາະກາປະທັບຂອງທ່ານ (ສ່ວນຕົວ, ນຳເຂົ້າ ແລະ ແບ່ງປັນ). ຖ້າບໍ່ມີກາປະທັບຂອງຕົນເອງ ກາປະທັບໃນຕົວຈະຍັງສະແດງຢູ່."
   },
   "measurement": {
     "distanceDefaults": "ຄ່າເລີ່ມຕົ້ນໄລຍະຫ່າງ",
@@ -129,7 +132,16 @@
     "digitGrouping": "ຂັ້ນຫຼັກພັນ (12 345)",
     "scaleCheck": "ການກວດສອບມາດຕາສ່ວນ",
     "scaleCheckOk": "ຜ່ານບໍ່ເກີນ",
-    "scaleCheckWarn": "ເຕືອນບໍ່ເກີນ"
+    "scaleCheckWarn": "ເຕືອນບໍ່ເກີນ",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "drawing": {
     "freehandDefaults": "ຄ່າເລີ່ມຕົ້ນການແຕ້ມອິດສະຫຼະ",
@@ -345,6 +357,7 @@
     "exported": "ສົ່ງອອກປຸ່ມລັດແລ້ວ.",
     "exportFailed": "ສົ່ງອອກປຸ່ມລັດບໍ່ສຳເລັດ:",
     "recording": "ກົດປຸ່ມປະສົມໃໝ່… (Esc ເພື່ອຍົກເລີກ)",
+    "recordingSequence": "{{keys}} … ກົດຕົວອັກສອນອື່ນສຳລັບລຳດັບປຸ່ມ, ຫຼື ລໍຖ້າ (Esc ຍົກເລີກ)",
     "conflict": "{{keys}} ຖືກໃຊ້ໂດຍ “{{command}}” ແລ້ວ.",
     "reassign": "ກຳນົດໃໝ່",
     "reserved": "{{keys}} ມີຄວາມໝາຍຄົງທີ່ ແລະ ກຳນົດບໍ່ໄດ້.",

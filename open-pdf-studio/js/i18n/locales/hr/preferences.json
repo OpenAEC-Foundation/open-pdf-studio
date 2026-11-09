@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mjerenje",
     "redactionDefaults": "Zadane postavke redigiranja",
     "overlayColor": "Boja prekrivanja",
-    "snapToPdfContent": "Privlačenje na sadržaj PDF crteža"
+    "snapToPdfContent": "Privlačenje na sadržaj PDF crteža",
+    "stamps": "Pečati",
+    "hideBuiltInStamps": "Sakrij ugrađene pečate kada imam vlastite pečate",
+    "hideBuiltInStampsHint": "Birač pečata tada prikazuje samo vaše vlastite pečate (osobne, uvezene i dijeljene). Bez vlastitih pečata ugrađeni pečati ostaju vidljivi."
   },
   "drawing": {
     "freehandDefaults": "Zadane postavke slobodnog crtanja",
@@ -324,7 +327,16 @@
     "digitGrouping": "Odvajaj tisućice (12 345)",
     "scaleCheck": "Provjera mjerila",
     "scaleCheckOk": "U redu do",
-    "scaleCheckWarn": "Upozorenje do"
+    "scaleCheckWarn": "Upozorenje do",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Tipkovnički prečaci",
@@ -352,6 +364,7 @@
     "exported": "Prečaci su izvezeni.",
     "exportFailed": "Izvoz prečaca nije uspio:",
     "recording": "Pritisnite novu kombinaciju tipki… (Esc odustaje)",
+    "recordingSequence": "{{keys}} … pritisnite još jedno slovo za niz tipki ili pričekajte (Esc poništava)",
     "conflict": "{{keys}} već koristi „{{command}}”.",
     "reassign": "Ponovno dodijeli",
     "reserved": "{{keys}} ima fiksno značenje i ne može se dodijeliti.",

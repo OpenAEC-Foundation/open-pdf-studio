@@ -516,6 +516,7 @@ js/pdf/loader/stempel-geometrie.test.mjs
 js/pdf/stempel-draaiing-rondgang.test.mjs
 js/annotations/dynamic-stamp.test.mjs
 js/annotations/stamp-template-store.test.mjs
+js/annotations/stamp-picker-filter.test.mjs
 js/pdf/dynamic-stamp-rondgang.test.mjs
 js/i18n/dynamic-stamp-i18n.test.mjs
 js/herstel/planning.test.mjs
@@ -786,3 +787,13 @@ scripts/bundel-grootte.test.mjs
 js/pdf/export-verlies.test.mjs
 js/pdf/export-verlies-bedrading.test.mjs
 js/annotations/xfdf-samenvoegen.test.mjs
+js/tools/loodrecht-snap.test.mjs
+js/tools/tools/lijn-snap.test.mjs
+js/solid/components/svg-icoon-maat.test.mjs
+js/solid/components/left-panel/panels/annotations-filter-thema.test.mjs
+js/core/keybindings/sequences.test.mjs
+js/annotations/document-scale-imperiaal.test.mjs
+js/annotations/scale-weergave.test.mjs
+js/annotations/schaal-stelsel.test.mjs
+js/core/voet-inch.test.mjs
+js/core/us-papierformaten.test.mjs

@@ -1,5 +1,4 @@
 import { createSignal, onMount, Show } from 'solid-js';
-import { leesGetal } from '../../../core/getal-invoer.js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
@@ -8,8 +7,11 @@ import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotati
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
+import { findScaleInText } from '../../../annotations/document-scale.js';
+import { leesLengte, isImperialeLengte } from '../../../core/voet-inch.js';
 import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
-import { SCALE_PRESETS, METRIC_SCALE_PRESETS, IMPERIAL_SCALE_PRESETS } from '../../../annotations/scale-presets.js';
+import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, scaleSelectOptions, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
+import { schaalTekstVoorPpu } from '../../../annotations/schaalcontrole.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -19,7 +21,10 @@ import {
 
 /**
  * Auto-detect scale from the PDF title block (onderhoek).
- * Scans text content in the bottom-right area of the page for patterns like "1:100".
+ * Reads the text in the bottom-right area of the page first, then the whole
+ * page, with the same rules as the detection on load (findScaleInText):
+ * "1:100", "SCHAAL 1:50" and imperial `1/8" = 1'-0"` (#999).
+ * @returns {Promise<{ratio:number, unit?:string, scaleText:string}|null>}
  */
 async function detectScaleFromTitleBlock() {
   const doc = getActiveDocument();
@@ -33,58 +38,19 @@ async function detectScaleFromTitleBlock() {
   // We search the right 50% and bottom 40% of the page.
   const regionLeft = vp.width * 0.5;
   const regionTop = vp.height * 0.6;
-
-  // Scale pattern: matches "1:N" where N is a number (with optional spaces)
-  const scalePattern = /\b1\s*:\s*(\d+(?:[.,]\d+)?)\b/;
-
-  // Collect text items in the title block region
-  const candidates = [];
-
-  for (const item of textContent.items) {
-    if (!item.str || item.str.trim().length === 0) continue;
+  const t = vp.transform;
+  const inTitleBlock = textContent.items.filter((item) => {
+    if (!item.str || item.str.trim().length === 0 || !item.transform) return false;
     // item.transform = [scaleX, skewY, skewX, scaleY, translateX, translateY]
     const tx = item.transform[4];
     const ty = item.transform[5];
-
-    // Transform from PDF space to viewport space
-    const t = vp.transform;
     const vx = t[0] * tx + t[2] * ty + t[4];
     const vy = t[1] * tx + t[3] * ty + t[5];
-
-    if (vx >= regionLeft && vy >= regionTop) {
-      const match = item.str.match(scalePattern);
-      if (match) {
-        const denominator = leesGetal(match[1]);
-        if (denominator >= 1 && denominator <= 10000) {
-          candidates.push({ denominator, text: item.str, x: vx, y: vy });
-        }
-      }
-    }
-  }
+    return vx >= regionLeft && vy >= regionTop;
+  });
 
   // If no results in title block region, try the entire page as fallback
-  if (candidates.length === 0) {
-    for (const item of textContent.items) {
-      if (!item.str || item.str.trim().length === 0) continue;
-      // Look for explicit "schaal" / "scale" / "maßstab" / "échelle" labels
-      const lowerStr = item.str.toLowerCase();
-      const hasLabel = /(?:schaal|scale|ma[ßs]stab|[eé]chelle|escala)\s*/i.test(lowerStr);
-      if (!hasLabel) continue;
-
-      const match = item.str.match(scalePattern);
-      if (match) {
-        const denominator = leesGetal(match[1]);
-        if (denominator >= 1 && denominator <= 10000) {
-          candidates.push({ denominator, text: item.str, x: 0, y: 0 });
-        }
-      }
-    }
-  }
-
-  if (candidates.length === 0) return null;
-
-  // Return the first match (closest to bottom-right typically)
-  return candidates[0].denominator;
+  return findScaleInText(inTitleBlock) || findScaleInText(textContent.items);
 }
 
 export default function CalibrationDialog(props) {
@@ -99,16 +65,39 @@ export default function CalibrationDialog(props) {
   const [unit, setUnit] = createSignal('mm');
   const [pixels, setPixels] = createSignal(72);
 
+  // Standaardschalen van het gekozen stelsel (#996); de schaal van het
+  // document blijft erin staan, ook als die uit het andere stelsel komt.
+  const ratioOptions = scaleSelectOptions(undefined, { current: getActiveDocument()?.measureScale?.scaleRatio });
+  const inLijst = (ratio) => ratioOptions.some(o => o.value === ratio);
+
   // Method 2: Scale ratio
-  const [scalePreset, setScalePreset] = createSignal('1:100');
+  const beginSchaal = inLijst('1:100') ? '1:100' : (ratioOptions[0]?.value || 'custom');
+  const [scalePreset, setScalePreset] = createSignal(beginSchaal);
   const [customScale, setCustomScale] = createSignal(100);
-  const [ratioUnit, setRatioUnit] = createSignal('mm');
+  const [ratioUnit, setRatioUnit] = createSignal(isImperialScalePreset(beginSchaal) ? 'ft' : 'mm');
   const [pageSizeText, setPageSizeText] = createSignal('');
   const [detecting, setDetecting] = createSignal(false);
   const [detectResult, setDetectResult] = createSignal(null); // null | 'found' | 'notfound'
   // /UserUnit van de pagina: 1:N wordt daarmee pagina-eenheden (#884).
   const [userUnit, setUserUnit] = createSignal(
     userUnitVanPagina(getActiveDocument(), getActiveDocument()?.currentPage));
+
+  // De schaal die nu geldt, zoals de gebruiker hem leest: imperiaal als
+  // 1/8" = 1'-0" (1:96), metrisch als 1:100 (#1000).
+  const currentScale = (() => {
+    const ms = getActiveDocument()?.measureScale;
+    if (!(ms?.pixelsPerUnit > 0)) return '';
+    const ratio = typeof ms.scaleRatio === 'string' && ms.scaleRatio
+      ? ms.scaleRatio
+      : schaalTekstVoorPpu(ms.pixelsPerUnit, ms.unit || 'mm');
+    return ratio ? scaleDisplayLabel(ratio, ms.unit) : '';
+  })();
+  // Een eigen verhouding in voet/inch ook in inch-notatie: 1:300 is 1" = 25'-0".
+  const customNotation = () => {
+    const ratio = `1:${customScale()}`;
+    const label = scaleDisplayLabel(ratio, ratioUnit(), { withRatio: false });
+    return label && label !== ratio ? label : '';
+  };
 
   onMount(async () => {
     // Pre-fill pixels from reference line if provided
@@ -124,10 +113,10 @@ export default function CalibrationDialog(props) {
     if (ms) {
       setUnit(ms.unit || 'mm');
       setRatioUnit(ms.unit || 'mm');
-      if (ms.method === 'ratio' && ms.scaleRatio) {
+      if ((ms.method === 'ratio' || ms.method === 'auto-detect') && typeof ms.scaleRatio === 'string' && ms.scaleRatio) {
         setMethod('ratio');
-        setScalePreset(SCALE_PRESETS.includes(ms.scaleRatio) ? ms.scaleRatio : 'custom');
-        if (!SCALE_PRESETS.includes(ms.scaleRatio)) {
+        setScalePreset(inLijst(ms.scaleRatio) ? ms.scaleRatio : 'custom');
+        if (!inLijst(ms.scaleRatio)) {
           const parts = ms.scaleRatio.split(':');
           setCustomScale(parseInt(parts[1]) || 100);
         }
@@ -163,10 +152,14 @@ export default function CalibrationDialog(props) {
     setDetecting(true);
     setDetectResult(null);
     try {
-      const denominator = await detectScaleFromTitleBlock();
-      if (denominator) {
+      const found = await detectScaleFromTitleBlock();
+      if (found) {
+        const denominator = found.ratio;
         const ratio = `1:${denominator}`;
-        if (SCALE_PRESETS.includes(ratio)) {
+        // Imperiaal in voet/inch (#999); een metrische schaal in mm.
+        if (found.unit) setRatioUnit(found.unit);
+        else if (ratioUnit() === 'ft' || ratioUnit() === 'in') setRatioUnit('mm');
+        if (inLijst(ratio)) {
           setScalePreset(ratio);
         } else {
           setScalePreset('custom');
@@ -188,7 +181,8 @@ export default function CalibrationDialog(props) {
     // schaalverhouding gaat daar via pixelsPerUnitFor, net als het
     // schaalgebied (#553).
     const scaleData = method() === 'reference'
-      ? schaalUitKalibratie({ method: 'reference', distance: distance(), pixels: pixels(), unit: unit() })
+      // Een voet-inchmaat (12'-6 3/8") mag ook (#996).
+      ? schaalUitKalibratie({ method: 'reference', distance: leesLengte(String(distance()), unit()), pixels: pixels(), unit: unit() })
       : schaalUitKalibratie({ method: 'ratio', denominator: getScaleDenominator(), unit: ratioUnit(), userUnit: userUnit() });
 
     if (scaleData) {
@@ -274,6 +268,10 @@ export default function CalibrationDialog(props) {
         </button>
       </div>
 
+      <Show when={currentScale}>
+        <div class="calibration-page-size">{t('calibration.currentScale', { scale: currentScale })}</div>
+      </Show>
+
       {/* Method 1: Reference Line */}
       <Show when={method() === 'reference'}>
         <p class="calibration-help">
@@ -293,14 +291,26 @@ export default function CalibrationDialog(props) {
         </div>
         <div class="calibration-row">
           <label class="calibration-label">{t('calibration.knownDistance')}</label>
-          <input
-            type="text" inputmode="decimal" data-getal
-            class="calibration-input"
-            min="0.001"
-            step="0.01"
-            value={distance()}
-            onInput={(e) => setDistance(e.target.value)}
-          />
+          {/* In ft/in een gewoon tekstveld: 12'-6 3/8" heeft ' en " nodig (#996). */}
+          <Show when={isImperialeLengte(unit())} fallback={
+            <input
+              type="text" inputmode="decimal" data-getal
+              class="calibration-input"
+              min="0.001"
+              step="0.01"
+              value={distance()}
+              onInput={(e) => setDistance(e.target.value)}
+            />
+          }>
+            <input
+              type="text"
+              class="calibration-input"
+              placeholder={`12'-6 3/8"`}
+              title={t('calibration.feetInchHint')}
+              value={distance()}
+              onInput={(e) => setDistance(e.target.value)}
+            />
+          </Show>
           <select
             class="calibration-select"
             value={unit()}
@@ -331,8 +341,8 @@ export default function CalibrationDialog(props) {
               if (IMPERIAL_SCALE_PRESETS.some(preset => preset.ratio === ratio)) setRatioUnit('ft');
             }}
           >
-            {METRIC_SCALE_PRESETS.map(s => <option value={s}>{s}</option>)}
-            {IMPERIAL_SCALE_PRESETS.map(preset => <option value={preset.ratio}>{preset.label}</option>)}
+            {/* Metrisch, imperiaal of beide volgens de voorkeur (#996). */}
+            {ratioOptions.map(o => <option value={o.value}>{o.label}</option>)}
             <option value="custom">{t('calibration.customRatio')}</option>
           </select>
           <Show when={scalePreset() === 'custom'}>
@@ -344,6 +354,9 @@ export default function CalibrationDialog(props) {
               value={customScale()}
               onInput={(e) => { const n = parseFloat(e.target.value); setCustomScale(n > 0 ? n : 1); }}
             />
+            <Show when={customNotation()}>
+              <span class="calibration-unit">{customNotation()}</span>
+            </Show>
           </Show>
         </div>
         <div class="calibration-row">

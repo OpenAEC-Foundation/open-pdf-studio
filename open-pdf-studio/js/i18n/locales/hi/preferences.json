@@ -85,7 +85,10 @@
     "subtabMeasurement": "मापन",
     "redactionDefaults": "संपादन-रहित डिफ़ॉल्ट",
     "overlayColor": "ओवरले रंग",
-    "snapToPdfContent": "PDF ड्रॉइंग सामग्री पर स्नैप करें"
+    "snapToPdfContent": "PDF ड्रॉइंग सामग्री पर स्नैप करें",
+    "stamps": "स्टैम्प",
+    "hideBuiltInStamps": "मेरे अपने स्टैम्प होने पर बिल्ट-इन स्टैम्प छिपाएँ",
+    "hideBuiltInStampsHint": "तब स्टैम्प चयनकर्ता केवल आपके अपने स्टैम्प (व्यक्तिगत, आयातित और साझा) दिखाता है। अपने स्टैम्प न होने पर बिल्ट-इन स्टैम्प दिखाई देते रहते हैं।"
   },
   "drawing": {
     "freehandDefaults": "फ्रीहैंड डिफ़ॉल्ट",
@@ -324,7 +327,16 @@
     "digitGrouping": "हज़ार समूहित करें (12 345)",
     "scaleCheck": "स्केल जाँच",
     "scaleCheckOk": "ठीक की सीमा",
-    "scaleCheckWarn": "चेतावनी की सीमा"
+    "scaleCheckWarn": "चेतावनी की सीमा",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "कीबोर्ड शॉर्टकट",
@@ -352,6 +364,7 @@
     "exported": "शॉर्टकट निर्यात किए गए।",
     "exportFailed": "शॉर्टकट निर्यात नहीं हो सके:",
     "recording": "नया कुंजी संयोजन दबाएँ… (Esc रद्द करता है)",
+    "recordingSequence": "{{keys}} … कुंजी-क्रम के लिए एक और अक्षर दबाएँ, या प्रतीक्षा करें (Esc रद्द करता है)",
     "conflict": "{{keys}} पहले से “{{command}}” द्वारा उपयोग में है।",
     "reassign": "फिर से असाइन करें",
     "reserved": "{{keys}} का अर्थ निश्चित है और इसे असाइन नहीं किया जा सकता।",

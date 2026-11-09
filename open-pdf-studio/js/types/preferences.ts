@@ -181,6 +181,9 @@ export interface Preferences {
   measureDigitGrouping: boolean;
   scaleCheckOkPercent: number;
   scaleCheckWarnPercent: number;
+  imperialLengthFormat: 'decimal' | 'feetInch';
+  imperialFractionPrecision: number;
+  scaleUnitSystem: 'metric' | 'imperial' | 'both';
 
   // Measure Distance defaults
   measureDistStrokeColor: string;
@@ -224,6 +227,9 @@ export interface Preferences {
   wheelZoomWithoutCtrl: boolean;
   middleDoubleClickFit: boolean;
   ribbonWheelSwitchesTabs: boolean;
+
+  // Stempelkiezer: ingebouwde stempels verbergen als er eigen stempels zijn (#998)
+  hideBuiltInStamps: boolean;
 
   // Startup
   restoreLastSession: boolean;

@@ -87,7 +87,10 @@
     "subtabShapes": "Shapes",
     "subtabMeasurement": "Measurement",
     "redactionDefaults": "Redaction Defaults",
-    "overlayColor": "Overlay Color"
+    "overlayColor": "Overlay Color",
+    "stamps": "Stamps",
+    "hideBuiltInStamps": "Hide built-in stamps when I have my own stamps",
+    "hideBuiltInStampsHint": "The stamp picker then shows only your own stamps (personal, imported and shared). Without own stamps, the built-in stamps stay visible."
   },
   "measurement": {
     "distanceDefaults": "Distance Defaults",
@@ -131,7 +134,16 @@
     "digitGrouping": "Group thousands (12 345)",
     "scaleCheck": "Scale check",
     "scaleCheckOk": "OK up to",
-    "scaleCheckWarn": "Warning up to"
+    "scaleCheckWarn": "Warning up to",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "drawing": {
     "freehandDefaults": "Freehand Defaults",
@@ -349,6 +361,7 @@
     "exported": "Shortcuts exported.",
     "exportFailed": "Exporting the shortcuts failed:",
     "recording": "Press the new key combination… (Esc cancels)",
+    "recordingSequence": "{{keys}} … press another letter for a key sequence, or wait (Esc cancels)",
     "conflict": "{{keys}} is already used by “{{command}}”.",
     "reassign": "Reassign",
     "reserved": "{{keys}} has a fixed meaning and cannot be assigned.",

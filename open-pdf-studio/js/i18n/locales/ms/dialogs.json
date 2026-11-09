@@ -28,7 +28,9 @@
     "noTitleBlock": "Tiada blok tajuk",
     "addTitleBlock": "Tambah blok tajuk anda sendiri (PDF)",
     "openTitleBlocksFolder": "Buka folder blok tajuk",
-    "style": "Gaya"
+    "style": "Gaya",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Tindakan kerja cetak",
@@ -497,7 +499,9 @@
     "title": "Pilih Setem",
     "customFromImage": "Setem Tersuai dari Imej...",
     "dynamicTitle": "Setem dengan medan",
-    "manage": "Urus templat setem..."
+    "manage": "Urus templat setem...",
+    "builtInHidden": "Setem terbina dalam disembunyikan (Keutamaan > Anotasi > Komen).",
+    "hideBuiltInNoOwn": "Setem terbina dalam ditetapkan untuk disembunyikan, tetapi anda belum mempunyai setem sendiri. Cipta satu melalui Urus templat setem."
   },
   "calibration": {
     "title": "Penentukuran Skala",
@@ -517,7 +521,9 @@
     "autoDetect": "Kesan automatik daripada blok tajuk",
     "detecting": "Mengesan...",
     "scaleDetected": "Skala dikesan!",
-    "scaleNotFound": "Tiada skala ditemui dalam blok tajuk"
+    "scaleNotFound": "Tiada skala ditemui dalam blok tajuk",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Persediaan Halaman",

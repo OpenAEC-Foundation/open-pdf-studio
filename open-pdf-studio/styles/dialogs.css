@@ -4279,6 +4279,13 @@
 
 /* Shortcuts overview: the list follows the current shortcuts (#714) */
 .shortcuts-dialog .modal-body { max-height: 70vh; overflow-y: auto; }
+/* Toetsreeks (D, dan L): komma tussen de letters. */
+.shortcuts-then,
+.ks-then {
+  margin-right: 2px;
+  font-size: 11px;
+  color: var(--theme-text-secondary);
+}
 .shortcuts-or {
   margin: 0 3px;
   font-size: 11px;
@@ -6709,6 +6716,12 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   font-size: 11px;
 }
 .stamp-picker-manage { margin-top: 8px; width: 100%; }
+/* Ingebouwde stempels verborgen (#998): korte melding in de kiezer. */
+.stamp-picker-hint {
+  margin: 6px 0;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+}
 
 .dynamic-stamp-fields-dialog { width: 380px; max-width: 94vw; }
 .dynamic-stamp-fields-preview {

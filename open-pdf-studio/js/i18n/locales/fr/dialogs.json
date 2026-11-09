@@ -28,7 +28,9 @@
     "noTitleBlock": "Pas de cartouche",
     "addTitleBlock": "Ajouter votre propre cartouche (PDF)",
     "openTitleBlocksFolder": "Ouvrir le dossier des cartouches",
-    "style": "Style"
+    "style": "Style",
+    "usArchitectural": "Architecture US (ARCH)",
+    "usEngineering": "Ingénierie US (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Actions sur les travaux d'impression",
@@ -497,7 +499,9 @@
     "title": "Sélectionner un tampon",
     "customFromImage": "Tampon personnalisé à partir d'une image...",
     "dynamicTitle": "Tampons avec champs",
-    "manage": "Gérer les modèles de tampon..."
+    "manage": "Gérer les modèles de tampon...",
+    "builtInHidden": "Les tampons intégrés sont masqués (Préférences > Annotations > Commentaires).",
+    "hideBuiltInNoOwn": "Les tampons intégrés sont configurés pour être masqués, mais vous n'avez pas encore de tampons personnels. Créez-en un via Gérer les modèles de tampon."
   },
   "calibration": {
     "title": "Calibration de l'échelle",
@@ -517,7 +521,9 @@
     "autoDetect": "Détecter depuis le cartouche",
     "detecting": "Détection...",
     "scaleDetected": "Échelle détectée !",
-    "scaleNotFound": "Aucune échelle trouvée dans le cartouche"
+    "scaleNotFound": "Aucune échelle trouvée dans le cartouche",
+    "currentScale": "Échelle actuelle : {{scale}}",
+    "feetInchHint": "Pieds et pouces acceptés, par exemple 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Mise en page",
