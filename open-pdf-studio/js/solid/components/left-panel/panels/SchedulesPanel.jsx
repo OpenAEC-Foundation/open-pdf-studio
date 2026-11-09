@@ -1,16 +1,17 @@
 import { For, Show, onMount, createSignal, createMemo } from 'solid-js';
-import { openDialog } from '../../../stores/dialogStore.js';
+import { openDialog, showMessage } from '../../../stores/dialogStore.js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import {
   schedules, addScheduleFromTemplate, addBlankSchedule, renameSchedule, removeSchedule,
-  buildResultForSchedule, setConfiguringId,
+  buildResultForSchedule, setConfiguringId, applyScheduleTagUpdates,
   STANDARD_SCHEDULE_TEMPLATES,
 } from '../../../stores/schedulesStore.js';
 import { initScheduleDrop, SCHEDULE_DND_MIME } from '../../../../quantities/schedule-drop.js';
 import { formatRowCell, fmtTotal, isImageCell } from '../../../../quantities/schedule-templates.js';
 import { scheduleResultToCsv } from '../../../../quantities/schedule-csv.js';
-import { saveFileDialog, writeBinaryFile } from '../../../../core/platform.js';
+import { saveFileDialog, writeBinaryFile, openFileDialog, readBinaryFile } from '../../../../core/platform.js';
+import { readTagUpdates } from '../../../../quantities/takeoff-tags.js';
 import ScheduleWizard from '../../ScheduleWizard.jsx';
 
 export default function SchedulesPanel() {
@@ -62,11 +63,47 @@ export default function SchedulesPanel() {
   async function exportCsv(s) {
     const r = buildResultForSchedule(s);
     if (!r || !r.columns.length) return;
-    const csv = '﻿' + scheduleResultToCsv(r); // BOM voor Excel/UTF-8
+    // BOM voor Excel/UTF-8; de ID-kolom maakt het terugzetten van bewerkte
+    // kenmerken mogelijk (importTags).
+    const csv = '﻿' + scheduleResultToCsv(r, { ids: true });
     const safe = (s.name || t('schedules.newName')).replace(/[\\/:*?"<>|]/g, '_');
     const path = await saveFileDialog(`${safe}.csv`, [{ name: 'CSV', extensions: ['csv'] }]);
     if (!path) return;
     await writeBinaryFile(path, new TextEncoder().encode(csv));
+  }
+
+  // Kenmerken (label, IFC-categorie, locatie, telcategorie) uit een bewerkte
+  // export terugzetten op de markeringen (#629).
+  const TAG_FOUTEN = { 'empty': 'importTagsEmpty', 'no-id-column': 'importTagsNoId', 'no-tag-columns': 'importTagsNoColumns' };
+  async function importTags(s) {
+    const r = buildResultForSchedule(s);
+    if (!r) return;
+    const titel = t('schedules.importTagsTitle');
+    const path = await openFileDialog(['csv', 'txt']);
+    if (!path || Array.isArray(path)) return;
+    let tekst;
+    try {
+      const bytes = await readBinaryFile(path);
+      tekst = new TextDecoder('utf-8').decode(bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
+    } catch (e) {
+      console.error('Tag file not read:', e);
+      showMessage(t('schedules.importTagsRead'), titel);
+      return;
+    }
+    const gelezen = readTagUpdates(tekst, r.columns);
+    if (!gelezen.ok) {
+      showMessage(t(`schedules.${TAG_FOUTEN[gelezen.error] || 'importTagsRead'}`), titel);
+      return;
+    }
+    const uit = applyScheduleTagUpdates(gelezen.updates);
+    if (!uit) return;
+    const regels = [uit.changed ? t('schedules.importTagsDone', { count: uit.changed }) : t('schedules.importTagsNone')];
+    if (uit.notFound) regels.push(t('schedules.importTagsNotFound', { count: uit.notFound }));
+    if (uit.locked) regels.push(t('schedules.importTagsLocked', { count: uit.locked }));
+    if (uit.unknownCountCategories.length) {
+      regels.push(t('schedules.importTagsUnknownCount', { names: uit.unknownCountCategories.join(', ') }));
+    }
+    showMessage(regels.join('\n'), titel);
   }
 
   return (
@@ -119,6 +156,8 @@ export default function SchedulesPanel() {
                   onClick={() => setConfiguringId(s.id)}>⚙</button>
                 <button class="schedules-item-btn" title={t('schedules.exportCsv')}
                   onClick={() => exportCsv(s)}>⭳</button>
+                <button class="schedules-item-btn" title={t('schedules.importTags')}
+                  onClick={() => importTags(s)}>⭱</button>
                 <button class="schedules-item-btn" title={t('schedules.rename')}
                   onClick={() => setEditingId(s.id)}>{renameIcon}</button>
                 <button class="schedules-item-btn schedules-item-del" title={t('schedules.delete')}

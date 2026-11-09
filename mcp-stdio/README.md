@@ -56,11 +56,30 @@ If you used a non-default port, set it first: `OPS_MCP_PORT=9300 node mcp-stdio/
 
 ## 3a. Claude Code
 
-`.mcp.json` already lives in the repo root, so just open this repo in Claude
-Code and approve the **open-pdf-studio** server when prompted. Then ask Claude
-to call e.g. `app_accounts_status` or `app_list_tabs`.
+Register the bridge once, from the root of this repository:
 
-Change the port via the `env.OPS_MCP_PORT` field in `.mcp.json`.
+```bash
+claude mcp add --transport stdio --env OPS_MCP_PORT=9223 open-pdf-studio -- node mcp-stdio/server.mjs
+```
+
+Or put the same server in a `.mcp.json` in your project (the repository does
+not ship one):
+
+```json
+{
+  "mcpServers": {
+    "open-pdf-studio": {
+      "command": "node",
+      "args": ["mcp-stdio/server.mjs"],
+      "env": { "OPS_MCP_PORT": "9223" }
+    }
+  }
+}
+```
+
+Approve the **open-pdf-studio** server when Claude Code asks, then ask Claude
+to call e.g. `app_accounts_status` or `app_list_tabs`. Change the port with
+`OPS_MCP_PORT`.
 
 ## 3b. Claude Desktop
 
@@ -72,12 +91,15 @@ Edit `claude_desktop_config.json`
   "mcpServers": {
     "open-pdf-studio": {
       "command": "node",
-      "args": ["C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\mcp-stdio\\server.mjs"],
+      "args": ["C:\\path\\to\\open-pdf-studio\\mcp-stdio\\server.mjs"],
       "env": { "OPS_MCP_PORT": "9223" }
     }
   }
 }
 ```
+
+Use the path of your own checkout. Without a checkout, install the
+`open-pdf-studio.mcpb` bundle from the release instead.
 
 Restart Claude Desktop. The **open-pdf-studio** tools appear in the 🔌 menu.
 (If `node` isn't on Claude Desktop's PATH, use its absolute path, e.g.

@@ -46,7 +46,9 @@
     "statusSetBy": "عيّنها {{author}} في {{date}}",
     "layer": "الطبقة",
     "layerMarkupGroup": "طبقات العلامات",
-    "layerDocumentGroup": "طبقات المستند"
+    "layerDocumentGroup": "طبقات المستند",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "بدون",
   "moreColors": "ألوان أخرى...",
@@ -501,7 +503,18 @@
     },
     "preview": "معاينة",
     "exportCsv": "تصدير CSV",
-    "workbookBindings": "روابط جداول البيانات"
+    "workbookBindings": "روابط جداول البيانات",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "معالج الجداول",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "الملف كبير جدًا بالنسبة لمجموعة أدوات.",
     "errorFileInvalid": "هذا الملف ليس مجموعة أدوات صالحة.",
     "errorFileNewer": "أُنشئت مجموعة الأدوات هذه بإصدار أحدث من Open PDF Studio. حدّث التطبيق لاستيرادها.",
-    "damagedStatus": "تعذّرت قراءة مجموعات الأدوات المحفوظة. تم الاحتفاظ بالملف التالف باسم \"{{name}}\"."
+    "damagedStatus": "تعذّرت قراءة مجموعات الأدوات المحفوظة. تم الاحتفاظ بالملف التالف باسم \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

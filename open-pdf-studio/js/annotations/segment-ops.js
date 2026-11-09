@@ -57,7 +57,19 @@ function _inheritStyle(src) {
     modifiedAt: now,
     locked: false,
     printable: src.printable !== false,
+    // De laag (OCG, #377/#629): een stuk van een uiteengehaalde lijn of een
+    // samengevoegde lijn blijft op de laag van zijn bron. Zonder dit veld
+    // viel het resultaat stil terug op de standaardlaag.
+    ...(typeof src.layer === 'string' && src.layer ? { layer: src.layer } : {}),
   };
+}
+
+// De gedeelde waarde van `key` over alle bronnen, of undefined als ze
+// verschillen of ontbreken.
+function _gedeeld(bronnen, key) {
+  const eerste = bronnen[0]?.[key];
+  if (eerste == null || eerste === '') return undefined;
+  return bronnen.every(b => b?.[key] === eerste) ? eerste : undefined;
 }
 
 // Ordered vertex list for any joinable annotation, or null if not joinable.
@@ -97,6 +109,8 @@ export function explodeSelection() {
       const b = pts[(i + 1) % pts.length];
       created.push({
         ..._inheritStyle(ann),
+        // Hoorde de bron bij een verzameling, dan blijven de stukken erin.
+        ...(ann.groupId ? { groupId: ann.groupId } : {}),
         type: 'line',
         startX: a.x, startY: a.y,
         endX: b.x, endY: b.y,
@@ -185,6 +199,11 @@ export function joinSelection(tol = 2.0) {
     type: 'polyline',
     points: chain.map(p => ({ x: p.x, y: p.y })),
   };
+  // Liggen de delen op verschillende lagen, dan wint de eerste geselecteerde
+  // (src, zie _inheritStyle). Een verzameling blijft alleen als alle delen
+  // er samen in zaten.
+  const groep = _gedeeld(members, 'groupId');
+  if (groep) joined.groupId = groep;
 
   beginUndoTransaction();
   recordBulkDelete(members);

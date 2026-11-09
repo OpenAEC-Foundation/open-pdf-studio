@@ -163,6 +163,24 @@ export default function GeneralSection() {
               {t('general.statusSetBy', { author: annotProps.statusBy, date: annotProps.statusAt })}
             </small>
           </Show>
+          {/* Reviewgeschiedenis (#629): elke statuswijziging met wie en wanneer. */}
+          <Show when={annotProps.statusHistory?.length > 1}>
+            <div class="status-history" style="margin-top:4px; font-size:11px; color: var(--theme-text-secondary, #888);">
+              <div>{t('general.statusHistory')}</div>
+              <For each={annotProps.statusHistory}>
+                {(stap) => (
+                  <div class="status-history-step">
+                    {t('general.statusHistoryStep', {
+                      status: stap.status === 'none' ? tCommon('none')
+                        : (['accepted', 'rejected', 'cancelled', 'completed', 'reviewed'].includes(stap.status)
+                          ? t(`general.${stap.status}`) : stap.status),
+                      author: stap.by || '?', date: stap.at || '',
+                    })}
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
         </div>
       </CollapsibleSection>
     </Show>

@@ -46,7 +46,9 @@
     "statusSetBy": "Establecido por {{author}} el {{date}}",
     "layer": "Capa",
     "layerMarkupGroup": "Capas de marcas",
-    "layerDocumentGroup": "Capas del documento"
+    "layerDocumentGroup": "Capas del documento",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ninguno",
   "moreColors": "Más colores...",
@@ -501,7 +503,18 @@
     },
     "preview": "Vista previa",
     "exportCsv": "Exportar CSV",
-    "workbookBindings": "Vínculos con hojas de cálculo"
+    "workbookBindings": "Vínculos con hojas de cálculo",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "Asistente de listados",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "El archivo es demasiado grande para un conjunto de herramientas.",
     "errorFileInvalid": "Este archivo no es un conjunto de herramientas válido.",
     "errorFileNewer": "Este conjunto de herramientas se creó con una versión más reciente de Open PDF Studio. Actualice la aplicación para importarlo.",
-    "damagedStatus": "No se pudieron leer los conjuntos de herramientas guardados. El archivo dañado se conservó como «{{name}}»."
+    "damagedStatus": "No se pudieron leer los conjuntos de herramientas guardados. El archivo dañado se conservó como «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

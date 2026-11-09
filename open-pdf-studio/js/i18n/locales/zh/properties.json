@@ -46,7 +46,9 @@
     "statusSetBy": "由 {{author}} 于 {{date}} 设置",
     "layer": "图层",
     "layerMarkupGroup": "标记图层",
-    "layerDocumentGroup": "文档图层"
+    "layerDocumentGroup": "文档图层",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "无",
   "moreColors": "更多颜色...",
@@ -501,7 +503,18 @@
     },
     "preview": "预览",
     "exportCsv": "导出 CSV",
-    "workbookBindings": "电子表格绑定"
+    "workbookBindings": "电子表格绑定",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "明细表向导",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "文件太大，不是工具集。",
     "errorFileInvalid": "此文件不是有效的工具集。",
     "errorFileNewer": "此工具集由更新版本的 Open PDF Studio 创建。请更新应用后再导入。",
-    "damagedStatus": "无法读取已保存的工具集。损坏的文件已保留为“{{name}}”。"
+    "damagedStatus": "无法读取已保存的工具集。损坏的文件已保留为“{{name}}”。",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

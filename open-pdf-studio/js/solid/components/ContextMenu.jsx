@@ -73,6 +73,7 @@ import {
 } from '../../core/file-manager-reveal.js';
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
 import { plaatsSubmenuVan } from './contextmenu-plaatsen.js';
+import { setStatusWithHistory } from '../../review/status-history.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -636,10 +637,12 @@ function AnnotationMenuContent() {
       <Submenu icon={statusIcon} label={t('annotation.status')}>
         <For each={statusItems}>
           {(s) => (
-            <MenuItem label={s.label()} checkbox={true} checked={ann()?.status === s.key || (!ann()?.status && s.key === 'None')} onClick={() => {
+            <MenuItem label={s.label()} checkbox={true} checked={String(ann()?.status || 'none').toLowerCase() === s.key.toLowerCase()} onClick={() => {
               const a = ann();
+              // Zoals het eigenschappenpaneel: kleine letters, wie en wanneer,
+              // en een stap in de reviewgeschiedenis (#629).
               if (a) commitAnnotationMutation(a, annotation => {
-                annotation.status = s.key === 'None' ? undefined : s.key;
+                setStatusWithHistory(annotation, s.key, { door: state.defaultAuthor || annotation.author || 'User' });
               });
             }} />
           )}

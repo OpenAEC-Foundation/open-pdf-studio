@@ -46,7 +46,9 @@
     "statusSetBy": "Ορίστηκε από {{author}} στις {{date}}",
     "layer": "Επίπεδο",
     "layerMarkupGroup": "Επίπεδα σήμανσης",
-    "layerDocumentGroup": "Επίπεδα εγγράφου"
+    "layerDocumentGroup": "Επίπεδα εγγράφου",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Κανένα",
   "moreColors": "Περισσότερα χρώματα...",
@@ -501,7 +503,18 @@
     },
     "preview": "Προεπισκόπηση",
     "exportCsv": "Εξαγωγή CSV",
-    "workbookBindings": "Συνδέσεις υπολογιστικού φύλλου"
+    "workbookBindings": "Συνδέσεις υπολογιστικού φύλλου",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "Οδηγός πίνακα",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "Το αρχείο είναι πολύ μεγάλο για σύνολο εργαλείων.",
     "errorFileInvalid": "Αυτό το αρχείο δεν είναι έγκυρο σύνολο εργαλείων.",
     "errorFileNewer": "Αυτό το σύνολο δημιουργήθηκε με νεότερη έκδοση του Open PDF Studio. Ενημερώστε την εφαρμογή για να το εισαγάγετε.",
-    "damagedStatus": "Δεν ήταν δυνατή η ανάγνωση των αποθηκευμένων συνόλων εργαλείων. Το κατεστραμμένο αρχείο διατηρήθηκε ως «{{name}}»."
+    "damagedStatus": "Δεν ήταν δυνατή η ανάγνωση των αποθηκευμένων συνόλων εργαλείων. Το κατεστραμμένο αρχείο διατηρήθηκε ως «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

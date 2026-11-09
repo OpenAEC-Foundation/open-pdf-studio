@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} tarafından {{date}} tarihinde ayarlandı",
     "layer": "Katman",
     "layerMarkupGroup": "İşaretleme katmanları",
-    "layerDocumentGroup": "Belge katmanları"
+    "layerDocumentGroup": "Belge katmanları",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Yok",
   "moreColors": "Daha Fazla Renk...",
@@ -501,7 +503,18 @@
     },
     "preview": "Önizleme",
     "exportCsv": "CSV dışa aktar",
-    "workbookBindings": "Elektronik tablo bağlamaları"
+    "workbookBindings": "Elektronik tablo bağlamaları",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "Çizelge sihirbazı",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "Dosya bir araç seti için çok büyük.",
     "errorFileInvalid": "Bu dosya geçerli bir araç seti değil.",
     "errorFileNewer": "Bu araç seti Open PDF Studio'nun daha yeni bir sürümüyle oluşturuldu. İçe aktarmak için uygulamayı güncelleyin.",
-    "damagedStatus": "Kaydedilen araç setleri okunamadı. Bozuk dosya \"{{name}}\" olarak saklandı."
+    "damagedStatus": "Kaydedilen araç setleri okunamadı. Bozuk dosya \"{{name}}\" olarak saklandı.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

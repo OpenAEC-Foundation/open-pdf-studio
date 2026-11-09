@@ -61,6 +61,7 @@ import { isWisselbaarProfiel, profielTypen, wisselProfielType } from '../../symb
 import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
 import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
+import { setStatusWithHistory, statusHistory } from '../../review/status-history.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -123,6 +124,7 @@ const [annotProps, setAnnotProps] = createStore({
   status: 'none',
   statusBy: '',
   statusAt: '',
+  statusHistory: [],
   color: '#000000',
   fillColor: null,
   strokeColor: '#000000',
@@ -453,6 +455,7 @@ export function storeShowProperties(annotation) {
     status: annotation.status || 'none',
     statusBy: annotation.statusBy || '',
     statusAt: annotation.statusAt ? formatDate(annotation.statusAt) : '',
+    statusHistory: statusHistoryProps(annotation),
     ifcCategory: annotation.ifcCategory || '',
     color: annotation.color || '#000000',
     fillColor: annotation.type === 'scaleRegion'
@@ -1076,14 +1079,16 @@ export async function populateDocInfo() {
 // Review-status metadata (issue #308): onthoud wie de status zette en
 // wanneer, zodat de saver de status als spec-conforme status-reply
 // (Text + /IRT + /State) met juiste auteur/datum kan wegschrijven.
+// Zet ook de stap in de reviewgeschiedenis (#629, review/status-history.js).
 function _stampStatusMeta(ann, value) {
-  if (value === 'none') {
-    delete ann.statusBy;
-    delete ann.statusAt;
-  } else {
-    ann.statusBy = state.defaultAuthor || ann.author || 'User';
-    ann.statusAt = new Date().toISOString();
-  }
+  setStatusWithHistory(ann, value, { door: state.defaultAuthor || ann.author || 'User' });
+}
+
+// De reviewgeschiedenis voor het paneel: alleen als er meer dan één stap is.
+function statusHistoryProps(ann) {
+  const stappen = statusHistory(ann);
+  if (stappen.length < 2) return [];
+  return stappen.map(s => ({ status: s.status, by: s.by, at: s.at ? formatDate(s.at) : '' }));
 }
 
 // Uitloop van de stavenreeks-aanhaallijn: 0 is geldig (lijn stopt op de
@@ -1229,7 +1234,6 @@ function applyPropToAnnotation(ann, key, value) {
     case 'marked': ann.marked = value; break;
     case 'altText': ann.altText = value; break;
     case 'status':
-      ann.status = value === 'none' ? undefined : value;
       _stampStatusMeta(ann, value);
       break;
     case 'ifcCategory': ann.ifcCategory = value || undefined; break;
@@ -1653,11 +1657,11 @@ function applyAnnotProp(key, value) {
     case 'marked': currentAnnotation.marked = value; break;
     case 'altText': currentAnnotation.altText = value; break;
     case 'status':
-      currentAnnotation.status = value === 'none' ? undefined : value;
       _stampStatusMeta(currentAnnotation, value);
       setAnnotProps({
         statusBy: currentAnnotation.statusBy || '',
         statusAt: currentAnnotation.statusAt ? formatDate(currentAnnotation.statusAt) : '',
+        statusHistory: statusHistoryProps(currentAnnotation),
       });
       break;
     case 'ifcCategory': currentAnnotation.ifcCategory = value || undefined; break;

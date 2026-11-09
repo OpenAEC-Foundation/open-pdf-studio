@@ -46,7 +46,9 @@
     "statusSetBy": "הוגדר על ידי {{author}} בתאריך {{date}}",
     "layer": "שכבה",
     "layerMarkupGroup": "שכבות סימון",
-    "layerDocumentGroup": "שכבות המסמך"
+    "layerDocumentGroup": "שכבות המסמך",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "ללא",
   "moreColors": "צבעים נוספים...",
@@ -501,7 +503,18 @@
     },
     "preview": "תצוגה מקדימה",
     "exportCsv": "ייצוא CSV",
-    "workbookBindings": "קישורי גיליון אלקטרוני"
+    "workbookBindings": "קישורי גיליון אלקטרוני",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "אשף טבלאות",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "הקובץ גדול מדי עבור ערכת כלים.",
     "errorFileInvalid": "קובץ זה אינו ערכת כלים תקינה.",
     "errorFileNewer": "ערכת כלים זו נוצרה בגרסה חדשה יותר של Open PDF Studio. עדכנו את היישום כדי לייבא אותה.",
-    "damagedStatus": "לא ניתן היה לקרוא את ערכות הכלים השמורות. הקובץ הפגום נשמר בשם \"{{name}}\"."
+    "damagedStatus": "לא ניתן היה לקרוא את ערכות הכלים השמורות. הקובץ הפגום נשמר בשם \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -36,11 +36,11 @@ Every release is on the [releases page](https://github.com/OpenAEC-Foundation/op
 | **macOS** | `…_universal.dmg` (Apple silicon and Intel, macOS 10.15 or later) |
 | **Linux** | `.deb`, `.AppImage` and `.snap` for x86_64, also in the [Snap Store](https://snapcraft.io/open-pdf-studio); Nix flake. See [docs/install-linux.md](docs/install-linux.md) |
 | **Android** | `open-pdf-studio-release.apk` (64-bit ARM) |
-| **Other** | `open-pdf-studio.mcpb` (AI connection for MCP clients), `open-pdf-studio-web-<version>.tar.gz` (web version to host yourself); from the next release also winget manifests and the Python library |
+| **Other** | `open-pdf-studio.mcpb` (AI connection for MCP clients), `open-pdf-studio-web-<version>.tar.gz` (web version to host yourself), winget manifests, the Python library (`.whl` and `.tar.gz`) |
 
 **Updates.** The Windows installers, the macOS app, the `.deb` and the AppImage check for updates and install them through the built-in updater, which only accepts updates signed with the project's update key. The snap updates through the Snap Store. The portable version and the Android app do not update themselves.
 
-**Signing.** The Windows installers and the program files they install are Authenticode-signed with Azure Trusted Signing; the release workflow installs the signed installer and checks every signature. The macOS app is signed with a Developer ID and notarized by Apple; the workflow checks it with `codesign`, `spctl` and `stapler`. The `.deb`, the AppImage and the snap each have a detached OpenPGP signature (`.asc`) of the OpenAEC Foundation release key, fingerprint `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, and `SHA256SUMS` with `SHA256SUMS.asc` covers the Linux files; check them with `gpg --verify <file>.asc <file>` against [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (see [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). The `.sig` files are the update signatures that the built-in updater checks. The Android APK is signed, but with a new key for every release (see [Current limitations](#current-limitations)). The portable zip and the web bundle come with a `.sha256` file.
+**Signing.** The Windows installers and the program files they install are Authenticode-signed with Azure Trusted Signing; the release workflow installs the signed installer and checks every signature. The macOS app is signed with a Developer ID and notarized by Apple; the workflow checks it with `codesign`, `spctl` and `stapler`. From the first release after 2026.45.0 (the signing job came later), the `.deb`, the AppImage and the snap each have a detached OpenPGP signature (`.asc`) of the OpenAEC Foundation release key, fingerprint `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, and `SHA256SUMS` with `SHA256SUMS.asc` covers the Linux files; check them with `gpg --verify <file>.asc <file>` against [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (see [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). The `.sig` files are the update signatures that the built-in updater checks. The Android APK is signed, but with a new key for every release (see [Current limitations](#current-limitations)). The portable zip and the web bundle come with a `.sha256` file.
 
 ## Why use it?
 
@@ -92,13 +92,13 @@ The full list is in [docs/features.md](docs/features.md).
 | Format | Open / import | Save / export |
 |--------|---------------|---------------|
 | **PDF** | Yes, including forms (AcroForm, XFA) and layers | Yes; PDF/A validation and saving, PDF/X export, raster PDF, flattened copy |
-| **XFDF** | Annotations | Annotations |
+| **XFDF** | Annotations; a tool set from sample markups | Annotations |
 | **BCF 2.1** | Issues as annotations | Annotations as issues |
 | **DWG, DXF** | Yes, as a vector PDF (desktop) | A page with its layers and markups (desktop) |
 | **IFCX** (IFC5 JSON) | No | Yes, beta ([docs/ifcx-export.md](docs/ifcx-export.md)) |
 | **PNG, JPEG** | As an image on a page | Pages, at 72 to 600 DPI |
 | **DOCX, ODT, XLSX** | No | Text and tables |
-| **CSV** | No | Quantities schedule |
+| **CSV** | Edited tags of a saved quantities schedule (label, IFC category, location, count category) | Quantities schedule, with an ID column per markup |
 
 What does not survive: XFDF and BCF carry annotations only, not the page content. A flattened copy leaves out form field values. DOCX, ODT and XLSX get the text and tables, and complex layouts may need correction. PDF/X keeps standard fonts that are not embedded as they are. What IFCX keeps and loses is listed in [docs/ifcx-export.md](docs/ifcx-export.md).
 

@@ -46,7 +46,9 @@
     "statusSetBy": "تنظیم‌شده توسط {{author}} در {{date}}",
     "layer": "لایه",
     "layerMarkupGroup": "لایه‌های نشانه‌گذاری",
-    "layerDocumentGroup": "لایه‌های سند"
+    "layerDocumentGroup": "لایه‌های سند",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "هیچ",
   "moreColors": "رنگ‌های بیشتر...",
@@ -501,7 +503,18 @@
     },
     "preview": "پیش‌نمایش",
     "exportCsv": "صدور CSV",
-    "workbookBindings": "اتصال‌های صفحه‌گسترده"
+    "workbookBindings": "اتصال‌های صفحه‌گسترده",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "راهنمای جدول",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "فایل برای یک مجموعه ابزار بیش از حد بزرگ است.",
     "errorFileInvalid": "این فایل یک مجموعه ابزار معتبر نیست.",
     "errorFileNewer": "این مجموعه ابزار با نسخه جدیدتری از Open PDF Studio ساخته شده است. برای ورود آن، برنامه را به‌روزرسانی کنید.",
-    "damagedStatus": "مجموعه‌های ابزار ذخیره‌شده خوانده نشدند. فایل آسیب‌دیده با نام «{{name}}» نگه داشته شد."
+    "damagedStatus": "مجموعه‌های ابزار ذخیره‌شده خوانده نشدند. فایل آسیب‌دیده با نام «{{name}}» نگه داشته شد.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {
