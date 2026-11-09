@@ -355,6 +355,7 @@
     "exported": "Pintasan diekspor.",
     "exportFailed": "Gagal mengekspor pintasan:",
     "recording": "Tekan kombinasi tombol baru… (Esc membatalkan)",
+    "recordingSequence": "{{keys}} … tekan huruf lain untuk urutan tombol, atau tunggu (Esc membatalkan)",
     "conflict": "{{keys}} sudah dipakai oleh “{{command}}”.",
     "reassign": "Tetapkan ulang",
     "reserved": "{{keys}} memiliki arti tetap dan tidak dapat ditetapkan.",

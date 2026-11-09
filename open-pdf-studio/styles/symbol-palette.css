@@ -86,6 +86,8 @@
   align-items: center; justify-content: center;
   padding: 0; color: var(--theme-text-secondary);
 }
+/* WebKit (iPad, Safari) maakt een svg zonder maat in een flex-knop 0x0 (#1001). */
+.sp-settings-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
 .sp-settings-btn:hover {
   color: var(--theme-text);
   background: var(--theme-hover);

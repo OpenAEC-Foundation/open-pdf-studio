@@ -355,6 +355,7 @@
     "exported": "Đã xuất phím tắt.",
     "exportFailed": "Xuất phím tắt thất bại:",
     "recording": "Nhấn tổ hợp phím mới… (Esc để hủy)",
+    "recordingSequence": "{{keys}} … nhấn thêm một chữ cái để tạo chuỗi phím, hoặc chờ (Esc để hủy)",
     "conflict": "{{keys}} đã được “{{command}}” sử dụng.",
     "reassign": "Gán lại",
     "reserved": "{{keys}} có ý nghĩa cố định và không thể gán.",

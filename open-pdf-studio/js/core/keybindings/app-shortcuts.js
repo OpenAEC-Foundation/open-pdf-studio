@@ -7,6 +7,7 @@
 //   eigenSneltoetsVoor(e, ...)   the user-assigned shortcut for this keydown
 //   voerSneltoetsUit(id, e)      run a command (built-in, ribbon or extension)
 //   sneltoetsTekst(id)           "Ctrl+2" (all shortcuts of the command) for tooltips and menus
+//   sneltoetsReeksen()           the key sequences ("D L") for the letter-by-letter matching
 //
 // No DOM and no Solid here: the ribbon and the keyboard handling register how
 // their commands run (zetLintUitvoerder, zetIngebouwdeUitvoerder).
@@ -16,6 +17,7 @@ import { CORE_COMMANDS, RIBBON_ALIASES } from './default-commands.js';
 import { RIBBON_COMMANDS } from './ribbon-commands.generated.js';
 import { formatBinding, bindingParts, detectPlatform, eventFieldsFor } from './binding.js';
 import { customShortcutFor } from './dispatch.js';
+import { sequenceCommandTable } from './sequences.js';
 import { extensieOpdrachten, voerExtensieOpdrachtUit } from '../../plugins/extension-commands.js';
 
 export const sneltoetsen = createKeybindingRegistry();
@@ -62,6 +64,18 @@ export function sneltoetsActief(id, combo) {
 /** The user-assigned shortcut for this keydown, or null (see dispatch.js). */
 export function eigenSneltoetsVoor(e, context) {
   return customShortcutFor(e, sneltoetsen, context);
+}
+
+/** The key sequences now bound ('dl' -> 'tool.line'), with the single letters that start one (sequences.js). */
+export function sneltoetsReeksen() {
+  return sequenceCommandTable(sneltoetsen);
+}
+
+/** Did the user give this single letter to a command (not its built-in default)? */
+export function eigenLetter(letter) {
+  const toets = typeof letter === 'string' ? letter.toUpperCase() : '';
+  const id = /^[A-Z]$/.test(toets) ? sneltoetsen.ownerOf(toets) : null;
+  return !!id && !sneltoetsen.defaultsOf(id).includes(toets);
 }
 
 /** Does this command run while typing in a text field (Find)? */

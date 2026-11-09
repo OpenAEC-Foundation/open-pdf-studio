@@ -355,6 +355,7 @@
     "exported": "Prečaci su izvezeni.",
     "exportFailed": "Izvoz prečaca nije uspio:",
     "recording": "Pritisnite novu kombinaciju tipki… (Esc odustaje)",
+    "recordingSequence": "{{keys}} … pritisnite još jedno slovo za niz tipki ili pričekajte (Esc poništava)",
     "conflict": "{{keys}} već koristi „{{command}}”.",
     "reassign": "Ponovno dodijeli",
     "reserved": "{{keys}} ima fiksno značenje i ne može se dodijeliti.",

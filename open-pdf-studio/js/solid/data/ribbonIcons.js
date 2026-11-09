@@ -105,7 +105,7 @@ export const cloudPolylineIcon = `<svg fill="none" stroke="currentColor" viewBox
 
 // --- Comment tab: Text ---
 
-export const textAnnotIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`;
+export const textAnnotIcon = `<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>`;
 
 export const textboxIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" stroke-width="2" stroke-dasharray="3 2"/><text x="12" y="15" text-anchor="middle" font-size="10" font-weight="bold" font-family="sans-serif" fill="currentColor" stroke="none">T</text><line x1="8" y1="8" x2="8" y2="16" stroke-width="1.5"/></svg>`;
 
@@ -125,7 +125,7 @@ export const signatureIcon = `<svg fill="none" stroke="currentColor" viewBox="0 
 
 export const digitalSignIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="13" height="16" stroke-width="1.6"/><path stroke-linecap="round" stroke-width="1.6" d="M6 9h7M6 12h5M6 16c1-1.2 1.8-1.6 2.4-1.2.7.4.6 1.3 1.4 1.2.5 0 .9-.6 1.4-1"/><circle cx="18" cy="14" r="3" stroke-width="1.6"/><path stroke-linejoin="round" stroke-width="1.6" d="M16.6 16.7 16 21l2-1.1 2 1.1-.6-4.3"/></svg>`;
 
-export const northArrowIcon = `<svg viewBox="0 0 24 26" stroke="currentColor"><polygon points="12,3 9,15 12,15 12,21" fill="currentColor" stroke="currentColor" stroke-width="0.7"/><polygon points="12,3 15,15 12,15" fill="none" stroke="currentColor" stroke-width="0.7"/><polygon points="12,15 15,15 12,21" fill="none" stroke="currentColor" stroke-width="0.7"/><line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="0.7"/><line x1="15" y1="15" x2="20" y2="15" stroke="currentColor" stroke-width="0.7"/></svg>`;
+export const northArrowIcon = `<svg width="24" height="26" viewBox="0 0 24 26" stroke="currentColor"><polygon points="12,3 9,15 12,15 12,21" fill="currentColor" stroke="currentColor" stroke-width="0.7"/><polygon points="12,3 15,15 12,15" fill="none" stroke="currentColor" stroke-width="0.7"/><polygon points="12,15 15,15 12,21" fill="none" stroke="currentColor" stroke-width="0.7"/><line x1="4" y1="15" x2="9" y2="15" stroke="currentColor" stroke-width="0.7"/><line x1="15" y1="15" x2="20" y2="15" stroke="currentColor" stroke-width="0.7"/></svg>`;
 
 // --- Comment tab: Measure ---
 
@@ -139,7 +139,7 @@ export const measureAngleIcon = `<svg fill="none" stroke="currentColor" viewBox=
 
 export const calibrateIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20L20 4"/><path stroke-linecap="round" stroke-width="1.5" d="M7 17l2-2m3-3l2-2m3-3l2-2"/><circle cx="4" cy="20" r="1.5" fill="currentColor" stroke="none"/><circle cx="20" cy="4" r="1.5" fill="currentColor" stroke="none"/></svg>`;
 
-export const snapToDrawingIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M3 3h18v18H3z"/><path stroke-width="1.5" stroke-dasharray="2 2" d="M7 7h10v10H7z"/><circle cx="7" cy="7" r="2" fill="currentColor" stroke="none"/><path stroke-width="2" stroke-linecap="round" d="M12 12l-4-4"/></svg>`;
+export const snapToDrawingIcon = `<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="1.5" d="M3 3h18v18H3z"/><path stroke-width="1.5" stroke-dasharray="2 2" d="M7 7h10v10H7z"/><circle cx="7" cy="7" r="2" fill="currentColor" stroke="none"/><path stroke-width="2" stroke-linecap="round" d="M12 12l-4-4"/></svg>`;
 
 // --- Comment tab: Redaction ---
 
@@ -149,7 +149,7 @@ export const applyRedactionsIcon = `<svg fill="currentColor" viewBox="0 0 24 24"
 
 // --- Comment tab: Actions ---
 
-export const undoIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>`;
+export const undoIcon = `<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>`;
 
 export const clearPageIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`;
 
@@ -177,7 +177,7 @@ export const propertiesIcon = `<svg fill="none" stroke="currentColor" viewBox="0
 
 export const annotationsListIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>`;
 
-export const thinLinesIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="1" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>`;
+export const thinLinesIcon = `<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="1" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>`;
 
 export const themeDropdownArrow = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="10" height="10"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 9l6 6 6-6"/></svg>`;
 
@@ -221,7 +221,7 @@ export const extensionsIcon = `<svg fill="none" stroke="currentColor" viewBox="0
 
 // --- Format tab: Gallery & Arrows ---
 
-export const styleMoreArrow = `<svg viewBox="0 0 8 14"><path d="M1 1l5 6-5 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>`;
+export const styleMoreArrow = `<svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l5 6-5 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>`;
 
 export const colorDropdownArrow = `<svg class="ribbon-color-dd-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>`;
 

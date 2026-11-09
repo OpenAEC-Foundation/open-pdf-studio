@@ -64,14 +64,43 @@ function canonicalOf(mods, key) {
   return [...order, key].join('+');
 }
 
+// ── Key sequences ───────────────────────────────────────────────────────────
+// A key sequence is two or three letters typed one after the other, without
+// modifiers, like the command aliases of CAD programs: "D L" (D, then L)
+// starts the Line tool. Canonical form: the letters, upper case, separated by
+// one space. A sequence never fires while typing in a text field; how the app
+// waits for the next letter is in sequences.js.
+
+export const SEQUENCE_MIN = 2;
+export const SEQUENCE_MAX = 3;
+
+function parseSequence(s) {
+  const delen = s.split(/\s+/);
+  if (delen.length < SEQUENCE_MIN || delen.length > SEQUENCE_MAX) return null;
+  if (!delen.every((d) => /^[a-z]$/i.test(d))) return null;
+  return delen.map((d) => d.toUpperCase()).join(' ');
+}
+
+/** Is it a key sequence ("D L") rather than one combination? */
+export function isSequence(canonical) {
+  return typeof canonical === 'string' && /^[A-Z]( [A-Z]){1,2}$/.test(canonical);
+}
+
+/** The letters of a key sequence: "D L" -> ['D', 'L']; [] for anything else. */
+export function sequenceKeys(canonical) {
+  return isSequence(canonical) ? canonical.split(' ') : [];
+}
+
 /**
  * Parse a combination as a person or a file writes it ("ctrl+shift+s",
  * "Strg+2", "Cmd+K", "Ctrl++", "PgDn") into the canonical form, or null.
+ * Letters separated by spaces ("d l") are a key sequence.
  */
 export function parseBinding(text) {
   if (typeof text !== 'string') return null;
   const s = text.trim();
   if (!s || s.length > 64) return null;
+  if (/^[a-z](\s+[a-z])+$/i.test(s)) return parseSequence(s);
   let keyPart;
   let modPart;
   if (s === '+') { keyPart = '+'; modPart = ''; }
@@ -95,10 +124,10 @@ export function parseBinding(text) {
   return canonicalOf(mods, key);
 }
 
-/** Split a canonical combination into { mods: Set, key }. */
+/** Split a canonical combination into { mods: Set, key }; null for a key sequence. */
 export function splitBinding(canonical) {
   const c = parseBinding(canonical);
-  if (!c) return null;
+  if (!c || isSequence(c)) return null;
   const delen = c === 'Plus' ? ['Plus'] : c.split('+');
   const key = delen.pop();
   return { mods: new Set(delen), key };
@@ -136,8 +165,10 @@ const KEY_LABELS = {
   NumpadDivide: 'Num /', NumpadDecimal: 'Num .',
 };
 
-/** The parts to show (one <kbd> each): ['Ctrl', 'Shift', 'S']. */
+/** The parts to show (one <kbd> each): ['Ctrl', 'Shift', 'S']; a sequence: ['D', 'L']. */
 export function bindingParts(canonical, platform = 'win') {
+  const reeks = sequenceKeys(parseBinding(canonical));
+  if (reeks.length) return reeks;
   const s = splitBinding(canonical);
   if (!s) return [];
   const mods = MOD_LABELS[platform] || MOD_LABELS.win;
@@ -145,9 +176,9 @@ export function bindingParts(canonical, platform = 'win') {
   return [...MODIFIERS.filter((m) => s.mods.has(m)).map((m) => mods[m]), key];
 }
 
-/** The combination as text: "Ctrl+Shift+S", "Cmd+K" on macOS. */
+/** The combination as text: "Ctrl+Shift+S", "Cmd+K" on macOS; a sequence "D L". */
 export function formatBinding(canonical, platform = 'win') {
-  return bindingParts(canonical, platform).join('+');
+  return bindingParts(canonical, platform).join(isSequence(parseBinding(canonical)) ? ' ' : '+');
 }
 
 const CODE_KEYS = {

@@ -355,6 +355,7 @@
     "exported": "快捷键已导出。",
     "exportFailed": "导出快捷键失败：",
     "recording": "请按新的组合键…（按 Esc 取消）",
+    "recordingSequence": "{{keys}} … 再按一个字母组成按键序列，或等待 (Esc 取消)",
     "conflict": "{{keys}} 已被“{{command}}”使用。",
     "reassign": "重新分配",
     "reserved": "{{keys}} 有固定用途，无法分配。",

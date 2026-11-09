@@ -355,6 +355,7 @@
     "exported": "Kısayollar dışa aktarıldı.",
     "exportFailed": "Kısayollar dışa aktarılamadı:",
     "recording": "Yeni tuş birleşimine basın… (Esc iptal eder)",
+    "recordingSequence": "{{keys}} … tuş dizisi için bir harf daha basın veya bekleyin (Esc iptal eder)",
     "conflict": "{{keys}} zaten “{{command}}” tarafından kullanılıyor.",
     "reassign": "Yeniden ata",
     "reserved": "{{keys}} sabit bir anlama sahip ve atanamaz.",

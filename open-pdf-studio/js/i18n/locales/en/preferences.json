@@ -352,6 +352,7 @@
     "exported": "Shortcuts exported.",
     "exportFailed": "Exporting the shortcuts failed:",
     "recording": "Press the new key combination… (Esc cancels)",
+    "recordingSequence": "{{keys}} … press another letter for a key sequence, or wait (Esc cancels)",
     "conflict": "{{keys}} is already used by “{{command}}”.",
     "reassign": "Reassign",
     "reserved": "{{keys}} has a fixed meaning and cannot be assigned.",

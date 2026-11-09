@@ -355,6 +355,7 @@
     "exported": "Comenzi rapide exportate.",
     "exportFailed": "Exportul comenzilor rapide a eșuat:",
     "recording": "Apăsați noua combinație de taste… (Esc anulează)",
+    "recordingSequence": "{{keys}} … apăsați încă o literă pentru o secvență de taste sau așteptați (Esc anulează)",
     "conflict": "{{keys}} este deja folosită de „{{command}}”.",
     "reassign": "Reatribuiți",
     "reserved": "{{keys}} are o semnificație fixă și nu poate fi atribuită.",

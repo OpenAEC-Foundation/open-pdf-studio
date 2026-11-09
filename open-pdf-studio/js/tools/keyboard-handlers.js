@@ -43,8 +43,9 @@ import { paginaSneltoetsRichting, paginaToetsVoorInvoer, paginaSprongDoel, maakP
 import { splitToetsOpdracht, splitToetsGeblokkeerd, isSplitOpdracht } from '../pdf/split-view/split-sneltoets.js';
 import {
   sneltoetsActief, eigenSneltoetsVoor, voerSneltoetsUit, sneltoetsInInvoer,
-  maakStandaardToets, zetIngebouwdeUitvoerder, isSneltoetsOpname,
+  maakStandaardToets, zetIngebouwdeUitvoerder, isSneltoetsOpname, sneltoetsReeksen, eigenLetter,
 } from '../core/keybindings/app-shortcuts.js';
+import { createSequenceMatcher } from '../core/keybindings/sequences.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -181,7 +182,7 @@ function _buildEscapeToolContext() {
 
 // ── CAD-style two-letter command chords (AutoCAD-style command line) ──
 // Map of command → action. Two-letter codes win over one-letter codes; if a
-// one-letter prefix is also a valid command, the timeout fires it after CHORD_MS.
+// one-letter prefix is also a valid command, the timeout fires it (sequences.js).
 const CAD_CHORDS = {
   // 't' alleen = tekstvak (bestaande enkel-toets-sneltoets). Moet als
   // chord-commando geregistreerd staan: de buffer consumeert 't' als prefix
@@ -247,52 +248,41 @@ function createSimilarFromSelection() {
     setTool(toolName);
   }
 }
-const CHORD_MS = 1200;
-let _chordBuffer = '';
-let _chordTimer = null;
+// De letters worden herkend door sequences.js, samen met de toetsreeksen uit
+// de sneltoetsen ("D L" = Lijn, aanpasbaar onder Voorkeuren). Een reeks uit de
+// sneltoetsen gaat voor een ingebouwd commando met dezelfde letters.
+// De wachttijd (ongeveer een seconde) staat in sequences.js.
+let _reeksHerkenner = null;
+function reeksHerkenner() {
+  if (!_reeksHerkenner) _reeksHerkenner = createSequenceMatcher() || null;
+  return _reeksHerkenner;
+}
 
-function _resetChord() {
-  _chordBuffer = '';
-  if (_chordTimer) { clearTimeout(_chordTimer); _chordTimer = null; }
+// De tabel van dit moment: letters -> actie.
+function reeksTabel(e) {
+  const tabel = new Map();
+  // Een letter die de gebruiker zelf aan een opdracht gaf (#714), gaat voor
+  // de ingebouwde commando's die ermee beginnen.
+  for (const [letters, actie] of Object.entries(CAD_CHORDS)) {
+    if (!eigenLetter(letters[0])) tabel.set(letters, actie);
+  }
+  // Toetsreeksen alleen zonder Shift (Caps Lock geeft geen shiftKey).
+  if (!e.shiftKey) {
+    const reeksen = sneltoetsReeksen();
+    if (reeksen instanceof Map) {
+      for (const [letters, id] of reeksen) tabel.set(letters, () => { voerSneltoetsUit(id); });
+    }
+  }
+  return tabel;
 }
 
 // Returns true if the keystroke was consumed by the chord system.
-function _cadChordTry(letter) {
-  // Skip if a single-key tool shortcut would handle this letter alone (G is
-  // already returned-on earlier; A toggles arc-mode; Esc/Tab handled separately).
-  if (letter === 'g' || letter === 'a') return false;
-
-  const next = _chordBuffer + letter;
-
-  // Langere chords winnen van korte: een exacte match vuurt alleen direct
-  // als hij GEEN prefix van een langere chord is ('t' wacht dus op de
-  // time-out zodat 'tr'/'tx'/'tl' bereikbaar blijven).
-  const isPrefix = Object.keys(CAD_CHORDS).some(k => k.startsWith(next) && k !== next);
-
-  // Exact match zonder langere kandidaat: fire and clear.
-  if (CAD_CHORDS[next] && !isPrefix) {
-    _resetChord();
-    try { CAD_CHORDS[next](); } catch (_) {}
-    return true;
-  }
-
-  // Prefix of some longer chord? Buffer and wait.
-  if (isPrefix) {
-    _chordBuffer = next;
-    if (_chordTimer) clearTimeout(_chordTimer);
-    _chordTimer = setTimeout(() => {
-      // Timeout: if the buffer itself is a valid (single-letter) command, fire it.
-      if (CAD_CHORDS[_chordBuffer]) {
-        try { CAD_CHORDS[_chordBuffer](); } catch (_) {}
-      }
-      _resetChord();
-    }, CHORD_MS);
-    return true;
-  }
-
-  // No match and not a prefix → reset and let the keystroke fall through.
-  _resetChord();
-  return false;
+function _cadChordTry(letter, e) {
+  // G (verplaatsen) is hierboven al afgehandeld en hoort nooit bij een reeks.
+  if (letter === 'g') return false;
+  const herkenner = reeksHerkenner();
+  if (!herkenner) return false;
+  return herkenner.key(letter, reeksTabel(e));
 }
 
 // ── Tabblad wisselen: Ctrl+Tab / Ctrl+PageDown en terug (#539) ─────────────
@@ -586,10 +576,14 @@ export async function handleKeydown(e) {
   // "L"=Line, "C"=Circle, "M"=Move, "CO"=Copy, "TR"=Trim, "EX"=Extend, ...).
   // Buffer alphabetic keys for ~1.2s; on each keystroke check for a match.
   // No modifier keys (ctrl/alt) and not while a tool is mid-operation.
-  // Een letter die de gebruiker zelf aan een opdracht gaf (#714), gaat voor.
-  if (!ctrl && !e.altKey && /^[a-zA-Z]$/.test(e.key) && !isGMoveModeActive() && !isGRotateModeActive() && !typeLengthActive()
-      && !eigenSneltoetsVoor(e, { modalOpen: dialoogOpen })) {
-    if (_cadChordTry(e.key.toLowerCase())) {
+  // Ook de toetsreeksen uit de sneltoetsen ("D L" = Lijn), zie sequences.js.
+  // Een letter die de gebruiker zelf aan een opdracht gaf (#714), gaat voor de
+  // ingebouwde commando's (reeksTabel); met Shift gaat zo'n eigen toets
+  // helemaal voor. Niet in een modaal venster. Escape vergeet de reeks.
+  if (e.key === 'Escape') reeksHerkenner()?.cancel?.();
+  if (!ctrl && !e.altKey && !dialoogOpen && /^[a-zA-Z]$/.test(e.key) && !isGMoveModeActive() && !isGRotateModeActive() && !typeLengthActive()
+      && !(shift && eigenSneltoetsVoor(e, { modalOpen: dialoogOpen }))) {
+    if (_cadChordTry(e.key.toLowerCase(), e)) {
       e.preventDefault();
       return;
     }

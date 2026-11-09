@@ -789,3 +789,6 @@ js/pdf/export-verlies-bedrading.test.mjs
 js/annotations/xfdf-samenvoegen.test.mjs
 js/tools/loodrecht-snap.test.mjs
 js/tools/tools/lijn-snap.test.mjs
+js/solid/components/svg-icoon-maat.test.mjs
+js/solid/components/left-panel/panels/annotations-filter-thema.test.mjs
+js/core/keybindings/sequences.test.mjs

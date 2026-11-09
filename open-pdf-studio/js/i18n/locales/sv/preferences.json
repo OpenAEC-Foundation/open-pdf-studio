@@ -355,6 +355,7 @@
     "exported": "Kortkommandon exporterade.",
     "exportFailed": "Det gick inte att exportera kortkommandona:",
     "recording": "Tryck på den nya tangentkombinationen… (Esc avbryter)",
+    "recordingSequence": "{{keys}} … tryck på ytterligare en bokstav för en tangentsekvens, eller vänta (Esc avbryter)",
     "conflict": "{{keys}} används redan av ”{{command}}”.",
     "reassign": "Tilldela om",
     "reserved": "{{keys}} har en fast betydelse och kan inte tilldelas.",

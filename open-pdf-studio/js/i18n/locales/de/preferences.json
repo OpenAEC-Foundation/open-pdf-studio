@@ -355,6 +355,7 @@
     "exported": "Tastenkombinationen exportiert.",
     "exportFailed": "Export der Tastenkombinationen fehlgeschlagen:",
     "recording": "Drücken Sie die neue Tastenkombination… (Esc bricht ab)",
+    "recordingSequence": "{{keys}} … weiteren Buchstaben für eine Tastenfolge drücken oder warten (Esc bricht ab)",
     "conflict": "{{keys}} wird bereits von „{{command}}“ verwendet.",
     "reassign": "Neu zuweisen",
     "reserved": "{{keys}} hat eine feste Bedeutung und kann nicht zugewiesen werden.",
