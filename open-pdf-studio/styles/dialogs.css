@@ -6526,6 +6526,25 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .approval-recipient, .approval-field { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .approval-field input { width: 65px; }
 .approval-routing-dialog canvas { max-width: 100%; align-self: flex-start; flex-shrink: 0; }
+/* Goedkeuringsroutes (#651): tabbladen, tabellen en meldingen; geen afgeronde hoeken. */
+.approval-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--theme-border, #d4d4d4); flex-shrink: 0; }
+.approval-tabs button { background: transparent; color: var(--theme-text); border: 1px solid transparent; border-bottom: none; border-radius: 0; padding: 5px 12px; margin-bottom: -1px; font: inherit; }
+.approval-tabs button.active { background: var(--theme-bg); border-color: var(--theme-border, #d4d4d4); font-weight: 600; }
+.approval-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.approval-block { flex-direction: column; align-items: stretch !important; }
+.approval-block textarea, .approval-routing-dialog textarea { min-height: 48px; }
+.approval-group { border: 1px solid var(--theme-border, #d4d4d4); border-radius: 0; padding: 6px 10px; display: flex; flex-direction: column; gap: 4px; }
+.approval-order { min-width: 1.5em; text-align: end; }
+.approval-table { border-collapse: collapse; width: 100%; font-size: 12px; flex-shrink: 0; }
+.approval-table th, .approval-table td { border: 1px solid var(--theme-border, #d4d4d4); padding: 3px 6px; text-align: start; vertical-align: top; overflow-wrap: anywhere; }
+.approval-table th { background: var(--theme-surface, #f5f5f5); font-weight: 600; white-space: nowrap; }
+.approval-table tr.approval-turn td { background: var(--theme-hover, #e8f1fb); }
+.approval-outgoing pre { margin: 0; white-space: pre-wrap; max-height: 220px; overflow: auto; font: inherit; }
+.approval-hash { font-family: var(--ui-font-mono); font-size: 11px; }
+.approval-note { color: var(--theme-text-secondary, #555); }
+.approval-warning { color: #9a5b00; }
+.approval-error:empty { display: none; }
+.approval-error { color: #c42b1c; }
 
 /* ===== Accessibility report (#384) ===== */
 .accessibility-report-dialog {

@@ -16,19 +16,52 @@
 /// app then uses its fallback (js/pdf/delen.js).
 pub const GEEN_MAILPROGRAMMA: &str = "OPDS_NO_MAIL_CLIENT";
 
+/// `to` (recipient addresses) and `body` are optional: Share / send leaves
+/// them empty, an approval request (js/approval-routing) fills them so the
+/// draft shows exactly what the preview showed. The draft still opens in the
+/// mail program's own window; the user sends it.
 #[tauri::command]
-pub async fn email_pdf(path: String, subject: Option<String>) -> Result<(), String> {
+pub async fn email_pdf(
+    path: String,
+    subject: Option<String>,
+    to: Option<Vec<String>>,
+    body: Option<String>,
+) -> Result<(), String> {
     crate::headless::weiger("email_pdf")?;
     let subject = subject.unwrap_or_default();
+    let to = schone_adressen(to.unwrap_or_default())?;
+    let body = body.unwrap_or_default();
     // MAPISendMail is blocking (it shows the client's compose window), so run
     // it off the async runtime.
-    tokio::task::spawn_blocking(move || email_impl(&path, &subject))
+    tokio::task::spawn_blocking(move || email_impl(&path, &subject, &to, &body))
         .await
         .map_err(|e| format!("email task failed: {e}"))?
 }
 
+/// Addresses for the draft: at most 50, each a plain `local@domain` without
+/// spaces, control characters or characters that could start another
+/// argument or header (`-` at the start, `<`, `>`, `,`, `;`, `"`).
+pub fn schone_adressen(adressen: Vec<String>) -> Result<Vec<String>, String> {
+    if adressen.len() > 50 {
+        return Err("too many recipients".into());
+    }
+    adressen
+        .into_iter()
+        .map(|a| {
+            let a = a.trim().to_string();
+            let geldig = a.len() <= 254
+                && !a.starts_with('-')
+                && a.matches('@').count() == 1
+                && !a.starts_with('@')
+                && !a.ends_with('@')
+                && !a.chars().any(|c| c.is_whitespace() || c.is_control() || "<>,;\"".contains(c));
+            if geldig { Ok(a) } else { Err(format!("invalid recipient address: {a}")) }
+        })
+        .collect()
+}
+
 #[cfg(target_os = "windows")]
-fn email_impl(path: &str, subject: &str) -> Result<(), String> {
+fn email_impl(path: &str, subject: &str, to: &[String], body: &str) -> Result<(), String> {
     use std::os::raw::c_void;
     use std::path::Path;
 
@@ -41,6 +74,15 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
         path_name: *const u16,
         file_name: *const u16,
         file_type: *mut c_void,
+    }
+    #[repr(C)]
+    struct MapiRecipDescW {
+        reserved: u32,
+        recip_class: u32,
+        name: *const u16,
+        address: *const u16,
+        eid_size: u32,
+        entry_id: *mut c_void,
     }
     #[repr(C)]
     struct MapiMessageW {
@@ -77,6 +119,7 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
     const MAPI_DIALOG: u32 = 0x0000_0008;
     const SUCCESS_SUCCESS: u32 = 0;
     const MAPI_USER_ABORT: u32 = 1;
+    const MAPI_TO: u32 = 1;
 
     fn wide(s: &str) -> Vec<u16> {
         s.encode_utf16().chain(std::iter::once(0)).collect()
@@ -92,6 +135,21 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
     let w_path = wide(path);
     let w_file = wide(file_name);
     let w_subject = wide(subject);
+    let w_body = wide(body);
+    let w_namen: Vec<Vec<u16>> = to.iter().map(|a| wide(a)).collect();
+    let w_adressen: Vec<Vec<u16>> = to.iter().map(|a| wide(&format!("SMTP:{a}"))).collect();
+    let ontvangers: Vec<MapiRecipDescW> = w_namen
+        .iter()
+        .zip(w_adressen.iter())
+        .map(|(n, a)| MapiRecipDescW {
+            reserved: 0,
+            recip_class: MAPI_TO,
+            name: n.as_ptr(),
+            address: a.as_ptr(),
+            eid_size: 0,
+            entry_id: std::ptr::null_mut(),
+        })
+        .collect();
 
     let file = MapiFileDescW {
         reserved: 0,
@@ -104,14 +162,14 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
     let message = MapiMessageW {
         reserved: 0,
         subject: w_subject.as_ptr(),
-        note_text: std::ptr::null(),
+        note_text: if body.is_empty() { std::ptr::null() } else { w_body.as_ptr() },
         message_type: std::ptr::null(),
         date_received: std::ptr::null(),
         conversation_id: std::ptr::null(),
         flags: 0,
         originator: std::ptr::null_mut(),
-        recip_count: 0,
-        recips: std::ptr::null_mut(),
+        recip_count: ontvangers.len() as u32,
+        recips: if ontvangers.is_empty() { std::ptr::null_mut() } else { ontvangers.as_ptr() as *mut c_void },
         file_count: 1,
         files: &file,
     };
@@ -127,19 +185,25 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
 }
 
 #[cfg(target_os = "linux")]
-fn email_impl(path: &str, subject: &str) -> Result<(), String> {
-    std::process::Command::new("xdg-email")
-        .arg("--subject")
-        .arg(subject)
-        .arg("--attach")
-        .arg(path)
+fn email_impl(path: &str, subject: &str, to: &[String], body: &str) -> Result<(), String> {
+    let mut opdracht = std::process::Command::new("xdg-email");
+    opdracht.arg("--utf8").arg("--subject").arg(subject);
+    if !body.is_empty() {
+        opdracht.arg("--body").arg(body);
+    }
+    opdracht.arg("--attach").arg(path);
+    // Addresses come last; schone_adressen refused anything starting with '-'.
+    for a in to {
+        opdracht.arg(a);
+    }
+    opdracht
         .spawn()
         .map(|_| ())
         .map_err(|e| format!("{GEEN_MAILPROGRAMMA}: xdg-email is not available: {e}"))
 }
 
 #[cfg(not(any(target_os = "windows", target_os = "linux")))]
-fn email_impl(_path: &str, _subject: &str) -> Result<(), String> {
+fn email_impl(_path: &str, _subject: &str, _to: &[String], _body: &str) -> Result<(), String> {
     Err(format!("{GEEN_MAILPROGRAMMA}: attaching to an email is not supported on this platform"))
 }
 
@@ -235,7 +299,17 @@ pub async fn verzendkopie_schrijven(
 
 #[cfg(test)]
 mod tests {
-    use super::verzendnaam;
+    use super::{schone_adressen, verzendnaam};
+
+    #[test]
+    fn schone_adressen_weigert_argumenten_en_kopregels() {
+        assert_eq!(schone_adressen(vec![" a@example.org ".into()]).unwrap(), vec!["a@example.org".to_string()]);
+        assert!(schone_adressen(vec!["--attach@x.org".into()]).is_err());
+        assert!(schone_adressen(vec!["a@b.org\r\nBcc: c@d.org".into()]).is_err());
+        assert!(schone_adressen(vec!["a@b.org, c@d.org".into()]).is_err());
+        assert!(schone_adressen(vec!["geen-adres".into()]).is_err());
+        assert!(schone_adressen(vec!["a@x.org".into(); 51]).is_err());
+    }
 
     #[test]
     fn verzendnaam_houdt_alleen_een_veilige_bestandsnaam() {

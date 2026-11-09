@@ -18,9 +18,11 @@ function basename(p) {
   return parts[parts.length - 1] || 'document.pdf';
 }
 
-// Apart en puur gehouden zodat dit in Node te testen is.
-export function buildMailtoUrl(subject, body) {
-  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+// Apart en puur gehouden zodat dit in Node te testen is. `to`: adressen voor
+// het aan-veld (een goedkeuringsaanvraag, #651); leeg bij gewoon verzenden.
+export function buildMailtoUrl(subject, body, to = []) {
+  const aan = to.map((a) => encodeURIComponent(String(a).trim()).replace(/%40/g, '@')).join(',');
+  return `mailto:${aan}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 /** Een mailconcept zonder bijlage, met de bestandslocatie in de tekst. */

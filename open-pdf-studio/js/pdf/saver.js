@@ -3516,6 +3516,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // Save named line-style presets into the catalog (travel with the PDF)
       saveStylePresetsToCatalog(pdfDocLib, activeDoc.stylePresets || null);
 
+      // Goedkeuringsaanvragen (#651) gaan mee in het bestand. Een echte save
+      // van een inhoudelijk gewijzigd document vervangt de lopende aanvragen.
+      {
+        const { approvalBeforeSave } = await import('../approval-routing/save-hook.js');
+        await approvalBeforeSave(pdfDocLib, activeDoc, { snapshot: momentopname || alleenAnnotaties });
+      }
+
       // Paginalabels (bladnamen, #580) als /PageLabels; alleen na een bewerking,
       // zodat een andere nummering in het bestand ongemoeid blijft.
       slaPaginaLabelsOp(pdfDocLib, activeDoc);

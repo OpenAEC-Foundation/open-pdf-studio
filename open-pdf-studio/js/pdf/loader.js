@@ -710,6 +710,16 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       }).catch(() => { /* presets zijn optioneel — negeer leesfouten */ });
     }
 
+    // Goedkeuringsaanvragen (#651) uit de catalogus, op dezelfde manier.
+    {
+      getSharedPdfLibDoc(doc).then(async (pdfLibDoc) => {
+        if (isClosed() || !pdfLibDoc) return;
+        const { readApprovalRequests } = await import('../approval-routing/document-store.js');
+        if (isClosed()) return;
+        if (!Array.isArray(doc.goedkeuringen)) doc.goedkeuringen = readApprovalRequests(pdfLibDoc);
+      }).catch(() => { /* aanvragen zijn optioneel — negeer leesfouten */ });
+    }
+
     // Titel en kop-/voetteksten uit het bestand (#375): de definities komen
     // terug in de lijst, zodat een nieuwe save ze vervangt in plaats van er
     // nog een exemplaar overheen te zetten. Niet-blokkerend, zoals hierboven.

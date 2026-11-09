@@ -10,10 +10,11 @@ export function actorFor(origin) {
 
 /**
  * Automation clients confirm explicitly what the dialog confirms with a
- * checkbox: creating a receipt states a decision on behalf of a recipient.
+ * checkbox: creating a receipt or recording a decision (#651) states a
+ * decision on behalf of a recipient.
  */
 export function checkAutomationRequest(request, origin) {
-  if ((origin === 'mcp' || origin === 'plugin') && request?.action === 'createReceipt' && request.confirmed !== true) {
+  if ((origin === 'mcp' || origin === 'plugin') && ['createReceipt', 'decision'].includes(request?.action) && request.confirmed !== true) {
     throw new Error('CONFIRMATION_REQUIRED');
   }
 }

@@ -199,3 +199,47 @@ export async function deelHuidigDocument() {
     return false;
   }
 }
+
+/**
+ * Een gegeven PDF (bytes) als bijlage in een mailconcept met ontvangers,
+ * onderwerp en tekst: de provider mail-v1 van de goedkeuringsroutes (#651).
+ * Dezelfde wegen als hierboven; de app verstuurt zelf niets, er opent een
+ * concept dat de gebruiker in het mailprogramma verstuurt. Zonder weg voor
+ * een bijlage: het mailconcept met ontvangers en tekst, en het bestand in
+ * de bestandsbeheerder (of als download in de browser) om erin te slepen.
+ * Geeft de gebruikte route.
+ */
+export async function verzendBijlagePerMail({ naam, bytes, onderwerp, aan = [], tekst = '' }) {
+  const route = huidigeDeelRoute();
+  const { buildMailtoUrl } = await import('./email-pdf.js');
+  const { openExtern } = await import('../core/extern-openen.js');
+  const concept = () => openExtern(buildMailtoUrl(onderwerp, tekst, aan));
+  if (route === 'web-share') {
+    if (await deelViaWebShare(bytes, naam)) return route;
+  }
+  if (route === 'web-share' || route === 'mailto') {
+    const { downloadBestand } = await import('../core/platform.js');
+    downloadBestand(naam, bytes);
+    await concept();
+    return 'mailto';
+  }
+  const pad = await schrijfVerzendkopie(naam, bytes);
+  if (route === 'android') {
+    await deelViaAndroid(pad, naam);
+    return route;
+  }
+  if (route === 'mapi' || route === 'xdg-email') {
+    try {
+      await invoke('email_pdf', { path: pad, subject: onderwerp, to: aan, body: tekst });
+      return route;
+    } catch (e) {
+      if (!isGeenMailprogramma(e)) throw e;
+      console.warn('[delen] geen mailprogramma voor de bijlage, terugval:', e);
+    }
+  }
+  const { revealInFileManager } = await import('../core/file-manager-reveal.js');
+  await revealInFileManager(pad);
+  await concept();
+  showMessage(t('share.attachManually', { path: pad }));
+  return 'tonen';
+}

@@ -54,7 +54,7 @@ const simpleLinkService = {
 export function resetAnnotationStorage(doc = getActiveDocument()) {
   getAnnotIdToFieldName(doc).clear();
   const storage = getAnnotationStorage(doc);
-  if (storage) storage.onSetModified = () => { doc.modified = true; meldWijziging(doc); };
+  if (storage) storage.onSetModified = () => { doc.modified = true; doc._alleenGoedkeuringGewijzigd = false; meldWijziging(doc); };
   if (doc !== getActiveDocument()) return;
   initializedRadioGroups.clear();
   annotButtonValues.clear();
