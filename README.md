@@ -102,6 +102,27 @@ The full list is in [docs/features.md](docs/features.md).
 
 What does not survive: XFDF and BCF carry annotations only, not the page content. A flattened copy leaves out form field values. DOCX, ODT and XLSX get the text and tables, and complex layouts may need correction. PDF/X keeps standard fonts that are not embedded as they are. What IFCX keeps and loses is listed in [docs/ifcx-export.md](docs/ifcx-export.md).
 
+## Embedding in a web page
+
+A separate, lightweight build lets another web application show a drawing with measuring and comments in its own page: `npm run build:web-unit` writes `open-pdf-studio/dist-web-unit/`. The script a host loads is about 10 KiB gzip; PDF.js arrives with the first document, the PDF writer only when the host asks for the result, and nothing in the unit uses the desktop shell. It uses the same annotation model as the desktop app, so a drawing marked up on the web opens the same way on the desktop.
+
+```html
+<div id="viewer" style="height:600px"></div>
+<script type="module">
+  import { mount } from './web-unit/open-pdf-studio.js';
+
+  const unit = mount('#viewer', {
+    scale: '1:100', unit: 'mm', lang: 'en', tools: ['measure', 'comment', 'shape'],
+    onChange: ({ count }) => console.log(count, 'annotations'),
+  });
+  await unit.load('/drawings/123.pdf');           // a URL, bytes or a File
+  const pdf = await unit.exportPdf();              // Uint8Array with the markups
+  const annotations = unit.getAnnotations();       // the same JSON model as the desktop app
+</script>
+```
+
+The same unit works as a `<open-pdf-studio src="…" scale="1:100">` element and inside an iframe with a `postMessage` protocol. Options include a read-only mode (`readOnly: true`), a dark theme and CSS variables, a hidden toolbar for hosts with their own buttons, and `storage: 'local'` to remember the page and scale per document (off by default). The events are `opds:load`, `opds:change`, `opds:save` and `opds:error`. A minimal host page is in [`open-pdf-studio/web-unit/voorbeeld/`](open-pdf-studio/web-unit/voorbeeld/index.html). The unit measures distances and places sticky notes and rectangles; area, perimeter, text boxes, editing existing annotations and XFDF are not in it yet ([#451](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/451)).
+
 ## MCP
 
 The desktop app has a built-in MCP server, so an AI assistant can work with your documents: open and save files, navigate, create and edit annotations, set the measuring scale, take off quantities, import and export CAD and print to a PDF file. It has 94 public tools.
