@@ -39,7 +39,7 @@ test('no metric preset of the scale dialogs collides with an imperial one', () =
 
 test('every scale dropdown offers the imperial presets and switches to feet', () => {
   const regio = bron('../solid/components/dialogs/ScaleRegionDialog.jsx');
-  assert.match(regio, /scaleSelectOptions\(METRIC_REGION_SCALES\)/);
+  assert.match(regio, /scaleSelectOptions\(METRIC_REGION_SCALES, \{ current: scaleString\(\) \}\)/);
   assert.match(regio, /isImperialScalePreset\(v\)\) setUnits\('ft'\)/);
 
   const viewport = bron('../solid/components/dialogs/ViewportScaleDialog.jsx');
@@ -62,5 +62,6 @@ test('the ribbon opens the calibration dialog with its ratio presets', () => {
   assert.match(tekenen, /id="btn-calibrate-scale"/);
   assert.match(tekenen, /openDialog\('calibration', \{ referencePixelLength: null \}\)/);
   const dialoog = bron('../solid/components/dialogs/CalibrationDialog.jsx');
-  assert.match(dialoog, /IMPERIAL_SCALE_PRESETS\.map\(preset => <option value=\{preset\.ratio\}>\{preset\.label\}<\/option>\)/);
+  assert.match(dialoog, /scaleSelectOptions\(undefined, \{ current: getActiveDocument\(\)\?\.measureScale\?\.scaleRatio \}\)/);
+  assert.match(dialoog, /ratioOptions\.map\(o => <option value=\{o\.value\}>\{o\.label\}<\/option>\)/);
 });

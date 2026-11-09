@@ -327,7 +327,16 @@
     "digitGrouping": "Separa els milers (12 345)",
     "scaleCheck": "Comprovació d'escala",
     "scaleCheckOk": "Correcte fins a",
-    "scaleCheckWarn": "Avís fins a"
+    "scaleCheckWarn": "Avís fins a",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Dreceres de teclat",

@@ -28,7 +28,9 @@
     "noTitleBlock": "Uten tittelfelt",
     "addTitleBlock": "Legg til ditt eget tittelfelt (PDF)",
     "openTitleBlocksFolder": "Åpne mappen med tittelfelt",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Handlinger for utskriftsjobber",
@@ -519,7 +521,9 @@
     "autoDetect": "Oppdag automatisk fra tittelfeltet",
     "detecting": "Oppdager...",
     "scaleDetected": "Målestokk oppdaget!",
-    "scaleNotFound": "Ingen målestokk funnet i tittelfeltet"
+    "scaleNotFound": "Ingen målestokk funnet i tittelfeltet",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sideoppsett",

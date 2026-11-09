@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez rohového razítka",
     "addTitleBlock": "Přidat vlastní rohové razítko (PDF)",
     "openTitleBlocksFolder": "Otevřít složku rohových razítek",
-    "style": "Styl"
+    "style": "Styl",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Akce tiskových úloh",
@@ -519,7 +521,9 @@
     "autoDetect": "Automaticky zjistit z rohového razítka",
     "detecting": "Rozpoznávání...",
     "scaleDetected": "Měřítko zjištěno!",
-    "scaleNotFound": "V rohovém razítku nebylo nalezeno měřítko"
+    "scaleNotFound": "V rohovém razítku nebylo nalezeno měřítko",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Vzhled stránky",

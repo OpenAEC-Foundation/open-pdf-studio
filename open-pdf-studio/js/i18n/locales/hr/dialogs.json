@@ -28,7 +28,9 @@
     "noTitleBlock": "Bez sastavnice",
     "addTitleBlock": "Dodaj vlastitu sastavnicu (PDF)",
     "openTitleBlocksFolder": "Otvori mapu sastavnica",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Radnje za zadatke ispisa",
@@ -519,7 +521,9 @@
     "autoDetect": "Automatski prepoznaj iz sastavnice",
     "detecting": "Otkrivanje...",
     "scaleDetected": "Mjerilo prepoznato!",
-    "scaleNotFound": "U sastavnici nije pronađeno mjerilo"
+    "scaleNotFound": "U sastavnici nije pronađeno mjerilo",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Postavljanje stranice",

@@ -28,7 +28,9 @@
     "noTitleBlock": "Tanpa kop gambar",
     "addTitleBlock": "Tambahkan kop gambar Anda sendiri (PDF)",
     "openTitleBlocksFolder": "Buka folder kop gambar",
-    "style": "Gaya"
+    "style": "Gaya",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Tindakan pekerjaan cetak",
@@ -519,7 +521,9 @@
     "autoDetect": "Deteksi otomatis dari kop gambar",
     "detecting": "Mendeteksi...",
     "scaleDetected": "Skala terdeteksi!",
-    "scaleNotFound": "Tidak ada skala di kop gambar"
+    "scaleNotFound": "Tidak ada skala di kop gambar",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Pengaturan Halaman",

@@ -327,7 +327,16 @@
     "digitGrouping": "천 단위 구분 (12 345)",
     "scaleCheck": "축척 확인",
     "scaleCheckOk": "양호 한도",
-    "scaleCheckWarn": "경고 한도"
+    "scaleCheckWarn": "경고 한도",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "바로 가기 키",

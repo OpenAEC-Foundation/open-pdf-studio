@@ -10,6 +10,7 @@
 // No app imports and no DOM: tested on its own.
 
 import { normRotation, shownSize, A4 } from './page-edit-plan.js';
+import { US_PAPIERFORMATEN } from '../core/us-papierformaten.js';
 
 const PT_PER_IN = 72;
 const MM_PER_IN = 25.4;
@@ -27,6 +28,10 @@ export const BLANK_PRESETS = Object.freeze({
   a0: { width: 841, height: 1189, unit: 'mm', label: 'A0' },
   letter: { width: 8.5, height: 11, unit: 'in', label: 'Letter' },
   legal: { width: 8.5, height: 14, unit: 'in', label: 'Legal' },
+  // US-tekenvellen ARCH A–E1 en ANSI A–E (#996), uit de gedeelde lijst.
+  ...Object.fromEntries(US_PAPIERFORMATEN.map((f) => [f.sleutel, {
+    width: f.breedteIn, height: f.hoogteIn, unit: 'in', label: f.label,
+  }])),
 });
 
 export const BLANK_MODES = Object.freeze(['adjacent', 'preset', 'custom']);

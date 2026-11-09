@@ -28,7 +28,9 @@
     "noTitleBlock": "Kein Schriftfeld",
     "addTitleBlock": "Eigenes Schriftfeld hinzufügen (PDF)",
     "openTitleBlocksFolder": "Schriftfeldordner öffnen",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US-Architektur (ARCH)",
+    "usEngineering": "US-Technik (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Aktionen für Druckaufträge",
@@ -519,7 +521,9 @@
     "autoDetect": "Automatisch aus Schriftfeld erkennen",
     "detecting": "Erkennung...",
     "scaleDetected": "Maßstab erkannt!",
-    "scaleNotFound": "Kein Maßstab im Schriftfeld gefunden"
+    "scaleNotFound": "Kein Maßstab im Schriftfeld gefunden",
+    "currentScale": "Aktueller Maßstab: {{scale}}",
+    "feetInchHint": "Fuß und Zoll sind erlaubt, z. B. 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Seite einrichten",

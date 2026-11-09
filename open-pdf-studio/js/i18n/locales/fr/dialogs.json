@@ -28,7 +28,9 @@
     "noTitleBlock": "Pas de cartouche",
     "addTitleBlock": "Ajouter votre propre cartouche (PDF)",
     "openTitleBlocksFolder": "Ouvrir le dossier des cartouches",
-    "style": "Style"
+    "style": "Style",
+    "usArchitectural": "Architecture US (ARCH)",
+    "usEngineering": "Ingénierie US (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Actions sur les travaux d'impression",
@@ -519,7 +521,9 @@
     "autoDetect": "Détecter depuis le cartouche",
     "detecting": "Détection...",
     "scaleDetected": "Échelle détectée !",
-    "scaleNotFound": "Aucune échelle trouvée dans le cartouche"
+    "scaleNotFound": "Aucune échelle trouvée dans le cartouche",
+    "currentScale": "Échelle actuelle : {{scale}}",
+    "feetInchHint": "Pieds et pouces acceptés, par exemple 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Mise en page",

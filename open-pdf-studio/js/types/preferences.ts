@@ -181,6 +181,9 @@ export interface Preferences {
   measureDigitGrouping: boolean;
   scaleCheckOkPercent: number;
   scaleCheckWarnPercent: number;
+  imperialLengthFormat: 'decimal' | 'feetInch';
+  imperialFractionPrecision: number;
+  scaleUnitSystem: 'metric' | 'imperial' | 'both';
 
   // Measure Distance defaults
   measureDistStrokeColor: string;

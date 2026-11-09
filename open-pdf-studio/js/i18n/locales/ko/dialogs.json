@@ -28,7 +28,9 @@
     "noTitleBlock": "표제란 없음",
     "addTitleBlock": "나만의 표제란 추가(PDF)",
     "openTitleBlocksFolder": "표제란 폴더 열기",
-    "style": "스타일"
+    "style": "스타일",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "인쇄 작업 동작",
@@ -519,7 +521,9 @@
     "autoDetect": "표제란에서 자동 감지",
     "detecting": "감지 중...",
     "scaleDetected": "축척을 감지했습니다!",
-    "scaleNotFound": "표제란에서 축척을 찾을 수 없습니다"
+    "scaleNotFound": "표제란에서 축척을 찾을 수 없습니다",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "페이지 설정",

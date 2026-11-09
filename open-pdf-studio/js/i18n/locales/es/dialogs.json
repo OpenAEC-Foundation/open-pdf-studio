@@ -28,7 +28,9 @@
     "noTitleBlock": "Sin cajetín",
     "addTitleBlock": "Añadir su propio cajetín (PDF)",
     "openTitleBlocksFolder": "Abrir carpeta de cajetines",
-    "style": "Estilo"
+    "style": "Estilo",
+    "usArchitectural": "Arquitectura EE. UU. (ARCH)",
+    "usEngineering": "Ingeniería EE. UU. (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Acciones de trabajos de impresión",
@@ -519,7 +521,9 @@
     "autoDetect": "Detectar desde cuadro de título",
     "detecting": "Detectando...",
     "scaleDetected": "¡Escala detectada!",
-    "scaleNotFound": "No se encontró escala en el cuadro de título"
+    "scaleNotFound": "No se encontró escala en el cuadro de título",
+    "currentScale": "Escala actual: {{scale}}",
+    "feetInchHint": "Se admiten pies y pulgadas, por ejemplo 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Configurar página",

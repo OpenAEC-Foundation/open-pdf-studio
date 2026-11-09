@@ -28,7 +28,9 @@
     "noTitleBlock": "Antet yok",
     "addTitleBlock": "Kendi antetinizi ekleyin (PDF)",
     "openTitleBlocksFolder": "Antetler klasörünü aç",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Yazdırma işi eylemleri",
@@ -519,7 +521,9 @@
     "autoDetect": "Antetten otomatik algıla",
     "detecting": "Algılanıyor...",
     "scaleDetected": "Ölçek algılandı!",
-    "scaleNotFound": "Antette ölçek bulunamadı"
+    "scaleNotFound": "Antette ölçek bulunamadı",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sayfa Ayarları",

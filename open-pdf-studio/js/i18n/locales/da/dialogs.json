@@ -28,7 +28,9 @@
     "noTitleBlock": "Intet tegningshoved",
     "addTitleBlock": "Tilføj dit eget tegningshoved (PDF)",
     "openTitleBlocksFolder": "Åbn mappen med tegningshoveder",
-    "style": "Stil"
+    "style": "Stil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Handlinger for udskriftsjob",
@@ -519,7 +521,9 @@
     "autoDetect": "Registrér automatisk fra tegningshovedet",
     "detecting": "Genkender...",
     "scaleDetected": "Skala registreret!",
-    "scaleNotFound": "Ingen skala fundet i tegningshovedet"
+    "scaleNotFound": "Ingen skala fundet i tegningshovedet",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sideopsætning",

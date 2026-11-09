@@ -331,7 +331,16 @@
     "digitGrouping": "Duizendtallen scheiden (12 345)",
     "scaleCheck": "Schaalcontrole",
     "scaleCheckOk": "Goed tot",
-    "scaleCheckWarn": "Waarschuwing tot"
+    "scaleCheckWarn": "Waarschuwing tot",
+    "units": "Eenheden",
+    "unitSystem": "Standaardschalen",
+    "unitSystemBoth": "Metrisch en imperiaal",
+    "unitSystemMetric": "Metrisch",
+    "unitSystemImperial": "Imperiaal",
+    "imperialLengthFormat": "Imperiale lengtes (ft, in)",
+    "imperialDecimal": "Decimale voet (12,53 ft)",
+    "imperialFeetInch": "Voet-inch-breuk (12'-6 3/8\")",
+    "imperialFractionPrecision": "Kleinste breuk"
   },
   "keyboardShortcuts": {
     "title": "Sneltoetsen",

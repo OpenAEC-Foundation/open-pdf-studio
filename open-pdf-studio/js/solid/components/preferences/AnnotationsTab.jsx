@@ -95,6 +95,18 @@ export default function AnnotationsTab(props) {
     { value: 'point', label: t('measurement.decimalPoint') },
   ];
 
+  // Imperiale lengtes en de schaallijsten (#996).
+  const lengthFormatOpts = [
+    { value: 'decimal', label: t('measurement.imperialDecimal') },
+    { value: 'feetInch', label: t('measurement.imperialFeetInch') },
+  ];
+  const fractionOpts = [2, 4, 8, 16, 32, 64].map(n => ({ value: n, label: `1/${n}"` }));
+  const unitSystemOpts = [
+    { value: 'both', label: t('measurement.unitSystemBoth') },
+    { value: 'metric', label: t('measurement.unitSystemMetric') },
+    { value: 'imperial', label: t('measurement.unitSystemImperial') },
+  ];
+
   const measureHeadOpts = lineEndingOpts('measurement');
 
   return (
@@ -519,6 +531,24 @@ export default function AnnotationsTab(props) {
                   <input type="checkbox" checked={p.measureDigitGrouping[0]()} onChange={e => p.measureDigitGrouping[1](e.target.checked)} />
                   <span>{t('measurement.digitGrouping')}</span>
                 </label>
+              </div>
+            </fieldset>
+
+            {/* Imperiale eenheden (#996): voet-inch-breuken en welke schalen de lijsten tonen. */}
+            <fieldset class="pref-fieldset">
+              <legend>{t('measurement.units')}</legend>
+              <div class="pref-row">
+                <label>{t('measurement.unitSystem')}</label>
+                <PrefSelect value={p.scaleUnitSystem[0]} setValue={p.scaleUnitSystem[1]} options={unitSystemOpts} />
+              </div>
+              <div class="pref-row">
+                <label>{t('measurement.imperialLengthFormat')}</label>
+                <PrefSelect value={p.imperialLengthFormat[0]} setValue={p.imperialLengthFormat[1]} options={lengthFormatOpts} />
+              </div>
+              <div class="pref-row">
+                <label>{t('measurement.imperialFractionPrecision')}</label>
+                <PrefSelect value={p.imperialFractionPrecision[0]} setValue={p.imperialFractionPrecision[1]} options={fractionOpts}
+                  disabled={() => p.imperialLengthFormat[0]() !== 'feetInch'} />
               </div>
             </fieldset>
 

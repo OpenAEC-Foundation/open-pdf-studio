@@ -28,7 +28,9 @@
     "noTitleBlock": "Không có khung tên",
     "addTitleBlock": "Thêm khung tên của riêng bạn (PDF)",
     "openTitleBlocksFolder": "Mở thư mục khung tên",
-    "style": "Kiểu"
+    "style": "Kiểu",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Thao tác với lệnh in",
@@ -519,7 +521,9 @@
     "autoDetect": "Tự động phát hiện từ khung tên",
     "detecting": "Đang phát hiện...",
     "scaleDetected": "Đã phát hiện tỷ lệ!",
-    "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên"
+    "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Thiết lập Trang",

@@ -327,7 +327,16 @@
     "digitGrouping": "Grupează miile (12 345)",
     "scaleCheck": "Verificarea scării",
     "scaleCheckOk": "Corect până la",
-    "scaleCheckWarn": "Avertisment până la"
+    "scaleCheckWarn": "Avertisment până la",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Comenzi rapide de la tastatură",

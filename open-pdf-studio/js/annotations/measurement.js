@@ -14,6 +14,7 @@ import { nettoVlakOppervlak } from './vlak-ringen.js';
 import { vlakZijden, lengteEenheid } from './vlak-zijden.js';
 import { isSpotCoord, spotCoordTekst } from './spot-coord.js';
 import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
+import { toontVoetInch, formatVoetInch } from '../core/voet-inch.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -255,6 +256,11 @@ export function formatDimensionText(measurement) {
 // The number uses the decimal separator of the app language (or the
 // preference override) via core/maat-notatie.js: "2,50 m" in Dutch (#629).
 export function formatMeasurement(measurement) {
+  // Lengtes in ft/in als voet-inch-breuk als de voorkeur dat zegt (#996):
+  // 12'-6 3/8". De breuk is de afronding; oppervlaktes blijven sq ft.
+  if (toontVoetInch(measurement.unit) && Number.isFinite(Number(measurement.value))) {
+    return formatVoetInch(measurement.value, measurement.unit);
+  }
   let val = applyRounding(measurement.value, measurement.unit);
   let unit = eenheidNotatie(measurement.unit || 'mm') || 'mm';
   const fg = (v, d) => formatGetal(v, d);

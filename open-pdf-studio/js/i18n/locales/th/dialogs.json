@@ -28,7 +28,9 @@
     "noTitleBlock": "ไม่มีกรอบชื่อแบบ",
     "addTitleBlock": "เพิ่มกรอบชื่อแบบของคุณเอง (PDF)",
     "openTitleBlocksFolder": "เปิดโฟลเดอร์กรอบชื่อแบบ",
-    "style": "สไตล์"
+    "style": "สไตล์",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "การทำงานของงานพิมพ์",
@@ -519,7 +521,9 @@
     "autoDetect": "ตรวจหาอัตโนมัติจากกรอบชื่อแบบ",
     "detecting": "กำลังตรวจหา...",
     "scaleDetected": "ตรวจพบมาตราส่วนแล้ว!",
-    "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ"
+    "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ตั้งค่าหน้ากระดาษ",

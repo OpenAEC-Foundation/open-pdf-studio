@@ -28,7 +28,9 @@
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
     "openTitleBlocksFolder": "Open title blocks folder",
-    "style": "Style"
+    "style": "Style",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Print job actions",
@@ -518,7 +520,9 @@
     "autoDetect": "Auto-detect from title block",
     "detecting": "Detecting...",
     "scaleDetected": "Scale detected!",
-    "scaleNotFound": "No scale found in title block"
+    "scaleNotFound": "No scale found in title block",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Page Setup",

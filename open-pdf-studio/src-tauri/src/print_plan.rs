@@ -154,8 +154,9 @@ pub fn reset_nodig(pagina: usize, doel_liggend: bool, dc_liggend: bool, reset_ma
 
 /// De standaardvellen die een papiercode met een stand krijgen. De verlengde
 /// vellen (A3L, ...) horen er niet bij: die bestaan alleen als eigen maat of
-/// als formulier.
-const STANDAARD_VELLEN: [Papier; 9] = [
+/// als formulier. De US-tekenvellen wel: plotters bieden ze meestal onder
+/// een eigen code aan, zoals A1 en A0.
+const STANDAARD_VELLEN: [Papier; 18] = [
     Papier::A0,
     Papier::A1,
     Papier::A2,
@@ -165,6 +166,15 @@ const STANDAARD_VELLEN: [Papier; 9] = [
     Papier::Letter,
     Papier::Legal,
     Papier::Tabloid,
+    Papier::ArchA,
+    Papier::ArchB,
+    Papier::ArchC,
+    Papier::ArchD,
+    Papier::ArchE,
+    Papier::ArchE1,
+    Papier::AnsiC,
+    Papier::AnsiD,
+    Papier::AnsiE,
 ];
 
 /// Speling bij het herkennen van een standaardvel uit een nagemeten vel:

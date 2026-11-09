@@ -28,7 +28,9 @@
     "noTitleBlock": "Nessun cartiglio",
     "addTitleBlock": "Aggiungi il tuo cartiglio (PDF)",
     "openTitleBlocksFolder": "Apri cartella dei cartigli",
-    "style": "Stile"
+    "style": "Stile",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Azioni sui processi di stampa",
@@ -519,7 +521,9 @@
     "autoDetect": "Rileva automaticamente dal cartiglio",
     "detecting": "Rilevamento...",
     "scaleDetected": "Scala rilevata!",
-    "scaleNotFound": "Nessuna scala trovata nel cartiglio"
+    "scaleNotFound": "Nessuna scala trovata nel cartiglio",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Imposta pagina",

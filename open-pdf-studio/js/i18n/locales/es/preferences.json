@@ -327,7 +327,16 @@
     "digitGrouping": "Separar miles (12 345)",
     "scaleCheck": "Comprobación de escala",
     "scaleCheckOk": "Correcto hasta",
-    "scaleCheckWarn": "Advertencia hasta"
+    "scaleCheckWarn": "Advertencia hasta",
+    "units": "Unidades",
+    "unitSystem": "Escalas estándar",
+    "unitSystemBoth": "Métrico e imperial",
+    "unitSystemMetric": "Métrico",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Longitudes imperiales (ft, in)",
+    "imperialDecimal": "Pies decimales (12,53 ft)",
+    "imperialFeetInch": "Pies-pulgadas-fracción (12'-6 3/8\")",
+    "imperialFractionPrecision": "Fracción más pequeña"
   },
   "keyboardShortcuts": {
     "title": "Atajos de teclado",

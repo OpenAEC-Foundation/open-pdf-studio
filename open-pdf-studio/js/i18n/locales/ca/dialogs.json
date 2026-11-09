@@ -28,7 +28,9 @@
     "noTitleBlock": "Sense quadre de títol",
     "addTitleBlock": "Afegiu el vostre propi quadre de títol (PDF)",
     "openTitleBlocksFolder": "Obre la carpeta de quadres de títol",
-    "style": "Estil"
+    "style": "Estil",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Accions de les tasques d'impressió",
@@ -519,7 +521,9 @@
     "autoDetect": "Detecta automàticament des del quadre de títol",
     "detecting": "S'està detectant...",
     "scaleDetected": "S'ha detectat l'escala!",
-    "scaleNotFound": "No s'ha trobat cap escala al quadre de títol"
+    "scaleNotFound": "No s'ha trobat cap escala al quadre de títol",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Configuració de pàgina",

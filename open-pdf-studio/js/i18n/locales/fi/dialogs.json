@@ -28,7 +28,9 @@
     "noTitleBlock": "Ei nimiötä",
     "addTitleBlock": "Lisää oma nimiö (PDF)",
     "openTitleBlocksFolder": "Avaa nimiökansio",
-    "style": "Tyyli"
+    "style": "Tyyli",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Tulostustyön toiminnot",
@@ -519,7 +521,9 @@
     "autoDetect": "Tunnista automaattisesti nimiöstä",
     "detecting": "Tunnistetaan...",
     "scaleDetected": "Mittakaava tunnistettu!",
-    "scaleNotFound": "Nimiöstä ei löytynyt mittakaavaa"
+    "scaleNotFound": "Nimiöstä ei löytynyt mittakaavaa",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sivun asetukset",

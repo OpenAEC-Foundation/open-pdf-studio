@@ -14,7 +14,7 @@ import { cloneAnnotation } from '../../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset } from '../../../annotations/scale-presets.js';
+import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, filterScaleOptions } from '../../../annotations/scale-presets.js';
 
 const PRESET_SCALES = [
   { label: '1:10', ratio: 10 },
@@ -168,7 +168,11 @@ export default function ViewportScaleDialog(props) {
             <PrefSelect
               value={presetRatio}
               setValue={setPresetRatio}
-              options={PRESET_SCALES.map(s => ({ value: String(s.ratio), label: s.label }))}
+              options={filterScaleOptions(
+                // Metrisch, imperiaal of beide volgens de voorkeur (#996).
+                PRESET_SCALES.map(s => ({ value: `1:${s.ratio}`, label: s.label })),
+                { current: `1:${presetRatio()}` },
+              ).map(o => ({ value: o.value.slice(2), label: o.label }))}
               style={{ width: '100%' }}
             />
           </div>

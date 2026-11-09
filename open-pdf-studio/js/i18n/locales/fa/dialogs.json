@@ -28,7 +28,9 @@
     "noTitleBlock": "بدون جدول مشخصات",
     "addTitleBlock": "افزودن جدول مشخصات خودتان (PDF)",
     "openTitleBlocksFolder": "باز کردن پوشه جدول‌های مشخصات",
-    "style": "سبک"
+    "style": "سبک",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "عملیات کارهای چاپ",
@@ -519,7 +521,9 @@
     "autoDetect": "تشخیص خودکار از جدول مشخصات",
     "detecting": "در حال تشخیص...",
     "scaleDetected": "مقیاس تشخیص داده شد!",
-    "scaleNotFound": "مقیاسی در جدول مشخصات یافت نشد"
+    "scaleNotFound": "مقیاسی در جدول مشخصات یافت نشد",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "تنظیم صفحه",

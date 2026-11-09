@@ -327,7 +327,16 @@
     "digitGrouping": "Skill tusener (12 345)",
     "scaleCheck": "Målestokkontroll",
     "scaleCheckOk": "I orden opptil",
-    "scaleCheckWarn": "Advarsel opptil"
+    "scaleCheckWarn": "Advarsel opptil",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Hurtigtaster",

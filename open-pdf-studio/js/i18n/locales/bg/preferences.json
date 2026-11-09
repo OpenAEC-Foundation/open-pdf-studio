@@ -327,7 +327,16 @@
     "digitGrouping": "Разделяне на хилядите (12 345)",
     "scaleCheck": "Проверка на мащаба",
     "scaleCheckOk": "Наред до",
-    "scaleCheckWarn": "Предупреждение до"
+    "scaleCheckWarn": "Предупреждение до",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Клавишни комбинации",

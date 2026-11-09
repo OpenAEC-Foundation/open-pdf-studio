@@ -327,7 +327,16 @@
     "digitGrouping": "桁区切り (12 345)",
     "scaleCheck": "縮尺の確認",
     "scaleCheckOk": "良好の上限",
-    "scaleCheckWarn": "警告の上限"
+    "scaleCheckWarn": "警告の上限",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "キーボードショートカット",

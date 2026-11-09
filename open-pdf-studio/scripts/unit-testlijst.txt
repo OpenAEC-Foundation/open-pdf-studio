@@ -792,3 +792,8 @@ js/tools/tools/lijn-snap.test.mjs
 js/solid/components/svg-icoon-maat.test.mjs
 js/solid/components/left-panel/panels/annotations-filter-thema.test.mjs
 js/core/keybindings/sequences.test.mjs
+js/annotations/document-scale-imperiaal.test.mjs
+js/annotations/scale-weergave.test.mjs
+js/annotations/schaal-stelsel.test.mjs
+js/core/voet-inch.test.mjs
+js/core/us-papierformaten.test.mjs

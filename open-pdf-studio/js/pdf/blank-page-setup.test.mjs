@@ -11,7 +11,11 @@ import {
 import { createPlan, insertBlank, insertSource, rotateEntries, adjacentEntry, A4 } from './page-edit-plan.js';
 
 test('presets are the paper sizes in points, portrait or landscape', () => {
-  assert.deepEqual(Object.keys(BLANK_PRESETS), ['a4', 'a3', 'a2', 'a1', 'a0', 'letter', 'legal']);
+  assert.deepEqual(Object.keys(BLANK_PRESETS), ['a4', 'a3', 'a2', 'a1', 'a0', 'letter', 'legal',
+    // US-tekenvellen (#996).
+    'arch-a', 'arch-b', 'arch-c', 'arch-d', 'arch-e', 'arch-e1', 'ansi-a', 'ansi-b', 'ansi-c', 'ansi-d', 'ansi-e']);
+  assert.deepEqual(presetSize('arch-d'), { width: 1728, height: 2592 });
+  assert.deepEqual(presetSize('ansi-e'), { width: 2448, height: 3168 });
   assert.deepEqual(presetSize('a4'), { width: 595.28, height: 841.89 });
   assert.deepEqual(presetSize('a4'), { ...A4 }, 'the same A4 the rest of Edit Pages uses');
   assert.deepEqual(presetSize('a3'), { width: 841.89, height: 1190.55 });

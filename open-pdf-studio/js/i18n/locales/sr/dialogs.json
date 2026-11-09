@@ -28,7 +28,9 @@
     "noTitleBlock": "Без заглавља цртежа",
     "addTitleBlock": "Додај сопствено заглавље цртежа (PDF)",
     "openTitleBlocksFolder": "Отвори фасциклу заглавља цртежа",
-    "style": "Стил"
+    "style": "Стил",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Радње за задатке штампања",
@@ -519,7 +521,9 @@
     "autoDetect": "Аутоматски препознај из заглавља цртежа",
     "detecting": "Препознавање...",
     "scaleDetected": "Размера препозната!",
-    "scaleNotFound": "У заглављу цртежа није пронађена размера"
+    "scaleNotFound": "У заглављу цртежа није пронађена размера",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Подешавање странице",

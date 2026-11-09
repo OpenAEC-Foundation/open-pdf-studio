@@ -28,7 +28,9 @@
     "noTitleBlock": "தலைப்புத் தொகுதி இல்லை",
     "addTitleBlock": "உங்கள் சொந்தத் தலைப்புத் தொகுதியைச் சேர் (PDF)",
     "openTitleBlocksFolder": "தலைப்புத் தொகுதிகள் கோப்புறையைத் திற",
-    "style": "பாணி"
+    "style": "பாணி",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "அச்சுப் பணி செயல்கள்",
@@ -519,7 +521,9 @@
     "autoDetect": "தலைப்புத் தொகுதியிலிருந்து தானாகக் கண்டறி",
     "detecting": "கண்டறியப்படுகிறது...",
     "scaleDetected": "அளவுகோல் கண்டறியப்பட்டது!",
-    "scaleNotFound": "தலைப்புத் தொகுதியில் அளவுகோல் இல்லை"
+    "scaleNotFound": "தலைப்புத் தொகுதியில் அளவுகோல் இல்லை",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "பக்க அமைப்பு",

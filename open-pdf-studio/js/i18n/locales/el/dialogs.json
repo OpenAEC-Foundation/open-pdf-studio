@@ -28,7 +28,9 @@
     "noTitleBlock": "Χωρίς πινακίδα",
     "addTitleBlock": "Προσθήκη δικής σας πινακίδας (PDF)",
     "openTitleBlocksFolder": "Άνοιγμα φακέλου πινακίδων",
-    "style": "Στυλ"
+    "style": "Στυλ",
+    "usArchitectural": "US Architectural (ARCH)",
+    "usEngineering": "US Engineering (ANSI)"
   },
   "printQueue": {
     "toolbarLabel": "Ενέργειες εργασιών εκτύπωσης",
@@ -519,7 +521,9 @@
     "autoDetect": "Αυτόματος εντοπισμός από την πινακίδα",
     "detecting": "Εντοπισμός...",
     "scaleDetected": "Εντοπίστηκε κλίμακα!",
-    "scaleNotFound": "Δεν βρέθηκε κλίμακα στην πινακίδα"
+    "scaleNotFound": "Δεν βρέθηκε κλίμακα στην πινακίδα",
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Ρύθμιση σελίδας",
