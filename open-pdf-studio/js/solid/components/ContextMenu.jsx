@@ -72,7 +72,7 @@ import {
   canRevealInFileManager,
 } from '../../core/file-manager-reveal.js';
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
-import { menuPlaatsing, submenuPlaatsing } from './submenu-plaatsing.js';
+import { plaatsSubmenuVan } from './contextmenu-plaatsen.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -109,33 +109,6 @@ function MenuItem(props) {
 
 function Separator() {
   return <div class="context-menu-separator" />;
-}
-
-const MENU_MARGE = 4;
-
-// Place a submenu next to its item, inside the window (#883). Submenus are
-// position: fixed so that a scrolling main menu (overflow-y: auto) does not
-// clip them; their spot is computed from the item's box.
-function plaatsSubmenuVan(item) {
-  const inhoud = item.querySelector(':scope > .context-menu-submenu-content');
-  if (!inhoud) return;
-  inhoud.style.maxHeight = '';
-  const maat = inhoud.getBoundingClientRect();
-  if (!maat.width && !maat.height) return;
-  const stijl = getComputedStyle(inhoud);
-  const inzet = (parseFloat(stijl.borderTopWidth) || 0) + (parseFloat(stijl.paddingTop) || 0);
-  const voorkeurLinks = getComputedStyle(item).direction === 'rtl';
-  const { left, top, maxHoogte, naarLinks } = submenuPlaatsing(
-    { width: maat.width, height: maat.height }, item.getBoundingClientRect(),
-    window.innerWidth, window.innerHeight, { marge: MENU_MARGE, inzet, voorkeurLinks });
-  inhoud.classList.toggle('naar-links', naarLinks);
-  inhoud.classList.toggle('scrollt', maxHoogte != null);
-  inhoud.style.top = `${top}px`;
-  inhoud.style.maxHeight = maxHoogte != null ? `${maxHoogte}px` : '';
-  inhoud.style.left = `${left}px`;
-  // The scrollbar makes it wider: stay inside the window with that width too.
-  const teVer = inhoud.getBoundingClientRect().right - (window.innerWidth - MENU_MARGE);
-  if (teVer > 0) inhoud.style.left = `${Math.max(MENU_MARGE, left - teVer)}px`;
 }
 
 function plaatsSubmenu(e) {
@@ -1409,108 +1382,31 @@ function TextSelectionMenuContent() {
   );
 }
 
-export default function ContextMenu() {
-  let menuRef;
-  // De inhoud pas opbouwen als het menu voor het eerst opengaat, en daarna
-  // laten staan. Het verborgen menu (standaard het annotatiemenu) kostte bij
-  // de start zo'n vijfde van het opbouwen van het hele venster (#707).
-  const inhoudOpgebouwd = createMemo((eerder) => eerder || visible(), false);
-
-  // Position the menu when it becomes visible: measured at its natural size,
-  // then shifted (and, when taller than the window, given the window height
-  // and a scrollbar) so it stays fully inside the window (#883).
-  createEffect(() => {
-    if (visible()) {
-      const pos = position();
-      menuType();
-      requestAnimationFrame(() => {
-        if (!menuRef) return;
-        menuRef.style.maxHeight = '';
-        menuRef.classList.remove('scrollt');
-        menuRef.scrollTop = 0;
-        const rect = menuRef.getBoundingClientRect();
-        const { left, top, maxHoogte } = menuPlaatsing(
-          { x: pos.x, y: pos.y, breedte: rect.width, hoogte: rect.height },
-          window.innerWidth, window.innerHeight, MENU_MARGE);
-        menuRef.style.left = `${left}px`;
-        menuRef.style.top = `${top}px`;
-        if (maxHoogte != null) {
-          menuRef.style.maxHeight = `${maxHoogte}px`;
-          menuRef.classList.add('scrollt');
-          // The scrollbar makes it wider: stay inside with that width too.
-          const teVer = menuRef.getBoundingClientRect().right - (window.innerWidth - MENU_MARGE);
-          if (teVer > 0) menuRef.style.left = `${Math.max(MENU_MARGE, left - teVer)}px`;
-        }
-      });
-    }
-  });
-
-  // A scrolling menu moves its items under an open submenu: place it again.
-  function handleMenuScroll() {
-    menuRef?.querySelectorAll('.context-menu-submenu:hover').forEach(plaatsSubmenuVan);
-  }
-
-  // Dismiss when clicking outside the menu.
-  // mousedown on document handles clicks on ribbon, panels, title bar, etc.
-  // Canvas clicks are handled by the tool dispatcher (which calls hideMenu).
-  function handleOutsideClick(e) {
-    if (!visible()) return;
-    if (menuRef && menuRef.contains(e.target)) return;
-    hideMenu();
-  }
-
-  function handleEscape(e) {
-    if (e.key === 'Escape' && visible()) {
-      hideMenu();
-    }
-  }
-
-  function handleWindowBlur() {
-    if (visible()) hideMenu();
-  }
-
-  onMount(() => {
-    document.addEventListener('mousedown', handleOutsideClick);
-    document.addEventListener('keydown', handleEscape);
-    window.addEventListener('blur', handleWindowBlur);
-  });
-
-  onCleanup(() => {
-    document.removeEventListener('mousedown', handleOutsideClick);
-    document.removeEventListener('keydown', handleEscape);
-    window.removeEventListener('blur', handleWindowBlur);
-  });
-
+// De inhoud van het contextmenu (#454): een eigen chunk, die
+// ContextMenuHost.jsx laadt na de start of bij het eerste openen. De host
+// (altijd gemonteerd) houdt de luisteraars voor Escape en klik-buiten en
+// plaatst het menu.
+export default function ContextMenuInhoud() {
   return (
-    <div
-      ref={menuRef}
-      class="context-menu"
-      classList={{ visible: visible() }}
-      onScroll={handleMenuScroll}
-      onContextMenu={(e) => e.preventDefault()}
-    >
-      <Show when={inhoudOpgebouwd()}>
-        <Switch>
-          <Match when={menuType() === 'annotation'}>
-            <AnnotationMenuContent />
-          </Match>
-          <Match when={menuType() === 'annotationMulti'}>
-            <MultiAnnotationMenuContent />
-          </Match>
-          <Match when={menuType() === 'page'}>
-            <PageMenuContent />
-          </Match>
-          <Match when={menuType() === 'textSelection'}>
-            <TextSelectionMenuContent />
-          </Match>
-          <Match when={menuType() === 'bookmark'}>
-            <BookmarkMenuContent />
-          </Match>
-          <Match when={menuType() === 'thumbnail'}>
-            <ThumbnailMenuContent />
-          </Match>
-        </Switch>
-      </Show>
-    </div>
+    <Switch>
+      <Match when={menuType() === 'annotation'}>
+        <AnnotationMenuContent />
+      </Match>
+      <Match when={menuType() === 'annotationMulti'}>
+        <MultiAnnotationMenuContent />
+      </Match>
+      <Match when={menuType() === 'page'}>
+        <PageMenuContent />
+      </Match>
+      <Match when={menuType() === 'textSelection'}>
+        <TextSelectionMenuContent />
+      </Match>
+      <Match when={menuType() === 'bookmark'}>
+        <BookmarkMenuContent />
+      </Match>
+      <Match when={menuType() === 'thumbnail'}>
+        <ThumbnailMenuContent />
+      </Match>
+    </Switch>
   );
 }

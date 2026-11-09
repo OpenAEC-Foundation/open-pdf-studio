@@ -91,6 +91,98 @@ hoogste niveau van elk verhuisd bestand.
 ## Bewaking
 
 `scripts/bundel-grootte.test.mjs` (in `scripts/unit-testlijst.txt`) leest
-`dist/` en faalt boven 4700 KiB (gzip 1550 KiB) voor de entry-chunk. Zonder
+`dist/` en faalt boven 4700 KiB (gzip 1550 KiB) voor de entry-chunk (na de
+tweede stap: 4120 KiB, gzip 1340 KiB; zie hieronder). Zonder
 bouwuitvoer, of met een `dist/` die ouder is dan de bronnen in `js/`, slaat de
 test zichzelf over.
+
+## Tweede stap (9-11-2026)
+
+Zelfde meting (`node scripts/meet-bundel.mjs`, en `--mode hosted`). Het
+vertrekpunt is `main` van 9-11: de entry-chunk was sinds de eerste stap met
+nieuwe functies weer iets gegroeid (4532 → 4563 KiB).
+
+| Bouw | Entry-chunk vóór | Entry-chunk na | Verschil |
+| --- | --- | --- | --- |
+| Desktop (`npx vite build`) | 4563,3 KiB (gzip 1496,7) | 4020,0 KiB (gzip 1299,5) | −543 KiB (−11,9 %), gzip −197 KiB (−13,2 %) |
+| Gehost (`--mode hosted`) | 4580,5 KiB (gzip 1503,0) | 4037,3 KiB (gzip 1304,7) | −543 KiB (−11,9 %), gzip −198 KiB (−13,2 %) |
+
+Modules in de entry-chunk (desktop): 1173 → 1049. Het totaal aan JS blijft
+gelijk (18 603 → 18 620 KiB, 541 → 556 chunks).
+
+### Wat er verschoof (geminificeerde chunk, gzip)
+
+| Chunk | Grootte | Laadt |
+| --- | ---: | --- |
+| NEN 1414-bibliotheek (`nen1414Library.js`, met de kleine symboolbeelden als data-URL) | 223,9 KiB (137,8) | direct na het tekenen van het venster (`initSymbolPalette`) |
+| Vloergeometrie (`symbols/data/vbi-vloeren.js`) | 142,2 KiB (16,2) | bij het eerste tekenen van een vloerdoorsnede, of vóór opslaan/exporteren |
+| Inhoud van het contextmenu (`ContextMenu.jsx`) | 39,1 KiB (10,3) | in een rustig moment na de start, of bij het eerste openen |
+| Linttabbladen behalve Start (Tekenen, Opmaak, Beeld, Schikken, Annotatie, Organiseren, Afbeelding, Help) | samen 106,1 KiB (27,8) | in een rustig moment na de start, of bij het eerste gebruik |
+| Mobiele weergave (`MobileApp.jsx` met touch- en recente-bestandenmodules) | 32,7 KiB (9,6) | alleen als `isMobile()` waar is, vóór `render()` |
+
+- **Linttabbladen** (`Ribbon.jsx`, `ribbon/lint-tab-laden.js`): Start blijft
+  statisch, de andere tabbladen zijn `lazy()`. Na de start (1,5 s, dan
+  `requestIdleCallback`) laden ze na elkaar. Een sneltoets voor een knop op
+  een tabblad (`zetLintUitvoerder`) blijft synchroon zolang dat tabblad
+  geladen is; is het dat nog niet (vlak na de start), dan laadt hij eerst de
+  chunk en zet daarna het tabblad even neer en klikt, zoals voorheen.
+  `voerSneltoetsUit` wachtte al op de uitvoerder. De MCP-brug laadt het
+  tabblad vóór het aanklikken (`_laadTab`). Wie vóór het laden een tabblad
+  aanklikt, ziet de inhoud een moment later.
+- **Mobiele weergave**: `App.jsx` tekent alleen nog het bureaublad;
+  `main.js` laadt bij `isMobile()` eerst `MobileApp.jsx` en roept dan
+  dezelfde synchrone `render()` aan, dus de DOM staat er nog steeds direct
+  na `render()`. Het bureaublad wacht nergens op.
+- **Vloerdoorsneden** (`templates/vloer-dxf.js`): bij de start staat alleen
+  de index klaar (`data/vbi-vloeren-index.js`, families, labels en maten,
+  4 KB), genoeg voor het palet, de eigenschappen en de ware maat. De
+  geometrie laadt bij het eerste `render()`; tot dan tekent het symbool de
+  omtrek van de doorsnede, en na het laden volgt een hertekening. Opslaan
+  (de raster-appearance in `saver.js`) en de uitvoer via `exporter.js`
+  (afdrukken, afbeeldingen, rasterpdf) wachten eerst op
+  `laadTemplateDataVoor()`. `scripts/dxf-vloeren-convert.mjs` schrijft de
+  index mee; een test bewaakt dat index en geometrie overeenkomen.
+- **NEN 1414-bibliotheek** (`data/nen1414-laden.js`): de symbolen houden
+  precies dezelfde svg-tekst (met de data-URL's). Die tekst is de sleutel van
+  bewerkte symbooltypen in de voorkeuren en staat in geplaatste stempels;
+  daarom is de lading verplaatst en zijn de beelden niet als losse bestanden
+  uitgegeven. Tot de lading klaar is, ontbreken de NEN-groepen in het palet,
+  en tekent een systeemraster met een NEN-symbool zijn plaatshouder; de
+  cache onthoudt zo'n symbool dan niet als ontbrekend en hertekent na het
+  laden.
+- **Contextmenu**: de host (`ContextMenuHost.jsx`) blijft bij de start
+  gemonteerd en registreert zijn luisteraars op hetzelfde moment als
+  voorheen, zodat de volgorde ten opzichte van de andere toetsafhandeling
+  gelijk blijft. Alleen de menu's zelf zijn lui; na het laden plaatst de host
+  het menu opnieuw, want de maat verandert.
+
+### Wat bewust bleef
+
+- **De beelden van NEN 1414 als losse bestanden** (`assetsInlineLimit`): zou
+  de svg-tekst van 68 symbolen veranderen (een URL met hash en oorsprong in
+  plaats van de data-URL) en daarmee bewerkte symbooltypen en eigen groepen
+  in de voorkeuren losmaken.
+- **`text-edit-tool.js`** (97 KiB): `tool-context.js` geeft
+  `findTextEditAtPosition`/`startTextEditEditing` synchroon aan de
+  gereedschappen en de module houdt de toestand van de open bewerking.
+  Splitsen kan, maar vraagt eerst een kleine, statische zoekfunctie los van de
+  editor.
+- **pdf.js, lader, renderer, saver, pdf-lib**: ongewijzigd (zie boven).
+
+### Wat een live controle nodig heeft
+
+- Een sneltoets voor een knop op een ander tabblad direct na de start (vóór
+  het voorladen) en daarna; het lint ingeklapt en uitgeklapt.
+- Een tabblad aanklikken binnen de eerste seconde na de start.
+- Een document met vloerdoorsneden openen: eerst de omtrek, kort daarna de
+  doorsnede; opslaan direct na het openen geeft de volledige appearance.
+- Het symbolenpalet bij de start (NEN-groepen verschijnen na het laden) en
+  een systeemraster met een NEN-symbool in een net geopend document.
+- Het contextmenu direct na de start openen: plaatsing binnen het venster.
+- De mobiele weergave (`?mobile` of Android).
+
+### Bewaking
+
+Budget in `scripts/bundel-grootte.test.mjs` verlaagd naar 4120 KiB (gzip
+1340 KiB), net boven de gehoste bouw.
+

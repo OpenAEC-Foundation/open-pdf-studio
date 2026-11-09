@@ -1,14 +1,6 @@
-import { Show, Switch, Match, ErrorBoundary, createEffect, createSignal, onMount, onCleanup } from 'solid-js';
+import { Show, Switch, Match, ErrorBoundary, createEffect, createSignal, onMount, onCleanup, lazy } from 'solid-js';
 import RibbonTab from './RibbonTab.jsx';
 import HomeTab from './HomeTab.jsx';
-import DrawingTab from './DrawingTab.jsx';
-import CommentTab from './CommentTab.jsx';
-import ViewTab from './ViewTab.jsx';
-import OrganizeTab from './OrganizeTab.jsx';
-import HelpTab from './HelpTab.jsx';
-import FormatTab from './FormatTab.jsx';
-import ArrangeTab from './ArrangeTab.jsx';
-import ImageTab from './ImageTab.jsx';
 import ExtensionRibbonTab, { ExtensionTabStrip, isExtensieTabblad } from './ExtensionRibbonTab.jsx';
 import { volgendeTab } from './ribbon-toetsenbord.js';
 import { maakWielStapper, wielTab, lintTabs, heeftEigenWiel } from './ribbon-wiel.js';
@@ -22,6 +14,24 @@ import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { zetLintUitvoerder } from '../../../core/keybindings/app-shortcuts.js';
+import { maakTabLader, zetTabLader, naDeStart } from './lint-tab-laden.js';
+
+// Start staat bij het opstarten klaar; de andere tabbladen zijn eigen chunks
+// (#454) die na de start in een rustig moment laden (naDeStart hieronder),
+// of eerder bij het eerste gebruik. Na het laden tekent een tabblad synchroon.
+const DrawingTab = lazy(() => import('./DrawingTab.jsx'));
+const CommentTab = lazy(() => import('./CommentTab.jsx'));
+const ViewTab = lazy(() => import('./ViewTab.jsx'));
+const OrganizeTab = lazy(() => import('./OrganizeTab.jsx'));
+const HelpTab = lazy(() => import('./HelpTab.jsx'));
+const FormatTab = lazy(() => import('./FormatTab.jsx'));
+const ArrangeTab = lazy(() => import('./ArrangeTab.jsx'));
+const ImageTab = lazy(() => import('./ImageTab.jsx'));
+const tabLader = maakTabLader({
+  home: HomeTab, drawing: DrawingTab, comment: CommentTab, view: ViewTab, organize: OrganizeTab,
+  help: HelpTab, format: FormatTab, arrange: ArrangeTab, image: ImageTab,
+});
+zetTabLader(tabLader);
 
 // Het register van extensietabbladen (#551) zet een verdwenen actief tabblad
 // zelf terug op 'home'; daarvoor kent het hier het actieve tabblad.
@@ -30,8 +40,10 @@ lintRegister.koppelLint({ lees: activeTab, zet: setActiveTab });
 // Een sneltoets voor een lintknop (#714) klikt die knop. Alleen het open
 // tabblad staat in de DOM: staat de knop op een ander tabblad (of is het lint
 // ingeklapt), dan zet dit dat tabblad heel even neer, klikt en zet alles
-// terug. Solid werkt de DOM synchroon bij, er komt geen frame tussen.
-zetLintUitvoerder((knopId, tab) => {
+// terug. Solid werkt de DOM synchroon bij, er komt geen frame tussen. Is de
+// chunk van dat tabblad nog niet geladen (vlak na de start), dan eerst laden
+// en dan pas neerzetten en klikken; anders blijft alles synchroon.
+function klikLintKnop(knopId, tab) {
   const klik = (el) => {
     if (!el || el.disabled) return false;
     el.click();
@@ -50,6 +62,10 @@ zetLintUitvoerder((knopId, tab) => {
     setActiveTab(vorigTab);
     if (ingeklapt) state.preferences.ribbonCollapsed = true;
   }
+}
+zetLintUitvoerder((knopId, tab) => {
+  if (!tab || tabLader.isGeladen(tab) || document.getElementById(knopId)) return klikLintKnop(knopId, tab);
+  return tabLader.laad(tab).then((ok) => ok && klikLintKnop(knopId, tab));
 });
 
 // De ingebouwde tab-id's ('measure' is de oude naam van 'comment').
@@ -95,6 +111,9 @@ export default function Ribbon() {
     setActiveTab(volgende);
     requestAnimationFrame(() => knopVan(volgende)?.focus());
   };
+  // De andere tabbladen voorladen zodra het venster staat en rustig is.
+  onMount(() => onCleanup(naDeStart(() => { tabLader.laadAlles(); })));
+
   // Muiswiel boven het lint (#852): één wielklik is één tabblad, zonder
   // rondloop, alsof de gebruiker het tabblad aanklikt. Het wiel van het lint
   // scrollt of zoomt nooit het document; invoervakken, keuzelijsten, galerijen

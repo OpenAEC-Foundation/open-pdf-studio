@@ -39,6 +39,7 @@ import { schaalgebiedAppearance } from './saver/scale-region-ap.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { laadTemplateDataVoor } from '../symbols/registry.js';
 import { metOpslagSlot } from '../plugins/opslag-wissel-slot.js';
 import { createPluginPdfAnnotation, renderPluginAnnotationPng, readPluginPdfAnnotation } from '../plugins/plugin-pdf.js';
 import i18next from '../i18n/config.js';
@@ -3172,6 +3173,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // raster reuses the exact on-screen draw path, so it looks the same.
             try {
               const { renderParametricSymbolToPng } = await import('../annotations/rendering.js');
+              // Late templatedata (vloergeometrie, #454) eerst laden: anders
+              // kreeg de appearance alleen de omtrek.
+              await laadTemplateDataVoor([psAnn]);
               const png = renderParametricSymbolToPng(psAnn, 4);
               if (png && png.dataUrl) {
                 const base64 = png.dataUrl.split(',')[1];
