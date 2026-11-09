@@ -352,6 +352,7 @@
     "exported": "Scorciatoie esportate.",
     "exportFailed": "Esportazione delle scorciatoie non riuscita:",
     "recording": "Premi la nuova combinazione di tasti… (Esc annulla)",
+    "recordingSequence": "{{keys}} … premi un'altra lettera per una sequenza di tasti, oppure attendi (Esc annulla)",
     "conflict": "{{keys}} è già usato da «{{command}}».",
     "reassign": "Riassegna",
     "reserved": "{{keys}} ha un significato fisso e non può essere assegnato.",

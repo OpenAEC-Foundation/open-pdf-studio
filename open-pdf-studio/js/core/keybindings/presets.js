@@ -10,6 +10,7 @@
 // whose default key it takes over get another key (Hand moves to Shift+V,
 // the annotations list to Alt+L); every other command keeps its default.
 // Contextual tools, mouse gestures and reserved keys are not part of it.
+// Line keeps the key sequence D, L (a default since it was added) next to L.
 //
 // Pure data.
 
@@ -43,7 +44,7 @@ export const SHORTCUT_PRESETS = Object.freeze([
       'tool.draw': ['P'],
       'tool.hand': ['Shift+V'],
       'tool.highlight': ['H'],
-      'tool.line': ['L'],
+      'tool.line': ['L', 'D L'],
       'tool.select': ['V'],
       'tool.textbox': ['T'],
       'view.actualSize': ['Ctrl+8'],

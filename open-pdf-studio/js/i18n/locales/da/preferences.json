@@ -352,6 +352,7 @@
     "exported": "Genveje eksporteret.",
     "exportFailed": "Eksport af genvejene mislykkedes:",
     "recording": "Tryk på den nye tastekombination… (Esc annullerer)",
+    "recordingSequence": "{{keys}} … tryk på endnu et bogstav for en tastesekvens, eller vent (Esc annullerer)",
     "conflict": "{{keys}} bruges allerede af “{{command}}”.",
     "reassign": "Tildel igen",
     "reserved": "{{keys}} har en fast betydning og kan ikke tildeles.",

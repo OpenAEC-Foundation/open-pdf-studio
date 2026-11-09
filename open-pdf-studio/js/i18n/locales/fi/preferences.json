@@ -352,6 +352,7 @@
     "exported": "Pikanäppäimet viety.",
     "exportFailed": "Pikanäppäinten vienti epäonnistui:",
     "recording": "Paina uutta näppäinyhdistelmää… (Esc peruuttaa)",
+    "recordingSequence": "{{keys}} … paina vielä yksi kirjain näppäinsarjaa varten tai odota (Esc peruuttaa)",
     "conflict": "{{keys}} on jo komennon ”{{command}}” käytössä.",
     "reassign": "Määritä uudelleen",
     "reserved": "{{keys}} on varattu kiinteään käyttöön, eikä sitä voi määrittää.",

@@ -1,7 +1,8 @@
 import { createSignal, createMemo, For, Show, onCleanup } from 'solid-js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { sneltoetsen, platform, zetSneltoetsOpname } from '../../../core/keybindings/app-shortcuts.js';
-import { bindingFromEvent, bindingParts, formatBinding, isModifierOnly } from '../../../core/keybindings/binding.js';
+import { bindingFromEvent, bindingParts, formatBinding, isModifierOnly, isSequence, parseBinding, SEQUENCE_MAX } from '../../../core/keybindings/binding.js';
+import { SEQUENCE_TIMEOUT_MS } from '../../../core/keybindings/sequences.js';
 import { assignBinding, removeBinding, resetCommand, effectiveBindings, isModified } from '../../../core/keybindings/registry.js';
 import { isReserved } from '../../../core/keybindings/dispatch.js';
 import { serializeShortcutsFile, parseShortcutsFile, FILE_EXTENSION } from '../../../core/keybindings/io.js';
@@ -56,18 +57,40 @@ export default function KeyboardShortcutsTab(props) {
   // ── Recording ────────────────────────────────────────────────────────────
   // Capture phase on window: before every other key handling, so Ctrl+S,
   // F1, Delete, ... are recorded instead of run. Escape cancels.
-  function opToets(e) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    if (isModifierOnly(e)) return;
-    if (e.key === 'Escape' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) { stopOpname(); return; }
-    const combo = bindingFromEvent(e);
+  // A letter without modifiers may be the start of a key sequence ("D L"):
+  // the recorder waits as long as the app does for a next letter; without
+  // one the single letter is recorded.
+  const [letters, setLetters] = createSignal([]);
+  let letterTimer = null;
+  const stopLetterTimer = () => { if (letterTimer) { clearTimeout(letterTimer); letterTimer = null; } };
+
+  function bewaar(combo) {
     stopOpname();
     if (!combo || !gekozen()) return;
     if (isReserved(combo)) { setMelding({ soort: 'reserved', combo }); return; }
     const r = assignBinding(model, huidig(), gekozen(), combo);
     if (r.conflict) setMelding({ soort: 'conflict', combo: r.combo, eigenaar: r.conflict });
     else { setOverrides(r.overrides); setMelding(null); }
+  }
+  const bewaarLetters = () => bewaar(parseBinding(letters().join(' ')));
+
+  function opToets(e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (isModifierOnly(e)) return;
+    if (e.key === 'Escape' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) { stopOpname(); return; }
+    const combo = bindingFromEvent(e);
+    if (combo && /^[A-Z]$/.test(combo)) {
+      const nu = [...letters(), combo];
+      setLetters(nu);
+      stopLetterTimer();
+      if (nu.length >= SEQUENCE_MAX) { bewaarLetters(); return; }
+      letterTimer = setTimeout(bewaarLetters, SEQUENCE_TIMEOUT_MS);
+      return;
+    }
+    // Another key after one or more letters: the letters count, this key not.
+    if (letters().length) { bewaarLetters(); return; }
+    bewaar(combo);
   }
   // The key-up (and the character) of the recorded key go nowhere either: a
   // Space or Enter on the focused button would otherwise click it again.
@@ -85,6 +108,7 @@ export default function KeyboardShortcutsTab(props) {
   function startOpname() {
     if (!gekozen() || opname()) return;
     setMelding(null);
+    setLetters([]);
     setOpname(true);
     zetSneltoetsOpname(true);
     document.activeElement?.blur?.();
@@ -93,6 +117,8 @@ export default function KeyboardShortcutsTab(props) {
     window.addEventListener('keypress', slik, true);
   }
   function stopOpname() {
+    stopLetterTimer();
+    setLetters([]);
     if (!opname()) return;
     setOpname(false);
     window.removeEventListener('keydown', opToets, true);
@@ -100,6 +126,7 @@ export default function KeyboardShortcutsTab(props) {
     setTimeout(() => { if (!opname()) ruimOp(); }, 1500);
   }
   onCleanup(() => {
+    stopLetterTimer();
     window.removeEventListener('keydown', opToets, true);
     ruimOp();
   });
@@ -182,7 +209,14 @@ export default function KeyboardShortcutsTab(props) {
     }
   }
 
-  const Toets = (p) => <span class="ks-keys"><For each={bindingParts(p.combo, platform())}>{(k) => <kbd>{k}</kbd>}</For></span>;
+  // Een toetsreeks (D, dan L) met komma's tussen de letters.
+  const Toets = (p) => (
+    <span class="ks-keys">
+      <For each={bindingParts(p.combo, platform())}>{(k, i) => (
+        <>{i() > 0 && isSequence(p.combo) && <span class="ks-then">,</span>}<kbd>{k}</kbd></>
+      )}</For>
+    </span>
+  );
 
   return (
     <div class="ks-page">
@@ -254,7 +288,9 @@ export default function KeyboardShortcutsTab(props) {
 
         <Show when={opname()}>
           <div class="ks-message ks-recording" role="status">
-            <span>{t('keyboardShortcuts.recording')}</span>
+            <span>{letters().length
+              ? t('keyboardShortcuts.recordingSequence', { keys: letters().join(' ') })
+              : t('keyboardShortcuts.recording')}</span>
             <span class="ks-message-buttons">
               <button class="pref-btn" onClick={() => { stopOpname(); ruimOp(); }}>{t('common:cancel')}</button>
             </span>

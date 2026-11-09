@@ -23,6 +23,7 @@ const { isTextEntryTarget } = await import('../ui/chrome/tab-sneltoets.js');
 const { isVerwijderToets } = await import('./verwijder-toets.js');
 const pagina = await import('../pdf/pagina-sneltoets.js');
 const split = await import('../pdf/split-view/split-sneltoets.js');
+const reeksen = await import('../core/keybindings/sequences.js');
 
 const log = [];
 const ann = { id: 'a1', type: 'box', page: 1, x: 100, y: 100, width: 50, height: 20 };
@@ -105,6 +106,9 @@ globalThis.__khStubs = {
   maakStandaardToets: app.maakStandaardToets,
   zetIngebouwdeUitvoerder: app.zetIngebouwdeUitvoerder,
   isSneltoetsOpname: app.isSneltoetsOpname,
+  sneltoetsReeksen: app.sneltoetsReeksen,
+  eigenLetter: app.eigenLetter,
+  createSequenceMatcher: reeksen.createSequenceMatcher,
 };
 
 const { handleKeydown } = await import('./keyboard-handlers.js');
@@ -217,6 +221,7 @@ const OUDE_STANDAARDEN = [
 const NIEUWE_STANDAARDEN = [
   ['view.splitVertical', 'Ctrl+\\', () => ctrl('\\', 'Backslash'), ['voerSplitOpdrachtUit view.splitVertical']], // #858
   ['view.splitHorizontal', 'Ctrl+Shift+\\', () => ctrl('|', 'Backslash', { shift: true }), ['voerSplitOpdrachtUit view.splitHorizontal']], // #858
+  ['tool.line', 'D L', null, null], // key sequence D, then L (see the sequence tests below)
 ];
 
 test('the registry has exactly the old default keys (and the later ones), each for its own command', () => {
@@ -404,4 +409,156 @@ test('split view keys (#858): not while typing or in a dialog; removable; Larger
   assert.deepEqual(await druk(ctrl(']', 'BracketRight', { alt: true })), [], 'not in a dialog');
   modaal = false;
   begin();
+});
+
+// ── Key sequences: D, then L starts the Line tool ───────────────────────────
+// Recognised letter by letter (core/keybindings/sequences.js) with a timeout
+// of about a second; mock timers make the waiting exact.
+
+// With mock timers on, totStil (setTimeout) would never return: let the
+// promise chain of a fired command finish with setImmediate instead.
+const klaar = async () => { for (let i = 0; i < 20; i++) await new Promise((r) => setImmediate(r)); };
+async function reeks(toetsen, { tick = 0 } = {}) {
+  await klaar();
+  log.length = 0;
+  for (const e of toetsen) {
+    await handleKeydown(e);
+    if (tick) mock.timers.tick(tick);
+    await klaar();
+  }
+  return [...log];
+}
+
+test('D, then L starts the Line tool; the letters are taken, not passed on', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    begin();
+    const d = toets('d', 'KeyD');
+    const l = toets('l', 'KeyL');
+    assert.deepEqual(await reeks([d, l]), ['setTool line']);
+    assert.equal(d.defaultPrevented, true);
+    assert.equal(l.defaultPrevented, true);
+    // Caps Lock: upper-case letters without Shift.
+    assert.deepEqual(await reeks([toets('D', 'KeyD'), toets('L', 'KeyL')]), ['setTool line']);
+    // The default key 3 still works too.
+    assert.deepEqual(await reeks([toets('3', 'Digit3')]), ['setTool line']);
+  } finally {
+    mock.timers.reset();
+    begin();
+  }
+});
+
+test('the sequence times out: D, a pause, then L is no Line', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    begin();
+    assert.deepEqual(await reeks([toets('d', 'KeyD')], { tick: 1300 }), [], 'D alone does nothing');
+    assert.deepEqual(await reeks([toets('l', 'KeyL')]), [], 'L alone has no default');
+    // Within the time it works.
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('l', 'KeyL')], { tick: 900 }), ['setTool line']);
+  } finally {
+    mock.timers.reset();
+    begin();
+  }
+});
+
+test('a key that breaks the sequence is handled as usual (D, then V selects); Escape forgets the D', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    begin();
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('v', 'KeyV')]), ['setTool select']);
+    mock.timers.tick(1300);
+    await klaar();
+    assert.deepEqual(log, ['setTool select'], 'nothing fires later');
+    log.length = 0;
+    const eerder = globalThis.document;
+    globalThis.document = { querySelector: () => null, getElementById: () => null };
+    try {
+      await handleKeydown(toets('d', 'KeyD'));
+      await handleKeydown(toets('Escape', 'Escape'));
+    } finally {
+      globalThis.document = eerder;
+    }
+    log.length = 0;
+    assert.deepEqual(await reeks([toets('l', 'KeyL')], { tick: 1300 }), [], 'an L after Escape is just an L');
+  } finally {
+    mock.timers.reset();
+    begin();
+  }
+});
+
+test('no sequence while typing in a text field, in a dialog or with a modifier', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    begin();
+    const d = toets('d', 'KeyD', { target: invoer });
+    const l = toets('l', 'KeyL', { target: invoer });
+    assert.deepEqual(await reeks([d, l], { tick: 1300 }), []);
+    assert.equal(d.defaultPrevented, false, 'the letter is typed');
+    assert.equal(l.defaultPrevented, false);
+    const editor = { tagName: 'DIV', id: '', isContentEditable: true, closest: () => null };
+    assert.deepEqual(await reeks([toets('d', 'KeyD', { target: editor }), toets('l', 'KeyL', { target: editor })], { tick: 1300 }), []);
+    modaal = true;
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('l', 'KeyL')], { tick: 1300 }), [], 'modal dialog');
+    modaal = false;
+    assert.deepEqual(await reeks([toets('D', 'KeyD', { shift: true }), toets('L', 'KeyL', { shift: true })], { tick: 1300 }), [], 'with Shift');
+    assert.deepEqual(await reeks([toets('d', 'KeyD', { alt: true }), toets('l', 'KeyL', { alt: true })], { tick: 1300 }), [], 'with Alt');
+    // Ctrl+D stays Document Properties, Ctrl+L Fullscreen.
+    assert.deepEqual(await reeks([ctrl('d', 'KeyD')]), ['showDocPropertiesDialog']);
+    assert.deepEqual(await reeks([ctrl('l', 'KeyL')]), ['toggleFullscreen']);
+  } finally {
+    mock.timers.reset();
+    begin();
+  }
+});
+
+test('the sequence can be changed or removed like any other shortcut', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    begin({ 'tool.line': ['3'] });
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('l', 'KeyL')], { tick: 1300 }), [], 'removed');
+    begin({ 'tool.line': ['3', 'L N'] });
+    assert.deepEqual(await reeks([toets('l', 'KeyL'), toets('n', 'KeyN')]), ['setTool line'], 'own sequence');
+    begin({ 'view.fitPage': ['Ctrl+2', 'F P'] });
+    assert.deepEqual(await reeks([toets('f', 'KeyF'), toets('p', 'KeyP')]), ['fitPage'], 'any command');
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('l', 'KeyL')]), ['setTool line'], 'D L stays');
+  } finally {
+    mock.timers.reset();
+    begin();
+  }
+});
+
+test('a single letter that also starts a sequence waits for the next letter or the timeout', async () => {
+  mock.timers.enable({ apis: ['setTimeout'] });
+  try {
+    begin({ 'view.fitPage': ['Ctrl+2', 'D'] });
+    assert.deepEqual(await reeks([toets('d', 'KeyD')]), [], 'D waits');
+    mock.timers.tick(1300);
+    await klaar();
+    assert.deepEqual(log, ['fitPage'], 'then runs its own command');
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('l', 'KeyL')]), ['setTool line'], 'D, L is still Line');
+    mock.timers.tick(1300);
+    await klaar();
+    assert.deepEqual(log, ['setTool line'], 'and D does not run afterwards');
+    assert.deepEqual(await reeks([toets('d', 'KeyD'), toets('v', 'KeyV')]), ['fitPage', 'setTool select'], 'D, then another key: both run, in order');
+  } finally {
+    mock.timers.reset();
+    begin();
+  }
+});
+
+test('no default single-letter key starts a default sequence; the one-letter keys do not wait', async () => {
+  begin();
+  const tabel = app.sneltoetsReeksen();
+  assert.deepEqual([...tabel.entries()], [['dl', 'tool.line']], 'only D L, and D has no key of its own');
+  for (const command of app.sneltoetsen.commands()) {
+    for (const combo of command.defaults) {
+      if (/^[A-Z]$/.test(combo)) {
+        assert.ok(![...tabel.keys()].some((k) => k.startsWith(combo.toLowerCase())), `${combo} (${command.id}) does not wait`);
+      }
+    }
+  }
+  assert.deepEqual(await druk(toets('v', 'KeyV'), 1), ['setTool select']);
+  assert.deepEqual(await druk(toets('h', 'KeyH'), 1), ['setTool hand']);
+  assert.deepEqual(await druk(toets('n', 'KeyN'), 1), ['setTool comment']);
 });

@@ -352,6 +352,7 @@
     "exported": "Atalhos exportados.",
     "exportFailed": "Falha ao exportar os atalhos:",
     "recording": "Prima a nova combinação de teclas… (Esc cancela)",
+    "recordingSequence": "{{keys}} … prima outra letra para uma sequência de teclas, ou aguarde (Esc cancela)",
     "conflict": "{{keys}} já é usado por “{{command}}”.",
     "reassign": "Reatribuir",
     "reserved": "{{keys}} tem um significado fixo e não pode ser atribuído.",

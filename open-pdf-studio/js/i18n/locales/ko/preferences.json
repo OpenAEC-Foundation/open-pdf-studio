@@ -352,6 +352,7 @@
     "exported": "바로 가기 키를 내보냈습니다.",
     "exportFailed": "바로 가기 키를 내보내지 못했습니다:",
     "recording": "새 키 조합을 누르세요… (Esc로 취소)",
+    "recordingSequence": "{{keys}} … 키 시퀀스를 만들려면 다른 글자를 누르거나 기다리세요 (Esc로 취소)",
     "conflict": "{{keys}}은(는) 이미 “{{command}}”에서 사용 중입니다.",
     "reassign": "다시 할당",
     "reserved": "{{keys}}은(는) 고정된 의미가 있어 할당할 수 없습니다.",

@@ -352,6 +352,7 @@
     "exported": "Pintasan dieksport.",
     "exportFailed": "Gagal mengeksport pintasan:",
     "recording": "Tekan gabungan kekunci baharu… (Esc membatalkan)",
+    "recordingSequence": "{{keys}} … tekan huruf lain untuk jujukan kekunci, atau tunggu (Esc membatalkan)",
     "conflict": "{{keys}} sudah digunakan oleh “{{command}}”.",
     "reassign": "Tetapkan semula",
     "reserved": "{{keys}} mempunyai makna tetap dan tidak boleh ditetapkan.",

@@ -352,6 +352,7 @@
     "exported": "Njia za mkato zimehamishwa.",
     "exportFailed": "Kuhamisha njia za mkato kumeshindikana:",
     "recording": "Bonyeza mchanganyiko mpya wa vitufe… (Esc inaghairi)",
+    "recordingSequence": "{{keys}} … bonyeza herufi nyingine kwa mfuatano wa vitufe, au subiri (Esc kughairi)",
     "conflict": "{{keys}} tayari inatumiwa na “{{command}}”.",
     "reassign": "Kabidhi upya",
     "reserved": "{{keys}} ina maana isiyobadilika na haiwezi kukabidhiwa.",

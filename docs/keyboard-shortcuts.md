@@ -33,6 +33,7 @@ The defaults:
 | `H` | Hand tool |
 | `T` | Text box tool |
 | `N` | Sticky note tool |
+| `D` then `L` | Line tool (key sequence) |
 | `Ctrl+=` / `Ctrl+-` | Zoom in / zoom out |
 | `Ctrl+0` | Actual size (physical paper size once the display is calibrated in Preferences > Page Display) |
 | `Ctrl+1` | Fit width |
@@ -43,6 +44,25 @@ The defaults:
 | `F1` | Keyboard shortcuts |
 | Arrow keys | Nudge an annotation (1 px, with Shift 10 px) |
 | `Enter` | Finish an area or perimeter measurement |
+
+## Key sequences
+
+A shortcut can also be a short key sequence: two or three letters typed one
+after the other, without Ctrl, Alt or Shift, like the command aliases of CAD
+programs. `D` then `L` starts the Line tool. Type the letters within about a
+second; after a pause the sequence starts over. Sequences never fire while you
+type in a text field or a text box, or while a dialog is open; `Esc` forgets
+the letters typed so far.
+
+Sequences are changed like any other shortcut: select the command under
+**Preferences → Keyboard Shortcuts**, click **Add shortcut** and type the
+letters (the recorder waits briefly after a letter for the next one). They
+are written as letters with a space (`D L`) in exported shortcut files.
+
+If a single letter has a shortcut of its own and also starts a sequence (for
+example when you give `D` to a command), that letter waits for the next letter
+or the pause before it runs, so both stay usable. No built-in single-letter
+shortcut starts a built-in sequence, so the single keys work as before.
 
 In a browser some keys (such as `Ctrl+N`, `Ctrl+W` and `Ctrl+Tab`) belong to the
 browser itself and do not reach the page.

@@ -352,6 +352,7 @@
     "exported": "Billentyűparancsok exportálva.",
     "exportFailed": "A billentyűparancsok exportálása nem sikerült:",
     "recording": "Nyomja le az új billentyűkombinációt… (Esc: mégse)",
+    "recordingSequence": "{{keys}} … nyomjon le még egy betűt a billentyűsorozathoz, vagy várjon (Esc: mégse)",
     "conflict": "A(z) {{keys}} billentyűt már a(z) „{{command}}” használja.",
     "reassign": "Átrendelés",
     "reserved": "A(z) {{keys}} rögzített jelentésű, nem rendelhető hozzá.",

@@ -352,6 +352,7 @@
     "exported": "Atajos exportados.",
     "exportFailed": "No se pudieron exportar los atajos:",
     "recording": "Pulse la nueva combinación de teclas… (Esc cancela)",
+    "recordingSequence": "{{keys}} … pulse otra letra para una secuencia de teclas o espere (Esc cancela)",
     "conflict": "{{keys}} ya lo usa «{{command}}».",
     "reassign": "Reasignar",
     "reserved": "{{keys}} tiene una función fija y no se puede asignar.",

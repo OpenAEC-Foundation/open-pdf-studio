@@ -352,6 +352,7 @@
     "exported": "Skratky exportované.",
     "exportFailed": "Export skratiek zlyhal:",
     "recording": "Stlačte novú kombináciu klávesov… (Esc zruší)",
+    "recordingSequence": "{{keys}} … stlačte ďalšie písmeno pre sekvenciu klávesov alebo počkajte (Esc zruší)",
     "conflict": "{{keys}} už používa „{{command}}“.",
     "reassign": "Priradiť znova",
     "reserved": "{{keys}} má pevný význam a nedá sa priradiť.",

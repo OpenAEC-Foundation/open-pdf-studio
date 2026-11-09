@@ -352,6 +352,7 @@
     "exported": "Hurtigtaster eksportert.",
     "exportFailed": "Eksport av hurtigtastene mislyktes:",
     "recording": "Trykk den nye tastekombinasjonen… (Esc avbryter)",
+    "recordingSequence": "{{keys}} … trykk en bokstav til for en tastesekvens, eller vent (Esc avbryter)",
     "conflict": "{{keys}} brukes allerede av «{{command}}».",
     "reassign": "Tilordne på nytt",
     "reserved": "{{keys}} har en fast betydning og kan ikke tilordnes.",

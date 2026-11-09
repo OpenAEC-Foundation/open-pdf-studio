@@ -67,7 +67,8 @@ export const CORE_COMMANDS = Object.freeze([
   { id: 'tool.hand', category: 'tools', labelKey: 'ribbon:home.handTool', label: 'Hand Tool', defaults: ['H'] },
   { id: 'tool.highlight', category: 'tools', labelKey: 'ribbon:comment.highlight', label: 'Highlight', defaults: ['1'] },
   { id: 'tool.draw', category: 'tools', labelKey: 'ribbon:comment.freehand', label: 'Freehand', defaults: ['2'] },
-  { id: 'tool.line', category: 'tools', labelKey: 'ribbon:comment.line', label: 'Line', defaults: ['3'] },
+  // "D L": D, then L - a key sequence like a CAD command alias (sequences.js).
+  { id: 'tool.line', category: 'tools', labelKey: 'ribbon:comment.line', label: 'Line', defaults: ['3', 'D L'] },
   { id: 'tool.box', category: 'tools', labelKey: 'ribbon:comment.rectangle', label: 'Rectangle', defaults: ['4'] },
   { id: 'tool.circle', category: 'tools', labelKey: 'ribbon:comment.ellipse', label: 'Ellipse', defaults: ['5'] },
   { id: 'tool.textbox', category: 'tools', labelKey: 'ribbon:comment.textBox', label: 'Text Box', defaults: ['T'] },

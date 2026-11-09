@@ -352,6 +352,7 @@
     "exported": "Skróty wyeksportowane.",
     "exportFailed": "Eksport skrótów nie powiódł się:",
     "recording": "Naciśnij nową kombinację klawiszy… (Esc anuluje)",
+    "recordingSequence": "{{keys}} … naciśnij kolejną literę, aby utworzyć sekwencję klawiszy, lub poczekaj (Esc anuluje)",
     "conflict": "{{keys}} jest już używany przez „{{command}}”.",
     "reassign": "Przypisz ponownie",
     "reserved": "{{keys}} ma stałe znaczenie i nie można go przypisać.",

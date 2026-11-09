@@ -352,6 +352,7 @@
     "exported": "Raccourcis exportés.",
     "exportFailed": "L’exportation des raccourcis a échoué :",
     "recording": "Appuyez sur la nouvelle combinaison de touches… (Échap pour annuler)",
+    "recordingSequence": "{{keys}} … appuyez sur une autre lettre pour une séquence de touches, ou attendez (Échap annule)",
     "conflict": "{{keys}} est déjà utilisé par « {{command}} ».",
     "reassign": "Réattribuer",
     "reserved": "{{keys}} a une fonction fixe et ne peut pas être attribué.",
