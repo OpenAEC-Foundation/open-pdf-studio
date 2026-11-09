@@ -518,7 +518,8 @@
     "detecting": "Détection...",
     "scaleDetected": "Échelle détectée !",
     "scaleNotFound": "Aucune échelle trouvée dans le cartouche",
-    "currentScale": "Échelle actuelle : {{scale}}"
+    "currentScale": "Échelle actuelle : {{scale}}",
+    "feetInchHint": "Pieds et pouces acceptés, par exemple 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Mise en page",

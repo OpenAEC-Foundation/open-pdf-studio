@@ -518,7 +518,8 @@
     "detecting": "Определение...",
     "scaleDetected": "Масштаб определён!",
     "scaleNotFound": "В основной надписи не найден масштаб",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Параметры страницы",

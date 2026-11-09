@@ -518,7 +518,8 @@
     "detecting": "Mengesan...",
     "scaleDetected": "Skala dikesan!",
     "scaleNotFound": "Tiada skala ditemui dalam blok tajuk",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Persediaan Halaman",

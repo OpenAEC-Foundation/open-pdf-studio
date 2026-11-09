@@ -518,7 +518,8 @@
     "detecting": "Rozpoznávání...",
     "scaleDetected": "Měřítko zjištěno!",
     "scaleNotFound": "V rohovém razítku nebylo nalezeno měřítko",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Vzhled stránky",

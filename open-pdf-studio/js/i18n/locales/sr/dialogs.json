@@ -518,7 +518,8 @@
     "detecting": "Препознавање...",
     "scaleDetected": "Размера препозната!",
     "scaleNotFound": "У заглављу цртежа није пронађена размера",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Подешавање странице",

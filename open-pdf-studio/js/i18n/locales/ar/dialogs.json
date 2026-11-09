@@ -518,7 +518,8 @@
     "detecting": "جارٍ الاكتشاف...",
     "scaleDetected": "تم اكتشاف المقياس!",
     "scaleNotFound": "لم يتم العثور على مقياس في جدول العنوان",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "إعداد الصفحة",

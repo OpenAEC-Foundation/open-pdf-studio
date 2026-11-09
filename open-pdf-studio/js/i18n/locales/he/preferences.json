@@ -324,7 +324,16 @@
     "digitGrouping": "הפרדת אלפים (12 345)",
     "scaleCheck": "בדיקת קנה מידה",
     "scaleCheckOk": "תקין עד",
-    "scaleCheckWarn": "אזהרה עד"
+    "scaleCheckWarn": "אזהרה עד",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "קיצורי מקלדת",

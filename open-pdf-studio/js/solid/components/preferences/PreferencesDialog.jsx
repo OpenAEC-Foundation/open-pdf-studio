@@ -103,6 +103,7 @@ export default function PreferencesDialog(props) {
     const prevThinLines = state.preferences.thinLines;
     const prevPageSharpen = state.preferences.pageSharpen;
     const prevLayout = leesLayout(state.preferences);
+    const prevLengte = `${state.preferences.imperialLengthFormat}|${state.preferences.imperialFractionPrecision}`;
     for (const key of Object.keys(DEFAULT_PREFERENCES)) {
       state.preferences[key] = prefs[key][0]();
     }
@@ -117,6 +118,10 @@ export default function PreferencesDialog(props) {
     // Indeling gewijzigd (bv. na 'Standaardwaarden', #932): alle panelen volgen.
     if (!zelfdeLayout(prevLayout, leesLayout(state.preferences))) {
       import('../../../ui/panels/werkruimte-toepassen.js').then(m => m.pasHuidigeLayoutToe());
+    }
+    // Voet-inch of decimale voet gewijzigd (#996): maatteksten opnieuw opbouwen.
+    if (`${state.preferences.imperialLengthFormat}|${state.preferences.imperialFractionPrecision}` !== prevLengte) {
+      import('../../../annotations/measurement.js').then(m => m.recalculateAllMeasurements());
     }
     // Thin Lines changed (#595): re-render the page view in the new line mode.
     if (state.preferences.thinLines !== prevThinLines) {

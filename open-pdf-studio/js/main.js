@@ -93,6 +93,8 @@ import i18next from './i18n/config.js';
 import { language } from './i18n/useTranslation.js';
 import { installeerGetalVelden, herformatteerGetalVelden } from './ui/getal-veld.js';
 import { stelNotatieBronIn } from './core/maat-notatie.js';
+import { stelVoetInchBronIn } from './core/voet-inch.js';
+import { stelSchaalSysteemBronIn } from './annotations/scale-presets.js';
 
 // Solid.js
 import { render } from 'solid-js/web';
@@ -237,6 +239,13 @@ async function init() {
     decimaalteken: state.preferences?.measureDecimalNotation,
     groeperen: !!state.preferences?.measureDigitGrouping,
   }));
+  // Imperiale lengtes in voet-inch-breuken als de voorkeur dat zegt (#996).
+  stelVoetInchBronIn(() => ({
+    formaat: state.preferences?.imperialLengthFormat,
+    precisie: state.preferences?.imperialFractionPrecision,
+  }));
+  // Schaallijsten: metrisch, imperiaal of beide (#996).
+  stelSchaalSysteemBronIn(() => state.preferences?.scaleUnitSystem);
   i18next.on('languageChanged', () => queueMicrotask(() => herformatteerGetalVelden()));
   // Dev: versienummer live uit package.json zodat de titelbalk na een
   // versie-bump klopt zonder Vite-herstart.

@@ -324,7 +324,16 @@
     "digitGrouping": "Tausender trennen (12 345)",
     "scaleCheck": "Maßstabsprüfung",
     "scaleCheckOk": "In Ordnung bis",
-    "scaleCheckWarn": "Warnung bis"
+    "scaleCheckWarn": "Warnung bis",
+    "units": "Einheiten",
+    "unitSystem": "Standardmaßstäbe",
+    "unitSystemBoth": "Metrisch und imperial",
+    "unitSystemMetric": "Metrisch",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperiale Längen (ft, in)",
+    "imperialDecimal": "Dezimalfuß (12,53 ft)",
+    "imperialFeetInch": "Fuß-Zoll-Bruch (12'-6 3/8\")",
+    "imperialFractionPrecision": "Kleinster Bruch"
   },
   "keyboardShortcuts": {
     "title": "Tastenkombinationen",

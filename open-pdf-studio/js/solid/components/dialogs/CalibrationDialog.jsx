@@ -8,8 +8,9 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
 import { findScaleInText } from '../../../annotations/document-scale.js';
+import { leesLengte, isImperialeLengte } from '../../../core/voet-inch.js';
 import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
-import { SCALE_PRESETS, METRIC_SCALE_PRESETS, IMPERIAL_SCALE_PRESETS, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
+import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, scaleSelectOptions, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 import { schaalTekstVoorPpu } from '../../../annotations/schaalcontrole.js';
 import {
   recordBulkModify,
@@ -64,10 +65,16 @@ export default function CalibrationDialog(props) {
   const [unit, setUnit] = createSignal('mm');
   const [pixels, setPixels] = createSignal(72);
 
+  // Standaardschalen van het gekozen stelsel (#996); de schaal van het
+  // document blijft erin staan, ook als die uit het andere stelsel komt.
+  const ratioOptions = scaleSelectOptions(undefined, { current: getActiveDocument()?.measureScale?.scaleRatio });
+  const inLijst = (ratio) => ratioOptions.some(o => o.value === ratio);
+
   // Method 2: Scale ratio
-  const [scalePreset, setScalePreset] = createSignal('1:100');
+  const beginSchaal = inLijst('1:100') ? '1:100' : (ratioOptions[0]?.value || 'custom');
+  const [scalePreset, setScalePreset] = createSignal(beginSchaal);
   const [customScale, setCustomScale] = createSignal(100);
-  const [ratioUnit, setRatioUnit] = createSignal('mm');
+  const [ratioUnit, setRatioUnit] = createSignal(isImperialScalePreset(beginSchaal) ? 'ft' : 'mm');
   const [pageSizeText, setPageSizeText] = createSignal('');
   const [detecting, setDetecting] = createSignal(false);
   const [detectResult, setDetectResult] = createSignal(null); // null | 'found' | 'notfound'
@@ -108,8 +115,8 @@ export default function CalibrationDialog(props) {
       setRatioUnit(ms.unit || 'mm');
       if ((ms.method === 'ratio' || ms.method === 'auto-detect') && typeof ms.scaleRatio === 'string' && ms.scaleRatio) {
         setMethod('ratio');
-        setScalePreset(SCALE_PRESETS.includes(ms.scaleRatio) ? ms.scaleRatio : 'custom');
-        if (!SCALE_PRESETS.includes(ms.scaleRatio)) {
+        setScalePreset(inLijst(ms.scaleRatio) ? ms.scaleRatio : 'custom');
+        if (!inLijst(ms.scaleRatio)) {
           const parts = ms.scaleRatio.split(':');
           setCustomScale(parseInt(parts[1]) || 100);
         }
@@ -152,7 +159,7 @@ export default function CalibrationDialog(props) {
         // Imperiaal in voet/inch (#999); een metrische schaal in mm.
         if (found.unit) setRatioUnit(found.unit);
         else if (ratioUnit() === 'ft' || ratioUnit() === 'in') setRatioUnit('mm');
-        if (SCALE_PRESETS.includes(ratio)) {
+        if (inLijst(ratio)) {
           setScalePreset(ratio);
         } else {
           setScalePreset('custom');
@@ -174,7 +181,8 @@ export default function CalibrationDialog(props) {
     // schaalverhouding gaat daar via pixelsPerUnitFor, net als het
     // schaalgebied (#553).
     const scaleData = method() === 'reference'
-      ? schaalUitKalibratie({ method: 'reference', distance: distance(), pixels: pixels(), unit: unit() })
+      // Een voet-inchmaat (12'-6 3/8") mag ook (#996).
+      ? schaalUitKalibratie({ method: 'reference', distance: leesLengte(String(distance()), unit()), pixels: pixels(), unit: unit() })
       : schaalUitKalibratie({ method: 'ratio', denominator: getScaleDenominator(), unit: ratioUnit(), userUnit: userUnit() });
 
     if (scaleData) {
@@ -283,14 +291,26 @@ export default function CalibrationDialog(props) {
         </div>
         <div class="calibration-row">
           <label class="calibration-label">{t('calibration.knownDistance')}</label>
-          <input
-            type="text" inputmode="decimal" data-getal
-            class="calibration-input"
-            min="0.001"
-            step="0.01"
-            value={distance()}
-            onInput={(e) => setDistance(e.target.value)}
-          />
+          {/* In ft/in een gewoon tekstveld: 12'-6 3/8" heeft ' en " nodig (#996). */}
+          <Show when={isImperialeLengte(unit())} fallback={
+            <input
+              type="text" inputmode="decimal" data-getal
+              class="calibration-input"
+              min="0.001"
+              step="0.01"
+              value={distance()}
+              onInput={(e) => setDistance(e.target.value)}
+            />
+          }>
+            <input
+              type="text"
+              class="calibration-input"
+              placeholder={`12'-6 3/8"`}
+              title={t('calibration.feetInchHint')}
+              value={distance()}
+              onInput={(e) => setDistance(e.target.value)}
+            />
+          </Show>
           <select
             class="calibration-select"
             value={unit()}
@@ -321,8 +341,8 @@ export default function CalibrationDialog(props) {
               if (IMPERIAL_SCALE_PRESETS.some(preset => preset.ratio === ratio)) setRatioUnit('ft');
             }}
           >
-            {METRIC_SCALE_PRESETS.map(s => <option value={s}>{s}</option>)}
-            {IMPERIAL_SCALE_PRESETS.map(preset => <option value={preset.ratio}>{preset.label}</option>)}
+            {/* Metrisch, imperiaal of beide volgens de voorkeur (#996). */}
+            {ratioOptions.map(o => <option value={o.value}>{o.label}</option>)}
             <option value="custom">{t('calibration.customRatio')}</option>
           </select>
           <Show when={scalePreset() === 'custom'}>

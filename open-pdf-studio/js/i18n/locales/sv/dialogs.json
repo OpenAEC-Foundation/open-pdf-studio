@@ -518,7 +518,8 @@
     "detecting": "Identifierar...",
     "scaleDetected": "Skala identifierad!",
     "scaleNotFound": "Ingen skala hittades i namnrutan",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sidinställningar",

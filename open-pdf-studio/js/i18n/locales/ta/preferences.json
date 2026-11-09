@@ -324,7 +324,16 @@
     "digitGrouping": "ஆயிரங்களைப் பிரி (12 345)",
     "scaleCheck": "அளவுகோல் சரிபார்ப்பு",
     "scaleCheckOk": "சரி வரம்பு",
-    "scaleCheckWarn": "எச்சரிக்கை வரம்பு"
+    "scaleCheckWarn": "எச்சரிக்கை வரம்பு",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "விசைப்பலகை குறுக்குவழிகள்",

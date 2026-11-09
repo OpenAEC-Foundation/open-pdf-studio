@@ -518,7 +518,8 @@
     "detecting": "감지 중...",
     "scaleDetected": "축척을 감지했습니다!",
     "scaleNotFound": "표제란에서 축척을 찾을 수 없습니다",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "페이지 설정",

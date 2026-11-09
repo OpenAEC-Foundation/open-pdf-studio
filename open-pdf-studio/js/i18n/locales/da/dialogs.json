@@ -518,7 +518,8 @@
     "detecting": "Genkender...",
     "scaleDetected": "Skala registreret!",
     "scaleNotFound": "Ingen skala fundet i tegningshovedet",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sideopsætning",

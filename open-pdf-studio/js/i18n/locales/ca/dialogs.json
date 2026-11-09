@@ -518,7 +518,8 @@
     "detecting": "S'està detectant...",
     "scaleDetected": "S'ha detectat l'escala!",
     "scaleNotFound": "No s'ha trobat cap escala al quadre de títol",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Configuració de pàgina",

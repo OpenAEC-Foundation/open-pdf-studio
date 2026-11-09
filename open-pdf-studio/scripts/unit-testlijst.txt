@@ -788,3 +788,5 @@ js/pdf/export-verlies-bedrading.test.mjs
 js/annotations/xfdf-samenvoegen.test.mjs
 js/annotations/document-scale-imperiaal.test.mjs
 js/annotations/scale-weergave.test.mjs
+js/annotations/schaal-stelsel.test.mjs
+js/core/voet-inch.test.mjs

@@ -518,7 +518,8 @@
     "detecting": "Se detectează...",
     "scaleDetected": "Scară detectată!",
     "scaleNotFound": "Nu s-a găsit nicio scară în cartuș",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Configurare pagina",

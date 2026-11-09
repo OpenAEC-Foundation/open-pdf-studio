@@ -518,7 +518,8 @@
     "detecting": "กำลังตรวจหา...",
     "scaleDetected": "ตรวจพบมาตราส่วนแล้ว!",
     "scaleNotFound": "ไม่พบมาตราส่วนในกรอบชื่อแบบ",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ตั้งค่าหน้ากระดาษ",

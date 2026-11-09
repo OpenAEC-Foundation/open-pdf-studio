@@ -518,7 +518,8 @@
     "detecting": "Εντοπισμός...",
     "scaleDetected": "Εντοπίστηκε κλίμακα!",
     "scaleNotFound": "Δεν βρέθηκε κλίμακα στην πινακίδα",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Ρύθμιση σελίδας",

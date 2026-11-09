@@ -9,6 +9,7 @@ import { goToPage } from '../../../../pdf/renderer.js';
 import { recordDelete } from '../../../../core/undo-manager.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { scaleDisplayLabel } from '../../../../annotations/scale-presets.js';
+import { formatMeasurement } from '../../../../annotations/measurement.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -82,7 +83,8 @@ export default function MeasurementsPanel() {
         const values = items.filter(m => m.measureValue != null).map(m => m.measureValue);
         const sum = values.reduce((a, b) => a + b, 0);
         const unit = items[0]?.measureUnit || '';
-        result[type] = sum.toFixed(2) + ' ' + unit;
+        // Zelfde notatie als de maten zelf (decimaalteken, voet-inch #996).
+        result[type] = unit ? formatMeasurement({ value: sum, unit }) : sum.toFixed(2);
       }
     }
     return result;

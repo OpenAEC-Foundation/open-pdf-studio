@@ -23,8 +23,9 @@ import { scaleSelectOptions, isImperialScalePreset, scaleDisplayLabel } from '..
 const METRIC_REGION_SCALES = [
   '1:200', '1:100', '1:50', '1:20', '1:10', '1:5', '1:2', '1:1',
 ];
-const SCALE_OPTIONS = scaleSelectOptions(METRIC_REGION_SCALES);
-const PRESET_SCALES = SCALE_OPTIONS.map(o => o.value);
+// Alle standaardschalen (ongeacht het gekozen stelsel): wat hierin staat is
+// geen eigen schaal.
+const PRESET_SCALES = scaleSelectOptions(METRIC_REGION_SCALES, { system: 'both' }).map(o => o.value);
 
 function redraw() {
   const doc = getActiveDocument();
@@ -176,7 +177,8 @@ export default function ScaleRegionDialog(props) {
               }
             }}
             options={[
-              ...SCALE_OPTIONS,
+              // Metrisch, imperiaal of beide volgens de voorkeur (#996).
+              ...scaleSelectOptions(METRIC_REGION_SCALES, { current: scaleString() }),
               { value: '__custom__', label: t('scaleRegion.custom') || 'Aangepast…' },
             ]}
             style={{ width: '100%' }}

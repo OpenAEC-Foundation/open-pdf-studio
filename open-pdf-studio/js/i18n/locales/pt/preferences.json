@@ -324,7 +324,16 @@
     "digitGrouping": "Separar milhares (12 345)",
     "scaleCheck": "Verificação de escala",
     "scaleCheckOk": "Correto até",
-    "scaleCheckWarn": "Aviso até"
+    "scaleCheckWarn": "Aviso até",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Atalhos de teclado",

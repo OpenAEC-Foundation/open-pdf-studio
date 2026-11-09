@@ -518,7 +518,8 @@
     "detecting": "Inagundua...",
     "scaleDetected": "Kipimo kimegunduliwa!",
     "scaleNotFound": "Hakuna kipimo kilichopatikana kwenye jedwali la kichwa",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Mpangilio wa Ukurasa",

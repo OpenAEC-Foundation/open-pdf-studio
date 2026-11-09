@@ -518,7 +518,8 @@
     "detecting": "מזהה...",
     "scaleDetected": "קנה המידה זוהה!",
     "scaleNotFound": "לא נמצא קנה מידה בטבלת הכותרת",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "הגדרת עמוד",

@@ -3,7 +3,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { leesGetal, leesGetalBegin } from '../../../core/getal-invoer.js';
+import { leesGetalBegin } from '../../../core/getal-invoer.js';
 import { formatGetal, formatMaat, formatProcent } from '../../../core/maat-notatie.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
@@ -14,11 +14,17 @@ import {
 } from '../../../annotations/schaalcontrole.js';
 import { legControleVast, drempelsUitVoorkeuren, bronLabel } from '../../../annotations/schaalcontrole-app.js';
 import { scaleDisplayLabel } from '../../../annotations/scale-presets.js';
+import { leesLengte, leesVoetInch, isImperialeLengte, toontVoetInch, formatVoetInch } from '../../../core/voet-inch.js';
 
 const EENHEDEN = ['mm', 'cm', 'm', 'in', 'ft'];
 
 // Decimalen per eenheid, zoals de maten zelf (formatMeasurement).
 const decimalenVoor = (unit) => (unit === 'mm' ? 1 : unit === 'cm' ? 2 : 3);
+
+// Een lengte zoals de maten zelf: in ft/in eventueel als voet-inch (#996).
+const lengteTekst = (waarde, unit) => (toontVoetInch(unit)
+  ? formatVoetInch(waarde, unit)
+  : formatMaat(waarde, unit, decimalenVoor(unit)));
 
 function redraw() {
   const doc = getActiveDocument();
@@ -73,22 +79,31 @@ export default function ScaleCheckDialog(props) {
 
   if (!data.restore && vanMaat?.type === 'measureDistance' && typeof vanMaat.measureText === 'string') {
     const m = meting();
-    const waarde = leesGetalBegin(vanMaat.measureText);
+    // Een voet-inchtekst (12'-6 3/8", #996) is een lengte in inches.
+    const voetInch = leesVoetInch(vanMaat.measureText);
+    const waarde = voetInch != null ? voetInch : leesGetalBegin(vanMaat.measureText);
     if (m?.bron && Number.isFinite(waarde) && waarde > 0) {
       const eigen = m.afstand / m.bron.pixelsPerUnit;
       const unitInTekst = (/([a-z]+)\s*$/i.exec(vanMaat.measureText) || [])[1];
-      const u = EENHEDEN.includes(unitInTekst) ? unitInTekst : (vanMaat.measureUnit || m.bron.unit);
+      const u = voetInch != null ? 'in'
+        : EENHEDEN.includes(unitInTekst) ? unitInTekst : (vanMaat.measureUnit || m.bron.unit);
       const inBron = (waarde * (MM_PER_UNIT[u] || 1)) / (MM_PER_UNIT[m.bron.unit] || 1);
       if (Math.abs(inBron - eigen) / eigen > 1e-4) {
-        setBekendTekst(String(waarde));
-        if (EENHEDEN.includes(u)) setEenheid(u);
+        if (voetInch != null) {
+          setBekendTekst(vanMaat.measureText.trim());
+          setEenheid(isImperialeLengte(vanMaat.measureUnit) ? vanMaat.measureUnit : 'ft');
+        } else {
+          setBekendTekst(String(waarde));
+          if (EENHEDEN.includes(u)) setEenheid(u);
+        }
       }
     }
   }
 
   /** De bekende lengte in de eenheid van de bron. */
   const bekend = createMemo(() => {
-    const v = leesGetal(bekendTekst());
+    // Ook een voet-inchmaat: 12'-6 3/8" (#996).
+    const v = leesLengte(bekendTekst(), gekozenEenheid());
     if (!(v > 0)) return null;
     return (v * (MM_PER_UNIT[gekozenEenheid()] || 1)) / (MM_PER_UNIT[bronEenheid()] || 1);
   });
@@ -156,7 +171,7 @@ export default function ScaleCheckDialog(props) {
       // Tijdens het kiezen: de lengte met de schaal op die plek.
       readout: (afstand, p1, p2, pageNum) => {
         const b = bronVoorPunten(d, pageNum, p1, p2).bron;
-        return b ? formatMaat(afstand / b.pixelsPerUnit, b.unit, decimalenVoor(b.unit)) : null;
+        return b ? lengteTekst(afstand / b.pixelsPerUnit, b.unit) : null;
       },
       onDone: (_afstand, p) => openDialog('scale-check', { punten: p, restore }),
       onCancel: () => openDialog('scale-check', { punten: punten(), restore }),
@@ -226,12 +241,23 @@ export default function ScaleCheckDialog(props) {
 
         <div class="calibration-row">
           <label class="calibration-label">{t('scaleCheck.knownLength')}</label>
-          <input
-            type="text" inputmode="decimal" data-getal
-            class="calibration-input"
-            value={bekendTekst()}
-            onInput={(e) => setBekendTekst(e.target.value)}
-          />
+          <Show when={isImperialeLengte(gekozenEenheid())} fallback={
+            <input
+              type="text" inputmode="decimal" data-getal
+              class="calibration-input"
+              value={bekendTekst()}
+              onInput={(e) => setBekendTekst(e.target.value)}
+            />
+          }>
+            <input
+              type="text"
+              class="calibration-input"
+              placeholder={`12'-6 3/8"`}
+              title={t('calibration.feetInchHint')}
+              value={bekendTekst()}
+              onInput={(e) => setBekendTekst(e.target.value)}
+            />
+          </Show>
           <select class="calibration-select" value={gekozenEenheid()} onChange={(e) => setEenheid(e.target.value)}>
             <For each={EENHEDEN}>{(u) => <option value={u}>{u}</option>}</For>
           </select>
@@ -240,10 +266,10 @@ export default function ScaleCheckDialog(props) {
         <Show when={uitkomst()}>
           <div class="scale-check-grid">
             <span>{t('scaleCheck.measured')}</span>
-            <span>{formatMaat(uitkomst().gemeten, bronEenheid(), decimalenVoor(bronEenheid()))}</span>
+            <span>{lengteTekst(uitkomst().gemeten, bronEenheid())}</span>
             <span>{t('scaleCheck.deviation')}</span>
             <span>
-              {formatMaat(uitkomst().verschil, bronEenheid(), decimalenVoor(bronEenheid()))}
+              {lengteTekst(uitkomst().verschil, bronEenheid())}
               {' '}({formatProcent(uitkomst().procent, 2, undefined, { teken: true })})
               {' '}<span class={`scale-check-badge scale-check-${uitkomst().status}`}>{statusTekst(uitkomst().status)}</span>
             </span>
@@ -318,7 +344,7 @@ export default function ScaleCheckDialog(props) {
                 {(c) => (
                   <tr title={[c.auteur, c.bron?.label, c.schaal ? scaleDisplayLabel(c.schaal, c.eenheid) : ''].filter(Boolean).join(' · ')}>
                     <td>{datumTekst(c.datum)}</td>
-                    <td>{formatMaat(c.bekend, c.eenheid, decimalenVoor(c.eenheid))}</td>
+                    <td>{lengteTekst(c.bekend, c.eenheid)}</td>
                     <td>{formatProcent(c.procent, 2, undefined, { teken: true })}</td>
                     <td><span class={`scale-check-badge scale-check-${c.status}`}>{statusTekst(c.status)}</span>
                       {c.actie && c.actie !== 'none' ? ` · ${t(c.actie === 'vervang' ? 'scaleCheck.replaced' : 'scaleCheck.averaged')}` : ''}</td>

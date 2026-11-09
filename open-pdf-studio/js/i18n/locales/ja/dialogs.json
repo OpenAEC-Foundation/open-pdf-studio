@@ -518,7 +518,8 @@
     "detecting": "検出中...",
     "scaleDetected": "縮尺を検出しました！",
     "scaleNotFound": "表題欄に縮尺が見つかりません",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ページ設定",

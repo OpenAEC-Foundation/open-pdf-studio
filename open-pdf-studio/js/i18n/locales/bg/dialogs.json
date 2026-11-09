@@ -518,7 +518,8 @@
     "detecting": "Разпознаване...",
     "scaleDetected": "Мащабът е разпознат!",
     "scaleNotFound": "В антетката не е намерен мащаб",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Настройка на страницата",

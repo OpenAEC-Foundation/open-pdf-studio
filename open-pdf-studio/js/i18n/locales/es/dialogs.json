@@ -518,7 +518,8 @@
     "detecting": "Detectando...",
     "scaleDetected": "¡Escala detectada!",
     "scaleNotFound": "No se encontró escala en el cuadro de título",
-    "currentScale": "Escala actual: {{scale}}"
+    "currentScale": "Escala actual: {{scale}}",
+    "feetInchHint": "Se admiten pies y pulgadas, por ejemplo 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Configurar página",

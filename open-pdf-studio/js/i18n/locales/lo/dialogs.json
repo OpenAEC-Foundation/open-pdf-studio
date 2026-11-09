@@ -517,7 +517,8 @@
     "detecting": "ກຳລັງກວດຫາ...",
     "scaleDetected": "ພົບມາດຕາສ່ວນແລ້ວ!",
     "scaleNotFound": "ບໍ່ພົບມາດຕາສ່ວນໃນຕາຕະລາງຂໍ້ມູນແບບ",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "ຕັ້ງຄ່າໜ້າເຈ້ຍ",

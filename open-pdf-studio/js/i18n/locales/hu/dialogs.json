@@ -518,7 +518,8 @@
     "detecting": "Észlelés...",
     "scaleDetected": "Méretarány felismerve!",
     "scaleNotFound": "Nem található méretarány a szövegmezőben",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Oldalbeállítás",

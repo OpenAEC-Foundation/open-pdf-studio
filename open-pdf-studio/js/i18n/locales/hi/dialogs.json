@@ -518,7 +518,8 @@
     "detecting": "पहचान हो रही है...",
     "scaleDetected": "स्केल पहचाना गया!",
     "scaleNotFound": "टाइटल ब्लॉक में कोई स्केल नहीं मिला",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "पृष्ठ सेटअप",

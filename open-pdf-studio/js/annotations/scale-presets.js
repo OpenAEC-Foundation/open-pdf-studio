@@ -25,19 +25,53 @@ export function isImperialScalePreset(ratio) {
   return IMPERIAL_SCALE_PRESETS.some(preset => preset.ratio === ratio);
 }
 
+/** Toegestane waarden van de voorkeur scaleUnitSystem (#996). */
+export const SCALE_UNIT_SYSTEMS = Object.freeze(['both', 'metric', 'imperial']);
+
+/** @type {null | (() => string)} */
+let systeemBron = null;
+
+/** Zet de bron van de voorkeur scaleUnitSystem (de app); null = beide. */
+export function stelSchaalSysteemBronIn(fn) {
+  systeemBron = typeof fn === 'function' ? fn : null;
+}
+
+/** Het eenhedenstelsel van de schaallijsten nu: 'both', 'metric' of 'imperial'. */
+export function schaalSysteem() {
+  let s;
+  try { s = systeemBron ? systeemBron() : 'both'; } catch { s = 'both'; }
+  return SCALE_UNIT_SYSTEMS.includes(s) ? s : 'both';
+}
+
+/**
+ * Alleen de standaardschalen van het gekozen stelsel (#996): Metrisch,
+ * Imperiaal of Beide. De huidige waarde blijft altijd in de lijst, ook als
+ * hij uit het andere stelsel komt, zodat een keuzelijst nooit leeg toont.
+ * @param {{value: string, label: string}[]} options  waarden "1:N"
+ * @param {{system?: string, current?: string}} [opties]
+ */
+export function filterScaleOptions(options, { system = schaalSysteem(), current } = {}) {
+  const metrisch = system !== 'imperial';
+  const imperiaal = system !== 'metric';
+  return options.filter((o) => o.value === current
+    || (isImperialScalePreset(o.value) ? imperiaal : metrisch));
+}
+
 /**
  * Options for a scale dropdown (#972): the given metric ratios, then every
  * imperial preset in inch/foot notation. Every place that offers a list of
- * standard scales (scale regions, viewports, the properties panel) uses this,
- * so the imperial presets are not hidden in one dialog.
+ * standard scales (scale regions, viewports, the properties panel, the
+ * calibration dialog) uses this, so the imperial presets are not hidden in
+ * one dialog. The unit-system preference filters the list (#996).
  * @param {string[]} [metric]  metric ratios in the order the list shows them
+ * @param {{system?: string, current?: string}} [opties]  see filterScaleOptions
  * @returns {{value: string, label: string}[]}
  */
-export function scaleSelectOptions(metric = METRIC_SCALE_PRESETS) {
-  return [
+export function scaleSelectOptions(metric = METRIC_SCALE_PRESETS, opties = {}) {
+  return filterScaleOptions([
     ...metric.map(ratio => ({ value: ratio, label: ratio })),
     ...IMPERIAL_SCALE_PRESETS.map(preset => ({ value: preset.ratio, label: preset.label })),
-  ];
+  ], opties);
 }
 
 // Papierinches per voet als breuk ("1/8", "1 1/2", "3"), tot op 1/64; null

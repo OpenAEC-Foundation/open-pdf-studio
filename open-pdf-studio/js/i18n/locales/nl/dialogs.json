@@ -499,7 +499,8 @@
     "detecting": "Detecteren...",
     "scaleDetected": "Schaal gedetecteerd!",
     "scaleNotFound": "Geen schaal gevonden in onderhoek",
-    "currentScale": "Huidige schaal: {{scale}}"
+    "currentScale": "Huidige schaal: {{scale}}",
+    "feetInchHint": "Voet en inch mag ook, bijvoorbeeld 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Pagina-instelling",

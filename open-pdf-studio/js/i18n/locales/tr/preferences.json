@@ -324,7 +324,16 @@
     "digitGrouping": "Binlikleri ayır (12 345)",
     "scaleCheck": "Ölçek denetimi",
     "scaleCheckOk": "Uygun üst sınırı",
-    "scaleCheckWarn": "Uyarı üst sınırı"
+    "scaleCheckWarn": "Uyarı üst sınırı",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Klavye kısayolları",

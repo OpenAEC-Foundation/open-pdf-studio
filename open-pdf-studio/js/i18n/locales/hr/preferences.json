@@ -324,7 +324,16 @@
     "digitGrouping": "Odvajaj tisućice (12 345)",
     "scaleCheck": "Provjera mjerila",
     "scaleCheckOk": "U redu do",
-    "scaleCheckWarn": "Upozorenje do"
+    "scaleCheckWarn": "Upozorenje do",
+    "units": "Units",
+    "unitSystem": "Scale presets",
+    "unitSystemBoth": "Metric and imperial",
+    "unitSystemMetric": "Metric",
+    "unitSystemImperial": "Imperial",
+    "imperialLengthFormat": "Imperial lengths (ft, in)",
+    "imperialDecimal": "Decimal feet (12.53 ft)",
+    "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
+    "imperialFractionPrecision": "Smallest fraction"
   },
   "keyboardShortcuts": {
     "title": "Tipkovnički prečaci",

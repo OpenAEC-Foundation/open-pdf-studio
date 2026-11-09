@@ -518,7 +518,8 @@
     "detecting": "Đang phát hiện...",
     "scaleDetected": "Đã phát hiện tỷ lệ!",
     "scaleNotFound": "Không tìm thấy tỷ lệ trong khung tên",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Thiết lập Trang",

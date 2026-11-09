@@ -518,7 +518,8 @@
     "detecting": "Erkennung...",
     "scaleDetected": "Maßstab erkannt!",
     "scaleNotFound": "Kein Maßstab im Schriftfeld gefunden",
-    "currentScale": "Aktueller Maßstab: {{scale}}"
+    "currentScale": "Aktueller Maßstab: {{scale}}",
+    "feetInchHint": "Fuß und Zoll sind erlaubt, z. B. 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Seite einrichten",

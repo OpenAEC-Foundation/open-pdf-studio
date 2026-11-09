@@ -517,7 +517,8 @@
     "detecting": "Detecting...",
     "scaleDetected": "Scale detected!",
     "scaleNotFound": "No scale found in title block",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Page Setup",

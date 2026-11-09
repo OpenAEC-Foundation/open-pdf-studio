@@ -4,6 +4,7 @@
 // bestaande hoeveelheden-functionaliteit.
 import { qLabel } from './categories.js';
 import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
+import { toontVoetInch, formatVoetInch } from '../core/voet-inch.js';
 
 // Elk sjabloon levert een config die 1-op-1 aan quantities/engine.buildSchedule
 // gevoerd kan worden. `nameKey` verwijst naar i18n (namespace 'properties').
@@ -116,7 +117,12 @@ export function formatCell(val, col) {
   // Beeldkolom: geef de rauwe data-URL door zodat de canvas-renderer (en de
   // HTML-tabel) er een echte thumbnail van kan tekenen.
   if (col && col.kind === 'image') return String(val);
-  if (typeof val === 'number') return Number.isFinite(val) ? formatGetal(val, col?.decimals ?? 0) : '';
+  if (typeof val === 'number') {
+    if (!Number.isFinite(val)) return '';
+    // Lengtekolom in ft/in als voet-inch-breuk (#996).
+    if (toontVoetInch(col?.unit)) return formatVoetInch(val, col.unit);
+    return formatGetal(val, col?.decimals ?? 0);
+  }
   return String(val);
 }
 
@@ -138,6 +144,7 @@ export function isImageCell(s) {
 
 export function fmtTotal(val, col) {
   if (val == null) return '';
+  if (toontVoetInch(col?.unit) && Number.isFinite(Number(val))) return formatVoetInch(val, col.unit);
   return formatGetal(val, col?.decimals ?? 2) + (col?.unit ? ` ${eenheidNotatie(col.unit)}` : '');
 }
 

@@ -518,7 +518,8 @@
     "detecting": "Otkrivanje...",
     "scaleDetected": "Mjerilo prepoznato!",
     "scaleNotFound": "U sastavnici nije pronađeno mjerilo",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Postavljanje stranice",

@@ -518,7 +518,8 @@
     "detecting": "Wykrywanie...",
     "scaleDetected": "Wykryto skalę!",
     "scaleNotFound": "Nie znaleziono skali w tabliczce rysunkowej",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Ustawienia strony",

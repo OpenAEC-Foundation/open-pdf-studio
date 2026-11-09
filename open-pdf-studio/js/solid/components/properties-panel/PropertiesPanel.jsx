@@ -81,7 +81,8 @@ function ViewportSection() {
             onChange={(e) => updateAnnotProp('viewportScaleRatio', e.target.value)}
           >
             {/* Metrisch en imperiaal (#972); de waarde is de noemer. */}
-            {scaleSelectOptions([10,20,25,50,75,100,125,150,200,250,300,400,500,750,1000,1250,2000,2500,5000].map(r => `1:${r}`))
+            {scaleSelectOptions([10,20,25,50,75,100,125,150,200,250,300,400,500,750,1000,1250,2000,2500,5000].map(r => `1:${r}`),
+              { current: annotProps.viewportScaleRatio || '1:100' })
               .map(o => <option value={o.value.slice(2)}>{o.label}</option>)}
           </select>
         </div>
@@ -138,8 +139,9 @@ function ScaleRegionSection() {
               // Standard drawing scales, metric and imperial (#972);
               // prepend the region's current value when it's a
               // custom one so the select never shows blank.
-              const presets = scaleSelectOptions(['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1']);
               const cur = annotProps.scaleRegionScale || '1:100';
+              // Metrisch, imperiaal of beide volgens de voorkeur (#996).
+              const presets = scaleSelectOptions(['1:200','1:100','1:50','1:20','1:10','1:5','1:2','1:1'], { current: cur });
               const list = presets.some(o => o.value === cur) ? presets
                 : [{ value: cur, label: scaleDisplayLabel(cur, annotProps.scaleRegionUnits) }, ...presets];
               return list.map(o => <option value={o.value}>{o.label}</option>);

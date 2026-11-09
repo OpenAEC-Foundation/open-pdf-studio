@@ -518,7 +518,8 @@
     "detecting": "Algılanıyor...",
     "scaleDetected": "Ölçek algılandı!",
     "scaleNotFound": "Antette ölçek bulunamadı",
-    "currentScale": "Current scale: {{scale}}"
+    "currentScale": "Current scale: {{scale}}",
+    "feetInchHint": "Feet and inches are allowed, for example 12'-6 3/8\""
   },
   "pageSetup": {
     "title": "Sayfa Ayarları",
