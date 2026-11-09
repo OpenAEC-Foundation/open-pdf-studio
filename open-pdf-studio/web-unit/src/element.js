@@ -14,7 +14,7 @@ import { maakViewer, voorladen } from './viewer.js';
 import { maakAnnotatielaag, GEREEDSCHAP_PER_SOORT } from './annoteren.js';
 import { lijstNaarAppModel, kopieVoorGastheer } from './model.js';
 import { tekstenVoor } from './teksten.js';
-import { documentSleutel, leesStand, bewaarStand, wisAlles } from './opslag.js';
+import { documentSleutel, leesStand, bewaarStand, wisAlles, veiligeOpslag } from './opslag.js';
 
 // Thema via CSS-variabelen op het element; `theme="dark"` zet een donkere set.
 // De gastheer kan elke variabele zelf zetten, of met ::part() de werkbalk,
@@ -48,9 +48,6 @@ textarea.opmerking { position:absolute; z-index:3; width:180px; height:56px; res
                      font:var(--opds-font); border:1px solid var(--opds-button-active-border); background:#fffbe0; color:#1e1e1e; }
 `;
 
-const veiligeOpslag = () => {
-  try { return typeof localStorage !== 'undefined' ? localStorage : null; } catch { return null; }
-};
 
 export class OpenPdfStudioElement extends HTMLElement {
   static get observedAttributes() { return ATTRIBUTEN; }

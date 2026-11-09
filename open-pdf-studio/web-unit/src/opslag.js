@@ -72,3 +72,12 @@ export function wisAlles(opslag) {
   for (const k of weg) veilig(() => opslag.removeItem(k));
   return weg.length;
 }
+
+/**
+ * De opslag van de browser, of null als die er niet is of geblokkeerd is
+ * (sandbox-iframe, privémodus). Het webonderdeel laadt geen app-modules, dus
+ * niet core/opslag.js; dit is de enige plek die localStorage aanspreekt.
+ */
+export function veiligeOpslag() {
+  try { return typeof localStorage !== 'undefined' ? localStorage : null; } catch { return null; }
+}
