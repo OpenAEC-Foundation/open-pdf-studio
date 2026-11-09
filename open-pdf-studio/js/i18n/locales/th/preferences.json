@@ -85,7 +85,10 @@
     "subtabMeasurement": "การวัด",
     "redactionDefaults": "ค่าเริ่มต้นการปกปิด",
     "overlayColor": "สีชั้นซ้อนทับ",
-    "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF"
+    "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF",
+    "stamps": "ตราประทับ",
+    "hideBuiltInStamps": "ซ่อนตราประทับในตัวเมื่อฉันมีตราประทับของตัวเอง",
+    "hideBuiltInStampsHint": "ตัวเลือกตราประทับจะแสดงเฉพาะตราประทับของคุณ (ส่วนตัว นำเข้า และแชร์) หากไม่มีตราประทับของตัวเอง ตราประทับในตัวจะยังแสดงอยู่"
   },
   "drawing": {
     "freehandDefaults": "ค่าเริ่มต้นวาดอิสระ",

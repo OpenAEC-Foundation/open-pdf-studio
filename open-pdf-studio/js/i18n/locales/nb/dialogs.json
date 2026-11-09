@@ -497,7 +497,9 @@
     "title": "Velg stempel",
     "customFromImage": "Egendefinert stempel fra bilde...",
     "dynamicTitle": "Stempler med felt",
-    "manage": "Administrer stempelmaler..."
+    "manage": "Administrer stempelmaler...",
+    "builtInHidden": "Innebygde stempler er skjult (Innstillinger > Merknader > Kommentarer).",
+    "hideBuiltInNoOwn": "Innebygde stempler er satt til skjult, men du har ingen egne stempler ennå. Opprett et via Administrer stempelmaler."
   },
   "calibration": {
     "title": "Skalakalibrering",

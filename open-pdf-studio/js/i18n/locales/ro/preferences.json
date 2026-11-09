@@ -85,7 +85,10 @@
     "subtabMeasurement": "Măsurare",
     "redactionDefaults": "Valori implicite redactare",
     "overlayColor": "Culoare suprapunere",
-    "snapToPdfContent": "Fixare la conținutul desenului PDF"
+    "snapToPdfContent": "Fixare la conținutul desenului PDF",
+    "stamps": "Ștampile",
+    "hideBuiltInStamps": "Ascunde ștampilele integrate când am ștampile proprii",
+    "hideBuiltInStampsHint": "Selectorul de ștampile afișează atunci doar ștampilele dvs. (personale, importate și partajate). Fără ștampile proprii, ștampilele integrate rămân vizibile."
   },
   "drawing": {
     "freehandDefaults": "Valori implicite mana libera",

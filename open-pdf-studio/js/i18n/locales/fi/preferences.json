@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mittaus",
     "redactionDefaults": "Poiston oletukset",
     "overlayColor": "Peittoväri",
-    "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön"
+    "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
+    "stamps": "Leimat",
+    "hideBuiltInStamps": "Piilota sisäänrakennetut leimat, kun minulla on omia leimoja",
+    "hideBuiltInStampsHint": "Leimanvalitsin näyttää silloin vain omat leimasi (henkilökohtaiset, tuodut ja jaetut). Ilman omia leimoja sisäänrakennetut leimat pysyvät näkyvissä."
   },
   "drawing": {
     "freehandDefaults": "Vapaapiirron oletukset",

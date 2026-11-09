@@ -85,7 +85,10 @@
     "subtabShapes": "Forme",
     "subtabMeasurement": "Misurazione",
     "redactionDefaults": "Predefiniti oscuramento",
-    "overlayColor": "Colore di sovrapposizione"
+    "overlayColor": "Colore di sovrapposizione",
+    "stamps": "Timbri",
+    "hideBuiltInStamps": "Nascondi i timbri integrati quando ho timbri personali",
+    "hideBuiltInStampsHint": "Il selettore di timbri mostra allora solo i tuoi timbri (personali, importati e condivisi). Senza timbri personali, i timbri integrati restano visibili."
   },
   "drawing": {
     "freehandDefaults": "Predefiniti mano libera",

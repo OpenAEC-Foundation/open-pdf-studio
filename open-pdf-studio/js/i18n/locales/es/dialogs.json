@@ -497,7 +497,9 @@
     "title": "Seleccionar sello",
     "customFromImage": "Sello personalizado desde imagen...",
     "dynamicTitle": "Sellos con campos",
-    "manage": "Administrar plantillas de sello..."
+    "manage": "Administrar plantillas de sello...",
+    "builtInHidden": "Los sellos integrados están ocultos (Preferencias > Anotaciones > Comentarios).",
+    "hideBuiltInNoOwn": "Los sellos integrados están configurados como ocultos, pero todavía no tiene sellos propios. Cree uno con Administrar plantillas de sello."
   },
   "calibration": {
     "title": "Calibración de escala",

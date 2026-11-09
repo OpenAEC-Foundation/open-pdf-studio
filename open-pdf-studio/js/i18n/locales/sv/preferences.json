@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mätning",
     "redactionDefaults": "Standardvärden för maskering",
     "overlayColor": "Överlagringsfärg",
-    "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll"
+    "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll",
+    "stamps": "Stämplar",
+    "hideBuiltInStamps": "Dölj inbyggda stämplar när jag har egna stämplar",
+    "hideBuiltInStampsHint": "Stämpelväljaren visar då bara dina egna stämplar (personliga, importerade och delade). Utan egna stämplar förblir de inbyggda stämplarna synliga."
   },
   "drawing": {
     "freehandDefaults": "Standardvärden för frihand",

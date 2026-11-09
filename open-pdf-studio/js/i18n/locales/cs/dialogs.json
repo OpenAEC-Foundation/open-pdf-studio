@@ -497,7 +497,9 @@
     "title": "Vybrat razítko",
     "customFromImage": "Vlastní razítko z obrázku...",
     "dynamicTitle": "Razítka s poli",
-    "manage": "Spravovat šablony razítek..."
+    "manage": "Spravovat šablony razítek...",
+    "builtInHidden": "Vestavěná razítka jsou skrytá (Předvolby > Anotace > Komentáře).",
+    "hideBuiltInNoOwn": "Vestavěná razítka jsou nastavena jako skrytá, ale zatím nemáte žádná vlastní razítka. Vytvořte je přes Spravovat šablony razítek."
   },
   "calibration": {
     "title": "Kalibrace měřítka",

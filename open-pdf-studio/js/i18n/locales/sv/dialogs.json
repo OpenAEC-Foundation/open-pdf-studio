@@ -497,7 +497,9 @@
     "title": "Välj stämpel",
     "customFromImage": "Anpassad stämpel från bild...",
     "dynamicTitle": "Stämplar med fält",
-    "manage": "Hantera stämpelmallar..."
+    "manage": "Hantera stämpelmallar...",
+    "builtInHidden": "Inbyggda stämplar är dolda (Inställningar > Anteckningar > Kommentarer).",
+    "hideBuiltInNoOwn": "Inbyggda stämplar är inställda på att döljas, men du har inga egna stämplar ännu. Skapa en via Hantera stämpelmallar."
   },
   "calibration": {
     "title": "Skalakalibrering",

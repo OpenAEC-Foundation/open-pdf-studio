@@ -497,7 +497,9 @@
     "title": "Stempel auswählen",
     "customFromImage": "Benutzerdefinierter Stempel aus Bild...",
     "dynamicTitle": "Stempel mit Feldern",
-    "manage": "Stempelvorlagen verwalten..."
+    "manage": "Stempelvorlagen verwalten...",
+    "builtInHidden": "Integrierte Stempel sind ausgeblendet (Einstellungen > Anmerkungen > Kommentare).",
+    "hideBuiltInNoOwn": "Integrierte Stempel sind auf Ausblenden gesetzt, aber Sie haben noch keine eigenen Stempel. Erstellen Sie einen über Stempelvorlagen verwalten."
   },
   "calibration": {
     "title": "Skalenkalibrierung",

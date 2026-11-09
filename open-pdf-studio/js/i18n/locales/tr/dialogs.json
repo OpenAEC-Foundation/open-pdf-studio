@@ -497,7 +497,9 @@
     "title": "Damga Seç",
     "customFromImage": "Görüntüden Özel Damga...",
     "dynamicTitle": "Alanlı damgalar",
-    "manage": "Damga şablonlarını yönet..."
+    "manage": "Damga şablonlarını yönet...",
+    "builtInHidden": "Yerleşik damgalar gizli (Tercihler > Açıklamalar > Yorumlar).",
+    "hideBuiltInNoOwn": "Yerleşik damgalar gizli olarak ayarlı, ancak henüz kendi damganız yok. Damga şablonlarını yönet bölümünden bir tane oluşturun."
   },
   "calibration": {
     "title": "Ölçek Kalibrasyonu",

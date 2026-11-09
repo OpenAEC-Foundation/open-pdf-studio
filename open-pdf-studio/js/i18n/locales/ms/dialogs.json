@@ -497,7 +497,9 @@
     "title": "Pilih Setem",
     "customFromImage": "Setem Tersuai dari Imej...",
     "dynamicTitle": "Setem dengan medan",
-    "manage": "Urus templat setem..."
+    "manage": "Urus templat setem...",
+    "builtInHidden": "Setem terbina dalam disembunyikan (Keutamaan > Anotasi > Komen).",
+    "hideBuiltInNoOwn": "Setem terbina dalam ditetapkan untuk disembunyikan, tetapi anda belum mempunyai setem sendiri. Cipta satu melalui Urus templat setem."
   },
   "calibration": {
     "title": "Penentukuran Skala",

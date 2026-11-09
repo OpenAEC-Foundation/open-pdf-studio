@@ -497,7 +497,9 @@
     "title": "Chagua Muhuri",
     "customFromImage": "Muhuri wa Desturi kutoka Picha...",
     "dynamicTitle": "Mihuri yenye sehemu",
-    "manage": "Dhibiti violezo vya muhuri..."
+    "manage": "Dhibiti violezo vya muhuri...",
+    "builtInHidden": "Mihuri iliyojengewa ndani imefichwa (Mapendeleo > Maoni > Maoni).",
+    "hideBuiltInNoOwn": "Mihuri iliyojengewa ndani imewekwa kufichwa, lakini bado huna mihuri yako. Unda mmoja kupitia Dhibiti violezo vya muhuri."
   },
   "calibration": {
     "title": "Urekebishaji wa Kipimo",

@@ -85,7 +85,10 @@
     "subtabShapes": "도형",
     "subtabMeasurement": "측정",
     "redactionDefaults": "교정 기본값",
-    "overlayColor": "오버레이 색"
+    "overlayColor": "오버레이 색",
+    "stamps": "스탬프",
+    "hideBuiltInStamps": "내 스탬프가 있으면 기본 제공 스탬프 숨기기",
+    "hideBuiltInStampsHint": "그러면 스탬프 선택기에는 내 스탬프(개인, 가져온 스탬프, 공유)만 표시됩니다. 내 스탬프가 없으면 기본 제공 스탬프가 계속 표시됩니다."
   },
   "drawing": {
     "freehandDefaults": "자유형 기본값",

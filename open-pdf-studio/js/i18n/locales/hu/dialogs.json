@@ -497,7 +497,9 @@
     "title": "Bélyegző választása",
     "customFromImage": "Egyedi bélyegző képből...",
     "dynamicTitle": "Mezőket tartalmazó bélyegzők",
-    "manage": "Bélyegzősablonok kezelése..."
+    "manage": "Bélyegzősablonok kezelése...",
+    "builtInHidden": "A beépített bélyegzők el vannak rejtve (Beállítások > Annotációk > Megjegyzések).",
+    "hideBuiltInNoOwn": "A beépített bélyegzők elrejtésre vannak állítva, de még nincs saját bélyegzője. Hozzon létre egyet a Bélyegzősablonok kezelése menüben."
   },
   "calibration": {
     "title": "Lépték kalibrálás",

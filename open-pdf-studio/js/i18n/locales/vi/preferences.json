@@ -85,7 +85,10 @@
     "subtabMeasurement": "Đo lường",
     "redactionDefaults": "Mặc định che thông tin",
     "overlayColor": "Màu lớp phủ",
-    "snapToPdfContent": "Bắt dính nội dung bản vẽ PDF"
+    "snapToPdfContent": "Bắt dính nội dung bản vẽ PDF",
+    "stamps": "Con dấu",
+    "hideBuiltInStamps": "Ẩn con dấu tích hợp khi tôi có con dấu riêng",
+    "hideBuiltInStampsHint": "Khi đó bộ chọn con dấu chỉ hiển thị con dấu của bạn (cá nhân, đã nhập và được chia sẻ). Nếu không có con dấu riêng, con dấu tích hợp vẫn hiển thị."
   },
   "drawing": {
     "freehandDefaults": "Mặc định Vẽ tay",

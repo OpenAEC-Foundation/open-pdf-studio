@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mesurament",
     "redactionDefaults": "Valors per defecte de redacció",
     "overlayColor": "Color de superposició",
-    "snapToPdfContent": "Ajusta al contingut del dibuix PDF"
+    "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
+    "stamps": "Segells",
+    "hideBuiltInStamps": "Amaga els segells integrats quan tinc segells propis",
+    "hideBuiltInStampsHint": "El selector de segells mostra llavors només els vostres segells (personals, importats i compartits). Sense segells propis, els segells integrats continuen visibles."
   },
   "drawing": {
     "freehandDefaults": "Valors per defecte de mà alçada",

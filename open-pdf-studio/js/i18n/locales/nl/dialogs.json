@@ -478,7 +478,9 @@
     "title": "Stempel selecteren",
     "customFromImage": "Aangepaste stempel van afbeelding...",
     "dynamicTitle": "Stempels met velden",
-    "manage": "Stempelsjablonen beheren..."
+    "manage": "Stempelsjablonen beheren...",
+    "builtInHidden": "Ingebouwde stempels zijn verborgen (Voorkeuren > Annotaties > Opmerkingen).",
+    "hideBuiltInNoOwn": "Ingebouwde stempels staan op verbergen, maar u hebt nog geen eigen stempels. Maak er een via Stempelsjablonen beheren."
   },
   "calibration": {
     "title": "Schaalcalibratie",

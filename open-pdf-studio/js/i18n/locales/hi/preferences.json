@@ -85,7 +85,10 @@
     "subtabMeasurement": "मापन",
     "redactionDefaults": "संपादन-रहित डिफ़ॉल्ट",
     "overlayColor": "ओवरले रंग",
-    "snapToPdfContent": "PDF ड्रॉइंग सामग्री पर स्नैप करें"
+    "snapToPdfContent": "PDF ड्रॉइंग सामग्री पर स्नैप करें",
+    "stamps": "स्टैम्प",
+    "hideBuiltInStamps": "मेरे अपने स्टैम्प होने पर बिल्ट-इन स्टैम्प छिपाएँ",
+    "hideBuiltInStampsHint": "तब स्टैम्प चयनकर्ता केवल आपके अपने स्टैम्प (व्यक्तिगत, आयातित और साझा) दिखाता है। अपने स्टैम्प न होने पर बिल्ट-इन स्टैम्प दिखाई देते रहते हैं।"
   },
   "drawing": {
     "freehandDefaults": "फ्रीहैंड डिफ़ॉल्ट",

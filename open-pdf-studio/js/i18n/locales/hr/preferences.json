@@ -85,7 +85,10 @@
     "subtabMeasurement": "Mjerenje",
     "redactionDefaults": "Zadane postavke redigiranja",
     "overlayColor": "Boja prekrivanja",
-    "snapToPdfContent": "Privlačenje na sadržaj PDF crteža"
+    "snapToPdfContent": "Privlačenje na sadržaj PDF crteža",
+    "stamps": "Pečati",
+    "hideBuiltInStamps": "Sakrij ugrađene pečate kada imam vlastite pečate",
+    "hideBuiltInStampsHint": "Birač pečata tada prikazuje samo vaše vlastite pečate (osobne, uvezene i dijeljene). Bez vlastitih pečata ugrađeni pečati ostaju vidljivi."
   },
   "drawing": {
     "freehandDefaults": "Zadane postavke slobodnog crtanja",

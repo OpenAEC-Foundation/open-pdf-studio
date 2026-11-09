@@ -85,7 +85,10 @@
     "subtabMeasurement": "מדידה",
     "redactionDefaults": "ברירות מחדל להשחרה",
     "overlayColor": "צבע שכבת כיסוי",
-    "snapToPdfContent": "הצמדה לתוכן השרטוט ב-PDF"
+    "snapToPdfContent": "הצמדה לתוכן השרטוט ב-PDF",
+    "stamps": "חותמות",
+    "hideBuiltInStamps": "הסתר חותמות מובנות כשיש לי חותמות משלי",
+    "hideBuiltInStampsHint": "בורר החותמות יציג אז רק את החותמות שלך (אישיות, מיובאות ומשותפות). ללא חותמות משלך, החותמות המובנות נשארות גלויות."
   },
   "drawing": {
     "freehandDefaults": "ברירות מחדל ליד חופשית",

@@ -85,7 +85,10 @@
     "subtabMeasurement": "Upimaji",
     "redactionDefaults": "Chaguo-msingi za Ufutaji",
     "overlayColor": "Rangi ya Kuwekelea",
-    "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF"
+    "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF",
+    "stamps": "Mihuri",
+    "hideBuiltInStamps": "Ficha mihuri iliyojengewa ndani ninapokuwa na mihuri yangu",
+    "hideBuiltInStampsHint": "Kichagua mihuri kisha huonyesha mihuri yako pekee (ya binafsi, iliyoingizwa na inayoshirikiwa). Bila mihuri yako, mihuri iliyojengewa ndani huendelea kuonekana."
   },
   "drawing": {
     "freehandDefaults": "Chaguo-msingi za Huru",

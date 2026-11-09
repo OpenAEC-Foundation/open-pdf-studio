@@ -497,7 +497,9 @@
     "title": "Select Stamp",
     "customFromImage": "Custom Stamp from Image...",
     "dynamicTitle": "Stamps with fields",
-    "manage": "Manage stamp templates..."
+    "manage": "Manage stamp templates...",
+    "builtInHidden": "Built-in stamps are hidden (Preferences > Annotations > Comments).",
+    "hideBuiltInNoOwn": "Built-in stamps are set to hidden, but you have no own stamps yet. Create one with Manage stamp templates."
   },
   "calibration": {
     "title": "Scale Calibration",

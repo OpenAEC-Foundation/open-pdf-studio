@@ -85,7 +85,10 @@
     "subtabMeasurement": "پیمائش",
     "redactionDefaults": "ریڈیکشن ڈیفالٹس",
     "overlayColor": "اوورلے رنگ",
-    "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں"
+    "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں",
+    "stamps": "مہریں",
+    "hideBuiltInStamps": "جب میری اپنی مہریں ہوں تو بلٹ اِن مہریں چھپائیں",
+    "hideBuiltInStampsHint": "تب مہر منتخب کنندہ صرف آپ کی اپنی مہریں (ذاتی، درآمد شدہ اور مشترکہ) دکھاتا ہے۔ اپنی مہروں کے بغیر بلٹ اِن مہریں نظر آتی رہتی ہیں۔"
   },
   "drawing": {
     "freehandDefaults": "آزاد ہاتھ ڈیفالٹس",

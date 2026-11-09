@@ -85,7 +85,10 @@
     "subtabShapes": "Formes",
     "subtabMeasurement": "Mesure",
     "redactionDefaults": "Valeurs par défaut du caviardage",
-    "overlayColor": "Couleur de superposition"
+    "overlayColor": "Couleur de superposition",
+    "stamps": "Tampons",
+    "hideBuiltInStamps": "Masquer les tampons intégrés lorsque j'ai mes propres tampons",
+    "hideBuiltInStampsHint": "Le sélecteur de tampons n'affiche alors que vos propres tampons (personnels, importés et partagés). Sans tampons personnels, les tampons intégrés restent visibles."
   },
   "drawing": {
     "freehandDefaults": "Valeurs par défaut du dessin à main levée",

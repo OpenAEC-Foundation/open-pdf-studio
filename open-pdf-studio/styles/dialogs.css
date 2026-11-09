@@ -6709,6 +6709,12 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   font-size: 11px;
 }
 .stamp-picker-manage { margin-top: 8px; width: 100%; }
+/* Ingebouwde stempels verborgen (#998): korte melding in de kiezer. */
+.stamp-picker-hint {
+  margin: 6px 0;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+}
 
 .dynamic-stamp-fields-dialog { width: 380px; max-width: 94vw; }
 .dynamic-stamp-fields-preview {
