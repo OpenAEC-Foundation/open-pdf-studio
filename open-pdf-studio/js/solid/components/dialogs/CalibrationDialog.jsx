@@ -1,5 +1,4 @@
 import { createSignal, onMount, Show } from 'solid-js';
-import { leesGetal } from '../../../core/getal-invoer.js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
@@ -8,6 +7,7 @@ import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotati
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
+import { findScaleInText } from '../../../annotations/document-scale.js';
 import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
 import { SCALE_PRESETS, METRIC_SCALE_PRESETS, IMPERIAL_SCALE_PRESETS } from '../../../annotations/scale-presets.js';
 import {
@@ -19,7 +19,10 @@ import {
 
 /**
  * Auto-detect scale from the PDF title block (onderhoek).
- * Scans text content in the bottom-right area of the page for patterns like "1:100".
+ * Reads the text in the bottom-right area of the page first, then the whole
+ * page, with the same rules as the detection on load (findScaleInText):
+ * "1:100", "SCHAAL 1:50" and imperial `1/8" = 1'-0"` (#999).
+ * @returns {Promise<{ratio:number, unit?:string, scaleText:string}|null>}
  */
 async function detectScaleFromTitleBlock() {
   const doc = getActiveDocument();
@@ -33,58 +36,19 @@ async function detectScaleFromTitleBlock() {
   // We search the right 50% and bottom 40% of the page.
   const regionLeft = vp.width * 0.5;
   const regionTop = vp.height * 0.6;
-
-  // Scale pattern: matches "1:N" where N is a number (with optional spaces)
-  const scalePattern = /\b1\s*:\s*(\d+(?:[.,]\d+)?)\b/;
-
-  // Collect text items in the title block region
-  const candidates = [];
-
-  for (const item of textContent.items) {
-    if (!item.str || item.str.trim().length === 0) continue;
+  const t = vp.transform;
+  const inTitleBlock = textContent.items.filter((item) => {
+    if (!item.str || item.str.trim().length === 0 || !item.transform) return false;
     // item.transform = [scaleX, skewY, skewX, scaleY, translateX, translateY]
     const tx = item.transform[4];
     const ty = item.transform[5];
-
-    // Transform from PDF space to viewport space
-    const t = vp.transform;
     const vx = t[0] * tx + t[2] * ty + t[4];
     const vy = t[1] * tx + t[3] * ty + t[5];
-
-    if (vx >= regionLeft && vy >= regionTop) {
-      const match = item.str.match(scalePattern);
-      if (match) {
-        const denominator = leesGetal(match[1]);
-        if (denominator >= 1 && denominator <= 10000) {
-          candidates.push({ denominator, text: item.str, x: vx, y: vy });
-        }
-      }
-    }
-  }
+    return vx >= regionLeft && vy >= regionTop;
+  });
 
   // If no results in title block region, try the entire page as fallback
-  if (candidates.length === 0) {
-    for (const item of textContent.items) {
-      if (!item.str || item.str.trim().length === 0) continue;
-      // Look for explicit "schaal" / "scale" / "maßstab" / "échelle" labels
-      const lowerStr = item.str.toLowerCase();
-      const hasLabel = /(?:schaal|scale|ma[ßs]stab|[eé]chelle|escala)\s*/i.test(lowerStr);
-      if (!hasLabel) continue;
-
-      const match = item.str.match(scalePattern);
-      if (match) {
-        const denominator = leesGetal(match[1]);
-        if (denominator >= 1 && denominator <= 10000) {
-          candidates.push({ denominator, text: item.str, x: 0, y: 0 });
-        }
-      }
-    }
-  }
-
-  if (candidates.length === 0) return null;
-
-  // Return the first match (closest to bottom-right typically)
-  return candidates[0].denominator;
+  return findScaleInText(inTitleBlock) || findScaleInText(textContent.items);
 }
 
 export default function CalibrationDialog(props) {
@@ -124,7 +88,7 @@ export default function CalibrationDialog(props) {
     if (ms) {
       setUnit(ms.unit || 'mm');
       setRatioUnit(ms.unit || 'mm');
-      if (ms.method === 'ratio' && ms.scaleRatio) {
+      if ((ms.method === 'ratio' || ms.method === 'auto-detect') && typeof ms.scaleRatio === 'string' && ms.scaleRatio) {
         setMethod('ratio');
         setScalePreset(SCALE_PRESETS.includes(ms.scaleRatio) ? ms.scaleRatio : 'custom');
         if (!SCALE_PRESETS.includes(ms.scaleRatio)) {
@@ -163,9 +127,13 @@ export default function CalibrationDialog(props) {
     setDetecting(true);
     setDetectResult(null);
     try {
-      const denominator = await detectScaleFromTitleBlock();
-      if (denominator) {
+      const found = await detectScaleFromTitleBlock();
+      if (found) {
+        const denominator = found.ratio;
         const ratio = `1:${denominator}`;
+        // Imperiaal in voet/inch (#999); een metrische schaal in mm.
+        if (found.unit) setRatioUnit(found.unit);
+        else if (ratioUnit() === 'ft' || ratioUnit() === 'in') setRatioUnit('mm');
         if (SCALE_PRESETS.includes(ratio)) {
           setScalePreset(ratio);
         } else {
