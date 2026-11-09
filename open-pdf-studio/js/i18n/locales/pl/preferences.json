@@ -85,7 +85,10 @@
     "subtabShapes": "Kształty",
     "subtabMeasurement": "Pomiar",
     "redactionDefaults": "Ustawienia domyślne redakcji",
-    "overlayColor": "Kolor nakładki"
+    "overlayColor": "Kolor nakładki",
+    "stamps": "Pieczątki",
+    "hideBuiltInStamps": "Ukryj wbudowane pieczątki, gdy mam własne pieczątki",
+    "hideBuiltInStampsHint": "Selektor pieczątek pokazuje wtedy tylko Twoje pieczątki (osobiste, zaimportowane i udostępnione). Bez własnych pieczątek wbudowane pieczątki pozostają widoczne."
   },
   "drawing": {
     "freehandDefaults": "Ustawienia domyślne rysowania odręcznego",

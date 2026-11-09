@@ -87,7 +87,10 @@
     "iconStar": "Ster",
     "subtabMeasurement": "Meting",
     "redactionDefaults": "Standaardwaarden redactie",
-    "overlayColor": "Bedekkingskleur"
+    "overlayColor": "Bedekkingskleur",
+    "stamps": "Stempels",
+    "hideBuiltInStamps": "Ingebouwde stempels verbergen als ik eigen stempels heb",
+    "hideBuiltInStampsHint": "De stempelkiezer toont dan alleen uw eigen stempels (persoonlijk, geïmporteerd en gedeeld). Zonder eigen stempels blijven de ingebouwde stempels zichtbaar."
   },
   "drawing": {
     "freehandDefaults": "Vrije hand standaardwaarden",

@@ -85,7 +85,10 @@
     "subtabShapes": "Şekiller",
     "subtabMeasurement": "Ölçüm",
     "redactionDefaults": "Karartma Varsayılanları",
-    "overlayColor": "Kaplama Rengi"
+    "overlayColor": "Kaplama Rengi",
+    "stamps": "Damgalar",
+    "hideBuiltInStamps": "Kendi damgalarım varken yerleşik damgaları gizle",
+    "hideBuiltInStampsHint": "Damga seçici bu durumda yalnızca kendi damgalarınızı (kişisel, içe aktarılan ve paylaşılan) gösterir. Kendi damganız yoksa yerleşik damgalar görünür kalır."
   },
   "drawing": {
     "freehandDefaults": "Serbest Çizim Varsayılanları",

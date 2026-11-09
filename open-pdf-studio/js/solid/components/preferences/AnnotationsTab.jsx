@@ -231,6 +231,20 @@ export default function AnnotationsTab(props) {
                 <PrefSelect value={p.commentIcon[0]} setValue={p.commentIcon[1]} options={iconOpts} />
               </div>
             </fieldset>
+
+            {/* Stempelkiezer: ingebouwde stempels verbergen (#998). */}
+            <fieldset class="pref-fieldset">
+              <legend>{t('annotations.stamps')}</legend>
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label">
+                  <input type="checkbox" checked={p.hideBuiltInStamps[0]()} onChange={e => p.hideBuiltInStamps[1](e.target.checked)} />
+                  <span>{t('annotations.hideBuiltInStamps')}</span>
+                </label>
+              </div>
+              <div class="pref-row">
+                <span class="pref-hint">{t('annotations.hideBuiltInStampsHint')}</span>
+              </div>
+            </fieldset>
           </Match>
 
           <Match when={subTab() === 'text'}>

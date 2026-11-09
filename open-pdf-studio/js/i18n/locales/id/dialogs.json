@@ -497,7 +497,9 @@
     "title": "Pilih Stempel",
     "customFromImage": "Stempel Kustom dari Gambar...",
     "dynamicTitle": "Stempel dengan kolom",
-    "manage": "Kelola templat stempel..."
+    "manage": "Kelola templat stempel...",
+    "builtInHidden": "Stempel bawaan disembunyikan (Preferensi > Anotasi > Komentar).",
+    "hideBuiltInNoOwn": "Stempel bawaan diatur untuk disembunyikan, tetapi Anda belum punya stempel sendiri. Buat satu melalui Kelola templat stempel."
   },
   "calibration": {
     "title": "Kalibrasi Skala",

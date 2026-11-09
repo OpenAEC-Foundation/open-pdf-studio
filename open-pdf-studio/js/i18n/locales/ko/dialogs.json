@@ -497,7 +497,9 @@
     "title": "스탬프 선택",
     "customFromImage": "이미지에서 사용자 지정 스탬프 만들기...",
     "dynamicTitle": "필드가 있는 스탬프",
-    "manage": "스탬프 템플릿 관리..."
+    "manage": "스탬프 템플릿 관리...",
+    "builtInHidden": "기본 제공 스탬프가 숨겨져 있습니다(환경 설정 > 주석 > 댓글).",
+    "hideBuiltInNoOwn": "기본 제공 스탬프가 숨김으로 설정되어 있지만 아직 내 스탬프가 없습니다. 스탬프 템플릿 관리에서 하나 만드세요."
   },
   "calibration": {
     "title": "배율 보정",

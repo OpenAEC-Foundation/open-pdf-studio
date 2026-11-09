@@ -85,7 +85,10 @@
     "subtabMeasurement": "Måling",
     "redactionDefaults": "Standarder for sladding",
     "overlayColor": "Overleggsfarge",
-    "snapToPdfContent": "Fest til PDF-tegningsinnhold"
+    "snapToPdfContent": "Fest til PDF-tegningsinnhold",
+    "stamps": "Stempler",
+    "hideBuiltInStamps": "Skjul innebygde stempler når jeg har egne stempler",
+    "hideBuiltInStampsHint": "Stempelvelgeren viser da bare dine egne stempler (personlige, importerte og delte). Uten egne stempler forblir de innebygde stemplene synlige."
   },
   "drawing": {
     "freehandDefaults": "Frihåndsstandarder",

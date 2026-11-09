@@ -497,7 +497,9 @@
     "title": "Odaberite pečat",
     "customFromImage": "Prilagođeni pečat iz slike...",
     "dynamicTitle": "Pečati s poljima",
-    "manage": "Upravljanje predlošcima pečata..."
+    "manage": "Upravljanje predlošcima pečata...",
+    "builtInHidden": "Ugrađeni pečati su skriveni (Postavke > Oznake > Komentari).",
+    "hideBuiltInNoOwn": "Ugrađeni pečati postavljeni su kao skriveni, ali još nemate vlastitih pečata. Izradite jedan putem Upravljanje predlošcima pečata."
   },
   "calibration": {
     "title": "Kalibracija mjerila",

@@ -497,7 +497,9 @@
     "title": "Selecionar carimbo",
     "customFromImage": "Carimbo personalizado a partir de imagem...",
     "dynamicTitle": "Carimbos com campos",
-    "manage": "Gerenciar modelos de carimbo..."
+    "manage": "Gerenciar modelos de carimbo...",
+    "builtInHidden": "Os carimbos integrados estão ocultos (Preferências > Anotações > Comentários).",
+    "hideBuiltInNoOwn": "Os carimbos integrados estão definidos como ocultos, mas ainda não tem carimbos próprios. Crie um em Gerenciar modelos de carimbo."
   },
   "calibration": {
     "title": "Calibração de escala",

@@ -225,6 +225,9 @@ export interface Preferences {
   middleDoubleClickFit: boolean;
   ribbonWheelSwitchesTabs: boolean;
 
+  // Stempelkiezer: ingebouwde stempels verbergen als er eigen stempels zijn (#998)
+  hideBuiltInStamps: boolean;
+
   // Startup
   restoreLastSession: boolean;
   dontAskDefaultPdf: boolean;

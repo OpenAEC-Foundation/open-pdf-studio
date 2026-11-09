@@ -85,7 +85,10 @@
     "subtabShapes": "形状",
     "subtabMeasurement": "测量",
     "redactionDefaults": "密文默认设置",
-    "overlayColor": "覆盖颜色"
+    "overlayColor": "覆盖颜色",
+    "stamps": "图章",
+    "hideBuiltInStamps": "有自己的图章时隐藏内置图章",
+    "hideBuiltInStampsHint": "此时图章选择器只显示您自己的图章（个人、导入和共享）。没有自己的图章时，内置图章仍会显示。"
   },
   "drawing": {
     "freehandDefaults": "手绘默认值",

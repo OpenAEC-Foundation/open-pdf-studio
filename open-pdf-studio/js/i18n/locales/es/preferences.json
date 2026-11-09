@@ -85,7 +85,10 @@
     "subtabShapes": "Formas",
     "subtabMeasurement": "Medición",
     "redactionDefaults": "Valores predeterminados de redacción",
-    "overlayColor": "Color de superposición"
+    "overlayColor": "Color de superposición",
+    "stamps": "Sellos",
+    "hideBuiltInStamps": "Ocultar los sellos integrados cuando tengo sellos propios",
+    "hideBuiltInStampsHint": "El selector de sellos muestra entonces solo sus propios sellos (personales, importados y compartidos). Sin sellos propios, los sellos integrados siguen visibles."
   },
   "drawing": {
     "freehandDefaults": "Valores predeterminados de mano alzada",

@@ -85,7 +85,10 @@
     "subtabShapes": "الأشكال",
     "subtabMeasurement": "القياس",
     "redactionDefaults": "إعدادات التنقيح الافتراضية",
-    "overlayColor": "لون التغطية"
+    "overlayColor": "لون التغطية",
+    "stamps": "الأختام",
+    "hideBuiltInStamps": "إخفاء الأختام المضمنة عندما تكون لدي أختام خاصة",
+    "hideBuiltInStampsHint": "يعرض منتقي الأختام عندئذٍ أختامك الخاصة فقط (الشخصية والمستوردة والمشتركة). بدون أختام خاصة تبقى الأختام المضمنة ظاهرة."
   },
   "drawing": {
     "freehandDefaults": "إعدادات الرسم الحر الافتراضية",

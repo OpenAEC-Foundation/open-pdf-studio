@@ -497,7 +497,9 @@
     "title": "Vybrať pečiatku",
     "customFromImage": "Vlastná pečiatka z obrázka...",
     "dynamicTitle": "Pečiatky s poľami",
-    "manage": "Spravovať šablóny pečiatok..."
+    "manage": "Spravovať šablóny pečiatok...",
+    "builtInHidden": "Vstavané pečiatky sú skryté (Predvoľby > Anotácie > Komentáre).",
+    "hideBuiltInNoOwn": "Vstavané pečiatky sú nastavené ako skryté, ale zatiaľ nemáte žiadne vlastné pečiatky. Vytvorte ich cez Spravovať šablóny pečiatok."
   },
   "calibration": {
     "title": "Kalibrácia mierky",

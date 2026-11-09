@@ -497,7 +497,9 @@
     "title": "Wybierz pieczątkę",
     "customFromImage": "Niestandardowa pieczątka z obrazu...",
     "dynamicTitle": "Pieczątki z polami",
-    "manage": "Zarządzaj szablonami pieczątek..."
+    "manage": "Zarządzaj szablonami pieczątek...",
+    "builtInHidden": "Wbudowane pieczątki są ukryte (Preferencje > Adnotacje > Komentarze).",
+    "hideBuiltInNoOwn": "Wbudowane pieczątki są ustawione jako ukryte, ale nie masz jeszcze własnych pieczątek. Utwórz ją w Zarządzaj szablonami pieczątek."
   },
   "calibration": {
     "title": "Kalibracja skali",

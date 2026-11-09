@@ -497,7 +497,9 @@
     "title": "Valitse leima",
     "customFromImage": "Mukautettu leima kuvasta...",
     "dynamicTitle": "Kentälliset leimat",
-    "manage": "Hallitse leimamalleja..."
+    "manage": "Hallitse leimamalleja...",
+    "builtInHidden": "Sisäänrakennetut leimat on piilotettu (Asetukset > Merkinnät > Kommentit).",
+    "hideBuiltInNoOwn": "Sisäänrakennetut leimat on asetettu piiloon, mutta sinulla ei ole vielä omia leimoja. Luo sellainen kohdassa Hallitse leimamalleja."
   },
   "calibration": {
     "title": "Asteikon kalibrointi",

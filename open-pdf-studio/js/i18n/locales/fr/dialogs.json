@@ -497,7 +497,9 @@
     "title": "Sélectionner un tampon",
     "customFromImage": "Tampon personnalisé à partir d'une image...",
     "dynamicTitle": "Tampons avec champs",
-    "manage": "Gérer les modèles de tampon..."
+    "manage": "Gérer les modèles de tampon...",
+    "builtInHidden": "Les tampons intégrés sont masqués (Préférences > Annotations > Commentaires).",
+    "hideBuiltInNoOwn": "Les tampons intégrés sont configurés pour être masqués, mais vous n'avez pas encore de tampons personnels. Créez-en un via Gérer les modèles de tampon."
   },
   "calibration": {
     "title": "Calibration de l'échelle",

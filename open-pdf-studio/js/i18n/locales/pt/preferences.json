@@ -85,7 +85,10 @@
     "subtabShapes": "Formas",
     "subtabMeasurement": "Medição",
     "redactionDefaults": "Padrões de redação",
-    "overlayColor": "Cor de sobreposição"
+    "overlayColor": "Cor de sobreposição",
+    "stamps": "Carimbos",
+    "hideBuiltInStamps": "Ocultar os carimbos integrados quando tenho carimbos próprios",
+    "hideBuiltInStampsHint": "O seletor de carimbos mostra então apenas os seus carimbos (pessoais, importados e partilhados). Sem carimbos próprios, os carimbos integrados continuam visíveis."
   },
   "drawing": {
     "freehandDefaults": "Padrões de mão livre",

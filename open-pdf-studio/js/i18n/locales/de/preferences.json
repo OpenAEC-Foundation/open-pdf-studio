@@ -85,7 +85,10 @@
     "subtabShapes": "Formen",
     "subtabMeasurement": "Messung",
     "redactionDefaults": "Schwärzungs-Standardwerte",
-    "overlayColor": "Überlagerungsfarbe"
+    "overlayColor": "Überlagerungsfarbe",
+    "stamps": "Stempel",
+    "hideBuiltInStamps": "Integrierte Stempel ausblenden, wenn ich eigene Stempel habe",
+    "hideBuiltInStampsHint": "Die Stempelauswahl zeigt dann nur Ihre eigenen Stempel (persönlich, importiert und freigegeben). Ohne eigene Stempel bleiben die integrierten Stempel sichtbar."
   },
   "drawing": {
     "freehandDefaults": "Freihand-Standardwerte",

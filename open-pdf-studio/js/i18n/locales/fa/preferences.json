@@ -85,7 +85,10 @@
     "subtabShapes": "اشکال",
     "subtabMeasurement": "اندازه‌گیری",
     "redactionDefaults": "پیش‌فرض‌های حذف محرمانه",
-    "overlayColor": "رنگ روکش"
+    "overlayColor": "رنگ روکش",
+    "stamps": "مهرها",
+    "hideBuiltInStamps": "پنهان کردن مهرهای داخلی وقتی مهرهای خودم را دارم",
+    "hideBuiltInStampsHint": "در این حالت انتخابگر مهر فقط مهرهای خود شما (شخصی، واردشده و مشترک) را نشان می‌دهد. بدون مهر شخصی، مهرهای داخلی همچنان نمایش داده می‌شوند."
   },
   "drawing": {
     "freehandDefaults": "پیش‌فرض‌های دست‌آزاد",

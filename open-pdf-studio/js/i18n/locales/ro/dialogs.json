@@ -497,7 +497,9 @@
     "title": "Selectare stampila",
     "customFromImage": "Stampila personalizata din imagine...",
     "dynamicTitle": "Stampile cu campuri",
-    "manage": "Gestionare sabloane de stampila..."
+    "manage": "Gestionare sabloane de stampila...",
+    "builtInHidden": "Ștampilele integrate sunt ascunse (Preferinte > Adnotari > Comentarii).",
+    "hideBuiltInNoOwn": "Ștampilele integrate sunt setate ca ascunse, dar nu aveți încă ștampile proprii. Creați una din Gestionare sabloane de stampila."
   },
   "calibration": {
     "title": "Calibrare scara",

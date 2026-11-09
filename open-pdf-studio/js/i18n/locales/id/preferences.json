@@ -85,7 +85,10 @@
     "subtabMeasurement": "Pengukuran",
     "redactionDefaults": "Bawaan Redaksi",
     "overlayColor": "Warna Lapisan Atas",
-    "snapToPdfContent": "Snap ke Konten Gambar PDF"
+    "snapToPdfContent": "Snap ke Konten Gambar PDF",
+    "stamps": "Stempel",
+    "hideBuiltInStamps": "Sembunyikan stempel bawaan saat saya punya stempel sendiri",
+    "hideBuiltInStampsHint": "Pemilih stempel kemudian hanya menampilkan stempel Anda sendiri (pribadi, impor, dan bersama). Tanpa stempel sendiri, stempel bawaan tetap terlihat."
   },
   "drawing": {
     "freehandDefaults": "Bawaan Gambar Bebas",

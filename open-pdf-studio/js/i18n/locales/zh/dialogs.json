@@ -497,7 +497,9 @@
     "title": "选择图章",
     "customFromImage": "从图像创建自定义图章...",
     "dynamicTitle": "带字段的图章",
-    "manage": "管理图章模板..."
+    "manage": "管理图章模板...",
+    "builtInHidden": "内置图章已隐藏（首选项 > 批注 > 批注）。",
+    "hideBuiltInNoOwn": "内置图章已设置为隐藏，但您还没有自己的图章。请通过“管理图章模板”创建一个。"
   },
   "calibration": {
     "title": "比例校准",

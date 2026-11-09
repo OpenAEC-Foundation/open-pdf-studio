@@ -87,7 +87,10 @@
     "subtabShapes": "Shapes",
     "subtabMeasurement": "Measurement",
     "redactionDefaults": "Redaction Defaults",
-    "overlayColor": "Overlay Color"
+    "overlayColor": "Overlay Color",
+    "stamps": "Stamps",
+    "hideBuiltInStamps": "Hide built-in stamps when I have my own stamps",
+    "hideBuiltInStampsHint": "The stamp picker then shows only your own stamps (personal, imported and shared). Without own stamps, the built-in stamps stay visible."
   },
   "measurement": {
     "distanceDefaults": "Distance Defaults",

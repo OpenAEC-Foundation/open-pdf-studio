@@ -309,6 +309,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Muiswiel boven het lint wisselt van tabblad (#852).
   ribbonWheelSwitchesTabs: true,
 
+  // Stempelkiezer: ingebouwde stempels verbergen zodra er eigen stempels zijn
+  // (annotations/stamp-picker-filter.js, #998).
+  hideBuiltInStamps: false,
+
   // Startup
   restoreLastSession: false,
   dontAskDefaultPdf: false,

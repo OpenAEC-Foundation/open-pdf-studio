@@ -497,7 +497,9 @@
     "title": "Vælg stempel",
     "customFromImage": "Brugerdefineret stempel fra billede...",
     "dynamicTitle": "Stempler med felter",
-    "manage": "Administrer stempelskabeloner..."
+    "manage": "Administrer stempelskabeloner...",
+    "builtInHidden": "Indbyggede stempler er skjult (Indstillinger > Annotationer > Kommentarer).",
+    "hideBuiltInNoOwn": "Indbyggede stempler er sat til skjult, men du har endnu ingen egne stempler. Opret et via Administrer stempelskabeloner."
   },
   "calibration": {
     "title": "Skalakalibrering",

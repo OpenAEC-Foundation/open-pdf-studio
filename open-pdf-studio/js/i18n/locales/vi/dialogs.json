@@ -497,7 +497,9 @@
     "title": "Chọn Con dấu",
     "customFromImage": "Con dấu Tùy chỉnh từ Hình ảnh...",
     "dynamicTitle": "Con dấu có trường",
-    "manage": "Quản lý mẫu con dấu..."
+    "manage": "Quản lý mẫu con dấu...",
+    "builtInHidden": "Con dấu tích hợp đang bị ẩn (Tùy chọn > Chú thích > Nhận xét).",
+    "hideBuiltInNoOwn": "Con dấu tích hợp được đặt là ẩn, nhưng bạn chưa có con dấu riêng nào. Hãy tạo một con dấu trong Quản lý mẫu con dấu."
   },
   "calibration": {
     "title": "Hiệu chuẩn Tỷ lệ",

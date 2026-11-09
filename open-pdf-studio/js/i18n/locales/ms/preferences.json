@@ -85,7 +85,10 @@
     "subtabMeasurement": "Pengukuran",
     "redactionDefaults": "Lalai Redaksi",
     "overlayColor": "Warna Tindihan",
-    "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF"
+    "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF",
+    "stamps": "Setem",
+    "hideBuiltInStamps": "Sembunyikan setem terbina dalam apabila saya mempunyai setem sendiri",
+    "hideBuiltInStampsHint": "Pemilih setem kemudian hanya memaparkan setem anda sendiri (peribadi, diimport dan dikongsi). Tanpa setem sendiri, setem terbina dalam kekal kelihatan."
   },
   "drawing": {
     "freehandDefaults": "Lalai Bebas",

@@ -85,7 +85,10 @@
     "subtabMeasurement": "Měření",
     "redactionDefaults": "Výchozí hodnoty redigování",
     "overlayColor": "Barva překrytí",
-    "snapToPdfContent": "Přichytit k obsahu výkresu PDF"
+    "snapToPdfContent": "Přichytit k obsahu výkresu PDF",
+    "stamps": "Razítka",
+    "hideBuiltInStamps": "Skrýt vestavěná razítka, když mám vlastní razítka",
+    "hideBuiltInStampsHint": "Výběr razítek pak zobrazí jen vaše vlastní razítka (osobní, importovaná a sdílená). Bez vlastních razítek zůstanou vestavěná razítka viditelná."
   },
   "drawing": {
     "freehandDefaults": "Výchozí hodnoty volného kreslení",

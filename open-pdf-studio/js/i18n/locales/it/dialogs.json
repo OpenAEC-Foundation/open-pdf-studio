@@ -497,7 +497,9 @@
     "title": "Seleziona timbro",
     "customFromImage": "Timbro personalizzato da immagine...",
     "dynamicTitle": "Timbri con campi",
-    "manage": "Gestisci modelli di timbro..."
+    "manage": "Gestisci modelli di timbro...",
+    "builtInHidden": "I timbri integrati sono nascosti (Preferenze > Annotazioni > Commenti).",
+    "hideBuiltInNoOwn": "I timbri integrati sono impostati come nascosti, ma non hai ancora timbri personali. Creane uno con Gestisci modelli di timbro."
   },
   "calibration": {
     "title": "Calibrazione scala",
