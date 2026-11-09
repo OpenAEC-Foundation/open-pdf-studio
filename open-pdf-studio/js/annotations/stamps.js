@@ -13,26 +13,29 @@ import { stampPxPerMm, stampPtPerPapierMm } from './stamp-scale.js';
 import { rasterizeSvg } from './svg-raster.js';
 import { AFBEELDING_EXTENSIES } from './afbeelding-bron.js';
 import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
+import { plaatsingsPagina } from './plaatsingspagina.js';
 
 // Built-in stamp definitions
 // (in stamp-defaults.js, zodat ook de loader ze kan lezen)
 export { BUILT_IN_STAMPS };
 
-// Show stamp picker dialog
-export function showStampPicker(x, y) {
+// Show stamp picker dialog. `page`: de aangeklikte pagina; de stempel komt
+// daar, ook als de huidige pagina intussen een andere is (in de weergave met
+// twee pagina's de linker, #1006). Zonder pagina de huidige.
+export function showStampPicker(x, y, page) {
   openDialog('stamp-picker', {
-    onSelect: (stamp) => placeStamp(stamp, x, y),
-    onCustom: () => loadCustomStamp(x, y),
+    onSelect: (stamp) => placeStamp(stamp, x, y, page),
+    onCustom: () => loadCustomStamp(x, y, page),
     // Template with fields (#629): date, user, page ... and own fields.
     onDynamic: (template) => import('./dynamic-stamp-place.js')
-      .then((m) => m.placeDynamicStamp(template, x, y))
+      .then((m) => m.placeDynamicStamp(template, x, y, page))
       .catch((err) => console.error('Failed to place dynamic stamp:', err)),
     onManage: () => openDialog('stamp-templates', {})
   });
 }
 
 // Place a built-in stamp
-function placeStamp(stamp, x, y) {
+function placeStamp(stamp, x, y, page) {
   if (!getActiveDocument()?.pdfDoc) return;
 
   const width = BUILTIN_STAMP_DEFAULT_WIDTH;
@@ -40,7 +43,7 @@ function placeStamp(stamp, x, y) {
 
   const ann = createAnnotation({
     type: 'stamp',
-    page: getActiveDocument()?.currentPage || 1,
+    page: plaatsingsPagina(page, getActiveDocument()),
     x: x - width / 2,
     y: y - height / 2,
     width: width,
@@ -77,8 +80,11 @@ function placeStamp(stamp, x, y) {
 
 // Place a preconfigured image stamp from tool overrides (used by extensions).
 // Supports stampSvg (SVG string) or stampImage (data URL) in state.toolOverrides.
-export async function placeOverrideStamp(x, y) {
+// `klikPagina`: de aangeklikte pagina (#1006); vóór het eerste await
+// vastgelegd, zodat het rasteren de pagina niet kan laten verschuiven.
+export async function placeOverrideStamp(x, y, klikPagina) {
   if (!getActiveDocument()?.pdfDoc) return;
+  const pagina = plaatsingsPagina(klikPagina, getActiveDocument());
 
   const overrides = state.toolOverrides;
   if (!overrides?.stampSvg && !overrides?.stampImage) {
@@ -115,7 +121,7 @@ export async function placeOverrideStamp(x, y) {
     const dpr = window.devicePixelRatio || 1;
     // Paginamaat in de paginaruimte; het canvas is in de viewport-weergave het
     // venster en kan gedraaid zijn (#200) — alleen nog als terugval.
-    const maat = paginaMaat(doc?.currentPage || 1, doc);
+    const maat = paginaMaat(pagina, doc);
     const pageW = maat ? maat.breedte : (canvas ? canvas.width / (stampScale * dpr) : 600);
     const pageH = maat ? maat.hoogte : (canvas ? canvas.height / (stampScale * dpr) : 800);
     const margin = overrides.stampPageMargin || 20;
@@ -128,7 +134,7 @@ export async function placeOverrideStamp(x, y) {
     // die maat, omgerekend met de plaatselijke tekeningschaal. Zonder echte
     // maat (alle meegeleverde symbolen) blijft het bestaande gedrag gelden:
     // de standaardhoogte, met de breedte uit de beeldverhouding.
-    const page = getActiveDocument()?.currentPage || 1;
+    const page = pagina;
     // Zelfde berekening als de spookafbeelding van het stempelgereedschap
     // (tools/text-tool.js), inclusief de gekozen symboolschaal (#357).
     const size = overrideStampMaat(overrides, {
@@ -166,7 +172,7 @@ export async function placeOverrideStamp(x, y) {
 
   const ann = createAnnotation({
     type: 'stamp',
-    page: getActiveDocument()?.currentPage || 1,
+    page: pagina,
     x: stampX,
     y: stampY,
     width: stampWidth,
@@ -244,7 +250,9 @@ export async function updateStampImage(ann, svgString) {
 // that data URL. It used to be an untyped blob: URL — an SVG did not load at
 // all (no stamp on the page), and a GIF/BMP/SVG could not be embedded, so the
 // stamp was gone after save and reopen.
-async function loadCustomStamp(x, y) {
+async function loadCustomStamp(x, y, klikPagina) {
+  // Vóór de bestandskeuze vastleggen (#1006).
+  const pagina = plaatsingsPagina(klikPagina, getActiveDocument());
   try {
     const { openFileDialog } = await import('../core/platform.js');
     const filePath = await openFileDialog(AFBEELDING_EXTENSIES);
@@ -268,7 +276,7 @@ async function loadCustomStamp(x, y) {
 
     const ann = createAnnotation({
       type: 'stamp',
-      page: getActiveDocument()?.currentPage || 1,
+      page: pagina,
       x: x - width / 2,
       y: y - height / 2,
       width: width,

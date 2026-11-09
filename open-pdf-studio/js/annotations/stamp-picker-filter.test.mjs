@@ -140,8 +140,8 @@ test('lintknop en gereedschapspalet komen bij dezelfde kiezer uit', () => {
   assert.match(lees('js/solid/components/ribbon/CommentTab.jsx'), /id="tool-stamp"[\s\S]*?onClick=\{\(\) => setTool\('stamp'\)\}/);
   assert.match(lees('js/solid/components/ToolPalette.jsx'), /\{ tool: 'stamp', key: 'comment\.stamp'/);
   const gereedschap = lees('js/tools/tools/text-tool.js');
-  assert.match(gereedschap, /export const stampTool = \{[\s\S]*?ctx\.showStampPicker\(ctx\.x, ctx\.y\)/);
-  assert.match(lees('js/annotations/stamps.js'), /export function showStampPicker\(x, y\) \{\s*openDialog\('stamp-picker'/);
+  assert.match(gereedschap, /export const stampTool = \{[\s\S]*?ctx\.showStampPicker\(ctx\.x, ctx\.y, ctx\.pageNum\)/);
+  assert.match(lees('js/annotations/stamps.js'), /export function showStampPicker\(x, y, page\) \{\s*openDialog\('stamp-picker'/);
   assert.match(lees('js/solid/components/DialogHost.jsx'), /'stamp-picker': StampPickerDialog/);
   // Geen tweede plek die de ingebouwde stempels of sjablonen zelf opsomt.
   const bronnen = [];

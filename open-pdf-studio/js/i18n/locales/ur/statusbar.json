@@ -30,7 +30,8 @@
     "formRadio": "فارم ریڈیو بٹن",
     "screenshot": "اسکرین شاٹ",
     "pageLabelPick": "صفحہ لیبل کے لیے متن منتخب کریں",
-    "proofread": "پروف ریڈنگ"
+    "proofread": "پروف ریڈنگ",
+    "count": "گنتی"
   },
   "toolLabel": "ٹول:",
   "annotationsLabel": "تشریحات:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "تشریحات {{folder}} کے ذریعے شیئر ہو رہی ہیں۔ مشترکہ جائزہ کھولنے کے لیے کلک کریں۔",
   "sharedReviewError": "مشترکہ جائزہ: فولڈر دستیاب نہیں",
   "pdfaReadOnly": "یہ دستاویز {{label}} معیار کے مطابق ہے اور ترمیم روکنے کے لیے صرف پڑھنے کے لیے کھولی گئی ہے۔",
-  "pdfaValidate": "تصدیق کریں"
+  "pdfaValidate": "تصدیق کریں",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

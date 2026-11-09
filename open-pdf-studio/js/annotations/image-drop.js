@@ -9,6 +9,7 @@ import { readBinaryFile } from '../core/platform.js';
 import i18next from '../i18n/config.js';
 import { layerForNewAnnotation } from './annotatie-lagen.js';
 import { laadAfbeeldingBytes, AFBEELDING_EXTENSIES } from './afbeelding-bron.js';
+import { plaatsingsPagina } from './plaatsingspagina.js';
 
 // (Re)load the bitmap for an image annotation from a file path into the
 // image cache. Used by linked images: at link-time, on demand ("Vernieuwen")
@@ -135,6 +136,7 @@ export async function addImageFromFile(filePath, opts = {}) {
     const { img, dataUrl } = await laadAfbeeldingUitPad(filePath);
     plaatsGeladenAfbeelding(img, dataUrl, filePath.split(/[\\/]/).pop(), {
       linkedPath: opts.linked ? filePath : undefined,
+      page: opts.page,
     });
   } catch (e) {
     console.error('Failed to add image from file:', e);
@@ -159,7 +161,7 @@ export async function addImageFromBytes(bytes, naam = 'image.jpg') {
 }
 
 // Midden op het zichtbare deel van de huidige pagina, hoogstens 400 pt groot.
-function plaatsGeladenAfbeelding(img, dataUrl, fileName, { linkedPath } = {}) {
+function plaatsGeladenAfbeelding(img, dataUrl, fileName, { linkedPath, page } = {}) {
   const imageId = generateImageId();
   imageCache.set(imageId, img);
 
@@ -177,14 +179,16 @@ function plaatsGeladenAfbeelding(img, dataUrl, fileName, { linkedPath } = {}) {
   // rekende in de doorlopende weergave met een document-brede scroll en een
   // 0×0-canvas: de afbeelding landde duizenden punten onder de pagina,
   // onzichtbaar. Zelfde patroon-fix als plakken (clipboard.js).
-  const pageNum = getActiveDocument()?.currentPage || 1;
+  // `page`: de pagina die gold toen de gebruiker de opdracht gaf (#1006);
+  // de bestandskeuze ertussen kan de huidige pagina laten verschuiven.
+  const pageNum = plaatsingsPagina(page, getActiveDocument());
   const center = visibleCenterOnPage(pageNum);
   const x = center ? center.x - width / 2 : 10;
   const y = center ? center.y - height / 2 : 10;
 
   const annotatie = plaatsAfbeeldingAnnotatie(img, dataUrl, {
     imageId,
-    page: getActiveDocument()?.currentPage || 1,
+    page: pageNum,
     x: Math.max(10, x),
     y: Math.max(10, y),
     width,
@@ -207,8 +211,11 @@ export async function kiesEnPlaatsAfbeelding() {
     updateStatusMessage('Open a PDF first to add images');
     return;
   }
+  // De pagina van het moment van de opdracht (via het paginamenu: de
+  // aangeklikte pagina), vóór de bestandskeuze vastgelegd (#1006).
+  const page = getActiveDocument()?.currentPage || 1;
   const { openFileDialog } = await import('../core/platform.js');
   const pad = await openFileDialog(AFBEELDING_EXTENSIES);
   if (!pad || typeof pad !== 'string') return;
-  await addImageFromFile(pad);
+  await addImageFromFile(pad, { page });
 }

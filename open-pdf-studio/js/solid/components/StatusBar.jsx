@@ -8,6 +8,7 @@ import { useTranslation, localizeNumber, language } from '../../i18n/useTranslat
 import { isTauri } from '../../core/platform.js';
 import { mcpIndicator, mcpSignaalInfo, startMcpSignaal } from '../stores/mcpSignaalStore.js';
 import { mcpTooltip } from '../../core/mcp-signaal.js';
+import { activeCountCategory } from '../stores/countStore.js';
 
 // All page navigation goes through goToPage() so the side effects
 // (active thumbnail update, hide properties, fire events) happen in one
@@ -205,6 +206,9 @@ export default function StatusBar() {
     const translated = t(key);
     return translated !== key ? translated : state.currentTool;
   };
+  // Met het telgereedschap: de actieve telgroep, met haar kleur (#1004), zodat
+  // je ziet in welke telling de volgende markering komt.
+  const telGroep = () => (state.currentTool === 'count' ? activeCountCategory() : null);
   const currentPage = () => {
     const doc = state.documents[state.activeDocumentIndex];
     return doc ? doc.currentPage : 1;
@@ -252,6 +256,12 @@ export default function StatusBar() {
         <div class="status-item">
           <span class="status-item-label">{t('toolLabel')}</span>
           <span class="status-item-value">{toolName()}</span>
+          <Show when={telGroep()}>
+            <span class="status-count-group" id="status-count-group" title={t('countGroupTip')}>
+              <span class="status-count-swatch" style={{ background: telGroep().color }}></span>
+              <span class="status-item-value">{telGroep().name}</span>
+            </span>
+          </Show>
         </div>
         <div class="status-separator"></div>
         <div class="status-item">

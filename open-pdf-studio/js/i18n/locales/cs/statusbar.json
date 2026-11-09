@@ -30,7 +30,8 @@
     "formRadio": "Přepínač formuláře",
     "screenshot": "Snímek obrazovky",
     "pageLabelPick": "Výběr textu pro popisek stránky",
-    "proofread": "Korektura"
+    "proofread": "Korektura",
+    "count": "Počítání"
   },
   "toolLabel": "Nástroj:",
   "annotationsLabel": "Anotace:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "Poznámky jsou sdíleny přes {{folder}}. Kliknutím otevřete sdílenou revizi.",
   "sharedReviewError": "Sdílená revize: složka nedostupná",
   "pdfaReadOnly": "Tento dokument odpovídá standardu {{label}} a byl otevřen pouze pro čtení, aby se zabránilo jeho úpravě.",
-  "pdfaValidate": "Ověřit"
+  "pdfaValidate": "Ověřit",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

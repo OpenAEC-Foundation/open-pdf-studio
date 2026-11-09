@@ -11,6 +11,7 @@ import { generateImageId } from '../../../utils/helpers.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { createSignaturePad } from '../../../annotations/signature-pad.js';
 import { leesOpslagJson, schrijfOpslagJson } from '../../../core/opslag.js';
+import { plaatsingsPagina } from '../../../annotations/plaatsingspagina.js';
 
 const STORAGE_KEY = 'pdfEditorSignatures';
 const MAX_SAVED = 5;
@@ -80,7 +81,9 @@ function getCroppedDataUrl(canvas) {
   return cropCanvas.toDataURL('image/png');
 }
 
-async function placeSignatureFromDataUrl(dataUrl, x, y, color, t) {
+// `page`: de pagina waarop het handtekeninggereedschap geklikt is (#1006);
+// zonder klik de huidige pagina.
+async function placeSignatureFromDataUrl(dataUrl, x, y, color, t, page) {
   const img = new Image();
   img.src = dataUrl;
   await new Promise((resolve) => { img.onload = resolve; });
@@ -98,7 +101,7 @@ async function placeSignatureFromDataUrl(dataUrl, x, y, color, t) {
 
   const ann = createAnnotation({
     type: 'signature',
-    page: getActiveDocument()?.currentPage || 1,
+    page: plaatsingsPagina(page, getActiveDocument()),
     x: x - width / 2,
     y: y - height / 2,
     width: width,
@@ -138,6 +141,9 @@ export default function SignatureDialog(props) {
 
   const placeX = props.data?.x || 0;
   const placeY = props.data?.y || 0;
+  // De aangeklikte pagina (#1006): in de weergave met twee pagina's is de
+  // huidige pagina de linker, ook na een klik op de rechter.
+  const placePage = props.data?.page;
 
   const [activeTab, setActiveTab] = createSignal('draw');
   const [strokeColor, setStrokeColor] = createSignal('#000000');
@@ -185,7 +191,7 @@ export default function SignatureDialog(props) {
       return;
     }
     const dataUrl = getCroppedDataUrl(pad.canvas);
-    placeSignatureFromDataUrl(dataUrl, placeX, placeY, strokeColor(), t);
+    placeSignatureFromDataUrl(dataUrl, placeX, placeY, strokeColor(), t, placePage);
     close();
   }
 
@@ -196,12 +202,12 @@ export default function SignatureDialog(props) {
     }
     const dataUrl = getCroppedDataUrl(pad.canvas);
     saveSignatureToStorage(dataUrl);
-    placeSignatureFromDataUrl(dataUrl, placeX, placeY, strokeColor(), t);
+    placeSignatureFromDataUrl(dataUrl, placeX, placeY, strokeColor(), t, placePage);
     close();
   }
 
   function handleSavedClick(sig) {
-    placeSignatureFromDataUrl(sig.dataUrl, placeX, placeY, '#000000', t);
+    placeSignatureFromDataUrl(sig.dataUrl, placeX, placeY, '#000000', t, placePage);
     close();
   }
 

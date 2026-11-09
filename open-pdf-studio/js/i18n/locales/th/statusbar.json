@@ -30,7 +30,8 @@
     "formRadio": "ปุ่มตัวเลือกแบบฟอร์ม",
     "screenshot": "จับภาพหน้าจอ",
     "pageLabelPick": "เลือกข้อความสำหรับป้ายชื่อหน้า",
-    "proofread": "พิสูจน์อักษร"
+    "proofread": "พิสูจน์อักษร",
+    "count": "นับ"
   },
   "toolLabel": "เครื่องมือ:",
   "annotationsLabel": "คำอธิบายประกอบ:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "คำอธิบายประกอบถูกแชร์ผ่าน {{folder}} คลิกเพื่อเปิดการตรวจทานร่วมกัน",
   "sharedReviewError": "การตรวจทานร่วมกัน: ไม่สามารถเข้าถึงโฟลเดอร์",
   "pdfaReadOnly": "เอกสารนี้สอดคล้องกับมาตรฐาน {{label}} และถูกเปิดในโหมดอ่านอย่างเดียวเพื่อป้องกันการแก้ไข",
-  "pdfaValidate": "ตรวจสอบความถูกต้อง"
+  "pdfaValidate": "ตรวจสอบความถูกต้อง",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

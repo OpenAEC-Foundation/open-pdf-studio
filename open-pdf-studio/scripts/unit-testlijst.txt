@@ -798,3 +798,4 @@ js/annotations/schaal-stelsel.test.mjs
 js/core/voet-inch.test.mjs
 js/core/us-papierformaten.test.mjs
 js/core/vloeiend-scrollen.test.mjs
+js/annotations/plaatsingspagina.test.mjs

@@ -792,7 +792,14 @@
     "countGroupColor": "Color",
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
-    "countGroupAdd": "Add group"
+    "countGroupAdd": "Add group",
+    "countNew": "Hitungan baru",
+    "countNewTip": "New count: starts a new group with its own colour; numbering starts again at 1. Earlier counts keep their numbers and colour. While counting: Enter",
+    "countNewName": "Hitungan",
+    "countNewStarted": "Hitungan baru: {{name}}",
+    "countDefaultDoors": "Pintu",
+    "countDefaultWindows": "Jendela",
+    "countDefaultSockets": "Stopkontak"
   },
   "proofread": {
     "group": "Koreksi",

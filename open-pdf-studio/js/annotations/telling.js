@@ -155,3 +155,54 @@ export function telGroepVelden(groep) {
     symbolId: groep.symbolId,
   };
 }
+
+// --- Nieuwe telling met één klik (#1004) ---
+//
+// "Nieuwe telling" maakt een nieuwe groep met een eigen naam en een eigen
+// kleur en maakt haar actief: de nummering begint daar weer bij 1, terwijl de
+// eerdere tellingen hun nummers en kleur houden.
+
+/** Kleuren voor nieuwe telgroepen, op volgorde: goed van elkaar te onderscheiden. */
+export const TELGROEP_KLEUREN = Object.freeze([
+  '#e11d48', '#2563eb', '#16a34a', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d',
+  '#9333ea', '#ea580c', '#0d9488', '#4b5563',
+]);
+
+const kleurSleutel = (k) => String(k || '').trim().toLowerCase();
+
+/**
+ * Kleur voor een nieuwe telgroep: de eerste paletkleur die nog geen groep
+ * heeft. Zijn ze allemaal in gebruik, dan gaat het palet rond (op het aantal
+ * groepen), zodat opeenvolgende nieuwe groepen toch van kleur wisselen.
+ * @param {Iterable<{color?: string}|string>} groepen  bestaande groepen (of hun kleuren)
+ * @returns {string}
+ */
+export function volgendeTelGroepKleur(groepen) {
+  const lijst = [...(groepen || [])];
+  const gebruikt = new Set(lijst.map(g => kleurSleutel(typeof g === 'string' ? g : g?.color)));
+  const vrij = TELGROEP_KLEUREN.find(k => !gebruikt.has(kleurSleutel(k)));
+  return vrij || TELGROEP_KLEUREN[lijst.length % TELGROEP_KLEUREN.length];
+}
+
+/**
+ * Naam voor een nieuwe telgroep: "<basis> <n>", met n minstens het aantal
+ * groepen plus één en hoger dan elk "<basis> <getal>" dat er al is; nooit
+ * een naam die er al is (hoofdletters tellen niet).
+ * @param {Iterable<{name?: string}|string>} groepen  bestaande groepen (of hun namen)
+ * @param {string} [basis]  vertaald woord voor "Telling"
+ * @returns {string}
+ */
+export function volgendeTelGroepNaam(groepen, basis = 'Count') {
+  const woord = String(basis || 'Count').trim() || 'Count';
+  const namen = [...(groepen || [])].map(g => String((typeof g === 'string' ? g : g?.name) || '').trim().toLowerCase());
+  const voorvoegsel = woord.toLowerCase();
+  let n = namen.length + 1;
+  for (const naam of namen) {
+    if (!naam.startsWith(voorvoegsel)) continue;
+    const rest = naam.slice(voorvoegsel.length).trim();
+    if (/^\d+$/.test(rest)) n = Math.max(n, Number(rest) + 1);
+  }
+  const bezet = new Set(namen);
+  while (bezet.has(`${woord} ${n}`.toLowerCase())) n++;
+  return `${woord} ${n}`;
+}

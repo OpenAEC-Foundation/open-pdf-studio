@@ -30,7 +30,8 @@
     "formRadio": "دکمه رادیویی فرم",
     "screenshot": "تصویر از صفحه",
     "pageLabelPick": "انتخاب متن برای برچسب صفحه",
-    "proofread": "نمونه‌خوانی"
+    "proofread": "نمونه‌خوانی",
+    "count": "شمارش"
   },
   "toolLabel": "ابزار:",
   "annotationsLabel": "حاشیه‌نویسی‌ها:",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "حاشیه‌نویسی‌ها از طریق {{folder}} به اشتراک گذاشته می‌شوند. برای باز کردن بازبینی مشترک کلیک کنید.",
   "sharedReviewError": "بازبینی مشترک: پوشه در دسترس نیست",
   "pdfaReadOnly": "این سند با استاندارد {{label}} مطابقت دارد و برای جلوگیری از تغییر، فقط‌خواندنی باز شده است.",
-  "pdfaValidate": "اعتبارسنجی"
+  "pdfaValidate": "اعتبارسنجی",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

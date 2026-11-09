@@ -30,7 +30,8 @@
     "formRadio": "表单单选按钮",
     "screenshot": "截图",
     "pageLabelPick": "选择页面标签文字",
-    "proofread": "校对"
+    "proofread": "校对",
+    "count": "计数"
   },
   "toolLabel": "工具：",
   "annotationsLabel": "批注：",
@@ -164,5 +165,6 @@
   "sharedReviewTitle": "批注通过 {{folder}} 共享。点击打开共享审阅。",
   "sharedReviewError": "共享审阅：文件夹不可用",
   "pdfaReadOnly": "此文档符合 {{label}} 标准，已以只读方式打开以防止修改。",
-  "pdfaValidate": "验证"
+  "pdfaValidate": "验证",
+  "countGroupTip": "Active count group: the next marker goes into this group"
 }

@@ -16,6 +16,7 @@ import {
   refreshAutomaticValues, lockDynamicStamp,
 } from './dynamic-stamp.js';
 import { naturalStampSize, refitAfterEdit } from './dynamic-stamp-layout.js';
+import { plaatsingsPagina } from './plaatsingspagina.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -45,13 +46,14 @@ export async function stampContext(doc = getActiveDocument(), page = doc?.curren
 }
 
 /**
- * Place a stamp from a template at (x, y) on the current page. With fields to
- * fill in, the fill-in dialog comes first.
+ * Place a stamp from a template at (x, y) on the clicked page (`klikPagina`,
+ * #1006), else the current page. With fields to fill in, the fill-in dialog
+ * comes first.
  */
-export async function placeDynamicStamp(template, x, y) {
+export async function placeDynamicStamp(template, x, y, klikPagina) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
-  const page = doc.currentPage || 1;
+  const page = plaatsingsPagina(klikPagina, doc);
   const ctx = await stampContext(doc, page);
   if (customFields(template).length) {
     openDialog('dynamic-stamp-fields', {

@@ -68,7 +68,8 @@ test('assigning markers to a group takes its format and renumbers both groups, i
   assert.equal(n, 1);
   assert.deepEqual(nummers(doc), [['a', 'deuren', 1], ['b', 'ramen', 1], ['c', 'deuren', 2], ['d', 'ramen', 2]]);
   assert.equal(doc.annotations[1].color, '#2563eb', 'the marker takes the colour of its new group');
-  assert.equal(doc.annotations[1].categoryName, 'Ramen');
+  // De standaardgroepen heten in de taal van de app (#1004); hier de Engelse terugval.
+  assert.equal(doc.annotations[1].categoryName, 'Windows');
   const ramen = store.countTallies().find(g => g.id === 'ramen');
   assert.equal(ramen.count, 2, 'the tally follows');
   assert.equal(doc.undoStack.length, 1);
@@ -121,7 +122,7 @@ test('a group that only exists in an opened file can be picked as the active gro
 test('the count tool shows its group controls in the ribbon; every language has the texts', async () => {
   const { readFileSync, readdirSync } = await import('node:fs');
   const tekenen = readFileSync(new URL('../components/ribbon/DrawingTab.jsx', import.meta.url), 'utf8');
-  assert.match(tekenen, /<Show when=\{state\.currentTool === 'count'\}>\s*<RibbonGroup label=\{t\('drawing\.countGroup'\)\}>\s*<CountGroupRibbonControls \/>/);
+  assert.match(tekenen, /<Show when=\{state\.currentTool === 'count'\}>\s*<RibbonGroup label=\{t\('drawing\.countGroup'\)\}>[\s\S]*?<CountGroupRibbonControls \/>/);
   const paneel = readFileSync(new URL('../components/properties-panel/PropertiesPanel.jsx', import.meta.url), 'utf8');
   assert.match(paneel, /\['countGroup', CountGroupSection\]/);
   const locales = new URL('../../i18n/locales/', import.meta.url);
@@ -136,4 +137,71 @@ test('the count tool shows its group controls in the ribbon; every language has 
     }
     assert.ok(eig.measurements?.counts && eig.measurements?.noCounts, `${taal}: measurements.counts`);
   }
+});
+
+// --- Nieuwe telling met een klik (#1004) ---
+
+test('the default groups have translatable names, no fixed Dutch ones (#1004)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const bron = readFileSync(new URL('./countStore.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(bron, /name: '(Deuren|Ramen|Stopcontacten|Categorie)'/);
+  // De ids blijven: markeringen uit oudere bestanden horen er nog bij.
+  assert.deepEqual(store.countCategories().slice(0, 3).map(c => [c.id, c.name]),
+    [['deuren', 'Doors'], ['ramen', 'Windows'], ['stopcontacten', 'Sockets']]);
+});
+
+test('New count makes a new active group with its own name and colour; numbering starts at 1 (#1004)', () => {
+  const doc = openen([
+    tel('a', { categoryId: 'deuren', categoryName: 'Doors', number: 1 }),
+    tel('b', { categoryId: 'deuren', categoryName: 'Doors', number: 2 }),
+    tel('c', { categoryId: 'deuren', categoryName: 'Doors', number: 3 }),
+  ]);
+  store.setActiveCountCategory('deuren');
+  const voor = store.countGroups().map(g => g.color);
+  const nieuw = store.startNewCount();
+  assert.equal(store.activeCountCategory().id, nieuw.id, 'the new group is active');
+  assert.match(nieuw.name, /^Count \d+$/);
+  assert.ok(!voor.includes(nieuw.color), 'a colour no other group has');
+  assert.equal(store.nextCountNumber(nieuw.id), 1, 'numbering starts again at 1');
+  assert.deepEqual(nummers(doc), [['a', 'deuren', 1], ['b', 'deuren', 2], ['c', 'deuren', 3]], 'earlier counts keep their numbers');
+  assert.deepEqual(doc.annotations.map(a => a.color), ['#e11d48', '#e11d48', '#e11d48'], 'and their colour');
+  assert.equal(doc.undoStack.length, 0, 'no document change');
+
+  const tweede = store.startNewCount();
+  assert.notEqual(tweede.id, nieuw.id);
+  assert.notEqual(tweede.name, nieuw.name);
+  assert.notEqual(tweede.color, nieuw.color);
+  assert.equal(store.activeCountCategory().id, tweede.id);
+  // Een markering in de vorige telling verandert niets aan de nieuwe.
+  doc.annotations.push(tel('d', { categoryId: nieuw.id, number: 1 }));
+  assert.equal(store.nextCountNumber(nieuw.id), 2);
+  assert.equal(store.nextCountNumber(tweede.id), 1);
+  store.setActiveCountCategory('deuren');
+});
+
+test('New count is one click in the ribbon, Enter while counting, and shown in the status bar (#1004)', async () => {
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const lees = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
+  const tekenen = lees('../components/ribbon/DrawingTab.jsx');
+  assert.match(tekenen, /<RibbonGroup label=\{t\('drawing\.countGroup'\)\}>\s*<RibbonButton id="dr-count-new"[^>]*label=\{t\('drawing\.countNew'\)\}[^>]*onClick=\{\(\) => startNewCount\(\)\} \/>\s*<CountGroupRibbonControls \/>/);
+  const toetsen = lees('../../tools/keyboard-handlers.js');
+  assert.match(toetsen, /e\.key === 'Enter' && state\.currentTool === 'count'[\s\S]{0,200}startNewCount\(\);/);
+  const balk = lees('../components/StatusBar.jsx');
+  assert.match(balk, /state\.currentTool === 'count' \? activeCountCategory\(\) : null/);
+  assert.match(balk, /<Show when=\{telGroep\(\)\}>[\s\S]*?background: telGroep\(\)\.color[\s\S]*?\{telGroep\(\)\.name\}/);
+  const gegenereerd = lees('../../core/keybindings/ribbon-commands.generated.js');
+  assert.match(gegenereerd, /"id":"dr-count-new"/, 'a shortcut can be assigned to the button');
+
+  const locales = new URL('../../i18n/locales/', import.meta.url);
+  const sleutels = ['countNew', 'countNewTip', 'countNewName', 'countNewStarted', 'countDefaultDoors', 'countDefaultWindows', 'countDefaultSockets'];
+  for (const taal of readdirSync(locales)) {
+    const lint = JSON.parse(readFileSync(new URL(`${taal}/ribbon.json`, locales), 'utf8'));
+    const balkTekst = JSON.parse(readFileSync(new URL(`${taal}/statusbar.json`, locales), 'utf8'));
+    for (const k of sleutels) assert.ok(lint.drawing?.[k], `${taal}: drawing.${k}`);
+    assert.match(lint.drawing.countNewStarted, /\{\{name\}\}/, `${taal}: countNewStarted names the group`);
+    assert.ok(balkTekst.tools?.count && balkTekst.countGroupTip, `${taal}: statusbar count`);
+  }
+  const nl = JSON.parse(readFileSync(new URL('nl/ribbon.json', locales), 'utf8')).drawing;
+  const en = JSON.parse(readFileSync(new URL('en/ribbon.json', locales), 'utf8')).drawing;
+  for (const k of sleutels) assert.notEqual(nl[k], en[k], `nl is translated: ${k}`);
 });
