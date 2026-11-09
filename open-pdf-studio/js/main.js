@@ -304,8 +304,11 @@ async function init() {
   if (!isTauri()) await volgendeTaak();
 
   // Single render call — mounts the entire UI tree
-  // render() is synchronous, so DOM elements exist immediately after
-  render(() => App(), document.getElementById('app-root'));
+  // render() is synchronous, so DOM elements exist immediately after.
+  // De mobiele weergave is een eigen chunk (#454): eerst laden, dan net zo
+  // synchroon tekenen; het bureaublad wacht hier nergens op.
+  const MobileApp = mobile ? (await import('./solid/MobileApp.jsx')).default : null;
+  render(() => (MobileApp ? MobileApp() : App()), document.getElementById('app-root'));
   recordStartupDiagnostic('frontend-rendered');
 
   // Restore properties panel visibility from preferences

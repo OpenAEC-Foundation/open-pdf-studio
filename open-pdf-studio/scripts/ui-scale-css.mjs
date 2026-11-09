@@ -1,7 +1,7 @@
 // Scale stylesheet dimensions in the desktop chrome, leaving PDF layout,
 // text/form layers, mobile styles and inline screen coordinates untouched.
 // Context menus scale with the rest of the chrome; their
-// position is measured and clamped to the window in ContextMenu.jsx.
+// position is measured and clamped to the window in ContextMenuHost.jsx.
 const files = new Set(['titlebar.css', 'app-menu.css', 'ribbon.css', 'document-tabs.css',
   'properties-panel.css', 'panels.css', 'dialogs.css', 'context-menu.css',
   'tool-palette.css', 'symbol-palette.css', 'schedule-panel.css',
