@@ -58,7 +58,7 @@ import { metSchaalBronnen } from './schaal-bronnen.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawMoveInferenceOverlay } from '../tools/inference-overlay.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
-import { getTemplate } from '../symbols/registry.js';
+import { getTemplate, bijTemplateDataGeladen } from '../symbols/registry.js';
 import { hasFill, hasStroke } from './fill-utils.js';
 import { eigenVulDekking } from './vul-dekking.js';
 import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-numbers.js';
@@ -3146,6 +3146,9 @@ function hertekenActieveWeergave() {
 bijNieuweTegel(hertekenActieveWeergave);
 
 registerSysteemSymbolRedraw(hertekenActieveWeergave);
+// Vloerdoorsneden laden hun geometrie bij het eerste tekenen (#454): daarna
+// de omtrek door de echte doorsnede vervangen.
+bijTemplateDataGeladen(() => { try { hertekenActieveWeergave(); } catch (_) { /* geen document */ } });
 
 export function redrawAnnotations(lightweight = false) {
   if (!annotationCtx || !annotationCanvas) return;
