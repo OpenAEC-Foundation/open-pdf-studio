@@ -112,7 +112,7 @@ Jij houdt de regie. De server staat aan bij een nieuwe installatie en luistert a
 
 ## Testen en betrouwbaarheid
 
-- **746 unittestbestanden** draaien met `npm run test:unit` op Windows, Linux en macOS in [CI](.github/workflows/ci.yml) bij elke pull request, plus 3 testbestanden voor kwaliteitsregressie (`npm run test:quality`).
+- **798 unittestbestanden** draaien met `npm run test:unit` op Windows, Linux en macOS in [CI](.github/workflows/ci.yml) bij elke pull request, plus 3 testbestanden voor kwaliteitsregressie (`npm run test:quality`).
 - **CI bouwt de app op alle drie de desktopplatforms** en start hem: de AppImage op Debian 13, Fedora 44 en onder OpenAEC Linux-omstandigheden, en de macOS-app. Daarnaast test CI de Python-bibliotheek, controleert de Flatpak als die verandert, en laadt de gehoste webbundel in headless Chromium onder een strikte content security policy.
 - **Pull requests die aan het tekenen van pagina's komen**, draaien ook een renderregressie op een tekening op groot formaat en bewaren het rapport ([render-regression.yml](.github/workflows/render-regression.yml)).
 - **Releases worden gecontroleerd voordat ze uitkomen.** De releaseworkflow installeert de ondertekende Windows-installer en controleert elke handtekening, start de draagbare zip, controleert ondertekening, notarisatie en opstarten van de macOS-app, en controleert de OpenPGP-handtekeningen van de Linux-pakketten tegen de publieke sleutel in de repository.

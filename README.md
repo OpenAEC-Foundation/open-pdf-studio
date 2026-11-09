@@ -133,7 +133,7 @@ You stay in control. The server is on for a new installation and listens only on
 
 ## Testing and reliability
 
-- **746 unit test files** run with `npm run test:unit` on Windows, Linux and macOS in [CI](.github/workflows/ci.yml) for every pull request, plus 3 quality regression test files (`npm run test:quality`).
+- **798 unit test files** run with `npm run test:unit` on Windows, Linux and macOS in [CI](.github/workflows/ci.yml) for every pull request, plus 3 quality regression test files (`npm run test:quality`).
 - **CI builds the app on all three desktop platforms** and starts it: the AppImage on Debian 13, Fedora 44 and in OpenAEC Linux conditions, and the macOS app. It also tests the Python library, lints the Flatpak when it changes, and loads the hosted web bundle in headless Chromium under a strict content security policy.
 - **Pull requests that touch rendering** also run a render regression on a large-format drawing and keep the report ([render-regression.yml](.github/workflows/render-regression.yml)).
 - **Releases are checked before they are published.** The release workflow installs the signed Windows installer and checks every signature, starts the portable zip, verifies the macOS signature, notarization and start-up, and verifies the OpenPGP signatures of the Linux packages against the public key in the repository.
