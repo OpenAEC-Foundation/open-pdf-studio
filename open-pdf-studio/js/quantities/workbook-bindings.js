@@ -1,4 +1,4 @@
-import {fieldsForCategories} from './categories.js';
+import {rekenOm} from './eenheid-omrekening.js';
 import {cellAddress} from './workbook-adapter.js';
 export const configSignature=schedule=>JSON.stringify(schedule?.config||{});
 export function validateBinding(binding){
@@ -13,12 +13,17 @@ export function bindingStatus(binding,{document,schedule,workbookExists=true}={}
 }
 export function bindingValues(binding,result,schedule){
  validateBinding(binding);if(schedule.id!==binding.scheduleId||schedule.name!==binding.scheduleName||configSignature(schedule)!==binding.config)throw new Error('REBIND_SCHEDULE');
- const fields=fieldsForCategories(schedule.config.categories||[]);
+ // De engine rekent elke cel al om naar de kolomeenheid; een cel die niet om te
+ // rekenen was (lengte tegen oppervlakte, px naast mm) staat in foreignUnits en
+ // ontbreekt in het totaal: dan weigeren in plaats van een half totaal te sturen.
+ // Wijkt de kolomeenheid af van de eenheid van de koppeling (de meest gebruikte
+ // eenheid verschoof), dan gaat het totaal exact om naar die van de koppeling.
  return binding.mappings.map(m=>{
-  const column=result.columns.find(c=>c.key===m.field),field=fields.find(f=>f.key===m.field);if(!column||column.kind!=='number'||column.total===false)throw new Error('MISSING_NUMERIC_FIELD');
-  if(result.count>0&&(column.unit||'')!==m.unit)throw new Error('UNIT_CHANGED');
-  for(const row of result.groups.flatMap(g=>g.rows)){if(typeof row.vals[m.field]!=='number')continue;const unit=field?.unitOf?.(row.el)||field?.unit||'';if(unit!==m.unit)throw new Error('MIXED_UNITS');}
-  const value=result.count===0?0:result.grandTotals[m.field];if(typeof value!=='number'||!Number.isFinite(value))throw new Error('TOTAL_UNAVAILABLE');return {sheet:binding.sheet,cell:m.cell,field:m.field,unit:m.unit,value};
+  const column=result.columns.find(c=>c.key===m.field);if(!column||column.kind!=='number'||column.total===false)throw new Error('MISSING_NUMERIC_FIELD');
+  for(const row of result.groups.flatMap(g=>g.rows)){if(row.foreignUnits&&m.field in row.foreignUnits)throw new Error('MIXED_UNITS');}
+  const total=result.count===0?0:result.grandTotals[m.field];if(typeof total!=='number'||!Number.isFinite(total))throw new Error('TOTAL_UNAVAILABLE');
+  const value=result.count===0?0:rekenOm(total,column.unit||'',m.unit);if(value==null)throw new Error('UNIT_CHANGED');
+  return {sheet:binding.sheet,cell:m.cell,field:m.field,unit:m.unit,value};
  });
 }
 export function bindingCsv(binding,values,revision){const safe=v=>{let s=String(v??'');if(/^[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return ['cell,value,unit,source,schedule,revision',...values.map(m=>[safe(m.cell),String(m.value),safe(m.unit),safe(binding.sourcePath),safe(binding.scheduleName),safe(revision)].join(','))].join('\n');}

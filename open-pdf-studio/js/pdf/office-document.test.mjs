@@ -45,6 +45,7 @@ function harness({ saveFileDialog = async name => `/tmp/${name}`, parseError } =
     buildOdt: () => new Uint8Array(), buildXlsx: () => new Uint8Array([1, 2, 3]),
     buildDocx: (pages, options) => { built.push({ pages, options }); return new Uint8Array([4, 5]); },
     pageImage: async () => new Uint8Array(),
+    bevestigExportVerlies: async () => ({ ok: true, auteurs: null }),
   };
   const exportOffice = new Function(...Object.keys(deps), `${exportSource}\nreturn exportOffice;`)(...Object.values(deps));
   return { content, extracting, doc, state, writes, messages, built, exportOffice, source, parsed, pdf, destroyed: () => destroyed };

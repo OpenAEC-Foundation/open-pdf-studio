@@ -46,6 +46,7 @@ import { meldAlleenBureaublad, vangAlleenBureaublad } from '../core/webfuncties.
 import { getCachedPdfBytes } from './loader.js';
 import { buildPdfx, conversionErrorMessage, formatCmykReport } from './pdfx-cmyk.js';
 import { showMessage } from '../bridge.js';
+import { bevestigExportVerlies } from '../ui/chrome/export-verlies-bevestigen.js';
 import i18next from '../i18n/config.js';
 
 // ── Byte acquisition ───────────────────────────────────────────────────────
@@ -83,6 +84,9 @@ export async function exportAsPdfX({ conformance = 'X-3', profilePath = null, in
     await meldAlleenBureaublad(t(profilePath ? 'appMenu:pdfxCmyk.featureName' : 'appMenu:exportPanel.exportPdfx'));
     return false;
   }
+
+  // Onopgeslagen wijzigingen, en voor PDF/X-3 transparantie en lagen (#629).
+  if (!(await bevestigExportVerlies('pdfx', activeDoc, { conformance })).ok) return false;
 
   const baseName = (activeDoc.fileName || 'document').replace(/\.pdf$/i, '');
   const suffix = conformance === 'X-4' ? 'PDFX-4' : 'PDFX-3';

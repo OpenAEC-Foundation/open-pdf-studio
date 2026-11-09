@@ -62,14 +62,14 @@ test('heeftFormuliervelden: Map of object van pdf.js, en onbruikbare invoer', as
   assert.equal(await heeftFormuliervelden(null), false);
 });
 
+// Sinds #629 via het gedeelde venster met wat een export niet meeneemt: de
+// formuliervelden staan daar als verlies (pdf/export-verlies.js), en de
+// samenvatting vraagt heeftFormuliervelden (pdf/export-verlies-inhoud.js).
 test('de gevlakte kopie waarschuwt voor formuliervelden voordat er een bestand gekozen wordt', () => {
   const kopie = readFileSync(new URL('./flattened-copy.js', import.meta.url), 'utf8');
-  const controle = kopie.indexOf('await heeftFormuliervelden(doc.pdfDoc)');
+  const controle = kopie.indexOf("await bevestigExportVerlies('flattened', doc)");
   const opslaan = kopie.indexOf('await saveFileDialog(');
   assert.ok(controle > 0 && opslaan > controle, 'eerst de controle, dan het opslagvenster');
-  assert.ok(kopie.includes("appMenu:exportPanel.exportFlatFormFields"));
-  for (const taal of ['en', 'nl']) {
-    const tekst = laad(taal).exportPanel.exportFlatFormFields;
-    assert.ok(tekst && tekst.length > 20, taal);
-  }
+  const inhoud = readFileSync(new URL('./export-verlies-inhoud.js', import.meta.url), 'utf8');
+  assert.ok(inhoud.includes('heeftFormuliervelden(pdfDoc)'));
 });

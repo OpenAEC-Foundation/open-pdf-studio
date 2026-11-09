@@ -56,7 +56,8 @@ async function laad(bytes, pagina = 1) {
   // Het paginadoel als paginanummer, zoals link-layer.js het oplost.
   for (const a of pdfjsAnnots) {
     if (Array.isArray(a.dest) && a.dest[0] && typeof a.dest[0] === 'object') {
-      a.destPage = (await doc.getPageIndex(a.dest[0])) + 1;
+      // Een pagina die niet meer in de boom staat, heeft geen nummer.
+      a.destPage = await doc.getPageIndex(a.dest[0]).then((i) => i + 1, () => null);
     }
   }
   await doc.loadingTask.destroy();
@@ -64,6 +65,10 @@ async function laad(bytes, pagina = 1) {
 }
 
 async function opslaan(bronBytes, modellen) {
+  return opslaanMet(bronBytes, modellen, [1, 2]);
+}
+
+async function opslaanMet(bronBytes, modellen, gereed) {
   let uit = null;
   globalThis.__saverTest = {
     impl: {
@@ -74,7 +79,7 @@ async function opslaan(bronBytes, modellen) {
   };
   state.documents = [{
     id: 'links', filePath: 'C:/links/bron.pdf', pdfDoc: {}, annotations: modellen,
-    pageRotations: {}, _annotationPagesReady: new Set([1, 2]), textEdits: [],
+    pageRotations: {}, _annotationPagesReady: new Set(gereed), textEdits: [],
   }];
   state.activeDocumentIndex = 0;
   assert.equal(await savePDF('C:/links/uit.pdf', { zonderHandtekeningVraag: true }), true, 'opslaan gelukt');
@@ -247,4 +252,49 @@ test('on a rotated page the link comes back where it was drawn', async () => {
   const r = (v) => Math.round(v * 100) / 100;
   assert.deepEqual([terug.x, terug.y, terug.width, terug.height].map(r), [30, 100, 200, 34]);
   assert.deepEqual(terug.rects.map((q) => [q.x, q.y, q.width, q.height].map(r)), [[30, 100, 200, 14], [30, 120, 90, 14]]);
+});
+
+test('a broken page target is saved without /Dest and reopens broken', async () => {
+  const ann = { ...tekstLink(), id: 'gebroken', linkTarget: { kind: 'page', page: null, broken: true, fit: 'xyz' } };
+  const bytes = await opslaan(await blad(), [ann]);
+  const pdf = await PDFDocument.load(bytes);
+  const [d] = linkDicts(pdf);
+  assert.equal(d.get(N('Dest')), undefined, 'no target, not silently page 1');
+  assert.equal(d.get(N('A')), undefined);
+  assert.equal(d.lookup(N('OPS_BrokenDest')).asBoolean(), true);
+  const { modellen, pdfjsAnnots } = await laad(bytes);
+  assert.equal(pdfjsAnnots[0].dest, undefined, 'other viewers do not jump anywhere');
+  assert.equal(modellen[0].linkTarget.kind, 'page');
+  assert.equal(modellen[0].linkTarget.broken, true);
+  assert.equal(modellen[0].linkTarget.page, null);
+});
+
+test('/Dest holds the page itself: pages moved by another program keep the link on its page', async () => {
+  const bytes = await opslaan(await blad(), [tekstLink()]);
+  // Een ander programma zet pagina 2 vooraan.
+  const pdf = await PDFDocument.load(bytes);
+  const [p1, p2] = pdf.getPages();
+  const dest = linkDicts(pdf)[0].lookup(N('Dest')).asArray();
+  assert.equal(dest[0].toString(), p2.ref.toString(), 'an indirect reference, not a number');
+  pdf.removePage(1);
+  pdf.insertPage(0, p2);
+  assert.equal(pdf.getPages()[1], p1);
+  const verplaatst = await pdf.save();
+  // De link staat nu op pagina 2 en wijst naar pagina 1.
+  const { modellen, pdfjsAnnots } = await laad(new Uint8Array(verplaatst), 2);
+  assert.equal(pdfjsAnnots[0].destPage, 1);
+  assert.equal(modellen[0].linkTarget.page, 1);
+});
+
+test('a link of the app whose target page was removed elsewhere reopens broken', async () => {
+  const doc = await PDFDocument.create();
+  doc.addPage([400, 500]); doc.addPage([400, 500]); doc.addPage([400, 500]);
+  const bron = await doc.save();
+  const ann = { ...tekstLink(), id: 'naar3', linkTarget: { kind: 'page', page: 3, fit: 'fit' } };
+  const bytes = await opslaanMet(bron, [ann], [1, 2, 3]);
+  const pdf = await PDFDocument.load(bytes);
+  pdf.removePage(2);
+  const zonder = new Uint8Array(await pdf.save());
+  const { modellen } = await laad(zonder);
+  assert.equal(modellen[0].linkTarget.broken, true, 'not silently another page');
 });

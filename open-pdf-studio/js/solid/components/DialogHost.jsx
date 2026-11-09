@@ -1,78 +1,86 @@
 import { For, lazy } from 'solid-js';
 import { getDialogs } from '../stores/dialogStore.js';
-import DocPropertiesDialog from './DocPropertiesDialog.jsx';
-import PreferencesDialog from './preferences/PreferencesDialog.jsx';
-import NewDocDialog from './dialogs/NewDocDialog.jsx';
-import InsertPageDialog from './dialogs/InsertPageDialog.jsx';
-import DeletePagesDialog from './dialogs/DeletePagesDialog.jsx';
-import PagePropertiesDialog from './dialogs/PagePropertiesDialog.jsx';
-import ExtractPagesDialog from './dialogs/ExtractPagesDialog.jsx';
-import ChoosePagesDialog from './dialogs/ChoosePagesDialog.jsx';
-import SplitDocumentDialog from './dialogs/SplitDocumentDialog.jsx';
-import MergePdfsDialog from './dialogs/MergePdfsDialog.jsx';
-import PrintDialog from './dialogs/PrintDialog.jsx';
-import PageSetupDialog from './dialogs/PageSetupDialog.jsx';
-import WatermarkDialog from './dialogs/WatermarkDialog.jsx';
-import HeaderFooterDialog from './dialogs/HeaderFooterDialog.jsx';
-import ManageWatermarksDialog from './dialogs/ManageWatermarksDialog.jsx';
-import SignatureDialog from './dialogs/SignatureDialog.jsx';
-import TextAnnotationDialog from './dialogs/TextAnnotationDialog.jsx';
-import UpdateDialog from './dialogs/UpdateDialog.jsx';
-import BookmarkDialog from './dialogs/BookmarkDialog.jsx';
-import PageLabelsDialog from './dialogs/PageLabelsDialog.jsx';
-import BookmarkNamesDialog from './dialogs/BookmarkNamesDialog.jsx';
-import FormValidationDialog from './dialogs/FormValidationDialog.jsx';
-import StampPickerDialog from './dialogs/StampPickerDialog.jsx';
-import StampTemplatesDialog from './dialogs/StampTemplatesDialog.jsx';
-import DynamicStampFieldsDialog from './dialogs/DynamicStampFieldsDialog.jsx';
-import CalibrationDialog from './dialogs/CalibrationDialog.jsx';
-import ScaleCheckDialog from './dialogs/ScaleCheckDialog.jsx';
-import ScaleDialog from './dialogs/ScaleDialog.jsx';
-import CropMarginsDialog from './dialogs/CropMarginsDialog.jsx';
-import StraightenDialog from './dialogs/StraightenDialog.jsx';
-import ShiftPageDialog from './dialogs/ShiftPageDialog.jsx';
-import ProtectPdfDialog from './dialogs/ProtectPdfDialog.jsx';
-import OcrLanguageDialog from './dialogs/OcrLanguageDialog.jsx';
-import ResizePagesDialog from './dialogs/ResizePagesDialog.jsx';
-import CompressDialog from './dialogs/CompressDialog.jsx';
-import PdfAEditDialog from './dialogs/PdfAEditDialog.jsx';
-const PdfADialog = lazy(() => import('./dialogs/PdfADialog.jsx'));
-import ScreenshotDialog from './dialogs/ScreenshotDialog.jsx';
-import FeedbackDialog from './dialogs/FeedbackDialog.jsx';
 import MessageDialog from './dialogs/MessageDialog.jsx';
-import AboutDialog from './dialogs/AboutDialog.jsx';
-import WhatsNewDialog from './dialogs/WhatsNewDialog.jsx';
-import ShortcutsDialog from './dialogs/ShortcutsDialog.jsx';
-import ExtensionsDialog from './dialogs/ExtensionsDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
+import ExportVerliesDialog from './dialogs/ExportVerliesDialog.jsx';
 import PasswordDialog from './dialogs/PasswordDialog.jsx';
 import RecoveryDialog from './dialogs/RecoveryDialog.jsx';
-import HandtekeningDetailDialog from './dialogs/HandtekeningDetailDialog.jsx';
-import ViewportScaleDialog from './dialogs/ViewportScaleDialog.jsx';
-import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
-import LinkDialog from './dialogs/LinkDialog.jsx';
-import MeasuredLengthDialog from './dialogs/MeasuredLengthDialog.jsx';
-import ScreenCalibrationDialog from './dialogs/ScreenCalibrationDialog.jsx';
-import TitleBlockDialog from './dialogs/TitleBlockDialog.jsx';
-import CompareDialog from './compare/CompareDialog.jsx';
-import CadExportDialog from './dialogs/CadExportDialog.jsx';
-import CadImportDialog from './dialogs/CadImportDialog.jsx';
-import IfcxExportDialog from './dialogs/IfcxExportDialog.jsx';
-import AnnotationLayerDeleteDialog from './dialogs/AnnotationLayerDeleteDialog.jsx';
-import FlattenAllDialog from './dialogs/FlattenAllDialog.jsx';
-import WorkspaceDialog from './dialogs/WorkspaceDialog.jsx';
-import { ToolSetImportDialog, ToolSetConfirmDialog } from './dialogs/ToolSetsDialogs.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
 import ParametricLabelInlineEditor from './ParametricLabelInlineEditor.jsx';
 import PdfTextEditOverlay from './PdfTextEditOverlay.jsx';
 import StickyNotePopupHost from './StickyNotePopup.jsx';
 import ParametricSymbolPicker from './dialogs/ParametricSymbolPicker.jsx';
-import StyleTypeEditorDialog from './dialogs/StyleTypeEditorDialog.jsx';
-import TekeninstellingenDialog from './dialogs/TekeninstellingenDialog.jsx';
-import SysteemtypenDialog from './dialogs/SysteemtypenDialog.jsx';
-import SysteemPaneelComponentDialog from './dialogs/SysteemPaneelComponentDialog.jsx';
 import PrintProgressToast from './PrintProgressToast.jsx';
+
+// Dialogen die pas op verzoek openen, laden bij het eerste gebruik als eigen
+// chunk (#454): ze horen niet in de chunk die bij het opstarten laadt. Alleen
+// wat bij het opstarten of het openen van een PDF kan verschijnen (melding,
+// bevestiging, wachtwoord, herstel) en wat altijd gemonteerd is (overlays,
+// toast), blijft hierboven statisch.
+const DocPropertiesDialog = lazy(() => import('./DocPropertiesDialog.jsx'));
+const PreferencesDialog = lazy(() => import('./preferences/PreferencesDialog.jsx'));
+const NewDocDialog = lazy(() => import('./dialogs/NewDocDialog.jsx'));
+const InsertPageDialog = lazy(() => import('./dialogs/InsertPageDialog.jsx'));
+const DeletePagesDialog = lazy(() => import('./dialogs/DeletePagesDialog.jsx'));
+const PagePropertiesDialog = lazy(() => import('./dialogs/PagePropertiesDialog.jsx'));
+const ExtractPagesDialog = lazy(() => import('./dialogs/ExtractPagesDialog.jsx'));
+const ChoosePagesDialog = lazy(() => import('./dialogs/ChoosePagesDialog.jsx'));
+const SplitDocumentDialog = lazy(() => import('./dialogs/SplitDocumentDialog.jsx'));
+const MergePdfsDialog = lazy(() => import('./dialogs/MergePdfsDialog.jsx'));
+const PrintDialog = lazy(() => import('./dialogs/PrintDialog.jsx'));
+const PageSetupDialog = lazy(() => import('./dialogs/PageSetupDialog.jsx'));
+const WatermarkDialog = lazy(() => import('./dialogs/WatermarkDialog.jsx'));
+const HeaderFooterDialog = lazy(() => import('./dialogs/HeaderFooterDialog.jsx'));
+const ManageWatermarksDialog = lazy(() => import('./dialogs/ManageWatermarksDialog.jsx'));
+const SignatureDialog = lazy(() => import('./dialogs/SignatureDialog.jsx'));
+const TextAnnotationDialog = lazy(() => import('./dialogs/TextAnnotationDialog.jsx'));
+const UpdateDialog = lazy(() => import('./dialogs/UpdateDialog.jsx'));
+const BookmarkDialog = lazy(() => import('./dialogs/BookmarkDialog.jsx'));
+const PageLabelsDialog = lazy(() => import('./dialogs/PageLabelsDialog.jsx'));
+const BookmarkNamesDialog = lazy(() => import('./dialogs/BookmarkNamesDialog.jsx'));
+const FormValidationDialog = lazy(() => import('./dialogs/FormValidationDialog.jsx'));
+const StampPickerDialog = lazy(() => import('./dialogs/StampPickerDialog.jsx'));
+const StampTemplatesDialog = lazy(() => import('./dialogs/StampTemplatesDialog.jsx'));
+const DynamicStampFieldsDialog = lazy(() => import('./dialogs/DynamicStampFieldsDialog.jsx'));
+const CalibrationDialog = lazy(() => import('./dialogs/CalibrationDialog.jsx'));
+const ScaleCheckDialog = lazy(() => import('./dialogs/ScaleCheckDialog.jsx'));
+const ScaleDialog = lazy(() => import('./dialogs/ScaleDialog.jsx'));
+const CropMarginsDialog = lazy(() => import('./dialogs/CropMarginsDialog.jsx'));
+const StraightenDialog = lazy(() => import('./dialogs/StraightenDialog.jsx'));
+const ShiftPageDialog = lazy(() => import('./dialogs/ShiftPageDialog.jsx'));
+const ProtectPdfDialog = lazy(() => import('./dialogs/ProtectPdfDialog.jsx'));
+const OcrLanguageDialog = lazy(() => import('./dialogs/OcrLanguageDialog.jsx'));
+const ResizePagesDialog = lazy(() => import('./dialogs/ResizePagesDialog.jsx'));
+const CompressDialog = lazy(() => import('./dialogs/CompressDialog.jsx'));
+const PdfAEditDialog = lazy(() => import('./dialogs/PdfAEditDialog.jsx'));
+const PdfADialog = lazy(() => import('./dialogs/PdfADialog.jsx'));
+const ScreenshotDialog = lazy(() => import('./dialogs/ScreenshotDialog.jsx'));
+const FeedbackDialog = lazy(() => import('./dialogs/FeedbackDialog.jsx'));
+const AboutDialog = lazy(() => import('./dialogs/AboutDialog.jsx'));
+const WhatsNewDialog = lazy(() => import('./dialogs/WhatsNewDialog.jsx'));
+const ShortcutsDialog = lazy(() => import('./dialogs/ShortcutsDialog.jsx'));
+const ExtensionsDialog = lazy(() => import('./dialogs/ExtensionsDialog.jsx'));
+const HandtekeningDetailDialog = lazy(() => import('./dialogs/HandtekeningDetailDialog.jsx'));
+const ViewportScaleDialog = lazy(() => import('./dialogs/ViewportScaleDialog.jsx'));
+const ScaleRegionDialog = lazy(() => import('./dialogs/ScaleRegionDialog.jsx'));
+const LinkDialog = lazy(() => import('./dialogs/LinkDialog.jsx'));
+const MeasuredLengthDialog = lazy(() => import('./dialogs/MeasuredLengthDialog.jsx'));
+const ScreenCalibrationDialog = lazy(() => import('./dialogs/ScreenCalibrationDialog.jsx'));
+const TitleBlockDialog = lazy(() => import('./dialogs/TitleBlockDialog.jsx'));
+const CompareDialog = lazy(() => import('./compare/CompareDialog.jsx'));
+const CadExportDialog = lazy(() => import('./dialogs/CadExportDialog.jsx'));
+const CadImportDialog = lazy(() => import('./dialogs/CadImportDialog.jsx'));
+const IfcxExportDialog = lazy(() => import('./dialogs/IfcxExportDialog.jsx'));
+const AnnotationLayerDeleteDialog = lazy(() => import('./dialogs/AnnotationLayerDeleteDialog.jsx'));
+const FlattenAllDialog = lazy(() => import('./dialogs/FlattenAllDialog.jsx'));
+const WorkspaceDialog = lazy(() => import('./dialogs/WorkspaceDialog.jsx'));
+const ToolSetImportDialog = lazy(() => import('./dialogs/ToolSetsDialogs.jsx').then((m) => ({ default: m.ToolSetImportDialog })));
+const ToolSetConfirmDialog = lazy(() => import('./dialogs/ToolSetsDialogs.jsx').then((m) => ({ default: m.ToolSetConfirmDialog })));
+const StyleTypeEditorDialog = lazy(() => import('./dialogs/StyleTypeEditorDialog.jsx'));
+const TekeninstellingenDialog = lazy(() => import('./dialogs/TekeninstellingenDialog.jsx'));
+const SysteemtypenDialog = lazy(() => import('./dialogs/SysteemtypenDialog.jsx'));
+const SysteemPaneelComponentDialog = lazy(() => import('./dialogs/SysteemPaneelComponentDialog.jsx'));
 
 // Feature dialogs that are opened rarely: loaded on first use, with their
 // services, so they stay out of the main chunk.
@@ -158,6 +166,7 @@ const DIALOG_MAP = {
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
   'confirm': ConfirmDialog,
+  'export-verlies': ExportVerliesDialog,
   'host-save-as': HostSaveAsDialog,
   'host-keuze': HostKeuzeDialog,
   'tool-sets-import': ToolSetImportDialog,

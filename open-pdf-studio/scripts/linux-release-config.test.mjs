@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 const repoRoot = new URL('../../', import.meta.url);
 const appRoot = new URL('../', import.meta.url);
@@ -375,4 +377,196 @@ test('Linux turns off 2D canvas acceleration in every WebView, with an opt-out (
   assert.ok(installatie.includes('OPDS_CANVAS_GPU=1'), 'docs/install-linux.md documents the opt-out');
   assert.ok(installatie.includes('enable-2d-canvas-acceleration'), 'docs/install-linux.md names the setting');
   assert.ok(installatie.includes('WEBKIT_DISABLE_DMABUF_RENDERER=1'), 'the stronger fallback stays documented');
+});
+
+// Losse OpenPGP-handtekeningen voor de Linux-pakketten (#842).
+const OPENAEC_FINGERPRINT = '13F6D414ADEE4ED4CD09AC60601D86C93C504D29';
+
+function jobBlock(workflow, name) {
+  const begin = workflow.indexOf(`\n  ${name}:\n`);
+  assert.notEqual(begin, -1, `job ${name} exists`);
+  const rest = workflow.slice(begin + 1);
+  const next = rest.slice(1).search(/\n  [a-z][a-z0-9-]*:\n/);
+  return next === -1 ? rest : rest.slice(0, next + 1);
+}
+
+function stepBlock(job, name) {
+  const begin = job.indexOf(`- name: ${name}`);
+  assert.notEqual(begin, -1, `step "${name}" exists`);
+  const rest = job.slice(begin);
+  const next = rest.slice(1).search(/\n      - (name|uses):/);
+  return next === -1 ? rest : rest.slice(0, next + 1);
+}
+
+// Op een Windows-CI-runner kan "bash" een andere shell zijn dan Git Bash; de
+// gpg-tests draaien daar niet (lokaal onder Git Bash wel).
+function hasCommand(command) {
+  if (process.platform === 'win32' && process.env.CI) return false;
+  return spawnSync('bash', ['-c', `command -v ${command}`], { encoding: 'utf8' }).status === 0;
+}
+
+async function readWorkflow(name) {
+  return (await readFile(new URL(`.github/workflows/${name}`, repoRoot), 'utf8')).replaceAll('\r\n', '\n');
+}
+
+test('the release signs the Linux packages with the OpenAEC OpenPGP key after they are uploaded (#842)', async () => {
+  const workflow = await readWorkflow('release.yml');
+  const job = jobBlock(workflow, 'sign-linux');
+
+  // Na de build-job (de .deb en de AppImage staan dan op het concept), vóór publish-release.
+  assert.match(job, /\n    needs: \[create-release, build\]\n/);
+  assert.match(jobBlock(workflow, 'publish-release'), /needs: \[create-release, build, sign-linux\]/);
+  assert.match(job, /permissions:\n      contents: write/);
+
+  // Bestaande organisatiegeheimen en -variabele; de verwachte vingerafdruk staat vast in de workflow.
+  assert.match(job, /OPENAEC_GPG_PRIVATE_KEY: \$\{\{ secrets\.OPENAEC_GPG_PRIVATE_KEY \}\}/);
+  assert.match(job, /OPENAEC_GPG_PASSPHRASE: \$\{\{ secrets\.OPENAEC_GPG_PASSPHRASE \}\}/);
+  assert.match(job, /OPENAEC_GPG_FINGERPRINT: \$\{\{ vars\.OPENAEC_GPG_FINGERPRINT \}\}/);
+  assert.ok(job.includes(`OPENAEC_GPG_EXPECTED_FINGERPRINT: ${OPENAEC_FINGERPRINT}`));
+
+  // Eerst wachten op de geüploade snap van snap.yml, dan tekenen, uploaden en verifiëren.
+  const wait = stepBlock(job, 'Wait for the snap on the draft release');
+  assert.match(wait, /select\(\.state == "uploaded"\)/);
+  assert.match(wait, /grep -q '\\\.snap\$'/);
+  assert.match(wait, /if: env\.HAS_OPENPGP_KEY == 'true'/);
+  const sign = stepBlock(job, 'Sign, upload and verify the Linux assets (OpenPGP)');
+  assert.match(sign, /bash scripts\/sign-linux-release\.sh release "\$VERSION" \.\.\/docs\/keys\/openaec-signing-public-key\.asc/);
+  assert.ok(job.indexOf('Wait for the snap') < job.indexOf('Sign, upload and verify'));
+
+  // Deze job raakt latest.json en de updater-.sig-bestanden niet aan.
+  assert.doesNotMatch(job.replace(/^\s*#.*$/gm, ''), /latest\.json|\.sig\b|tauri-action/);
+
+  // De eindcontrole meldt een overgeslagen of onvolledige ondertekening.
+  const report = stepBlock(jobBlock(workflow, 'publish-release'), 'Report the Linux OpenPGP signatures');
+  assert.match(report, /needs\.sign-linux\.outputs\.status/);
+  assert.match(report, /needs\.sign-linux\.outputs\.missing/);
+  assert.match(report, /NOT signed/);
+  assert.match(report, /GITHUB_STEP_SUMMARY/);
+
+  const script = await readFile(new URL('scripts/sign-linux-release.sh', appRoot), 'utf8');
+  assert.ok(script.includes(`OPENAEC_RELEASE_KEY_FINGERPRINT=${OPENAEC_FINGERPRINT}`));
+  for (const pattern of ["'*.deb'", "'*.AppImage'", "'*.AppImage.tar.gz'", "'*.snap'"]) {
+    assert.ok(script.includes(`--pattern ${pattern}`), `downloads ${pattern}`);
+  }
+  assert.match(script, /--armor --detach-sign --output "\$1\.asc" "\$1"/);
+  assert.match(script, /gh release upload "\$target" "\$assets"\/\*\.asc "\$assets\/SHA256SUMS"[\s\S]*?--clobber/);
+  assert.match(script, /gpgv --keyring/);
+});
+
+test('snap.yml signs the Linux assets again when its snap arrives after the signing job (#842)', async () => {
+  const workflow = await readWorkflow('snap.yml');
+  const upload = workflow.indexOf('- name: Upload snap to GitHub release');
+  const resign = workflow.indexOf('- name: Sign the Linux assets again (OpenPGP)');
+  assert.notEqual(upload, -1);
+  assert.ok(resign > upload, 'signing comes after the snap upload');
+  const step = workflow.slice(resign, workflow.indexOf('- name: Publish to Snap Store'));
+  assert.match(step, /grep -qx 'SHA256SUMS'/);
+  assert.match(step, /workflow_dispatch/);
+  assert.match(step, /sign-linux-release\.sh release "\$VERSION"/);
+  assert.match(step, /secrets\.OPENAEC_GPG_PRIVATE_KEY/);
+  assert.ok(step.includes(`OPENAEC_GPG_EXPECTED_FINGERPRINT: ${OPENAEC_FINGERPRINT}`));
+  assert.match(workflow, /ref: \$\{\{ github\.event\.repository\.default_branch \}\}/);
+});
+
+test('the repository ships the public OpenAEC release key and documents the check (#842)', async () => {
+  const key = await readFile(new URL('docs/keys/openaec-signing-public-key.asc', repoRoot), 'utf8');
+  assert.match(key, /^-----BEGIN PGP PUBLIC KEY BLOCK-----/);
+  assert.doesNotMatch(key, /PRIVATE KEY/);
+  for (const doc of ['docs/install-linux.md', 'README.md', 'README.nl.md']) {
+    const text = await readFile(new URL(doc, repoRoot), 'utf8');
+    assert.ok(text.includes(OPENAEC_FINGERPRINT), `${doc} names the fingerprint`);
+    assert.ok(text.includes('gpg --verify'), `${doc} shows gpg --verify`);
+  }
+});
+
+test('the committed public key has the OpenAEC release fingerprint (#842)', { skip: !hasCommand('gpg') }, () => {
+  const key = fileURLToPath(new URL('docs/keys/openaec-signing-public-key.asc', repoRoot));
+  const result = spawnSync('bash', [
+    '-c',
+    'h=$(mktemp -d) && GNUPGHOME="$h" gpg --batch --with-colons --show-keys "$1"; s=$?; rm -rf "$h"; exit $s',
+    '_',
+    key,
+  ], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const primary = result.stdout.split('\n').find((line) => line.startsWith('fpr:'));
+  assert.equal(primary.split(':')[9], OPENAEC_FINGERPRINT);
+  assert.doesNotMatch(result.stdout, /^sec:/m);
+});
+
+// Wegwerpsleutel en testbestanden in een korte mktemp-map (gpg-agent-sockets
+// breken op lange paden), alles in één bash-proces.
+const SIGN_FIXTURE = String.raw`
+set -euo pipefail
+script=$1
+root=$(mktemp -d)
+trap 'GNUPGHOME="$root/key" gpgconf --kill gpg-agent >/dev/null 2>&1 || true; rm -rf "$root"' EXIT
+mkdir "$root/key" "$root/assets"
+chmod 700 "$root/key" 2>/dev/null || true
+export GNUPGHOME="$root/key"
+gpg --batch --pinentry-mode loopback --passphrase fixture-only --quick-gen-key 'Fixture <fixture@example.invalid>' ed25519 cert never 2>/dev/null
+fpr=$(gpg --batch --with-colons --list-keys | awk -F: '$1 == "fpr" { print $10; exit }')
+gpg --batch --pinentry-mode loopback --passphrase fixture-only --quick-add-key "$fpr" ed25519 sign never 2>/dev/null
+gpg --batch --armor --export "$fpr" > "$root/pub.asc"
+gpg --batch --pinentry-mode loopback --passphrase fixture-only --armor --export-secret-subkeys "$fpr" > "$root/sec.asc"
+gpgconf --kill gpg-agent >/dev/null 2>&1 || true
+unset GNUPGHOME
+a="$root/assets"
+printf deb > "$a/Open.PDF.Studio_1.0.0_amd64.deb"
+printf appimage > "$a/Open.PDF.Studio_1.0.0_amd64.AppImage"
+printf updater > "$a/Open.PDF.Studio_1.0.0_amd64.AppImage.tar.gz"
+printf minisign > "$a/Open.PDF.Studio_1.0.0_amd64.AppImage.sig"
+printf snap > "$a/open-pdf-studio_1.0.0_amd64.snap"
+secret=$(cat "$root/sec.asc")
+
+echo "== skip"
+env -u OPENAEC_GPG_PRIVATE_KEY bash "$script" sign "$a" "$root/pub.asc"
+test ! -e "$a/SHA256SUMS"
+
+echo "== wrong key"
+if OPENAEC_GPG_PRIVATE_KEY=$secret OPENAEC_GPG_PASSPHRASE=fixture-only bash "$script" sign "$a" "$root/pub.asc"; then exit 10; fi
+test ! -e "$a/SHA256SUMS"
+
+echo "== organisation variable mismatch"
+if OPENAEC_GPG_PRIVATE_KEY=$secret OPENAEC_GPG_PASSPHRASE=fixture-only OPENAEC_GPG_EXPECTED_FINGERPRINT=$fpr OPENAEC_GPG_FINGERPRINT=0000 bash "$script" sign "$a" "$root/pub.asc"; then exit 11; fi
+
+echo "== sign"
+export OPENAEC_GPG_EXPECTED_FINGERPRINT=$fpr
+OPENAEC_GPG_PRIVATE_KEY=$secret OPENAEC_GPG_PASSPHRASE=fixture-only OPENAEC_GPG_FINGERPRINT=$fpr bash "$script" sign "$a" "$root/pub.asc"
+for f in Open.PDF.Studio_1.0.0_amd64.deb Open.PDF.Studio_1.0.0_amd64.AppImage open-pdf-studio_1.0.0_amd64.snap SHA256SUMS; do
+  head -1 "$a/$f.asc" | grep -qx -- '-----BEGIN PGP SIGNATURE-----'
+done
+test ! -e "$a/Open.PDF.Studio_1.0.0_amd64.AppImage.tar.gz.asc"
+test "$(cat "$a/Open.PDF.Studio_1.0.0_amd64.AppImage.sig")" = minisign
+echo "== sums"
+cat "$a/SHA256SUMS"
+echo "== tampered"
+printf x >> "$a/open-pdf-studio_1.0.0_amd64.snap"
+if bash "$script" verify "$a" "$root/pub.asc"; then exit 12; fi
+echo "== done"
+`;
+
+test('sign-linux-release.sh signs, verifies, refuses a wrong key and skips without the secret (#842)', {
+  // Het script draait in de workflows op Ubuntu (GNU sha256sum); macOS mist die.
+  skip: process.platform === 'darwin' || !hasCommand('gpg') || !hasCommand('gpgv') || !hasCommand('sha256sum'),
+}, () => {
+  const script = fileURLToPath(new URL('scripts/sign-linux-release.sh', appRoot));
+  const result = spawnSync('bash', ['-c', SIGN_FIXTURE, '_', script], { encoding: 'utf8' });
+  const log = `${result.stdout}\n${result.stderr}`;
+  assert.equal(result.status, 0, log);
+  assert.match(result.stdout, /::notice::OPENAEC_GPG_PRIVATE_KEY is not available/);
+  assert.match(result.stdout, /status=skipped/);
+  assert.match(log, /imported secret key has primary fingerprint '[0-9A-F]{40}', expected 13F6D414ADEE4ED4CD09AC60601D86C93C504D29/);
+  assert.match(log, /OPENAEC_GPG_FINGERPRINT \(0000\) differs/);
+  assert.match(result.stdout, /status=signed/);
+  assert.match(result.stdout, /missing=\n/);
+  const sums = result.stdout.split('== sums\n')[1].split('== tampered')[0].trim().split('\n')
+    .map((line) => line.split('  ')[1]);
+  assert.deepEqual(sums, [
+    'Open.PDF.Studio_1.0.0_amd64.AppImage',
+    'Open.PDF.Studio_1.0.0_amd64.AppImage.tar.gz',
+    'Open.PDF.Studio_1.0.0_amd64.deb',
+    'open-pdf-studio_1.0.0_amd64.snap',
+  ]);
+  assert.match(log, /BAD signature/);
+  assert.match(result.stdout, /== done/);
 });
