@@ -1,6 +1,6 @@
 import { createSignal, createMemo } from 'solid-js';
 import { BUILT_IN_CATEGORIES } from '../data/symbolLibrary.js';
-import { NEN1414_CATEGORIES } from '../data/nen1414Library.js';
+import { nen1414Categorieen, laadNen1414 } from '../data/nen1414-laden.js';
 import { NL_CATEGORIES } from '../data/nlSymbolLibrary.js';
 import { INB_CATEGORIES } from '../data/inbSymbolLibrary.js';
 import { GDT_CATEGORIES } from '../data/gdtSymbolLibrary.js';
@@ -104,6 +104,13 @@ function setCustomGroups(groups) {
   savePreferences();
 }
 
+// De NEN 1414-groepen komen erbij zodra hun chunk geladen is (#454);
+// initSymbolPalette start die lading na het tekenen van het venster.
+const [nen1414Groepen, setNen1414Groepen] = createSignal(nen1414Categorieen() || []);
+function laadNen1414Groepen() {
+  return laadNen1414().then((cats) => { if (cats?.length) setNen1414Groepen(cats); });
+}
+
 // --- All categories (built-in + custom) ---
 const allCategories = createMemo(() => {
   const custom = getCustomGroups().map(g => ({
@@ -115,7 +122,7 @@ const allCategories = createMemo(() => {
     ...NL_CATEGORIES,
     ...INB_CATEGORIES,
     ...BUILT_IN_CATEGORIES,
-    ...NEN1414_CATEGORIES,
+    ...nen1414Groepen(),
     ...GDT_CATEGORIES,
     ...custom
   ];
@@ -268,6 +275,7 @@ function initSymbolPalette() {
   if (symbolPaletteVisible() && mode.startsWith('docked-')) {
     registerPaletteDock('symbols', mode.replace('docked-', ''));
   }
+  laadNen1414Groepen();
 }
 
 export {
