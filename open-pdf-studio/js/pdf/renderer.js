@@ -30,6 +30,7 @@ import { voorvertoningSleutel, voorvertoningRotatie, maakVoorvertoningLus } from
 import { rotateTextDir } from '../annotations/corrections/geometry.js';
 import { isTextAnchored } from '../annotations/corrections/model.js';
 import { stopAlleWielScrollers } from './wiel-scroll.js';
+import { scrollGedrag } from '../core/vloeiend-scrollen.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
 import { isRenderCancelled } from './render-queue.js';
@@ -2150,7 +2151,7 @@ export async function goToPage(pageNum, options = {}) {
     if (pageWrapper && !options.skipScroll) {
       // Een lopende wieluitloop zou deze vloeiende sprong afbreken (#522).
       stopAlleWielScrollers();
-      pageWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      pageWrapper.scrollIntoView({ behavior: scrollGedrag(), block: 'start' });
     }
   }
 

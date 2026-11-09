@@ -26,6 +26,9 @@
 //  - touchpad- en fijne (hoge-resolutie) wieldelta's gaan direct 1-op-1
 //    door. Het besturingssysteem levert daar zelf de traagheid bij; nog een
 //    eigen uitloop erbovenop voelt zweverig.
+//  - de uitloop hoort bij de voorkeur "Vloeiend scrollen" (#1007, standaard
+//    uit, core/vloeiend-scrollen.js): staat die uit, dan schuift ook een
+//    muiswielklik direct en in één keer zijn delta op (optie `vloeiend`).
 //
 // Puur: geen DOM. Klok en animatieframe worden meegegeven (testbaar met een
 // nepklok, zie wiel-scroll.test.mjs).
@@ -205,8 +208,10 @@ const _alleScrollers = new Set();
  *        scrollbereik vanaf de huidige plek (zie maakElementVerschuiver):
  *        een klik mikt nooit voorbij de rand
  * @param {number} [o.duur]
+ * @param {() => boolean} [o.vloeiend]  krijgt een muiswielklik de uitloop? Zo
+ *        niet, dan gaat hij direct door, net als een touchpaddelta (#1007)
  */
-export function maakWielScroller({ nu, verschuif, vraagFrame = null, ruimte = null, duur = WIEL_DUUR_MS }) {
+export function maakWielScroller({ nu, verschuif, vraagFrame = null, ruimte = null, duur = WIEL_DUUR_MS, vloeiend = () => true }) {
   const animatie = maakWielAnimatie({ duur });
   let vers = false;
   let frameGevraagd = false;
@@ -239,11 +244,15 @@ export function maakWielScroller({ nu, verschuif, vraagFrame = null, ruimte = nu
   const scroller = {
     /**
      * Verwerk een wieldelta in px. `stap` = muiswielklik (krijgt de
-     * uitloop); anders direct 1-op-1 toepassen.
+     * uitloop als vloeiend scrollen aan staat); anders direct 1-op-1
+     * toepassen.
      */
     wiel(dx, dy, stap) {
       if (!dx && !dy) return;
-      if (!stap) {
+      if (!stap || !vloeiend()) {
+        // Een uitloop van voor het uitzetten van vloeiend scrollen mag niet
+        // achter deze directe stap aan blijven schuiven.
+        if (animatie.actief) scroller.stop();
         verschuif(dx, dy, true);
         return;
       }

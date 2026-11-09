@@ -188,6 +188,8 @@
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
     "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
     "ribbonWheelSwitchesTabs": "マウスホイールでリボンのタブを切り替える",
+    "smoothScrolling": "スムーズスクロール",
+    "smoothScrollingHint": "マウスホイールでのスクロールとページへの移動をアニメーション表示し、ページが少し滑り続けます。オフ：ホイールが止まるとページも止まります。Linux では再起動が必要な場合があります。",
     "dynamicScaling": "マークアップを自動スケーリング"
   },
   "fileAssoc": {

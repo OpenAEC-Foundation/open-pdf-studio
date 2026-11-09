@@ -136,6 +136,16 @@ renderer altogether, at the cost of much slower rendering. Issue
 [#924](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/924) tracks
 these crashes.
 
+**Smooth scrolling.** WebKitGTK animates scrolling by default (the WebKitGTK
+setting `enable-smooth-scrolling`): the page keeps gliding after the mouse
+wheel stops. Open PDF Studio turns this off in every window, together with its
+own wheel and jump animations, unless *Preferences > Behavior > Smooth
+scrolling* is on. The setting is applied when a window opens and again when
+you change the preference; if a WebKitGTK version does not pick up the change
+at once, restart the app. The app adds no momentum of its own to touchpad
+scrolling: any sliding on after you lift your fingers comes from GTK and the
+desktop. Issue [#1007](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/1007).
+
 **Choosing Wayland or X11.** The AppImage's GTK hook overwrites `GDK_BACKEND`.
 Set `OPDS_GDK_BACKEND=wayland` (or `x11`) to choose the backend instead.
 

@@ -208,7 +208,7 @@ fn load_session() -> Option<String> {
     fs::read_to_string(&path).ok()
 }
 
-fn get_preferences_file_path() -> String {
+pub(crate) fn get_preferences_file_path() -> String {
     if let Some(data_dir) = datamap::lokale_datamap() {
         let app_dir = data_dir.join("OpenPDFStudio");
         if !app_dir.exists() {
@@ -231,6 +231,26 @@ fn save_preferences(data: String) -> Result<bool, String> {
 fn load_preferences() -> Option<String> {
     let path = get_preferences_file_path();
     fs::read_to_string(&path).ok()
+}
+
+/// Voorkeur "Vloeiend scrollen" (#1007) live naar elke WebView van dit proces.
+/// Alleen WebKitGTK (Linux) heeft daar een instelling voor; WebView2 en
+/// WKWebView niet, daar regelt de JS-kant het wielscrollen zelf. Geeft terug
+/// of de instelling is doorgegeven.
+#[tauri::command]
+fn zet_vloeiend_scrollen(app: tauri::AppHandle, aan: bool) -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        for venster in app.webview_windows().values() {
+            linux_runtime::zet_vloeiend_scrollen::<tauri::Wry>(venster.as_ref(), aan);
+        }
+        true
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = (app, aan);
+        false
+    }
 }
 
 // Symboolcatalogi als losse bestanden naast preferences.json (#354): grote
@@ -3549,6 +3569,7 @@ pub fn run(opts: StartupOpts) {
             list_pdf_file_stats,
             save_preferences,
             load_preferences,
+            zet_vloeiend_scrollen,
             save_catalog,
             load_catalog,
             delete_catalog,

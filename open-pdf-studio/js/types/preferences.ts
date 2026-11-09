@@ -227,6 +227,7 @@ export interface Preferences {
   wheelZoomWithoutCtrl: boolean;
   middleDoubleClickFit: boolean;
   ribbonWheelSwitchesTabs: boolean;
+  smoothScrolling: boolean;
 
   // Stempelkiezer: ingebouwde stempels verbergen als er eigen stempels zijn (#998)
   hideBuiltInStamps: boolean;

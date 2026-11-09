@@ -175,13 +175,76 @@ pub fn zet_canvas_versnelling_uit<R: tauri::Runtime>(webview: &tauri::Webview<R>
     }
 }
 
+/// Vloeiend scrollen (#1007). WebKitGTK zet `enable-smooth-scrolling`
+/// standaard aan: een wielklik, een pijl- of PageDown-toets en een klik in de
+/// schuifbalk worden dan geanimeerd en de pagina glijdt na het wielen nog even
+/// door. De app volgt de voorkeur "Vloeiend scrollen" (standaard uit): bij het
+/// aanmaken van elke WebView uit het voorkeurenbestand, en daarna live via de
+/// opdracht `zet_vloeiend_scrollen` zodra de voorkeur verandert. Aan
+/// touchpadscrollen voegt de app zelf geen traagheid toe; doorglijden na het
+/// loslaten komt van GTK en de desktop.
+#[cfg(any(target_os = "linux", test))]
+const VLOEIEND_SCROLLEN: &str = "enable-smooth-scrolling";
+
+/// Staat vloeiend scrollen aan in de opgeslagen voorkeuren (`smoothScrolling`)?
+/// Standaard uit, ook als het bestand ontbreekt, onleesbaar is of de sleutel
+/// geen boolean is.
+#[cfg(any(target_os = "linux", test))]
+fn vloeiend_scrollen_in_voorkeuren(json: Option<&str>) -> bool {
+    json.and_then(|tekst| serde_json::from_str::<serde_json::Value>(tekst).ok())
+        .and_then(|voorkeuren| voorkeuren.get("smoothScrolling").and_then(serde_json::Value::as_bool))
+        .unwrap_or(false)
+}
+
+/// De opgeslagen voorkeur, gelezen bij het aanmaken van een WebView (de
+/// JS-kant draait dan nog niet).
+#[cfg(target_os = "linux")]
+fn vloeiend_scrollen_bij_start() -> bool {
+    let tekst = std::fs::read_to_string(crate::get_preferences_file_path()).ok();
+    vloeiend_scrollen_in_voorkeuren(tekst.as_deref())
+}
+
+/// Zet vloeiend scrollen aan of uit in de WebKitSettings van deze WebView. Op
+/// naam en alleen als de eigenschap bestaat, schrijfbaar is en een boolean is,
+/// net als bij de canvasversnelling hierboven (`set_property` breekt anders
+/// af). WebKitGTK past een gewijzigde instelling meteen toe; mocht een versie
+/// dat niet doen, dan geldt de voorkeur na een herstart van de app.
+#[cfg(target_os = "linux")]
+pub fn zet_vloeiend_scrollen<R: tauri::Runtime>(webview: &tauri::Webview<R>, aan: bool) {
+    let label = webview.label().to_string();
+    let resultaat = webview.with_webview(move |platform| {
+        use webkit2gtk::glib::prelude::{ObjectExt, StaticType};
+        use webkit2gtk::glib::ParamFlags;
+        use webkit2gtk::WebViewExt;
+
+        let Some(instellingen) = platform.inner().settings() else {
+            return;
+        };
+        let Some(spec) = instellingen.find_property(VLOEIEND_SCROLLEN) else {
+            return;
+        };
+        if spec.value_type() != bool::static_type() || !spec.flags().contains(ParamFlags::WRITABLE) {
+            return;
+        }
+        instellingen.set_property(VLOEIEND_SCROLLEN, aan);
+        eprintln!("[startup] smooth scrolling {} for webview '{label}' (#1007)", if aan { "on" } else { "off" });
+    });
+    if let Err(e) = resultaat {
+        eprintln!("[startup] could not reach the webview settings: {e}");
+    }
+}
+
 /// Plugin die elke WebView van de app (hoofdvenster, printwachtrij en elk
-/// ander venster) bij het aanmaken langs `zet_canvas_versnelling_uit` stuurt.
-/// Een losgetrokken tabblad is een eigen app-proces en krijgt deze plugin ook.
+/// ander venster) bij het aanmaken langs `zet_canvas_versnelling_uit` en
+/// `zet_vloeiend_scrollen` stuurt. Een losgetrokken tabblad is een eigen
+/// app-proces en krijgt deze plugin ook.
 #[cfg(target_os = "linux")]
 pub fn webview_plugin<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("opds-linux-webview")
-        .on_webview_ready(|webview| zet_canvas_versnelling_uit(&webview))
+        .on_webview_ready(|webview| {
+            zet_canvas_versnelling_uit(&webview);
+            zet_vloeiend_scrollen(&webview, vloeiend_scrollen_bij_start());
+        })
         .build()
 }
 
@@ -200,7 +263,7 @@ pub fn sandbox() -> Option<&'static str> {
 mod tests {
     use super::{
         canvas_gpu_toegestaan, is_flatpak_sandbox, is_snap_omgeving, packaged_gio_module_dir,
-        realtime_toegestaan, CANVAS_VERSNELLING,
+        realtime_toegestaan, vloeiend_scrollen_in_voorkeuren, CANVAS_VERSNELLING, VLOEIEND_SCROLLEN,
     };
     use std::env;
     use std::ffi::OsStr;
@@ -337,5 +400,17 @@ mod tests {
         for aan in ["1", "true", "Yes", " ON "] {
             assert!(canvas_gpu_toegestaan(Some(OsStr::new(aan))), "{aan}");
         }
+    }
+
+    #[test]
+    fn smooth_scrolling_follows_the_saved_preference_and_defaults_to_off() {
+        assert_eq!(VLOEIEND_SCROLLEN, "enable-smooth-scrolling");
+        assert!(!vloeiend_scrollen_in_voorkeuren(None));
+        assert!(!vloeiend_scrollen_in_voorkeuren(Some("")));
+        assert!(!vloeiend_scrollen_in_voorkeuren(Some("not json")));
+        assert!(!vloeiend_scrollen_in_voorkeuren(Some(r#"{"theme":"light"}"#)));
+        assert!(!vloeiend_scrollen_in_voorkeuren(Some(r#"{"smoothScrolling":false}"#)));
+        assert!(!vloeiend_scrollen_in_voorkeuren(Some(r#"{"smoothScrolling":"true"}"#)));
+        assert!(vloeiend_scrollen_in_voorkeuren(Some(r#"{"theme":"light","smoothScrolling":true}"#)));
     }
 }

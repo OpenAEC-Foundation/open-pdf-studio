@@ -192,6 +192,8 @@
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
     "ribbonWheelSwitchesTabs": "Linttabbladen wisselen met het muiswiel",
+    "smoothScrolling": "Vloeiend scrollen",
+    "smoothScrollingHint": "Scrollen met het muiswiel en sprongen naar een pagina animeren, zodat de pagina nog even doorglijdt. Uit: de pagina staat stil zodra het wiel stilstaat. Op Linux kan een herstart nodig zijn.",
     "dynamicScaling": "Markeringen automatisch schalen"
   },
   "fileAssoc": {
