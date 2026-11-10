@@ -105,7 +105,9 @@ function imageInfo(context, stream) {
  *
  * @param {Uint8Array|ArrayBuffer} input  De bronbytes; worden niet gewijzigd.
  * @param {{signal?: AbortSignal, onProgress?: (p: {done: number, total: number}) => void,
- *          limits?: object, documentLimits?: object, checkpoint?: () => Promise<void>}} [options]
+ *          limits?: object, documentLimits?: object, checkpoint?: () => Promise<void>,
+ *          native?: Function|null}} [options]  `native`: Rust-encoder per beeld
+ *          (monochrome-rust.js); zonder of bij een fout de JS-encoder.
  * @returns {Promise<{bytes: Uint8Array|null, reason: string|null, origSize: number,
  *          newSize: number, replaced: number, images: Array<{ref: string, width: number|null,
  *          height: number|null, before: number, after: number|null,
@@ -113,7 +115,7 @@ function imageInfo(context, stream) {
  *          `bytes` is null (met een reden) als er niets kleiners te schrijven valt.
  */
 export async function optimizeMonochromeDocument(input, {
-  signal, onProgress, limits = MONOCHROME_LIMITS, documentLimits = DOCUMENT_LIMITS, checkpoint,
+  signal, onProgress, limits = MONOCHROME_LIMITS, documentLimits = DOCUMENT_LIMITS, checkpoint, native = null,
 } = {}) {
   checkAbort(signal);
   const source = input instanceof Uint8Array ? input : new Uint8Array(input);
@@ -153,7 +155,7 @@ export async function optimizeMonochromeDocument(input, {
     const entry = { ref: `${ref.objectNumber} ${ref.generationNumber} R`, width: info.width, height: info.height, before: stream.sizeInBytes(), after: null, filter: null, reason: null };
     images.push(entry);
     if (i >= documentLimits.images || info.decoded > budget) { entry.reason = 'document-budget'; continue; }
-    const result = await optimizeMonochromeImage(stream, { signal, limits, allowRgb: !rgbBlocker, ...(checkpoint ? { checkpoint } : {}) });
+    const result = await optimizeMonochromeImage(stream, { signal, limits, allowRgb: !rgbBlocker, native, ...(checkpoint ? { checkpoint } : {}) });
     if (!result.replacement) {
       entry.reason = result.reason === 'color-profile-or-space' && rgbBlocker && info.colorSpace === 'DeviceRGB' && info.bits === 8
         ? rgbBlocker : result.reason;

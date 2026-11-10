@@ -56,6 +56,33 @@ async function transform(bytes, codec, limit, signal) {
   }
 }
 
+// /Decode van een acht-bit beeld: { ok, decode } met decode null (standaard)
+// of [0, 1] / [1, 0]. Niet ok als het daar niet op terug te brengen is.
+function eightBitDecode(context, d, channels) {
+  if (!d || d === PDFNull) return { ok: true, decode: null };
+  if (!(d instanceof PDFArray) || d.size() !== channels * 2) return { ok: false, decode: null };
+  const values = d.asArray().map(v => number(resolve(context, v)));
+  if (!((values[0] === 0 && values[1] === 1) || (values[0] === 1 && values[1] === 0))
+    || values.some((v, i) => v !== values[i % 2])) return { ok: false, decode: null };
+  return { ok: true, decode: values.slice(0, 2) };
+}
+
+function blackIs1Of(context, decode) {
+  if (Array.isArray(decode)) return decode[0] > decode[1];
+  if (decode instanceof PDFArray && decode.size() >= 2) {
+    const [d0, d1] = [0, 1].map(i => number(resolve(context, decode.get(i))));
+    return d0 !== null && d1 !== null && d0 > d1;
+  }
+  return false;
+}
+
+let nativeWarned = false;
+function warnNativeOnce(error) {
+  if (nativeWarned) return;
+  nativeWarned = true;
+  console.warn('[monochrome] Rust encoder failed, using the JS encoder:', error?.message ?? error);
+}
+
 /**
  * Returns a smaller replacement stream, or a stable skip reason. The source
  * stream/dictionary, indirect resources and document are never modified.
@@ -67,8 +94,10 @@ async function transform(bytes, codec, limit, signal) {
  * Other filters/profiles/predictors remain untouched with an explicit reason.
  * The one-bit result is encoded both as Flate and as CCITT Group 4 (T.6); the
  * smaller complete stream wins (`filter` in the result names it).
+ * `native` (monochrome-rust.js) does the per-image work in Rust when given;
+ * on any error the JS encoder below takes over with the same rules.
  */
-export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = () => new Promise(r => setTimeout(r, 0)), allowRgb = false } = {}) {
+export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = () => new Promise(r => setTimeout(r, 0)), allowRgb = false, native = null } = {}) {
   checkAbort(signal);
   if (!(stream instanceof PDFRawStream)) return { replacement: null, reason: 'not-image' };
   const context = stream.dict.context;
@@ -140,21 +169,69 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
       if (predictor && number(predictor) !== 1) skip('unsupported-predictor');
     }
     if (typeof CompressionStream !== 'function' || typeof DecompressionStream !== 'function') skip('codec-unavailable');
+    // Acht bit: /Decode moet [0 1] of [1 0] zijn (per kanaal gelijk).
+    const eight = bits === 8 ? eightBitDecode(context, get('Decode'), channels) : null;
+    // CCITT codeert "zwart" en "wit"; welke samplewaarde zwart is volgt uit
+    // /Decode ([1 0]: bit 1 is zwart, anders bit 0, ook bij een stencil
+    // waar bit 0 de verfwaarde is). Decoderen geeft dezelfde samplebits terug,
+    // dus /Decode en de kleurruimte blijven ongewijzigd gelden.
+    const blackIs1 = blackIs1Of(context, bits === 8 ? eight.decode : get('Decode'));
+    const dictionary = stream.dict.clone(context);
+    if (bits === 8) {
+      dictionary.set(PDFName.of('BitsPerComponent'), PDFNumber.of(1));
+      dictionary.set(PDFName.of('ColorSpace'), PDFName.of('DeviceGray'));
+      // /DL (PDF 2.0) is the decoded length of the eight-bit samples; after
+      // packing it would be eight times too large. One-bit data keeps it.
+      dictionary.delete(PDFName.of('DL'));
+      if (eight.ok && eight.decode) dictionary.set(PDFName.of('Decode'), context.obj(eight.decode));
+    }
+    const candidateStream = (filterName, data) => {
+      const d = dictionary.clone(context);
+      d.set(PDFName.of('Filter'), PDFName.of(filterName));
+      if (filterName === 'CCITTFaxDecode') d.set(PDFName.of('DecodeParms'), context.obj(ccittG4Params(width, height, blackIs1)));
+      else d.delete(PDFName.of('DecodeParms'));
+      d.set(PDFName.of('Length'), PDFNumber.of(data.length));
+      return PDFRawStream.of(d, data);
+    };
+    // Compare COMPLETE serialized stream objects (dictionary + data). Masks
+    // and profiles retain the same references/content, so their cost cancels.
+    const before = PDFRawStream.of(stream.dict.clone(context), input).sizeInBytes();
+    const result = (best) => {
+      const after = best.stream.sizeInBytes();
+      if (after >= before) skip('not-smaller');
+      const replacement = PDFRawStream.of(best.stream.dict, best.stream.getContents().slice());
+      return { replacement, reason: null, filter: best.filter, before, after, decodedBytes: decodedSize, workingBufferBytes: working + (ccittFits ? outputCap * 2 : 0) };
+    };
+
+    if (native) {
+      // Zelfde stappen in Rust (monochrome-rust.js); bij een fout neemt de
+      // JS-route hieronder het over.
+      let answer = null;
+      try {
+        const empty = new Uint8Array(0);
+        answer = await native(input, {
+          width, height, bits, channels, flateSource: name(filter) === 'FlateDecode',
+          decodedSize, outputCap, ccittFits, blackIs1, decodeOk: bits !== 8 || eight.ok, before,
+          flateBase: candidateStream('FlateDecode', empty).sizeInBytes(),
+          ccittBase: candidateStream('CCITTFaxDecode', empty).sizeInBytes(),
+        });
+      } catch (error) {
+        warnNativeOnce(error);
+      }
+      checkAbort(signal);
+      if (answer) {
+        if (!answer.filter) skip(answer.reason);
+        return result({ filter: answer.filter, stream: candidateStream(answer.filter, answer.data) });
+      }
+    }
+
     const samples = name(filter) === 'FlateDecode'
       ? await transform(input, new DecompressionStream('deflate'), decodedSize, signal)
       : input;
     if (samples.length !== decodedSize) skip('invalid-sample-length');
     let packed = samples;
-    let decode = null;
     if (bits === 8) {
-      const d = get('Decode');
-      if (d && d !== PDFNull) {
-        if (!(d instanceof PDFArray) || d.size() !== channels * 2) skip('unsupported-decode');
-        const values = d.asArray().map(v => number(resolve(context, v)));
-        if (!((values[0] === 0 && values[1] === 1) || (values[0] === 1 && values[1] === 0))
-          || values.some((v, i) => v !== values[i % 2])) skip('unsupported-decode');
-        decode = values.slice(0, 2);
-      }
+      if (!eight.ok) skip('unsupported-decode');
       packed = new Uint8Array(packedSize);
       const stride = Math.ceil(width / 8);
       for (let y = 0; y < height; y++) {
@@ -176,17 +253,6 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
       if (!(error instanceof SkipImage)) throw error;
     }
     checkAbort(signal);
-    // CCITT codeert "zwart" en "wit"; welke samplewaarde zwart is volgt uit
-    // /Decode ([1 0]: bit 1 is zwart, anders bit 0, ook bij een stencil
-    // waar bit 0 de verfwaarde is). Decoderen geeft dezelfde samplebits terug,
-    // dus /Decode en de kleurruimte blijven ongewijzigd gelden.
-    let blackIs1 = false;
-    const sourceDecode = bits === 8 ? decode : get('Decode');
-    if (Array.isArray(sourceDecode)) blackIs1 = sourceDecode[0] > sourceDecode[1];
-    else if (sourceDecode instanceof PDFArray && sourceDecode.size() >= 2) {
-      const [d0, d1] = [0, 1].map(i => number(resolve(context, sourceDecode.get(i))));
-      blackIs1 = d0 !== null && d1 !== null && d0 > d1;
-    }
     let ccitt = null;
     if (ccittFits) {
       try {
@@ -203,40 +269,14 @@ export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHR
     }
     checkAbort(signal);
     if (!flate && !ccitt) skip('decoded-or-output-limit');
-    const dictionary = stream.dict.clone(context);
-    if (bits === 8) {
-      dictionary.set(PDFName.of('BitsPerComponent'), PDFNumber.of(1));
-      dictionary.set(PDFName.of('ColorSpace'), PDFName.of('DeviceGray'));
-      // /DL (PDF 2.0) is the decoded length of the eight-bit samples; after
-      // packing it would be eight times too large. One-bit data keeps it.
-      dictionary.delete(PDFName.of('DL'));
-      if (decode) dictionary.set(PDFName.of('Decode'), context.obj(decode));
-    }
-    const candidates = [];
-    for (const [filterName, data, decodeParms] of [
-      ['FlateDecode', flate, null],
-      ['CCITTFaxDecode', ccitt, ccittG4Params(width, height, blackIs1)],
-    ]) {
-      if (!data) continue;
-      const d = dictionary.clone(context);
-      d.set(PDFName.of('Filter'), PDFName.of(filterName));
-      if (decodeParms) d.set(PDFName.of('DecodeParms'), context.obj(decodeParms));
-      else d.delete(PDFName.of('DecodeParms'));
-      d.set(PDFName.of('Length'), PDFNumber.of(data.length));
-      candidates.push({ filter: filterName, stream: PDFRawStream.of(d, data) });
-    }
-    // Compare COMPLETE serialized stream objects (dictionary + data). Masks
-    // and profiles retain the same references/content, so their cost cancels.
-    const original = PDFRawStream.of(stream.dict.clone(context), input);
-    const before = original.sizeInBytes();
     let best = null, after = Infinity;
-    for (const candidate of candidates) {
+    for (const [filterName, data] of [['FlateDecode', flate], ['CCITTFaxDecode', ccitt]]) {
+      if (!data) continue;
+      const candidate = { filter: filterName, stream: candidateStream(filterName, data) };
       const size = candidate.stream.sizeInBytes();
       if (size < after) { best = candidate; after = size; }
     }
-    if (after >= before) skip('not-smaller');
-    const replacement = PDFRawStream.of(best.stream.dict, best.stream.getContents().slice());
-    return { replacement, reason: null, filter: best.filter, before, after, decodedBytes: decodedSize, workingBufferBytes: working + (ccittFits ? outputCap * 2 : 0) };
+    return result(best);
   } catch (error) {
     checkAbort(signal);
     if (error instanceof SkipImage) return { replacement: null, reason: error.message };

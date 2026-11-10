@@ -3684,6 +3684,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-monochrome"
+version = "2026.45.0"
+dependencies = [
+ "flate2",
+ "zlib-rs",
+]
+
+[[package]]
 name = "open-pdf-render"
 version = "2026.45.0"
 dependencies = [
@@ -3776,6 +3784,7 @@ dependencies = [
  "open",
  "open-pdf-cad",
  "open-pdf-cmyk",
+ "open-pdf-monochrome",
  "open-pdf-render",
  "open-pdf-security",
  "open-pdf-signatures",
