@@ -71,6 +71,9 @@ export function statusReplyFromPdfAnnotation(annot) {
  *
  * Replies worden op datum (oplopend) toegepast zodat bij meerdere
  * status-wijzigingen de laatste wint; zonder datum telt documentvolgorde.
+ * Zijn er meerdere Review-replies, dan komt hun verloop als
+ * `statusHistory` ([{status, by, at}], oud naar nieuw) op het doel (#629,
+ * review/status-history.js).
  *
  * @param {Array} pending  markers uit statusReplyFromPdfAnnotation()
  * @param {Map<string, object>} byPdfId  PDF.js-annotatie-id → app-annotatie
@@ -89,6 +92,7 @@ export function applyStatusReplies(pending, byPdfId) {
     .map(x => x.p);
 
   let applied = 0;
+  const verloop = new Map(); // doel -> [{status, by, at}]
   for (const st of sorted) {
     const target = byPdfId.get(st.targetId);
     if (!target) continue;
@@ -103,8 +107,13 @@ export function applyStatusReplies(pending, byPdfId) {
       }
       if (st.author) target.statusBy = st.author;
       if (st.date) target.statusAt = st.date;
+      if (!verloop.has(target)) verloop.set(target, []);
+      verloop.get(target).push({ status: s || 'none', by: st.author || '', at: st.date || null });
     }
     applied++;
+  }
+  for (const [target, stappen] of verloop) {
+    if (stappen.length > 1) target.statusHistory = stappen;
   }
   return applied;
 }

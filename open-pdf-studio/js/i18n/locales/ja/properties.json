@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} が {{date}} に設定",
     "layer": "レイヤー",
     "layerMarkupGroup": "マークアップレイヤー",
-    "layerDocumentGroup": "文書のレイヤー"
+    "layerDocumentGroup": "文書のレイヤー",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "なし",
   "moreColors": "その他の色...",
@@ -501,7 +503,18 @@
     },
     "preview": "プレビュー",
     "exportCsv": "CSV をエクスポート",
-    "workbookBindings": "スプレッドシートのバインド"
+    "workbookBindings": "スプレッドシートのバインド",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "集計表ウィザード",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "ツールセットとしてはファイルが大きすぎます。",
     "errorFileInvalid": "このファイルは有効なツールセットではありません。",
     "errorFileNewer": "このツールセットは新しいバージョンの Open PDF Studio で作成されています。インポートするにはアプリを更新してください。",
-    "damagedStatus": "保存されたツールセットを読み込めませんでした。破損したファイルは「{{name}}」として保管されました。"
+    "damagedStatus": "保存されたツールセットを読み込めませんでした。破損したファイルは「{{name}}」として保管されました。",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -11,13 +11,15 @@ export const PROTOCOL_VERSIE = 1;
 /** De attributen die het element bekijkt, in de volgorde van het ontwerp. */
 export const ATTRIBUTEN = Object.freeze([
   'src', 'scale', 'unit', 'lang', 'engine', 'mode', 'tools', 'page', 'zoom',
-  'storage', 'host-origin',
+  'storage', 'host-origin', 'toolbar', 'theme',
 ]);
 
 export const MOTOREN = Object.freeze(['pdfjs', 'mupdf', 'auto']);
 export const MODI = Object.freeze(['view', 'edit']);
 export const GEREEDSCHAPPEN = Object.freeze(['measure', 'comment', 'shape']);
 export const OPSLAGSOORTEN = Object.freeze(['none', 'local']);
+export const WERKBALKEN = Object.freeze(['default', 'none']);
+export const THEMAS = Object.freeze(['light', 'dark']);
 
 export const STANDAARD = Object.freeze({
   src: null,
@@ -31,6 +33,8 @@ export const STANDAARD = Object.freeze({
   zoom: 'fit',
   opslag: 'none',
   gastheerOrigins: [],
+  werkbalk: 'default',
+  thema: 'light',
 });
 
 function kiesUit(waarde, toegestaan, standaard) {
@@ -91,6 +95,8 @@ export function leesInstellingen(attributen = {}) {
     zoom: leesZoom(a('zoom')),
     opslag: kiesUit(a('storage'), OPSLAGSOORTEN, STANDAARD.opslag),
     gastheerOrigins: leesOrigins(a('host-origin')),
+    werkbalk: kiesUit(a('toolbar'), WERKBALKEN, STANDAARD.werkbalk),
+    thema: kiesUit(a('theme'), THEMAS, STANDAARD.thema),
   };
 }
 
@@ -129,6 +135,76 @@ export function opgeslagenDetail(bytes, annotaties) {
 
 export function foutDetail(code, bericht) {
   return { code: String(code || 'onbekend'), bericht: String(bericht || '') };
+}
+
+// ── Engelstalige inbeddings-API ─────────────────────────────────────────────
+//
+// De gedocumenteerde afspraak voor gastheren (README, docs/web-unit-451.md) is
+// Engels. Het element zendt elke gebeurtenis twee keer: onder de Engelse naam
+// met Engelse velden, en onder de oorspronkelijke Nederlandse naam, zodat een
+// gastheer van de eerste snede blijft werken.
+
+export const EVENTS = Object.freeze({
+  load: 'opds:load',
+  change: 'opds:change',
+  save: 'opds:save',
+  error: 'opds:error',
+});
+
+/** Welke Nederlandse gebeurtenis bij welke Engelse hoort. */
+export const EVENT_VOOR = Object.freeze({
+  [GEBEURTENISSEN.geladen]: EVENTS.load,
+  [GEBEURTENISSEN.gewijzigd]: EVENTS.change,
+  [GEBEURTENISSEN.opgeslagen]: EVENTS.save,
+  [GEBEURTENISSEN.fout]: EVENTS.error,
+});
+
+/** Het Nederlandse `detail` omzetten naar de Engelse velden. */
+export function engelsDetail(naam, d = {}) {
+  if (naam === GEBEURTENISSEN.geladen) {
+    return {
+      pages: d.paginas, widthPt: d.breedtePt, heightPt: d.hoogtePt,
+      scale: d.schaal ? { unitsPerPoint: d.schaal.eenheidPerPunt, ratio: d.schaal.noemer, unit: d.schaal.eenheid } : null,
+    };
+  }
+  if (naam === GEBEURTENISSEN.gewijzigd) return { count: d.aantal, last: d.laatste };
+  if (naam === GEBEURTENISSEN.opgeslagen) return { bytes: d.bytes, annotationCount: d.aantalAnnotaties };
+  if (naam === GEBEURTENISSEN.fout) return { code: d.code, message: d.bericht };
+  return { ...d };
+}
+
+/** Terugroepfuncties in de opties van `mount()` en hun gebeurtenis. */
+export const HANDLERS = Object.freeze({
+  onLoad: EVENTS.load,
+  onChange: EVENTS.change,
+  onSave: EVENTS.save,
+  onError: EVENTS.error,
+});
+
+/** Opties van `mount()` die rechtstreeks een attribuut zijn. */
+const OPTIE_ATTRIBUUT = Object.freeze({
+  src: 'src', scale: 'scale', unit: 'unit', lang: 'lang', engine: 'engine',
+  mode: 'mode', tools: 'tools', page: 'page', zoom: 'zoom', storage: 'storage',
+  hostOrigin: 'host-origin', toolbar: 'toolbar', theme: 'theme',
+});
+
+/**
+ * De opties van `OpenPdfStudio.mount(el, opties)` omzetten naar attributen.
+ * Lijsten worden aaneengeregen, `readOnly: true` wordt `mode="view"`,
+ * `toolbar: false` wordt `toolbar="none"`. Lege waarden vallen weg.
+ */
+export function attributenUitOpties(opties = {}) {
+  const uit = {};
+  for (const [optie, attr] of Object.entries(OPTIE_ATTRIBUUT)) {
+    let v = opties[optie];
+    if (v == null || v === '') continue;
+    if (optie === 'toolbar' && typeof v === 'boolean') v = v ? 'default' : 'none';
+    if (Array.isArray(v)) v = v.join(optie === 'hostOrigin' ? ' ' : ',');
+    if (optie === 'scale' && typeof v === 'object') continue;   // een object gaat via setScale()
+    uit[attr] = String(v);
+  }
+  if (opties.readOnly === true) uit.mode = 'view';
+  return uit;
 }
 
 // ── postMessage-afspraak ────────────────────────────────────────────────────

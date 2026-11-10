@@ -3,6 +3,7 @@
 // exporteren geen (enorme) data-URL maar een korte placeholder.
 import { formatRowCell, fmtTotal, isImageCell } from './schedule-templates.js';
 import { qLabel } from './categories.js';
+import { TAG_ID_HEADER, rowAnnotationId } from './takeoff-tags.js';
 
 // A number, optionally negative and with a unit ("-1.50 m"), is data.
 // Grouped with a (narrow) no-break space in some languages (#629).
@@ -29,17 +30,25 @@ function textCell(row, col) {
 /**
  * Bouw een CSV-string uit een buildSchedule-resultaat.
  * @param {object} r  resultaat van buildSchedule (columns/groups/grandTotals/itemize)
+ * @param {{ids?: boolean}} [opties]  ids: een laatste kolom "ID" met het id
+ *   van de annotatie achter elke regel, zodat bewerkte kenmerken weer
+ *   ingelezen kunnen worden (takeoff-tags.js)
  * @returns {string}  CSV-inhoud (LF-gescheiden)
  */
-export function scheduleResultToCsv(r) {
+export function scheduleResultToCsv(r, { ids = false } = {}) {
   if (!r || !r.columns || !r.columns.length) return '';
   const cols = r.columns;
-  const lines = [cols.map(c => csvCell(c.label + (c.unit ? ` (${c.unit})` : ''))).join(',')];
+  const metIds = ids && r.itemize;
+  const kop = cols.map(c => csvCell(c.label + (c.unit ? ` (${c.unit})` : '')));
+  if (metIds) kop.push(TAG_ID_HEADER);
+  const lines = [kop.join(',')];
   for (const g of r.groups) {
     if (g.key !== null) lines.push(csvCell(`${g.key} (${g.rows.length})`));
     if (r.itemize) {
       for (const row of g.rows) {
-        lines.push(cols.map(c => csvCell(textCell(row, c))).join(','));
+        const cellen = cols.map(c => csvCell(textCell(row, c)));
+        if (metIds) cellen.push(csvCell(rowAnnotationId(row)));
+        lines.push(cellen.join(','));
       }
     }
     lines.push(cols.map((c, i) => i === 0 ? csvCell(qLabel('quantities.subtotal', 'Subtotal')) : csvCell(fmtTotal(g.subtotals[c.key], c))).join(','));

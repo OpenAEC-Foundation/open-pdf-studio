@@ -86,7 +86,7 @@ export const VORM_VELDEN = new Set([
   'rects', 'quadPoints', 'leaders', 'arrowX', 'arrowY', 'kneeX', 'kneeY', 'armOriginX', 'armOriginY',
 ]);
 // Wat de review- en markeerstatus beschrijft (zie antwoordAnnotaties).
-export const STATUS_VELDEN = ['status', 'statusBy', 'statusAt', 'marked'];
+export const STATUS_VELDEN = ['status', 'statusBy', 'statusAt', 'statusHistory', 'marked'];
 
 // Modelvelden die niets aan de tekening veranderen, met de sleutels die de
 // saver ervoor schrijft. Status en antwoorden staan in eigen annotaties.
@@ -103,7 +103,7 @@ export const META_VELDEN = new Map([
   ['ifcCategory', ['OPS_IfcCategory']],
   ['spatialZone', ['OPS_SpatialZone']],
   ['locationOverride', ['OPS_LocationOverride']],
-  ['status', []], ['statusBy', []], ['statusAt', []], ['marked', []], ['replies', []],
+  ['status', []], ['statusBy', []], ['statusAt', []], ['statusHistory', []], ['marked', []], ['replies', []],
 ]);
 
 // Het eerste punt van de vorm, in de volgorde waarin we het zoeken.

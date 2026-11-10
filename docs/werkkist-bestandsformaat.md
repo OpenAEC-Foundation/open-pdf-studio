@@ -140,3 +140,33 @@ gereedschap staan.
 - `version` gaat alleen omhoog als een bestaande sleutel iets anders gaat
   betekenen; een oudere app weigert zo'n bestand dan met een melding in plaats
   van het verkeerd te lezen.
+
+## Importeren uit XFDF
+
+Een werkkist kan ook uit een XFDF-bestand komen (ISO 19444-1, het open
+uitwisselformaat voor markeringen dat veel markeerprogramma's exporteren).
+Plaats in het andere programma één voorbeeldmarkering per gereedschap,
+exporteer die als `.xfdf` en kies het bestand bij *Gereedschapsset
+importeren*. De werkkist krijgt de bestandsnaam als naam.
+
+| XFDF-element | `intent` / `style`        | soort              |
+|--------------|---------------------------|--------------------|
+| `line`       | —, of `head`/`tail` gezet | `line` / `arrow`   |
+| `line`       | `LineArrow`               | `arrow`            |
+| `line`       | `LineDimension`           | `measureDistance`  |
+| `polyline`   | —                         | `polyline`         |
+| `polyline`   | `PolyLineDimension`       | `measurePerimeter` |
+| `polygon`    | —                         | `polygon`          |
+| `polygon`    | `PolygonCloud` of `style="cloudy"` | `cloud`   |
+| `polygon`    | `PolygonDimension`        | `measureArea`      |
+| `square`     | —                         | `box`              |
+| `circle`     | —                         | `circle`           |
+
+Overgenomen worden `color`, `interior-color` (niet bij lijnen), `width`,
+`opacity`, `style="dash"` met `dashes` (gestippeld bij een streep van ten
+hoogste 1), `intensity` van een wolk, `head`/`tail` als pijlpunten, en
+`subject` als naam van het gereedschap. Geometrie, auteur, datums en tekst
+reizen niet mee. Markeringen met precies dezelfde instellingen worden één
+gereedschap; andere elementen (notities, inkt, tekstvakken, stempels) worden
+overgeslagen en geteld. Het resultaat doorloopt dezelfde controles als een
+`.opdstools`-bestand (zie `annotations/tool-sets-xfdf.js`).

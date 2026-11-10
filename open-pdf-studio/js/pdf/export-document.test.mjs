@@ -100,6 +100,7 @@ function markeringenHarness({ bereid, render = () => {} }) {
     document: { createElement: () => ({ getContext: () => ({}) }) },
     isAnnotationHiddenInOutput: () => false,
     bereidKnipselsVoorUitvoer: bereid,
+    laadTemplateDataVoor: async () => {},
     renderAnnotationsForPage: (...args) => { getekend.push(args); render(...args); },
     exportChanged: () => new Error('changed'),
     KNIPSEL_UITVOER_FOUT: 'KNIPSEL_UITVOER',

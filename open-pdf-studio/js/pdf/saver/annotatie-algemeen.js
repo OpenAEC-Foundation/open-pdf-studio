@@ -20,6 +20,7 @@ import { zoneDefinition } from '../../annotations/spatial-zones.js';
 import { PDFName, PDFString, PDFRef } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
 import { onderwerpPlek } from '../loader/annotatie-opmerking.js';
+import { statusHistory, pdfStateName } from '../../review/status-history.js';
 
 const N = (naam) => PDFName.of(naam);
 
@@ -75,14 +76,18 @@ export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteN
   const ouderRect = ouderDict.get(N('Rect'));
 
   // Reviewstatus (#308): verborgen, de status hoort bij de annotatie zelf.
-  if (!zonderStatus && ann.status && ann.status !== 'none') {
-    const stateStr = String(ann.status).charAt(0).toUpperCase() + String(ann.status).slice(1);
-    const datum = pdfDatum(ann.statusAt);
+  // Elke stap van de reviewgeschiedenis (#629, review/status-history.js) is
+  // een eigen statusantwoord, van oud naar nieuw; de laatste is de huidige
+  // status. Zonder geschiedenis is dat alleen de huidige status.
+  const stappen = zonderStatus ? [] : statusHistory(ann);
+  for (const stap of stappen) {
+    const stateStr = pdfStateName(stap.status);
+    const datum = pdfDatum(stap.at);
     const st = context.obj({
       Type: 'Annot',
       Subtype: 'Text',
       Contents: pdfTextString(stateStr),
-      T: pdfTextString(ann.statusBy || ann.author || 'User'),
+      T: pdfTextString(stap.by || ann.author || 'User'),
       M: datum,
       CreationDate: datum,
       F: 30, // Hidden + Print + NoZoom + NoRotate — niet los tonen

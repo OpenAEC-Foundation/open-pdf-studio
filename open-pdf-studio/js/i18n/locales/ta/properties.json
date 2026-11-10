@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} அவர்களால் {{date}} அன்று அமைக்கப்பட்டது",
     "layer": "அடுக்கு",
     "layerMarkupGroup": "குறியீட்டு அடுக்குகள்",
-    "layerDocumentGroup": "ஆவண அடுக்குகள்"
+    "layerDocumentGroup": "ஆவண அடுக்குகள்",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "எதுவுமில்லை",
   "moreColors": "மேலும் நிறங்கள்...",
@@ -501,7 +503,18 @@
     },
     "preview": "முன்னோட்டம்",
     "exportCsv": "CSV ஏற்றுமதி",
-    "workbookBindings": "விரிதாள் பிணைப்புகள்"
+    "workbookBindings": "விரிதாள் பிணைப்புகள்",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "அட்டவணை வழிகாட்டி",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "கருவித் தொகுப்புக்குக் கோப்பு மிகப் பெரியது.",
     "errorFileInvalid": "இந்தக் கோப்பு சரியான கருவித் தொகுப்பு அல்ல.",
     "errorFileNewer": "இந்தக் கருவித் தொகுப்பு Open PDF Studio இன் புதிய பதிப்பில் உருவாக்கப்பட்டது. இறக்குமதி செய்ய செயலியைப் புதுப்பிக்கவும்.",
-    "damagedStatus": "சேமிக்கப்பட்ட கருவித் தொகுப்புகளைப் படிக்க முடியவில்லை. சேதமடைந்த கோப்பு \"{{name}}\" என வைக்கப்பட்டது."
+    "damagedStatus": "சேமிக்கப்பட்ட கருவித் தொகுப்புகளைப் படிக்க முடியவில்லை. சேதமடைந்த கோப்பு \"{{name}}\" என வைக்கப்பட்டது.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

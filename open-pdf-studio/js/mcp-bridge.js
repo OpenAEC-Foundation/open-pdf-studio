@@ -2728,10 +2728,22 @@ function _tabVanKnop(el) {
   return _naamVanTabKnop(knop);
 }
 
-/** Click the tab button and give Solid time to mount the content. */
+/** Load the chunk of a built-in ribbon tab (#454); extension tabs are there already. */
+async function _laadTab(tab) {
+  try {
+    const { laadLintTab } = await import('./solid/components/ribbon/lint-tab-laden.js');
+    await laadLintTab(tab);
+  } catch {
+    // loader unavailable: the wait after the click still gives the tab time
+  }
+}
+
+/** Click the tab button and give Solid time to mount the content. The
+ *  built-in tabs other than Home are their own chunks (#454): load it first. */
 async function _activeerTab(tab) {
   const knop = _tabKnop(tab);
   if (!knop) return false;
+  await _laadTab(tab);
   knop.click();
   await _wacht(150);
   return true;
@@ -2985,6 +2997,7 @@ async function handleRunCommand(params) {
     const knop = _tabKnop(lint.tab);
     if (!knop) return { ok: false, error: `tab not available: ${lint.tab} — see app_list_commands` };
     if (_isElementDisabled(knop)) return { ok: false, found: true, disabled: true, error: 'tab is disabled' };
+    await _laadTab(lint.tab);
     knop.click();
     await _wacht(150);
     return { ok: true, clicked: true, command, activatedTab: lint.tab, activeTab: await _actiefTabblad() };

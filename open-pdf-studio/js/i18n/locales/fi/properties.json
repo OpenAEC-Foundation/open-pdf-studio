@@ -46,7 +46,9 @@
     "statusSetBy": "Asettanut {{author}} {{date}}",
     "layer": "Taso",
     "layerMarkupGroup": "Merkintätasot",
-    "layerDocumentGroup": "Asiakirjan tasot"
+    "layerDocumentGroup": "Asiakirjan tasot",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Ei mitään",
   "moreColors": "Lisää värejä...",
@@ -501,7 +503,18 @@
     },
     "preview": "Esikatselu",
     "exportCsv": "Vie CSV",
-    "workbookBindings": "Laskentataulukkolinkitykset"
+    "workbookBindings": "Laskentataulukkolinkitykset",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "Ohjattu luettelon luonti",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "Tiedosto on liian suuri työkalusarjaksi.",
     "errorFileInvalid": "Tämä tiedosto ei ole kelvollinen työkalusarja.",
     "errorFileNewer": "Tämä työkalusarja on tehty Open PDF Studion uudemmalla versiolla. Päivitä sovellus tuodaksesi sen.",
-    "damagedStatus": "Tallennettuja työkalusarjoja ei voitu lukea. Vioittunut tiedosto säilytettiin nimellä \"{{name}}\"."
+    "damagedStatus": "Tallennettuja työkalusarjoja ei voitu lukea. Vioittunut tiedosto säilytettiin nimellä \"{{name}}\".",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

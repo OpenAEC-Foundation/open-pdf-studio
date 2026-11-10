@@ -13,7 +13,7 @@ import { wandarceringTemplate } from './templates/wandarcering.js';
 import { wapeningVerdelingTemplate } from './templates/wapening-verdeling.js';
 import { beugelTemplate } from './templates/beugel.js';
 import { heaTemplate, hebTemplate, ipeTemplate, unpTemplate, kokerTemplate, hoeklijnTemplate, buisTemplate } from './templates/staalprofiel.js';
-import { vloerTemplates } from './templates/vloer-dxf.js';
+import { vloerTemplates, bijVloerGeometrieGeladen } from './templates/vloer-dxf.js';
 import { ifcSpaceTemplate } from './templates/ifc-space.js';
 import { ruimteTagTemplate } from './templates/ruimtetag.js';
 import { houtBalkTemplate } from './templates/hout-balk.js';
@@ -132,6 +132,31 @@ export function unregisterTemplate(id) {
 
 export function getTemplate(id) {
   return templates.get(id) || null;
+}
+
+/**
+ * Templates met data die pas bij het eerste gebruik laadt (#454, de
+ * vloerdoorsneden): `laadData()` geeft een belofte, `dataGeladen()` zegt of
+ * hij er al is. Tot dan tekent render() een vereenvoudigde vorm. Wie een
+ * blijvende uitvoer maakt (opslaan, exporteren, afdrukken) wacht hier eerst
+ * op, voor de symbolen in `annotaties`.
+ */
+export async function laadTemplateDataVoor(annotaties) {
+  const ids = new Set();
+  for (const a of annotaties || []) {
+    if (a?.type === 'parametricSymbol' && a.symbolId) ids.add(a.symbolId);
+  }
+  const ladingen = [];
+  for (const id of ids) {
+    const tpl = templates.get(id);
+    if (tpl && typeof tpl.laadData === 'function' && !(tpl.dataGeladen?.() === true)) ladingen.push(tpl.laadData());
+  }
+  if (ladingen.length) await Promise.all(ladingen);
+}
+
+/** Laat `fn` lopen zodra late templatedata geladen is (hertekenen). */
+export function bijTemplateDataGeladen(fn) {
+  return bijVloerGeometrieGeladen(fn);
 }
 
 export function listTemplates(category) {

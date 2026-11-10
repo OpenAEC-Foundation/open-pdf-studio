@@ -39,6 +39,7 @@ import { schaalgebiedAppearance } from './saver/scale-region-ap.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { laadTemplateDataVoor } from '../symbols/registry.js';
 import { metOpslagSlot } from '../plugins/opslag-wissel-slot.js';
 import { createPluginPdfAnnotation, renderPluginAnnotationPng, readPluginPdfAnnotation } from '../plugins/plugin-pdf.js';
 import i18next from '../i18n/config.js';
@@ -3172,6 +3173,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // raster reuses the exact on-screen draw path, so it looks the same.
             try {
               const { renderParametricSymbolToPng } = await import('../annotations/rendering.js');
+              // Late templatedata (vloergeometrie, #454) eerst laden: anders
+              // kreeg de appearance alleen de omtrek.
+              await laadTemplateDataVoor([psAnn]);
               const png = renderParametricSymbolToPng(psAnn, 4);
               if (png && png.dataUrl) {
                 const base64 = png.dataUrl.split(',')[1];
@@ -3511,6 +3515,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Save named line-style presets into the catalog (travel with the PDF)
       saveStylePresetsToCatalog(pdfDocLib, activeDoc.stylePresets || null);
+
+      // Goedkeuringsaanvragen (#651) gaan mee in het bestand. Een echte save
+      // van een inhoudelijk gewijzigd document vervangt de lopende aanvragen.
+      {
+        const { approvalBeforeSave } = await import('../approval-routing/save-hook.js');
+        await approvalBeforeSave(pdfDocLib, activeDoc, { snapshot: momentopname || alleenAnnotaties });
+      }
 
       // Paginalabels (bladnamen, #580) als /PageLabels; alleen na een bewerking,
       // zodat een andere nummering in het bestand ongemoeid blijft.

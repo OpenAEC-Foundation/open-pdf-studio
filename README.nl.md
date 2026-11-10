@@ -36,11 +36,11 @@ Elke release staat op de [releasepagina](https://github.com/OpenAEC-Foundation/o
 | **macOS** | `…_universal.dmg` (Apple silicon en Intel, macOS 10.15 of nieuwer) |
 | **Linux** | `.deb`, `.AppImage` en `.snap` voor x86_64, ook in de [Snap Store](https://snapcraft.io/open-pdf-studio); Nix-flake. Zie [docs/install-linux.md](docs/install-linux.md) |
 | **Android** | `open-pdf-studio-release.apk` (64-bit ARM) |
-| **Overig** | `open-pdf-studio.mcpb` (AI-koppeling voor MCP-clients), `open-pdf-studio-web-<versie>.tar.gz` (webversie om zelf te hosten); vanaf de volgende release ook winget-manifesten en de Python-bibliotheek |
+| **Overig** | `open-pdf-studio.mcpb` (AI-koppeling voor MCP-clients), `open-pdf-studio-web-<versie>.tar.gz` (webversie om zelf te hosten), winget-manifesten, de Python-bibliotheek (`.whl` en `.tar.gz`) |
 
 **Bijwerken.** De Windows-installers, de macOS-app, de `.deb` en de AppImage zoeken en installeren updates met de ingebouwde updater, die alleen updates accepteert die met de updatesleutel van het project zijn ondertekend. De snap wordt bijgewerkt via de Snap Store. De draagbare versie en de Android-app werken zichzelf niet bij.
 
-**Ondertekening.** De Windows-installers en de programmabestanden die ze installeren, zijn met Authenticode ondertekend via Azure Trusted Signing; de releaseworkflow installeert de ondertekende installer en controleert elke handtekening. De macOS-app is ondertekend met een Developer ID en door Apple genotariseerd; de workflow controleert dat met `codesign`, `spctl` en `stapler`. De `.deb`, de AppImage en de snap hebben elk een losse OpenPGP-handtekening (`.asc`) met de releasesleutel van de OpenAEC Foundation, vingerafdruk `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, en `SHA256SUMS` met `SHA256SUMS.asc` dekt de Linux-bestanden; controleer ze met `gpg --verify <bestand>.asc <bestand>` tegen [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (zie [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). De `.sig`-bestanden zijn de updatehandtekeningen die de ingebouwde updater controleert. De Android-APK is ondertekend, maar met een nieuwe sleutel voor elke release (zie [Huidige beperkingen](#huidige-beperkingen)). De draagbare zip en de webbundel hebben een `.sha256`-bestand.
+**Ondertekening.** De Windows-installers en de programmabestanden die ze installeren, zijn met Authenticode ondertekend via Azure Trusted Signing; de releaseworkflow installeert de ondertekende installer en controleert elke handtekening. De macOS-app is ondertekend met een Developer ID en door Apple genotariseerd; de workflow controleert dat met `codesign`, `spctl` en `stapler`. Vanaf de eerste release na 2026.45.0 (de ondertekenstap kwam later) hebben de `.deb`, de AppImage en de snap elk een losse OpenPGP-handtekening (`.asc`) met de releasesleutel van de OpenAEC Foundation, vingerafdruk `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, en `SHA256SUMS` met `SHA256SUMS.asc` dekt de Linux-bestanden; controleer ze met `gpg --verify <bestand>.asc <bestand>` tegen [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (zie [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). De `.sig`-bestanden zijn de updatehandtekeningen die de ingebouwde updater controleert. De Android-APK is ondertekend, maar met een nieuwe sleutel voor elke release (zie [Huidige beperkingen](#huidige-beperkingen)). De draagbare zip en de webbundel hebben een `.sha256`-bestand.
 
 ## Waarom gebruiken?
 
@@ -92,13 +92,13 @@ De volledige lijst staat in [docs/features.md](docs/features.md) (Engels).
 | Formaat | Openen / importeren | Opslaan / exporteren |
 |---------|---------------------|----------------------|
 | **PDF** | Ja, ook formulieren (AcroForm, XFA) en lagen | Ja; PDF/A controleren en opslaan, PDF/X-export, raster-PDF, platgemaakte kopie |
-| **XFDF** | Markeringen | Markeringen |
+| **XFDF** | Markeringen; een werkkist uit voorbeeldmarkeringen | Markeringen |
 | **BCF 2.1** | Issues als markeringen | Markeringen als issues |
 | **DWG, DXF** | Ja, als vector-PDF (desktop) | Een pagina met lagen en markeringen (desktop) |
 | **IFCX** (IFC5-JSON) | Nee | Ja, bèta ([docs/ifcx-export.md](docs/ifcx-export.md)) |
 | **PNG, JPEG** | Als afbeelding op een pagina | Pagina's, op 72 tot 600 DPI |
 | **DOCX, ODT, XLSX** | Nee | Tekst en tabellen |
-| **CSV** | Nee | Hoeveelhedenstaat |
+| **CSV** | Bewerkte kenmerken van een opgeslagen staat (label, IFC-categorie, locatie, telcategorie) | Hoeveelhedenstaat, met een ID-kolom per markering |
 
 Wat er verloren gaat: XFDF en BCF bevatten alleen markeringen, niet de inhoud van de pagina. Een platgemaakte kopie laat de waarden van formuliervelden weg. DOCX, ODT en XLSX krijgen de tekst en tabellen; een ingewikkelde opmaak moet je soms nalopen. PDF/X laat standaardlettertypen die niet zijn ingebed zoals ze zijn. Wat IFCX meeneemt en verliest, staat in [docs/ifcx-export.md](docs/ifcx-export.md).
 
@@ -112,7 +112,7 @@ Jij houdt de regie. De server staat aan bij een nieuwe installatie en luistert a
 
 ## Testen en betrouwbaarheid
 
-- **746 unittestbestanden** draaien met `npm run test:unit` op Windows, Linux en macOS in [CI](.github/workflows/ci.yml) bij elke pull request, plus 3 testbestanden voor kwaliteitsregressie (`npm run test:quality`).
+- **798 unittestbestanden** draaien met `npm run test:unit` op Windows, Linux en macOS in [CI](.github/workflows/ci.yml) bij elke pull request, plus 3 testbestanden voor kwaliteitsregressie (`npm run test:quality`).
 - **CI bouwt de app op alle drie de desktopplatforms** en start hem: de AppImage op Debian 13, Fedora 44 en onder OpenAEC Linux-omstandigheden, en de macOS-app. Daarnaast test CI de Python-bibliotheek, controleert de Flatpak als die verandert, en laadt de gehoste webbundel in headless Chromium onder een strikte content security policy.
 - **Pull requests die aan het tekenen van pagina's komen**, draaien ook een renderregressie op een tekening op groot formaat en bewaren het rapport ([render-regression.yml](.github/workflows/render-regression.yml)).
 - **Releases worden gecontroleerd voordat ze uitkomen.** De releaseworkflow installeert de ondertekende Windows-installer en controleert elke handtekening, start de draagbare zip, controleert ondertekening, notarisatie en opstarten van de macOS-app, en controleert de OpenPGP-handtekeningen van de Linux-pakketten tegen de publieke sleutel in de repository.

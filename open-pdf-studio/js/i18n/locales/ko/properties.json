@@ -46,7 +46,9 @@
     "statusSetBy": "{{date}}에 {{author}}님이 설정",
     "layer": "레이어",
     "layerMarkupGroup": "마크업 레이어",
-    "layerDocumentGroup": "문서 레이어"
+    "layerDocumentGroup": "문서 레이어",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "없음",
   "moreColors": "더 많은 색상...",
@@ -501,7 +503,18 @@
     },
     "preview": "미리 보기",
     "exportCsv": "CSV 내보내기",
-    "workbookBindings": "스프레드시트 바인딩"
+    "workbookBindings": "스프레드시트 바인딩",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "일람표 마법사",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "도구 세트로 쓰기에는 파일이 너무 큽니다.",
     "errorFileInvalid": "이 파일은 올바른 도구 세트가 아닙니다.",
     "errorFileNewer": "이 도구 세트는 최신 버전의 Open PDF Studio로 만들어졌습니다. 가져오려면 앱을 업데이트하세요.",
-    "damagedStatus": "저장된 도구 세트를 읽을 수 없습니다. 손상된 파일은 \"{{name}}\"(으)로 보관되었습니다."
+    "damagedStatus": "저장된 도구 세트를 읽을 수 없습니다. 손상된 파일은 \"{{name}}\"(으)로 보관되었습니다.",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

@@ -6,8 +6,56 @@
 // no graphic resize handles), scale-region aware via realSizeMm, snappable
 // corners/centre. Drawn as LINEWORK (no solid fill) exactly like the source
 // sections.
+//
+// Bij de start staat alleen de index (families, labels, maten) klaar; de
+// geometrie (data/vbi-vloeren.js, ~150 KB) is een eigen chunk die laadt bij
+// het eerste tekenen van een vloer (#454). Tot dan tekent render() de
+// omtrek van de doorsnede en na het laden volgt een hertekening
+// (bijVloerGeometrieGeladen). Wie een uitvoer maakt (opslaan, exporteren)
+// wacht eerst op laadVloerGeometrie() (registry.laadTemplateDataVoor).
 
-import { VLOER_FAMILIES } from '../data/vbi-vloeren.js';
+import { VLOER_INDEX } from '../data/vbi-vloeren-index.js';
+
+// familie-id → (variant-id → paths), na het laden.
+let _geometrie = null;
+let _lading = null;
+const _naLaden = new Set();
+
+/** Laadt de vloergeometrie (één keer); de belofte geeft true als hij er is. */
+export function laadVloerGeometrie(laad = () => import('../data/vbi-vloeren.js')) {
+  if (_geometrie) return Promise.resolve(true);
+  if (_lading) return _lading;
+  _lading = Promise.resolve()
+    .then(laad)
+    .then(({ VLOER_FAMILIES }) => {
+      _geometrie = new Map(VLOER_FAMILIES.map((f) => [f.id, new Map(f.variants.map((v) => [v.id, v.paths]))]));
+      for (const fn of _naLaden) {
+        try { fn(); } catch (_) { /* hertekenen is optioneel */ }
+      }
+      return true;
+    }, (fout) => {
+      console.warn('[vloeren] geometrie kon niet laden', fout);
+      _lading = null;
+      return false;
+    });
+  return _lading;
+}
+
+export function vloerGeometrieGeladen() {
+  return _geometrie != null;
+}
+
+/** Laat `fn` lopen zodra de geometrie geladen is (hertekenen). */
+export function bijVloerGeometrieGeladen(fn) {
+  if (typeof fn === 'function') _naLaden.add(fn);
+  return () => _naLaden.delete(fn);
+}
+
+/** Alleen voor tests: terug naar de toestand van vóór het laden. */
+export function _vergeetVloerGeometrie() {
+  _geometrie = null;
+  _lading = null;
+}
 
 const _snapPoints = (params, bbox) => {
   const { x, y, width: w, height: h } = bbox;
@@ -64,12 +112,22 @@ function _vloerTemplate(family) {
       return { width: v.w * f, height: v.h * f };
     },
     snapPoints: _snapPoints,
+    laadData: () => laadVloerGeometrie(),
+    dataGeladen: vloerGeometrieGeladen,
     render(params, bbox) {
       const v = lookup(params?.maat);
       if (!v) return [];
       const s = Math.min(bbox.width / v.w, bbox.height / v.h);
       const x0 = bbox.x + (bbox.width - v.w * s) / 2;
       const y0 = bbox.y + (bbox.height - v.h * s) / 2;
+      const paths = _geometrie?.get(family.id)?.get(v.id);
+      if (!paths) {
+        // Geometrie nog niet geladen: de omtrek van de doorsnede, tot de
+        // hertekening na het laden.
+        laadVloerGeometrie();
+        const w = v.w * s, h = v.h * s;
+        return [{ kind: 'polyline', points: [{ x: x0, y: y0 }, { x: x0 + w, y: y0 }, { x: x0 + w, y: y0 + h }, { x: x0, y: y0 + h }], close: true }];
+      }
       const toPts = (path) => {
         const pts = [];
         for (let i = 0; i + 1 < path.p.length; i += 2) {
@@ -86,7 +144,7 @@ function _vloerTemplate(family) {
       // walker multiplies by the scale-region factor (filledArea
       // convention); 45 = noticeably denser than the default 100 — beton
       // sections use a fine diagonal hatch.
-      const concreteLoops = v.paths
+      const concreteLoops = paths
         .filter(p => p.c && p.m === 'c')
         .map(toPts)
         .map(pts => ({ pts, area: Math.abs(_polyArea(pts)) }))
@@ -113,7 +171,7 @@ function _vloerTemplate(family) {
       // Insulation layers (e.g. under an isolatieplaatvloer): EPS look —
       // EPS background + the same thickness-spanning 60° zigzag as
       // insulation walls.
-      for (const path of v.paths) {
+      for (const path of paths) {
         if (path.c && path.m === 'i') {
           cmds.push({
             kind: 'zigzag',
@@ -125,7 +183,7 @@ function _vloerTemplate(family) {
       }
 
       // All contours as linework (concrete, insulation and the rest).
-      for (const path of v.paths) {
+      for (const path of paths) {
         cmds.push({ kind: 'polyline', points: toPts(path), close: !!path.c });
       }
 
@@ -144,4 +202,4 @@ function _vloerTemplate(family) {
   };
 }
 
-export const vloerTemplates = VLOER_FAMILIES.map(_vloerTemplate);
+export const vloerTemplates = VLOER_INDEX.map(_vloerTemplate);

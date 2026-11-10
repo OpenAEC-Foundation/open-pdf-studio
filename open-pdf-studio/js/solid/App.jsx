@@ -1,5 +1,3 @@
-import { isMobile } from '../core/platform.js';
-import MobileApp from './MobileApp.jsx';
 import TitleBar from './components/TitleBar.jsx';
 import Ribbon from './components/ribbon/Ribbon.jsx';
 import DocumentTabs from './components/DocumentTabs.jsx';
@@ -19,7 +17,7 @@ import PropertiesPanel from './components/properties-panel/PropertiesPanel.jsx';
 import StatusBar from './components/StatusBar.jsx';
 import AppMenu from './components/app-menu/AppMenu.jsx';
 import DialogHost from './components/DialogHost.jsx';
-import ContextMenu from './components/ContextMenu.jsx';
+import ContextMenu from './components/ContextMenuHost.jsx';
 import LoadingOverlay from './components/LoadingOverlay.jsx';
 import TypeLengthHUD from './components/TypeLengthHUD.jsx';
 import KeystrokeOverlay from './components/KeystrokeOverlay.jsx';
@@ -174,9 +172,9 @@ function DesktopApp() {
   );
 }
 
+// De mobiele weergave (MobileApp.jsx) is een eigen chunk (#454): main.js
+// laadt hem vóór render() als isMobile() waar is en tekent hem dan in plaats
+// van dit bureaubladvenster.
 export default function App() {
-  if (isMobile()) {
-    return <MobileApp />;
-  }
   return <DesktopApp />;
 }

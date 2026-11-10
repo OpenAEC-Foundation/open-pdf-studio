@@ -46,7 +46,9 @@
     "statusSetBy": "{{author}} نے {{date}} کو مقرر کیا",
     "layer": "پرت",
     "layerMarkupGroup": "مارک اپ پرتیں",
-    "layerDocumentGroup": "دستاویز کی پرتیں"
+    "layerDocumentGroup": "دستاویز کی پرتیں",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "کوئی نہیں",
   "moreColors": "مزید رنگ...",
@@ -501,7 +503,18 @@
     },
     "preview": "پیش منظر",
     "exportCsv": "CSV برآمد کریں",
-    "workbookBindings": "اسپریڈشیٹ بائنڈنگز"
+    "workbookBindings": "اسپریڈشیٹ بائنڈنگز",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "شیڈول وزرڈ",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "فائل ٹول سیٹ کے لیے بہت بڑی ہے۔",
     "errorFileInvalid": "یہ فائل درست ٹول سیٹ نہیں ہے۔",
     "errorFileNewer": "یہ ٹول سیٹ Open PDF Studio کے نئے ورژن سے بنایا گیا تھا۔ درآمد کرنے کے لیے ایپ اپ ڈیٹ کریں۔",
-    "damagedStatus": "محفوظ کردہ ٹول سیٹس پڑھے نہیں جا سکے۔ خراب فائل \"{{name}}\" کے نام سے رکھی گئی ہے۔"
+    "damagedStatus": "محفوظ کردہ ٹول سیٹس پڑھے نہیں جا سکے۔ خراب فائل \"{{name}}\" کے نام سے رکھی گئی ہے۔",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

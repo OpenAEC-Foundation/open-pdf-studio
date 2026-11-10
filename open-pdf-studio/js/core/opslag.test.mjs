@@ -152,6 +152,7 @@ test('index.html krijgt het thema-script via de bouwstap, zonder inline script (
 const MAG = new Set([
   'js/core/opslag.js', // de helper zelf
   'js/core/app-test-hooks.mjs', // zet onder node een nep-localStorage neer
+  'web-unit/src/opslag.js', // het webonderdeel laadt geen app-modules; dit is zijn enige toegang
 ]);
 
 function bronbestanden(map) {

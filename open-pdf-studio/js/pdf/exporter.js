@@ -4,6 +4,7 @@ import { state, getActiveDocument, getAnnotationBounds } from '../core/state.js'
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { isTauri, writeBinaryFileAtomic, saveFileDialog, openFolderDialog } from '../core/platform.js';
 import { renderAnnotationsForPage, drawAnnotation } from '../annotations/rendering.js';
+import { laadTemplateDataVoor } from '../symbols/registry.js';
 import { showMessage } from '../bridge.js';
 import i18next from '../i18n/config.js';
 import { joinExportPath } from './export-path.js';
@@ -145,6 +146,8 @@ export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport,
   // Temporarily override state.scale so renderAnnotationsForPage uses export scale
   const doc = state.documents[state.activeDocumentIndex];
   const pdf = doc.pdfDoc;
+  // Late templatedata (vloergeometrie, #454) vóór het tekenen laden.
+  if (markeringen) await laadTemplateDataVoor(doc.annotations.filter(a => a.page === pageNum));
   const snippetBitmaps = markeringen
     ? await bereidKnipselsVoorUitvoer(doc.annotations.filter(a => a.page === pageNum && !isAnnotationHiddenInOutput(a)), exportScale)
       .catch((err) => { throw alsKnipselMelding(err); })
@@ -568,6 +571,8 @@ export async function exportAnnotationAsImage(annotation) {
       return;
     }
   }
+
+  await laadTemplateDataVoor([annotation]);
 
   // Scale and translate so the annotation draws at the correct position
   ctx.save();

@@ -21,11 +21,11 @@ const hier = path.dirname(fileURLToPath(import.meta.url));
 const app = path.resolve(hier, '..');
 const DIST = path.join(app, 'dist');
 
-// Na #454 (eerste stap): desktop 4532 KiB, gehost 4549 KiB (gzip 1486/1492
-// KiB; KiB = 1024 bytes, Vite meldt kB van 1000 tekens).
-// Het budget ligt daar iets boven, voor beide bouwvormen.
-export const BUDGET_KB = 4700;
-export const BUDGET_GZIP_KB = 1550;
+// Na #454 (tweede stap, 9-11-2026): desktop 4020 KiB, gehost 4037 KiB (gzip
+// 1300/1305 KiB; KiB = 1024 bytes, Vite meldt kB van 1000 tekens). Eerste
+// stap: 4532/4549 KiB. Het budget ligt daar net boven, voor beide bouwvormen.
+export const BUDGET_KB = 4120;
+export const BUDGET_GZIP_KB = 1340;
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {

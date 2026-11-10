@@ -21,6 +21,7 @@ import {
   importToolSet, toolSetFileName, readStoredCatalog, damagedCatalogName,
   TOOL_SET_EXTENSION, TYPE_LABEL_KEYS,
 } from '../../annotations/tool-sets.js';
+import { toolSetFromXfdf } from '../../annotations/tool-sets-xfdf.js';
 import {
   armToolSetItem, endToolSetSession, onToolSetSessionChange,
   applyToolSetToNewAnnotation, activeToolSetItemId,
@@ -346,6 +347,8 @@ const IMPORT_ERRORS = {
   'no-items': 'errorFileInvalid',
   'invalid-item': 'errorFileInvalid',
   'newer-version': 'errorFileNewer',
+  'not-xfdf': 'errorXfdfInvalid',
+  'xfdf-no-items': 'errorXfdfNoTools',
 };
 
 /** Message for an import error code (also used by the tests of the panel). */
@@ -359,8 +362,29 @@ export function importErrorKey(code) {
  * Returns the id of the imported set, or null.
  */
 export async function importToolSetText(text) {
+  return importParsedToolSet(parseToolSetFile(text));
+}
+
+/**
+ * Import a tool set from the markups in an XFDF file (ISO 19444-1, the open
+ * exchange format for markups that many markup tools export): every distinct
+ * markup becomes an item (annotations/tool-sets-xfdf.js). `name` is the name
+ * of the new set, for example the file name.
+ */
+export async function importToolSetXfdf(text, name) {
+  let parsed;
+  try {
+    const xml = new DOMParser().parseFromString(String(text || '').replace(/^\uFEFF/, ''), 'application/xml');
+    parsed = toolSetFromXfdf(xml, { name, typeName: typeLabel });
+  } catch {
+    parsed = { ok: false, error: 'not-xfdf' };
+  }
+  if (!parsed.ok && parsed.error === 'no-items') parsed = { ok: false, error: 'xfdf-no-items' };
+  return importParsedToolSet(parsed);
+}
+
+async function importParsedToolSet(parsed) {
   await ensureToolSetsLoaded();
-  const parsed = parseToolSetFile(text);
   if (!parsed.ok) {
     showMessage(t(importErrorKey(parsed.error)), t('importTitle'));
     return null;
@@ -396,7 +420,7 @@ export async function importToolSetText(text) {
 
 export async function importToolSetFromFile() {
   const p = await platform();
-  const path = await p.openFileDialog([TOOL_SET_EXTENSION, 'json']);
+  const path = await p.openFileDialog([TOOL_SET_EXTENSION, 'json', 'xfdf']);
   if (!path || Array.isArray(path)) return null;
   let bytes;
   try {
@@ -409,6 +433,10 @@ export async function importToolSetFromFile() {
     return null;
   }
   const text = new TextDecoder('utf-8').decode(bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes));
+  if (/\.xfdf$/i.test(String(path))) {
+    const base = String(path).split(/[\\/]/).pop().replace(/\.xfdf$/i, '');
+    return importToolSetXfdf(text, base);
+  }
   return importToolSetText(text);
 }
 

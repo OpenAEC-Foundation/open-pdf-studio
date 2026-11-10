@@ -46,7 +46,9 @@
     "statusSetBy": "{{date}} তারিখে {{author}} নির্ধারণ করেছেন",
     "layer": "স্তর",
     "layerMarkupGroup": "মার্কআপ স্তর",
-    "layerDocumentGroup": "নথির স্তর"
+    "layerDocumentGroup": "নথির স্তর",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "কোনোটি নয়",
   "moreColors": "আরও রঙ...",
@@ -501,7 +503,18 @@
     },
     "preview": "প্রাকদর্শন",
     "exportCsv": "CSV রপ্তানি করুন",
-    "workbookBindings": "স্প্রেডশিট বাইন্ডিং"
+    "workbookBindings": "স্প্রেডশিট বাইন্ডিং",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "শিডিউল উইজার্ড",
@@ -872,7 +885,9 @@
     "errorFileTooLarge": "টুল সেটের জন্য ফাইলটি খুব বড়।",
     "errorFileInvalid": "এই ফাইলটি বৈধ টুল সেট নয়।",
     "errorFileNewer": "এই টুল সেটটি Open PDF Studio-এর নতুন সংস্করণে তৈরি। আমদানি করতে অ্যাপ আপডেট করুন।",
-    "damagedStatus": "সংরক্ষিত টুল সেট পড়া যায়নি। ক্ষতিগ্রস্ত ফাইলটি \"{{name}}\" নামে রাখা হয়েছে।"
+    "damagedStatus": "সংরক্ষিত টুল সেট পড়া যায়নি। ক্ষতিগ্রস্ত ফাইলটি \"{{name}}\" নামে রাখা হয়েছে।",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

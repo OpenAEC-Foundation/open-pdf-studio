@@ -7,6 +7,7 @@
 // en rapport dezelfde opmerkingen in dezelfde volgorde tonen.
 
 import { csvDatum } from './opmerkingen-export.js';
+import { setStatusWithHistory } from '../review/status-history.js';
 
 /** De auteur zoals de lijst hem toont: zonder auteur heet hij 'User'. */
 export function auteurVan(ann) {
@@ -201,16 +202,8 @@ export function statusDoelen(annotations, status) {
  * door wie en wanneer.
  */
 export function zetStatus(ann, status, { door = 'User', nu = new Date().toISOString() } = {}) {
-  const doel = String(status || 'none').toLowerCase();
-  if (doel === 'none') {
-    ann.status = undefined;
-    delete ann.statusBy;
-    delete ann.statusAt;
-  } else {
-    ann.status = doel;
-    ann.statusBy = door;
-    ann.statusAt = nu;
-  }
+  // De stap komt ook in de reviewgeschiedenis (#629).
+  setStatusWithHistory(ann, status, { door, nu });
   ann.modifiedAt = nu;
   return ann;
 }

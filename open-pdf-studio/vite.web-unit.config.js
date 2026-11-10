@@ -48,9 +48,15 @@ export default defineConfig({
     target: 'es2022',
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
+      // Een gewone Vite-bouw gooit de exports van een entry weg; de gastheer
+      // importeert juist `mount`, `OpenPdfStudio` en `EVENTS` uit
+      // `open-pdf-studio.js`. Zonder deze regel bleef daar alleen een interne
+      // export over (#451).
+      preserveEntrySignatures: 'exports-only',
       input: {
         'open-pdf-studio': resolve(__dirname, 'web-unit/src/index.js'),
         demo: resolve(__dirname, 'web-unit/demo/index.html'),
+        voorbeeld: resolve(__dirname, 'web-unit/voorbeeld/index.html'),
       },
       output: {
         // Een vaste naam voor het script dat de gastheer insluit; alles wat

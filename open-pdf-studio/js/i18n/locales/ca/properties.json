@@ -46,7 +46,9 @@
     "statusSetBy": "Definit per {{author}} el {{date}}",
     "layer": "Capa",
     "layerMarkupGroup": "Capes de marques",
-    "layerDocumentGroup": "Capes del document"
+    "layerDocumentGroup": "Capes del document",
+    "statusHistory": "Review history:",
+    "statusHistoryStep": "{{status}} by {{author}} on {{date}}"
   },
   "colorNone": "Cap",
   "moreColors": "Més colors...",
@@ -507,7 +509,18 @@
     },
     "preview": "Previsualització",
     "exportCsv": "Exporta CSV",
-    "workbookBindings": "Vinculacions amb fulls de càlcul"
+    "workbookBindings": "Vinculacions amb fulls de càlcul",
+    "importTags": "Import tags from CSV",
+    "importTagsTitle": "Import tags",
+    "importTagsDone": "Tags updated on {{count}} markups.",
+    "importTagsNone": "No tags changed: the file matches the drawing.",
+    "importTagsNotFound": "{{count}} rows refer to markups that are no longer in this document.",
+    "importTagsLocked": "{{count}} markups are locked and were not changed.",
+    "importTagsUnknownCount": "Unknown count categories (not applied): {{names}}",
+    "importTagsNoId": "This file has no ID column. Export the schedule as CSV first, edit it and import that file.",
+    "importTagsNoColumns": "The file has no tag column this schedule can take back (Label, IFC category, Location, Count category).",
+    "importTagsEmpty": "The file is empty.",
+    "importTagsRead": "The file could not be read."
   },
   "wizard": {
     "title": "Assistent de llistats",
@@ -878,7 +891,9 @@
     "errorFileTooLarge": "El fitxer és massa gran per a un conjunt d'eines.",
     "errorFileInvalid": "Aquest fitxer no és un conjunt d'eines vàlid.",
     "errorFileNewer": "Aquest conjunt d'eines s'ha creat amb una versió més recent d'Open PDF Studio. Actualitzeu l'aplicació per importar-lo.",
-    "damagedStatus": "No s'han pogut llegir els conjunts d'eines desats. El fitxer malmès s'ha conservat com a «{{name}}»."
+    "damagedStatus": "No s'han pogut llegir els conjunts d'eines desats. El fitxer malmès s'ha conservat com a «{{name}}».",
+    "errorXfdfInvalid": "This file is not a readable XFDF file.",
+    "errorXfdfNoTools": "The XFDF file holds no markups that can become tools (lines, arrows, rectangles, ellipses, polygons, polylines, clouds or measurements)."
   },
   "styleTypeNames": {
     "filledArea": {

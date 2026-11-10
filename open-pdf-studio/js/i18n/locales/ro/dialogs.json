@@ -1791,14 +1791,154 @@
       "cancelled": "Anulat",
       "superseded": "Înlocuit",
       "waiting": "În așteptare",
-      "invalid": "Audit nevalid"
+      "invalid": "Audit nevalid",
+      "pending": "Pending",
+      "signed": "Signed (reported)"
     },
     "events": {
       "submit": "Eliberat",
       "receipt": "Confirmare înregistrată",
       "cancel": "Anulat",
       "supersede": "Înlocuit",
-      "expire": "Expirat"
+      "expire": "Expirat",
+      "create": "Prepared",
+      "dispatch": "Handed to provider"
+    },
+    "tabs": {
+      "prepare": "Prepare",
+      "status": "Status and history",
+      "receive": "Recipient receipt"
+    },
+    "distinctionTypes": "Three different things: a drawn signature is an image placed on a page; an electronic approval here is a decision that a recipient reports and that you record; a certificate signature (Digital sign) is cryptographic and is validated in the signatures panel. This workflow tracks requests, decisions and returned copies. It does not create or validate certificate signatures, does not verify identities and makes no claim about legal validity.",
+    "intro": "Prepare a request from the current saved version of this document. Preparing sends and uploads nothing; the request is sent only when you submit it after reviewing the exact outgoing request. Requests and their history are stored with the document when you save it.",
+    "providersTitle": "Providers (explicitly enabled)",
+    "providerConfigure": {
+      "mail-v1": "Mail program: open a draft with the PDF attached; you send it yourself",
+      "local-file-v1": "Local file handoff: save a package that you pass on yourself"
+    },
+    "provider": "Provider",
+    "providers": {
+      "mail-v1": "Mail program (draft)",
+      "local-file-v1": "Local file handoff"
+    },
+    "message": "Message to the recipients",
+    "recipientsTitle": "Recipients",
+    "role": "Role",
+    "roles": {
+      "review": "Review",
+      "approve": "Approve",
+      "sign": "Sign"
+    },
+    "fieldsHelp2": "Optional fields per recipient in displayed page points: review regions for everyone, signature and initials fields for signers. They are instructions in the request; the PDF content is not changed.",
+    "fieldKind": "Field type",
+    "kinds": {
+      "review": "Review region",
+      "signature": "Signature field",
+      "initials": "Initials field"
+    },
+    "prepare": "Prepare request (sends nothing)",
+    "prepared": "Request prepared. Nothing has been sent. Preview the outgoing request below.",
+    "containsApprovalData": "This saved PDF already contains the approval history of earlier requests (names, email addresses, decisions). It is sent exactly as it is saved.",
+    "enableProviderFirst": "Enable this provider first.",
+    "refresh": "Refresh",
+    "noRequests": "This document has no approval requests yet.",
+    "documentVersion": "Document version",
+    "status": "Status",
+    "where": {
+      "document": "stored with the document",
+      "app": "stored in the application settings (older request)"
+    },
+    "delivery": {
+      "mail-draft-handoff": "handed to your mail program; sending and delivery are not tracked",
+      "manual-file-handoff": "manual file handoff; delivery is not tracked"
+    },
+    "dispatched": "Sent",
+    "decidedAt": "Decided",
+    "outgoing": "Outgoing request",
+    "previewOutgoing": "Preview outgoing request",
+    "to": "To",
+    "subject": "Subject",
+    "body": "Message",
+    "attachment": "Attachment",
+    "attachmentFromCopy": "the last returned copy, so signatures accumulate",
+    "sourceUnavailable": "The exact version to send is no longer available on this computer. Open that exact version, or cancel this request and prepare a new one.",
+    "reviewedOutgoing": "I reviewed this exact outgoing request",
+    "submitVia": {
+      "mail-v1": "Submit: open mail draft",
+      "local-file-v1": "Submit: save handoff package"
+    },
+    "submitted": {
+      "mail-v1": "The mail draft was handed to your mail program. Check it and send it there.",
+      "local-file-v1": "The handoff package was saved. Pass it on to the recipients yourself."
+    },
+    "decisionTitle": "Record a reported decision",
+    "decisionHelp": "Record what a recipient answered (for example by replying to the mail), optionally with the returned PDF. A signature needs the returned copy. The returned copy is matched to the sent version by its hash and kept as an attachment of this document.",
+    "decision": "Decision",
+    "returnedCopy": "Returned copy (PDF)",
+    "match": {
+      "exact": "Same bytes as the sent version",
+      "incremental": "The sent version with an incremental update (for example a certificate signature)",
+      "reference": "Matches this request only by the reference in the file name; the content cannot be verified",
+      "none": "Does not match this request"
+    },
+    "evidence": {
+      "reply": "reported reply",
+      "receipt-file": "receipt file"
+    },
+    "confirmReference": "Accept a copy that matches only by reference",
+    "recordDecision": "Record decision",
+    "decisionRecorded": "Decision recorded.",
+    "keptAs": "Decision recorded; the returned copy is kept as attachment \"{{name}}\".",
+    "unsavedNote": "Statuses, history and kept copies are written into the document when you save it.",
+    "manage": "Manage",
+    "exportAudit": "Export audit package (ZIP)",
+    "exported": "Audit package saved: {{path}}",
+    "exportedWithoutPdf": "Audit package saved without the sent PDF (not available on this computer): {{path}}",
+    "history": "History",
+    "when": "When",
+    "what": "What",
+    "who": "Who",
+    "details": "Details",
+    "documentHash": "Document hash",
+    "supersededByChange": "The document was changed and saved after this request was prepared",
+    "keptTitle": "Returned copies kept with this document",
+    "keptDescription": "Returned copy for {{ref}}, SHA-256 {{hash}}",
+    "packageNote": "Handoff package as a file: the exact PDF, the request and its audit record. You pass it on to the recipients yourself.",
+    "packageReadme": "Local file approval package. No document has been sent by this application. Hand this package to the next recipient(s) yourself. The PDF is the exact reviewed source, not a digitally signed derivative. Receipt identities are self-reported. The audit hash chain checks internal consistency, not sender identity, delivery or legal validity. Keep request.json and the PDF together. Returned copies (if any) are in the folder returned/.",
+    "mail": {
+      "intro": "You are asked to handle the attached document:",
+      "document": "Document",
+      "pages": "pages: {{count}}",
+      "attachment": "Attachment",
+      "due": "Respond before",
+      "reference": "Reference",
+      "routing": "Routing",
+      "howToRespond": "Reply to this mail with \"Approved\" or \"Rejected\" and keep {{ref}} in the subject.",
+      "howToSign": "Signers: return the signed PDF and keep {{ref}} in the file name.",
+      "disclaimer": "The SHA-256 above identifies the exact document version. This mail was prepared in Open PDF Studio; it is not a legally binding signature service and does not verify identities."
+    },
+    "errors": {
+      "CONFIGURE_ADAPTER_FIRST": "Enable the provider first.",
+      "OPEN_SAVED_SOURCE": "Save the document first (no unsaved changes, no unapplied page rotation).",
+      "SOURCE_CHANGED": "The document changed while the request was prepared. Try again.",
+      "OPEN_EXACT_DOCUMENT_VERSION": "The exact version to send is not available on this computer.",
+      "CONFIRM_EXACT_VERSION": "Preview the outgoing request again before submitting.",
+      "COPY_DOES_NOT_MATCH": "This file does not match the sent version or the request reference.",
+      "CONFIRM_REFERENCE_MATCH": "This copy matches only by reference; confirm that you accept it.",
+      "WAITING_FOR_PREVIOUS_RECIPIENT": "In sequential routing, the previous recipient decides first.",
+      "REQUEST_CLOSED": "This request is closed.",
+      "REQUEST_EXPIRED": "This request has expired.",
+      "NOTHING_TO_SEND": "Nobody is waiting for this request.",
+      "INVALID_REQUEST": "Enter a title.",
+      "INVALID_RECIPIENT": "Each recipient needs a name, a unique valid email address and a role.",
+      "INVALID_RECIPIENTS": "Add at least one recipient.",
+      "INVALID_FIELD": "A field is invalid; signature and initials fields belong to signers.",
+      "FIELD_OUTSIDE_PAGE": "A field lies outside its page.",
+      "INVALID_EXPIRY": "The expiry date must be in the future.",
+      "INVALID_RECEIPT": "This decision does not fit the recipient's role (a signature needs the returned copy).",
+      "DUPLICATE_RECEIPT": "A decision for this recipient is already recorded.",
+      "CANCELLED": "Cancelled.",
+      "SIZE_LIMIT": "The file is too large."
     }
   },
   "scaleCheck": {

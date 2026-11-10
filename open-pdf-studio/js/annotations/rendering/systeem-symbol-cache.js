@@ -11,11 +11,20 @@
 // data-/blob-SVG mag als afbeelding geen EXTERNE resources laden, dus we
 // laden dan de PNG-href rechtstreeks. Zelfstandige (vector-)SVG's gaan via
 // een blob-URL.
-import { NEN1414_CATEGORIES } from '../../solid/data/nen1414Library.js';
+// De NEN 1414-bibliotheek laadt na de start (#454, nen1414-laden.js): tot
+// dan geldt een NEN-symbool als "nog niet bekend" (niet als ontbrekend) en
+// volgt na het laden een hertekening.
+import { nen1414Categorieen, laadNen1414, bijNen1414Geladen } from '../../solid/data/nen1414-laden.js';
 import { NL_CATEGORIES } from '../../solid/data/nlSymbolLibrary.js';
 
 let _redraw = null;
 let _redrawPending = false;
+
+function _nenCategorieen() {
+  const cats = nen1414Categorieen();
+  if (!cats) laadNen1414();
+  return cats || [];
+}
 
 /** Registreer de redraw die na het laden van een symboolbeeld moet lopen. */
 export function registerSysteemSymbolRedraw(fn) {
@@ -31,10 +40,12 @@ function _notify() {
   });
 }
 
+bijNen1414Geladen(() => _notify());
+
 /** Vind een symbool (id, naam, svg) in de bibliotheken, of null. */
 export function findSysteemSymbol(symbolId) {
   if (!symbolId) return null;
-  for (const cat of NEN1414_CATEGORIES) {
+  for (const cat of _nenCategorieen()) {
     const s = (cat.symbols || []).find(x => x.id === symbolId);
     if (s) return { id: s.id, name: s.name, svg: s.svg };
   }
@@ -48,7 +59,7 @@ export function findSysteemSymbol(symbolId) {
 /** Platte lijst kiesbare symbolen voor de component-kiezer. */
 export function systeemSymbolList() {
   const out = [];
-  for (const cat of NEN1414_CATEGORIES) {
+  for (const cat of _nenCategorieen()) {
     for (const s of cat.symbols || []) {
       out.push({ id: s.id, name: s.name, svg: s.svg, categorie: cat.name });
     }
@@ -67,6 +78,9 @@ export function getSysteemSymbolImage(symbolId) {
   if (e) return e.ready && e.img && e.img.naturalWidth > 0 ? e.img : null;
   const sym = findSysteemSymbol(symbolId);
   if (!sym || !sym.svg) {
+    // Een NEN-symbool vóór het laden van de bibliotheek: niet onthouden als
+    // ontbrekend, na het laden volgt een hertekening.
+    if (!nen1414Categorieen() && String(symbolId).startsWith('nen1414-')) return null;
     _cache.set(symbolId, { img: null, ready: true });
     return null;
   }

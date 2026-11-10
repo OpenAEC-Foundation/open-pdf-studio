@@ -297,6 +297,8 @@ js/annotations/stramien-koppeling-mcp.test.mjs
 web-unit/src/api.test.mjs
 web-unit/src/meten.test.mjs
 web-unit/src/opslaan.test.mjs
+web-unit/src/inbedden.test.mjs
+web-unit/bundel-budget.test.mjs
 js/annotations/annotatie-lagen.test.mjs
 js/annotations/view-filter-rules.test.mjs
 js/solid/components/left-panel/AnnotationLayersPanel.test.mjs
@@ -583,6 +585,9 @@ js/drawing-sets/model.test.mjs
 js/sheet-links/model.test.mjs
 js/approval-routing/model.test.mjs
 js/approval-routing/origin.test.mjs
+js/approval-routing/core.test.mjs
+js/approval-routing/document-store.test.mjs
+js/approval-routing/i18n-sleutels.test.mjs
 scripts/webbundel.test.mjs
 scripts/web-bouw.test.mjs
 scripts/gehost-html.test.mjs
@@ -800,3 +805,13 @@ js/core/us-papierformaten.test.mjs
 js/core/vloeiend-scrollen.test.mjs
 js/annotations/plaatsingspagina.test.mjs
 js/pdf/bestand-openen.test.mjs
+js/solid/components/ribbon/lint-tab-laden.test.mjs
+js/symbols/templates/vloer-dxf.test.mjs
+js/solid/data/nen1414-laden.test.mjs
+js/solid/components/contextmenu-lui.test.mjs
+js/annotations/segment-ops-lagen.test.mjs
+js/quantities/takeoff-tags.test.mjs
+js/quantities/takeoff-tags-wiring.test.mjs
+js/review/status-history.test.mjs
+js/review/status-history-rondgang.test.mjs
+js/annotations/tool-sets-xfdf.test.mjs

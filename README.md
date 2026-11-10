@@ -36,11 +36,11 @@ Every release is on the [releases page](https://github.com/OpenAEC-Foundation/op
 | **macOS** | `…_universal.dmg` (Apple silicon and Intel, macOS 10.15 or later) |
 | **Linux** | `.deb`, `.AppImage` and `.snap` for x86_64, also in the [Snap Store](https://snapcraft.io/open-pdf-studio); Nix flake. See [docs/install-linux.md](docs/install-linux.md) |
 | **Android** | `open-pdf-studio-release.apk` (64-bit ARM) |
-| **Other** | `open-pdf-studio.mcpb` (AI connection for MCP clients), `open-pdf-studio-web-<version>.tar.gz` (web version to host yourself); from the next release also winget manifests and the Python library |
+| **Other** | `open-pdf-studio.mcpb` (AI connection for MCP clients), `open-pdf-studio-web-<version>.tar.gz` (web version to host yourself), winget manifests, the Python library (`.whl` and `.tar.gz`) |
 
 **Updates.** The Windows installers, the macOS app, the `.deb` and the AppImage check for updates and install them through the built-in updater, which only accepts updates signed with the project's update key. The snap updates through the Snap Store. The portable version and the Android app do not update themselves.
 
-**Signing.** The Windows installers and the program files they install are Authenticode-signed with Azure Trusted Signing; the release workflow installs the signed installer and checks every signature. The macOS app is signed with a Developer ID and notarized by Apple; the workflow checks it with `codesign`, `spctl` and `stapler`. The `.deb`, the AppImage and the snap each have a detached OpenPGP signature (`.asc`) of the OpenAEC Foundation release key, fingerprint `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, and `SHA256SUMS` with `SHA256SUMS.asc` covers the Linux files; check them with `gpg --verify <file>.asc <file>` against [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (see [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). The `.sig` files are the update signatures that the built-in updater checks. The Android APK is signed, but with a new key for every release (see [Current limitations](#current-limitations)). The portable zip and the web bundle come with a `.sha256` file.
+**Signing.** The Windows installers and the program files they install are Authenticode-signed with Azure Trusted Signing; the release workflow installs the signed installer and checks every signature. The macOS app is signed with a Developer ID and notarized by Apple; the workflow checks it with `codesign`, `spctl` and `stapler`. From the first release after 2026.45.0 (the signing job came later), the `.deb`, the AppImage and the snap each have a detached OpenPGP signature (`.asc`) of the OpenAEC Foundation release key, fingerprint `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, and `SHA256SUMS` with `SHA256SUMS.asc` covers the Linux files; check them with `gpg --verify <file>.asc <file>` against [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (see [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). The `.sig` files are the update signatures that the built-in updater checks. The Android APK is signed, but with a new key for every release (see [Current limitations](#current-limitations)). The portable zip and the web bundle come with a `.sha256` file.
 
 ## Why use it?
 
@@ -92,15 +92,36 @@ The full list is in [docs/features.md](docs/features.md).
 | Format | Open / import | Save / export |
 |--------|---------------|---------------|
 | **PDF** | Yes, including forms (AcroForm, XFA) and layers | Yes; PDF/A validation and saving, PDF/X export, raster PDF, flattened copy |
-| **XFDF** | Annotations | Annotations |
+| **XFDF** | Annotations; a tool set from sample markups | Annotations |
 | **BCF 2.1** | Issues as annotations | Annotations as issues |
 | **DWG, DXF** | Yes, as a vector PDF (desktop) | A page with its layers and markups (desktop) |
 | **IFCX** (IFC5 JSON) | No | Yes, beta ([docs/ifcx-export.md](docs/ifcx-export.md)) |
 | **PNG, JPEG** | As an image on a page | Pages, at 72 to 600 DPI |
 | **DOCX, ODT, XLSX** | No | Text and tables |
-| **CSV** | No | Quantities schedule |
+| **CSV** | Edited tags of a saved quantities schedule (label, IFC category, location, count category) | Quantities schedule, with an ID column per markup |
 
 What does not survive: XFDF and BCF carry annotations only, not the page content. A flattened copy leaves out form field values. DOCX, ODT and XLSX get the text and tables, and complex layouts may need correction. PDF/X keeps standard fonts that are not embedded as they are. What IFCX keeps and loses is listed in [docs/ifcx-export.md](docs/ifcx-export.md).
+
+## Embedding in a web page
+
+A separate, lightweight build lets another web application show a drawing with measuring and comments in its own page: `npm run build:web-unit` writes `open-pdf-studio/dist-web-unit/`. The script a host loads is about 10 KiB gzip; PDF.js arrives with the first document, the PDF writer only when the host asks for the result, and nothing in the unit uses the desktop shell. It uses the same annotation model as the desktop app, so a drawing marked up on the web opens the same way on the desktop.
+
+```html
+<div id="viewer" style="height:600px"></div>
+<script type="module">
+  import { mount } from './web-unit/open-pdf-studio.js';
+
+  const unit = mount('#viewer', {
+    scale: '1:100', unit: 'mm', lang: 'en', tools: ['measure', 'comment', 'shape'],
+    onChange: ({ count }) => console.log(count, 'annotations'),
+  });
+  await unit.load('/drawings/123.pdf');           // a URL, bytes or a File
+  const pdf = await unit.exportPdf();              // Uint8Array with the markups
+  const annotations = unit.getAnnotations();       // the same JSON model as the desktop app
+</script>
+```
+
+The same unit works as a `<open-pdf-studio src="…" scale="1:100">` element and inside an iframe with a `postMessage` protocol. Options include a read-only mode (`readOnly: true`), a dark theme and CSS variables, a hidden toolbar for hosts with their own buttons, and `storage: 'local'` to remember the page and scale per document (off by default). The events are `opds:load`, `opds:change`, `opds:save` and `opds:error`. A minimal host page is in [`open-pdf-studio/web-unit/voorbeeld/`](open-pdf-studio/web-unit/voorbeeld/index.html). The unit measures distances and places sticky notes and rectangles; area, perimeter, text boxes, editing existing annotations and XFDF are not in it yet ([#451](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/451)).
 
 ## MCP
 
@@ -112,7 +133,7 @@ You stay in control. The server is on for a new installation and listens only on
 
 ## Testing and reliability
 
-- **746 unit test files** run with `npm run test:unit` on Windows, Linux and macOS in [CI](.github/workflows/ci.yml) for every pull request, plus 3 quality regression test files (`npm run test:quality`).
+- **798 unit test files** run with `npm run test:unit` on Windows, Linux and macOS in [CI](.github/workflows/ci.yml) for every pull request, plus 3 quality regression test files (`npm run test:quality`).
 - **CI builds the app on all three desktop platforms** and starts it: the AppImage on Debian 13, Fedora 44 and in OpenAEC Linux conditions, and the macOS app. It also tests the Python library, lints the Flatpak when it changes, and loads the hosted web bundle in headless Chromium under a strict content security policy.
 - **Pull requests that touch rendering** also run a render regression on a large-format drawing and keep the report ([render-regression.yml](.github/workflows/render-regression.yml)).
 - **Releases are checked before they are published.** The release workflow installs the signed Windows installer and checks every signature, starts the portable zip, verifies the macOS signature, notarization and start-up, and verifies the OpenPGP signatures of the Linux packages against the public key in the repository.

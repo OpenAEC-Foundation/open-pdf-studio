@@ -14,8 +14,11 @@
 import { PDFDocument, PDFName, PDFString, PDFHexString } from 'pdf-lib';
 import { buildMeasureDistanceAP, HELV_FONT_NAME } from '../../js/pdf/saver/appearance-vectors.js';
 import { pdfTextString } from '../../js/pdf/saver/pdf-text.js';
+import { SOORTEN, naarAppModel } from './model.js';
 
-export const SOORTEN = Object.freeze(['measureDistance', 'note', 'square']);
+// Dezelfde soorten als het app-model (zie model.js); de oude namen van de
+// eerste snede (`note`, `square`) worden bij het schrijven omgezet.
+export { SOORTEN };
 
 /** '#rrggbb' -> [r, g, b] in 0..1. Onleesbare invoer wordt zwart. */
 export function hexNaarKleur(hex) {
@@ -92,7 +95,7 @@ function bouwMeetAfstand(context, ann, X, Y, schaal) {
     CA: ann.opacity ?? 1,
     T: pdfTekst(ann.author || 'User'),
     Contents: pdfTekst(ann.measureText || ''),
-    M: PDFString.of(new Date(ann.gewijzigdOp || Date.now()).toISOString()),
+    M: PDFString.of(new Date(ann.modifiedAt || ann.gewijzigdOp || Date.now()).toISOString()),
     IT: PDFName.of('LineDimension'),
     OPS_Subtype: PDFString.of('measureDistance'),
     F: 4,
@@ -119,17 +122,17 @@ function bouwMeetAfstand(context, ann, X, Y, schaal) {
 function bouwNotitie(context, ann, X, Y) {
   const x = X(ann.x);
   const y = Y(ann.y);
-  const vak = [x, y - 20, x + 20, y];
+  const vak = [x, y - 24, x + 24, y];  // zelfde pictogramvak als de app
   return context.obj({
     Type: 'Annot',
     Subtype: 'Text',
     Rect: vak,
     Name: PDFName.of('Comment'),
-    Contents: pdfTekst(ann.contents || ''),
+    Contents: pdfTekst(ann.text || ann.comment || ''),
     T: pdfTekst(ann.author || 'User'),
     C: hexNaarKleur(ann.color || '#ffd400'),
     CA: ann.opacity ?? 1,
-    M: PDFString.of(new Date(ann.gewijzigdOp || Date.now()).toISOString()),
+    M: PDFString.of(new Date(ann.modifiedAt || ann.gewijzigdOp || Date.now()).toISOString()),
     Open: false,
     F: 4,
   });
@@ -137,7 +140,7 @@ function bouwNotitie(context, ann, X, Y) {
 
 function bouwVlak(context, ann, X, Y) {
   const p1 = { x: X(ann.x), y: Y(ann.y) };
-  const p2 = { x: X(ann.x + ann.breedte), y: Y(ann.y + ann.hoogte) };
+  const p2 = { x: X(ann.x + ann.width), y: Y(ann.y + ann.height) };
   const vak = omhullende([p1, p2], 0);
   const dict = context.obj({
     Type: 'Annot',
@@ -146,8 +149,8 @@ function bouwVlak(context, ann, X, Y) {
     C: hexNaarKleur(ann.strokeColor || '#ff0000'),
     CA: ann.opacity ?? 1,
     T: pdfTekst(ann.author || 'User'),
-    Contents: pdfTekst(ann.contents || ''),
-    M: PDFString.of(new Date(ann.gewijzigdOp || Date.now()).toISOString()),
+    Contents: pdfTekst(ann.comment || ann.contents || ''),
+    M: PDFString.of(new Date(ann.modifiedAt || ann.gewijzigdOp || Date.now()).toISOString()),
     BS: context.obj({ W: ann.lineWidth ?? 2, S: PDFName.of('S') }),
     F: 4,
   });
@@ -158,7 +161,7 @@ function bouwVlak(context, ann, X, Y) {
 /**
  * Annotaties in een PDF schrijven.
  * @param {Uint8Array|ArrayBuffer} pdfBytes bron
- * @param {Array<object>} annotaties met `type` uit SOORTEN en `page` (1-gebaseerd)
+ * @param {Array<object>} annotaties in het app-model (model.js), `page` 1-gebaseerd
  * @param {{schaal?:object}} opties documentbrede meetschaal
  * @returns {Promise<Uint8Array>}
  */
@@ -169,8 +172,9 @@ export async function schrijfAnnotaties(pdfBytes, annotaties = [], opties = {}) 
   const paginas = doc.getPages();
 
   const perPagina = new Map();
-  for (const ann of annotaties) {
-    if (!ann || !SOORTEN.includes(ann.type)) continue;
+  for (const ruw of annotaties) {
+    const ann = naarAppModel(ruw);
+    if (!ann) continue;
     const nr = ann.page == null ? 1 : Math.trunc(Number(ann.page));
     if (nr < 1 || nr > paginas.length) continue;
     if (!perPagina.has(nr)) perPagina.set(nr, []);
@@ -192,8 +196,8 @@ export async function schrijfAnnotaties(pdfBytes, annotaties = [], opties = {}) 
     for (const ann of lijst) {
       let dict = null;
       if (ann.type === 'measureDistance') dict = bouwMeetAfstand(context, ann, X, Y, opties.schaal);
-      else if (ann.type === 'note') dict = bouwNotitie(context, ann, X, Y);
-      else if (ann.type === 'square') dict = bouwVlak(context, ann, X, Y);
+      else if (ann.type === 'comment') dict = bouwNotitie(context, ann, X, Y);
+      else if (ann.type === 'box') dict = bouwVlak(context, ann, X, Y);
       if (dict) refs.push(context.register(dict));
     }
     pagina.node.set(PDFName.of('Annots'), context.obj(refs));
