@@ -117,6 +117,7 @@ js/symbols/templates/staalprofiel-hoeklijn.test.mjs
 js/symbols/koker-notatie.test.mjs
 js/pdf/koker-rondgang.test.mjs
 js/search/match-rect.test.mjs
+js/search/rust-zoektekst.test.mjs
 js/search/search-sources.test.mjs
 js/solid/stores/panels/annotationsStore.test.mjs
 js/solid/stores/print-instellingen.test.mjs

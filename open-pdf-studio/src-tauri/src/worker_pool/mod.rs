@@ -11,6 +11,7 @@ pub mod recovery;
 pub mod shm_files;
 pub mod response;
 pub mod snap;
+pub mod text;
 
 use anyhow::{anyhow, Context, Result};
 use serde_json::json;

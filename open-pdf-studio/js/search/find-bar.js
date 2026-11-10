@@ -5,7 +5,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
-import { matchFractions, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
+import { matchFractions, matchFractionsUitVakken, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
 import { groepeerPerPagina, BRON_ANNOTATIE } from './search-sources.js';
 import { annotationBounds } from '../annotations/spatial-index.js';
 import { stopAlleWielScrollers } from '../pdf/wiel-scroll.js';
@@ -578,7 +578,9 @@ function highlightMatch(result, isCurrent) {
     const endInItem = Math.min(item.str.length, result.endPos - item.startPos);
     if (endInItem <= startInItem) continue;
 
-    const [fracStart, fracEnd] = matchFractions(item.str, startInItem, endInItem, textMeasurer(item));
+    // Tekst uit de PDFium-worker draagt de echte plek van elk teken mee.
+    const [fracStart, fracEnd] = (item.vakken && matchFractionsUitVakken(item.vakken, startInItem, endInItem))
+      || matchFractions(item.str, startInItem, endInItem, textMeasurer(item));
     const box = matchBoxInPageFrame(item.transform, item.width, item.height, fracStart, fracEnd, view);
     if (!box) continue;
     const pct = boxToLayerPercent(box, view);

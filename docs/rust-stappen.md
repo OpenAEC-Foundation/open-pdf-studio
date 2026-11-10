@@ -320,3 +320,190 @@ een derde van het geheugen in de WebView, met dezelfde snapset.
 loodrecht, snijpunt) in het echte venster; de IPC-tijd van de WebView; dat het
 ophalen van snap-geometrie tegelrenders op dezelfde worker niet merkbaar
 ophoudt (beide lopen via de request-lock van die worker).
+
+## Zoeken: tekst uit de PDFium-worker
+
+**Wat is verplaatst.** Het lezen van de paginatekst voor het zoeken (zoekbalk,
+zoeken in open documenten en in een map, MCP `app_search_documents`). Voorheen
+haalde `extractPageText` (`js/search/find-controller.js`) per pagina pdf.js
+`getTextContent()` op; de pdf.js-worker parste daarvoor de inhoud en laadde de
+fonts, en de items gingen als structured clone naar de hoofdthread. Nu leest de
+PDFium-worker de pagina's (`pdfium-worker/src/page_text/`, aanvraag
+`page_text`) en geeft hij de tekstitems die pdf.js zou maken: dezelfde tekst,
+spaties, regeleinden en itemgrenzen, met transform, breedte en hoogte, en per
+teken het stuk basislijn dat het beslaat.
+
+Blijft in JavaScript: het zoeken zelf (hoofdletters, hele woorden en de
+reguliere expressie volgen precies `RegExp`; over 500 pagina's kost dat 2–9 ms,
+zie de meting), de tekst van annotaties en SHX-annotaties, ingevoegde tekst
+("Add Text") en de nog niet opgeslagen OCR-woorden (`metOcrWoorden`,
+`ocr-laag.js`): die komen er na de worker-tekst bij zoals voorheen.
+
+**Hoe.** PDFium heeft de tekst al gelezen (fonts, ToUnicode, coderingen). De
+worker haalt per teken de Unicode-waarde, oorsprong, matrix en lettergrootte
+uit de tekstpagina van PDFium (`FPDFText_*`), de voortgang uit de fontbreedte
+(`FPDFFont_GetGlyphWidth`; de losse tekenbox neemt uitstekende inkt mee en
+draait mee), en de volgorde, de formulier- en beeldgrenzen en de gemarkeerde
+inhoud (BDC/EMC) uit de objectboom. Daarover draaien de itemregels van pdf.js
+6.4 (`buildTextContentItem`, `compareWithLastPosition`, `addFakeSpaces`,
+`normalizeUnicode`, `bidi`), regel voor regel overgenomen (`pdfjs.rs`,
+`bidi.rs`). Wat PDFium zelf toevoegt of weglaat wordt rechtgezet: afgeleide
+spaties en regeleinden (`IsGenerated`) vallen weg, een afbreekstreepje aan het
+regeleinde (PDFium: U+0002) wordt weer '-', en een tekstobject met alleen
+spaties en een kopie van een vorig tekstobject (vette tekst door twee keer
+tekenen), die PDFium overslaat, komen terug.
+
+**Overdracht:** `extract_search_text` (Tauri) → worker-request `page_text` voor
+een reeks pagina's → binaire `OPT1`-codering via de SHM-regio (UTF-16-tekst,
+48 bytes per item, 4 bytes per teken voor het tekenvak) →
+`tauri::ipc::Response` → `rust-zoektekst.js`. De worker stopt na ~150 ms (na
+minstens één pagina) en zegt hoeveel pagina's erin zitten; de app vraagt de
+rest daarna, zodat tegelrenders op die worker niet lang wachten. De eerste
+gevraagde pagina (de huidige) komt alleen, voor een snelle eerste treffer;
+daarna lezen twee workers (banen, elk een eigen worker uit de pool van vier)
+het document in stukken van 32 pagina's, hooguit 128 pagina's vóór het zoeken
+uit.
+
+**Markeringen.** Het tekenvak komt mee in de items (`vakken`); `find-bar.js`
+gebruikt het voor het deel van een item dat een treffer beslaat
+(`matchFractionsUitVakken`). Voorheen schatte de app dat met `measureText` in
+een generieke letterfamilie; bij kerning, letter- of woordafstand (Tc/Tw) en
+ligaturen zat ook een schatting met de echte fontbreedtes tot ~1 pt naast de
+tekens (met `measureText` is het verschil groter).
+
+**Keuze van de route:** desktop met een bestandspad, de bytes die de app van
+het bestand heeft (`getCachedPdfBytes`; bij zoeken in een map de gelezen bytes)
+hebben dezelfde lengte als het bestand op schijf, en de worker telt evenveel
+pagina's als pdf.js. Anders, of bij een fout, pdf.js zoals voorheen (één
+waarschuwing in de console; een gewijzigd bestand of een pool die nog opstart
+zwijgend). Een worker die `page_text` niet in zijn `caps` noemt (oudere
+sidecar) krijgt de aanvraag nooit; de app zet de route dan voor de sessie uit.
+pdf.js afdwingen: `OPDS_RUST_SEARCH=0` bij het starten van de app, of
+`window.__opdsRustZoeken = false` in de ontwikkelconsole. Webversie en
+Android/iOS: ongewijzigd (pdf.js).
+
+**Pagina's die pdf.js blijft lezen** (de worker markeert ze en de app leest die
+pagina met pdf.js; de rest van het document gaat gewoon via de worker):
+- schrift van rechts naar links (Hebreeuws, Arabisch): PDFium ontleedt daar
+  presentatievormen naar basisletters (U+FE70–FEFF, bijvoorbeeld een
+  lam-alef-ligatuur naar twee letters) en spiegelt haakjes; pdf.js laat de
+  vormen staan. Voor zoeken op getypte basisletters is PDFium eigenlijk beter,
+  maar dan zouden de treffers tussen desktop en webversie verschillen;
+- verticaal schrift (Identity-V): PDFium geeft voor zo'n tekstobject geen
+  tekens;
+- een glyph zonder Unicode-vertaling (`FPDFText_HasUnicodeMapError`): pdf.js
+  vindt er vaak nog een via de glyphnaam (© in een TeX-font, Type3 zonder
+  ToUnicode, waar PDFium de tekencodes geeft);
+- Type3-tekst op lettergrootte 1 of kleiner: pdf.js schaalt de letterhoogte dan
+  met FontBBox × FontMatrix (TeX-bitmapfonts), die PDFium niet naar buiten
+  geeft.
+
+**Pariteit** (`node --expose-gc scripts/bench-rust/10-zoektekst.mjs --alleen
+pariteit` en `--alleen echt`): de zoekfunctie van de app (`zoekPaginaAlleBronnen`
+met `buildPattern`) op de tekst van beide routes, per zoekvraag gewoon,
+hoofdlettergevoelig en hele woorden.
+- Gemaakte PDF (`zoektekst-pdfs.mjs`, 14 pagina's): Latijn met Tj/TJ, kerning,
+  meervoudige spaties, Tc, Tw, Tz, Ts (super- en subscript), lettergrootte- en
+  fontwissels op één regel, losse BT-blokken, T*/' en regelafstand, geschaalde
+  Tm en CTM, diakrieten, afbreking, gedachtestreep en aanhalingstekens;
+  ligaturen via glyphnamen (/fi, /fl), via ToUnicode naar meer tekens ("ffi")
+  en naar U+FB01/U+FB02; CJK (Chinees, Japans, Koreaans, gemengd met Latijn,
+  TJ-gat); gedraaide tekst (90°, 180°, 270°, 45°, scheef); een pagina met
+  /Rotate 90; tekst in formulieren (genest, met /Matrix, tweemaal gebruikt,
+  gedraaid, en een formulier zonder tekst tussen tekst op één regel); CropBox
+  met verschoven oorsprong en tekst erbuiten; onzichtbare tekst (3 Tr); Type3
+  met ToUnicode; een lege pagina en een met alleen spaties. Uitkomst: op elke
+  pagina die via de worker gaat dezelfde tekst en dezelfde treffers in dezelfde
+  volgorde (538 treffers over de drie opties); het itemvak (transform, breedte,
+  hoogte) wijkt 0,000 pt af, het treffervak hoogstens 0,004 pt waar JavaScript
+  met de echte fontbreedtes kan rekenen. De pagina's met rechts-naar-links,
+  verticaal schrift, Type3 zonder ToUnicode en Type3 op Tf 1 gaan bewust naar
+  pdf.js; de zoektocht via de app-route (`extractPageText` met de bron) over
+  het hele document is daardoor gelijk aan die via pdf.js. Een afwijkende
+  bestandslengte valt terug naar pdf.js.
+- Alle PDF's in de repository (41 bestanden, waaronder de verificatieset in
+  `test pdf-bestanden` (alleen gelezen), de kaders en fixtures en het
+  pdf.js-voorbeeld): op elke pagina gelijke tekst en gelijke treffers voor 11
+  zoekvragen; één pagina gaat via pdf.js (© zonder Unicode in een TeX-font).
+  Grootste itemvakverschil 0,13 pt (f32 in de codering).
+- Onderweg gevonden en rechtgezet (elk zag je eerst als verschil): pdf.js sluit
+  een item bij elke BDC/EMC (getagde PDF's uit een tekstverwerker: "€" en
+  "1.200,00" als losse items); PDFium slaat een tekstobject met alleen een
+  spatie over ("wateraccumulatie en" werd "wateraccumulatieen") en een dubbel
+  getekend tekstobject (CAD-tekeningen); de losse tekenbox is breder dan de
+  voortgang bij 'f' en 'r' (een spatie viel dan net onder de drempel van pdf.js).
+- Nog wel anders, in de testset niet gezien: tekstrijzing (Ts) groter dan de
+  letterhoogte (pdf.js corrigeert de regeleinde-toets daarvoor), een leeg
+  BMC/EMC-paar tussen twee objecten met dezelfde markering, een inline beeld
+  (BI/EI) midden in een regel (pdf.js sluit daar geen item, de worker wel),
+  Type3 met een lege FontBBox op een grotere lettergrootte, en meer dan één
+  spatie in een los spatie-object (telt als één). Rust-tests:
+  `cargo test -p pdfium-worker page_text`; JavaScript:
+  `node --test js/search/rust-zoektekst.test.mjs`.
+
+**Meting** (`node --expose-gc scripts/bench-rust/10-zoektekst.mjs --alleen bench
+--runs 5`, Windows x64, release-worker, mediaan van 5; de machine draaide
+tegelijk andere builds en de JavaScript-tijden schommelden tussen meetrondes
+met 30–50 %, dus vergelijk binnen een tabel). Een zoektocht zoals de zoekbalk
+hem doet: vers geopend document, huidige pagina eerst, dan de rest, per pagina
+`extractPageText` en de treffers. Rust inclusief de overdracht (stdin/stdout van
+de worker, SHM lezen) en het decoderen; tijden in ms. "Piek node-heap" staat
+voor de WebView (pdf.js draait onder node in dezelfde heap; in de app in een
+eigen worker in hetzelfde proces); "tekstcache" is wat de zoekbalk daarna
+bewaart.
+
+Gemaakt tekstdocument, 500 pagina's A4 (2,37 miljoen tekens, afwisselend Tj met
+spaties en TJ met kerning), zoekvraag "search" (8254 treffers):
+
+| route | eerste treffer | totaal | waarvan zoeken | piek node-heap | tekstcache |
+|---|---:|---:|---:|---:|---:|
+| JavaScript (pdf.js) | 37 | 1874 | 9 | 91 MB | 11 MB |
+| Rust, 1 baan | 36 | 1934 | 12 | 45 MB | 17 MB |
+| Rust, 2 banen (standaard) | 39 | 1027 | 7 | 45 MB | 16 MB |
+| Rust, 3 banen | 32 | 768 | 8 | 50 MB | 16 MB |
+
+Zelfde document, een woord dat alleen op pagina 499 staat, huidige pagina 250:
+tot de treffer JavaScript 1751 ms, Rust 1 baan 1367, 2 banen 726, 3 banen 749.
+
+Tekensets uit de verificatieset, zoekvraag "e":
+
+| tekening | pagina's | JS eerste / totaal | Rust (2 banen) eerste / totaal | piek node-heap JS / Rust |
+|---|---:|---:|---:|---:|
+| 3131-CLT-Set (1,4 MB) | 5 | 26 / 86 | 6 / 73 | 7 / 9 MB |
+| Zware vector PDF (17 MB) | 19 | 74 / 1751 | 28 / 1113 | 109 / 121 MB |
+| Barn Relocation (25 MB) | 7 | 136 / 289 | 58 / 152 | 60 / 27 MB |
+
+Overdracht: 14,9 MB voor de 500 pagina's in 17 aanvragen (~30 KB per pagina);
+een workerproces piekt op 32 MB. De laatste stap van de app naar de WebView
+(Tauri-IPC) is niet gemeten; met het model van de monochroomstap (1 ms per
+aanroep plus drie kopieën) is dat ~30 ms op de 500 pagina's.
+
+Uitsplitsing van één baan (500 pagina's, in het workerproces): pagina laden
+(`FPDF_LoadPage`) ~170–220 ms, de tekstpagina van PDFium (`FPDFText_LoadPage`)
+~700–900 ms, de tekens opvragen ~150 ms, de itemregels van pdf.js en het
+coderen de rest. De tekstpagina van PDFium is de bodem: per pagina ongeveer
+even snel als pdf.js `getTextContent`. De tijdwinst komt uit het lezen met twee
+workers tegelijk (pdf.js heeft in de app één worker) en bij tekeningen uit het
+parsen door PDFium. De geheugenwinst komt doordat pdf.js geen fonts en geen
+tekstinhoud meer opbouwt: de piek van de JavaScript-heap halveert bij een
+tekstdocument. Bij de zware vectortekening domineert het openen van het
+document in pdf.js (beide routes) en hangt de piek af van wanneer de garbage
+collector draait. De tekstcache is met de Rust-route groter (16 tegen 11 MB op
+500 pagina's: de tekenvakken komen mee).
+
+**Standaard:** Rust aan op de desktop, met twee banen. Met één baan is Rust op
+een tekstdocument niet sneller dan pdf.js (de tekstpagina van PDFium kost
+evenveel als `getTextContent`), wel lichter; met twee banen 1,8–2,4× sneller
+over het hele document met de helft van de piek in de JavaScript-heap, en op
+tekeningen 1,2–1,9× sneller met de eerste treffer 2–4× eerder. Drie banen helpt
+nog wat op lange tekstdocumenten, maar laat dan tijdens het zoeken maar één
+worker vrij voor het tekenen.
+
+**Live te controleren:** zoeken in een groot tekstdocument en in een zware
+tekenset in het echte venster (tijd tot de eerste treffer, of het tekenen
+tijdens het zoeken merkbaar ophoudt, het geheugen van de WebView); de
+markeringen op gedraaide tekst, op tekst in formulieren en bij kerning; zoeken
+in een document met nog niet opgeslagen OCR-woorden (die komen uit JavaScript
+erbij); zoeken in een map en via MCP `app_search_documents`; een document met
+Arabische of verticale tekst (die pagina's via pdf.js); en het terugvallen met
+`OPDS_RUST_SEARCH=0` en met een oudere sidecar.
