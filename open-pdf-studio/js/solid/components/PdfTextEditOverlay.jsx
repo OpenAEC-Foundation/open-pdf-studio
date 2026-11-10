@@ -33,7 +33,7 @@ function xLangsRegel(elRect, lijnRect, hoek) {
 }
 
 function escapeHtml(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // Bouw de initiële DOM: één <div> per regel; runs in <b>/<i>; lege regel <br>.
