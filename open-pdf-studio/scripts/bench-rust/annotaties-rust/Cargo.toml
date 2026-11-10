@@ -1,0 +1,22 @@
+# Meetprototype voor stap 4 van docs/rust-stappen.md: de rauwe
+# annotatiewoordenboeken van een bestand met lopdf lezen en als JSON
+# uitschrijven, om te meten wat een Rust-extractie zou kosten. Geen app-code
+# en geen pariteitsimplementatie (lopdf 0.34 bewaart reële getallen als f32).
+#
+# Bouwen (buiten de workspace):
+#   cargo +stable-x86_64-pc-windows-msvc build --release --offline \
+#     --manifest-path scripts/bench-rust/annotaties-rust/Cargo.toml
+# met CARGO_TARGET_DIR=C:\opds-cargo-target-449.
+[package]
+name = "opds-annotaties-meting"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Eigen workspace: dit prototype hoort niet bij de app-workspace.
+[workspace]
+
+[dependencies]
+# Dezelfde lopdf-lijn als de app en de PDFium-worker (MIT).
+lopdf = { version = "=0.34.0", default-features = false, features = ["nom_parser"] }
+serde_json = "1"
