@@ -86,7 +86,13 @@ export function maakSysteemFontKeten(pdfDocLib, {
           // zo tonen lezers en PDF/A-controles het font als ingebed subset.
           pdfDocLib.registerFontkit(fontkit);
           const ps = String(glyphs.postscriptName || familie).replace(/[^A-Za-z0-9-]/g, '') || 'Font';
-          const font = await pdfDocLib.embedFont(bytes, { subset: true, customName: `${subsetTag(ps + perPad.size)}+${ps}` });
+          // Variabele lettertypen (fvar) heel inbedden: fontkits subsetter
+          // laat bij sommige (Cascadia Mono) de meeste tekens leeg. Eén keer
+          // per bestand, gedeeld door alle tekstvakken.
+          const variabel = !!glyphs.directory?.tables?.fvar;
+          const font = await pdfDocLib.embedFont(bytes, variabel
+            ? { subset: false, customName: ps }
+            : { subset: true, customName: `${subsetTag(ps + perPad.size)}+${ps}` });
           return { naam: resourceNaam(familie, vet, cursief, perPad.size), font, glyphs };
         } catch (e) {
           waarschuw(`[save] font ${familie} not embedded (${e?.message || e}); the text box keeps the standard font`);

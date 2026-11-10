@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { PDFDocument, PDFName, PDFDict } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFDict, decodePDFRawStream } from 'pdf-lib';
 import { maakSysteemFontKeten, splitsOpDekking } from './systeem-fonts.js';
 
 // #1020: het gekozen lettertype van een tekstvak wordt ingebed (een
@@ -29,7 +29,7 @@ test('keten: standaardletters en niet-insluitbare fonts geven null', async () =>
 });
 
 // Een echt TrueType-font van deze machine; overgeslagen als er geen is.
-const kandidaten = ['CascadiaMono.ttf', 'consola.ttf', 'segoeui.ttf', 'DejaVuSans.ttf']
+const kandidaten = ['consola.ttf', 'segoeui.ttf', 'DejaVuSans.ttf']
   .flatMap((f) => [path.join(process.env.WINDIR || 'C:/Windows', 'Fonts', f), `/usr/share/fonts/truetype/dejavu/${f}`]);
 const fontPad = kandidaten.find((p) => fs.existsSync(p));
 
@@ -65,4 +65,29 @@ test('keten: één ingebed subset-font voor vijf tekstvakken', { skip: !fontPad 
   const fd = cid.lookup(PDFName.of('FontDescriptor'), PDFDict);
   assert.ok(fd.get(PDFName.of('FontFile2')) || fd.get(PDFName.of('FontFile3')), 'font file embedded');
   assert.ok(bytes.length < fs.statSync(fontPad).size, 'subset is smaller than the whole font');
+});
+
+// Variabele lettertypen gaan heel mee: fontkits subsetter liet bij Cascadia
+// Mono de meeste tekens leeg (alleen M, o, b, e, ... bleven zichtbaar).
+const variabelPad = [path.join(process.env.WINDIR || 'C:/Windows', 'Fonts', 'CascadiaMono.ttf'), path.join(process.env.WINDIR || 'C:/Windows', 'Fonts', 'bahnschrift.ttf')].find((p) => fs.existsSync(p));
+
+test('keten: een variabel lettertype wordt heel ingebed', { skip: !variabelPad && 'no variable font on this machine' }, async () => {
+  const doc = await PDFDocument.create();
+  const keten = maakSysteemFontKeten(doc, {
+    zoek: async () => ({ pad: variabelPad, exact: true, insluitbaar: true, reden: null }),
+    laadBytes: async (p) => new Uint8Array(fs.readFileSync(p)),
+  });
+  const f = await keten.voor('Variable Font');
+  assert.ok(f);
+  const page = doc.addPage([200, 100]);
+  page.node.set(PDFName.of('Resources'), doc.context.obj({ Font: doc.context.obj({ [f.naam]: f.font.ref }) }));
+  page.node.set(PDFName.of('Contents'), doc.context.register(doc.context.stream(`BT /${f.naam} 12 Tf 10 50 Td ${f.font.encodeText('Cascadia 0123').toString()} Tj ET`)));
+  const bytes = await doc.save();
+  const terug = await PDFDocument.load(bytes);
+  const fontDict = terug.context.lookup(terug.getPage(0).node.Resources().lookup(PDFName.of('Font'), PDFDict).get(PDFName.of(f.naam)), PDFDict);
+  assert.doesNotMatch(fontDict.get(PDFName.of('BaseFont')).toString(), /[+]/, 'no subset tag on a whole font');
+  const cid = terug.context.lookup(fontDict.lookup(PDFName.of('DescendantFonts')).get(0), PDFDict);
+  const ff = terug.context.lookup(cid.lookup(PDFName.of('FontDescriptor'), PDFDict).get(PDFName.of('FontFile2')));
+  const lengte1 = decodePDFRawStream(ff).decode().length;
+  assert.equal(lengte1, fs.statSync(variabelPad).size, 'the whole font file is in the PDF');
 });
