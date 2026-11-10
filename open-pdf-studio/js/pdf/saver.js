@@ -64,6 +64,7 @@ import { runsToText, dsMargeUitInzet, verticaleVerschuiving } from '../annotatio
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrLayers } from './saver/ocr-text-layer.js';
 import { maakCjkFontKeten } from './saver/cjk-fonts.js';
+import { maakSysteemFontKeten, splitsOpDekking } from './saver/systeem-fonts.js';
 import { writeDynamicStamp } from './saver/dynamic-stamp-ap.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { applyEditsToPdf, hasEdits, editsAfterSave } from '../accessibility/struct-edits.js';
@@ -487,6 +488,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // CJK-fonts voor tekstvak-appearances; pas geladen als een tekstvak ze nodig heeft.
     const cjkKeten = maakCjkFontKeten(pdfDocLib);
+    // Gekozen lettertypen ingebed in tekstvakken en callouts (#1020).
+    const systeemFonts = maakSysteemFontKeten(pdfDocLib);
     // Get the PDF pages
     const pages = pdfDocLib.getPages();
     const context = pdfDocLib.context;
@@ -1765,6 +1768,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               // long labels no longer overflow the box.
               const ftUsedFonts = new Set();
               const ftCjkFonts = new Set();
+              const ftIngebedFonts = new Map();
               if (ann.text) {
                 const ftFontSize = ann.fontSize || 14;
                 const [tr, tg, tb] = ann.textColor ? hexToRgb(ann.textColor) : [0, 0, 0];
@@ -1778,7 +1782,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 // Zonder CJK-font (bestand ontbreekt) blijft het de WinAnsi-
                 // appearance van vroeger; de keten waarschuwt dan.
                 const cjkTekst = heeftNietWinAnsi(ann.text) && await cjkKeten.beschikbaar();
-                const apTekstvak = cjkTekst ? ann : winAnsiTekstvak(ann);
+                // Een ingebed lettertype (#1020) toont zelf wat WinAnsi niet kan.
+                const ftIngebed = await systeemFonts.voor(ann.fontFamily, !!ann.fontBold, !!ann.fontItalic);
+                const apTekstvak = (cjkTekst || ftIngebed) ? ann : winAnsiTekstvak(ann);
                 const layout = layoutTextboxForExport(
                   pageSwapsDims ? { ...apTekstvak, width: visW, height: visH } : apTekstvak);
                 const pad = layout.padding;
@@ -1827,6 +1833,30 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                     if (c.underline) decoraties.push({ x: penX, y: textY - layout.descent * 0.5, w: cw, kleur });
                     if (c.strikethrough) decoraties.push({ x: penX, y: textY + layout.ascent * 0.3, w: cw, kleur });
                     penX += cw;
+                    // Het gekozen lettertype ingebed (#1020): tekens die het
+                    // font heeft gaan met dat font, de rest langs de oude weg.
+                    const ingebed = await systeemFonts.voor(ann.fontFamily, c.bold, c.italic);
+                    if (ingebed) {
+                      for (const deel of splitsOpDekking(c.text, (cp) => ingebed.glyphs.hasGlyphForCodePoint(cp))) {
+                        if (deel.ingebed) {
+                          ftIngebedFonts.set(ingebed.naam, ingebed.font);
+                          if (ingebed.naam !== huidigFont) { ftStreamContent += `/${ingebed.naam} ${ftFontSize} Tf\n`; huidigFont = ingebed.naam; }
+                          ftStreamContent += `${ingebed.font.encodeText(deel.tekst).toString()} Tj\n`;
+                        } else if (cjkTekst && heeftNietWinAnsi(deel.tekst)) {
+                          for (const run of await cjkKeten.runs(deel.tekst)) {
+                            if (run.naam !== huidigFont) { ftStreamContent += `/${run.naam} ${ftFontSize} Tf\n`; huidigFont = run.naam; }
+                            ftStreamContent += `${run.font.encodeText(run.tekst).toString()} Tj\n`;
+                            ftCjkFonts.add(run.naam);
+                          }
+                        } else {
+                          const f = mapFontToPdfName(ann.fontFamily, c.bold, c.italic);
+                          ftUsedFonts.add(f);
+                          if (f !== huidigFont) { ftStreamContent += `/${f} ${ftFontSize} Tf\n`; huidigFont = f; }
+                          ftStreamContent += `(${winAnsiLiteral(deel.tekst)}) Tj\n`;
+                        }
+                      }
+                      continue;
+                    }
                     if (cjkTekst && heeftNietWinAnsi(c.text)) {
                       // Per teken het eerste CJK-font dat het heeft (TC, dan SC).
                       for (const run of await cjkKeten.runs(c.text)) {
@@ -1868,6 +1898,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 ftFontResources[f] = tekstvakFontDict(context, f);
               }
               for (const naam of ftCjkFonts) ftFontResources[naam] = cjkKeten.ref(naam);
+              for (const [naam, font] of ftIngebedFonts) ftFontResources[naam] = font.ref;
 
               // Use absolute BBox (same as Rect) with Matrix to translate origin
               const apStreamDict = {

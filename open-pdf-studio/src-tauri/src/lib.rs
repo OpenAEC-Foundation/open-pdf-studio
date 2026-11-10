@@ -4,6 +4,7 @@
 #![recursion_limit = "512"]
 
 mod accounts;
+mod systeem_lettertypen;
 mod pdf_beveiliging;
 mod atomic_file;
 pub mod bestand_openen;
@@ -3645,6 +3646,8 @@ pub fn run(opts: StartupOpts) {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            systeem_lettertypen::systeem_lettertype_zoeken,
+            systeem_lettertypen::systeem_lettertype_lezen,
             pdf_beveiliging::pdf_security_new,
             pdf_beveiliging::pdf_security_permissions,
             pdf_beveiliging::pdf_security_unlock_owner,
