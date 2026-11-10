@@ -252,6 +252,7 @@
     "title": "Заглавие",
     "author": "Автор",
     "subject": "Тема",
+    "keywords": "Ключови думи",
     "creator": "Създател",
     "producer": "Производител",
     "pdfVersion": "PDF версия",

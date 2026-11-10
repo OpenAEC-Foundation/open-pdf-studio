@@ -819,3 +819,5 @@ js/review/status-history-rondgang.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
 js/tools/snap-geometrie-binair.test.mjs
+js/pdf/documentgegevens.test.mjs
+js/core/documentgegevens-undo.test.mjs

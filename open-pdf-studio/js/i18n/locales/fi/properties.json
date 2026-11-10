@@ -252,6 +252,7 @@
     "title": "Otsikko",
     "author": "Tekijä",
     "subject": "Aihe",
+    "keywords": "Avainsanat",
     "creator": "Luoja",
     "producer": "Tuottaja",
     "pdfVersion": "PDF-versio",

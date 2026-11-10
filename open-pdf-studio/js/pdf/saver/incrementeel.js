@@ -474,8 +474,10 @@ export function bereidIncrementeelVoor(bytes, pdfDocLib, { vereistVolledig = nul
 // de catalogus worden per sleutel beoordeeld. Wat ook onder pagina-inhoud,
 // bladwijzers, namen of structuur hangt, weigert.
 
-const ZONE_TOEGESTAAN = new Set(['annotatie', 'formulier', 'lagen', 'info']);
-const CATALOGUS_SLEUTELS = new Set(['AcroForm', 'OCProperties']);
+// 'metadata': het XMP-pakket van de catalogus (/Metadata), dat de saver bij
+// een gewijzigde titel, auteur enz. gelijk houdt met /Info (#1017).
+const ZONE_TOEGESTAAN = new Set(['annotatie', 'formulier', 'lagen', 'info', 'metadata']);
+const CATALOGUS_SLEUTELS = new Set(['AcroForm', 'OCProperties', 'Metadata']);
 const PAGINA_SLEUTELS = new Set(['Annots']);
 const ANNOT_SUBTYPES = new Set([
   'Text', 'Link', 'FreeText', 'Line', 'Square', 'Circle', 'Polygon', 'PolyLine', 'Highlight', 'Underline',
@@ -509,7 +511,7 @@ function isHandtekening(d) {
  * elders (/Dest, /P van een annotatie) loopt de pagina niet opnieuw in.
  * @returns {Map<string, Set<string>>} tag -> zones
  */
-const ZONES = ['catalogus', 'info', 'paginaboom', 'inhoud', 'annotatie', 'formulier', 'lagen', 'overig'];
+const ZONES = ['catalogus', 'info', 'paginaboom', 'inhoud', 'annotatie', 'formulier', 'lagen', 'overig', 'metadata'];
 const Z = Object.fromEntries(ZONES.map((z, i) => [z, 1 << i]));
 
 function zones(context) {
@@ -547,7 +549,7 @@ function zones(context) {
         let z = zone;
         if (zone === Z.catalogus) {
           z = sleutel === 'Pages' ? Z.paginaboom : sleutel === 'AcroForm' ? Z.formulier
-            : sleutel === 'OCProperties' ? Z.lagen : Z.overig;
+            : sleutel === 'OCProperties' ? Z.lagen : sleutel === 'Metadata' ? Z.metadata : Z.overig;
         } else if (zone === Z.paginaboom) {
           if (sleutel === 'Parent') z = 0;
           else if (soort === 'Page') z = sleutel === 'Annots' ? Z.annotatie : Z.inhoud;

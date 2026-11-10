@@ -252,6 +252,7 @@
     "title": "Τίτλος",
     "author": "Συγγραφέας",
     "subject": "Θέμα",
+    "keywords": "Λέξεις-κλειδιά",
     "creator": "Δημιουργός",
     "producer": "Παραγωγός",
     "pdfVersion": "Έκδοση PDF",
