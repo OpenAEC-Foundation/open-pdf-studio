@@ -320,3 +320,119 @@ een derde van het geheugen in de WebView, met dezelfde snapset.
 loodrecht, snijpunt) in het echte venster; de IPC-tijd van de WebView; dat het
 ophalen van snap-geometrie tegelrenders op dezelfde worker niet merkbaar
 ophoudt (beide lopen via de request-lock van die worker).
+
+## Annotaties laden bij het openen: onderzocht, JS blijft
+
+**Vraag.** Kan het lezen van de annotaties bij het openen (pdf.js
+`getAnnotations` per blad, de pdf-lib-lezing van de rauwe woordenboeken in
+`extractAnnotationColors`, en het omzetten naar het model) sneller door de
+rauwe extractie naar Rust te verplaatsen, met het omzetten in JS?
+
+**Uitkomst.** Nee, niet duidelijk genoeg: JS blijft, er is geen Rust-route
+ingebouwd. Het profiel vond wel de grootste post, en die zat in JS: een
+kwadratische zoekactie, nu gerepareerd met dezelfde modellen als uitkomst.
+
+**Meetset** (`scripts/bench-rust/annotaties-set.mjs`): 100 bladen A1, met de
+echte saver geschreven: per blad 500 annotaties in 22 soorten (vormen, wolk,
+lijnen en pijlen, maatlijn, meetvlak, meetomtrek, telling, aanwijzer,
+tekstvak, stempel, inkt, notitie, antwoord met status, links naar een URL en
+naar een blad, boog, gebogen aanwijzer, arcering, gedraaide vorm met
+doorzichtigheid), dus met de OPS_-sleutels, appearances en /Measure, plus per
+blad 6 annotaties zoals een ander programma ze schrijft (eigen sleutels,
+ExtGState-alfa in de appearance, /PolygonDimension, markering). Samen 57.500
+annotatiewoordenboeken, 50.600 modellen, 67 MB.
+
+**Profiel van de JS-lader** (`node --expose-gc --max-old-space-size=8192
+scripts/bench-rust/10-annotaties-profiel.mjs`, node 24, Windows, dezelfde
+stappen als `loadExistingAnnotations`, twee runs; de machine draaide
+tegelijk andere builds, dus de getallen schommelen):
+
+| stap | vóór de reparatie | na de reparatie |
+|---|---:|---:|
+| pdf.js openen | 0,3 s | 0,1 s |
+| pdf.js `getAnnotations`, alle bladen | 4,3–6,6 s | 2,3–3,9 s |
+| pdf-lib `PDFDocument.load` (hele bestand) | 15,8–16,0 s | 15,3–15,9 s |
+| `extractAnnotationColors`, alle bladen | 5,8–8,3 s | 3,3–7,2 s |
+| `zetPaginaAnnotatiesOm` (omzetten) | 36,7–64,7 s | 1,9–3,9 s |
+| totaal | 68–91 s | 24–31 s |
+
+De omzetting ging voor 80 % op aan `zoekExtraKleuren`
+(`js/pdf/loader/extra-sleutel.js`): bij elke annotatie waarvan de /Rect niet
+exact als sleutel in de kaart stond, liep de vage match alle sleutels van het
+blad af, met een `split` per sleutel, en dat per aanroep (meerdere per
+annotatie). Dat missen gebeurt bij ruim een derde van de annotaties van de app:
+de saver schrijft `160.64000000000001`, pdf-lib leest dat met `Number()`,
+pdf.js telt cijfer voor cijfer en komt op `160.64`. Nu een index per kaart
+(vakken van 8 pt op x0) en een geheugen per gevraagde rechthoek; dezelfde
+regel (kleinste afstand onder 8, bij gelijke afstand de eerste in de kaart).
+Pariteit: `extra-sleutel.test.mjs` vergelijkt de index met de volle doorloop
+op 2000 rechthoeken met gelijke afstanden en sleutels die geen rechthoek
+zijn, en `scripts/bench-rust/10-annotaties-model.mjs` (vaste klok en vaste
+toevalsreeks, zodat id's en tijdstempels gelijk zijn) gaf voor en na de
+reparatie byte-gelijke modellen: 50.600 op de grote set, 2530 op 5 × 500.
+
+**Rust-meetprototype** (`scripts/bench-rust/annotaties-rust/`, een losse
+crate met lopdf 0.34 buiten de workspace): bestand laden, van alle bladen
+elk annotatiewoordenboek met opgevolgde verwijzingen (pagina's en andere
+annotaties als verwijzing, stromen als woordenboek + lengte) als JSON. Dat is
+de ondergrens van een Rust-route; de semantiek en het omzetten blijven daarna
+in JS.
+
+| stap | 5 × 500 (2875 annotaties) | 100 × 500 (57.500) |
+|---|---:|---:|
+| lopdf laden | 66 ms | 1,4–1,8 s |
+| woordenboeken doorlopen | 46 ms | 1,2 s |
+| JSON coderen | 8 ms | 0,2 s |
+| IPC (model: 1 ms + 3 kopieën van ~4 GB/s) | 3 ms | 42 ms (52,7 MB) |
+| `JSON.parse` in JS | 13 ms | 0,34–0,40 s |
+| totaal | 135 ms | 3,1–3,5 s |
+| geheugen in JS | 5 MB | 90 MB |
+
+Ter vergelijking het geheugen van de JS-route: het pdf-lib-document van dit
+bestand 321 MB, pdf.js met de annotaties van alle bladen 505 MB; het
+structured clone van die annotaties naar de hoofdthread (in de app draait
+pdf.js in een eigen worker) ~0,7 s.
+
+**Waarom het niet loont.**
+- De grootste post die overblijft, `PDFDocument.load` (15 s, 60 % van het
+  totaal), verdwijnt er niet mee. De lader start die bij elk openen
+  (`getSharedPdfLibDoc` in `loader.js`) en zeven andere lezers wachten erop:
+  annotatielagen, 3D, stijlsets, goedkeuringen, kop- en voettekst,
+  viewports/UserUnit en schalen. pdf-lib leest het hele bestand in één keer op
+  de hoofdthread (`objectsPerTick` staat op oneindig); een blad met een
+  rechthoek wacht er bij het openen ook op (`loadAnnotationsForSinglePage`).
+- Wat Rust wel kan overnemen is hoogstens `getAnnotations` (in de app al in
+  de pdf.js-worker) en het lezende deel van `extractAnnotationColors`: samen
+  ~5–10 s op deze set, tegen ~3,5 s voor de Rust-route plus een JS-laag die de
+  records nog moet duiden. Eind tot eind dus van ~25 s naar ~20 s, en alleen
+  na een volledige nabouw.
+- Die nabouw is groot en breekbaar. PDFium geeft per sleutel alleen een
+  f32-getal of tekst, en kan de sleutels van een woordenboek niet opsommen
+  (geen OPS_- of vreemde sleutels, geen geneste /Measure); lopdf 0.34 bewaart
+  reële getallen als f32 (`1586.635294117647` wordt `1586.6353`), dus er moet
+  een eigen f64-lezer bovenop. Het model leest bovendien twee bronnen met elk
+  hun eigen getallen: velden uit pdf.js (cijfer voor cijfer) en uit pdf-lib
+  (`Number()`), en de bronvingerafdruk (`pdfBron`, saver/bron-behoud.js) is
+  een hash van pdf-libs `PDFDict.toString()`. Rust moet beide exact nadoen,
+  anders herschrijft de saver annotaties die niet veranderden. Daarbij komen
+  velden die pdf.js zelf afleidt, zoals de tekst uit de appearance van een
+  tekstvak (`textContent`, met fontdecodering).
+
+**Standaard:** JS, op desktop en web. Geen `OPDS_RUST_*`-vlag, want er is
+geen Rust-route.
+
+**Wat wel zou helpen (niet gedaan).**
+- `objectsPerTick` meegeven aan `PDFDocument.load` in `getSharedPdfLibDoc`:
+  dezelfde uitkomst, maar de hoofdthread blijft tussendoor bereikbaar in
+  plaats van 15 s vast te zitten. Live te meten hoeveel langer het laden dan
+  duurt.
+- Een volgende Rust-stap op het gedeelde pdf-lib-document bij het openen: de
+  zeven lezers hebben elk maar een klein deel van de catalogus en de bladen
+  nodig. Pas als dat document niet meer bij elk openen geladen wordt, loont
+  het om ook de annotaties uit Rust te halen.
+
+**Live na te kijken.** De reparatie van de vage match in de app: een zware
+markeringsset openen (de `[PERF] page …: convertAnnotations`-regels) en
+nagaan dat kleuren, lagen en antwoorden er nog zijn zoals voorheen. De
+getallen hierboven zijn onder node gemeten; in de WebView kunnen pdf-lib en
+de omzetting trager of sneller zijn.
