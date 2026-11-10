@@ -26,3 +26,6 @@ anyhow = "1"
 lopdf = { version = "0.34", default-features = false, features = ["nom_parser"] }
 flate2 = "1"
 memchr = "2"
+# fdlibm-afstamming (MIT/Apache): cos/sin/atan2/exp/log zoals V8 ze rekent,
+# zodat de Rust-poort van Vergelijken dezelfde getallen geeft als js/compare/.
+libm = "0.2"

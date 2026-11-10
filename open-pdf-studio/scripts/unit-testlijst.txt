@@ -457,6 +457,7 @@ js/compare/compare-pairing.test.mjs
 js/compare/compare-report.test.mjs
 js/compare/compare-i18n.test.mjs
 js/compare/compare-vector.test.mjs
+js/compare/rust-compare.test.mjs
 js/pdf/thin-lines.test.mjs
 js/pdf/three-d/u3d-reader.test.mjs
 js/pdf/three-d/pdf-3d.test.mjs
@@ -815,3 +816,5 @@ js/quantities/takeoff-tags-wiring.test.mjs
 js/review/status-history.test.mjs
 js/review/status-history-rondgang.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
+js/pdf/monochrome-rust.test.mjs
+js/tools/snap-geometrie-binair.test.mjs

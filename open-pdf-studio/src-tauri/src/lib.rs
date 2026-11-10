@@ -28,6 +28,7 @@ pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_signaal;
 pub mod mcp_tool_meta;
+pub mod monochroom;
 pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
@@ -2388,6 +2389,43 @@ async fn ocr_pdf_page() -> Result<(), String> {
     Err("OCR is op dit platform niet beschikbaar".to_string())
 }
 
+/// Pixelvergelijking van een paginapaar (#465) in de PDFium-worker: renderen
+/// op de vergelijkingsresolutie, inktmaskers, automatische uitlijning en
+/// clusters gebeuren in het workerproces, dus geen bitmap komt over IPC.
+/// `request` is het verzoek uit js/compare/rust-compare.js (zie
+/// pdfium-worker/src/compare/mod.rs, CompareRequest zonder op/id).
+/// Antwoord (rauwe bytes): u32 LE lengte van de JSON-kop, de JSON-kop,
+/// opvulling tot een veelvoud van 8, daarna 10 f64 per cluster.
+/// Fouten beginnen met COMPARE_RUST_; de app rekent dan in JS.
+/// `OPDS_RUST_COMPARE=0` dwingt de JS-weg af (ter vergelijking).
+#[tauri::command]
+async fn compare_pixel_pair(
+    request: serde_json::Value,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<tauri::ipc::Response, String> {
+    if std::env::var("OPDS_RUST_COMPARE").ok().as_deref() == Some("0") {
+        return Err("COMPARE_RUST_DISABLED".to_string());
+    }
+    let p = pool.get().ok_or_else(|| "COMPARE_RUST_UNAVAILABLE: worker pool not ready".to_string())?;
+    let new_path = request["new"]["path"].as_str().ok_or_else(|| "COMPARE_RUST_FAILED: new.path missing".to_string())?.to_string();
+    let new_page = request["new"]["page_index"].as_u64().unwrap_or(0) as u32;
+    let (resp, clusters) = p
+        .compare(request, &new_path, new_page)
+        .await
+        .map_err(|e| format!("COMPARE_RUST_UNAVAILABLE: {e:#}"))?;
+    if !resp["ok"].as_bool().unwrap_or(false) {
+        return Err(format!("COMPARE_RUST_FAILED: {}", resp["error"].as_str().unwrap_or("unknown")));
+    }
+    let head = resp.to_string().into_bytes();
+    let pad = (8 - (4 + head.len()) % 8) % 8;
+    let mut out = Vec::with_capacity(4 + head.len() + pad + clusters.len());
+    out.extend_from_slice(&(head.len() as u32).to_le_bytes());
+    out.extend_from_slice(&head);
+    out.resize(out.len() + pad, 0);
+    out.extend_from_slice(&clusters);
+    Ok(tauri::ipc::Response::new(out))
+}
+
 #[tauri::command]
 async fn render_pdf_page_region(
     path: String,
@@ -2474,6 +2512,36 @@ async fn render_pdf_page_region(
     data.extend_from_slice(&height.to_le_bytes());
     data.extend_from_slice(&rgba);
     Ok(tauri::ipc::Response::new(data))
+}
+
+/// Snap-geometrie van een pagina uit de PDFium-worker (pdfium-worker,
+/// snap_geometry.rs): eindpunten, middens en randen van de vectorinhoud in
+/// de annotatieruimte die `viewport` (weergavematrix bij schaal 1, zoals de
+/// app hem berekent) beschrijft. Antwoord: de `OSG1`-codering, ongewijzigd.
+/// Faalt expliciet; de JavaScript-kant extraheert dan zelf met PDF.js
+/// (pdf-snap-extractor.js). `OPDS_RUST_SNAP=0` dwingt die JavaScript-route af,
+/// om beide te vergelijken.
+#[tauri::command]
+async fn extract_snap_geometry(
+    path: String,
+    page_index: u32,
+    viewport: Vec<f64>,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<tauri::ipc::Response, String> {
+    if std::env::var("OPDS_RUST_SNAP").ok().as_deref() == Some("0") {
+        return Err("PDF_SNAP_DISABLED".to_string());
+    }
+    let viewport: [f64; 6] = viewport
+        .try_into()
+        .map_err(|_| "PDF_INVALID_GEOMETRY: viewport needs 6 numbers".to_string())?;
+    let Some(p) = pool.get() else {
+        return Err("PDF_WORKER_UNAVAILABLE".to_string());
+    };
+    match p.snap_geometry(&path, page_index, viewport).await {
+        Ok(bytes) => Ok(tauri::ipc::Response::new(bytes)),
+        Err(e) if e.downcast_ref::<worker_pool::snap::Unsupported>().is_some() => Err("PDF_SNAP_UNSUPPORTED".to_string()),
+        Err(e) => Err(format!("PDF_SNAP_FAILED: {e:#}")),
+    }
 }
 
 /// Route A: render een tegel-regio via de eigen display-list-engine i.p.v. de
@@ -3663,7 +3731,9 @@ pub fn run(opts: StartupOpts) {
             ocr_pdf_page,
             worker_pool_ready,
             render_pdf_page_region,
+            compare_pixel_pair,
             render_tile_scene_region,
+            extract_snap_geometry,
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,
@@ -3745,6 +3815,8 @@ pub fn run(opts: StartupOpts) {
             draagbaar::portable_status,
             herstel::herstel_info,
             herstel::herstel_schrijf,
+            monochroom::monochroom_rust_beschikbaar,
+            monochroom::monochroom_beeld,
             herstel::herstel_lees,
             herstel::herstel_lees_tekst,
             herstel::herstel_lijst,

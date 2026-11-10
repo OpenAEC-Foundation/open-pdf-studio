@@ -1,0 +1,18 @@
+[package]
+name = "open-pdf-monochrome"
+version = "2026.45.0"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Lossless monochrome image recompression (bilevel packing, Flate, CCITT G4) for the monochrome mode (#902)"
+publish = false
+
+# Pure logica zonder Tauri: `cargo test -p open-pdf-monochrome` draait gewoon.
+# De app-crate roept dit aan vanuit het commando `monochroom_beeld`.
+
+[dependencies]
+# Uitpakken (strikt: afgekapt of rommel erachter is een fout); zelfde versie
+# als de app-crate en de worker, staat al in Cargo.lock.
+flate2 = "1"
+# Inpakken: zlib-rs (licentie Zlib) staat al in Cargo.lock en is op
+# scanpagina's ruim twee keer zo snel als miniz_oxide.
+zlib-rs = "0.6"

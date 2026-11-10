@@ -44,10 +44,40 @@ fn pdfium() -> Result<&'static Pdfium> {
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&res_dir)))
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&linux_res_dir)))
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path("./")))
+            .or_else(|e| test_library().map_or(Err(e), Pdfium::bind_to_library))
             .context("PDFium library not found (system, exe-dir, ../Resources, ../lib/Open PDF Studio, or ./)")?;
         let _ = PDFIUM.set(Pdfium::new(bindings));
     }
     Ok(PDFIUM.get().expect("PDFIUM set above"))
+}
+
+/// Unit tests (`cargo test -p pdfium-worker`): de meegeleverde PDFium uit
+/// open-pdf-studio/src-tauri/binaries, zodat de tests zonder PATH-instelling
+/// draaien. Buiten tests nooit.
+#[cfg(test)]
+fn test_library() -> Option<std::path::PathBuf> {
+    let platform = if cfg!(windows) {
+        if cfg!(target_arch = "aarch64") { "win-arm64" } else { "win-x64" }
+    } else if cfg!(target_os = "macos") {
+        "macos-universal"
+    } else {
+        "linux-x64"
+    };
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../open-pdf-studio/src-tauri/binaries")
+        .join(platform);
+    Some(Pdfium::pdfium_platform_library_name_at_path(&dir)).filter(|p| p.exists())
+}
+
+#[cfg(not(test))]
+fn test_library() -> Option<std::path::PathBuf> {
+    None
+}
+
+/// PDFium voor unit tests van de worker (zie `test_library`).
+#[cfg(test)]
+pub(crate) fn pdfium_for_tests() -> &'static Pdfium {
+    pdfium().expect("PDFium voor de tests (open-pdf-studio/src-tauri/binaries)")
 }
 
 /// Gecachet geladen document + open pagina-handle. Houdt de bytes levend voor
@@ -199,6 +229,13 @@ impl Renderer {
     /// voorheen bij ÉLKE regio-render opnieuw. Met een open handle betaalt
     /// alleen de eerste render die parse; daarna is een tegel puur rasterwerk.
     fn get_or_load_page(&mut self, doc_idx: usize, page_index: u32, thin_lines: bool) -> Result<&PdfPage<'static>> {
+        let open = self.open_page(doc_idx, page_index)?;
+        open.set_thin_lines(thin_lines);
+        Ok(&open.page)
+    }
+
+    /// Open (of hergebruik) de pagina-handle zonder de lijndiktes aan te raken.
+    fn open_page(&mut self, doc_idx: usize, page_index: u32) -> Result<&mut OpenPage> {
         let entry = &mut self.cache[doc_idx];
         let reuse = matches!(&entry.page, Some(open) if open.index == page_index);
         if !reuse {
@@ -216,9 +253,7 @@ impl Renderer {
             let load_ms = t0.elapsed().as_millis() as u32;
             entry.page = Some(OpenPage { index: page_index, load_ms, thin_originals: None, page });
         }
-        let open = self.cache[doc_idx].page.as_mut().expect("zojuist gezet");
-        open.set_thin_lines(thin_lines);
-        Ok(&open.page)
+        Ok(self.cache[doc_idx].page.as_mut().expect("zojuist gezet"))
     }
 
     /// Sluit de pagina-handle weer als de parse GOEDKOOP was. Alleen zware
@@ -233,6 +268,24 @@ impl Renderer {
                 self.cache[doc_idx].page = None;
             }
         }
+    }
+
+    /// Snap-geometrie van een pagina (zie snap_geometry.rs), gecodeerd voor de
+    /// app. `viewport` = de weergavematrix van de pagina bij schaal 1 die de app
+    /// zelf gebruikt. Leest de pagina die PDFium voor het tekenen al geparst
+    /// heeft (open handle van een zware pagina); de lijndiktes van Thin Lines
+    /// blijven zoals ze zijn, die doen voor de geometrie niet ter zake.
+    pub fn snap_geometry(&mut self, path: &str, page_index: u32, viewport: [f64; 6]) -> Result<Vec<u8>> {
+        if viewport.iter().any(|v| !v.is_finite()) {
+            return Err(anyhow!("PDF_INVALID_GEOMETRY: non-finite viewport"));
+        }
+        let idx = self.get_or_load(path)?;
+        let bytes = {
+            let open = self.open_page(idx, page_index)?;
+            crate::snap_geometry::uit_pagina(&open.page, viewport).afronden()
+        };
+        self.release_page_if_cheap(idx);
+        Ok(bytes)
     }
 
     pub fn render(
@@ -290,6 +343,63 @@ impl Renderer {
         // voor normale PDF's); zware behouden hem voor snelle vervolg-tegels.
         self.release_page_if_cheap(idx);
         Ok(result)
+    }
+
+    /// Pad-identiteit (mtime + lengte) zoals de documentcache hem gebruikt:
+    /// sleutel voor afgeleide caches (de inktmaskers van Vergelijken).
+    pub fn file_identity(path: &str) -> Result<(Option<std::time::SystemTime>, u64)> {
+        let meta = std::fs::metadata(path).with_context(|| format!("stat {}", path))?;
+        Ok((meta.modified().ok(), meta.len()))
+    }
+
+    /// Render tegels van een pagina voor Vergelijken (#465): elke tegel
+    /// (x, y, w, h in pixels) op `scale` pixels per punt, wit papier,
+    /// annotatie-weergaven mee (zoals pdf.js met intent 'display'), geen
+    /// LCD-tekst. `each` krijgt per tegel de BGRA-pixels (rijbreedte w·4).
+    /// De pagina blijft open tussen de tegels en wordt daarna (als hij
+    /// goedkoop was) weer gesloten.
+    pub fn render_tiles(
+        &mut self,
+        path: &str,
+        page_index: u32,
+        scale: f64,
+        tiles: &[(usize, usize, usize, usize)],
+        mut each: impl FnMut(usize, &[u8]),
+    ) -> Result<()> {
+        let idx = self.get_or_load(path)?;
+        let result = (|| -> Result<()> {
+            let page = self.get_or_load_page(idx, page_index, false)?;
+            for (i, &(x, y, w, h)) in tiles.iter().enumerate() {
+                if w == 0 || h == 0 || w > i32::MAX as usize || h > i32::MAX as usize {
+                    return Err(anyhow!("PDF_INVALID_GEOMETRY: compare tile {}x{}", w, h));
+                }
+                let config = PdfRenderConfig::new()
+                    .set_fixed_size(w as i32, h as i32)
+                    .transform(scale as f32, 0.0, 0.0, scale as f32, -(x as f32), -(y as f32))
+                    .map_err(|e| anyhow!("invalid transform: {}", e))?
+                    .render_annotations(true)
+                    .render_form_data(false)
+                    .use_lcd_text_rendering(false)
+                    .set_format(PdfBitmapFormat::BGRA);
+                let bitmap = page.render_with_config(&config).map_err(|e| anyhow!("PDFium compare render: {}", e))?;
+                let raw = bitmap.as_raw_bytes();
+                let stride = raw.len() / h;
+                if stride == w * 4 {
+                    each(i, &raw);
+                } else if stride > w * 4 {
+                    let mut packed = Vec::with_capacity(w * h * 4);
+                    for row in raw.chunks(stride).take(h) {
+                        packed.extend_from_slice(&row[..w * 4]);
+                    }
+                    each(i, &packed);
+                } else {
+                    return Err(anyhow!("PDFium compare render: bitmap stride {} < {}", stride, w * 4));
+                }
+            }
+            Ok(())
+        })();
+        self.release_page_if_cheap(idx);
+        result
     }
 
     /// Render a sub-region of a page at `scale` into an output bitmap of
