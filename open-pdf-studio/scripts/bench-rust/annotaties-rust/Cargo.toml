@@ -9,7 +9,6 @@
 # met CARGO_TARGET_DIR=C:\opds-cargo-target-449.
 [package]
 name = "opds-annotaties-meting"
-version = "0.1.0"
 edition = "2021"
 publish = false
 
