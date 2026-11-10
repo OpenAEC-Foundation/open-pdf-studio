@@ -418,6 +418,7 @@ js/pdf/bron-paginas-kiezen.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
 js/pdf/pagina-labels-verticaal.test.mjs
+js/pdf/pagina-labels-onleesbaar.test.mjs
 js/pdf/ocr-engines.test.mjs
 js/pdf/page-manager-paginalabels.test.mjs
 js/plugins/structured-commands.test.mjs
