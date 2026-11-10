@@ -109,6 +109,18 @@ impl Shm {
         self.mmap.flush_async().context("flush SHM after write")?;
         Ok(rgba.len() as u64)
     }
+
+    /// Copy an opaque payload (snap geometry) behind a zeroed header. Returns
+    /// the payload bytes written.
+    pub fn write_payload(&mut self, payload: &[u8]) -> Result<u64> {
+        if payload.len() > PAYLOAD_CAP {
+            anyhow::bail!("payload too large for SHM: {} bytes > {} (cap)", payload.len(), PAYLOAD_CAP);
+        }
+        self.mmap[..HEADER_SIZE].fill(0);
+        self.mmap[HEADER_SIZE..HEADER_SIZE + payload.len()].copy_from_slice(payload);
+        self.mmap.flush_async().context("flush SHM after write")?;
+        Ok(payload.len() as u64)
+    }
 }
 
 #[cfg(test)]

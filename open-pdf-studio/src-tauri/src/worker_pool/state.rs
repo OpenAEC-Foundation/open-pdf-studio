@@ -74,13 +74,8 @@ impl WorkerState {
 
     /// Lees `caps` uit de Ready-regel van de worker.
     pub fn set_caps_from_ready(&self, ready_line: &str) {
-        let caps = serde_json::from_str::<serde_json::Value>(ready_line)
-            .ok()
-            .and_then(|v| v.get("caps").and_then(|c| c.as_array()).cloned())
-            .map(|a| a.iter().filter_map(|c| c.as_str().map(str::to_string)).collect())
-            .unwrap_or_default();
         if let Ok(mut c) = self.caps.write() {
-            *c = caps;
+            *c = super::spawn::ready_caps(ready_line);
         }
     }
 

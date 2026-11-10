@@ -29,6 +29,19 @@ pub enum Request {
     },
     /// Pixelvergelijking van een paginapaar (#465), zie compare/mod.rs.
     Compare(crate::compare::CompareRequest),
+    /// Snap-geometrie van een pagina (snap_geometry.rs). Het resultaat kan
+    /// groter zijn dan de SHM-regio: de app haalt het in stukken op met
+    /// oplopende `offset`; de worker bewaart het resultaat tot het laatste stuk
+    /// is opgehaald.
+    SnapGeometry {
+        id: u64,
+        path: String,
+        page_index: u32,
+        /// Weergavematrix van de pagina bij schaal 1 (a, b, c, d, e, f).
+        viewport: [f64; 6],
+        #[serde(default)]
+        offset: u64,
+    },
     /// Sluit open pagina-handles (parse-state, honderden MB's op zware
     /// CAD-pagina's); documenten blijven gecachet. Fire-and-forget: geen
     /// response. Gestuurd door de pool bij inactiviteit.
@@ -50,6 +63,10 @@ pub enum Response {
         caps: Vec<String>,
     },
     RenderOk { id: u64, ok: bool, w: u32, h: u32, shm_bytes: u64 },
+    /// Eén stuk snap-geometrie in de SHM-regio: `shm_bytes` vanaf `offset`
+    /// van in totaal `total_bytes`. `ms` = extractietijd (0 voor een stuk uit
+    /// het bewaarde resultaat).
+    SnapOk { id: u64, ok: bool, total_bytes: u64, offset: u64, shm_bytes: u64, ms: f64 },
     RenderErr { id: u64, ok: bool, error: String },
 }
 
@@ -130,6 +147,26 @@ mod tests {
     fn ready_names_the_compare_capability() {
         let ready = Response::Ready { op: "ready".into(), shm_name: "x".into(), shm_size: 1, caps: vec!["compare".into()] };
         assert!(serde_json::to_string(&ready).unwrap().contains(r#""caps":["compare"]"#));
+    }
+
+    #[test]
+    fn snap_geometry_request_parses_with_default_offset() {
+        let req: Request = serde_json::from_str(
+            r#"{"op":"snap_geometry","id":7,"path":"a.pdf","page_index":2,"viewport":[1,0,0,-1,0,842]}"#,
+        ).unwrap();
+        assert_eq!(req, Request::SnapGeometry {
+            id: 7, path: "a.pdf".into(), page_index: 2,
+            viewport: [1.0, 0.0, 0.0, -1.0, 0.0, 842.0], offset: 0,
+        });
+    }
+
+    #[test]
+    fn ready_announces_snap_geometry() {
+        let ready = Response::Ready {
+            op: "ready".into(), shm_name: "x".into(), shm_size: 1,
+            caps: vec!["snap_geometry".into()],
+        };
+        assert!(serde_json::to_string(&ready).unwrap().contains(r#""caps":["snap_geometry"]"#));
     }
 
     #[test]

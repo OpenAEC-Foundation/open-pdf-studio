@@ -817,3 +817,4 @@ js/review/status-history.test.mjs
 js/review/status-history-rondgang.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
+js/tools/snap-geometrie-binair.test.mjs

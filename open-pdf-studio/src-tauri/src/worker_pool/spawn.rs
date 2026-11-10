@@ -78,6 +78,26 @@ pub async fn spawn_worker(worker: Arc<WorkerState>, exe_path: &std::path::Path) 
     Ok(())
 }
 
+/// De `caps` uit de Ready-regel; een oudere worker zonder `caps` kent alleen
+/// render/trim.
+pub fn ready_caps(ready_line: &str) -> Vec<String> {
+    serde_json::from_str::<serde_json::Value>(ready_line.trim())
+        .ok()
+        .and_then(|v| v.get("caps").and_then(|c| c.as_array()).map(|c| c.iter().filter_map(|x| x.as_str().map(str::to_string)).collect()))
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod caps_tests {
+    use super::ready_caps;
+    #[test]
+    fn caps_come_from_the_ready_line() {
+        assert_eq!(ready_caps(r#"{"op":"ready","shm_name":"a","shm_size":1,"caps":["snap_geometry"]}"#), vec!["snap_geometry"]);
+        assert!(ready_caps(r#"{"op":"ready","shm_name":"a","shm_size":1}"#).is_empty());
+        assert!(ready_caps("garbage").is_empty());
+    }
+}
+
 pub async fn spawn_pool(n_workers: u32, exe_path: &std::path::Path) -> Result<Vec<Arc<WorkerState>>> {
     let mut workers = Vec::with_capacity(n_workers as usize);
     for slot in 0..n_workers {
