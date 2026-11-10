@@ -12,6 +12,7 @@ import { removeSteelCatalog } from '../../symbols/steel-catalog-store.js';
 import { removeLineworkCatalog } from '../../symbols/linework-catalog-store.js';
 import { searchTermsFor } from '../../symbols/registry.js';
 import { symboolPastBijZoekterm } from '../data/symbool-zoeken.js';
+import { saneerSvg, saneerSymbolen, saneerSymboolGroepen, saneerTypeOverrides } from '../../core/svg-veilig.js';
 
 // --- State ---
 const [searchQuery, setSearchQuery] = createSignal('');
@@ -87,6 +88,8 @@ function resolveSymbolSvg(originalSvg) {
 function setSymbolTypeOverride(baseSvg, svg, name) {
   const key = symbolTypeKey(baseSvg);
   if (!key) return null;
+  svg = saneerSvg(svg);
+  if (!svg) return null;
   const overrides = { ...getSymbolTypeOverrides() };
   overrides[key] = { svg, name: name || overrides[key]?.name || 'Symbol' };
   state.preferences.symbolTypeOverrides = overrides;
@@ -189,13 +192,18 @@ function removeCustomGroup(id) {
   }
 }
 
+// Geeft false als de SVG niet bruikbaar is (dan komt er niets bij). Van de
+// SVG blijven alleen bekende tekenelementen en attributen over.
 function addSymbolToGroup(groupId, name, svg) {
+  svg = saneerSvg(svg);
+  if (!svg) return false;
   const groups = getCustomGroups().map(g => {
     if (g.id !== groupId) return g;
     const symId = groupId + '-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     return { ...g, symbols: [...g.symbols, { id: symId, name, svg }] };
   });
   setCustomGroups(groups);
+  return true;
 }
 
 // --- Online bibliotheek-groepen (gedownloade collecties) ---
@@ -204,6 +212,7 @@ function addSymbolToGroup(groupId, name, svg) {
 // Remove-knop ze gewoon verwijdert. Een bibliotheek-groep draagt
 // `collectionId` + `online: true` en industry/country als ARRAYS.
 function upsertCustomGroup(group) {
+  if (group && Array.isArray(group.symbols)) group = { ...group, symbols: saneerSymbolen(group.symbols).symbolen };
   const groups = getCustomGroups();
   const i = groups.findIndex(g => g.id === group.id);
   const next = i >= 0
@@ -260,7 +269,25 @@ function saveSymbolPaletteState() {
   savePreferences();
 }
 
+// Opgeslagen groepen (ook downloads en imports van voor deze controle) en
+// bewerkte symbooltypen opnieuw door de saneerder halen; alleen bij een
+// verschil terugschrijven.
+function saneerOpgeslagenSymbolen() {
+  const prefs = state.preferences;
+  let opslaan = false;
+  if (prefs.customSymbolGroups != null) {
+    const r = saneerSymboolGroepen(prefs.customSymbolGroups);
+    if (r.gewijzigd) { prefs.customSymbolGroups = r.groepen; opslaan = true; }
+  }
+  if (prefs.symbolTypeOverrides != null) {
+    const r = saneerTypeOverrides(prefs.symbolTypeOverrides);
+    if (r.gewijzigd) { prefs.symbolTypeOverrides = r.overrides; opslaan = true; }
+  }
+  if (opslaan) savePreferences();
+}
+
 function initSymbolPalette() {
+  saneerOpgeslagenSymbolen();
   const prefs = state.preferences;
   if (prefs.symbolPaletteVisible != null) setSymbolPaletteVisibleRaw(prefs.symbolPaletteVisible);
   if (prefs.disabledSymbolGroups) setDisabledGroupsRaw(new Set(prefs.disabledSymbolGroups));

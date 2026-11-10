@@ -22,6 +22,7 @@ import { recordModify } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { updateStampImage } from '../../annotations/stamps.js';
 import { setSymbolTypeOverride, resolveSymbolSvg } from './symbolStore.js';
+import { saneerSvg } from '../../core/svg-veilig.js';
 
 const VIEWBOX = 64;
 
@@ -93,8 +94,12 @@ function parsePointsAttr(str) {
 
 // Parse an SVG string into { shapes, staticMarkup, viewBox }.
 function parseSvg(svgStr) {
+  // De niet-bewerkbare delen komen als markup in de editor (innerHTML):
+  // eerst alleen bekende tekenelementen en attributen overhouden, en geen
+  // <style> (dat zou de hele app opmaken).
+  const schoon = saneerSvg(svgStr, { zonderStijl: true }) || '<svg xmlns="http://www.w3.org/2000/svg"/>';
   const parser = new DOMParser();
-  const doc = parser.parseFromString(svgStr, 'image/svg+xml');
+  const doc = parser.parseFromString(schoon, 'image/svg+xml');
   const svg = doc.querySelector('svg');
   const parsedShapes = [];
   const staticNodes = [];
@@ -180,16 +185,21 @@ function serializeSvg(shapeList, staticStr) {
   for (const sh of shapeList) {
     const pointsStr = sh.points.map(p =>
       `${round(p.x)},${round(p.y)}`).join(' ');
-    const strokeAttr = `stroke="${sh.stroke || '#000'}" stroke-width="${sh.strokeWidth ?? 2}"`;
+    const strokeAttr = `stroke="${escAttr(sh.stroke || '#000')}" stroke-width="${escAttr(sh.strokeWidth ?? 2)}"`;
     if (sh.closed) {
       const fill = sh.fill && sh.fill !== 'none' ? sh.fill : 'none';
-      parts.push(`<polygon points="${pointsStr}" fill="${fill}" ${strokeAttr}/>`);
+      parts.push(`<polygon points="${pointsStr}" fill="${escAttr(fill)}" ${strokeAttr}/>`);
     } else {
       parts.push(`<polyline points="${pointsStr}" fill="none" ${strokeAttr}/>`);
     }
   }
   const body = parts.join('') + (staticStr || '');
-  return `<svg viewBox="0 0 ${VIEWBOX} ${VIEWBOX}" xmlns="http://www.w3.org/2000/svg" fill="none">${body}</svg>`;
+  const svg = `<svg viewBox="0 0 ${VIEWBOX} ${VIEWBOX}" xmlns="http://www.w3.org/2000/svg" fill="none">${body}</svg>`;
+  return saneerSvg(svg, { zonderStijl: true }) || `<svg viewBox="0 0 ${VIEWBOX} ${VIEWBOX}" xmlns="http://www.w3.org/2000/svg" fill="none"></svg>`;
+}
+
+function escAttr(v) {
+  return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 }
 
 function round(n) {

@@ -44,10 +44,33 @@
  */
 
 import { createSignal } from 'solid-js';
+import { saneerSvg } from '../core/svg-veilig.js';
 
 const [palettes, setPalettes] = createSignal([]);
 
+// Pictogrammen en logo komen als markup in de pagina (innerHTML): alleen
+// bekende tekenelementen en attributen, en geen <style>.
+function schoonPictogram(svg) {
+  return typeof svg === 'string' && svg.trim() ? saneerSvg(svg, { zonderStijl: true }) : svg ?? null;
+}
+
+function schoonGereedschap(tool) {
+  if (!tool || typeof tool !== 'object') return tool;
+  const uit = { ...tool, icon: schoonPictogram(tool.icon) };
+  if (Array.isArray(tool.subTools)) uit.subTools = tool.subTools.map(schoonGereedschap);
+  return uit;
+}
+
+export function schoonPaletDescriptor(descriptor) {
+  if (!descriptor || typeof descriptor !== 'object') return descriptor;
+  const uit = { ...descriptor, icon: schoonPictogram(descriptor.icon) };
+  if ('logo' in descriptor) uit.logo = schoonPictogram(descriptor.logo);
+  if (Array.isArray(descriptor.tools)) uit.tools = descriptor.tools.map(schoonGereedschap);
+  return uit;
+}
+
 export function registerToolPalette(descriptor) {
+  descriptor = schoonPaletDescriptor(descriptor);
   setPalettes(prev => {
     // Replace if same id already exists
     const filtered = prev.filter(p => p.id !== descriptor.id);

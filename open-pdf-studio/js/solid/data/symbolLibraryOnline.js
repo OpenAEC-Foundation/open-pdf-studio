@@ -3,10 +3,12 @@
 // De app haalt één index.json op uit de content-repo
 // (OpenAEC-Foundation/open-pdf-studio-library) en downloadt collecties
 // on-demand. Deze module bevat uitsluitend pure functies (geen Solid-,
-// Tauri- of app-imports) zodat de laag rechtstreeks in node testbaar is:
+// Tauri- of app-state-imports) zodat de laag rechtstreeks in node testbaar is:
 // zie scripts/test-symbol-library-online.mjs.
 //
 // De netwerk/Solid-kant zit in stores/symbolLibraryOnlineStore.js.
+
+import { saneerSvg, saneerSvgDetail } from '../../core/svg-veilig.js';
 
 export const LIBRARY_REPO = 'OpenAEC-Foundation/open-pdf-studio-library';
 export const LIBRARY_BRANCH = 'main';
@@ -99,18 +101,13 @@ export function titleFromFileName(fileName) {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-// Lichte veiligheidscheck. Het data-format eist self-contained SVG's
-// (geen scripts, geen externe verwijzingen) — we handhaven dat hier ook
-// aan de ontvangende kant voordat iets met innerHTML gerenderd wordt.
+// Strikte controle: true als de SVG door de allowlist-saneerder komt zonder
+// dat er iets weggehaald moest worden. Het data-format eist self-contained
+// SVG's (geen scripts, geen externe verwijzingen); wat de app toont is altijd
+// de door saneerSvg opnieuw uitgeschreven versie (zie collectionToGroup).
 export function isSafeSymbolSvg(svg) {
-  if (typeof svg !== 'string' || !svg.includes('<svg')) return false;
-  const s = svg.toLowerCase();
-  if (s.includes('<script') || s.includes('javascript:')) return false;
-  if (/\son[a-z]+\s*=/.test(s)) return false;
-  if (/\s(?:xlink:)?href\s*=\s*["']\s*https?:/.test(s)) return false;
-  if (s.includes('url(http')) return false;
-  if (s.includes('<foreignobject') || s.includes('<image')) return false;
-  return true;
+  const r = saneerSvgDetail(svg);
+  return r.svg !== null && r.verwijderd.length === 0;
 }
 
 // Stempel { id, text, color } → palette-SVG. De bibliotheek levert stempels
@@ -134,12 +131,16 @@ export function stampToSvg(stamp) {
 export function collectionToGroup(collectionId, meta, contents, lang) {
   const symbols = [];
   for (const f of (contents && contents.svgFiles) || []) {
-    if (!f || !f.name || !isSafeSymbolSvg(f.svg)) continue;
+    if (!f || !f.name) continue;
+    // Alleen bekende tekenelementen en attributen; wat er niet door komt valt
+    // weg (en een SVG die niet te lezen is, slaan we helemaal over).
+    const svg = saneerSvg(f.svg);
+    if (!svg) continue;
     const base = String(f.name).replace(/\.svg$/i, '');
     symbols.push({
       id: `lib-${collectionId}-${base}`,
       name: titleFromFileName(f.name),
-      svg: f.svg,
+      svg,
     });
   }
   for (const st of (contents && contents.stamps) || []) {
