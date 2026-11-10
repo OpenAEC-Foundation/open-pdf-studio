@@ -10,6 +10,7 @@ pub mod spawn;
 pub mod recovery;
 pub mod shm_files;
 pub mod response;
+pub mod snap;
 
 use anyhow::{anyhow, Context, Result};
 use serde_json::json;

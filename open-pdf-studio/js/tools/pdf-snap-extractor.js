@@ -4,6 +4,7 @@ import { OPS } from 'pdfjs-dist';
 import { getPageRotation } from '../core/state.js';
 import { slaSnapExtractieOver } from './snap-extractie-beleid.js';
 import { maakSnapGeometrieCache } from './snap-geometrie-cache.js';
+import { decodeerSnapGeometrie } from './snap-geometrie-binair.js';
 
 /**
  * PDF Vector Geometry Snap Extractor
@@ -24,6 +25,13 @@ import { maakSnapGeometrieCache } from './snap-geometrie-cache.js';
  *
  * Results are cached per document and page (snap-geometrie-cache.js) and
  * released when the document closes (document-release.js).
+ *
+ * Op het bureaublad levert de PDFium-worker dezelfde geometrie (Rust,
+ * pdfium-worker/src/snap_geometry.rs) uit de pagina die hij voor het tekenen
+ * al geparst heeft; de operatorlijst van PDF.js is dan niet nodig. Lukt dat
+ * niet (web, mobiel, verouderde worker, fout), dan blijft deze JavaScript-
+ * route het antwoord. Vergelijken: OPDS_RUST_SNAP=0 bij het starten van de app,
+ * of window.__opdsRustSnap = false in de ontwikkelconsole.
  */
 
 // DrawOPS constants (used inside constructPath interleaved data)
@@ -211,6 +219,9 @@ async function buildSpatialIndex(points, edges, checkActive = () => {}) {
   return { pointGrid, edgeGrid, edgeOversized };
 }
 
+/** De ruimtelijke index (ook voor open-pdf-studio/scripts/bench-rust/snap-geometrie.mjs). */
+export const bouwSnapIndex = buildSpatialIndex;
+
 /**
  * Clear the entire cache (all documents; e.g. after the pages of a document
  * were replaced). Running extractions are not stored afterwards.
@@ -278,6 +289,14 @@ export async function extractPageGeometry(pageNum, options = {}) {
   const viewport = paginaViewport(page, vpOpts);
   const viewportTransform = viewport.transform;
 
+  const uitWorker = await snapGeometrieUitWorker(doc, pageNum, viewportTransform);
+  if (uitWorker) {
+    checkActive();
+    // De worker levert de index meestal mee (zelfde cellen); anders hier.
+    if (!uitWorker.index) uitWorker.index = await buildSpatialIndex(uitWorker.points, uitWorker.edges, checkActive);
+    return uitWorker;
+  }
+
   const opList = await page.getOperatorList();
   try {
     checkActive();
@@ -288,6 +307,53 @@ export async function extractPageGeometry(pageNum, options = {}) {
     // zolang het tabblad open staat (#705). cleanup() geeft hem vrij; loopt
     // er nog een PDF.js-render op deze pagina, dan wacht PDF.js daar zelf op.
     try { page.cleanup(); } catch { /* document al gesloten */ }
+  }
+}
+
+// Rust-route: 'onbekend' tot de eerste poging, 'uit' als de app of de worker
+// hem niet kent (dan niet bij elke pagina opnieuw proberen).
+let _rustSnap = 'onbekend';
+let _rustSnapGemeld = false;
+
+/** Alleen voor tests: de Rust-route opnieuw laten proberen. */
+export function _herstelRustSnapRoute() {
+  _rustSnap = 'onbekend';
+  _rustSnapGemeld = false;
+}
+
+/**
+ * Snap-geometrie uit de PDFium-worker, of null (dan de JavaScript-route).
+ * Zelfde voorwaarde als het tekenen met PDFium (renderer.js): desktop en een
+ * bestandspad; de worker leest de pagina van dat bestand, net als de weergave.
+ */
+async function snapGeometrieUitWorker(doc, pageNum, viewportTransform) {
+  if (_rustSnap === 'uit' || !doc.filePath || globalThis.__opdsRustSnap === false) return null;
+  let platform;
+  try {
+    platform = await import('../core/platform.js');
+    if (!platform.heeftRustRenderer()) return null;
+  } catch {
+    return null;
+  }
+  try {
+    const data = await platform.invoke('extract_snap_geometry', {
+      path: doc.filePath,
+      pageIndex: pageNum - 1,
+      viewport: Array.from(viewportTransform),
+    });
+    const resultaat = decodeerSnapGeometrie(data);
+    _rustSnap = 'aan';
+    return resultaat;
+  } catch (e) {
+    const tekst = String(e?.message ?? e);
+    // Uitgezet, verouderde worker of een app zonder het commando: voor de
+    // rest van de sessie JavaScript. Andere fouten gelden alleen deze pagina.
+    if (/PDF_SNAP_(UNSUPPORTED|DISABLED)|not found|unknown command/i.test(tekst)) _rustSnap = 'uit';
+    if (!_rustSnapGemeld) {
+      _rustSnapGemeld = true;
+      console.warn(`[snap] geometrie uit de PDFium-worker mislukt (${tekst}); PDF.js-route`);
+    }
+    return null;
   }
 }
 

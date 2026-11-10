@@ -2476,6 +2476,36 @@ async fn render_pdf_page_region(
     Ok(tauri::ipc::Response::new(data))
 }
 
+/// Snap-geometrie van een pagina uit de PDFium-worker (pdfium-worker,
+/// snap_geometry.rs): eindpunten, middens en randen van de vectorinhoud in
+/// de annotatieruimte die `viewport` (weergavematrix bij schaal 1, zoals de
+/// app hem berekent) beschrijft. Antwoord: de `OSG1`-codering, ongewijzigd.
+/// Faalt expliciet; de JavaScript-kant extraheert dan zelf met PDF.js
+/// (pdf-snap-extractor.js). `OPDS_RUST_SNAP=0` dwingt die JavaScript-route af,
+/// om beide te vergelijken.
+#[tauri::command]
+async fn extract_snap_geometry(
+    path: String,
+    page_index: u32,
+    viewport: Vec<f64>,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<tauri::ipc::Response, String> {
+    if std::env::var("OPDS_RUST_SNAP").ok().as_deref() == Some("0") {
+        return Err("PDF_SNAP_DISABLED".to_string());
+    }
+    let viewport: [f64; 6] = viewport
+        .try_into()
+        .map_err(|_| "PDF_INVALID_GEOMETRY: viewport needs 6 numbers".to_string())?;
+    let Some(p) = pool.get() else {
+        return Err("PDF_WORKER_UNAVAILABLE".to_string());
+    };
+    match p.snap_geometry(&path, page_index, viewport).await {
+        Ok(bytes) => Ok(tauri::ipc::Response::new(bytes)),
+        Err(e) if e.downcast_ref::<worker_pool::snap::Unsupported>().is_some() => Err("PDF_SNAP_UNSUPPORTED".to_string()),
+        Err(e) => Err(format!("PDF_SNAP_FAILED: {e:#}")),
+    }
+}
+
 /// Route A: render een tegel-regio via de eigen display-list-engine i.p.v. de
 /// PDFium-workers. De eerste aanroep per (pad, pagina, rotatie) bouwt de scene
 /// (extract + chunk-index — seconden op een 5M-ops blad, daarna gecachet);
@@ -3664,6 +3694,7 @@ pub fn run(opts: StartupOpts) {
             worker_pool_ready,
             render_pdf_page_region,
             render_tile_scene_region,
+            extract_snap_geometry,
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,

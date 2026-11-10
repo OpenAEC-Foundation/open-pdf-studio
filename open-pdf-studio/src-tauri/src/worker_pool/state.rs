@@ -41,6 +41,10 @@ pub struct WorkerState {
     /// Set once the pool shuts down (app exit): no respawn after that, so a
     /// late crash report cannot start a new worker (and a new SHM file).
     pub shutting_down: AtomicBool,
+    /// Requests die de worker bij Ready naast render/trim meldde (`caps`).
+    /// Een oudere sidecar (dev) meldt niets en zou op een onbekend request
+    /// niets antwoorden; die krijgt zo'n request dus nooit.
+    pub caps: std::sync::RwLock<Vec<String>>,
 }
 
 impl WorkerState {
@@ -60,6 +64,7 @@ impl WorkerState {
             last_used_ms: AtomicU64::new(0),
             trimmed: AtomicBool::new(true),
             shutting_down: AtomicBool::new(false),
+            caps: std::sync::RwLock::new(Vec::new()),
         }
     }
 
@@ -74,6 +79,10 @@ impl WorkerState {
 
     pub fn set_status(&self, s: Status) {
         self.status.store(s as u8, Ordering::Release);
+    }
+
+    pub fn has_cap(&self, cap: &str) -> bool {
+        self.caps.read().map(|c| c.iter().any(|x| x == cap)).unwrap_or(false)
     }
 
     pub fn is_shutting_down(&self) -> bool {

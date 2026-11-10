@@ -8,6 +8,7 @@ mod mesh_bbox;
 mod protocol;
 mod render;
 mod shm;
+mod snap_geometry;
 mod thin_lines;
 
 use anyhow::{Context, Result};
@@ -34,9 +35,13 @@ fn main() -> Result<()> {
         op: "ready".to_string(),
         shm_name: format!("pdfium-worker-{}-{}.shm", ns, slot),
         shm_size: shm::SHM_SIZE as u64,
+        caps: vec!["snap_geometry".to_string()],
     };
     writeln!(std::io::stdout(), "{}", serde_json::to_string(&ready)?)?;
     std::io::stdout().flush()?;
+
+    // Laatste snap-resultaat, tot de app het laatste stuk heeft opgehaald.
+    let mut snap_bewaard: Option<(SnapKey, Vec<u8>)> = None;
 
     let stdin = std::io::stdin();
     let mut stdout = std::io::stdout();
@@ -112,6 +117,11 @@ fn main() -> Result<()> {
                 writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
                 stdout.flush()?;
             }
+            Request::SnapGeometry { id, path, page_index, viewport, offset } => {
+                let resp = snap_chunk(&mut renderer, &mut shm_region, &mut snap_bewaard, id, path, page_index, viewport, offset);
+                writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
+                stdout.flush()?;
+            }
             Request::Trim => {
                 renderer.trim();
             }
@@ -123,4 +133,45 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+type SnapKey = (String, u32, [u64; 6]);
+
+/// Eén stuk snap-geometrie in de SHM-regio. Stuk 0 (of een onbekend
+/// resultaat) extraheert opnieuw; volgende stukken komen uit het bewaarde
+/// resultaat, dat na het laatste stuk vrijkomt.
+#[allow(clippy::too_many_arguments)]
+fn snap_chunk(
+    renderer: &mut Renderer,
+    shm_region: &mut Shm,
+    bewaard: &mut Option<(SnapKey, Vec<u8>)>,
+    id: u64,
+    path: String,
+    page_index: u32,
+    viewport: [f64; 6],
+    offset: u64,
+) -> Response {
+    let key: SnapKey = (path, page_index, viewport.map(f64::to_bits));
+    let mut ms = 0.0;
+    if offset == 0 || bewaard.as_ref().map(|(k, _)| k != &key).unwrap_or(true) {
+        *bewaard = None;
+        let t0 = std::time::Instant::now();
+        match renderer.snap_geometry(&key.0, page_index, viewport) {
+            Ok(bytes) => *bewaard = Some((key, bytes)),
+            Err(e) => return Response::RenderErr { id, ok: false, error: format!("{}", e) },
+        }
+        ms = t0.elapsed().as_secs_f64() * 1000.0;
+    }
+    let (_, bytes) = bewaard.as_ref().expect("zojuist gezet");
+    let total = bytes.len();
+    let start = (offset as usize).min(total);
+    let end = total.min(start + shm::PAYLOAD_CAP);
+    let resp = match shm_region.write_payload(&bytes[start..end]) {
+        Ok(n) => Response::SnapOk { id, ok: true, total_bytes: total as u64, offset: start as u64, shm_bytes: n, ms },
+        Err(e) => Response::RenderErr { id, ok: false, error: format!("SHM write: {}", e) },
+    };
+    if end >= total {
+        *bewaard = None;
+    }
+    resp
 }

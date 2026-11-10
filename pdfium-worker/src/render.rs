@@ -44,10 +44,40 @@ fn pdfium() -> Result<&'static Pdfium> {
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&res_dir)))
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&linux_res_dir)))
             .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path("./")))
+            .or_else(|e| test_library().map_or(Err(e), Pdfium::bind_to_library))
             .context("PDFium library not found (system, exe-dir, ../Resources, ../lib/Open PDF Studio, or ./)")?;
         let _ = PDFIUM.set(Pdfium::new(bindings));
     }
     Ok(PDFIUM.get().expect("PDFIUM set above"))
+}
+
+/// Unit tests (`cargo test -p pdfium-worker`): de meegeleverde PDFium uit
+/// open-pdf-studio/src-tauri/binaries, zodat de tests zonder PATH-instelling
+/// draaien. Buiten tests nooit.
+#[cfg(test)]
+fn test_library() -> Option<std::path::PathBuf> {
+    let platform = if cfg!(windows) {
+        if cfg!(target_arch = "aarch64") { "win-arm64" } else { "win-x64" }
+    } else if cfg!(target_os = "macos") {
+        "macos-universal"
+    } else {
+        "linux-x64"
+    };
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../open-pdf-studio/src-tauri/binaries")
+        .join(platform);
+    Some(Pdfium::pdfium_platform_library_name_at_path(&dir)).filter(|p| p.exists())
+}
+
+#[cfg(not(test))]
+fn test_library() -> Option<std::path::PathBuf> {
+    None
+}
+
+/// PDFium voor unit tests van de worker (zie `test_library`).
+#[cfg(test)]
+pub(crate) fn pdfium_for_tests() -> &'static Pdfium {
+    pdfium().expect("PDFium voor de tests (open-pdf-studio/src-tauri/binaries)")
 }
 
 /// Gecachet geladen document + open pagina-handle. Houdt de bytes levend voor
@@ -199,6 +229,13 @@ impl Renderer {
     /// voorheen bij ÉLKE regio-render opnieuw. Met een open handle betaalt
     /// alleen de eerste render die parse; daarna is een tegel puur rasterwerk.
     fn get_or_load_page(&mut self, doc_idx: usize, page_index: u32, thin_lines: bool) -> Result<&PdfPage<'static>> {
+        let open = self.open_page(doc_idx, page_index)?;
+        open.set_thin_lines(thin_lines);
+        Ok(&open.page)
+    }
+
+    /// Open (of hergebruik) de pagina-handle zonder de lijndiktes aan te raken.
+    fn open_page(&mut self, doc_idx: usize, page_index: u32) -> Result<&mut OpenPage> {
         let entry = &mut self.cache[doc_idx];
         let reuse = matches!(&entry.page, Some(open) if open.index == page_index);
         if !reuse {
@@ -216,9 +253,7 @@ impl Renderer {
             let load_ms = t0.elapsed().as_millis() as u32;
             entry.page = Some(OpenPage { index: page_index, load_ms, thin_originals: None, page });
         }
-        let open = self.cache[doc_idx].page.as_mut().expect("zojuist gezet");
-        open.set_thin_lines(thin_lines);
-        Ok(&open.page)
+        Ok(self.cache[doc_idx].page.as_mut().expect("zojuist gezet"))
     }
 
     /// Sluit de pagina-handle weer als de parse GOEDKOOP was. Alleen zware
@@ -233,6 +268,24 @@ impl Renderer {
                 self.cache[doc_idx].page = None;
             }
         }
+    }
+
+    /// Snap-geometrie van een pagina (zie snap_geometry.rs), gecodeerd voor de
+    /// app. `viewport` = de weergavematrix van de pagina bij schaal 1 die de app
+    /// zelf gebruikt. Leest de pagina die PDFium voor het tekenen al geparst
+    /// heeft (open handle van een zware pagina); de lijndiktes van Thin Lines
+    /// blijven zoals ze zijn, die doen voor de geometrie niet ter zake.
+    pub fn snap_geometry(&mut self, path: &str, page_index: u32, viewport: [f64; 6]) -> Result<Vec<u8>> {
+        if viewport.iter().any(|v| !v.is_finite()) {
+            return Err(anyhow!("PDF_INVALID_GEOMETRY: non-finite viewport"));
+        }
+        let idx = self.get_or_load(path)?;
+        let bytes = {
+            let open = self.open_page(idx, page_index)?;
+            crate::snap_geometry::uit_pagina(&open.page, viewport).afronden()
+        };
+        self.release_page_if_cheap(idx);
+        Ok(bytes)
     }
 
     pub fn render(
