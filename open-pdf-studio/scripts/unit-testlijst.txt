@@ -822,3 +822,5 @@ js/pdf/monochrome-rust.test.mjs
 js/tools/snap-geometrie-binair.test.mjs
 js/pdf/documentgegevens.test.mjs
 js/core/documentgegevens-undo.test.mjs
+js/tools/gereedschap-lagen.test.mjs
+js/tools/pan-vangnet.test.mjs
