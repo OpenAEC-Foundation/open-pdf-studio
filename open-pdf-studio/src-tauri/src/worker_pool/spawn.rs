@@ -52,6 +52,7 @@ pub async fn spawn_worker(worker: Arc<WorkerState>, exe_path: &std::path::Path) 
     if !ready_line.contains("\"op\":\"ready\"") {
         return Err(anyhow!("worker {} did not send ready: {}", worker.slot, ready_line));
     }
+    worker.set_caps_from_ready(&ready_line);
 
     // mmap the SHM file the worker created (same PID-namespaced path)
     let shm_path = shm_files::path_in(&std::env::temp_dir(), &ns, worker.slot);
