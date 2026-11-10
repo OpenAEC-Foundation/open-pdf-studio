@@ -252,6 +252,7 @@
     "title": "Titolo",
     "author": "Autore",
     "subject": "Oggetto",
+    "keywords": "Parole chiave",
     "creator": "Creatore",
     "producer": "Produttore",
     "pdfVersion": "Versione PDF",

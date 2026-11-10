@@ -252,6 +252,7 @@
     "title": "タイトル",
     "author": "著者",
     "subject": "件名",
+    "keywords": "キーワード",
     "creator": "作成者",
     "producer": "制作者",
     "pdfVersion": "PDF バージョン",
