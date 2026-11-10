@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-render"
-version = "2026.45.0"
+version = "2026.46.0"
 edition = "2021"
 license = "MIT"
 description = "Pure Rust PDF page renderer — renders PDF pages to RGBA bitmaps"
