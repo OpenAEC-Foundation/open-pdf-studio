@@ -222,6 +222,8 @@
   min-height: 0;
 }
 .sp-symbol-icon svg { width: 100%; height: 100%; }
+/* Symbolen van buiten de app: als afbeelding (zie SymbolPalette.jsx). */
+.sp-symbol-icon img { width: 100%; height: 100%; display: block; object-fit: contain; pointer-events: none; }
 
 /* Catalogus-ingangen: volle breedte met de naam eronder. Een familie met een
    maat-keuze is geen pictogram; zonder naam zie je niet wat je kiest. */
@@ -426,6 +428,7 @@
   position: relative;
 }
 .sp-settings-symbol svg { width: 100%; height: 100%; }
+.sp-settings-symbol img { width: 100%; height: 100%; display: block; object-fit: contain; pointer-events: none; }
 
 .sp-settings-footer {
   display: flex;

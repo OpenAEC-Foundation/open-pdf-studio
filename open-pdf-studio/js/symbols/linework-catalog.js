@@ -14,6 +14,8 @@
 // zie linework-catalog.test.mjs. De registratie- en persistentielijm zit in
 // linework-catalog-store.js.
 
+import { saneerSvg } from '../core/svg-veilig.js';
+
 // Alleen gebruikt als een familie geen eigen preview meelevert.
 const FALLBACK_PREVIEW = '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="26" width="52" height="12"/><path d="M6 32h52"/></svg>';
 
@@ -100,7 +102,9 @@ export function parseLineworkCatalog(raw) {
       category: f.category || null,
       // Miniatuur voor het palet: de bron-SVG van de standaardmaat. Zonder
       // deze zou elke familie hetzelfde generieke icoon krijgen.
-      preview: typeof f.preview === 'string' && f.preview.trim() ? f.preview : null,
+      // De preview komt van buiten (catalogusbestand of online bibliotheek):
+      // alleen bekende tekenelementen en attributen houden.
+      preview: typeof f.preview === 'string' && f.preview.trim() ? saneerSvg(f.preview) : null,
       defaultSize: f.defaultSize != null ? String(f.defaultSize) : variants[0].label,
       variants,
     };
@@ -143,7 +147,9 @@ function _template(collectionId, family, categorie, lang) {
   return {
     id: lineworkTemplateId(collectionId, family.id),
     name: naam,
-    preview: family.preview || null,
+    // Ook bewaarde catalogi (van voor de controle in parseLineworkCatalog)
+    // komen hier langs.
+    preview: family.preview ? saneerSvg(family.preview) : null,
     // Alleen een Engelse naam meegeven als die echt afwijkt: het
     // eigenschappenpaneel toont "naam / nameEn" en zou anders de naam
     // dubbel laten zien.
