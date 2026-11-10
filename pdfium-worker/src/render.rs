@@ -19,7 +19,7 @@ pub struct RenderResult {
 // deze ene instantie.
 static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 
-fn pdfium() -> Result<&'static Pdfium> {
+pub(crate) fn pdfium() -> Result<&'static Pdfium> {
     if PDFIUM.get().is_none() {
         // Zoekvolgorde voor de PDFium-bibliotheek:
         //   1. systeem-zoekpad (Windows vindt pdfium.dll naast de exe);
@@ -96,6 +96,9 @@ struct CachedDoc {
     /// Open handle met pagina-index en parse-duur in ms. De parse-duur bepaalt
     /// of de handle na de render blijft leven (zie release_page_if_cheap).
     page: Option<OpenPage>,
+    /// Ruwe tweede handle voor de zoektekst (page_text/mod.rs), pas bij de
+    /// eerste tekstaanvraag geopend; leent net als `document` uit `_bytes`.
+    text: Option<crate::page_text::RuwDocument>,
     document: PdfDocument<'static>,
     _bytes: Vec<u8>,
 }
@@ -208,6 +211,7 @@ impl Renderer {
             mtime,
             len,
             page: None,
+            text: None,
             document,
             _bytes: bytes,
         }));
@@ -221,7 +225,48 @@ impl Renderer {
     pub fn trim(&mut self) {
         for e in self.cache.iter_mut() {
             e.page = None;
+            e.text = None;
         }
+    }
+
+    /// Zoektekst van pagina's `first..first + count` (page_text/mod.rs),
+    /// gecodeerd als `OPT1`. Stopt eerder zodra `budget_ms` verstreken is (na
+    /// minstens één pagina) of het antwoord de helft van de SHM-regio vult,
+    /// zodat tegelrenders op deze worker niet lang hoeven te wachten; de app
+    /// vraagt de rest daarna op. `expect_len`: de lengte die de app van het
+    /// bestand heeft; wijkt het bestand op schijf af, dan een fout (de app
+    /// leest dan met pdf.js).
+    /// Geeft (bytes, gecodeerde pagina's, pagina's in het document).
+    pub fn page_text(&mut self, path: &str, first: u32, count: u32, expect_len: Option<u64>, budget_ms: u32) -> Result<(Vec<u8>, u32, u32)> {
+        let idx = self.get_or_load(path)?;
+        if let Some(expect) = expect_len {
+            if self.cache[idx].len != expect {
+                return Err(anyhow!("PDF_TEXT_STALE: file on disk is {} bytes, the app has {}", self.cache[idx].len, expect));
+            }
+        }
+        let entry = &mut self.cache[idx];
+        if entry.text.is_none() {
+            let bindings = pdfium()?.bindings();
+            // Safety: de bytes leven in dezelfde entry en dropen na `text`.
+            entry.text = Some(unsafe { crate::page_text::RuwDocument::open(bindings, &entry._bytes)? });
+        }
+        let doc = entry.text.as_ref().expect("zojuist gezet");
+        let total = doc.page_count();
+        let mut out = Vec::new();
+        crate::page_text::encode_header(&mut out, total);
+        let t0 = std::time::Instant::now();
+        let end = first.saturating_add(count).min(total);
+        let mut done = 0u32;
+        for index in first..end {
+            let page = doc.pagina(index)?;
+            crate::page_text::encode_page(&mut out, &page);
+            done += 1;
+            if t0.elapsed().as_millis() >= u128::from(budget_ms) || out.len() > crate::shm::PAYLOAD_CAP / 2 {
+                break;
+            }
+        }
+        crate::page_text::zet_aantal(&mut out, done);
+        Ok((out, done, total))
     }
 
     /// Open (of hergebruik) de pagina-handle. FPDF_LoadPage parset de volledige

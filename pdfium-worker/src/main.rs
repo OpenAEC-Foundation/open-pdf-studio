@@ -6,6 +6,7 @@
 
 mod compare;
 mod mesh_bbox;
+mod page_text;
 mod protocol;
 mod render;
 mod shm;
@@ -37,7 +38,7 @@ fn main() -> Result<()> {
         op: "ready".to_string(),
         shm_name: format!("pdfium-worker-{}-{}.shm", ns, slot),
         shm_size: shm::SHM_SIZE as u64,
-        caps: vec!["compare".to_string(), "snap_geometry".to_string()],
+        caps: vec!["compare".to_string(), "snap_geometry".to_string(), "page_text".to_string()],
     };
     writeln!(std::io::stdout(), "{}", serde_json::to_string(&ready)?)?;
     std::io::stdout().flush()?;
@@ -126,6 +127,21 @@ fn main() -> Result<()> {
             }
             Request::SnapGeometry { id, path, page_index, viewport, offset } => {
                 let resp = snap_chunk(&mut renderer, &mut shm_region, &mut snap_bewaard, id, path, page_index, viewport, offset);
+                writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
+                stdout.flush()?;
+            }
+            Request::PageText { id, path, first, count, expect_len, budget_ms } => {
+                let t0 = std::time::Instant::now();
+                let resp = match renderer.page_text(&path, first, count, expect_len, budget_ms) {
+                    Ok((bytes, pages, page_count)) => match shm_region.write_payload(&bytes) {
+                        Ok(n) => Response::TextOk {
+                            id, ok: true, op: "page_text".to_string(), pages, page_count, shm_bytes: n,
+                            ms: t0.elapsed().as_secs_f64() * 1000.0,
+                        },
+                        Err(e) => Response::RenderErr { id, ok: false, error: format!("SHM write: {}", e) },
+                    },
+                    Err(e) => Response::RenderErr { id, ok: false, error: format!("{:#}", e) },
+                };
                 writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
                 stdout.flush()?;
             }
