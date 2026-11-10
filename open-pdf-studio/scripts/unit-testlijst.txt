@@ -824,3 +824,5 @@ js/pdf/documentgegevens.test.mjs
 js/core/documentgegevens-undo.test.mjs
 js/tools/gereedschap-lagen.test.mjs
 js/tools/pan-vangnet.test.mjs
+js/core/svg-veilig.test.mjs
+js/help/release-notes-markdown.test.mjs

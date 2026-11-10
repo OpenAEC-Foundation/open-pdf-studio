@@ -33,6 +33,7 @@ import { SCHAAL_STAPPEN, schaalLabel, leesSchaalInvoer, volgendeSchaalStap } fro
 import useDropdown from './preferences/useDropdown.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { parseLineworkCatalog, lineworkCatalogToGroup, LINEWORK_TEMPLATE_PREFIX } from '../../symbols/linework-catalog.js';
+import { saneerSvg, svgAlsDataUrl } from '../../core/svg-veilig.js';
 
 // Alleen catalogus-FAMILIES (maat-keuze, geen sprekend pictogram) krijgen de
 // brede tegel met naam; gewone parametrische symbolen houden het compacte
@@ -163,13 +164,48 @@ function selectSymbol(symbol) {
   setTool('stamp');
 }
 
+// Alleen een kleurwaarde, nooit iets dat een attribuut kan openbreken.
+const CATEGORIE_KLEUR = /^(?:#[0-9a-fA-F]{3,8}|[a-zA-Z]{1,30})$/;
+
 // Colorize SVG: replace #000 and #d00 strokes/fills with category color
 function colorizeSvg(svg, color) {
-  if (!color) return svg;
+  if (!color || !CATEGORIE_KLEUR.test(color)) return svg;
   return svg.replace(/stroke="#000"/g, `stroke="${color}"`)
             .replace(/fill="#000"/g, `fill="${color}"`)
             .replace(/stroke="#d00"/g, `stroke="${color}"`)
             .replace(/fill="#d00"/g, `fill="${color}"`);
+}
+
+// Miniaturen van symbolen die niet met de app meekomen (online bibliotheek,
+// eigen en geimporteerde groepen) tonen we als <img> met een data-URL van de
+// schoongemaakte SVG: in een afbeelding draait nooit een script en raakt een
+// <style> de rest van de app niet. Ingebouwde symbolen blijven inline SVG.
+const _miniaturen = new Map();
+function externeMiniatuur(svg, color) {
+  if (typeof svg !== 'string') return '';
+  const sleutel = (color || '') + '|' + svg;
+  let url = _miniaturen.get(sleutel);
+  if (url === undefined) {
+    const schoon = saneerSvg(colorizeSvg(svg, color));
+    url = schoon ? svgAlsDataUrl(schoon) : '';
+    if (_miniaturen.size > 4000) _miniaturen.clear();
+    _miniaturen.set(sleutel, url);
+  }
+  return url;
+}
+
+function SymboolMiniatuur(props) {
+  return (
+    <Show when={props.cat.builtin} fallback={
+      <span class={props.class} title={props.title}>
+        <Show when={externeMiniatuur(props.sym.svg, props.cat.color)}>
+          {(url) => <img src={url()} alt="" draggable={false} />}
+        </Show>
+      </span>
+    }>
+      <span class={props.class} title={props.title} innerHTML={colorizeSvg(props.sym.svg, props.cat.color)} />
+    </Show>
+  );
 }
 
 // Grip icon (6 dots)
@@ -323,7 +359,7 @@ function SymbolContent() {
                           title={sym.name}
                           onClick={() => selectSymbol(sym)}
                         >
-                          <span class="sp-symbol-icon" innerHTML={colorizeSvg(sym.svg, cat.color)} />
+                          <SymboolMiniatuur class="sp-symbol-icon" sym={sym} cat={cat} />
                           {/* Catalogus-ingangen zijn families met een maat-keuze,
                               geen pictogrammen: aan de miniatuur alleen zie je niet
                               welk aanzicht je aanklikt. Platte symboolsets houden
@@ -435,7 +471,7 @@ export function SymbolSettingsDialog() {
       if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
         // Vector SVG
         const text = await file.text();
-        addSymbolToGroup(groupId, name, text);
+        if (!addSymbolToGroup(groupId, name, text)) console.warn('Symbool-SVG niet bruikbaar:', file.name);
       } else if (file.type.startsWith('image/')) {
         // Raster image → convert to data URL
         const reader = new FileReader();
@@ -506,8 +542,8 @@ export function SymbolSettingsDialog() {
       const groupId = addCustomGroup(data.name);
       // Add all symbols from the imported group
       for (const sym of data.symbols) {
-        if (sym.name && sym.svg) {
-          addSymbolToGroup(groupId, sym.name, sym.svg);
+        if (sym.name && sym.svg && !addSymbolToGroup(groupId, sym.name, sym.svg)) {
+          console.warn('Symbool-SVG niet bruikbaar:', sym.name);
         }
       }
     } catch (err) {
@@ -615,8 +651,7 @@ export function SymbolSettingsDialog() {
                   <div class="sp-settings-symbols">
                     <For each={cat.symbols}>
                       {(sym) => (
-                        <div class="sp-settings-symbol" title={sym.name}
-                          innerHTML={colorizeSvg(sym.svg, cat.color)} />
+                        <SymboolMiniatuur class="sp-settings-symbol" title={sym.name} sym={sym} cat={cat} />
                       )}
                     </For>
                     <Show when={cat.symbols.length === 0}>

@@ -18,7 +18,7 @@ import { runsPlainText } from '../../text/text-edit-appearance.js';
 // in de store, en de commit levert tekst én runs aan text-editing.js.
 
 function escapeHtml(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // Eén <div> per regel; runs in <b>/<i>; lege regel <br>. Zonder runs krijgt

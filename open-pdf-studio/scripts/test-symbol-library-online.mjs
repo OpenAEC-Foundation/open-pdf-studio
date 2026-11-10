@@ -40,6 +40,9 @@ function importAsMjs(relPath) {
 }
 
 stageMjs('js/symbols/templates/staalprofiel.js');
+stageMjs('js/core/svg-veilig.js');
+stageMjs('js/symbols/koker-notatie.js');
+stageMjs('js/core/getal-invoer.js');
 const online = await importAsMjs('js/solid/data/symbolLibraryOnline.js');
 const locales = await importAsMjs('js/solid/data/symbolLocales.js');
 const steel = await importAsMjs('js/symbols/steel-catalog.js');
