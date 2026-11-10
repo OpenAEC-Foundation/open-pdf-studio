@@ -266,11 +266,14 @@ impl WorkerPool {
         }
 
         // Recover failed exchanges; exhausted work is never retried.
-        // Other failures may retry once on a different live slot.
-        if !result.as_ref().err().is_some_and(response::is_unavailable) {
+        // Other failures may retry once on a different live slot. An error
+        // the worker answered itself (e.g. PDF_OUTPUT_LIMIT) leaves it
+        // healthy: no restart, and no retry, since another worker would only
+        // parse the page cold to give the same answer.
+        if result.as_ref().err().is_some_and(response::needs_recovery) {
             recovery::schedule_worker_recovery(worker.clone(), worker_exe_path());
         }
-        if result.as_ref().err().is_some_and(response::is_resource_limit) { return result; }
+        if result.as_ref().err().is_some_and(|e| response::is_resource_limit(e) || response::is_worker_reported(e)) { return result; }
 
         let mut depths_retry = self.depths();
         depths_retry[slot] = usize::MAX; // mark as dead for this retry
@@ -283,7 +286,7 @@ impl WorkerPool {
         worker2.queue_depth.fetch_add(1, Ordering::Release);
         let result2 = self.render_on_worker(worker2.clone(), path, page_index, scale, rotation, thin_lines).await;
         worker2.queue_depth.fetch_sub(1, Ordering::Release);
-        if result2.as_ref().err().is_some_and(|e| !response::is_unavailable(e)) {
+        if result2.as_ref().err().is_some_and(response::needs_recovery) {
             recovery::schedule_worker_recovery(worker2, worker_exe_path());
         }
         result2
@@ -344,9 +347,8 @@ impl WorkerPool {
         let resp: serde_json::Value = serde_json::from_str(&resp_line)
             .with_context(|| format!("parse worker {} response: {}", worker.slot, resp_line))?;
 
-        if !resp["ok"].as_bool().unwrap_or(false) {
-            let err = resp["error"].as_str().unwrap_or("unknown");
-            return Err(anyhow!("worker {} render error: {}", worker.slot, err));
+        if let Some(error) = worker_answer_error(worker.slot, "render", &resp) {
+            return Err(error);
         }
 
         let w = resp["w"].as_u64().unwrap_or(0) as u32;
@@ -412,7 +414,8 @@ impl WorkerPool {
         // Geen retry; alleen niet-fatale fouten mogen in-proc terugvallen. Een
         // gefaalde/getimede worker is mogelijk gedesynchroniseerd — respawn
         // hem zodat de volgende tegel niet weer op een wedged worker landt.
-        if result.as_ref().err().is_some_and(|e| !response::is_unavailable(e)) {
+        // Een fout die de worker zelf antwoordt (budget e.d.) laat hem heel.
+        if result.as_ref().err().is_some_and(response::needs_recovery) {
             recovery::schedule_worker_recovery(worker.clone(), worker_exe_path());
         }
         result
@@ -477,9 +480,8 @@ impl WorkerPool {
         let resp: serde_json::Value = serde_json::from_str(&resp_line)
             .with_context(|| format!("parse worker {} response: {}", worker.slot, resp_line))?;
 
-        if !resp["ok"].as_bool().unwrap_or(false) {
-            let err = resp["error"].as_str().unwrap_or("unknown");
-            return Err(anyhow!("worker {} region render error: {}", worker.slot, err));
+        if let Some(error) = worker_answer_error(worker.slot, "region render", &resp) {
+            return Err(error);
         }
 
         let w = resp["w"].as_u64().unwrap_or(0) as u32;
@@ -623,9 +625,29 @@ fn render_region_request(
     })
 }
 
+/// The error of a worker answer with `ok: false`, or None for a good answer.
+/// Same message as before ("worker N render error: ..."); typed as
+/// WorkerReported so the pool does not restart a healthy worker for it.
+fn worker_answer_error(slot: u32, what: &str, resp: &serde_json::Value) -> Option<anyhow::Error> {
+    if resp["ok"].as_bool().unwrap_or(false) {
+        return None;
+    }
+    let err = resp["error"].as_str().unwrap_or("unknown");
+    Some(response::WorkerReported(format!("worker {} {} error: {}", slot, what, err)).into())
+}
+
 #[cfg(test)]
 mod request_tests {
     use super::*;
+
+    #[test]
+    fn a_reported_render_error_does_not_restart_the_worker() {
+        let resp = json!({ "id": 7, "ok": false, "error": "PDF_OUTPUT_LIMIT: bitmap exceeds the caller's RGBA budget" });
+        let error = worker_answer_error(2, "render", &resp).expect("ok:false is an error");
+        assert_eq!(error.to_string(), "worker 2 render error: PDF_OUTPUT_LIMIT: bitmap exceeds the caller's RGBA budget");
+        assert!(!response::needs_recovery(&error));
+        assert!(worker_answer_error(2, "render", &json!({ "id": 7, "ok": true, "w": 1, "h": 1 })).is_none());
+    }
 
     #[test]
     fn both_render_requests_carry_thin_lines() {
