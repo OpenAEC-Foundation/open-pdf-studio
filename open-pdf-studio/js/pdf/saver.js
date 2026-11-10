@@ -1805,8 +1805,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 // getekend, op dezelfde hoogte als het scherm (shapes.js).
                 const decoraties = [];
                 ftStreamContent += `${basisKleur} rg 0 Tc 0 Tw 100 Tz 0 Tr\n`;
-                ftStreamContent += `/${pdfFont} ${ftFontSize} Tf\n`;
-                let huidigFont = pdfFont;
+                // Met een ingebed lettertype (#1020) ook als begin-font: dan
+                // staat er geen ongebruikt, niet-ingebed font in /Resources.
+                const beginFont = ftIngebed ? ftIngebed.naam : pdfFont;
+                if (ftIngebed) ftIngebedFonts.set(ftIngebed.naam, ftIngebed.font);
+                ftStreamContent += `/${beginFont} ${ftFontSize} Tf\n`;
+                let huidigFont = beginFont;
                 // Een typemachineregel staat met de breedte waarmee zijn vak is
                 // gemaakt (saver/typemachine.js): in de vervangende font is hij
                 // breder dan op het canvas en blijft hij zo toch binnen het vak.
@@ -1892,7 +1896,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               // Font dicts for resources — één per gebruikte variant
               // (basisstijl plus eventuele vet/cursief-runs).
               const pdfFont = mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
-              ftUsedFonts.add(pdfFont);
+              if (!ftIngebedFonts.size) ftUsedFonts.add(pdfFont);
               const ftFontResources = {};
               for (const f of ftUsedFonts) {
                 ftFontResources[f] = tekstvakFontDict(context, f);
