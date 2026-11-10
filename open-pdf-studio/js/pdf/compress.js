@@ -190,8 +190,10 @@ export async function compressPDFLossless() {
     progress(t('compress.progressPreparing'));
     const source = await currentDocumentBytes(doc);
     const { optimizeMonochromeDocument } = await import('./monochrome-document.js');
+    const { getMonochromeNative } = await import('./monochrome-rust.js');
     result = await optimizeMonochromeDocument(source, {
       signal: controller.signal,
+      native: await getMonochromeNative(),
       onProgress: ({ done, total }) => progress(
         t('compress.progressImage', { image: Math.min(done + 1, total), total }),
         total ? done / total : null,

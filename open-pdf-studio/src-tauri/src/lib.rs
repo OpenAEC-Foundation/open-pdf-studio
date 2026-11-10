@@ -28,6 +28,7 @@ pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_signaal;
 pub mod mcp_tool_meta;
+pub mod monochroom;
 pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
@@ -3745,6 +3746,8 @@ pub fn run(opts: StartupOpts) {
             draagbaar::portable_status,
             herstel::herstel_info,
             herstel::herstel_schrijf,
+            monochroom::monochroom_rust_beschikbaar,
+            monochroom::monochroom_beeld,
             herstel::herstel_lees,
             herstel::herstel_lees_tekst,
             herstel::herstel_lijst,
