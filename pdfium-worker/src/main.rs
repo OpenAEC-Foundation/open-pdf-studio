@@ -4,6 +4,7 @@
 // pattern in open-pdf-studio/src-tauri/src/main.rs.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod compare;
 mod mesh_bbox;
 mod protocol;
 mod render;
@@ -26,6 +27,7 @@ fn main() -> Result<()> {
     let ns: String = std::env::args().nth(2).unwrap_or_else(|| "0".to_string());
 
     let mut renderer = Renderer::new().context("init Renderer")?;
+    let mut compare_cache = compare::CompareCache::default();
     let mut shm_region = Shm::create(&ns, slot).context("init SHM")?;
 
     // Emit ready message — main process waits for this before
@@ -34,6 +36,7 @@ fn main() -> Result<()> {
         op: "ready".to_string(),
         shm_name: format!("pdfium-worker-{}-{}.shm", ns, slot),
         shm_size: shm::SHM_SIZE as u64,
+        caps: vec!["compare".to_string()],
     };
     writeln!(std::io::stdout(), "{}", serde_json::to_string(&ready)?)?;
     std::io::stdout().flush()?;
@@ -112,8 +115,14 @@ fn main() -> Result<()> {
                 writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
                 stdout.flush()?;
             }
+            Request::Compare(req) => {
+                let line = compare_response(&mut renderer, &mut compare_cache, &mut shm_region, &req);
+                writeln!(stdout, "{}", line)?;
+                stdout.flush()?;
+            }
             Request::Trim => {
                 renderer.trim();
+                compare_cache.clear();
             }
             Request::Shutdown => {
                 eprintln!("[worker {}] shutting down", slot);
@@ -123,4 +132,46 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Antwoordregel op een vergelijkingsaanvraag. De clusters gaan binair via
+/// SHM (zie compare::clusters_to_bytes); de regel zelf blijft klein.
+fn compare_response(
+    renderer: &mut Renderer,
+    cache: &mut compare::CompareCache,
+    shm_region: &mut Shm,
+    req: &compare::CompareRequest,
+) -> String {
+    let id = req.id;
+    let fail = |e: String| serde_json::json!({ "id": id, "ok": false, "op": "compare", "error": e }).to_string();
+    let out = match compare::compare_pair(renderer, cache, req) {
+        Ok(out) => out,
+        Err(e) => return fail(format!("{:#}", e)),
+    };
+    let (n, shm_bytes, truncated, runs, components) = match &out.detection {
+        Some(d) => {
+            let bytes = compare::clusters_to_bytes(d);
+            match shm_region.write_bitmap(d.clusters.len() as u32, compare::CLUSTER_FIELDS as u32, &bytes) {
+                Ok(written) => (d.clusters.len(), written, d.truncated, d.runs, d.components),
+                Err(e) => return fail(format!("SHM write: {}", e)),
+            }
+        }
+        None => (0, 0, false, 0, 0),
+    };
+    serde_json::json!({
+        "id": id,
+        "ok": true,
+        "op": "compare",
+        "clusters": n,
+        "shm_bytes": shm_bytes,
+        "detected": out.detection.is_some(),
+        "truncated": truncated,
+        "runs": runs,
+        "components": components,
+        "alignment": out.alignment,
+        "align_info": out.align_info,
+        "old_px": out.old_px,
+        "stats": out.stats,
+    })
+    .to_string()
 }
