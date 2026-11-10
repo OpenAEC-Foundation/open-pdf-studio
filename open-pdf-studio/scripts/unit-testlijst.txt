@@ -457,6 +457,7 @@ js/compare/compare-pairing.test.mjs
 js/compare/compare-report.test.mjs
 js/compare/compare-i18n.test.mjs
 js/compare/compare-vector.test.mjs
+js/compare/rust-compare.test.mjs
 js/pdf/thin-lines.test.mjs
 js/pdf/three-d/u3d-reader.test.mjs
 js/pdf/three-d/pdf-3d.test.mjs

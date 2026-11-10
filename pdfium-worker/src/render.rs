@@ -292,6 +292,63 @@ impl Renderer {
         Ok(result)
     }
 
+    /// Pad-identiteit (mtime + lengte) zoals de documentcache hem gebruikt:
+    /// sleutel voor afgeleide caches (de inktmaskers van Vergelijken).
+    pub fn file_identity(path: &str) -> Result<(Option<std::time::SystemTime>, u64)> {
+        let meta = std::fs::metadata(path).with_context(|| format!("stat {}", path))?;
+        Ok((meta.modified().ok(), meta.len()))
+    }
+
+    /// Render tegels van een pagina voor Vergelijken (#465): elke tegel
+    /// (x, y, w, h in pixels) op `scale` pixels per punt, wit papier,
+    /// annotatie-weergaven mee (zoals pdf.js met intent 'display'), geen
+    /// LCD-tekst. `each` krijgt per tegel de BGRA-pixels (rijbreedte w·4).
+    /// De pagina blijft open tussen de tegels en wordt daarna (als hij
+    /// goedkoop was) weer gesloten.
+    pub fn render_tiles(
+        &mut self,
+        path: &str,
+        page_index: u32,
+        scale: f64,
+        tiles: &[(usize, usize, usize, usize)],
+        mut each: impl FnMut(usize, &[u8]),
+    ) -> Result<()> {
+        let idx = self.get_or_load(path)?;
+        let result = (|| -> Result<()> {
+            let page = self.get_or_load_page(idx, page_index, false)?;
+            for (i, &(x, y, w, h)) in tiles.iter().enumerate() {
+                if w == 0 || h == 0 || w > i32::MAX as usize || h > i32::MAX as usize {
+                    return Err(anyhow!("PDF_INVALID_GEOMETRY: compare tile {}x{}", w, h));
+                }
+                let config = PdfRenderConfig::new()
+                    .set_fixed_size(w as i32, h as i32)
+                    .transform(scale as f32, 0.0, 0.0, scale as f32, -(x as f32), -(y as f32))
+                    .map_err(|e| anyhow!("invalid transform: {}", e))?
+                    .render_annotations(true)
+                    .render_form_data(false)
+                    .use_lcd_text_rendering(false)
+                    .set_format(PdfBitmapFormat::BGRA);
+                let bitmap = page.render_with_config(&config).map_err(|e| anyhow!("PDFium compare render: {}", e))?;
+                let raw = bitmap.as_raw_bytes();
+                let stride = raw.len() / h;
+                if stride == w * 4 {
+                    each(i, &raw);
+                } else if stride > w * 4 {
+                    let mut packed = Vec::with_capacity(w * h * 4);
+                    for row in raw.chunks(stride).take(h) {
+                        packed.extend_from_slice(&row[..w * 4]);
+                    }
+                    each(i, &packed);
+                } else {
+                    return Err(anyhow!("PDFium compare render: bitmap stride {} < {}", stride, w * 4));
+                }
+            }
+            Ok(())
+        })();
+        self.release_page_if_cheap(idx);
+        result
+    }
+
     /// Render a sub-region of a page at `scale` into an output bitmap of
     /// (region_w_pt*scale × region_h_pt*scale) px. `rotation` (extra
     /// gebruikersrotatie) must be 0.

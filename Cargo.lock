@@ -4052,6 +4052,7 @@ version = "2026.45.0"
 dependencies = [
  "anyhow",
  "flate2",
+ "libm",
  "lopdf",
  "memchr",
  "memmap2",

@@ -2389,6 +2389,43 @@ async fn ocr_pdf_page() -> Result<(), String> {
     Err("OCR is op dit platform niet beschikbaar".to_string())
 }
 
+/// Pixelvergelijking van een paginapaar (#465) in de PDFium-worker: renderen
+/// op de vergelijkingsresolutie, inktmaskers, automatische uitlijning en
+/// clusters gebeuren in het workerproces, dus geen bitmap komt over IPC.
+/// `request` is het verzoek uit js/compare/rust-compare.js (zie
+/// pdfium-worker/src/compare/mod.rs, CompareRequest zonder op/id).
+/// Antwoord (rauwe bytes): u32 LE lengte van de JSON-kop, de JSON-kop,
+/// opvulling tot een veelvoud van 8, daarna 10 f64 per cluster.
+/// Fouten beginnen met COMPARE_RUST_; de app rekent dan in JS.
+/// `OPDS_RUST_COMPARE=0` dwingt de JS-weg af (ter vergelijking).
+#[tauri::command]
+async fn compare_pixel_pair(
+    request: serde_json::Value,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<tauri::ipc::Response, String> {
+    if std::env::var("OPDS_RUST_COMPARE").ok().as_deref() == Some("0") {
+        return Err("COMPARE_RUST_DISABLED".to_string());
+    }
+    let p = pool.get().ok_or_else(|| "COMPARE_RUST_UNAVAILABLE: worker pool not ready".to_string())?;
+    let new_path = request["new"]["path"].as_str().ok_or_else(|| "COMPARE_RUST_FAILED: new.path missing".to_string())?.to_string();
+    let new_page = request["new"]["page_index"].as_u64().unwrap_or(0) as u32;
+    let (resp, clusters) = p
+        .compare(request, &new_path, new_page)
+        .await
+        .map_err(|e| format!("COMPARE_RUST_UNAVAILABLE: {e:#}"))?;
+    if !resp["ok"].as_bool().unwrap_or(false) {
+        return Err(format!("COMPARE_RUST_FAILED: {}", resp["error"].as_str().unwrap_or("unknown")));
+    }
+    let head = resp.to_string().into_bytes();
+    let pad = (8 - (4 + head.len()) % 8) % 8;
+    let mut out = Vec::with_capacity(4 + head.len() + pad + clusters.len());
+    out.extend_from_slice(&(head.len() as u32).to_le_bytes());
+    out.extend_from_slice(&head);
+    out.resize(out.len() + pad, 0);
+    out.extend_from_slice(&clusters);
+    Ok(tauri::ipc::Response::new(out))
+}
+
 #[tauri::command]
 async fn render_pdf_page_region(
     path: String,
@@ -3664,6 +3701,7 @@ pub fn run(opts: StartupOpts) {
             ocr_pdf_page,
             worker_pool_ready,
             render_pdf_page_region,
+            compare_pixel_pair,
             render_tile_scene_region,
             page_content_size,
             get_page_dimensions,

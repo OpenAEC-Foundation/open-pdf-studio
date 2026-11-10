@@ -498,6 +498,86 @@ impl WorkerPool {
     }
 }
 
+impl WorkerPool {
+    /// Pixelvergelijking van een paginapaar (#465) in een worker die `compare`
+    /// kent (pdfium-worker/src/compare/). `request` is de aanvraag zonder `op`
+    /// en `id`; die vult de pool in. Affiniteit op het NIEUWE (pad, pagina),
+    /// zodat herhaalde vergelijkingen van hetzelfde paar de maskercache van
+    /// dezelfde worker raken. Geeft de antwoordregel (JSON) en de clusters
+    /// (binair, uit de SHM) terug. Geen worker met `compare` = Unavailable;
+    /// de app rekent dan in JS.
+    pub async fn compare(&self, mut request: serde_json::Value, new_path: &str, new_page: u32) -> Result<(serde_json::Value, Vec<u8>)> {
+        let depths: Vec<usize> = self
+            .workers
+            .iter()
+            .map(|w| match w.status() {
+                Status::Ready if w.has_cap("compare") => w.queue_depth.load(Ordering::Acquire),
+                _ => usize::MAX,
+            })
+            .collect();
+        if depths.iter().all(|&d| d == usize::MAX) {
+            return Err(response::Unavailable.into());
+        }
+        let slot = routing::pick_worker(new_path, new_page, &depths, true);
+        let worker = self.workers[slot].clone();
+        self.touch(&worker);
+        worker.queue_depth.fetch_add(1, Ordering::Release);
+        let result = async {
+            let request_lock = worker.request_lock.clone();
+            let _exchange = request_lock.lock().await;
+            if worker.status() != Status::Ready {
+                return Err(response::Unavailable.into());
+            }
+            let id = self.next_request_id.fetch_add(1, Ordering::Release);
+            request["op"] = json!("compare");
+            request["id"] = json!(id);
+            let line = format!("{}\n", request);
+            {
+                let mut stdin_guard = worker.stdin.lock().await;
+                let stdin = stdin_guard.as_mut().ok_or_else(|| anyhow!("worker {} has no stdin", worker.slot))?;
+                stdin.write_all(line.as_bytes()).await.with_context(|| format!("write to worker {}", worker.slot))?;
+                stdin.flush().await?;
+            }
+            let resp_line = {
+                let mut stdout_guard = worker.stdout.lock().await;
+                let stdout = stdout_guard.as_mut().ok_or_else(|| anyhow!("worker {} has no stdout", worker.slot))?;
+                match response::read_response(stdout, WORKER_READ_TIMEOUT).await {
+                    Ok(line) => line,
+                    Err(error) => {
+                        worker.set_status(Status::Dead);
+                        return Err(error.context(format!("read from worker {}", worker.slot)));
+                    }
+                }
+            };
+            let resp: serde_json::Value = serde_json::from_str(&resp_line)
+                .with_context(|| format!("parse worker {} compare response", worker.slot))?;
+            if resp["id"].as_u64() != Some(id) {
+                worker.set_status(Status::Dead);
+                return Err(anyhow!("worker {} answered another request", worker.slot));
+            }
+            if !resp["ok"].as_bool().unwrap_or(false) {
+                // Inhoudelijke fout (bestand gewijzigd, geometrie): de worker
+                // zelf is in orde.
+                return Ok((resp, Vec::new()));
+            }
+            let bytes = resp["shm_bytes"].as_u64().unwrap_or(0) as usize;
+            let shm_guard = worker.shm.lock().await;
+            let mmap = shm_guard.as_ref().ok_or_else(|| anyhow!("worker {} has no shm", worker.slot))?;
+            const HEADER: usize = 32;
+            if bytes + HEADER > mmap.len() {
+                return Err(anyhow!("worker {} shm_bytes {} exceeds region", worker.slot, bytes));
+            }
+            Ok((resp, mmap[HEADER..HEADER + bytes].to_vec()))
+        }
+        .await;
+        worker.queue_depth.fetch_sub(1, Ordering::Release);
+        if result.as_ref().err().is_some_and(|e| !response::is_unavailable(e)) {
+            recovery::schedule_worker_recovery(worker.clone(), worker_exe_path());
+        }
+        result
+    }
+}
+
 /// Worker-request voor een volledige pagina (zie pdfium-worker/src/protocol.rs).
 /// `thin_lines` = Thin Lines-weergave (#595): de worker tekent elke lijn als
 /// haarlijn.

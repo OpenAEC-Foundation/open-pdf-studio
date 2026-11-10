@@ -17,6 +17,10 @@
 // are compared in a worker (mask-detect.js); vector pages can be compared on
 // their paths instead (vector-diff.js). Change records are in page points of
 // the new page, with `old` the matching rectangle on the old page.
+//
+// On the desktop the pixel branch runs in the PDFium worker instead
+// (rust-compare.js): it renders both pages there and sends back only the
+// clusters and the alignment. Everything below remains the fallback.
 
 import * as pdfjsLib from 'pdfjs-dist';
 import { OPS } from 'pdfjs-dist';
@@ -34,6 +38,8 @@ import { pathSegments, classifyPage, vectorComparable } from './vector-diff.js';
 import { createMask, writeInkTile, estimateBackground } from './ink-mask.js';
 import { alignmentMatrix, multiply, scaling, normalizeAlignment, measureScaleRatio } from './alignment.js';
 import { extractSheetNumber, pageTokens, pairPages, thumbFromDensity } from './page-pairing.js';
+import { createRustCompare, buildRustRequest } from './rust-compare.js';
+import { isTauri, invoke } from '../core/platform.js';
 
 let _detectTimer = null;
 let _detectSeq = 0;
@@ -482,20 +488,33 @@ export async function computePairChanges(opts, clients) {
     if (!current()) return null;
   }
 
+  // Desktop: rendering, masks, alignment and clusters in the PDFium worker
+  // (rust-compare.js). null = the JS pipeline below does it.
+  let rust = null;
+  if (!vector || opts.autoAlign) {
+    rust = await _rustPair(opts, { oldSize, newSize, plan, params, skipDetect: !!vector });
+    if (!current()) return null;
+  }
+
   const masks = async () => Promise.all([
     getCompareMask(oldPath, oldPage, plan.pxPerPt, params.threshold),
     getCompareMask(newPath, newPage, plan.pxPerPt, params.threshold),
   ]);
   let oldMask = null;
   let newMask = null;
-  if (!vector || opts.autoAlign) {
+  if (!rust && (!vector || opts.autoAlign)) {
     [oldMask, newMask] = await masks();
     if (!current()) return null;
   }
 
   let alignment = normalizeAlignment(opts.offset);
   let alignInfo = null;
-  if (opts.autoAlign) {
+  if (rust) {
+    if (opts.autoAlign && rust.head.align_info) {
+      alignInfo = rust.head.align_info;
+      alignment = normalizeAlignment(alignInfo.alignment);
+    }
+  } else if (opts.autoAlign) {
     const r = await clients.align.run(oldMask, newMask, {
       task: 'align',
       options: {
@@ -530,6 +549,8 @@ export async function computePairChanges(opts, clients) {
     return { changes, alignment, alignInfo, truncated: false, mmPerPx: plan.mmPerPx, method: 'vector' };
   }
 
+  if (rust) return _pixelResult(rust.clusters, plan, rust.head.old_px, alignment, alignInfo, !!rust.head.truncated);
+
   // Scale correction: render the old page at the scale it is shown at.
   let oldDet = oldMask;
   let oldPx = plan.pxPerPt;
@@ -545,8 +566,14 @@ export async function computePairChanges(opts, clients) {
     options: { ...params, transform },
   });
   if (!r.changes) return null;
+  return _pixelResult(r.changes.clusters, plan, oldPx, alignment, alignInfo, !!r.changes.truncated);
+}
+
+// Change records in page points from mask clusters (new-mask pixels, `old`
+// in pixels of the old mask at oldPx).
+function _pixelResult(clusters, plan, oldPx, alignment, alignInfo, truncated) {
   const k = plan.pxPerPt;
-  const changes = r.changes.clusters.map((c) => ({
+  const changes = clusters.map((c) => ({
     type: c.type,
     source: 'pixel',
     x: c.x / k,
@@ -557,7 +584,37 @@ export async function computePairChanges(opts, clients) {
     areaMm2: c.pixelCount * plan.mmPerPx * plan.mmPerPx,
     old: { x: c.old.x / oldPx, y: c.old.y / oldPx, width: c.old.width / oldPx, height: c.old.height / oldPx },
   }));
-  return { changes, alignment, alignInfo, truncated: !!r.changes.truncated, mmPerPx: plan.mmPerPx, method: 'pixel' };
+  return { changes, alignment, alignInfo, truncated, mmPerPx: plan.mmPerPx, method: 'pixel' };
+}
+
+let _rust = null;
+function _rustCompare() {
+  if (!_rust) _rust = createRustCompare({ inTauri: isTauri, call: invoke, cachedBytes: getCachedPdfBytes });
+  return _rust;
+}
+
+async function _rustPair(opts, { oldSize, newSize, plan, params, skipDetect }) {
+  const rust = _rustCompare();
+  if (!rust.usable()) return null;
+  const oldFile = rust.sideFile(opts.oldPath);
+  const newFile = rust.sideFile(opts.newPath);
+  if (!oldFile || !newFile) return null;
+  const [od, nd] = await Promise.all([_getDoc(opts.oldPath), _getDoc(opts.newPath)]);
+  const index = (d, p) => Math.max(1, Math.min(d.numPages, p)) - 1;
+  return rust.run(buildRustRequest({
+    old: oldFile,
+    new: newFile,
+    oldIndex: index(od, opts.oldPage),
+    newIndex: index(nd, opts.newPage),
+    oldSize,
+    newSize,
+    pxPerPt: plan.pxPerPt,
+    params,
+    alignment: normalizeAlignment(opts.offset),
+    autoAlign: !!opts.autoAlign,
+    measureRatio: opts.autoAlign ? measureScaleRatio(_measureScales(opts.oldPath, opts.oldPage), _measureScales(opts.newPath, opts.newPage)) : null,
+    skipDetect,
+  }));
 }
 
 // ── Page pairing ──────────────────────────────────────────────────────────
