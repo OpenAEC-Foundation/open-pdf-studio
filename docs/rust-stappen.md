@@ -204,9 +204,18 @@ nooit), en bij elke fout (één waarschuwing in de console, dan JS).
 **Nog live te controleren:** Vergelijken in de app op echte tekeningen
 (overlay en naast elkaar, automatische uitlijning, schaalcorrectie, rapport
 over alle pagina's), het terugvallen met een oude sidecar en met
-`OPDS_RUST_COMPARE=0`, en pagina's met annotaties of formuliervelden (PDFium
-tekent annotatieweergaven zoals pdf.js met intent 'display', formulierdata
-niet).
+`OPDS_RUST_COMPARE=0`, en pagina's met annotaties.
+
+**Formuliervelden.** pdf.js tekent met intent 'display' ook de weergaven van
+formuliervelden; een gewijzigde veldwaarde is dan een wijziging. PDFium tekent
+velden niet als annotatie maar alleen in de formulierstap (`FPDF_FFLDraw`), en
+die stap kent geen matrix. Op een pagina met velden rendert de worker een
+tegel daarom als de hele pagina op schaal met een verschoven oorsprong,
+annotaties en velden mee; pagina's zonder velden houden de matrixroute. Live
+gezien vóór deze aanpassing: tekening met tekst-, keuze-, keuzerondje- en
+lijstveld, tweede versie met andere waarden en één extra lijn: JS 9
+wijzigingen (de lijn plus de velden), worker 2 (alleen de lijn), terwijl de
+overlay de nieuwe veldwaarden wel toonde.
 
 ## Snap-geometrie uit de PDF-tekening
 
