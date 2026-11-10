@@ -193,7 +193,8 @@ dezelfde fonts als de app, anders verschilt tekst meer dan anti-aliasing.
 
 **Standaard:** desktop gebruikt de worker (duidelijk sneller, en geen
 pixelwerk meer op de hoofdthread). JS blijft de terugval: in de webversie en
-op Android (geen Tauri), voor een kant die alleen in het geheugen bestaat (de
+op Android (Tauri zonder PDFium-worker: `isMobile()` houdt de worker-weg
+daar uit, zonder IPC-aanroep), voor een kant die alleen in het geheugen bestaat (de
 versie van vóór het laatste opslaan), als de bestandslengte op schijf afwijkt
 van wat de app heeft, als geen worker `compare` kent (een oudere sidecar
 noemt het niet in `caps` van zijn Ready-regel en krijgt de aanvraag dus
