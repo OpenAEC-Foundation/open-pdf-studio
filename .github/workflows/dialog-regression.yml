@@ -1,0 +1,26 @@
+name: Dialog regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/solid/components/Dialog.jsx'
+      - 'open-pdf-studio/js/solid/components/dialogs/**'
+      - 'open-pdf-studio/js/solid/stores/dialogStore.js'
+      - 'open-pdf-studio/styles/dialogs.css'
+      - 'open-pdf-studio/scripts/test-stamp-dialog-stack.mjs'
+      - '.github/workflows/dialog-regression.yml'
+permissions:
+  contents: read
+jobs:
+  stamp-dialog-stack:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-stamp-dialog-stack.mjs
