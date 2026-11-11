@@ -825,3 +825,4 @@ js/tools/gereedschap-lagen.test.mjs
 js/tools/pan-vangnet.test.mjs
 js/core/svg-veilig.test.mjs
 js/help/release-notes-markdown.test.mjs
+js/solid/components/ribbon/lint-indeling.test.mjs

@@ -1354,23 +1354,23 @@
 /* Compact ribbon group — icon-only buttons (CAD-style toolbar).
    Used by RibbonGroup with compact={true}. Labels suppressed inside the group;
    full button name still shown via tooltip on hover. */
-.ribbon-group-compact .ribbon-btn-label { display: none; }
-.ribbon-group-compact .ribbon-btn {
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-btn-label { display: none; }
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-btn {
   min-width: 26px;
   width: 26px;
   height: 26px;
   padding: 1px;
   margin: 0;
 }
-.ribbon-group-compact .ribbon-btn.medium,
-.ribbon-group-compact .ribbon-btn.small { width: 26px; height: 26px; min-width: 26px; padding: 1px; margin: 0; }
-.ribbon-group-compact .ribbon-btn-icon { width: 18px; height: 18px; }
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-btn.medium,
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-btn.small { width: 26px; height: 26px; min-width: 26px; padding: 1px; margin: 0; }
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-btn-icon { width: 18px; height: 18px; }
 
 /* Compact CAD-style icon grid: 2 rows of 7 buttons (26×26 each ⇒ 7·26 = 182 px wide).
    flex-wrap fills row 1 first, then row 2. Icons top-aligned so the group
    label sits close under them (was align-content:center which centered the
    icons and pushed the label visually too low).  */
-.ribbon-group-compact .ribbon-group-content {
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-group-content {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -1379,13 +1379,13 @@
   width: 182px;        /* 7 × 26 = exactly two rows of 7 */
   align-content: flex-start;
 }
-.ribbon-group-compact .ribbon-btn-stack { gap: 0; }
-.ribbon-group-compact { padding: 0 4px; }
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-btn-stack { gap: 0; }
+.ribbon-group-compact:not(.ribbon-group-ruim) { padding: 0 4px; }
 /* Label sits on the same bottom baseline as every other group's label, so
    all group names line up on one row across the ribbon (the compact grid is
    top-aligned; margin-top:auto drops the label to the bottom to match the
    non-compact groups). */
-.ribbon-group-compact .ribbon-group-label {
+.ribbon-group-compact:not(.ribbon-group-ruim) .ribbon-group-label {
   margin-top: auto;
   margin-bottom: 0;
   text-align: center;
@@ -1413,16 +1413,50 @@
 }
 .ribbon-groups-icon-only .ribbon-btn-stack { gap: 0; }
 
+/* Dezelfde smalle stand per groep: AdaptiveGroups geeft tekst aan zo veel
+   groepen als er passen (lint-indeling.js); de rest krijgt deze klasse. */
+.ribbon-group-smal .ribbon-btn-label { display: none; }
+.ribbon-group-smal .ribbon-btn { min-width: 0; }
+.ribbon-group-smal .ribbon-btn.small,
+.ribbon-group-smal .ribbon-btn.medium {
+  min-width: 26px;
+  width: 26px;
+  height: 26px;
+  padding: 1px;
+  gap: 0;
+  justify-content: center;
+}
+.ribbon-group-smal .ribbon-btn.small .ribbon-btn-icon,
+.ribbon-group-smal .ribbon-btn.medium .ribbon-btn-icon {
+  width: 18px;
+  height: 18px;
+}
+.ribbon-group-smal .ribbon-btn-stack { gap: 0; }
+
+/* Ruime stand van een groep die uit zichzelf alleen pictogrammen toont
+   (compact of iconOnly): is er breedte over, dan komen de namen erbij. Een
+   knop zonder eigen label toont dan zijn titel. Het pictogramraster wordt
+   drie rijen kleine knoppen met tekst. */
+.ribbon-btn-label-alt { display: none; }
+.ribbon-group-ruim .ribbon-btn-label-alt { display: inline; }
+.ribbon-group-compact.ribbon-group-ruim .ribbon-group-content {
+  display: grid;
+  grid-template-rows: repeat(3, 22px);
+  grid-auto-flow: column;
+  gap: 1px 2px;
+  align-content: center;
+}
+
 /* ─── Per-button / per-group icon-only mode (issue #278) ───────────────────
    RibbonButton iconOnly and RibbonGroup iconOnly hide the text label while
    keeping the tooltip (title) — used by the "Wijzigen" (Modify) group and the
    Knippen/Kopiëren/Verwijderen clipboard buttons. */
 .ribbon-btn.icon-only .ribbon-btn-label,
-.ribbon-group-icon-only .ribbon-btn-label { display: none; }
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn-label { display: none; }
 
 /* Large icon-only buttons: centre the icon vertically now the label is gone. */
 .ribbon-btn.icon-only:not(.small):not(.medium),
-.ribbon-group-icon-only .ribbon-btn:not(.small):not(.medium) {
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn:not(.small):not(.medium) {
   justify-content: center;
   min-width: 34px;
 }
@@ -1430,8 +1464,8 @@
 /* Small/medium icon-only buttons collapse to a square icon button. */
 .ribbon-btn.small.icon-only,
 .ribbon-btn.medium.icon-only,
-.ribbon-group-icon-only .ribbon-btn.small,
-.ribbon-group-icon-only .ribbon-btn.medium {
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn.small,
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn.medium {
   min-width: 26px;
   width: 26px;
   /* 24px, niet 26: drie gestapelde knoppen + 2px tussenruimte = 74px, precies
@@ -1445,12 +1479,12 @@
 }
 .ribbon-btn.small.icon-only .ribbon-btn-icon,
 .ribbon-btn.medium.icon-only .ribbon-btn-icon,
-.ribbon-group-icon-only .ribbon-btn.small .ribbon-btn-icon,
-.ribbon-group-icon-only .ribbon-btn.medium .ribbon-btn-icon {
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn.small .ribbon-btn-icon,
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn.medium .ribbon-btn-icon {
   width: 18px;
   height: 18px;
 }
-.ribbon-group-icon-only .ribbon-btn-stack { gap: 0; }
+.ribbon-group-icon-only:not(.ribbon-group-ruim) .ribbon-btn-stack { gap: 0; }
 
 /* ─── Ribbon collapse/expand toggle (issue #278) ───────────────────────────
    Chevron at the end of the tab strip that hides/shows the ribbon body. */
@@ -1686,20 +1720,20 @@
   outline-offset: -1px;
 }
 
-/* Object-snap-modi in de lintgroep 'Snap': meesterschakelaar boven,
-   daaronder twee kolommen met de vinkjes — compact genoeg voor één groep. */
+/* Object-snap-modi in de lintgroep 'Snap': de hoofdschakelaar als grote
+   knop, daarnaast de modi als aan/uit-knoppen in kolommen van drie. */
 .ribbon-snap-options {
   display: grid;
-  grid-template-columns: auto auto;
-  gap: 1px 10px;
+  grid-template-rows: repeat(3, 22px);
+  grid-auto-flow: column;
+  gap: 0 2px;
   align-content: center;
   align-self: center;
   height: 100%;
-  padding: 2px 0;
 }
-.ribbon-snap-options .snap-master {
-  grid-column: 1 / -1;
-  font-weight: 600;
+.ribbon-snap-options .ribbon-btn.small .ribbon-btn-icon svg {
+  width: 16px;
+  height: 16px;
 }
 .ribbon-checkbox-option input[type="checkbox"]:disabled {
   opacity: 0.45;
