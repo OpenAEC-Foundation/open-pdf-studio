@@ -1,7 +1,8 @@
 // Parametrische WAPENINGSKORF — rechthoekige balk-/kolomdoorsnede met
 // wapening: betonomtrek, beugel (dubbele lijn met haak rechtsboven), staven
-// boven/onder/zijkant, schuine aanhaallijnen met labels "N ⌀ D", een los
-// label "bgls ⌀ D - afstand", maatlijnen voor breedte en hoogte met ronde
+// boven/onder/zijkant, per staaf een dun aanhaallijntje onder 60° naar een
+// korte horizontale verzamellijn met het label "N ⌀ D", een los label
+// "bgls ⌀ D - afstand", maatlijnen voor breedte en hoogte met ronde
 // eindmarkering, en het onderschrift (naam) gecentreerd eronder.
 //
 // HERGEBRUIK — het diameterteken komt UITSLUITEND uit
@@ -38,6 +39,10 @@ const F_MARGIN_L = 0.40;  // links: hoogte-maatlijn + maatgetal
 const F_MARGIN_T = 0.26;  // boven: breedte-maatlijn + maatgetal
 const F_MARGIN_B = 0.32;  // onder: onderschrift + beugellabel
 const F_LEADER_GAP = 0.25; // horizontale ruimte tussen doorsnede en labels
+const F_LEADER_PAD = 0.05; // lucht tussen verzamellijn en labeltekst
+const F_ZIJ_LABEL_Y = 0.45; // hoogte van het zijstaven-label (fractie van hoogte)
+const F_ZIJ_MIN_DY = 0.03; // minimale verticale afstand zijstaaf ↔ verzamellijn
+const TAN_AANHAAL = Math.tan(Math.PI / 3); // aanhaallijntjes onder 60°
 const F_DIM_OFF = 0.13;   // afstand maatlijn ↔ doorsnede
 const F_DIM_TXT = 0.21;   // afstand maatgetal ↔ doorsnede
 const F_DIM_DOT = 0.010;  // straal van de ronde eindmarkering
@@ -105,11 +110,9 @@ function layoutMm(params) {
     zijAantal > 0 ? _barLabelWidth(zijAantal, zijDiameter, font) : 0,
     _stirrupLabelWidth(prefix, beugelDiameter, beugelAfstand, font),
   );
-  const leaderGap = F_LEADER_GAP * breedte;
   const mL = F_MARGIN_L * breedte;
   const mT = F_MARGIN_T * hoogte;
   const mB = F_MARGIN_B * hoogte;
-  const mR = leaderGap + labelW + 0.06 * breedte;
 
   const sec = { x: mL, y: mT, w: breedte, h: hoogte };
 
@@ -155,11 +158,59 @@ function layoutMm(params) {
     ...sideYs(nRight).map((y) => ({ x: zx.right, y, r: zijDiameter / 2, side: 'right' })),
   ];
 
+  // Aanhaallijntjes: vanaf ELKE staaf één lijntje onder 60° naar de
+  // horizontale verzamellijn van zijn groep, op de hoogte van het label. De
+  // kant volgt de plaats van de groep — bovenstaven naar boven, onderstaven
+  // naar beneden (beide buiten de doorsnede), zijstaven naar een lijn door de
+  // lege kern — en alle lijntjes hellen naar de labels rechts. Lijntjes aan
+  // dezelfde kant van hun verzamellijn lopen daardoor evenwijdig en kruisen
+  // elkaar nooit; de groepen onderling liggen in gescheiden hoogtezones.
+  const bovenLabelY = sec.y - 0.06 * hoogte;
+  const onderLabelY = sec.y + hoogte + 0.10 * hoogte;
+  // Het zijlabel schuift zo nodig iets omhoog, zodat geen zijstaaf (bijna) op
+  // de verzamellijn ligt en elk lijntje een zichtbare lengte houdt.
+  let zijLabelY = sec.y + F_ZIJ_LABEL_Y * hoogte;
+  for (let stap = 0; stap <= 20; stap++) {
+    const kandidaat = sec.y + (F_ZIJ_LABEL_Y - 0.01 * stap) * hoogte;
+    if (zij.every((b) => Math.abs(b.y - kandidaat) >= F_ZIJ_MIN_DY * hoogte)) {
+      zijLabelY = kandidaat;
+      break;
+    }
+  }
+  const naarLijn = (staven, y) => staven.map((b) => ({
+    x1: b.x, y1: b.y, x2: b.x + Math.abs(y - b.y) / TAN_AANHAAL, y2: y,
+  }));
+  const lijntjes = {
+    boven: naarLijn(boven, bovenLabelY),
+    zij: naarLijn(zij, zijLabelY),
+    onder: naarLijn(onder, onderLabelY),
+  };
+
+  // De ruimte tussen doorsnede en labels groeit mee als een lijntje (hoge,
+  // smalle doorsnede) verder naar rechts uitkomt dan de standaardruimte.
+  const leaderPad = F_LEADER_PAD * breedte;
+  const verst = Math.max(
+    sec.x + breedte,
+    ...[...lijntjes.boven, ...lijntjes.zij, ...lijntjes.onder].map((l) => l.x2),
+  );
+  const leaderGap = Math.max(F_LEADER_GAP * breedte, verst - (sec.x + breedte) + 2 * leaderPad);
+  const mR = leaderGap + labelW + 0.06 * breedte;
+
   const labelX = sec.x + breedte + leaderGap;
+  const aanhaal = {};
+  for (const groep of ['boven', 'zij', 'onder']) {
+    const lijnen = lijntjes[groep];
+    aanhaal[groep] = {
+      lijntjes: lijnen,
+      verzamellijn: lijnen.length ? {
+        x1: Math.min(...lijnen.map((l) => l.x2)), x2: labelX - leaderPad, y: lijnen[0].y2,
+      } : null,
+    };
+  }
   const labels = {
-    boven: { x: labelX, y: sec.y - 0.06 * hoogte, n: bovenAantal, d: bovenDiameter },
-    zij: { x: labelX, y: sec.y + 0.45 * hoogte, n: zijAantal, d: zijDiameter },
-    onder: { x: labelX, y: sec.y + hoogte + 0.10 * hoogte, n: onderAantal, d: onderDiameter },
+    boven: { x: labelX, y: bovenLabelY, n: bovenAantal, d: bovenDiameter },
+    zij: { x: labelX, y: zijLabelY, n: zijAantal, d: zijDiameter },
+    onder: { x: labelX, y: onderLabelY, n: onderAantal, d: onderDiameter },
     beugel: {
       x: labelX, y: sec.y + hoogte + 0.24 * hoogte,
       prefix, d: beugelDiameter, afstand: beugelAfstand,
@@ -171,7 +222,7 @@ function layoutMm(params) {
     bovenAantal, bovenDiameter, onderAantal, onderDiameter,
     zijAantal, zijDiameter, naam, prefix,
     font, sec, stirrupOuter: bo, stirrupInner: bi,
-    boven, onder, zij, labels,
+    boven, onder, zij, labels, aanhaal,
     caption: { x: sec.x + breedte / 2, y: sec.y + hoogte + 0.16 * hoogte, text: naam },
     footprint: { width: mL + breedte + mR, height: mT + hoogte + mB },
   };
@@ -219,6 +270,11 @@ export function dotLineWidth(radiusPx) {
 /** Dikte van de beugel-dubbellijn, uit de beugelstaafdikte in px. */
 export function stirrupLineWidth(barPx) {
   return Math.max(0.3, Math.min(1.2, 0.3 * barPx));
+}
+
+/** Dikte van de aanhaallijntjes en hun verzamellijn, uit de tekengrootte in px. */
+export function aanhaalLijnDikte(fontPx) {
+  return Math.max(0.25, Math.min(0.5, 0.025 * fontPx));
 }
 
 /** Gevulde staafpunt (de kwast tekent 'circle' alleen als omtrek). */
@@ -485,26 +541,36 @@ export const wapeningskorfTemplate = {
     // 3. Staven als gevulde punten.
     for (const b of [...L.boven, ...L.onder, ...L.zij]) _dot(cmds, X, Y, S, b.x, b.y, b.r);
 
-    // 4. Aanhaallijnen + labels rechts.
+    // 4. Aanhaallijntjes (één per staaf, 60°) + verzamellijn + labels rechts.
     if (toonLabels) {
-      const pad = 0.05 * L.breedte;
-      const leader = (from, to) => {
-        if (!from) return;
-        cmds.push({ kind: 'line', x1: X(from.x), y1: Y(from.y), x2: X(to.x - pad), y2: Y(to.y) });
+      const dun = aanhaalLijnDikte(L.font * S);
+      const leader = (groep) => {
+        const { lijntjes, verzamellijn: v } = L.aanhaal[groep];
+        for (const l of lijntjes) {
+          cmds.push({
+            kind: 'line', x1: X(l.x1), y1: Y(l.y1), x2: X(l.x2), y2: Y(l.y2),
+            lineWidth: dun, role: 'aanhaallijn', groep,
+          });
+        }
+        if (v) {
+          cmds.push({
+            kind: 'line', x1: X(v.x1), y1: Y(v.y), x2: X(v.x2), y2: Y(v.y),
+            lineWidth: dun, role: 'verzamellijn', groep,
+          });
+        }
       };
       if (L.bovenAantal > 0) {
-        leader(L.boven[L.boven.length - 1], L.labels.boven);
+        leader('boven');
         _barLabel(cmds, X, Y, S, L.labels.boven.x, L.labels.boven.y,
           L.bovenAantal, L.bovenDiameter, L.font);
       }
       if (L.zijAantal > 0) {
-        const right = L.zij.filter((b) => b.side === 'right');
-        leader(right[0] || L.zij[0], L.labels.zij);
+        leader('zij');
         _barLabel(cmds, X, Y, S, L.labels.zij.x, L.labels.zij.y,
           L.zijAantal, L.zijDiameter, L.font);
       }
       if (L.onderAantal > 0) {
-        leader(L.onder[L.onder.length - 1], L.labels.onder);
+        leader('onder');
         _barLabel(cmds, X, Y, S, L.labels.onder.x, L.labels.onder.y,
           L.onderAantal, L.onderDiameter, L.font);
       }

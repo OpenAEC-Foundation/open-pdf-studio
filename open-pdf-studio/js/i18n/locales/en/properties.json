@@ -290,6 +290,7 @@
     "title": "Title",
     "author": "Author",
     "subject": "Subject",
+    "keywords": "Keywords",
     "creator": "Creator",
     "producer": "Producer",
     "pdfVersion": "PDF Version",

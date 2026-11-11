@@ -21,6 +21,7 @@ import { maakWielScroller } from './wiel-scroll.js';
 import { vloeiendScrollenAan } from '../core/vloeiend-scrollen.js';
 import { zoomNaDprWissel } from './schermkalibratie.js';
 import { maakFramePlanner, bewaakSchrijven } from './frame-planner.js';
+import { geenPanKnopMeer, installeerPanVangnet } from '../tools/pan-vangnet.js';
 import {
   normaliseerRotatie,
   vermenigvuldig,
@@ -1752,7 +1753,7 @@ export function wireEvents(canvas) {
         e.stopPropagation();
         const rect = canvas.getBoundingClientRect();
         startPan(e.clientX - rect.left, e.clientY - rect.top);
-        mainView.setPointerCapture(e.pointerId);
+        try { mainView.setPointerCapture(e.pointerId); } catch (_) {}
         state.isPanning = true;
       }
       // else: let the event propagate so hand-tool.onPointerDown can handle it
@@ -1761,18 +1762,41 @@ export function wireEvents(canvas) {
 
   mainView.addEventListener('pointermove', (e) => {
     if (!_isPanning) return;
+    // Beweging zonder ingedrukte knop: het loslaten is gemist (#1013).
+    if (geenPanKnopMeer(e)) { breekViewportPanAf(); return; }
     const rect = canvas.getBoundingClientRect();
     updatePan(e.clientX - rect.left, e.clientY - rect.top);
   });
 
-  function _endPanAndCursor() {
-    if (_isPanning) {
-      state.isPanning = false;
-      state.isMiddleButtonPanning = false;
-    }
-    endPan();
-  }
+  mainView.addEventListener('pointerup', breekViewportPanAf);
+  mainView.addEventListener('pointercancel', breekViewportPanAf);
+  // De pan houdt de aanwijzer vast op .main-view; raakt die hem kwijt (ook
+  // zonder pointerup, bv. bij een vensterwissel), dan is de pan voorbij.
+  // Alleen voor de eigen vangst: lostpointercapture borrelt op vanuit het
+  // annotatiecanvas en hoort daar bij een ander gebaar.
+  mainView.addEventListener('lostpointercapture', (e) => {
+    if (e.target === mainView) breekViewportPanAf();
+  });
+  // Venster kwijt of pagina verborgen: de pan afbreken, het gereedschap
+  // blijft staan. Op window bewaard zodat een tweede bedrading (HMR, nieuw
+  // canvas) de vorige luisteraars vervangt in plaats van stapelt.
+  window.__pdfViewportPanVangnet?.();
+  window.__pdfViewportPanVangnet = installeerPanVangnet({
+    win: window,
+    doc: document,
+    breekAf: () => { if (_isPanning) breekViewportPanAf(); },
+  });
+}
 
-  mainView.addEventListener('pointerup', _endPanAndCursor);
-  mainView.addEventListener('pointercancel', _endPanAndCursor);
+/**
+ * Beëindig een viewport-pan (loslaten, afbreken of gemist loslaten). Ook de
+ * gedeelde pan-status gaat weg, zodat de cursor niet op 'grabbing' blijft.
+ * Idempotent.
+ */
+export function breekViewportPanAf() {
+  if (_isPanning) {
+    state.isPanning = false;
+    state.isMiddleButtonPanning = false;
+  }
+  endPan();
 }

@@ -85,3 +85,122 @@ test('render: fijnwerk draagt eigen lineWidth die niet dichtloopt', () => {
     && c.lineWidth == null);
   assert.ok(outline, 'betonomtrek volgt de annotatie-lijndikte');
 });
+
+// ─── Aanhaallijntjes: één per staaf, onder 60°, naar een verzamellijn ────
+
+function korfOpdrachten(params, bbox = { x: 10, y: 20, width: 420, height: 320 }) {
+  const L = wapeningskorfTemplate.layoutMm(params);
+  const S = Math.min(bbox.width / L.footprint.width, bbox.height / L.footprint.height);
+  const ox = bbox.x + (bbox.width - L.footprint.width * S) / 2;
+  const oy = bbox.y + (bbox.height - L.footprint.height * S) / 2;
+  const cmds = wapeningskorfTemplate.render(params, bbox);
+  return {
+    L, S, bbox, cmds, X: (v) => ox + v * S, Y: (v) => oy + v * S,
+    lijntjes: (groep) => cmds.filter((c) => c.role === 'aanhaallijn' && (!groep || c.groep === groep)),
+    verzamel: (groep) => cmds.filter((c) => c.role === 'verzamellijn' && (!groep || c.groep === groep)),
+  };
+}
+
+/** Echte kruising van twee lijnstukken (raken aan een eindpunt telt niet). */
+function kruisen(a, b) {
+  const d = (px, py, qx, qy, rx, ry) => (qx - px) * (ry - py) - (qy - py) * (rx - px);
+  const d1 = d(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1);
+  const d2 = d(a.x1, a.y1, a.x2, a.y2, b.x2, b.y2);
+  const d3 = d(b.x1, b.y1, b.x2, b.y2, a.x1, a.y1);
+  const d4 = d(b.x1, b.y1, b.x2, b.y2, a.x2, a.y2);
+  const e = 1e-6;
+  return ((d1 > e && d2 < -e) || (d1 < -e && d2 > e)) && ((d3 > e && d4 < -e) || (d3 < -e && d4 > e));
+}
+
+test('aanhaallijntjes: vanaf elke staaf één, dus 4 / 6 / 2 bij de standaardkorf', () => {
+  const k = korfOpdrachten({});
+  assert.equal(k.lijntjes('boven').length, 4);
+  assert.equal(k.lijntjes('onder').length, 6);
+  assert.equal(k.lijntjes('zij').length, 2);
+  assert.equal(k.lijntjes().length, 12);
+  for (const groep of ['boven', 'onder', 'zij']) assert.equal(k.verzamel(groep).length, 1, groep);
+});
+
+test('aanhaallijntjes: beginnen op de staaf, lopen onder 60° en eindigen op de verzamellijn', () => {
+  for (const params of [
+    {},
+    { bovenAantal: 2, bovenDiameter: 10, onderAantal: 3, zijAantal: 4 },
+    { breedte: 300, hoogte: 900, zijAantal: 6, onderAantal: 5, bovenAantal: 1 },
+    { breedte: 800, hoogte: 250, zijAantal: 0, onderAantal: 8, dekking: 45 },
+  ]) {
+    const k = korfOpdrachten(params);
+    for (const groep of ['boven', 'onder', 'zij']) {
+      const staven = k.L[groep];
+      const lijntjes = k.lijntjes(groep);
+      assert.equal(lijntjes.length, staven.length, `${groep}: één lijntje per staaf`);
+      if (!staven.length) {
+        assert.equal(k.verzamel(groep).length, 0, `${groep}: geen verzamellijn zonder staven`);
+        continue;
+      }
+      const [v] = k.verzamel(groep);
+      assert.ok(Math.abs(v.y1 - v.y2) < 1e-9, `${groep}: verzamellijn is horizontaal`);
+      assert.ok(Math.abs(v.y1 - k.Y(k.L.labels[groep].y)) < 1e-6, `${groep}: verzamellijn op teksthoogte`);
+      const links = Math.min(v.x1, v.x2), rechts = Math.max(v.x1, v.x2);
+      assert.ok(rechts <= k.X(k.L.labels[groep].x) + 1e-6, `${groep}: verzamellijn stopt vóór de tekst`);
+      assert.ok(rechts > k.X(k.L.sec.x + k.L.breedte), `${groep}: verzamellijn reikt tot naast de doorsnede`);
+      staven.forEach((staaf, i) => {
+        const l = lijntjes[i];
+        assert.ok(Math.abs(l.x1 - k.X(staaf.x)) < 1e-6 && Math.abs(l.y1 - k.Y(staaf.y)) < 1e-6,
+          `${groep} ${i}: begint in het hart van de staaf`);
+        const dx = Math.abs(l.x2 - l.x1), dy = Math.abs(l.y2 - l.y1);
+        assert.ok(dy > 1e-6, `${groep} ${i}: lijntje heeft lengte`);
+        const hoek = Math.atan2(dy, dx) * 180 / Math.PI;
+        assert.ok(Math.abs(hoek - 60) < 1e-6, `${groep} ${i}: hoek ${hoek}° i.p.v. 60°`);
+        assert.ok(Math.abs(l.y2 - v.y1) < 1e-6, `${groep} ${i}: eindigt op de verzamellijn`);
+        assert.ok(l.x2 >= links - 1e-6 && l.x2 <= rechts + 1e-6, `${groep} ${i}: eindpunt ligt op de verzamellijn`);
+      });
+    }
+    // Kant per groep: boven → erboven, onder → eronder (buiten de doorsnede).
+    if (k.L.boven.length) assert.ok(k.verzamel('boven')[0].y1 < k.Y(k.L.sec.y));
+    if (k.L.onder.length) assert.ok(k.verzamel('onder')[0].y1 > k.Y(k.L.sec.y + k.L.hoogte));
+  }
+});
+
+test('aanhaallijntjes: dun, kruisen elkaar niet en blijven binnen de bbox', () => {
+  for (const params of [
+    {},
+    { zijAantal: 5, bovenAantal: 7 },
+    { breedte: 300, hoogte: 900, zijAantal: 6 },
+    { breedte: 250, hoogte: 1500, zijAantal: 8, bovenAantal: 2, onderAantal: 2 },
+    { breedte: 900, hoogte: 200, onderAantal: 10, dekking: 50, onderDiameter: 32 },
+  ]) {
+    const k = korfOpdrachten(params);
+    const lijnen = [...k.lijntjes(), ...k.verzamel()];
+    for (const l of lijnen) {
+      assert.ok(l.lineWidth > 0 && l.lineWidth <= 0.5, `dunne pen (${l.lineWidth})`);
+      for (const [x, y] of [[l.x1, l.y1], [l.x2, l.y2]]) {
+        assert.ok(x >= k.bbox.x - 0.5 && x <= k.bbox.x + k.bbox.width + 0.5, `x=${x} binnen bbox`);
+        assert.ok(y >= k.bbox.y - 0.5 && y <= k.bbox.y + k.bbox.height + 0.5, `y=${y} binnen bbox`);
+      }
+    }
+    const lijntjes = k.lijntjes();
+    for (let i = 0; i < lijntjes.length; i++) {
+      for (let j = i + 1; j < lijntjes.length; j++) {
+        assert.ok(!kruisen(lijntjes[i], lijntjes[j]),
+          `lijntjes ${lijntjes[i].groep}/${lijntjes[j].groep} kruisen (${JSON.stringify(params)})`);
+      }
+      // Een lijntje kruist ook geen verzamellijn van een ándere groep.
+      for (const v of k.verzamel()) {
+        if (v.groep !== lijntjes[i].groep) assert.ok(!kruisen(lijntjes[i], v), 'lijntje kruist vreemde verzamellijn');
+      }
+    }
+  }
+});
+
+test('aanhaallijntjes: geen lijntjes zonder labels of zonder staven; tekst blijft gelijk', () => {
+  const uit = korfOpdrachten({ toonLabels: false });
+  assert.equal(uit.lijntjes().length + uit.verzamel().length, 0);
+  const leeg = korfOpdrachten({ bovenAantal: 0, zijAantal: 0 });
+  assert.equal(leeg.lijntjes('boven').length, 0);
+  assert.equal(leeg.lijntjes('zij').length, 0);
+  assert.equal(leeg.lijntjes('onder').length, 6);
+  const teksten = korfOpdrachten({}).cmds.filter((c) => c.kind === 'text').map((c) => c.text);
+  for (const t of ['4', '12', '6', '16', '2', '10', 'bgls', '8 - 150', 'Korf A']) {
+    assert.ok(teksten.includes(t), `tekst "${t}" aanwezig`);
+  }
+});

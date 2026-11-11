@@ -17,6 +17,7 @@ import { hideProperties } from '../ui/panels/properties-panel.js';
 import { updateActiveThumbnail, pauseThumbnails, resumeThumbnails, isThumbnailPipelineIdle } from '../ui/panels/left-panel.js';
 import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers, createTextLayerFromRust } from '../text/text-layer.js';
 import { createSinglePageLinkLayer, clearSinglePageLinkLayer, createLinkLayer, clearLinkLayers, applyOverlayPointerEvents } from './link-layer.js';
+import { pasCanvasLagenToe, pasGereedschapLagenToe } from '../tools/gereedschap-lagen.js';
 import { createSinglePageFormLayer, clearSinglePageFormLayer, createFormLayer, clearFormLayers, hideFormFieldsBar } from './form-layer.js';
 import { clearPdfVectorCache, prefetchPdfVectorGeometry } from '../tools/pdf-snap-extractor.js';
 import { clearDetectionCache } from '../tools/pdf-element-detector.js';
@@ -1237,11 +1238,9 @@ async function renderContinuousPage(pageNum) {
   // Cursor is handled centrally by js/ui/cursor.js — no need to set it here.
 
   // Only editText forces pe:none statically; select uses dynamic fallthrough.
-  // See comment near renderer block ~line 455.
-  if (state.currentTool === 'editText') {
-    annotationCanvasEl.style.zIndex = '2';
-    annotationCanvasEl.style.pointerEvents = 'none';
-  }
+  // See comment near renderer block ~line 455. Een nieuw canvas heeft in de
+  // CSS geen z-index en zou anders onder de tekstlaag liggen (#1013).
+  pasCanvasLagenToe(canvasContainer, state.currentTool);
 
   // RUST-ONLY: continuous-mode page render. Used to dual-fallback to
   // PDF.js — removed per project policy. Rust failure surfaced via console
@@ -1452,6 +1451,11 @@ async function renderContinuousPage(pageNum) {
 
   // Re-apply overlay state for newly created form/link layers
   applyOverlayPointerEvents(canvasContainer);
+  // Tekstlaag en annotatiecanvas van deze pagina in de stapeling van het
+  // actieve gereedschap (#1013). setTool() zet die alleen voor de pagina's die
+  // er dan al zijn; een later gebouwde pagina hield anders de tekstlaag
+  // bovenop en de hand kon er niet pannen.
+  pasGereedschapLagenToe(canvasContainer, state.currentTool);
 
   // Render annotations
   const annotationCtxEl = annotationCanvasEl.getContext('2d');

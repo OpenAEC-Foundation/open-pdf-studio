@@ -67,6 +67,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"dr-l-shape","tab":"drawing","labelKey":"ribbon:drawing.lShape"},
   {"id":"dr-image","tab":"drawing","labelKey":"ribbon:drawing.image"},
   {"id":"dr-remove-image","tab":"drawing","labelKey":"ribbon:drawing.removeImage"},
+  {"id":"dr-snap-master","tab":"drawing","labelKey":"ribbon:drawing.snapObjectSnap"},
   {"id":"dr-count-new","tab":"drawing","labelKey":"ribbon:drawing.countNew"},
   {"id":"btn-vector-snippet","tab":"drawing","labelKey":"ribbon:drawing.vectorSnippet","label":"Vectorknipsel"},
   {"id":"btn-vector-snippet-paste","tab":"drawing","labelKey":"ribbon:drawing.vectorSnippetPaste","label":"Plak knipsel"},

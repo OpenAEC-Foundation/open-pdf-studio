@@ -258,6 +258,72 @@ export function tekstInGebied(items, viewport, vak) {
   return regelsTotTekst(spans.map((s) => ({ ...s.bbox, text: s.text })));
 }
 
+// ── Onleesbare tekstlaag (#1010) ─────────────────────────────────────────
+// Lettertypen die zonder /ToUnicode zijn ingebed geven glyph-codes in plaats
+// van letters: stuurtekens, tekens uit een privégebied of U+FFFD, gemengd met
+// verschoven leestekens ("BR2" wordt "%5" plus U+0015). Zo'n vak is niet
+// leeg maar wel onbruikbaar; de naambouwer leest het dan met OCR.
+
+// Stuurtekens (C0 en C1, DEL), de drie privégebieden en het vervangteken.
+// Witruimte (tab, regeleinde) telt niet mee: die wordt vooraf weggehaald.
+const ONLEESBAAR_TEKEN = /[\u0000-\u001F\u007F-\u009F-�\u{F0000}-\u{FFFFD}\u{100000}-\u{10FFFD}]/u;
+
+/** Aandeel onleesbare tekens vanaf waar de hele tekstlaag van een pagina niet te vertrouwen is. */
+export const ONLEESBAAR_AANDEEL = 0.2;
+
+function telTekens(tekst) {
+  let totaal = 0;
+  let fout = 0;
+  for (const teken of String(tekst ?? '').replace(/\s+/g, '')) {
+    totaal++;
+    if (ONLEESBAAR_TEKEN.test(teken)) fout++;
+  }
+  return { totaal, fout };
+}
+
+/**
+ * Bevat deze tekst glyph-codes in plaats van letters? Eén teken is genoeg:
+ * een bladnaam of -nummer bevat nooit een stuurteken.
+ */
+export function isOnleesbareTekst(tekst) {
+  return telTekens(tekst).fout > 0;
+}
+
+/**
+ * Is de tekstlaag van een pagina (PDF.js-items met `str`) grotendeels
+ * onleesbaar (minstens ONLEESBAAR_AANDEEL van de zichtbare tekens)? Dan zijn
+ * ook vakken die toevallig alleen gewone leestekens opleveren ("%%") niet te
+ * vertrouwen.
+ */
+export function isOnleesbareTekstlaag(items) {
+  let totaal = 0;
+  let fout = 0;
+  for (const item of items || []) {
+    if (typeof item?.str !== 'string') continue;
+    const t = telTekens(item.str);
+    totaal += t.totaal;
+    fout += t.fout;
+  }
+  return totaal > 0 && fout / totaal >= ONLEESBAAR_AANDEEL;
+}
+
+/**
+ * Wat de naambouwer met de tekstlaag van een vak doet. `tekst`: wat de
+ * tekstlaag in het vak gaf; `paginaOnleesbaar`: isOnleesbareTekstlaag van de
+ * pagina.
+ * - `direct`: tekst die meteen gebruikt wordt (leesbaar, op een leesbare pagina);
+ * - `terugval`: tekst die er gewoon uitziet op een onleesbare pagina: eerst
+ *   OCR, en deze tekst alleen als OCR niets vindt of uit staat.
+ * Tekst met glyph-codes is geen van beide: die gaat altijd naar OCR.
+ * @returns {{direct:string, terugval:string}}
+ */
+export function beoordeelVakTekst(tekst, paginaOnleesbaar = false) {
+  const t = String(tekst ?? '');
+  if (!t.trim() || isOnleesbareTekst(t)) return { direct: '', terugval: '' };
+  if (paginaOnleesbaar) return { direct: '', terugval: t };
+  return { direct: t, terugval: '' };
+}
+
 /**
  * Een vak op een pagina van `breedte` × `hoogte` (y omlaag) rechtsom gedraaid
  * met `graden` (90, 180, 270), samen met die pagina.
@@ -292,6 +358,17 @@ export const OCR_DRAAIINGEN = [90, 270];
 export const OCR_GOED_GENOEG = 70;
 /** Een gedraaide lezing moet zoveel punten zekerder zijn om te winnen. */
 export const OCR_MARGE = 5;
+/** Een vak minstens zoveel keer breder dan hoog bevat liggende tekst. */
+export const LIGGEND_VAK = 2;
+
+/**
+ * Tekens die OCR in bladnamen vaak verwisselt (#1010). Een $ die aan een
+ * letter of cijfer vastzit ($101, $-101, E$01, NOTE$) is in een
+ * tekeningnummer vrijwel altijd een S. Een losse $ blijft staan.
+ */
+export function verbeterOcrTekst(tekst) {
+  return String(tekst ?? '').replace(/\$(?=[-.]?[\p{L}\p{N}])|(?<=[\p{L}\p{N}])\$/gu, 'S');
+}
 
 /**
  * Lezing van OCR-woorden ({text, left, top, width, height, confidence})
@@ -302,7 +379,7 @@ export const OCR_MARGE = 5;
 export function ocrLezing(woorden, vak, graden = 0) {
   const raak = (woorden || []).filter((w) => typeof w?.text === 'string' && w.text.trim()
     && middenBinnen({ x: w.left, y: w.top, width: w.width, height: w.height }, vak));
-  const tekst = regelsTotTekst(raak.map((w) => ({ x: w.left, y: w.top, width: w.width, height: w.height, text: w.text })));
+  const tekst = verbeterOcrTekst(regelsTotTekst(raak.map((w) => ({ x: w.left, y: w.top, width: w.width, height: w.height, text: w.text }))));
   let tekens = 0;
   let som = 0;
   for (const w of raak) {
@@ -318,6 +395,32 @@ export function ocrLezing(woorden, vak, graden = 0) {
 export function moetGedraaidLezen(lezing) {
   if (!lezing?.tekst) return true;
   return lezing.score !== null && lezing.score < OCR_GOED_GENOEG;
+}
+
+/**
+ * Welke extra draaiingen een vak nog nodig heeft na de lezing bij 0°, in
+ * volgorde. Elke draaiing is de hele pagina nog eens door OCR, dus:
+ * - niets als 0° goed genoeg is;
+ * - gaf 0° wel tekst (maar onzeker), dan niet draaien in een liggend vak
+ *   (minstens LIGGEND_VAK keer zo breed als hoog) of als 0° op eerdere
+ *   pagina's van deze ronde won;
+ * - won eerder een kwartslag, dan die eerst.
+ * `stand` ({graden}) onthoudt over de pagina's heen welke draaiing dit vak
+ * won; null of graden null: nog niets bekend.
+ * @param {{tekst:string, score:number|null}} lezing0
+ * @param {{width:number, height:number}} vak
+ * @param {{graden:number|null}|null} stand
+ * @returns {number[]}
+ */
+export function draaiingenVoorVak(lezing0, vak, stand = null) {
+  if (!moetGedraaidLezen(lezing0)) return [];
+  const vorige = stand?.graden ?? null;
+  if (lezing0?.tekst) {
+    if (vorige === 0) return [];
+    if (vak && vak.width >= LIGGEND_VAK * vak.height) return [];
+  }
+  if (OCR_DRAAIINGEN.includes(vorige)) return [vorige, ...OCR_DRAAIINGEN.filter((g) => g !== vorige)];
+  return [...OCR_DRAAIINGEN];
 }
 
 /**

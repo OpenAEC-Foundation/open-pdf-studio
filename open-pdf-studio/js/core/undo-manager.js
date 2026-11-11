@@ -124,6 +124,7 @@ function pagesForCommand(cmd) {
     'ocrWord', 'ocrPage', 'ocrPages',
     'addWatermark', 'removeWatermark', 'modifyWatermark',
     'addBookmark', 'removeBookmark', 'modifyBookmark', 'setBookmarks',
+    'setDocumentInfo',
     // pageStructure (insert/delete/reorder pages) shifts page numbers and is
     // handled by restorePageState → clearThumbnailCache + generateThumbnails,
     // which regenerates every thumbnail. A per-page hook here would be wrong.
@@ -603,6 +604,11 @@ function applyUndo(cmd, lookup) {
       doc.bookmarks = cmd.oldBookmarks.map(b => ({ ...b }));
       break;
     }
+    case 'setDocumentInfo': {
+      // Documentgegevens (#1017): de hele overlay terug, in één toewijzing.
+      doc.documentgegevens = cmd.oldInfo ? { ...cmd.oldInfo } : null;
+      break;
+    }
   }
 }
 
@@ -745,6 +751,10 @@ function applyRedo(cmd, lookup) {
     }
     case 'setBookmarks': {
       doc.bookmarks = cmd.newBookmarks.map(b => ({ ...b }));
+      break;
+    }
+    case 'setDocumentInfo': {
+      doc.documentgegevens = cmd.newInfo ? { ...cmd.newInfo } : null;
       break;
     }
   }
@@ -1084,6 +1094,17 @@ export function recordBookmarksChange(oldBookmarks, newBookmarks) {
     type: 'setBookmarks',
     oldBookmarks: (oldBookmarks || []).map(b => ({ ...b })),
     newBookmarks: (newBookmarks || []).map(b => ({ ...b })),
+  });
+}
+
+// Documentgegevens (#1017): de overlay van titel, auteur enz. ervoor en
+// erna. Zet het document op gewijzigd; Ctrl+Z zet de vorige waarden terug.
+export function recordDocumentInfoChange(oldInfo, newInfo) {
+  if (JSON.stringify(oldInfo || null) === JSON.stringify(newInfo || null)) return;
+  execute({
+    type: 'setDocumentInfo',
+    oldInfo: oldInfo ? { ...oldInfo } : null,
+    newInfo: newInfo ? { ...newInfo } : null,
   });
 }
 

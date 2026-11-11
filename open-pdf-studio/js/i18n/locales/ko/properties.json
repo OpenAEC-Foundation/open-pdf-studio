@@ -252,6 +252,7 @@
     "title": "제목",
     "author": "작성자",
     "subject": "주제",
+    "keywords": "키워드",
     "creator": "작성 프로그램",
     "producer": "제작 프로그램",
     "pdfVersion": "PDF 버전",

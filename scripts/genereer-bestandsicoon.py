@@ -10,13 +10,9 @@ letters "PDF" als handgeplaatste pixels, op 32 en 48 px als vormen met
 rechte randen op hele pixels en afgeronde bogen, daarboven via een vet
 schreefloos lettertype.
 
-Let op: de app gebruikt sinds #986 het goedgekeurde logo ook als
-bestandstype-icoon (docs/branding/icons.json). Zonder --uit of --oud-ontwerp
-weigert dit script daarom de iconenmap te overschrijven.
-
 Gebruik:
-    python scripts/genereer-bestandsicoon.py --uit /tmp/bestandsicoon
-    python scripts/genereer-bestandsicoon.py --uit /tmp/bestandsicoon --voorbeeld preview.png [--oud-ref HEAD]
+    python scripts/genereer-bestandsicoon.py
+    python scripts/genereer-bestandsicoon.py --voorbeeld preview.png [--oud-ref HEAD]
 """
 
 import argparse
@@ -502,16 +498,7 @@ def main():
     p.add_argument("--uit", type=Path, default=ICOON_MAP, help="doelmap voor PNG's en ICO")
     p.add_argument("--voorbeeld", type=Path, help="schrijf ook een vergelijkingsblad")
     p.add_argument("--oud-ref", default="HEAD", help="git-ref voor de oude iconen in het blad")
-    p.add_argument("--oud-ontwerp", action="store_true",
-                   help="schrijf ook naar de app-iconenmap (overschrijft het goedgekeurde logo)")
     args = p.parse_args()
-
-    # Sinds #986 komen file-icon-*.png en file-icon.ico uit het goedgekeurde
-    # logo (scripts/generate-approved-icons.py, docs/branding/icons.json).
-    # Dit oude ontwerp mag die bestanden niet stilzwijgend overschrijven.
-    if args.uit.resolve() == ICOON_MAP.resolve() and not args.oud_ontwerp:
-        sys.exit("file-icon-* komt uit het goedgekeurde logo (docs/branding/icons.json); "
-                 "geef --uit <andere map>, of --oud-ontwerp om het toch te overschrijven.")
 
     args.uit.mkdir(parents=True, exist_ok=True)
     beelden, geschreven = {}, []

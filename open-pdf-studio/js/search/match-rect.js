@@ -40,6 +40,26 @@ export function matchFractions(str, start, end, measure) {
 }
 
 /**
+ * Fracties [begin, eind] voor tekens start..end uit de tekenvakken van de
+ * PDFium-route (rust-zoektekst.js): per teken [begin, eind] als deel van de
+ * itembreedte × 65535. Neemt het kleinste begin en het grootste eind, zodat
+ * ook een treffer in tekst van rechts naar links goed staat.
+ */
+export function matchFractionsUitVakken(vakken, start, end) {
+  let a = Infinity;
+  let b = -Infinity;
+  for (let i = start; i < end; i++) {
+    const s = vakken[2 * i];
+    const e = vakken[2 * i + 1];
+    if (s === undefined || e === undefined) continue;
+    if (s < a) a = s;
+    if (e > b) b = e;
+  }
+  if (!(b >= a)) return null;
+  return [a / 65535, b / 65535];
+}
+
+/**
  * Rechthoek van (een deel van) een tekstitem in het ongedraaide paginakader,
  * in punten: linkerbovenhoek (x, y), breedte langs de tekst, hoogte, en de
  * draaihoek van de tekst in radialen (0 = gewone horizontale tekst).

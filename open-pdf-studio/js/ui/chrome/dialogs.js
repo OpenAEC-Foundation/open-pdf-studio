@@ -11,6 +11,7 @@ import {
 import i18next from '../../i18n/config.js';
 import { magPrinten, beschrijfBeveiliging } from '../../pdf/document-beveiliging.js';
 import { bronPad } from '../../pdf/wachtwoord-pdf.js';
+import { zichtbareWaarden } from '../../pdf/documentgegevens.js';
 
 // Show loading overlay. Met `voortgang` (0..1) een voortgangsbalk, met
 // `annuleren` (functie) een knop Annuleren (ook Esc); zonder opties alleen de
@@ -82,11 +83,13 @@ async function gatherDocProperties() {
   try {
     const metadata = await doc.pdfDoc.getMetadata();
     const info = metadata.info || {};
-    title = info.Title || '-';
-    author = info.Author || '-';
-    subject = info.Subject || '-';
-    keywords = info.Keywords || '-';
-    creator = info.Creator || '-';
+    // Met wat in het eigenschappen-paneel is ingevuld (#1017).
+    const zichtbaar = zichtbareWaarden(info, doc.documentgegevens);
+    title = zichtbaar.title || '-';
+    author = zichtbaar.author || '-';
+    subject = zichtbaar.subject || '-';
+    keywords = zichtbaar.keywords || '-';
+    creator = zichtbaar.creator || '-';
     producer = info.Producer || '-';
     pdfVersion = info.PDFFormatVersion || '-';
     created = formatPdfDate(info.CreationDate) || '-';

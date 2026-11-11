@@ -8,8 +8,8 @@ import { herkenPagina, actieveOcrEngine } from './ocr-engines.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
   normaliseerLabels, zijnGewoneNummers, herschikLabels, labelVan, vulLabelsAan,
-  tekstInGebied, draaiVak, ocrLezing, moetGedraaidLezen, kiesBesteOcrLezing,
-  vakNaarOcrDraaiing, OCR_DRAAIINGEN,
+  tekstInGebied, draaiVak, ocrLezing, kiesBesteOcrLezing, vakNaarOcrDraaiing,
+  isOnleesbareTekstlaag, beoordeelVakTekst, draaiingenVoorVak, OCR_GOED_GENOEG,
 } from './pagina-labels.js';
 
 /**
@@ -121,20 +121,30 @@ async function paginaTekst(doc, pageNum) {
   const viewport = page.getViewport({ scale: 1, rotation: (page.rotate + extra) % 360 });
   const basis = page.getViewport({ scale: 1 });
   const inhoud = await page.getTextContent();
-  return { items: inhoud.items, viewport, extra, breedte: basis.width, hoogte: basis.height };
+  return {
+    items: inhoud.items, viewport, extra, breedte: basis.width, hoogte: basis.height,
+    // Lettertypen zonder /ToUnicode (#1010): glyph-codes in plaats van letters.
+    onleesbaar: isOnleesbareTekstlaag(inhoud.items),
+  };
 }
 
 /**
  * Tekst in `vak` (app-ruimte) op pagina `pageNum`: eerst de tekstlaag, dan
- * OCR als het vak daar leeg is en `ocr` aan staat.
+ * OCR als het vak daar leeg of onleesbaar is (lettertypen zonder /ToUnicode,
+ * #1010) en `ocr` aan staat. `stand` ({graden}) onthoudt bij het lezen van
+ * alle pagina's welke OCR-draaiing dit vak won (zie draaiingenVoorVak).
  * @returns {Promise<{tekst:string, bron:'tekst'|'ocr'|''}>}
  */
-export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null } = {}) {
+export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null, stand = null } = {}) {
   let p = pagina;
+  // Tekst die er gewoon uitziet op een pagina met een onleesbare tekstlaag:
+  // alleen als OCR niets vindt of uit staat.
+  let terugval = '';
   try {
     p = p || await paginaTekst(doc, pageNum);
-    const tekst = tekstInGebied(p.items, p.viewport, vak);
-    if (tekst) return { tekst, bron: 'tekst' };
+    const oordeel = beoordeelVakTekst(tekstInGebied(p.items, p.viewport, vak), !!p.onleesbaar);
+    if (oordeel.direct) return { tekst: oordeel.direct, bron: 'tekst' };
+    terugval = oordeel.terugval;
   } catch (e) {
     console.warn('[paginalabels] tekstlaag niet gelezen:', e?.message || e);
   }
@@ -159,22 +169,29 @@ export async function leesGebied(doc, pageNum, vak, { ocr = true, pagina = null 
       const lezingen = [ocrLezing(woorden, vak, 0)];
       // Leeg of onzeker: misschien staat de tekst verticaal (#954). Lees de
       // pagina dan ook een kwartslag gedraaid en neem de zekerste lezing.
-      if (moetGedraaidLezen(lezingen[0]) && p && doc.filePath && isTauri()) {
-        for (const graden of OCR_DRAAIINGEN) {
+      // Elke draaiing is de hele pagina opnieuw door OCR: alleen waar nodig,
+      // de eerdere winnaar eerst, en stoppen zodra een lezing goed genoeg is.
+      const draaiingen = draaiingenVoorVak(lezingen[0], vak, stand);
+      if (draaiingen.length && p && doc.filePath && isTauri()) {
+        for (const graden of draaiingen) {
           try {
             const gedraaid = await ocrWoorden(doc, pageNum, graden);
-            lezingen.push(ocrLezing(gedraaid, vakNaarOcrDraaiing(vak, p.breedte, p.hoogte, extra, graden), graden));
+            const lezing = ocrLezing(gedraaid, vakNaarOcrDraaiing(vak, p.breedte, p.hoogte, extra, graden), graden);
+            lezingen.push(lezing);
+            if (lezing.tekst && (lezing.score ?? 0) >= OCR_GOED_GENOEG) break;
           } catch (e) {
             console.warn(`[paginalabels] OCR ${graden}° mislukt:`, e?.message || e);
           }
         }
       }
       const beste = kiesBesteOcrLezing(lezingen);
+      if (beste && stand) stand.graden = beste.graden;
       if (beste) return { tekst: beste.tekst, bron: 'ocr' };
     } catch (e) {
       console.warn('[paginalabels] OCR mislukt:', e?.message || e);
     }
   }
+  if (terugval) return { tekst: terugval, bron: 'tekst' };
   return { tekst: '', bron: '' };
 }
 
@@ -186,6 +203,8 @@ export async function leesAllePaginas(doc, gebieden, { ocr = true, bijVoortgang,
   const pdf = doc.pdfDoc;
   const totaal = pdf.numPages;
   const rijen = [];
+  // Per vak: de OCR-draaiing die op eerdere pagina's won (draaiingenVoorVak).
+  const standen = new Map(gebieden.map((g) => [g.n, { graden: null }]));
   for (let p = 1; p <= totaal; p++) {
     if (isAfgebroken?.() || doc.pdfDoc !== pdf) break;
     let pagina = null;
@@ -193,7 +212,7 @@ export async function leesAllePaginas(doc, gebieden, { ocr = true, bijVoortgang,
     const teksten = {};
     let metOcr = false;
     for (const g of gebieden) {
-      const r = await leesGebied(doc, p, g.rect, { ocr, pagina });
+      const r = await leesGebied(doc, p, g.rect, { ocr, pagina, stand: standen.get(g.n) });
       if (r.bron === 'ocr') metOcr = true;
       teksten[g.n] = r.tekst;
     }
