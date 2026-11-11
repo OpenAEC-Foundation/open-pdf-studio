@@ -574,6 +574,9 @@ pub mod portaal {
             uit.push(("printer", printer.to_string()));
         }
         for optie in lp_opties {
+            if let Some(duplex) = crate::print_duplex::portal_duplex(optie) {
+                uit.push(("duplex", duplex.to_string()));
+            }
             match optie.as_str() {
                 "orientation-requested=3" => uit.push(("orientation", "portrait".to_string())),
                 "orientation-requested=4" => uit.push(("orientation", "landscape".to_string())),
@@ -842,6 +845,20 @@ mod tests {
         let b = cups_ipp::decodeer(&v.codeer().unwrap()).unwrap();
         assert_eq!(b.groepen.len(), 1);
         assert_eq!(jobnaam(Path::new("/tmp/x/Plattegrond begane grond.pdf")), "Plattegrond begane grond");
+    }
+
+    #[test]
+    fn duplex_reaches_ipp_and_portal_settings() {
+        for (choice, expected, gtk) in [("simplex","one-sided","simplex"), ("long-edge","two-sided-long-edge","horizontal"), ("short-edge","two-sided-short-edge","vertical")] {
+            let mut options=Vec::new();
+            crate::print_duplex::Duplex::parse(Some(choice)).unwrap().append_cups(&mut options);
+            let attributes=ipp_job_attributen(&options).unwrap();
+            assert_eq!(attributes, vec![(cups_ipp::TAG_KEYWORD,"sides".into(),Waarde::Tekst(expected.into()))]);
+            #[cfg(target_os = "linux")]
+            assert!(portaal::instellingen("Laser", &options, None).contains(&("duplex",gtk.into())));
+            #[cfg(not(target_os = "linux"))]
+            let _ = gtk;
+        }
     }
 
     #[cfg(target_os = "linux")]

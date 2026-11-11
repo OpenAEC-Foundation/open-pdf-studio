@@ -84,6 +84,9 @@ const VELDEN = {
   'Cargo.lock': lockVersies,
   'open-pdf-studio/src-tauri/Cargo.lock': lockVersies,
   'open-pdf-render/Cargo.lock': lockVersies,
+  'open-pdf-studio/scripts/print-native-tests/Cargo.toml': (tekst) => [pakketVersie(tekst)],
+  'open-pdf-studio/scripts/print-native-tests/Cargo.lock': (tekst) => lockPakketten(tekst)
+    .filter((p) => p.naam === 'print-native-tests').map((p) => p.versie),
   'mcp-stdio/package.json': jsonVersie,
   'python/pyproject.toml': (tekst) => [projectVersie(tekst)],
   'mcpb/manifest.json': jsonVersie,

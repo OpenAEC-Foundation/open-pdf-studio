@@ -164,6 +164,11 @@ jobs:
         if: matrix.platform == 'windows-latest'
         run: npm run tauri build -- --no-bundle
 
+      - name: Test Windows duplex buffer handling (no print jobs)
+        if: matrix.platform == 'windows-latest'
+        working-directory: .
+        run: cargo test --locked --manifest-path open-pdf-studio/scripts/print-native-tests/Cargo.toml print_devmode::tests::duplex_keeps_paper_orientation_copies_and_driver_data -- --exact
+
       # Tauri 2.10 downloads its own, older linuxdeploy build, which ignores
       # LINUXDEPLOY_EXCLUDED_LIBRARIES, so the display stack ended up in the
       # AppImage anyway (issue #362). Tauri only downloads when the file is not
@@ -187,6 +192,11 @@ jobs:
 
       # The binary must not need a distro-specific libtesseract/liblept soname:
       # the .deb, the AppImage and repackagers such as the AUR use it as is (#620).
+      - name: Test duplex IPP and portal settings (no print jobs)
+        if: matrix.platform == 'ubuntu-22.04'
+        working-directory: .
+        run: cargo test --release -p open-pdf-studio --lib duplex_reaches_ipp_and_portal_settings
+
       - name: Verify no system OCR library dependency (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: bash scripts/linux-ocr-linkage-check.sh ../target/release/open-pdf-studio
