@@ -252,6 +252,7 @@
     "title": "العنوان",
     "author": "المؤلف",
     "subject": "الموضوع",
+    "keywords": "الكلمات المفتاحية",
     "creator": "المنشئ",
     "producer": "المنتج",
     "pdfVersion": "إصدار PDF",

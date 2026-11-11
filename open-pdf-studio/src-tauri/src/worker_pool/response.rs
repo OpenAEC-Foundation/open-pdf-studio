@@ -16,6 +16,26 @@ pub fn is_resource_limit(error: &anyhow::Error) -> bool {
     error.downcast_ref::<ResourceLimit>().is_some()
 }
 
+/// The worker answered the request with `ok: false` (output budget, unreadable
+/// page, ...). The exchange itself went fine: the worker is healthy and its
+/// pipes are in step, so it must not be restarted for this.
+#[derive(Debug)]
+pub struct WorkerReported(pub String);
+impl std::fmt::Display for WorkerReported {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result { f.write_str(&self.0) }
+}
+impl std::error::Error for WorkerReported {}
+
+pub fn is_worker_reported(error: &anyhow::Error) -> bool {
+    error.downcast_ref::<WorkerReported>().is_some()
+}
+
+/// Must a failed exchange restart the worker? Not when it is gone already
+/// (Unavailable) and not when it answered with an error of its own.
+pub fn needs_recovery(error: &anyhow::Error) -> bool {
+    !is_unavailable(error) && !is_worker_reported(error)
+}
+
 pub async fn read_response<R: AsyncBufRead + Unpin>(reader: &mut R, deadline: Duration) -> Result<String> {
     let mut bytes = Vec::new();
     let mut bounded = reader.take(MAX_RESPONSE_BYTES + 1);
@@ -45,6 +65,16 @@ mod tests {
         let error = read_response(&mut &data[..], Duration::from_secs(1)).await.unwrap_err();
         assert!(is_resource_limit(&error));
         assert!(read_response(&mut &b"{\"ok\":true}"[..], Duration::from_secs(1)).await.is_err());
+    }
+    #[test]
+    fn reported_errors_keep_the_worker_and_broken_exchanges_restart_it() {
+        let reported: anyhow::Error = WorkerReported("worker 0 render error: PDF_OUTPUT_LIMIT: bitmap exceeds the caller's RGBA budget".into()).into();
+        assert!(!needs_recovery(&reported));
+        assert!(reported.to_string().contains("PDF_OUTPUT_LIMIT"), "message unchanged for the callers");
+        assert!(!needs_recovery(&reported.context("render")));
+        assert!(!needs_recovery(&Unavailable.into()));
+        assert!(needs_recovery(&anyhow!("worker EOF")));
+        assert!(needs_recovery(&ResourceLimit("PDF_RENDER_TIMEOUT").into()));
     }
     #[tokio::test]
     async fn one_read_does_not_consume_the_next_response() {

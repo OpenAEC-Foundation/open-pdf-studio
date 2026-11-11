@@ -11,6 +11,7 @@ import {
   recordModify,
   recordBulkModify,
   recordMeasureScale,
+  recordDocumentInfoChange,
   beginUndoTransaction,
   endUndoTransaction,
 } from '../../core/undo-manager.js';
@@ -26,6 +27,7 @@ import { getPropertyPanel } from '../../plugins/property-panel-registry.js';
 import { fireSelectionChange } from '../../plugins/selection-listener-registry.js';
 import i18next from '../../i18n/config.js';
 import { DOC_INFO_EMPTY, formatDocPages, formatPageSizeMm, createLatestOnly } from './doc-info-format.js';
+import { BEWERKBARE_VELDEN, overlayMet, zichtbareWaarden, normaliseerWaarde } from '../../pdf/documentgegevens.js';
 import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS, BETONBALK_BREEDTE_RANGE, BETONBALK_HOOGTE_RANGE, BETONBALK_LIJNSTIJLEN } from '../../annotations/betonbalk.js';
@@ -251,16 +253,19 @@ const [sectionVis, setSectionVis] = createStore({
   rotationGroup: false,
 });
 
-// Document info store
+// Document info store. Titel t/m maker zijn bewerkbaar (#1017) en zijn ''
+// als ze leeg zijn; de overige velden tonen '-'.
 const [docInfo, setDocInfo] = createStore({
   filename: '-',
   filepath: '-',
   pages: '-',
   pageSize: '-',
-  title: '-',
-  author: '-',
-  subject: '-',
-  creator: '-',
+  title: '',
+  author: '',
+  subject: '',
+  keywords: '',
+  creator: '',
+  editable: false,
   producer: '-',
   version: '-',
   annotCount: '0',
@@ -1055,19 +1060,22 @@ export async function populateDocInfo() {
       const metadata = await pdfDoc.getMetadata();
       if (!_docInfoRefresh.isCurrent(token)) return;
       const info = metadata.info || {};
-      setDocInfo('title', info.Title || '-');
-      setDocInfo('author', info.Author || '-');
-      setDocInfo('subject', info.Subject || '-');
-      setDocInfo('creator', info.Creator || '-');
+      // Wat de gebruiker invulde (doc.documentgegevens) gaat voor op het
+      // bestand: pdf.js leest na een save nog de oude bytes.
+      const zichtbaar = zichtbareWaarden(info, doc.documentgegevens);
+      for (const veld of BEWERKBARE_VELDEN) setDocInfo(veld, zichtbaar[veld]);
+      setDocInfo('editable', true);
       setDocInfo('producer', info.Producer || '-');
       setDocInfo('version', info.PDFFormatVersion || '-');
     } catch (e) { /* ignore */ }
     if (!_docInfoRefresh.isCurrent(token)) return;
   } else {
     // Document (nog) niet geladen: geen gegevens van een vorig document laten staan.
-    for (const key of ['pages', 'pageSize', 'title', 'author', 'subject', 'creator', 'producer', 'version']) {
+    for (const key of ['pages', 'pageSize', 'producer', 'version']) {
       setDocInfo(key, DOC_INFO_EMPTY);
     }
+    for (const veld of BEWERKBARE_VELDEN) setDocInfo(veld, '');
+    setDocInfo('editable', false);
   }
 
   const docAnnotations = doc?.annotations || [];
@@ -1076,6 +1084,26 @@ export async function populateDocInfo() {
   const onPage = docAnnotations.filter(a => a.page === docPage).length;
   setDocInfo('annotCount', String(total));
   setDocInfo('annotPage', i18next.t('docInfo.onPageCount', { count: onPage, page: docPage, ns: 'properties' }));
+}
+
+/**
+ * Eén documentgegeven (titel, auteur, onderwerp, trefwoorden, maker) uit het
+ * paneel (#1017). Komt in de overlay van het document, maakt het gewijzigd
+ * (één undo-stap per veld) en gaat bij de volgende save het bestand in.
+ * @returns {boolean} of er iets veranderde
+ */
+export function zetDocumentgegeven(veld, waarde) {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc || !BEWERKBARE_VELDEN.includes(veld)) return false;
+  const w = normaliseerWaarde(waarde);
+  if (docInfo[veld] === w) return false;
+  const oud = doc.documentgegevens || null;
+  const nieuw = overlayMet(oud, veld, w);
+  // Eén toewijzing: het document bewaart een kopie.
+  doc.documentgegevens = nieuw;
+  recordDocumentInfoChange(oud, nieuw);
+  setDocInfo(veld, w);
+  return true;
 }
 
 // Apply a property change to a single annotation object

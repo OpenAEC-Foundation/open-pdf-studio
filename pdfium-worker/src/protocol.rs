@@ -42,11 +42,29 @@ pub enum Request {
         #[serde(default)]
         offset: u64,
     },
+    /// Zoektekst van pagina's `first..first + count` (page_text/mod.rs). Het
+    /// antwoord kan minder pagina's bevatten (tijds- of groottebudget); de
+    /// app vraagt dan vanaf daar verder.
+    PageText {
+        id: u64,
+        path: String,
+        first: u32,
+        count: u32,
+        /// Bestandslengte die de app heeft; afwijkend op schijf = fout.
+        #[serde(default)]
+        expect_len: Option<u64>,
+        #[serde(default = "standaard_tekstbudget")]
+        budget_ms: u32,
+    },
     /// Sluit open pagina-handles (parse-state, honderden MB's op zware
     /// CAD-pagina's); documenten blijven gecachet. Fire-and-forget: geen
     /// response. Gestuurd door de pool bij inactiviteit.
     Trim,
     Shutdown,
+}
+
+fn standaard_tekstbudget() -> u32 {
+    150
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -67,6 +85,9 @@ pub enum Response {
     /// van in totaal `total_bytes`. `ms` = extractietijd (0 voor een stuk uit
     /// het bewaarde resultaat).
     SnapOk { id: u64, ok: bool, total_bytes: u64, offset: u64, shm_bytes: u64, ms: f64 },
+    /// Zoektekst (`OPT1`) in de SHM-regio: `pages` pagina's vanaf de
+    /// gevraagde, van de `page_count` in het document; `ms` = leestijd.
+    TextOk { id: u64, ok: bool, op: String, pages: u32, page_count: u32, shm_bytes: u64, ms: f64 },
     RenderErr { id: u64, ok: bool, error: String },
 }
 
@@ -167,6 +188,23 @@ mod tests {
             caps: vec!["snap_geometry".into()],
         };
         assert!(serde_json::to_string(&ready).unwrap().contains(r#""caps":["snap_geometry"]"#));
+    }
+
+    #[test]
+    fn page_text_request_parses_with_defaults() {
+        let req: Request = serde_json::from_str(r#"{"op":"page_text","id":9,"path":"a.pdf","first":3,"count":20}"#).unwrap();
+        assert_eq!(req, Request::PageText { id: 9, path: "a.pdf".into(), first: 3, count: 20, expect_len: None, budget_ms: 150 });
+        let req: Request = serde_json::from_str(
+            r#"{"op":"page_text","id":9,"path":"a.pdf","first":0,"count":1,"expect_len":1234,"budget_ms":40}"#,
+        ).unwrap();
+        assert!(matches!(req, Request::PageText { expect_len: Some(1234), budget_ms: 40, .. }));
+    }
+
+    #[test]
+    fn text_ok_names_its_op() {
+        let r = Response::TextOk { id: 1, ok: true, op: "page_text".into(), pages: 2, page_count: 9, shm_bytes: 64, ms: 1.5 };
+        let s = serde_json::to_string(&r).unwrap();
+        assert!(s.contains(r#""op":"page_text""#) && s.contains(r#""pages":2"#) && s.contains(r#""page_count":9"#));
     }
 
     #[test]

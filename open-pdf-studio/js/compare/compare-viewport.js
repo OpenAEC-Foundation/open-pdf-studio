@@ -39,7 +39,7 @@ import { createMask, writeInkTile, estimateBackground } from './ink-mask.js';
 import { alignmentMatrix, multiply, scaling, normalizeAlignment, measureScaleRatio } from './alignment.js';
 import { extractSheetNumber, pageTokens, pairPages, thumbFromDensity } from './page-pairing.js';
 import { createRustCompare, buildRustRequest } from './rust-compare.js';
-import { isTauri, invoke } from '../core/platform.js';
+import { isTauri, isMobile, invoke } from '../core/platform.js';
 
 let _detectTimer = null;
 let _detectSeq = 0;
@@ -589,7 +589,7 @@ function _pixelResult(clusters, plan, oldPx, alignment, alignInfo, truncated) {
 
 let _rust = null;
 function _rustCompare() {
-  if (!_rust) _rust = createRustCompare({ inTauri: isTauri, call: invoke, cachedBytes: getCachedPdfBytes });
+  if (!_rust) _rust = createRustCompare({ inTauri: isTauri, mobile: isMobile, call: invoke, cachedBytes: getCachedPdfBytes });
   return _rust;
 }
 

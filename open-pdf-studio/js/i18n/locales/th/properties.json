@@ -252,6 +252,7 @@
     "title": "ชื่อ",
     "author": "ผู้เขียน",
     "subject": "หัวเรื่อง",
+    "keywords": "คำสำคัญ",
     "creator": "ผู้สร้าง",
     "producer": "ผู้ผลิต",
     "pdfVersion": "เวอร์ชัน PDF",

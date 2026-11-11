@@ -5,8 +5,11 @@
 // line, 45° chamfered rod ends, thin dash-dot axis.
 //
 // Types (param `type`):
-//   'stort-moer'  — cast-in anchor bolt, nut + washer at the bottom
-//   'stort-plaat' — cast-in anchor bolt, square anchor plate + nut
+//   'stort-moer'  — cast-in anchor bolt with a forged head at the bottom
+//                   (the type value is kept for symbols saved earlier, when
+//                   this end was drawn as a loose nut + washer)
+//   'stort-plaat' — cast-in anchor bolt with a square anchor plate welded
+//                   to its end
 //   'stort-L'     — cast-in anchor bolt with a 90° hook (L)
 //   'stort-J'     — cast-in anchor bolt with a 180° hook (J)
 //   'chemisch'    — chemical (bonded) anchor: threaded rod in a drilled hole
@@ -15,6 +18,12 @@
 //                   expansion clip in a drilled hole
 //   'kopbout'     — headed stud welded under a plate cast flush with the
 //                   concrete surface
+//
+// Above the concrete every type except the headed stud has the same
+// fixture: the cut fixture plate, a washer and a nut on it, and the thread
+// protruding above the nut. Inside the concrete there is never a loose nut
+// or washer: a cast-in bolt ends in a head, a welded plate or a hook, and a
+// bonded or wedge anchor only has its rod in the drilled hole.
 //
 // Section conventions: the concrete is hatched, the drilled hole and the
 // fixture plate are cut (their edges drawn), the anchor, washer and nut are
@@ -33,7 +42,7 @@ import {
 export const ANKER_MATEN = Object.keys(BOUT_MATEN).filter((k) => k !== 'M6');
 
 export const ANKER_TYPEN = [
-  { value: 'stort-moer', label: 'Ankerbout ingestort, moer + ring', labelEn: 'Cast-in anchor bolt, nut + washer' },
+  { value: 'stort-moer', label: 'Ankerbout ingestort, kop', labelEn: 'Cast-in anchor bolt, forged head' },
   { value: 'stort-plaat', label: 'Ankerbout ingestort, ankerplaat', labelEn: 'Cast-in anchor bolt, anchor plate' },
   { value: 'stort-L', label: 'Ankerbout ingestort, L-haak', labelEn: 'Cast-in anchor bolt, L-hook' },
   { value: 'stort-J', label: 'Ankerbout ingestort, J-haak', labelEn: 'Cast-in anchor bolt, J-hook' },
@@ -122,6 +131,10 @@ export function ankerGeometrie(params) {
   // Anchor plate (cast-in): square, side 3.5d, thickness 0.5d (min 6).
   geo.plaatZijde = 3.5 * d;
   geo.plaatT = Math.max(6, Math.round(0.5 * d));
+  // Forged head of the cast-in bolt: as wide as the hexagon across flats
+  // and as high as a bolt head, drawn as a plain block.
+  geo.stortKopB = g.s;
+  geo.stortKopH = g.k;
   // Headed stud: head Ø about 2d, head height about 0.55d (ISO 13918 range).
   geo.kopD = 2 * d;
   geo.kopH = 0.55 * d;
@@ -140,8 +153,8 @@ export function ankerGeometrie(params) {
   let diepste;
   let reik = 0;                                 // reach right of the axis (hooks)
   switch (type) {
-    case 'stort-moer': diepste = hef + g.ringT + g.m + 0.6 * d; break;
-    case 'stort-plaat': diepste = hef + geo.plaatT + g.m + 0.6 * d; break;
+    case 'stort-moer': diepste = hef + geo.stortKopH; break;
+    case 'stort-plaat': diepste = hef + geo.plaatT; break;
     case 'stort-L': diepste = hef; reik = geo.R + q.haakLengte; break;
     case 'stort-J': diepste = hef; reik = 2 * geo.R + d / 2; break;
     case 'chemisch':
@@ -185,6 +198,14 @@ function _trapOmtrek(segmenten) {
     links.unshift({ x: -s.r, y: s.y1 }, { x: -s.r, y: s.y0 });
   }
   return [...rechts, ...links];
+}
+
+// End of a straight cast-in bolt in the concrete: thickness and width of
+// the anchor plate ('stort-plaat') or of the forged head ('stort-moer').
+function _stortEinde(geo) {
+  return geo.type === 'stort-plaat'
+    ? { onderT: geo.plaatT, onderB: geo.plaatZijde }
+    : { onderT: geo.stortKopH, onderB: geo.stortKopB };
 }
 
 // Centre line of a hooked bar from the bend start (0, yb) on: arc + leg.
@@ -279,14 +300,10 @@ function _zijaanzicht(geo, X, Y, S, cmds) {
     inBeton = _trapOmtrek(segs);
     rand = tf > 0 ? geo.plaatHalf : d / 2;
   } else {
-    const onderT = type === 'stort-plaat' ? geo.plaatT : g.ringT;
-    const onderR = type === 'stort-plaat' ? geo.plaatZijde / 2 : g.ringD / 2;
-    const yN = hef + onderT;
+    const { onderT, onderB } = _stortEinde(geo);
     inBeton = _trapOmtrek([
       { y0: 0, y1: hef, r: d / 2 },
-      { y0: hef, y1: yN, r: onderR },
-      { y0: yN, y1: yN + g.m, r: geo.e / 2 },
-      { y0: yN + g.m, y1: yN + g.m + 0.6 * d, r: d / 2 },
+      { y0: hef, y1: hef + onderT, r: onderB / 2 },
     ]);
   }
 
@@ -386,17 +403,21 @@ function _zijaanzicht(geo, X, Y, S, cmds) {
     const a = l[l.length - 1], b = r[r.length - 1];
     cmds.push(lijn(a.x, a.y, b.x, b.y, { role: 'anker' }));
   } else {
-    // Straight cast-in bolt: thread at the top, plain shank, thread + washer
-    // (or anchor plate) + nut at the bottom.
-    const yMid = hef - 1.5 * d;
-    cmds.push(...schachtZijaanzicht(omhoog, -yMid, 0, g, { uDraad: -2 * d, role: 'anker' }));
-    cmds.push(...schachtZijaanzicht(omlaag, yMid, hef, g, { uDraad: hef - d, role: 'anker' }));
+    // Straight cast-in bolt: thread at the top, plain shank down to the
+    // bearing face at hef, where it ends in a forged head or in an anchor
+    // plate welded to the bar (fillet welds on top of the plate).
+    cmds.push(...schachtZijaanzicht(omhoog, -hef, 0, g, { uDraad: -2 * d, role: 'anker' }));
+    const { onderT, onderB } = _stortEinde(geo);
     const plaat = type === 'stort-plaat';
-    const onderT = plaat ? geo.plaatT : g.ringT;
-    cmds.push(...ringZijaanzicht(omlaag, hef, hef + onderT, plaat ? geo.plaatZijde : g.ringD, plaat ? 'ankerplaat' : 'ring'));
-    const yN = hef + onderT;
-    cmds.push(...zeskantZijaanzicht(omlaag, yN, yN + g.m, g.s, { afschuining: [true, true], role: 'moer' }));
-    cmds.push(...schachtZijaanzicht(omlaag, yN + g.m, yN + g.m + 0.6 * d, g, { uDraad: yN + g.m, punt: true, role: 'anker' }));
+    cmds.push(...ringZijaanzicht(omlaag, hef, hef + onderT, onderB, plaat ? 'ankerplaat' : 'kop'));
+    if (plaat) {
+      const a = 0.2 * d;
+      for (const z of [-1, 1]) {
+        cmds.push(poly([
+          { x: z * d / 2, y: hef }, { x: z * (d / 2 + a), y: hef }, { x: z * d / 2, y: hef - a },
+        ], { close: true, fill: true, role: 'las' }));
+      }
+    }
   }
 
   // Axis over the straight part.

@@ -252,6 +252,7 @@
     "title": "标题",
     "author": "作者",
     "subject": "主题",
+    "keywords": "关键字",
     "creator": "创建者",
     "producer": "制作者",
     "pdfVersion": "PDF 版本",

@@ -1,5 +1,5 @@
 // Rotatie/weergave-sweep over alle verificatie-PDF's: opent elk bestand in de
-// live rig (--mcp-server, poort 9223), wacht tot de pagina daadwerkelijk inkt
+// live rig (--mcp-server, poort MCP_PORT, standaard 9223), wacht tot de pagina daadwerkelijk inkt
 // bevat, schrijft een screenshot-PNG van pagina 1 (en een middenpagina bij
 // meerpagina-documenten) en logt per bestand de actieve render-engine.
 //
@@ -13,9 +13,11 @@ import { createRequire } from 'module';
 import fs from 'fs';
 import path from 'path';
 const require = createRequire(import.meta.url);
-const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules/playwright');
+const playwright = require(process.env.OPDS_NODE_MODULES
+  ? `${process.env.OPDS_NODE_MODULES}/playwright`
+  : new URL('../open-pdf-studio/node_modules/playwright', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
 
-const MCP = 'http://127.0.0.1:9223/mcp';
+const MCP = `http://127.0.0.1:${process.env.MCP_PORT || '9223'}/mcp`;
 const DEFAULT_DIRS = [
   'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
   'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden',
