@@ -1,0 +1,35 @@
+name: PDF.js soft masks
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/scripts/*soft-mask*'
+      - 'open-pdf-studio/scripts/pdfjs-*'
+      - 'open-pdf-studio/js/pdf/exporter.js'
+      - 'open-pdf-studio/vite*.config.js'
+      - 'open-pdf-studio/package*.json'
+      - '.github/workflows/soft-mask-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  soft-mask-regression:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: open-pdf-studio/package-lock.json
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - run: npm ci
+        working-directory: open-pdf-studio
+      - run: npx playwright install --with-deps chromium
+        working-directory: open-pdf-studio
+      - name: PDF.js display regressions
+        working-directory: open-pdf-studio
+        run: node --test scripts/pdfjs-soft-mask-bounds.test.mjs scripts/pdfjs-knockout-bounds.test.mjs
+      - name: Built app and web-unit pixels and PNG exports against independent references
+        working-directory: open-pdf-studio
+        run: node scripts/test-soft-mask-browser.mjs
