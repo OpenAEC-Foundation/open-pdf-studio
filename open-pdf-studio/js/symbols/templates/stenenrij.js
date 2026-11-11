@@ -1,6 +1,9 @@
 // Parametrische stenenrij voor het uitzetten van metselwerkmodules.
-// Lagenmaat stapelt verticaal; koppenmaat legt dezelfde module horizontaal.
+// Lagenmaat stapelt verticaal (steenhoogte + voeg); koppenmaat (steenbreedte +
+// voeg) en strekkenmaat (steenlengte + voeg) leggen de rij horizontaal.
 // De voeg is onderdeel van de modulemaat en blijft als lege strook zichtbaar.
+// Het aantal bepaalt de werkelijke maat van de rij; bij aantal 0 geldt de
+// totale maat en wordt de laatste steen daarop afgeknipt.
 
 function positiveNumber(value, fallback, minimum = 0.001) {
   const number = Number(value);
@@ -9,24 +12,63 @@ function positiveNumber(value, fallback, minimum = 0.001) {
 
 const MAX_DETAILED_STONES = 1000;
 const MAX_LOD_JOINTS = 250;
+const DEFAULT_COUNT = 16;
 
 function nonNegativeNumber(value, fallback) {
   const number = Number(value);
   return Number.isFinite(number) && number >= 0 ? number : fallback;
 }
 
+const DIRECTIONS = {
+  lagen: { maatType: 'lagenmaat', orientation: 'vertical' },
+  koppen: { maatType: 'koppenmaat', orientation: 'horizontal' },
+  strekken: { maatType: 'strekkenmaat', orientation: 'horizontal' },
+};
+
+function directionOf(params) {
+  if (Object.hasOwn(DIRECTIONS, params.richting)) return params.richting;
+  if (params.maatType === 'koppenmaat') return 'koppen';
+  if (params.maatType === 'strekkenmaat') return 'strekken';
+  return 'lagen';
+}
+
+// Een ouder symbool legt de modulemaat vast (lagenmaat of koppenmaat) en kent
+// geen steenlengte, steenhoogte of aantal. Dat blijft renderen zoals het is
+// opgeslagen: steen = modulemaat - voeg, rijdikte = steenbreedte.
+function hasFixedModule(params, richting) {
+  if (richting === 'strekken') return false;
+  if (params.lagenmaat === undefined && params.koppenmaat === undefined) return false;
+  return params.steenLengte === undefined && params.steenHoogte === undefined
+    && params.aantal === undefined && params.richting === undefined;
+}
+
 export function layoutStenenrijMm(params = {}) {
-  const maatType = params.maatType === 'koppenmaat' ? 'koppenmaat' : 'lagenmaat';
-  const totaleMaat = positiveNumber(params.totaleMaat, 1000, 1);
-  const lagenmaat = positiveNumber(params.lagenmaat, 62.5, 1);
-  const koppenmaat = positiveNumber(params.koppenmaat, 110, 1);
-  const steenbreedte = positiveNumber(params.steenbreedte, 100, 1);
-  const module = maatType === 'koppenmaat' ? koppenmaat : lagenmaat;
+  const richting = directionOf(params);
+  const { maatType, orientation } = DIRECTIONS[richting];
   const voeg = nonNegativeNumber(params.voeg, 10);
+  const steenbreedte = positiveNumber(params.steenbreedte, 100, 1);
+  const steenLengte = positiveNumber(params.steenLengte, 210, 1);
+  const fixedModule = hasFixedModule(params, richting);
+  const steenHoogte = fixedModule
+    ? positiveNumber(params.lagenmaat, 62.5, 1) - voeg
+    : positiveNumber(params.steenHoogte, 50, 1);
+  const lagenmaat = fixedModule ? positiveNumber(params.lagenmaat, 62.5, 1) : steenHoogte + voeg;
+  const koppenmaat = fixedModule ? positiveNumber(params.koppenmaat, 110, 1) : steenbreedte + voeg;
+  const strekkenmaat = steenLengte + voeg;
+  const module = { lagen: lagenmaat, koppen: koppenmaat, strekken: strekkenmaat }[richting];
   const body = module - voeg;
-  const orientation = maatType === 'koppenmaat' ? 'horizontal' : 'vertical';
+  // Dwarsmaat van de rij: lagen tonen de steenbreedte, koppen en strekken de
+  // steenhoogte (aanzicht).
+  const dikte = fixedModule || richting === 'lagen' ? steenbreedte : steenHoogte;
+  // Zonder aantal en zonder totale maat geldt het standaardaantal; een symbool
+  // dat alleen een totale maat draagt houdt die maat.
+  const aantalInvoer = params.aantal === undefined && params.totaleMaat === undefined
+    ? DEFAULT_COUNT : Number(params.aantal);
+  const aantal = !fixedModule && Number.isFinite(aantalInvoer) && aantalInvoer >= 0.5
+    ? Math.round(aantalInvoer) : 0;
+  const totaleMaat = aantal > 0 ? aantal * module : positiveNumber(params.totaleMaat, 1000, 1);
   const valid = body > 0;
-  const stoneCount = Math.ceil(totaleMaat / module);
+  const stoneCount = aantal > 0 ? aantal : Math.ceil(totaleMaat / module);
   const lod = valid && stoneCount > MAX_DETAILED_STONES;
   const stones = [];
 
@@ -40,20 +82,26 @@ export function layoutStenenrijMm(params = {}) {
 
   return {
     maatType,
+    richting,
     orientation,
     totaleMaat,
+    aantal,
     lagenmaat,
     koppenmaat,
+    strekkenmaat,
     voeg,
     steenbreedte,
+    steenLengte,
+    steenHoogte,
     module,
     body,
+    dikte,
     valid,
     stoneCount,
     lod,
     extent: totaleMaat,
-    width: orientation === 'horizontal' ? totaleMaat : steenbreedte,
-    height: orientation === 'vertical' ? totaleMaat : steenbreedte,
+    width: orientation === 'horizontal' ? totaleMaat : dikte,
+    height: orientation === 'vertical' ? totaleMaat : dikte,
     stones,
   };
 }
@@ -90,18 +138,20 @@ export const stenenrijTemplate = {
   fixedSize: true,
   params: [
     {
-      key: 'maatType', label: 'Maatsoort', labelEn: 'Gauge type',
+      key: 'maatType', label: 'Richting', labelEn: 'Direction',
       type: 'enum', default: 'lagenmaat',
       options: [
-        { value: 'lagenmaat', label: 'Lagenmaat (verticaal)' },
-        { value: 'koppenmaat', label: 'Koppenmaat (horizontaal)' },
+        { value: 'lagenmaat', label: 'Lagen (verticaal, steenhoogte + voeg)' },
+        { value: 'koppenmaat', label: 'Koppen (horizontaal, steenbreedte + voeg)' },
+        { value: 'strekkenmaat', label: 'Strekken (horizontaal, steenlengte + voeg)' },
       ],
     },
-    { key: 'totaleMaat', label: 'Totale maat (mm)', labelEn: 'Total size (mm)', type: 'number', default: 1000, min: 1, step: 10 },
-    { key: 'lagenmaat', label: 'Lagenmaat (mm)', labelEn: 'Course gauge (mm)', type: 'number', default: 62.5, min: 1, step: 0.5 },
-    { key: 'koppenmaat', label: 'Koppenmaat (mm)', labelEn: 'Header gauge (mm)', type: 'number', default: 110, min: 1, step: 1 },
-    { key: 'voeg', label: 'Voeg (mm)', labelEn: 'Joint (mm)', type: 'number', default: 10, min: 0, step: 0.5 },
+    { key: 'aantal', label: 'Aantal (0 = totale maat)', labelEn: 'Count (0 = total size)', type: 'number', default: DEFAULT_COUNT, min: 0, step: 1 },
+    { key: 'steenLengte', label: 'Steenlengte (mm)', labelEn: 'Brick length (mm)', type: 'number', default: 210, min: 1, step: 1 },
     { key: 'steenbreedte', label: 'Steenbreedte (mm)', labelEn: 'Brick width (mm)', type: 'number', default: 100, min: 1, step: 1 },
+    { key: 'steenHoogte', label: 'Steenhoogte (mm)', labelEn: 'Brick height (mm)', type: 'number', default: 50, min: 1, step: 1 },
+    { key: 'voeg', label: 'Voeg (mm)', labelEn: 'Joint (mm)', type: 'number', default: 10, min: 0, step: 0.5 },
+    { key: 'totaleMaat', label: 'Totale maat bij aantal 0 (mm)', labelEn: 'Total size when count is 0 (mm)', type: 'number', default: 1000, min: 1, step: 10 },
   ],
   layoutMm: layoutStenenrijMm,
   realSizeMm(params) {
@@ -151,7 +201,7 @@ export const stenenrijTemplate = {
           x0 + stone.offset * scale,
           y0,
           stone.length * scale,
-          layout.steenbreedte * scale,
+          layout.dikte * scale,
           stone.index,
           lineWidth,
         );
@@ -160,7 +210,7 @@ export const stenenrijTemplate = {
       return rectCommand(
         x0,
         y0 + (layout.totaleMaat - stone.offset - stone.length) * scale,
-        layout.steenbreedte * scale,
+        layout.dikte * scale,
         stone.length * scale,
         stone.index,
         lineWidth,

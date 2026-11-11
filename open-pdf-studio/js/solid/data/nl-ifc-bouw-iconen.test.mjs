@@ -10,7 +10,7 @@ import { getTemplate } from '../../symbols/registry.js';
 const cat = NL_CATEGORIES.find((c) => c.id === 'nl-ifc-bouw');
 
 test('elk symbool heeft een eigen 64×64-pictogram', () => {
-  assert.equal(cat.symbols.length, 58);
+  assert.equal(cat.symbols.length, 57);
   for (const s of cat.symbols) {
     assert.match(s.svg, /^<svg viewBox="0 0 64 64"/, s.id);
     const kop = s.svg.slice(0, s.svg.indexOf('>'));
