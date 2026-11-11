@@ -315,10 +315,11 @@ export function leegmaken() {
 }
 
 // ─── Lijnwerk in één kleur (#1024) ────────────────────────────────────────
-// Schermbeeld van een knipsel met een lijnkleur: elke pixel krijgt de kleur
-// naar zijn donkerte (inkt = kleur, wit blijft wit, grijs wordt een tint);
-// de doorzichtigheid blijft. Zelfde uitkomst als het luminantie-masker dat
-// de saver schrijft. Per tegel en kleur één keer gerekend.
+// Schermbeeld van een knipsel met een lijnkleur: elke pixel wordt de kleur,
+// met als dekking zijn donkerte (inkt = de kleur, wit wordt doorzichtig,
+// grijs een lichtere tint). Precies wat het luminantie-masker doet dat de
+// saver schrijft, zodat scherm en bestand gelijk zijn. Per tegel en kleur één
+// keer gerekend.
 const _gekleurd = new WeakMap();
 
 export function gekleurdeTegel(bmp, kleur) {
@@ -336,9 +337,10 @@ export function gekleurdeTegel(bmp, kleur) {
   const kr = parseInt(m[1].slice(0, 2), 16), kg = parseInt(m[1].slice(2, 4), 16), kb = parseInt(m[1].slice(4, 6), 16);
   for (let i = 0; i < d.length; i += 4) {
     const inkt = 1 - (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
-    d[i] = 255 + (kr - 255) * inkt;
-    d[i + 1] = 255 + (kg - 255) * inkt;
-    d[i + 2] = 255 + (kb - 255) * inkt;
+    d[i] = kr;
+    d[i + 1] = kg;
+    d[i + 2] = kb;
+    d[i + 3] = Math.round(d[i + 3] * inkt);
   }
   ctx.putImageData(beeld, 0, 0);
   _gekleurd.set(bmp, { kleur, canvas });
