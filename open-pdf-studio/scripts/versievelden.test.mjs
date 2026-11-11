@@ -81,6 +81,8 @@ const VELDEN = {
   },
   'open-pdf-studio/src-tauri/tauri.conf.json': jsonVersie,
   ...Object.fromEntries(crates.map(({ map }) => [`${map}/Cargo.toml`, (tekst) => [pakketVersie(tekst)]])),
+  'open-pdf-studio/scripts/font-native-tests/Cargo.toml': (tekst) => [pakketVersie(tekst)],
+  'open-pdf-studio/scripts/font-native-tests/Cargo.lock': (tekst) => lockPakketten(tekst).filter((p) => p.naam === 'opds-font-native-tests').map((p) => p.versie),
   'Cargo.lock': lockVersies,
   'open-pdf-studio/src-tauri/Cargo.lock': lockVersies,
   'open-pdf-render/Cargo.lock': lockVersies,

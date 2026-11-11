@@ -1,5 +1,6 @@
 // Font utilities - system font enumeration and dropdown population
 import { systemFontList, setSystemFontList } from '../bridge.js';
+import { isTauri, invoke } from '../core/platform.js';
 
 // Comprehensive fallback list (common Windows + macOS + Linux fonts)
 const FALLBACK_FONTS = [
@@ -206,18 +207,37 @@ export function lettertypeKandidaten() {
 // Cached system fonts (populated once)
 let systemFonts = null;
 
-// Get system fonts using canvas-based detection, with fallback
+// Cache the asynchronous catalogue so simultaneous panels share one query.
 async function getSystemFonts() {
-  if (systemFonts) return systemFonts;
-
-  // Use canvas-based font detection (avoids browser permission prompt from queryLocalFonts)
-  systemFonts = detectAvailableFonts(lettertypeKandidaten()).then(
-    (gevonden) => (gevonden.length ? gevonden : lettertypeKandidaten()),
-    // Geen canvas of een fout tijdens het meten: dan de hele lijst, niet
-    // alleen het lettertype van de selectie (#765).
-    () => lettertypeKandidaten(),
-  );
+  if (!systemFonts) systemFonts = discoverFontFamilies();
   return systemFonts;
+}
+
+/** Desktop uses the OS catalogue; browsers and older backends keep probing. */
+export async function discoverFontFamilies({
+  native = isTauri(),
+  listInstalled = () => invoke('list_installed_font_families'),
+  detect = detectAvailableFonts,
+} = {}) {
+  if (native) {
+    try {
+      const installed = normaliseFontFamilies(await listInstalled());
+      // Do not probe these with Latin text: CJK-only and metrically compatible
+      // fonts can have the same measured width as a fallback and disappear.
+      if (installed.length) return installed;
+    } catch { /* An older backend or unavailable OS catalogue: use canvas. */ }
+  }
+  try {
+    const detected = await detect(lettertypeKandidaten());
+    if (detected.length) return detected;
+  } catch { /* A missing canvas must not leave an empty font dropdown. */ }
+  return lettertypeKandidaten();
+}
+
+function normaliseFontFamilies(names) {
+  if (!Array.isArray(names)) return [];
+  return [...new Set(names.filter((name) => typeof name === 'string' && name.trim() && name !== 'mixed'))]
+    .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
 }
 
 // Basisletters waartegen gemeten wordt. Een lettertype dat gelijk is aan de
@@ -284,5 +304,6 @@ export function ensureFontInStore(fontFamily) {
 // Initialize font list into the reactive store
 export async function initFontDropdowns() {
   const fonts = await getSystemFonts();
-  setSystemFontList(fonts);
+  // A document may have loaded an annotation family while enumeration ran.
+  setSystemFontList(normaliseFontFamilies([...fonts, ...systemFontList()]));
 }
