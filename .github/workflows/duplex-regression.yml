@@ -8,6 +8,7 @@ on:
       - 'open-pdf-studio/src-tauri/src/print_*.rs'
       - 'open-pdf-studio/src-tauri/src/lib.rs'
       - 'open-pdf-studio/scripts/test-print-duplex.mjs'
+      - 'open-pdf-studio/scripts/print-native-tests/**'
       - '.github/workflows/duplex-regression.yml'
 permissions:
   contents: read
@@ -29,3 +30,10 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node --test js/solid/stores/print-instellingen.test.mjs
       - run: node scripts/test-print-duplex.mjs
+  windows-print-settings:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Production duplex mappings and DEVMODE buffer preservation
+        run: cargo test --locked --manifest-path open-pdf-studio/scripts/print-native-tests/Cargo.toml duplex
