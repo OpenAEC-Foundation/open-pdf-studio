@@ -5,8 +5,10 @@ BIZ UDGothic stond daar niet in en bleef daardoor onzichtbaar, ook wanneer
 Windows het lettertype al had geïnstalleerd. Alleen de namenlijst uitbreiden
 zou hetzelfde probleem laten bestaan voor andere gebruikerslettertypen.
 
-De desktop-app vraagt nu de OS-catalogus op via font-kit 0.14.3:
-DirectWrite op Windows, CoreText op macOS, Fontconfig op Linux. De opdracht
+De desktop-app vraagt nu de OS-catalogus op via DirectWrite (`dwrote` 0.11.5) op Windows en font-kit 0.14.3
+voor CoreText op macOS en Fontconfig op Linux. Windows vraagt expliciet een
+actuele catalogus op (`get_system(true)`); de standaardaanroep met `false`
+kan volgens Microsoft nog een oude fontcache teruggeven na installatie. De opdracht
 `list_installed_font_families` draait buiten de UI-thread. Alleen familienamen
 gaan naar de frontend; geen fontbestanden, willekeurige paden of fontbytes.
 De frontend deelt één asynchrone aanvraag en bewaart tijdens die aanvraag

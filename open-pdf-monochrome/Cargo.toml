@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-monochrome"
-version = "2026.46.18"
+version = "2026.46.19"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "Lossless monochrome image recompression (bilevel packing, Flate, CCITT G4) for the monochrome mode (#902)"

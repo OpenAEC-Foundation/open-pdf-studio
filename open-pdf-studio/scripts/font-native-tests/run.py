@@ -52,6 +52,12 @@ try:
                 remove = ctypes.windll.gdi32.RemoveFontResourceExW
                 remove.argtypes = add.argtypes
                 cleanup.append(lambda path=target: remove(str(path), 0, None))
+            # Notify Windows clients after registration; fixtures must be visible
+            # to a newly launched DirectWrite process, not only Python's GDI.
+            notify = ctypes.windll.user32.SendMessageTimeoutW
+            notify.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_size_t,
+                               ctypes.c_ssize_t, ctypes.c_uint, ctypes.c_uint, ctypes.c_void_p]
+            notify(ctypes.c_void_p(0xFFFF), 0x001D, 0, 0, 2, 1000, None)
         elif sys.platform == 'darwin':
             if os.environ.get('GITHUB_ACTIONS') != 'true':
                 raise RuntimeError('macOS font registration is restricted to disposable CI runners')
@@ -71,7 +77,11 @@ try:
                 cleanup.append(lambda url=url: ct.CTFontManagerUnregisterFontsForURL(url, 3, None))
         else:
             raise RuntimeError('unsupported desktop platform')
-        result = subprocess.run([sys.argv[1], *expected], env=env, text=True, encoding='utf-8', capture_output=True, check=True)
+        result = subprocess.run([sys.argv[1], *expected], env=env, text=True, encoding='utf-8', capture_output=True)
+        if result.returncode:
+            sys.stderr.write(result.stderr)
+            sys.stdout.write(result.stdout)
+            result.check_returncode()
         families = json.loads(result.stdout)
         assert all(name in families for name in expected)
         if len(sys.argv) > 2:
