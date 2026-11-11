@@ -259,7 +259,13 @@
     "underline": "Underline",
     "strikethrough": "Strikethrough",
     "fontNotEmbedded": "{{font}} is not embedded in the PDF. Readers that don't have this font show {{fallback}}.",
-    "fontReplaced": "{{font}} can't be embedded in the PDF. The text is saved in {{fallback}}."
+    "fontReplaced": "{{font}} can't be embedded in the PDF. The text is saved in {{fallback}}.",
+    "fontEmbedReason": {
+      "licence": "Its licence does not allow embedding.",
+      "collection": "It is part of a font collection (.ttc), which cannot be embedded.",
+      "bitmap-only": "Its licence only allows bitmap embedding.",
+      "no-outlines": "It has no outlines that can be embedded."
+    }
   },
   "paragraph": {
     "title": "Paragraph",

@@ -199,7 +199,13 @@
     "underline": "Onderstrepen",
     "strikethrough": "Doorhalen",
     "fontNotEmbedded": "{{font}} wordt niet in de PDF ingebed. Lezers zonder dit lettertype tonen {{fallback}}.",
-    "fontReplaced": "{{font}} kan niet in de PDF worden ingebed. De tekst wordt opgeslagen in {{fallback}}."
+    "fontReplaced": "{{font}} kan niet in de PDF worden ingebed. De tekst wordt opgeslagen in {{fallback}}.",
+    "fontEmbedReason": {
+      "licence": "De licentie staat inbedden niet toe.",
+      "collection": "Het hoort bij een lettertypecollectie (.ttc), die niet ingebed kan worden.",
+      "bitmap-only": "De licentie staat alleen inbedden als bitmap toe.",
+      "no-outlines": "Het heeft geen contouren die ingebed kunnen worden."
+    }
   },
   "paragraph": {
     "title": "Alinea",
