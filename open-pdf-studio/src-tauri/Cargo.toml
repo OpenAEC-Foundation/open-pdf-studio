@@ -39,6 +39,8 @@ zip = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-store = "2"
+# Window size, position and maximised state remembered between sessions (#1025).
+tauri-plugin-window-state = "2"
 # Reads a bitmap off the system clipboard for the screenshot-annotate feature
 # (Windows PrtScn puts the capture on the clipboard). Cross-platform.
 tauri-plugin-clipboard-manager = "2"

@@ -3314,6 +3314,20 @@ pub fn run(opts: StartupOpts) {
     {
         builder = builder.plugin(linux_runtime::webview_plugin());
     }
+    // Remember the main window's size, position and maximised state between
+    // sessions (#1025). Only the first instance saves and restores it: a
+    // torn-off tab is a second instance with its own "main" window, and a
+    // headless test instance keeps its off-screen window. Visibility and
+    // decorations are left to the app.
+    #[cfg(desktop)]
+    if !tweede_instantie && !headless::actief() {
+        use tauri_plugin_window_state::StateFlags;
+        builder = builder.plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(StateFlags::SIZE | StateFlags::POSITION | StateFlags::MAXIMIZED)
+                .build(),
+        );
+    }
     // Drag-out window detach is desktop-only (no mobile backend in the crate).
     #[cfg(not(target_os = "android"))]
     {
