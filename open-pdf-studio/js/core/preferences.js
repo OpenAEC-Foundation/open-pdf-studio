@@ -274,6 +274,7 @@ export function applyDefaultStyle(annotation) {
   if (m.headSize && prefs[p + m.headSize]) annotation.headSize = prefs[p + m.headSize];
   if (m.fontSize && prefs[p + m.fontSize]) annotation.fontSize = prefs[p + m.fontSize];
   if (m.fontFamily && prefs[p + m.fontFamily]) annotation.fontFamily = prefs[p + m.fontFamily];
+  if (m.textColor && prefs[p + m.textColor]) annotation.textColor = prefs[p + m.textColor];
   if (m.icon && prefs[p + m.icon]) annotation.icon = prefs[p + m.icon];
   if (m.overlayColor && prefs[p + m.overlayColor]) annotation.overlayColor = prefs[p + m.overlayColor];
 

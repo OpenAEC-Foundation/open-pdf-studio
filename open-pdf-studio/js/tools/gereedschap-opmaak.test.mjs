@@ -147,6 +147,7 @@ test('schrijven en lezen gaan via de stijlvoorkeuren van het gereedschap', () =>
   assert.deepEqual(prefs, { rectStrokeColor: '#00aa00', rectBorderWidth: 4.5, rectOpacity: 25,
     rectBorderStyle: 'dashed', rectFillColor: '#abcdef', rectFillNone: false, rectFillOpacity: 100 });
   assert.deepEqual(go.leesGereedschapOpmaak(prefs, 'box'), {
+    textColor: '#000000',
     strokeColor: '#00aa00', lineWidth: 4.5, opacity: 25, fillOpacity: 100, borderStyle: 'dashed',
     fillColor: '#abcdef', startHead: 'none', endHead: 'none',
   });
@@ -172,10 +173,12 @@ test('schrijven en lezen gaan via de stijlvoorkeuren van het gereedschap', () =>
 // ── Elke aangeboden optie komt op de nieuwe annotatie ───────────────────────
 
 const WAARDE = {
+  textColor: '#123456',
   strokeColor: '#12ab34', lineWidth: 7.5, opacity: 0.4, borderStyle: 'dashed',
   fillColor: '#abcdef', fillOpacity: 0.25, startHead: 'diamond', endHead: 'square',
 };
 const KLOPT = {
+  textColor: (a) => a.textColor === WAARDE.textColor,
   strokeColor: (a) => a.color === WAARDE.strokeColor && (a.strokeColor ?? a.color) === WAARDE.strokeColor,
   lineWidth: (a) => a.lineWidth === WAARDE.lineWidth,
   opacity: (a) => Math.abs(a.opacity - WAARDE.opacity) < 1e-9,
@@ -417,3 +420,28 @@ test('de uitleg bij Kleur en Breedte staat in alle 40 talen', () => {
     if (taal !== 'en') assert.notEqual(tekst, en, `${taal} kopieert het Engels`);
   }
 });
+
+for (const type of ['textbox', 'callout']) {
+  test(`${type}: linttekstkleur wijzigt selectie en toekomstige stijl zonder selectie`, async () => {
+    const doc = openen(); verseVoorkeuren(); kies('select');
+    doc.annotations = [{ id: 'text-color', type, page: 1, x: 10, y: 10, width: 100, height: 40,
+      text: 'kleur', textColor: '#000000', strokeColor: '#ff0000', color: '#ff0000' }];
+    doc.selectedAnnotations = [doc.annotations[0]];
+    opmaak.syncFormatStore(doc.selectedAnnotations);
+    assert.equal(opmaak.hasTextColor(), true);
+    opmaak.setFormatTextColor('#008000');
+    assert.equal(doc.annotations[0].textColor, '#008000');
+    assert.equal(doc.annotations[0].strokeColor, '#ff0000');
+    assert.equal(doc.annotations[0].color, '#ff0000');
+    assert.equal(opmaak.textColor(), '#008000');
+    doc.annotations[0].locked = true;
+    opmaak.setFormatTextColor('#0000ff');
+    assert.equal(doc.annotations[0].textColor, '#008000');
+    doc.selectedAnnotations = []; kies(type); opmaak.syncFormatStore([]);
+    opmaak.setFormatTextColor('#0000ff');
+    assert.equal(state.preferences[type + 'TextColor'], '#0000ff');
+    assert.equal(createAnnotationFromTool(type, 10, 10, 160, 110, null).textColor, '#0000ff');
+    kies('select'); opmaak.syncFormatStore([]);
+    assert.equal(opmaak.hasTextColor(), false);
+  });
+}

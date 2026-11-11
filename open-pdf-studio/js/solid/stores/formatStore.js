@@ -27,6 +27,8 @@ function applyFnToAnnotation(ann, applyFn) {
 }
 
 // Format property signals
+const [textColor, setTextColor] = createSignal('#000000');
+const [hasTextColor, setHasTextColor] = createSignal(false);
 const [fillColor, setFillColor] = createSignal('#ffffff');
 const [strokeColor, setStrokeColor] = createSignal('#000000');
 const [fmtLineWidth, setFmtLineWidth] = createSignal(1);
@@ -115,6 +117,7 @@ function syncFromSymbolInsert(selectedAnnotations) {
   setIsSingleSymbolStamp(false);
   setIsLocked(false);
   setAnnotationType('symbolInsert');
+  setHasTextColor(false);
   setFillColor('#ffffff');
   setHasFill(false);
   setStrokeColor(d.strokeColor);
@@ -186,6 +189,8 @@ function syncFromGereedschap(tool) {
   setIsSingleSymbolStamp(false);
   setIsLocked(false);
   setAnnotationType(stijlTypeVanGereedschap(tool) || '');
+  setHasTextColor(gereedschapOndersteunt(tool, 'textColor'));
+  setTextColor(o.textColor);
   setFillColor(o.fillColor || '#ffffff');
   setHasFill(!!o.fillColor);
   setStrokeColor(o.strokeColor);
@@ -266,6 +271,14 @@ queueMicrotask(() => createRoot(() => {
   });
 }));
 
+export function setFormatTextColor(color) {
+  if (!hasTextColor()) return;
+  zetOpmaak({ textColor: color }, ann => {
+    ann.textColor = color;
+    import('../../tools/text-editing.js').then(m => m.werkEditorStijlBij(ann));
+  });
+}
+
 // Sync format store from selected annotations
 export function syncFormatStore(selectedAnnotations) {
   if (symbolInsertActive()) {
@@ -279,6 +292,7 @@ export function syncFormatStore(selectedAnnotations) {
       return;
     }
     setHasSelection(false);
+    setHasTextColor(false);
     setIsSingleSymbolStamp(false);
     setAparteVulDekking(false);
     return;
@@ -294,6 +308,8 @@ export function syncFormatStore(selectedAnnotations) {
   const locked = selectedAnnotations.some(a => a.locked);
   setIsLocked(locked);
   setAnnotationType(ann.type || '');
+  setHasTextColor(selectedAnnotations.every(a => a.type === 'textbox' || a.type === 'callout'));
+  setTextColor(ann.textColor || '#000000');
 
   const fc = ann.fillColor || '#ffffff';
   setFillColor(fc);
@@ -322,6 +338,7 @@ export function syncFormatStore(selectedAnnotations) {
 }
 
 export {
+  textColor, hasTextColor,
   fillColor, setFillColor,
   strokeColor, setStrokeColor,
   fmtLineWidth, setFmtLineWidth,
