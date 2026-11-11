@@ -1,6 +1,6 @@
 [package]
 name = "pdfium-worker"
-version = "2026.46.5"
+version = "2026.46.11"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 
@@ -29,3 +29,8 @@ memchr = "2"
 # fdlibm-afstamming (MIT/Apache): cos/sin/atan2/exp/log zoals V8 ze rekent,
 # zodat de Rust-poort van Vergelijken dezelfde getallen geeft als js/compare/.
 libm = "0.2"
+# Zoektekst (src/page_text): NFKC zoals normalizeUnicode van pdf.js en de
+# Unicode-categorieën van zijn tekenindeling. Beide MIT/Apache, stonden al in
+# Cargo.lock.
+unicode-normalization = "0.1.26"
+unicode-properties = "0.1.4"

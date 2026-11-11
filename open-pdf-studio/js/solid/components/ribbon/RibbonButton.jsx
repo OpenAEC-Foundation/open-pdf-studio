@@ -4,6 +4,7 @@ import { isTauri } from '../../../core/platform.js';
 import { knopUit, meldingTekst } from '../../../core/webfuncties.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { knopTitel } from '../../stores/keybindingStore.js';
+import { korteKnopnaam } from './lint-indeling.js';
 
 export default function RibbonButton(props) {
   const { t } = useTranslation('common');
@@ -35,6 +36,11 @@ export default function RibbonButton(props) {
       </div>
       {!props.iconOnly && (
         <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.label}</span>
+      )}
+      {/* Knop zonder eigen label: de titel als tekst, alleen zichtbaar in de
+          ruime stand van een pictogramgroep (AdaptiveGroups, .ribbon-group-ruim). */}
+      {!props.iconOnly && !props.label && props.title && (
+        <span class="ribbon-btn-label ribbon-btn-label-alt">{korteKnopnaam(props.title)}</span>
       )}
     </button>
   );

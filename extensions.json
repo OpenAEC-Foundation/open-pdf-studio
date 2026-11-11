@@ -1,5 +1,14 @@
 {
   "$schema": "./extensions.schema.json",
   "version": 1,
-  "extensions": []
+  "extensions": [
+    {
+      "id": "seed43",
+      "name": "Seed43",
+      "description": "Tools for structural drawings: Paddle OCR engine for scans and page labels, Smart Stamps (stamp families with shared parameters), an Element Library (steel, timber, Lumberlok fixings and bolts placed to scale in section, elevation or plan) and bracing legend lines.",
+      "author": "Seed-43",
+      "repo": "https://github.com/Seed-43/PDF43",
+      "tags": ["ocr", "stamps", "structural", "steel", "timber", "library"]
+    }
+  ]
 }

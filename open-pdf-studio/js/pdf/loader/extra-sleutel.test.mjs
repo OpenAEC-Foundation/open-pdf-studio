@@ -49,3 +49,45 @@ test('opgerekte /Rect: vage match blijft werken, ver ernaast niet', async () => 
   assert.equal(zoekExtraKleuren(null, [100, 100, 300, 200]), undefined);
   assert.equal(zoekExtraKleuren(kaart, [100, 100]), undefined);
 });
+
+// De vage match gaat via een index (geen volle doorloop per misser meer):
+// dezelfde uitkomst als de doorloop, ook bij gelijke afstanden en sleutels
+// die geen rechthoek zijn.
+test('vage match met index: gelijk aan de volle doorloop', () => {
+  const doorloop = (kaart, [x1, y1, x2, y2]) => {
+    let beste; let besteAfstand = Infinity;
+    for (const [k, v] of kaart.entries()) {
+      const delen = k.split(',').map(Number);
+      if (delen.length !== 4) continue;
+      const d = Math.abs(delen[0] - x1) + Math.abs(delen[1] - y1) + Math.abs(delen[2] - x2) + Math.abs(delen[3] - y2);
+      if (d < besteAfstand && d < 8) { besteAfstand = d; beste = v; }
+    }
+    return beste;
+  };
+  let s = 7;
+  const rnd = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const kaart = new Map([['@ref:12R', { ref: true }], ['a,b,c,d', { tekst: true }]]);
+  const rects = [];
+  for (let i = 0; i < 400; i++) {
+    const x = Math.round(rnd() * 300 * 4) / 4, y = Math.round(rnd() * 300 * 4) / 4;
+    const r = [x, y, x + 10 + Math.round(rnd() * 8), y + 10];
+    rects.push(r);
+    // Ook dubbele sleutels in de buurt van elkaar: gelijke afstanden.
+    kaart.set(r.join(','), { i });
+    if (i % 7 === 0) kaart.set([x + 1, y, r[2] + 1, r[3]].join(','), { i, kopie: true });
+    if (i % 11 === 0) kaart.set([x - 1.5, y + 1.5, r[2], r[3]].join(','), { i, schuin: true });
+  }
+  for (let i = 0; i < 2000; i++) {
+    const basis = rects[i % rects.length];
+    const r = basis.map((v) => v + (rnd() - 0.5) * 12);
+    if (i % 3 === 0) r[0] = basis[0] + 0.5; // gelijk aan meerdere
+    // Niet exact: de exacte sleutel en de gespiegelde vóór de vage match.
+    if (kaart.has(r.join(','))) continue;
+    assert.equal(zoekExtraKleuren(kaart, r), doorloop(kaart, r), `rechthoek ${r}`);
+  }
+  // Ver weg en negatief: niets, net als de doorloop.
+  assert.equal(zoekExtraKleuren(kaart, [-500, -500, -490, -490]), undefined);
+  // De kaart groeit: de index volgt.
+  kaart.set('1000,1000,1010,1010', { laat: true });
+  assert.deepEqual(zoekExtraKleuren(kaart, [1001, 1000, 1010, 1010]), { laat: true });
+});

@@ -39,7 +39,7 @@ test('notatie "13Ø10-150 lg=4000"', () => {
   assert.equal(staafPlattegrondLabel(defaultParams(tpl)), '13Ø10-150 lg=4000');
 });
 
-test('render: staaf, verdeellijn met schuine streepjes, label binnen de bbox', () => {
+test('render: staaf, verdeellijn met pijlpunten, label binnen de bbox', () => {
   const bbox = { x: 5, y: 5, width: 320, height: 144 };
   for (const haken of ['geen', 'begin', 'eind', 'beide']) {
     for (const labelZijde of ['boven', 'onder']) {
@@ -49,7 +49,8 @@ test('render: staaf, verdeellijn met schuine streepjes, label binnen de bbox', (
         const staaf = cmds.find((c) => c.role === 'staaf');
         const verwacht = 2 + (haken === 'beide' ? 2 : haken === 'geen' ? 0 : 1);
         assert.equal(staaf.points.length, verwacht);
-        assert.equal(cmds.filter((c) => c.role === 'verdeellijn').length, 3);
+        assert.equal(cmds.filter((c) => c.role === 'verdeellijn').length, 1);
+        assert.equal(cmds.filter((c) => c.role === 'verdeelpijl').length, 2);
       }
     }
   }
@@ -62,4 +63,44 @@ test('rebarItems', () => {
     staafnummer: '1', diameter: 10, aantal: 13, lengteMm: staafLengte('11', { a: 4000, b: 250 }, 10),
     vormcode: '11', staalkwaliteit: 'B500B', afstand: 150,
   }]);
+});
+
+test('verdeellijn: gevulde driehoekjes op de zonegrenzen in plaats van streepjes', () => {
+  for (const bbox of [{ x: 5, y: 5, width: 320, height: 144 }, { x: 0, y: 0, width: 600, height: 80 }]) {
+    for (const params of [defaultParams(tpl), { ...defaultParams(tpl), verdeelbreedte: 0 },
+      { ...defaultParams(tpl), verdeelPositie: 0 }, { ...defaultParams(tpl), verdeelPositie: 100, lengte: 900 }]) {
+      const cmds = tpl.render(params, bbox);
+      const lijnen = cmds.filter((c) => c.role === 'verdeellijn');
+      assert.equal(lijnen.length, 1, 'alleen de verdeellijn zelf, geen eindstreepjes');
+      const [lijn] = lijnen;
+      assert.equal(lijn.kind, 'line');
+      assert.equal(lijn.x1, lijn.x2);
+      const boven = Math.min(lijn.y1, lijn.y2), onder = Math.max(lijn.y1, lijn.y2);
+      const pijlen = cmds.filter((c) => c.role === 'verdeelpijl');
+      assert.equal(pijlen.length, 2);
+      const punten = [];
+      for (const pijl of pijlen) {
+        assert.equal(pijl.kind, 'polyline');
+        assert.equal(pijl.fill, true);
+        assert.equal(pijl.close, true);
+        assert.equal(pijl.points.length, 3);
+        // Geen eigen kleur: gevuld in de lijnkleur van het symbool (zwart).
+        assert.equal(pijl.color, undefined);
+        assert.equal(pijl.fillColor, undefined);
+        assert.ok(pijl.lineWidth > 0 && pijl.lineWidth <= 0.5, 'dunne omtrek, de punt blijft scherp');
+        const [a, punt, b] = pijl.points;
+        punten.push(punt);
+        assert.ok(Math.abs(punt.x - lijn.x1) < 1e-9, 'punt op de verdeellijn');
+        assert.ok(Math.abs(a.y - b.y) < 1e-9, 'basis loodrecht op de verdeellijn');
+        assert.ok(Math.abs((a.x + b.x) / 2 - lijn.x1) < 1e-9, 'symmetrisch om de verdeellijn');
+        const lengte = Math.abs(a.y - punt.y), breedte = Math.abs(a.x - b.x);
+        assert.ok(lengte > 1 && breedte > 0.5 && lengte > breedte, `slanke pijlpunt (${lengte} × ${breedte})`);
+        assert.ok(a.y > boven && a.y < onder, 'basis ligt binnen de zone');
+      }
+      // De punten wijzen naar buiten en raken precies de twee zonegrenzen.
+      const ys = punten.map((q) => q.y).sort((p, q) => p - q);
+      assert.ok(Math.abs(ys[0] - boven) < 1e-9 && Math.abs(ys[1] - onder) < 1e-9);
+      assertBinnenBbox(cmds, bbox, 'pijlpunten');
+    }
+  }
 });

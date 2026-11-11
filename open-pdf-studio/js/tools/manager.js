@@ -13,6 +13,7 @@ import { weergaveNaarPagina } from '../pdf/weergave-ruimte.js';
 import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 import { syncSymbolInsertSession } from '../symbols/symbol-insert-format-store.js';
 import { applyOverlayPointerEvents } from '../pdf/link-layer.js';
+import { pasCanvasLagenToe, pasTekstlagenToe } from './gereedschap-lagen.js';
 import { endToolSetSession } from './tool-set-session.js';
 import {
   doorvalVoorSelectie, staatBovenTekst, klikDoelSoort, heftKlikSelectieOp,
@@ -48,19 +49,12 @@ export function getCursorForTool(tool = state.currentTool) {
 
 // Enable or disable text selection based on current tool.
 // Stacking: textLayer (z:5) < annotation-canvas (z:6) < formLayer (z:7) < linkLayer (z:10)
+// When enabled, the layer needs pointer-events: auto so native drag-to-select
+// works across span boundaries.  When disabled, pointer-events: none lets clicks
+// fall through to the annotation canvas. Same rule as a freshly built page
+// (gereedschap-lagen.js, #1013).
 function setTextSelectionEnabled(enabled) {
-  const textLayers = document.querySelectorAll('.textLayer');
-  textLayers.forEach(layer => {
-    // When enabled, the layer needs pointer-events: auto so native drag-to-select
-    // works across span boundaries.  When disabled, pointer-events: none lets clicks
-    // fall through to the annotation canvas.
-    layer.style.pointerEvents = enabled ? 'auto' : 'none';
-    const spans = layer.querySelectorAll('span');
-    spans.forEach(span => {
-      span.style.pointerEvents = enabled ? 'auto' : 'none';
-      span.style.cursor = enabled ? 'text' : 'default';
-    });
-  });
+  pasTekstlagenToe(document, enabled ? 'select' : 'hand');
 }
 
 // Dynamic fall-through for the unified select tool: when hovering body text (no
@@ -253,10 +247,7 @@ function _setSelectFallthroughEnabled(enabled) {
 // form/link pointer events (they sit above the text layer and would intercept events).
 // Centralised here to avoid race conditions with async tool deactivation.
 function setAnnotationCanvasForTextAccess(enabled) {
-  document.querySelectorAll('#annotation-canvas, .annotation-canvas').forEach(el => {
-    el.style.zIndex = enabled ? '2' : '6';
-    el.style.pointerEvents = enabled ? 'none' : 'auto';
-  });
+  pasCanvasLagenToe(document, enabled ? 'editText' : 'hand');
   // Link-/formulierlagen volgen het actieve gereedschap (zie link-layer.js);
   // setTool() heeft state.currentTool al bijgewerkt voordat dit draait.
   applyOverlayPointerEvents(document);

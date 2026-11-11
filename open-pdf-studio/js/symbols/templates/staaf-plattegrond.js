@@ -1,8 +1,9 @@
 // Parametrische STAAF IN PLATTEGROND — Nederlandse tekenwijze voor een
 // staafreeks in een vloer- of wandplattegrond: één representatieve staaf op
 // ware lengte (dikke lijn, met eventueel omgezette haken), een verdeellijn
-// loodrecht erop over de verdeelbreedte met schuine eindstreepjes, het
-// staafnummer in een cirkel en de notatie "12Ø10-150 lg=4580".
+// loodrecht erop over de verdeelbreedte, aan beide einden begrensd door een
+// gevuld driehoekje (pijlpunt tegen de zonegrens), het staafnummer in een
+// cirkel en de notatie "12Ø10-150 lg=4580".
 //
 // Het aantal volgt uit verdeelbreedte / h.o.h. + 1 (of een vast aantal);
 // de vorm uit de haken: geen → 00, één → 11, beide → 21. Lengte en aantal
@@ -74,7 +75,7 @@ export function staafPlattegrondLayout(params) {
   const perFont = tekstBreedte(label, 1) + (p.staafnummer ? 2 * staafnummerStraal(p.staafnummer, 1) + 0.6 : 0);
   const font = Math.max(1, Math.min(H * 0.1, (W * 0.6) / perFont, 250));
   const staafY = H / 2;
-  // De schuine eindstreepjes van de verdeellijn moeten binnen de staaf blijven.
+  // De pijlpunten van de verdeellijn moeten binnen de staaf blijven.
   const verdeelX = Math.max(font * 0.5, Math.min(W - font * 0.5, W * p.verdeelPositie / 100));
   const labelW = perFont * font;
   // Label naast de verdeellijn, binnen de staaflengte gehouden.
@@ -168,12 +169,20 @@ export const staafPlattegrondTemplate = {
     punten.push({ x: X(0), y: Y(L.staafY) }, { x: X(L.W), y: Y(L.staafY) });
     if (p.haken === 'eind' || p.haken === 'beide') punten.push({ x: X(L.W), y: Y(L.staafY + L.haak) });
     cmds.push({ kind: 'polyline', role: 'staaf', lineWidth: staafLw, points: punten });
-    // Verdeellijn met schuine eindstreepjes (45°).
+    // Verdeellijn over de zone, aan beide einden begrensd door een gevuld
+    // driehoekje waarvan de punt de zonegrens raakt. De vulling volgt de
+    // lijnkleur; de dunne omtrek houdt de punt scherp.
     const vx = X(L.verdeelX);
-    const t = f * 0.45;
+    const pijlLengte = f * 0.9;
+    const pijlHalf = f * 0.25;
+    const pijlLw = Math.max(0.2, Math.min(0.5, f * 0.03));
     cmds.push({ kind: 'line', x1: vx, y1: Y(0), x2: vx, y2: Y(L.H), role: 'verdeellijn' });
-    for (const y of [Y(0) + t, Y(L.H) - t]) {
-      cmds.push({ kind: 'line', x1: vx - t, y1: y + t, x2: vx + t, y2: y - t, role: 'verdeellijn' });
+    for (const [punt, richting] of [[Y(0), 1], [Y(L.H), -1]]) {
+      const basis = punt + richting * pijlLengte;
+      cmds.push({
+        kind: 'polyline', close: true, fill: true, lineWidth: pijlLw, role: 'verdeelpijl',
+        points: [{ x: vx - pijlHalf, y: basis }, { x: vx, y: punt }, { x: vx + pijlHalf, y: basis }],
+      });
     }
     // Label: staafnummer + notatie.
     let x = X(L.labelX);

@@ -129,16 +129,25 @@ test('zijaanzicht: oppervlak, plaat, ring en moer bovenop, betonarcering met ope
   assert.equal(rand.length, 2);
   assert.ok(rand.every((c) => Math.abs(c.y1 - yOpp) < 1e-9 && Math.abs(c.y2 - yOpp) < 1e-9));
   assert.equal(cmds.filter((c) => c.role === 'plaat').length, 2, 'plaat met doorvoergat');
-  assert.equal(cmds.filter((c) => c.role === 'moer').length, 2, 'moer boven + moer onderaan');
-  assert.equal(cmds.filter((c) => c.role === 'ring').length, 2);
+  // Eén moer en één ring, allebei boven het beton en de plaat; daarboven
+  // steekt de draad uit.
+  const moeren = cmds.filter((c) => c.role === 'moer');
+  const ringen = cmds.filter((c) => c.role === 'ring');
+  assert.equal(moeren.length, 1, 'alleen de moer bovenop');
+  assert.equal(ringen.length, 1, 'alleen de ring bovenop');
+  const ys = (c) => c.points.map((q) => q.y);
+  const xs = moeren[0].points.map((q) => q.x);
+  near(Math.max(...xs) - Math.min(...xs), zeskantHoekmaat(g.s), 1e-9, 'moer over de hoeken');
+  near(Math.max(...ys(ringen[0])), yOpp - geo.plaatDikte, 1e-9, 'ring op de plaat');
+  near(Math.max(...ys(moeren[0])), yOpp - geo.plaatDikte - g.ringT, 1e-9, 'moer op de ring');
+  near(Math.min(...ys(moeren[0])) - bbox.y, 0.6 * g.d, 1e-9, 'uitstekende draad boven de moer');
   const beton = cmds.find((c) => c.role === 'beton');
   assert.equal(beton.kind, 'hatch');
   assert.equal(beton.loops.length, 2, 'arcering met uitsparing voor het anker');
-  // De onderste moer: zeskant met drie vlakken (hoekmaat e).
-  const moeren = cmds.filter((c) => c.role === 'moer');
-  const onder = moeren.find((c) => Math.min(...c.points.map((q) => q.y)) > yOpp);
-  const xs = onder.points.map((q) => q.x);
-  near(Math.max(...xs) - Math.min(...xs), zeskantHoekmaat(g.s), 1e-9, 'moer over de hoeken');
+  assert.deepEqual(
+    { pattern: beton.pattern, color: beton.color, scale: beton.scale, angle: beton.angle },
+    { pattern: 'diagonal-left', color: '#808080', scale: 60, angle: 0 }, 'betonarcering ongewijzigd',
+  );
   assert.ok(mm.height > geo.hef);
   assert.ok(cmds.some((c) => c.role === 'draadeinde'), 'draadeinde-lijnen');
   assert.ok(cmds.some((c) => c.role === 'hartlijn' && Array.isArray(c.dash)));
@@ -147,6 +156,90 @@ test('zijaanzicht: oppervlak, plaat, ring en moer bovenop, betonarcering met ope
   assert.ok(!zonder.some((c) => c.role === 'beton'));
   assert.ok(!zonder.some((c) => c.role === 'plaat'));
   assert.equal(zonder.filter((c) => c.role === 'betonrand').length, 2, 'oppervlaktelijn blijft');
+});
+
+test('in het beton zit nooit een moer of ring: kop, ankerplaat, haak of niets', () => {
+  for (const maat of ANKER_MATEN) {
+    const g = BOUT_MATEN[maat];
+    for (const type of TYPEN) {
+      for (const extra of [{}, { plaatDikte: 0 }, { hef: 400, uitsteek: 120 }]) {
+        const p = { maat, type, ...extra };
+        const naam = `${maat} ${type} ${JSON.stringify(extra)}`;
+        const { bbox, cmds } = teken(p, 1);
+        const geo = ankerGeometrie(p);
+        const yOpp = bbox.y + geo.boven;
+        const zeskant = cmds.filter((c) => /^(moer|ring)/.test(c.role || ''));
+        for (const c of zeskant) {
+          const diepst = Math.max(...puntenVan(c).map((q) => q[1]));
+          assert.ok(diepst <= yOpp + 1e-9, `${naam}: ${c.role} onder het betonoppervlak`);
+        }
+        const verwacht = type === 'kopbout' ? 0 : 1;
+        assert.equal(cmds.filter((c) => c.role === 'moer').length, verwacht, `${naam}: aantal moeren`);
+        assert.equal(cmds.filter((c) => c.role === 'ring').length, verwacht, `${naam}: aantal ringen`);
+        if (type !== 'kopbout') {
+          // Bovenin: uitstekende draad boven de moer.
+          const moer = cmds.find((c) => c.role === 'moer');
+          const top = Math.min(...moer.points.map((q) => q.y));
+          assert.ok(top - bbox.y >= 0.6 * g.d - 1e-9, `${naam}: draad steekt boven de moer uit`);
+        }
+      }
+    }
+  }
+});
+
+test('ingestort anker recht: gesmede kop of opgelaste ankerplaat op de verankeringsdiepte', () => {
+  const g = BOUT_MATEN.M20;
+  const d = 20;
+  // Kop: rechthoek, breder dan de schacht, bovenkant op hef.
+  const k = teken({ maat: 'M20', type: 'stort-moer' }, 1);
+  const gk = ankerGeometrie({ maat: 'M20', type: 'stort-moer' });
+  const yOpp = k.bbox.y + gk.boven, xAs = k.bbox.x + gk.links;
+  const kop = k.cmds.filter((c) => c.role === 'kop');
+  assert.equal(kop.length, 1);
+  assert.ok(kop[0].kind === 'polyline' && kop[0].close && kop[0].points.length === 4, 'kop als rechthoek');
+  const kx = kop[0].points.map((q) => q.x), ky = kop[0].points.map((q) => q.y);
+  near(Math.min(...ky), yOpp + gk.hef, 1e-9, 'draagvlak van de kop op hef');
+  near(Math.max(...ky) - Math.min(...ky), g.k, 1e-9, 'kophoogte');
+  near(Math.max(...kx) - Math.min(...kx), g.s, 1e-9, 'kopbreedte');
+  near((Math.max(...kx) + Math.min(...kx)) / 2, xAs, 1e-9, 'kop op de as');
+  near(gk.diepste, gk.hef + g.k, 1e-9, 'diepste punt = onderkant kop');
+  assert.ok(!k.cmds.some((c) => c.role === 'ankerplaat' || c.role === 'kop-detail'));
+
+  // Ankerplaat: vierkante plaat 3,5·d, schacht erop gelast (twee hoeklassen).
+  const pl = teken({ maat: 'M20', type: 'stort-plaat' }, 1);
+  const gp = ankerGeometrie({ maat: 'M20', type: 'stort-plaat' });
+  const plaat = pl.cmds.filter((c) => c.role === 'ankerplaat');
+  assert.equal(plaat.length, 1);
+  const px = plaat[0].points.map((q) => q.x), py = plaat[0].points.map((q) => q.y);
+  near(Math.max(...px) - Math.min(...px), 3.5 * d, 1e-9, 'plaatzijde');
+  near(Math.min(...py), pl.bbox.y + gp.boven + gp.hef, 1e-9, 'plaat op hef');
+  near(Math.max(...py) - Math.min(...py), gp.plaatT, 1e-9, 'plaatdikte');
+  near(gp.diepste, gp.hef + gp.plaatT, 1e-9, 'diepste punt = onderkant plaat');
+  const las = pl.cmds.filter((c) => c.role === 'las');
+  assert.equal(las.length, 2, 'hoeklas aan weerszijden');
+  assert.ok(las.every((c) => c.fill && Math.max(...c.points.map((q) => q.y)) <= Math.min(...py) + 1e-9), 'las boven op de plaat');
+
+  // De schacht is glad tot de kop/plaat: draad alleen bovenin.
+  for (const { cmds, bbox, geo } of [{ ...k, geo: gk }, { ...pl, geo: gp }]) {
+    const yO = bbox.y + geo.boven;
+    const eind = cmds.filter((c) => c.role === 'draadeinde');
+    assert.equal(eind.length, 1, 'één draadeinde');
+    near(eind[0].y1, yO + 2 * d, 1e-9, 'draad tot 2·d in het beton');
+    const diepsteDraad = Math.max(...cmds.filter((c) => c.role === 'draad').flatMap((c) => [c.y1, c.y2]));
+    assert.ok(diepsteDraad <= yO + 2 * d + 1e-9, 'geen draad onderin');
+    // De schachtlijnen lopen door tot het draagvlak.
+    const diepsteSchacht = Math.max(...cmds.filter((c) => c.role === 'anker' && c.kind === 'line').flatMap((c) => [c.y1, c.y2]));
+    near(diepsteSchacht, yO + geo.hef, 1e-9, 'schacht tot de kop/plaat');
+  }
+});
+
+test('chemisch anker en keilbout: onderin alleen het boorgat met de stang', () => {
+  for (const type of ['chemisch', 'keil']) {
+    const { cmds } = teken({ maat: 'M16', type }, 1);
+    const rollen = new Set(cmds.map((c) => c.role));
+    for (const r of ['kop', 'ankerplaat', 'las']) assert.ok(!rollen.has(r), `${type}: geen ${r}`);
+    assert.ok(rollen.has('boorgat'));
+  }
 });
 
 test('typespecifieke onderdelen', () => {

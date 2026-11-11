@@ -252,6 +252,7 @@
     "title": "Название",
     "author": "Автор",
     "subject": "Тема",
+    "keywords": "Ключевые слова",
     "creator": "Создатель",
     "producer": "Производитель",
     "pdfVersion": "Версия PDF",
