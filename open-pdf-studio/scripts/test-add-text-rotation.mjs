@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { leesGetal } from '../js/core/getal-invoer.js';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -40,8 +41,8 @@ try {
   const input = page.locator('#prop-pdf-text-rotation');
   await input.waitFor({ timeout: 10000 });
   assert.equal(await input.inputValue(), '0');
-  for (const angle of [90, 270, 37.5, -22.5]) {
-    await input.fill(String(angle));
+  for (const [typed, angle] of [['90',90], ['270',270], ['37.5',37.5], ['37,5',37.5], ['-22.5',-22.5], ['-22,5',-22.5]]) {
+    await input.fill(typed);
     await page.waitForFunction(async angle => {
       const { getActiveDocument } = await import('/js/core/state.ts');
       return getActiveDocument().textEdits[0].textAngle === angle;
@@ -73,6 +74,14 @@ try {
     assert.ok(Math.abs(hit.transform[1]-Math.sin(rad)*16)<0.001);
     if (angle===37.5) await page.screenshot({path:'/tmp/opds-1026-angle.png'});
   }
+  for (const invalid of ['', '-']) {
+    await input.fill(invalid);
+    const angle = await page.evaluate(async () => {
+      const { getActiveDocument } = await import('/js/core/state.ts');
+      return getActiveDocument().textEdits[0].textAngle;
+    });
+    assert.equal(angle, -22.5, 'incomplete input does not reset the angle');
+  }
   await page.locator('.pdf-text-editor').press('Control+Enter');
   await page.locator('.pdf-text-editor').waitFor({ state: 'detached' });
   const undoAngles = await page.evaluate(async () => {
@@ -87,7 +96,7 @@ try {
     const { startTextEditEditing } = await import('/js/tools/text-edit-tool.js');
     startTextEditEditing(getActiveDocument().textEdits[0],1,document.querySelector('#annotation-canvas'));
   });
-  assert.equal(await input.inputValue(), '-22.5');
+  assert.equal(leesGetal(await input.inputValue()), -22.5);
   await input.fill('45');
   await page.waitForFunction(() => document.querySelector('.pdf-text-editor').style.transform==='rotate(225deg)');
   await page.locator('.pdf-text-editor').press('Escape');

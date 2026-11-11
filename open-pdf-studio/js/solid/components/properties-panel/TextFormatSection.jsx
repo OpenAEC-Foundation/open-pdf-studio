@@ -1,4 +1,5 @@
 import { Show, For, createMemo } from 'solid-js';
+import { leesGetal } from '../../../core/getal-invoer.js';
 import { annotProps, sectionVis, updateAnnotProp, cycleSelectNext, panelMode, pdfTekstBronFont } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import ColorPalettePicker from './ColorPalettePicker.jsx';
@@ -104,11 +105,11 @@ export default function TextFormatSection() {
         <Show when={panelMode() === 'textEdit' && annotProps.textRotationAvailable}>
           <div class="property-group">
             <label for="prop-pdf-text-rotation">{t('appearance.rotation')} (°)</label>
-            <input id="prop-pdf-text-rotation" type="number" step="any"
+            <input id="prop-pdf-text-rotation" type="text" inputmode="decimal" data-getal step="any"
               value={annotProps.rotation}
               onInput={(e) => {
-                const value = e.currentTarget.value;
-                if (value !== '' && Number.isFinite(Number(value))) updateAnnotProp('rotation', Number(value));
+                const value = leesGetal(e.currentTarget.value);
+                if (Number.isFinite(value)) updateAnnotProp('rotation', value);
               }} />
           </div>
         </Show>
