@@ -26,9 +26,9 @@ export function getStyleMapping(type) {
       return { prefix: 'circle', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fillOpacity: 'FillOpacity', hatch: hasHatch };
     // fontFamily: het gekozen lettertype gaat mee in de standaardstijl (#765).
     case 'textbox':
-      return { prefix: 'textbox', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily' };
+      return { prefix: 'textbox', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily', textColor: 'TextColor' };
     case 'callout':
-      return { prefix: 'callout', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily' };
+      return { prefix: 'callout', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily', textColor: 'TextColor' };
     case 'polygon':
       return { prefix: 'polygon', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'LineWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fillOpacity: 'FillOpacity', hatch: hasHatch };
     case 'cloud':
