@@ -431,3 +431,14 @@
   z-index: 2;
   pointer-events: none;
 }
+
+/* An extension palette's logo in a top or bottom dock sits at the start of the row. */
+.tp-docked-top .tp-logo, .tp-docked-bottom .tp-logo {
+  width: auto;
+  min-width: 0;
+  height: 30px;
+  padding: 2px 4px;
+  border-bottom: none;
+  border-right: 1px solid var(--theme-border);
+}
+.tp-docked-top .tp-logo img, .tp-docked-bottom .tp-logo img { height: 100%; width: auto; }

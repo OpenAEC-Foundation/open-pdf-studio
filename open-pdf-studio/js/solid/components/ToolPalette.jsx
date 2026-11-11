@@ -1,5 +1,6 @@
 import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
 import { klemPaletPositie } from './palette-grenzen.js';
+import { startPaletteDrag, DockLiveIcon, DockTargetIcons } from './palette-dock.jsx';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import { ClipboardWindow, clipboardWindowOpen, toggleClipboardWindow, clipboardIcon } from './ClipboardHistory.jsx';
@@ -101,15 +102,6 @@ window.addEventListener('resize', () => {
   });
 });
 
-const DOCK_STRIP_WIDTH = 34;
-// A palette docks as soon as one of its edges comes within DOCK_SNAP of an
-// edge of the page view, while it is still being dragged; it only comes off
-// again once it is DOCK_RELEASE away, so it does not flicker at the edge.
-const DOCK_SNAP = 60;
-const DOCK_RELEASE = 100;
-// Size of the floating palette, kept for the snap test while it is docked.
-let laatsteZweefMaat = { w: 80, h: 420 };
-
 const tools = [
   { tool: 'hand', key: 'home.hand', icon: handIcon, group: 0 },
   { tool: 'select', key: 'home.select', icon: selectIcon, group: 0 },
@@ -136,111 +128,17 @@ const tools = [
   { tool: 'measurePerimeter', key: 'comment.measurePerimeter', icon: measurePerimeterIcon, group: 5 },
 ];
 
-// --- Shared drag logic ---
+// --- Drag and dock (shared with the extension palettes) ---
 function startDrag(e, fromDocked) {
-  if (e.button !== 0) return;
-  e.preventDefault();
-  const mainViewEl = document.querySelector('.main-view');
-  if (!mainViewEl) return;
-  let hasMoved = false;
-  const startCX = e.clientX;
-  const startCY = e.clientY;
-  // For floating: offset from palette origin
-  const offsetX = fromDocked ? 17 : (e.clientX - floatPos().x);
-  const offsetY = fromDocked ? 12 : (e.clientY - floatPos().y);
-
-  setIsDragging(true);
-
-  // The side the palette is docked to during this drag (null = floating).
-  let gedokt = null;
-  // The page view's rectangle with no palette docked: docking shrinks it,
-  // and measuring the shrunk view would undock the palette straight away.
-  let kader = null;
-
-  function snapSide(px, py, pw, ph, cx, cy) {
-    const r = kader || mainViewEl.getBoundingClientRect();
-    // Snapping: the pointer near an edge, or for the side docks the palette's
-    // own side edge too (it is a narrow strip there). Top and bottom go by the
-    // pointer only: the floating palette is tall, so its bottom edge is near
-    // the bottom of the view wherever it is dragged.
-    const afstand = {
-      left: Math.min(px - r.left, cx - r.left),
-      right: Math.min(r.right - (px + pw), r.right - cx),
-      top: cy - r.top,
-      bottom: r.bottom - cy,
-    };
-    // Coming off goes by the pointer alone: drag it away and it floats.
-    const wijzer = { left: cx - r.left, right: r.right - cx, top: cy - r.top, bottom: r.bottom - cy };
-    if (gedokt && wijzer[gedokt] < DOCK_RELEASE) return gedokt;
-    let beste = null;
-    for (const [kant, d] of Object.entries(afstand)) {
-      if (d < DOCK_SNAP && (beste === null || d < afstand[beste])) beste = kant;
-    }
-    return beste;
-  }
-
-  function dock(kant) {
-    if (kant === gedokt) return;
-    gedokt = kant;
-    if (kant) {
-      setPaletteMode(`docked-${kant}`);
-      registerPaletteDock('tool', kant);
-    } else {
-      setPaletteMode('float');
-      unregisterPaletteDock('tool');
-    }
-  }
-
-  function onMove(ev) {
-    // Button already up: the release was missed (the element that was
-    // grabbed is replaced when the palette docks or undocks, and the
-    // mouseup can go with it). End the drag here, where the palette is.
-    if ((ev.buttons & 1) === 0) { onUp(); return; }
-    if (!hasMoved) {
-      const dx = Math.abs(ev.clientX - startCX);
-      const dy = Math.abs(ev.clientY - startCY);
-      if (dx < 4 && dy < 4) return; // dead zone
-      hasMoved = true;
-      if (fromDocked) {
-        setPaletteMode('float');
-        unregisterPaletteDock('tool');
-      }
-      kader = null;
-      requestAnimationFrame(() => { kader = mainViewEl.getBoundingClientRect(); });
-    }
-
-    const el = gedokt ? null : document.querySelector('.tp-float:not(.tp-ext)');
-    if (el && el.offsetWidth > 0) laatsteZweefMaat = { w: el.offsetWidth, h: el.offsetHeight };
-    const { w: pw, h: ph } = laatsteZweefMaat;
-    const { x: nx, y: ny } = klemPaletPositie({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }, pw, ph);
-    setFloatPos({ x: nx, y: ny });
-    // Snap while dragging: the palette docks the moment it reaches an edge,
-    // without letting go, and floats again when dragged away.
-    const kant = snapSide(nx, ny, pw, ph, ev.clientX, ev.clientY);
-    dock(kant);
-    setDockPreview(kant);
-  }
-
-  let klaar = false;
-  function onUp() {
-    if (klaar) return;
-    klaar = true;
-    window.removeEventListener('mousemove', onMove, true);
-    window.removeEventListener('mouseup', onUp, true);
-    window.removeEventListener('pointerup', onUp, true);
-    window.removeEventListener('blur', onUp);
-    setIsDragging(false);
-    setDockPreview(null);
-    if (!hasMoved) return;
-    savePaletteState();
-  }
-
-  // Capture phase on the window: the release still arrives when the grabbed
-  // element has just been swapped for the docked (or floating) palette.
-  window.addEventListener('mousemove', onMove, true);
-  window.addEventListener('mouseup', onUp, true);
-  window.addEventListener('pointerup', onUp, true);
-  window.addEventListener('blur', onUp);
+  startPaletteDrag(e, {
+    id: 'tool', fromDocked,
+    floatPos, setFloatPos,
+    setMode: setPaletteMode,
+    setDragging: setIsDragging,
+    setPreview: setDockPreview,
+    floatSelector: '.tp-float:not(.tp-ext)',
+    onEnd: savePaletteState,
+  });
 }
 
 // --- Context menu for icon size toggle ---
@@ -396,12 +294,7 @@ export function DockedToolPalette(props) {
       <div class={`tp-docked tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}${isDragging() ? ' tp-dock-live' : ''}`} ref={bindRef} onContextMenu={showPaletteCtxMenu}>
         {/* While it is being dragged and has snapped here: highlight the
             palette itself, with the dock icon over it (same on all sides). */}
-        <Show when={isDragging()}>
-          <div class="tp-dock-live-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20"
-              innerHTML={`<rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>${DOCK_ICONEN[side()] || ''}`} />
-          </div>
-        </Show>
+        <DockLiveIcon dragging={isDragging} side={side()} />
         <div class="tp-grip" onMouseDown={(e) => startDrag(e, true)}>
           <svg width="10" height="16" viewBox="0 0 10 16">
             <circle cx="3" cy="2" r="1.2" fill="currentColor"/><circle cx="7" cy="2" r="1.2" fill="currentColor"/>
@@ -465,28 +358,8 @@ export function FloatingToolPalette() {
 }
 
 // Dock targets — shown inside .main-view when dragging
-const DOCK_ICONEN = {
-  left: '<rect x="1" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>',
-  right: '<rect x="13" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>',
-  top: '<rect x="1" y="1" width="18" height="6" rx="1" fill="currentColor" opacity="0.4"/>',
-  bottom: '<rect x="1" y="13" width="18" height="6" rx="1" fill="currentColor" opacity="0.4"/>',
-};
-
 export function DockTargets() {
-  // The side it has snapped to is shown on the docked palette itself
-  // (DockedToolPalette), so its target here is hidden; no preview strip.
-  return (
-    <For each={['left', 'right', 'top', 'bottom']}>
-      {(kant) => (
-        <div class={`tp-dock-target tp-dock-target-${kant} ${isDragging() && dockPreview() !== kant ? 'visible' : ''}`}>
-          <div class="tp-dock-target-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20"
-              innerHTML={`<rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>${DOCK_ICONEN[kant]}`} />
-          </div>
-        </div>
-      )}
-    </For>
-  );
+  return <DockTargetIcons dragging={isDragging} preview={dockPreview} />;
 }
 
 export default DockedToolPalette;
