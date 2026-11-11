@@ -311,7 +311,7 @@ function computeSectionVisibility(type) {
   // randkleur (het oude uiterlijk).
   const isScaleRegion = type === 'scaleRegion';
   const hasFillColor = ['highlight', 'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'arrow', 'line', 'measureArea', 'filledArea', 'scaleRegion'].includes(type);
-  const hideColor = ['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea'].includes(type);
+  const hideColor = ['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea', 'vectorSnippet'].includes(type);
   const hasBorderStyle = ['textbox', 'callout', 'arrow', 'line', 'box', 'circle', 'polygon', 'cloud', 'draw', 'polyline', 'splineArrow', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea'].includes(type);
   const hasHatchPattern = ['box', 'circle', 'polygon', 'cloud', 'measureArea', 'filledArea'].includes(type);
   const hasRotation = ['box', 'circle', 'polygon', 'cloud', 'highlight', 'redaction', 'comment', 'stamp', 'signature'].includes(type);
@@ -360,6 +360,7 @@ function computeSectionVisibility(type) {
     fillOpacityGroup: isScaleRegion || heeftVulDekking(type),
     aparteDekking: heeftVulDekking(type),
     rotationGroup: hasRotation,
+    lijnKleurGroup: type === 'vectorSnippet',
   });
 }
 
@@ -464,6 +465,8 @@ export function storeShowProperties(annotation) {
     statusHistory: statusHistoryProps(annotation),
     ifcCategory: annotation.ifcCategory || '',
     color: annotation.color || '#000000',
+    // Vectorknipsel (#1024): lijnwerk in één kleur; null = eigen kleuren.
+    lijnKleur: annotation.lijnKleur || null,
     fillColor: annotation.type === 'scaleRegion'
       ? schaalgebiedStijl(annotation).vulKleur : (annotation.fillColor || null),
     fillOpacity: _vulDoorzichtigheidPct(annotation),

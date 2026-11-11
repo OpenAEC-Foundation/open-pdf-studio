@@ -52,7 +52,7 @@ import { drawLink } from './rendering/link.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { blendCanvasWaarde, isGemengd } from './blend-modes.js';
 import { tekenGemengdTegenPagina } from './rendering/mengen-tegen-pagina.js';
-import { bitmapVoor, tekenSchermPreview, bijNieuweTegel, KNIPSEL_UITVOER_FOUT } from './vector-snippet-preview.js';
+import { bitmapVoor, tekenSchermPreview, bijNieuweTegel, KNIPSEL_UITVOER_FOUT, gekleurdeTegel } from './vector-snippet-preview.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, userUnitVanPagina, getRegionScaleFactor } from './scale-region.js';
 import { metSchaalBronnen } from './schaal-bronnen.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
@@ -1453,7 +1453,8 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       if (bmp) {
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
-        if (snippetBitmaps || uitvoer) ctx.drawImage(bmp, annotation.x, annotation.y, annotation.width, annotation.height);
+        // Lijnwerk in één kleur (#1024); tekenSchermPreview kleurt ook de detailtegels.
+        if (snippetBitmaps || uitvoer) ctx.drawImage(annotation.lijnKleur ? gekleurdeTegel(bmp, annotation.lijnKleur) : bmp, annotation.x, annotation.y, annotation.width, annotation.height);
         else tekenSchermPreview(ctx, annotation, bmp);
       } else {
         // Nog geen tegel: een kader met de herkomst, zodat je ziet dat er iets

@@ -111,6 +111,9 @@ const MAX_PENDING_DETAILS = 4;
  * Alleen de zichtbare uitsnede krijgt scherpe tegels; afdruk/export gebruikt
  * deze route niet. Transparante tegels vervangen het overzicht, niet eroverheen. */
 export function tekenSchermPreview(ctx, ann, overzicht) {
+  // Lijnwerk in één kleur (#1024), ook in de scherpe detailtegels (#1023).
+  const kleur = (b) => (ann.lijnKleur ? gekleurdeTegel(b, ann.lijnKleur) : b);
+  overzicht = kleur(overzicht);
   const fallback = () => ctx.drawImage(overzicht, ann.x, ann.y, ann.width, ann.height);
   const blad = _bladData.get(ann.snippetKey);
   if (!blad || !(ann.width > 0 && ann.height > 0)) { fallback(); return; }
@@ -165,7 +168,7 @@ export function tekenSchermPreview(ctx, ann, overzicht) {
       if (bmp) {
         _bitmaps.delete(key); _bitmaps.set(key,bmp);
         // Eén pixel rondom laat bilineaire filtering over de tegelrand kijken.
-        ctx.drawImage(bmp, 1, 1, w*niveau, h*niveau, dx, dy, dw, dh);
+        ctx.drawImage(kleur(bmp), 1, 1, w*niveau, h*niveau, dx, dy, dw, dh);
       } else {
         if (_bezig.size < MAX_PENDING_DETAILS) {
           vraagAan(ann, niveau, key, { x: regio.x+x-1/niveau, y: regio.y+y-1/niveau,
@@ -394,4 +397,37 @@ export function leegmaken() {
   _bezig.clear();
   _bladen.clear();
   _bladData.clear();
+}
+
+// ─── Lijnwerk in één kleur (#1024) ────────────────────────────────────────
+// Schermbeeld van een knipsel met een lijnkleur: elke pixel wordt de kleur,
+// met als dekking zijn donkerte (inkt = de kleur, wit wordt doorzichtig,
+// grijs een lichtere tint). Precies wat het luminantie-masker doet dat de
+// saver schrijft, zodat scherm en bestand gelijk zijn. Per tegel en kleur één
+// keer gerekend.
+const _gekleurd = new WeakMap();
+
+export function gekleurdeTegel(bmp, kleur) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(kleur || ''));
+  if (!bmp || !m) return bmp;
+  const vorig = _gekleurd.get(bmp);
+  if (vorig && vorig.kleur === kleur) return vorig.canvas;
+  const w = bmp.width, h = bmp.height;
+  if (!(w > 0 && h > 0)) return bmp;
+  const canvas = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h });
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0);
+  const beeld = ctx.getImageData(0, 0, w, h);
+  const d = beeld.data;
+  const kr = parseInt(m[1].slice(0, 2), 16), kg = parseInt(m[1].slice(2, 4), 16), kb = parseInt(m[1].slice(4, 6), 16);
+  for (let i = 0; i < d.length; i += 4) {
+    const inkt = 1 - (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
+    d[i] = kr;
+    d[i + 1] = kg;
+    d[i + 2] = kb;
+    d[i + 3] = Math.round(d[i + 3] * inkt);
+  }
+  ctx.putImageData(beeld, 0, 0);
+  _gekleurd.set(bmp, { kleur, canvas });
+  return canvas;
 }

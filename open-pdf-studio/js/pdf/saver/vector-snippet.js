@@ -165,10 +165,15 @@ export async function registreerBron(doelDoc, sleutel, bytes) {
  * @returns {Promise<{content: string, xobjects: object, breedte: number, hoogte: number, bronRef: object, ingebed: object, plaatsing: number[]}>}
  */
 export async function bouwKnipselAppearance(doelDoc, opdracht) {
-  const { bronBytes, srcBox, rect, sleutel, paginaIndex = 0, paginaRot = 0, bewaarBron = true, opacity = 1 } = opdracht;
+  const { bronBytes, srcBox, rect, sleutel, paginaIndex = 0, paginaRot = 0, bewaarBron = true, opacity = 1, lijnKleur = null } = opdracht;
   if (!bronBytes) throw new Error(`geen bronbytes voor knipsel ${sleutel}`);
-  const { ingebed, breedte, hoogte } = await bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex,
+  const embed = await bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex,
     { alsGroep: Number.isFinite(opacity) && opacity < 1 });
+  const { breedte, hoogte } = embed;
+  // Lijnwerk in één kleur (#1024): het knipsel wordt het masker van een vlak
+  // in die kleur. Blijft vector; plaatsing en vastzetten werken ongewijzigd.
+  const kleurRgb = hexNaarRgb(lijnKleur);
+  const ingebed = kleurRgb ? { ref: kleurKnipselForm(doelDoc, embed.ingebed.ref, breedte, hoogte, kleurRgb) } : embed.ingebed;
   const naam = 'OPSK0';
   const plaatsing = knipselPlaatsing(rect, breedte, hoogte, paginaRot);
   const content = knipselApOps(rect, breedte, hoogte, naam, paginaRot);
@@ -177,6 +182,58 @@ export async function bouwKnipselAppearance(doelDoc, opdracht) {
   // bronpagina is dan alleen nog ballast (bij een zware tekening megabytes).
   const bronRef = bewaarBron ? await registreerBron(doelDoc, sleutel, bronBytes) : null;
   return { content, xobjects: { [naam]: ingebed.ref }, breedte, hoogte, bronRef, ingebed, plaatsing };
+}
+
+// ─── Lijnwerk in één kleur (#1024) ────────────────────────────────────────
+
+/** '#rrggbb' (of '#rgb') naar [r, g, b] in 0..1; anders null. */
+export function hexNaarRgb(hex) {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(hex ?? '').trim());
+  if (!m) return null;
+  const h = m[1].length === 3 ? m[1].split('').map((c) => c + c).join('') : m[1];
+  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
+}
+
+/**
+ * Een Form XObject in dezelfde ruimte als het ingebedde knipsel (0..breedte,
+ * 0..hoogte), dat het lijnwerk in één kleur tekent. Een PDF kan de kleuren van
+ * een ingebedde tekening niet overschrijven; daarom: een vlak in de gekozen
+ * kleur met een luminantie-masker. Het masker is het knipsel op wit,
+ * omgekeerd (/TR 1 - x): waar inkt is, is het masker 1 en verschijnt de kleur;
+ * wit papier laat niets door. Grijze inkt geeft een lichtere tint.
+ * Afbeeldingen in het knipsel worden zo ook één kleur (op hun helderheid).
+ */
+export function kleurKnipselForm(doelDoc, knipselRef, breedte, hoogte, [r, g, b]) {
+  const context = doelDoc.context;
+  const bbox = [0, 0, getal(breedte), getal(hoogte)];
+  const vak = `0 0 ${getal(breedte)} ${getal(hoogte)} re f`;
+  const masker = context.register(context.flateStream(
+    new TextEncoder().encode(`q 1 g ${vak} Q
+q /K Do Q
+`),
+    {
+      Type: 'XObject', Subtype: 'Form', BBox: bbox,
+      Group: { S: 'Transparency', CS: 'DeviceGray' },
+      Resources: { XObject: { K: knipselRef } },
+    },
+  ));
+  const omkeren = context.register(context.flateStream(
+    new TextEncoder().encode('{ 1 exch sub }'),
+    { FunctionType: 4, Domain: [0, 1], Range: [0, 1] },
+  ));
+  const gs = context.obj({
+    Type: 'ExtGState',
+    SMask: { Type: 'Mask', S: 'Luminosity', G: masker, TR: omkeren },
+  });
+  return context.register(context.flateStream(
+    new TextEncoder().encode(`q /M gs ${getal(r)} ${getal(g)} ${getal(b)} rg ${vak} Q
+`),
+    {
+      Type: 'XObject', Subtype: 'Form', BBox: bbox,
+      Group: { S: 'Transparency' },
+      Resources: { ExtGState: { M: gs } },
+    },
+  ));
 }
 
 // ─── Opruimen: geen groei bij elke save ───────────────────────────────────

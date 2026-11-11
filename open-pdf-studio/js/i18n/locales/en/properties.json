@@ -47,6 +47,7 @@
     "fillColor": "Fill Color",
     "strokeColor": "Stroke Color",
     "color": "Color",
+    "lineworkColor": "Linework colour",
     "opacity": "Opacity",
     "fillOpacity": "Fill Opacity",
     "strokeOpacity": "Stroke Opacity",

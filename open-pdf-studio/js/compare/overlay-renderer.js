@@ -120,3 +120,25 @@ export function drawHighlights(canvas, changes, opts = {}) {
     ctx.restore();
   }
 }
+
+/**
+ * Kleuroverlay (#1024): kleur de inkt van een paginarender in een kleur naar
+ * zijn donkerte (zwart = de kleur, wit blijft wit, grijs een tint). Twee zo
+ * gekleurde renders over elkaar met mix-blend-mode multiply tonen waar ze
+ * samenvallen donker en elk verschil in de kleur van zijn tekening.
+ */
+export function kleurInkt(canvas, hex) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!canvas || !m || !(canvas.width > 0 && canvas.height > 0)) return;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const beeld = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = beeld.data;
+  const kr = parseInt(m[1].slice(0, 2), 16), kg = parseInt(m[1].slice(2, 4), 16), kb = parseInt(m[1].slice(4, 6), 16);
+  for (let i = 0; i < d.length; i += 4) {
+    const inkt = 1 - (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
+    d[i] = 255 + (kr - 255) * inkt;
+    d[i + 1] = 255 + (kg - 255) * inkt;
+    d[i + 2] = 255 + (kb - 255) * inkt;
+  }
+  ctx.putImageData(beeld, 0, 0);
+}

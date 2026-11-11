@@ -898,6 +898,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 paginaRot: pageRot,
                 bewaarBron: !ann.flattened,
                 opacity,
+                lijnKleur: ann.lijnKleur || null,
               });
             } catch (err) {
               console.warn(`[saver] knipsel ${ann.id} kon niet worden ingebed:`, err.message);
@@ -932,6 +933,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               // Een tekening die als onderlegger geplaatst is, komt bij het
               // vastzetten onder de bestaande inhoud; dat blijft zo na heropenen.
               ...(ann.belowContent === true ? { OPS_BelowContent: true } : {}),
+              // Lijnwerk in één kleur (#1024); zonder: de eigen kleuren.
+              ...(ann.lijnKleur ? { OPS_LineColor: PDFString.of(String(ann.lijnKleur)) } : {}),
             });
             attachVectorAP(context, annotDict, gebouwd, kRect);
             break;

@@ -320,6 +320,7 @@
     "box": "Vlak",
     "boxHint": "Toon wijzigingen als gevuld vlak",
     "contour": "Contour",
+    "colourOverlay": "Kleuren",
     "contourHint": "Toon wijzigingen met een omtreklijn",
     "annotation": "Annotatie",
     "changes": "Wijzigingen",
@@ -406,7 +407,8 @@
     },
     "methodVector": "Vector",
     "methodVectorHint": "Vergelijk de getekende paden exact waar beide pagina's vectortekeningen zijn; andere pagina's gebruiken de pixelvergelijking",
-    "methodPixelFallback": "pixels: geen vectorpagina"
+    "methodPixelFallback": "pixels: geen vectorpagina",
+    "colourOverlayHint": "Toon beide tekeningen over elkaar, elk in een eigen kleur"
   },
   "organize": {
     "pages": "Pagina's",

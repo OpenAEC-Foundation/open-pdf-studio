@@ -47,6 +47,7 @@
     "fillColor": "Vulkleur",
     "strokeColor": "Lijnkleur",
     "color": "Kleur",
+    "lineworkColor": "Kleur lijnwerk",
     "opacity": "Dekking",
     "fillOpacity": "Vuldekking",
     "strokeOpacity": "Lijndekking",
