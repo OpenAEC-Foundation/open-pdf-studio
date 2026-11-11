@@ -167,7 +167,7 @@ jobs:
       - name: Test Windows duplex buffer handling (no print jobs)
         if: matrix.platform == 'windows-latest'
         working-directory: .
-        run: cargo test --release -p open-pdf-studio --lib duplex_keeps_paper_orientation_copies_and_driver_data
+        run: cargo test --release -p open-pdf-studio --test print_duplex_windows duplex_keeps_paper_orientation_copies_and_driver_data
 
       # Tauri 2.10 downloads its own, older linuxdeploy build, which ignores
       # LINUXDEPLOY_EXCLUDED_LIBRARIES, so the display stack ended up in the
