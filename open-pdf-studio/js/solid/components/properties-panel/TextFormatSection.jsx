@@ -101,6 +101,18 @@ export default function TextFormatSection() {
           </div>
         </div>
 
+        <Show when={panelMode() === 'textEdit' && annotProps.textRotationAvailable}>
+          <div class="property-group">
+            <label for="prop-pdf-text-rotation">{t('appearance.rotation')} (°)</label>
+            <input id="prop-pdf-text-rotation" type="number" step="any"
+              value={annotProps.rotation}
+              onInput={(e) => {
+                const value = e.currentTarget.value;
+                if (value !== '' && Number.isFinite(Number(value))) updateAnnotProp('rotation', Number(value));
+              }} />
+          </div>
+        </Show>
+
         {/* PDF text-edit mode: allow deleting the text edit that is open in the
             inline editor (inserted or existing PDF text). */}
         <Show when={panelMode() === 'textEdit'}>

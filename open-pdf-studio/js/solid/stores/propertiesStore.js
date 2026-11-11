@@ -143,6 +143,7 @@ const [annotProps, setAnnotProps] = createStore({
   fontSize: 16,
   fontFamily: 'Arial',
   textFontSize: 14,
+  textRotationAvailable: false,
   fontBold: false,
   fontItalic: false,
   fontUnderline: false,
@@ -979,6 +980,8 @@ export function storeShowTextEditProperties(info) {
   // Override type display and hide irrelevant sections
   setAnnotProps('typeDisplay', i18next.t('pdfText', { ns: 'properties' }));
   setAnnotProps('textFontSize', Math.round(info.fontSize || 12));
+  setAnnotProps('textRotationAvailable', info.canRotate === true);
+  setAnnotProps('rotation', Number(info.rotation) || 0);
 
   setSectionVis({
     general: false,
