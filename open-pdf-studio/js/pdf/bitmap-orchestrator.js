@@ -547,7 +547,25 @@ export async function ensureTileForCurrentView(canvas) {
         }
     } catch (e) {
         // Dropped because the document closed or is no longer shown (#506).
-        if (!isRenderCancelled(e)) console.warn('[tile-orch] render failed:', e);
+        if (!isRenderCancelled(e)) {
+            console.warn('[tile-orch] render failed:', e);
+            // Extreme pages above the whole-page cap intentionally start with
+            // tiles only. If both scene and PDFium tiles fail (e.g. unsupported
+            // extra page rotation), they otherwise stay completely white.
+            // Recover a bounded whole-page bitmap, never a stale orientation.
+            const stillCurrent = () => _tileRequests.isCurrent(requestToken)
+                && viewport.active && viewport.pageType === 'raster' && viewport.filePath === filePath
+                && viewport.pageNum === pageNum && (viewport.rotation || 0) === rotation;
+            if (stillCurrent() && !viewport.currentBitmap) {
+                const bucket = computeZoomBucket(Math.min(requestedZoom * dpr, capScale));
+                const fallbackBucket = bucket > capScale ? bucket / 2 : bucket;
+                const fallback = await ensureBitmap(filePath, pageNum, rotation, fallbackBucket);
+                if (stillCurrent() && !viewport.currentBitmap && fallback?.bitmap) {
+                    viewport.currentBitmap = fallback.bitmap;
+                    viewport.dirty = true;
+                }
+            }
+        }
     } finally {
         _tileRequests.finish(requestToken);
     }
