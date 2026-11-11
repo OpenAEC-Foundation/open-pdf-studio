@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { PDFDocument } from 'pdf-lib';
 import { bewaar, leegmaken as wisBronnen } from './vector-snippet-store.js';
 import { readFileSync } from 'node:fs';
-import { bereidKnipselsVoorUitvoer, bitmapVoor, leegmaken, KNIPSEL_UITVOER_FOUT } from './vector-snippet-preview.js';
+import { bereidKnipselsVoorUitvoer, bitmapVoor, tekenSchermPreview, wachtOpKnipselPreviews, leegmaken, KNIPSEL_UITVOER_FOUT } from './vector-snippet-preview.js';
 
 let calls = [], closed = 0, fail = false;
 // Zoals Tauri: schrijven mag alleen binnen de fs-scope, die allow_fs_scope zet.
@@ -94,4 +94,62 @@ test('afdruk en export tekenen nooit het lege kader van een knipsel', () => {
   // In de uitvoer nooit de schermcache, en zonder beeld een fout vóór het kader.
   assert.match(tak, /uitvoer \? null : bitmapVoor\(annotation, zoom\)/);
   assert.ok(tak.indexOf('throw fout') < tak.indexOf('setLineDash([5'));
+});
+
+// A viewport into the middle of a large snippet. No DOM is needed to verify
+// the native region requests and asynchronous cache lifetime.
+function detailContext(scale = 64, offset = -30000) {
+  const draws = [];
+  return { draws, canvas: { width: 800, height: 600 },
+    getTransform: () => ({ a: scale, b: 0, c: 0, d: scale, e: offset, f: offset,
+      inverse: () => ({ transformPoint: ({x,y}) => ({x:(x-offset)/scale,y:(y-offset)/scale}) }) }),
+    drawImage: (...args) => draws.push(args) };
+}
+
+test('high zoom renders visible detail above both old ceilings, with bounded requests', async () => {
+  const ann = await annotation(); Object.assign(ann,{x:0,y:0,width:1000,height:1000});
+  await wachtOpKnipselPreviews([ann],64);
+  const overview = bitmapVoor(ann,64);
+  assert.equal(overview.width,4096);
+  const ctx = detailContext();
+  const first = calls.length;
+  tekenSchermPreview(ctx,ann,overview);
+  tekenSchermPreview(ctx,ann,overview); // in-flight dedupe
+  await wachtOpKnipselPreviews([ann],64);
+  const detail = calls.slice(first);
+  assert.equal(detail.length,4);
+  assert.ok(detail.every(c=>c.scale===64 && c.regionWPt<=514/64 && c.regionHPt<=514/64));
+  assert.ok(detail.every(c=>c.regionXPt>450 && c.regionYPt>450));
+  ctx.draws.length=0;
+  tekenSchermPreview(ctx,ann,overview);
+  assert.ok(ctx.draws.some(d=>d[0]!==overview));
+  // Each destination cell is drawn once: transparent detail replaces fallback.
+  assert.equal(new Set(ctx.draws.map(d=>d.slice(-4).join(','))).size,ctx.draws.length);
+  await wachtOpKnipselPreviews([ann],64);
+  const beforePan=calls.length;
+  tekenSchermPreview(detailContext(64,-35000),ann,overview);
+  await wachtOpKnipselPreviews([ann],64);
+  assert.ok(calls.length>beforePan,'panning requests a different source region');
+  const beforeOffscreen=calls.length;
+  tekenSchermPreview(detailContext(64,1000),ann,overview);
+  await wachtOpKnipselPreviews([ann],64);
+  assert.equal(calls.length,beforeOffscreen,'offscreen snippets request nothing');
+});
+
+test('detail failure keeps the overview and can retry; clearing drops pending tiles', async () => {
+  const ann = await annotation(); Object.assign(ann,{x:0,y:0,width:1000,height:1000});
+  await wachtOpKnipselPreviews([ann],64);
+  const overview=bitmapVoor(ann,64), ctx=detailContext();
+  fail=true;
+  tekenSchermPreview(ctx,ann,overview);
+  await wachtOpKnipselPreviews([ann],64);
+  assert.ok(ctx.draws.every(d=>d[0]===overview));
+  fail=false;
+  tekenSchermPreview(ctx,ann,overview);
+  leegmaken();
+  // Wait for renders that were deliberately removed from the cache generation.
+  await new Promise(r=>setTimeout(r,50));
+  assert.ok(closed>=5,'overview and all late detail bitmaps are closed');
+  assert.equal(bitmapVoor(ann,64),null,'late results did not repopulate cache');
+  await wachtOpKnipselPreviews([ann],64);
 });
