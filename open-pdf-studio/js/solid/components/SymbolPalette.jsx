@@ -1,4 +1,4 @@
-import { Show, For, createSignal, createEffect, createMemo } from 'solid-js';
+import { Show, For, createSignal, createEffect, createMemo, onMount, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { state } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
@@ -49,6 +49,21 @@ import { knopUit, meldingTekst } from '../../core/webfuncties.js';
 
 const DOCK_SNAP = 60;
 
+// Keep the floating palette inside the window and below the title bar. The
+// title bar sits above the palette (z-index 1001 vs 950) and is a window drag
+// region, so a palette dragged (or restored) under it hides its own header:
+// it can then be neither moved nor closed (#1027).
+function klemPaletPositie(pos) {
+  const el = document.querySelector('.sp-float');
+  const pw = el ? el.offsetWidth : 240;
+  const ph = el ? el.offsetHeight : 300;
+  const titel = document.querySelector('.title-bar');
+  const minY = titel ? Math.ceil(titel.getBoundingClientRect().bottom) : 0;
+  const x = Math.max(0, Math.min(pos.x, window.innerWidth - pw));
+  const y = Math.max(minY, Math.min(pos.y, window.innerHeight - ph));
+  return { x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : minY };
+}
+
 // --- Shared drag logic ---
 function startDrag(e, fromDocked) {
   if (e.button !== 0) return;
@@ -77,12 +92,7 @@ function startDrag(e, fromDocked) {
         unregisterPaletteDock('symbols');
       }
     }
-    const el = document.querySelector('.sp-float');
-    const pw = el ? el.offsetWidth : 240;
-    const ph = el ? el.offsetHeight : 300;
-    const nx = Math.max(0, Math.min(ev.clientX - offsetX, window.innerWidth - pw));
-    const ny = Math.max(0, Math.min(ev.clientY - offsetY, window.innerHeight - ph));
-    setSymbolFloatPos({ x: nx, y: ny });
+    setSymbolFloatPos(klemPaletPositie({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }));
   }
 
   function onUp(ev) {
@@ -406,6 +416,18 @@ export function DockedSymbolPalette(props) {
 export function FloatingSymbolPalette() {
   const { t } = useTranslation('ribbon');
   const shouldShow = () => symbolPaletteVisible() && symbolPaletteMode() === 'float';
+
+  // A saved position from a larger window, or from before the clamp above,
+  // can put the header out of reach: pull it back when shown and on resize.
+  const herstel = () => {
+    if (!shouldShow()) return;
+    const oud = symbolFloatPos();
+    const nieuw = klemPaletPositie(oud);
+    if (nieuw.x !== oud.x || nieuw.y !== oud.y) { setSymbolFloatPos(nieuw); saveSymbolPaletteState(); }
+  };
+  createEffect(() => { if (shouldShow()) requestAnimationFrame(herstel); });
+  onMount(() => window.addEventListener('resize', herstel));
+  onCleanup(() => window.removeEventListener('resize', herstel));
 
   return (
     <Show when={shouldShow()}>
