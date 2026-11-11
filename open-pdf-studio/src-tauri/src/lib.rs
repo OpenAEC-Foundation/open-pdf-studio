@@ -2551,6 +2551,39 @@ async fn extract_snap_geometry(
     }
 }
 
+/// Zoektekst van pagina's uit de PDFium-worker (pdfium-worker, page_text/):
+/// de tekstitems zoals pdf.js ze voor het zoeken maakt, met per teken zijn
+/// plek op de basislijn, voor pagina's vanaf `first` (0-gebaseerd). Antwoord:
+/// de `OPT1`-codering, ongewijzigd; die noemt hoeveel pagina's erin zitten
+/// (de worker stopt na een tijdsbudget). `expect_len`: de bestandslengte die
+/// de app heeft; wijkt het bestand op schijf af, dan een fout. `lane`: welke
+/// van de banen waarmee de app het document leest (elke baan een eigen
+/// worker, zie worker_pool/text.rs). Faalt
+/// expliciet; de JavaScript-kant leest de tekst dan met pdf.js
+/// (js/search/rust-zoektekst.js). `OPDS_RUST_SEARCH=0` dwingt die
+/// JavaScript-route af, om beide te vergelijken.
+#[tauri::command]
+async fn extract_search_text(
+    path: String,
+    first: u32,
+    count: u32,
+    expect_len: Option<u64>,
+    lane: Option<u32>,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<tauri::ipc::Response, String> {
+    if std::env::var("OPDS_RUST_SEARCH").ok().as_deref() == Some("0") {
+        return Err("PDF_TEXT_DISABLED".to_string());
+    }
+    let Some(p) = pool.get() else {
+        return Err("PDF_WORKER_UNAVAILABLE".to_string());
+    };
+    match p.page_text(&path, first, count.clamp(1, 1000), expect_len, lane.unwrap_or(0).min(8)).await {
+        Ok(bytes) => Ok(tauri::ipc::Response::new(bytes)),
+        Err(e) if e.downcast_ref::<worker_pool::text::Unsupported>().is_some() => Err("PDF_TEXT_UNSUPPORTED".to_string()),
+        Err(e) => Err(format!("PDF_TEXT_FAILED: {e:#}")),
+    }
+}
+
 /// Route A: render een tegel-regio via de eigen display-list-engine i.p.v. de
 /// PDFium-workers. De eerste aanroep per (pad, pagina, rotatie) bouwt de scene
 /// (extract + chunk-index — seconden op een 5M-ops blad, daarna gecachet);
@@ -3741,6 +3774,7 @@ pub fn run(opts: StartupOpts) {
             compare_pixel_pair,
             render_tile_scene_region,
             extract_snap_geometry,
+            extract_search_text,
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,

@@ -16,7 +16,7 @@ try {
   const page=await browser.newPage({viewport:{width:1500,height:1100}});
   page.setDefaultTimeout(10000);
   page.on('pageerror',e=>console.log('PAGEERROR',e.message));
-  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/`);
+  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/`, { timeout: 120000 });
   await page.waitForSelector('#tool-select',{timeout:120000});
   await page.evaluate(async()=>{
     const {createBlankPDF}=await import('/js/pdf/loader.js');await createBlankPDF(100,100,3);

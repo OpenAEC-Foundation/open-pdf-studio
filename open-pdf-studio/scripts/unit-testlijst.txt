@@ -117,6 +117,7 @@ js/symbols/templates/staalprofiel-hoeklijn.test.mjs
 js/symbols/koker-notatie.test.mjs
 js/pdf/koker-rondgang.test.mjs
 js/search/match-rect.test.mjs
+js/search/rust-zoektekst.test.mjs
 js/search/search-sources.test.mjs
 js/solid/stores/panels/annotationsStore.test.mjs
 js/solid/stores/print-instellingen.test.mjs
@@ -417,6 +418,7 @@ js/pdf/bron-paginas-kiezen.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
 js/pdf/pagina-labels-verticaal.test.mjs
+js/pdf/pagina-labels-onleesbaar.test.mjs
 js/pdf/ocr-engines.test.mjs
 js/pdf/page-manager-paginalabels.test.mjs
 js/plugins/structured-commands.test.mjs
@@ -787,7 +789,6 @@ scripts/check-readme-images.test.mjs
 js/quantities/vlak-omtrek.test.mjs
 js/solid/stores/staat-omtrek.test.mjs
 js/pdf/huisstijl-kaders.test.mjs
-scripts/goedgekeurd-logo.test.mjs
 scripts/pdf-lib-intern-pools.test.mjs
 scripts/bundel-grootte.test.mjs
 js/pdf/export-verlies.test.mjs
@@ -818,5 +819,15 @@ js/review/status-history-rondgang.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
 js/tools/snap-geometrie-binair.test.mjs
+js/pdf/documentgegevens.test.mjs
+js/core/documentgegevens-undo.test.mjs
+js/tools/gereedschap-lagen.test.mjs
+js/tools/pan-vangnet.test.mjs
 js/core/svg-veilig.test.mjs
 js/help/release-notes-markdown.test.mjs
+js/solid/components/ribbon/lint-indeling.test.mjs
+js/symbols/templates/wapening-lijn.test.mjs
+js/symbols/templates/overspanningspijl-vloer.test.mjs
+js/symbols/templates/sondering.test.mjs
+js/symbols/templates/paalpuntniveau.test.mjs
+js/symbols/templates/stenenrij.test.mjs

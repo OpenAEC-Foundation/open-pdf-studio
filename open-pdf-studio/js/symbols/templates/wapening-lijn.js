@@ -1,6 +1,9 @@
 // Parametrische lijnsymbolen voor losse wapeningsstaven en netwapening.
 // De ingestelde lengte bepaalt de werkelijke breedte van het symbool; de
-// marker kan langs de lijn en naar boven of beneden worden verplaatst.
+// marker kan langs de lijn en naar boven of beneden worden verplaatst, of
+// met `aantalMarkeringen` gelijkmatig over de staaf worden herhaald.
+// De markering en het diameterteken zijn fijnwerk en dragen een eigen dunne
+// pen, los van de instelbare lijndikte van de staaf zelf.
 
 import {
   approxTextWidth,
@@ -18,6 +21,26 @@ function integer(value, fallback, minimum = 0) {
 
 function markerPercentage(value) {
   return Math.min(100, Math.max(0, positiveNumber(value, 25)));
+}
+
+const MAX_MARKERINGEN = 5;
+
+/** Aantal markeringsplaatsen op de staaf: geheel, 0 t/m 5, standaard 1. */
+function markeringenAantal(value) {
+  if (value == null || value === '') return 1;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return 1;
+  return Math.min(MAX_MARKERINGEN, Math.max(0, Math.round(number)));
+}
+
+/** Pen van de markering (driehoekje), uit zijn hoogte in px. */
+export function markerLineWidth(markerHeightPx) {
+  return Math.max(0.2, Math.min(0.5, 0.06 * markerHeightPx));
+}
+
+/** Pen van het diameterteken, uit zijn cirkelstraal in px. */
+export function signLineWidth(radiusPx) {
+  return Math.max(0.3, Math.min(1.2, 0.16 * radiusPx));
 }
 
 function compactNumber(value) {
@@ -44,14 +67,20 @@ function lineLayout(params, bbox, centerLine = false) {
   const desiredMarkerX = x + width * markerPercentage(params.markerPositie) / 100;
   const markerX = Math.max(x + markerHalfWidth,
     Math.min(desiredMarkerX, x + width - markerHalfWidth));
+  // Tekst anderhalf keer zo hoog als voorheen (0,20 / 0,28 × hoogte en
+  // 0,045 × breedte). De steile streep van het diameterteken steekt 0,72 ×
+  // de tekengrootte boven het hart uit; de tekst zakt zo ver dat ook die
+  // binnen de bbox blijft.
+  const textSize = Math.min(height * (centerLine ? 0.30 : 0.42), width * 0.0675);
   return {
     lineY,
     markerX,
     markerTipY: lineY + direction * markerHeight,
     markerBaseY: lineY,
     markerHalfWidth,
-    textY: y + height * (centerLine ? 0.22 : 0.30),
-    textSize: Math.min(height * (centerLine ? 0.20 : 0.28), width * 0.045),
+    markerLineWidth: markerLineWidth(markerHeight),
+    textY: y + Math.max(height * (centerLine ? 0.19 : 0.30), textSize * 0.72),
+    textSize,
   };
 }
 
@@ -98,9 +127,10 @@ function rebarLabelCommands(params, layout, isNet, bbox) {
   }
 
   const signX = cursor + signWidth / 2;
+  const lineWidth = signLineWidth(signRadius);
   commands.push({
     kind: 'circle', cx: signX, cy: layout.textY, r: signRadius,
-    role: 'diameterteken',
+    lineWidth, role: 'diameterteken',
   });
   for (const segment of diameterSignSegments(signRadius).segments) {
     commands.push({
@@ -109,7 +139,7 @@ function rebarLabelCommands(params, layout, isNet, bbox) {
       y1: layout.textY - segment.y1,
       x2: signX + segment.x2,
       y2: layout.textY - segment.y2,
-      role: 'diameterteken',
+      lineWidth, role: 'diameterteken',
     });
   }
   cursor += signWidth + gap;
@@ -144,20 +174,31 @@ function markerCommands(params, layout, bbox, enabled) {
   const gap = layout.markerHalfWidth * 0.35;
   const step = layout.markerHalfWidth * 2 + gap;
   const groupWidth = step * (count - 1) + layout.markerHalfWidth * 2;
-  const center = Math.max(
-    bbox.x + groupWidth / 2,
-    Math.min(layout.markerX, bbox.x + bbox.width - groupWidth / 2),
-  );
-  return Array.from({ length: count }, (_, index) => {
-    const markerX = center + (index - (count - 1) / 2) * step;
-    return {
-      kind: 'polyline', close: true, fill: true, role: 'marker',
-      points: [
-        { x: markerX - layout.markerHalfWidth, y: layout.markerBaseY },
-        { x: markerX, y: layout.markerTipY },
-        { x: markerX + layout.markerHalfWidth, y: layout.markerBaseY },
-      ],
-    };
+  // Eén markeringsplaats staat op de ingestelde markerpositie; meerdere
+  // plaatsen worden gelijkmatig over de staaf verdeeld (gelijke tussenruimte,
+  // ook tot de einden).
+  const places = markeringenAantal(params.aantalMarkeringen);
+  const desired = places === 1
+    ? [layout.markerX]
+    : Array.from({ length: places },
+      (_, index) => bbox.x + bbox.width * (index + 1) / (places + 1));
+  return desired.flatMap((wanted) => {
+    const center = Math.max(
+      bbox.x + groupWidth / 2,
+      Math.min(wanted, bbox.x + bbox.width - groupWidth / 2),
+    );
+    return Array.from({ length: count }, (_, index) => {
+      const markerX = center + (index - (count - 1) / 2) * step;
+      return {
+        kind: 'polyline', close: true, fill: true, role: 'marker',
+        lineWidth: layout.markerLineWidth,
+        points: [
+          { x: markerX - layout.markerHalfWidth, y: layout.markerBaseY },
+          { x: markerX, y: layout.markerTipY },
+          { x: markerX + layout.markerHalfWidth, y: layout.markerBaseY },
+        ],
+      };
+    });
   });
 }
 
@@ -186,6 +227,10 @@ function snapPoints(_params, bbox) {
 }
 
 const markerParams = [
+  {
+    key: 'aantalMarkeringen', label: 'Aantal markeringen', labelEn: 'Number of markers',
+    type: 'number', default: 1, min: 0, max: MAX_MARKERINGEN, step: 1,
+  },
   {
     key: 'markerPositie', label: 'Markerpositie (%)', labelEn: 'Marker position (%)',
     type: 'number', default: 25, min: 0, max: 100, step: 1,

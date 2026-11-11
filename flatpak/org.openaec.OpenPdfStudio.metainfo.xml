@@ -106,7 +106,8 @@
   </screenshots>
 
   <releases>
-    <release version="2026.46.6" date="2026-11-11"/>
+    <release version="2026.46.7" date="2026-11-11"/>
+    <release version="2026.46.0" date="2026-11-10"/>
     <release version="2026.45.0" date="2026-11-06"/>
     <release version="2026.44.8" date="2026-11-02"/>
     <release version="2026.43.11" date="2026-10-24">

@@ -96,18 +96,21 @@ export function decodeRustResponse(buffer) {
  * The worker path with its state: after a failure that will not go away
  * (switched off, an app without the command) it stays off for the session;
  * a real failure is reported once on the console.
- * @param {{inTauri:() => boolean, call:(cmd:string, args:object) => Promise<ArrayBuffer>,
+ * Android/iOS run in Tauri too, but have no PDFium worker: `mobile()` keeps
+ * the path off there, like the PDFium render path (heeftRustRenderer).
+ * @param {{inTauri:() => boolean, mobile?:() => boolean, call:(cmd:string, args:object) => Promise<ArrayBuffer>,
  *   cachedBytes:(path:string) => Uint8Array|null|undefined, warn?:(...a) => void}} deps
  */
 export function createRustCompare(deps) {
   const { inTauri, call, cachedBytes } = deps;
+  const mobile = deps.mobile || (() => false);
   // eslint-disable-next-line no-console
   const warn = deps.warn || ((...a) => console.warn(...a));
   let off = false;
   let warned = false;
   return {
     usable() {
-      return !off && !!inTauri();
+      return !off && !!inTauri() && !mobile();
     },
     sideFile(path) {
       return rustSideFile(path, { cachedBytes });

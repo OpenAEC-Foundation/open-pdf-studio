@@ -154,21 +154,25 @@ function rotateSelected() {
   recordBulkModify(anns, originals);
 }
 
-// Eén snap-vinkje in de lintgroep 'Snap'. Schakelt de bijbehorende
-// voorkeur en bewaart ze meteen (net als de voorkeuren-dialog).
+// Pictogrammen van de snapmodi: de lijn of vorm in de lijnkleur, de
+// snapmarkering erop zoals die bij het tekenen verschijnt.
+const snapMasterIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h4v9a2 2 0 0 0 4 0V3h4v9a6 6 0 0 1-12 0z"/><path d="M6 7h4M14 7h4"/><path d="M4 19l-1.5 1.5M12 21.5v2M20 19l1.5 1.5" stroke-width="1.2"/></svg>`;
+const snapEndpointIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21L14 10"/><rect x="13" y="4" width="7" height="7" stroke-width="1.8"/></svg>`;
+const snapMidpointIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20L8.5 15.2M15.5 10L22 5"/><path d="M12 7.5l4.5 8h-9z" stroke-width="1.8"/></svg>`;
+const snapVertexIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l6-9M15 12l6 9"/><path d="M12 5l4 4-4 4-4-4z" stroke-width="1.8"/></svg>`;
+const snapStartPointIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14L21 3"/><circle cx="7" cy="17" r="3.6" stroke-width="1.8"/><circle cx="7" cy="17" r="0.9" fill="currentColor" stroke="none"/></svg>`;
+const snapCenterIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" stroke-dasharray="3 2.4" stroke-width="1.2"/><circle cx="12" cy="12" r="3.4" stroke-width="1.8"/><path d="M12 6.5v11M6.5 12h11" stroke-width="1"/></svg>`;
+
+// Eén snapmodus in de lintgroep 'Snap': een aan/uit-knop die de
+// bijbehorende voorkeur schakelt en meteen bewaart (net als de
+// voorkeuren-dialog). Zonder de hoofdschakelaar staat de knop uit.
 function SnapOption(props) {
   const on = () => state.preferences[props.prefKey] !== false && state.preferences.enableObjectSnap === true;
-  const set = (checked) => { state.preferences[props.prefKey] = checked; savePreferences(); };
+  const toggle = () => { state.preferences[props.prefKey] = !on(); savePreferences(); };
   return (
-    <label class="ribbon-checkbox-option" title={props.label}>
-      <input
-        type="checkbox"
-        checked={on()}
-        disabled={state.preferences.enableObjectSnap !== true}
-        onChange={(e) => set(e.currentTarget.checked)}
-      />
-      <span>{props.label}</span>
-    </label>
+    <RibbonButton size="small" id={props.id} title={props.label} label={props.label} icon={props.icon}
+      extraClass="snap-knop" active={on()} pressed={on() ? 'true' : 'false'}
+      disabled={state.preferences.enableObjectSnap !== true} onClick={toggle} />
   );
 }
 
@@ -289,20 +293,16 @@ export function DrawingGroups() {
             Zelfde voorkeuren als het Voorkeuren-dialog, zodat het engine-
             gedeelte (snap-engine.js) ze bij elke muisbeweging leest. */}
         <RibbonGroup label={t('drawing.snapGroup')}>
+          <RibbonButton id="dr-snap-master" title={t('drawing.snapObjectSnapTip')} label={t('drawing.snapObjectSnap')}
+            icon={snapMasterIcon} extraClass="snap-knop" active={state.preferences.enableObjectSnap === true}
+            pressed={state.preferences.enableObjectSnap === true ? 'true' : 'false'}
+            onClick={() => { state.preferences.enableObjectSnap = state.preferences.enableObjectSnap !== true; savePreferences(); }} />
           <div class="ribbon-snap-options">
-            <label class="ribbon-checkbox-option snap-master" title={t('drawing.snapObjectSnapTip')}>
-              <input
-                type="checkbox"
-                checked={state.preferences.enableObjectSnap === true}
-                onChange={(e) => { state.preferences.enableObjectSnap = e.currentTarget.checked; savePreferences(); }}
-              />
-              <span>{t('drawing.snapObjectSnap')}</span>
-            </label>
-            <SnapOption prefKey="snapToEndpoints" label={t('drawing.snapEndpoint')} />
-            <SnapOption prefKey="snapToMidpoints" label={t('drawing.snapMidpoint')} />
-            <SnapOption prefKey="snapToVertices" label={t('drawing.snapVertex')} />
-            <SnapOption prefKey="snapToStartPoints" label={t('drawing.snapStartPoint')} />
-            <SnapOption prefKey="snapToCenters" label={t('drawing.snapCenter')} />
+            <SnapOption id="dr-snap-endpoint" prefKey="snapToEndpoints" label={t('drawing.snapEndpoint')} icon={snapEndpointIcon} />
+            <SnapOption id="dr-snap-midpoint" prefKey="snapToMidpoints" label={t('drawing.snapMidpoint')} icon={snapMidpointIcon} />
+            <SnapOption id="dr-snap-vertex" prefKey="snapToVertices" label={t('drawing.snapVertex')} icon={snapVertexIcon} />
+            <SnapOption id="dr-snap-startpoint" prefKey="snapToStartPoints" label={t('drawing.snapStartPoint')} icon={snapStartPointIcon} />
+            <SnapOption id="dr-snap-center" prefKey="snapToCenters" label={t('drawing.snapCenter')} icon={snapCenterIcon} />
           </div>
         </RibbonGroup>
 

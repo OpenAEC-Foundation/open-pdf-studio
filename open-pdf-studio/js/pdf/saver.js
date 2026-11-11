@@ -22,6 +22,7 @@ import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken
 import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
 import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
 import { bereidIncrementeelVoor, bouwIncrementeleUpdate, vereistVolledigeHerschrijving, herstelOngewijzigdeOutline } from './saver/incrementeel.js';
+import { schrijfDocumentgegevens } from './saver/documentgegevens-opslaan.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
@@ -3526,6 +3527,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // Paginalabels (bladnamen, #580) als /PageLabels; alleen na een bewerking,
       // zodat een andere nummering in het bestand ongemoeid blijft.
       slaPaginaLabelsOp(pdfDocLib, activeDoc);
+
+      // Documentgegevens uit het eigenschappen-paneel (#1017): titel, auteur,
+      // onderwerp, trefwoorden en maker in /Info en, als het er is, het XMP.
+      schrijfDocumentgegevens(pdfDocLib, activeDoc.documentgegevens);
 
       // Bijlagen die in het paneel zijn toegevoegd of verwijderd (bijlagen.js).
       pasBijlagenToe(pdfDocLib, activeDoc.bijlagenWijzigingen);
