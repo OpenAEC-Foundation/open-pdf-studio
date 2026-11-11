@@ -404,3 +404,30 @@
   padding: 0 3px;
   align-self: stretch;
 }
+
+/* --- Snapped while dragging: the docked palette itself is highlighted --- */
+.tp-docked.tp-dock-live { position: relative; }
+.tp-docked.tp-dock-live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--theme-accent);
+  opacity: 0.12;
+  pointer-events: none;
+}
+.tp-dock-live-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--theme-accent);
+  background: var(--theme-surface);
+  color: var(--theme-accent);
+  z-index: 2;
+  pointer-events: none;
+}

@@ -393,7 +393,15 @@ export function DockedToolPalette(props) {
 
   return (
     <Show when={shouldShow()}>
-      <div class={`tp-docked tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}`} ref={bindRef} onContextMenu={showPaletteCtxMenu}>
+      <div class={`tp-docked tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}${isDragging() ? ' tp-dock-live' : ''}`} ref={bindRef} onContextMenu={showPaletteCtxMenu}>
+        {/* While it is being dragged and has snapped here: highlight the
+            palette itself, with the dock icon over it (same on all sides). */}
+        <Show when={isDragging()}>
+          <div class="tp-dock-live-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20"
+              innerHTML={`<rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>${DOCK_ICONEN[side()] || ''}`} />
+          </div>
+        </Show>
         <div class="tp-grip" onMouseDown={(e) => startDrag(e, true)}>
           <svg width="10" height="16" viewBox="0 0 10 16">
             <circle cx="3" cy="2" r="1.2" fill="currentColor"/><circle cx="7" cy="2" r="1.2" fill="currentColor"/>
@@ -465,18 +473,17 @@ const DOCK_ICONEN = {
 };
 
 export function DockTargets() {
+  // The side it has snapped to is shown on the docked palette itself
+  // (DockedToolPalette), so its target here is hidden; no preview strip.
   return (
     <For each={['left', 'right', 'top', 'bottom']}>
       {(kant) => (
-        <>
-          <div class={`tp-dock-target tp-dock-target-${kant} ${isDragging() ? 'visible' : ''} ${dockPreview() === kant ? 'active' : ''}`}>
-            <div class="tp-dock-target-icon">
-              <svg width="20" height="20" viewBox="0 0 20 20"
-                innerHTML={`<rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>${DOCK_ICONEN[kant]}`} />
-            </div>
+        <div class={`tp-dock-target tp-dock-target-${kant} ${isDragging() && dockPreview() !== kant ? 'visible' : ''}`}>
+          <div class="tp-dock-target-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20"
+              innerHTML={`<rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>${DOCK_ICONEN[kant]}`} />
           </div>
-          <div class={`tp-dock-preview tp-dock-preview-${kant} ${dockPreview() === kant ? 'active' : ''}`} />
-        </>
+        </div>
       )}
     </For>
   );
