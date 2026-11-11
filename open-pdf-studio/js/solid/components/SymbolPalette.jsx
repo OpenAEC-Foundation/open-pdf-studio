@@ -1,4 +1,5 @@
 import { Show, For, createSignal, createEffect, createMemo, onMount, onCleanup } from 'solid-js';
+import { klemPaletPositie } from './palette-grenzen.js';
 import { Portal } from 'solid-js/web';
 import { state } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
@@ -49,19 +50,10 @@ import { knopUit, meldingTekst } from '../../core/webfuncties.js';
 
 const DOCK_SNAP = 60;
 
-// Keep the floating palette inside the window and below the title bar. The
-// title bar sits above the palette (z-index 1001 vs 950) and is a window drag
-// region, so a palette dragged (or restored) under it hides its own header:
-// it can then be neither moved nor closed (#1027).
-function klemPaletPositie(pos) {
+// Keep the floating palette inside the window and below the title bar (#1027).
+function klemSymboolPalet(pos) {
   const el = document.querySelector('.sp-float');
-  const pw = el ? el.offsetWidth : 240;
-  const ph = el ? el.offsetHeight : 300;
-  const titel = document.querySelector('.title-bar');
-  const minY = titel ? Math.ceil(titel.getBoundingClientRect().bottom) : 0;
-  const x = Math.max(0, Math.min(pos.x, window.innerWidth - pw));
-  const y = Math.max(minY, Math.min(pos.y, window.innerHeight - ph));
-  return { x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : minY };
+  return klemPaletPositie(pos, el ? el.offsetWidth : 240, el ? el.offsetHeight : 300);
 }
 
 // --- Shared drag logic ---
@@ -92,7 +84,7 @@ function startDrag(e, fromDocked) {
         unregisterPaletteDock('symbols');
       }
     }
-    setSymbolFloatPos(klemPaletPositie({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }));
+    setSymbolFloatPos(klemSymboolPalet({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }));
   }
 
   function onUp(ev) {
@@ -422,7 +414,7 @@ export function FloatingSymbolPalette() {
   const herstel = () => {
     if (!shouldShow()) return;
     const oud = symbolFloatPos();
-    const nieuw = klemPaletPositie(oud);
+    const nieuw = klemSymboolPalet(oud);
     if (nieuw.x !== oud.x || nieuw.y !== oud.y) { setSymbolFloatPos(nieuw); saveSymbolPaletteState(); }
   };
   createEffect(() => { if (shouldShow()) requestAnimationFrame(herstel); });
