@@ -42,6 +42,7 @@ pub mod laagweergave;
 pub mod instantie;
 pub mod print_formulieren;
 pub mod print_instelling;
+pub mod print_duplex;
 pub mod print_plaatsing;
 // Beslissingen van de Windows-printkern per opdracht (issue 699), puur.
 pub mod print_plan;
@@ -875,6 +876,7 @@ async fn print_pdf(
     papier: Option<String>,
     plaatsing: Option<String>,
     kleur: Option<String>,
+    duplex: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<bool, String> {
     // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
@@ -882,6 +884,7 @@ async fn print_pdf(
     let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
     let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
     let plaatsing = print_plaatsing::Plaatsing::uit_keuze(plaatsing.as_deref());
+    let duplex = print_duplex::Duplex::parse(duplex.as_deref())?;
     #[cfg(target_os = "windows")]
     {
         // De kleurmodus zit op Windows al in de paginabeelden.
@@ -889,12 +892,13 @@ async fn print_pdf(
         // Wat de gebruiker in deze sessie in het eigenschappenvenster koos.
         let opgeslagen = devmodes.ophalen(&printer);
         tauri::async_runtime::spawn_blocking(move || {
-            print_windows::print_pdf_bestand(
+            print_windows::print_pdf_bestand_met_duplex(
                 std::path::Path::new(&path),
                 &printer,
                 orientatie,
                 papier,
                 plaatsing,
+                duplex,
                 opgeslagen.as_deref(),
                 None,
             )
@@ -916,6 +920,7 @@ async fn print_pdf(
     {
         let _ = &devmodes;
         let mut opties = print_instelling::lp_opties(orientatie, papier, plaatsing);
+        duplex.append_cups(&mut opties);
         if let Some(k) = print_unix::kleur_optie(kleur.as_deref()) {
             opties.push("-o".to_string());
             opties.push(k);
@@ -942,7 +947,9 @@ async fn print_pdf(
         // The caller always passes an absolute temp path, so the filename can
         // never be mistaken for an option; `--` is not portable across lp
         // implementations and is deliberately left out.
-        for optie in print_instelling::lp_opties(orientatie, papier, plaatsing) {
+        let mut opties = print_instelling::lp_opties(orientatie, papier, plaatsing);
+        duplex.append_cups(&mut opties);
+        for optie in opties {
             cmd.arg(optie);
         }
         let output = cmd
@@ -964,7 +971,7 @@ async fn print_pdf(
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &kleur, &devmodes);
+        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &kleur, &duplex, &devmodes);
         Err("Printing is not supported on this platform".to_string())
     }
 }

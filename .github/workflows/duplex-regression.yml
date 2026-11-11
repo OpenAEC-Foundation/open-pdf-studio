@@ -1,0 +1,31 @@
+name: Duplex regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/pdf/print-job.js'
+      - 'open-pdf-studio/js/solid/stores/print-instellingen*'
+      - 'open-pdf-studio/js/solid/components/dialogs/PrintDialog.jsx'
+      - 'open-pdf-studio/src-tauri/src/print_*.rs'
+      - 'open-pdf-studio/src-tauri/src/lib.rs'
+      - 'open-pdf-studio/scripts/test-print-duplex.mjs'
+      - '.github/workflows/duplex-regression.yml'
+permissions:
+  contents: read
+jobs:
+  duplex:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustc --edition 2021 --test src-tauri/src/print_duplex.rs -o /tmp/print-duplex-tests
+      - run: /tmp/print-duplex-tests
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --test js/solid/stores/print-instellingen.test.mjs
+      - run: node scripts/test-print-duplex.mjs

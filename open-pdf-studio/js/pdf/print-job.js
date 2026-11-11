@@ -382,7 +382,7 @@ async function metPoster(pdf, poster, { vel, orientatie, pages, doc }) {
  * rescaling). Without a known sheet the behaviour from before the scale
  * choice: each page at its own size, fitted in by the printer.
  * @param {{ pages:number[], copies:number, printer:string,
- *           orientatie?:'auto'|'portrait'|'landscape', papier?:string,
+ *           orientatie?:'auto'|'portrait'|'landscape', papier?:string, duplex?:string,
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
  *           poster?: object|null, boekje?: boolean|{katern?:number, binding?:string, kanten?:string, omgekeerd?:boolean, draaiAchter?:boolean, kruipMm?:number},
@@ -400,7 +400,7 @@ async function metPoster(pdf, poster, { vel, orientatie, pages, doc }) {
  * @returns {Promise<{ok:boolean, copies?:number, afgebroken?:boolean, error?:string}>}
  */
 export async function runPrintJob({
-  pages, copies, printer, orientatie = 'auto', papier = 'printer',
+  pages, copies, printer, orientatie = 'auto', papier = 'printer', duplex = 'printer',
   vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100, centreren: centrerenKeuze = true,
   meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false, inhoud = 'doc-and-markups',
   kleur = 'color', afgebroken = () => false, uitsneden = null,
@@ -459,6 +459,7 @@ export async function runPrintJob({
       );
       await invoke('print_pdf', {
         path: tempPath, printer, orientatie, papier, ...(opVel ? { plaatsing: 'vel' } : {}),
+        ...(duplex !== 'printer' ? { duplex } : {}),
       });
     }
 

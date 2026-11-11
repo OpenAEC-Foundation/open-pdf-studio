@@ -16,6 +16,7 @@ test('alle gekozen instellingen komen terug', () => {
   const gekozen = {
     printer: 'Kantoor A3',
     copies: 3,
+    duplex: 'long-edge',
     collate: true,
     range: 'custom',
     customPages: '2-4, 7',
@@ -241,5 +242,15 @@ test('de kleurmodus (#754) wordt onthouden en een onbekende waarde valt terug op
   }
   for (const kapot of ['sepia', 1, null, true, 'Grayscale']) {
     assert.equal(herstelPrintInstellingen({ colorMode: kapot }).colorMode, 'color');
+  }
+});
+
+
+test('duplex choices round-trip; old and invalid preferences preserve the printer default', () => {
+  for (const duplex of ['printer','simplex','long-edge','short-edge']) {
+    assert.equal(herstelPrintInstellingen({duplex}).duplex,duplex);
+  }
+  for (const duplex of [undefined,null,'both','long-edge -o copies=100',2]) {
+    assert.equal(herstelPrintInstellingen({duplex}).duplex,'printer');
   }
 });
