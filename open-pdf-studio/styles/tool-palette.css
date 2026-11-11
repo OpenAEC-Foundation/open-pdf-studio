@@ -189,6 +189,9 @@
 .tp-dock-target.active { border-color: var(--theme-accent); background: rgba(168,45,110,0.08); }
 .tp-dock-target-left { left: 6px; }
 .tp-dock-target-right { right: 6px; }
+.tp-dock-target-top, .tp-dock-target-bottom { top: auto; left: 50%; transform: translateX(-50%); }
+.tp-dock-target-top { top: 6px; }
+.tp-dock-target-bottom { bottom: 6px; }
 .tp-dock-target-icon { color: var(--theme-text-secondary); display: flex; }
 .tp-dock-target.active .tp-dock-target-icon { color: var(--theme-accent); }
 
@@ -207,6 +210,9 @@
 .tp-dock-preview.active { opacity: 0.12; }
 .tp-dock-preview-left { left: 0; }
 .tp-dock-preview-right { right: 0; }
+.tp-dock-preview-top, .tp-dock-preview-bottom { left: 0; right: 0; width: auto; height: 34px; }
+.tp-dock-preview-top { top: 0; bottom: auto; }
+.tp-dock-preview-bottom { bottom: 0; top: auto; }
 
 /* --- Tool palette large icons mode --- */
 .tp-large .tp-btn {
@@ -370,3 +376,31 @@
 .clip-remove:hover { background: #e81123; }
 .clip-item:hover .clip-remove { display: flex; }
 .clip-empty { padding: 12px 8px; font-size: 11px; color: var(--theme-text-secondary, #666); }
+
+/* --- Top and bottom docks: a horizontal strip above or below the page --- */
+.palette-dock-row { flex-shrink: 0; display: flex; flex-direction: column; }
+.palette-dock-row:empty { display: none; }
+.tp-docked-top, .tp-docked-bottom {
+  flex-direction: row;
+  align-items: center;
+  padding: 0 2px;
+  max-width: 100%;
+}
+.tp-docked-top { border-bottom: 1px solid var(--theme-border); }
+.tp-docked-bottom { border-top: 1px solid var(--theme-border); }
+.tp-docked-top .tp-docked-tools, .tp-docked-bottom .tp-docked-tools {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  min-width: 0;
+}
+.tp-docked-top .tp-sep, .tp-docked-bottom .tp-sep {
+  width: 1px;
+  height: 26px;
+  margin: 0 3px;
+}
+.tp-docked-top .tp-grip, .tp-docked-bottom .tp-grip {
+  width: auto;
+  padding: 0 3px;
+  align-self: stretch;
+}

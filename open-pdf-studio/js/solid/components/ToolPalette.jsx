@@ -102,7 +102,13 @@ window.addEventListener('resize', () => {
 });
 
 const DOCK_STRIP_WIDTH = 34;
+// A palette docks as soon as one of its edges comes within DOCK_SNAP of an
+// edge of the page view, while it is still being dragged; it only comes off
+// again once it is DOCK_RELEASE away, so it does not flicker at the edge.
 const DOCK_SNAP = 60;
+const DOCK_RELEASE = 100;
+// Size of the floating palette, kept for the snap test while it is docked.
+let laatsteZweefMaat = { w: 80, h: 420 };
 
 const tools = [
   { tool: 'hand', key: 'home.hand', icon: handIcon, group: 0 },
@@ -145,14 +151,39 @@ function startDrag(e, fromDocked) {
 
   setIsDragging(true);
 
-  function getSnapSide(cx) {
-    // Use live measurement so it stays correct during drag
-    const rect = mainViewEl.getBoundingClientRect();
-    const relL = cx - rect.left;
-    const relR = rect.right - cx;
-    if (relL < DOCK_SNAP) return 'left';
-    if (relR < DOCK_SNAP) return 'right';
-    return null;
+  // The side the palette is docked to during this drag (null = floating).
+  let gedokt = null;
+  // The page view's rectangle with no palette docked: docking shrinks it,
+  // and measuring the shrunk view would undock the palette straight away.
+  let kader = null;
+
+  function snapSide(px, py, pw, ph, cx, cy) {
+    const r = kader || mainViewEl.getBoundingClientRect();
+    // Distance of the palette's (and the pointer's) edges to each view edge.
+    const afstand = {
+      left: Math.min(px - r.left, cx - r.left),
+      right: Math.min(r.right - (px + pw), r.right - cx),
+      top: Math.min(py - r.top, cy - r.top),
+      bottom: Math.min(r.bottom - (py + ph), r.bottom - cy),
+    };
+    if (gedokt && afstand[gedokt] < DOCK_RELEASE) return gedokt;
+    let beste = null;
+    for (const [kant, d] of Object.entries(afstand)) {
+      if (d < DOCK_SNAP && (beste === null || d < afstand[beste])) beste = kant;
+    }
+    return beste;
+  }
+
+  function dock(kant) {
+    if (kant === gedokt) return;
+    gedokt = kant;
+    if (kant) {
+      setPaletteMode(`docked-${kant}`);
+      registerPaletteDock('tool', kant);
+    } else {
+      setPaletteMode('float');
+      unregisterPaletteDock('tool');
+    }
   }
 
   function onMove(ev) {
@@ -165,31 +196,28 @@ function startDrag(e, fromDocked) {
         setPaletteMode('float');
         unregisterPaletteDock('tool');
       }
+      kader = null;
+      requestAnimationFrame(() => { kader = mainViewEl.getBoundingClientRect(); });
     }
 
-    const el = document.querySelector('.tp-float:not(.tp-ext)');
-    const pw = el ? el.offsetWidth : 80;
-    const ph = el ? el.offsetHeight : 40;
+    const el = gedokt ? null : document.querySelector('.tp-float:not(.tp-ext)');
+    if (el && el.offsetWidth > 0) laatsteZweefMaat = { w: el.offsetWidth, h: el.offsetHeight };
+    const { w: pw, h: ph } = laatsteZweefMaat;
     const { x: nx, y: ny } = klemPaletPositie({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }, pw, ph);
     setFloatPos({ x: nx, y: ny });
-    setDockPreview(getSnapSide(ev.clientX));
+    // Snap while dragging: the palette docks the moment it reaches an edge,
+    // without letting go, and floats again when dragged away.
+    const kant = snapSide(nx, ny, pw, ph, ev.clientX, ev.clientY);
+    dock(kant);
+    setDockPreview(kant);
   }
 
-  function onUp(ev) {
+  function onUp() {
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
     setIsDragging(false);
     setDockPreview(null);
-
     if (!hasMoved) return;
-
-    const snap = getSnapSide(ev.clientX);
-    if (snap) {
-      setPaletteMode(`docked-${snap}`);
-      registerPaletteDock('tool', snap);
-    } else {
-      unregisterPaletteDock('tool');
-    }
     savePaletteState();
   }
 
@@ -327,6 +355,7 @@ export function DockedToolPalette(props) {
   // Button sizes follow the interface size (#883), so the pixel heights do too.
   function updateColumns() {
     if (!paletteEl) return;
+    if (side() === 'top' || side() === 'bottom') { setTwoCol(false); return; }
     const schaal = uiSchaalFactor();
     const available = paletteEl.clientHeight - 46 * schaal;
     const threshold = (paletteIconSize() === 'large' ? SINGLE_COL_HEIGHT_LARGE : SINGLE_COL_HEIGHT_SMALL) * schaal;
@@ -410,28 +439,28 @@ export function FloatingToolPalette() {
 }
 
 // Dock targets — shown inside .main-view when dragging
+const DOCK_ICONEN = {
+  left: '<rect x="1" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>',
+  right: '<rect x="13" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>',
+  top: '<rect x="1" y="1" width="18" height="6" rx="1" fill="currentColor" opacity="0.4"/>',
+  bottom: '<rect x="1" y="13" width="18" height="6" rx="1" fill="currentColor" opacity="0.4"/>',
+};
+
 export function DockTargets() {
   return (
-    <>
-      <div class={`tp-dock-target tp-dock-target-left ${isDragging() ? 'visible' : ''} ${dockPreview() === 'left' ? 'active' : ''}`}>
-        <div class="tp-dock-target-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20">
-            <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="1" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      <div class={`tp-dock-target tp-dock-target-right ${isDragging() ? 'visible' : ''} ${dockPreview() === 'right' ? 'active' : ''}`}>
-        <div class="tp-dock-target-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20">
-            <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="13" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      <div class={`tp-dock-preview tp-dock-preview-left ${dockPreview() === 'left' ? 'active' : ''}`} />
-      <div class={`tp-dock-preview tp-dock-preview-right ${dockPreview() === 'right' ? 'active' : ''}`} />
-    </>
+    <For each={['left', 'right', 'top', 'bottom']}>
+      {(kant) => (
+        <>
+          <div class={`tp-dock-target tp-dock-target-${kant} ${isDragging() ? 'visible' : ''} ${dockPreview() === kant ? 'active' : ''}`}>
+            <div class="tp-dock-target-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20"
+                innerHTML={`<rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>${DOCK_ICONEN[kant]}`} />
+            </div>
+          </div>
+          <div class={`tp-dock-preview tp-dock-preview-${kant} ${dockPreview() === kant ? 'active' : ''}`} />
+        </>
+      )}
+    </For>
   );
 }
 
