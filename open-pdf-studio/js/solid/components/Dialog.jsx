@@ -117,6 +117,13 @@ export default function Dialog(props) {
   const onDocumentPointerDown = (e) => escape.pointerDown(e, dialogRef);
 
   onMount(() => {
+    // CSS gives some parents (such as the stamp manager) a higher base layer.
+    // Keep visual stacking in the same opening order as Escape handling.
+    const baseLayer = Number.parseInt(getComputedStyle(overlayRef).zIndex, 10) || 0;
+    const topLayer = openDialogen.reduce((top, dialog) => Math.max(top,
+      Number.parseInt(getComputedStyle(dialog.overlay).zIndex, 10) || 0), 0);
+    overlayRef.style.zIndex = String(Math.max(baseLayer, topLayer + 1));
+    eigen.overlay = overlayRef;
     openDialogen.push(eigen);
     document.addEventListener('pointerdown', onDocumentPointerDown, true);
     document.addEventListener('mousemove', onMouseMove);
