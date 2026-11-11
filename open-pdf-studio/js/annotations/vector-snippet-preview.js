@@ -313,3 +313,34 @@ export function leegmaken() {
   _bladen.clear();
   _bladData.clear();
 }
+
+// ─── Lijnwerk in één kleur (#1024) ────────────────────────────────────────
+// Schermbeeld van een knipsel met een lijnkleur: elke pixel krijgt de kleur
+// naar zijn donkerte (inkt = kleur, wit blijft wit, grijs wordt een tint);
+// de doorzichtigheid blijft. Zelfde uitkomst als het luminantie-masker dat
+// de saver schrijft. Per tegel en kleur één keer gerekend.
+const _gekleurd = new WeakMap();
+
+export function gekleurdeTegel(bmp, kleur) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(kleur || ''));
+  if (!bmp || !m) return bmp;
+  const vorig = _gekleurd.get(bmp);
+  if (vorig && vorig.kleur === kleur) return vorig.canvas;
+  const w = bmp.width, h = bmp.height;
+  if (!(w > 0 && h > 0)) return bmp;
+  const canvas = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h });
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0);
+  const beeld = ctx.getImageData(0, 0, w, h);
+  const d = beeld.data;
+  const kr = parseInt(m[1].slice(0, 2), 16), kg = parseInt(m[1].slice(2, 4), 16), kb = parseInt(m[1].slice(4, 6), 16);
+  for (let i = 0; i < d.length; i += 4) {
+    const inkt = 1 - (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
+    d[i] = 255 + (kr - 255) * inkt;
+    d[i + 1] = 255 + (kg - 255) * inkt;
+    d[i + 2] = 255 + (kb - 255) * inkt;
+  }
+  ctx.putImageData(beeld, 0, 0);
+  _gekleurd.set(bmp, { kleur, canvas });
+  return canvas;
+}

@@ -63,7 +63,14 @@ import {
   compareMethod,
   compareMethodUsed,
   setCompareMethod,
+  compareColourOverlay,
+  compareOldColour,
+  compareNewColour,
+  setCompareColourOverlay,
+  setCompareOldColour,
+  setCompareNewColour,
 } from '../../../compare/compare-store.js';
+import { kleurInkt } from '../../../compare/overlay-renderer.js';
 import {
   renderCompareSideBySide,
   renderCompareOverlay,
@@ -104,6 +111,8 @@ export default function CompareView() {
   let oldHiCanvasRef;   // side-by-side: diff overlay on OLD page
   let newHiCanvasRef;   // side-by-side: diff overlay on NEW page
   let overlayNewCanvasRef;
+  // Kleuroverlay (#1024): de OUDE pagina, gekleurd, boven de nieuwe.
+  let overlayOldCanvasRef;
   // Split line: OLD page on top of NEW, shown left of the line only.
   let splitOldCanvasRef;
   let overlayHighlightCanvasRef;
@@ -454,6 +463,18 @@ export default function CompareView() {
           });
           repaintHighlights();
         }
+      } else if (compareMode() === 'overlay' && compareColourOverlay() && overlayOldCanvasRef && overlayNewCanvasRef) {
+        // Kleuroverlay (#1024): beide pagina's renderen, elk in zijn kleur;
+        // de oude ligt met multiply en de uitlijning op de nieuwe.
+        await renderCompareSideBySide(overlayOldCanvasRef, overlayNewCanvasRef, opts);
+        const v = opts.scale;
+        setSplitBase({
+          ow: overlayOldCanvasRef.width / v, oh: overlayOldCanvasRef.height / v,
+          nw: overlayNewCanvasRef.width / v, nh: overlayNewCanvasRef.height / v, v,
+        });
+        kleurInkt(overlayOldCanvasRef, compareOldColour());
+        kleurInkt(overlayNewCanvasRef, compareNewColour());
+        repaintHighlights();
       } else if (compareMode() === 'overlay') {
         if (overlayNewCanvasRef && overlayHighlightCanvasRef) {
           await renderCompareOverlay(
@@ -537,6 +558,9 @@ export default function CompareView() {
     comparePreset();
     compareMethod();
     compareAlignPending();
+    compareColourOverlay();
+    compareOldColour();
+    compareNewColour();
     if (compareActive()) {
       // Reset CSS preview state — after a path/page/mode change the bitmap
       // baseline is whatever the next render produces.
@@ -1001,6 +1025,23 @@ export default function CompareView() {
             <input type="checkbox" checked={compareShowContour()} onChange={(e) => setCompareShowContour(e.currentTarget.checked)} />
             {t('compare.contour') || 'Contour'}
           </label>
+          {/* Kleuroverlay (#1024): beide tekeningen over elkaar in eigen kleuren. */}
+          <Show when={compareMode() === 'overlay'}>
+            <label style="display:inline-flex; align-items:center; gap:4px; cursor:pointer;" title={t('compare.colourOverlayHint') || 'Show both drawings on top of each other, each in its own colour'}>
+              <input type="checkbox" checked={compareColourOverlay()} onChange={(e) => setCompareColourOverlay(e.currentTarget.checked)} />
+              {t('compare.colourOverlay') || 'Colours'}
+            </label>
+            <Show when={compareColourOverlay()}>
+              <label style="display:inline-flex; align-items:center; gap:3px;" title={t('compare.oldDoc') || 'Old'}>
+                {t('compare.oldDoc') || 'Old'}
+                <input type="color" value={compareOldColour()} onChange={(e) => setCompareOldColour(e.currentTarget.value)} style="width:26px; height:20px; padding:0; border:1px solid #999;" />
+              </label>
+              <label style="display:inline-flex; align-items:center; gap:3px;" title={t('compare.newDoc') || 'New'}>
+                {t('compare.newDoc') || 'New'}
+                <input type="color" value={compareNewColour()} onChange={(e) => setCompareNewColour(e.currentTarget.value)} style="width:26px; height:20px; padding:0; border:1px solid #999;" />
+              </label>
+            </Show>
+          </Show>
 
           <Sep />
 
@@ -1116,6 +1157,12 @@ export default function CompareView() {
                     style={`position:relative; background:#ffffff; box-shadow:0 0 0 1px #444; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
                   >
                     <canvas ref={overlayNewCanvasRef} style="display:block;"></canvas>
+                    <Show when={compareMode() === 'overlay' && compareColourOverlay()}>
+                      <canvas
+                        ref={overlayOldCanvasRef}
+                        style={`position:absolute; left:0; top:0; display:block; mix-blend-mode:multiply; pointer-events:none; transform:${oldSplitTransform()}; transform-origin:0 0;`}
+                      ></canvas>
+                    </Show>
                     <Show when={compareMode() === 'split'}>
                       {/* OLD left of the line: a clip box as wide as the
                           split, so the alignment transform on the canvas
