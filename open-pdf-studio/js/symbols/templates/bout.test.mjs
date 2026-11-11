@@ -1,6 +1,7 @@
 // Parametrische bout / moer: maten per maat (M6–M24), werkelijke maat per
 // aanzicht, getekende omvang = realSizeMm, snappunten en de tekenwijze
-// (drie zeskantvlakken, afschuinkrommen, draad volgens ISO 6410).
+// (drie zeskantvlakken, afschuinkrommen, draad volgens ISO 6410), en de
+// moer met ring op het draadeind (klemlengte, draadlengte, begrenzing).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -23,9 +24,17 @@ function omvang(cmds) {
   return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 };
 }
 
-test('parameters en standaardwaarden blijven gelijk', () => {
+test('parameters en standaardwaarden', () => {
   const p = Object.fromEntries(boutTemplate.params.map((q) => [q.key, q.default]));
-  assert.deepEqual(p, { maat: 'M12', aanzicht: 'bout', ringPlattegrond: true, lengte: 120, schaal: 1 });
+  assert.deepEqual(p, {
+    maat: 'M12', aanzicht: 'bout', ringPlattegrond: true, lengte: 120,
+    moer: true, ring: true, klemlengte: 0, draadlengte: 0, schaal: 1,
+  });
+  const soort = Object.fromEntries(boutTemplate.params.map((q) => [q.key, q.type]));
+  assert.equal(soort.moer, 'boolean');
+  assert.equal(soort.ring, 'boolean');
+  assert.equal(soort.klemlengte, 'number');
+  assert.equal(soort.draadlengte, 'number');
   assert.deepEqual(boutTemplate.params[0].options, MATEN);
   const views = boutTemplate.params[1].options.map((o) => o.value);
   assert.deepEqual(views, AANZICHTEN);
@@ -81,7 +90,8 @@ test('getekende omvang = realSizeMm en alles binnen de bbox', () => {
   for (const maat of MATEN) {
     for (const aanzicht of AANZICHTEN) {
       for (const ringPlattegrond of [true, false]) {
-        const p = { maat, aanzicht, lengte: 60, ringPlattegrond, schaal: 1 };
+        // De moer-opties wisselen mee: de omvang hangt er niet van af.
+        const p = { maat, aanzicht, lengte: 60, ringPlattegrond, moer: ringPlattegrond, ring: maat !== 'M10', schaal: 1 };
         const mm = boutTemplate.realSizeMm(p);
         const k = 3;
         const bbox = { x: 7, y: 11, width: mm.width * k, height: mm.height * k };
@@ -107,9 +117,11 @@ test('getekende omvang = realSizeMm en alles binnen de bbox', () => {
 test('zijaanzicht: drie zeskantvlakken, afschuinkrommen, ring, draad en punt', () => {
   const g = BOUT_MATEN.M12;
   const e = zeskantHoekmaat(g.s);
-  const p = { maat: 'M12', aanzicht: 'bout', lengte: 120, schaal: 1 };
+  const p = { maat: 'M12', aanzicht: 'bout', lengte: 120, moer: false, schaal: 1 };
   const mm = boutTemplate.realSizeMm(p);
   const cmds = boutTemplate.render(p, { x: 0, y: 0, width: mm.width, height: mm.height });
+  assert.ok(!cmds.some((c) => c.role === 'moer'), 'moer uit: alleen de bout');
+  assert.equal(cmds.filter((c) => c.role === 'ring').length, 1, 'alleen de ring onder de kop');
   const yMid = mm.height / 2;
   const kop = cmds.find((c) => c.role === 'boutkop');
   assert.equal(kop.kind, 'polyline');
@@ -150,6 +162,151 @@ test('zijaanzicht: drie zeskantvlakken, afschuinkrommen, ring, draad en punt', (
   const kort = boutTemplate.render({ ...p, lengte: 20 }, { x: 0, y: 0, width: 100, height: 40 });
   assert.ok(!kort.some((c) => c.role === 'draadeinde'));
   assert.equal(kort.filter((c) => c.role === 'draad').length, 2);
+});
+
+// Zijaanzicht 1:1 in een bbox op de oorsprong: x = afstand langs de as (mm).
+function zij(extra = {}) {
+  const p = { maat: 'M12', aanzicht: 'bout', lengte: 120, schaal: 1, ...extra };
+  const mm = boutTemplate.realSizeMm(p);
+  const bbox = { x: 0, y: 0, width: mm.width, height: mm.height };
+  const cmds = boutTemplate.render(p, bbox);
+  const bereik = (c) => {
+    const xs = puntenVan(c).map((q) => q[0]);
+    return [Math.min(...xs), Math.max(...xs)];
+  };
+  const ringen = cmds.filter((c) => c.role === 'ring').map(bereik).sort((a, b) => a[0] - b[0]);
+  const moer = cmds.filter((c) => c.role === 'moer').map(bereik)[0];
+  return { p, mm, bbox, cmds, ringen, moer, snap: boutTemplate.snapPoints(p, bbox) };
+}
+
+test('standaard zijaanzicht: ring en moer op het draadeind, twee spoeden uitstekend', () => {
+  const g = BOUT_MATEN.M12;
+  const { mm, cmds, ringen, moer } = zij();
+  const tip = mm.width;
+  assert.equal(cmds.filter((c) => c.role === 'boutkop').length, 1);
+  assert.equal(cmds.filter((c) => c.role === 'moer').length, 1, 'één moer');
+  assert.equal(cmds.filter((c) => c.role === 'moer-detail' && c.kind === 'polyline').length, 6, 'moer aan beide zijden afgeschuind');
+  assert.equal(ringen.length, 2, 'ring onder de kop en onder de moer');
+  near(moer[1], tip - 2 * g.P, 1e-9, 'twee spoeden draad voorbij de moer');
+  near(moer[1] - moer[0], g.m, 1e-9, 'moerhoogte');
+  near(ringen[1][1], moer[0], 1e-9, 'ring sluit aan op de moer');
+  near(ringen[1][1] - ringen[1][0], g.ringT, 1e-9, 'ringdikte');
+  // De omvang verandert niet door de moer: ze zit op de bout zelf.
+  assert.deepEqual(mm, boutTemplate.realSizeMm({ maat: 'M12', aanzicht: 'bout', lengte: 120, moer: false }));
+  // Draad volgens ISO 6410: kernlijnen dun en doorgetrokken, in de klemlengte
+  // en in het uitstekende eind; het draadeinde een dikke dwarslijn.
+  const draad = cmds.filter((c) => c.role === 'draad');
+  assert.equal(draad.length, 4);
+  assert.ok(draad.every((c) => !c.dash && c.lineWidthFactor === 0.5));
+  const b = draadLengte(g, tip - g.k);
+  const eind = cmds.filter((c) => c.role === 'draadeinde');
+  assert.equal(eind.length, 1);
+  near(eind[0].x1, tip - b, 1e-9, 'draadeinde op de normlengte');
+  assert.ok(!eind[0].lineWidthFactor || eind[0].lineWidthFactor >= 1, 'dikke lijn');
+  near(Math.abs(eind[0].y2 - eind[0].y1), g.d, 1e-9, 'over de buitendiameter');
+  assert.ok(eind[0].x1 < ringen[1][0], 'draadeinde zichtbaar vóór de ring');
+  // Niets van de schacht loopt door de moer of de ring heen.
+  for (const c of cmds.filter((q) => q.role === 'schacht' || q.role === 'draad')) {
+    const xs = puntenVan(c).map((q) => q[0]);
+    const a = Math.min(...xs), z = Math.max(...xs);
+    assert.ok(z <= ringen[1][0] + 1e-9 || a >= moer[1] - 1e-9, `${c.role} ${a}..${z} door de moer`);
+  }
+});
+
+test('ring onder de moer is een losse optie', () => {
+  const g = BOUT_MATEN.M12;
+  const { mm, ringen, moer } = zij({ ring: false });
+  assert.equal(ringen.length, 1, 'alleen de ring onder de kop');
+  near(moer[1], mm.width - 2 * g.P, 1e-9, 'moer blijft op het draadeind');
+});
+
+test('klemlengte bepaalt de plaats van de moer en is begrensd', () => {
+  const g = BOUT_MATEN.M12;
+  const onderRing = g.k + g.ringT;              // onderkant van de ring onder de kop
+  const b = draadLengte(g, 120 + g.ringT);      // 30
+  const vrij = zij({ klemlengte: 100 });
+  near(vrij.ringen[1][0] - onderRing, 100, 1e-9, 'klemlengte = onderkant kop-ring tot bovenkant moer-ring');
+  near(vrij.moer[0], onderRing + 100 + g.ringT, 1e-9, 'moer achter de ring');
+  // Te groot: de moer blijft binnen het bouteinde.
+  const ver = zij({ klemlengte: 500 });
+  near(ver.moer[1], ver.mm.width, 1e-9, 'moer niet voorbij het bouteinde');
+  // Te klein: de moer komt niet op het gladde deel van de schacht.
+  const kort = zij({ klemlengte: 5 });
+  near(kort.moer[0], kort.mm.width - b, 1e-9, 'moer begint op het draadeinde');
+  // Zonder ring geldt dezelfde begrenzing.
+  const kaal = zij({ klemlengte: 5, ring: false });
+  near(kaal.moer[0], kaal.mm.width - b, 1e-9, 'zonder ring');
+  // Standaard (0 of leeg) = twee spoeden uitstekend.
+  for (const klemlengte of [0, '', undefined, 'x', -4]) {
+    const s = zij({ klemlengte });
+    near(s.moer[1], s.mm.width - 2 * g.P, 1e-9, `auto bij ${klemlengte}`);
+  }
+  // Alle maten en lengtes: de moer ligt binnen de bout en, als de draad lang
+  // genoeg is voor de moer, geheel op de draad.
+  for (const maat of MATEN) {
+    for (const lengte of [40, 60, 120, 300]) {
+      for (const klemlengte of [0, 1, 30, 1000]) {
+        for (const draadlengte of [0, 25, 1000]) {
+          const s = zij({ maat, lengte, klemlengte, draadlengte });
+          const naam = `${maat} l=${lengte} klem=${klemlengte} draad=${draadlengte}`;
+          const gm = BOUT_MATEN[maat];
+          assertBinnenBbox(s.cmds, s.bbox, naam);
+          assert.ok(s.moer[1] <= s.mm.width + 1e-9, `${naam}: moer voorbij het bouteinde`);
+          assert.ok(s.moer[0] >= gm.k + gm.ringT - 1e-9, `${naam}: moer in de kop`);
+          const eind = s.cmds.find((c) => c.role === 'draadeinde');
+          if (eind && (draadlengte !== 25 || gm.m <= 25)) {
+            assert.ok(s.moer[0] >= eind.x1 - 1e-9, `${naam}: moer op het gladde deel`);
+          }
+        }
+      }
+    }
+  }
+});
+
+test('een bout die te kort is voor de moer wordt zonder moer getekend', () => {
+  const s = zij({ maat: 'M24', lengte: 15 });
+  assert.equal(s.moer, undefined);
+  assert.equal(s.ringen.length, 1);
+  assertBinnenBbox(s.cmds, s.bbox, 'M24 kort');
+  assert.ok(!s.snap.some((q) => q.role === 'moer'));
+});
+
+test('draadlengte: eigen waarde, 0 of leeg = normwaarde, begrensd tot de boutlengte', () => {
+  const g = BOUT_MATEN.M12;
+  const draadVanaf = (extra) => {
+    const s = zij({ moer: false, ...extra });
+    const eind = s.cmds.find((c) => c.role === 'draadeinde');
+    return eind ? s.mm.width - eind.x1 : null;
+  };
+  near(draadVanaf({ draadlengte: 60 }), 60, 1e-9, 'eigen draadlengte');
+  for (const draadlengte of [0, '', undefined, 'x', -10]) {
+    near(draadVanaf({ draadlengte }), draadLengte(g, 120 + g.ringT), 1e-9, `norm bij ${draadlengte}`);
+  }
+  // Langer dan de bout: draad over de hele schacht, geen draadeinde-lijn.
+  const vol = zij({ moer: false, draadlengte: 500 });
+  assert.equal(draadVanaf({ draadlengte: 500 }), null);
+  const kern = vol.cmds.filter((c) => c.role === 'draad');
+  assert.equal(kern.length, 2);
+  near(kern[0].x1, g.k + g.ringT, 1e-9, 'draad vanaf de ring onder de kop');
+  near(kern[0].x2, vol.mm.width, 1e-9, 'tot het bouteinde');
+  // Ook in het doorsteek-aanzicht.
+  const ds = zij({ aanzicht: 'doorsteek', draadlengte: 80 });
+  near(ds.mm.width - ds.cmds.find((c) => c.role === 'draadeinde').x1, 80, 1e-9, 'doorsteek');
+});
+
+test('doorsteek: zelfde beeld als voorheen, de moer-opties gelden daar niet', () => {
+  const g = BOUT_MATEN.M20;
+  const basis = { maat: 'M20', aanzicht: 'doorsteek', lengte: 150 };
+  const oud = zij(basis);
+  const onderRing = g.k + g.ringT;
+  near(oud.ringen[1][0], onderRing + 150, 1e-9, 'klemlengte = lengte');
+  near(oud.moer[0], onderRing + 150 + g.ringT, 1e-9, 'moer');
+  near(oud.mm.width - oud.moer[1], 0.6 * g.d, 1e-9, 'uitstekend draadeind 0,6·d');
+  const tip = oud.mm.width;
+  near(oud.cmds.find((c) => c.role === 'draadeinde').x1, tip - draadLengte(g, tip - g.k), 1e-9, 'draadeinde');
+  // Opgeslagen symbolen kennen de nieuwe params niet; uitzetten verandert niets.
+  const uit = zij({ ...basis, moer: false, ring: false, klemlengte: 20 });
+  assert.deepEqual(uit.cmds, oud.cmds);
 });
 
 test('doorsteek: moer aan beide zijden afgeschuind, tweede ring', () => {
@@ -197,11 +354,40 @@ test('bestaande annotatie met de oude maat blijft binnen haar bbox', () => {
 
 test('snappunten: midden, hoeken en middens van de bbox-randen', () => {
   const bbox = { x: 10, y: 20, width: 100, height: 30 };
-  const pts = boutTemplate.snapPoints({}, bbox);
+  const pts = boutTemplate.snapPoints({ aanzicht: 'plattegrond' }, bbox);
   assert.equal(pts.length, 9);
   assert.deepEqual(pts[0], { kind: 'center', x: 60, y: 35 });
   const hoeken = pts.filter((q) => q.kind === 'endpoint').map((q) => `${q.x},${q.y}`).sort();
   assert.deepEqual(hoeken, ['10,20', '10,50', '110,20', '110,50']);
   const middens = pts.filter((q) => q.kind === 'midpoint').map((q) => `${q.x},${q.y}`).sort();
   assert.deepEqual(middens, ['10,35', '110,35', '60,20', '60,50']);
+});
+
+test('snappunten zijaanzicht: onderkant kop, draadeinde, moer en bouteinde op de as', () => {
+  const g = BOUT_MATEN.M12;
+  const s = zij();
+  const yAs = s.mm.height / 2;
+  // De bbox-punten blijven vooraan staan.
+  assert.deepEqual(s.snap.slice(0, 9), boutTemplate.snapPoints({ aanzicht: 'zeskant' }, s.bbox));
+  const extra = s.snap.slice(9);
+  assert.deepEqual(extra.map((q) => q.role), ['kop-onder', 'draadeinde', 'moer', 'bouteinde']);
+  assert.ok(extra.every((q) => q.kind === 'endpoint' && Math.abs(q.y - yAs) < 1e-9), 'op de hartlijn');
+  const bij = Object.fromEntries(extra.map((q) => [q.role, q.x]));
+  near(bij['kop-onder'], g.k, 1e-9, 'onderkant kop');
+  near(bij.draadeinde, s.cmds.find((c) => c.role === 'draadeinde').x1, 1e-9, 'overgang glad/draad');
+  near(bij.moer, s.moer[0], 1e-9, 'aanlegvlak van de moer');
+  near(bij.bouteinde, s.mm.width, 1e-9, 'bouteinde');
+  // Zonder moer geen moerpunt; volledig draad: draadeinde onder de kop.
+  const kaal = zij({ moer: false, draadlengte: 999 });
+  assert.deepEqual(kaal.snap.slice(9).map((q) => q.role), ['kop-onder', 'draadeinde', 'bouteinde']);
+  near(kaal.snap[10].x, g.k, 1e-9, 'volledig draad');
+  // Verschoven en geschaalde bbox, doorsteek-aanzicht.
+  const p = { maat: 'M16', aanzicht: 'doorsteek', lengte: 80 };
+  const mm = boutTemplate.realSizeMm(p);
+  const bbox = { x: 10, y: 20, width: mm.width * 2, height: mm.height * 2 };
+  const pts = boutTemplate.snapPoints(p, bbox).slice(9);
+  const moer = boutTemplate.render(p, bbox).find((c) => c.role === 'moer');
+  near(pts.find((q) => q.role === 'moer').x, Math.min(...moer.points.map((q) => q.x)), 1e-9, 'moer doorsteek');
+  near(pts.find((q) => q.role === 'bouteinde').x, bbox.x + bbox.width, 1e-9, 'bouteinde doorsteek');
+  near(pts.find((q) => q.role === 'kop-onder').x, bbox.x + BOUT_MATEN.M16.k * 2, 1e-9, 'kop doorsteek');
 });

@@ -3,9 +3,13 @@
 // One template, five drawing views (aanzicht param):
 //   'bout'        — side elevation: hex head (three faces, 30° chamfer
 //                   curves on the top), washer, plain shank + threaded part
-//                   with a chamfered tip
-//   'doorsteek'   — through-bolt / concrete anchor: the same bolt with a
-//                   washer + nut (chamfered both ends) + protruding thread
+//                   with a chamfered tip; optionally (params `moer`, `ring`)
+//                   a nut (chamfered both ends) with a washer on the thread,
+//                   placed by `klemlengte` (0 = on the bolt end with two
+//                   pitches of thread protruding)
+//   'doorsteek'   — through-bolt / concrete anchor: `lengte` is the clamp
+//                   length, always with washer + nut + protruding thread
+//                   (same drawing code as 'bout')
 //   'moer-boven'  — nut top view: hexagon, chamfer circle (across flats),
 //                   thread per ISO 6410: thick minor circle + thin 3/4
 //                   major circle
@@ -72,15 +76,28 @@ export function draadLengte(g, l) {
   return l - b < 0.5 * g.d ? l : b;
 }
 
+// Bbox points, plus in the side views the points on the axis that define
+// the bolt: underside of the head, end of the thread (plain/thread
+// transition), bearing face of the nut and the bolt end. Each of these has
+// a `role`, so grips can later drag length, thread length and clamp length.
 const _snapPoints = (params, bbox) => {
   const { x, y, width: w, height: h } = bbox;
-  return [
+  const pts = [
     { kind: 'center', x: x + w / 2, y: y + h / 2 },
     { kind: 'endpoint', x, y }, { kind: 'endpoint', x: x + w, y },
     { kind: 'endpoint', x, y: y + h }, { kind: 'endpoint', x: x + w, y: y + h },
     { kind: 'midpoint', x: x + w / 2, y }, { kind: 'midpoint', x: x + w / 2, y: y + h },
     { kind: 'midpoint', x, y: y + h / 2 }, { kind: 'midpoint', x: x + w, y: y + h / 2 },
   ];
+  const { view, g, L, X, Y } = _kader(params, bbox);
+  if (!_isZijaanzicht(view)) return pts;
+  const z = _zijIndeling(params, g, L, view);
+  const opAs = (role, u) => pts.push({ kind: 'endpoint', x: X(u), y: Y(0), role });
+  opAs('kop-onder', g.k);
+  opAs('draadeinde', Math.max(z.uDraad, g.k));
+  if (z.moer) opAs('moer', z.uMoer);
+  opAs('bouteinde', z.uTip);
+  return pts;
 };
 
 function _schaalOf(params) {
@@ -102,6 +119,61 @@ function _stubOf(g) {
   return 0.6 * g.d;
 }
 
+function _isZijaanzicht(view) {
+  return view !== 'plattegrond' && view !== 'moer-boven' && view !== 'zeskant';
+}
+
+/** Positive number from a param, else 0 (= automatic / standard value). */
+function _positief(v) {
+  const n = parseFloat(v);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/**
+ * Layout of a side view along the axis (u in mm, head top at u = 0), shared
+ * by 'bout' and 'doorsteek':
+ *   uSchacht  underside of the washer under the head (start of the shank)
+ *   uTip      bolt end
+ *   uDraad    plain/thread transition (≤ uSchacht = fully threaded)
+ *   moer/ring whether the nut and the washer under it are drawn
+ *   uRing     face of the nut washer towards the head (= uMoer without ring)
+ *   uMoer     bearing face of the nut, uMoerEind its outer face
+ *
+ * 'bout': `lengte` is the shank length to the bolt end; the nut is placed by
+ * `klemlengte` (underside head washer → top of the nut washer), limited so
+ * the nut never passes the bolt end nor sits on the plain shank. A bolt too
+ * short to carry the nut is drawn without it.
+ * 'doorsteek': `lengte` is the clamp length; washer, nut and a thread stub
+ * follow it (the nut options do not apply there).
+ */
+function _zijIndeling(params, g, L, view) {
+  const uSchacht = g.k + g.ringT;
+  const doorsteek = view === 'doorsteek';
+  let moer = doorsteek || params?.moer !== false;
+  const ring = moer && (doorsteek || params?.ring !== false);
+  const tr = ring ? g.ringT : 0;
+  const Ls = doorsteek ? L + g.ringT + g.m + _stubOf(g) : L;   // shank to the tip
+  const uTip = uSchacht + Ls;
+  const lBout = uTip - g.k;                                    // length under the head
+  // Thread length: own value or the standard one, never beyond the bolt; a
+  // through-bolt always has thread under its nut and stub.
+  let b = _positief(params?.draadlengte) || draadLengte(g, lBout);
+  if (doorsteek) b = Math.max(b, g.m + _stubOf(g));
+  b = Math.min(b, lBout);
+  const uDraad = uTip - b;
+
+  const klemMax = Ls - tr - g.m;                               // nut flush with the bolt end
+  if (klemMax < 0) moer = false;
+  if (!moer) return { uSchacht, uTip, uDraad, moer: false, ring: false };
+  const klemMin = Math.min(Math.max(0, uDraad - uSchacht - tr), klemMax);
+  const klemAuto = doorsteek ? L : klemMax - 2 * g.P;          // two pitches protruding
+  const klemIn = doorsteek ? 0 : _positief(params?.klemlengte);
+  const klem = Math.min(Math.max(klemIn || klemAuto, klemMin), klemMax);
+  const uRing = uSchacht + klem;
+  const uMoer = uRing + tr;
+  return { uSchacht, uTip, uDraad, moer: true, ring, uRing, uMoer, uMoerEind: uMoer + g.m };
+}
+
 // Local-space (mm, y-down) drawing size per view. Side views run along x:
 // head/washer at the left, shaft to the right; their height is the larger
 // of the hexagon across corners and the washer outer Ø.
@@ -121,8 +193,27 @@ function _localSize(view, g, L, ringPlattegrond = true) {
       return { w: g.k + g.ringT + L + g.ringT + g.m + _stubOf(g), h: hZij };
     case 'bout':
     default:
+      // The nut sits on the bolt itself, so it does not change the size.
       return { w: g.k + g.ringT + L, h: hZij };
   }
+}
+
+// Fit of the local drawing in the bbox: size, scale and the local → canvas
+// maps (x from the left edge of the drawing, y centred on the axis).
+function _kader(params, bbox) {
+  const g = _maatOf(params);
+  const L = _lengteOf(params, g);
+  const view = params?.aanzicht || 'bout';
+  const ringPlattegrond = params?.ringPlattegrond !== false;
+  const { w, h } = _localSize(view, g, L, ringPlattegrond);
+  const S = Math.min(bbox.width / w, bbox.height / h);
+  const x0 = bbox.x + (bbox.width - w * S) / 2;
+  const yMid = bbox.y + bbox.height / 2;
+  return {
+    g, L, view, ringPlattegrond, w, h, S,
+    X: (v) => x0 + v * S,
+    Y: (v) => yMid + v * S,
+  };
 }
 
 // Hexagon points (point-side left/right, like the reference sheet),
@@ -271,6 +362,10 @@ export const boutTemplate = {
       type: 'boolean', default: true,
     },
     { key: 'lengte', label: 'Lengte (mm)', labelEn: 'Length (mm)', type: 'number', default: 120, min: 10, step: 5 },
+    { key: 'moer', label: 'Moer (zijaanzicht)', labelEn: 'Nut (side view)', type: 'boolean', default: true },
+    { key: 'ring', label: 'Ring onder de moer', labelEn: 'Washer under the nut', type: 'boolean', default: true },
+    { key: 'klemlengte', label: 'Klemlengte (mm, 0 = moer op het draadeind)', labelEn: 'Clamp length (mm, 0 = nut on the bolt end)', type: 'number', default: 0, min: 0, step: 5 },
+    { key: 'draadlengte', label: 'Draadlengte (mm, 0 = standaard)', labelEn: 'Thread length (mm, 0 = standard)', type: 'number', default: 0, min: 0, step: 5 },
     { key: 'schaal', label: 'Schaal', labelEn: 'Scale', type: 'number', default: 1, min: 0.1, step: 0.1 },
   ],
   realSizeMm(params) {
@@ -284,16 +379,8 @@ export const boutTemplate = {
   },
   snapPoints: _snapPoints,
   render(params, bbox) {
-    const g = _maatOf(params);
-    const L = _lengteOf(params, g);
-    const view = params?.aanzicht || 'bout';
-    const ringPlattegrond = params?.ringPlattegrond !== false;
-    const { w, h } = _localSize(view, g, L, ringPlattegrond);
-    const S = Math.min(bbox.width / w, bbox.height / h);
-    const x0 = bbox.x + (bbox.width - w * S) / 2;
-    const yMid = bbox.y + bbox.height / 2;
-    const X = (v) => x0 + v * S;          // local x (mm) → canvas
-    const Y = (v) => yMid + v * S;        // local y centred on the axis
+    // X: local x (mm) → canvas, Y: local y centred on the axis → canvas.
+    const { g, L, view, ringPlattegrond, w, S, X, Y } = _kader(params, bbox);
     const cmds = [];
     const e = zeskantHoekmaat(g.s);
 
@@ -327,25 +414,20 @@ export const boutTemplate = {
 
     // Side views — head (chamfered top at u = 0) + washer at the left.
     const map = (u, v) => ({ x: X(u), y: Y(v) });
-    const shaftStart = g.k + g.ringT;
+    const z = _zijIndeling(params, g, L, view);
     cmds.push(...zeskantZijaanzicht(map, 0, g.k, g.s, { afschuining: [true, false], role: 'boutkop' }));
-    cmds.push(...ringZijaanzicht(map, g.k, shaftStart, g.ringD));
+    cmds.push(...ringZijaanzicht(map, g.k, z.uSchacht, g.ringD));
 
-    if (view === 'doorsteek') {
-      // Clamp length L, then washer + nut (chamfered both ends) + thread stub.
-      const xRing2 = shaftStart + L;
-      const xNut = xRing2 + g.ringT;
-      const xStub = xNut + g.m;
-      const xTip = xStub + _stubOf(g);
-      const xDraad = xTip - draadLengte(g, xTip - g.k);
-      cmds.push(...schachtZijaanzicht(map, shaftStart, xRing2, g, { uDraad: xDraad }));
-      cmds.push(...ringZijaanzicht(map, xRing2, xNut, g.ringD));
-      cmds.push(...zeskantZijaanzicht(map, xNut, xStub, g.s, { afschuining: [true, true], role: 'moer' }));
-      cmds.push(...schachtZijaanzicht(map, xStub, xTip, g, { uDraad: xStub, punt: true }));
+    if (z.moer) {
+      // Shank up to the washer/nut, then washer + nut (chamfered both ends)
+      // and the thread protruding beyond the nut. The nut and washer are not
+      // cut, so the shank is not drawn through them.
+      cmds.push(...schachtZijaanzicht(map, z.uSchacht, z.uRing, g, { uDraad: z.uDraad }));
+      if (z.ring) cmds.push(...ringZijaanzicht(map, z.uRing, z.uMoer, g.ringD));
+      cmds.push(...zeskantZijaanzicht(map, z.uMoer, z.uMoerEind, g.s, { afschuining: [true, true], role: 'moer' }));
+      cmds.push(...schachtZijaanzicht(map, z.uMoerEind, z.uTip, g, { uDraad: z.uDraad, punt: true }));
     } else {
-      const xTip = shaftStart + L;
-      const xDraad = xTip - draadLengte(g, xTip - g.k);
-      cmds.push(...schachtZijaanzicht(map, shaftStart, xTip, g, { uDraad: xDraad, punt: true }));
+      cmds.push(...schachtZijaanzicht(map, z.uSchacht, z.uTip, g, { uDraad: z.uDraad, punt: true }));
     }
     cmds.push(hartlijnZijaanzicht(map, 0, w, 0.5 * g.d * S));
     return cmds;

@@ -90,7 +90,6 @@ const paalpuntniveauPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000
 // aanzicht, paalpositie (palenplan) en de overspanningspijl met halve
 // pijlpunten (⥋).
 const buisPreview = `<svg viewBox="0 0 64 64"><path d="M32 8A24 24 0 1 1 32 56A24 24 0 1 1 32 8ZM32 14A18 18 0 1 0 32 50A18 18 0 1 0 32 14Z" fill="#000" fill-rule="evenodd"/></svg>`;
-const rondeDoorsnedePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><circle cx="32" cy="32" r="22" fill="#b3b3b3"/><path d="M4 32H60M32 4V60" stroke-width="1.25" stroke-dasharray="7 2.5 1.5 2.5"/></svg>`;
 const houtAanzichtPreview = `<svg viewBox="0 0 64 64"><rect x="4" y="22" width="56" height="20" fill="#ead9b0" stroke="#000" stroke-width="2"/><path d="M6 28Q19 25 32 28T58 28M6 36Q19 33 32 36T58 36" fill="none" stroke="#b8a37a" stroke-width="1.25"/></svg>`;
 const paalpositiePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="10" y="22" width="32" height="32"/><path d="M10 22L42 54M10 54L42 22" stroke-width="1.25"/><text x="52" y="18" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#000" stroke="none">1</text></svg>`;
 const overspanningHalfPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M8 32H56"/><path d="M8 32L18 39M56 32L46 25"/></svg>`;
@@ -170,7 +169,6 @@ export const NL_CATEGORIES = [
       { id: 'param-staal-buis', name: 'Buis (CHS)', parametricId: 'staal-buis', svg: buisPreview },
       { id: 'param-hout-balk', name: 'Houten balk', parametricId: 'hout-balk', svg: houtBalkPreview },
       { id: 'param-hout-balk-aanzicht', name: 'Houten balk (aanzicht)', parametricId: 'hout-balk', params: { aanzicht: 'zij' }, svg: houtAanzichtPreview },
-      { id: 'param-ronde-doorsnede', name: 'Ronde doorsnede (beton/hout, paal)', parametricId: 'ronde-doorsnede', svg: rondeDoorsnedePreview },
       { id: 'param-paal-type-1', name: 'Paal aanzicht type 1', parametricId: 'paal-aanzicht-type-1', svg: paalType1Preview },
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalType2Preview },
       { id: 'param-paalpositie', name: 'Paalpositie (palenplan)', parametricId: 'paalpositie', svg: paalpositiePreview },

@@ -252,6 +252,7 @@
     "title": "Cím",
     "author": "Szerző",
     "subject": "Tárgy",
+    "keywords": "Kulcsszavak",
     "creator": "Létrehozó",
     "producer": "Előállító",
     "pdfVersion": "PDF verzió",

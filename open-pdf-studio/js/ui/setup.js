@@ -4,6 +4,7 @@ import { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCan
 import { registerAllTools } from '../tools/tools/index.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
 import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
+import { installeerScrollPanVangnet } from '../tools/pan-handler.js';
 import { loadPDFIfNeeded } from '../pdf/loader.js';
 import { cacheWebFile, isTauri } from '../core/platform.js';
 import { openGesleepteBestanden } from './setup/gesleept-bestand.js';
@@ -222,6 +223,8 @@ export function setupEventListeners() {
 
   // Middelmuis-slepen pant bij elk gereedschap en overal in de weergave
   installeerMiddelmuisPan();
+  // Een pan die zijn loslaten mist (venster kwijt) breekt af (#1013)
+  installeerScrollPanVangnet();
 
   // Catch pointerup outside canvas to stop stuck drawing/shape state
   document.addEventListener('pointerup', handlePointerUp);

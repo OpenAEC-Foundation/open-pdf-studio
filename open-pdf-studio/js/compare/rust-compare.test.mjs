@@ -71,6 +71,20 @@ test('only sides with a file of their own go to the worker, with the length the 
   clearCompareSources();
 });
 
+test('the worker path is off on Android/iOS: no PDFium worker there, so not even one IPC round trip', async () => {
+  let calls = 0;
+  const rust = createRustCompare({
+    inTauri: () => true,
+    mobile: () => true,
+    cachedBytes: () => null,
+    call: async () => { calls++; throw new Error('COMPARE_RUST_UNAVAILABLE: worker pool not ready'); },
+  });
+  assert.equal(rust.usable(), false);
+  assert.equal(calls, 0);
+  // Desktop (mobile() false or not given) keeps the worker path.
+  assert.equal(createRustCompare({ inTauri: () => true, mobile: () => false, call: null, cachedBytes: () => null }).usable(), true);
+});
+
 test('the worker path falls back to JS: off outside Tauri, warns once on a failure, stays off when disabled', async () => {
   const warnings = [];
   let answer = null;

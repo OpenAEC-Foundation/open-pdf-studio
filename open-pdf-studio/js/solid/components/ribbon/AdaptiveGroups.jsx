@@ -2,6 +2,7 @@ import { createSignal, createEffect, onMount, onCleanup, children as resolveChil
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { naLettertypen } from './na-lettertypen.js';
 import { uiSchaalFactor, UI_SCHAAL_EVENT } from '../../../core/ui-scale.js';
+import { kiesLintIndeling } from './lint-indeling.js';
 
 /**
  * AdaptiveGroups
@@ -117,21 +118,24 @@ export default function AdaptiveGroups(props) {
 
     const containerW = containerRef.clientWidth;
 
-    // Pass 1 — measure with full labels.
+    // Tekst bij zo veel groepen als er passen (lint-indeling.js). Meet elke
+    // groep in beide standen: smal (alleen pictogrammen) en met tekst. Een
+    // groep die uit zichzelf compact is, heet met tekst 'ruim'.
     containerRef.classList.remove('ribbon-groups-icon-only');
+    const isCompact = (n) => n.classList.contains('ribbon-group-compact') || n.classList.contains('ribbon-group-icon-only');
+    const zetStand = (n, metTekst) => {
+      n.classList.toggle('ribbon-group-ruim', metTekst && isCompact(n));
+      n.classList.toggle('ribbon-group-smal', !metTekst && !isCompact(n));
+    };
+    for (const n of nodes) zetStand(n, true);
+    const metTekst = nodes.map(n => n.offsetWidth);
+    for (const n of nodes) zetStand(n, false);
+    const smal = nodes.map(n => n.offsetWidth);
+    const indeling = kiesLintIndeling(containerW, nodes.map((n, i) => ({ smal: smal[i], metTekst: metTekst[i], compact: isCompact(n) })));
+    nodes.forEach((n, i) => zetStand(n, indeling.tekst[i]));
+    setIconOnly(!indeling.tekst.some(Boolean));
     let total = 0;
     for (const n of nodes) total += n.offsetWidth;
-
-    // If the labelled groups don't all fit, drop to icon-only first and
-    // re-measure the (smaller) widths — "shrink, then collapse".
-    let useIconOnly = false;
-    if (total > containerW) {
-      containerRef.classList.add('ribbon-groups-icon-only');
-      useIconOnly = true;
-      total = 0;
-      for (const n of nodes) total += n.offsetWidth;
-    }
-    setIconOnly(useIconOnly);
 
     // Compute overflow cutoff on the decided (labelled or icon-only) widths.
     let cutoff;

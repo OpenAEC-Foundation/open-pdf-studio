@@ -1,5 +1,22 @@
-// Parametrisch sonderingssymbool. Met kleefmeting is de conus gevuld en
-// verschijnt de horizontale kleeflijn; zonder kleefmeting blijft hij open.
+// Parametrisch sonderingssymbool. Een uitgevoerde sondering heeft een gevulde
+// conus, een nog niet uitgevoerde een open conus. Met kleefmeting verschijnt
+// de horizontale kleeflijn onder de conuspunt.
+
+// Ruime schatting van de tekstbreedte in Arial: elke tekenklasse telt met de
+// breedste letter uit die klasse, zodat de schatting nooit te smal uitvalt.
+export function estimateTextWidth(text, size, bold = false) {
+  let em = 0;
+  for (const ch of String(text ?? '')) {
+    if ("iIjl.,:;!|' ".includes(ch)) em += bold ? 0.34 : 0.28;
+    else if ('frt-()/'.includes(ch)) em += bold ? 0.39 : 0.34;
+    else if ('mwMW%@'.includes(ch)) em += 0.95;
+    else if (ch >= '0' && ch <= '9') em += 0.556;
+    else if ('+=<>'.includes(ch)) em += 0.584;
+    else if (ch >= 'a' && ch <= 'z') em += bold ? 0.611 : 0.556;
+    else em += 0.78;
+  }
+  return em * size;
+}
 
 export const sonderingTemplate = {
   id: 'sondering',
@@ -9,7 +26,8 @@ export const sonderingTemplate = {
   defaultSize: { width: 90, height: 120 },
   params: [
     { key: 'nummer', label: 'Nummer', labelEn: 'Number', type: 'string', default: '1' },
-    { key: 'kleefmeting', label: 'Met kleefmeting', labelEn: 'With sleeve friction', type: 'boolean', default: true },
+    { key: 'kleefmeting', label: 'Met kleefmeting', labelEn: 'With sleeve friction', type: 'boolean', default: false },
+    { key: 'uitgevoerd', label: 'Uitgevoerd', labelEn: 'Carried out', type: 'boolean', default: true },
   ],
   render(params = {}, bbox) {
     const { x, y, width, height } = bbox;
@@ -17,12 +35,23 @@ export const sonderingTemplate = {
     const shoulderY = y + height * 0.47;
     const tipY = y + height * 0.84;
     const halfWidth = Math.min(width * 0.22, height * 0.18);
-    const withFriction = params.kleefmeting !== false;
+    const withFriction = params.kleefmeting === true;
+    const carriedOut = params.uitgevoerd !== false;
+    // Het nummer staat boven de conus. Een lang nummer schuift naar links en
+    // krimpt zo nodig, zodat het binnen het kader blijft.
+    const text = String(params.nummer ?? '1');
+    const widthPerSize = estimateTextWidth(text, 1, true);
+    const size = Math.min(
+      Math.min(width * 0.24, height * 0.22) * 1.5,
+      widthPerSize > 0 ? (width * 0.96) / widthPerSize : Infinity,
+    );
+    const halfText = (widthPerSize * size) / 2;
+    const textX = Math.max(x + halfText, Math.min(x + width * 0.70, x + width - halfText));
     const commands = [
       {
         kind: 'polyline',
         close: true,
-        fill: withFriction,
+        fill: carriedOut,
         role: 'conus',
         points: [
           { x: cx - halfWidth, y: shoulderY },
@@ -32,10 +61,10 @@ export const sonderingTemplate = {
       },
       {
         kind: 'text',
-        x: x + width * 0.70,
+        x: textX,
         y: y + height * 0.28,
-        text: String(params.nummer ?? '1'),
-        size: Math.max(13, Math.min(width * 0.24, height * 0.22)),
+        text,
+        size,
         bold: true,
       },
     ];

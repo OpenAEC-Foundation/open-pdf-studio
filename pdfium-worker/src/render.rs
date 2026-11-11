@@ -19,7 +19,7 @@ pub struct RenderResult {
 // deze ene instantie.
 static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 
-fn pdfium() -> Result<&'static Pdfium> {
+pub(crate) fn pdfium() -> Result<&'static Pdfium> {
     if PDFIUM.get().is_none() {
         // Zoekvolgorde voor de PDFium-bibliotheek:
         //   1. systeem-zoekpad (Windows vindt pdfium.dll naast de exe);
@@ -96,6 +96,9 @@ struct CachedDoc {
     /// Open handle met pagina-index en parse-duur in ms. De parse-duur bepaalt
     /// of de handle na de render blijft leven (zie release_page_if_cheap).
     page: Option<OpenPage>,
+    /// Ruwe tweede handle voor de zoektekst (page_text/mod.rs), pas bij de
+    /// eerste tekstaanvraag geopend; leent net als `document` uit `_bytes`.
+    text: Option<crate::page_text::RuwDocument>,
     document: PdfDocument<'static>,
     _bytes: Vec<u8>,
 }
@@ -208,6 +211,7 @@ impl Renderer {
             mtime,
             len,
             page: None,
+            text: None,
             document,
             _bytes: bytes,
         }));
@@ -221,7 +225,48 @@ impl Renderer {
     pub fn trim(&mut self) {
         for e in self.cache.iter_mut() {
             e.page = None;
+            e.text = None;
         }
+    }
+
+    /// Zoektekst van pagina's `first..first + count` (page_text/mod.rs),
+    /// gecodeerd als `OPT1`. Stopt eerder zodra `budget_ms` verstreken is (na
+    /// minstens één pagina) of het antwoord de helft van de SHM-regio vult,
+    /// zodat tegelrenders op deze worker niet lang hoeven te wachten; de app
+    /// vraagt de rest daarna op. `expect_len`: de lengte die de app van het
+    /// bestand heeft; wijkt het bestand op schijf af, dan een fout (de app
+    /// leest dan met pdf.js).
+    /// Geeft (bytes, gecodeerde pagina's, pagina's in het document).
+    pub fn page_text(&mut self, path: &str, first: u32, count: u32, expect_len: Option<u64>, budget_ms: u32) -> Result<(Vec<u8>, u32, u32)> {
+        let idx = self.get_or_load(path)?;
+        if let Some(expect) = expect_len {
+            if self.cache[idx].len != expect {
+                return Err(anyhow!("PDF_TEXT_STALE: file on disk is {} bytes, the app has {}", self.cache[idx].len, expect));
+            }
+        }
+        let entry = &mut self.cache[idx];
+        if entry.text.is_none() {
+            let bindings = pdfium()?.bindings();
+            // Safety: de bytes leven in dezelfde entry en dropen na `text`.
+            entry.text = Some(unsafe { crate::page_text::RuwDocument::open(bindings, &entry._bytes)? });
+        }
+        let doc = entry.text.as_ref().expect("zojuist gezet");
+        let total = doc.page_count();
+        let mut out = Vec::new();
+        crate::page_text::encode_header(&mut out, total);
+        let t0 = std::time::Instant::now();
+        let end = first.saturating_add(count).min(total);
+        let mut done = 0u32;
+        for index in first..end {
+            let page = doc.pagina(index)?;
+            crate::page_text::encode_page(&mut out, &page);
+            done += 1;
+            if t0.elapsed().as_millis() >= u128::from(budget_ms) || out.len() > crate::shm::PAYLOAD_CAP / 2 {
+                break;
+            }
+        }
+        crate::page_text::zet_aantal(&mut out, done);
+        Ok((out, done, total))
     }
 
     /// Open (of hergebruik) de pagina-handle. FPDF_LoadPage parset de volledige
@@ -354,8 +399,8 @@ impl Renderer {
 
     /// Render tegels van een pagina voor Vergelijken (#465): elke tegel
     /// (x, y, w, h in pixels) op `scale` pixels per punt, wit papier,
-    /// annotatie-weergaven mee (zoals pdf.js met intent 'display'), geen
-    /// LCD-tekst. `each` krijgt per tegel de BGRA-pixels (rijbreedte w·4).
+    /// annotatie-weergaven en formuliervelden mee (zoals pdf.js met intent
+    /// 'display'), geen LCD-tekst. `each` krijgt per tegel de BGRA-pixels (rijbreedte w·4).
     /// De pagina blijft open tussen de tegels en wordt daarna (als hij
     /// goedkoop was) weer gesloten.
     pub fn render_tiles(
@@ -369,19 +414,43 @@ impl Renderer {
         let idx = self.get_or_load(path)?;
         let result = (|| -> Result<()> {
             let page = self.get_or_load_page(idx, page_index, false)?;
+            // Formuliervelden tekent PDFium alleen in de formulier-stap
+            // (FPDF_FFLDraw), niet als annotatie; pdf.js tekent ze wel. Die
+            // stap kent geen matrix: op een pagina met velden gaat de tegel
+            // daarom via de hele pagina op schaal met een verschoven oorsprong.
+            let has_fields = page.annotations().iter().any(|a| a.annotation_type() == PdfPageAnnotationType::Widget);
+            let page_px = (
+                (page.width().value as f64 * scale).round().max(1.0) as i32,
+                (page.height().value as f64 * scale).round().max(1.0) as i32,
+            );
             for (i, &(x, y, w, h)) in tiles.iter().enumerate() {
                 if w == 0 || h == 0 || w > i32::MAX as usize || h > i32::MAX as usize {
                     return Err(anyhow!("PDF_INVALID_GEOMETRY: compare tile {}x{}", w, h));
                 }
-                let config = PdfRenderConfig::new()
-                    .set_fixed_size(w as i32, h as i32)
-                    .transform(scale as f32, 0.0, 0.0, scale as f32, -(x as f32), -(y as f32))
-                    .map_err(|e| anyhow!("invalid transform: {}", e))?
-                    .render_annotations(true)
-                    .render_form_data(false)
-                    .use_lcd_text_rendering(false)
-                    .set_format(PdfBitmapFormat::BGRA);
-                let bitmap = page.render_with_config(&config).map_err(|e| anyhow!("PDFium compare render: {}", e))?;
+                let bitmap = if has_fields {
+                    let config = PdfRenderConfig::new()
+                        .set_fixed_size(page_px.0, page_px.1)
+                        .set_origin(-(x as i32), -(y as i32))
+                        .render_annotations(true)
+                        .render_form_data(true)
+                        .use_lcd_text_rendering(false)
+                        .set_format(PdfBitmapFormat::BGRA);
+                    let mut bitmap = PdfBitmap::empty(w as i32, h as i32, PdfBitmapFormat::BGRA)
+                        .map_err(|e| anyhow!("PDFium compare bitmap: {}", e))?;
+                    page.render_into_bitmap_with_config(&mut bitmap, &config)
+                        .map_err(|e| anyhow!("PDFium compare render: {}", e))?;
+                    bitmap
+                } else {
+                    let config = PdfRenderConfig::new()
+                        .set_fixed_size(w as i32, h as i32)
+                        .transform(scale as f32, 0.0, 0.0, scale as f32, -(x as f32), -(y as f32))
+                        .map_err(|e| anyhow!("invalid transform: {}", e))?
+                        .render_annotations(true)
+                        .render_form_data(false)
+                        .use_lcd_text_rendering(false)
+                        .set_format(PdfBitmapFormat::BGRA);
+                    page.render_with_config(&config).map_err(|e| anyhow!("PDFium compare render: {}", e))?
+                };
                 let raw = bitmap.as_raw_bytes();
                 let stride = raw.len() / h;
                 if stride == w * 4 {
@@ -515,6 +584,97 @@ mod tests {
         let bitmap = page.render_with_config(&config).unwrap();
         let ms = t0.elapsed().as_secs_f64() * 1000.0;
         (bitmap.width() as u32, bitmap.height() as u32, bitmap.as_rgba_bytes(), ms)
+    }
+
+    /// One 400 x 400 pt page with a line drawing; with `widget` also an
+    /// AcroForm text field at PDF rect [100 100 200 150] whose appearance is a
+    /// filled black box (what a filled-in field looks like in pdf.js).
+    fn form_page(widget: bool, rotate: i32) -> Vec<u8> {
+        let stream = |dict: &str, data: &str| format!("<< {} /Length {} >>\nstream\n{}\nendstream", dict, data.len(), data);
+        let mut bodies = vec![
+            format!("<< /Type /Catalog /Pages 2 0 R {} >>", if widget { "/AcroForm << /Fields [5 0 R] >>" } else { "" }),
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
+            format!(
+                "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 400] /Rotate {} /Contents 4 0 R {} >>",
+                rotate,
+                if widget { "/Annots [5 0 R]" } else { "" }
+            ),
+            stream("", "2 w 20 20 m 380 20 l S 20 20 m 20 380 l S 300 300 m 380 360 l S"),
+        ];
+        if widget {
+            bodies.push("<< /Type /Annot /Subtype /Widget /FT /Tx /T (veld) /V (x) /F 4 /P 3 0 R /Rect [100 100 200 150] /AP << /N 6 0 R >> >>".to_string());
+            bodies.push(stream("/Type /XObject /Subtype /Form /BBox [0 0 100 50]", "0 g 0 0 100 50 re f"));
+        }
+        let mut out = b"%PDF-1.7\n".to_vec();
+        let mut offsets = Vec::new();
+        for (i, body) in bodies.iter().enumerate() {
+            offsets.push(out.len());
+            out.extend_from_slice(format!("{} 0 obj\n{}\nendobj\n", i + 1, body).as_bytes());
+        }
+        let xref = out.len();
+        out.extend_from_slice(format!("xref\n0 {}\n0000000000 65535 f\r\n", bodies.len() + 1).as_bytes());
+        for offset in offsets {
+            out.extend_from_slice(format!("{:010} 00000 n\r\n", offset).as_bytes());
+        }
+        out.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n", bodies.len() + 1, xref).as_bytes());
+        out
+    }
+
+    /// Compare tiles (x, y, w, h px at `scale`) of page 0 of `bytes`, via a file like the worker.
+    fn compare_tiles(bytes: &[u8], name: &str, scale: f64, tiles: &[(usize, usize, usize, usize)]) -> Vec<Vec<u8>> {
+        let path = std::env::temp_dir().join(format!("opds-worker-test-{}-{}.pdf", std::process::id(), name));
+        std::fs::write(&path, bytes).unwrap();
+        let mut renderer = Renderer::new().expect("renderer");
+        let mut out = vec![Vec::new(); tiles.len()];
+        renderer.render_tiles(path.to_str().unwrap(), 0, scale, tiles, |i, px| out[i] = px.to_vec()).unwrap();
+        drop(renderer);
+        let _ = std::fs::remove_file(&path);
+        out
+    }
+
+    fn dark(px: &[u8], w: usize, x: usize, y: usize) -> bool {
+        let o = (y * w + x) * 4;
+        px[o] < 100 && px[o + 1] < 100 && px[o + 2] < 100
+    }
+
+    /// Vergelijken toont formuliervelden zoals pdf.js (intent 'display'):
+    /// een gewijzigde veldwaarde moet in de inktmaskers zitten, anders meldt
+    /// de desktop hem niet terwijl de webversie hem wel meldt.
+    #[test]
+    fn compare_tiles_draw_form_fields_like_pdfjs() {
+        let tile = (50usize, 230usize, 200usize, 100usize); // displayed y: field at 250..300, x 100..200
+        let met = compare_tiles(&form_page(true, 0), "met", 1.0, &[tile]);
+        assert!(dark(&met[0], tile.2, 100, 45), "field appearance inside the tile");
+        assert!(!dark(&met[0], tile.2, 20, 5), "paper outside the field stays white");
+    }
+
+    /// Met of zonder veld: de tekening zelf komt op dezelfde pixels, ook op
+    /// een gedraaide pagina en in een verschoven tegel.
+    #[test]
+    fn compare_tiles_with_form_fields_keep_the_drawing_in_place() {
+        for rotate in [0, 90] {
+            let tiles = [(0usize, 0usize, 400usize, 400usize), (250, 30, 120, 90), (10, 300, 64, 100)];
+            let met = compare_tiles(&form_page(true, rotate), &format!("met{rotate}"), 1.5, &tiles);
+            let zonder = compare_tiles(&form_page(false, rotate), &format!("zonder{rotate}"), 1.5, &tiles);
+            for (t, &(x0, y0, w, h)) in tiles.iter().enumerate() {
+                let mut verschil = 0;
+                for y in 0..h {
+                    for x in 0..w {
+                        // skip the field itself (display space at scale 1.5, both rotations, with a margin)
+                        let (dx, dy) = ((x0 + x) as f64 / 1.5, (y0 + y) as f64 / 1.5);
+                        let veld = if rotate == 0 { (95.0..205.0).contains(&dx) && (245.0..305.0).contains(&dy) } else { (95.0..155.0).contains(&dx) && (95.0..205.0).contains(&dy) };
+                        if !veld && dark(&met[t], w, x, y) != dark(&zonder[t], w, x, y) {
+                            verschil += 1;
+                        }
+                    }
+                }
+                assert_eq!(verschil, 0, "rotate {rotate}, tile {t}: drawing moved");
+                let veld_inkt = (0..h).flat_map(|y| (0..w).map(move |x| (x, y))).filter(|&(x, y)| dark(&met[t], w, x, y) && !dark(&zonder[t], w, x, y)).count();
+                if t == 0 {
+                    assert!(veld_inkt > 1000, "rotate {rotate}: the field is drawn ({veld_inkt} px)");
+                }
+            }
+        }
     }
 
     fn median(mut v: Vec<f64>) -> f64 {

@@ -56,7 +56,8 @@ test('ronde doorsnede: beton grijs, hout in de houtkleur, op ware diameter', () 
   assert.equal(beton.find((c) => c.role === 'label').text, 'Ø400');
   assert.ok(!render('ronde-doorsnede', { toonLabel: false }).some((c) => c.role === 'label'));
   eindig(hout);
-  assert.equal(ifcCategoryForSymbol(knop('param-ronde-doorsnede')), 'IfcPile');
+  // Niet meer in het palet; het template blijft voor bestaande tekeningen.
+  assert.ok(!NL_CATEGORIES.some((c) => c.symbols.some((x) => x.id === 'param-ronde-doorsnede')));
 });
 
 test('houten balk: aanzicht naast de doorsnede, bestaande balken blijven doorsnede', () => {
