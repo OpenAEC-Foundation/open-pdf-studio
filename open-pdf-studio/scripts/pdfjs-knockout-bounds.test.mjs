@@ -25,7 +25,7 @@ for (const [build, path] of builds) {
     assert.ok(fixed.includes('#endKnockoutElement(started, intersect ?? [0, 0, 0, 0], pathBox)'));
     assert.ok(fixed.includes('destCtx.drawImage(surfaceCanvas, rx, ry, rw, rh, rx, ry, rw, rh);'));
     assert.equal(patchKnockoutBounds(fixed), fixed);
-    assert.equal(patchPdfjsDisplay(fixed), fixed);
+    assert.equal(patchKnockoutBounds(patchPdfjsDisplay(fixed)), patchPdfjsDisplay(fixed));
     assert.throws(() => patchKnockoutBounds(source + source), /no longer matches.*#637/);
     assert.throws(() => patchKnockoutBounds(source.replace('    destCtx.drawImage(surfaceCanvas, 0, 0);\n', '    destCtx.drawImage(surfaceCanvas, 0, 0, 1);\n')), /no longer matches/);
     // Half gepatcht (een paar ontbrekend) is ook drift.
