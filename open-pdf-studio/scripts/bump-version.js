@@ -171,6 +171,10 @@ function versievelden(basis = repoRoot) {
     { pad: 'Cargo.lock', ...cargoLock(crates) },
     { pad: 'open-pdf-studio/src-tauri/Cargo.lock', ...cargoLock(crates) },
     { pad: 'open-pdf-render/Cargo.lock', ...cargoLock(crates) },
+    // Independent native print harness: keep its version aligned without
+    // making it a member of the application workspace.
+    { pad: 'open-pdf-studio/scripts/print-native-tests/Cargo.toml', ...cargoPakketVersie },
+    { pad: 'open-pdf-studio/scripts/print-native-tests/Cargo.lock', ...cargoLock([{ naam: 'print-native-tests' }]) },
     // De stdio-brug meldt deze versie als serverInfo.version.
     { pad: 'mcp-stdio/package.json', ...jsonVersie },
     // De Python-bibliotheek (#518) krijgt het appnummer.
