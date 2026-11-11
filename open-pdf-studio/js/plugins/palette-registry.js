@@ -14,6 +14,7 @@
  *     defaultVisible: boolean,
  *     defaultMode: 'docked-left' | 'docked-right' | 'float',
  *     cssClass?: string         // extra class added to the palette root (.tp-docked / .tp-float)
+ *     floatLayout?: 'grid' | 'list'  // floating: icon grid (default) or a list of icon + name
  *                               // so plugin-CSS can target without DOM scraping
  *   }
  *

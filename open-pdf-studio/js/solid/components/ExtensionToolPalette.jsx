@@ -169,8 +169,11 @@ function ExtToolBtn(props) {
       disabled={toolDisabled()}
       onClick={() => { setTool(props.tool); if (props.overrides) state.toolOverrides = props.overrides; }}
       title={props.title}
-      innerHTML={props.icon}
-    />
+    >
+      <span class="tp-btn-icon" innerHTML={props.icon} />
+      {/* Name next to the icon: shown in a floating palette with floatLayout 'list'. */}
+      <span class="tp-btn-label">{props.title}</span>
+    </button>
   );
 }
 
@@ -445,7 +448,7 @@ export function FloatingExtPalette(props) {
   return (
     <Show when={shouldShow()}>
       <div
-        class={`tp-float tp-ext${paletteIconSize() === 'large' ? ' tp-large' : ''}${props.descriptor.cssClass ? ' ' + props.descriptor.cssClass : ''}`}
+        class={`tp-float tp-ext${props.descriptor.floatLayout === 'list' ? ' tp-float-list' : ''}${paletteIconSize() === 'large' ? ' tp-large' : ''}${props.descriptor.cssClass ? ' ' + props.descriptor.cssClass : ''}`}
         data-palette={id()}
         style={`left:${ps().floatPos[0]().x}px; top:${ps().floatPos[0]().y}px`}
         onContextMenu={showPaletteCtxMenu}

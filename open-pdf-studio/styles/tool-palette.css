@@ -49,7 +49,8 @@
   user-select: none;
   overflow: hidden;
 }
-.tp-ext.tp-docked, .tp-ext.tp-float { background: #ffffff; }
+/* Extension palettes follow the theme like the Tool Palette. */
+.tp-ext.tp-docked, .tp-ext.tp-float { background: var(--theme-surface, #ffffff); }
 
 .tp-docked-tools {
   display: flex;
@@ -442,3 +443,38 @@
   border-right: 1px solid var(--theme-border);
 }
 .tp-docked-top .tp-logo img, .tp-docked-bottom .tp-logo img { height: 100%; width: auto; }
+
+/* Extension palette buttons: icon, plus a name that only a list layout shows. */
+.tp-btn-icon { display: flex; align-items: center; justify-content: center; }
+.tp-btn-label { display: none; }
+
+/* --- Floating extension palette as a list (floatLayout: 'list') --- */
+.tp-float.tp-float-list {
+  min-width: 200px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.tp-float-list .tp-float-header {
+  padding: 8px 8px 8px 10px;
+  background: var(--theme-surface, #ffffff);
+}
+.tp-float-list .tp-float-title { font-size: 13px; }
+.tp-float-list .tp-float-body {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+}
+.tp-float-list .tp-btn {
+  width: auto;
+  height: 34px;
+  margin: 1px 0;
+  padding: 0 10px;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.tp-float-list .tp-btn-label {
+  display: inline;
+  font-size: 13px;
+  color: var(--theme-text);
+  white-space: nowrap;
+}
