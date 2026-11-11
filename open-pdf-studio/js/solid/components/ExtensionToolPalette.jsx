@@ -96,6 +96,11 @@ export function toggleExtPalette(id) {
   savePalettePrefs(id);
 }
 
+/** Show or hide an extension palette (plugin API setToolPaletteVisible). */
+export function setExtPaletteVisible(id, visible) {
+  if (!!visible !== isExtPaletteVisible(id)) toggleExtPalette(id);
+}
+
 export function isExtPaletteVisible(id) {
   const ps = paletteStates[id];
   return ps ? ps.visible[0]() : false;

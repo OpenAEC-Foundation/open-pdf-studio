@@ -370,6 +370,22 @@ export function createPluginApi(pluginId) {
       registeredPalettes.splice(idx, 1);
     },
 
+    // Show or hide one of this extension's own palettes. Without this an
+    // extension palette could be registered but never opened. It then docks
+    // and floats like the Tool Palette.
+    async setToolPaletteVisible(id, visible) {
+      if (!registeredPalettes.includes(id)) return false;
+      const m = await import('../solid/components/ExtensionToolPalette.jsx');
+      m.setExtPaletteVisible(id, !!visible);
+      return m.isExtPaletteVisible(id);
+    },
+
+    async isToolPaletteVisible(id) {
+      if (!registeredPalettes.includes(id)) return false;
+      const m = await import('../solid/components/ExtensionToolPalette.jsx');
+      return m.isExtPaletteVisible(id);
+    },
+
     // --- Property panel registration (custom edit-form for plugin annotations) ---
     registerPropertyPanel(typeName, renderFn) {
       scope.eisActief('propertyPanel', typeName);
