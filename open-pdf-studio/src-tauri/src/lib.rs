@@ -74,6 +74,8 @@ pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
+mod startup_visibility;
+mod startup_window;
 // Vensteropname voor app_screenshot_view (#583); buiten Windows een nette fout.
 pub mod webview_opname;
 pub mod worker_pool;
@@ -3470,6 +3472,8 @@ pub fn run(opts: StartupOpts) {
     let mut context = tauri::generate_context!();
     // Draagbare modus (#881): eigen single-instance-sleutel per map.
     draagbaar::pas_context_aan(&mut context);
+    #[cfg(desktop)]
+    startup_window::prepare(&mut context);
     if let Some(browser_args) = &headless_browser_args {
         headless::pas_context_aan(&mut context, browser_args);
     }
@@ -3514,6 +3518,8 @@ pub fn run(opts: StartupOpts) {
             let diagnostics = startup_diagnostics::StartupDiagnostics::new(diagnostics_path);
             diagnostics.record("native-created", None);
             app.manage(diagnostics);
+            #[cfg(desktop)]
+            startup_window::start_watchdog(app.handle());
 
             // Ondertekende versies (pdf_signed_revision) ouder dan zeven dagen
             // opruimen; vangnet naast het opruimen door de UI. Ruim genoeg, zodat
@@ -3843,6 +3849,7 @@ pub fn run(opts: StartupOpts) {
             instantie::instance_role,
             beheerd::managed_mode,
             instantie::tab_drop_target,
+            startup_window::startup_window_ready,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,
             datamap::app_data_dir_effectief,
