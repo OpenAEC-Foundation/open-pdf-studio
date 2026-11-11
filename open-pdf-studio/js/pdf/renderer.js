@@ -235,7 +235,7 @@ function _startJankDetector() {
 _startJankDetector();
 
 // Render PDF page (single page mode)
-export async function renderPage(pageNum) {
+export async function renderPage(pageNum, onPageResize = null) {
   // In-flight counter exposed for MCP test harness — `waitForRenderIdle()`
   // polls `window.__pdfRenderInFlight === 0` to know when a synthetic zoom
   // event has fully settled (bitmap painted, tile rendered, state updated).
@@ -243,7 +243,7 @@ export async function renderPage(pageNum) {
     window.__pdfRenderInFlight = (window.__pdfRenderInFlight || 0) + 1;
   }
   try {
-    return await _renderPageImpl(pageNum);
+    return await _renderPageImpl(pageNum, onPageResize);
   } finally {
     if (typeof window !== 'undefined') {
       window.__pdfRenderInFlight = Math.max(0, (window.__pdfRenderInFlight || 1) - 1);
@@ -254,7 +254,7 @@ export async function renderPage(pageNum) {
   }
 }
 
-async function _renderPageImpl(pageNum) {
+async function _renderPageImpl(pageNum, onPageResize) {
   const _rp0 = performance.now();
   console.log(`[PERF] renderPage(${pageNum}) START`);
   // Clear search highlights immediately to prevent stale highlights
@@ -585,7 +585,8 @@ async function _renderPageImpl(pageNum) {
         _vpMod.viewport.currentBitmap = null;
       }
 
-      await tekenPaginaMetPdfJs(page, beeldViewport, pdfCanvas);
+      if (_isStaleGen() || _isStaleDoc(doc)) return;
+      await tekenPaginaMetPdfJs(page, beeldViewport, pdfCanvas, onPageResize);
       if (_isStaleDoc(doc)) return;
       state.renderEngine = 'Raster (PDF.js)';
       // De pagina staat er. Wat hierna komt (tekst-, link- en formulierlaag,
@@ -757,12 +758,15 @@ async function _renderPageImpl(pageNum) {
 // Tekent één pagina met PDF.js op een canvas. Gebruikt door élk pad dat
 // PDFium niet kan aanroepen: de webversie (geen Tauri) en lege documenten
 // zonder bestandspad. Zie render-route.js voor wanneer dit pad geldt.
-async function tekenPaginaMetPdfJs(page, viewport, canvas) {
+async function tekenPaginaMetPdfJs(page, viewport, canvas, onResize = null) {
   const dpr = getCanvasDPR();
   canvas.width = Math.floor(viewport.width * dpr);
   canvas.height = Math.floor(viewport.height * dpr);
   canvas.style.width = Math.floor(viewport.width) + 'px';
   canvas.style.height = Math.floor(viewport.height) + 'px';
+  // Keep the zoom anchor in the same layout frame as the canvas resize,
+  // before asynchronous painting/layer work or a subsequent wheel event.
+  onResize?.();
   const ctx = canvas.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = '#ffffff';
@@ -2171,7 +2175,31 @@ export async function goToPage(pageNum, options = {}) {
 // via the legacy PDF.js path will have its change immediately stomped.
 // We must therefore mutate the viewport directly when it's active, and
 // only fall back to the legacy `doc.scale` path otherwise.
-export async function zoomIn() {
+// PDF.js single-page views (web and unsaved documents) scroll the page-sized
+// canvas instead of using the native viewport's pan offsets. Preserve the
+// point in that canvas through its actual CSS resize, including fixed chrome
+// and page rotation. Scroll limits still apply when a page fits an axis.
+function singlePageZoomAnchor(doc, point) {
+  const container = document.getElementById('pdf-container');
+  const canvas = getPdfCanvas();
+  if (!container || !canvas) return null;
+  const rectBefore = canvas.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const anchor = point ?? {
+    x: containerRect.left + container.clientLeft + container.clientWidth / 2,
+    y: containerRect.top + container.clientTop + container.clientHeight / 2,
+  };
+  const pageNum = doc.currentPage;
+  const scale = doc.scale;
+  return () => {
+    if (getActiveDocument() !== doc || doc.currentPage !== pageNum || doc.scale !== scale) return;
+    const { dx, dy } = anchorScrollCorrection(anchor, rectBefore, canvas.getBoundingClientRect());
+    container.scrollLeft += dx;
+    container.scrollTop += dy;
+  };
+}
+
+export async function zoomIn(point = null) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
   const vp = window.__pdfViewport;
@@ -2190,10 +2218,10 @@ export async function zoomIn() {
     return;
   }
   doc.scale += 0.25;
-  await renderPage(doc.currentPage);
+  await renderPage(doc.currentPage, singlePageZoomAnchor(doc, point));
 }
 
-export async function zoomOut() {
+export async function zoomOut(point = null) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
   const vp = window.__pdfViewport;
@@ -2216,7 +2244,7 @@ export async function zoomOut() {
     if (doc.scale <= 0.2) doc.scale = Math.max(0.05, doc.scale - 0.025);
     else if (doc.scale <= 0.5) doc.scale = Math.max(0.05, doc.scale - 0.1);
     else doc.scale -= 0.25;
-    await renderPage(doc.currentPage);
+    await renderPage(doc.currentPage, singlePageZoomAnchor(doc, point));
   }
 }
 
