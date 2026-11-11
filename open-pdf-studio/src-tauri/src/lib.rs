@@ -17,6 +17,7 @@ pub mod crashlog;
 pub mod datamap;
 pub mod draagbaar;
 mod email;
+mod installed_fonts;
 pub mod export_policy;
 pub mod extensie_catalogus;
 pub mod extensie_installatie;
@@ -320,6 +321,14 @@ fn updates_managed_externally() -> bool {
 #[tauri::command]
 fn get_username() -> String {
     whoami::username()
+}
+
+// Font catalogue queries may touch OS caches; keep them off the UI thread.
+#[tauri::command]
+async fn list_installed_font_families() -> Result<Vec<String>, String> {
+    tauri::async_runtime::spawn_blocking(installed_fonts::installed_font_families)
+        .await
+        .map_err(|error| format!("Font enumeration task failed: {error}"))?
 }
 
 // Fallback commands for when plugins aren't available via global API
@@ -3691,6 +3700,7 @@ pub fn run(opts: StartupOpts) {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            list_installed_font_families,
             pdf_beveiliging::pdf_security_new,
             pdf_beveiliging::pdf_security_permissions,
             pdf_beveiliging::pdf_security_unlock_owner,

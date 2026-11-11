@@ -189,9 +189,14 @@ webkit2gtk = "2"
 # ICoreWebView2::CapturePreview (src/webview_opname.rs). Dezelfde versies die
 # wry en tauri al meebrengen; ze staan al in Cargo.lock.
 [target.'cfg(target_os = "windows")'.dependencies]
+dwrote = { version = "=0.11.5", default-features = false }
 webview2-com = "0.38.2"
 windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
 windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading"] }
+
+# Use each desktop OS font catalogue; no application-private directory scan.
+[target.'cfg(any(target_os = "macos", target_os = "linux"))'.dependencies]
+font-kit = "=0.14.3"
 
 # De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
 # venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen

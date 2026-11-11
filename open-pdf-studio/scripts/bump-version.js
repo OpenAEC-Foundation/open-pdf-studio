@@ -168,6 +168,8 @@ function versievelden(basis = repoRoot) {
     },
     { pad: 'open-pdf-studio/src-tauri/tauri.conf.json', ...jsonVersie },
     ...crates.map(({ map }) => ({ pad: `${map}/Cargo.toml`, ...cargoPakketVersie })),
+    { pad: 'open-pdf-studio/scripts/font-native-tests/Cargo.toml', ...cargoPakketVersie },
+    { pad: 'open-pdf-studio/scripts/font-native-tests/Cargo.lock', ...cargoLock([{ naam: 'opds-font-native-tests' }]) },
     { pad: 'Cargo.lock', ...cargoLock(crates) },
     { pad: 'open-pdf-studio/src-tauri/Cargo.lock', ...cargoLock(crates) },
     { pad: 'open-pdf-render/Cargo.lock', ...cargoLock(crates) },
