@@ -118,3 +118,18 @@ test('browser never requests native enumeration or local-font permission', async
 test('empty canvas result still provides the existing fallback list', async () => {
   assert.deepEqual(await fonts.discoverFontFamilies({ native: false, detect: async () => [] }), fonts.lettertypeKandidaten());
 });
+
+// #765: test de daadwerkelijke browserfallback, onafhankelijk van de naam
+// van de geïnjecteerde detectiefunctie of de native catalogus (#1011).
+test('ook geïnstalleerde lettertypen van Linux en macOS staan in de browserkeuzelijst', async () => {
+  const aanwezig = ['Liberation Sans', 'DejaVu Sans', 'Noto Sans', 'Helvetica Neue', 'Menlo'];
+  const gevonden = await fonts.discoverFontFamilies({
+    native: false,
+    listInstalled: async () => assert.fail('browser mag geen native catalogus gebruiken'),
+    detect: (kandidaten) => fonts.detectAvailableFonts(kandidaten, {
+      maakContext: () => nepContext(aanwezig),
+      idle: directIdle,
+    }),
+  });
+  assert.deepEqual(new Set(gevonden), new Set(aanwezig));
+});
