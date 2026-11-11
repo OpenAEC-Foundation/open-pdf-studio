@@ -1,4 +1,5 @@
 import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
+import { klemPaletPositie } from './palette-grenzen.js';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import { ClipboardWindow, clipboardWindowOpen, toggleClipboardWindow, clipboardIcon } from './ClipboardHistory.jsx';
@@ -84,8 +85,7 @@ function clampFloatPosition() {
   const w = el ? el.offsetWidth : 80;
   const h = el ? el.offsetHeight : 40;
   const pos = floatPos();
-  const nx = Math.max(0, Math.min(pos.x, window.innerWidth - w));
-  const ny = Math.max(0, Math.min(pos.y, window.innerHeight - h));
+  const { x: nx, y: ny } = klemPaletPositie(pos, w, h);
   if (nx !== pos.x || ny !== pos.y) {
     setFloatPos({ x: nx, y: ny });
     savePaletteState();
@@ -170,8 +170,7 @@ function startDrag(e, fromDocked) {
     const el = document.querySelector('.tp-float:not(.tp-ext)');
     const pw = el ? el.offsetWidth : 80;
     const ph = el ? el.offsetHeight : 40;
-    const nx = Math.max(0, Math.min(ev.clientX - offsetX, window.innerWidth - pw));
-    const ny = Math.max(0, Math.min(ev.clientY - offsetY, window.innerHeight - ph));
+    const { x: nx, y: ny } = klemPaletPositie({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }, pw, ph);
     setFloatPos({ x: nx, y: ny });
     setDockPreview(getSnapSide(ev.clientX));
   }

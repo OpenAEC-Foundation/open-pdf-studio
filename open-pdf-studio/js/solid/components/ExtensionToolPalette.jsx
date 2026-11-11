@@ -5,6 +5,7 @@
  * with independent docking, floating, visibility, and drag state.
  */
 
+import { klemPaletPositie } from './palette-grenzen.js';
 import { createSignal, createEffect, Show, For, onMount, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
@@ -109,8 +110,7 @@ function clampAllExtFloatPositions() {
     const w = el ? el.offsetWidth : 80;
     const h = el ? el.offsetHeight : 40;
     const pos = ps.floatPos[0]();
-    const nx = Math.max(0, Math.min(pos.x, window.innerWidth - w));
-    const ny = Math.max(0, Math.min(pos.y, window.innerHeight - h));
+    const { x: nx, y: ny } = klemPaletPositie(pos, w, h);
     if (nx !== pos.x || ny !== pos.y) {
       ps.floatPos[1]({ x: nx, y: ny });
       savePalettePrefs(id);
@@ -166,8 +166,7 @@ function startExtDrag(id, e, fromDocked) {
     const el = document.querySelector('.tp-float.tp-ext');
     const pw = el ? el.offsetWidth : 80;
     const ph = el ? el.offsetHeight : 40;
-    const nx = Math.max(0, Math.min(ev.clientX - offsetX, window.innerWidth - pw));
-    const ny = Math.max(0, Math.min(ev.clientY - offsetY, window.innerHeight - ph));
+    const { x: nx, y: ny } = klemPaletPositie({ x: ev.clientX - offsetX, y: ev.clientY - offsetY }, pw, ph);
     ps.floatPos[1]({ x: nx, y: ny });
     ps.dockPreview[1](getSnapSide(ev.clientX));
   }
