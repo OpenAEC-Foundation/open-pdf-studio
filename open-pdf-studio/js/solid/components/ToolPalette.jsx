@@ -159,14 +159,19 @@ function startDrag(e, fromDocked) {
 
   function snapSide(px, py, pw, ph, cx, cy) {
     const r = kader || mainViewEl.getBoundingClientRect();
-    // Distance of the palette's (and the pointer's) edges to each view edge.
+    // Snapping: the pointer near an edge, or for the side docks the palette's
+    // own side edge too (it is a narrow strip there). Top and bottom go by the
+    // pointer only: the floating palette is tall, so its bottom edge is near
+    // the bottom of the view wherever it is dragged.
     const afstand = {
       left: Math.min(px - r.left, cx - r.left),
       right: Math.min(r.right - (px + pw), r.right - cx),
-      top: Math.min(py - r.top, cy - r.top),
-      bottom: Math.min(r.bottom - (py + ph), r.bottom - cy),
+      top: cy - r.top,
+      bottom: r.bottom - cy,
     };
-    if (gedokt && afstand[gedokt] < DOCK_RELEASE) return gedokt;
+    // Coming off goes by the pointer alone: drag it away and it floats.
+    const wijzer = { left: cx - r.left, right: r.right - cx, top: cy - r.top, bottom: r.bottom - cy };
+    if (gedokt && wijzer[gedokt] < DOCK_RELEASE) return gedokt;
     let beste = null;
     for (const [kant, d] of Object.entries(afstand)) {
       if (d < DOCK_SNAP && (beste === null || d < afstand[beste])) beste = kant;
@@ -187,6 +192,10 @@ function startDrag(e, fromDocked) {
   }
 
   function onMove(ev) {
+    // Button already up: the release was missed (the element that was
+    // grabbed is replaced when the palette docks or undocks, and the
+    // mouseup can go with it). End the drag here, where the palette is.
+    if ((ev.buttons & 1) === 0) { onUp(); return; }
     if (!hasMoved) {
       const dx = Math.abs(ev.clientX - startCX);
       const dy = Math.abs(ev.clientY - startCY);
@@ -212,17 +221,26 @@ function startDrag(e, fromDocked) {
     setDockPreview(kant);
   }
 
+  let klaar = false;
   function onUp() {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
+    if (klaar) return;
+    klaar = true;
+    window.removeEventListener('mousemove', onMove, true);
+    window.removeEventListener('mouseup', onUp, true);
+    window.removeEventListener('pointerup', onUp, true);
+    window.removeEventListener('blur', onUp);
     setIsDragging(false);
     setDockPreview(null);
     if (!hasMoved) return;
     savePaletteState();
   }
 
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+  // Capture phase on the window: the release still arrives when the grabbed
+  // element has just been swapped for the docked (or floating) palette.
+  window.addEventListener('mousemove', onMove, true);
+  window.addEventListener('mouseup', onUp, true);
+  window.addEventListener('pointerup', onUp, true);
+  window.addEventListener('blur', onUp);
 }
 
 // --- Context menu for icon size toggle ---
