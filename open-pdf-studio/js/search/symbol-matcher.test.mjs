@@ -113,3 +113,14 @@ test('the default pause between rows is a plain task, not a timer', async () => 
   }
   assert.equal(timers, 0);
 });
+
+test('a thick symbol is reported at its exact place, not one pixel off', async () => {
+  // Every position within one pixel scores 1 with the tolerant score; the
+  // exact overlap decides between them.
+  const t = blank(12, 12);
+  for (let y = 2; y < 10; y++) for (let x = 2; x < 10; x++) if (x < 6 || y > 6) t.pixels[y * 12 + x] = 1;
+  const image = blank(80, 60);
+  stamp(image, t, 31, 22);
+  const { matches } = await matchSymbols(image, t, { yieldTask: async () => {} });
+  assert.deepEqual(matches.map(m => [m.x, m.y, m.score]), [[31, 22, 1]]);
+});

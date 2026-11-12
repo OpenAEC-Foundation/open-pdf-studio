@@ -44,6 +44,8 @@ pub struct Match {
     pub width: usize,
     pub height: usize,
     pub score: f64,
+    /// Gewone doorsnede/vereniging: beslist tussen gelijke scores.
+    pub exact: f64,
     pub rotation: u32,
     pub scale: f64,
 }
@@ -142,8 +144,10 @@ fn intersection(a: &Match, b: &Match) -> f64 {
 /// suppressMatches(): beste eerst, overlappende treffers vallen weg.
 pub fn suppress_matches(matches: &[Match], limit: usize) -> Vec<Match> {
     let mut sorted = matches.to_vec();
-    // Stabiel, zoals Array.prototype.sort: score aflopend, dan y, dan x.
-    sorted.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal).then(a.y.cmp(&b.y)).then(a.x.cmp(&b.x)));
+    // Stabiel, zoals Array.prototype.sort: score aflopend, bij gelijke score
+    // de grootste exacte overlap, dan y, dan x.
+    let desc = |a: f64, b: f64| b.partial_cmp(&a).unwrap_or(std::cmp::Ordering::Equal);
+    sorted.sort_by(|a, b| desc(a.score, b.score).then(desc(a.exact, b.exact)).then(a.y.cmp(&b.y)).then(a.x.cmp(&b.x)));
     let mut out: Vec<Match> = Vec::new();
     for m in sorted {
         let overlaps = out.iter().any(|p| intersection(p, &m) / ((p.width * p.height).min(m.width * m.height) as f64) > 0.4);
@@ -218,12 +222,13 @@ fn scan_row(scan: &Scan, y: usize, out: &mut Vec<Match>) {
             }
         }
         let ink = fg + count;
-        if f64::from(both) / 1f64.max(ink - f64::from(both)) < EXACT_SHARE * threshold {
+        let exact = f64::from(both) / 1f64.max(ink - f64::from(both));
+        if exact < EXACT_SHARE * threshold {
             continue;
         }
         let score = f64::from(near_image + near_template) / 1f64.max(ink);
         if score >= threshold {
-            out.push(Match { x, y, width: t.width, height: t.height, score, rotation: t.rotation, scale: t.scale });
+            out.push(Match { x, y, width: t.width, height: t.height, score, exact, rotation: t.rotation, scale: t.scale });
         }
     }
 }

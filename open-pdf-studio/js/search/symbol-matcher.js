@@ -90,7 +90,9 @@ const intersection = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width
 
 export function suppressMatches(matches, limit = 1000) {
   const out = [];
-  for (const m of [...matches].sort((a, b) => b.score - a.score || a.y - b.y || a.x - b.x)) {
+  // Best score first; between equal scores the larger exact overlap (a thick
+  // symbol scores 1 at every position within one pixel), then top to bottom.
+  for (const m of [...matches].sort((a, b) => b.score - a.score || (b.exact ?? 0) - (a.exact ?? 0) || a.y - b.y || a.x - b.x)) {
     if (!out.some(p => intersection(p, m) / Math.min(p.width * p.height, m.width * m.height) > .4)) {
       out.push(m);
       if (out.length === limit) break;
@@ -164,9 +166,10 @@ export async function matchSymbols(image, template, {
           nearTemplate += b & grownT[k];
         }
         const ink = foreground.length + count;
-        if (both / Math.max(1, ink - both) < EXACT_SHARE * threshold) continue;
+        const exact = both / Math.max(1, ink - both);
+        if (exact < EXACT_SHARE * threshold) continue;
         const score = (nearImage + nearTemplate) / Math.max(1, ink);
-        if (score >= threshold) found.push({ x, y, width: t.width, height: t.height, score, rotation: t.rotation, scale: t.scale });
+        if (score >= threshold) found.push({ x, y, width: t.width, height: t.height, score, exact, rotation: t.rotation, scale: t.scale });
         if (found.length >= 5000) {
           truncated = true;
           break;
