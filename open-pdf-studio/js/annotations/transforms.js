@@ -36,7 +36,7 @@ function computeDimensionText(ann) {
     const v = scaledVal.toFixed(prec);
     return unit === 'mm' ? v : `${v} ${unit}`;
   }
-  return formatDimensionText(calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page));
+  return formatDimensionText(calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann));
 }
 
 // Keep the stored measurement fields of a dimension in sync with its geometry.
@@ -53,7 +53,7 @@ function syncDimensionMeasurement(ann) {
   if (ann.measureScale) {
     ann.measureValue = pixelDist * ann.measureScale;
   } else {
-    ann.measureValue = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page).value;
+    ann.measureValue = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann).value;
   }
   ann.measureText = computeDimensionText(ann);
 }

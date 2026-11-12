@@ -1,3 +1,4 @@
+import { meetPunt } from '../annotations/meet-punt.js';
 // De opdracht achter `app_floorplan`: de drie relaties van #450 uitvoeren op
 // het geopende document — een sparing hoort bij een wand, een ruimte bij de
 // wanden eromheen, een maat bij wat hij meet.
@@ -760,9 +761,6 @@ async function actieMaten(params, omgeving, page) {
   // Een bestaande ketting verlengen of inkorten.
   if (params?.chainOf) return actieKettingBewerken(params, omgeving);
   const annotaties = omgeving.doc?.annotations || [];
-  const pxPerMm = schaalOp(omgeving, page, middenVan(wandenOpPagina(annotaties, page)));
-  if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
-
   if (params?.refresh) {
     const index = new Map(annotaties.map((a) => [a.id, a]));
     // Ook een maat met maar een verankerd eind (een los toegevoegd punt aan
@@ -778,7 +776,15 @@ async function actieMaten(params, omgeving, page) {
       }));
     // Alle wanden van de pagina: voor het wandvlak, de buitenste laag en de
     // buitenhoek van vlak-ankers.
-    const uit = herberekenMaten(maten, index, { pxPerMm, wanden: wandenOpPagina(annotaties, page) });
+    const uit = { bijgewerkt: [], losgeraakt: [], ongewijzigd: 0 };
+    for (const maat of maten) {
+      const pxPerMm = schaalOp(omgeving, page, meetPunt(maat));
+      if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
+      const r = herberekenMaten([maat], index, { pxPerMm, wanden: wandenOpPagina(annotaties, page) });
+      uit.bijgewerkt.push(...r.bijgewerkt);
+      uit.losgeraakt.push(...r.losgeraakt);
+      uit.ongewijzigd += r.ongewijzigd;
+    }
     await omgeving.transactie(async () => {
       for (const b of uit.bijgewerkt) await omgeving.werkBij(b.id, b.patch);
     });
@@ -799,6 +805,8 @@ async function actieMaten(params, omgeving, page) {
   if (wanden.some((w) => !w || w.type !== 'wall')) {
     return fout('wallIds must all be existing wall annotations');
   }
+  const pxPerMm = schaalOp(omgeving, page, middenVan(wanden));
+  if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
   const eerste = wanden[0], laatste = wanden[wanden.length - 1];
   if (!wandAs({
     startX: eerste.startX, startY: eerste.startY, endX: laatste.endX, endY: laatste.endY,
@@ -867,11 +875,12 @@ function kettingLeden(annotaties, basis) {
   };
 }
 
-function kettingVerslag(annotaties, basis, pxPerMm) {
+function kettingVerslag(annotaties, basis, omgeving) {
   const { segmenten, totaal } = kettingLeden(annotaties, basis);
   const k = leesKetting(segmenten, totaal);
   const lengte = (m) => {
     const px = Math.hypot(m.endX - m.startX, m.endY - m.startY);
+    const pxPerMm = schaalOp(omgeving, m.page ?? 1, meetPunt(m));
     return pxPerMm ? Math.round(px / pxPerMm) : Math.round(px);
   };
   return {
@@ -895,7 +904,7 @@ async function actieKettingBewerken(params, omgeving) {
   const eraf = geldig(params.removePoints);
   if (!erbij.length && !eraf.length) return fout('chainOf needs addPoints and/or removePoints ({x, y} in page points)');
   const page = basis.page ?? 1;
-  const pxPerMm = schaalOp(omgeving, page, { x: basis.startX, y: basis.startY });
+  const pxPerMm = schaalOp(omgeving, page, meetPunt(basis));
   const klachten = [];
 
   await omgeving.transactie(async () => {
@@ -934,7 +943,7 @@ async function actieKettingBewerken(params, omgeving) {
   // De basis kan zelf verwijderd zijn: verslag via een overgebleven lid.
   const nuBasis = annotaties().find((a) => a.id === basis.id)
     || annotaties().find((a) => a[KETTING_ID] && a[KETTING_ID] === basis[KETTING_ID]);
-  const verslag = nuBasis ? kettingVerslag(annotaties(), nuBasis, pxPerMm) : { points: [], dimensions: [] };
+  const verslag = nuBasis ? kettingVerslag(annotaties(), nuBasis, omgeving) : { points: [], dimensions: [] };
   return {
     ok: klachten.length < erbij.length + eraf.length,
     page,

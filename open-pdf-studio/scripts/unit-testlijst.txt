@@ -263,6 +263,7 @@ js/plattegrond/maatvoering.test.mjs
 js/plattegrond/ruimte.test.mjs
 js/plattegrond/sparing.test.mjs
 js/plattegrond/mcp-plattegrond.test.mjs
+js/plattegrond/scale-region.test.mjs
 js/plugins/annotation-batch.test.mjs
 js/plugins/page-access.test.mjs
 js/plugins/plugin-pdf.test.mjs

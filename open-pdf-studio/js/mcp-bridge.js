@@ -1161,7 +1161,7 @@ function _summarizeAnnotation(a) {
 function _recomputeMeasureFields(ann, meas, userProps = {}) {
   const keepText = typeof userProps.measureText === 'string';
   if (ann.type === 'measureDistance') {
-    const d = meas.calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page);
+    const d = meas.calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
     ann.measureValue = d.value;
     ann.measureUnit = d.unit;
     ann.measurePixels = d.pixels;
