@@ -12,6 +12,7 @@ import { registerPropertyPanel as _registerPropertyPanel, unregisterPropertyPane
 import {
   registerSelectionListener as _registerSelectionListener,
   unregisterSelectionListener as _unregisterSelectionListener,
+  onAnySelectionChange,
 } from './selection-listener-registry.js';
 import { clearToolGroups, toolGroupIdsOf } from './tool-group-state.js';
 import { setNativePanelHidden } from '../solid/stores/propertiesStore.js';
@@ -244,6 +245,11 @@ export function createPluginApi(pluginId) {
   const registeredPalettes = [];
   const registeredPanels = [];
   const registeredSelectionListeners = []; // [{typeName, fn}]
+  const selectionChangeStops = new Set();  // onSelectionChange registrations
+  const selectedAnnotations = () => {
+    const doc = getActiveDocument();
+    return doc && Array.isArray(doc.selectedAnnotations) ? [...doc.selectedAnnotations] : [];
+  };
   const documentListeners = new Map();
   let viewNavigation = null;
   const navigation = () => (viewNavigation ??= createViewNavigation(viewNavigationHost()));
@@ -414,6 +420,43 @@ export function createPluginApi(pluginId) {
       scope.eisActief('selectionListener', typeName);
       _registerSelectionListener(typeName, fn);
       registeredSelectionListeners.push({ typeName, fn });
+    },
+
+    /**
+     * The selected annotations of the active document, in selection order:
+     * one, several, or [] when nothing is selected. Unlike
+     * registerSelectionListener (one annotation of one type, null on a
+     * multi-select), this covers a selection of several annotations (#1059).
+     * The array is the caller's own; the annotations in it are the app's.
+     */
+    getSelectedAnnotations() {
+      return selectedAnnotations();
+    },
+
+    /**
+     * Call `fn(selected)` whenever the selection changes (select, add to the
+     * selection, deselect, switch document). `selected` is what
+     * getSelectedAnnotations() returns at that moment. Returns a function
+     * that stops it; also stopped when the extension unloads.
+     */
+    onSelectionChange(fn) {
+      if (typeof fn !== 'function') throw new TypeError('onSelectionChange: fn must be a function');
+      scope.eisActief('selectionChange', pluginId);
+      let active = true;
+      // The app updates the selection around the event; read it once the
+      // current turn has settled. A change still under way when the listener
+      // stops is not delivered.
+      const unsubscribe = onAnySelectionChange(() => queueMicrotask(() => {
+        if (!active) return;
+        try { fn(selectedAnnotations()); } catch (err) { console.error('[plugin] onSelectionChange listener threw', err); }
+      }));
+      const stop = () => {
+        active = false;
+        unsubscribe();
+        selectionChangeStops.delete(stop);
+      };
+      selectionChangeStops.add(stop);
+      return stop;
     },
 
     unregisterSelectionListener(typeName, fn) {
@@ -847,6 +890,7 @@ export function createPluginApi(pluginId) {
       registeredPalettes.forEach(id => unregisterToolPalette(id));
       registeredPanels.forEach(t => _unregisterPropertyPanel(t));
       registeredSelectionListeners.forEach(({ typeName, fn }) => _unregisterSelectionListener(typeName, fn));
+      [...selectionChangeStops].forEach((stop) => stop());
       // Het eigenschappenpaneel en de gereedschapsgroepen per extensie
       // herstellen, niet globaal: andere extensies houden hun toestand (#550).
       if (verbergtNativePaneel) setNativePanelHidden(false);

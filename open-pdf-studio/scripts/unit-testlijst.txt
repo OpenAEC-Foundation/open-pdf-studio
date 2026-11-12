@@ -396,6 +396,7 @@ js/plugins/oppx-testpakket.test.mjs
 js/plugins/extensies-mcp-aansluiting.test.mjs
 js/plugins/opslag-wissel-slot.test.mjs
 js/plugins/plugin-api-opruimen.test.mjs
+js/plugins/plugin-selectie.test.mjs
 js/plugins/plugin-feature-calls.test.mjs
 js/tools/pijl-in-tabstrook.test.mjs
 # Ctrl-sneltoetsen met Caps Lock aan (#577)
