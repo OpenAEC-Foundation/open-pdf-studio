@@ -3707,6 +3707,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-scan"
+version = "2026.46.0"
+dependencies = [
+ "flate2",
+ "serde_json",
+]
+
+[[package]]
 name = "open-pdf-security"
 version = "2026.46.0"
 dependencies = [
@@ -3786,6 +3794,7 @@ dependencies = [
  "open-pdf-cmyk",
  "open-pdf-monochrome",
  "open-pdf-render",
+ "open-pdf-scan",
  "open-pdf-security",
  "open-pdf-signatures",
  "openaec-update",
@@ -4056,6 +4065,7 @@ dependencies = [
  "lopdf",
  "memchr",
  "memmap2",
+ "open-pdf-scan",
  "pdfium-render",
  "serde",
  "serde_json",

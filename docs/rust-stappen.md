@@ -666,3 +666,179 @@ kop zonder naam, JSON met naam op Android, fout in de browser.
 **Live na te kijken.** Een groot document afdrukken (de taaknaam in de
 wachtrij van de printer, ook met leestekens), twee taken uit de printwachtrij
 samengevoegd openen, en de miniaturen van een document met vectorpagina's.
+
+## Symbolen zoeken: het zoeken in Rust, op hetzelfde beeld
+
+**Wat is verplaatst.** `matchSymbols()` uit `js/search/symbol-matcher.js`: per
+variant (draaiing × schaal) het sjabloon over het binaire paginabeeld
+schuiven, vensters met de verkeerde hoeveelheid inkt overslaan, de rest op
+doorsnede/vereniging scoren, en overlappende treffers uitdunnen. Dat staat nu
+in de crate `open-pdf-scan` (pure logica, `cargo test -p open-pdf-scan` draait
+gewoon). Het Tauri-commando `symbol_match_raster`
+(`src-tauri/src/symbool_zoeken.rs`) krijgt het sjabloon en het beeld als rauwe
+body (één byte per pixel) en de maten en toleranties in de kop
+`x-opds-symbol`, en geeft de treffers terug.
+
+Blijft in JS: de pagina renderen met pdf.js, `binaryImage()` en
+`cropTemplate()` (samen 10–30 ms), het omrekenen naar paginacoördinaten, de
+zoekvraag bewaren en de tellingen plaatsen. De JS-matcher blijft de terugval:
+webversie, Android/iOS, een ontbrekend of falend commando (één waarschuwing in
+de console) en `OPDS_RUST_SCAN=0`.
+
+**Waarom op hetzelfde beeld.** Het beeld dat Rust krijgt is het beeld dat de
+JS-matcher zou krijgen, dus de treffers zijn dezelfde. De andere mogelijkheid,
+de pagina ook door PDFium laten renderen, is gebouwd en gemeten maar staat niet
+aan; zie verderop.
+
+**Pariteit.** `scripts/bench-rust/scan-golden.mjs` maakt beelden en laat de
+JS-modules erop los; `open-pdf-scan/src/tests.rs` eist dezelfde uitkomst:
+sjabloon, treffers in dezelfde volgorde, de afkapvlag, en scores en schalen
+bit voor bit (f64-bitpatronen in de fixture). 15 gevallen: een tekening met
+het symbool gedraaid, geschaald en beschadigd; alle twaalf varianten; drempel
+1; dubbele toleranties; een rechthoek op gebroken coördinaten; een raster dat
+na 5000 kandidaten afkapt; meer dan 1000 treffers; een sjabloon dat gedraaid
+niet in het beeld past; en de fouten `INVALID_TOLERANCE`, `TEMPLATE_BOUNDS` en
+`TEMPLATE_NEEDS_CONTRAST`. Samen ruim 2000 treffers. Ook `binaryImage()` zelf
+(grijs rond de drempel, kleur, alfa). De rijen van een variant lopen in Rust
+op een paar threads; de treffers worden in rijvolgorde samengevoegd, zodat de
+grens van 5000 kandidaten op dezelfde plek valt.
+
+**Meting** (`node scripts/bench-rust/11-symbool-formulier.mjs --worker …`,
+node 24, Windows x64, release-build; de machine draaide tegelijk andere
+builds). Het raster is hoogstens 1200 px op de lange zijde. Zoektijd in ms,
+JS zonder de pauzes van de app:
+
+| pagina | raster | JS, 1 variant | Rust, 1 variant | JS, 12 varianten | Rust, 12 varianten |
+|---|---|---:|---:|---:|---:|
+| 3131-CLT-Set p2 | 1200×809 | 171 | 9 | 739 | 61 |
+| Zware vector PDF p3 | 1200×849 | 491 | 35 | 3287 | 306 |
+| NKD1a p2 | 1200×555 | 76 | 6 | 289 | 36 |
+| HY-103-1 p1 | 1200×721 | 3850 | 53 | 30.613 | 809 |
+| contractvoorstel p1 | 849×1200 | 58 | 16 | 683 | 103 |
+| Technische tekening p1 | 1201×848 | 37 | 9 | 427 | 57 |
+
+Rust is 4 tot 70 keer sneller, het meest waar het telt (een dichte tekening
+met veel kandidaten). Daar komt bij dat de JS-matcher om de 16 rijen pauzeert
+(`setTimeout(0)`): ongeveer 50 pauzes per variant en pagina, in de WebView
+~4 ms per stuk, dus ~0,2 s per variant bovenop de tabel; de Rust-route heeft
+die pauzes niet nodig. De overdracht is het beeld zelf, hoogstens 2 MB als
+rauwe body (met het model van de monochroomstap ~2 ms). De pdf.js-render vóór
+het zoeken blijft: 0,04–10 s op deze pagina's (onder node met
+@napi-rs/canvas; in de WebView niet gemeten).
+
+**Standaard.** Rust aan op de desktop.
+
+**Onderzocht en niet aangezet: ook de render door PDFium.** De worker kan de
+pagina zelf renderen en erop zoeken (aanvraag `symbol_scan`,
+`pdfium-worker/src/raster_scan/`), zodat ook de pdf.js-render en
+`getImageData` van de interface-thread verdwijnen. Eind tot eind met één
+variant: 876 → 646 ms (CLT), 5950 → 2976 (NKD1a), 13.657 → 2807 (HY-103),
+611 → 48 (Technische tekening); op Zware vector p3 geen winst (3018 → 3327).
+Maar het raster van PDFium is niet dat van pdf.js: 82–95 % van de inktpixels
+valt precies samen, 99–100 % binnen één pixel
+(`scripts/bench-rust/scan-raster-verschil.mjs`). Voor deze matcher is die ene
+pixel veel: op een proefblad met hetzelfde symbool op 60 plekken met gebroken
+coördinaten (`scripts/bench-rust/scan-waarheid.mjs`) liggen de scores van de
+echte symbolen in beide routes tussen 0,56 en 0,97, rond de standaarddrempel
+van 0,75:
+
+| drempel | JS, zelfde draaiing | worker | JS, vier draaiingen | worker |
+|---|---:|---:|---:|---:|
+| 0,75 (standaard) | 12 van 29 | 10 van 29 | 27 van 60 | 16 van 60 |
+| 0,6 | 27 van 29 | 27 van 29 | 57 van 60 | 60 van 60 |
+
+Geen van beide routes gaf een valse treffer. De worker scoort gelijkmatiger
+(laagste score 0,62 tegen 0,56) maar minder vaak boven 0,75, dus met de
+standaarddrempel vindt hij met draaiingen minder. Dat is een andere uitkomst
+voor de gebruiker, geen snelheidswinst alleen; daarom staat deze route uit.
+`window.__opdsSymbolRender = 'pdfium'` in de ontwikkelconsole zet hem aan om
+te vergelijken. De meting laat ook zien dat de matcher zelf op dun lijnwerk
+bij de standaarddrempel minder dan de helft vindt, in beide routes; dat is
+een eigenschap van het algoritme en los van deze stap.
+
+**Live na te kijken.** Symbolen zoeken op een tekening (één pagina en een
+reeks, met draaiingen en schalen), dezelfde treffers met `OPDS_RUST_SCAN=0`,
+afbreken tijdens het zoeken, en de voortgangsbalk.
+
+## Formulierherkenning: het paginabeeld uit de PDFium-worker
+
+**Wat is verplaatst.** Voor "Formuliervelden herkennen" rendert de app per
+pagina een raster van hoogstens 1600 px, niet gedraaid, en zoekt
+`detectFormShapes()` (`js/pdf/form-recognition.js`) daarin samenhangende
+inktgebieden: een lange dunne lijn is een schrijflijn, een lege omlijning een
+tekstvak, aankruisvakje of keuzerondje. Op de desktop rendert nu de
+PDFium-worker de pagina op dezelfde maat (`render_scan`: wit papier, geen
+annotaties of velden, /Rotate teruggedraaid) en draait de port van
+`detectFormShapes()` uit `open-pdf-scan` (aanvraag `form_shapes`, commando
+`raster_scan_page`). Terug gaan alleen de vormen, als één JSON-regel.
+
+Blijft in JS: de tekst van de pagina (pdf.js `getTextContent`, of OCR), de
+bestaande velden, `labelCandidates()`, en het maken van het formulier met
+pdf-lib. De pdf.js-route blijft de terugval: webversie, Android/iOS, een
+document waarvan de bytes afwijken van het bestand op schijf, een worker
+zonder `raster_scan` in zijn `caps`, elke fout (één waarschuwing), en
+`OPDS_RUST_SCAN=0`.
+
+**Pariteit, deel 1: het algoritme is bitgelijk.** Dezelfde fixtures en test
+als hierboven: vijf paginabeelden (drie schalen, meer dan 500 kandidaten, een
+lege pagina) met tekstvakken, aankruisvakjes, keuzerondjes, schrijflijnen,
+gevulde vlakken, te korte en te hoge vormen en grijs net onder en boven de
+inktdrempel; vormen in dezelfde volgorde, alle getallen bit voor bit.
+
+**Pariteit, deel 2: PDFium tegen pdf.js.** Het raster verschilt langs randen
+ongeveer een pixel (zie hierboven). Op een gemaakt papieren formulier met 8
+tekstvakken, 6 aankruisvakjes, 4 keuzerondjes en 4 schrijflijnen op gebroken
+coördinaten (`scan-waarheid.mjs`), met lijndiktes van 0,5, 0,75, 1 en 1,5 pt
+en een pagina met /Rotate 90, vinden beide routes hetzelfde: alle tekstvakken,
+aankruisvakjes en schrijflijnen, en evenveel vormen in totaal (23). De
+keuzerondjes worden vanaf 0,75 pt in beide routes als aankruisvakje gezien;
+dat is het algoritme, niet de route. Op bouwtekeningen, waar de vormen
+toevallige rechthoeken in het lijnwerk zijn, verschilt het aantal wel (8
+tegen 5, 16 tegen 12 op de meetpagina's).
+
+**Meting** (zelfde script en omstandigheden; ms). JS = pdf.js-render +
+`getImageData` + `detectFormShapes`; worker = één aanvraag, warm (koud is het
+openen van het bestand erbij: 30–1000 ms):
+
+| pagina | raster | JS: render | lezen | herkennen | totaal | worker: render | herkennen | totaal |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| contractvoorstel p1 | 1132×1600 | 26 | 31 | 32 | 88 | 19 | 8 | 27 |
+| Technische tekening p1 | 1131×1600 | 110 | 73 | 85 | 268 | 54 | 9 | 64 |
+| 3131-CLT-Set p2 | 1600×1079 | 622 | 43 | 107 | 773 | 720 | 5 | 726 |
+| Zware vector PDF p3 | 1600×1132 | 2631 | 130 | 123 | 2884 | 2067 | 12 | 2079 |
+| NKD1a p2 | 1600×740 | 5504 | 206 | 98 | 5808 | 3222 | 8 | 3231 |
+| HY-103-1 p1 | 962×1600 | 11.845 | 54 | 117 | 12.016 | 3052 | 26 | 3079 |
+
+Op documenten (waar formulieren staan) 3 tot 4 keer sneller; op zware
+tekeningen bepaalt de render de tijd en wint PDFium 1 tot 4 keer. Het
+herkennen zelf was in JS al klein; de winst zit in de render, in het
+teruglezen van de pixels, en in het feit dat geen van drieën nog op de
+interface-thread gebeurt.
+
+**Standaard.** De worker aan op de desktop: sneller, en op formulieren
+dezelfde velden.
+
+**Live gecontroleerd** (12-11, release-build als onzichtbare testinstantie met
+eigen datamap, via de tools `app_recognize_form` en `app_search_symbols`, met
+en zonder `OPDS_RUST_SCAN=0`):
+- Symbolen zoeken op het proefblad: dezelfde treffers in dezelfde volgorde met
+  dezelfde scores, 12 bij de standaardinstelling en 57 met twaalf varianten op
+  drempel 0,6; met twaalf varianten 2,2 s tegen 3,8 s (de pdf.js-render zit in
+  beide).
+- Formulierherkenning op het proefformulier (0,75 pt, ook met /Rotate 90): in
+  beide routes 23 kandidaten met dezelfde verdeling (8 tekstvakken, 4
+  schrijflijnen, 10 aankruisvakjes, 1 keuzerondje) en dezelfde labels; alle
+  echte velden in beide. 20 van de 23 vallen binnen 1,5 pt samen. De rest:
+  een ander rondje krijgt de soort keuzerondje, en elke route ziet één andere
+  letter uit de tekst aan voor een vakje. 61 ms tegen 169–265 ms.
+- `write_temp_pdf` met 6 MB: dezelfde bytes op schijf, de naam met leestekens
+  behouden; 0,4–0,8 s rauw tegen 4,9–5,5 s in de oude JSON-vorm (drukke
+  machine). `extract_draw_commands` geeft een `ArrayBuffer`; `read_file` en
+  `extract_draw_commands_batch` bestaan niet meer.
+- Een bestand dat op schijf afwijkt geeft `PDF_SCAN_STALE`, een ongeldige
+  draaiing `INVALID_TOLERANCE`; geen waarschuwingen in de console.
+
+**Nog live na te kijken.** Velden herkennen op een gescand formulier en met
+OCR, afdrukken naar een echte printer (de taaknaam in de wachtrij), twee
+taken uit de printwachtrij samengevoegd openen, het terugvallen met een
+oudere sidecar, en macOS en Linux.
