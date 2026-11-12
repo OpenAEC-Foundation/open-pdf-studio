@@ -320,6 +320,8 @@
     "box": "Fläche",
     "boxHint": "Änderungen als gefüllte Fläche anzeigen",
     "contour": "Kontur",
+    "colourOverlay": "Farben",
+    "colourOverlayHint": "Beide Zeichnungen übereinander anzeigen, jede in einer eigenen Farbe",
     "contourHint": "Änderungen mit einer Umrisslinie anzeigen",
     "annotation": "Anmerkung",
     "changes": "Änderungen",

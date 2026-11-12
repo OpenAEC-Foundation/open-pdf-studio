@@ -48,7 +48,7 @@ use std::mem::size_of;
 
 use windows_sys::Win32::Foundation::{HANDLE, HWND, POINT};
 use windows_sys::Win32::Graphics::Gdi::{
-    CreateICW, DeleteDC, GetDeviceCaps, DEVMODEW, DMORIENT_LANDSCAPE, DMORIENT_PORTRAIT, DMPAPER_USER, DM_COPIES,
+    CreateICW, DeleteDC, GetDeviceCaps, DEVMODEW, DMORIENT_LANDSCAPE, DMORIENT_PORTRAIT, DMPAPER_USER, DM_COPIES, DM_DUPLEX,
     DM_FORMNAME, DM_IN_BUFFER, DM_IN_PROMPT, DM_ORIENTATION, DM_OUT_BUFFER, DM_PAPERLENGTH, DM_PAPERSIZE,
     DM_PAPERWIDTH, LOGPIXELSX, LOGPIXELSY, PHYSICALHEIGHT, PHYSICALWIDTH,
 };
@@ -254,6 +254,16 @@ impl DevMode {
         d.dmFields |= DM_ORIENTATION;
         d.Anonymous1.Anonymous1.dmOrientation =
             (if liggend { DMORIENT_LANDSCAPE } else { DMORIENT_PORTRAIT }) as i16;
+    }
+
+    pub fn duplex_code(&self) -> Option<i16> {
+        (self.velden() & DM_DUPLEX != 0).then(|| self.publiek().dmDuplex)
+    }
+
+    pub fn zet_duplex(&mut self, code: i16) {
+        let d = self.publiek_mut();
+        d.dmFields |= DM_DUPLEX;
+        d.dmDuplex = code;
     }
 
     /// `dmCopies` als `DM_COPIES` gezet is.
@@ -1140,6 +1150,25 @@ mod tests {
     }
 
     #[test]
+    fn duplex_keeps_paper_orientation_copies_and_driver_data() {
+        let mut dm=devmode_met(DM_PAPERSIZE | DM_ORIENTATION | DM_COPIES,8,true);
+        dm.publiek_mut().Anonymous1.Anonymous1.dmCopies=3;
+        dm.lengte=size_of::<DEVMODEW>();
+        // Extend the driver-private tail as it exists in a real DEVMODE.
+        let mut copy=DevMode::uit_bytes(&dm.bytes()).unwrap();
+        copy.publiek_mut().dmDriverExtra=4;
+        let mut raw=copy.bytes();raw.extend([17,23,42,91]);
+        let mut copy=DevMode::uit_bytes(&raw).unwrap();
+        for code in [1,2,3] {
+            copy.zet_duplex(code);
+            assert_eq!(copy.duplex_code(),Some(code));
+            assert_eq!(copy.papiercode(),Some(8));assert!(copy.liggend());
+            assert_eq!(copy.exemplaren(),Some(3));
+            assert_eq!(&copy.bytes()[size_of::<DEVMODEW>()..], &[17,23,42,91]);
+        }
+    }
+
+    #[test]
     fn een_exemplaar_per_opdracht() {
         let mut dm = devmode_met(DM_PAPERSIZE | DM_ORIENTATION | DM_COPIES, 8, true);
         dm.publiek_mut().Anonymous1.Anonymous1.dmCopies = 3;
@@ -1338,4 +1367,16 @@ mod tests {
         // Van beschrijfbaar naar niet-beschrijfbaar: gewijzigd.
         assert_eq!(wijzigingen(p, Some(&a3_staand), &vreemd_1), (true, false));
     }
+}
+
+/// Pas de expliciete keuze op een volledige opdracht-DEVMODE toe. Alleen na
+/// validatie door de driver afdrukken; nooit ongemerkt enkelzijdig terugvallen.
+pub fn met_duplex(prn: &Printer, dm: &DevMode, duplex: crate::print_duplex::Duplex) -> Result<DevMode, String> {
+    let mut uit = DevMode::uit_bytes(&dm.bytes())?;
+    if let Some(code) = duplex.windows() {
+        uit.zet_duplex(code);
+        uit = prn.valideren(&uit)?;
+        crate::print_duplex::require_windows_mode(code, uit.duplex_code())?;
+    }
+    Ok(uit)
 }

@@ -320,6 +320,7 @@
     "box": "Box",
     "boxHint": "Show changes as a filled area",
     "contour": "Contour",
+    "colourOverlay": "Colours",
     "contourHint": "Show changes with an outline",
     "annotation": "Annotation",
     "changes": "Changes",
@@ -406,7 +407,8 @@
     },
     "methodVector": "Vector",
     "methodVectorHint": "Compare the drawn paths exactly where both pages are vector drawings; other pages use the pixel comparison",
-    "methodPixelFallback": "pixels: not a vector page"
+    "methodPixelFallback": "pixels: not a vector page",
+    "colourOverlayHint": "Show both drawings on top of each other, each in its own colour"
   },
   "organize": {
     "pages": "Pages",

@@ -1,0 +1,26 @@
+name: Snippet detail regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/annotations/vector-snippet*'
+      - 'open-pdf-studio/js/annotations/rendering.js'
+      - 'open-pdf-studio/js/pdf/vector-embed.js'
+      - 'open-pdf-studio/scripts/test-snippet-detail.mjs'
+      - '.github/workflows/snippet-detail-regression.yml'
+permissions:
+  contents: read
+jobs:
+  snippet-detail:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --test js/annotations/vector-snippet-preview.test.mjs
+      - run: node scripts/test-snippet-detail.mjs

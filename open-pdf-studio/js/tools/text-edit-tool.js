@@ -40,6 +40,7 @@ import {
   opmaakGewijzigd,
   tekstGewist,
   textEditLineCharSpacing,
+  textEditScreenRotation,
 } from '../text/text-edit-appearance.js';
 import { weergaveRotatie, paginaNaarClient, clientNaarPagina } from '../pdf/weergave-ruimte.js';
 import { groepeerTekstBlokken, blokRegelafstand } from '../text/tekst-blokken.js';
@@ -1667,13 +1668,16 @@ export function findTextEditAtPosition(x, y, pageNum, canvasEl) {
 
     const firstBaseY = (geometry.offsetYPt || 0) + pageHeight - edit.pdfY;
     const editLeft = edit.pdfX - (geometry.offsetXPt || 0);
-    const editTop = firstBaseY - fontSize;
+    const editTop = -fontSize;
     const editHeight = (numLines - 1) * ls + fontSize * 1.3;
     const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
     const editWidth = Math.max(edit.pdfWidth || 0, fontSize * 0.6 * maxCharCount) + fontSize * 0.5;
 
-    if (unrotatedPoint.x >= editLeft && unrotatedPoint.x <= editLeft + editWidth &&
-        unrotatedPoint.y >= editTop && unrotatedPoint.y <= editTop + editHeight) {
+    const rad = (Number(edit.textAngle) || 0) * Math.PI / 180;
+    const dx = unrotatedPoint.x - editLeft, dy = unrotatedPoint.y - firstBaseY;
+    const localX = Math.cos(rad) * dx - Math.sin(rad) * dy;
+    const localY = Math.sin(rad) * dx + Math.cos(rad) * dy;
+    if (localX >= 0 && localX <= editWidth && localY >= editTop && localY <= editTop + editHeight) {
       return edit;
     }
   }
@@ -1741,11 +1745,9 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   );
   // Op het scherm staat het paginakader gedraaid over de paginarotatie plus
   // de weergaverotatie (#200): de editor draait daarover mee.
-  const schermRotatie = schermRotatieVan(geometry);
-  const [, , rotationC, rotationD] = getPageRotationMatrix(
-    geometry.pageWidth,
-    geometry.pageHeight,
-    schermRotatie,
+  const pageScreenRotation = schermRotatieVan(geometry);
+  const { angle: schermRotatie, rotationC, rotationD } = textEditScreenRotation(
+    pageScreenRotation, textEdit.textAngle,
   );
   // Met een gedraaide weergave via de centrale omrekening naar het scherm.
   const basisOpScherm = weergaveRotatie(editDoc)
@@ -1950,6 +1952,7 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     pageNum,
     kind: 'record',
     _recordRef: textEdit,
+    pageScreenRotation,
     originalText: textEdit.newText,
     pdfX: textEdit.pdfX,
     pdfY: textEdit.pdfY,
@@ -1985,6 +1988,8 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const ffLower = (textEdit.fontFamily || 'Helvetica').toLowerCase();
   showTextEditProperties({
     text: textEdit.newText,
+    canRotate: !textEdit.originalText,
+    rotation: Number(textEdit.textAngle) || 0,
     fontSize: textEdit.fontSize,
     fontFamily: textEdit.fontFamily || 'Helvetica',
     color: textEdit.color || '#000000',
@@ -2159,6 +2164,21 @@ function applyColorToEditorSelection(color) {
 export function applyActiveTextEditStyle(key, value) {
   if (!activeEditor || !activeEditor.styleState) return;
   const st = activeEditor.styleState;
+  if (key === 'rotation') {
+    const record = activeEditor._recordRef;
+    const angle = Number(value);
+    if (!record || record.originalText || value === '' || !Number.isFinite(angle)) return;
+    record.textAngle = angle;
+    delete record.unchangedLines;
+    const rotation = textEditScreenRotation(activeEditor.pageScreenRotation, angle);
+    Object.assign(activeEditor.editorBaseline, {
+      rotationC: rotation.rotationC, rotationD: rotation.rotationD,
+    });
+    updatePdfEditorStyle({ transform: `rotate(${rotation.angle}deg)` });
+    applyStyleStateToEditor(st);
+    reRenderAddedText(record.page);
+    return;
+  }
   switch (key) {
     case 'fontFamily':
       if (st.family !== value) st.fontFaceChanged = true;

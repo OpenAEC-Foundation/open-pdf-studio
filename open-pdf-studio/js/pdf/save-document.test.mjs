@@ -50,6 +50,8 @@ function harness() {
     lagenNaOpslaan: async () => {},
     // Opslaan als verhuist de laagstand mee naar het nieuwe pad (#684).
     verhuisLaagstand: (doc, oud, nieuw) => { laagstandVerhuisd.push([doc.id, oud, nieuw]); return false; },
+    // Geen tekstvakken in deze documenten: geen lettertype om in te bedden (#1020).
+    maakSysteemFontKeten: () => ({ voor: async () => null }), splitsOpDekking: () => [],
     maakCjkFontKeten: () => ({}), layersForSave: doc => { owners.push(doc); return []; }, currentLayerId() {},
     saveTextEditsToPages: async (_pdf, _pages, doc) => owners.push(doc),
     saveWatermarksToPages: async (_pdf, _pages, doc) => owners.push(doc),

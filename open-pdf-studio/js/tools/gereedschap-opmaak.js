@@ -17,7 +17,7 @@ import { lintZetLijnkoppen } from '../pdf/lijnkoppen.js';
 
 /** De opties van de werkbalk die een tekengereedschap kan krijgen. */
 export const GEREEDSCHAP_OPMAAK_SLEUTELS = Object.freeze([
-  'strokeColor', 'lineWidth', 'opacity', 'borderStyle', 'fillColor', 'fillOpacity', 'startHead', 'endHead',
+  'textColor', 'strokeColor', 'lineWidth', 'opacity', 'borderStyle', 'fillColor', 'fillOpacity', 'startHead', 'endHead',
 ]);
 
 const MAX_LIJNDIKTE = 50;
@@ -56,6 +56,7 @@ export function gereedschapOpmaakOpties(tool) {
   if (!m) return [];
   const koppen = lintZetLijnkoppen(stijlTypeVanGereedschap(tool));
   const opties = [];
+  if (m.textColor) opties.push('textColor');
   if (m.stroke || m.color) opties.push('strokeColor');
   if (m.width) opties.push('lineWidth');
   if (m.opacity) opties.push('opacity');
@@ -98,6 +99,7 @@ export function leesGereedschapOpmaak(prefs, tool) {
   const vulDekking = lees(m.fillOpacity);
   const lijnPct = typeof dekking === 'number' && Number.isFinite(dekking) ? Math.round(dekking) : 100;
   return {
+    textColor: lees(m.textColor) || '#000000',
     strokeColor: lees(m.stroke) || lees(m.color) || '#000000',
     lineWidth: Number.isFinite(dikte) && dikte > 0 ? dikte : 1,
     opacity: lijnPct,
@@ -129,6 +131,9 @@ export function zetGereedschapOpmaak(prefs, tool, patch) {
     veranderd = true;
   };
 
+  if (opties.has('textColor') && typeof patch.textColor === 'string' && patch.textColor.trim() && patch.textColor !== 'mixed') {
+    zet(p + m.textColor, patch.textColor.trim());
+  }
   if (opties.has('strokeColor') && typeof patch.strokeColor === 'string' && patch.strokeColor.trim()) {
     zet(p + (m.stroke || m.color), patch.strokeColor.trim());
   }

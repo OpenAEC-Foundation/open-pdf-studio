@@ -320,6 +320,8 @@
     "box": "Terület",
     "boxHint": "Változások megjelenítése kitöltött területként",
     "contour": "Körvonal",
+    "colourOverlay": "Színek",
+    "colourOverlayHint": "A két rajz megjelenítése egymáson, mindegyik saját színnel",
     "contourHint": "Változások megjelenítése körvonallal",
     "annotation": "Annotáció",
     "changes": "Változások",

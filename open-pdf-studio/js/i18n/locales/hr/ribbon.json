@@ -320,6 +320,8 @@
     "box": "Površina",
     "boxHint": "Prikaži promjene kao ispunjenu površinu",
     "contour": "Obris",
+    "colourOverlay": "Boje",
+    "colourOverlayHint": "Prikaži oba crteža jedan preko drugoga, svaki u svojoj boji",
     "contourHint": "Prikaži promjene obrisom",
     "annotation": "Oznaka",
     "changes": "Promjene",

@@ -320,6 +320,8 @@
     "box": "Yta",
     "boxHint": "Visa ändringar som en fylld yta",
     "contour": "Kontur",
+    "colourOverlay": "Färger",
+    "colourOverlayHint": "Visa båda ritningarna ovanpå varandra, var och en i sin egen färg",
     "contourHint": "Visa ändringar med en kontur",
     "annotation": "Anteckning",
     "changes": "Ändringar",

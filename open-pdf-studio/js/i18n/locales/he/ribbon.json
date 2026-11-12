@@ -320,6 +320,8 @@
     "box": "תיבה",
     "boxHint": "הצגת שינויים כשטח ממולא",
     "contour": "מתאר",
+    "colourOverlay": "צבעים",
+    "colourOverlayHint": "הצג את שני השרטוטים זה על גבי זה, כל אחד בצבע משלו",
     "contourHint": "הצגת שינויים עם קו מתאר",
     "annotation": "הערה",
     "changes": "שינויים",

@@ -320,6 +320,8 @@
     "box": "Kisanduku",
     "boxHint": "Onyesha mabadiliko kama eneo lililojazwa",
     "contour": "Kontua",
+    "colourOverlay": "Rangi",
+    "colourOverlayHint": "Onyesha michoro yote miwili juu ya kila mmoja, kila mmoja kwa rangi yake",
     "contourHint": "Onyesha mabadiliko kwa mstari wa mzunguko",
     "annotation": "Maelezo",
     "changes": "Mabadiliko",

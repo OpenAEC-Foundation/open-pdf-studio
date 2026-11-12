@@ -320,6 +320,8 @@
     "box": "ボックス",
     "boxHint": "変更箇所を塗りつぶし領域で表示",
     "contour": "輪郭",
+    "colourOverlay": "色分け",
+    "colourOverlayHint": "両方の図面を重ねて、それぞれ別の色で表示します",
     "contourHint": "変更箇所を輪郭線で表示",
     "annotation": "注釈",
     "changes": "変更",

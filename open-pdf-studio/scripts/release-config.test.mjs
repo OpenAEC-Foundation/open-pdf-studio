@@ -15,7 +15,7 @@ async function readJson(relativePath) {
   return JSON.parse(await readFile(path.join(projectDir, relativePath), 'utf8'));
 }
 
-test('the primary window is visible from native creation', async () => {
+test('base config keeps mobile and auxiliary windows visible; desktop main uses a native startup gate', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
   assert.equal(config.app.windows[0].visible, true);
 });

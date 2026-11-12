@@ -1,0 +1,26 @@
+name: Zoom anchor regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/pdf/renderer.js'
+      - 'open-pdf-studio/js/pdf/continuous-zoom-anchor.js'
+      - 'open-pdf-studio/js/ui/setup/navigation-events.js'
+      - 'open-pdf-studio/scripts/test-zoom-anchor.mjs'
+      - '.github/workflows/zoom-anchor-regression.yml'
+permissions:
+  contents: read
+jobs:
+  zoom-anchor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-zoom-anchor.mjs

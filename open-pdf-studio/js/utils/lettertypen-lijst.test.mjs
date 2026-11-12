@@ -84,3 +84,52 @@ test("'mixed' van een meervoudige selectie komt niet als lettertype in de lijst"
   fonts.ensureFontInStore('Calibri');
   assert.deepEqual(systemFontList(), ['Arial', 'Calibri', 'Georgia']);
 });
+
+
+test('native catalogue includes BIZ UDGothic, CJK-only and unlisted families without width probing', async () => {
+  assert.ok(!fonts.lettertypeKandidaten().includes('BIZ UDGothic'), 'regression requires a name outside the old list');
+  const names = ['BIZ UDGothic', '日本語専用', 'User Installed Font', 'BIZ UDGothic', '', null, 17, 'mixed'];
+  let probes = 0;
+  const result = await fonts.discoverFontFamilies({ native: true, listInstalled: async () => names,
+    detect: async () => { probes++; throw new Error('no canvas'); } });
+  assert.deepEqual(new Set(result), new Set(['BIZ UDGothic', '日本語専用', 'User Installed Font']));
+  assert.equal(probes, 0);
+});
+
+for (const response of [[], null, {}, [null, '', 3]]) {
+  test(`empty or malformed native response falls back to canvas: ${JSON.stringify(response)}`, async () => {
+    const result = await fonts.discoverFontFamilies({ native: true,
+      listInstalled: async () => response, detect: async () => ['Calibri'] });
+    assert.deepEqual(result, ['Calibri']);
+  });
+}
+
+test('older native backend errors fall back to canvas', async () => {
+  assert.deepEqual(await fonts.discoverFontFamilies({ native: true,
+    listInstalled: async () => { throw new Error('unknown command'); }, detect: async () => ['Georgia'] }), ['Georgia']);
+});
+
+test('browser never requests native enumeration or local-font permission', async () => {
+  assert.deepEqual(await fonts.discoverFontFamilies({ native: false,
+    listInstalled: async () => { assert.fail('native API called by browser'); },
+    detect: async () => ['Courier New'] }), ['Courier New']);
+});
+
+test('empty canvas result still provides the existing fallback list', async () => {
+  assert.deepEqual(await fonts.discoverFontFamilies({ native: false, detect: async () => [] }), fonts.lettertypeKandidaten());
+});
+
+// #765: test de daadwerkelijke browserfallback, onafhankelijk van de naam
+// van de geïnjecteerde detectiefunctie of de native catalogus (#1011).
+test('ook geïnstalleerde lettertypen van Linux en macOS staan in de browserkeuzelijst', async () => {
+  const aanwezig = ['Liberation Sans', 'DejaVu Sans', 'Noto Sans', 'Helvetica Neue', 'Menlo'];
+  const gevonden = await fonts.discoverFontFamilies({
+    native: false,
+    listInstalled: async () => assert.fail('browser mag geen native catalogus gebruiken'),
+    detect: (kandidaten) => fonts.detectAvailableFonts(kandidaten, {
+      maakContext: () => nepContext(aanwezig),
+      idle: directIdle,
+    }),
+  });
+  assert.deepEqual(new Set(gevonden), new Set(aanwezig));
+});

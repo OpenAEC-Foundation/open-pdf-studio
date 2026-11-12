@@ -14,8 +14,7 @@ import { weergaveVak, paginaRotatie } from '../pdf/vector-embed.js';
 /** Zoomniveaus waarop we rasteren. Tussenliggende zoom gebruikt de eerstvolgende. */
 const NIVEAUS = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16];
 
-/** Boven deze pixelmaat wordt niet verder verscherpt — anders lopen zware
- *  knipsels het geheugen in. */
+/** De hele overzichtsbitmap blijft begrensd; zichtbare details krijgen tegels. */
 const MAX_PIXELS = 4096;
 
 const _bitmaps = new Map();   // `${sleutel}|${vakSleutel}|${niveau}` -> ImageBitmap
@@ -76,10 +75,10 @@ export function bitmapVoor(ann, zoom) {
   return beste;
 }
 
-function vraagAan(ann, niveau, sleutel) {
+function vraagAan(ann, niveau, sleutel, regio = null) {
   if (_bezig.has(sleutel)) return;
   const generatie = _generatie;
-  const belofte = render(ann, niveau)
+  const belofte = (regio ? renderDetail(ann, regio, niveau) : render(ann, niveau))
     .then((bmp) => {
       if (!bmp) return;
       if (generatie !== _generatie || !bytesVan(ann.snippetKey)) { bmp.close(); return; }
@@ -99,6 +98,92 @@ function vraagAan(ann, niveau, sleutel) {
     .catch(() => { /* schermvoorvertoning mag later opnieuw proberen */ })
     .finally(() => { if (_bezig.get(sleutel) === belofte) _bezig.delete(sleutel); });
   _bezig.set(sleutel, belofte);
+}
+
+// Kleine detailtegels houden zowel worker-berichten als het aantal lopende
+// renders begrensd. De bestaande LRU-cache deelt zijn budget met het overzicht.
+const DETAIL_PIXELS = 512;
+const MAX_VISIBLE_TILES = 48;
+const MAX_PENDING_DETAILS = 4;
+
+/** Teken de schermpreview op de werkelijke canvasresolutie. De aanroeper heeft
+ * pagina-, weergave- en annotatierotatie al in de canvastransform gezet.
+ * Alleen de zichtbare uitsnede krijgt scherpe tegels; afdruk/export gebruikt
+ * deze route niet. Transparante tegels vervangen het overzicht, niet eroverheen. */
+export function tekenSchermPreview(ctx, ann, overzicht) {
+  // Lijnwerk in één kleur (#1024), ook in de scherpe detailtegels (#1023).
+  const kleur = (b) => (ann.lijnKleur ? gekleurdeTegel(b, ann.lijnKleur) : b);
+  overzicht = kleur(overzicht);
+  const fallback = () => ctx.drawImage(overzicht, ann.x, ann.y, ann.width, ann.height);
+  const blad = _bladData.get(ann.snippetKey);
+  if (!blad || !(ann.width > 0 && ann.height > 0)) { fallback(); return; }
+  const regio = weergaveVak(ann.srcBox, blad.cropBox, blad.rotatie);
+  const m = ctx.getTransform();
+  const schaal = Math.max(Math.hypot(m.a, m.b) * ann.width / regio.width,
+    Math.hypot(m.c, m.d) * ann.height / regio.height);
+  if (!(schaal > 0) || !Number.isFinite(schaal) || !(Math.abs(m.a*m.d-m.b*m.c) > 0)) {
+    fallback(); return;
+  }
+  // Een trap boven 16 blijft mogelijk: het betreft een klein brongebied,
+  // niet een steeds groter wordende bitmap van het hele knipsel.
+  let niveau = 2 ** Math.ceil(Math.log2(schaal));
+  if (niveau <= Math.min(16, MAX_PIXELS / Math.max(regio.width, regio.height))) {
+    fallback(); return;
+  }
+  let x0 = 0, y0 = 0, x1 = ctx.canvas.width, y1 = ctx.canvas.height;
+  // Een legacy paginacanvas kan groter zijn dan het venster. Ook daar alleen
+  // zichtbare pixels aanvragen; losse export/testcanvassen gebruiken hun maat.
+  if (ctx.canvas.isConnected) {
+    const r = ctx.canvas.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) {
+      x0 = Math.max(0, -r.left) * ctx.canvas.width / r.width;
+      y0 = Math.max(0, -r.top) * ctx.canvas.height / r.height;
+      x1 = Math.min(r.width, window.innerWidth-r.left) * ctx.canvas.width / r.width;
+      y1 = Math.min(r.height, window.innerHeight-r.top) * ctx.canvas.height / r.height;
+    }
+  }
+  if (x1 <= x0 || y1 <= y0) return;
+  const inverse = m.inverse();
+  const corners = [[x0,y0],[x1,y0],[x0,y1],[x1,y1]].map(([x,y]) => inverse.transformPoint({x,y}));
+  const left = Math.max(0, (Math.min(...corners.map(p => p.x))-ann.x) / ann.width * regio.width);
+  const top = Math.max(0, (Math.min(...corners.map(p => p.y))-ann.y) / ann.height * regio.height);
+  const right = Math.min(regio.width, (Math.max(...corners.map(p => p.x))-ann.x) / ann.width * regio.width);
+  const bottom = Math.min(regio.height, (Math.max(...corners.map(p => p.y))-ann.y) / ann.height * regio.height);
+  if (right <= left || bottom <= top) return;
+  const grid = () => ({ left: Math.floor(left*niveau/DETAIL_PIXELS), top: Math.floor(top*niveau/DETAIL_PIXELS),
+    right: Math.ceil(right*niveau/DETAIL_PIXELS), bottom: Math.ceil(bottom*niveau/DETAIL_PIXELS) });
+  let g = grid();
+  // Ook extreem uitgerekte knipsels of enorme schermen blijven binnen de LRU.
+  while ((g.right-g.left)*(g.bottom-g.top) > MAX_VISIBLE_TILES) { niveau /= 2; g = grid(); }
+  const prefix = `${ann.snippetKey}|${vakSleutel(ann.srcBox)}|detail|${niveau}|`;
+  for (let row=g.top; row<g.bottom; row++) {
+    for (let col=g.left; col<g.right; col++) {
+      const x = col*DETAIL_PIXELS/niveau, y = row*DETAIL_PIXELS/niveau;
+      const w = Math.min(DETAIL_PIXELS/niveau, regio.width-x);
+      const h = Math.min(DETAIL_PIXELS/niveau, regio.height-y);
+      const key = `${prefix}${col}_${row}`;
+      const bmp = _bitmaps.get(key);
+      const dx = ann.x+x/regio.width*ann.width, dy = ann.y+y/regio.height*ann.height;
+      const dw = w/regio.width*ann.width, dh = h/regio.height*ann.height;
+      if (bmp) {
+        _bitmaps.delete(key); _bitmaps.set(key,bmp);
+        // Eén pixel rondom laat bilineaire filtering over de tegelrand kijken.
+        ctx.drawImage(kleur(bmp), 1, 1, w*niveau, h*niveau, dx, dy, dw, dh);
+      } else {
+        if (_bezig.size < MAX_PENDING_DETAILS) {
+          vraagAan(ann, niveau, key, { x: regio.x+x-1/niveau, y: regio.y+y-1/niveau,
+            width: w+2/niveau, height: h+2/niveau });
+        }
+        ctx.drawImage(overzicht, x/regio.width*overzicht.width, y/regio.height*overzicht.height,
+          w/regio.width*overzicht.width, h/regio.height*overzicht.height, dx, dy, dw, dh);
+      }
+    }
+  }
+}
+
+async function renderDetail(ann, regio, niveau) {
+  const pad = await padVan(ann.snippetKey, schrijfNaarTijdelijkeMap);
+  return pad ? rasterVanPad(pad, regio, niveau) : null;
 }
 
 /** Voor MCP-screenshots: voltooi previews ook als RAF gepauzeerd is. */
@@ -312,4 +397,37 @@ export function leegmaken() {
   _bezig.clear();
   _bladen.clear();
   _bladData.clear();
+}
+
+// ─── Lijnwerk in één kleur (#1024) ────────────────────────────────────────
+// Schermbeeld van een knipsel met een lijnkleur: elke pixel wordt de kleur,
+// met als dekking zijn donkerte (inkt = de kleur, wit wordt doorzichtig,
+// grijs een lichtere tint). Precies wat het luminantie-masker doet dat de
+// saver schrijft, zodat scherm en bestand gelijk zijn. Per tegel en kleur één
+// keer gerekend.
+const _gekleurd = new WeakMap();
+
+export function gekleurdeTegel(bmp, kleur) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(kleur || ''));
+  if (!bmp || !m) return bmp;
+  const vorig = _gekleurd.get(bmp);
+  if (vorig && vorig.kleur === kleur) return vorig.canvas;
+  const w = bmp.width, h = bmp.height;
+  if (!(w > 0 && h > 0)) return bmp;
+  const canvas = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h });
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bmp, 0, 0);
+  const beeld = ctx.getImageData(0, 0, w, h);
+  const d = beeld.data;
+  const kr = parseInt(m[1].slice(0, 2), 16), kg = parseInt(m[1].slice(2, 4), 16), kb = parseInt(m[1].slice(4, 6), 16);
+  for (let i = 0; i < d.length; i += 4) {
+    const inkt = 1 - (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255;
+    d[i] = kr;
+    d[i + 1] = kg;
+    d[i + 2] = kb;
+    d[i + 3] = Math.round(d[i + 3] * inkt);
+  }
+  ctx.putImageData(beeld, 0, 0);
+  _gekleurd.set(bmp, { kleur, canvas });
+  return canvas;
 }

@@ -1,4 +1,5 @@
-import { Show, For, createMemo } from 'solid-js';
+import { Show, For, createMemo, createResource } from 'solid-js';
+import { leesGetal } from '../../../core/getal-invoer.js';
 import { annotProps, sectionVis, updateAnnotProp, cycleSelectNext, panelMode, pdfTekstBronFont } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import ColorPalettePicker from './ColorPalettePicker.jsx';
@@ -6,6 +7,7 @@ import PrefComboBox from '../preferences/PrefComboBox.jsx';
 import { systemFontList } from '../../stores/fontStore.js';
 import { ensureFontInStore } from '../../../utils/fonts.js';
 import { lettertypeMelding } from '../../../text/lettertype-inbedding.js';
+import { wordtIngebed } from '../../../pdf/saver/systeem-fonts.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 const FONT_SIZE_OPTIONS = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72];
@@ -28,11 +30,21 @@ export default function TextFormatSection() {
   // lezer zonder dat lettertype toont, of (PDF-tekst bewerken) waarin de
   // tekst geschreven wordt.
   // Bij PDF-tekst in het eigen lettertype van het bestand blijft dat font.
+  // Wordt het lettertype van een tekstvak of callout bij opslaan ingebed (#1020)?
+  const [inbedding] = createResource(
+    () => (annotProps.id !== '_pdfTextEdit' && annotProps.fontFamily && annotProps.fontFamily !== 'mixed') ? annotProps.fontFamily : null,
+    (familie) => wordtIngebed(familie),
+  );
   const melding = createMemo(() => {
     const pdfTekst = annotProps.id === '_pdfTextEdit';
     if (pdfTekst && annotProps.fontFamily === pdfTekstBronFont()) return null;
+    if (!pdfTekst && inbedding()?.ingebed) return null;
     return lettertypeMelding(annotProps.fontFamily, pdfTekst ? 'paginatekst' : 'tekstvak');
   });
+  const inbedReden = () => {
+    const r = inbedding()?.reden;
+    return r && r !== 'not-found' ? t(`textFormat.fontEmbedReason.${r}`) : '';
+  };
 
   return (
     <Show when={sectionVis.textFormat}>
@@ -61,6 +73,7 @@ export default function TextFormatSection() {
         <Show when={melding()}>
           <div class="font-inbedding-melding" role="note">
             {t(melding().sleutel, { font: melding().font, fallback: melding().fallback })}
+            <Show when={melding().sleutel === 'textFormat.fontNotEmbedded' && inbedReden()}>{' '}{inbedReden()}</Show>
           </div>
         </Show>
 
@@ -100,6 +113,18 @@ export default function TextFormatSection() {
             </button>
           </div>
         </div>
+
+        <Show when={panelMode() === 'textEdit' && annotProps.textRotationAvailable}>
+          <div class="property-group">
+            <label for="prop-pdf-text-rotation">{t('appearance.rotation')} (°)</label>
+            <input id="prop-pdf-text-rotation" type="text" inputmode="decimal" data-getal step="any"
+              value={annotProps.rotation}
+              onInput={(e) => {
+                const value = leesGetal(e.currentTarget.value);
+                if (Number.isFinite(value)) updateAnnotProp('rotation', value);
+              }} />
+          </div>
+        </Show>
 
         {/* PDF text-edit mode: allow deleting the text edit that is open in the
             inline editor (inserted or existing PDF text). */}

@@ -37,6 +37,7 @@ import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
 import { verwijderOpslag } from './core/opslag.js';
 import { initDomElements } from './ui/dom-elements.js';
+import { revealStartupWindow } from './core/startup-window.js';
 import { initPropertiesPanel } from './ui/panels/properties-panel.js';
 import { initToolPalette } from './solid/components/ToolPalette.jsx';
 import { initSymbolPalette } from './solid/stores/symbolStore.js';
@@ -368,8 +369,7 @@ async function init() {
     .then(m => m.loadPrinters())
     .catch(() => {});
 
-  // The native window is visible from creation; frontend startup cannot keep
-  // it hidden. Now that Solid has rendered, grab canvas and container refs.
+  // Now that Solid has rendered, grab canvas and container refs.
   initDomElements();
 
   // Wire the reactive cursor — runs once, then updates the .main-view cursor
@@ -436,6 +436,10 @@ async function init() {
       console.warn('Failed to setup deep-link listener:', e);
     }
   }
+
+  // Theme, panels and event handlers are ready. Reveal before opening a PDF,
+  // which can wait for a password dialog or a slow file.
+  await revealStartupWindow({ mobile });
 
   // Check for file passed as command line argument
   const hasCommandLineFile = await checkCommandLineArgs();

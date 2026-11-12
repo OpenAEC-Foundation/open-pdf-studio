@@ -113,6 +113,7 @@ export default function PrintDialog(props) {
   const [printerStatus, setPrinterStatus] = createSignal(`${t('print.status')} `);
   const [printerType, setPrinterType] = createSignal(`${t('print.type')} `);
   const [copies, setCopies] = createSignal(bewaard.copies);
+  const [duplex, setDuplex] = createSignal(bewaard.duplex);
   const [collate, setCollate] = createSignal(bewaard.collate);
   const [activeRange, setActiveRange] = createSignal(bewaard.range);
   // Huidige weergave (#947): wat in het documentvenster te zien was toen de
@@ -1015,6 +1016,7 @@ export default function PrintDialog(props) {
     state.preferences.printSettings = {
       printer,
       copies: numCopies,
+      duplex: duplex(),
       collate: collate(),
       // Huidige weergave geldt voor dit ene moment: bewaard blijft de keuze
       // van daarvoor, anders drukt de volgende Ctrl+P ongemerkt een uitsnede af.
@@ -1097,6 +1099,7 @@ export default function PrintDialog(props) {
     runPrintJob({
       pages,
       copies: numCopies,
+      duplex: duplex(),
       printer,
       orientatie,
       papier,
@@ -1521,6 +1524,16 @@ export default function PrintDialog(props) {
                 onChange={(e) => setCollate(e.target.checked)}
               /> {t('print.collate')}
             </label>
+          </div>
+          <div class="print-row">
+            <label class="print-label" for="print-duplex">{t('print.bookletSides')}</label>
+            <select id="print-duplex" class="print-select" value={duplex()} disabled={pdfDoel()}
+              onChange={(e) => setDuplex(e.target.value)}>
+              <option value="printer">{t('print.duplexDefault')}</option>
+              <option value="simplex">{t('print.duplexSimplex')}</option>
+              <option value="long-edge">{t('print.duplexLong')}</option>
+              <option value="short-edge">{t('print.duplexShort')}</option>
+            </select>
           </div>
         </fieldset>
 

@@ -17,6 +17,7 @@ import { KLEUR_MODI, KLEUR_STANDAARD } from '../../pdf/print-kleur.js';
 export const PRINT_STANDAARD = Object.freeze({
   printer: '',
   copies: 1,
+  duplex: 'printer',
   collate: false,
   range: 'all',
   customPages: '',
@@ -56,6 +57,7 @@ export const PRINT_STANDAARD = Object.freeze({
 
 /** De toegestane waarden per keuzelijst van de printdialoog. */
 export const PRINT_KEUZES = Object.freeze({
+  duplex: ['printer', 'simplex', 'long-edge', 'short-edge'],
   range: ['all', 'current', 'custom'],
   subset: ['all', 'odd', 'even'],
   scaling: ['fit', 'actual', 'shrink', 'custom-scale', 'poster'],

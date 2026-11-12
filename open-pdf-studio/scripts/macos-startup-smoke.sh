@@ -105,6 +105,14 @@ if [[ "$ready" != true ]]; then
   exit 1
 fi
 
+# A timeout reveal must not disguise the earlier hidden-WebView startup bug.
+if ! tail -n "+$first_new_line" "$diagnostics" | grep -q '"phase":"native-window-ready"' ||
+   tail -n "+$first_new_line" "$diagnostics" | grep -q '"phase":"native-window-fallback"'; then
+  echo "Startup relied on the watchdog instead of shell readiness"
+  tail -n 20 "$diagnostics"
+  exit 1
+fi
+
 # A frontend-ready marker is only meaningful if the native process remains
 # healthy afterwards. Catch immediate post-start crashes before accepting it.
 survival_seconds=10

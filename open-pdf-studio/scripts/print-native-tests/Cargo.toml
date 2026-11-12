@@ -1,0 +1,26 @@
+[package]
+name = "print-native-tests"
+version = "2026.46.1"
+edition = "2021"
+publish = false
+
+# An independent test harness: importing the app crate would also link its
+# cdylib and unrelated native OCR libraries. Production modules are used below.
+[workspace]
+
+[dependencies]
+log = "0.4"
+serde = { version = "1", features = ["derive"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Gdi",
+  "Win32_Graphics_Printing",
+  "Win32_Storage_Xps",
+  "Win32_Security",
+  "Win32_UI_WindowsAndMessaging",
+] }
+
+[dev-dependencies]
+serde_json = "1"

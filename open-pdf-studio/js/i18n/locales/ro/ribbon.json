@@ -320,6 +320,8 @@
     "box": "Suprafață",
     "boxHint": "Afișează modificările ca suprafață umplută",
     "contour": "Contur",
+    "colourOverlay": "Culori",
+    "colourOverlayHint": "Afișează ambele desene suprapuse, fiecare în propria culoare",
     "contourHint": "Afișează modificările cu un contur",
     "annotation": "Adnotare",
     "changes": "Modificări",
