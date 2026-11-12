@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.46.1'
+        default: 'v2026.46.25'
 
 jobs:
   create-release:
@@ -312,9 +312,8 @@ jobs:
         if: matrix.target == 'windows-user'
         shell: pwsh
         run: |
-          $conf = Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
-          $conf.bundle.windows.nsis.installMode = "currentUser"
-          $conf | ConvertTo-Json -Depth 10 | Set-Content src-tauri/tauri.conf.json
+          node scripts/windows-user-update.mjs configure src-tauri/tauri.conf.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       # WebView2Loader.dll is committed in src-tauri/ and bundled via
       # bundle.resources — just verify it's there. (The old pre-build step
@@ -622,8 +621,13 @@ jobs:
           $NEW_NAME = $EXE.Name -replace '_x64-setup\.exe$', '_x64_user-setup.exe'
           $NEW_PATH = Join-Path $EXE.DirectoryName $NEW_NAME
           Rename-Item $EXE.FullName $NEW_PATH
-          gh release upload $VERSION "$NEW_PATH" --clobber --repo "${{ github.repository }}"
-          Write-Host "Uploaded user installer: $NEW_NAME"
+          # Keep the signed updater ZIP separate from the system feed. The
+          # signature covers the ZIP bytes; renaming must not repack the ZIP.
+          node scripts/windows-user-update.mjs manifest "$NSIS_DIR" "${{ github.repository }}" "$VERSION"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          gh release upload $VERSION "$NEW_PATH" "$NSIS_DIR/*_user-setup.exe.zip" "$NSIS_DIR/*_user-setup.exe.zip.sig" "$NSIS_DIR/latest-user.json" --clobber --repo "${{ github.repository }}"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Write-Host "Uploaded user installer and signed user update: $NEW_NAME"
 
   build-android:
     needs: create-release
