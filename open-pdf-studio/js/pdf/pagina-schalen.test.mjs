@@ -49,3 +49,19 @@ test('kiesPaginaSchaal falls back to the most frequent, reads pdf.js str items, 
   assert.equal(kiesPaginaSchaal([{ text: 'no scale here' }, { text: 'TIME 12:30' }]), null);
   assert.equal(kiesPaginaSchaal([]), null);
 });
+
+test('kiesPaginaSchaal: split items, spaces, standards and years', async () => {
+  const { schaalUitGebied } = await import('./pagina-schalen.js');
+  // Revit title block: ":SCALE" (rotated) and "1 : 10" as separate pieces.
+  assert.equal(kiesPaginaSchaal([{ str: ':SCALE' }, { str: '1' }, { str: ':' }, { str: '10' }]).ratio, 10);
+  assert.equal(kiesPaginaSchaal([{ str: '1 : 10' }, { str: ':SCALE' }]).ratio, 10);
+  // Standards are not scales.
+  assert.equal(kiesPaginaSchaal([{ str: 'NZS 3101:2006' }, { str: 'AS/NZS 1170.1:2002' }, { str: 'SCNZ 111:2018' }]), null);
+  assert.equal(kiesPaginaSchaal([{ str: 'TABLE 8.1 & 8.2 NZS3101:2006' }, { str: '1 : 10' }]).ratio, 10);
+  // The scale next to SCALE wins over the detail scales.
+  assert.equal(kiesPaginaSchaal([{ str: '1 : 10' }, { str: '1 : 10' }, { str: '1 : 10' }, { str: 'SCALE' }, { str: '1:50' }]).ratio, 50);
+  assert.equal(schaalUitGebied('1 : 100'), '1:100');
+  assert.equal(schaalUitGebied('SCALE 1:50 @ A1'), '1:50');
+  assert.equal(schaalUitGebied('20'), '1:20');
+  assert.equal(schaalUitGebied('AS SHOWN'), null);
+});

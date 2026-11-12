@@ -1334,6 +1334,12 @@ function ThumbnailMenuContent() {
           await detecteerPaginaSchalen(d, isMulti() ? pages() : alle);
         }} />
       <MenuItem
+        label={t('thumbnail.detectPageScalesArea')}
+        onClick={async () => {
+          const { detecteerUitGebied } = await import('../../pdf/pagina-schalen-app.js');
+          await detecteerUitGebied(state.documents[state.activeDocumentIndex], t('thumbnail.pickScaleArea'));
+        }} />
+      <MenuItem
         label={t('thumbnail.clearPageScale')}
         disabled={!pages().some((p) => state.documents[state.activeDocumentIndex]?.pageScales?.[p])}
         onClick={async () => {

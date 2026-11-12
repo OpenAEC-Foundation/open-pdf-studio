@@ -47,39 +47,64 @@ export function herschikSchalen(schalen, pageMapping, aantal) {
   return Object.keys(uit).length ? uit : null;
 }
 
-const SCHAAL_WOORD = /\b(SCALE|SCHAAL|MASSSTAB|ÉCHELLE|ECHELLE|ESCALA)\b/i;
-const VERHOUDING = /\b1\s*:\s*(\d{1,5})\b/g;
+const SCHAAL_WOORD = /(SCALE|SCHAAL|MASSSTAB|ÉCHELLE|ECHELLE|ESCALA)/gi;
+const VERHOUDING = /(?<![\d.,:/])1\s*:\s*(\d{1,5}(?:\.\d+)?)(?![\d:])/g;
+const NABIJ = 40;   // characters between SCALE and its ratio, either side
+
+/** A plausible drawing scale: not a year (NZS 3101:2006), not a time. */
+function geldigeNoemer(n, naastWoord) {
+  if (!(n > 0 && n <= 10000)) return false;
+  if (!naastWoord && n >= 1900 && n <= 2100 && Number.isInteger(n)) return false;
+  return true;
+}
 
 /**
- * The drawing scale of a page from its text lines. A sheet often carries
- * several (the plan 1:100, details 1:20); the one next to the word SCALE
- * wins, then the most frequent, then the first. Returns
- * { ratio, scaleText, alle: ['1:100', '1:20'] } or null.
- * `regels`: [{ text, y? }], one per text item or OCR word.
+ * The drawing scale of a page from its text. A sheet often carries several
+ * (the plan 1:100, details 1:20); the one next to the word SCALE wins, then
+ * the most frequent, then the first. The items are joined first, so a scale
+ * split over items ("1", ":", "10") or written "1 : 10" is found.
+ * Returns { ratio, scaleText, alle: ['1:100', '1:20'] } or null.
+ * `regels`: [{ text }] or pdf.js items [{ str }], one per item or OCR word.
  */
 export function kiesPaginaSchaal(regels) {
-  const lijst = (Array.isArray(regels) ? regels : []).map((r) => String(r?.text ?? r?.str ?? '')).filter(Boolean);
+  const tekst = (Array.isArray(regels) ? regels : [])
+    .map((r) => String(r?.text ?? r?.str ?? '')).filter((t) => t.trim()).join(' ');
+  if (!tekst) return null;
+  const woordPlekken = [...tekst.matchAll(SCHAAL_WOORD)].map((m) => [m.index, m.index + m[0].length]);
   const tellers = new Map();
-  let naastWoord = null;
-  const alleTekst = lijst.join(' \n ');
-  for (let i = 0; i < lijst.length; i++) {
-    const t = lijst[i];
-    for (const m of t.matchAll(VERHOUDING)) {
-      const n = parseInt(m[1], 10);
-      if (!(n > 0 && n <= 10000)) continue;
-      tellers.set(n, (tellers.get(n) || 0) + 1);
-      // SCALE in the same item, or in the item just before ("SCALE" "1:100").
-      if (!naastWoord && (SCHAAL_WOORD.test(t) || SCHAAL_WOORD.test(lijst[i - 1] || ''))) naastWoord = n;
+  let naastWoord = null, naastAfstand = Infinity;
+  for (const m of tekst.matchAll(VERHOUDING)) {
+    const n = parseFloat(m[1]);
+    const begin = m.index, eind = m.index + m[0].length;
+    // Distance to the nearest SCALE word; a ratio after the word ("SCALE
+    // 1:100") goes before one just before it (a detail's "1:20 SCALE").
+    let afstand = Infinity, score = Infinity;
+    for (const [a, b] of woordPlekken) {
+      const na = b <= begin, d = na ? begin - b : eind <= a ? a - eind : 0;
+      afstand = Math.min(afstand, d);
+      score = Math.min(score, na ? d : d + NABIJ);
     }
+    const bijWoord = afstand <= NABIJ;
+    if (!geldigeNoemer(n, bijWoord)) continue;
+    tellers.set(n, (tellers.get(n) || 0) + 1);
+    if (bijWoord && score < naastAfstand) { naastWoord = n; naastAfstand = score; }
   }
-  if (!tellers.size) {
-    // "SCALE 1 : 100" split over items: try the joined text once.
-    const m = alleTekst.match(/(SCALE|SCHAAL)\s*[:.]?\s*1\s*:\s*(\d{1,5})/i);
-    if (!m) return null;
-    const n = parseInt(m[2], 10);
-    return { ratio: n, scaleText: m[0].trim(), alle: [`1:${n}`] };
-  }
+  if (!tellers.size) return null;
   const gesorteerd = [...tellers.entries()].sort((a, b) => b[1] - a[1]);
   const gekozen = naastWoord ?? gesorteerd[0][0];
   return { ratio: gekozen, scaleText: `1:${gekozen}`, alle: gesorteerd.map(([n]) => `1:${n}`) };
+}
+
+/**
+ * The scale in a small area the user drew round it: a ratio ("1 : 100",
+ * "SCALE 1:50 @ A1") or, when the box holds only the number, that number.
+ * Returns '1:N' or null.
+ */
+export function schaalUitGebied(tekst) {
+  const t = String(tekst ?? '').trim();
+  if (!t) return null;
+  const k = kiesPaginaSchaal([{ text: t }]);
+  if (k) return `1:${k.ratio}`;
+  const alleenGetal = t.replace(/^(SCALE|SCHAAL)\s*[:.]?\s*/i, '').match(/^(\d{1,5})(?:\s*@.*)?$/);
+  return alleenGetal ? normaliseerSchaal(alleenGetal[1]) : null;
 }

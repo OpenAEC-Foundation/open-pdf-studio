@@ -1,7 +1,7 @@
 // Page scales in the app: set them, detect them, keep them with their pages.
 // The rules are in pagina-schalen.js.
 
-import { metPaginaSchaal, kiesPaginaSchaal, herschikSchalen, paginaSchaal } from './pagina-schalen.js';
+import { metPaginaSchaal, kiesPaginaSchaal, herschikSchalen, paginaSchaal, schaalUitGebied } from './pagina-schalen.js';
 import { recordPageScales } from '../core/undo-manager.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { redrawAnnotations } from '../annotations/rendering.js';
@@ -62,6 +62,36 @@ export async function detecteerPaginaSchalen(doc, pages, { overschrijf = false, 
       uit.gevonden++;
     } else uit.zonder.push(p);
   }
+  doc.pageScales = Object.keys(schalen).length ? schalen : null;
+  bijgewerkt(doc, oud);
+  return uit;
+}
+
+/**
+ * Like the sheet-name builder: the user draws a box round the scale in the
+ * title block once, and that box is read on every page (text layer, OCR when
+ * the box has no text). Pages where the box holds a scale get it, also pages
+ * set by hand: the user asked for this. One undo step.
+ * @returns {Promise<{gevonden:number, zonder:number[], ocr:number} | null>} null when cancelled
+ */
+export async function detecteerUitGebied(doc, hint) {
+  if (!doc?.pdfDoc) return null;
+  const { kiesLabelGebied } = await import('../tools/tools/label-gebied-tool.js');
+  const { leesAllePaginas } = await import('./pagina-labels-app.js');
+  const keuze = await kiesLabelGebied(hint);
+  if (!keuze?.rect || !(keuze.rect.width > 0) || !(keuze.rect.height > 0)) return null;
+  const rijen = await leesAllePaginas(doc, [{ n: 1, rect: keuze.rect }], { ocr: true });
+  const uit = { gevonden: 0, zonder: [], ocr: 0 };
+  const oud = doc.pageScales ? { ...doc.pageScales } : null;
+  let schalen = { ...(doc.pageScales || {}) };
+  for (const r of rijen) {
+    const ratio = schaalUitGebied(r.teksten?.[1]);
+    if (!ratio) { uit.zonder.push(r.page); continue; }
+    schalen = metPaginaSchaal(schalen, [r.page], ratio, r.ocr ? 'ocr' : 'auto-detect');
+    if (r.ocr) uit.ocr++;
+    uit.gevonden++;
+  }
+  doc.pageScaleArea = { rect: keuze.rect, page: keuze.page };
   doc.pageScales = Object.keys(schalen).length ? schalen : null;
   bijgewerkt(doc, oud);
   return uit;
