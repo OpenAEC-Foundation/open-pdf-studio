@@ -1,4 +1,4 @@
-import { Show, createSignal } from 'solid-js';
+import { Show, createSignal, onMount, onCleanup } from 'solid-js';
 import {
   activePage, thumbnailData, draggedPage, dropTarget, placeholderSize,
   selectedPages, selectPage, togglePageSelection, selectPageRange, isPageSelected
@@ -7,6 +7,8 @@ import { showThumbnailMenu } from '../../stores/contextMenuStore.js';
 import { state } from '../../../core/state.js';
 import { labelVan, heeftEigenLabel } from '../../../pdf/pagina-labels.js';
 import { zetPaginaLabel } from '../../../pdf/pagina-labels-app.js';
+import { normaliseerSchaal } from '../../../pdf/pagina-schalen.js';
+import { zetPaginaSchalen } from '../../../pdf/pagina-schalen-app.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 export default function ThumbnailItem(props) {
@@ -45,6 +47,46 @@ export default function ThumbnailItem(props) {
     hernoemKlaar = false;
     setHernoemen(true);
   };
+
+  // Page scale (pagina-schalen.js), Bluebeam style: a badge under the label.
+  // Its own scale in full colour, the document scale dimmed, else a dash on
+  // hover. Click to set: Enter sets it for the selected pages (or this one),
+  // empty clears, Esc cancels.
+  const eigenSchaal = () => doc()?.pageScales?.[props.pageNum] || null;
+  const docSchaal = () => doc()?.measureScale?.scaleRatio || null;
+  const schaalTekst = () => eigenSchaal()?.scaleRatio || docSchaal() || '–';
+  const schaalTitel = () => {
+    const s = eigenSchaal();
+    if (s) {
+      const hoe = s.method === 'manual' ? 'set' : s.method === 'ocr' ? 'read with OCR' : 'detected';
+      const ook = s.alternatives?.length > 1 ? `; also on the sheet: ${s.alternatives.join(', ')}` : '';
+      return `Page scale ${s.scaleRatio} (${hoe}${ook}). Click to change.`;
+    }
+    return docSchaal() ? `Document scale ${docSchaal()}. Click to set a scale for this page.` : 'No scale. Click to set one for this page.';
+  };
+  const [schaalBewerken, setSchaalBewerken] = createSignal(false);
+  let schaalKlaar = false;
+  const startSchaal = (e) => { e?.stopPropagation(); schaalKlaar = false; setSchaalBewerken(true); };
+  const rondSchaalAf = (waarde) => {
+    if (schaalKlaar) return;
+    schaalKlaar = true;
+    setSchaalBewerken(false);
+    const d = doc();
+    if (waarde == null || !d?.pdfDoc) return;
+    const leeg = !waarde.trim();
+    const ratio = leeg ? null : normaliseerSchaal(waarde);
+    if (!leeg && !ratio) return;
+    if ((ratio || null) === (eigenSchaal()?.scaleRatio || null) && !(isPageSelected(props.pageNum) && selectedPages().size > 1)) return;
+    const paginas = isPageSelected(props.pageNum) && selectedPages().size > 1
+      ? [...selectedPages()].sort((a, b) => a - b) : [props.pageNum];
+    zetPaginaSchalen(d, paginas, ratio);
+  };
+  // "Set Page Scale..." in the thumbnail menu opens this editor.
+  onMount(() => {
+    const h = (e) => { if (e.detail?.pageNum === props.pageNum) startSchaal(); };
+    window.addEventListener('ops-paginaschaal-bewerk', h);
+    onCleanup(() => window.removeEventListener('ops-paginaschaal-bewerk', h));
+  });
 
   const handleClick = (e) => {
     if (e.ctrlKey && e.shiftKey) {
@@ -123,6 +165,34 @@ export default function ThumbnailItem(props) {
             else if (e.key === 'Escape') { e.preventDefault(); rondHernoemenAf(null); }
           }}
           onBlur={(e) => rondHernoemenAf(e.currentTarget.value)}
+        />
+      </Show>
+      <Show when={schaalBewerken()} fallback={
+        <div
+          class="thumbnail-scale"
+          classList={{ own: !!eigenSchaal(), none: !eigenSchaal() && !docSchaal() }}
+          title={schaalTitel()}
+          onClick={startSchaal}
+          onDblClick={(e) => e.stopPropagation()}
+        >{schaalTekst()}</div>
+      }>
+        <input
+          class="thumbnail-label-input thumbnail-scale-input"
+          type="text"
+          spellcheck={false}
+          value={eigenSchaal()?.scaleRatio || ''}
+          placeholder={docSchaal() || '1:100'}
+          ref={(el) => queueMicrotask(() => { el.focus(); el.select(); })}
+          onClick={(e) => e.stopPropagation()}
+          onDblClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') { e.preventDefault(); rondSchaalAf(e.currentTarget.value); }
+            else if (e.key === 'Escape') { e.preventDefault(); rondSchaalAf(null); }
+          }}
+          onBlur={(e) => rondSchaalAf(e.currentTarget.value)}
         />
       </Show>
     </div>

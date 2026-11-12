@@ -210,3 +210,33 @@ test('met de echte saver: schaalgebieden als /VP, controles en documentschaal he
   assert.deepEqual(leesControles(lib2), controles);
   assert.ok(lijst.every((d) => d instanceof PDFDict));
 });
+
+test('page scales: written as /VP Page viewports before the document scale, read back on open', async () => {
+  const { leesPaginaSchalen } = await import('./schaal-in-pdf.js');
+  const doc = await PDFDocument.create();
+  doc.addPage([842, 595]); doc.addPage([842, 595]); doc.addPage([842, 595]);
+  const model = {
+    annotations: [],
+    measureScale: { pixelsPerUnit: PPU(50), unit: 'mm', scaleRatio: '1:50', method: 'ratio' },
+    pageScales: { 1: { scaleRatio: '1:100', unit: 'mm', method: 'manual' }, 3: { scaleRatio: '1:20', unit: 'mm', method: 'ocr' } },
+  };
+  schrijfSchalenInPdf(doc.getPages(), model);
+  const terug = await PDFDocument.load(await doc.save());
+  const vp1 = terug.getPages()[0].node.lookup(N('VP'));
+  assert.equal(vp1.size(), 2, 'page scale and document scale');
+  assert.equal(String(vp1.lookup(0).get(N(BRON_SLEUTEL))), '/Page');
+  assert.equal(String(vp1.lookup(1).get(N(BRON_SLEUTEL))), '/Document');
+  assert.deepEqual(leesPaginaSchalen(terug), {
+    1: { scaleRatio: '1:100', unit: 'mm', method: 'manual' },
+    3: { scaleRatio: '1:20', unit: 'mm', method: 'ocr' },
+  });
+  // The document scale still comes back, and the reader skips our own viewports.
+  dicht(leesDocumentSchaal(terug).pixelsPerUnit, PPU(50), 1e-12);
+  assert.deepEqual(leesPdfViewports(terug), {});
+  const app = { annotations: [] };
+  pasSchalenUitBestandToe(app, terug);
+  assert.equal(app.pageScales[3].scaleRatio, '1:20');
+  // Clearing the page scales removes their viewports on the next save.
+  schrijfSchalenInPdf(terug.getPages(), { ...model, pageScales: null });
+  assert.deepEqual(leesPaginaSchalen(terug), {});
+});

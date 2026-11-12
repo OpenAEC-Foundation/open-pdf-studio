@@ -140,7 +140,12 @@
     "insertFromFile": "Insert from File...",
     "insertFromFileBefore": "Before This Page...",
     "insertFromFileAfter": "After This Page...",
-    "pageLabels": "Page Labels (Name Builder)..."
+    "pageLabels": "Page Labels (Name Builder)...",
+    "setPageScale": "Set Page Scale...",
+    "setPageScaleMulti": "Set Scale of {{count}} Pages...",
+    "detectPageScales": "Detect Page Scales (All Pages)",
+    "detectPageScalesMulti": "Detect Scales of {{count}} Pages",
+    "clearPageScale": "Clear Page Scale"
   },
   "textSelection": {
     "highlightSelection": "Highlight Selection",

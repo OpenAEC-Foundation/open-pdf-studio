@@ -263,6 +263,7 @@ export function createPluginApi(pluginId) {
         const page = doc?.currentPage ?? null;
         const scale = doc ? JSON.stringify({
           documentScale: doc.measureScale,
+          pageScales: doc.pageScales ?? null,
           calibratedAnnotations: (doc.annotations || [])
             .filter(a => ['scaleRegion', 'scaleBar', 'viewport'].includes(a.type))
             .map(a => [a.id, a.page, a.x, a.y, a.width, a.height, a.scaleString, a.pixelsPerUnit, a.unit]),
