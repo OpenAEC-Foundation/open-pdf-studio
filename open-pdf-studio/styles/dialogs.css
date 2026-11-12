@@ -7076,3 +7076,7 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .link-dialog-note { color: var(--theme-text-secondary, #666); }
 .link-dialog-warning { margin: 0; font-size: 11px; color: #a15c00; }
 .link-dialog-error { margin: 0; color: #c42b1c; }
+
+/* The high-contrast accent is yellow: white button text is unreadable. */
+[data-theme="highContrast"] .feedback-category-btn.active,
+[data-theme="highContrast"] .feedback-submit-btn { color: #000; }

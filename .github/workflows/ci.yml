@@ -101,6 +101,10 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:hosted-bridge
 
+      - name: Test high-contrast palette and feedback (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-high-contrast-browser.mjs
+
       - name: Run Linux release regression tests
         run: node --test scripts/linux-release-config.test.mjs
 
