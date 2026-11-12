@@ -15,15 +15,24 @@ fn main() {
 
     // De worker staat in DEZELFDE target-directory als deze app-build. Bij een
     // gezette CARGO_TARGET_DIR (test-rig) is dat NIET `../../target`, dus leiden
-    // we het pad af van OUT_DIR: `<target>/<profiel>/build/<crate>-<hash>/out`.
-    // Drie niveaus omhoog vanaf OUT_DIR geeft de `<profiel>`-map waar de worker
-    // ligt — ongeacht CARGO_TARGET_DIR of een cross-target-subpad.
-    let mut candidates: Vec<std::path::PathBuf> = Vec::new();
-    if let Ok(out_dir) = std::env::var("OUT_DIR") {
-        if let Some(profile_dir) = std::path::Path::new(&out_dir).ancestors().nth(3) {
-            candidates.push(profile_dir.join(&worker_name));
+    // we het pad af van OUT_DIR. Cargo legt die op twee manieren neer:
+    // `<profiel>/build/<crate>-<hash>/out` en, in nieuwere versies,
+    // `<profiel>/build/<crate>/<hash>/out`. De `<profiel>`-map ligt dus drie of
+    // vier niveaus boven OUT_DIR; in de nieuwe indeling is drie niveaus omhoog
+    // de map `build`, waarin `pdfium-worker` een MAP is. Daarom telt alleen een
+    // gewoon bestand als bron.
+    let profiel_mappen = |naam: &str| -> Vec<std::path::PathBuf> {
+        match std::env::var("OUT_DIR") {
+            Ok(out_dir) => std::path::Path::new(&out_dir)
+                .ancestors()
+                .skip(3)
+                .take(2)
+                .map(|map| map.join(naam))
+                .collect(),
+            Err(_) => Vec::new(),
         }
-    }
+    };
+    let mut candidates: Vec<std::path::PathBuf> = profiel_mappen(&worker_name);
     // Terugval: de klassieke workspace-target-map (geen CARGO_TARGET_DIR).
     candidates.push(
         std::path::PathBuf::from("../../target").join(&profile).join(&worker_name),
@@ -31,7 +40,7 @@ fn main() {
 
     let dst = std::path::PathBuf::from("binaries")
         .join(format!("pdfium-worker-{}{}", target, exe_suffix));
-    if let Some(src) = candidates.iter().find(|p| p.exists()) {
+    if let Some(src) = candidates.iter().find(|p| p.is_file()) {
         println!("cargo:rerun-if-changed={}", src.display());
         let _ = std::fs::create_dir_all("binaries");
         if let Err(e) = std::fs::copy(src, &dst) {
@@ -54,17 +63,12 @@ fn main() {
     // van de PE-kop dat de handler er niet is en biedt de optie dan niet aan.
     if target.contains("windows") {
         let naam = "open_pdf_thumbnails.dll";
-        let mut bronnen: Vec<std::path::PathBuf> = Vec::new();
-        if let Ok(out_dir) = std::env::var("OUT_DIR") {
-            if let Some(profile_dir) = std::path::Path::new(&out_dir).ancestors().nth(3) {
-                bronnen.push(profile_dir.join(naam));
-            }
-        }
+        let mut bronnen: Vec<std::path::PathBuf> = profiel_mappen(naam);
         bronnen.push(std::path::PathBuf::from("../../target").join(&profile).join(naam));
         let doel = std::path::PathBuf::from("binaries").join("open-pdf-thumbnails.dll");
         let gewijzigd = |p: &std::path::Path| std::fs::metadata(p).and_then(|m| m.modified()).ok();
         let _ = std::fs::create_dir_all("binaries");
-        if let Some(bron) = bronnen.iter().find(|p| p.exists()) {
+        if let Some(bron) = bronnen.iter().find(|p| p.is_file()) {
             println!("cargo:rerun-if-changed={}", bron.display());
             let verouderd = match (gewijzigd(bron), gewijzigd(&doel)) {
                 (Some(b), Some(d)) => b > d,

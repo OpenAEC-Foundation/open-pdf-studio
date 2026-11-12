@@ -53,6 +53,15 @@ jobs:
         working-directory: open-pdf-studio
         run: npm install
 
+      # Tauri requires binaries/pdfium-worker-<target-triple> to exist. Build
+      # and place it first, as the release workflow does, so this build does
+      # not depend on the build script finding the worker in the target dir.
+      - name: Build pdfium-worker sidecar
+        run: |
+          cargo build --release -p pdfium-worker
+          mkdir -p open-pdf-studio/src-tauri/binaries
+          cp target/release/pdfium-worker open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-unknown-linux-gnu
+
       - name: Build Tauri app
         working-directory: open-pdf-studio
         run: npx tauri build
