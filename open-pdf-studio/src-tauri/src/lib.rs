@@ -322,11 +322,6 @@ fn get_username() -> String {
 // Fallback commands for when plugins aren't available via global API
 
 #[tauri::command]
-fn read_file(path: String) -> Result<Vec<u8>, String> {
-    fs::read(&path).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
 fn write_file(path: String, data: String) -> Result<bool, String> {
     let bytes = BASE64.decode(&data).map_err(|e| e.to_string())?;
     atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())?;
@@ -1171,8 +1166,30 @@ fn sanitize_temp_pdf_name(name: &str) -> String {
 /// unieke submap: de printspooler (Windows én CUPS) toont de bestandsnaam als
 /// jobnaam, dus zo heet de printjob naar het pdf-bestand in plaats van naar
 /// een timestamp.
+///
+/// The PDF travels as the raw IPC body and the name percent-encoded in the
+/// `x-opds-name` header, so a large print job is not turned into a JSON array
+/// of numbers on its way here.
 #[tauri::command]
-fn write_temp_pdf(data: Vec<u8>, name: Option<String>) -> Result<String, String> {
+fn write_temp_pdf(request: tauri::ipc::Request<'_>) -> Result<String, String> {
+    let mut name = match request.headers().get("x-opds-name") {
+        Some(v) => Some(urlencoding::decode(v.to_str().map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?.into_owned()),
+        None => None,
+    };
+    let data = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => std::borrow::Cow::Borrowed(bytes.as_slice()),
+        // Android cannot transport a raw IPC body.
+        tauri::ipc::InvokeBody::Json(value) => {
+            if name.is_none() {
+                name = value.get("name").and_then(|n| n.as_str()).map(str::to_string);
+            }
+            std::borrow::Cow::Owned(
+                serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing file data")?)
+                    .map_err(|e| e.to_string())?,
+            )
+        }
+    };
     let temp_dir = std::env::temp_dir();
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -1194,7 +1211,7 @@ fn write_temp_pdf(data: Vec<u8>, name: Option<String>) -> Result<String, String>
         }
         None => temp_dir.join(format!("openstudio_print_{}.pdf", timestamp)),
     };
-    fs::write(&path, &data).map_err(|e| format!("Failed to write temp file: {}", e))?;
+    fs::write(&path, data.as_ref()).map_err(|e| format!("Failed to write temp file: {}", e))?;
     Ok(path.to_string_lossy().to_string())
 }
 
@@ -2882,13 +2899,15 @@ fn extract_draw_commands(
     rotation: Option<i32>,
     bytes_cache: tauri::State<PdfBytesCache>,
     handle_cache: tauri::State<DocHandleCache>,
-) -> Result<Vec<u8>, String> {
+) -> Result<tauri::ipc::Response, String> {
     // Geschakelde lagen (#684): teken uit de weergavekopie.
     let path = laagweergave::tekenpad(&path);
     let doc = get_or_load_doc(&path, &bytes_cache, &handle_cache)?;
     let extra_rot = rotation.unwrap_or(0);
     let cmds = doc.extract_draw_commands(page_index as usize, extra_rot).map_err(|e| format!("{}", e))?;
-    Ok(cmds.into_bytes())
+    // Raw bytes: a vector sheet yields megabytes of commands, which as
+    // `Vec<u8>` would cross as a JSON array of numbers.
+    Ok(tauri::ipc::Response::new(cmds.into_bytes()))
 }
 
 #[tauri::command]
@@ -2900,36 +2919,6 @@ fn extract_page_text(
 ) -> Result<String, String> {
     let doc = get_or_load_doc(&path, &bytes_cache, &handle_cache)?;
     doc.extract_text_positions(page_index as usize).map_err(|e| format!("{}", e))
-}
-
-/// Batch extract draw commands for multiple pages in parallel using rayon.
-/// Returns one Vec<u8> per requested page in the same order. Used for
-/// adjacent-page prefetch (warm pages 2..N in the background after page 1
-/// is on screen so wheel-scrolling forward feels instant).
-///
-/// `rotations` is a parallel array of extra rotation values (one per page).
-/// Pass an empty array to use 0 for all pages.
-#[tauri::command]
-fn extract_draw_commands_batch(
-    path: String,
-    page_indices: Vec<u32>,
-    rotations: Option<Vec<i32>>,
-    bytes_cache: tauri::State<PdfBytesCache>,
-    handle_cache: tauri::State<DocHandleCache>,
-) -> Result<Vec<Vec<u8>>, String> {
-    // Geschakelde lagen (#684): teken uit de weergavekopie.
-    let path = laagweergave::tekenpad(&path);
-    let doc = get_or_load_doc(&path, &bytes_cache, &handle_cache)?;
-    let rots = rotations.unwrap_or_default();
-    let pairs: Vec<(usize, i32)> = page_indices.iter().enumerate().map(|(i, &p)| {
-        (p as usize, rots.get(i).copied().unwrap_or(0))
-    }).collect();
-    let results = doc.extract_draw_commands_batch(&pairs);
-    let mut out = Vec::with_capacity(results.len());
-    for r in results {
-        out.push(r.map(|b| b.into_bytes()).map_err(|e| format!("{}", e))?);
-    }
-    Ok(out)
 }
 
 /// Invalidate the PDF bytes cache AND the parsed handle cache for a specific
@@ -3692,7 +3681,6 @@ pub fn run(opts: StartupOpts) {
             save_session,
             load_session,
             get_username,
-            read_file,
             write_file,
             write_file_atomic,
             cancel_file_write,
@@ -3782,7 +3770,6 @@ pub fn run(opts: StartupOpts) {
             analyze_page_type_batch,
             render_pdf_page_skia,
             extract_draw_commands,
-            extract_draw_commands_batch,
             extract_page_text,
             batch_ocr::batch_ocr_list,
             batch_ocr::batch_ocr_allow_output,

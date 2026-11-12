@@ -52,6 +52,7 @@ js/pdf/ocr-document.test.mjs
 js/pdf/office-export.test.mjs
 js/pdf/save-document.test.mjs
 js/core/atomic-write.test.mjs
+js/core/temp-pdf.test.mjs
 scripts/test-nen-ifc-map.mjs
 scripts/test-systeemraster.mjs
 js/annotations/systeem-typen.test.mjs

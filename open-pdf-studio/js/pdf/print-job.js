@@ -5,7 +5,7 @@
 import { PDFDocument } from 'pdf-lib';
 import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
-import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile, opgeslagenPad, leesHostPad, leesHostNieuwPad, extractFileName } from '../core/platform.js';
+import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile, writeTempPdf, opgeslagenPad, leesHostPad, leesHostNieuwPad, extractFileName } from '../core/platform.js';
 import { meldingTekst } from '../core/webfuncties.js';
 import { renderPageOffscreen, renderMarkeringenOffscreen, canvasToBytes } from './exporter.js';
 import { getCachedPdfBytes } from './loader.js';
@@ -446,7 +446,7 @@ export async function runPrintJob({
     // Documentnaam meegeven: de spooler toont de bestandsnaam van het
     // tempbestand als printjob-naam, dus die moet naar de pdf zelf heten.
     const jobName = documentNaam(doc) || null;
-    const tempPath = await invoke('write_temp_pdf', { data: Array.from(pdfBytes), name: jobName });
+    const tempPath = await writeTempPdf(pdfBytes, jobName);
     if (!tempPath) throw new Error(i18next.t('dialogs:print.progress.errTempFile'));
 
     const numCopies = Math.max(1, copies);

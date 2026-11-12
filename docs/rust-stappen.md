@@ -623,3 +623,46 @@ markeringsset openen (de `[PERF] page …: convertAnnotations`-regels) en
 nagaan dat kleuren, lagen en antwoorden er nog zijn zoals voorheen. De
 getallen hierboven zijn onder node gemeten; in de WebView kunnen pdf-lib en
 de omzetting trager of sneller zijn.
+
+## Bytes rauw over de grens: afdrukken en tekencommando's
+
+**Wat.** Twee commando's stuurden bytes als JSON-array met één getal per byte
+(het eerste punt uit #463, toen gemeten en niet gedaan). Er verhuist geen
+rekenwerk; alleen de overdracht verandert.
+
+- `write_temp_pdf` (afdrukken in `js/pdf/print-job.js`, en samengevoegd openen
+  vanuit de printwachtrij in `PrintQueueWindow.jsx`): de app riep het aan met
+  `Array.from(pdfBytes)`. Nu gaat de PDF als rauwe body en de taaknaam
+  procent-gecodeerd in de kop `x-opds-name` (`writeTempPdf` in
+  `js/core/platform.js`), net als `write_file_atomic`. Android kan geen rauwe
+  body versturen en houdt de JSON-vorm; het commando leest beide.
+- `extract_draw_commands` (de tekencommando's van vectorpagina's voor de
+  miniaturen en het voorladen, `js/pdf/loader.js` en `js/pdf/renderer.js`) gaf
+  `Vec<u8>` terug. Nu een `tauri::ipc::Response`; de aanroepers namen al een
+  `ArrayBuffer` aan.
+
+`read_file` en `extract_draw_commands_batch` hadden geen aanroepers meer en
+zijn weg.
+
+**Meting** (`node scripts/bench-rust/04-ipc-boundary.mjs`, met de serialiseerder
+die Tauri zelf injecteert; #463, node 24):
+
+| richting | als JSON | rauw |
+|---|---:|---:|
+| JS → Rust, 1 MB | 105 ms, 3,6 MB tekst | 0,1 µs, 1,0 MB |
+| JS → Rust, 8 MB | 1587 ms, 28,6 MB tekst | 0,1 µs, 8,0 MB |
+| Rust → JS, 1 MB | 22 ms `JSON.parse` | 0,3 µs |
+| Rust → JS, 8 MB | 182 ms | 0,3 µs |
+
+Een afdruktaak van 30 MB kostte dus ruim 3 s aan omzetten op de
+interface-thread, plus een tussenarray van 30 miljoen getallen; een
+vectorpagina met een paar MB tekencommando's 50–150 ms per pagina. Het
+serde-werk aan de Rust-kant is niet gemeten. (Op 11-11 met een bouwende
+machine gaf dezelfde meting 265 ms per MB voor `Array.from`.)
+
+**Toets.** `js/core/temp-pdf.test.mjs`: rauwe body en kop op de desktop, geen
+kop zonder naam, JSON met naam op Android, fout in de browser.
+
+**Live na te kijken.** Een groot document afdrukken (de taaknaam in de
+wachtrij van de printer, ook met leestekens), twee taken uit de printwachtrij
+samengevoegd openen, en de miniaturen van een document met vectorpagina's.
