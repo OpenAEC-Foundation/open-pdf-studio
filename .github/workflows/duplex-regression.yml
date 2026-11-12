@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: 22
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
       - run: rustc --edition 2021 --test src-tauri/src/print_duplex.rs -o /tmp/print-duplex-tests
       - run: /tmp/print-duplex-tests
       - run: npm ci
@@ -35,5 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
       - name: Production duplex mappings and DEVMODE buffer preservation
         run: cargo test --locked --manifest-path open-pdf-studio/scripts/print-native-tests/Cargo.toml duplex
