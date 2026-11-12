@@ -1,3 +1,4 @@
+import { meetPunt } from './meet-punt.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { batch } from 'solid-js';
 import { state } from '../core/state.js';
@@ -87,13 +88,13 @@ export function snapDistanceTo10(fromX, fromY, toX, toY, pageNum) {
 }
 
 // Calculate distance between two points
-// Optionally pass pageNum to resolve scale from scaleBar annotations at the midpoint
-export function calculateDistance(x1, y1, x2, y2, pageNum) {
+// Optionally pass pageNum to resolve the scale at the midpoint. An annotation
+// with extension lines resolves it at the measured points, before the offset.
+export function calculateDistance(x1, y1, x2, y2, pageNum, annotation) {
   const dx = x2 - x1;
   const dy = y2 - y1;
   const pixelDist = Math.sqrt(dx * dx + dy * dy);
-  const midX = (x1 + x2) / 2;
-  const midY = (y1 + y2) / 2;
+  const { x: midX, y: midY } = meetPunt(annotation || { startX: x1, startY: y1, endX: x2, endY: y2 });
   const scale = (pageNum != null)
     ? getMeasureScale(pageNum, midX, midY)
     : getMeasureScale();
@@ -205,7 +206,8 @@ export function vlakZijdeTeksten(ann) {
 }
 
 // Calculate perimeter of a polyline
-// Optionally pass pageNum to resolve scale from scaleBar annotations at the midpoint
+// Optionally pass pageNum to resolve the scale at the midpoint. An annotation
+// with extension lines resolves it at the measured points, before the offset.
 export function calculatePerimeter(points, pageNum) {
   if (!points || points.length < 2) return { value: 0, unit: 'px', pixels: 0 };
 
@@ -362,7 +364,7 @@ export function setScaleFromLine(pixelLength, realValue, unit, sourceAnnotation)
 // Get the representative point of a measurement annotation (for scale lookup)
 function getAnnotationPoint(ann) {
   if (ann.type === 'measureDistance') {
-    return { page: ann.page || 1, x: (ann.startX + ann.endX) / 2, y: (ann.startY + ann.endY) / 2 };
+    return { page: ann.page || 1, ...meetPunt(ann) };
   }
   if ((ann.type === 'measureArea' || ann.type === 'measurePerimeter') && ann.points?.length > 0) {
     // Centroid

@@ -683,7 +683,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               const unit = mdProps.measureUnit || 'mm';
               mdText = `${formatGetal(scaledVal, prec)} ${unit}`;
             } else {
-              const dist = calculateDistance(lsx, lsy, lex, ley, pageNum);
+              const dist = calculateDistance(lsx, lsy, lex, ley, pageNum, mdProps);
               mdText = formatMeasurement(dist);
             }
           }

@@ -805,3 +805,21 @@ test('enkele wand: kozijnargumenten gaan naar het symbool', async () => {
   });
   assert.equal(r.openings[0].wallThicknessMm, 100);
 });
+
+test('maatketting gebruikt de schaal van de gekozen wand, niet van andere wanden (#1046)', async () => {
+  const o = omgevingMet([
+    { id: 'detail', type: 'wall', page: 1, startX: 100, startY: 100, endX: 300, endY: 100, dikteMm: 10 },
+    { id: 'elders', type: 'wall', page: 1, startX: 1000, startY: 1000, endX: 1200, endY: 1000, dikteMm: 10 },
+  ]);
+  o.pxPerMmAt = (page, x, y) => 72 / (25.4 * (x < 400 && y < 200 ? 10 : 100));
+  const r = await plattegrondOpdracht({ action: 'dimensions', wallId: 'detail' }, o);
+  assert.equal(r.ok, true);
+  assert.equal(r.dimensions[0].lengthMm, 706);
+  const a = o.doc.annotations.find(a => a.type === 'measureDistance');
+  bijna(a.leaderStartY, 100 + 5 * 72 / 254, 1e-9, 'wandvlak volgt detail');
+  assert.ok(a.startY > 200, 'de maatlijn zelf mag buiten het detail staan');
+  const bewerkt = await plattegrondOpdracht({ action: 'dimensions', chainOf: a.id,
+    addPoints: [{ x: 200, y: a.leaderStartY }] }, o);
+  assert.equal(bewerkt.ok, true);
+  assert.deepEqual(bewerkt.dimensions.filter(m => m.role === 'chain').map(m => m.lengthMm), [353, 353]);
+});

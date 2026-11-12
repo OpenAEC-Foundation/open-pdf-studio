@@ -1,3 +1,5 @@
+import { meetPunt } from '../../annotations/meet-punt.js';
+export { meetPunt };
 import { PDFName } from 'pdf-lib';
 import { pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { schaalgebiedenOpPagina, schaalOpPuntUitBronnen, verzamelSchaalBronnen } from '../../annotations/schaal-op-punt.js';
@@ -9,21 +11,6 @@ import { pdfTextString } from './pdf-text.js';
 // /PolyLineDimension) en meetvlak (/Polygon /IT /PolygonDimension). Andere
 // programma's lezen hun schaal, eenheid en afronding hieruit; de waarde
 // zelf staat als tekst in /Contents (meetContents hieronder).
-
-/**
- * Het punt waar de meting haar schaal opzoekt, zoals het meetgereedschap:
- * het midden van een maat, het zwaartepunt van de punten van een omtrekmaat
- * of meetvlak (calculatePerimeter en calculateArea in measurement.js).
- */
-export function meetPunt(ann) {
-  const punten = Array.isArray(ann?.points) ? ann.points : null;
-  if (punten && punten.length > 0 && ann.startX === undefined) {
-    let x = 0, y = 0;
-    for (const p of punten) { x += p.x; y += p.y; }
-    return { x: x / punten.length, y: y / punten.length };
-  }
-  return { x: (ann.startX + ann.endX) / 2, y: (ann.startY + ann.endY) / 2 };
-}
 
 /**
  * Resolve the same scale at the measuring point that the drawing tool uses.

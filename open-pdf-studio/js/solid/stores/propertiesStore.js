@@ -1474,7 +1474,7 @@ function recomputeMeasureText(ann) {
     // No per-annotation scale override (cleared or never set): fall back to
     // the document/region scale so clearing the override actually reverts
     // the shown value instead of leaving the old text.
-    const dist = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page);
+    const dist = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
     ann.measureText = formatDimensionText(dist);
     ann.measureValue = dist.value;
     ann.measureUnit = dist.unit;
