@@ -4,6 +4,7 @@ import { schaalVakOmMidden } from '../symbols/symbol-scale.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { getColorPickerValue, getLineWidthValue } from '../bridge.js';
 import { createAnnotation } from '../annotations/factory.js';
+import { metLabelVooraf } from '../annotations/label-vooraf.js';
 import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, snapDistanceTo10 } from '../annotations/measurement.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -671,7 +672,7 @@ function finalizeAnnotation(tool, props) {
   const annY = props.y ?? props.startY ?? 0;
   applyDynamicScaling(props, pageNum, annX, annY);
 
-  return createAnnotation(props);
+  return createAnnotation(metLabelVooraf(props));
 }
 
 // Weergave draaien (#200): een tekstvak dat de gebruiker tekent, staat rechtop
@@ -728,7 +729,7 @@ export function createMeasureAreaAnnotation(points, holes) {
     annProps.measurePrecision = mPrefs.measureAreaDimPrecision;
   }
   applyDynamicScaling(annProps, currentPage, points[0]?.x || 0, points[0]?.y || 0);
-  return createAnnotation(annProps);
+  return createAnnotation(metLabelVooraf(annProps));
 }
 
 export function createMeasurePerimeterAnnotation(points) {
@@ -769,5 +770,5 @@ export function createMeasurePerimeterAnnotation(points) {
     perimProps.measureUnit = perim.unit;
   }
   applyDynamicScaling(perimProps, currentPage, points[0]?.x || 0, points[0]?.y || 0);
-  return createAnnotation(perimProps);
+  return createAnnotation(metLabelVooraf(perimProps));
 }

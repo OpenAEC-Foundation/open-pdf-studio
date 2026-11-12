@@ -64,6 +64,7 @@ import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
 import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 import { setStatusWithHistory, statusHistory } from '../../review/status-history.js';
+import { isLabelVeld, zetLabelVooraf, labelVooraf } from '../../annotations/label-vooraf.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -1583,6 +1584,12 @@ function applyAnnotProp(key, value) {
     // Apply to synthetic for immediate panel feedback.
     applyPropToAnnotation(currentAnnotation, key, value);
     setAnnotProps(key, value);
+    // Het label van een meting (#1055) gaat mee naar de volgende metingen van
+    // deze sessie; het is geen opgeslagen stijl.
+    if (isLabelVeld(currentAnnotation.type, key)) {
+      zetLabelVooraf(currentAnnotation.type, key, value);
+      return;
+    }
     // Persist to state.preferences so annotation-creators picks it up.
     (async () => {
       try {
@@ -2336,7 +2343,7 @@ export async function showToolDefaults(toolName, overrides = {}, shouldShow = nu
   }
 
   if (typeof shouldShow === 'function' && !shouldShow()) return false;
-  Object.assign(synthetic, overrides);
+  Object.assign(synthetic, labelVooraf(annType), overrides);
   storeShowProperties(synthetic);
   return true;
 }
