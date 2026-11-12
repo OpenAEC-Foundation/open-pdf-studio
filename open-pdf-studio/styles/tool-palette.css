@@ -451,7 +451,6 @@
 /* --- Floating extension palette as a list (floatLayout: 'list') --- */
 .tp-float.tp-float-list {
   min-width: 200px;
-  border-radius: 6px;
   overflow: hidden;
 }
 .tp-float-list .tp-float-header {

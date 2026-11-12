@@ -40,6 +40,3 @@ of Tauri-WebView-test. Er is geen wijziging aan Rust-code, de PDF-samenvoeglogic
 of het systeemklembord. Het paginaklembord geldt voor tabs binnen dezelfde app;
 uitwisseling tussen aparte appvensters en het meenemen van nog niet opgeslagen
 bronannotaties worden hiermee niet toegevoegd.
-
-Versie 2026.46.26. Een installerbuild blijft vereist vóór gereedmelding.
-Chat-ID: 01a109f0-a849-7782-8641-0b091eb29747.
