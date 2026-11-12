@@ -134,6 +134,7 @@ function recall(matches, truth, wanted, tol = 3) {
   return { found, stray };
 }
 
+const kept = { sheets: {} };
 console.log('Symbol search: found / present (stray matches)');
 console.log('sheet | threshold | JS, same rotation | worker, same rotation | JS, four rotations | worker, four rotations');
 for (const [lineWidth, pageRotate] of [[0.5, 0], [1, 0], [2, 0], [1, 90]]) {
@@ -150,9 +151,13 @@ for (const [lineWidth, pageRotate] of [[0.5, 0], [1, 0], [2, 0], [1, 90]]) {
   const rect = { x: truth[0].x - half, y: truth[0].y - half, width: 2 * half, height: 2 * half };
   const bin = binaryImage(js.image);
   const template = cropTemplate(bin, rect);
-  // The template rectangle in page-view points, to repeat the search in the app.
-  if (args.includes('--out') && lineWidth === 1 && !pageRotate) {
-    writeFileSync(join(dir, 'truth.json'), JSON.stringify({ sheetRect: { x: rect.x / js.scale, y: rect.y / js.scale, width: rect.width / js.scale, height: rect.height / js.scale } }));
+  // With --out: the template rectangle in page-view points (to repeat the
+  // search in the app) and, per sheet, the rectangle and the symbol centres in
+  // raster pixels (for scan-tolerant-proef.mjs).
+  if (args.includes('--out')) {
+    if (lineWidth === 1 && !pageRotate) kept.sheetRect = { x: rect.x / js.scale, y: rect.y / js.scale, width: rect.width / js.scale, height: rect.height / js.scale };
+    kept.sheets[`sheet-${lineWidth}-${pageRotate}.pdf`] = { rect, points: truth.map((t) => ({ x: t.x, y: t.y, rot: t.rot })) };
+    writeFileSync(join(dir, 'truth.json'), JSON.stringify(kept));
   }
   const raster = { path: file, page_index: 0, width: js.w, height: js.h, rotation: 0, expect_len: sheet.bytes.length };
   for (const threshold of [0.75, 0.6]) {

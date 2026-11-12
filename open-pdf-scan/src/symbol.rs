@@ -10,6 +10,12 @@
 
 use crate::round;
 
+/// Aandeel van de drempel dat de gewone doorsnede/vereniging moet halen
+/// (EXACT_SHARE), en hoe ver de inkt van een venster van die van het sjabloon
+/// mag afliggen (COUNT_SHARE).
+pub const EXACT_SHARE: f64 = 0.6;
+pub const COUNT_SHARE: f64 = 0.8;
+
 /// Kandidaten waarna het zoeken stopt (matchSymbols).
 const MAX_FOUND: usize = 5000;
 /// Treffers in het antwoord.
@@ -109,6 +115,24 @@ pub fn transform_template(template: &Binary, rotation: u32, scale: f64) -> Resul
     Ok(Variant { width, height, pixels, rotation, scale })
 }
 
+/// dilate(): inkt één pixel gegroeid in elke richting (3 x 3).
+pub fn dilate(width: usize, height: usize, pixels: &[u8]) -> Vec<u8> {
+    let mut out = vec![0u8; pixels.len()];
+    for y in 0..height {
+        for x in 0..width {
+            if pixels[y * width + x] == 0 {
+                continue;
+            }
+            for yy in y.saturating_sub(1)..=(y + 1).min(height - 1) {
+                for xx in x.saturating_sub(1)..=(x + 1).min(width - 1) {
+                    out[yy * width + xx] = 1;
+                }
+            }
+        }
+    }
+    out
+}
+
 fn intersection(a: &Match, b: &Match) -> f64 {
     let w = ((a.x + a.width).min(b.x + b.width) as f64 - a.x.max(b.x) as f64).max(0.0);
     let h = ((a.y + a.height).min(b.y + b.height) as f64 - a.y.max(b.y) as f64).max(0.0);
@@ -144,9 +168,23 @@ fn unique<T: Copy>(values: &[T], same: impl Fn(T, T) -> bool) -> Vec<T> {
     out
 }
 
+/// Wat een rij van een variant nodig heeft naast het beeld en het sjabloon.
+struct Scan<'a> {
+    image: &'a Binary,
+    /// Het beeld, één pixel gegroeid.
+    grown: &'a [u8],
+    integral: &'a [u32],
+    t: &'a Variant,
+    /// Het sjabloon van deze variant, één pixel gegroeid.
+    grown_t: &'a [u8],
+    foreground: usize,
+    offsets: &'a [usize],
+    threshold: f64,
+}
+
 /// De treffers van één rij van één variant, in x-volgorde.
-#[allow(clippy::too_many_arguments)]
-fn scan_row(image: &Binary, integral: &[u32], t: &Variant, foreground: usize, offsets: &[usize], threshold: f64, y: usize, out: &mut Vec<Match>) {
+fn scan_row(scan: &Scan, y: usize, out: &mut Vec<Match>) {
+    let Scan { image, grown, integral, t, grown_t, foreground, offsets, threshold } = *scan;
     let stride = image.width + 1;
     let fg = foreground as f64;
     let need = offsets.len() as f64 * (threshold * 0.75).max(0.5);
@@ -157,24 +195,33 @@ fn scan_row(image: &Binary, integral: &[u32], t: &Variant, foreground: usize, of
                 .wrapping_sub(integral[(y + t.height) * stride + x])
                 .wrapping_add(integral[y * stride + x]),
         );
-        if count.min(fg) / 1f64.max(count).max(fg) < threshold {
+        if count.min(fg) / 1f64.max(count).max(fg) < threshold * COUNT_SHARE {
             continue;
         }
         let start = y * image.width + x;
-        let hits: u32 = offsets.iter().map(|&o| u32::from(image.pixels[start + o])).sum();
+        let hits: u32 = offsets.iter().map(|&o| u32::from(grown[start + o])).sum();
         if f64::from(hits) < need {
             continue;
         }
-        let (mut both, mut union) = (0u32, 0u32);
+        let (mut both, mut near_image, mut near_template) = (0u32, 0u32, 0u32);
         for row in 0..t.height {
-            let a = &t.pixels[row * t.width..(row + 1) * t.width];
-            let b = &image.pixels[start + row * image.width..start + row * image.width + t.width];
-            for (&p, &q) in a.iter().zip(b) {
-                both += u32::from(p & q);
-                union += u32::from(p | q);
+            let k = row * t.width;
+            let q = start + row * image.width;
+            let a = &t.pixels[k..k + t.width];
+            let b = &image.pixels[q..q + t.width];
+            let ga = &grown_t[k..k + t.width];
+            let gb = &grown[q..q + t.width];
+            for i in 0..t.width {
+                both += u32::from(a[i] & b[i]);
+                near_image += u32::from(a[i] & gb[i]);
+                near_template += u32::from(b[i] & ga[i]);
             }
         }
-        let score = f64::from(both) / f64::from(union.max(1));
+        let ink = fg + count;
+        if f64::from(both) / 1f64.max(ink - f64::from(both)) < EXACT_SHARE * threshold {
+            continue;
+        }
+        let score = f64::from(near_image + near_template) / 1f64.max(ink);
         if score >= threshold {
             out.push(Match { x, y, width: t.width, height: t.height, score, rotation: t.rotation, scale: t.scale });
         }
@@ -197,6 +244,7 @@ pub fn match_symbols(image: &Binary, template: &Binary, threshold: f64, rotation
             variants.push(transform_template(template, rotation, scale)?);
         }
     }
+    let grown = dilate(image.width, image.height, &image.pixels);
     // Voorgrondsommen: lege en volle vensters vallen af vóór het vergelijken.
     let stride = image.width + 1;
     let mut integral = vec![0u32; stride * (image.height + 1)];
@@ -220,6 +268,8 @@ pub fn match_symbols(image: &Binary, template: &Binary, threshold: f64, rotation
             .map(|i| foreground[(i * foreground.len()) / n])
             .map(|i| (i / t.width) * image.width + i % t.width)
             .collect();
+        let grown_t = dilate(t.width, t.height, &t.pixels);
+        let scan = Scan { image, grown: &grown, integral: &integral, t, grown_t: &grown_t, foreground: foreground.len(), offsets: &offsets, threshold };
         let rows = image.height - t.height + 1;
         // In banden, zodat een beeld vol treffers na 5000 kandidaten stopt
         // zonder eerst alle rijen af te lopen.
@@ -231,10 +281,10 @@ pub fn match_symbols(image: &Binary, template: &Binary, threshold: f64, rotation
             let chunk = (y1 - y0).div_ceil(threads).max(1);
             std::thread::scope(|s| {
                 for (c, part) in per_row.chunks_mut(chunk).enumerate() {
-                    let (integral, offsets, fg) = (&integral, &offsets, foreground.len());
+                    let scan = &scan;
                     s.spawn(move || {
                         for (i, out) in part.iter_mut().enumerate() {
-                            scan_row(image, integral, t, fg, offsets, threshold, y0 + c * chunk + i, out);
+                            scan_row(scan, y0 + c * chunk + i, out);
                         }
                     });
                 }

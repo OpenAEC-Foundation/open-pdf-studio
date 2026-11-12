@@ -59,3 +59,40 @@ test('only selected matches create counts; repeats and reloaded locations do not
   assert.equal(next[0].page, 2);
   assert.equal(next[0].number, 2);
 });
+
+// One pixel of displacement along thin lines (anti-aliasing, a symbol on a
+// fraction of a pixel) must not lose the match; unrelated dense ink must not
+// become one.
+function thinSymbol(shift = 0) {
+  const t = blank(24, 24);
+  for (let i = 3; i < 21; i++) {
+    t.pixels[(12 + (i > 11 ? shift : 0)) * 24 + i] = 1; // horizontal bar, half of it one row lower
+    t.pixels[i * 24 + 6] = 1;                           // vertical bar
+  }
+  for (let i = 0; i < 6; i++) t.pixels[(4 + i) * 24 + 15 + i] = 1; // a diagonal, so turns differ
+  return t;
+}
+test('a copy displaced by one pixel along its thin lines is still found', async () => {
+  const image = blank(200, 120);
+  stamp(image, thinSymbol(0), 10, 10);
+  stamp(image, thinSymbol(1), 80, 40);
+  stamp(image, thinSymbol(1), 150, 70);
+  const { matches } = await matchSymbols(image, thinSymbol(0), { yieldTask: async () => {} });
+  assert.deepEqual(matches.map(m => [m.x, m.y]).sort((a, b) => a[0] - b[0]), [[10, 10], [80, 40], [150, 70]], JSON.stringify(matches));
+  assert.equal(matches.find(m => m.x === 10).score, 1, 'an exact copy scores 1');
+  assert.ok(matches.every(m => m.score >= .75 && m.score <= 1));
+});
+test('dense unrelated ink does not match a dense template', async () => {
+  // Two different pseudo-random textures of the same density: every pixel has
+  // ink within one pixel, but the exact overlap is that of chance.
+  let s = 7;
+  const rnd = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const template = blank(24, 24);
+  for (let i = 0; i < template.pixels.length; i++) template.pixels[i] = rnd() < .45 ? 1 : 0;
+  const image = blank(160, 100);
+  for (let i = 0; i < image.pixels.length; i++) image.pixels[i] = rnd() < .45 ? 1 : 0;
+  stamp(image, template, 100, 50);
+  for (let row = 0; row < 24; row++) for (let col = 0; col < 24; col++) image.pixels[(50 + row) * 160 + 100 + col] = template.pixels[row * 24 + col];
+  const { matches } = await matchSymbols(image, template, { yieldTask: async () => {} });
+  assert.deepEqual(matches.map(m => [m.x, m.y]), [[100, 50]], JSON.stringify(matches.slice(0, 5)));
+});

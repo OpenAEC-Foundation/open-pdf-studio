@@ -760,6 +760,78 @@ een eigenschap van het algoritme en los van deze stap.
 reeks, met draaiingen en schalen), dezelfde treffers met `OPDS_RUST_SCAN=0`,
 afbreken tijdens het zoeken, en de voortgangsbalk.
 
+## Symbolen zoeken: een score die één pixel verdraagt
+
+**Aanleiding.** De meting hierboven liet zien dat de matcher op dun lijnwerk
+bij de standaarddrempel minder dan de helft van de echte symbolen vond, in
+beide routes: de score was doorsnede/vereniging van inktpixels, en een lijn
+van één pixel die één pixel verschuift (een symbool op een gebroken
+pixelpositie, of een andere renderer) halveert die. De getallen in de twee
+tabellen van het vorige hoofdstuk zijn met die oude score gemeten.
+
+**Wat is veranderd** (in `js/search/symbol-matcher.js` en gelijk in
+`open-pdf-scan/src/symbol.rs`; dit verandert de uitkomst, ook in de webversie):
+- De score is het aandeel van de inkt dat het andere beeld binnen één pixel
+  verklaart: (sjablooninkt met beeldinkt ernaast + beeldinkt met sjablooninkt
+  ernaast) / (sjablooninkt + beeldinkt), over het venster van het sjabloon.
+  Een exacte kopie scoort nog steeds 1.
+- Waarborg tegen dichte inkt die niets met het sjabloon te maken heeft (tekst,
+  arcering): de gewone doorsnede/vereniging moet minstens 0,6 × de drempel
+  halen (`EXACT_SHARE`).
+- De voorselectie op hoeveelheid inkt is verruimd naar 0,8 × de drempel
+  (`COUNT_SHARE`) en de ankerpunten kijken in het gegroeide beeld, anders
+  vallen verschoven kopieën al af vóór het scoren.
+
+**Meting tegen de waarheid** (`scripts/bench-rust/scan-waarheid.mjs`; een blad
+met het symbool op 60 plekken, 29 in de draaiing van het sjabloon; gevonden
+van aanwezig, tussen haakjes valse treffers):
+
+| drempel | score | JS, zelfde draaiing | worker | JS, vier draaiingen | worker |
+|---|---|---:|---:|---:|---:|
+| 0,75 (standaard) | oud | 12 van 29 (0) | 10 van 29 (0) | 27 van 60 (0) | 16 van 60 (0) |
+| 0,75 (standaard) | nieuw | 29 van 29 (0) | 29 van 29 (0) | 60 van 60 (0) | 60 van 60 (0) |
+| 0,6 | oud | 27 van 29 (0) | 27 van 29 (0) | 57 van 60 (0) | 60 van 60 (0) |
+| 0,6 | nieuw | 29 van 29 (0) | 29 van 29 (14) | 60 van 60 (0) | 60 van 60 (27) |
+
+Gelijk voor lijndiktes van 0,5, 1 en 2 pt; op het blad met /Rotate 90 geeft
+ook de JS-route bij 0,6 valse treffers (15 en 24). Bij de standaarddrempel
+vinden beide routes nu alles zonder valse treffers; een lagere drempel is met
+de nieuwe score ruimer dan vroeger en geeft op dit blad valse treffers. De
+keuze van de waarborg is gemeten met `scripts/bench-rust/scan-tolerant-proef.mjs`:
+zonder waarborg gaf een willekeurig tekstvenster op een tekstpagina 101
+treffers, met 0,6 nog 3 (was 1), en bij 0,5 bleven op de proefbladen enkele
+valse treffers over.
+
+**Pariteit.** De fixtures zijn opnieuw gemaakt met de aangepaste JS-matcher;
+`cargo test -p open-pdf-scan` eist weer dezelfde treffers in dezelfde volgorde
+met bitgelijke scores (15 gevallen, ruim 1500 treffers). In
+`symbol-matcher.test.mjs`: een kopie waarvan een halve lijn één pixel
+verschoven is wordt gevonden (met de oude score niet), en een dicht
+willekeurig patroon geeft alleen zichzelf.
+
+**Snelheid.** De ruimere voorselectie laat meer vensters door, dus het zoeken
+zelf kost meer. Zelfde pagina's en omstandigheden als hierboven (de machine
+was nog drukker), ms:
+
+| pagina | JS, 1 variant | Rust, 1 variant | JS, 12 varianten | Rust, 12 varianten |
+|---|---:|---:|---:|---:|
+| 3131-CLT-Set p2 | 289 | 17 | 1628 | 156 |
+| Zware vector PDF p3 | 2561 | 147 | 4873 | 297 |
+| NKD1a p2 | 581 | 309 | 2342 | 2089 |
+| HY-103-1 p1 | 7237 | 134 | 11.359 | 898 |
+| contractvoorstel p1 | 633 | 120 | 4623 | 1049 |
+| Technische tekening p1 | 607 | 74 | 3782 | 699 |
+
+**De render door PDFium blijft uit.** Bij de standaarddrempel is het verschil
+tussen de twee rasters met de nieuwe score verdwenen op de proefbladen, maar
+bij een lagere drempel geeft het PDFium-raster meer valse treffers dan dat van
+pdf.js. `window.__opdsSymbolRender = 'pdfium'` blijft de schakelaar om te
+vergelijken.
+
+**Live na te kijken.** Symbolen zoeken op echte tekeningen: of de extra
+treffers echte symbolen zijn, en of de standaarddrempel in de dialoog nog de
+goede is.
+
 ## Formulierherkenning: het paginabeeld uit de PDFium-worker
 
 **Wat is verplaatst.** Voor "Formuliervelden herkennen" rendert de app per

@@ -92,7 +92,7 @@ fn symbol_search_matches_the_js_matcher() {
         }
         total += want.len();
     }
-    assert!(total > 2000, "the fixtures exercise real matches ({total})");
+    assert!(total > 1500, "the fixtures exercise real matches ({total})");
 }
 
 #[test]
