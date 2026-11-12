@@ -9,6 +9,7 @@ import { IDENTITY_ALIGNMENT, normalizeAlignment } from './alignment.js';
 import { DEFAULT_PRESET, normalizePreset } from './detect-plan.js';
 import { assignPair } from './page-pairing.js';
 import { clearCompareSources } from './compare-sources.js';
+import { leesOpslag, schrijfOpslag } from '../core/opslag.js';
 
 const [active, setActive] = createSignal(false);
 const [oldPath, setOldPath] = createSignal(null);
@@ -57,6 +58,16 @@ const [showModified, setShowModified] = createSignal(true);
 // Highlight style toggles: filled box and/or contour outline. Both on by default.
 const [showBox, setShowBox] = createSignal(true);
 const [showContour, setShowContour] = createSignal(true);
+// Kleuroverlay (#1024): oud en nieuw over elkaar, elk in een eigen kleur.
+// Keuze en kleuren blijven bewaard (per kijker, via core/opslag.js).
+const _leesKleur = (sleutel, standaard) => {
+  try { const v = leesOpslag(sleutel); return /^#[0-9a-f]{6}$/i.test(v || '') ? v : standaard; } catch { return standaard; }
+};
+const [colourOverlay, setColourOverlaySignal] = createSignal((() => {
+  try { return leesOpslag('compare.colourOverlay') === '1'; } catch { return false; }
+})());
+const [oldColour, setOldColourSignal] = createSignal(_leesKleur('compare.oldColour', '#dc2626'));
+const [newColour, setNewColourSignal] = createSignal(_leesKleur('compare.newColour', '#2563eb'));
 // True when the compare TAB is the currently-shown view (vs. a normal PDF tab).
 // The compare session stays "active" while a PDF tab is focused; this flag just
 // controls whether the compare view is on screen.
@@ -94,6 +105,9 @@ export {
   setShowModified as setCompareShowModified,
   showBox as compareShowBox,
   showContour as compareShowContour,
+  colourOverlay as compareColourOverlay,
+  oldColour as compareOldColour,
+  newColour as compareNewColour,
   setShowBox as setCompareShowBox,
   setShowContour as setCompareShowContour,
   focused as compareFocused,
@@ -472,4 +486,20 @@ export function setCompareOffset(o) {
     setAlignInfoSignal({ source: 'manual', confidence: null });
     setAlignPendingSignal(false);
   });
+}
+
+// --- Kleuroverlay (#1024) ---
+export function setCompareColourOverlay(aan) {
+  setColourOverlaySignal(!!aan);
+  try { schrijfOpslag('compare.colourOverlay', aan ? '1' : '0'); } catch { /* opslag optioneel */ }
+}
+export function setCompareOldColour(kleur) {
+  if (!/^#[0-9a-f]{6}$/i.test(kleur || '')) return;
+  setOldColourSignal(kleur);
+  try { schrijfOpslag('compare.oldColour', kleur); } catch { /* opslag optioneel */ }
+}
+export function setCompareNewColour(kleur) {
+  if (!/^#[0-9a-f]{6}$/i.test(kleur || '')) return;
+  setNewColourSignal(kleur);
+  try { schrijfOpslag('compare.newColour', kleur); } catch { /* opslag optioneel */ }
 }

@@ -30,11 +30,3 @@ test('een open editor volgt lettertype, grootte en kleur', () => {
   // De editor begint met dezelfde lettertypeketen.
   assert.match(editor, /const cssFontFamily = cssLettertype\(annotation\.fontFamily\);/);
 });
-
-test('ook lettertypen van Linux en macOS staan in de keuzelijst', () => {
-  const fonts = lees('../../utils/fonts.js');
-  assert.match(fonts, /detectAvailableFonts\(lettertypeKandidaten\(\)\)/);
-  for (const naam of ['Liberation Sans', 'DejaVu Sans', 'Noto Sans', 'Helvetica Neue', 'Menlo']) {
-    assert.ok(fonts.includes(`'${naam}'`), naam);
-  }
-});

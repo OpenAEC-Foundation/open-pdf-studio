@@ -682,3 +682,12 @@
 .sp-scale .sp-scale-combo {
   width: 72px;
 }
+
+/* High contrast: invert only previews, never the source symbol placed in a PDF.
+   Active tiles have a yellow background, so their original dark ink is legible. */
+[data-theme="highContrast"] .sp-symbol-icon {
+  color: #000;
+  filter: invert(1) hue-rotate(180deg);
+}
+[data-theme="highContrast"] .sp-symbol-btn.active .sp-symbol-icon { filter: none; }
+[data-theme="highContrast"] .sp-symbol-btn.active .sp-symbol-name { color: #000; }

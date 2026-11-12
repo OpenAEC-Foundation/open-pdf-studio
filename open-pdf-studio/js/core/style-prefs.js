@@ -43,6 +43,7 @@ export function writeStylePrefs(annotation, prefs, touched = null) {
   if (m.headSize && annotation.headSize) prefs[p + m.headSize] = annotation.headSize;
   if (m.fontSize && annotation.fontSize) prefs[p + m.fontSize] = annotation.fontSize;
   if (m.fontFamily && annotation.fontFamily && annotation.fontFamily !== 'mixed') prefs[p + m.fontFamily] = annotation.fontFamily;
+  if (m.textColor && annotation.textColor && annotation.textColor !== 'mixed') prefs[p + m.textColor] = annotation.textColor;
   if (m.icon && annotation.icon) prefs[p + m.icon] = annotation.icon;
   if (m.overlayColor) prefs[p + m.overlayColor] = annotation.overlayColor || prefs[p + m.overlayColor];
 

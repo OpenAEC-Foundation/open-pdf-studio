@@ -4,6 +4,7 @@ import { schaalVakOmMidden } from '../symbols/symbol-scale.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { getColorPickerValue, getLineWidthValue } from '../bridge.js';
 import { createAnnotation } from '../annotations/factory.js';
+import { metLabelVooraf } from '../annotations/label-vooraf.js';
 import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, snapDistanceTo10 } from '../annotations/measurement.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -361,7 +362,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         text: '',
         ...randkleurenUitVoorkeur(prefs, 'textbox', 'textbox'),
         fillColor: prefs.textboxFillNone ? 'none' : prefs.textboxFillColor,
-        textColor: '#000000',
+        textColor: prefs.textboxTextColor || '#000000',
         fontSize: prefs.textboxFontSize,
         // Het lettertype uit de standaardstijl (#765); eerder altijd Arial.
         fontFamily: prefs.textboxFontFamily || 'Arial',
@@ -394,7 +395,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         text: '',
         ...randkleurenUitVoorkeur(prefs, 'callout', 'callout'),
         fillColor: prefs.calloutFillNone ? 'none' : prefs.calloutFillColor,
-        textColor: '#000000',
+        textColor: prefs.calloutTextColor || '#000000',
         fontSize: prefs.calloutFontSize,
         // Het lettertype uit de standaardstijl (#765); eerder altijd Arial.
         fontFamily: prefs.calloutFontFamily || 'Arial',
@@ -671,7 +672,7 @@ function finalizeAnnotation(tool, props) {
   const annY = props.y ?? props.startY ?? 0;
   applyDynamicScaling(props, pageNum, annX, annY);
 
-  return createAnnotation(props);
+  return createAnnotation(metLabelVooraf(props));
 }
 
 // Weergave draaien (#200): een tekstvak dat de gebruiker tekent, staat rechtop
@@ -728,7 +729,7 @@ export function createMeasureAreaAnnotation(points, holes) {
     annProps.measurePrecision = mPrefs.measureAreaDimPrecision;
   }
   applyDynamicScaling(annProps, currentPage, points[0]?.x || 0, points[0]?.y || 0);
-  return createAnnotation(annProps);
+  return createAnnotation(metLabelVooraf(annProps));
 }
 
 export function createMeasurePerimeterAnnotation(points) {
@@ -769,5 +770,5 @@ export function createMeasurePerimeterAnnotation(points) {
     perimProps.measureUnit = perim.unit;
   }
   applyDynamicScaling(perimProps, currentPage, points[0]?.x || 0, points[0]?.y || 0);
-  return createAnnotation(perimProps);
+  return createAnnotation(metLabelVooraf(perimProps));
 }

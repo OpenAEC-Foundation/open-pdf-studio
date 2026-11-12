@@ -320,6 +320,8 @@
     "box": "Hộp",
     "boxHint": "Hiển thị thay đổi dưới dạng vùng tô",
     "contour": "Đường viền",
+    "colourOverlay": "Màu",
+    "colourOverlayHint": "Hiển thị hai bản vẽ chồng lên nhau, mỗi bản một màu riêng",
     "contourHint": "Hiển thị thay đổi bằng đường viền",
     "annotation": "Chú thích",
     "changes": "Thay đổi",

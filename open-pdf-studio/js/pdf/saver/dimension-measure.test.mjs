@@ -79,3 +79,17 @@ test('an inherited scale is not frozen on the line after reopening', async () =>
   assert.equal(m.measureScale, undefined, 'the line keeps following the page scale');
   assert.equal(m.measureUnit, undefined);
 });
+
+test('offset dimension inherits scale at its measured points, even outside the region (#1046)', async () => {
+  const ann = { ...dimension, startY: 300, endY: 300,
+    leaderStartX: 20, leaderStartY: 40, leaderEndX: 120, leaderEndY: 40 };
+  const doc = { annotations: [{ type: 'scaleRegion', page: 1, x: 0, y: 0, width: 200, height: 100,
+    scaleString: '1:10', units: 'mm' }], measureScale: { pixelsPerUnit: 72 / 2540, unit: 'mm' } };
+  const m = dimensionMeasure(ann, doc);
+  assert.ok(Math.abs(m.scale - 254 / 72) < 1e-9);
+  assert.equal(m.inherited, true);
+  const saved = await PDFDocument.load(await savedDimension(ann, doc));
+  const line = saved.context.lookup(saved.getPage(0).node.Annots().get(0));
+  const x = line.lookup(PDFName.of('Measure')).lookup(PDFName.of('X')).lookup(0);
+  assert.ok(Math.abs(x.get(PDFName.of('C')).asNumber() - 254 / 72) < 1e-9);
+});

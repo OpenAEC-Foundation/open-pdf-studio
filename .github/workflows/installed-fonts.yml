@@ -1,0 +1,51 @@
+name: Installed fonts
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  native-catalogue:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest, macos-26]
+    runs-on: ${{ matrix.os }}
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Native dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev libfreetype6-dev
+      - name: Build production catalogue probe
+        run: cargo build --locked --manifest-path open-pdf-studio/scripts/font-native-tests/Cargo.toml
+      - name: Enumerate installed TTF and both TTC faces (Unix)
+        if: runner.os != 'Windows'
+        run: python open-pdf-studio/scripts/font-native-tests/run.py open-pdf-studio/scripts/font-native-tests/target/debug/font-catalogue-probe fonts.json
+      - name: Enumerate installed TTF and both TTC faces (Windows)
+        if: runner.os == 'Windows'
+        run: python open-pdf-studio/scripts/font-native-tests/run.py open-pdf-studio/scripts/font-native-tests/target/debug/font-catalogue-probe.exe fonts.json
+      - uses: actions/setup-node@v6
+        if: runner.os == 'Linux'
+        with:
+          node-version: 22
+      - name: Frontend dependencies and browser
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Actual font dropdown, selection, async query and fallback
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        env:
+          OPDS_FONT_CATALOGUE_JSON: ../fonts.json
+        run: |
+          node --test js/utils/lettertypen-lijst.test.mjs
+          node scripts/test-installed-fonts-browser.mjs

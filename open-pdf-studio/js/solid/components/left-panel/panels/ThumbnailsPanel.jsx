@@ -10,7 +10,12 @@ import { dropDoelBijPunt, volgordeNaDrop, scrollStap } from '../../../../ui/pane
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { volgendePaginaTreffer } from '../../../../ui/panels/miniatuur-zoeken.js';
 import { scrollVoorItem } from '../../../../ui/panels/bladwijzer-zoeken.js';
-import { state } from '../../../../core/state.js';
+import { state, getActiveDocument } from '../../../../core/state.js';
+import { createThumbnailClipboardHandler } from '../../../../ui/panels/thumbnail-clipboard.js';
+import { paginaToetsVoorInvoer } from '../../../../pdf/pagina-sneltoets.js';
+import { isPdfAReadOnly } from '../../../../pdf/loader.js';
+import { sneltoetsActief } from '../../../../core/keybindings/app-shortcuts.js';
+import { showMessage } from '../../../stores/dialogStore.js';
 
 export default function ThumbnailsPanel() {
   const { t } = useTranslation('properties');
@@ -146,10 +151,27 @@ export default function ThumbnailsPanel() {
     if (pagina) handleNavigate(pagina);
   }
 
+  const clipboardKey = createThumbnailClipboardHandler({
+    getDocument: getActiveDocument,
+    getSelection: getSelectedPagesArray,
+    loadManager: () => import('../../../../pdf/page-manager.js'),
+    isReadOnly: isPdfAReadOnly,
+    shortcutEnabled: sneltoetsActief,
+  });
   const handleKeyDown = async (e) => {
+    // Native bubbling runs before Solid's delegated input handlers, so leave
+    // the page-label editor and other text controls alone here as well.
+    if (paginaToetsVoorInvoer(e.target)) return;
+    const clipboardTask = clipboardKey(e);
+    if (clipboardTask) {
+      try { await clipboardTask; }
+      catch (err) { showMessage(String(err?.message || err)); }
+      return;
+    }
     // Ook met Caps Lock aan (e.key is dan 'A', #577).
     if (e.ctrlKey && !e.shiftKey && (e.key || '').toLowerCase() === 'a') {
       e.preventDefault();
+      e.stopPropagation();
       selectAllPages();
     } else if (e.key === 'Escape') {
       if (sleep?.isDragging()) { e.preventDefault(); sleep.cancel(); return; }
@@ -199,7 +221,7 @@ export default function ThumbnailsPanel() {
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 3.5h8l4.5 4.5-4.5 4.5h-8z"/><path d="M4 6.5h4M4 9.5h5"/></svg>
         </button>
       </div>
-      <div class="thumbnails-container" id="thumbnails-container" ref={(el) => { containerRef = el; setContainerRef(el); }} tabIndex={0} onKeyDown={handleKeyDown}>
+      <div class="thumbnails-container" id="thumbnails-container" ref={(el) => { containerRef = el; setContainerRef(el); }} tabIndex={0} on:keydown={handleKeyDown}>
         <For each={pages()}>
           {(pageNum) => (
             <ThumbnailItem

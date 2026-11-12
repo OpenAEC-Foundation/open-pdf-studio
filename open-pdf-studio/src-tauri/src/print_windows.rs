@@ -314,14 +314,36 @@ pub fn print_pdf_bestand(
     opgeslagen: Option<&[u8]>,
     uitvoer: Option<&Path>,
 ) -> Result<(), String> {
+    print_pdf_bestand_met_duplex(pad, printer, orientatie, papier, plaatsing,
+        crate::print_duplex::Duplex::Printer, opgeslagen, uitvoer)
+}
+
+pub fn print_pdf_bestand_met_duplex(
+    pad: &Path,
+    printer: &str,
+    orientatie: Orientatie,
+    papier: Papier,
+    plaatsing: Plaatsing,
+    duplex: crate::print_duplex::Duplex,
+    opgeslagen: Option<&[u8]>,
+    uitvoer: Option<&Path>,
+) -> Result<(), String> {
     if !pad.is_file() {
         return Err("File does not exist".to_string());
     }
     // Geeft de driver geen bruikbare DEVMODE, dan de noodweg in plaats van
     // helemaal niet printen. Bestaat de printer niet, dan faalt CreateDCW.
     let devmodes = match OpdrachtDevmodes::maak(printer, opgeslagen, papier) {
-        Ok(d) => Some(d),
+        Ok(mut d) => {
+            if duplex != crate::print_duplex::Duplex::Printer {
+                let prn = Printer::open(printer)?;
+                d.staand = crate::print_devmode::met_duplex(&prn, &d.staand, duplex)?;
+                d.liggend = crate::print_devmode::met_duplex(&prn, &d.liggend, duplex)?;
+            }
+            Some(d)
+        },
         Err(e) => {
+            if duplex != crate::print_duplex::Duplex::Printer { return Err(e); }
             log::warn!("[print] geen DEVMODE voor '{printer}': {e}; noodweg via ResetDC");
             None
         }

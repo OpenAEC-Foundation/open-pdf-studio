@@ -320,6 +320,8 @@
     "box": "상자",
     "boxHint": "변경 내용을 채워진 영역으로 표시",
     "contour": "윤곽",
+    "colourOverlay": "색상",
+    "colourOverlayHint": "두 도면을 겹쳐서 각각 다른 색으로 표시합니다",
     "contourHint": "변경 내용을 윤곽선으로 표시",
     "annotation": "주석",
     "changes": "변경 내용",

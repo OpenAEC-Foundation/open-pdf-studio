@@ -320,6 +320,8 @@
     "box": "Kotak",
     "boxHint": "Tampilkan perubahan sebagai area terisi",
     "contour": "Kontur",
+    "colourOverlay": "Warna",
+    "colourOverlayHint": "Tampilkan kedua gambar bertumpuk, masing-masing dengan warnanya sendiri",
     "contourHint": "Tampilkan perubahan dengan garis tepi",
     "annotation": "Anotasi",
     "changes": "Perubahan",

@@ -32,7 +32,7 @@ import SchedulePanel from './components/SchedulePanel.jsx';
 import SymbolTypeEditor from './components/symbol-edit/SymbolTypeEditor.jsx';
 import MiniLog from './components/MiniLog.jsx';
 import { getRegisteredPalettes } from '../plugins/palette-registry.js';
-import { leftOrder, rightOrder } from './stores/paletteOrder.js';
+import { leftOrder, rightOrder, topOrder, bottomOrder } from './stores/paletteOrder.js';
 import { useTranslation } from '../i18n/useTranslation.js';
 import { isTauri } from '../core/platform.js';
 import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../core/sessie-herstel.js';
@@ -41,7 +41,7 @@ import { state } from '../core/state.js';
 import { pasUiSchaalToe, haalUiSchaalWeg } from '../core/ui-scale.js';
 
 function OrderedDockedPalettes(props) {
-  const order = () => props.side === 'left' ? leftOrder() : rightOrder();
+  const order = () => ({ left: leftOrder, right: rightOrder, top: topOrder, bottom: bottomOrder }[props.side] || rightOrder)();
   const extPalettes = () => getRegisteredPalettes();
 
   // Build list of all palette ids: 'tool' (built-in) + extension palette ids
@@ -100,6 +100,10 @@ function DesktopApp() {
           <For each={extPalettes()}>
             {(p) => <ExtDockTargets descriptor={p} />}
           </For>
+          {/* Top dock: palettes as a horizontal strip above the page view. */}
+          <div class="palette-dock-row palette-dock-top">
+            <OrderedDockedPalettes side="top" />
+          </div>
           <FindBar />
           <ReadAloudBar />
 
@@ -142,6 +146,10 @@ function DesktopApp() {
             <SplitPane />
           </div>
           <ThreeDView />
+          {/* Bottom dock: a horizontal strip below the page view. */}
+          <div class="palette-dock-row palette-dock-bottom">
+            <OrderedDockedPalettes side="bottom" />
+          </div>
         </div>
 
         <OrderedDockedPalettes side="right" />

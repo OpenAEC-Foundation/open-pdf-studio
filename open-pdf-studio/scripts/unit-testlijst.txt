@@ -264,6 +264,7 @@ js/plattegrond/maatvoering.test.mjs
 js/plattegrond/ruimte.test.mjs
 js/plattegrond/sparing.test.mjs
 js/plattegrond/mcp-plattegrond.test.mjs
+js/plattegrond/scale-region.test.mjs
 js/plugins/annotation-batch.test.mjs
 js/plugins/page-access.test.mjs
 js/plugins/plugin-pdf.test.mjs
@@ -326,6 +327,7 @@ js/pdf/haakjes-rondgang.test.mjs
 js/pdf/cjk-tekstvak-rondgang.test.mjs
 js/pdf/cjk-font-ontbreekt.test.mjs
 js/annotations/kalibratie-schaal.test.mjs
+js/annotations/label-vooraf.test.mjs
 js/tools/tools/meting-documentschaal.test.mjs
 js/tools/tools/meting-blad-1-50.test.mjs
 js/annotations/userunit-schaalbronnen.test.mjs
@@ -415,6 +417,7 @@ js/ui/panels/bladwijzer-boom.test.mjs
 js/ui/panels/miniatuur-maat.test.mjs
 js/ui/panels/miniatuur-slepen.test.mjs
 js/ui/panels/miniatuur-zoeken.test.mjs
+js/ui/panels/thumbnail-clipboard.test.mjs
 js/pdf/bron-paginas-kiezen.test.mjs
 js/pdf/pagina-labels.test.mjs
 js/pdf/pagina-labels-i18n.test.mjs
@@ -833,3 +836,8 @@ js/symbols/templates/overspanningspijl-vloer.test.mjs
 js/symbols/templates/sondering.test.mjs
 js/symbols/templates/paalpuntniveau.test.mjs
 js/symbols/templates/stenenrij.test.mjs
+# Ronde 2026.46.1
+js/pdf/saver/systeem-fonts.test.mjs
+js/text/text-rotation.test.mjs
+scripts/pdfjs-soft-mask-bounds.test.mjs
+scripts/startup-window.test.mjs

@@ -101,3 +101,24 @@ test('een lettertype kiezen bij een actief tekstvakgereedschap blijft staan voor
   await props.showToolDefaults('textbox');
   assert.equal(props.annotProps.fontFamily, 'Times New Roman');
 });
+
+for (const type of ['textbox', 'callout']) {
+  test(`${type}: tekstkleur blijft gescheiden van de rand en wordt standaard (#1042)`, async () => {
+    verseVoorkeuren(); openen();
+    assert.equal(buildAnnotationProps(type, 10, 10, 200, 100).textColor, '#000000');
+    setAsDefaultStyle({ type, textColor: '#008000', strokeColor: '#ff0000', opacity: 1 });
+    const nieuw = buildAnnotationProps(type, 10, 10, 200, 100);
+    assert.equal(nieuw.textColor, '#008000');
+    assert.equal(nieuw.strokeColor, '#ff0000');
+    const bestaand = { type, textColor: '#000000' };
+    applyDefaultStyle(bestaand);
+    assert.equal(bestaand.textColor, '#008000');
+    await props.showToolDefaults(type);
+    assert.equal(props.annotProps.textColor, '#008000');
+    props.updateAnnotProp('textColor', '#0000ff');
+    assert.ok(await totDat(() => state.preferences[type + 'TextColor'] === '#0000ff'));
+    assert.equal(buildAnnotationProps(type, 10, 10, 200, 100).textColor, '#0000ff');
+    await props.showToolDefaults(type);
+    assert.equal(props.annotProps.textColor, '#0000ff');
+  });
+}

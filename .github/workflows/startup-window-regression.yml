@@ -1,0 +1,31 @@
+name: Startup window regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/main.js'
+      - 'open-pdf-studio/js/core/startup-window.js'
+      - 'open-pdf-studio/src-tauri/src/startup*.rs'
+      - 'open-pdf-studio/scripts/*startup*'
+      - '.github/workflows/startup-window-regression.yml'
+permissions:
+  contents: read
+jobs:
+  startup-window:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
+      - run: npm ci
+      - run: node --test scripts/startup-window.test.mjs
+      - run: rustc --test src-tauri/src/startup_visibility.rs -o /tmp/startup-visibility-tests && /tmp/startup-visibility-tests
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/test-startup-window.mjs

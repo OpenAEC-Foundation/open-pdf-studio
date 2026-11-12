@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2026.46.0"
+version = "2026.46.2"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -39,6 +39,8 @@ zip = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-single-instance = "2"
 tauri-plugin-store = "2"
+# Window size, position and maximised state remembered between sessions (#1025).
+tauri-plugin-window-state = "2"
 # Reads a bitmap off the system clipboard for the screenshot-annotate feature
 # (Windows PrtScn puts the capture on the clipboard). Cross-platform.
 tauri-plugin-clipboard-manager = "2"
@@ -190,9 +192,14 @@ webkit2gtk = "2"
 # ICoreWebView2::CapturePreview (src/webview_opname.rs). Dezelfde versies die
 # wry en tauri al meebrengen; ze staan al in Cargo.lock.
 [target.'cfg(target_os = "windows")'.dependencies]
+dwrote = { version = "=0.11.5", default-features = false }
 webview2-com = "0.38.2"
 windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
 windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading"] }
+
+# Use each desktop OS font catalogue; no application-private directory scan.
+[target.'cfg(any(target_os = "macos", target_os = "linux"))'.dependencies]
+font-kit = "=0.14.3"
 
 # De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
 # venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen

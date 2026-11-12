@@ -7,6 +7,7 @@ import LayerField from '../properties-panel/LayerField.jsx';
 import { selectieLaagKeuze } from '../../../annotations/laag-keuze.js';
 import { layersVersion } from '../../stores/annotationLayersStore.js';
 import {
+  textColor, hasTextColor, setFormatTextColor,
   fillColor, strokeColor, fmtLineWidth, opacity, fillOpacity, aparteVulDekking, hasFill, borderStyle, blendMode,
   arrowStart, arrowEnd, isLocked, isSingleSymbolStamp,
   STYLE_DEFS, applyToSelected, zetOpmaak, opmaakVoorNieuw, opmaakOndersteunt,
@@ -16,6 +17,7 @@ import {
   applyStylePresetById, copyStyleFromSelection, pasteStyleToSelection, copiedStyle,
 } from '../../stores/stylePresetsStore.js';
 import { openSymbolTypeEditor } from '../../stores/symbolEditStore.js';
+import { setAsDefaultStyle } from '../../../core/preferences.js';
 import { state, getActiveDocument } from '../../../core/state.js';
 import { showProperties, showMultiSelectionProperties, closePropertiesPanel } from '../../../ui/panels/properties-panel.js';
 import { setPanelVisible } from '../../stores/propertiesStore.js';
@@ -86,6 +88,7 @@ export default function FormatTab() {
   const { t } = useTranslation('ribbon');
   const { t: tc } = useTranslation('common');
   const { t: tp } = useTranslation('properties');
+  const { t: tContext } = useTranslation('context');
   const layerSelection = () => getActiveDocument()?.selectedAnnotations || [];
   // Laag van de selectie (#865), met dezelfde keuzelijst als Eigenschappen.
   const selectionLayer = () => {
@@ -265,6 +268,34 @@ export default function FormatTab() {
             />
           </div>
         </RibbonGroup>
+
+        <Show when={hasTextColor()}>
+          <RibbonGroup label={tp('textFormat.title')}>
+            <div class="ribbon-btn-stack">
+              <ColorPickerButton
+                id="fmt-text-color"
+                title={tp('textFormat.textColor')}
+                label={tp('textFormat.textColor')}
+                iconSvg={`<svg viewBox="0 0 18 18"><text x="4" y="12" fill="currentColor" font-size="14">T</text><rect x="2" y="14" width="14" height="3" fill="${textColor()}"/></svg>`}
+                dropdownId="fmt-text-dropdown"
+                paletteId="fmt-text-palette"
+                showNoneButton={false}
+                disabled={isLocked()}
+                currentColor={textColor()}
+                onColorSelect={setFormatTextColor}
+                onCustom={setFormatTextColor}
+              />
+              <button class="ribbon-row-btn" id="fmt-text-default"
+                disabled={invoegen() || isLocked() || layerSelection().length !== 1}
+                onClick={() => {
+                  const selected = layerSelection();
+                  if (selected.length === 1 && !selected[0].locked) setAsDefaultStyle(selected[0]);
+                }}>
+                {tContext('annotation.setAsDefaultStyle')}
+              </button>
+            </div>
+          </RibbonGroup>
+        </Show>
 
         <RibbonGroup label="">
           <div class="ribbon-form-grid ribbon-form-grid-2col">

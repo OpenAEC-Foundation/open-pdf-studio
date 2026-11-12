@@ -129,6 +129,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
 
       - name: Install Rust targets (macOS universal)
         if: matrix.target == 'macos'
@@ -195,9 +197,8 @@ jobs:
         if: matrix.target == 'windows-user'
         shell: pwsh
         run: |
-          $conf = Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
-          $conf.bundle.windows.nsis.installMode = "currentUser"
-          $conf | ConvertTo-Json -Depth 10 | Set-Content src-tauri/tauri.conf.json
+          node scripts/windows-user-update.mjs configure src-tauri/tauri.conf.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       # Linux uses in-proc PDFium (the worker sidecar is Windows-only), so the
       # AppImage must bundle libpdfium.so — referenced by tauri.linux.conf.json.

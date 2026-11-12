@@ -156,6 +156,17 @@ export default function AppearanceSection() {
           />
         </Show>
 
+        {/* Vectorknipsel (#1024): alle lijnen in één kleur, of de eigen kleuren. */}
+        <Show when={sectionVis.lijnKleurGroup}>
+          <ColorPalettePicker
+            label={t('appearance.lineworkColor')}
+            color={() => annotProps.lijnKleur}
+            showNone={true}
+            disabled={isLocked()}
+            onColorChange={(color) => updateAnnotProp('lijnKleur', color || null)}
+          />
+        </Show>
+
         <Show when={sectionVis.opacityGroup}>
           <div class="property-group">
             <label>{sectionVis.aparteDekking ? t('appearance.strokeOpacity') : t('appearance.opacity')}</label>

@@ -320,6 +320,8 @@
     "box": "Alue",
     "boxHint": "Näytä muutokset täytettynä alueena",
     "contour": "Ääriviiva",
+    "colourOverlay": "Värit",
+    "colourOverlayHint": "Näytä molemmat piirustukset päällekkäin, kumpikin omalla värillään",
     "contourHint": "Näytä muutokset ääriviivalla",
     "annotation": "Merkintä",
     "changes": "Muutokset",

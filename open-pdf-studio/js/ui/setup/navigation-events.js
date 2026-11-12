@@ -94,7 +94,7 @@ export function setupWheelZoom() {
         // (renderContinuous() disables it) — route the zoom through the
         // continuous helper, anchored at the cursor's Y position so the
         // content under the mouse stays put.
-        if (activeDoc.viewMode === 'continuous' && activeDoc.filePath) {
+        if (activeDoc.viewMode === 'continuous') {
           const contDy = e.deltaY || 0;
           if (contDy !== 0) {
             const container = document.getElementById('pdf-container');
@@ -130,19 +130,15 @@ export function setupWheelZoom() {
           }
           return;
         }
-        // No PDF loaded → bail (preventDefault already ran).
-        // Blank docs (filePath===null) bypass the vector viewport and use
-        // PDF.js + doc.scale instead. zoomStepAtPoint() below would mutate
-        // the stale viewport state from a previously-opened real PDF, not
-        // the blank doc's doc.scale → ctrl+wheel appears dead. Fall back
-        // to the legacy zoomIn/zoomOut path (loses cursor anchor, but at
-        // least the user can zoom).
-        if (activeDoc.pdfDoc && activeDoc.filePath === null) {
-          const wheelDy = e.deltaY || 0;
-          if (wheelDy !== 0) {
-            const m = await import('../../pdf/renderer.js');
-            if (wheelDy < 0) await m.zoomIn(); else await m.zoomOut();
-          }
+        // PDF.js single-page fallback: both unsaved documents and web PDFs
+        // use a page-sized canvas. Pass client coordinates so its resize
+        // preserves the content under the cursor, just like the native view.
+        const wheelDy = e.deltaY || 0;
+        if (wheelDy !== 0) {
+          const point = { x: e.clientX, y: e.clientY };
+          const m = await import('../../pdf/renderer.js');
+          if (getActiveDocument() !== activeDoc) return;
+          if (wheelDy < 0) await m.zoomIn(point); else await m.zoomOut(point);
         }
         return;
       }

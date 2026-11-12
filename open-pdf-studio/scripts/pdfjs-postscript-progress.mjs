@@ -10,6 +10,7 @@ import { patchSampledFunction32 } from './pdfjs-sampled-function.mjs';
 import { patchBidiCombiningMarks } from './pdfjs-bidi-marks.mjs';
 import { patchFormXObjectCache } from './pdfjs-form-xobject-cache.mjs';
 import { patchKnockoutBounds, PDFJS_DISPLAY_MODULE } from './pdfjs-knockout-bounds.mjs';
+import { patchSoftMaskBounds } from './pdfjs-soft-mask-bounds.mjs';
 
 const BEFORE = String.raw`  _getNumber() {
     this._numberPattern.lastIndex = this.pos;
@@ -98,9 +99,10 @@ export function patchPdfjsWorker(source) {
 
 // Every backport the display library (pdf.mjs, main thread) needs. #637:
 // knockout-group fills composited within their bounds (PDF.js #22260, see
-// pdfjs-knockout-bounds.mjs).
+// pdfjs-knockout-bounds.mjs). #1028: zero-alpha soft masks outside their
+// bounds (local qualification of the unmerged PDF.js #22480 proposal).
 export function patchPdfjsDisplay(source) {
-  return patchKnockoutBounds(source);
+  return patchSoftMaskBounds(patchKnockoutBounds(source));
 }
 
 // `workerPath` is the pdfjs-dist worker to patch: the app uses the legacy
@@ -118,7 +120,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949, #957, #636 and #637 backports.`);
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949, #957, #636 and #637 / #1028 backports.`);
       worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
     },
@@ -151,7 +153,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       // Fail closed: zit pdf.mjs in de bundel, dan moet hij gepatcht zijn.
       const shipped = Object.values(bundle).some(chunk => chunk.type === 'chunk'
         && Object.keys(chunk.modules ?? {}).some(id => PDFJS_DISPLAY_MODULE.test(id.split('?')[0])));
-      if (shipped && !displayPatched) this.error('PDF.js display library shipped without the #637 backport.');
+      if (shipped && !displayPatched) this.error('PDF.js display library shipped without the #637 / #1028 display fixes.');
     },
     configureServer(server) {
       // loader.js uses this literal URL in dev; never modify shared node_modules.

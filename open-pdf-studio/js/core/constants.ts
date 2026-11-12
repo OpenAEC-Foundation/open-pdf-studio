@@ -147,6 +147,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   textboxOpacity: 100,
   textboxFontSize: 8,
   textboxFontFamily: 'Arial',
+  textboxTextColor: '#000000',
 
   // Callout defaults
   calloutFillColor: '#FFFBEB',
@@ -157,6 +158,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   calloutOpacity: 100,
   calloutFontSize: 14,
   calloutFontFamily: 'Arial',
+  calloutTextColor: '#000000',
 
   // Rectangle defaults
   rectFillColor: '#FFFBEB',

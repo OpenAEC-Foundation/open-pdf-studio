@@ -908,3 +908,11 @@ export function nieuwTekstblokRecord({ page, pdfX, pdfY, fontSize = 12, color = 
     _pendingNew: true,
   };
 }
+
+// PDF angles are counter-clockwise; CSS uses a downward Y axis. Keep the
+// first baseline fixed while rotating the editor, including non-right angles.
+export function textEditScreenRotation(pageRotation, textAngle = 0) {
+  const angle = (Number(pageRotation) || 0) - (Number(textAngle) || 0);
+  const rad = angle * Math.PI / 180;
+  return { angle, rotationC: -Math.sin(rad), rotationD: Math.cos(rad) };
+}

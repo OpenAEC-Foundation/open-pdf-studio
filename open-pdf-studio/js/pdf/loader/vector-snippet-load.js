@@ -62,6 +62,7 @@ export function knipselUitExtra(extra, heeft) {
   const uit = { snippetKey: v.snippetKey, srcBox: { ...v.srcBox }, srcLabel: v.srcLabel || '' };
   // Alleen als het gezet is: een gewoon knipsel draagt het veld niet.
   if (v.belowContent === true) uit.belowContent = true;
+  if (typeof v.lijnKleur === 'string' && /^#[0-9a-f]{6}$/i.test(v.lijnKleur)) uit.lijnKleur = v.lijnKleur;
   return uit;
 }
 
@@ -97,5 +98,8 @@ export async function leesKnipselVelden(annotDict, context) {
   const onderRaw = annotDict.get(PDFName.of('OPS_BelowContent'));
   const onder = onderRaw ? (context.lookup(onderRaw) || onderRaw) : null;
   if (onder && typeof onder.asBoolean === 'function' && onder.asBoolean() === true) velden.belowContent = true;
+  // Lijnwerk in één kleur (#1024).
+  const kleur = tekstVan(annotDict.get(PDFName.of('OPS_LineColor')));
+  if (kleur && /^#[0-9a-f]{6}$/i.test(kleur)) velden.lijnKleur = kleur;
   return velden;
 }

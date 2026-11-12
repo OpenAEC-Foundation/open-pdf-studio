@@ -320,6 +320,8 @@
     "box": "Område",
     "boxHint": "Vis ændringer som et udfyldt område",
     "contour": "Kontur",
+    "colourOverlay": "Farver",
+    "colourOverlayHint": "Vis begge tegninger oven på hinanden, hver i sin egen farve",
     "contourHint": "Vis ændringer med et omrids",
     "annotation": "Annotation",
     "changes": "Ændringer",

@@ -64,6 +64,7 @@ import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
 import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 import { setStatusWithHistory, statusHistory } from '../../review/status-history.js';
+import { isLabelVeld, zetLabelVooraf, labelVooraf } from '../../annotations/label-vooraf.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -145,6 +146,7 @@ const [annotProps, setAnnotProps] = createStore({
   fontSize: 16,
   fontFamily: 'Arial',
   textFontSize: 14,
+  textRotationAvailable: false,
   fontBold: false,
   fontItalic: false,
   fontUnderline: false,
@@ -310,7 +312,7 @@ function computeSectionVisibility(type) {
   // randkleur (het oude uiterlijk).
   const isScaleRegion = type === 'scaleRegion';
   const hasFillColor = ['highlight', 'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'arrow', 'line', 'measureArea', 'filledArea', 'scaleRegion'].includes(type);
-  const hideColor = ['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea'].includes(type);
+  const hideColor = ['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea', 'vectorSnippet'].includes(type);
   const hasBorderStyle = ['textbox', 'callout', 'arrow', 'line', 'box', 'circle', 'polygon', 'cloud', 'draw', 'polyline', 'splineArrow', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea'].includes(type);
   const hasHatchPattern = ['box', 'circle', 'polygon', 'cloud', 'measureArea', 'filledArea'].includes(type);
   const hasRotation = ['box', 'circle', 'polygon', 'cloud', 'highlight', 'redaction', 'comment', 'stamp', 'signature'].includes(type);
@@ -359,6 +361,7 @@ function computeSectionVisibility(type) {
     fillOpacityGroup: isScaleRegion || heeftVulDekking(type),
     aparteDekking: heeftVulDekking(type),
     rotationGroup: hasRotation,
+    lijnKleurGroup: type === 'vectorSnippet',
   });
 }
 
@@ -463,6 +466,8 @@ export function storeShowProperties(annotation) {
     statusHistory: statusHistoryProps(annotation),
     ifcCategory: annotation.ifcCategory || '',
     color: annotation.color || '#000000',
+    // Vectorknipsel (#1024): lijnwerk in één kleur; null = eigen kleuren.
+    lijnKleur: annotation.lijnKleur || null,
     fillColor: annotation.type === 'scaleRegion'
       ? schaalgebiedStijl(annotation).vulKleur : (annotation.fillColor || null),
     fillOpacity: _vulDoorzichtigheidPct(annotation),
@@ -984,6 +989,8 @@ export function storeShowTextEditProperties(info) {
   // Override type display and hide irrelevant sections
   setAnnotProps('typeDisplay', i18next.t('pdfText', { ns: 'properties' }));
   setAnnotProps('textFontSize', Math.round(info.fontSize || 12));
+  setAnnotProps('textRotationAvailable', info.canRotate === true);
+  setAnnotProps('rotation', Number(info.rotation) || 0);
 
   setSectionVis({
     general: false,
@@ -1474,7 +1481,7 @@ function recomputeMeasureText(ann) {
     // No per-annotation scale override (cleared or never set): fall back to
     // the document/region scale so clearing the override actually reverts
     // the shown value instead of leaving the old text.
-    const dist = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page);
+    const dist = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
     ann.measureText = formatDimensionText(dist);
     ann.measureValue = dist.value;
     ann.measureUnit = dist.unit;
@@ -1577,6 +1584,12 @@ function applyAnnotProp(key, value) {
     // Apply to synthetic for immediate panel feedback.
     applyPropToAnnotation(currentAnnotation, key, value);
     setAnnotProps(key, value);
+    // Het label van een meting (#1055) gaat mee naar de volgende metingen van
+    // deze sessie; het is geen opgeslagen stijl.
+    if (isLabelVeld(currentAnnotation.type, key)) {
+      zetLabelVooraf(currentAnnotation.type, key, value);
+      return;
+    }
     // Persist to state.preferences so annotation-creators picks it up.
     (async () => {
       try {
@@ -2330,7 +2343,7 @@ export async function showToolDefaults(toolName, overrides = {}, shouldShow = nu
   }
 
   if (typeof shouldShow === 'function' && !shouldShow()) return false;
-  Object.assign(synthetic, overrides);
+  Object.assign(synthetic, labelVooraf(annType), overrides);
   storeShowProperties(synthetic);
   return true;
 }

@@ -32,7 +32,7 @@ export const LAYOUT_SLEUTELS = Object.freeze([
 // Paletten van extensies bewaren hun stand onder ext_<id>_<veld>.
 const EXT_SLEUTEL = /^ext_[\w.-]{1,80}_(visible|mode|floatX|floatY)$/;
 
-export const PALET_MODI = Object.freeze(['docked-left', 'docked-right', 'float']);
+export const PALET_MODI = Object.freeze(['docked-left', 'docked-right', 'docked-top', 'docked-bottom', 'float']);
 export const LINKER_PANEEL_MIN = 120;
 export const LINKER_PANEEL_MAX = 4000;
 export const MAX_WERKRUIMTEN = 30;

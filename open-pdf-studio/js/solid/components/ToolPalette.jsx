@@ -1,4 +1,6 @@
 import { createSignal, Show, For, onMount, onCleanup } from 'solid-js';
+import { klemPaletPositie } from './palette-grenzen.js';
+import { startPaletteDrag, DockLiveIcon, DockTargetIcons } from './palette-dock.jsx';
 import { state, noPdf } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import { ClipboardWindow, clipboardWindowOpen, toggleClipboardWindow, clipboardIcon } from './ClipboardHistory.jsx';
@@ -84,8 +86,7 @@ function clampFloatPosition() {
   const w = el ? el.offsetWidth : 80;
   const h = el ? el.offsetHeight : 40;
   const pos = floatPos();
-  const nx = Math.max(0, Math.min(pos.x, window.innerWidth - w));
-  const ny = Math.max(0, Math.min(pos.y, window.innerHeight - h));
+  const { x: nx, y: ny } = klemPaletPositie(pos, w, h);
   if (nx !== pos.x || ny !== pos.y) {
     setFloatPos({ x: nx, y: ny });
     savePaletteState();
@@ -100,9 +101,6 @@ window.addEventListener('resize', () => {
     clampFloatPosition();
   });
 });
-
-const DOCK_STRIP_WIDTH = 34;
-const DOCK_SNAP = 60;
 
 const tools = [
   { tool: 'hand', key: 'home.hand', icon: handIcon, group: 0 },
@@ -130,72 +128,17 @@ const tools = [
   { tool: 'measurePerimeter', key: 'comment.measurePerimeter', icon: measurePerimeterIcon, group: 5 },
 ];
 
-// --- Shared drag logic ---
+// --- Drag and dock (shared with the extension palettes) ---
 function startDrag(e, fromDocked) {
-  if (e.button !== 0) return;
-  e.preventDefault();
-  const mainViewEl = document.querySelector('.main-view');
-  if (!mainViewEl) return;
-  let hasMoved = false;
-  const startCX = e.clientX;
-  const startCY = e.clientY;
-  // For floating: offset from palette origin
-  const offsetX = fromDocked ? 17 : (e.clientX - floatPos().x);
-  const offsetY = fromDocked ? 12 : (e.clientY - floatPos().y);
-
-  setIsDragging(true);
-
-  function getSnapSide(cx) {
-    // Use live measurement so it stays correct during drag
-    const rect = mainViewEl.getBoundingClientRect();
-    const relL = cx - rect.left;
-    const relR = rect.right - cx;
-    if (relL < DOCK_SNAP) return 'left';
-    if (relR < DOCK_SNAP) return 'right';
-    return null;
-  }
-
-  function onMove(ev) {
-    if (!hasMoved) {
-      const dx = Math.abs(ev.clientX - startCX);
-      const dy = Math.abs(ev.clientY - startCY);
-      if (dx < 4 && dy < 4) return; // dead zone
-      hasMoved = true;
-      if (fromDocked) {
-        setPaletteMode('float');
-        unregisterPaletteDock('tool');
-      }
-    }
-
-    const el = document.querySelector('.tp-float:not(.tp-ext)');
-    const pw = el ? el.offsetWidth : 80;
-    const ph = el ? el.offsetHeight : 40;
-    const nx = Math.max(0, Math.min(ev.clientX - offsetX, window.innerWidth - pw));
-    const ny = Math.max(0, Math.min(ev.clientY - offsetY, window.innerHeight - ph));
-    setFloatPos({ x: nx, y: ny });
-    setDockPreview(getSnapSide(ev.clientX));
-  }
-
-  function onUp(ev) {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
-    setIsDragging(false);
-    setDockPreview(null);
-
-    if (!hasMoved) return;
-
-    const snap = getSnapSide(ev.clientX);
-    if (snap) {
-      setPaletteMode(`docked-${snap}`);
-      registerPaletteDock('tool', snap);
-    } else {
-      unregisterPaletteDock('tool');
-    }
-    savePaletteState();
-  }
-
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+  startPaletteDrag(e, {
+    id: 'tool', fromDocked,
+    floatPos, setFloatPos,
+    setMode: setPaletteMode,
+    setDragging: setIsDragging,
+    setPreview: setDockPreview,
+    floatSelector: '.tp-float:not(.tp-ext)',
+    onEnd: savePaletteState,
+  });
 }
 
 // --- Context menu for icon size toggle ---
@@ -328,6 +271,7 @@ export function DockedToolPalette(props) {
   // Button sizes follow the interface size (#883), so the pixel heights do too.
   function updateColumns() {
     if (!paletteEl) return;
+    if (side() === 'top' || side() === 'bottom') { setTwoCol(false); return; }
     const schaal = uiSchaalFactor();
     const available = paletteEl.clientHeight - 46 * schaal;
     const threshold = (paletteIconSize() === 'large' ? SINGLE_COL_HEIGHT_LARGE : SINGLE_COL_HEIGHT_SMALL) * schaal;
@@ -347,7 +291,10 @@ export function DockedToolPalette(props) {
 
   return (
     <Show when={shouldShow()}>
-      <div class={`tp-docked tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}`} ref={bindRef} onContextMenu={showPaletteCtxMenu}>
+      <div class={`tp-docked tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}${isDragging() ? ' tp-dock-live' : ''}`} ref={bindRef} onContextMenu={showPaletteCtxMenu}>
+        {/* While it is being dragged and has snapped here: highlight the
+            palette itself, with the dock icon over it (same on all sides). */}
+        <DockLiveIcon dragging={isDragging} side={side()} />
         <div class="tp-grip" onMouseDown={(e) => startDrag(e, true)}>
           <svg width="10" height="16" viewBox="0 0 10 16">
             <circle cx="3" cy="2" r="1.2" fill="currentColor"/><circle cx="7" cy="2" r="1.2" fill="currentColor"/>
@@ -412,28 +359,7 @@ export function FloatingToolPalette() {
 
 // Dock targets — shown inside .main-view when dragging
 export function DockTargets() {
-  return (
-    <>
-      <div class={`tp-dock-target tp-dock-target-left ${isDragging() ? 'visible' : ''} ${dockPreview() === 'left' ? 'active' : ''}`}>
-        <div class="tp-dock-target-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20">
-            <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="1" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      <div class={`tp-dock-target tp-dock-target-right ${isDragging() ? 'visible' : ''} ${dockPreview() === 'right' ? 'active' : ''}`}>
-        <div class="tp-dock-target-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20">
-            <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="13" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      <div class={`tp-dock-preview tp-dock-preview-left ${dockPreview() === 'left' ? 'active' : ''}`} />
-      <div class={`tp-dock-preview tp-dock-preview-right ${dockPreview() === 'right' ? 'active' : ''}`} />
-    </>
-  );
+  return <DockTargetIcons dragging={isDragging} preview={dockPreview} />;
 }
 
 export default DockedToolPalette;

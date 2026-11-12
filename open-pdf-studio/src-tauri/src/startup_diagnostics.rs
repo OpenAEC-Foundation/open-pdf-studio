@@ -8,6 +8,8 @@ use tauri::State;
 const MAX_LOG_BYTES: u64 = 512 * 1024;
 const ALLOWED_PHASES: &[&str] = &[
     "native-created",
+    "native-window-ready",
+    "native-window-fallback",
     "frontend-boot-start",
     "frontend-rendered",
     "frontend-ready",

@@ -5,6 +5,7 @@
  * with independent docking, floating, visibility, and drag state.
  */
 
+import { klemPaletPositie } from './palette-grenzen.js';
 import { createSignal, createEffect, Show, For, onMount, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
@@ -14,6 +15,7 @@ import { isPdfAReadOnly } from '../../pdf/loader.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { savePreferences } from '../../core/preferences.js';
 import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrder.js';
+import { startPaletteDrag, DockLiveIcon, DockTargetIcons } from './palette-dock.jsx';
 import { hasAnnotationType } from '../../plugins/annotation-type-registry.js';
 import { paletteIconSize, showPaletteCtxMenu } from './ToolPalette.jsx';
 import { getActiveSubTool, setActiveSubTool } from '../../plugins/tool-group-state.js';
@@ -21,7 +23,6 @@ import { getActiveSubTool, setActiveSubTool } from '../../plugins/tool-group-sta
 // Single-active-group open-state across the whole app (only one sub-menu open at a time).
 const [openGroupId, setOpenGroupId] = createSignal(null);
 
-const DOCK_SNAP = 60;
 
 // Per-palette state keyed by palette id
 const paletteStates = {};
@@ -95,6 +96,11 @@ export function toggleExtPalette(id) {
   savePalettePrefs(id);
 }
 
+/** Show or hide an extension palette (plugin API setToolPaletteVisible). */
+export function setExtPaletteVisible(id, visible) {
+  if (!!visible !== isExtPaletteVisible(id)) toggleExtPalette(id);
+}
+
 export function isExtPaletteVisible(id) {
   const ps = paletteStates[id];
   return ps ? ps.visible[0]() : false;
@@ -109,8 +115,7 @@ function clampAllExtFloatPositions() {
     const w = el ? el.offsetWidth : 80;
     const h = el ? el.offsetHeight : 40;
     const pos = ps.floatPos[0]();
-    const nx = Math.max(0, Math.min(pos.x, window.innerWidth - w));
-    const ny = Math.max(0, Math.min(pos.y, window.innerHeight - h));
+    const { x: nx, y: ny } = klemPaletPositie(pos, w, h);
     if (nx !== pos.x || ny !== pos.y) {
       ps.floatPos[1]({ x: nx, y: ny });
       savePalettePrefs(id);
@@ -127,69 +132,19 @@ window.addEventListener('resize', () => {
   });
 });
 
-// --- Drag logic (per palette instance) ---
+// --- Drag and dock (shared with the Tool Palette) ---
 function startExtDrag(id, e, fromDocked) {
-  if (e.button !== 0) return;
-  e.preventDefault();
   const ps = paletteStates[id];
   if (!ps) return;
-  const mainViewEl = document.querySelector('.main-view');
-  if (!mainViewEl) return;
-  let hasMoved = false;
-  const startCX = e.clientX;
-  const startCY = e.clientY;
-  const offsetX = fromDocked ? 17 : (e.clientX - ps.floatPos[0]().x);
-  const offsetY = fromDocked ? 12 : (e.clientY - ps.floatPos[0]().y);
-
-  ps.isDragging[1](true);
-
-  function getSnapSide(cx) {
-    const rect = mainViewEl.getBoundingClientRect();
-    const relL = cx - rect.left;
-    const relR = rect.right - cx;
-    if (relL < DOCK_SNAP) return 'left';
-    if (relR < DOCK_SNAP) return 'right';
-    return null;
-  }
-
-  function onMove(ev) {
-    if (!hasMoved) {
-      const dx = Math.abs(ev.clientX - startCX);
-      const dy = Math.abs(ev.clientY - startCY);
-      if (dx < 4 && dy < 4) return;
-      hasMoved = true;
-      if (fromDocked) {
-        ps.mode[1]('float');
-        unregisterPaletteDock(id);
-      }
-    }
-    const el = document.querySelector('.tp-float.tp-ext');
-    const pw = el ? el.offsetWidth : 80;
-    const ph = el ? el.offsetHeight : 40;
-    const nx = Math.max(0, Math.min(ev.clientX - offsetX, window.innerWidth - pw));
-    const ny = Math.max(0, Math.min(ev.clientY - offsetY, window.innerHeight - ph));
-    ps.floatPos[1]({ x: nx, y: ny });
-    ps.dockPreview[1](getSnapSide(ev.clientX));
-  }
-
-  function onUp(ev) {
-    document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup', onUp);
-    ps.isDragging[1](false);
-    ps.dockPreview[1](null);
-    if (!hasMoved) return;
-    const snap = getSnapSide(ev.clientX);
-    if (snap) {
-      ps.mode[1](`docked-${snap}`);
-      registerPaletteDock(id, snap);
-    } else {
-      unregisterPaletteDock(id);
-    }
-    savePalettePrefs(id);
-  }
-
-  document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup', onUp);
+  startPaletteDrag(e, {
+    id, fromDocked,
+    floatPos: ps.floatPos[0], setFloatPos: ps.floatPos[1],
+    setMode: ps.mode[1],
+    setDragging: ps.isDragging[1],
+    setPreview: ps.dockPreview[1],
+    floatSelector: `.tp-float.tp-ext[data-palette="${CSS.escape(id)}"]`,
+    onEnd: () => savePalettePrefs(id),
+  });
 }
 
 // Compare two override-objects for shallow equality. Treats null/undefined as
@@ -214,8 +169,11 @@ function ExtToolBtn(props) {
       disabled={toolDisabled()}
       onClick={() => { setTool(props.tool); if (props.overrides) state.toolOverrides = props.overrides; }}
       title={props.title}
-      innerHTML={props.icon}
-    />
+    >
+      <span class="tp-btn-icon" innerHTML={props.icon} />
+      {/* Name next to the icon: shown in a floating palette with floatLayout 'list'. */}
+      <span class="tp-btn-label">{props.title}</span>
+    </button>
   );
 }
 
@@ -251,7 +209,13 @@ function ExtToolGroupBtn(props) {
   const recomputePos = () => {
     if (!wrapRef) return;
     const rect = wrapRef.getBoundingClientRect();
-    if (props.side === 'right') {
+    if (props.side === 'top') {
+      // Docked at the top: the menu opens below the button.
+      setPos({ top: rect.bottom + 6, left: rect.left });
+    } else if (props.side === 'bottom') {
+      // Docked at the bottom: the menu opens above the button.
+      setPos({ bottom: window.innerHeight - rect.top + 6, left: rect.left });
+    } else if (props.side === 'right') {
       // Docked-right palette: anchor menu to the right of the viewport so it
       // grows leftward from the wrap's left edge. Menu width is unknown here.
       setPos({ top: rect.top, right: window.innerWidth - rect.left + 6 });
@@ -331,7 +295,9 @@ function ExtToolGroupBtn(props) {
 
   const submenuStyle = () => {
     const p = pos();
-    const s = { position: 'fixed', top: `${p.top}px` };
+    const s = { position: 'fixed' };
+    if (p.top !== undefined) s.top = `${p.top}px`;
+    if (p.bottom !== undefined) s.bottom = `${p.bottom}px`;
     if (p.left !== undefined) s.left = `${p.left}px`;
     if (p.right !== undefined) s.right = `${p.right}px`;
     return s;
@@ -441,7 +407,8 @@ export function DockedExtPalette(props) {
 
   return (
     <Show when={shouldShow()}>
-      <div class={`tp-docked tp-ext tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}${props.descriptor.cssClass ? ' ' + props.descriptor.cssClass : ''}`} onContextMenu={showPaletteCtxMenu}>
+      <div class={`tp-docked tp-ext tp-docked-${side()}${paletteIconSize() === 'large' ? ' tp-large' : ''}${props.descriptor.cssClass ? ' ' + props.descriptor.cssClass : ''}${ps().isDragging[0]() ? ' tp-dock-live' : ''}`} onContextMenu={showPaletteCtxMenu}>
+        <DockLiveIcon dragging={ps().isDragging[0]} side={side()} />
         <div class="tp-grip" onMouseDown={(e) => startExtDrag(id(), e, true)}>
           <GripIcon />
         </div>
@@ -481,7 +448,8 @@ export function FloatingExtPalette(props) {
   return (
     <Show when={shouldShow()}>
       <div
-        class={`tp-float tp-ext${paletteIconSize() === 'large' ? ' tp-large' : ''}${props.descriptor.cssClass ? ' ' + props.descriptor.cssClass : ''}`}
+        class={`tp-float tp-ext${props.descriptor.floatLayout === 'list' ? ' tp-float-list' : ''}${paletteIconSize() === 'large' ? ' tp-large' : ''}${props.descriptor.cssClass ? ' ' + props.descriptor.cssClass : ''}`}
+        data-palette={id()}
         style={`left:${ps().floatPos[0]().x}px; top:${ps().floatPos[0]().y}px`}
         onContextMenu={showPaletteCtxMenu}
       >
@@ -514,29 +482,6 @@ export function FloatingExtPalette(props) {
 
 // --- Dock targets ---
 export function ExtDockTargets(props) {
-  const id = () => props.descriptor.id;
-  const ps = () => getOrCreateState(id(), props.descriptor);
-
-  return (
-    <>
-      <div class={`tp-dock-target tp-dock-target-left ${ps().isDragging[0]() ? 'visible' : ''} ${ps().dockPreview[0]() === 'left' ? 'active' : ''}`}>
-        <div class="tp-dock-target-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20">
-            <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="1" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      <div class={`tp-dock-target tp-dock-target-right ${ps().isDragging[0]() ? 'visible' : ''} ${ps().dockPreview[0]() === 'right' ? 'active' : ''}`}>
-        <div class="tp-dock-target-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20">
-            <rect x="1" y="1" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-            <rect x="13" y="1" width="6" height="18" rx="1" fill="currentColor" opacity="0.4"/>
-          </svg>
-        </div>
-      </div>
-      <div class={`tp-dock-preview tp-dock-preview-left ${ps().dockPreview[0]() === 'left' ? 'active' : ''}`} />
-      <div class={`tp-dock-preview tp-dock-preview-right ${ps().dockPreview[0]() === 'right' ? 'active' : ''}`} />
-    </>
-  );
+  const ps = () => getOrCreateState(props.descriptor.id, props.descriptor);
+  return <DockTargetIcons dragging={() => ps().isDragging[0]()} preview={() => ps().dockPreview[0]()} />;
 }

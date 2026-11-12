@@ -4,6 +4,7 @@
 #![recursion_limit = "512"]
 
 mod accounts;
+mod systeem_lettertypen;
 mod pdf_beveiliging;
 mod atomic_file;
 pub mod bestand_openen;
@@ -17,6 +18,7 @@ pub mod crashlog;
 pub mod datamap;
 pub mod draagbaar;
 mod email;
+mod installed_fonts;
 pub mod export_policy;
 pub mod extensie_catalogus;
 pub mod extensie_installatie;
@@ -43,6 +45,7 @@ pub mod laagweergave;
 pub mod instantie;
 pub mod print_formulieren;
 pub mod print_instelling;
+pub mod print_duplex;
 pub mod print_plaatsing;
 // Beslissingen van de Windows-printkern per opdracht (issue 699), puur.
 pub mod print_plan;
@@ -75,6 +78,8 @@ pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
+mod startup_visibility;
+mod startup_window;
 // Vensteropname voor app_screenshot_view (#583); buiten Windows een nette fout.
 pub mod webview_opname;
 pub mod worker_pool;
@@ -318,6 +323,14 @@ fn updates_managed_externally() -> bool {
 #[tauri::command]
 fn get_username() -> String {
     whoami::username()
+}
+
+// Font catalogue queries may touch OS caches; keep them off the UI thread.
+#[tauri::command]
+async fn list_installed_font_families() -> Result<Vec<String>, String> {
+    tauri::async_runtime::spawn_blocking(installed_fonts::installed_font_families)
+        .await
+        .map_err(|error| format!("Font enumeration task failed: {error}"))?
 }
 
 // Fallback commands for when plugins aren't available via global API
@@ -871,6 +884,7 @@ async fn print_pdf(
     papier: Option<String>,
     plaatsing: Option<String>,
     kleur: Option<String>,
+    duplex: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<bool, String> {
     // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
@@ -878,6 +892,7 @@ async fn print_pdf(
     let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
     let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
     let plaatsing = print_plaatsing::Plaatsing::uit_keuze(plaatsing.as_deref());
+    let duplex = print_duplex::Duplex::parse(duplex.as_deref())?;
     #[cfg(target_os = "windows")]
     {
         // De kleurmodus zit op Windows al in de paginabeelden.
@@ -885,12 +900,13 @@ async fn print_pdf(
         // Wat de gebruiker in deze sessie in het eigenschappenvenster koos.
         let opgeslagen = devmodes.ophalen(&printer);
         tauri::async_runtime::spawn_blocking(move || {
-            print_windows::print_pdf_bestand(
+            print_windows::print_pdf_bestand_met_duplex(
                 std::path::Path::new(&path),
                 &printer,
                 orientatie,
                 papier,
                 plaatsing,
+                duplex,
                 opgeslagen.as_deref(),
                 None,
             )
@@ -912,6 +928,7 @@ async fn print_pdf(
     {
         let _ = &devmodes;
         let mut opties = print_instelling::lp_opties(orientatie, papier, plaatsing);
+        duplex.append_cups(&mut opties);
         if let Some(k) = print_unix::kleur_optie(kleur.as_deref()) {
             opties.push("-o".to_string());
             opties.push(k);
@@ -938,7 +955,9 @@ async fn print_pdf(
         // The caller always passes an absolute temp path, so the filename can
         // never be mistaken for an option; `--` is not portable across lp
         // implementations and is deliberately left out.
-        for optie in print_instelling::lp_opties(orientatie, papier, plaatsing) {
+        let mut opties = print_instelling::lp_opties(orientatie, papier, plaatsing);
+        duplex.append_cups(&mut opties);
+        for optie in opties {
             cmd.arg(optie);
         }
         let output = cmd
@@ -960,7 +979,7 @@ async fn print_pdf(
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &kleur, &devmodes);
+        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &kleur, &duplex, &devmodes);
         Err("Printing is not supported on this platform".to_string())
     }
 }
@@ -3369,6 +3388,20 @@ pub fn run(opts: StartupOpts) {
     {
         builder = builder.plugin(linux_runtime::webview_plugin());
     }
+    // Remember the main window's size, position and maximised state between
+    // sessions (#1025). Only the first instance saves and restores it: a
+    // torn-off tab is a second instance with its own "main" window, and a
+    // headless test instance keeps its off-screen window. Visibility and
+    // decorations are left to the app.
+    #[cfg(desktop)]
+    if !tweede_instantie && !headless::actief() {
+        use tauri_plugin_window_state::StateFlags;
+        builder = builder.plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(StateFlags::SIZE | StateFlags::POSITION | StateFlags::MAXIMIZED)
+                .build(),
+        );
+    }
     // Drag-out window detach is desktop-only (no mobile backend in the crate).
     #[cfg(not(target_os = "android"))]
     {
@@ -3492,6 +3525,8 @@ pub fn run(opts: StartupOpts) {
     let mut context = tauri::generate_context!();
     // Draagbare modus (#881): eigen single-instance-sleutel per map.
     draagbaar::pas_context_aan(&mut context);
+    #[cfg(desktop)]
+    startup_window::prepare(&mut context);
     if let Some(browser_args) = &headless_browser_args {
         headless::pas_context_aan(&mut context, browser_args);
     }
@@ -3536,6 +3571,8 @@ pub fn run(opts: StartupOpts) {
             let diagnostics = startup_diagnostics::StartupDiagnostics::new(diagnostics_path);
             diagnostics.record("native-created", None);
             app.manage(diagnostics);
+            #[cfg(desktop)]
+            startup_window::start_watchdog(app.handle());
 
             // Ondertekende versies (pdf_signed_revision) ouder dan zeven dagen
             // opruimen; vangnet naast het opruimen door de UI. Ruim genoeg, zodat
@@ -3700,6 +3737,9 @@ pub fn run(opts: StartupOpts) {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            list_installed_font_families,
+            systeem_lettertypen::systeem_lettertype_zoeken,
+            systeem_lettertypen::systeem_lettertype_lezen,
             pdf_beveiliging::pdf_security_new,
             pdf_beveiliging::pdf_security_permissions,
             pdf_beveiliging::pdf_security_unlock_owner,
@@ -3865,6 +3905,7 @@ pub fn run(opts: StartupOpts) {
             instantie::instance_role,
             beheerd::managed_mode,
             instantie::tab_drop_target,
+            startup_window::startup_window_ready,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,
             datamap::app_data_dir_effectief,
