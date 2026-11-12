@@ -96,3 +96,20 @@ test('dense unrelated ink does not match a dense template', async () => {
   const { matches } = await matchSymbols(image, template, { yieldTask: async () => {} });
   assert.deepEqual(matches.map(m => [m.x, m.y]), [[100, 50]], JSON.stringify(matches.slice(0, 5)));
 });
+
+test('the default pause between rows is a plain task, not a timer', async () => {
+  // A timer costs about 4 ms in a WebView once nested; at one pause per 16
+  // rows that was about 0.2 s of waiting per variant and page.
+  const timer = globalThis.setTimeout;
+  let timers = 0;
+  globalThis.setTimeout = (...a) => { timers++; return timer(...a); };
+  try {
+    const image = blank(120, 200);
+    stamp(image, symbol(), 30, 150);
+    const { matches } = await matchSymbols(image, symbol());
+    assert.equal(matches.length, 1);
+  } finally {
+    globalThis.setTimeout = timer;
+  }
+  assert.equal(timers, 0);
+});

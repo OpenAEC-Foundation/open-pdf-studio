@@ -832,6 +832,17 @@ vergelijken.
 treffers echte symbolen zijn, en of de standaarddrempel in de dialoog nog de
 goede is.
 
+## Pauzes in de JS-routes zonder timer
+
+De JS-matcher (om de 16 rijen) en de JS-monochroomroute (om de 32 rijen)
+gaven de beurt terug met `setTimeout(0)`. Een geneste timer kost in de WebView
+~4 ms en onder node op Windows ~15 ms: wachttijd, geen rekentijd (bij de
+monochroomstap gemeten als 1847 ms tegen 126 ms voor één pagina). Beide
+gebruiken nu `volgendeTaak()` (`js/core/volgende-taak.js`: `scheduler.yield()`,
+anders een MessageChannel). Dit raakt alleen de terugvalroutes (webversie,
+Android/iOS, een falend commando); de desktop rekent in Rust. Het effect in de
+WebView is niet gemeten.
+
 ## Formulierherkenning: het paginabeeld uit de PDFium-worker
 
 **Wat is verplaatst.** Voor "Formuliervelden herkennen" rendert de app per

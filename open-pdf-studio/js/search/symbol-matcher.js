@@ -1,3 +1,5 @@
+import { volgendeTaak } from '../core/volgende-taak.js';
+
 /** Bounded binary template matching. No recognition model or remote service.
  *
  * The score is the share of the ink that the other image explains within one
@@ -103,7 +105,7 @@ export async function matchSymbols(image, template, {
   scales = [1],
   signal,
   onProgress,
-  yieldTask = () => new Promise(r => setTimeout(r, 0))
+  yieldTask = volgendeTaak
 } = {}) {
   if (!Number.isFinite(threshold)
     || threshold < .5
