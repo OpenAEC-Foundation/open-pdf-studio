@@ -47,6 +47,7 @@ export default function ThumbnailItem(props) {
   };
 
   const handleClick = (e) => {
+    e.currentTarget.closest('.thumbnails-container')?.focus({ preventScroll: true });
     if (e.ctrlKey && e.shiftKey) {
       selectPageRange(props.pageNum, true);
     } else if (e.shiftKey) {
