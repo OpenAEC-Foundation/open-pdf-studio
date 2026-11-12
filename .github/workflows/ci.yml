@@ -109,6 +109,9 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-high-contrast-browser.mjs
 
+      - name: Test Windows user updater configuration
+        run: node --test scripts/windows-user-update.test.mjs
+
       - name: Run Linux release regression tests
         run: node --test scripts/linux-release-config.test.mjs
 
