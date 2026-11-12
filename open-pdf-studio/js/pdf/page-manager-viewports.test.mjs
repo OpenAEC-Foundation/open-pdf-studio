@@ -96,6 +96,29 @@ async function controleer(o, verwachtAantalPaginas) {
 const DOEL = ["1:50", null, "1:200", "1:500"];
 const BRON = ["1:100", "1:20"];
 
+test('copy selected pages between documents preserves source, order and scales (#1053)', async () => {
+  const { createThumbnailClipboardHandler } = await import('../ui/panels/thumbnail-clipboard.js');
+  const source = await opstelling(await bytesVan(await docMet(DOEL)));
+  source.doc.id = 'source';
+  const original = source.bytesNu().slice();
+  let active = source;
+  let selected = [1, 3];
+  const handle = createThumbnailClipboardHandler({ getDocument: () => active.doc,
+    getSelection: () => selected, loadManager: async () => pm,
+    isReadOnly: () => false, shortcutEnabled: () => true });
+  const key = k => ({key:k, ctrlKey:true, preventDefault(){}, stopPropagation(){}});
+  await handle(key('c'));
+  const destination = await opstelling(await bytesVan(await docMet(BRON)));
+  destination.doc.id = 'destination';
+  active = destination; selected = [1];
+  await handle(key('v'));
+  await controleer(destination, 4);
+  assert.deepEqual(ratios(destination.doc.pdfViewports), {1:['1:100'], 2:['1:50'], 3:['1:200'], 4:['1:20']});
+  assert.deepEqual(source.bytesNu(), original, 'source bytes are untouched');
+  assert.equal(source.undo.length, 0);
+  assert.equal(source.doc.pdfDoc.numPages, 4);
+});
+
 test("reordering pages keeps every measure scale with its page", async () => {
   const o = await opstelling(await bytesVan(await docMet(DOEL)));
   await pm.reorderPages([3, 1, 4, 2]);
