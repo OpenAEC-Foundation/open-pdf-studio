@@ -51,6 +51,8 @@ jobs:
           python-version: '3.11'
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
 
       - name: Restore cargo registry + target
         id: cargo-cache
