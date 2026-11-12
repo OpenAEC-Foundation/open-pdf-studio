@@ -1,0 +1,66 @@
+// Real properties inputs and three-click dimension placement (#1055).
+import assert from 'node:assert/strict';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {chromium} from 'playwright';
+import {createServer} from 'vite';
+import {PDFDocument} from 'pdf-lib';
+const root=fileURLToPath(new URL('../',import.meta.url));process.chdir(root);
+const cache=await mkdtemp(path.join(tmpdir(),'opds-measure-label-'));
+const server=await createServer({root,cacheDir:cache,logLevel:'error',server:{host:'127.0.0.1',port:18357,strictPort:false,hmr:false}});
+let browser;
+try {
+  await server.listen();browser=await chromium.launch({headless:true});
+  const page=await browser.newPage({viewport:{width:1600,height:1000}});
+  await page.addInitScript(()=>localStorage.setItem('opds:pdfEditorPreferences',JSON.stringify({language:'en'})));
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/`,{timeout:120000});
+  await page.waitForSelector('#tool-select',{timeout:120000});
+  const pdf=await PDFDocument.create();pdf.addPage([600,600]);
+  await page.evaluate(async bytes=>{
+    window.testState=await import('/js/core/state.ts');
+    window.testProps=await import('/js/solid/stores/propertiesStore.js');
+    window.testTools=await import('/js/tools/manager.js');
+    const {createTab}=await import('/js/ui/chrome/tabs.js');
+    const {index}=createTab('measurement.pdf');
+    await (await import('/js/pdf/loader.js')).loadPDF('measurement.pdf',index,new Uint8Array(bytes));
+    window.testTools.setTool('measureDistance');
+  },[...await pdf.save()]);
+  await page.waitForFunction(()=>window.testProps.annotProps.id==='__tool-defaults__'&&window.testProps.annotProps.type==='measureDistance');
+  const general=page.locator('#prop-general-section');
+  if(await general.evaluate(n=>n.classList.contains('collapsed'))) await general.locator('.property-section-header').click();
+  const subject=general.locator('.property-group').filter({has:page.locator('label:text-is("Subject")')}).locator('input');
+  await subject.fill('Wall A');
+  assert.equal(await page.evaluate(()=>window.testState.getActiveDocument().annotations.length),0);
+  await page.waitForFunction(()=>window.testState.state.preferences.measureDistSubject==='Wall A');
+  await page.evaluate(()=>{window.testTools.setTool('select');window.testTools.setTool('measureDistance');});
+  await page.waitForFunction(()=>window.testProps.annotProps.id==='__tool-defaults__'&&window.testProps.annotProps.subject==='Wall A');
+  const canvas=page.locator('#annotation-canvas');
+  await canvas.click({position:{x:100,y:150}});
+  await canvas.click({position:{x:300,y:150}});
+  await canvas.click({position:{x:300,y:230}});
+  await page.waitForFunction(()=>window.testState.getActiveDocument().annotations.some(a=>a.type==='measureDistance'));
+  const ann=await page.evaluate(()=>{const a=window.testState.getActiveDocument().annotations.find(a=>a.type==='measureDistance');return {subject:a.subject,text:a.measureText};});
+  assert.equal(ann.subject,'Wall A');assert.match(ann.text,/\d/);
+  await page.evaluate(()=>window.testTools.setTool('measureArea'));
+  await page.waitForFunction(()=>window.testProps.annotProps.id==='__tool-defaults__'&&window.testProps.annotProps.type==='measureArea');
+  const measurement=page.locator('#prop-measurement-section');
+  if(await measurement.evaluate(n=>n.classList.contains('collapsed'))) await measurement.locator('.property-section-header').click();
+  const name=measurement.locator('.property-group').filter({has:page.locator('label:text-is("Name")')}).locator('input');
+  await name.fill('Kitchen');
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('opds:pdfEditorPreferences')||'{}').measureAreaName==='Kitchen');
+  await page.evaluate(async()=>{
+    const {createMeasureAreaAnnotation}=await import('/js/tools/annotation-creators.js');
+    const a=createMeasureAreaAnnotation([{x:0,y:0},{x:100,y:0},{x:100,y:100}]);
+    window.testAreaName=a.measureName;
+    window.testTools.setTool('select');window.testTools.setTool('measureArea');
+  });
+  await page.waitForFunction(()=>window.testProps.annotProps.measureName==='Kitchen');
+  assert.equal(await page.evaluate(()=>window.testAreaName),'Kitchen');
+  await name.fill('');
+  await page.waitForFunction(()=>JSON.parse(localStorage.getItem('opds:pdfEditorPreferences')||'{}').measureAreaName==='');
+  assert.deepEqual(errors.filter(e=>!e.startsWith('WebSocket closed without opened')),[]);
+  console.log('PASS: pre-placement Subject survives tool switching and real three-click dimension placement; area Name reaches polygon creation and persistent preferences; clearing works');
+} finally {await browser?.close();await server.close();await rm(cache,{recursive:true,force:true});}

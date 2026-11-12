@@ -1,6 +1,6 @@
 import { state, getActiveDocument, clearSelection, addToSelection, removeFromSelection, isSelected, getAnnotationBounds, getSelectionBounds } from '../core/state.js';
 import { annotationCanvas, annotationCtx } from '../ui/dom-elements.js';
-import { createAnnotation, cloneAnnotation } from '../annotations/factory.js';
+import { cloneAnnotation } from '../annotations/factory.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt, getCursorForHandle } from '../annotations/handles.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
@@ -16,7 +16,7 @@ import { showSignatureDialog } from '../annotations/signature.js';
 import { startPan, startContinuousPan } from './pan-handler.js';
 import { snapAngle } from '../utils/helpers.js';
 import { drawShapePreview } from './shape-preview.js';
-import { createAnnotationFromTool, createContinuousAnnotation, buildAnnotationProps, createMeasureAreaAnnotation, createMeasurePerimeterAnnotation } from './annotation-creators.js';
+import { createToolAnnotation as createAnnotation, createAnnotationFromTool, createContinuousAnnotation, buildAnnotationProps, createMeasureAreaAnnotation, createMeasurePerimeterAnnotation } from './annotation-creators.js';
 import { isPdfAReadOnly } from '../pdf/loader.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, snapDistanceTo10 } from '../annotations/measurement.js';
 import { performSnap, drawSnapIndicator, setPolarAnchor, clearPolarAnchor } from './snap-engine.js';

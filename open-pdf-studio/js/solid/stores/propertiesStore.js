@@ -4,6 +4,7 @@ import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotatio
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
 import { bewaarLayoutVoorkeur } from '../../core/layout-voorkeur.js';
+import { measurementLabelDefaults, writeMeasurementLabelDefault } from '../../core/measurement-label-defaults.js';
 import { parseScaleString, pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { isImperialScalePreset } from '../../annotations/scale-presets.js';
 import {
@@ -1583,6 +1584,12 @@ function applyAnnotProp(key, value) {
     // Apply to synthetic for immediate panel feedback.
     applyPropToAnnotation(currentAnnotation, key, value);
     setAnnotProps(key, value);
+    if (writeMeasurementLabelDefault(state.preferences, currentAnnotation.type, key, value)) {
+      // Store synchronously: the next click can place a measurement before
+      // the lazy preferences import completes. Do not save labels as styles.
+      import('../../core/preferences.js').then(m => m.savePreferences());
+      return;
+    }
     // Persist to state.preferences so annotation-creators picks it up.
     (async () => {
       try {
@@ -2336,7 +2343,7 @@ export async function showToolDefaults(toolName, overrides = {}, shouldShow = nu
   }
 
   if (typeof shouldShow === 'function' && !shouldShow()) return false;
-  Object.assign(synthetic, overrides);
+  Object.assign(synthetic, measurementLabelDefaults(state.preferences, annType), overrides);
   storeShowProperties(synthetic);
   return true;
 }

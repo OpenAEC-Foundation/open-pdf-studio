@@ -644,6 +644,7 @@ js/pdf/page-manager-edit-pages.test.mjs
 js/solid/components/ribbon/edit-pages-knop.test.mjs
 js/solid/stores/lettertype-tekstvak.test.mjs
 js/core/standaardstijl-lettertype.test.mjs
+js/core/measurement-label-defaults.test.mjs
 js/utils/lettertypen-lijst.test.mjs
 js/pdf/lettertype-rondgang.test.mjs
 js/annotations/afbeelding-bron.test.mjs
