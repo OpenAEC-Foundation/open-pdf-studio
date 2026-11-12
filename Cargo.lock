@@ -3807,7 +3807,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-scan"
-version = "2026.46.0"
+version = "2026.46.2"
 dependencies = [
  "flate2",
  "serde_json",
