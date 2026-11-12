@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.46.25'
+        default: 'v2026.46.2'
 
 jobs:
   create-release:
@@ -621,11 +621,13 @@ jobs:
           $NEW_NAME = $EXE.Name -replace '_x64-setup\.exe$', '_x64_user-setup.exe'
           $NEW_PATH = Join-Path $EXE.DirectoryName $NEW_NAME
           Rename-Item $EXE.FullName $NEW_PATH
-          # Keep the signed updater ZIP separate from the system feed. The
-          # signature covers the ZIP bytes; renaming must not repack the ZIP.
+          # Keep the signed user update separate from the system feed. The
+          # signatures cover the file bytes; the files are copied, not repacked.
           node scripts/windows-user-update.mjs manifest "$NSIS_DIR" "${{ github.repository }}" "$VERSION"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          gh release upload $VERSION "$NEW_PATH" "$NSIS_DIR/*_user-setup.exe.zip" "$NSIS_DIR/*_user-setup.exe.zip.sig" "$NSIS_DIR/latest-user.json" --clobber --repo "${{ github.repository }}"
+          $USER_FILES = @(Get-ChildItem "$NSIS_DIR/*_user-setup.exe.sig", "$NSIS_DIR/*_user-setup.nsis.zip", "$NSIS_DIR/*_user-setup.nsis.zip.sig", "$NSIS_DIR/latest-user.json" | ForEach-Object { $_.FullName })
+          if ($USER_FILES.Count -ne 4) { Write-Error "Expected 4 user update files, found $($USER_FILES.Count)"; exit 1 }
+          gh release upload $VERSION "$NEW_PATH" @USER_FILES --clobber --repo "${{ github.repository }}"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           Write-Host "Uploaded user installer and signed user update: $NEW_NAME"
 

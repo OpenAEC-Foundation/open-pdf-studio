@@ -16,23 +16,41 @@ export function userInstallConfig(config) {
   return next;
 }
 
+// GitHub stores a release asset under its file name with spaces turned into dots.
+const assetName = name => name.replace(/ /g, '.');
+
 export async function userUpdateManifest(directory, repository, tag, version) {
   if (!/^[\w.-]+\/[\w.-]+$/.test(repository) || tag !== `v${version}`) {
     throw new Error('Release repository/tag does not match the app version');
   }
-  const files = (await readdir(directory)).filter(name => name.endsWith('_x64-setup.exe.zip'));
-  if (files.length !== 1) throw new Error('Expected exactly one signed Windows x64 updater ZIP');
-  const source = files[0];
-  const signature = (await readFile(path.join(directory, `${source}.sig`), 'utf8')).trim();
-  if (!signature) throw new Error('Missing updater signature');
-  const name = source.replace(/_x64-setup\.exe\.zip$/, '_x64_user-setup.exe.zip');
-  // Copy the original bytes and signature: repacking would invalidate the signature.
-  await copyFile(path.join(directory, source), path.join(directory, name));
-  await copyFile(path.join(directory, `${source}.sig`), path.join(directory, `${name}.sig`));
-  const asset = { signature, url: `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(name)}` };
+  // The user build leaves the same artifact names as the system build: the
+  // updater ZIP (`_x64-setup.nsis.zip`) and the signature of the installer
+  // itself (`_x64-setup.exe.sig`). The installer may already carry its user name.
+  const names = await readdir(directory);
+  const zips = names.filter(name => name.endsWith('_x64-setup.nsis.zip'));
+  if (zips.length !== 1) throw new Error('Expected exactly one signed Windows x64 updater ZIP');
+  const zip = zips[0];
+  const stem = zip.replace(/_x64-setup\.nsis\.zip$/, '');
+  const read = async name => {
+    const text = (await readFile(path.join(directory, name), 'utf8')).trim();
+    if (!text) throw new Error(`Missing updater signature in ${name}`);
+    return text;
+  };
+  const zipSignature = await read(`${zip}.sig`);
+  const exeSignature = await read(`${stem}_x64-setup.exe.sig`);
+  const userZip = `${stem}_x64_user-setup.nsis.zip`;
+  const userExe = `${stem}_x64_user-setup.exe`;
+  if (!names.includes(userExe) && !names.includes(`${stem}_x64-setup.exe`)) {
+    throw new Error('Missing the Windows user installer');
+  }
+  // Copy the original bytes and signatures: repacking would invalidate them.
+  await copyFile(path.join(directory, zip), path.join(directory, userZip));
+  await copyFile(path.join(directory, `${zip}.sig`), path.join(directory, `${userZip}.sig`));
+  await copyFile(path.join(directory, `${stem}_x64-setup.exe.sig`), path.join(directory, `${userExe}.sig`));
+  const url = name => `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(assetName(name))}`;
   const manifest = { version, notes: '', pub_date: new Date().toISOString(), platforms: {
-    'windows-x86_64': asset,
-    'windows-x86_64-nsis': asset,
+    'windows-x86_64': { signature: zipSignature, url: url(userZip) },
+    'windows-x86_64-nsis': { signature: exeSignature, url: url(userExe) },
   } };
   await writeFile(path.join(directory, 'latest-user.json'), JSON.stringify(manifest, null, 2) + '\n');
   return manifest;

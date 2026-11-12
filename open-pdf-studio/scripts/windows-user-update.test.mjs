@@ -24,27 +24,45 @@ test('user build selects only its own feed and keeps updater verification and sy
   assert.throws(() => userInstallConfig(custom), /latest.json/);
 });
 
-test('user feed preserves signed ZIP bytes and never points at the system installer', async () => {
+test('user feed keeps the signed bytes and never points at the system installer', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'opds-user-feed-'));
   try {
-    const name = 'Open PDF Studio_2026.46.2_x64-setup.exe.zip';
+    // What the user build leaves behind: the artifact names of a real release.
+    const stem = 'Open PDF Studio_2026.46.2';
+    const zip = `${stem}_x64-setup.nsis.zip`;
     const bytes = Buffer.from([0x50, 0x4b, 3, 4, 0, 255]);
-    await writeFile(path.join(dir, name), bytes);
+    await writeFile(path.join(dir, zip), bytes);
+    await writeFile(path.join(dir, `${stem}_x64_user-setup.exe`), 'installer');
     await assert.rejects(userUpdateManifest(dir, 'owner/repo', 'v2026.46.2', '2026.46.2'), /ENOENT/);
     await assert.rejects(access(path.join(dir, 'latest-user.json')));
-    await writeFile(path.join(dir, name + '.sig'), 'signed-original-bytes\n');
+    await writeFile(path.join(dir, `${zip}.sig`), 'signed-zip\n');
+    await writeFile(path.join(dir, `${stem}_x64-setup.exe.sig`), 'signed-exe\n');
     await assert.rejects(userUpdateManifest(dir, 'owner/repo', 'v2026.46.3', '2026.46.2'), /version/);
     const manifest = await userUpdateManifest(dir, 'owner/repo', 'v2026.46.2', '2026.46.2');
     assert.equal(manifest.version, '2026.46.2');
-    for (const entry of Object.values(manifest.platforms)) {
-      assert.equal(entry.signature, 'signed-original-bytes');
-      assert.match(entry.url, /Open%20PDF%20Studio_2026\.46\.2_x64_user-setup\.exe\.zip$/);
-      assert.deepEqual(await readFile(path.join(dir, decodeURIComponent(new URL(entry.url).pathname.split('/').at(-1)))), bytes);
-    }
+    // The release stores assets with dots for spaces; the feed must use those names.
+    const base = 'https://github.com/owner/repo/releases/download/v2026.46.2/';
+    assert.deepEqual(manifest.platforms, {
+      'windows-x86_64': { signature: 'signed-zip', url: `${base}Open.PDF.Studio_2026.46.2_x64_user-setup.nsis.zip` },
+      'windows-x86_64-nsis': { signature: 'signed-exe', url: `${base}Open.PDF.Studio_2026.46.2_x64_user-setup.exe` },
+    });
+    assert.deepEqual(await readFile(path.join(dir, `${stem}_x64_user-setup.nsis.zip`)), bytes);
+    assert.equal(await readFile(path.join(dir, `${stem}_x64_user-setup.nsis.zip.sig`), 'utf8'), 'signed-zip\n');
+    assert.equal(await readFile(path.join(dir, `${stem}_x64_user-setup.exe.sig`), 'utf8'), 'signed-exe\n');
     assert.deepEqual(JSON.parse(await readFile(path.join(dir, 'latest-user.json'))), manifest);
-    assert.equal(await readFile(path.join(dir, name.replace('_x64-', '_x64_user-') + '.sig'), 'utf8'), 'signed-original-bytes\n');
-    await writeFile(path.join(dir, 'Other_x64-setup.exe.zip'), bytes);
+    await writeFile(path.join(dir, 'Other_x64-setup.nsis.zip'), bytes);
     await assert.rejects(userUpdateManifest(dir, 'owner/repo', 'v2026.46.2', '2026.46.2'), /exactly one/);
+  } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test('the feed is refused when the installer is missing', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'opds-user-feed-'));
+  try {
+    const stem = 'Open PDF Studio_2026.46.2';
+    await writeFile(path.join(dir, `${stem}_x64-setup.nsis.zip`), 'zip');
+    await writeFile(path.join(dir, `${stem}_x64-setup.nsis.zip.sig`), 'a');
+    await writeFile(path.join(dir, `${stem}_x64-setup.exe.sig`), 'b');
+    await assert.rejects(userUpdateManifest(dir, 'owner/repo', 'v2026.46.2', '2026.46.2'), /user installer/);
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
 
@@ -54,7 +72,8 @@ test('release and nightly configure the user build; stable release uploads a sep
     assert.match(workflow, /node scripts\/windows-user-update.mjs configure src-tauri\/tauri.conf.json/);
     if (name === 'release') {
       assert.match(workflow, /node scripts\/windows-user-update.mjs manifest/);
-      assert.match(workflow, /gh release upload[^\n]+_user-setup.exe.zip.sig[^\n]+latest-user.json/);
+      assert.match(workflow, /_user-setup\.exe\.sig[^\n]+_user-setup\.nsis\.zip\.sig[^\n]+latest-user\.json/);
+      assert.match(workflow, /gh release upload \$VERSION "\$NEW_PATH" @USER_FILES/);
     }
   }
 });
