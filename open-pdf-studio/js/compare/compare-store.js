@@ -9,6 +9,7 @@ import { IDENTITY_ALIGNMENT, normalizeAlignment } from './alignment.js';
 import { DEFAULT_PRESET, normalizePreset } from './detect-plan.js';
 import { assignPair } from './page-pairing.js';
 import { clearCompareSources } from './compare-sources.js';
+import { leesOpslag, schrijfOpslag } from '../core/opslag.js';
 
 const [active, setActive] = createSignal(false);
 const [oldPath, setOldPath] = createSignal(null);
@@ -58,12 +59,12 @@ const [showModified, setShowModified] = createSignal(true);
 const [showBox, setShowBox] = createSignal(true);
 const [showContour, setShowContour] = createSignal(true);
 // Kleuroverlay (#1024): oud en nieuw over elkaar, elk in een eigen kleur.
-// Keuze en kleuren blijven bewaard (per kijker, in de browseropslag).
+// Keuze en kleuren blijven bewaard (per kijker, via core/opslag.js).
 const _leesKleur = (sleutel, standaard) => {
-  try { const v = localStorage.getItem(sleutel); return /^#[0-9a-f]{6}$/i.test(v || '') ? v : standaard; } catch { return standaard; }
+  try { const v = leesOpslag(sleutel); return /^#[0-9a-f]{6}$/i.test(v || '') ? v : standaard; } catch { return standaard; }
 };
 const [colourOverlay, setColourOverlaySignal] = createSignal((() => {
-  try { return localStorage.getItem('compare.colourOverlay') === '1'; } catch { return false; }
+  try { return leesOpslag('compare.colourOverlay') === '1'; } catch { return false; }
 })());
 const [oldColour, setOldColourSignal] = createSignal(_leesKleur('compare.oldColour', '#dc2626'));
 const [newColour, setNewColourSignal] = createSignal(_leesKleur('compare.newColour', '#2563eb'));
@@ -490,15 +491,15 @@ export function setCompareOffset(o) {
 // --- Kleuroverlay (#1024) ---
 export function setCompareColourOverlay(aan) {
   setColourOverlaySignal(!!aan);
-  try { localStorage.setItem('compare.colourOverlay', aan ? '1' : '0'); } catch { /* opslag optioneel */ }
+  try { schrijfOpslag('compare.colourOverlay', aan ? '1' : '0'); } catch { /* opslag optioneel */ }
 }
 export function setCompareOldColour(kleur) {
   if (!/^#[0-9a-f]{6}$/i.test(kleur || '')) return;
   setOldColourSignal(kleur);
-  try { localStorage.setItem('compare.oldColour', kleur); } catch { /* opslag optioneel */ }
+  try { schrijfOpslag('compare.oldColour', kleur); } catch { /* opslag optioneel */ }
 }
 export function setCompareNewColour(kleur) {
   if (!/^#[0-9a-f]{6}$/i.test(kleur || '')) return;
   setNewColourSignal(kleur);
-  try { localStorage.setItem('compare.newColour', kleur); } catch { /* opslag optioneel */ }
+  try { schrijfOpslag('compare.newColour', kleur); } catch { /* opslag optioneel */ }
 }

@@ -320,6 +320,8 @@
     "box": "Zone",
     "boxHint": "Afficher les modifications comme une zone remplie",
     "contour": "Contour",
+    "colourOverlay": "Couleurs",
+    "colourOverlayHint": "Afficher les deux dessins superposés, chacun dans sa propre couleur",
     "contourHint": "Afficher les modifications avec un contour",
     "annotation": "Annotation",
     "changes": "Modifications",

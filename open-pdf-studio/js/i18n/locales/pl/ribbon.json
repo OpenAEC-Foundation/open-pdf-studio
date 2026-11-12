@@ -320,6 +320,8 @@
     "box": "Obszar",
     "boxHint": "Pokaż zmiany jako wypełniony obszar",
     "contour": "Kontur",
+    "colourOverlay": "Kolory",
+    "colourOverlayHint": "Pokaż oba rysunki nałożone na siebie, każdy w innym kolorze",
     "contourHint": "Pokaż zmiany konturem",
     "annotation": "Adnotacja",
     "changes": "Zmiany",

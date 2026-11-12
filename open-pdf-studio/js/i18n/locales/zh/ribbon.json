@@ -320,6 +320,8 @@
     "box": "方框",
     "boxHint": "以填充区域显示更改",
     "contour": "轮廓",
+    "colourOverlay": "颜色",
+    "colourOverlayHint": "将两张图纸叠加显示，每张使用各自的颜色",
     "contourHint": "以轮廓线显示更改",
     "annotation": "批注",
     "changes": "更改",

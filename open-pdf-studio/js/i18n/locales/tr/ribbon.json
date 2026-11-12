@@ -320,6 +320,8 @@
     "box": "Kutu",
     "boxHint": "Değişiklikleri dolgulu alan olarak göster",
     "contour": "Kontur",
+    "colourOverlay": "Renkler",
+    "colourOverlayHint": "Her iki çizimi üst üste, her birini kendi renginde göster",
     "contourHint": "Değişiklikleri dış hatla göster",
     "annotation": "Açıklama",
     "changes": "Değişiklikler",

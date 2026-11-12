@@ -320,6 +320,8 @@
     "box": "Plocha",
     "boxHint": "Zobrazit změny jako vyplněnou plochu",
     "contour": "Obrys",
+    "colourOverlay": "Barvy",
+    "colourOverlayHint": "Zobrazit oba výkresy přes sebe, každý ve vlastní barvě",
     "contourHint": "Zobrazit změny obrysem",
     "annotation": "Anotace",
     "changes": "Změny",

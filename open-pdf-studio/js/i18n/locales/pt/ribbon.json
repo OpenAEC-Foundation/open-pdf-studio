@@ -320,6 +320,8 @@
     "box": "Área",
     "boxHint": "Mostrar alterações como área preenchida",
     "contour": "Contorno",
+    "colourOverlay": "Cores",
+    "colourOverlayHint": "Mostrar os dois desenhos sobrepostos, cada um na sua própria cor",
     "contourHint": "Mostrar alterações com um contorno",
     "annotation": "Anotação",
     "changes": "Alterações",

@@ -320,6 +320,8 @@
     "box": "Àrea",
     "boxHint": "Mostra els canvis com una àrea emplenada",
     "contour": "Contorn",
+    "colourOverlay": "Colors",
+    "colourOverlayHint": "Mostra els dos dibuixos superposats, cadascun amb el seu color",
     "contourHint": "Mostra els canvis amb un contorn",
     "annotation": "Anotació",
     "changes": "Canvis",
