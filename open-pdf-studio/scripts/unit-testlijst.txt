@@ -832,3 +832,8 @@ js/symbols/templates/overspanningspijl-vloer.test.mjs
 js/symbols/templates/sondering.test.mjs
 js/symbols/templates/paalpuntniveau.test.mjs
 js/symbols/templates/stenenrij.test.mjs
+# Ronde 2026.46.1
+js/pdf/saver/systeem-fonts.test.mjs
+js/text/text-rotation.test.mjs
+scripts/pdfjs-soft-mask-bounds.test.mjs
+scripts/startup-window.test.mjs
