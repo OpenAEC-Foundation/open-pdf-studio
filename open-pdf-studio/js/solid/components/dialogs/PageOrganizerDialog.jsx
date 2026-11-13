@@ -1,3 +1,4 @@
+import { wheelZoomDelta } from '../../../core/wheel-zoom.js';
 import { createSignal, createMemo, createEffect, For, Show, onMount, onCleanup, untrack } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import Dialog from '../Dialog.jsx';
@@ -193,7 +194,9 @@ export default function PageOrganizerDialog() {
     if (!(e.ctrlKey || e.metaKey)) return;
     e.preventDefault();
     e.stopPropagation();
-    setZoomKeepingFocus(zoomStep(zoom(), e.deltaY < 0 ? 1 : -1));
+    const delta = wheelZoomDelta(e.deltaY, state.preferences);
+    if (delta === 0) return;
+    setZoomKeepingFocus(zoomStep(zoom(), delta < 0 ? 1 : -1));
   };
 
   // ── Pending operations ─────────────────────────────────────────────────────

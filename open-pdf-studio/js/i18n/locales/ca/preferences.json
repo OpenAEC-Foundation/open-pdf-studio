@@ -186,6 +186,7 @@
     "moveInferenceHint": "Atureu el cursor un moment sobre un punt per adquirir-lo, manteniu Maj premuda per bloquejar una guia, Tab alterna entre distància i angle. Les guies polars segueixen la configuració del rastreig polar.",
     "navigation": "Navegació",
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
+    "reverseWheelZoom": "Inverteix la direcció del zoom amb la roda del ratolí",
     "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",
     "ribbonWheelSwitchesTabs": "Canvia les pestanyes de la cinta amb la roda del ratolí",
     "smoothScrolling": "Desplaçament suau",

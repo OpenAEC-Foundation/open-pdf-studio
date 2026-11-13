@@ -186,6 +186,7 @@
     "moveInferenceHint": "Țineți scurt cursorul pe un punct pentru a-l prelua, țineți apăsat Shift pentru a bloca un ghidaj, Tab comută între distanță și unghi. Ghidajele polare urmează setările urmăririi polare.",
     "navigation": "Navigare",
     "wheelZoomWithoutCtrl": "Zoom cu rotița mouse-ului (fără a ține apăsat Ctrl)",
+    "reverseWheelZoom": "Inversează direcția zoomului cu rotița mouse-ului",
     "middleDoubleClickFit": "Dublu clic cu butonul din mijloc al mouse-ului pentru încadrarea paginii",
     "ribbonWheelSwitchesTabs": "Comută filele panglicii cu rotița mouse-ului",
     "smoothScrolling": "Derulare lină",

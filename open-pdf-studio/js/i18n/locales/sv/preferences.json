@@ -186,6 +186,7 @@
     "moveInferenceHint": "Håll pekaren kort över en punkt för att fånga den, håll ned Shift för att låsa en hjälplinje, Tab växlar mellan avstånd och vinkel. Polära hjälplinjer följer inställningarna för polärspårning.",
     "navigation": "Navigering",
     "wheelZoomWithoutCtrl": "Zooma med mushjulet (utan att hålla ned Ctrl)",
+    "reverseWheelZoom": "Vänd zoomriktningen för mushjulet",
     "middleDoubleClickFit": "Dubbelklicka med mittenknappen för att anpassa sidan",
     "ribbonWheelSwitchesTabs": "Byt flik i menyfliksområdet med mushjulet",
     "smoothScrolling": "Mjuk rullning",

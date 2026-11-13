@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "Vor dem Löschen von Anmerkungen bestätigen",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
+    "reverseWheelZoom": "Zoomrichtung des Mausrads umkehren",
     "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
     "ribbonWheelSwitchesTabs": "Menüband-Registerkarten mit dem Mausrad wechseln",
     "smoothScrolling": "Weiches Scrollen",

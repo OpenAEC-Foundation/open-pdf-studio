@@ -839,3 +839,5 @@ js/pdf/saver/systeem-fonts.test.mjs
 js/text/text-rotation.test.mjs
 scripts/pdfjs-soft-mask-bounds.test.mjs
 scripts/startup-window.test.mjs
+
+js/core/wheel-zoom.test.mjs

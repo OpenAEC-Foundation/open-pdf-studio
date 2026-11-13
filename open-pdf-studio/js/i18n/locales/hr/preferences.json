@@ -186,6 +186,7 @@
     "moveInferenceHint": "Zadržite pokazivač kratko iznad točke da je uhvatite, držite Shift da zaključate pomoćnu liniju, Tab prebacuje između udaljenosti i kuta. Polarne pomoćne linije slijede postavke polarnog praćenja.",
     "navigation": "Navigacija",
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
+    "reverseWheelZoom": "Obrni smjer zumiranja kotačićem miša",
     "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
     "ribbonWheelSwitchesTabs": "Mijenjaj kartice vrpce kotačićem miša",
     "smoothScrolling": "Glatko pomicanje",

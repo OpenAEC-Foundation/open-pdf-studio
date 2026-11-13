@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "Confirmar antes de eliminar anotaciones",
     "navigation": "Navegación",
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
+    "reverseWheelZoom": "Invertir la dirección del zoom con la rueda del ratón",
     "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
     "ribbonWheelSwitchesTabs": "Cambiar las pestañas de la cinta con la rueda del ratón",
     "smoothScrolling": "Desplazamiento suave",

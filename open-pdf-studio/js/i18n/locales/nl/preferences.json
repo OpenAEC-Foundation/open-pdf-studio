@@ -190,6 +190,7 @@
     "moveInferenceHint": "Houd de cursor even op een punt om het vast te pakken, houd Shift ingedrukt om een hulplijn vast te zetten, Tab wisselt tussen afstand en hoek. Poolhulplijnen volgen de instellingen van poolvolging.",
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
+    "reverseWheelZoom": "Zoomrichting van het muiswiel omkeren",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
     "ribbonWheelSwitchesTabs": "Linttabbladen wisselen met het muiswiel",
     "smoothScrolling": "Vloeiend scrollen",

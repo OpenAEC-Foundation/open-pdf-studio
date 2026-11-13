@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "删除批注前确认",
     "navigation": "导航",
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
+    "reverseWheelZoom": "反转鼠标滚轮缩放方向",
     "middleDoubleClickFit": "双击鼠标中键以适合页面",
     "ribbonWheelSwitchesTabs": "使用鼠标滚轮切换功能区选项卡",
     "smoothScrolling": "平滑滚动",

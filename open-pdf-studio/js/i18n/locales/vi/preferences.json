@@ -186,6 +186,7 @@
     "moveInferenceHint": "Giữ con trỏ trên một điểm trong giây lát để thu điểm đó, giữ Shift để khóa một đường dẫn, Tab chuyển giữa khoảng cách và góc. Các đường dẫn cực tuân theo cài đặt theo dõi cực.",
     "navigation": "Điều hướng",
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
+    "reverseWheelZoom": "Đảo ngược hướng thu phóng bằng con lăn chuột",
     "middleDoubleClickFit": "Nhấp đúp nút giữa chuột để vừa trang",
     "ribbonWheelSwitchesTabs": "Chuyển tab ribbon bằng con lăn chuột",
     "smoothScrolling": "Cuộn mượt",

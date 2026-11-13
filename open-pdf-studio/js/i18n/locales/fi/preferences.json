@@ -186,6 +186,7 @@
     "moveInferenceHint": "Pidä osoitinta hetki pisteen päällä poimiaksesi sen, pidä Shift painettuna lukitaksesi apuviivan, Tab vaihtaa etäisyyden ja kulman välillä. Napa-apuviivat noudattavat napaseurannan asetuksia.",
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
+    "reverseWheelZoom": "Käännä hiiren rullan zoomaussuunta",
     "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
     "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
     "smoothScrolling": "Pehmeä vieritys",

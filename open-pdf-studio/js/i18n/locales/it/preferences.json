@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "Conferma prima di eliminare le annotazioni",
     "navigation": "Navigazione",
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
+    "reverseWheelZoom": "Inverti la direzione dello zoom con la rotellina del mouse",
     "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
     "ribbonWheelSwitchesTabs": "Cambia scheda della barra multifunzione con la rotellina del mouse",
     "smoothScrolling": "Scorrimento fluido",

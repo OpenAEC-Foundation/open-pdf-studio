@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "تایید قبل از حذف حاشیه‌نویسی‌ها",
     "navigation": "ناوبری",
     "wheelZoomWithoutCtrl": "بزرگ‌نمایی با چرخ ماوس (بدون نگه داشتن Ctrl)",
+    "reverseWheelZoom": "معکوس کردن جهت بزرگ‌نمایی با چرخ ماوس",
     "middleDoubleClickFit": "دوبار کلیک با دکمه وسط ماوس برای جا دادن صفحه",
     "ribbonWheelSwitchesTabs": "جابه‌جایی بین زبانه‌های نوار ابزار با چرخ ماوس",
     "smoothScrolling": "پیمایش نرم",

@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "التأكيد قبل حذف التعليقات",
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
+    "reverseWheelZoom": "عكس اتجاه التكبير بعجلة الماوس",
     "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
     "ribbonWheelSwitchesTabs": "التبديل بين علامات تبويب الشريط بعجلة الماوس",
     "smoothScrolling": "التمرير السلس",

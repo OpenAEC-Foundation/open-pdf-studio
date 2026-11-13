@@ -186,6 +186,7 @@
     "confirmBeforeDeleting": "Potwierdzenie przed usunięciem adnotacji",
     "navigation": "Nawigacja",
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
+    "reverseWheelZoom": "Odwróć kierunek powiększania kółkiem myszy",
     "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
     "ribbonWheelSwitchesTabs": "Przełączaj karty wstążki kółkiem myszy",
     "smoothScrolling": "Płynne przewijanie",
