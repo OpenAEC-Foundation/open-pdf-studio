@@ -83,19 +83,28 @@ def main(image):
             assert request('POST',url+'/events',event,a)[0] == 200
             assert pending.result(5)[1]['cursor'] == 1
         assert request('GET',url+'/pdf',None,b)[0] == 404
+        assert request('GET',url,None,a)[1]['cursor'] == 1
         docker('exec',name,'python','-m','opds_collaboration','backup','/data/snapshot.backup')
         inventory = docker('run','--rm','-v',volume+':/data',image,'--database','/data/snapshot.backup','list-users')
         assert alice in inventory and bob in inventory
         docker('restart', name)
+        # Docker may allocate a different host port when restarting a container
+        # whose published port was left ephemeral. Follow its current binding.
+        info = json.loads(docker('inspect', name))[0]
+        port = int(info['NetworkSettings']['Ports']['8080/tcp'][0]['HostPort'])
+        last_status = None
         for _ in range(100):
             try:
                 status, snapshot = request('GET',url,None,a)
+                last_status = status
                 if status == 200:
                     break
             except (OSError, http.client.HTTPException):
-                time.sleep(0.1)
+                pass
+            time.sleep(0.1)
         else:
-            raise AssertionError('restart did not preserve session/document')
+            raise AssertionError(f'restart snapshot unavailable (HTTP {last_status}); ' +
+                                 docker('logs',name,check=False))
         assert snapshot['cursor'] == 1
         docker('exec',name,'python','-m','opds_collaboration','disable-user',bob)
         assert request('GET',url,None,b)[0] == 403
