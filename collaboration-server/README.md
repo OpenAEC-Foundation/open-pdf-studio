@@ -84,12 +84,30 @@ vereisen `Authorization: Bearer <token>`. Cross-originverzoeken worden geweigerd
 | `POST /v1/login` | `{name,password}` → `{token}` |
 | `POST /v1/logout` | `{}` → `{ok:true}` |
 | `POST /v1/documents` | `{title}` → `{id}`; alleen reviewidentiteit, nog geen PDF |
+| `GET /v1/documents` | `limit=1..100`, optioneel `after=<document-id>` → `{documents,cursor,hasMore}` |
 | `GET /v1/documents/{id}` | Snapshot met cursor en annotaties/tombstones |
 | `POST /v1/documents/{id}/members` | `{userId,role}`; eigenaar, rol `reader`, `editor` of `null` |
+| `POST /v1/documents/{id}/members-by-name` | `{name,role}` → `{ok:true,userId}`; alleen eigenaar, exacte gebruikersnaam |
 | `POST /v1/documents/{id}/events` | Bovenstaand eventverzoek → opgeslagen event |
 | `GET /v1/documents/{id}/events` | `after=0`, `limit=100`, `wait=0`; gepagineerde events |
 | `PUT /v1/documents/{id}/pdf` | PDF-bytes, eigenaar; maximaal 32 MiB → `{sha256,size}` |
 | `GET /v1/documents/{id}/pdf` | Ongewijzigde PDF-bytes als download; lezer/bewerker/eigenaar |
+
+De documentlijst bevat alleen eigen documenten en documenten waarvoor de huidige
+gebruiker lees- of bewerkrechten heeft. Per rij: `id`, `title`, `revision`,
+`role` (`owner`/`reader`/`editor`) en `hasPdf` (of een basis gekoppeld is; geen
+S3-beschikbaarheidscontrole). Geen opslagpaden of accountgeheimen. De lijst is op
+onveranderlijk document-ID gesorteerd; gebruik `cursor` als `after` zolang
+`hasMore` waar is. Iedere pagina controleert opnieuw sessie en rechten. Dit is
+geen momentopname over meerdere verzoeken: start een nieuwe lijst vanaf het begin
+om nieuw aangemaakte documenten of nieuw verleende toegang achter de cursor te zien.
+
+Delen op naam vereist een exacte bestaande accountnaam, met dezelfde Unicode-NFC-,
+spatie- en hoofdletternormalisatie als login. Alleen de eigenaar kan namen oplossen
+of rechten wijzigen; er is geen openbare gebruikerslijst of fuzzy zoekfunctie.
+`role:null` trekt toegang in, ook voor uitgeschakelde accounts. De eigenaarrol is
+niet via deze route te veranderen. Uitgeschakelde accounts blijven uitgesloten
+van login/toegang, ook wanneer een eigenaar hun een documentrol toekent.
 
 `wait` is een geheel aantal seconden van 0 t/m 25. Bij een lege pagina wacht de
 server maximaal die tijd en controleert standaard iedere 250 ms opnieuw.
@@ -352,6 +370,10 @@ Als serverlogout niet bevestigd is, meldt de transportlaag `LOGOUT_UNCONFIRMED`;
 de lokale handle blijft ongeldig, terwijl de serversessie kan voortbestaan tot
 haar vervaltijd. Afsluiten van de app garandeert geen serverlogout.
 
+De JSON-operatie `documents` accepteert `{after:null,limit:100}` of een document-ID
+als `after`. `memberByName` accepteert `{document,name,role}`; namen gaan in JSON,
+nooit in een URL. Beide lopen via hetzelfde `central_review_json`-commando.
+
 Grenzen: maximaal acht sessies en acht gelijktijdige verzoeken, connectdeadline
 vijf seconden en totale requestdeadline 35 seconden. Maximaal 1 MiB JSON-upload,
 8 MiB JSON-antwoord, 32 MiB PDF. De downloadlimiet geldt ook zonder Content-Length.
@@ -360,11 +382,12 @@ afhandelen. De JSON-PDF-upload via IPC kan tijdelijk extra geheugenkopieën make
 streaming blijft toekomstwerk. De PDF-download gebruikt een binaire IPC-response.
 
 De onafhankelijke `scripts/review-native-tests`-crate compileert de productiecode
-zonder de PDF-/OCR-engine. Acht regressietests toetsen oorsprong/paden, redirects,
+zonder de PDF-/OCR-engine. Negen regressietests toetsen oorsprong/paden, redirects,
 omvang, conflictantwoorden, geheimhouding van de normale sessiehandle en logout
 met een lopend antwoord. De bestaande objectstoretest kan optioneel de gebouwde
 native probe als tweede argument krijgen; die test twee native sessies, echte
-S3-PDF-overdracht, events, replay, conflict, ACL en logout tegen dezelfde server.
+S3-PDF-overdracht, documentlijst, delen op naam, events, replay, conflict, ACL en
+logout tegen dezelfde server.
 CI voert de native tests uit op Linux, Windows en macOS; de Tauri-appbouw toetst
 ook de commandoregistratie.
 

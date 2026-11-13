@@ -46,6 +46,15 @@ impl Default for Transport {
 #[derive(Deserialize)]
 #[serde(tag = "action", rename_all = "camelCase", deny_unknown_fields)]
 pub enum Operation {
+    Documents {
+        after: Option<String>,
+        limit: u16,
+    },
+    MemberByName {
+        document: String,
+        name: String,
+        role: Option<String>,
+    },
     CreateDocument {
         title: String,
     },
@@ -116,6 +125,40 @@ fn id(value: &str) -> Result<&str, String> {
 
 fn route(op: Operation) -> Result<(Method, String, Option<Value>), String> {
     Ok(match op {
+        Operation::Documents { after, limit } => {
+            if !(1..=100).contains(&limit) {
+                return Err("INVALID_CURSOR".into());
+            }
+            let cursor = match after {
+                Some(value) => format!("&after={}", id(&value)?),
+                None => String::new(),
+            };
+            (
+                Method::GET,
+                format!("v1/documents?limit={limit}{cursor}"),
+                None,
+            )
+        }
+        Operation::MemberByName {
+            document,
+            name,
+            role,
+        } => {
+            if name.is_empty() || name.len() > 512 {
+                return Err("INVALID_NAME".into());
+            }
+            if role
+                .as_deref()
+                .is_some_and(|r| r != "reader" && r != "editor")
+            {
+                return Err("INVALID_ROLE".into());
+            }
+            (
+                Method::POST,
+                format!("v1/documents/{}/members-by-name", id(&document)?),
+                Some(json!({"name": name, "role": role})),
+            )
+        }
         Operation::CreateDocument { title } => (
             Method::POST,
             "v1/documents".into(),
@@ -549,6 +592,41 @@ mod tests {
         ] {
             assert!(origin(good).is_ok(), "{good}");
         }
+    }
+
+    #[test]
+    fn discovery_routes_keep_cursors_typed_and_names_in_json() {
+        let (method, path, body) = route(Operation::Documents {
+            after: Some(DOC.into()),
+            limit: 1,
+        })
+        .unwrap();
+        assert_eq!(method, Method::GET);
+        assert_eq!(path, format!("v1/documents?limit=1&after={DOC}"));
+        assert!(body.is_none());
+        for after in ["", "../secret", "a&token=secret"] {
+            assert!(route(Operation::Documents {
+                after: Some(after.into()),
+                limit: 1
+            })
+            .is_err());
+        }
+        for limit in [0, 101] {
+            assert!(route(Operation::Documents { after: None, limit }).is_err());
+        }
+        let (method, path, body) = route(Operation::MemberByName {
+            document: DOC.into(),
+            name: "Élodie?x=1".into(),
+            role: Some("reader".into()),
+        })
+        .unwrap();
+        assert_eq!(method, Method::POST);
+        assert_eq!(path, format!("v1/documents/{DOC}/members-by-name"));
+        assert_eq!(body.unwrap()["name"], "Élodie?x=1");
+        assert!(serde_json::from_value::<Operation>(
+            json!({"action":"documents","after":0,"limit":1})
+        )
+        .is_err());
     }
 
     #[test]

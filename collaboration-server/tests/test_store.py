@@ -30,6 +30,61 @@ class StoreTests(unittest.TestCase):
         self.b = self.store.login('Bob', PASSWORD)
         self.doc = self.store.create_document(self.a, 'Drawing A.pdf')
 
+    def test_inventory_pagination_filters_access_and_reflects_role_changes(self):
+        other = self.store.create_document(self.b, 'Private')
+        docs = sorted([self.doc] + [self.store.create_document(self.a, str(i)) for i in range(4)])
+        cursor, seen = '', []
+        while True:
+            page = self.store.list_documents(self.a, after=cursor, limit=2)
+            self.assertTrue(all(d['role'] == 'owner' and d['hasPdf'] is False for d in page['documents']))
+            self.assertTrue(all(set(d) == {'id', 'title', 'revision', 'role', 'hasPdf'} for d in page['documents']))
+            seen.extend(d['id'] for d in page['documents'])
+            cursor = page['cursor']
+            if not page['hasMore']:
+                break
+        self.assertEqual(seen, docs)
+        self.assertNotIn(other, seen)
+        self.assertEqual(self.store.list_documents(self.a, after=cursor)['documents'], [])
+        self.store.grant(self.a, docs[-1], self.bob, 'reader')
+        self.assertEqual({d['id']: d['role'] for d in self.store.list_documents(self.b)['documents']},
+                         {other: 'owner', docs[-1]: 'reader'})
+        self.store.grant(self.a, docs[-1], self.bob, 'editor')
+        self.assertEqual(next(d['role'] for d in self.store.list_documents(self.b)['documents'] if d['id'] == docs[-1]), 'editor')
+        self.store.grant(self.a, docs[-1], self.bob, None)
+        self.assertNotIn(docs[-1], [d['id'] for d in self.store.list_documents(self.b, after=docs[-2])['documents']])
+
+    def test_inventory_authentication_bounds_and_session_revocation(self):
+        for after, limit in [('bad', 10), (None, 10), ('', True), ('', 0), ('', 101)]:
+            with self.assertRaises(Invalid):
+                self.store.list_documents(self.a, after=after, limit=limit)
+        with self.assertRaises(Denied):
+            self.store.list_documents('unknown')
+        self.now += SESSION_SECONDS
+        with self.assertRaises(Denied):
+            self.store.list_documents(self.a)
+        self.a = self.store.login('Alice', PASSWORD)
+        self.store.set_disabled(self.alice, True)
+        with self.assertRaises(Denied):
+            self.store.list_documents(self.a)
+
+    def test_grant_by_name_authorization_normalization_and_revocation(self):
+        target = self.store.create_user('Élodie', PASSWORD)
+        self.assertEqual(self.store.grant_by_name(self.a, self.doc, '  E\u0301LODIE ', 'reader'), target)
+        token = self.store.login('Élodie', PASSWORD)
+        self.assertEqual(self.store.list_documents(token)['documents'][0]['role'], 'reader')
+        self.store.grant(self.a, self.doc, self.bob, 'editor')
+        for name in ['Bob', 'missing', 'Élodie']:
+            with self.assertRaises(Denied):
+                self.store.grant_by_name(self.b, self.doc, name, 'editor')
+        with self.assertRaises(Invalid):
+            self.store.grant_by_name(self.a, self.doc, 'ALICE', None)
+        with self.assertRaises(Invalid):
+            self.store.grant_by_name(self.a, self.doc, 'missing', 'reader')
+        with self.assertRaises(Invalid):
+            self.store.grant_by_name(self.a, self.doc, 'Bob', 'owner')
+        self.store.grant_by_name(self.a, self.doc, 'élodie', None)
+        self.assertEqual(self.store.list_documents(token)['documents'], [])
+
     def test_credentials_and_session_tokens_are_not_stored_in_plaintext(self):
         with closing(sqlite3.connect(self.path)) as db, db:
             rows = db.execute('SELECT salt,password_hash FROM users').fetchall()

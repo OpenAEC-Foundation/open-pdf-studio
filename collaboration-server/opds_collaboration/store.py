@@ -277,6 +277,39 @@ class Store:
             db.execute("INSERT INTO documents(id,owner_id,title) VALUES(?,?,?)", (doc, user["id"], title))
         return doc
 
+    def list_documents(self, token, *, after="", limit=100):
+        """A bounded, live ACL-filtered inventory; cursors are document IDs."""
+        if (not isinstance(after, str) or
+                (after != "" and not re.fullmatch(r"[a-f0-9]{32}", after)) or
+                type(limit) is not int or not 1 <= limit <= 100):
+            raise Invalid("invalid document cursor or limit")
+        with self._tx() as db:
+            user = self._user(db, token)
+            rows = db.execute("""SELECT d.id,d.title,d.revision,
+                CASE WHEN d.owner_id=? THEN 'owner' ELSE m.role END AS role,
+                f.document_id IS NOT NULL AS hasPdf
+                FROM documents d LEFT JOIN members m ON m.document_id=d.id AND m.user_id=?
+                LEFT JOIN document_files f ON f.document_id=d.id
+                WHERE d.id>? AND (d.owner_id=? OR m.role IS NOT NULL)
+                ORDER BY d.id LIMIT ?""",
+                (user["id"], user["id"], after, user["id"], limit + 1)).fetchall()
+            documents = [dict(row) for row in rows[:limit]]
+            for document in documents:
+                document["hasPdf"] = bool(document["hasPdf"])
+            return {"documents": documents,
+                    "cursor": documents[-1]["id"] if documents else after,
+                    "hasMore": len(rows) > limit}
+
+    @staticmethod
+    def _grant(db, document, user_id, role):
+        if user_id == document["owner_id"]:
+            raise Invalid("owner role cannot be changed")
+        if role is None:
+            db.execute("DELETE FROM members WHERE document_id=? AND user_id=?", (document["id"], user_id))
+        else:
+            db.execute("INSERT INTO members VALUES(?,?,?) ON CONFLICT(document_id,user_id) DO UPDATE SET role=excluded.role",
+                       (document["id"], user_id, role))
+
     def grant(self, token, doc, user_id, role):
         """Owner grants reader/editor access; None revokes membership."""
         if role not in (None, "reader", "editor"):
@@ -284,15 +317,23 @@ class Store:
         with self._tx(write=True) as db:
             user = self._user(db, token)
             document = self._access(db, user, doc, owner=True)
-            if user_id == document["owner_id"]:
-                raise Invalid("owner role cannot be changed")
             if not db.execute("SELECT id FROM users WHERE id=?", (user_id,)).fetchone():
                 raise Invalid("unknown user")
-            if role is None:
-                db.execute("DELETE FROM members WHERE document_id=? AND user_id=?", (doc, user_id))
-            else:
-                db.execute("INSERT INTO members VALUES(?,?,?) ON CONFLICT(document_id,user_id) DO UPDATE SET role=excluded.role",
-                           (doc, user_id, role))
+            self._grant(db, document, user_id, role)
+
+    def grant_by_name(self, token, doc, name, role):
+        """Resolve an exact canonical name only after owner authorization."""
+        if role not in (None, "reader", "editor"):
+            raise Invalid("invalid role")
+        _, key = _name(name)
+        with self._tx(write=True) as db:
+            user = self._user(db, token)
+            document = self._access(db, user, doc, owner=True)
+            target = db.execute("SELECT id FROM users WHERE name_key=?", (key,)).fetchone()
+            if not target:
+                raise Invalid("unknown user")
+            self._grant(db, document, target["id"], role)
+            return target["id"]
 
     def append(self, token, doc, request):
         """Commit one event or return its identical prior result on retry.

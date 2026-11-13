@@ -91,7 +91,7 @@ def _body(env, keys):
     return value
 
 
-def _query(env, allowed=()):
+def _query(env, allowed=(), *, document_cursor=False):
     query = env.get("QUERY_STRING", "")
     # Python 3.10 treats an empty query as a malformed field in strict mode.
     # An absent query is valid; retain strict parsing for nonempty input.
@@ -107,6 +107,11 @@ def _query(env, allowed=()):
     for key, value in pairs:
         if key not in allowed or key in result:
             raise Invalid("unexpected query fields")
+        if document_cursor and key == "after":
+            if not re.fullmatch(r"[a-f0-9]{32}", value):
+                raise Invalid("invalid document cursor")
+            result[key] = value
+            continue
         if not re.fullmatch(r"[0-9]{1,16}", value):
             raise Invalid("query values must be unsigned integers")
         result[key] = int(value)
@@ -161,16 +166,21 @@ class Application:
         if env.get("HTTP_ORIGIN"):
             raise HTTPError(403, "cross-origin requests unsupported")
         path, method = env.get("PATH_INFO", ""), env.get("REQUEST_METHOD", "")
-        match = re.fullmatch(r"/v1/documents/([a-f0-9]{32})(?:/(events|members|pdf))?", path)
-        routes = {"/v1/login": "POST", "/v1/logout": "POST", "/v1/documents": "POST"}
+        match = re.fullmatch(r"/v1/documents/([a-f0-9]{32})(?:/(events|members|members-by-name|pdf))?", path)
+        routes = {"/v1/login": "POST", "/v1/logout": "POST", "/v1/documents": "GET POST"}
         allowed = routes.get(path)
         if match:
-            allowed = "GET" if match[2] is None else ({"events": "GET POST", "pdf": "GET PUT", "members": "POST"}[match[2]])
+            allowed = "GET" if match[2] is None else ({"events": "GET POST", "pdf": "GET PUT", "members": "POST", "members-by-name": "POST"}[match[2]])
         if allowed is None:
             raise HTTPError(404, "endpoint unavailable")
         if method not in allowed.split():
             raise HTTPError(405, "method unsupported", headers=[("Allow", ", ".join(allowed.split()))])
-        query = _query(env, ("after", "limit", "wait") if match and match[2] == "events" and method == "GET" else ())
+        inventory = path == "/v1/documents" and method == "GET"
+        if inventory:
+            query = _query(env, ("after", "limit"), document_cursor=True)
+        else:
+            event_query = match and match[2] == "events" and method == "GET"
+            query = _query(env, ("after", "limit", "wait") if event_query else ())
         if path == "/v1/login":
             body = _body(env, ("name", "password"))
             if not isinstance(body["name"], str) or len(body["name"]) > 128:
@@ -188,6 +198,8 @@ class Application:
             _body(env, ())
             self.store.logout(token)
             return 200, {"ok": True}
+        if inventory:
+            return 200, self.store.list_documents(token, after=query.get("after", ""), limit=query.get("limit", 100))
         if path == "/v1/documents":
             body = _body(env, ("title",))
             return 201, {"id": self.store.create_document(token, body["title"])}
@@ -203,6 +215,10 @@ class Application:
             return 200, self.files.upload(token, doc, data)
         if action is None:
             return 200, self.store.snapshot(token, doc)
+        if action == "members-by-name":
+            body = _body(env, ("name", "role"))
+            user_id = self.store.grant_by_name(token, doc, body["name"], body["role"])
+            return 200, {"ok": True, "userId": user_id}
         if action == "members":
             body = _body(env, ("userId", "role"))
             if not isinstance(body["userId"], str) or not re.fullmatch(r"[a-f0-9]{32}", body["userId"]):

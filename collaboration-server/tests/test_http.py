@@ -107,6 +107,35 @@ class HTTPTests(unittest.TestCase):
         self.assertTrue(entered.wait(2))
         return future
 
+    def test_document_inventory_and_name_membership_over_http(self):
+        self.assertEqual(self.request("GET", "/v1/documents")[0], 401)
+        self.assertEqual(self.request("GET", "/v1/documents", self.b)[2]["documents"], [])
+        url = self.url + "/members-by-name"
+        for name in ["Alice", "missing"]:
+            self.assertEqual(self.request("POST", url, self.b, {"name": name, "role": "reader"})[0], 403)
+        response = self.request("POST", url, self.a, {"name": " bOB ", "role": "reader"})
+        self.assertEqual(response[0], 200)
+        self.assertEqual(response[2], {"ok": True, "userId": self.bob})
+        self.app.files = Documents(self.store, MemoryObjects())
+        self.assertEqual(self.request("PUT", self.url + "/pdf", self.a, PDF)[0], 200)
+        result = self.request("GET", "/v1/documents?limit=1", self.b)
+        self.assertEqual(result[0], 200)
+        self.assertEqual(result[1]["Cache-Control"], "no-store")
+        self.assertEqual(result[2], {"documents": [{"id": self.doc, "title": "Drawing", "revision": 0,
+                          "role": "reader", "hasPdf": True}], "cursor": self.doc, "hasMore": False})
+        self.assertEqual(self.request("GET", "/v1/documents?after=" + self.doc, self.b)[2]["documents"], [])
+        self.assertEqual(self.request("POST", url, self.a, {"name": "Bob", "role": None})[0], 200)
+        self.assertEqual(self.request("GET", "/v1/documents", self.b)[2]["documents"], [])
+        self.store.logout(self.b)
+        self.assertEqual(self.request("GET", "/v1/documents", self.b)[0], 403)
+
+    def test_inventory_rejects_ambiguous_or_unbounded_queries(self):
+        for query in ["limit=0", "limit=101", "limit=1&limit=2", "after=", "after=../secret", "after=1",
+                      "after=" + "A" * 32, "wait=1", "token=secret", "limit=-1"]:
+            self.assertEqual(self.request("GET", "/v1/documents?" + query, self.a)[0], 400, query)
+        self.assertEqual(self.request("POST", self.url + "/members-by-name", self.a,
+                                      {"name": "Bob", "role": "reader", "userId": self.bob})[0], 400)
+
     def test_two_clients_live_events_retry_conflict_and_reconnect(self):
         self.grant("editor")
         with ThreadPoolExecutor() as pool:

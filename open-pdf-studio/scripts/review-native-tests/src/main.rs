@@ -58,9 +58,9 @@ async fn main() {
         transport
             .json(
                 &a,
-                Operation::Members {
+                Operation::MemberByName {
                     document: doc.clone(),
-                    user_id: config.reader_id.clone(),
+                    name: " reader ".into(),
                     role: Some("editor".into())
                 }
             )
@@ -69,6 +69,25 @@ async fn main() {
             .status,
         200
     );
+    let inventory = transport
+        .json(
+            &b,
+            Operation::Documents {
+                after: None,
+                limit: 100,
+            },
+        )
+        .await
+        .unwrap();
+    assert_eq!(inventory.status, 200);
+    let listed = inventory.body["documents"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|d| d["id"] == doc)
+        .unwrap();
+    assert_eq!(listed["role"], "editor");
+    assert_eq!(listed["hasPdf"], true);
     assert_eq!(transport.download(&b, &doc).await.unwrap(), config.pdf);
     let event = json!({"id":"native-e1","ann":"native-a","op":"create","base":null,"data":{"id":"native-a","type":"textbox","page":1,"text":"From native transport"}});
     assert_eq!(
@@ -158,6 +177,21 @@ async fn main() {
         transport.download(&b, &doc).await.unwrap_err(),
         "PDF_UNAVAILABLE"
     );
+    let inventory = transport
+        .json(
+            &b,
+            Operation::Documents {
+                after: None,
+                limit: 100,
+            },
+        )
+        .await
+        .unwrap();
+    assert!(!inventory.body["documents"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|d| d["id"] == doc));
     transport.logout(&a).await.unwrap();
     transport.logout(&b).await.unwrap();
     println!("PASS: production native transport, two logins, real S3 PDF, idempotency, conflict, replay, ACL and logout");
