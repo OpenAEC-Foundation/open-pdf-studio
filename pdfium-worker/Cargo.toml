@@ -1,6 +1,6 @@
 [package]
 name = "pdfium-worker"
-version = "2026.46.47"
+version = "2026.46.48"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 

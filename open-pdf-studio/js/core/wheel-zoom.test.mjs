@@ -18,7 +18,7 @@ test('reverse zoom is opt-in and preserves the size of fine and notch deltas', (
   }
 });
 
-function nativeWheel() {
+function nativeWheel(lineEnding) {
   let wheel;
   const steps = [], toolDeltas = [];
   const preferences = { reverseWheelZoom: false, wheelZoomWithoutCtrl: false };
@@ -32,15 +32,16 @@ function nativeWheel() {
     setTimeout: () => 1, clearTimeout() {},
     getTool: () => ({ onWheel: (_, e) => { toolDeltas.push(e.deltaY); e.preventDefault(); } }),
   };
-  vm.runInNewContext(source('../ui/setup/navigation-events.js').replace(/^import .*;\n/gm, '').replace(/export /g, '') + '\nsetupWheelZoom();', context);
+  const navigationSource = source('../ui/setup/navigation-events.js').replace(/\r?\n/g, lineEnding);
+  vm.runInNewContext(navigationSource.replace(/^import .*;\r?\n/gm, '').replace(/export /g, '') + '\nsetupWheelZoom();', context);
   return { preferences, steps, toolDeltas, wheel: (deltaY, extra = {}) => wheel({
     deltaY, clientX: 70, clientY: 90, ctrlKey: true, preventDefault() { this.defaultPrevented = true; }, ...extra,
   }) };
 }
 
-for (const reverse of [false, true]) {
-  test(`native viewport applies current preference ${reverse}, keeping anchor and pinch threshold`, async () => {
-    const h = nativeWheel(); h.preferences.reverseWheelZoom = reverse;
+for (const lineEnding of ['\n', '\r\n']) for (const reverse of [false, true]) {
+  test(`native viewport applies current preference ${reverse} with ${lineEnding === '\n' ? 'LF' : 'CRLF'}, keeping anchor and pinch threshold`, async () => {
+    const h = nativeWheel(lineEnding); h.preferences.reverseWheelZoom = reverse;
     await h.wheel(-100); await h.wheel(100);
     assert.deepEqual(h.steps, [[50, 60, reverse ? -1 : 1], [50, 60, reverse ? 1 : -1]]);
     h.steps.length = 0;
