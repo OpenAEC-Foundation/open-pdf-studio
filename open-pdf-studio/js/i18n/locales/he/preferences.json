@@ -88,7 +88,15 @@
     "snapToPdfContent": "הצמדה לתוכן השרטוט ב-PDF",
     "stamps": "חותמות",
     "hideBuiltInStamps": "הסתר חותמות מובנות כשיש לי חותמות משלי",
-    "hideBuiltInStampsHint": "בורר החותמות יציג אז רק את החותמות שלך (אישיות, מיובאות ומשותפות). ללא חותמות משלך, החותמות המובנות נשארות גלויות."
+    "hideBuiltInStampsHint": "בורר החותמות יציג אז רק את החותמות שלך (אישיות, מיובאות ומשותפות). ללא חותמות משלך, החותמות המובנות נשארות גלויות.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "ברירות מחדל ליד חופשית",

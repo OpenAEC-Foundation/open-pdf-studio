@@ -88,7 +88,15 @@
     "snapToPdfContent": "PDF வரைபட உள்ளடக்கத்திற்குப் பொருத்து",
     "stamps": "முத்திரைகள்",
     "hideBuiltInStamps": "எனது சொந்த முத்திரைகள் இருக்கும்போது உள்ளமைந்த முத்திரைகளை மறை",
-    "hideBuiltInStampsHint": "அப்போது முத்திரைத் தேர்வி உங்கள் சொந்த முத்திரைகளை (தனிப்பட்ட, இறக்குமதி செய்த மற்றும் பகிர்ந்த) மட்டும் காட்டும். சொந்த முத்திரைகள் இல்லையெனில் உள்ளமைந்த முத்திரைகள் தெரியும்."
+    "hideBuiltInStampsHint": "அப்போது முத்திரைத் தேர்வி உங்கள் சொந்த முத்திரைகளை (தனிப்பட்ட, இறக்குமதி செய்த மற்றும் பகிர்ந்த) மட்டும் காட்டும். சொந்த முத்திரைகள் இல்லையெனில் உள்ளமைந்த முத்திரைகள் தெரியும்.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "கைவரை இயல்புநிலைகள்",

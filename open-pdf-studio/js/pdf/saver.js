@@ -3419,6 +3419,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           if (houdAntwoorden) meeGeschreven.antwoorden.push(...houdAntwoorden.map((r) => context.lookup(r)));
           for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm, {
             zonderStatus: !!houdStatus, zonderAntwoorden: !!houdAntwoorden,
+            eigenStatussen: state.preferences?.markupStatuses,
           })) {
             annotsArray.push(context.register(antwoord));
             const eigen = antwoord.get(PDFName.of('OPS_Subtype'))?.decodeText?.() === 'reply';

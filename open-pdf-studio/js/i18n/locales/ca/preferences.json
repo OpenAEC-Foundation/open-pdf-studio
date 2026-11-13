@@ -88,7 +88,15 @@
     "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
     "stamps": "Segells",
     "hideBuiltInStamps": "Amaga els segells integrats quan tinc segells propis",
-    "hideBuiltInStampsHint": "El selector de segells mostra llavors només els vostres segells (personals, importats i compartits). Sense segells propis, els segells integrats continuen visibles."
+    "hideBuiltInStampsHint": "El selector de segells mostra llavors només els vostres segells (personals, importats i compartits). Sense segells propis, els segells integrats continuen visibles.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Valors per defecte de mà alçada",

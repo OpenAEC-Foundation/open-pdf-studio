@@ -88,7 +88,15 @@
     "overlayColor": "ສີທັບຊ້ອນ",
     "stamps": "ກາປະທັບ",
     "hideBuiltInStamps": "ເຊື່ອງກາປະທັບໃນຕົວເມື່ອຂ້ອຍມີກາປະທັບຂອງຕົນເອງ",
-    "hideBuiltInStampsHint": "ຕົວເລືອກກາປະທັບຈະສະແດງສະເພາະກາປະທັບຂອງທ່ານ (ສ່ວນຕົວ, ນຳເຂົ້າ ແລະ ແບ່ງປັນ). ຖ້າບໍ່ມີກາປະທັບຂອງຕົນເອງ ກາປະທັບໃນຕົວຈະຍັງສະແດງຢູ່."
+    "hideBuiltInStampsHint": "ຕົວເລືອກກາປະທັບຈະສະແດງສະເພາະກາປະທັບຂອງທ່ານ (ສ່ວນຕົວ, ນຳເຂົ້າ ແລະ ແບ່ງປັນ). ຖ້າບໍ່ມີກາປະທັບຂອງຕົນເອງ ກາປະທັບໃນຕົວຈະຍັງສະແດງຢູ່.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "measurement": {
     "distanceDefaults": "ຄ່າເລີ່ມຕົ້ນໄລຍະຫ່າງ",

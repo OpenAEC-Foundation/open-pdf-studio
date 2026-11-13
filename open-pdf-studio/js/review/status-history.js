@@ -71,8 +71,15 @@ export function setStatusWithHistory(ann, status, { door = 'User', nu = new Date
   return true;
 }
 
-/** PDF-waarde van een status voor /State ('accepted' -> 'Accepted', 'none' -> 'None'). */
-export function pdfStateName(status) {
+/**
+ * PDF-waarde van een status voor /State ('accepted' -> 'Accepted', 'none' ->
+ * 'None'). Een eigen status (#1076, status-sets.js) krijgt de naam zoals het
+ * team hem invoerde: `eigen` is de lijst uit de voorkeuren (markupStatuses).
+ */
+export function pdfStateName(status, eigen = []) {
   const s = schoon(status);
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  const eigenNaam = Array.isArray(eigen)
+    ? eigen.find((e) => typeof e?.name === 'string' && e.name.trim().toLowerCase() === s)?.name.trim()
+    : null;
+  return eigenNaam || s.charAt(0).toUpperCase() + s.slice(1);
 }

@@ -88,7 +88,15 @@
     "snapToPdfContent": "Fixare la conținutul desenului PDF",
     "stamps": "Ștampile",
     "hideBuiltInStamps": "Ascunde ștampilele integrate când am ștampile proprii",
-    "hideBuiltInStampsHint": "Selectorul de ștampile afișează atunci doar ștampilele dvs. (personale, importate și partajate). Fără ștampile proprii, ștampilele integrate rămân vizibile."
+    "hideBuiltInStampsHint": "Selectorul de ștampile afișează atunci doar ștampilele dvs. (personale, importate și partajate). Fără ștampile proprii, ștampilele integrate rămân vizibile.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Valori implicite mana libera",

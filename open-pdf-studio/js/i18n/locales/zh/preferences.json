@@ -88,7 +88,15 @@
     "overlayColor": "覆盖颜色",
     "stamps": "图章",
     "hideBuiltInStamps": "有自己的图章时隐藏内置图章",
-    "hideBuiltInStampsHint": "此时图章选择器只显示您自己的图章（个人、导入和共享）。没有自己的图章时，内置图章仍会显示。"
+    "hideBuiltInStampsHint": "此时图章选择器只显示您自己的图章（个人、导入和共享）。没有自己的图章时，内置图章仍会显示。",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "手绘默认值",

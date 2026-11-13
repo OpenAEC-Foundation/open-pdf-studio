@@ -3,6 +3,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import PrefColorPicker from './PrefColorPicker.jsx';
 import PrefComboBox from './PrefComboBox.jsx';
 import PrefSelect from './PrefSelect.jsx';
+import MarkupStatusesEditor from './MarkupStatusesEditor.jsx';
 import { PAPIER_EENHEDEN } from '../../../annotations/papiermaat-eenheid.js';
 
 const SUB_TABS = [
@@ -242,6 +243,12 @@ export default function AnnotationsTab(props) {
                 <label>{t('annotations.icon')}</label>
                 <PrefSelect value={p.commentIcon[0]} setValue={p.commentIcon[1]} options={iconOpts} />
               </div>
+            </fieldset>
+
+            {/* Eigen reviewstatussen van markeringen (#1076). */}
+            <fieldset class="pref-fieldset">
+              <legend>{t('annotations.markupStatuses')}</legend>
+              <MarkupStatusesEditor value={p.markupStatuses} />
             </fieldset>
 
             {/* Stempelkiezer: ingebouwde stempels verbergen (#998). */}
