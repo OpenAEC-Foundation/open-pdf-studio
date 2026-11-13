@@ -460,7 +460,15 @@ mod tests {
         let start = std::time::Instant::now();
         loop {
             match listener.accept() {
-                Ok((stream, _)) => return stream,
+                Ok((stream, _)) => {
+                    // macOS inherits O_NONBLOCK from the listening socket;
+                    // Linux does not. The scripted peer uses blocking I/O.
+                    stream.set_nonblocking(false).unwrap();
+                    stream
+                        .set_write_timeout(Some(Duration::from_secs(3)))
+                        .unwrap();
+                    return stream;
+                }
                 Err(e)
                     if e.kind() == std::io::ErrorKind::WouldBlock
                         && start.elapsed() < Duration::from_secs(3) =>
