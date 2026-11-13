@@ -3884,6 +3884,7 @@ pub fn run(opts: StartupOpts) {
             beheerd::managed_mode,
             instantie::tab_drop_target,
             startup_window::startup_window_ready,
+            startup_window::startup_font_deadline,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,
             datamap::app_data_dir_effectief,
