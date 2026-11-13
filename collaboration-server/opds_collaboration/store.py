@@ -1,7 +1,7 @@
 """Transactional identities, document access and annotation events for #1067.
 
 No network listener is exposed. create_user/set_disabled are local operator
-methods; a future transport must not expose them as unauthenticated endpoints.
+methods; transports must not expose them as unauthenticated endpoints.
 Every document operation authenticates its session inside the same transaction
 as the access check and read/write. Client-supplied authors/clocks are rejected.
 """
@@ -208,8 +208,8 @@ class Store:
             raise Denied("invalid credentials") from exc
         with self._tx() as db:
             user = db.execute("SELECT * FROM users WHERE name_key=?", (key,)).fetchone()
-        # Unknown names still incur a password derivation. The future HTTP
-        # boundary also needs rate limiting; this core is not an internet API.
+        # Unknown names still incur a password derivation. Network transports
+        # must additionally rate-limit attempts before invoking this method.
         digest = _derive(encoded, user["salt"] if user else b"\0" * 32)
         if not user or not secrets.compare_digest(digest, user["password_hash"]) or user["disabled"]:
             raise Denied("invalid credentials")
