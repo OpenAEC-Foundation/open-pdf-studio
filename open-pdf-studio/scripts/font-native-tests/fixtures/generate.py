@@ -41,3 +41,8 @@ face('OPDS Installed Fixture').save(root / 'installed.ttf')
 collection = TTCollection()
 collection.fonts = [face('OPDS Collection One'), face('OPDS Collection 日本語')]
 collection.save(root / 'collection.ttc')
+
+# Long loca offsets may point at odd-length glyph records (as in BIZ UDGothic).
+odd = face("OPDS Odd Glyphs")
+odd["glyf"].padding = 0
+odd.save(root / "odd-glyphs.ttf")

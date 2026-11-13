@@ -1,3 +1,4 @@
+import { metTrueTypeUitlijning } from './ttf-subset-padding.js';
 // Writes OCR'd words into a page's content stream as an INVISIBLE text
 // layer (PDF text-rendering-mode 3 — "add to path for clipping" is also
 // disabled, i.e. never painted) positioned over the scanned-image page, so
@@ -82,7 +83,7 @@ let fontkitPromise = null;
 // invalid header for them and mixes up their Font DICTs. metCffHerstel()
 // corrects that without touching node_modules (see cff-subset-herstel.js).
 export function laadFontkit() {
-  if (!fontkitPromise) fontkitPromise = import('@pdf-lib/fontkit').then((m) => metCffHerstel(m.default));
+  if (!fontkitPromise) fontkitPromise = import('@pdf-lib/fontkit').then((m) => metTrueTypeUitlijning(metCffHerstel(m.default)));
   return fontkitPromise;
 }
 
