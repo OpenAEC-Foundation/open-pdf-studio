@@ -87,6 +87,10 @@ def _body(env, keys):
 
 def _query(env, allowed=()):
     query = env.get("QUERY_STRING", "")
+    # Python 3.10 treats an empty query as a malformed field in strict mode.
+    # An absent query is valid; retain strict parsing for nonempty input.
+    if not query:
+        return {}
     if len(query) > 1024:
         raise Invalid("query too long")
     try:
