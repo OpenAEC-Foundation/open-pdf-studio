@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing
 from pathlib import Path
 import sqlite3
 import tempfile
@@ -30,7 +31,7 @@ class StoreTests(unittest.TestCase):
         self.doc = self.store.create_document(self.a, 'Drawing A.pdf')
 
     def test_credentials_and_session_tokens_are_not_stored_in_plaintext(self):
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             rows = db.execute('SELECT salt,password_hash FROM users').fetchall()
             self.assertNotEqual(rows[0], rows[1])
             self.assertNotEqual(db.execute('SELECT token_hash FROM sessions').fetchone()[0], self.a)
@@ -177,13 +178,13 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(len(self.store.snapshot(self.a, self.doc)['annotations']), 12)
 
     def test_mid_transaction_failure_rolls_back_every_table(self):
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute("CREATE TRIGGER fail_head BEFORE INSERT ON heads BEGIN SELECT RAISE(ABORT, 'test failure'); END")
         with self.assertRaises(sqlite3.IntegrityError):
             self.store.append(self.a, self.doc, request())
         self.assertEqual(self.store.replay(self.a, self.doc)['events'], [])
         self.assertEqual(self.store.snapshot(self.a, self.doc)['cursor'], 0)
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute('DROP TRIGGER fail_head')
         self.assertEqual(self.store.append(self.a, self.doc, request())['revision'], 1)
 
@@ -219,11 +220,11 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(len(self.store.snapshot(self.a, self.doc)['annotations']), 1)
 
     def test_future_schema_is_refused_without_changing_version(self):
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute('PRAGMA user_version=999')
         with self.assertRaises(Invalid):
             Store(self.path)
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             self.assertEqual(db.execute('PRAGMA user_version').fetchone()[0], 999)
 
 
