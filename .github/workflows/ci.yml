@@ -430,3 +430,31 @@ jobs:
         run: docker build -t opds-review-test collaboration-server
       - name: Smoke test production server and persistent volume
         run: python3 collaboration-server/tests/container_smoke.py opds-review-test
+
+  collaboration-objectstore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: minio/minio
+          ref: 7aac2a2c5b7c882e68c1ce017d8256be2feea27f
+          path: .ci-minio
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.24.8'
+          cache-dependency-path: .ci-minio/go.sum
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install collaboration dependencies
+        run: python -m pip install -r collaboration-server/requirements.txt
+      - name: Build pinned objectstore for local tests only
+        env:
+          GOTOOLCHAIN: local
+          GOMAXPROCS: '2'
+        run: go build -C .ci-minio -p 2 -o "$RUNNER_TEMP/opds-minio-test" .
+      - name: Qualify real S3 and joint offline restore
+        run: python collaboration-server/tests/objectstore_integration.py "$RUNNER_TEMP/opds-minio-test"

@@ -1,6 +1,6 @@
 [package]
 name = "opds-font-native-tests"
-version = "2026.46.35"
+version = "2026.46.36"
 edition = "2021"
 publish = false
 

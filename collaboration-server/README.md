@@ -3,8 +3,9 @@
 **Concept, niet inzetbaar als samenwerkingsdienst.** Dit pakket bevat de
 SQLite-kern, WSGI-adapter voor HTTP/live eventupdates en S3-opslagadapter voor
 onveranderlijke PDF-bases. Een Waitress-startcommando, lokaal accountbeheer, databaseback-up en
-Docker/Compose-configuratie zijn aanwezig. Kwalificatie tegen een echte objectstore,
-volledige deploymentkwalificatie en Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
+Docker/Compose-configuratie zijn aanwezig. Een aparte integratietest kwalificeert
+de opslag tegen een vastgelegde MinIO-bronversie. Volledige deploymentkwalificatie
+en de Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
 Issue #1067 wordt door deze eerste stap niet gesloten.
 
 ## Wat nu werkt
@@ -271,7 +272,7 @@ vervolgens naar de beheerde backupbestemming.
 
 CI bouwt de image lokaal en test twee HTTP-clients, persistentie na herstart,
 accountbeheer en backup als niet-root. De CI-test publiceert geen image en gebruikt
-geen externe S3-service; echte objectstore- en PDF-roundtripkwalificatie blijven open.
+geen externe S3-service. De afzonderlijke objectstoretest hieronder test echte S3-verzoeken.
 
 ## Testen
 
@@ -292,18 +293,51 @@ verzoeklengte, loginlimieten en pollcapaciteit. Opslagtests toetsen migratie,
 herhaalde/gelijktijdige uploads, races met annotaties/toegangsintrekking en
 mislukte S3-/SQL-acties. SDK-contracttests gebruiken
 [Botocore Stubber](https://docs.aws.amazon.com/botocore/latest/reference/stubber.html)
-met expliciete nepcredentials; echte S3/MinIO-kwalificatie is nog niet uitgevoerd.
+met expliciete nepcredentials. De afzonderlijke integratietest hieronder gebruikt een echte objectstore.
 De Node-opdracht
 maakt via Python een echte reviewhistorie en speelt deze met de productiecode
 van de app af, inclusief dubbele replay na herverbinden en verwijderen/herstellen.
 `PYTHON` kan desgewenst een ander Python-executable aanwijzen. De bestaande
 Python-CI-matrix voert beide controles op Linux, Windows en macOS uit.
 
+## Echte objectstore en hersteltest
+
+`tests/objectstore_integration.py PAD_NAAR_MINIO_BINARY` start zelf een objectstore
+en de Waitress-dienst op loopback, met willekeurige testcredentials en tijdelijke
+datamappen. De test accepteert bewust geen bestaande endpoint/bucket. Hij stopt
+alleen eigen processen en verwijdert uitsluitend de eigen tijdelijke testmap.
+
+CI bouwt [MinIO-broncommit `7aac2a2c`](https://github.com/minio/minio/tree/7aac2a2c5b7c882e68c1ce017d8256be2feea27f)
+met Go 1.24.8. MinIO is hier uitsluitend een geïsoleerde testdependency; de
+[bronrepository](https://github.com/minio/minio) is gearchiveerd en dit is geen
+keuze of aanbeveling voor een productieobjectstore. Er wordt geen MinIO-binary
+of containerimage gepubliceerd of met de app meegeleverd.
+
+De integratietest controleert:
+
+- Een volledige eenpagina-PDF via echte S3-aanroepen: SHA-256-checksumverificatie,
+  geweigerde foutieve checksum en `IfNoneMatch`-overschrijfbeveiliging.
+- Versioning aan/uit, een vastgelegde versie na een externe vervanging, een
+  verdwenen versie en een gewijzigd object zonder versiebeheer.
+- Twee aangemelde HTTP-clients: upload/download van dezelfde PDF-bytes,
+  idempotente herhaling zonder extra object, een geweigerde andere basis-PDF,
+  leesrechten en intrekking daarvan. Een geïnjecteerde SQL-fout na een geslaagde
+  S3-upload mag alleen een ongekoppeld object achterlaten, geen bruikbare PDF-binding.
+- Een offline gezamenlijk herstelpunt: beide diensten stoppen, SQLite via de
+  backup-API kopiëren en de objectstoredata inclusief versie-ID's kopiëren.
+  Herstel gebeurt naar **nieuwe** paden; login, bestaande sessie, annotatiehistorie
+  en dezelfde PDF-download moeten daarna werken.
+
+Deze lokale single-node test kwalificeert niet iedere S3-provider, clusterbackup,
+crash recovery, netwerkstoring, TLS/proxy of productiebelasting. Een gewone
+herupload naar een nieuwe bucket bewaart geen oude versie-ID's; kies daarom een
+backup-/herstelvoorziening die past bij de werkelijk gebruikte objectstore.
+
 ## Vervolg in dezelfde concept-PR
 
-1. S3-adapter tegen een echte objectstore kwalificeren, inclusief checksums,
-   conditional writes, versies en ongekoppelde objecten; gezamenlijke hersteltest,
-   totale requestdeadlines, quota en productiebelasting kwalificeren.
+1. De gekozen productieobjectstore en het echte herstelproces kwalificeren,
+   inclusief crash-/netwerkfouten en ongekoppelde objecten. Totale requestdeadlines,
+   quota en productiebelasting uitwerken; de lokale MinIO-test dekt die niet.
 2. Tauri-adapter met reconnect, zichtbare conflicten en import/export via het
    bestaande PDF-/XFDF-model; twee echte clients testen op één document.
 3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
