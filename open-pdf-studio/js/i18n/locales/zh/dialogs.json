@@ -2494,6 +2494,8 @@
     "accessDenied": "访问被拒绝。请刷新或重新登录。",
     "invalidRequest": "请检查账户名称和访问级别。",
     "retryLater": "请稍后重试。",
-    "requestFailed": "请求失败。请刷新或重新登录。"
+    "requestFailed": "请求失败。请刷新或重新登录。",
+    "openSnapshot": "打开快照",
+    "snapshotHelp": "打开包含当前批注的本地副本。更改不会发送到服务器。"
   }
 }

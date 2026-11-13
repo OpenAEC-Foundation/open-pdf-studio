@@ -63,3 +63,8 @@ test('sustained writes have a finite catch-up budget and cannot leave a half-ins
   await assert.rejects(opening.open(),/CATCH_UP_LIMIT/);
   assert.equal(pages,100);assert.equal(state.installs,0);assert.equal(state.disposes,1);assert.equal(state.active,false);
 });
+
+test('detaching a complete snapshot releases its connection but preserves the user-owned PDF',async()=>{
+ const{opening,state}=rig();await assert.rejects(opening.detach(),/NOT_READY/);
+ await opening.open();await opening.detach();await opening.close();assert.equal(state.disposes,0);assert.equal(state.active,false);
+});

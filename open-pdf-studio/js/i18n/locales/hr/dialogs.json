@@ -2494,6 +2494,8 @@
     "accessDenied": "Pristup odbijen. Osvježite ili se ponovno prijavite.",
     "invalidRequest": "Provjerite naziv računa i razinu pristupa.",
     "retryLater": "Pokušajte ponovno kasnije.",
-    "requestFailed": "Zahtjev nije uspio. Osvježite ili se ponovno prijavite."
+    "requestFailed": "Zahtjev nije uspio. Osvježite ili se ponovno prijavite.",
+    "openSnapshot": "Otvori snimku",
+    "snapshotHelp": "Otvara lokalnu kopiju s trenutačnim bilješkama. Promjene se ne šalju poslužitelju."
   }
 }

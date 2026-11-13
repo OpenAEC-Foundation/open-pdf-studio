@@ -2494,6 +2494,8 @@
     "accessDenied": "Akses ditolak. Muat semula atau log masuk semula.",
     "invalidRequest": "Semak nama akaun dan tahap akses.",
     "retryLater": "Cuba lagi kemudian.",
-    "requestFailed": "Permintaan gagal. Muat semula atau log masuk semula."
+    "requestFailed": "Permintaan gagal. Muat semula atau log masuk semula.",
+    "openSnapshot": "Buka petikan keadaan",
+    "snapshotHelp": "Membuka salinan setempat dengan anotasi semasa. Perubahan tidak dihantar ke pelayan."
   }
 }

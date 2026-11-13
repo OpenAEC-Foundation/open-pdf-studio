@@ -2494,6 +2494,8 @@
     "accessDenied": "Odmowa dostępu. Odśwież lub zaloguj się ponownie.",
     "invalidRequest": "Sprawdź nazwę konta i poziom dostępu.",
     "retryLater": "Spróbuj ponownie później.",
-    "requestFailed": "Żądanie nie powiodło się. Odśwież lub zaloguj się ponownie."
+    "requestFailed": "Żądanie nie powiodło się. Odśwież lub zaloguj się ponownie.",
+    "openSnapshot": "Otwórz migawkę",
+    "snapshotHelp": "Otwiera lokalną kopię z aktualnymi adnotacjami. Zmiany nie są wysyłane na serwer."
   }
 }

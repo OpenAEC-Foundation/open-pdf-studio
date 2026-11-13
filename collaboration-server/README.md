@@ -359,8 +359,8 @@ backup-/herstelvoorziening die past bij de werkelijk gebruikte objectstore.
 bewerkingen, PDF-upload/download en logout. Er wordt bij appstart geen netwerkverbinding
 geopend. In de Tauri-app opent **Bestand → Centrale documenten** een venster voor
 login, documentlijst en delen/intrekken van toegang op accountnaam. De centrale
-PDF openen en annotaties synchroniseren zijn nog niet aangesloten; dit venster
-biedt voorlopig alleen document- en toegangsbeheer.
+PDF kan als lokale momentopname met de actuele annotaties worden geopend.
+Live annotatiesynchronisatie vanuit het tabblad is nog niet aangesloten.
 
 Een sessie kiest één serverorigin: HTTPS met normale certificaatcontrole, of HTTP
 uitsluitend op een letterlijk loopback-IP voor lokaal testen. Geen credentials,
@@ -422,9 +422,9 @@ met twee complete Tauri-appclients op hetzelfde document.
 1. De gekozen productieobjectstore en het echte herstelproces kwalificeren,
    inclusief crash-/netwerkfouten en ongekoppelde objecten. Totale requestdeadlines,
    quota en productiebelasting uitwerken; de lokale MinIO-test dekt die niet.
-2. Centrale PDF-opening en reviewsessies op het native transport aansluiten, met reconnect,
-   zichtbare conflicten en import/export via het
-   bestaande PDF-/XFDF-model; twee echte clients testen op één document.
+2. Live reviewsessies op het native transport aansluiten, met polling/reconnect,
+   zichtbare conflicten en het publiceren van lokale wijzigingen. Upload/aanmaak
+   vanuit het venster toevoegen; twee echte clients testen op één document.
 3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
 
 Databasebestanden en sessietokens horen niet in Git of logregels. Het expliciete `serve`-commando start de listener. Alleen beheercommando's en
@@ -458,13 +458,14 @@ De regressie `central-review-integration.test.mjs` gebruikt twee productie-JS-
 clients en de echte SQLite-store via een geïsoleerd stdio-testproces. Zij test
 verloren bevestigingen, retries, replay, conflicten, verwijderen/herstellen en
 rechtenintrekking. Dit is geen volledige Tauri-eind-tot-eindproef; de bestaande
-native/S3-proef kwalificeert de afzonderlijke netwerkgrens. De kern is nog niet
-aan PDF-tabs, sessieoverdracht, polling/reconnectbediening, conflict-UI of de
-PDF/XFDF-save-hooks gekoppeld. De bestaande gedeelde-mapreview blijft intact.
+native/S3-proef kwalificeert de afzonderlijke netwerkgrens. De kern levert nu
+lokale PDF-momentopnamen met PDF/XFDF-export. Live polling/reconnectbediening,
+conflict-UI en het publiceren van wijzigingen zijn nog niet aangesloten. De
+bestaande gedeelde-mapreview blijft intact.
 
 ### Sessiebehoud en de openingscoördinator
 
-Het beheervenster gebruikt `central-review-session.js`. Een toekomstige PDF-tab
+Het beheervenster gebruikt `central-review-session.js`. Een documentbewerking
 kan met `retain(documentId)` een uitsluitend op dat document gerichte verbinding
 behouden. Sluiten van het venster laat zulke verbindingen bestaan; sluiten van
 de laatste eigenaar meldt native af. Expliciet afmelden of opnieuw aanmelden
@@ -481,8 +482,41 @@ controle van sessie en documentgeneratie. Een tab die pas na annuleren ontstaat
 wordt alsnog vrijgegeven. PDF.js krijgt uitsluitend een kopie van de bytes.
 `install` is synchroon en moet de reactieve documentstate atomair bijwerken.
 
-De PDF-rendereradapter en bediening voor openen zijn nog niet aangesloten; het
-huidige venster blijft document-/toegangsbeheer. De openingsregressies gebruiken
-een nagebootste renderer. De echte SQLite-proef gebruikt nu documentverbindingen
-nadat beide beheerders zijn gesloten. Een proef met twee volledige Tauri-apps en
-PDF/XFDF-save-integratie blijft vereist.
+`central-review-pdf-adapter.js` koppelt de coördinator aan het annotatiemodel;
+`central-review-pdf.js` verbindt de echte tab-, loader- en tijdelijke-bestands-API.
+De unitproeven gebruiken een nagebootste renderer voor annuleringsgevallen; de
+onderstaande browserproef toetst de echte PDF-renderer en PDF/XFDF-export. De
+echte SQLite-proef gebruikt documentverbindingen nadat beide beheerders zijn
+gesloten. Een proef met twee volledige Tauri-apps blijft vereist.
+
+### Een lokale PDF-momentopname openen
+
+**Bestand → Centrale documenten → Momentopname openen** downloadt de vaste
+PDF-basis en leest de actuele annotatiestand. De knop is alleen beschikbaar als
+het geselecteerde document een PDF heeft. De toelichting in alle 40 talen maakt
+duidelijk dat dit een lokale kopie is: wijzigingen worden niet teruggestuurd.
+
+De rendereradapter maakt een eigen tijdelijke PDF met een willekeurige naam en
+een nieuw tabblad. De documenttitel wordt nooit als opslagpad gebruikt. Tijdens
+laden zijn bewerken en opslaan geblokkeerd. De adapter wacht op de volledige
+annotatielaadtaak en controleert de documentgeneratie vóór installatie. Bestaande
+PDF-annotaties worden via hun vaste review-ID gekoppeld; centrale toevoegingen,
+wijzigingen en verwijderingen worden daarop toegepast. Pagina's buiten de PDF
+worden geweigerd. Bij annuleren/falen worden alleen het eigen tabblad en de eigen
+tijdelijke bytes opgeruimd.
+
+Na succesvolle installatie wordt de verbinding vrijgegeven en valt het tabblad
+onder de normale applevensduur. De lokale kopie is gewijzigd en naamloos, zodat
+Opslaan om een bestemming vraagt. De gewone PDF- en XFDF-export bevatten zowel
+bestaande als centrale annotaties. Er wordt geen gedeelde-mapreview gestart en
+er worden geen save-hooks vervangen. Het sluiten van het beheervenster kan een
+reeds overgedragen momentopname niet meer verwijderen.
+
+`test-central-review-pdf-browser.mjs` test de echte PDF.js-loader, tabblad,
+annotatiemodel, bronbytecache en PDF/XFDF-export in Chromium, met een gegenereerde
+PDF en nagebootste centrale transport-/tijdelijke-bestandsgrenzen. De proef dekt
+behoud van een PDF-annotatie, een centrale toevoeging en een centrale verwijdering.
+De aparte dialoogproef controleert annuleren tijdens download. Dit is nog geen
+volledige Tauri-eind-tot-eindproef; native tijdelijke bestanden op drie OS'en en
+twee complete clients blijven te kwalificeren. Live lezen/schrijven,
+conflictbediening en upload/aanmaak vanuit het venster blijven open.

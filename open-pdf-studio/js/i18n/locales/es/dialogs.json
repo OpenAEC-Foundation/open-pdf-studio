@@ -2494,6 +2494,8 @@
     "accessDenied": "Acceso denegado. Actualice o vuelva a iniciar sesión.",
     "invalidRequest": "Compruebe el nombre de cuenta y el nivel de acceso.",
     "retryLater": "Inténtelo de nuevo más tarde.",
-    "requestFailed": "Error en la solicitud. Actualice o vuelva a iniciar sesión."
+    "requestFailed": "Error en la solicitud. Actualice o vuelva a iniciar sesión.",
+    "openSnapshot": "Abrir instantánea",
+    "snapshotHelp": "Abre una copia local con las anotaciones actuales. Los cambios no se envían al servidor."
   }
 }

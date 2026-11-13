@@ -7,7 +7,7 @@ import { createCentralReviewSync } from './central-review-sync.js';
 export function createCentralReviewOpening(session, document, adapter) {
   const lease = session.retain(document);
   const sync = createCentralReviewSync(lease, document);
-  let closed = false, started = false, resource = null, disposing = null;
+  let closed = false, started = false, installed = false, resource = null, disposing = null;
   const valid = () => !closed && lease.isCurrent() && (!resource || resource.isCurrent());
   const check = () => { if (!valid()) throw new Error('STALE'); };
   async function disposeResource() {
@@ -30,7 +30,7 @@ export function createCentralReviewOpening(session, document, adapter) {
         const bytes = await lease.download(document); check();
         await sync.initialize(); check();
         // The adapter can transfer/detach its copy; downloaded bytes stay intact.
-        resource = await adapter.open(bytes.slice());
+        resource = await adapter.open(bytes.slice(), valid);
         if (!resource || typeof resource.isCurrent !== 'function' ||
             typeof resource.dispose !== 'function' || typeof resource.ready !== 'function' ||
             typeof resource.install !== 'function') throw new Error('INVALID_ADAPTER');
@@ -45,12 +45,23 @@ export function createCentralReviewOpening(session, document, adapter) {
         // Install is synchronous: the adapter checks its document generation
         // and updates the mutable annotation model as one operation.
         resource.install(sync.view()); check();
+        installed = true;
         return { resource, sync };
       } catch (error) {
         try { await close(); }
         catch { adapter.onCleanupError?.(); }
         throw error;
       }
+    },
+    async detach() {
+      check();
+      if (!installed) throw new Error('NOT_READY');
+      // Hand the complete local snapshot to the normal tab lifecycle. It is
+      // no longer a connected review and cancellation may no longer close it.
+      const owned = resource;
+      resource = null; closed = true; sync.close();
+      await lease.dispose();
+      return owned;
     },
     close,
     isCurrent: valid,

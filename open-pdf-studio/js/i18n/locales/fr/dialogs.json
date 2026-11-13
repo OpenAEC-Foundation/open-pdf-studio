@@ -2494,6 +2494,8 @@
     "accessDenied": "Accès refusé. Actualisez ou reconnectez-vous.",
     "invalidRequest": "Vérifiez le nom du compte et le niveau d’accès.",
     "retryLater": "Veuillez réessayer plus tard.",
-    "requestFailed": "Échec de la requête. Actualisez ou reconnectez-vous."
+    "requestFailed": "Échec de la requête. Actualisez ou reconnectez-vous.",
+    "openSnapshot": "Ouvrir un instantané",
+    "snapshotHelp": "Ouvre une copie locale avec les annotations actuelles. Les modifications ne sont pas envoyées au serveur."
   }
 }

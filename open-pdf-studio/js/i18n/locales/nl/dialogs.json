@@ -2494,6 +2494,8 @@
     "accessDenied": "Toegang geweigerd. Vernieuw of meld opnieuw aan.",
     "invalidRequest": "Controleer de accountnaam en het toegangsniveau.",
     "retryLater": "Probeer het later opnieuw.",
-    "requestFailed": "Verzoek mislukt. Vernieuw of meld opnieuw aan."
+    "requestFailed": "Verzoek mislukt. Vernieuw of meld opnieuw aan.",
+    "openSnapshot": "Momentopname openen",
+    "snapshotHelp": "Opent een lokale kopie met de huidige annotaties. Wijzigingen worden niet naar de server gestuurd."
   }
 }

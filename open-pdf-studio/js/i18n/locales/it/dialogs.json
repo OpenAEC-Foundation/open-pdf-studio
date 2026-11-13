@@ -2494,6 +2494,8 @@
     "accessDenied": "Accesso negato. Aggiornare o accedere di nuovo.",
     "invalidRequest": "Controllare il nome account e il livello di accesso.",
     "retryLater": "Riprovare più tardi.",
-    "requestFailed": "Richiesta non riuscita. Aggiornare o accedere di nuovo."
+    "requestFailed": "Richiesta non riuscita. Aggiornare o accedere di nuovo.",
+    "openSnapshot": "Apri istantanea",
+    "snapshotHelp": "Apre una copia locale con le annotazioni attuali. Le modifiche non vengono inviate al server."
   }
 }

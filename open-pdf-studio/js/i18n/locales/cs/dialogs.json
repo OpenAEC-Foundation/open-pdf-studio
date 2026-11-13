@@ -2494,6 +2494,8 @@
     "accessDenied": "Přístup odepřen. Obnovte nebo se přihlaste znovu.",
     "invalidRequest": "Zkontrolujte název účtu a úroveň přístupu.",
     "retryLater": "Zkuste to později znovu.",
-    "requestFailed": "Požadavek selhal. Obnovte nebo se přihlaste znovu."
+    "requestFailed": "Požadavek selhal. Obnovte nebo se přihlaste znovu.",
+    "openSnapshot": "Otevřít snímek",
+    "snapshotHelp": "Otevře místní kopii s aktuálními anotacemi. Změny se neodesílají na server."
   }
 }

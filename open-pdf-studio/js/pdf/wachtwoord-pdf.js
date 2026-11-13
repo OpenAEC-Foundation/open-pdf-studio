@@ -80,7 +80,7 @@ export function isHostAlleenLezen(doc) {
 export function isAlleenLezen(doc) {
   if (!doc) return false;
   if (opslaanGeweigerd(doc) || beperktDoorRechten(doc)) return true;
-  if (isHostAlleenLezen(doc)) return true;
+  if (isHostAlleenLezen(doc) || doc._centralReviewOpening) return true;
   return !!doc.pdfaCompliance && !doc.pdfADismissed;
 }
 

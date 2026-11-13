@@ -2494,6 +2494,8 @@
     "accessDenied": "Ufikiaji umekataliwa. Onyesha upya au ingia tena.",
     "invalidRequest": "Kagua jina la akaunti na kiwango cha ufikiaji.",
     "retryLater": "Tafadhali jaribu tena baadaye.",
-    "requestFailed": "Ombi limeshindwa. Onyesha upya au ingia tena."
+    "requestFailed": "Ombi limeshindwa. Onyesha upya au ingia tena.",
+    "openSnapshot": "Fungua nakala ya sasa",
+    "snapshotHelp": "Hufungua nakala ya ndani yenye maelezo ya sasa. Mabadiliko hayatumwi kwa seva."
   }
 }

@@ -2494,6 +2494,8 @@
     "accessDenied": "Åtkomst nekad. Uppdatera eller logga in igen.",
     "invalidRequest": "Kontrollera kontonamn och åtkomstnivå.",
     "retryLater": "Försök igen senare.",
-    "requestFailed": "Begäran misslyckades. Uppdatera eller logga in igen."
+    "requestFailed": "Begäran misslyckades. Uppdatera eller logga in igen.",
+    "openSnapshot": "Öppna ögonblicksbild",
+    "snapshotHelp": "Öppnar en lokal kopia med aktuella anteckningar. Ändringar skickas inte till servern."
   }
 }

@@ -2494,6 +2494,8 @@
     "accessDenied": "Erişim reddedildi. Yenileyin veya tekrar giriş yapın.",
     "invalidRequest": "Hesap adını ve erişim düzeyini kontrol edin.",
     "retryLater": "Lütfen daha sonra tekrar deneyin.",
-    "requestFailed": "İstek başarısız. Yenileyin veya tekrar giriş yapın."
+    "requestFailed": "İstek başarısız. Yenileyin veya tekrar giriş yapın.",
+    "openSnapshot": "Anlık görüntüyü aç",
+    "snapshotHelp": "Güncel açıklamalarla yerel bir kopya açar. Değişiklikler sunucuya gönderilmez."
   }
 }

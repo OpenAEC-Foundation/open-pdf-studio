@@ -5,6 +5,7 @@ import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { invoke, isTauri } from '../../../core/platform.js';
 import { createCentralReviewSession } from '../../../review/central-review-session.js';
+import { createCentralReviewOpening } from '../../../review/central-review-opening.js';
 import '../../../../styles/central-review.css';
 
 export default function CentralReviewDialog() {
@@ -12,7 +13,7 @@ export default function CentralReviewDialog() {
   const view = createMutable({ connected: false, busy: false, rows: [], cursor: '', more: false,
     selected: '', error: '', notice: '' });
   let serverInput, nameInput, passwordInput, recipientInput, roleInput;
-  let alive = true, operation = 0;
+  let alive = true, operation = 0, opening = null;
   const logoutWarning = () => {
     const message = t('centralReview.logoutWarning');
     if (alive) view.error = message;
@@ -60,13 +61,33 @@ export default function CentralReviewDialog() {
     view.connected = false; view.busy = false; view.error = ''; view.notice = '';
     clearDocuments();
     if (passwordInput) passwordInput.value = '';
+    const activeOpening = opening; opening = null;
+    void activeOpening?.close().catch(() => showMessage(t('centralReview.requestFailed'), t('centralReview.title')));
     await client.logout();
   }
   onCleanup(() => {
     alive = false; ++operation;
     if (passwordInput) passwordInput.value = '';
+    const activeOpening = opening; opening = null;
+    void activeOpening?.close().catch(() => showMessage(t('centralReview.requestFailed'), t('centralReview.title')));
     void client.dispose();
   });
+  const openSnapshot = () => {
+    const row = selected();
+    if (!row?.hasPdf) return;
+    void act(async valid => {
+      const { centralPdfAdapter } = await import('../../../review/central-review-pdf.js');
+      if (!valid()) return;
+      const activeOpening = createCentralReviewOpening(client, row.id, centralPdfAdapter(row.title));
+      opening = activeOpening;
+      try {
+        await activeOpening.open();
+        if (!valid()) { await activeOpening.close(); return; }
+        await activeOpening.detach();
+        if (valid()) close();
+      } finally { if (opening === activeOpening) opening = null; }
+    });
+  };
   const selected = () => view.rows.find((row) => row.id === view.selected);
   const close = () => closeDialog('central-review');
   return <Dialog title={t('centralReview.title')} onClose={close}
@@ -90,6 +111,8 @@ export default function CentralReviewDialog() {
             </label>}</For>
           </Show>
         </fieldset>
+        <p>{t('centralReview.snapshotHelp')}</p>
+        <button class="pref-btn" disabled={view.busy || !selected()?.hasPdf} onClick={openSnapshot}>{t('centralReview.openSnapshot')}</button>
         <Show when={selected()?.role === 'owner'}>
           <form onSubmit={(e) => { e.preventDefault(); const document = view.selected, name = recipientInput.value, role = roleInput.value;
             void act(async (valid) => { await client.share(document, name, role === 'revoke' ? null : role); if (valid()) view.notice = t('centralReview.saved'); }); }}>

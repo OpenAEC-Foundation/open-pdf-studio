@@ -2494,6 +2494,8 @@
     "accessDenied": "Hozzáférés megtagadva. Frissítsen vagy jelentkezzen be újra.",
     "invalidRequest": "Ellenőrizze a fióknevet és a hozzáférési szintet.",
     "retryLater": "Próbálja újra később.",
-    "requestFailed": "Sikertelen kérés. Frissítsen vagy jelentkezzen be újra."
+    "requestFailed": "Sikertelen kérés. Frissítsen vagy jelentkezzen be újra.",
+    "openSnapshot": "Pillanatkép megnyitása",
+    "snapshotHelp": "Helyi másolatot nyit meg az aktuális megjegyzésekkel. A módosításokat nem küldi el a szervernek."
   }
 }

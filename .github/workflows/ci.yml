@@ -373,6 +373,9 @@ jobs:
       - name: Central review dialog lifecycle and access controls
         run: node scripts/test-central-review-browser.mjs
 
+      - name: Central PDF snapshot and PDF/XFDF export
+        run: node scripts/test-central-review-pdf-browser.mjs
+
   # De Python-bibliotheek (#518): de gegenereerde laag loopt gelijk met
   # mcp-stdio/tools.json, de tests (tegen een nep-MCP-server, zonder app) slagen
   # op elk platform en sdist + wheel bouwen.

@@ -109,7 +109,7 @@ test('reject invalid UI operations before invoking the network', async () => {
 test('all shipped languages have nonempty central manager labels and messages', () => {
   const root = new URL('../i18n/locales/', import.meta.url);
   const reference = JSON.parse(readFileSync(new URL('en/dialogs.json',root))).centralReview;
-  assert.equal(Object.keys(reference).length,22);
+  assert.equal(Object.keys(reference).length,24);
   for (const folder of readdirSync(root,{withFileTypes:true}).filter(f=>f.isDirectory())) {
     const values = JSON.parse(readFileSync(new URL(`${folder.name}/dialogs.json`,root))).centralReview;
     assert.deepEqual(Object.keys(values).sort(),Object.keys(reference).sort(),folder.name);

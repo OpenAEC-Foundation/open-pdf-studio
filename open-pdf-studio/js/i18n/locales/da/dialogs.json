@@ -2494,6 +2494,8 @@
     "accessDenied": "Adgang nægtet. Opdatér eller log ind igen.",
     "invalidRequest": "Kontrollér kontonavn og adgangsniveau.",
     "retryLater": "Prøv igen senere.",
-    "requestFailed": "Anmodning mislykkedes. Opdatér eller log ind igen."
+    "requestFailed": "Anmodning mislykkedes. Opdatér eller log ind igen.",
+    "openSnapshot": "Åbn øjebliksbillede",
+    "snapshotHelp": "Åbner en lokal kopi med de aktuelle annoteringer. Ændringer sendes ikke til serveren."
   }
 }

@@ -2494,6 +2494,8 @@
     "accessDenied": "Akses ditolak. Muat ulang atau masuk lagi.",
     "invalidRequest": "Periksa nama akun dan tingkat akses.",
     "retryLater": "Coba lagi nanti.",
-    "requestFailed": "Permintaan gagal. Muat ulang atau masuk lagi."
+    "requestFailed": "Permintaan gagal. Muat ulang atau masuk lagi.",
+    "openSnapshot": "Buka snapshot",
+    "snapshotHelp": "Membuka salinan lokal dengan anotasi saat ini. Perubahan tidak dikirim ke server."
   }
 }

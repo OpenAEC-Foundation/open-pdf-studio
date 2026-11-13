@@ -2494,6 +2494,8 @@
     "accessDenied": "Zugriff verweigert. Aktualisieren oder erneut anmelden.",
     "invalidRequest": "Kontonamen und Zugriffsstufe prüfen.",
     "retryLater": "Bitte später erneut versuchen.",
-    "requestFailed": "Anfrage fehlgeschlagen. Aktualisieren oder erneut anmelden."
+    "requestFailed": "Anfrage fehlgeschlagen. Aktualisieren oder erneut anmelden.",
+    "openSnapshot": "Momentaufnahme öffnen",
+    "snapshotHelp": "Öffnet eine lokale Kopie mit den aktuellen Anmerkungen. Änderungen werden nicht an den Server gesendet."
   }
 }

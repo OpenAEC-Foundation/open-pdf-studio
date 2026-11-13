@@ -2494,6 +2494,8 @@
     "accessDenied": "Accés denegat. Actualitzeu o torneu a iniciar sessió.",
     "invalidRequest": "Comproveu el nom del compte i el nivell d’accés.",
     "retryLater": "Torneu-ho a provar més tard.",
-    "requestFailed": "Ha fallat la petició. Actualitzeu o torneu a iniciar sessió."
+    "requestFailed": "Ha fallat la petició. Actualitzeu o torneu a iniciar sessió.",
+    "openSnapshot": "Obre una instantània",
+    "snapshotHelp": "Obre una còpia local amb les anotacions actuals. Els canvis no s’envien al servidor."
   }
 }

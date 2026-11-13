@@ -2493,6 +2493,8 @@
     "accessDenied": "Access denied. Refresh or sign in again.",
     "invalidRequest": "Check the account name and access level.",
     "retryLater": "Please try again later.",
-    "requestFailed": "Request failed. Refresh or sign in again."
+    "requestFailed": "Request failed. Refresh or sign in again.",
+    "openSnapshot": "Open snapshot",
+    "snapshotHelp": "Opens a local copy with the current annotations. Changes are not sent to the server."
   }
 }

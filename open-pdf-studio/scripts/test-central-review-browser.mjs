@@ -94,6 +94,18 @@ try {
   // A failed remote logout is visible, even when the manager has already closed.
   await page.evaluate(async () => (await import('/js/solid/stores/dialogStore.js')).openDialog('central-review'));
   await signIn(); await dialog.getByRole('button',{name:'Sign out',exact:true}).waitFor();
+  await dialog.getByText('<img src=x onerror=alert(1)> Drawing',{exact:true}).waitFor();
+  await dialog.locator('input[type=radio]').check();
+  assert.equal(await dialog.getByRole('button',{name:'Open snapshot',exact:true}).isEnabled(),true);
+  await page.evaluate(() => { window.reviewTest.delay='central_review_download'; });
+  await dialog.getByRole('button',{name:'Open snapshot',exact:true}).click();
+  await page.waitForFunction(() => !!window.reviewTest.pending);
+  await dialog.getByRole('button',{name:'Close',exact:true}).click();
+  await page.evaluate(() => { window.reviewTest.pending(new TextEncoder().encode('%PDF-late')); window.reviewTest.pending=null; });
+  await page.waitForFunction(() => window.reviewTest.calls.at(-1)[0]==='central_review_logout');
+  assert.equal(await page.evaluate(async () => (await import('/js/core/state.ts')).state.documents.length),0);
+  await page.evaluate(async () => (await import('/js/solid/stores/dialogStore.js')).openDialog('central-review'));
+  await signIn(); await dialog.getByRole('button',{name:'Sign out',exact:true}).waitFor();
   await page.evaluate(() => { window.reviewTest.failure='central_review_logout'; });
   await dialog.getByRole('button',{name:'Close',exact:true}).click();
   await page.getByText('Signed out locally; server sign-out could not be confirmed.',{exact:true}).waitFor();

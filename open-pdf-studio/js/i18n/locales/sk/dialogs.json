@@ -2494,6 +2494,8 @@
     "accessDenied": "Prístup zamietnutý. Obnovte alebo sa prihláste znova.",
     "invalidRequest": "Skontrolujte názov účtu a úroveň prístupu.",
     "retryLater": "Skúste to neskôr znova.",
-    "requestFailed": "Požiadavka zlyhala. Obnovte alebo sa prihláste znova."
+    "requestFailed": "Požiadavka zlyhala. Obnovte alebo sa prihláste znova.",
+    "openSnapshot": "Otvoriť snímku",
+    "snapshotHelp": "Otvorí lokálnu kópiu s aktuálnymi anotáciami. Zmeny sa neodosielajú na server."
   }
 }

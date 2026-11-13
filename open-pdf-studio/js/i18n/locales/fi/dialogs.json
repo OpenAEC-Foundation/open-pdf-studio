@@ -2494,6 +2494,8 @@
     "accessDenied": "Pääsy estetty. Päivitä tai kirjaudu uudelleen.",
     "invalidRequest": "Tarkista tilin nimi ja käyttöoikeustaso.",
     "retryLater": "Yritä myöhemmin uudelleen.",
-    "requestFailed": "Pyyntö epäonnistui. Päivitä tai kirjaudu uudelleen."
+    "requestFailed": "Pyyntö epäonnistui. Päivitä tai kirjaudu uudelleen.",
+    "openSnapshot": "Avaa tilannekuva",
+    "snapshotHelp": "Avaa paikallisen kopion nykyisine merkintöineen. Muutoksia ei lähetetä palvelimelle."
   }
 }
