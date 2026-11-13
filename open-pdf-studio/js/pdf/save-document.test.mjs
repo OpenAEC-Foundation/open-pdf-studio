@@ -1,3 +1,4 @@
+import { hasPageRotations, rotationRenderCopy } from './saver/rotation-render-copy.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -32,6 +33,7 @@ function harness() {
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
+    hasPageRotations, rotationRenderCopy,
     getCachedPdfBytes: path => new TextEncoder().encode(path), setCachedPdfBytes() {}, rememberPreviousPdfBytes() {},
     verzamelSchaalBronnen: () => ({}),
     PDFDocument: { load: async bytes => ({ context: { largestObjectNumber: 1 }, getPages: () => [], catalog: { get: () => null },

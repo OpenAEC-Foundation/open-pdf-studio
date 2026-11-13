@@ -1,3 +1,4 @@
+import { hasPageRotations, rotationRenderCopy } from './saver/rotation-render-copy.js';
 import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { $RAW } from 'solid-js/store';
@@ -421,6 +422,7 @@ const MOMENTOPNAME_OBJECTEN_PER_TIK = 500;
 async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, momentopname = false, annulering: eigenAnnulering = null } = {}) {
   const currentPath = activeDoc?.filePath;
   const sourcePdf = activeDoc?.pdfDoc;
+  const appliedRotations = {};
   const stillCurrent = () => state.documents.includes(activeDoc)
     && activeDoc.pdfDoc === sourcePdf && activeDoc.filePath === currentPath;
   // The structure edits (tags panel, #384) this save writes. The panel puts a
@@ -557,6 +559,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Apply page rotation if set (combine with existing PDF rotation)
       const appRotation = (activeDoc.pageRotations?.[pageNum] || 0);
+      appliedRotations[pageNum] = appRotation;
       if (appRotation) {
         const existingDeg = page.getRotation().angle;
         page.setRotation(degrees(existingDeg + appRotation));
@@ -3822,16 +3825,21 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // vorige save is veranderd; anders staat ze al in de geladen werkkopie.
     const ocrLaagGewijzigd = !!ocrUitkomst && ocrUitkomst.signature !== activeDoc?.ocrLayerSignature;
     if (ocrUitkomst && activeDoc) activeDoc.ocrLayerPages = ocrUitkomst.layerPages;
-    if ((textEditsGebakken || ocrLaagGewijzigd || naarWerkkopie) && activeDoc) {
+    // A saved rotation is already in /Rotate. Keep the working bytes in the
+    // loaded coordinate frame so PDF.js, native tiles and rotation undo agree.
+    const rotatedSave = hasPageRotations(appliedRotations);
+    if ((textEditsGebakken || ocrLaagGewijzigd || naarWerkkopie || rotatedSave) && activeDoc) {
       try {
+        const renderBytes = await rotationRenderCopy(savedBytes, appliedRotations);
+        if (!stillCurrent()) throw changedDuringSave();
         if (saveAsPath) activeDoc.saveTargetPath = saveAsPath;
         const { reloadFromBytes } = await import('./page-manager.js');
         await reloadFromBytes(
-          savedBytes,
+          renderBytes,
           activeDoc.annotations,
           activeDoc.pageRotations,
           activeDoc.currentPage,
-          null,
+          rotatedSave ? { preserveAnnotationReadiness: true } : null,
           activeDoc,
         );
         // De herlaad zet het document op een verse werkkopie met deze bytes
@@ -4040,6 +4048,7 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
   if (savePath) {
     const wasUntitled = !!doc?.isUntitled || !currentPath;
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
+    const previousTarget = doc?.saveTargetPath || currentPath;
     const success = await savePDF(savePath, opties, doc);
     // Opgeslagen: het document staat nu in een bestand dat de app kon
     // schrijven, dus niet langer alleen-lezen geopend (#1005).
@@ -4068,6 +4077,20 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
         try { await unlockFile(doc.originalFilePath); } catch { /* best effort */ }
       }
       doc.originalFilePath = null;
+    }
+
+    // The saved copy has /Rotate baked in; the render working copy deliberately
+    // does not. Moving rendering to savePath would apply pageRotations twice.
+    if (success && doc && (doc._renderTemp || !isTauri()) && hasPageRotations(doc.pageRotations)) {
+      doc.saveTargetPath = savePath;
+      doc.fileName = bestandsnaamUitPad(savePath) || doc.fileName;
+      doc.isUntitled = false;
+      if (previousTarget && previousTarget !== savePath && previousTarget !== doc.filePath) {
+        try { await unlockFile(previousTarget); } catch { /* best effort */ }
+      }
+      updateWindowTitle();
+      window.__OPDS_SESSION_SAVE__?.();
+      return true;
     }
 
     // If saved to a new path, update the current path and UI
