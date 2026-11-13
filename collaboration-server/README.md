@@ -2,8 +2,9 @@
 
 **Concept, niet inzetbaar als samenwerkingsdienst.** Dit pakket bevat de
 SQLite-kern, WSGI-adapter voor HTTP/live eventupdates en S3-opslagadapter voor
-onveranderlijke PDF-bases. Productie-deployment, Docker-image, kwalificatie tegen
-een echte objectstore en Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
+onveranderlijke PDF-bases. Een Waitress-startcommando, lokaal accountbeheer, databaseback-up en
+Docker/Compose-configuratie zijn aanwezig. Kwalificatie tegen een echte objectstore,
+volledige deploymentkwalificatie en Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
 Issue #1067 wordt door deze eerste stap niet gesloten.
 
 ## Wat nu werkt
@@ -31,8 +32,8 @@ foreign keys en WAL. Zie de [Python SQLite-documentatie](https://docs.python.org
 De sleutelafleiding en tokenaanmaak gebruiken
 [`hashlib.pbkdf2_hmac`](https://docs.python.org/3/library/hashlib.html#hashlib.pbkdf2_hmac)
 en [`secrets`](https://docs.python.org/3/library/secrets.html). Dit is geen
-kwalificatie van een openbare authenticatiedienst: deployment,
-beheer en herstel ontbreken nog.
+kwalificatie van een openbare authenticatiedienst: volledige deployment- en
+herstelkwalificatie ontbreken nog.
 
 ## Contract
 
@@ -113,14 +114,15 @@ limiet of een limiter bij de ingang toevoegen. Achter een proxy delen clients
 voorlopig het IP-budget van die proxy. Accountgerichte limieten kunnen tijdelijk
 ook een legitieme login vertragen.
 
-Er wordt nog geen productieserver geleverd. TLS, socket-/requesttimeouts,
-thread-/verbindingslimieten, logging zonder credentials en gedeelde rate limits
-horen bij de komende deploymentstap. Long polling heeft meerdere requestthreads
-nodig; een enkele synchrone worker blokkeert schrijvers tijdens het wachten.
-Snapshotomvang en eventopslag hebben nog geen documentquota; dit is eveneens
-werk voor deploymentkwalificatie. De loopback-tests gebruiken uitsluitend
-[`wsgiref`](https://docs.python.org/3/library/wsgiref.html), dat Python expliciet
-niet voor productie aanbeveelt.
+Het startcommando gebruikt [Waitress](https://docs.pylonsproject.org/projects/waitress/en/latest/arguments.html)
+met standaard zestien requestthreads, acht pollslots, 64 verbindingen, een
+32 MiB-bodylimiet en een 16 KiB-headerlimiet. Inactieve kanalen sluiten na
+60 seconden; dit is geen absolute deadline voor een langzame actieve client.
+Minimaal vier threads blijven buiten long polling beschikbaar. De proxy moet
+TLS, totale requestdeadlines en eventueel gedeelde rate limits verzorgen.
+Snapshotomvang en eventopslag hebben nog geen documentquota. De eerdere
+loopbacktests gebruiken `wsgiref`; de runtime-smoketest start daarnaast een echt
+Waitress-proces. Volledige productiekwalificatie is nog niet afgerond.
 
 ## Onveranderlijke PDF-opslag
 
@@ -178,11 +180,98 @@ s3 = boto3.client("s3", endpoint_url=s3_endpoint, region_name=s3_region,
 app = Application(store, files=Documents(store, S3Files(s3, bucketnaam)))
 ```
 
-De variabelen komen uit de toekomstige operatorconfiguratie; credentials komen
+Het onderstaande startcommando vult deze variabelen uit de operatorconfiguratie; credentials komen
 uit de normale SDK-providerketen, nooit uit HTTP-verzoeken. Gebruik een private
 bucket en beperk opslagrechten tot de toegewezen prefix. De adapter maakt geen
 bucket aan, wijzigt geen policies en levert geen publieke/presigned URL's. Zonder
 `files`-adapter geven PDF-endpoints `503`. Dit voorbeeld start geen server.
+
+## Starten en lokaal beheer
+
+Installeer Python 3.10+ en de vastgezette dependencies in een eigen virtuele
+omgeving. Vanuit `collaboration-server`:
+
+```sh
+python -m pip install -r requirements.txt
+python -m opds_collaboration --database review.db create-user Alice
+python -m opds_collaboration --database review.db list-users
+```
+
+`create-user` vraagt het wachtwoord tweemaal via een terminal en schrijft alleen
+de nieuwe account-ID naar stdout. Gebruik bij automatisering `--password-stdin`
+en lever één regel via een beschermd invoerkanaal; er bestaat geen wachtwoordoptie
+voor de commandoregel. Beheer is uitsluitend lokaal, nooit via een HTTP-endpoint.
+
+```sh
+python -m opds_collaboration --database review.db disable-user ACCOUNT_ID
+python -m opds_collaboration --database review.db enable-user ACCOUNT_ID
+python -m opds_collaboration --database review.db set-password ACCOUNT_ID
+python -m opds_collaboration --database review.db backup review-2026-11-13.backup
+```
+
+Uitschakelen en wachtwoordherstel maken bestaande sessies ongeldig. Opnieuw
+inschakelen herstelt oude sessies niet. De backupopdracht gebruikt de SQLite
+backup-API, inclusief gecommitteerde WAL-data, en weigert een bestaand doelbestand.
+De backup bevat accounts, sessies, annotaties en S3-verwijzingen, **geen PDF-objecten**.
+Stop voor een gezamenlijk herstelpunt de reviewserver, maak de databaseback-up en
+bewaar de bijbehorende S3-objectversies via de backupvoorziening van de objectstore.
+Een databasekopie alleen is geen volledige backup. Zet voor herstel de kopie in
+een nieuwe database/volume, gebruik dezelfde bucket/objectversies en test eerst
+login, historie en downloads; draai niet twee servers tegen dezelfde SQLite-map.
+Ongewenste herstelde sessies kunnen via wachtwoordherstel worden ingetrokken.
+
+Voor `serve` zijn een bestaande private S3-bucket en SDK-credentials nodig. Er
+worden geen bucket, opslagaccounts of policies automatisch aangemaakt. Configuratie:
+
+| Variabele | Standaard / betekenis |
+| --- | --- |
+| `OPDS_DATABASE` | `review.db`; schrijfbare SQLite-locatie |
+| `OPDS_S3_BUCKET` | Verplicht; bestaande private bucket |
+| `OPDS_S3_ENDPOINT` | Optioneel; normale AWS-endpointkeuze indien leeg, anders HTTP(S)-origin zonder credentials/pad/query |
+| `OPDS_S3_REGION` | `us-east-1` |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` | Normale SDK-providerketen; tijdelijke credentials worden ondersteund |
+| `OPDS_HOST`, `OPDS_PORT` | `127.0.0.1`, `8080` |
+| `OPDS_THREADS`, `OPDS_MAX_WAITERS` | `16`, `8`; minstens vier threads buiten polls |
+
+```sh
+python -m opds_collaboration serve
+```
+
+Dit is één proces. Gebruik geen workerprocessen met onafhankelijke loginlimieten
+voor een openbare installatie zonder aanvullende centrale limiter. Forwarded-
+headers worden niet vertrouwd: achter een proxy delen clients het proxy-IP-budget.
+Controleer de TCP-/TLS- en opslagrechten vóór externe bereikbaarheid.
+
+## Docker met bestaande S3-opslag
+
+De image draait als UID/GID `10001`, gebruikt `/data/review.db` en bewaart geen
+credentials in de image. Compose publiceert alleen op host-loopback en gebruikt
+een persistent volume, een read-only rootfilesystem en een begrensde tijdelijke
+map. S3 wordt bewust extern geconfigureerd: dit pakket levert nog geen gebundelde,
+gekwalificeerde objectstore-installatie. Een endpoint op `localhost` vanuit de
+container verwijst naar die container; gebruik de bereikbare DNS-naam van de S3-dienst.
+
+```sh
+cp .env.example .env
+# Vul in .env de private bucket, endpoint, regio en beperkte SDK-credentials in.
+# Beperk toegang tot dit bestand; het wordt door Git en Docker-build uitgesloten.
+docker compose build
+docker compose run --rm review create-user Alice
+docker compose up -d
+docker compose exec review python -m opds_collaboration list-users
+```
+
+De reverse proxy verzorgt HTTPS voor externe clients. HTTP naar een objectstore is
+alleen bedoeld binnen een door de beheerder vertrouwd netwerk. Geef de dienst
+uitsluitend de benodigde PUT/GET/GetObjectVersion-rechten op de reviewprefix;
+objectverwijdering en bucketbeheer zijn niet nodig. Bij een bind mount moet de
+beheerder de datamap schrijfbaar maken voor UID/GID 10001; verander hiervoor geen
+bestaande gebruikersdocumentmappen. Sla een backup op onder `/data` en kopieer hem
+vervolgens naar de beheerde backupbestemming.
+
+CI bouwt de image lokaal en test twee HTTP-clients, persistentie na herstart,
+accountbeheer en backup als niet-root. De CI-test publiceert geen image en gebruikt
+geen externe S3-service; echte objectstore- en PDF-roundtripkwalificatie blijven open.
 
 ## Testen
 
@@ -194,7 +283,7 @@ python -m unittest discover -s tests -v
 node tests/review-compatibility.mjs
 ```
 
-De eerste opdracht test 43 scenario's met echte tijdelijke databases: meerdere
+De unittest-opdracht test 51 scenario's met echte tijdelijke databases: meerdere
 schrijvers, herhaalde verzoeken, herstart, paginering, rechten, verlopen sessies,
 rollback bij een geïnjecteerde databasefout en ongeldige snapshots. Twee echte
 HTTP-clients testen live updates, conflicten, reconnect, rechtenintrekking en
@@ -204,7 +293,7 @@ herhaalde/gelijktijdige uploads, races met annotaties/toegangsintrekking en
 mislukte S3-/SQL-acties. SDK-contracttests gebruiken
 [Botocore Stubber](https://docs.aws.amazon.com/botocore/latest/reference/stubber.html)
 met expliciete nepcredentials; echte S3/MinIO-kwalificatie is nog niet uitgevoerd.
-De tweede
+De Node-opdracht
 maakt via Python een echte reviewhistorie en speelt deze met de productiecode
 van de app af, inclusief dubbele replay na herverbinden en verwijderen/herstellen.
 `PYTHON` kan desgewenst een ander Python-executable aanwijzen. De bestaande
@@ -212,13 +301,13 @@ Python-CI-matrix voert beide controles op Linux, Windows en macOS uit.
 
 ## Vervolg in dezelfde concept-PR
 
-1. Docker/productie-deployment, configuratie, lokaal accountbeheer en herstel/backup;
-   S3-adapter tegen een echte objectstore kwalificeren, inclusief checksums,
-   conditional writes, versies en ongekoppelde objecten.
+1. S3-adapter tegen een echte objectstore kwalificeren, inclusief checksums,
+   conditional writes, versies en ongekoppelde objecten; gezamenlijke hersteltest,
+   totale requestdeadlines, quota en productiebelasting kwalificeren.
 2. Tauri-adapter met reconnect, zichtbare conflicten en import/export via het
    bestaande PDF-/XFDF-model; twee echte clients testen op één document.
 3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
 
-Databasebestanden en sessietokens horen niet in Git of logregels. Deze eerste
-stap start geen listener, wijzigt geen gebruikersdocumenten en maakt geen
-netwerkverbindingen met opslagdiensten.
+Databasebestanden en sessietokens horen niet in Git of logregels. Het expliciete `serve`-commando start de listener. Alleen beheercommando's en
+verzoeken van aangemelde clients veranderen de reviewdatabase/opslag; er wordt
+geen bestaande gebruikersdocumentmap geïmporteerd.

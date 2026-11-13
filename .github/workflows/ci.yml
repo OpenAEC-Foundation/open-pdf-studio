@@ -420,3 +420,13 @@ jobs:
           cp LICENSE.md python/LICENSE.md
           python -m pip install --upgrade build
           python -m build python --outdir python/dist
+
+  collaboration-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build collaboration image locally (no publication)
+        run: docker build -t opds-review-test collaboration-server
+      - name: Smoke test production server and persistent volume
+        run: python3 collaboration-server/tests/container_smoke.py opds-review-test

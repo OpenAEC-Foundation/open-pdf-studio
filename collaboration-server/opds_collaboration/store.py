@@ -205,6 +205,20 @@ class Store:
             if disabled:
                 db.execute("DELETE FROM sessions WHERE user_id=?", (user,))
 
+    def list_users(self):
+        """Local operator inventory; never expose password/session material."""
+        with self._tx() as db:
+            return [dict(row) for row in db.execute("SELECT id,name,disabled FROM users ORDER BY name_key")]
+
+    def set_password(self, user, password):
+        """Local recovery; invalidate every existing session after a reset."""
+        salt = secrets.token_bytes(32)
+        digest = _derive(_password(password), salt)
+        with self._tx(write=True) as db:
+            if db.execute("UPDATE users SET salt=?,password_hash=? WHERE id=?", (salt, digest, user)).rowcount != 1:
+                raise Invalid("unknown user")
+            db.execute("DELETE FROM sessions WHERE user_id=?", (user,))
+
     def login(self, name, password):
         try:
             _, key = _name(name)
