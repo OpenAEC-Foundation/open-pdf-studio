@@ -2496,6 +2496,10 @@
     "retryLater": "Veuillez réessayer plus tard.",
     "requestFailed": "Échec de la requête. Actualisez ou reconnectez-vous.",
     "openSnapshot": "Ouvrir un instantané",
-    "snapshotHelp": "Ouvre une copie locale avec les annotations actuelles. Les modifications ne sont pas envoyées au serveur."
+    "snapshotHelp": "Ouvre une copie locale avec les annotations actuelles. Les modifications ne sont pas envoyées au serveur.",
+    "documentTitle": "Titre du document",
+    "createDocument": "Créer un document",
+    "uploadPdf": "Importer un PDF",
+    "uploadHelp": "Créez un document, puis importez un PDF (32 Mio max.). Le PDF ne peut pas être remplacé. Après un échec, actualisez avant de réessayer."
   }
 }

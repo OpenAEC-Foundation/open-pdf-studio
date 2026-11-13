@@ -2495,6 +2495,10 @@
     "retryLater": "Please try again later.",
     "requestFailed": "Request failed. Refresh or sign in again.",
     "openSnapshot": "Open snapshot",
-    "snapshotHelp": "Opens a local copy with the current annotations. Changes are not sent to the server."
+    "snapshotHelp": "Opens a local copy with the current annotations. Changes are not sent to the server.",
+    "documentTitle": "Document title",
+    "createDocument": "Create document",
+    "uploadPdf": "Upload PDF",
+    "uploadHelp": "Create a document, then upload one PDF (max. 32 MiB). The PDF cannot be replaced. After a failed request, refresh before retrying."
   }
 }

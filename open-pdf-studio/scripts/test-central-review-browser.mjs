@@ -35,11 +35,19 @@ try {
       if (cmd === 'central_review_login') return `central-${++fixture.session}`;
       if (cmd === 'central_review_logout') return;
       const a = '1'.repeat(32), b = '2'.repeat(32);
+      if (cmd === 'central_review_upload') {
+        const sha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(args.bytes)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+        return {status:200,body:{sha256,size:args.bytes.length}};
+      }
+      if (args.operation.action === 'createDocument') return {status:201,body:{id:'3'.repeat(32)}};
       if (args.operation.action === 'memberByName') return { status: 200, body: { ok: true, userId: b } };
       const next = !!args.operation.after;
       return { status:200, body:{ documents:[{ id:next ? b : a, title:next ? 'Reader document' : '<img src=x onerror=alert(1)> Drawing',
         role:next ? 'reader' : 'owner', revision:0, hasPdf:true }], cursor:next ? b : a, hasMore:!next } };
     } } };
+    fixture.fileMode='cancel';
+    window.__TAURI__.dialog={open:async()=>fixture.fileMode==='cancel'?null:'/chosen.pdf'};
+    window.__TAURI__.fs={stat:async()=>({isFile:true,size:fixture.fileMode==='oversize'?33554433:9}),readFile:async()=>new TextEncoder().encode('%PDF-test')};
     (await import('/js/solid/stores/appMenuStore.js')).openAppMenu();
   });
   await page.getByRole('button',{name:'Central documents',exact:true}).click();
@@ -55,6 +63,23 @@ try {
   await dialog.getByText('<img src=x onerror=alert(1)> Drawing', { exact:true }).waitFor();
   assert.equal(await dialog.locator('img').count(),0,'server text must not become HTML');
   assert.equal(await dialog.locator('input[type=password]').count(),0);
+  await dialog.getByLabel('Document title',{exact:true}).fill('New central drawing');
+  await dialog.getByRole('button',{name:'Create document',exact:true}).click();
+  await dialog.getByText('New central drawing',{exact:true}).waitFor();
+  const uploadButton=dialog.getByRole('button',{name:'Upload PDF',exact:true});
+  assert.equal(await dialog.getByRole('button',{name:'Open snapshot',exact:true}).isDisabled(),true);
+  await uploadButton.click(); // picker cancellation leaves the empty document available
+  await page.waitForFunction(()=>!document.querySelector('.central-review-dialog fieldset').disabled);
+  assert.equal(await page.evaluate(()=>window.reviewTest.calls.filter(([c])=>c==='central_review_upload').length),0);
+  await page.evaluate(()=>window.reviewTest.fileMode='oversize');
+  await uploadButton.click();await dialog.getByRole('alert').waitFor();
+  assert.equal(await page.evaluate(()=>window.reviewTest.calls.filter(([c])=>c==='central_review_upload').length),0);
+  await page.evaluate(()=>window.reviewTest.fileMode='valid');
+  await uploadButton.click();await uploadButton.waitFor({state:'detached'});
+  assert.equal(await dialog.getByRole('button',{name:'Open snapshot',exact:true}).isEnabled(),true);
+  assert.deepEqual(await page.evaluate(()=>window.reviewTest.calls.find(([c])=>c==='central_review_upload')[1].bytes),[37,80,68,70,45,116,101,115,116]);
+  await dialog.getByRole('button',{name:'Refresh',exact:true}).click();
+  await dialog.getByText('<img src=x onerror=alert(1)> Drawing',{exact:true}).waitFor();
   await dialog.locator('input[type=radio]').check();
   await dialog.getByLabel('Account name',{exact:true}).fill('Bob');
   await dialog.getByLabel('Access',{exact:true}).selectOption('editor');
@@ -69,6 +94,7 @@ try {
   await dialog.getByText('Reader document',{exact:true}).waitFor();
   await dialog.locator('input[type=radio]').check();
   assert.equal(await dialog.getByRole('button',{name:'Apply',exact:true}).count(),0,'reader cannot share');
+  assert.equal(await dialog.getByRole('button',{name:'Upload PDF',exact:true}).count(),0,'reader cannot upload');
   assert.equal(await dialog.getByRole('button',{name:'Next page',exact:true}).isDisabled(),true);
   await dialog.getByRole('button',{name:'Refresh',exact:true}).click();
   await dialog.getByText('<img src=x onerror=alert(1)> Drawing',{exact:true}).waitFor();

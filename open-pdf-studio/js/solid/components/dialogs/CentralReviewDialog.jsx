@@ -6,13 +6,14 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { invoke, isTauri } from '../../../core/platform.js';
 import { createCentralReviewSession } from '../../../review/central-review-session.js';
 import { createCentralReviewOpening } from '../../../review/central-review-opening.js';
+import { uploadCentralPdf } from '../../../review/central-review-upload.js';
 import '../../../../styles/central-review.css';
 
 export default function CentralReviewDialog() {
   const { t } = useTranslation('dialogs');
   const view = createMutable({ connected: false, busy: false, rows: [], cursor: '', more: false,
     selected: '', error: '', notice: '' });
-  let serverInput, nameInput, passwordInput, recipientInput, roleInput;
+  let serverInput, nameInput, passwordInput, recipientInput, roleInput, titleInput;
   let alive = true, operation = 0, opening = null;
   const logoutWarning = () => {
     const message = t('centralReview.logoutWarning');
@@ -88,6 +89,30 @@ export default function CentralReviewDialog() {
       } finally { if (opening === activeOpening) opening = null; }
     });
   };
+  const createDocument = (e) => {
+    e.preventDefault();
+    const title = titleInput.value;
+    void act(async valid => {
+      const row = await client.createDocument(title);
+      if (!valid()) return;
+      // Show the new row directly; its random ID need not lie on page one.
+      view.rows = [row]; view.cursor = row.id; view.more = false; view.selected = row.id;
+      titleInput.value = '';
+    });
+  };
+  const upload = () => {
+    const row = selected();
+    if (!row || row.role !== 'owner' || row.hasPdf || row.revision !== 0) return;
+    void act(async valid => {
+      const uploaded = await uploadCentralPdf(client, row.id, {
+        choose: () => window.__TAURI__.dialog.open({ multiple: false, directory: false,
+          filters: [{ name: 'PDF', extensions: ['pdf'] }] }),
+        stat: path => window.__TAURI__.fs.stat(path),
+        read: path => window.__TAURI__.fs.readFile(path),
+      }, valid);
+      if (uploaded && valid()) row.hasPdf = true;
+    });
+  };
   const selected = () => view.rows.find((row) => row.id === view.selected);
   const close = () => closeDialog('central-review');
   return <Dialog title={t('centralReview.title')} onClose={close}
@@ -101,6 +126,13 @@ export default function CentralReviewDialog() {
           <button class="pref-btn" disabled={view.busy || !view.more} onClick={() => { const after = view.cursor; void act((valid) => load(after, valid)); }}>{t('centralReview.more')}</button>
           <button class="pref-btn" onClick={logout}>{t('centralReview.signOut')}</button>
         </div>
+        <form onSubmit={createDocument}>
+          <fieldset disabled={view.busy}>
+            <label>{t('centralReview.documentTitle')}<input ref={titleInput} type="text" required maxlength="128" autocomplete="off" /></label>
+            <button class="pref-btn" type="submit">{t('centralReview.createDocument')}</button>
+          </fieldset>
+        </form>
+        <p>{t('centralReview.uploadHelp')}</p>
         <fieldset disabled={view.busy} class="central-review-documents">
           <legend>{t('centralReview.documents')}</legend>
           <Show when={view.rows.length} fallback={<p>{view.busy ? t('common:loading') : t('centralReview.empty')}</p>}>
@@ -111,6 +143,9 @@ export default function CentralReviewDialog() {
             </label>}</For>
           </Show>
         </fieldset>
+        <Show when={selected()?.role === 'owner' && !selected()?.hasPdf && selected()?.revision === 0}>
+          <button class="pref-btn" disabled={view.busy} onClick={upload}>{t('centralReview.uploadPdf')}</button>
+        </Show>
         <p>{t('centralReview.snapshotHelp')}</p>
         <button class="pref-btn" disabled={view.busy || !selected()?.hasPdf} onClick={openSnapshot}>{t('centralReview.openSnapshot')}</button>
         <Show when={selected()?.role === 'owner'}>

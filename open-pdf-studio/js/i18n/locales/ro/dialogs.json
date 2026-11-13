@@ -2496,6 +2496,10 @@
     "retryLater": "Încercați din nou mai târziu.",
     "requestFailed": "Cerere eșuată. Reîmprospătați sau autentificați-vă din nou.",
     "openSnapshot": "Deschide instantaneul",
-    "snapshotHelp": "Deschide o copie locală cu adnotările actuale. Modificările nu sunt trimise la server."
+    "snapshotHelp": "Deschide o copie locală cu adnotările actuale. Modificările nu sunt trimise la server.",
+    "documentTitle": "Titlul documentului",
+    "createDocument": "Creează document",
+    "uploadPdf": "Încarcă PDF",
+    "uploadHelp": "Creați un document, apoi încărcați un PDF (max. 32 MiB). PDF-ul nu poate fi înlocuit. După o cerere eșuată, reîmprospătați înainte de a reîncerca."
   }
 }

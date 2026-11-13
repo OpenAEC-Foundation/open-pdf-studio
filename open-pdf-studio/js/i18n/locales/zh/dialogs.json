@@ -2496,6 +2496,10 @@
     "retryLater": "请稍后重试。",
     "requestFailed": "请求失败。请刷新或重新登录。",
     "openSnapshot": "打开快照",
-    "snapshotHelp": "打开包含当前批注的本地副本。更改不会发送到服务器。"
+    "snapshotHelp": "打开包含当前批注的本地副本。更改不会发送到服务器。",
+    "documentTitle": "文档标题",
+    "createDocument": "创建文档",
+    "uploadPdf": "上传 PDF",
+    "uploadHelp": "先创建文档，再上传一个 PDF（最大 32 MiB）。PDF 无法替换。请求失败后，请先刷新再重试。"
   }
 }

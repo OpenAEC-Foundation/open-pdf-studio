@@ -2496,6 +2496,10 @@
     "retryLater": "Pokušajte ponovno kasnije.",
     "requestFailed": "Zahtjev nije uspio. Osvježite ili se ponovno prijavite.",
     "openSnapshot": "Otvori snimku",
-    "snapshotHelp": "Otvara lokalnu kopiju s trenutačnim bilješkama. Promjene se ne šalju poslužitelju."
+    "snapshotHelp": "Otvara lokalnu kopiju s trenutačnim bilješkama. Promjene se ne šalju poslužitelju.",
+    "documentTitle": "Naslov dokumenta",
+    "createDocument": "Stvori dokument",
+    "uploadPdf": "Prenesi PDF",
+    "uploadHelp": "Stvorite dokument i prenesite jedan PDF (najviše 32 MiB). PDF nije moguće zamijeniti. Nakon neuspjelog zahtjeva osvježite prije ponovnog pokušaja."
   }
 }

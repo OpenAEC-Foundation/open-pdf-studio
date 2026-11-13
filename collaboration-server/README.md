@@ -424,7 +424,8 @@ met twee complete Tauri-appclients op hetzelfde document.
    quota en productiebelasting uitwerken; de lokale MinIO-test dekt die niet.
 2. Live reviewsessies op het native transport aansluiten, met polling/reconnect,
    zichtbare conflicten en het publiceren van lokale wijzigingen. Upload/aanmaak
-   vanuit het venster toevoegen; twee echte clients testen op één document.
+   vanuit het venster met echte native bestanden kwalificeren; twee echte clients
+   testen op één document.
 3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
 
 Databasebestanden en sessietokens horen niet in Git of logregels. Het expliciete `serve`-commando start de listener. Alleen beheercommando's en
@@ -519,4 +520,29 @@ behoud van een PDF-annotatie, een centrale toevoeging en een centrale verwijderi
 De aparte dialoogproef controleert annuleren tijdens download. Dit is nog geen
 volledige Tauri-eind-tot-eindproef; native tijdelijke bestanden op drie OS'en en
 twee complete clients blijven te kwalificeren. Live lezen/schrijven,
-conflictbediening en upload/aanmaak vanuit het venster blijven open.
+conflictbediening en het publiceren van lokale wijzigingen blijven open.
+
+### Document aanmaken en PDF uploaden
+
+Het beheervenster heeft **Document aanmaken** en, voor een geselecteerd leeg
+owner-document zonder events, **PDF uploaden**. Aanmaken toont de nieuwe rij
+direct, ook als de willekeurige ID niet op de eerste lijstpagina valt. Titels
+worden als NFC genormaliseerd en begrensd op 128 tekens, zoals op de server.
+Aanmaken en uploaden zijn afzonderlijke handelingen; annuleren van de
+bestandskiezer laat het lege document bestaan. Vernieuwen toont de serverstand.
+
+De bestandskiezer selecteert één lokaal bestand, dat uitsluitend wordt gelezen.
+Stat weigert mappen en bestanden boven 32 MiB vóór inlezen; de bytes worden
+opnieuw op lengte en PDF-header gecontroleerd. De client kopieert de bytes vóór
+hashen en controleert het uploadantwoord op exacte SHA-256 en omvang. Een andere
+login, sluiten of afmelden tijdens kiezen/lezen/hashen voorkomt een nieuwe
+upload; late netwerkantwoorden kunnen geen gesloten venster bijwerken.
+De server blijft beslissend over eigenaarschap en de onveranderlijke PDF-basis.
+
+Er zijn geen automatische retries of deletes na een onzekere aanvraag. De UI
+adviseert eerst te vernieuwen, omdat aanmaken/uploaden al kan zijn vastgelegd.
+De PDF kan na upload niet worden vervangen; identieke bytes opnieuw aanbieden
+is op de server idempotent. Headercontrole is geen volledige PDF-validatie:
+het openen toetst de PDF met de bestaande loader. De browserproef gebruikt een
+nagebootste native bestandskiezer, bestandssysteem en transport. Echte native
+bestandstoegang en twee complete Tauri-clients blijven te kwalificeren.

@@ -68,3 +68,11 @@ test('manager requests cannot finish after it closes, even when a PDF retains th
   wait.resolve({status:200,body:{documents:[],cursor:'',hasMore:false}});
   await assert.rejects(request,/STALE/);assert.equal(lease.isCurrent(),true);await lease.dispose();
 });
+
+test('closing manager during upload hashing sends nothing through a retained PDF login',async()=>{
+  const {session,calls}=rig();await login(session);const lease=session.retain(A);
+  const upload=session.upload(A,new TextEncoder().encode('%PDF-test'));
+  await session.dispose();await assert.rejects(upload,/STALE/);
+  assert.equal(calls.filter(([c])=>c==='central_review_upload').length,0);
+  assert.equal(lease.isCurrent(),true);await lease.dispose();
+});

@@ -2496,6 +2496,10 @@
     "retryLater": "Tafadhali jaribu tena baadaye.",
     "requestFailed": "Ombi limeshindwa. Onyesha upya au ingia tena.",
     "openSnapshot": "Fungua nakala ya sasa",
-    "snapshotHelp": "Hufungua nakala ya ndani yenye maelezo ya sasa. Mabadiliko hayatumwi kwa seva."
+    "snapshotHelp": "Hufungua nakala ya ndani yenye maelezo ya sasa. Mabadiliko hayatumwi kwa seva.",
+    "documentTitle": "Kichwa cha hati",
+    "createDocument": "Unda hati",
+    "uploadPdf": "Pakia PDF",
+    "uploadHelp": "Unda hati, kisha pakia PDF moja (kiwango cha juu 32 MiB). PDF haiwezi kubadilishwa. Ombi likishindwa, onyesha upya kabla ya kujaribu tena."
   }
 }

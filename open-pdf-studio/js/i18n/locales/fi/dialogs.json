@@ -2496,6 +2496,10 @@
     "retryLater": "Yritä myöhemmin uudelleen.",
     "requestFailed": "Pyyntö epäonnistui. Päivitä tai kirjaudu uudelleen.",
     "openSnapshot": "Avaa tilannekuva",
-    "snapshotHelp": "Avaa paikallisen kopion nykyisine merkintöineen. Muutoksia ei lähetetä palvelimelle."
+    "snapshotHelp": "Avaa paikallisen kopion nykyisine merkintöineen. Muutoksia ei lähetetä palvelimelle.",
+    "documentTitle": "Asiakirjan otsikko",
+    "createDocument": "Luo asiakirja",
+    "uploadPdf": "Lataa PDF",
+    "uploadHelp": "Luo asiakirja ja lataa yksi PDF (enintään 32 MiB). PDF-tiedostoa ei voi korvata. Päivitä epäonnistuneen pyynnön jälkeen ennen uutta yritystä."
   }
 }

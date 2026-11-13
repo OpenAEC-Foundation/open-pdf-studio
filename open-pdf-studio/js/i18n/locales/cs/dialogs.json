@@ -2496,6 +2496,10 @@
     "retryLater": "Zkuste to později znovu.",
     "requestFailed": "Požadavek selhal. Obnovte nebo se přihlaste znovu.",
     "openSnapshot": "Otevřít snímek",
-    "snapshotHelp": "Otevře místní kopii s aktuálními anotacemi. Změny se neodesílají na server."
+    "snapshotHelp": "Otevře místní kopii s aktuálními anotacemi. Změny se neodesílají na server.",
+    "documentTitle": "Název dokumentu",
+    "createDocument": "Vytvořit dokument",
+    "uploadPdf": "Nahrát PDF",
+    "uploadHelp": "Vytvořte dokument a nahrajte jeden PDF (max. 32 MiB). PDF nelze nahradit. Po neúspěšném požadavku před dalším pokusem obnovte seznam."
   }
 }

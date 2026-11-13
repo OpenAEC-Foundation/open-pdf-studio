@@ -844,3 +844,4 @@ js/review/central-review-sync.test.mjs
 js/review/central-review-session.test.mjs
 js/review/central-review-opening.test.mjs
 js/review/central-review-pdf-adapter.test.mjs
+js/review/central-review-upload.test.mjs

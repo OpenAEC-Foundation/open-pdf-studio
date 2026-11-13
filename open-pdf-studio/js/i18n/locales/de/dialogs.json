@@ -2496,6 +2496,10 @@
     "retryLater": "Bitte später erneut versuchen.",
     "requestFailed": "Anfrage fehlgeschlagen. Aktualisieren oder erneut anmelden.",
     "openSnapshot": "Momentaufnahme öffnen",
-    "snapshotHelp": "Öffnet eine lokale Kopie mit den aktuellen Anmerkungen. Änderungen werden nicht an den Server gesendet."
+    "snapshotHelp": "Öffnet eine lokale Kopie mit den aktuellen Anmerkungen. Änderungen werden nicht an den Server gesendet.",
+    "documentTitle": "Dokumenttitel",
+    "createDocument": "Dokument erstellen",
+    "uploadPdf": "PDF hochladen",
+    "uploadHelp": "Erstellen Sie ein Dokument und laden Sie eine PDF hoch (max. 32 MiB). Die PDF kann nicht ersetzt werden. Aktualisieren Sie nach einem fehlgeschlagenen Vorgang vor einem erneuten Versuch."
   }
 }

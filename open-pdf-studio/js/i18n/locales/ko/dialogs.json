@@ -2496,6 +2496,10 @@
     "retryLater": "나중에 다시 시도하세요.",
     "requestFailed": "요청하지 못했습니다. 새로 고치거나 다시 로그인하세요.",
     "openSnapshot": "스냅샷 열기",
-    "snapshotHelp": "현재 주석이 포함된 로컬 사본을 엽니다. 변경 사항은 서버로 전송되지 않습니다."
+    "snapshotHelp": "현재 주석이 포함된 로컬 사본을 엽니다. 변경 사항은 서버로 전송되지 않습니다.",
+    "documentTitle": "문서 제목",
+    "createDocument": "문서 만들기",
+    "uploadPdf": "PDF 업로드",
+    "uploadHelp": "문서를 만든 다음 PDF 하나를 업로드하세요(최대 32 MiB). PDF는 교체할 수 없습니다. 요청 실패 후 다시 시도하기 전에 새로 고침하세요."
   }
 }

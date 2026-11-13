@@ -109,7 +109,7 @@ test('reject invalid UI operations before invoking the network', async () => {
 test('all shipped languages have nonempty central manager labels and messages', () => {
   const root = new URL('../i18n/locales/', import.meta.url);
   const reference = JSON.parse(readFileSync(new URL('en/dialogs.json',root))).centralReview;
-  assert.equal(Object.keys(reference).length,24);
+  assert.equal(Object.keys(reference).length,28);
   for (const folder of readdirSync(root,{withFileTypes:true}).filter(f=>f.isDirectory())) {
     const values = JSON.parse(readFileSync(new URL(`${folder.name}/dialogs.json`,root))).centralReview;
     assert.deepEqual(Object.keys(values).sort(),Object.keys(reference).sort(),folder.name);
@@ -144,4 +144,52 @@ test('append preserves structured conflicts and rejects mismatched acknowledgeme
   await assert.rejects(client.append(A,request),/INVALID_RESPONSE/);
   reply = {status:409,body:{current:'invalid / value'}};
   await assert.rejects(client.append(A,request),/INVALID_RESPONSE/);
+});
+
+test('create validates title and the 201 identifier without automatically retrying', async () => {
+  let calls=0, reply={status:201,body:{id:A}};
+  const client=createCentralReviewClient(async (cmd,args)=>{
+    if(cmd==='central_review_login')return 'central-1';
+    calls++;assert.deepEqual(args.operation,{action:'createDocument',title:'Drawing'});return reply;
+  });
+  await client.login('https://server.test','Alice','secret');
+  for(const title of ['', '   ', 'x'.repeat(129), 'bad\nname', null]) await assert.rejects(client.createDocument(title),/INVALID_REQUEST/);
+  assert.equal(calls,0);
+  assert.deepEqual(await client.createDocument(' Drawing '),{id:A,title:'Drawing',role:'owner',revision:0,hasPdf:false});
+  reply={status:200,body:{id:A}};await assert.rejects(client.createDocument('Drawing'),/REQUEST_FAILED/);
+  reply={status:201,body:{id:'../unsafe'}};await assert.rejects(client.createDocument('Drawing'),/INVALID_RESPONSE/);
+  reply={status:503,body:{error:'private server details'}};await assert.rejects(client.createDocument('Drawing'),/UNAVAILABLE/);
+  assert.equal(calls,4);
+});
+
+test('upload pins bytes and verifies exact digest/size; invalid input never reaches native', async () => {
+  let calls=0, mutateReply=r=>r, received;
+  const client=createCentralReviewClient(async (cmd,args)=>{
+    if(cmd==='central_review_login')return 'central-1';
+    calls++;assert.equal(cmd,'central_review_upload');received=args.bytes;
+    const sha256=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new Uint8Array(args.bytes)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+    return mutateReply({status:200,body:{sha256,size:args.bytes.length}});
+  });
+  await client.login('https://server.test','Alice','secret');
+  const pdf=new TextEncoder().encode('%PDF-original');
+  const request=client.upload(A,pdf);pdf[5]=0;await request;assert.equal(received[5],111);
+  for(const data of ['%PDF-test',new Uint8Array(4),new Uint8Array(32*1024*1024+1)]) await assert.rejects(client.upload(A,data),/INVALID_PDF/);
+  await assert.rejects(client.upload('../bad',pdf),/INVALID_REQUEST/);assert.equal(calls,1);
+  mutateReply=r=>({...r,body:{...r.body,sha256:'0'.repeat(64)}});await assert.rejects(client.upload(A,pdf),/INVALID_RESPONSE/);
+  mutateReply=r=>({...r,body:{...r.body,size:99}});await assert.rejects(client.upload(A,pdf),/INVALID_RESPONSE/);
+  mutateReply=()=>({status:409,body:{current:null}});await assert.rejects(client.upload(A,pdf),/CONFLICT/);
+});
+
+test('logout during upload digest and native request prevents account crossover and late success', async () => {
+  let count=0, started=deferred(), reply=deferred();
+  const client=createCentralReviewClient(async cmd=>{
+    if(cmd==='central_review_login') return 'central-1';
+    if(cmd==='central_review_upload'){count++;started.resolve();return reply.promise;}
+  });
+  const pdf=new TextEncoder().encode('%PDF-test');
+  await client.login('https://server.test','Alice','secret');
+  const digestPending=client.upload(A,pdf);await client.logout();await client.login('https://server.test','Bob','secret');
+  await assert.rejects(digestPending,/STALE/);assert.equal(count,0);
+  const nativePending=client.upload(A,pdf);await started.promise;await client.logout();reply.resolve({status:200,body:{}});
+  await assert.rejects(nativePending,/STALE/);assert.equal(count,1);
 });

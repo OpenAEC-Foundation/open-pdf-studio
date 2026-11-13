@@ -42,9 +42,8 @@ export function createCentralReviewClient(invoke, onLogoutWarning = () => {}) {
     if (!current(version)) throw fail('STALE');
     return reply;
   }
-  async function json(operation) {
-    const reply = await request('central_review_json', { operation });
-    if (reply?.status !== 200) {
+  function bodyOf(reply, status = 200) {
+    if (reply?.status !== status) {
       const error = fail(({ 400: 'INVALID_REQUEST', 401: 'SESSION_CLOSED',
         403: 'ACCESS_DENIED', 409: 'CONFLICT', 429: 'RATE_LIMITED', 503: 'UNAVAILABLE' })[reply?.status] || 'REQUEST_FAILED');
       if (reply?.status === 409) {
@@ -54,6 +53,9 @@ export function createCentralReviewClient(invoke, onLogoutWarning = () => {}) {
       throw error;
     }
     return reply.body;
+  }
+  async function json(operation, status = 200) {
+    return bodyOf(await request('central_review_json', { operation }), status);
   }
   const checkDocument = document => {
     if (typeof document !== 'string' || !ID.test(document)) throw fail('INVALID_REQUEST');
@@ -80,6 +82,27 @@ export function createCentralReviewClient(invoke, onLogoutWarning = () => {}) {
     async documents(after = null) {
       if (after !== null && (typeof after !== 'string' || !ID.test(after))) throw fail('INVALID_REQUEST');
       return documentPage(await json({ action: 'documents', after, limit: 50 }), after, 50);
+    },
+    async createDocument(title) {
+      if (typeof title !== 'string') throw fail('INVALID_REQUEST');
+      title = title.normalize('NFC').trim();
+      if (!title || [...title].length > 128 || /[\x00-\x1f]/.test(title)) throw fail('INVALID_REQUEST');
+      const result = await json({ action: 'createDocument', title }, 201);
+      if (typeof result?.id !== 'string' || !ID.test(result.id)) throw fail('INVALID_RESPONSE');
+      return { id: result.id, title, role: 'owner', revision: 0, hasPdf: false };
+    },
+    async upload(document, source, allowed = () => true) {
+      checkDocument(document);
+      if (!(source instanceof Uint8Array) || source.length > 32 * 1024 * 1024 ||
+          ![37,80,68,70,45].every((value, index) => source[index] === value)) throw fail('INVALID_PDF');
+      // Pin bytes before the first await. A new login must never inherit an
+      // upload prepared by the previous account while its digest was pending.
+      const bytes = source.slice(), version = generation;
+      const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
+        .map(value => value.toString(16).padStart(2, '0')).join('');
+      if (!current(version) || !allowed()) throw fail('STALE');
+      const result = bodyOf(await request('central_review_upload', { document, bytes: Array.from(bytes) }));
+      if (result?.sha256 !== digest || result?.size !== bytes.length) throw fail('INVALID_RESPONSE');
     },
     async share(document, name, role) {
       if (typeof document !== 'string' || !ID.test(document) || typeof name !== 'string' || !name.trim() || ![null, 'reader', 'editor'].includes(role)) throw fail('INVALID_REQUEST');

@@ -26,6 +26,12 @@ export function createCentralReviewSession(invoke, onLogoutWarning) {
       connected = true;
     },
     documents(...args) { return manage('documents', args); },
+    createDocument(...args) { return manage('createDocument', args); },
+    upload(document, bytes) {
+      owner();
+      const version = generation;
+      return manage('upload', [document, bytes, () => !ownerClosed && generation === version]);
+    },
     share(...args) { return manage('share', args); },
     retain(document) {
       owner();

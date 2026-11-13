@@ -2496,6 +2496,10 @@
     "retryLater": "Riprovare più tardi.",
     "requestFailed": "Richiesta non riuscita. Aggiornare o accedere di nuovo.",
     "openSnapshot": "Apri istantanea",
-    "snapshotHelp": "Apre una copia locale con le annotazioni attuali. Le modifiche non vengono inviate al server."
+    "snapshotHelp": "Apre una copia locale con le annotazioni attuali. Le modifiche non vengono inviate al server.",
+    "documentTitle": "Titolo del documento",
+    "createDocument": "Crea documento",
+    "uploadPdf": "Carica PDF",
+    "uploadHelp": "Crea un documento e carica un PDF (max. 32 MiB). Il PDF non può essere sostituito. Dopo una richiesta non riuscita, aggiorna prima di riprovare."
   }
 }

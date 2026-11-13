@@ -2496,6 +2496,10 @@
     "retryLater": "Spróbuj ponownie później.",
     "requestFailed": "Żądanie nie powiodło się. Odśwież lub zaloguj się ponownie.",
     "openSnapshot": "Otwórz migawkę",
-    "snapshotHelp": "Otwiera lokalną kopię z aktualnymi adnotacjami. Zmiany nie są wysyłane na serwer."
+    "snapshotHelp": "Otwiera lokalną kopię z aktualnymi adnotacjami. Zmiany nie są wysyłane na serwer.",
+    "documentTitle": "Tytuł dokumentu",
+    "createDocument": "Utwórz dokument",
+    "uploadPdf": "Prześlij PDF",
+    "uploadHelp": "Utwórz dokument i prześlij jeden PDF (maks. 32 MiB). Pliku PDF nie można zastąpić. Po nieudanym żądaniu odśwież przed ponowną próbą."
   }
 }

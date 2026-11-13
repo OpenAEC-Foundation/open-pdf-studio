@@ -2496,6 +2496,10 @@
     "retryLater": "Probeer het later opnieuw.",
     "requestFailed": "Verzoek mislukt. Vernieuw of meld opnieuw aan.",
     "openSnapshot": "Momentopname openen",
-    "snapshotHelp": "Opent een lokale kopie met de huidige annotaties. Wijzigingen worden niet naar de server gestuurd."
+    "snapshotHelp": "Opent een lokale kopie met de huidige annotaties. Wijzigingen worden niet naar de server gestuurd.",
+    "documentTitle": "Documenttitel",
+    "createDocument": "Document aanmaken",
+    "uploadPdf": "PDF uploaden",
+    "uploadHelp": "Maak een document aan en upload één PDF (max. 32 MiB). De PDF kan niet worden vervangen. Vernieuw na een mislukt verzoek voordat je opnieuw probeert."
   }
 }

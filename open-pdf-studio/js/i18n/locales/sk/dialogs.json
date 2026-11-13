@@ -2496,6 +2496,10 @@
     "retryLater": "Skúste to neskôr znova.",
     "requestFailed": "Požiadavka zlyhala. Obnovte alebo sa prihláste znova.",
     "openSnapshot": "Otvoriť snímku",
-    "snapshotHelp": "Otvorí lokálnu kópiu s aktuálnymi anotáciami. Zmeny sa neodosielajú na server."
+    "snapshotHelp": "Otvorí lokálnu kópiu s aktuálnymi anotáciami. Zmeny sa neodosielajú na server.",
+    "documentTitle": "Názov dokumentu",
+    "createDocument": "Vytvoriť dokument",
+    "uploadPdf": "Nahrať PDF",
+    "uploadHelp": "Vytvorte dokument a nahrajte jeden PDF (max. 32 MiB). PDF nemožno nahradiť. Po neúspešnej požiadavke pred ďalším pokusom obnovte zoznam."
   }
 }

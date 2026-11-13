@@ -2496,6 +2496,10 @@
     "retryLater": "Torneu-ho a provar més tard.",
     "requestFailed": "Ha fallat la petició. Actualitzeu o torneu a iniciar sessió.",
     "openSnapshot": "Obre una instantània",
-    "snapshotHelp": "Obre una còpia local amb les anotacions actuals. Els canvis no s’envien al servidor."
+    "snapshotHelp": "Obre una còpia local amb les anotacions actuals. Els canvis no s’envien al servidor.",
+    "documentTitle": "Títol del document",
+    "createDocument": "Crea un document",
+    "uploadPdf": "Puja un PDF",
+    "uploadHelp": "Creeu un document i pugeu un PDF (màx. 32 MiB). El PDF no es pot substituir. Si una sol·licitud falla, actualitzeu abans de tornar-ho a provar."
   }
 }

@@ -2496,6 +2496,10 @@
     "retryLater": "Prøv igen senere.",
     "requestFailed": "Anmodning mislykkedes. Opdatér eller log ind igen.",
     "openSnapshot": "Åbn øjebliksbillede",
-    "snapshotHelp": "Åbner en lokal kopi med de aktuelle annoteringer. Ændringer sendes ikke til serveren."
+    "snapshotHelp": "Åbner en lokal kopi med de aktuelle annoteringer. Ændringer sendes ikke til serveren.",
+    "documentTitle": "Dokumenttitel",
+    "createDocument": "Opret dokument",
+    "uploadPdf": "Upload PDF",
+    "uploadHelp": "Opret et dokument, og upload én PDF (maks. 32 MiB). PDF-filen kan ikke erstattes. Opdater efter en mislykket anmodning, før du prøver igen."
   }
 }

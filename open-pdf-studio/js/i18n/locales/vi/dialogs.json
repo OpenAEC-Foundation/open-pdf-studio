@@ -2496,6 +2496,10 @@
     "retryLater": "Vui lòng thử lại sau.",
     "requestFailed": "Yêu cầu thất bại. Làm mới hoặc đăng nhập lại.",
     "openSnapshot": "Mở ảnh chụp trạng thái",
-    "snapshotHelp": "Mở bản sao cục bộ với các chú thích hiện tại. Thay đổi không được gửi lên máy chủ."
+    "snapshotHelp": "Mở bản sao cục bộ với các chú thích hiện tại. Thay đổi không được gửi lên máy chủ.",
+    "documentTitle": "Tiêu đề tài liệu",
+    "createDocument": "Tạo tài liệu",
+    "uploadPdf": "Tải PDF lên",
+    "uploadHelp": "Tạo tài liệu rồi tải lên một PDF (tối đa 32 MiB). Không thể thay thế PDF. Nếu yêu cầu thất bại, hãy làm mới trước khi thử lại."
   }
 }

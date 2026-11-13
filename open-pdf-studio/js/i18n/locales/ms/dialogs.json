@@ -2496,6 +2496,10 @@
     "retryLater": "Cuba lagi kemudian.",
     "requestFailed": "Permintaan gagal. Muat semula atau log masuk semula.",
     "openSnapshot": "Buka petikan keadaan",
-    "snapshotHelp": "Membuka salinan setempat dengan anotasi semasa. Perubahan tidak dihantar ke pelayan."
+    "snapshotHelp": "Membuka salinan setempat dengan anotasi semasa. Perubahan tidak dihantar ke pelayan.",
+    "documentTitle": "Tajuk dokumen",
+    "createDocument": "Cipta dokumen",
+    "uploadPdf": "Muat naik PDF",
+    "uploadHelp": "Cipta dokumen, kemudian muat naik satu PDF (maks. 32 MiB). PDF tidak boleh diganti. Jika permintaan gagal, muat semula sebelum mencuba lagi."
   }
 }

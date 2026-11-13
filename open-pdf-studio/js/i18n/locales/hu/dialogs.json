@@ -2496,6 +2496,10 @@
     "retryLater": "Próbálja újra később.",
     "requestFailed": "Sikertelen kérés. Frissítsen vagy jelentkezzen be újra.",
     "openSnapshot": "Pillanatkép megnyitása",
-    "snapshotHelp": "Helyi másolatot nyit meg az aktuális megjegyzésekkel. A módosításokat nem küldi el a szervernek."
+    "snapshotHelp": "Helyi másolatot nyit meg az aktuális megjegyzésekkel. A módosításokat nem küldi el a szervernek.",
+    "documentTitle": "Dokumentum címe",
+    "createDocument": "Dokumentum létrehozása",
+    "uploadPdf": "PDF feltöltése",
+    "uploadHelp": "Hozzon létre dokumentumot, majd töltsön fel egy PDF-et (legfeljebb 32 MiB). A PDF nem cserélhető le. Sikertelen kérés után frissítsen az újrapróbálkozás előtt."
   }
 }

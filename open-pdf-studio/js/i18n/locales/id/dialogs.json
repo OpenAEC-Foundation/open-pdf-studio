@@ -2496,6 +2496,10 @@
     "retryLater": "Coba lagi nanti.",
     "requestFailed": "Permintaan gagal. Muat ulang atau masuk lagi.",
     "openSnapshot": "Buka snapshot",
-    "snapshotHelp": "Membuka salinan lokal dengan anotasi saat ini. Perubahan tidak dikirim ke server."
+    "snapshotHelp": "Membuka salinan lokal dengan anotasi saat ini. Perubahan tidak dikirim ke server.",
+    "documentTitle": "Judul dokumen",
+    "createDocument": "Buat dokumen",
+    "uploadPdf": "Unggah PDF",
+    "uploadHelp": "Buat dokumen, lalu unggah satu PDF (maks. 32 MiB). PDF tidak dapat diganti. Jika permintaan gagal, segarkan sebelum mencoba lagi."
   }
 }

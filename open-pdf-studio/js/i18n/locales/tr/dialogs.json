@@ -2496,6 +2496,10 @@
     "retryLater": "Lütfen daha sonra tekrar deneyin.",
     "requestFailed": "İstek başarısız. Yenileyin veya tekrar giriş yapın.",
     "openSnapshot": "Anlık görüntüyü aç",
-    "snapshotHelp": "Güncel açıklamalarla yerel bir kopya açar. Değişiklikler sunucuya gönderilmez."
+    "snapshotHelp": "Güncel açıklamalarla yerel bir kopya açar. Değişiklikler sunucuya gönderilmez.",
+    "documentTitle": "Belge başlığı",
+    "createDocument": "Belge oluştur",
+    "uploadPdf": "PDF yükle",
+    "uploadHelp": "Bir belge oluşturup bir PDF yükleyin (en fazla 32 MiB). PDF değiştirilemez. Başarısız bir istekten sonra tekrar denemeden önce yenileyin."
   }
 }

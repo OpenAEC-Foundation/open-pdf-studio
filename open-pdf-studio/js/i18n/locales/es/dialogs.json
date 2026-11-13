@@ -2496,6 +2496,10 @@
     "retryLater": "Inténtelo de nuevo más tarde.",
     "requestFailed": "Error en la solicitud. Actualice o vuelva a iniciar sesión.",
     "openSnapshot": "Abrir instantánea",
-    "snapshotHelp": "Abre una copia local con las anotaciones actuales. Los cambios no se envían al servidor."
+    "snapshotHelp": "Abre una copia local con las anotaciones actuales. Los cambios no se envían al servidor.",
+    "documentTitle": "Título del documento",
+    "createDocument": "Crear documento",
+    "uploadPdf": "Subir PDF",
+    "uploadHelp": "Cree un documento y suba un PDF (máx. 32 MiB). El PDF no se puede sustituir. Si una solicitud falla, actualice antes de reintentarlo."
   }
 }
