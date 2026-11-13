@@ -461,3 +461,28 @@ rechtenintrekking. Dit is geen volledige Tauri-eind-tot-eindproef; de bestaande
 native/S3-proef kwalificeert de afzonderlijke netwerkgrens. De kern is nog niet
 aan PDF-tabs, sessieoverdracht, polling/reconnectbediening, conflict-UI of de
 PDF/XFDF-save-hooks gekoppeld. De bestaande gedeelde-mapreview blijft intact.
+
+### Sessiebehoud en de openingscoördinator
+
+Het beheervenster gebruikt `central-review-session.js`. Een toekomstige PDF-tab
+kan met `retain(documentId)` een uitsluitend op dat document gerichte verbinding
+behouden. Sluiten van het venster laat zulke verbindingen bestaan; sluiten van
+de laatste eigenaar meldt native af. Expliciet afmelden of opnieuw aanmelden
+maakt alle oude documentverbindingen ongeldig. Een oude verbinding kan nooit de
+rechten van een nieuwe account overnemen. Zowel document- als beheerverzoeken
+controleren hun levensduur opnieuw na asynchrone antwoorden. Er worden geen
+credentials of sessiehandles in documentstate opgeslagen.
+
+`central-review-opening.js` coördineert download, eerste snapshot, PDF-opening,
+volledig geladen annotaties en begrensde catch-up vóór installatie. Een
+rendereradapter moet een **nieuw eigen** document teruggeven met `isCurrent`,
+`ready`, `install` en idempotente `dispose`. Iedere await wordt gevolgd door een
+controle van sessie en documentgeneratie. Een tab die pas na annuleren ontstaat
+wordt alsnog vrijgegeven. PDF.js krijgt uitsluitend een kopie van de bytes.
+`install` is synchroon en moet de reactieve documentstate atomair bijwerken.
+
+De PDF-rendereradapter en bediening voor openen zijn nog niet aangesloten; het
+huidige venster blijft document-/toegangsbeheer. De openingsregressies gebruiken
+een nagebootste renderer. De echte SQLite-proef gebruikt nu documentverbindingen
+nadat beide beheerders zijn gesloten. Een proef met twee volledige Tauri-apps en
+PDF/XFDF-save-integratie blijft vereist.

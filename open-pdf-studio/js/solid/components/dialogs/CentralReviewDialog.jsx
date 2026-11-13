@@ -4,7 +4,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { invoke, isTauri } from '../../../core/platform.js';
-import { createCentralReviewClient } from '../../../review/central-review-client.js';
+import { createCentralReviewSession } from '../../../review/central-review-session.js';
 import '../../../../styles/central-review.css';
 
 export default function CentralReviewDialog() {
@@ -18,7 +18,7 @@ export default function CentralReviewDialog() {
     if (alive) view.error = message;
     else showMessage(message, t('centralReview.title'));
   };
-  const client = createCentralReviewClient(invoke, logoutWarning);
+  const client = createCentralReviewSession(invoke, logoutWarning);
   const clearDocuments = () => { view.rows = []; view.cursor = ''; view.more = false; view.selected = ''; };
   const message = (code) => t(`centralReview.${({
     AUTHENTICATION_FAILED: 'loginFailed', INVALID_SERVER: 'invalidServer',

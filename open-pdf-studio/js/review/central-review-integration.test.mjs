@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { once } from 'node:events';
-import { createCentralReviewClient } from './central-review-client.js';
+import { createCentralReviewSession } from './central-review-session.js';
 import { createCentralReviewSync } from './central-review-sync.js';
 
 test('two production JS clients against real SQLite: retry, reconnect, conflict, restore and revocation', {timeout:30000}, async () => {
@@ -24,9 +24,20 @@ test('two production JS clients against real SQLite: retry, reconnect, conflict,
       });
       tail = work.catch(()=>{}); return work;
     };
-    const alice = createCentralReviewClient(invoke), bob = createCentralReviewClient(invoke);
-    await alice.login('http://127.0.0.1','Alice','test-password-alice');
-    await bob.login('http://127.0.0.1','Bob','test-password-bob');
+    let loseBobReply = false;
+    const aliceManager = createCentralReviewSession(invoke);
+    const bobManager = createCentralReviewSession(async (command,args) => {
+      const result = await invoke(command,args);
+      if (loseBobReply && command === 'central_review_json' && args.operation.action === 'append' && result.status === 200) {
+        loseBobReply = false; throw 'NETWORK_ERROR';
+      }
+      return result;
+    });
+    await aliceManager.login('http://127.0.0.1','Alice','test-password-alice');
+    await bobManager.login('http://127.0.0.1','Bob','test-password-bob');
+    const alice = aliceManager.retain(document), bob = bobManager.retain(document);
+    // Closing the managers leaves the two PDF-owned sessions usable.
+    await aliceManager.dispose(); await bobManager.dispose();
     let n = 0;
     const a = createCentralReviewSync(alice,document,()=>`alice-${++n}`);
     const b = createCentralReviewSync(bob,document,()=>`bob-${++n}`);
@@ -38,8 +49,7 @@ test('two production JS clients against real SQLite: retry, reconnect, conflict,
     assert.equal(b.view().pending[0].event.data.text,'Bob changed');
     await b.pull(); b.resolve('note','replace',annotation('chosen merge'));
     // Simulate a committed response lost in transit, then exact retry.
-    const realAppend = bob.append; let lost = true;
-    bob.append = async (...args) => { const result = await realAppend(...args); if (lost) { lost=false; throw new Error('NETWORK_ERROR'); } return result; };
+    loseBobReply = true;
     await assert.rejects(b.flush(),/NETWORK_ERROR/); await b.flush();
     await b.pull(); await a.pull();
     assert.equal(a.view().cursor,3); assert.deepEqual(a.view().annotations,b.view().annotations);

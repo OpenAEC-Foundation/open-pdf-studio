@@ -841,3 +841,5 @@ scripts/pdfjs-soft-mask-bounds.test.mjs
 scripts/startup-window.test.mjs
 js/review/central-review-client.test.mjs
 js/review/central-review-sync.test.mjs
+js/review/central-review-session.test.mjs
+js/review/central-review-opening.test.mjs
