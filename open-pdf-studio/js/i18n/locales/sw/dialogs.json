@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Hati za kati",
+    "server": "Seva",
+    "account": "Jina la akaunti",
+    "signIn": "Ingia",
+    "signOut": "Ondoka",
+    "more": "Ukurasa unaofuata",
+    "documents": "Hati",
+    "empty": "Hakuna hati zinazopatikana.",
+    "owner": "Mmiliki",
+    "reader": "Msomaji",
+    "editor": "Mhariri",
+    "share": "Shiriki ufikiaji",
+    "access": "Ufikiaji",
+    "revoke": "Batilisha ufikiaji",
+    "saved": "Ufikiaji umesasishwa.",
+    "logoutWarning": "Umeondoka kwenye kifaa; kutoka kwenye seva hakukuthibitishwa.",
+    "loginFailed": "Kuingia kumeshindikana. Kagua seva na taarifa za kuingia.",
+    "invalidServer": "Tumia URL ya seva ya HTTPS bila njia.",
+    "accessDenied": "Ufikiaji umekataliwa. Onyesha upya au ingia tena.",
+    "invalidRequest": "Kagua jina la akaunti na kiwango cha ufikiaji.",
+    "retryLater": "Tafadhali jaribu tena baadaye.",
+    "requestFailed": "Ombi limeshindwa. Onyesha upya au ingia tena."
   }
 }

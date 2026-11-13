@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Annotaties meenemen staat uit: de {{count}} markeringen worden niet geëxporteerd.",
     "cadNotes": "Notities ({{count}}) gaan alleen mee als pictogram, zonder tekst en antwoorden.",
     "cadHidden": "Verborgen markeringen ({{count}}) worden niet geëxporteerd."
+  },
+  "centralReview": {
+    "title": "Centrale documenten",
+    "server": "Server",
+    "account": "Accountnaam",
+    "signIn": "Aanmelden",
+    "signOut": "Afmelden",
+    "more": "Volgende pagina",
+    "documents": "Documenten",
+    "empty": "Geen toegankelijke documenten.",
+    "owner": "Eigenaar",
+    "reader": "Lezer",
+    "editor": "Bewerker",
+    "share": "Toegang delen",
+    "access": "Toegang",
+    "revoke": "Toegang intrekken",
+    "saved": "Toegang bijgewerkt.",
+    "logoutWarning": "Lokaal afgemeld; afmelden bij de server kon niet worden bevestigd.",
+    "loginFailed": "Aanmelden mislukt. Controleer server en inloggegevens.",
+    "invalidServer": "Gebruik een server-URL met HTTPS en zonder pad.",
+    "accessDenied": "Toegang geweigerd. Vernieuw of meld opnieuw aan.",
+    "invalidRequest": "Controleer de accountnaam en het toegangsniveau.",
+    "retryLater": "Probeer het later opnieuw.",
+    "requestFailed": "Verzoek mislukt. Vernieuw of meld opnieuw aan."
   }
 }

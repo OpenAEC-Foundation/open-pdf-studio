@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Централни документи",
+    "server": "Сервер",
+    "account": "Назив налога",
+    "signIn": "Пријава",
+    "signOut": "Одјава",
+    "more": "Следећа страница",
+    "documents": "Документи",
+    "empty": "Нема доступних докумената.",
+    "owner": "Власник",
+    "reader": "Читалац",
+    "editor": "Уредник",
+    "share": "Подели приступ",
+    "access": "Приступ",
+    "revoke": "Опозови приступ",
+    "saved": "Приступ ажуриран.",
+    "logoutWarning": "Локална одјава је завршена; одјава са сервера није потврђена.",
+    "loginFailed": "Пријава није успела. Проверите сервер и податке за пријаву.",
+    "invalidServer": "Користите HTTPS адресу сервера без путање.",
+    "accessDenied": "Приступ одбијен. Освежите или се поново пријавите.",
+    "invalidRequest": "Проверите назив налога и ниво приступа.",
+    "retryLater": "Покушајте поново касније.",
+    "requestFailed": "Захтев није успео. Освежите или се поново пријавите."
   }
 }

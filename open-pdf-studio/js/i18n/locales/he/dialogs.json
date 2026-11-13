@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "מסמכים מרכזיים",
+    "server": "שרת",
+    "account": "שם חשבון",
+    "signIn": "כניסה",
+    "signOut": "יציאה",
+    "more": "העמוד הבא",
+    "documents": "מסמכים",
+    "empty": "אין מסמכים נגישים.",
+    "owner": "בעלים",
+    "reader": "קורא",
+    "editor": "עורך",
+    "share": "שיתוף גישה",
+    "access": "גישה",
+    "revoke": "ביטול גישה",
+    "saved": "הגישה עודכנה.",
+    "logoutWarning": "בוצעה יציאה מקומית; לא ניתן היה לאשר יציאה מהשרת.",
+    "loginFailed": "הכניסה נכשלה. בדקו את השרת ופרטי הכניסה.",
+    "invalidServer": "השתמשו בכתובת שרת HTTPS ללא נתיב.",
+    "accessDenied": "הגישה נדחתה. רעננו או היכנסו שוב.",
+    "invalidRequest": "בדקו את שם החשבון ורמת הגישה.",
+    "retryLater": "נסו שוב מאוחר יותר.",
+    "requestFailed": "הבקשה נכשלה. רעננו או היכנסו שוב."
   }
 }

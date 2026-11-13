@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Centrale dokumenter",
+    "server": "Server",
+    "account": "Kontonavn",
+    "signIn": "Log ind",
+    "signOut": "Log ud",
+    "more": "Næste side",
+    "documents": "Dokumenter",
+    "empty": "Ingen tilgængelige dokumenter.",
+    "owner": "Ejer",
+    "reader": "Læser",
+    "editor": "Redaktør",
+    "share": "Del adgang",
+    "access": "Adgang",
+    "revoke": "Tilbagekald adgang",
+    "saved": "Adgang opdateret.",
+    "logoutWarning": "Logget ud lokalt; udlogning fra serveren kunne ikke bekræftes.",
+    "loginFailed": "Login mislykkedes. Kontrollér server og loginoplysninger.",
+    "invalidServer": "Brug en server-URL med HTTPS og uden sti.",
+    "accessDenied": "Adgang nægtet. Opdatér eller log ind igen.",
+    "invalidRequest": "Kontrollér kontonavn og adgangsniveau.",
+    "retryLater": "Prøv igen senere.",
+    "requestFailed": "Anmodning mislykkedes. Opdatér eller log ind igen."
   }
 }

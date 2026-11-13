@@ -357,8 +357,10 @@ backup-/herstelvoorziening die past bij de werkelijk gebruikte objectstore.
 `src-tauri/src/central_review_transport.rs` bevat de daadwerkelijke Rust-HTTP-kern;
 `central_review.rs` registreert vijf Tauri-commando's voor login, getypeerde JSON-
 bewerkingen, PDF-upload/download en logout. Er wordt bij appstart geen netwerkverbinding
-geopend. De UI is nog niet aangesloten en deze commando's vormen nog geen werkende
-centrale review voor eindgebruikers.
+geopend. In de Tauri-app opent **Bestand → Centrale documenten** een venster voor
+login, documentlijst en delen/intrekken van toegang op accountnaam. De centrale
+PDF openen en annotaties synchroniseren zijn nog niet aangesloten; dit venster
+biedt voorlopig alleen document- en toegangsbeheer.
 
 Een sessie kiest één serverorigin: HTTPS met normale certificaatcontrole, of HTTP
 uitsluitend op een letterlijk loopback-IP voor lokaal testen. Geen credentials,
@@ -391,12 +393,36 @@ logout tegen dezelfde server.
 CI voert de native tests uit op Linux, Windows en macOS; de Tauri-appbouw toetst
 ook de commandoregistratie.
 
+## Documentbeheer in de app
+
+De login gebruikt serveradres, accountnaam en wachtwoord. Het wachtwoordveld wordt
+bij indienen leeggemaakt; credentials en sessiehandles worden niet opgeslagen in
+voorkeuren of browseropslag. Het venster toont maximaal 50 documenten per pagina.
+**Vernieuwen** begint opnieuw, **Volgende pagina** gebruikt de servercursor. Alleen
+bij een geselecteerd document met eigenaarrol verschijnt het formulier voor delen
+of intrekken van toegang. De server controleert de rol altijd opnieuw.
+
+Afmelden en sluiten trekken de lokale clientgeneratie in: oude antwoorden mogen
+het venster niet opnieuw vullen. Een login die pas na sluiten klaar is, wordt alsnog
+afgemeld. Een niet-bevestigde serverlogout geeft een zichtbare melding, ook na
+sluiten van het beheervenster. Dit garandeert geen logout bij procesbeëindiging.
+Documenttitels worden als tekst weergegeven, niet als HTML. Alle 40 aanwezige
+taalbundels bevatten de nieuwe teksten; het menu is alleen in Tauri zichtbaar.
+
+`node --test js/review/central-review-client.test.mjs` toetst de sessielevensduur,
+protocolvalidatie en vertaaldekking. `node scripts/test-central-review-browser.mjs`
+opent de werkelijke Solid-interface in een geïsoleerde Chromium/Vite-test met een
+nagebootste native invoke-grens: menu, login, paginering, delen/intrekken,
+alleen-lezenrollen, late antwoorden en logoutmeldingen. De bestaande native/S3-proef
+toetst apart het echte transport en de server. Dit vervangt nog geen kwalificatie
+met twee complete Tauri-appclients op hetzelfde document.
+
 ## Vervolg in dezelfde concept-PR
 
 1. De gekozen productieobjectstore en het echte herstelproces kwalificeren,
    inclusief crash-/netwerkfouten en ongekoppelde objecten. Totale requestdeadlines,
    quota en productiebelasting uitwerken; de lokale MinIO-test dekt die niet.
-2. Tauri-UI en reviewsessies op het native transport aansluiten, met reconnect,
+2. Centrale PDF-opening en reviewsessies op het native transport aansluiten, met reconnect,
    zichtbare conflicten en import/export via het
    bestaande PDF-/XFDF-model; twee echte clients testen op één document.
 3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.

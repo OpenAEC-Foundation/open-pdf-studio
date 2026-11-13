@@ -1,4 +1,4 @@
-//! Tauri commands for the central review transport. UI/session integration follows.
+//! Tauri commands for the central review transport. Document management UI uses these; annotation session integration follows.
 use crate::central_review_transport::{JsonReply, Operation, Transport};
 
 #[tauri::command]

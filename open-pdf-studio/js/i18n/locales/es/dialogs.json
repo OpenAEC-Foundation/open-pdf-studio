@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "La inclusión de anotaciones está desactivada: las {{count}} marcas no se exportan.",
     "cadNotes": "Las notas ({{count}}) solo se incluyen como icono, sin texto ni respuestas.",
     "cadHidden": "Las marcas ocultas ({{count}}) no se exportan."
+  },
+  "centralReview": {
+    "title": "Documentos centrales",
+    "server": "Servidor",
+    "account": "Nombre de cuenta",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "more": "Página siguiente",
+    "documents": "Documentos",
+    "empty": "No hay documentos accesibles.",
+    "owner": "Propietario",
+    "reader": "Lector",
+    "editor": "Editor",
+    "share": "Compartir acceso",
+    "access": "Acceso",
+    "revoke": "Revocar acceso",
+    "saved": "Acceso actualizado.",
+    "logoutWarning": "Sesión local cerrada; no se pudo confirmar el cierre en el servidor.",
+    "loginFailed": "Error al iniciar sesión. Compruebe el servidor y las credenciales.",
+    "invalidServer": "Use una URL de servidor HTTPS sin ruta.",
+    "accessDenied": "Acceso denegado. Actualice o vuelva a iniciar sesión.",
+    "invalidRequest": "Compruebe el nombre de cuenta y el nivel de acceso.",
+    "retryLater": "Inténtelo de nuevo más tarde.",
+    "requestFailed": "Error en la solicitud. Actualice o vuelva a iniciar sesión."
   }
 }

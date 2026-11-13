@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "เอกสารส่วนกลาง",
+    "server": "เซิร์ฟเวอร์",
+    "account": "ชื่อบัญชี",
+    "signIn": "เข้าสู่ระบบ",
+    "signOut": "ออกจากระบบ",
+    "more": "หน้าถัดไป",
+    "documents": "เอกสาร",
+    "empty": "ไม่มีเอกสารที่เข้าถึงได้",
+    "owner": "เจ้าของ",
+    "reader": "ผู้อ่าน",
+    "editor": "ผู้แก้ไข",
+    "share": "แบ่งปันการเข้าถึง",
+    "access": "การเข้าถึง",
+    "revoke": "เพิกถอนการเข้าถึง",
+    "saved": "อัปเดตการเข้าถึงแล้ว",
+    "logoutWarning": "ออกจากระบบในเครื่องแล้ว แต่ยืนยันการออกจากเซิร์ฟเวอร์ไม่ได้",
+    "loginFailed": "เข้าสู่ระบบไม่สำเร็จ ตรวจสอบเซิร์ฟเวอร์และข้อมูลเข้าสู่ระบบ",
+    "invalidServer": "ใช้ URL เซิร์ฟเวอร์ HTTPS ที่ไม่มีเส้นทาง",
+    "accessDenied": "การเข้าถึงถูกปฏิเสธ รีเฟรชหรือเข้าสู่ระบบใหม่",
+    "invalidRequest": "ตรวจสอบชื่อบัญชีและระดับการเข้าถึง",
+    "retryLater": "โปรดลองอีกครั้งภายหลัง",
+    "requestFailed": "คำขอไม่สำเร็จ รีเฟรชหรือเข้าสู่ระบบใหม่"
   }
 }

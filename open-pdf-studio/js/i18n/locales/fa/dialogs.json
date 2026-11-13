@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "اسناد مرکزی",
+    "server": "سرور",
+    "account": "نام حساب",
+    "signIn": "ورود",
+    "signOut": "خروج",
+    "more": "صفحهٔ بعد",
+    "documents": "اسناد",
+    "empty": "سندی در دسترس نیست.",
+    "owner": "مالک",
+    "reader": "خواننده",
+    "editor": "ویرایشگر",
+    "share": "اشتراک دسترسی",
+    "access": "دسترسی",
+    "revoke": "لغو دسترسی",
+    "saved": "دسترسی به‌روز شد.",
+    "logoutWarning": "خروج محلی انجام شد؛ خروج از سرور تأیید نشد.",
+    "loginFailed": "ورود ناموفق بود. سرور و اطلاعات ورود را بررسی کنید.",
+    "invalidServer": "از نشانی سرور HTTPS بدون مسیر استفاده کنید.",
+    "accessDenied": "دسترسی رد شد. تازه‌سازی کنید یا دوباره وارد شوید.",
+    "invalidRequest": "نام حساب و سطح دسترسی را بررسی کنید.",
+    "retryLater": "بعداً دوباره تلاش کنید.",
+    "requestFailed": "درخواست ناموفق بود. تازه‌سازی کنید یا دوباره وارد شوید."
   }
 }

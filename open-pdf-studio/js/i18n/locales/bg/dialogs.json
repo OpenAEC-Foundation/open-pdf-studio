@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Централни документи",
+    "server": "Сървър",
+    "account": "Име на акаунта",
+    "signIn": "Вход",
+    "signOut": "Изход",
+    "more": "Следваща страница",
+    "documents": "Документи",
+    "empty": "Няма достъпни документи.",
+    "owner": "Собственик",
+    "reader": "Читател",
+    "editor": "Редактор",
+    "share": "Споделяне на достъп",
+    "access": "Достъп",
+    "revoke": "Отнемане на достъп",
+    "saved": "Достъпът е обновен.",
+    "logoutWarning": "Излязохте локално; изходът от сървъра не е потвърден.",
+    "loginFailed": "Неуспешен вход. Проверете сървъра и данните за вход.",
+    "invalidServer": "Използвайте HTTPS адрес на сървъра без път.",
+    "accessDenied": "Достъпът е отказан. Обновете или влезте отново.",
+    "invalidRequest": "Проверете името на акаунта и нивото на достъп.",
+    "retryLater": "Опитайте отново по-късно.",
+    "requestFailed": "Неуспешна заявка. Обновете или влезте отново."
   }
 }

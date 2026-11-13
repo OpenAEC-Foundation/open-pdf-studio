@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Documents centrals",
+    "server": "Servidor",
+    "account": "Nom del compte",
+    "signIn": "Inicia sessió",
+    "signOut": "Tanca sessió",
+    "more": "Pàgina següent",
+    "documents": "Documents",
+    "empty": "No hi ha documents accessibles.",
+    "owner": "Propietari",
+    "reader": "Lector",
+    "editor": "Editor",
+    "share": "Comparteix l’accés",
+    "access": "Accés",
+    "revoke": "Revoca l’accés",
+    "saved": "Accés actualitzat.",
+    "logoutWarning": "Sessió local tancada; no s’ha pogut confirmar la desconnexió del servidor.",
+    "loginFailed": "No s’ha pogut iniciar sessió. Comproveu el servidor i les credencials.",
+    "invalidServer": "Utilitzeu un URL de servidor HTTPS sense camí.",
+    "accessDenied": "Accés denegat. Actualitzeu o torneu a iniciar sessió.",
+    "invalidRequest": "Comproveu el nom del compte i el nivell d’accés.",
+    "retryLater": "Torneu-ho a provar més tard.",
+    "requestFailed": "Ha fallat la petició. Actualitzeu o torneu a iniciar sessió."
   }
 }

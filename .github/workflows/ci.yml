@@ -370,6 +370,9 @@ jobs:
       - name: Hosted bundle under a strict CSP
         run: npm run test:hosted-csp
 
+      - name: Central review dialog lifecycle and access controls
+        run: node scripts/test-central-review-browser.mjs
+
   # De Python-bibliotheek (#518): de gegenereerde laag loopt gelijk met
   # mcp-stdio/tools.json, de tests (tegen een nep-MCP-server, zonder app) slagen
   # op elk platform en sdist + wheel bouwen.

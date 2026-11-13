@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Merkezi belgeler",
+    "server": "Sunucu",
+    "account": "Hesap adı",
+    "signIn": "Oturum aç",
+    "signOut": "Oturumu kapat",
+    "more": "Sonraki sayfa",
+    "documents": "Belgeler",
+    "empty": "Erişilebilir belge yok.",
+    "owner": "Sahip",
+    "reader": "Okuyucu",
+    "editor": "Düzenleyici",
+    "share": "Erişimi paylaş",
+    "access": "Erişim",
+    "revoke": "Erişimi kaldır",
+    "saved": "Erişim güncellendi.",
+    "logoutWarning": "Yerel oturum kapatıldı; sunucuda oturum kapatma doğrulanamadı.",
+    "loginFailed": "Giriş başarısız. Sunucuyu ve kimlik bilgilerini kontrol edin.",
+    "invalidServer": "Yol içermeyen bir HTTPS sunucu URL’si kullanın.",
+    "accessDenied": "Erişim reddedildi. Yenileyin veya tekrar giriş yapın.",
+    "invalidRequest": "Hesap adını ve erişim düzeyini kontrol edin.",
+    "retryLater": "Lütfen daha sonra tekrar deneyin.",
+    "requestFailed": "İstek başarısız. Yenileyin veya tekrar giriş yapın."
   }
 }

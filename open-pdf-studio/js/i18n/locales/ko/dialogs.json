@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "중앙 문서",
+    "server": "서버",
+    "account": "계정 이름",
+    "signIn": "로그인",
+    "signOut": "로그아웃",
+    "more": "다음 페이지",
+    "documents": "문서",
+    "empty": "접근 가능한 문서가 없습니다.",
+    "owner": "소유자",
+    "reader": "읽기 사용자",
+    "editor": "편집자",
+    "share": "접근 권한 공유",
+    "access": "접근 권한",
+    "revoke": "접근 권한 취소",
+    "saved": "접근 권한이 업데이트되었습니다.",
+    "logoutWarning": "로컬에서 로그아웃했습니다. 서버 로그아웃은 확인하지 못했습니다.",
+    "loginFailed": "로그인하지 못했습니다. 서버와 로그인 정보를 확인하세요.",
+    "invalidServer": "경로가 없는 HTTPS 서버 URL을 사용하세요.",
+    "accessDenied": "접근이 거부되었습니다. 새로 고치거나 다시 로그인하세요.",
+    "invalidRequest": "계정 이름과 접근 수준을 확인하세요.",
+    "retryLater": "나중에 다시 시도하세요.",
+    "requestFailed": "요청하지 못했습니다. 새로 고치거나 다시 로그인하세요."
   }
 }

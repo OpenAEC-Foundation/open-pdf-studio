@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "மைய ஆவணங்கள்",
+    "server": "சேவையகம்",
+    "account": "கணக்குப் பெயர்",
+    "signIn": "உள்நுழை",
+    "signOut": "வெளியேறு",
+    "more": "அடுத்த பக்கம்",
+    "documents": "ஆவணங்கள்",
+    "empty": "அணுகக்கூடிய ஆவணங்கள் இல்லை.",
+    "owner": "உரிமையாளர்",
+    "reader": "வாசிப்பவர்",
+    "editor": "திருத்துபவர்",
+    "share": "அணுகலைப் பகிர்",
+    "access": "அணுகல்",
+    "revoke": "அணுகலை நீக்கு",
+    "saved": "அணுகல் புதுப்பிக்கப்பட்டது.",
+    "logoutWarning": "உள்ளூரில் வெளியேறிவிட்டீர்கள்; சேவையக வெளியேற்றத்தை உறுதிசெய்ய முடியவில்லை.",
+    "loginFailed": "உள்நுழைவு தோல்வி. சேவையகத்தையும் உள்நுழைவு விவரங்களையும் சரிபார்க்கவும்.",
+    "invalidServer": "பாதை இல்லாத HTTPS சேவையக URL ஐப் பயன்படுத்தவும்.",
+    "accessDenied": "அணுகல் மறுக்கப்பட்டது. புதுப்பிக்கவும் அல்லது மீண்டும் உள்நுழையவும்.",
+    "invalidRequest": "கணக்குப் பெயரையும் அணுகல் நிலையையும் சரிபார்க்கவும்.",
+    "retryLater": "பின்னர் மீண்டும் முயற்சிக்கவும்.",
+    "requestFailed": "கோரிக்கை தோல்வி. புதுப்பிக்கவும் அல்லது மீண்டும் உள்நுழையவும்."
   }
 }

@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Tài liệu trung tâm",
+    "server": "Máy chủ",
+    "account": "Tên tài khoản",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "more": "Trang tiếp",
+    "documents": "Tài liệu",
+    "empty": "Không có tài liệu có thể truy cập.",
+    "owner": "Chủ sở hữu",
+    "reader": "Người đọc",
+    "editor": "Người chỉnh sửa",
+    "share": "Chia sẻ quyền truy cập",
+    "access": "Quyền truy cập",
+    "revoke": "Thu hồi quyền truy cập",
+    "saved": "Đã cập nhật quyền truy cập.",
+    "logoutWarning": "Đã đăng xuất cục bộ; không thể xác nhận đăng xuất khỏi máy chủ.",
+    "loginFailed": "Đăng nhập thất bại. Kiểm tra máy chủ và thông tin đăng nhập.",
+    "invalidServer": "Dùng URL máy chủ HTTPS không có đường dẫn.",
+    "accessDenied": "Truy cập bị từ chối. Làm mới hoặc đăng nhập lại.",
+    "invalidRequest": "Kiểm tra tên tài khoản và mức truy cập.",
+    "retryLater": "Vui lòng thử lại sau.",
+    "requestFailed": "Yêu cầu thất bại. Làm mới hoặc đăng nhập lại."
   }
 }

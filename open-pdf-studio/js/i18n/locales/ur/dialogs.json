@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "مرکزی دستاویزات",
+    "server": "سرور",
+    "account": "اکاؤنٹ کا نام",
+    "signIn": "لاگ ان",
+    "signOut": "لاگ آؤٹ",
+    "more": "اگلا صفحہ",
+    "documents": "دستاویزات",
+    "empty": "کوئی قابل رسائی دستاویز نہیں۔",
+    "owner": "مالک",
+    "reader": "قاری",
+    "editor": "مدیر",
+    "share": "رسائی کا اشتراک",
+    "access": "رسائی",
+    "revoke": "رسائی منسوخ کریں",
+    "saved": "رسائی اپ ڈیٹ ہو گئی۔",
+    "logoutWarning": "مقامی طور پر لاگ آؤٹ ہو گیا؛ سرور سے لاگ آؤٹ کی تصدیق نہیں ہو سکی۔",
+    "loginFailed": "لاگ ان ناکام ہوا۔ سرور اور لاگ ان کی تفصیلات دیکھیں۔",
+    "invalidServer": "بغیر پاتھ کے HTTPS سرور کا پتہ استعمال کریں۔",
+    "accessDenied": "رسائی مسترد ہو گئی۔ تازہ کریں یا دوبارہ لاگ ان کریں۔",
+    "invalidRequest": "اکاؤنٹ کا نام اور رسائی کی سطح دیکھیں۔",
+    "retryLater": "بعد میں دوبارہ کوشش کریں۔",
+    "requestFailed": "درخواست ناکام ہوئی۔ تازہ کریں یا دوبارہ لاگ ان کریں۔"
   }
 }

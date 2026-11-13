@@ -1,0 +1,14 @@
+.central-review-dialog { color: var(--theme-text); font-size: 13px; max-height: 92vh; width: 600px; max-width: calc(100vw - 32px); }
+.central-review-dialog fieldset { border: 1px solid var(--theme-border, #d4d4d4); padding: 10px; margin: 8px 0; min-width: 0; }
+.central-review-dialog label { display: grid; grid-template-columns: 130px minmax(0, 1fr); align-items: center; gap: 8px; margin: 6px 0; }
+.central-review-dialog input:not([type=radio]), .central-review-dialog select { min-width: 0; width: 100%; box-sizing: border-box; border-radius: 0; padding: 4px; background: var(--theme-bg); color: var(--theme-text); border: 1px solid var(--theme-border); }
+.central-review-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.central-review-documents { max-height: 280px; overflow: auto; }
+.central-review-dialog .central-review-document { grid-template-columns: auto minmax(0, 1fr) auto; }
+.central-review-document span { overflow-wrap: anywhere; }
+.central-review-document small { color: var(--theme-text-secondary, var(--theme-text)); }
+.central-review-error { color: var(--theme-text); overflow-wrap: anywhere; }
+@media (max-width: 480px) { .central-review-dialog label { grid-template-columns: 1fr; } }
+
+.central-review-dialog .crop-margins-content { overflow: auto; min-height: 0; }
+.central-review-error { border-inline-start: 3px solid currentColor; padding-inline-start: 8px; }

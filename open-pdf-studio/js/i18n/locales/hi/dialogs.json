@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "केंद्रीय दस्तावेज़",
+    "server": "सर्वर",
+    "account": "खाते का नाम",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट",
+    "more": "अगला पृष्ठ",
+    "documents": "दस्तावेज़",
+    "empty": "कोई सुलभ दस्तावेज़ नहीं।",
+    "owner": "स्वामी",
+    "reader": "पाठक",
+    "editor": "संपादक",
+    "share": "पहुँच साझा करें",
+    "access": "पहुँच",
+    "revoke": "पहुँच रद्द करें",
+    "saved": "पहुँच अपडेट की गई।",
+    "logoutWarning": "स्थानीय साइन आउट हो गया; सर्वर से साइन आउट की पुष्टि नहीं हुई।",
+    "loginFailed": "साइन इन विफल। सर्वर और लॉगिन विवरण जाँचें।",
+    "invalidServer": "बिना पथ वाले HTTPS सर्वर URL का उपयोग करें।",
+    "accessDenied": "पहुँच अस्वीकृत। रीफ़्रेश करें या फिर साइन इन करें।",
+    "invalidRequest": "खाते का नाम और पहुँच स्तर जाँचें।",
+    "retryLater": "कृपया बाद में फिर प्रयास करें।",
+    "requestFailed": "अनुरोध विफल। रीफ़्रेश करें या फिर साइन इन करें।"
   }
 }

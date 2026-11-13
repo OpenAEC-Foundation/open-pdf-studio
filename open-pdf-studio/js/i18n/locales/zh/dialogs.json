@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "中央文档",
+    "server": "服务器",
+    "account": "账户名称",
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "more": "下一页",
+    "documents": "文档",
+    "empty": "没有可访问的文档。",
+    "owner": "所有者",
+    "reader": "阅读者",
+    "editor": "编辑者",
+    "share": "共享访问权限",
+    "access": "访问权限",
+    "revoke": "撤销访问权限",
+    "saved": "访问权限已更新。",
+    "logoutWarning": "已在本地退出；无法确认服务器已退出登录。",
+    "loginFailed": "登录失败。请检查服务器和登录信息。",
+    "invalidServer": "请使用不含路径的 HTTPS 服务器地址。",
+    "accessDenied": "访问被拒绝。请刷新或重新登录。",
+    "invalidRequest": "请检查账户名称和访问级别。",
+    "retryLater": "请稍后重试。",
+    "requestFailed": "请求失败。请刷新或重新登录。"
   }
 }

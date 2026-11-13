@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Documenti centrali",
+    "server": "Server",
+    "account": "Nome account",
+    "signIn": "Accedi",
+    "signOut": "Esci",
+    "more": "Pagina successiva",
+    "documents": "Documenti",
+    "empty": "Nessun documento accessibile.",
+    "owner": "Proprietario",
+    "reader": "Lettore",
+    "editor": "Editor",
+    "share": "Condividi accesso",
+    "access": "Accesso",
+    "revoke": "Revoca accesso",
+    "saved": "Accesso aggiornato.",
+    "logoutWarning": "Sessione locale chiusa; la disconnessione dal server non è stata confermata.",
+    "loginFailed": "Accesso non riuscito. Controllare server e credenziali.",
+    "invalidServer": "Usare un URL del server HTTPS senza percorso.",
+    "accessDenied": "Accesso negato. Aggiornare o accedere di nuovo.",
+    "invalidRequest": "Controllare il nome account e il livello di accesso.",
+    "retryLater": "Riprovare più tardi.",
+    "requestFailed": "Richiesta non riuscita. Aggiornare o accedere di nuovo."
   }
 }

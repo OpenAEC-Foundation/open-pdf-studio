@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Anmerkungen einbeziehen ist ausgeschaltet: die {{count}} Markierungen werden nicht exportiert.",
     "cadNotes": "Notizen ({{count}}) kommen nur als Symbol mit, ohne Text und Antworten.",
     "cadHidden": "Ausgeblendete Markierungen ({{count}}) werden nicht exportiert."
+  },
+  "centralReview": {
+    "title": "Zentrale Dokumente",
+    "server": "Server",
+    "account": "Kontoname",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "more": "Nächste Seite",
+    "documents": "Dokumente",
+    "empty": "Keine zugänglichen Dokumente.",
+    "owner": "Eigentümer",
+    "reader": "Leser",
+    "editor": "Bearbeiter",
+    "share": "Zugriff teilen",
+    "access": "Zugriff",
+    "revoke": "Zugriff entziehen",
+    "saved": "Zugriff aktualisiert.",
+    "logoutWarning": "Lokal abgemeldet; die Serverabmeldung konnte nicht bestätigt werden.",
+    "loginFailed": "Anmeldung fehlgeschlagen. Server und Zugangsdaten prüfen.",
+    "invalidServer": "Eine Server-URL mit HTTPS und ohne Pfad verwenden.",
+    "accessDenied": "Zugriff verweigert. Aktualisieren oder erneut anmelden.",
+    "invalidRequest": "Kontonamen und Zugriffsstufe prüfen.",
+    "retryLater": "Bitte später erneut versuchen.",
+    "requestFailed": "Anfrage fehlgeschlagen. Aktualisieren oder erneut anmelden."
   }
 }

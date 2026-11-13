@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Centrální dokumenty",
+    "server": "Server",
+    "account": "Název účtu",
+    "signIn": "Přihlásit se",
+    "signOut": "Odhlásit se",
+    "more": "Další stránka",
+    "documents": "Dokumenty",
+    "empty": "Žádné přístupné dokumenty.",
+    "owner": "Vlastník",
+    "reader": "Čtenář",
+    "editor": "Editor",
+    "share": "Sdílet přístup",
+    "access": "Přístup",
+    "revoke": "Odebrat přístup",
+    "saved": "Přístup aktualizován.",
+    "logoutWarning": "Místní odhlášení proběhlo; odhlášení ze serveru nebylo potvrzeno.",
+    "loginFailed": "Přihlášení selhalo. Zkontrolujte server a přihlašovací údaje.",
+    "invalidServer": "Použijte adresu serveru HTTPS bez cesty.",
+    "accessDenied": "Přístup odepřen. Obnovte nebo se přihlaste znovu.",
+    "invalidRequest": "Zkontrolujte název účtu a úroveň přístupu.",
+    "retryLater": "Zkuste to později znovu.",
+    "requestFailed": "Požadavek selhal. Obnovte nebo se přihlaste znovu."
   }
 }

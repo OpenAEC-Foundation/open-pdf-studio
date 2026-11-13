@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Центральные документы",
+    "server": "Сервер",
+    "account": "Имя учётной записи",
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "more": "Следующая страница",
+    "documents": "Документы",
+    "empty": "Нет доступных документов.",
+    "owner": "Владелец",
+    "reader": "Читатель",
+    "editor": "Редактор",
+    "share": "Предоставить доступ",
+    "access": "Доступ",
+    "revoke": "Отозвать доступ",
+    "saved": "Доступ обновлён.",
+    "logoutWarning": "Выполнен локальный выход; выход на сервере не подтверждён.",
+    "loginFailed": "Вход не выполнен. Проверьте сервер и учётные данные.",
+    "invalidServer": "Используйте HTTPS-адрес сервера без пути.",
+    "accessDenied": "Доступ запрещён. Обновите список или войдите снова.",
+    "invalidRequest": "Проверьте имя учётной записи и уровень доступа.",
+    "retryLater": "Повторите попытку позже.",
+    "requestFailed": "Запрос не выполнен. Обновите список или войдите снова."
   }
 }

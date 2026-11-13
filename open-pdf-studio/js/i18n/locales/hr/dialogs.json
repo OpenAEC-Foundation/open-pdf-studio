@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Središnji dokumenti",
+    "server": "Poslužitelj",
+    "account": "Naziv računa",
+    "signIn": "Prijava",
+    "signOut": "Odjava",
+    "more": "Sljedeća stranica",
+    "documents": "Dokumenti",
+    "empty": "Nema dostupnih dokumenata.",
+    "owner": "Vlasnik",
+    "reader": "Čitatelj",
+    "editor": "Urednik",
+    "share": "Podijeli pristup",
+    "access": "Pristup",
+    "revoke": "Opozovi pristup",
+    "saved": "Pristup ažuriran.",
+    "logoutWarning": "Lokalna odjava dovršena; odjava s poslužitelja nije potvrđena.",
+    "loginFailed": "Prijava nije uspjela. Provjerite poslužitelj i vjerodajnice.",
+    "invalidServer": "Koristite HTTPS adresu poslužitelja bez putanje.",
+    "accessDenied": "Pristup odbijen. Osvježite ili se ponovno prijavite.",
+    "invalidRequest": "Provjerite naziv računa i razinu pristupa.",
+    "retryLater": "Pokušajte ponovno kasnije.",
+    "requestFailed": "Zahtjev nije uspio. Osvježite ili se ponovno prijavite."
   }
 }

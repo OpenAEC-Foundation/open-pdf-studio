@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Documente centrale",
+    "server": "Server",
+    "account": "Numele contului",
+    "signIn": "Autentificare",
+    "signOut": "Deconectare",
+    "more": "Pagina următoare",
+    "documents": "Documente",
+    "empty": "Niciun document accesibil.",
+    "owner": "Proprietar",
+    "reader": "Cititor",
+    "editor": "Editor",
+    "share": "Partajează accesul",
+    "access": "Acces",
+    "revoke": "Revocă accesul",
+    "saved": "Acces actualizat.",
+    "logoutWarning": "Deconectare locală efectuată; deconectarea de la server nu a fost confirmată.",
+    "loginFailed": "Autentificare eșuată. Verificați serverul și datele de autentificare.",
+    "invalidServer": "Folosiți un URL de server HTTPS fără cale.",
+    "accessDenied": "Acces refuzat. Reîmprospătați sau autentificați-vă din nou.",
+    "invalidRequest": "Verificați numele contului și nivelul de acces.",
+    "retryLater": "Încercați din nou mai târziu.",
+    "requestFailed": "Cerere eșuată. Reîmprospătați sau autentificați-vă din nou."
   }
 }

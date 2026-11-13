@@ -2471,5 +2471,29 @@
     "cadAnnotationsOff": "Including annotations is switched off: the {{count}} markups are not exported.",
     "cadNotes": "Sticky notes ({{count}}) come along only as their icon, without text and replies.",
     "cadHidden": "Hidden markups ({{count}}) are not exported."
+  },
+  "centralReview": {
+    "title": "Dokumen pusat",
+    "server": "Server",
+    "account": "Nama akun",
+    "signIn": "Masuk",
+    "signOut": "Keluar",
+    "more": "Halaman berikutnya",
+    "documents": "Dokumen",
+    "empty": "Tidak ada dokumen yang dapat diakses.",
+    "owner": "Pemilik",
+    "reader": "Pembaca",
+    "editor": "Editor",
+    "share": "Bagikan akses",
+    "access": "Akses",
+    "revoke": "Cabut akses",
+    "saved": "Akses diperbarui.",
+    "logoutWarning": "Keluar secara lokal; keluar dari server tidak dapat dikonfirmasi.",
+    "loginFailed": "Gagal masuk. Periksa server dan kredensial.",
+    "invalidServer": "Gunakan URL server HTTPS tanpa jalur.",
+    "accessDenied": "Akses ditolak. Muat ulang atau masuk lagi.",
+    "invalidRequest": "Periksa nama akun dan tingkat akses.",
+    "retryLater": "Coba lagi nanti.",
+    "requestFailed": "Permintaan gagal. Muat ulang atau masuk lagi."
   }
 }
