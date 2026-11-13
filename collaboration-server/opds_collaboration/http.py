@@ -15,6 +15,7 @@ import unicodedata
 from urllib.parse import parse_qsl
 
 from .store import Conflict, Denied, Invalid, MAX_EVENT_BYTES
+from .files import FileMissing, StorageUnavailable, MAX_PDF_BYTES
 
 
 class HTTPError(Exception):
@@ -62,20 +63,25 @@ def _constant(value):
     raise Invalid("non-finite JSON number")
 
 
-def _body(env, keys):
+def _raw_body(env, maximum, content_type):
     length = env.get("CONTENT_LENGTH", "")
     if not re.fullmatch(r"[0-9]{1,10}", length):
         raise HTTPError(411, "valid Content-Length required")
     length = int(length)
-    if length > MAX_EVENT_BYTES:
+    if length > maximum:
         raise HTTPError(413, "request too large")
     if env.get("HTTP_TRANSFER_ENCODING") or env.get("HTTP_CONTENT_ENCODING"):
         raise HTTPError(415, "encoded request bodies unsupported")
-    if env.get("CONTENT_TYPE", "").lower() != "application/json":
-        raise HTTPError(415, "application/json required")
+    if env.get("CONTENT_TYPE", "").lower() != content_type:
+        raise HTTPError(415, content_type + " required")
     raw = env["wsgi.input"].read(length)
     if len(raw) != length:
         raise Invalid("incomplete request body")
+    return raw
+
+
+def _body(env, keys):
+    raw = _raw_body(env, MAX_EVENT_BYTES, "application/json")
     try:
         value = json.loads(raw.decode("utf-8"), object_pairs_hook=_object, parse_constant=_constant)
     except (ValueError, UnicodeError, RecursionError) as exc:
@@ -108,10 +114,11 @@ def _query(env, allowed=()):
 
 
 class Application:
-    def __init__(self, store, *, limiter=None, max_waiters=32, poll_interval=0.25):
+    def __init__(self, store, *, files=None, limiter=None, max_waiters=32, poll_interval=0.25):
         if max_waiters < 1 or not 0 < poll_interval <= 1:
             raise ValueError("invalid polling configuration")
         self.store = store
+        self.files = files
         self.limiter = limiter if limiter is not None else LoginLimiter()
         self.waiters = threading.BoundedSemaphore(max_waiters)
         self.poll_interval = poll_interval
@@ -129,14 +136,19 @@ class Application:
             status, body = 400, {"error": str(exc)}
         except Conflict as exc:
             status, body = 409, {"error": "conflicting event", "current": exc.current}
-        except sqlite3.OperationalError:
+        except FileMissing:
+            status, body = 404, {"error": "PDF not uploaded"}
+        except (sqlite3.OperationalError, StorageUnavailable):
             status, body = 503, {"error": "storage unavailable"}
         except Exception:
             # Never expose SQL, file paths, request bodies or credentials.
             status, body = 500, {"error": "internal error"}
-        data = json.dumps(body, ensure_ascii=True, allow_nan=False, separators=(",", ":")).encode("utf-8")
-        headers = [("Content-Type", "application/json"), ("Content-Length", str(len(data))),
+        binary = type(body) is bytes
+        data = body if binary else json.dumps(body, ensure_ascii=True, allow_nan=False, separators=(",", ":")).encode("utf-8")
+        headers = [("Content-Type", "application/pdf" if binary else "application/json"), ("Content-Length", str(len(data))),
                    ("Cache-Control", "no-store"), ("X-Content-Type-Options", "nosniff")] + extra_headers
+        if binary:
+            headers.append(("Content-Disposition", 'attachment; filename="document.pdf"'))
         if status in (429, 503):
             headers.append(("Retry-After", "60" if status == 429 else "1"))
         if status == 401:
@@ -149,11 +161,11 @@ class Application:
         if env.get("HTTP_ORIGIN"):
             raise HTTPError(403, "cross-origin requests unsupported")
         path, method = env.get("PATH_INFO", ""), env.get("REQUEST_METHOD", "")
-        match = re.fullmatch(r"/v1/documents/([a-f0-9]{32})(?:/(events|members))?", path)
+        match = re.fullmatch(r"/v1/documents/([a-f0-9]{32})(?:/(events|members|pdf))?", path)
         routes = {"/v1/login": "POST", "/v1/logout": "POST", "/v1/documents": "POST"}
         allowed = routes.get(path)
         if match:
-            allowed = "GET" if match[2] is None else ("GET POST" if match[2] == "events" else "POST")
+            allowed = "GET" if match[2] is None else ({"events": "GET POST", "pdf": "GET PUT", "members": "POST"}[match[2]])
         if allowed is None:
             raise HTTPError(404, "endpoint unavailable")
         if method not in allowed.split():
@@ -180,6 +192,15 @@ class Application:
             body = _body(env, ("title",))
             return 201, {"id": self.store.create_document(token, body["title"])}
         doc, action = match.groups()
+        if action == "pdf":
+            if self.files is None:
+                raise HTTPError(503, "PDF storage not configured")
+            # Reject unauthorized uploads before reading their request body.
+            self.store.file_info(token, doc, owner=method == "PUT")
+            if method == "GET":
+                return 200, self.files.download(token, doc)
+            data = _raw_body(env, MAX_PDF_BYTES, "application/pdf")
+            return 200, self.files.upload(token, doc, data)
         if action is None:
             return 200, self.store.snapshot(token, doc)
         if action == "members":

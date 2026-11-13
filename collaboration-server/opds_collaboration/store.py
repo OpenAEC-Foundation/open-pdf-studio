@@ -63,6 +63,11 @@ CREATE TABLE IF NOT EXISTS events (
  id TEXT NOT NULL, actor TEXT NOT NULL REFERENCES users(id), request TEXT NOT NULL,
  event TEXT NOT NULL, PRIMARY KEY(document_id,revision), UNIQUE(document_id,id)
 );
+CREATE TABLE IF NOT EXISTS document_files (
+ document_id TEXT PRIMARY KEY REFERENCES documents(id),
+ bucket TEXT NOT NULL, object_key TEXT NOT NULL UNIQUE, sha256 TEXT NOT NULL,
+ size INTEGER NOT NULL CHECK(size > 0), etag TEXT NOT NULL, version_id TEXT
+);
 CREATE TABLE IF NOT EXISTS heads (
  document_id TEXT NOT NULL REFERENCES documents(id), ann TEXT NOT NULL,
  event_id TEXT NOT NULL, data TEXT, PRIMARY KEY(document_id,ann)
@@ -150,10 +155,10 @@ class Store:
         with self._connection() as db:
             db.execute("PRAGMA journal_mode=WAL")
             version = db.execute("PRAGMA user_version").fetchone()[0]
-            if version not in (0, 1):
+            if version not in (0, 1, 2):
                 raise Invalid("unsupported database schema version")
             # One atomic migration; executescript commits any prior transaction.
-            db.executescript("BEGIN IMMEDIATE;" + SCHEMA + "PRAGMA user_version=1; COMMIT;")
+            db.executescript("BEGIN IMMEDIATE;" + SCHEMA + "PRAGMA user_version=2; COMMIT;")
 
     @contextmanager
     def _connection(self):
@@ -346,3 +351,45 @@ class Store:
             return {"cursor": document["revision"], "annotations": [
                 {"id": row["ann"], "base": row["event_id"], "data": json.loads(row["data"]) if row["data"] is not None else None}
                 for row in rows]}
+
+    def file_info(self, token, doc, *, owner=False):
+        """Private storage binding. Always recheck access, even for an absent file."""
+        with self._tx() as db:
+            user = self._user(db, token)
+            document = self._access(db, user, doc, owner=owner)
+            row = db.execute("SELECT * FROM document_files WHERE document_id=?", (doc,)).fetchone()
+            if owner and row is None and document["revision"] != 0:
+                raise Conflict()
+            return dict(row) if row else None
+
+    def bind_file(self, token, doc, info):
+        """Publish one uploaded PDF after rechecking owner/session in a write txn.
+
+        Reviews with events cannot acquire a new base PDF. A different PDF needs
+        a new document/review identity; no API replaces an existing binding.
+        """
+        fields = {"bucket", "object_key", "sha256", "size", "etag", "version_id"}
+        if type(info) is not dict or set(info) != fields:
+            raise Invalid("invalid storage binding")
+        if type(info["size"]) is not int or info["size"] <= 0:
+            raise Invalid("invalid file size")
+        for field in ("bucket", "object_key", "etag"):
+            if not isinstance(info[field], str) or not 1 <= len(info[field]) <= 1024:
+                raise Invalid("invalid storage metadata")
+        if not isinstance(info["sha256"], str) or not re.fullmatch(r"[a-f0-9]{64}", info["sha256"]):
+            raise Invalid("invalid file digest")
+        if info["version_id"] is not None and (not isinstance(info["version_id"], str) or not 1 <= len(info["version_id"]) <= 1024):
+            raise Invalid("invalid object version")
+        with self._tx(write=True) as db:
+            user = self._user(db, token)
+            document = self._access(db, user, doc, owner=True)
+            prior = db.execute("SELECT * FROM document_files WHERE document_id=?", (doc,)).fetchone()
+            if prior:
+                if prior["sha256"] == info["sha256"] and prior["size"] == info["size"]:
+                    return dict(prior)
+                raise Conflict()
+            if document["revision"] != 0:
+                raise Conflict()
+            db.execute("INSERT INTO document_files VALUES(?,?,?,?,?,?,?)",
+                       (doc, info["bucket"], info["object_key"], info["sha256"], info["size"], info["etag"], info["version_id"]))
+            return {"document_id": doc, **info}

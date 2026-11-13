@@ -1,8 +1,9 @@
 # Gedeelde reviewserver — werk in uitvoering voor #1067
 
 **Concept, niet inzetbaar als samenwerkingsdienst.** Dit pakket bevat de
-SQLite-kern en een geteste WSGI-adapter voor HTTP en live eventupdates.
-S3-opslag, productie-deployment, Docker-image en Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
+SQLite-kern, WSGI-adapter voor HTTP/live eventupdates en S3-opslagadapter voor
+onveranderlijke PDF-bases. Productie-deployment, Docker-image, kwalificatie tegen
+een echte objectstore en Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
 Issue #1067 wordt door deze eerste stap niet gesloten.
 
 ## Wat nu werkt
@@ -67,8 +68,9 @@ documentrechten in een verse transactie.
 ## HTTP en live updates
 
 `opds_collaboration.http.Application(Store(databasepad))` is een
-[WSGI-callable](https://peps.python.org/pep-3333/). Alle antwoorden zijn JSON en
-hebben `Cache-Control: no-store`. Schrijfverzoeken vereisen `Content-Type:
+[WSGI-callable](https://peps.python.org/pep-3333/). Antwoorden zijn JSON, behalve
+de PDF-download; alle antwoorden hebben `Cache-Control: no-store`. JSON-
+schrijfverzoeken vereisen `Content-Type:
 application/json` en een geldige `Content-Length` van maximaal 1 MiB. Dubbele
 JSON-keys, ongeldige UTF-8, niet-eindige JSON-constanten en onverwachte velden
 worden geweigerd. Geen cookies of tokens in queryparameters; documentroutes
@@ -83,6 +85,8 @@ vereisen `Authorization: Bearer <token>`. Cross-originverzoeken worden geweigerd
 | `POST /v1/documents/{id}/members` | `{userId,role}`; eigenaar, rol `reader`, `editor` of `null` |
 | `POST /v1/documents/{id}/events` | Bovenstaand eventverzoek → opgeslagen event |
 | `GET /v1/documents/{id}/events` | `after=0`, `limit=100`, `wait=0`; gepagineerde events |
+| `PUT /v1/documents/{id}/pdf` | PDF-bytes, eigenaar; maximaal 32 MiB → `{sha256,size}` |
+| `GET /v1/documents/{id}/pdf` | Ongewijzigde PDF-bytes als download; lezer/bewerker/eigenaar |
 
 `wait` is een geheel aantal seconden van 0 t/m 25. Bij een lege pagina wacht de
 server maximaal die tijd en controleert standaard iedere 250 ms opnieuw.
@@ -118,21 +122,89 @@ werk voor deploymentkwalificatie. De loopback-tests gebruiken uitsluitend
 [`wsgiref`](https://docs.python.org/3/library/wsgiref.html), dat Python expliciet
 niet voor productie aanbeveelt.
 
+## Onveranderlijke PDF-opslag
+
+Een review kan één PDF-basis krijgen, uitsluitend voordat er annotatie-events
+zijn. Een andere PDF krijgt een nieuwe reviewidentiteit; bestaande annotaties
+worden daardoor niet stilzwijgend op andere pagina's toegepast. Een identieke
+herhaalde upload geeft dezelfde publieke metadata terug; een andere inhoud geeft
+`409`. Bucketnamen, objectsleutels en interne versie-ID's blijven serverintern.
+
+De S3-adapter gebruikt de [Boto3 PutObject-API](https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/put_object.html):
+een willekeurige nieuwe objectsleutel per poging, `IfNoneMatch="*"` en een
+SHA-256-uploadchecksum. Er is geen fallback naar overschrijven. Na een geslaagde
+upload legt SQLite de digest, lengte, bucket, sleutel, ETag en eventuele S3-versie
+vast. De schrijftransactie controleert opnieuw eigenaar/sessie, bestaande binding
+en afwezigheid van events. Dit geldt ook wanneer iemand tijdens de upload begint
+te annoteren of de eigenaar uitlogt. Schema 1 wordt atomair naar schema 2 uitgebreid
+met `document_files`; accounts en reviewhistorie blijven behouden.
+
+Downloads gebruiken [GetObject](https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/get_object.html)
+met de vastgelegde versie (indien aanwezig) en `IfMatch` op ETag. De adapter
+controleert lengte én SHA-256 vóór er bytes naar de client gaan, sluit de stream
+ook bij fouten en controleert sessie/documenttoegang opnieuw na de overdracht.
+Een verdwenen, gewijzigde of beschadigde S3-basis geeft `503`; een review zonder
+PDF geeft `404`. Bucketbeheer buiten deze dienst kan objecten nog steeds wijzigen
+of verwijderen: de adapter merkt dat op, maar is geen vervanging voor backup of
+opslagretentie.
+
+Uploads vereisen `Content-Type: application/pdf` en een geldige `Content-Length`.
+De 32 MiB-grens wordt vóór het inlezen gecontroleerd, evenals de eigenaarsrechten.
+De controle op `%PDF-` is alleen formaatherkenning; de app moet de PDF nog parsen.
+Uploads en downloads worden momenteel geheel in geheugen gehouden. Een deployment
+moet daarom ook het aantal gelijktijdige overdrachten begrenzen. Grotere PDF's,
+streaming/spooling en hervatten van uploads zijn nog niet geïmplementeerd.
+
+SQLite en S3 hebben geen gezamenlijke transactie. Een mislukte of gelijktijdige
+upload kan daarom een **ongekoppeld object** achterlaten, maar geen bruikbare
+binding naar een mislukte upload. Er wordt nooit automatisch verwijderd bij een
+onzekere SQL-commit. Herstel, backup en veilige vergelijking/opruiming van deze
+ongekoppelde objecten moeten in de deploymentstap worden uitgewerkt.
+
+De applicatie kan via dependency injection worden samengesteld:
+
+```python
+import boto3
+from botocore.config import Config
+from opds_collaboration import Store
+from opds_collaboration.files import Documents, S3Files
+from opds_collaboration.http import Application
+
+store = Store(databasepad)
+s3 = boto3.client("s3", endpoint_url=s3_endpoint, region_name=s3_region,
+    config=Config(connect_timeout=5, read_timeout=30,
+                  retries={"mode": "standard", "total_max_attempts": 3},
+                  s3={"addressing_style": "path"}))
+app = Application(store, files=Documents(store, S3Files(s3, bucketnaam)))
+```
+
+De variabelen komen uit de toekomstige operatorconfiguratie; credentials komen
+uit de normale SDK-providerketen, nooit uit HTTP-verzoeken. Gebruik een private
+bucket en beperk opslagrechten tot de toegewezen prefix. De adapter maakt geen
+bucket aan, wijzigt geen policies en levert geen publieke/presigned URL's. Zonder
+`files`-adapter geven PDF-endpoints `503`. Dit voorbeeld start geen server.
+
 ## Testen
 
 Vanuit `collaboration-server`:
 
 ```sh
+python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 node tests/review-compatibility.mjs
 ```
 
-De eerste opdracht test 27 scenario's met echte tijdelijke databases: meerdere
+De eerste opdracht test 43 scenario's met echte tijdelijke databases: meerdere
 schrijvers, herhaalde verzoeken, herstart, paginering, rechten, verlopen sessies,
 rollback bij een geïnjecteerde databasefout en ongeldige snapshots. Twee echte
 HTTP-clients testen live updates, conflicten, reconnect, rechtenintrekking en
 sessieverloop tijdens een poll. WSGI-validatie en grensgevallen testen JSON,
-verzoeklengte, loginlimieten en pollcapaciteit. De tweede
+verzoeklengte, loginlimieten en pollcapaciteit. Opslagtests toetsen migratie,
+herhaalde/gelijktijdige uploads, races met annotaties/toegangsintrekking en
+mislukte S3-/SQL-acties. SDK-contracttests gebruiken
+[Botocore Stubber](https://docs.aws.amazon.com/botocore/latest/reference/stubber.html)
+met expliciete nepcredentials; echte S3/MinIO-kwalificatie is nog niet uitgevoerd.
+De tweede
 maakt via Python een echte reviewhistorie en speelt deze met de productiecode
 van de app af, inclusief dubbele replay na herverbinden en verwijderen/herstellen.
 `PYTHON` kan desgewenst een ander Python-executable aanwijzen. De bestaande
@@ -140,13 +212,12 @@ Python-CI-matrix voert beide controles op Linux, Windows en macOS uit.
 
 ## Vervolg in dezelfde concept-PR
 
-1. S3-documentopslag met onveranderlijke documentversies; een review mag nooit
-   ongemerkt op een vervangen PDF worden toegepast. Uploadfouten mogen geen
-   bruikbare documentreferentie achterlaten.
-2. Docker-deployment, configuratie, lokaal accountbeheer en herstel/backup.
-3. Tauri-adapter met reconnect, zichtbare conflicten en import/export via het
+1. Docker/productie-deployment, configuratie, lokaal accountbeheer en herstel/backup;
+   S3-adapter tegen een echte objectstore kwalificeren, inclusief checksums,
+   conditional writes, versies en ongekoppelde objecten.
+2. Tauri-adapter met reconnect, zichtbare conflicten en import/export via het
    bestaande PDF-/XFDF-model; twee echte clients testen op één document.
-4. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
+3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
 
 Databasebestanden en sessietokens horen niet in Git of logregels. Deze eerste
 stap start geen listener, wijzigt geen gebruikersdocumenten en maakt geen

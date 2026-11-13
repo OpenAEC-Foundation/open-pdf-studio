@@ -16,6 +16,8 @@ from wsgiref.validate import validator
 
 from opds_collaboration.http import Application, HTTPError, LoginLimiter
 from opds_collaboration.store import Store, MAX_EVENT_BYTES
+from opds_collaboration.files import Documents, MAX_PDF_BYTES, StorageUnavailable
+from tests.test_files import MemoryObjects, PDF
 
 PASSWORD = "correct horse battery"
 
@@ -61,12 +63,16 @@ class HTTPTests(unittest.TestCase):
             headers = dict(headers or {})
             if token:
                 headers["Authorization"] = "Bearer " + token
-            if body is not None:
+            if type(body) is bytes:
+                headers.setdefault("Content-Type", "application/pdf")
+            elif body is not None:
                 body = json.dumps(body).encode("utf-8")
                 headers["Content-Type"] = "application/json"
             connection.request(method, path, body, headers)
             response = connection.getresponse()
-            return response.status, dict(response.getheaders()), json.loads(response.read())
+            data = response.read()
+            body = data if response.getheader("Content-Type") == "application/pdf" else json.loads(data)
+            return response.status, dict(response.getheaders()), body
         finally:
             connection.close()
 
@@ -186,6 +192,45 @@ class HTTPTests(unittest.TestCase):
         self.assertEqual(self.request("GET", "/v1/documents/" + "0" * 32, self.a)[0], 403)
         for body in ({"userId": [], "role": "editor"}, {"userId": self.bob, "role": []}):
             self.assertEqual(self.request("POST", self.url + "/members", self.a, body)[0], 400)
+
+    def test_pdf_upload_download_and_access_over_http(self):
+        self.app.files = Documents(self.store, MemoryObjects())
+        self.assertEqual(self.request("GET", self.url + "/pdf", self.a)[0], 404)
+        self.assertEqual(self.request("PUT", self.url + "/pdf", self.b, PDF)[0], 403)
+        created = self.request("PUT", self.url + "/pdf", self.a, PDF)
+        self.assertEqual(created[0], 200)
+        self.assertEqual(set(created[2]), {"size", "sha256"})
+        self.grant("reader")
+        downloaded = self.request("GET", self.url + "/pdf", self.b)
+        self.assertEqual(downloaded[0], 200)
+        self.assertEqual(downloaded[2], PDF)
+        self.assertEqual(downloaded[1]["Cache-Control"], "no-store")
+        self.assertIn("attachment", downloaded[1]["Content-Disposition"])
+        self.assertEqual(self.request("PUT", self.url + "/pdf", self.a, PDF)[2], created[2])
+        self.assertEqual(self.request("PUT", self.url + "/pdf", self.a, PDF + b'changed')[0], 409)
+        self.grant(None)
+        self.assertEqual(self.request("GET", self.url + "/pdf", self.b)[0], 403)
+
+    def test_pdf_limits_and_permissions_precede_body_read(self):
+        self.app.files = Documents(self.store, MemoryObjects())
+        class Unreadable:
+            def read(self, length):
+                raise AssertionError("body should not be read")
+        env = {"REQUEST_METHOD": "PUT", "PATH_INFO": self.url + "/pdf", "QUERY_STRING": "",
+               "CONTENT_TYPE": "application/pdf", "CONTENT_LENGTH": str(MAX_PDF_BYTES+1),
+               "HTTP_AUTHORIZATION": "Bearer " + self.a, "wsgi.input": Unreadable()}
+        statuses = []
+        self.app(env, lambda status, headers: statuses.append(int(status.split()[0])))
+        self.assertEqual(statuses.pop(), 413)
+        env["CONTENT_LENGTH"] = str(len(PDF))
+        env["HTTP_AUTHORIZATION"] = "Bearer " + self.b
+        self.app(env, lambda status, headers: statuses.append(int(status.split()[0])))
+        self.assertEqual(statuses.pop(), 403)
+        self.assertEqual(self.request("PUT", self.url + "/pdf", self.a, PDF, {"Content-Type": "text/plain"})[0], 415)
+        with patch.object(self.app.files.objects, "put", side_effect=StorageUnavailable("private bucket")):
+            response = self.request("PUT", self.url + "/pdf", self.a, PDF)
+            self.assertEqual(response[0], 503)
+            self.assertEqual(response[2], {"error": "storage unavailable"})
 
     def test_login_failures_rate_limit_and_storage_errors(self):
         self.app.limiter = LoginLimiter(attempts=1)
