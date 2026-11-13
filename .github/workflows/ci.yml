@@ -404,6 +404,13 @@ jobs:
         working-directory: python
         run: python -m unittest discover -s tests -t tests -v
 
+      - name: Collaboration SQLite core
+        working-directory: collaboration-server
+        run: python -m unittest discover -s tests -v
+
+      - name: Collaboration event compatibility with Tauri
+        run: node collaboration-server/tests/review-compatibility.mjs
+
       - name: Build sdist and wheel
         shell: bash
         run: |
