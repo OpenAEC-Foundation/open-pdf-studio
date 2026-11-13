@@ -430,3 +430,34 @@ met twee complete Tauri-appclients op hetzelfde document.
 Databasebestanden en sessietokens horen niet in Git of logregels. Het expliciete `serve`-commando start de listener. Alleen beheercommando's en
 verzoeken van aangemelde clients veranderen de reviewdatabase/opslag; er wordt
 geen bestaande gebruikersdocumentmap geïmporteerd.
+
+### Frontend-protocol en synchronisatiekern
+
+`js/review/central-review-client.js` ondersteunt naast beheer nu snapshots,
+replay, append en PDF-download. De client controleert de serverenveloppen,
+revisievolgorde en bevestigde mutatiegegevens. PDF-bytes worden gekopieerd;
+afmelden weigert ook een laat downloadantwoord. Een 409 bewaart de actuele
+base-ID zonder interne serverfoutteksten door te geven.
+
+`central-review-sync.js` beheert één document met een afzonderlijke serverstand
+en lokale mutaties. De adapter krijgt losse snapshots en moet die in de
+reactieve appstate plaatsen. Iedere pull verwerkt maximaal 100 events atomair;
+bij een fout blijven cursor en lokale wijzigingen behouden. Na een onzekere
+append wordt exact dezelfde vastgelegde mutatie herhaald. Een bevestiging
+verhoogt de replaycursor niet: tussenliggende events van collega's blijven
+leesbaar. Een bevestigde mutatie blijft gemarkeerd totdat replay haar heeft
+gezien, zodat een volgende wijziging geen oude base gebruikt.
+
+Een conflict behoudt de lokale gegevens. Na replay tot de actuele serverstand
+kan de gebruiker expliciet verwerpen of vervangen; vervangen maakt een nieuw
+event met de getoonde base. Een nieuwe concurrerende wijziging kan opnieuw een
+409 veroorzaken. Sluiten maakt late resultaten ongeldig. Er is nog geen
+persistente offline wachtrij: pending gegevens staan alleen in geheugen.
+
+De regressie `central-review-integration.test.mjs` gebruikt twee productie-JS-
+clients en de echte SQLite-store via een geïsoleerd stdio-testproces. Zij test
+verloren bevestigingen, retries, replay, conflicten, verwijderen/herstellen en
+rechtenintrekking. Dit is geen volledige Tauri-eind-tot-eindproef; de bestaande
+native/S3-proef kwalificeert de afzonderlijke netwerkgrens. De kern is nog niet
+aan PDF-tabs, sessieoverdracht, polling/reconnectbediening, conflict-UI of de
+PDF/XFDF-save-hooks gekoppeld. De bestaande gedeelde-mapreview blijft intact.

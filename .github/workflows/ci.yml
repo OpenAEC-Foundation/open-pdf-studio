@@ -417,6 +417,11 @@ jobs:
       - name: Collaboration event compatibility with Tauri
         run: node collaboration-server/tests/review-compatibility.mjs
 
+      - name: Test production JS clients against SQLite
+        env:
+          PYTHON: python
+        run: node --test open-pdf-studio/js/review/central-review-integration.test.mjs
+
       - name: Build sdist and wheel
         shell: bash
         run: |

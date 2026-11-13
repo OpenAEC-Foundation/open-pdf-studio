@@ -84,7 +84,7 @@ test('server errors are normalized and successful inventories are validated', as
   const client = createCentralReviewClient(async cmd => cmd === 'central_review_login' ? 'central-1' : reply);
   await client.login('https://server.test','Alice','secret');
   for (const [status,code] of [[400,'INVALID_REQUEST'],[401,'SESSION_CLOSED'],[403,'ACCESS_DENIED'],[409,'CONFLICT'],[429,'RATE_LIMITED'],[500,'REQUEST_FAILED']]) {
-    reply={status,body:{error:'internal secret'}};
+    reply={status,body:{error:'internal secret',current:null}};
     await assert.rejects(client.documents(),new RegExp(code));
   }
   for (const body of [null, {...page(),hasMore:1}, {...page([]),hasMore:true}, {...page(),cursor:B},
@@ -115,4 +115,33 @@ test('all shipped languages have nonempty central manager labels and messages', 
     assert.deepEqual(Object.keys(values).sort(),Object.keys(reference).sort(),folder.name);
     assert.ok(Object.values(values).every(v=>typeof v==='string' && v.trim()),folder.name);
   }
+});
+
+test('PDF downloads are bounded detached bytes and late downloads are discarded', async () => {
+  let response = new TextEncoder().encode('%PDF-source'), waiting = false;
+  const delay = deferred();
+  const client = createCentralReviewClient(async cmd => cmd === 'central_review_login' ? 'central-1' :
+    cmd === 'central_review_download' ? waiting ? delay.promise : response : undefined);
+  await client.login('https://server.test','Alice','secret');
+  const pdf = await client.download(A); pdf[0] = 0;
+  assert.equal(response[0],37);
+  response = response.buffer; assert.equal((await client.download(A))[0],37);
+  response = new Uint8Array([1,2,3]); await assert.rejects(client.download(A),/INVALID_PDF/);
+  response = '%PDF-string'; await assert.rejects(client.download(A),/INVALID_RESPONSE/);
+  waiting = true; const request = client.download(A); await client.logout();
+  delay.resolve(new TextEncoder().encode('%PDF-late')); await assert.rejects(request,/STALE/);
+});
+
+test('append preserves structured conflicts and rejects mismatched acknowledgement data', async () => {
+  const request = {id:'e1',ann:'a1',op:'create',base:null,data:{id:'a1',type:'textbox',page:1}};
+  let reply = {status:409,body:{current:'remote-event'}};
+  const client = createCentralReviewClient(async cmd => cmd === 'central_review_login' ? 'central-1' : reply);
+  await client.login('https://server.test','Alice','secret');
+  await assert.rejects(client.append(A,request), error => error.message === 'CONFLICT' && error.current === 'remote-event');
+  reply = {status:200,body:{...request,v:1,revision:1,seq:1,clock:1,uk:B,user:'Alice',at:'2026-11-13T00:00:00Z'}};
+  assert.equal((await client.append(A,request)).id,'e1');
+  reply.body.data = {...request.data,text:'wrong'};
+  await assert.rejects(client.append(A,request),/INVALID_RESPONSE/);
+  reply = {status:409,body:{current:'invalid / value'}};
+  await assert.rejects(client.append(A,request),/INVALID_RESPONSE/);
 });

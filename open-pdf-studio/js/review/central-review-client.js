@@ -1,9 +1,10 @@
+import { identifier, validateRequest, validateEvent, validateSnapshot, validateReplay } from './central-review-protocol.js';
 // Native-session lifecycle for the central document manager (#1067).
 // Never persist credentials or expose the native handle to the UI.
 const ID = /^[a-f0-9]{32}$/;
 const ROLES = new Set(['owner', 'reader', 'editor']);
 const NATIVE_ERRORS = new Set(['INVALID_SERVER', 'AUTHENTICATION_FAILED', 'RATE_LIMITED',
-  'BUSY', 'SESSION_LIMIT', 'SESSION_CLOSED', 'NETWORK_ERROR']);
+  'BUSY', 'SESSION_LIMIT', 'SESSION_CLOSED', 'NETWORK_ERROR', 'PDF_UNAVAILABLE', 'INVALID_PDF', 'INVALID_RESPONSE']);
 const fail = (code) => new Error(code);
 
 function documentPage(body, after, limit) {
@@ -29,20 +30,34 @@ export function createCentralReviewClient(invoke, onLogoutWarning = () => {}) {
     catch { onLogoutWarning(); } // No raw native/server details reach UI or logs.
   }
   const current = (version) => !disposed && generation === version;
-  async function json(operation) {
+  async function request(command, args) {
     const version = generation, handle = session;
     if (disposed || !handle) throw fail('SESSION_CLOSED');
     let reply;
-    try { reply = await invoke('central_review_json', { session: handle, operation }); }
+    try { reply = await invoke(command, { ...args, session: handle }); }
     catch (error) {
       if (!current(version)) throw fail('STALE');
       throw fail(NATIVE_ERRORS.has(error) ? error : 'REQUEST_FAILED');
     }
     if (!current(version)) throw fail('STALE');
-    if (reply?.status !== 200) throw fail(({ 400: 'INVALID_REQUEST', 401: 'SESSION_CLOSED',
-      403: 'ACCESS_DENIED', 409: 'CONFLICT', 429: 'RATE_LIMITED', 503: 'UNAVAILABLE' })[reply?.status] || 'REQUEST_FAILED');
+    return reply;
+  }
+  async function json(operation) {
+    const reply = await request('central_review_json', { operation });
+    if (reply?.status !== 200) {
+      const error = fail(({ 400: 'INVALID_REQUEST', 401: 'SESSION_CLOSED',
+        403: 'ACCESS_DENIED', 409: 'CONFLICT', 429: 'RATE_LIMITED', 503: 'UNAVAILABLE' })[reply?.status] || 'REQUEST_FAILED');
+      if (reply?.status === 409) {
+        if (reply.body?.current !== null && !identifier(reply.body?.current)) throw fail('INVALID_RESPONSE');
+        error.current = reply.body.current;
+      }
+      throw error;
+    }
     return reply.body;
   }
+  const checkDocument = document => {
+    if (typeof document !== 'string' || !ID.test(document)) throw fail('INVALID_REQUEST');
+  };
   return {
     async login(server, name, password) {
       if (disposed) throw fail('STALE');
@@ -63,13 +78,46 @@ export function createCentralReviewClient(invoke, onLogoutWarning = () => {}) {
       session = handle;
     },
     async documents(after = null) {
-      if (after !== null && !ID.test(after)) throw fail('INVALID_REQUEST');
+      if (after !== null && (typeof after !== 'string' || !ID.test(after))) throw fail('INVALID_REQUEST');
       return documentPage(await json({ action: 'documents', after, limit: 50 }), after, 50);
     },
     async share(document, name, role) {
-      if (!ID.test(document) || !name.trim() || ![null, 'reader', 'editor'].includes(role)) throw fail('INVALID_REQUEST');
+      if (typeof document !== 'string' || !ID.test(document) || typeof name !== 'string' || !name.trim() || ![null, 'reader', 'editor'].includes(role)) throw fail('INVALID_REQUEST');
       const result = await json({ action: 'memberByName', document, name, role });
       if (result?.ok !== true || typeof result.userId !== 'string' || !ID.test(result.userId)) throw fail('INVALID_RESPONSE');
+    },
+    async snapshot(document) {
+      checkDocument(document);
+      return validateSnapshot(await json({ action: 'snapshot', document }));
+    },
+    async events(document, after, wait = 0) {
+      checkDocument(document);
+      if (!Number.isSafeInteger(after) || after < 0 || !Number.isInteger(wait) || wait < 0 || wait > 25) throw fail('INVALID_REQUEST');
+      return validateReplay(await json({ action: 'events', document, after, limit: 100, wait }), after, 100);
+    },
+    async append(document, event) {
+      checkDocument(document);
+      const sent = validateRequest(event);
+      const result = validateEvent(await json({ action: 'append', document, event: sent }));
+      // An acknowledgement for a different mutation must never mark ours saved.
+      const same = (a, b) => {
+        if (a === b) return true;
+        if (!a || !b || typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a) !== Array.isArray(b)) return false;
+        return Object.keys(a).length === Object.keys(b).length && Object.keys(a).every(k => Object.hasOwn(b, k) && same(a[k], b[k]));
+      };
+      if (!Object.keys(sent).every(key => same(sent[key], result[key]))) throw fail('INVALID_RESPONSE');
+      return result;
+    },
+    async download(document) {
+      checkDocument(document);
+      const result = await request('central_review_download', { document });
+      // Tauri's raw IPC response is an ArrayBuffer; never hand its backing
+      // storage to PDF.js or a caller that can detach our retained source.
+      if (!(result instanceof ArrayBuffer) && !(result instanceof Uint8Array)) throw fail('INVALID_RESPONSE');
+      const bytes = new Uint8Array(result).slice();
+      if (bytes.length > 32 * 1024 * 1024 || bytes.length < 5 ||
+          ![37,80,68,70,45].every((value, index) => bytes[index] === value)) throw fail('INVALID_PDF');
+      return bytes;
     },
     logout() {
       ++generation;
