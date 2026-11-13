@@ -456,5 +456,26 @@ jobs:
           GOTOOLCHAIN: local
           GOMAXPROCS: '2'
         run: go build -C .ci-minio -p 2 -o "$RUNNER_TEMP/opds-minio-test" .
-      - name: Qualify real S3 and joint offline restore
-        run: python collaboration-server/tests/objectstore_integration.py "$RUNNER_TEMP/opds-minio-test"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1'
+      - name: Build production native transport probe
+        run: cargo build --locked --manifest-path open-pdf-studio/scripts/review-native-tests/Cargo.toml
+      - name: Qualify real S3, native transport and joint offline restore
+        run: python collaboration-server/tests/objectstore_integration.py "$RUNNER_TEMP/opds-minio-test" open-pdf-studio/scripts/review-native-tests/target/debug/opds-review-native-tests
+
+
+  collaboration-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1'
+      - name: Test production central review transport
+        run: cargo test --locked --manifest-path open-pdf-studio/scripts/review-native-tests/Cargo.toml

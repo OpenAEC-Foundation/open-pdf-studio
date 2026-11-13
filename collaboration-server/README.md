@@ -5,7 +5,8 @@ SQLite-kern, WSGI-adapter voor HTTP/live eventupdates en S3-opslagadapter voor
 onveranderlijke PDF-bases. Een Waitress-startcommando, lokaal accountbeheer, databaseback-up en
 Docker/Compose-configuratie zijn aanwezig. Een aparte integratietest kwalificeert
 de opslag tegen een vastgelegde MinIO-bronversie. Volledige deploymentkwalificatie
-en de Tauri-netwerkadapter ontbreken nog. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
+en de Tauri-gebruikersinterface/reviewsynchronisatie ontbreken nog. De native
+HTTP-transportkern en Tauri-commando's zijn aanwezig, maar nog niet vanuit de UI aangesloten. De huidige gedeelde-mapfunctie blijft werken zoals voorheen.
 Issue #1067 wordt door deze eerste stap niet gesloten.
 
 ## Wat nu werkt
@@ -333,12 +334,47 @@ crash recovery, netwerkstoring, TLS/proxy of productiebelasting. Een gewone
 herupload naar een nieuwe bucket bewaart geen oude versie-ID's; kies daarom een
 backup-/herstelvoorziening die past bij de werkelijk gebruikte objectstore.
 
+## Native Tauri-transport
+
+`src-tauri/src/central_review_transport.rs` bevat de daadwerkelijke Rust-HTTP-kern;
+`central_review.rs` registreert vijf Tauri-commando's voor login, getypeerde JSON-
+bewerkingen, PDF-upload/download en logout. Er wordt bij appstart geen netwerkverbinding
+geopend. De UI is nog niet aangesloten en deze commando's vormen nog geen werkende
+centrale review voor eindgebruikers.
+
+Een sessie kiest één serverorigin: HTTPS met normale certificaatcontrole, of HTTP
+uitsluitend op een letterlijk loopback-IP voor lokaal testen. Geen credentials,
+paden, query of fragment in de server-URL. Redirects en omgevingsproxies worden niet
+gebruikt. Het frontend ontvangt een sessiehandle; het servertoken blijft in Rust-
+procesgeheugen en wordt niet in voorkeuren opgeslagen. Logout verwijdert de lokale
+sessie vóór netwerk-I/O en weigert resultaten van nog lopende verzoeken daarna.
+Als serverlogout niet bevestigd is, meldt de transportlaag `LOGOUT_UNCONFIRMED`;
+de lokale handle blijft ongeldig, terwijl de serversessie kan voortbestaan tot
+haar vervaltijd. Afsluiten van de app garandeert geen serverlogout.
+
+Grenzen: maximaal acht sessies en acht gelijktijdige verzoeken, connectdeadline
+vijf seconden en totale requestdeadline 35 seconden. Maximaal 1 MiB JSON-upload,
+8 MiB JSON-antwoord, 32 MiB PDF. De downloadlimiet geldt ook zonder Content-Length.
+De UI moet daarom beperkte eventpagina's gebruiken en `BUSY`/omvangfouten zichtbaar
+afhandelen. De JSON-PDF-upload via IPC kan tijdelijk extra geheugenkopieën maken;
+streaming blijft toekomstwerk. De PDF-download gebruikt een binaire IPC-response.
+
+De onafhankelijke `scripts/review-native-tests`-crate compileert de productiecode
+zonder de PDF-/OCR-engine. Acht regressietests toetsen oorsprong/paden, redirects,
+omvang, conflictantwoorden, geheimhouding van de normale sessiehandle en logout
+met een lopend antwoord. De bestaande objectstoretest kan optioneel de gebouwde
+native probe als tweede argument krijgen; die test twee native sessies, echte
+S3-PDF-overdracht, events, replay, conflict, ACL en logout tegen dezelfde server.
+CI voert de native tests uit op Linux, Windows en macOS; de Tauri-appbouw toetst
+ook de commandoregistratie.
+
 ## Vervolg in dezelfde concept-PR
 
 1. De gekozen productieobjectstore en het echte herstelproces kwalificeren,
    inclusief crash-/netwerkfouten en ongekoppelde objecten. Totale requestdeadlines,
    quota en productiebelasting uitwerken; de lokale MinIO-test dekt die niet.
-2. Tauri-adapter met reconnect, zichtbare conflicten en import/export via het
+2. Tauri-UI en reviewsessies op het native transport aansluiten, met reconnect,
+   zichtbare conflicten en import/export via het
    bestaande PDF-/XFDF-model; twee echte clients testen op één document.
 3. Installerbouw en integratietests. Pas daarna is #1067 gereed voor oplevering.
 

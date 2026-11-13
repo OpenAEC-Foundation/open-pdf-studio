@@ -144,7 +144,7 @@ def expect_error(operation, *codes):
         raise AssertionError('S3 accepted a request which must fail')
 
 
-def main(binary):
+def main(binary, native_probe=None):
     binary = str(Path(binary).resolve(strict=True))
     access, secret = 'opds-test-' + secrets.token_hex(8), secrets.token_urlsafe(32)
     data = pdf()
@@ -229,6 +229,13 @@ def main(binary):
                 assert request(api, 'POST', url+'/members', {'userId':reader,'role':None}, a)[0] == 200
                 assert request(api, 'GET', url+'/pdf', token=b)[0] == 403
                 assert request(api, 'POST', url+'/members', {'userId':reader,'role':'reader'}, a)[0] == 200
+                if native_probe:
+                    config = {'server':f'http://127.0.0.1:{api}', 'ownerPassword':'owner test password',
+                              'readerPassword':'reader test password', 'readerId':reader, 'pdf':list(data)}
+                    result = subprocess.run([str(Path(native_probe).resolve(strict=True))],
+                        input=json.dumps(config), text=True, capture_output=True, timeout=60)
+                    assert result.returncode == 0, result.stderr
+                    print(result.stdout.strip())
             # Both writers stopped for an offline joint backup. Version IDs and keys
             # are retained by the objectstore's own data snapshot, not recreated via PUT.
             backup(Store(database), root/'database.backup')
@@ -244,6 +251,6 @@ def main(binary):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        raise SystemExit('usage: objectstore_integration.py LOCAL_MINIO_BINARY')
-    main(sys.argv[1])
+    if len(sys.argv) not in (2, 3):
+        raise SystemExit('usage: objectstore_integration.py LOCAL_MINIO_BINARY [NATIVE_PROBE]')
+    main(sys.argv[1], sys.argv[2] if len(sys.argv) == 3 else None)
