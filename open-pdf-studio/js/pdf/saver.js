@@ -509,10 +509,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     if (ftAnnotations.length > 0) {
       // Collect all font names actually used
       const usedFonts = new Set();
+      const embeddedFonts = new Map();
       for (const ann of ftAnnotations) {
-        usedFonts.add(mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic));
+        const embedded = await systeemFonts.voor(ann.fontFamily, !!ann.fontBold, !!ann.fontItalic);
+        if (embedded) embeddedFonts.set(embedded.naam, embedded.font.ref);
+        else usedFonts.add(mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic));
       }
-      ensureAcroFormFonts(pdfDocLib, context, usedFonts);
+      ensureAcroFormFonts(pdfDocLib, context, usedFonts, embeddedFonts);
     }
 
     // Annotatielagen (#468): per laag een OCG in /OCProperties, zodat de lagen
@@ -1530,8 +1533,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const fontSize = ann.fontSize || 14;
             const textColorArr = ann.textColor ? hexToColorArray(ann.textColor) : [0, 0, 0];
 
-            // Map font family + bold/italic to PDF standard font name
-            const pdfFontName = mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
+            // DA and AP must resolve to the same embedded font (#1066).
+            const defaultFont = await systeemFonts.voor(ann.fontFamily, !!ann.fontBold, !!ann.fontItalic);
+            const pdfFontName = defaultFont?.naam || mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
             // Als PDF-naam ('(' -> #28): /DA is een literal string zonder
             // escapes en een haakje uit een fontnaam sloot hem te vroeg (#555).
             const da = `${textColorArr[0]} ${textColorArr[1]} ${textColorArr[2]} rg ${PDFName.of(pdfFontName)} ${fontSize} Tf`;

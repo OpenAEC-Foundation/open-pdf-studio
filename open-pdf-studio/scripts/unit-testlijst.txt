@@ -842,3 +842,6 @@ js/pdf/saver/systeem-fonts.test.mjs
 js/text/text-rotation.test.mjs
 scripts/pdfjs-soft-mask-bounds.test.mjs
 scripts/startup-window.test.mjs
+
+js/pdf/systeem-font-rondgang.test.mjs
+js/pdf/saver/ttf-subset-padding.test.mjs

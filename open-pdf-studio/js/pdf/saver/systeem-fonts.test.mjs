@@ -91,3 +91,51 @@ test('keten: een variabel lettertype wordt heel ingebed', { skip: !variabelPad &
   const lengte1 = decodePDFRawStream(ff).decode().length;
   assert.equal(lengte1, fs.statSync(variabelPad).size, 'the whole font file is in the PDF');
 });
+
+// A collection can contain several families/styles at the same file path.
+// The IPC returns one standalone face; the save cache must keep them apart.
+const fixtureBytes = new Uint8Array(fs.readFileSync(new URL('../../../scripts/font-native-tests/fixtures/installed.ttf', import.meta.url)));
+
+test('collection faces are requested and cached separately, with real embedded widths', async () => {
+  const doc = await PDFDocument.create();
+  const requests = [];
+  const keten = maakSysteemFontKeten(doc, {
+    zoek: async (family) => ({ pad: '/fonts/collection.ttc', gezicht: family === 'First' ? 0 : 1, insluitbaar: true, exact: true }),
+    laadBytes: async (pad, gezicht) => { requests.push([pad, gezicht]); return fixtureBytes; },
+  });
+  const a = await keten.voor('First');
+  const b = await keten.voor('Second');
+  assert.ok(a && b);
+  assert.notEqual(a, b, 'different faces never reuse the first face');
+  assert.notEqual(a.naam, b.naam);
+  assert.equal(await keten.voor('Second'), b);
+  assert.deepEqual(requests, [['/fonts/collection.ttc', 0], ['/fonts/collection.ttc', 1]]);
+  const page = doc.addPage();
+  page.drawText('A日', { font: a.font, x: 20, y: 80 });
+  page.drawText('A日', { font: b.font, x: 20, y: 40 });
+  const saved = await PDFDocument.load(await doc.save());
+  for (const f of [a, b]) {
+    const dict = saved.context.lookup(f.font.ref, PDFDict);
+    assert.equal(dict.get(PDFName.of('Subtype')).toString(), '/Type0');
+    const cid = saved.context.lookup(dict.lookup(PDFName.of('DescendantFonts')).get(0), PDFDict);
+    assert.ok(cid.lookup(PDFName.of('W')).size() > 0, 'glyph widths present');
+    assert.ok(cid.lookup(PDFName.of('FontDescriptor'), PDFDict).get(PDFName.of('FontFile2')));
+    assert.ok(dict.get(PDFName.of('ToUnicode')));
+  }
+});
+
+test('no-subsetting rights embed the entire extracted face', async () => {
+  const doc = await PDFDocument.create();
+  const keten = maakSysteemFontKeten(doc, {
+    zoek: async () => ({ pad: '/fonts/collection.ttc', gezicht: 1, subset: false, insluitbaar: true, exact: true }),
+    laadBytes: async () => fixtureBytes,
+  });
+  const f = await keten.voor('No subset');
+  doc.addPage().drawText('A', { font: f.font });
+  const saved = await PDFDocument.load(await doc.save());
+  const dict = saved.context.lookup(f.font.ref, PDFDict);
+  assert.doesNotMatch(dict.get(PDFName.of('BaseFont')).toString(), /[+]/);
+  const cid = saved.context.lookup(dict.lookup(PDFName.of('DescendantFonts')).get(0), PDFDict);
+  const stream = saved.context.lookup(cid.lookup(PDFName.of('FontDescriptor'), PDFDict).get(PDFName.of('FontFile2')));
+  assert.deepEqual(new Uint8Array(decodePDFRawStream(stream).decode()), fixtureBytes);
+});
