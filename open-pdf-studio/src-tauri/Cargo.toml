@@ -60,6 +60,7 @@ open-pdf-security = { path = "../../open-pdf-security" }
 # Verliesloze monochroom-hercompressie per beeld (#902): pakken, Flate, CCITT G4.
 # De app-crate bevat alleen de commando-schil in src/monochroom.rs.
 open-pdf-monochrome = { path = "../../open-pdf-monochrome" }
+open-pdf-scan = { path = "../../open-pdf-scan" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 # Bindings voor PDFium 7881: de nieuwste binding die niet nieuwer is dan de
 # meegeleverde PDFium (chromium/8076, binaries/pdfium-runtime.json). De

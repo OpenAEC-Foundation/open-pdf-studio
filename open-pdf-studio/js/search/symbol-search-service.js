@@ -6,6 +6,22 @@ import { applyAnnotationBatch } from '../plugins/annotation-batch.js';
 import { isLayerLocked, layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 import { countCategories } from '../solid/stores/countStore.js';
 import { binaryImage, cropTemplate, matchSymbols, planSymbolCounts } from './symbol-matcher.js';
+import { createRasterScan, searchSymbolsInWorker } from '../pdf/raster-scan-rust.js';
+import { isTauri, isMobile, invoke } from '../core/platform.js';
+
+// Matching in Rust on the desktop (docs/rust-stappen.md): the raster is the
+// one pdf.js draws below, so the matches are those of the JS matcher, which
+// stays as the fallback. `window.__opdsSymbolRender = 'pdfium'` also lets the
+// PDFium worker render the pages (faster on heavy sheets; its raster differs
+// by about a pixel along edges, which moves matches across the threshold).
+let _scan = null;
+async function rasterScan() {
+  if (!_scan) {
+    const { getCachedPdfBytes } = await import('../pdf/loader.js');
+    _scan = createRasterScan({ inTauri: isTauri, mobile: isMobile, call: invoke, cachedBytes: getCachedPdfBytes });
+  }
+  return _scan;
+}
 
 const queries = new Map();
 
@@ -29,8 +45,23 @@ export async function openSymbolSearch(documentId) {
     rotations.set(pageNumber, extra);
     return {
       page,
+      extra,
       rotation: (page.rotate + extra) % 360,
       base: page.getViewport({ scale: 1, rotation: (page.rotate + extra) % 360 })
+    };
+  }
+  // The raster that render() would draw, described for the worker: same size,
+  // the view rotation on top of /Rotate.
+  async function rasterFor(file, pageNumber, scale) {
+    const g = await geometry(pageNumber);
+    const viewport = g.page.getViewport({ scale, rotation: g.rotation });
+    return {
+      path: file.path,
+      page_index: pageNumber - 1,
+      width: Math.ceil(viewport.width),
+      height: Math.ceil(viewport.height),
+      rotation: ((g.extra % 360) + 360) % 360,
+      expect_len: file.expectLen
     };
   }
   async function render(pageNumber, canvas, scale, signal) {
@@ -74,21 +105,50 @@ export async function openSymbolSearch(documentId) {
         const g = await geometry(p);
         scale = Math.min(scale, 1200 / Math.max(g.base.width, g.base.height));
       }
+      const scan = isTauri() ? await rasterScan() : null,
+        file = scan?.usable() ? scan.file(doc.filePath) : null;
+      check();
+      let done = 0;
+      const inWorker = file && rect && globalThis.__opdsSymbolRender === 'pdfium' ? await searchSymbolsInWorker(scan, {
+        rasterFor: p => rasterFor(file, p, scale),
+        templatePage,
+        crop: [rect.x * scale, rect.y * scale, rect.width * scale, rect.height * scale],
+        pages,
+        threshold,
+        rotations: angles,
+        scales,
+        signal: options.signal,
+        onPage: page => options.onProgress?.({ page, fraction: ++done / pages.length })
+      }) : null;
+      check();
       const canvas = document.createElement('canvas');
       const matches = [];
       let truncated = false;
       try {
-        await render(templatePage, canvas, scale, options.signal);
-        const template = cropTemplate(binaryImage(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)), { x: rect.x * scale, y: rect.y * scale, width: rect.width * scale, height: rect.height * scale });
+        let template = null;
+        if (!inWorker) {
+          await render(templatePage, canvas, scale, options.signal);
+          template = cropTemplate(binaryImage(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)), { x: rect.x * scale, y: rect.y * scale, width: rect.width * scale, height: rect.height * scale });
+        }
         for (const [index, page] of [...new Set(pages)].entries()) {
-          await render(page, canvas, scale, options.signal);
-          const found = await matchSymbols(binaryImage(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height)), template, {
-            threshold,
-            rotations: angles,
-            scales,
-            signal: options.signal,
-            onProgress: f => options.onProgress?.({ page, fraction: (index + f) / pages.length })
-          });
+          let found = inWorker?.get(page);
+          if (!found) {
+            await render(page, canvas, scale, options.signal);
+            const image = binaryImage(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
+            found = scan?.usable() ? await scan.match(image, template, { threshold, rotations: angles, scales }) : null;
+            if (found) {
+              if (options.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+              options.onProgress?.({ page, fraction: (index + 1) / pages.length });
+            } else {
+              found = await matchSymbols(image, template, {
+                threshold,
+                rotations: angles,
+                scales,
+                signal: options.signal,
+                onProgress: f => options.onProgress?.({ page, fraction: (index + f) / pages.length })
+              });
+            }
+          }
           check();
           truncated ||= found.truncated;
           for (const m of found.matches) {

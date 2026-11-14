@@ -20,7 +20,7 @@ import {
   moveBefore, emptySelection, clickSelection, keySelection, selectAll, syncSelection, selectionAfterRemoval,
   selectedInOrder, selectionSummary, clampPage, addedJobFileName,
 } from '../stores/print-queue-model.js';
-import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog } from '../../core/platform.js';
+import { isTauri, invoke, readBinaryFile, writeBinaryFile, writeTempPdf, saveFileDialog } from '../../core/platform.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import pdfjsWorkerUrl from 'virtual:opds-pdfjs-worker-url';
 
@@ -276,7 +276,7 @@ export default function PrintQueueWindow() {
       let path = jobs[0].path;
       if (jobs.length > 1) {
         const merged = await mergeBytes(jobs);
-        path = await invoke('write_temp_pdf', { data: Array.from(merged) });
+        path = await writeTempPdf(merged);
       }
       showStatus('busy', t('printQueue.opening'));
       await invoke('spawn_window_with_pdf', { pdfPath: path });
