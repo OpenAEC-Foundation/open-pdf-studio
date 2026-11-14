@@ -21,7 +21,7 @@ import { startNewCount } from '../solid/stores/countStore.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
 import { toggleLeftPanel } from '../ui/panels/left-panel.js';
-import { switchRibbonTab as switchToTab } from '../bridge.js';
+import { switchRibbonTab as switchToTab, copyStyleFromSelection, pasteStyleToSelection } from '../bridge.js';
 import { openFindBar, closeFindBar, onFindNext } from '../search/find-bar.js';
 import { closeActiveTab, wisselTabMetSneltoets } from '../ui/chrome/tabs.js';
 import { isTextEntryTarget, tabSneltoetsRichting, maakTabSneltoetsHandler, maakTabWisselaar } from '../ui/chrome/tab-sneltoets.js';
@@ -80,6 +80,20 @@ function wisselObjectSnap() {
 
 // Een ingebouwde opdracht uitvoeren voor een zelf gekozen toets.
 async function voerIngebouwdeOpdrachtUit(id, e) {
+  if (['edit.copyStyle', 'edit.pasteStyle', 'edit.setDefaultStyle'].includes(id)) {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc || modaalOpen() || isTextEntryTarget(e?.target)
+        || state.isEditingText || state.pdfTextEditState) return;
+    const selected = doc.selectedAnnotations?.[0] || doc.selectedAnnotation;
+    if (id === 'edit.copyStyle') {
+      if (selected) copyStyleFromSelection();
+    } else if (id === 'edit.pasteStyle') {
+      if (!isPdfAReadOnly()) pasteStyleToSelection();
+    } else if (selected && !selected.locked) {
+      setAsDefaultStyle(selected);
+    }
+    return;
+  }
   if (id === 'search.find') { openFindBar(); return; }
   if (id === 'search.findNext') {
     if (state.search.isOpen) onFindNext();
