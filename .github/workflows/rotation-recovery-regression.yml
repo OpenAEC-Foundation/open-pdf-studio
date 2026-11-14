@@ -6,6 +6,10 @@ on:
       - 'open-pdf-studio/js/pdf/page-bitmap-cache.js'
       - 'open-pdf-studio/js/pdf/progressive-render.js'
       - 'open-pdf-studio/scripts/test-rotation-recovery.mjs'
+      - 'open-pdf-studio/js/pdf/saver.js'
+      - 'open-pdf-studio/js/pdf/page-manager.js'
+      - 'open-pdf-studio/js/pdf/saver/rotation-render-copy*'
+      - 'open-pdf-studio/scripts/test-saved-page-rotation.mjs'
       - '.github/workflows/rotation-recovery-regression.yml'
 permissions:
   contents: read
@@ -24,3 +28,4 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: node scripts/test-rotation-recovery.mjs
+      - run: node scripts/test-saved-page-rotation.mjs
