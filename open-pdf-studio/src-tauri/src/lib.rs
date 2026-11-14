@@ -73,6 +73,8 @@ pub mod scanner;
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 pub mod scanner_cmd;
 pub mod shared_review;
+pub mod central_review_transport;
+pub mod central_review;
 // Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
 pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
@@ -3321,6 +3323,7 @@ pub fn run(opts: StartupOpts) {
 
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
+        .manage(central_review_transport::Transport::default())
         .manage(verkenner_acties::ShellActieWachtrij::met(start_shell_actie))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
         .manage(spraak::SpraakProces::default())
@@ -3741,6 +3744,11 @@ pub fn run(opts: StartupOpts) {
             write_file_atomic,
             cancel_file_write,
             write_file_new,
+            central_review::central_review_login,
+            central_review::central_review_json,
+            central_review::central_review_upload,
+            central_review::central_review_download,
+            central_review::central_review_logout,
             shared_review::shared_review_list,
             shared_review::shared_review_read,
             shared_review::shared_review_write,

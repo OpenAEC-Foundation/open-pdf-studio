@@ -285,7 +285,7 @@ function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
 }
 
 export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getActiveDocument()) {
-  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc)) return false;
+  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc) || activeDoc._centralReviewOpening) return false;
   // Beveiligd en de beveiliging is niet terug te schrijven: nooit opslaan
   // (ook niet als kopie), zodat het origineel beveiligd blijft. Met een
   // beveiligingssessie schrijft opslaan dezelfde beveiliging terug (#378).
