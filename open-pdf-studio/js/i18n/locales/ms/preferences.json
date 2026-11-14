@@ -194,6 +194,7 @@
     "moveInferenceHint": "Letakkan kursor seketika pada satu titik untuk menangkapnya, tahan Shift untuk mengunci garisan panduan, Tab bertukar antara jarak dan sudut. Garisan panduan polar mengikut tetapan penjejakan polar.",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
+    "reverseWheelZoom": "Songsangkan arah zum roda tetikus",
     "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
     "ribbonWheelSwitchesTabs": "Tukar tab reben dengan roda tetikus",
     "smoothScrolling": "Tatal lancar",

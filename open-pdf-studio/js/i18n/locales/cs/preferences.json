@@ -194,6 +194,7 @@
     "moveInferenceHint": "Krátce podržte kurzor nad bodem, aby se zachytil, podržte Shift pro uzamčení pomocné čáry, Tab přepíná mezi vzdáleností a úhlem. Polární pomocné čáry se řídí nastavením polárního trasování.",
     "navigation": "Navigace",
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
+    "reverseWheelZoom": "Obrátit směr přiblížení kolečkem myši",
     "middleDoubleClickFit": "Dvojklik prostředním tlačítkem myši přizpůsobí stránku",
     "ribbonWheelSwitchesTabs": "Přepínat karty pásu karet kolečkem myši",
     "smoothScrolling": "Plynulé posouvání",

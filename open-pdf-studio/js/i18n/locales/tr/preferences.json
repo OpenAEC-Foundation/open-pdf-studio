@@ -194,6 +194,7 @@
     "confirmBeforeDeleting": "Açıklamaları silmeden önce onayla",
     "navigation": "Gezinme",
     "wheelZoomWithoutCtrl": "Fare tekerleğiyle yakınlaştır (Ctrl basılı tutmadan)",
+    "reverseWheelZoom": "Fare tekerleği yakınlaştırma yönünü tersine çevir",
     "middleDoubleClickFit": "Sayfayı sığdırmak için farenin orta düğmesine çift tıklayın",
     "ribbonWheelSwitchesTabs": "Şerit sekmelerini fare tekerleğiyle değiştir",
     "smoothScrolling": "Yumuşak kaydırma",

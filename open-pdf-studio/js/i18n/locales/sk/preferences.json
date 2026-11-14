@@ -194,6 +194,7 @@
     "moveInferenceHint": "Krátko podržte kurzor nad bodom, aby sa zachytil, podržte Shift na uzamknutie pomocnej čiary, Tab prepína medzi vzdialenosťou a uhlom. Polárne pomocné čiary sa riadia nastavením polárneho sledovania.",
     "navigation": "Navigácia",
     "wheelZoomWithoutCtrl": "Lupa kolieskom myši (bez držania Ctrl)",
+    "reverseWheelZoom": "Obrátiť smer priblíženia kolieskom myši",
     "middleDoubleClickFit": "Dvojklik stredným tlačidlom myši prispôsobí stránku",
     "ribbonWheelSwitchesTabs": "Prepínať karty pásu s nástrojmi kolieskom myši",
     "smoothScrolling": "Plynulé posúvanie",

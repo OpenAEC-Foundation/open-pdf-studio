@@ -313,6 +313,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   autoSelectAfterCreate: true,
   confirmBeforeDelete: true,
   wheelZoomWithoutCtrl: false,
+  reverseWheelZoom: false,
   // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
   middleDoubleClickFit: true,
   // Muiswiel boven het lint wisselt van tabblad (#852).

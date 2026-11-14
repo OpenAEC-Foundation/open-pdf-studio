@@ -194,6 +194,7 @@
     "confirmBeforeDeleting": "注釈を削除する前に確認する",
     "navigation": "ナビゲーション",
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
+    "reverseWheelZoom": "マウスホイールのズーム方向を反転",
     "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
     "ribbonWheelSwitchesTabs": "マウスホイールでリボンのタブを切り替える",
     "smoothScrolling": "スムーズスクロール",

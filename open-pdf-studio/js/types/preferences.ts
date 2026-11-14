@@ -227,6 +227,7 @@ export interface Preferences {
   autoSelectAfterCreate: boolean;
   confirmBeforeDelete: boolean;
   wheelZoomWithoutCtrl: boolean;
+  reverseWheelZoom: boolean;
   middleDoubleClickFit: boolean;
   ribbonWheelSwitchesTabs: boolean;
   smoothScrolling: boolean;

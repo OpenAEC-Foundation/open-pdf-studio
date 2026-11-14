@@ -845,3 +845,4 @@ scripts/startup-window.test.mjs
 
 js/pdf/systeem-font-rondgang.test.mjs
 js/pdf/saver/ttf-subset-padding.test.mjs
+js/core/wheel-zoom.test.mjs

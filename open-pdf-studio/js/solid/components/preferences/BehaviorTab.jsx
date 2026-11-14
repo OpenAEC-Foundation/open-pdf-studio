@@ -202,6 +202,12 @@ export default function BehaviorTab(props) {
         </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
+            <input type="checkbox" id="pref-reverse-wheel-zoom" checked={p.reverseWheelZoom[0]()} onChange={e => p.reverseWheelZoom[1](e.target.checked)} />
+            <span>{t('behavior.reverseWheelZoom')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.middleDoubleClickFit[0]()} onChange={e => p.middleDoubleClickFit[1](e.target.checked)} />
             <span>{t('behavior.middleDoubleClickFit')}</span>
           </label>

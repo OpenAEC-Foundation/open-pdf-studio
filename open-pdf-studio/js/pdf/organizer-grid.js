@@ -26,7 +26,7 @@ export function clampZoomIndex(i) {
   return Math.max(0, Math.min(ZOOM_LEVELS.length - 1, n));
 }
 
-/** One step in or out (Ctrl+wheel: deltaY < 0 zooms in). */
+/** One step in or out; wheel callers apply the zoom-direction preference. */
 export function zoomStep(index, direction) {
   return clampZoomIndex(clampZoomIndex(index) + (direction > 0 ? 1 : direction < 0 ? -1 : 0));
 }

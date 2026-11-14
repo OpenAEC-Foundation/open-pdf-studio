@@ -194,6 +194,7 @@
     "moveInferenceHint": "Weka kiteuzi kwa muda mfupi juu ya pointi ili kuinasa, shikilia Shift ili kufunga mstari mwongozo, Tab hubadilisha kati ya umbali na pembe. Miongozo ya kipolari hufuata mipangilio ya ufuatiliaji wa kipolari.",
     "navigation": "Urambazaji",
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
+    "reverseWheelZoom": "Geuza mwelekeo wa kukuza kwa gurudumu la kipanya",
     "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",
     "ribbonWheelSwitchesTabs": "Badilisha vichupo vya utepe kwa gurudumu la kipanya",
     "smoothScrolling": "Kusogeza kwa ulaini",

@@ -1,7 +1,8 @@
+import { wheelZoomDelta } from '../../../core/wheel-zoom.js';
 import { createSignal, createEffect, onCleanup, onMount, Show, untrack } from 'solid-js';
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist';
-import { getActiveDocument } from '../../../core/state.js';
+import { state, getActiveDocument } from '../../../core/state.js';
 import { getCachedPdfBytes } from '../../../pdf/loader.js';
 import { readBinaryFile } from '../../../core/platform.js';
 import { pdfjsBronnen } from '../../../core/basis-url.js';
@@ -167,7 +168,11 @@ export default function WatermarkPreview(props) {
       <button class="pref-btn" aria-label={t('print.nextPage')} disabled={pageNumber()>=(originalPdf?.numPages || 0)} onClick={()=>setPageNumber(n=>n+1)}>›</button>
     </div>
     <div class="watermark-preview-viewport" ref={viewportElement} onWheel={e=>{
-      if(e.ctrlKey) { e.preventDefault(); e.stopPropagation(); setZoom(z=>Math.min(4,Math.max(.5,z*(e.deltaY>0?.9:1.1)))); }
+      if(e.ctrlKey) {
+        e.preventDefault(); e.stopPropagation();
+        const delta = wheelZoomDelta(e.deltaY, state.preferences);
+        if (delta !== 0) setZoom(z=>Math.min(4,Math.max(.5,z*(delta>0?.9:1.1))));
+      }
     }}>
       <Show when={error()}><span role="alert">{common('failedToLoadPdf')}</span></Show>
       <Show when={!background() && !error()}><span>{common('loading')}</span></Show>

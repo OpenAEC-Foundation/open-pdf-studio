@@ -244,6 +244,7 @@
     "confirmBeforeDeleting": "Confirm before deleting annotations",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
+    "reverseWheelZoom": "Reverse mouse wheel zoom direction",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
     "ribbonWheelSwitchesTabs": "Switch ribbon tabs with the mouse wheel",
     "smoothScrolling": "Smooth scrolling",
