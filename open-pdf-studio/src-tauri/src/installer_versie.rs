@@ -29,7 +29,7 @@ pub fn versie_uit_vaste_info(ms: u32, ls: u32) -> (u32, u32, u32) {
 
 /// Waar de installer staat als zijn statusbestand hem niet noemt; hetzelfde
 /// pad als de plugin gebruikt.
-#[cfg(all(windows, not(test)))]
+#[cfg(windows)]
 fn standaard_installer() -> Option<std::path::PathBuf> {
     let pad = std::path::PathBuf::from(std::env::var_os("LOCALAPPDATA")?)
         .join("OpenAEC Installer")
@@ -37,13 +37,39 @@ fn standaard_installer() -> Option<std::path::PathBuf> {
     pad.is_file().then_some(pad)
 }
 
+/// De vaste versiegegevens van een Windows-programma (VS_FIXEDFILEINFO).
+#[cfg(windows)]
+#[repr(C)]
+#[allow(non_snake_case)]
+struct VasteVersieInfo {
+    dwSignature: u32,
+    dwStrucVersion: u32,
+    dwFileVersionMS: u32,
+    dwFileVersionLS: u32,
+    dwProductVersionMS: u32,
+    dwProductVersionLS: u32,
+    dwFileFlagsMask: u32,
+    dwFileFlags: u32,
+    dwFileOS: u32,
+    dwFileType: u32,
+    dwFileSubtype: u32,
+    dwFileDateMS: u32,
+    dwFileDateLS: u32,
+}
+
+// Rechtstreeks uit version.dll, zodat dit bestand ook los te testen is.
+#[cfg(windows)]
+#[link(name = "version")]
+extern "system" {
+    fn GetFileVersionInfoSizeW(bestand: *const u16, handle: *mut u32) -> u32;
+    fn GetFileVersionInfoW(bestand: *const u16, handle: u32, lengte: u32, gegevens: *mut core::ffi::c_void) -> i32;
+    fn VerQueryValueW(blok: *const core::ffi::c_void, pad: *const u16, buffer: *mut *mut core::ffi::c_void, lengte: *mut u32) -> i32;
+}
+
 /// De versie van het programma op `pad`, uit zijn versiegegevens.
-#[cfg(all(windows, not(test)))]
+#[cfg(windows)]
 fn versie_van(pad: &std::path::Path) -> Option<(u32, u32, u32)> {
     use std::os::windows::ffi::OsStrExt;
-    use windows_sys::Win32::Storage::FileSystem::{
-        GetFileVersionInfoSizeW, GetFileVersionInfoW, VerQueryValueW, VS_FIXEDFILEINFO,
-    };
 
     let breed: Vec<u16> = pad.as_os_str().encode_wide().chain(std::iter::once(0)).collect();
     let wortel: Vec<u16> = "\\".encode_utf16().chain(std::iter::once(0)).collect();
@@ -63,24 +89,24 @@ fn versie_van(pad: &std::path::Path) -> Option<(u32, u32, u32)> {
         let mut lengte: u32 = 0;
         if VerQueryValueW(buffer.as_ptr().cast(), wortel.as_ptr(), &mut info, &mut lengte) == 0
             || info.is_null()
-            || (lengte as usize) < std::mem::size_of::<VS_FIXEDFILEINFO>()
+            || (lengte as usize) < std::mem::size_of::<VasteVersieInfo>()
         {
             return None;
         }
-        let vast = &*(info as *const VS_FIXEDFILEINFO);
+        let vast = &*(info as *const VasteVersieInfo);
         Some(versie_uit_vaste_info(vast.dwFileVersionMS, vast.dwFileVersionLS))
     }
 }
 
 /// Kent de installer op deze computer `--check`? `installer` is het pad uit
 /// zijn statusbestand als dat er is; anders de standaardplek.
-#[cfg(all(windows, not(test)))]
+#[cfg(windows)]
 pub fn installer_kent_achtergrondcontrole(installer: Option<std::path::PathBuf>) -> bool {
     let pad = installer.filter(|p| p.is_file()).or_else(standaard_installer);
-    kent_achtergrondcontrole(pad.as_deref().and_then(versie_van))
+    kent_achtergrondcontrole(pad.as_deref().and_then(|p| versie_van(p)))
 }
 
-#[cfg(all(not(windows), not(test)))]
+#[cfg(not(windows))]
 pub fn installer_kent_achtergrondcontrole(_installer: Option<std::path::PathBuf>) -> bool {
     false
 }
@@ -107,6 +133,14 @@ mod tests {
     #[test]
     fn een_onbekende_versie_telt_als_nee() {
         assert!(!kent_achtergrondcontrole(None));
+    }
+
+    #[test]
+    fn een_pad_zonder_installer_telt_als_nee() {
+        let weg = std::path::PathBuf::from("dit-bestand-bestaat-niet.exe");
+        // Het pad bestaat niet; op een computer zonder installer is het antwoord nee.
+        // (Met een installer hangt het van zijn versie af, dus alleen het type telt.)
+        let _: bool = installer_kent_achtergrondcontrole(Some(weg));
     }
 
     #[test]
