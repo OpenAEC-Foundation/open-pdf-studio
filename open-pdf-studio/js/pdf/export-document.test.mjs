@@ -32,7 +32,7 @@ function harness() {
     saveFileDialog: async () => '/tmp/a_page0001.png',
     openFolderDialog: async () => '/tmp/pages',
     showLoading() {}, hideLoading() {},
-    renderPageOffscreen: async (page, scale, options) => { renders.push({ page, scale, options }); return {}; },
+    renderUitvoerPagina: async (page, scale, options) => { renders.push({ page, scale, options }); return {}; },
     canvasToBytes: async () => new Uint8Array([1, 2, 3]),
     canvasToTiffBytes: (canvas, dpi) => { tiffCalls.push({ canvas, dpi }); return new Uint8Array([4, 5, 6]); },
     imageWithDpi: (bytes, format, dpi) => { densityCalls.push({ format, dpi }); return bytes; },
@@ -56,7 +56,7 @@ test('multi-page image export writes atomic files inside the chosen Linux folder
 
 test('switching documents while rendering aborts before writing another document’s pixels', async () => {
   const h = harness(), entered = deferred(), release = deferred();
-  h.deps.renderPageOffscreen = async () => { entered.resolve(); await release.promise; return {}; };
+  h.deps.renderUitvoerPagina = async () => { entered.resolve(); await release.promise; return {}; };
   const exportAsImages = new Function(...Object.keys(h.deps), `${imageExport}\nreturn exportAsImages;`)(...Object.values(h.deps));
   const exporting = exportAsImages({ pages: [1] });
   await entered.promise;

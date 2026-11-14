@@ -142,3 +142,33 @@ test('raster-export: tegels zonder extra rotatie en zonder dunne lijnen', () => 
   assert.match(kies, /if \(!poolKlaar\) return 'pdfjs';/);
   assert.match(kies, /isHeavyBytes\(await pageContentBytes\(doc\.filePath, pageNum\)\) \? 'pdfium' : 'pdfjs'/);
 });
+
+// Afdrukken rendert alleen het deel van de pagina dat op het vel komt: de
+// PDFium-route haalt dan alleen de tegels op die dat deel raken.
+const { tegelsVoorDeel } = await import('./raster-export-plan.js');
+
+test('deel: zonder rotatie alleen de tegels die het deel raken', () => {
+  const tegels = [
+    { px: 0, py: 0, pw: 100, ph: 100 }, { px: 100, py: 0, pw: 100, ph: 100 },
+    { px: 0, py: 100, pw: 100, ph: 100 }, { px: 100, py: 100, pw: 100, ph: 100 },
+  ];
+  const m = draaiMatrix(0, 200, 200);
+  assert.deepEqual(tegelsVoorDeel(tegels, m, { x: 10, y: 10, breedte: 50, hoogte: 50 }), [tegels[0]]);
+  assert.deepEqual(tegelsVoorDeel(tegels, m, { x: 90, y: 110, breedte: 20, hoogte: 20 }), [tegels[2], tegels[3]]);
+  assert.deepEqual(tegelsVoorDeel(tegels, m, { x: 100, y: 0, breedte: 100, hoogte: 100 }), [tegels[1]], 'aanliggen is niet raken');
+  assert.deepEqual(tegelsVoorDeel(tegels, m, null), tegels, 'zonder deel alle tegels');
+});
+
+test('deel: met extra rotatie telt de plek van de tegel in de gedraaide pagina', () => {
+  // Ongedraaid 300 breed, 100 hoog, drie tegels naast elkaar. Na 90° met de
+  // klok mee is de pagina 100 breed en 300 hoog: de linker tegel staat
+  // bovenaan, de rechter onderaan.
+  const tegels = [{ px: 0, py: 0, pw: 100, ph: 100 }, { px: 100, py: 0, pw: 100, ph: 100 }, { px: 200, py: 0, pw: 100, ph: 100 }];
+  const m90 = draaiMatrix(90, 300, 100);
+  assert.deepEqual(tegelsVoorDeel(tegels, m90, { x: 0, y: 0, breedte: 100, hoogte: 50 }), [tegels[0]]);
+  assert.deepEqual(tegelsVoorDeel(tegels, m90, { x: 20, y: 250, breedte: 10, hoogte: 10 }), [tegels[2]]);
+  const m270 = draaiMatrix(270, 300, 100);
+  assert.deepEqual(tegelsVoorDeel(tegels, m270, { x: 0, y: 0, breedte: 100, hoogte: 50 }), [tegels[2]], '270°: de rechter tegel staat bovenaan');
+  const m180 = draaiMatrix(180, 300, 100);
+  assert.deepEqual(tegelsVoorDeel(tegels, m180, { x: 0, y: 0, breedte: 50, hoogte: 100 }), [tegels[2]]);
+});
