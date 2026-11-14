@@ -65,6 +65,4 @@ De exacte Windows TTC en de externe lezer uit de melding zijn hier niet
 end-to-end getest. Controleer op Windows: installeer de nieuwe build, maak
 een tekstvak en callout met BIZ UDGothic, sla op, open in de gemelde lezer en
 controleer de zichtbare tekst, ingesloten font en het ontbreken van de
-`/Widths`-fout. Installerbouw en upstream review blijven nodig voordat de
-concept-PR gereed is voor merge. Versie 2026.46.28 volgt de repositoryregel
-om de versie bij iedere push te verhogen; er wordt geen release gepubliceerd.
+`/Widths`-fout.

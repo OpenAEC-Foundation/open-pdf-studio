@@ -842,8 +842,9 @@ js/pdf/saver/systeem-fonts.test.mjs
 js/text/text-rotation.test.mjs
 scripts/pdfjs-soft-mask-bounds.test.mjs
 scripts/startup-window.test.mjs
-
+# Ronde 2026.46.3
 js/pdf/systeem-font-rondgang.test.mjs
 js/pdf/saver/ttf-subset-padding.test.mjs
 js/core/wheel-zoom.test.mjs
 js/pdf/saver/rotation-render-copy.test.mjs
+js/watermark/kopvoet-rotatie-herladen.test.mjs
