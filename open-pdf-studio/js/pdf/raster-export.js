@@ -7,7 +7,7 @@
 
 import { heeftRustRenderer, invoke } from '../core/platform.js';
 import { pageContentBytes, isHeavyBytes } from './progressive-render.js';
-import { tegelRaster, draaiMatrix, spreidOverWorkers } from './raster-export-plan.js';
+import { tegelRaster, draaiMatrix, spreidOverWorkers, tegelsVoorDeel } from './raster-export-plan.js';
 
 /**
  * Kan deze export de PDFium-workers gebruiken? Alleen in de desktop-app, met
@@ -63,23 +63,37 @@ async function renderTegel(args) {
  * tegels komen ongedraaid uit de workers (die kennen alleen de eigen
  * /Rotate van de pagina) en worden hier op hun plek gedraaid.
  * Met `signal` stopt hij na een afgebroken export bij de volgende tegel.
+ * Met `deel` (pixels van de gedraaide pagina: {x, y, breedte, hoogte}) komt
+ * alleen dat deel op een canvas van die maat, en worden alleen de tegels
+ * opgehaald die het raken (afdrukken, zie print-plaatsing.js). `doel` is een
+ * eigen canvas om op te tekenen (een HTMLCanvasElement voor code die er een
+ * verwacht); het krijgt de juiste maat.
  * @param {{ doc: object, pageNum: number, scale: number, extraRot: number,
- *           breedte: number, hoogte: number, signal?: AbortSignal }} o
- * @returns {Promise<OffscreenCanvas>}
+ *           breedte: number, hoogte: number, signal?: AbortSignal,
+ *           deel?: {x:number, y:number, breedte:number, hoogte:number}|null,
+ *           doel?: HTMLCanvasElement|OffscreenCanvas|null }} o
+ * @returns {Promise<OffscreenCanvas|HTMLCanvasElement>}
  */
-export async function renderPaginaPdfium({ doc, pageNum, scale, extraRot, breedte, hoogte, signal = null }) {
+export async function renderPaginaPdfium({ doc, pageNum, scale, extraRot, breedte, hoogte, signal = null, deel = null, doel = null }) {
   const rot = ((Math.round(Number(extraRot) || 0) % 360) + 360) % 360;
   const gedraaid = rot === 90 || rot === 270;
   // Maat zonder extra rotatie (zelfde afronding als de uitvoermaat).
   const w0 = gedraaid ? hoogte : breedte;
   const h0 = gedraaid ? breedte : hoogte;
-  const canvas = new OffscreenCanvas(breedte, hoogte);
+  const uitB = deel ? deel.breedte : breedte;
+  const uitH = deel ? deel.hoogte : hoogte;
+  const canvas = doel || new OffscreenCanvas(uitB, uitH);
+  if (doel) { doel.width = uitB; doel.height = uitH; }
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, breedte, hoogte);
+  ctx.fillRect(0, 0, uitB, uitH);
   const spread = spreidOverWorkers(await pageContentBytes(doc.filePath, pageNum));
-  const tegels = tegelRaster(w0, h0);
-  const [a, b, c, d, e, f] = draaiMatrix(rot, w0, h0);
+  const draai = draaiMatrix(rot, w0, h0);
+  const tegels = tegelsVoorDeel(tegelRaster(w0, h0), draai, deel);
+  // Een deel begint op pixel (0, 0) van het canvas: de pagina schuift op.
+  const [a, b, c, d] = draai;
+  const e = draai[4] - (deel ? deel.x : 0);
+  const f = draai[5] - (deel ? deel.y : 0);
   // Niet alle tegels tegelijk aanvragen: elke tegel komt als tot 64 MB ruwe
   // pixels binnen. Over de pool verspreid vier tegelijk; vastgepind op één
   // worker (zware inhoud) twee, zodat het overzetten van de ene tegel

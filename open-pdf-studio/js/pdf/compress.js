@@ -25,7 +25,7 @@
 import { getActiveDocument, state, getPageRotation } from '../core/state.js';
 import { isTauri, saveFileDialog, writeBinaryFile, writeBinaryFileAtomic } from '../core/platform.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
-import { renderPageOffscreen, canvasToBytes } from './exporter.js';
+import { renderUitvoerPagina, canvasToBytes } from './exporter.js';
 import { getCachedPdfBytes } from './loader.js';
 import { getCacheKey } from './page-manager.js';
 import { PDFDocument } from 'pdf-lib';
@@ -106,7 +106,7 @@ export async function compressPDF({ level = 'medium', dpi, quality } = {}) {
 
       // Re-render the page (with any annotations baked in) at the target DPI,
       // then re-encode as JPEG — this is where the downsampling happens.
-      const canvas = await renderPageOffscreen(pageNum, exportScale);
+      const canvas = await renderUitvoerPagina(pageNum, exportScale);
       const jpegBytes = await canvasToBytes(canvas, 'jpeg', jpegQuality);
       const jpegImage = await newPdf.embedJpg(jpegBytes);
 

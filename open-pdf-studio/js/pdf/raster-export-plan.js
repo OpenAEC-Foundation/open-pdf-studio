@@ -53,6 +53,25 @@ export function draaiMatrix(graden, w0, h0) {
 }
 
 /**
+ * De tegels die een deel van de gedraaide pagina raken. `matrix` is de
+ * draaiMatrix van de pagina (ongedraaide tegelpixels naar de gedraaide
+ * pagina), `deel` een rechthoek in pixels van die gedraaide pagina
+ * ({x, y, breedte, hoogte}); zonder deel alle tegels. Afdrukken rendert
+ * alleen wat op het vel komt, dus hoeven de andere tegels niet opgehaald.
+ */
+export function tegelsVoorDeel(tegels, matrix, deel) {
+  if (!deel) return tegels;
+  const [a, b, c, d, e, f] = matrix;
+  const x1 = deel.x + deel.breedte;
+  const y1 = deel.y + deel.hoogte;
+  return tegels.filter((t) => {
+    const xs = [t.px, t.px + t.pw].flatMap((x) => [t.py, t.py + t.ph].map((y) => a * x + c * y + e));
+    const ys = [t.px, t.px + t.pw].flatMap((x) => [t.py, t.py + t.ph].map((y) => b * x + d * y + f));
+    return Math.min(...xs) < x1 && Math.max(...xs) > deel.x && Math.min(...ys) < y1 && Math.max(...ys) > deel.y;
+  });
+}
+
+/**
  * Begrenst hoeveel pagina's tegelijk in bewerking zijn, op aantal én op
  * pixels: een A4 op 300 dpi is 9 Mpx, een A0 140 Mpx. Eén pagina mag altijd,
  * ook als hij alleen al groter is dan het budget.

@@ -7,7 +7,7 @@ import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile, writeTempPdf, opgeslagenPad, leesHostPad, leesHostNieuwPad, extractFileName } from '../core/platform.js';
 import { meldingTekst } from '../core/webfuncties.js';
-import { renderPageOffscreen, renderMarkeringenOffscreen, canvasToBytes } from './exporter.js';
+import { renderUitvoerPagina, renderMarkeringenOffscreen, canvasToBytes } from './exporter.js';
 import { getCachedPdfBytes } from './loader.js';
 import { viewportOpties } from './getoonde-pagina.js';
 import {
@@ -77,7 +77,7 @@ function knip(canvas, px) {
  * dit beeld de hele pagina.
  */
 async function renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen) {
-  const canvas = await renderPageOffscreen(pageNum, pxPerPt, {
+  const canvas = await renderUitvoerPagina(pageNum, pxPerPt, {
     deel: uitsnedeRenderVak(uitsnede, pxPerPt), markeringen,
   });
   return draaiRechtsom(canvas, uitsnede.rotatie);
@@ -100,7 +100,7 @@ export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { mark
     const stuk = knip(beeld, ongedraaidDeel(plaatsing, pxPerPt, deel.px));
     return zetCanvasOm(plaatsing.gedraaid ? kwartslagLinksom(stuk) : stuk, kleur);
   }
-  const canvas = await renderPageOffscreen(pageNum, pxPerPt, {
+  const canvas = await renderUitvoerPagina(pageNum, pxPerPt, {
     deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
   });
   return zetCanvasOm(plaatsing.gedraaid ? kwartslagLinksom(canvas) : canvas, kleur);
