@@ -88,7 +88,15 @@
     "overlayColor": "Cor de sobreposição",
     "stamps": "Carimbos",
     "hideBuiltInStamps": "Ocultar os carimbos integrados quando tenho carimbos próprios",
-    "hideBuiltInStampsHint": "O seletor de carimbos mostra então apenas os seus carimbos (pessoais, importados e partilhados). Sem carimbos próprios, os carimbos integrados continuam visíveis."
+    "hideBuiltInStampsHint": "O seletor de carimbos mostra então apenas os seus carimbos (pessoais, importados e partilhados). Sem carimbos próprios, os carimbos integrados continuam visíveis.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Padrões de mão livre",

@@ -88,7 +88,15 @@
     "snapToPdfContent": "Привязка к содержимому PDF-чертежа",
     "stamps": "Штампы",
     "hideBuiltInStamps": "Скрывать встроенные штампы, если у меня есть свои штампы",
-    "hideBuiltInStampsHint": "Тогда в окне выбора штампов показываются только ваши штампы (личные, импортированные и общие). Если своих штампов нет, встроенные штампы остаются видимыми."
+    "hideBuiltInStampsHint": "Тогда в окне выбора штампов показываются только ваши штампы (личные, импортированные и общие). Если своих штампов нет, встроенные штампы остаются видимыми.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Настройки рисования от руки по умолчанию",

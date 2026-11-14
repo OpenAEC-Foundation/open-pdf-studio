@@ -88,7 +88,15 @@
     "snapToPdfContent": "PDF অঙ্কনের বিষয়বস্তুতে স্ন্যাপ করুন",
     "stamps": "স্ট্যাম্প",
     "hideBuiltInStamps": "আমার নিজের স্ট্যাম্প থাকলে বিল্ট-ইন স্ট্যাম্প লুকান",
-    "hideBuiltInStampsHint": "তখন স্ট্যাম্প নির্বাচক কেবল আপনার নিজের স্ট্যাম্প (ব্যক্তিগত, আমদানি করা ও শেয়ার করা) দেখায়। নিজের স্ট্যাম্প না থাকলে বিল্ট-ইন স্ট্যাম্প দৃশ্যমান থাকে।"
+    "hideBuiltInStampsHint": "তখন স্ট্যাম্প নির্বাচক কেবল আপনার নিজের স্ট্যাম্প (ব্যক্তিগত, আমদানি করা ও শেয়ার করা) দেখায়। নিজের স্ট্যাম্প না থাকলে বিল্ট-ইন স্ট্যাম্প দৃশ্যমান থাকে।",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "ফ্রিহ্যান্ড ডিফল্ট",

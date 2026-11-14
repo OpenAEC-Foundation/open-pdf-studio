@@ -88,7 +88,15 @@
     "snapToPdfContent": "Привлачење на садржај PDF цртежа",
     "stamps": "Печати",
     "hideBuiltInStamps": "Сакриј уграђене печате када имам сопствене печате",
-    "hideBuiltInStampsHint": "Бирач печата тада приказује само ваше сопствене печате (личне, увезене и дељене). Без сопствених печата уграђени печати остају видљиви."
+    "hideBuiltInStampsHint": "Бирач печата тада приказује само ваше сопствене печате (личне, увезене и дељене). Без сопствених печата уграђени печати остају видљиви.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Подразумевано за слободну руку",

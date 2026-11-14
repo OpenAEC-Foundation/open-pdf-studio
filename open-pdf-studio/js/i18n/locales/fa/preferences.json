@@ -88,7 +88,15 @@
     "overlayColor": "رنگ روکش",
     "stamps": "مهرها",
     "hideBuiltInStamps": "پنهان کردن مهرهای داخلی وقتی مهرهای خودم را دارم",
-    "hideBuiltInStampsHint": "در این حالت انتخابگر مهر فقط مهرهای خود شما (شخصی، واردشده و مشترک) را نشان می‌دهد. بدون مهر شخصی، مهرهای داخلی همچنان نمایش داده می‌شوند."
+    "hideBuiltInStampsHint": "در این حالت انتخابگر مهر فقط مهرهای خود شما (شخصی، واردشده و مشترک) را نشان می‌دهد. بدون مهر شخصی، مهرهای داخلی همچنان نمایش داده می‌شوند.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "پیش‌فرض‌های دست‌آزاد",

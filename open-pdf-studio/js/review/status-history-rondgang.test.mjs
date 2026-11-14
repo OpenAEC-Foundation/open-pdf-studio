@@ -124,3 +124,22 @@ test('een ongewijzigde markering houdt haar statusantwoorden: niet dubbel, niet 
   const bytes2 = await opslaan(bytes1, await laad(bytes1));
   assert.deepEqual((await statusAntwoorden(bytes2)).map((s) => [s.state, s.door]), [['Accepted', 'Ann'], ['Rejected', 'Bob']]);
 });
+
+test('eigen statussen (#1076) gaan als statusantwoord met hun eigen naam heen en terug, ook met accenten', async () => {
+  state.preferences = { ...(state.preferences || {}), markupStatuses: [
+    { name: 'Approved With Comments', color: '#00aa00', closed: true },
+    { name: 'Geëvalueerd', color: '#aa00aa' },
+  ] };
+  const bx = rechthoek();
+  setStatusWithHistory(bx, 'approved with comments', { door: 'Ann', nu: '2026-10-01T10:00:00.000Z' });
+  setStatusWithHistory(bx, 'Geëvalueerd', { door: 'Bob', nu: '2026-10-02T10:00:00.000Z' });
+  const bytes = await opslaan(await leegBlad(), [bx]);
+  assert.deepEqual((await statusAntwoorden(bytes)).map((s) => [s.state, s.model]), [
+    ['Approved With Comments', 'Review'],
+    ['Geëvalueerd', 'Review'],
+  ]);
+  const [m] = await laad(bytes);
+  assert.equal(m.status, 'geëvalueerd');
+  assert.deepEqual(m.statusHistory.map((s) => s.status), ['approved with comments', 'geëvalueerd']);
+  delete state.preferences.markupStatuses;
+});

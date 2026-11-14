@@ -1,4 +1,6 @@
 import { state, getActiveDocument, isSelected, getAnnotationBounds, addToSelection, removeFromSelection } from '../../core/state.js';
+import i18next from '../../i18n/config.js';
+import { statusKleur, statusNaam } from '../../review/status-sets.js';
 import { getTypeDisplayName, getAnnotationDisplayName, createDateFormatter } from '../../utils/helpers.js';
 import {
   withoutFoldedChildren, listPreview, expandCorrectionGroups, replaceParentOf,
@@ -24,13 +26,10 @@ import {
   refreshAnnotationLayers,
 } from '../../bridge.js';
 
-const statusColors = {
-  'accepted': '#22c55e',
-  'rejected': '#ef4444',
-  'cancelled': '#6b7280',
-  'completed': '#3b82f6',
-  'reviewed': '#8b5cf6'
-};
+// Statuskleur en -naam, ook voor eigen statussen (#1076, review/status-sets.js).
+const eigenStatusLijst = () => state.preferences?.markupStatuses;
+const tStatus = (sleutel) => i18next.t(sleutel, { ns: 'context' });
+const statusTitel = (status) => statusNaam(status, eigenStatusLijst(), tStatus);
 
 // Toggle annotations list panel visibility
 export function toggleAnnotationsListPanel() {
@@ -171,8 +170,6 @@ export function updateAnnotationsList(filterValue) {
 
   const getLastStatusAuthor = laatsteStatusAuteur;
 
-  // Helper to capitalize status
-  const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 
   // Group annotations based on sort mode
   const groups = {};
@@ -228,10 +225,10 @@ export function updateAnnotationsList(filterValue) {
     } else if (currentSort === 'color') {
       headerColor = key;
     } else if (currentSort === 'status') {
-      headerLabel = capitalize(key);
+      headerLabel = statusTitel(key);
     } else if (currentSort === 'statusAndAuthor') {
       const [s, a] = key.split('|');
-      headerLabel = `${capitalize(s)} — ${a}`;
+      headerLabel = `${statusTitel(s)} — ${a}`;
     } else if (currentSort === 'page') {
       // page number stored in item.page
     } else {
@@ -263,8 +260,8 @@ export function updateAnnotationsList(filterValue) {
         color: ann.color || ann.strokeColor || '#000',
         text: preview ? preview.substring(0, 50) + (preview.length > 50 ? '...' : '') : null,
         meta: `[${ann.author || 'User'}] - ${formatDate(ann.modifiedAt)}`,
-        statusColor: hasStatus ? (statusColors[ann.status] || '#888') : null,
-        statusTitle: hasStatus ? capitalize(ann.status) : null,
+        statusColor: hasStatus ? statusKleur(ann.status, eigenStatusLijst()) : null,
+        statusTitle: hasStatus ? statusTitel(ann.status) : null,
         replyCount,
         selected: selected.has(ann)
       }));

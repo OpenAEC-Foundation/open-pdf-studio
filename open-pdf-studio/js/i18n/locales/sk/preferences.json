@@ -88,7 +88,15 @@
     "snapToPdfContent": "Prichytiť k obsahu výkresu PDF",
     "stamps": "Pečiatky",
     "hideBuiltInStamps": "Skryť vstavané pečiatky, keď mám vlastné pečiatky",
-    "hideBuiltInStampsHint": "Výber pečiatok potom zobrazí iba vaše vlastné pečiatky (osobné, importované a zdieľané). Bez vlastných pečiatok zostanú vstavané pečiatky viditeľné."
+    "hideBuiltInStampsHint": "Výber pečiatok potom zobrazí iba vaše vlastné pečiatky (osobné, importované a zdieľané). Bez vlastných pečiatok zostanú vstavané pečiatky viditeľné.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Predvolené nastavenia voľnej ruky",

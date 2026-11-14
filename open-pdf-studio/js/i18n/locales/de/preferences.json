@@ -88,7 +88,15 @@
     "overlayColor": "Überlagerungsfarbe",
     "stamps": "Stempel",
     "hideBuiltInStamps": "Integrierte Stempel ausblenden, wenn ich eigene Stempel habe",
-    "hideBuiltInStampsHint": "Die Stempelauswahl zeigt dann nur Ihre eigenen Stempel (persönlich, importiert und freigegeben). Ohne eigene Stempel bleiben die integrierten Stempel sichtbar."
+    "hideBuiltInStampsHint": "Die Stempelauswahl zeigt dann nur Ihre eigenen Stempel (persönlich, importiert und freigegeben). Ohne eigene Stempel bleiben die integrierten Stempel sichtbar.",
+    "markupStatuses": "Status von Markierungen",
+    "markupStatusName": "Name des Status",
+    "markupStatusClosed": "Erledigt",
+    "markupStatusClosedHint": "Eine Markierung mit diesem Status ist erledigt; „Nur offene Punkte“ blendet sie aus.",
+    "markupStatusRemove": "Status entfernen",
+    "markupStatusAdd": "Status hinzufügen",
+    "markupStatusesEmpty": "Noch keine eigenen Status. Die Standardstatus sind immer verfügbar.",
+    "markupStatusesHint": "Eigene Status erscheinen neben den Standardstatus im Menü Status, in der Markierungsliste und im Filter und werden im PDF als Prüfstatus gespeichert. Ein Name muss eindeutig sein und darf kein Standardstatus sein."
   },
   "drawing": {
     "freehandDefaults": "Freihand-Standardwerte",
