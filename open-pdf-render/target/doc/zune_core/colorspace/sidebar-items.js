@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ColorCharacteristics","ColorSpace","RenderingIntent"],"static":["ALL_COLORSPACES"],"struct":["ColorPrimaries","SingleColorPrimary"]};
