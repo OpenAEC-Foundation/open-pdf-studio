@@ -12,6 +12,9 @@ out/
 target/
 target-*/
 
+# Android: Gradle build output (APK)
+android-apk/app/build/
+
 # pdfium-worker-sidecar: build-artefact dat build.rs/CI zelf plaatsen
 binaries/pdfium-worker-*
 # Verkenner-miniatuurhandler (#605): door build.rs/CI uit de target-map gekopieerd
