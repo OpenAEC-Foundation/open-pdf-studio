@@ -36,6 +36,8 @@ pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
 pub mod ocr;
+pub mod ocr_talen;
+pub mod ocr_talen_app;
 pub mod pdfium_renderer;
 pub mod pdfx_cmyk;
 pub mod handtekening;
@@ -2367,9 +2369,10 @@ async fn render_pdf_page(
 }
 
 /// Run OCR on one page. `lang` is Tesseract's `+`-joined language spec (e.g.
-/// "chi_tra+eng"); defaults to "eng" if omitted. Tessdata is resolved from
-/// the bundled `tessdata` resource directory — see scripts/ocr-runtime.mjs
-/// and the `resources` map in tauri.conf.json.
+/// "chi_tra+eng"); defaults to "auto" if omitted. Tessdata is the user's
+/// language folder, filled from the bundled `tessdata` resource directory
+/// (see ocr_talen.rs, scripts/ocr-runtime.mjs and the `resources` map in
+/// tauri.conf.json); the bundled folder itself if that folder is unusable.
 #[cfg(not(target_os = "android"))]
 #[tauri::command]
 async fn ocr_pdf_page(
@@ -2400,15 +2403,12 @@ async fn ocr_pdf_page(
         &pdfium_cache,
     )?;
 
-    let resource_dir = app
-        .path()
-        .resource_dir()
-        .map_err(|e| format!("Cannot resolve resource_dir: {}", e))?;
-    // Niet rechtstreeks to_str(): op Windows is resource_dir een \\?\-pad en
-    // daar kan Tesseract geen "/<taal>.traineddata" achter plakken.
-    let tessdata_dir = ocr::tessdata_path_for_tesseract(&resource_dir.join("tessdata"))?;
-
     let lang = lang.unwrap_or_else(|| "auto".to_string());
+    ocr_talen_app::controleer_taalspec(&lang)?;
+    // De taalmap van de gebruiker (#1083). Niet rechtstreeks to_str(): op
+    // Windows kan dat een \\?\-pad zijn en daar kan Tesseract geen
+    // "/<taal>.traineddata" achter plakken.
+    let tessdata_dir = ocr::tessdata_path_for_tesseract(&ocr_talen_app::effectieve_tessdata(&app)?)?;
 
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
@@ -3814,6 +3814,9 @@ pub fn run(opts: StartupOpts) {
             extensie_catalogus::extensie_pakket_opruimen,
             render_pdf_page,
             ocr_pdf_page,
+            // OCR-talen: lijst en downloaden (#1083)
+            ocr_talen_app::ocr_languages_list,
+            ocr_talen_app::ocr_language_download,
             worker_pool_ready,
             render_pdf_page_region,
             compare_pixel_pair,

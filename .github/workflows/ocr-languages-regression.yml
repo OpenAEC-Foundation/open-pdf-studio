@@ -1,0 +1,26 @@
+name: OCR languages regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/src-tauri/src/ocr_talen*.rs'
+      - 'open-pdf-studio/js/pdf/ocr-talen*'
+      - '.github/workflows/ocr-languages-regression.yml'
+permissions:
+  contents: read
+jobs:
+  ocr-languages:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
+      - run: rustc --edition 2021 --test src-tauri/src/ocr_talen.rs -o /tmp/ocr-talen-tests && /tmp/ocr-talen-tests
+      - run: node --test js/pdf/ocr-talen.test.mjs js/pdf/ocr-talen-i18n.test.mjs

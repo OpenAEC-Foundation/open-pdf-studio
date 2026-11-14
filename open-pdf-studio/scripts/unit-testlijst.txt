@@ -862,3 +862,6 @@ js/review/central-review-upload.test.mjs
 js/pdf/pagina-schalen.test.mjs
 js/pdf/pagina-schalen-app.test.mjs
 js/pdf/pagina-schalen-i18n.test.mjs
+# OCR-talen (#1083)
+js/pdf/ocr-talen.test.mjs
+js/pdf/ocr-talen-i18n.test.mjs
