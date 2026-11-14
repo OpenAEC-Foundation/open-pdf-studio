@@ -171,6 +171,17 @@ export async function invokeTileRegion(args, { priority = RENDER_PRIORITY.TILE, 
   // preference. Both engines below draw strokes as hairlines with it.
   const { withThinLines } = await import('./thin-lines.js');
   args = args.thinLines === undefined ? withThinLines(args) : withThinLines(args, args.thinLines);
+  // `sharpen: true` (a caller that passes the result to sharpenPageRgba()):
+  // Rust sharpens the tile before it crosses to the WebView, on both engines
+  // below (render-sharpen-route.js). Otherwise the argument is left out.
+  let gevraagd = 0;
+  let sharpenRoute = null;
+  if (args.sharpen) {
+    ({ sharpenRoute } = await import('./render-sharpen-pref.js'));
+    gevraagd = await sharpenRoute().aanvraag();
+  }
+  const { sharpen: _sharpen, ...zonderSharpen } = args;
+  args = gevraagd > 0 ? { ...zonderSharpen, sharpen: gevraagd } : zonderSharpen;
   const key = `${args.path}|${args.pageIndex}|${args.rotation || 0}`;
   // De scene-engine kent geen optionele inhoud: met geschakelde lagen (#684)
   // tekent PDFium, uit de weergavekopie.
@@ -195,6 +206,7 @@ export async function invokeTileRegion(args, { priority = RENDER_PRIORITY.TILE, 
         const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
         reportActiveEngine('scene', args.path, args.pageIndex + 1);
       } catch {}
+      if (gevraagd > 0) sharpenRoute().markeer(res, gevraagd);
       return res;
     }
   }
@@ -220,6 +232,7 @@ export async function invokeTileRegion(args, { priority = RENDER_PRIORITY.TILE, 
     const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
     reportActiveEngine('pdfium', args.path, args.pageIndex + 1);
   } catch {}
+  if (gevraagd > 0) sharpenRoute().markeer(res, gevraagd);
   return res;
 }
 

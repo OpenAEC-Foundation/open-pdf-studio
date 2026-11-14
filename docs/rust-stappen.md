@@ -623,3 +623,70 @@ markeringsset openen (de `[PERF] page …: convertAnnotations`-regels) en
 nagaan dat kleuren, lagen en antwoorden er nog zijn zoals voorheen. De
 getallen hierboven zijn onder node gemeten; in de WebView kunnen pdf-lib en
 de omzetting trager of sneller zijn.
+
+## Paginabeelden verscherpen in Rust
+
+**Aanleiding.** Gebruikers noemden de app traag in het gebruik. Een profiel
+van het zoomen (`Profiler` over CDP, release-build) wees één functie aan:
+`sharpenRgba()` (`js/pdf/render-sharpen.js`), het lichte 3 × 3 onscherpe
+masker dat sinds 4-10 standaard aan staat (`pageSharpen: 2`) en op elk vers
+paginabeeld en elke tegel draait. Het rekent op de interface-thread, per
+pixel en per kleurkanaal, met een volledige kopie van de bitmap: ~21 ms per
+megapixel (45 ms voor een tegel van 2,2 MP, 184 ms voor een A4 op 300 dpi,
+432 ms voor de grootste bitmap). Zo lang reageert het venster niet.
+
+**Wat is verplaatst.** Het filter staat nu in Rust
+(`pdfium-worker/src/sharpen.rs`; de app-crate neemt het bestand over met
+`#[path]`, zoals `render_budget.rs`). De commando's `render_pdf_page`,
+`render_pdf_page_region` en `render_tile_scene_region` nemen een argument
+`sharpen` (de sterkte uit `SHARPEN_LEVELS`) en verscherpen het beeld vóór
+het naar de WebView gaat, op een blokkerende thread en over een paar threads
+verdeeld (`src-tauri/src/verscherpen.rs`). De beeldcache van de app bewaart
+het onverscherpte beeld, zodat een andere sterkte geen nieuwe render vraagt.
+
+**Bedrading.** Alle paginabeelden komen via twee functies binnen:
+`renderPdfPage()` (`engine-router.js`) en `invokeTileRegion()`
+(`progressive-render.js`). Een aanroeper die het resultaat aan
+`sharpenPageRgba()` geeft, zet daar `sharpen: true` bij. De route
+(`js/pdf/render-sharpen-route.js`) vraagt één keer of de backend het kan
+(`sharpen_rust_beschikbaar`), geeft de sterkte mee en onthoudt de buffer van
+het antwoord; `sharpenPageRgba()` laat zo'n beeld daarna met rust. Aanroepers
+die niet verscherpten (miniaturen, schermafdruk, de progressieve tegels, de
+uitvoer) geven het argument niet mee en krijgen hetzelfde beeld als voorheen.
+
+De JS-filter blijft de terugval: webversie, mobiel, de alfa-motor
+(`render_pdf_page_skia`), een oudere backend, en `OPDS_RUST_SHARPEN=0` in de
+omgeving van de app (dan zegt de backend nee en verscherpt JS).
+
+**Pariteit.** `scripts/bench-rust/sharpen-golden.mjs` laat `sharpenRgba()` los
+op beelden met dunne lijnen, zachte randen, kleur, ruis en wisselende alfa
+(vijf maten, waaronder 3 × 3 en heel smal of laag), voor alle vier de
+sterktes, plus geheel zwart, wit en waarden die precies op een half uitkomen;
+`cargo test -p pdfium-worker sharpen` eist dezelfde bytes (23 gevallen). De
+afronding volgt het toekennen aan een `Uint8ClampedArray`: begrenzen op
+0..255, halven naar even. Verder: alfa en de rand van één pixel blijven
+ongemoeid, en de verdeling over threads slaat geen rij over.
+
+**Live gemeten** (14-11, release-build als onzichtbare testinstantie, venster
+1200 × 800 op schermfactor 1,5; twaalf zoomstappen met het muiswiel; met en
+zonder `OPDS_RUST_SHARPEN=0`):
+
+| tekening | route | tijd in het JS-filter | lange taken | langste | samen |
+|---|---|---:|---:|---:|---:|
+| Technische tekening p1 | JS | 3591 ms | 14 | 1186 ms | 4506 ms |
+| Technische tekening p1 | Rust | 0 | 8 | 186 ms | 802 ms |
+| HY-103-1 p1 | JS | 473 ms | 5 | 342 ms | 695 ms |
+| HY-103-1 p1 | Rust | 0 | 2 | 93 ms | 176 ms |
+
+De schermafdruk van het paginavenster (`app_screenshot_view`) is in beide
+routes dezelfde, passend en ingezoomd (gelijke SHA-256 van de PNG). De twee
+instanties draaiden tegelijk, dus de JS-tijden zijn aan de hoge kant; een
+eerdere run met alleen de JS-route gaf 1,3–1,7 s in het filter en een
+langste taak van 0,45–0,77 s. Wat overblijft aan lange taken is vooral
+`createImageBitmap` op het ontvangen beeld.
+
+**Standaard.** Rust aan op de desktop.
+
+**Nog live na te kijken.** Een groot scherm (op 4K zijn de beelden tot vier
+keer zo groot), de voorkeur op elk van de vijf standen, de zeer zware
+pagina's van de scene-motor, en macOS en Linux.

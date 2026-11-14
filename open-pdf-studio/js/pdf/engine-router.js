@@ -28,22 +28,34 @@ import { renderQueue } from './render-queue-state.js';
  * The request goes through the render scheduler (render-queue.js): it waits
  * there, not in the uncancellable worker queue, and is dropped (rejects with
  * a RenderCancelledError) once its document is closed or no longer shown.
- * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean}} args
+ * `sharpen: true` is for a caller that passes the result to
+ * sharpenPageRgba(): on the desktop PDFium route Rust then sharpens the
+ * bitmap before it crosses to the WebView (render-sharpen-route.js).
+ * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean, sharpen?:boolean}} args
  * @param {{priority?:number, keepWhenHidden?:boolean}} [schedule]  RENDER_PRIORITY
  *   (default PAGE: the page in view)
  * @returns {Promise<Uint8Array>} `[w:u32 LE][h:u32 LE][rgba…]` wire format
  */
 export async function renderPdfPage(
-  { path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn() },
+  { path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn(), sharpen = false },
   { priority = RENDER_PRIORITY.PAGE, keepWhenHidden = false } = {},
 ) {
   const command = (state?.renderEngineOverride === 'rust-skia')
     ? 'render_pdf_page_skia'
     : 'render_pdf_page';
-  return renderQueue.schedule(
-    () => invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines }),
+  // Only the PDFium command sharpens; the other engine leaves it to JS.
+  let gevraagd = 0;
+  let route = null;
+  if (sharpen && command === 'render_pdf_page') {
+    ({ sharpenRoute: route } = await import('./render-sharpen-pref.js'));
+    gevraagd = await route().aanvraag();
+  }
+  const res = await renderQueue.schedule(
+    () => invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines, ...(gevraagd > 0 ? { sharpen: gevraagd } : {}) }),
     { docKey: path || null, priority, keepWhenHidden },
   );
+  if (gevraagd > 0) route().markeer(res, gevraagd);
+  return res;
 }
 
 /**
