@@ -200,6 +200,20 @@ async function persistMeasureScaleIfNeeded(cmd) {
   saveDocumentScale();
 }
 
+// Page scales (pagina-schalen.js) belong to page numbers. A page operation
+// moves them (schalenNaHerladen) but undo and redo reload without a page
+// mapping, so the step keeps the scales from before and after the operation.
+// reloadFromBytes leaves the scales from before in
+// doc._paginaSchalenVoorHerladen; recordPageStructure takes them from there.
+function zetPaginaSchalenVanStructuur(doc, cmd, kant) {
+  if (!doc || !cmd.pageScales) return;
+  doc.pageScales = clonePlainValue(cmd.pageScales[kant]) ?? null;
+}
+
+function vergeetPaginaSchalenVoorHerladen(doc) {
+  if (doc) delete doc._paginaSchalenVoorHerladen;
+}
+
 // Execute a command: push to undo, clear redo, sync modified state
 export function execute(cmd) {
   if (pendingPropertyChange) flushPropertyChange();
@@ -232,7 +246,9 @@ export async function undo() {
 
   if (cmd.type === 'pageStructure') {
     const { restorePageState } = await import('../pdf/page-manager.js');
+    zetPaginaSchalenVanStructuur(getActiveDocument(), cmd, 'old');
     await restorePageState(cmd.oldBytes, cmd.oldAnnotations, cmd.oldRotations, cmd.oldPage, { bookmarks: cmd.bookmarks?.old });
+    vergeetPaginaSchalenVoorHerladen(getActiveDocument());
     applyOcrShift(getActiveDocument()?.ocrResults, cmd.ocrShift, -1);
     syncModifiedState();
     updateButtons();
@@ -286,7 +302,9 @@ export async function redo() {
 
   if (cmd.type === 'pageStructure') {
     const { restorePageState } = await import('../pdf/page-manager.js');
+    zetPaginaSchalenVanStructuur(getActiveDocument(), cmd, 'new');
     await restorePageState(cmd.newBytes, cmd.newAnnotations, cmd.newRotations, cmd.newPage, { bookmarks: cmd.bookmarks?.new });
+    vergeetPaginaSchalenVoorHerladen(getActiveDocument());
     applyOcrShift(getActiveDocument()?.ocrResults, cmd.ocrShift, 1);
     syncModifiedState();
     updateButtons();
@@ -1131,6 +1149,10 @@ export function recordDocumentInfoChange(oldInfo, newInfo) {
 // `extra.ocrShift` ({pages, dx, dy}) is set by Shift Page: the pending OCR word
 // boxes of those pages moved with the content and move back on undo.
 export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, newPage, extra = {}) {
+  const doc = getActiveDocument();
+  const naSchalen = doc?.pageScales ?? null;
+  const voorSchalen = doc && '_paginaSchalenVoorHerladen' in doc ? doc._paginaSchalenVoorHerladen : naSchalen;
+  vergeetPaginaSchalenVoorHerladen(doc);
   execute({
     type: 'pageStructure',
     oldBytes: oldBytes,
@@ -1141,6 +1163,7 @@ export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldP
     newAnnotations: newAnnotations.map(a => ({ ...a })),
     newRotations: { ...newRotations },
     newPage: newPage,
+    pageScales: { old: clonePlainValue(voorSchalen) ?? null, new: clonePlainValue(naSchalen) ?? null },
     ...(extra.ocrShift ? { ocrShift: { ...extra.ocrShift, pages: [...extra.ocrShift.pages] } } : {}),
     // Bladwijzers vóór en na (samenvoegen): de bewerking verandert ze.
     ...(extra.bookmarks ? { bookmarks: {

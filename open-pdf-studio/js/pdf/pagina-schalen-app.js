@@ -99,7 +99,10 @@ export async function detecteerUitGebied(doc, hint) {
 
 /** After pages were inserted, deleted or moved: the scales move with their pages. */
 export function schalenNaHerladen(doc, pageMapping) {
-  if (!doc?.pageScales || !pageMapping) return;
+  if (!doc) return;
+  // The scales from before the operation, for its undo step (recordPageStructure).
+  doc._paginaSchalenVoorHerladen = doc.pageScales ? JSON.parse(JSON.stringify(doc.pageScales)) : null;
+  if (!doc.pageScales || !pageMapping) return;
   doc.pageScales = herschikSchalen(doc.pageScales, pageMapping, doc.pdfDoc?.numPages || 0);
 }
 

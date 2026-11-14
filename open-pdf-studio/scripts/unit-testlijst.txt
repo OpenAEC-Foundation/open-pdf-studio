@@ -848,3 +848,6 @@ js/pdf/saver/ttf-subset-padding.test.mjs
 js/core/wheel-zoom.test.mjs
 js/pdf/saver/rotation-render-copy.test.mjs
 js/watermark/kopvoet-rotatie-herladen.test.mjs
+# Pagina-schalen (#1065)
+js/pdf/pagina-schalen.test.mjs
+js/pdf/pagina-schalen-app.test.mjs
