@@ -512,6 +512,8 @@
     "methodReference": "Reference Line",
     "methodRatio": "Scale Ratio",
     "referenceHelp": "Enter the real-world distance for a known measurement line.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Enter the drawing scale ratio. The PDF page size is used to calculate the conversion.",
     "knownDistance": "Known distance:",
     "measuredPixels": "Measured pixels:",

@@ -1,6 +1,7 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
-import { closeDialog } from '../../stores/dialogStore.js';
+import { closeDialog, openDialog } from '../../stores/dialogStore.js';
+import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { state, getActiveDocument } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotations/measurement.js';
@@ -99,6 +100,16 @@ export default function CalibrationDialog(props) {
     return label && label !== ratio ? label : '';
   };
 
+  function tekenReferentielijn() {
+    const restore = { unit: unit(), distance: distance() };
+    const huidig = Number(pixels()) || null;
+    closeDialog('calibration');
+    startScaleMeasureFlow({
+      onDone: (afstand) => openDialog('calibration', { referencePixelLength: afstand, restore }),
+      onCancel: () => openDialog('calibration', { referencePixelLength: huidig, restore }),
+    });
+  }
+
   onMount(async () => {
     // Pre-fill pixels from reference line if provided
     const refPx = props.data?.referencePixelLength;
@@ -106,6 +117,8 @@ export default function CalibrationDialog(props) {
       setPixels(Math.round(refPx * 100) / 100);
       setMethod('reference');
     }
+    // Terug van "Lijn tekenen" (#1090): de keuzes van voor het tekenen.
+    const terug = props.data?.restore;
 
     // Load existing scale from document
     const doc = getActiveDocument();
@@ -121,6 +134,12 @@ export default function CalibrationDialog(props) {
           setCustomScale(parseInt(parts[1]) || 100);
         }
       }
+    }
+
+    if (terug) {
+      if (terug.unit) setUnit(terug.unit);
+      if (terug.distance != null) setDistance(terug.distance);
+      setMethod('reference');
     }
 
     // Detect PDF page size
@@ -277,6 +296,14 @@ export default function CalibrationDialog(props) {
         <p class="calibration-help">
           {t('calibration.referenceHelp')}
         </p>
+        {/* Een lijn op de tekening tekenen (#1090): twee klikken, Shift houdt
+            hem horizontaal of verticaal. Het venster komt daarna terug met de
+            gemeten lengte ingevuld. */}
+        <div class="calibration-row">
+          <button type="button" class="pref-btn calibration-draw" disabled={!getActiveDocument()?.pdfDoc}
+            onClick={tekenReferentielijn}>{t('calibration.drawLine')}</button>
+          <span class="calibration-hint">{t('calibration.drawLineHint')}</span>
+        </div>
         <div class="calibration-row">
           <label class="calibration-label">{t('calibration.measuredPixels')}</label>
           <input

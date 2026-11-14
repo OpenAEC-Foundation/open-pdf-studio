@@ -515,6 +515,8 @@
     "methodReference": "Garisan Rujukan",
     "methodRatio": "Nisbah Skala",
     "referenceHelp": "Masukkan jarak sebenar bagi garisan ukuran yang diketahui.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Masukkan nisbah skala lukisan. Saiz halaman PDF digunakan untuk mengira penukaran.",
     "scaleRatio": "Skala:",
     "unit": "Unit:",

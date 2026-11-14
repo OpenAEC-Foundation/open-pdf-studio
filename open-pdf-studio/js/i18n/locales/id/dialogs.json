@@ -515,6 +515,8 @@
     "methodReference": "Garis Referensi",
     "methodRatio": "Rasio Skala",
     "referenceHelp": "Masukkan jarak sebenarnya untuk garis ukur yang diketahui.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Masukkan rasio skala gambar. Ukuran halaman PDF digunakan untuk menghitung konversi.",
     "scaleRatio": "Skala:",
     "unit": "Satuan:",

@@ -515,6 +515,8 @@
     "methodReference": "संदर्भ रेखा",
     "methodRatio": "स्केल अनुपात",
     "referenceHelp": "किसी ज्ञात माप रेखा की वास्तविक दूरी दर्ज करें।",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "ड्रॉइंग का स्केल अनुपात दर्ज करें। रूपांतरण की गणना के लिए PDF पृष्ठ आकार का उपयोग किया जाता है।",
     "scaleRatio": "पैमाना:",
     "unit": "इकाई:",

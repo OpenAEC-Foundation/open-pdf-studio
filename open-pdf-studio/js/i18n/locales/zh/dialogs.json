@@ -515,6 +515,8 @@
     "methodReference": "参考线",
     "methodRatio": "比例",
     "referenceHelp": "输入已知测量线的实际距离。",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "输入图纸比例。将使用 PDF 页面尺寸计算换算关系。",
     "scaleRatio": "比例：",
     "unit": "单位：",

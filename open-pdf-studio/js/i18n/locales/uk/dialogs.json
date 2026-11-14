@@ -515,6 +515,8 @@
     "methodReference": "Опорна лінія",
     "methodRatio": "Співвідношення масштабу",
     "referenceHelp": "Введіть реальну відстань для відомої вимірювальної лінії.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Введіть масштаб креслення. Для перерахунку використовується розмір сторінки PDF.",
     "scaleRatio": "Масштаб:",
     "unit": "Одиниця:",

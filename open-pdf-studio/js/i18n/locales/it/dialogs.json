@@ -515,6 +515,8 @@
     "methodReference": "Linea di riferimento",
     "methodRatio": "Rapporto di scala",
     "referenceHelp": "Inserisci la distanza reale di una linea di misura nota.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Inserisci il rapporto di scala del disegno. La dimensione della pagina PDF viene usata per calcolare la conversione.",
     "scaleRatio": "Scala:",
     "unit": "Unità:",

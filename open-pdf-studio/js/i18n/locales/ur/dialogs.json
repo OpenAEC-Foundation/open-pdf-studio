@@ -515,6 +515,8 @@
     "methodReference": "حوالہ لکیر",
     "methodRatio": "پیمانے کا تناسب",
     "referenceHelp": "کسی معلوم پیمائشی لکیر کا حقیقی فاصلہ درج کریں۔",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "ڈرائنگ کے پیمانے کا تناسب درج کریں۔ تبدیلی کا حساب لگانے کے لیے PDF صفحے کا سائز استعمال ہوتا ہے۔",
     "scaleRatio": "پیمانہ:",
     "unit": "اکائی:",

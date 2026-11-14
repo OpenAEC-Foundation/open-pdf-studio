@@ -515,6 +515,8 @@
     "methodReference": "קו ייחוס",
     "methodRatio": "יחס קנה מידה",
     "referenceHelp": "הזן את המרחק האמיתי עבור קו מדידה ידוע.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "הזן את יחס קנה המידה של השרטוט. גודל עמוד ה-PDF משמש לחישוב ההמרה.",
     "scaleRatio": "קנה מידה:",
     "unit": "יחידה:",

@@ -515,6 +515,8 @@
     "methodReference": "குறிப்புக் கோடு",
     "methodRatio": "அளவுகோல் விகிதம்",
     "referenceHelp": "தெரிந்த அளவீட்டுக் கோட்டின் உண்மையான தூரத்தை உள்ளிடவும்.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "வரைபடத்தின் அளவுகோல் விகிதத்தை உள்ளிடவும். மாற்றத்தைக் கணக்கிட PDF பக்க அளவு பயன்படுத்தப்படுகிறது.",
     "scaleRatio": "அளவுகோல்:",
     "unit": "அலகு:",

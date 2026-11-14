@@ -515,6 +515,8 @@
     "methodReference": "Референтна линија",
     "methodRatio": "Однос размере",
     "referenceHelp": "Унесите стварно растојање за познату мерну линију.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Унесите размеру цртежа. За израчунавање претварања користи се величина PDF странице.",
     "scaleRatio": "Размера:",
     "unit": "Јединица:",

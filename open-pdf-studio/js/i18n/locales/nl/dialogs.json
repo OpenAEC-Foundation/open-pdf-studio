@@ -496,6 +496,8 @@
     "methodReference": "Referentielijn",
     "methodRatio": "Schaalverhouding",
     "referenceHelp": "Voer de werkelijke afstand in voor een bekende meetlijn.",
+    "drawLine": "Lijn tekenen op de tekening",
+    "drawLineHint": "Klik twee punten van een bekende maat. Houd Shift ingedrukt voor een horizontale of verticale lijn.",
     "ratioHelp": "Voer de schaalverhouding van de tekening in. Het PDF-paginaformaat wordt gebruikt voor de berekening.",
     "scaleRatio": "Schaal:",
     "unit": "Eenheid:",

@@ -515,6 +515,8 @@
     "methodReference": "Linie de referință",
     "methodRatio": "Raport de scară",
     "referenceHelp": "Introduceți distanța reală pentru o linie de măsurare cunoscută.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Introduceți raportul de scară al desenului. Dimensiunea paginii PDF este folosită pentru calculul conversiei.",
     "scaleRatio": "Scară:",
     "unit": "Unitate:",

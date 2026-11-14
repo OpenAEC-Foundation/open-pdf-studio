@@ -515,6 +515,8 @@
     "methodReference": "Mstari wa Marejeleo",
     "methodRatio": "Uwiano wa Kipimo",
     "referenceHelp": "Weka umbali halisi wa mstari wa kipimo unaojulikana.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Weka uwiano wa kipimo cha mchoro. Ukubwa wa ukurasa wa PDF hutumika kukokotoa ubadilishaji.",
     "scaleRatio": "Kipimo:",
     "unit": "Kizio:",

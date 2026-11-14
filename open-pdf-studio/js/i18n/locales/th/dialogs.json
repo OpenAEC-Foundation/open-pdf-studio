@@ -515,6 +515,8 @@
     "methodReference": "เส้นอ้างอิง",
     "methodRatio": "อัตราส่วนมาตราส่วน",
     "referenceHelp": "ป้อนระยะจริงของเส้นวัดที่ทราบค่า",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "ป้อนอัตราส่วนมาตราส่วนของแบบ ระบบจะใช้ขนาดหน้า PDF ในการคำนวณการแปลง",
     "scaleRatio": "มาตราส่วน:",
     "unit": "หน่วย:",

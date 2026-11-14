@@ -515,6 +515,8 @@
     "methodReference": "Referenciavonal",
     "methodRatio": "Méretarány",
     "referenceHelp": "Adja meg egy ismert mérővonal valós távolságát.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Adja meg a rajz méretarányát. Az átváltás kiszámításához a PDF-oldal mérete szolgál.",
     "scaleRatio": "Méretarány:",
     "unit": "Mértékegység:",

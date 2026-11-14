@@ -515,6 +515,8 @@
     "methodReference": "Referenzlinie",
     "methodRatio": "Maßstabsverhältnis",
     "referenceHelp": "Geben Sie die reale Entfernung für eine bekannte Messlinie ein.",
+    "drawLine": "Linie in der Zeichnung zeichnen",
+    "drawLineHint": "Klicken Sie auf zwei Punkte eines bekannten Maßes. Halten Sie die Umschalttaste für eine waagerechte oder senkrechte Linie.",
     "ratioHelp": "Geben Sie das Maßstabsverhältnis der Zeichnung ein. Die PDF-Seitengröße wird zur Umrechnung verwendet.",
     "scaleRatio": "Maßstab:",
     "unit": "Einheit:",

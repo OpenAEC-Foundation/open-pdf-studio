@@ -338,6 +338,7 @@ js/solid/components/dialogs/confirm-dialog-i18n.test.mjs
 js/annotations/vlak-zijden.test.mjs
 js/annotations/vlak-maat.test.mjs
 js/annotations/lengte-eenheid.test.mjs
+js/tools/ortho-punt.test.mjs
 js/annotations/vlak-zijdematen-wiring.test.mjs
 js/pdf/meetvlak-rondgang.test.mjs
 js/pdf/meting-uitwisseling.test.mjs

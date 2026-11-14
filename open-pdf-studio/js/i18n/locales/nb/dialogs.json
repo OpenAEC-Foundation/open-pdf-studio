@@ -515,6 +515,8 @@
     "methodReference": "Referanselinje",
     "methodRatio": "Målestokkforhold",
     "referenceHelp": "Skriv inn den faktiske avstanden for en kjent målelinje.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Skriv inn tegningens målestokkforhold. PDF-sidens størrelse brukes til å beregne omregningen.",
     "scaleRatio": "Målestokk:",
     "unit": "Enhet:",

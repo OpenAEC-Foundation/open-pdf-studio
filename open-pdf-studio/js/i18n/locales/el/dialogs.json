@@ -515,6 +515,8 @@
     "methodReference": "Γραμμή αναφοράς",
     "methodRatio": "Λόγος κλίμακας",
     "referenceHelp": "Εισαγάγετε την πραγματική απόσταση για μια γνωστή γραμμή μέτρησης.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Εισαγάγετε τον λόγο κλίμακας του σχεδίου. Το μέγεθος σελίδας του PDF χρησιμοποιείται για τον υπολογισμό της μετατροπής.",
     "scaleRatio": "Κλίμακα:",
     "unit": "Μονάδα:",

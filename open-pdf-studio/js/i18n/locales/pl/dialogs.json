@@ -515,6 +515,8 @@
     "methodReference": "Linia odniesienia",
     "methodRatio": "Proporcja skali",
     "referenceHelp": "Wprowadź rzeczywistą odległość dla znanej linii pomiarowej.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Wprowadź skalę rysunku. Rozmiar strony PDF służy do obliczenia przeliczenia.",
     "scaleRatio": "Skala:",
     "unit": "Jednostka:",

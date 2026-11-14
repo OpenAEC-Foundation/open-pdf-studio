@@ -515,6 +515,8 @@
     "methodReference": "রেফারেন্স রেখা",
     "methodRatio": "স্কেল অনুপাত",
     "referenceHelp": "একটি জানা পরিমাপ রেখার প্রকৃত দূরত্ব লিখুন।",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "অঙ্কনের স্কেল অনুপাত লিখুন। রূপান্তর গণনায় PDF পৃষ্ঠার আকার ব্যবহৃত হয়।",
     "scaleRatio": "স্কেল:",
     "unit": "একক:",

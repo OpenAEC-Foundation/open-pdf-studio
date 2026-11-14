@@ -515,6 +515,8 @@
     "methodReference": "Ligne de référence",
     "methodRatio": "Rapport d'échelle",
     "referenceHelp": "Saisissez la distance réelle d'une ligne de mesure connue.",
+    "drawLine": "Tracer une ligne sur le dessin",
+    "drawLineHint": "Cliquez sur deux points d’une cote connue. Maintenez Maj pour une ligne horizontale ou verticale.",
     "ratioHelp": "Saisissez le rapport d'échelle du dessin. Le format de la page PDF sert à calculer la conversion.",
     "scaleRatio": "Échelle :",
     "unit": "Unité :",

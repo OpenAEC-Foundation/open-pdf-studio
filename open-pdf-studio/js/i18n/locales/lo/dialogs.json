@@ -512,6 +512,8 @@
     "methodReference": "ເສັ້ນອ້າງອີງ",
     "methodRatio": "ອັດຕາສ່ວນມາດຕາສ່ວນ",
     "referenceHelp": "ປ້ອນໄລຍະຕົວຈິງສຳລັບເສັ້ນວັດແທກທີ່ຮູ້ຄ່າ.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "ປ້ອນອັດຕາສ່ວນມາດຕາສ່ວນແບບແຕ້ມ. ຂະໜາດໜ້າ PDF ຈະຖືກນຳມາຄຳນວນການແປງຄ່າ.",
     "knownDistance": "ໄລຍະທີ່ຮູ້ຄ່າ:",
     "measuredPixels": "ພິກເຊລທີ່ວັດໄດ້:",
