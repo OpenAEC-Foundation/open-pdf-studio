@@ -13,6 +13,8 @@
 //
 // Pure functions only: no app state, so node can test them.
 
+import { leesGetal } from '../core/getal-invoer.js';
+
 /**
  * '1:100', '100', '1 : 50', '1:2,5' -> '1:100', '1:100', '1:50', '1:2.5';
  * anything else (also '1/4') -> null.
@@ -22,7 +24,7 @@ export function normaliseerSchaal(invoer) {
   if (!s) return null;
   const m = s.match(/^(?:1\s*:\s*)?(\d+(?:[.,]\d+)?)$/);
   if (!m) return null;
-  const n = parseFloat(m[1].replace(',', '.'));
+  const n = leesGetal(m[1]);
   return n > 0 && n <= 100000 ? `1:${n}` : null;
 }
 
@@ -103,7 +105,7 @@ const NABIJ = 40;   // characters between SCALE and its ratio, either side
 function noemer(tekst) {
   const m = String(tekst).match(/^(\d+)[.,](\d+)$/);
   if (m && m[2].length === 3 && m[1].length <= 3) return parseFloat(m[1] + m[2]);
-  return parseFloat(String(tekst).replace(',', '.'));
+  return leesGetal(String(tekst));
 }
 
 function afstandTot(begin, eind, [a, b]) {
