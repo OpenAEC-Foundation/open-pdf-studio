@@ -136,7 +136,22 @@
     "insertFromFile": "Insertar desde archivo...",
     "insertFromFileBefore": "Antes de esta página...",
     "insertFromFileAfter": "Después de esta página...",
-    "pageLabels": "Etiquetas de página (generador de nombres)..."
+    "pageLabels": "Etiquetas de página (generador de nombres)...",
+    "setPageScale": "Establecer escala de página...",
+    "setPageScaleMulti": "Establecer escala de {{count}} páginas...",
+    "detectPageScales": "Detectar escalas de página (todas las páginas)",
+    "detectPageScalesMulti": "Detectar escalas de {{count}} páginas",
+    "clearPageScale": "Borrar escala de página",
+    "detectPageScalesArea": "Detectar escalas de página desde un área...",
+    "pickScaleArea": "Dibuje un recuadro alrededor de la escala en el cajetín. Se lee en cada página (OCR donde no hay texto). Esc cancela.",
+    "detectingPageScales": "Detectando escalas de página... {{done}} de {{total}}",
+    "scaleOwnSet": "Escala de página {{scale}} (establecida). Haga clic para cambiarla.",
+    "scaleOwnDetected": "Escala de página {{scale}} (detectada). Haga clic para cambiarla.",
+    "scaleOwnOcr": "Escala de página {{scale}} (leída con OCR). Haga clic para cambiarla.",
+    "scaleAlsoOnSheet": "También en la hoja: {{scales}}.",
+    "scaleDocument": "Escala del documento {{scale}}. Haga clic para establecer una escala para esta página.",
+    "scaleNone": "Sin escala. Haga clic para establecer una para esta página.",
+    "scaleInvalid": "No es una escala. Escriba 1:N o N, por ejemplo 1:100."
   },
   "textSelection": {
     "highlightSelection": "Resaltar selección",

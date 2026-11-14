@@ -210,3 +210,107 @@ test('met de echte saver: schaalgebieden als /VP, controles en documentschaal he
   assert.deepEqual(leesControles(lib2), controles);
   assert.ok(lijst.every((d) => d instanceof PDFDict));
 });
+
+test('page scales: written as /VP Page viewports after the document scale, read back on open', async () => {
+  const { leesPaginaSchalen } = await import('./schaal-in-pdf.js');
+  const doc = await PDFDocument.create();
+  doc.addPage([842, 595]); doc.addPage([842, 595]); doc.addPage([842, 595]);
+  const model = {
+    annotations: [],
+    measureScale: { pixelsPerUnit: PPU(50), unit: 'mm', scaleRatio: '1:50', method: 'ratio' },
+    pageScales: { 1: { scaleRatio: '1:100', unit: 'mm', method: 'manual' }, 3: { scaleRatio: '1:20', unit: 'mm', method: 'ocr' } },
+  };
+  schrijfSchalenInPdf(doc.getPages(), model);
+  const terug = await PDFDocument.load(await doc.save());
+  const vp1 = terug.getPages()[0].node.lookup(N('VP'));
+  assert.equal(vp1.size(), 2, 'page scale and document scale');
+  // ISO 32000 12.9.2: the last viewport that holds a point wins, so the page
+  // scale comes after the document scale.
+  assert.equal(String(vp1.lookup(0).get(N(BRON_SLEUTEL))), '/Document');
+  assert.equal(String(vp1.lookup(1).get(N(BRON_SLEUTEL))), '/Page');
+  assert.deepEqual(leesPaginaSchalen(terug), {
+    1: { scaleRatio: '1:100', unit: 'mm', method: 'manual' },
+    3: { scaleRatio: '1:20', unit: 'mm', method: 'ocr' },
+  });
+  // The document scale still comes back, and the reader skips our own viewports.
+  dicht(leesDocumentSchaal(terug).pixelsPerUnit, PPU(50), 1e-12);
+  assert.deepEqual(leesPdfViewports(terug), {});
+  const app = { annotations: [] };
+  pasSchalenUitBestandToe(app, terug);
+  assert.equal(app.pageScales[3].scaleRatio, '1:20');
+  // Clearing the page scales removes their viewports on the next save.
+  schrijfSchalenInPdf(terug.getPages(), { ...model, pageScales: null });
+  assert.deepEqual(leesPaginaSchalen(terug), {});
+});
+
+/** What another reader measures at (u, v) on a page: the last /VP viewport that holds the point. */
+function schaalVolgensLezer(pagina, u, v) {
+  const vp = pagina.node.lookup(N('VP'));
+  let gekozen = null;
+  for (let i = 0; i < vp.size(); i++) {
+    const d = vp.lookup(i);
+    const b = d.lookup(N('BBox'));
+    const [x0, y0, x1, y1] = [0, 1, 2, 3].map((j) => b.lookup(j).asNumber());
+    if (u >= Math.min(x0, x1) && u <= Math.max(x0, x1) && v >= Math.min(y0, y1) && v <= Math.max(y0, y1)) gekozen = d;
+  }
+  const opmaak = gekozen.lookup(N('Measure')).lookup(N('X')).lookup(0);
+  return { c: opmaak.lookup(N('C')).asNumber(), bron: String(gekozen.get(N(BRON_SLEUTEL))) };
+}
+
+test('page scales: another reader measures with the page scale, not the document scale', async () => {
+  const doc = await PDFDocument.create();
+  doc.addPage([842, 595]);
+  const model = {
+    annotations: [],
+    measureScale: { pixelsPerUnit: PPU(50), unit: 'mm', scaleRatio: '1:50', method: 'ratio' },
+    pageScales: { 1: { scaleRatio: '1:100', unit: 'mm', method: 'manual' } },
+  };
+  schrijfSchalenInPdf(doc.getPages(), model);
+  const terug = await PDFDocument.load(await doc.save());
+  const lezer = schaalVolgensLezer(terug.getPages()[0], 400, 300);
+  assert.equal(lezer.bron, '/Page');
+  dicht(lezer.c, 1 / PPU(100), 1e-12);
+});
+
+test('page scales: /Measure on a page with /UserUnit is the scale the app uses there', async () => {
+  const { documentSchaalOpPagina } = await import('../annotations/scale-region-scale.js');
+  const doc = await PDFDocument.create();
+  doc.addPage([842, 595]);
+  doc.getPages()[0].node.set(N('UserUnit'), doc.context.obj(10));
+  const model = {
+    annotations: [],
+    measureScale: null,
+    pageUserUnits: { 1: 10 },
+    pageScales: { 1: { scaleRatio: '1:100', unit: 'mm', method: 'manual' } },
+  };
+  schrijfSchalenInPdf(doc.getPages(), model);
+  const inApp = documentSchaalOpPagina(model, 1).pixelsPerUnit;
+  dicht(inApp, PPU(100) / 10, 1e-12);
+  const lezer = schaalVolgensLezer(doc.getPages()[0], 400, 300);
+  dicht(lezer.c, 1 / inApp, 1e-9);
+});
+
+test('page scales: written and cleared also on pages whose annotations are not loaded', async () => {
+  const doc = await PDFDocument.create();
+  doc.addPage([842, 595]); doc.addPage([842, 595]);
+  const gebied = { id: 'g2', type: 'scaleRegion', page: 2, x: 10, y: 10, width: 100, height: 80, scaleString: '1:20', units: 'mm', label: 'Detail' };
+  // An earlier save with page 2 loaded: its scale region is in the file.
+  schrijfSchalenInPdf(doc.getPages(), { annotations: [gebied], measureScale: null });
+  const bronnen = (p) => {
+    const vp = doc.getPages()[p - 1].node.lookup(N('VP'));
+    return vp instanceof PDFArray ? Array.from({ length: vp.size() }, (_, i) => String(vp.lookup(i).get(N(BRON_SLEUTEL)))) : [];
+  };
+  assert.deepEqual(bronnen(2), ['/ScaleRegion']);
+
+  // Now page 2 is not loaded (its annotations are not in the model) and it got a page scale.
+  const nietGeladen = (n) => n !== 2;
+  const model = { annotations: [], measureScale: null, pageScales: { 2: { scaleRatio: '1:20', unit: 'mm', method: 'auto-detect' } } };
+  schrijfSchalenInPdf(doc.getPages(), model, nietGeladen);
+  assert.deepEqual(bronnen(2), ['/Page', '/ScaleRegion'], 'page scale written, scale region kept');
+  const { leesPaginaSchalen } = await import('./schaal-in-pdf.js');
+  assert.deepEqual(leesPaginaSchalen(doc), { 2: { scaleRatio: '1:20', unit: 'mm', method: 'auto-detect' } });
+
+  // Clearing it removes the page viewport there too; the scale region stays.
+  schrijfSchalenInPdf(doc.getPages(), { ...model, pageScales: null }, nietGeladen);
+  assert.deepEqual(bronnen(2), ['/ScaleRegion']);
+});

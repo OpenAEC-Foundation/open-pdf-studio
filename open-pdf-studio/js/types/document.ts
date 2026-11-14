@@ -161,6 +161,9 @@ export interface DocumentState {
   /** Schaalcontroles per blad (#629, annotations/schaalcontrole.js); reist mee als
    *  /OPS_ScaleChecks op de pagina (pdf/schaal-in-pdf.js). */
   scaleChecks?: Record<number, Array<Record<string, unknown>>> | null;
+  /** Paginaschalen (#1065, pdf/pagina-schalen.js) per 1-gebaseerd paginanummer;
+   *  reizen mee als /VP-viewport met /OPS_Bron /Page (pdf/schaal-in-pdf.js). */
+  pageScales?: Record<number, { scaleRatio: string; unit: string; method: string; alternatives?: string[] }> | null;
   /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
    *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */
   pdfViewports?: Record<number, Array<{ x: number; y: number; width: number; height: number; pixelsPerUnit: number; unit: string; mmPerPoint: number; ratio: string; name: string }>>;

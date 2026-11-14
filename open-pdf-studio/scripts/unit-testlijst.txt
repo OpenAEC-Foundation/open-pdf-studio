@@ -855,3 +855,7 @@ js/review/central-review-session.test.mjs
 js/review/central-review-opening.test.mjs
 js/review/central-review-pdf-adapter.test.mjs
 js/review/central-review-upload.test.mjs
+# Pagina-schalen (#1065)
+js/pdf/pagina-schalen.test.mjs
+js/pdf/pagina-schalen-app.test.mjs
+js/pdf/pagina-schalen-i18n.test.mjs

@@ -136,7 +136,22 @@
     "insertFromFile": "Insérer depuis un fichier...",
     "insertFromFileBefore": "Avant cette page...",
     "insertFromFileAfter": "Après cette page...",
-    "pageLabels": "Étiquettes de page (générateur de noms)..."
+    "pageLabels": "Étiquettes de page (générateur de noms)...",
+    "setPageScale": "Définir l’échelle de la page...",
+    "setPageScaleMulti": "Définir l’échelle de {{count}} pages...",
+    "detectPageScales": "Détecter les échelles des pages (toutes les pages)",
+    "detectPageScalesMulti": "Détecter les échelles de {{count}} pages",
+    "clearPageScale": "Effacer l’échelle de la page",
+    "detectPageScalesArea": "Détecter les échelles des pages depuis une zone...",
+    "pickScaleArea": "Tracez un cadre autour de l’échelle dans le cartouche. Il est lu sur chaque page (OCR là où il n’y a pas de texte). Échap annule.",
+    "detectingPageScales": "Détection des échelles des pages... {{done}} sur {{total}}",
+    "scaleOwnSet": "Échelle de la page {{scale}} (définie). Cliquez pour modifier.",
+    "scaleOwnDetected": "Échelle de la page {{scale}} (détectée). Cliquez pour modifier.",
+    "scaleOwnOcr": "Échelle de la page {{scale}} (lue par OCR). Cliquez pour modifier.",
+    "scaleAlsoOnSheet": "Aussi sur la feuille : {{scales}}.",
+    "scaleDocument": "Échelle du document {{scale}}. Cliquez pour définir une échelle pour cette page.",
+    "scaleNone": "Aucune échelle. Cliquez pour en définir une pour cette page.",
+    "scaleInvalid": "Ce n’est pas une échelle. Saisissez 1:N ou N, par exemple 1:100."
   },
   "textSelection": {
     "highlightSelection": "Surligner la sélection",

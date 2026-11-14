@@ -365,6 +365,11 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
       console.warn('[reloadFromBytes] paginalabels van de ingevoegde pagina’s niet gelezen', e);
     }
   }
+  // Page scales move with their pages too (pagina-schalen.js).
+  try {
+    const { schalenNaHerladen } = await import('./pagina-schalen-app.js');
+    schalenNaHerladen(doc, viewportUpdate?.pageMapping || null);
+  } catch (e) { console.warn('[reloadFromBytes] page scales', e); }
   await labelsNaHerladen(doc, {
     oudeBytes,
     nieuweBytes: aangeleverdeBytes,
