@@ -10,6 +10,7 @@ pub mod spawn;
 pub mod recovery;
 pub mod shm_files;
 pub mod response;
+pub mod scan;
 pub mod snap;
 pub mod text;
 

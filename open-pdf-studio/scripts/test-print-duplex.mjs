@@ -23,7 +23,7 @@ try {
     window.jobs=[];window.tempDocs=[];
     window.__TAURI__={core:{invoke:async(name,args)=>{
       if(name==='get_printers')return JSON.stringify([{Name:'Test Printer',Default:true}]);
-      if(name==='write_temp_pdf'){window.tempDocs.push(args.data);return '/tmp/duplex-test.pdf';}
+      if(name==='write_temp_pdf'){window.tempDocs.push(args instanceof Uint8Array?Array.from(args):args.data);return '/tmp/duplex-test.pdf';}
       if(name==='print_pdf'){window.jobs.push(args);return true;}
       if(name==='get_printer_paper'||name==='get_printer_margins')return null;
       return null;

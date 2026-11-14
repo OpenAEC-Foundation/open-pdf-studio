@@ -471,6 +471,64 @@ impl Renderer {
         result
     }
 
+    /// Render een hele pagina op precies `width` x `height` pixels voor het
+    /// pixelwerk van symbolen zoeken en formulierherkenning (raster_scan):
+    /// wit papier, geen annotaties of formuliervelden (pdf.js annotationMode
+    /// 0), geen LCD-tekst. `rotation` is de draaiing bovenop /Rotate, zoals bij
+    /// `render`; de maat is die van het gedraaide beeld. Geeft BGRA terug,
+    /// rijbreedte `width * 4`.
+    pub fn render_scan(&mut self, path: &str, page_index: u32, width: usize, height: usize, rotation: i32) -> Result<Vec<u8>> {
+        if width == 0 || height == 0 || width > 16_384 || height > 16_384 {
+            return Err(anyhow!("PDF_INVALID_GEOMETRY: scan raster {}x{}", width, height));
+        }
+        let quarter = match rotation.rem_euclid(360) {
+            r @ (0 | 90 | 180 | 270) => r / 90,
+            other => return Err(anyhow!("unsupported rotation {}", other)),
+        };
+        let idx = self.get_or_load(path)?;
+        let result = (|| -> Result<Vec<u8>> {
+            let page = self.get_or_load_page(idx, page_index, false)?;
+            // De matrix werkt in weergaveruimte (na /Rotate, y omlaag, zie
+            // render_region); de extra draaiing gaat erin mee. (pw, ph) is de
+            // pagina zoals PDFium hem zonder extra draaiing toont.
+            let (pw, ph) = (page.width().value, page.height().value);
+            let (w, h) = (width as f32, height as f32);
+            let m = match quarter {
+                0 => (w / pw, 0.0, 0.0, h / ph, 0.0, 0.0),
+                1 => (0.0, h / pw, -w / ph, 0.0, w, 0.0),
+                2 => (-w / pw, 0.0, 0.0, -h / ph, w, h),
+                _ => (0.0, -h / pw, w / ph, 0.0, 0.0, h),
+            };
+            let config = PdfRenderConfig::new()
+                .set_fixed_size(width as i32, height as i32)
+                .transform(m.0, m.1, m.2, m.3, m.4, m.5)
+                .map_err(|e| anyhow!("invalid transform: {}", e))?
+                .render_annotations(false)
+                .render_form_data(false)
+                .use_lcd_text_rendering(false)
+                .set_format(PdfBitmapFormat::BGRA);
+            let bitmap = page.render_with_config(&config).map_err(|e| anyhow!("PDFium scan render: {}", e))?;
+            if bitmap.width() as usize != width || bitmap.height() as usize != height {
+                return Err(anyhow!("PDFium scan render: {}x{} instead of {}x{}", bitmap.width(), bitmap.height(), width, height));
+            }
+            let raw = bitmap.as_raw_bytes();
+            let stride = raw.len() / height;
+            if stride == width * 4 {
+                return Ok(raw);
+            }
+            if stride < width * 4 {
+                return Err(anyhow!("PDFium scan render: bitmap stride {} < {}", stride, width * 4));
+            }
+            let mut packed = Vec::with_capacity(width * height * 4);
+            for row in raw.chunks(stride).take(height) {
+                packed.extend_from_slice(&row[..width * 4]);
+            }
+            Ok(packed)
+        })();
+        self.release_page_if_cheap(idx);
+        result
+    }
+
     /// Render a sub-region of a page at `scale` into an output bitmap of
     /// (region_w_pt*scale × region_h_pt*scale) px. `rotation` (extra
     /// gebruikersrotatie) must be 0.
@@ -675,6 +733,51 @@ mod tests {
                 }
             }
         }
+    }
+
+    fn scan(bytes: &[u8], name: &str, w: usize, h: usize, rotation: i32) -> Vec<u8> {
+        let path = std::env::temp_dir().join(format!("opds-worker-scan-{}-{}.pdf", std::process::id(), name));
+        std::fs::write(&path, bytes).unwrap();
+        let mut renderer = Renderer::new().expect("renderer");
+        let out = renderer.render_scan(path.to_str().unwrap(), 0, w, h, rotation);
+        drop(renderer);
+        let _ = std::fs::remove_file(&path);
+        out.unwrap()
+    }
+
+    /// The scan raster shows the page as pdf.js does for the same total
+    /// rotation: the short diagonal stroke of the test page (PDF 300,300 to
+    /// 380,360) lands top right unrotated and bottom right after a quarter
+    /// turn, whether that turn comes from /Rotate or from the request.
+    #[test]
+    fn scan_raster_follows_page_and_extra_rotation() {
+        let ink = |px: &[u8], x0: usize, y0: usize| (y0..y0 + 60).any(|y| (x0..x0 + 80).any(|x| dark(px, 400, x, y)));
+        let differing = |a: &[u8], b: &[u8]| (0..400 * 400).filter(|&i| dark(a, 400, i % 400, i / 400) != dark(b, 400, i % 400, i / 400)).count();
+        let plain = scan(&form_page(false, 0), "r0", 400, 400, 0);
+        assert!(ink(&plain, 300, 40) && !ink(&plain, 300, 300), "unrotated: stroke top right");
+        let by_page = scan(&form_page(false, 90), "r90", 400, 400, 0);
+        assert!(ink(&by_page, 300, 300) && !ink(&by_page, 300, 40), "/Rotate 90: stroke bottom right");
+        let by_request = scan(&form_page(false, 0), "x90", 400, 400, 90);
+        assert!(ink(&by_request, 300, 300) && !ink(&by_request, 300, 40), "extra 90: stroke bottom right");
+        assert!(differing(&by_page, &by_request) < 40, "extra rotation equals /Rotate ({} px differ)", differing(&by_page, &by_request));
+        // Form recognition asks for the unrotated page: extra = -/Rotate.
+        let undone = scan(&form_page(false, 90), "u90", 400, 400, 270);
+        assert!(differing(&undone, &plain) < 40, "extra rotation undoes /Rotate ({} px differ)", differing(&undone, &plain));
+    }
+
+    /// No annotations and no form fields, like pdf.js with annotationMode 0.
+    #[test]
+    fn scan_raster_leaves_form_fields_out() {
+        let px = scan(&form_page(true, 0), "veld", 400, 400, 0);
+        assert!(!dark(&px, 400, 150, 275), "the field appearance is not drawn");
+        assert!(dark(&px, 400, 20, 200), "the drawing is");
+    }
+
+    /// A non-square page keeps its proportions when turned.
+    #[test]
+    fn scan_raster_has_the_requested_size() {
+        let px = scan(&form_page(false, 0), "maat", 300, 150, 0);
+        assert_eq!(px.len(), 300 * 150 * 4);
     }
 
     fn median(mut v: Vec<f64>) -> f64 {

@@ -10,6 +10,7 @@ members = [
   "open-pdf-signatures",
   "open-pdf-security",
   "open-pdf-monochrome",
+  "open-pdf-scan",
 ]
 
 # Upstream tesseract-rs caches its Windows/macOS build-tesseract source
