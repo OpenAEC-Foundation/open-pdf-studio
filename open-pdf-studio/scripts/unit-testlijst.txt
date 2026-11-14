@@ -369,6 +369,7 @@ js/pdf/pdfx-enrich.test.mjs
 js/pdf/pdfx-cmyk.test.mjs
 js/core/zoom-display.test.mjs
 js/pdf/render-sharpen.test.mjs
+js/pdf/render-sharpen-route.test.mjs
 js/pdf/print-meerperblad.test.mjs
 js/pdf/print-meerperblad-voorbeeld.test.mjs
 js/pdf/print-draaien-in-cel.test.mjs

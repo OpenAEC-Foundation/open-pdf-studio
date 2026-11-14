@@ -9,6 +9,9 @@ mod mesh_bbox;
 mod page_text;
 mod protocol;
 mod render;
+// Gebruikt door de app-crate (via #[path]); hier voor de tests.
+#[allow(dead_code)]
+mod sharpen;
 mod shm;
 mod snap_geometry;
 mod thin_lines;

@@ -31,6 +31,7 @@ pub mod mcp_server;
 pub mod mcp_signaal;
 pub mod mcp_tool_meta;
 pub mod monochroom;
+pub mod verscherpen;
 pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
@@ -2246,6 +2247,8 @@ async fn render_pdf_page(
     rotation: Option<i32>,
     // Thin Lines view mode (#595): every vector stroke as a hairline.
     thin_lines: Option<bool>,
+    // Page sharpen (render-sharpen.js): 0 or absent = none; see verscherpen.rs.
+    sharpen: Option<f64>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
     pixmap_cache: tauri::State<'_, pdfium_renderer::PixmapCacheState>,
@@ -2259,16 +2262,18 @@ async fn render_pdf_page(
 
     // Cache fast path (unchanged)
     pixmap_cache.ensure();
-    if let Ok(guard) = pixmap_cache.0.lock() {
-        if let Some(cache) = guard.as_ref() {
-            if let Some(cached) = cache.get(&cache_key) {
-                let mut data = Vec::with_capacity(8 + cached.rgba.len());
-                data.extend_from_slice(&cached.width.to_le_bytes());
-                data.extend_from_slice(&cached.height.to_le_bytes());
-                data.extend_from_slice(&cached.rgba);
-                return Ok(tauri::ipc::Response::new(data));
-            }
-        }
+    // De vergrendeling is weer vrij vóór het verscherpen (dat wacht op een
+    // andere thread): alleen de kopie van het beeld gaat mee.
+    let uit_cache = pixmap_cache.0.lock().ok().and_then(|guard| {
+        let cached = guard.as_ref()?.get(&cache_key)?;
+        let mut data = Vec::with_capacity(8 + cached.rgba.len());
+        data.extend_from_slice(&cached.width.to_le_bytes());
+        data.extend_from_slice(&cached.height.to_le_bytes());
+        data.extend_from_slice(&cached.rgba);
+        Some(data)
+    });
+    if let Some(data) = uit_cache {
+        return Ok(verscherpen::antwoord(data, sharpen).await);
     }
 
     // Try the worker pool first
@@ -2287,7 +2292,7 @@ async fn render_pdf_page(
                 data.extend_from_slice(&width.to_le_bytes());
                 data.extend_from_slice(&height.to_le_bytes());
                 data.extend_from_slice(&rgba_arc);
-                return Ok(tauri::ipc::Response::new(data));
+                return Ok(verscherpen::antwoord(data, sharpen).await);
             }
             Err(e) => {
                 // A worker can die while parsing a malformed PDF. Retrying
@@ -2345,7 +2350,7 @@ async fn render_pdf_page(
     data.extend_from_slice(&width.to_le_bytes());
     data.extend_from_slice(&height.to_le_bytes());
     data.extend_from_slice(&rgba_arc);
-    Ok(tauri::ipc::Response::new(data))
+    Ok(verscherpen::antwoord(data, sharpen).await)
 }
 
 /// Run OCR on one page. `lang` is Tesseract's `+`-joined language spec (e.g.
@@ -2460,6 +2465,8 @@ async fn render_pdf_page_region(
     spread: Option<bool>,
     // Thin Lines view mode (#595), see render_pdf_page.
     thin_lines: Option<bool>,
+    // Page sharpen (render-sharpen.js): 0 or absent = none; see verscherpen.rs.
+    sharpen: Option<f64>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
     pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
@@ -2483,7 +2490,7 @@ async fn render_pdf_page_region(
                 data.extend_from_slice(&width.to_le_bytes());
                 data.extend_from_slice(&height.to_le_bytes());
                 data.extend_from_slice(&rgba);
-                return Ok(tauri::ipc::Response::new(data));
+                return Ok(verscherpen::antwoord(data, sharpen).await);
             }
             Err(e) => {
                 if worker_died(&e) {
@@ -2532,7 +2539,7 @@ async fn render_pdf_page_region(
     data.extend_from_slice(&width.to_le_bytes());
     data.extend_from_slice(&height.to_le_bytes());
     data.extend_from_slice(&rgba);
-    Ok(tauri::ipc::Response::new(data))
+    Ok(verscherpen::antwoord(data, sharpen).await)
 }
 
 /// Snap-geometrie van een pagina uit de PDFium-worker (pdfium-worker,
@@ -2617,6 +2624,8 @@ async fn render_tile_scene_region(
     // Thin Lines view mode (#595): the scene replays every stroke as a
     // hairline. The scene itself is the same in both modes.
     thin_lines: Option<bool>,
+    // Page sharpen (render-sharpen.js): 0 or absent = none; see verscherpen.rs.
+    sharpen: Option<f64>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     handle_cache: tauri::State<'_, DocHandleCache>,
     scene_cache: tauri::State<'_, TileSceneCache>,
@@ -2717,7 +2726,7 @@ async fn render_tile_scene_region(
     data.extend_from_slice(&w.to_le_bytes());
     data.extend_from_slice(&h.to_le_bytes());
     data.extend_from_slice(&rgba);
-    Ok(tauri::ipc::Response::new(data))
+    Ok(verscherpen::antwoord(data, sharpen).await)
 }
 
 /// Goedkope zwaarte-probe: som van de GECOMPRIMEERDE content-stream-lengtes van
@@ -3796,6 +3805,7 @@ pub fn run(opts: StartupOpts) {
             worker_pool_ready,
             render_pdf_page_region,
             compare_pixel_pair,
+            verscherpen::sharpen_rust_beschikbaar,
             render_tile_scene_region,
             extract_snap_geometry,
             extract_search_text,
