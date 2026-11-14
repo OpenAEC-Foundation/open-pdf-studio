@@ -90,7 +90,15 @@
     "overlayColor": "Overlay Color",
     "stamps": "Stamps",
     "hideBuiltInStamps": "Hide built-in stamps when I have my own stamps",
-    "hideBuiltInStampsHint": "The stamp picker then shows only your own stamps (personal, imported and shared). Without own stamps, the built-in stamps stay visible."
+    "hideBuiltInStampsHint": "The stamp picker then shows only your own stamps (personal, imported and shared). Without own stamps, the built-in stamps stay visible.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "measurement": {
     "distanceDefaults": "Distance Defaults",
@@ -236,6 +244,7 @@
     "confirmBeforeDeleting": "Confirm before deleting annotations",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
+    "reverseWheelZoom": "Reverse mouse wheel zoom direction",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
     "ribbonWheelSwitchesTabs": "Switch ribbon tabs with the mouse wheel",
     "smoothScrolling": "Smooth scrolling",

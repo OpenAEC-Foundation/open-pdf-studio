@@ -88,7 +88,15 @@
     "snapToPdfContent": "Κούμπωμα στο περιεχόμενο σχεδίου PDF",
     "stamps": "Σφραγίδες",
     "hideBuiltInStamps": "Απόκρυψη ενσωματωμένων σφραγίδων όταν έχω δικές μου σφραγίδες",
-    "hideBuiltInStampsHint": "Η επιλογή σφραγίδων εμφανίζει τότε μόνο τις δικές σας σφραγίδες (προσωπικές, εισαγόμενες και κοινόχρηστες). Χωρίς δικές σας σφραγίδες, οι ενσωματωμένες παραμένουν ορατές."
+    "hideBuiltInStampsHint": "Η επιλογή σφραγίδων εμφανίζει τότε μόνο τις δικές σας σφραγίδες (προσωπικές, εισαγόμενες και κοινόχρηστες). Χωρίς δικές σας σφραγίδες, οι ενσωματωμένες παραμένουν ορατές.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Προεπιλογές ελεύθερου χεριού",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Κρατήστε για λίγο τον δείκτη πάνω σε ένα σημείο για να το αποκτήσετε, κρατήστε πατημένο το Shift για να κλειδώσετε έναν οδηγό, το Tab εναλλάσσει απόσταση και γωνία. Οι πολικοί οδηγοί ακολουθούν τις ρυθμίσεις πολικής ιχνηλάτησης.",
     "navigation": "Πλοήγηση",
     "wheelZoomWithoutCtrl": "Ζουμ με τον τροχό του ποντικιού (χωρίς να κρατάτε το Ctrl)",
+    "reverseWheelZoom": "Αντιστροφή κατεύθυνσης ζουμ με τον τροχό του ποντικιού",
     "middleDoubleClickFit": "Διπλό κλικ με το μεσαίο κουμπί του ποντικιού για προσαρμογή σελίδας",
     "ribbonWheelSwitchesTabs": "Εναλλαγή καρτελών κορδέλας με τον τροχό του ποντικιού",
     "smoothScrolling": "Ομαλή κύλιση",

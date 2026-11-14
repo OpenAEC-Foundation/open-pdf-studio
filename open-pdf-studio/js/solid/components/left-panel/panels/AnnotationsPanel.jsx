@@ -2,11 +2,13 @@ import { For, Show, createSignal, createEffect, onCleanup } from 'solid-js';
 import { activeTab, collapsed } from '../../../stores/leftPanelStore.js';
 import {
   items, countText, emptyMessage, sortMode, setSortMode, filterMode, setFilterMode, hiddenStatuses, toggleHiddenStatus,
+  setHiddenStatusSet, isHiddenStatusSet,
   collapsedGroups, toggleGroup, expandAllGroups, collapseAllGroups,
   listFilter, updateListFilter, clearListFilter, anyListFilterActive, filterOptions, filterBarOpen, setFilterBarOpen,
 } from '../../../stores/panels/annotationsStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { state, clearSelection, getActiveDocument, getAnnotationBounds } from '../../../../core/state.js';
+import { alleStatussen, afgerondeStatussen, statusNaam } from '../../../../review/status-sets.js';
 import { commitAnnotationMutation, deleteAnnotationsWithUndo } from '../../../../annotations/mutations.js';
 import { expandCorrectionGroups } from '../../../../annotations/corrections/model.js';
 import {
@@ -35,16 +37,12 @@ const groupOptions = [
   { key: 'lastStatusAuthor', label: 'groupByLastStatusAuthor' },
 ];
 
-// Review-statussen voor het Tonen > Status-filter (#236). Sleutels in
-// kleine letters — de filtering in annotations-list.js vergelijkt
-// hoofdletter-ongevoelig. Labels komen uit de bestaande context-namespace.
-const statusFilterOptions = [
-  { key: 'none', label: 'annotation.statusNone' },
-  { key: 'accepted', label: 'annotation.statusAccepted' },
-  { key: 'cancelled', label: 'annotation.statusCancelled' },
-  { key: 'completed', label: 'annotation.statusCompleted' },
-  { key: 'rejected', label: 'annotation.statusRejected' },
-];
+// Review-statussen voor het Tonen > Status-filter (#236) en het zetten van
+// een status: de vaste plus de eigen statussen uit de voorkeuren (#1076,
+// review/status-sets.js). Sleutels in kleine letters — de filtering in
+// annotations-list.js vergelijkt hoofdletter-ongevoelig. Bij elk openen van
+// het menu opnieuw opgebouwd, zodat een gewijzigde eigen lijst meteen geldt.
+const eigenStatusLijst = () => state.preferences?.markupStatuses;
 
 export default function AnnotationsPanel() {
   const { t } = useTranslation('properties');
@@ -89,6 +87,14 @@ export default function AnnotationsPanel() {
   // statussen achter elkaar (de)geselecteerd kunnen worden (#236).
   const toggleStatusFilter = (statusKey) => {
     toggleHiddenStatus(statusKey);
+    import('../../../../ui/panels/annotations-list.js').then(m => m.updateAnnotationsList());
+  };
+  const statusFilterOptions = () => alleStatussen(eigenStatusLijst())
+    .map((s) => ({ key: s.key, naam: statusNaam(s.key, eigenStatusLijst(), tContext) }));
+  // Alleen open punten (#1076): alle afgeronde statussen verbergen, of weer tonen.
+  const afgerond = () => [...afgerondeStatussen(eigenStatusLijst())];
+  const toggleAlleenOpen = () => {
+    setHiddenStatusSet(isHiddenStatusSet(afgerond()) ? [] : afgerond());
     import('../../../../ui/panels/annotations-list.js').then(m => m.updateAnnotationsList());
   };
 
@@ -154,10 +160,7 @@ export default function AnnotationsPanel() {
     const standaardLaag = i18next.t('annotationLayers.defaultName', { ns: 'ribbon' });
     const namen = {
       typeNaam: (a) => helpers.getAnnotationDisplayName(a, byId),
-      statusNaam: (s) => {
-        const hoofd = s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-        return i18next.t(`annotation.status${hoofd}`, { ns: 'context', defaultValue: hoofd });
-      },
+      statusNaam: (s) => statusNaam(s, eigenStatusLijst(), (sleutel) => i18next.t(sleutel, { ns: 'context' })),
       laagNaam: (a) => lagen.layerDisplayName(lagen.layerOf(doc, a), standaardLaag),
       omhullende: (a) => getAnnotationBounds(a),
     };
@@ -429,10 +432,10 @@ export default function AnnotationsPanel() {
                 </svg>
                 <Show when={hasSelection()}>
                   <div class="annotations-submenu">
-                    {statusFilterOptions.map(opt => (
+                    {statusFilterOptions().map(opt => (
                       <div class="annotations-menu-item" onClick={() => closeAndRun(() => setStatusBulk('selection', opt.key))}>
                         <span class="annotations-menu-check"></span>
-                        <span class="annotations-menu-label">{tContext(opt.label)}</span>
+                        <span class="annotations-menu-label">{opt.naam}</span>
                       </div>
                     ))}
                   </div>
@@ -446,10 +449,10 @@ export default function AnnotationsPanel() {
                 </svg>
                 <Show when={hasListRows()}>
                   <div class="annotations-submenu">
-                    {statusFilterOptions.map(opt => (
+                    {statusFilterOptions().map(opt => (
                       <div class="annotations-menu-item" onClick={() => closeAndRun(() => setStatusBulk('listed', opt.key))}>
                         <span class="annotations-menu-check"></span>
-                        <span class="annotations-menu-label">{tContext(opt.label)}</span>
+                        <span class="annotations-menu-label">{opt.naam}</span>
                       </div>
                     ))}
                   </div>
@@ -504,13 +507,20 @@ export default function AnnotationsPanel() {
                   {/* Filter op review-status (#236) \u2014 vinkje = zichtbaar */}
                   <div class="annotations-menu-separator"></div>
                   <div class="annotations-menu-section">{tContext('annotation.status')}</div>
-                  {statusFilterOptions.map(opt => (
+                  <div
+                    class={`annotations-menu-item${isHiddenStatusSet(afgerond()) ? ' checked' : ''}`}
+                    onClick={toggleAlleenOpen}
+                  >
+                    <span class="annotations-menu-check">{isHiddenStatusSet(afgerond()) ? '✓' : ''}</span>
+                    <span class="annotations-menu-label">{tContext('annotation.showOnlyOpen')}</span>
+                  </div>
+                  {statusFilterOptions().map(opt => (
                     <div
                       class={`annotations-menu-item${!hiddenStatuses().has(opt.key) ? ' checked' : ''}`}
                       onClick={() => toggleStatusFilter(opt.key)}
                     >
                       <span class="annotations-menu-check">{!hiddenStatuses().has(opt.key) ? '\u2713' : ''}</span>
-                      <span class="annotations-menu-label">{tContext(opt.label)}</span>
+                      <span class="annotations-menu-label">{opt.naam}</span>
                     </div>
                   ))}
                   <div class="annotations-menu-separator"></div>

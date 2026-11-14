@@ -88,7 +88,15 @@
     "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF",
     "stamps": "ตราประทับ",
     "hideBuiltInStamps": "ซ่อนตราประทับในตัวเมื่อฉันมีตราประทับของตัวเอง",
-    "hideBuiltInStampsHint": "ตัวเลือกตราประทับจะแสดงเฉพาะตราประทับของคุณ (ส่วนตัว นำเข้า และแชร์) หากไม่มีตราประทับของตัวเอง ตราประทับในตัวจะยังแสดงอยู่"
+    "hideBuiltInStampsHint": "ตัวเลือกตราประทับจะแสดงเฉพาะตราประทับของคุณ (ส่วนตัว นำเข้า และแชร์) หากไม่มีตราประทับของตัวเอง ตราประทับในตัวจะยังแสดงอยู่",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "ค่าเริ่มต้นวาดอิสระ",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "วางเคอร์เซอร์บนจุดสักครู่เพื่อจับจุดนั้น กด Shift ค้างไว้เพื่อล็อกเส้นช่วย และ Tab สลับระหว่างระยะทางกับมุม เส้นช่วยเชิงขั้วเป็นไปตามการตั้งค่าการติดตามเชิงขั้ว",
     "navigation": "การนำทาง",
     "wheelZoomWithoutCtrl": "ซูมด้วยล้อเมาส์ (โดยไม่ต้องกด Ctrl)",
+    "reverseWheelZoom": "กลับทิศทางการซูมด้วยล้อเมาส์",
     "middleDoubleClickFit": "ดับเบิลคลิกปุ่มกลางของเมาส์เพื่อปรับให้พอดีหน้า",
     "ribbonWheelSwitchesTabs": "สลับแท็บริบบอนด้วยล้อเมาส์",
     "smoothScrolling": "การเลื่อนแบบนุ่มนวล",

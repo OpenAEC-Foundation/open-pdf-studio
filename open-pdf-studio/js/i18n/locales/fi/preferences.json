@@ -88,7 +88,15 @@
     "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
     "stamps": "Leimat",
     "hideBuiltInStamps": "Piilota sisäänrakennetut leimat, kun minulla on omia leimoja",
-    "hideBuiltInStampsHint": "Leimanvalitsin näyttää silloin vain omat leimasi (henkilökohtaiset, tuodut ja jaetut). Ilman omia leimoja sisäänrakennetut leimat pysyvät näkyvissä."
+    "hideBuiltInStampsHint": "Leimanvalitsin näyttää silloin vain omat leimasi (henkilökohtaiset, tuodut ja jaetut). Ilman omia leimoja sisäänrakennetut leimat pysyvät näkyvissä.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Vapaapiirron oletukset",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Pidä osoitinta hetki pisteen päällä poimiaksesi sen, pidä Shift painettuna lukitaksesi apuviivan, Tab vaihtaa etäisyyden ja kulman välillä. Napa-apuviivat noudattavat napaseurannan asetuksia.",
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
+    "reverseWheelZoom": "Käännä hiiren rullan zoomaussuunta",
     "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
     "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
     "smoothScrolling": "Pehmeä vieritys",

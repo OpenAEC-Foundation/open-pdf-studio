@@ -88,7 +88,15 @@
     "overlayColor": "오버레이 색",
     "stamps": "스탬프",
     "hideBuiltInStamps": "내 스탬프가 있으면 기본 제공 스탬프 숨기기",
-    "hideBuiltInStampsHint": "그러면 스탬프 선택기에는 내 스탬프(개인, 가져온 스탬프, 공유)만 표시됩니다. 내 스탬프가 없으면 기본 제공 스탬프가 계속 표시됩니다."
+    "hideBuiltInStampsHint": "그러면 스탬프 선택기에는 내 스탬프(개인, 가져온 스탬프, 공유)만 표시됩니다. 내 스탬프가 없으면 기본 제공 스탬프가 계속 표시됩니다.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "자유형 기본값",
@@ -186,6 +194,7 @@
     "confirmBeforeDeleting": "주석 삭제 전 확인",
     "navigation": "탐색",
     "wheelZoomWithoutCtrl": "마우스 휠로 확대/축소(Ctrl 키 없이)",
+    "reverseWheelZoom": "마우스 휠 확대/축소 방향 반전",
     "middleDoubleClickFit": "마우스 가운데 버튼을 두 번 클릭하여 페이지 맞춤",
     "ribbonWheelSwitchesTabs": "마우스 휠로 리본 탭 전환",
     "smoothScrolling": "부드러운 스크롤",

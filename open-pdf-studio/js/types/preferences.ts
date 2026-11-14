@@ -227,6 +227,7 @@ export interface Preferences {
   autoSelectAfterCreate: boolean;
   confirmBeforeDelete: boolean;
   wheelZoomWithoutCtrl: boolean;
+  reverseWheelZoom: boolean;
   middleDoubleClickFit: boolean;
   ribbonWheelSwitchesTabs: boolean;
   smoothScrolling: boolean;
@@ -301,6 +302,8 @@ export interface Preferences {
   symbolPaletteFloatX: number;
   symbolPaletteFloatY: number;
   customSymbolGroups: Array<{ id: string; name: string; symbols: Array<{ id: string; name: string; svg: string }> }>;
+  /** Eigen reviewstatussen van markeringen (#1076). */
+  markupStatuses: Array<{ name: string; color: string; closed?: boolean }>;
   disabledSymbolGroups: string[];
   parametricSymbolDefaults: Record<string, Record<string, string | number | boolean>>;
 

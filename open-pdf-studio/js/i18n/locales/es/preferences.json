@@ -88,7 +88,15 @@
     "overlayColor": "Color de superposición",
     "stamps": "Sellos",
     "hideBuiltInStamps": "Ocultar los sellos integrados cuando tengo sellos propios",
-    "hideBuiltInStampsHint": "El selector de sellos muestra entonces solo sus propios sellos (personales, importados y compartidos). Sin sellos propios, los sellos integrados siguen visibles."
+    "hideBuiltInStampsHint": "El selector de sellos muestra entonces solo sus propios sellos (personales, importados y compartidos). Sin sellos propios, los sellos integrados siguen visibles.",
+    "markupStatuses": "Estados de las marcas",
+    "markupStatusName": "Nombre del estado",
+    "markupStatusClosed": "Cerrado",
+    "markupStatusClosedHint": "Una marca con este estado está terminada; «Mostrar solo puntos abiertos» la oculta.",
+    "markupStatusRemove": "Eliminar estado",
+    "markupStatusAdd": "Añadir estado",
+    "markupStatusesEmpty": "Aún no hay estados propios. Los estados estándar siempre están disponibles.",
+    "markupStatusesHint": "Los estados propios aparecen junto a los estándar en el menú Estado, la lista de marcas y el filtro, y se guardan en el PDF como estado de revisión. Un nombre debe ser único y no puede ser un estado estándar."
   },
   "drawing": {
     "freehandDefaults": "Valores predeterminados de mano alzada",
@@ -186,6 +194,7 @@
     "confirmBeforeDeleting": "Confirmar antes de eliminar anotaciones",
     "navigation": "Navegación",
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
+    "reverseWheelZoom": "Invertir la dirección del zoom con la rueda del ratón",
     "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
     "ribbonWheelSwitchesTabs": "Cambiar las pestañas de la cinta con la rueda del ratón",
     "smoothScrolling": "Desplazamiento suave",

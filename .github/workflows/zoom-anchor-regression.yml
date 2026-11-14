@@ -5,6 +5,8 @@ on:
       - 'open-pdf-studio/js/pdf/renderer.js'
       - 'open-pdf-studio/js/pdf/continuous-zoom-anchor.js'
       - 'open-pdf-studio/js/ui/setup/navigation-events.js'
+      - 'open-pdf-studio/js/core/wheel-zoom.js'
+      - 'open-pdf-studio/js/solid/components/preferences/BehaviorTab.jsx'
       - 'open-pdf-studio/scripts/test-zoom-anchor.mjs'
       - '.github/workflows/zoom-anchor-regression.yml'
 permissions:

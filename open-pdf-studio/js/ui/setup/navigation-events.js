@@ -1,3 +1,4 @@
+import { wheelZoomDelta } from '../../core/wheel-zoom.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
 import { viewport, zoomStepAtPoint, suppressNextFit, wielPanViewport, stopPanMomentum, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
@@ -85,6 +86,8 @@ export function setupWheelZoom() {
     // wielrol ook (Ctrl+wiel blijft altijd werken).
     if (e.ctrlKey || e.metaKey || state.preferences.wheelZoomWithoutCtrl) {
       e.preventDefault();
+      const zoomDelta = wheelZoomDelta(e.deltaY, state.preferences);
+      if (zoomDelta === 0) return;
       // Starting a zoom gesture: kill any in-flight wheel scroll so the page
       // doesn't keep gliding mid-zoom (would tear the cursor anchor away).
       stopPanMomentum();
@@ -95,7 +98,7 @@ export function setupWheelZoom() {
         // continuous helper, anchored at the cursor's Y position so the
         // content under the mouse stays put.
         if (activeDoc.viewMode === 'continuous') {
-          const contDy = e.deltaY || 0;
+          const contDy = zoomDelta;
           if (contDy !== 0) {
             const container = document.getElementById('pdf-container');
             // Anker op beide assen: ook horizontaal moet het punt onder de
@@ -133,7 +136,7 @@ export function setupWheelZoom() {
         // PDF.js single-page fallback: both unsaved documents and web PDFs
         // use a page-sized canvas. Pass client coordinates so its resize
         // preserves the content under the cursor, just like the native view.
-        const wheelDy = e.deltaY || 0;
+        const wheelDy = zoomDelta;
         if (wheelDy !== 0) {
           const point = { x: e.clientX, y: e.clientY };
           const m = await import('../../pdf/renderer.js');
@@ -154,8 +157,8 @@ export function setupWheelZoom() {
         || e.target.getBoundingClientRect();
       const sx = e.clientX - rect.left;
       const sy = e.clientY - rect.top;
-      const dy = e.deltaY || 0;
-      const direction = dy < 0 ? 1 : -1;  // wheel up = zoom in (+1)
+      const dy = zoomDelta;
+      const direction = dy < 0 ? 1 : -1;  // preference-adjusted zoom direction
 
       // Mouse wheel notch (large deltaY) → step immediately.
       // Trackpad pinch (small deltaY) → accumulate, only step at threshold.

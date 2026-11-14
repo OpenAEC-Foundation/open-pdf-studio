@@ -88,7 +88,15 @@
     "snapToPdfContent": "Прив'язка до вмісту креслення PDF",
     "stamps": "Штампи",
     "hideBuiltInStamps": "Приховувати вбудовані штампи, якщо в мене є власні штампи",
-    "hideBuiltInStampsHint": "Тоді у виборі штампів показуються лише ваші власні штампи (особисті, імпортовані та спільні). Без власних штампів вбудовані штампи залишаються видимими."
+    "hideBuiltInStampsHint": "Тоді у виборі штампів показуються лише ваші власні штампи (особисті, імпортовані та спільні). Без власних штампів вбудовані штампи залишаються видимими.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Типові значення малювання від руки",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Затримайте курсор на точці, щоб захопити її, утримуйте Shift, щоб зафіксувати напрямну, Tab перемикає між відстанню та кутом. Полярні напрямні відповідають налаштуванням полярного відстеження.",
     "navigation": "Навігація",
     "wheelZoomWithoutCtrl": "Масштабування коліщатком миші (без утримання Ctrl)",
+    "reverseWheelZoom": "Обернути напрямок масштабування коліщатком миші",
     "middleDoubleClickFit": "Подвійне клацання середньою кнопкою миші — вписати сторінку",
     "ribbonWheelSwitchesTabs": "Перемикати вкладки стрічки коліщатком миші",
     "smoothScrolling": "Плавне прокручування",

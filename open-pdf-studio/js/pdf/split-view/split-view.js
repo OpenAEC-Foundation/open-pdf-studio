@@ -1,3 +1,4 @@
+import { wheelZoomDelta } from '../../core/wheel-zoom.js';
 // Gesplitste weergave (#715, #893): twee panelen, op hetzelfde of twee documenten.
 //
 // Zie split-staat.js voor het ontwerp. Hier de DOM-kant:
@@ -754,7 +755,9 @@ function opWiel(e) {
   const W = pane.clientWidth;
   const H = pane.clientHeight;
   const zoomen = e.ctrlKey || e.metaKey || !!state.preferences?.wheelZoomWithoutCtrl;
-  const richting = (e.deltaY || 0) < 0 ? 1 : -1;
+  const zoomDelta = wheelZoomDelta(e.deltaY, state.preferences);
+  if (zoomen && zoomDelta === 0) return;
+  const richting = zoomDelta < 0 ? 1 : -1;
   const { dx, dy, stap } = wielDelta(e, H);
 
   if (st.sync) {

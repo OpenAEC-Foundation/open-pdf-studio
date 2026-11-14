@@ -88,7 +88,15 @@
     "overlayColor": "لون التغطية",
     "stamps": "الأختام",
     "hideBuiltInStamps": "إخفاء الأختام المضمنة عندما تكون لدي أختام خاصة",
-    "hideBuiltInStampsHint": "يعرض منتقي الأختام عندئذٍ أختامك الخاصة فقط (الشخصية والمستوردة والمشتركة). بدون أختام خاصة تبقى الأختام المضمنة ظاهرة."
+    "hideBuiltInStampsHint": "يعرض منتقي الأختام عندئذٍ أختامك الخاصة فقط (الشخصية والمستوردة والمشتركة). بدون أختام خاصة تبقى الأختام المضمنة ظاهرة.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "إعدادات الرسم الحر الافتراضية",
@@ -186,6 +194,7 @@
     "confirmBeforeDeleting": "التأكيد قبل حذف التعليقات",
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
+    "reverseWheelZoom": "عكس اتجاه التكبير بعجلة الماوس",
     "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
     "ribbonWheelSwitchesTabs": "التبديل بين علامات تبويب الشريط بعجلة الماوس",
     "smoothScrolling": "التمرير السلس",

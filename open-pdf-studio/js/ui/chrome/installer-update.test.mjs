@@ -96,6 +96,10 @@ test('Rust: de installer-plugin alleen op Windows, niet beheerd, draagbaar of he
   assert.ok(registratie > 0);
   const voor = lib.slice(lib.lastIndexOf('if openaec_installer_plugin(', registratie), registratie);
   assert.match(voor, /cfg!\(windows\),\s*beheerd::is_beheerd\(\),\s*draagbaar::actief\(\),\s*headless::actief\(\),/);
+  // Een installer zonder `--check` (ouder dan 0.2.4) opent zijn venster bij
+  // elke start van de app: dan geen plugin (installer_versie.rs).
+  assert.match(lib.slice(lib.lastIndexOf('if openaec_installer_plugin(', registratie), registratie),
+    /\) && installer_versie::installer_kent_achtergrondcontrole\(openaec_update::find_installer\(\)\)/);
   const caps = JSON.parse(lees('src-tauri', 'capabilities', 'default.json'));
   assert.ok(caps.permissions.includes('openaec-update:default'));
 });

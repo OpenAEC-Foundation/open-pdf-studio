@@ -88,7 +88,15 @@
     "snapToPdfContent": "Snap ke Konten Gambar PDF",
     "stamps": "Stempel",
     "hideBuiltInStamps": "Sembunyikan stempel bawaan saat saya punya stempel sendiri",
-    "hideBuiltInStampsHint": "Pemilih stempel kemudian hanya menampilkan stempel Anda sendiri (pribadi, impor, dan bersama). Tanpa stempel sendiri, stempel bawaan tetap terlihat."
+    "hideBuiltInStampsHint": "Pemilih stempel kemudian hanya menampilkan stempel Anda sendiri (pribadi, impor, dan bersama). Tanpa stempel sendiri, stempel bawaan tetap terlihat.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Bawaan Gambar Bebas",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Arahkan kursor sebentar pada sebuah titik untuk menangkapnya, tahan Shift untuk mengunci garis bantu, Tab beralih antara jarak dan sudut. Garis bantu polar mengikuti pengaturan pelacakan polar.",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
+    "reverseWheelZoom": "Balik arah zoom roda mouse",
     "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
     "ribbonWheelSwitchesTabs": "Ganti tab ribbon dengan roda mouse",
     "smoothScrolling": "Gulir halus",

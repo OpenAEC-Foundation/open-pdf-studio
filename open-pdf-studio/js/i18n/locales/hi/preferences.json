@@ -88,7 +88,15 @@
     "snapToPdfContent": "PDF ड्रॉइंग सामग्री पर स्नैप करें",
     "stamps": "स्टैम्प",
     "hideBuiltInStamps": "मेरे अपने स्टैम्प होने पर बिल्ट-इन स्टैम्प छिपाएँ",
-    "hideBuiltInStampsHint": "तब स्टैम्प चयनकर्ता केवल आपके अपने स्टैम्प (व्यक्तिगत, आयातित और साझा) दिखाता है। अपने स्टैम्प न होने पर बिल्ट-इन स्टैम्प दिखाई देते रहते हैं।"
+    "hideBuiltInStampsHint": "तब स्टैम्प चयनकर्ता केवल आपके अपने स्टैम्प (व्यक्तिगत, आयातित और साझा) दिखाता है। अपने स्टैम्प न होने पर बिल्ट-इन स्टैम्प दिखाई देते रहते हैं।",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "फ्रीहैंड डिफ़ॉल्ट",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "किसी बिंदु को पकड़ने के लिए कर्सर को कुछ क्षण उस पर रखें, किसी गाइड को लॉक करने के लिए Shift दबाए रखें, Tab दूरी और कोण के बीच बदलता है। ध्रुवीय गाइड ध्रुवीय ट्रैकिंग की सेटिंग्स का पालन करते हैं।",
     "navigation": "नेविगेशन",
     "wheelZoomWithoutCtrl": "माउस व्हील से ज़ूम करें (Ctrl दबाए बिना)",
+    "reverseWheelZoom": "माउस व्हील से ज़ूम की दिशा उलटें",
     "middleDoubleClickFit": "पृष्ठ फ़िट करने के लिए माउस के बीच वाले बटन से डबल-क्लिक करें",
     "ribbonWheelSwitchesTabs": "माउस व्हील से रिबन टैब बदलें",
     "smoothScrolling": "स्मूद स्क्रॉलिंग",

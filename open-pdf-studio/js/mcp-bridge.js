@@ -974,13 +974,13 @@ async function handleClearCaches() {
 }
 
 /** Dispatch a synthetic WheelEvent matching what the OS sends for ctrl+wheel.
- *  deltaY < 0 → zoom in (wheel up). deltaY > 0 → zoom out (wheel down).
+ *  By default deltaY < 0 zooms in; the reverse-wheel preference flips it.
  *  Routes through the same .main-view listener the user's wheel hits, so we
  *  exercise the actual zoom path and not some test-only shortcut. */
 async function handleWheelZoom(params) {
   const x = Number(params?.x);
   const y = Number(params?.y);
-  const deltaY = Number(params?.deltaY ?? -120); // default zoom-in (one notch)
+  const deltaY = Number(params?.deltaY ?? -120); // default wheel-up (one notch)
   const ctrlKey = params?.ctrlKey !== false;     // default true
   if (!Number.isFinite(x) || !Number.isFinite(y)) {
     return { ok: false, error: 'missing or invalid params.x/y' };

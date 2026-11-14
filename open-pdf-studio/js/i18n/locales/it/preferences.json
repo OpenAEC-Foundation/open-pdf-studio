@@ -88,7 +88,15 @@
     "overlayColor": "Colore di sovrapposizione",
     "stamps": "Timbri",
     "hideBuiltInStamps": "Nascondi i timbri integrati quando ho timbri personali",
-    "hideBuiltInStampsHint": "Il selettore di timbri mostra allora solo i tuoi timbri (personali, importati e condivisi). Senza timbri personali, i timbri integrati restano visibili."
+    "hideBuiltInStampsHint": "Il selettore di timbri mostra allora solo i tuoi timbri (personali, importati e condivisi). Senza timbri personali, i timbri integrati restano visibili.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Predefiniti mano libera",
@@ -186,6 +194,7 @@
     "confirmBeforeDeleting": "Conferma prima di eliminare le annotazioni",
     "navigation": "Navigazione",
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
+    "reverseWheelZoom": "Inverti la direzione dello zoom con la rotellina del mouse",
     "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
     "ribbonWheelSwitchesTabs": "Cambia scheda della barra multifunzione con la rotellina del mouse",
     "smoothScrolling": "Scorrimento fluido",
