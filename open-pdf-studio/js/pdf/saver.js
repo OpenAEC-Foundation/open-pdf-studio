@@ -285,7 +285,7 @@ function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
 }
 
 export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getActiveDocument()) {
-  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc)) return false;
+  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc) || activeDoc._centralReviewOpening) return false;
   // Beveiligd en de beveiliging is niet terug te schrijven: nooit opslaan
   // (ook niet als kopie), zodat het origineel beveiligd blijft. Met een
   // beveiligingssessie schrijft opslaan dezelfde beveiliging terug (#378).
@@ -3598,8 +3598,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         await applyPendingRedactions(pdfDocLib, { keepRecord: momentopname });
       }
       // Schalen van de app als /VP + /Measure, en de schaalcontroles per
-      // blad (#629). Een pagina waarvan de annotaties nog niet geladen zijn
-      // blijft ongemoeid, zoals hierboven.
+      // blad (#629). Van een pagina waarvan de annotaties nog niet geladen
+      // zijn komt alleen de paginaschaal erin (#1065), de rest blijft ongemoeid.
       schrijfSchalenInPdf(pages, activeDoc, (n) => (activeDoc._annotationPagesReady
         ? activeDoc._annotationPagesReady.has(n)
         : (activeDoc._loadedAnnotationPages ? activeDoc._loadedAnnotationPages.has(n) : true)));

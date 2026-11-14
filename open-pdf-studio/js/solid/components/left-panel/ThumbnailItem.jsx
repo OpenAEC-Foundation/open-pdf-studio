@@ -1,4 +1,4 @@
-import { Show, createSignal } from 'solid-js';
+import { Show, createSignal, onMount, onCleanup } from 'solid-js';
 import {
   activePage, thumbnailData, draggedPage, dropTarget, placeholderSize,
   selectedPages, selectPage, togglePageSelection, selectPageRange, isPageSelected
@@ -7,6 +7,8 @@ import { showThumbnailMenu } from '../../stores/contextMenuStore.js';
 import { state } from '../../../core/state.js';
 import { labelVan, heeftEigenLabel } from '../../../pdf/pagina-labels.js';
 import { zetPaginaLabel } from '../../../pdf/pagina-labels-app.js';
+import { besluitSchaalInvoer } from '../../../pdf/pagina-schalen.js';
+import { zetPaginaSchalen } from '../../../pdf/pagina-schalen-app.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 export default function ThumbnailItem(props) {
@@ -45,6 +47,63 @@ export default function ThumbnailItem(props) {
     hernoemKlaar = false;
     setHernoemen(true);
   };
+
+  // Page scale (pagina-schalen.js): a badge under the label. Its own scale in
+  // full colour, the document scale dimmed, else a dash on hover. Click to
+  // edit. What Enter, leaving the field and Esc do is in besluitSchaalInvoer:
+  // Enter sets the selected pages (or this one), leaving the field only ever
+  // changes this page and only when its text changed, Esc cancels.
+  const { t: tx } = useTranslation('context');
+  const eigenSchaal = () => doc()?.pageScales?.[props.pageNum] || null;
+  const docSchaal = () => doc()?.measureScale?.scaleRatio || null;
+  const schaalTekst = () => eigenSchaal()?.scaleRatio || docSchaal() || '–';
+  const schaalTitel = () => {
+    if (schaalFout()) return tx('thumbnail.scaleInvalid');
+    const s = eigenSchaal();
+    if (s) {
+      const sleutel = s.method === 'manual' ? 'thumbnail.scaleOwnSet'
+        : s.method === 'ocr' ? 'thumbnail.scaleOwnOcr' : 'thumbnail.scaleOwnDetected';
+      const tekst = tx(sleutel, { scale: s.scaleRatio });
+      return s.alternatives?.length > 1
+        ? `${tekst} ${tx('thumbnail.scaleAlsoOnSheet', { scales: s.alternatives.join(', ') })}` : tekst;
+    }
+    return docSchaal() ? tx('thumbnail.scaleDocument', { scale: docSchaal() }) : tx('thumbnail.scaleNone');
+  };
+  const [schaalBewerken, setSchaalBewerken] = createSignal(false);
+  const [schaalFout, setSchaalFout] = createSignal(false);
+  let schaalKlaar = false;
+  let schaalBegin = '';
+  const startSchaal = (e) => {
+    e?.stopPropagation();
+    schaalKlaar = false;
+    schaalBegin = eigenSchaal()?.scaleRatio || '';
+    setSchaalFout(false);
+    setSchaalBewerken(true);
+  };
+  const rondSchaalAf = (waarde, via) => {
+    if (schaalKlaar) return;
+    const d = doc();
+    const besluit = besluitSchaalInvoer({
+      pageNum: props.pageNum,
+      selectie: [...selectedPages()],
+      schalen: d?.pageScales || null,
+      begin: schaalBegin,
+      waarde,
+      via,
+    });
+    // Not a scale (an imperial 1/4, text): the editor stays open on Enter.
+    if (besluit.actie === 'fout') { setSchaalFout(true); return; }
+    schaalKlaar = true;
+    setSchaalFout(false);
+    setSchaalBewerken(false);
+    if (besluit.actie === 'zet' && d?.pdfDoc) zetPaginaSchalen(d, besluit.paginas, besluit.ratio);
+  };
+  // "Set Page Scale..." in the thumbnail menu opens this editor.
+  onMount(() => {
+    const h = (e) => { if (e.detail?.pageNum === props.pageNum) startSchaal(); };
+    window.addEventListener('ops-paginaschaal-bewerk', h);
+    onCleanup(() => window.removeEventListener('ops-paginaschaal-bewerk', h));
+  });
 
   const handleClick = (e) => {
     e.currentTarget.closest('.thumbnails-container')?.focus({ preventScroll: true });
@@ -124,6 +183,37 @@ export default function ThumbnailItem(props) {
             else if (e.key === 'Escape') { e.preventDefault(); rondHernoemenAf(null); }
           }}
           onBlur={(e) => rondHernoemenAf(e.currentTarget.value)}
+        />
+      </Show>
+      <Show when={schaalBewerken()} fallback={
+        <div
+          class="thumbnail-scale"
+          classList={{ own: !!eigenSchaal(), none: !eigenSchaal() && !docSchaal() }}
+          title={schaalTitel()}
+          onClick={startSchaal}
+          onDblClick={(e) => e.stopPropagation()}
+        >{schaalTekst()}</div>
+      }>
+        <input
+          class="thumbnail-label-input thumbnail-scale-input"
+          classList={{ invalid: schaalFout() }}
+          type="text"
+          spellcheck={false}
+          value={schaalBegin}
+          title={schaalFout() ? tx('thumbnail.scaleInvalid') : undefined}
+          onInput={() => { if (schaalFout()) setSchaalFout(false); }}
+          placeholder={docSchaal() || '1:100'}
+          ref={(el) => queueMicrotask(() => { el.focus(); el.select(); })}
+          onClick={(e) => e.stopPropagation()}
+          onDblClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onKeyDown={(e) => {
+            e.stopPropagation();
+            if (e.key === 'Enter') { e.preventDefault(); rondSchaalAf(e.currentTarget.value, 'enter'); }
+            else if (e.key === 'Escape') { e.preventDefault(); rondSchaalAf(null, 'escape'); }
+          }}
+          onBlur={(e) => rondSchaalAf(e.currentTarget.value, 'blur')}
         />
       </Show>
     </div>

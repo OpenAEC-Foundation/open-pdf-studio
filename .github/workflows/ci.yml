@@ -370,6 +370,12 @@ jobs:
       - name: Hosted bundle under a strict CSP
         run: npm run test:hosted-csp
 
+      - name: Central review dialog lifecycle and access controls
+        run: node scripts/test-central-review-browser.mjs
+
+      - name: Central PDF snapshot and PDF/XFDF export
+        run: node scripts/test-central-review-pdf-browser.mjs
+
   # De Python-bibliotheek (#518): de gegenereerde laag loopt gelijk met
   # mcp-stdio/tools.json, de tests (tegen een nep-MCP-server, zonder app) slagen
   # op elk platform en sdist + wheel bouwen.
@@ -404,9 +410,83 @@ jobs:
         working-directory: python
         run: python -m unittest discover -s tests -t tests -v
 
+      - name: Install collaboration storage SDK
+        run: python -m pip install -r collaboration-server/requirements.txt
+
+      - name: Collaboration storage and HTTP tests
+        working-directory: collaboration-server
+        run: python -m unittest discover -s tests -v
+
+      - name: Collaboration event compatibility with Tauri
+        run: node collaboration-server/tests/review-compatibility.mjs
+
+      - name: Test production JS clients against SQLite
+        env:
+          PYTHON: python
+        run: node --test open-pdf-studio/js/review/central-review-integration.test.mjs
+
       - name: Build sdist and wheel
         shell: bash
         run: |
           cp LICENSE.md python/LICENSE.md
           python -m pip install --upgrade build
           python -m build python --outdir python/dist
+
+  collaboration-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build collaboration image locally (no publication)
+        run: docker build -t opds-review-test collaboration-server
+      - name: Smoke test production server and persistent volume
+        run: python3 collaboration-server/tests/container_smoke.py opds-review-test
+
+  collaboration-objectstore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
+        with:
+          repository: minio/minio
+          ref: 7aac2a2c5b7c882e68c1ce017d8256be2feea27f
+          path: .ci-minio
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.24.8'
+          cache-dependency-path: .ci-minio/go.sum
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install collaboration dependencies
+        run: python -m pip install -r collaboration-server/requirements.txt
+      - name: Build pinned objectstore for local tests only
+        env:
+          GOTOOLCHAIN: local
+          GOMAXPROCS: '2'
+        run: go build -C .ci-minio -p 2 -o "$RUNNER_TEMP/opds-minio-test" .
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1'
+      - name: Build production native transport probe
+        run: cargo build --locked --manifest-path open-pdf-studio/scripts/review-native-tests/Cargo.toml
+      - name: Qualify real S3, native transport and joint offline restore
+        run: python collaboration-server/tests/objectstore_integration.py "$RUNNER_TEMP/opds-minio-test" open-pdf-studio/scripts/review-native-tests/target/debug/opds-review-native-tests
+
+
+  collaboration-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1'
+      - name: Test production central review transport
+        run: cargo test --locked --manifest-path open-pdf-studio/scripts/review-native-tests/Cargo.toml

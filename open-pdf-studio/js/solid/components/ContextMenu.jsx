@@ -1321,6 +1321,30 @@ function ThumbnailMenuContent() {
       <Separator />
 
       <MenuItem label={t('thumbnail.pageLabels')} onClick={() => openDialog('page-labels')} />
+      <MenuItem
+        label={isMulti() ? t('thumbnail.setPageScaleMulti', { count: count() }) : t('thumbnail.setPageScale')}
+        onClick={() => window.dispatchEvent(new CustomEvent('ops-paginaschaal-bewerk', { detail: { pageNum: pageNum() } }))} />
+      <MenuItem
+        label={isMulti() ? t('thumbnail.detectPageScalesMulti', { count: count() }) : t('thumbnail.detectPageScales')}
+        onClick={async () => {
+          const { detecteerMetVoortgang } = await import('../../pdf/pagina-schalen-app.js');
+          const d = state.documents[state.activeDocumentIndex];
+          const alle = Array.from({ length: d?.pdfDoc?.numPages || 0 }, (_, i) => i + 1);
+          await detecteerMetVoortgang(d, isMulti() ? pages() : alle);
+        }} />
+      <MenuItem
+        label={t('thumbnail.detectPageScalesArea')}
+        onClick={async () => {
+          const { detecteerUitGebiedMetVoortgang } = await import('../../pdf/pagina-schalen-app.js');
+          await detecteerUitGebiedMetVoortgang(state.documents[state.activeDocumentIndex], t('thumbnail.pickScaleArea'));
+        }} />
+      <MenuItem
+        label={t('thumbnail.clearPageScale')}
+        disabled={!pages().some((p) => state.documents[state.activeDocumentIndex]?.pageScales?.[p])}
+        onClick={async () => {
+          const { zetPaginaSchalen } = await import('../../pdf/pagina-schalen-app.js');
+          zetPaginaSchalen(state.documents[state.activeDocumentIndex], pages(), null);
+        }} />
       <MenuItem icon={thumbnailPropertiesIcon} label={t('thumbnail.properties')} disabled={isMulti()} onClick={() => {
         import('../stores/dialogStore.js').then(m => m.openDialog('page-properties', { pageNum: pageNum() }));
       }} />

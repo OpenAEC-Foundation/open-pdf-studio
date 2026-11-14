@@ -848,3 +848,14 @@ js/pdf/saver/ttf-subset-padding.test.mjs
 js/core/wheel-zoom.test.mjs
 js/pdf/saver/rotation-render-copy.test.mjs
 js/watermark/kopvoet-rotatie-herladen.test.mjs
+# Centrale review (#1067)
+js/review/central-review-client.test.mjs
+js/review/central-review-sync.test.mjs
+js/review/central-review-session.test.mjs
+js/review/central-review-opening.test.mjs
+js/review/central-review-pdf-adapter.test.mjs
+js/review/central-review-upload.test.mjs
+# Pagina-schalen (#1065)
+js/pdf/pagina-schalen.test.mjs
+js/pdf/pagina-schalen-app.test.mjs
+js/pdf/pagina-schalen-i18n.test.mjs

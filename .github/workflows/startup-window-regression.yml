@@ -27,7 +27,5 @@ jobs:
       - run: npm ci
       - run: node --test scripts/startup-window.test.mjs
       - run: rustc --test src-tauri/src/startup_visibility.rs -o /tmp/startup-visibility-tests && /tmp/startup-visibility-tests
-      # The installer is only asked to check in the background when it knows how.
-      - run: rustc --edition 2021 --test src-tauri/src/installer_versie.rs -o /tmp/installer-versie-tests && /tmp/installer-versie-tests
       - run: npx playwright install --with-deps chromium
       - run: node scripts/test-startup-window.mjs

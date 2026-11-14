@@ -1,0 +1,13 @@
+[package]
+name = "opds-review-native-tests"
+version = "2026.46.3"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+reqwest = { version = "0.12", features = ["rustls-tls", "json", "multipart"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "io-util", "time"] }

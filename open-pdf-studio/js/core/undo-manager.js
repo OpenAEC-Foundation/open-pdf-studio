@@ -162,7 +162,7 @@ function scheduleThumbnailRefresh(cmd) {
 function commandPreservesSelection(cmd) {
   if (!cmd) return false;
   if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify' ||
-      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale' ||
+      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale' || cmd.type === 'modifyPageScales' ||
       cmd.type === 'modifyScaleChecks') {
     return true;
   }
@@ -200,6 +200,34 @@ async function persistMeasureScaleIfNeeded(cmd) {
   saveDocumentScale();
 }
 
+function commandChangesPageScales(cmd) {
+  if (!cmd) return false;
+  if (cmd.type === 'modifyPageScales') return true;
+  return cmd.type === 'compound' && cmd.commands.some(commandChangesPageScales);
+}
+
+// A page scale holds for every measurement on its page: after undo or redo
+// of a page scale change their values follow, as after setting it.
+async function recalculateIfPageScalesChanged(cmd) {
+  if (!commandChangesPageScales(cmd)) return;
+  const { recalculateAllMeasurements } = await import('../annotations/measurement.js');
+  recalculateAllMeasurements();
+}
+
+// Page scales (pagina-schalen.js) belong to page numbers. A page operation
+// moves them (schalenNaHerladen) but undo and redo reload without a page
+// mapping, so the step keeps the scales from before and after the operation.
+// reloadFromBytes leaves the scales from before in
+// doc._paginaSchalenVoorHerladen; recordPageStructure takes them from there.
+function zetPaginaSchalenVanStructuur(doc, cmd, kant) {
+  if (!doc || !cmd.pageScales) return;
+  doc.pageScales = clonePlainValue(cmd.pageScales[kant]) ?? null;
+}
+
+function vergeetPaginaSchalenVoorHerladen(doc) {
+  if (doc) delete doc._paginaSchalenVoorHerladen;
+}
+
 // Execute a command: push to undo, clear redo, sync modified state
 export function execute(cmd) {
   if (pendingPropertyChange) flushPropertyChange();
@@ -232,7 +260,9 @@ export async function undo() {
 
   if (cmd.type === 'pageStructure') {
     const { restorePageState } = await import('../pdf/page-manager.js');
+    zetPaginaSchalenVanStructuur(getActiveDocument(), cmd, 'old');
     await restorePageState(cmd.oldBytes, cmd.oldAnnotations, cmd.oldRotations, cmd.oldPage, { bookmarks: cmd.bookmarks?.old });
+    vergeetPaginaSchalenVoorHerladen(getActiveDocument());
     applyOcrShift(getActiveDocument()?.ocrResults, cmd.ocrShift, -1);
     syncModifiedState();
     updateButtons();
@@ -250,6 +280,7 @@ export async function undo() {
   }
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
+  await recalculateIfPageScalesChanged(cmd);
   syncModifiedState();
 
   // For modify operations, keep selection intact and refresh properties.
@@ -286,7 +317,9 @@ export async function redo() {
 
   if (cmd.type === 'pageStructure') {
     const { restorePageState } = await import('../pdf/page-manager.js');
+    zetPaginaSchalenVanStructuur(getActiveDocument(), cmd, 'new');
     await restorePageState(cmd.newBytes, cmd.newAnnotations, cmd.newRotations, cmd.newPage, { bookmarks: cmd.bookmarks?.new });
+    vergeetPaginaSchalenVoorHerladen(getActiveDocument());
     applyOcrShift(getActiveDocument()?.ocrResults, cmd.ocrShift, 1);
     syncModifiedState();
     updateButtons();
@@ -300,6 +333,7 @@ export async function redo() {
   }
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
+  await recalculateIfPageScalesChanged(cmd);
   syncModifiedState();
 
   // For modify operations, keep selection intact and refresh properties.
@@ -500,6 +534,10 @@ function applyUndo(cmd, lookup) {
       doc.measureScale = clonePlainValue(cmd.oldState);
       break;
     }
+    case 'modifyPageScales': {
+      doc.pageScales = clonePlainValue(cmd.oldState);
+      break;
+    }
     case 'modifyScaleChecks': {
       doc.scaleChecks = clonePlainValue(cmd.oldState);
       break;
@@ -661,6 +699,10 @@ function applyRedo(cmd, lookup) {
     }
     case 'modifyMeasureScale': {
       doc.measureScale = clonePlainValue(cmd.newState);
+      break;
+    }
+    case 'modifyPageScales': {
+      doc.pageScales = clonePlainValue(cmd.newState);
       break;
     }
     case 'modifyScaleChecks': {
@@ -930,6 +972,35 @@ export function recordMeasureScale(oldState, newState) {
   });
 }
 
+// Page scales (pagina-schalen.js): set on the thumbnails or detected; one
+// step per change, undoable like the document scale. Detection can finish
+// after the user switched tabs: the step goes on `doc`, never on another
+// document. Returns whether a step was recorded.
+export function recordPageScales(doc, oldState, newState) {
+  if (!doc) return false;
+  if (JSON.stringify(oldState ?? null) === JSON.stringify(newState ?? null)) return false;
+  const cmd = {
+    type: 'modifyPageScales',
+    oldState: clonePlainValue(oldState ?? null),
+    newState: clonePlainValue(newState ?? null),
+  };
+  if (getActiveDocument() === doc) {
+    execute(cmd);
+    return true;
+  }
+  if (!doc.undoStack) doc.undoStack = [];
+  if (doc.savedUndoStackLength > doc.undoStack.length) doc.savedUndoStackLength = -1;
+  doc.undoStack.push(cmd);
+  if (doc.undoStack.length > MAX_UNDO_STACK) {
+    doc.undoStack.shift();
+    if (doc.savedUndoStackLength >= 0) doc.savedUndoStackLength--;
+  }
+  doc.redoStack = [];
+  verhoogInhoudRevisie(doc);
+  doc.modified = !(doc.savedUndoStackLength >= 0 && doc.undoStack.length === doc.savedUndoStackLength);
+  return true;
+}
+
 // De schaalcontroles per blad (#629): een controle maakt het document
 // gewijzigd (ze gaat het bestand in) en is ongedaan te maken.
 export function recordScaleChecks(oldState, newState) {
@@ -1112,6 +1183,10 @@ export function recordDocumentInfoChange(oldInfo, newInfo) {
 // `extra.ocrShift` ({pages, dx, dy}) is set by Shift Page: the pending OCR word
 // boxes of those pages moved with the content and move back on undo.
 export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, newPage, extra = {}) {
+  const doc = getActiveDocument();
+  const naSchalen = doc?.pageScales ?? null;
+  const voorSchalen = doc && '_paginaSchalenVoorHerladen' in doc ? doc._paginaSchalenVoorHerladen : naSchalen;
+  vergeetPaginaSchalenVoorHerladen(doc);
   execute({
     type: 'pageStructure',
     oldBytes: oldBytes,
@@ -1122,6 +1197,7 @@ export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldP
     newAnnotations: newAnnotations.map(a => ({ ...a })),
     newRotations: { ...newRotations },
     newPage: newPage,
+    pageScales: { old: clonePlainValue(voorSchalen) ?? null, new: clonePlainValue(naSchalen) ?? null },
     ...(extra.ocrShift ? { ocrShift: { ...extra.ocrShift, pages: [...extra.ocrShift.pages] } } : {}),
     // Bladwijzers vóór en na (samenvoegen): de bewerking verandert ze.
     ...(extra.bookmarks ? { bookmarks: {

@@ -92,6 +92,7 @@ const ScanDialog = lazy(() => import('./dialogs/ScanDialog.jsx'));
 const DocumentWorkflowsDialog = lazy(() => import('./dialogs/DocumentWorkflowsDialog.jsx'));
 const DrawingSetsDialog = lazy(() => import('./dialogs/DrawingSetsDialog.jsx'));
 const SheetLinksDialog = lazy(() => import('./dialogs/SheetLinksDialog.jsx'));
+const CentralReviewDialog = lazy(() => import('./dialogs/CentralReviewDialog.jsx'));
 const SharedReviewDialog = lazy(() => import('./dialogs/SharedReviewDialog.jsx'));
 const ApprovalRoutingDialog = lazy(() => import('./dialogs/ApprovalRoutingDialog.jsx'));
 const PortfolioDialog = lazy(() => import('./dialogs/PortfolioDialog.jsx'));
@@ -112,6 +113,7 @@ const DIALOG_MAP = {
   'drawing-sets': DrawingSetsDialog,
   'sheet-links': SheetLinksDialog,
   'shared-review': SharedReviewDialog,
+  'central-review': CentralReviewDialog,
   'approval-routing': ApprovalRoutingDialog,
   'doc-properties': DocPropertiesDialog,
   'preferences': PreferencesDialog,

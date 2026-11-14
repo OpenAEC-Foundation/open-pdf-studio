@@ -1,0 +1,21 @@
+services:
+  review:
+    build: .
+    ports:
+      - "127.0.0.1:${OPDS_PUBLISHED_PORT:-8080}:8080"
+    env_file: .env
+    environment:
+      OPDS_DATABASE: /data/review.db
+      OPDS_HOST: 0.0.0.0
+    volumes:
+      - review-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 1g
+    restart: unless-stopped
+volumes:
+  review-data:
