@@ -360,6 +360,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
         pageIndex: 0,
         scale: 1.0,
         rotation: 0,
+        sharpen: true,
       }).then(async (rgbaData) => {
         if (!rgbaData || isClosed() || doc.pdfDoc || !isActive()) return;
         try {

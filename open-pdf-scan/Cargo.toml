@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-scan"
-version = "2026.46.2"
+version = "2026.46.3"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "Pixel work on a bounded page raster: symbol search (binary template matching) and form shape detection"
