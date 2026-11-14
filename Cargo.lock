@@ -3889,7 +3889,6 @@ dependencies = [
  "open-pdf-render",
  "open-pdf-security",
  "open-pdf-signatures",
- "openaec-update",
  "p256",
  "p384",
  "pdfium-render",
@@ -3943,17 +3942,6 @@ dependencies = [
  "libloading 0.9.0",
  "windows 0.61.3",
  "windows-core 0.61.2",
-]
-
-[[package]]
-name = "openaec-update"
-version = "0.1.0"
-source = "git+https://github.com/OpenAEC-Foundation/openaec-installer?rev=2b66f84#2b66f84c93c0becc7d5dbb82bb4ba18d68e393df"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-plugin",
 ]
 
 [[package]]
