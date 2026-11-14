@@ -7,6 +7,7 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { patchXrefStreamOffsets } from './pdfjs-xref-offsets.mjs';
 import { patchSampledFunction32 } from './pdfjs-sampled-function.mjs';
+import { patchBidiGlyphs } from './pdfjs-bidi-glyphs.mjs';
 import { patchBidiCombiningMarks } from './pdfjs-bidi-marks.mjs';
 import { patchFormXObjectCache } from './pdfjs-form-xobject-cache.mjs';
 import { patchKnockoutBounds, PDFJS_DISPLAY_MODULE } from './pdfjs-knockout-bounds.mjs';
@@ -91,10 +92,10 @@ export function patchZeroInitialFont(source) {
 // in Type 0 functions (PDF.js #22380, see pdfjs-sampled-function.mjs). #957:
 // combining marks typed NSM in bidi (see pdfjs-bidi-marks.mjs). #636:
 // decoded Form XObject bytes cached per page operation (PDF.js #22265, see
-// pdfjs-form-xobject-cache.mjs).
+// pdfjs-form-xobject-cache.mjs). #1078: preserve RTL glyph boundaries (PDF.js #22521).
 export function patchPdfjsWorker(source) {
-  return patchFormXObjectCache(patchBidiCombiningMarks(patchSampledFunction32(
-    patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source))))));
+  return patchBidiGlyphs(patchFormXObjectCache(patchBidiCombiningMarks(patchSampledFunction32(
+    patchXrefStreamOffsets(patchZeroInitialFont(patchPostscriptProgress(source)))))));
 }
 
 // Every backport the display library (pdf.mjs, main thread) needs. #637:
@@ -120,7 +121,7 @@ export function pdfjsPostscriptProgress({ workerPath = 'legacy/build/pdf.worker.
       build = config.command === 'build';
       const require = createRequire(resolve(config.root, 'package.json'));
       const version = JSON.parse(readFileSync(require.resolve('pdfjs-dist/package.json'), 'utf8')).version;
-      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949, #957, #636 and #637 / #1028 backports.`);
+      if (version !== '6.4.299') throw new Error(`Qualify PDF.js ${version} before removing the #839, #878, #638, #949, #957, #1078, #636 and #637 / #1028 backports.`);
       worker = patchPdfjsWorker(readFileSync(require.resolve(`pdfjs-dist/${workerPath}`), 'utf8'));
       devPath = `${config.base.startsWith('/') ? config.base : '/'}node_modules/pdfjs-dist/${workerPath}`;
     },
