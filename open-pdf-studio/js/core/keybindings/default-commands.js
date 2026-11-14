@@ -39,6 +39,11 @@ export const CORE_COMMANDS = Object.freeze([
   { id: 'edit.delete', category: 'edit', labelKey: 'context:deleteAnnotation.title', label: 'Delete Annotation', defaults: ['Delete'] },
   { id: 'edit.clearPage', category: 'edit', labelKey: 'ribbon:comment.clearPageAnnotations', label: 'Clear Page Annotations', defaults: ['Ctrl+Shift+C'] },
 
+  // Style commands are deliberately unassigned (#1082).
+  { id: 'edit.copyStyle', category: 'edit', labelKey: 'properties:stylePresets.copyStyle', label: 'Copy style' },
+  { id: 'edit.pasteStyle', category: 'edit', labelKey: 'properties:stylePresets.pasteStyle', label: 'Paste style' },
+  { id: 'edit.setDefaultStyle', category: 'edit', labelKey: 'context:annotation.setAsDefaultStyle', label: 'Set as default style' },
+
   // View
   { id: 'view.zoomIn', category: 'view', labelKey: 'ribbon:home.zoomIn', label: 'Zoom In', defaults: ['Ctrl+='] },
   { id: 'view.zoomOut', category: 'view', labelKey: 'ribbon:home.zoomOut', label: 'Zoom Out', defaults: ['Ctrl+-'] },

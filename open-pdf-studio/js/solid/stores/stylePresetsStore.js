@@ -40,6 +40,24 @@ const _STROKE_COLOR_DRIVEN = new Set([
 // Types that carry line endings.
 const _HEAD_TYPES = new Set(['arrow', 'line', 'polyline', 'measureDistance']);
 
+// Text appearance belongs to the transient clipboard, not the named line presets.
+const TEXT_STYLE_KEYS = [
+  'fontFamily', 'fontSize', 'fontBold', 'fontItalic', 'fontUnderline',
+  'fontStrikethrough', 'textColor', 'textAlign', 'textVAlign',
+];
+const TEXT_TYPES = new Set(['textbox', 'callout', 'text', 'measureDistance',
+  'measureArea', 'measurePerimeter', 'measureAngle']);
+function applyClipboardText(ann, props) {
+  for (const key of TEXT_STYLE_KEYS) {
+    if (props[key] === undefined || !(TEXT_TYPES.has(ann.type) || key in ann)) continue;
+    ann[key] = props[key];
+    if ((key === 'fontBold' || key === 'fontItalic') && Array.isArray(ann.textRuns)) {
+      const field = key === 'fontBold' ? 'bold' : 'italic';
+      ann.textRuns = ann.textRuns.map(line => (line || []).map(run => ({ ...run, [field]: !!props[key] })));
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Capture
 // ---------------------------------------------------------------------------
@@ -150,7 +168,10 @@ export function applyStyleToSelection(props) {
   const doc = getActiveDocument();
   const sel = doc ? doc.selectedAnnotations : [];
   if (sel && sel.length > 0) {
-    applyToSelected((ann) => _applyPropsToAnnotation(ann, props));
+    applyToSelected((ann) => {
+      _applyPropsToAnnotation(ann, props);
+      applyClipboardText(ann, props);
+    });
     return;
   }
   // Tool-defaults mode: the panel shows a synthetic annotation; updateAnnotProp
@@ -166,6 +187,9 @@ export function applyStyleToSelection(props) {
     if (props.startHead !== undefined) updateAnnotProp('startHead', props.startHead);
     if (props.endHead !== undefined) updateAnnotProp('endHead', props.endHead);
     if (props.headSize !== undefined) updateAnnotProp('headSize', props.headSize);
+    for (const key of TEXT_STYLE_KEYS) {
+      if (props[key] !== undefined && TEXT_TYPES.has(annotProps.type)) updateAnnotProp(key, props[key]);
+    }
   }
 }
 
@@ -236,7 +260,22 @@ export { copiedStyle };
 
 export function copyStyleFromSelection() {
   const props = captureCurrentStyle();
-  if (props) setCopiedStyle(props);
+  if (props) {
+    const doc = getActiveDocument();
+    const ann = doc?.selectedAnnotations?.[0] || doc?.selectedAnnotation;
+    if (ann) {
+      for (const key of TEXT_STYLE_KEYS) {
+        if (ann[key] !== undefined && ann[key] !== 'mixed') props[key] = ann[key];
+      }
+      // Missing booleans mean plain text, not 'retain the recipient's bold'.
+      if (TEXT_TYPES.has(ann.type)) {
+        for (const key of ['fontBold', 'fontItalic', 'fontUnderline', 'fontStrikethrough']) props[key] = !!ann[key];
+        props.textAlign = ann.textAlign || 'left';
+        props.textVAlign = ann.textVAlign || 'top';
+      }
+    }
+    setCopiedStyle(props);
+  }
   return props;
 }
 
