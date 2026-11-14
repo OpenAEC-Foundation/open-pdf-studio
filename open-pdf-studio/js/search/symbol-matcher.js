@@ -1,5 +1,33 @@
-/** Bounded binary template matching. Scores are foreground intersection/union,
- * not calibrated probabilities. No recognition model or remote service. */
+import { volgendeTaak } from '../core/volgende-taak.js';
+
+/** Bounded binary template matching. No recognition model or remote service.
+ *
+ * The score is the share of the ink that the other image explains within one
+ * pixel: (template ink with image ink next to it + image ink with template ink
+ * next to it) / (template ink + image ink), over the template window. An exact
+ * copy scores 1. One pixel of slack matters on line work: a symbol on a
+ * fraction of a pixel, or drawn by another renderer, moves its thin lines by a
+ * pixel, which halves a plain intersection/union. To keep unrelated dense ink
+ * (text, hatching) out, the plain intersection/union must still reach
+ * EXACT_SHARE of the threshold. Scores are not calibrated probabilities.
+ * The Rust port (crate open-pdf-scan) follows this file line by line. */
+export const EXACT_SHARE = .6;
+/** Windows whose ink count is this far off the template's are skipped. */
+export const COUNT_SHARE = .8;
+
+/** Ink grown by one pixel in every direction (3 x 3). */
+export function dilate({ width, height, pixels }) {
+  const out = new Uint8Array(pixels.length);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    if (!pixels[y * width + x]) continue;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const xx = x + dx,
+        yy = y + dy;
+      if (xx >= 0 && yy >= 0 && xx < width && yy < height) out[yy * width + xx] = 1;
+    }
+  }
+  return { width, height, pixels: out };
+}
 export function binaryImage(image) {
   const { width, height, data } = image;
   if (!Number.isInteger(width)
@@ -62,7 +90,9 @@ const intersection = (a, b) => Math.max(0, Math.min(a.x + a.width, b.x + b.width
 
 export function suppressMatches(matches, limit = 1000) {
   const out = [];
-  for (const m of [...matches].sort((a, b) => b.score - a.score || a.y - b.y || a.x - b.x)) {
+  // Best score first; between equal scores the larger exact overlap (a thick
+  // symbol scores 1 at every position within one pixel), then top to bottom.
+  for (const m of [...matches].sort((a, b) => b.score - a.score || (b.exact ?? 0) - (a.exact ?? 0) || a.y - b.y || a.x - b.x)) {
     if (!out.some(p => intersection(p, m) / Math.min(p.width * p.height, m.width * m.height) > .4)) {
       out.push(m);
       if (out.length === limit) break;
@@ -77,7 +107,7 @@ export async function matchSymbols(image, template, {
   scales = [1],
   signal,
   onProgress,
-  yieldTask = () => new Promise(r => setTimeout(r, 0))
+  yieldTask = volgendeTaak
 } = {}) {
   if (!Number.isFinite(threshold)
     || threshold < .5
@@ -90,6 +120,7 @@ export async function matchSymbols(image, template, {
     || scales.length > 3) throw new Error('INVALID_TOLERANCE');
   const variants = [];
   for (const rotation of new Set(rotations)) for (const scale of new Set(scales)) variants.push(transformTemplate(template, rotation, scale));
+  const grown = dilate(image);
   // Integral foreground counts reject blank/dense windows before sampling.
   const stride = image.width + 1,
     integral = new Uint32Array(stride * (image.height + 1));
@@ -108,6 +139,7 @@ export async function matchSymbols(image, template, {
     if (!foreground.length) continue;
     const anchors = Array.from({ length: Math.min(16, foreground.length) }, (_, i) => foreground[Math.floor(i * foreground.length / Math.min(16, foreground.length))]);
     const offsets = anchors.map(i => Math.floor(i / t.width) * image.width + i % t.width);
+    const grownT = dilate(t).pixels;
     for (let y = 0; y <= image.height - t.height; y++) {
       if (y % 16 === 0) {
         if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -116,21 +148,28 @@ export async function matchSymbols(image, template, {
       }
       for (let x = 0; x <= image.width - t.width; x++) {
         const count = integral[(y + t.height) * stride + x + t.width] - integral[y * stride + x + t.width] - integral[(y + t.height) * stride + x] + integral[y * stride + x];
-        if (Math.min(count, foreground.length) / Math.max(1, count, foreground.length) < threshold) continue;
+        if (Math.min(count, foreground.length) / Math.max(1, count, foreground.length) < threshold * COUNT_SHARE) continue;
         const start = y * image.width + x;
         let hits = 0;
-        for (const offset of offsets) hits += image.pixels[start + offset];
+        for (const offset of offsets) hits += grown.pixels[start + offset];
         if (hits < anchors.length * Math.max(.5, threshold * .75)) continue;
         let both = 0,
-          union = 0;
+          nearImage = 0,
+          nearTemplate = 0;
         for (let row = 0; row < t.height; row++) for (let col = 0; col < t.width; col++) {
-          const a = t.pixels[row * t.width + col],
-            b = image.pixels[start + row * image.width + col];
+          const k = row * t.width + col,
+            q = start + row * image.width + col,
+            a = t.pixels[k],
+            b = image.pixels[q];
           both += a & b;
-          union += a | b;
+          nearImage += a & grown.pixels[q];
+          nearTemplate += b & grownT[k];
         }
-        const score = both / Math.max(1, union);
-        if (score >= threshold) found.push({ x, y, width: t.width, height: t.height, score, rotation: t.rotation, scale: t.scale });
+        const ink = foreground.length + count;
+        const exact = both / Math.max(1, ink - both);
+        if (exact < EXACT_SHARE * threshold) continue;
+        const score = (nearImage + nearTemplate) / Math.max(1, ink);
+        if (score >= threshold) found.push({ x, y, width: t.width, height: t.height, score, exact, rotation: t.rotation, scale: t.scale });
         if (found.length >= 5000) {
           truncated = true;
           break;

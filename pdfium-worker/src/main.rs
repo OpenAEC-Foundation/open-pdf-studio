@@ -8,6 +8,7 @@ mod compare;
 mod mesh_bbox;
 mod page_text;
 mod protocol;
+mod raster_scan;
 mod render;
 // Gebruikt door de app-crate (via #[path]); hier voor de tests.
 #[allow(dead_code)]
@@ -41,7 +42,7 @@ fn main() -> Result<()> {
         op: "ready".to_string(),
         shm_name: format!("pdfium-worker-{}-{}.shm", ns, slot),
         shm_size: shm::SHM_SIZE as u64,
-        caps: vec!["compare".to_string(), "snap_geometry".to_string(), "page_text".to_string()],
+        caps: vec!["compare".to_string(), "snap_geometry".to_string(), "page_text".to_string(), "raster_scan".to_string()],
     };
     writeln!(std::io::stdout(), "{}", serde_json::to_string(&ready)?)?;
     std::io::stdout().flush()?;
@@ -146,6 +147,16 @@ fn main() -> Result<()> {
                     Err(e) => Response::RenderErr { id, ok: false, error: format!("{:#}", e) },
                 };
                 writeln!(stdout, "{}", serde_json::to_string(&resp)?)?;
+                stdout.flush()?;
+            }
+            Request::SymbolScan(req) => {
+                let line = raster_scan::response_line(req.id, "symbol_scan", raster_scan::symbol_scan(&mut renderer, &req));
+                writeln!(stdout, "{}", line)?;
+                stdout.flush()?;
+            }
+            Request::FormShapes(req) => {
+                let line = raster_scan::response_line(req.id, "form_shapes", raster_scan::form_shapes(&mut renderer, &req));
+                writeln!(stdout, "{}", line)?;
                 stdout.flush()?;
             }
             Request::Trim => {

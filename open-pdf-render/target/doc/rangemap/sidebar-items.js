@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["range_inclusive_map","range_inclusive_set","range_map","range_set"],"mod":["inclusive_map","inclusive_set","map","set"],"trait":["StepFns","StepLite"]};
