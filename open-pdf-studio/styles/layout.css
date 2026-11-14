@@ -626,10 +626,10 @@
   padding: 0 6px;
   font-size: 10.5px;
   line-height: 16px;
-  border-radius: 8px;
+  border-radius: 0;
   color: var(--theme-thumbnail-label);
   opacity: 0.55;
-  cursor: text;
+  cursor: default;
 }
 .thumbnail-scale.own {
   opacity: 1;
@@ -639,6 +639,7 @@
 .thumbnail-item:hover .thumbnail-scale.none { opacity: 0.45; }
 .thumbnail-scale:hover { outline: 1px solid var(--theme-accent, #0078d7); }
 .thumbnail-scale-input { max-width: 80px; text-align: center; }
+.thumbnail-scale-input.invalid { border-color: var(--theme-error, #c42b1c); }
 
 .thumbnail-label-input {
   margin-top: 4px;

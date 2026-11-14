@@ -136,7 +136,22 @@
     "insertFromFile": "கோப்பிலிருந்து செருகு...",
     "insertFromFileBefore": "இந்தப் பக்கத்திற்கு முன்...",
     "insertFromFileAfter": "இந்தப் பக்கத்திற்குப் பின்...",
-    "pageLabels": "பக்க லேபிள்கள் (பெயர் உருவாக்கி)..."
+    "pageLabels": "பக்க லேபிள்கள் (பெயர் உருவாக்கி)...",
+    "setPageScale": "Set Page Scale...",
+    "setPageScaleMulti": "Set Scale of {{count}} Pages...",
+    "detectPageScales": "Detect Page Scales (All Pages)",
+    "detectPageScalesMulti": "Detect Scales of {{count}} Pages",
+    "clearPageScale": "Clear Page Scale",
+    "detectPageScalesArea": "Detect Page Scales from Area...",
+    "pickScaleArea": "Draw a box round the scale in the title block. It is read on every page (OCR where there is no text). Esc cancels.",
+    "detectingPageScales": "Detecting page scales... {{done}} of {{total}}",
+    "scaleOwnSet": "Page scale {{scale}} (set). Click to change.",
+    "scaleOwnDetected": "Page scale {{scale}} (detected). Click to change.",
+    "scaleOwnOcr": "Page scale {{scale}} (read with OCR). Click to change.",
+    "scaleAlsoOnSheet": "Also on the sheet: {{scales}}.",
+    "scaleDocument": "Document scale {{scale}}. Click to set a scale for this page.",
+    "scaleNone": "No scale. Click to set one for this page.",
+    "scaleInvalid": "Not a scale. Type 1:N or N, for example 1:100."
   },
   "textSelection": {
     "highlightSelection": "தேர்வை முன்னிலைப்படுத்து",

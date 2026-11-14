@@ -136,7 +136,22 @@
     "insertFromFile": "Aus Datei einfügen...",
     "insertFromFileBefore": "Vor dieser Seite...",
     "insertFromFileAfter": "Nach dieser Seite...",
-    "pageLabels": "Seitenbeschriftungen (Namensgenerator)..."
+    "pageLabels": "Seitenbeschriftungen (Namensgenerator)...",
+    "setPageScale": "Seitenmaßstab festlegen...",
+    "setPageScaleMulti": "Maßstab von {{count}} Seiten festlegen...",
+    "detectPageScales": "Seitenmaßstäbe erkennen (alle Seiten)",
+    "detectPageScalesMulti": "Maßstäbe von {{count}} Seiten erkennen",
+    "clearPageScale": "Seitenmaßstab löschen",
+    "detectPageScalesArea": "Seitenmaßstäbe aus Bereich erkennen...",
+    "pickScaleArea": "Ziehen Sie einen Rahmen um den Maßstab im Schriftfeld. Er wird auf jeder Seite gelesen (OCR, wo kein Text ist). Esc bricht ab.",
+    "detectingPageScales": "Seitenmaßstäbe werden erkannt... {{done}} von {{total}}",
+    "scaleOwnSet": "Seitenmaßstab {{scale}} (festgelegt). Zum Ändern klicken.",
+    "scaleOwnDetected": "Seitenmaßstab {{scale}} (erkannt). Zum Ändern klicken.",
+    "scaleOwnOcr": "Seitenmaßstab {{scale}} (mit OCR gelesen). Zum Ändern klicken.",
+    "scaleAlsoOnSheet": "Auch auf dem Blatt: {{scales}}.",
+    "scaleDocument": "Dokumentmaßstab {{scale}}. Klicken, um einen Maßstab für diese Seite festzulegen.",
+    "scaleNone": "Kein Maßstab. Klicken, um einen für diese Seite festzulegen.",
+    "scaleInvalid": "Kein Maßstab. Geben Sie 1:N oder N ein, zum Beispiel 1:100."
   },
   "textSelection": {
     "highlightSelection": "Auswahl hervorheben",

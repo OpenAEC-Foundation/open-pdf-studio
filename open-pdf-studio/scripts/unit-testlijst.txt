@@ -851,3 +851,4 @@ js/watermark/kopvoet-rotatie-herladen.test.mjs
 # Pagina-schalen (#1065)
 js/pdf/pagina-schalen.test.mjs
 js/pdf/pagina-schalen-app.test.mjs
+js/pdf/pagina-schalen-i18n.test.mjs

@@ -7,7 +7,7 @@ import { showThumbnailMenu } from '../../stores/contextMenuStore.js';
 import { state } from '../../../core/state.js';
 import { labelVan, heeftEigenLabel } from '../../../pdf/pagina-labels.js';
 import { zetPaginaLabel } from '../../../pdf/pagina-labels-app.js';
-import { normaliseerSchaal } from '../../../pdf/pagina-schalen.js';
+import { besluitSchaalInvoer } from '../../../pdf/pagina-schalen.js';
 import { zetPaginaSchalen } from '../../../pdf/pagina-schalen-app.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
@@ -48,38 +48,55 @@ export default function ThumbnailItem(props) {
     setHernoemen(true);
   };
 
-  // Page scale (pagina-schalen.js), Bluebeam style: a badge under the label.
-  // Its own scale in full colour, the document scale dimmed, else a dash on
-  // hover. Click to set: Enter sets it for the selected pages (or this one),
-  // empty clears, Esc cancels.
+  // Page scale (pagina-schalen.js): a badge under the label. Its own scale in
+  // full colour, the document scale dimmed, else a dash on hover. Click to
+  // edit. What Enter, leaving the field and Esc do is in besluitSchaalInvoer:
+  // Enter sets the selected pages (or this one), leaving the field only ever
+  // changes this page and only when its text changed, Esc cancels.
+  const { t: tx } = useTranslation('context');
   const eigenSchaal = () => doc()?.pageScales?.[props.pageNum] || null;
   const docSchaal = () => doc()?.measureScale?.scaleRatio || null;
   const schaalTekst = () => eigenSchaal()?.scaleRatio || docSchaal() || '–';
   const schaalTitel = () => {
+    if (schaalFout()) return tx('thumbnail.scaleInvalid');
     const s = eigenSchaal();
     if (s) {
-      const hoe = s.method === 'manual' ? 'set' : s.method === 'ocr' ? 'read with OCR' : 'detected';
-      const ook = s.alternatives?.length > 1 ? `; also on the sheet: ${s.alternatives.join(', ')}` : '';
-      return `Page scale ${s.scaleRatio} (${hoe}${ook}). Click to change.`;
+      const sleutel = s.method === 'manual' ? 'thumbnail.scaleOwnSet'
+        : s.method === 'ocr' ? 'thumbnail.scaleOwnOcr' : 'thumbnail.scaleOwnDetected';
+      const tekst = tx(sleutel, { scale: s.scaleRatio });
+      return s.alternatives?.length > 1
+        ? `${tekst} ${tx('thumbnail.scaleAlsoOnSheet', { scales: s.alternatives.join(', ') })}` : tekst;
     }
-    return docSchaal() ? `Document scale ${docSchaal()}. Click to set a scale for this page.` : 'No scale. Click to set one for this page.';
+    return docSchaal() ? tx('thumbnail.scaleDocument', { scale: docSchaal() }) : tx('thumbnail.scaleNone');
   };
   const [schaalBewerken, setSchaalBewerken] = createSignal(false);
+  const [schaalFout, setSchaalFout] = createSignal(false);
   let schaalKlaar = false;
-  const startSchaal = (e) => { e?.stopPropagation(); schaalKlaar = false; setSchaalBewerken(true); };
-  const rondSchaalAf = (waarde) => {
+  let schaalBegin = '';
+  const startSchaal = (e) => {
+    e?.stopPropagation();
+    schaalKlaar = false;
+    schaalBegin = eigenSchaal()?.scaleRatio || '';
+    setSchaalFout(false);
+    setSchaalBewerken(true);
+  };
+  const rondSchaalAf = (waarde, via) => {
     if (schaalKlaar) return;
-    schaalKlaar = true;
-    setSchaalBewerken(false);
     const d = doc();
-    if (waarde == null || !d?.pdfDoc) return;
-    const leeg = !waarde.trim();
-    const ratio = leeg ? null : normaliseerSchaal(waarde);
-    if (!leeg && !ratio) return;
-    if ((ratio || null) === (eigenSchaal()?.scaleRatio || null) && !(isPageSelected(props.pageNum) && selectedPages().size > 1)) return;
-    const paginas = isPageSelected(props.pageNum) && selectedPages().size > 1
-      ? [...selectedPages()].sort((a, b) => a - b) : [props.pageNum];
-    zetPaginaSchalen(d, paginas, ratio);
+    const besluit = besluitSchaalInvoer({
+      pageNum: props.pageNum,
+      selectie: [...selectedPages()],
+      schalen: d?.pageScales || null,
+      begin: schaalBegin,
+      waarde,
+      via,
+    });
+    // Not a scale (an imperial 1/4, text): the editor stays open on Enter.
+    if (besluit.actie === 'fout') { setSchaalFout(true); return; }
+    schaalKlaar = true;
+    setSchaalFout(false);
+    setSchaalBewerken(false);
+    if (besluit.actie === 'zet' && d?.pdfDoc) zetPaginaSchalen(d, besluit.paginas, besluit.ratio);
   };
   // "Set Page Scale..." in the thumbnail menu opens this editor.
   onMount(() => {
@@ -179,9 +196,12 @@ export default function ThumbnailItem(props) {
       }>
         <input
           class="thumbnail-label-input thumbnail-scale-input"
+          classList={{ invalid: schaalFout() }}
           type="text"
           spellcheck={false}
-          value={eigenSchaal()?.scaleRatio || ''}
+          value={schaalBegin}
+          title={schaalFout() ? tx('thumbnail.scaleInvalid') : undefined}
+          onInput={() => { if (schaalFout()) setSchaalFout(false); }}
           placeholder={docSchaal() || '1:100'}
           ref={(el) => queueMicrotask(() => { el.focus(); el.select(); })}
           onClick={(e) => e.stopPropagation()}
@@ -190,10 +210,10 @@ export default function ThumbnailItem(props) {
           onPointerDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             e.stopPropagation();
-            if (e.key === 'Enter') { e.preventDefault(); rondSchaalAf(e.currentTarget.value); }
-            else if (e.key === 'Escape') { e.preventDefault(); rondSchaalAf(null); }
+            if (e.key === 'Enter') { e.preventDefault(); rondSchaalAf(e.currentTarget.value, 'enter'); }
+            else if (e.key === 'Escape') { e.preventDefault(); rondSchaalAf(null, 'escape'); }
           }}
-          onBlur={(e) => rondSchaalAf(e.currentTarget.value)}
+          onBlur={(e) => rondSchaalAf(e.currentTarget.value, 'blur')}
         />
       </Show>
     </div>

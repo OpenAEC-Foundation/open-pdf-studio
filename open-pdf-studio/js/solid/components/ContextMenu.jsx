@@ -1327,16 +1327,16 @@ function ThumbnailMenuContent() {
       <MenuItem
         label={isMulti() ? t('thumbnail.detectPageScalesMulti', { count: count() }) : t('thumbnail.detectPageScales')}
         onClick={async () => {
-          const { detecteerPaginaSchalen } = await import('../../pdf/pagina-schalen-app.js');
+          const { detecteerMetVoortgang } = await import('../../pdf/pagina-schalen-app.js');
           const d = state.documents[state.activeDocumentIndex];
           const alle = Array.from({ length: d?.pdfDoc?.numPages || 0 }, (_, i) => i + 1);
-          await detecteerPaginaSchalen(d, isMulti() ? pages() : alle);
+          await detecteerMetVoortgang(d, isMulti() ? pages() : alle);
         }} />
       <MenuItem
         label={t('thumbnail.detectPageScalesArea')}
         onClick={async () => {
-          const { detecteerUitGebied } = await import('../../pdf/pagina-schalen-app.js');
-          await detecteerUitGebied(state.documents[state.activeDocumentIndex], t('thumbnail.pickScaleArea'));
+          const { detecteerUitGebiedMetVoortgang } = await import('../../pdf/pagina-schalen-app.js');
+          await detecteerUitGebiedMetVoortgang(state.documents[state.activeDocumentIndex], t('thumbnail.pickScaleArea'));
         }} />
       <MenuItem
         label={t('thumbnail.clearPageScale')}
