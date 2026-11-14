@@ -289,6 +289,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
         scale: renderScale,
         rotation: rotation || 0,
         thinLines: thin,
+        sharpen: true,
       }, { priority });
       console.log(`[pbc] whole-page KLAAR p${pageNum} scale=${renderScale.toFixed(3)} @${Math.round(performance.now() - _t0)}ms`);
       const fileBytes = result instanceof Uint8Array ? result : new Uint8Array(result);

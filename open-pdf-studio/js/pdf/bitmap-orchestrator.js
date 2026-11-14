@@ -278,6 +278,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                     regionWPt: region.w,
                     regionHPt: region.h,
                     thinLines: thin,
+                    sharpen: true,
                 }, { priority: RENDER_PRIORITY.PREFETCH });
                 if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
                 const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
@@ -365,6 +366,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                 regionWPt: region.w,
                 regionHPt: region.h,
                 thinLines: thin,
+                sharpen: true,
             }, { priority: RENDER_PRIORITY.PREFETCH });
             if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
             const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
@@ -514,6 +516,7 @@ export async function ensureTileForCurrentView(canvas) {
             regionWPt: bufferedRegion.w,
             regionHPt: bufferedRegion.h,
             thinLines: thin,
+            sharpen: true,
         });
         if (!_tileRequests.isCurrent(requestToken)) return;
         const bytes = rgbaData instanceof Uint8Array ? rgbaData : new Uint8Array(rgbaData);
