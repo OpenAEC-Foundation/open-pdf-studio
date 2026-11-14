@@ -190,7 +190,7 @@ function zetViewports(doc, pageNum, lijst) {
 
 function commandChangesMeasureScale(cmd) {
   if (!cmd) return false;
-  if (cmd.type === 'modifyMeasureScale' || cmd.type === 'modifyPageScales') return true;
+  if (cmd.type === 'modifyMeasureScale') return true;
   return cmd.type === 'compound' && cmd.commands.some(commandChangesMeasureScale);
 }
 
@@ -198,6 +198,20 @@ async function persistMeasureScaleIfNeeded(cmd) {
   if (!commandChangesMeasureScale(cmd)) return;
   const { saveDocumentScale } = await import('../annotations/measurement.js');
   saveDocumentScale();
+}
+
+function commandChangesPageScales(cmd) {
+  if (!cmd) return false;
+  if (cmd.type === 'modifyPageScales') return true;
+  return cmd.type === 'compound' && cmd.commands.some(commandChangesPageScales);
+}
+
+// A page scale holds for every measurement on its page: after undo or redo
+// of a page scale change their values follow, as after setting it.
+async function recalculateIfPageScalesChanged(cmd) {
+  if (!commandChangesPageScales(cmd)) return;
+  const { recalculateAllMeasurements } = await import('../annotations/measurement.js');
+  recalculateAllMeasurements();
 }
 
 // Page scales (pagina-schalen.js) belong to page numbers. A page operation
@@ -266,6 +280,7 @@ export async function undo() {
   }
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
+  await recalculateIfPageScalesChanged(cmd);
   syncModifiedState();
 
   // For modify operations, keep selection intact and refresh properties.
@@ -318,6 +333,7 @@ export async function redo() {
   }
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
+  await recalculateIfPageScalesChanged(cmd);
   syncModifiedState();
 
   // For modify operations, keep selection intact and refresh properties.
@@ -957,14 +973,32 @@ export function recordMeasureScale(oldState, newState) {
 }
 
 // Page scales (pagina-schalen.js): set on the thumbnails or detected; one
-// step per change, undoable like the document scale.
-export function recordPageScales(oldState, newState) {
-  if (JSON.stringify(oldState ?? null) === JSON.stringify(newState ?? null)) return;
-  execute({
+// step per change, undoable like the document scale. Detection can finish
+// after the user switched tabs: the step goes on `doc`, never on another
+// document. Returns whether a step was recorded.
+export function recordPageScales(doc, oldState, newState) {
+  if (!doc) return false;
+  if (JSON.stringify(oldState ?? null) === JSON.stringify(newState ?? null)) return false;
+  const cmd = {
     type: 'modifyPageScales',
     oldState: clonePlainValue(oldState ?? null),
     newState: clonePlainValue(newState ?? null),
-  });
+  };
+  if (getActiveDocument() === doc) {
+    execute(cmd);
+    return true;
+  }
+  if (!doc.undoStack) doc.undoStack = [];
+  if (doc.savedUndoStackLength > doc.undoStack.length) doc.savedUndoStackLength = -1;
+  doc.undoStack.push(cmd);
+  if (doc.undoStack.length > MAX_UNDO_STACK) {
+    doc.undoStack.shift();
+    if (doc.savedUndoStackLength >= 0) doc.savedUndoStackLength--;
+  }
+  doc.redoStack = [];
+  verhoogInhoudRevisie(doc);
+  doc.modified = !(doc.savedUndoStackLength >= 0 && doc.undoStack.length === doc.savedUndoStackLength);
+  return true;
 }
 
 // De schaalcontroles per blad (#629): een controle maakt het document

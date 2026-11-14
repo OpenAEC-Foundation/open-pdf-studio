@@ -192,6 +192,19 @@ function toonTab(index) {
     // tab was in front (multi-file open, session restore, a tab switch
     // during the load) has not shown its stored position yet. Do that on
     // this first activation, once the page is up — same order as the loader.
+    // Page scales detected while this document was in the background
+    // (pagina-schalen-app.js): its measurements follow them now.
+    if (newDoc._metingenHerberekenen) {
+      delete newDoc._metingenHerberekenen;
+      Promise.resolve(firstRender)
+        .then(() => import('../../annotations/measurement.js'))
+        .then((m) => {
+          if (getActiveDocument() === newDoc) m.recalculateAllMeasurements();
+          else newDoc._metingenHerberekenen = true;
+        })
+        .catch((e) => console.warn('[tabs] recalculating measurements failed:', e));
+    }
+
     const readerRestorePending = hasPendingRestore(newDoc);
     if (readerRestorePending) {
       Promise.resolve(firstRender)
