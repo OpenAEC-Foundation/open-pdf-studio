@@ -120,10 +120,10 @@ pub async fn batch_ocr_page(
     page_index: u32,
     lang: Option<String>,
 ) -> Result<Vec<crate::ocr::OcrWord>, String> {
-    use tauri::Manager;
-    let resource_dir = app.path().resource_dir().map_err(|e| format!("Cannot resolve resource_dir: {e}"))?;
-    let tessdata_dir = crate::ocr::tessdata_path_for_tesseract(&resource_dir.join("tessdata"))?;
     let lang = lang.unwrap_or_else(|| "auto".to_string());
+    crate::ocr_talen_app::controleer_taalspec(&lang)?;
+    // Dezelfde taalmap als ocr_pdf_page (#1083).
+    let tessdata_dir = crate::ocr::tessdata_path_for_tesseract(&crate::ocr_talen_app::effectieve_tessdata(&app)?)?;
     let doc = state.inner().clone();
     tauri::async_runtime::spawn_blocking(move || {
         let handle = doc.handle(&path)?;
