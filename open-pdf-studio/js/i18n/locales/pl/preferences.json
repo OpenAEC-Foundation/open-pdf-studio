@@ -88,7 +88,15 @@
     "overlayColor": "Kolor nakładki",
     "stamps": "Pieczątki",
     "hideBuiltInStamps": "Ukryj wbudowane pieczątki, gdy mam własne pieczątki",
-    "hideBuiltInStampsHint": "Selektor pieczątek pokazuje wtedy tylko Twoje pieczątki (osobiste, zaimportowane i udostępnione). Bez własnych pieczątek wbudowane pieczątki pozostają widoczne."
+    "hideBuiltInStampsHint": "Selektor pieczątek pokazuje wtedy tylko Twoje pieczątki (osobiste, zaimportowane i udostępnione). Bez własnych pieczątek wbudowane pieczątki pozostają widoczne.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Ustawienia domyślne rysowania odręcznego",
@@ -186,6 +194,7 @@
     "confirmBeforeDeleting": "Potwierdzenie przed usunięciem adnotacji",
     "navigation": "Nawigacja",
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
+    "reverseWheelZoom": "Odwróć kierunek powiększania kółkiem myszy",
     "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
     "ribbonWheelSwitchesTabs": "Przełączaj karty wstążki kółkiem myszy",
     "smoothScrolling": "Płynne przewijanie",

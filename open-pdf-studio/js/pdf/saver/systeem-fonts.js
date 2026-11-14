@@ -8,7 +8,7 @@
 // geeft de appearance van het tekstvak er tekst mee. Vijf tekstvakken in
 // hetzelfde lettertype delen één ingebed font.
 //
-// Wat niet kan (geen bestand, licentie verbiedt inbedden, een collectie, de
+// Wat niet kan (geen bestand, licentie verbiedt inbedden, de
 // webversie) valt terug op het oude gedrag: het lettertype op naam met de
 // standaardletter als vervanging. Tekens die het lettertype niet heeft,
 // gaan ook langs die oude weg in plaats van als lege vakjes.
@@ -41,8 +41,8 @@ export async function wordtIngebed(familie) {
   return { ingebed: !!r.insluitbaar, reden: r.reden || null };
 }
 
-async function leesBytes(pad) {
-  const data = await invoke('systeem_lettertype_lezen', { pad });
+async function leesBytes(pad, gezicht = 0) {
+  const data = await invoke('systeem_lettertype_lezen', { pad, gezicht });
   return data instanceof Uint8Array ? data : new Uint8Array(data);
 }
 
@@ -70,15 +70,16 @@ export function maakSysteemFontKeten(pdfDocLib, {
   laadBytes = leesBytes,
   waarschuw = (m) => console.warn(m),
 } = {}) {
-  const perPad = new Map();      // pad -> Promise<{ naam, font, glyphs } | null>
+  const perPad = new Map();      // pad|face -> Promise<{ naam, font, glyphs } | null>
   const perStijl = new Map();    // familie|vet|cursief -> Promise<... | null>
   const gebruikt = new Map();    // naam -> PDFFont
 
-  const laadFont = (pad, familie, vet, cursief) => {
-    if (!perPad.has(pad)) {
-      perPad.set(pad, (async () => {
+  const laadFont = (pad, gezicht, subset, familie, vet, cursief) => {
+    const sleutel = `${pad}|${gezicht}`;
+    if (!perPad.has(sleutel)) {
+      perPad.set(sleutel, (async () => {
         try {
-          const bytes = await laadBytes(pad);
+          const bytes = await laadBytes(pad, gezicht);
           const fontkit = await laadFontkit();
           const glyphs = fontkit.create(bytes);
           if (glyphs?.fonts) throw new Error('font collection');
@@ -90,7 +91,7 @@ export function maakSysteemFontKeten(pdfDocLib, {
           // laat bij sommige (Cascadia Mono) de meeste tekens leeg. Eén keer
           // per bestand, gedeeld door alle tekstvakken.
           const variabel = !!glyphs.directory?.tables?.fvar;
-          const font = await pdfDocLib.embedFont(bytes, variabel
+          const font = await pdfDocLib.embedFont(bytes, variabel || !subset
             ? { subset: false, customName: ps }
             : { subset: true, customName: `${subsetTag(ps + perPad.size)}+${ps}` });
           return { naam: resourceNaam(familie, vet, cursief, perPad.size), font, glyphs };
@@ -100,7 +101,7 @@ export function maakSysteemFontKeten(pdfDocLib, {
         }
       })());
     }
-    return perPad.get(pad);
+    return perPad.get(sleutel);
   };
 
   return {
@@ -115,7 +116,7 @@ export function maakSysteemFontKeten(pdfDocLib, {
         perStijl.set(sleutel, (async () => {
           const r = await zoek(familie, vet, cursief);
           if (!r?.insluitbaar || !r.pad) return null;
-          return laadFont(r.pad, familie, vet && r.exact, cursief && r.exact);
+          return laadFont(r.pad, r.gezicht ?? 0, r.subset !== false, familie, vet && r.exact, cursief && r.exact);
         })());
       }
       return perStijl.get(sleutel);

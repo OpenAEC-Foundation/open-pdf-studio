@@ -23,6 +23,8 @@ jobs:
       - name: Native dependencies (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev libfreetype6-dev
+      - name: Native font embedding and collection regressions
+        run: cargo test --locked --manifest-path open-pdf-studio/scripts/font-native-tests/Cargo.toml --bin font-embedding-probe
       - name: Build production catalogue probe
         run: cargo build --locked --manifest-path open-pdf-studio/scripts/font-native-tests/Cargo.toml
       - name: Enumerate installed TTF and both TTC faces (Unix)
@@ -49,3 +51,4 @@ jobs:
         run: |
           node --test js/utils/lettertypen-lijst.test.mjs
           node scripts/test-installed-fonts-browser.mjs
+          node scripts/test-font-embedding-browser.mjs

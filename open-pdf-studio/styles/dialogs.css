@@ -7080,3 +7080,10 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 /* The high-contrast accent is yellow: white button text is unreadable. */
 [data-theme="highContrast"] .feedback-category-btn.active,
 [data-theme="highContrast"] .feedback-submit-btn { color: #000; }
+
+/* Eigen reviewstatussen in de voorkeuren (#1076). */
+.markup-status-row { gap: 6px; align-items: center; }
+.markup-status-row .markup-status-name { flex: 1; min-width: 0; }
+.markup-status-row .markup-status-name.invalid { border-color: #e81123; }
+.markup-status-row .markup-status-closed { white-space: nowrap; }
+.markup-status-row .markup-status-remove { min-width: 24px; padding: 0 6px; }

@@ -43,11 +43,26 @@ export function toIsoDate(raw) {
  *
  * @returns {null | {__statusReply: true, targetId, state, stateModel, author, date}}
  */
+// PDF.js geeft /State en /StateModel als ruwe bytes door. Een tekst met
+// tekens buiten Latin-1 (een eigen status als "Geëvalueerd", #1076) staat er
+// als UTF-16 met byte-order-mark, of in PDF 2.0 als UTF-8 met BOM.
+export function pdfTekstUitBytes(waarde) {
+  const s = String(waarde ?? '');
+  if (s.length < 2 || [...s].some((c) => c.charCodeAt(0) > 0xff)) return s;
+  const bytes = Uint8Array.from(s, (c) => c.charCodeAt(0));
+  try {
+    if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder('utf-16be').decode(bytes.subarray(2));
+    if (bytes[0] === 0xff && bytes[1] === 0xfe) return new TextDecoder('utf-16le').decode(bytes.subarray(2));
+    if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) return new TextDecoder('utf-8').decode(bytes.subarray(3));
+  } catch { /* geen geldige codering: de bytes zoals ze zijn */ }
+  return s;
+}
+
 export function statusReplyFromPdfAnnotation(annot) {
   if (!annot || annot.subtype !== 'Text') return null;
   if (!annot.inReplyTo || !annot.state) return null;
-  const state = String(annot.state);
-  let stateModel = annot.stateModel ? String(annot.stateModel) : '';
+  const state = pdfTekstUitBytes(annot.state);
+  let stateModel = annot.stateModel ? pdfTekstUitBytes(annot.stateModel) : '';
   if (!stateModel) {
     // /StateModel is verplicht bij /State; toch defensief afleiden.
     stateModel = (state === 'Marked' || state === 'Unmarked') ? 'Marked' : 'Review';

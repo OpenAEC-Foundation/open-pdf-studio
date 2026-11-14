@@ -155,6 +155,7 @@ export default function AppMenu() {
             <MenuItem icon={ICONS.sheetLinks} label={t('sheetLinks')} onClick={() => actionAndClose(() => openDialog('sheet-links'))} />
             <MenuItem icon={ICONS.approvalRouting} label={t('approvalRouting')} onClick={() => actionAndClose(() => openDialog('approval-routing'))} />
             <MenuItem icon={ICONS.sharedReview} label={t('sharedReview')} onClick={() => actionAndClose(() => openDialog('shared-review'))} />
+            <Show when={isTauri()}><MenuItem icon={ICONS.sharedReview} label={t('dialogs:centralReview.title')} onClick={() => actionAndClose(() => openDialog('central-review'))} /></Show>
             <Divider />
             <MenuItem icon={ICONS.preferences} label={t('preferences')} shortcut={sneltoetsVoor('app.preferences')} onClick={() => actionAndClose(showPreferencesDialog)} />
             <Divider />

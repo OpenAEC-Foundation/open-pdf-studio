@@ -88,7 +88,15 @@
     "snapToPdfContent": "Bekötés a PDF-rajz tartalmához",
     "stamps": "Bélyegzők",
     "hideBuiltInStamps": "Beépített bélyegzők elrejtése, ha vannak saját bélyegzőim",
-    "hideBuiltInStampsHint": "A bélyegzőválasztó ekkor csak a saját bélyegzőit mutatja (személyes, importált és megosztott). Saját bélyegzők nélkül a beépített bélyegzők láthatók maradnak."
+    "hideBuiltInStampsHint": "A bélyegzőválasztó ekkor csak a saját bélyegzőit mutatja (személyes, importált és megosztott). Saját bélyegzők nélkül a beépített bélyegzők láthatók maradnak.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Szabadkézi alapértelmezések",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Tartsa a kurzort röviden egy ponton a felvételéhez, tartsa lenyomva a Shift billentyűt egy segédvonal rögzítéséhez, a Tab vált a távolság és a szög között. A poláris segédvonalak a poláris követés beállításait követik.",
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
+    "reverseWheelZoom": "Az egérgörgős nagyítás irányának megfordítása",
     "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",
     "ribbonWheelSwitchesTabs": "Menüszalag lapjainak váltása egérgörgővel",
     "smoothScrolling": "Finom görgetés",

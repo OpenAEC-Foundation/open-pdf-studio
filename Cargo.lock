@@ -3759,7 +3759,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-cad"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "acadrust",
  "flate2",
@@ -3771,7 +3771,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-cmyk"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "flate2",
  "image",
@@ -3784,7 +3784,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-monochrome"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "flate2",
  "zlib-rs",
@@ -3792,7 +3792,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-render"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "flate2",
  "hayro-font",
@@ -3807,7 +3807,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-security"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "aes",
  "cbc",
@@ -3822,7 +3822,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-signatures"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "base64 0.22.1",
  "cbc",
@@ -3856,7 +3856,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "aes",
  "anyhow",
@@ -3889,7 +3889,6 @@ dependencies = [
  "open-pdf-render",
  "open-pdf-security",
  "open-pdf-signatures",
- "openaec-update",
  "p256",
  "p384",
  "pdfium-render",
@@ -3938,22 +3937,11 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-thumbnails"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "libloading 0.9.0",
  "windows 0.61.3",
  "windows-core 0.61.2",
-]
-
-[[package]]
-name = "openaec-update"
-version = "0.1.0"
-source = "git+https://github.com/OpenAEC-Foundation/openaec-installer?rev=2b66f84#2b66f84c93c0becc7d5dbb82bb4ba18d68e393df"
-dependencies = [
- "serde",
- "serde_json",
- "tauri",
- "tauri-plugin",
 ]
 
 [[package]]
@@ -4169,7 +4157,7 @@ dependencies = [
 
 [[package]]
 name = "pdfium-worker"
-version = "2026.46.49"
+version = "2026.46.51"
 dependencies = [
  "anyhow",
  "flate2",

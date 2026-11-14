@@ -15,9 +15,8 @@ let checking = false;
 
 /**
  * Is the OpenAEC Installer on this computer (OpenAEC-Blueprint#33)? Only asked on
- * Windows. Rust registers the plugin only where the installer may update this copy
- * (not in managed mode, not portable, not headless); without the plugin the call
- * fails and the app keeps its own updater.
+ * Windows. The app no longer registers the installer plugin, so this call fails
+ * and the app keeps its own updater; it never starts the installer itself.
  */
 async function installerAanwezig() {
   try {

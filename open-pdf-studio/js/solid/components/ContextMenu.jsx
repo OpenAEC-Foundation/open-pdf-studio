@@ -74,6 +74,7 @@ import {
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
 import { plaatsSubmenuVan } from './contextmenu-plaatsen.js';
 import { setStatusWithHistory } from '../../review/status-history.js';
+import { alleStatussen, statusNaam } from '../../review/status-sets.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -193,13 +194,11 @@ function AnnotationMenuContent() {
     return dichtstbijzijndEind(a, { x: v.appX, y: v.appY });
   };
 
-  const statusItems = [
-    { key: 'None', label: () => t('annotation.statusNone') },
-    { key: 'Accepted', label: () => t('annotation.statusAccepted') },
-    { key: 'Cancelled', label: () => t('annotation.statusCancelled') },
-    { key: 'Completed', label: () => t('annotation.statusCompleted') },
-    { key: 'Rejected', label: () => t('annotation.statusRejected') },
-  ];
+  // De vaste en de eigen statussen (#1076, review/status-sets.js), opnieuw
+  // opgebouwd bij elk openen van het menu.
+  const statusItems = () => alleStatussen(state.preferences?.markupStatuses).map((s) => ({
+    key: s.key, label: () => statusNaam(s.key, state.preferences?.markupStatuses, t),
+  }));
 
   // Edit-contour vertex actions — only shown when right-clicking a vertex/edge
   // handle of the annotation that's currently in edit-contour mode.
@@ -635,7 +634,7 @@ function AnnotationMenuContent() {
       <Separator />
 
       <Submenu icon={statusIcon} label={t('annotation.status')}>
-        <For each={statusItems}>
+        <For each={statusItems()}>
           {(s) => (
             <MenuItem label={s.label()} checkbox={true} checked={String(ann()?.status || 'none').toLowerCase() === s.key.toLowerCase()} onClick={() => {
               const a = ann();
@@ -654,7 +653,7 @@ function AnnotationMenuContent() {
           updateAnnotationsList. Sleutels zijn kleine letters — zelfde
           afspraak als het paneelmenu (#236). */}
       <Submenu icon={statusIcon} label={t('annotation.showByStatus')}>
-        <For each={statusItems}>
+        <For each={statusItems()}>
           {(s) => (
             <MenuItem label={s.label()} checkbox={true} checked={!hiddenStatuses().has(s.key.toLowerCase())} onClick={() => {
               toggleHiddenStatus(s.key.toLowerCase());
@@ -1322,6 +1321,30 @@ function ThumbnailMenuContent() {
       <Separator />
 
       <MenuItem label={t('thumbnail.pageLabels')} onClick={() => openDialog('page-labels')} />
+      <MenuItem
+        label={isMulti() ? t('thumbnail.setPageScaleMulti', { count: count() }) : t('thumbnail.setPageScale')}
+        onClick={() => window.dispatchEvent(new CustomEvent('ops-paginaschaal-bewerk', { detail: { pageNum: pageNum() } }))} />
+      <MenuItem
+        label={isMulti() ? t('thumbnail.detectPageScalesMulti', { count: count() }) : t('thumbnail.detectPageScales')}
+        onClick={async () => {
+          const { detecteerMetVoortgang } = await import('../../pdf/pagina-schalen-app.js');
+          const d = state.documents[state.activeDocumentIndex];
+          const alle = Array.from({ length: d?.pdfDoc?.numPages || 0 }, (_, i) => i + 1);
+          await detecteerMetVoortgang(d, isMulti() ? pages() : alle);
+        }} />
+      <MenuItem
+        label={t('thumbnail.detectPageScalesArea')}
+        onClick={async () => {
+          const { detecteerUitGebiedMetVoortgang } = await import('../../pdf/pagina-schalen-app.js');
+          await detecteerUitGebiedMetVoortgang(state.documents[state.activeDocumentIndex], t('thumbnail.pickScaleArea'));
+        }} />
+      <MenuItem
+        label={t('thumbnail.clearPageScale')}
+        disabled={!pages().some((p) => state.documents[state.activeDocumentIndex]?.pageScales?.[p])}
+        onClick={async () => {
+          const { zetPaginaSchalen } = await import('../../pdf/pagina-schalen-app.js');
+          zetPaginaSchalen(state.documents[state.activeDocumentIndex], pages(), null);
+        }} />
       <MenuItem icon={thumbnailPropertiesIcon} label={t('thumbnail.properties')} disabled={isMulti()} onClick={() => {
         import('../stores/dialogStore.js').then(m => m.openDialog('page-properties', { pageNum: pageNum() }));
       }} />

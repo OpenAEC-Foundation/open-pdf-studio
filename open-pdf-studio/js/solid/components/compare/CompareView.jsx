@@ -1,3 +1,4 @@
+import { wheelZoomDelta } from '../../../core/wheel-zoom.js';
 import { createEffect, createMemo, createSignal, onCleanup, onMount, For, Show } from 'solid-js';
 import {
   compareActive,
@@ -909,7 +910,9 @@ export default function CompareView() {
     if (e.shiftKey) return;
     if (e.ctrlKey || e.metaKey || state.preferences?.wheelZoomWithoutCtrl) {
       e.preventDefault();
-      const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      const delta = wheelZoomDelta(e.deltaY, state.preferences);
+      if (delta === 0) return;
+      const factor = delta < 0 ? 1.1 : 1 / 1.1;
       zoomAnchored(activePane(e.clientX), e.clientX, e.clientY, factor);
       return;
     }

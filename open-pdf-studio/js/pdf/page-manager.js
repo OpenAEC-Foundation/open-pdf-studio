@@ -365,6 +365,11 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
       console.warn('[reloadFromBytes] paginalabels van de ingevoegde pagina’s niet gelezen', e);
     }
   }
+  // Page scales move with their pages too (pagina-schalen.js).
+  try {
+    const { schalenNaHerladen } = await import('./pagina-schalen-app.js');
+    schalenNaHerladen(doc, viewportUpdate?.pageMapping || null);
+  } catch (e) { console.warn('[reloadFromBytes] page scales', e); }
   await labelsNaHerladen(doc, {
     oudeBytes,
     nieuweBytes: aangeleverdeBytes,
@@ -399,6 +404,13 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
 
   // Mark all pages as loaded so background loader won't overwrite
   markAllAnnotationPagesLoaded(numPages, doc);
+  // A rotation-only save does not load unseen pages. Keep them lazy so the
+  // next save preserves their PDF annotations instead of treating an empty
+  // model as an intentional deletion.
+  if (viewportUpdate?.preserveAnnotationReadiness && oudGereed) {
+    doc._annotationPagesReady = new Set(oudGereed);
+    doc._loadedAnnotationPages = new Set(oudGereed);
+  }
 
   // Annotaties die alleen in de nieuwe bytes staan: die van ingevoegde
   // pagina's (samenvoegen, pagina's uit een bestand), en die van pagina's

@@ -188,7 +188,7 @@ export function tekstvakFontDict(context, naam) {
 
 // Ensure AcroForm Default Resources contain fonts used by FreeText annotations
 // so DA strings can reference them (e.g. /Helv, /Courier, /SegoeUI)
-export function ensureAcroFormFonts(pdfDoc, context, usedFonts) {
+export function ensureAcroFormFonts(pdfDoc, context, usedFonts, embeddedFonts = new Map()) {
   const catalog = context.lookup(context.trailerInfo.Root);
   if (!catalog) return;
 
@@ -260,6 +260,8 @@ export function ensureAcroFormFonts(pdfDoc, context, usedFonts) {
       }
     }
   }
+  // DA resources use the embedded face too, not a bare non-standard name.
+  for (const [name, ref] of embeddedFonts) fontDict.set(PDFName.of(name), ref);
 }
 
 // Strip PDF/A conformance from XMP metadata so the saved file

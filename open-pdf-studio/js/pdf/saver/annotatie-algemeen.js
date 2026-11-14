@@ -65,12 +65,13 @@ export function schrijfAlgemeneSleutels(dict, ann, gebruikteNm) {
  * @param {import('pdf-lib').PDFDict} ouderDict
  * @param {Set<string>} [gebruikteNm]  /NM per pagina uniek (een geplakte kopie
  *   draagt dezelfde antwoorden mee)
- * @param {{zonderStatus?: boolean, zonderAntwoorden?: boolean}} [opties]
+ * @param {{zonderStatus?: boolean, zonderAntwoorden?: boolean, eigenStatussen?: object[]}} [opties]
  *   status of antwoorden niet maken: de saver liet die uit het bestand staan
- *   (#629, saver/bron-behoud.js)
+ *   (#629, saver/bron-behoud.js); eigenStatussen: de eigen statussen uit de
+ *   voorkeuren, voor hun naam in /State (#1076)
  * @returns {import('pdf-lib').PDFDict[]}
  */
-export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteNm, { zonderStatus = false, zonderAntwoorden = false } = {}) {
+export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteNm, { zonderStatus = false, zonderAntwoorden = false, eigenStatussen = [] } = {}) {
   const uit = [];
   if (!ann || !(ouderRef instanceof PDFRef) || !ouderDict) return uit;
   const ouderRect = ouderDict.get(N('Rect'));
@@ -81,7 +82,7 @@ export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteN
   // status. Zonder geschiedenis is dat alleen de huidige status.
   const stappen = zonderStatus ? [] : statusHistory(ann);
   for (const stap of stappen) {
-    const stateStr = pdfStateName(stap.status);
+    const stateStr = pdfStateName(stap.status, eigenStatussen);
     const datum = pdfDatum(stap.at);
     const st = context.obj({
       Type: 'Annot',

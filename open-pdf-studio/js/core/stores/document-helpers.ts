@@ -41,6 +41,8 @@ export function createDocument(filePath: string | null = null): DocumentState {
     measureScale: null,
     // Schaalcontroles per blad (#629): uit het bestand of nieuw gemeten.
     scaleChecks: null,
+    // Paginaschalen (#1065): uit het bestand, ingesteld of herkend.
+    pageScales: null,
     stylePresets: [],
     // Annotatielagen (#468): leeg = alleen de standaardlaag, zodat een
     // document zonder lagen werkt en bewaard wordt zoals voorheen.

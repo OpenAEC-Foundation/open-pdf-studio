@@ -1,0 +1,4 @@
+*
+!requirements.txt
+!opds_collaboration/
+!opds_collaboration/*.py

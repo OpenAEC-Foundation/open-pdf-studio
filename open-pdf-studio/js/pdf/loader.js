@@ -829,7 +829,9 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // Page 1 annotations are already loaded by ensureAnnotationsForPage() during
     // the first render. The rest load lazily page-by-page as the user navigates,
     // plus this background task pre-loads remaining pages without blocking the UI.
-    loadExistingAnnotations(doc).then(async () => {
+    const annotationCompletion = loadExistingAnnotations(doc);
+    doc._annotationCompletion = annotationCompletion;
+    annotationCompletion.then(async () => {
       console.log(`[PERF-BG] loadExistingAnnotations .then() callback START`);
       if (isClosed()) return;
       // Sync doc.measureScale from any loaded scaleBar annotations

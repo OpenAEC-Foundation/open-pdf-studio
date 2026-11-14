@@ -37,6 +37,7 @@ try {
           }
           if (cmd === 'instance_role') return { secondary: true };
           if (cmd === 'startup_diagnostic') { window.startupTest.events.push(args.phase); return; }
+          if (cmd === 'startup_font_deadline') return new Promise(resolve => setTimeout(resolve, 2000));
           if (cmd === 'startup_window_ready') {
             window.startupTest.events.push('show');
             const c = document.getElementById('app-root');

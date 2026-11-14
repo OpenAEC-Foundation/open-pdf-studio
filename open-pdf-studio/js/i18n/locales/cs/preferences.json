@@ -88,7 +88,15 @@
     "snapToPdfContent": "Přichytit k obsahu výkresu PDF",
     "stamps": "Razítka",
     "hideBuiltInStamps": "Skrýt vestavěná razítka, když mám vlastní razítka",
-    "hideBuiltInStampsHint": "Výběr razítek pak zobrazí jen vaše vlastní razítka (osobní, importovaná a sdílená). Bez vlastních razítek zůstanou vestavěná razítka viditelná."
+    "hideBuiltInStampsHint": "Výběr razítek pak zobrazí jen vaše vlastní razítka (osobní, importovaná a sdílená). Bez vlastních razítek zůstanou vestavěná razítka viditelná.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Výchozí hodnoty volného kreslení",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Krátce podržte kurzor nad bodem, aby se zachytil, podržte Shift pro uzamčení pomocné čáry, Tab přepíná mezi vzdáleností a úhlem. Polární pomocné čáry se řídí nastavením polárního trasování.",
     "navigation": "Navigace",
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
+    "reverseWheelZoom": "Obrátit směr přiblížení kolečkem myši",
     "middleDoubleClickFit": "Dvojklik prostředním tlačítkem myši přizpůsobí stránku",
     "ribbonWheelSwitchesTabs": "Přepínat karty pásu karet kolečkem myši",
     "smoothScrolling": "Plynulé posouvání",

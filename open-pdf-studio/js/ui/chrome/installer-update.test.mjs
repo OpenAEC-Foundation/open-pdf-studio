@@ -89,13 +89,13 @@ test('updater.js: beheerde modus eerst, draagbaar nooit via de installer', () =>
   assert.match(src, /bestaat: \(path\) => invoke\('file_exists', \{ path \}\)/);
 });
 
-test('Rust: de installer-plugin alleen op Windows, niet beheerd, draagbaar of headless', () => {
+test('Rust: de app start de OpenAEC Installer nooit zelf (geen openaec-update-plugin)', () => {
+  // Bij elke start liet de plugin de installer op de achtergrond controleren;
+  // een installer die dat niet kon, opende zijn venster. De app gebruikt nu
+  // altijd de eigen updater; updater.js valt terug zonder de plugin.
   const lib = lees('src-tauri', 'src', 'lib.rs');
-  assert.match(lib, /pub fn openaec_installer_plugin\(windows: bool, beheerd: bool, draagbaar: bool, headless: bool\) -> bool \{\s*windows && !beheerd && !draagbaar && !headless\s*\}/);
-  const registratie = lib.indexOf('builder = builder.plugin(openaec_update::init("open-pdf-studio"))');
-  assert.ok(registratie > 0);
-  const voor = lib.slice(lib.lastIndexOf('if openaec_installer_plugin(', registratie), registratie);
-  assert.match(voor, /cfg!\(windows\),\s*beheerd::is_beheerd\(\),\s*draagbaar::actief\(\),\s*headless::actief\(\),/);
+  assert.doesNotMatch(lib, /openaec_update::/);
+  assert.doesNotMatch(lees('src-tauri', 'Cargo.toml'), /openaec-update/);
   const caps = JSON.parse(lees('src-tauri', 'capabilities', 'default.json'));
-  assert.ok(caps.permissions.includes('openaec-update:default'));
+  assert.equal(caps.permissions.includes('openaec-update:default'), false);
 });

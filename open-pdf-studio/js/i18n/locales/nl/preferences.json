@@ -90,7 +90,15 @@
     "overlayColor": "Bedekkingskleur",
     "stamps": "Stempels",
     "hideBuiltInStamps": "Ingebouwde stempels verbergen als ik eigen stempels heb",
-    "hideBuiltInStampsHint": "De stempelkiezer toont dan alleen uw eigen stempels (persoonlijk, geïmporteerd en gedeeld). Zonder eigen stempels blijven de ingebouwde stempels zichtbaar."
+    "hideBuiltInStampsHint": "De stempelkiezer toont dan alleen uw eigen stempels (persoonlijk, geïmporteerd en gedeeld). Zonder eigen stempels blijven de ingebouwde stempels zichtbaar.",
+    "markupStatuses": "Statussen van markeringen",
+    "markupStatusName": "Naam van de status",
+    "markupStatusClosed": "Afgerond",
+    "markupStatusClosedHint": "Een markering met deze status is klaar; \"Alleen open punten\" verbergt haar.",
+    "markupStatusRemove": "Status verwijderen",
+    "markupStatusAdd": "Status toevoegen",
+    "markupStatusesEmpty": "Nog geen eigen statussen. De standaardstatussen zijn er altijd.",
+    "markupStatusesHint": "Eigen statussen staan naast de standaardstatussen in het menu Status, de lijst met markeringen en het filter, en worden in de PDF bewaard als reviewstatus. Een naam moet uniek zijn en mag geen standaardstatus zijn."
   },
   "drawing": {
     "freehandDefaults": "Vrije hand standaardwaarden",
@@ -190,6 +198,7 @@
     "moveInferenceHint": "Houd de cursor even op een punt om het vast te pakken, houd Shift ingedrukt om een hulplijn vast te zetten, Tab wisselt tussen afstand en hoek. Poolhulplijnen volgen de instellingen van poolvolging.",
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
+    "reverseWheelZoom": "Zoomrichting van het muiswiel omkeren",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
     "ribbonWheelSwitchesTabs": "Linttabbladen wisselen met het muiswiel",
     "smoothScrolling": "Vloeiend scrollen",

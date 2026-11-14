@@ -50,6 +50,14 @@ export function userUnitVanPagina(doc, pageNum) {
  * @returns {{pixelsPerUnit: number, unit?: string, method?: string, scaleRatio?: any}|null}
  */
 export function documentSchaalOpPagina(doc, pageNum) {
+  // Page scale (pagina-schalen.js): set on the thumbnails or detected from
+  // the page text; it holds for this page instead of the document scale.
+  const pagina = doc?.pageScales?.[pageNum];
+  if (pagina && parseScaleString(pagina.scaleRatio)) {
+    const unit = pagina.unit || 'mm';
+    return { pixelsPerUnit: pixelsPerUnitFor(pagina.scaleRatio, unit, userUnitVanPagina(doc, pageNum)), unit,
+      method: pagina.method || 'page', scaleRatio: pagina.scaleRatio, page: true };
+  }
   const schaal = doc?.measureScale;
   if (!schaal || !(schaal.pixelsPerUnit > 0)) return null;
   const bekend = !!doc.pageUserUnits || doc.userUnitsGelezen === true;

@@ -397,6 +397,7 @@ js/plugins/oppx-testpakket.test.mjs
 js/plugins/extensies-mcp-aansluiting.test.mjs
 js/plugins/opslag-wissel-slot.test.mjs
 js/plugins/plugin-api-opruimen.test.mjs
+js/plugins/plugin-selectie.test.mjs
 js/plugins/plugin-feature-calls.test.mjs
 js/tools/pijl-in-tabstrook.test.mjs
 # Ctrl-sneltoetsen met Caps Lock aan (#577)
@@ -820,6 +821,7 @@ js/annotations/segment-ops-lagen.test.mjs
 js/quantities/takeoff-tags.test.mjs
 js/quantities/takeoff-tags-wiring.test.mjs
 js/review/status-history.test.mjs
+js/review/status-sets.test.mjs
 js/review/status-history-rondgang.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
@@ -841,3 +843,20 @@ js/pdf/saver/systeem-fonts.test.mjs
 js/text/text-rotation.test.mjs
 scripts/pdfjs-soft-mask-bounds.test.mjs
 scripts/startup-window.test.mjs
+# Ronde 2026.46.3
+js/pdf/systeem-font-rondgang.test.mjs
+js/pdf/saver/ttf-subset-padding.test.mjs
+js/core/wheel-zoom.test.mjs
+js/pdf/saver/rotation-render-copy.test.mjs
+js/watermark/kopvoet-rotatie-herladen.test.mjs
+# Centrale review (#1067)
+js/review/central-review-client.test.mjs
+js/review/central-review-sync.test.mjs
+js/review/central-review-session.test.mjs
+js/review/central-review-opening.test.mjs
+js/review/central-review-pdf-adapter.test.mjs
+js/review/central-review-upload.test.mjs
+# Pagina-schalen (#1065)
+js/pdf/pagina-schalen.test.mjs
+js/pdf/pagina-schalen-app.test.mjs
+js/pdf/pagina-schalen-i18n.test.mjs

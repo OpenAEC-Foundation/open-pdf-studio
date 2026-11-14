@@ -88,7 +88,15 @@
     "snapToPdfContent": "Fest til PDF-tegningsinnhold",
     "stamps": "Stempler",
     "hideBuiltInStamps": "Skjul innebygde stempler når jeg har egne stempler",
-    "hideBuiltInStampsHint": "Stempelvelgeren viser da bare dine egne stempler (personlige, importerte og delte). Uten egne stempler forblir de innebygde stemplene synlige."
+    "hideBuiltInStampsHint": "Stempelvelgeren viser da bare dine egne stempler (personlige, importerte og delte). Uten egne stempler forblir de innebygde stemplene synlige.",
+    "markupStatuses": "Markup statuses",
+    "markupStatusName": "Status name",
+    "markupStatusClosed": "Closed",
+    "markupStatusClosedHint": "A markup with this status is finished; \"Show only open items\" hides it.",
+    "markupStatusRemove": "Remove status",
+    "markupStatusAdd": "Add status",
+    "markupStatusesEmpty": "No own statuses yet. The standard statuses are always available.",
+    "markupStatusesHint": "Own statuses appear next to the standard ones in the Status menu, the markups list and the filter, and are saved in the PDF as review status. A name must be unique and may not be one of the standard statuses."
   },
   "drawing": {
     "freehandDefaults": "Frihåndsstandarder",
@@ -186,6 +194,7 @@
     "moveInferenceHint": "Hold pekeren et øyeblikk over et punkt for å fange det, hold Shift nede for å låse en hjelpelinje, Tab bytter mellom avstand og vinkel. Polare hjelpelinjer følger innstillingene for polarsporing.",
     "navigation": "Navigasjon",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uten å holde inne Ctrl)",
+    "reverseWheelZoom": "Snu zoomretningen for musehjulet",
     "middleDoubleClickFit": "Dobbeltklikk med den midterste museknappen for å tilpasse siden",
     "ribbonWheelSwitchesTabs": "Bytt fane i båndet med musehjulet",
     "smoothScrolling": "Myk rulling",

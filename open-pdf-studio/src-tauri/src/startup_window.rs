@@ -65,3 +65,10 @@ pub fn startup_window_ready(window: tauri::WebviewWindow) -> Result<(), String> 
         Ok(())
     }
 }
+
+/// Font-loading grace period independent of hidden WebView JavaScript timers.
+/// This does not show a window; only the normal readiness command may do so.
+#[tauri::command]
+pub async fn startup_font_deadline() {
+    tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+}

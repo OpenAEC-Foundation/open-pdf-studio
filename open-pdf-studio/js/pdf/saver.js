@@ -1,3 +1,4 @@
+import { hasPageRotations, rotationRenderCopy } from './saver/rotation-render-copy.js';
 import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { $RAW } from 'solid-js/store';
@@ -284,7 +285,7 @@ function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
 }
 
 export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getActiveDocument()) {
-  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc)) return false;
+  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc) || activeDoc._centralReviewOpening) return false;
   // Beveiligd en de beveiliging is niet terug te schrijven: nooit opslaan
   // (ook niet als kopie), zodat het origineel beveiligd blijft. Met een
   // beveiligingssessie schrijft opslaan dezelfde beveiliging terug (#378).
@@ -421,6 +422,7 @@ const MOMENTOPNAME_OBJECTEN_PER_TIK = 500;
 async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, momentopname = false, annulering: eigenAnnulering = null } = {}) {
   const currentPath = activeDoc?.filePath;
   const sourcePdf = activeDoc?.pdfDoc;
+  const appliedRotations = {};
   const stillCurrent = () => state.documents.includes(activeDoc)
     && activeDoc.pdfDoc === sourcePdf && activeDoc.filePath === currentPath;
   // The structure edits (tags panel, #384) this save writes. The panel puts a
@@ -509,10 +511,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     if (ftAnnotations.length > 0) {
       // Collect all font names actually used
       const usedFonts = new Set();
+      const embeddedFonts = new Map();
       for (const ann of ftAnnotations) {
-        usedFonts.add(mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic));
+        const embedded = await systeemFonts.voor(ann.fontFamily, !!ann.fontBold, !!ann.fontItalic);
+        if (embedded) embeddedFonts.set(embedded.naam, embedded.font.ref);
+        else usedFonts.add(mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic));
       }
-      ensureAcroFormFonts(pdfDocLib, context, usedFonts);
+      ensureAcroFormFonts(pdfDocLib, context, usedFonts, embeddedFonts);
     }
 
     // Annotatielagen (#468): per laag een OCG in /OCProperties, zodat de lagen
@@ -557,6 +562,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Apply page rotation if set (combine with existing PDF rotation)
       const appRotation = (activeDoc.pageRotations?.[pageNum] || 0);
+      appliedRotations[pageNum] = appRotation;
       if (appRotation) {
         const existingDeg = page.getRotation().angle;
         page.setRotation(degrees(existingDeg + appRotation));
@@ -1530,8 +1536,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const fontSize = ann.fontSize || 14;
             const textColorArr = ann.textColor ? hexToColorArray(ann.textColor) : [0, 0, 0];
 
-            // Map font family + bold/italic to PDF standard font name
-            const pdfFontName = mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
+            // DA and AP must resolve to the same embedded font (#1066).
+            const defaultFont = await systeemFonts.voor(ann.fontFamily, !!ann.fontBold, !!ann.fontItalic);
+            const pdfFontName = defaultFont?.naam || mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
             // Als PDF-naam ('(' -> #28): /DA is een literal string zonder
             // escapes en een haakje uit een fontnaam sloot hem te vroeg (#555).
             const da = `${textColorArr[0]} ${textColorArr[1]} ${textColorArr[2]} rg ${PDFName.of(pdfFontName)} ${fontSize} Tf`;
@@ -3419,6 +3426,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           if (houdAntwoorden) meeGeschreven.antwoorden.push(...houdAntwoorden.map((r) => context.lookup(r)));
           for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm, {
             zonderStatus: !!houdStatus, zonderAntwoorden: !!houdAntwoorden,
+            eigenStatussen: state.preferences?.markupStatuses,
           })) {
             annotsArray.push(context.register(antwoord));
             const eigen = antwoord.get(PDFName.of('OPS_Subtype'))?.decodeText?.() === 'reply';
@@ -3590,8 +3598,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         await applyPendingRedactions(pdfDocLib, { keepRecord: momentopname });
       }
       // Schalen van de app als /VP + /Measure, en de schaalcontroles per
-      // blad (#629). Een pagina waarvan de annotaties nog niet geladen zijn
-      // blijft ongemoeid, zoals hierboven.
+      // blad (#629). Van een pagina waarvan de annotaties nog niet geladen
+      // zijn komt alleen de paginaschaal erin (#1065), de rest blijft ongemoeid.
       schrijfSchalenInPdf(pages, activeDoc, (n) => (activeDoc._annotationPagesReady
         ? activeDoc._annotationPagesReady.has(n)
         : (activeDoc._loadedAnnotationPages ? activeDoc._loadedAnnotationPages.has(n) : true)));
@@ -3822,16 +3830,30 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // vorige save is veranderd; anders staat ze al in de geladen werkkopie.
     const ocrLaagGewijzigd = !!ocrUitkomst && ocrUitkomst.signature !== activeDoc?.ocrLayerSignature;
     if (ocrUitkomst && activeDoc) activeDoc.ocrLayerPages = ocrUitkomst.layerPages;
-    if ((textEditsGebakken || ocrLaagGewijzigd || naarWerkkopie) && activeDoc) {
+    // A saved rotation is already in /Rotate. Keep the working bytes in the
+    // loaded coordinate frame so PDF.js, native tiles and rotation undo agree.
+    const rotatedSave = hasPageRotations(appliedRotations);
+    if ((textEditsGebakken || ocrLaagGewijzigd || naarWerkkopie || rotatedSave) && activeDoc) {
       try {
+        let renderBytes = await rotationRenderCopy(savedBytes, appliedRotations);
+        // Kop-/voetteksten die deze save in het bestand zette, tekent het scherm
+        // zelf: niet ook in de weergave laden. reloadFromBytes haalt ze er
+        // alleen uit als het opgeslagen bestand ook de weergave was; vanaf de
+        // tweede save draait het document op een werkkopie en klopt dat niet meer.
+        if (kopVoetIds?.length) {
+          const { zonderKopVoetStromen } = await import('./saver/kopvoet.js');
+          renderBytes = await zonderKopVoetStromen(renderBytes);
+          activeDoc._kopVoetBron = null;
+        }
+        if (!stillCurrent()) throw changedDuringSave();
         if (saveAsPath) activeDoc.saveTargetPath = saveAsPath;
         const { reloadFromBytes } = await import('./page-manager.js');
         await reloadFromBytes(
-          savedBytes,
+          renderBytes,
           activeDoc.annotations,
           activeDoc.pageRotations,
           activeDoc.currentPage,
-          null,
+          rotatedSave ? { preserveAnnotationReadiness: true } : null,
           activeDoc,
         );
         // De herlaad zet het document op een verse werkkopie met deze bytes
@@ -4040,6 +4062,7 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
   if (savePath) {
     const wasUntitled = !!doc?.isUntitled || !currentPath;
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
+    const previousTarget = doc?.saveTargetPath || currentPath;
     const success = await savePDF(savePath, opties, doc);
     // Opgeslagen: het document staat nu in een bestand dat de app kon
     // schrijven, dus niet langer alleen-lezen geopend (#1005).
@@ -4068,6 +4091,20 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
         try { await unlockFile(doc.originalFilePath); } catch { /* best effort */ }
       }
       doc.originalFilePath = null;
+    }
+
+    // The saved copy has /Rotate baked in; the render working copy deliberately
+    // does not. Moving rendering to savePath would apply pageRotations twice.
+    if (success && doc && (doc._renderTemp || !isTauri()) && hasPageRotations(doc.pageRotations)) {
+      doc.saveTargetPath = savePath;
+      doc.fileName = bestandsnaamUitPad(savePath) || doc.fileName;
+      doc.isUntitled = false;
+      if (previousTarget && previousTarget !== savePath && previousTarget !== doc.filePath) {
+        try { await unlockFile(previousTarget); } catch { /* best effort */ }
+      }
+      updateWindowTitle();
+      window.__OPDS_SESSION_SAVE__?.();
+      return true;
     }
 
     // If saved to a new path, update the current path and UI

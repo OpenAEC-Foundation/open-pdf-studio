@@ -12,7 +12,10 @@
 //   stubs: elke export is een lege functie die zijn aanroepen telt in
 //   globalThis.__stubCalls ({ naam: aantal }). De state-store, de
 //   undo-manager, het eigenschappenpaneel, de schaalopzoeking en de
-//   hoeveelhedenstaat blijven echt.
+//   hoeveelhedenstaat blijven echt. Een test kan het gedrag van een stub
+//   zetten met globalThis.__nep = { naam: functie }, en met
+//   register(..., { data: { extraStubs: ['/js/x.js'] } }) meer modules tot
+//   stub maken.
 // - buildSchedule (quantities/engine.js) telt zijn aanroepen in
 //   globalThis.__buildScheduleCount.
 //
@@ -57,10 +60,16 @@ const STUBS = [
 
 const pad = (url) => fileURLToPath(url).split('\\').join('/');
 
+let extraStubs = [];
+
+export function initialize(data) {
+  if (Array.isArray(data?.extraStubs)) extraStubs = data.extraStubs.map(String);
+}
+
 function isStub(url) {
   if (!url.startsWith('file:')) return false;
   const p = pad(url);
-  return STUBS.some((s) => p.endsWith(s));
+  return STUBS.some((s) => p.endsWith(s)) || extraStubs.some((s) => p.endsWith(s));
 }
 
 function exportNamen(bron) {
@@ -115,10 +124,11 @@ export function buildSchedule(...args) {
   }
   if (isStub(url)) {
     const { namen, standaard } = exportNamen(readFileSync(fileURLToPath(url), 'utf8'));
-    const regels = namen.map((n) => `export function ${n}() {
+    const regels = namen.map((n) => `export function ${n}(...args) {
   const tel = (globalThis.__stubCalls ??= {});
   tel[${JSON.stringify(n)}] = (tel[${JSON.stringify(n)}] || 0) + 1;
-  return undefined;
+  const nep = globalThis.__nep?.[${JSON.stringify(n)}];
+  return typeof nep === 'function' ? nep(...args) : undefined;
 }`);
     if (standaard) regels.push('export default { t: (k, o) => (o && o.defaultValue) || k, on() {}, language: "en" };');
     return { format: 'module', shortCircuit: true, source: regels.join('\n') };
