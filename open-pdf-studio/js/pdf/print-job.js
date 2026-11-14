@@ -20,9 +20,14 @@ import { maakPoster } from './print-poster.js';
 import { maakBoekje } from './print-boekje.js';
 import { zetCanvasOm, beeldFormaatVoor, vectorMogelijk } from './print-kleur.js';
 import { uitsnedePxPerPt, uitsnedeRenderVak } from './print-huidige-weergave.js';
+import { heeftFormulierVelden } from './print-formulieren.js';
+
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
+
+// Reden om "Opslaan als PDF" als paginabeelden te maken: er staan formuliervelden op.
+const FORMULIER_ALS_BEELD = 'form fields print as page images';
 
 /**
  * Een canvas een kwartslag linksom gedraaid: de bovenrand komt links. Dezelfde
@@ -272,6 +277,10 @@ export async function slaPrintOpAlsPdf({
       if (!vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
       // Huidige weergave (#947): de uitsneden bestaan alleen als paginabeeld.
       if (uitsneden?.size) throw new Error('current view prints page images');
+      // Formuliervelden: de vectorvorm neemt de bronpagina zonder annotaties
+      // over, dus zonder de velden en hun waarden. Het paginabeeld tekent ze
+      // wel (print-formulieren.js).
+      if (await heeftFormulierVelden(doc.pdfDoc, pages)) throw new Error(FORMULIER_ALS_BEELD);
       ({ pdf } = await bouwVectorPrintPdf({
         // Met de geschakelde laagstand (#377): de afdruk toont wat in beeld is.
         bronBytes: await (await import('./lagen-schakelen.js')).bytesMetLaagstand(doc, await bronBytesVan(doc)),
@@ -281,7 +290,9 @@ export async function slaPrintOpAlsPdf({
         voortgang: (i, index) => voortgang(i, index + 1),
       }));
     } catch (e) {
-      if (vectorMogelijk(kleur) && !uitsneden?.size) console.warn('[print] vector print PDF failed; falling back to page images:', e);
+      if (vectorMogelijk(kleur) && !uitsneden?.size && e?.message !== FORMULIER_ALS_BEELD) {
+        console.warn('[print] vector print PDF failed; falling back to page images:', e);
+      }
       gerasterd = true;
       ({ pdf } = await bouwPrintPdf({
         doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, voortgang, uitsneden,

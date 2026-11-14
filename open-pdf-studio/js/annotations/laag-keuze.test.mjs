@@ -108,7 +108,11 @@ test('bedrading: opslaan, afdrukken, exporteren en het paneel volgen de laagstan
   assert.match(saver, /const laagStandaard = standaardOmTeBewaren\(doc\);/);
   assert.match(saver, /schrijfStandaardLaagstand\(pdfDocLib, laagStandaard\)/);
   assert.match(saver, /lagenNaOpslaan\(activeDoc, \{ standBewaard: !!laagStandaard \}\)/);
-  assert.match(lees('../pdf/exporter.js'), /\.\.\.pdfjsLaagOpties\(doc\)/);
+  // Export: de lagenstand gaat mee, ook op een pagina met formuliervelden
+  // (die rendert als afdruk, met de stand in print-formulieren.js).
+  const exporter = lees('../pdf/exporter.js');
+  assert.match(exporter, /: pdfjsLaagOpties\(doc\)\)/);
+  assert.match(exporter, /formulierRenderOpties\(page, pdf, eigenLaagConfig\(doc\)\)/);
   assert.match(lees('../pdf/print-job.js'), /bytesMetLaagstand\(doc, await bronBytesVan\(doc\)\)/);
   const lagen = lees('../ui/panels/layers.js');
   assert.match(lagen, /lagenLijst\(ocConfig, \{ overslaan: [^}]*boom \}\)/);
