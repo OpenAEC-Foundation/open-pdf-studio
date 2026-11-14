@@ -152,7 +152,7 @@ worden daardoor niet stilzwijgend op andere pagina's toegepast. Een identieke
 herhaalde upload geeft dezelfde publieke metadata terug; een andere inhoud geeft
 `409`. Bucketnamen, objectsleutels en interne versie-ID's blijven serverintern.
 
-De S3-adapter gebruikt de [Boto3 PutObject-API](https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/put_object.html):
+De S3-adapter gebruikt `put_object` van de open-source SDK [boto3](https://github.com/boto/boto3):
 een willekeurige nieuwe objectsleutel per poging, `IfNoneMatch="*"` en een
 SHA-256-uploadchecksum. Er is geen fallback naar overschrijven. Na een geslaagde
 upload legt SQLite de digest, lengte, bucket, sleutel, ETag en eventuele S3-versie
@@ -161,7 +161,7 @@ en afwezigheid van events. Dit geldt ook wanneer iemand tijdens de upload begint
 te annoteren of de eigenaar uitlogt. Schema 1 wordt atomair naar schema 2 uitgebreid
 met `document_files`; accounts en reviewhistorie blijven behouden.
 
-Downloads gebruiken [GetObject](https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/get_object.html)
+Downloads gebruiken `get_object`
 met de vastgelegde versie (indien aanwezig) en `IfMatch` op ETag. De adapter
 controleert lengte én SHA-256 vóór er bytes naar de client gaan, sluit de stream
 ook bij fouten en controleert sessie/documenttoegang opnieuw na de overdracht.
@@ -247,7 +247,7 @@ worden geen bucket, opslagaccounts of policies automatisch aangemaakt. Configura
 | --- | --- |
 | `OPDS_DATABASE` | `review.db`; schrijfbare SQLite-locatie |
 | `OPDS_S3_BUCKET` | Verplicht; bestaande private bucket |
-| `OPDS_S3_ENDPOINT` | Optioneel; normale AWS-endpointkeuze indien leeg, anders HTTP(S)-origin zonder credentials/pad/query |
+| `OPDS_S3_ENDPOINT` | Optioneel; leeg = het standaard-endpoint van de SDK, anders HTTP(S)-origin zonder credentials/pad/query |
 | `OPDS_S3_REGION` | `us-east-1` |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` | Normale SDK-providerketen; tijdelijke credentials worden ondersteund |
 | `OPDS_HOST`, `OPDS_PORT` | `127.0.0.1`, `8080` |
@@ -311,7 +311,7 @@ sessieverloop tijdens een poll. WSGI-validatie en grensgevallen testen JSON,
 verzoeklengte, loginlimieten en pollcapaciteit. Opslagtests toetsen migratie,
 herhaalde/gelijktijdige uploads, races met annotaties/toegangsintrekking en
 mislukte S3-/SQL-acties. SDK-contracttests gebruiken
-[Botocore Stubber](https://docs.aws.amazon.com/botocore/latest/reference/stubber.html)
+de `Stubber` uit de open-source SDK [botocore](https://github.com/boto/botocore)
 met expliciete nepcredentials. De afzonderlijke integratietest hieronder gebruikt een echte objectstore.
 De Node-opdracht
 maakt via Python een echte reviewhistorie en speelt deze met de productiecode

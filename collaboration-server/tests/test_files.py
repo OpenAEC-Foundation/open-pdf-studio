@@ -171,7 +171,7 @@ class DocumentFileTests(unittest.TestCase):
 
 
 def client():
-    # Explicit dummy credentials and region: tests never use ambient AWS config.
+    # Explicit dummy credentials and region: tests never use ambient SDK configuration.
     return boto3.client('s3', region_name='us-east-1', aws_access_key_id='test',
                         aws_secret_access_key='test', endpoint_url='https://s3.invalid')
 

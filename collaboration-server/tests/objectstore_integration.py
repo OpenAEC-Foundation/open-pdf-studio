@@ -1,7 +1,7 @@
 """Real, isolated S3 qualification. Accepts a local MinIO binary, never an endpoint.
 
 All credentials, ports, buckets and data directories belong to this invocation.
-Only child processes started here are stopped. No ambient AWS credentials used.
+Only child processes started here are stopped. No ambient cloud credentials used.
 """
 from contextlib import contextmanager, closing
 import base64
