@@ -52,6 +52,7 @@ js/pdf/ocr-document.test.mjs
 js/pdf/office-export.test.mjs
 js/pdf/save-document.test.mjs
 js/core/atomic-write.test.mjs
+js/core/temp-pdf.test.mjs
 scripts/test-nen-ifc-map.mjs
 scripts/test-systeemraster.mjs
 js/annotations/systeem-typen.test.mjs
@@ -443,6 +444,7 @@ scripts/pdfjs-postscript-progress.test.mjs
 scripts/pdfjs-xref-offsets.test.mjs
 scripts/pdfjs-sampled-function.test.mjs
 scripts/pdfjs-bidi-marks.test.mjs
+scripts/pdfjs-bidi-glyphs.test.mjs
 scripts/pdfjs-form-xobject-cache.test.mjs
 scripts/pdfjs-knockout-bounds.test.mjs
 scripts/pdfium-runtime.test.mjs
@@ -824,6 +826,7 @@ js/review/status-sets.test.mjs
 js/review/status-history-rondgang.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
+js/pdf/raster-scan-rust.test.mjs
 js/tools/snap-geometrie-binair.test.mjs
 js/pdf/documentgegevens.test.mjs
 js/core/documentgegevens-undo.test.mjs
@@ -859,3 +862,6 @@ js/review/central-review-upload.test.mjs
 js/pdf/pagina-schalen.test.mjs
 js/pdf/pagina-schalen-app.test.mjs
 js/pdf/pagina-schalen-i18n.test.mjs
+# OCR-talen (#1083)
+js/pdf/ocr-talen.test.mjs
+js/pdf/ocr-talen-i18n.test.mjs

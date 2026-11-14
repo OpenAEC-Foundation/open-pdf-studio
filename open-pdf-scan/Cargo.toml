@@ -1,0 +1,20 @@
+[package]
+name = "open-pdf-scan"
+version = "2026.46.3"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Pixel work on a bounded page raster: symbol search (binary template matching) and form shape detection"
+publish = false
+
+# Pure logica zonder Tauri of PDFium: `cargo test -p open-pdf-scan` draait
+# gewoon. De app-crate zoekt hiermee symbolen op het raster dat de app zelf
+# maakte (commando `symbol_match_raster`); de PDFium-worker gebruikt het op
+# een raster dat hij zelf rendert (pdfium-worker/src/raster_scan/).
+
+[dependencies]
+
+[dev-dependencies]
+# Alleen voor de pariteitstests: fixtures inlezen en uitpakken. Beide staan al
+# in Cargo.lock.
+serde_json = "1"
+flate2 = "1"

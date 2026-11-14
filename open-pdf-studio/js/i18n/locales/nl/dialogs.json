@@ -785,6 +785,22 @@
       "eng": "Engels",
       "chi_tra": "Chinees (Traditioneel)",
       "chi_tra+eng": "Chinees (Traditioneel) + Engels"
+    },
+    "alsoEnglish": "Ook Engels herkennen",
+    "addLanguage": "Taal toevoegen…",
+    "download": "Downloaden",
+    "downloading": "{{language}} downloaden…",
+    "downloaded": "{{language}} is toegevoegd.",
+    "downloadFailed": "De taal kon niet worden toegevoegd: {{error}}",
+    "invalidFile": "de download is geen geldig taalbestand",
+    "folderNotWritable": "In de taalmap kan niet worden geschreven, dus er kan geen taal bij.",
+    "openFolder": "Taalmap openen",
+    "hint": "Extra talen worden op verzoek gedownload van het Tesseract-project en bewaard in de taalmap. Je kunt daar ook zelf .traineddata-bestanden uit de repository tessdata_fast of tessdata_best van Tesseract neerzetten.",
+    "variants": {
+      "vertical": "verticaal",
+      "historic": "historisch",
+      "fraktur": "fraktuur",
+      "equations": "Wiskunde / formules"
     }
   },
   "straighten": {

@@ -5830,6 +5830,45 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   cursor: default;
 }
 
+/* OCR language choice (#1083): shared by the OCR, batch OCR and scan dialogs */
+.ocr-talen {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ocr-talen-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding-inline-start: 96px;
+  cursor: default;
+}
+
+.ocr-talen-check input {
+  margin: 0;
+}
+
+.ocr-talen-actions {
+  display: flex;
+  gap: 6px;
+  padding-inline-start: 96px;
+}
+
+.ocr-talen-status,
+.ocr-talen-hint {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #666);
+  line-height: 1.4;
+}
+
+.ocr-talen-error {
+  font-size: 11px;
+  color: #a4262c;
+  line-height: 1.4;
+}
+
 /* Batch OCR and Scan dialogs (#382) */
 .batch-ocr-dialog { width: 520px; }
 .scan-dialog { width: 440px; }

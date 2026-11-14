@@ -1,0 +1,28 @@
+name: Style shortcuts
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/core/keybindings/**'
+      - 'open-pdf-studio/js/tools/keyboard-handlers.js'
+      - 'open-pdf-studio/js/bridge.ts'
+      - 'open-pdf-studio/js/solid/stores/*Store.js'
+      - 'open-pdf-studio/scripts/test-style-shortcuts-browser.mjs'
+      - '.github/workflows/style-shortcuts.yml'
+permissions:
+  contents: read
+jobs:
+  style-shortcuts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --test js/tools/sneltoetsen-aanpasbaar.test.mjs
+      - run: node scripts/test-style-shortcuts-browser.mjs

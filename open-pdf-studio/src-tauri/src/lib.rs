@@ -31,10 +31,13 @@ pub mod mcp_server;
 pub mod mcp_signaal;
 pub mod mcp_tool_meta;
 pub mod monochroom;
+pub mod symbool_zoeken;
 pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
 pub mod ocr;
+pub mod ocr_talen;
+pub mod ocr_talen_app;
 pub mod pdfium_renderer;
 pub mod pdfx_cmyk;
 pub mod handtekening;
@@ -335,11 +338,6 @@ async fn list_installed_font_families() -> Result<Vec<String>, String> {
 }
 
 // Fallback commands for when plugins aren't available via global API
-
-#[tauri::command]
-fn read_file(path: String) -> Result<Vec<u8>, String> {
-    fs::read(&path).map_err(|e| e.to_string())
-}
 
 #[tauri::command]
 fn write_file(path: String, data: String) -> Result<bool, String> {
@@ -1192,8 +1190,30 @@ fn sanitize_temp_pdf_name(name: &str) -> String {
 /// unieke submap: de printspooler (Windows én CUPS) toont de bestandsnaam als
 /// jobnaam, dus zo heet de printjob naar het pdf-bestand in plaats van naar
 /// een timestamp.
+///
+/// The PDF travels as the raw IPC body and the name percent-encoded in the
+/// `x-opds-name` header, so a large print job is not turned into a JSON array
+/// of numbers on its way here.
 #[tauri::command]
-fn write_temp_pdf(data: Vec<u8>, name: Option<String>) -> Result<String, String> {
+fn write_temp_pdf(request: tauri::ipc::Request<'_>) -> Result<String, String> {
+    let mut name = match request.headers().get("x-opds-name") {
+        Some(v) => Some(urlencoding::decode(v.to_str().map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?.into_owned()),
+        None => None,
+    };
+    let data = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => std::borrow::Cow::Borrowed(bytes.as_slice()),
+        // Android cannot transport a raw IPC body.
+        tauri::ipc::InvokeBody::Json(value) => {
+            if name.is_none() {
+                name = value.get("name").and_then(|n| n.as_str()).map(str::to_string);
+            }
+            std::borrow::Cow::Owned(
+                serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing file data")?)
+                    .map_err(|e| e.to_string())?,
+            )
+        }
+    };
     let temp_dir = std::env::temp_dir();
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -1215,7 +1235,7 @@ fn write_temp_pdf(data: Vec<u8>, name: Option<String>) -> Result<String, String>
         }
         None => temp_dir.join(format!("openstudio_print_{}.pdf", timestamp)),
     };
-    fs::write(&path, &data).map_err(|e| format!("Failed to write temp file: {}", e))?;
+    fs::write(&path, data.as_ref()).map_err(|e| format!("Failed to write temp file: {}", e))?;
     Ok(path.to_string_lossy().to_string())
 }
 
@@ -2349,9 +2369,10 @@ async fn render_pdf_page(
 }
 
 /// Run OCR on one page. `lang` is Tesseract's `+`-joined language spec (e.g.
-/// "chi_tra+eng"); defaults to "eng" if omitted. Tessdata is resolved from
-/// the bundled `tessdata` resource directory — see scripts/ocr-runtime.mjs
-/// and the `resources` map in tauri.conf.json.
+/// "chi_tra+eng"); defaults to "auto" if omitted. Tessdata is the user's
+/// language folder, filled from the bundled `tessdata` resource directory
+/// (see ocr_talen.rs, scripts/ocr-runtime.mjs and the `resources` map in
+/// tauri.conf.json); the bundled folder itself if that folder is unusable.
 #[cfg(not(target_os = "android"))]
 #[tauri::command]
 async fn ocr_pdf_page(
@@ -2382,15 +2403,12 @@ async fn ocr_pdf_page(
         &pdfium_cache,
     )?;
 
-    let resource_dir = app
-        .path()
-        .resource_dir()
-        .map_err(|e| format!("Cannot resolve resource_dir: {}", e))?;
-    // Niet rechtstreeks to_str(): op Windows is resource_dir een \\?\-pad en
-    // daar kan Tesseract geen "/<taal>.traineddata" achter plakken.
-    let tessdata_dir = ocr::tessdata_path_for_tesseract(&resource_dir.join("tessdata"))?;
-
     let lang = lang.unwrap_or_else(|| "auto".to_string());
+    ocr_talen_app::controleer_taalspec(&lang)?;
+    // De taalmap van de gebruiker (#1083). Niet rechtstreeks to_str(): op
+    // Windows kan dat een \\?\-pad zijn en daar kan Tesseract geen
+    // "/<taal>.traineddata" achter plakken.
+    let tessdata_dir = ocr::tessdata_path_for_tesseract(&ocr_talen_app::effectieve_tessdata(&app)?)?;
 
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
@@ -2445,6 +2463,38 @@ async fn compare_pixel_pair(
     out.resize(out.len() + pad, 0);
     out.extend_from_slice(&clusters);
     Ok(tauri::ipc::Response::new(out))
+}
+
+/// Pixelwerk op een paginabeeld in de PDFium-worker: symbolen zoeken
+/// (`symbol_scan`) en formuliervormen herkennen (`form_shapes`), zie
+/// pdfium-worker/src/raster_scan/mod.rs. `request` is de aanvraag zonder op/id
+/// (js/pdf/raster-scan-rust.js); het antwoord is de antwoordregel van de
+/// worker. Fouten beginnen met SCAN_RUST_; een fout die de JS-functies zelf
+/// ook geven (TEMPLATE_BOUNDS en dergelijke) geeft de app door, bij elke
+/// andere rekent ze in JavaScript. `OPDS_RUST_SCAN=0` dwingt de JS-weg af.
+#[tauri::command]
+async fn raster_scan_page(
+    op: String,
+    request: serde_json::Value,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<serde_json::Value, String> {
+    if symbool_zoeken::uitgezet() {
+        return Err("SCAN_RUST_DISABLED".to_string());
+    }
+    if op != "symbol_scan" && op != "form_shapes" {
+        return Err(format!("SCAN_RUST_FAILED: unknown operation {op}"));
+    }
+    let p = pool.get().ok_or_else(|| "SCAN_RUST_UNAVAILABLE: worker pool not ready".to_string())?;
+    let path = request["raster"]["path"].as_str().ok_or_else(|| "SCAN_RUST_FAILED: raster.path missing".to_string())?.to_string();
+    let page = request["raster"]["page_index"].as_u64().unwrap_or(0) as u32;
+    let resp = p
+        .raster_scan(&op, request, &path, page)
+        .await
+        .map_err(|e| format!("SCAN_RUST_UNAVAILABLE: {e:#}"))?;
+    if !resp["ok"].as_bool().unwrap_or(false) {
+        return Err(format!("SCAN_RUST_FAILED: {}", resp["error"].as_str().unwrap_or("unknown")));
+    }
+    Ok(resp)
 }
 
 #[tauri::command]
@@ -2903,13 +2953,15 @@ fn extract_draw_commands(
     rotation: Option<i32>,
     bytes_cache: tauri::State<PdfBytesCache>,
     handle_cache: tauri::State<DocHandleCache>,
-) -> Result<Vec<u8>, String> {
+) -> Result<tauri::ipc::Response, String> {
     // Geschakelde lagen (#684): teken uit de weergavekopie.
     let path = laagweergave::tekenpad(&path);
     let doc = get_or_load_doc(&path, &bytes_cache, &handle_cache)?;
     let extra_rot = rotation.unwrap_or(0);
     let cmds = doc.extract_draw_commands(page_index as usize, extra_rot).map_err(|e| format!("{}", e))?;
-    Ok(cmds.into_bytes())
+    // Raw bytes: a vector sheet yields megabytes of commands, which as
+    // `Vec<u8>` would cross as a JSON array of numbers.
+    Ok(tauri::ipc::Response::new(cmds.into_bytes()))
 }
 
 #[tauri::command]
@@ -2921,36 +2973,6 @@ fn extract_page_text(
 ) -> Result<String, String> {
     let doc = get_or_load_doc(&path, &bytes_cache, &handle_cache)?;
     doc.extract_text_positions(page_index as usize).map_err(|e| format!("{}", e))
-}
-
-/// Batch extract draw commands for multiple pages in parallel using rayon.
-/// Returns one Vec<u8> per requested page in the same order. Used for
-/// adjacent-page prefetch (warm pages 2..N in the background after page 1
-/// is on screen so wheel-scrolling forward feels instant).
-///
-/// `rotations` is a parallel array of extra rotation values (one per page).
-/// Pass an empty array to use 0 for all pages.
-#[tauri::command]
-fn extract_draw_commands_batch(
-    path: String,
-    page_indices: Vec<u32>,
-    rotations: Option<Vec<i32>>,
-    bytes_cache: tauri::State<PdfBytesCache>,
-    handle_cache: tauri::State<DocHandleCache>,
-) -> Result<Vec<Vec<u8>>, String> {
-    // Geschakelde lagen (#684): teken uit de weergavekopie.
-    let path = laagweergave::tekenpad(&path);
-    let doc = get_or_load_doc(&path, &bytes_cache, &handle_cache)?;
-    let rots = rotations.unwrap_or_default();
-    let pairs: Vec<(usize, i32)> = page_indices.iter().enumerate().map(|(i, &p)| {
-        (p as usize, rots.get(i).copied().unwrap_or(0))
-    }).collect();
-    let results = doc.extract_draw_commands_batch(&pairs);
-    let mut out = Vec::with_capacity(results.len());
-    for r in results {
-        out.push(r.map(|b| b.into_bytes()).map_err(|e| format!("{}", e))?);
-    }
-    Ok(out)
 }
 
 /// Invalidate the PDF bytes cache AND the parsed handle cache for a specific
@@ -3718,7 +3740,6 @@ pub fn run(opts: StartupOpts) {
             save_session,
             load_session,
             get_username,
-            read_file,
             write_file,
             write_file_atomic,
             cancel_file_write,
@@ -3793,9 +3814,14 @@ pub fn run(opts: StartupOpts) {
             extensie_catalogus::extensie_pakket_opruimen,
             render_pdf_page,
             ocr_pdf_page,
+            // OCR-talen: lijst en downloaden (#1083)
+            ocr_talen_app::ocr_languages_list,
+            ocr_talen_app::ocr_language_download,
             worker_pool_ready,
             render_pdf_page_region,
             compare_pixel_pair,
+            raster_scan_page,
+            symbool_zoeken::symbol_match_raster,
             render_tile_scene_region,
             extract_snap_geometry,
             extract_search_text,
@@ -3813,7 +3839,6 @@ pub fn run(opts: StartupOpts) {
             analyze_page_type_batch,
             render_pdf_page_skia,
             extract_draw_commands,
-            extract_draw_commands_batch,
             extract_page_text,
             batch_ocr::batch_ocr_list,
             batch_ocr::batch_ocr_allow_output,
