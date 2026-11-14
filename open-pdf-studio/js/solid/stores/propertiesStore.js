@@ -1451,9 +1451,25 @@ function zetMeetEenheid(ann, eenheid) {
   if (ann?.type === 'measureArea' && eenheid) {
     const huidig = vlakLengteSchaal(ann);
     ann.measureScale = schaalInEenheid(huidig.perPt, huidig.unit, eenheid);
+  } else if (ann?.type === 'measureDistance' && eenheid) {
+    // Lengte en maatlijn (#1091): hetzelfde als bij een meetvlak. Zonder dit
+    // rekende de maatlijn opnieuw met de documentschaal en zette de eenheid
+    // terug (ft bleef ft). Pixels hebben geen vaste maat; die blijven zoals ze zijn.
+    const huidig = lijnLengteSchaal(ann);
+    if (huidig) ann.measureScale = schaalInEenheid(huidig.perPt, huidig.unit, eenheid);
   }
   ann.measureUnit = eenheid;
   recomputeMeasureText(ann);
+}
+
+// De lengteschaal van een maatlijn ({ perPt, unit }): de eigen schaal, anders
+// die op het midden van de lijn (documentschaal, schaalgebied, viewport).
+function lijnLengteSchaal(ann) {
+  const eigen = Number(ann?.measureScale);
+  if (eigen > 0) return { perPt: eigen, unit: ann.measureUnit || 'mm' };
+  const dist = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
+  if (!(dist.pixels > 0) || !(dist.value > 0) || !dist.unit) return null;
+  return { perPt: dist.value / dist.pixels, unit: dist.unit };
 }
 
 // Diepte van een meting (#311): een positief getal, of weg.
