@@ -1,0 +1,10 @@
+product,version,edition,platform,task,repetition,status,elapsed_seconds,interaction_count,correctness,output_paths_and_sha256,verification_viewer_version,environment_record,experience_record,settings_record,existing_issue,caveats
+Open PDF Studio,,,Windows,T1,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+Open PDF Studio,,,Windows,T2,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+Open PDF Studio,,,Windows,T3,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+Bluebeam Revu,,,Windows,T1,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+Bluebeam Revu,,,Windows,T2,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+Bluebeam Revu,,,Windows,T3,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+PDF-XChange Editor,,,Windows,T1,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+PDF-XChange Editor,,,Windows,T2,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
+PDF-XChange Editor,,,Windows,T3,,NOT_RUN,,,NOT_VERIFIED,,,,,,,Common Windows environment/product access not established
