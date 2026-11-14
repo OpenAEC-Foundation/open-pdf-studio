@@ -18,6 +18,9 @@ import { openDialog } from '../../stores/dialogStore.js';
 import { lastCaptureAvailable } from '../../stores/screenshotStore.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
+import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
+import { isPdfAReadOnly } from '../../../pdf/loader.js';
 
 // New-document icon (blank sheet with a plus)
 const newDocIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
@@ -156,8 +159,16 @@ export default function HomeTab() {
             <RibbonButton size="small" id="fit-page-ribbon" title={t('home.fitPage')} icon={fitPageIcon} label={t('home.fitPageLabel')}
               disabled={noPdf()} onClick={() => fitPage()} />
           </RibbonButtonStack>
-          {/* Pagina-rotatie (bewerkt het document) staat bij de pagina-
-              bewerkingen op de tab "PDF bewerken & samenvoegen" (#200). */}
+        </RibbonGroup>
+
+        {/* Pagina draaien (bewerkt het document, #200): ook op Start, als
+            grote knoppen. Dezelfde actie als op "PDF bewerken & samenvoegen";
+            eigen ids, want een id komt maar één keer in het lint voor. */}
+        <RibbonGroup label={t('home.rotatePages')}>
+          <RibbonButton id="home-rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
+            disabled={noPdf() || isPdfAReadOnly()} onClick={() => draaiVanafKnop(-90)} />
+          <RibbonButton id="home-rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
+            disabled={noPdf() || isPdfAReadOnly()} onClick={() => draaiVanafKnop(90)} />
         </RibbonGroup>
 
         {/* Edit group moved to the "PDF bewerken & samenvoegen" tab. */}
