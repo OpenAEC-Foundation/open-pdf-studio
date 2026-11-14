@@ -94,12 +94,19 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
 
   // Render PDF page
   // Geschakelde lagen (#377): afdrukken en exporteren tonen wat in beeld is.
-  const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
+  const { pdfjsLaagOpties, eigenLaagConfig } = await import('./lagen-schakelen.js');
+  // Formuliervelden met hun ingevulde waarden (print-formulieren.js): op het
+  // scherm staan ze in een eigen laag, zonder deze opties is de uitvoer blanco.
+  // Een pagina met velden rendert als afdruk; de lagenstand zit dan in de
+  // opties, in de vorm die zo'n render eist.
+  const { formulierRenderOpties } = await import('./print-formulieren.js');
+  const formulier = await formulierRenderOpties(page, pdf, eigenLaagConfig(doc));
+  if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) throw exportChanged();
   const renderContext = {
     canvasContext: pdfCtx,
     viewport: viewport,
-    annotationMode: 0,
-    ...pdfjsLaagOpties(doc),
+    ...formulier,
+    ...(formulier.intent === 'print' ? {} : pdfjsLaagOpties(doc)),
   };
   // Part of the page: shifted so the part starts at pixel (0,0); the canvas
   // clips the rest.
