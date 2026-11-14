@@ -56,6 +56,10 @@ pub enum Request {
         #[serde(default = "standaard_tekstbudget")]
         budget_ms: u32,
     },
+    /// Symbolen zoeken op een paginabeeld (raster_scan/mod.rs).
+    SymbolScan(crate::raster_scan::SymbolScanRequest),
+    /// Formuliervormen op een paginabeeld (raster_scan/mod.rs).
+    FormShapes(crate::raster_scan::FormShapesRequest),
     /// Sluit open pagina-handles (parse-state, honderden MB's op zware
     /// CAD-pagina's); documenten blijven gecachet. Fire-and-forget: geen
     /// response. Gestuurd door de pool bij inactiviteit.
@@ -188,6 +192,27 @@ mod tests {
             caps: vec!["snap_geometry".into()],
         };
         assert!(serde_json::to_string(&ready).unwrap().contains(r#""caps":["snap_geometry"]"#));
+    }
+
+    #[test]
+    fn raster_scan_requests_read_what_the_app_sends() {
+        // Vorm uit js/pdf/raster-scan-rust.js + op/id van de pool.
+        let line = r#"{"op":"symbol_scan","id":3,
+            "raster":{"path":"C:/a.pdf","page_index":1,"width":1200,"height":849,"rotation":90,"expect_len":77},
+            "crop":[10.5,20,48,48],"search":false}"#;
+        let Request::SymbolScan(req) = serde_json::from_str(line).unwrap() else { panic!("not a symbol scan") };
+        assert_eq!((req.id, req.raster.width, req.raster.rotation, req.raster.expect_len), (3, 1200, 90, Some(77)));
+        assert_eq!(req.crop, Some([10.5, 20.0, 48.0, 48.0]));
+        assert!(!req.search && req.template.is_none());
+        assert_eq!((req.threshold, req.rotations, req.scales), (0.75, vec![0.0], vec![1.0]));
+        let line = r#"{"op":"symbol_scan","id":4,"raster":{"path":"a","page_index":0,"width":10,"height":10},
+            "template":{"width":2,"height":1,"pixels":"10"},"threshold":0.9,"rotations":[0,90],"scales":[0.8,1]}"#;
+        let Request::SymbolScan(req) = serde_json::from_str(line).unwrap() else { panic!() };
+        assert!(req.search && req.crop.is_none() && req.raster.rotation == 0 && req.raster.expect_len.is_none());
+        assert_eq!(req.template.unwrap().pixels, "10");
+        let line = r#"{"op":"form_shapes","id":5,"raster":{"path":"a","page_index":2,"width":1600,"height":1132,"rotation":270},"scale":1.9}"#;
+        let Request::FormShapes(req) = serde_json::from_str(line).unwrap() else { panic!("not form shapes") };
+        assert_eq!((req.id, req.raster.page_index, req.raster.rotation, req.scale), (5, 2, 270, 1.9));
     }
 
     #[test]

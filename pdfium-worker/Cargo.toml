@@ -32,5 +32,8 @@ libm = "0.2"
 # Zoektekst (src/page_text): NFKC zoals normalizeUnicode van pdf.js en de
 # Unicode-categorieën van zijn tekenindeling. Beide MIT/Apache, stonden al in
 # Cargo.lock.
+# Symbolen zoeken en formuliervormen herkennen op een paginabeeld
+# (src/raster_scan): het rekenwerk, gedeeld met de app-crate.
+open-pdf-scan = { path = "../open-pdf-scan" }
 unicode-normalization = "0.1.26"
 unicode-properties = "0.1.4"

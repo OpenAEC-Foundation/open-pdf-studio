@@ -1,6 +1,7 @@
 // Conservative image-XObject building block for #902. No document parsing,
 // UI, file writes or mutation: a caller must qualify those budgets separately.
 import { PDFArray, PDFDict, PDFName, PDFNumber, PDFNull, PDFBool, PDFRef, PDFRawStream } from 'pdf-lib';
+import { volgendeTaak } from '../core/volgende-taak.js';
 import { encodeCcittG4, ccittG4Params, CcittOutputLimit } from './ccitt-g4.js';
 
 export const MONOCHROME_LIMITS = Object.freeze({ decodedBytes: 32 * 1024 * 1024, encodedBytes: 32 * 1024 * 1024, workingBytes: 96 * 1024 * 1024 });
@@ -97,7 +98,7 @@ function warnNativeOnce(error) {
  * `native` (monochrome-rust.js) does the per-image work in Rust when given;
  * on any error the JS encoder below takes over with the same rules.
  */
-export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = () => new Promise(r => setTimeout(r, 0)), allowRgb = false, native = null } = {}) {
+export async function optimizeMonochromeImage(stream, { signal, limits = MONOCHROME_LIMITS, checkpoint = volgendeTaak, allowRgb = false, native = null } = {}) {
   checkAbort(signal);
   if (!(stream instanceof PDFRawStream)) return { replacement: null, reason: 'not-image' };
   const context = stream.dict.context;

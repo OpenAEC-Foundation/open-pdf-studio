@@ -837,6 +837,22 @@ async function invokeNew(command, path, data, headers = {}) {
   return true;
 }
 
+// Bytes naar een tijdelijk PDF-bestand (afdrukken, printwachtrij); geeft het
+// pad. Rauwe body in plaats van een JSON-array met een getal per byte: dat
+// kostte ~105 ms per MB aan omzetten (#463).
+export async function writeTempPdf(data, name = null) {
+  const core = getTauriCore();
+  if (!core) throw new NietInBrowserError('write_temp_pdf');
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  // Android cannot transport a raw IPC body.
+  if (window.__TAURI__?.os?.type?.() === 'android') {
+    return core.invoke('write_temp_pdf', { data: Array.from(bytes), name });
+  }
+  return core.invoke('write_temp_pdf', bytes, {
+    headers: name ? { 'x-opds-name': encodeURIComponent(name) } : {},
+  });
+}
+
 // Workflows and new-copy exports must fail on collisions, including races
 // after an existence check.
 export async function writeBinaryFileNew(path, data) {

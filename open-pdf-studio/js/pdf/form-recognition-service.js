@@ -1,6 +1,18 @@
 import { getActiveDocument } from '../core/state.js';
-import { isTauri, fileExists, writeBinaryFileNew } from '../core/platform.js';
+import { isTauri, isMobile, invoke, fileExists, writeBinaryFileNew } from '../core/platform.js';
 import { detectFormShapes, labelCandidates, createRecognizedForm, overlap } from './form-recognition.js';
+import { createRasterScan } from './raster-scan-rust.js';
+
+// Rendering and shape detection in the PDFium worker on the desktop
+// (docs/rust-stappen.md); the pdf.js path below stays as the fallback.
+let _scan = null;
+async function rasterScan() {
+  if (!_scan) {
+    const { getCachedPdfBytes } = await import('./loader.js');
+    _scan = createRasterScan({ inTauri: isTauri, mobile: isMobile, call: invoke, cachedBytes: getCachedPdfBytes });
+  }
+  return _scan;
+}
 
 export async function openFormRecognition(documentId) {
   const doc = getActiveDocument();
@@ -15,6 +27,34 @@ export async function openFormRecognition(documentId) {
   check();
   const sourceId = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('');
   check();
+  // The shapes of a page from the worker (null: the pdf.js path does it), on
+  // the raster that render() would draw: unrotated, so /Rotate is turned back.
+  async function shapesInWorker(pageNumber, signal) {
+    const scan = isTauri() ? await rasterScan() : null,
+      file = scan?.usable() ? scan.file(doc.filePath) : null;
+    if (!file) return null;
+    check();
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    const page = await pdf.getPage(pageNumber);
+    check();
+    const base = page.getViewport({ scale: 1, rotation: 0 });
+    const scale = Math.min(2, 1600 / Math.max(base.width, base.height));
+    const viewport = page.getViewport({ scale, rotation: 0 });
+    const shapes = await scan.form({
+      raster: {
+        path: file.path,
+        page_index: pageNumber - 1,
+        width: Math.ceil(viewport.width),
+        height: Math.ceil(viewport.height),
+        rotation: (360 - (((page.rotate || 0) % 360) + 360) % 360) % 360,
+        expect_len: file.expectLen
+      },
+      scale
+    });
+    check();
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+    return shapes ? { page, base, scale, shapes } : null;
+  }
   async function render(pageNumber, canvas, signal) {
     check();
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -60,7 +100,8 @@ export async function openFormRecognition(documentId) {
       for (const pageNumber of pages) {
         const canvas = document.createElement('canvas');
         try {
-          const { page, base, scale } = await render(pageNumber, canvas, signal),
+          const worker = await shapesInWorker(pageNumber, signal);
+          const { page, base, scale } = worker || await render(pageNumber, canvas, signal),
             text = await page.getTextContent();
           check();
           let words = text.items.filter(w => w.str?.trim()).map(w => {
@@ -84,7 +125,7 @@ export async function openFormRecognition(documentId) {
             bounds: { x: a.rect[0], y: a.rect[1], width: a.rect[2] - a.rect[0], height: a.rect[3] - a.rect[1] }
           }));
           existing.push(...existingPage);
-          const found = labelCandidates(detectFormShapes(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height), scale), words);
+          const found = labelCandidates(worker ? worker.shapes : detectFormShapes(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height), scale), words);
           for (const item of found) {
             const a = base.convertToPdfPoint(item.x, item.y + item.height),
               b = base.convertToPdfPoint(item.x + item.width, item.y);
