@@ -785,6 +785,22 @@
       "eng": "Anglais",
       "chi_tra": "Chinois (traditionnel)",
       "chi_tra+eng": "Chinois (traditionnel) + anglais"
+    },
+    "alsoEnglish": "Reconnaître aussi l’anglais",
+    "addLanguage": "Ajouter une langue…",
+    "download": "Télécharger",
+    "downloading": "Téléchargement de {{language}}…",
+    "downloaded": "{{language}} a été ajouté.",
+    "downloadFailed": "Impossible d’ajouter la langue : {{error}}",
+    "invalidFile": "le fichier téléchargé n’est pas un fichier de langue valide",
+    "folderNotWritable": "Le dossier des langues n’est pas accessible en écriture ; aucune langue ne peut être ajoutée.",
+    "openFolder": "Ouvrir le dossier des langues",
+    "hint": "Les langues supplémentaires sont téléchargées depuis le projet Tesseract à votre demande et conservées dans le dossier des langues. Vous pouvez aussi y placer vous-même des fichiers .traineddata provenant du dépôt tessdata_fast ou tessdata_best de Tesseract.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historique",
+      "fraktur": "Fraktur",
+      "equations": "Mathématiques / formules"
     }
   },
   "straighten": {
