@@ -31,7 +31,7 @@ aparte proef. Gebruik deze zes lichte pagina's nooit als renderbenchmark.
 ## Voorbereiding en registratie
 
 1. Gebruik dezelfde Windows-machine voor alle drie producten: Open PDF Studio,
-   Bluebeam Revu en PDF-XChange Editor. Installeer uitsluitend met rechtmatige
+   referentieproduct A en referentieproduct B. Installeer uitsluitend met rechtmatige
    toegang; koop of activeer niets automatisch. Leg CPU, RAM, GPU/driver,
    Windows-versie/build, schermresolutie, schaalfactor, invoerapparaat en voeding
    vast in een `environment.json` naast de runregistratie.
@@ -49,8 +49,8 @@ aparte proef. Gebruik deze zes lichte pagina's nooit als renderbenchmark.
    oefentijd op een aparte kopie. Noteer benodigde hulp. De antwoordsleutel is
    alleen voor de beoordelaar, tot de deelnemer de uitvoer heeft ingeleverd.
 5. Gebruik drie gemeten herhalingen per taak/product na de oefenronde. Draai de
-   productvolgorde per herhaling: OPS/Revu/Editor, Revu/Editor/OPS,
-   Editor/OPS/Revu. Houd taakvolgorde vergelijken/meten/tellen gelijk. Bij meer
+   productvolgorde per herhaling: OPS/A/B, A/B/OPS,
+   B/OPS/A. Houd taakvolgorde vergelijken/meten/tellen gelijk. Bij meer
    deelnemers roteert ook de eerste productvolgorde. Vermeld leereffecten: dezelfde
    tekening wordt herkend; dit is geen geblindeerd gebruikersonderzoek.
 6. Iedere taak start in een reeds geopende, lege app met standaard startscherm,
