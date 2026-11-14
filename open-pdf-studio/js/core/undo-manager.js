@@ -162,7 +162,7 @@ function scheduleThumbnailRefresh(cmd) {
 function commandPreservesSelection(cmd) {
   if (!cmd) return false;
   if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify' ||
-      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale' ||
+      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale' || cmd.type === 'modifyPageScales' ||
       cmd.type === 'modifyScaleChecks') {
     return true;
   }
@@ -190,7 +190,7 @@ function zetViewports(doc, pageNum, lijst) {
 
 function commandChangesMeasureScale(cmd) {
   if (!cmd) return false;
-  if (cmd.type === 'modifyMeasureScale') return true;
+  if (cmd.type === 'modifyMeasureScale' || cmd.type === 'modifyPageScales') return true;
   return cmd.type === 'compound' && cmd.commands.some(commandChangesMeasureScale);
 }
 
@@ -500,6 +500,10 @@ function applyUndo(cmd, lookup) {
       doc.measureScale = clonePlainValue(cmd.oldState);
       break;
     }
+    case 'modifyPageScales': {
+      doc.pageScales = clonePlainValue(cmd.oldState);
+      break;
+    }
     case 'modifyScaleChecks': {
       doc.scaleChecks = clonePlainValue(cmd.oldState);
       break;
@@ -661,6 +665,10 @@ function applyRedo(cmd, lookup) {
     }
     case 'modifyMeasureScale': {
       doc.measureScale = clonePlainValue(cmd.newState);
+      break;
+    }
+    case 'modifyPageScales': {
+      doc.pageScales = clonePlainValue(cmd.newState);
       break;
     }
     case 'modifyScaleChecks': {
@@ -927,6 +935,17 @@ export function recordMeasureScale(oldState, newState) {
     type: 'modifyMeasureScale',
     oldState: clonePlainValue(oldState),
     newState: clonePlainValue(newState),
+  });
+}
+
+// Page scales (pagina-schalen.js): set on the thumbnails or detected; one
+// step per change, undoable like the document scale.
+export function recordPageScales(oldState, newState) {
+  if (JSON.stringify(oldState ?? null) === JSON.stringify(newState ?? null)) return;
+  execute({
+    type: 'modifyPageScales',
+    oldState: clonePlainValue(oldState ?? null),
+    newState: clonePlainValue(newState ?? null),
   });
 }
 

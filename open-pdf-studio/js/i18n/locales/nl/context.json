@@ -142,7 +142,14 @@
     "insertFromFile": "Invoegen uit bestand...",
     "insertFromFileBefore": "Vóór deze pagina...",
     "insertFromFileAfter": "Na deze pagina...",
-    "pageLabels": "Paginalabels (naambouwer)..."
+    "pageLabels": "Paginalabels (naambouwer)...",
+    "setPageScale": "Paginaschaal instellen...",
+    "setPageScaleMulti": "Schaal van {{count}} pagina’s instellen...",
+    "detectPageScales": "Paginaschalen herkennen (alle pagina’s)",
+    "detectPageScalesMulti": "Schalen van {{count}} pagina’s herkennen",
+    "clearPageScale": "Paginaschaal wissen",
+    "detectPageScalesArea": "Paginaschalen uit gebied herkennen...",
+    "pickScaleArea": "Trek een kader om de schaal in de titelhoek. Dat vak wordt op elke pagina gelezen (OCR waar geen tekst is). Esc breekt af."
   },
   "textSelection": {
     "highlightSelection": "Selectie markeren",
