@@ -3598,8 +3598,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         await applyPendingRedactions(pdfDocLib, { keepRecord: momentopname });
       }
       // Schalen van de app als /VP + /Measure, en de schaalcontroles per
-      // blad (#629). Een pagina waarvan de annotaties nog niet geladen zijn
-      // blijft ongemoeid, zoals hierboven.
+      // blad (#629). Van een pagina waarvan de annotaties nog niet geladen
+      // zijn komt alleen de paginaschaal erin (#1065), de rest blijft ongemoeid.
       schrijfSchalenInPdf(pages, activeDoc, (n) => (activeDoc._annotationPagesReady
         ? activeDoc._annotationPagesReady.has(n)
         : (activeDoc._loadedAnnotationPages ? activeDoc._loadedAnnotationPages.has(n) : true)));
