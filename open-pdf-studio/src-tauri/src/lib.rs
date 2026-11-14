@@ -4,6 +4,7 @@
 #![recursion_limit = "512"]
 
 mod accounts;
+pub mod installer_versie;
 mod systeem_lettertypen;
 mod pdf_beveiliging;
 mod atomic_file;
@@ -3455,12 +3456,15 @@ pub fn run(opts: StartupOpts) {
         // The plugin also lets the installer check in the background at start, so it
         // is only registered where the installer may update this copy (see
         // `openaec_installer_plugin`); without it the frontend uses the updater above.
+        // An installer older than 0.2.4 does not know `--check`: it would open its
+        // window at every start of the app (installer_versie.rs). Then no plugin.
         if openaec_installer_plugin(
             cfg!(windows),
             beheerd::is_beheerd(),
             draagbaar::actief(),
             headless::actief(),
-        ) {
+        ) && installer_versie::installer_kent_achtergrondcontrole(openaec_update::find_installer())
+        {
             builder = builder.plugin(openaec_update::init("open-pdf-studio"));
         }
     }
