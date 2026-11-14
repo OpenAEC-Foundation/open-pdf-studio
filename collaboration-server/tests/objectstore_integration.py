@@ -21,7 +21,8 @@ import time
 
 import boto3
 from botocore.config import Config
-from botocore.exceptions import ClientError
+from botocore.exceptions import (ClientError, EndpointConnectionError, ConnectionClosedError,
+                                 ConnectTimeoutError, ReadTimeoutError)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from opds_collaboration.__main__ import backup
@@ -56,7 +57,8 @@ def child(args, env, ready):
     with tempfile.TemporaryFile() as log:
         process = subprocess.Popen(args, env=env, stdout=log, stderr=log)
         try:
-            for _ in range(200):
+            deadline = time.monotonic() + 20
+            while time.monotonic() < deadline:
                 if process.poll() is not None:
                     log.seek(0)
                     raise AssertionError('test child exited: ' + log.read().decode(errors='replace'))
@@ -65,7 +67,7 @@ def child(args, env, ready):
                         break
                 except (OSError, http.client.HTTPException):
                     pass
-                time.sleep(0.1)
+                time.sleep(min(0.1, max(0, deadline - time.monotonic())))
             else:
                 raise AssertionError('test child readiness deadline exceeded')
             yield
@@ -99,25 +101,28 @@ def objectstore(binary, directory, access, secret):
     api, console = port(), port()
     env = {**os.environ, 'MINIO_ROOT_USER': access, 'MINIO_ROOT_PASSWORD': secret,
            'MINIO_BROWSER': 'off', 'MINIO_UPDATE': 'off'}
+    client = boto3.client('s3', endpoint_url=f'http://127.0.0.1:{api}',
+        aws_access_key_id=access, aws_secret_access_key=secret, region_name='us-east-1',
+        config=Config(connect_timeout=2, read_timeout=5, retries={'total_max_attempts': 1},
+                      s3={'addressing_style': 'path'}))
     def ready():
-        conn = http.client.HTTPConnection('127.0.0.1', api, timeout=1)
+        # HTTP liveness can turn green before MinIO initializes its S3 API.
+        # Probe a read-only authenticated operation before any test writes.
         try:
-            conn.request('GET', '/minio/health/live')
-            response = conn.getresponse()
-            response.read()
-            return response.status == 200
-        finally:
-            conn.close()
-    with child([binary, 'server', str(directory), '--address', f'127.0.0.1:{api}',
-                '--console-address', f'127.0.0.1:{console}'], env, ready):
-        client = boto3.client('s3', endpoint_url=f'http://127.0.0.1:{api}',
-            aws_access_key_id=access, aws_secret_access_key=secret, region_name='us-east-1',
-            config=Config(connect_timeout=2, read_timeout=5, retries={'total_max_attempts': 1},
-                          s3={'addressing_style': 'path'}))
-        try:
+            client.list_buckets()
+            return True
+        except ClientError as exc:
+            if exc.response['Error']['Code'] != 'XMinioServerNotInitialized':
+                raise
+            return False
+        except (EndpointConnectionError, ConnectionClosedError, ConnectTimeoutError, ReadTimeoutError):
+            return False
+    try:
+        with child([binary, 'server', str(directory), '--address', f'127.0.0.1:{api}',
+                    '--console-address', f'127.0.0.1:{console}'], env, ready):
             yield client, f'http://127.0.0.1:{api}'
-        finally:
-            client.close()
+    finally:
+        client.close()
 
 
 @contextmanager
