@@ -3835,7 +3835,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     const rotatedSave = hasPageRotations(appliedRotations);
     if ((textEditsGebakken || ocrLaagGewijzigd || naarWerkkopie || rotatedSave) && activeDoc) {
       try {
-        const renderBytes = await rotationRenderCopy(savedBytes, appliedRotations);
+        let renderBytes = await rotationRenderCopy(savedBytes, appliedRotations);
+        // Kop-/voetteksten die deze save in het bestand zette, tekent het scherm
+        // zelf: niet ook in de weergave laden. reloadFromBytes haalt ze er
+        // alleen uit als het opgeslagen bestand ook de weergave was; vanaf de
+        // tweede save draait het document op een werkkopie en klopt dat niet meer.
+        if (kopVoetIds?.length) {
+          const { zonderKopVoetStromen } = await import('./saver/kopvoet.js');
+          renderBytes = await zonderKopVoetStromen(renderBytes);
+          activeDoc._kopVoetBron = null;
+        }
         if (!stillCurrent()) throw changedDuringSave();
         if (saveAsPath) activeDoc.saveTargetPath = saveAsPath;
         const { reloadFromBytes } = await import('./page-manager.js');
