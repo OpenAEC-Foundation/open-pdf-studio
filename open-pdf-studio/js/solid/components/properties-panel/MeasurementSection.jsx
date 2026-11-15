@@ -3,6 +3,8 @@ import { annotProps, sectionVis, updateAnnotProp, cycleSelectNext, getCurrentAnn
 import { depthQuantity, formatDepthQuantity } from '../../../annotations/measure-depth.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { BREUK_PRECISIES, isImperialeLengte } from '../../../core/voet-inch.js';
+import { maatEenheid } from '../../../core/maat-opmaak.js';
 
 // Uitloop van de maatlijn en de hulplijnen, in millimeters op papier
 // (maatlijn-geometrie.js). Leeg = automatisch.
@@ -11,6 +13,9 @@ const PAPIER_MM_VELDEN = [
   ['dimExtGapMm', 'measurement.extGap'],
   ['dimExtOvershootMm', 'measurement.extOvershoot'],
 ];
+
+// Het type van een maat (lengtemaat); de precisie kent daar drie standen.
+const MAAT_TYPE = 'measureDistance';
 
 function papierMm(waarde) {
   if (waarde === '' || waarde === null || waarde === undefined) return undefined;
@@ -33,6 +38,19 @@ export default function MeasurementSection() {
     return depthQuantity(ann);
   };
   const depthUnit = () => String(annotProps.measureUnit || '').replace(/²$/, '');
+
+  // Precisie: bij een maat drie standen (automatisch, breuk, decimalen); bij
+  // een meetvlak of omtrek alleen decimalen, zoals voorheen.
+  const isMaat = () => annotProps.type === MAAT_TYPE;
+  const precisieWaarde = () => {
+    if (!isMaat()) return String(annotProps.measurePrecision);
+    const f = Number(annotProps.measureFraction);
+    if (annotProps.measureFraction === '' || annotProps.measureFraction === 'auto' || annotProps.measureFraction == null) return 'auto';
+    if (!(f > 0)) return String(annotProps.measurePrecision);
+    // Alleen inches: uitdrukkelijk gekozen, of een maat in inches.
+    return annotProps.measureInchOnly || maatEenheid(annotProps.measureUnit) === 'in' ? `i${f}` : `f${f}`;
+  };
+  const inVoet = () => maatEenheid(annotProps.measureUnit) === 'ft';
 
   return (
     <Show when={sectionVis.measurement}>
@@ -159,9 +177,33 @@ export default function MeasurementSection() {
 
         <div class="property-group">
           <label>{t('measurement.precision')}</label>
-          <select value={annotProps.measurePrecision} disabled={isLocked()}
+          {/* Getalopmaak van een maat (core/maat-opmaak.js): "auto" volgt de
+              viewport van de pagina of de voorkeur, "f16" = 1/16" (voet en
+              inch), een getal = uitdrukkelijk zoveel decimalen. */}
+          <select value={precisieWaarde()}
+            disabled={isLocked()}
             onDblClick={cycleSelectNext}
-            onChange={(e) => updateAnnotProp('measurePrecision', e.target.value)}>
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === 'auto') updateAnnotProp('measureFraction', 'auto');
+              else if (v.startsWith('f') || v.startsWith('i')) updateAnnotProp('measureFraction', v);
+              else updateAnnotProp('measurePrecision', v);
+            }}>
+            <Show when={isMaat()}>
+              <option value="auto">{t('measurement.auto')}</option>
+            </Show>
+            {/* Voet-inch (alleen bij een maat in voet) en alleen inches; het
+                label toont de kleinste stap: 0'-0 1/16" of 1/16". */}
+            <Show when={isMaat() && inVoet()}>
+              <For each={BREUK_PRECISIES}>
+                {(n) => <option value={`f${n}`}>{n === 1 ? `0'-1"` : `0'-0 1/${n}"`}</option>}
+              </For>
+            </Show>
+            <Show when={isMaat() && isImperialeLengte(maatEenheid(annotProps.measureUnit))}>
+              <For each={BREUK_PRECISIES}>
+                {(n) => <option value={`i${n}`}>{n === 1 ? `1"` : `1/${n}"`}</option>}
+              </For>
+            </Show>
             <option value="0">1</option>
             <option value="1">0.1</option>
             <option value="2">0.01</option>

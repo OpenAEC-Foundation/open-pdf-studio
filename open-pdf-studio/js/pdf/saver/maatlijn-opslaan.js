@@ -143,6 +143,9 @@ export function maatlijnAnnotatie({ ann, annRaw = ann, doc, preferences, scaleSo
   // Save custom properties for exact round-trip
   if (ann.headSize && ann.headSize !== 12) mdDict.OPS_HeadSize = ann.headSize;
   if (ann.measurePrecision != null && ann.measurePrecision !== 2) mdDict.OPS_Precision = ann.measurePrecision;
+  // Uitdrukkelijk decimaal (measureFraction 0, core/maat-opmaak.js): een
+  // decimale /D alleen zegt dat niet, die schrijft de app voor elke maat.
+  if (ann.measureFraction === 0) mdDict.OPS_DimDecimal = true;
   // Spot Coord: het label is een coördinaat, geen lengte (spot-coord.js).
   if (ann.dimKind === SPOT_COORD) mdDict.OPS_DimKind = PDFName.of('SpotCoord');
   // User-dragged text position: offset from the dimension-line

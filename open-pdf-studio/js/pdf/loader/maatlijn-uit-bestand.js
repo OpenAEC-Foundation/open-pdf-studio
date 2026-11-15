@@ -238,6 +238,8 @@ export function maatlijnUitBestand({ annot, extra = {}, convertPoint }) {
     if (extraColors.measurePrecision !== undefined) {
       mdProps.measurePrecision = extraColors.measurePrecision;
     }
+    // Voet-inch met een breuk uit /D (core/maat-opmaak.js).
+    if (extraColors.measureFraction) mdProps.measureFraction = extraColors.measureFraction;
   }
   // Read line endings from PDF LE array
   const mdLe = annot.lineEndings || [];
@@ -250,6 +252,9 @@ export function maatlijnUitBestand({ annot, extra = {}, convertPoint }) {
   }
   Object.assign(mdProps, meetlijnKoppenUitBestand(extraColors, mdProps.lineWidth));
   if (extraColors.opsPrecision != null) mdProps.measurePrecision = extraColors.opsPrecision;
+  // Uitdrukkelijk decimaal (OPS_DimDecimal): gaat voor de viewport en de
+  // voorkeur voet-inch, ook bij een maat die de schaal van de pagina volgt.
+  if (extraColors.opsDimDecimal) mdProps.measureFraction = 0;
   // Spot Coord-label (saver/maatlijn-opslaan.js, OPS_DimKind /SpotCoord).
   if (extraColors.lijn?.opsDimKind === 'SpotCoord') mdProps.dimKind = SPOT_COORD;
   // User-dragged text offset (relative to dimension-line midpoint) —
