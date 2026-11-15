@@ -325,6 +325,7 @@ js/pdf/pdf-viewport-lus.test.mjs
 js/pdf/scrollbalk-geometrie.test.mjs
 js/tools/greep-strek.test.mjs
 js/pdf/haakjes-rondgang.test.mjs
+js/pdf/vorm-rand-rondgang.test.mjs
 js/pdf/cjk-tekstvak-rondgang.test.mjs
 js/pdf/cjk-font-ontbreekt.test.mjs
 js/annotations/kalibratie-schaal.test.mjs

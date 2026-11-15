@@ -51,6 +51,7 @@ import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 import { inktUitBestand } from './inkt-uit-bestand.js';
 import { gedraaideMarkeringUitBestand } from '../../annotations/markering-quads.js';
+import { hartlijnUitRect } from '../vorm-rand-inzet.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -545,6 +546,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           sqX = cx - sqW / 2;
           sqY = cy - sqH / 2;
         }
+      } else if (!extraColors.borderCloudy) {
+        // Met /RD ligt de rand binnen /Rect (pdf/vorm-rand-inzet.js).
+        const hart = hartlijnUitRect(rect, extraColors.vormRd,
+          extraColors.borderWidth ?? annot.borderStyle?.width ?? 1);
+        if (hart) ({ x: sqX, y: sqY, width: sqW, height: sqH } = convertRect(hart));
       }
       const sqProps = {
         ...baseProps,
@@ -602,6 +608,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           crX = cx - crW / 2;
           crY = cy - crH / 2;
         }
+      } else if (!extraColors.borderCloudy) {
+        // Met /RD ligt de rand binnen /Rect (pdf/vorm-rand-inzet.js).
+        const hart = hartlijnUitRect(rect, extraColors.vormRd,
+          extraColors.borderWidth ?? annot.borderStyle?.width ?? 1);
+        if (hart) ({ x: crX, y: crY, width: crW, height: crH } = convertRect(hart));
       }
       const crProps = {
         ...baseProps,

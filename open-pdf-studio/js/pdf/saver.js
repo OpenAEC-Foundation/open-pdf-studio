@@ -25,6 +25,7 @@ import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './sa
 import { bereidIncrementeelVoor, bouwIncrementeleUpdate, vereistVolledigeHerschrijving, herstelOngewijzigdeOutline } from './saver/incrementeel.js';
 import { schrijfDocumentgegevens } from './saver/documentgegevens-opslaan.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
+import { randBinnenRect, rectRondHartlijn } from './vorm-rand-inzet.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
 import { schrijfSchalenInPdf } from './schaal-in-pdf.js';
@@ -841,6 +842,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             };
 
             annDictObj.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
+            // De rand binnen /Rect, met /RD (pdf/vorm-rand-inzet.js). Zonder
+            // rand wordt /W straks 0 (markeerZonderRand), dus dan geen inzet.
+            if (randBinnenRect(ann)) {
+              const binnen = rectRondHartlijn([bx1, by1, bx2, by2], randSleutelZonderRand(ann) ? 0 : borderWidth);
+              annDictObj.Rect = binnen.rect;
+              annDictObj.RD = binnen.rd;
+            }
 
             // Add interior color (fill) if specified
             if (hasFill(ann.fillColor)) {
@@ -989,6 +997,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             };
 
             annDictObj.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
+            // De rand binnen /Rect, met /RD: zie de rechthoek hierboven.
+            if (randBinnenRect(ann)) {
+              const binnen = rectRondHartlijn([ccx1, ccy1, ccx2, ccy2], randSleutelZonderRand(ann) ? 0 : borderWidth);
+              annDictObj.Rect = binnen.rect;
+              annDictObj.RD = binnen.rd;
+            }
 
             if (hasFill(ann.fillColor)) {
               annDictObj.IC = hexToColorArray(ann.fillColor);
