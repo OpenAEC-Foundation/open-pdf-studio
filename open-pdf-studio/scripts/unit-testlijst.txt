@@ -862,3 +862,5 @@ js/review/central-review-upload.test.mjs
 js/pdf/pagina-schalen.test.mjs
 js/pdf/pagina-schalen-app.test.mjs
 js/pdf/pagina-schalen-i18n.test.mjs
+
+scripts/pdf-lib-xref-bounds.test.mjs
