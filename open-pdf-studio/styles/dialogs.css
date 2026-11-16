@@ -7129,4 +7129,4 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 
 /* Kalibratie: een referentielijn tekenen (#1090). */
 .calibration-row .calibration-draw { white-space: nowrap; }
-.calibration-row .calibration-hint { font-size: 11px; color: var(--theme-text-secondary, #666); margin-left: 6px; }
+.calibration-row .calibration-hint { font-size: 11px; color: var(--theme-text-secondary, #666); margin-inline-start: 6px; }
