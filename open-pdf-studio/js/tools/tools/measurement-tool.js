@@ -1,13 +1,12 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
-import { formatDimensionText, expandArcPoints, herberekenVlakMaat, vlakMeting, vlakZijdeTeksten } from '../../annotations/measurement.js';
+import { maatlijnTekst, expandArcPoints, herberekenVlakMaat, vlakMeting, vlakZijdeTeksten } from '../../annotations/measurement.js';
 import { drawVlakZijdematen } from '../../annotations/rendering/measurements.js';
 import { applyToolTransform } from '../tool-context.js';
 import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { documentHeeftSchaal } from '../../annotations/schaal-op-punt.js';
-import { formatGetal } from '../../core/maat-notatie.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -134,14 +133,16 @@ export const measureDistanceTool = {
       // mm shows whole numbers (no decimals); other units use the user pref.
       const dimPrecision = (dimUnit === 'mm') ? 0
         : (prefs.measureDistDimPrecision != null ? prefs.measureDistDimPrecision : 2);
+      // Getalopmaak automatisch (measureFraction niet gezet, core/maat-opmaak.js):
+      // met de schaal van de pagina volgt de maat de opmaak van de viewport
+      // (`dist.opmaak`, /D in de PDF), ook als die later verandert.
+      const opmaakDrager = { measurePrecision: dimPrecision };
       let mText;
       if (dimScale) {
         const pixelDist = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
-        const v = formatGetal(pixelDist * dimScale, dimPrecision);
-        // mm is the implied drawing unit on dimensions — no suffix.
-        mText = dimUnit === 'mm' ? v : `${v} ${dimUnit}`;
+        mText = maatlijnTekst({ ...opmaakDrager, measureScale: dimScale }, { value: pixelDist * dimScale, unit: dimUnit });
       } else {
-        mText = formatDimensionText(dist);
+        mText = maatlijnTekst(opmaakDrager, dist);
       }
       const ann = ctx.createAnnotation({
         type: 'measureDistance',
@@ -249,14 +250,14 @@ export const measureDistanceTool = {
     const dimPrecision = (dimUnit === 'mm') ? 0
       : (prefs.measureDistDimPrecision != null ? prefs.measureDistDimPrecision : 2);
 
+    // Dezelfde tekst als de maat die straks ontstaat (core/maat-opmaak.js).
     function dimMeasureText(sx, sy, ex, ey) {
       if (dimScale) {
         const pixelDist = Math.sqrt((ex - sx) ** 2 + (ey - sy) ** 2);
-        const v = formatGetal(pixelDist * dimScale, dimPrecision);
-        return dimUnit === 'mm' ? v : `${v} ${dimUnit}`;
+        return maatlijnTekst({ measurePrecision: dimPrecision, measureScale: dimScale }, { value: pixelDist * dimScale, unit: dimUnit });
       }
       const d = ctx.calculateDistance(sx, sy, ex, ey, getActiveDocument()?.currentPage);
-      return formatDimensionText(d);
+      return maatlijnTekst({ measurePrecision: dimPrecision }, d);
     }
 
     if (state.dimPoints.length === 1) {

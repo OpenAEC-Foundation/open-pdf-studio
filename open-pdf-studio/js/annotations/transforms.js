@@ -1,7 +1,7 @@
 import { HANDLE_TYPES } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { snapAngle } from '../utils/helpers.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10, herberekenVlakMaat, syncSpotCoord } from './measurement.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, maatlijnTekst, snapDistanceTo10, herberekenVlakMaat, syncSpotCoord } from './measurement.js';
 import { isSpotCoord } from './spot-coord.js';
 import { handleAnchors, lineEndForDotTarget, resolveParams } from './stavenreeks.js';
 import { getTemplate } from '../symbols/registry.js';
@@ -28,15 +28,11 @@ function computeDimensionText(ann) {
     const dy = ann.endY - ann.startY;
     const pixelDist = Math.sqrt(dx * dx + dy * dy);
     const scaledVal = pixelDist * ann.measureScale;
-    const unit = ann.measureUnit || 'mm';
-    // mm shows whole numbers (no decimals); other units use annotation.measurePrecision.
-    const prec = (unit === 'mm') ? 0
-      : (ann.measurePrecision !== undefined ? ann.measurePrecision : 2);
-    // mm is the implied drawing unit on dimensions — no suffix.
-    const v = scaledVal.toFixed(prec);
-    return unit === 'mm' ? v : `${v} ${unit}`;
+    // Opmaak van de maat zelf (core/maat-opmaak.js): mm hele getallen zonder
+    // eenheid, voet-inch met de eigen breuk, anders measurePrecision.
+    return maatlijnTekst(ann, { value: scaledVal, unit: ann.measureUnit || 'mm' });
   }
-  return formatDimensionText(calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann));
+  return maatlijnTekst(ann, calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann));
 }
 
 // Keep the stored measurement fields of a dimension in sync with its geometry.

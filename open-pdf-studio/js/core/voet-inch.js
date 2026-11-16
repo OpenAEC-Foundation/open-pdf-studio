@@ -3,14 +3,14 @@
 // Architecten lezen en typen imperiale maten als voet, inch en een breuk van
 // een inch; alleen ingenieurs werken met decimale voet. De voorkeur
 // imperialLengthFormat kiest de weergave van lengtes in ft en in ('decimal'
-// of 'feetInch'), imperialFractionPrecision de kleinste breuk (1/2 .. 1/64).
+// of 'feetInch'), imperialFractionPrecision de kleinste breuk (hele inch, 1/2 .. 1/64).
 // Oppervlaktes blijven in sq ft. Puur: de app zet de bron van de voorkeur
 // (stelVoetInchBronIn), tests geven de opties mee.
 
 import { leesGetal } from './getal-invoer.js';
 
 /** Toegestane noemers van de kleinste breuk. */
-export const BREUK_PRECISIES = Object.freeze([2, 4, 8, 16, 32, 64]);
+export const BREUK_PRECISIES = Object.freeze([1, 2, 4, 8, 16, 32, 64]);
 /** Toegestane waarden van imperialLengthFormat. */
 export const LENGTE_FORMATEN = Object.freeze(['decimal', 'feetInch']);
 
@@ -76,6 +76,30 @@ export function formatVoetInch(waarde, unit, { precisie } = {}) {
   // Altijd hele inches voor de breuk: 0'-0 3/8", zoals de bouwtekening.
   const inchTekst = breuk ? `${heleInches} ${breuk}` : String(heleInches);
   return `${negatief ? '-' : ''}${voet}'-${inchTekst}"`;
+}
+
+/**
+ * Een lengte in alleen inches met een breuk: 2.1828 ft → `26 3/16"`, 0,2" →
+ * `3/16"`. Afgerond op 1/precisie inch, zoals formatVoetInch.
+ * @param {number} waarde
+ * @param {'ft'|'in'} unit  de eenheid van `waarde`
+ * @param {{precisie?: number}} [opties]
+ * @returns {string}  '' voor geen getal
+ */
+export function formatInchBreuk(waarde, unit, { precisie } = {}) {
+  const n = Number(waarde);
+  if (!Number.isFinite(n)) return '';
+  const p = normaliseerPrecisie(precisie ?? lengteNotatie().precisie);
+  const inches = unit === 'ft' ? n * 12 : n;
+  const delen = Math.round(Math.abs(inches) * p);
+  const negatief = inches < 0 && delen > 0;
+  const heel = Math.floor(delen / p);
+  let teller = delen - heel * p;
+  let noemer = p;
+  while (teller > 0 && teller % 2 === 0) { teller /= 2; noemer /= 2; }
+  const breuk = teller > 0 ? `${teller}/${noemer}` : '';
+  const tekst = breuk ? (heel > 0 ? `${heel} ${breuk}` : breuk) : String(heel);
+  return `${negatief ? '-' : ''}${tekst}"`;
 }
 
 const VOET = String.raw`(?:'|′|’|\s*ft\.?|\s*feet|\s*foot)`;

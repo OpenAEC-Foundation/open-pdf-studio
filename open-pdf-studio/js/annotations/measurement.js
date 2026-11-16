@@ -15,7 +15,8 @@ import { nettoVlakOppervlak } from './vlak-ringen.js';
 import { vlakZijden, lengteEenheid } from './vlak-zijden.js';
 import { isSpotCoord, spotCoordTekst } from './spot-coord.js';
 import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
-import { toontVoetInch, formatVoetInch } from '../core/voet-inch.js';
+import { toontVoetInch, formatVoetInch, lengteNotatie } from '../core/voet-inch.js';
+import { maatTekst, opmaakVanMaat, maatEenheid } from '../core/maat-opmaak.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -101,7 +102,9 @@ export function calculateDistance(x1, y1, x2, y2, pageNum, annotation) {
   return {
     value: pixelDist / scale.pixelsPerUnit,
     unit: scale.unit,
-    pixels: pixelDist
+    pixels: pixelDist,
+    // Getalopmaak van de viewport van de pagina (core/maat-opmaak.js).
+    ...(scale.opmaak ? { opmaak: scale.opmaak } : {}),
   };
 }
 
@@ -249,6 +252,30 @@ function applyRounding(value, unit) {
 export function formatDimensionText(measurement) {
   const s = formatMeasurement(measurement);
   return (measurement?.unit || 'mm') === 'mm' ? s.replace(/\s*mm$/, '') : s;
+}
+
+/**
+ * De tekst van een maatlijn (core/maat-opmaak.js): de eigen opmaak van de
+ * maat (measureFraction of measurePrecision), anders die van de viewport van
+ * de pagina (`measurement.opmaak`), anders de voorkeur. Een maat zonder eigen
+ * opmaak volgt ook de afrondingsvoorkeur, zoals formatDimensionText.
+ * @param {object|null} ann
+ * @param {{value: number, unit: string, opmaak?: object}} measurement
+ */
+export function maatlijnTekst(ann, measurement) {
+  // Zonder uitdrukkelijke keuze (measureFraction niet gezet) neemt een maat
+  // die de schaal van de pagina volgt niet zijn measurePrecision: de
+  // voorkeur measureDistDimPrecision is standaard 0 en zou "7 m" geven in
+  // plaats van "7.06 m". Zie opmaakVanMaat.
+  const eigenSchaal = Number(ann?.measureScale) > 0;
+  const opmaak = opmaakVanMaat(ann, measurement?.opmaak, { eigenSchaal });
+  if (!opmaak.fractie && !opmaak.decimaal && opmaak.decimalen === undefined) {
+    const rounding = state.preferences?.measureRounding;
+    if (rounding && rounding !== 'none' && !toontVoetInch(maatEenheid(measurement.unit))) {
+      return formatDimensionText({ value: measurement.value, unit: maatEenheid(measurement.unit) });
+    }
+  }
+  return maatTekst(measurement.value, measurement.unit, opmaak, { voorkeur: lengteNotatie() });
 }
 
 // Format measurement for display
@@ -422,7 +449,7 @@ function recalculateMeasurementsIn(doc) {
       ann.measureValue = value;
       ann.measureUnit = scale.unit;
       ann.measureScale = undefined; // Clear legacy per-annotation scale so formatMeasurement uses the scaleBar
-      ann.measureText = formatDimensionText({ value, unit: scale.unit });
+      ann.measureText = maatlijnTekst(ann, { value, unit: scale.unit, opmaak: scale.opmaak });
     } else if (ann.type === 'measureArea') {
       if (ann.points && ann.points.length >= 3) {
         // Use position-aware scale directly instead of calculateArea's global fallback;

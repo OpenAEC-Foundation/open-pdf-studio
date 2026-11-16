@@ -210,6 +210,7 @@ js/annotations/minimummaat.test.mjs
 js/annotations/transforms-minimummaat.test.mjs
 js/annotations/papiermaat-eenheid.test.mjs
 js/solid/stores/papier-eenheid-paneel.test.mjs
+js/solid/stores/maat-opmaak-paneel.test.mjs
 js/annotations/greep-keuze.test.mjs
 js/annotations/rendering/wolk-kleine-maat.test.mjs
 scripts/printer-install-scripts.test.mjs
@@ -814,6 +815,8 @@ js/annotations/document-scale-imperiaal.test.mjs
 js/annotations/scale-weergave.test.mjs
 js/annotations/schaal-stelsel.test.mjs
 js/core/voet-inch.test.mjs
+js/core/maat-opmaak.test.mjs
+js/pdf/maat-voet-inch-rondgang.test.mjs
 js/core/us-papierformaten.test.mjs
 js/core/vloeiend-scrollen.test.mjs
 js/annotations/plaatsingspagina.test.mjs

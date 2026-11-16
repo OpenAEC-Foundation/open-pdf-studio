@@ -4,7 +4,7 @@ import { createAnnotation } from '../../annotations/factory.js';
 import { generateImageId } from '../../utils/helpers.js';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, maatlijnTekst } from '../../annotations/measurement.js';
 import { formatGetal } from '../../core/maat-notatie.js';
 import { findImageForAnnotation, findImageEntryForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
@@ -687,14 +687,18 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           // OPS_MeasureText (saver/dimension-measure.js, meetContents).
           if (extraColors.opsSubtype === 'measureDistance') mdText = meettekstUitBestand(mdText, extraColors.opsMeasureText);
           if (!mdText) {
-            if (mdProps.measureScale) {
-              const prec = mdProps.measurePrecision ?? 2;
-              const pixelDist = Math.sqrt((lex - lsx) ** 2 + (ley - lsy) ** 2);
-              const scaledVal = pixelDist * mdProps.measureScale;
-              const unit = mdProps.measureUnit || 'mm';
-              mdText = `${formatGetal(scaledVal, prec)} ${unit}`;
+            // Voet-inch met een breuk uit /D: dezelfde opmaak als tekenen en
+            // slepen (core/maat-opmaak.js). Anders de tekst van voorheen, met
+            // de eenheid erachter (ook "mm": een kaal getal leest de app als
+            // een maat zonder eenheid).
+            const dist = mdProps.measureScale
+              ? { value: Math.sqrt((lex - lsx) ** 2 + (ley - lsy) ** 2) * mdProps.measureScale, unit: mdProps.measureUnit || 'mm' }
+              : calculateDistance(lsx, lsy, lex, ley, pageNum, mdProps);
+            if (mdProps.measureFraction) {
+              mdText = maatlijnTekst(mdProps, dist);
+            } else if (mdProps.measureScale) {
+              mdText = `${formatGetal(dist.value, mdProps.measurePrecision ?? 2)} ${dist.unit}`;
             } else {
-              const dist = calculateDistance(lsx, lsy, lex, ley, pageNum, mdProps);
               mdText = formatMeasurement(dist);
             }
           }

@@ -5,6 +5,7 @@ import PrefComboBox from './PrefComboBox.jsx';
 import PrefSelect from './PrefSelect.jsx';
 import MarkupStatusesEditor from './MarkupStatusesEditor.jsx';
 import { PAPIER_EENHEDEN } from '../../../annotations/papiermaat-eenheid.js';
+import { BREUK_PRECISIES } from '../../../core/voet-inch.js';
 
 const SUB_TABS = [
   { id: 'general', key: 'annotations.subtabGeneral' },
@@ -101,7 +102,7 @@ export default function AnnotationsTab(props) {
     { value: 'decimal', label: t('measurement.imperialDecimal') },
     { value: 'feetInch', label: t('measurement.imperialFeetInch') },
   ];
-  const fractionOpts = [2, 4, 8, 16, 32, 64].map(n => ({ value: n, label: `1/${n}"` }));
+  const fractionOpts = BREUK_PRECISIES.map(n => ({ value: n, label: n === 1 ? `1"` : `1/${n}"` }));
   const unitSystemOpts = [
     { value: 'both', label: t('measurement.unitSystemBoth') },
     { value: 'metric', label: t('measurement.unitSystemMetric') },

@@ -12,6 +12,8 @@ import { dictVingerafdruk } from '../saver/bron-vingerafdruk.js';
 import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { eenheidFactor } from '../../annotations/vlak-zijden.js';
+import { getalopmaakReeks } from '../pdf-viewports.js';
+import { opmaakUitGetalopmaken, maatEenheid } from '../../core/maat-opmaak.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
 import { readDynamicStamp } from './dynamic-stamp-load.js';
@@ -506,6 +508,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const prec = pdfNum(context.lookup(opsPrecRaw) || opsPrecRaw);
         if (prec !== null) colors.opsPrecision = prec;
       }
+      // /OPS_DimDecimal: de maat is uitdrukkelijk decimaal (core/maat-opmaak.js).
+      const opsDecRaw = annotDict.get(PDFName.of('OPS_DimDecimal'));
+      if (opsDecRaw !== undefined && String(context.lookup(opsDecRaw) ?? opsDecRaw) === 'true') colors.opsDimDecimal = true;
 
       // Metingen (#959): een schaal van de pagina die alleen voor andere
       // programma's in /Measure staat (saver/dimension-measure.js), en de
@@ -1137,17 +1142,27 @@ const result = {};
           // app staat dan in de eenheid die de lezer toont (#959). Alleen als
           // /D een zuivere omrekening is: een /D met een andere eenheid maar
           // C 1 is een slordig etiket, daar blijft /X gelden.
-          const dFactor = dFmt?.unit ? eenheidFactor(colors.measureUnit, dFmt.unit) : null;
-          if (colors.measureScale && dFactor && dFmt.unit !== colors.measureUnit
+          // Voet → inch (/D met twee opmaken, ' en "): de maat blijft in voet
+          // en wordt als voet-inch getoond, niet omgerekend naar inches
+          // (core/maat-opmaak.js). ' en " heten voortaan ft en in.
+          const dReeks = getalopmaakReeks(measureDict.get(PDFName.of('D')), (v) => context.lookup(v) ?? v);
+          const voetInchReeks = dReeks.length >= 2 && maatEenheid(dReeks[0].U) === 'ft'
+            && maatEenheid(dReeks[dReeks.length - 1].U) === 'in';
+          if (colors.measureUnit) colors.measureUnit = maatEenheid(colors.measureUnit);
+          const dFactor = dFmt?.unit && !voetInchReeks ? eenheidFactor(colors.measureUnit, maatEenheid(dFmt.unit)) : null;
+          if (colors.measureScale && dFactor && maatEenheid(dFmt.unit) !== colors.measureUnit
               && Math.abs((dFmt.scale || 1) - dFactor) <= 1e-3 * dFactor) {
             colors.measureScale *= dFactor;
-            colors.measureUnit = dFmt.unit;
+            colors.measureUnit = maatEenheid(dFmt.unit);
           }
           if (dFmt && dFmt.precision !== undefined && dFmt.precision > 1) {
             colors.measurePrecision = Math.round(Math.log10(dFmt.precision));
           } else if (xFmt && xFmt.precision !== undefined) {
             colors.measurePrecision = xFmt.precision;
           }
+          // Een breuk (/F /F): voet-inch met die kleinste breuk; /D 1 is hele inches.
+          const opmaakD = opmaakUitGetalopmaken(dReeks);
+          if (opmaakD?.fractie) colors.measureFraction = opmaakD.fractie;
           // /A = area display format — D value is also a denominator
           const aFmt = readNumberFormat(measureDict.get(PDFName.of('A')));
           if (aFmt && aFmt.unit) {
