@@ -3,6 +3,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { state, getActiveDocument } from '../../../core/state.js';
+import { formatPageSize } from '../../stores/doc-info-format.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -150,10 +151,8 @@ export default function CalibrationDialog(props) {
         setUserUnit(geldigeUserUnit(page.userUnit));
         // De viewport van PDF.js rekent /UserUnit mee: de echte papiermaat.
         const vp = page.getViewport({ scale: 1 });
-        // PDF points to mm: 1 pt = 25.4/72 mm
-        const wMm = (vp.width * 25.4 / 72).toFixed(0);
-        const hMm = (vp.height * 25.4 / 72).toFixed(0);
-        setPageSizeText(`${wMm} \u00d7 ${hMm} mm`);
+        // In het gekozen eenhedenstelsel, net als in het eigenschappenpaneel (#1121).
+        setPageSizeText(formatPageSize(vp.width, vp.height, state.preferences?.scaleUnitSystem));
       }
     } catch { /* ignore */ }
   });

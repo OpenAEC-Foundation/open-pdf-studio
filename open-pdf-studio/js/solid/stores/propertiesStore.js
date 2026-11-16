@@ -264,6 +264,8 @@ const [docInfo, setDocInfo] = createStore({
   filepath: '-',
   pages: '-',
   pageSize: '-',
+  // Paginamaat in punten; de weergave rekent hem om naar het gekozen stelsel (#1121).
+  pageSizePt: null,
   title: '',
   author: '',
   subject: '',
@@ -1061,9 +1063,11 @@ export async function populateDocInfo() {
       if (!_docInfoRefresh.isCurrent(token)) return;
       const vp = page.getViewport({ scale: 1 });
       setDocInfo('pageSize', formatPageSizeMm(vp.width, vp.height));
+      setDocInfo('pageSizePt', [vp.width, vp.height]);
     } catch (e) {
       if (!_docInfoRefresh.isCurrent(token)) return;
       setDocInfo('pageSize', DOC_INFO_EMPTY);
+      setDocInfo('pageSizePt', null);
     }
 
     try {
@@ -1081,6 +1085,7 @@ export async function populateDocInfo() {
     if (!_docInfoRefresh.isCurrent(token)) return;
   } else {
     // Document (nog) niet geladen: geen gegevens van een vorig document laten staan.
+    setDocInfo('pageSizePt', null);
     for (const key of ['pages', 'pageSize', 'producer', 'version']) {
       setDocInfo(key, DOC_INFO_EMPTY);
     }
