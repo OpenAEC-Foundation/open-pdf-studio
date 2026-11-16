@@ -65,25 +65,3 @@ export function splineArrowEndTangent(points) {
   return Math.atan2(dy, dx);
 }
 
-// Sample the Bézier chain into a flat point list (for hit-testing / bounding /
-// external-viewer vertex fallback). `perSegment` points per span.
-export function sampleSplineArrow(points, perSegment = 16) {
-  const segments = catmullRomToBezier(points);
-  if (segments.length === 0) return points ? points.map(p => ({ x: p.x, y: p.y })) : [];
-  const out = [{ x: segments[0].x0, y: segments[0].y0 }];
-  for (const s of segments) {
-    for (let j = 1; j <= perSegment; j++) {
-      const t = j / perSegment;
-      const mt = 1 - t;
-      const a = mt * mt * mt;
-      const b = 3 * mt * mt * t;
-      const c = 3 * mt * t * t;
-      const d = t * t * t;
-      out.push({
-        x: a * s.x0 + b * s.c1x + c * s.c2x + d * s.x1,
-        y: a * s.y0 + b * s.c1y + c * s.c2y + d * s.y1,
-      });
-    }
-  }
-  return out;
-}

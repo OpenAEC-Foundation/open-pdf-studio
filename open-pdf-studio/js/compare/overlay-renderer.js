@@ -18,30 +18,6 @@ export const OLD_TINT = 'rgb(220, 38, 38)';   // red-600
 export const NEW_TINT = 'rgb(22, 163, 74)';   // green-600
 
 /**
- * Apply a solid-color tint to all non-white pixels of a canvas while keeping
- * vector sharpness. Operates on the canvas's existing 2d context.
- *
- * The canvas is expected to contain a black-on-white PDF render. After this
- * call, ink (anything that was not pure white) is replaced by the tint color
- * over a white background. The tint is applied at full pixel-resolution so
- * antialiasing edges remain smooth.
- *
- * Implementation: we use globalCompositeOperation = 'multiply' to multiply a
- * solid tint plane across the canvas. White (1,1,1) * tint = tint, while the
- * paper-white background stays white. This is equivalent to a per-channel
- * darken which preserves antialiasing.
- */
-export function tintCanvas(canvas, cssColor) {
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.save();
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.fillStyle = cssColor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.restore();
-}
-
-/**
  * Deprecated. Pixel-diff threshold compositor — replaced by vector tinting +
  * CSS mix-blend-mode. Kept only so legacy importers don't break. Returns null.
  */

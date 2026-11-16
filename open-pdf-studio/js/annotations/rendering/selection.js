@@ -1,8 +1,7 @@
 import { tekenDocument as getActiveDocument } from './document-context.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { heeftEigenDraaipunt } from '../draaipunt.js';
-import { state, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
-import { annotationCtx } from '../../ui/dom-elements.js';
+import { state, getAnnotationBounds } from '../../core/state.js';
 import { getAnnotationHandles } from '../handles.js';
 import { schermSchaal } from '../../pdf/split-view/paneel-weergave.js';
 import { getTemplate } from '../../symbols/registry.js';
@@ -552,47 +551,3 @@ export function drawSelectionHandles(ctx, annotation) {
   });
 }
 
-// Draw outline for a single annotation in multi-selection
-export function drawMultiSelectionOutline(ctx, annotation) {
-  ctx.strokeStyle = '#0066cc';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 3]);
-
-  const bounds = getAnnotationBounds(annotation);
-  if (bounds) {
-    ctx.strokeRect(bounds.x - 2, bounds.y - 2, bounds.width + 4, bounds.height + 4);
-  }
-  ctx.setLineDash([]);
-}
-
-// Draw overall bounding box for multi-selection
-export function drawMultiSelectionBounds(ctx) {
-  const bounds = getSelectionBounds();
-  if (!bounds) return;
-
-  const msDoc = getActiveDocument();
-  const sc = schermSchaal(msDoc) || 1;
-  ctx.strokeStyle = '#0066cc';
-  ctx.lineWidth = 1.5 / sc;
-  ctx.setLineDash([6 / sc, 3 / sc]);
-  const pad = 6 / sc;
-  ctx.strokeRect(bounds.x - pad, bounds.y - pad, bounds.width + pad * 2, bounds.height + pad * 2);
-  ctx.setLineDash([]);
-
-  // Draw corner handles for the overall bounding box
-  const hs = HANDLE_SIZE / sc;
-  const corners = [
-    { x: bounds.x - pad - hs/2, y: bounds.y - pad - hs/2 },
-    { x: bounds.x + bounds.width + pad - hs/2, y: bounds.y - pad - hs/2 },
-    { x: bounds.x - pad - hs/2, y: bounds.y + bounds.height + pad - hs/2 },
-    { x: bounds.x + bounds.width + pad - hs/2, y: bounds.y + bounds.height + pad - hs/2 }
-  ];
-
-  corners.forEach(corner => {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(corner.x, corner.y, hs, hs);
-    ctx.strokeStyle = '#0066cc';
-    ctx.lineWidth = 1 / sc;
-    ctx.strokeRect(corner.x, corner.y, hs, hs);
-  });
-}
