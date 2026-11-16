@@ -103,6 +103,10 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:hosted-bridge
 
+      - name: Test pdf-lib XRef rejection and save recovery (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/pdf-lib-xref-browser.mjs
+
       - name: Test textbox colour and defaults (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-text-color-browser.mjs
@@ -110,6 +114,10 @@ jobs:
       - name: Test high-contrast palette and feedback (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-high-contrast-browser.mjs
+
+      - name: Test Space pan and Ctrl-wheel zoom (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-space-pan-browser.mjs
 
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
@@ -209,6 +217,13 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         working-directory: .
         run: cargo test --release -p open-pdf-studio --lib duplex_reaches_ipp_and_portal_settings
+
+      - name: Test interactive form background ownership (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        working-directory: .
+        run: |
+          cargo test --release -p pdfium-worker render::tests -- --test-threads=1
+          cargo test --release -p open-pdf-studio --lib form_display_tests -- --test-threads=1
 
       - name: Verify no system OCR library dependency (Linux)
         if: matrix.platform == 'ubuntu-22.04'

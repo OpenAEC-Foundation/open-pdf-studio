@@ -119,7 +119,7 @@ export function schaalOpPuntUitBronnen(bronnen, doc, pageNum, x, y) {
   if (balk) return { pixelsPerUnit: balk.pixelsPerUnit, unit: balk.unit, method: 'scaleBar' };
 
   const vp = viewportOp(doc.pdfViewports?.[pageNum], x, y);
-  if (vp) return { pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'pdfViewport' };
+  if (vp) return { pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'pdfViewport', ...(vp.opmaak ? { opmaak: vp.opmaak } : {}) };
 
   const docSchaal = documentSchaalOpPagina(doc, pageNum);
   if (docSchaal) {
@@ -207,7 +207,7 @@ export function schaalBronOpPunt(doc, pageNum, x, y, ppuVoorGebied) {
   const vp = viewportOp(lijst, x, y);
   if (vp) {
     return {
-      pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'pdfViewport', bron: vp,
+      pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'pdfViewport', bron: vp, ...(vp.opmaak ? { opmaak: vp.opmaak } : {}),
       sleutel: `pdfViewport:${pageNum}:${lijst.indexOf(vp)}`,
     };
   }

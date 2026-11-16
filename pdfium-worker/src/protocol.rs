@@ -13,6 +13,10 @@ pub enum Request {
         /// (older app) = off.
         #[serde(default)]
         thin_lines: bool,
+        /// Every widget's stored appearance (page thumbnails, #1101). Absent
+        /// = the screen look: editable fields are left to the HTML form layer.
+        #[serde(default)]
+        forms: bool,
     },
     RenderRegion {
         id: u64,
@@ -108,6 +112,7 @@ mod tests {
             scale: 0.25,
             rotation: 0,
             thin_lines: true,
+            forms: true,
         };
         let line = serde_json::to_string(&req).unwrap();
         let parsed: Request = serde_json::from_str(&line).unwrap();
@@ -138,6 +143,20 @@ mod tests {
                 "region_x_pt":0,"region_y_pt":0,"region_w_pt":10,"region_h_pt":10,"thin_lines":true}"#,
         ).unwrap();
         assert!(matches!(region, Request::RenderRegion { thin_lines: true, .. }));
+    }
+
+    /// Page thumbnails ask for every widget's stored appearance (#1101); the
+    /// interactive view, and any older app, for the screen look.
+    #[test]
+    fn forms_flag_defaults_to_the_screen_look() {
+        let render: Request = serde_json::from_str(
+            r#"{"op":"render","id":1,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0}"#,
+        ).unwrap();
+        assert!(matches!(render, Request::Render { forms: false, .. }));
+        let render: Request = serde_json::from_str(
+            r#"{"op":"render","id":1,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0,"forms":true}"#,
+        ).unwrap();
+        assert!(matches!(render, Request::Render { forms: true, .. }));
     }
 
     #[test]

@@ -1,6 +1,9 @@
 #[path = "render_budget.rs"]
 mod render_budget;
 use render_budget::{dimensions, SCREEN_RGBA_BYTES};
+#[path = "screen_widgets.rs"]
+mod screen_widgets;
+use screen_widgets::ScreenWidgets;
 use anyhow::{anyhow, Context, Result};
 use pdfium_render::prelude::*;
 use std::sync::OnceLock;
@@ -333,6 +336,8 @@ impl Renderer {
         Ok(bytes)
     }
 
+    /// Whole page for the screen; see `render_with_forms`.
+    #[cfg(test)]
     pub fn render(
         &mut self,
         path: &str,
@@ -340,6 +345,21 @@ impl Renderer {
         scale: f32,
         rotation: i32,
         thin_lines: bool,
+    ) -> Result<RenderResult> {
+        self.render_with_forms(path, page_index, scale, rotation, thin_lines, false)
+    }
+
+    /// Whole page. `all_forms`: every widget's stored appearance, for a
+    /// picture without the HTML form layer on top (page thumbnails). Without
+    /// it the screen look: editable fields are left out (#1101).
+    pub fn render_with_forms(
+        &mut self,
+        path: &str,
+        page_index: u32,
+        scale: f32,
+        rotation: i32,
+        thin_lines: bool,
+        all_forms: bool,
     ) -> Result<RenderResult> {
         let idx = self.get_or_load(path)?;
         let result = {
@@ -366,17 +386,23 @@ impl Renderer {
                 other => return Err(anyhow!("unsupported rotation {}", other)),
             };
 
+            // Editable fields belong to the PDF.js form layer (#1101): baking
+            // their saved appearance here leaves stale text after edits. The
+            // form pass stays for signatures and push buttons, which that
+            // layer cannot draw; the editable widgets are hidden meanwhile.
+            let widgets = (!all_forms).then(|| ScreenWidgets::prepare(page));
             let config = PdfRenderConfig::new()
                 .set_target_width(target_w)
                 .set_maximum_height(target_h)
                 .rotate(rot, true)
-                .render_form_data(true)
+                .render_form_data(widgets.as_ref().is_none_or(|w| w.render_form_data()))
                 .render_annotations(false)
                 .use_lcd_text_rendering(true)
                 .set_format(PdfBitmapFormat::BGRA);
 
             let bitmap = page.render_with_config(&config)
                 .map_err(|e| anyhow!("PDFium render: {}", e))?;
+            drop(widgets);
 
             RenderResult {
                 width: bitmap.width() as u32,
@@ -582,12 +608,16 @@ impl Renderer {
 
             let bitmap = page.render_with_config(&config)
                 .map_err(|e| anyhow!("PDFium region render: {}", e))?;
+            let (width, height) = (bitmap.width() as u32, bitmap.height() as u32);
+            let mut rgba = bitmap.as_rgba_bytes();
+            // A matrix render has no form pass: signatures and push buttons
+            // (#1101) are drawn in separately; editable fields stay out.
+            ScreenWidgets::prepare(page).draw_faces_into_tile(
+                &mut rgba, width as usize, height as usize, scale,
+                region_x_pt * scale, region_y_pt * scale, true,
+            );
 
-            RenderResult {
-                width: bitmap.width() as u32,
-                height: bitmap.height() as u32,
-                rgba: bitmap.as_rgba_bytes(),
-            }
+            RenderResult { width, height, rgba }
         };
         // Goedkope pagina's houden geen open handle vast (geheugen-garantie
         // voor normale PDF's); zware behouden hem voor snelle vervolg-tegels.
@@ -595,6 +625,10 @@ impl Renderer {
         Ok(result)
     }
 }
+
+#[cfg(test)]
+#[path = "test_form.rs"]
+mod test_form;
 
 #[cfg(test)]
 mod tests {
@@ -621,11 +655,11 @@ mod tests {
         let document = pdfium().unwrap().load_pdf_from_byte_slice(bytes, None).unwrap();
         let page = document.pages().get(0).unwrap();
         // Same configs as render() and render_region(); a transform implies
-        // no form data, so render_form_data(true) only goes on whole pages.
+        // no form data; whole screen pages must omit widgets as well.
         let config = match tile {
             None => {
                 let (w, h) = dimensions(page.width().value, page.height().value, scale, SCREEN_RGBA_BYTES).unwrap();
-                PdfRenderConfig::new().set_target_width(w).set_maximum_height(h).render_form_data(true)
+                PdfRenderConfig::new().set_target_width(w).set_maximum_height(h).render_form_data(false)
             }
             Some((x, y, w, h)) => {
                 let (bw, bh) = dimensions(w, h, scale, SCREEN_RGBA_BYTES).unwrap();
@@ -644,39 +678,7 @@ mod tests {
         (bitmap.width() as u32, bitmap.height() as u32, bitmap.as_rgba_bytes(), ms)
     }
 
-    /// One 400 x 400 pt page with a line drawing; with `widget` also an
-    /// AcroForm text field at PDF rect [100 100 200 150] whose appearance is a
-    /// filled black box (what a filled-in field looks like in pdf.js).
-    fn form_page(widget: bool, rotate: i32) -> Vec<u8> {
-        let stream = |dict: &str, data: &str| format!("<< {} /Length {} >>\nstream\n{}\nendstream", dict, data.len(), data);
-        let mut bodies = vec![
-            format!("<< /Type /Catalog /Pages 2 0 R {} >>", if widget { "/AcroForm << /Fields [5 0 R] >>" } else { "" }),
-            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
-            format!(
-                "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 400] /Rotate {} /Contents 4 0 R {} >>",
-                rotate,
-                if widget { "/Annots [5 0 R]" } else { "" }
-            ),
-            stream("", "2 w 20 20 m 380 20 l S 20 20 m 20 380 l S 300 300 m 380 360 l S"),
-        ];
-        if widget {
-            bodies.push("<< /Type /Annot /Subtype /Widget /FT /Tx /T (veld) /V (x) /F 4 /P 3 0 R /Rect [100 100 200 150] /AP << /N 6 0 R >> >>".to_string());
-            bodies.push(stream("/Type /XObject /Subtype /Form /BBox [0 0 100 50]", "0 g 0 0 100 50 re f"));
-        }
-        let mut out = b"%PDF-1.7\n".to_vec();
-        let mut offsets = Vec::new();
-        for (i, body) in bodies.iter().enumerate() {
-            offsets.push(out.len());
-            out.extend_from_slice(format!("{} 0 obj\n{}\nendobj\n", i + 1, body).as_bytes());
-        }
-        let xref = out.len();
-        out.extend_from_slice(format!("xref\n0 {}\n0000000000 65535 f\r\n", bodies.len() + 1).as_bytes());
-        for offset in offsets {
-            out.extend_from_slice(format!("{:010} 00000 n\r\n", offset).as_bytes());
-        }
-        out.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n", bodies.len() + 1, xref).as_bytes());
-        out
-    }
+    use test_form::form_page;
 
     /// Compare tiles (x, y, w, h px at `scale`) of page 0 of `bytes`, via a file like the worker.
     fn compare_tiles(bytes: &[u8], name: &str, scale: f64, tiles: &[(usize, usize, usize, usize)]) -> Vec<Vec<u8>> {
@@ -693,6 +695,163 @@ mod tests {
     fn dark(px: &[u8], w: usize, x: usize, y: usize) -> bool {
         let o = (y * w + x) * 4;
         px[o] < 100 && px[o + 1] < 100 && px[o + 2] < 100
+    }
+
+    #[test]
+    fn screen_render_leaves_widgets_to_interactive_layer() {
+        for rotation in [0, 90, 180, 270] {
+            let with = std::env::temp_dir().join(format!("opds-screen-form-{}-{rotation}.pdf", std::process::id()));
+            let without = with.with_extension("plain.pdf");
+            std::fs::write(&with, form_page(true, 0)).unwrap();
+            std::fs::write(&without, form_page(false, 0)).unwrap();
+            let mut renderer = Renderer::new().unwrap();
+            for scale in [1.0, 2.0] {
+                let form = renderer.render(with.to_str().unwrap(), 0, scale, rotation, false).unwrap();
+                let plain = renderer.render(without.to_str().unwrap(), 0, scale, rotation, false).unwrap();
+                assert_eq!((form.width, form.height), (plain.width, plain.height));
+                assert!(form.rgba == plain.rgba, "stored widget must not be baked under editable field: rotation={rotation}, scale={scale}");
+                if rotation == 0 {
+                    let tile = renderer.render_region(with.to_str().unwrap(), 0, scale, 0, 50.0, 230.0, 200.0, 100.0, false).unwrap();
+                    assert!(!dark(&tile.rgba, tile.width as usize, (100.0 * scale) as usize, (45.0 * scale) as usize));
+                }
+            }
+            drop(renderer);
+            std::fs::remove_file(with).unwrap();
+            std::fs::remove_file(without).unwrap();
+        }
+    }
+
+    /// `bytes` page 0 the way the output renderers draw it: whole page with
+    /// PDFium's form pass, so every widget shows its stored appearance.
+    fn render_with_forms(bytes: &[u8], scale: f32, rotation: i32) -> (u32, u32, Vec<u8>) {
+        let document = pdfium().unwrap().load_pdf_from_byte_slice(bytes, None).unwrap();
+        let page = document.pages().get(0).unwrap();
+        let (w, h) = dimensions(page.width().value, page.height().value, scale, SCREEN_RGBA_BYTES).unwrap();
+        let rot = match rotation {
+            0 => PdfPageRenderRotation::None,
+            90 => PdfPageRenderRotation::Degrees90,
+            180 => PdfPageRenderRotation::Degrees180,
+            _ => PdfPageRenderRotation::Degrees270,
+        };
+        let config = PdfRenderConfig::new()
+            .set_target_width(w)
+            .set_maximum_height(h)
+            .rotate(rot, true)
+            .render_form_data(true)
+            .render_annotations(false)
+            .use_lcd_text_rendering(true)
+            .set_format(PdfBitmapFormat::BGRA);
+        let bitmap = page.render_with_config(&config).unwrap();
+        (bitmap.width() as u32, bitmap.height() as u32, bitmap.as_rgba_bytes())
+    }
+
+    fn rgb_at(px: &[u8], w: usize, (x, y): (usize, usize)) -> (u8, u8, u8) {
+        let o = (y * w + x) * 4;
+        (px[o], px[o + 1], px[o + 2])
+    }
+
+    fn temp_pdf(name: &str, bytes: &[u8]) -> std::path::PathBuf {
+        let path = std::env::temp_dir().join(format!("opds-screen-{}-{}.pdf", std::process::id(), name));
+        std::fs::write(&path, bytes).unwrap();
+        path
+    }
+
+    /// The HTML form layer only draws editable fields. Signatures and push
+    /// buttons have no HTML counterpart, so the screen bitmap must keep their
+    /// stored appearance exactly as the output render draws it (#1101).
+    #[test]
+    fn screen_render_keeps_signature_and_button_faces() {
+        use test_form::{centre_px, page_with, Widget::*};
+        for rotate in [0, 90] {
+            let all = temp_pdf(&format!("all-{rotate}"), &page_with(&[Text, Signature, PushButton], rotate));
+            let faces = page_with(&[Signature, PushButton], rotate);
+            let mut renderer = Renderer::new().unwrap();
+            for rotation in [0, 90, 180, 270] {
+                for scale in [1.0, 2.0] {
+                    let screen = renderer.render(all.to_str().unwrap(), 0, scale, rotation, false).unwrap();
+                    let expected = render_with_forms(&faces, scale, rotation);
+                    assert_eq!((screen.width, screen.height), (expected.0, expected.1));
+                    assert!(screen.rgba == expected.2, "screen must equal page + signature + button: /Rotate {rotate}, rotation {rotation}, scale {scale}");
+                    if rotation == 0 {
+                        let w = screen.width as usize;
+                        assert_eq!(rgb_at(&screen.rgba, w, centre_px(Signature, rotate, scale)), (0, 0, 255));
+                        assert_eq!(rgb_at(&screen.rgba, w, centre_px(PushButton, rotate, scale)), (255, 0, 0));
+                        assert_eq!(rgb_at(&screen.rgba, w, centre_px(Text, rotate, scale)), (255, 255, 255));
+                    }
+                }
+            }
+            // The text field is hidden only for the screen render: output
+            // paths on the same cached document still draw it.
+            let mut tiles = Vec::new();
+            renderer.render_tiles(all.to_str().unwrap(), 0, 1.0, &[(0, 0, 400, 400)], |_, px| tiles = px.to_vec()).unwrap();
+            let (x, y) = centre_px(Text, rotate, 1.0);
+            assert!(dark(&tiles, 400, x, y), "text field must stay visible outside the screen render: /Rotate {rotate}");
+            drop(renderer);
+            std::fs::remove_file(all).unwrap();
+        }
+    }
+
+    /// Thumbnails have no form layer on top: they ask for every widget.
+    #[test]
+    fn render_with_forms_draws_every_widget() {
+        use test_form::{centre_px, page_with, Widget::*};
+        let all = temp_pdf("thumb-all", &page_with(&[Text, Signature, PushButton], 0));
+        let mut renderer = Renderer::new().unwrap();
+        let thumb = renderer.render_with_forms(all.to_str().unwrap(), 0, 1.0, 0, false, true).unwrap();
+        let w = thumb.width as usize;
+        assert_eq!(rgb_at(&thumb.rgba, w, centre_px(Text, 0, 1.0)), (0, 0, 0));
+        assert_eq!(rgb_at(&thumb.rgba, w, centre_px(Signature, 0, 1.0)), (0, 0, 255));
+        assert_eq!(rgb_at(&thumb.rgba, w, centre_px(PushButton, 0, 1.0)), (255, 0, 0));
+        let screen = renderer.render_with_forms(all.to_str().unwrap(), 0, 1.0, 0, false, false).unwrap();
+        assert_eq!(rgb_at(&screen.rgba, w, centre_px(Text, 0, 1.0)), (255, 255, 255));
+        drop(renderer);
+        std::fs::remove_file(all).unwrap();
+    }
+
+    /// High-zoom tiles: same rule as whole pages. Before #1101 tiles had no
+    /// widgets at all, so a signature vanished when the view zoomed in.
+    #[test]
+    fn screen_tiles_keep_signature_and_button_faces() {
+        use test_form::{centre_px, display_rect, page_with, Widget::*};
+        for rotate in [0, 90] {
+            let all = temp_pdf(&format!("tile-all-{rotate}"), &page_with(&[Text, Signature, PushButton], rotate));
+            let plain = temp_pdf(&format!("tile-plain-{rotate}"), &page_with(&[], rotate));
+            let mut renderer = Renderer::new().unwrap();
+            for scale in [1.0f32, 2.0, 3.5] {
+                let (rx, ry, rw, rh) = (40.0f32, 50.0f32, 330.0f32, 290.0f32);
+                let tile = renderer.render_region(all.to_str().unwrap(), 0, scale, 0, rx, ry, rw, rh, false).unwrap();
+                let bare = renderer.render_region(plain.to_str().unwrap(), 0, scale, 0, rx, ry, rw, rh, false).unwrap();
+                assert_eq!((tile.width, tile.height), (bare.width, bare.height));
+                let w = tile.width as usize;
+                let local = |(x, y): (usize, usize)| (x - (rx * scale) as usize, y - (ry * scale) as usize);
+                assert_eq!(rgb_at(&tile.rgba, w, local(centre_px(Signature, rotate, scale))), (0, 0, 255), "signature in tile: /Rotate {rotate}, scale {scale}");
+                assert_eq!(rgb_at(&tile.rgba, w, local(centre_px(PushButton, rotate, scale))), (255, 0, 0), "button in tile: /Rotate {rotate}, scale {scale}");
+                assert_eq!(rgb_at(&tile.rgba, w, local(centre_px(Text, rotate, scale))), (255, 255, 255), "no stale text field in tile: /Rotate {rotate}, scale {scale}");
+                // Outside the two faces the tile is the plain page tile, pixel for pixel.
+                let faces: Vec<_> = [Signature, PushButton].iter().map(|&f| display_rect(f, rotate, scale)).collect();
+                for y in 0..tile.height as usize {
+                    for x in 0..w {
+                        let (px, py) = (x as f32 + rx * scale, y as f32 + ry * scale);
+                        if faces.iter().any(|r| px >= r.0 - 2.0 && px <= r.2 + 2.0 && py >= r.1 - 2.0 && py <= r.3 + 2.0) {
+                            continue;
+                        }
+                        let o = (y * w + x) * 4;
+                        assert_eq!(tile.rgba[o..o + 4], bare.rgba[o..o + 4], "pixel ({x}, {y}) outside the faces changed: /Rotate {rotate}, scale {scale}");
+                    }
+                }
+            }
+            // A tile that cuts through the signature: only its part is drawn.
+            let (sx0, sy0, _, _) = display_rect(Signature, rotate, 1.0);
+            let tile = renderer.render_region(all.to_str().unwrap(), 0, 4.0, 0, sx0 + 10.0, sy0 + 10.0, 300.0, 300.0, false).unwrap();
+            assert_eq!(rgb_at(&tile.rgba, tile.width as usize, (8, 8)), (0, 0, 255), "partly covered signature: /Rotate {rotate}");
+            let mut tiles = Vec::new();
+            renderer.render_tiles(all.to_str().unwrap(), 0, 1.0, &[(0, 0, 400, 400)], |_, px| tiles = px.to_vec()).unwrap();
+            let (x, y) = centre_px(Text, rotate, 1.0);
+            assert!(dark(&tiles, 400, x, y), "a screen tile must leave the text field flags as they were: /Rotate {rotate}");
+            drop(renderer);
+            std::fs::remove_file(all).unwrap();
+            std::fs::remove_file(plain).unwrap();
+        }
     }
 
     /// Vergelijken toont formuliervelden zoals pdf.js (intent 'display'):

@@ -45,7 +45,8 @@ import { kenSysteemTypeToe } from '../../annotations/systeem-instance-links.js';
 import {
   getSysteemTypeById, getSysteemTypenData, updateSysteemType,
 } from '../../annotations/systeem-typen-registry.js';
-import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale, herberekenVlakMaat, vlakLengteSchaal } from '../../annotations/measurement.js';
+import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, maatlijnTekst, getMeasureScale, herberekenVlakMaat, vlakLengteSchaal } from '../../annotations/measurement.js';
+import { geldigeFractie, maatEenheid } from '../../core/maat-opmaak.js';
 import { lengteEenheid, schaalInEenheid } from '../../annotations/vlak-zijden.js';
 import { parseDepth } from '../../annotations/measure-depth.js';
 import {
@@ -177,6 +178,8 @@ const [annotProps, setAnnotProps] = createStore({
   measureScale: 0,
   measureUnit: '',
   measurePrecision: 2,
+  measureFraction: '',
+  measureInchOnly: false,
   measureName: '',
   measureDepth: '',
   dimType: '',
@@ -545,6 +548,9 @@ export function storeShowProperties(annotation) {
     // kent lengte-eenheden (#536).
     measureUnit: (annotation.type === 'measureArea' ? lengteEenheid(annotation.measureUnit) : annotation.measureUnit) || '',
     measurePrecision: annotation.measurePrecision !== undefined ? annotation.measurePrecision : 2,
+    // '' = automatisch, 0 = decimaal, 1 .. 64 = breuk (core/maat-opmaak.js).
+    measureFraction: annotation.measureFraction ?? '',
+    measureInchOnly: annotation.measureInchOnly === true,
     measureName: annotation.measureName || '',
     // Diepte van de meting (#311), in de eenheid van de meting; leeg = geen.
     measureDepth: annotation.measureDepth ?? '',
@@ -1328,7 +1334,9 @@ function applyPropToAnnotation(ann, key, value) {
     case 'rotation': ann.rotation = Math.max(-360, Math.min(360, leesGeheelGetal(value) || 0)); break;
     case 'measureScale': ann.measureScale = leesGetalBegin(value) || 0; recomputeMeasureText(ann); break;
     case 'measureUnit': zetMeetEenheid(ann, value); break;
-    case 'measurePrecision': ann.measurePrecision = leesGeheelGetal(value); recomputeMeasureText(ann); break;
+    case 'measurePrecision': ann.measurePrecision = leesGeheelGetal(value); if (ann.type === 'measureDistance') { ann.measureFraction = 0; delete ann.measureInchOnly; setAnnotProps('measureFraction', 0); } recomputeMeasureText(ann); break;
+    // Voet-inch met een breuk (core/maat-opmaak.js); gaat voor measurePrecision.
+    case 'measureFraction': zetMeetFractie(ann, value); setAnnotProps('measureInchOnly', ann.measureInchOnly === true); recomputeMeasureText(ann); break;
     case 'measureName':
       ann.measureName = value;
       if (isRuimteVlak(ann)) ann.opsRuimteNaam = value;
@@ -1456,7 +1464,30 @@ function zetMeetEenheid(ann, eenheid) {
     // rekende de maatlijn opnieuw met de documentschaal en zette de eenheid
     // terug (ft bleef ft). Pixels hebben geen vaste maat; die blijven zoals ze zijn.
     const huidig = lijnLengteSchaal(ann);
+    // Een maat die de documentschaal volgde, toonde zijn waarde met de opmaak
+    // van de pagina of de standaard per eenheid; de precisie van het
+    // gereedschap telde niet mee (core/maat-opmaak.js, opmaakVanMaat). Nu hij
+    // een eigen schaal krijgt, leggen we die opmaak vast, anders werd "7338"
+    // in meters ineens "7 m" (#1099 samen met #1091).
+    if (huidig && !(Number(ann.measureScale) > 0) && ann.measureFraction === undefined) {
+      const opmaak = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann).opmaak;
+      const naarVoetInch = eenheid === 'ft' || eenheid === 'in';
+      if (opmaak?.fractie && naarVoetInch) {
+        ann.measureFraction = opmaak.fractie;
+        setAnnotProps('measureFraction', opmaak.fractie);
+      } else if (opmaak && opmaak.decimalen !== undefined && !opmaak.fractie) {
+        ann.measurePrecision = opmaak.decimalen;
+      } else {
+        delete ann.measurePrecision; // de standaard van de nieuwe eenheid
+      }
+    }
     if (huidig) ann.measureScale = schaalInEenheid(huidig.perPt, huidig.unit, eenheid);
+  }
+  // "Alleen inches" hoort bij een maat in voet; een andere eenheid begint
+  // weer zonder (voet → inch → voet geeft weer voet-inch).
+  if (ann?.type === 'measureDistance' && ann.measureInchOnly) {
+    delete ann.measureInchOnly;
+    setAnnotProps('measureInchOnly', false);
   }
   ann.measureUnit = eenheid;
   recomputeMeasureText(ann);
@@ -1472,6 +1503,27 @@ function lijnLengteSchaal(ann) {
   return { perPt: dist.value / dist.pixels, unit: dist.unit };
 }
 
+// Breuk van een maat in voet en inch (core/maat-opmaak.js): "f16" = voet-inch
+// met 1/16", "i16" = alleen inches met 1/16", een kaal getal = de breuk met de
+// huidige weergave; "auto" of "" = automatisch (de viewport van de pagina of
+// de voorkeur).
+function zetMeetFractie(ann, value) {
+  const tekst = String(value ?? '');
+  const soort = tekst[0];
+  const n = geldigeFractie(soort === 'f' || soort === 'i' ? tekst.slice(1) : tekst);
+  if (!n) {
+    delete ann.measureFraction;
+    delete ann.measureInchOnly;
+    return;
+  }
+  ann.measureFraction = n;
+  // Alleen inches is een keuze bij een maat in voet; een maat in inches
+  // toont al alleen inches en krijgt de vlag niet (die bleef anders hangen
+  // na terugschakelen naar voet).
+  if (soort === 'i' && maatEenheid(ann.measureUnit) === 'ft') ann.measureInchOnly = true;
+  else if (soort === 'f' || soort === 'i') delete ann.measureInchOnly;
+}
+
 // Diepte van een meting (#311): een positief getal, of weg.
 function zetMeetDiepte(ann, value) {
   const d = parseDepth(value);
@@ -1483,7 +1535,6 @@ function zetMeetDiepte(ann, value) {
 function recomputeMeasureText(ann) {
   if (!ann || !ann.type?.startsWith('measure')) return;
   if (ann.type === 'measureDistance' && ann.measureScale) {
-    const prec = ann.measurePrecision !== undefined ? ann.measurePrecision : 2;
     const unit = ann.measureUnit || 'mm';
     const dx = ann.endX - ann.startX;
     const dy = ann.endY - ann.startY;
@@ -1491,14 +1542,14 @@ function recomputeMeasureText(ann) {
     const scaledVal = pixelDist * ann.measureScale;
     ann.measurePixels = pixelDist;
     ann.measureValue = scaledVal;
-    // mm is the implied drawing unit on dimensions — no suffix.
-    ann.measureText = unit === 'mm' ? scaledVal.toFixed(prec) : `${scaledVal.toFixed(prec)} ${unit}`;
+    // Dezelfde opmaak als slepen en tekenen (core/maat-opmaak.js).
+    ann.measureText = maatlijnTekst(ann, { value: scaledVal, unit });
   } else if (ann.type === 'measureDistance') {
     // No per-annotation scale override (cleared or never set): fall back to
     // the document/region scale so clearing the override actually reverts
     // the shown value instead of leaving the old text.
     const dist = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
-    ann.measureText = formatDimensionText(dist);
+    ann.measureText = maatlijnTekst(ann, dist);
     ann.measureValue = dist.value;
     ann.measureUnit = dist.unit;
     ann.measurePixels = dist.pixels;
@@ -1843,7 +1894,8 @@ function applyAnnotProp(key, value) {
       zetMeetEenheid(currentAnnotation, value);
       if (currentAnnotation.type === 'measureArea') setAnnotProps('measureScale', currentAnnotation.measureScale || 0);
       break;
-    case 'measurePrecision': currentAnnotation.measurePrecision = leesGeheelGetal(value); recomputeMeasureText(currentAnnotation); break;
+    case 'measurePrecision': currentAnnotation.measurePrecision = leesGeheelGetal(value); if (currentAnnotation.type === 'measureDistance') { currentAnnotation.measureFraction = 0; delete currentAnnotation.measureInchOnly; setAnnotProps('measureFraction', 0); } recomputeMeasureText(currentAnnotation); break;
+    case 'measureFraction': zetMeetFractie(currentAnnotation, value); setAnnotProps('measureInchOnly', currentAnnotation.measureInchOnly === true); recomputeMeasureText(currentAnnotation); break;
     case 'measureName':
       currentAnnotation.measureName = value;
       if (isRuimteVlak(currentAnnotation)) currentAnnotation.opsRuimteNaam = value;

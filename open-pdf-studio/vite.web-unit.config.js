@@ -1,3 +1,4 @@
+import { pdfLibXRefBounds } from './scripts/pdf-lib-xref-bounds.mjs';
 import { pdfLibInternPools } from './scripts/pdf-lib-intern-pools.mjs';
 // Bouwdoel `web-unit` — los van de bureaubladversie.
 //
@@ -26,7 +27,7 @@ export default defineConfig({
   // Dezelfde PDF.js-worker-backports als de app (#839, #878, #638), op de moderne
   // build die de unit importeert; web-unit/src/viewer.js laadt hem via de
   // virtuele module, zodat dev en build nooit de ongepatchte worker krijgen.
-  plugins: [pdfLibInternPools(), pdfjsPostscriptProgress({ workerPath: 'build/pdf.worker.mjs' })],
+  plugins: [pdfLibXRefBounds(), pdfLibInternPools(), pdfjsPostscriptProgress({ workerPath: 'build/pdf.worker.mjs' })],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

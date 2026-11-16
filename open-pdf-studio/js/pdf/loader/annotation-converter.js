@@ -4,7 +4,7 @@ import { createAnnotation } from '../../annotations/factory.js';
 import { generateImageId } from '../../utils/helpers.js';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, maatlijnTekst } from '../../annotations/measurement.js';
 import { formatGetal } from '../../core/maat-notatie.js';
 import { findImageForAnnotation, findImageEntryForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
@@ -51,6 +51,7 @@ import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 import { inktUitBestand } from './inkt-uit-bestand.js';
 import { gedraaideMarkeringUitBestand } from '../../annotations/markering-quads.js';
+import { hartlijnUitRect } from '../vorm-rand-inzet.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -545,6 +546,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           sqX = cx - sqW / 2;
           sqY = cy - sqH / 2;
         }
+      } else if (!extraColors.borderCloudy) {
+        // Met /RD ligt de rand binnen /Rect (pdf/vorm-rand-inzet.js).
+        const hart = hartlijnUitRect(rect, extraColors.vormRd,
+          extraColors.borderWidth ?? annot.borderStyle?.width ?? 1);
+        if (hart) ({ x: sqX, y: sqY, width: sqW, height: sqH } = convertRect(hart));
       }
       const sqProps = {
         ...baseProps,
@@ -602,6 +608,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           crX = cx - crW / 2;
           crY = cy - crH / 2;
         }
+      } else if (!extraColors.borderCloudy) {
+        // Met /RD ligt de rand binnen /Rect (pdf/vorm-rand-inzet.js).
+        const hart = hartlijnUitRect(rect, extraColors.vormRd,
+          extraColors.borderWidth ?? annot.borderStyle?.width ?? 1);
+        if (hart) ({ x: crX, y: crY, width: crW, height: crH } = convertRect(hart));
       }
       const crProps = {
         ...baseProps,
@@ -676,14 +687,18 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           // OPS_MeasureText (saver/dimension-measure.js, meetContents).
           if (extraColors.opsSubtype === 'measureDistance') mdText = meettekstUitBestand(mdText, extraColors.opsMeasureText);
           if (!mdText) {
-            if (mdProps.measureScale) {
-              const prec = mdProps.measurePrecision ?? 2;
-              const pixelDist = Math.sqrt((lex - lsx) ** 2 + (ley - lsy) ** 2);
-              const scaledVal = pixelDist * mdProps.measureScale;
-              const unit = mdProps.measureUnit || 'mm';
-              mdText = `${formatGetal(scaledVal, prec)} ${unit}`;
+            // Voet-inch met een breuk uit /D: dezelfde opmaak als tekenen en
+            // slepen (core/maat-opmaak.js). Anders de tekst van voorheen, met
+            // de eenheid erachter (ook "mm": een kaal getal leest de app als
+            // een maat zonder eenheid).
+            const dist = mdProps.measureScale
+              ? { value: Math.sqrt((lex - lsx) ** 2 + (ley - lsy) ** 2) * mdProps.measureScale, unit: mdProps.measureUnit || 'mm' }
+              : calculateDistance(lsx, lsy, lex, ley, pageNum, mdProps);
+            if (mdProps.measureFraction) {
+              mdText = maatlijnTekst(mdProps, dist);
+            } else if (mdProps.measureScale) {
+              mdText = `${formatGetal(dist.value, mdProps.measurePrecision ?? 2)} ${dist.unit}`;
             } else {
-              const dist = calculateDistance(lsx, lsy, lex, ley, pageNum, mdProps);
               mdText = formatMeasurement(dist);
             }
           }

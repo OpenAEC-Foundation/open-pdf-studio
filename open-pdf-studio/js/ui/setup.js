@@ -1,3 +1,4 @@
+import { installSpacePan } from '../tools/space-pan.js';
 import { state } from '../core/state.js';
 import { annotationCanvas } from './dom-elements.js';
 import { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, handleDblClick } from '../tools/tool-dispatcher.js';
@@ -222,6 +223,7 @@ export function setupEventListeners() {
   }
 
   // Middelmuis-slepen pant bij elk gereedschap en overal in de weergave
+  installSpacePan();
   installeerMiddelmuisPan();
   // Een pan die zijn loslaten mist (venster kwijt) breekt af (#1013)
   installeerScrollPanVangnet();

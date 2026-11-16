@@ -31,13 +31,16 @@ import { renderQueue } from './render-queue-state.js';
  * `sharpen: true` is for a caller that passes the result to
  * sharpenPageRgba(): on the desktop PDFium route Rust then sharpens the
  * bitmap before it crosses to the WebView (render-sharpen-route.js).
- * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean, sharpen?:boolean}} args
+ * `forms: true` asks for every form widget's stored appearance, for a
+ * picture without the HTML form layer on top (page thumbnails). The screen
+ * leaves the editable fields to that layer (#1101, formulierlaag-scherm.js).
+ * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean, sharpen?:boolean, forms?:boolean}} args
  * @param {{priority?:number, keepWhenHidden?:boolean}} [schedule]  RENDER_PRIORITY
  *   (default PAGE: the page in view)
  * @returns {Promise<Uint8Array>} `[w:u32 LE][h:u32 LE][rgba…]` wire format
  */
 export async function renderPdfPage(
-  { path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn(), sharpen = false },
+  { path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn(), sharpen = false, forms = false },
   { priority = RENDER_PRIORITY.PAGE, keepWhenHidden = false } = {},
 ) {
   const command = (state?.renderEngineOverride === 'rust-skia')
@@ -51,7 +54,11 @@ export async function renderPdfPage(
     gevraagd = await route().aanvraag();
   }
   const res = await renderQueue.schedule(
-    () => invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines, ...(gevraagd > 0 ? { sharpen: gevraagd } : {}) }),
+    () => invoke(command, {
+      path, pageIndex, scale, rotation, thinLines: !!thinLines,
+      ...(gevraagd > 0 ? { sharpen: gevraagd } : {}),
+      ...(forms ? { forms: true } : {}),
+    }),
     { docKey: path || null, priority, keepWhenHidden },
   );
   if (gevraagd > 0) route().markeer(res, gevraagd);

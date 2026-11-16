@@ -1161,11 +1161,19 @@ function _summarizeAnnotation(a) {
 function _recomputeMeasureFields(ann, meas, userProps = {}) {
   const keepText = typeof userProps.measureText === 'string';
   if (ann.type === 'measureDistance') {
-    const d = meas.calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
+    // Een maat met een eigen schaal houdt die (zoals bij slepen, transforms.js);
+    // de tekst volgt de opmaak van de maat of de viewport (core/maat-opmaak.js).
+    let d;
+    if (ann.measureScale) {
+      const pixels = Math.hypot(ann.endX - ann.startX, ann.endY - ann.startY);
+      d = { value: pixels * ann.measureScale, unit: ann.measureUnit || 'mm', pixels };
+    } else {
+      d = meas.calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann);
+    }
     ann.measureValue = d.value;
     ann.measureUnit = d.unit;
     ann.measurePixels = d.pixels;
-    if (!keepText) ann.measureText = meas.formatMeasurement(d);
+    if (!keepText) ann.measureText = meas.maatlijnTekst(ann, d);
   } else if (ann.type === 'measureArea') {
     // Met de eigen schaal van het vlak als die er is (#536).
     const a = meas.vlakMeting(ann);

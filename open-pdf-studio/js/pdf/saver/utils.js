@@ -6,6 +6,7 @@ import { blendPdfNaam } from '../../annotations/blend-modes.js';
 import { hatchFillOps, dashArrayForStyle } from './appearance-vectors.js';
 import { eigenVulDekking } from '../../annotations/vul-dekking.js';
 import { STANDAARD_FONTS, tekstvakFontSoort } from './tekstvak-fontnaam.js';
+import { randBinnenRect } from '../vorm-rand-inzet.js';
 
 /** Heeft de vorm een arcering uit het eigenschappenpaneel (#621)? */
 function heeftArcering(ann) {
@@ -569,6 +570,13 @@ export function generateAppearanceStream(context, ann, convertY) {
     }
 
     if (!streamContent || !bbox) return null;
+
+    // De rand valt binnen /Rect (pdf/vorm-rand-inzet.js): de BBox groeit even
+    // ver mee, anders knipt een andere lezer de buitenste helft van de rand af.
+    if (randBinnenRect(ann)) {
+      const half = (randSleutelZonderRand(ann) ? 0 : (ann.lineWidth ?? 2)) / 2;
+      if (half > 0) bbox = [bbox[0] - half, bbox[1] - half, bbox[2] + half, bbox[3] + half];
+    }
 
     const streamDict = {
       Type: 'XObject',

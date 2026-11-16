@@ -2269,6 +2269,9 @@ async fn render_pdf_page(
     thin_lines: Option<bool>,
     // Page sharpen (render-sharpen.js): 0 or absent = none; see verscherpen.rs.
     sharpen: Option<f64>,
+    // Every widget's stored appearance, for a picture without the HTML form
+    // layer on top (page thumbnails). Absent = the screen look (#1101).
+    forms: Option<bool>,
     bytes_cache: tauri::State<'_, PdfBytesCache>,
     pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
     pixmap_cache: tauri::State<'_, pdfium_renderer::PixmapCacheState>,
@@ -2278,7 +2281,8 @@ async fn render_pdf_page(
     let path = laagweergave::tekenpad(&path);
     let extra_rot = rotation.unwrap_or(0);
     let thin_lines = thin_lines.unwrap_or(false);
-    let cache_key = pdfium_renderer::pixmap_key(&path, page_index, scale, extra_rot, thin_lines);
+    let forms = forms.unwrap_or(false);
+    let cache_key = pdfium_renderer::pixmap_key(&path, page_index, scale, extra_rot, thin_lines, forms);
 
     // Cache fast path (unchanged)
     pixmap_cache.ensure();
@@ -2298,7 +2302,7 @@ async fn render_pdf_page(
 
     // Try the worker pool first
     if let Some(p) = pool.get() {
-        match p.render(&path, page_index, scale, extra_rot, thin_lines).await {
+        match p.render(&path, page_index, scale, extra_rot, thin_lines, forms).await {
             Ok((width, height, rgba)) => {
                 let rgba_arc = std::sync::Arc::new(rgba);
                 if let Ok(mut guard) = pixmap_cache.0.lock() {
@@ -2348,7 +2352,12 @@ async fn render_pdf_page(
         &pdfium_cache,
     )?;
 
-    let (width, height, rgba) = pdfium_renderer::render_page_to_rgba_opts(
+    let render = if forms {
+        pdfium_renderer::render_page_to_rgba_with_forms
+    } else {
+        pdfium_renderer::render_page_to_rgba_opts
+    };
+    let (width, height, rgba) = render(
         handle.document(),
         page_index,
         scale,

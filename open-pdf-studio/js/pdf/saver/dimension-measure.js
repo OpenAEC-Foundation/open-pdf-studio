@@ -5,6 +5,8 @@ import { pixelsPerUnitFor, userUnitVanPagina } from '../../annotations/scale-reg
 import { schaalgebiedenOpPagina, schaalOpPuntUitBronnen, verzamelSchaalBronnen } from '../../annotations/schaal-op-punt.js';
 import { lengteEenheid } from '../../annotations/vlak-zijden.js';
 import { pdfTextString } from './pdf-text.js';
+import { opmaakVanMaat, getalopmaakVoorBestand, maatEenheid } from '../../core/maat-opmaak.js';
+import { isImperialeLengte } from '../../core/voet-inch.js';
 
 // Het /Measure-woordenboek (ISO 32000-1, 12.9) van de metingen van de app:
 // maat (/Line /IT /LineDimension), omtrekmaat (/PolyLine /IT
@@ -25,6 +27,7 @@ export function dimensionMeasure(ann, doc, preferences = {}, sources = verzamelS
   let scale = Number(ann.measureScale);
   let unit = lengteEenheid(ann.measureUnit) || 'mm';
   const inherited = !Number.isFinite(scale) || scale <= 0;
+  let viewportOpmaak = null;
   if (inherited) {
     const region = schaalgebiedenOpPagina(sources, page).find(r =>
       x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height);
@@ -36,11 +39,17 @@ export function dimensionMeasure(ann, doc, preferences = {}, sources = verzamelS
       : fallback?.pixelsPerUnit > 0 ? fallback : { pixelsPerUnit: 1, unit: 'mm' };
     scale = 1 / effective.pixelsPerUnit;
     unit = effective.unit || 'mm';
+    viewportOpmaak = resolved?.opmaak || null;
   }
   const requestedPrecision = Number(ann.measurePrecision);
   const precision = Number.isInteger(requestedPrecision) && requestedPrecision >= 0 && requestedPrecision <= 15
     ? requestedPrecision : unit === 'mm' ? 0 : 2;
-  return { scale, unit, precision, inherited };
+  const meting = { scale, unit, precision, inherited };
+  // Getalopmaak (core/maat-opmaak.js) voor writeDimensionMeasure: eigen breuk,
+  // eigen decimalen, of die van de viewport van de pagina. Niet opsombaar,
+  // zodat de uitkomst voor bestaande aanroepers gelijk blijft.
+  Object.defineProperty(meting, 'opmaak', { value: opmaakVanMaat(ann, viewportOpmaak, { eigenSchaal: !inherited }), enumerable: false });
+  return meting;
 }
 
 /**
@@ -80,12 +89,20 @@ export function writeDimensionMeasure(annotDict, context, ann, doc, preferences,
     const eigen = Number(ann.measurePrecision);
     areaDenominator = 10 ** (Number.isInteger(eigen) && eigen >= 0 && eigen <= 9 ? eigen : 2);
   }
+  // Voet-inch met een breuk: voet → inch met /F /F (PDF 32000-1, 12.9.2),
+  // zoals een andere lezer hem dan ook toont. Anders decimaal.
+  const breuk = !opties.vlak && meting.opmaak?.fractie && isImperialeLengte(maatEenheid(unit));
+  const dReeks = breuk
+    ? getalopmaakVoorBestand(unit, meting.opmaak).map((f) => context.obj({
+      C: f.C, D: f.D, F: PDFName.of(f.F), FD: true, U: pdfTextString(f.U), SS: pdfTextString(f.SS ?? ''),
+    }))
+    : [context.obj({ C: 1, D: denominator, U: pdfTextString(unit) })];
   annotDict.set(PDFName.of('Measure'), context.obj({
     Type: PDFName.of('Measure'),
     Subtype: PDFName.of('RL'),
     R: pdfTextString(`1 pt = ${scale} ${unit}`),
     X: context.obj([context.obj({ C: scale, U: pdfTextString(unit) })]),
-    D: context.obj([context.obj({ C: 1, D: denominator, U: pdfTextString(unit) })]),
+    D: context.obj(dReeks),
     A: context.obj([context.obj({ C: area.C, D: areaDenominator, U: pdfTextString(area.U) })]),
   }));
   if (inherited) annotDict.set(PDFName.of('OPS_ScaleInherited'), context.obj(true));
