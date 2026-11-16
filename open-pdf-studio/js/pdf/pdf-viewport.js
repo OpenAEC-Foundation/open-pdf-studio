@@ -1695,16 +1695,16 @@ let _wiredCanvas = null;
 let _wiredMainView = null;
 
 /**
- * Start een middelmuis-pan in de viewport-weergave (enkele pagina).
+ * Start een tijdelijke pan in de viewport (middelknop, of spatie + links).
  * @returns {boolean} false als de viewport niet actief of niet bedraad is
  */
-export function startViewportMiddelmuisPan(e) {
+export function startViewportMiddelmuisPan(e, isMiddleButton = true) {
   if (!viewport.active || !_wiredCanvas || !_wiredMainView) return false;
   const rect = _wiredCanvas.getBoundingClientRect();
   startPan(e.clientX - rect.left, e.clientY - rect.top);
   try { _wiredMainView.setPointerCapture(e.pointerId); } catch (_) {}
   state.isPanning = true;
-  state.isMiddleButtonPanning = true;
+  state.isMiddleButtonPanning = isMiddleButton;
   return true;
 }
 

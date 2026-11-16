@@ -862,3 +862,5 @@ js/review/central-review-upload.test.mjs
 js/pdf/pagina-schalen.test.mjs
 js/pdf/pagina-schalen-app.test.mjs
 js/pdf/pagina-schalen-i18n.test.mjs
+
+js/tools/space-pan.test.mjs
