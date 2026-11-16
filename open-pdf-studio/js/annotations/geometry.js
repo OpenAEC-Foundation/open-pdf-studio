@@ -5,7 +5,8 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { wallHalfWidthPx as isPointOnWallHalfWidth } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
-import { isAnnotationPickableInView } from './view-filters.js';
+import { pickableInViewTest } from './view-filters.js';
+import { kaleLijst, vanStore } from './kale-lijst.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import {
@@ -199,6 +200,13 @@ function getAnnotationCenterAndSize(ann) {
 // weergave, waar de aanwijzer boven een ANDERE pagina dan doc.currentPage
 // kan staan (hover/contextmenu); zonder pageNum geldt doc.currentPage.
 export function findAnnotationAt(x, y, pageNum = null) {
+  // The loop reads the plain objects (kale-lijst.js); the caller gets the
+  // store's own object, so changing it stays reactive.
+  const lijst = getActiveDocument()?.annotations;
+  return vanStore(lijst, raakInLijst(kaleLijst(lijst), x, y, pageNum));
+}
+
+function raakInLijst(annotations, x, y, pageNum) {
   // Scale-aware hit tolerance: stay ~10 screen pixels at any zoom level.
   // GEEN vloer in paginapunten meer: de oude vloer van 2 pt greep pas boven
   // 500 % zoom — precies waar klein gewerkt wordt — en was bij 6400 % zo'n
@@ -208,8 +216,9 @@ export function findAnnotationAt(x, y, pageNum = null) {
   const tol = schermPxNaarPt(10, scale);
   const targetPage = pageNum ?? (doc ? doc.currentPage : 1);
 
+  // One set of view filters for the whole pass, not one per annotation.
+  const isAnnotationPickableInView = pickableInViewTest();
   // Search in reverse order (top annotations first)
-  const annotations = doc?.annotations || [];
   for (let i = annotations.length - 1; i >= 0; i--) {
     const ann = annotations[i];
     if (ann.page !== targetPage) continue;
