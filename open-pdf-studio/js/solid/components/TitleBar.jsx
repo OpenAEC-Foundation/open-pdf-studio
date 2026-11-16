@@ -9,6 +9,7 @@ import { hostVersieLabel } from '../../pdf/host-versies.js';
 // Als asset geïmporteerd: Vite zet de bouwbasis ervoor (#545).
 import appIcoon from '/icon.png';
 import SaveSplitButton from './SaveSplitButton.jsx';
+import { ifcxOpslaanLabel, opslaanAlsIfcx } from '../../pdf/ifcx-opslaan.js';
 
 async function handleClose() {
   const { closeActiveTab } = await import('../../ui/chrome/tabs.js');
@@ -97,6 +98,7 @@ export default function TitleBar() {
             readOnly={doc()?.hostAlleenLezen === true} blocked={hasDialogs()}
             onSave={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDF(null, {}, d)); }}
             onSaveAs={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDFAs(d)); }}
+            ifcxLabel={ifcxOpslaanLabel(tCommon('saveAs'))} onSaveAsIfcx={() => opslaanAlsIfcx()}
             onExport={handleExportRaster} />
 
           <button class="quick-access-btn" title={`${tCommon('print')} (Ctrl+P)`} disabled={!hasPdf()}

@@ -8,6 +8,7 @@ import { showMessage, openDialog } from '../../stores/dialogStore.js';
 import { isTauri, invoke, openFileDialog, isNietInBrowser } from '../../../core/platform.js';
 import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
 import { heeftBeveiligdeInhoud } from '../../../pdf/wachtwoord-pdf.js';
+import { opslaanAlsIfcx } from '../../../pdf/ifcx-opslaan.js';
 import { savePreferences } from '../../../core/preferences.js';
 import {
   herstelPdfxInstellingen, listCmykProfiles, inspectCmykProfile, profileErrorMessage, INTENTS,
@@ -86,19 +87,8 @@ export default function ExportPanel() {
   };
 
   // IFCX (#876, beta): own dialog with pages and content options.
-  const handleExportIfcx = () => {
-    const doc = getActiveDocument();
-    if (!doc?.pdfDoc) {
-      showMessage(tCommon('noDocumentOpen'));
-      return;
-    }
-    // Protected (#378): its decrypted content is not copied out (wachtwoord-pdf.js).
-    if (heeftBeveiligdeInhoud(doc)) {
-      showMessage(tCommon('protectedPdfReadOnly'));
-      return;
-    }
-    closeAppMenu();
-    openDialog('ifcx-export');
+  const handleExportIfcx = async () => {
+    if (await opslaanAlsIfcx()) closeAppMenu();
   };
 
   const loadProfiles = async () => {

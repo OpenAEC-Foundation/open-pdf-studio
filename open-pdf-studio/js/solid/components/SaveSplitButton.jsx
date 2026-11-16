@@ -66,6 +66,9 @@ export default function SaveSplitButton(props) {
           <button role="menuitem" onClick={() => run(props.onSaveAs)}>
             <span>{props.saveAsLabel}</span><span class="quick-save-shortcut">Ctrl+Shift+S</span>
           </button>
+          <Show when={props.onSaveAsIfcx}>
+            <button role="menuitem" id="quick-save-ifcx" onClick={() => run(props.onSaveAsIfcx)}>{props.ifcxLabel}</button>
+          </Show>
           <button role="menuitem" onClick={() => run(props.onExport)}>{props.exportLabel}</button>
         </div>
       </Show>

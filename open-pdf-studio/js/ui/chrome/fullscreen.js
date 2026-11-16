@@ -10,9 +10,8 @@ import { isTauri, isWindowFullscreen, setWindowFullscreen } from '../../core/pla
 import { isHeadless } from '../../core/headless.js';
 import { setIsFullscreen, isFullscreen } from '../../solid/stores/ribbonStore.js';
 
-import { zetPresentatie } from './presentatie.js';
-
 let initialized = false;
+let presentatieGeladen = false;
 let naloopTimers = [];
 let resizeTimer = null;
 
@@ -20,7 +19,12 @@ let resizeTimer = null;
 // working interface goes away and the page fills the screen (presentatie.js).
 function zetStand(aan) {
   setIsFullscreen(!!aan);
-  zetPresentatie(!!aan);
+  // Pas laden bij het eerste gebruik: het hoort niet in de startbundel.
+  if (aan || presentatieGeladen) {
+    presentatieGeladen = true;
+    import('./presentatie.js').then((m) => m.zetPresentatie(!!aan))
+      .catch((e) => console.warn('[fullscreen] presentation view failed:', e));
+  }
 }
 
 async function syncState() {

@@ -24,7 +24,12 @@ const DIST = path.join(app, 'dist');
 // Na #454 (tweede stap, 9-11-2026): desktop 4020 KiB, gehost 4037 KiB (gzip
 // 1300/1305 KiB; KiB = 1024 bytes, Vite meldt kB van 1000 tekens). Eerste
 // stap: 4532/4549 KiB. Het budget ligt daar net boven, voor beide bouwvormen.
-export const BUDGET_KB = 4120;
+// 16-11-2026: desktop 4122 KiB. Erbij gekomen is interface die bij de start
+// zichtbaar is (opslaanknop met menu, draaiknoppen in de statusbalk,
+// afbreekpunten voor lintlabels, startgereedschap); de presentatieweergave
+// laadt pas bij gebruik. Sinds 9-11 is de bundel 100 KiB gegroeid: wat
+// niet bij de start nodig is, hoort in een eigen chunk.
+export const BUDGET_KB = 4150;
 export const BUDGET_GZIP_KB = 1340;
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */

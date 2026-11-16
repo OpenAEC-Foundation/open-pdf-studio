@@ -882,3 +882,5 @@ js/core/startup-tool.test.mjs
 js/ui/chrome/presentatie-beleid.test.mjs
 
 js/solid/stores/stickyNotePopupStore.test.mjs
+js/solid/components/ribbon/afbreken.test.mjs
+js/pdf/ifcx-opslaan.test.mjs

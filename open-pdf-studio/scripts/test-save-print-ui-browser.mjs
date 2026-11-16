@@ -59,14 +59,17 @@ try {
   const menu = page.locator('#quick-save-menu');
   await menu.waitFor();
   await page.screenshot({ path: path.join(tmpdir(), 'opds-save-menu-ui.png') });
-  assert.equal(await menu.locator('button').count(), 2);
+  // Save As, Save as IFCX and raster export.
+  assert.equal(await menu.locator('button').count(), 3);
+  assert.match(await menu.locator('#quick-save-ifcx').textContent(), /IFCX/);
   assert.equal(await menu.locator('button').nth(0).evaluate(e => e === document.activeElement), true);
   await page.keyboard.press('ArrowDown');
   assert.equal(await menu.locator('button').nth(1).evaluate(e => e === document.activeElement), true);
   await page.keyboard.press('Escape');
   assert.equal(await menu.count(), 0);
   assert.equal(await arrow.evaluate(e => e === document.activeElement), true);
-  await arrow.click(); await page.locator('#tool-select').click();
+  // Outside the menu: the status bar is never covered by it.
+  await arrow.click(); await page.locator('.status-bar').click({ position: { x: 5, y: 5 } });
   assert.equal(await menu.count(), 0, 'outside click closes menu');
   await page.evaluate(async () => {
     const { state } = await import('/js/core/state.ts');

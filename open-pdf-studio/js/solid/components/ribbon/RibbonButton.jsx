@@ -1,8 +1,9 @@
 import { createRenderEffect } from 'solid-js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
+import { metAfbreekpunten } from './afbreken.js';
 import { isTauri } from '../../../core/platform.js';
 import { knopUit, meldingTekst } from '../../../core/webfuncties.js';
-import { useTranslation } from '../../../i18n/useTranslation.js';
+import { useTranslation, language } from '../../../i18n/useTranslation.js';
 import { knopTitel } from '../../stores/keybindingStore.js';
 import { korteKnopnaam } from './lint-indeling.js';
 
@@ -35,7 +36,7 @@ export default function RibbonButton(props) {
       <div class="ribbon-btn-icon" style={props.iconStyle} ref={el => createRenderEffect(() => { if (props.icon || el.innerHTML) el.innerHTML = props.icon || ''; })}>
       </div>
       {!props.iconOnly && (
-        <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.label}</span>
+        <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{metAfbreekpunten(props.label, language())}</span>
       )}
       {/* Knop zonder eigen label: de titel als tekst, alleen zichtbaar in de
           ruime stand van een pictogramgroep (AdaptiveGroups, .ribbon-group-ruim). */}

@@ -1,5 +1,7 @@
 import { createSignal, onMount, onCleanup } from 'solid-js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
+import { metAfbreekpunten } from './afbreken.js';
+import { language } from '../../../i18n/useTranslation.js';
 import { volgPopup } from './ribbon-popup.js';
 
 export default function SplitButton(props) {
@@ -26,7 +28,7 @@ export default function SplitButton(props) {
       {props.main || (
         <button class="ribbon-btn" title={props.mainTitle} disabled={props.disabled} onClick={props.onMainClick}>
           <div class="ribbon-btn-icon" ref={el => { if (props.mainIcon) el.innerHTML = props.mainIcon; }}></div>
-          <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.mainLabel}</span>
+          <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{metAfbreekpunten(props.mainLabel, language())}</span>
         </button>
       )}
       <button
