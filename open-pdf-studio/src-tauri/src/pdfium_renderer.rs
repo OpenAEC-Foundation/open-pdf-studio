@@ -283,15 +283,15 @@ pub fn render_page_to_rgba(
     scale: f32,
     rotation: i32,
 ) -> Result<(u32, u32, Vec<u8>), String> {
-    render_page_to_rgba_opts(doc, page_index, scale, rotation, false, NO_RGBA_BUDGET)
+    render_page_with_form_data(doc, page_index, scale, rotation, false, NO_RGBA_BUDGET, true)
 }
 
 /// `render_page_to_rgba` for the screen: `thin_lines` draws every vector
 /// stroke as a hairline (Thin Lines view mode, #595). Printing, OCR and
 /// exports keep calling `render_page_to_rgba`, so they always get the true
-/// line widths. `max_rgba_bytes` is the caller's bitmap budget (#676): the
-/// screen fallback passes `INPROC_SCREEN_RGBA_BYTES`, the other paths
-/// `NO_RGBA_BUDGET`.
+/// line widths and stored form appearances. Screen widgets are owned by the
+/// editable PDF.js form layer (#1101), so the bitmap must not contain them.
+/// `max_rgba_bytes` is the caller's bitmap budget (#676).
 pub fn render_page_to_rgba_opts(
     doc: &PdfDocument<'static>,
     page_index: u32,
@@ -299,6 +299,18 @@ pub fn render_page_to_rgba_opts(
     rotation: i32,
     thin_lines: bool,
     max_rgba_bytes: u64,
+) -> Result<(u32, u32, Vec<u8>), String> {
+    render_page_with_form_data(doc, page_index, scale, rotation, thin_lines, max_rgba_bytes, false)
+}
+
+fn render_page_with_form_data(
+    doc: &PdfDocument<'static>,
+    page_index: u32,
+    scale: f32,
+    rotation: i32,
+    thin_lines: bool,
+    max_rgba_bytes: u64,
+    render_forms: bool,
 ) -> Result<(u32, u32, Vec<u8>), String> {
     // Serialise all in-proc PDFium work (see PDFIUM_INPROC_LOCK). Declared
     // first so the guard outlives `pages`/`page`, whose Drop also calls PDFium.
@@ -330,7 +342,7 @@ pub fn render_page_to_rgba_opts(
         .set_target_width(target_w)
         .set_maximum_height(target_h)
         .rotate(rot, true)
-        .render_form_data(true)
+        .render_form_data(render_forms)
         // ANNOTATION OWNERSHIP: PDFium does NOT render /Annot entries; our
         // own annotation-converter.js reads them into state.documents[]
         // and the annotation-canvas overlay draws them on top. This means
@@ -775,5 +787,37 @@ mod budget_tests {
         assert!(render_budget::dimensions(3370.0, 2384.0, 300.0 / 72.0, NO_RGBA_BUDGET).is_ok());
         assert!(render_budget::dimensions(f32::NAN, 2384.0, 1.0, NO_RGBA_BUDGET).is_err());
         assert!(render_budget::dimensions(f32::MAX, 2.0, 2.0, NO_RGBA_BUDGET).is_err());
+    }
+}
+
+#[cfg(test)]
+#[path = "../../../pdfium-worker/src/test_form.rs"]
+mod form_test_fixture;
+
+#[cfg(test)]
+mod form_display_tests {
+    use super::*;
+    use super::form_test_fixture as fixture;
+
+    #[test]
+    fn screen_omits_widgets_but_output_keeps_them() {
+        let platform = if cfg!(windows) {
+            if cfg!(target_arch = "aarch64") { "win-arm64" } else { "win-x64" }
+        } else if cfg!(target_os = "macos") { "macos-universal" } else { "linux-x64" };
+        let dir = std::env::var_os("OPDS_TEST_PDFIUM_DIR").map(std::path::PathBuf::from)
+            .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("binaries").join(platform));
+        init_pdfium(&dir).unwrap();
+        let form = PdfiumDocumentHandle::load_from_bytes(Arc::new(fixture::form_page(true, 0))).unwrap();
+        let plain = PdfiumDocumentHandle::load_from_bytes(Arc::new(fixture::form_page(false, 0))).unwrap();
+        for rotation in [0, 90, 180, 270] {
+            for scale in [1.0, 2.0] {
+                let screen = render_page_to_rgba_opts(form.document(), 0, scale, rotation, false, INPROC_SCREEN_RGBA_BYTES).unwrap();
+                let content = render_page_to_rgba_opts(plain.document(), 0, scale, rotation, false, INPROC_SCREEN_RGBA_BYTES).unwrap();
+                assert_eq!((screen.0, screen.1), (content.0, content.1));
+                assert!(screen.2 == content.2, "screen bitmap must not retain old widget appearance");
+                let output = render_page_to_rgba(form.document(), 0, scale, rotation).unwrap();
+                assert!(output.2 != content.2, "print/export must still contain the stored form appearance");
+            }
+        }
     }
 }

@@ -370,7 +370,9 @@ impl Renderer {
                 .set_target_width(target_w)
                 .set_maximum_height(target_h)
                 .rotate(rot, true)
-                .render_form_data(true)
+                // Widgets belong to the editable PDF.js form layer (#1101).
+                // Baking their saved appearance here leaves stale text after edits.
+                .render_form_data(false)
                 .render_annotations(false)
                 .use_lcd_text_rendering(true)
                 .set_format(PdfBitmapFormat::BGRA);
@@ -597,6 +599,10 @@ impl Renderer {
 }
 
 #[cfg(test)]
+#[path = "test_form.rs"]
+mod test_form;
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -621,11 +627,11 @@ mod tests {
         let document = pdfium().unwrap().load_pdf_from_byte_slice(bytes, None).unwrap();
         let page = document.pages().get(0).unwrap();
         // Same configs as render() and render_region(); a transform implies
-        // no form data, so render_form_data(true) only goes on whole pages.
+        // no form data; whole screen pages must omit widgets as well.
         let config = match tile {
             None => {
                 let (w, h) = dimensions(page.width().value, page.height().value, scale, SCREEN_RGBA_BYTES).unwrap();
-                PdfRenderConfig::new().set_target_width(w).set_maximum_height(h).render_form_data(true)
+                PdfRenderConfig::new().set_target_width(w).set_maximum_height(h).render_form_data(false)
             }
             Some((x, y, w, h)) => {
                 let (bw, bh) = dimensions(w, h, scale, SCREEN_RGBA_BYTES).unwrap();
@@ -644,39 +650,7 @@ mod tests {
         (bitmap.width() as u32, bitmap.height() as u32, bitmap.as_rgba_bytes(), ms)
     }
 
-    /// One 400 x 400 pt page with a line drawing; with `widget` also an
-    /// AcroForm text field at PDF rect [100 100 200 150] whose appearance is a
-    /// filled black box (what a filled-in field looks like in pdf.js).
-    fn form_page(widget: bool, rotate: i32) -> Vec<u8> {
-        let stream = |dict: &str, data: &str| format!("<< {} /Length {} >>\nstream\n{}\nendstream", dict, data.len(), data);
-        let mut bodies = vec![
-            format!("<< /Type /Catalog /Pages 2 0 R {} >>", if widget { "/AcroForm << /Fields [5 0 R] >>" } else { "" }),
-            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
-            format!(
-                "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 400] /Rotate {} /Contents 4 0 R {} >>",
-                rotate,
-                if widget { "/Annots [5 0 R]" } else { "" }
-            ),
-            stream("", "2 w 20 20 m 380 20 l S 20 20 m 20 380 l S 300 300 m 380 360 l S"),
-        ];
-        if widget {
-            bodies.push("<< /Type /Annot /Subtype /Widget /FT /Tx /T (veld) /V (x) /F 4 /P 3 0 R /Rect [100 100 200 150] /AP << /N 6 0 R >> >>".to_string());
-            bodies.push(stream("/Type /XObject /Subtype /Form /BBox [0 0 100 50]", "0 g 0 0 100 50 re f"));
-        }
-        let mut out = b"%PDF-1.7\n".to_vec();
-        let mut offsets = Vec::new();
-        for (i, body) in bodies.iter().enumerate() {
-            offsets.push(out.len());
-            out.extend_from_slice(format!("{} 0 obj\n{}\nendobj\n", i + 1, body).as_bytes());
-        }
-        let xref = out.len();
-        out.extend_from_slice(format!("xref\n0 {}\n0000000000 65535 f\r\n", bodies.len() + 1).as_bytes());
-        for offset in offsets {
-            out.extend_from_slice(format!("{:010} 00000 n\r\n", offset).as_bytes());
-        }
-        out.extend_from_slice(format!("trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n", bodies.len() + 1, xref).as_bytes());
-        out
-    }
+    use test_form::form_page;
 
     /// Compare tiles (x, y, w, h px at `scale`) of page 0 of `bytes`, via a file like the worker.
     fn compare_tiles(bytes: &[u8], name: &str, scale: f64, tiles: &[(usize, usize, usize, usize)]) -> Vec<Vec<u8>> {
@@ -693,6 +667,30 @@ mod tests {
     fn dark(px: &[u8], w: usize, x: usize, y: usize) -> bool {
         let o = (y * w + x) * 4;
         px[o] < 100 && px[o + 1] < 100 && px[o + 2] < 100
+    }
+
+    #[test]
+    fn screen_render_leaves_widgets_to_interactive_layer() {
+        for rotation in [0, 90, 180, 270] {
+            let with = std::env::temp_dir().join(format!("opds-screen-form-{}-{rotation}.pdf", std::process::id()));
+            let without = with.with_extension("plain.pdf");
+            std::fs::write(&with, form_page(true, 0)).unwrap();
+            std::fs::write(&without, form_page(false, 0)).unwrap();
+            let mut renderer = Renderer::new().unwrap();
+            for scale in [1.0, 2.0] {
+                let form = renderer.render(with.to_str().unwrap(), 0, scale, rotation, false).unwrap();
+                let plain = renderer.render(without.to_str().unwrap(), 0, scale, rotation, false).unwrap();
+                assert_eq!((form.width, form.height), (plain.width, plain.height));
+                assert!(form.rgba == plain.rgba, "stored widget must not be baked under editable field: rotation={rotation}, scale={scale}");
+                if rotation == 0 {
+                    let tile = renderer.render_region(with.to_str().unwrap(), 0, scale, 0, 50.0, 230.0, 200.0, 100.0, false).unwrap();
+                    assert!(!dark(&tile.rgba, tile.width as usize, (100.0 * scale) as usize, (45.0 * scale) as usize));
+                }
+            }
+            drop(renderer);
+            std::fs::remove_file(with).unwrap();
+            std::fs::remove_file(without).unwrap();
+        }
     }
 
     /// Vergelijken toont formuliervelden zoals pdf.js (intent 'display'):
