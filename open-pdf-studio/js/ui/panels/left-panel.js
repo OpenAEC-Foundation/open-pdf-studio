@@ -652,7 +652,11 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
     if (doc?.filePath) {
       const vr = await import('../../pdf/vector-renderer.js');
       const rotation = (typeof getPageRotation === 'function' ? getPageRotation(pageNum) : 0) || 0;
-      if (vr.hasCachedCommands(doc.filePath, pageNum, rotation)) {
+      // De opgeslagen tekenopdrachten bevatten alleen de pagina-inhoud, geen
+      // formuliervelden: een pagina met velden gaat via PDFium (#1101).
+      const { heeftVeldWidgets } = await import('../../pdf/formulierlaag-scherm.js');
+      if (vr.hasCachedCommands(doc.filePath, pageNum, rotation)
+          && !(await heeftVeldWidgets(pdfDoc, pageNum).catch(() => false))) {
         const dims = vr.getCachedPageDimensions(doc.filePath, pageNum, rotation);
         console.log(`[thumb] p${pageNum} JS-replay: dims=`, dims, `rotation=${rotation}`);
         if (dims && dims.w > 0 && dims.h > 0) {
@@ -728,7 +732,12 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
       if (_isTile || await prog.isHeavyPage(doc.filePath, pageNum)) {
         const pbc = await import('../../pdf/page-bitmap-cache.js');
         const rotation = (typeof getPageRotation === 'function' ? getPageRotation(pageNum) : 0) || 0;
-        const best = pbc.getBestAvailableBitmap(doc.filePath, pageNum, rotation, 1);
+        // De schermbitmap mist de bewerkbare formuliervelden (die staan in de
+        // HTML-formulierlaag, #1101); een pagina met zulke velden krijgt een
+        // eigen render met alle velden hieronder.
+        const { heeftBewerkbareVelden } = await import('../../pdf/formulierlaag-scherm.js');
+        const metVelden = await heeftBewerkbareVelden(pdfDoc, pageNum).catch(() => false);
+        const best = metVelden ? null : pbc.getBestAvailableBitmap(doc.filePath, pageNum, rotation, 1);
         if (best && best.bitmap) {
           const targetW = doel;
           const s = targetW / best.w;
@@ -768,8 +777,9 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
           const thumbScale = Math.max(0.008, Math.min(2, renderW / widthPt));
           const { renderPdfPage } = await import('../../pdf/engine-router.js');
           const { RENDER_PRIORITY } = await import('../../pdf/render-queue.js');
+          // forms: de miniatuur heeft geen formulierlaag erboven (#1101).
           const raw = await renderPdfPage(
-            { path: doc.filePath, pageIndex: pageNum - 1, scale: thumbScale, rotation },
+            { path: doc.filePath, pageIndex: pageNum - 1, scale: thumbScale, rotation, forms: true },
             { priority: RENDER_PRIORITY.PREFETCH },
           );
           const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);

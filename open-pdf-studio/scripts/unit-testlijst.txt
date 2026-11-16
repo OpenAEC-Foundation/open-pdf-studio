@@ -876,3 +876,5 @@ js/pdf/ocr-talen-i18n.test.mjs
 scripts/pdf-lib-xref-bounds.test.mjs
 
 js/tools/space-pan.test.mjs
+# Formulierlaag op het scherm (#1101)
+js/pdf/formulierlaag-scherm.test.mjs
