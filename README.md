@@ -159,6 +159,20 @@ Found something? [Open an issue](https://github.com/OpenAEC-Foundation/open-pdf-
 
 The app is a [Tauri 2](https://tauri.app/) desktop app with a Rust back end and a [SolidJS](https://www.solidjs.com/) front end built with [Vite](https://vitejs.dev/). Pages render through a multi-process [PDFium](https://pdfium.googlesource.com/pdfium/) worker pool, off the UI thread and isolated from crashes, with progressive tiles for very large drawings; the browser and Android versions render with [PDF.js](https://mozilla.github.io/pdf.js/), which also provides the text layer. [pdf-lib](https://pdf-lib.js.org/) writes the PDF changes. The browser version is the same front end built without the Tauri shell. The licences of all components are in [LICENSING.md](LICENSING.md).
 
+### Code in numbers
+
+Lines of code in this repository, counted over the tracked files. Bundled third-party code and generated files are left out; Rust keeps its unit tests inside the source files.
+
+<!-- code-stats:start -->
+| Language | Source lines | Test lines | Total | Share |
+|---|---:|---:|---:|---:|
+| JavaScript / TypeScript | 316,066 | 136,426 | 452,492 | 80.7% |
+| Rust | 104,402 | 3,879 | 108,281 | 19.3% |
+| **Total** | **420,468** | **140,305** | **560,773** | **100%** |
+<!-- code-stats:end -->
+
+Update with `node open-pdf-studio/scripts/code-stats.mjs`.
+
 ## Contributing
 
 - **Report a bug or ask for a feature** as an [issue](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/new). Describe what you did, what you expected and what happened. Because the code moves quickly, a precise issue is often more useful than a pull request.
