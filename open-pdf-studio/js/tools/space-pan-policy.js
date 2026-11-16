@@ -1,8 +1,13 @@
 import { isTextEntryTarget } from '../ui/chrome/tab-sneltoets.js';
 
 const isSpace = e => e.code === 'Space' || e.key === ' ';
+// Space belongs to whatever control has the focus. Besides the usual controls
+// that is any keyboard-operable element outside the page view: a section
+// header with tabindex, a label, anything with a role. The page view itself
+// may be focusable; there Space is the pan gesture.
 const control = t => isTextEntryTarget(t) || !!t?.closest?.(
-  'button, select, a, [role="button"], [role="checkbox"], [role="radio"], [role="tab"], [role="menuitem"], [role="listbox"], [role="slider"]');
+  'button, select, a, [role="button"], [role="checkbox"], [role="radio"], [role="tab"], [role="menuitem"], [role="listbox"], [role="slider"]')
+  || (!!t?.closest?.('summary, label, [role], [tabindex]:not([tabindex="-1"])') && !t?.closest?.('#pdf-container'));
 const consume = e => { e.preventDefault(); e.stopPropagation(); };
 
 // A temporary gesture, not a tool switch: no deselect/deactivate side effects.

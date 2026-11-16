@@ -81,3 +81,19 @@ test('links can be panned over without navigation; outside keyboard clicks remai
   const outside=event(); h.onClick(outside); assert.equal(outside.defaultPrevented,undefined);
   const click=event({target:link}); h.onClick(click); assert.equal(click.defaultPrevented,true);
 });
+
+test('Space stays with any focused keyboard control outside the page view', () => {
+  // A properties-panel section header: a div with tabindex and no role.
+  const header = { tagName: 'DIV', closest: s => (s.includes('[tabindex]') ? {} : null) };
+  const inPage = { tagName: 'DIV', closest: s => (s.includes('[tabindex]') || s === '#pdf-container' ? {} : null) };
+  for (const [target, arms] of [[header, false], [inPage, true]]) {
+    let held = false, consumed = false;
+    const h = createSpacePanHandlers({
+      getDocument: () => ({}), blocked: () => false, isPanning: () => false,
+      setHeld: v => { held = v; }, start: () => () => {},
+    });
+    h.onKeyDown({ code: 'Space', key: ' ', target, preventDefault() { consumed = true; }, stopPropagation() {} });
+    assert.equal(held, arms);
+    assert.equal(consumed, arms);
+  }
+});

@@ -93,3 +93,45 @@ test('metrisch: millimeter naar meter houdt dezelfde lengte', () => {
   assert.equal(ann.measureUnit, 'm');
   assert.ok(bijna(ann.measureValue, dist.value / 1000));
 });
+
+// Samen met de opmaak per maat (#1099): een maat die de documentschaal volgde
+// toonde zijn waarde met de standaardopmaak, niet met de precisie van het
+// gereedschap (0 decimalen voor millimeters). Na een eenheidswissel krijgt de
+// maat een eigen schaal; de precisie van het gereedschap mag dan niet ineens
+// gaan gelden ("7338" werd "7 m").
+test('millimeter naar meter houdt bruikbare decimalen, ook met gereedschapsprecisie 0', () => {
+  openen([], { pixelsPerUnit: 72 / (25.4 * 100), unit: 'mm' });
+  const dist = meas.calculateDistance(0, 0, 208, 0, 1, null);
+  const ann = { id: 'mp0', type: 'measureDistance', page: 1, startX: 0, startY: 0, endX: 208, endY: 0,
+    measureValue: dist.value, measureUnit: dist.unit, measurePrecision: 0, measureText: meas.formatDimensionText(dist) };
+  state.documents[0].annotations.push(ann);
+  selecteer(ann);
+  updateAnnotProp('measureUnit', 'm');
+  assert.equal(ann.measureText, '7.34 m');
+  updateAnnotProp('measureUnit', 'mm');
+  assert.equal(ann.measureText, '7338');
+});
+
+test('voet naar inch en terug houdt de decimalen, ook met gereedschapsprecisie 0', () => {
+  openen([]);
+  const dist = meas.calculateDistance(0, 0, 19.64, 0, 1, null);
+  const ann = { id: 'fp0', type: 'measureDistance', page: 1, startX: 0, startY: 0, endX: 19.64, endY: 0,
+    measureValue: dist.value, measureUnit: dist.unit, measurePrecision: 0, measureText: meas.formatDimensionText(dist) };
+  state.documents[0].annotations.push(ann);
+  selecteer(ann);
+  updateAnnotProp('measureUnit', 'in');
+  assert.equal(ann.measureText, '26.19 in');
+  updateAnnotProp('measureUnit', 'ft');
+  assert.equal(ann.measureText, '2.18 ft');
+});
+
+test('een uitdrukkelijk gekozen precisie op een maat met eigen schaal blijft gelden', () => {
+  openen([], { pixelsPerUnit: 72 / (25.4 * 100), unit: 'mm' });
+  const ann = { id: 'ep', type: 'measureDistance', page: 1, startX: 0, startY: 0, endX: 208, endY: 0,
+    measureScale: 35.2777777, measureUnit: 'mm', measurePrecision: 1, measureText: '' };
+  state.documents[0].annotations.push(ann);
+  selecteer(ann);
+  updateAnnotProp('measureUnit', 'm');
+  assert.equal(ann.measurePrecision, 1);
+  assert.match(ann.measureText, /^7\.3 m$/);
+});

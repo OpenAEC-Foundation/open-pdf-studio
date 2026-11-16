@@ -1464,6 +1464,23 @@ function zetMeetEenheid(ann, eenheid) {
     // rekende de maatlijn opnieuw met de documentschaal en zette de eenheid
     // terug (ft bleef ft). Pixels hebben geen vaste maat; die blijven zoals ze zijn.
     const huidig = lijnLengteSchaal(ann);
+    // Een maat die de documentschaal volgde, toonde zijn waarde met de opmaak
+    // van de pagina of de standaard per eenheid; de precisie van het
+    // gereedschap telde niet mee (core/maat-opmaak.js, opmaakVanMaat). Nu hij
+    // een eigen schaal krijgt, leggen we die opmaak vast, anders werd "7338"
+    // in meters ineens "7 m" (#1099 samen met #1091).
+    if (huidig && !(Number(ann.measureScale) > 0) && ann.measureFraction === undefined) {
+      const opmaak = calculateDistance(ann.startX, ann.startY, ann.endX, ann.endY, ann.page, ann).opmaak;
+      const naarVoetInch = eenheid === 'ft' || eenheid === 'in';
+      if (opmaak?.fractie && naarVoetInch) {
+        ann.measureFraction = opmaak.fractie;
+        setAnnotProps('measureFraction', opmaak.fractie);
+      } else if (opmaak && opmaak.decimalen !== undefined && !opmaak.fractie) {
+        ann.measurePrecision = opmaak.decimalen;
+      } else {
+        delete ann.measurePrecision; // de standaard van de nieuwe eenheid
+      }
+    }
     if (huidig) ann.measureScale = schaalInEenheid(huidig.perPt, huidig.unit, eenheid);
   }
   // "Alleen inches" hoort bij een maat in voet; een andere eenheid begint
