@@ -18,6 +18,7 @@
     "theme": "Téma",
     "applicationTheme": "Alkalmazás témája",
     "startup": "Indítás",
+    "startupTool": "Eszköz a következő indításkor",
     "restoreLastSession": "Utolsó munkamenet visszaállítása az alkalmazás indításakor",
     "author": "Szerző",
     "defaultAuthorName": "Szerzőnév",

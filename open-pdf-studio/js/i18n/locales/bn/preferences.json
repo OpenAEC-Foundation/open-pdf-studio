@@ -18,6 +18,7 @@
     "theme": "থিম",
     "applicationTheme": "অ্যাপ্লিকেশন থিম",
     "startup": "স্টার্টআপ",
+    "startupTool": "পরের বার চালুর সময় টুল",
     "restoreLastSession": "অ্যাপ্লিকেশন শুরু হলে শেষ সেশন পুনরুদ্ধার করুন",
     "author": "লেখক",
     "defaultAuthorName": "লেখকের নাম",

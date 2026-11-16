@@ -18,6 +18,7 @@
     "theme": "السمة",
     "applicationTheme": "سمة التطبيق",
     "startup": "بدء التشغيل",
+    "startupTool": "الأداة عند بدء التشغيل التالي",
     "restoreLastSession": "استعادة الجلسة الأخيرة عند بدء التطبيق",
     "author": "المؤلف",
     "defaultAuthorName": "اسم المؤلف",

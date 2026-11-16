@@ -18,6 +18,7 @@
     "theme": "主题",
     "applicationTheme": "应用程序主题",
     "startup": "启动",
+    "startupTool": "下次启动时的工具",
     "restoreLastSession": "启动时恢复上次会话",
     "author": "作者",
     "defaultAuthorName": "作者姓名",

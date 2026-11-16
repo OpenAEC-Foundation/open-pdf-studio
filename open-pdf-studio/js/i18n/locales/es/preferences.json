@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Tema de la aplicación",
     "startup": "Inicio",
+    "startupTool": "Herramienta al volver a iniciar",
     "restoreLastSession": "Restaurar la última sesión al iniciar la aplicación",
     "author": "Autor",
     "defaultAuthorName": "Nombre de autor",

@@ -1,3 +1,4 @@
+import { normalizeStartupTool } from '../core/startup-tool.js';
 import { state, getActiveDocument, clearSelection } from '../core/state.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
@@ -439,7 +440,8 @@ export function updatePdfAToolState() {
   }
 }
 
-// Reset to hand tool whenever a PDF is loaded (avoids circular dependency with loader.js)
+// Keep the chosen navigation tool when a PDF opens, including restored tabs.
+// Drawing/editing tools still return to Select as before.
 document.addEventListener('pdf-loaded', () => {
-  setTool('select');
+  setTool(normalizeStartupTool(state.currentTool));
 });

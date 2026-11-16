@@ -18,6 +18,7 @@
     "theme": "ธีม",
     "applicationTheme": "ธีมแอปพลิเคชัน",
     "startup": "การเริ่มต้น",
+    "startupTool": "เครื่องมือเมื่อเริ่มครั้งถัดไป",
     "restoreLastSession": "กู้คืนเซสชันล่าสุดเมื่อเปิดแอปพลิเคชัน",
     "author": "ผู้เขียน",
     "defaultAuthorName": "ชื่อผู้เขียน",
