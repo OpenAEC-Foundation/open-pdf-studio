@@ -26,6 +26,7 @@ import { tekenDocument as getActiveDocument } from './rendering/document-context
 import { hiddenTypes as evHiddenTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isStatusHidden } from '../solid/stores/panels/annotationsStore.js';
 import { hiddenInView, pickableInView, hiddenInOutput } from './view-filter-rules.js';
+import { kaal } from './kale-lijst.js';
 
 function bronnen() {
   return { doc: getActiveDocument(), hiddenTypes: evHiddenTypes(), isStatusHidden };
@@ -51,4 +52,17 @@ export function isAnnotationHiddenInOutput(ann) {
  */
 export function isAnnotationPickableInView(ann) {
   return pickableInView(ann, bronnen());
+}
+
+/**
+ * isAnnotationPickableInView for a whole pass over the annotations: the
+ * filters (document, hidden types, status filter) are read once instead of
+ * once per annotation.
+ */
+export function pickableInViewTest() {
+  const b = bronnen();
+  // The layer rules read the document's layers for every annotation: from the
+  // plain document, not through the store (kale-lijst.js).
+  b.doc = kaal(b.doc);
+  return (ann) => pickableInView(ann, b);
 }

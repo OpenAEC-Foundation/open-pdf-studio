@@ -1,4 +1,5 @@
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
+import { kaleLijst } from './kale-lijst.js';
 import { state, imageCache } from '../core/state.js';
 import { annotationCanvas, annotationCtx, textHighlightCanvas, textHighlightCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
@@ -3316,9 +3317,14 @@ export function redrawAnnotations(lightweight = false) {
   // blend with #pdf-canvas below); everything else goes to #annotation-canvas.
   // One scale pass: annotations that look up their scale while drawing (walls,
   // bar series, hatches) share the scale sources collected once (#491).
-  metSchaalBronnen(() => annotations.forEach(annotation => {
-    if (annotation.page !== curPage) return;
-    if (_buitenBeeld(annotation, vpX, vpY, vpW, vpH)) return;
+  // Which annotations are on this page and in view is decided on the plain
+  // objects (kale-lijst.js): that test runs for every annotation of the
+  // document on every redraw. What is drawn is the store's own object.
+  const kaal = kaleLijst(annotations);
+  metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
+    if (kandidaat.page !== curPage) return;
+    if (_buitenBeeld(kandidaat, vpX, vpY, vpW, vpH)) return;
+    const annotation = annotations[index];
     // Een tekstmarkering met een andere mengmodus dan vermenigvuldigen mengt
     // zelf met de pagina; de markeerlaag kan alleen vermenigvuldigen.
     const gemengd = isGemengd(annotation.blendMode);
@@ -3533,9 +3539,11 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
     cvX = r.x; cvY = r.y; cvW = r.width; cvH = r.height;
   }
 
-  metSchaalBronnen(() => annotations.forEach(annotation => {
-    if (annotation.page !== pageNum) return;
-    if (_buitenBeeld(annotation, cvX, cvY, cvW, cvH)) return;
+  const kaal = kaleLijst(annotations);
+  metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
+    if (kandidaat.page !== pageNum) return;
+    if (_buitenBeeld(kandidaat, cvX, cvY, cvW, cvH)) return;
+    const annotation = annotations[index];
     if (isGemengd(annotation.blendMode) && _paginaOnder(ctx.canvas)) {
       _tekenGemengd(ctx, annotation, snippetBitmaps, []);
       return;
