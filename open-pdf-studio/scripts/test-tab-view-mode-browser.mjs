@@ -52,6 +52,19 @@ try {
   const modus = (m) => page.evaluate(async (m) => (await import('/js/pdf/renderer.js')).setViewMode(m), m);
   const info = () => page.evaluate(async () => { const { state } = await import('/js/core/state.ts'); return state.documents.map(d => d.fileName + ':' + d.viewMode).join(' '); });
   await zie('after loading');
+  // A new document opens in continuous view (the default).
+  assert.equal(await page.evaluate(async () => (await import('/js/core/state.ts')).getActiveDocument().viewMode), 'continuous');
+  assert.ok(await page.evaluate(() => getComputedStyle(document.getElementById('continuous-container')).display !== 'none'), 'continuous area shown after loading');
+  for (const i of [0, 1]) { await sw(i); await modus('single'); await zie('tab ' + i + ' single'); }
+  await sw(2);
+  // The rotate buttons next to the view mode buttons turn the current page.
+  const rot = () => page.evaluate(async () => { const st = await import('/js/core/state.ts'); return st.getPageRotation(st.getActiveDocument().currentPage) || 0; });
+  const voorRot = await rot();
+  await page.locator('#status-rotate-right').click(); await page.waitForTimeout(1500);
+  assert.equal(((await rot()) - voorRot + 360) % 360, 90, 'rotate right turns the page 90 degrees');
+  await page.locator('#status-rotate-left').click(); await page.waitForTimeout(1500);
+  assert.equal(((await rot()) - voorRot + 360) % 360, 0, 'rotate left turns it back');
+  await zie('after rotating');
   // Continuous -> single-page: the reported case.
   await modus('continuous'); await zie('tab 2 continuous');
   await sw(1); await zie('continuous tab 2 -> single tab 1');

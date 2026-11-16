@@ -52,7 +52,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Enkelpagina is de standaard-weergavemodus; opgeslagen 'continuous'
   // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
   // het laden teruggezet (zie preferences.js).
-  defaultViewMode: 'single',
+  defaultViewMode: 'continuous',
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
