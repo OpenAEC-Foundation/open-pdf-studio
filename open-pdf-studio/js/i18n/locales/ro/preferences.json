@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Tema aplicatiei",
     "startup": "Pornire",
+    "startupTool": "Instrument la următoarea pornire",
     "restoreLastSession": "Restaurare ultima sesiune la pornirea aplicatiei",
     "author": "Autor",
     "defaultAuthorName": "Nume autor",

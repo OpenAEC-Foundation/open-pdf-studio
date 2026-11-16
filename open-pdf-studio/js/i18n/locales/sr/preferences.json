@@ -18,6 +18,7 @@
     "theme": "Тема",
     "applicationTheme": "Тема апликације",
     "startup": "Покретање",
+    "startupTool": "Алат при следећем покретању",
     "restoreLastSession": "Врати последњу сесију при покретању апликације",
     "author": "Аутор",
     "defaultAuthorName": "Име аутора",

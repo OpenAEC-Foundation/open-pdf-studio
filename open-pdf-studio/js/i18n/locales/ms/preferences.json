@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Tema Aplikasi",
     "startup": "Permulaan",
+    "startupTool": "Alat pada permulaan seterusnya",
     "restoreLastSession": "Pulihkan sesi terakhir apabila aplikasi dimulakan",
     "author": "Pengarang",
     "defaultAuthorName": "Nama Pengarang",

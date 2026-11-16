@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Programtema",
     "startup": "Opstart",
+    "startupTool": "Værktøj ved næste start",
     "restoreLastSession": "Gendan sidste session, når programmet starter",
     "author": "Forfatter",
     "defaultAuthorName": "Forfatternavn",

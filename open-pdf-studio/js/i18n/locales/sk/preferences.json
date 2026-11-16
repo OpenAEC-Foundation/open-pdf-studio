@@ -18,6 +18,7 @@
     "theme": "Motív",
     "applicationTheme": "Motív aplikácie",
     "startup": "Spustenie",
+    "startupTool": "Nástroj pri ďalšom spustení",
     "restoreLastSession": "Obnoviť posledné sedenie pri spustení aplikácie",
     "author": "Autor",
     "defaultAuthorName": "Meno autora",

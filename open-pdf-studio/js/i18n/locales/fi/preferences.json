@@ -18,6 +18,7 @@
     "theme": "Teema",
     "applicationTheme": "Sovelluksen teema",
     "startup": "Käynnistys",
+    "startupTool": "Työkalu seuraavalla käynnistyksellä",
     "restoreLastSession": "Palauta edellinen istunto sovelluksen käynnistyessä",
     "author": "Tekijä",
     "defaultAuthorName": "Tekijän nimi",

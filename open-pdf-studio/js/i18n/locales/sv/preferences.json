@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Programtema",
     "startup": "Start",
+    "startupTool": "Verktyg vid nästa start",
     "restoreLastSession": "Återställ senaste sessionen när programmet startar",
     "author": "Författare",
     "defaultAuthorName": "Namn för författare",

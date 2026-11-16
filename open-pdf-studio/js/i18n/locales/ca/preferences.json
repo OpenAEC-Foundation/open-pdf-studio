@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Tema de l'aplicació",
     "startup": "Inici",
+    "startupTool": "Eina al proper inici",
     "restoreLastSession": "Restaura l'última sessió en iniciar l'aplicació",
     "author": "Autor",
     "defaultAuthorName": "Nom d'autor",

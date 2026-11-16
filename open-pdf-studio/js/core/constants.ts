@@ -329,6 +329,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   hideBuiltInStamps: false,
 
   // Startup
+  startupTool: 'select',
   restoreLastSession: false,
   dontAskDefaultPdf: false,
 

@@ -18,6 +18,7 @@
     "theme": "テーマ",
     "applicationTheme": "アプリケーションテーマ",
     "startup": "起動",
+    "startupTool": "次回起動時のツール",
     "restoreLastSession": "アプリケーション起動時に前回のセッションを復元する",
     "author": "著者",
     "defaultAuthorName": "著者名",

@@ -18,6 +18,7 @@
     "theme": "Tema",
     "applicationTheme": "Uygulama Teması",
     "startup": "Başlangıç",
+    "startupTool": "Sonraki başlangıçtaki araç",
     "restoreLastSession": "Uygulama başlatıldığında son oturumu geri yükle",
     "author": "Yazar",
     "defaultAuthorName": "Yazar Adı",
