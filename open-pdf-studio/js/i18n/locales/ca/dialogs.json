@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normal)",
     "perSheetCustom": "Personalitzat...",
     "perSheetGrid": "Columnes × files:",
+    "perSheetColumns": "Columnes",
+    "perSheetRows": "Files",
     "perSheetBy": "×",
     "pageOrder": "Ordre de les pàgines:",
     "orderHorizontal": "Horitzontal",

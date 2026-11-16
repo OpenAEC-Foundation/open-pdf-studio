@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normaal)",
     "perSheetCustom": "Aangepast...",
     "perSheetGrid": "Kolommen bij rijen:",
+    "perSheetColumns": "Kolommen",
+    "perSheetRows": "Rijen",
     "perSheetBy": "bij",
     "pageOrder": "Paginavolgorde:",
     "orderHorizontal": "Horizontaal",

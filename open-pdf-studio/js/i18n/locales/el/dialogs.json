@@ -137,6 +137,8 @@
     "perSheetOne": "1 (κανονικό)",
     "perSheetCustom": "Προσαρμοσμένο...",
     "perSheetGrid": "Στήλες × γραμμές:",
+    "perSheetColumns": "Στήλες",
+    "perSheetRows": "Γραμμές",
     "perSheetBy": "×",
     "pageOrder": "Σειρά σελίδων:",
     "orderHorizontal": "Οριζόντια",

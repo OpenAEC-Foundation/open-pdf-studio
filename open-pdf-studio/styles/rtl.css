@@ -254,21 +254,9 @@
 }
 
 /* Print dialog: swap directional margins/padding */
-[dir="rtl"] .print-custom-row {
-  margin-left: 0;
-  margin-right: 52px;
-}
-[dir="rtl"] .print-checkbox-row {
-  padding-left: 0;
-  padding-right: 58px;
-}
 [dir="rtl"] .print-collate-label {
   margin-left: 0;
   margin-right: 12px;
-}
-[dir="rtl"] .print-zoom-row {
-  margin-left: 0;
-  margin-right: 58px;
 }
 [dir="rtl"] .print-preview-panel {
   border-left: none;

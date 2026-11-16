@@ -137,6 +137,8 @@
     "perSheetOne": "1 (обычный режим)",
     "perSheetCustom": "Другое...",
     "perSheetGrid": "Столбцы на строки:",
+    "perSheetColumns": "Столбцы",
+    "perSheetRows": "Строки",
     "perSheetBy": "на",
     "pageOrder": "Порядок страниц:",
     "orderHorizontal": "По горизонтали",
