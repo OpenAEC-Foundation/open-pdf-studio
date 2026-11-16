@@ -18,6 +18,10 @@ use pdfium_render::prelude::*;
 pub mod thin_lines;
 #[path = "../../../pdfium-worker/src/mesh_bbox.rs"]
 pub mod mesh_bbox;
+/// Editable widgets out of, signatures and push buttons in, the screen
+/// bitmap (#1101). Same file as the pdfium-worker sidecar uses.
+#[path = "../../../pdfium-worker/src/screen_widgets.rs"]
+mod screen_widgets;
 #[path = "../../../pdfium-worker/src/render_budget.rs"]
 #[allow(dead_code)] // SCREEN_RGBA_BYTES is de worker-grens; de app gebruikt eigen budgetten.
 mod render_budget;
@@ -289,8 +293,9 @@ pub fn render_page_to_rgba(
 /// `render_page_to_rgba` for the screen: `thin_lines` draws every vector
 /// stroke as a hairline (Thin Lines view mode, #595). Printing, OCR and
 /// exports keep calling `render_page_to_rgba`, so they always get the true
-/// line widths and stored form appearances. Screen widgets are owned by the
-/// editable PDF.js form layer (#1101), so the bitmap must not contain them.
+/// line widths and stored form appearances. Editable fields are owned by the
+/// PDF.js form layer (#1101), so the bitmap must not contain them; signatures
+/// and push buttons, which that layer cannot draw, stay in.
 /// `max_rgba_bytes` is the caller's bitmap budget (#676).
 pub fn render_page_to_rgba_opts(
     doc: &PdfDocument<'static>,
@@ -303,6 +308,8 @@ pub fn render_page_to_rgba_opts(
     render_page_with_form_data(doc, page_index, scale, rotation, thin_lines, max_rgba_bytes, false)
 }
 
+/// `all_forms`: every widget (output). Otherwise the screen look: editable
+/// widgets left to the form layer, see `screen_widgets`.
 fn render_page_with_form_data(
     doc: &PdfDocument<'static>,
     page_index: u32,
@@ -310,7 +317,7 @@ fn render_page_with_form_data(
     rotation: i32,
     thin_lines: bool,
     max_rgba_bytes: u64,
-    render_forms: bool,
+    all_forms: bool,
 ) -> Result<(u32, u32, Vec<u8>), String> {
     // Serialise all in-proc PDFium work (see PDFIUM_INPROC_LOCK). Declared
     // first so the guard outlives `pages`/`page`, whose Drop also calls PDFium.
@@ -338,11 +345,12 @@ fn render_page_with_form_data(
         other => return Err(format!("Unsupported rotation: {}", other)),
     };
 
+    let widgets = (!all_forms).then(|| screen_widgets::ScreenWidgets::prepare(&page));
     let config = PdfRenderConfig::new()
         .set_target_width(target_w)
         .set_maximum_height(target_h)
         .rotate(rot, true)
-        .render_form_data(render_forms)
+        .render_form_data(widgets.as_ref().is_none_or(|w| w.render_form_data()))
         // ANNOTATION OWNERSHIP: PDFium does NOT render /Annot entries; our
         // own annotation-converter.js reads them into state.documents[]
         // and the annotation-canvas overlay draws them on top. This means
@@ -370,6 +378,7 @@ fn render_page_with_form_data(
     let bitmap = page
         .render_with_config(&config)
         .map_err(|e| format!("PDFium render failed: {}", e))?;
+    drop(widgets);
 
     let actual_w = bitmap.width() as u32;
     let actual_h = bitmap.height() as u32;
@@ -645,7 +654,12 @@ pub fn render_page_region_to_rgba(
 
     // as_rgba_bytes() handles the BGRA→RGBA conversion automatically (matches
     // the existing render_page_to_rgba output shape).
-    let rgba = bitmap.as_rgba_bytes();
+    let mut rgba = bitmap.as_rgba_bytes();
+    // No form pass with a matrix: signatures and push buttons are drawn in
+    // separately; editable fields stay with the form layer (#1101).
+    screen_widgets::ScreenWidgets::prepare(&page).draw_faces_into_tile(
+        &mut rgba, actual_w as usize, actual_h as usize, scale, region_x_pt * scale_x, region_y_pt * scale_y, true,
+    );
 
     Ok((actual_w, actual_h, rgba))
 }
@@ -799,14 +813,23 @@ mod form_display_tests {
     use super::*;
     use super::form_test_fixture as fixture;
 
-    #[test]
-    fn screen_omits_widgets_but_output_keeps_them() {
+    fn init() {
         let platform = if cfg!(windows) {
             if cfg!(target_arch = "aarch64") { "win-arm64" } else { "win-x64" }
         } else if cfg!(target_os = "macos") { "macos-universal" } else { "linux-x64" };
         let dir = std::env::var_os("OPDS_TEST_PDFIUM_DIR").map(std::path::PathBuf::from)
             .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("binaries").join(platform));
         init_pdfium(&dir).unwrap();
+    }
+
+    fn rgb_at(px: &[u8], w: u32, (x, y): (usize, usize)) -> (u8, u8, u8) {
+        let o = (y * w as usize + x) * 4;
+        (px[o], px[o + 1], px[o + 2])
+    }
+
+    #[test]
+    fn screen_omits_widgets_but_output_keeps_them() {
+        init();
         let form = PdfiumDocumentHandle::load_from_bytes(Arc::new(fixture::form_page(true, 0))).unwrap();
         let plain = PdfiumDocumentHandle::load_from_bytes(Arc::new(fixture::form_page(false, 0))).unwrap();
         for rotation in [0, 90, 180, 270] {
@@ -818,6 +841,38 @@ mod form_display_tests {
                 let output = render_page_to_rgba(form.document(), 0, scale, rotation).unwrap();
                 assert!(output.2 != content.2, "print/export must still contain the stored form appearance");
             }
+        }
+    }
+
+    /// Signatures and push buttons have no HTML form element: the screen
+    /// bitmap keeps their stored appearance, also in high-zoom tiles (#1101).
+    #[test]
+    fn screen_keeps_signature_and_button_faces() {
+        use fixture::{centre_px, page_with, Widget::*};
+        init();
+        for rotate in [0, 90] {
+            let all = PdfiumDocumentHandle::load_from_bytes(Arc::new(page_with(&[Text, Signature, PushButton], rotate))).unwrap();
+            let faces = PdfiumDocumentHandle::load_from_bytes(Arc::new(page_with(&[Signature, PushButton], rotate))).unwrap();
+            for rotation in [0, 90, 180, 270] {
+                for scale in [1.0, 2.0] {
+                    let screen = render_page_to_rgba_opts(all.document(), 0, scale, rotation, false, INPROC_SCREEN_RGBA_BYTES).unwrap();
+                    let expected = render_page_to_rgba(faces.document(), 0, scale, rotation).unwrap();
+                    assert!(screen == expected, "screen = page + signature + button: /Rotate {rotate}, rotation {rotation}, scale {scale}");
+                }
+            }
+            let screen = render_page_to_rgba_opts(all.document(), 0, 1.0, 0, false, INPROC_SCREEN_RGBA_BYTES).unwrap();
+            assert_eq!(rgb_at(&screen.2, screen.0, centre_px(Signature, rotate, 1.0)), (0, 0, 255));
+            assert_eq!(rgb_at(&screen.2, screen.0, centre_px(Text, rotate, 1.0)), (255, 255, 255));
+            // The text field is hidden only during the screen render.
+            let output = render_page_to_rgba(all.document(), 0, 1.0, 0).unwrap();
+            assert_eq!(rgb_at(&output.2, output.0, centre_px(Text, rotate, 1.0)), (0, 0, 0));
+
+            let scale = 3.0;
+            let tile = render_page_region_to_rgba(all.document(), 0, scale, 0, 40.0, 50.0, 330.0, 290.0, false).unwrap();
+            let local = |(x, y): (usize, usize)| (x - (40.0 * scale) as usize, y - (50.0 * scale) as usize);
+            assert_eq!(rgb_at(&tile.2, tile.0, local(centre_px(Signature, rotate, scale))), (0, 0, 255), "signature in tile: /Rotate {rotate}");
+            assert_eq!(rgb_at(&tile.2, tile.0, local(centre_px(PushButton, rotate, scale))), (255, 0, 0), "button in tile: /Rotate {rotate}");
+            assert_eq!(rgb_at(&tile.2, tile.0, local(centre_px(Text, rotate, scale))), (255, 255, 255), "no stale text in tile: /Rotate {rotate}");
         }
     }
 }
