@@ -56,13 +56,15 @@ impl<'p, 'a> ScreenWidgets<'p, 'a> {
             }
             match widget.form_field().map(|field| field.field_type()) {
                 Some(field_type) if drawn_as_html(field_type) => editable.push(index),
-                // Signature, push button, or a widget PDFium cannot type:
+                // Signature, push button, or a field PDFium cannot type:
                 // PDF.js shows none of these as HTML.
-                _ => {
+                Some(_) => {
                     if let Ok(rect) = annotation.bounds() {
                         faces.push(rect);
                     }
                 }
+                // No form environment: the form pass would draw nothing.
+                None => {}
             }
         }
         let mut this = ScreenWidgets { page, hidden: Vec::new(), faces };
