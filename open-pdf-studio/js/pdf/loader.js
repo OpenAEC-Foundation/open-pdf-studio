@@ -23,6 +23,7 @@ import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 // Sub-module imports
 import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
+import { createStempelRender } from './loader/stempel-beeld-rust.js';
 import { paginaViewport } from './pagina-viewport.js';
 import { zetPaginaAnnotatiesOm } from './loader/annotaties-omzetten.js';
 import { loadIfNeeded } from './queued-load.js';
@@ -850,101 +851,6 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       }
     }).catch((e) => { console.error('[PERF-BG] loadExistingAnnotations error:', e); });
 
-    // Background prefetch for ALL pages, dispatched by per-page classification:
-    //   - VECTOR pages → extract_draw_commands so thumbnails + main view hit
-    //     the JS-replay cache instead of falling back to the Rust thumbnail
-    //     path (which skips text operators and produces blank/colored
-    //     placeholder thumbnails on text-heavy pages).
-    //   - TILE pages → render_pdf_page at scale 1.0 so the Rust pixmap cache
-    //     is warm. Without this, the FIRST time the user navigates to a
-    //     tile-classified page (NKD1a pages 2-7, huge construction drawings)
-    //     they wait 600-2500 ms for PDFium to walk all vector commands and
-    //     produce the bitmap. With warm pixmap cache the navigation is
-    //     ~150 ms total.
-    //
-    // Both go through the analyze cache (already populated by
-    // analyze_page_type_batch earlier in loadPDF), so the per-page analyze
-    // invoke is microseconds. Concurrency=2 keeps interactive renders
-    // responsive.
-    if (filePath && _rustPad) {
-      (async () => {
-        try {
-          const vr = await import('./vector-renderer.js');
-          const pbc = await import('./page-bitmap-cache.js');
-          const numPages = doc.pdfDoc?.numPages || 0;
-          if (numPages <= 0) return;
-
-          let nextPage = 1;
-          const CONCURRENCY = 2;
-          let warmedVector = 0;
-          let warmedTile = 0;
-
-          const worker = async () => {
-            while (true) {
-              if (isClosed()) return;
-              const p = nextPage++;
-              if (p > numPages) return;
-
-              try {
-                const pageType = await invoke('analyze_page_type', {
-                  path: filePath, pageIndex: p - 1,
-                });
-                if (isClosed()) return;
-
-                if (pageType === 'vector') {
-                  if (vr.hasCachedCommands(filePath, p, 0)) continue;
-                  const cmdData = await invoke('extract_draw_commands', {
-                    path: filePath, pageIndex: p - 1, rotation: 0,
-                  });
-                  if (isClosed()) return;
-                  const cmdBytes = cmdData instanceof Uint8Array
-                    ? cmdData : new Uint8Array(cmdData);
-                  vr.cacheCommands(filePath, p, cmdBytes, 0);
-                  await vr.prepareImages(filePath, p, 0);
-                  warmedVector++;
-                } else {
-                  // TILE page — DELIBERATELY no prefetch.
-                  //
-                  // We tried prefetching tile-page bitmaps at scale=0.125 in
-                  // v1.55/v1.56 (~1.5 s per huge construction-PDF page). It
-                  // gave a blurry fallback bitmap that the orchestrator's
-                  // getBestAvailableBitmap surfaced on first navigation, but:
-                  //   - PDFium serializes via global mutex, so the prefetch
-                  //     blocked the thumbnail-processor's render_thumbnail
-                  //     calls for 6+ pages × ~1.5 s = 9-20 s. User reported
-                  //     thumbnails "weer trager".
-                  //   - The orchestrator's exact-bucket render still ran
-                  //     after the fallback paint (~2.7 s for NKD1a fit-zoom),
-                  //     so the user still waited for the crisp upgrade.
-                  //   - Net win was only the brief "blurry instead of blank"
-                  //     first paint — not worth the thumbnail regression.
-                  //
-                  // Better: let thumbnails own PDFium during cold-open. The
-                  // first nav to a tile page pays the ~2.7 s cold-render
-                  // cost ONCE; subsequent navigations hit the Rust pixmap
-                  // cache and are ~150 ms. Multi-process PDFium (v1.58+)
-                  // is the real fix for cold-render latency on huge pages.
-                  warmedTile++; // counted as "decided not to warm" for diagnostics
-                }
-              } catch (e) {
-                // One bad page shouldn't kill prefetch — just log and move on
-                console.warn(`[PERF-BG] prefetch failed page ${p}:`, e?.message ?? e);
-              }
-
-              // Yield between pages so we don't starve interactive renders
-              await new Promise(r => setTimeout(r, 0));
-            }
-          };
-
-          const workers = [];
-          for (let i = 0; i < CONCURRENCY; i++) workers.push(worker());
-          await Promise.all(workers);
-          console.log(`[PERF-BG] prefetch complete (${numPages} pages, vector=${warmedVector}, tile=${warmedTile})`);
-        } catch (e) {
-          console.warn('[PERF-BG] prefetch error:', e);
-        }
-      })();
-    }
 
   } catch (error) {
     // Suppress errors from document being closed during background loading
@@ -1251,6 +1157,20 @@ export async function getSharedPdfLibDoc(doc) {
   return doc._sharedPdfLibDocPromise;
 }
 
+// The worker route for stamp images of this document (stempel-beeld-rust.js),
+// made once per document; null where there is no PDFium worker or no file on
+// disk, and then PDF.js renders.
+function stempelWorkerRender(doc) {
+  if (doc._stempelWorkerRender !== undefined) return doc._stempelWorkerRender;
+  let render = null;
+  try {
+    if (isTauri() && !isMobile() && heeftRustRenderer() && originalBytesCache.has(doc.filePath)) {
+      render = createStempelRender({ invoke, pad: doc.filePath });
+    }
+  } catch { render = null; }
+  return (doc._stempelWorkerRender = render);
+}
+
 // Load annotations for a single page on-demand (called when user navigates to a page)
 // If waitForColors=false, skips color extraction when pdf-lib isn't ready yet
 async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false) {
@@ -1287,7 +1207,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
       const pdfPage = await doc.pdfDoc.getPage(pageNum);
       const extractViewport = paginaViewport(pdfPage);
       stampImageMap = await extractStampImagesHybrid(
-        pdfPage, extractViewport, stampAnnots, pageNum, pdfLibDoc,
+        pdfPage, extractViewport, stampAnnots, pageNum, pdfLibDoc, stempelWorkerRender(doc),
       );
     } catch (e) {
       console.warn('[loader] hybrid stamp extraction failed:', e);
@@ -1431,7 +1351,7 @@ export async function loadExistingAnnotations(doc) {
       if (stampAnnots.length > 0 || hasSquareAnnotations) {
         try {
           stampImageMap = await extractStampImagesHybrid(
-            pages[i], viewport, stampAnnots, pageNum, pdfLibDoc,
+            pages[i], viewport, stampAnnots, pageNum, pdfLibDoc, stempelWorkerRender(doc),
           );
         } catch (e) {
           console.warn('[loader] hybrid stamp extraction failed:', e);
@@ -1482,7 +1402,7 @@ export async function loadExistingAnnotations(doc) {
         if (stampAnnots.length > 0 || hasSquareAnnotations) {
           try {
             stampImageMap = await extractStampImagesHybrid(
-              page, viewport, stampAnnots, pageNum, pdfLibDoc,
+              page, viewport, stampAnnots, pageNum, pdfLibDoc, stempelWorkerRender(doc),
             );
           } catch (e) {
             console.warn('[loader] hybrid stamp extraction failed:', e);

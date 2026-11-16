@@ -14,8 +14,8 @@ import { redrawAnnotations, renderAnnotationsForPage, updateContinuousSharpOverl
 import { ensureAnnotationsForPage, hidePdfABar } from './loader.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
-import { updateActiveThumbnail, pauseThumbnails, resumeThumbnails, isThumbnailPipelineIdle } from '../ui/panels/left-panel.js';
-import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers, createTextLayerFromRust } from '../text/text-layer.js';
+import { updateActiveThumbnail, pauseThumbnails, resumeThumbnails } from '../ui/panels/left-panel.js';
+import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers } from '../text/text-layer.js';
 import { createSinglePageLinkLayer, clearSinglePageLinkLayer, createLinkLayer, clearLinkLayers, applyOverlayPointerEvents } from './link-layer.js';
 import { pasCanvasLagenToe, pasGereedschapLagenToe } from '../tools/gereedschap-lagen.js';
 import { createSinglePageFormLayer, clearSinglePageFormLayer, createFormLayer, clearFormLayers, hideFormFieldsBar } from './form-layer.js';
@@ -97,9 +97,8 @@ export function _clearJSBitmapCache() {
 
 // NOTE: an earlier prototype embedded MuPDF WASM rendering helpers here
 // (loadMupdf / isMupdfAvailable / getMupdfDocument / renderPageWithMupdf).
-// They were never wired up — the active path is the Rust vector renderer
-// via `extract_draw_commands` + `vector-renderer.js`, with PDF.js as the
-// fallback for raster-only pages. The unused helpers have been removed.
+// They were never wired up — pages render through the PDFium worker pool,
+// with PDF.js where there is no backend. The unused helpers have been removed.
 // `mupdf-renderer.js` is still imported once below for `closeDocument()`
 // cleanup (no-op when the runtime never loaded the WASM module).
 
@@ -352,123 +351,7 @@ async function _renderPageImpl(pageNum, onPageResize) {
     try {
       // Pause thumbnail rendering so Rust backend is free for page rendering
       pauseThumbnails();
-      console.log(`[PERF] renderPage(${pageNum}) trying vector path: ${(performance.now() - _rp0).toFixed(0)}ms`);
-      const vr = await import('./vector-renderer.js');
-      if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
       const userRotation = getPageRotation(pageNum);
-
-      // Engine-override gate: vector path only runs in Auto mode (override===null).
-      // If user picked 'pdfium' or 'rust-skia' in the status-bar dropdown,
-      // skip Vector entirely — even for pages whose draw-commands are already
-      // cached from a previous render. Without this gate, the override only
-      // affected the raster engine (PDFium vs Rust-Skia at the worker-pool
-      // level) but vector-classified pages still went through the Vector
-      // engine, making "Engine: PDFium" appear to do nothing for those pages.
-      // BELEID (2026-07-06): PDFium is de basis-engine; het vector-pad
-      // (AEC-PDF v1) draait alléén nog met de expliciete diagnose-vlag
-      // window.__aecVectorPath. Een null-override uit oude persisted
-      // voorkeuren (dropdown-tijdperk) mag het pad niet meer aanzetten —
-      // dat gaf o.a. een witte pagina op geroteerde vector-bladen.
-      const _vectorAllowed = window.__aecVectorPath === true && state.renderEngineOverride == null;
-      if (_vectorAllowed && !vr.hasCachedCommands(doc.filePath, pageNum, userRotation)) {
-        console.log(`[PERF] renderPage(${pageNum}) analyze_page_type START: ${(performance.now() - _rp0).toFixed(0)}ms`);
-        // JS-side cache check FIRST — populated by analyze_page_type_batch
-        // at cold-open. Skips the IPC roundtrip (which can be 1+ second
-        // queued behind thumbnail invokes during cold-open) for any page
-        // the batch has classified. The Rust cache remains authoritative
-        // for the rare cold-miss path below.
-        const ptcMod = await import('./page-type-cache.js');
-        let pageType = ptcMod.getCachedPageType(doc.filePath, pageNum - 1);
-        if (pageType) {
-          console.log(`[PERF] renderPage(${pageNum}) analyze_page_type=${pageType} (js-cache): ${(performance.now() - _rp0).toFixed(0)}ms`);
-        } else {
-          pageType = await invoke('analyze_page_type', { path: doc.filePath, pageIndex: pageNum - 1 });
-          if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-          ptcMod.cachePageType(doc.filePath, pageNum - 1, pageType);
-          console.log(`[PERF] renderPage(${pageNum}) analyze_page_type=${pageType}: ${(performance.now() - _rp0).toFixed(0)}ms`);
-        }
-        // BELEID (2026-07-06): PDFium is de basis-engine voor álle weergaven.
-        // Het eigen vector-replay-pad (AEC-PDF v1) staat uit tot het per
-        // bladklasse bewezen is via de corpus-benchmark — het veroorzaakte
-        // o.a. een witte pagina en gedraaide weergave op geroteerde bladen
-        // (Originele bestanden/Technische tekening.pdf p1, /Rotate-blad).
-        // Diagnose/ontwikkeling: window.__aecVectorPath = true heractiveert.
-        if (pageType === 'vector' && !window.__aecVectorPath) {
-          pageType = 'raster';
-        }
-        if (pageType === 'vector') {
-          console.log(`[PERF] renderPage(${pageNum}) extract_draw_commands START: ${(performance.now() - _rp0).toFixed(0)}ms`);
-          const cmdData = await invoke('extract_draw_commands', {
-            path: doc.filePath,
-            pageIndex: pageNum - 1,
-            rotation: userRotation,
-          });
-          if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-          const cmdBytes = cmdData instanceof Uint8Array ? cmdData : new Uint8Array(cmdData);
-          console.log(`[PERF] renderPage(${pageNum}) extract_draw_commands DONE (${cmdBytes.length} bytes): ${(performance.now() - _rp0).toFixed(0)}ms`);
-          vr.cacheCommands(doc.filePath, pageNum, cmdBytes, userRotation);
-          // Pre-decode any images in the command buffer (async, must complete before render)
-          console.log(`[PERF] renderPage(${pageNum}) prepareImages START: ${(performance.now() - _rp0).toFixed(0)}ms`);
-          await vr.prepareImages(doc.filePath, pageNum, userRotation);
-          if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-          console.log(`[PERF] renderPage(${pageNum}) prepareImages DONE: ${(performance.now() - _rp0).toFixed(0)}ms`);
-        }
-      }
-
-      if (_vectorAllowed && vr.hasCachedCommands(doc.filePath, pageNum, userRotation)) {
-        const dims = vr.getCachedPageDimensions(doc.filePath, pageNum, userRotation);
-        if (dims) {
-          const { initViewport, setPage, wireEvents, viewport: pdfVP } = await import('./pdf-viewport.js');
-          // CRITICAL: don't write a stale doc's filePath into the viewport
-          // singleton. If we do, the RAF render loop will then draw the OLD
-          // doc's content on the SHARED #pdf-canvas — that's the ghost the
-          // user reports when switching tabs rapidly across multiple PDFs.
-          if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-
-          // Initialize viewport (idempotent — safe to call multiple times).
-          // Call redrawAnnotations SYNCHRONOUSLY inside the viewport's RAF tick
-          // (a dynamic import().then() would defer to a microtask, lagging
-          // annotations one frame behind the PDF during zoom/pan). Use the
-          // lightweight=true path so per-frame zoom skips the heavy SolidJS
-          // status-bar / list / ribbon updates that would stall the frame.
-          initViewport(pdfCanvas, () => redrawAnnotations(true), tekenTekstBewerkingenOpPagina);
-          if (!pdfCanvas._vpEventsWired) {
-            wireEvents(pdfCanvas);
-            pdfCanvas._vpEventsWired = true;
-          }
-          const container = document.getElementById('pdf-container');
-          if (container) container.style.overflow = 'hidden';
-
-          // Load page into viewport (triggers fitToViewport + first render)
-          setPage(doc.filePath, pageNum, dims.w, dims.h, dims.x0 || 0, dims.y0 || 0, userRotation, weergaveRot);
-
-          // Create text layer for text selection + search
-          // Try Rust-extracted text spans first (faster, no PDF.js dependency),
-          // fall back to PDF.js text layer if Rust extraction returns empty
-          try {
-            const canvasContainer = document.getElementById('canvas-container');
-            const rustTextOk = await createTextLayerFromRust(
-              canvasContainer || container, pageNum, dims.w, dims.h
-            );
-            if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-            if (!rustTextOk) {
-              const page = await pdfDoc.getPage(pageNum);
-              if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-              const textViewport = paginaViewport(page, { scale: 1.0 });
-              await createSinglePageTextLayer(page, textViewport);
-              if (_isStaleDoc(doc)) { resumeThumbnails(); return; }
-            }
-            if (window.__pdfViewport) window.__pdfViewport.dirty = true;
-          } catch (e) {
-            console.warn('[render] Text layer failed:', e);
-          }
-
-          console.log(`[render] ✅ Vector viewport: ${dims.w}x${dims.h} pt, origin=(${dims.x0},${dims.y0})`);
-          // Mark page type so the unified render loop knows which branches to run
-          if (window.__pdfViewport) window.__pdfViewport.pageType = 'vector';
-          _skipBitmapRender = true;
-        }
-      }
 
       // ─── RASTER MODE: unified viewport ──────────────────────────────────
       // For raster-classified pages, activate the viewport singleton (same
@@ -480,8 +363,7 @@ async function _renderPageImpl(pageNum, onPageResize) {
       //  - AND either there are no cached vector commands, OR the user has
       //    forced a raster engine (override !== null), in which case cached
       //    vector commands must be bypassed.
-      const _useRaster = !_skipBitmapRender &&
-        (!_vectorAllowed || !vr.hasCachedCommands(doc.filePath, pageNum, userRotation));
+      const _useRaster = !_skipBitmapRender;
       if (_useRaster) {
         const { initViewport, setPage, wireEvents, viewport: pdfVP } =
           await import('./pdf-viewport.js');
@@ -2029,80 +1911,6 @@ export async function setViewMode(mode) {
   }
 }
 
-// ─── Adjacent-page prefetch (idle-gated) ────────────────────────────────────
-// The original prefetchAdjacentPages was removed (see the renderPage() note)
-// because it ran unconditionally and starved visible-thumbnail generation —
-// Rust backend contention that froze the app on large files. This version only
-// fires after a navigation settles AND the pipeline is genuinely idle, and it
-// aborts the instant the user navigates again. It primes the NEXT page's vector
-// draw-commands into the same cache renderPage() reads (vr.hasCachedCommands),
-// so sequential paging becomes a cache hit instead of a cold Rust extract.
-let _prefetchTimer = null;
-const PREFETCH_DELAY_MS = 600;       // settle window after a navigation
-const PREFETCH_RETRY_MS = 400;       // re-poll cadence while waiting for idle
-const PREFETCH_MAX_WAIT_MS = 4000;   // give up after this — never busy-loop
-
-export function schedulePrefetch(centerPage) {
-  if (_prefetchTimer) clearTimeout(_prefetchTimer);
-  _prefetchTimer = setTimeout(() => { _prefetchTimer = null; _runPrefetch(centerPage, 0); }, PREFETCH_DELAY_MS);
-}
-
-// The active doc IFF the user is still parked on `centerPage` (else navigation
-// moved on and this prefetch is stale).
-function _prefetchDocIfStill(centerPage) {
-  const doc = getActiveDocument();
-  return doc && doc.pdfDoc && doc.currentPage === centerPage ? doc : null;
-}
-
-async function _runPrefetch(centerPage, waited) {
-  const doc = _prefetchDocIfStill(centerPage);
-  if (!doc) return; // user navigated — the new nav scheduled its own prefetch
-  // Don't compete with a foreground render or with visible-thumbnail work.
-  // Re-poll for a bounded window (timer-based, never a busy loop), then give up.
-  if ((window.__pdfRenderInFlight || 0) > 0 || !isThumbnailPipelineIdle()) {
-    if (waited >= PREFETCH_MAX_WAIT_MS) return;
-    _prefetchTimer = setTimeout(
-      () => { _prefetchTimer = null; _runPrefetch(centerPage, waited + PREFETCH_RETRY_MS); },
-      PREFETCH_RETRY_MS,
-    );
-    return;
-  }
-  // Forward first (normal reading direction), then backward.
-  const targets = [];
-  if (centerPage + 1 <= doc.pdfDoc.numPages) targets.push(centerPage + 1);
-  if (centerPage - 1 >= 1) targets.push(centerPage - 1);
-  for (const pn of targets) {
-    if (!_prefetchDocIfStill(centerPage)) return; // user moved — stop starting new IPC
-    if (!isThumbnailPipelineIdle()) return;       // visible thumbnails resumed — yield
-    try { await _prefetchOnePage(doc, pn, centerPage); }
-    catch { /* best-effort: a failed prefetch just means the next nav renders cold */ }
-  }
-}
-
-// Cache-only mirror of renderPage()'s cold vector path: analyze → extract →
-// prepareImages. Never touches #pdf-canvas or the viewport singleton.
-async function _prefetchOnePage(doc, pageNum, centerPage) {
-  if (!heeftRustRenderer() || !doc.filePath) return;
-  if (state.renderEngineOverride != null) return; // user forced a raster engine
-  const rotation = getPageRotation(pageNum);
-  const vr = await import('./vector-renderer.js');
-  if (vr.hasCachedCommands(doc.filePath, pageNum, rotation)) return; // already primed
-  const ptcMod = await import('./page-type-cache.js');
-  let pageType = ptcMod.getCachedPageType(doc.filePath, pageNum - 1);
-  if (!pageType) {
-    pageType = await invoke('analyze_page_type', { path: doc.filePath, pageIndex: pageNum - 1 });
-    ptcMod.cachePageType(doc.filePath, pageNum - 1, pageType);
-  }
-  if (pageType !== 'vector') return; // raster pages aren't command-cached
-  if (!_prefetchDocIfStill(centerPage)) return;
-  const cmdData = await invoke('extract_draw_commands', { path: doc.filePath, pageIndex: pageNum - 1, rotation });
-  const cmdBytes = cmdData instanceof Uint8Array ? cmdData : new Uint8Array(cmdData);
-  vr.cacheCommands(doc.filePath, pageNum, cmdBytes, rotation);
-  if (!_prefetchDocIfStill(centerPage)) return;
-  await vr.prepareImages(doc.filePath, pageNum, rotation);
-  console.log(`[prefetch] primed page ${pageNum}`);
-}
-
 // Go to specific page.
 // `options.skipScroll` laat het scrollen aan de aanroeper over. Een hyperlink
 // met een /XYZ- of /FitH-bestemming wil naar een positie MIDDEN op de pagina;
@@ -2150,9 +1958,6 @@ export async function goToPage(pageNum, options = {}) {
     if (pdfContainer && !options.skipScroll) {
       pdfContainer.scrollTop = 0;
     }
-    // Prime the neighbouring pages while the backend is idle so the next
-    // sequential nav is a cache hit (skips the cold Rust extract).
-    schedulePrefetch(pageNum);
   } else {
     // Scroll to page in continuous mode
     const pageWrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);

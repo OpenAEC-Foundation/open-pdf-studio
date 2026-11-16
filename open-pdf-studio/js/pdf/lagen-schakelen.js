@@ -217,17 +217,15 @@ async function ruimKopieOp(doc, kopie) {
 
 /** Alle beelden van dit pad weg, en wat er nu te zien is opnieuw tekenen. */
 async function tekenOpnieuw(doc, pad) {
-  const [bitmaps, tegels, renderer, vector] = await Promise.all([
+  const [bitmaps, tegels, renderer] = await Promise.all([
     import('./page-bitmap-cache.js'),
     import('./tile-cache.js'),
     import('./renderer.js'),
-    import('./vector-renderer.js'),
   ]);
   if (pad) {
     bitmaps.invalidateDocumentBitmaps(pad);
     tegels.tileCacheClearForFile(pad);
     renderer.clearBitmapJSCacheForFile(pad);
-    vector.invalidateDocumentCache(pad);
   }
   renderer.clearLowResCache();
   try {

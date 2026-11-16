@@ -1,6 +1,7 @@
 import { PDFName, PDFArray } from 'pdf-lib';
 import { pdfNum, inflateBytes } from './pdf-helpers.js';
 import { findImageAnnotationSources, findImageForAnnotation } from './annotation-image-sources.mjs';
+import { stempelUitsnede } from './stempel-beeld-rust.js';
 
 // Hybrid stamp image extraction. Tries to extract each stamp via pdf-lib's
 // XObject reader first (clean — never bakes in overlapping annotations),
@@ -16,7 +17,7 @@ import { findImageAnnotationSources, findImageForAnnotation } from './annotation
 // the overlapping annotation's pixels appear glued to the stamp and travel
 // with it. The bake-in happens because page.render() with annotationMode:1
 // rasterizes ALL annotations onto the temp canvas before cropping.
-export async function extractStampImagesHybrid(page, viewport, stampAnnots, pageNum, pdfLibDoc) {
+export async function extractStampImagesHybrid(page, viewport, stampAnnots, pageNum, pdfLibDoc, workerRender = null) {
   if (stampAnnots.length === 0 && !pdfLibDoc) return new Map();
 
   // First pass: pdf-lib extraction (clean, no bake-in)
@@ -42,7 +43,7 @@ export async function extractStampImagesHybrid(page, viewport, stampAnnots, page
   // for stamps with drawn appearance content).
   if (missing.length > 0) {
     try {
-      const fallbackMap = await extractStampImagesViaPdfJs(page, viewport, missing);
+      const fallbackMap = await extractStampImagesViaPdfJs(page, viewport, missing, { pageNum, workerRender });
       for (const [k, v] of fallbackMap) {
         imageMap.set(k, v);
       }
@@ -62,7 +63,7 @@ export async function extractStampImagesHybrid(page, viewport, stampAnnots, page
 // bounding box because PDF.js renders all annotations together. Prefer
 // extractStampImagesHybrid() which uses pdf-lib first and falls back here
 // only when pdf-lib can't decode a stamp's appearance.
-export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
+export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots, { pageNum = 0, workerRender = null } = {}) {
   const imageMap = new Map();
   if (stampAnnots.length === 0) return imageMap;
 
@@ -89,14 +90,39 @@ export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
     // Canvas pixel size must EXACTLY match viewport dimensions.
     // Do NOT apply DPR scaling — it causes crop coordinate mismatch (tiled images).
     const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = Math.floor(hiResViewport.width);
-    tempCanvas.height = Math.floor(hiResViewport.height);
+    // Where the canvas starts on the page, in pixels of the whole-page render.
+    let vanafX = 0, vanafY = 0;
 
-    await page.render({
-      canvasContext: tempCanvas.getContext('2d'),
-      viewport: hiResViewport,
-      annotationMode: 1,
-    }).promise;
+    // Desktop: the PDFium worker renders only the part of the page the stamps
+    // are on, off the interface thread (stempel-beeld-rust.js). Null = PDF.js.
+    let viaWorker = false;
+    if (workerRender && pageNum > 0) {
+      const deel = stempelUitsnede(stampAnnots.map((stamp) => {
+        const [x1, y1] = hiResViewport.convertToViewportPoint(stamp.rect[0], stamp.rect[1]);
+        const [x2, y2] = hiResViewport.convertToViewportPoint(stamp.rect[2], stamp.rect[3]);
+        return [x1, y1, x2, y2];
+      }), Math.floor(hiResViewport.width), Math.floor(hiResViewport.height));
+      if (!deel) return imageMap;
+      const gebied = await workerRender(pageNum, hiResScale, deel);
+      if (gebied) {
+        tempCanvas.width = gebied.width;
+        tempCanvas.height = gebied.height;
+        tempCanvas.getContext('2d').putImageData(new ImageData(gebied.rgba, gebied.width, gebied.height), 0, 0);
+        vanafX = deel.x;
+        vanafY = deel.y;
+        viaWorker = true;
+      }
+    }
+    if (!viaWorker) {
+      tempCanvas.width = Math.floor(hiResViewport.width);
+      tempCanvas.height = Math.floor(hiResViewport.height);
+
+      await page.render({
+        canvasContext: tempCanvas.getContext('2d'),
+        viewport: hiResViewport,
+        annotationMode: 1,
+      }).promise;
+    }
 
     // Crop each stamp's region from the high-res rendered canvas
     for (const stamp of stampAnnots) {
@@ -105,8 +131,8 @@ export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
       const [vx1, vy1] = hiResViewport.convertToViewportPoint(rect[0], rect[1]);
       const [vx2, vy2] = hiResViewport.convertToViewportPoint(rect[2], rect[3]);
 
-      const cropX = Math.round(Math.min(vx1, vx2));
-      const cropY = Math.round(Math.min(vy1, vy2));
+      const cropX = Math.round(Math.min(vx1, vx2)) - vanafX;
+      const cropY = Math.round(Math.min(vy1, vy2)) - vanafY;
       const cropW = Math.round(Math.abs(vx2 - vx1));
       const cropH = Math.round(Math.abs(vy2 - vy1));
 

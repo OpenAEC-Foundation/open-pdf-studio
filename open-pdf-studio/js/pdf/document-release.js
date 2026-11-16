@@ -2,8 +2,7 @@
 //
 // closeTab() haalde het document alleen uit state.documents. Wat er per
 // bestandspad gecachet stond, bleef staan: de ruwe bestandsbytes
-// (loader.js, voor de saver), de vector-commandobuffers en gedecodeerde
-// afbeeldingen van álle pagina's (vector-renderer.js, bij openen voorverwarmd),
+// (loader.js, voor de saver),
 // de paginabitmaps (page-bitmap-cache.js), en aan de Rust-kant de bytes, de
 // geparsede handles (lopdf én PDFium), thumbnails, paginatypen en pixmaps.
 // Ook de PDF.js-instantie werd nooit afgesloten. Na een reeks zware
@@ -146,9 +145,8 @@ async function geefPadVrij(pad, renders = true) {
   // Renders die nog wachten vervallen; wat nog loopt wordt bij aankomst
   // weggegooid, zodat geen late bitmap de net geleegde caches weer vult (#506).
   if (renders) renderQueue.releaseDocument(pad);
-  const [loader, vector, bitmaps, progressief, weergave, tegels, renderer, snap] = await Promise.all([
+  const [loader, bitmaps, progressief, weergave, tegels, renderer, snap] = await Promise.all([
     import('./loader.js'),
-    import('./vector-renderer.js'),
     import('./page-bitmap-cache.js'),
     import('./progressive-render.js'),
     import('./weergave-per-document.js'),
@@ -157,7 +155,6 @@ async function geefPadVrij(pad, renders = true) {
     import('../tools/pdf-snap-extractor.js'),
   ]);
   loader.clearCachedPdfBytes(pad);
-  vector.invalidateDocumentCache(pad);
   bitmaps.invalidateDocumentBitmaps(pad);
   progressief.forgetContentBytes(pad);
   // De tegels van hoge zoom, de JS-bitmapcache en de voorvertoningen bleven

@@ -2541,7 +2541,7 @@ async fn render_pdf_page_region(
     // except a dead worker: that crash must not be repeated in the GUI process.
     if let Some(p) = pool.get() {
         match p
-            .render_region(&path, page_index, scale, extra_rot, region_x_pt, region_y_pt, region_w_pt, region_h_pt, spread.unwrap_or(false), thin_lines)
+            .render_region(&path, page_index, scale, extra_rot, region_x_pt, region_y_pt, region_w_pt, region_h_pt, spread.unwrap_or(false), thin_lines, false)
             .await
         {
             Ok((width, height, rgba)) => {
@@ -2599,6 +2599,42 @@ async fn render_pdf_page_region(
     data.extend_from_slice(&height.to_le_bytes());
     data.extend_from_slice(&rgba);
     Ok(verscherpen::antwoord(data, sharpen).await)
+}
+
+/// A part of a page as the file shows it, annotation appearances included
+/// (the PDFium worker, like pdf.js with annotationMode 1). The loader cuts
+/// the images of stamps with a drawn appearance out of it
+/// (js/pdf/loader/stempel-beeld-rust.js). The region is in points of the
+/// displayed page (after /Rotate), y down from the top left. Answer: width
+/// and height (u32 LE) and the RGBA pixels. Only the worker pool: a failure
+/// is an error, the JavaScript side then renders with PDF.js.
+/// `OPDS_RUST_STAMPS=0` forces that JavaScript route.
+#[tauri::command]
+async fn render_annotated_region(
+    path: String,
+    page_index: u32,
+    scale: f32,
+    region_x_pt: f32,
+    region_y_pt: f32,
+    region_w_pt: f32,
+    region_h_pt: f32,
+    pool: tauri::State<'_, std::sync::Arc<tokio::sync::OnceCell<worker_pool::WorkerPool>>>,
+) -> Result<tauri::ipc::Response, String> {
+    if std::env::var("OPDS_RUST_STAMPS").ok().as_deref() == Some("0") {
+        return Err("PDF_STAMPS_DISABLED".to_string());
+    }
+    let Some(p) = pool.get() else {
+        return Err("PDF_WORKER_UNAVAILABLE".to_string());
+    };
+    let (width, height, rgba) = p
+        .render_region(&path, page_index, scale, 0, region_x_pt, region_y_pt, region_w_pt, region_h_pt, false, false, true)
+        .await
+        .map_err(|e| format!("{e:#}"))?;
+    let mut data = Vec::with_capacity(8 + rgba.len());
+    data.extend_from_slice(&width.to_le_bytes());
+    data.extend_from_slice(&height.to_le_bytes());
+    data.extend_from_slice(&rgba);
+    Ok(tauri::ipc::Response::new(data))
 }
 
 /// Snap-geometrie van een pagina uit de PDFium-worker (pdfium-worker,
@@ -3843,6 +3879,7 @@ pub fn run(opts: StartupOpts) {
             symbool_zoeken::symbol_match_raster,
             render_tile_scene_region,
             extract_snap_geometry,
+            render_annotated_region,
             extract_search_text,
             page_content_size,
             get_page_dimensions,

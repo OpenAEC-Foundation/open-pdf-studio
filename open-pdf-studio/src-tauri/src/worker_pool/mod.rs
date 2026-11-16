@@ -395,6 +395,7 @@ impl WorkerPool {
         region_h_pt: f32,
         spread: bool,
         thin_lines: bool,
+        annotations: bool,
     ) -> Result<(u32, u32, Vec<u8>)> {
         let depths = self.depths();
         if depths.iter().all(|&d| d == usize::MAX) { return Err(response::Unavailable.into()); }
@@ -410,11 +411,16 @@ impl WorkerPool {
         // tegels à ~0,4 s. Met spread is uitwijken juist gewenst.
         let slot = routing::pick_worker(path, page_index ^ salt, &depths, !spread);
         let worker = self.workers[slot].clone();
+        // An older worker ignores the field and would answer with a tile
+        // without the annotations.
+        if annotations && !worker.has_cap("region_annotations") {
+            return Err(anyhow!("PDF_WORKER_UNSUPPORTED: region with annotations"));
+        }
         self.touch(&worker);
         worker.queue_depth.fetch_add(1, Ordering::Release);
         let result = self.render_region_on_worker(
             worker.clone(), path, page_index, scale, rotation,
-            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, annotations,
         ).await;
         worker.queue_depth.fetch_sub(1, Ordering::Release);
         // Geen retry; alleen niet-fatale fouten mogen in-proc terugvallen. Een
@@ -440,6 +446,7 @@ impl WorkerPool {
         region_w_pt: f32,
         region_h_pt: f32,
         thin_lines: bool,
+        annotations: bool,
     ) -> Result<(u32, u32, Vec<u8>)> {
         // Zelfde volledige-round-trip-serialisatie als render_on_worker.
         let request_lock = worker.request_lock.clone();
@@ -452,7 +459,7 @@ impl WorkerPool {
 
         let req = render_region_request(
             id, path, page_index, scale, rotation,
-            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, annotations,
         );
         let req_line = format!("{}\n", req);
 
@@ -616,6 +623,7 @@ fn render_region_request(
     region_w_pt: f32,
     region_h_pt: f32,
     thin_lines: bool,
+    annotations: bool,
 ) -> serde_json::Value {
     json!({
         "op": "render_region",
@@ -629,6 +637,7 @@ fn render_region_request(
         "region_w_pt": region_w_pt,
         "region_h_pt": region_h_pt,
         "thin_lines": thin_lines,
+        "annotations": annotations,
     })
 }
 
@@ -667,7 +676,7 @@ mod request_tests {
     fn both_render_requests_carry_thin_lines() {
         assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, true, false)["thin_lines"], json!(true));
         assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false, false)["thin_lines"], json!(false));
-        let region = render_region_request(2, "a.pdf", 3, 2.0, 0, 0.0, 0.0, 10.0, 10.0, true);
+        let region = render_region_request(2, "a.pdf", 3, 2.0, 0, 0.0, 0.0, 10.0, 10.0, true, false);
         assert_eq!(region["thin_lines"], json!(true));
         assert_eq!(region["op"], json!("render_region"));
     }
@@ -726,7 +735,7 @@ mod unavailable_tests {
         };
         let page = pool.render("fixture.pdf", 0, 1.0, 0, false, false).await.unwrap_err();
         assert!(response::is_unavailable(&page));
-        let region = pool.render_region("fixture.pdf", 0, 1.0, 0, 0.0, 0.0, 10.0, 10.0, false, false).await.unwrap_err();
+        let region = pool.render_region("fixture.pdf", 0, 1.0, 0, 0.0, 0.0, 10.0, 10.0, false, false, false).await.unwrap_err();
         assert!(response::is_unavailable(&region));
     }
 }

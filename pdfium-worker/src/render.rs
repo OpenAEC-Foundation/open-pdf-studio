@@ -574,6 +574,7 @@ impl Renderer {
         region_w_pt: f32,
         region_h_pt: f32,
         thin_lines: bool,
+        annotations: bool,
     ) -> Result<RenderResult> {
         if rotation != 0 {
             return Err(anyhow!("render_region: rotation {} not supported", rotation));
@@ -602,8 +603,8 @@ impl Renderer {
                 .set_fixed_size(bitmap_w, bitmap_h)
                 .transform(scale, 0.0, 0.0, scale, -region_x_pt * scale, -region_y_pt * scale)
                 .map_err(|e2| anyhow!("invalid transform: {}", e2))?
-                .render_annotations(false)
-                .use_lcd_text_rendering(true)
+                .render_annotations(annotations)
+                .use_lcd_text_rendering(!annotations)
                 .set_format(PdfBitmapFormat::BGRA);
 
             let bitmap = page.render_with_config(&config)
@@ -711,7 +712,7 @@ mod tests {
                 assert_eq!((form.width, form.height), (plain.width, plain.height));
                 assert!(form.rgba == plain.rgba, "stored widget must not be baked under editable field: rotation={rotation}, scale={scale}");
                 if rotation == 0 {
-                    let tile = renderer.render_region(with.to_str().unwrap(), 0, scale, 0, 50.0, 230.0, 200.0, 100.0, false).unwrap();
+                    let tile = renderer.render_region(with.to_str().unwrap(), 0, scale, 0, 50.0, 230.0, 200.0, 100.0, false, false).unwrap();
                     assert!(!dark(&tile.rgba, tile.width as usize, (100.0 * scale) as usize, (45.0 * scale) as usize));
                 }
             }
@@ -819,8 +820,8 @@ mod tests {
             let mut renderer = Renderer::new().unwrap();
             for scale in [1.0f32, 2.0, 3.5] {
                 let (rx, ry, rw, rh) = (40.0f32, 50.0f32, 330.0f32, 290.0f32);
-                let tile = renderer.render_region(all.to_str().unwrap(), 0, scale, 0, rx, ry, rw, rh, false).unwrap();
-                let bare = renderer.render_region(plain.to_str().unwrap(), 0, scale, 0, rx, ry, rw, rh, false).unwrap();
+                let tile = renderer.render_region(all.to_str().unwrap(), 0, scale, 0, rx, ry, rw, rh, false, false).unwrap();
+                let bare = renderer.render_region(plain.to_str().unwrap(), 0, scale, 0, rx, ry, rw, rh, false, false).unwrap();
                 assert_eq!((tile.width, tile.height), (bare.width, bare.height));
                 let w = tile.width as usize;
                 let local = |(x, y): (usize, usize)| (x - (rx * scale) as usize, y - (ry * scale) as usize);
@@ -842,7 +843,7 @@ mod tests {
             }
             // A tile that cuts through the signature: only its part is drawn.
             let (sx0, sy0, _, _) = display_rect(Signature, rotate, 1.0);
-            let tile = renderer.render_region(all.to_str().unwrap(), 0, 4.0, 0, sx0 + 10.0, sy0 + 10.0, 300.0, 300.0, false).unwrap();
+            let tile = renderer.render_region(all.to_str().unwrap(), 0, 4.0, 0, sx0 + 10.0, sy0 + 10.0, 300.0, 300.0, false, false).unwrap();
             assert_eq!(rgb_at(&tile.rgba, tile.width as usize, (8, 8)), (0, 0, 255), "partly covered signature: /Rotate {rotate}");
             let mut tiles = Vec::new();
             renderer.render_tiles(all.to_str().unwrap(), 0, 1.0, &[(0, 0, 400, 400)], |_, px| tiles = px.to_vec()).unwrap();

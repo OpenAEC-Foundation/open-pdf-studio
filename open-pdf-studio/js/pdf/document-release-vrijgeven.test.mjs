@@ -20,7 +20,7 @@ test('sluiten geeft alle caches van het pad vrij, ook tegels, voorvertoningen en
   await geefDocumentVrij(dicht, []);
   assert.equal(vernietigd, true, 'de PDF.js-instantie gaat dicht');
   for (const naam of [
-    'clearCachedPdfBytes', 'invalidateDocumentCache', 'invalidateDocumentBitmaps', 'forgetContentBytes',
+    'clearCachedPdfBytes', 'invalidateDocumentBitmaps', 'forgetContentBytes',
     'vergeetWeergaveStand', 'tileCacheClearForFile', 'clearBitmapJSCacheForFile', 'clearLowResCacheForFile',
     'vergeetSnapGeometrie',
   ]) {
