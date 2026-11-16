@@ -127,6 +127,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-presentation-browser.mjs
 
+      - name: Test tab switch across view modes (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-tab-view-mode-browser.mjs
+
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
 
