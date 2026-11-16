@@ -103,6 +103,10 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:hosted-bridge
 
+      - name: Test pdf-lib XRef rejection and save recovery (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/pdf-lib-xref-browser.mjs
+
       - name: Test textbox colour and defaults (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-text-color-browser.mjs
