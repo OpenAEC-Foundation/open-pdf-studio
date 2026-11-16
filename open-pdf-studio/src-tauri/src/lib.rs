@@ -33,6 +33,7 @@ pub mod mcp_tool_meta;
 pub mod monochroom;
 pub mod verscherpen;
 pub mod symbool_zoeken;
+pub mod annotatie_laag;
 pub mod openaec_omgeving;
 // OCR (Tesseract) is desktop only; Android has no Tesseract build.
 #[cfg(not(target_os = "android"))]
@@ -3877,6 +3878,7 @@ pub fn run(opts: StartupOpts) {
             verscherpen::sharpen_rust_beschikbaar,
             raster_scan_page,
             symbool_zoeken::symbol_match_raster,
+            annotatie_laag::annot_layer_render,
             render_tile_scene_region,
             extract_snap_geometry,
             render_annotated_region,

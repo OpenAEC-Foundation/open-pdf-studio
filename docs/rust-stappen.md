@@ -1083,3 +1083,53 @@ stilstaan: 2,5 → 1,4 s, 11,2 → 9,7 s, 17,0 → 16,3 s, 0,9 → 1,1 s en
 
 De Rust-commando's `extract_draw_commands` en `analyze_page_type` staan er
 nog; het eerste heeft geen aanroeper meer in de app.
+
+## Annotaties tekenen in Rust: proef met zes eenvoudige vormen, niet aangesloten
+
+**Vraag.** Loont het om annotaties in Rust te tekenen en als doorzichtige
+laag naar het scherm te sturen?
+
+**Wat er staat.** De crate `open-pdf-annot` (tiny-skia, dezelfde rasterizer
+als open-pdf-render) tekent lijn, rechthoek, ellips, polylijn, gewone inkt
+en markering; het commando `annot_layer_render` geeft de laag als rauwe
+RGBA. `js/annotations/rust-laag.js` bepaalt per annotatie of Rust hem mag
+tekenen en rekent kleur, dekking, lijndikte en streep uit zoals
+`drawAnnotation` dat doet; alles met een arcering, kruis, mengmodus,
+spiegeling of een kleur die geen hex is blijft bij JS.
+`js/annotations/rust-laag-proef.js` tekent dezelfde pagina met beide en
+vergelijkt (`window.__opdsAnnotRustProef({ pageNum, scale })` in de
+ontwikkelconsole). Het scherm gebruikt dit niet.
+
+**Meting** (release-build, onzichtbare testinstantie, A4-pagina, mediaan van
+7; JS = `renderAnnotationsForPage` als uitvoer, Rust = aanvraag, tekenen,
+antwoord en de pixels op een canvas):
+
+| vormen | laag | JS | Rust via het commando | alleen het tekenen in Rust |
+|---:|---|---:|---:|---:|
+| 120 | 595 × 842 | 3,3 ms | 48,5 ms | 5,9 ms |
+| 120 | 1191 × 1684 | 5,9 ms | 144,6 ms | 21,4 ms |
+| 120 | 2381 × 3368 | 10,2 ms | 494,4 ms | 74,6 ms |
+| 3000 | 595 × 842 | 31 ms | 157 ms | 21 ms |
+| 3000 | 1191 × 1684 | 53 ms | 283 ms | 54 ms |
+| 3000 | 2381 × 3368 | 72 ms | 638 ms | 136 ms |
+
+De laatste kolom komt uit `cargo run --release -p open-pdf-annot --example
+tijd` (een vergelijkbare set, zonder de app eromheen).
+
+**Beeld.** Naast elkaar gelegd zijn de twee tekeningen op het oog gelijk. Per
+pixel verschilt 0,4–1,2 % meer dan 8 niveaus bij 120 vormen (2–7 % bij 3000
+dicht op elkaar) en 0,04–0,8 % meer dan 32: randen (andere anti-aliasing) en
+de plek waar een streeppatroon om een hoek begint.
+
+**Uitkomst: niet aansluiten op het scherm.**
+- Het canvas van de WebView tekent deze vormen zelf al snel; het tekenen in
+  Rust op de processor is bij veel vormen even snel en bij weinig vormen
+  trager, omdat de hele laag gevuld en omgerekend moet worden.
+- De laag moet daarna naar de WebView: per megapixel kost dat meer dan het
+  tekenen zelf. Een laag op schermgrootte per hertekening is daardoor 5 tot
+  50 keer trager dan JS.
+- Waar het wel past: uitvoer zonder WebView (een afdruk of export die de
+  pagina toch al in Rust rendert) en een schil zonder WebView (fase 2 van het
+  migratieplan), waar de laag niet over de grens hoeft.
+
+**Standaard:** JS. `OPDS_RUST_ANNOT=0` zet het commando uit.

@@ -3758,6 +3758,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-annot"
+version = "2026.47.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tiny-skia",
+]
+
+[[package]]
 name = "open-pdf-cad"
 version = "2026.47.0"
 dependencies = [
@@ -3891,6 +3900,7 @@ dependencies = [
  "memchr",
  "memmap2",
  "open",
+ "open-pdf-annot",
  "open-pdf-cad",
  "open-pdf-cmyk",
  "open-pdf-monochrome",

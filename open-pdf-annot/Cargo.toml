@@ -1,0 +1,20 @@
+[package]
+name = "open-pdf-annot"
+version = "2026.47.0"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Draws simple annotations (line, box, ellipse, polyline, ink, highlight) on a transparent layer"
+publish = false
+
+# Pure logica zonder Tauri of PDFium: `cargo test -p open-pdf-annot` draait
+# gewoon. Eerste stuk van het tekenen van annotaties in Rust; de app-crate
+# biedt het aan als commando `annot_layer_render` (annotatie_laag.rs), de
+# JS-kant staat in js/annotations/rust-laag.js. Zie docs/rust-stappen.md.
+
+[dependencies]
+# Zelfde rasterizer en versie als open-pdf-render; staat al in Cargo.lock.
+tiny-skia = "0.11"
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"

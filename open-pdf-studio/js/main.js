@@ -704,6 +704,12 @@ async function checkDefaultPdfApp() {
   }
 }
 
+// Trial of annotation drawing in Rust (annotations/rust-laag-proef.js): only
+// loads when called from the developer console.
+if (isTauri()) {
+  window.__opdsAnnotRustProef = (opties) => import('./annotations/rust-laag-proef.js').then((m) => m.vergelijkRustLaag(opties));
+}
+
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);

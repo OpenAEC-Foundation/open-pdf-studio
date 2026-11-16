@@ -528,6 +528,7 @@ js/annotations/veelhoek-punten.test.mjs
 js/annotations/veelhoek-bewerken.test.mjs
 js/annotations/veelhoek-raak.test.mjs
 js/annotations/kale-lijst.test.mjs
+js/annotations/rust-laag.test.mjs
 js/tools/tekstlaag-doorval.test.mjs
 js/pdf/loader/stempel-beeld-rust.test.mjs
 js/tools/tools/polygon-tool.test.mjs
