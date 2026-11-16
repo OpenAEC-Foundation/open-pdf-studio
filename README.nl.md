@@ -138,6 +138,14 @@ Iets gevonden? [Maak een issue](https://github.com/OpenAEC-Foundation/open-pdf-s
 
 De app is een [Tauri 2](https://tauri.app/)-desktop-app met een Rust-achterkant en een [SolidJS](https://www.solidjs.com/)-voorkant, gebouwd met [Vite](https://vitejs.dev/). Pagina's worden getekend door een workerpool van [PDFium](https://pdfium.googlesource.com/pdfium/)-processen, buiten de UI-thread en afgeschermd tegen crashes, met tegels die geleidelijk verschijnen bij heel grote tekeningen; de browser- en Android-versie tekenen met [PDF.js](https://mozilla.github.io/pdf.js/), dat ook de tekstlaag levert. [pdf-lib](https://pdf-lib.js.org/) schrijft de wijzigingen in de PDF. De browserversie is dezelfde voorkant, gebouwd zonder de Tauri-schil. De licenties van alle onderdelen staan in [LICENSING.md](LICENSING.md).
 
+### Rust en snelheid
+
+Zwaar werk gaat stap voor stap van JavaScript naar Rust, elke stap met een pariteitstest en een meting. De grafiek toont het aandeel Rust in de eigen code over het afgelopen halfjaar, en de gemeten tijd van een aantal handelingen vóór en na de verbetering.
+
+![Links: het aandeel Rust in de eigen code groeide van 16% in mei naar 28% in november 2026. Rechts: gemeten tijden vóór en na, van 1,7 tot 38 keer sneller](docs/images/readme/code-and-speed.svg)
+
+De regels zijn geteld op `main` halverwege elke maand, zonder tests en meegeleverde code van derden. De tijden komen uit [docs/rust-stappen.md](docs/rust-stappen.md) en [docs/performance/](docs/performance/); ze zijn gemeten in oktober en november 2026, elk paar op dezelfde machine. De eigen code werd in dezelfde periode vier keer zo groot: het aandeel laat zien waar nieuw werk terechtkomt, niet dat er minder JavaScript is.
+
 ## Bijdragen
 
 - **Meld een fout of vraag om een functie** in een [issue](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/new). Beschrijf wat je deed, wat je verwachtte en wat er gebeurde. Omdat de code snel verandert, is een precies issue vaak nuttiger dan een pull request.

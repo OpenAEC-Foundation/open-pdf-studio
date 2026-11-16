@@ -11,7 +11,6 @@ import {
   computeZoomBucket,
   getBestAvailableBitmap,
   ensureBitmap,
-  getCachedBitmap,
   registreerGetoondeBitmaps,
   ruimUitgesteldOp,
 } from './page-bitmap-cache.js';
@@ -655,96 +654,6 @@ export function paginaRuimteMaat() {
 export function clampAndCenter() {
   // NO-OP — preserved as a function reference; all clamping/centering removed.
   return;
-}
-
-// Internal variant retained for the rare callers that genuinely want a
-// minimal "snap into viewport if completely lost" behavior (e.g. setPage on
-// a fresh document). Not called per-frame.
-export function clampAndCenterUnused_keptForReference() {
-  if (!_canvas || !viewport.pageW || !viewport.pageH) return;
-  // Use CSS-pixel viewport size (backing is dpr * css)
-  const dpr = _getDpr();
-  const vpW = _canvas.width / dpr;
-  const vpH = _canvas.height / dpr;
-  const pageScreenW = viewport.pageW * viewport.zoom;
-  const pageScreenH = viewport.pageH * viewport.zoom;
-
-  // When the user has explicitly anchored the view (zoom-to-cursor, pan),
-  // do NOT auto-center even if the page now fits the axis — otherwise the
-  // anchor point drifts back to the viewport center on the very next frame.
-  // For wheel zoom (cursor anchor) we also skip the on-screen clamp via
-  // _strictAnchor: an [0, vpW - pageScreenW] clamp would drag a page the
-  // cursor pulled off-center back toward 0, destroying the cursor anchor
-  // (user complaint: "zoom moet ook altijd naar positie muiscursor").
-  // For other anchored sources (setZoomAtPoint with center, pan) the on-
-  // screen clamp is still desirable and keeps the page fully visible on a
-  // fit-axis.
-  const anchored = _anchorActive;
-  const strict = _strictAnchor;
-
-  // Over-pan slack: how far the page can be positioned past the viewport
-  // edge on an overflow axis. Half-viewport means the user can scroll/pan
-  // until at most 50% of the viewport is gray (page-left at viewport-middle,
-  // or page-right at viewport-middle). Matches gangbaar viewer-gedrag
-  // where you can scroll past page edges to see surrounding gray space.
-  const OVERPAN_FRACTION = 0.5;
-
-  if (pageScreenW <= vpW) {
-    if (strict) {
-      // Wheel zoom-to-cursor: leave offsetX exactly where _anchorAt placed it
-    } else if (anchored) {
-      const minX = 0;                  // page left can't go past viewport left
-      const maxX = vpW - pageScreenW;  // page right can't go past viewport right
-      if (viewport.offsetX < minX) viewport.offsetX = minX;
-      if (viewport.offsetX > maxX) viewport.offsetX = maxX;
-    } else {
-      // Fits horizontally → center
-      viewport.offsetX = (vpW - pageScreenW) / 2;
-    }
-  } else {
-    // Page is bigger than viewport on this axis.
-    if (strict) {
-      // Wheel zoom-to-cursor: NO clamp. The cursor anchor math
-      // (offsetX = screenX − wx * newZoom) guarantees the world point under
-      // the cursor stays under the cursor — and thus on-screen — so the user
-      // cannot lose the page by zooming. Clamping here was the cause of the
-      // "geen fixatie rondom mijn muis" complaint at >200% zoom: the clamp
-      // dragged the page back toward viewport edges, breaking the anchor.
-    } else {
-      // Pan / non-strict anchor / default: allow over-pan past page edges
-      // with half-viewport slack. Previous behavior ("neither edge crosses
-      // the viewport edge") made the page feel pinned and prevented the user
-      // from panning past the page to see the surrounding gray area.
-      const SLACK_X = vpW * OVERPAN_FRACTION;
-      const minX = vpW - pageScreenW - SLACK_X;
-      const maxX = SLACK_X;
-      if (viewport.offsetX < minX) viewport.offsetX = minX;
-      if (viewport.offsetX > maxX) viewport.offsetX = maxX;
-    }
-  }
-
-  if (pageScreenH <= vpH) {
-    if (strict) {
-      // Wheel zoom-to-cursor: leave offsetY exactly where _anchorAt placed it
-    } else if (anchored) {
-      const minY = 0;
-      const maxY = vpH - pageScreenH;
-      if (viewport.offsetY < minY) viewport.offsetY = minY;
-      if (viewport.offsetY > maxY) viewport.offsetY = maxY;
-    } else {
-      viewport.offsetY = (vpH - pageScreenH) / 2;
-    }
-  } else {
-    if (strict) {
-      // Same reasoning as X axis above — cursor anchor must be honored.
-    } else {
-      const SLACK_Y = vpH * OVERPAN_FRACTION;
-      const minY = vpH - pageScreenH - SLACK_Y;
-      const maxY = SLACK_Y;
-      if (viewport.offsetY < minY) viewport.offsetY = minY;
-      if (viewport.offsetY > maxY) viewport.offsetY = maxY;
-    }
-  }
 }
 
 // Sticky flag set by zoom-to-cursor / pan / setZoomAtPoint. Once the user
