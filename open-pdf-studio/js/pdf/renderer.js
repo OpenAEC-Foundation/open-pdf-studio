@@ -2000,16 +2000,34 @@ export async function setViewMode(mode) {
     doc.facingSpread = false;
     if (mode === 'continuous') doc.bookSpread = false;
   }
+  applyViewModeLayout(doc);
+  if (doc.viewMode === 'single') {
+    await renderPage(doc.currentPage);
+  } else {
+    await renderContinuous();
+    // Stay on the page the user was reading — the rebuild starts at page 1.
+    const continuousContainer = document.getElementById('continuous-container');
+    const wrapper = continuousContainer?.querySelector(`.page-wrapper[data-page="${doc.currentPage}"]`);
+    if (wrapper) wrapper.scrollIntoView({ block: 'start' });
+  }
+}
+
+/**
+ * De indeling van de weergave voor `doc`: de enkelpagina-container of de
+ * doorlopende container zichtbaar, met de bijbehorende lay-outklasse. Beide
+ * weergaven delen deze DOM over alle tabbladen; daarom ook bij een tabwissel
+ * (tabs.js switchToTab), niet alleen bij setViewMode. Anders bleef na een
+ * document in de doorlopende weergave haar container met de pagina's van dat
+ * document staan bij een document in de enkelpagina-weergave, en tekende
+ * renderPage in een verborgen canvas (het beeld leek bevroren).
+ * @param {{viewMode?: string, bookSpread?: boolean, facingSpread?: boolean}} doc
+ */
+export function applyViewModeLayout(doc) {
   const singleContainer = document.getElementById('canvas-container');
   const continuousContainer = document.getElementById('continuous-container');
   const pdfContainer = document.getElementById('pdf-container');
-
-  if (doc.viewMode === 'single') {
-    singleContainer.style.display = 'inline-block';
-    continuousContainer.style.display = 'none';
-    _setContinuousLayoutActive(false);
-    await renderPage(doc.currentPage);
-  } else {
+  if (!singleContainer || !continuousContainer) return;
+  if (doc?.viewMode === 'continuous') {
     singleContainer.style.display = 'none';
     continuousContainer.style.display = (doc.bookSpread || doc.facingSpread) ? 'grid' : 'flex';
     _setContinuousLayoutActive(true);
@@ -2022,10 +2040,10 @@ export async function setViewMode(mode) {
     // '' laat de CSS-regel (.main-view #pdf-container.visible { overflow:auto })
     // het weer overnemen.
     if (pdfContainer) pdfContainer.style.overflow = '';
-    await renderContinuous();
-    // Stay on the page the user was reading — the rebuild starts at page 1.
-    const wrapper = continuousContainer.querySelector(`.page-wrapper[data-page="${doc.currentPage}"]`);
-    if (wrapper) wrapper.scrollIntoView({ block: 'start' });
+  } else {
+    singleContainer.style.display = 'inline-block';
+    continuousContainer.style.display = 'none';
+    _setContinuousLayoutActive(false);
   }
 }
 
