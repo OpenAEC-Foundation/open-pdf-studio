@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 500" width="920" height="500" role="img" aria-label="Share of Rust and JavaScript in the code base per month, and measured times before and after optimisation" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="920" height="500" rx="8" fill="#fcfcfb" stroke="#e4e3df"/>
+<text x="24" y="36" font-size="16" font-weight="600" fill="#0b0b0b">Share of own code</text>
+<text x="24" y="56" font-size="12" fill="#52514e">Lines on main at mid-month, 2026 (tests and vendored code left out)</text>
+<rect x="24" y="68" width="10" height="10" rx="2" fill="#2a78d6"/><text x="40" y="77" font-size="12" fill="#52514e">Rust</text>
+<rect x="84" y="68" width="10" height="10" rx="2" fill="#eb6834"/><text x="100" y="77" font-size="12" fill="#52514e">JavaScript / TypeScript</text>
+<line x1="44" x2="404" y1="396.0" y2="396.0" stroke="#e4e3df"/>
+<text x="38" y="400.0" font-size="11" text-anchor="end" fill="#52514e">0%</text>
+<line x1="44" x2="404" y1="246.0" y2="246.0" stroke="#e4e3df"/>
+<text x="38" y="250.0" font-size="11" text-anchor="end" fill="#52514e">50%</text>
+<line x1="44" x2="404" y1="96.0" y2="96.0" stroke="#e4e3df"/>
+<text x="38" y="100.0" font-size="11" text-anchor="end" fill="#52514e">100%</text>
+<path d="M52.7,345.7 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V345.7 Z" fill="#eb6834"/>
+<rect x="52.7" y="347.7" width="34" height="48.3" fill="#2a78d6"/>
+<text x="69.7" y="364.7" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">16%</text>
+<text x="69.7" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">May</text>
+<text x="69.7" y="427" font-size="10" text-anchor="middle" fill="#52514e">14k</text>
+<text x="69.7" y="439" font-size="10" text-anchor="middle" fill="#52514e">71k</text>
+<path d="M104.1,343.6 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V343.6 Z" fill="#eb6834"/>
+<rect x="104.1" y="345.6" width="34" height="50.4" fill="#2a78d6"/>
+<text x="121.1" y="362.6" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">17%</text>
+<text x="121.1" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">Jun</text>
+<text x="121.1" y="427" font-size="10" text-anchor="middle" fill="#52514e">16k</text>
+<text x="121.1" y="439" font-size="10" text-anchor="middle" fill="#52514e">80k</text>
+<path d="M155.6,340.5 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V340.5 Z" fill="#eb6834"/>
+<rect x="155.6" y="342.5" width="34" height="53.5" fill="#2a78d6"/>
+<text x="172.6" y="359.5" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">18%</text>
+<text x="172.6" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">Jul</text>
+<text x="172.6" y="427" font-size="10" text-anchor="middle" fill="#52514e">21k</text>
+<text x="172.6" y="439" font-size="10" text-anchor="middle" fill="#52514e">95k</text>
+<path d="M207.0,345.2 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V345.2 Z" fill="#eb6834"/>
+<rect x="207.0" y="347.2" width="34" height="48.8" fill="#2a78d6"/>
+<text x="224.0" y="364.2" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">16%</text>
+<text x="224.0" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">Aug</text>
+<text x="224.0" y="427" font-size="10" text-anchor="middle" fill="#52514e">21k</text>
+<text x="224.0" y="439" font-size="10" text-anchor="middle" fill="#52514e">106k</text>
+<path d="M258.4,348.9 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V348.9 Z" fill="#eb6834"/>
+<rect x="258.4" y="350.9" width="34" height="45.1" fill="#2a78d6"/>
+<text x="275.4" y="367.9" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">15%</text>
+<text x="275.4" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">Sep</text>
+<text x="275.4" y="427" font-size="10" text-anchor="middle" fill="#52514e">22k</text>
+<text x="275.4" y="439" font-size="10" text-anchor="middle" fill="#52514e">122k</text>
+<path d="M309.9,306.8 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V306.8 Z" fill="#eb6834"/>
+<rect x="309.9" y="308.8" width="34" height="87.2" fill="#2a78d6"/>
+<text x="326.9" y="325.8" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">29%</text>
+<text x="326.9" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">Oct</text>
+<text x="326.9" y="427" font-size="10" text-anchor="middle" fill="#52514e">76k</text>
+<text x="326.9" y="439" font-size="10" text-anchor="middle" fill="#52514e">184k</text>
+<path d="M361.3,310.6 V100.0 q0,-4 4,-4 h26 q4,0 4,4 V310.6 Z" fill="#eb6834"/>
+<rect x="361.3" y="312.6" width="34" height="83.4" fill="#2a78d6"/>
+<text x="378.3" y="329.6" font-size="12" font-weight="600" text-anchor="middle" fill="#ffffff">28%</text>
+<text x="378.3" y="412" font-size="12" text-anchor="middle" fill="#0b0b0b">Nov</text>
+<text x="378.3" y="427" font-size="10" text-anchor="middle" fill="#52514e">108k</text>
+<text x="378.3" y="439" font-size="10" text-anchor="middle" fill="#52514e">281k</text>
+<text x="38" y="427" font-size="10" text-anchor="end" fill="#52514e">Rust</text>
+<text x="38" y="439" font-size="10" text-anchor="end" fill="#52514e">JS</text>
+<text x="24" y="478" font-size="11" fill="#52514e">The percentage in each bar is the Rust share; below it the lines of each.</text>
+<line x1="440" x2="440" y1="24" y2="476" stroke="#e4e3df"/>
+<text x="470" y="36" font-size="16" font-weight="600" fill="#0b0b0b">Measured time, before and after</text>
+<text x="470" y="56" font-size="12" fill="#52514e">Each bar is the time after, as a part of the time before (Oct–Nov 2026)</text>
+<rect x="470" y="68" width="10" height="10" rx="2" fill="#dedcd6"/><text x="486" y="77" font-size="12" fill="#52514e">before</text>
+<rect x="540" y="68" width="10" height="10" rx="2" fill="#2a78d6"/><text x="556" y="77" font-size="12" fill="#52514e">after</text>
+<text x="470" y="108" font-size="12" fill="#0b0b0b">Snap geometry from a drawing</text>
+<rect x="470" y="114" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="114" width="11.6" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="123" font-size="12" fill="#52514e">8.1 s → 0.37 s</text>
+<text x="896" y="123" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">22×</text>
+<text x="470" y="150" font-size="12" fill="#0b0b0b">Symbol search, heavy sheet</text>
+<rect x="470" y="156" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="156" width="6.6" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="165" font-size="12" fill="#52514e">30.6 s → 0.81 s</text>
+<text x="896" y="165" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">38×</text>
+<text x="470" y="192" font-size="12" fill="#0b0b0b">Compare two A0 sheets</text>
+<rect x="470" y="198" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="198" width="41.0" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="207" font-size="12" fill="#52514e">2.16 s → 0.35 s</text>
+<text x="896" y="207" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">6.1×</text>
+<text x="470" y="234" font-size="12" fill="#0b0b0b">Zoom: longest stall</text>
+<rect x="470" y="240" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="240" width="39.2" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="249" font-size="12" fill="#52514e">1.19 s → 0.19 s</text>
+<text x="896" y="249" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">6.4×</text>
+<text x="470" y="276" font-size="12" fill="#0b0b0b">Mouse move over 3,000 markups</text>
+<rect x="470" y="282" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="282" width="39.2" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="291" font-size="12" fill="#52514e">3.06 s → 0.48 s</text>
+<text x="896" y="291" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">6.4×</text>
+<text x="470" y="318" font-size="12" fill="#0b0b0b">1-bit recompression, 20 pages</text>
+<rect x="470" y="324" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="324" width="77.9" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="333" font-size="12" fill="#52514e">2.07 s → 0.65 s</text>
+<text x="896" y="333" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">3.2×</text>
+<text x="470" y="360" font-size="12" fill="#0b0b0b">Open a set with 57,500 markups</text>
+<rect x="470" y="366" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="366" width="86.5" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="375" font-size="12" fill="#52514e">68–91 s → 24–31 s</text>
+<text x="896" y="375" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">2.9×</text>
+<text x="470" y="402" font-size="12" fill="#0b0b0b">Save 150 sheets</text>
+<rect x="470" y="408" width="250" height="10" rx="4" fill="#dedcd6"/>
+<rect x="470" y="408" width="151.2" height="10" rx="4" fill="#2a78d6"/>
+<text x="732" y="417" font-size="12" fill="#52514e">8.6 s → 5.2 s</text>
+<text x="896" y="417" font-size="12" font-weight="600" text-anchor="end" fill="#0b0b0b">1.7×</text>
+<text x="470" y="478" font-size="11" fill="#52514e">Sources: docs/rust-stappen.md and docs/performance/.</text>
+</svg>

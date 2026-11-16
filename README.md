@@ -159,6 +159,14 @@ Found something? [Open an issue](https://github.com/OpenAEC-Foundation/open-pdf-
 
 The app is a [Tauri 2](https://tauri.app/) desktop app with a Rust back end and a [SolidJS](https://www.solidjs.com/) front end built with [Vite](https://vitejs.dev/). Pages render through a multi-process [PDFium](https://pdfium.googlesource.com/pdfium/) worker pool, off the UI thread and isolated from crashes, with progressive tiles for very large drawings; the browser and Android versions render with [PDF.js](https://mozilla.github.io/pdf.js/), which also provides the text layer. [pdf-lib](https://pdf-lib.js.org/) writes the PDF changes. The browser version is the same front end built without the Tauri shell. The licences of all components are in [LICENSING.md](LICENSING.md).
 
+### Rust and speed
+
+Heavy work moves from JavaScript to Rust step by step, each step with a parity test and a measurement. The chart shows the share of Rust in the project's own code over the last six months, and the measured time of a number of operations before and after they were optimised.
+
+![Left: the share of Rust in the own code grew from 16% in May to 28% in November 2026. Right: measured times before and after, from 1.7 to 38 times faster](docs/images/readme/code-and-speed.svg)
+
+The lines are counted on `main` at the middle of each month, without tests and vendored code. The times come from [docs/rust-stappen.md](docs/rust-stappen.md) and [docs/performance/](docs/performance/); they were measured in October and November 2026, each pair on the same machine. The app's own code grew fourfold in the same period, so the share says where new work lands, not that JavaScript shrank.
+
 ## Contributing
 
 - **Report a bug or ask for a feature** as an [issue](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/new). Describe what you did, what you expected and what happened. Because the code moves quickly, a precise issue is often more useful than a pull request.
