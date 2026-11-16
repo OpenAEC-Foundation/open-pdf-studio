@@ -166,9 +166,18 @@ Lines of code in this repository, counted over the tracked files. Bundled third-
 <!-- code-stats:start -->
 | Language | Source lines | Test lines | Total | Share |
 |---|---:|---:|---:|---:|
-| JavaScript / TypeScript | 316,066 | 136,426 | 452,492 | 80.7% |
+| JavaScript / TypeScript | 316,143 | 136,426 | 452,569 | 80.7% |
 | Rust | 104,402 | 3,879 | 108,281 | 19.3% |
-| **Total** | **420,468** | **140,305** | **560,773** | **100%** |
+| **Total** | **420,545** | **140,305** | **560,850** | **100%** |
+
+```mermaid
+pie showData
+    title Lines of code by language
+    "JavaScript / TypeScript (source)" : 316143
+    "JavaScript / TypeScript (tests)" : 136426
+    "Rust (source)" : 104402
+    "Rust (tests)" : 3879
+```
 <!-- code-stats:end -->
 
 Update with `node open-pdf-studio/scripts/code-stats.mjs`.

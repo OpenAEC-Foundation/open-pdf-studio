@@ -34,7 +34,17 @@ export function tabel(rijen) {
     ...rijen.map((r) => `| ${r.naam} | ${getal(r.bron)} | ${getal(r.test)} | ${getal(r.bron + r.test)} | ${pct(r.bron + r.test)} |`),
     `| **Total** | **${getal(rijen.reduce((s, r) => s + r.bron, 0))}** | **${getal(rijen.reduce((s, r) => s + r.test, 0))}** | **${getal(totaal)}** | **100%** |`,
   ];
-  return regels.join('\n');
+  return regels.join('\n') + '\n\n' + grafiek(rijen);
+}
+
+// Taartdiagram dat GitHub in de README tekent (Mermaid).
+export function grafiek(rijen) {
+  const punten = [];
+  for (const r of rijen) {
+    if (r.bron) punten.push(`    "${r.naam} (source)" : ${r.bron}`);
+    if (r.test) punten.push(`    "${r.naam} (tests)" : ${r.test}`);
+  }
+  return ['```mermaid', 'pie showData', '    title Lines of code by language', ...punten, '```'].join('\n');
 }
 
 function tel() {
