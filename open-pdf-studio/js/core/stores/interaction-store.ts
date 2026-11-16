@@ -26,6 +26,7 @@ export interface InteractionState {
   isRubberBanding: boolean;
   rubberBandStartX: number;
   rubberBandStartY: number;
+  spacePanHeld: boolean;
   isPanning: boolean;
   isMiddleButtonPanning: boolean;
   panStartX: number;
@@ -87,6 +88,7 @@ export const interactionState = createMutable<InteractionState>({
   isRubberBanding: false,
   rubberBandStartX: 0,
   rubberBandStartY: 0,
+  spacePanHeld: false,
   isPanning: false,
   isMiddleButtonPanning: false,
   panStartX: 0,
