@@ -119,6 +119,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs
 
+      - name: Text highlight blending regression
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-highlight-blending-browser.mjs
+
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
 
