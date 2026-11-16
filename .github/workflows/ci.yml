@@ -139,6 +139,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-comment-popup-browser.mjs
 
+      - name: Test compact save and print controls (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-save-print-ui-browser.mjs
+
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
 

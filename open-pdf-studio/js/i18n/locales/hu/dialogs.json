@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normál)",
     "perSheetCustom": "Egyedi...",
     "perSheetGrid": "Oszlop × sor:",
+    "perSheetColumns": "Oszlopok",
+    "perSheetRows": "Sorok",
     "perSheetBy": "×",
     "pageOrder": "Oldalsorrend:",
     "orderHorizontal": "Vízszintes",

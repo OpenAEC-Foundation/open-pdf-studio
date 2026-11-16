@@ -137,6 +137,8 @@
     "perSheetOne": "1 (عادی)",
     "perSheetCustom": "سفارشی...",
     "perSheetGrid": "ستون × ردیف:",
+    "perSheetColumns": "ستون‌ها",
+    "perSheetRows": "ردیف‌ها",
     "perSheetBy": "×",
     "pageOrder": "ترتیب صفحات:",
     "orderHorizontal": "افقی",

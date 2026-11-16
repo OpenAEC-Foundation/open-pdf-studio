@@ -1714,18 +1714,18 @@ export default function PrintDialog(props) {
             </div>
             <Show when={perSheet() === 'custom'}>
               <div class="print-row print-zoom-row">
-                <label class="print-label">{t('print.perSheetGrid')}</label>
+                <label class="print-grid-label" for="print-sheet-columns">{t('print.perSheetColumns')}</label>
                 <input
-                  type="text" inputmode="decimal" data-getal
+                  id="print-sheet-columns" type="text" inputmode="decimal" data-getal
                   class="print-input"
                   min="1"
                   max="10"
                   value={sheetCols()}
                   onChange={(e) => setSheetCols(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                 />
-                <span>{t('print.perSheetBy')}</span>
+                <label class="print-grid-label" for="print-sheet-rows">{t('print.perSheetRows')}</label>
                 <input
-                  type="text" inputmode="decimal" data-getal
+                  id="print-sheet-rows" type="text" inputmode="decimal" data-getal
                   class="print-input"
                   min="1"
                   max="10"

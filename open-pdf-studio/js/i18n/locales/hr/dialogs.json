@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normalno)",
     "perSheetCustom": "Prilagođeno...",
     "perSheetGrid": "Stupci × retci:",
+    "perSheetColumns": "Stupci",
+    "perSheetRows": "Redci",
     "perSheetBy": "×",
     "pageOrder": "Redoslijed stranica:",
     "orderHorizontal": "Vodoravno",

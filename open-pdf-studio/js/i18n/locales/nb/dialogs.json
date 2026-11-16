@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normal)",
     "perSheetCustom": "Egendefinert...",
     "perSheetGrid": "Kolonner × rader:",
+    "perSheetColumns": "Kolonner",
+    "perSheetRows": "Rader",
     "perSheetBy": "×",
     "pageOrder": "Siderekkefølge:",
     "orderHorizontal": "Vannrett",

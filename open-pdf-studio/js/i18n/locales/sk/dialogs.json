@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normálne)",
     "perSheetCustom": "Vlastné...",
     "perSheetGrid": "Stĺpce × riadky:",
+    "perSheetColumns": "Stĺpce",
+    "perSheetRows": "Riadky",
     "perSheetBy": "×",
     "pageOrder": "Poradie strán:",
     "orderHorizontal": "Vodorovne",
