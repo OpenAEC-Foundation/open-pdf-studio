@@ -515,6 +515,8 @@
     "methodReference": "参考线",
     "methodRatio": "比例",
     "referenceHelp": "输入已知测量线的实际距离。",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "输入图纸比例。将使用 PDF 页面尺寸计算换算关系。",
     "scaleRatio": "比例：",
     "unit": "单位：",
@@ -785,6 +787,22 @@
       "eng": "英文",
       "chi_tra": "中文（繁體）",
       "chi_tra+eng": "中文（繁體）＋英文"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "恢复未保存的工作",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio 上次没有正常关闭。已为以下文档保留未保存的工作：",
     "savedAt": "保留于 {{time}}",
     "pages": "页数：{{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "删除",
     "deleteAll": "全部删除",
     "later": "稍后",
-    "keepNote": "现在未处理的内容将保留 14 天，并在下次启动时再次提供。",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "永久删除此工作？",
     "confirmDeleteAll": "永久删除所有这些工作？",
     "yesDelete": "是，删除",

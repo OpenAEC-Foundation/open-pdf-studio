@@ -134,6 +134,55 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
 }
 
 /**
+ * A page as output image (print, image export, compress), with the same
+ * arguments and result as renderPageOffscreen. A heavy page comes from the
+ * PDFium workers when they are available, like the raster export (#701):
+ * that is where PDF.js on the main thread is slowest. A light page, the web
+ * build, a document without a file, or a failing worker: PDF.js as before.
+ * `window.__opdsUitvoerMotor = 'pdfjs'` in the developer console forces
+ * PDF.js, to compare.
+ * @returns {Promise<HTMLCanvasElement>}
+ */
+export async function renderUitvoerPagina(pageNum, exportScale, { deel = null, markeringen = true } = {}) {
+  const doc = getActiveDocument();
+  const pdf = doc?.pdfDoc;
+  if (!pdf) throw new Error('No PDF document is open');
+  let motor = 'pdfjs';
+  try {
+    if (globalThis.__opdsUitvoerMotor !== 'pdfjs') motor = await kiesRasterMotor(doc, pageNum, await pdfiumRasterBeschikbaar(doc));
+  } catch { /* geen keuze mogelijk: PDF.js */ }
+  const t0 = nu();
+  if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) throw exportChanged();
+  if (motor === 'pdfium') {
+    const page = await pdf.getPage(pageNum);
+    const extraRotation = doc.pageRotations?.[pageNum] || 0;
+    const viewport = page.getViewport({ scale: exportScale, rotation: (page.rotate + extraRotation) % 360 });
+    const canvas = document.createElement('canvas');
+    try {
+      await renderPaginaPdfium({
+        doc, pageNum, scale: exportScale, extraRot: extraRotation,
+        breedte: Math.floor(viewport.width), hoogte: Math.floor(viewport.height), deel, doel: canvas,
+      });
+      if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) throw exportChanged();
+      const annCanvas = await renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel, markeringen });
+      canvas.getContext('2d').drawImage(annCanvas, 0, 0);
+      annCanvas.width = 0;
+      annCanvas.height = 0;
+      console.log(`[raster] output page ${pageNum}: ${canvas.width}x${canvas.height} via PDFium in ${Math.round(nu() - t0)} ms`);
+      return canvas;
+    } catch (err) {
+      if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) throw exportChanged();
+      canvas.width = 0;
+      canvas.height = 0;
+      console.warn(`[raster] page ${pageNum}: PDFium render failed, using PDF.js:`, err);
+    }
+  }
+  const canvas = await renderPageOffscreen(pageNum, exportScale, { deel, markeringen });
+  console.log(`[raster] output page ${pageNum}: ${canvas.width}x${canvas.height} via PDF.js in ${Math.round(nu() - t0)} ms`);
+  return canvas;
+}
+
+/**
  * The annotation layer of a page on a transparent canvas, without the PDF
  * page itself: markups (unless `markeringen` is false), watermarks and text
  * edits, as output (no editing state, real line weights). Same `deel` as
@@ -286,7 +335,7 @@ export async function exportAsImages({ format = 'png', quality = 0.92, dpi = 150
       const pageNum = pages[i];
       showLoading(`Exporting page ${pageNum} of ${pages[pages.length - 1]}...`);
 
-      const canvas = await renderPageOffscreen(pageNum, exportScale, { markeringen: includeAnnotations });
+      const canvas = await renderUitvoerPagina(pageNum, exportScale, { markeringen: includeAnnotations });
       const bytes = format === 'tiff'
         ? canvasToTiffBytes(canvas, dpi)
         : imageWithDpi(await canvasToBytes(canvas, format, quality), format, dpi);

@@ -56,6 +56,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
+  // Laatst gekozen OCR-taal van de ingebouwde Tesseract (#1083): 'auto' of
+  // een Tesseract-opgave als 'nld+eng' (js/pdf/ocr-talen.js).
+  ocrLanguage: 'auto',
   // Extensiecatalogus (#969): eigen catalogus-links (de standaard van het
   // project staat altijd vooraan, zie js/plugins/extension-catalog.js) en de
   // bron per geïnstalleerde extensie.
@@ -417,6 +420,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   symbolPaletteFloatX: 300,
   symbolPaletteFloatY: 150,
   customSymbolGroups: [],
+  // Niet-opgeslagen werk dat al eens is aangeboden en uitgesteld (herstel/beleid.js).
+  recoveryPostponed: [],
   // Eigen reviewstatussen van markeringen (#1076, review/status-sets.js).
   markupStatuses: [],
   disabledSymbolGroups: [],

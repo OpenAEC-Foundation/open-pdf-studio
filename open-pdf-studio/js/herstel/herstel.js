@@ -37,7 +37,7 @@ import { heeftBeveiligdeInhoud } from '../pdf/wachtwoord-pdf.js';
 import { TIK_MS, STILTE_MS, MAX_WACHT_MS, vingerafdruk, nieuwPlan, werkBij, isAanDeBeurt, naOpname, vastgelegdPlan } from './planning.js';
 import { sleutelVoor, sessieVoorvoegsel, maakManifest, origineelPadVan, origineelGewijzigd } from './manifest.js';
 import { schrijfMomentopname, schrijfManifest, leesAlle, leesMarkers } from './opslag.js';
-import { deelIn, beoordeelMarkers, instantieUitSleutel, procesUitId } from './beleid.js';
+import { deelIn, beoordeelMarkers, instantieUitSleutel, procesUitId, nogNietUitgesteld, werkUitgesteldBij } from './beleid.js';
 import { maakFoutvanger } from './foutvanger.js';
 import { zetOntvanger, wijzigTeller } from './haken.js';
 import { naHerladen } from './herladen.js';
@@ -332,9 +332,17 @@ export function beoordeelBijStart() {
     if (info.headless || isHeadless()) {
       await logboek(`recovery offer (headless, no dialog): ${lijst.length} document(s)\n${regels}`);
     } else {
-      log(`recovery offer: ${lijst.length} document(s)\n${regels}`);
-      const { openDialog } = await import('../solid/stores/dialogStore.js');
-      openDialog('recovery');
+      // Eén keer vanzelf aanbieden (beleid.js): wat al eens is uitgesteld
+      // blijft bewaard en staat in het menu Bestand, maar opent het venster
+      // niet meer bij elke start.
+      const sleutels = lijst.map((a) => a.sleutel);
+      const nogNieuw = nogNietUitgesteld(sleutels, state.preferences?.recoveryPostponed);
+      log(`recovery offer: ${lijst.length} document(s), ${nogNieuw.length} not offered before\n${regels}`);
+      await onthoudUitgesteld([], sleutels);
+      if (nogNieuw.length) {
+        const { openDialog } = await import('../solid/stores/dialogStore.js');
+        openDialog('recovery');
+      }
     }
     return lijst;
   });
@@ -440,7 +448,27 @@ export async function verwijderAllesHersteld() {
 export async function herstelLater() {
   const { closeDialog } = await import('../solid/stores/dialogStore.js');
   closeDialog('recovery');
-  log(`recovery postponed: ${aanbod().length} document(s) stay`);
+  const sleutels = aanbod().map((a) => a.sleutel);
+  await onthoudUitgesteld(sleutels, sleutels);
+  log(`recovery postponed: ${sleutels.length} document(s) stay, not offered again at start`);
+}
+
+// De uitgestelde documenten onthouden in de voorkeuren (beleid.js).
+async function onthoudUitgesteld(nieuw, bestaand) {
+  const oud = Array.isArray(state.preferences?.recoveryPostponed) ? state.preferences.recoveryPostponed : [];
+  const lijst = werkUitgesteldBij(oud, nieuw, bestaand);
+  if (lijst.length === oud.length && lijst.every((x, i) => x === oud[i])) return;
+  state.preferences.recoveryPostponed = lijst;
+  try {
+    const { savePreferences } = await import('../core/preferences.js');
+    await savePreferences();
+  } catch (e) { console.warn('[herstel] postponed list not saved:', e); }
+}
+
+/** Het herstelvenster openen vanuit het menu Bestand. */
+export async function toonHerstelVenster() {
+  const { openDialog } = await import('../solid/stores/dialogStore.js');
+  openDialog('recovery');
 }
 
 // ─── Start ─────────────────────────────────────────────────────────────────

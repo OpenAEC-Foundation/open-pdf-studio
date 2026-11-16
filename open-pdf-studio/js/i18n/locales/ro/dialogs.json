@@ -515,6 +515,8 @@
     "methodReference": "Linie de referință",
     "methodRatio": "Raport de scară",
     "referenceHelp": "Introduceți distanța reală pentru o linie de măsurare cunoscută.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Introduceți raportul de scară al desenului. Dimensiunea paginii PDF este folosită pentru calculul conversiei.",
     "scaleRatio": "Scară:",
     "unit": "Unitate:",
@@ -785,6 +787,22 @@
       "eng": "Engleză",
       "chi_tra": "Chineză (tradițională)",
       "chi_tra+eng": "Chineză (tradițională) + engleză"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recuperează munca nesalvată",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio nu s-a închis normal data trecută. Munca nesalvată din aceste documente a fost păstrată:",
     "savedAt": "Păstrat la {{time}}",
     "pages": "Pagini: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Șterge",
     "deleteAll": "Șterge tot",
     "later": "Mai târziu",
-    "keepNote": "Ce nu rezolvați acum se păstrează 14 zile și vă este oferit din nou la următoarea pornire.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Ștergeți definitiv această muncă?",
     "confirmDeleteAll": "Ștergeți definitiv toată această muncă?",
     "yesDelete": "Da, șterge",

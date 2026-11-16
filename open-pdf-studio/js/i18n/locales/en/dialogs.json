@@ -512,6 +512,8 @@
     "methodReference": "Reference Line",
     "methodRatio": "Scale Ratio",
     "referenceHelp": "Enter the real-world distance for a known measurement line.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Enter the drawing scale ratio. The PDF page size is used to calculate the conversion.",
     "knownDistance": "Known distance:",
     "measuredPixels": "Measured pixels:",
@@ -784,6 +786,22 @@
       "eng": "English",
       "chi_tra": "Chinese (Traditional)",
       "chi_tra+eng": "Chinese (Traditional) + English"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1321,6 +1339,7 @@
   },
   "recovery": {
     "title": "Recover unsaved work",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio did not close normally last time. Unsaved work was kept for these documents:",
     "savedAt": "Kept on {{time}}",
     "pages": "Pages: {{count}}",
@@ -1332,7 +1351,7 @@
     "delete": "Delete",
     "deleteAll": "Delete all",
     "later": "Later",
-    "keepNote": "Anything you don't deal with now is kept for 14 days and offered again the next time you start the app.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Permanently delete this work?",
     "confirmDeleteAll": "Permanently delete all of this work?",
     "yesDelete": "Yes, delete",

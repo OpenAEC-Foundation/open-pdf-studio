@@ -515,6 +515,8 @@
     "methodReference": "基準線",
     "methodRatio": "縮尺比",
     "referenceHelp": "既知の計測線の実際の距離を入力してください。",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "図面の縮尺比を入力してください。換算には PDF のページサイズが使用されます。",
     "scaleRatio": "縮尺：",
     "unit": "単位：",
@@ -785,6 +787,22 @@
       "eng": "英語",
       "chi_tra": "中国語（繁体字）",
       "chi_tra+eng": "中国語（繁体字）＋英語"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "保存されていない作業の復元",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "前回、Open PDF Studio は正常に終了しませんでした。次のドキュメントの保存されていない作業が保持されています:",
     "savedAt": "保持日時: {{time}}",
     "pages": "ページ数: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "削除",
     "deleteAll": "すべて削除",
     "later": "後で",
-    "keepNote": "今対応しなかったものは 14 日間保持され、次回の起動時に再度表示されます。",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "この作業を完全に削除しますか?",
     "confirmDeleteAll": "この作業をすべて完全に削除しますか?",
     "yesDelete": "はい、削除します",

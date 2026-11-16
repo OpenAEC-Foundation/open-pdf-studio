@@ -76,8 +76,39 @@ app and are not available in the [browser version](https://open-pdf-studio.open-
 
 - Make scanned pages searchable and selectable with an invisible text layer.
 - Current page or the whole document, with automatic language detection or a
-  chosen language.
+  chosen language, optionally combined with English.
 - The Android build ships without OCR.
+
+### OCR languages
+
+The app ships English and Traditional Chinese. Every other language that the
+Tesseract OCR engine supports can be added:
+
+- **From the app.** In the Recognize Text, Batch OCR or Scan window, click
+  **Add language…**, pick the language and click **Download**. The app then
+  downloads that one language file from the Tesseract project (the
+  `tessdata_fast` repository on GitHub). It downloads only when you click;
+  nothing is downloaded at start-up.
+- **By hand.** Put a `.traineddata` file from Tesseract's
+  [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast) or
+  [tessdata_best](https://github.com/tesseract-ocr/tessdata_best) repository
+  in the language folder (for example `nld.traineddata` for Dutch). `best`
+  files are larger and slower but sometimes more accurate. Reopen the window
+  to see the new language.
+
+**Open language folder** in the same window shows the folder. It is:
+
+| Install | Language folder |
+|---------|-----------------|
+| Windows | `%LOCALAPPDATA%\OpenPDFStudio\tessdata` |
+| macOS | `~/Library/Application Support/OpenPDFStudio/tessdata` |
+| Linux | `~/.local/share/OpenPDFStudio/tessdata` (or `$XDG_DATA_HOME/OpenPDFStudio/tessdata`); the snap and Flatpak keep it inside their own data folder |
+| Portable (Windows zip) | `data\OpenPDFStudio\tessdata` next to `open-pdf-studio.exe` |
+
+The bundled languages are copied into this folder the first time OCR runs.
+If the folder cannot be written, OCR uses the bundled languages only and no
+language can be added. To combine languages, choose one and tick **Also
+recognize English** (for example Dutch + English).
 
 ## Digital signatures — *desktop*
 

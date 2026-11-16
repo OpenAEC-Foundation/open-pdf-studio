@@ -18,6 +18,7 @@ import { pointsToPaperMm } from '../../annotations/scale-from-measurement.js';
 import { userUnitVanPagina } from '../../annotations/scale-region-scale.js';
 import { getActiveDocument } from '../../core/state.js';
 import { formatMaat } from '../../core/maat-notatie.js';
+import { orthoPunt } from '../ortho-punt.js';
 
 // Module-level flow + picking state (survives across pointer events).
 let _flow = null; // { onDone(pixelDistance), onCancel() }
@@ -75,8 +76,12 @@ export const scaleMeasureTool = {
     if (e.button !== 0) return;
 
     const snap = ctx.snap(x, y);
-    const ptX = snap.snapped ? snap.x : x;
-    const ptY = snap.snapped ? snap.y : y;
+    let ptX = snap.snapped ? snap.x : x;
+    let ptY = snap.snapped ? snap.y : y;
+    // Shift: het tweede punt recht horizontaal of verticaal (#1090).
+    if (_pick.point !== null && _pick.pageNum === ctx.pageNum && e.shiftKey) {
+      ({ x: ptX, y: ptY } = orthoPunt(_pick.point, { x: ptX, y: ptY }, true));
+    }
 
     // In continuous mode each page has its own canvas/coordinate space; a
     // click on a different page restarts the pick there.
@@ -99,7 +104,7 @@ export const scaleMeasureTool = {
     _finish(pixelDist, punten);
   },
 
-  onPointerMove(ctx) {
+  onPointerMove(ctx, e) {
     const { x, y, state, canvasCtx, scale } = ctx;
     if (!canvasCtx) return;
 
@@ -118,8 +123,8 @@ export const scaleMeasureTool = {
     }
 
     const snap = ctx.snap(x, y);
-    const curX = snap.snapped ? snap.x : x;
-    const curY = snap.snapped ? snap.y : y;
+    // Shift: de voorbeeldlijn recht horizontaal of verticaal (#1090).
+    const { x: curX, y: curY } = orthoPunt(_pick.point, { x: snap.snapped ? snap.x : x, y: snap.snapped ? snap.y : y }, !!e?.shiftKey);
     state.lastSnapResult = snap.snapped ? snap : null;
 
     ctx.redraw();

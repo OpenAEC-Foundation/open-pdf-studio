@@ -515,6 +515,8 @@
     "methodReference": "Garis Referensi",
     "methodRatio": "Rasio Skala",
     "referenceHelp": "Masukkan jarak sebenarnya untuk garis ukur yang diketahui.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Masukkan rasio skala gambar. Ukuran halaman PDF digunakan untuk menghitung konversi.",
     "scaleRatio": "Skala:",
     "unit": "Satuan:",
@@ -785,6 +787,22 @@
       "eng": "Inggris",
       "chi_tra": "Tionghoa (Tradisional)",
       "chi_tra+eng": "Tionghoa (Tradisional) + Inggris"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Pulihkan pekerjaan yang belum disimpan",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio tidak ditutup dengan normal terakhir kali. Pekerjaan yang belum disimpan dari dokumen-dokumen ini telah disimpan sementara:",
     "savedAt": "Disimpan sementara pada {{time}}",
     "pages": "Halaman: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Hapus",
     "deleteAll": "Hapus semua",
     "later": "Nanti",
-    "keepNote": "Yang tidak Anda tangani sekarang disimpan selama 14 hari dan ditawarkan lagi saat aplikasi dijalankan berikutnya.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Hapus pekerjaan ini secara permanen?",
     "confirmDeleteAll": "Hapus semua pekerjaan ini secara permanen?",
     "yesDelete": "Ya, hapus",

@@ -515,6 +515,8 @@
     "methodReference": "Viiteviiva",
     "methodRatio": "Mittakaavasuhde",
     "referenceHelp": "Anna tunnetun mittaviivan todellinen etäisyys.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Anna piirustuksen mittakaavasuhde. PDF-sivun kokoa käytetään muunnoksen laskemiseen.",
     "scaleRatio": "Mittakaava:",
     "unit": "Yksikkö:",
@@ -785,6 +787,22 @@
       "eng": "Englanti",
       "chi_tra": "Kiina (perinteinen)",
       "chi_tra+eng": "Kiina (perinteinen) + englanti"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Palauta tallentamaton työ",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio ei sulkeutunut normaalisti viime kerralla. Näiden asiakirjojen tallentamaton työ on säilytetty:",
     "savedAt": "Säilytetty {{time}}",
     "pages": "Sivuja: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Poista",
     "deleteAll": "Poista kaikki",
     "later": "Myöhemmin",
-    "keepNote": "Se, mitä et käsittele nyt, säilytetään 14 päivää ja tarjotaan uudelleen seuraavalla käynnistyskerralla.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Poistetaanko tämä työ pysyvästi?",
     "confirmDeleteAll": "Poistetaanko kaikki tämä työ pysyvästi?",
     "yesDelete": "Kyllä, poista",

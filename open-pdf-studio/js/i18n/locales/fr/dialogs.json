@@ -515,6 +515,8 @@
     "methodReference": "Ligne de référence",
     "methodRatio": "Rapport d'échelle",
     "referenceHelp": "Saisissez la distance réelle d'une ligne de mesure connue.",
+    "drawLine": "Tracer une ligne sur le dessin",
+    "drawLineHint": "Cliquez sur deux points d’une cote connue. Maintenez Maj pour une ligne horizontale ou verticale.",
     "ratioHelp": "Saisissez le rapport d'échelle du dessin. Le format de la page PDF sert à calculer la conversion.",
     "scaleRatio": "Échelle :",
     "unit": "Unité :",
@@ -785,6 +787,22 @@
       "eng": "Anglais",
       "chi_tra": "Chinois (traditionnel)",
       "chi_tra+eng": "Chinois (traditionnel) + anglais"
+    },
+    "alsoEnglish": "Reconnaître aussi l’anglais",
+    "addLanguage": "Ajouter une langue…",
+    "download": "Télécharger",
+    "downloading": "Téléchargement de {{language}}…",
+    "downloaded": "{{language}} a été ajouté.",
+    "downloadFailed": "Impossible d’ajouter la langue : {{error}}",
+    "invalidFile": "le fichier téléchargé n’est pas un fichier de langue valide",
+    "folderNotWritable": "Le dossier des langues n’est pas accessible en écriture ; aucune langue ne peut être ajoutée.",
+    "openFolder": "Ouvrir le dossier des langues",
+    "hint": "Les langues supplémentaires sont téléchargées depuis le projet Tesseract à votre demande et conservées dans le dossier des langues. Vous pouvez aussi y placer vous-même des fichiers .traineddata provenant du dépôt tessdata_fast ou tessdata_best de Tesseract.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historique",
+      "fraktur": "Fraktur",
+      "equations": "Mathématiques / formules"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Récupérer le travail non enregistré",
+    "menu": "Récupérer le travail non enregistré ({{count}})…",
     "intro": "Open PDF Studio ne s'est pas fermé normalement la dernière fois. Le travail non enregistré de ces documents a été conservé :",
     "savedAt": "Conservé le {{time}}",
     "pages": "Pages : {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Supprimer",
     "deleteAll": "Tout supprimer",
     "later": "Plus tard",
-    "keepNote": "Ce que vous ne traitez pas maintenant est conservé 14 jours et vous sera de nouveau proposé au prochain démarrage.",
+    "keepNote": "Ce que vous ne traitez pas maintenant est conservé 14 jours. Vous le retrouvez sous Fichier → Récupérer le travail non enregistré ; cette fenêtre ne revient pas d’elle-même.",
     "confirmDelete": "Supprimer définitivement ce travail ?",
     "confirmDeleteAll": "Supprimer définitivement tout ce travail ?",
     "yesDelete": "Oui, supprimer",

@@ -515,6 +515,8 @@
     "methodReference": "Опорная линия",
     "methodRatio": "Соотношение масштаба",
     "referenceHelp": "Введите реальное расстояние для известной измерительной линии.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Введите масштаб чертежа. Для расчёта преобразования используется размер страницы PDF.",
     "scaleRatio": "Масштаб:",
     "unit": "Единица:",
@@ -785,6 +787,22 @@
       "eng": "Английский",
       "chi_tra": "Китайский (традиционный)",
       "chi_tra+eng": "Китайский (традиционный) + английский"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Восстановление несохранённой работы",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "В прошлый раз Open PDF Studio завершил работу некорректно. Несохранённая работа в этих документах была сохранена:",
     "savedAt": "Сохранено {{time}}",
     "pages": "Страниц: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Удалить",
     "deleteAll": "Удалить всё",
     "later": "Позже",
-    "keepNote": "То, что вы не обработаете сейчас, хранится 14 дней и будет предложено снова при следующем запуске.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Удалить эту работу безвозвратно?",
     "confirmDeleteAll": "Удалить всю эту работу безвозвратно?",
     "yesDelete": "Да, удалить",

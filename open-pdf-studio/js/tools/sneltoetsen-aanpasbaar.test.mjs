@@ -562,3 +562,43 @@ test('no default single-letter key starts a default sequence; the one-letter key
   assert.deepEqual(await druk(toets('h', 'KeyH'), 1), ['setTool hand']);
   assert.deepEqual(await druk(toets('n', 'KeyN'), 1), ['setTool comment']);
 });
+
+// #1082: commands without default keys execute directly through the shared style UI.
+test('style commands support sequences/modifiers and shortcut JSON without stealing existing defaults', async () => {
+  const { serializeShortcutsFile, parseShortcutsFile } = await import('../core/keybindings/io.js');
+  const bindings = { 'edit.copyStyle': ['C C'], 'edit.pasteStyle': ['Ctrl+Alt+V'], 'edit.setDefaultStyle': ['Ctrl+Alt+D'] };
+  begin();
+  for (const id of Object.keys(bindings)) assert.deepEqual(app.sneltoetsen.defaultsOf(id), []);
+  assert.deepEqual(app.sneltoetsen.bindingsOf('file.saveAs'), ['Ctrl+Shift+S']);
+  assert.deepEqual(app.sneltoetsen.bindingsOf('edit.pasteInPlace'), ['Ctrl+Shift+V']);
+  const imported = parseShortcutsFile(serializeShortcutsFile(bindings));
+  assert.equal(imported.ok, true); begin(imported.overrides);
+  globalThis.__khStubs.copyStyleFromSelection = noteer('copyStyle');
+  globalThis.__khStubs.pasteStyleToSelection = noteer('pasteStyle');
+  globalThis.__khStubs.setAsDefaultStyle = a => log.push(`defaultStyle ${a.id}`);
+  log.length = 0;
+  await handleKeydown(toets('c', 'KeyC')); await handleKeydown(toets('c', 'KeyC')); await totStil({ minstens: 1 });
+  assert.deepEqual(log, ['copyStyle']);
+  assert.deepEqual(await druk(ctrl('v', 'KeyV', { alt: true }), 1), ['pasteStyle']);
+  assert.deepEqual(await druk(ctrl('d', 'KeyD', { alt: true }), 1), ['defaultStyle a1']);
+  for (const id of Object.keys(bindings)) {
+    log.length = 0;
+    await app.voerSneltoetsUit(id, toets('x', 'KeyX', { target: invoer })); assert.deepEqual(log, []);
+    modaal = true; await app.voerSneltoetsUit(id, toets('x', 'KeyX')); modaal = false; assert.deepEqual(log, []);
+  }
+  doc.selectedAnnotations = []; doc.selectedAnnotation = null; log.length = 0;
+  await app.voerSneltoetsUit('edit.copyStyle'); await app.voerSneltoetsUit('edit.setDefaultStyle'); assert.deepEqual(log, []);
+  await app.voerSneltoetsUit('edit.pasteStyle'); assert.deepEqual(log, ['pasteStyle']);
+  doc.selectedAnnotations = [ann]; begin();
+});
+
+test('style commands reuse translated labels in every shipped locale', async () => {
+  const { readdirSync } = await import('node:fs');
+  const root = new URL('../i18n/locales/', import.meta.url);
+  for (const locale of readdirSync(root, { withFileTypes: true }).filter(d => d.isDirectory())) {
+    const props = JSON.parse(readFileSync(new URL(`${locale.name}/properties.json`, root), 'utf8'));
+    const ctx = JSON.parse(readFileSync(new URL(`${locale.name}/context.json`, root), 'utf8'));
+    assert.ok(props.stylePresets.copyStyle, locale.name); assert.ok(props.stylePresets.pasteStyle, locale.name);
+    assert.ok(ctx.annotation.setAsDefaultStyle, locale.name);
+  }
+});

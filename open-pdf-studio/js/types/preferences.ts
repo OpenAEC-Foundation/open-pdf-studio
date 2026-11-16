@@ -302,6 +302,8 @@ export interface Preferences {
   symbolPaletteFloatX: number;
   symbolPaletteFloatY: number;
   customSymbolGroups: Array<{ id: string; name: string; symbols: Array<{ id: string; name: string; svg: string }> }>;
+  /** Sleutels van niet-opgeslagen werk dat al eens is aangeboden en uitgesteld. */
+  recoveryPostponed: string[];
   /** Eigen reviewstatussen van markeringen (#1076). */
   markupStatuses: Array<{ name: string; color: string; closed?: boolean }>;
   disabledSymbolGroups: string[];

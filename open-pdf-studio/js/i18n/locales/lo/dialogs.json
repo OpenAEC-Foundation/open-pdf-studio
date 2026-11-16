@@ -512,6 +512,8 @@
     "methodReference": "ເສັ້ນອ້າງອີງ",
     "methodRatio": "ອັດຕາສ່ວນມາດຕາສ່ວນ",
     "referenceHelp": "ປ້ອນໄລຍະຕົວຈິງສຳລັບເສັ້ນວັດແທກທີ່ຮູ້ຄ່າ.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "ປ້ອນອັດຕາສ່ວນມາດຕາສ່ວນແບບແຕ້ມ. ຂະໜາດໜ້າ PDF ຈະຖືກນຳມາຄຳນວນການແປງຄ່າ.",
     "knownDistance": "ໄລຍະທີ່ຮູ້ຄ່າ:",
     "measuredPixels": "ພິກເຊລທີ່ວັດໄດ້:",
@@ -784,6 +786,22 @@
       "eng": "ພາສາອັງກິດ",
       "chi_tra": "ພາສາຈີນ (ດັ້ງເດີມ)",
       "chi_tra+eng": "ພາສາຈີນ (ດັ້ງເດີມ) + ພາສາອັງກິດ"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1321,6 +1339,7 @@
   },
   "recovery": {
     "title": "ກູ້ຄືນວຽກທີ່ຍັງບໍ່ໄດ້ບັນທຶກ",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "ຄັ້ງກ່ອນ Open PDF Studio ບໍ່ໄດ້ປິດຕາມປົກກະຕິ. ວຽກທີ່ຍັງບໍ່ໄດ້ບັນທຶກຂອງເອກະສານເຫຼົ່ານີ້ຖືກເກັບໄວ້:",
     "savedAt": "ເກັບໄວ້ເມື່ອ {{time}}",
     "pages": "ໜ້າ: {{count}}",
@@ -1332,7 +1351,7 @@
     "delete": "ລຶບ",
     "deleteAll": "ລຶບທັງໝົດ",
     "later": "ພາຍຫຼັງ",
-    "keepNote": "ສິ່ງທີ່ທ່ານບໍ່ໄດ້ຈັດການຕອນນີ້ຈະຖືກເກັບໄວ້ 14 ມື້ ແລະ ຈະສະເໜີໃຫ້ອີກຄັ້ງເມື່ອເລີ່ມໂປຣແກຣມຄັ້ງຕໍ່ໄປ.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "ລຶບວຽກນີ້ຖາວອນບໍ?",
     "confirmDeleteAll": "ລຶບວຽກທັງໝົດນີ້ຖາວອນບໍ?",
     "yesDelete": "ແມ່ນ, ລຶບ",

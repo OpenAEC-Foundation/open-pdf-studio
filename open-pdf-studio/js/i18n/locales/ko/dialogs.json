@@ -515,6 +515,8 @@
     "methodReference": "기준선",
     "methodRatio": "축척 비율",
     "referenceHelp": "알고 있는 측정선의 실제 거리를 입력하세요.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "도면 축척 비율을 입력하세요. 변환에는 PDF 페이지 크기가 사용됩니다.",
     "scaleRatio": "축척:",
     "unit": "단위:",
@@ -785,6 +787,22 @@
       "eng": "영어",
       "chi_tra": "중국어(번체)",
       "chi_tra+eng": "중국어(번체) + 영어"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "저장하지 않은 작업 복구",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "지난번에 Open PDF Studio가 정상적으로 종료되지 않았습니다. 다음 문서의 저장하지 않은 작업이 보관되어 있습니다:",
     "savedAt": "보관 시각: {{time}}",
     "pages": "페이지: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "삭제",
     "deleteAll": "모두 삭제",
     "later": "나중에",
-    "keepNote": "지금 처리하지 않은 항목은 14일 동안 보관되며 다음 시작 시 다시 표시됩니다.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "이 작업을 영구적으로 삭제하시겠습니까?",
     "confirmDeleteAll": "이 작업을 모두 영구적으로 삭제하시겠습니까?",
     "yesDelete": "예, 삭제",

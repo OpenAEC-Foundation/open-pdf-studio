@@ -515,6 +515,8 @@
     "methodReference": "Referanselinje",
     "methodRatio": "Målestokkforhold",
     "referenceHelp": "Skriv inn den faktiske avstanden for en kjent målelinje.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Skriv inn tegningens målestokkforhold. PDF-sidens størrelse brukes til å beregne omregningen.",
     "scaleRatio": "Målestokk:",
     "unit": "Enhet:",
@@ -785,6 +787,22 @@
       "eng": "Engelsk",
       "chi_tra": "Kinesisk (tradisjonell)",
       "chi_tra+eng": "Kinesisk (tradisjonell) + engelsk"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Gjenopprett ulagret arbeid",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio ble ikke avsluttet normalt forrige gang. Ulagret arbeid er tatt vare på for disse dokumentene:",
     "savedAt": "Tatt vare på {{time}}",
     "pages": "Sider: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Slett",
     "deleteAll": "Slett alle",
     "later": "Senere",
-    "keepNote": "Det du ikke håndterer nå, blir tatt vare på i 14 dager og tilbudt på nytt ved neste oppstart.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Slette dette arbeidet permanent?",
     "confirmDeleteAll": "Slette alt dette arbeidet permanent?",
     "yesDelete": "Ja, slett",

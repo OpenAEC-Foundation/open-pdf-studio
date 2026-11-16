@@ -515,6 +515,8 @@
     "methodReference": "Linha de referência",
     "methodRatio": "Razão de escala",
     "referenceHelp": "Digite a distância real de uma linha de medição conhecida.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Digite a razão de escala do desenho. O tamanho da página PDF é usado para calcular a conversão.",
     "scaleRatio": "Escala:",
     "unit": "Unidade:",
@@ -785,6 +787,22 @@
       "eng": "Inglês",
       "chi_tra": "Chinês (Tradicional)",
       "chi_tra+eng": "Chinês (Tradicional) + Inglês"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recuperar trabalho não salvo",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "O Open PDF Studio não foi fechado normalmente da última vez. O trabalho não salvo destes documentos foi preservado:",
     "savedAt": "Preservado em {{time}}",
     "pages": "Páginas: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Excluir",
     "deleteAll": "Excluir tudo",
     "later": "Mais tarde",
-    "keepNote": "O que você não resolver agora fica guardado por 14 dias e é oferecido novamente na próxima inicialização.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Excluir este trabalho permanentemente?",
     "confirmDeleteAll": "Excluir todo este trabalho permanentemente?",
     "yesDelete": "Sim, excluir",

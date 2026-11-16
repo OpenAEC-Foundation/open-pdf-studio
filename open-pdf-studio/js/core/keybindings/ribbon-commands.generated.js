@@ -15,6 +15,8 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"fit-width","tab":"home","labelKey":"ribbon:home.fitWidth"},
   {"id":"actual-size-ribbon","tab":"home","labelKey":"ribbon:home.hundredPercent"},
   {"id":"fit-page-ribbon","tab":"home","labelKey":"ribbon:home.fitPageLabel"},
+  {"id":"home-rotate-left","tab":"home","labelKey":"ribbon:home.rotateLeft"},
+  {"id":"home-rotate-right","tab":"home","labelKey":"ribbon:home.rotateRight"},
   {"id":"first-page","tab":"home","labelKey":"ribbon:home.first"},
   {"id":"prev-page-ribbon","tab":"home","labelKey":"ribbon:home.previous"},
   {"id":"next-page-ribbon","tab":"home","labelKey":"ribbon:home.next"},

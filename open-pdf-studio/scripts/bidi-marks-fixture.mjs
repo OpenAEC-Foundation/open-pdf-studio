@@ -4,7 +4,7 @@
 // links naar rechts getekend), zoals een PDF-producent RTL-tekst schrijft;
 // tekstextractie moet de logische volgorde teruggeven.
 export function bidiMarksFixture(visual) {
-  const chars = [...visual];
+  const chars = Array.isArray(visual) ? visual : [...visual];
   if (!chars.length || chars.length > 200) throw new Error('1..200 characters');
   const hex = n => n.toString(16).padStart(2, '0').toUpperCase();
   const hex4 = n => n.toString(16).padStart(4, '0').toUpperCase();

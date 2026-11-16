@@ -515,6 +515,8 @@
     "methodReference": "Línea de referencia",
     "methodRatio": "Relación de escala",
     "referenceHelp": "Introduzca la distancia real de una línea de medición conocida.",
+    "drawLine": "Dibujar línea en el plano",
+    "drawLineHint": "Haga clic en dos puntos de una cota conocida. Mantenga Mayús para una línea horizontal o vertical.",
     "ratioHelp": "Introduzca la relación de escala del dibujo. El tamaño de la página PDF se usa para calcular la conversión.",
     "scaleRatio": "Escala:",
     "unit": "Unidad:",
@@ -785,6 +787,22 @@
       "eng": "Inglés",
       "chi_tra": "Chino (tradicional)",
       "chi_tra+eng": "Chino (tradicional) + inglés"
+    },
+    "alsoEnglish": "Reconocer también inglés",
+    "addLanguage": "Añadir idioma…",
+    "download": "Descargar",
+    "downloading": "Descargando {{language}}…",
+    "downloaded": "Se ha añadido {{language}}.",
+    "downloadFailed": "No se pudo añadir el idioma: {{error}}",
+    "invalidFile": "la descarga no es un archivo de idioma válido",
+    "folderNotWritable": "No se puede escribir en la carpeta de idiomas, así que no se puede añadir ningún idioma.",
+    "openFolder": "Abrir carpeta de idiomas",
+    "hint": "Los idiomas adicionales se descargan del proyecto Tesseract cuando los solicitas y se guardan en la carpeta de idiomas. También puedes colocar ahí tú mismo archivos .traineddata del repositorio tessdata_fast o tessdata_best de Tesseract.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "histórico",
+      "fraktur": "Fraktur",
+      "equations": "Matemáticas / ecuaciones"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recuperar trabajo no guardado",
+    "menu": "Recuperar trabajo no guardado ({{count}})…",
     "intro": "Open PDF Studio no se cerró correctamente la última vez. Se conservó el trabajo no guardado de estos documentos:",
     "savedAt": "Conservado el {{time}}",
     "pages": "Páginas: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Eliminar",
     "deleteAll": "Eliminar todo",
     "later": "Más tarde",
-    "keepNote": "Lo que no gestione ahora se conserva 14 días y se le ofrecerá de nuevo en el próximo inicio.",
+    "keepNote": "Lo que no gestione ahora se conserva 14 días. Lo encontrará en Archivo → Recuperar trabajo no guardado; esta ventana no vuelve a aparecer sola.",
     "confirmDelete": "¿Eliminar este trabajo definitivamente?",
     "confirmDeleteAll": "¿Eliminar todo este trabajo definitivamente?",
     "yesDelete": "Sí, eliminar",

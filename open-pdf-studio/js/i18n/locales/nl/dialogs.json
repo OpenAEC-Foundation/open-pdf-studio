@@ -496,6 +496,8 @@
     "methodReference": "Referentielijn",
     "methodRatio": "Schaalverhouding",
     "referenceHelp": "Voer de werkelijke afstand in voor een bekende meetlijn.",
+    "drawLine": "Lijn tekenen op de tekening",
+    "drawLineHint": "Klik twee punten van een bekende maat. Houd Shift ingedrukt voor een horizontale of verticale lijn.",
     "ratioHelp": "Voer de schaalverhouding van de tekening in. Het PDF-paginaformaat wordt gebruikt voor de berekening.",
     "scaleRatio": "Schaal:",
     "unit": "Eenheid:",
@@ -785,6 +787,22 @@
       "eng": "Engels",
       "chi_tra": "Chinees (Traditioneel)",
       "chi_tra+eng": "Chinees (Traditioneel) + Engels"
+    },
+    "alsoEnglish": "Ook Engels herkennen",
+    "addLanguage": "Taal toevoegen…",
+    "download": "Downloaden",
+    "downloading": "{{language}} downloaden…",
+    "downloaded": "{{language}} is toegevoegd.",
+    "downloadFailed": "De taal kon niet worden toegevoegd: {{error}}",
+    "invalidFile": "de download is geen geldig taalbestand",
+    "folderNotWritable": "In de taalmap kan niet worden geschreven, dus er kan geen taal bij.",
+    "openFolder": "Taalmap openen",
+    "hint": "Extra talen worden op verzoek gedownload van het Tesseract-project en bewaard in de taalmap. Je kunt daar ook zelf .traineddata-bestanden uit de repository tessdata_fast of tessdata_best van Tesseract neerzetten.",
+    "variants": {
+      "vertical": "verticaal",
+      "historic": "historisch",
+      "fraktur": "fraktuur",
+      "equations": "Wiskunde / formules"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Niet-opgeslagen werk herstellen",
+    "menu": "Niet-opgeslagen werk herstellen ({{count}})…",
     "intro": "Open PDF Studio is de vorige keer niet normaal afgesloten. Van deze documenten is niet-opgeslagen werk bewaard:",
     "savedAt": "Bewaard op {{time}}",
     "pages": "Pagina's: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Verwijderen",
     "deleteAll": "Alles verwijderen",
     "later": "Later",
-    "keepNote": "Wat u nu niet afhandelt, blijft 14 dagen bewaard en wordt bij de volgende start opnieuw aangeboden.",
+    "keepNote": "Wat je nu niet afhandelt, blijft 14 dagen bewaard. Je vindt het terug onder Bestand → Niet-opgeslagen werk herstellen; dit venster komt niet vanzelf terug.",
     "confirmDelete": "Dit werk definitief verwijderen?",
     "confirmDeleteAll": "Al dit werk definitief verwijderen?",
     "yesDelete": "Ja, verwijderen",

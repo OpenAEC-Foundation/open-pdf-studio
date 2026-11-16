@@ -102,3 +102,20 @@ test('markers: twee instanties tegelijk zien elkaar als levend', () => {
   assert.deepEqual(zichtB.wees, []);
   assert.deepEqual(zichtB.verwijderen, []);
 });
+
+// Een achtergebleven document wordt één keer vanzelf aangeboden: na "Later"
+// komt het venster er bij de volgende start niet meer voor.
+import { nogNietUitgesteld, werkUitgesteldBij } from './beleid.js';
+
+test('alleen wat nog niet is uitgesteld opent het venster bij de start', () => {
+  assert.deepEqual(nogNietUitgesteld(['a', 'b', 'c'], ['b']), ['a', 'c']);
+  assert.deepEqual(nogNietUitgesteld(['a'], ['a']), [], 'alles al eens uitgesteld: geen venster');
+  assert.deepEqual(nogNietUitgesteld(['a'], null), ['a']);
+  assert.deepEqual(nogNietUitgesteld([], ['a']), []);
+});
+
+test('uitstellen onthoudt de aangeboden documenten en vergeet wat niet meer bestaat', () => {
+  assert.deepEqual(werkUitgesteldBij(['oud-weg', 'a'], ['a', 'b'], ['a', 'b']), ['a', 'b']);
+  assert.deepEqual(werkUitgesteldBij(['a'], [], ['a', 'b']), ['a'], 'zonder uitstel alleen opruimen');
+  assert.deepEqual(werkUitgesteldBij('rommel', ['a'], ['a']), ['a']);
+});

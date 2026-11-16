@@ -515,6 +515,8 @@
     "methodReference": "خط مرجعي",
     "methodRatio": "نسبة المقياس",
     "referenceHelp": "أدخل المسافة الحقيقية لخط قياس معروف.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "أدخل نسبة مقياس الرسم. يُستخدم حجم صفحة PDF لحساب التحويل.",
     "scaleRatio": "المقياس:",
     "unit": "الوحدة:",
@@ -785,6 +787,22 @@
       "eng": "الإنجليزية",
       "chi_tra": "الصينية (التقليدية)",
       "chi_tra+eng": "الصينية (التقليدية) + الإنجليزية"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "استعادة العمل غير المحفوظ",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "لم يُغلق Open PDF Studio بشكل طبيعي في المرة السابقة. تم الاحتفاظ بالعمل غير المحفوظ لهذه المستندات:",
     "savedAt": "محفوظ في {{time}}",
     "pages": "الصفحات: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "حذف",
     "deleteAll": "حذف الكل",
     "later": "لاحقًا",
-    "keepNote": "ما لا تعالجه الآن يُحتفظ به لمدة 14 يومًا ويُعرض عليك مجددًا عند التشغيل التالي.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "حذف هذا العمل نهائيًا؟",
     "confirmDeleteAll": "حذف كل هذا العمل نهائيًا؟",
     "yesDelete": "نعم، احذف",

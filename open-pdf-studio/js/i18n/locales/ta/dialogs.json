@@ -515,6 +515,8 @@
     "methodReference": "குறிப்புக் கோடு",
     "methodRatio": "அளவுகோல் விகிதம்",
     "referenceHelp": "தெரிந்த அளவீட்டுக் கோட்டின் உண்மையான தூரத்தை உள்ளிடவும்.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "வரைபடத்தின் அளவுகோல் விகிதத்தை உள்ளிடவும். மாற்றத்தைக் கணக்கிட PDF பக்க அளவு பயன்படுத்தப்படுகிறது.",
     "scaleRatio": "அளவுகோல்:",
     "unit": "அலகு:",
@@ -785,6 +787,22 @@
       "eng": "ஆங்கிலம்",
       "chi_tra": "சீனம் (பாரம்பரியம்)",
       "chi_tra+eng": "சீனம் (பாரம்பரியம்) + ஆங்கிலம்"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "சேமிக்கப்படாத வேலையை மீட்டெடு",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "கடந்த முறை Open PDF Studio இயல்பாக மூடப்படவில்லை. இந்த ஆவணங்களின் சேமிக்கப்படாத வேலை வைக்கப்பட்டுள்ளது:",
     "savedAt": "{{time}} அன்று வைக்கப்பட்டது",
     "pages": "பக்கங்கள்: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "நீக்கு",
     "deleteAll": "அனைத்தையும் நீக்கு",
     "later": "பிறகு",
-    "keepNote": "நீங்கள் இப்போது கையாளாதவை 14 நாட்கள் வைக்கப்பட்டு, அடுத்த தொடக்கத்தில் மீண்டும் வழங்கப்படும்.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "இந்த வேலையை நிரந்தரமாக நீக்கவா?",
     "confirmDeleteAll": "இந்த வேலை அனைத்தையும் நிரந்தரமாக நீக்கவா?",
     "yesDelete": "ஆம், நீக்கு",

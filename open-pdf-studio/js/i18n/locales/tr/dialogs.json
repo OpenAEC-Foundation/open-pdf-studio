@@ -515,6 +515,8 @@
     "methodReference": "Referans Çizgisi",
     "methodRatio": "Ölçek Oranı",
     "referenceHelp": "Bilinen bir ölçüm çizgisi için gerçek mesafeyi girin.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Çizim ölçek oranını girin. Dönüşümü hesaplamak için PDF sayfa boyutu kullanılır.",
     "scaleRatio": "Ölçek:",
     "unit": "Birim:",
@@ -785,6 +787,22 @@
       "eng": "İngilizce",
       "chi_tra": "Çince (Geleneksel)",
       "chi_tra+eng": "Çince (Geleneksel) + İngilizce"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Kaydedilmemiş çalışmayı kurtar",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio geçen sefer normal şekilde kapanmadı. Bu belgelerdeki kaydedilmemiş çalışma korundu:",
     "savedAt": "Korunma zamanı: {{time}}",
     "pages": "Sayfa: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Sil",
     "deleteAll": "Tümünü sil",
     "later": "Daha sonra",
-    "keepNote": "Şimdi ilgilenmediğiniz çalışmalar 14 gün saklanır ve bir sonraki başlatmada yeniden sunulur.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Bu çalışma kalıcı olarak silinsin mi?",
     "confirmDeleteAll": "Bu çalışmanın tümü kalıcı olarak silinsin mi?",
     "yesDelete": "Evet, sil",

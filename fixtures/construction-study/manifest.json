@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "license": "LGPL-3.0 (repository LICENSE.md); embedded Liberation Sans under SIL OFL 1.1",
+  "provenance": "Original synthetic vector drawings; no external drawings or images.",
+  "font": {
+    "path": "open-pdf-studio/public/pdfjs/web/standard_fonts/LiberationSans-Regular.ttf",
+    "sha256": "f8ace1f892b2bd9dc1792ba7f097fa7588f84fed48321480e04de5390828221f",
+    "license": "LICENSE_LIBERATION"
+  },
+  "generator": {
+    "path": "scripts/construction-study/generate.py",
+    "reportlab": "4.4.9"
+  },
+  "coordinates": "PDF points, bottom-left origin, unrotated A3 landscape; CropBox = MediaBox",
+  "files": [
+    {
+      "path": "revision-a.pdf",
+      "sha256": "9330d8427c7968485349b2acd600f31d3ec4322dc65f3b99862ad85883056bbf",
+      "pages": 2
+    },
+    {
+      "path": "revision-b.pdf",
+      "sha256": "5252829edc96e8cdbaa6cdd37e2f5a1830160387d9df8d1ebc3806a15ede4fd5",
+      "pages": 3
+    },
+    {
+      "path": "measure-count.pdf",
+      "sha256": "1514093de09f698c76e5b187e9a895df7b9869b2365ea45e02146eba9a40a319",
+      "pages": 1
+    }
+  ],
+  "compare": {
+    "pagePairs": [
+      {
+        "a": 1,
+        "b": 1,
+        "sheet": "S01"
+      },
+      {
+        "a": 2,
+        "b": 3,
+        "sheet": "S02"
+      }
+    ],
+    "insertedSheets": [
+      {
+        "b": 2,
+        "sheet": "S03"
+      }
+    ],
+    "planTranslationPoints": [
+      12,
+      -8
+    ],
+    "changesBeforeTranslation": [
+      {
+        "id": "C1",
+        "kind": "partition moved",
+        "old": [
+          300,
+          220,
+          300,
+          520
+        ],
+        "new": [
+          320,
+          220,
+          320,
+          520
+        ]
+      },
+      {
+        "id": "C2",
+        "kind": "window added",
+        "rect": [
+          370,
+          515,
+          70,
+          10
+        ]
+      },
+      {
+        "id": "C3",
+        "kind": "equipment removed",
+        "rect": [
+          400,
+          300,
+          40,
+          40
+        ]
+      }
+    ],
+    "unchangedSheet": "S02; stream identical despite page index change"
+  },
+  "measure": {
+    "scale": "1:50",
+    "calibrationMm": 5000,
+    "checkMm": 7500,
+    "roomWidthMm": 4700,
+    "roomHeightMm": 5200,
+    "roomAreaM2": 24.44,
+    "lengthToleranceMm": 10,
+    "areaToleranceM2": 0.1
+  },
+  "count": {
+    "initial": {
+      "A": 6,
+      "B": 4
+    },
+    "delete": "A6",
+    "reassign": {
+      "id": "A2",
+      "from": "A",
+      "to": "B"
+    },
+    "final": {
+      "A": 4,
+      "B": 5
+    },
+    "finalTotal": 9
+  },
+  "studyStatus": "NOT_RUN: fixture verification is not product workflow validation"
+}

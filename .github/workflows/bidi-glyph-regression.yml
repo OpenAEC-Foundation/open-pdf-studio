@@ -1,0 +1,31 @@
+name: RTL glyph regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/scripts/*bidi*'
+      - 'open-pdf-studio/scripts/pdfjs-postscript-progress.mjs'
+      - 'open-pdf-studio/js/pdf/office-*.js'
+      - 'open-pdf-studio/js/text/text-layer.js'
+      - 'open-pdf-studio/js/text/text-selection.js'
+      - 'open-pdf-studio/js/search/find-controller.js'
+      - 'open-pdf-studio/vite*.js'
+      - 'open-pdf-studio/package-lock.json'
+      - '.github/workflows/bidi-glyph-regression.yml'
+permissions:
+  contents: read
+jobs:
+  rtl-glyphs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --test scripts/pdfjs-bidi-glyphs.test.mjs scripts/pdfjs-bidi-marks.test.mjs
+      - run: node scripts/test-bidi-glyphs-browser.mjs

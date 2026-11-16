@@ -2,14 +2,12 @@ import { createSignal, createMemo, Show, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import OcrLanguagePicker, { opgeslagenOcrTaal } from './OcrLanguagePicker.jsx';
 import { openFolderDialog } from '../../../core/platform.js';
 import {
   normaliseOptions, summarise, splitPath, DEFAULT_SUFFIX,
   OUTPUT_FOLDER, OUTPUT_BESIDE, OUTPUT_REPLACE, EXISTING_RENAME, EXISTING_SKIP, EXISTING_OVERWRITE,
 } from '../../../pdf/batch-ocr-plan.js';
-
-// Same choices as the single-document OCR dialog (bundled trained data).
-const LANGUAGE_OPTIONS = ['auto', 'eng', 'chi_tra', 'chi_tra+eng'];
 
 const OPTION_ERRORS = {
   BATCH_OCR_NO_SOURCE: 'needSource',
@@ -35,7 +33,7 @@ export default function BatchOcrDialog() {
 
   const [source, setSource] = createSignal('');
   const [recursive, setRecursive] = createSignal(true);
-  const [lang, setLang] = createSignal('auto');
+  const [lang, setLang] = createSignal(opgeslagenOcrTaal());
   const [skipText, setSkipText] = createSignal(true);
   const [mode, setMode] = createSignal(OUTPUT_FOLDER);
   const [outputDir, setOutputDir] = createSignal('');
@@ -179,12 +177,7 @@ export default function BatchOcrDialog() {
               <input type="checkbox" checked={recursive()} onChange={(e) => setRecursive(e.target.checked)} />
               <span>{b('recursive')}</span>
             </label>
-            <div class="split-doc-row">
-              <label class="split-doc-label">{t('ocrLanguage.language')}</label>
-              <select class="batch-ocr-select" value={lang()} onChange={(e) => setLang(e.target.value)}>
-                {LANGUAGE_OPTIONS.map((code) => <option value={code}>{t(`ocrLanguage.options.${code}`)}</option>)}
-              </select>
-            </div>
+            <OcrLanguagePicker value={lang()} onChange={setLang} />
             <label class="split-doc-radio">
               <input type="checkbox" checked={skipText()} onChange={(e) => setSkipText(e.target.checked)} />
               <span>{b('skipText')}</span>

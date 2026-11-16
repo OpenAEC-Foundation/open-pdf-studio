@@ -96,12 +96,11 @@ export default function OrganizeTab() {
               const { getCurrentDocumentSize } = await import('../../../pdf/compress.js');
               openDialog('compress', { currentSize: getCurrentDocumentSize() });
             }} />
-          <RibbonButtonStack>
-            <RibbonButton size="small" id="rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
-              disabled={ro()} onClick={() => rotateCurrentPage(-90)} />
-            <RibbonButton size="small" id="rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
-              disabled={ro()} onClick={() => rotateCurrentPage(90)} />
-          </RibbonButtonStack>
+          {/* Grote knoppen: draaien is een van de meest gebruikte paginabewerkingen. */}
+          <RibbonButton id="rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
+            disabled={ro()} onClick={() => rotateCurrentPage(-90)} />
+          <RibbonButton id="rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
+            disabled={ro()} onClick={() => rotateCurrentPage(90)} />
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.pages')}>

@@ -2,9 +2,9 @@ import { createSignal, onMount, Show, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import OcrLanguagePicker, { opgeslagenOcrTaal } from './OcrLanguagePicker.jsx';
 import { getActiveDocument } from '../../../core/state.js';
 
-const LANGUAGE_OPTIONS = ['auto', 'eng', 'chi_tra', 'chi_tra+eng'];
 const RESOLUTIONS = [150, 200, 300, 400, 600];
 
 /** Error codes from src-tauri/src/scanner.rs → text in this dialog. */
@@ -37,7 +37,7 @@ export default function ScanDialog() {
   const [source, setSource] = createSignal('flatbed');
   const [maxPages, setMaxPages] = createSignal('0');
   const [ocr, setOcr] = createSignal(true);
-  const [lang, setLang] = createSignal('auto');
+  const [lang, setLang] = createSignal(opgeslagenOcrTaal());
   const [destination, setDestination] = createSignal('new');
   const [pages, setPages] = createSignal([]);
   const [busy, setBusy] = createSignal(''); // '' | 'scanning' | 'finishing'
@@ -220,12 +220,7 @@ export default function ScanDialog() {
               <input type="checkbox" checked={ocr()} onChange={(e) => setOcr(e.target.checked)} />
               <span>{s('ocr')}</span>
             </label>
-            <div class="split-doc-row">
-              <label class="split-doc-label">{t('ocrLanguage.language')}</label>
-              <select class="batch-ocr-select" value={lang()} disabled={!ocr()} onChange={(e) => setLang(e.target.value)}>
-                {LANGUAGE_OPTIONS.map((code) => <option value={code}>{t(`ocrLanguage.options.${code}`)}</option>)}
-              </select>
-            </div>
+            <OcrLanguagePicker value={lang()} onChange={setLang} disabled={!ocr()} />
             <label class="split-doc-radio">
               <input type="radio" name="scan-destination" checked={destination() === 'new'} onChange={() => setDestination('new')} />
               <span>{s('destNew')}</span>

@@ -515,6 +515,8 @@
     "methodReference": "קו ייחוס",
     "methodRatio": "יחס קנה מידה",
     "referenceHelp": "הזן את המרחק האמיתי עבור קו מדידה ידוע.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "הזן את יחס קנה המידה של השרטוט. גודל עמוד ה-PDF משמש לחישוב ההמרה.",
     "scaleRatio": "קנה מידה:",
     "unit": "יחידה:",
@@ -785,6 +787,22 @@
       "eng": "אנגלית",
       "chi_tra": "סינית (מסורתית)",
       "chi_tra+eng": "סינית (מסורתית) + אנגלית"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "שחזור עבודה שלא נשמרה",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio לא נסגר כרגיל בפעם הקודמת. עבודה שלא נשמרה במסמכים אלה נשמרה בצד:",
     "savedAt": "נשמר ב-{{time}}",
     "pages": "עמודים: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "מחק",
     "deleteAll": "מחק הכול",
     "later": "מאוחר יותר",
-    "keepNote": "מה שלא תטפל בו עכשיו יישמר 14 יום ויוצע שוב בהפעלה הבאה.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "למחוק עבודה זו לצמיתות?",
     "confirmDeleteAll": "למחוק את כל העבודה הזו לצמיתות?",
     "yesDelete": "כן, מחק",

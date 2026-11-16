@@ -515,6 +515,8 @@
     "methodReference": "Referentna linija",
     "methodRatio": "Omjer mjerila",
     "referenceHelp": "Unesite stvarnu udaljenost za poznatu mjernu liniju.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Unesite mjerilo crteža. Za izračun pretvorbe koristi se veličina PDF stranice.",
     "scaleRatio": "Mjerilo:",
     "unit": "Jedinica:",
@@ -785,6 +787,22 @@
       "eng": "Engleski",
       "chi_tra": "Kineski (tradicionalni)",
       "chi_tra+eng": "Kineski (tradicionalni) + engleski"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Vraćanje nespremljenog rada",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio prošli put nije normalno zatvoren. Nespremljeni rad iz ovih dokumenata je sačuvan:",
     "savedAt": "Sačuvano {{time}}",
     "pages": "Stranice: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Izbriši",
     "deleteAll": "Izbriši sve",
     "later": "Kasnije",
-    "keepNote": "Ono što sada ne riješite čuva se 14 dana i ponovno će se ponuditi pri sljedećem pokretanju.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Trajno izbrisati ovaj rad?",
     "confirmDeleteAll": "Trajno izbrisati sav ovaj rad?",
     "yesDelete": "Da, izbriši",

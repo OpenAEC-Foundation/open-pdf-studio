@@ -89,7 +89,11 @@ export function verwijderOcrEngine(sleutel) {
   return weg;
 }
 
-/** [{ id, label, languages, region }], de ingebouwde engine eerst. */
+/**
+ * [{ id, label, languages, region }], de ingebouwde engine eerst. De talen
+ * van de ingebouwde engine staan in de taalmap van de gebruiker (#1083,
+ * opdracht ocr_languages_list); hier alleen de meegeleverde.
+ */
 export function lijstOcrEngines() {
   return [
     { id: INGEBOUWD, label: 'Tesseract (built-in)', languages: ['auto', 'eng', 'chi_tra', 'chi_tra+eng'], region: false },

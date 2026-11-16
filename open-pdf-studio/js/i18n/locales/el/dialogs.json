@@ -515,6 +515,8 @@
     "methodReference": "Γραμμή αναφοράς",
     "methodRatio": "Λόγος κλίμακας",
     "referenceHelp": "Εισαγάγετε την πραγματική απόσταση για μια γνωστή γραμμή μέτρησης.",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "Εισαγάγετε τον λόγο κλίμακας του σχεδίου. Το μέγεθος σελίδας του PDF χρησιμοποιείται για τον υπολογισμό της μετατροπής.",
     "scaleRatio": "Κλίμακα:",
     "unit": "Μονάδα:",
@@ -785,6 +787,22 @@
       "eng": "Αγγλικά",
       "chi_tra": "Κινεζικά (παραδοσιακά)",
       "chi_tra+eng": "Κινεζικά (παραδοσιακά) + Αγγλικά"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "Ανάκτηση μη αποθηκευμένης εργασίας",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Το Open PDF Studio δεν έκλεισε κανονικά την τελευταία φορά. Η μη αποθηκευμένη εργασία αυτών των εγγράφων διατηρήθηκε:",
     "savedAt": "Διατηρήθηκε στις {{time}}",
     "pages": "Σελίδες: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "Διαγραφή",
     "deleteAll": "Διαγραφή όλων",
     "later": "Αργότερα",
-    "keepNote": "Ό,τι δεν διαχειριστείτε τώρα διατηρείται για 14 ημέρες και θα σας προταθεί ξανά στην επόμενη εκκίνηση.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Οριστική διαγραφή αυτής της εργασίας;",
     "confirmDeleteAll": "Οριστική διαγραφή όλης αυτής της εργασίας;",
     "yesDelete": "Ναι, διαγραφή",

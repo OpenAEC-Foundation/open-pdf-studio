@@ -326,6 +326,15 @@ en de Waitress-dienst op loopback, met willekeurige testcredentials en tijdelijk
 datamappen. De test accepteert bewust geen bestaande endpoint/bucket. Hij stopt
 alleen eigen processen en verwijdert uitsluitend de eigen tijdelijke testmap.
 
+De opstartcontrole gebruikt een geauthenticeerde, alleen-lezen `ListBuckets`-aanroep.
+De HTTP-livenessroute kan al groen zijn terwijl de S3-laag nog niet is geïnitialiseerd.
+Alleen `XMinioServerNotInitialized` en tijdelijke verbindings-/timeoutfouten worden
+bij deze opstartcontrole opnieuw geprobeerd; authenticatie- en onverwachte
+servicefouten stoppen direct. Het monotone opstartbudget is 20 seconden, plus
+hoogstens de lopende aanroep en procesopruiming. De echte opslagbewerkingen
+houden één SDK-poging en hun bestaande assertions. `test_objectstore_readiness.py`
+dekt de race, tijdgrens en opruiming ook zonder een MinIO-binary.
+
 CI bouwt [MinIO-broncommit `7aac2a2c`](https://github.com/minio/minio/tree/7aac2a2c5b7c882e68c1ce017d8256be2feea27f)
 met Go 1.24.8. MinIO is hier uitsluitend een geïsoleerde testdependency; de
 [bronrepository](https://github.com/minio/minio) is gearchiveerd en dit is geen

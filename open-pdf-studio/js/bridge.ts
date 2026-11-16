@@ -311,3 +311,6 @@ export {
   setOnlineVoices as setReadAloudOnlineVoices,
 } from './solid/stores/readAloudStore.js';
 
+
+// Shared style clipboard for keyboard commands and the existing UI.
+export { copyStyleFromSelection, pasteStyleToSelection } from './solid/stores/stylePresetsStore.js';

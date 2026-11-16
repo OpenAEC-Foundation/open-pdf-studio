@@ -515,6 +515,8 @@
     "methodReference": "संदर्भ रेखा",
     "methodRatio": "स्केल अनुपात",
     "referenceHelp": "किसी ज्ञात माप रेखा की वास्तविक दूरी दर्ज करें।",
+    "drawLine": "Draw line on drawing",
+    "drawLineHint": "Click two points of a known dimension. Hold Shift for a horizontal or vertical line.",
     "ratioHelp": "ड्रॉइंग का स्केल अनुपात दर्ज करें। रूपांतरण की गणना के लिए PDF पृष्ठ आकार का उपयोग किया जाता है।",
     "scaleRatio": "पैमाना:",
     "unit": "इकाई:",
@@ -785,6 +787,22 @@
       "eng": "अंग्रेज़ी",
       "chi_tra": "चीनी (पारंपरिक)",
       "chi_tra+eng": "चीनी (पारंपरिक) + अंग्रेज़ी"
+    },
+    "alsoEnglish": "Also recognize English",
+    "addLanguage": "Add language…",
+    "download": "Download",
+    "downloading": "Downloading {{language}}…",
+    "downloaded": "{{language}} has been added.",
+    "downloadFailed": "Could not add the language: {{error}}",
+    "invalidFile": "the download is not a valid language file",
+    "folderNotWritable": "The language folder cannot be written, so no language can be added.",
+    "openFolder": "Open language folder",
+    "hint": "Extra languages are downloaded from the Tesseract project when you ask for them and kept in the language folder. You can also put .traineddata files from the tessdata_fast or tessdata_best repository of Tesseract there yourself.",
+    "variants": {
+      "vertical": "vertical",
+      "historic": "historic",
+      "fraktur": "Fraktur",
+      "equations": "Math / equations"
     }
   },
   "straighten": {
@@ -1322,6 +1340,7 @@
   },
   "recovery": {
     "title": "बिना सहेजा काम पुनर्प्राप्त करें",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "पिछली बार Open PDF Studio सामान्य रूप से बंद नहीं हुआ। इन दस्तावेज़ों का बिना सहेजा काम सुरक्षित रखा गया है:",
     "savedAt": "{{time}} को सुरक्षित रखा गया",
     "pages": "पृष्ठ: {{count}}",
@@ -1333,7 +1352,7 @@
     "delete": "हटाएँ",
     "deleteAll": "सभी हटाएँ",
     "later": "बाद में",
-    "keepNote": "जो आप अभी नहीं संभालते, वह 14 दिनों तक रखा जाता है और अगली बार शुरू करने पर फिर से पेश किया जाएगा।",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "यह काम स्थायी रूप से हटाएँ?",
     "confirmDeleteAll": "यह सारा काम स्थायी रूप से हटाएँ?",
     "yesDelete": "हाँ, हटाएँ",

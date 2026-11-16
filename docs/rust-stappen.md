@@ -991,3 +991,44 @@ langste taak van 0,45–0,77 s. Wat overblijft aan lange taken is vooral
 **Nog live na te kijken.** Een groot scherm (op 4K zijn de beelden tot vier
 keer zo groot), de voorkeur op elk van de vijf standen, de zeer zware
 pagina's van de scene-motor, en macOS en Linux.
+
+## Afdrukken, afbeeldingen exporteren en comprimeren: zware pagina's via PDFium
+
+**Wat.** De rasterexport haalt zware pagina's sinds #701 uit de PDFium-workers
+(`rasterPaginaCanvas`, `renderPaginaPdfium`). Afdrukken (`print-job.js`),
+afbeeldingen exporteren (`exportAsImages`) en comprimeren (`compress.js`)
+liepen nog over `renderPageOffscreen`: PDF.js op de interface-thread, bij
+afdrukken op 300 dpi. Ze gebruiken nu `renderUitvoerPagina()`
+(`js/pdf/exporter.js`): een zware pagina (dezelfde grens als de rasterexport,
+`kiesRasterMotor`) komt uit de workers, een lichte uit PDF.js zoals voorheen,
+omdat het beeld daar sneller in de WebView zelf ontstaat dan dat het als
+pixels overkomt.
+
+**Een deel van de pagina.** Afdrukken rendert alleen wat op het vel komt
+(`deel`, print-plaatsing.js). `renderPaginaPdfium()` neemt nu een `deel` en
+haalt alleen de tegels op die het raken (`tegelsVoorDeel` in
+`raster-export-plan.js`, ook bij 90°, 180° en 270° extra rotatie); met `doel`
+tekent hij op een eigen canvas, zodat de aanroepers een `HTMLCanvasElement`
+houden. De markeringslaag komt uit dezelfde JS-tekening als altijd.
+
+**Terugval.** Webversie, mobiel, een document zonder bestand, een pool die
+niet klaar is en elke fout van de worker (één waarschuwing): PDF.js.
+`window.__opdsUitvoerMotor = 'pdfjs'` in de ontwikkelconsole dwingt PDF.js af.
+Per pagina meldt de console de motor en de tijd (`[raster] output page …`).
+
+**Live gemeten** (14-11, release-build als onzichtbare testinstantie; het
+afdrukvoorbeeld in het printvenster, dat dezelfde functie gebruikt):
+
+| tekening | PDFium | PDF.js |
+|---|---:|---:|
+| HY-103-1 p1 (zwaar), voorbeeld 450 × 271 px | 0,7–2,2 s | 4,1 s |
+| Technische tekening p1 (licht) | blijft PDF.js | 0,03–0,3 s |
+
+Op het kleine voorbeeld verschilt 4,2 % van de pixels meer dan 32 niveaus en
+0,9 % meer dan 96 (randen: PDFium en PDF.js anti-aliasen anders); het beeld
+staat op dezelfde plek, ook als deel van het vel.
+
+**Niet gemeten of nagekeken.** Een echte afdruk op 300 dpi (alleen het
+voorbeeld is gemeten), het resultaat op papier naast het oude, afbeeldingen
+exporteren en comprimeren in de app, poster- en meer-op-één-vel-afdrukken,
+en macOS en Linux.
