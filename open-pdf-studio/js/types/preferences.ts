@@ -334,6 +334,7 @@ export interface Preferences {
 
   // Language
   language: string;
+  ocrLanguage: string;
 
   // What's New dialog — last release version the user has acknowledged
   lastSeenReleaseVersion: string;
