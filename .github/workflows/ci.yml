@@ -119,6 +119,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs
 
+      - name: Test deleted comment popup lifecycle (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-comment-popup-browser.mjs
+
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
 
