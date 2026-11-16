@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Възстановяване на незаписана работа",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio не беше затворен нормално миналия път. Незаписаната работа по тези документи е запазена:",
     "savedAt": "Запазено на {{time}}",
     "pages": "Страници: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Изтрий",
     "deleteAll": "Изтрий всички",
     "later": "По-късно",
-    "keepNote": "Това, което не обработите сега, се пази 14 дни и ще ви бъде предложено отново при следващото стартиране.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Окончателно изтриване на тази работа?",
     "confirmDeleteAll": "Окончателно изтриване на цялата тази работа?",
     "yesDelete": "Да, изтрий",

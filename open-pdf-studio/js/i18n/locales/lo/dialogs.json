@@ -1339,6 +1339,7 @@
   },
   "recovery": {
     "title": "ກູ້ຄືນວຽກທີ່ຍັງບໍ່ໄດ້ບັນທຶກ",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "ຄັ້ງກ່ອນ Open PDF Studio ບໍ່ໄດ້ປິດຕາມປົກກະຕິ. ວຽກທີ່ຍັງບໍ່ໄດ້ບັນທຶກຂອງເອກະສານເຫຼົ່ານີ້ຖືກເກັບໄວ້:",
     "savedAt": "ເກັບໄວ້ເມື່ອ {{time}}",
     "pages": "ໜ້າ: {{count}}",
@@ -1350,7 +1351,7 @@
     "delete": "ລຶບ",
     "deleteAll": "ລຶບທັງໝົດ",
     "later": "ພາຍຫຼັງ",
-    "keepNote": "ສິ່ງທີ່ທ່ານບໍ່ໄດ້ຈັດການຕອນນີ້ຈະຖືກເກັບໄວ້ 14 ມື້ ແລະ ຈະສະເໜີໃຫ້ອີກຄັ້ງເມື່ອເລີ່ມໂປຣແກຣມຄັ້ງຕໍ່ໄປ.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "ລຶບວຽກນີ້ຖາວອນບໍ?",
     "confirmDeleteAll": "ລຶບວຽກທັງໝົດນີ້ຖາວອນບໍ?",
     "yesDelete": "ແມ່ນ, ລຶບ",

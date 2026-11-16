@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Враћање несачуваног рада",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio прошли пут није нормално затворен. Несачувани рад из ових докумената је сачуван:",
     "savedAt": "Сачувано {{time}}",
     "pages": "Странице: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Обриши",
     "deleteAll": "Обриши све",
     "later": "Касније",
-    "keepNote": "Оно што сада не решите чува се 14 дана и биће поново понуђено при следећем покретању.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Трајно обрисати овај рад?",
     "confirmDeleteAll": "Трајно обрисати сав овај рад?",
     "yesDelete": "Да, обриши",

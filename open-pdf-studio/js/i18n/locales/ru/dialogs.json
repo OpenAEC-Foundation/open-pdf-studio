@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Восстановление несохранённой работы",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "В прошлый раз Open PDF Studio завершил работу некорректно. Несохранённая работа в этих документах была сохранена:",
     "savedAt": "Сохранено {{time}}",
     "pages": "Страниц: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Удалить",
     "deleteAll": "Удалить всё",
     "later": "Позже",
-    "keepNote": "То, что вы не обработаете сейчас, хранится 14 дней и будет предложено снова при следующем запуске.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Удалить эту работу безвозвратно?",
     "confirmDeleteAll": "Удалить всю эту работу безвозвратно?",
     "yesDelete": "Да, удалить",

@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Vraćanje nespremljenog rada",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio prošli put nije normalno zatvoren. Nespremljeni rad iz ovih dokumenata je sačuvan:",
     "savedAt": "Sačuvano {{time}}",
     "pages": "Stranice: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Izbriši",
     "deleteAll": "Izbriši sve",
     "later": "Kasnije",
-    "keepNote": "Ono što sada ne riješite čuva se 14 dana i ponovno će se ponuditi pri sljedećem pokretanju.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Trajno izbrisati ovaj rad?",
     "confirmDeleteAll": "Trajno izbrisati sav ovaj rad?",
     "yesDelete": "Da, izbriši",

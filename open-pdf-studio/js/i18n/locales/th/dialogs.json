@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "กู้คืนงานที่ยังไม่ได้บันทึก",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "ครั้งที่แล้ว Open PDF Studio ไม่ได้ปิดตามปกติ งานที่ยังไม่ได้บันทึกของเอกสารเหล่านี้ถูกเก็บไว้:",
     "savedAt": "เก็บไว้เมื่อ {{time}}",
     "pages": "หน้า: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "ลบ",
     "deleteAll": "ลบทั้งหมด",
     "later": "ภายหลัง",
-    "keepNote": "สิ่งที่คุณไม่ได้จัดการตอนนี้จะถูกเก็บไว้ 14 วัน และจะเสนอให้อีกครั้งเมื่อเริ่มโปรแกรมครั้งถัดไป",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "ลบงานนี้อย่างถาวรหรือไม่",
     "confirmDeleteAll": "ลบงานทั้งหมดนี้อย่างถาวรหรือไม่",
     "yesDelete": "ใช่ ลบ",

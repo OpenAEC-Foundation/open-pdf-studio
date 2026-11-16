@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Återställ osparat arbete",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio avslutades inte normalt förra gången. Osparat arbete har bevarats för dessa dokument:",
     "savedAt": "Bevarat {{time}}",
     "pages": "Sidor: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Ta bort",
     "deleteAll": "Ta bort alla",
     "later": "Senare",
-    "keepNote": "Det du inte hanterar nu bevaras i 14 dagar och erbjuds igen vid nästa start.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Ta bort detta arbete permanent?",
     "confirmDeleteAll": "Ta bort allt detta arbete permanent?",
     "yesDelete": "Ja, ta bort",

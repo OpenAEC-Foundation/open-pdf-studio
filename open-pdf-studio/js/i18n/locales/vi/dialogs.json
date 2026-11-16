@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Khôi phục công việc chưa lưu",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Lần trước Open PDF Studio không được đóng bình thường. Công việc chưa lưu của các tài liệu này đã được giữ lại:",
     "savedAt": "Giữ lại lúc {{time}}",
     "pages": "Số trang: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Xóa",
     "deleteAll": "Xóa tất cả",
     "later": "Để sau",
-    "keepNote": "Những gì bạn chưa xử lý bây giờ sẽ được giữ 14 ngày và được đề xuất lại ở lần khởi động tiếp theo.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Xóa vĩnh viễn công việc này?",
     "confirmDeleteAll": "Xóa vĩnh viễn toàn bộ công việc này?",
     "yesDelete": "Có, xóa",

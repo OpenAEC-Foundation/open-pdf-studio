@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "保存されていない作業の復元",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "前回、Open PDF Studio は正常に終了しませんでした。次のドキュメントの保存されていない作業が保持されています:",
     "savedAt": "保持日時: {{time}}",
     "pages": "ページ数: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "削除",
     "deleteAll": "すべて削除",
     "later": "後で",
-    "keepNote": "今対応しなかったものは 14 日間保持され、次回の起動時に再度表示されます。",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "この作業を完全に削除しますか?",
     "confirmDeleteAll": "この作業をすべて完全に削除しますか?",
     "yesDelete": "はい、削除します",

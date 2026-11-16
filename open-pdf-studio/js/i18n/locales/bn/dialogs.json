@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "অসংরক্ষিত কাজ পুনরুদ্ধার করুন",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "গতবার Open PDF Studio স্বাভাবিকভাবে বন্ধ হয়নি। এই নথিগুলির অসংরক্ষিত কাজ রেখে দেওয়া হয়েছে:",
     "savedAt": "{{time}}-এ রাখা হয়েছে",
     "pages": "পৃষ্ঠা: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "মুছুন",
     "deleteAll": "সব মুছুন",
     "later": "পরে",
-    "keepNote": "আপনি এখন যা সামলাবেন না তা 14 দিন রাখা হয় এবং পরের বার চালু করার সময় আবার দেখানো হবে।",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "এই কাজটি স্থায়ীভাবে মুছবেন?",
     "confirmDeleteAll": "এই সমস্ত কাজ স্থায়ীভাবে মুছবেন?",
     "yesDelete": "হ্যাঁ, মুছুন",

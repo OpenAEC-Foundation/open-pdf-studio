@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "שחזור עבודה שלא נשמרה",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio לא נסגר כרגיל בפעם הקודמת. עבודה שלא נשמרה במסמכים אלה נשמרה בצד:",
     "savedAt": "נשמר ב-{{time}}",
     "pages": "עמודים: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "מחק",
     "deleteAll": "מחק הכול",
     "later": "מאוחר יותר",
-    "keepNote": "מה שלא תטפל בו עכשיו יישמר 14 יום ויוצע שוב בהפעלה הבאה.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "למחוק עבודה זו לצמיתות?",
     "confirmDeleteAll": "למחוק את כל העבודה הזו לצמיתות?",
     "yesDelete": "כן, מחק",

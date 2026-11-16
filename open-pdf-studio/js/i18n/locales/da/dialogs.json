@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Gendan ikke-gemt arbejde",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio blev ikke lukket normalt sidste gang. Ikke-gemt arbejde er bevaret for disse dokumenter:",
     "savedAt": "Bevaret {{time}}",
     "pages": "Sider: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Slet",
     "deleteAll": "Slet alle",
     "later": "Senere",
-    "keepNote": "Det, du ikke håndterer nu, bevares i 14 dage og tilbydes igen ved næste start.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Slet dette arbejde permanent?",
     "confirmDeleteAll": "Slet alt dette arbejde permanent?",
     "yesDelete": "Ja, slet",

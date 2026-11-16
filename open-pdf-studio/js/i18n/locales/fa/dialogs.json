@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "بازیابی کار ذخیره‌نشده",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio دفعهٔ قبل به‌طور عادی بسته نشد. کار ذخیره‌نشدهٔ این اسناد نگه داشته شده است:",
     "savedAt": "نگه داشته‌شده در {{time}}",
     "pages": "صفحه‌ها: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "حذف",
     "deleteAll": "حذف همه",
     "later": "بعداً",
-    "keepNote": "آنچه اکنون به آن رسیدگی نکنید 14 روز نگه داشته می‌شود و در اجرای بعدی دوباره پیشنهاد می‌شود.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "این کار برای همیشه حذف شود؟",
     "confirmDeleteAll": "همهٔ این کار برای همیشه حذف شود؟",
     "yesDelete": "بله، حذف شود",

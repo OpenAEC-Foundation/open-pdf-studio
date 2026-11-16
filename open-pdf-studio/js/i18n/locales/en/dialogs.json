@@ -1339,6 +1339,7 @@
   },
   "recovery": {
     "title": "Recover unsaved work",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio did not close normally last time. Unsaved work was kept for these documents:",
     "savedAt": "Kept on {{time}}",
     "pages": "Pages: {{count}}",
@@ -1350,7 +1351,7 @@
     "delete": "Delete",
     "deleteAll": "Delete all",
     "later": "Later",
-    "keepNote": "Anything you don't deal with now is kept for 14 days and offered again the next time you start the app.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Permanently delete this work?",
     "confirmDeleteAll": "Permanently delete all of this work?",
     "yesDelete": "Yes, delete",

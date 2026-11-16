@@ -13,6 +13,7 @@ import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../.
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../../../ui/chrome/tabs.js';
 import { closeWindow, isTauri } from '../../../core/platform.js';
 import { meldSchoonAfsluiten } from '../../../herstel/haken.js';
+import { aanbod as herstelAanbod, toonHerstelVenster } from '../../../herstel/herstel.js';
 import { knopUit, meldingTekst } from '../../../core/webfuncties.js';
 import i18next from '../../../i18n/config.js';
 import { state } from '../../../core/state.js';
@@ -156,6 +157,10 @@ export default function AppMenu() {
             <MenuItem icon={ICONS.approvalRouting} label={t('approvalRouting')} onClick={() => actionAndClose(() => openDialog('approval-routing'))} />
             <MenuItem icon={ICONS.sharedReview} label={t('sharedReview')} onClick={() => actionAndClose(() => openDialog('shared-review'))} />
             <Show when={isTauri()}><MenuItem icon={ICONS.sharedReview} label={t('dialogs:centralReview.title')} onClick={() => actionAndClose(() => openDialog('central-review'))} /></Show>
+            {/* Niet-opgeslagen werk dat nog bewaard is: hier terug te vinden nadat het venster is uitgesteld. */}
+            <Show when={herstelAanbod().length > 0}>
+              <MenuItem id="menu-recover-unsaved" icon={ICONS.about} label={t('dialogs:recovery.menu', { count: herstelAanbod().length })} onClick={() => actionAndClose(toonHerstelVenster)} />
+            </Show>
             <Divider />
             <MenuItem icon={ICONS.preferences} label={t('preferences')} shortcut={sneltoetsVoor('app.preferences')} onClick={() => actionAndClose(showPreferencesDialog)} />
             <Divider />

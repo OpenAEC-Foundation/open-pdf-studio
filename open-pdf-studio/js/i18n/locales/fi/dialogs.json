@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Palauta tallentamaton työ",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio ei sulkeutunut normaalisti viime kerralla. Näiden asiakirjojen tallentamaton työ on säilytetty:",
     "savedAt": "Säilytetty {{time}}",
     "pages": "Sivuja: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Poista",
     "deleteAll": "Poista kaikki",
     "later": "Myöhemmin",
-    "keepNote": "Se, mitä et käsittele nyt, säilytetään 14 päivää ja tarjotaan uudelleen seuraavalla käynnistyskerralla.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Poistetaanko tämä työ pysyvästi?",
     "confirmDeleteAll": "Poistetaanko kaikki tämä työ pysyvästi?",
     "yesDelete": "Kyllä, poista",

@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Nem mentett munka helyreállítása",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Az Open PDF Studio legutóbb nem állt le szabályosan. Ezeknek a dokumentumoknak a nem mentett munkája megmaradt:",
     "savedAt": "Megőrizve: {{time}}",
     "pages": "Oldalak: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Törlés",
     "deleteAll": "Összes törlése",
     "later": "Később",
-    "keepNote": "Amit most nem intéz el, 14 napig megmarad, és a következő indításkor újra felajánljuk.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Véglegesen törli ezt a munkát?",
     "confirmDeleteAll": "Véglegesen törli ezt a teljes munkát?",
     "yesDelete": "Igen, törlés",

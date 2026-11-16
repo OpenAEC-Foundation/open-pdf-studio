@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "बिना सहेजा काम पुनर्प्राप्त करें",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "पिछली बार Open PDF Studio सामान्य रूप से बंद नहीं हुआ। इन दस्तावेज़ों का बिना सहेजा काम सुरक्षित रखा गया है:",
     "savedAt": "{{time}} को सुरक्षित रखा गया",
     "pages": "पृष्ठ: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "हटाएँ",
     "deleteAll": "सभी हटाएँ",
     "later": "बाद में",
-    "keepNote": "जो आप अभी नहीं संभालते, वह 14 दिनों तक रखा जाता है और अगली बार शुरू करने पर फिर से पेश किया जाएगा।",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "यह काम स्थायी रूप से हटाएँ?",
     "confirmDeleteAll": "यह सारा काम स्थायी रूप से हटाएँ?",
     "yesDelete": "हाँ, हटाएँ",

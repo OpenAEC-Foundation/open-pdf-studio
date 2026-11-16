@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Récupérer le travail non enregistré",
+    "menu": "Récupérer le travail non enregistré ({{count}})…",
     "intro": "Open PDF Studio ne s'est pas fermé normalement la dernière fois. Le travail non enregistré de ces documents a été conservé :",
     "savedAt": "Conservé le {{time}}",
     "pages": "Pages : {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Supprimer",
     "deleteAll": "Tout supprimer",
     "later": "Plus tard",
-    "keepNote": "Ce que vous ne traitez pas maintenant est conservé 14 jours et vous sera de nouveau proposé au prochain démarrage.",
+    "keepNote": "Ce que vous ne traitez pas maintenant est conservé 14 jours. Vous le retrouvez sous Fichier → Récupérer le travail non enregistré ; cette fenêtre ne revient pas d’elle-même.",
     "confirmDelete": "Supprimer définitivement ce travail ?",
     "confirmDeleteAll": "Supprimer définitivement tout ce travail ?",
     "yesDelete": "Oui, supprimer",

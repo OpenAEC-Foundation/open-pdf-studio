@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recuperar trabajo no guardado",
+    "menu": "Recuperar trabajo no guardado ({{count}})…",
     "intro": "Open PDF Studio no se cerró correctamente la última vez. Se conservó el trabajo no guardado de estos documentos:",
     "savedAt": "Conservado el {{time}}",
     "pages": "Páginas: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Eliminar",
     "deleteAll": "Eliminar todo",
     "later": "Más tarde",
-    "keepNote": "Lo que no gestione ahora se conserva 14 días y se le ofrecerá de nuevo en el próximo inicio.",
+    "keepNote": "Lo que no gestione ahora se conserva 14 días. Lo encontrará en Archivo → Recuperar trabajo no guardado; esta ventana no vuelve a aparecer sola.",
     "confirmDelete": "¿Eliminar este trabajo definitivamente?",
     "confirmDeleteAll": "¿Eliminar todo este trabajo definitivamente?",
     "yesDelete": "Sí, eliminar",

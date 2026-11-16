@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Rejesha kazi ambayo haijahifadhiwa",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio haikufungwa kwa kawaida mara ya mwisho. Kazi ambayo haijahifadhiwa ya hati hizi imetunzwa:",
     "savedAt": "Imetunzwa {{time}}",
     "pages": "Kurasa: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Futa",
     "deleteAll": "Futa zote",
     "later": "Baadaye",
-    "keepNote": "Usichoshughulikia sasa kitatunzwa kwa siku 14 na kutolewa tena utakapoanzisha programu wakati ujao.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Futa kazi hii kabisa?",
     "confirmDeleteAll": "Futa kazi hii yote kabisa?",
     "yesDelete": "Ndiyo, futa",

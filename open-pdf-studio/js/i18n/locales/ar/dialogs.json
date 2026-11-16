@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "استعادة العمل غير المحفوظ",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "لم يُغلق Open PDF Studio بشكل طبيعي في المرة السابقة. تم الاحتفاظ بالعمل غير المحفوظ لهذه المستندات:",
     "savedAt": "محفوظ في {{time}}",
     "pages": "الصفحات: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "حذف",
     "deleteAll": "حذف الكل",
     "later": "لاحقًا",
-    "keepNote": "ما لا تعالجه الآن يُحتفظ به لمدة 14 يومًا ويُعرض عليك مجددًا عند التشغيل التالي.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "حذف هذا العمل نهائيًا؟",
     "confirmDeleteAll": "حذف كل هذا العمل نهائيًا؟",
     "yesDelete": "نعم، احذف",

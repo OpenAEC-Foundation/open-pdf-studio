@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Odzyskaj niezapisaną pracę",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio nie został ostatnio zamknięty prawidłowo. Zachowano niezapisaną pracę z tych dokumentów:",
     "savedAt": "Zachowano {{time}}",
     "pages": "Strony: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Usuń",
     "deleteAll": "Usuń wszystko",
     "later": "Później",
-    "keepNote": "To, czym nie zajmiesz się teraz, zostanie zachowane przez 14 dni i zaproponowane ponownie przy następnym uruchomieniu.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Trwale usunąć tę pracę?",
     "confirmDeleteAll": "Trwale usunąć całą tę pracę?",
     "yesDelete": "Tak, usuń",

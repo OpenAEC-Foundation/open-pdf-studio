@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "غیر محفوظ شدہ کام بحال کریں",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio پچھلی بار معمول کے مطابق بند نہیں ہوا۔ ان دستاویزات کا غیر محفوظ شدہ کام سنبھال لیا گیا ہے:",
     "savedAt": "{{time}} کو سنبھالا گیا",
     "pages": "صفحات: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "حذف کریں",
     "deleteAll": "سب حذف کریں",
     "later": "بعد میں",
-    "keepNote": "جو آپ ابھی نہیں نمٹاتے وہ 14 دن تک رکھا جاتا ہے اور اگلی بار شروع کرنے پر دوبارہ پیش کیا جائے گا۔",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "یہ کام مستقل طور پر حذف کریں؟",
     "confirmDeleteAll": "یہ سارا کام مستقل طور پر حذف کریں؟",
     "yesDelete": "ہاں، حذف کریں",

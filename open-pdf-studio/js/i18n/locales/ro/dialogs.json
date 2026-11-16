@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recuperează munca nesalvată",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio nu s-a închis normal data trecută. Munca nesalvată din aceste documente a fost păstrată:",
     "savedAt": "Păstrat la {{time}}",
     "pages": "Pagini: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Șterge",
     "deleteAll": "Șterge tot",
     "later": "Mai târziu",
-    "keepNote": "Ce nu rezolvați acum se păstrează 14 zile și vă este oferit din nou la următoarea pornire.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Ștergeți definitiv această muncă?",
     "confirmDeleteAll": "Ștergeți definitiv toată această muncă?",
     "yesDelete": "Da, șterge",

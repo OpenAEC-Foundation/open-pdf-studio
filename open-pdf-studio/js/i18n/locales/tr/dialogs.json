@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Kaydedilmemiş çalışmayı kurtar",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio geçen sefer normal şekilde kapanmadı. Bu belgelerdeki kaydedilmemiş çalışma korundu:",
     "savedAt": "Korunma zamanı: {{time}}",
     "pages": "Sayfa: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Sil",
     "deleteAll": "Tümünü sil",
     "later": "Daha sonra",
-    "keepNote": "Şimdi ilgilenmediğiniz çalışmalar 14 gün saklanır ve bir sonraki başlatmada yeniden sunulur.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Bu çalışma kalıcı olarak silinsin mi?",
     "confirmDeleteAll": "Bu çalışmanın tümü kalıcı olarak silinsin mi?",
     "yesDelete": "Evet, sil",

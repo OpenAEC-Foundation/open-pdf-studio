@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Ανάκτηση μη αποθηκευμένης εργασίας",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Το Open PDF Studio δεν έκλεισε κανονικά την τελευταία φορά. Η μη αποθηκευμένη εργασία αυτών των εγγράφων διατηρήθηκε:",
     "savedAt": "Διατηρήθηκε στις {{time}}",
     "pages": "Σελίδες: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Διαγραφή",
     "deleteAll": "Διαγραφή όλων",
     "later": "Αργότερα",
-    "keepNote": "Ό,τι δεν διαχειριστείτε τώρα διατηρείται για 14 ημέρες και θα σας προταθεί ξανά στην επόμενη εκκίνηση.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Οριστική διαγραφή αυτής της εργασίας;",
     "confirmDeleteAll": "Οριστική διαγραφή όλης αυτής της εργασίας;",
     "yesDelete": "Ναι, διαγραφή",

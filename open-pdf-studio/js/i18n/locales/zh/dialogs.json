@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "恢复未保存的工作",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio 上次没有正常关闭。已为以下文档保留未保存的工作：",
     "savedAt": "保留于 {{time}}",
     "pages": "页数：{{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "删除",
     "deleteAll": "全部删除",
     "later": "稍后",
-    "keepNote": "现在未处理的内容将保留 14 天，并在下次启动时再次提供。",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "永久删除此工作？",
     "confirmDeleteAll": "永久删除所有这些工作？",
     "yesDelete": "是，删除",

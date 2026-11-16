@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Nicht gespeicherte Arbeit wiederherstellen",
+    "menu": "Nicht gespeicherte Arbeit wiederherstellen ({{count}})…",
     "intro": "Open PDF Studio wurde beim letzten Mal nicht normal beendet. Für diese Dokumente wurde nicht gespeicherte Arbeit aufbewahrt:",
     "savedAt": "Aufbewahrt am {{time}}",
     "pages": "Seiten: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Löschen",
     "deleteAll": "Alle löschen",
     "later": "Später",
-    "keepNote": "Was Sie jetzt nicht erledigen, wird 14 Tage aufbewahrt und beim nächsten Start erneut angeboten.",
+    "keepNote": "Was Sie jetzt nicht erledigen, bleibt 14 Tage erhalten. Sie finden es unter Datei → Nicht gespeicherte Arbeit wiederherstellen; dieses Fenster erscheint nicht von selbst wieder.",
     "confirmDelete": "Diese Arbeit endgültig löschen?",
     "confirmDeleteAll": "Diese gesamte Arbeit endgültig löschen?",
     "yesDelete": "Ja, löschen",

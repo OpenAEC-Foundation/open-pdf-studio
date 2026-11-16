@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recupera la feina no desada",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio no es va tancar correctament l'última vegada. S'ha conservat la feina no desada d'aquests documents:",
     "savedAt": "Conservat el {{time}}",
     "pages": "Pàgines: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Suprimeix",
     "deleteAll": "Suprimeix-ho tot",
     "later": "Més tard",
-    "keepNote": "El que no gestioneu ara es conserva 14 dies i se us tornarà a oferir en el proper inici.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Voleu suprimir definitivament aquesta feina?",
     "confirmDeleteAll": "Voleu suprimir definitivament tota aquesta feina?",
     "yesDelete": "Sí, suprimeix",

@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Pulihkan kerja yang belum disimpan",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio tidak ditutup secara normal kali terakhir. Kerja yang belum disimpan daripada dokumen ini telah disimpan sementara:",
     "savedAt": "Disimpan sementara pada {{time}}",
     "pages": "Halaman: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Padam",
     "deleteAll": "Padam semua",
     "later": "Kemudian",
-    "keepNote": "Apa yang anda tidak uruskan sekarang disimpan selama 14 hari dan ditawarkan semula pada permulaan seterusnya.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Padam kerja ini secara kekal?",
     "confirmDeleteAll": "Padam semua kerja ini secara kekal?",
     "yesDelete": "Ya, padam",

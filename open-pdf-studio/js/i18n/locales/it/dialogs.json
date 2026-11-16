@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Recupera il lavoro non salvato",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "L'ultima volta Open PDF Studio non è stato chiuso normalmente. Il lavoro non salvato di questi documenti è stato conservato:",
     "savedAt": "Conservato il {{time}}",
     "pages": "Pagine: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Elimina",
     "deleteAll": "Elimina tutto",
     "later": "Più tardi",
-    "keepNote": "Ciò che non gestisci ora viene conservato per 14 giorni e riproposto al prossimo avvio.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Eliminare definitivamente questo lavoro?",
     "confirmDeleteAll": "Eliminare definitivamente tutto questo lavoro?",
     "yesDelete": "Sì, elimina",

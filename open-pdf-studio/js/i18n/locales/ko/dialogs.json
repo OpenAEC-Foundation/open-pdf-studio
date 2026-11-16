@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "저장하지 않은 작업 복구",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "지난번에 Open PDF Studio가 정상적으로 종료되지 않았습니다. 다음 문서의 저장하지 않은 작업이 보관되어 있습니다:",
     "savedAt": "보관 시각: {{time}}",
     "pages": "페이지: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "삭제",
     "deleteAll": "모두 삭제",
     "later": "나중에",
-    "keepNote": "지금 처리하지 않은 항목은 14일 동안 보관되며 다음 시작 시 다시 표시됩니다.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "이 작업을 영구적으로 삭제하시겠습니까?",
     "confirmDeleteAll": "이 작업을 모두 영구적으로 삭제하시겠습니까?",
     "yesDelete": "예, 삭제",

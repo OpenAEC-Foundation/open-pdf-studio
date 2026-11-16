@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Obnoviť neuloženú prácu",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio sa naposledy neukončil normálne. Neuložená práca z týchto dokumentov bola zachovaná:",
     "savedAt": "Zachované {{time}}",
     "pages": "Strany: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Odstrániť",
     "deleteAll": "Odstrániť všetko",
     "later": "Neskôr",
-    "keepNote": "Čo teraz nevybavíte, zostane uložené 14 dní a bude znova ponúknuté pri ďalšom spustení.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Natrvalo odstrániť túto prácu?",
     "confirmDeleteAll": "Natrvalo odstrániť celú túto prácu?",
     "yesDelete": "Áno, odstrániť",

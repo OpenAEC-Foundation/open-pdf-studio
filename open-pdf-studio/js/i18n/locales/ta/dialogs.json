@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "சேமிக்கப்படாத வேலையை மீட்டெடு",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "கடந்த முறை Open PDF Studio இயல்பாக மூடப்படவில்லை. இந்த ஆவணங்களின் சேமிக்கப்படாத வேலை வைக்கப்பட்டுள்ளது:",
     "savedAt": "{{time}} அன்று வைக்கப்பட்டது",
     "pages": "பக்கங்கள்: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "நீக்கு",
     "deleteAll": "அனைத்தையும் நீக்கு",
     "later": "பிறகு",
-    "keepNote": "நீங்கள் இப்போது கையாளாதவை 14 நாட்கள் வைக்கப்பட்டு, அடுத்த தொடக்கத்தில் மீண்டும் வழங்கப்படும்.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "இந்த வேலையை நிரந்தரமாக நீக்கவா?",
     "confirmDeleteAll": "இந்த வேலை அனைத்தையும் நிரந்தரமாக நீக்கவா?",
     "yesDelete": "ஆம், நீக்கு",

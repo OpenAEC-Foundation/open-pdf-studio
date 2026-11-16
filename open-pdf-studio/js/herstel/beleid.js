@@ -110,3 +110,26 @@ export function beoordeelMarkers(markers, { eigenId }) {
   }
   return uit;
 }
+
+// ─── Eén keer vanzelf aanbieden ────────────────────────────────────────────
+// Een achtergebleven document werd veertien dagen lang bij elke start
+// opnieuw aangeboden. Wie "Later" koos of het venster sloot, kreeg het dus
+// steeds weer te zien. Nu onthoudt de app welke documenten al zijn
+// aangeboden en uitgesteld: die blijven bewaard en staan in het menu
+// Bestand, maar openen het venster niet meer uit zichzelf.
+
+/** De sleutels die het venster bij de start nog mogen openen. */
+export function nogNietUitgesteld(sleutels, uitgesteld) {
+  const al = new Set(Array.isArray(uitgesteld) ? uitgesteld : []);
+  return (sleutels || []).filter((s) => !al.has(s));
+}
+
+/**
+ * De nieuwe lijst met uitgestelde sleutels: wat er al stond plus `nieuw`,
+ * zonder wat niet meer in het aanbod zit (`bestaand`).
+ */
+export function werkUitgesteldBij(uitgesteld, nieuw, bestaand) {
+  const er = new Set(bestaand || []);
+  const samen = new Set([...(Array.isArray(uitgesteld) ? uitgesteld : []), ...(nieuw || [])]);
+  return [...samen].filter((s) => er.has(s));
+}

@@ -420,6 +420,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   symbolPaletteFloatX: 300,
   symbolPaletteFloatY: 150,
   customSymbolGroups: [],
+  // Niet-opgeslagen werk dat al eens is aangeboden en uitgesteld (herstel/beleid.js).
+  recoveryPostponed: [],
   // Eigen reviewstatussen van markeringen (#1076, review/status-sets.js).
   markupStatuses: [],
   disabledSymbolGroups: [],

@@ -159,6 +159,8 @@ export default function PreferencesDialog(props) {
         if (key === 'workspaces') continue;
         // Net zo de eigen statuslijst van het team (#1076).
         if (key === 'markupStatuses') continue;
+        // Net zo wat de gebruiker al eens heeft uitgesteld bij het herstellen.
+        if (key === 'recoveryPostponed') continue;
         prefs[key][1](DEFAULT_PREFERENCES[key]);
       }
       // Resolve OS username for authorName since default is empty

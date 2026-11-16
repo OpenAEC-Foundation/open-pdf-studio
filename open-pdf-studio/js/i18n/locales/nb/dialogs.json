@@ -1340,6 +1340,7 @@
   },
   "recovery": {
     "title": "Gjenopprett ulagret arbeid",
+    "menu": "Recover unsaved work ({{count}})…",
     "intro": "Open PDF Studio ble ikke avsluttet normalt forrige gang. Ulagret arbeid er tatt vare på for disse dokumentene:",
     "savedAt": "Tatt vare på {{time}}",
     "pages": "Sider: {{count}}",
@@ -1351,7 +1352,7 @@
     "delete": "Slett",
     "deleteAll": "Slett alle",
     "later": "Senere",
-    "keepNote": "Det du ikke håndterer nå, blir tatt vare på i 14 dager og tilbudt på nytt ved neste oppstart.",
+    "keepNote": "Anything you don't deal with now is kept for 14 days. You find it again under File → Recover unsaved work; this window does not come back by itself.",
     "confirmDelete": "Slette dette arbeidet permanent?",
     "confirmDeleteAll": "Slette alt dette arbeidet permanent?",
     "yesDelete": "Ja, slett",
