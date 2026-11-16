@@ -880,3 +880,5 @@ js/tools/space-pan.test.mjs
 js/pdf/formulierlaag-scherm.test.mjs
 js/core/startup-tool.test.mjs
 js/ui/chrome/presentatie-beleid.test.mjs
+
+js/solid/stores/stickyNotePopupStore.test.mjs
