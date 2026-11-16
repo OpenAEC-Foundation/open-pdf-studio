@@ -879,3 +879,4 @@ js/tools/space-pan.test.mjs
 # Formulierlaag op het scherm (#1101)
 js/pdf/formulierlaag-scherm.test.mjs
 js/core/startup-tool.test.mjs
+js/ui/chrome/presentatie-beleid.test.mjs

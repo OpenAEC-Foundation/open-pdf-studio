@@ -1218,3 +1218,68 @@ body.pdf-cursor-override #canvas-container * {
 .split-document-name[data-pane="1"] { left: calc(100% * var(--split-ratio, .5) + 8px); max-width: calc(100% * (1 - var(--split-ratio, .5)) - 16px); }
 .split-horizontaal .split-document-name { max-width: calc(100% - 16px); }
 .split-horizontaal .split-document-name[data-pane="1"] { left: 4px; top: calc(100% * var(--split-ratio, .5) + 8px); }
+
+/* Presentation view (full screen): only the page, on a dark background.
+   The working interface is hidden, not removed, so it is back unchanged
+   when full screen ends (js/ui/chrome/presentatie.js). */
+.presentation-mode .title-bar,
+.presentation-mode .ribbon-container,
+.presentation-mode .notification-bar,
+.presentation-mode .document-tabs,
+.presentation-mode .status-bar,
+.presentation-mode .content > :not(.main-view),
+.presentation-mode .main-view > .palette-dock-row,
+.presentation-mode .main-view > #form-fields-bar-root,
+.presentation-mode .main-view > #pdfa-bar-root,
+.presentation-mode .canvas-scrollbar {
+  display: none !important;
+}
+
+.presentation-mode .content,
+.presentation-mode .main-view,
+.presentation-mode #pdf-container {
+  background: #000;
+}
+
+.presentation-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: #2b2b2b;
+  border: 1px solid #555;
+  color: #fff;
+  font-size: 12px;
+  cursor: default;
+  user-select: none;
+}
+
+.presentation-bar.visible {
+  display: flex;
+}
+
+.presentation-bar button {
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: inherit;
+  font-size: 12px;
+  cursor: default;
+}
+
+.presentation-bar button:hover {
+  background: #444;
+  border-color: #666;
+}
+
+.presentation-bar-count {
+  min-width: 56px;
+  text-align: center;
+}
