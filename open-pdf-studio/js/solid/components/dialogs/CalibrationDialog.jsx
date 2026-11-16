@@ -1,5 +1,6 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
+import { formatPageSize } from '../../stores/doc-info-format.js';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { state, getActiveDocument } from '../../../core/state.js';
@@ -76,7 +77,8 @@ export default function CalibrationDialog(props) {
   const [scalePreset, setScalePreset] = createSignal(beginSchaal);
   const [customScale, setCustomScale] = createSignal(100);
   const [ratioUnit, setRatioUnit] = createSignal(isImperialScalePreset(beginSchaal) ? 'ft' : 'mm');
-  const [pageSizeText, setPageSizeText] = createSignal('');
+  const [pageDimensions, setPageDimensions] = createSignal(null);
+  const pageSizeText = () => formatPageSize(pageDimensions()?.width, pageDimensions()?.height, state.preferences.scaleUnitSystem);
   const [detecting, setDetecting] = createSignal(false);
   const [detectResult, setDetectResult] = createSignal(null); // null | 'found' | 'notfound'
   // /UserUnit van de pagina: 1:N wordt daarmee pagina-eenheden (#884).
@@ -150,10 +152,7 @@ export default function CalibrationDialog(props) {
         setUserUnit(geldigeUserUnit(page.userUnit));
         // De viewport van PDF.js rekent /UserUnit mee: de echte papiermaat.
         const vp = page.getViewport({ scale: 1 });
-        // PDF points to mm: 1 pt = 25.4/72 mm
-        const wMm = (vp.width * 25.4 / 72).toFixed(0);
-        const hMm = (vp.height * 25.4 / 72).toFixed(0);
-        setPageSizeText(`${wMm} \u00d7 ${hMm} mm`);
+        setPageDimensions({ width: vp.width, height: vp.height });
       }
     } catch { /* ignore */ }
   });

@@ -26,7 +26,7 @@ import { getAnnotationType } from '../../plugins/annotation-type-registry.js';
 import { getPropertyPanel } from '../../plugins/property-panel-registry.js';
 import { fireSelectionChange } from '../../plugins/selection-listener-registry.js';
 import i18next from '../../i18n/config.js';
-import { DOC_INFO_EMPTY, formatDocPages, formatPageSizeMm, createLatestOnly } from './doc-info-format.js';
+import { DOC_INFO_EMPTY, formatDocPages, formatPageSize, createLatestOnly } from './doc-info-format.js';
 import { BEWERKBARE_VELDEN, overlayMet, zichtbareWaarden, normaliseerWaarde } from '../../pdf/documentgegevens.js';
 import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
@@ -1060,7 +1060,7 @@ export async function populateDocInfo() {
       const page = await pdfDoc.getPage(pageNum);
       if (!_docInfoRefresh.isCurrent(token)) return;
       const vp = page.getViewport({ scale: 1 });
-      setDocInfo('pageSize', formatPageSizeMm(vp.width, vp.height));
+      setDocInfo('pageSize', formatPageSize(vp.width, vp.height, state.preferences.scaleUnitSystem));
     } catch (e) {
       if (!_docInfoRefresh.isCurrent(token)) return;
       setDocInfo('pageSize', DOC_INFO_EMPTY);

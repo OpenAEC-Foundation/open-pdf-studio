@@ -18,6 +18,7 @@ export default function DocInfoView() {
   createEffect(() => {
     const doc = state.documents[state.activeDocumentIndex];
     readDocInfoDeps(doc);
+    void state.preferences.scaleUnitSystem;
     // Ook de bewerkte documentgegevens (#1017): ongedaan maken en opnieuw.
     void doc?.documentgegevens;
     untrack(() => {

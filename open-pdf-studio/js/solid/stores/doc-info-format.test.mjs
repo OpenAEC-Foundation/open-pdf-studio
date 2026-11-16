@@ -5,6 +5,7 @@ import {
   DOC_INFO_EMPTY,
   formatDocPages,
   formatPageSizeMm,
+  formatPageSize,
   createLatestOnly,
   readDocInfoDeps,
 } from './doc-info-format.js';
@@ -84,4 +85,23 @@ test('afhankelijkheden van de documentinfo', () => {
 
   const scrolled = { ...loaded, currentPage: 12 };
   assert.notDeepEqual(readDocInfoDeps(scrolled), readDocInfoDeps(loaded));
+});
+
+
+test('physical sheet size follows metric, imperial and both preferences', () => {
+  assert.equal(formatPageSize(2592, 1728, 'metric'), '914.4 x 609.6 mm');
+  assert.equal(formatPageSize(2592, 1728, 'imperial'), '36.00 x 24.00 in');
+  assert.equal(formatPageSize(2592, 1728), '914.4 x 609.6 mm (36.00 x 24.00 in)');
+  assert.equal(formatPageSize(2592, 1728, 'unknown'), formatPageSize(2592, 1728));
+  assert.equal(formatPageSize(1728, 2592, 'imperial'), '24.00 x 36.00 in');
+  assert.equal(formatPageSize(595.276, 841.89, 'imperial'), '8.27 x 11.69 in');
+});
+
+test('invalid physical sizes remain unavailable in every unit system', () => {
+  for (const system of ['metric', 'imperial', 'both']) {
+    for (const value of [0, -1, NaN, Infinity, undefined, null]) {
+      assert.equal(formatPageSize(value, 72, system), DOC_INFO_EMPTY);
+      assert.equal(formatPageSize(72, value, system), DOC_INFO_EMPTY);
+    }
+  }
 });

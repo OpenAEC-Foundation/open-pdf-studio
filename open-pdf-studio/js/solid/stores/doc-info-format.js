@@ -31,10 +31,21 @@ export function formatDocPages(currentPage, numPages) {
  * Invoer in PDF-punten (1/72 inch). Ongeldige afmetingen: '-'.
  */
 export function formatPageSizeMm(widthPt, heightPt) {
+  return formatPageSize(widthPt, heightPt, 'metric');
+}
+
+/** Physical viewport dimensions in points; PDF.js already applies rotation
+ *  and UserUnit. Unit symbols stay consistent with Page Properties. */
+export function formatPageSize(widthPt, heightPt, system = 'both') {
   const ok = (v) => Number.isFinite(v) && v > 0;
   if (!ok(widthPt) || !ok(heightPt)) return DOC_INFO_EMPTY;
   const toMm = (pt) => (pt / PT_PER_INCH * MM_PER_INCH).toFixed(1);
-  return `${toMm(widthPt)} x ${toMm(heightPt)} mm`;
+  const toInches = (pt) => (pt / PT_PER_INCH).toFixed(2);
+  const metric = `${toMm(widthPt)} x ${toMm(heightPt)} mm`;
+  const imperial = `${toInches(widthPt)} x ${toInches(heightPt)} in`;
+  if (system === 'metric') return metric;
+  if (system === 'imperial') return imperial;
+  return `${metric} (${imperial})`;
 }
 
 /**
