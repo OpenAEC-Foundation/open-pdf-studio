@@ -336,6 +336,8 @@ impl Renderer {
         Ok(bytes)
     }
 
+    /// Whole page for the screen; see `render_with_forms`.
+    #[cfg(test)]
     pub fn render(
         &mut self,
         path: &str,
@@ -343,6 +345,21 @@ impl Renderer {
         scale: f32,
         rotation: i32,
         thin_lines: bool,
+    ) -> Result<RenderResult> {
+        self.render_with_forms(path, page_index, scale, rotation, thin_lines, false)
+    }
+
+    /// Whole page. `all_forms`: every widget's stored appearance, for a
+    /// picture without the HTML form layer on top (page thumbnails). Without
+    /// it the screen look: editable fields are left out (#1101).
+    pub fn render_with_forms(
+        &mut self,
+        path: &str,
+        page_index: u32,
+        scale: f32,
+        rotation: i32,
+        thin_lines: bool,
+        all_forms: bool,
     ) -> Result<RenderResult> {
         let idx = self.get_or_load(path)?;
         let result = {
@@ -373,12 +390,12 @@ impl Renderer {
             // their saved appearance here leaves stale text after edits. The
             // form pass stays for signatures and push buttons, which that
             // layer cannot draw; the editable widgets are hidden meanwhile.
-            let widgets = ScreenWidgets::prepare(page);
+            let widgets = (!all_forms).then(|| ScreenWidgets::prepare(page));
             let config = PdfRenderConfig::new()
                 .set_target_width(target_w)
                 .set_maximum_height(target_h)
                 .rotate(rot, true)
-                .render_form_data(widgets.render_form_data())
+                .render_form_data(widgets.as_ref().is_none_or(|w| w.render_form_data()))
                 .render_annotations(false)
                 .use_lcd_text_rendering(true)
                 .set_format(PdfBitmapFormat::BGRA);
@@ -772,6 +789,23 @@ mod tests {
             drop(renderer);
             std::fs::remove_file(all).unwrap();
         }
+    }
+
+    /// Thumbnails have no form layer on top: they ask for every widget.
+    #[test]
+    fn render_with_forms_draws_every_widget() {
+        use test_form::{centre_px, page_with, Widget::*};
+        let all = temp_pdf("thumb-all", &page_with(&[Text, Signature, PushButton], 0));
+        let mut renderer = Renderer::new().unwrap();
+        let thumb = renderer.render_with_forms(all.to_str().unwrap(), 0, 1.0, 0, false, true).unwrap();
+        let w = thumb.width as usize;
+        assert_eq!(rgb_at(&thumb.rgba, w, centre_px(Text, 0, 1.0)), (0, 0, 0));
+        assert_eq!(rgb_at(&thumb.rgba, w, centre_px(Signature, 0, 1.0)), (0, 0, 255));
+        assert_eq!(rgb_at(&thumb.rgba, w, centre_px(PushButton, 0, 1.0)), (255, 0, 0));
+        let screen = renderer.render_with_forms(all.to_str().unwrap(), 0, 1.0, 0, false, false).unwrap();
+        assert_eq!(rgb_at(&screen.rgba, w, centre_px(Text, 0, 1.0)), (255, 255, 255));
+        drop(renderer);
+        std::fs::remove_file(all).unwrap();
     }
 
     /// High-zoom tiles: same rule as whole pages. Before #1101 tiles had no

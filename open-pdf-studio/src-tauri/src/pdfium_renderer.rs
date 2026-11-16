@@ -308,6 +308,20 @@ pub fn render_page_to_rgba_opts(
     render_page_with_form_data(doc, page_index, scale, rotation, thin_lines, max_rgba_bytes, false)
 }
 
+/// `render_page_to_rgba_opts` with every widget's stored appearance, for a
+/// picture of the page without the interactive form layer on top (the page
+/// thumbnails, #1101).
+pub fn render_page_to_rgba_with_forms(
+    doc: &PdfDocument<'static>,
+    page_index: u32,
+    scale: f32,
+    rotation: i32,
+    thin_lines: bool,
+    max_rgba_bytes: u64,
+) -> Result<(u32, u32, Vec<u8>), String> {
+    render_page_with_form_data(doc, page_index, scale, rotation, thin_lines, max_rgba_bytes, true)
+}
+
 /// `all_forms`: every widget (output). Otherwise the screen look: editable
 /// widgets left to the form layer, see `screen_widgets`.
 fn render_page_with_form_data(
@@ -409,11 +423,12 @@ pub struct CachedPixmap {
 /// for multi-doc workflows. 40 entries × ~15 MB ≈ 600 MB upper bound.
 const PIXMAP_CACHE_MAX_ENTRIES: usize = 40;
 
-pub type PixmapKey = (String, u32, u32, i32, bool);
+/// (path, page, scale x 10 000, rotation, Thin Lines, all form widgets).
+pub type PixmapKey = (String, u32, u32, i32, bool, bool);
 
 /// Cache key of one whole-page render.
-pub fn pixmap_key(path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool) -> PixmapKey {
-    (path.to_string(), page_index, (scale * 10_000.0).round() as u32, rotation, thin_lines)
+pub fn pixmap_key(path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool, forms: bool) -> PixmapKey {
+    (path.to_string(), page_index, (scale * 10_000.0).round() as u32, rotation, thin_lines, forms)
 }
 
 pub struct PixmapCache {
@@ -842,6 +857,19 @@ mod form_display_tests {
                 assert!(output.2 != content.2, "print/export must still contain the stored form appearance");
             }
         }
+    }
+
+    /// Page thumbnails have no form layer on top: they get every widget, and
+    /// their cached bitmap never stands in for a screen one (#1101).
+    #[test]
+    fn thumbnails_with_forms_draw_every_widget() {
+        use fixture::{centre_px, page_with, Widget::*};
+        init();
+        let all = PdfiumDocumentHandle::load_from_bytes(Arc::new(page_with(&[Text, Signature], 0))).unwrap();
+        let thumb = render_page_to_rgba_with_forms(all.document(), 0, 1.0, 0, false, INPROC_SCREEN_RGBA_BYTES).unwrap();
+        assert_eq!(rgb_at(&thumb.2, thumb.0, centre_px(Text, 0, 1.0)), (0, 0, 0));
+        assert_eq!(rgb_at(&thumb.2, thumb.0, centre_px(Signature, 0, 1.0)), (0, 0, 255));
+        assert_ne!(pixmap_key("a.pdf", 0, 1.0, 0, false, true), pixmap_key("a.pdf", 0, 1.0, 0, false, false));
     }
 
     /// Signatures and push buttons have no HTML form element: the screen

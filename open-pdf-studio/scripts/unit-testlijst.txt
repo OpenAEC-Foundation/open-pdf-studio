@@ -868,3 +868,6 @@ js/pdf/pagina-schalen-i18n.test.mjs
 # OCR-talen (#1083)
 js/pdf/ocr-talen.test.mjs
 js/pdf/ocr-talen-i18n.test.mjs
+
+# Formulierlaag op het scherm (#1101)
+js/pdf/formulierlaag-scherm.test.mjs

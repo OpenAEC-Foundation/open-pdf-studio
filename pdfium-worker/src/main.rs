@@ -72,8 +72,8 @@ fn main() -> Result<()> {
         };
 
         match req {
-            Request::Render { id, path, page_index, scale, rotation, thin_lines } => {
-                let resp = match renderer.render(&path, page_index, scale, rotation, thin_lines) {
+            Request::Render { id, path, page_index, scale, rotation, thin_lines, forms } => {
+                let resp = match renderer.render_with_forms(&path, page_index, scale, rotation, thin_lines, forms) {
                     Ok(result) => {
                         match shm_region.write_bitmap(result.width, result.height, &result.rgba) {
                             Ok(bytes) => Response::RenderOk {

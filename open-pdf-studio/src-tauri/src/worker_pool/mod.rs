@@ -240,7 +240,9 @@ impl WorkerPool {
         }).collect()
     }
 
-    /// Render via the pool. Returns (width, height, rgba_bytes).
+    /// Render via the pool. Returns (width, height, rgba_bytes). `forms`:
+    /// every widget's stored appearance (thumbnails); otherwise the screen
+    /// look without the editable fields (#1101).
     pub async fn render(
         &self,
         path: &str,
@@ -248,6 +250,7 @@ impl WorkerPool {
         scale: f32,
         rotation: i32,
         thin_lines: bool,
+        forms: bool,
     ) -> Result<(u32, u32, Vec<u8>)> {
         // First attempt. Pinned: al het werk voor dezelfde (path, page) —
         // volledige render, thumbnail, tegels — blijft op één worker, ook
@@ -260,7 +263,7 @@ impl WorkerPool {
         let worker = self.workers[slot].clone();
         self.touch(&worker);
         worker.queue_depth.fetch_add(1, Ordering::Release);
-        let result = self.render_on_worker(worker.clone(), path, page_index, scale, rotation, thin_lines).await;
+        let result = self.render_on_worker(worker.clone(), path, page_index, scale, rotation, thin_lines, forms).await;
         worker.queue_depth.fetch_sub(1, Ordering::Release);
 
         if result.is_ok() {
@@ -286,7 +289,7 @@ impl WorkerPool {
         let worker2 = self.workers[slot2].clone();
         self.touch(&worker2);
         worker2.queue_depth.fetch_add(1, Ordering::Release);
-        let result2 = self.render_on_worker(worker2.clone(), path, page_index, scale, rotation, thin_lines).await;
+        let result2 = self.render_on_worker(worker2.clone(), path, page_index, scale, rotation, thin_lines, forms).await;
         worker2.queue_depth.fetch_sub(1, Ordering::Release);
         if result2.as_ref().err().is_some_and(response::needs_recovery) {
             recovery::schedule_worker_recovery(worker2, worker_exe_path());
@@ -302,6 +305,7 @@ impl WorkerPool {
         scale: f32,
         rotation: i32,
         thin_lines: bool,
+        forms: bool,
     ) -> Result<(u32, u32, Vec<u8>)> {
         // Eén request tegelijk per worker: het draadprotocol heeft geen id-demux
         // en de SHM-regio wordt per response overschreven.
@@ -313,7 +317,7 @@ impl WorkerPool {
         let _plog = PoolTrace::new(worker.slot, "render", path, page_index, scale, _t_queue, _t_run);
         let id = self.next_request_id.fetch_add(1, Ordering::Release);
 
-        let req = render_request(id, path, page_index, scale, rotation, thin_lines);
+        let req = render_request(id, path, page_index, scale, rotation, thin_lines, forms);
         let req_line = format!("{}\n", req);
 
         // Write request
@@ -586,7 +590,7 @@ impl WorkerPool {
 /// Worker-request voor een volledige pagina (zie pdfium-worker/src/protocol.rs).
 /// `thin_lines` = Thin Lines-weergave (#595): de worker tekent elke lijn als
 /// haarlijn.
-fn render_request(id: u64, path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool) -> serde_json::Value {
+fn render_request(id: u64, path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool, forms: bool) -> serde_json::Value {
     json!({
         "op": "render",
         "id": id,
@@ -595,6 +599,7 @@ fn render_request(id: u64, path: &str, page_index: u32, scale: f32, rotation: i3
         "scale": scale,
         "rotation": rotation,
         "thin_lines": thin_lines,
+        "forms": forms,
     })
 }
 
@@ -651,10 +656,17 @@ mod request_tests {
         assert!(worker_answer_error(2, "render", &json!({ "id": 7, "ok": true, "w": 1, "h": 1 })).is_none());
     }
 
+    /// Thumbnails ask the worker for every widget (#1101).
+    #[test]
+    fn page_render_request_carries_the_forms_flag() {
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false, true)["forms"], json!(true));
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false, false)["forms"], json!(false));
+    }
+
     #[test]
     fn both_render_requests_carry_thin_lines() {
-        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, true)["thin_lines"], json!(true));
-        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false)["thin_lines"], json!(false));
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, true, false)["thin_lines"], json!(true));
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false, false)["thin_lines"], json!(false));
         let region = render_region_request(2, "a.pdf", 3, 2.0, 0, 0.0, 0.0, 10.0, 10.0, true);
         assert_eq!(region["thin_lines"], json!(true));
         assert_eq!(region["op"], json!("render_region"));
@@ -712,7 +724,7 @@ mod unavailable_tests {
             last_used_ms: std::sync::atomic::AtomicU64::new(0),
             trimmed: std::sync::atomic::AtomicBool::new(false),
         };
-        let page = pool.render("fixture.pdf", 0, 1.0, 0, false).await.unwrap_err();
+        let page = pool.render("fixture.pdf", 0, 1.0, 0, false, false).await.unwrap_err();
         assert!(response::is_unavailable(&page));
         let region = pool.render_region("fixture.pdf", 0, 1.0, 0, 0.0, 0.0, 10.0, 10.0, false, false).await.unwrap_err();
         assert!(response::is_unavailable(&region));
