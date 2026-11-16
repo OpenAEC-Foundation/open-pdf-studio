@@ -1301,6 +1301,24 @@ const result = {};
         }
       }
 
+      // /RD van een rechthoek of ellips: de vorm ligt zoveel binnen /Rect,
+      // de rand daar weer binnen (pdf/vorm-rand-inzet.js).
+      if (subtypeName === '/Square' || subtypeName === '/Circle') {
+        // Zonder /BS en /Border is de rand 1 (PDF 32000-1: /Border [0 0 1]).
+        // pdf.js geeft dan 0: op het scherm een haarlijn, bij opslaan /W 0
+        // (onzichtbaar in andere lezers), en geen inzet bij /RD.
+        if (colors.borderWidth === undefined && !bwBsRaw && !annotDict.get(PDFName.of('Border'))) {
+          colors.borderWidth = 1;
+        }
+        const rdRaw = annotDict.get(PDFName.of('RD'));
+        const rdArr = rdRaw !== undefined ? (context.lookup(rdRaw) || rdRaw) : null;
+        if (rdArr && typeof rdArr.size === 'function' && rdArr.size() === 4) {
+          const rd = [];
+          for (let j = 0; j < 4; j++) rd.push(pdfNum(context.lookup(rdArr.get(j)) || rdArr.get(j)));
+          if (rd.every((v) => typeof v === 'number' && Number.isFinite(v))) colors.vormRd = rd;
+        }
+      }
+
       // For FreeText, extract additional FreeText-specific properties
       if (subtypeName === '/FreeText') {
         // Read standard /Rotate key (externe referentie-editor writes this for 90/180/270 rotations)

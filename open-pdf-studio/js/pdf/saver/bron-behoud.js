@@ -212,7 +212,7 @@ function zelfdeWaarde(a, b) {
  *   PDF-punten) schuiven de getallen van het bestand op en blijft de
  *   appearance; die volgt /Rect. Anders komen /Rect, de geometrie, /RD en /AP
  *   uit het opnieuw opgebouwde woordenboek; een sleutel die het bestand niet
- *   had, komt er niet bij. Een eigen sleutel (OPS_) die beide hebben, volgt
+ *   had, komt er niet bij, behalve /Rect, /AP en /RD. Een eigen sleutel (OPS_) die beide hebben, volgt
  *   het nieuwe.
  * - `metaSleutels` (auteur, opmerking, naam, vlaggen, laag …): zoals het
  *   nieuwe woordenboek ze heeft; dezelfde tekst houdt de schrijfwijze van het
@@ -242,7 +242,10 @@ export function samenvoegen(context, origineel, nieuw, { vorm = false, verschuiv
     for (const k of VORM_SLEUTELS) {
       if (k === 'M') continue;
       const v = nieuw.get(N(k));
-      if (v !== undefined && (origineel.get(N(k)) !== undefined || k === 'Rect' || k === 'AP')) uit.set(N(k), v);
+      // /RD hoort bij /Rect: een rechthoek of ellips die de app schrijft heeft
+      // zijn rand binnen /Rect (pdf/vorm-rand-inzet.js); zonder zijn /RD zou
+      // hij bij het heropenen een halve lijndikte groeien.
+      if (v !== undefined && (origineel.get(N(k)) !== undefined || k === 'Rect' || k === 'AP' || k === 'RD')) uit.set(N(k), v);
     }
     // Vorm van een ander programma die bij de oude vorm hoort (een kromme,
     // een tweede arm …, #621): weg, tenzij de app hem zelf opnieuw schreef.
