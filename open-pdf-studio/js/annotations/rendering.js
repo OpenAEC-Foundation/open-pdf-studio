@@ -505,6 +505,20 @@ function beeldUitImageData(annotation) {
   return img;
 }
 
+// Types whose drawing only reads the annotation's own fields: no comparison
+// with another object (selection, crop, join preview), no cache keyed by the
+// annotation that someone else fills, no registered type handler. The draw
+// loops hand these to drawAnnotation as the plain object under the store
+// (kale-lijst.js): with thousands of markups in view the store's proxy was a
+// third of the time of every redraw. Every other type gets the store's own
+// object, as before. Add a type here only after reading its case below.
+const KAAL_TEKENBAAR = new Set(['line', 'arrow', 'box', 'circle', 'polyline', 'polygon', 'highlight', 'draw']);
+
+/** What a draw loop passes to drawAnnotation for item `index` of the plain list. */
+function tekenObject(annotations, kandidaat, index) {
+  return KAAL_TEKENBAAR.has(kandidaat.type) ? kandidaat : annotations[index];
+}
+
 export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   // ── Weergavefilters ────────────────────────────────────────────────────
   // Eén centraal predicaat (annotations/view-filters.js) bundelt de
@@ -3324,21 +3338,20 @@ export function redrawAnnotations(lightweight = false) {
   metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
     if (kandidaat.page !== curPage) return;
     if (_buitenBeeld(kandidaat, vpX, vpY, vpW, vpH)) return;
-    const annotation = annotations[index];
     // Een tekstmarkering met een andere mengmodus dan vermenigvuldigen mengt
     // zelf met de pagina; de markeerlaag kan alleen vermenigvuldigen.
-    const gemengd = isGemengd(annotation.blendMode);
-    if (gemengd && !(annotation.type === 'textHighlight' && textHighlightCtx && annotation.blendMode === 'multiply')) {
-      _tekenGemengd(annotationCtx, annotation, null,
+    const gemengd = isGemengd(kandidaat.blendMode);
+    if (gemengd && !(kandidaat.type === 'textHighlight' && textHighlightCtx && kandidaat.blendMode === 'multiply')) {
+      _tekenGemengd(annotationCtx, annotations[index], null,
         textHighlightCanvas ? [{ canvas: textHighlightCanvas, op: 'multiply' }] : []);
       return;
     }
-    const targetCtx = (annotation.type === 'textHighlight' && textHighlightCtx)
+    const targetCtx = (kandidaat.type === 'textHighlight' && textHighlightCtx)
       ? textHighlightCtx
       : annotationCtx;
     // Wrap each annotation in save/restore to prevent clip leaks between annotations
     targetCtx.save();
-    drawAnnotation(targetCtx, annotation);
+    drawAnnotation(targetCtx, tekenObject(annotations, kandidaat, index));
     targetCtx.restore();
   }));
 
@@ -3543,12 +3556,11 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
     if (kandidaat.page !== pageNum) return;
     if (_buitenBeeld(kandidaat, cvX, cvY, cvW, cvH)) return;
-    const annotation = annotations[index];
-    if (isGemengd(annotation.blendMode) && _paginaOnder(ctx.canvas)) {
-      _tekenGemengd(ctx, annotation, snippetBitmaps, []);
+    if (isGemengd(kandidaat.blendMode) && _paginaOnder(ctx.canvas)) {
+      _tekenGemengd(ctx, annotations[index], snippetBitmaps, []);
       return;
     }
-    drawAnnotation(ctx, annotation, snippetBitmaps);
+    drawAnnotation(ctx, tekenObject(annotations, kandidaat, index), snippetBitmaps);
   }));
 
   // Draw watermarks in front of content
