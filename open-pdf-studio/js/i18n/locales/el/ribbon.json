@@ -585,6 +585,8 @@
     "size": "Μέγεθος",
     "sameSize": "Ίδιο μέγεθος",
     "sameWidth": "Ίδιο πλάτος",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Ίδιο ύψος",
     "rotate": "Περιστροφή",
     "rotate90CCW": "Περιστροφή 90° αριστερόστροφα",

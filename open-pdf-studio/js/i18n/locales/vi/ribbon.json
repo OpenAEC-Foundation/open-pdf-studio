@@ -585,6 +585,8 @@
     "size": "Kích thước",
     "sameSize": "Cùng Kích thước",
     "sameWidth": "Cùng Chiều rộng",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Cùng Chiều cao",
     "rotate": "Xoay",
     "rotate90CCW": "Xoay 90° Ngược chiều KĐH",

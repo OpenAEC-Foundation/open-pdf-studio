@@ -78,7 +78,7 @@ export function syncMeasurementAfterEdit(ann) {
 // Picks the best box edge based on arrow position:
 //   - Arrow to the side → horizontal arm from left/right edge at vertical center
 //   - Arrow above/below → vertical arm from top/bottom edge at horizontal center
-function recalcCalloutLeader(annotation) {
+export function recalcCalloutLeader(annotation) {
   const boxW = annotation.width || 150;
   const boxH = annotation.height || 50;
   const arrowX = annotation.arrowX !== undefined ? annotation.arrowX : annotation.x - 60;

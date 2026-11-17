@@ -585,6 +585,8 @@
     "size": "サイズ",
     "sameSize": "同じサイズ",
     "sameWidth": "同じ幅",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "同じ高さ",
     "rotate": "回転",
     "rotate90CCW": "反時計回りに 90° 回転",

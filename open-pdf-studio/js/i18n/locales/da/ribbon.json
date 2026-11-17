@@ -585,6 +585,8 @@
     "size": "Størrelse",
     "sameSize": "Samme størrelse",
     "sameWidth": "Samme bredde",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Samme højde",
     "rotate": "Roter",
     "rotate90CCW": "Roter 90° mod uret",

@@ -585,6 +585,8 @@
     "size": "Dimensiune",
     "sameSize": "Aceeasi dimensiune",
     "sameWidth": "Aceeasi latime",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Aceeasi inaltime",
     "rotate": "Rotire",
     "rotate90CCW": "Rotire 90° sens invers acelor de ceasornic",

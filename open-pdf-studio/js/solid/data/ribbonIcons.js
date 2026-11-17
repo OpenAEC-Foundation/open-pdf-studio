@@ -303,6 +303,8 @@ export const sendToBackIcon = `<svg viewBox="0 0 16 16" fill="none"><rect x="5" 
 
 // --- Arrange tab: Size / Rotate / Reflect ---
 
+// Kader passend maken (#1144): een ruim gestippeld vak dat krimpt tot het kader om de tekstregels.
+export const fitTextBoxIcon = `<svg viewBox="0 0 32 32" fill="none"><rect x="3" y="4" width="26" height="24" stroke="#9aa7b4" stroke-width="1.2" stroke-dasharray="3 2"/><rect x="7" y="9" width="18" height="12" fill="#4a86c8" fill-opacity="0.15" stroke="#4a86c8" stroke-width="1.5"/><path d="M10 13h12M10 17h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/><path d="M27 26l-3-3m0 2.4V23h2.4" stroke="#4a86c8" stroke-width="1.3"/></svg>`;
 export const sameSize16Icon = `<svg viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="24" height="24" rx="1" stroke="#4a86c8" stroke-width="1.5" stroke-dasharray="3 2"/><rect x="8" y="8" width="10" height="10" fill="#4a86c8" opacity="0.3" stroke="#4a86c8" stroke-width="1"/><rect x="14" y="14" width="10" height="10" fill="#4a86c8" opacity="0.3" stroke="#4a86c8" stroke-width="1"/></svg>`;
 
 export const rotateCcwIcon = `<svg viewBox="0 0 16 16" fill="none"><path d="M3 8a5 5 0 019.5-2" stroke="#555" stroke-width="1.5"/><path d="M5 3L3 6l3 0" fill="#555"/></svg>`;

@@ -585,6 +585,8 @@
     "size": "גודל",
     "sameSize": "גודל זהה",
     "sameWidth": "רוחב זהה",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "גובה זהה",
     "rotate": "סיבוב",
     "rotate90CCW": "סיבוב 90° נגד כיוון השעון",

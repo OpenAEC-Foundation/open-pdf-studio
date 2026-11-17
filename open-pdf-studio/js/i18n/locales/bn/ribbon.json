@@ -585,6 +585,8 @@
     "size": "আকার",
     "sameSize": "একই আকার",
     "sameWidth": "একই প্রস্থ",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "একই উচ্চতা",
     "rotate": "ঘোরান",
     "rotate90CCW": "৯০° ঘড়ির কাঁটার বিপরীতে ঘোরান",

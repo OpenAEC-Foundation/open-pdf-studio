@@ -37,6 +37,7 @@ import { canSaveToToolSet, saveAnnotationToToolSet } from '../stores/toolSetsSto
 import { toolSetsIcon as toolSetsMenuIcon } from '../data/contextMenuIcons.js';
 import { setTool } from '../../tools/manager.js';
 import { alignAnnotations } from '../../annotations/smart-guides.js';
+import { fitBoxToText, tekstkadersInSelectie } from '../../annotations/alignment.js';
 import {
   resolveSysteem, paneelKey, setPaneelType, addSparing, rotToRaster,
   buildSysteemraster,
@@ -520,6 +521,11 @@ function AnnotationMenuContent() {
 
       <Show when={['textbox', 'callout'].includes(ann()?.type)}>
         <MenuItem label={t('annotation.editText')} disabled={isLocked()} onClick={() => startTextEditing(ann())} />
+        <MenuItem label={t('annotation.fitBoxToText')} disabled={isLocked()} onClick={() => {
+          const a = ann();
+          if (!a) return;
+          if (fitBoxToText([a]) && getActiveDocument()?.selectedAnnotation === a) showProperties(a);
+        }} />
         <Separator />
       </Show>
 
@@ -890,6 +896,11 @@ function MultiAnnotationMenuContent() {
     return (getActiveDocument()?.selectedAnnotations || [])
       .filter(a => a?.type === 'wall' && !a.locked);
   };
+  // Kader passend maken (#1144): de tekstvakken en aanhaalvakken in de selectie.
+  const geselecteerdeTekstkaders = () => {
+    count(); position();
+    return tekstkadersInSelectie();
+  };
 
   return (
     <>
@@ -936,6 +947,11 @@ function MultiAnnotationMenuContent() {
       <Show when={count() >= 3}>
         <MenuItem label={t('multiSelect.distributeHorizontally')} onClick={() => { alignAnnotations('distribute-h'); redraw(); }} />
         <MenuItem label={t('multiSelect.distributeVertically')} onClick={() => { alignAnnotations('distribute-v'); redraw(); }} />
+      </Show>
+
+      <Show when={geselecteerdeTekstkaders().length >= 1}>
+        <Separator />
+        <MenuItem label={t('multiSelect.fitBoxesToText')} onClick={() => { fitBoxToText(); }} />
       </Show>
 
       <Show when={geselecteerdeWanden().length >= 2}>

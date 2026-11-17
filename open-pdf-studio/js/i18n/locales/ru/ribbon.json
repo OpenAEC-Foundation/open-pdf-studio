@@ -585,6 +585,8 @@
     "size": "Размер",
     "sameSize": "Одинаковый размер",
     "sameWidth": "Одинаковая ширина",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Одинаковая высота",
     "rotate": "Поворот",
     "rotate90CCW": "Повернуть на 90° против ч.с.",
