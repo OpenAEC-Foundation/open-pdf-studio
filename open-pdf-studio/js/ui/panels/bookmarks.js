@@ -247,6 +247,12 @@ export async function addBookmark() {
   zetSelectie([bm.id]);
 }
 
+// 'Bladwijzer toevoegen' in het contextmenu van de pagina. Het menu riep deze
+// functie al aan, maar ze bestond niet: de keuze deed niets (#1157).
+export function addBookmarkAtCurrentPage() {
+  return addBookmark();
+}
+
 // Add child bookmark under selected
 export async function addChildBookmark() {
   if (isPdfAReadOnly()) return;
