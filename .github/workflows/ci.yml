@@ -119,6 +119,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-mcp-perimeter-browser.mjs
 
+      - name: Test blank PDF save readiness (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-blank-pdf-save-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs

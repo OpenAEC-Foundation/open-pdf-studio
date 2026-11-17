@@ -1062,6 +1062,11 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
     doc.selectedAnnotations = [];
     doc.currentPage = 1;
 
+    // Generated blank pages have no existing annotations to load. Make every
+    // page safe to edit/save even before Continuous view renders it. Supplied
+    // template bytes may contain annotations and must keep normal load guards.
+    if (!bytes) markAllAnnotationPagesLoaded(numPages, doc);
+
     // Show PDF container, hide placeholder
     const placeholder = document.getElementById('placeholder');
     const pdfContainer = document.getElementById('pdf-container');

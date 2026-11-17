@@ -498,7 +498,8 @@ export async function appFrameVan(page) {
 /** Wacht tot het document in de app op het blad staat. */
 export async function wachtOpDocument(frame, naam) {
   await totDat(() => frame.evaluate((n) => {
-    const c = document.querySelector('canvas#pdf-canvas') || document.querySelector('#continuous-container canvas');
+    const c = [...document.querySelectorAll('#pdf-canvas, #continuous-container .pdf-canvas')]
+      .find(canvas => canvas.getBoundingClientRect().width > 0);
     return !!c && c.width > 200 && document.body.innerText.includes(n);
   }, naam).catch(() => false), 90_000, `document ${naam} open in de app`);
   await wacht(1000);
@@ -507,7 +508,8 @@ export async function wachtOpDocument(frame, naam) {
 /** Teken een rechthoek op het blad (het gereedschap in het lint, slepen). */
 export async function tekenRechthoek(page, frame, { x = 0.55, y = 0.15 } = {}) {
   await frame.locator('button.tp-btn[title="Rect"]').first().click();
-  const canvas = await frame.$('canvas#annotation-canvas') || await frame.$('canvas#pdf-canvas');
+  const canvas = frame.locator('#annotation-canvas:visible, #continuous-container .annotation-canvas:visible').first();
+  await canvas.waitFor({ state: 'visible' });
   const vak = await canvas.boundingBox();
   // Alleen het zichtbare deel van het blad telt (het canvas kan hoger zijn dan het venster).
   const hoogte = page.viewportSize()?.height ?? 900;

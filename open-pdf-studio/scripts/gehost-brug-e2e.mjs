@@ -267,7 +267,7 @@ try {
   const voorRo = (await gast()).opgeslagen.length;
   // Focus in het iframe: een klik op het blad (met het selectiegereedschap).
   await page.keyboard.press('Escape');
-  const vakRo = await (await frame.$('canvas#annotation-canvas') || await frame.$('canvas#pdf-canvas')).boundingBox();
+  const vakRo = await frame.locator('#annotation-canvas:visible, #continuous-container .annotation-canvas:visible').first().boundingBox();
   await page.mouse.click(vakRo.x + 30, Math.max(vakRo.y, 0) + 30);
   await page.keyboard.press('Control+s');
   const roTekst = await totDat(() => melding(frame), 30_000, 'melding bij opslaan alleen-lezen');
@@ -338,7 +338,7 @@ try {
   const opgeslagenVoorV = (await gast()).opgeslagen.length;
   const opslaanVoorV = (await gast()).log.filter((r) => r.soort === 'opslaan').length;
   await page.keyboard.press('Escape');
-  const vakV = await (await frame.$('canvas#annotation-canvas') || await frame.$('canvas#pdf-canvas')).boundingBox();
+  const vakV = await frame.locator('#annotation-canvas:visible, #continuous-container .annotation-canvas:visible').first().boundingBox();
   await page.mouse.click(vakV.x + 30, Math.max(vakV.y, 0) + 30);
   await page.keyboard.press('Control+s');
   const versieRo = await totDat(() => melding(frame), 30_000, 'melding bij opslaan van een oudere versie');
