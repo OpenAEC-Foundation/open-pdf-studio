@@ -5,6 +5,7 @@ import {
   DOC_INFO_EMPTY,
   formatDocPages,
   formatPageSizeMm,
+  formatPageSize,
   createLatestOnly,
   readDocInfoDeps,
 } from './doc-info-format.js';
@@ -84,4 +85,19 @@ test('afhankelijkheden van de documentinfo', () => {
 
   const scrolled = { ...loaded, currentPage: 12 };
   assert.notDeepEqual(readDocInfoDeps(scrolled), readDocInfoDeps(loaded));
+});
+
+// Paginaformaat volgt het gekozen eenhedenstelsel (#1121).
+test('page size follows the unit system: metric, imperial or both', () => {
+  // ARCH D, 36 x 24 inch.
+  assert.equal(formatPageSize(2592, 1728, 'metric'), '914.4 x 609.6 mm');
+  assert.equal(formatPageSize(2592, 1728, 'imperial'), '36.00 x 24.00 in');
+  assert.equal(formatPageSize(2592, 1728, 'both'), '914.4 x 609.6 mm (36.00 x 24.00 in)');
+  // Onbekende of ontbrekende keuze: beide, de standaard van de voorkeur.
+  assert.equal(formatPageSize(2592, 1728), '914.4 x 609.6 mm (36.00 x 24.00 in)');
+  assert.equal(formatPageSize(2592, 1728, 'iets'), '914.4 x 609.6 mm (36.00 x 24.00 in)');
+  // A4 in inch met twee decimalen.
+  assert.equal(formatPageSize(595.276, 841.89, 'imperial'), '8.27 x 11.69 in');
+  assert.equal(formatPageSize(0, 842, 'imperial'), DOC_INFO_EMPTY);
+  assert.equal(formatPageSize(NaN, 842, 'both'), DOC_INFO_EMPTY);
 });

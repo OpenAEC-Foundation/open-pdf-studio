@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normal)",
     "perSheetCustom": "Personalizat...",
     "perSheetGrid": "Coloane × rânduri:",
+    "perSheetColumns": "Coloane",
+    "perSheetRows": "Rânduri",
     "perSheetBy": "×",
     "pageOrder": "Ordinea paginilor:",
     "orderHorizontal": "Orizontal",

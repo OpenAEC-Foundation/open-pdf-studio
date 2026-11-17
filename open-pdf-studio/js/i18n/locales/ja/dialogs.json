@@ -137,6 +137,8 @@
     "perSheetOne": "1（標準）",
     "perSheetCustom": "カスタム...",
     "perSheetGrid": "列 × 行：",
+    "perSheetColumns": "列",
+    "perSheetRows": "行",
     "perSheetBy": "×",
     "pageOrder": "ページの順序：",
     "orderHorizontal": "横方向",

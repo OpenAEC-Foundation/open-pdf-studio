@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normal)",
     "perSheetCustom": "Anpassat...",
     "perSheetGrid": "Kolumner × rader:",
+    "perSheetColumns": "Kolumner",
+    "perSheetRows": "Rader",
     "perSheetBy": "×",
     "pageOrder": "Sidordning:",
     "orderHorizontal": "Vågrät",

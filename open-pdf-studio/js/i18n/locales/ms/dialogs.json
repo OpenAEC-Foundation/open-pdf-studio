@@ -137,6 +137,8 @@
     "perSheetOne": "1 (biasa)",
     "perSheetCustom": "Tersuai...",
     "perSheetGrid": "Lajur × baris:",
+    "perSheetColumns": "Lajur",
+    "perSheetRows": "Baris",
     "perSheetBy": "×",
     "pageOrder": "Susunan halaman:",
     "orderHorizontal": "Mendatar",

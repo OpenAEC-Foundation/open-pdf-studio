@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normaali)",
     "perSheetCustom": "Mukautettu...",
     "perSheetGrid": "Sarakkeet × rivit:",
+    "perSheetColumns": "Sarakkeet",
+    "perSheetRows": "Rivit",
     "perSheetBy": "×",
     "pageOrder": "Sivujärjestys:",
     "orderHorizontal": "Vaakasuunta",

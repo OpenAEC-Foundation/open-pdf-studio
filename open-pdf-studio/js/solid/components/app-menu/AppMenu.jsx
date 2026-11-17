@@ -8,6 +8,7 @@ const ExportPanel = lazy(() => import('./ExportPanel.jsx'));
 const OpenPanel = lazy(() => import('./OpenPanel.jsx'));
 import { openPDFFile } from '../../../pdf/loader.js';
 import { savePDF, savePDFAs } from '../../../pdf/saver.js';
+import { ifcxOpslaanLabel, opslaanAlsIfcx } from '../../../pdf/ifcx-opslaan.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../../../ui/chrome/dialogs.js';
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../../../ui/chrome/tabs.js';
@@ -141,6 +142,7 @@ export default function AppMenu() {
             {/* Alleen-lezen van de site (een oudere versie, #712): opslaan staat uit, Opslaan als (een download) niet. */}
             <MenuItem icon={ICONS.save} label={t('save')} shortcut={sneltoetsVoor('file.save')} disabled={state.documents[state.activeDocumentIndex]?.hostAlleenLezen === true} onClick={() => actionAndClose(savePDF)} />
             <MenuItem icon={ICONS.saveAs} label={t('saveAs')} shortcut={sneltoetsVoor('file.saveAs')} onClick={() => actionAndClose(savePDFAs)} />
+            <MenuItem id="menu-save-as-ifcx" icon={ICONS.saveAs} label={ifcxOpslaanLabel(t('saveAs'))} disabled={!state.documents[state.activeDocumentIndex]} onClick={() => actionAndClose(opslaanAlsIfcx)} />
             <MenuItem id="menu-pdfa" icon={ICONS.pdfa} label={t('pdfa')} disabled={!state.documents[state.activeDocumentIndex]} onClick={() => actionAndClose(() => openDialog('pdfa'))} />
             <MenuItem id="menu-print" icon={ICONS.print} label={t('print')} shortcut={sneltoetsVoor('file.print')} onClick={() => actionAndClose(showPrintDialog)} />
             <Divider />

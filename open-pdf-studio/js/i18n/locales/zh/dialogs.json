@@ -137,6 +137,8 @@
     "perSheetOne": "1（正常）",
     "perSheetCustom": "自定义...",
     "perSheetGrid": "列 × 行：",
+    "perSheetColumns": "列",
+    "perSheetRows": "行",
     "perSheetBy": "×",
     "pageOrder": "页面顺序：",
     "orderHorizontal": "横向",

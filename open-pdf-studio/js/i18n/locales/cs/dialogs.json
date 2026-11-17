@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normálně)",
     "perSheetCustom": "Vlastní...",
     "perSheetGrid": "Sloupce × řádky:",
+    "perSheetColumns": "Sloupce",
+    "perSheetRows": "Řádky",
     "perSheetBy": "×",
     "pageOrder": "Pořadí stránek:",
     "orderHorizontal": "Vodorovně",

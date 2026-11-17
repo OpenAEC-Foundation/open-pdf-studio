@@ -1966,6 +1966,36 @@ function _prevSpreadAnchor(anchor) {
   return anchor <= 2 ? 1 : anchor - 2;
 }
 
+/**
+ * Show the page area that belongs to a document's view mode: the single-page
+ * canvas or the continuous container. Each document keeps its own view mode
+ * while the two areas are shared, so this runs on every view mode change AND
+ * on every tab switch. Without it a switch from a continuous document to a
+ * single-page one left the previous document's pages on screen.
+ */
+export function zetWeergaveLayout(doc) {
+  const singleContainer = document.getElementById('canvas-container');
+  const continuousContainer = document.getElementById('continuous-container');
+  const pdfContainer = document.getElementById('pdf-container');
+  if (!doc || !singleContainer || !continuousContainer) return;
+  if (doc.viewMode === 'single') {
+    singleContainer.style.display = 'inline-block';
+    continuousContainer.style.display = 'none';
+    _setContinuousLayoutActive(false);
+  } else {
+    singleContainer.style.display = 'none';
+    continuousContainer.style.display = (doc.bookSpread || doc.facingSpread) ? 'grid' : 'flex';
+    _setContinuousLayoutActive(true);
+    // CRUCIAAL: single-/rasterweergave zet #pdf-container inline op
+    // `overflow:hidden` (het viewport-singleton bezit dan de pan/zoom).
+    // Doorlopende/boekweergave scrollt juist NATIEF via deze container.
+    // Zonder deze reset blijft de inline `hidden` staan na één single-render
+    // en kan de gebruiker niet meer scrollen. Terug naar '' laat de CSS-regel
+    // (.main-view #pdf-container.visible { overflow:auto }) het overnemen.
+    if (pdfContainer) pdfContainer.style.overflow = '';
+  }
+}
+
 // Switch view mode
 export async function setViewMode(mode) {
   const doc = getActiveDocument();
@@ -2000,50 +2030,16 @@ export async function setViewMode(mode) {
     doc.facingSpread = false;
     if (mode === 'continuous') doc.bookSpread = false;
   }
-  applyViewModeLayout(doc);
+  const continuousContainer = document.getElementById('continuous-container');
+  zetWeergaveLayout(doc);
+
   if (doc.viewMode === 'single') {
     await renderPage(doc.currentPage);
   } else {
     await renderContinuous();
     // Stay on the page the user was reading — the rebuild starts at page 1.
-    const continuousContainer = document.getElementById('continuous-container');
-    const wrapper = continuousContainer?.querySelector(`.page-wrapper[data-page="${doc.currentPage}"]`);
+    const wrapper = continuousContainer.querySelector(`.page-wrapper[data-page="${doc.currentPage}"]`);
     if (wrapper) wrapper.scrollIntoView({ block: 'start' });
-  }
-}
-
-/**
- * De indeling van de weergave voor `doc`: de enkelpagina-container of de
- * doorlopende container zichtbaar, met de bijbehorende lay-outklasse. Beide
- * weergaven delen deze DOM over alle tabbladen; daarom ook bij een tabwissel
- * (tabs.js switchToTab), niet alleen bij setViewMode. Anders bleef na een
- * document in de doorlopende weergave haar container met de pagina's van dat
- * document staan bij een document in de enkelpagina-weergave, en tekende
- * renderPage in een verborgen canvas (het beeld leek bevroren).
- * @param {{viewMode?: string, bookSpread?: boolean, facingSpread?: boolean}} doc
- */
-export function applyViewModeLayout(doc) {
-  const singleContainer = document.getElementById('canvas-container');
-  const continuousContainer = document.getElementById('continuous-container');
-  const pdfContainer = document.getElementById('pdf-container');
-  if (!singleContainer || !continuousContainer) return;
-  if (doc?.viewMode === 'continuous') {
-    singleContainer.style.display = 'none';
-    continuousContainer.style.display = (doc.bookSpread || doc.facingSpread) ? 'grid' : 'flex';
-    _setContinuousLayoutActive(true);
-    // CRUCIAAL: single-/rasterweergave zet #pdf-container inline op
-    // `overflow:hidden` (het viewport-singleton bezit dan de pan/zoom).
-    // Doorlopende/boekweergave scrollt juist NATIEF via deze container
-    // (scrollTop/scrollIntoView/_continuousRezoom). Zonder deze reset blijft
-    // de inline `hidden` staan na één single-render en kan de gebruiker niet
-    // meer scrollen — alleen de eerste pagina('s) zijn zichtbaar. Terug naar
-    // '' laat de CSS-regel (.main-view #pdf-container.visible { overflow:auto })
-    // het weer overnemen.
-    if (pdfContainer) pdfContainer.style.overflow = '';
-  } else {
-    singleContainer.style.display = 'inline-block';
-    continuousContainer.style.display = 'none';
-    _setContinuousLayoutActive(false);
   }
 }
 

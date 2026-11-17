@@ -137,6 +137,8 @@
     "perSheetOne": "1 (عام)",
     "perSheetCustom": "حسب ضرورت...",
     "perSheetGrid": "کالم × قطاریں:",
+    "perSheetColumns": "کالم",
+    "perSheetRows": "قطاریں",
     "perSheetBy": "×",
     "pageOrder": "صفحات کی ترتیب:",
     "orderHorizontal": "افقی",

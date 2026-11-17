@@ -351,7 +351,6 @@ js/core/standaardstijl-meetvlak.test.mjs
 js/ui/chrome/tab-sneltoets.test.mjs
 js/pdf/weergave-per-document.test.mjs
 js/ui/chrome/tab-sneltoets-koppeling.test.mjs
-js/ui/chrome/tabwissel-weergave-indeling.test.mjs
 js/ui/chrome/weergave-tabs-model.test.mjs
 js/pdf/pagina-sneltoets.test.mjs
 scripts/nix-flake-bijwerken.test.mjs
@@ -892,3 +891,9 @@ js/annotations/oppervlakte-eenheid.test.mjs
 js/annotations/meetvlak-acres.test.mjs
 js/quantities/staat-oppervlakte-eenheid.test.mjs
 js/pdf/meetvlak-acres-rondgang.test.mjs
+js/core/startup-tool.test.mjs
+js/ui/chrome/presentatie-beleid.test.mjs
+
+js/solid/stores/stickyNotePopupStore.test.mjs
+js/solid/components/ribbon/afbreken.test.mjs
+js/pdf/ifcx-opslaan.test.mjs

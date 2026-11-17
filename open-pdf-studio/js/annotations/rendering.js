@@ -52,6 +52,7 @@ import { drawCaret, drawMarkupLines, replaceStrikeColor } from './rendering/care
 import { drawLink } from './rendering/link.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { blendCanvasWaarde, isGemengd } from './blend-modes.js';
+
 import { tekenGemengdTegenPagina } from './rendering/mengen-tegen-pagina.js';
 import { bitmapVoor, tekenSchermPreview, bijNieuweTegel, KNIPSEL_UITVOER_FOUT, gekleurdeTegel } from './vector-snippet-preview.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, userUnitVanPagina, getRegionScaleFactor } from './scale-region.js';
@@ -90,6 +91,13 @@ import { schaalgebiedStijl } from './scale-region-style.js';
 import { scaleDisplayLabel } from './scale-presets.js';
 import { meld as meldSplit } from '../pdf/split-view/split-haken.js';
 import { schermSchaal, weergaveRotatieVan } from '../pdf/split-view/paneel-weergave.js';
+
+// Text highlights inherently multiply, including imported highlights whose
+// default /BM was omitted from the editable model. Keep that default local
+// to rendering so drawing never changes the stored annotation.
+function effectiveBlendMode(annotation) {
+  return annotation.blendMode || (annotation.type === 'textHighlight' ? 'multiply' : 'normal');
+}
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -599,7 +607,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   ctx.lineWidth = lw;
   ctx.globalAlpha = baseOpacity;
   // Alle zestien modi, met de canvasnamen (color-dodge, …) — #614.
-  ctx.globalCompositeOperation = _zonderMengmodus ? 'source-over' : blendCanvasWaarde(annotation.blendMode);
+  ctx.globalCompositeOperation = _zonderMengmodus ? 'source-over' : blendCanvasWaarde(effectiveBlendMode(annotation));
 
   switch (annotation.type) {
     case 'draw':
@@ -1592,10 +1600,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       break;
 
     case 'textHighlight':
-      // Draw text highlight as a solid fill. The actual blending with the
-      // underlying text happens via CSS `mix-blend-mode: multiply` on the
-      // dedicated #text-highlight-canvas this is drawn onto. Drawing at full
-      // alpha gives the cleanest multiply result.
+      // Text highlights multiply with the page: the dedicated CSS layer in
+      // single-page view, or page-aware compositing in continuous view.
+      // Drawing at full alpha gives the cleanest multiply result.
       ctx.fillStyle = fillColor;
       ctx.globalAlpha = 1;
       if (Array.isArray(annotation.quads) && annotation.quads.length > 0) {
@@ -3102,7 +3109,7 @@ let _lastIndexedCount = -1;
 function _paginaOnder(canvas) {
   if (!canvas || typeof canvas.getBoundingClientRect !== 'function') return null;
   if (canvas.id === 'annotation-canvas') return document.getElementById('pdf-canvas');
-  if (canvas.classList?.contains('annotation-canvas')) {
+  if (canvas.classList?.contains('annotation-canvas') || canvas.classList?.contains('annotation-canvas-sharp')) {
     return canvas.parentElement?.querySelector(':scope > .pdf-canvas') || null;
   }
   return null;
@@ -3340,8 +3347,9 @@ export function redrawAnnotations(lightweight = false) {
     if (_buitenBeeld(kandidaat, vpX, vpY, vpW, vpH)) return;
     // Een tekstmarkering met een andere mengmodus dan vermenigvuldigen mengt
     // zelf met de pagina; de markeerlaag kan alleen vermenigvuldigen.
-    const gemengd = isGemengd(kandidaat.blendMode);
-    if (gemengd && !(kandidaat.type === 'textHighlight' && textHighlightCtx && kandidaat.blendMode === 'multiply')) {
+    const blendMode = effectiveBlendMode(kandidaat);
+    const gemengd = isGemengd(blendMode);
+    if (gemengd && !(kandidaat.type === 'textHighlight' && textHighlightCtx && blendMode === 'multiply')) {
       _tekenGemengd(annotationCtx, annotations[index], null,
         textHighlightCanvas ? [{ canvas: textHighlightCanvas, op: 'multiply' }] : []);
       return;
@@ -3556,7 +3564,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
     if (kandidaat.page !== pageNum) return;
     if (_buitenBeeld(kandidaat, cvX, cvY, cvW, cvH)) return;
-    if (isGemengd(kandidaat.blendMode) && _paginaOnder(ctx.canvas)) {
+    if (isGemengd(effectiveBlendMode(kandidaat)) && _paginaOnder(ctx.canvas)) {
       _tekenGemengd(ctx, annotations[index], snippetBitmaps, []);
       return;
     }

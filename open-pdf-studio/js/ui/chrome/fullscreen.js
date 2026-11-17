@@ -11,13 +11,26 @@ import { isHeadless } from '../../core/headless.js';
 import { setIsFullscreen, isFullscreen } from '../../solid/stores/ribbonStore.js';
 
 let initialized = false;
+let presentatieGeladen = false;
 let naloopTimers = [];
 let resizeTimer = null;
+
+// Record the real window state. Full screen is the presentation view: the
+// working interface goes away and the page fills the screen (presentatie.js).
+function zetStand(aan) {
+  setIsFullscreen(!!aan);
+  // Pas laden bij het eerste gebruik: het hoort niet in de startbundel.
+  if (aan || presentatieGeladen) {
+    presentatieGeladen = true;
+    import('./presentatie.js').then((m) => m.zetPresentatie(!!aan))
+      .catch((e) => console.warn('[fullscreen] presentation view failed:', e));
+  }
+}
 
 async function syncState() {
   try {
     const cur = await isWindowFullscreen();
-    setIsFullscreen(!!cur);
+    zetStand(!!cur);
   } catch {}
 }
 
@@ -67,7 +80,7 @@ export async function toggleFullscreen() {
   // Browser permissions and native window commands can reject a request.
   // Reflect the actual window instead of leaving the ribbon optimistically on.
   const actual = !!(await isWindowFullscreen());
-  setIsFullscreen(actual);
+  zetStand(actual);
   if (actual !== gewenst) {
     if (aangenomen) naloop();
     else if (gewenst) await meldGeweigerd();
@@ -79,12 +92,12 @@ export async function exitFullscreen() {
   const cur = await isWindowFullscreen();
   if (!cur) {
     // A stale button state goes off as well.
-    setIsFullscreen(false);
+    zetStand(false);
     return false;
   }
   const aangenomen = await setWindowFullscreen(false);
   const actual = !!(await isWindowFullscreen());
-  setIsFullscreen(actual);
+  zetStand(actual);
   if (actual && aangenomen) naloop();
   return !actual;
 }

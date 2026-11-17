@@ -137,6 +137,8 @@
     "perSheetOne": "1 (biasa)",
     "perSheetCustom": "Kustom...",
     "perSheetGrid": "Kolom × baris:",
+    "perSheetColumns": "Kolom",
+    "perSheetRows": "Baris",
     "perSheetBy": "×",
     "pageOrder": "Urutan halaman:",
     "orderHorizontal": "Horizontal",

@@ -6,6 +6,7 @@ import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../../../core/sessie-herstel.
 import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
 import { LANGUAGES } from '../../../i18n/config.js';
 import PrefSelect from './PrefSelect.jsx';
+import { normalizeStartupTool } from '../../../core/startup-tool.js';
 import { UI_SCALES, normalizeUiScale } from '../../../core/ui-scale.js';
 import LanguageSelect from './LanguageSelect.jsx';
 
@@ -68,6 +69,14 @@ export default function GeneralTab(props) {
       </fieldset>
       <fieldset class="pref-fieldset">
         <legend>{t('general.startup')}</legend>
+        <div class="pref-row">
+          <label for="pref-startup-tool">{t('general.startupTool')}</label>
+          <select id="pref-startup-tool" value={normalizeStartupTool(p.startupTool[0]())}
+            onChange={e => p.startupTool[1](normalizeStartupTool(e.target.value))}>
+            <option value="select">{tRibbon('home.select')}</option>
+            <option value="hand">{tRibbon('home.hand')}</option>
+          </select>
+        </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
             {/* In de browser bewaart de app geen sessie; een aanvinkbaar vakje

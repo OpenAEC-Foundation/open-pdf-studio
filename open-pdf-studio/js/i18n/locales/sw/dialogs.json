@@ -137,6 +137,8 @@
     "perSheetOne": "1 (kawaida)",
     "perSheetCustom": "Desturi...",
     "perSheetGrid": "Safu wima × safu mlalo:",
+    "perSheetColumns": "Safu wima",
+    "perSheetRows": "Safu mlalo",
     "perSheetBy": "×",
     "pageOrder": "Mpangilio wa kurasa:",
     "orderHorizontal": "Mlalo",

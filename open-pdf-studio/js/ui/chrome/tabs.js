@@ -1,6 +1,6 @@
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
 import { appVersion } from '../../core/app-version.js';
-import { renderPage, renderContinuous, clearPdfView, applyViewModeLayout } from '../../pdf/renderer.js';
+import { renderPage, renderContinuous, clearPdfView, zetWeergaveLayout } from '../../pdf/renderer.js';
 import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
 import { updateAllStatus } from './status-bar.js';
@@ -183,12 +183,8 @@ function toonTab(index) {
     // verlaten en tekent direct de gecachte paginabitmap (pdf-viewport.js
     // setPage, weergave-per-document.js), in plaats van opnieuw passend te
     // maken en te renderen (#539).
-    // Eerst de indeling van DIT document (enkelpagina of doorlopend): de
-    // containers worden door alle tabbladen gedeeld. Zonder dit bleef na een
-    // document in de doorlopende weergave diens container staan en tekende
-    // renderPage in een verborgen canvas: het beeld leek bevroren op het
-    // vorige document.
-    applyViewModeLayout(newDoc);
+    // De twee paginavlakken zijn gedeeld; toon het vlak van dít document.
+    zetWeergaveLayout(newDoc);
     const firstRender = newDoc.viewMode === 'continuous'
       ? renderContinuous()
       : renderPage(newDoc.currentPage);

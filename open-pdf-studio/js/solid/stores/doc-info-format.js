@@ -38,6 +38,19 @@ export function formatPageSizeMm(widthPt, heightPt) {
 }
 
 /**
+ * Paginaformaat in het gekozen eenhedenstelsel (#1121, voorkeur
+ * scaleUnitSystem): 'metric' in mm met één decimaal, 'imperial' in inch met
+ * twee decimalen, anders beide. Invoer in PDF-punten; ongeldig: '-'.
+ */
+export function formatPageSize(widthPt, heightPt, stelsel) {
+  const mm = formatPageSizeMm(widthPt, heightPt);
+  if (mm === DOC_INFO_EMPTY || stelsel === 'metric') return mm;
+  const inch = (pt) => (pt / PT_PER_INCH).toFixed(2);
+  const duim = `${inch(widthPt)} x ${inch(heightPt)} in`;
+  return stelsel === 'imperial' ? duim : `${mm} (${duim})`;
+}
+
+/**
  * Volgnummer-bewaker voor overlappende async verversingen: alleen de laatst
  * gestarte aanroep (begin()) is nog "actueel" en mag wegschrijven.
  */

@@ -59,12 +59,11 @@ export async function loadPreferences() {
       // Tekstvak: oude standaard-tekstgrootte 14 → 8 (alleen de onaangeroerde
       // oude default; een zelfgekozen grootte blijft staan).
       if (loaded.textboxFontSize === 14) loaded.textboxFontSize = 8;
-      // Enkelpagina is de standaard-weergavemodus. 'continuous' was korte
-      // tijd de default voor nieuwe installaties; omdat deze voorkeur nergens
-      // in de UI instelbaar is, is een opgeslagen 'continuous' altijd die
-      // oude default en geen gebruikerskeuze — terugzetten.
-      if (loaded.defaultViewMode === undefined || loaded.defaultViewMode === 'continuous') {
-        loaded.defaultViewMode = 'single';
+      // Doorlopend is de standaard-weergavemodus. Deze voorkeur is nergens
+      // in de UI instelbaar, dus een opgeslagen 'single' is altijd de oude
+      // standaard en geen gebruikerskeuze: meenemen naar de nieuwe.
+      if (loaded.defaultViewMode !== 'continuous') {
+        loaded.defaultViewMode = 'continuous';
       }
       // Merge with defaults to ensure all keys exist
       state.preferences = voegSamenMetStandaarden(DEFAULT_PREFERENCES, loaded);

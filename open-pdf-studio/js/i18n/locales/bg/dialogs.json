@@ -137,6 +137,8 @@
     "perSheetOne": "1 (нормално)",
     "perSheetCustom": "По избор...",
     "perSheetGrid": "Колони на редове:",
+    "perSheetColumns": "Колони",
+    "perSheetRows": "Редове",
     "perSheetBy": "на",
     "pageOrder": "Ред на страниците:",
     "orderHorizontal": "Хоризонтално",

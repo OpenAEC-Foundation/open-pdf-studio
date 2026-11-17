@@ -137,6 +137,8 @@
     "perSheetOne": "1 (ປົກກະຕິ)",
     "perSheetCustom": "ກຳນົດເອງ...",
     "perSheetGrid": "ຖັນ × ແຖວ:",
+    "perSheetColumns": "ຖັນ",
+    "perSheetRows": "ແຖວ",
     "perSheetBy": "×",
     "pageOrder": "ລຳດັບໜ້າ:",
     "orderHorizontal": "ລວງນອນ",
