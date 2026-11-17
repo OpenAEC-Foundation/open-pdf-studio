@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "पाठ नहीं बदला गया: किसी भी उपलब्ध फ़ॉन्ट में ये वर्ण नहीं हैं, इसलिए इन्हें सहेजा नहीं जा सकता: {{chars}}",
   "textEditMissingGlyphsLater": "किसी भी उपलब्ध फ़ॉन्ट में ये वर्ण नहीं हैं, इसलिए इन्हें सहेजा नहीं जा सकता: {{chars}}। यह पाठ बदलें; तब तक PDF सहेजी नहीं जा सकती।",
   "textEditMissingGlyphsSave": "PDF सहेजी नहीं गई: संपादित पाठ में ऐसे वर्ण हैं जो किसी भी उपलब्ध फ़ॉन्ट में नहीं हैं: {{chars}}। वह पाठ बदलें और फिर से सहेजें।",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "दस्तावेज़ बनाने में विफल: {{error}}",
   "failedToReplacePage": "पृष्ठ बदलने में विफल: {{error}}",
   "failedToMergeFile": "मर्ज करने में विफल: {{file}}\n{{error}}",

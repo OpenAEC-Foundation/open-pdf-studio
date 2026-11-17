@@ -159,6 +159,7 @@
   "textEditMissingGlyphs": "ບໍ່ໄດ້ປ່ຽນຂໍ້ຄວາມ: ບໍ່ມີຟອນທີ່ໃຊ້ໄດ້ໃດມີຕົວອັກສອນເຫຼົ່ານີ້, ສະນັ້ນບໍ່ສາມາດບັນທຶກໄດ້: {{chars}}",
   "textEditMissingGlyphsLater": "ບໍ່ມີຟອນທີ່ໃຊ້ໄດ້ໃດມີຕົວອັກສອນເຫຼົ່ານີ້, ສະນັ້ນບໍ່ສາມາດບັນທຶກໄດ້: {{chars}}. ກະລຸນາປ່ຽນຂໍ້ຄວາມນີ້; ຈົນກວ່າຈະປ່ຽນ PDF ຈະບັນທຶກບໍ່ໄດ້.",
   "textEditMissingGlyphsSave": "ບໍ່ໄດ້ບັນທຶກ PDF: ຂໍ້ຄວາມທີ່ແກ້ໄຂມີຕົວອັກສອນທີ່ບໍ່ມີໃນຟອນທີ່ໃຊ້ໄດ້ໃດເລີຍ: {{chars}}. ກະລຸນາປ່ຽນຂໍ້ຄວາມນັ້ນແລ້ວບັນທຶກອີກຄັ້ງ.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "ສ້າງເອກະສານບໍ່ສຳເລັດ: {{error}}",
   "failedToReplacePage": "ປ່ຽນແທນໜ້າບໍ່ສຳເລັດ: {{error}}",
   "failedToMergeFile": "ຮວມໄຟລ໌ບໍ່ສຳເລັດ: {{file}}\n{{error}}",

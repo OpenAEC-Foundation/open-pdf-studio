@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "テキストは変更されませんでした。これらの文字を含むフォントがないため、保存できません: {{chars}}",
   "textEditMissingGlyphsLater": "これらの文字を含むフォントがないため、保存できません: {{chars}}。このテキストを変更してください。変更するまで PDF を保存できません。",
   "textEditMissingGlyphsSave": "PDF は保存されませんでした。編集したテキストに、どのフォントにもない文字が含まれています: {{chars}}。そのテキストを変更してから、もう一度保存してください。",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "文書の作成に失敗しました：{{error}}",
   "failedToReplacePage": "ページの置換に失敗しました：{{error}}",
   "failedToMergeFile": "結合に失敗しました：{{file}}\n{{error}}",

@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Il testo non è stato modificato: nessun carattere tipografico disponibile contiene questi caratteri, quindi non possono essere salvati: {{chars}}",
   "textEditMissingGlyphsLater": "Nessun carattere tipografico disponibile contiene questi caratteri, quindi non possono essere salvati: {{chars}}. Modifica questo testo; fino ad allora il PDF non può essere salvato.",
   "textEditMissingGlyphsSave": "Il PDF non è stato salvato: un testo modificato contiene caratteri non presenti in nessun carattere tipografico disponibile: {{chars}}. Modifica quel testo e salva di nuovo.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Impossibile creare il documento: {{error}}",
   "failedToReplacePage": "Impossibile sostituire la pagina: {{error}}",
   "failedToMergeFile": "Unione non riuscita: {{file}}\n{{error}}",

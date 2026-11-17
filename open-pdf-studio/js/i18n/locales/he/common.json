@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "הטקסט לא שונה: אין גופן זמין שמכיל את התווים האלה, ולכן אי אפשר לשמור אותם: {{chars}}",
   "textEditMissingGlyphsLater": "אין גופן זמין שמכיל את התווים האלה, ולכן אי אפשר לשמור אותם: {{chars}}. שנה את הטקסט הזה; עד אז אי אפשר לשמור את ה-PDF.",
   "textEditMissingGlyphsSave": "ה-PDF לא נשמר: טקסט ערוך מכיל תווים שאין באף גופן זמין: {{chars}}. שנה את הטקסט ושמור שוב.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "יצירת המסמך נכשלה: {{error}}",
   "failedToReplacePage": "החלפת העמוד נכשלה: {{error}}",
   "failedToMergeFile": "המיזוג נכשל: {{file}}\n{{error}}",

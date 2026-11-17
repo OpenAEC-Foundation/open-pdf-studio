@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "متن تغییر نکرد: هیچ قلم موجودی این نویسه‌ها را ندارد، بنابراین نمی‌توان آن‌ها را ذخیره کرد: {{chars}}",
   "textEditMissingGlyphsLater": "هیچ قلم موجودی این نویسه‌ها را ندارد، بنابراین نمی‌توان آن‌ها را ذخیره کرد: {{chars}}. این متن را تغییر دهید؛ تا آن زمان PDF ذخیره نمی‌شود.",
   "textEditMissingGlyphsSave": "PDF ذخیره نشد: متن ویرایش‌شده نویسه‌هایی دارد که هیچ قلم موجودی آن‌ها را ندارد: {{chars}}. آن متن را تغییر دهید و دوباره ذخیره کنید.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "ایجاد سند ناموفق بود: {{error}}",
   "failedToReplacePage": "جایگزینی صفحه ناموفق بود: {{error}}",
   "failedToMergeFile": "ادغام ناموفق بود: {{file}}\n{{error}}",

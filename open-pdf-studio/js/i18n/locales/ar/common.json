@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "لم يتغير النص: لا يحتوي أي خط متاح على هذه الأحرف، لذا لا يمكن حفظها: {{chars}}",
   "textEditMissingGlyphsLater": "لا يحتوي أي خط متاح على هذه الأحرف، لذا لا يمكن حفظها: {{chars}}. غيّر هذا النص؛ وحتى ذلك الحين لا يمكن حفظ ملف PDF.",
   "textEditMissingGlyphsSave": "لم يُحفظ ملف PDF: يحتوي نص معدَّل على أحرف لا يحتويها أي خط متاح: {{chars}}. غيّر هذا النص واحفظ مرة أخرى.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "فشل إنشاء المستند: {{error}}",
   "failedToReplacePage": "فشل استبدال الصفحة: {{error}}",
   "failedToMergeFile": "فشل الدمج: {{file}}\n{{error}}",

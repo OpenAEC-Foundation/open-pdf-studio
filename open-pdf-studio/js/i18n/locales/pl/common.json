@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Tekst nie został zmieniony: żadna dostępna czcionka nie zawiera tych znaków, więc nie można ich zapisać: {{chars}}",
   "textEditMissingGlyphsLater": "Żadna dostępna czcionka nie zawiera tych znaków, więc nie można ich zapisać: {{chars}}. Zmień ten tekst; do tego czasu nie można zapisać pliku PDF.",
   "textEditMissingGlyphsSave": "Plik PDF nie został zapisany: edytowany tekst zawiera znaki, których nie ma żadna dostępna czcionka: {{chars}}. Zmień ten tekst i zapisz ponownie.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Nie udało się utworzyć dokumentu: {{error}}",
   "failedToReplacePage": "Nie udało się zastąpić strony: {{error}}",
   "failedToMergeFile": "Nie udało się scalić: {{file}}\n{{error}}",

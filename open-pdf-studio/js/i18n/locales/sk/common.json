@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Text sa nezmenil: žiadne dostupné písmo tieto znaky neobsahuje, takže ich nemožno uložiť: {{chars}}",
   "textEditMissingGlyphsLater": "Žiadne dostupné písmo tieto znaky neobsahuje, takže ich nemožno uložiť: {{chars}}. Upravte tento text; dovtedy PDF nemožno uložiť.",
   "textEditMissingGlyphsSave": "PDF sa neuložilo: upravený text obsahuje znaky, ktoré žiadne dostupné písmo neobsahuje: {{chars}}. Upravte tento text a uložte znova.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Vytvorenie dokumentu zlyhalo: {{error}}",
   "failedToReplacePage": "Nahradenie strany zlyhalo: {{error}}",
   "failedToMergeFile": "Zlúčenie zlyhalo: {{file}}\n{{error}}",

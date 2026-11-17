@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "A szöveg nem változott: egyik elérhető betűtípus sem tartalmazza ezeket a karaktereket, ezért nem menthetők: {{chars}}",
   "textEditMissingGlyphsLater": "Egyik elérhető betűtípus sem tartalmazza ezeket a karaktereket, ezért nem menthetők: {{chars}}. Módosítsa ezt a szöveget; addig a PDF nem menthető.",
   "textEditMissingGlyphsSave": "A PDF nem lett mentve: a szerkesztett szöveg olyan karaktereket tartalmaz, amelyek egyik elérhető betűtípusban sincsenek meg: {{chars}}. Módosítsa a szöveget, és mentsen újra.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "A dokumentum létrehozása sikertelen: {{error}}",
   "failedToReplacePage": "Az oldal cseréje sikertelen: {{error}}",
   "failedToMergeFile": "Az összefűzés sikertelen: {{file}}\n{{error}}",

@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Το κείμενο δεν άλλαξε: καμία διαθέσιμη γραμματοσειρά δεν έχει αυτούς τους χαρακτήρες, οπότε δεν μπορούν να αποθηκευτούν: {{chars}}",
   "textEditMissingGlyphsLater": "Καμία διαθέσιμη γραμματοσειρά δεν έχει αυτούς τους χαρακτήρες, οπότε δεν μπορούν να αποθηκευτούν: {{chars}}. Αλλάξτε αυτό το κείμενο· μέχρι τότε το PDF δεν μπορεί να αποθηκευτεί.",
   "textEditMissingGlyphsSave": "Το PDF δεν αποθηκεύτηκε: επεξεργασμένο κείμενο περιέχει χαρακτήρες που δεν έχει καμία διαθέσιμη γραμματοσειρά: {{chars}}. Αλλάξτε αυτό το κείμενο και αποθηκεύστε ξανά.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Η δημιουργία του εγγράφου απέτυχε: {{error}}",
   "failedToReplacePage": "Η αντικατάσταση της σελίδας απέτυχε: {{error}}",
   "failedToMergeFile": "Η συγχώνευση απέτυχε: {{file}}\n{{error}}",

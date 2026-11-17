@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Tekstiä ei muutettu: missään käytettävissä olevassa fontissa ei ole näitä merkkejä, joten niitä ei voi tallentaa: {{chars}}",
   "textEditMissingGlyphsLater": "Missään käytettävissä olevassa fontissa ei ole näitä merkkejä, joten niitä ei voi tallentaa: {{chars}}. Muuta tätä tekstiä; siihen asti PDF-tiedostoa ei voi tallentaa.",
   "textEditMissingGlyphsSave": "PDF-tiedostoa ei tallennettu: muokattu teksti sisältää merkkejä, joita ei ole missään käytettävissä olevassa fontissa: {{chars}}. Muuta tekstiä ja tallenna uudelleen.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Asiakirjan luonti epäonnistui: {{error}}",
   "failedToReplacePage": "Sivun korvaaminen epäonnistui: {{error}}",
   "failedToMergeFile": "Yhdistäminen epäonnistui: {{file}}\n{{error}}",

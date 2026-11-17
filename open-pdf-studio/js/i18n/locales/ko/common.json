@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "텍스트가 변경되지 않았습니다. 사용 가능한 글꼴 중 이 문자를 포함한 글꼴이 없어 저장할 수 없습니다: {{chars}}",
   "textEditMissingGlyphsLater": "사용 가능한 글꼴 중 이 문자를 포함한 글꼴이 없어 저장할 수 없습니다: {{chars}}. 이 텍스트를 변경하세요. 변경할 때까지 PDF를 저장할 수 없습니다.",
   "textEditMissingGlyphsSave": "PDF가 저장되지 않았습니다. 편집한 텍스트에 사용 가능한 어떤 글꼴에도 없는 문자가 있습니다: {{chars}}. 해당 텍스트를 변경한 후 다시 저장하세요.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "문서를 만들지 못했습니다: {{error}}",
   "failedToReplacePage": "페이지를 바꾸지 못했습니다: {{error}}",
   "failedToMergeFile": "병합하지 못했습니다: {{file}}\n{{error}}",

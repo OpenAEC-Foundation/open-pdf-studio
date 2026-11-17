@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "متن تبدیل نہیں ہوا: کسی دستیاب فونٹ میں یہ حروف نہیں ہیں، اس لیے انہیں محفوظ نہیں کیا جا سکتا: {{chars}}",
   "textEditMissingGlyphsLater": "کسی دستیاب فونٹ میں یہ حروف نہیں ہیں، اس لیے انہیں محفوظ نہیں کیا جا سکتا: {{chars}}۔ یہ متن تبدیل کریں؛ تب تک PDF محفوظ نہیں کی جا سکتی۔",
   "textEditMissingGlyphsSave": "PDF محفوظ نہیں ہوئی: ترمیم شدہ متن میں ایسے حروف ہیں جو کسی دستیاب فونٹ میں نہیں: {{chars}}۔ وہ متن تبدیل کریں اور دوبارہ محفوظ کریں۔",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "دستاویز بنانے میں ناکامی: {{error}}",
   "failedToReplacePage": "صفحہ تبدیل کرنے میں ناکامی: {{error}}",
   "failedToMergeFile": "ضم کرنے میں ناکامی: {{file}}\n{{error}}",

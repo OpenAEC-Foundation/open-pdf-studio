@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Textul nu a fost modificat: niciun font disponibil nu conține aceste caractere, deci nu pot fi salvate: {{chars}}",
   "textEditMissingGlyphsLater": "Niciun font disponibil nu conține aceste caractere, deci nu pot fi salvate: {{chars}}. Modificați acest text; până atunci PDF-ul nu poate fi salvat.",
   "textEditMissingGlyphsSave": "PDF-ul nu a fost salvat: un text editat conține caractere pe care nu le are niciun font disponibil: {{chars}}. Modificați acel text și salvați din nou.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Documentul nu a putut fi creat: {{error}}",
   "failedToReplacePage": "Pagina nu a putut fi înlocuită: {{error}}",
   "failedToMergeFile": "Îmbinarea a eșuat: {{file}}\n{{error}}",

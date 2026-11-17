@@ -234,6 +234,7 @@
   "textEditMissingGlyphs": "De tekst is niet gewijzigd: geen beschikbaar lettertype heeft deze tekens, dus ze kunnen niet worden opgeslagen: {{chars}}",
   "textEditMissingGlyphsLater": "Geen beschikbaar lettertype heeft deze tekens, dus ze kunnen niet worden opgeslagen: {{chars}}. Pas deze tekst aan; tot dan kan de PDF niet worden opgeslagen.",
   "textEditMissingGlyphsSave": "De PDF is niet opgeslagen: bewerkte tekst bevat tekens die geen beschikbaar lettertype heeft: {{chars}}. Pas die tekst aan en sla opnieuw op.",
+  "formFieldMissingGlyphsSave": "De PDF is niet opgeslagen: formulierveld \"{{field}}\" bevat tekens die het ingebedde lettertype van het veld niet heeft: {{chars}}. Pas die tekst aan en sla opnieuw op.",
   "failedToCreateDocument": "Document aanmaken mislukt: {{error}}",
   "failedToReplacePage": "Pagina vervangen mislukt: {{error}}",
   "failedToMergeFile": "Samenvoegen mislukt: {{file}}\n{{error}}",

@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Teks tidak diubah: tiada fon tersedia yang mempunyai aksara ini, jadi aksara tersebut tidak boleh disimpan: {{chars}}",
   "textEditMissingGlyphsLater": "Tiada fon tersedia yang mempunyai aksara ini, jadi aksara tersebut tidak boleh disimpan: {{chars}}. Ubah teks ini; sehingga itu PDF tidak boleh disimpan.",
   "textEditMissingGlyphsSave": "PDF tidak disimpan: teks yang disunting mengandungi aksara yang tiada pada mana-mana fon tersedia: {{chars}}. Ubah teks itu dan simpan semula.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Gagal mencipta dokumen: {{error}}",
   "failedToReplacePage": "Gagal menggantikan halaman: {{error}}",
   "failedToMergeFile": "Gagal menggabungkan: {{file}}\n{{error}}",

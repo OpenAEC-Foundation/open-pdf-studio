@@ -62,6 +62,7 @@ import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
 import { eigenVulDekking } from '../annotations/vul-dekking.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
+import { tekstOngewijzigd, werkVeldWeergavenBij } from './saver/veld-lettertype.js';
 import { hostFoutMelding } from '../core/host-brug.js';
 import { runsToText, dsMargeUitInzet, verticaleVerschuiving } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
@@ -248,7 +249,7 @@ function weigerOpslaanBeveiligd(doc) {
  * document uit nieuwe bytes herlaadt (samenvoegen): die waarden staan anders
  * alleen in het pdf.js-document dat daarbij weggaat.
  */
-function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
+function schrijfFormulierWaarden(pdfDocLib, activeDoc, { weigerOntbrekend = false } = {}) {
   const storage = getAnnotationStorage(activeDoc);
   const fieldNameMap = getAnnotIdToFieldName(activeDoc);
   let gezet = 0;
@@ -262,7 +263,9 @@ function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
           const field = form.getField(fieldName);
           gezet += 1;
           if (field instanceof PDFTextField) {
-            field.setText(storedValue.value != null ? String(storedValue.value) : '');
+            // Een ongewijzigde waarde houdt zijn bestaande weergave (#1154).
+            const tekst = storedValue.value != null ? String(storedValue.value) : '';
+            if (!tekstOngewijzigd(field, tekst)) field.setText(tekst);
           } else if (field instanceof PDFCheckBox) {
             storedValue.value ? field.check() : field.uncheck();
           } else if (field instanceof PDFDropdown) {
@@ -283,6 +286,9 @@ function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
       console.warn('Failed to persist form field values:', formErr);
     }
   }
+  // De nieuwe weergaven in het lettertype van het veld zelf (#1154); wat
+  // daarna nog een weergave nodig heeft, maakt pdf-lib bij het opslaan.
+  if (gezet > 0) werkVeldWeergavenBij(pdfDocLib, { weigerOntbrekend });
   return gezet;
 }
 
@@ -500,7 +506,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     const context = pdfDocLib.context;
 
     // Persist interactive form field values from AnnotationStorage
-    schrijfFormulierWaarden(pdfDocLib, activeDoc);
+    schrijfFormulierWaarden(pdfDocLib, activeDoc, { weigerOntbrekend: true });
 
     // Ensure AcroForm DR (Default Resources) has fonts for FreeText annotations.
     // PDF viewers resolve font names in DA strings through these resources.
@@ -3932,7 +3938,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // bleef ongewijzigd; noem de tekens.
     if (isOntbrekendeGlyfenFout(error)) {
       console.warn('[saver] opslaan geweigerd:', error.message);
-      showMessage(i18next.t('textEditMissingGlyphsSave', { chars: tekensVoorMelding(error.tekens) }));
+      // Een formulierveld in een ingebed lettertype (#1154) noemt het veld.
+      showMessage(error.veld
+        ? i18next.t('formFieldMissingGlyphsSave', { field: error.veld, chars: tekensVoorMelding(error.tekens) })
+        : i18next.t('textEditMissingGlyphsSave', { chars: tekensVoorMelding(error.tekens) }));
       return false;
     }
     // De gebruiker zag de fout al, met de keuze om te downloaden (#726).
