@@ -4,6 +4,8 @@
 #![recursion_limit = "512"]
 
 mod accounts;
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+mod verkenner_pad;
 mod systeem_lettertypen;
 mod pdf_beveiliging;
 mod atomic_file;
@@ -1798,8 +1800,13 @@ fn reveal_in_file_manager(path: String) -> Result<bool, String> {
         // The switch and the path must travel as ONE argument; raw_arg keeps
         // the quoting intact for paths with spaces (normal .arg() quoting
         // would wrap the whole `/select,...` blob and confuse explorer).
+        // Explorer only selects the file for a path with backslashes and
+        // without the long-path prefix; with `C:/folder/file.pdf` it silently
+        // opens the default folder instead (#1117, verkenner_pad.rs).
+        let argument = verkenner_pad::select_argument(&path)
+            .ok_or_else(|| format!("Cannot show this path in Explorer: {}", path))?;
         no_window_command("explorer")
-            .raw_arg(format!("/select,\"{}\"", path))
+            .raw_arg(argument)
             .spawn()
             .map_err(|e| format!("Failed to open Explorer: {}", e))?;
         Ok(true)
