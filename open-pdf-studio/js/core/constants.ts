@@ -432,6 +432,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // hierboven is de oude vorm en telt als één set.
   markupStatusSets: [],
   activeMarkupStatusSet: '',
+  // Statusbadge op de markering op de pagina (#1076, review/status-badge.js).
+  showStatusBadges: false,
   disabledSymbolGroups: [],
   parametricSymbolDefaults: {},
 

@@ -115,7 +115,9 @@
     "markupStatusSetImportNewer": "Deze statusset is gemaakt met een nieuwere versie van het programma.",
     "markupStatusSetExportFailed": "De statusset kon niet worden opgeslagen: {{error}}",
     "markupStatusMoveUp": "Omhoog",
-    "markupStatusMoveDown": "Omlaag"
+    "markupStatusMoveDown": "Omlaag",
+    "showStatusBadges": "De status als gekleurde badge op de markering tonen",
+    "showStatusBadgesHint": "Een klein vierkant in de kleur van de status op de hoek van elke markering met een status. Alleen op het scherm; het wordt niet afgedrukt, geëxporteerd of in de PDF opgeslagen."
   },
   "drawing": {
     "freehandDefaults": "Vrije hand standaardwaarden",

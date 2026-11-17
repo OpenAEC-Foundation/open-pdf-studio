@@ -113,7 +113,9 @@
     "markupStatusSetImportNewer": "This status set was made with a newer version of the program.",
     "markupStatusSetExportFailed": "The status set could not be saved: {{error}}",
     "markupStatusMoveUp": "Move up",
-    "markupStatusMoveDown": "Move down"
+    "markupStatusMoveDown": "Move down",
+    "showStatusBadges": "Show the status as a coloured badge on the markup",
+    "showStatusBadgesHint": "A small square in the colour of the status on the corner of each markup with a status. Shown on screen only; it is not printed, exported or saved in the PDF."
   },
   "drawing": {
     "freehandDefaults": "Výchozí hodnoty volného kreslení",
