@@ -701,6 +701,7 @@
       "height": "Altura",
       "location": "Localização",
       "locationSource": "Origem da localização",
+      "layer": "Camada",
       "rebarMark": "Marca",
       "rebarDiameter": "Ø",
       "rebarShape": "Forma de dobragem",

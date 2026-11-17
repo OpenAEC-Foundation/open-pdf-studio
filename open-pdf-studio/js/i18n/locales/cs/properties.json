@@ -701,6 +701,7 @@
       "height": "Výška",
       "location": "Umístění",
       "locationSource": "Zdroj umístění",
+      "layer": "Vrstva",
       "rebarMark": "Pozice",
       "rebarDiameter": "Ø",
       "rebarShape": "Tvar ohybu",

@@ -701,6 +701,7 @@
       "height": "Высота",
       "location": "Расположение",
       "locationSource": "Источник расположения",
+      "layer": "Слой",
       "rebarMark": "Позиция",
       "rebarDiameter": "Ø",
       "rebarShape": "Форма гибки",

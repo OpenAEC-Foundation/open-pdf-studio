@@ -5,6 +5,7 @@
 // de staten gaven getekende vlakken geen schaal, waardoor hun oppervlakte in
 // pagina-eenheden kwam (#982).
 import { getMeasureScale, vlakLengteSchaal } from '../../annotations/measurement.js';
+import { getLayers, layerIdOf, layerDisplayName, DEFAULT_LAYER_ID } from '../../annotations/annotatie-lagen.js';
 
 // Lijnvormige annotatietypes zónder eigen measureValue: hun lengte moet uit de
 // geometrie + document-schaal komen (net als de meet-tools). measureDistance/
@@ -72,6 +73,20 @@ export function verrijkVoorStaat(a, telNaam) {
     return a.measureUnit ? a : metSchaal(a);
   }
   return a;
+}
+
+/**
+ * Elementen met de weergavenaam van hun annotatielaag (`__layer`), voor de
+ * Laag-kolom van een staat (#1130). Een element zonder laag, of met een laag
+ * die het document niet kent, hoort bij de standaardlaag.
+ * @param {object|null|undefined} doc
+ * @param {object[]} elementen
+ * @param {string} [standaardNaam] vertaalde naam van de standaardlaag
+ */
+export function metLaagNamen(doc, elementen, standaardNaam) {
+  const namen = new Map(getLayers(doc).map((l) => [l.id, layerDisplayName(l, standaardNaam)]));
+  const standaard = namen.get(DEFAULT_LAYER_ID) || '';
+  return (elementen || []).map((a) => ({ ...a, __layer: namen.get(layerIdOf(a)) ?? standaard }));
 }
 
 /**

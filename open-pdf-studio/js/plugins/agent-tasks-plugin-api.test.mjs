@@ -253,10 +253,10 @@ test('brug, Rust-lijst, dispatch, metatabel, tools.json, manifest en README lope
   // Direct na de paginagereedschappen; de telling van het publieke profiel.
   const i = tools.findIndex((t) => t.name === 'app_watermarks');
   assert.deepEqual(tools.slice(i + 1, i + 3).map((t) => t.name), TOOLS.map((t) => t[0]));
-  assert.equal(tools.length, 94);
-  assert.match(rs, /assert_eq!\(arr\.len\(\), 94\);/);
+  assert.equal(tools.length, 96);
+  assert.match(rs, /assert_eq!\(arr\.len\(\), 96\);/);
   const leesmij = lees('mcp-stdio/README.md');
-  assert.match(leesmij, /\(94 public tools:/);
+  assert.match(leesmij, /\(96 public tools:/);
   assert.match(leesmij, /\*\*`app_agent_task_pending`\*\* → \*\*`app_agent_task_result`\*\*/);
   // Het ingebouwde assistentvenster en zijn relay zijn weg, en komen niet via
   // de agenttaken terug: agent-tasks.js en plugin-api.js kennen ze niet.

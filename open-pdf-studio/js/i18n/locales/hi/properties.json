@@ -701,6 +701,7 @@
       "height": "ऊंचाई",
       "location": "स्थान",
       "locationSource": "स्थान स्रोत",
+      "layer": "परत",
       "rebarMark": "सरिया चिह्न",
       "rebarDiameter": "Ø",
       "rebarShape": "मोड़ आकृति",

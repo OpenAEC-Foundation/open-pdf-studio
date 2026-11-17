@@ -701,6 +701,7 @@
       "height": "Magasság",
       "location": "Hely",
       "locationSource": "Hely forrása",
+      "layer": "Réteg",
       "rebarMark": "Tételszám",
       "rebarDiameter": "Ø",
       "rebarShape": "Hajlítási forma",

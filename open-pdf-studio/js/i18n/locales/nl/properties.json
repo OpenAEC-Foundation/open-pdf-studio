@@ -708,6 +708,7 @@
       "height": "Hoogte",
       "location": "Locatie",
       "locationSource": "Locatiebron",
+      "layer": "Laag",
       "rebarMark": "Staafnummer",
       "rebarDiameter": "Ø",
       "rebarShape": "Buigvorm",

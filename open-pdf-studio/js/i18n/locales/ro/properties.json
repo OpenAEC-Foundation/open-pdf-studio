@@ -701,6 +701,7 @@
       "height": "Înălțime",
       "location": "Locație",
       "locationSource": "Sursa locației",
+      "layer": "Strat",
       "rebarMark": "Poziție",
       "rebarDiameter": "Ø",
       "rebarShape": "Formă de fasonare",

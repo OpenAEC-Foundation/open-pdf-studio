@@ -701,6 +701,7 @@
       "height": "Висота",
       "location": "Розташування",
       "locationSource": "Джерело розташування",
+      "layer": "Шар",
       "rebarMark": "Позиція",
       "rebarDiameter": "Ø",
       "rebarShape": "Форма гнуття",

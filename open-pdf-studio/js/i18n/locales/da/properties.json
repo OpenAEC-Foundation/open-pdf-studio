@@ -701,6 +701,7 @@
       "height": "Højde",
       "location": "Placering",
       "locationSource": "Kilde til placering",
+      "layer": "Lag",
       "rebarMark": "Positionsnummer",
       "rebarDiameter": "Ø",
       "rebarShape": "Bukkeform",

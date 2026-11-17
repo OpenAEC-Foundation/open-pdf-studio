@@ -701,6 +701,7 @@
       "height": "Chiều cao",
       "location": "Vị trí",
       "locationSource": "Nguồn vị trí",
+      "layer": "Lớp",
       "rebarMark": "Số hiệu thanh",
       "rebarDiameter": "Ø",
       "rebarShape": "Hình dạng uốn",

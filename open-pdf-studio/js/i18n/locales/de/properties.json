@@ -701,6 +701,7 @@
       "height": "Höhe",
       "location": "Standort",
       "locationSource": "Standortquelle",
+      "layer": "Ebene",
       "rebarMark": "Positionsnummer",
       "rebarDiameter": "Ø",
       "rebarShape": "Biegeform",

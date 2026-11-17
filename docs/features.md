@@ -60,7 +60,7 @@ app and are not available in the [browser version](https://open-pdf-studio.open-
 
 - The app has a built-in MCP server. It is on for a new installation and can be
   switched off under Settings > General. It listens on `127.0.0.1` only.
-- 94 public tools (`mcp-stdio/tools.json`): open and save documents, navigate,
+- 96 public tools (`mcp-stdio/tools.json`): open and save documents, navigate,
   create and edit annotations, set the measuring scale, take off quantities and
   place schedules, import and export CAD, print to a PDF file, and more.
 - `open-pdf-studio.mcpb`, attached to every release, installs the connection in

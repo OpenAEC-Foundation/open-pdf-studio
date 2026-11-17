@@ -701,6 +701,7 @@
       "height": "ความสูง",
       "location": "ตำแหน่ง",
       "locationSource": "แหล่งที่มาของตำแหน่ง",
+      "layer": "ชั้น",
       "rebarMark": "หมายเลขเหล็ก",
       "rebarDiameter": "Ø",
       "rebarShape": "รูปแบบการดัด",

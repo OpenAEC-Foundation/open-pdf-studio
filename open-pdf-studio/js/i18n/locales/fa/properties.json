@@ -701,6 +701,7 @@
       "height": "ارتفاع",
       "location": "مکان",
       "locationSource": "منبع مکان",
+      "layer": "لایه",
       "rebarMark": "شماره میلگرد",
       "rebarDiameter": "Ø",
       "rebarShape": "شکل خم",

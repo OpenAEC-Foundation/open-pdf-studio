@@ -2422,11 +2422,15 @@ async function handleAccountsFetch() {
 
 /** Return take-off totals for a named schedule (or all schedules). Numeric
  *  columns are summed into grand totals and per-group subtotals; image
- *  columns are reported as counts, never as data-URLs. */
+ *  columns are reported as counts, never as data-URLs. Schedules are shared
+ *  by the whole app; the totals come from the active document, which the
+ *  answer names (#1130). */
 async function handleGetTakeoff(params) {
   const store = await import('./solid/stores/schedulesStore.js');
+  const stateMod = await import('./core/state.js');
+  const docNaam = stateMod.getActiveDocument()?.fileName ?? null;
   const all = store.schedules();
-  if (!all.length) return { ok: true, schedules: [], note: 'no schedules defined' };
+  if (!all.length) return { ok: true, document: docNaam, schedules: [], note: 'no schedules defined' };
 
   const wanted = (s) => {
     const r = store.buildResultForSchedule(s);
@@ -2451,63 +2455,108 @@ async function handleGetTakeoff(params) {
   if ((params?.scheduleId || params?.name) && !sel.length) {
     return { ok: false, error: `schedule not found: ${params.scheduleId || params.name}` };
   }
-  return { ok: true, schedules: sel.map(wanted) };
+  return { ok: true, document: docNaam, schedules: sel.map(wanted) };
+}
+
+// ── Staten (#1130) ────────────────────────────────────────────────────────
+// De regels staan in quantities/schedule-mcp.js; hier de store, het document
+// en de ongedaan-stap. Een staat is een definitie die de hele app deelt; de
+// cijfers komen uit het actieve document.
+
+/** Naam en/of config van een staat in de store zetten. */
+function _werkStaatBij(store, id, wijziging) {
+  if (wijziging.name !== undefined) store.renameSchedule(id, wijziging.name);
+  if (wijziging.config !== undefined) store.updateScheduleConfig(id, wijziging.config);
 }
 
 /** Maak (of hergebruik) een staat en zet hem als tabel op de tekening.
  *  Zonder scheduleId wordt er een nieuwe staat uit een sjabloon gemaakt;
- *  `config` overschrijft daarna de kolommen/groepering. De tabel zelf wordt
- *  door de app opgebouwd uit de actuele annotaties — de aanroeper levert dus
- *  geen celwaarden aan, alleen waar de staat over gaat en waar hij komt. */
+ *  `config` gaat over het sjabloon (of de bestaande staat) heen. De config
+ *  wordt eerst gecontroleerd: bij een fout wordt er niets aangemaakt. De tabel
+ *  zelf wordt door de app opgebouwd uit de actuele annotaties — de aanroeper
+ *  levert dus geen celwaarden aan, alleen waar de staat over gaat en waar hij
+ *  komt. */
 async function handlePlaceSchedule(params) {
   const stateMod = await import('./core/state.js');
   const doc = stateMod.getActiveDocument();
-  if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
-
   const store = await import('./solid/stores/schedulesStore.js');
-  let id = params?.scheduleId || null;
-  if (id && !store.getScheduleById(id)) {
-    return { ok: false, error: `schedule not found: ${id}` };
-  }
-  if (!id) {
-    const templateId = params?.templateId || 'area';
-    const item = store.addScheduleFromTemplate(templateId, params?.name || templateId);
-    if (!item) return { ok: false, error: `unknown template: ${templateId}` };
-    id = item.id;
-  } else if (params?.name) {
-    store.renameSchedule(id, params.name);
-  }
-  if (params?.config && typeof params.config === 'object' && !Array.isArray(params.config)) {
-    store.updateScheduleConfig(id, params.config);
-  }
-
-  let page = doc.currentPage || 1;
-  if (params?.page != null) {
-    page = Number(params.page);
-    const numPages = doc.pdfDoc?.numPages ?? 1;
-    if (!Number.isInteger(page) || page < 1 || page > numPages) {
-      return { ok: false, error: `page ${params.page} out of range (doc has ${numPages} pages)` };
-    }
-  }
-
-  const x = _isNum(params?.x) ? params.x : 40;
-  const y = _isNum(params?.y) ? params.y : 40;
-
+  const regels = await import('./quantities/schedule-mcp.js');
+  const sjablonen = await import('./quantities/schedule-templates.js');
   const drop = await import('./quantities/schedule-drop.js');
-  const ann = drop.placeScheduleAt(id, x, y, page);
-  if (!ann) {
-    return { ok: false, error: 'schedule produced no columns — check its categories/fields' };
+  const uit = regels.plaatsStaat(params, {
+    doc: doc?.pdfDoc ? { currentPage: doc.currentPage, numPages: doc.pdfDoc.numPages } : null,
+    lijst: () => store.schedules(),
+    sjabloon: (id) => sjablonen.getTemplateById(id),
+    sjabloonIds: () => sjablonen.STANDARD_SCHEDULE_TEMPLATES.map((t) => t.id),
+    voegToe: (gegevens) => store.addScheduleWithConfig(gegevens),
+    werkBij: (id, wijziging) => _werkStaatBij(store, id, wijziging),
+    verwijder: (id) => store.removeSchedule(id),
+    plaats: (id, x, y, page) => drop.placeScheduleAt(id, x, y, page),
+  });
+  // Uit welk document de cijfers in de tabel komen.
+  if (uit.ok) uit.document = doc.fileName ?? null;
+  return uit;
+}
+
+/** Een staat hernoemen en/of zijn config aanpassen, zonder iets te plaatsen. */
+async function handleUpdateSchedule(params) {
+  const store = await import('./solid/stores/schedulesStore.js');
+  const regels = await import('./quantities/schedule-mcp.js');
+  return regels.werkStaatBij(params, {
+    lijst: () => store.schedules(),
+    werkBij: (id, wijziging) => _werkStaatBij(store, id, wijziging),
+  });
+}
+
+/** Een staat verwijderen, samen met zijn geplaatste tabellen in het actieve
+ *  document. De tabellen en de staat gaan in ÉÉN ongedaan-stap weg; zonder
+ *  geplaatste tabellen verandert het document niet en komt er geen stap. */
+async function handleDeleteSchedule(params) {
+  const stateMod = await import('./core/state.js');
+  const store = await import('./solid/stores/schedulesStore.js');
+  const regels = await import('./quantities/schedule-mcp.js');
+  const undoMod = await import('./core/undo-manager.js');
+  const doc = stateMod.getActiveDocument();
+  let geraakt = false;
+  const uit = regels.verwijderStaat(params, {
+    lijst: () => store.schedules(),
+    annotaties: () => doc?.annotations || [],
+    elders: (id) => (stateMod.state.documents || [])
+      .filter((d) => d && d.id !== doc?.id)
+      .reduce((n, d) => n + regels.tabellenVanStaat(d.annotations, id).length, 0),
+    verwijder: (staat, index, tabellen) => {
+      if (!tabellen.length) { store.removeSchedule(staat.id); return; }
+      geraakt = true;
+      const definitie = JSON.parse(JSON.stringify(staat));
+      undoMod.beginUndoTransaction();
+      try {
+        undoMod.recordBulkDelete(tabellen);
+        // Op id, en ter plekke uit de lijst van het document (achteraan
+        // beginnen): het document bewaart bij toewijzen een kopie.
+        const weg = new Set(tabellen.map((a) => a.id));
+        const isWeg = (a) => !!a && weg.has(a.id);
+        for (let i = doc.annotations.length - 1; i >= 0; i--) {
+          if (isWeg(doc.annotations[i])) doc.annotations.splice(i, 1);
+        }
+        doc.selectedAnnotations = (doc.selectedAnnotations || []).filter((a) => !isWeg(a));
+        if (isWeg(doc.selectedAnnotation)) doc.selectedAnnotation = doc.selectedAnnotations[0] || null;
+        undoMod.execute({ type: 'removeSchedule', schedule: definitie, index });
+        store.removeSchedule(staat.id);
+      } finally {
+        undoMod.endUndoTransaction();
+      }
+    },
+  });
+  if (geraakt) {
+    if (!doc.selectedAnnotation) {
+      try {
+        const panel = await import('./ui/panels/properties-panel.js');
+        panel.hideProperties();
+      } catch { /* best-effort */ }
+    }
+    await _redrawActive();
   }
-  return {
-    ok: true,
-    scheduleId: id,
-    annotationId: ann.id,
-    page: ann.page,
-    x: ann.x, y: ann.y, width: ann.width, height: ann.height,
-    title: ann.title,
-    columns: ann.columns,
-    rowCount: Array.isArray(ann.rows) ? ann.rows.length : 0,
-  };
+  return uit;
 }
 
 /** Maat van een profielsymbool uit de symbolenbibliotheek, in werkelijke mm.
@@ -3909,6 +3958,8 @@ const HANDLERS = {
   // Take-off / schedules
   'mcp:get-takeoff':        handleGetTakeoff,
   'mcp:place-schedule':     handlePlaceSchedule,
+  'mcp:update-schedule':    handleUpdateSchedule,
+  'mcp:delete-schedule':    handleDeleteSchedule,
   'mcp:structural-layout':  handleStructuralLayout,
   // Commandolaag: elke lintknop en elk gereedschap
   'mcp:list-commands':      handleListCommands,

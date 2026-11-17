@@ -701,6 +701,7 @@
       "height": "Ύψος",
       "location": "Τοποθεσία",
       "locationSource": "Προέλευση τοποθεσίας",
+      "layer": "Επίπεδο",
       "rebarMark": "Αριθμός θέσης",
       "rebarDiameter": "Ø",
       "rebarShape": "Σχήμα κάμψης",

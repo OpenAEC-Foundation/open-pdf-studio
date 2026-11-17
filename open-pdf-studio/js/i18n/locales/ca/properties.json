@@ -707,6 +707,7 @@
       "height": "Alçada",
       "location": "Ubicació",
       "locationSource": "Origen de la ubicació",
+      "layer": "Capa",
       "rebarMark": "Marca",
       "rebarDiameter": "Ø",
       "rebarShape": "Forma de doblegat",

@@ -701,6 +701,7 @@
       "height": "Høyde",
       "location": "Plassering",
       "locationSource": "Kilde for plassering",
+      "layer": "Lag",
       "rebarMark": "Posisjonsnummer",
       "rebarDiameter": "Ø",
       "rebarShape": "Bøyeform",

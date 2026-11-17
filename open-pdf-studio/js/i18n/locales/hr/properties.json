@@ -701,6 +701,7 @@
       "height": "Visina",
       "location": "Lokacija",
       "locationSource": "Izvor lokacije",
+      "layer": "Sloj",
       "rebarMark": "Pozicija",
       "rebarDiameter": "Ø",
       "rebarShape": "Oblik savijanja",
