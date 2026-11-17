@@ -115,6 +115,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-high-contrast-browser.mjs
 
+      - name: Test PDF hyperlink view and border (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-link-view-browser.mjs
+
       - name: Test MCP closed perimeter and PDF save (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-mcp-perimeter-browser.mjs

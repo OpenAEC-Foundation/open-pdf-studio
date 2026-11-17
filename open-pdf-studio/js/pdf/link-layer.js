@@ -1,7 +1,11 @@
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
-import { goToPage } from './renderer.js';
+import { goToPage, setZoom } from './renderer.js';
 import { openExtern } from '../core/extern-openen.js';
-import { destTopOffsetPt, isSafeLinkUrl, parseDestinationArray } from './link-destination.js';
+import { isSafeLinkUrl, parseDestinationArray } from './link-destination.js';
+import { paginaViewport } from './pagina-viewport.js';
+import { destinationView, linkBorder } from './link-view.js';
+import { cssPxPerPtAt100 } from '../core/zoom-display.js';
+import { stopAlleWielScrollers } from './wiel-scroll.js';
 import i18next from '../i18n/config.js';
 import { viewportRectangle } from './pdfjs-record.js';
 
@@ -12,6 +16,7 @@ import { viewportRectangle } from './pdfjs-record.js';
 
 // Store references to link layers for cleanup
 const linkLayers = new Map();
+let linkNavigationId = 0;
 
 // Links van de app (#953) staan als annotatie in het model: de app tekent en
 // volgt ze zelf (annotations/link/). Hun klikvlak uit het bestand hoort dan
@@ -179,6 +184,20 @@ function createLinkElement(ann, viewport, pageNum) {
   linkEl.style.pointerEvents = 'auto';
   linkEl.style.cursor = 'pointer';
 
+  const border = linkBorder(ann, viewport, left, top);
+  if (border) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none';
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(svg.namespaceURI, 'path');
+    path.setAttribute('d', border.path);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', border.color);
+    path.setAttribute('stroke-width', String(border.width));
+    if (border.dash) path.setAttribute('stroke-dasharray', border.dash);
+    svg.appendChild(path); linkEl.appendChild(svg);
+  }
+
   // Determine link type and set up click handler.
   //
   // PDF.js normaliseert /A-acties: een /GoTo landt als `ann.dest`, een /URI
@@ -249,6 +268,8 @@ function openExternalLink(url) {
 export async function handleInternalLink(dest) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
+  const pdf = doc.pdfDoc, navigationId = ++linkNavigationId;
+  const current = () => navigationId === linkNavigationId && getActiveDocument() === doc && doc.pdfDoc === pdf;
 
   try {
     // Benoemde bestemming eerst oplossen naar de expliciete array.
@@ -257,6 +278,7 @@ export async function handleInternalLink(dest) {
       explicit = await doc.pdfDoc.getDestination(dest);
     }
 
+    if (!current()) return;
     const destInfo = parseDestinationArray(explicit);
     if (!destInfo) return;
 
@@ -272,69 +294,44 @@ export async function handleInternalLink(dest) {
     // PDF.js uses 0-based index, our app uses 1-based page numbers
     const targetPage = pageIndex + 1;
 
-    // Verticale positie binnen de doelpagina bepalen VOOR de navigatie, zodat
-    // we na de render meteen kunnen scrollen.
-    let topOffsetPt = null;
-    try {
-      const targetPdfPage = await doc.pdfDoc.getPage(targetPage);
-      const baseViewport = targetPdfPage.getViewport({ scale: 1 });
-      const extraRotation = getPageRotation(targetPage) || 0;
-      // Bestemmingscoördinaten staan in ongeroteerde gebruikersruimte. Bij een
-      // gedraaide pagina of weergave (#200) laten we de pagina gewoon bovenaan
-      // beginnen in plaats van naar een verkeerde plek te springen.
-      if (extraRotation % 360 === 0 && (baseViewport.rotation || 0) % 360 === 0
-          && !(Number(doc.viewRotation) % 360)) {
-        topOffsetPt = destTopOffsetPt(destInfo, baseViewport.height);
-      }
-    } catch { /* paginahoogte onbekend: bovenaan de pagina beginnen */ }
-
-    // Bij een bestemming met een verticale positie doet deze module het
-    // scrollen zelf (zie goToPage-optie), anders wint de vloeiende scroll van
-    // goToPage die ná deze aanroep nog doorloopt.
-    const ownScroll = topOffsetPt !== null && topOffsetPt !== undefined;
-    await goToPage(targetPage, { skipScroll: ownScroll });
-    if (ownScroll) scrollToDestination(targetPage, topOffsetPt);
+    if (!current() || !Number.isInteger(targetPage) || targetPage < 1 || targetPage > pdf.numPages) return;
+    const page = await pdf.getPage(targetPage);
+    if (!current()) return;
+    const rotation = ((page.rotate || 0) + (getPageRotation(targetPage) || 0) + (doc.viewRotation || 0)) % 360;
+    const base = paginaViewport(page, { scale: 1, rotation });
+    const scroller = document.getElementById('pdf-container');
+    if (!scroller) return;
+    const view = destinationView(destInfo, base, scroller.clientWidth, scroller.clientHeight,
+      doc.scale, cssPxPerPtAt100());
+    stopAlleWielScrollers();
+    await goToPage(targetPage, { skipScroll: view.x !== null || view.y !== null });
+    if (!current()) return;
+    await setZoom(view.scale);
+    if (!current()) return;
+    const vp = window.__pdfViewport;
+    if (vp?.active && doc.filePath && doc.viewMode === 'single') {
+      const m = await import('./pdf-viewport.js');
+      if (!current()) return;
+      const canvas = document.getElementById('pdf-canvas');
+      const rect = canvas.getBoundingClientRect();
+      m.startPan(vp.offsetX, vp.offsetY);
+      m.updatePan(view.x === null ? vp.offsetX : (view.center ? rect.width / 2 : 12) - view.x * vp.zoom,
+        view.y === null ? vp.offsetY : (view.center ? rect.height / 2 : 12) - view.y * vp.zoom);
+      m.endPan();
+    } else {
+      const pageElement = doc.viewMode === 'continuous'
+        ? document.querySelector(`.page-wrapper[data-page="${targetPage}"] .canvas-container-cont`)
+        : document.getElementById('pdf-canvas');
+      if (!pageElement) return;
+      const rect = pageElement.getBoundingClientRect(), box = scroller.getBoundingClientRect();
+      if (view.x !== null) scroller.scrollLeft += rect.left - box.left + view.x * doc.scale
+        - (view.center ? scroller.clientWidth / 2 : 12);
+      if (view.y !== null) scroller.scrollTop += rect.top - box.top + view.y * doc.scale
+        - (view.center ? scroller.clientHeight / 2 : 12);
+    }
   } catch (e) {
     console.warn('Failed to navigate to internal link:', e);
   }
-}
-
-// Marge boven de bestemming, zodat de aangesprongen kop niet tegen de
-// bovenrand van het venster plakt.
-const DEST_SCROLL_MARGIN_PX = 12;
-
-/**
- * Scrollt naar de verticale positie van een bestemming binnen een pagina.
- * `topOffsetPt === null` betekent: gewoon de bovenkant van de pagina tonen —
- * dat heeft goToPage() al gedaan.
- * @param {number} pageNum
- * @param {number|null} topOffsetPt Afstand vanaf de paginabovenkant in punten
- */
-function scrollToDestination(pageNum, topOffsetPt) {
-  if (topOffsetPt === null || topOffsetPt === undefined) return;
-  const doc = getActiveDocument();
-  if (!doc) return;
-
-  const scroller = document.getElementById('pdf-container');
-  if (!scroller) return;
-
-  const scale = Number(doc.scale) || 1;
-  const offsetPx = topOffsetPt * scale;
-
-  if (doc.viewMode === 'continuous') {
-    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
-    if (!wrapper) return;
-    const wrapperTop = wrapper.getBoundingClientRect().top
-      - scroller.getBoundingClientRect().top
-      + scroller.scrollTop;
-    scroller.scrollTop = Math.max(0, wrapperTop + offsetPx - DEST_SCROLL_MARGIN_PX);
-    return;
-  }
-
-  // Enkelpagina: alleen zinvol wanneer de pagina hoger is dan het venster.
-  const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-  if (maxScroll <= 0) return;
-  scroller.scrollTop = Math.min(maxScroll, Math.max(0, offsetPx - DEST_SCROLL_MARGIN_PX));
 }
 
 /**
