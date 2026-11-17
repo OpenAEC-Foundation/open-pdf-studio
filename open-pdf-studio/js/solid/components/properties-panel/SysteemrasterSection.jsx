@@ -5,12 +5,13 @@
 // "— type" schrijven op die definitie — alle instanties met dat type
 // veranderen mee. Instance-velden (rasterhoek, equalize, randconditie,
 // paneeltype) raken alleen deze annotatie. Schrijft via updateAnnotProp,
-// zodat undo/redo en redraw als elke andere eigenschap lopen. NL-labels
-// hardgecodeerd, zoals bij de wand en de betonbalk.
+// zodat undo/redo en redraw als elke andere eigenschap lopen. Teksten lopen
+// via i18n (properties:systeemraster).
 import { Show, For, createMemo } from 'solid-js';
 import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 import {
   SYSTEEMRASTER_DEFAULTS,
   SYSTEEMRASTER_PLAAT_RANGE,
@@ -20,6 +21,7 @@ import {
 import { systeemrasterBuildOpts } from '../../../annotations/systeemraster-scale.js';
 
 export default function SysteemrasterSection() {
+  const { t } = useTranslation('properties');
   const locked = () => annotProps.locked === true || annotProps.locked === 'mixed';
   const breedte = () => annotProps.plaatBreedteMm ?? SYSTEEMRASTER_DEFAULTS.plaatBreedteMm;
   const hoogte = () => annotProps.plaatHoogteMm ?? SYSTEEMRASTER_DEFAULTS.plaatHoogteMm;
@@ -58,14 +60,15 @@ export default function SysteemrasterSection() {
   });
   const randMm = () => randstukken()?.randMm || null;
 
-  const fmt = (v) => (v > 0 ? `${Math.round(v)} mm` : '— (volle plaat)');
+  const richting = () => (annotProps.sgSelectedSub?.as === 'v' ? t('systeemraster.vertical') : t('systeemraster.horizontal'));
+  const fmt = (v) => (v > 0 ? `${Math.round(v)} mm` : t('systeemraster.fullTile'));
 
   return (
     <Show when={annotProps.annotationType === 'systeemraster'}>
-      <CollapsibleSection title="Systeem" name="systeemraster" id="prop-sg-section">
+      <CollapsibleSection title={t('systeemraster.title')} name="systeemraster" id="prop-sg-section">
         <Show when={heeftType()}>
           <div class="property-group">
-            <label>Systeemtype</label>
+            <label>{t('systeemraster.systemType')}</label>
             <div style={{ display: 'flex', gap: '4px', 'align-items': 'center' }}>
               <select id="prop-sg-type" style={{ flex: '1' }}
                 value={annotProps.sgTypeId || ''}
@@ -73,10 +76,10 @@ export default function SysteemrasterSection() {
                 onChange={(e) => updateAnnotProp('sgTypeId', e.target.value)}
               >
                 <For each={annotProps.sgTypeList || []}>
-                  {(t) => <option value={t.id}>{t.naam}</option>}
+                  {(st) => <option value={st.id}>{st.naam}</option>}
                 </For>
               </select>
-              <button type="button" id="prop-sg-typen-beheren" title="Typen beheren…"
+              <button type="button" id="prop-sg-typen-beheren" title={t('systeemraster.manageTypes')}
                 onClick={() => openDialog('systeemtypen', { typeId: annotProps.sgTypeId })}
               >…</button>
             </div>
@@ -84,11 +87,11 @@ export default function SysteemrasterSection() {
         </Show>
 
         <div class="property-group">
-          <label>{isStrook() ? 'Strookbreedte (mm) — type'
-            : heeftType() ? 'Celmaat X (mm) — type' : 'Plaatbreedte (mm)'}</label>
+          <label>{isStrook() ? t('systeemraster.stripWidthType')
+            : heeftType() ? t('systeemraster.cellXType') : t('systeemraster.tileWidth')}</label>
           <input type="text" inputmode="decimal" data-getal id="prop-sg-breedte"
             min={SYSTEEMRASTER_PLAAT_RANGE.min} max={SYSTEEMRASTER_PLAAT_RANGE.max} step="50"
-            value={breedteVeld()} placeholder="onbevestigd"
+            value={breedteVeld()} placeholder={t('systeemraster.unconfirmed')}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('sgTypeCelX', e.target.value)}
           />
@@ -96,10 +99,10 @@ export default function SysteemrasterSection() {
 
         <Show when={!isStrook()}>
           <div class="property-group">
-            <label>{heeftType() ? 'Celmaat Y (mm) — type' : 'Plaathoogte (mm)'}</label>
+            <label>{heeftType() ? t('systeemraster.cellYType') : t('systeemraster.tileHeight')}</label>
             <input type="text" inputmode="decimal" data-getal id="prop-sg-hoogte"
               min={SYSTEEMRASTER_PLAAT_RANGE.min} max={SYSTEEMRASTER_PLAAT_RANGE.max} step="50"
-              value={hoogteVeld()} placeholder="onbevestigd"
+              value={hoogteVeld()} placeholder={t('systeemraster.unconfirmed')}
               disabled={locked()}
               onChange={(e) => updateAnnotProp('sgTypeCelY', e.target.value)}
             />
@@ -110,24 +113,24 @@ export default function SysteemrasterSection() {
           <button type="button" id="prop-sg-sparing-toevoegen"
             disabled={locked()}
             onClick={() => updateAnnotProp('sgSparingToevoegen', true)}
-          >Sparing toevoegen</button>
+          >{t('systeemraster.addOpening')}</button>
         </div>
 
         <div class="property-group">
-          <label>{heeftType() ? 'Randprofiel — type' : 'Randprofiel'}</label>
+          <label>{heeftType() ? t('systeemraster.edgeProfileType') : t('systeemraster.edgeProfile')}</label>
           <select id="prop-sg-randprofiel"
             value={annotProps.sgEdgeProfiel || 'geen'}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('sgTypeEdge', e.target.value)}
           >
-            <option value="geen">Geen</option>
-            <option value="hoeklijn">Hoeklijn</option>
-            <option value="schaduwvoeg">Schaduwvoeg</option>
+            <option value="geen">{t('systeemraster.edge.geen')}</option>
+            <option value="hoeklijn">{t('systeemraster.edge.hoeklijn')}</option>
+            <option value="schaduwvoeg">{t('systeemraster.edge.schaduwvoeg')}</option>
           </select>
         </div>
 
         <div class="property-group">
-          <label>Rasterhoek (°)</label>
+          <label>{t('systeemraster.gridAngle')}</label>
           <input type="text" inputmode="decimal" data-getal id="prop-sg-hoek"
             min="0" max="360" step="5"
             value={annotProps.sgRasterHoek ?? 0}
@@ -140,7 +143,7 @@ export default function SysteemrasterSection() {
           <button type="button" id="prop-sg-centreer"
             disabled={locked()}
             onClick={() => updateAnnotProp('sgCentreer', true)}
-          >Centreer raster</button>
+          >{t('systeemraster.centreGrid')}</button>
         </div>
 
         <div class="property-group">
@@ -149,7 +152,7 @@ export default function SysteemrasterSection() {
               checked={annotProps.equalizeX === true}
               disabled={locked()}
               onChange={(e) => updateAnnotProp('equalizeX', e.target.checked)}
-            /> Equalize X (randstukken links = rechts)
+            /> {t('systeemraster.equalizeX')}
           </label>
         </div>
 
@@ -159,25 +162,25 @@ export default function SysteemrasterSection() {
               checked={annotProps.equalizeY === true}
               disabled={locked()}
               onChange={(e) => updateAnnotProp('equalizeY', e.target.checked)}
-            /> Equalize Y (randstukken boven = onder)
+            /> {t('systeemraster.equalizeY')}
           </label>
         </div>
 
         <div class="property-group">
-          <label>Randconditie</label>
+          <label>{t('systeemraster.edgeCondition')}</label>
           <select id="prop-sg-rand"
             value={annotProps.randConditie || SYSTEEMRASTER_DEFAULTS.randConditie}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('randConditie', e.target.value)}
           >
-            <option value="tonen">Gesneden platen tonen</option>
-            <option value="minmaat">Minimale randmaat afdwingen</option>
+            <option value="tonen">{t('systeemraster.edgeShowCut')}</option>
+            <option value="minmaat">{t('systeemraster.edgeEnforceMin')}</option>
           </select>
         </div>
 
         <Show when={(annotProps.randConditie || SYSTEEMRASTER_DEFAULTS.randConditie) === 'minmaat'}>
           <div class="property-group">
-            <label>Minimale randmaat (mm)</label>
+            <label>{t('systeemraster.minEdge')}</label>
             <input type="text" inputmode="decimal" data-getal id="prop-sg-minrand"
               min="0" step="50"
               value={annotProps.minRandMm ?? SYSTEEMRASTER_DEFAULTS.minRandMm}
@@ -194,14 +197,14 @@ export default function SysteemrasterSection() {
           <div class="property-group" style={{ 'border-top': '1px solid #d4d4d4', 'padding-top': '6px' }}>
             <label style={{ 'font-weight': 'bold' }}>
               {annotProps.sgSelectedSub.kind === 'paneel'
-                ? `Onderdeel: paneel (${annotProps.sgSelectedSub.ix},${annotProps.sgSelectedSub.iy})`
+                ? t('systeemraster.partPanel', { ix: annotProps.sgSelectedSub.ix, iy: annotProps.sgSelectedSub.iy })
                 : annotProps.sgSelectedSub.kind === 'rand'
-                  ? `Onderdeel: randsegment ${annotProps.sgSelectedSub.seg}`
+                  ? t('systeemraster.partEdge', { n: annotProps.sgSelectedSub.seg })
                   : annotProps.sgSelectedSub.kind === 'strook'
-                    ? `Onderdeel: strook #${annotProps.sgSelectedSub.index}`
+                    ? t('systeemraster.partStrip', { n: annotProps.sgSelectedSub.index })
                     : annotProps.sgSelectedSub.kind === 'sparing'
-                      ? 'Onderdeel: sparing'
-                      : `Onderdeel: rasterlijn ${annotProps.sgSelectedSub.as === 'v' ? 'verticaal' : 'horizontaal'} #${annotProps.sgSelectedSub.index}`}
+                      ? t('systeemraster.partOpening')
+                      : t('systeemraster.partLine', { direction: richting(), n: annotProps.sgSelectedSub.index })}
             </label>
             <div style={{ 'font-size': '11px', opacity: '0.75' }}>
               {annotProps.sgIfcPad} → {annotProps.sgSelectedSub.kind}
@@ -210,7 +213,7 @@ export default function SysteemrasterSection() {
 
           <Show when={annotProps.sgSelectedSub.kind === 'paneel'}>
             <div class="property-group">
-              <label>Paneeltype</label>
+              <label>{t('systeemraster.panelType')}</label>
               <select id="prop-sg-paneeltype"
                 value={annotProps.sgPaneelType || 'tegel'}
                 disabled={locked()}
@@ -221,8 +224,9 @@ export default function SysteemrasterSection() {
                 </For>
                 <Show when={annotProps.sgPaneelType === 'component'}>
                   <option value="component">
-                    Component: {annotProps.sgPaneelComponent?.naam
-                      || annotProps.sgPaneelComponent?.symbolId}
+                    {t('systeemraster.componentOption', {
+                      name: annotProps.sgPaneelComponent?.naam || annotProps.sgPaneelComponent?.symbolId,
+                    })}
                   </option>
                 </Show>
               </select>
@@ -231,33 +235,33 @@ export default function SysteemrasterSection() {
               <button type="button" id="prop-sg-paneel-component"
                 disabled={locked()}
                 onClick={() => openDialog('systeem-paneel-component')}
-              >Ander component…</button>
+              >{t('systeemraster.otherComponent')}</button>
             </div>
             <div class="property-group">
-              <label>Afmeting</label>
+              <label>{t('systeemraster.size')}</label>
               <div style={{ 'font-size': '11px' }}>
                 {Math.round(breedte())} × {Math.round(hoogte())} mm
-                (Delete = terug naar tegel)
+                {' '}{t('systeemraster.deleteToTile')}
               </div>
             </div>
           </Show>
 
           <Show when={annotProps.sgSelectedSub.kind === 'rand'}>
             <div class="property-group">
-              <label>Randprofiel (dit segment)</label>
+              <label>{t('systeemraster.edgeProfileSegment')}</label>
               <select id="prop-sg-randseg"
                 value={annotProps.sgRandOverride || ''}
                 disabled={locked()}
                 onChange={(e) => updateAnnotProp('sgRandSegProfiel', e.target.value)}
               >
-                <option value="">(van type: {annotProps.sgEdgeProfiel || 'geen'})</option>
-                <option value="geen">Geen</option>
-                <option value="hoeklijn">Hoeklijn</option>
-                <option value="schaduwvoeg">Schaduwvoeg</option>
+                <option value="">{t('systeemraster.edgeFromType', { value: t(`systeemraster.edge.${annotProps.sgEdgeProfiel || 'geen'}`, annotProps.sgEdgeProfiel || '') })}</option>
+                <option value="geen">{t('systeemraster.edge.geen')}</option>
+                <option value="hoeklijn">{t('systeemraster.edge.hoeklijn')}</option>
+                <option value="schaduwvoeg">{t('systeemraster.edge.schaduwvoeg')}</option>
               </select>
             </div>
             <div class="property-group">
-              <label>Lengte</label>
+              <label>{t('systeemraster.length')}</label>
               <div style={{ 'font-size': '11px' }}>
                 {Math.round(annotProps.sgSelectedSub.lengthMm || 0)} mm
               </div>
@@ -266,26 +270,26 @@ export default function SysteemrasterSection() {
 
           <Show when={annotProps.sgSelectedSub.kind === 'strook'}>
             <div class="property-group">
-              <label>Strook</label>
+              <label>{t('systeemraster.strip')}</label>
               <div style={{ 'font-size': '11px', 'line-height': '1.5' }}>
-                <div>Breedte: {Math.round(annotProps.sgSelectedSub.breedteMm || 0)} mm
-                  {annotProps.sgSelectedSub.pas ? ' (passtrook)' : ''}</div>
-                <div>Lengte: {Math.round(annotProps.sgSelectedSub.lengteMm || 0)} mm</div>
-                <div>Positie: {Math.round(annotProps.sgSelectedSub.posMm || 0)} mm vanaf de rand</div>
+                <div>{t('systeemraster.stripWidth', { mm: Math.round(annotProps.sgSelectedSub.breedteMm || 0) })}
+                  {annotProps.sgSelectedSub.pas ? ` ${t('systeemraster.stripFitting')}` : ''}</div>
+                <div>{t('systeemraster.stripLength', { mm: Math.round(annotProps.sgSelectedSub.lengteMm || 0) })}</div>
+                <div>{t('systeemraster.stripPosition', { mm: Math.round(annotProps.sgSelectedSub.posMm || 0) })}</div>
               </div>
             </div>
           </Show>
 
           <Show when={annotProps.sgSelectedSub.kind === 'sparing'}>
             <div class="property-group">
-              <label>Afmeting sparing (mm)</label>
+              <label>{t('systeemraster.openingSize')}</label>
               <div style={{ display: 'flex', gap: '6px', 'align-items': 'center' }}>
-                <span>B</span>
+                <span>{t('systeemraster.widthLetter')}</span>
                 <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-b" style={{ width: '70px' }}
                   min="10" step="50" value={Math.round(annotProps.sgSelectedSub.bMm || 0)}
                   disabled={locked()}
                   onChange={(e) => updateAnnotProp('sgSparingB', e.target.value)} />
-                <span>H</span>
+                <span>{t('systeemraster.heightLetter')}</span>
                 <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-h" style={{ width: '70px' }}
                   min="10" step="50" value={Math.round(annotProps.sgSelectedSub.hMm || 0)}
                   disabled={locked()}
@@ -293,7 +297,7 @@ export default function SysteemrasterSection() {
               </div>
             </div>
             <div class="property-group">
-              <label>Positie (mm, t.o.v. linksboven)</label>
+              <label>{t('systeemraster.openingPosition')}</label>
               <div style={{ display: 'flex', gap: '6px', 'align-items': 'center' }}>
                 <span>X</span>
                 <input type="text" inputmode="decimal" data-getal id="prop-sg-sparing-x" style={{ width: '70px' }}
@@ -308,22 +312,22 @@ export default function SysteemrasterSection() {
               </div>
             </div>
             <div class="property-group">
-              <label>Regime</label>
+              <label>{t('systeemraster.regime')}</label>
               <div style={{ 'font-size': '11px' }}>
-                {annotProps.sgSelectedSub.regime === 'klein' ? 'Klein (gewoon gat)'
-                  : annotProps.sgSelectedSub.regime === 'raveel' ? 'Raveelijzer'
-                    : 'Verzwaarde randlijn'} — Delete verwijdert de sparing
+                {annotProps.sgSelectedSub.regime === 'klein' ? t('systeemraster.regimeSmall')
+                  : annotProps.sgSelectedSub.regime === 'raveel' ? t('systeemraster.regimeTrimmer')
+                    : t('systeemraster.regimeHeavy')} — {t('systeemraster.deleteRemovesOpening')}
               </div>
             </div>
           </Show>
 
           <Show when={annotProps.sgSelectedSub.kind === 'lijn'}>
             <div class="property-group">
-              <label>Rasterlijn</label>
+              <label>{t('systeemraster.gridLine')}</label>
               <div style={{ 'font-size': '11px', 'line-height': '1.5' }}>
-                <div>Richting: {annotProps.sgSelectedSub.as === 'v' ? 'verticaal' : 'horizontaal'}</div>
-                <div>Index: {annotProps.sgSelectedSub.index}</div>
-                <div>Positie: {Math.round(annotProps.sgSelectedSub.posMm || 0)} mm vanaf de oorsprong</div>
+                <div>{t('systeemraster.lineDirection', { value: richting() })}</div>
+                <div>{t('systeemraster.lineIndex', { n: annotProps.sgSelectedSub.index })}</div>
+                <div>{t('systeemraster.linePosition', { mm: Math.round(annotProps.sgSelectedSub.posMm || 0) })}</div>
               </div>
             </div>
           </Show>
@@ -331,18 +335,18 @@ export default function SysteemrasterSection() {
 
         <Show when={randstukken()}>
           <div class="property-group">
-            <label>Randstukken</label>
+            <label>{t('systeemraster.edgePieces')}</label>
             <Show when={randMm()}
               fallback={
                 <div id="prop-sg-randmaten" style={{ 'font-size': '11px', 'line-height': '1.5' }}>
-                  onbevestigd (het type mist een maat)
+                  {t('systeemraster.edgeUnconfirmed')}
                 </div>
               }>
               <div id="prop-sg-randmaten" style={{ 'font-size': '11px', 'line-height': '1.5' }}>
-                <div>Links: {fmt(randMm().links)}</div>
-                <div>Rechts: {fmt(randMm().rechts)}</div>
-                <div>Boven: {fmt(randMm().boven)}</div>
-                <div>Onder: {fmt(randMm().onder)}</div>
+                <div>{t('systeemraster.edgeLeft', { value: fmt(randMm().links) })}</div>
+                <div>{t('systeemraster.edgeRight', { value: fmt(randMm().rechts) })}</div>
+                <div>{t('systeemraster.edgeTop', { value: fmt(randMm().boven) })}</div>
+                <div>{t('systeemraster.edgeBottom', { value: fmt(randMm().onder) })}</div>
               </div>
             </Show>
           </div>
