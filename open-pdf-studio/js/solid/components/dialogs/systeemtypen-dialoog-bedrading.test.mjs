@@ -156,7 +156,7 @@ test('eigenschappenpaneel: randstukken van een onbevestigd type tonen "onbevesti
   // De randmaten (met "volle plaat" voor 0) staan alleen in de tak met randMm;
   // de terugval zegt "onbevestigd".
   const tak = sectie.slice(sectie.indexOf('<Show when={randMm()}'));
-  assert.match(tak, /fallback=\{[\s\S]*onbevestigd \(het type mist een maat\)[\s\S]*\}>/);
+  assert.match(tak, /fallback=\{[\s\S]*systeemraster\.edgeUnconfirmed[\s\S]*\}>/);
   assert.equal(/geom\.randMm/.test(sectie), false, 'nergens de ruwe randMm van een onbevestigde geometrie');
 });
 
