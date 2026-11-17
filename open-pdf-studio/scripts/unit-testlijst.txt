@@ -145,6 +145,7 @@ js/annotations/link/link-i18n.test.mjs
 js/annotations/link/link-paginas.test.mjs
 js/annotations/link/link-mcp.test.mjs
 js/help/previous-version.test.mjs
+js/help/virusscanner-melding.test.mjs
 js/quantities/engine.test.mjs
 js/quantities/staat-eenheden.test.mjs
 js/quantities/eenheid-omrekening.test.mjs

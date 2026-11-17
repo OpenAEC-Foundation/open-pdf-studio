@@ -2520,5 +2520,19 @@
     "createDocument": "문서 만들기",
     "uploadPdf": "PDF 업로드",
     "uploadHelp": "문서를 만든 다음 PDF 하나를 업로드하세요(최대 32 MiB). PDF는 교체할 수 없습니다. 요청 실패 후 다시 시도하기 전에 새로 고침하세요."
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

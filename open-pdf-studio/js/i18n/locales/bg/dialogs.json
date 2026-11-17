@@ -2520,5 +2520,19 @@
     "createDocument": "Създаване на документ",
     "uploadPdf": "Качване на PDF",
     "uploadHelp": "Създайте документ и качете един PDF (до 32 MiB). PDF файлът не може да бъде заменен. При неуспешна заявка обновете преди повторен опит."
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

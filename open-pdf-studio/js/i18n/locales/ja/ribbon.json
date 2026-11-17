@@ -479,7 +479,9 @@
     "setDefaultPdf": "既定の PDF アプリケーションに設定",
     "fileAssociations": "ファイルの関連付け",
     "previousVersionTitle": "Open PDF Studio の以前のバージョンをインストール",
-    "previousVersion": "以前のバージョン"
+    "previousVersion": "以前のバージョン",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "赤",

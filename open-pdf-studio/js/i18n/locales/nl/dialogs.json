@@ -2520,5 +2520,19 @@
     "createDocument": "Document aanmaken",
     "uploadPdf": "PDF uploaden",
     "uploadHelp": "Maak een document aan en upload één PDF (max. 32 MiB). De PDF kan niet worden vervangen. Vernieuw na een mislukt verzoek voordat je opnieuw probeert."
+  },
+  "virusNotice": {
+    "title": "Over meldingen van virusscanners",
+    "menu": "Melding van virusscanner?",
+    "intro": "Soms geeft een virusscanner een waarschuwing bij het installatieprogramma van Open PDF Studio of bij de app zelf. Dat gebeurt af en toe bij nieuwe versies van kleine opensourceprogramma's.",
+    "signed": "Bij downloads van onze officiële releasepagina is dat vals alarm: die bestanden zijn digitaal ondertekend.",
+    "action": "Krijg je zo'n waarschuwing? Laat je virusscanner gewoon aan staan en stuur de melding naar ons. Wij geven haar door aan de maker van de scanner, zodat de waarschuwing verdwijnt.",
+    "include": "Vermeld daarbij de naam van de virusscanner, de naam van de detectie en de bestandsnaam.",
+    "report": "Waarschuwing melden",
+    "feedbackSubject": "Melding van virusscanner",
+    "feedbackScanner": "Virusscanner",
+    "feedbackDetection": "Naam van de detectie",
+    "feedbackFile": "Bestandsnaam",
+    "feedbackHint": "Vul de naam van de virusscanner, de naam van de detectie en de bestandsnaam in. Een schermafbeelding van de waarschuwing helpt ook."
   }
 }

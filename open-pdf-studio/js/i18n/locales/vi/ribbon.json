@@ -479,7 +479,9 @@
     "setDefaultPdf": "Đặt Ứng dụng PDF Mặc định",
     "fileAssociations": "Liên kết Tệp",
     "previousVersionTitle": "Cài đặt phiên bản trước của Open PDF Studio",
-    "previousVersion": "Phiên bản trước"
+    "previousVersion": "Phiên bản trước",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Đỏ",
