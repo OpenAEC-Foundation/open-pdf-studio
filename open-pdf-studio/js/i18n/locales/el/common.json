@@ -379,5 +379,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

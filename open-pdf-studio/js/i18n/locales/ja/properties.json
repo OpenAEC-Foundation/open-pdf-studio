@@ -484,7 +484,9 @@
     "depthNone": "なし",
     "depthTooltip": "壁の高さや床の厚さなどを計測の単位で入力します。長さ × 奥行きで面積、面積 × 奥行きで体積になります。",
     "surface": "面積",
-    "volume": "体積"
+    "volume": "体積",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "集計表",

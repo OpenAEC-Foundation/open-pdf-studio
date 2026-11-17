@@ -484,7 +484,9 @@
     "depthNone": "لا شيء",
     "depthTooltip": "ارتفاع الجدار وسماكة البلاطة وما إلى ذلك، بوحدة القياس. الطول × العمق يعطي مساحة سطح، والمساحة × العمق تعطي حجمًا.",
     "surface": "السطح",
-    "volume": "الحجم"
+    "volume": "الحجم",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "جداول الكميات",

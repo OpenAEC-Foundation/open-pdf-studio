@@ -484,7 +484,9 @@
     "depthNone": "Нет",
     "depthTooltip": "Высота стены, толщина перекрытия и т. п. в единице измерения. Длина × глубина даёт площадь, площадь × глубина — объём.",
     "surface": "Площадь",
-    "volume": "Объём"
+    "volume": "Объём",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Спецификации",

@@ -484,7 +484,9 @@
     "depthNone": "Tidak ada",
     "depthTooltip": "Tinggi dinding, tebal pelat, dll., dalam satuan pengukuran. Panjang × kedalaman menghasilkan luas permukaan, luas × kedalaman menghasilkan volume.",
     "surface": "Permukaan",
-    "volume": "Volume"
+    "volume": "Volume",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Daftar",

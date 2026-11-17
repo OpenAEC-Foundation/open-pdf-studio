@@ -484,7 +484,9 @@
     "depthNone": "Yok",
     "depthTooltip": "Duvar yüksekliği, döşeme kalınlığı vb., ölçümün biriminde. Uzunluk × derinlik bir yüzey, alan × derinlik bir hacim verir.",
     "surface": "Yüzey",
-    "volume": "Hacim"
+    "volume": "Hacim",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Çizelgeler",

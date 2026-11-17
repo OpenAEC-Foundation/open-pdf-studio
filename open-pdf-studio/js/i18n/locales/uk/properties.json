@@ -484,7 +484,9 @@
     "depthNone": "Немає",
     "depthTooltip": "Висота стіни, товщина перекриття тощо в одиниці вимірювання. Довжина × глибина дає площу, площа × глибина — об'єм.",
     "surface": "Площа",
-    "volume": "Об'єм"
+    "volume": "Об'єм",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Специфікації",

@@ -484,7 +484,9 @@
     "depthNone": "Không có",
     "depthTooltip": "Chiều cao tường, độ dày sàn, v.v., theo đơn vị của phép đo. Chiều dài × chiều sâu cho diện tích bề mặt, diện tích × chiều sâu cho thể tích.",
     "surface": "Bề mặt",
-    "volume": "Thể tích"
+    "volume": "Thể tích",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Bảng thống kê",

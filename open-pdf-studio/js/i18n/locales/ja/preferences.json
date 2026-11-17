@@ -368,7 +368,13 @@
     "imperialLengthFormat": "Imperial lengths (ft, in)",
     "imperialDecimal": "Decimal feet (12.53 ft)",
     "imperialFeetInch": "Feet-inch-fraction (12'-6 3/8\")",
-    "imperialFractionPrecision": "Smallest fraction"
+    "imperialFractionPrecision": "Smallest fraction",
+    "unitsSetting": "Units",
+    "unitsMetric": "Metric",
+    "unitsImperial": "Imperial (feet and inches)",
+    "unitsBoth": "Metric, with imperial scales in the lists",
+    "unitsHint": "Imperial: new measurements, calibrations, scale lists and paper sizes use feet and inches. Existing documents keep their own scale. A drawing without a scale shows the size on paper until you set its scale (Drawing > Calibrate).",
+    "unitsNotSaved": "This browser does not let the app store settings: the choice lasts until the page is reloaded."
   },
   "keyboardShortcuts": {
     "title": "キーボードショートカット",

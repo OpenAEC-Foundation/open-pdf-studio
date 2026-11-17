@@ -372,7 +372,13 @@
     "imperialLengthFormat": "Imperiale lengtes (ft, in)",
     "imperialDecimal": "Decimale voet (12,53 ft)",
     "imperialFeetInch": "Voet-inch-breuk (12'-6 3/8\")",
-    "imperialFractionPrecision": "Kleinste breuk"
+    "imperialFractionPrecision": "Kleinste breuk",
+    "unitsSetting": "Eenheden",
+    "unitsMetric": "Metrisch",
+    "unitsImperial": "Imperiaal (voet en inch)",
+    "unitsBoth": "Metrisch, met imperiale schalen in de lijsten",
+    "unitsHint": "Imperiaal: nieuwe metingen, kalibraties, schaallijsten en papiermaten gebruiken voet en inch. Bestaande documenten houden hun eigen schaal. Een tekening zonder schaal toont de maat op papier tot u de schaal instelt (Tekenen > Kalibreren).",
+    "unitsNotSaved": "Deze browser laat de app geen instellingen bewaren: de keuze geldt tot de pagina opnieuw wordt geladen."
   },
   "keyboardShortcuts": {
     "title": "Sneltoetsen",

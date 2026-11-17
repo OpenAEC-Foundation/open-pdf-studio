@@ -484,7 +484,9 @@
     "depthNone": "Inget",
     "depthTooltip": "Vägghöjd, bjälklagets tjocklek osv. i mätningens enhet. Längd × djup ger en yta, area × djup en volym.",
     "surface": "Yta",
-    "volume": "Volym"
+    "volume": "Volym",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Förteckningar",

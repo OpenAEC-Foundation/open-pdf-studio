@@ -14,6 +14,7 @@ import { leesLengte, isImperialeLengte, VOET_INCH_VOORBEELD } from '../../../cor
 import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
 import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, scaleSelectOptions, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 import { schaalTekstVoorPpu } from '../../../annotations/schaalcontrole.js';
+import { standaardenVoorStelsel } from '../../../annotations/eenhedenstelsel.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -62,9 +63,13 @@ export default function CalibrationDialog(props) {
   // Method tab: 'reference' or 'ratio'
   const [method, setMethod] = createSignal('reference');
 
+  // Zonder schaal op het document volgen de eenheid en de standaardschaal de
+  // voorkeur Eenheden (#1158): imperiaal opent in voet met 1/4" = 1'-0".
+  const standaard = standaardenVoorStelsel();
+
   // Method 1: Reference line
   const [distance, setDistance] = createSignal(1);
-  const [unit, setUnit] = createSignal('mm');
+  const [unit, setUnit] = createSignal(standaard.lengteEenheid);
   const [pixels, setPixels] = createSignal(72);
 
   // Standaardschalen van het gekozen stelsel (#996); de schaal van het
@@ -73,10 +78,11 @@ export default function CalibrationDialog(props) {
   const inLijst = (ratio) => ratioOptions.some(o => o.value === ratio);
 
   // Method 2: Scale ratio
-  const beginSchaal = inLijst('1:100') ? '1:100' : (ratioOptions[0]?.value || 'custom');
+  const beginSchaal = inLijst(standaard.schaal) ? standaard.schaal
+    : (inLijst('1:100') ? '1:100' : (ratioOptions[0]?.value || 'custom'));
   const [scalePreset, setScalePreset] = createSignal(beginSchaal);
   const [customScale, setCustomScale] = createSignal(100);
-  const [ratioUnit, setRatioUnit] = createSignal(isImperialScalePreset(beginSchaal) ? 'ft' : 'mm');
+  const [ratioUnit, setRatioUnit] = createSignal(isImperialScalePreset(beginSchaal) ? 'ft' : standaard.lengteEenheid);
   const [pageSizeText, setPageSizeText] = createSignal('');
   const [detecting, setDetecting] = createSignal(false);
   const [detectResult, setDetectResult] = createSignal(null); // null | 'found' | 'notfound'

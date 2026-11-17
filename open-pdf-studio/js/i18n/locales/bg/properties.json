@@ -484,7 +484,9 @@
     "depthNone": "Няма",
     "depthTooltip": "Височина на стена, дебелина на плоча и др. в единицата на измерването. Дължина × дълбочина дава площ, площ × дълбочина обем.",
     "surface": "Площ",
-    "volume": "Обем"
+    "volume": "Обем",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Спецификации",

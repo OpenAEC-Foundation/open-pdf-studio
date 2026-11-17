@@ -909,3 +909,5 @@ js/pdf/ifcx-opslaan.test.mjs
 scripts/fontkit-reverse-substitution.test.mjs
 scripts/download-stats.test.mjs
 scripts/deploy-uitcheck.test.mjs
+js/annotations/eenhedenstelsel.test.mjs
+js/core/eenheden-opslag.test.mjs

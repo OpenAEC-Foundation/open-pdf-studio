@@ -484,7 +484,9 @@
     "depthNone": "无",
     "depthTooltip": "墙高、楼板厚度等，使用测量的单位。长度 × 深度得到面积，面积 × 深度得到体积。",
     "surface": "面积",
-    "volume": "体积"
+    "volume": "体积",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "明细表",

@@ -484,7 +484,9 @@
     "depthNone": "Brak",
     "depthTooltip": "Wysokość ściany, grubość stropu itp. w jednostce pomiaru. Długość × głębokość daje powierzchnię, pole × głębokość objętość.",
     "surface": "Powierzchnia",
-    "volume": "Objętość"
+    "volume": "Objętość",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Zestawienia",

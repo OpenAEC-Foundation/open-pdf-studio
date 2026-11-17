@@ -484,7 +484,9 @@
     "depthNone": "هیچ",
     "depthTooltip": "ارتفاع دیوار، ضخامت دال و غیره، با واحد اندازه‌گیری. طول × عمق یک سطح و مساحت × عمق یک حجم می‌دهد.",
     "surface": "سطح",
-    "volume": "حجم"
+    "volume": "حجم",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "جدول‌های مقادیر",

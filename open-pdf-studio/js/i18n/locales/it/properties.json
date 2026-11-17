@@ -484,7 +484,9 @@
     "depthNone": "Nessuna",
     "depthTooltip": "Altezza del muro, spessore del solaio, ecc., nell'unità della misura. Lunghezza × profondità dà una superficie, area × profondità un volume.",
     "surface": "Superficie",
-    "volume": "Volume"
+    "volume": "Volume",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Abachi",

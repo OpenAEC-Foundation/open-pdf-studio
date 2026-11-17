@@ -484,7 +484,9 @@
     "depthNone": "Nenhuma",
     "depthTooltip": "Altura de parede, espessura de laje etc., na unidade da medição. Comprimento × profundidade dá uma superfície; área × profundidade, um volume.",
     "surface": "Superfície",
-    "volume": "Volume"
+    "volume": "Volume",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Quadros",

@@ -484,7 +484,9 @@
     "depthNone": "Nema",
     "depthTooltip": "Visina zida, debljina ploče itd., u jedinici mjerenja. Duljina × dubina daje površinu, površina × dubina obujam.",
     "surface": "Površina",
-    "volume": "Obujam"
+    "volume": "Obujam",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Iskazi",

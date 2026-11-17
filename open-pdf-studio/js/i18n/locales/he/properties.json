@@ -484,7 +484,9 @@
     "depthNone": "ללא",
     "depthTooltip": "גובה קיר, עובי תקרה וכדומה, ביחידת המדידה. אורך × עומק נותן שטח פנים, שטח × עומק נותן נפח.",
     "surface": "שטח פנים",
-    "volume": "נפח"
+    "volume": "נפח",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "טבלאות כמויות",

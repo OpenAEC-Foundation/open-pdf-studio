@@ -16,6 +16,7 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { standaardLengteEenheid } from '../../../annotations/eenhedenstelsel.js';
 import { scaleSelectOptions, isImperialScalePreset, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 
 // Standard drawing scales for the dropdown (largest → smallest denominator),
@@ -50,7 +51,7 @@ export default function ScaleRegionDialog(props) {
   const initial = data.initial || initialSnapshot || {};
   const initialScale = initial.scaleString || '1:100';
   const [scaleString, setScaleString] = createSignal(initialScale);
-  const [units, setUnits] = createSignal(initial.units || 'mm');
+  const [units, setUnits] = createSignal(initial.units || standaardLengteEenheid());
   const [label, setLabel] = createSignal(initial.label || '');
   // True when the user picked "Aangepast…" — shows the free-text scale input.
   // A computed scale like "1:53.42" is not a preset, so it starts as custom.

@@ -205,7 +205,9 @@
     "depthNone": "None",
     "depthTooltip": "Wall height, floor thickness, etc., in the unit of the measurement. Length × depth gives a surface, area × depth a volume.",
     "surface": "Surface",
-    "volume": "Volume"
+    "volume": "Volume",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "scaleBar": {
     "title": "Scale Bar",

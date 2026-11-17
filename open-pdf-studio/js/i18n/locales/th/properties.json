@@ -484,7 +484,9 @@
     "depthNone": "ไม่มี",
     "depthTooltip": "ความสูงผนัง ความหนาพื้น ฯลฯ ในหน่วยของการวัด ความยาว × ความลึก ได้พื้นที่ผิว พื้นที่ × ความลึก ได้ปริมาตร",
     "surface": "พื้นที่ผิว",
-    "volume": "ปริมาตร"
+    "volume": "ปริมาตร",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "ตารางรายการ",
