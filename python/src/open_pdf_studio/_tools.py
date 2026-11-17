@@ -1452,39 +1452,44 @@ class ToolMethods:
         corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional
         sides, default 6) for a regular polygon in that box;
         polyline/filledArea/measureArea/measurePerimeter need
-        points:[{x,y},...]; spline needs controlPoints; draw needs path; comment
-        needs x/y; link makes the same hyperlink as the Link tool and needs a
-        target, either uri (web or e-mail address: http, https, mailto, tel or
-        ftp) or page (target page in this document, 1-based; then the annotation
-        itself goes on the top-level page) with optional view "XYZ" (default,
-        top of the page), "Fit" or {type:"XYZ",left,top,zoom} (left/top in PDF
-        points), plus x/y/width/height for the click box or
-        quads:[[ul,ur,ll,lr],...] for one box per text line (written as
-        /QuadPoints), optional border "none" (default) | "solid" | "underline"
-        with color and lineWidth; a link to a page follows that page when pages
-        are moved, inserted or deleted, and becomes broken when its target page
-        is deleted. Optional style props (color, strokeColor, fillColor,
-        lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y,
-        leaderEndX/Y, dimShowUnit (measureDistance: false shows the number
-        only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm
-        (measureDistance: overshoot of the dimension line, gap and overshoot of
-        the extension lines, in paper mm), measureShowLabel (measureArea: false
-        hides its own label), ...) override the tool defaults. measure*
-        annotations get measureText computed from the document scale
-        automatically; the app does every unit conversion. measureArea: `units`
-        (or `measureAreaUnit`) sets the unit its area is reported in: ac (acres,
-        1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000 m2), m2, ft2, yd2, ...
-        ("acres", "sq ft" and the superscript forms are understood, a length
-        unit such as ft means ft2, "auto" follows the scale again). measureText
-        then reads e.g. "2.296 ac" and the result carries `area: {value, unit}`
-        with the number in that unit; measureValue / measureUnit stay in the
-        square of the scale unit, as the lengths, edge lengths and perimeter do.
-        Without `units` the area is in the square of the scale unit (mm2 is
-        shown as m2). An unknown unit, or an area unit on a sheet without a
-        real-world scale, is an error and nothing is created. measureDistance /
-        measurePerimeter are reported in the unit of the scale; a different
-        `units` is an error instead of being ignored. scaleRegion `units` is mm,
-        cm, m, in or ft. Returns the new annotation id.
+        points:[{x,y},...]; measurePerimeter follows the supplied open point
+        sequence by default; on creation, optional closed:true (boolean, >= 3
+        points) appends the first point if needed and includes the closing edge
+        in the measurement; already repeated endpoints are not duplicated, and
+        closed:false or omission leaves the supplied sequence unchanged; spline
+        needs controlPoints; draw needs path; comment needs x/y; link makes the
+        same hyperlink as the Link tool and needs a target, either uri (web or
+        e-mail address: http, https, mailto, tel or ftp) or page (target page in
+        this document, 1-based; then the annotation itself goes on the top-level
+        page) with optional view "XYZ" (default, top of the page), "Fit" or
+        {type:"XYZ",left,top,zoom} (left/top in PDF points), plus
+        x/y/width/height for the click box or quads:[[ul,ur,ll,lr],...] for one
+        box per text line (written as /QuadPoints), optional border "none"
+        (default) | "solid" | "underline" with color and lineWidth; a link to a
+        page follows that page when pages are moved, inserted or deleted, and
+        becomes broken when its target page is deleted. Optional style props
+        (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize,
+        scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit
+        (measureDistance: false shows the number only), dimLineOvershootMm /
+        dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the
+        dimension line, gap and overshoot of the extension lines, in paper mm),
+        measureShowLabel (measureArea: false hides its own label), ...) override
+        the tool defaults. measure* annotations get measureText computed from
+        the document scale automatically; the app does every unit conversion.
+        measureArea: `units` (or `measureAreaUnit`) sets the unit its area is
+        reported in: ac (acres, 1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000
+        m2), m2, ft2, yd2, ... ("acres", "sq ft" and the superscript forms are
+        understood, a length unit such as ft means ft2, "auto" follows the scale
+        again). measureText then reads e.g. "2.296 ac" and the result carries
+        `area: {value, unit}` with the number in that unit; measureValue /
+        measureUnit stay in the square of the scale unit, as the lengths, edge
+        lengths and perimeter do. Without `units` the area is in the square of
+        the scale unit (mm2 is shown as m2). An unknown unit, or an area unit on
+        a sheet without a real-world scale, is an error and nothing is created.
+        measureDistance / measurePerimeter are reported in the unit of the
+        scale; a different `units` is an error instead of being ignored.
+        scaleRegion `units` is mm, cm, m, in or ft. Returns the new annotation
+        id.
 
         Args:
             type (one of "line", "arrow", "wall", "box", "mask", "redaction",
