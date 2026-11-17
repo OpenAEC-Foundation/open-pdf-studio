@@ -257,7 +257,7 @@ export default function AnnotationsTab(props) {
             {/* Eigen reviewstatussen van markeringen (#1076). */}
             <fieldset class="pref-fieldset">
               <legend>{t('annotations.markupStatuses')}</legend>
-              <MarkupStatusesEditor value={p.markupStatuses} />
+              <MarkupStatusesEditor sets={p.markupStatusSets} active={p.activeMarkupStatusSet} legacy={p.markupStatuses} />
             </fieldset>
 
             {/* Stempelkiezer: ingebouwde stempels verbergen (#998). */}

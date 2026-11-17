@@ -20,13 +20,13 @@ import { bouwOpmerkingenRapport } from '../../annotations/opmerkingen-rapport.js
 import { recordBulkModify } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { StandardFonts } from 'pdf-lib';
-import { statusNaam } from '../../review/status-sets.js';
+import { statusNaam, statusLijst } from '../../review/status-sets.js';
 
 const tp = (key, opties) => i18next.t(key, { ns: 'properties', ...(opties || {}) });
 
 // De naam van een status, ook van een eigen status (#1076).
 export function statusLabel(status) {
-  return statusNaam(status, state.preferences?.markupStatuses, (sleutel) => i18next.t(sleutel, { ns: 'context' }));
+  return statusNaam(status, statusLijst(state.preferences), (sleutel) => i18next.t(sleutel, { ns: 'context' }));
 }
 
 async function paginaMaat(doc, pageNum, cache) {

@@ -74,7 +74,7 @@ import {
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
 import { plaatsSubmenuVan } from './contextmenu-plaatsen.js';
 import { setStatusWithHistory } from '../../review/status-history.js';
-import { alleStatussen, statusNaam } from '../../review/status-sets.js';
+import { kiesbareStatussen, statusNaam, statusLijst } from '../../review/status-sets.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -196,8 +196,8 @@ function AnnotationMenuContent() {
 
   // De vaste en de eigen statussen (#1076, review/status-sets.js), opnieuw
   // opgebouwd bij elk openen van het menu.
-  const statusItems = () => alleStatussen(state.preferences?.markupStatuses).map((s) => ({
-    key: s.key, label: () => statusNaam(s.key, state.preferences?.markupStatuses, t),
+  const statusItems = () => kiesbareStatussen(statusLijst(state.preferences)).map((s) => ({
+    key: s.key, label: () => statusNaam(s.key, statusLijst(state.preferences), t),
   }));
 
   // Edit-contour vertex actions — only shown when right-clicking a vertex/edge

@@ -1,6 +1,6 @@
 import { state, getActiveDocument, isSelected, getAnnotationBounds, addToSelection, removeFromSelection } from '../../core/state.js';
 import i18next from '../../i18n/config.js';
-import { statusKleur, statusNaam } from '../../review/status-sets.js';
+import { statusKleur, statusNaam, statusLijst, vergelijkStatus } from '../../review/status-sets.js';
 import { getTypeDisplayName, getAnnotationDisplayName, createDateFormatter } from '../../utils/helpers.js';
 import {
   withoutFoldedChildren, listPreview, expandCorrectionGroups, replaceParentOf,
@@ -27,7 +27,7 @@ import {
 } from '../../bridge.js';
 
 // Statuskleur en -naam, ook voor eigen statussen (#1076, review/status-sets.js).
-const eigenStatusLijst = () => state.preferences?.markupStatuses;
+const eigenStatusLijst = () => statusLijst(state.preferences);
 const tStatus = (sleutel) => i18next.t(sleutel, { ns: 'context' });
 const statusTitel = (status) => statusNaam(status, eigenStatusLijst(), tStatus);
 

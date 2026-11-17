@@ -428,6 +428,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   recoveryPostponed: [],
   // Eigen reviewstatussen van markeringen (#1076, review/status-sets.js).
   markupStatuses: [],
+  // Statussets met een naam, waarvan één actief (#1076); de platte lijst
+  // hierboven is de oude vorm en telt als één set.
+  markupStatusSets: [],
+  activeMarkupStatusSet: '',
   disabledSymbolGroups: [],
   parametricSymbolDefaults: {},
 

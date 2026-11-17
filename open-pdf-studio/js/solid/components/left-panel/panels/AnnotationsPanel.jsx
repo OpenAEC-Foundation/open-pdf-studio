@@ -8,7 +8,7 @@ import {
 } from '../../../stores/panels/annotationsStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { state, clearSelection, getActiveDocument, getAnnotationBounds } from '../../../../core/state.js';
-import { alleStatussen, afgerondeStatussen, statusNaam } from '../../../../review/status-sets.js';
+import { kiesbareStatussen, filterStatussen, afgerondeStatussen, statusNaam, statusLijst } from '../../../../review/status-sets.js';
 import { commitAnnotationMutation, deleteAnnotationsWithUndo } from '../../../../annotations/mutations.js';
 import { expandCorrectionGroups } from '../../../../annotations/corrections/model.js';
 import {
@@ -42,7 +42,7 @@ const groupOptions = [
 // review/status-sets.js). Sleutels in kleine letters — de filtering in
 // annotations-list.js vergelijkt hoofdletter-ongevoelig. Bij elk openen van
 // het menu opnieuw opgebouwd, zodat een gewijzigde eigen lijst meteen geldt.
-const eigenStatusLijst = () => state.preferences?.markupStatuses;
+const eigenStatusLijst = () => statusLijst(state.preferences);
 
 export default function AnnotationsPanel() {
   const { t } = useTranslation('properties');
@@ -89,7 +89,7 @@ export default function AnnotationsPanel() {
     toggleHiddenStatus(statusKey);
     import('../../../../ui/panels/annotations-list.js').then(m => m.updateAnnotationsList());
   };
-  const statusFilterOptions = () => alleStatussen(eigenStatusLijst())
+  const statusFilterOptions = () => kiesbareStatussen(eigenStatusLijst())
     .map((s) => ({ key: s.key, naam: statusNaam(s.key, eigenStatusLijst(), tContext) }));
   // Alleen open punten (#1076): alle afgeronde statussen verbergen, of weer tonen.
   const afgerond = () => [...afgerondeStatussen(eigenStatusLijst())];

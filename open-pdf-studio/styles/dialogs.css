@@ -7147,6 +7147,11 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .markup-status-row .markup-status-name.invalid { border-color: #e81123; }
 .markup-status-row .markup-status-closed { white-space: nowrap; }
 .markup-status-row .markup-status-remove { min-width: 24px; padding: 0 6px; }
+.markup-status-row .markup-status-move { min-width: 22px; padding: 0 4px; font-size: 9px; }
+.markup-status-set-row { gap: 6px; flex-wrap: wrap; }
+.markup-statuses-editor .markup-status-set-select { flex: 1; min-width: 0; height: 24px; }
+.markup-statuses-editor .markup-status-set-name { flex: 1; min-width: 0; }
+.markup-statuses-editor .markup-status-set-name.invalid { border-color: #e81123; }
 
 /* Kalibratie: een referentielijn tekenen (#1090). */
 .calibration-row .calibration-draw { white-space: nowrap; }
