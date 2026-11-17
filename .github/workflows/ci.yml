@@ -247,6 +247,11 @@ jobs:
         working-directory: .
         run: cargo test --release --locked -p open-pdf-studio --lib mcp_server::http_notification_tests
 
+      - name: Test MCP capture content and path diagnostics (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        working-directory: .
+        run: cargo test --release -p open-pdf-studio --lib mcp_server::capture_result::tests
+
       - name: Test interactive form background ownership (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         working-directory: .

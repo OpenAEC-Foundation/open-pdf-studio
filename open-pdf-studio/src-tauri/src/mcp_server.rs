@@ -42,6 +42,10 @@ use axum::{
 };
 use serde_json::{json, Value};
 use tauri::{AppHandle, Manager};
+use tauri_plugin_fs::FsExt;
+
+#[path = "mcp_capture_result.rs"]
+mod capture_result;
 
 use crate::mcp_app_bridge::{self, McpAppBridge};
 use crate::mcp_extensie_tools::{self, ExtensieTools};
@@ -937,7 +941,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_screenshot_view",
-                "description": "Capture the LIVE app as a base64 PNG. scope 'document' (default) composites the PDF canvas with the annotation/highlight overlays, without the surrounding interface. scope 'window' captures the whole app window as it is shown: ribbon (including extension tabs), side panels such as an extension's workspace panel, the document view and the status bar. scope 'element' crops that window capture to the element matched by `selector`. The longer side is scaled down to `width`. Returns { png_base64, width, height, scope, bounds: { x, y, width, height } (the captured area in CSS px), devicePixelRatio }. 'window' and 'element' use a native capture of the web view and are available on Windows only for now; on other platforms they return an error.",
+                "description": "Capture the LIVE app as a base64 PNG. scope 'document' (default) composites the PDF canvas with the annotation/highlight overlays, without the surrounding interface. scope 'window' captures the whole app window as it is shown: ribbon (including extension tabs), side panels such as an extension's workspace panel, the document view and the status bar. scope 'element' crops that window capture to the element matched by `selector`. The longer side is scaled down to `width`. Returns { png_base64, width, height, scope, bounds: { x, y, width, height } (the captured area in CSS px), devicePixelRatio }. 'window' and 'element' use a native capture of the web view and are available on Windows only for now; on other platforms they return an error. Inline results also include an MCP image content item (image/png); the first text item retains the complete legacy JSON including png_base64. This tool has no path parameter; use app_capture_region for file export.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -950,7 +954,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_capture_region",
-                "description": "Render an area of a page (or the whole page) of the active document as an image at a chosen resolution, the way Home > Screenshot does: the page is rendered again at `dpi` (not the screen pixels enlarged), with the annotations as printed (no selection frames), in the view rotation the user sees. Coordinates are app points (page space, top-left origin, 100% zoom); leave x, y, width and height out for the whole page. Very large images are scaled down to at most 16384 px per side and 64 megapixels (`limited` is then true and `dpi` the resolution used). Returns { page, rect, width, height, dpi, limited, mime } plus image_base64, or with `path` the image is written to that file and { path, bytes } is returned instead of the base64. Nothing is put on the clipboard.",
+                "description": "Render an area of a page (or the whole page) of the active document as an image at a chosen resolution, the way Home > Screenshot does: the page is rendered again at `dpi` (not the screen pixels enlarged), with the annotations as printed (no selection frames), in the view rotation the user sees. Coordinates are app points (page space, top-left origin, 100% zoom); leave x, y, width and height out for the whole page. Very large images are scaled down to at most 16384 px per side and 64 megapixels (`limited` is then true and `dpi` the resolution used). Returns { page, rect, width, height, dpi, limited, mime } plus image_base64, or with `path` the image is written to that file and { path, bytes } is returned instead of the base64. Nothing is put on the clipboard. Inline results also include an MCP image content item with the actual PNG/JPEG MIME type; the first text item retains the complete legacy JSON. With path, the result stays file metadata only. Export requires an already granted filesystem path and OS write permission; TEMP, Pictures and Documents are not automatically granted. Select a destination through Home > Screenshot > Save, reuse an already granted export location, or omit path. A forbidden-path error lists current allowed and denied path patterns; window permissions and denied paths still apply.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -962,7 +966,7 @@ fn handle_tools_list() -> Value {
                         "dpi":     { "type": "number", "minimum": 10, "maximum": 2400, "default": 150, "description": "Resolution in pixels per inch of paper." },
                         "format":  { "type": "string", "enum": ["png", "jpeg"], "default": "png" },
                         "quality": { "type": "integer", "minimum": 1, "maximum": 100, "default": 90, "description": "JPEG quality." },
-                        "path":    { "type": "string", "description": "Absolute file path to write the image to, instead of returning it as base64." }
+                        "path":    { "type": "string", "description": "Absolute file path in an already granted filesystem location. Writes the image instead of returning inline image content. No automatic access to TEMP, Pictures or Documents; omit path to receive an image without writing a file." }
                     },
                     "additionalProperties": false
                 }
@@ -3061,17 +3065,19 @@ async fn tool_app_request(
             "AppHandle unavailable — MCP server not started from inside Tauri::setup()".to_string(),
         ))?;
     let bridge = app.state::<McpAppBridge>();
-    let response = mcp_app_bridge::request(app, &bridge, event_name, arguments.clone(), timeout)
+    let mut response = mcp_app_bridge::request(app, &bridge, event_name, arguments.clone(), timeout)
         .await
         .map_err(|e| (jsonrpc_error::INTERNAL_ERROR, e))?;
 
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": response.to_string(),
-        }],
-        "isError": false,
-    }))
+    if capture_result::needs_scope_help(event_name, arguments, &response) {
+        let scope = app.fs_scope();
+        capture_result::add_scope_help(
+            &mut response,
+            scope.allowed_patterns().iter().map(|pattern| pattern.as_str().to_owned()).collect(),
+            scope.forbidden_patterns().iter().map(|pattern| pattern.as_str().to_owned()).collect(),
+        );
+    }
+    Ok(capture_result::format_result(event_name, response))
 }
 
 /// `list_test_pdfs` tool — enumerates every `*.pdf` under
