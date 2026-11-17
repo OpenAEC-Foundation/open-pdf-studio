@@ -8,7 +8,7 @@ import { preferencesMirrorJson } from './preferences-mirror.js';
 import { leesOpslag, schrijfOpslag, VOORKEUREN_NAAM } from './opslag.js';
 import { voegSamenMetStandaarden } from './preferences-merge.js';
 import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
-import { writeStylePrefs } from './style-prefs.js';
+import { writeStylePrefs, pasTekststijlToe } from './style-prefs.js';
 import { prefsForStorage, keepPrefsAsOwn } from '../tools/tool-set-session.js';
 import { zetRanddikte } from '../annotations/rendering/textbox-layout.js';
 import { getStyleMapping } from './stijl-mapping.js';
@@ -274,6 +274,8 @@ export function applyDefaultStyle(annotation) {
   if (m.fontSize && prefs[p + m.fontSize]) annotation.fontSize = prefs[p + m.fontSize];
   if (m.fontFamily && prefs[p + m.fontFamily]) annotation.fontFamily = prefs[p + m.fontFamily];
   if (m.textColor && prefs[p + m.textColor]) annotation.textColor = prefs[p + m.textColor];
+  // Teken- en alineastijl van tekstvak en callout (#1150).
+  pasTekststijlToe(annotation, prefs);
   if (m.icon && prefs[p + m.icon]) annotation.icon = prefs[p + m.icon];
   if (m.overlayColor && prefs[p + m.overlayColor]) annotation.overlayColor = prefs[p + m.overlayColor];
 

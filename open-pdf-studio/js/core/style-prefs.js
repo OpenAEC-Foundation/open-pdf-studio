@@ -44,6 +44,7 @@ export function writeStylePrefs(annotation, prefs, touched = null) {
   if (m.fontSize && annotation.fontSize) prefs[p + m.fontSize] = annotation.fontSize;
   if (m.fontFamily && annotation.fontFamily && annotation.fontFamily !== 'mixed') prefs[p + m.fontFamily] = annotation.fontFamily;
   if (m.textColor && annotation.textColor && annotation.textColor !== 'mixed') prefs[p + m.textColor] = annotation.textColor;
+  schrijfTekststijl(annotation, prefs, m);
   if (m.icon && annotation.icon) prefs[p + m.icon] = annotation.icon;
   if (m.overlayColor) prefs[p + m.overlayColor] = annotation.overlayColor || prefs[p + m.overlayColor];
 
@@ -82,6 +83,90 @@ export function writeStylePrefs(annotation, prefs, touched = null) {
   }
 
   return true;
+}
+
+const UITLIJNING = ['left', 'center', 'right'];
+const VERTICAAL = ['top', 'middle', 'bottom'];
+const TEKEN_VELDEN = ['fontBold', 'fontItalic', 'fontUnderline', 'fontStrikethrough'];
+
+const isRegelafstand = (v) => typeof v === 'number' && Number.isFinite(v) && v > 0;
+
+// Teken- en alineastijl van een tekstvak of callout (#1150). De stijl is
+// VOLLEDIG: een annotatie zonder het veld heeft de gewone waarde (niet vet,
+// links, boven), en die wordt dan ook de standaard. Zonder eigen regelafstand
+// vervalt de voorkeur en geldt de regelafstand van het tekenen. 'mixed' (een
+// meervoudige selectie) is geen waarde en laat de voorkeur staan.
+function schrijfTekststijl(annotation, prefs, m) {
+  const p = m.prefix;
+  for (const veld of TEKEN_VELDEN) {
+    if (m[veld] && annotation[veld] !== 'mixed') prefs[p + m[veld]] = annotation[veld] === true;
+  }
+  if (m.textAlign && annotation.textAlign !== 'mixed') {
+    prefs[p + m.textAlign] = UITLIJNING.includes(annotation.textAlign) ? annotation.textAlign : 'left';
+  }
+  if (m.textVAlign && annotation.textVAlign !== 'mixed') {
+    prefs[p + m.textVAlign] = VERTICAAL.includes(annotation.textVAlign) ? annotation.textVAlign : 'top';
+  }
+  if (m.lineSpacing && annotation.lineSpacing !== 'mixed') {
+    const regel = Number(annotation.lineSpacing);
+    if (isRegelafstand(regel)) prefs[p + m.lineSpacing] = regel;
+    else delete prefs[p + m.lineSpacing];
+  }
+}
+
+/**
+ * De teken- en alineastijl uit de stijlvoorkeuren, als velden voor een NIEUWE
+ * annotatie van dit type (#1150). Alleen wat afwijkt van de gewone waarde
+ * komt mee, zodat een vak zonder eigen stijl dezelfde velden houdt als
+ * voorheen. Leeg voor een soort zonder tekststijl.
+ */
+export function tekststijlUitVoorkeur(prefs, type) {
+  const m = getStyleMapping(type);
+  const uit = {};
+  if (!m || !prefs) return uit;
+  const p = m.prefix;
+  for (const veld of TEKEN_VELDEN) {
+    if (m[veld] && prefs[p + m[veld]] === true) uit[veld] = true;
+  }
+  if (m.textAlign && UITLIJNING.includes(prefs[p + m.textAlign]) && prefs[p + m.textAlign] !== 'left') {
+    uit.textAlign = prefs[p + m.textAlign];
+  }
+  if (m.textVAlign && VERTICAAL.includes(prefs[p + m.textVAlign]) && prefs[p + m.textVAlign] !== 'top') {
+    uit.textVAlign = prefs[p + m.textVAlign];
+  }
+  if (m.lineSpacing && isRegelafstand(prefs[p + m.lineSpacing])) uit.lineSpacing = prefs[p + m.lineSpacing];
+  return uit;
+}
+
+/**
+ * De teken- en alineastijl uit de stijlvoorkeuren op een BESTAANDE annotatie
+ * zetten ("Standaardstijl toepassen", en het paneel van een actief
+ * gereedschap). Anders dan bij een nieuwe annotatie wordt ook de gewone
+ * waarde gezet: een vet vak wordt weer gewoon als de standaard niet vet is.
+ * Een voorkeur die ontbreekt, laat het veld met rust.
+ */
+export function pasTekststijlToe(annotation, prefs) {
+  const m = getStyleMapping(annotation?.type);
+  if (!m || !prefs) return;
+  const p = m.prefix;
+  const RUN_VELD = { fontBold: 'bold', fontItalic: 'italic' };
+  for (const veld of TEKEN_VELDEN) {
+    if (!m[veld] || typeof prefs[p + m[veld]] !== 'boolean') continue;
+    const waarde = prefs[p + m[veld]];
+    annotation[veld] = waarde;
+    // Vlak-brede vet/cursief: ook de inline runs volgen (zoals het paneel).
+    const run = RUN_VELD[veld];
+    if (run && Array.isArray(annotation.textRuns)) {
+      annotation.textRuns = annotation.textRuns.map(regel => (regel || []).map(r => ({ ...r, [run]: waarde })));
+    }
+  }
+  if (m.textAlign && UITLIJNING.includes(prefs[p + m.textAlign])) annotation.textAlign = prefs[p + m.textAlign];
+  if (m.textVAlign && VERTICAAL.includes(prefs[p + m.textVAlign])) {
+    // 'top' is de gewone waarde en staat niet als veld op de annotatie.
+    if (prefs[p + m.textVAlign] === 'top') delete annotation.textVAlign;
+    else annotation.textVAlign = prefs[p + m.textVAlign];
+  }
+  if (m.lineSpacing && isRegelafstand(prefs[p + m.lineSpacing])) annotation.lineSpacing = prefs[p + m.lineSpacing];
 }
 
 // `prefs`, with every write and delete of a key noted in `touched`.

@@ -7,6 +7,15 @@
 // Pure module zonder app-imports, zodat ook een module zonder de rest van de
 // app (en zonder de import-kringloop via bridge.ts) de tabel kan lezen.
 
+// Teken- en alineastijl van de tekstgereedschappen (#1150): vet, cursief,
+// onderstrepen, doorhalen, uitlijning (horizontaal en verticaal) en
+// regelafstand horen net als lettertype en grootte bij de standaardstijl.
+const TEKSTSTIJL = Object.freeze({
+  fontBold: 'FontBold', fontItalic: 'FontItalic', fontUnderline: 'FontUnderline',
+  fontStrikethrough: 'FontStrikethrough', textAlign: 'TextAlign', textVAlign: 'TextVAlign',
+  lineSpacing: 'LineSpacing',
+});
+
 export function getStyleMapping(type) {
   const hasHatch = ['box', 'circle', 'polygon', 'cloud'].includes(type);
   switch (type) {
@@ -26,9 +35,9 @@ export function getStyleMapping(type) {
       return { prefix: 'circle', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fillOpacity: 'FillOpacity', hatch: hasHatch };
     // fontFamily: het gekozen lettertype gaat mee in de standaardstijl (#765).
     case 'textbox':
-      return { prefix: 'textbox', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily', textColor: 'TextColor' };
+      return { prefix: 'textbox', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily', textColor: 'TextColor', ...TEKSTSTIJL };
     case 'callout':
-      return { prefix: 'callout', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily', textColor: 'TextColor' };
+      return { prefix: 'callout', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'BorderWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fontSize: 'FontSize', fontFamily: 'FontFamily', textColor: 'TextColor', ...TEKSTSTIJL };
     case 'polygon':
       return { prefix: 'polygon', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'LineWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', fillOpacity: 'FillOpacity', hatch: hasHatch };
     case 'cloud':

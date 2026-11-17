@@ -151,6 +151,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   textboxFontSize: 8,
   textboxFontFamily: 'Arial',
   textboxTextColor: '#000000',
+  // Teken- en alineastijl (#1150). Geen regelafstand: dan geldt die van het tekenen.
+  textboxFontBold: false,
+  textboxFontItalic: false,
+  textboxFontUnderline: false,
+  textboxFontStrikethrough: false,
+  textboxTextAlign: 'left',
+  textboxTextVAlign: 'top',
 
   // Callout defaults
   calloutFillColor: '#FFFBEB',
@@ -162,6 +169,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
   calloutFontSize: 14,
   calloutFontFamily: 'Arial',
   calloutTextColor: '#000000',
+  calloutFontBold: false,
+  calloutFontItalic: false,
+  calloutFontUnderline: false,
+  calloutFontStrikethrough: false,
+  calloutTextAlign: 'left',
+  calloutTextVAlign: 'top',
 
   // Rectangle defaults
   rectFillColor: '#FFFBEB',
