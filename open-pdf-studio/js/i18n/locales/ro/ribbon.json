@@ -409,7 +409,16 @@
     },
     "methodVector": "Vectorial",
     "methodVectorHint": "Compară exact traseele desenate acolo unde ambele pagini sunt desene vectoriale; celelalte pagini folosesc compararea pe pixeli",
-    "methodPixelFallback": "pixeli: nu este o pagină vectorială"
+    "methodPixelFallback": "pixeli: nu este o pagină vectorială",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Pagini",

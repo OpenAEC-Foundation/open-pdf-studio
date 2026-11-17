@@ -409,7 +409,16 @@
     "methodVector": "Vector",
     "methodVectorHint": "Vergelijk de getekende paden exact waar beide pagina's vectortekeningen zijn; andere pagina's gebruiken de pixelvergelijking",
     "methodPixelFallback": "pixels: geen vectorpagina",
-    "colourOverlayHint": "Toon beide tekeningen over elkaar, elk in een eigen kleur"
+    "colourOverlayHint": "Toon beide tekeningen over elkaar, elk in een eigen kleur",
+    "precision": "Precisie",
+    "precisionHint": "Lager: alleen grotere verschillen tellen mee. Hoger: ook kleine verschillen en lijnranden tellen mee.",
+    "precisionLevel": {
+      "lowest": "Laagst",
+      "low": "Laag",
+      "normal": "Normaal",
+      "high": "Hoog",
+      "highest": "Hoogst"
+    }
   },
   "organize": {
     "pages": "Pagina's",

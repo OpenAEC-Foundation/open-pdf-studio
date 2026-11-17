@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "Točno usporedi nacrtane putanje gdje su obje stranice vektorski crteži; ostale stranice koriste usporedbu piksela",
-    "methodPixelFallback": "pikseli: nije vektorska stranica"
+    "methodPixelFallback": "pikseli: nije vektorska stranica",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Stranice",

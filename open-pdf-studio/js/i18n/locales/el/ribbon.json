@@ -409,7 +409,16 @@
     },
     "methodVector": "Διανυσματικό",
     "methodVectorHint": "Ακριβής σύγκριση των σχεδιασμένων διαδρομών όπου και οι δύο σελίδες είναι διανυσματικά σχέδια· οι άλλες σελίδες συγκρίνονται ανά εικονοστοιχείο",
-    "methodPixelFallback": "εικονοστοιχεία: όχι διανυσματική σελίδα"
+    "methodPixelFallback": "εικονοστοιχεία: όχι διανυσματική σελίδα",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Σελίδες",

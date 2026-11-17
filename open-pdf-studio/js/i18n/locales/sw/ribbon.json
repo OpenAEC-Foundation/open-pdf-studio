@@ -409,7 +409,16 @@
     },
     "methodVector": "Vekta",
     "methodVectorHint": "Linganisha njia zilizochorwa kwa usahihi pale kurasa zote mbili ni michoro ya vekta; kurasa nyingine hutumia ulinganisho wa pikseli",
-    "methodPixelFallback": "pikseli: si ukurasa wa vekta"
+    "methodPixelFallback": "pikseli: si ukurasa wa vekta",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Kurasa",

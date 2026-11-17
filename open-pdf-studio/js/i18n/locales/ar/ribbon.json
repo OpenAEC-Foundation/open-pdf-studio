@@ -409,7 +409,16 @@
     },
     "methodVector": "متجهي",
     "methodVectorHint": "قارن المسارات المرسومة بدقة حيث تكون الصفحتان رسومات متجهية؛ تستخدم الصفحات الأخرى المقارنة بالبكسل",
-    "methodPixelFallback": "بكسل: ليست صفحة متجهية"
+    "methodPixelFallback": "بكسل: ليست صفحة متجهية",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "صفحات",

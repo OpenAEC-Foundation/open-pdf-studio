@@ -52,6 +52,8 @@ import {
   resetCompareAlignment,
   comparePreset,
   setComparePreset,
+  comparePrecision,
+  setComparePrecision,
   comparePairs,
   comparePairing,
   setComparePairing,
@@ -81,7 +83,7 @@ import {
   pageNames,
 } from '../../../compare/compare-viewport.js';
 import { alignmentCss, normalizeAlignment } from '../../../compare/alignment.js';
-import { SENSITIVITY_PRESETS, MM_PER_PT } from '../../../compare/detect-plan.js';
+import { SENSITIVITY_PRESETS, MM_PER_PT, PRECISION_LEVELS, PRECISION_NAMES } from '../../../compare/detect-plan.js';
 import { indexPairs } from '../../../compare/page-pairing.js';
 import {
   collectReport, exportReportCsv, exportReportPdf, canPlaceClouds, placeChangeClouds,
@@ -448,6 +450,7 @@ export default function CompareView() {
         scale: 1.5 * zoomAtRender,
         offset: compareOffset(),
         preset: comparePreset(),
+        precision: comparePrecision(),
         method: compareMethod(),
         autoAlign: compareAlignPending(),
         skipDetection,
@@ -557,6 +560,7 @@ export default function CompareView() {
     compareNewPage();
     compareOffset();
     comparePreset();
+    comparePrecision();
     compareMethod();
     compareAlignPending();
     compareColourOverlay();
@@ -727,7 +731,7 @@ export default function CompareView() {
   const runReport = async (kind) => {
     setReportMenu(false);
     if (reportBusy()) return;
-    const o = { oldPath: compareOldPath(), newPath: compareNewPath(), preset: comparePreset(), method: compareMethod() };
+    const o = { oldPath: compareOldPath(), newPath: compareNewPath(), preset: comparePreset(), precision: comparePrecision(), method: compareMethod() };
     setReportBusy({ done: 0, total: reportPairs().length });
     try {
       const results = await collectReport({
@@ -1060,6 +1064,25 @@ export default function CompareView() {
               {(k) => <option value={k} selected={comparePreset() === k}>{t(`compare.preset.${k}`) || k}</option>}
             </For>
           </select>
+          {/* Precisie (#1149): hoe klein een verschil nog meetelt. Schaalt de
+              tolerantie en de minimale grootte van de gekozen gevoeligheid;
+              de inktmaskers blijven gelijk, alleen de detectie loopt opnieuw. */}
+          <label
+            style="display:inline-flex; align-items:center; gap:4px;"
+            title={t('compare.precisionHint') || 'Lower: only larger differences. Higher: small differences and line edges count too.'}
+          >
+            <span style="color:#555;">{t('compare.precision') || 'Precision'}</span>
+            <input
+              type="range"
+              min={PRECISION_LEVELS[0]}
+              max={PRECISION_LEVELS[PRECISION_LEVELS.length - 1]}
+              step="1"
+              value={comparePrecision()}
+              style="width:72px; margin:0;"
+              onChange={(e) => setComparePrecision(e.currentTarget.value)}
+            />
+            <span style="min-width:44px;">{t(`compare.precisionLevel.${PRECISION_NAMES[comparePrecision()]}`) || PRECISION_NAMES[comparePrecision()]}</span>
+          </label>
           <label
             style="display:inline-flex; align-items:center; gap:3px;"
             title={t('compare.methodVectorHint') || 'Compare the drawn paths exactly where both pages are vector drawings'}

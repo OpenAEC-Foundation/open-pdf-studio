@@ -153,8 +153,9 @@ voert de Rust-poort uit op dezelfde invoer als de JS-modules
 `scripts/bench-rust/compare-golden.mjs`: pdf.js-maskers van de A3-paren,
 synthetische paren met schaal, kwartslag en meetschaal, een RGBA-tegel met
 getinte achtergrond en transparante pixels) en eist dezelfde uitvoer, ook voor
-de kommagetallen bit voor bit (f64-bitpatronen in de fixture): 13
-detectiegevallen (drie gevoeligheden, identiteit, afgekapt), 5 uitlijningen,
+de kommagetallen bit voor bit (f64-bitpatronen in de fixture): 23
+detectiegevallen (drie gevoeligheden, de precisieniveaus, identiteit,
+afgekapt), 5 uitlijningen,
 4 inktmaskers en de achtergrondschatting. Daarvoor rekent de poort zoals V8:
 `Math.hypot` en `Math.round` nagebouwd, cos/sin/atan2/exp/log uit de
 `libm`-crate (fdlibm-afstamming, MIT/Apache).
@@ -190,6 +191,17 @@ De tolerantie (en waarom):
 Niet-ingebedde standaardfonts tekent pdf.js met de fonts die de app meegeeft
 (Liberation), PDFium met zijn eigen; het benchmarkscript geeft pdf.js daarom
 dezelfde fonts als de app, anders verschilt tekst meer dan anti-aliasing.
+
+**Precisie (#1149).** De schuif Precisie in de vergelijkingsweergave (vijf
+niveaus, 0 = de gekozen gevoeligheid zelf) schaalt de tolerantie, de minimale
+oppervlakte en op de lagere niveaus de samenvoegafstand
+(`precisionSettings` in `detect-plan.js`). De omrekening naar pixels gebeurt
+in JS; de worker krijgt alleen andere waarden voor `tolerance_px`,
+`min_area_px`, `merge_px` en `noise_px`. De inktdrempel (`threshold`)
+verandert niet, dus de maskers in de cache van de worker (sleutel: bestand,
+pagina, resolutie, drempel) en in die van de JS-weg blijven bruikbaar: een
+ander niveau rekent alleen de detectie opnieuw. De fixtures bevatten elk
+niveau, ook tolerantie 0 op het hoogste.
 
 **Standaard:** desktop gebruikt de worker (duidelijk sneller, en geen
 pixelwerk meer op de hoofdthread). JS blijft de terugval: in de webversie en

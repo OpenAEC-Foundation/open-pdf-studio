@@ -409,7 +409,16 @@
     },
     "methodVector": "Вектор",
     "methodVectorHint": "Точно сравнение на начертаните контури, където и двете страници са векторни чертежи; другите страници се сравняват по пиксели",
-    "methodPixelFallback": "пиксели: не е векторна страница"
+    "methodPixelFallback": "пиксели: не е векторна страница",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Страници",

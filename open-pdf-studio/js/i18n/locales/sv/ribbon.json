@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "Jämför de ritade banorna exakt där båda sidorna är vektorritningar; andra sidor använder pixeljämförelse",
-    "methodPixelFallback": "pixlar: inte en vektorsida"
+    "methodPixelFallback": "pixlar: inte en vektorsida",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Sidor",

@@ -409,7 +409,16 @@
     },
     "methodVector": "ویکٹر",
     "methodVectorHint": "جہاں دونوں صفحات ویکٹر ڈرائنگ ہوں وہاں کھینچے گئے راستوں کا درست موازنہ کریں؛ دوسرے صفحات پکسل موازنہ استعمال کرتے ہیں",
-    "methodPixelFallback": "پکسل: ویکٹر صفحہ نہیں"
+    "methodPixelFallback": "پکسل: ویکٹر صفحہ نہیں",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "صفحات",

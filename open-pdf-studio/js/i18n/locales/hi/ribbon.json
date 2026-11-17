@@ -409,7 +409,16 @@
     },
     "methodVector": "वेक्टर",
     "methodVectorHint": "जहाँ दोनों पृष्ठ वेक्टर चित्र हों वहाँ खींचे गए पथों की सटीक तुलना करें; अन्य पृष्ठ पिक्सेल तुलना का उपयोग करते हैं",
-    "methodPixelFallback": "पिक्सेल: वेक्टर पृष्ठ नहीं"
+    "methodPixelFallback": "पिक्सेल: वेक्टर पृष्ठ नहीं",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "पृष्ठ",

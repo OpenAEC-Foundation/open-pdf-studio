@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "A rajzolt útvonalak pontos összehasonlítása, ahol mindkét oldal vektoros rajz; a többi oldal képpontos összehasonlítást kap",
-    "methodPixelFallback": "képpontok: nem vektoros oldal"
+    "methodPixelFallback": "képpontok: nem vektoros oldal",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Oldalak",

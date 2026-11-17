@@ -409,7 +409,16 @@
     },
     "methodVector": "ベクター",
     "methodVectorHint": "両方のページがベクター図面の場合は描画パスを正確に比較し、それ以外のページはピクセル比較を使います",
-    "methodPixelFallback": "ピクセル: ベクターページではありません"
+    "methodPixelFallback": "ピクセル: ベクターページではありません",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "ページ",

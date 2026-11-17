@@ -409,7 +409,16 @@
     },
     "methodVector": "Vectorial",
     "methodVectorHint": "Compara exactament els traços on les dues pàgines són dibuixos vectorials; les altres pàgines fan servir la comparació per píxels",
-    "methodPixelFallback": "píxels: no és una pàgina vectorial"
+    "methodPixelFallback": "píxels: no és una pàgina vectorial",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Pàgines",

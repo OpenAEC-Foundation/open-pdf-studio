@@ -409,7 +409,16 @@
     },
     "methodVector": "Вектор",
     "methodVectorHint": "Точно порівнювати накреслені контури, якщо обидві сторінки — векторні креслення; інші сторінки порівнюються за пікселями",
-    "methodPixelFallback": "пікселі: не векторна сторінка"
+    "methodPixelFallback": "пікселі: не векторна сторінка",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Сторінки",

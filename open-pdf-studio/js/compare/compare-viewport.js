@@ -9,7 +9,7 @@
 //   getDocPageCount(filePath)
 //
 // Where opts = { oldPath, newPath, oldPage, newPage, scale, offset, preset,
-//               method, autoAlign }
+//               precision, method, autoAlign }
 //
 // Change detection (#465): each page is rasterised in tiles to an ink mask at
 // a resolution derived from the paper size (detect-plan.js), the pair is
@@ -33,7 +33,7 @@ import {
 import { pdfjsBronnen } from '../core/basis-url.js';
 import { state } from '../core/state.js';
 import { compareSourceBytes } from './compare-sources.js';
-import { planPair, planTiles, detectionParams, presetSettings, MM_PER_PT, PT_PER_MM } from './detect-plan.js';
+import { planPair, planTiles, detectionParams, precisionSettings, normalizePrecision, MM_PER_PT, PT_PER_MM } from './detect-plan.js';
 import { pathSegments, classifyPage, vectorComparable } from './vector-diff.js';
 import { createMask, writeInkTile, estimateBackground } from './ink-mask.js';
 import { alignmentMatrix, multiply, scaling, normalizeAlignment, measureScaleRatio } from './alignment.js';
@@ -99,8 +99,8 @@ const _vectorCache = new Map();
 const _changesCache = new Map();
 const _CHANGES_CACHE_MAX = 24;
 
-// Detection depends on the pair, the sensitivity preset and the alignment
-// (not on the zoom: change records are in page points).
+// Detection depends on the pair, the sensitivity preset, the precision level
+// and the alignment (not on the zoom: change records are in page points).
 const _r6 = (v) => Math.round((Number(v) || 0) * 1e6) / 1e6;
 export function alignmentKey(offset) {
   const a = normalizeAlignment(offset);
@@ -109,7 +109,7 @@ export function alignmentKey(offset) {
 
 function _changesCacheKey(opts, offset = opts.offset) {
   const { oldPath, newPath, oldPage, newPage, preset = 'line', method = 'pixel' } = opts;
-  return `${oldPath}|${oldPage}|${newPath}|${newPage}|${preset}|${method}|${alignmentKey(offset)}`;
+  return `${oldPath}|${oldPage}|${newPath}|${newPage}|${preset}|${normalizePrecision(opts.precision)}|${method}|${alignmentKey(offset)}`;
 }
 
 function _maskCacheGet(key) {
@@ -461,7 +461,7 @@ const _quantScale = (s) => Math.exp(Math.round(Math.log(s) / 0.005) * 0.005);
 
 /**
  * Changes for one page pair.
- * @param {{oldPath,newPath,oldPage,newPage,offset?,preset?,autoAlign?:boolean}} opts
+ * @param {{oldPath,newPath,oldPage,newPage,offset?,preset?,precision?:number,autoAlign?:boolean}} opts
  * @param {{detect, align, id?:number, seq?:() => boolean}} clients
  * @returns {Promise<null|{changes:Array, alignment:object, alignInfo:object|null, truncated:boolean, mmPerPx:number}>}
  *   null when the request was overtaken.
@@ -475,7 +475,7 @@ export async function computePairChanges(opts, clients) {
     getComparePageSize(newPath, newPage),
   ]);
   const plan = planPair(oldSize, newSize);
-  const params = detectionParams(opts.preset || 'line', plan.mmPerPx);
+  const params = detectionParams(opts.preset || 'line', plan.mmPerPx, opts.precision);
 
   // Vector comparison (gap 8) where both pages are vector drawings; the pixel
   // comparison is the fallback.
@@ -530,7 +530,7 @@ export async function computePairChanges(opts, clients) {
   }
 
   if (vector) {
-    const p = presetSettings(opts.preset || 'line');
+    const p = precisionSettings(opts.preset || 'line', opts.precision);
     const r = await clients.detect.run({ segments: vector.ov.segments }, { segments: vector.nv.segments }, {
       id: clients.id,
       task: 'vector',
@@ -538,7 +538,7 @@ export async function computePairChanges(opts, clients) {
         transform: alignmentMatrix(alignment, oldSize, newSize),
         tolPt: p.toleranceMm * PT_PER_MM,
         mergePt: p.mergeMm * PT_PER_MM,
-        minLenPt: 0.2 * PT_PER_MM,
+        minLenPt: p.minLengthMm * PT_PER_MM,
       },
     });
     if (!r.changes) return null;

@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "Presne porovnať nakreslené cesty, kde sú obe strany vektorové výkresy; ostatné strany používajú porovnanie pixelov",
-    "methodPixelFallback": "pixely: nie je vektorová strana"
+    "methodPixelFallback": "pixely: nie je vektorová strana",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Strany",

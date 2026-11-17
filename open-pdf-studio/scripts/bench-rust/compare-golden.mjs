@@ -84,6 +84,11 @@ for (const shift of [false, true]) {
   for (const preset of ['line', 'scan', 'text']) {
     detects.push({ preset, ...detectCase(oldMask, newMask, detectionParams(preset, r.mmPerPx), T) });
   }
+  // The precision levels (#1149), including tolerance 0 at the highest one.
+  for (const level of [-2, -1, 1, 2]) {
+    detects.push({ preset: `line-precision${level}`, ...detectCase(oldMask, newMask, detectionParams('line', r.mmPerPx, level), T) });
+  }
+  detects.push({ preset: 'scan-precision2', ...detectCase(oldMask, newMask, detectionParams('scan', r.mmPerPx, 2), T) });
   // The identity path (direct rows, no resampling) as well.
   detects.push({ preset: 'line-identity', ...detectCase(oldMask, newMask, detectionParams('line', r.mmPerPx), null) });
   // A tiny run budget: the truncated path.

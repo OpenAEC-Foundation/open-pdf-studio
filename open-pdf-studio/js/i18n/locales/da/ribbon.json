@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "Sammenlign de tegnede stier præcist, hvor begge sider er vektortegninger; andre sider bruger pixelsammenligning",
-    "methodPixelFallback": "pixels: ikke en vektorside"
+    "methodPixelFallback": "pixels: ikke en vektorside",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Sider",

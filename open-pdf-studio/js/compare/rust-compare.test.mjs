@@ -40,6 +40,26 @@ test('the request carries the sides, the resolution and the pixel parameters in 
   assert.equal(buildRustRequest({ ...base, autoAlign: true, measureRatio: null }).auto_align.measure_ratio, null);
 });
 
+// #1149: the precision level reaches the worker as the same pixel parameters
+// the JS detection gets, and never changes the threshold (the worker caches
+// its ink masks per threshold, so a level change re-uses them).
+test('precision levels travel to the worker as pixel parameters; the threshold stays', () => {
+  const base = {
+    old: { path: 'C:/a.pdf', expectLen: 10 }, new: { path: 'C:/b.pdf', expectLen: 20 }, oldIndex: 0, newIndex: 0,
+    oldSize: { width: 1190.5, height: 841.9 }, newSize: { width: 1190.5, height: 841.9 }, pxPerPt: 1.76,
+  };
+  const seen = new Set();
+  for (const level of [-2, -1, 0, 1, 2]) {
+    const params = detectionParams('line', 0.2, level);
+    const req = buildRustRequest({ ...base, params });
+    assert.equal(req.threshold, 96, `threshold at ${level}`);
+    assert.deepEqual(req.params, { tolerance_px: params.tolerancePx, min_area_px: params.minAreaPx, merge_px: params.mergePx, noise_px: params.noisePx });
+    seen.add(JSON.stringify(req.params));
+  }
+  assert.equal(seen.size, 5, 'every level asks the worker for something else');
+  assert.deepEqual(buildRustRequest({ ...base, params: detectionParams('line', 0.2, 0) }), buildRustRequest({ ...base, params: detectionParams('line', 0.2) }));
+});
+
 test('the answer decodes into the clusters detectMaskChanges returns', () => {
   for (const extra of ['', 'x', 'xyz1234']) {
     const head = { ok: true, old_px: 1.5, truncated: false, align_info: null, pad: extra };

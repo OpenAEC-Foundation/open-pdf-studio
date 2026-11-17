@@ -409,7 +409,16 @@
     },
     "methodVector": "וקטורי",
     "methodVectorHint": "השוואה מדויקת של הנתיבים המשורטטים כששני העמודים הם שרטוטים וקטוריים; שאר העמודים מושווים לפי פיקסלים",
-    "methodPixelFallback": "פיקסלים: לא עמוד וקטורי"
+    "methodPixelFallback": "פיקסלים: לא עמוד וקטורי",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "עמודים",

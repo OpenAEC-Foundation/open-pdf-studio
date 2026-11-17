@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "Bandingkan laluan yang dilukis dengan tepat apabila kedua-dua halaman ialah lukisan vektor; halaman lain menggunakan perbandingan piksel",
-    "methodPixelFallback": "piksel: bukan halaman vektor"
+    "methodPixelFallback": "piksel: bukan halaman vektor",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Halaman",

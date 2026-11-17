@@ -409,7 +409,16 @@
     },
     "methodVector": "벡터",
     "methodVectorHint": "두 페이지가 모두 벡터 도면이면 그린 경로를 정확히 비교하고, 그 밖의 페이지는 픽셀 비교를 사용합니다",
-    "methodPixelFallback": "픽셀: 벡터 페이지가 아님"
+    "methodPixelFallback": "픽셀: 벡터 페이지가 아님",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "페이지",

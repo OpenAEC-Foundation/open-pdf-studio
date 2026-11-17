@@ -409,7 +409,16 @@
     },
     "methodVector": "Vektor",
     "methodVectorHint": "Gezeichnete Pfade exakt vergleichen, wo beide Seiten Vektorzeichnungen sind; andere Seiten nutzen den Pixelvergleich",
-    "methodPixelFallback": "Pixel: keine Vektorseite"
+    "methodPixelFallback": "Pixel: keine Vektorseite",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Seiten",

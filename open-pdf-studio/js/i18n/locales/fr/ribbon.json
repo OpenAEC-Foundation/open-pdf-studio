@@ -409,7 +409,16 @@
     },
     "methodVector": "Vectoriel",
     "methodVectorHint": "Comparer exactement les tracés là où les deux pages sont des dessins vectoriels ; les autres pages utilisent la comparaison par pixels",
-    "methodPixelFallback": "pixels : pas une page vectorielle"
+    "methodPixelFallback": "pixels : pas une page vectorielle",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "Pages",

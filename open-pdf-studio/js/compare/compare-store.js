@@ -6,7 +6,7 @@ import { createSignal, batch } from 'solid-js';
 import { state } from '../core/state.js';
 import { normalizeCompareMode } from './split-line.js';
 import { IDENTITY_ALIGNMENT, normalizeAlignment } from './alignment.js';
-import { DEFAULT_PRESET, normalizePreset } from './detect-plan.js';
+import { DEFAULT_PRESET, normalizePreset, DEFAULT_PRECISION, normalizePrecision } from './detect-plan.js';
 import { assignPair } from './page-pairing.js';
 import { clearCompareSources } from './compare-sources.js';
 import { leesOpslag, schrijfOpslag } from '../core/opslag.js';
@@ -36,6 +36,11 @@ const [alignPending, setAlignPendingSignal] = createSignal(false);
 const [autoAlign, setAutoAlignSignal] = createSignal(true);
 // Sensitivity preset (detect-plan.js): 'line' | 'scan' | 'text'.
 const [preset, setPresetSignal] = createSignal(DEFAULT_PRESET);
+// Precision level on top of the preset (detect-plan.js, #1149): -2..2, 0 =
+// the preset itself. Kept per viewer like the colour overlay below.
+const [precision, setPrecisionSignal] = createSignal((() => {
+  try { return normalizePrecision(leesOpslag('compare.precision') ?? DEFAULT_PRECISION); } catch { return DEFAULT_PRECISION; }
+})());
 // Page pairing list (page-pairing.js); empty = index-based pairs.
 const [pairs, setPairsSignal] = createSignal([]);
 const [pairing, setPairingSignal] = createSignal(false);
@@ -120,6 +125,7 @@ export {
   alignPending as compareAlignPending,
   autoAlign as compareAutoAlign,
   preset as comparePreset,
+  precision as comparePrecision,
   pairs as comparePairs,
   pairing as comparePairing,
   truncated as compareTruncated,
@@ -218,6 +224,12 @@ export function setCompareAutoAlign(v) {
 
 export function setComparePreset(name) {
   setPresetSignal(normalizePreset(name));
+}
+
+export function setComparePrecision(level) {
+  const n = normalizePrecision(level);
+  setPrecisionSignal(n);
+  try { schrijfOpslag('compare.precision', String(n)); } catch { /* opslag optioneel */ }
 }
 
 export function setCompareTruncated(v) {

@@ -409,7 +409,16 @@
     },
     "methodVector": "வெக்டர்",
     "methodVectorHint": "இரு பக்கங்களும் வெக்டர் வரைபடங்களாக இருக்கும் இடத்தில் வரைந்த பாதைகளைத் துல்லியமாக ஒப்பிடு; மற்ற பக்கங்கள் பிக்சல் ஒப்பீட்டைப் பயன்படுத்தும்",
-    "methodPixelFallback": "பிக்சல்கள்: வெக்டர் பக்கம் அல்ல"
+    "methodPixelFallback": "பிக்சல்கள்: வெக்டர் பக்கம் அல்ல",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    }
   },
   "organize": {
     "pages": "பக்கங்கள்",
