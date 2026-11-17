@@ -38,6 +38,33 @@ Every release is on the [releases page](https://github.com/OpenAEC-Foundation/op
 | **Android** | `open-pdf-studio-release.apk` (64-bit ARM) |
 | **Other** | `open-pdf-studio.mcpb` (AI connection for MCP clients), `open-pdf-studio-web-<version>.tar.gz` (web version to host yourself), winget manifests, the Python library (`.whl` and `.tar.gz`) |
 
+### Downloads in numbers
+
+How often the installers on the releases page were downloaded.
+
+<!-- download-stats:start -->
+| Platform | All releases | Latest release | Share |
+|---|---:|---:|---:|
+| Windows | 26,905 | 875 | 60.4% |
+| macOS | 3,483 | 83 | 7.8% |
+| Linux | 7,386 | 162 | 16.6% |
+| Android | 6,800 | 144 | 15.3% |
+| **Total** | **44,574** | **1,264** | **100%** |
+
+```mermaid
+pie showData
+    title Installer downloads by platform
+    "Windows" : 26905
+    "macOS" : 3483
+    "Linux" : 7386
+    "Android" : 6800
+```
+
+Counted on 2026-11-17 over 89 releases; the latest is v2026.47.0. Only installers count, not the updates an installed copy fetches. The Snap Store, Flathub and the web version are not in these numbers.
+<!-- download-stats:end -->
+
+Update with `node open-pdf-studio/scripts/download-stats.mjs`.
+
 **Updates.** The Windows installers, the macOS app, the `.deb` and the AppImage check for updates and install them through the built-in updater, which only accepts updates signed with the project's update key. The snap updates through the Snap Store. The portable version and the Android app do not update themselves.
 
 **Signing.** The Windows installers and the program files they install are Authenticode-signed with Azure Trusted Signing; the release workflow installs the signed installer and checks every signature. The macOS app is signed with a Developer ID and notarized by Apple; the workflow checks it with `codesign`, `spctl` and `stapler`. From the first release after 2026.45.0 (the signing job came later), the `.deb`, the AppImage and the snap each have a detached OpenPGP signature (`.asc`) of the OpenAEC Foundation release key, fingerprint `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, and `SHA256SUMS` with `SHA256SUMS.asc` covers the Linux files; check them with `gpg --verify <file>.asc <file>` against [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (see [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). The `.sig` files are the update signatures that the built-in updater checks. The Android APK is signed, but with a new key for every release (see [Current limitations](#current-limitations)). The portable zip and the web bundle come with a `.sha256` file.
