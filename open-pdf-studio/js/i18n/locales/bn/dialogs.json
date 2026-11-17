@@ -137,6 +137,8 @@
     "perSheetOne": "1 (সাধারণ)",
     "perSheetCustom": "কাস্টম...",
     "perSheetGrid": "কলাম × সারি:",
+    "perSheetColumns": "কলাম",
+    "perSheetRows": "সারি",
     "perSheetBy": "×",
     "pageOrder": "পৃষ্ঠার ক্রম:",
     "orderHorizontal": "অনুভূমিক",

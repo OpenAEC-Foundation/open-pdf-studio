@@ -873,7 +873,10 @@ class ToolMethods:
         png_base64, width, height, scope, bounds: { x, y, width, height } (the
         captured area in CSS px), devicePixelRatio }. 'window' and 'element' use
         a native capture of the web view and are available on Windows only for
-        now; on other platforms they return an error.
+        now; on other platforms they return an error. Inline results also
+        include an MCP image content item (image/png); the first text item
+        retains the complete legacy JSON including png_base64. This tool has no
+        path parameter; use app_capture_region for file export.
 
         Args:
             scope (one of "document", "window", "element"; default "document"):
@@ -902,7 +905,15 @@ class ToolMethods:
         Returns { page, rect, width, height, dpi, limited, mime } plus
         image_base64, or with `path` the image is written to that file and {
         path, bytes } is returned instead of the base64. Nothing is put on the
-        clipboard.
+        clipboard. Inline results also include an MCP image content item with
+        the actual PNG/JPEG MIME type; the first text item retains the complete
+        legacy JSON. With path, the result stays file metadata only. Export
+        requires an already granted filesystem path and OS write permission;
+        TEMP, Pictures and Documents are not automatically granted. Select a
+        destination through Home > Screenshot > Save, reuse an already granted
+        export location, or omit path. A forbidden-path error lists current
+        allowed and denied path patterns; window permissions and denied paths
+        still apply.
 
         Args:
             dpi (number; default 150, min 10, max 2400): Resolution in pixels
@@ -910,8 +921,10 @@ class ToolMethods:
             format (one of "png", "jpeg"; default "png")
             height (number): Height in app points.
             page (integer; min 1): Page number (default: the current page).
-            path (string): Absolute file path to write the image to, instead of
-                returning it as base64.
+            path (string): Absolute file path in an already granted filesystem
+                location. Writes the image instead of returning inline image
+                content. No automatic access to TEMP, Pictures or Documents; omit
+                path to receive an image without writing a file.
             quality (integer; default 90, min 1, max 100): JPEG quality.
             width (number): Width in app points.
             x (number): Left edge in app points.
@@ -1439,39 +1452,44 @@ class ToolMethods:
         corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional
         sides, default 6) for a regular polygon in that box;
         polyline/filledArea/measureArea/measurePerimeter need
-        points:[{x,y},...]; spline needs controlPoints; draw needs path; comment
-        needs x/y; link makes the same hyperlink as the Link tool and needs a
-        target, either uri (web or e-mail address: http, https, mailto, tel or
-        ftp) or page (target page in this document, 1-based; then the annotation
-        itself goes on the top-level page) with optional view "XYZ" (default,
-        top of the page), "Fit" or {type:"XYZ",left,top,zoom} (left/top in PDF
-        points), plus x/y/width/height for the click box or
-        quads:[[ul,ur,ll,lr],...] for one box per text line (written as
-        /QuadPoints), optional border "none" (default) | "solid" | "underline"
-        with color and lineWidth; a link to a page follows that page when pages
-        are moved, inserted or deleted, and becomes broken when its target page
-        is deleted. Optional style props (color, strokeColor, fillColor,
-        lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y,
-        leaderEndX/Y, dimShowUnit (measureDistance: false shows the number
-        only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm
-        (measureDistance: overshoot of the dimension line, gap and overshoot of
-        the extension lines, in paper mm), measureShowLabel (measureArea: false
-        hides its own label), ...) override the tool defaults. measure*
-        annotations get measureText computed from the document scale
-        automatically; the app does every unit conversion. measureArea: `units`
-        (or `measureAreaUnit`) sets the unit its area is reported in: ac (acres,
-        1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000 m2), m2, ft2, yd2, ...
-        ("acres", "sq ft" and the superscript forms are understood, a length
-        unit such as ft means ft2, "auto" follows the scale again). measureText
-        then reads e.g. "2.296 ac" and the result carries `area: {value, unit}`
-        with the number in that unit; measureValue / measureUnit stay in the
-        square of the scale unit, as the lengths, edge lengths and perimeter do.
-        Without `units` the area is in the square of the scale unit (mm2 is
-        shown as m2). An unknown unit, or an area unit on a sheet without a
-        real-world scale, is an error and nothing is created. measureDistance /
-        measurePerimeter are reported in the unit of the scale; a different
-        `units` is an error instead of being ignored. scaleRegion `units` is mm,
-        cm, m, in or ft. Returns the new annotation id.
+        points:[{x,y},...]; measurePerimeter follows the supplied open point
+        sequence by default; on creation, optional closed:true (boolean, >= 3
+        points) appends the first point if needed and includes the closing edge
+        in the measurement; already repeated endpoints are not duplicated, and
+        closed:false or omission leaves the supplied sequence unchanged; spline
+        needs controlPoints; draw needs path; comment needs x/y; link makes the
+        same hyperlink as the Link tool and needs a target, either uri (web or
+        e-mail address: http, https, mailto, tel or ftp) or page (target page in
+        this document, 1-based; then the annotation itself goes on the top-level
+        page) with optional view "XYZ" (default, top of the page), "Fit" or
+        {type:"XYZ",left,top,zoom} (left/top in PDF points), plus
+        x/y/width/height for the click box or quads:[[ul,ur,ll,lr],...] for one
+        box per text line (written as /QuadPoints), optional border "none"
+        (default) | "solid" | "underline" with color and lineWidth; a link to a
+        page follows that page when pages are moved, inserted or deleted, and
+        becomes broken when its target page is deleted. Optional style props
+        (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize,
+        scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit
+        (measureDistance: false shows the number only), dimLineOvershootMm /
+        dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the
+        dimension line, gap and overshoot of the extension lines, in paper mm),
+        measureShowLabel (measureArea: false hides its own label), ...) override
+        the tool defaults. measure* annotations get measureText computed from
+        the document scale automatically; the app does every unit conversion.
+        measureArea: `units` (or `measureAreaUnit`) sets the unit its area is
+        reported in: ac (acres, 1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000
+        m2), m2, ft2, yd2, ... ("acres", "sq ft" and the superscript forms are
+        understood, a length unit such as ft means ft2, "auto" follows the scale
+        again). measureText then reads e.g. "2.296 ac" and the result carries
+        `area: {value, unit}` with the number in that unit; measureValue /
+        measureUnit stay in the square of the scale unit, as the lengths, edge
+        lengths and perimeter do. Without `units` the area is in the square of
+        the scale unit (mm2 is shown as m2). An unknown unit, or an area unit on
+        a sheet without a real-world scale, is an error and nothing is created.
+        measureDistance / measurePerimeter are reported in the unit of the
+        scale; a different `units` is an error instead of being ignored.
+        scaleRegion `units` is mm, cm, m, in or ft. Returns the new annotation
+        id.
 
         Args:
             type (one of "line", "arrow", "wall", "box", "mask", "redaction",

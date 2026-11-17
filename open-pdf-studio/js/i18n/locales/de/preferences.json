@@ -18,6 +18,7 @@
     "theme": "Design",
     "applicationTheme": "Anwendungsdesign",
     "startup": "Start",
+    "startupTool": "Werkzeug beim nächsten Start",
     "restoreLastSession": "Letzte Sitzung beim Starten der Anwendung wiederherstellen",
     "author": "Autor",
     "defaultAuthorName": "Autorname",

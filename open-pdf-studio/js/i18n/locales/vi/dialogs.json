@@ -137,6 +137,8 @@
     "perSheetOne": "1 (bình thường)",
     "perSheetCustom": "Tùy chỉnh...",
     "perSheetGrid": "Cột × hàng:",
+    "perSheetColumns": "Cột",
+    "perSheetRows": "Hàng",
     "perSheetBy": "×",
     "pageOrder": "Thứ tự trang:",
     "orderHorizontal": "Ngang",

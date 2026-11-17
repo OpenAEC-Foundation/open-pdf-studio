@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normale)",
     "perSheetCustom": "Personalizzato...",
     "perSheetGrid": "Colonne × righe:",
+    "perSheetColumns": "Colonne",
+    "perSheetRows": "Righe",
     "perSheetBy": "×",
     "pageOrder": "Ordine pagine:",
     "orderHorizontal": "Orizzontale",

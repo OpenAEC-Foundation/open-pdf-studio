@@ -4,7 +4,6 @@
 
 const STUBS = {
   'js/pdf/loader.js': ['clearCachedPdfBytes'],
-  'js/pdf/vector-renderer.js': ['invalidateDocumentCache'],
   'js/pdf/page-bitmap-cache.js': ['invalidateDocumentBitmaps'],
   'js/pdf/progressive-render.js': ['forgetContentBytes'],
   'js/pdf/weergave-per-document.js': ['vergeetWeergaveStand'],

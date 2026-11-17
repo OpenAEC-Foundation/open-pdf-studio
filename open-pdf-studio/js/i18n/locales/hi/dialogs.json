@@ -137,6 +137,8 @@
     "perSheetOne": "1 (सामान्य)",
     "perSheetCustom": "कस्टम...",
     "perSheetGrid": "कॉलम × पंक्तियां:",
+    "perSheetColumns": "स्तंभ",
+    "perSheetRows": "पंक्तियाँ",
     "perSheetBy": "×",
     "pageOrder": "पृष्ठ क्रम:",
     "orderHorizontal": "क्षैतिज",

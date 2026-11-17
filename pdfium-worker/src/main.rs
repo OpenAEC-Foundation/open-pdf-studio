@@ -42,7 +42,7 @@ fn main() -> Result<()> {
         op: "ready".to_string(),
         shm_name: format!("pdfium-worker-{}-{}.shm", ns, slot),
         shm_size: shm::SHM_SIZE as u64,
-        caps: vec!["compare".to_string(), "snap_geometry".to_string(), "page_text".to_string(), "raster_scan".to_string()],
+        caps: vec!["compare".to_string(), "snap_geometry".to_string(), "page_text".to_string(), "raster_scan".to_string(), "region_annotations".to_string()],
     };
     writeln!(std::io::stdout(), "{}", serde_json::to_string(&ready)?)?;
     std::io::stdout().flush()?;
@@ -97,11 +97,11 @@ fn main() -> Result<()> {
             }
             Request::RenderRegion {
                 id, path, page_index, scale, rotation,
-                region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+                region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, annotations,
             } => {
                 let resp = match renderer.render_region(
                     &path, page_index, scale, rotation,
-                    region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+                    region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, annotations,
                 ) {
                     Ok(result) => {
                         match shm_region.write_bitmap(result.width, result.height, &result.rgba) {

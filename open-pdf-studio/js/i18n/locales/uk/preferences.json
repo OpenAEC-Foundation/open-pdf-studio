@@ -18,6 +18,7 @@
     "theme": "Тема",
     "applicationTheme": "Тема застосунку",
     "startup": "Запуск",
+    "startupTool": "Інструмент під час наступного запуску",
     "restoreLastSession": "Відновлювати останню сесію при запуску застосунку",
     "author": "Автор",
     "defaultAuthorName": "Ім'я автора",

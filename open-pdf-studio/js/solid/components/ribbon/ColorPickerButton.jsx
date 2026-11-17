@@ -1,6 +1,8 @@
 import { createSignal, createEffect, onMount, onCleanup, For } from 'solid-js';
 import { PALETTE_COLUMNS } from '../../stores/formatStore.js';
 import { autoShrinkLabel } from './autoShrinkLabel.js';
+import { metAfbreekpunten } from './afbreken.js';
+import { language } from '../../../i18n/useTranslation.js';
 
 export default function ColorPickerButton(props) {
   const [open, setOpen] = createSignal(false);
@@ -76,7 +78,7 @@ export default function ColorPickerButton(props) {
         onClick={(e) => { e.stopPropagation(); if (!props.disabled) setOpen(!open()); }}
       >
         <div class="ribbon-btn-icon" ref={el => { iconEl = el; if (props.iconSvg) el.innerHTML = props.iconSvg; }}></div>
-        <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{props.label}</span>
+        <span class="ribbon-btn-label" ref={el => autoShrinkLabel(el)}>{metAfbreekpunten(props.label, language())}</span>
         <svg class="ribbon-color-dd-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>
       </button>
       <div class={`ribbon-color-dropdown${open() ? ' show' : ''}`} id={props.dropdownId} ref={dropdownRef}>

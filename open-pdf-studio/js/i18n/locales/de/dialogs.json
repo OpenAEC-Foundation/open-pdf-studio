@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normal)",
     "perSheetCustom": "Benutzerdefiniert...",
     "perSheetGrid": "Spalten × Zeilen:",
+    "perSheetColumns": "Spalten",
+    "perSheetRows": "Zeilen",
     "perSheetBy": "×",
     "pageOrder": "Seitenreihenfolge:",
     "orderHorizontal": "Horizontal",

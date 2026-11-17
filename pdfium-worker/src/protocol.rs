@@ -30,6 +30,11 @@ pub enum Request {
         region_h_pt: f32,
         #[serde(default)]
         thin_lines: bool,
+        /// Annotation appearances drawn in, as pdf.js does with
+        /// annotationMode 1 (stamp images at load). Absent = the screen tile:
+        /// the app draws its own annotations.
+        #[serde(default)]
+        annotations: bool,
     },
     /// Pixelvergelijking van een paginapaar (#465), zie compare/mod.rs.
     Compare(crate::compare::CompareRequest),
@@ -129,7 +134,7 @@ mod tests {
             r#"{"op":"render_region","id":2,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0,
                 "region_x_pt":0,"region_y_pt":0,"region_w_pt":10,"region_h_pt":10}"#,
         ).unwrap();
-        assert!(matches!(region, Request::RenderRegion { thin_lines: false, .. }));
+        assert!(matches!(region, Request::RenderRegion { thin_lines: false, annotations: false, .. }));
     }
 
     #[test]

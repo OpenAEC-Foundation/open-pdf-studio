@@ -18,6 +18,7 @@
     "theme": "Motyw",
     "applicationTheme": "Motyw aplikacji",
     "startup": "Uruchamianie",
+    "startupTool": "Narzędzie przy następnym uruchomieniu",
     "restoreLastSession": "Przywróć ostatnią sesję przy uruchamianiu aplikacji",
     "author": "Autor",
     "defaultAuthorName": "Nazwa autora",

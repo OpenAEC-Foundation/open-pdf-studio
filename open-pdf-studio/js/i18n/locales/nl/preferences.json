@@ -18,6 +18,7 @@
     "theme": "Thema",
     "applicationTheme": "Toepassingsthema",
     "startup": "Opstarten",
+    "startupTool": "Gereedschap bij volgende start",
     "restoreLastSession": "Laatste sessie herstellen bij het starten van de toepassing",
     "author": "Auteur",
     "defaultAuthorName": "Auteursnaam",

@@ -115,9 +115,41 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-high-contrast-browser.mjs
 
+      - name: Test MCP closed perimeter and PDF save (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-mcp-perimeter-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs
+
+      - name: Test startup tool preference (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-startup-tool-browser.mjs
+
+      - name: Test presentation view (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-presentation-browser.mjs
+
+      - name: Test tab switch across view modes (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-tab-view-mode-browser.mjs
+
+      - name: Text highlight blending regression
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-highlight-blending-browser.mjs
+
+      - name: Test deleted comment popup lifecycle (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-comment-popup-browser.mjs
+
+      - name: Test compact save and print controls (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-save-print-ui-browser.mjs
+
+      - name: Test reverse font substitutions and save roundtrip (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-fontkit-reverse-browser.mjs
 
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
@@ -217,6 +249,16 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         working-directory: .
         run: cargo test --release -p open-pdf-studio --lib duplex_reaches_ipp_and_portal_settings
+
+      - name: Test HTTP MCP notification responses (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        working-directory: .
+        run: cargo test --release --locked -p open-pdf-studio --lib mcp_server::http_notification_tests
+
+      - name: Test MCP capture content and path diagnostics (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        working-directory: .
+        run: cargo test --release -p open-pdf-studio --lib mcp_server::capture_result::tests
 
       - name: Test interactive form background ownership (Linux)
         if: matrix.platform == 'ubuntu-22.04'

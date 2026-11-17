@@ -137,6 +137,8 @@
     "perSheetOne": "1 (רגיל)",
     "perSheetCustom": "מותאם אישית...",
     "perSheetGrid": "עמודות × שורות:",
+    "perSheetColumns": "עמודות",
+    "perSheetRows": "שורות",
     "perSheetBy": "×",
     "pageOrder": "סדר העמודים:",
     "orderHorizontal": "אופקי",

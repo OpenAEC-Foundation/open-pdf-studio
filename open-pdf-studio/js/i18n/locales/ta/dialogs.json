@@ -137,6 +137,8 @@
     "perSheetOne": "1 (இயல்பு)",
     "perSheetCustom": "தனிப்பயன்...",
     "perSheetGrid": "நெடுவரிசைகள் × வரிசைகள்:",
+    "perSheetColumns": "நெடுவரிசைகள்",
+    "perSheetRows": "வரிசைகள்",
     "perSheetBy": "×",
     "pageOrder": "பக்க வரிசை:",
     "orderHorizontal": "கிடைமட்டம்",

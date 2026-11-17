@@ -1,5 +1,5 @@
 import { For, Show, onMount, onCleanup, createSignal, createEffect, untrack } from 'solid-js';
-import { getOpenPopups, closeStickyPopup, updatePopupText, updatePopupPosition } from '../stores/stickyNotePopupStore.js';
+import { getOpenPopups, closeStickyPopup, updatePopupText, updatePopupPosition, pruneStickyPopups } from '../stores/stickyNotePopupStore.js';
 import { showAnnotationMenu } from '../stores/contextMenuStore.js';
 import { storeShowProperties, updateAnnotProp } from '../stores/propertiesStore.js';
 import { state, getActiveDocument } from '../../core/state.js';
@@ -401,6 +401,12 @@ function StickyNotePopup(props) {
 }
 
 export default function StickyNotePopupHost() {
+  createEffect(() => {
+    // Also check newly opened editors, including after undo/redo.
+    if (getOpenPopups().length === 0) return;
+    const annotations = [...(getActiveDocument()?.annotations || [])];
+    untrack(() => pruneStickyPopups(annotations));
+  });
   return (
     <For each={getOpenPopups()}>
       {(entry) => <StickyNotePopup entry={entry} />}

@@ -8,6 +8,8 @@ import { knopUit, meldingTekst } from '../../core/webfuncties.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 // Als asset geïmporteerd: Vite zet de bouwbasis ervoor (#545).
 import appIcoon from '/icon.png';
+import SaveSplitButton from './SaveSplitButton.jsx';
+import { ifcxOpslaanLabel, opslaanAlsIfcx } from '../../pdf/ifcx-opslaan.js';
 
 async function handleClose() {
   const { closeActiveTab } = await import('../../ui/chrome/tabs.js');
@@ -91,40 +93,19 @@ export default function TitleBar() {
             </svg>
           </button>
 
-          <button class="quick-access-btn" title={`${tCommon('save')} (Ctrl+S)`} disabled={!hasPdf() || doc()?.hostAlleenLezen === true}
-            onClick={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDF(null, {}, d)); }}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12.5 14.5h-9a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1h7.586a1 1 0 0 1 .707.293l1.414 1.414a1 1 0 0 1 .293.707V13.5a1 1 0 0 1-1 1z"/>
-              <path d="M5.5 1.5v3h4v-3"/>
-              <rect x="4.5" y="8.5" width="7" height="5"/>
-            </svg>
-          </button>
-
-          <button class="quick-access-btn" title={`${tCommon('saveAs')} (Ctrl+Shift+S)`} disabled={!hasPdf()}
-            onClick={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDFAs(d)); }}>
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12.5 14.5h-9a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1h7.586a1 1 0 0 1 .707.293l1.414 1.414a1 1 0 0 1 .293.707V13.5a1 1 0 0 1-1 1z"/>
-              <path d="M5.5 1.5v3h4v-3"/>
-              <rect x="4.5" y="8.5" width="7" height="5"/>
-              <path d="M8 6v4m0 0l-1.5-1.5M8 10l1.5-1.5"/>
-            </svg>
-          </button>
+          <SaveSplitButton saveLabel={tCommon('save')} saveAsLabel={tCommon('saveAs')}
+            exportLabel={tCommon('quickAccess.exportRaster')} disabled={!hasPdf()}
+            readOnly={doc()?.hostAlleenLezen === true} blocked={hasDialogs()}
+            onSave={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDF(null, {}, d)); }}
+            onSaveAs={() => { const d = doc(); return import('../../pdf/saver.js').then(m => m.savePDFAs(d)); }}
+            ifcxLabel={ifcxOpslaanLabel(tCommon('saveAs'))} onSaveAsIfcx={() => opslaanAlsIfcx()}
+            onExport={handleExportRaster} />
 
           <button class="quick-access-btn" title={`${tCommon('print')} (Ctrl+P)`} disabled={!hasPdf()}
             onClick={() => import('../../ui/chrome/dialogs.js').then(m => m.showPrintDialog())}>
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M19,6V4a4,4,0,0,0-4-4H9A4,4,0,0,0,5,4V6a5.006,5.006,0,0,0-5,5v5a5.006,5.006,0,0,0,5,5,3,3,0,0,0,3,3h8a3,3,0,0,0,3-3,5.006,5.006,0,0,0,5-5V11A5.006,5.006,0,0,0,19,6ZM7,4A2,2,0,0,1,9,2h6a2,2,0,0,1,2,2V6H7ZM17,21a1,1,0,0,1-1,1H8a1,1,0,0,1-1-1V17a1,1,0,0,1,1-1h8a1,1,0,0,1,1,1Zm5-5a3,3,0,0,1-3,3V17a3,3,0,0,0-3-3H8a3,3,0,0,0-3,3v2a3,3,0,0,1-3-3V11A3,3,0,0,1,5,8H19a3,3,0,0,1,3,3Z"/>
               <path d="M18,10H16a1,1,0,0,0,0,2h2a1,1,0,0,0,0-2Z"/>
-            </svg>
-          </button>
-
-          <button class="quick-access-btn" title={tCommon('quickAccess.exportRaster')} disabled={!hasPdf()}
-            onClick={handleExportRaster}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-              <path d="M14 2v6h6"/>
-              <rect x="7.5" y="12.5" width="9" height="6"/>
-              <path d="M7.5 17l2.2-1.8 1.8 1.4 2.3-2 2.7 2.4"/>
             </svg>
           </button>
 

@@ -167,6 +167,29 @@ Heavy work moves from JavaScript to Rust step by step, each step with a parity t
 
 The lines are counted on `main` at the middle of each month, without tests and vendored code. The times come from [docs/rust-stappen.md](docs/rust-stappen.md) and [docs/performance/](docs/performance/); they were measured in October and November 2026, each pair on the same machine. The app's own code grew fourfold in the same period, so the share says where new work lands, not that JavaScript shrank.
 
+### Code in numbers
+
+Lines of code in this repository, counted over the tracked files. Bundled third-party code and generated files are left out; Rust keeps its unit tests inside the source files.
+
+<!-- code-stats:start -->
+| Language | Source lines | Test lines | Total | Share |
+|---|---:|---:|---:|---:|
+| JavaScript / TypeScript | 316,143 | 136,426 | 452,569 | 80.7% |
+| Rust | 104,402 | 3,879 | 108,281 | 19.3% |
+| **Total** | **420,545** | **140,305** | **560,850** | **100%** |
+
+```mermaid
+pie showData
+    title Lines of code by language
+    "JavaScript / TypeScript (source)" : 316143
+    "JavaScript / TypeScript (tests)" : 136426
+    "Rust (source)" : 104402
+    "Rust (tests)" : 3879
+```
+<!-- code-stats:end -->
+
+Update with `node open-pdf-studio/scripts/code-stats.mjs`.
+
 ## Contributing
 
 - **Report a bug or ask for a feature** as an [issue](https://github.com/OpenAEC-Foundation/open-pdf-studio/issues/new). Describe what you did, what you expected and what happened. Because the code moves quickly, a precise issue is often more useful than a pull request.

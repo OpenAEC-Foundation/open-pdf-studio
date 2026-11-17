@@ -2761,13 +2761,16 @@
 .print-label {
   font-size: 11px;
   color: var(--theme-text, #333);
-  width: 52px;
+  width: 96px;
   flex-shrink: 0;
-  text-align: right;
+  text-align: start;
 }
 
 .print-select {
-  flex: 1;
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
   padding: 2px 4px;
   border: 1px solid var(--theme-border, #acacac);
   border-radius: 0;
@@ -2866,7 +2869,7 @@
 .print-page-btn:hover:not(.active),
 .print-subset-btn:hover:not(.active) { background: var(--theme-hover, #e8e8e8); }
 
-.print-custom-row { margin-left: 52px; }
+.print-custom-row { margin: 0 0 4px; }
 .print-custom-input {
   flex: 1;
   padding: 2px 6px;
@@ -2880,7 +2883,7 @@
 }
 .print-custom-input:focus { outline: none; border-color: var(--theme-accent, #0078d7); }
 
-.print-checkbox-row { padding-left: 58px; }
+.print-checkbox-row { padding-inline-start: 0; }
 .print-checkbox-label {
   display: flex;
   align-items: center;
@@ -2898,7 +2901,7 @@
 }
 .print-collate-label { margin-left: 12px; }
 
-.print-zoom-row { margin-left: 58px; }
+.print-zoom-row { margin-inline-start: 0; }
 .print-note { font-size: 11px; color: var(--theme-text-secondary); }
 /* Afdrukwijzen bovenaan de plaatsing (#607); een lange vertaling breekt af. */
 .print-mode-btns { flex-wrap: wrap; row-gap: 2px; }
@@ -2906,12 +2909,11 @@
 /* Paginavolgorde als vier knoppen met het leespad (#607). */
 .print-order-btn { padding: 2px 5px; line-height: 0; }
 .print-order-icon { flex-shrink: 0; color: inherit; }
-/* De plaatsing heeft langere labels (Paginavolgorde, Vellen per katern): een
-   bredere labelkolom, en de vinkjes en invoerregels lijnen daarop uit. */
-.print-placement-group .print-label { width: 96px; }
-.print-placement-group .print-checkbox-row { padding-left: 102px; }
+/* Longer placement labels share a column; standalone options start at the edge. */
+.print-grid-label { color: var(--theme-text, #333); }
+.print-placement-group .print-checkbox-row { padding-inline-start: 0; }
 .print-placement-group .print-zoom-row { margin-left: 0; }
-.print-placement-group .print-note { padding-left: 102px; }
+.print-placement-group .print-note { padding-inline-start: 0; }
 
 .print-pages-row { margin-bottom: 4px; }
 

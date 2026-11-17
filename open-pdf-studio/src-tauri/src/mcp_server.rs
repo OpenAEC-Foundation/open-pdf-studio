@@ -42,6 +42,10 @@ use axum::{
 };
 use serde_json::{json, Value};
 use tauri::{AppHandle, Manager};
+use tauri_plugin_fs::FsExt;
+
+#[path = "mcp_capture_result.rs"]
+mod capture_result;
 
 use crate::mcp_app_bridge::{self, McpAppBridge};
 use crate::mcp_extensie_tools::{self, ExtensieTools};
@@ -937,7 +941,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_screenshot_view",
-                "description": "Capture the LIVE app as a base64 PNG. scope 'document' (default) composites the PDF canvas with the annotation/highlight overlays, without the surrounding interface. scope 'window' captures the whole app window as it is shown: ribbon (including extension tabs), side panels such as an extension's workspace panel, the document view and the status bar. scope 'element' crops that window capture to the element matched by `selector`. The longer side is scaled down to `width`. Returns { png_base64, width, height, scope, bounds: { x, y, width, height } (the captured area in CSS px), devicePixelRatio }. 'window' and 'element' use a native capture of the web view and are available on Windows only for now; on other platforms they return an error.",
+                "description": "Capture the LIVE app as a base64 PNG. scope 'document' (default) composites the PDF canvas with the annotation/highlight overlays, without the surrounding interface. scope 'window' captures the whole app window as it is shown: ribbon (including extension tabs), side panels such as an extension's workspace panel, the document view and the status bar. scope 'element' crops that window capture to the element matched by `selector`. The longer side is scaled down to `width`. Returns { png_base64, width, height, scope, bounds: { x, y, width, height } (the captured area in CSS px), devicePixelRatio }. 'window' and 'element' use a native capture of the web view and are available on Windows only for now; on other platforms they return an error. Inline results also include an MCP image content item (image/png); the first text item retains the complete legacy JSON including png_base64. This tool has no path parameter; use app_capture_region for file export.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -950,7 +954,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_capture_region",
-                "description": "Render an area of a page (or the whole page) of the active document as an image at a chosen resolution, the way Home > Screenshot does: the page is rendered again at `dpi` (not the screen pixels enlarged), with the annotations as printed (no selection frames), in the view rotation the user sees. Coordinates are app points (page space, top-left origin, 100% zoom); leave x, y, width and height out for the whole page. Very large images are scaled down to at most 16384 px per side and 64 megapixels (`limited` is then true and `dpi` the resolution used). Returns { page, rect, width, height, dpi, limited, mime } plus image_base64, or with `path` the image is written to that file and { path, bytes } is returned instead of the base64. Nothing is put on the clipboard.",
+                "description": "Render an area of a page (or the whole page) of the active document as an image at a chosen resolution, the way Home > Screenshot does: the page is rendered again at `dpi` (not the screen pixels enlarged), with the annotations as printed (no selection frames), in the view rotation the user sees. Coordinates are app points (page space, top-left origin, 100% zoom); leave x, y, width and height out for the whole page. Very large images are scaled down to at most 16384 px per side and 64 megapixels (`limited` is then true and `dpi` the resolution used). Returns { page, rect, width, height, dpi, limited, mime } plus image_base64, or with `path` the image is written to that file and { path, bytes } is returned instead of the base64. Nothing is put on the clipboard. Inline results also include an MCP image content item with the actual PNG/JPEG MIME type; the first text item retains the complete legacy JSON. With path, the result stays file metadata only. Export requires an already granted filesystem path and OS write permission; TEMP, Pictures and Documents are not automatically granted. Select a destination through Home > Screenshot > Save, reuse an already granted export location, or omit path. A forbidden-path error lists current allowed and denied path patterns; window permissions and denied paths still apply.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -962,7 +966,7 @@ fn handle_tools_list() -> Value {
                         "dpi":     { "type": "number", "minimum": 10, "maximum": 2400, "default": 150, "description": "Resolution in pixels per inch of paper." },
                         "format":  { "type": "string", "enum": ["png", "jpeg"], "default": "png" },
                         "quality": { "type": "integer", "minimum": 1, "maximum": 100, "default": 90, "description": "JPEG quality." },
-                        "path":    { "type": "string", "description": "Absolute file path to write the image to, instead of returning it as base64." }
+                        "path":    { "type": "string", "description": "Absolute file path in an already granted filesystem location. Writes the image instead of returning inline image content. No automatic access to TEMP, Pictures or Documents; omit path to receive an image without writing a file." }
                     },
                     "additionalProperties": false
                 }
@@ -1226,7 +1230,7 @@ fn handle_tools_list() -> Value {
             agent_task_result_tool(),
             {
                 "name": "app_create_annotation",
-                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/textbox/callout/scaleRegion need x/y/width/height (highlight is an area highlight; optional rotation in degrees turns it about its centre); textHighlight is a real text highlight and needs quads:[[ul,ur,ll,lr],...], one quad per piece of text with {x,y} corners in the order upper left, upper right, lower left, lower right, turned along angled text (the same object as a text highlight made by selecting text; default color #FFFF00, opacity 0.3; its box comes from the quads, a passed x/y/width/height is ignored; invalid quads give an error and create nothing); polygon takes its corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional sides, default 6) for a regular polygon in that box; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y; link makes the same hyperlink as the Link tool and needs a target, either uri (web or e-mail address: http, https, mailto, tel or ftp) or page (target page in this document, 1-based; then the annotation itself goes on the top-level page) with optional view \"XYZ\" (default, top of the page), \"Fit\" or {type:\"XYZ\",left,top,zoom} (left/top in PDF points), plus x/y/width/height for the click box or quads:[[ul,ur,ll,lr],...] for one box per text line (written as /QuadPoints), optional border \"none\" (default) | \"solid\" | \"underline\" with color and lineWidth; a link to a page follows that page when pages are moved, inserted or deleted, and becomes broken when its target page is deleted. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically; the app does every unit conversion. measureArea: `units` (or `measureAreaUnit`) sets the unit its area is reported in: ac (acres, 1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000 m2), m2, ft2, yd2, ... (\"acres\", \"sq ft\" and the superscript forms are understood, a length unit such as ft means ft2, \"auto\" follows the scale again). measureText then reads e.g. \"2.296 ac\" and the result carries `area: {value, unit}` with the number in that unit; measureValue / measureUnit stay in the square of the scale unit, as the lengths, edge lengths and perimeter do. Without `units` the area is in the square of the scale unit (mm2 is shown as m2). An unknown unit, or an area unit on a sheet without a real-world scale, is an error and nothing is created. measureDistance / measurePerimeter are reported in the unit of the scale; a different `units` is an error instead of being ignored. scaleRegion `units` is mm, cm, m, in or ft. Returns the new annotation id.",
+                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/textbox/callout/scaleRegion need x/y/width/height (highlight is an area highlight; optional rotation in degrees turns it about its centre); textHighlight is a real text highlight and needs quads:[[ul,ur,ll,lr],...], one quad per piece of text with {x,y} corners in the order upper left, upper right, lower left, lower right, turned along angled text (the same object as a text highlight made by selecting text; default color #FFFF00, opacity 0.3; its box comes from the quads, a passed x/y/width/height is ignored; invalid quads give an error and create nothing); polygon takes its corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional sides, default 6) for a regular polygon in that box; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; measurePerimeter follows the supplied open point sequence by default; on creation, optional closed:true (boolean, >= 3 points) appends the first point if needed and includes the closing edge in the measurement; already repeated endpoints are not duplicated, and closed:false or omission leaves the supplied sequence unchanged; spline needs controlPoints; draw needs path; comment needs x/y; link makes the same hyperlink as the Link tool and needs a target, either uri (web or e-mail address: http, https, mailto, tel or ftp) or page (target page in this document, 1-based; then the annotation itself goes on the top-level page) with optional view \"XYZ\" (default, top of the page), \"Fit\" or {type:\"XYZ\",left,top,zoom} (left/top in PDF points), plus x/y/width/height for the click box or quads:[[ul,ur,ll,lr],...] for one box per text line (written as /QuadPoints), optional border \"none\" (default) | \"solid\" | \"underline\" with color and lineWidth; a link to a page follows that page when pages are moved, inserted or deleted, and becomes broken when its target page is deleted. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically; the app does every unit conversion. measureArea: `units` (or `measureAreaUnit`) sets the unit its area is reported in: ac (acres, 1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000 m2), m2, ft2, yd2, ... (\"acres\", \"sq ft\" and the superscript forms are understood, a length unit such as ft means ft2, \"auto\" follows the scale again). measureText then reads e.g. \"2.296 ac\" and the result carries `area: {value, unit}` with the number in that unit; measureValue / measureUnit stay in the square of the scale unit, as the lengths, edge lengths and perimeter do. Without `units` the area is in the square of the scale unit (mm2 is shown as m2). An unknown unit, or an area unit on a sheet without a real-world scale, is an error and nothing is created. measureDistance / measurePerimeter are reported in the unit of the scale; a different `units` is an error instead of being ignored. scaleRegion `units` is mm, cm, m, in or ft. Returns the new annotation id.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -3061,17 +3065,19 @@ async fn tool_app_request(
             "AppHandle unavailable — MCP server not started from inside Tauri::setup()".to_string(),
         ))?;
     let bridge = app.state::<McpAppBridge>();
-    let response = mcp_app_bridge::request(app, &bridge, event_name, arguments.clone(), timeout)
+    let mut response = mcp_app_bridge::request(app, &bridge, event_name, arguments.clone(), timeout)
         .await
         .map_err(|e| (jsonrpc_error::INTERNAL_ERROR, e))?;
 
-    Ok(json!({
-        "content": [{
-            "type": "text",
-            "text": response.to_string(),
-        }],
-        "isError": false,
-    }))
+    if capture_result::needs_scope_help(event_name, arguments, &response) {
+        let scope = app.fs_scope();
+        capture_result::add_scope_help(
+            &mut response,
+            scope.allowed_patterns().iter().map(|pattern| pattern.as_str().to_owned()).collect(),
+            scope.forbidden_patterns().iter().map(|pattern| pattern.as_str().to_owned()).collect(),
+        );
+    }
+    Ok(capture_result::format_result(event_name, response))
 }
 
 /// `list_test_pdfs` tool — enumerates every `*.pdf` under
@@ -3483,7 +3489,7 @@ async fn mcp_handler(
     State(state): State<AppState>,
     headers: axum::http::HeaderMap,
     Json(body): Json<Value>,
-) -> impl IntoResponse {
+) -> axum::response::Response {
     // Pull out the request id; default to null so error responses are still
     // well-formed if the client omitted it.
     let id = body.get("id").cloned().unwrap_or(Value::Null);
@@ -3496,7 +3502,8 @@ async fn mcp_handler(
         return (
             StatusCode::FORBIDDEN,
             Json(rpc_error(id, jsonrpc_error::INVALID_REQUEST, melding)),
-        );
+        )
+        .into_response();
     }
 
     let method = match body.get("method").and_then(|v| v.as_str()) {
@@ -3509,7 +3516,8 @@ async fn mcp_handler(
                     jsonrpc_error::INVALID_REQUEST,
                     "missing 'method' field",
                 )),
-            );
+            )
+            .into_response();
         }
     };
 
@@ -3570,9 +3578,7 @@ async fn mcp_handler(
                 }
             }
         }
-        // `notifications/initialized` and other notification methods carry no
-        // id and expect no response. We still send back an empty result for
-        // robustness; the harness ignores unknown ids.
+        // Acknowledge initialization; notification responses are suppressed below.
         "notifications/initialized" | "initialized" => rpc_result(id, json!({})),
         // Een client breekt een lopende aanroep af (#575): alleen opdrachten
         // van extensies zijn af te breken; die krijgen hun AbortSignal.
@@ -3593,7 +3599,14 @@ async fn mcp_handler(
         ),
     };
 
-    (StatusCode::OK, Json(response))
+    // JSON-RPC notifications omit the id member (an explicit null id is
+    // still a request). Dispatch first so cancellation keeps its side effect.
+    // Streamable HTTP requires accepted notifications to have no JSON body.
+    if body.get("id").is_none() {
+        StatusCode::ACCEPTED.into_response()
+    } else {
+        (StatusCode::OK, Json(response)).into_response()
+    }
 }
 
 /// Start the MCP server. This is an async function that runs forever (until
@@ -4465,5 +4478,214 @@ mod tests {
                 "{name} message should explain missing AppHandle, got: {msg}"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod http_notification_tests {
+    use super::*;
+
+    struct Server {
+        url: String,
+        task: tokio::task::JoinHandle<()>,
+    }
+
+    impl Drop for Server {
+        fn drop(&mut self) {
+            self.task.abort();
+        }
+    }
+
+    async fn server(access: Toegang) -> Server {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let mut state = AppState::nieuw(Profiel::Publiek, address.port(), None);
+        state.toegang = access;
+        let app = Router::new()
+            .route("/mcp", post(mcp_handler))
+            .with_state(state);
+        let task = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+        Server {
+            url: format!("http://{address}/mcp"),
+            task,
+        }
+    }
+
+    async fn assert_empty_accepted(response: reqwest::Response) {
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        assert!(response.headers().get("content-type").is_none());
+        assert!(response.bytes().await.unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn strict_client_can_initialize_then_list_tools() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        let initialized = client
+            .post(&server.url)
+            .json(&json!({
+                "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                "params": { "protocolVersion": "2025-03-26", "capabilities": {},
+                    "clientInfo": { "name": "strict-regression-client", "version": "1" } }
+            }))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(initialized.status(), StatusCode::OK);
+        let initialized: Value = initialized.json().await.unwrap();
+        assert_eq!(initialized["id"], 1);
+        assert!(initialized["result"]["capabilities"]["tools"].is_object());
+        assert_empty_accepted(
+            client
+                .post(&server.url)
+                .json(&json!({
+                    "jsonrpc": "2.0", "method": "notifications/initialized"
+                }))
+                .send()
+                .await
+                .unwrap(),
+        )
+        .await;
+        let tools = client
+            .post(&server.url)
+            .json(&json!({
+                "jsonrpc": "2.0", "id": "tools-after-notification", "method": "tools/list"
+            }))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(tools.status(), StatusCode::OK);
+        assert_eq!(tools.headers()["content-type"], "application/json");
+        let tools: Value = tools.json().await.unwrap();
+        assert_eq!(tools["id"], "tools-after-notification");
+        assert!(!tools["result"]["tools"].as_array().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn all_notifications_are_bodyless_including_unknown_methods() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        for method in [
+            "notifications/initialized",
+            "initialized",
+            "notifications/cancelled",
+            "notifications/progress",
+            "notifications/future-extension",
+            "tools/list",
+        ] {
+            assert_empty_accepted(
+                client
+                    .post(&server.url)
+                    .json(&json!({
+                        "jsonrpc": "2.0", "method": method, "params": { "requestId": "cancel-me" }
+                    }))
+                    .send()
+                    .await
+                    .unwrap(),
+            )
+            .await;
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ids_keep_json_results_and_errors() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        for id in [json!(0), json!(""), json!("request"), Value::Null] {
+            for method in ["tools/list", "notifications/initialized", "unknown/method"] {
+                let response = client
+                    .post(&server.url)
+                    .json(&json!({
+                        "jsonrpc": "2.0", "id": id, "method": method
+                    }))
+                    .send()
+                    .await
+                    .unwrap();
+                assert_eq!(response.status(), StatusCode::OK);
+                assert_eq!(response.headers()["content-type"], "application/json");
+                let response: Value = response.json().await.unwrap();
+                assert_eq!(response["id"], id);
+                if method == "unknown/method" {
+                    assert_eq!(response["error"]["code"], jsonrpc_error::METHOD_NOT_FOUND);
+                } else {
+                    assert!(response.get("result").is_some());
+                }
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn notifications_still_require_local_origin_or_bearer_access() {
+        let local = server(Toegang::Lokaal).await;
+        let managed = server(Toegang::Geheim(Arc::from("test-secret"))).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        let body = json!({ "jsonrpc": "2.0", "method": "notifications/initialized" });
+        for request in [
+            client
+                .post(&local.url)
+                .header("Origin", "https://untrusted.example"),
+            client.post(&local.url).header("Host", "untrusted.example"),
+            client.post(&managed.url),
+            client.post(&managed.url).bearer_auth("wrong-secret"),
+            client
+                .post(&managed.url)
+                .bearer_auth("test-secret")
+                .header("Origin", "http://localhost"),
+        ] {
+            assert_eq!(
+                request.json(&body).send().await.unwrap().status(),
+                StatusCode::FORBIDDEN
+            );
+        }
+        assert_empty_accepted(
+            client
+                .post(&managed.url)
+                .bearer_auth("test-secret")
+                .json(&body)
+                .send()
+                .await
+                .unwrap(),
+        )
+        .await;
+    }
+
+    #[tokio::test]
+    async fn malformed_messages_are_not_accepted_as_notifications() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        for body in [json!({}), json!({ "method": 1 }), json!([])] {
+            let response = client.post(&server.url).json(&body).send().await.unwrap();
+            assert_ne!(response.status(), StatusCode::ACCEPTED);
+            let response: Value = response.json().await.unwrap();
+            assert_eq!(response["error"]["code"], jsonrpc_error::INVALID_REQUEST);
+        }
+        let response = client
+            .post(&server.url)
+            .header("content-type", "application/json")
+            .body("{")
+            .send()
+            .await
+            .unwrap();
+        assert!(response.status().is_client_error());
     }
 }

@@ -115,9 +115,6 @@ test('de miniaturen van het paginapaneel tekenen de formuliervelden', () => {
   // De schermbitmap hergebruiken mag alleen zonder bewerkbare velden: daarin
   // staan ze niet.
   assert.match(bron, /heeftBewerkbareVelden\(/);
-  // De tekenopdrachten van de vectorweergave bevatten geen velden: die
-  // miniatuur alleen voor een pagina zonder velden.
-  assert.match(bron, /hasCachedCommands\([^)]*\)\s*&& !\(await heeftVeldWidgets\(/);
 });
 
 test('een afdruk tekent elk veld precies één keer, handtekening en drukknop inbegrepen', async () => {

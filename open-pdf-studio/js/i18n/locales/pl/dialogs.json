@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normalnie)",
     "perSheetCustom": "Niestandardowo...",
     "perSheetGrid": "Kolumny na wiersze:",
+    "perSheetColumns": "Kolumny",
+    "perSheetRows": "Wiersze",
     "perSheetBy": "na",
     "pageOrder": "Kolejność stron:",
     "orderHorizontal": "Poziomo",

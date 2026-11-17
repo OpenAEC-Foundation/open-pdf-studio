@@ -137,6 +137,8 @@
     "perSheetOne": "1 (عادي)",
     "perSheetCustom": "مخصص...",
     "perSheetGrid": "أعمدة × صفوف:",
+    "perSheetColumns": "الأعمدة",
+    "perSheetRows": "الصفوف",
     "perSheetBy": "×",
     "pageOrder": "ترتيب الصفحات:",
     "orderHorizontal": "أفقي",

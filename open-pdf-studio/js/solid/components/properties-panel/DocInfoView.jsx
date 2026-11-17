@@ -1,7 +1,7 @@
 import { Show, For, createEffect, untrack } from 'solid-js';
 import { panelMode, docInfo, populateDocInfo, zetDocumentgegeven } from '../../stores/propertiesStore.js';
 import { state } from '../../../core/state.js';
-import { readDocInfoDeps } from '../../stores/doc-info-format.js';
+import { readDocInfoDeps, formatPageSize } from '../../stores/doc-info-format.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { BEWERKBARE_VELDEN } from '../../../pdf/documentgegevens.js';
@@ -25,6 +25,11 @@ export default function DocInfoView() {
     });
   });
 
+  // Volgt de voorkeur Eenheden meteen, zonder het bestand opnieuw te openen (#1121).
+  const paginaFormaat = () => (docInfo.pageSizePt
+    ? formatPageSize(docInfo.pageSizePt[0], docInfo.pageSizePt[1], state.preferences?.scaleUnitSystem)
+    : docInfo.pageSize);
+
   return (
     <Show when={panelMode() === 'none'}>
       <div id="prop-no-selection">
@@ -32,7 +37,7 @@ export default function DocInfoView() {
           <div class="property-group"><label>{t('docInfo.file')}</label><span class="prop-info-value" style="word-break: break-all;">{docInfo.filename}</span></div>
           <div class="property-group"><label>{t('docInfo.path')}</label><span class="prop-info-secondary" style="word-break: break-all;">{docInfo.filepath}</span></div>
           <div class="property-group"><label>{t('docInfo.pages')}</label><span class="prop-info-value">{docInfo.pages}</span></div>
-          <div class="property-group"><label>{t('docInfo.pageSize')}</label><span class="prop-info-value">{docInfo.pageSize}</span></div>
+          <div class="property-group"><label>{t('docInfo.pageSize')}</label><span class="prop-info-value" id="prop-doc-page-size">{paginaFormaat()}</span></div>
         </CollapsibleSection>
 
         <CollapsibleSection title={t('docInfo.metadata')} name="docMetadata">

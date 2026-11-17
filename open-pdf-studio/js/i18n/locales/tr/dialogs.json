@@ -137,6 +137,8 @@
     "perSheetOne": "1 (normal)",
     "perSheetCustom": "Özel...",
     "perSheetGrid": "Sütun × satır:",
+    "perSheetColumns": "Sütunlar",
+    "perSheetRows": "Satırlar",
     "perSheetBy": "×",
     "pageOrder": "Sayfa sırası:",
     "orderHorizontal": "Yatay",

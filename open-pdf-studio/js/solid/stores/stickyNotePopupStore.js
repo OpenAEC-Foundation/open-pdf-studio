@@ -1,4 +1,4 @@
-import { createStore, produce } from 'solid-js/store';
+import { createStore, produce, unwrap } from 'solid-js/store';
 import { recordModify } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 
@@ -67,4 +67,15 @@ export function closeAllPopups() {
 
 export function getOpenPopups() {
   return popups;
+}
+
+// Deletion already records the annotation's current text in its undo snapshot.
+// Discard orphaned editors without recording another edit against a deleted
+// annotation. Identity matters: undo may restore a new object with the same id.
+export function pruneStickyPopups(annotations) {
+  const live = new Set(annotations.map(annotation => unwrap(annotation)));
+  const stale = popups.filter(entry => !live.has(unwrap(entry.annotation)));
+  if (stale.length === 0) return;
+  for (const entry of stale) entry.annotation.popupOpen = false;
+  setPopups(popups.filter(entry => live.has(unwrap(entry.annotation))));
 }

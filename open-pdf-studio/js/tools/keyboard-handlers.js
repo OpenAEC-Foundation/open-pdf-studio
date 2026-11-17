@@ -974,6 +974,12 @@ async function voerStandaardToetsUit(e) {
     if (!aan(e, 'view.fullscreen', 'Ctrl+L')) return;
     e.preventDefault();
     toggleFullscreen();
+  } else if (e.altKey && !ctrl && !shift && e.key === 'Enter') {
+    // Tweede toets voor volledig scherm (#1137): een browser houdt Ctrl+L
+    // zelf (de adresbalk), dus in de webversie komt die toets nooit aan.
+    if (!aan(e, 'view.fullscreen', 'Alt+Enter')) return;
+    e.preventDefault();
+    toggleFullscreen();
   }
 
   // ── ESC — prioriteitsladder (GitHub #273) ────────────────────────────────

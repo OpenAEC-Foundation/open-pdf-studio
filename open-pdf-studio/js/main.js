@@ -59,6 +59,8 @@ import { herstelLinkerPaneel } from './ui/panels/werkruimte-toepassen.js';
 
 // Event setup
 import { setupEventListeners } from './ui/setup.js';
+import { setTool } from './tools/manager.js';
+import { normalizeStartupTool } from './core/startup-tool.js';
 
 // Reactive cursor (single source of truth for the PDF area cursor)
 import { initCursor } from './ui/cursor.js';
@@ -399,6 +401,10 @@ async function init() {
 
   // Setup all event listeners
   setupEventListeners();
+
+  // Apply once, after tool registration and before opening/restoring documents.
+  // Saving preferences during a session must not interrupt the active tool.
+  setTool(normalizeStartupTool(state.preferences.startupTool));
 
   // Setup session save on window close (desktop only — Android lifecycle handles this)
   if (!mobile) {

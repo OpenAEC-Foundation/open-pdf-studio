@@ -1032,3 +1032,54 @@ staat op dezelfde plek, ook als deel van het vel.
 voorbeeld is gemeten), het resultaat op papier naast het oude, afbeeldingen
 exporteren en comprimeren in de app, poster- en meer-op-één-vel-afdrukken,
 en macOS en Linux.
+
+## Stempelbeelden: het paginadeel uit de PDFium-worker
+
+**Wat.** Een stempel waarvan de appearance geen ingepakte afbeelding is,
+krijgt zijn beeld uit een render van de pagina met de annotatieweergaven erin
+(`js/pdf/loader/image-extraction.js`). Dat was een render van de hele pagina
+met PDF.js, op de interface-thread, bij het eerste beeld van die pagina. Nu
+rendert de PDFium-worker alleen het deel van de pagina waar de stempels
+staan: `render_region` kent een veld `annotations` (cap `region_annotations`),
+het commando heet `render_annotated_region`, de JS-kant
+`js/pdf/loader/stempel-beeld-rust.js`.
+
+**Zelfde soort beeld.** Het resultaat blijft een uitsnede van de weergave
+(ruimte 'visual', bron 'render'): alles erna is ongewijzigd. De pixels zijn
+van PDFium in plaats van PDF.js. Op de twee testbestanden met een getekende
+stempel verschilt de schermafdruk van de pagina alleen in het stempelvak, in
+1 respectievelijk 19 pixels met meer dan 32 niveaus verschil (randen).
+
+**Meting** (release-build, onzichtbare testinstantie, elk bestand drie keer
+geopend; de regel `[PERF] page 1: stampExtraction`):
+
+| bestand | PDF.js | worker |
+|---|---:|---:|
+| blad van 2448 × 1584 pt, één getekende stempel | 952–1462 ms | 241–276 ms |
+| blad van 3226 × 1684 pt, gedraaid, één getekende stempel en één afbeelding | 1395–1702 ms | 1242–1340 ms |
+
+Bij het tweede bestand zit de meeste tijd in het uitpakken van de afbeelding
+via pdf-lib, niet in de render. Drie andere bestanden met stempels (13, 4 en
+1 stuks) gebruiken de terugval niet: hun beelden komen uit pdf-lib en zijn
+byte-gelijk gebleven.
+
+**JS blijft** voor de webversie, Android/iOS, een document zonder bestand op
+schijf, een oudere of ontbrekende backend en elke fout (één waarschuwing,
+daarna PDF.js voor dat document). `OPDS_RUST_STAMPS=0` dwingt PDF.js af.
+
+## Het eigen vectorpad is weg
+
+De weergave via eigen tekencommando's (`vector-renderer.js`) stond sinds juli
+uit voor de pagina zelf, maar de lader haalde bij elk openen nog de
+tekencommando's van alle vectorpagina's op, en de miniaturen speelden ze af.
+Dat is verwijderd: lader, weergave, viewport, miniaturen en het vrijgeven bij
+sluiten. Miniaturen komen nu altijd uit PDFium.
+
+Gemeten op vijf bestanden (4 tot 21 pagina's): het miniaturenpaneel is bij
+vier pixelgelijk; bij het vijfde was de miniatuur van pagina 4 via het
+vectorpad flets en onvolledig, en is ze nu juist. De tijd tot de miniaturen
+stilstaan: 2,5 → 1,4 s, 11,2 → 9,7 s, 17,0 → 16,3 s, 0,9 → 1,1 s en
+1,8 → 1,9 s. De paginaweergave van zeven bestanden is dezelfde PNG gebleven.
+
+De Rust-commando's `extract_draw_commands` en `analyze_page_type` staan er
+nog; het eerste heeft geen aanroeper meer in de app.

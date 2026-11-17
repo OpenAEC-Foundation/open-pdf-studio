@@ -3,6 +3,7 @@ import { Show, createSignal, onCleanup, onMount } from 'solid-js';
 import { watchState, onWatchState } from '../../workflows/watch-status.js';
 import { reviewStatus, onReviewStatus } from '../../review/shared-review-status.js';
 import { state, getActiveDocument } from '../../core/state.js';
+import { rotateLeftIcon, rotateRightIcon } from '../data/ribbonIcons.js';
 import { labelVan, heeftEigenLabel } from '../../pdf/pagina-labels.js';
 import { useTranslation, localizeNumber, language } from '../../i18n/useTranslation.js';
 import { isTauri } from '../../core/platform.js';
@@ -174,6 +175,15 @@ function McpSignaal(props) {
 
 export default function StatusBar() {
   const { t } = useTranslation('statusbar');
+  const { t: tRibbon } = useTranslation('ribbon');
+  // Pagina draaien: dezelfde actie als de knoppen op het lint (Start).
+  const draai = async (graden) => {
+    // PDF/A opent alleen-lezen: dan blijft de pagina zoals hij is.
+    const { isPdfAReadOnly } = await import('../../pdf/loader.js');
+    if (isPdfAReadOnly()) return;
+    const { draaiVanafKnop } = await import('../../pdf/pagina-draaien.js');
+    draaiVanafKnop(graden);
+  };
   const [diagnosticTick, setDiagnosticTick] = createSignal(0);
   onCleanup(subscribeRenderDiagnostics(() => setDiagnosticTick(n => n + 1)));
   const findings = () => {
@@ -338,6 +348,13 @@ export default function StatusBar() {
                 <line x1="12" y1="4" x2="12" y2="20" stroke-width="2"/>
               </svg>
             </button>
+          </div>
+
+          {/* Pagina linksom/rechtsom draaien, naast de weergavekeuze: wordt
+              vaak gebruikt en hoort binnen handbereik. */}
+          <div class="status-viewmode-controls status-rotate-controls">
+            <button class="status-nav-btn" id="status-rotate-left" tabIndex={-1} title={tRibbon('home.rotateLeft')} aria-label={tRibbon('home.rotateLeft')} onClick={() => draai(-90)} innerHTML={rotateLeftIcon} />
+            <button class="status-nav-btn" id="status-rotate-right" tabIndex={-1} title={tRibbon('home.rotateRight')} aria-label={tRibbon('home.rotateRight')} onClick={() => draai(90)} innerHTML={rotateRightIcon} />
           </div>
 
           <div class="status-zoom-controls">
