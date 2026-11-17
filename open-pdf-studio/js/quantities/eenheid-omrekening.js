@@ -8,6 +8,10 @@
 //
 // De factoren zijn exact (per definitie: 1 in = 25,4 mm, 1 ft = 304,8 mm,
 // 1 yd = 914,4 mm). Afronden gebeurt pas bij de weergave.
+//
+// Acre en hectare (#1129) zijn eenheden van ALLEEN oppervlakte: er hoort geen
+// lengte-eenheid bij (geen "ac" als lengte, geen "ac²"). 1 ac = 43.560 ft²
+// precies = 4046,8564224 m²; 1 ha = 10.000 m².
 
 import { eenheidNotatie } from '../core/maat-notatie.js';
 
@@ -19,10 +23,23 @@ const MM_PER = Object.freeze({
   in: 254, ft: 3048, yd: 9144,
 });
 
-const METRISCH = new Set(['mm', 'cm', 'dm', 'm', 'km']);
+const METRISCH = new Set(['mm', 'cm', 'dm', 'm', 'km', 'ha']);
 
 const MACHT = { length: 1, area: 2, volume: 3 };
 const TEKEN = { 1: '', 2: '²', 3: '³' };
+
+// Eenheden van alleen oppervlakte, in vierkante tienden van een millimeter.
+// Ook hele getallen (ruim onder 2^53), zodat 1 ac → ft² precies 43.560 geeft.
+const OPPERVLAKTE_PER = Object.freeze({
+  ac: 43_560 * MM_PER.ft ** 2,
+  ha: 10_000 * MM_PER.m ** 2,
+});
+
+// Uitgeschreven namen van die eenheden, zoals een mens of een agent ze typt.
+const OPPERVLAKTE_NAMEN = Object.freeze({
+  ac: 'ac', acre: 'ac', acres: 'ac',
+  ha: 'ha', hectare: 'ha', hectares: 'ha',
+});
 
 /**
  * Eenheid in de vaste notatie: "m2", "m^2" en "sq m" worden "m²", "cu ft"
@@ -34,22 +51,39 @@ export function normaliseerEenheid(eenheid) {
   const kaal = eenheid.trim();
   if (kaal === '"') return 'in';
   if (kaal === "'") return 'ft';
+  const naam = OPPERVLAKTE_NAMEN[kaal.toLowerCase()];
+  if (naam) return naam;
   return eenheidNotatie(kaal);
 }
 
 /**
- * Ontleed een eenheid tot basis-lengte-eenheid + macht.
- * @returns {{basis: string, soort: 'length'|'area'|'volume'} | null}
+ * Ontleed een eenheid tot basis-eenheid + soort + grootte. `grootte` is de
+ * eenheid in tienden van een millimeter tot de macht van de soort; `basis` is
+ * de lengte-eenheid, of bij acre en hectare de eenheid zelf.
+ * @returns {{basis: string, soort: 'length'|'area'|'volume', grootte: number,
+ *   alleenOppervlakte: boolean} | null}
  */
 function ontleed(eenheid) {
   const e = normaliseerEenheid(eenheid);
   if (!e) return null;
+  if (e in OPPERVLAKTE_PER) {
+    return { basis: e, soort: 'area', grootte: OPPERVLAKTE_PER[e], alleenOppervlakte: true };
+  }
   let basis = e, macht = 1;
   if (e.endsWith('²')) { basis = e.slice(0, -1); macht = 2; }
   else if (e.endsWith('³')) { basis = e.slice(0, -1); macht = 3; }
   if (!(basis in MM_PER)) return null;
   const soort = macht === 1 ? 'length' : (macht === 2 ? 'area' : 'volume');
-  return { basis, soort };
+  return { basis, soort, grootte: MM_PER[basis] ** macht, alleenOppervlakte: false };
+}
+
+/**
+ * Is dit een eenheid van alleen oppervlakte (acre, hectare)? Zo'n eenheid
+ * heeft geen lengte-eenheid: een schaal, een lengte of een omtrek kan er
+ * niet in staan.
+ */
+export function isAlleenOppervlakte(eenheid) {
+  return ontleed(eenheid)?.alleenOppervlakte === true;
 }
 
 /**
@@ -75,6 +109,7 @@ export function isMetrisch(eenheid) {
 export function omrekenFactor(van, naar) {
   const a = ontleed(van), b = ontleed(naar);
   if (!a || !b || a.soort !== b.soort) return null;
+  if (a.alleenOppervlakte || b.alleenOppervlakte) return a.grootte / b.grootte;
   const p = MACHT[a.soort];
   return (MM_PER[a.basis] / MM_PER[b.basis]) ** p;
 }
@@ -99,10 +134,9 @@ export function rekenOm(waarde, van, naar) {
   if (normaliseerEenheid(van) === normaliseerEenheid(naar)) return waarde;
   const a = ontleed(van), b = ontleed(naar);
   if (!a || !b || a.soort !== b.soort) return null;
-  const p = MACHT[a.soort];
   // Eerst vermenigvuldigen, dan delen: 4360 mm → 4,36 m en 2 m → 2000 mm
   // komen zo zonder tussentijdse breuk uit.
-  return (waarde * MM_PER[a.basis] ** p) / MM_PER[b.basis] ** p;
+  return (waarde * a.grootte) / b.grootte;
 }
 
 /**

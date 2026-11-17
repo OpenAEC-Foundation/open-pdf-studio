@@ -315,6 +315,8 @@
     "scalePrecision": "มาตราส่วนและความแม่นยำ",
     "scale": "มาตราส่วน (px ต่อหน่วย)",
     "unit": "หน่วย",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "ความแม่นยำ",
     "showEdgeLengths": "แสดงความยาวด้าน",
     "lineEndings": "ปลายเส้น (ระยะทาง / เส้นรอบรูป)",

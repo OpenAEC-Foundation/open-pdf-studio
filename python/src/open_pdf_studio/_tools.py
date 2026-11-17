@@ -538,7 +538,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "title": "Get quantity take-off",
         "read_only": True,
         "destructive": False,
-        "params": {"name": "name", "schedule_id": "scheduleId"},
+        "params": {"area_unit": "areaUnit", "name": "name", "schedule_id": "scheduleId"},
         "required": (),
     },
     "app_place_schedule": {
@@ -1458,7 +1458,20 @@ class ToolMethods:
         the extension lines, in paper mm), measureShowLabel (measureArea: false
         hides its own label), ...) override the tool defaults. measure*
         annotations get measureText computed from the document scale
-        automatically. Returns the new annotation id.
+        automatically; the app does every unit conversion. measureArea: `units`
+        (or `measureAreaUnit`) sets the unit its area is reported in: ac (acres,
+        1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000 m2), m2, ft2, yd2, ...
+        ("acres", "sq ft" and the superscript forms are understood, a length
+        unit such as ft means ft2, "auto" follows the scale again). measureText
+        then reads e.g. "2.296 ac" and the result carries `area: {value, unit}`
+        with the number in that unit; measureValue / measureUnit stay in the
+        square of the scale unit, as the lengths, edge lengths and perimeter do.
+        Without `units` the area is in the square of the scale unit (mm2 is
+        shown as m2). An unknown unit, or an area unit on a sheet without a
+        real-world scale, is an error and nothing is created. measureDistance /
+        measurePerimeter are reported in the unit of the scale; a different
+        `units` is an error instead of being ignored. scaleRegion `units` is mm,
+        cm, m, in or ft. Returns the new annotation id.
 
         Args:
             type (one of "line", "arrow", "wall", "box", "mask", "redaction",
@@ -1484,8 +1497,10 @@ class ToolMethods:
         """List annotations.
 
         List the active document's annotations as compact JSON (id, type, page,
-        core geometry, colors, text/measureText, and the markup layer when it is
-        not the default layer). Optionally filter to one page or one layer.
+        core geometry, colors, text/measureText, for a measureArea `area:
+        {value, unit}` with the area as a number in the unit it is shown in
+        (acres, hectares, m2, ft2, ...), and the markup layer when it is not the
+        default layer). Optionally filter to one page or one layer.
 
         Args:
             layer (string): Only annotations on this markup layer, by id or
@@ -1500,9 +1515,12 @@ class ToolMethods:
         """Get annotation.
 
         Return the full JSON-safe property set of one annotation by id
-        (functions/DOM refs stripped). A grid line also reports `gridAlignment`:
-        per end its group, whether it is locked, the number of linked ends and
-        whether it can be locked.
+        (functions/DOM refs stripped). A measureArea also reports `area: {value,
+        unit}`: its area as a number in the unit it is shown in
+        (`measureAreaUnit`: ac, ha, m2, ft2, ...; otherwise the square of the
+        scale unit), computed by the app. A grid line also reports
+        `gridAlignment`: per end its group, whether it is locked, the number of
+        linked ends and whether it can be locked.
 
         Args:
             id (string, required)
@@ -1517,10 +1535,17 @@ class ToolMethods:
         Merge `props` onto an existing annotation (geometry, color, lineWidth,
         text, ...). Records a modify-undo step, recomputes measureText when
         measurement geometry changed, and redraws. `id` and `type` are
-        immutable. `layer` moves the annotation to another markup layer; `props`
-        may then be empty. Grid line (parametricSymbol `stramien`): `alignStart`
-        / `alignEnd` true couples that end with the aligned ends of the other
-        grid lines (dragging one end then moves them all), false unlocks it.
+        immutable. measureArea: `units` (or `measureAreaUnit`) changes the unit
+        its area is reported in (ac, ha, m2, ft2, yd2, ...; `auto` follows the
+        scale again), the app converts and the result carries `area: {value,
+        unit}`; an unknown unit, or an area unit on a sheet without a real-world
+        scale, is an error and changes nothing. measureDistance /
+        measurePerimeter keep the unit of the scale: a different `units` is an
+        error. scaleRegion `units` is mm, cm, m, in or ft. `layer` moves the
+        annotation to another markup layer; `props` may then be empty. Grid line
+        (parametricSymbol `stramien`): `alignStart` / `alignEnd` true couples
+        that end with the aligned ends of the other grid lines (dragging one end
+        then moves them all), false unlocks it.
 
         Args:
             id (string, required)
@@ -2143,23 +2168,29 @@ class ToolMethods:
 
         Set the active document's measurement scale calibration (pixels per unit
         + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every
-        measurement annotation.
+        measurement annotation. The unit is a LENGTH unit (mm, cm, dm, m, km,
+        in, ft, yd, pt, px); anything else is an error. Acres and hectares are
+        area units: set them per measureArea with `units` in
+        app_create_annotation / app_update_annotation, or per schedule column.
 
         Args:
             pixels_per_unit (number, required) [MCP: pixelsPerUnit]
-            unit (string, required): Unit name, e.g. mm, cm, m, in, ft.
+            unit (string, required): Length unit: mm, cm, dm, m, km, in, ft, yd,
+                pt or px. An area unit (ac, ha) or an unknown unit is rejected.
 
         MCP tool ``app_set_measure_scale`` (modifies or discards state).
         """
         return self._call_tool("app_set_measure_scale", _pack({"pixelsPerUnit": pixels_per_unit, "unit": unit}))
 
-    def get_takeoff(self, *, name: Optional[str] = None, schedule_id: Optional[str] = None) -> Any:
+    def get_takeoff(self, *, area_unit: Optional[str] = None, name: Optional[str] = None, schedule_id: Optional[str] = None) -> Any:
         """Get quantity take-off.
 
         Return take-off totals for the user's named schedules (Staten): per
         schedule the element count, the numeric column grand totals (e.g. area
         m2, length m, count), and per-group subtotals. Optionally target one
-        schedule by id or name; otherwise all schedules are returned.
+        schedule by id or name; otherwise all schedules are returned. `areaUnit`
+        reports every area column in that unit (ac, ha, m2, ft2, ...), converted
+        by the app without changing the schedule; each column states its unit.
         Image/thumbnail columns are reported as counts, never as data-URLs.
         Schedules are definitions shared by the whole app, not part of one
         document: the totals are always computed from the annotations of the
@@ -2167,13 +2198,16 @@ class ToolMethods:
         numbers on another tab.
 
         Args:
+            area_unit (string) [MCP: areaUnit]: Report the area columns in this
+                unit: ac (acres), ha (hectares), m2, ft2, yd2, ... An unknown unit
+                is an error.
             name (string): Target one schedule by its display name.
             schedule_id (string) [MCP: scheduleId]: Target one schedule by its
                 id.
 
         MCP tool ``app_get_takeoff`` (read-only).
         """
-        return self._call_tool("app_get_takeoff", _pack({"name": name, "scheduleId": schedule_id}))
+        return self._call_tool("app_get_takeoff", _pack({"areaUnit": area_unit, "name": name, "scheduleId": schedule_id}))
 
     def place_schedule(self, *, config: Optional[Dict[str, Any]] = None, name: Optional[str] = None, page: Optional[float] = None, schedule_id: Optional[str] = None, template_id: Optional[str] = None, x: Optional[float] = None, y: Optional[float] = None) -> Any:
         """Place quantity schedule.
@@ -2184,14 +2218,17 @@ class ToolMethods:
         `config` is merged over the template (or over the existing schedule).
         The config is checked BEFORE anything is created: with an unknown
         category, field or filter operator, or a result without columns, no
-        schedule is left behind and the error lists the valid values. The table
-        contents are computed by the app from the live annotations - the caller
-        supplies no cell values. Schedules are definitions shared by the whole
-        app (kept in the user's preferences), not part of one document: the
-        numbers always come from the document that is active at that moment
-        (named in `document`), and a placed table is a snapshot inside the
-        document it was placed in. Rename or edit a schedule with
-        app_update_schedule, remove it with app_delete_schedule.
+        schedule is left behind and the error lists the valid values. A column
+        converts its rows to one unit: `config.format.<field>.unit`, e.g.
+        {"format": {"area": {"unit": "ac"}}} totals the areas in acres (ha, m2,
+        ft2, ... work the same way). The table contents are computed by the app
+        from the live annotations - the caller supplies no cell values.
+        Schedules are definitions shared by the whole app (kept in the user's
+        preferences), not part of one document: the numbers always come from the
+        document that is active at that moment (named in `document`), and a
+        placed table is a snapshot inside the document it was placed in. Rename
+        or edit a schedule with app_update_schedule, remove it with
+        app_delete_schedule.
 
         Args:
             config (object): Schedule config; every key is optional and replaces

@@ -1,7 +1,7 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
-import { maatlijnTekst, expandArcPoints, herberekenVlakMaat, vlakMeting, vlakZijdeTeksten } from '../../annotations/measurement.js';
+import { maatlijnTekst, expandArcPoints, herberekenVlakMaat, vlakMeting, vlakZijdeTeksten, vlakTekst } from '../../annotations/measurement.js';
 import { drawVlakZijdematen } from '../../annotations/rendering/measurements.js';
 import { applyToolTransform } from '../tool-context.js';
 import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
@@ -747,7 +747,7 @@ function _measureMultiClickMove(ctx, e, toolType) {
     if (outerPoints.length >= 3) {
       const currentPage = getActiveDocument()?.currentPage || 1;
       const area = ctx.calculateArea(outerPoints, allHoles.length > 0 ? allHoles : undefined, currentPage);
-      ctx.drawCentroidLabel(canvasCtx, outerPoints, ctx.formatMeasurement(area), mColor);
+      ctx.drawCentroidLabel(canvasCtx, outerPoints, _nieuwVlakTekst(area), mColor);
       _voorvertoningZijdematen(canvasCtx, outerPoints, mColor);
     }
   } else {
@@ -782,7 +782,7 @@ function _measureMultiClickMove(ctx, e, toolType) {
     if (isArea && previewPoints.length >= 3) {
       const expandedPoints = expandArcPoints(previewPoints);
       const area = ctx.calculateArea(expandedPoints, undefined, currentPage);
-      ctx.drawCentroidLabel(canvasCtx, previewPoints, ctx.formatMeasurement(area), mColor);
+      ctx.drawCentroidLabel(canvasCtx, previewPoints, _nieuwVlakTekst(area), mColor);
       _voorvertoningZijdematen(canvasCtx, previewPoints, mColor);
     } else if (!isArea && previewPoints.length >= 2) {
       const perim = ctx.calculatePerimeter(previewPoints, currentPage);
@@ -812,6 +812,12 @@ function _measureMultiClickMove(ctx, e, toolType) {
   if (snap.snapped && !nearFirst) {
     ctx.drawSnapIndicator(snap);
   }
+}
+
+// De oppervlaktetekst van een vlak in aanbouw: in de weergave-eenheid die
+// nieuwe meetvlakken krijgen (voorkeur measureAreaDisplayUnit, #1129).
+function _nieuwVlakTekst(area) {
+  return vlakTekst({ measureAreaUnit: state.preferences?.measureAreaDisplayUnit }, area);
 }
 
 // Zijdematen in de voorvertoning (#536), als ze als standaard aanstaan: zo
@@ -848,7 +854,7 @@ function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   // Show area text
   const currentPage = getActiveDocument()?.currentPage || 1;
   const area = ctx.calculateArea(outerPoints, completedHoles.length > 0 ? completedHoles : undefined, currentPage);
-  ctx.drawCentroidLabel(canvasCtx, outerPoints, ctx.formatMeasurement(area), mColor);
+  ctx.drawCentroidLabel(canvasCtx, outerPoints, _nieuwVlakTekst(area), mColor);
   _voorvertoningZijdematen(canvasCtx, outerPoints, mColor);
 
   // Draw hint text near cursor (rechtop op het scherm, ook gedraaid, #200)
@@ -1163,7 +1169,7 @@ export const addHoleTool = {
     if (ann.type === 'measureArea' && ann.points && ann.points.length >= 3) {
       // Met de eigen schaal van het vlak, zoals na het toevoegen (#536).
       const area = vlakMeting({ ...ann, page: ann.page || 1, holes: allHoles.length > 0 ? allHoles : undefined });
-      ctx.drawCentroidLabel(canvasCtx, ann.points, ctx.formatMeasurement(area), mColor);
+      ctx.drawCentroidLabel(canvasCtx, ann.points, vlakTekst(ann, area), mColor);
     }
 
     // Arc-mode hint near cursor
@@ -1273,7 +1279,7 @@ function _drawAddHolePreview(ctx, cursorX, cursorY) {
   // Show area text (measureArea only), met de eigen schaal van het vlak (#536)
   if (ann.type === 'measureArea') {
     const area = vlakMeting({ ...ann, page: ann.page || 1 });
-    ctx.drawCentroidLabel(canvasCtx, ann.points, ctx.formatMeasurement(area), mColor);
+    ctx.drawCentroidLabel(canvasCtx, ann.points, vlakTekst(ann, area), mColor);
   }
 
   // Draw hint text near cursor (rechtop op het scherm, ook gedraaid, #200)

@@ -315,6 +315,8 @@
     "scalePrecision": "Tỷ lệ & Độ chính xác",
     "scale": "Tỷ lệ (px sang đơn vị)",
     "unit": "Đơn vị",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Độ chính xác",
     "showEdgeLengths": "Hiển thị chiều dài các cạnh",
     "lineEndings": "Đầu đường (Khoảng cách / Chu vi)",

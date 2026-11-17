@@ -6,6 +6,7 @@ import { totalBarLengthM } from '../annotations/stavenreeks.js';
 import { nettoVlakOppervlak } from '../annotations/vlak-ringen.js';
 import { veelhoekPunten } from '../annotations/veelhoek-punten.js';
 import { expandArcPoints, hasArcPoints } from '../annotations/arc-points.js';
+import { vlakUitkomst } from '../annotations/oppervlakte-eenheid.js';
 
 // --- Vertaalhaak -----------------------------------------------------------
 // Deze module blijft puur: hij kent i18next niet. De UI-laag injecteert via
@@ -175,9 +176,11 @@ function pixelArea(el) {
 // Oppervlakte + eenheid van een vlak-element.
 function areaMeting(el) {
   if (el.type === 'measureArea') {
-    return typeof el.measureValue === 'number'
-      ? normaliseerMeting(el.measureValue, el.measureUnit)
-      : null;
+    // In de eenheid waarin het vlak zijn oppervlakte op het blad toont
+    // (measureAreaUnit: acres, hectares, ..., #1129; anders mm² als m², zie
+    // normaliseerMeting). De kolom rekent daarna alle rijen om naar één
+    // eenheid (eenheid-omrekening.js).
+    return vlakUitkomst(el);
   }
   // Getekende vormen droegen tot nu toe géén oppervlakte: de kolom bleef leeg.
   // De store verrijkt ze met de opgeloste schaal (__pxPerUnit/__unit), net als

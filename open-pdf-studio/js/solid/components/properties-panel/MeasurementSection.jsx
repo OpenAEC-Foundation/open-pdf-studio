@@ -5,6 +5,7 @@ import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { BREUK_PRECISIES, isImperialeLengte } from '../../../core/voet-inch.js';
 import { maatEenheid } from '../../../core/maat-opmaak.js';
+import { OPPERVLAKTE_KEUZES } from '../../../annotations/oppervlakte-eenheid.js';
 
 // Uitloop van de maatlijn en de hulplijnen, in millimeters op papier
 // (maatlijn-geometrie.js). Leeg = automatisch.
@@ -51,6 +52,13 @@ export default function MeasurementSection() {
     return annotProps.measureInchOnly || maatEenheid(annotProps.measureUnit) === 'in' ? `i${f}` : `f${f}`;
   };
   const inVoet = () => maatEenheid(annotProps.measureUnit) === 'ft';
+
+  // Weergave-eenheid van de oppervlakte (#1129). Een eenheid buiten de lijst
+  // (via MCP of een bestand gezet, zoals yd²) blijft kiesbaar.
+  const vlakEenheden = () => {
+    const huidig = annotProps.measureAreaUnit;
+    return huidig && !OPPERVLAKTE_KEUZES.includes(huidig) ? [...OPPERVLAKTE_KEUZES, huidig] : OPPERVLAKTE_KEUZES;
+  };
 
   return (
     <Show when={sectionVis.measurement}>
@@ -154,6 +162,21 @@ export default function MeasurementSection() {
             <option value="px">px</option>
           </select>
         </div>
+
+        {/* Oppervlakte in acres, hectares, ... (#1129): alleen de weergave van
+            de oppervlakte; lengtes en zijdematen houden de eenheid hierboven. */}
+        <Show when={annotProps.type === 'measureArea'}>
+          <div class="property-group">
+            <label>{t('measurement.areaUnit')}</label>
+            <select value={annotProps.measureAreaUnit || ''} disabled={isLocked()}
+              title={t('measurement.areaUnitTooltip')}
+              onDblClick={cycleSelectNext}
+              onChange={(e) => updateAnnotProp('measureAreaUnit', e.target.value)}>
+              <option value="">{t('measurement.areaUnitAuto')}</option>
+              <For each={vlakEenheden()}>{(u) => <option value={u}>{u}</option>}</For>
+            </select>
+          </div>
+        </Show>
 
         {/* Diepte (#311): hoogte van een wand, dikte van een vloer, … in de
             eenheid van de meting. Maakt van een lengte een oppervlak en van

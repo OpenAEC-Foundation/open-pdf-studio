@@ -886,3 +886,8 @@ js/pdf/formulierlaag-scherm.test.mjs
 # Staten via MCP: verwijderen, bijwerken, config vooraf gecontroleerd (#1130)
 js/quantities/schedule-mcp.test.mjs
 js/quantities/schedule-mcp-app.test.mjs
+# Acres en hectares als oppervlakte-eenheid (#1129)
+js/annotations/oppervlakte-eenheid.test.mjs
+js/annotations/meetvlak-acres.test.mjs
+js/quantities/staat-oppervlakte-eenheid.test.mjs
+js/pdf/meetvlak-acres-rondgang.test.mjs

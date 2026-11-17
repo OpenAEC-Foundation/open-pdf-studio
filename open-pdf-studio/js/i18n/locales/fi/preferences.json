@@ -315,6 +315,8 @@
     "scalePrecision": "Mittakaava ja tarkkuus",
     "scale": "Mittakaava (px yksiköksi)",
     "unit": "Yksikkö",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Tarkkuus",
     "showEdgeLengths": "Näytä sivujen pituudet",
     "lineEndings": "Viivan päät (etäisyys / piiri)",

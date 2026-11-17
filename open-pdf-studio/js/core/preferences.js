@@ -311,6 +311,8 @@ export function applyDefaultStyle(annotation) {
   }
 
   if (m.edgeLengths) annotation.measureShowEdgeLengths = prefs[p + m.edgeLengths] === true;
+  // Weergave-eenheid van de oppervlakte (#1129); leeg volgt de schaal.
+  if (m.areaUnit) annotation.measureAreaUnit = prefs[p + m.areaUnit] || undefined;
 
   // Vrije hand (#385). De druk zelf hoort bij de streek; hier alleen of hij
   // meetelt, de minimale breedte en de gladheid.

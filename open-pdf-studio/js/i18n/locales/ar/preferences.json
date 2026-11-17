@@ -315,6 +315,8 @@
     "scalePrecision": "المقياس والدقة",
     "scale": "المقياس (px إلى وحدة)",
     "unit": "الوحدة",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "الدقة",
     "showEdgeLengths": "إظهار أطوال الأضلاع",
     "lineEndings": "نهايات الخطوط (المسافة / المحيط)",

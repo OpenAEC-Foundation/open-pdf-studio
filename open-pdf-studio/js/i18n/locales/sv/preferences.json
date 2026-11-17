@@ -315,6 +315,8 @@
     "scalePrecision": "Skala och precision",
     "scale": "Skala (px till enhet)",
     "unit": "Enhet",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Precision",
     "showEdgeLengths": "Visa sidlängder",
     "lineEndings": "Linjeändar (avstånd / omkrets)",

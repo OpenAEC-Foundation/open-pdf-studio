@@ -4,6 +4,7 @@ import { PDFName, PDFArray } from 'pdf-lib';
 import { pdfNum } from './pdf-helpers.js';
 import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { MAAT_GETALLEN, EINDEN } from '../saver/plattegrond-meta.js';
+import { oppervlakteEenheid } from '../../annotations/oppervlakte-eenheid.js';
 
 function waar(context, raw) {
   if (raw === undefined || raw === null) return false;
@@ -49,6 +50,11 @@ export function leesPlattegrondMeta(annotDict, context) {
   }
   if (waar(context, annotDict.get(PDFName.of('OPS_NoLabel')))) uit.opsNoLabel = true;
   if (waar(context, annotDict.get(PDFName.of('OPS_EdgeLengths')))) uit.opsEdgeLengths = true;
+  const vlakEenheidRaw = annotDict.get(PDFName.of('OPS_AreaUnit'));
+  if (vlakEenheidRaw) {
+    const eenheid = oppervlakteEenheid(decodePdfTextObject(context.lookup(vlakEenheidRaw) || vlakEenheidRaw));
+    if (eenheid) uit.opsAreaUnit = eenheid;
+  }
   const zaadRaw = annotDict.get(PDFName.of('OPS_RuimteZaad'));
   if (zaadRaw) {
     const arr = context.lookup(zaadRaw) || zaadRaw;
@@ -89,6 +95,8 @@ export function plattegrondUitExtra(extra, naarApp) {
   if (e.opsNoLabel) uit.measureShowLabel = false;
   // Zijdematen van een meetvlak (#536); zonder sleutel blijven ze uit.
   if (e.opsEdgeLengths) uit.measureShowEdgeLengths = true;
+  // Weergave-eenheid van de oppervlakte (#1129): acres, hectares, ...
+  if (oppervlakteEenheid(e.opsAreaUnit)) uit.measureAreaUnit = oppervlakteEenheid(e.opsAreaUnit);
   if (e.opsRuimteZaadPdf && typeof naarApp === 'function') {
     const [x, y] = naarApp(e.opsRuimteZaadPdf.x, e.opsRuimteZaadPdf.y);
     if (Number.isFinite(x) && Number.isFinite(y)) uit.opsRuimteZaad = { x, y };
