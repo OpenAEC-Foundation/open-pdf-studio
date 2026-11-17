@@ -23,6 +23,7 @@ import { labelFontSizeAt } from '../annotations/drafting-rules.js';
 import { isKlikSleep, klemMaat, schermPxNaarPt, KLIK_DREMPEL_PX } from '../annotations/minimummaat.js';
 import { getEffectiveScale } from './effective-scale.js';
 import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { tekststijlUitVoorkeur } from '../core/style-prefs.js';
 import { vulDekkingUitVoorkeur } from '../annotations/vul-dekking.js';
 import { rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
@@ -367,6 +368,9 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         fontSize: prefs.textboxFontSize,
         // Het lettertype uit de standaardstijl (#765); eerder altijd Arial.
         fontFamily: prefs.textboxFontFamily || 'Arial',
+        // Vet/cursief/onderstrepen/doorhalen, uitlijning en regelafstand uit
+        // de standaardstijl (#1150); eerder altijd gewoon, links en boven.
+        ...tekststijlUitVoorkeur(prefs, 'textbox'),
         lineWidth: prefs.textboxBorderWidth,
         borderStyle: prefs.textboxBorderStyle,
         opacity: (prefs.textboxOpacity || 100) / 100
@@ -400,6 +404,8 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         fontSize: prefs.calloutFontSize,
         // Het lettertype uit de standaardstijl (#765); eerder altijd Arial.
         fontFamily: prefs.calloutFontFamily || 'Arial',
+        // Teken- en alineastijl uit de standaardstijl (#1150).
+        ...tekststijlUitVoorkeur(prefs, 'callout'),
         lineWidth: prefs.calloutBorderWidth,
         borderStyle: prefs.calloutBorderStyle,
         opacity: (prefs.calloutOpacity || 100) / 100
