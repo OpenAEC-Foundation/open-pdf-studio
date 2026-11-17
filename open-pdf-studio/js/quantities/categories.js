@@ -6,6 +6,7 @@ import { totalBarLengthM } from '../annotations/stavenreeks.js';
 import { nettoVlakOppervlak } from '../annotations/vlak-ringen.js';
 import { veelhoekPunten } from '../annotations/veelhoek-punten.js';
 import { expandArcPoints, hasArcPoints } from '../annotations/arc-points.js';
+import { vlakUitkomst } from '../annotations/oppervlakte-eenheid.js';
 
 // --- Vertaalhaak -----------------------------------------------------------
 // Deze module blijft puur: hij kent i18next niet. De UI-laag injecteert via
@@ -175,9 +176,11 @@ function pixelArea(el) {
 // Oppervlakte + eenheid van een vlak-element.
 function areaMeting(el) {
   if (el.type === 'measureArea') {
-    return typeof el.measureValue === 'number'
-      ? normaliseerMeting(el.measureValue, el.measureUnit)
-      : null;
+    // In de eenheid waarin het vlak zijn oppervlakte op het blad toont
+    // (measureAreaUnit: acres, hectares, ..., #1129; anders mm² als m², zie
+    // normaliseerMeting). De kolom rekent daarna alle rijen om naar één
+    // eenheid (eenheid-omrekening.js).
+    return vlakUitkomst(el);
   }
   // Getekende vormen droegen tot nu toe géén oppervlakte: de kolom bleef leeg.
   // De store verrijkt ze met de opgeloste schaal (__pxPerUnit/__unit), net als
@@ -357,6 +360,9 @@ const COMMON = [
   F('label', 'Label', 'text', el => el.label || el.measureName || el.subject || ''),
   F('location', 'Location', 'text', el => el.__location?.path || ''),
   F('locationSource', 'Location source', 'text', el => el.__location?.source || 'none'),
+  // Annotatielaag (#1130): de weergavenaam, zodat een staat per laag kan
+  // filteren en groeperen. De store zet `__layer` (staatElementen.js).
+  F('layer', 'Layer', 'text', el => el.__layer || ''),
   F('color', 'Color', 'text', el => el.color || el.strokeColor || el.fillColor || ''),
   F('ifcCategory', 'IFC category', 'text', el => el.ifcCategory || ''),
   F('count', 'Count', 'number', () => 1, '', 0),
@@ -429,6 +435,17 @@ export const FIELD_REGISTRY = {
   ],
   'other': [...COMMON],
 };
+
+/**
+ * Heeft de staat de laagnaam van de elementen nodig: als kolom, filter of
+ * sortering? Alleen dan zoekt de store per element de laag op.
+ * @param {{fields?: string[], filters?: {field: string}[], sort?: {field: string}[]}} cfg
+ */
+export function scheduleUsesLayer({ fields = [], filters = [], sort = [] } = {}) {
+  return (fields || []).includes('layer')
+    || (filters || []).some((f) => f?.field === 'layer')
+    || (sort || []).some((s) => s?.field === 'layer');
+}
 
 /** Unie van velddefinities over geselecteerde categorieën, uniek op key (eerste wint). */
 export function fieldsForCategories(cats) {

@@ -315,6 +315,8 @@
     "scalePrecision": "স্কেল ও নির্ভুলতা",
     "scale": "স্কেল (px থেকে একক)",
     "unit": "একক",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "নির্ভুলতা",
     "showEdgeLengths": "বাহুর দৈর্ঘ্য দেখান",
     "lineEndings": "রেখার প্রান্ত (দূরত্ব / পরিধি)",

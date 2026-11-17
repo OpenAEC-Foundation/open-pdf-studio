@@ -1,4 +1,5 @@
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
+import { kaleLijst } from './kale-lijst.js';
 import { state, imageCache } from '../core/state.js';
 import { annotationCanvas, annotationCtx, textHighlightCanvas, textHighlightCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
@@ -502,6 +503,20 @@ function beeldUitImageData(annotation) {
   if (!annotation.imageId) annotation.imageId = 'img_' + (annotation.id || Date.now().toString(36));
   imageCache.set(annotation.imageId, img);
   return img;
+}
+
+// Types whose drawing only reads the annotation's own fields: no comparison
+// with another object (selection, crop, join preview), no cache keyed by the
+// annotation that someone else fills, no registered type handler. The draw
+// loops hand these to drawAnnotation as the plain object under the store
+// (kale-lijst.js): with thousands of markups in view the store's proxy was a
+// third of the time of every redraw. Every other type gets the store's own
+// object, as before. Add a type here only after reading its case below.
+const KAAL_TEKENBAAR = new Set(['line', 'arrow', 'box', 'circle', 'polyline', 'polygon', 'highlight', 'draw']);
+
+/** What a draw loop passes to drawAnnotation for item `index` of the plain list. */
+function tekenObject(annotations, kandidaat, index) {
+  return KAAL_TEKENBAAR.has(kandidaat.type) ? kandidaat : annotations[index];
 }
 
 export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
@@ -3316,23 +3331,27 @@ export function redrawAnnotations(lightweight = false) {
   // blend with #pdf-canvas below); everything else goes to #annotation-canvas.
   // One scale pass: annotations that look up their scale while drawing (walls,
   // bar series, hatches) share the scale sources collected once (#491).
-  metSchaalBronnen(() => annotations.forEach(annotation => {
-    if (annotation.page !== curPage) return;
-    if (_buitenBeeld(annotation, vpX, vpY, vpW, vpH)) return;
+  // Which annotations are on this page and in view is decided on the plain
+  // objects (kale-lijst.js): that test runs for every annotation of the
+  // document on every redraw. What is drawn is the store's own object.
+  const kaal = kaleLijst(annotations);
+  metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
+    if (kandidaat.page !== curPage) return;
+    if (_buitenBeeld(kandidaat, vpX, vpY, vpW, vpH)) return;
     // Een tekstmarkering met een andere mengmodus dan vermenigvuldigen mengt
     // zelf met de pagina; de markeerlaag kan alleen vermenigvuldigen.
-    const gemengd = isGemengd(annotation.blendMode);
-    if (gemengd && !(annotation.type === 'textHighlight' && textHighlightCtx && annotation.blendMode === 'multiply')) {
-      _tekenGemengd(annotationCtx, annotation, null,
+    const gemengd = isGemengd(kandidaat.blendMode);
+    if (gemengd && !(kandidaat.type === 'textHighlight' && textHighlightCtx && kandidaat.blendMode === 'multiply')) {
+      _tekenGemengd(annotationCtx, annotations[index], null,
         textHighlightCanvas ? [{ canvas: textHighlightCanvas, op: 'multiply' }] : []);
       return;
     }
-    const targetCtx = (annotation.type === 'textHighlight' && textHighlightCtx)
+    const targetCtx = (kandidaat.type === 'textHighlight' && textHighlightCtx)
       ? textHighlightCtx
       : annotationCtx;
     // Wrap each annotation in save/restore to prevent clip leaks between annotations
     targetCtx.save();
-    drawAnnotation(targetCtx, annotation);
+    drawAnnotation(targetCtx, tekenObject(annotations, kandidaat, index));
     targetCtx.restore();
   }));
 
@@ -3533,14 +3552,15 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
     cvX = r.x; cvY = r.y; cvW = r.width; cvH = r.height;
   }
 
-  metSchaalBronnen(() => annotations.forEach(annotation => {
-    if (annotation.page !== pageNum) return;
-    if (_buitenBeeld(annotation, cvX, cvY, cvW, cvH)) return;
-    if (isGemengd(annotation.blendMode) && _paginaOnder(ctx.canvas)) {
-      _tekenGemengd(ctx, annotation, snippetBitmaps, []);
+  const kaal = kaleLijst(annotations);
+  metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
+    if (kandidaat.page !== pageNum) return;
+    if (_buitenBeeld(kandidaat, cvX, cvY, cvW, cvH)) return;
+    if (isGemengd(kandidaat.blendMode) && _paginaOnder(ctx.canvas)) {
+      _tekenGemengd(ctx, annotations[index], snippetBitmaps, []);
       return;
     }
-    drawAnnotation(ctx, annotation, snippetBitmaps);
+    drawAnnotation(ctx, tekenObject(annotations, kandidaat, index), snippetBitmaps);
   }));
 
   // Draw watermarks in front of content

@@ -315,6 +315,8 @@
     "scalePrecision": "Масштаб и точность",
     "scale": "Масштаб (px в единицу)",
     "unit": "Единица",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Точность",
     "showEdgeLengths": "Показывать длины сторон",
     "lineEndings": "Окончания линий (расстояние / периметр)",

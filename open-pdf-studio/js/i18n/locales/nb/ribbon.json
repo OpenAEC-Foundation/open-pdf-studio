@@ -479,7 +479,9 @@
     "setDefaultPdf": "Angi standard PDF-program",
     "fileAssociations": "Filtilknytninger",
     "previousVersionTitle": "Installer forrige versjon av Open PDF Studio",
-    "previousVersion": "Forrige versjon"
+    "previousVersion": "Forrige versjon",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Rød",

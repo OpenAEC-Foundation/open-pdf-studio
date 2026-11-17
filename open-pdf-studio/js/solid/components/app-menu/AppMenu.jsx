@@ -19,6 +19,7 @@ import i18next from '../../../i18n/config.js';
 import { state } from '../../../core/state.js';
 import { persistAllReaderPositions } from '../../../pdf/reader-mode-view.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { openVirusscannerMelding } from '../../../help/virusscanner-melding.js';
 import {
   annotationsListIcon, annotationLayersIcon, facingPagesIcon, stampIcon,
 } from '../../data/ribbonIcons.js';
@@ -166,6 +167,8 @@ export default function AppMenu() {
             <Divider />
             <MenuItem icon={ICONS.about} label={t('about')} onClick={() => actionAndClose(() => openDialog('about'))} />
             <MenuItem id="menu-whats-new" icon={ICONS.about} label={t('whatsNew.title')} onClick={() => actionAndClose(() => import('../../../help/whats-new-trigger.js').then(m => m.openWhatsNewManual()))} />
+            {/* Alleen in de app: de webversie heeft geen installatieprogramma (#761). */}
+            <Show when={isTauri()}><MenuItem id="menu-virus-warning" icon={ICONS.about} label={t('dialogs:virusNotice.menu')} onClick={() => actionAndClose(openVirusscannerMelding)} /></Show>
             <Divider />
             <MenuItem icon={ICONS.exit} label={t('exit')} shortcut="Alt+F4" onClick={handleExit} />
           </div>

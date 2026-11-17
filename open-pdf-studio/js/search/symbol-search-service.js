@@ -6,6 +6,7 @@ import { applyAnnotationBatch } from '../plugins/annotation-batch.js';
 import { isLayerLocked, layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 import { countCategories } from '../solid/stores/countStore.js';
 import { binaryImage, cropTemplate, matchSymbols, planSymbolCounts } from './symbol-matcher.js';
+import { normaliseFilters, reviewMatches, reviewSummary, detectReviewRegions, textBoxesFromItems } from './symbol-review.js';
 import { createRasterScan, searchSymbolsInWorker } from '../pdf/raster-scan-rust.js';
 import { isTauri, isMobile, invoke } from '../core/platform.js';
 
@@ -87,11 +88,24 @@ export async function openSymbolSearch(documentId) {
       signal?.removeEventListener('abort', abort);
     }
   }
+  // Legend and title block of a page, read from its text layer in the same
+  // page-view coordinates as the matches. No text, no regions: detection
+  // only ever adds a review flag, so a failure here must not fail the search.
+  async function reviewRegions(pageNumber) {
+    try {
+      const g = await geometry(pageNumber),
+        text = await g.page.getTextContent();
+      return detectReviewRegions(textBoxesFromItems(text.items, g.base), g.base).map(r => ({ page: pageNumber, ...r }));
+    } catch (e) {
+      if (e?.message === 'DOCUMENT_CHANGED') throw e;
+      return [];
+    }
+  }
   return {
     check,
     render,
     pageCount: pdf.numPages,
-    async search({ templatePage, rect, pages, threshold = .75, rotations: angles = [0], scales = [1] }, options = {}) {
+    async search({ templatePage, rect, pages, threshold = .75, rotations: angles = [0], scales = [1], excludeRegions, withinRegion, minScore, detectRegions }, options = {}) {
       if (!Number.isInteger(templatePage)
         || templatePage < 1
         || templatePage > pdf.numPages
@@ -99,6 +113,7 @@ export async function openSymbolSearch(documentId) {
         || !pages.length
         || pages.length > 20
         || pages.some(p => !Number.isInteger(p) || p < 1 || p > pdf.numPages)) throw new Error('INVALID_PAGES');
+      const filters = normaliseFilters({ excludeRegions, withinRegion, minScore, detectRegions });
       check();
       let scale = 2;
       for (const p of new Set([templatePage, ...pages])) {
@@ -122,8 +137,10 @@ export async function openSymbolSearch(documentId) {
       }) : null;
       check();
       const canvas = document.createElement('canvas');
-      const matches = [];
-      let truncated = false;
+      const matches = [],
+        detectedRegions = [];
+      let truncated = false,
+        excluded = 0;
       try {
         let template = null;
         if (!inWorker) {
@@ -151,19 +168,25 @@ export async function openSymbolSearch(documentId) {
           }
           check();
           truncated ||= found.truncated;
-          for (const m of found.matches) {
+          const regions = filters.detect && found.matches.length ? await reviewRegions(page) : [];
+          check();
+          detectedRegions.push(...regions);
+          // Regions the caller ruled out go first, so they do not use up the
+          // result limit; everything else stays and is at most flagged.
+          const reviewed = reviewMatches(found.matches.map(m => ({
+            page,
+            bounds: { x: m.x / scale, y: m.y / scale, width: m.width / scale, height: m.height / scale },
+            score: m.score,
+            rotation: m.rotation,
+            scale: m.scale
+          })), filters, regions);
+          excluded += reviewed.excluded;
+          for (const m of reviewed.matches) {
             if (matches.length >= 1000) {
               truncated = true;
               break;
             }
-            matches.push({
-              id: crypto.randomUUID(),
-              page,
-              bounds: { x: m.x / scale, y: m.y / scale, width: m.width / scale, height: m.height / scale },
-              score: m.score,
-              rotation: m.rotation,
-              scale: m.scale
-            });
+            matches.push({ id: crypto.randomUUID(), ...m });
           }
         }
         const queryId = crypto.randomUUID(),
@@ -172,6 +195,8 @@ export async function openSymbolSearch(documentId) {
             documentId,
             revision,
             matches,
+            summary: reviewSummary(matches, excluded),
+            detectedRegions,
             truncated,
             categories: countCategories().map(c => ({ ...c }))
           };

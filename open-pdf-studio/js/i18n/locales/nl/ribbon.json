@@ -479,7 +479,9 @@
     "extensions": "Extensies",
     "help": "Help",
     "previousVersionTitle": "De vorige versie van Open PDF Studio installeren",
-    "previousVersion": "Vorige versie"
+    "previousVersion": "Vorige versie",
+    "virusWarningTitle": "Geeft je virusscanner een waarschuwing? Lees wat je kunt doen en meld het ons",
+    "virusWarning": "Virusscanner"
   },
   "format": {
     "styleRed": "Rood",

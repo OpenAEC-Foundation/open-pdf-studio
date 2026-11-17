@@ -10,10 +10,8 @@ import { updateTagsList } from './tags.js';
 import { updateLinksList } from './links.js';
 import { updateBookmarksList } from './bookmarks.js';
 import {
-  showMessage,
   switchToLeftPanelTab, toggleLeftPanelCollapsed,
-  leftPanelActiveTab as activeTab, setLeftPanelActiveTab as setActiveTab,
-  setLeftPanelCollapsed as setCollapsed,
+  leftPanelActiveTab as activeTab,
   setThumbnailPageCount as setPageCount, setThumbnailActivePage as setActivePage,
   setThumbnailPlaceholderSize as setPlaceholderSize,
   setThumbnailImage, clearAllThumbnails,
@@ -944,38 +942,6 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
   } catch (err) {
     console.warn(`[PERF-THUMB] page ${pageNum}: PDF.js fallback FAILED (${(performance.now() - _th0).toFixed(0)}ms):`, err.message);
     return null;
-  }
-}
-
-// Show page properties dialog
-export async function showPageProperties(pageNum) {
-  const doc = getActiveDocument();
-  if (!doc?.pdfDoc) return;
-  try {
-    const page = await doc.pdfDoc.getPage(pageNum);
-    const rotation = getPageRotation(pageNum);
-    const viewport = page.getViewport({ scale: 1 });
-    const widthPt = viewport.width;
-    const heightPt = viewport.height;
-    const widthMm = (widthPt / 72 * 25.4).toFixed(1);
-    const heightMm = (heightPt / 72 * 25.4).toFixed(1);
-    const widthIn = (widthPt / 72).toFixed(2);
-    const heightIn = (heightPt / 72).toFixed(2);
-    const totalRotation = (page.rotate + (rotation || 0)) % 360;
-
-    const msg = `Page ${pageNum}\n\n` +
-      `Size: ${widthPt.toFixed(0)} x ${heightPt.toFixed(0)} pt\n` +
-      `Size: ${widthMm} x ${heightMm} mm\n` +
-      `Size: ${widthIn} x ${heightIn} in\n` +
-      `Rotation: ${totalRotation}\u00B0`;
-
-    if (window.__TAURI__?.dialog?.message) {
-      await window.__TAURI__.dialog.message(msg, { title: 'Page Properties', kind: 'info' });
-    } else {
-      showMessage(msg);
-    }
-  } catch (err) {
-    console.error('Error showing page properties:', err);
   }
 }
 

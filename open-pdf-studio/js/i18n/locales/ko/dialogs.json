@@ -1570,6 +1570,20 @@
     "found": "후보 {{count}}개를 찾았습니다",
     "created": "개수 {{count}}개 생성됨, {{skipped}}개는 이미 있음",
     "truncated": "결과 한도에 도달했습니다. 검색할 페이지를 줄이거나 유사도를 높이세요.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "문서가 변경되었습니다. 기호 검색을 닫았다가 다시 여세요.",
       "INVALID_PAGES": "유효한 페이지를 1–20개 선택하세요.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "유사도는 0.5–1, 배율은 0.5–2, 회전은 90° 단위여야 합니다.",
       "READ_ONLY": "이 문서 또는 마크업 레이어는 읽기 전용입니다.",
       "SEARCH_EXPIRED": "검색 결과가 만료되었습니다. 다시 검색하세요.",
-      "CATEGORY_REQUIRED": "개수 범주를 선택하세요."
+      "CATEGORY_REQUIRED": "개수 범주를 선택하세요.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {
@@ -2520,5 +2536,19 @@
     "createDocument": "문서 만들기",
     "uploadPdf": "PDF 업로드",
     "uploadHelp": "문서를 만든 다음 PDF 하나를 업로드하세요(최대 32 MiB). PDF는 교체할 수 없습니다. 요청 실패 후 다시 시도하기 전에 새로 고침하세요."
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs. We are working hard to solve this.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

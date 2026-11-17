@@ -13,6 +13,7 @@ import { cloneAnnotation } from './factory.js';
 import { leesOpslagJson, schrijfOpslagJson, verwijderOpslag } from '../core/opslag.js';
 import { nettoVlakOppervlak } from './vlak-ringen.js';
 import { vlakZijden, lengteEenheid } from './vlak-zijden.js';
+import { vlakWeergave, isAlleenOppervlakte, decimalenAlleenOppervlakte } from './oppervlakte-eenheid.js';
 import { isSpotCoord, spotCoordTekst } from './spot-coord.js';
 import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
 import { toontVoetInch, formatVoetInch, lengteNotatie } from '../core/voet-inch.js';
@@ -184,14 +185,30 @@ export function vlakMeting(ann) {
 }
 
 /**
+ * De oppervlaktetekst van een meetvlak: de meting in de weergave-eenheid van
+ * het vlak (`measureAreaUnit`: acres, hectares, ..., #1129). Zonder die keuze
+ * het kwadraat van de schaal-eenheid, zoals altijd. `ann` mag ook alleen
+ * `{ measureAreaUnit }` zijn (de voorvertoning van een nieuw vlak).
+ * @param {{measureAreaUnit?: string}|null} ann
+ * @param {{value: number, unit: string}} meting  in het kwadraat van de schaal-eenheid
+ */
+export function vlakTekst(ann, meting) {
+  return formatMeasurement(vlakWeergave(meting, ann?.measureAreaUnit));
+}
+
+/**
  * Tekst, waarde en eenheid van een meetvlak opnieuw uit zijn punten en zijn
  * (eigen of document-)schaal. Eén routine voor het eigenschappenpaneel, het
  * verslepen van hoekpunten en het toevoegen van een gat.
+ *
+ * measureValue en measureUnit blijven in het kwadraat van de schaal-eenheid
+ * (daar rekenen de eigen schaal, de omtrek en de inhoud mee); alleen de tekst
+ * volgt de weergave-eenheid van het vlak.
  */
 export function herberekenVlakMaat(ann) {
   if (!ann?.points || ann.points.length < 3) return;
   const meting = vlakMeting(ann);
-  ann.measureText = formatMeasurement(meting);
+  ann.measureText = vlakTekst(ann, meting);
   ann.measureValue = meting.value;
   ann.measureUnit = meting.unit;
 }
@@ -289,6 +306,12 @@ export function formatMeasurement(measurement) {
   // 12'-6 3/8". De breuk is de afronding; oppervlaktes blijven sq ft.
   if (toontVoetInch(measurement.unit) && Number.isFinite(Number(measurement.value))) {
     return formatVoetInch(measurement.value, measurement.unit);
+  }
+  // Acres en hectares (#1129): geen afronding op de stap van de lengtematen
+  // (die zou 2,3 ac tot 2 ac maken), wel genoeg decimalen voor een kavel.
+  if (isAlleenOppervlakte(measurement.unit)) {
+    const waarde = Number(measurement.value);
+    return `${formatGetal(waarde, decimalenAlleenOppervlakte(waarde))} ${eenheidNotatie(measurement.unit)}`;
   }
   let val = applyRounding(measurement.value, measurement.unit);
   let unit = eenheidNotatie(measurement.unit || 'mm') || 'mm';
@@ -460,7 +483,7 @@ function recalculateMeasurementsIn(doc) {
         ann.measureValue = scaledArea;
         ann.measureUnit = areaUnit;
         ann.measureScale = undefined;
-        ann.measureText = formatMeasurement({ value: scaledArea, unit: areaUnit });
+        ann.measureText = vlakTekst(ann, { value: scaledArea, unit: areaUnit });
       }
     } else if (ann.type === 'measurePerimeter') {
       if (ann.points && ann.points.length >= 2) {

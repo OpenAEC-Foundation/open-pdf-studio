@@ -119,6 +119,8 @@
     "scalePrecision": "Scale & Precision",
     "scale": "Scale (px to unit)",
     "unit": "Unit",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Precision",
     "showEdgeLengths": "Show edge lengths",
     "lineEndings": "Line Endings (Distance / Perimeter)",

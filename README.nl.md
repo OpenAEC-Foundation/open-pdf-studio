@@ -10,7 +10,7 @@
 [![CI](https://github.com/OpenAEC-Foundation/open-pdf-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenAEC-Foundation/open-pdf-studio/actions/workflows/ci.yml)
 [![Licentie](https://img.shields.io/badge/licentie-LGPL--3.0--or--later-blue)](#licentie)
 [![Talen](https://img.shields.io/badge/talen-40-informational)](open-pdf-studio/js/i18n/locales/)
-[![MCP-gereedschappen](https://img.shields.io/badge/MCP--gereedschappen-94-informational)](mcp-stdio/tools.json)
+[![MCP-gereedschappen](https://img.shields.io/badge/MCP--gereedschappen-96-informational)](mcp-stdio/tools.json)
 
 ### [Probeer in de browser](https://open-pdf-studio.open-aec.com/) &nbsp;·&nbsp; [Download](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest)
 
@@ -49,7 +49,7 @@ Elke release staat op de [releasepagina](https://github.com/OpenAEC-Foundation/o
 - **Meteen op schaal meten.** Een tekening die haar eigen schaal meedraagt, zoals een CAD-plot of een ingelezen DWG, meet je zonder te kalibreren.
 - **Zie wat er veranderde.** Vergelijk twee revisies naast of over elkaar, met een lijst van elke wijziging.
 - **CAD erin en eruit.** Lees DWG en DXF in als vector-PDF met lagen en meetschaal, en exporteer een pagina terug naar DXF of DWG (desktop).
-- **Werkt met een AI-assistent.** Een lokale MCP-server met 94 gereedschappen laat een assistent documenten voor je openen, markeren, meten en opslaan (desktop).
+- **Werkt met een AI-assistent.** Een lokale MCP-server met 96 gereedschappen laat een assistent documenten voor je openen, markeren, meten en opslaan (desktop).
 - **Overal.** Windows, macOS, Linux, Android en de browser, in 40 talen.
 
 ## Schermafbeeldingen
@@ -104,7 +104,7 @@ Wat er verloren gaat: XFDF en BCF bevatten alleen markeringen, niet de inhoud va
 
 ## MCP
 
-De desktop-app heeft een ingebouwde MCP-server, zodat een AI-assistent met je documenten kan werken: bestanden openen en opslaan, navigeren, markeringen maken en wijzigen, de meetschaal zetten, hoeveelheden uittrekken, CAD in- en uitvoeren en afdrukken naar een PDF-bestand. Hij heeft 94 openbare gereedschappen.
+De desktop-app heeft een ingebouwde MCP-server, zodat een AI-assistent met je documenten kan werken: bestanden openen en opslaan, navigeren, markeringen maken en wijzigen, de meetschaal zetten, hoeveelheden uittrekken, CAD in- en uitvoeren en afdrukken naar een PDF-bestand. Hij heeft 96 openbare gereedschappen.
 
 Jij houdt de regie. De server staat aan bij een nieuwe installatie en luistert alleen op je eigen computer (`127.0.0.1`, poort 9223); zet hem uit of kies een andere poort onder Settings > General. De statusbalk laat zien wanneer een assistent verbonden is en welk gereedschap hij het laatst gebruikte. `open-pdf-studio.mcpb` uit de release installeert de koppeling in MCP-clients die `.mcpb`-bundels ondersteunen; [mcp-stdio/README.md](mcp-stdio/README.md) legt de brug voor andere clients uit. Een [Python-bibliotheek](docs/python-library.md) bedient dezelfde gereedschappen vanuit een script.
 
@@ -137,6 +137,14 @@ Iets gevonden? [Maak een issue](https://github.com/OpenAEC-Foundation/open-pdf-s
 ## Onder de motorkap
 
 De app is een [Tauri 2](https://tauri.app/)-desktop-app met een Rust-achterkant en een [SolidJS](https://www.solidjs.com/)-voorkant, gebouwd met [Vite](https://vitejs.dev/). Pagina's worden getekend door een workerpool van [PDFium](https://pdfium.googlesource.com/pdfium/)-processen, buiten de UI-thread en afgeschermd tegen crashes, met tegels die geleidelijk verschijnen bij heel grote tekeningen; de browser- en Android-versie tekenen met [PDF.js](https://mozilla.github.io/pdf.js/), dat ook de tekstlaag levert. [pdf-lib](https://pdf-lib.js.org/) schrijft de wijzigingen in de PDF. De browserversie is dezelfde voorkant, gebouwd zonder de Tauri-schil. De licenties van alle onderdelen staan in [LICENSING.md](LICENSING.md).
+
+### Rust en snelheid
+
+Zwaar werk gaat stap voor stap van JavaScript naar Rust, elke stap met een pariteitstest en een meting. De grafiek toont het aandeel Rust in de eigen code over het afgelopen halfjaar, en de gemeten tijd van een aantal handelingen vóór en na de verbetering.
+
+![Links: het aandeel Rust in de eigen code groeide van 16% in mei naar 28% in november 2026. Rechts: gemeten tijden vóór en na, van 1,7 tot 38 keer sneller](docs/images/readme/code-and-speed.svg)
+
+De regels zijn geteld op `main` halverwege elke maand, zonder tests en meegeleverde code van derden. De tijden komen uit [docs/rust-stappen.md](docs/rust-stappen.md) en [docs/performance/](docs/performance/); ze zijn gemeten in oktober en november 2026, elk paar op dezelfde machine. De eigen code werd in dezelfde periode vier keer zo groot: het aandeel laat zien waar nieuw werk terechtkomt, niet dat er minder JavaScript is.
 
 ## Bijdragen
 

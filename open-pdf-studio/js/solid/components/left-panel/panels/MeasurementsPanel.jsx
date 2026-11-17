@@ -9,7 +9,7 @@ import { goToPage } from '../../../../pdf/renderer.js';
 import { recordDelete } from '../../../../core/undo-manager.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { scaleDisplayLabel } from '../../../../annotations/scale-presets.js';
-import { formatMeasurement } from '../../../../annotations/measurement.js';
+import { formatMeasurement, vlakTekst } from '../../../../annotations/measurement.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -84,7 +84,10 @@ export default function MeasurementsPanel() {
         const sum = values.reduce((a, b) => a + b, 0);
         const unit = items[0]?.measureUnit || '';
         // Zelfde notatie als de maten zelf (decimaalteken, voet-inch #996).
-        result[type] = unit ? formatMeasurement({ value: sum, unit }) : sum.toFixed(2);
+        // Meetvlakken in acres of hectares (#1129): het totaal in die eenheid.
+        const vlak = type === 'measureArea' ? (items.find(m => m.measureAreaUnit) || items[0]) : null;
+        result[type] = !unit ? sum.toFixed(2)
+          : vlak ? vlakTekst(vlak, { value: sum, unit }) : formatMeasurement({ value: sum, unit });
       }
     }
     return result;

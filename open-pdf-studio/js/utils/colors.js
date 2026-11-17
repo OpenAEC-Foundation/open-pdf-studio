@@ -35,29 +35,3 @@ export function colorArrayToHex(colorArr, defaultColor = '#000000') {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 }
 
-// Parse color string to RGB components
-export function parseColor(color) {
-  if (!color) return { r: 0, g: 0, b: 0 };
-
-  // Handle hex format
-  const hex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color);
-  if (hex) {
-    return {
-      r: parseInt(hex[1], 16),
-      g: parseInt(hex[2], 16),
-      b: parseInt(hex[3], 16)
-    };
-  }
-
-  // Handle rgb/rgba format
-  const rgb = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(color);
-  if (rgb) {
-    return {
-      r: parseInt(rgb[1]),
-      g: parseInt(rgb[2]),
-      b: parseInt(rgb[3])
-    };
-  }
-
-  return { r: 0, g: 0, b: 0 };
-}

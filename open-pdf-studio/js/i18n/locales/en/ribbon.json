@@ -477,7 +477,9 @@
     "setDefaultPdf": "Set Default PDF Application",
     "fileAssociations": "File Assoc.",
     "previousVersionTitle": "Install the previous version of Open PDF Studio",
-    "previousVersion": "Previous version"
+    "previousVersion": "Previous version",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Red",

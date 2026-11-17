@@ -154,36 +154,6 @@ export async function resolveTextLayerCharSpacing(page, textLayerDiv) {
 }
 
 /**
- * Map a PDF font name to a CSS font-family string
- * Uses actual font name from commonObjs to detect serif/sans-serif/monospace
- */
-export function mapPdfFontToCss(actualFontName, fallbackFamily) {
-  const name = (actualFontName || '').toLowerCase();
-
-  if (name.includes('courier') || name.includes('consolas') || name.includes('mono')
-      || fallbackFamily === 'monospace') {
-    return '"Courier New", Courier, monospace';
-  }
-
-  if (name.includes('times') || name.includes('garamond') || name.includes('georgia')
-      || name.includes('palatino') || name.includes('cambria') || name.includes('bookman')
-      || (fallbackFamily === 'serif')) {
-    return '"Times New Roman", Times, serif';
-  }
-
-  if (name.includes('arial') || name.includes('helvetica') || name.includes('calibri')
-      || name.includes('verdana') || name.includes('tahoma') || name.includes('trebuchet')
-      || name.includes('segoe') || fallbackFamily === 'sans-serif') {
-    return 'Helvetica, Arial, sans-serif';
-  }
-
-  if (fallbackFamily && fallbackFamily !== 'sans-serif') {
-    return fallbackFamily;
-  }
-  return 'Helvetica, Arial, sans-serif';
-}
-
-/**
  * Insert <br> elements between consecutive text spans that have a large horizontal gap
  * on the same baseline. This prevents the browser from merging columns during text selection.
  */

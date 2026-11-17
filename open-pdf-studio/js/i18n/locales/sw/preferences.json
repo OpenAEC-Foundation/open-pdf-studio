@@ -315,6 +315,8 @@
     "scalePrecision": "Kipimo na Usahihi",
     "scale": "Kipimo (px kwa kizio)",
     "unit": "Kizio",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Usahihi",
     "showEdgeLengths": "Onyesha urefu wa pande",
     "lineEndings": "Ncha za Mstari (Umbali / Mzunguko)",

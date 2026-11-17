@@ -8,9 +8,11 @@ import {
 import { parseBilingualBody, renderMarkdown } from '../../../help/release-notes.js';
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
-import { getAppVersion } from '../../../core/platform.js';
+import { getAppVersion, isTauri } from '../../../core/platform.js';
 import { isGehost } from '../../../core/gehost.js';
 import { openExtern } from '../../../core/extern-openen.js';
+import { openDialog } from '../../stores/dialogStore.js';
+import { neemInReleasenotes, feedbackVoorinvulling } from '../../../help/virusscanner-melding.js';
 
 // Als gast opent een link in de release-notes geen tabblad (#695): het adres
 // komt in een melding. Elders gedraagt de link zich zoals altijd.
@@ -24,6 +26,10 @@ function vangLinkAlsGast(e) {
 
 export default function WhatsNewDialog() {
   const { t } = useTranslation('appMenu');
+  const { t: tDialogs } = useTranslation('dialogs');
+  // Uitleg over een waarschuwing van een virusscanner (#761): één keer, de
+  // eerste keer dat dit venster opent (help/virusscanner-melding.js).
+  const virusUitleg = neemInReleasenotes({ inTauri: isTauri() });
   const [dontShow, setDontShow] = createSignal(true);
 
   const parsed = createMemo(() => {
@@ -51,6 +57,13 @@ export default function WhatsNewDialog() {
       }
     }
     closeWhatsNew();
+  };
+
+  // Het feedbackvenster opent met het onderwerp en de gevraagde gegevens al
+  // ingevuld; dit venster maakt er plaats voor.
+  const meldWaarschuwing = async () => {
+    await close();
+    openDialog('feedback', feedbackVoorinvulling(tDialogs));
   };
 
   const langTab = (lang, label) => (
@@ -95,6 +108,16 @@ export default function WhatsNewDialog() {
         </div>
       </Show>
       <div class="wn-content">
+        <Show when={virusUitleg}>
+          <section class="wn-virus-notice" id="wn-virus-notice">
+            <h3>{tDialogs('virusNotice.title')}</h3>
+            <p>{tDialogs('virusNotice.intro')}</p>
+            <p>{tDialogs('virusNotice.signed')}</p>
+            <p>{tDialogs('virusNotice.action')}</p>
+            <p>{tDialogs('virusNotice.include')}</p>
+            <button type="button" id="wn-virus-report" class="pref-btn pref-btn-secondary" onClick={meldWaarschuwing}>{tDialogs('virusNotice.report')}</button>
+          </section>
+        </Show>
         <Show when={isLoading()}>
           <p class="wn-loading">{t('whatsNew.loading')}</p>
         </Show>
