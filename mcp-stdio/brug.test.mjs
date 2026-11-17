@@ -69,3 +69,22 @@ test('de meegeleverde lijst is de publieke lijst van de app, met annotaties', as
   }
   assert.ok(!lijst.some((t) => t.name === 'list_test_pdfs'), 'geen testgereedschap');
 });
+
+
+test('capture image content and legacy metadata reach stdio clients intact', async () => {
+  for (const [name, mimeType, key] of [
+    ['app_screenshot_view', 'image/png', 'png_base64'],
+    ['app_capture_region', 'image/jpeg', 'image_base64'],
+  ]) {
+    const result = { content: [
+      { type: 'text', text: JSON.stringify({ ok: true, [key]: 'aW1hZ2U=', width: 2, height: 1 }) },
+      { type: 'image', data: 'aW1hZ2U=', mimeType },
+    ], isError: false };
+    const verwerk = maakBrug({ endpoint: 'x', tools: TOOLS, versie: '1',
+      fetchFn: app((m) => JSON.stringify({ jsonrpc: '2.0', id: m.id, result })),
+    });
+    const actual = JSON.parse(await verwerk(vraag(8, 'tools/call', { name, arguments: {} })));
+    assert.equal(actual.id, 8);
+    assert.deepEqual(actual.result, result);
+  }
+});

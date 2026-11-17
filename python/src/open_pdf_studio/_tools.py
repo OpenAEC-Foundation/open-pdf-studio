@@ -857,7 +857,10 @@ class ToolMethods:
         png_base64, width, height, scope, bounds: { x, y, width, height } (the
         captured area in CSS px), devicePixelRatio }. 'window' and 'element' use
         a native capture of the web view and are available on Windows only for
-        now; on other platforms they return an error.
+        now; on other platforms they return an error. Inline results also
+        include an MCP image content item (image/png); the first text item
+        retains the complete legacy JSON including png_base64. This tool has no
+        path parameter; use app_capture_region for file export.
 
         Args:
             scope (one of "document", "window", "element"; default "document"):
@@ -886,7 +889,15 @@ class ToolMethods:
         Returns { page, rect, width, height, dpi, limited, mime } plus
         image_base64, or with `path` the image is written to that file and {
         path, bytes } is returned instead of the base64. Nothing is put on the
-        clipboard.
+        clipboard. Inline results also include an MCP image content item with
+        the actual PNG/JPEG MIME type; the first text item retains the complete
+        legacy JSON. With path, the result stays file metadata only. Export
+        requires an already granted filesystem path and OS write permission;
+        TEMP, Pictures and Documents are not automatically granted. Select a
+        destination through Home > Screenshot > Save, reuse an already granted
+        export location, or omit path. A forbidden-path error lists current
+        allowed and denied path patterns; window permissions and denied paths
+        still apply.
 
         Args:
             dpi (number; default 150, min 10, max 2400): Resolution in pixels
@@ -894,8 +905,10 @@ class ToolMethods:
             format (one of "png", "jpeg"; default "png")
             height (number): Height in app points.
             page (integer; min 1): Page number (default: the current page).
-            path (string): Absolute file path to write the image to, instead of
-                returning it as base64.
+            path (string): Absolute file path in an already granted filesystem
+                location. Writes the image instead of returning inline image
+                content. No automatic access to TEMP, Pictures or Documents; omit
+                path to receive an image without writing a file.
             quality (integer; default 90, min 1, max 100): JPEG quality.
             width (number): Width in app points.
             x (number): Left edge in app points.
