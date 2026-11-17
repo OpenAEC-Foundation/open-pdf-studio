@@ -129,6 +129,7 @@ const [annotProps, setAnnotProps] = createStore({
   status: 'none',
   statusBy: '',
   statusAt: '',
+  statusLabel: '',
   statusHistory: [],
   color: '#000000',
   fillColor: null,
@@ -469,6 +470,7 @@ export function storeShowProperties(annotation) {
     altText: annotation.altText || '',
     status: annotation.status || 'none',
     statusBy: annotation.statusBy || '',
+    statusLabel: annotation.statusLabel || '',
     statusAt: annotation.statusAt ? formatDate(annotation.statusAt) : '',
     statusHistory: statusHistoryProps(annotation),
     ifcCategory: annotation.ifcCategory || '',
@@ -1138,7 +1140,7 @@ function _stampStatusMeta(ann, value) {
 function statusHistoryProps(ann) {
   const stappen = statusHistory(ann);
   if (stappen.length < 2) return [];
-  return stappen.map(s => ({ status: s.status, by: s.by, at: s.at ? formatDate(s.at) : '' }));
+  return stappen.map(s => ({ status: s.status, label: s.label || '', by: s.by, at: s.at ? formatDate(s.at) : '' }));
 }
 
 // Uitloop van de stavenreeks-aanhaallijn: 0 is geldig (lijn stopt op de
@@ -1789,6 +1791,7 @@ function applyAnnotProp(key, value) {
       _stampStatusMeta(currentAnnotation, value);
       setAnnotProps({
         statusBy: currentAnnotation.statusBy || '',
+        statusLabel: currentAnnotation.statusLabel || '',
         statusAt: currentAnnotation.statusAt ? formatDate(currentAnnotation.statusAt) : '',
         statusHistory: statusHistoryProps(currentAnnotation),
       });

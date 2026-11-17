@@ -29,7 +29,7 @@ import {
 // Statuskleur en -naam, ook voor eigen statussen (#1076, review/status-sets.js).
 const eigenStatusLijst = () => statusLijst(state.preferences);
 const tStatus = (sleutel) => i18next.t(sleutel, { ns: 'context' });
-const statusTitel = (status) => statusNaam(status, eigenStatusLijst(), tStatus);
+const statusTitel = (status, label) => statusNaam(status, eigenStatusLijst(), tStatus, label);
 
 // Toggle annotations list panel visibility
 export function toggleAnnotationsListPanel() {
@@ -261,7 +261,7 @@ export function updateAnnotationsList(filterValue) {
         text: preview ? preview.substring(0, 50) + (preview.length > 50 ? '...' : '') : null,
         meta: `[${ann.author || 'User'}] - ${formatDate(ann.modifiedAt)}`,
         statusColor: hasStatus ? statusKleur(ann.status, eigenStatusLijst()) : null,
-        statusTitle: hasStatus ? statusTitel(ann.status) : null,
+        statusTitle: hasStatus ? statusTitel(ann.status, ann.statusLabel) : null,
         replyCount,
         selected: selected.has(ann)
       }));

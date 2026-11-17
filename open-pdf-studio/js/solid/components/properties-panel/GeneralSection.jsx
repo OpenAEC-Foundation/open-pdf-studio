@@ -14,7 +14,7 @@ export default function GeneralSection() {
   // De vaste en de eigen statussen (#1076, review/status-sets.js).
   const eigen = () => statusLijst(state.preferences);
   const kiesbaar = () => kiesbareStatussen(eigen());
-  const naamVan = (status) => statusNaam(status, eigen(), tContext, annotProps.statusLabel);
+  const naamVan = (status, label = annotProps.statusLabel) => statusNaam(status, eigen(), tContext, label);
   const isLocked = () => annotProps.locked === true || annotProps.locked === 'mixed';
 
   return (
@@ -175,7 +175,7 @@ export default function GeneralSection() {
                 {(stap) => (
                   <div class="status-history-step">
                     {t('general.statusHistoryStep', {
-                      status: naamVan(stap.status),
+                      status: naamVan(stap.status, stap.label),
                       author: stap.by || '?', date: stap.at || '',
                     })}
                   </div>

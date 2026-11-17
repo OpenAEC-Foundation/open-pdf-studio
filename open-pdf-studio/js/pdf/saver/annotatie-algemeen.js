@@ -20,7 +20,7 @@ import { zoneDefinition } from '../../annotations/spatial-zones.js';
 import { PDFName, PDFString, PDFRef } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
 import { onderwerpPlek } from '../loader/annotatie-opmerking.js';
-import { statusHistory, pdfStateName } from '../../review/status-history.js';
+import { statusAntwoordStappen } from '../../review/status-history.js';
 
 const N = (naam) => PDFName.of(naam);
 
@@ -67,8 +67,8 @@ export function schrijfAlgemeneSleutels(dict, ann, gebruikteNm) {
  *   draagt dezelfde antwoorden mee)
  * @param {{zonderStatus?: boolean, zonderAntwoorden?: boolean, eigenStatussen?: object[]}} [opties]
  *   status of antwoorden niet maken: de saver liet die uit het bestand staan
- *   (#629, saver/bron-behoud.js); eigenStatussen: de eigen statussen uit de
- *   voorkeuren, voor hun naam in /State (#1076)
+ *   (#629, saver/bron-behoud.js); eigenStatussen: statusLijst(voorkeuren) uit
+ *   review/status-sets.js, voor de naam in /State en het model (#1076)
  * @returns {import('pdf-lib').PDFDict[]}
  */
 export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteNm, { zonderStatus = false, zonderAntwoorden = false, eigenStatussen = [] } = {}) {
@@ -80,9 +80,11 @@ export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteN
   // Elke stap van de reviewgeschiedenis (#629, review/status-history.js) is
   // een eigen statusantwoord, van oud naar nieuw; de laatste is de huidige
   // status. Zonder geschiedenis is dat alleen de huidige status.
-  const stappen = zonderStatus ? [] : statusHistory(ann);
+  // Een vaste status staat onder het model Review, een eigen status onder de
+  // naam van zijn statusset (#1076, statusAntwoordStappen).
+  const stappen = zonderStatus ? [] : statusAntwoordStappen(ann, eigenStatussen);
   for (const stap of stappen) {
-    const stateStr = pdfStateName(stap.status, eigenStatussen);
+    const stateStr = stap.state;
     const datum = pdfDatum(stap.at);
     const st = context.obj({
       Type: 'Annot',
@@ -93,7 +95,7 @@ export function antwoordAnnotaties(context, ann, ouderRef, ouderDict, gebruikteN
       CreationDate: datum,
       F: 30, // Hidden + Print + NoZoom + NoRotate — niet los tonen
       State: pdfTextString(stateStr),
-      StateModel: PDFString.of('Review'),
+      StateModel: stap.model === 'Review' ? PDFString.of('Review') : pdfTextString(stap.model),
     });
     st.set(N('Rect'), ouderRect);
     st.set(N('IRT'), ouderRef);
