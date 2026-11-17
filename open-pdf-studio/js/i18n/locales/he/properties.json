@@ -701,6 +701,7 @@
       "height": "גובה",
       "location": "מיקום",
       "locationSource": "מקור המיקום",
+      "layer": "שכבה",
       "rebarMark": "מספר מוט",
       "rebarDiameter": "Ø",
       "rebarShape": "צורת כיפוף",

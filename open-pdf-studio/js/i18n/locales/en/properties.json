@@ -708,6 +708,7 @@
       "height": "Height",
       "location": "Location",
       "locationSource": "Location source",
+      "layer": "Layer",
       "rebarMark": "Bar mark",
       "rebarDiameter": "Ø",
       "rebarShape": "Shape code",

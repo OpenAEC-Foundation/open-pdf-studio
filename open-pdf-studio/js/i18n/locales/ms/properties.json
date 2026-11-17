@@ -701,6 +701,7 @@
       "height": "Tinggi",
       "location": "Lokasi",
       "locationSource": "Sumber lokasi",
+      "layer": "Lapisan",
       "rebarMark": "Tanda bar",
       "rebarDiameter": "Ø",
       "rebarShape": "Bentuk lenturan",

@@ -701,6 +701,7 @@
       "height": "高度",
       "location": "位置",
       "locationSource": "位置来源",
+      "layer": "图层",
       "rebarMark": "钢筋编号",
       "rebarDiameter": "Ø",
       "rebarShape": "弯曲形状",

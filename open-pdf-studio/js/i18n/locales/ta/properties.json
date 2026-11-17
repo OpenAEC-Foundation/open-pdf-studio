@@ -701,6 +701,7 @@
       "height": "உயரம்",
       "location": "இடம்",
       "locationSource": "இட மூலம்",
+      "layer": "அடுக்கு",
       "rebarMark": "கம்பி எண்",
       "rebarDiameter": "Ø",
       "rebarShape": "வளைவு வடிவம்",

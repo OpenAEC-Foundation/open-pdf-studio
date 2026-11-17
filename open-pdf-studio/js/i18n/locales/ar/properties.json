@@ -701,6 +701,7 @@
       "height": "الارتفاع",
       "location": "الموقع",
       "locationSource": "مصدر الموقع",
+      "layer": "الطبقة",
       "rebarMark": "رقم القضيب",
       "rebarDiameter": "Ø",
       "rebarShape": "شكل الثني",

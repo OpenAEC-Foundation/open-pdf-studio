@@ -3,11 +3,11 @@
 import { createSignal, createMemo } from 'solid-js';
 import { getActiveDocument, getAnnotationBounds } from '../../core/state.js';
 import { buildSchedule } from '../../quantities/engine.js';
-import { scheduleUsesLocation } from '../../quantities/categories.js';
+import { scheduleUsesLocation, scheduleUsesLayer } from '../../quantities/categories.js';
 import { collectZones, locationFor } from '../../annotations/spatial-zones.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
-import '../../quantities/label-i18n.js';
-import { verrijkVoorStaat, documentEenheid } from './staatElementen.js';
+import { standaardLaagNaam } from '../../quantities/label-i18n.js';
+import { verrijkVoorStaat, documentEenheid, metLaagNamen } from './staatElementen.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
@@ -49,10 +49,14 @@ function collectElements() {
   // Wapening: buigstaat-regels uit stavenreeksen en wapeningssymbolen.
   const rebar = selectedCategories().includes('reinforcement')
     ? wapeningsElementen(doc?.annotations || [], getTemplate) : [];
-  const elements = [...anns, ...bi, ...rebar];
+  const cfg = { fields: scheduledFields(), filters: filters(), sort: sortLevels() };
+  // De Laag-kolom (#1130): alleen als de staat hem gebruikt.
+  const elements = scheduleUsesLayer(cfg)
+    ? metLaagNamen(doc, [...anns, ...bi, ...rebar], standaardLaagNaam())
+    : [...anns, ...bi, ...rebar];
   // De Locatie-kolommen kosten per element een zone-opzoeking: alleen als de
   // staat ze toont, erop filtert of erop sorteert.
-  if (!scheduleUsesLocation({ fields: scheduledFields(), filters: filters(), sort: sortLevels() })) return elements;
+  if (!scheduleUsesLocation(cfg)) return elements;
   const zones = collectZones(doc?.annotations);
   return elements.map(a => ({ ...a, __location: locationFor(a, zones, getAnnotationBounds(a)) }));
 }

@@ -701,6 +701,7 @@
       "height": "উচ্চতা",
       "location": "অবস্থান",
       "locationSource": "অবস্থানের উৎস",
+      "layer": "স্তর",
       "rebarMark": "রড চিহ্ন",
       "rebarDiameter": "Ø",
       "rebarShape": "বাঁকানোর আকৃতি",

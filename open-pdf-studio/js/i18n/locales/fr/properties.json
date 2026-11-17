@@ -701,6 +701,7 @@
       "height": "Hauteur",
       "location": "Emplacement",
       "locationSource": "Source de l'emplacement",
+      "layer": "Calque",
       "rebarMark": "Repère",
       "rebarDiameter": "Ø",
       "rebarShape": "Code de façonnage",

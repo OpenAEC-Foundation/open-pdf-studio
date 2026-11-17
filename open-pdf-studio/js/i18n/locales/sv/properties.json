@@ -701,6 +701,7 @@
       "height": "Höjd",
       "location": "Plats",
       "locationSource": "Platskälla",
+      "layer": "Lager",
       "rebarMark": "Positionsnummer",
       "rebarDiameter": "Ø",
       "rebarShape": "Bockningsform",

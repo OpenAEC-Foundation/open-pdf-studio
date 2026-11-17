@@ -2443,7 +2443,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_get_takeoff",
-                "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g. area m2, length m, count), and per-group subtotals. Optionally target one schedule by id or name; otherwise all schedules are returned. Image/thumbnail columns are reported as counts, never as data-URLs.",
+                "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g. area m2, length m, count), and per-group subtotals. Optionally target one schedule by id or name; otherwise all schedules are returned. Image/thumbnail columns are reported as counts, never as data-URLs. Schedules are definitions shared by the whole app, not part of one document: the totals are always computed from the annotations of the ACTIVE document (named in `document`), so the same schedule gives other numbers on another tab.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -2455,17 +2455,43 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_place_schedule",
-                "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
+                "description": "Build a quantities schedule (Staat) from the annotations in the active document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` is merged over the template (or over the existing schedule). The config is checked BEFORE anything is created: with an unknown category, field or filter operator, or a result without columns, no schedule is left behind and the error lists the valid values. The table contents are computed by the app from the live annotations - the caller supplies no cell values. Schedules are definitions shared by the whole app (kept in the user's preferences), not part of one document: the numbers always come from the document that is active at that moment (named in `document`), and a placed table is a snapshot inside the document it was placed in. Rename or edit a schedule with app_update_schedule, remove it with app_delete_schedule.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "scheduleId": { "type": "string", "description": "Reuse an existing schedule instead of creating one." },
                         "templateId": { "type": "string", "description": "Template for a new schedule: area, length, count, symbol, text, image, full, buigstaat (rebar bending schedule) or wapeningsstaat (rebar weight per diameter). Default: area." },
                         "name":       { "type": "string", "description": "Display name for the schedule." },
-                        "config":     { "type": "object", "description": "Schedule config: categories, fields, filters, sort, itemize, format. Overrides the template.", "additionalProperties": true },
+                        "config":     { "type": "object", "description": "Schedule config; every key is optional and replaces that key of the template (or of the existing schedule), the other keys are kept. categories: which elements, any of area, line-based, count, reinforcement, text-annotation, text-built-in, symbol, image, other. fields: the column keys, in order. Every category has category, type, page, label, location, locationSource, layer, color, ifcCategory, count; area adds area, length (the perimeter), dakhoek, realArea; line-based adds length, barCount, barDiameter, barLength, totalBarLength; count adds countCat; text-annotation adds text, fontSize, fontFamily; text-built-in adds text, fontSize; symbol adds thumbnail, symbolId; image adds thumbnail, imageName, width, height; reinforcement adds rebarMark, rebarDiameter, rebarShape, rebarGrade, rebarCount, rebarLength, rebarTotalLength, rebarMassPerM, rebarMass. filters: [{ field, op, value }] with op one of =, !=, >, >=, <, <=, has, none (has/none take no value); all filters must hold; = and != compare the text exactly (case-sensitive). sort: [{ field, dir: asc|desc, group, header, footer }]; the first level with group:true groups the rows and gives each group a subtotal. itemize: false leaves out the row per element and keeps the subtotals. format: { <field>: { heading, decimals, align: left|right, total, unit } }. The `layer` field holds the name of the markup layer as app_list_layers reports it. Example - lengths of everything on the layer 'Walls', grouped by type: {\"categories\":[\"line-based\"],\"fields\":[\"type\",\"label\",\"layer\",\"length\"],\"filters\":[{\"field\":\"layer\",\"op\":\"=\",\"value\":\"Walls\"}],\"sort\":[{\"field\":\"type\",\"dir\":\"asc\",\"group\":true}]}.", "additionalProperties": true },
                         "page":       { "type": "number", "description": "Page to place the table on (default: current page)." },
                         "x":          { "type": "number", "description": "Left edge in page points (default 40)." },
                         "y":          { "type": "number", "description": "Top edge in page points (default 40)." }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_update_schedule",
+                "description": "Rename a quantities schedule (Staat) and/or change its config, without placing a table. Target it by scheduleId or by name (app_get_takeoff lists both). `config` is merged over the schedule's current config and checked first, exactly as in app_place_schedule (see there for the keys and an example); on an error nothing changes. Schedules are shared by the whole app. Tables that were already placed are snapshots and keep their contents: place the schedule again for an up-to-date table.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "scheduleId": { "type": "string", "description": "The schedule to change, by its id." },
+                        "name":       { "type": "string", "description": "The schedule to change, by its display name (when scheduleId is not given)." },
+                        "newName":    { "type": "string", "description": "New display name." },
+                        "config":     { "type": "object", "description": "Config keys to replace: categories, fields, filters, sort, itemize, format. See app_place_schedule.", "additionalProperties": true }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_delete_schedule",
+                "description": "Delete a quantities schedule (Staat) together with the tables that were placed from it in the active document. Target it by scheduleId or by name (app_get_takeoff lists both); a name that several schedules share is refused with their ids. The tables and the schedule go in ONE undo step: app_undo brings both back. Without placed tables the document does not change and there is no undo step; the answer always carries the removed definition (`schedule`) so it can be recreated. Schedules are shared by the whole app, so the schedule disappears for every document; tables placed from it in other open documents stay where they are (counted in tablesInOtherDocuments).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "scheduleId": { "type": "string", "description": "The schedule to delete, by its id." },
+                        "name":       { "type": "string", "description": "The schedule to delete, by its display name (when scheduleId is not given)." }
                     },
                     "additionalProperties": false
                 }
@@ -2821,6 +2847,8 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_set_measure_scale"  => tool_app_request(state, "mcp:set-measure-scale",  &arguments, Duration::from_secs(15)).await,
         "app_get_takeoff"        => tool_app_request(state, "mcp:get-takeoff",        &arguments, Duration::from_secs(10)).await,
         "app_place_schedule"     => tool_app_request(state, "mcp:place-schedule",     &arguments, Duration::from_secs(15)).await,
+        "app_update_schedule"    => tool_app_request(state, "mcp:update-schedule",    &arguments, Duration::from_secs(10)).await,
+        "app_delete_schedule"    => tool_app_request(state, "mcp:delete-schedule",    &arguments, Duration::from_secs(15)).await,
         "app_structural_layout"  => tool_app_request(state, "mcp:structural-layout",  &arguments, Duration::from_secs(60)).await,
         "app_list_commands"      => tool_app_request(state, "mcp:list-commands",      &arguments, Duration::from_secs(30)).await,
         "app_run_command"        => tool_app_request(state, "mcp:run-command",        &arguments, Duration::from_secs(20)).await,
@@ -3680,7 +3708,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 94);
+        assert_eq!(arr.len(), 96);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -4291,6 +4319,8 @@ mod tests {
             "app_set_measure_scale",
             "app_get_takeoff",
             "app_place_schedule",
+            "app_update_schedule",
+            "app_delete_schedule",
             "app_structural_layout",
             "app_list_commands",
             "app_run_command",

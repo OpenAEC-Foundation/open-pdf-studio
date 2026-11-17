@@ -701,6 +701,7 @@
       "height": "Wysokość",
       "location": "Lokalizacja",
       "locationSource": "Źródło lokalizacji",
+      "layer": "Warstwa",
       "rebarMark": "Numer pręta",
       "rebarDiameter": "Ø",
       "rebarShape": "Kształt gięcia",

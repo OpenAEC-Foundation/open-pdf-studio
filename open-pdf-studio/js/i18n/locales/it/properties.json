@@ -701,6 +701,7 @@
       "height": "Altezza",
       "location": "Ubicazione",
       "locationSource": "Origine dell'ubicazione",
+      "layer": "Livello",
       "rebarMark": "Posizione",
       "rebarDiameter": "Ø",
       "rebarShape": "Forma di piegatura",

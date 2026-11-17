@@ -701,6 +701,7 @@
       "height": "高さ",
       "location": "場所",
       "locationSource": "場所の取得元",
+      "layer": "レイヤー",
       "rebarMark": "鉄筋番号",
       "rebarDiameter": "Ø",
       "rebarShape": "加工形状",

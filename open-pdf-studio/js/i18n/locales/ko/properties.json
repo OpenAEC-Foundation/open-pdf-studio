@@ -701,6 +701,7 @@
       "height": "높이",
       "location": "위치",
       "locationSource": "위치 출처",
+      "layer": "레이어",
       "rebarMark": "철근 번호",
       "rebarDiameter": "Ø",
       "rebarShape": "가공 형상",

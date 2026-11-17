@@ -701,6 +701,7 @@
       "height": "Korkeus",
       "location": "Sijainti",
       "locationSource": "Sijainnin lähde",
+      "layer": "Taso",
       "rebarMark": "Positio",
       "rebarDiameter": "Ø",
       "rebarShape": "Taivutusmuoto",

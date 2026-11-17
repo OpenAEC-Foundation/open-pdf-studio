@@ -701,6 +701,7 @@
       "height": "اونچائی",
       "location": "مقام",
       "locationSource": "مقام کا ماخذ",
+      "layer": "پرت",
       "rebarMark": "سریے کا نمبر",
       "rebarDiameter": "Ø",
       "rebarShape": "موڑ کی شکل",

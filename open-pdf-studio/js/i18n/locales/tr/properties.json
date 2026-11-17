@@ -701,6 +701,7 @@
       "height": "Yükseklik",
       "location": "Konum",
       "locationSource": "Konum kaynağı",
+      "layer": "Katman",
       "rebarMark": "Poz no",
       "rebarDiameter": "Ø",
       "rebarShape": "Bükme şekli",

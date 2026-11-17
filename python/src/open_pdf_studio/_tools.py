@@ -549,6 +549,22 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "params": {"config": "config", "name": "name", "page": "page", "schedule_id": "scheduleId", "template_id": "templateId", "x": "x", "y": "y"},
         "required": (),
     },
+    "app_update_schedule": {
+        "method": "update_schedule",
+        "title": "Update quantity schedule",
+        "read_only": False,
+        "destructive": True,
+        "params": {"config": "config", "name": "name", "new_name": "newName", "schedule_id": "scheduleId"},
+        "required": (),
+    },
+    "app_delete_schedule": {
+        "method": "delete_schedule",
+        "title": "Delete quantity schedule",
+        "read_only": False,
+        "destructive": True,
+        "params": {"name": "name", "schedule_id": "scheduleId"},
+        "required": (),
+    },
     "app_structural_layout": {
         "method": "structural_layout",
         "title": "Set out structural layout",
@@ -2129,6 +2145,10 @@ class ToolMethods:
         m2, length m, count), and per-group subtotals. Optionally target one
         schedule by id or name; otherwise all schedules are returned.
         Image/thumbnail columns are reported as counts, never as data-URLs.
+        Schedules are definitions shared by the whole app, not part of one
+        document: the totals are always computed from the annotations of the
+        ACTIVE document (named in `document`), so the same schedule gives other
+        numbers on another tab.
 
         Args:
             name (string): Target one schedule by its display name.
@@ -2142,16 +2162,46 @@ class ToolMethods:
     def place_schedule(self, *, config: Optional[Dict[str, Any]] = None, name: Optional[str] = None, page: Optional[float] = None, schedule_id: Optional[str] = None, template_id: Optional[str] = None, x: Optional[float] = None, y: Optional[float] = None) -> Any:
         """Place quantity schedule.
 
-        Build a quantities schedule (Staat) from the annotations in the open
+        Build a quantities schedule (Staat) from the annotations in the active
         document and place it on the page as a table annotation. Without
         scheduleId a new schedule is created from a template (default 'area');
-        `config` then overrides its categories/fields/sort. The table contents
-        are computed by the app from the live annotations - the caller supplies
-        no cell values.
+        `config` is merged over the template (or over the existing schedule).
+        The config is checked BEFORE anything is created: with an unknown
+        category, field or filter operator, or a result without columns, no
+        schedule is left behind and the error lists the valid values. The table
+        contents are computed by the app from the live annotations - the caller
+        supplies no cell values. Schedules are definitions shared by the whole
+        app (kept in the user's preferences), not part of one document: the
+        numbers always come from the document that is active at that moment
+        (named in `document`), and a placed table is a snapshot inside the
+        document it was placed in. Rename or edit a schedule with
+        app_update_schedule, remove it with app_delete_schedule.
 
         Args:
-            config (object): Schedule config: categories, fields, filters, sort,
-                itemize, format. Overrides the template.
+            config (object): Schedule config; every key is optional and replaces
+                that key of the template (or of the existing schedule), the other
+                keys are kept. categories: which elements, any of area, line-based,
+                count, reinforcement, text-annotation, text-built-in, symbol, image,
+                other. fields: the column keys, in order. Every category has
+                category, type, page, label, location, locationSource, layer, color,
+                ifcCategory, count; area adds area, length (the perimeter), dakhoek,
+                realArea; line-based adds length, barCount, barDiameter, barLength,
+                totalBarLength; count adds countCat; text-annotation adds text,
+                fontSize, fontFamily; text-built-in adds text, fontSize; symbol adds
+                thumbnail, symbolId; image adds thumbnail, imageName, width, height;
+                reinforcement adds rebarMark, rebarDiameter, rebarShape, rebarGrade,
+                rebarCount, rebarLength, rebarTotalLength, rebarMassPerM, rebarMass.
+                filters: [{ field, op, value }] with op one of =, !=, >, >=, <, <=,
+                has, none (has/none take no value); all filters must hold; = and !=
+                compare the text exactly (case-sensitive). sort: [{ field, dir:
+                asc|desc, group, header, footer }]; the first level with group:true
+                groups the rows and gives each group a subtotal. itemize: false
+                leaves out the row per element and keeps the subtotals. format: {
+                <field>: { heading, decimals, align: left|right, total, unit } }.
+                The `layer` field holds the name of the markup layer as
+                app_list_layers reports it. Example - lengths of everything on the
+                layer 'Walls', grouped by type:
+                {"categories":["line-based"],"fields":["type","label","layer","length"],"filters":[{"field":"layer","op":"=","value":"Walls"}],"sort":[{"field":"type","dir":"asc","group":true}]}.
             name (string): Display name for the schedule.
             page (number): Page to place the table on (default: current page).
             schedule_id (string) [MCP: scheduleId]: Reuse an existing schedule
@@ -2166,6 +2216,54 @@ class ToolMethods:
         MCP tool ``app_place_schedule`` (changes state).
         """
         return self._call_tool("app_place_schedule", _pack({"config": config, "name": name, "page": page, "scheduleId": schedule_id, "templateId": template_id, "x": x, "y": y}))
+
+    def update_schedule(self, *, config: Optional[Dict[str, Any]] = None, name: Optional[str] = None, new_name: Optional[str] = None, schedule_id: Optional[str] = None) -> Any:
+        """Update quantity schedule.
+
+        Rename a quantities schedule (Staat) and/or change its config, without
+        placing a table. Target it by scheduleId or by name (app_get_takeoff
+        lists both). `config` is merged over the schedule's current config and
+        checked first, exactly as in app_place_schedule (see there for the keys
+        and an example); on an error nothing changes. Schedules are shared by
+        the whole app. Tables that were already placed are snapshots and keep
+        their contents: place the schedule again for an up-to-date table.
+
+        Args:
+            config (object): Config keys to replace: categories, fields,
+                filters, sort, itemize, format. See app_place_schedule.
+            name (string): The schedule to change, by its display name (when
+                scheduleId is not given).
+            new_name (string) [MCP: newName]: New display name.
+            schedule_id (string) [MCP: scheduleId]: The schedule to change, by
+                its id.
+
+        MCP tool ``app_update_schedule`` (modifies or discards state).
+        """
+        return self._call_tool("app_update_schedule", _pack({"config": config, "name": name, "newName": new_name, "scheduleId": schedule_id}))
+
+    def delete_schedule(self, *, name: Optional[str] = None, schedule_id: Optional[str] = None) -> Any:
+        """Delete quantity schedule.
+
+        Delete a quantities schedule (Staat) together with the tables that were
+        placed from it in the active document. Target it by scheduleId or by
+        name (app_get_takeoff lists both); a name that several schedules share
+        is refused with their ids. The tables and the schedule go in ONE undo
+        step: app_undo brings both back. Without placed tables the document does
+        not change and there is no undo step; the answer always carries the
+        removed definition (`schedule`) so it can be recreated. Schedules are
+        shared by the whole app, so the schedule disappears for every document;
+        tables placed from it in other open documents stay where they are
+        (counted in tablesInOtherDocuments).
+
+        Args:
+            name (string): The schedule to delete, by its display name (when
+                scheduleId is not given).
+            schedule_id (string) [MCP: scheduleId]: The schedule to delete, by
+                its id.
+
+        MCP tool ``app_delete_schedule`` (modifies or discards state).
+        """
+        return self._call_tool("app_delete_schedule", _pack({"name": name, "scheduleId": schedule_id}))
 
     def structural_layout(self, origin: Dict[str, Any], bays_x: Any, bays_y: Any, *, beams: Optional[Any] = None, columns: Optional[Any] = None, dry_run: Optional[bool] = None, floors: Optional[Any] = None, grid_bubble_mm: Optional[float] = None, grid_extension_mm: Optional[float] = None, label_style_x: Optional[Literal["letters", "numbers"]] = None, label_style_y: Optional[Literal["letters", "numbers"]] = None, labels_y_from_bottom: Optional[bool] = None, level_markers: Optional[bool] = None, page: Optional[float] = None, scale: Optional[str] = None, schedule: Optional[Any] = None, set_measure_scale: Optional[bool] = None, tags: Optional[bool] = None, text_height_mm: Optional[float] = None) -> Any:
         """Set out structural layout.
