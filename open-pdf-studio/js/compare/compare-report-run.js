@@ -14,7 +14,7 @@ import { diffAnnotationsForPair } from './compare-annotations.js';
 import { buildReportRows, buildReportCsv, buildReportPdf, pdfSafeLabels, cloudComment, REPORT_COLUMNS } from './change-report.js';
 import { getPairAlignment, applyAutoAlignment } from './compare-store.js';
 import { compareSourceInfo } from './compare-sources.js';
-import { presetSettings } from './detect-plan.js';
+import { precisionSettings, PRECISION_NAMES } from './detect-plan.js';
 
 const t = (key, opts) => i18next.t(`compare.${key}`, { ns: 'ribbon', ...opts });
 const tEn = (key) => i18next.t(`compare.${key}`, { ns: 'ribbon', lng: 'en' });
@@ -56,7 +56,7 @@ function textOnlyChanges(textChanges, oldPage, newPage, covered) {
 
 /**
  * Changes of every matched pair.
- * @param {{oldPath:string,newPath:string,pairs:Array<{old:number,new:number}>,preset:string,method?:string,
+ * @param {{oldPath:string,newPath:string,pairs:Array<{old:number,new:number}>,preset:string,precision?:number,method?:string,
  *   autoAlign:boolean, sheets?:Map<number,{sheet?:string,label?:string}>,
  *   onProgress?:(done:number,total:number)=>void, isCancelled?:()=>boolean}} o
  */
@@ -74,7 +74,7 @@ export async function collectReport(o) {
       const stored = getPairAlignment(p.old, p.new);
       const res = await computePairChanges({
         oldPath: o.oldPath, newPath: o.newPath, oldPage: p.old, newPage: p.new,
-        preset: o.preset, method: o.method, offset: stored?.alignment, autoAlign: !stored && o.autoAlign,
+        preset: o.preset, precision: o.precision, method: o.method, offset: stored?.alignment, autoAlign: !stored && o.autoAlign,
       }, clients);
       if (!res) continue;
       if (res.alignInfo) applyAutoAlignment(p.old, p.new, res.alignInfo);
@@ -139,7 +139,10 @@ export async function exportReportPdf(o, pairResults, { maxCrops = 150, onProgre
   const labels = pdfSafeLabels(local, english);
   const tr = labels === local ? t : tEn;
   const names = typeNames(tr);
-  const p = presetSettings(o.preset);
+  const p = precisionSettings(o.preset, o.precision);
+  // Three significant digits: the precision level scales the preset values.
+  const mm = (v) => String(Number(v.toPrecision(3)));
+  const level = p.level ? `, ${tr('precision')}: ${tr(`precisionLevel.${PRECISION_NAMES[p.level]}`)}` : '';
   const method = o.method === 'vector' ? `, ${tr('methodVector')}` : '';
   const bytes = await buildReportPdf({
     rows,
@@ -149,7 +152,7 @@ export async function exportReportPdf(o, pairResults, { maxCrops = 150, onProgre
       oldName: compareDocName(o.oldPath),
       newName: compareDocName(o.newPath),
       date: new Date().toLocaleString(),
-      settings: `${labels.preset || 'Preset'}: ${tr(`preset.${o.preset || 'line'}`)} (${p.toleranceMm} mm, ${p.minAreaMm2} mm2, ${p.mergeMm} mm)${method}`,
+      settings: `${labels.preset || 'Preset'}: ${tr(`preset.${o.preset || 'line'}`)} (${mm(p.toleranceMm)} mm, ${mm(p.minAreaMm2)} mm2, ${mm(p.mergeMm)} mm)${level}${method}`,
     },
     crops,
   });

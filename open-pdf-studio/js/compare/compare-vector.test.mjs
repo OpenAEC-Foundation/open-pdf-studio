@@ -92,3 +92,37 @@ test('the alignment is applied to the old side: a shifted plot matches', async (
   const T = alignmentMatrix({ dx: -1, dy: -0.5, rotation: 0, scale: 1 }, a.size, a.size);
   assert.deepEqual(diffSegments(shifted, a.segments, { transform: T }).clusters, []);
 });
+
+// #1149: the vector comparison runs in the detection worker. The request for
+// the worker used to carry only pixel sides ({width, height, data}); the
+// {segments} of the vector task were dropped, so in the app (a real Worker,
+// structured clone) the task always failed and the view reported "not a
+// vector page". Under node there is no Worker, which is why the tests above
+// never saw it.
+test('vector task survives the trip to the detection worker (structured clone)', async () => {
+  const { buildDetectRequest, handleDetectMessage, createDetectClient, DETECT_RESULT } = await import('./change-detect-protocol.js');
+  const a = await segmentsOf(await sheetPdf());
+  const b = await segmentsOf(await sheetPdf({ shiftMm: -2, extraLine: true }));
+  const options = { tolPt: mm(0.25), mergePt: mm(1.5) };
+  const direct = diffSegments(a.segments, b.segments, options);
+  assert.ok(direct.clusters.length > 0);
+
+  const { message, transfer } = buildDetectRequest(1, { segments: a.segments }, { segments: b.segments }, { task: 'vector', options });
+  // The segments are cached per page: copied, never transferred.
+  assert.deepEqual(transfer, []);
+  const reply = handleDetectMessage(structuredClone(message));
+  assert.equal(reply.type, DETECT_RESULT, reply.error);
+  assert.deepEqual(reply.changes, direct);
+
+  // Through the client with a worker that clones its messages like a real one.
+  const client = createDetectClient({
+    createWorker: () => {
+      const w = { postMessage(msg) { const r = handleDetectMessage(structuredClone(msg)); queueMicrotask(() => w.onmessage({ data: structuredClone(r) })); }, terminate() {} };
+      return w;
+    },
+  });
+  const viaWorker = await client.run({ segments: a.segments }, { segments: b.segments }, { task: 'vector', options });
+  assert.ok(client.usesWorker());
+  assert.deepEqual(viaWorker.changes, direct);
+  assert.equal(a.segments.length > 0, true, 'the cached segments are still attached');
+});

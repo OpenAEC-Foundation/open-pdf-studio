@@ -409,7 +409,20 @@
     },
     "methodVector": "Vektori",
     "methodVectorHint": "Vertaa piirrettyjä polkuja tarkasti, kun molemmat sivut ovat vektoripiirustuksia; muut sivut verrataan pikseleinä",
-    "methodPixelFallback": "pikselit: ei vektorisivu"
+    "methodPixelFallback": "pikselit: ei vektorisivu",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "Sivut",

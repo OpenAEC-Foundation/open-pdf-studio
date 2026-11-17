@@ -409,7 +409,20 @@
     },
     "methodVector": "Vetorial",
     "methodVectorHint": "Compara exatamente os traçados onde as duas páginas são desenhos vetoriais; as outras páginas usam a comparação por pixels",
-    "methodPixelFallback": "pixels: não é uma página vetorial"
+    "methodPixelFallback": "pixels: não é uma página vetorial",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "Páginas",

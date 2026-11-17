@@ -409,7 +409,20 @@
     },
     "methodVector": "矢量",
     "methodVectorHint": "两页都是矢量图纸时精确比较绘制的路径；其他页面使用像素比较",
-    "methodPixelFallback": "像素：不是矢量页面"
+    "methodPixelFallback": "像素：不是矢量页面",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "页面",

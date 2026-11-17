@@ -53,6 +53,55 @@ export function presetSettings(name) {
 }
 
 /**
+ * Precision levels on top of a preset (#1149): how small a difference still
+ * counts. 0 is the preset itself. A lower level widens the tolerance (line
+ * edges, small shifts) and raises the minimum size of a change; a higher
+ * level narrows both. The ink threshold stays that of the preset, so the ink
+ * masks are the same at every level and only the detection runs again.
+ *   tolerance  factor on toleranceMm
+ *   area       factor on minAreaMm2 (and on the shortest vector segment)
+ *   merge      factor on mergeMm: a wider tolerance eats parts of a change,
+ *              so the lower levels also join what lies close together
+ */
+export const PRECISION_LEVELS = Object.freeze([-2, -1, 0, 1, 2]);
+export const DEFAULT_PRECISION = 0;
+const PRECISION_FACTORS = Object.freeze({
+  '-2': Object.freeze({ tolerance: 2.5, area: 10, merge: 2 }),
+  '-1': Object.freeze({ tolerance: 1.6, area: 3, merge: 1.4 }),
+  0: Object.freeze({ tolerance: 1, area: 1, merge: 1 }),
+  1: Object.freeze({ tolerance: 0.6, area: 0.4, merge: 1 }),
+  2: Object.freeze({ tolerance: 0.3, area: 0.15, merge: 1 }),
+});
+/** Name of a level, for the interface texts (compare.precisionLevel.*). */
+export const PRECISION_NAMES = Object.freeze({ '-2': 'lowest', '-1': 'low', 0: 'normal', 1: 'high', 2: 'highest' });
+/** Shortest vector segment that counts as a change at level 0, in mm. */
+export const VECTOR_MIN_LENGTH_MM = 0.2;
+
+export function normalizePrecision(level) {
+  const n = Math.round(Number(level));
+  return PRECISION_LEVELS.includes(n) ? n : DEFAULT_PRECISION;
+}
+
+/**
+ * The settings of a preset at a precision level, in millimetres on paper.
+ * Level 0 returns the numbers of the preset unchanged.
+ * @returns {{threshold:number, toleranceMm:number, minAreaMm2:number, mergeMm:number, minLengthMm:number, level:number}}
+ */
+export function precisionSettings(preset, level = DEFAULT_PRECISION) {
+  const p = typeof preset === 'string' ? presetSettings(preset) : { ...SENSITIVITY_PRESETS[DEFAULT_PRESET], ...(preset || {}) };
+  const n = normalizePrecision(level);
+  const f = PRECISION_FACTORS[n];
+  return {
+    threshold: p.threshold,
+    toleranceMm: p.toleranceMm * f.tolerance,
+    minAreaMm2: p.minAreaMm2 * f.area,
+    mergeMm: p.mergeMm * f.merge,
+    minLengthMm: VECTOR_MIN_LENGTH_MM * f.area,
+    level: n,
+  };
+}
+
+/**
  * Pixels per PDF point for a millimetre-per-pixel resolution.
  */
 export function pxPerPtFor(mmPerPx) {
@@ -119,10 +168,10 @@ export function memoryFor(width, height) {
 
 /**
  * Turn a preset (millimetres on paper) into raster pixel parameters for the
- * detection at mmPerPx.
+ * detection at mmPerPx, at a precision level (0 = the preset itself).
  */
-export function detectionParams(preset, mmPerPx) {
-  const p = typeof preset === 'string' ? presetSettings(preset) : { ...SENSITIVITY_PRESETS[DEFAULT_PRESET], ...(preset || {}) };
+export function detectionParams(preset, mmPerPx, level = DEFAULT_PRECISION) {
+  const p = precisionSettings(preset, level);
   const px2 = mmPerPx * mmPerPx;
   return {
     threshold: p.threshold,

@@ -409,7 +409,20 @@
     },
     "methodVector": "Vector",
     "methodVectorHint": "So sánh chính xác các đường vẽ khi cả hai trang đều là bản vẽ vector; các trang khác dùng so sánh điểm ảnh",
-    "methodPixelFallback": "điểm ảnh: không phải trang vector"
+    "methodPixelFallback": "điểm ảnh: không phải trang vector",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "Trang",

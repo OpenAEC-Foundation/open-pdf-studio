@@ -112,7 +112,7 @@ fn detection_matches_js_on_every_fixture() {
         }
     }
     eprintln!("detection fixtures: {checked}, {floats} floats bit-identical");
-    assert!(checked >= 13, "only {checked} detection fixtures");
+    assert!(checked >= 23, "only {checked} detection fixtures");
 }
 
 #[test]
