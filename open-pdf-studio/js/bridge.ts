@@ -314,3 +314,12 @@ export {
 
 // Shared style clipboard for keyboard commands and the existing UI.
 export { copyStyleFromSelection, pasteStyleToSelection } from './solid/stores/stylePresetsStore.js';
+
+// ============= QUANTITIES SCHEDULES =============
+export {
+  getScheduleById,
+  buildResultForSchedule,
+  addScheduleFromTemplate,
+  renameSchedule,
+  updateScheduleConfig,
+} from './solid/stores/schedulesStore.js';

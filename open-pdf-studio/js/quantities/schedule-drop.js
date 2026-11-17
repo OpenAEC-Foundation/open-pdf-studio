@@ -7,7 +7,7 @@ import { createAnnotation } from '../annotations/factory.js';
 import { resolvePointerCoords } from '../tools/tool-context.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { scheduleResultToTable } from './schedule-templates.js';
-import { getScheduleById, buildResultForSchedule } from '../solid/stores/schedulesStore.js';
+import { getScheduleById, buildResultForSchedule } from '../bridge.js';
 import { recordAdd } from '../core/undo-manager.js';
 
 export const SCHEDULE_DND_MIME = 'application/x-opds-schedule';
@@ -30,6 +30,13 @@ export function placeScheduleAt(scheduleId, x, y, pageNum) {
   if (!result || !result.columns.length) return null;
 
   const table = scheduleResultToTable(result, schedule.name);
+  return placeScheduleTableAt(table, x, y, pageNum);
+}
+
+/** Place an already validated table without rebuilding its schedule. */
+export function placeScheduleTableAt(table, x, y, pageNum) {
+  const doc = getActiveDocument();
+  if (!doc) return null;
   const ann = createAnnotation({
     type: 'scheduleTable',
     page: pageNum || doc.currentPage || 1,

@@ -33,7 +33,7 @@
       "additionalProperties": false,
       "properties": {
         "scale": {
-          "maximum": 32,
+          "maximum": 32.0,
           "minimum": 0.05,
           "type": "number"
         }
@@ -2736,7 +2736,7 @@
       "readOnlyHint": false,
       "title": "Place quantity schedule"
     },
-    "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
+    "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values. Schedule definitions are app-wide; table values are calculated from the active document. Config replaces the entire schedule config. Invalid page/config input is rejected before changing schedule definitions, preferences, annotations or undo history.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {

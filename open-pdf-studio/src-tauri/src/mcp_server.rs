@@ -2455,7 +2455,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_place_schedule",
-                "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
+                "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values. Schedule definitions are app-wide; table values are calculated from the active document. Config replaces the entire schedule config. Invalid page/config input is rejected before changing schedule definitions, preferences, annotations or undo history.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

@@ -2147,7 +2147,10 @@ class ToolMethods:
         scheduleId a new schedule is created from a template (default 'area');
         `config` then overrides its categories/fields/sort. The table contents
         are computed by the app from the live annotations - the caller supplies
-        no cell values.
+        no cell values. Schedule definitions are app-wide; table values are
+        calculated from the active document. Config replaces the entire schedule
+        config. Invalid page/config input is rejected before changing schedule
+        definitions, preferences, annotations or undo history.
 
         Args:
             config (object): Schedule config: categories, fields, filters, sort,
