@@ -418,7 +418,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "title": "Find repeated symbols",
         "read_only": False,
         "destructive": False,
-        "params": {"action": "action", "document_id": "documentId", "template_page": "templatePage", "rect": "rect", "pages": "pages", "threshold": "threshold", "rotations": "rotations", "scales": "scales", "query_id": "queryId", "id": "id", "ids": "ids", "category": "category"},
+        "params": {"action": "action", "document_id": "documentId", "template_page": "templatePage", "rect": "rect", "pages": "pages", "threshold": "threshold", "rotations": "rotations", "scales": "scales", "exclude_regions": "excludeRegions", "within_region": "withinRegion", "min_score": "minScore", "detect_regions": "detectRegions", "query_id": "queryId", "id": "id", "ids": "ids", "category": "category"},
         "required": ("action", "documentId"),
     },
     "app_workbook_bindings": {
@@ -1740,15 +1740,27 @@ class ToolMethods:
         """
         return self._call_tool("app_recognize_form", _pack({"action": action, "documentId": document_id, "pages": pages, "ocr": ocr, "lang": lang, "revision": revision, "sourceId": source_id, "outputPath": output_path, "candidates": candidates}))
 
-    def search_symbols(self, action: Literal["search", "accept", "navigate"], document_id: str, *, template_page: Optional[int] = None, rect: Optional[Dict[str, Any]] = None, pages: Optional[List[int]] = None, threshold: Optional[float] = None, rotations: Optional[List[Literal[0, 90, 180, 270]]] = None, scales: Optional[List[float]] = None, query_id: Optional[str] = None, id: Optional[str] = None, ids: Optional[List[str]] = None, category: Optional[Dict[str, Any]] = None) -> Any:
+    def search_symbols(self, action: Literal["search", "accept", "navigate"], document_id: str, *, template_page: Optional[int] = None, rect: Optional[Dict[str, Any]] = None, pages: Optional[List[int]] = None, threshold: Optional[float] = None, rotations: Optional[List[Literal[0, 90, 180, 270]]] = None, scales: Optional[List[float]] = None, exclude_regions: Optional[List[Dict[str, Any]]] = None, within_region: Optional[Dict[str, Any]] = None, min_score: Optional[float] = None, detect_regions: Optional[bool] = None, query_id: Optional[str] = None, id: Optional[str] = None, ids: Optional[List[str]] = None, category: Optional[Dict[str, Any]] = None) -> Any:
         """Find repeated symbols.
 
         Search page artwork for a selected symbol rectangle in current page-view
-        coordinates at scale 1. Review candidates before accept, which creates
-        undoable standard count annotations without duplicating same-category
-        counts at the same location. Search bounded to 20 pages, 1200 pixels per
-        edge and 1000 results. Similarity is not certainty. Results expire after
-        20 minutes or source changes. navigate reveals a result.
+        coordinates at scale 1. Those are points with the origin top left of the
+        page as shown, rotation included; match bounds, excludeRegions and
+        withinRegion use them too. Candidates whose centre lies inside an
+        excludeRegions rectangle or outside withinRegion are dropped and counted
+        in summary.excluded; a region without page applies to every searched
+        page. Nothing else is dropped. Every match has review, and reviewReasons
+        when true: belowMinScore (score under the optional minScore), legend or
+        titleBlock (centre inside a legend or title block found in the page
+        text, listed in detectedRegions; a text-layer heuristic that finds
+        nothing on scans, off with detectRegions false). A legend shows each
+        symbol once and title block text can resemble one, so summary.safe, the
+        matches without a review flag, is the count to start from. Review
+        candidates before accept, which creates undoable standard count
+        annotations without duplicating same-category counts at the same
+        location. Search bounded to 20 pages, 1200 pixels per edge and 1000
+        results. Similarity is not certainty. Results expire after 20 minutes or
+        source changes. navigate reveals a result.
 
         Args:
             action (one of "search", "accept", "navigate", required)
@@ -1759,6 +1771,10 @@ class ToolMethods:
             threshold (number; min 0.5, max 1)
             rotations (array)
             scales (array)
+            exclude_regions (array) [MCP: excludeRegions]
+            within_region (object) [MCP: withinRegion]
+            min_score (number; min 0.5, max 1) [MCP: minScore]
+            detect_regions (boolean) [MCP: detectRegions]
             query_id (string) [MCP: queryId]
             id (string)
             ids (array)
@@ -1766,7 +1782,7 @@ class ToolMethods:
 
         MCP tool ``app_search_symbols`` (changes state).
         """
-        return self._call_tool("app_search_symbols", _pack({"action": action, "documentId": document_id, "templatePage": template_page, "rect": rect, "pages": pages, "threshold": threshold, "rotations": rotations, "scales": scales, "queryId": query_id, "id": id, "ids": ids, "category": category}))
+        return self._call_tool("app_search_symbols", _pack({"action": action, "documentId": document_id, "templatePage": template_page, "rect": rect, "pages": pages, "threshold": threshold, "rotations": rotations, "scales": scales, "excludeRegions": exclude_regions, "withinRegion": within_region, "minScore": min_score, "detectRegions": detect_regions, "queryId": query_id, "id": id, "ids": ids, "category": category}))
 
     def workbook_bindings(self, action: Literal["list", "bind", "preview", "refresh", "inspectWorkbook", "export", "remove"], *, id: Optional[str] = None, name: Optional[str] = None, document_id: Optional[str] = None, schedule_id: Optional[str] = None, workbook_path: Optional[str] = None, sheet: Optional[str] = None, path: Optional[str] = None, mappings: Optional[List[Dict[str, Any]]] = None) -> Any:
         """Refresh spreadsheet quantities.

@@ -1570,6 +1570,20 @@
     "found": "تم العثور على {{count}} مرشحاً",
     "created": "تم إنشاء {{count}} عدّاً؛ و{{skipped}} موجودة بالفعل",
     "truncated": "تم بلوغ حد النتائج. ابحث في صفحات أقل أو زد التشابه.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "تغيّر المستند. أغلق البحث عن الرموز وأعد فتحه.",
       "INVALID_PAGES": "اختر من 1 إلى 20 صفحة صالحة.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "يجب أن يكون التشابه بين 0.5 و1، والمقياس بين 0.5 و2، والتدوير ربع دورة.",
       "READ_ONLY": "هذا المستند أو طبقة العلامات للقراءة فقط.",
       "SEARCH_EXPIRED": "انتهت صلاحية نتائج البحث. ابحث مرة أخرى.",
-      "CATEGORY_REQUIRED": "اختر فئة عدّ."
+      "CATEGORY_REQUIRED": "اختر فئة عدّ.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

@@ -1570,6 +1570,20 @@
     "found": "Nalezení kandidáti: {{count}}",
     "created": "Vytvořené počty: {{count}}; již existující: {{skipped}}",
     "truncated": "Bylo dosaženo limitu výsledků. Prohledejte méně stránek nebo zvyšte podobnost.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Dokument se změnil. Zavřete a znovu otevřete hledání symbolů.",
       "INVALID_PAGES": "Zvolte 1–20 platných stránek.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Podobnost musí být 0,5–1, měřítko 0,5–2 a otočení o čtvrt otáčky.",
       "READ_ONLY": "Tento dokument nebo vrstva značek je jen pro čtení.",
       "SEARCH_EXPIRED": "Platnost výsledků hledání vypršela. Hledejte znovu.",
-      "CATEGORY_REQUIRED": "Zvolte kategorii počtu."
+      "CATEGORY_REQUIRED": "Zvolte kategorii počtu.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

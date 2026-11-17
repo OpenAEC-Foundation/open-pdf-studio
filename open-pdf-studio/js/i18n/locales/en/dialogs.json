@@ -1569,6 +1569,20 @@
     "found": "{{count}} candidates found",
     "created": "{{count}} counts created; {{skipped}} already present",
     "truncated": "Result limit reached. Search fewer pages or increase similarity.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "The document changed. Close and reopen symbol search.",
       "INVALID_PAGES": "Choose 1–20 valid pages.",
@@ -1577,7 +1591,9 @@
       "INVALID_TOLERANCE": "Similarity must be 0.5–1; scale 0.5–2 and rotation a quarter turn.",
       "READ_ONLY": "This document or markup layer is read-only.",
       "SEARCH_EXPIRED": "Search results expired. Search again.",
-      "CATEGORY_REQUIRED": "Choose a count category."
+      "CATEGORY_REQUIRED": "Choose a count category.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

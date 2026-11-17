@@ -15,6 +15,8 @@ export default function SymbolSearchDialog() {
     [rect, setRect] = createSignal({ x: 20, y: 20, width: 30, height: 30 }),
     [pages, setPages] = createSignal(String(getActiveDocument()?.currentPage || 1)),
     [threshold, setThreshold] = createSignal(.75),
+    [minScore, setMinScore] = createSignal(''),
+    [excluded, setExcluded] = createSignal([]),
     [rotate, setRotate] = createSignal(false),
     [scaleTolerance, setScaleTolerance] = createSignal(false),
     [category, setCategory] = createSignal(activeCountCategoryId()),
@@ -49,7 +51,17 @@ export default function SymbolSearchDialog() {
   };
   onMount(() => run(async () => setSession(await openSymbolSearch(documentId))));
   const match = () => result()?.matches.find(m => m.id === selected());
-  const view = createMemo(() => JSON.stringify({ page: match()?.page || templatePage(), bounds: match()?.bounds || rect() }));
+  // What the preview shows: the template or the selected match, with the
+  // excluded areas and the legend/title block found on that page (#1131).
+  const view = createMemo(() => {
+    const page = match()?.page || templatePage();
+    return JSON.stringify({
+      page,
+      bounds: match()?.bounds || rect(),
+      excluded: excluded().filter(r => r.page === page),
+      detected: (result()?.detectedRegions || []).filter(r => r.page === page).map(r => r.bounds)
+    });
+  });
   createEffect(() => {
     const s = session(),
       v = JSON.parse(view());
@@ -65,6 +77,13 @@ export default function SymbolSearchDialog() {
         canvas.height = tmp.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(tmp, 0, 0);
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]);
+        for (const [list, colour] of [[v.detected, '#0066cc'], [v.excluded, '#c00000']]) {
+          ctx.strokeStyle = colour;
+          for (const r of list) ctx.strokeRect(r.x * renderScale, r.y * renderScale, r.width * renderScale, r.height * renderScale);
+        }
+        ctx.setLineDash([]);
         ctx.strokeStyle = '#ff8500';
         ctx.lineWidth = 3;
         ctx.strokeRect(v.bounds.x * renderScale, v.bounds.y * renderScale, v.bounds.width * renderScale, v.bounds.height * renderScale);
@@ -93,6 +112,8 @@ export default function SymbolSearchDialog() {
       if (b < a || b - a > 19) throw new Error('INVALID_PAGES');
       for (let p = a; p <= b; p++) list.push(p);
     }
+    // An empty field means no check limit; anything else must be a number.
+    const limit = minScore() === '' ? undefined : leesGetal(minScore());
     controller = new AbortController();
     const r = await session().search({
       templatePage: templatePage(),
@@ -100,14 +121,30 @@ export default function SymbolSearchDialog() {
       pages: [...new Set(list)],
       threshold: threshold(),
       rotations: rotate() ? [0, 90, 180, 270] : [0],
-      scales: scaleTolerance() ? [.8, 1, 1.2] : [1]
+      scales: scaleTolerance() ? [.8, 1, 1.2] : [1],
+      excludeRegions: excluded(),
+      minScore: limit
     }, { signal: controller.signal, onProgress: p => setStatus(`${Math.round(p.fraction * 100)}%`) });
     if (closed) return;
     setResult(r);
     setAccepted(new Set());
     setSelected(r.matches[0]?.id || '');
-    setStatus(t('symbolSearch.found', { count: r.matches.length }));
+    setStatus(r.summary.review || r.summary.excluded
+      ? t('symbolSearch.foundReview', { count: r.matches.length, review: r.summary.review, excluded: r.summary.excluded })
+      : t('symbolSearch.found', { count: r.matches.length }));
   });
+  // The drawn rectangle becomes an area the next search leaves out.
+  const excludeArea = () => {
+    const r = rect();
+    if (![r.x, r.y, r.width, r.height].every(Number.isFinite) || r.width <= 0 || r.height <= 0) {
+      setError('INVALID_REGIONS');
+      return;
+    }
+    setError('');
+    setExcluded(list => [...list, { page: templatePage(), ...r }].slice(-50));
+    setStatus(t('symbolSearch.excludedAdded', { count: excluded().length }));
+  };
+  const acceptSafe = () => setAccepted(new Set(result().matches.filter(m => !m.review).map(m => m.id)));
   const apply = () => run(async () => {
     const cat = countCategories().find(c => c.id === category());
     const r = await acceptSymbolMatches(result().queryId, [...accepted()], cat);
@@ -199,6 +236,32 @@ export default function SymbolSearchDialog() {
         </select>
       </label>
     </div>
+    <p>{t('symbolSearch.reviewInfo')}</p>
+    <div class="symbol-search-controls">
+      <label>
+        {t('symbolSearch.minScore')}
+        <input
+          type="text"
+          inputmode="decimal"
+          data-getal
+          value={minScore()}
+          onChange={e => setMinScore(e.currentTarget.value.trim())}
+        />
+      </label>
+      <button class="pref-btn" disabled={busy() || !!selected()} onClick={excludeArea}>
+        {t('symbolSearch.excludeArea')}
+      </button>
+      <Show when={excluded().length}>
+        <button class="pref-btn" disabled={busy()} onClick={() => setExcluded([])}>
+          {t('symbolSearch.clearExcluded', { count: excluded().length })}
+        </button>
+      </Show>
+      <Show when={result()?.matches.length}>
+        <button class="pref-btn" disabled={busy()} onClick={acceptSafe}>
+          {t('symbolSearch.acceptSafe', { count: result()?.summary.safe })}
+        </button>
+      </Show>
+    </div>
     <p role="status">{status()}</p>
     <Show when={result()?.truncated}><p>{t('symbolSearch.truncated')}</p></Show>
     <div class="symbol-search-grid">
@@ -212,7 +275,7 @@ export default function SymbolSearchDialog() {
           <For each={result()?.matches || []}>
             {m => <option value={m.id}>
               {accepted().has(m.id) ? '✓ ' : ''}
-              {t('symbolSearch.result', { page: m.page, score: Math.round(m.score * 100) })}
+              {t(m.review ? 'symbolSearch.resultReview' : 'symbolSearch.result', { page: m.page, score: Math.round(m.score * 100) })}
             </option>}
           </For>
         </select>
@@ -241,6 +304,13 @@ export default function SymbolSearchDialog() {
             {t('symbolSearch.navigate')}
           </button>
           <p>{t('symbolSearch.page', { page: match().page })}</p>
+          <Show when={match()?.review}>
+            <p>
+              {t('symbolSearch.reviewWhy', {
+                reasons: (match()?.reviewReasons || []).map(reason => t(`symbolSearch.reasons.${reason}`)).join(', ')
+              })}
+            </p>
+          </Show>
         </Show>
       </div>
       <canvas

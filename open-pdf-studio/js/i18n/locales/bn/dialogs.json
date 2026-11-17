@@ -1570,6 +1570,20 @@
     "found": "{{count}}টি প্রার্থী পাওয়া গেছে",
     "created": "{{count}}টি গণনা তৈরি হয়েছে; {{skipped}}টি আগে থেকেই আছে",
     "truncated": "ফলাফলের সীমায় পৌঁছেছে। কম পৃষ্ঠায় অনুসন্ধান করুন বা সাদৃশ্য বাড়ান।",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "ডকুমেন্টটি পরিবর্তিত হয়েছে। প্রতীক অনুসন্ধান বন্ধ করে আবার খুলুন।",
       "INVALID_PAGES": "1–20টি বৈধ পৃষ্ঠা বেছে নিন।",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "সাদৃশ্য 0.5–1 হতে হবে; স্কেল 0.5–2 এবং ঘূর্ণন এক-চতুর্থাংশ পাক।",
       "READ_ONLY": "এই ডকুমেন্ট বা মার্কআপ স্তরটি শুধু-পঠনযোগ্য।",
       "SEARCH_EXPIRED": "অনুসন্ধানের ফলাফলের মেয়াদ শেষ হয়েছে। আবার অনুসন্ধান করুন।",
-      "CATEGORY_REQUIRED": "একটি গণনার বিভাগ বেছে নিন।"
+      "CATEGORY_REQUIRED": "একটি গণনার বিভাগ বেছে নিন।",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

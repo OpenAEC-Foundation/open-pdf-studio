@@ -1785,7 +1785,7 @@
   },
   {
     "name": "app_search_symbols",
-    "description": "Search page artwork for a selected symbol rectangle in current page-view coordinates at scale 1. Review candidates before accept, which creates undoable standard count annotations without duplicating same-category counts at the same location. Search bounded to 20 pages, 1200 pixels per edge and 1000 results. Similarity is not certainty. Results expire after 20 minutes or source changes. navigate reveals a result.",
+    "description": "Search page artwork for a selected symbol rectangle in current page-view coordinates at scale 1. Those are points with the origin top left of the page as shown, rotation included; match bounds, excludeRegions and withinRegion use them too. Candidates whose centre lies inside an excludeRegions rectangle or outside withinRegion are dropped and counted in summary.excluded; a region without page applies to every searched page. Nothing else is dropped. Every match has review, and reviewReasons when true: belowMinScore (score under the optional minScore), legend or titleBlock (centre inside a legend or title block found in the page text, listed in detectedRegions; a text-layer heuristic that finds nothing on scans, off with detectRegions false). A legend shows each symbol once and title block text can resemble one, so summary.safe, the matches without a review flag, is the count to start from. Review candidates before accept, which creates undoable standard count annotations without duplicating same-category counts at the same location. Search bounded to 20 pages, 1200 pixels per edge and 1000 results. Similarity is not certainty. Results expire after 20 minutes or source changes. navigate reveals a result.",
     "inputSchema": {
       "type": "object",
       "properties": {
@@ -1862,6 +1862,78 @@
             "maximum": 2
           },
           "maxItems": 3
+        },
+        "excludeRegions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "height": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 50
+        },
+        "withinRegion": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "height": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height"
+          ],
+          "additionalProperties": false
+        },
+        "minScore": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1
+        },
+        "detectRegions": {
+          "type": "boolean"
         },
         "queryId": {
           "type": "string"
