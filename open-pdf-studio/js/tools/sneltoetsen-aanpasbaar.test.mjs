@@ -221,6 +221,7 @@ const OUDE_STANDAARDEN = [
 const NIEUWE_STANDAARDEN = [
   ['view.splitVertical', 'Ctrl+\\', () => ctrl('\\', 'Backslash'), ['voerSplitOpdrachtUit view.splitVertical']], // #858
   ['view.splitHorizontal', 'Ctrl+Shift+\\', () => ctrl('|', 'Backslash', { shift: true }), ['voerSplitOpdrachtUit view.splitHorizontal']], // #858
+  ['view.fullscreen', 'Alt+Enter', () => toets('Enter', 'Enter', { alt: true }), ['toggleFullscreen']], // #1137
   ['tool.line', 'D L', null, null], // key sequence D, then L (see the sequence tests below)
 ];
 

@@ -51,7 +51,7 @@ export const CORE_COMMANDS = Object.freeze([
   { id: 'view.fitWidth', category: 'view', labelKey: 'ribbon:home.fitWidth', label: 'Fit Width', defaults: ['Ctrl+1'] },
   { id: 'view.fitPage', category: 'view', labelKey: 'ribbon:home.fitPageLabel', label: 'Fit Page', defaults: ['Ctrl+2'] },
   { id: 'view.thinLines', category: 'view', labelKey: 'ribbon:view.thinLines', label: 'Thin Lines', defaults: ['Ctrl+5'] },
-  { id: 'view.fullscreen', category: 'view', labelKey: 'ribbon:view.fullscreen', label: 'Fullscreen', defaults: ['Ctrl+L'] },
+  { id: 'view.fullscreen', category: 'view', labelKey: 'ribbon:view.fullscreen', label: 'Fullscreen', defaults: ['Ctrl+L', 'Alt+Enter'] },
   { id: 'view.rotatePageRight', category: 'view', labelKey: 'ribbon:home.rotateRight', label: 'Rotate Right', defaults: ['Ctrl+Shift+=', 'Ctrl+Shift+NumpadAdd'] },
   { id: 'view.rotatePageLeft', category: 'view', labelKey: 'ribbon:home.rotateLeft', label: 'Rotate Left', defaults: ['Ctrl+Shift+-', 'Ctrl+Shift+NumpadSubtract'] },
   { id: 'view.nextPage', category: 'view', labelKey: 'common:pageNav.nextPage', label: 'Next Page', defaults: ['PageDown'] },
