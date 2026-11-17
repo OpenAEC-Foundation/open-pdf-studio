@@ -32,5 +32,6 @@ jobs:
       build_command: cd open-pdf-studio && OPDS_WEB_BUILD=1 npx vite build && node scripts/web-statistics.mjs
       checkout_sparse: |
         open-pdf-studio
+        mcp-stdio
     secrets:
       deploy_ssh_key: ${{ secrets.DEPLOY_SSH_KEY }}
