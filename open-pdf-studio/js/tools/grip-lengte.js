@@ -53,14 +53,21 @@ export function pixelsPerEenheidVoor(ann, schaalPxPerEenheid) {
   return schaalPxPerEenheid > 0 ? schaalPxPerEenheid : 1;
 }
 
+/** De eenheid bij pixelsPerEenheidVoor: die van de maat zelf, anders de schaal. */
+export function eenheidVoor(ann, schaalEenheid) {
+  if (ann?.type === 'measureDistance' && ann.measureScale > 0 && ann.measureUnit) return ann.measureUnit;
+  return schaalEenheid || 'mm';
+}
+
 /**
  * Nieuwe positie van het gesleepte punt voor de getypte buffer, of null als
  * de invoer (nog) niets bepaalt. `richting` is het huidige (gesnapte /
  * orthogonale) sleeppunt; valt dat samen met het vaste punt, dan geldt
- * `terugval` (bijv. het oorspronkelijke eindpunt) als richting.
+ * `terugval` (bijv. het oorspronkelijke eindpunt) als richting. Met `eenheid`
+ * (de eenheid bij pxPerEenheid) mag de lengte ook een voet-inchmaat zijn.
  */
-export function nieuwEindpuntVoorInvoer(buffer, vast, richting, pxPerEenheid, terugval = null) {
-  const r = parseCoordBuffer(buffer);
+export function nieuwEindpuntVoorInvoer(buffer, vast, richting, pxPerEenheid, terugval = null, eenheid = undefined) {
+  const r = parseCoordBuffer(buffer, eenheid);
   let rx = richting.x, ry = richting.y;
   if (terugval && rx === vast.x && ry === vast.y) { rx = terugval.x; ry = terugval.y; }
   const p = beperkEindpunt(r, vast.x, vast.y, rx, ry, pxPerEenheid);

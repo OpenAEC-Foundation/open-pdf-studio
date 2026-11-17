@@ -47,6 +47,7 @@ import { parseCoordBuffer } from './coord-invoer.js';
 import {
   gripLengteEindpunten,
   pixelsPerEenheidVoor,
+  eenheidVoor,
   nieuwEindpuntVoorInvoer,
   isGripLengteStartToets,
 } from './grip-lengte.js';
@@ -152,18 +153,20 @@ function _pasGripLengteToe(ann) {
     return;
   }
   const buffer = typeLengthBuffer();
-  const schaal = getMeasureScale(ann.page, o.vast.x, o.vast.y).pixelsPerUnit;
-  const px = pixelsPerEenheidVoor(orig, schaal);
-  let doel = nieuwEindpuntVoorInvoer(buffer, o.vast, _gripLengte.richting || nu.beweeg, px, o.beweeg);
+  const terPlaatse = getMeasureScale(ann.page, o.vast.x, o.vast.y);
+  const px = pixelsPerEenheidVoor(orig, terPlaatse.pixelsPerUnit);
+  // Met de eenheid mag de lengte ook een voet-inchmaat zijn (#1145).
+  const eenheid = eenheidVoor(orig, terPlaatse.unit);
+  let doel = nieuwEindpuntVoorInvoer(buffer, o.vast, _gripLengte.richting || nu.beweeg, px, o.beweeg, eenheid);
   if (!doel) return;
-  const herhaal = parseCoordBuffer(buffer).kind === 'length' ? 2 : 1;
+  const herhaal = parseCoordBuffer(buffer, eenheid).kind === 'length' ? 2 : 1;
   for (let i = 0; i < herhaal; i++) {
     Object.assign(ann, cloneAnnotation(orig));
     applyResize(ann, h, doel.x - o.beweeg.x, doel.y - o.beweeg.y, orig, false, false);
     // Uitlijn-snap van de maatlijn kan het punt een fractie verzetten; leg
     // de lengte dan opnieuw langs de zo ontstane richting.
     const na = gripLengteEindpunten(ann, h);
-    const volgende = na && nieuwEindpuntVoorInvoer(buffer, o.vast, na.beweeg, px, o.beweeg);
+    const volgende = na && nieuwEindpuntVoorInvoer(buffer, o.vast, na.beweeg, px, o.beweeg, eenheid);
     if (!volgende || (Math.abs(volgende.x - doel.x) < 1e-9 && Math.abs(volgende.y - doel.y) < 1e-9)) break;
     doel = volgende;
   }

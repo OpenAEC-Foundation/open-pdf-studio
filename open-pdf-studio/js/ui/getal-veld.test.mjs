@@ -220,3 +220,57 @@ test('letters worden geweigerd, cijfers en scheidingstekens niet', () => {
   assert.equal(probeer('1:100'), true);
 });
 
+// ── Lengtevelden (data-getal="lengte", #1145) ──────────────────────────────
+
+test('a length field hands a feet-inch length through as typed', () => {
+  const el = veld({ 'data-getal': 'lengte' });
+  el._tekst = `12'-6 3/8"`;
+  assert.equal(el.value, `12'-6 3/8"`);
+  assert.ok(Number.isNaN(el.valueAsNumber));
+  el._tekst = ` 6" `;
+  assert.equal(el.value, `6"`);
+  // Een kaal getal blijft een gewoon getal, komma of punt.
+  el._tekst = '12,5';
+  assert.equal(el.value, '12.5');
+  // Half getypt of onzin: leeg, zoals bij een getalveld.
+  for (const t of [`12' 6 3/`, `6 3/8`, `12'6'`, 'abc']) {
+    el._tekst = t;
+    assert.equal(el.value, '', t);
+  }
+});
+
+test('a plain number field still refuses a feet-inch length', () => {
+  const el = veld();
+  el._tekst = `12'-6"`;
+  assert.equal(el.value, '');
+  const e = { target: el, inputType: 'insertText', data: "'", preventDefault() { this.geweigerd = true; } };
+  verwerkVoorInvoer(e);
+  assert.equal(e.geweigerd, true);
+});
+
+test('a length field takes the characters of a feet-inch length, not letters', () => {
+  const el = veld({ 'data-getal': 'lengte' });
+  for (const data of ["'", '"', '/', ' ', `12'-6 3/8"`, '′', '″']) {
+    const e = { target: el, inputType: 'insertText', data, preventDefault() { this.geweigerd = true; } };
+    verwerkVoorInvoer(e);
+    assert.equal(e.geweigerd, undefined, data);
+  }
+  const e = { target: el, inputType: 'insertText', data: 'x', preventDefault() { this.geweigerd = true; } };
+  verwerkVoorInvoer(e);
+  assert.equal(e.geweigerd, true);
+});
+
+test('a feet-inch length assigned to a length field stays as it is', () => {
+  const el = veld({ 'data-getal': 'lengte' });
+  el.value = `12'-6"`;
+  assert.equal(zichtbareTekst(el), `12'-6"`);
+  // Verlaten en pijltjes laten de maat met rust.
+  verwerkVerlaten(el);
+  assert.equal(zichtbareTekst(el), `12'-6"`);
+  const pijl = { target: el, key: 'ArrowUp', preventDefault() { this.gestopt = true; } };
+  assert.equal(verwerkPijl(pijl), false);
+  assert.equal(zichtbareTekst(el), `12'-6"`);
+  // Een getal daarna volgt weer de notatie van de taal.
+  el.value = '0.5';
+  assert.equal(zichtbareTekst(el), '0,5');
+});

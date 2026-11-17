@@ -6,7 +6,9 @@ import {
   typeLengthActive,
   typeLengthFocus,
   getTypeLengthStart,
+  typeLengthUnit,
 } from '../../tools/type-length-input.js';
+import { isImperialeLengte, VOET_INCH_VOORBEELD } from '../../core/voet-inch.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
 
@@ -32,8 +34,18 @@ function _hintFor(kind) {
   }
 }
 
-/** Wat er in het lege veld staat, afhankelijk van het actieve gereedschap. */
+/**
+ * Wat er in het lege veld staat, afhankelijk van het actieve gereedschap. Bij
+ * een schaal in voet of inch staat het voorbeeld van een voet-inchmaat erbij
+ * (#1145): zo is te zien dat 12'-6 3/8" hier getypt kan worden.
+ */
 function _placeholder() {
+  const basis = _basisPlaceholder();
+  if (state.currentTool === 'enlarge' || !isImperialeLengte(typeLengthUnit())) return basis;
+  return `${basis}  (${VOET_INCH_VOORBEELD})`;
+}
+
+function _basisPlaceholder() {
   switch (state.currentTool) {
     case 'enlarge': return 'type factor e.g. 1.5 + Enter';
     case 'stretch': return 'type dx,dy e.g. 50,0 + Enter';

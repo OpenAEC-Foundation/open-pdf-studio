@@ -18,6 +18,9 @@
  *   - `.` is the decimal separator (locale-agnostic, v1)
  *   - `,` is ALWAYS a field separator, never a decimal
  *   - leading `-` permitted on either field of relative/polar/absolute
+ *   - a length may also be typed in feet and inches, whatever the unit of the
+ *     scale: `12'`, `6"`, `12'-6 3/8"`, `12' 6"`, `6 3/8"`, `1.5'` (#1145);
+ *     it is converted to the scale unit (core/voet-inch.js)
  *
  * Backward compatibility:
  *   - public API (enter/exit/setStart/clear/applyToEndpoint/consumeKey) unchanged
@@ -40,6 +43,7 @@ import { createSignal } from 'solid-js';
 import { getMeasureScale } from '../annotations/measurement.js';
 import { getActiveDocument } from '../core/state.js';
 import { parseCoordBuffer, beperkEindpunt } from './coord-invoer.js';
+import { magVoetInchTeken } from './voet-inch-toets.js';
 
 export { parseCoordBuffer };
 
@@ -125,9 +129,28 @@ export function setTypeLengthCursorScreen(clientX, clientY) {
 // ── Parsing ────────────────────────────────────────────────────────────────
 // parseCoordBuffer woont in coord-invoer.js (pure, getest).
 
+/** The measure scale at the anchor: { pixelsPerUnit, unit }. */
+function _schaal() {
+  return getMeasureScale(getActiveDocument()?.currentPage, _mode.startX, _mode.startY);
+}
+
+/** The unit typed lengths are in (the scale at the anchor point). */
+export function typeLengthUnit() {
+  try { return _schaal().unit || 'mm'; } catch { return 'mm'; }
+}
+
+/** The typed buffer, parsed; feet-inch lengths converted to the scale unit. */
+export function parseTypeLengthBuffer() {
+  return parseCoordBuffer(_buffer(), typeLengthUnit());
+}
+
 function _reparse() {
-  const r = parseCoordBuffer(_buffer());
-  _setFormat(r.kind);
+  _setFormat(parseTypeLengthBuffer().kind);
+}
+
+/** The field being typed: the text after the last separator. */
+function _laatsteVeld(buf) {
+  return buf.slice(Math.max(buf.lastIndexOf(','), buf.lastIndexOf('<'), buf.lastIndexOf('=')) + 1);
 }
 
 // ── Key consumption ────────────────────────────────────────────────────────
@@ -190,6 +213,14 @@ export function consumeKey(key) {
     _reparse();
     return { handled: true, committed: false };
   }
+  // Feet and inches: ' " / and a space, and the '-' of 12'-6" (#1145). Not
+  // in the angle of a polar entry or in an absolute coordinate.
+  if (!_buffer().includes('<') && !_buffer().startsWith('=')
+      && magVoetInchTeken(_laatsteVeld(_buffer()), key)) {
+    _setBuffer(_buffer() + key);
+    _reparse();
+    return { handled: true, committed: false };
+  }
   if (key === '-') {
     // Allow '-' at start of buffer or right after a separator (',' '<' '=')
     const buf = _buffer();
@@ -213,7 +244,7 @@ export function consumeKey(key) {
     return { handled: true, committed: false };
   }
   if (key === 'Enter') {
-    const r = parseCoordBuffer(_buffer());
+    const r = parseTypeLengthBuffer();
     if (r.kind === 'invalid' || r.kind === 'empty') return { handled: false };
     // Length-only must have a > 0 to be meaningful (kept from original behaviour)
     if (r.kind === 'length' && (r.a == null || r.a <= 0)) return { handled: false };
@@ -237,6 +268,7 @@ function _consumeInDistanceField(key) {
   const left = buf.slice(0, i), right = buf.slice(i);
   const set = (l) => { _setBuffer(l + right); _reparse(); return { handled: true, committed: false }; };
   if (/^[0-9]$/.test(key) || key === '.') return set(left + key);
+  if (magVoetInchTeken(left, key)) return set(left + key);
   if (key === '-') return left.length === 0 ? set('-') : { handled: true, committed: false };
   if (key === 'Backspace') return set(left.slice(0, -1));
   if (key === ',' || key === '<' || key === '=') return { handled: true, committed: false };
@@ -251,7 +283,7 @@ function _consumeInDistanceField(key) {
  */
 export function cycleTypeLengthField() {
   if (!_active()) return false;
-  const r = parseCoordBuffer(_buffer());
+  const r = parseTypeLengthBuffer();
   if (r.kind === 'length' && r.a != null) {
     _setBuffer(_buffer() + '<');
     _reparse();
@@ -281,6 +313,7 @@ export function applyToEndpoint(startX, startY, cursorX, cursorY) {
   // scale/unit, not the document/global scale. getMeasureScale prioritises
   // the innermost region containing the point.
   const _page = getActiveDocument()?.currentPage;
-  const pxPerUnit = getMeasureScale(_page, startX, startY).pixelsPerUnit || 1;
-  return beperkEindpunt(parseCoordBuffer(_buffer()), startX, startY, cursorX, cursorY, pxPerUnit);
+  const schaal = getMeasureScale(_page, startX, startY);
+  const pxPerUnit = schaal.pixelsPerUnit || 1;
+  return beperkEindpunt(parseCoordBuffer(_buffer(), schaal.unit), startX, startY, cursorX, cursorY, pxPerUnit);
 }

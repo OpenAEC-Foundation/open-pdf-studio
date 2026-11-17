@@ -14,6 +14,7 @@ import { cloneAnnotation } from '../../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { leesLengte, isImperialeLengte, VOET_INCH_VOORBEELD } from '../../../core/voet-inch.js';
 import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, filterScaleOptions } from '../../../annotations/scale-presets.js';
 
 const PRESET_SCALES = [
@@ -56,6 +57,7 @@ function findAnnotation(id) {
 
 export default function ViewportScaleDialog(props) {
   const { t } = useTranslation('ribbon');
+  const { t: tDialogs } = useTranslation('dialogs');
   const data = props.data || {};
   const initialAnnotation = findAnnotation(data.annotationId);
   const initialSnapshot = initialAnnotation ? cloneAnnotation(initialAnnotation) : null;
@@ -87,7 +89,8 @@ export default function ViewportScaleDialog(props) {
       pixelsPerUnit = pixelsPerUnitFor(`1:${ratio}`, unit, userUnitVanPagina(doc, ann.page));
       scaleRatio = `1:${ratio}`;
     } else {
-      const realVal = parseFloat(customValue());
+      // Een getal in de gekozen eenheid, of een voet-inchmaat (#1145).
+      const realVal = leesLengte(customValue(), customUnit(), { begin: true });
       const pxVal = parseFloat(refPixels());
       if (!realVal || realVal <= 0 || !pxVal || pxVal <= 0) return;
       pixelsPerUnit = pxVal / realVal;
@@ -188,8 +191,10 @@ export default function ViewportScaleDialog(props) {
           <div class="ai-login-field">
             <label>Real-world distance</label>
             <div style="display:flex;gap:4px;align-items:center">
-              <input type="text" inputmode="decimal" data-getal class="ribbon-input" value={customValue()} onInput={e => setCustomValue(e.target.value)}
-                placeholder="Distance"
+              <input type="text" inputmode={isImperialeLengte(customUnit()) ? 'text' : 'decimal'} data-getal="lengte"
+                class="ribbon-input" value={customValue()} onInput={e => setCustomValue(e.target.value)}
+                title={isImperialeLengte(customUnit()) ? tDialogs('calibration.feetInchHint') : undefined}
+                placeholder={isImperialeLengte(customUnit()) ? VOET_INCH_VOORBEELD : 'Distance'}
                 style="flex:1" />
               <PrefSelect
                 value={customUnit}

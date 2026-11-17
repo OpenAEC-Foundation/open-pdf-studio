@@ -8,15 +8,25 @@
  *   relative XY   `100,50`     verschuiving dx,dy vanaf het anker
  *   polar         `100<45`     afstand onder hoek (graden) vanaf het anker
  *   absolute      `=400,300`   absolute app-coördinaat
+ *
+ * Een lengte mag ook een voet-inchmaat zijn (`12'-6 3/8"`, `6"`, `1.5'`,
+ * #1145) als de aanroeper de eenheid van de schaal meegeeft: de maat wordt
+ * dan naar die eenheid omgerekend, ook als die metrisch is. De komma blijft
+ * hier het scheidingsteken tussen twee velden, dus decimalen met een punt.
  */
+
+import { leesVoetInch, leesLengte } from '../core/voet-inch.js';
 
 /**
  * Parse a buffer string into a structured form.
  * Returns { kind, a, b } where:
  *   kind ∈ 'empty' | 'length' | 'cartesian' | 'polar' | 'absolute' | 'invalid'
  *   a, b are numbers (b unused for length)
+ * `eenheid` (mm, m, ft, in, ...) is the unit typed lengths are in; with it a
+ * feet-inch length is accepted and converted to that unit. Angles and
+ * absolute coordinates are never lengths.
  */
-export function parseCoordBuffer(s) {
+export function parseCoordBuffer(s, eenheid) {
   if (!s || s.length === 0) return { kind: 'empty', a: null, b: null };
 
   // Absolute: starts with '='
@@ -39,7 +49,7 @@ export function parseCoordBuffer(s) {
   if (ltIdx >= 0) {
     const ds = s.slice(0, ltIdx);
     const ts = s.slice(ltIdx + 1);
-    const d = _toNum(ds);
+    const d = _toNum(ds, eenheid);
     const t = ts.length === 0 ? null : _toNum(ts);
     if (d == null) return { kind: 'invalid', a: null, b: null };
     if (ts.length > 0 && t == null) return { kind: 'invalid', a: null, b: null };
@@ -51,25 +61,30 @@ export function parseCoordBuffer(s) {
   if (commaIdx >= 0) {
     const xs = s.slice(0, commaIdx);
     const ys = s.slice(commaIdx + 1);
-    const x = _toNum(xs);
-    const y = ys.length === 0 ? null : _toNum(ys);
+    const x = _toNum(xs, eenheid);
+    const y = ys.length === 0 ? null : _toNum(ys, eenheid);
     if (x == null) return { kind: 'invalid', a: null, b: null };
     if (ys.length > 0 && y == null) return { kind: 'invalid', a: null, b: null };
     return { kind: 'cartesian', a: x, b: y };
   }
 
   // Length-only: must be numeric
-  const v = _toNum(s);
+  const v = _toNum(s, eenheid);
   if (v == null) return { kind: 'invalid', a: null, b: null };
   return { kind: 'length', a: v, b: null };
 }
 
-function _toNum(s) {
+function _toNum(s, eenheid) {
   if (s == null) return null;
   const t = s.trim();
   if (t === '' || t === '-' || t === '.' || t === '-.') return null;
   // Reject anything that isn't a clean signed decimal
-  if (!/^-?(\d+(\.\d*)?|\.\d+)$/.test(t)) return null;
+  if (!/^-?(\d+(\.\d*)?|\.\d+)$/.test(t)) {
+    // ... behalve een voet-inchmaat, als de eenheid van de lengte bekend is.
+    if (!eenheid || leesVoetInch(t) == null) return null;
+    const lengte = leesLengte(t, eenheid);
+    return Number.isFinite(lengte) ? lengte : null;
+  }
   const v = parseFloat(t);
   return isFinite(v) ? v : null;
 }

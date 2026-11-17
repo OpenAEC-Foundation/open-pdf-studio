@@ -3,6 +3,7 @@ import { panelVisible, panelCollapsed, setPanelCollapsed, annotProps, sectionVis
 import { openDialog } from '../../stores/dialogStore.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { isImperialeLengte } from '../../../core/voet-inch.js';
 import PanelHeader from './PanelHeader.jsx';
 import DocInfoView from './DocInfoView.jsx';
 import DimensionTypeSection from './DimensionTypeSection.jsx';
@@ -107,6 +108,7 @@ function ViewportSection() {
 
 function ScaleRegionSection() {
   const { t } = useTranslation('properties');
+  const { t: tDialogs } = useTranslation('dialogs');
   return (
     <Show when={annotProps.annotationType === 'scaleRegion'}>
       <CollapsibleSection title={t('scaleRegion.title') || 'Scale Region'} name="scaleRegion" id="prop-scaleregion-section">
@@ -173,7 +175,8 @@ function ScaleRegionSection() {
             units — editable, resizes the region (top-left anchored). */}
         <div class="property-group">
           <label>Breedte ({annotProps.scaleRegionUnits || 'mm'})</label>
-          <input type="text" inputmode="decimal" data-getal step="1" min="1"
+          <input type="text" inputmode={isImperialeLengte(annotProps.scaleRegionUnits) ? 'text' : 'decimal'} data-getal="lengte" step="1" min="1"
+            title={isImperialeLengte(annotProps.scaleRegionUnits) ? tDialogs('calibration.feetInchHint') : undefined}
             value={annotProps.scaleRegionWidth ?? ''}
             disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
             onChange={(e) => updateAnnotProp('scaleRegionWidth', e.target.value)}
@@ -181,7 +184,8 @@ function ScaleRegionSection() {
         </div>
         <div class="property-group">
           <label>Hoogte ({annotProps.scaleRegionUnits || 'mm'})</label>
-          <input type="text" inputmode="decimal" data-getal step="1" min="1"
+          <input type="text" inputmode={isImperialeLengte(annotProps.scaleRegionUnits) ? 'text' : 'decimal'} data-getal="lengte" step="1" min="1"
+            title={isImperialeLengte(annotProps.scaleRegionUnits) ? tDialogs('calibration.feetInchHint') : undefined}
             value={annotProps.scaleRegionHeight ?? ''}
             disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
             onChange={(e) => updateAnnotProp('scaleRegionHeight', e.target.value)}
