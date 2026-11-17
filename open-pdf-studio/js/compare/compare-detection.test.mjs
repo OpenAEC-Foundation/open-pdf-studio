@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   planPair, planTiles, memoryFor, detectionParams, SENSITIVITY_PRESETS, normalizePreset,
+  PRECISION_LEVELS, PRECISION_NAMES, DEFAULT_PRECISION, normalizePrecision, precisionSettings,
   MAX_TILE_PX, MAX_TILE_EDGE, MAX_MASK_PX, TARGET_MM_PER_PX,
 } from './detect-plan.js';
 import { estimateBackground, rgbaToMask, createMask, writeInkTile, countInk, downsampleDensity } from './ink-mask.js';
@@ -117,6 +118,78 @@ test('presets set threshold, minimum size and merge distance together, in mm on 
 
 // Line of `lenMm` at (x, y) mm on the sheet.
 const mark = (x, y, lenMm, t = 0.25) => ({ x1: x, y1: y, x2: x + lenMm, y2: y, t });
+
+// ── Precision level (#1149) ────────────────────────────────────────────────
+
+test('precision: level 0 is the preset itself, with the pixel parameters of before', () => {
+  assert.deepEqual([...PRECISION_LEVELS], [-2, -1, 0, 1, 2]);
+  assert.equal(DEFAULT_PRECISION, 0);
+  for (const level of PRECISION_LEVELS) assert.ok(PRECISION_NAMES[level], `name of ${level}`);
+  // The numbers the detection used before the level existed (0.2 mm/px).
+  assert.deepEqual(detectionParams('line', 0.2), { threshold: 96, tolerancePx: 1, minAreaPx: 5, mergePx: 8, noisePx: 1, mmPerPx: 0.2 });
+  assert.deepEqual(detectionParams('scan', 0.2), { threshold: 170, tolerancePx: 3, minAreaPx: 50, mergePx: 15, noisePx: 4, mmPerPx: 0.2 });
+  assert.deepEqual(detectionParams('text', 0.2), { threshold: 128, tolerancePx: 1, minAreaPx: 12, mergePx: 13, noisePx: 1, mmPerPx: 0.2 });
+  for (const preset of Object.keys(SENSITIVITY_PRESETS)) {
+    for (const mmPerPx of [0.2, 0.31, 0.4]) {
+      assert.deepEqual(detectionParams(preset, mmPerPx, 0), detectionParams(preset, mmPerPx), `${preset} at ${mmPerPx}`);
+    }
+    const p = precisionSettings(preset, 0);
+    const base = SENSITIVITY_PRESETS[preset];
+    assert.deepEqual([p.threshold, p.toleranceMm, p.minAreaMm2, p.mergeMm, p.minLengthMm], [base.threshold, base.toleranceMm, base.minAreaMm2, base.mergeMm, 0.2]);
+  }
+});
+
+test('precision: unknown values fall back to 0; stored strings are accepted', () => {
+  for (const v of [undefined, null, '', 'x', NaN, 3, -3, {}]) assert.equal(normalizePrecision(v), 0, String(v));
+  assert.equal(normalizePrecision('2'), 2);
+  assert.equal(normalizePrecision('-1'), -1);
+  assert.equal(normalizePrecision(1.2), 1);
+  assert.deepEqual(detectionParams('line', 0.2, 'nonsense'), detectionParams('line', 0.2));
+});
+
+test('precision: a higher level narrows tolerance and minimum size; the ink threshold never moves', () => {
+  for (const preset of Object.keys(SENSITIVITY_PRESETS)) {
+    let prev = null;
+    for (const level of PRECISION_LEVELS) {
+      const mm = precisionSettings(preset, level);
+      const px = detectionParams(preset, 0.2, level);
+      // Same threshold = same ink masks: only the detection has to run again.
+      assert.equal(px.threshold, SENSITIVITY_PRESETS[preset].threshold, `${preset} ${level}`);
+      assert.ok(level < 0 ? px.mergePx > detectionParams(preset, 0.2).mergePx : px.mergePx === detectionParams(preset, 0.2).mergePx, `${preset} ${level} merge`);
+      if (prev) {
+        assert.ok(mm.toleranceMm < prev.mm.toleranceMm && mm.minAreaMm2 < prev.mm.minAreaMm2 && mm.minLengthMm < prev.mm.minLengthMm, `${preset} ${level} in mm`);
+        assert.ok(px.tolerancePx <= prev.px.tolerancePx && px.minAreaPx <= prev.px.minAreaPx && px.noisePx <= prev.px.noisePx, `${preset} ${level} in px`);
+        // Every step changes something the detection sees.
+        assert.ok(px.tolerancePx < prev.px.tolerancePx || px.minAreaPx < prev.px.minAreaPx, `${preset} ${level} differs from ${level - 1}`);
+      }
+      prev = { mm, px };
+    }
+  }
+});
+
+test('precision: a small change appears at a higher level and disappears at a lower one', () => {
+  const sheet = SHEETS_MM.A4;
+  const plan = planPair(sheetPt(sheet), sheetPt(sheet));
+  const y = sheet.height / 2 + 0.1;
+  const base = () => rasterize(sheet, [], plan.mmPerPx);
+  const oldM = base();
+  // Three additions: a 0.4 mm tick, a 2 mm stroke and a 12 mm line.
+  const newM = rasterize(sheet, [mark(40.3, y, 0.4, 0.2), mark(90.3, y, 2), mark(140.3, y, 12, 0.5)], plan.mmPerPx, null, base());
+  const count = (level) => detectMaskChanges(oldM, newM, detectionParams('line', plan.mmPerPx, level)).clusters.length;
+  const counts = PRECISION_LEVELS.map(count);
+  for (let i = 1; i < counts.length; i++) assert.ok(counts[i] >= counts[i - 1], `more or equal at a higher level: ${counts}`);
+  assert.equal(counts[2], count(undefined), 'level 0 is the default');
+  assert.ok(counts[0] < counts[4], `lowest finds fewer than highest: ${counts}`);
+  assert.equal(counts[0], 1, `lowest keeps only the 12 mm line: ${counts}`);
+  assert.equal(counts[4], 3, `highest finds all three: ${counts}`);
+  // Identical drawings stay empty at every level, tolerance 0 included.
+  const segs = drawingFor(sheet, 7, { strokes: 300 });
+  for (const level of PRECISION_LEVELS) {
+    const a = rasterize(sheet, segs, plan.mmPerPx);
+    const b = rasterize(sheet, segs, plan.mmPerPx);
+    assert.equal(detectMaskChanges(a, b, detectionParams('line', plan.mmPerPx, level)).clusters.length, 0, `identical at ${level}`);
+  }
+});
 
 for (const name of ['A3', 'A1', 'A0']) {
   test(`${name}: a 2 mm change on paper is found, and only that`, () => {

@@ -70,6 +70,10 @@ export function buildDetectRequest(id, oldData, newData, opts = {}) {
   const oldPx = _pixels(oldData);
   const newPx = _pixels(newData);
   const side = (img, px) => {
+    // Vectortaak: een kant is {segments} (vector-diff.js), geen pixelbuffer.
+    // Zonder deze tak viel `segments` uit het bericht en kreeg de worker twee
+    // lege kanten: de vectorvergelijking faalde dan altijd (#1149).
+    if (img && img.segments !== undefined && px === undefined) return { segments: img.segments };
     const out = { width: img.width, height: img.height, data: px };
     if (img.stride !== undefined) out.stride = img.stride;
     return out;

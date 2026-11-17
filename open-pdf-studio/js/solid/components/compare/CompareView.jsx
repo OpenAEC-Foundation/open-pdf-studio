@@ -1,5 +1,5 @@
 import { wheelZoomDelta } from '../../../core/wheel-zoom.js';
-import { createEffect, createMemo, createSignal, onCleanup, onMount, For, Show } from 'solid-js';
+import { batch, createEffect, createMemo, createSignal, onCleanup, onMount, untrack, For, Show } from 'solid-js';
 import {
   compareActive,
   compareOldPath,
@@ -52,6 +52,8 @@ import {
   resetCompareAlignment,
   comparePreset,
   setComparePreset,
+  comparePrecision,
+  setComparePrecision,
   comparePairs,
   comparePairing,
   setComparePairing,
@@ -81,7 +83,7 @@ import {
   pageNames,
 } from '../../../compare/compare-viewport.js';
 import { alignmentCss, normalizeAlignment } from '../../../compare/alignment.js';
-import { SENSITIVITY_PRESETS, MM_PER_PT } from '../../../compare/detect-plan.js';
+import { SENSITIVITY_PRESETS, MM_PER_PT, PRECISION_LEVELS, PRECISION_NAMES } from '../../../compare/detect-plan.js';
 import { indexPairs } from '../../../compare/page-pairing.js';
 import {
   collectReport, exportReportCsv, exportReportPdf, canPlaceClouds, placeChangeClouds,
@@ -99,6 +101,12 @@ import {
   splitFraction,
   screenPx,
 } from '../../../compare/split-line.js';
+import {
+  selectableOrder, clickSelection, selectionState, setAll, pruneSelection, isSelectable,
+} from '../../../compare/change-selection.js';
+import {
+  PANE_PADDING, BASE_SCALE, MAX_ZOOM, clampZoom, anchoredScroll, mirrorScroll,
+} from '../../../compare/pane-geometry.js';
 
 // Verticale scheidingslijn tussen toolbar-groepen — Windows/Visual-Studio-stijl.
 function Sep() {
@@ -134,12 +142,8 @@ export default function CompareView() {
   const syncScroll = (src, dst) => {
     if (_scrollSyncing || !src || !dst) return;
     _scrollSyncing = true;
-    const sx = src.scrollWidth - src.clientWidth;
-    const sy = src.scrollHeight - src.clientHeight;
-    const dx = dst.scrollWidth - dst.clientWidth;
-    const dy = dst.scrollHeight - dst.clientHeight;
-    dst.scrollLeft = sx > 0 ? (src.scrollLeft / sx) * dx : src.scrollLeft;
-    dst.scrollTop = sy > 0 ? (src.scrollTop / sy) * dy : src.scrollTop;
+    dst.scrollLeft = mirrorScroll(src.scrollLeft, src.scrollWidth - src.clientWidth, dst.scrollWidth - dst.clientWidth);
+    dst.scrollTop = mirrorScroll(src.scrollTop, src.scrollHeight - src.clientHeight, dst.scrollHeight - dst.clientHeight);
     requestAnimationFrame(() => { _scrollSyncing = false; });
   };
   // Pannen door slepen in een paneel; de scroll-sync spiegelt de beweging
@@ -186,21 +190,40 @@ export default function CompareView() {
   const singlePane = () => isSinglePaneMode(compareMode());
   let highlightTimer = null;
 
-  // Instant CSS-transform preview while zooming. The bitmap stays at the
-  // last hi-quality render scale; we visually scale the wrapper so the user
-  // sees an immediate response. After a short debounce we trigger a true
-  // re-render at the new scale and reset cssScale back to 1.
-  const [cssScale, setCssScale] = createSignal(1);
-  // The compareZoom value at which the current bitmap was rendered.
+  // Page layout and zoom preview (#1149). Each page lies in a box of
+  // (page size x zoom): that box is what the scroll pane lays out, so the
+  // scroll range follows the zoom at once and does not depend on the bitmap.
+  // Inside the box the bitmap is scaled by cssScale = zoom / bitmap zoom: 1
+  // right after a render, something else while a sharper bitmap is on its
+  // way, and permanently above 1 where the bitmap is limited in size
+  // (pane-geometry.js: a canvas cannot hold an A0 at 800 %).
+  // `natural`: page sizes in CSS px at zoom 1, from the last render.
+  const [natural, setNatural] = createSignal({ old: { w: 0, h: 0 }, new: { w: 0, h: 0 } });
+  // The zoom the current bitmaps were rendered at (signal and plain copy).
+  const [bitmapZoom, setBitmapZoom] = createSignal(compareZoom());
   let renderedZoom = compareZoom();
+  const cssScale = () => (bitmapZoom() > 0 ? compareZoom() / bitmapZoom() : 1);
+  // The bitmaps are at their size limit: zooming in further renders nothing new.
+  let bitmapAtCap = false;
   let zoomDebounceTimer = null;
   const ZOOM_DEBOUNCE_MS = 150;
-  // Set true when a zoom already re-anchored the scroll position itself (e.g.
-  // cursor-anchored wheel, center-anchored +/− buttons). In that case the
-  // post-render f-multiply must be skipped: the scroll is already expressed in
-  // final visual terms, and the bitmap swap keeps the same visual size, so
-  // re-scaling the scroll would double-apply the zoom factor and drift.
-  let _scrollAlreadyAnchored = false;
+  const boxStyle = (n) => (n && n.w > 0 && n.h > 0 ? `width:${n.w * compareZoom()}px; height:${n.h * compareZoom()}px;` : '');
+  // Called by the render the moment the canvases have their new size, before
+  // the pages are painted: bitmap zoom, page boxes and highlight canvases
+  // change together, so the page keeps its place and size on screen.
+  const onSized = ({ scale, capped }) => {
+    renderedZoom = scale / BASE_SCALE;
+    bitmapAtCap = !!capped;
+    const dims = (c) => (c && c.width > 0 && renderedZoom > 0 ? { w: c.width / renderedZoom, h: c.height / renderedZoom } : null);
+    const single = singlePane();
+    const n = dims(single ? overlayNewCanvasRef : newCanvasRef);
+    const o = single ? null : dims(oldCanvasRef);
+    batch(() => {
+      setBitmapZoom(renderedZoom);
+      setNatural((cur) => ({ old: o || cur.old, new: n || cur.new }));
+    });
+    repaintHighlights();
+  };
 
   const visibleTypes = () => ({
     added: compareShowAdded(),
@@ -356,12 +379,13 @@ export default function CompareView() {
   // viewport. Shared by overlay (bodyRef) and side-by-side (both panes).
   const scrollPaneToChange = (pane, wrap, c, smooth = true) => {
     if (!pane || !wrap) return;
-    // highlightRatio() maps to bitmap-px; the wrapper's CSS scale turns that
-    // into on-screen (content) px, so fold cssScale in to hit the right spot
-    // even if a zoom preview is still in flight.
-    const ratio = changeRatio(c) * cssScale();
-    const cx = wrap.offsetLeft + (c.x + c.width / 2) * ratio;
-    const cy = wrap.offsetTop + (c.y + c.height / 2) * ratio;
+    // Where the page starts in the scroll area (it is centred while it fits
+    // the pane), plus the change in screen px: page points x 1.5 x zoom.
+    const pr = pane.getBoundingClientRect();
+    const wr = wrap.getBoundingClientRect();
+    const ratio = BASE_SCALE * compareZoom();
+    const cx = wr.left - pr.left + pane.scrollLeft + (c.x + c.width / 2) * ratio;
+    const cy = wr.top - pr.top + pane.scrollTop + (c.y + c.height / 2) * ratio;
     pane.scrollTo({
       left: Math.max(0, cx - pane.clientWidth / 2),
       top: Math.max(0, cy - pane.clientHeight / 2),
@@ -386,11 +410,11 @@ export default function CompareView() {
     for (const [pane, wrap] of pairs) scrollPaneToChange(pane, wrap, pane === oldPaneRef ? onOldPage(c) : c, false);
     requestAnimationFrame(() => { _scrollSyncing = false; });
     // 2. zoom so the change fills ~55% of the pane — clamp to zoom-in only
-    const curW = Math.max(1, c.width * changeRatio(c));
-    const curH = Math.max(1, c.height * changeRatio(c));
+    const curW = Math.max(1, c.width * BASE_SCALE * compareZoom());
+    const curH = Math.max(1, c.height * BASE_SCALE * compareZoom());
     const frac = 0.55;
     let factor = Math.min(refPane.clientWidth * frac / curW, refPane.clientHeight * frac / curH);
-    factor = Math.min(factor, 8 / Math.max(0.01, compareZoom())); // never past max zoom
+    factor = Math.min(factor, MAX_ZOOM / Math.max(0.01, compareZoom())); // never past max zoom
     if (factor <= 1.02) return; // already large enough → leave it centred
     // 3. zoom around the pane centre, where the change now sits
     const rect = refPane.getBoundingClientRect();
@@ -445,9 +469,11 @@ export default function CompareView() {
         newPath: compareNewPath(),
         oldPage: compareOldPage(),
         newPage: compareNewPage(),
-        scale: 1.5 * zoomAtRender,
+        scale: BASE_SCALE * zoomAtRender,
+        onSized,
         offset: compareOffset(),
         preset: comparePreset(),
+        precision: comparePrecision(),
         method: compareMethod(),
         autoAlign: compareAlignPending(),
         skipDetection,
@@ -456,8 +482,7 @@ export default function CompareView() {
       if (compareMode() === 'split') {
         // Both pages rendered visibly; the CSS clip shows OLD left of the line.
         if (splitOldCanvasRef && overlayNewCanvasRef) {
-          await renderCompareSideBySide(splitOldCanvasRef, overlayNewCanvasRef, opts);
-          const v = opts.scale;
+          const { scale: v } = await renderCompareSideBySide(splitOldCanvasRef, overlayNewCanvasRef, opts);
           setSplitBase({
             ow: splitOldCanvasRef.width / v, oh: splitOldCanvasRef.height / v,
             nw: overlayNewCanvasRef.width / v, nh: overlayNewCanvasRef.height / v, v,
@@ -467,8 +492,7 @@ export default function CompareView() {
       } else if (compareMode() === 'overlay' && compareColourOverlay() && overlayOldCanvasRef && overlayNewCanvasRef) {
         // Kleuroverlay (#1024): beide pagina's renderen, elk in zijn kleur;
         // de oude ligt met multiply en de uitlijning op de nieuwe.
-        await renderCompareSideBySide(overlayOldCanvasRef, overlayNewCanvasRef, opts);
-        const v = opts.scale;
+        const { scale: v } = await renderCompareSideBySide(overlayOldCanvasRef, overlayNewCanvasRef, opts);
         setSplitBase({
           ow: overlayOldCanvasRef.width / v, oh: overlayOldCanvasRef.height / v,
           nw: overlayNewCanvasRef.width / v, nh: overlayNewCanvasRef.height / v, v,
@@ -497,37 +521,10 @@ export default function CompareView() {
       console.error('[compare] render failed', err);
     } finally {
       busy = false;
-      // The freshly painted bitmap matches zoomAtRender. Reset CSS preview
-      // so what the user sees is the crisp HQ bitmap (not a CSS-stretched
-      // copy). We also remember the zoom so further wheel events can compute
-      // a fresh CSS-only delta from this baseline.
-      const prevZoom = renderedZoom;
-      renderedZoom = zoomAtRender;
-      // Zoom-anker: de content is een factor f groter/kleiner geworden —
-      // schaal de scrollposities mee zodat beide panelen (en de overlay)
-      // dezelfde plek blijven tonen i.p.v. naar linksboven te driften.
-      // Dit vertaalt de scrollpositie uit de CSS-preview-ruimte (bitmap nog op
-      // de oude schaal) naar de nieuwe native-bitmap-ruimte. Bij cursor-zoom
-      // is de scroll al op het cursor-punt gezet in preview-ruimte; deze factor
-      // houdt datzelfde punt vast wanneer de scherpe bitmap de preview vervangt.
-      const f = prevZoom > 0 ? zoomAtRender / prevZoom : 1;
-      if (_scrollAlreadyAnchored) {
-        // Scroll was pre-set to hold a specific anchor; the visual size is
-        // unchanged by the bitmap swap, so leave scroll untouched.
-        _scrollAlreadyAnchored = false;
-      } else if (Math.abs(f - 1) > 1e-4) {
-        _scrollSyncing = true;
-        for (const pane of [oldPaneRef, newPaneRef, bodyRef]) {
-          if (!pane) continue;
-          pane.scrollLeft *= f;
-          pane.scrollTop *= f;
-        }
-        requestAnimationFrame(() => { _scrollSyncing = false; });
-      }
-      // If the user kept zooming during render, recompute cssScale relative
-      // to the new baseline so the preview stays consistent.
-      const cur = compareZoom();
-      setCssScale(cur === renderedZoom ? 1 : cur / renderedZoom);
+      // Bitmap zoom and page boxes were set together when the canvases got
+      // their size (onSized), and the page box follows the zoom by itself:
+      // nothing moves when the sharp bitmap replaces the preview, so the
+      // scroll positions stay as they are.
       // Repaint highlights at the crisp scale (ratio changed with the bitmap).
       repaintHighlights();
       if (pending) {
@@ -541,6 +538,9 @@ export default function CompareView() {
     if (zoomDebounceTimer) clearTimeout(zoomDebounceTimer);
     zoomDebounceTimer = setTimeout(() => {
       zoomDebounceTimer = null;
+      // The bitmap is as large as it may get and the zoom asks for more:
+      // there is nothing sharper to render.
+      if (bitmapAtCap && !busy && compareZoom() >= renderedZoom - 1e-9) return;
       // Zoom-only re-render: skip change detection entirely. Bbox results
       // are in detection-pixel space and don't change with display scale.
       doRender({ skipDetection: true });
@@ -557,15 +557,16 @@ export default function CompareView() {
     compareNewPage();
     compareOffset();
     comparePreset();
+    comparePrecision();
     compareMethod();
     compareAlignPending();
     compareColourOverlay();
     compareOldColour();
     compareNewColour();
     if (compareActive()) {
-      // Reset CSS preview state — after a path/page/mode change the bitmap
-      // baseline is whatever the next render produces.
-      setCssScale(1);
+      // After a path/page/mode change the bitmap is whatever the next render
+      // produces, at whatever size that page allows.
+      bitmapAtCap = false;
       if (zoomDebounceTimer) {
         clearTimeout(zoomDebounceTimer);
         zoomDebounceTimer = null;
@@ -574,14 +575,11 @@ export default function CompareView() {
     }
   });
 
-  // Zoom: instant CSS preview + debounced HQ re-render.
+  // Zoom: the page box and cssScale follow at once (instant preview); a
+  // sharp bitmap follows after a short pause.
   createEffect(() => {
-    const z = compareZoom();
+    compareZoom();
     if (!compareActive()) return;
-    // Visual scale relative to whatever the bitmap was last rendered at.
-    if (renderedZoom > 0) {
-      setCssScale(z / renderedZoom);
-    }
     scheduleHQRender();
   });
 
@@ -613,10 +611,8 @@ export default function CompareView() {
     const req = compareFitRequest();
     if (!req.kind || !compareActive()) return;
     // Reset scroll to the top-left so the (re)fitted page is fully framed
-    // rather than left scrolled where the previous zoom sat. Flag the upcoming
-    // render to keep this scroll instead of scaling the old one.
+    // rather than left scrolled where the previous zoom sat.
     const resetScroll = () => {
-      _scrollAlreadyAnchored = true;
       _scrollSyncing = true;
       for (const p of [oldPaneRef, newPaneRef, bodyRef]) { if (p) { p.scrollLeft = 0; p.scrollTop = 0; } }
       requestAnimationFrame(() => { _scrollSyncing = false; });
@@ -626,16 +622,17 @@ export default function CompareView() {
       resetScroll();
       return;
     }
-    // Fit: the rendered bitmap is (natural * 1.5 * renderedZoom) px. Work out
-    // the natural (scale-1.5) size, then pick a zoom so it fits the pane.
+    // Fit: pick the zoom at which the page at zoom 1 (`natural`, else the
+    // bitmap divided by its zoom) fills the pane inside its padding.
     queueMicrotask(() => {
       const baseCanvas = singlePane() ? overlayNewCanvasRef : newCanvasRef;
       const pane = singlePane() ? bodyRef : newPaneRef;
       if (!baseCanvas || !pane || renderedZoom <= 0) return;
-      const naturalW = baseCanvas.width / renderedZoom;   // px at zoom=1
-      const naturalH = baseCanvas.height / renderedZoom;
+      const n = natural().new;
+      const naturalW = n.w > 0 ? n.w : baseCanvas.width / renderedZoom;   // px at zoom=1
+      const naturalH = n.h > 0 ? n.h : baseCanvas.height / renderedZoom;
       if (naturalW <= 0 || naturalH <= 0) return;
-      const padding = 28; // breathing room inside the pane
+      const padding = 2 * PANE_PADDING; // breathing room inside the pane
       const availW = Math.max(1, pane.clientWidth - padding);
       const availH = Math.max(1, pane.clientHeight - padding);
       const z = Math.min(availW / naturalW, availH / naturalH);
@@ -727,7 +724,7 @@ export default function CompareView() {
   const runReport = async (kind) => {
     setReportMenu(false);
     if (reportBusy()) return;
-    const o = { oldPath: compareOldPath(), newPath: compareNewPath(), preset: comparePreset(), method: compareMethod() };
+    const o = { oldPath: compareOldPath(), newPath: compareNewPath(), preset: comparePreset(), precision: comparePrecision(), method: compareMethod() };
     setReportBusy({ done: 0, total: reportPairs().length });
     try {
       const results = await collectReport({
@@ -751,14 +748,30 @@ export default function CompareView() {
       setReportBusy(null);
     }
   };
-  // Wijzigingen aangevinkt in de lijst, voor wolken op het nieuwe document.
+  // Wijzigingen geselecteerd in de lijst, voor wolken op het nieuwe document.
+  // Meer tegelijk selecteren (#1149): Ctrl+klik, Shift+klik voor een reeks,
+  // Ctrl+A en de vakjes per soort en voor alles (change-selection.js).
   const [checked, setChecked] = createSignal(new Set());
-  createEffect(() => { compareChanges(); compareOldPage(); compareNewPage(); setChecked(new Set()); });
-  const toggleChecked = (c) => {
-    const next = new Set(checked());
-    if (next.has(c)) next.delete(c); else next.add(c);
-    setChecked(next);
+  let selectAnchor = null;
+  createEffect(() => { compareChanges(); compareOldPage(); compareNewPage(); selectAnchor = null; setChecked(new Set()); });
+  // Wat de lijst toont en te selecteren is, in de volgorde van de lijst.
+  const selectOrder = createMemo(() => selectableOrder(allChanges(), visibleTypes()));
+  // Een soort uitzetten haalt zijn wijzigingen ook uit de selectie: wat niet
+  // in beeld is wordt niet ongemerkt als wolk geplaatst.
+  createEffect(() => {
+    const order = selectOrder();
+    const cur = untrack(checked);
+    const next = pruneSelection(cur, order);
+    if (next.size !== cur.size) setChecked(next);
+  });
+  const pickChange = (c, how = {}) => {
+    const r = clickSelection({ selected: checked(), anchor: selectAnchor }, c, how, selectOrder());
+    selectAnchor = r.anchor;
+    setChecked(r.selected);
+    if (r.focus) focusOnChange(c);
   };
+  // Alles (of één soort: `subset`) selecteren of uit de selectie halen.
+  const selectAllChanges = (on, subset) => setChecked(setAll(checked(), subset || selectOrder(), on));
   const placeClouds = async () => {
     setReportMenu(false);
     const list = (allChanges() || []).filter((c) => checked().has(c) && c.source !== 'annotation');
@@ -799,6 +812,13 @@ export default function CompareView() {
       }
       const tag = e.target?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      // Ctrl+A: alle wijzigingen in de lijst selecteren (#1149).
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 'a' || e.key === 'A') && comparePanelTab() === 'changes') {
+        e.preventDefault();
+        e.stopPropagation();
+        selectAllChanges(true);
+        return;
+      }
       // Ctrl+PageUp/PageDown is de tabwissel (#539), geen paginapaar.
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === 'PageDown') {
@@ -819,34 +839,41 @@ export default function CompareView() {
   // under the cursor stays put while zooming. Works without Ctrl (the previous
   // implementation was a no-op unless Ctrl was held — the main reason zoom felt
   // "limited"). Shift+wheel keeps native scrolling; Ctrl+wheel still zooms.
-  // Zoom by `factor`, keeping the viewport point (ax, ay) — expressed in the
-  // pane's client coordinates — fixed on screen. Immediately adjusts scroll so
-  // the anchor holds through the CSS preview; flags the render to skip its
-  // post-swap re-scale so the factor isn't double-applied.
+  // Zoom by `factor`, keeping the page point under (ax, ay) — client
+  // coordinates — in place. The new scroll positions are worked out from the
+  // layout (pane-geometry.js: the page is centred while it fits, the padding
+  // does not scale) before the zoom changes, and set right after: the page
+  // box follows the zoom at once, so they hold through the preview and the
+  // sharp render alike. In side-by-side each pane keeps its own point under
+  // the same spot, so both keep showing the same part.
+  const naturalOf = (pane) => (pane === oldPaneRef ? natural().old : natural().new);
   const zoomAnchored = (pane, ax, ay, factor) => {
-    if (!pane) { setCompareZoom(compareZoom() * factor); return; }
+    const z0 = compareZoom();
+    const z1 = clampZoom(z0 * factor);
+    if (!pane) { setCompareZoom(z1); return; }
+    if (Math.abs(z1 / z0 - 1) < 1e-6) return;
     const rect = pane.getBoundingClientRect();
     const offX = ax - rect.left;
     const offY = ay - rect.top;
-    // Point under the anchor, in the current rendered coordinate space.
-    const px = pane.scrollLeft + offX;
-    const py = pane.scrollTop + offY;
-    const z0 = compareZoom();
-    const z1 = Math.max(0.1, Math.min(8, z0 * factor));
-    const applied = z1 / z0;
-    if (Math.abs(applied - 1) < 1e-6) return;
-    const newLeft = Math.max(0, px * applied - offX);
-    const newTop = Math.max(0, py * applied - offY);
-    _scrollAlreadyAnchored = true;
+    const panes = compareMode() === 'side' ? [oldPaneRef, newPaneRef].filter(Boolean) : [pane];
+    const next = panes.map((p) => {
+      const n = naturalOf(p);
+      return {
+        p,
+        left: anchoredScroll({ scroll: p.scrollLeft, anchor: offX, pane: p.clientWidth, content0: n.w * z0, content1: n.w * z1, centre: true }),
+        top: anchoredScroll({ scroll: p.scrollTop, anchor: offY, pane: p.clientHeight, content0: n.h * z0, content1: n.h * z1 }),
+      };
+    });
+    const apply = () => {
+      _scrollSyncing = true;
+      for (const n of next) { n.p.scrollLeft = n.left; n.p.scrollTop = n.top; }
+      requestAnimationFrame(() => { _scrollSyncing = false; });
+    };
     setCompareZoom(z1);
-    _scrollSyncing = true;
-    pane.scrollLeft = newLeft;
-    pane.scrollTop = newTop;
-    if (compareMode() === 'side') {
-      const other = pane === oldPaneRef ? newPaneRef : oldPaneRef;
-      if (other) { other.scrollLeft = newLeft; other.scrollTop = newTop; }
-    }
-    requestAnimationFrame(() => { _scrollSyncing = false; });
+    apply();
+    // Once more after pending updates of the page boxes: a scroll position
+    // beyond the old range would have been cut off.
+    queueMicrotask(apply);
   };
 
   // The pane the cursor/interaction is currently over (side-by-side) or the
@@ -1060,6 +1087,25 @@ export default function CompareView() {
               {(k) => <option value={k} selected={comparePreset() === k}>{t(`compare.preset.${k}`) || k}</option>}
             </For>
           </select>
+          {/* Precisie (#1149): hoe klein een verschil nog meetelt. Schaalt de
+              tolerantie en de minimale grootte van de gekozen gevoeligheid;
+              de inktmaskers blijven gelijk, alleen de detectie loopt opnieuw. */}
+          <label
+            style="display:inline-flex; align-items:center; gap:4px;"
+            title={t('compare.precisionHint') || 'Lower: only larger differences. Higher: small differences and line edges count too.'}
+          >
+            <span style="color:#555;">{t('compare.precision') || 'Precision'}</span>
+            <input
+              type="range"
+              min={PRECISION_LEVELS[0]}
+              max={PRECISION_LEVELS[PRECISION_LEVELS.length - 1]}
+              step="1"
+              value={comparePrecision()}
+              style="width:72px; margin:0;"
+              onChange={(e) => setComparePrecision(e.currentTarget.value)}
+            />
+            <span style="min-width:44px;">{t(`compare.precisionLevel.${PRECISION_NAMES[comparePrecision()]}`) || PRECISION_NAMES[comparePrecision()]}</span>
+          </label>
           <label
             style="display:inline-flex; align-items:center; gap:3px;"
             title={t('compare.methodVectorHint') || 'Compare the drawn paths exactly where both pages are vector drawings'}
@@ -1147,17 +1193,22 @@ export default function CompareView() {
             onPointerDown={(e) => { if (compareMode() !== 'side') startPanDrag(e, bodyRef); }}
             style={compareMode() === 'side'
               ? 'flex:1; overflow:hidden; display:flex; align-items:stretch; padding:0; gap:0;'
-              : 'flex:1; overflow:auto; display:flex; align-items:flex-start; justify-content:center; padding:14px; gap:14px;'}
+              : `flex:1; overflow:auto; display:flex; align-items:flex-start; padding:${PANE_PADDING}px;`}
           >
             <Show
               when={compareMode() === 'side'}
               fallback={
-                <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+                /* The page box: (page size x zoom). `margin:0 auto` centres it
+                    while it fits and lets it start at the left edge once it
+                    is wider than the pane. Centring the flex container
+                    itself pushed the left part of a wide page out of the
+                    scroll area, where it could not be reached (#1149). */
+                <div style={`position:relative; flex:0 0 auto; margin:0 auto; ${boxStyle(natural().new)}`}>
                   {/* Overlay: NEW page rendered normally; diff regions drawn as
                       translucent rectangles on a separate highlight canvas. */}
                   <div
                     ref={overlayWrapRef}
-                    style={`position:relative; background:#ffffff; box-shadow:0 0 0 1px #444; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
+                    style={`position:absolute; left:0; top:0; background:#ffffff; box-shadow:0 0 0 1px #444; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
                   >
                     <canvas ref={overlayNewCanvasRef} style="display:block;"></canvas>
                     <Show when={compareMode() === 'overlay' && compareColourOverlay()}>
@@ -1224,12 +1275,14 @@ export default function CompareView() {
                   onPointerDown={(e) => startPanDrag(e, oldPaneRef)}
                   style="flex:1; overflow:auto;"
                 >
-                  <div style="padding:14px; display:inline-block; line-height:0;">
-                    {/* Page + diff overlay share a scaled wrapper so the red/
-                        yellow highlights stay pixel-aligned with the render. */}
+                  <div style={`padding:${PANE_PADDING}px; margin:0 auto; width:max-content; line-height:0;`}>
+                    {/* Page box (page size x zoom); inside it the page and its
+                        diff overlay share a scaled wrapper so the red/yellow
+                        highlights stay pixel-aligned with the render. */}
+                    <div style={`position:relative; ${boxStyle(natural().old)}`}>
                     <div
                       ref={oldWrapRef}
-                      style={`position:relative; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
+                      style={`position:absolute; left:0; top:0; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
                     >
                       <canvas
                         ref={oldCanvasRef}
@@ -1239,6 +1292,7 @@ export default function CompareView() {
                         ref={oldHiCanvasRef}
                         style="position:absolute; left:0; top:0; pointer-events:none;"
                       ></canvas>
+                    </div>
                     </div>
                   </div>
                 </div>
@@ -1255,10 +1309,11 @@ export default function CompareView() {
                   onPointerDown={(e) => startPanDrag(e, newPaneRef)}
                   style="flex:1; overflow:auto;"
                 >
-                  <div style="padding:14px; display:inline-block; line-height:0;">
+                  <div style={`padding:${PANE_PADDING}px; margin:0 auto; width:max-content; line-height:0;`}>
+                    <div style={`position:relative; ${boxStyle(natural().new)}`}>
                     <div
                       ref={newWrapRef}
-                      style={`position:relative; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
+                      style={`position:absolute; left:0; top:0; line-height:0; transform:scale(${cssScale()}); transform-origin:0 0;`}
                     >
                       <canvas
                         ref={newCanvasRef}
@@ -1269,6 +1324,7 @@ export default function CompareView() {
                         style="position:absolute; left:0; top:0; pointer-events:none;"
                       ></canvas>
                     </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1277,11 +1333,14 @@ export default function CompareView() {
           <ChangeListPanel
             t={t}
             changes={allChanges}
-            onFocus={focusOnChange}
+            onPick={pickChange}
             focused={compareFocusedChange}
             onTextFocus={gotoTextChange}
             checked={checked}
-            onCheck={toggleChecked}
+            order={selectOrder}
+            onSelectAll={selectAllChanges}
+            onClouds={placeClouds}
+            canClouds={() => canPlaceClouds(compareNewPath())}
             pageInfo={pageInfo}
           />
         </div>
@@ -1415,6 +1474,15 @@ function ChangeListPanel(props) {
 
   const total = () => (props.changes() || []).length;
 
+  // Selectie (#1149). De vakjes volgen de selectie; na een klik zetten we het
+  // vakje zelf goed, omdat de browser het al heeft omgezet voordat de
+  // selectie is bijgewerkt (bij een reeks blijft een aangevinkt vakje aan).
+  const selectedCount = () => props.checked().size;
+  const allState = () => selectionState(props.checked(), props.order());
+  const groupOrder = (type) => groupedByType()[type].map((i) => i.change).filter(isSelectable);
+  const groupState = (type) => selectionState(props.checked(), groupOrder(type));
+  const how = (e, extra = {}) => ({ ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey, ...extra });
+
   return (
     <div
       class="compare-change-list"
@@ -1455,6 +1523,37 @@ function ChangeListPanel(props) {
         <TypeToggle type="removed" count={groupedByType().removed.length} />
         <TypeToggle type="modified" count={groupedByType().modified.length} />
       </div>
+      {/* Selectiebalk: alles selecteren, het aantal, en de actie op de hele
+          selectie (één stap voor Ongedaan maken in het nieuwe document). */}
+      <div
+        title={props.t('compare.selectHint') || 'Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all'}
+        style="display:flex; align-items:center; gap:6px; padding:3px 8px; border-bottom:1px solid #d4d4d4; background:#fafafa; font-size:11px;"
+      >
+        <label style="display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+          <input
+            type="checkbox"
+            disabled={props.order().length === 0}
+            checked={allState() === 'all'}
+            prop:indeterminate={allState() === 'some'}
+            onClick={(e) => {
+              props.onSelectAll(allState() !== 'all');
+              e.currentTarget.checked = allState() === 'all';
+            }}
+          />
+          {props.t('compare.selectAll') || 'Select all'}
+        </label>
+        <span style="flex:1;"></span>
+        <button
+          class="pref-btn pref-btn-secondary"
+          disabled={selectedCount() === 0 || !props.canClouds()}
+          title={props.canClouds()
+            ? (props.t('compare.report.clouds') || 'Place selected changes as clouds')
+            : (props.t('compare.report.cloudsNeedTab') || 'The new document must be open in a tab')}
+          onClick={() => props.onClouds()}
+        >
+          {`${props.t('compare.cloudsButton') || 'Place clouds'} (${selectedCount()})`}
+        </button>
+      </div>
       <div style="flex:1; overflow:auto;">
         <Show
           when={total() > 0}
@@ -1475,6 +1574,19 @@ function ChangeListPanel(props) {
                     style={`padding:5px 10px; background:#e8e8e8; border-bottom:1px solid #d4d4d4; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:bold; user-select:none;`}
                   >
                     <span style="width:10px; display:inline-block;">{collapsed()[type] ? '▶' : '▼'}</span>
+                    <Show when={groupOrder(type).length > 0}>
+                      <input
+                        type="checkbox"
+                        title={props.t('compare.selectGroup') || 'Select all of this kind'}
+                        checked={groupState(type) === 'all'}
+                        prop:indeterminate={groupState(type) === 'some'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          props.onSelectAll(groupState(type) !== 'all', groupOrder(type));
+                          e.currentTarget.checked = groupState(type) === 'all';
+                        }}
+                      />
+                    </Show>
                     <span
                       style={`width:10px; height:10px; display:inline-block; background:${typeColor(type)}; border:1px solid #555;`}
                     ></span>
@@ -1485,20 +1597,27 @@ function ChangeListPanel(props) {
                       {(item) => {
                         const c = item.change;
                         const isFocused = () => props.focused() === c;
+                        const isChecked = () => props.checked().has(c);
+                        const rowBg = () => (isFocused() ? '#dbeafe' : isChecked() ? '#e3edfb' : '#ffffff');
+                        // onMouseDown: Shift+klik selecteert een reeks, geen tekst.
                         return (
                           <div
-                            onClick={(e) => { e.stopPropagation(); props.onFocus(c); }}
-                            style={`height:50px; padding:6px 10px; border-bottom:1px solid #e0e0e0; display:flex; align-items:center; gap:8px; cursor:pointer; background:${isFocused() ? '#dbeafe' : '#ffffff'};`}
+                            onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }}
+                            onClick={(e) => { e.stopPropagation(); props.onPick(c, how(e)); }}
+                            style={`height:50px; padding:6px 10px; border-bottom:1px solid #e0e0e0; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; background:${rowBg()};`}
                             onMouseEnter={(e) => { if (!isFocused()) e.currentTarget.style.background = '#eaf3ff'; }}
-                            onMouseLeave={(e) => { if (!isFocused()) e.currentTarget.style.background = '#ffffff'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = rowBg(); }}
                           >
                             <Show when={c.source !== 'annotation'}>
                               <input
                                 type="checkbox"
                                 title={props.t('compare.selectForClouds') || 'Select for clouds on the new document'}
-                                checked={props.checked().has(c)}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={() => props.onCheck(c)}
+                                checked={isChecked()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onPick(c, how(e, { checkbox: true }));
+                                  e.currentTarget.checked = isChecked();
+                                }}
                               />
                             </Show>
                             <div

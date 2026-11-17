@@ -409,7 +409,20 @@
     },
     "methodVector": "ເວັກເຕີ",
     "methodVectorHint": "ປຽບທຽບເສັ້ນທາງທີ່ແຕ້ມຢ່າງແມ່ນຍຳເມື່ອທັງສອງໜ້າເປັນແບບເວັກເຕີ; ໜ້າອື່ນໃຊ້ການປຽບທຽບພິກເຊວ",
-    "methodPixelFallback": "ພິກເຊວ: ບໍ່ແມ່ນໜ້າເວັກເຕີ"
+    "methodPixelFallback": "ພິກເຊວ: ບໍ່ແມ່ນໜ້າເວັກເຕີ",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "ໜ້າເຈ້ຍ",

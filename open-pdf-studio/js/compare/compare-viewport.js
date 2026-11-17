@@ -9,7 +9,7 @@
 //   getDocPageCount(filePath)
 //
 // Where opts = { oldPath, newPath, oldPage, newPage, scale, offset, preset,
-//               method, autoAlign }
+//               precision, method, autoAlign }
 //
 // Change detection (#465): each page is rasterised in tiles to an ink mask at
 // a resolution derived from the paper size (detect-plan.js), the pair is
@@ -33,13 +33,14 @@ import {
 import { pdfjsBronnen } from '../core/basis-url.js';
 import { state } from '../core/state.js';
 import { compareSourceBytes } from './compare-sources.js';
-import { planPair, planTiles, detectionParams, presetSettings, MM_PER_PT, PT_PER_MM } from './detect-plan.js';
+import { planPair, planTiles, detectionParams, precisionSettings, normalizePrecision, MM_PER_PT, PT_PER_MM } from './detect-plan.js';
 import { pathSegments, classifyPage, vectorComparable } from './vector-diff.js';
 import { createMask, writeInkTile, estimateBackground } from './ink-mask.js';
 import { alignmentMatrix, multiply, scaling, normalizeAlignment, measureScaleRatio } from './alignment.js';
 import { extractSheetNumber, pageTokens, pairPages, thumbFromDensity } from './page-pairing.js';
 import { createRustCompare, buildRustRequest } from './rust-compare.js';
 import { isTauri, isMobile, invoke } from '../core/platform.js';
+import { cappedRenderScale } from './pane-geometry.js';
 
 let _detectTimer = null;
 let _detectSeq = 0;
@@ -99,8 +100,8 @@ const _vectorCache = new Map();
 const _changesCache = new Map();
 const _CHANGES_CACHE_MAX = 24;
 
-// Detection depends on the pair, the sensitivity preset and the alignment
-// (not on the zoom: change records are in page points).
+// Detection depends on the pair, the sensitivity preset, the precision level
+// and the alignment (not on the zoom: change records are in page points).
 const _r6 = (v) => Math.round((Number(v) || 0) * 1e6) / 1e6;
 export function alignmentKey(offset) {
   const a = normalizeAlignment(offset);
@@ -109,7 +110,7 @@ export function alignmentKey(offset) {
 
 function _changesCacheKey(opts, offset = opts.offset) {
   const { oldPath, newPath, oldPage, newPage, preset = 'line', method = 'pixel' } = opts;
-  return `${oldPath}|${oldPage}|${newPath}|${newPage}|${preset}|${method}|${alignmentKey(offset)}`;
+  return `${oldPath}|${oldPage}|${newPath}|${newPage}|${preset}|${normalizePrecision(opts.precision)}|${method}|${alignmentKey(offset)}`;
 }
 
 function _maskCacheGet(key) {
@@ -176,33 +177,50 @@ export async function getDocPageCount(filePath) {
   }
 }
 
-async function _renderPageToCanvas(filePath, pageNum, scale, targetCanvas, fillWhite = true) {
-  const doc = await _getDoc(filePath);
-  const page = await doc.getPage(Math.max(1, Math.min(doc.numPages, pageNum)));
+// Rendering a page for display goes in two steps (#1149): first every canvas
+// of the view gets its new size, then the pages are painted. Between the two
+// the caller hears the scale that was used (opts.onSized), so that it can
+// change the on-screen scaling of the canvases in the same breath. A canvas
+// that had its new size while the view still scaled it for the previous one
+// showed the page far too large or too small for as long as the render took.
+function _sizeCanvas(page, scale, canvas) {
   const viewport = page.getViewport({ scale });
-  targetCanvas.width = Math.ceil(viewport.width);
-  targetCanvas.height = Math.ceil(viewport.height);
-  const ctx = targetCanvas.getContext('2d');
-  if (fillWhite) {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-  }
-  await page.render({ canvasContext: ctx, viewport, intent: 'display' }).promise;
-  return { width: targetCanvas.width, height: targetCanvas.height, viewport };
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+  return viewport;
 }
 
+async function _paintPage(page, viewport, canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport, intent: 'display' }).promise;
+}
+
+function _pagePt(page) {
+  const v = page.getViewport({ scale: 1 });
+  return { width: v.width, height: v.height };
+}
+
+/**
+ * Render both pages at one scale. The scale is lowered where a page bitmap
+ * would exceed what a canvas holds (pane-geometry.js); the answer carries the
+ * scale that was used and whether it was limited.
+ */
 export async function renderCompareSideBySide(canvasOld, canvasNew, opts) {
-  const { oldPath, newPath, oldPage, newPage, scale = 1.5, skipDetection = false } = opts;
-  await Promise.all([
-    _renderPageToCanvas(oldPath, oldPage, scale, canvasOld),
-    _renderPageToCanvas(newPath, newPage, scale, canvasNew),
-  ]);
+  const { oldPath, newPath, oldPage, newPage, skipDetection = false } = opts;
+  const [po, pn] = await Promise.all([_getPage(oldPath, oldPage), _getPage(newPath, newPage)]);
+  const { scale, capped } = cappedRenderScale(opts.scale > 0 ? opts.scale : 1.5, [_pagePt(po), _pagePt(pn)]);
+  const vo = _sizeCanvas(po, scale, canvasOld);
+  const vn = _sizeCanvas(pn, scale, canvasNew);
+  opts.onSized?.({ scale, capped });
+  await Promise.all([_paintPage(po, vo, canvasOld), _paintPage(pn, vn, canvasNew)]);
   // Change detection is mode-independent: bboxes live in a fixed detection-px
   // space regardless of whether the pages are shown overlaid or side-by-side.
   // Kick it off here too so side-by-side gets the same red/green/yellow diff
   // highlights and the change list. Skipped on zoom-only re-renders.
   if (!skipDetection) scheduleChangeDetection(opts);
-  return { width: canvasNew.width, height: canvasNew.height };
+  return { width: canvasNew.width, height: canvasNew.height, scale, capped };
 }
 
 /**
@@ -218,13 +236,15 @@ export async function renderCompareSideBySide(canvasOld, canvasNew, opts) {
  * its DOM containers.
  */
 export async function renderCompareOverlay(canvasOld, canvasNew, opts, canvasHighlights = null) {
-  const { newPath, newPage, scale = 1.5, skipDetection = false } = opts;
+  const { newPath, newPage, skipDetection = false } = opts;
 
   // Render NEW normally — this is the visible base layer. The OLD page is
   // never drawn into a visible canvas in overlay mode (only rasterized for
   // change detection below). This avoids one full PDF.js render pass on
   // every zoom step, which was the dominant cost.
-  await _renderPageToCanvas(newPath, newPage, scale, canvasNew);
+  const page = await _getPage(newPath, newPage);
+  const { scale, capped } = cappedRenderScale(opts.scale > 0 ? opts.scale : 1.5, [_pagePt(page)]);
+  const viewport = _sizeCanvas(page, scale, canvasNew);
 
   // Size the highlights canvas to match NEW; the actual rectangles are drawn
   // separately by paintHighlights() once changes are detected.
@@ -234,13 +254,15 @@ export async function renderCompareOverlay(canvasOld, canvasNew, opts, canvasHig
     const ctx = canvasHighlights.getContext('2d');
     ctx.clearRect(0, 0, canvasHighlights.width, canvasHighlights.height);
   }
+  opts.onSized?.({ scale, capped });
+  await _paintPage(page, viewport, canvasNew);
 
   // Kick off async, debounced change detection on a separately rasterized copy
   // of both pages. Visual rendering is not blocked. Skipped when the caller
   // knows only zoom (which doesn't affect detection results) has changed.
   if (!skipDetection) scheduleChangeDetection(opts);
 
-  return { width: canvasNew.width, height: canvasNew.height };
+  return { width: canvasNew.width, height: canvasNew.height, scale, capped };
 }
 
 /**
@@ -461,7 +483,7 @@ const _quantScale = (s) => Math.exp(Math.round(Math.log(s) / 0.005) * 0.005);
 
 /**
  * Changes for one page pair.
- * @param {{oldPath,newPath,oldPage,newPage,offset?,preset?,autoAlign?:boolean}} opts
+ * @param {{oldPath,newPath,oldPage,newPage,offset?,preset?,precision?:number,autoAlign?:boolean}} opts
  * @param {{detect, align, id?:number, seq?:() => boolean}} clients
  * @returns {Promise<null|{changes:Array, alignment:object, alignInfo:object|null, truncated:boolean, mmPerPx:number}>}
  *   null when the request was overtaken.
@@ -475,7 +497,7 @@ export async function computePairChanges(opts, clients) {
     getComparePageSize(newPath, newPage),
   ]);
   const plan = planPair(oldSize, newSize);
-  const params = detectionParams(opts.preset || 'line', plan.mmPerPx);
+  const params = detectionParams(opts.preset || 'line', plan.mmPerPx, opts.precision);
 
   // Vector comparison (gap 8) where both pages are vector drawings; the pixel
   // comparison is the fallback.
@@ -530,7 +552,7 @@ export async function computePairChanges(opts, clients) {
   }
 
   if (vector) {
-    const p = presetSettings(opts.preset || 'line');
+    const p = precisionSettings(opts.preset || 'line', opts.precision);
     const r = await clients.detect.run({ segments: vector.ov.segments }, { segments: vector.nv.segments }, {
       id: clients.id,
       task: 'vector',
@@ -538,7 +560,7 @@ export async function computePairChanges(opts, clients) {
         transform: alignmentMatrix(alignment, oldSize, newSize),
         tolPt: p.toleranceMm * PT_PER_MM,
         mergePt: p.mergeMm * PT_PER_MM,
-        minLenPt: 0.2 * PT_PER_MM,
+        minLenPt: p.minLengthMm * PT_PER_MM,
       },
     });
     if (!r.changes) return null;

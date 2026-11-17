@@ -409,7 +409,20 @@
     },
     "methodVector": "เวกเตอร์",
     "methodVectorHint": "เปรียบเทียบเส้นทางที่วาดอย่างแม่นยำเมื่อทั้งสองหน้าเป็นแบบเวกเตอร์ หน้าอื่นใช้การเปรียบเทียบพิกเซล",
-    "methodPixelFallback": "พิกเซล: ไม่ใช่หน้าเวกเตอร์"
+    "methodPixelFallback": "พิกเซล: ไม่ใช่หน้าเวกเตอร์",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "หน้า",

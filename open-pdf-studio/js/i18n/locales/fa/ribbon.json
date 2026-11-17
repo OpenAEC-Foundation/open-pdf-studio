@@ -409,7 +409,20 @@
     },
     "methodVector": "برداری",
     "methodVectorHint": "مقایسهٔ دقیق مسیرهای ترسیم‌شده در جایی که هر دو صفحه نقشهٔ برداری‌اند؛ صفحه‌های دیگر با مقایسهٔ پیکسلی سنجیده می‌شوند",
-    "methodPixelFallback": "پیکسل: صفحهٔ برداری نیست"
+    "methodPixelFallback": "پیکسل: صفحهٔ برداری نیست",
+    "precision": "Precision",
+    "precisionHint": "Lower: only larger differences count. Higher: small differences and line edges count too.",
+    "precisionLevel": {
+      "lowest": "Lowest",
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "highest": "Highest"
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "صفحات",

@@ -66,6 +66,7 @@ test('every compare key the code uses exists', () => {
   assert.deepEqual(ontbreekt, []);
   // Templated keys.
   for (const k of ['line', 'scan', 'text']) assert.ok(en[`preset.${k}`]);
+  for (const k of ['lowest', 'low', 'normal', 'high', 'highest']) assert.ok(en[`precisionLevel.${k}`], `precisionLevel.${k}`);
   for (const k of ['no', 'pair', 'oldPage', 'newPage', 'sheet', 'type', 'source', 'xMm', 'yMm', 'widthMm', 'heightMm', 'oldText', 'newText']) {
     assert.ok(en[`report.col.${k}`], `report.col.${k}`);
   }
