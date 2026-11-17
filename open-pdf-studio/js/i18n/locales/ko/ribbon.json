@@ -585,6 +585,8 @@
     "size": "크기",
     "sameSize": "같은 크기",
     "sameWidth": "같은 너비",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "같은 높이",
     "rotate": "회전",
     "rotate90CCW": "반시계 방향 90° 회전",

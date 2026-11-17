@@ -585,6 +585,8 @@
     "size": "Veličina",
     "sameSize": "Ista veličina",
     "sameWidth": "Ista širina",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Ista visina",
     "rotate": "Rotiraj",
     "rotate90CCW": "Rotiraj 90° u smjeru suprotnom od kazaljke",

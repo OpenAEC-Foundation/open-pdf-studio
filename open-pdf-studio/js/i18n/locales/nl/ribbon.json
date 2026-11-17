@@ -585,6 +585,8 @@
     "size": "Grootte",
     "sameSize": "Zelfde grootte",
     "sameWidth": "Zelfde breedte",
+    "fitBoxToText": "Kader passend maken",
+    "fitBoxToTextTip": "Maakt het kader van de geselecteerde tekstvakken en aanhaalvakken passend om de tekst",
     "sameHeight": "Zelfde hoogte",
     "rotate": "Draaien",
     "rotate90CCW": "90° linksom draaien",

@@ -585,6 +585,8 @@
     "size": "Méret",
     "sameSize": "Azonos méret",
     "sameWidth": "Azonos szélesség",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Azonos magasság",
     "rotate": "Forgatás",
     "rotate90CCW": "Forgatás 90° balra",

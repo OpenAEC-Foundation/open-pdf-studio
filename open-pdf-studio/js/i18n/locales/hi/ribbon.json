@@ -585,6 +585,8 @@
     "size": "आकार",
     "sameSize": "समान आकार",
     "sameWidth": "समान चौड़ाई",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "समान ऊंचाई",
     "rotate": "घुमाएं",
     "rotate90CCW": "90° वामावर्त घुमाएं",

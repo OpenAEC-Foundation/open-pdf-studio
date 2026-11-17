@@ -585,6 +585,8 @@
     "size": "Ukubwa",
     "sameSize": "Ukubwa Sawa",
     "sameWidth": "Upana Sawa",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Urefu Sawa",
     "rotate": "Zungusha",
     "rotate90CCW": "Zungusha 90° Kinyumenyume",
