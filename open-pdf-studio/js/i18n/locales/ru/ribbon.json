@@ -418,7 +418,11 @@
       "normal": "Normal",
       "high": "High",
       "highest": "Highest"
-    }
+    },
+    "selectAll": "Select all",
+    "selectGroup": "Select all of this kind",
+    "selectHint": "Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all",
+    "cloudsButton": "Place clouds"
   },
   "organize": {
     "pages": "Страницы",

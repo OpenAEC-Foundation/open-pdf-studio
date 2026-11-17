@@ -418,7 +418,11 @@
       "normal": "Normaal",
       "high": "Hoog",
       "highest": "Hoogst"
-    }
+    },
+    "selectAll": "Alles selecteren",
+    "selectGroup": "Alles van deze soort selecteren",
+    "selectHint": "Ctrl+klik voegt een wijziging toe of haalt hem weg, Shift+klik selecteert een reeks, Ctrl+A selecteert alles",
+    "cloudsButton": "Wolken plaatsen"
   },
   "organize": {
     "pages": "Pagina's",

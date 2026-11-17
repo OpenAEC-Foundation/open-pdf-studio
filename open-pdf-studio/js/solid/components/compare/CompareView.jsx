@@ -1,5 +1,5 @@
 import { wheelZoomDelta } from '../../../core/wheel-zoom.js';
-import { batch, createEffect, createMemo, createSignal, onCleanup, onMount, For, Show } from 'solid-js';
+import { batch, createEffect, createMemo, createSignal, onCleanup, onMount, untrack, For, Show } from 'solid-js';
 import {
   compareActive,
   compareOldPath,
@@ -101,6 +101,9 @@ import {
   splitFraction,
   screenPx,
 } from '../../../compare/split-line.js';
+import {
+  selectableOrder, clickSelection, selectionState, setAll, pruneSelection, isSelectable,
+} from '../../../compare/change-selection.js';
 import {
   PANE_PADDING, BASE_SCALE, MAX_ZOOM, clampZoom, anchoredScroll, mirrorScroll,
 } from '../../../compare/pane-geometry.js';
@@ -745,14 +748,30 @@ export default function CompareView() {
       setReportBusy(null);
     }
   };
-  // Wijzigingen aangevinkt in de lijst, voor wolken op het nieuwe document.
+  // Wijzigingen geselecteerd in de lijst, voor wolken op het nieuwe document.
+  // Meer tegelijk selecteren (#1149): Ctrl+klik, Shift+klik voor een reeks,
+  // Ctrl+A en de vakjes per soort en voor alles (change-selection.js).
   const [checked, setChecked] = createSignal(new Set());
-  createEffect(() => { compareChanges(); compareOldPage(); compareNewPage(); setChecked(new Set()); });
-  const toggleChecked = (c) => {
-    const next = new Set(checked());
-    if (next.has(c)) next.delete(c); else next.add(c);
-    setChecked(next);
+  let selectAnchor = null;
+  createEffect(() => { compareChanges(); compareOldPage(); compareNewPage(); selectAnchor = null; setChecked(new Set()); });
+  // Wat de lijst toont en te selecteren is, in de volgorde van de lijst.
+  const selectOrder = createMemo(() => selectableOrder(allChanges(), visibleTypes()));
+  // Een soort uitzetten haalt zijn wijzigingen ook uit de selectie: wat niet
+  // in beeld is wordt niet ongemerkt als wolk geplaatst.
+  createEffect(() => {
+    const order = selectOrder();
+    const cur = untrack(checked);
+    const next = pruneSelection(cur, order);
+    if (next.size !== cur.size) setChecked(next);
+  });
+  const pickChange = (c, how = {}) => {
+    const r = clickSelection({ selected: checked(), anchor: selectAnchor }, c, how, selectOrder());
+    selectAnchor = r.anchor;
+    setChecked(r.selected);
+    if (r.focus) focusOnChange(c);
   };
+  // Alles (of één soort: `subset`) selecteren of uit de selectie halen.
+  const selectAllChanges = (on, subset) => setChecked(setAll(checked(), subset || selectOrder(), on));
   const placeClouds = async () => {
     setReportMenu(false);
     const list = (allChanges() || []).filter((c) => checked().has(c) && c.source !== 'annotation');
@@ -793,6 +812,13 @@ export default function CompareView() {
       }
       const tag = e.target?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      // Ctrl+A: alle wijzigingen in de lijst selecteren (#1149).
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key === 'a' || e.key === 'A') && comparePanelTab() === 'changes') {
+        e.preventDefault();
+        e.stopPropagation();
+        selectAllChanges(true);
+        return;
+      }
       // Ctrl+PageUp/PageDown is de tabwissel (#539), geen paginapaar.
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === 'PageDown') {
@@ -1307,11 +1333,14 @@ export default function CompareView() {
           <ChangeListPanel
             t={t}
             changes={allChanges}
-            onFocus={focusOnChange}
+            onPick={pickChange}
             focused={compareFocusedChange}
             onTextFocus={gotoTextChange}
             checked={checked}
-            onCheck={toggleChecked}
+            order={selectOrder}
+            onSelectAll={selectAllChanges}
+            onClouds={placeClouds}
+            canClouds={() => canPlaceClouds(compareNewPath())}
             pageInfo={pageInfo}
           />
         </div>
@@ -1445,6 +1474,15 @@ function ChangeListPanel(props) {
 
   const total = () => (props.changes() || []).length;
 
+  // Selectie (#1149). De vakjes volgen de selectie; na een klik zetten we het
+  // vakje zelf goed, omdat de browser het al heeft omgezet voordat de
+  // selectie is bijgewerkt (bij een reeks blijft een aangevinkt vakje aan).
+  const selectedCount = () => props.checked().size;
+  const allState = () => selectionState(props.checked(), props.order());
+  const groupOrder = (type) => groupedByType()[type].map((i) => i.change).filter(isSelectable);
+  const groupState = (type) => selectionState(props.checked(), groupOrder(type));
+  const how = (e, extra = {}) => ({ ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey, ...extra });
+
   return (
     <div
       class="compare-change-list"
@@ -1485,6 +1523,37 @@ function ChangeListPanel(props) {
         <TypeToggle type="removed" count={groupedByType().removed.length} />
         <TypeToggle type="modified" count={groupedByType().modified.length} />
       </div>
+      {/* Selectiebalk: alles selecteren, het aantal, en de actie op de hele
+          selectie (één stap voor Ongedaan maken in het nieuwe document). */}
+      <div
+        title={props.t('compare.selectHint') || 'Ctrl+click adds or removes a change, Shift+click selects a range, Ctrl+A selects all'}
+        style="display:flex; align-items:center; gap:6px; padding:3px 8px; border-bottom:1px solid #d4d4d4; background:#fafafa; font-size:11px;"
+      >
+        <label style="display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+          <input
+            type="checkbox"
+            disabled={props.order().length === 0}
+            checked={allState() === 'all'}
+            prop:indeterminate={allState() === 'some'}
+            onClick={(e) => {
+              props.onSelectAll(allState() !== 'all');
+              e.currentTarget.checked = allState() === 'all';
+            }}
+          />
+          {props.t('compare.selectAll') || 'Select all'}
+        </label>
+        <span style="flex:1;"></span>
+        <button
+          class="pref-btn pref-btn-secondary"
+          disabled={selectedCount() === 0 || !props.canClouds()}
+          title={props.canClouds()
+            ? (props.t('compare.report.clouds') || 'Place selected changes as clouds')
+            : (props.t('compare.report.cloudsNeedTab') || 'The new document must be open in a tab')}
+          onClick={() => props.onClouds()}
+        >
+          {`${props.t('compare.cloudsButton') || 'Place clouds'} (${selectedCount()})`}
+        </button>
+      </div>
       <div style="flex:1; overflow:auto;">
         <Show
           when={total() > 0}
@@ -1505,6 +1574,19 @@ function ChangeListPanel(props) {
                     style={`padding:5px 10px; background:#e8e8e8; border-bottom:1px solid #d4d4d4; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:bold; user-select:none;`}
                   >
                     <span style="width:10px; display:inline-block;">{collapsed()[type] ? '▶' : '▼'}</span>
+                    <Show when={groupOrder(type).length > 0}>
+                      <input
+                        type="checkbox"
+                        title={props.t('compare.selectGroup') || 'Select all of this kind'}
+                        checked={groupState(type) === 'all'}
+                        prop:indeterminate={groupState(type) === 'some'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          props.onSelectAll(groupState(type) !== 'all', groupOrder(type));
+                          e.currentTarget.checked = groupState(type) === 'all';
+                        }}
+                      />
+                    </Show>
                     <span
                       style={`width:10px; height:10px; display:inline-block; background:${typeColor(type)}; border:1px solid #555;`}
                     ></span>
@@ -1515,20 +1597,27 @@ function ChangeListPanel(props) {
                       {(item) => {
                         const c = item.change;
                         const isFocused = () => props.focused() === c;
+                        const isChecked = () => props.checked().has(c);
+                        const rowBg = () => (isFocused() ? '#dbeafe' : isChecked() ? '#e3edfb' : '#ffffff');
+                        // onMouseDown: Shift+klik selecteert een reeks, geen tekst.
                         return (
                           <div
-                            onClick={(e) => { e.stopPropagation(); props.onFocus(c); }}
-                            style={`height:50px; padding:6px 10px; border-bottom:1px solid #e0e0e0; display:flex; align-items:center; gap:8px; cursor:pointer; background:${isFocused() ? '#dbeafe' : '#ffffff'};`}
+                            onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }}
+                            onClick={(e) => { e.stopPropagation(); props.onPick(c, how(e)); }}
+                            style={`height:50px; padding:6px 10px; border-bottom:1px solid #e0e0e0; display:flex; align-items:center; gap:8px; cursor:pointer; user-select:none; background:${rowBg()};`}
                             onMouseEnter={(e) => { if (!isFocused()) e.currentTarget.style.background = '#eaf3ff'; }}
-                            onMouseLeave={(e) => { if (!isFocused()) e.currentTarget.style.background = '#ffffff'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = rowBg(); }}
                           >
                             <Show when={c.source !== 'annotation'}>
                               <input
                                 type="checkbox"
                                 title={props.t('compare.selectForClouds') || 'Select for clouds on the new document'}
-                                checked={props.checked().has(c)}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={() => props.onCheck(c)}
+                                checked={isChecked()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  props.onPick(c, how(e, { checkbox: true }));
+                                  e.currentTarget.checked = isChecked();
+                                }}
                               />
                             </Show>
                             <div
