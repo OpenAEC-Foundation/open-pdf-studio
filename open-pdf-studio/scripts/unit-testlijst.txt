@@ -900,3 +900,4 @@ js/solid/components/ribbon/afbreken.test.mjs
 js/pdf/ifcx-opslaan.test.mjs
 
 scripts/fontkit-reverse-substitution.test.mjs
+scripts/download-stats.test.mjs

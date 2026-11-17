@@ -38,6 +38,33 @@ Elke release staat op de [releasepagina](https://github.com/OpenAEC-Foundation/o
 | **Android** | `open-pdf-studio-release.apk` (64-bit ARM) |
 | **Overig** | `open-pdf-studio.mcpb` (AI-koppeling voor MCP-clients), `open-pdf-studio-web-<versie>.tar.gz` (webversie om zelf te hosten), winget-manifesten, de Python-bibliotheek (`.whl` en `.tar.gz`) |
 
+### Downloads in cijfers
+
+Hoe vaak de installatiebestanden op de releasepagina zijn gedownload.
+
+<!-- download-stats:start -->
+| Platform | Alle releases | Laatste release | Aandeel |
+|---|---:|---:|---:|
+| Windows | 26.905 | 875 | 60,4% |
+| macOS | 3.483 | 83 | 7,8% |
+| Linux | 7.386 | 162 | 16,6% |
+| Android | 6.800 | 144 | 15,3% |
+| **Totaal** | **44.574** | **1.264** | **100%** |
+
+```mermaid
+pie showData
+    title Downloads van installatiebestanden per platform
+    "Windows" : 26905
+    "macOS" : 3483
+    "Linux" : 7386
+    "Android" : 6800
+```
+
+Geteld op 2026-11-17 over 89 releases; de laatste is v2026.47.0. Alleen installatiebestanden tellen, niet de updates die een geïnstalleerde kopie ophaalt. De Snap Store, Flathub en de webversie zitten niet in deze cijfers.
+<!-- download-stats:end -->
+
+Bijwerken met `node open-pdf-studio/scripts/download-stats.mjs`.
+
 **Bijwerken.** De Windows-installers, de macOS-app, de `.deb` en de AppImage zoeken en installeren updates met de ingebouwde updater, die alleen updates accepteert die met de updatesleutel van het project zijn ondertekend. De snap wordt bijgewerkt via de Snap Store. De draagbare versie en de Android-app werken zichzelf niet bij.
 
 **Ondertekening.** De Windows-installers en de programmabestanden die ze installeren, zijn met Authenticode ondertekend via Azure Trusted Signing; de releaseworkflow installeert de ondertekende installer en controleert elke handtekening. De macOS-app is ondertekend met een Developer ID en door Apple genotariseerd; de workflow controleert dat met `codesign`, `spctl` en `stapler`. Vanaf de eerste release na 2026.45.0 (de ondertekenstap kwam later) hebben de `.deb`, de AppImage en de snap elk een losse OpenPGP-handtekening (`.asc`) met de releasesleutel van de OpenAEC Foundation, vingerafdruk `13F6D414ADEE4ED4CD09AC60601D86C93C504D29`, en `SHA256SUMS` met `SHA256SUMS.asc` dekt de Linux-bestanden; controleer ze met `gpg --verify <bestand>.asc <bestand>` tegen [`docs/keys/openaec-signing-public-key.asc`](docs/keys/openaec-signing-public-key.asc) (zie [docs/install-linux.md](docs/install-linux.md#verifying-the-download-openpgp)). De `.sig`-bestanden zijn de updatehandtekeningen die de ingebouwde updater controleert. De Android-APK is ondertekend, maar met een nieuwe sleutel voor elke release (zie [Huidige beperkingen](#huidige-beperkingen)). De draagbare zip en de webbundel hebben een `.sha256`-bestand.
