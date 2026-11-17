@@ -196,8 +196,8 @@ async function opzetB({ browser, dist, html, werk, pdf, poort, eis }) {
     await page.goto(werkplek.gastAdres({ bestand: 'PROEF' }), { waitUntil: 'load', timeout: 60000 });
     const frame = await appFrameVan(page);
     await totDat(() => frame.evaluate((tekst) => {
-      const c = document.querySelector('canvas#pdf-canvas');
-      return !!c && c.width > 300 && document.body.textContent.includes(tekst);
+      const c = [document.querySelector('canvas#pdf-canvas'), document.querySelector('#continuous-container canvas.pdf-canvas')].find((x) => x && x.width > 300);
+      return !!c && document.body.textContent.includes(tekst);
     }, PROEF_TEKST.cjk).catch(() => false), 90_000, 'document open from bytes');
     await wacht(1500);
     const inkt = await inktPerBand(frame);

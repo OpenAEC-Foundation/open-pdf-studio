@@ -1062,6 +1062,12 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
     doc.selectedAnnotations = [];
     doc.currentPage = 1;
 
+    // Een nieuw leeg document heeft geen annotaties om te laden: alle pagina's
+    // zijn meteen gereed. Zonder dit bleef de markering uit in de doorlopende
+    // weergave (alleen renderPage zette haar), en weigerde de saver het
+    // document zodra er iets op getekend was.
+    markAllAnnotationPagesLoaded(numPages, doc);
+
     // Show PDF container, hide placeholder
     const placeholder = document.getElementById('placeholder');
     const pdfContainer = document.getElementById('pdf-container');
