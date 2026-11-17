@@ -103,6 +103,11 @@ async function voerIngebouwdeOpdrachtUit(id, e) {
   if (id === 'drafting.objectSnap') { wisselObjectSnap(); return; }
   // Ctrl+P staat in main.js (vóór de afdrukdialoog van de WebView), F2 in proofreading-mode.js.
   if (id === 'file.print') { showPrintDialog(); return; }
+  // Alle tabbladen sluiten (#1156): geen standaardtoets; niet achter een open venster.
+  if (id === 'file.closeAll') {
+    if (!modaalOpen()) import('../ui/chrome/tabs-sluiten.js').then(m => m.sluitAlleTabs()).catch((err) => console.warn('[tabs] alles sluiten mislukt:', err));
+    return;
+  }
   if (id === 'review.proofreading') { toggleProofreading(); return; }
   // Gesplitste weergave (#858); Groter/Kleiner hebben geen standaardtoets.
   if (isSplitOpdracht(id)) {

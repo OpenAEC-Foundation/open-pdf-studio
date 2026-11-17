@@ -258,6 +258,8 @@
     "openInSplitView": "Åbn i delt visning",
     "openInNewWindow": "Åbn i nyt vindue",
     "closeTab": "Luk fane",
+    "closeOtherTabs": "Luk andre faner",
+    "closeAllTabs": "Luk alle faner",
     "nextTab": "Næste fane",
     "previousTab": "Forrige fane",
     "newTabForDocument": "Ny fane til dette dokument"

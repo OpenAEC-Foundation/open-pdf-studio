@@ -12,6 +12,7 @@
   "preferences": "Tercihler",
   "about": "Hakkında",
   "exit": "Çıkış",
+  "closeAll": "Tümünü kapat",
   "aboutPanel": {
     "title": "Hakkında",
     "appName": "Open PDF Studio",

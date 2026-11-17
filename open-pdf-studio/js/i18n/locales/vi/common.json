@@ -258,6 +258,8 @@
     "openInSplitView": "Mở trong chế độ xem chia đôi",
     "openInNewWindow": "Mở trong cửa sổ mới",
     "closeTab": "Đóng thẻ",
+    "closeOtherTabs": "Đóng các thẻ khác",
+    "closeAllTabs": "Đóng tất cả thẻ",
     "nextTab": "Thẻ tiếp theo",
     "previousTab": "Thẻ trước",
     "newTabForDocument": "New Tab for This Document"

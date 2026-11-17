@@ -258,6 +258,8 @@
     "openInSplitView": "Отваряне в разделен изглед",
     "openInNewWindow": "Отваряне в нов прозорец",
     "closeTab": "Затваряне на раздела",
+    "closeOtherTabs": "Затваряне на другите раздели",
+    "closeAllTabs": "Затваряне на всички раздели",
     "nextTab": "Следващ раздел",
     "previousTab": "Предишен раздел",
     "newTabForDocument": "New Tab for This Document"

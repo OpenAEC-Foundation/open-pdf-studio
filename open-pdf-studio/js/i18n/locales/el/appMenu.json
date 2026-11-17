@@ -12,6 +12,7 @@
   "preferences": "Προτιμήσεις",
   "about": "Σχετικά",
   "exit": "Έξοδος",
+  "closeAll": "Κλείσιμο όλων",
   "aboutPanel": {
     "title": "Σχετικά",
     "appName": "Open PDF Studio",

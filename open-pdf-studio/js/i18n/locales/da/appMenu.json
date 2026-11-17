@@ -12,6 +12,7 @@
   "preferences": "Indstillinger",
   "about": "Om",
   "exit": "Afslut",
+  "closeAll": "Luk alle",
   "aboutPanel": {
     "title": "Om",
     "appName": "Open PDF Studio",

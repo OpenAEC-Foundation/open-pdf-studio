@@ -259,6 +259,8 @@
     "openInSplitView": "Open in Split View",
     "openInNewWindow": "Open in new window",
     "closeTab": "Close tab",
+    "closeOtherTabs": "Close other tabs",
+    "closeAllTabs": "Close all tabs",
     "nextTab": "Next Tab",
     "previousTab": "Previous Tab",
     "newTabForDocument": "New Tab for This Document"

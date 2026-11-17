@@ -258,6 +258,8 @@
     "openInSplitView": "Buka dalam Tampilan Terbagi",
     "openInNewWindow": "Buka di jendela baru",
     "closeTab": "Tutup tab",
+    "closeOtherTabs": "Tutup tab lain",
+    "closeAllTabs": "Tutup semua tab",
     "nextTab": "Tab Berikutnya",
     "previousTab": "Tab Sebelumnya",
     "newTabForDocument": "New Tab for This Document"

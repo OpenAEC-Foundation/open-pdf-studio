@@ -259,6 +259,8 @@
     "openInSplitView": "ເປີດໃນມຸມມອງແບ່ງ",
     "openInNewWindow": "ເປີດໃນໜ້າຕ່າງໃໝ່",
     "closeTab": "ປິດແທັບ",
+    "closeOtherTabs": "ປິດແທັບອື່ນ",
+    "closeAllTabs": "ປິດທຸກແທັບ",
     "nextTab": "ແທັບຖັດໄປ",
     "previousTab": "ແທັບກ່ອນໜ້າ",
     "newTabForDocument": "New Tab for This Document"

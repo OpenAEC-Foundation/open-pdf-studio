@@ -258,6 +258,8 @@
     "openInSplitView": "Открыть в разделённом виде",
     "openInNewWindow": "Открыть в новом окне",
     "closeTab": "Закрыть вкладку",
+    "closeOtherTabs": "Закрыть другие вкладки",
+    "closeAllTabs": "Закрыть все вкладки",
     "nextTab": "Следующая вкладка",
     "previousTab": "Предыдущая вкладка",
     "newTabForDocument": "Новая вкладка для этого документа"

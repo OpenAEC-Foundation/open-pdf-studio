@@ -12,6 +12,7 @@
   "preferences": "পছন্দসমূহ",
   "about": "সম্পর্কে",
   "exit": "প্রস্থান",
+  "closeAll": "সব বন্ধ করুন",
   "aboutPanel": {
     "title": "সম্পর্কে",
     "appName": "Open PDF Studio",

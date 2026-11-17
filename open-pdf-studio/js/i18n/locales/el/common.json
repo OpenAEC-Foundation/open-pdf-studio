@@ -258,6 +258,8 @@
     "openInSplitView": "Άνοιγμα σε διαιρεμένη προβολή",
     "openInNewWindow": "Άνοιγμα σε νέο παράθυρο",
     "closeTab": "Κλείσιμο καρτέλας",
+    "closeOtherTabs": "Κλείσιμο άλλων καρτελών",
+    "closeAllTabs": "Κλείσιμο όλων των καρτελών",
     "nextTab": "Επόμενη καρτέλα",
     "previousTab": "Προηγούμενη καρτέλα",
     "newTabForDocument": "New Tab for This Document"

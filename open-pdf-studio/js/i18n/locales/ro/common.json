@@ -258,6 +258,8 @@
     "openInSplitView": "Deschide în vizualizare divizată",
     "openInNewWindow": "Deschidere în fereastră nouă",
     "closeTab": "Închidere filă",
+    "closeOtherTabs": "Închide celelalte file",
+    "closeAllTabs": "Închide toate filele",
     "nextTab": "Fila urmatoare",
     "previousTab": "Fila anterioara",
     "newTabForDocument": "New Tab for This Document"

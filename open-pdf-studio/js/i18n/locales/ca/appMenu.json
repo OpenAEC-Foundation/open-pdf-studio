@@ -12,6 +12,7 @@
   "preferences": "Preferències",
   "about": "Quant a",
   "exit": "Surt",
+  "closeAll": "Tanca-ho tot",
   "aboutPanel": {
     "title": "Quant a",
     "appName": "Open PDF Studio",

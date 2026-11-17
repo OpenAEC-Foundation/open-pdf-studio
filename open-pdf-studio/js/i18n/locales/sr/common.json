@@ -258,6 +258,8 @@
     "openInSplitView": "Отвори у подељеном приказу",
     "openInNewWindow": "Отвори у новом прозору",
     "closeTab": "Затвори картицу",
+    "closeOtherTabs": "Затвори остале картице",
+    "closeAllTabs": "Затвори све картице",
     "nextTab": "Следећа картица",
     "previousTab": "Претходна картица",
     "newTabForDocument": "New Tab for This Document"

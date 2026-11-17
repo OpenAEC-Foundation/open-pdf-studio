@@ -258,6 +258,8 @@
     "openInSplitView": "Otwórz w widoku podzielonym",
     "openInNewWindow": "Otwórz w nowym oknie",
     "closeTab": "Zamknij kartę",
+    "closeOtherTabs": "Zamknij pozostałe karty",
+    "closeAllTabs": "Zamknij wszystkie karty",
     "nextTab": "Następna karta",
     "previousTab": "Poprzednia karta",
     "newTabForDocument": "Nowa karta dla tego dokumentu"

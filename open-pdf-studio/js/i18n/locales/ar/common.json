@@ -258,6 +258,8 @@
     "openInSplitView": "فتح في العرض المقسّم",
     "openInNewWindow": "فتح في نافذة جديدة",
     "closeTab": "إغلاق علامة التبويب",
+    "closeOtherTabs": "إغلاق علامات التبويب الأخرى",
+    "closeAllTabs": "إغلاق كل علامات التبويب",
     "nextTab": "التبويب التالي",
     "previousTab": "التبويب السابق",
     "newTabForDocument": "New Tab for This Document"
