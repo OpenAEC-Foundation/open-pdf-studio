@@ -316,6 +316,8 @@
     "scalePrecision": "Scară și precizie",
     "scale": "Scară (px la unitate)",
     "unit": "Unitate",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Precizie",
     "showEdgeLengths": "Afișează lungimile laturilor",
     "lineEndings": "Capete de linie (distanță / perimetru)",

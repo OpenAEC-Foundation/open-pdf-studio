@@ -320,6 +320,8 @@
     "scalePrecision": "Schaal & precisie",
     "scale": "Schaal (px naar eenheid)",
     "unit": "Eenheid",
+    "areaUnit": "Oppervlakte-eenheid",
+    "areaUnitAuto": "Volgt de schaal",
     "precision": "Precisie",
     "showEdgeLengths": "Zijdelengtes tonen",
     "lineEndings": "Lijnuiteinden (afstand / omtrek)",

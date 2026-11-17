@@ -17,7 +17,6 @@
 // noJoinStart/noJoinEnd) is decided by wand-join.js.
 
 import { getMeasureScale } from '../measurement.js';
-import { getRegionScaleFactor } from '../scale-region.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
 import { wandVorm } from '../wand-vorm.js';
 
@@ -203,14 +202,3 @@ export function drawWall(ctx, ann, annotations) {
   ctx.stroke();
 }
 
-// Hit-test helper for geometry.js: inside the band (or near its centreline).
-export function isPointOnWall(ann, x, y, tol) {
-  const halfW = wallHalfWidthPx(ann);
-  // Distance from point to the centreline SEGMENT
-  const dx = ann.endX - ann.startX, dy = ann.endY - ann.startY;
-  const len2 = dx * dx + dy * dy;
-  let t = len2 > 0 ? ((x - ann.startX) * dx + (y - ann.startY) * dy) / len2 : 0;
-  t = Math.max(0, Math.min(1, t));
-  const px = ann.startX + t * dx, py = ann.startY + t * dy;
-  return Math.hypot(x - px, y - py) <= halfW + (tol || 0);
-}

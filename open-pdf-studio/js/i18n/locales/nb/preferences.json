@@ -316,6 +316,8 @@
     "scalePrecision": "Målestokk og presisjon",
     "scale": "Målestokk (px til enhet)",
     "unit": "Enhet",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Presisjon",
     "showEdgeLengths": "Vis sidelengder",
     "lineEndings": "Linjeender (avstand / omkrets)",

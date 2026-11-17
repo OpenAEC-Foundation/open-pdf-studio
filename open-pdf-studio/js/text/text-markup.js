@@ -188,32 +188,3 @@ export function createCalloutFromSelection() {
   return annotation;
 }
 
-/**
- * Gets text markup annotation defaults by type
- * @param {string} type - The annotation type
- * @returns {Object} Default properties for the type
- */
-export function getTextMarkupDefaults(type) {
-  switch (type) {
-    case 'textHighlight':
-      return {
-        color: '#FFFF00',
-        opacity: 0.3
-      };
-    case 'textStrikethrough':
-      return {
-        color: '#FF0000',
-        opacity: 1.0
-      };
-    case 'textUnderline':
-      return {
-        color: '#0000FF',
-        opacity: 1.0
-      };
-    default:
-      return {
-        color: '#FFFF00',
-        opacity: 0.5
-      };
-  }
-}

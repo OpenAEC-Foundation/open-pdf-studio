@@ -316,6 +316,8 @@
     "scalePrecision": "Maßstab & Genauigkeit",
     "scale": "Maßstab (px zu Einheit)",
     "unit": "Einheit",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Genauigkeit",
     "showEdgeLengths": "Seitenlängen anzeigen",
     "lineEndings": "Linienenden (Entfernung / Umfang)",

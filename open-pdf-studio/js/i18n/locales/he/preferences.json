@@ -316,6 +316,8 @@
     "scalePrecision": "קנה מידה ודיוק",
     "scale": "קנה מידה (px ליחידה)",
     "unit": "יחידה",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "דיוק",
     "showEdgeLengths": "הצג את אורכי הצלעות",
     "lineEndings": "קצוות קו (מרחק / היקף)",

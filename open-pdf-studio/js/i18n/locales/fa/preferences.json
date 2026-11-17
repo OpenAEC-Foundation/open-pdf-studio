@@ -316,6 +316,8 @@
     "scalePrecision": "مقیاس و دقت",
     "scale": "مقیاس (px به واحد)",
     "unit": "واحد",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "دقت",
     "showEdgeLengths": "نمایش طول اضلاع",
     "lineEndings": "انتهای خطوط (فاصله / محیط)",

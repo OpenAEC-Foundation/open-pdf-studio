@@ -316,6 +316,8 @@
     "scalePrecision": "比例与精度",
     "scale": "比例（像素到单位）",
     "unit": "单位",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "精度",
     "showEdgeLengths": "显示边长",
     "lineEndings": "线端（距离/周长）",

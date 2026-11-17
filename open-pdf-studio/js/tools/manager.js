@@ -1,12 +1,12 @@
 import { normalizeStartupTool } from '../core/startup-tool.js';
 import { state, getActiveDocument, clearSelection } from '../core/state.js';
+import { pasTekstlaagDoorvalToe, vergeetTekstlaagDoorval } from './tekstlaag-doorval.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { updateStatusTool } from '../ui/chrome/status-bar.js';
 import { isPdfAReadOnly } from '../pdf/loader.js';
-import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { getTool } from './tool-registry.js';
-import { buildToolContext, resolvePointerCoords } from './tool-context.js';
+import { resolvePointerCoords } from './tool-context.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt } from '../annotations/handles.js';
 import { viewportNaarPagina } from '../pdf/weergave-rotatie.js';
@@ -25,23 +25,6 @@ import { isGRotateModeActive } from './g-rotate-mode.js';
 // Tools that are always allowed (view-only, non-modifying)
 const READONLY_ALLOWED_TOOLS = new Set(['select', 'hand']);
 let toolDefaultsRequestToken = 0;
-
-// Get cursor for a given tool
-export function getCursorForTool(tool = state.currentTool) {
-  switch (tool) {
-    case 'select':
-      return 'default';  // Arrow cursor for unified selection
-    case 'hand':
-      return 'grab';
-    case 'text':
-    case 'editText':
-      return 'text';
-    default: {
-      const typeHandler = getAnnotationType(tool);
-      return (typeHandler && typeHandler.cursor) || 'crosshair';
-    }
-  }
-}
 
 // NOTE: cursor management is now centralized in js/ui/cursor.js (reactive
 // memo derived from app state). Tools and the dispatcher write state — they
@@ -200,16 +183,8 @@ function _setSelectFallthroughEnabled(enabled) {
       }
 
       const textLayers = document.querySelectorAll('.textLayer');
-      textLayers.forEach(layer => {
-        const layerPE = doorval.tekstlaag;
-        if (layer.style.pointerEvents !== layerPE) {
-          layer.style.pointerEvents = layerPE;
-        }
-        layer.querySelectorAll('span').forEach(span => {
-          if (span.style.pointerEvents !== layerPE) span.style.pointerEvents = layerPE;
-          if (span.style.cursor !== doorval.spanCursor) span.style.cursor = doorval.spanCursor;
-        });
-      });
+      // Only walks the spans when there is something to change (tekstlaag-doorval.js).
+      textLayers.forEach(layer => pasTekstlaagDoorvalToe(layer, doorval.tekstlaag, doorval.spanCursor));
     };
     document.addEventListener('mousemove', _selectFallthroughHandler, true);
     document.addEventListener('pointerdown', _deselecteerBijKlikBuitenCanvas, true);
@@ -235,6 +210,7 @@ function _setSelectFallthroughEnabled(enabled) {
     // values they need.
     document.querySelectorAll('.textLayer').forEach(layer => {
       layer.style.pointerEvents = '';
+      vergeetTekstlaagDoorval(layer);
       layer.querySelectorAll('span').forEach(span => {
         span.style.pointerEvents = '';
         span.style.cursor = '';

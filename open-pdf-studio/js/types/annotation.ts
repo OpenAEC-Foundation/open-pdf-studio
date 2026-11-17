@@ -235,6 +235,12 @@ export type Annotation = AnnotationBase & {
   measureName?: string;
   // Meetvlak: de lengte van elke rechte zijde tonen (#536)
   measureShowEdgeLengths?: boolean;
+  /**
+   * Meetvlak: de eenheid waarin de oppervlakte getoond wordt ('ac', 'ha',
+   * 'm²', 'ft²', #1129). Zonder dit veld het kwadraat van de lengte-eenheid;
+   * measureValue en measureUnit blijven altijd in die basis-eenheid.
+   */
+  measureAreaUnit?: string;
   /** Depth in the measurement's unit (#311): length × depth, area × depth. */
   measureDepth?: number;
   // Label position override (absolute coords; defaults to centroid if unset)

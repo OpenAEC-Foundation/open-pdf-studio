@@ -316,6 +316,8 @@
     "scalePrecision": "Ölçek ve Hassasiyet",
     "scale": "Ölçek (px'ten birime)",
     "unit": "Birim",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Hassasiyet",
     "showEdgeLengths": "Kenar uzunluklarını göster",
     "lineEndings": "Çizgi Uçları (Mesafe / Çevre)",

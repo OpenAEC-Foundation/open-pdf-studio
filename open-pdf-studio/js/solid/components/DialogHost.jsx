@@ -59,6 +59,7 @@ const ScreenshotDialog = lazy(() => import('./dialogs/ScreenshotDialog.jsx'));
 const FeedbackDialog = lazy(() => import('./dialogs/FeedbackDialog.jsx'));
 const AboutDialog = lazy(() => import('./dialogs/AboutDialog.jsx'));
 const WhatsNewDialog = lazy(() => import('./dialogs/WhatsNewDialog.jsx'));
+const VirusScannerDialog = lazy(() => import('./dialogs/VirusScannerDialog.jsx'));
 const ShortcutsDialog = lazy(() => import('./dialogs/ShortcutsDialog.jsx'));
 const ExtensionsDialog = lazy(() => import('./dialogs/ExtensionsDialog.jsx'));
 const HandtekeningDetailDialog = lazy(() => import('./dialogs/HandtekeningDetailDialog.jsx'));
@@ -165,6 +166,7 @@ const DIALOG_MAP = {
   'message': MessageDialog,
   'about': AboutDialog,
   'whats-new': WhatsNewDialog,
+  'virus-scanner-notice': VirusScannerDialog,
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
   'confirm': ConfirmDialog,

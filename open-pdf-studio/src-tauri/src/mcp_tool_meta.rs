@@ -123,6 +123,10 @@ pub const TOOLS: &[ToolMeta] = &[
     // Installeren kan een bestaande installatie vervangen (#550).
     wijzigt("app_install_extension", "Install extension"),
     wijzigt("app_delete_annotation", "Delete annotation"),
+    // Staten (#1130): bijwerken wijzigt een bestaande staat, verwijderen haalt
+    // de staat en zijn geplaatste tabellen weg.
+    wijzigt("app_update_schedule", "Update quantity schedule"),
+    wijzigt("app_delete_schedule", "Delete quantity schedule"),
     wijzigt("app_undo", "Undo"),
     wijzigt("app_redo", "Redo"),
     wijzigt("app_close_tab", "Close document tab"),

@@ -287,6 +287,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   measureAreaDimPrecision: 2,
   // Lengte van elke rechte zijde tonen (#536); standaard uit.
   measureAreaShowEdgeLengths: false,
+  // Weergave-eenheid van de oppervlakte (#1129): '' volgt de schaal (het
+  // kwadraat van de lengte-eenheid), anders 'm²', 'ha', 'ft²' of 'ac'.
+  measureAreaDisplayUnit: '',
 
   // Filled Area defaults (user-drawn contour with arcs + holes, solid + hatch fill)
   filledAreaStrokeColor: '#000000',

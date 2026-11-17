@@ -3,7 +3,7 @@
  */
 
 import { state, getActiveDocument } from '../core/state.js';
-import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
+import { executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
 import { matchFractions, matchFractionsUitVakken, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
 import { groepeerPerPagina, BRON_ANNOTATIE } from './search-sources.js';
@@ -687,35 +687,6 @@ export async function onReplace() {
     }
   } catch (err) {
     console.error('[onReplace]', err);
-  }
-}
-
-export async function onReplaceAll() {
-  const { replaceAllMatches, clearTextCache } = await import('./find-controller.js');
-  const replaceWith = state.search.replaceQuery || '';
-
-  const count = await replaceAllMatches(replaceWith);
-  if (count > 0) {
-    const { markDocumentModified } = await import('../ui/chrome/tabs.js');
-    markDocumentModified();
-
-    const doc = getActiveDocument();
-    if (doc) clearTextCache(doc.id);
-
-    // Re-render to show the text edits
-    if (getActiveDocument()?.viewMode === 'continuous') {
-      const { redrawContinuous } = await import('../annotations/rendering.js');
-      redrawContinuous();
-    } else {
-      await renderPage(getActiveDocument()?.currentPage || 1);
-    }
-
-    // Re-search
-    await executeSearchAndUpdate();
-
-    setMessageText(`Replaced ${count} occurrences`);
-  } else {
-    setMessageText('No replacements made');
   }
 }
 

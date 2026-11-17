@@ -316,6 +316,8 @@
     "scalePrecision": "Échelle et précision",
     "scale": "Échelle (px vers unité)",
     "unit": "Unité",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Précision",
     "showEdgeLengths": "Afficher la longueur des côtés",
     "lineEndings": "Extrémités de ligne (distance / périmètre)",

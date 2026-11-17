@@ -1570,6 +1570,20 @@
     "found": "Pronađeno kandidata: {{count}}",
     "created": "Stvoreno brojanja: {{count}}; već postoji: {{skipped}}",
     "truncated": "Dosegnuto je ograničenje rezultata. Pretražite manje stranica ili povećajte sličnost.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Dokument je promijenjen. Zatvorite i ponovno otvorite pretraživanje simbola.",
       "INVALID_PAGES": "Odaberite 1–20 valjanih stranica.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Sličnost mora biti 0,5–1; mjerilo 0,5–2, a rotacija četvrtina okreta.",
       "READ_ONLY": "Ovaj dokument ili sloj oznaka samo je za čitanje.",
       "SEARCH_EXPIRED": "Rezultati pretraživanja su istekli. Pretražite ponovno.",
-      "CATEGORY_REQUIRED": "Odaberite kategoriju brojanja."
+      "CATEGORY_REQUIRED": "Odaberite kategoriju brojanja.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {
@@ -2520,5 +2536,19 @@
     "createDocument": "Stvori dokument",
     "uploadPdf": "Prenesi PDF",
     "uploadHelp": "Stvorite dokument i prenesite jedan PDF (najviše 32 MiB). PDF nije moguće zamijeniti. Nakon neuspjelog zahtjeva osvježite prije ponovnog pokušaja."
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs. We are working hard to solve this.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

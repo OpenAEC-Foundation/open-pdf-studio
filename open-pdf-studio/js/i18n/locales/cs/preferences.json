@@ -316,6 +316,8 @@
     "scalePrecision": "Měřítko a přesnost",
     "scale": "Měřítko (px na jednotku)",
     "unit": "Jednotka",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Přesnost",
     "showEdgeLengths": "Zobrazit délky stran",
     "lineEndings": "Zakončení čar (vzdálenost / obvod)",

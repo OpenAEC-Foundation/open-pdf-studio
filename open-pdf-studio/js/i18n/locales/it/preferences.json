@@ -316,6 +316,8 @@
     "scalePrecision": "Scala e precisione",
     "scale": "Scala (px in unità)",
     "unit": "Unità",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Precisione",
     "showEdgeLengths": "Mostra le lunghezze dei lati",
     "lineEndings": "Estremità di linea (distanza / perimetro)",

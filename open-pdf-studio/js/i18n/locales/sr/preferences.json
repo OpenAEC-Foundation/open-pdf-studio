@@ -316,6 +316,8 @@
     "scalePrecision": "Размера и прецизност",
     "scale": "Размера (px по јединици)",
     "unit": "Јединица",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Прецизност",
     "showEdgeLengths": "Прикажи дужине страница",
     "lineEndings": "Завршеци линија (растојање / обим)",

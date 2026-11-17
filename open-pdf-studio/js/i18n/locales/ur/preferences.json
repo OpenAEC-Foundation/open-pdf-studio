@@ -316,6 +316,8 @@
     "scalePrecision": "پیمانہ اور درستی",
     "scale": "پیمانہ (px سے اکائی)",
     "unit": "اکائی",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "درستی",
     "showEdgeLengths": "اضلاع کی لمبائی دکھائیں",
     "lineEndings": "لکیر کے سرے (فاصلہ / احاطہ)",

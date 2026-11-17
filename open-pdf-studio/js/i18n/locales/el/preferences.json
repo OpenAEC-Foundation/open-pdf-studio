@@ -316,6 +316,8 @@
     "scalePrecision": "Κλίμακα & ακρίβεια",
     "scale": "Κλίμακα (px σε μονάδα)",
     "unit": "Μονάδα",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Ακρίβεια",
     "showEdgeLengths": "Εμφάνιση μηκών πλευρών",
     "lineEndings": "Άκρα γραμμής (απόσταση / περίμετρος)",

@@ -118,6 +118,8 @@
     "scalePrecision": "ມາດຕາສ່ວນ & ຄວາມລະອຽດ",
     "scale": "ມາດຕາສ່ວນ (px ຫາ ຫົວໜ່ວຍ)",
     "unit": "ຫົວໜ່ວຍ",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "ຄວາມລະອຽດ",
     "showEdgeLengths": "ສະແດງຄວາມຍາວຂອງດ້ານ",
     "lineEndings": "ຮູບແບບຫົວ/ທ້າຍເສັ້ນ (ໄລຍະຫ່າງ / ລວງຮອບ)",
