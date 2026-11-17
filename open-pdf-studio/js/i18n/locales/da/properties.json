@@ -486,7 +486,9 @@
     "depthNone": "Ingen",
     "depthTooltip": "Vægthøjde, dækkets tykkelse osv. i målingens enhed. Længde × dybde giver en flade, areal × dybde et volumen.",
     "surface": "Flade",
-    "volume": "Volumen"
+    "volume": "Volumen",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Lister",

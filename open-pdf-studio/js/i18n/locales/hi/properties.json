@@ -486,7 +486,9 @@
     "depthNone": "कोई नहीं",
     "depthTooltip": "दीवार की ऊँचाई, फ़र्श की मोटाई आदि, माप की इकाई में। लंबाई × गहराई से सतह और क्षेत्रफल × गहराई से आयतन मिलता है।",
     "surface": "सतह",
-    "volume": "आयतन"
+    "volume": "आयतन",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "शेड्यूल",

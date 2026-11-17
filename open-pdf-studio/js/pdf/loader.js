@@ -786,7 +786,9 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
             // In page units of page 1, /UserUnit included (#884).
             const { measureScaleFromTitleBlock } = await import('../annotations/document-scale.js');
             if (isClosed() || doc.measureScale) return;
-            doc.measureScale = measureScaleFromTitleBlock(result);
+            // Een kale 1:N in de eenheid van de voorkeur Eenheden (#1158).
+            const { standaardLengteEenheid } = await import('../annotations/eenhedenstelsel.js');
+            doc.measureScale = measureScaleFromTitleBlock(result, standaardLengteEenheid());
             const { saveDocumentScale } = await import('../annotations/measurement.js');
             saveDocumentScale(doc);
             console.log(`Auto-detected scale: 1:${result.ratio} from "${result.scaleText}"`);

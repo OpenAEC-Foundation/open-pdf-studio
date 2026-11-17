@@ -486,7 +486,9 @@
     "depthNone": "இல்லை",
     "depthTooltip": "சுவர் உயரம், தள தடிமன் போன்றவை, அளவீட்டின் அலகில். நீளம் × ஆழம் மேற்பரப்பையும், பரப்பு × ஆழம் கனஅளவையும் தரும்.",
     "surface": "மேற்பரப்பு",
-    "volume": "கனஅளவு"
+    "volume": "கனஅளவு",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "அட்டவணைகள்",

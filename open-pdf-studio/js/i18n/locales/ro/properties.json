@@ -486,7 +486,9 @@
     "depthNone": "Niciuna",
     "depthTooltip": "Înălțimea peretelui, grosimea plăcii etc., în unitatea măsurătorii. Lungime × adâncime dă o suprafață, arie × adâncime un volum.",
     "surface": "Suprafață",
-    "volume": "Volum"
+    "volume": "Volum",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Extrase",

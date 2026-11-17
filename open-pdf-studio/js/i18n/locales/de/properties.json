@@ -486,7 +486,9 @@
     "depthNone": "Keine",
     "depthTooltip": "Wandhöhe, Bodendicke usw. in der Einheit der Messung. Länge × Tiefe ergibt eine Fläche, Fläche × Tiefe ein Volumen.",
     "surface": "Fläche",
-    "volume": "Volumen"
+    "volume": "Volumen",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Listen",

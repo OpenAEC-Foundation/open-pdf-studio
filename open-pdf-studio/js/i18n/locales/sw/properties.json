@@ -486,7 +486,9 @@
     "depthNone": "Hakuna",
     "depthTooltip": "Urefu wa ukuta, unene wa sakafu n.k., katika kizio cha kipimo. Urefu × kina hutoa eneo la uso, eneo × kina hutoa ujazo.",
     "surface": "Uso",
-    "volume": "Ujazo"
+    "volume": "Ujazo",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Majedwali ya orodha",

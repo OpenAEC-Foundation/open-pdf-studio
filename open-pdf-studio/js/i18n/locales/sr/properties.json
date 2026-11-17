@@ -486,7 +486,9 @@
     "depthNone": "Нема",
     "depthTooltip": "Висина зида, дебљина плоче итд., у јединици мерења. Дужина × дубина даје површину, површина × дубина запремину.",
     "surface": "Површина",
-    "volume": "Запремина"
+    "volume": "Запремина",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Спецификације",

@@ -486,7 +486,9 @@
     "depthNone": "কোনোটিই নয়",
     "depthTooltip": "দেয়ালের উচ্চতা, মেঝের পুরুত্ব ইত্যাদি, পরিমাপের এককে। দৈর্ঘ্য × গভীরতা দেয় পৃষ্ঠতল, ক্ষেত্রফল × গভীরতা দেয় আয়তন।",
     "surface": "পৃষ্ঠতল",
-    "volume": "আয়তন"
+    "volume": "আয়তন",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "শিডিউল",

@@ -483,7 +483,9 @@
     "depthNone": "Geen",
     "depthTooltip": "Wandhoogte, vloerdikte enz., in de eenheid van de meting. Lengte × diepte geeft een oppervlak, vlak × diepte een inhoud.",
     "surface": "Oppervlak",
-    "volume": "Inhoud"
+    "volume": "Inhoud",
+    "noScaleHint": "Dit document heeft nog geen schaal: de waarde is niet de werkelijke maat.",
+    "noScaleCalibrate": "Schaal instellen (Kalibreren)…"
   },
   "measurements": {
     "scale": "Schaal",

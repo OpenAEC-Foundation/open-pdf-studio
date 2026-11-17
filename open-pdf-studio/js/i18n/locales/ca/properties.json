@@ -492,7 +492,9 @@
     "depthNone": "Cap",
     "depthTooltip": "Alçada de mur, gruix de forjat, etc., en la unitat de la mesura. Longitud × profunditat dona una superfície; àrea × profunditat, un volum.",
     "surface": "Superfície",
-    "volume": "Volum"
+    "volume": "Volum",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Llistats",

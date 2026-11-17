@@ -486,7 +486,9 @@
     "depthNone": "Nincs",
     "depthTooltip": "Falmagasság, födémvastagság stb. a mérés mértékegységében. Hossz × mélység felületet, terület × mélység térfogatot ad.",
     "surface": "Felület",
-    "volume": "Térfogat"
+    "volume": "Térfogat",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Kimutatások",

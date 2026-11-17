@@ -380,6 +380,9 @@ test('tooltip-schaal: findMeasureScale geeft de documentschaal, of null zonder e
     getScaleFromRegion: () => null,
     getScaleForPoint: (p, x, y) => schaalOpPunt(doc, p, x, y),
     schaalBronnen: (d) => verzamelSchaalBronnen(d),
+    // De terugval zonder schaal volgt de voorkeur Eenheden (#1158); hier de
+    // echte regel, met de standaard (metrisch).
+    standaardenVoorStelsel: (await import('../annotations/eenhedenstelsel.js')).standaardenVoorStelsel,
   });
   assert.equal(typeof meting.findMeasureScale, 'function', 'findMeasureScale ontbreekt');
   const s = meting.findMeasureScale(1, 10, 10);

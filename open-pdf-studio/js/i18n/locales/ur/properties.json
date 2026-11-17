@@ -486,7 +486,9 @@
     "depthNone": "کوئی نہیں",
     "depthTooltip": "دیوار کی اونچائی، فرش کی موٹائی وغیرہ، پیمائش کی اکائی میں۔ لمبائی × گہرائی سے سطح اور رقبہ × گہرائی سے حجم بنتا ہے۔",
     "surface": "سطح",
-    "volume": "حجم"
+    "volume": "حجم",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "شیڈولز",

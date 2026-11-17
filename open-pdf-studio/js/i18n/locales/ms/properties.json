@@ -486,7 +486,9 @@
     "depthNone": "Tiada",
     "depthTooltip": "Ketinggian dinding, ketebalan lantai dsb., dalam unit pengukuran. Panjang × kedalaman memberi permukaan, luas × kedalaman memberi isi padu.",
     "surface": "Permukaan",
-    "volume": "Isi padu"
+    "volume": "Isi padu",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Jadual",

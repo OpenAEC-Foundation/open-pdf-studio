@@ -486,7 +486,9 @@
     "depthNone": "Ninguna",
     "depthTooltip": "Altura de muro, espesor de forjado, etc., en la unidad de la medición. Longitud × profundidad da una superficie; área × profundidad, un volumen.",
     "surface": "Superficie",
-    "volume": "Volumen"
+    "volume": "Volumen",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Listados",

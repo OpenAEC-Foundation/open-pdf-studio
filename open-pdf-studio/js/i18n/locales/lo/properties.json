@@ -204,7 +204,9 @@
     "depthNone": "ບໍ່ມີ",
     "depthTooltip": "ຄວາມສູງຂອງຝາ, ຄວາມໜາຂອງພື້ນ ແລະ ອື່ນໆ ໃນຫົວໜ່ວຍຂອງການວັດແທກ. ຄວາມຍາວ × ຄວາມເລິກ ໄດ້ພື້ນທີ່ໜ້າ, ພື້ນທີ່ × ຄວາມເລິກ ໄດ້ບໍລິມາດ.",
     "surface": "ພື້ນທີ່ໜ້າ",
-    "volume": "ບໍລິມາດ"
+    "volume": "ບໍລິມາດ",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "scaleBar": {
     "title": "ແຖບມາດຕາສ່ວນ",

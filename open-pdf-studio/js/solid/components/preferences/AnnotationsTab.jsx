@@ -4,6 +4,7 @@ import PrefColorPicker from './PrefColorPicker.jsx';
 import PrefComboBox from './PrefComboBox.jsx';
 import PrefSelect from './PrefSelect.jsx';
 import MarkupStatusesEditor from './MarkupStatusesEditor.jsx';
+import UnitSystemRow from './UnitSystemRow.jsx';
 import { PAPIER_EENHEDEN } from '../../../annotations/papiermaat-eenheid.js';
 import { BREUK_PRECISIES } from '../../../core/voet-inch.js';
 import { OPPERVLAKTE_KEUZES } from '../../../annotations/oppervlakte-eenheid.js';
@@ -111,11 +112,6 @@ export default function AnnotationsTab(props) {
     { value: 'feetInch', label: t('measurement.imperialFeetInch') },
   ];
   const fractionOpts = BREUK_PRECISIES.map(n => ({ value: n, label: n === 1 ? `1"` : `1/${n}"` }));
-  const unitSystemOpts = [
-    { value: 'both', label: t('measurement.unitSystemBoth') },
-    { value: 'metric', label: t('measurement.unitSystemMetric') },
-    { value: 'imperial', label: t('measurement.unitSystemImperial') },
-  ];
 
   const measureHeadOpts = lineEndingOpts('measurement');
 
@@ -556,13 +552,12 @@ export default function AnnotationsTab(props) {
               </div>
             </fieldset>
 
-            {/* Imperiale eenheden (#996): voet-inch-breuken en welke schalen de lijsten tonen. */}
+            {/* Eenheden (#996, #1158): de ene instelling Metrisch / Imperiaal,
+                met de voet-inch-breuk als detail. Dezelfde instelling staat op
+                het tabblad Algemeen. */}
             <fieldset class="pref-fieldset">
               <legend>{t('measurement.units')}</legend>
-              <div class="pref-row">
-                <label>{t('measurement.unitSystem')}</label>
-                <PrefSelect value={p.scaleUnitSystem[0]} setValue={p.scaleUnitSystem[1]} options={unitSystemOpts} />
-              </div>
+              <UnitSystemRow prefs={p} id="pref-units-measurement" />
               <div class="pref-row">
                 <label>{t('measurement.imperialLengthFormat')}</label>
                 <PrefSelect value={p.imperialLengthFormat[0]} setValue={p.imperialLengthFormat[1]} options={lengthFormatOpts} />

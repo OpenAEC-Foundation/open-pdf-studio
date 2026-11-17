@@ -486,7 +486,9 @@
     "depthNone": "Aucune",
     "depthTooltip": "Hauteur de mur, épaisseur de dalle, etc., dans l'unité de la mesure. Longueur × profondeur donne une surface, aire × profondeur un volume.",
     "surface": "Surface",
-    "volume": "Volume"
+    "volume": "Volume",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Nomenclatures",

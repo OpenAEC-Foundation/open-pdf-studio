@@ -486,7 +486,9 @@
     "depthNone": "Κανένα",
     "depthTooltip": "Ύψος τοίχου, πάχος πλάκας κ.λπ. στη μονάδα της μέτρησης. Μήκος × βάθος δίνει επιφάνεια, εμβαδόν × βάθος όγκο.",
     "surface": "Επιφάνεια",
-    "volume": "Όγκος"
+    "volume": "Όγκος",
+    "noScaleHint": "This document has no scale yet: the value is not the real size.",
+    "noScaleCalibrate": "Set scale (Calibrate)…"
   },
   "schedules": {
     "title": "Πίνακες ποσοτήτων",

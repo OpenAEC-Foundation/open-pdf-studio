@@ -28,6 +28,7 @@ import { vulDekkingUitVoorkeur } from '../annotations/vul-dekking.js';
 import { rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
 import { documentHeeftSchaal } from '../annotations/schaal-op-punt.js';
+import { handmatigeSchaal } from '../annotations/eenhedenstelsel.js';
 import { veelhoekUitPunten, regelmatigeVeelhoekPunten } from '../annotations/veelhoek-punten.js';
 
 /**
@@ -763,13 +764,17 @@ export function createMeasurePerimeterAnnotation(points) {
   // viewport uit de PDF zelf of de documentschaal uit de kalibratie, #554)
   // gaat voor de handmatige voorkeursschaal; dezelfde regel als de maatlijn.
   const hasScaleSource = documentHeeftSchaal(getActiveDocument());
-  if (!hasScaleSource && mPrefs.measurePerimDimScale && typeof mPrefs.measurePerimDimScale === 'number') {
-    perimProps.measureScale = mPrefs.measurePerimDimScale;
-    perimProps.measureUnit = mPrefs.measurePerimDimUnit || 'mm';
+  // Imperiaal telt de onaangeroerde standaard (1 per punt, mm) niet als
+  // handmatige schaal (#1158): dan de maat op papier in inches.
+  const handmatig = hasScaleSource || typeof mPrefs.measurePerimDimScale !== 'number'
+    ? null : handmatigeSchaal(mPrefs, 'measurePerim');
+  if (handmatig) {
+    perimProps.measureScale = handmatig.scale;
+    perimProps.measureUnit = handmatig.unit;
     perimProps.measurePrecision = mPrefs.measurePerimDimPrecision ?? 2;
     const pixelPerim = calculatePerimeter(points, currentPage).pixels;
-    const scaledPerim = pixelPerim * mPrefs.measurePerimDimScale;
-    const unit = mPrefs.measurePerimDimUnit || 'mm';
+    const scaledPerim = pixelPerim * handmatig.scale;
+    const unit = handmatig.unit;
     const prec = mPrefs.measurePerimDimPrecision ?? 2;
     perimProps.measureText = `${scaledPerim.toFixed(prec)} ${unit}`;
     perimProps.measureValue = scaledPerim;

@@ -917,3 +917,5 @@ scripts/deploy-uitcheck.test.mjs
 js/pdf/saver/veld-lettertype.test.mjs
 js/solid/components/properties-panel/geen-vaste-nl-labels.test.mjs
 js/solid/components/left-panel/panels/paneel-schuift.test.mjs
+js/annotations/eenhedenstelsel.test.mjs
+js/core/eenheden-opslag.test.mjs
