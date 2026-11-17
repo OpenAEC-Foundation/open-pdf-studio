@@ -315,6 +315,8 @@
     "scalePrecision": "Масштаб і точність",
     "scale": "Масштаб (px в одиниці)",
     "unit": "Одиниця",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Точність",
     "showEdgeLengths": "Показувати довжини сторін",
     "lineEndings": "Закінчення ліній (відстань / периметр)",

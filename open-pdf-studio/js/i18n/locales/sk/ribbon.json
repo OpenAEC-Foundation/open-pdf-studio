@@ -479,7 +479,9 @@
     "setDefaultPdf": "Nastaviť predvolenú PDF aplikáciu",
     "fileAssociations": "Priradenie súborov",
     "previousVersionTitle": "Nainštalovať predchádzajúcu verziu Open PDF Studio",
-    "previousVersion": "Predchádzajúca verzia"
+    "previousVersion": "Predchádzajúca verzia",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Červená",

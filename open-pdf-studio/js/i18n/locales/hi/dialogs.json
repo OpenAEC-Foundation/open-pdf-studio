@@ -1570,6 +1570,20 @@
     "found": "{{count}} उम्मीदवार मिले",
     "created": "{{count}} गणनाएँ बनाई गईं; {{skipped}} पहले से मौजूद",
     "truncated": "परिणाम सीमा पूरी हो गई। कम पृष्ठ खोजें या समानता बढ़ाएँ।",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "दस्तावेज़ बदल गया है। प्रतीक खोज बंद करके फिर से खोलें।",
       "INVALID_PAGES": "1–20 मान्य पृष्ठ चुनें।",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "समानता 0.5–1 होनी चाहिए; स्केल 0.5–2 और घुमाव एक चौथाई चक्कर।",
       "READ_ONLY": "यह दस्तावेज़ या मार्कअप परत केवल-पढ़ने योग्य है।",
       "SEARCH_EXPIRED": "खोज परिणाम समाप्त हो गए। फिर से खोजें।",
-      "CATEGORY_REQUIRED": "गणना श्रेणी चुनें।"
+      "CATEGORY_REQUIRED": "गणना श्रेणी चुनें।",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {
@@ -2520,5 +2536,19 @@
     "createDocument": "दस्तावेज़ बनाएँ",
     "uploadPdf": "PDF अपलोड करें",
     "uploadHelp": "दस्तावेज़ बनाएँ, फिर एक PDF अपलोड करें (अधिकतम 32 MiB)। PDF बदली नहीं जा सकती। अनुरोध विफल होने पर दोबारा प्रयास करने से पहले रीफ़्रेश करें।"
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs. We are working hard to solve this.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

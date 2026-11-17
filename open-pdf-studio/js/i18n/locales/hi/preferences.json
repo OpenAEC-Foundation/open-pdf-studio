@@ -315,6 +315,8 @@
     "scalePrecision": "स्केल और परिशुद्धता",
     "scale": "स्केल (px से इकाई)",
     "unit": "इकाई",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "परिशुद्धता",
     "showEdgeLengths": "भुजाओं की लंबाई दिखाएँ",
     "lineEndings": "रेखा सिरे (दूरी / परिधि)",

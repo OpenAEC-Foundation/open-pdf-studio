@@ -14,4 +14,8 @@ setQuantityLabelResolver((key, fallback) => {
   return i18next.t(key, { ns: 'properties', defaultValue: fallback });
 });
 
-export { };
+/** Vertaalde naam van de standaardlaag, voor de Laag-kolom van een staat. */
+export function standaardLaagNaam() {
+  language();
+  return i18next.t('ribbon:annotationLayers.defaultName', { defaultValue: 'Default' });
+}

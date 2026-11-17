@@ -125,6 +125,8 @@ function pagesForCommand(cmd) {
     'addWatermark', 'removeWatermark', 'modifyWatermark',
     'addBookmark', 'removeBookmark', 'modifyBookmark', 'setBookmarks',
     'setDocumentInfo',
+    // Een verwijderde staat (#1130) staat niet op een pagina.
+    'removeSchedule',
     // pageStructure (insert/delete/reorder pages) shifts page numbers and is
     // handled by restorePageState → clearThumbnailCache + generateThumbnails,
     // which regenerates every thumbnail. A per-page hook here would be wrong.
@@ -647,6 +649,10 @@ function applyUndo(cmd, lookup) {
       doc.documentgegevens = cmd.oldInfo ? { ...cmd.oldInfo } : null;
       break;
     }
+    default: {
+      _undoHandlers?.get(cmd.type)?.undo?.(cmd);
+      break;
+    }
   }
 }
 
@@ -799,7 +805,25 @@ function applyRedo(cmd, lookup) {
       doc.documentgegevens = cmd.newInfo ? { ...cmd.newInfo } : null;
       break;
     }
+    default: {
+      _undoHandlers?.get(cmd.type)?.redo?.(cmd);
+      break;
+    }
   }
+}
+
+// ---- Stappen van buiten deze module ----
+// Een stap die iets terugzet dat niet in het document zelf staat (#1130: een
+// staat die samen met zijn geplaatste tabellen is verwijderd) meldt hier per
+// opdrachtsoort hoe hij ongedaan gemaakt en opnieuw uitgevoerd wordt. Zo kan
+// hij in één stap met annotatie-opdrachten mee (compound), zonder dat deze
+// module de store erachter hoeft te kennen. `var` zonder beginwaarde: een
+// module die zich bij het laden al aanmeldt mag dat ook doen als deze module
+// (in een importkring) zelf nog niet is doorlopen.
+var _undoHandlers;
+export function registerUndoHandler(type, handler) {
+  if (typeof type !== 'string' || !type || !handler) return;
+  (_undoHandlers ||= new Map()).set(type, handler);
 }
 
 async function refresh() {
