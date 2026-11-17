@@ -5,15 +5,16 @@ import CollapsibleSection from './CollapsibleSection.jsx';
 import LayerField from './LayerField.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { state } from '../../../core/state.js';
-import { alleStatussen, zoekStatus, statusNaam } from '../../../review/status-sets.js';
+import { kiesbareStatussen, statusNaam, statusLijst } from '../../../review/status-sets.js';
 
 export default function GeneralSection() {
   const { t } = useTranslation('properties');
   const { t: tCommon } = useTranslation('common');
   const { t: tContext } = useTranslation('context');
   // De vaste en de eigen statussen (#1076, review/status-sets.js).
-  const eigen = () => state.preferences?.markupStatuses;
-  const naamVan = (status) => statusNaam(status, eigen(), tContext);
+  const eigen = () => statusLijst(state.preferences);
+  const kiesbaar = () => kiesbareStatussen(eigen());
+  const naamVan = (status, label = annotProps.statusLabel) => statusNaam(status, eigen(), tContext, label);
   const isLocked = () => annotProps.locked === true || annotProps.locked === 'mixed';
 
   return (
@@ -153,11 +154,11 @@ export default function GeneralSection() {
             <Show when={annotProps.status === 'mixed'}>
               <option value="mixed" disabled hidden>{tCommon('mixed')}</option>
             </Show>
-            <Show when={annotProps.status && annotProps.status !== 'mixed' && !zoekStatus(annotProps.status, eigen())}>
-              {/* Status uit een ander PDF-programma die hier onbekend is: zoals hij is */}
+            <Show when={annotProps.status && annotProps.status !== 'mixed' && !kiesbaar().some((s) => s.key === annotProps.status)}>
+              {/* Status die niet te kiezen is (een ander PDF-programma, een andere set, een verwijderde status): zoals hij is */}
               <option value={annotProps.status}>{naamVan(annotProps.status)}</option>
             </Show>
-            <For each={alleStatussen(eigen())}>
+            <For each={kiesbaar()}>
               {(s) => <option value={s.key}>{naamVan(s.key)}</option>}
             </For>
           </select>
@@ -174,7 +175,7 @@ export default function GeneralSection() {
                 {(stap) => (
                   <div class="status-history-step">
                     {t('general.statusHistoryStep', {
-                      status: naamVan(stap.status),
+                      status: naamVan(stap.status, stap.label),
                       author: stap.by || '?', date: stap.at || '',
                     })}
                   </div>

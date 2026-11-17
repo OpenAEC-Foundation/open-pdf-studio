@@ -585,6 +585,8 @@
     "size": "الحجم",
     "sameSize": "نفس الحجم",
     "sameWidth": "نفس العرض",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "نفس الارتفاع",
     "rotate": "تدوير",
     "rotate90CCW": "تدوير 90° عكس عقارب الساعة",

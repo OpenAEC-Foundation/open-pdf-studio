@@ -583,6 +583,8 @@
     "size": "ຂະໜາດ",
     "sameSize": "ຂະໜາດເທົ່າກັນ",
     "sameWidth": "ຄວາມກວ້າງເທົ່າກັນ",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "ຄວາມສູງເທົ່າກັນ",
     "rotate": "ໝູນ",
     "rotate90CCW": "ໝູນ 90° ທວນເຂັມໂມງ",

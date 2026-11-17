@@ -37,6 +37,7 @@ import { canSaveToToolSet, saveAnnotationToToolSet } from '../stores/toolSetsSto
 import { toolSetsIcon as toolSetsMenuIcon } from '../data/contextMenuIcons.js';
 import { setTool } from '../../tools/manager.js';
 import { alignAnnotations } from '../../annotations/smart-guides.js';
+import { fitBoxToText, tekstkadersInSelectie } from '../../annotations/alignment.js';
 import {
   resolveSysteem, paneelKey, setPaneelType, addSparing, rotToRaster,
   buildSysteemraster,
@@ -74,7 +75,7 @@ import {
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
 import { plaatsSubmenuVan } from './contextmenu-plaatsen.js';
 import { setStatusWithHistory } from '../../review/status-history.js';
-import { alleStatussen, statusNaam } from '../../review/status-sets.js';
+import { kiesbareStatussen, filterStatussen, statusNaam, statusLijst } from '../../review/status-sets.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -196,9 +197,18 @@ function AnnotationMenuContent() {
 
   // De vaste en de eigen statussen (#1076, review/status-sets.js), opnieuw
   // opgebouwd bij elk openen van het menu.
-  const statusItems = () => alleStatussen(state.preferences?.markupStatuses).map((s) => ({
-    key: s.key, label: () => statusNaam(s.key, state.preferences?.markupStatuses, t),
+  const statusItems = () => kiesbareStatussen(statusLijst(state.preferences)).map((s) => ({
+    key: s.key, label: () => statusNaam(s.key, statusLijst(state.preferences), t),
   }));
+  // Het filter kent ook wat er verder in het document staat: een andere set,
+  // een verwijderde status of een status uit een ander programma.
+  const statusFilterItems = () => {
+    const anns = getActiveDocument()?.annotations || [];
+    const labels = new Map(anns.filter((a) => a?.statusLabel).map((a) => [String(a.status).toLowerCase(), a.statusLabel]));
+    return filterStatussen(statusLijst(state.preferences), anns.map((a) => a?.status)).map((key) => ({
+      key, label: () => statusNaam(key, statusLijst(state.preferences), t, labels.get(key)),
+    }));
+  };
 
   // Edit-contour vertex actions — only shown when right-clicking a vertex/edge
   // handle of the annotation that's currently in edit-contour mode.
@@ -520,6 +530,11 @@ function AnnotationMenuContent() {
 
       <Show when={['textbox', 'callout'].includes(ann()?.type)}>
         <MenuItem label={t('annotation.editText')} disabled={isLocked()} onClick={() => startTextEditing(ann())} />
+        <MenuItem label={t('annotation.fitBoxToText')} disabled={isLocked()} onClick={() => {
+          const a = ann();
+          if (!a) return;
+          if (fitBoxToText([a]) && getActiveDocument()?.selectedAnnotation === a) showProperties(a);
+        }} />
         <Separator />
       </Show>
 
@@ -653,7 +668,7 @@ function AnnotationMenuContent() {
           updateAnnotationsList. Sleutels zijn kleine letters — zelfde
           afspraak als het paneelmenu (#236). */}
       <Submenu icon={statusIcon} label={t('annotation.showByStatus')}>
-        <For each={statusItems()}>
+        <For each={statusFilterItems()}>
           {(s) => (
             <MenuItem label={s.label()} checkbox={true} checked={!hiddenStatuses().has(s.key.toLowerCase())} onClick={() => {
               toggleHiddenStatus(s.key.toLowerCase());
@@ -890,6 +905,11 @@ function MultiAnnotationMenuContent() {
     return (getActiveDocument()?.selectedAnnotations || [])
       .filter(a => a?.type === 'wall' && !a.locked);
   };
+  // Kader passend maken (#1144): de tekstvakken en aanhaalvakken in de selectie.
+  const geselecteerdeTekstkaders = () => {
+    count(); position();
+    return tekstkadersInSelectie();
+  };
 
   return (
     <>
@@ -936,6 +956,11 @@ function MultiAnnotationMenuContent() {
       <Show when={count() >= 3}>
         <MenuItem label={t('multiSelect.distributeHorizontally')} onClick={() => { alignAnnotations('distribute-h'); redraw(); }} />
         <MenuItem label={t('multiSelect.distributeVertically')} onClick={() => { alignAnnotations('distribute-v'); redraw(); }} />
+      </Show>
+
+      <Show when={geselecteerdeTekstkaders().length >= 1}>
+        <Separator />
+        <MenuItem label={t('multiSelect.fitBoxesToText')} onClick={() => { fitBoxToText(); }} />
       </Show>
 
       <Show when={geselecteerdeWanden().length >= 2}>

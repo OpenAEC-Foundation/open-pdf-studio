@@ -6,9 +6,12 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { matchAnnotationSizes } from './size-matching.js';
 import { correctionKind } from './corrections/model.js';
 import { annotationBounds } from './spatial-index.js';
-import { applyMoveRigid } from './transforms.js';
+import { applyMoveRigid, recalcCalloutLeader } from './transforms.js';
 import { paginaMaat, weergaveRotatie } from '../pdf/weergave-ruimte.js';
 import { paginaUitlijnenInPaginaruimte } from './uitlijnen-pagina.js';
+import { heeftTekstkader, maakKadersPassend } from './kader-passend.js';
+import { isLayerLocked } from './annotatie-lagen.js';
+import { layoutTextboxForExport, isRTLText } from './rendering/shapes.js';
 
 // Uitlijn-referentie (arr-align-to dropdown, issue #313):
 //  - 'selection' (default): uitlijnen op de collectieve bounding box
@@ -378,3 +381,43 @@ function matchDimensions(opts) {
 export function sameSize() { matchDimensions({ width: true, height: true }); }
 export function sameWidth() { matchDimensions({ width: true }); }
 export function sameHeight() { matchDimensions({ height: true }); }
+
+// --- Kader passend maken (#1144) ---
+// De regel staat in kader-passend.js. Hier: de selectie, een ongedaan-stap
+// voor alles, en het meten met dezelfde lettertypeketen als het canvas en de
+// opgeslagen appearance (layoutTextboxForExport).
+
+/** De geselecteerde tekstvakken en aanhaalvakken die bewerkt mogen worden. */
+export function tekstkadersInSelectie(lijst = null) {
+  const doc = getActiveDocument();
+  if (!doc) return [];
+  let sel = Array.isArray(lijst) ? lijst : (Array.isArray(doc.selectedAnnotations) ? doc.selectedAnnotations : []);
+  if (!lijst && sel.length === 0 && doc.selectedAnnotation) sel = [doc.selectedAnnotation];
+  return sel.filter(a => heeftTekstkader(a) && !a.locked && !a.readOnly
+    && !isLayerLocked(doc, a) && correctionKind(a) === null);
+}
+
+/**
+ * Maakt het kader van elk geselecteerd tekstvak en aanhaalvak passend om zijn
+ * tekst. `lijst`: deze annotaties in plaats van de selectie (contextmenu).
+ * @returns {number} het aantal veranderde vakken
+ */
+export function fitBoxToText(lijst = null) {
+  // Tijdens het typen beheert de editor de maat van het vak.
+  if (state.isEditingText) return 0;
+  const kaders = tekstkadersInSelectie(Array.isArray(lijst) ? lijst : null);
+  if (kaders.length === 0) return 0;
+  const originelen = snapshotAll(kaders);
+  const gewijzigd = maakKadersPassend(kaders, {
+    measureVoor: (a) => layoutTextboxForExport(a).measure,
+    rtlVoor: (a) => isRTLText(a.text || ''),
+    herberekenAanhaallijn: recalcCalloutLeader,
+  });
+  if (gewijzigd.length === 0) return 0;
+  const now = new Date().toISOString();
+  for (const a of gewijzigd) a.modifiedAt = now;
+  // Alleen de veranderde vakken in de ongedaan-stap, in een keer.
+  recordBulkModify(gewijzigd, gewijzigd.map(a => originelen[kaders.indexOf(a)]));
+  redraw();
+  return gewijzigd.length;
+}

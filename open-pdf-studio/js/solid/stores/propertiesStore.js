@@ -64,6 +64,7 @@ import { heeftVulDekking, zetLijnDekking } from '../../annotations/vul-dekking.j
 import { isWisselbaarProfiel, profielTypen, wisselProfielType } from '../../symbols/profieltype.js';
 import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
+import { leesLengte } from '../../core/voet-inch.js';
 import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 import { setStatusWithHistory, statusHistory } from '../../review/status-history.js';
 import { isLabelVeld, zetLabelVooraf, labelVooraf } from '../../annotations/label-vooraf.js';
@@ -129,6 +130,7 @@ const [annotProps, setAnnotProps] = createStore({
   status: 'none',
   statusBy: '',
   statusAt: '',
+  statusLabel: '',
   statusHistory: [],
   color: '#000000',
   fillColor: null,
@@ -469,6 +471,7 @@ export function storeShowProperties(annotation) {
     altText: annotation.altText || '',
     status: annotation.status || 'none',
     statusBy: annotation.statusBy || '',
+    statusLabel: annotation.statusLabel || '',
     statusAt: annotation.statusAt ? formatDate(annotation.statusAt) : '',
     statusHistory: statusHistoryProps(annotation),
     ifcCategory: annotation.ifcCategory || '',
@@ -1138,7 +1141,7 @@ function _stampStatusMeta(ann, value) {
 function statusHistoryProps(ann) {
   const stappen = statusHistory(ann);
   if (stappen.length < 2) return [];
-  return stappen.map(s => ({ status: s.status, by: s.by, at: s.at ? formatDate(s.at) : '' }));
+  return stappen.map(s => ({ status: s.status, label: s.label || '', by: s.by, at: s.at ? formatDate(s.at) : '' }));
 }
 
 // Uitloop van de stavenreeks-aanhaallijn: 0 is geldig (lijn stopt op de
@@ -1789,6 +1792,7 @@ function applyAnnotProp(key, value) {
       _stampStatusMeta(currentAnnotation, value);
       setAnnotProps({
         statusBy: currentAnnotation.statusBy || '',
+        statusLabel: currentAnnotation.statusLabel || '',
         statusAt: currentAnnotation.statusAt ? formatDate(currentAnnotation.statusAt) : '',
         statusHistory: statusHistoryProps(currentAnnotation),
       });
@@ -2071,7 +2075,8 @@ function applyAnnotProp(key, value) {
     case 'scaleRegionHeight': {
       // Real-world size of the region itself (in its own scale + units) →
       // page-pixel bbox, top-left anchored.
-      const real = leesGetalBegin(value);
+      // Een getal in de eenheid van het gebied, of een voet-inchmaat (#1145).
+      const real = leesLengte(value, currentAnnotation.units || 'mm', { begin: true });
       if (!(real > 0)) break;
       // Elke positieve waarde mag (ook kleiner dan de schermpixel-grens bij
       // slepen: die duwt een al kleiner gebied niet omhoog); alleen technisch

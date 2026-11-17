@@ -585,6 +585,8 @@
     "size": "سائز",
     "sameSize": "ایک جیسا سائز",
     "sameWidth": "ایک جیسی چوڑائی",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "ایک جیسی اونچائی",
     "rotate": "گھمائیں",
     "rotate90CCW": "90° مخالف سمت گھمائیں",

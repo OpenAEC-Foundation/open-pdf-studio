@@ -585,6 +585,8 @@
     "size": "Dimensione",
     "sameSize": "Stessa dimensione",
     "sameWidth": "Stessa larghezza",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Stessa altezza",
     "rotate": "Ruota",
     "rotate90CCW": "Ruota 90° antiorario",

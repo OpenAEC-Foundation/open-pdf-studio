@@ -1,6 +1,6 @@
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { kaleLijst } from './kale-lijst.js';
-import { state, imageCache } from '../core/state.js';
+import { state, imageCache, getAnnotationBounds } from '../core/state.js';
 import { annotationCanvas, annotationCtx, textHighlightCanvas, textHighlightCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
@@ -69,6 +69,8 @@ import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-number
 import { labelHasNumericField } from './editable-numbers-providers.js';
 import { halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isAnnotationHiddenInView, isAnnotationHiddenInOutput } from './view-filters.js';
+import { tekenStatusBadges } from '../review/status-badge.js';
+import { statusLijst } from '../review/status-sets.js';
 import { kruisEindpuntenEllips } from './kruis-geometrie.js';
 import { klemMaat, symboolRasterPxPerPt } from './minimummaat.js';
 import {
@@ -523,6 +525,20 @@ function beeldUitImageData(annotation) {
 const KAAL_TEKENBAAR = new Set(['line', 'arrow', 'box', 'circle', 'polyline', 'polygon', 'highlight', 'draw']);
 
 /** What a draw loop passes to drawAnnotation for item `index` of the plain list. */
+// Statusbadges (#1076): een gekleurd vierkant op de hoek van elke markering
+// met een status, als de voorkeur aan staat. Alleen op het scherm en na de
+// markeringen getekend: het opgeslagen uiterlijk, een afdruk en een export
+// krijgen hem niet. Wat het weergavefilter verbergt, krijgt ook geen badge.
+function tekenStatusBadgesOpScherm(ctx, annotations, pageNum) {
+  if (!state.preferences?.showStatusBadges) return;
+  tekenStatusBadges(ctx, annotations, pageNum, {
+    lijst: statusLijst(state.preferences),
+    grenzen: getAnnotationBounds,
+    verborgen: isAnnotationHiddenInView,
+    dpr: window.devicePixelRatio || 1,
+  });
+}
+
 function tekenObject(annotations, kandidaat, index) {
   return KAAL_TEKENBAAR.has(kandidaat.type) ? kandidaat : annotations[index];
 }
@@ -3370,6 +3386,8 @@ export function redrawAnnotations(lightweight = false) {
     textHighlightCtx.globalCompositeOperation = 'source-over';
   }
 
+  tekenStatusBadgesOpScherm(annotationCtx, annotations, curPage);
+
   // Draw watermarks in front of content
   renderWatermarksInFront(annotationCtx, curPage, wmMaat.w, wmMaat.h);
 
@@ -3570,6 +3588,8 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
     }
     drawAnnotation(ctx, tekenObject(annotations, kandidaat, index), snippetBitmaps);
   }));
+
+  if (lagen.schermlijndikte && lagen.markeringen) tekenStatusBadgesOpScherm(ctx, annotations, pageNum);
 
   // Draw watermarks in front of content
   if (lagen.watermerken) renderWatermarksInFront(ctx, pageNum, wmW, wmH);

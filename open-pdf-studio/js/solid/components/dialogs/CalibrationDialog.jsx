@@ -10,7 +10,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { schaalUitKalibratie } from '../../../annotations/kalibratie-schaal.js';
 import { findScaleInText } from '../../../annotations/document-scale.js';
-import { leesLengte, isImperialeLengte } from '../../../core/voet-inch.js';
+import { leesLengte, isImperialeLengte, VOET_INCH_VOORBEELD } from '../../../core/voet-inch.js';
 import { geldigeUserUnit, userUnitVanPagina } from '../../../annotations/scale-region-scale.js';
 import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, scaleSelectOptions, scaleDisplayLabel } from '../../../annotations/scale-presets.js';
 import { schaalTekstVoorPpu } from '../../../annotations/schaalcontrole.js';
@@ -317,26 +317,19 @@ export default function CalibrationDialog(props) {
         </div>
         <div class="calibration-row">
           <label class="calibration-label">{t('calibration.knownDistance')}</label>
-          {/* In ft/in een gewoon tekstveld: 12'-6 3/8" heeft ' en " nodig (#996). */}
-          <Show when={isImperialeLengte(unit())} fallback={
-            <input
-              type="text" inputmode="decimal" data-getal
-              class="calibration-input"
-              min="0.001"
-              step="0.01"
-              value={distance()}
-              onInput={(e) => setDistance(e.target.value)}
-            />
-          }>
-            <input
-              type="text"
-              class="calibration-input"
-              placeholder={`12'-6 3/8"`}
-              title={t('calibration.feetInchHint')}
-              value={distance()}
-              onInput={(e) => setDistance(e.target.value)}
-            />
-          </Show>
+          {/* Een lengteveld: een getal in de gekozen eenheid, of een
+              voet-inchmaat (12'-6 3/8"), ook bij een metrische eenheid
+              (#996, #1145). De hint staat erbij als de eenheid imperiaal is. */}
+          <input
+            type="text" inputmode={isImperialeLengte(unit()) ? 'text' : 'decimal'} data-getal="lengte"
+            class="calibration-input"
+            min="0.001"
+            step="0.01"
+            placeholder={isImperialeLengte(unit()) ? VOET_INCH_VOORBEELD : undefined}
+            title={isImperialeLengte(unit()) ? t('calibration.feetInchHint') : undefined}
+            value={distance()}
+            onInput={(e) => setDistance(e.target.value)}
+          />
           <select
             class="calibration-select"
             value={unit()}

@@ -1,7 +1,13 @@
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
-import { goToPage } from './renderer.js';
+import { goToPage, setZoom } from './renderer.js';
 import { openExtern } from '../core/extern-openen.js';
-import { destTopOffsetPt, isSafeLinkUrl, parseDestinationArray } from './link-destination.js';
+import {
+  destDoelbeeld, isSafeLinkUrl, klemPaginaPlek, paginaPlekInVenster, parseDestinationArray, weergaveMaatVan,
+} from './link-destination.js';
+import { linkRandStijl } from './link-rand.js';
+import { weergaveRotatie } from './weergave-ruimte.js';
+import { cssPxPerPtAt100 } from '../core/zoom-display.js';
+import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import i18next from '../i18n/config.js';
 import { viewportRectangle } from './pdfjs-record.js';
 
@@ -179,6 +185,16 @@ function createLinkElement(ann, viewport, pageNum) {
   linkEl.style.pointerEvents = 'auto';
   linkEl.style.cursor = 'pointer';
 
+  // De rand zoals het bestand hem vraagt (/C met /Border of /BS, #1146). De
+  // paginarender tekent geen annotaties, dus zonder dit is een link van een
+  // ander programma onzichtbaar. Zonder zichtbare rand blijft de markering
+  // bij aanwijzen (text-layer.css) de enige aanduiding.
+  const rand = linkRandStijl(ann, viewport.scale || 1);
+  if (rand) {
+    linkEl.classList.add('pdf-link-rand');
+    Object.assign(linkEl.style, rand);
+  }
+
   // Determine link type and set up click handler.
   //
   // PDF.js normaliseert /A-acties: een /GoTo landt als `ann.dest`, een /URI
@@ -272,69 +288,113 @@ export async function handleInternalLink(dest) {
     // PDF.js uses 0-based index, our app uses 1-based page numbers
     const targetPage = pageIndex + 1;
 
-    // Verticale positie binnen de doelpagina bepalen VOOR de navigatie, zodat
-    // we na de render meteen kunnen scrollen.
-    let topOffsetPt = null;
+    // De doelpagina tonen; het beeld (zoom en plek) zet deze module daarna
+    // zelf. Zonder skipScroll loopt de vloeiende scroll van goToPage ná deze
+    // aanroep nog door en zou die de plek weer overschrijven.
+    await goToPage(targetPage, { skipScroll: true });
+    let getoond = false;
     try {
-      const targetPdfPage = await doc.pdfDoc.getPage(targetPage);
-      const baseViewport = targetPdfPage.getViewport({ scale: 1 });
-      const extraRotation = getPageRotation(targetPage) || 0;
-      // Bestemmingscoördinaten staan in ongeroteerde gebruikersruimte. Bij een
-      // gedraaide pagina of weergave (#200) laten we de pagina gewoon bovenaan
-      // beginnen in plaats van naar een verkeerde plek te springen.
-      if (extraRotation % 360 === 0 && (baseViewport.rotation || 0) % 360 === 0
-          && !(Number(doc.viewRotation) % 360)) {
-        topOffsetPt = destTopOffsetPt(destInfo, baseViewport.height);
-      }
-    } catch { /* paginahoogte onbekend: bovenaan de pagina beginnen */ }
-
-    // Bij een bestemming met een verticale positie doet deze module het
-    // scrollen zelf (zie goToPage-optie), anders wint de vloeiende scroll van
-    // goToPage die ná deze aanroep nog doorloopt.
-    const ownScroll = topOffsetPt !== null && topOffsetPt !== undefined;
-    await goToPage(targetPage, { skipScroll: ownScroll });
-    if (ownScroll) scrollToDestination(targetPage, topOffsetPt);
+      getoond = await toonDoelbeeld(doc, targetPage, destInfo);
+    } catch (e) {
+      console.warn('[link-layer] beeld van de bestemming niet gezet:', e);
+    }
+    // Een bestemming waarvan het beeld niet te lezen is: alleen de pagina.
+    if (!getoond) await goToPage(targetPage);
   } catch (e) {
     console.warn('Failed to navigate to internal link:', e);
   }
 }
 
 // Marge boven de bestemming, zodat de aangesprongen kop niet tegen de
-// bovenrand van het venster plakt.
+// bovenrand van het venster plakt. Niet bij een bestemming met een eigen
+// zoom: dat is een vastgelegd beeld, dat hoort precies zo terug te komen.
 const DEST_SCROLL_MARGIN_PX = 12;
 
+// Grenzen voor de zoom van een bestemming buiten de vector-viewport (die
+// begrenst zelf).
+const DEST_ZOOM_MIN = 0.05;
+const DEST_ZOOM_MAX = 64;
+
+/** De zoom bij 100%: zoals 'Werkelijke grootte' (renderer.js, actualSize). */
+function zoomBijHonderd() {
+  const kalibratie = kalibratieVoor(state.preferences?.screenCalibration, window.devicePixelRatio || 1);
+  return kalibratie != null ? werkelijkeGrootteZoom(kalibratie) : cssPxPerPtAt100(state.preferences?.zoomDpi);
+}
+
 /**
- * Scrollt naar de verticale positie van een bestemming binnen een pagina.
- * `topOffsetPt === null` betekent: gewoon de bovenkant van de pagina tonen —
- * dat heeft goToPage() al gedaan.
+ * Zet zoom en plek zoals de bestemming ze vraagt (#1146): elke vorm uit
+ * link-destination.js (destDoelbeeld), met de draaiing van de pagina, de
+ * paginarotatie en de weergaverotatie (#200), en een CropBox die niet op 0
+ * begint. De pagina staat al in beeld (goToPage). Geeft false als er geen
+ * beeld te zetten viel.
+ * @param {object} doc
  * @param {number} pageNum
- * @param {number|null} topOffsetPt Afstand vanaf de paginabovenkant in punten
+ * @param {ReturnType<typeof parseDestinationArray>} destInfo
  */
-function scrollToDestination(pageNum, topOffsetPt) {
-  if (topOffsetPt === null || topOffsetPt === undefined) return;
-  const doc = getActiveDocument();
-  if (!doc) return;
+async function toonDoelbeeld(doc, pageNum, destInfo) {
+  const pdfPage = await doc.pdfDoc.getPage(pageNum);
+  const rotatie = (pdfPage.rotate || 0) + (getPageRotation(pageNum) || 0) + weergaveRotatie(doc);
+  const pagina = { view: Array.from(pdfPage.view), rotatie };
+  const honderd = zoomBijHonderd();
 
-  const scroller = document.getElementById('pdf-container');
-  if (!scroller) return;
-
-  const scale = Number(doc.scale) || 1;
-  const offsetPx = topOffsetPt * scale;
-
-  if (doc.viewMode === 'continuous') {
-    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
-    if (!wrapper) return;
-    const wrapperTop = wrapper.getBoundingClientRect().top
-      - scroller.getBoundingClientRect().top
-      + scroller.scrollTop;
-    scroller.scrollTop = Math.max(0, wrapperTop + offsetPx - DEST_SCROLL_MARGIN_PX);
-    return;
+  // Vector-viewport (één pagina, bureaublad): zoom en verschuiving van de
+  // viewport zelf. Zelfde voorwaarde als setZoom() in renderer.js.
+  const vp = window.__pdfViewport;
+  if (vp && vp.active && doc.filePath) {
+    const m = await import('./pdf-viewport.js');
+    const { cssW, cssH } = m.viewportCanvasMaat();
+    const venster = { breedte: cssW, hoogte: cssH, honderd };
+    const beeld = destDoelbeeld(destInfo, pagina, venster);
+    if (!beeld) return false;
+    if (beeld.zoom) m.setZoomAtPoint(cssW / 2, cssH / 2, beeld.zoom);
+    const zoom = vp.zoom;
+    const maat = weergaveMaatVan(pagina.view, rotatie);
+    // De pagina blijft in het venster, zoals bij schuiven: een pagina die
+    // past, staat in het midden.
+    const plek = klemPaginaPlek(
+      paginaPlekInVenster(beeld, zoom, venster, beeld.zoom ? 0 : DEST_SCROLL_MARGIN_PX),
+      { breedte: maat.breedte * zoom, hoogte: maat.hoogte * zoom },
+      venster,
+    );
+    m.zetViewportStand({
+      zoom,
+      offsetX: plek.x ?? vp.offsetX,
+      offsetY: plek.y ?? vp.offsetY,
+      verankerd: true,
+    });
+    return true;
   }
 
-  // Enkelpagina: alleen zinvol wanneer de pagina hoger is dan het venster.
-  const maxScroll = scroller.scrollHeight - scroller.clientHeight;
-  if (maxScroll <= 0) return;
-  scroller.scrollTop = Math.min(maxScroll, Math.max(0, offsetPx - DEST_SCROLL_MARGIN_PX));
+  // Anders schuift #pdf-container over de pagina('s).
+  const scroller = document.getElementById('pdf-container');
+  if (!scroller || !(scroller.clientWidth > 0 && scroller.clientHeight > 0)) return false;
+  const venster = { breedte: scroller.clientWidth, hoogte: scroller.clientHeight, honderd };
+  const beeld = destDoelbeeld(destInfo, pagina, venster);
+  if (!beeld) return false;
+
+  if (beeld.zoom) {
+    const zoom = Math.min(DEST_ZOOM_MAX, Math.max(DEST_ZOOM_MIN, beeld.zoom));
+    if (Math.abs(zoom - (Number(doc.scale) || 0)) > 1e-6) await setZoom(zoom);
+  }
+
+  const paginaEl = doc.viewMode === 'continuous' || doc.facingSpread
+    ? (document.querySelector(`.page-wrapper[data-page="${pageNum}"] .canvas-container-cont`)
+      || document.querySelector(`.page-wrapper[data-page="${pageNum}"]`))
+    : document.getElementById('pdf-canvas');
+  if (!paginaEl) return false;
+  const r = paginaEl.getBoundingClientRect();
+  if (!(r.width > 0 && r.height > 0)) return false;
+  const c = scroller.getBoundingClientRect();
+  // De zoom zoals de pagina werkelijk op het scherm ligt.
+  const maat = weergaveMaatVan(pagina.view, rotatie);
+  const zoom = r.width / maat.breedte;
+  const plek = paginaPlekInVenster(beeld, zoom, venster, beeld.zoom ? 0 : DEST_SCROLL_MARGIN_PX);
+  // Waar de pagina nu ligt binnen de schuifbare inhoud.
+  const paginaLinks = r.left - c.left - scroller.clientLeft + scroller.scrollLeft;
+  const paginaBoven = r.top - c.top - scroller.clientTop + scroller.scrollTop;
+  if (plek.x !== null) scroller.scrollLeft = Math.max(0, paginaLinks - plek.x);
+  if (plek.y !== null) scroller.scrollTop = Math.max(0, paginaBoven - plek.y);
+  return true;
 }
 
 /**

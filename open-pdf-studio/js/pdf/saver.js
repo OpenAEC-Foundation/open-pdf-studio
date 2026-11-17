@@ -93,6 +93,7 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
 import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
 import { draaiPunt, draaiMidden, draaiCm } from './saver/vorm-draaiing.js';
 import { schrijfAlgemeneSleutels, antwoordAnnotaties, schrijfKoppelingen } from './saver/annotatie-algemeen.js';
+import { statusLijst } from '../review/status-sets.js';
 import { schrijfRuweSleutels } from './saver/ruwe-sleutels.js';
 import {
   planBronnen, zuivereVerschuiving, samenvoegen, bronNaOpslaan, veldVingerafdrukken, bewaarBronSleutels, houdSoort,
@@ -3440,7 +3441,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           if (houdAntwoorden) meeGeschreven.antwoorden.push(...houdAntwoorden.map((r) => context.lookup(r)));
           for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm, {
             zonderStatus: !!houdStatus, zonderAntwoorden: !!houdAntwoorden,
-            eigenStatussen: state.preferences?.markupStatuses,
+            eigenStatussen: statusLijst(state.preferences),
           })) {
             annotsArray.push(context.register(antwoord));
             const eigen = antwoord.get(PDFName.of('OPS_Subtype'))?.decodeText?.() === 'reply';

@@ -171,6 +171,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"arr-dist-middle","tab":"arrange","labelKey":"ribbon:arrange.middle"},
   {"id":"arr-dist-right","tab":"arrange","labelKey":"ribbon:arrange.right"},
   {"id":"arr-dist-bottom","tab":"arrange","labelKey":"ribbon:arrange.bottom"},
+  {"id":"arr-fit-text-box","tab":"arrange","labelKey":"ribbon:arrange.fitBoxToText"},
   {"id":"ribbon-extensions","tab":"help","labelKey":"ribbon:help.extensions"},
   {"id":"ribbon-file-assoc","tab":"help","labelKey":"ribbon:help.fileAssociations"},
   {"id":"ribbon-shortcuts","tab":"help","labelKey":"ribbon:help.shortcuts"},

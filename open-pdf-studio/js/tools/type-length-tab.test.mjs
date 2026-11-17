@@ -74,3 +74,56 @@ test('Tab doet niets bij relatieve of absolute invoer', () => {
   assert.equal(til.typeLengthBuffer(), '10,5');
   til.exitTypeLengthMode();
 });
+
+// ── Voet, inch en breuken in de directe invoer (#1145) ─────────────────────
+
+test('typed feet and inches are taken key by key and converted to the scale unit', () => {
+  const k = pxPerUnit();
+  assert.equal(til.typeLengthUnit(), 'mm', 'without a scale the unit is mm');
+  til.enterTypeLengthMode(0, 0);
+  typ(`1'-6 1/2"`);
+  assert.equal(til.typeLengthBuffer(), `1'-6 1/2"`);
+  assert.equal(til.typeLengthFormat(), 'length');
+  // 18,5 inch = 469,9 mm, ook al is de eenheid van de schaal metrisch.
+  const p = til.applyToEndpoint(0, 0, 1, 0);
+  assert.ok(p.constrained);
+  assert.ok(Math.abs(p.x - 469.9 * k) < 1e-9);
+  const r = til.consumeKey('Enter');
+  assert.equal(r.committed, true);
+  assert.ok(Math.abs(r.length - 469.9) < 1e-9);
+  til.exitTypeLengthMode();
+});
+
+test('a half-typed feet-inch length is invalid and Enter does not commit it', () => {
+  til.enterTypeLengthMode(0, 0);
+  typ(`6 3/`);
+  assert.equal(til.typeLengthFormat(), 'invalid');
+  assert.equal(til.consumeKey('Enter').handled, false);
+  typ(`8"`);
+  assert.equal(til.typeLengthFormat(), 'length');
+  // Backspace haalt het inchteken weer weg: een breuk zonder teken raadt de app niet.
+  til.consumeKey('Backspace');
+  assert.equal(til.typeLengthFormat(), 'invalid');
+  til.exitTypeLengthMode();
+});
+
+test('feet and inches per field: relative, polar distance, never the angle', () => {
+  til.enterTypeLengthMode(0, 0);
+  typ(`1',-6"`);
+  assert.equal(til.typeLengthBuffer(), `1',-6"`);
+  assert.equal(til.typeLengthFormat(), 'cartesian');
+  til.clearTypeLengthBuffer();
+  typ(`2'<45'`);
+  assert.equal(til.typeLengthBuffer(), `2'<45`, 'no feet mark in the angle');
+  assert.equal(til.typeLengthFormat(), 'polar');
+  // Tab naar de afstand: daar mag het inchdeel erbij.
+  til.cycleTypeLengthField();
+  typ(` 6"`);
+  assert.equal(til.typeLengthBuffer(), `2' 6"<45`);
+  assert.equal(til.typeLengthFormat(), 'polar');
+  til.clearTypeLengthBuffer();
+  // Een spatie of een teken zonder getal ervoor doet niets.
+  assert.equal(til.consumeKey(' ').handled, false);
+  assert.equal(til.consumeKey("'").handled, false);
+  til.exitTypeLengthMode();
+});

@@ -585,6 +585,8 @@
     "size": "அளவு",
     "sameSize": "ஒரே அளவு",
     "sameWidth": "ஒரே அகலம்",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "ஒரே உயரம்",
     "rotate": "சுழற்று",
     "rotate90CCW": "90° எதிர்கடிகாரச் சுழற்று",

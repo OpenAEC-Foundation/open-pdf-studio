@@ -585,6 +585,8 @@
     "size": "Velikost",
     "sameSize": "Stejná velikost",
     "sameWidth": "Stejná šířka",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Stejná výška",
     "rotate": "Otočit",
     "rotate90CCW": "Otočit o 90° vlevo",

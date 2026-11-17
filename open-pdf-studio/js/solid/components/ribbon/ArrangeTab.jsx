@@ -13,13 +13,13 @@ import {
   distributeSpaceH, distributeSpaceV, distributeLeft, distributeCenter,
   distributeRight, distributeTop, distributeMiddle, distributeBottom,
   sameSize, sameWidth, sameHeight, alignTarget, setAlignTarget,
-  alignPageEach, setAlignPageEach
+  alignPageEach, setAlignPageEach, fitBoxToText
 } from '../../../annotations/alignment.js';
 import {
   alignLeftIcon, alignCenterIcon, alignRightIcon, alignTopIcon, alignMiddleIcon, alignBottomIcon,
   distSpaceHIcon, distSpaceVIcon, distLeftIcon, distTopIcon, distCenterIcon, distMiddleIcon, distRightIcon, distBottomIcon,
   bringForwardIcon, bringToFrontIcon, sendBackwardIcon, sendToBackIcon,
-  sameSize16Icon, rotateCcwIcon, rotateCwIcon, rotate180Icon, flipHIcon, flipVIcon
+  sameSize16Icon, fitTextBoxIcon, rotateCcwIcon, rotateCwIcon, rotate180Icon, flipHIcon, flipVIcon
 } from '../../data/ribbonIcons.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { volgPopup } from './ribbon-popup.js';
@@ -144,6 +144,9 @@ export default function ArrangeTab() {
             <button class="ribbon-row-btn" id="arr-same-width" title={t('arrange.sameWidth')} disabled={isPdfAReadOnly()} onClick={sameWidth}><span>{t('arrange.sameWidth')}</span></button>
             <button class="ribbon-row-btn" id="arr-same-height" title={t('arrange.sameHeight')} disabled={isPdfAReadOnly()} onClick={sameHeight}><span>{t('arrange.sameHeight')}</span></button>
           </div>
+          {/* Kader passend maken (#1144): tekstvakken en aanhaalvakken in de selectie. */}
+          <RibbonButton id="arr-fit-text-box" title={t('arrange.fitBoxToTextTip')} icon={fitTextBoxIcon} label={t('arrange.fitBoxToText')}
+            disabled={isPdfAReadOnly()} onClick={() => { fitBoxToText(); }} />
         </RibbonGroup>
 
         <RibbonGroup label={t('arrange.rotate')}>

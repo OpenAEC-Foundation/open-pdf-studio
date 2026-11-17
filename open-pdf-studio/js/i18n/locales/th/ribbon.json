@@ -585,6 +585,8 @@
     "size": "ขนาด",
     "sameSize": "ขนาดเท่ากัน",
     "sameWidth": "ความกว้างเท่ากัน",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "ความสูงเท่ากัน",
     "rotate": "หมุน",
     "rotate90CCW": "หมุน 90° ทวนเข็ม",

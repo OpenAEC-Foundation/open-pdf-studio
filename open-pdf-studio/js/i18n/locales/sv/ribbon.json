@@ -585,6 +585,8 @@
     "size": "Storlek",
     "sameSize": "Samma storlek",
     "sameWidth": "Samma bredd",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Samma höjd",
     "rotate": "Rotera",
     "rotate90CCW": "Rotera 90° moturs",

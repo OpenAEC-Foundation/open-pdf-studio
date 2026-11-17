@@ -585,6 +585,8 @@
     "size": "Mida",
     "sameSize": "Mateixa mida",
     "sameWidth": "Mateixa amplada",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Mateixa alçada",
     "rotate": "Gira",
     "rotate90CCW": "Gira 90° en sentit antihorari",

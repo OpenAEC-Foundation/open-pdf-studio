@@ -139,6 +139,7 @@ js/pdf/continuous-rerender-gate.test.mjs
 js/pdf/continuous-render-scale.test.mjs
 js/pdf/link-destination.test.mjs
 js/pdf/link-rondgang.test.mjs
+js/pdf/link-doelbeeld.test.mjs
 js/annotations/link/link-model.test.mjs
 js/annotations/link/link-maken.test.mjs
 js/annotations/link/link-i18n.test.mjs
@@ -186,6 +187,7 @@ js/annotations/kruis-geometrie.test.mjs
 js/pdf/loader/gedraaide-vorm-maat.test.mjs
 js/pdf/loader/geen-rand.test.mjs
 js/tools/grip-lengte.test.mjs
+js/tools/voet-inch-toets.test.mjs
 js/tools/select-doorval.test.mjs
 js/pdf/handtekeningen/i18n-sleutels.test.mjs
 js/pdf/handtekeningen/weergave.test.mjs
@@ -766,6 +768,7 @@ js/solid/stores/countStore.test.mjs
 js/pdf/saver/telling.test.mjs
 js/annotations/plak-bij-muis.test.mjs
 js/annotations/klembord-lijst.test.mjs
+js/annotations/kader-passend.test.mjs
 js/annotations/uitlijnen-pagina.test.mjs
 js/solid/components/properties-panel/sectie-volgorde.test.mjs
 js/tools/verwijder-toets.test.mjs
@@ -837,6 +840,8 @@ js/quantities/takeoff-tags-wiring.test.mjs
 js/review/status-history.test.mjs
 js/review/status-sets.test.mjs
 js/review/status-history-rondgang.test.mjs
+js/review/status-lijst-filter.test.mjs
+js/review/status-badge.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
 js/pdf/raster-scan-rust.test.mjs

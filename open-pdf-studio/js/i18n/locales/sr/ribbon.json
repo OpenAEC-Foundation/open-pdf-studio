@@ -585,6 +585,8 @@
     "size": "Величина",
     "sameSize": "Иста величина",
     "sameWidth": "Иста ширина",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "Иста висина",
     "rotate": "Ротирај",
     "rotate90CCW": "Ротирај 90° супротно",

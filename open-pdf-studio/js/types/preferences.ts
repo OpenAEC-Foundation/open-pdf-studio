@@ -309,6 +309,12 @@ export interface Preferences {
   recoveryPostponed: string[];
   /** Eigen reviewstatussen van markeringen (#1076). */
   markupStatuses: Array<{ name: string; color: string; closed?: boolean }>;
+  /** Statussets met een naam (#1076, review/status-sets.js). */
+  markupStatusSets: Array<{ name: string; statuses: Array<{ name: string; color: string; closed?: boolean }> }>;
+  /** De naam van de actieve statusset; leeg = alleen de vaste statussen. */
+  activeMarkupStatusSet: string;
+  /** Toon de status als gekleurde badge op de markering (#1076). */
+  showStatusBadges: boolean;
   disabledSymbolGroups: string[];
   parametricSymbolDefaults: Record<string, Record<string, string | number | boolean>>;
 

@@ -585,6 +585,8 @@
     "size": "اندازه",
     "sameSize": "اندازه یکسان",
     "sameWidth": "عرض یکسان",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "ارتفاع یکسان",
     "rotate": "چرخش",
     "rotate90CCW": "چرخش 90° پادساعتگرد",

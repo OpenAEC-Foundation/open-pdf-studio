@@ -585,6 +585,8 @@
     "size": "大小",
     "sameSize": "相同大小",
     "sameWidth": "相同宽度",
+    "fitBoxToText": "Fit Box to Text",
+    "fitBoxToTextTip": "Resize the box of the selected text boxes and callouts to fit their text",
     "sameHeight": "相同高度",
     "rotate": "旋转",
     "rotate90CCW": "逆时针旋转 90°",
