@@ -143,6 +143,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-save-print-ui-browser.mjs
 
+      - name: Test reverse font substitutions and save roundtrip (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-fontkit-reverse-browser.mjs
+
       - name: Test Windows user updater configuration
         run: node --test scripts/windows-user-update.test.mjs
 

@@ -1,3 +1,4 @@
+import { fontkitReverseSubstitution } from './scripts/fontkit-reverse-substitution.mjs';
 import { pdfLibXRefBounds } from './scripts/pdf-lib-xref-bounds.mjs';
 import { pdfLibInternPools } from './scripts/pdf-lib-intern-pools.mjs';
 import { defineConfig } from 'vite';
@@ -28,7 +29,7 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 // scripts/werkplek-mcp-tools.mjs).
 export default defineConfig(({ mode }) => ({
   css: { postcss: { plugins: [uiScaleCss()] } },
-  plugins: [pdfLibXRefBounds(), pdfLibInternPools(), solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsPostscriptProgress(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin(), werkplekMcpToolsPlugin()],
+  plugins: [fontkitReverseSubstitution(), pdfLibXRefBounds(), pdfLibInternPools(), solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsPostscriptProgress(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin(), werkplekMcpToolsPlugin()],
   resolve: {
     alias: [
       // PDF.js 6's modern build calls Map.prototype.getOrInsertComputed and
