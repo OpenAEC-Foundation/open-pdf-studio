@@ -910,3 +910,4 @@ scripts/fontkit-reverse-substitution.test.mjs
 scripts/download-stats.test.mjs
 scripts/deploy-uitcheck.test.mjs
 js/solid/components/properties-panel/geen-vaste-nl-labels.test.mjs
+js/solid/components/left-panel/panels/paneel-schuift.test.mjs
