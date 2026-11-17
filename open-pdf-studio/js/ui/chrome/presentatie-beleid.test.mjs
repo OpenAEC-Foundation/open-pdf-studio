@@ -47,7 +47,7 @@ test('typing is recognised by the focused element', () => {
 });
 
 test('full screen switches the presentation view on and off with the real window state', () => {
-  const bron = fs.readFileSync(new URL('./fullscreen.js', import.meta.url), 'utf8');
+  const bron = fs.readFileSync(new URL('./fullscreen.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   assert.match(bron, /zetPresentatie\(/);
   // Every place that records the window state goes through one function.
   const rest = bron.replace(/function zetStand[\s\S]*?\n}\n/, '');

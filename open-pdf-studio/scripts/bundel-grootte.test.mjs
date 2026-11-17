@@ -31,8 +31,10 @@ const DIST = path.join(app, 'dist');
 // afbreekpunten voor lintlabels, startgereedschap); de presentatieweergave
 // laadt pas bij gebruik. Sinds 9-11 is de bundel 100 KiB gegroeid: wat
 // niet bij de start nodig is, hoort in een eigen chunk.
-export const BUDGET_KB = 4175;
-export const BUDGET_GZIP_KB = 1340;
+// 17-11-2026, rondes 13 tot en met 15 samen: desktop 4116 KiB, gehost 4133 KiB
+// (het eigen vectorpad is eruit, #1122).
+export const BUDGET_KB = 4150;
+export const BUDGET_GZIP_KB = 1350; // gehost 1345 KiB op 17-11-2026
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {
