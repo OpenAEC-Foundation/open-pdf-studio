@@ -186,6 +186,7 @@ js/annotations/kruis-geometrie.test.mjs
 js/pdf/loader/gedraaide-vorm-maat.test.mjs
 js/pdf/loader/geen-rand.test.mjs
 js/tools/grip-lengte.test.mjs
+js/tools/voet-inch-toets.test.mjs
 js/tools/select-doorval.test.mjs
 js/pdf/handtekeningen/i18n-sleutels.test.mjs
 js/pdf/handtekeningen/weergave.test.mjs

@@ -14,7 +14,7 @@ import {
 } from '../../../annotations/schaalcontrole.js';
 import { legControleVast, drempelsUitVoorkeuren, bronLabel } from '../../../annotations/schaalcontrole-app.js';
 import { scaleDisplayLabel } from '../../../annotations/scale-presets.js';
-import { leesLengte, leesVoetInch, isImperialeLengte, toontVoetInch, formatVoetInch } from '../../../core/voet-inch.js';
+import { leesLengte, leesVoetInch, isImperialeLengte, toontVoetInch, formatVoetInch, VOET_INCH_VOORBEELD } from '../../../core/voet-inch.js';
 
 const EENHEDEN = ['mm', 'cm', 'm', 'in', 'ft'];
 
@@ -241,23 +241,15 @@ export default function ScaleCheckDialog(props) {
 
         <div class="calibration-row">
           <label class="calibration-label">{t('scaleCheck.knownLength')}</label>
-          <Show when={isImperialeLengte(gekozenEenheid())} fallback={
-            <input
-              type="text" inputmode="decimal" data-getal
-              class="calibration-input"
-              value={bekendTekst()}
-              onInput={(e) => setBekendTekst(e.target.value)}
-            />
-          }>
-            <input
-              type="text"
-              class="calibration-input"
-              placeholder={`12'-6 3/8"`}
-              title={t('calibration.feetInchHint')}
-              value={bekendTekst()}
-              onInput={(e) => setBekendTekst(e.target.value)}
-            />
-          </Show>
+          {/* Lengteveld: een getal of een voet-inchmaat, bij elke eenheid (#1145). */}
+          <input
+            type="text" inputmode={isImperialeLengte(gekozenEenheid()) ? 'text' : 'decimal'} data-getal="lengte"
+            class="calibration-input"
+            placeholder={isImperialeLengte(gekozenEenheid()) ? VOET_INCH_VOORBEELD : undefined}
+            title={isImperialeLengte(gekozenEenheid()) ? t('calibration.feetInchHint') : undefined}
+            value={bekendTekst()}
+            onInput={(e) => setBekendTekst(e.target.value)}
+          />
           <select class="calibration-select" value={gekozenEenheid()} onChange={(e) => setEenheid(e.target.value)}>
             <For each={EENHEDEN}>{(u) => <option value={u}>{u}</option>}</For>
           </select>

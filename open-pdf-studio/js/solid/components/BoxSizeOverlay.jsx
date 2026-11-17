@@ -6,7 +6,8 @@ import { useTranslation, language } from '../../i18n/useTranslation.js';
 import { klemMaat } from '../../annotations/minimummaat.js';
 import { beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
 import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
-import { leesGetalBegin, toonGetal } from '../../core/getal-invoer.js';
+import { toonGetal } from '../../core/getal-invoer.js';
+import { leesLengte, isImperialeLengte } from '../../core/voet-inch.js';
 
 // Floating width/height "dimensions" for a selected shape — two small
 // editable fields floating next to the selection. Values are in measured
@@ -22,6 +23,7 @@ const MAAT_VORMEN = new Set(['box', 'circle', 'polygon']);
 
 export default function BoxSizeOverlay() {
   const { t } = useTranslation('statusbar');
+  const { t: tDialogs } = useTranslation('dialogs');
   const [pos, setPos] = createSignal(null); // { x, y } screen px
   const [wVal, setWVal] = createSignal('');
   const [hVal, setHVal] = createSignal('');
@@ -91,9 +93,11 @@ export default function BoxSizeOverlay() {
   function commit(which, raw) {
     const ann = selectedBox();
     if (!ann || ann.locked) { setWDirty(false); setHDirty(false); return; }
-    const v = leesGetalBegin(raw);
+    const { ppu: k, unit: eenheid } = ppu(ann);
+    // Een getal in de eenheid van de schaal, of een voet-inchmaat
+    // (12'-6 3/8", 6"; #1145) die naar die eenheid wordt omgerekend.
+    const v = leesLengte(raw, eenheid, { begin: true });
     if (!isFinite(v) || v <= 0) { refreshValues(); return; }
-    const { ppu: k } = ppu(ann);
     // Elke positieve waarde mag; alleen de technische ondergrens geldt.
     const px = klemMaat(v * k);
     if (ann.type === 'box') {
@@ -160,7 +164,11 @@ export default function BoxSizeOverlay() {
     background: 'var(--theme-bg, #fff)',
     color: 'var(--theme-text, #000)',
   };
-  const hint = t('boxSizeHint', 'Type a value + Enter — or click away to apply');
+  // Bij een imperiale schaal staat erbij dat voet en inch ook mogen.
+  const hint = () => {
+    const basis = t('boxSizeHint', 'Type a value + Enter — or click away to apply');
+    return isImperialeLengte(unit()) ? `${basis}\n${tDialogs('calibration.feetInchHint')}` : basis;
+  };
 
   return (
     <Show when={selectedBox() && pos()}>
@@ -180,7 +188,7 @@ export default function BoxSizeOverlay() {
       }}>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
           <span style={{ width: '14px', 'font-weight': 600 }}>{t('boxWidthAbbr')}</span>
-          <input style={inputStyle} value={wVal()} title={hint}
+          <input style={inputStyle} value={wVal()} title={hint()}
             onFocus={onDimFocus} onMouseUp={onDimMouseUp}
             onInput={(e) => { setWVal(e.target.value); setWDirty(true); }}
             onKeyDown={(e) => {
@@ -193,7 +201,7 @@ export default function BoxSizeOverlay() {
         </div>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
           <span style={{ width: '14px', 'font-weight': 600 }}>{t('boxHeightAbbr')}</span>
-          <input style={inputStyle} value={hVal()} title={hint}
+          <input style={inputStyle} value={hVal()} title={hint()}
             onFocus={onDimFocus} onMouseUp={onDimMouseUp}
             onInput={(e) => { setHVal(e.target.value); setHDirty(true); }}
             onKeyDown={(e) => {

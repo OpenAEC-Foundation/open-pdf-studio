@@ -56,11 +56,12 @@ function _dimEindpunt(ctx) {
   const ax = _dim.startX;
   const ay = _dim.startY;
   const page = getActiveDocument()?.currentPage || 1;
-  const ppu = getMeasureScale(page, ax, ay).pixelsPerUnit || 1;
+  const schaal = getMeasureScale(page, ax, ay);
+  const ppu = schaal.pixelsPerUnit || 1;
   // Eén getal = vierkant / diameter in het kwadrant van de cursor; de rest
   // volgt de regel van de lijn-tool (coord-invoer.js, maatVormEindpunt).
   const c = (ctx && Number.isFinite(ctx.x) && Number.isFinite(ctx.y)) ? ctx : (_dim.cursor || { x: ax, y: ay });
-  return maatVormEindpunt(parseCoordBuffer(buf), ax, ay, c.x, c.y, ppu);
+  return maatVormEindpunt(parseCoordBuffer(buf, schaal.unit), ax, ay, c.x, c.y, ppu);
 }
 
 /** Start de maatinvoer na een klik-zonder-sleep. */

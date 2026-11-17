@@ -239,7 +239,12 @@ export const stretchTool = {
  * geweigerd met een hint.
  */
 function _commitVerschuiving() {
-  const r = parseCoordBuffer(typeLengthBuffer());
+  // De eenheid ter plaatse: dan mag een afstand ook een voet-inchmaat zijn (#1145).
+  const schaal = (_s.doelen && _s.ruit)
+    ? getMeasureScale(_s.doelen[0].ann.page ?? getActiveDocument()?.currentPage ?? 1,
+      (_s.ruit.x1 + _s.ruit.x2) / 2, (_s.ruit.y1 + _s.ruit.y2) / 2)
+    : null;
+  const r = parseCoordBuffer(typeLengthBuffer(), schaal?.unit);
   let dx = null, dy = null;
   if (r.kind === 'cartesian' && r.a != null && r.b != null) {
     dx = r.a; dy = r.b;

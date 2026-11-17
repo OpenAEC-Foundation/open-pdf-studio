@@ -64,6 +64,7 @@ import { heeftVulDekking, zetLijnDekking } from '../../annotations/vul-dekking.j
 import { isWisselbaarProfiel, profielTypen, wisselProfielType } from '../../symbols/profieltype.js';
 import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
+import { leesLengte } from '../../core/voet-inch.js';
 import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 import { setStatusWithHistory, statusHistory } from '../../review/status-history.js';
 import { isLabelVeld, zetLabelVooraf, labelVooraf } from '../../annotations/label-vooraf.js';
@@ -2071,7 +2072,8 @@ function applyAnnotProp(key, value) {
     case 'scaleRegionHeight': {
       // Real-world size of the region itself (in its own scale + units) →
       // page-pixel bbox, top-left anchored.
-      const real = leesGetalBegin(value);
+      // Een getal in de eenheid van het gebied, of een voet-inchmaat (#1145).
+      const real = leesLengte(value, currentAnnotation.units || 'mm', { begin: true });
       if (!(real > 0)) break;
       // Elke positieve waarde mag (ook kleiner dan de schermpixel-grens bij
       // slepen: die duwt een al kleiner gebied niet omhoog); alleen technisch

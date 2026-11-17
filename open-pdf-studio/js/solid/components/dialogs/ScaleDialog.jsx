@@ -4,6 +4,7 @@ import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { setScaleFromLine } from '../../../annotations/measurement.js';
 import { leesGetalMetEenheid } from '../../../core/getal-invoer.js';
+import { leesVoetInchMaat, lijktOpVoetInch, isImperialeLengte } from '../../../core/voet-inch.js';
 
 const UNIT_ALIASES = {
   mm: 'mm', millimeter: 'mm', millimeters: 'mm', millimetre: 'mm', millimetres: 'mm',
@@ -21,9 +22,21 @@ function parseValueAndUnit(input, fallbackUnit) {
   const trimmed = (input || '').trim();
   if (!trimmed) return null;
 
+  // Voet en inch samen: 12'-6 3/8", 6 3/8", 12' 6" (#1145). De maat draagt
+  // haar eigen eenheid: voet als er een voetdeel staat, anders inch. Wat op
+  // voet-inch lijkt maar het niet is, wordt geweigerd in plaats van geraden.
+  if (lijktOpVoetInch(trimmed)) {
+    const maat = leesVoetInchMaat(trimmed);
+    return maat && maat.waarde > 0 ? { value: maat.waarde, unit: maat.eenheid } : null;
+  }
+
   // Komma en punt zijn allebei een decimaalteken: "2,5 m" = "2.5 m".
   const match = leesGetalMetEenheid(trimmed);
-  if (!match) return null;
+  if (!match) {
+    // "12 ft 6 in" is ook een voet-inchmaat.
+    const maat = leesVoetInchMaat(trimmed);
+    return maat && maat.waarde > 0 ? { value: maat.waarde, unit: maat.eenheid } : null;
+  }
 
   const value = match.waarde;
   if (!value || value <= 0 || !isFinite(value)) return null;
@@ -105,6 +118,7 @@ export default function ScaleDialog(props) {
           type="text"
           class="scale-input"
           placeholder={t('scale.placeholder')}
+          title={isImperialeLengte(currentUnit()) ? t('calibration.feetInchHint') : undefined}
           value={input()}
           onInput={(e) => { setInput(e.target.value); setError(''); }}
           onKeyDown={onKeyDown}
