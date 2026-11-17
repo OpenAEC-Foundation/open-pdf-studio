@@ -1502,9 +1502,22 @@ async function _buildCreateProps(type, page, props) {
       if (!_validPoints(p.points, 2)) {
         return { error: "type 'measurePerimeter' requires props.points: [{x,y}, ...] (>= 2)" };
       }
+      if (p.closed !== undefined && typeof p.closed !== 'boolean') {
+        return { error: "props.closed must be a boolean for measurePerimeter" };
+      }
+      if (p.closed === true && p.points.length < 3) {
+        return { error: "closed measurePerimeter requires at least 3 points" };
+      }
+      // Use the existing explicit closing vertex so measuring, rendering,
+      // editing and PDF round-trips all see the same polyline geometry.
+      const points = p.points.map(pt => ({ ...pt }));
+      const first = points[0], last = points.at(-1);
+      if (p.closed === true && (first.x !== last.x || first.y !== last.y)) {
+        points.push({ ...first });
+      }
       return { base: {
         type, page,
-        points: p.points.map(pt => ({ ...pt })),
+        points,
         color: prefs.measurePerimStrokeColor || '#ff0000',
         strokeColor: prefs.measurePerimStrokeColor || '#ff0000',
         lineWidth: prefs.measurePerimLineWidth || 1,
@@ -1513,7 +1526,7 @@ async function _buildCreateProps(type, page, props) {
         startHead: prefs.measurePerimStartHead || 'none',
         endHead: prefs.measurePerimEndHead || 'none',
         headSize: prefs.measurePerimHeadSize || 12,
-      }, measure: true };
+      }, measure: true, vasteGeometrie: ['points', 'closed'] };
     }
 
     case 'scaleRegion': {
