@@ -114,6 +114,8 @@
     "nestUnderNew": "Yeni yer iminin altına yerleştir...",
     "indent": "Girintiyi artır",
     "outdent": "Girintiyi azalt",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} yer imini sil"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Seçimin Üstünü Çiz",
     "underlineSelection": "Seçimin Altını Çiz",
     "curvedLeaderSelection": "Eğri Açıklama Balonu Ekle",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

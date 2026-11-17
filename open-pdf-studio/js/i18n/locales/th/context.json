@@ -114,6 +114,8 @@
     "nestUnderNew": "ซ้อนไว้ใต้บุ๊กมาร์กใหม่...",
     "indent": "เพิ่มการเยื้อง",
     "outdent": "ลดการเยื้อง",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "ลบบุ๊กมาร์ก {{count}} รายการ"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "ขีดฆ่าข้อความที่เลือก",
     "underlineSelection": "ขีดเส้นใต้ข้อความที่เลือก",
     "curvedLeaderSelection": "เพิ่มคำบรรยายเส้นโค้ง",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

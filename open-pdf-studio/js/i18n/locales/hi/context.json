@@ -114,6 +114,8 @@
     "nestUnderNew": "नए बुकमार्क के अंतर्गत रखें...",
     "indent": "इंडेंट बढ़ाएँ",
     "outdent": "इंडेंट घटाएँ",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} बुकमार्क हटाएँ"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "चयन स्ट्राइकथ्रू करें",
     "underlineSelection": "चयन रेखांकित करें",
     "curvedLeaderSelection": "घुमावदार कॉलआउट जोड़ें",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

@@ -114,6 +114,8 @@
     "nestUnderNew": "Zagnieźdź pod nową zakładką...",
     "indent": "Zwiększ wcięcie",
     "outdent": "Zmniejsz wcięcie",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Usuń zakładki ({{count}})"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Przekreśl zaznaczenie",
     "underlineSelection": "Podkreśl zaznaczenie",
     "curvedLeaderSelection": "Dodaj zakrzywione objaśnienie",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

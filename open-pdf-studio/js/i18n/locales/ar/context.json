@@ -114,6 +114,8 @@
     "nestUnderNew": "تضمين تحت إشارة مرجعية جديدة...",
     "indent": "زيادة المسافة البادئة",
     "outdent": "إنقاص المسافة البادئة",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "حذف {{count}} إشارات مرجعية"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "يتوسطه خط للتحديد",
     "underlineSelection": "تسطير التحديد",
     "curvedLeaderSelection": "إضافة وسيلة شرح منحنية",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

@@ -114,6 +114,8 @@
     "nestUnderNew": "Placera under nytt bokmärke...",
     "indent": "Öka indrag",
     "outdent": "Minska indrag",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Ta bort {{count}} bokmärken"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Genomstrykning av markering",
     "underlineSelection": "Understrykning av markering",
     "curvedLeaderSelection": "Lägg till böjd callout",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

@@ -114,6 +114,8 @@
     "nestUnderNew": "Imbriquer sous un nouveau signet...",
     "indent": "Augmenter le retrait",
     "outdent": "Diminuer le retrait",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Supprimer {{count}} signets"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Barrer la sélection",
     "underlineSelection": "Souligner la sélection",
     "curvedLeaderSelection": "Ajouter une légende courbée",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

@@ -114,6 +114,8 @@
     "nestUnderNew": "নতুন বুকমার্কের অধীনে রাখুন...",
     "indent": "ইনডেন্ট বাড়ান",
     "outdent": "ইনডেন্ট কমান",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}}টি বুকমার্ক মুছুন"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "নির্বাচন স্ট্রাইকথ্রু করুন",
     "underlineSelection": "নির্বাচন আন্ডারলাইন করুন",
     "curvedLeaderSelection": "বাঁকা কলআউট যোগ করুন",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

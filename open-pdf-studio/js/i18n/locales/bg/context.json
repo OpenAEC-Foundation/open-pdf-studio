@@ -114,6 +114,8 @@
     "nestUnderNew": "Влагане под нова отметка...",
     "indent": "Увеличаване на отстъпа",
     "outdent": "Намаляване на отстъпа",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Изтриване на {{count}} отметки"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Зачеркване на избраното",
     "underlineSelection": "Подчертаване на избраното",
     "curvedLeaderSelection": "Добавяне на извита износка",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

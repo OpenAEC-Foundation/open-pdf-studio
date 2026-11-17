@@ -426,6 +426,7 @@ js/core/bladwijzer-undo.test.mjs
 js/ui/panels/bladwijzer-boom.test.mjs
 # Bladwijzers naar een plek op de pagina (#1157)
 js/pdf/bladwijzer-plek-rondgang.test.mjs
+js/pdf/bladwijzer-doel.test.mjs
 # Miniaturen groeien mee, kolommen en scherpte (#579)
 js/ui/panels/miniatuur-maat.test.mjs
 js/ui/panels/miniatuur-slepen.test.mjs

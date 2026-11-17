@@ -114,6 +114,8 @@
     "nestUnderNew": "Sarangkan di bawah penanda baru...",
     "indent": "Tambah inden",
     "outdent": "Kurangi inden",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Hapus {{count}} penanda"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Coret Pilihan",
     "underlineSelection": "Garis Bawahi Pilihan",
     "curvedLeaderSelection": "Tambah Balon Keterangan Melengkung",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

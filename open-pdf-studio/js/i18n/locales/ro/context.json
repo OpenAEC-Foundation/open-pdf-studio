@@ -114,6 +114,8 @@
     "nestUnderNew": "Imbricare sub un marcaj nou...",
     "indent": "Mărire indent",
     "outdent": "Micșorare indent",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Ștergere {{count}} marcaje"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Barare selectie",
     "underlineSelection": "Subliniere selectie",
     "curvedLeaderSelection": "Adăugare explicație curbată",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {
