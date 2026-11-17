@@ -2540,7 +2540,7 @@
   "virusNotice": {
     "title": "Over meldingen van virusscanners",
     "menu": "Melding van virusscanner?",
-    "intro": "Soms geeft een virusscanner een waarschuwing bij het installatieprogramma van Open PDF Studio of bij de app zelf. Dat gebeurt af en toe bij nieuwe versies van kleine opensourceprogramma's.",
+    "intro": "Soms geeft een virusscanner een waarschuwing bij het installatieprogramma van Open PDF Studio of bij de app zelf. Dat gebeurt af en toe bij nieuwe versies van kleine opensourceprogramma's. We zijn er druk mee bezig om dit op te lossen.",
     "signed": "Bij downloads van onze officiële releasepagina is dat vals alarm: die bestanden zijn digitaal ondertekend.",
     "action": "Krijg je zo'n waarschuwing? Laat je virusscanner gewoon aan staan en stuur de melding naar ons. Wij geven haar door aan de maker van de scanner, zodat de waarschuwing verdwijnt.",
     "include": "Vermeld daarbij de naam van de virusscanner, de naam van de detectie en de bestandsnaam.",
