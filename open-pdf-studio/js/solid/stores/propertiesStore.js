@@ -48,6 +48,7 @@ import {
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, maatlijnTekst, getMeasureScale, herberekenVlakMaat, vlakLengteSchaal } from '../../annotations/measurement.js';
 import { geldigeFractie, maatEenheid } from '../../core/maat-opmaak.js';
 import { lengteEenheid, schaalInEenheid } from '../../annotations/vlak-zijden.js';
+import { oppervlakteEenheid } from '../../annotations/oppervlakte-eenheid.js';
 import { parseDepth } from '../../annotations/measure-depth.js';
 import {
   isRuimteVlak, isRuimteTag, ruimteVanTag, tagWeergaveParams, tagWijziging,
@@ -188,6 +189,7 @@ const [annotProps, setAnnotProps] = createStore({
   dimShowUnit: true,
   measureShowLabel: true,
   measureShowEdgeLengths: false,
+  measureAreaUnit: '',
   isRuimte: false,
   opsRuimteNummer: '',
   ruimteOppervlakte: '',
@@ -563,6 +565,8 @@ export function storeShowProperties(annotation) {
     measureShowLabel: annotation.measureShowLabel !== false,
     // Zijdematen van een meetvlak: standaard uit (#536).
     measureShowEdgeLengths: annotation.measureShowEdgeLengths === true,
+    // Weergave-eenheid van de oppervlakte (#1129); leeg volgt de schaal.
+    measureAreaUnit: annotation.measureAreaUnit || '',
     // Uitloop en hulplijnen in mm op papier; leeg = automatisch (oude beeld).
     dimLineOvershootMm: annotation.dimLineOvershootMm ?? '',
     dimExtGapMm: annotation.dimExtGapMm ?? '',
@@ -1334,6 +1338,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'rotation': ann.rotation = Math.max(-360, Math.min(360, leesGeheelGetal(value) || 0)); break;
     case 'measureScale': ann.measureScale = leesGetalBegin(value) || 0; recomputeMeasureText(ann); break;
     case 'measureUnit': zetMeetEenheid(ann, value); break;
+    case 'measureAreaUnit': zetVlakEenheid(ann, value); break;
     case 'measurePrecision': ann.measurePrecision = leesGeheelGetal(value); if (ann.type === 'measureDistance') { ann.measureFraction = 0; delete ann.measureInchOnly; setAnnotProps('measureFraction', 0); } recomputeMeasureText(ann); break;
     // Voet-inch met een breuk (core/maat-opmaak.js); gaat voor measurePrecision.
     case 'measureFraction': zetMeetFractie(ann, value); setAnnotProps('measureInchOnly', ann.measureInchOnly === true); recomputeMeasureText(ann); break;
@@ -1490,6 +1495,17 @@ function zetMeetEenheid(ann, eenheid) {
     setAnnotProps('measureInchOnly', false);
   }
   ann.measureUnit = eenheid;
+  recomputeMeasureText(ann);
+}
+
+// Weergave-eenheid van de oppervlakte van een meetvlak (#1129): acres,
+// hectares, m², ft²; leeg volgt de schaal. Alleen de tekst verandert: de
+// waarde en de lengte-eenheid van het vlak blijven zoals ze zijn.
+function zetVlakEenheid(ann, value) {
+  if (ann?.type !== 'measureArea') return;
+  const eenheid = oppervlakteEenheid(value);
+  if (eenheid) ann.measureAreaUnit = eenheid;
+  else delete ann.measureAreaUnit;
   recomputeMeasureText(ann);
 }
 
@@ -1893,6 +1909,10 @@ function applyAnnotProp(key, value) {
     case 'measureUnit':
       zetMeetEenheid(currentAnnotation, value);
       if (currentAnnotation.type === 'measureArea') setAnnotProps('measureScale', currentAnnotation.measureScale || 0);
+      break;
+    case 'measureAreaUnit':
+      zetVlakEenheid(currentAnnotation, value);
+      value = currentAnnotation.measureAreaUnit || '';
       break;
     case 'measurePrecision': currentAnnotation.measurePrecision = leesGeheelGetal(value); if (currentAnnotation.type === 'measureDistance') { currentAnnotation.measureFraction = 0; delete currentAnnotation.measureInchOnly; setAnnotProps('measureFraction', 0); } recomputeMeasureText(currentAnnotation); break;
     case 'measureFraction': zetMeetFractie(currentAnnotation, value); setAnnotProps('measureInchOnly', currentAnnotation.measureInchOnly === true); recomputeMeasureText(currentAnnotation); break;

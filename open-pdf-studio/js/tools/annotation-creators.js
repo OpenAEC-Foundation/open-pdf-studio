@@ -6,7 +6,8 @@ import { getColorPickerValue, getLineWidthValue } from '../bridge.js';
 import { createAnnotation } from '../annotations/factory.js';
 import { metLabelVooraf } from '../annotations/label-vooraf.js';
 import { snapAngle } from '../utils/helpers.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, snapDistanceTo10 } from '../annotations/measurement.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, snapDistanceTo10, vlakTekst } from '../annotations/measurement.js';
+import { oppervlakteEenheid } from '../annotations/oppervlakte-eenheid.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { applyDynamicScaling } from '../annotations/dynamic-scaling.js';
 import { getTemplate } from '../symbols/registry.js';
@@ -722,7 +723,11 @@ export function createMeasureAreaAnnotation(points, holes) {
   // followed by formatMeasurement (which auto-converts mm² → m²).
   const currentPage = getActiveDocument()?.currentPage || 1;
   const area = calculateArea(points, holes, currentPage);
-  annProps.measureText = formatMeasurement(area);
+  // Weergave-eenheid van nieuwe meetvlakken (#1129): acres, hectares, ... De
+  // waarde en eenheid zelf blijven in het kwadraat van de schaal-eenheid.
+  const weergave = oppervlakteEenheid(mPrefs.measureAreaDisplayUnit);
+  if (weergave) annProps.measureAreaUnit = weergave;
+  annProps.measureText = vlakTekst(annProps, area);
   annProps.measureValue = area.value;
   annProps.measureUnit = area.unit;
   if (mPrefs.measureAreaDimPrecision != null) {

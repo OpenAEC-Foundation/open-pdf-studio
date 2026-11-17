@@ -7,8 +7,9 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { savePreferences } from '../../core/preferences.js';
 import { buildSchedule } from '../../quantities/engine.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
-import '../../quantities/label-i18n.js';
-import { verrijkVoorStaat, documentEenheid } from './staatElementen.js';
+import { standaardLaagNaam } from '../../quantities/label-i18n.js';
+import { scheduleUsesLayer } from '../../quantities/categories.js';
+import { verrijkVoorStaat, documentEenheid, metLaagNamen } from './staatElementen.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { wapeningsElementen } from '../../quantities/wapening.js';
@@ -19,7 +20,7 @@ import { collectZones, locationFor } from '../../annotations/spatial-zones.js';
 import { isLayerLocked } from '../../annotations/annotatie-lagen.js';
 import { getAnnotationBounds } from '../../core/state.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
-import { recordBulkModify } from '../../core/undo-manager.js';
+import { recordBulkModify, registerUndoHandler } from '../../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 
 function countCatName(categoryId) {
@@ -27,8 +28,13 @@ function countCatName(categoryId) {
   return t ? t.name : (categoryId || '');
 }
 
-/** Alle annotaties van het actieve document, verrijkt zoals de engine verwacht. */
-function collectElements(categories = []) {
+/**
+ * Alle annotaties van het actieve document, verrijkt zoals de engine verwacht.
+ * Een staat is een definitie die de hele app deelt; de cijfers komen altijd
+ * uit het document dat op dat moment actief is.
+ */
+function collectElements(config = {}) {
+  const categories = config?.categories || [];
   const doc = getActiveDocument();
   // Eén doorloop: de schaalbronnen één keer verzamelen, niet per lijn (#491).
   // Dezelfde verrijking als het hoeveelhedenpaneel (staatElementen.js): ook
@@ -36,8 +42,11 @@ function collectElements(categories = []) {
   // pagina-eenheden in een opgeslagen staat (#982).
   const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => verrijkVoorStaat(a, countCatName)));
   // Wapening (buigstaat/wapeningsstaat): alleen als de staat erom vraagt.
-  if (!(categories || []).includes('reinforcement')) return anns;
-  return [...anns, ...wapeningsElementen(doc?.annotations || [], getTemplate)];
+  const elementen = (categories || []).includes('reinforcement')
+    ? [...anns, ...wapeningsElementen(doc?.annotations || [], getTemplate)]
+    : anns;
+  // De Laag-kolom (#1130): alleen als de staat hem toont, erop filtert of sorteert.
+  return scheduleUsesLayer(config) ? metLaagNamen(doc, elementen, standaardLaagNaam()) : elementen;
 }
 
 // --- Persistente lijst van schedules ---
@@ -108,6 +117,42 @@ export function removeSchedule(id) {
   persist();
 }
 
+/**
+ * Een staat met een eigen config toevoegen (#1130: de MCP-opdracht controleert
+ * de config eerst en maakt de staat pas daarna aan, in één keer).
+ * @param {{name?: string, templateId?: string|null, config: object}} gegevens
+ */
+export function addScheduleWithConfig({ name, templateId = null, config }) {
+  const item = {
+    id: newId(),
+    name: name || templateId || 'Schedule',
+    templateId: templateId || null,
+    config: JSON.parse(JSON.stringify(config || {})),
+  };
+  setSchedules([...schedules(), item]);
+  persist();
+  return item;
+}
+
+/** Een eerder verwijderde staat terugzetten op zijn oude plek in de lijst. */
+export function restoreSchedule(schedule, index) {
+  if (!schedule?.id || getScheduleById(schedule.id)) return;
+  const lijst = [...schedules()];
+  const plek = Number.isInteger(index) ? Math.max(0, Math.min(index, lijst.length)) : lijst.length;
+  lijst.splice(plek, 0, JSON.parse(JSON.stringify(schedule)));
+  setSchedules(lijst);
+  persist();
+}
+
+// Een staat die samen met zijn geplaatste tabellen is verwijderd (#1130) komt
+// met dezelfde ongedaan-stap terug als die tabellen, en gaat bij opnieuw weer
+// weg. De staat zelf hoort bij de app, niet bij het document: de stap staat in
+// de geschiedenis van het document waar de tabellen stonden.
+registerUndoHandler('removeSchedule', {
+  undo: (cmd) => restoreSchedule(cmd.schedule, cmd.index),
+  redo: (cmd) => removeSchedule(cmd.schedule?.id),
+});
+
 export function getScheduleById(id) {
   return schedules().find(s => s.id === id) || null;
 }
@@ -117,7 +162,7 @@ export function buildResultForSchedule(schedule) {
   if (!schedule) return null;
   // De schedule-config gaat ongewijzigd naar de engine (de werkboek-koppeling
   // vergelijkt hem); de documentschaal is een aparte invoer.
-  return buildSchedule(collectElements(schedule.config?.categories), schedule.config,
+  return buildSchedule(collectElements(schedule.config), schedule.config,
     { documentUnit: documentEenheid(getActiveDocument()) });
 }
 

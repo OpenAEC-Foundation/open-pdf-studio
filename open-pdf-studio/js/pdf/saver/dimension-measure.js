@@ -7,6 +7,8 @@ import { lengteEenheid } from '../../annotations/vlak-zijden.js';
 import { pdfTextString } from './pdf-text.js';
 import { opmaakVanMaat, getalopmaakVoorBestand, maatEenheid } from '../../core/maat-opmaak.js';
 import { isImperialeLengte } from '../../core/voet-inch.js';
+import { oppervlakteEenheid } from '../../annotations/oppervlakte-eenheid.js';
+import { omrekenFactor } from '../../quantities/eenheid-omrekening.js';
 
 // Het /Measure-woordenboek (ISO 32000-1, 12.9) van de metingen van de app:
 // maat (/Line /IT /LineDimension), omtrekmaat (/PolyLine /IT
@@ -57,7 +59,13 @@ export function dimensionMeasure(ann, doc, preferences = {}, sources = verzamelS
  * waarin de app de oppervlakte toont (formatMeasurement: mm² wordt m²),
  * zodat een andere lezer dezelfde waarde toont als /Contents.
  */
-export function oppervlakteFormaat(unit) {
+export function oppervlakteFormaat(unit, weergave) {
+  // Een eigen weergave-eenheid (acres, hectares, ..., #1129): de factor van
+  // het kwadraat van de lengte-eenheid naar die eenheid. Zonder vaste
+  // verhouding (pixels) blijft het kwadraat staan.
+  const doel = oppervlakteEenheid(weergave);
+  const factor = doel ? omrekenFactor(`${unit}²`, doel) : null;
+  if (factor != null) return { C: factor, U: doel };
   if (unit === 'mm') return { C: 1e-6, U: 'm²' };
   return { C: 1, U: `${unit}²` };
 }
@@ -75,8 +83,9 @@ export function oppervlakteFormaat(unit) {
  * OPS_ScaleInherited, so the app keeps following the page scale after
  * reopening the file instead of freezing it on the measurement.
  *
- * `opties.vlak`: een meetvlak; /A in de eenheid van het label, met de
- * afronding van het meetvlak (standaard twee decimalen).
+ * `opties.vlak`: een meetvlak; /A in de eenheid van het label (ook acres of
+ * hectares, measureAreaUnit), met de afronding van het meetvlak (standaard
+ * twee decimalen). De lader leest de weergave-eenheid uit /A terug.
  */
 export function writeDimensionMeasure(annotDict, context, ann, doc, preferences, sources, opties = {}) {
   const meting = dimensionMeasure(ann, doc, preferences, sources);
@@ -85,7 +94,7 @@ export function writeDimensionMeasure(annotDict, context, ann, doc, preferences,
   let area = { C: 1, U: `${unit}²` };
   let areaDenominator = denominator;
   if (opties.vlak) {
-    area = oppervlakteFormaat(unit);
+    area = oppervlakteFormaat(unit, ann.measureAreaUnit);
     const eigen = Number(ann.measurePrecision);
     areaDenominator = 10 ** (Number.isInteger(eigen) && eigen >= 0 && eigen <= 9 ? eigen : 2);
   }

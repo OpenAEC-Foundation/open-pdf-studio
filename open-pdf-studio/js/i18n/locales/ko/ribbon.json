@@ -479,7 +479,9 @@
     "setDefaultPdf": "기본 PDF 응용 프로그램으로 설정",
     "fileAssociations": "파일 연결",
     "previousVersionTitle": "Open PDF Studio의 이전 버전 설치",
-    "previousVersion": "이전 버전"
+    "previousVersion": "이전 버전",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "빨강",

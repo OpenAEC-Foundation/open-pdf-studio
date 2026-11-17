@@ -479,7 +479,9 @@
     "setDefaultPdf": "پہلے سے طے شدہ PDF ایپلیکیشن مقرر کریں",
     "fileAssociations": "فائل ایسوسی ایشنز",
     "previousVersionTitle": "Open PDF Studio کا پچھلا ورژن انسٹال کریں",
-    "previousVersion": "پچھلا ورژن"
+    "previousVersion": "پچھلا ورژن",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "سرخ",

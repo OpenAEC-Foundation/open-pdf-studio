@@ -14,14 +14,20 @@ const MAX_TOTAL_SIZE = 1024 * 1024; // 1MB
 const MAX_MESSAGE = 5000;
 const MIN_MESSAGE = 10;
 
-export default function FeedbackDialog() {
+const CATEGORIEEN = ['general', 'bug', 'feature'];
+
+// `props.data` mag het venster vooraf invullen (bv. de melding over een
+// virusscanner, help/virusscanner-melding.js): `category`, `message`, en een
+// `hint` die boven het bericht zegt wat erin moet staan.
+export default function FeedbackDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
+  const vooraf = props?.data || {};
 
   const [email, setEmail] = createSignal('');
   const [fullName, setFullName] = createSignal('');
-  const [category, setCategory] = createSignal('general');
-  const [message, setMessage] = createSignal('');
+  const [category, setCategory] = createSignal(CATEGORIEEN.includes(vooraf.category) ? vooraf.category : 'general');
+  const [message, setMessage] = createSignal(typeof vooraf.message === 'string' ? vooraf.message.slice(0, MAX_MESSAGE) : '');
   const [images, setImages] = createSignal([]);
   const [sentiment, setSentiment] = createSignal(null);
   const [appVersion, setAppVersion] = createSignal('');
@@ -239,6 +245,9 @@ export default function FeedbackDialog() {
 
           {/* Message */}
           <div class="feedback-section">
+            <Show when={vooraf.hint}>
+              <div class="feedback-label">{vooraf.hint}</div>
+            </Show>
             <textarea
               class="feedback-message"
               placeholder={t('feedback.messagePlaceholder')}

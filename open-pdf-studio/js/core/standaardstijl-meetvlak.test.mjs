@@ -113,6 +113,25 @@ test('de eigen schaal van een vlak lekt niet via de standaardstijl naar een ande
   state.preferences.measureAreaDimPrecision = 2;
 });
 
+test('de weergave-eenheid van de oppervlakte (acres, hectares) gaat mee met de standaardstijl (#1129)', () => {
+  const inAcres = meetvlak({ measureAreaUnit: 'ac' });
+  setAsDefaultStyle(inAcres);
+  assert.equal(state.preferences.measureAreaDisplayUnit, 'ac');
+
+  const ander = meetvlak();
+  applyDefaultStyle(ander);
+  assert.equal(ander.measureAreaUnit, 'ac');
+  assert.equal(ander.measureUnit, 'mm²', 'de lengte-eenheid van het vlak blijft');
+  assert.match(versleepNul(ander), / ac$/, 'het label staat in acres');
+
+  // Zonder eigen eenheid volgt de standaard weer de schaal.
+  setAsDefaultStyle(meetvlak());
+  assert.equal(state.preferences.measureAreaDisplayUnit, '');
+  applyDefaultStyle(ander);
+  assert.equal(ander.measureAreaUnit, undefined);
+  assert.equal(versleepNul(ander), '6.22 m²');
+});
+
 test('een vlak met een eigen schaal houdt die bij standaardstijl toepassen', () => {
   const ann = meetvlak({ measureScale: 0.5, measureUnit: 'cm²' });
   meas.herberekenVlakMaat(ann);

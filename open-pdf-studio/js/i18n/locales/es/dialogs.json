@@ -1570,6 +1570,20 @@
     "found": "{{count}} candidatos encontrados",
     "created": "{{count}} recuentos creados; {{skipped}} ya existentes",
     "truncated": "Se alcanzó el límite de resultados. Busque en menos páginas o aumente la similitud.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "El documento ha cambiado. Cierre y vuelva a abrir la búsqueda de símbolos.",
       "INVALID_PAGES": "Elija de 1 a 20 páginas válidas.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "La similitud debe estar entre 0,5 y 1; la escala entre 0,5 y 2 y la rotación en cuartos de vuelta.",
       "READ_ONLY": "Este documento o capa de marcas es de solo lectura.",
       "SEARCH_EXPIRED": "Los resultados de búsqueda han caducado. Vuelva a buscar.",
-      "CATEGORY_REQUIRED": "Elija una categoría de recuento."
+      "CATEGORY_REQUIRED": "Elija una categoría de recuento.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {
@@ -2520,5 +2536,19 @@
     "createDocument": "Crear documento",
     "uploadPdf": "Subir PDF",
     "uploadHelp": "Cree un documento y suba un PDF (máx. 32 MiB). El PDF no se puede sustituir. Si una solicitud falla, actualice antes de reintentarlo."
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs. We are working hard to solve this.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

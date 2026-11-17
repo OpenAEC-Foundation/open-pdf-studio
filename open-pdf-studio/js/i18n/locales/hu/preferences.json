@@ -315,6 +315,8 @@
     "scalePrecision": "Méretarány és pontosság",
     "scale": "Méretarány (px egységenként)",
     "unit": "Mértékegység",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Pontosság",
     "showEdgeLengths": "Oldalhosszak megjelenítése",
     "lineEndings": "Vonalvégek (távolság / kerület)",

@@ -1570,6 +1570,20 @@
     "found": "{{count}} வேட்பாளர்கள் கண்டறியப்பட்டன",
     "created": "{{count}} எண்ணிக்கைகள் உருவாக்கப்பட்டன; {{skipped}} ஏற்கனவே உள்ளன",
     "truncated": "முடிவு வரம்பை எட்டியது. குறைவான பக்கங்களில் தேடவும் அல்லது ஒற்றுமையை அதிகரிக்கவும்.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "ஆவணம் மாறிவிட்டது. குறியீட்டுத் தேடலை மூடி மீண்டும் திறக்கவும்.",
       "INVALID_PAGES": "1–20 செல்லுபடியான பக்கங்களைத் தேர்ந்தெடுக்கவும்.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "ஒற்றுமை 0.5–1 ஆக இருக்க வேண்டும்; அளவுமாற்றம் 0.5–2, சுழற்சி கால் சுற்று.",
       "READ_ONLY": "இந்த ஆவணம் அல்லது குறியிடல் அடுக்கு படிக்க மட்டுமே.",
       "SEARCH_EXPIRED": "தேடல் முடிவுகள் காலாவதியாகிவிட்டன. மீண்டும் தேடவும்.",
-      "CATEGORY_REQUIRED": "ஒரு எண்ணிக்கை வகையைத் தேர்ந்தெடுக்கவும்."
+      "CATEGORY_REQUIRED": "ஒரு எண்ணிக்கை வகையைத் தேர்ந்தெடுக்கவும்.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {
@@ -2520,5 +2536,19 @@
     "createDocument": "ஆவணத்தை உருவாக்கு",
     "uploadPdf": "PDF பதிவேற்று",
     "uploadHelp": "ஆவணத்தை உருவாக்கி ஒரு PDF-ஐப் பதிவேற்றவும் (அதிகபட்சம் 32 MiB). PDF-ஐ மாற்ற முடியாது. கோரிக்கை தோல்வியுற்றால் மீண்டும் முயலும் முன் புதுப்பிக்கவும்."
+  },
+  "virusNotice": {
+    "title": "About virus scanner warnings",
+    "menu": "Virus scanner warning?",
+    "intro": "A virus scanner sometimes gives a warning about the installer of Open PDF Studio or about the app itself. This happens now and then with new releases of small open-source programs. We are working hard to solve this.",
+    "signed": "For downloads from our official release page this is a false alarm: those files are digitally signed.",
+    "action": "Do you get such a warning? Leave your virus scanner switched on and send the warning to us. We report it to the maker of the scanner, so that the warning goes away.",
+    "include": "Please include the name of the virus scanner, the name of the detection and the file name.",
+    "report": "Report a warning",
+    "feedbackSubject": "Virus scanner warning",
+    "feedbackScanner": "Virus scanner",
+    "feedbackDetection": "Detection name",
+    "feedbackFile": "File name",
+    "feedbackHint": "Fill in the name of the virus scanner, the name of the detection and the file name. A screenshot of the warning helps too."
   }
 }

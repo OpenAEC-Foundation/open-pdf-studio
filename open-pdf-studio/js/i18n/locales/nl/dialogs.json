@@ -1570,6 +1570,20 @@
     "found": "{{count}} voorstellen gevonden",
     "created": "{{count}} tellingen gemaakt; {{skipped}} bestonden al",
     "truncated": "Resultaatlimiet bereikt. Zoek op minder pagina’s of verhoog de gelijkenis.",
+    "minScore": "Controleren onder score (0,5–1, optioneel)",
+    "excludeArea": "Deze rechthoek uitsluiten",
+    "clearExcluded": "Uitgesloten gebieden wissen ({{count}})",
+    "excludedAdded": "{{count}} uitgesloten gebieden. Zoek opnieuw om ze toe te passen.",
+    "acceptSafe": "Alles zonder controlemarkering accepteren ({{count}})",
+    "resultReview": "Pagina {{page}} · {{score}}% · controleren",
+    "foundReview": "{{count}} voorstellen gevonden; {{review}} te controleren, {{excluded}} weggelaten door uitgesloten gebieden",
+    "reviewWhy": "Controleer deze treffer: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score onder de controlegrens",
+      "legend": "in de legenda",
+      "titleBlock": "in de onderhoek"
+    },
+    "reviewInfo": "Om een legenda of onderhoek weg te laten: teken er een rechthoek omheen en kies Deze rechthoek uitsluiten (rood gestreept), en zoek daarna opnieuw. Een legenda of onderhoek die in de paginatekst is gevonden, krijgt een blauw gestreepte rand; treffers daarin worden gemarkeerd om te controleren, niet verwijderd.",
     "errors": {
       "DOCUMENT_CHANGED": "Het document is gewijzigd. Sluit en heropen symboolzoeken.",
       "INVALID_PAGES": "Kies 1–20 geldige pagina’s.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Gelijkenis moet 0,5–1 zijn; schaal 0,5–2 en rotatie een kwartslag.",
       "READ_ONLY": "Dit document of deze markeerlaag is alleen-lezen.",
       "SEARCH_EXPIRED": "De zoekresultaten zijn verlopen. Zoek opnieuw.",
-      "CATEGORY_REQUIRED": "Kies een telcategorie."
+      "CATEGORY_REQUIRED": "Kies een telcategorie.",
+      "INVALID_REGIONS": "Teken eerst een rechthoek met een breedte en een hoogte.",
+      "INVALID_MIN_SCORE": "De controlegrens moet 0,5–1 zijn."
     }
   },
   "workbookBindings": {
@@ -2520,5 +2536,19 @@
     "createDocument": "Document aanmaken",
     "uploadPdf": "PDF uploaden",
     "uploadHelp": "Maak een document aan en upload één PDF (max. 32 MiB). De PDF kan niet worden vervangen. Vernieuw na een mislukt verzoek voordat je opnieuw probeert."
+  },
+  "virusNotice": {
+    "title": "Over meldingen van virusscanners",
+    "menu": "Melding van virusscanner?",
+    "intro": "Soms geeft een virusscanner een waarschuwing bij het installatieprogramma van Open PDF Studio of bij de app zelf. Dat gebeurt af en toe bij nieuwe versies van kleine opensourceprogramma's. We zijn er druk mee bezig om dit op te lossen.",
+    "signed": "Bij downloads van onze officiële releasepagina is dat vals alarm: die bestanden zijn digitaal ondertekend.",
+    "action": "Krijg je zo'n waarschuwing? Laat je virusscanner gewoon aan staan en stuur de melding naar ons. Wij geven haar door aan de maker van de scanner, zodat de waarschuwing verdwijnt.",
+    "include": "Vermeld daarbij de naam van de virusscanner, de naam van de detectie en de bestandsnaam.",
+    "report": "Waarschuwing melden",
+    "feedbackSubject": "Melding van virusscanner",
+    "feedbackScanner": "Virusscanner",
+    "feedbackDetection": "Naam van de detectie",
+    "feedbackFile": "Bestandsnaam",
+    "feedbackHint": "Vul de naam van de virusscanner, de naam van de detectie en de bestandsnaam in. Een schermafbeelding van de waarschuwing helpt ook."
   }
 }

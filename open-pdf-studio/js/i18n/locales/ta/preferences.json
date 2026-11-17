@@ -315,6 +315,8 @@
     "scalePrecision": "அளவுகோல் & துல்லியம்",
     "scale": "அளவுகோல் (px இலிருந்து அலகு)",
     "unit": "அலகு",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "துல்லியம்",
     "showEdgeLengths": "பக்க நீளங்களைக் காட்டு",
     "lineEndings": "கோட்டு முனைகள் (தூரம் / சுற்றளவு)",

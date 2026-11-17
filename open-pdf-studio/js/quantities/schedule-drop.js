@@ -32,6 +32,9 @@ export function placeScheduleAt(scheduleId, x, y, pageNum) {
   const table = scheduleResultToTable(result, schedule.name);
   const ann = createAnnotation({
     type: 'scheduleTable',
+    // Van welke staat deze tabel een momentopname is: zo kan een staat samen
+    // met zijn geplaatste tabellen worden verwijderd (#1130).
+    scheduleId: schedule.id,
     page: pageNum || doc.currentPage || 1,
     x: Math.max(0, Math.round(x)),
     y: Math.max(0, Math.round(y)),

@@ -315,6 +315,8 @@
     "scalePrecision": "축척 및 정밀도",
     "scale": "축척(px → 단위)",
     "unit": "단위",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "정밀도",
     "showEdgeLengths": "변 길이 표시",
     "lineEndings": "선 끝(거리/둘레)",

@@ -479,7 +479,9 @@
     "setDefaultPdf": "设为默认 PDF 应用程序",
     "fileAssociations": "文件关联",
     "previousVersionTitle": "安装 Open PDF Studio 的上一版本",
-    "previousVersion": "上一版本"
+    "previousVersion": "上一版本",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "红色",

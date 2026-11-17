@@ -176,6 +176,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"ribbon-shortcuts","tab":"help","labelKey":"ribbon:help.shortcuts"},
   {"id":"ribbon-about","tab":"help","labelKey":"ribbon:help.about"},
   {"id":"ribbon-whats-new","tab":"help","labelKey":"ribbon:help.whatsNew"},
+  {"id":"ribbon-virus-warning","tab":"help","labelKey":"ribbon:help.virusWarning"},
   {"id":"ribbon-check-updates","tab":"help","labelKey":"ribbon:help.updatesLabel"},
   {"id":"ribbon-startup-diagnostics","tab":"help","labelKey":"ribbon:help.startupDiagnostics"},
 ]);

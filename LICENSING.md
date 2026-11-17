@@ -93,8 +93,7 @@ The desktop binaries (`open-pdf-studio`, `pdfium-worker`,
   BSL-1.0, CC0-1.0, Unicode-3.0, CDLA-Permissive-2.0;
 - 6 crates under MPL-2.0 (`acadrust`, `cssparser`, `cssparser-macros`,
   `selectors`, `dtoa-short`, `option-ext`);
-- the LGPL-3.0 crates of this repository and `openaec-update` (LGPL-3.0-only,
-  the OpenAEC installer integration on Windows);
+- the LGPL-3.0 crates of this repository;
 - no GPL or AGPL crate.
 
 Regenerate the census with:

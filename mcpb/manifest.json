@@ -289,7 +289,15 @@
     },
     {
       "name": "app_place_schedule",
-      "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation."
+      "description": "Build a quantities schedule (Staat) from the annotations in the active document and place it on the page as a table annotation."
+    },
+    {
+      "name": "app_update_schedule",
+      "description": "Rename a quantities schedule (Staat) and/or change its config, without placing a table."
+    },
+    {
+      "name": "app_delete_schedule",
+      "description": "Delete a quantities schedule (Staat) together with the tables that were placed from it in the active document."
     },
     {
       "name": "app_structural_layout",

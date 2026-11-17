@@ -315,6 +315,8 @@
     "scalePrecision": "縮尺と精度",
     "scale": "縮尺（px から単位へ）",
     "unit": "単位",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "精度",
     "showEdgeLengths": "辺の長さを表示",
     "lineEndings": "線の端点（距離 / 周長）",
