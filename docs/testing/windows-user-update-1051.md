@@ -6,12 +6,12 @@ De releasejob bouwde een NSIS-installer met `currentUser`, maar nam de gewone `l
 
 De configuratiestap in release en nightly stelt nu zowel `currentUser` als `latest-user.json` in. De stabiele releasejob uploadt de bijbehorende updater-ZIP en minisign-handtekening onder een aparte gebruikersnaam, plus `latest-user.json`. De ZIP wordt bytegetrouw gekopieerd; opnieuw inpakken zou de handtekening ongeldig maken. Ontbrekende handtekeningen, meerdere kandidaat-ZIP's of een afwijkende releaseversie laten de stap falen. De feed verwijst uitsluitend naar het gebruikerspakket. De systeemfeed en de ingebouwde handtekeningcontrole blijven intact.
 
-De OpenAEC Installer herkent gebruikers- en systeeminstallaties al via zijn registerdetectie en assetselectie (`nsisUser`, dependencyrev 2b66f84). Die route blijft behouden; ook de terugval daarvan naar de eigen updater gebruikt de configuratie van de app.
+De app werkt zichzelf bij met zijn eigen updater; een ander programma neemt dat niet over.
 
 ## Testbewijs
 
 - Regressie op de oorspronkelijke workflow: configuratie/publicatie van de gebruikersfeed ontbreekt, test faalt.
-- 12 gerichte tests geslaagd: configuratie, CLI, feedgeneratie, exact behoud van ZIP/signaturebytes, ontbrekende signature, afwijkende versie, dubbelzinnige ZIP-selectie en bestaande installerhandoff.
+- 12 gerichte tests geslaagd: configuratie, CLI, feedgeneratie, exact behoud van ZIP/signaturebytes, ontbrekende signature, afwijkende versie, dubbelzinnige ZIP-selectie.
 - 59 versie-, runtime-, release-, Linux- en imageconfiguratiecontroles geslaagd.
 - TypeScript-controle en Vite-productiebuild geslaagd.
 - De nieuwe regressietests draaien in CI op Windows, Linux en macOS.

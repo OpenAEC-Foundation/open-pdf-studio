@@ -3484,11 +3484,8 @@ pub fn run(opts: StartupOpts) {
         } else {
             eprintln!("[openaec] managed mode: updater disabled");
         }
-        // The app never starts the OpenAEC Installer (no `openaec-update` plugin):
-        // at every start the plugin let the installer check in the background, and
-        // an installer that cannot do that opened its window instead. Updates go
-        // through the updater above; the installer updates apps when the user
-        // opens it.
+        // Updates go through the updater above only; the app never starts or
+        // talks to another program to update itself.
     }
     // window.__OPENAEC__ for the frontend: managed mode and the work folder.
     builder = builder.plugin(openaec_omgeving::plugin());
