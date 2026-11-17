@@ -140,8 +140,9 @@ export async function openPdfInApp(page, pdfPad) {
   ]);
   await kiezer.setFiles(pdfPad);
   await page.waitForFunction(() => {
-    const c = document.querySelector('canvas#pdf-canvas');
-    return c && c.width > 300 && document.body.textContent.includes('日本語');
+    // Enkele pagina of doorlopend (de standaard): het blad dat getekend is.
+    const c = [document.querySelector('canvas#pdf-canvas'), document.querySelector('#continuous-container canvas.pdf-canvas')].find((x) => x && x.width > 300);
+    return !!c && document.body.textContent.includes('日本語');
   }, null, { timeout: 60000 });
   // Even wachten tot de rendering van de eerste pagina klaar is.
   await page.waitForTimeout(1500);
@@ -154,7 +155,7 @@ export async function openPdfInApp(page, pdfPad) {
  */
 export async function inktPerBand(page) {
   return page.evaluate(() => {
-    const c = document.querySelector('canvas#pdf-canvas');
+    const c = [document.querySelector('canvas#pdf-canvas'), document.querySelector('#continuous-container canvas.pdf-canvas')].find((x) => x && x.width > 300);
     const ctx = c.getContext('2d');
     const schaal = c.height / 842; // de test-PDF is A4 staand
     // Banden in PDF-punten: [onderkant, bovenkant] boven de basislijn.

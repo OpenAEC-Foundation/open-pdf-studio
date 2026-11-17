@@ -52,7 +52,7 @@ import path from 'node:path';
 import { chromium } from 'playwright';
 import { PDFDocument, PDFName, StandardFonts } from 'pdf-lib';
 import {
-  APP_PAD, startWerkplek, nieuweContext, sriUrls, totDat, appFrameVan, wachtOpDocument, tekenRechthoek,
+  APP_PAD, startWerkplek, nieuweContext, sriUrls, totDat, appFrameVan, wachtOpDocument, tekenRechthoek, bladCanvas,
   aantalAnnotaties, melding, sluitMelding, bewaardeBytes,
 } from './werkplek-proef.mjs';
 
@@ -267,7 +267,7 @@ try {
   const voorRo = (await gast()).opgeslagen.length;
   // Focus in het iframe: een klik op het blad (met het selectiegereedschap).
   await page.keyboard.press('Escape');
-  const vakRo = await (await frame.$('canvas#annotation-canvas') || await frame.$('canvas#pdf-canvas')).boundingBox();
+  const vakRo = await (await bladCanvas(frame)).boundingBox();
   await page.mouse.click(vakRo.x + 30, Math.max(vakRo.y, 0) + 30);
   await page.keyboard.press('Control+s');
   const roTekst = await totDat(() => melding(frame), 30_000, 'melding bij opslaan alleen-lezen');
@@ -338,7 +338,7 @@ try {
   const opgeslagenVoorV = (await gast()).opgeslagen.length;
   const opslaanVoorV = (await gast()).log.filter((r) => r.soort === 'opslaan').length;
   await page.keyboard.press('Escape');
-  const vakV = await (await frame.$('canvas#annotation-canvas') || await frame.$('canvas#pdf-canvas')).boundingBox();
+  const vakV = await (await bladCanvas(frame)).boundingBox();
   await page.mouse.click(vakV.x + 30, Math.max(vakV.y, 0) + 30);
   await page.keyboard.press('Control+s');
   const versieRo = await totDat(() => melding(frame), 30_000, 'melding bij opslaan van een oudere versie');

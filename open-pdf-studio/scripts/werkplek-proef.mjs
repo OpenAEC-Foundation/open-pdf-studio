@@ -504,10 +504,28 @@ export async function wachtOpDocument(frame, naam) {
   await wacht(1000);
 }
 
+/**
+ * Het blad waarop getekend wordt: het annotatiecanvas van de enkele pagina, of
+ * in de doorlopende weergave (de standaard) dat van de eerste zichtbare pagina.
+ */
+export async function bladCanvas(frame) {
+  const kandidaten = [
+    'canvas#annotation-canvas', '#continuous-container canvas.annotation-canvas',
+    'canvas#pdf-canvas', '#continuous-container canvas.pdf-canvas',
+  ];
+  for (const kiezer of kandidaten) {
+    for (const el of await frame.$$(kiezer)) {
+      const vak = await el.boundingBox();
+      if (vak && vak.width > 50 && vak.height > 50) return el;
+    }
+  }
+  throw new Error('no visible page canvas');
+}
+
 /** Teken een rechthoek op het blad (het gereedschap in het lint, slepen). */
 export async function tekenRechthoek(page, frame, { x = 0.55, y = 0.15 } = {}) {
   await frame.locator('button.tp-btn[title="Rect"]').first().click();
-  const canvas = await frame.$('canvas#annotation-canvas') || await frame.$('canvas#pdf-canvas');
+  const canvas = await bladCanvas(frame);
   const vak = await canvas.boundingBox();
   // Alleen het zichtbare deel van het blad telt (het canvas kan hoger zijn dan het venster).
   const hoogte = page.viewportSize()?.height ?? 900;
