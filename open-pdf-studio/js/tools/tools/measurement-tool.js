@@ -7,6 +7,8 @@ import { applyToolTransform } from '../tool-context.js';
 import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { documentHeeftSchaal } from '../../annotations/schaal-op-punt.js';
+import { handmatigeSchaal } from '../../annotations/eenhedenstelsel.js';
+import { meldMetingZonderSchaal } from '../meting-zonder-schaal.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -127,9 +129,12 @@ export const measureDistanceTool = {
       // documentschaal uit de kalibratie, #554), dan neemt de maat haar schaal
       // daaruit (calculateDistance zoekt de bron op het gemeten punt). De
       // handmatige voorkeursschaal geldt alleen zonder enige bron.
+      // In het imperiale stelsel telt de onaangeroerde standaard (1 per punt,
+      // mm) niet als handmatige schaal (#1158): dan de maat op papier in inches.
       const hasScaleSource = documentHeeftSchaal(getActiveDocument());
-      const dimScale = hasScaleSource ? 0 : (prefs.measureDistDimScale || 0);
-      const dimUnit = hasScaleSource ? dist.unit : (prefs.measureDistDimUnit || dist.unit);
+      const handmatig = hasScaleSource ? null : handmatigeSchaal(prefs, 'measureDist');
+      const dimScale = handmatig ? handmatig.scale : 0;
+      const dimUnit = handmatig ? handmatig.unit : dist.unit;
       // mm shows whole numbers (no decimals); other units use the user pref.
       const dimPrecision = (dimUnit === 'mm') ? 0
         : (prefs.measureDistDimPrecision != null ? prefs.measureDistDimPrecision : 2);
@@ -173,6 +178,7 @@ export const measureDistanceTool = {
       state.dimPoints = [];
       state.isDrawingDimension = false;
       ctx.redraw();
+      meldMetingZonderSchaal(getActiveDocument());
 
       // Auto-reset to select tool
       import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
@@ -244,8 +250,9 @@ export const measureDistanceTool = {
     // ook de kalibratie en de viewports uit de PDF (#554), gaat voor de
     // handmatige voorkeursschaal.
     const hasScaleSourcePreview = documentHeeftSchaal(getActiveDocument());
-    const dimScale = hasScaleSourcePreview ? 0 : (prefs.measureDistDimScale || 0);
-    const dimUnit = prefs.measureDistDimUnit || '';
+    const handmatig = hasScaleSourcePreview ? null : handmatigeSchaal(prefs, 'measureDist');
+    const dimScale = handmatig ? handmatig.scale : 0;
+    const dimUnit = handmatig ? handmatig.unit : '';
     // mm shows whole numbers (no decimals); other units use the user pref.
     const dimPrecision = (dimUnit === 'mm') ? 0
       : (prefs.measureDistDimPrecision != null ? prefs.measureDistDimPrecision : 2);
@@ -581,7 +588,7 @@ function _finishMeasureWithHoles(ctx) {
 
   if (outerPoints && outerPoints.length >= 3) {
     const ann = ctx.createMeasureAreaAnnotation(outerPoints, holes);
-    if (ann) { if (doc) doc.annotations.push(ann); ctx.recordAdd(ann); }
+    if (ann) { if (doc) doc.annotations.push(ann); ctx.recordAdd(ann); meldMetingZonderSchaal(doc); }
   }
 
   // Reset all state
@@ -878,10 +885,10 @@ function _finishMeasure(ctx, toolType) {
 
   if (toolType === 'measureArea' && points.length >= 3) {
     const ann = ctx.createMeasureAreaAnnotation(points);
-    if (ann) { if (doc) doc.annotations.push(ann); ctx.recordAdd(ann); }
+    if (ann) { if (doc) doc.annotations.push(ann); ctx.recordAdd(ann); meldMetingZonderSchaal(doc); }
   } else if (toolType === 'measurePerimeter' && points.length >= 2) {
     const ann = ctx.createMeasurePerimeterAnnotation(points);
-    if (ann) { if (doc) doc.annotations.push(ann); ctx.recordAdd(ann); }
+    if (ann) { if (doc) doc.annotations.push(ann); ctx.recordAdd(ann); meldMetingZonderSchaal(doc); }
   }
   state.measurePoints = null;
   state.measurePhase = 'outer';

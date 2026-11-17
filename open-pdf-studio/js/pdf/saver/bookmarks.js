@@ -1,6 +1,7 @@
 import { getActiveDocument } from '../../core/state.js';
 import { PDFName } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
+import { doelOnderdelen } from '../bladwijzer-doel.js';
 
 // Save bookmarks to PDF outline structure
 export function saveBookmarksToOutline(pdfDocLib, doc = getActiveDocument()) {
@@ -84,11 +85,10 @@ export function saveBookmarksToOutline(pdfDocLib, doc = getActiveDocument()) {
       const pageIndex = Math.max(0, Math.min((node.page || 1) - 1, pages.length - 1));
       const pageRef = pages[pageIndex].ref;
 
-      // Build destination array: [pageRef, /XYZ, left, top, zoom]
-      const destArray = [pageRef, PDFName.of('XYZ')];
-      destArray.push(node.left != null ? node.left : null);
-      destArray.push(node.top != null ? node.top : null);
-      destArray.push(node.zoom != null ? node.zoom : null);
+      // De bestemming: [pageRef, /XYZ, left, top, zoom], of de vorm die het
+      // bestand al had (/Fit, /FitH top, /FitR ...), met dezelfde getallen.
+      const { vorm, args } = doelOnderdelen(node);
+      const destArray = [pageRef, PDFName.of(vorm), ...args];
 
       const flags = (node.italic ? 1 : 0) | (node.bold ? 2 : 0);
 

@@ -114,6 +114,8 @@
     "nestUnderNew": "Угнезди под нови обележивач...",
     "indent": "Повећај увлачење",
     "outdent": "Смањи увлачење",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Избриши обележиваче ({{count}})"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Прецртај избор",
     "underlineSelection": "Подвуци избор",
     "curvedLeaderSelection": "Додај закривљени облачић",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

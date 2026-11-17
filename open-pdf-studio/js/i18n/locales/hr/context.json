@@ -114,6 +114,8 @@
     "nestUnderNew": "Ugnijezdi pod novu knjižnu oznaku...",
     "indent": "Povećaj uvlaku",
     "outdent": "Smanji uvlaku",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Izbriši knjižne oznake ({{count}})"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Precrtaj odabrano",
     "underlineSelection": "Podcrtaj odabrano",
     "curvedLeaderSelection": "Dodaj zakrivljeni oblačić",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

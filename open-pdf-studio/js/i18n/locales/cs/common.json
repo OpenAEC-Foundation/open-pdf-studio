@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Text nebyl změněn: žádné dostupné písmo tyto znaky neobsahuje, takže je nelze uložit: {{chars}}",
   "textEditMissingGlyphsLater": "Žádné dostupné písmo tyto znaky neobsahuje, takže je nelze uložit: {{chars}}. Upravte tento text; do té doby nelze PDF uložit.",
   "textEditMissingGlyphsSave": "PDF nebylo uloženo: upravený text obsahuje znaky, které žádné dostupné písmo neobsahuje: {{chars}}. Upravte tento text a uložte znovu.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Vytvoření dokumentu se nezdařilo: {{error}}",
   "failedToReplacePage": "Nahrazení stránky se nezdařilo: {{error}}",
   "failedToMergeFile": "Sloučení se nezdařilo: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Otevřít v rozděleném zobrazení",
     "openInNewWindow": "Otevřít v novém okně",
     "closeTab": "Zavřít kartu",
+    "closeOtherTabs": "Zavřít ostatní karty",
+    "closeAllTabs": "Zavřít všechny karty",
     "nextTab": "Další karta",
     "previousTab": "Předchozí karta",
     "newTabForDocument": "Nová karta pro tento dokument"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

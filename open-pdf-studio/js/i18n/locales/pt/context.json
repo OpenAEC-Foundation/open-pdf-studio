@@ -114,6 +114,8 @@
     "nestUnderNew": "Aninhar em um novo marcador...",
     "indent": "Aumentar recuo",
     "outdent": "Diminuir recuo",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Excluir {{count}} marcadores"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Tachar seleção",
     "underlineSelection": "Sublinhar seleção",
     "curvedLeaderSelection": "Adicionar chamada curva",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

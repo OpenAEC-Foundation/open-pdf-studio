@@ -13,6 +13,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { cloneAnnotation } from '../../../annotations/factory.js';
 import { recordBulkModify } from '../../../core/undo-manager.js';
 import { leesLengte, isImperialeLengte, VOET_INCH_VOORBEELD } from '../../../core/voet-inch.js';
+import { standaardLengteEenheid } from '../../../annotations/eenhedenstelsel.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -40,7 +41,7 @@ export default function MeasuredLengthDialog(props) {
   const target = data.target || {};
   const pixelDistance = Number(data.pixelDistance) || 0;
 
-  const defaultUnit = target.restore?.units || target.defaultUnit || 'mm';
+  const defaultUnit = target.restore?.units || target.defaultUnit || standaardLengteEenheid();
   const [value, setValue] = createSignal('');
   const [unit, setUnit] = createSignal(defaultUnit);
 

@@ -12,6 +12,7 @@
   "preferences": "환경 설정",
   "about": "정보",
   "exit": "종료",
+  "closeAll": "모두 닫기",
   "aboutPanel": {
     "title": "정보",
     "appName": "Open PDF Studio",

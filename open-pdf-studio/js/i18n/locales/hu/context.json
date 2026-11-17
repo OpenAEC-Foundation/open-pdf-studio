@@ -114,6 +114,8 @@
     "nestUnderNew": "Beágyazás új könyvjelző alá...",
     "indent": "Behúzás növelése",
     "outdent": "Behúzás csökkentése",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} könyvjelző törlése"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Kijelölés áthúzása",
     "underlineSelection": "Kijelölés aláhúzása",
     "curvedLeaderSelection": "Ívelt kihivás hozzáadása",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

@@ -114,6 +114,8 @@
     "nestUnderNew": "نئے بک مارک کے تحت رکھیں...",
     "indent": "انڈینٹ بڑھائیں",
     "outdent": "انڈینٹ گھٹائیں",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} بک مارکس حذف کریں"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "انتخاب پر لکیر کھینچیں",
     "underlineSelection": "انتخاب خط کشیدہ کریں",
     "curvedLeaderSelection": "خمیدہ کال آؤٹ شامل کریں",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

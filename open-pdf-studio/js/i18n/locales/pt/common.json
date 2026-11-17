@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "O texto não foi alterado: nenhum tipo de letra disponível tem estes caracteres, por isso não podem ser guardados: {{chars}}",
   "textEditMissingGlyphsLater": "Nenhum tipo de letra disponível tem estes caracteres, por isso não podem ser guardados: {{chars}}. Altere este texto; até lá, o PDF não pode ser guardado.",
   "textEditMissingGlyphsSave": "O PDF não foi guardado: um texto editado contém caracteres que nenhum tipo de letra disponível tem: {{chars}}. Altere esse texto e guarde novamente.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Falha ao criar o documento: {{error}}",
   "failedToReplacePage": "Falha ao substituir a página: {{error}}",
   "failedToMergeFile": "Falha ao mesclar: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Abrir em vista dividida",
     "openInNewWindow": "Abrir em nova janela",
     "closeTab": "Fechar aba",
+    "closeOtherTabs": "Fechar outras abas",
+    "closeAllTabs": "Fechar todas as abas",
     "nextTab": "Separador seguinte",
     "previousTab": "Separador anterior",
     "newTabForDocument": "Nova guia para este documento"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

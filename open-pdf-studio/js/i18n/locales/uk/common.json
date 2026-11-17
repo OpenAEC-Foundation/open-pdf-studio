@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Текст не змінено: жоден доступний шрифт не містить цих символів, тому їх не можна зберегти: {{chars}}",
   "textEditMissingGlyphsLater": "Жоден доступний шрифт не містить цих символів, тому їх не можна зберегти: {{chars}}. Змініть цей текст; доти PDF не можна зберегти.",
   "textEditMissingGlyphsSave": "PDF не збережено: змінений текст містить символи, яких немає в жодному доступному шрифті: {{chars}}. Змініть цей текст і збережіть знову.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Не вдалося створити документ: {{error}}",
   "failedToReplacePage": "Не вдалося замінити сторінку: {{error}}",
   "failedToMergeFile": "Не вдалося об'єднати: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Відкрити в розділеному вигляді",
     "openInNewWindow": "Відкрити в новому вікні",
     "closeTab": "Закрити вкладку",
+    "closeOtherTabs": "Закрити інші вкладки",
+    "closeAllTabs": "Закрити всі вкладки",
     "nextTab": "Наступна вкладка",
     "previousTab": "Попередня вкладка",
     "newTabForDocument": "Нова вкладка для цього документа"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

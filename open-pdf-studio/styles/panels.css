@@ -772,6 +772,24 @@
   margin-bottom: 12px;
 }
 
+/* Bestemming van de bladwijzer (#1157) */
+.bookmark-dialog-body select.bookmark-dialog-dest {
+  width: 100%;
+  padding: 3px 4px;
+  font-size: 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 0;
+  background: #fff;
+  color: #333;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.bookmark-dialog-body select.bookmark-dialog-dest:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
 .bookmark-dialog-body input[type="text"]:focus,
 .bookmark-dialog-body input[data-getal]:focus {
   outline: none;
@@ -1590,6 +1608,14 @@
    Measurements Panel
    ═══════════════════════════════════════ */
 
+/* The sections scroll as a whole inside the panel (#1155); .left-panel-content
+   itself clips, so every panel needs a scrolling child like this one. */
+.measurements-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .measurements-section {
   border-bottom: 1px solid var(--theme-panel-border);
 }
@@ -1725,6 +1751,15 @@
 }
 
 /* ── Staten / Schedules-paneel (issue #277) ───────────────────────── */
+/* De lijst met staten schuift als geheel (#1155): .left-panel-content knipt
+   af, dus zonder deze schuivende laag waren rijen onder de paneelrand
+   onbereikbaar. Kop en toevoegbalk blijven erboven staan. */
+.schedules-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .schedules-add {
   display: flex;
   gap: 4px;
@@ -1847,10 +1882,14 @@
 }
 
 /* Inline voorbeeld-tabel (staten-paneel) met thumbnails */
+/* Een lang voorbeeld schuift zelf, met de kopregel vast in beeld (#1155),
+   zodat de staten eronder bereikbaar blijven. */
 .schedules-preview {
-  padding: 4px 6px 8px;
-  overflow-x: auto;
-  background: var(--theme-panel-bg, #fff);
+  padding: 0 6px 8px;
+  margin-top: 4px;
+  max-height: 60vh;
+  overflow: auto;
+  background: var(--theme-panel-bg);
 }
 
 .schedules-preview-table {
@@ -1868,21 +1907,29 @@
   vertical-align: middle;
 }
 .schedules-preview-table th {
-  background: var(--theme-panel-tab-bg, #f0f0f0);
+  background: var(--theme-panel-tab-bg);
   font-weight: 600;
+}
+/* Vaste kopregel: dekkende themakleur, en een lijn als schaduw omdat de
+   samengevoegde celranden niet met een vastgezette cel meeschuiven. */
+.schedules-preview-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  box-shadow: inset 0 1px 0 var(--theme-panel-border), inset 0 -1px 0 var(--theme-panel-border);
 }
 .schedules-preview-table .sp-num { text-align: right; }
 .schedules-preview-table .sp-group td {
-  background: #eef2f7;
+  background: var(--theme-panel-tab-bg);
   font-weight: 600;
 }
 .schedules-preview-table .sp-count { color: var(--theme-text-secondary, #888); font-weight: 400; }
 .schedules-preview-table .sp-total td {
-  background: var(--theme-panel-tab-bg, #f4f4f4);
+  background: var(--theme-panel-tab-bg);
   font-weight: 600;
 }
 .schedules-preview-table .sp-grand td {
-  background: var(--theme-panel-tab-hover, #e6e6e6);
+  background: var(--theme-panel-tab-hover);
 }
 .sp-thumb {
   display: block;

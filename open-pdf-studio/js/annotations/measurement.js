@@ -18,6 +18,7 @@ import { isSpotCoord, spotCoordTekst } from './spot-coord.js';
 import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
 import { toontVoetInch, formatVoetInch, lengteNotatie } from '../core/voet-inch.js';
 import { maatTekst, opmaakVanMaat, maatEenheid } from '../core/maat-opmaak.js';
+import { standaardenVoorStelsel } from './eenhedenstelsel.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -29,11 +30,14 @@ import {
 // Priority: scaleRegion (innermost containing point) → viewport annotation →
 //          scaleBar on the page → PDF viewport (/VP + /Measure in the file
 //          itself, #400) → per-document scale → scaleBar elsewhere →
-//          legacy global → default (px)
+//          legacy global → default
 // The point-bound part of that order lives in schaal-op-punt.js (via
 // getScaleForPoint), shared with the light scale bridges.
+// Without any scale the default follows the Units preference (#1158): metric
+// counts points as millimetres (as it always did), imperial gives the size on
+// paper in inches.
 export function getMeasureScale(pageNum, x, y) {
-  return findMeasureScale(pageNum, x, y) || { pixelsPerUnit: 1, unit: 'mm' };
+  return findMeasureScale(pageNum, x, y) || { ...standaardenVoorStelsel().zonderSchaal };
 }
 
 // Dezelfde opzoeking als getMeasureScale, maar null als er nergens een schaal

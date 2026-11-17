@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Teksten ble ikke endret: ingen tilgjengelig skrift har disse tegnene, så de kan ikke lagres: {{chars}}",
   "textEditMissingGlyphsLater": "Ingen tilgjengelig skrift har disse tegnene, så de kan ikke lagres: {{chars}}. Endre denne teksten; inntil da kan ikke PDF-en lagres.",
   "textEditMissingGlyphsSave": "PDF-en ble ikke lagret: redigert tekst inneholder tegn som ingen tilgjengelig skrift har: {{chars}}. Endre teksten og lagre på nytt.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Kunne ikke opprette dokumentet: {{error}}",
   "failedToReplacePage": "Kunne ikke erstatte siden: {{error}}",
   "failedToMergeFile": "Sammenslåing mislyktes: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Åpne i delt visning",
     "openInNewWindow": "Åpne i nytt vindu",
     "closeTab": "Lukk fane",
+    "closeOtherTabs": "Lukk andre faner",
+    "closeAllTabs": "Lukk alle faner",
     "nextTab": "Neste fane",
     "previousTab": "Forrige fane",
     "newTabForDocument": "Ny fane for dette dokumentet"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

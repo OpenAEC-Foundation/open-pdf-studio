@@ -146,11 +146,15 @@ export async function detectScaleInDocument(doc, pageNum) {
 /**
  * The document measure scale for a scale found in the title block: 1:N in
  * millimetres (or in feet/inches for an imperial scale, #999), in page units
- * of the page it was found on.
+ * of the page it was found on. A bare 1:N has no unit of its own: it takes
+ * `standaardEenheid`, the unit of the Units preference (#1158), so a user who
+ * works in feet and inches measures in feet on such a drawing too.
  * @param {{ ratio: number, unit?: string, userUnit?: number }} found
+ * @param {string} [standaardEenheid]  'mm' (default) or 'ft'
  */
-export function measureScaleFromTitleBlock(found) {
-  const unit = found.unit === 'ft' || found.unit === 'in' ? found.unit : 'mm';
+export function measureScaleFromTitleBlock(found, standaardEenheid = 'mm') {
+  const unit = found.unit === 'ft' || found.unit === 'in' ? found.unit
+    : (standaardEenheid === 'ft' ? 'ft' : 'mm');
   return {
     pixelsPerUnit: pixelsPerUnitFor(`1:${found.ratio}`, unit, found.userUnit),
     unit,

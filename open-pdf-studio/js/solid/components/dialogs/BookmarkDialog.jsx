@@ -1,4 +1,4 @@
-import { createSignal, onMount, For } from 'solid-js';
+import { createSignal, onMount, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -15,6 +15,29 @@ export default function BookmarkDialog(props) {
   const [kleur, setKleur] = createSignal(normaliseerKleur(props.data?.color));
   const [vet, setVet] = createSignal(!!props.data?.bold);
   const [cursief, setCursief] = createSignal(!!props.data?.italic);
+
+  // Bestemming (#1157): de geselecteerde tekst, wat nu in beeld is, de
+  // bovenkant van een pagina, of (bij bewerken) laten zoals het is. De
+  // aanroeper geeft de keuzes die er zijn; zonder keuzes alleen een pagina.
+  const doelen = () => props.data?.doelen || [];
+  const [doel, setDoel] = createSignal(props.data?.doel || null);
+  const doelLabel = (id) => t({
+    behouden: 'bookmark.destKeep',
+    selectie: 'bookmark.destSelection',
+    beeld: 'bookmark.destView',
+    pagina: 'bookmark.destPageTop',
+  }[id]);
+  function kiesDoel(id) {
+    setDoel(id);
+    // De plek ligt op een pagina: die hoort er dan bij.
+    const keuze = doelen().find(d => d.id === id);
+    if (keuze?.page) setPage(keuze.page);
+  }
+  // Een zelf getypte pagina wijst naar de bovenkant van die pagina.
+  function typPagina(waarde) {
+    setPage(waarde);
+    if (doelen().length > 0) setDoel('pagina');
+  }
 
   let titleInputRef;
   let resolved = false;
@@ -49,7 +72,7 @@ export default function BookmarkDialog(props) {
     if (isNaN(p) || p < 1) p = 1;
     resolved = true;
     if (props.data?.onOk) {
-      props.data.onOk({ title: t, page: p, color: kleur(), bold: vet(), italic: cursief() });
+      props.data.onOk({ title: t, page: p, color: kleur(), bold: vet(), italic: cursief(), doel: doel() });
     }
     closeDialog('bookmark');
   }
@@ -87,12 +110,25 @@ export default function BookmarkDialog(props) {
         onInput={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
       />
+      <Show when={doelen().length > 0}>
+        <label>{t('bookmark.destinationLabel')}</label>
+        <select
+          class="bookmark-dialog-dest"
+          aria-label={t('bookmark.destinationLabel')}
+          value={doel() || ''}
+          onChange={(e) => kiesDoel(e.target.value)}
+        >
+          <For each={doelen()}>
+            {(d) => <option value={d.id} selected={doel() === d.id}>{doelLabel(d.id)}</option>}
+          </For>
+        </select>
+      </Show>
       <label>{t('bookmark.pageLabel')}</label>
       <input
         type="text" inputmode="decimal" data-getal
         min="1"
         value={page()}
-        onInput={(e) => setPage(e.target.value)}
+        onInput={(e) => typPagina(e.target.value)}
         onKeyDown={handleKeyDown}
       />
       <label>{t('bookmark.colorLabel')}</label>

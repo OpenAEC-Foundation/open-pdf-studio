@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "텍스트가 변경되지 않았습니다. 사용 가능한 글꼴 중 이 문자를 포함한 글꼴이 없어 저장할 수 없습니다: {{chars}}",
   "textEditMissingGlyphsLater": "사용 가능한 글꼴 중 이 문자를 포함한 글꼴이 없어 저장할 수 없습니다: {{chars}}. 이 텍스트를 변경하세요. 변경할 때까지 PDF를 저장할 수 없습니다.",
   "textEditMissingGlyphsSave": "PDF가 저장되지 않았습니다. 편집한 텍스트에 사용 가능한 어떤 글꼴에도 없는 문자가 있습니다: {{chars}}. 해당 텍스트를 변경한 후 다시 저장하세요.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "문서를 만들지 못했습니다: {{error}}",
   "failedToReplacePage": "페이지를 바꾸지 못했습니다: {{error}}",
   "failedToMergeFile": "병합하지 못했습니다: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "분할 보기로 열기",
     "openInNewWindow": "새 창에서 열기",
     "closeTab": "탭 닫기",
+    "closeOtherTabs": "다른 탭 닫기",
+    "closeAllTabs": "모든 탭 닫기",
     "nextTab": "다음 탭",
     "previousTab": "이전 탭",
     "newTabForDocument": "이 문서의 새 탭"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

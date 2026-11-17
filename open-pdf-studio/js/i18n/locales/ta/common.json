@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "உரை மாற்றப்படவில்லை: கிடைக்கும் எந்த எழுத்துருவிலும் இந்த எழுத்துகள் இல்லை, எனவே அவற்றைச் சேமிக்க முடியாது: {{chars}}",
   "textEditMissingGlyphsLater": "கிடைக்கும் எந்த எழுத்துருவிலும் இந்த எழுத்துகள் இல்லை, எனவே அவற்றைச் சேமிக்க முடியாது: {{chars}}. இந்த உரையை மாற்றவும்; அதுவரை PDF-ஐச் சேமிக்க முடியாது.",
   "textEditMissingGlyphsSave": "PDF சேமிக்கப்படவில்லை: திருத்தப்பட்ட உரையில் கிடைக்கும் எந்த எழுத்துருவிலும் இல்லாத எழுத்துகள் உள்ளன: {{chars}}. அந்த உரையை மாற்றி மீண்டும் சேமிக்கவும்.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "ஆவணத்தை உருவாக்க முடியவில்லை: {{error}}",
   "failedToReplacePage": "பக்கத்தை மாற்ற முடியவில்லை: {{error}}",
   "failedToMergeFile": "ஒன்றிணைக்க முடியவில்லை: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "பிரிக்கப்பட்ட காட்சியில் திற",
     "openInNewWindow": "புதிய சாளரத்தில் திற",
     "closeTab": "தாவலை மூடு",
+    "closeOtherTabs": "மற்ற தாவல்களை மூடு",
+    "closeAllTabs": "அனைத்து தாவல்களையும் மூடு",
     "nextTab": "அடுத்த தாவல்",
     "previousTab": "முந்தைய தாவல்",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

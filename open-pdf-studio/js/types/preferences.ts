@@ -71,6 +71,13 @@ export interface Preferences {
   textboxFontSize: number;
   textboxFontFamily?: string;
   textboxTextColor?: string;
+  textboxFontBold?: boolean;
+  textboxFontItalic?: boolean;
+  textboxFontUnderline?: boolean;
+  textboxFontStrikethrough?: boolean;
+  textboxTextAlign?: string;
+  textboxTextVAlign?: string;
+  textboxLineSpacing?: number;
 
   // Callout defaults
   calloutFillColor: string;
@@ -82,6 +89,13 @@ export interface Preferences {
   calloutFontSize: number;
   calloutFontFamily?: string;
   calloutTextColor?: string;
+  calloutFontBold?: boolean;
+  calloutFontItalic?: boolean;
+  calloutFontUnderline?: boolean;
+  calloutFontStrikethrough?: boolean;
+  calloutTextAlign?: string;
+  calloutTextVAlign?: string;
+  calloutLineSpacing?: number;
 
   // Rectangle defaults
   rectFillColor: string;

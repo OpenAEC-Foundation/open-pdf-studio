@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Metin değiştirilmedi: kullanılabilir hiçbir yazı tipinde bu karakterler yok, bu yüzden kaydedilemezler: {{chars}}",
   "textEditMissingGlyphsLater": "Kullanılabilir hiçbir yazı tipinde bu karakterler yok, bu yüzden kaydedilemezler: {{chars}}. Bu metni değiştirin; o zamana kadar PDF kaydedilemez.",
   "textEditMissingGlyphsSave": "PDF kaydedilmedi: düzenlenen metin, kullanılabilir hiçbir yazı tipinde olmayan karakterler içeriyor: {{chars}}. Bu metni değiştirip yeniden kaydedin.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Belge oluşturulamadı: {{error}}",
   "failedToReplacePage": "Sayfa değiştirilemedi: {{error}}",
   "failedToMergeFile": "Birleştirilemedi: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Bölünmüş Görünümde Aç",
     "openInNewWindow": "Yeni pencerede aç",
     "closeTab": "Sekmeyi kapat",
+    "closeOtherTabs": "Diğer sekmeleri kapat",
+    "closeAllTabs": "Tüm sekmeleri kapat",
     "nextTab": "Sonraki Sekme",
     "previousTab": "Önceki Sekme",
     "newTabForDocument": "Bu belge için yeni sekme"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

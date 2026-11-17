@@ -51,6 +51,15 @@ function opslag() {
   return geheugenOpslag;
 }
 
+/**
+ * Blijft wat de app bewaart na herladen staan? Nee in een omgeving zonder
+ * bruikbare browseropslag: dan staat alles alleen in het geheugen. De
+ * voorkeuren zeggen dat erbij (#1158).
+ */
+export function opslagIsBlijvend() {
+  return opslag() !== geheugenOpslag;
+}
+
 /** @returns {string|null} */
 export function leesOpslag(naam) {
   const s = opslag();

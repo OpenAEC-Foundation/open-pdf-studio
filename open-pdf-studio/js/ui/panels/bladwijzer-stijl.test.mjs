@@ -108,7 +108,7 @@ test('menu en dialoog zijn aangesloten op het model', () => {
     assert.ok(blok.includes(s), `bladwijzermenu gebruikt ${s}`);
   }
   const dialoog = readFileSync(join(hier, '../../solid/components/dialogs/BookmarkDialog.jsx'), 'utf8');
-  assert.match(dialoog, /onOk\(\{ title: t, page: p, color: kleur\(\), bold: vet\(\), italic: cursief\(\) \}\)/);
+  assert.match(dialoog, /onOk\(\{ title: t, page: p, color: kleur\(\), bold: vet\(\), italic: cursief\(\), doel: doel\(\) \}\)/);
   const paneel = readFileSync(join(hier, 'bookmarks.js'), 'utf8');
   assert.match(paneel, /await vervangLijst\(doc, oud, bookmarks\)/, 'stijl op de selectie gaat via één lijstwissel');
   assert.match(paneel, /recordBookmarksChange\(oud, nieuw\)/, 'een lijstwissel is één undo-stap');

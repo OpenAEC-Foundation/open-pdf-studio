@@ -33,8 +33,11 @@ const DIST = path.join(app, 'dist');
 // niet bij de start nodig is, hoort in een eigen chunk.
 // 17-11-2026, rondes 13 tot en met 15 samen: desktop 4116 KiB, gehost 4133 KiB
 // (het eigen vectorpad is eruit, #1122).
-export const BUDGET_KB = 4150;
-export const BUDGET_GZIP_KB = 1350; // gehost 1345 KiB op 17-11-2026
+// 18-11-2026, ronde 18: desktop 4149 KiB, gehost 4166 KiB. Erbij: het
+// eenhedenstelsel, de tekststijl per gereedschap, de vertaalde wand-,
+// betonbalk- en systeemrasterteksten (Engels zit in de opstartbundel).
+export const BUDGET_KB = 4180;
+export const BUDGET_GZIP_KB = 1365; // gehost 1355 KiB op 18-11-2026
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {

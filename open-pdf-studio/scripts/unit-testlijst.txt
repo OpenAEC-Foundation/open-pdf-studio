@@ -354,6 +354,7 @@ js/ui/chrome/tab-sneltoets.test.mjs
 js/pdf/weergave-per-document.test.mjs
 js/ui/chrome/tab-sneltoets-koppeling.test.mjs
 js/ui/chrome/weergave-tabs-model.test.mjs
+js/ui/chrome/tabs-sluiten-model.test.mjs
 js/pdf/pagina-sneltoets.test.mjs
 scripts/nix-flake-bijwerken.test.mjs
 scripts/flatpak-flathub.test.mjs
@@ -424,6 +425,9 @@ js/pdf/bladwijzer-rondgang.test.mjs
 js/core/bladwijzer-undo.test.mjs
 # Bladwijzers selecteren, verplaatsen en nesten (#690)
 js/ui/panels/bladwijzer-boom.test.mjs
+# Bladwijzers naar een plek op de pagina (#1157)
+js/pdf/bladwijzer-plek-rondgang.test.mjs
+js/pdf/bladwijzer-doel.test.mjs
 # Miniaturen groeien mee, kolommen en scherpte (#579)
 js/ui/panels/miniatuur-maat.test.mjs
 js/ui/panels/miniatuur-slepen.test.mjs
@@ -665,6 +669,7 @@ js/pdf/page-manager-edit-pages.test.mjs
 js/solid/components/ribbon/edit-pages-knop.test.mjs
 js/solid/stores/lettertype-tekstvak.test.mjs
 js/core/standaardstijl-lettertype.test.mjs
+js/core/standaardstijl-tekststijl.test.mjs
 js/utils/lettertypen-lijst.test.mjs
 js/pdf/lettertype-rondgang.test.mjs
 js/annotations/afbeelding-bron.test.mjs
@@ -909,3 +914,8 @@ js/pdf/ifcx-opslaan.test.mjs
 scripts/fontkit-reverse-substitution.test.mjs
 scripts/download-stats.test.mjs
 scripts/deploy-uitcheck.test.mjs
+js/pdf/saver/veld-lettertype.test.mjs
+js/solid/components/properties-panel/geen-vaste-nl-labels.test.mjs
+js/solid/components/left-panel/panels/paneel-schuift.test.mjs
+js/annotations/eenhedenstelsel.test.mjs
+js/core/eenheden-opslag.test.mjs

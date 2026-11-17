@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Văn bản không được thay đổi: không phông chữ nào hiện có chứa các ký tự này, nên không thể lưu chúng: {{chars}}",
   "textEditMissingGlyphsLater": "Không phông chữ nào hiện có chứa các ký tự này, nên không thể lưu chúng: {{chars}}. Hãy sửa văn bản này; trước khi sửa, không thể lưu PDF.",
   "textEditMissingGlyphsSave": "PDF chưa được lưu: văn bản đã sửa chứa các ký tự mà không phông chữ nào hiện có chứa: {{chars}}. Hãy sửa văn bản đó và lưu lại.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Tạo tài liệu thất bại: {{error}}",
   "failedToReplacePage": "Thay thế trang thất bại: {{error}}",
   "failedToMergeFile": "Gộp thất bại: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Mở trong chế độ xem chia đôi",
     "openInNewWindow": "Mở trong cửa sổ mới",
     "closeTab": "Đóng thẻ",
+    "closeOtherTabs": "Đóng các thẻ khác",
+    "closeAllTabs": "Đóng tất cả thẻ",
     "nextTab": "Thẻ tiếp theo",
     "previousTab": "Thẻ trước",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

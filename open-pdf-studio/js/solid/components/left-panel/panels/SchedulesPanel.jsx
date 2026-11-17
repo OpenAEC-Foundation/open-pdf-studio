@@ -126,116 +126,119 @@ export default function SchedulesPanel() {
         </button>
       </div>
 
-      {/* Lijst van staten */}
-      <Show when={schedules().length > 0}
-        fallback={<div class="measurements-empty">{t('schedules.empty')}</div>}>
-        <div class="schedules-hint">{t('schedules.dragHint')}</div>
-        <For each={schedules()}>
-          {(s) => (
-            <div class="schedules-entry">
-              <div class="schedules-item" draggable={editingId() !== s.id} onDragStart={(e) => onDragStart(e, s)} title={t('schedules.dragHint')}>
-                <span class="schedules-grip" innerHTML={gripIcon}></span>
-                <button class="schedules-item-btn schedules-expand" title={t('schedules.preview')}
-                  onClick={() => toggleExpand(s.id)}>{expandedId() === s.id ? '▾' : '▸'}</button>
-                <Show when={editingId() === s.id}
-                  fallback={
-                    <span class="schedules-name" onDblClick={() => setEditingId(s.id)}>{s.name}</span>
-                  }>
-                  <input
-                    class="schedules-rename-input"
-                    value={s.name}
-                    autofocus
-                    onBlur={(e) => commitRename(s, e.currentTarget.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') commitRename(s, e.currentTarget.value);
-                      else if (e.key === 'Escape') setEditingId(null);
-                    }}
-                  />
-                </Show>
-                <button class="schedules-item-btn" title={t('wizard.configure')}
-                  onClick={() => setConfiguringId(s.id)}>⚙</button>
-                <button class="schedules-item-btn" title={t('schedules.exportCsv')}
-                  onClick={() => exportCsv(s)}>⭳</button>
-                <button class="schedules-item-btn" title={t('schedules.importTags')}
-                  onClick={() => importTags(s)}>⭱</button>
-                <button class="schedules-item-btn" title={t('schedules.rename')}
-                  onClick={() => setEditingId(s.id)}>{renameIcon}</button>
-                <button class="schedules-item-btn schedules-item-del" title={t('schedules.delete')}
-                  onClick={() => { if (expandedId() === s.id) setExpandedId(null); removeSchedule(s.id); }}>&times;</button>
-              </div>
+      {/* De lijst schuift als geheel; kop en toevoegbalk blijven staan (#1155). */}
+      <div class="schedules-container">
+        {/* Lijst van staten */}
+        <Show when={schedules().length > 0}
+          fallback={<div class="measurements-empty">{t('schedules.empty')}</div>}>
+          <div class="schedules-hint">{t('schedules.dragHint')}</div>
+          <For each={schedules()}>
+            {(s) => (
+              <div class="schedules-entry">
+                <div class="schedules-item" draggable={editingId() !== s.id} onDragStart={(e) => onDragStart(e, s)} title={t('schedules.dragHint')}>
+                  <span class="schedules-grip" innerHTML={gripIcon}></span>
+                  <button class="schedules-item-btn schedules-expand" title={t('schedules.preview')}
+                    onClick={() => toggleExpand(s.id)}>{expandedId() === s.id ? '▾' : '▸'}</button>
+                  <Show when={editingId() === s.id}
+                    fallback={
+                      <span class="schedules-name" onDblClick={() => setEditingId(s.id)}>{s.name}</span>
+                    }>
+                    <input
+                      class="schedules-rename-input"
+                      value={s.name}
+                      autofocus
+                      onBlur={(e) => commitRename(s, e.currentTarget.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') commitRename(s, e.currentTarget.value);
+                        else if (e.key === 'Escape') setEditingId(null);
+                      }}
+                    />
+                  </Show>
+                  <button class="schedules-item-btn" title={t('wizard.configure')}
+                    onClick={() => setConfiguringId(s.id)}>⚙</button>
+                  <button class="schedules-item-btn" title={t('schedules.exportCsv')}
+                    onClick={() => exportCsv(s)}>⭳</button>
+                  <button class="schedules-item-btn" title={t('schedules.importTags')}
+                    onClick={() => importTags(s)}>⭱</button>
+                  <button class="schedules-item-btn" title={t('schedules.rename')}
+                    onClick={() => setEditingId(s.id)}>{renameIcon}</button>
+                  <button class="schedules-item-btn schedules-item-del" title={t('schedules.delete')}
+                    onClick={() => { if (expandedId() === s.id) setExpandedId(null); removeSchedule(s.id); }}>&times;</button>
+                </div>
 
-              {/* Inline voorbeeld-tabel met thumbnails, live bijgewerkt */}
-              <Show when={expandedId() === s.id && previewResult()}>
-                {(r) => (
-                  <div class="schedules-preview">
-                    <Show when={r().columns.length > 0}
-                      fallback={<div class="schedule-empty">{t('wizard.noColumns')}</div>}>
-                      <Show when={r().count > 0}
-                        fallback={<div class="schedule-empty">{t('wizard.noElements')}</div>}>
-                        <table class="schedules-preview-table">
-                          <thead><tr>
-                            <For each={r().columns}>
-                              {(col) => <th class={col.align === 'right' ? 'sp-num' : ''}>{col.label}{col.unit ? ` (${col.unit})` : ''}</th>}
-                            </For>
-                          </tr></thead>
-                          <For each={r().groups}>
-                            {(group) => (
-                              <tbody>
-                                <Show when={group.key !== null}>
-                                  <tr class="sp-group"><td colspan={r().columns.length}>{group.key} <span class="sp-count">({group.rows.length})</span></td></tr>
-                                </Show>
-                                <Show when={r().itemize}>
-                                  <For each={group.rows}>
-                                    {(row) => (
-                                      <tr>
-                                        <For each={r().columns}>
-                                          {(col) => (
-                                            <td class={col.align === 'right' ? 'sp-num' : ''}>
-                                              <Show when={col.kind === 'image' && isImageCell(row.vals[col.key])}
-                                                fallback={formatRowCell(row, col)}>
-                                                <img class="sp-thumb" src={row.vals[col.key]} alt="" loading="lazy" />
-                                              </Show>
-                                            </td>
-                                          )}
-                                        </For>
-                                      </tr>
-                                    )}
-                                  </For>
-                                </Show>
-                                <tr class="sp-total">
-                                  <For each={r().columns}>
-                                    {(col, i) => (
-                                      <td class={col.align === 'right' ? 'sp-num' : ''}>
-                                        {i() === 0 ? (group.key !== null ? `Σ ${group.key}` : t('wizard.subtotal')) : fmtTotal(group.subtotals[col.key], col)}
-                                      </td>
-                                    )}
-                                  </For>
-                                </tr>
-                              </tbody>
-                            )}
-                          </For>
-                          <tbody>
-                            <tr class="sp-total sp-grand">
+                {/* Inline voorbeeld-tabel met thumbnails, live bijgewerkt */}
+                <Show when={expandedId() === s.id && previewResult()}>
+                  {(r) => (
+                    <div class="schedules-preview">
+                      <Show when={r().columns.length > 0}
+                        fallback={<div class="schedule-empty">{t('wizard.noColumns')}</div>}>
+                        <Show when={r().count > 0}
+                          fallback={<div class="schedule-empty">{t('wizard.noElements')}</div>}>
+                          <table class="schedules-preview-table">
+                            <thead><tr>
                               <For each={r().columns}>
-                                {(col, i) => (
-                                  <td class={col.align === 'right' ? 'sp-num' : ''}>
-                                    {i() === 0 ? t('wizard.grandTotal') : fmtTotal(r().grandTotals[col.key], col)}
-                                  </td>
-                                )}
+                                {(col) => <th class={col.align === 'right' ? 'sp-num' : ''}>{col.label}{col.unit ? ` (${col.unit})` : ''}</th>}
                               </For>
-                            </tr>
-                          </tbody>
-                        </table>
-                        <div class="schedules-preview-foot">{r().count} {t('wizard.elements')}</div>
+                            </tr></thead>
+                            <For each={r().groups}>
+                              {(group) => (
+                                <tbody>
+                                  <Show when={group.key !== null}>
+                                    <tr class="sp-group"><td colspan={r().columns.length}>{group.key} <span class="sp-count">({group.rows.length})</span></td></tr>
+                                  </Show>
+                                  <Show when={r().itemize}>
+                                    <For each={group.rows}>
+                                      {(row) => (
+                                        <tr>
+                                          <For each={r().columns}>
+                                            {(col) => (
+                                              <td class={col.align === 'right' ? 'sp-num' : ''}>
+                                                <Show when={col.kind === 'image' && isImageCell(row.vals[col.key])}
+                                                  fallback={formatRowCell(row, col)}>
+                                                  <img class="sp-thumb" src={row.vals[col.key]} alt="" loading="lazy" />
+                                                </Show>
+                                              </td>
+                                            )}
+                                          </For>
+                                        </tr>
+                                      )}
+                                    </For>
+                                  </Show>
+                                  <tr class="sp-total">
+                                    <For each={r().columns}>
+                                      {(col, i) => (
+                                        <td class={col.align === 'right' ? 'sp-num' : ''}>
+                                          {i() === 0 ? (group.key !== null ? `Σ ${group.key}` : t('wizard.subtotal')) : fmtTotal(group.subtotals[col.key], col)}
+                                        </td>
+                                      )}
+                                    </For>
+                                  </tr>
+                                </tbody>
+                              )}
+                            </For>
+                            <tbody>
+                              <tr class="sp-total sp-grand">
+                                <For each={r().columns}>
+                                  {(col, i) => (
+                                    <td class={col.align === 'right' ? 'sp-num' : ''}>
+                                      {i() === 0 ? t('wizard.grandTotal') : fmtTotal(r().grandTotals[col.key], col)}
+                                    </td>
+                                  )}
+                                </For>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <div class="schedules-preview-foot">{r().count} {t('wizard.elements')}</div>
+                        </Show>
                       </Show>
-                    </Show>
-                  </div>
-                )}
-              </Show>
-            </div>
-          )}
-        </For>
-      </Show>
+                    </div>
+                  )}
+                </Show>
+              </div>
+            )}
+          </For>
+        </Show>
+      </div>
 
       <ScheduleWizard />
     </div>

@@ -50,6 +50,7 @@ import { stramienSlotStatus, schakelStramienSlot, slotLabelSleutel } from '../..
 import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
 import { getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { getSelectedText, clearTextSelection } from '../../text/text-selection.js';
+import { heeftTekstselectie } from '../../ui/panels/bladwijzer-plek.js';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
 import { showCalibrationDialog, herberekenVlakMaat } from '../../annotations/measurement.js';
 import { openDialog } from '../stores/dialogStore.js';
@@ -1149,6 +1150,8 @@ function BookmarkMenuContent() {
   // Vinkjes uit het model; de boom verandert na elke stijlwijziging mee.
   const stijl = () => stijlVanSelectie(lijst(), bookmarkSelectedIds());
   const zet = (wijziging) => import('../../ui/panels/bookmarks.js').then(m => m.setBookmarkStyle(wijziging));
+  // Tekst geselecteerd in het document: bij het openen van het menu gelezen.
+  const tekstGeselecteerd = () => heeftTekstselectie();
 
   return (
     <>
@@ -1161,6 +1164,13 @@ function BookmarkMenuContent() {
       <Separator />
       <MenuItem label={t('bookmark.editBookmark')} disabled={uit().edit} onClick={() => {
         import('../../ui/panels/bookmarks.js').then(m => m.editBookmark());
+      }} />
+      {/* Bestemming opnieuw zetten (#1157): wat nu in beeld is, of de geselecteerde tekst. */}
+      <MenuItem label={t('bookmark.setDestView')} disabled={uit().edit} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.setBookmarkDestination('beeld'));
+      }} />
+      <MenuItem label={t('bookmark.setDestSelection')} disabled={uit().edit || !tekstGeselecteerd()} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.setBookmarkDestination('selectie'));
       }} />
       <MenuItem label={aantal() > 1 ? t('bookmark.deleteBookmarks', { count: aantal() }) : t('bookmark.deleteBookmark')}
         disabled={uit().delete} onClick={() => {
@@ -1432,6 +1442,10 @@ function TextSelectionMenuContent() {
       {/* Hyperlink op de geselecteerde tekst (#953): de regels worden /QuadPoints. */}
       <MenuItem label={t('textSelection.linkSelection')} disabled={isPdfAReadOnly()} onClick={() => {
         import('../../annotations/link/link-maken.js').then((m) => m.linkUitSelectie());
+      }} />
+      {/* Bladwijzer naar de geselecteerde tekst (#1157): de tekst wordt de titel. */}
+      <MenuItem icon={bookmarkIcon} label={t('textSelection.bookmarkSelection')} disabled={isPdfAReadOnly()} onClick={() => {
+        import('../../ui/panels/bookmarks.js').then(m => m.addBookmark());
       }} />
 
     </>

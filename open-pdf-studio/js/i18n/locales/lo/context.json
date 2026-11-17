@@ -120,6 +120,8 @@
     "nestUnderNew": "ຈັດໄວ້ພາຍໃຕ້ບຸກມາກໃໝ່...",
     "indent": "ຍໍ້ໜ້າເຂົ້າ",
     "outdent": "ຍໍ້ໜ້າອອກ",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "ລຶບ {{count}} ບຸກມາກ"
   },
   "thumbnail": {
@@ -166,6 +168,7 @@
     "strikethroughSelection": "ຂີດຂ້າຂໍ້ຄວາມທີ່ເລືອກ",
     "underlineSelection": "ຂີດກ້ອງຂໍ້ຄວາມທີ່ເລືອກ",
     "curvedLeaderSelection": "ເພີ່ມຂໍ້ຄວາມຊີ້ບອກເສັ້ນໂຄ້ງ",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

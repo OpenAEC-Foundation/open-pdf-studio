@@ -6,6 +6,10 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { BREUK_PRECISIES, isImperialeLengte } from '../../../core/voet-inch.js';
 import { maatEenheid } from '../../../core/maat-opmaak.js';
 import { OPPERVLAKTE_KEUZES } from '../../../annotations/oppervlakte-eenheid.js';
+import { state, getActiveDocument } from '../../../core/state.js';
+import { openDialog } from '../../stores/dialogStore.js';
+import { documentHeeftSchaal } from '../../../annotations/schaal-op-punt.js';
+import { meetZonderSchaal } from '../../../annotations/eenhedenstelsel.js';
 
 // Uitloop van de maatlijn en de hulplijnen, in millimeters op papier
 // (maatlijn-geometrie.js). Leeg = automatisch.
@@ -27,6 +31,20 @@ function papierMm(waarde) {
 export default function MeasurementSection() {
   const { t } = useTranslation('properties');
   const isLocked = () => annotProps.locked === true || annotProps.locked === 'mixed';
+
+  // Geen schaal op het document (#1158): de maat is dan de maat op papier.
+  // Het paneel zegt dat en biedt Kalibreren aan. Een maat met een eigen
+  // schaal heeft de documentschaal niet nodig.
+  const zonderSchaal = () => {
+    void annotProps.measureText; void annotProps.measureUnit; void annotProps.measureScale;
+    const ann = getCurrentAnnotation();
+    const standaarden = !ann || ann.id === '__tool-defaults__';
+    if (!standaarden && Number(ann.measureScale) > 0) return false;
+    return meetZonderSchaal({
+      heeftSchaalbron: documentHeeftSchaal(getActiveDocument()),
+      legacySchaal: state.preferences?.measureScale,
+    });
+  };
 
   // Oppervlak (lengte × diepte) of inhoud (vlak × diepte), #311. Leest de
   // velden van het paneel zodat het meerekent bij een andere diepte/eenheid.
@@ -162,6 +180,18 @@ export default function MeasurementSection() {
             <option value="px">px</option>
           </select>
         </div>
+
+        <Show when={zonderSchaal()}>
+          <div class="property-group">
+            <span class="prop-hint-text">{t('measurement.noScaleHint')}</span>
+          </div>
+          <div class="property-group">
+            <button type="button" class="prop-action-btn"
+              onClick={() => openDialog('calibration', { referencePixelLength: null })}>
+              {t('measurement.noScaleCalibrate')}
+            </button>
+          </div>
+        </Show>
 
         {/* Oppervlakte in acres, hectares, ... (#1129): alleen de weergave van
             de oppervlakte; lengtes en zijdematen houden de eenheid hierboven. */}

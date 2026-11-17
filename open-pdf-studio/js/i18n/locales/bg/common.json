@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Текстът не е променен: никой наличен шрифт няма тези знаци, така че те не могат да бъдат записани: {{chars}}",
   "textEditMissingGlyphsLater": "Никой наличен шрифт няма тези знаци, така че те не могат да бъдат записани: {{chars}}. Променете този текст; дотогава PDF файлът не може да бъде записан.",
   "textEditMissingGlyphsSave": "PDF файлът не е записан: редактиран текст съдържа знаци, които никой наличен шрифт няма: {{chars}}. Променете този текст и запишете отново.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Създаването на документа е неуспешно: {{error}}",
   "failedToReplacePage": "Замяната на страницата е неуспешна: {{error}}",
   "failedToMergeFile": "Обединяването е неуспешно: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Отваряне в разделен изглед",
     "openInNewWindow": "Отваряне в нов прозорец",
     "closeTab": "Затваряне на раздела",
+    "closeOtherTabs": "Затваряне на другите раздели",
+    "closeAllTabs": "Затваряне на всички раздели",
     "nextTab": "Следващ раздел",
     "previousTab": "Предишен раздел",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

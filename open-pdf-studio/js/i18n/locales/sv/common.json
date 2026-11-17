@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Texten ändrades inte: inget tillgängligt teckensnitt har dessa tecken, så de kan inte sparas: {{chars}}",
   "textEditMissingGlyphsLater": "Inget tillgängligt teckensnitt har dessa tecken, så de kan inte sparas: {{chars}}. Ändra texten; tills dess kan PDF-filen inte sparas.",
   "textEditMissingGlyphsSave": "PDF-filen sparades inte: redigerad text innehåller tecken som inget tillgängligt teckensnitt har: {{chars}}. Ändra texten och spara igen.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Det gick inte att skapa dokumentet: {{error}}",
   "failedToReplacePage": "Det gick inte att ersätta sidan: {{error}}",
   "failedToMergeFile": "Det gick inte att sammanfoga: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Öppna i delad vy",
     "openInNewWindow": "Öppna i nytt fönster",
     "closeTab": "Stäng flik",
+    "closeOtherTabs": "Stäng andra flikar",
+    "closeAllTabs": "Stäng alla flikar",
     "nextTab": "Nästa flik",
     "previousTab": "Föregående flik",
     "newTabForDocument": "Ny flik för det här dokumentet"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

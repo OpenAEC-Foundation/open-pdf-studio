@@ -2,6 +2,8 @@
 // bladwijzerpaneel (doc.bookmarks). Geen imports uit de app: de lader, het
 // samenvoegen en de unit-tests gebruiken dezelfde omzetting.
 
+import { doelVeldenUitDest } from './bladwijzer-doel.js';
+
 // Load bookmarks from PDF outline
 export async function loadBookmarksFromPdf(pdfDoc) {
   if (!pdfDoc) return [];
@@ -15,8 +17,10 @@ export async function loadBookmarksFromPdf(pdfDoc) {
         const item = items[i];
         const id = 'bm_' + (nextId++);
         let page = 1;
-        let top = null;
-        let left = null;
+        // De plek op de pagina (#1157): elke vorm van bestemming, niet alleen
+        // /XYZ. Het derde getal is bij /FitH een hoogte en bij /FitV een
+        // afstand van links; blind als left/top lezen verhaspelt ze.
+        let doel = { left: null, top: null, zoom: null };
 
         // Resolve destination
         if (item.dest) {
@@ -29,8 +33,7 @@ export async function loadBookmarksFromPdf(pdfDoc) {
               const pageRef = dest[0];
               const pageIndex = await pdfDoc.getPageIndex(pageRef);
               page = pageIndex + 1;
-              if (dest.length > 2) left = dest[2];
-              if (dest.length > 3) top = dest[3];
+              doel = doelVeldenUitDest(dest);
             }
           } catch (e) {
             // Failed to resolve dest - use page 1
@@ -41,9 +44,11 @@ export async function loadBookmarksFromPdf(pdfDoc) {
           id,
           title: item.title || 'Untitled',
           page,
-          top,
-          left,
-          zoom: null,
+          top: doel.top,
+          left: doel.left,
+          zoom: doel.zoom,
+          // Een andere vorm dan /XYZ blijft zoals hij in het bestand staat.
+          ...(doel.destType ? { destType: doel.destType, destArgs: doel.destArgs } : {}),
           parentId,
           expanded: true,
           bold: !!(item.bold),

@@ -148,104 +148,107 @@ export default function MeasurementsPanel() {
         <span>{t('leftPanel.measurements') || 'Measurements'}</span>
       </div>
 
-      {/* ── Scale Section ── */}
-      <div class="measurements-section">
-        <div class="measurements-section-header">
-          <span>{t('measurements.scale') || 'Scale'}</span>
+      {/* The sections scroll as a whole; the panel header stays put (#1155). */}
+      <div class="measurements-container">
+        {/* ── Scale Section ── */}
+        <div class="measurements-section">
+          <div class="measurements-section-header">
+            <span>{t('measurements.scale') || 'Scale'}</span>
+          </div>
+          <div class="measurements-scale-display">
+            <Show when={currentScale()} fallback={
+              <span class="measurements-empty">{t('measurements.noScale') || 'No scale set'}</span>
+            }>
+              <span class="measurements-scale-value">{currentScale()}</span>
+            </Show>
+          </div>
         </div>
-        <div class="measurements-scale-display">
-          <Show when={currentScale()} fallback={
-            <span class="measurements-empty">{t('measurements.noScale') || 'No scale set'}</span>
-          }>
-            <span class="measurements-scale-value">{currentScale()}</span>
-          </Show>
-        </div>
-      </div>
 
-      {/* ── Viewports Section ── */}
-      <div class="measurements-section">
-        <div class="measurements-section-header">
-          <span>{t('measurements.viewports') || 'Viewports'}</span>
-          <span class="measurements-count">{viewports().length}</span>
+        {/* ── Viewports Section ── */}
+        <div class="measurements-section">
+          <div class="measurements-section-header">
+            <span>{t('measurements.viewports') || 'Viewports'}</span>
+            <span class="measurements-count">{viewports().length}</span>
+          </div>
+          <Show when={viewports().length === 0}>
+            <div class="measurements-empty">{t('measurements.noViewports') || 'No viewports defined'}</div>
+          </Show>
+          <For each={viewports()}>
+            {(vp) => (
+              <div class="measurements-item" onClick={() => navigateTo(vp)}>
+                <div class="measurements-item-icon" style={{ color: '#0066cc' }}>&#9634;</div>
+                <div class="measurements-item-info">
+                  <div class="measurements-item-name">{(vp.name && vp.name !== vp.scaleRatio ? vp.name : scaleDisplayLabel(vp.scaleRatio, vp.unit, { withRatio: false })) || 'Viewport'}</div>
+                  <div class="measurements-item-detail">
+                    {vp.scaleRatio ? scaleDisplayLabel(vp.scaleRatio, vp.unit) : `1px = ${(1/vp.pixelsPerUnit).toFixed(4)} ${vp.unit}`}
+                    {' \u2022 Page ' + vp.page}
+                  </div>
+                </div>
+                <button class="measurements-item-delete" title="Delete" onClick={(e) => { e.stopPropagation(); deleteViewport(vp); }}>
+                  &times;
+                </button>
+              </div>
+            )}
+          </For>
         </div>
-        <Show when={viewports().length === 0}>
-          <div class="measurements-empty">{t('measurements.noViewports') || 'No viewports defined'}</div>
-        </Show>
-        <For each={viewports()}>
-          {(vp) => (
-            <div class="measurements-item" onClick={() => navigateTo(vp)}>
-              <div class="measurements-item-icon" style={{ color: '#0066cc' }}>&#9634;</div>
-              <div class="measurements-item-info">
-                <div class="measurements-item-name">{(vp.name && vp.name !== vp.scaleRatio ? vp.name : scaleDisplayLabel(vp.scaleRatio, vp.unit, { withRatio: false })) || 'Viewport'}</div>
-                <div class="measurements-item-detail">
-                  {vp.scaleRatio ? scaleDisplayLabel(vp.scaleRatio, vp.unit) : `1px = ${(1/vp.pixelsPerUnit).toFixed(4)} ${vp.unit}`}
-                  {' \u2022 Page ' + vp.page}
+
+        {/* ── Counts Section (#935) ── */}
+        <div class="measurements-section">
+          <div class="measurements-section-header">
+            <span>{t('measurements.counts')}</span>
+            <span class="measurements-count">{countRows().reduce((s, r) => s + r.count, 0)}</span>
+          </div>
+          <Show when={countRows().length === 0}>
+            <div class="measurements-empty">{t('measurements.noCounts')}</div>
+          </Show>
+          <For each={countRows()}>
+            {(r) => (
+              <div class="measurements-item" onClick={() => selectCountGroup(r.id)}>
+                <div class="measurements-item-icon" style={{ color: r.color }}>&#9679;</div>
+                <div class="measurements-item-info">
+                  <div class="measurements-item-name">{r.id === GEEN_TELGROEP ? t('countGroup.none') : r.name}</div>
+                  <div class="measurements-item-detail">{t('countGroup.pieces', { count: r.count })}</div>
                 </div>
               </div>
-              <button class="measurements-item-delete" title="Delete" onClick={(e) => { e.stopPropagation(); deleteViewport(vp); }}>
-                &times;
-              </button>
-            </div>
-          )}
-        </For>
-      </div>
-
-      {/* ── Counts Section (#935) ── */}
-      <div class="measurements-section">
-        <div class="measurements-section-header">
-          <span>{t('measurements.counts')}</span>
-          <span class="measurements-count">{countRows().reduce((s, r) => s + r.count, 0)}</span>
+            )}
+          </For>
         </div>
-        <Show when={countRows().length === 0}>
-          <div class="measurements-empty">{t('measurements.noCounts')}</div>
-        </Show>
-        <For each={countRows()}>
-          {(r) => (
-            <div class="measurements-item" onClick={() => selectCountGroup(r.id)}>
-              <div class="measurements-item-icon" style={{ color: r.color }}>&#9679;</div>
-              <div class="measurements-item-info">
-                <div class="measurements-item-name">{r.id === GEEN_TELGROEP ? t('countGroup.none') : r.name}</div>
-                <div class="measurements-item-detail">{t('countGroup.pieces', { count: r.count })}</div>
-              </div>
-            </div>
-          )}
-        </For>
-      </div>
 
-      {/* ── Measurements Section ── */}
-      <div class="measurements-section">
-        <div class="measurements-section-header">
-          <span>{t('measurements.measurements') || 'Measurements'}</span>
-          <span class="measurements-count">{measurements().length}</span>
-        </div>
-        <Show when={measurements().length === 0}>
-          <div class="measurements-empty">{t('measurements.noMeasurements') || 'No measurements yet'}</div>
-        </Show>
-        <For each={Object.entries(groupedMeasurements())}>
-          {([type, items]) => (
-            <div class="measurements-group">
-              <div class="measurements-group-header">
-                <span>{typeLabels[type] || type}</span>
-                <span class="measurements-group-total">{totals()[type]}</span>
-              </div>
-              <For each={items}>
-                {(m) => (
-                  <div class="measurements-item" classList={{ selected: getActiveDocument()?.selectedAnnotation?.id === m.id }}
-                    onClick={() => navigateTo(m)}>
-                    <div class="measurements-item-icon">{typeIcons[m.type] || '\u2022'}</div>
-                    <div class="measurements-item-info">
-                      <div class="measurements-item-name">{m.label || m.measureText || 'Measurement'}</div>
-                      <div class="measurements-item-detail">
-                        Page {m.page}
-                        {m.measureText ? ' \u2022 ' + m.measureText : ''}
+        {/* ── Measurements Section ── */}
+        <div class="measurements-section">
+          <div class="measurements-section-header">
+            <span>{t('measurements.measurements') || 'Measurements'}</span>
+            <span class="measurements-count">{measurements().length}</span>
+          </div>
+          <Show when={measurements().length === 0}>
+            <div class="measurements-empty">{t('measurements.noMeasurements') || 'No measurements yet'}</div>
+          </Show>
+          <For each={Object.entries(groupedMeasurements())}>
+            {([type, items]) => (
+              <div class="measurements-group">
+                <div class="measurements-group-header">
+                  <span>{typeLabels[type] || type}</span>
+                  <span class="measurements-group-total">{totals()[type]}</span>
+                </div>
+                <For each={items}>
+                  {(m) => (
+                    <div class="measurements-item" classList={{ selected: getActiveDocument()?.selectedAnnotation?.id === m.id }}
+                      onClick={() => navigateTo(m)}>
+                      <div class="measurements-item-icon">{typeIcons[m.type] || '\u2022'}</div>
+                      <div class="measurements-item-info">
+                        <div class="measurements-item-name">{m.label || m.measureText || 'Measurement'}</div>
+                        <div class="measurements-item-detail">
+                          Page {m.page}
+                          {m.measureText ? ' \u2022 ' + m.measureText : ''}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </For>
-            </div>
-          )}
-        </For>
+                  )}
+                </For>
+              </div>
+            )}
+          </For>
+        </div>
       </div>
     </div>
   );

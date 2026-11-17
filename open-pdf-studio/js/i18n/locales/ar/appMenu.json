@@ -12,6 +12,7 @@
   "preferences": "التفضيلات",
   "about": "حول",
   "exit": "خروج",
+  "closeAll": "إغلاق الكل",
   "aboutPanel": {
     "title": "حول",
     "appName": "Open PDF Studio",

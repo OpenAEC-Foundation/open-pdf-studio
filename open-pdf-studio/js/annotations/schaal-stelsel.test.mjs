@@ -53,5 +53,8 @@ test('the preference exists with default both, and every scale list follows it',
   const paneel = bron('../solid/components/properties-panel/PropertiesPanel.jsx');
   assert.match(paneel, /\{ current: annotProps\.viewportScaleRatio \|\| '1:100' \}/);
   assert.match(paneel, /\{ current: cur \}/);
-  assert.match(bron('../solid/components/preferences/AnnotationsTab.jsx'), /p\.scaleUnitSystem\[0\]/);
+  // De instelling zelf staat in één onderdeel dat beide tabbladen tonen (#1158).
+  assert.match(bron('../solid/components/preferences/UnitSystemRow.jsx'), /p\.scaleUnitSystem\[0\]/);
+  assert.match(bron('../solid/components/preferences/AnnotationsTab.jsx'), /<UnitSystemRow prefs=\{p\}/);
+  assert.match(bron('../solid/components/preferences/GeneralTab.jsx'), /<UnitSystemRow prefs=\{p\}/);
 });

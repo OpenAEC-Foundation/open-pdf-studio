@@ -114,6 +114,8 @@
     "nestUnderNew": "Sarangkan di bawah penanda buku baharu...",
     "indent": "Inden",
     "outdent": "Nyahinden",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Padam {{count}} penanda buku"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Garis Potong Pilihan",
     "underlineSelection": "Garis Bawah Pilihan",
     "curvedLeaderSelection": "Tambah Panggilan Melengkung",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

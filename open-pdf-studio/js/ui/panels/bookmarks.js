@@ -5,6 +5,7 @@ import { markDocumentModified } from '../../ui/chrome/tabs.js';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
 import { ingeklapteVoorouders } from './bladwijzer-zoeken.js';
 import { loadBookmarksFromPdf } from '../../pdf/bladwijzers-lezen.js';
+import { heeftPlek, destVanBladwijzer } from '../../pdf/bladwijzer-doel.js';
 import { zetBladwijzerStijl, stijlVanSelectie } from './bladwijzer-stijl.js';
 import {
   voegBladwijzerToe, wijzigBladwijzer, verwijderBladwijzersUit, verplaatsBladwijzersIn, nieuweBladwijzerId,
@@ -190,9 +191,84 @@ export function selectBookmarkForMenu(id) {
   selectBookmark(id);
 }
 
-function navigateToBookmark(bm) {
+// Een bladwijzer volgen (#1157). Met een plek op de pagina gaat hij door
+// dezelfde weg als een link in het document (link-layer.js): elke vorm van
+// bestemming, in elke weergave. Alleen een pagina: zoals altijd die pagina.
+async function navigateToBookmark(bm) {
   if (!bm || !getActiveDocument()?.pdfDoc) return;
-  goToPage(bm.page);
+  if (!heeftPlek(bm)) { goToPage(bm.page); return; }
+  try {
+    const { handleInternalLink } = await import('../../pdf/link-layer.js');
+    await handleInternalLink(destVanBladwijzer(bm));
+  } catch (e) {
+    console.warn('[bookmarks] plek van de bladwijzer niet getoond:', e);
+    goToPage(bm.page);
+  }
+}
+
+// ── Naar een plek op de pagina (#1157) ───────────────────────────────────────
+
+// Wat er nu in beeld is, als mogelijke doelen: de geselecteerde tekst (als die
+// er is) en de linkerbovenhoek van het zichtbare deel van de huidige pagina.
+// Vóór het venster opent: dat neemt de selectie weg.
+async function vangDoelen(doc) {
+  try {
+    const m = await import('./bladwijzer-plek.js');
+    const selectie = m.doelVanSelectie(doc);
+    const beeld = m.doelVanBeeld(doc);
+    return { selectie: await selectie, beeld: await beeld };
+  } catch (e) {
+    console.warn('[bookmarks] plek in beeld niet gelezen:', e);
+    return { selectie: null, beeld: null };
+  }
+}
+
+// De keuzes voor het venster: [{ id, page }], in de volgorde van de lijst.
+function doelKeuzes(vangst, bestaand = null) {
+  return [
+    ...(bestaand ? [{ id: 'behouden', page: bestaand.page }] : []),
+    ...(vangst.selectie ? [{ id: 'selectie', page: vangst.selectie.velden.page }] : []),
+    ...(vangst.beeld ? [{ id: 'beeld', page: vangst.beeld.page }] : []),
+    { id: 'pagina', page: null },
+  ];
+}
+
+// De plek die bij de keuze in het venster hoort: { left, top }, of niets voor
+// 'de bovenkant van de pagina'. Een andere pagina dan waar de plek op ligt,
+// is ook de bovenkant van die pagina.
+function plekVanKeuze(result, vangst) {
+  const gekozen = result.doel === 'selectie' ? vangst.selectie?.velden
+    : (result.doel === 'beeld' ? vangst.beeld : null);
+  return gekozen && gekozen.page === result.page ? { left: gekozen.left, top: gekozen.top } : null;
+}
+
+// Nieuwe bladwijzer: met geselecteerde tekst wordt die de titel en de plek;
+// anders wijst hij naar wat nu in beeld is.
+async function nieuweBladwijzer(doc, dialoogTitel, parentId) {
+  const vangst = await vangDoelen(doc);
+  if (getActiveDocument() !== doc) return;
+  const standaard = vangst.selectie ? 'selectie' : (vangst.beeld ? 'beeld' : 'pagina');
+  const pagina = vangst.selectie?.velden.page ?? vangst.beeld?.page ?? doc.currentPage;
+  const result = await showBookmarkDialog(dialoogTitel, vangst.selectie?.titel || '', pagina, {}, null,
+    { doelen: doelKeuzes(vangst), doel: standaard });
+  if (!result) return;
+
+  const bm = await voegBladwijzerToe(doc, { ...result, ...(plekVanKeuze(result, vangst) || {}), parentId });
+  zetSelectie([bm.id]);
+}
+
+// Contextmenu van een bladwijzer: laat hem wijzen naar wat nu in beeld is
+// ('beeld') of naar de geselecteerde tekst ('selectie'). Eén undo-stap.
+export async function setBookmarkDestination(bron) {
+  if (isPdfAReadOnly()) return false;
+  const doc = getActiveDocument();
+  const ids = getSelectedBookmarkIds();
+  if (!doc?.pdfDoc || ids.length !== 1) return false;
+  const m = await import('./bladwijzer-plek.js');
+  const velden = bron === 'selectie' ? (await m.doelVanSelectie(doc))?.velden : await m.doelVanBeeld(doc);
+  if (!velden || getActiveDocument() !== doc) return false;
+  const bm = await wijzigBladwijzer(doc, ids[0], { page: velden.page, left: velden.left, top: velden.top });
+  return !!bm;
 }
 
 // Klap de ouders van een bladwijzer open zodat hij in de boom te zien is
@@ -240,11 +316,13 @@ export async function addBookmark() {
   const doc = getActiveDocument();
   if (!doc) return;
 
-  const result = await showBookmarkDialog('Add Bookmark', '', doc.currentPage);
-  if (!result) return;
+  await nieuweBladwijzer(doc, 'Add Bookmark', null);
+}
 
-  const bm = await voegBladwijzerToe(doc, { ...result, parentId: null });
-  zetSelectie([bm.id]);
+// 'Bladwijzer toevoegen' in het contextmenu van de pagina. Het menu riep deze
+// functie al aan, maar ze bestond niet: de keuze deed niets (#1157).
+export function addBookmarkAtCurrentPage() {
+  return addBookmark();
 }
 
 // Add child bookmark under selected
@@ -254,11 +332,7 @@ export async function addChildBookmark() {
   if (!doc || !selectedBookmarkId) return;
   const parentId = selectedBookmarkId;
 
-  const result = await showBookmarkDialog('Add Child Bookmark', '', doc.currentPage);
-  if (!result) return;
-
-  const bm = await voegBladwijzerToe(doc, { ...result, parentId });
-  zetSelectie([bm.id]);
+  await nieuweBladwijzer(doc, 'Add Child Bookmark', parentId);
 }
 
 // Inline hernoemen (#891): de sessie onthoudt document en oorspronkelijke
@@ -288,12 +362,20 @@ export async function editBookmark() {
   const bm = doc.bookmarks.find(b => b.id === selectedBookmarkId);
   if (!bm) return;
 
+  const vangst = await vangDoelen(doc);
+  if (getActiveDocument() !== doc) return;
+  const id = bm.id;
   const result = await showBookmarkDialog('Edit Bookmark', bm.title, bm.page,
-    { color: bm.color || null, bold: !!bm.bold, italic: !!bm.italic });
+    { color: bm.color || null, bold: !!bm.bold, italic: !!bm.italic }, null,
+    { doelen: doelKeuzes(vangst, bm), doel: 'behouden' });
   if (!result) return;
 
-  await wijzigBladwijzer(doc, bm.id, {
-    title: result.title, page: result.page, color: result.color || null, bold: !!result.bold, italic: !!result.italic,
+  // 'Behouden' laat de plek met rust (een andere pagina wijst vanzelf naar
+  // haar bovenkant); elke andere keuze vervangt het doel.
+  const plek = result.doel === 'behouden' ? {} : (plekVanKeuze(result, vangst) || { left: null, top: null });
+  await wijzigBladwijzer(doc, id, {
+    title: result.title, page: result.page, ...plek,
+    color: result.color || null, bold: !!result.bold, italic: !!result.italic,
   });
 }
 
@@ -347,7 +429,9 @@ function getDescendants(bookmarks, parentId) {
   return result;
 }
 
-function showBookmarkDialog(dialogTitle, currentTitle, currentPage, stijl = {}, modus = null) {
+// `doel`: { doelen: [{ id, page }], doel: id } voor de keuze 'Bestemming'
+// (#1157); zonder: alleen een pagina, zoals bij nesten onder een nieuwe.
+function showBookmarkDialog(dialogTitle, currentTitle, currentPage, stijl = {}, modus = null, doel = null) {
   return new Promise((resolve) => {
     const isEdit = dialogTitle.toLowerCase().includes('edit');
     openDialog('bookmark', {
@@ -358,6 +442,8 @@ function showBookmarkDialog(dialogTitle, currentTitle, currentPage, stijl = {}, 
       italic: !!stijl.italic,
       isEdit,
       modus,
+      doelen: doel?.doelen || null,
+      doel: doel?.doel || null,
       onOk: resolve,
     });
   });

@@ -114,6 +114,8 @@
     "nestUnderNew": "Sisennä uuden kirjanmerkin alle...",
     "indent": "Sisennä",
     "outdent": "Pienennä sisennystä",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Poista {{count}} kirjanmerkkiä"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Yliviivaa valinta",
     "underlineSelection": "Alleviivaa valinta",
     "curvedLeaderSelection": "Lisää kaareva kuvateksti",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

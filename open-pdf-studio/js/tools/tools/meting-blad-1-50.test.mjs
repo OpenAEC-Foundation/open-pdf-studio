@@ -261,7 +261,8 @@ test('a detail scale or a sheet number elsewhere on the sheet does not win over 
 test('the loader turns a title-block scale into points per mm the way leesBlad does', () => {
   // leesBlad herhaalt de omrekening uit loadPDF; dit houdt die twee gelijk.
   const loader = readFileSync(new URL('../../pdf/loader.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
-  assert.match(loader, /doc\.measureScale = measureScaleFromTitleBlock\(result\);/);
+  // Een kale 1:N in de eenheid van de voorkeur Eenheden: mm, of voet (#1158).
+  assert.match(loader, /doc\.measureScale = measureScaleFromTitleBlock\(result, standaardLengteEenheid\(\)\);/);
   assert.match(loader, /await detectScaleFromPdf\(1, doc\)/);
   assert.match(loader, /leesPdfViewports\(pdfLibDoc\) : null, geldig \? leesUserUnits\(pdfLibDoc\) : null\)/);
 });

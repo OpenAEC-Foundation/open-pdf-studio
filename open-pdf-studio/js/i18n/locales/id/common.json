@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Teks tidak diubah: tidak ada font yang tersedia yang memiliki karakter ini, jadi karakter tersebut tidak dapat disimpan: {{chars}}",
   "textEditMissingGlyphsLater": "Tidak ada font yang tersedia yang memiliki karakter ini, jadi karakter tersebut tidak dapat disimpan: {{chars}}. Ubah teks ini; sampai saat itu PDF tidak dapat disimpan.",
   "textEditMissingGlyphsSave": "PDF tidak disimpan: teks yang diedit berisi karakter yang tidak dimiliki font mana pun yang tersedia: {{chars}}. Ubah teks itu lalu simpan lagi.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Gagal membuat dokumen: {{error}}",
   "failedToReplacePage": "Gagal mengganti halaman: {{error}}",
   "failedToMergeFile": "Gagal menggabungkan: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Buka dalam Tampilan Terbagi",
     "openInNewWindow": "Buka di jendela baru",
     "closeTab": "Tutup tab",
+    "closeOtherTabs": "Tutup tab lain",
+    "closeAllTabs": "Tutup semua tab",
     "nextTab": "Tab Berikutnya",
     "previousTab": "Tab Sebelumnya",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

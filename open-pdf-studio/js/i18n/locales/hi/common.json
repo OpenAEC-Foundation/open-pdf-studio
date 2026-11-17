@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "पाठ नहीं बदला गया: किसी भी उपलब्ध फ़ॉन्ट में ये वर्ण नहीं हैं, इसलिए इन्हें सहेजा नहीं जा सकता: {{chars}}",
   "textEditMissingGlyphsLater": "किसी भी उपलब्ध फ़ॉन्ट में ये वर्ण नहीं हैं, इसलिए इन्हें सहेजा नहीं जा सकता: {{chars}}। यह पाठ बदलें; तब तक PDF सहेजी नहीं जा सकती।",
   "textEditMissingGlyphsSave": "PDF सहेजी नहीं गई: संपादित पाठ में ऐसे वर्ण हैं जो किसी भी उपलब्ध फ़ॉन्ट में नहीं हैं: {{chars}}। वह पाठ बदलें और फिर से सहेजें।",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "दस्तावेज़ बनाने में विफल: {{error}}",
   "failedToReplacePage": "पृष्ठ बदलने में विफल: {{error}}",
   "failedToMergeFile": "मर्ज करने में विफल: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "विभाजित दृश्य में खोलें",
     "openInNewWindow": "नई विंडो में खोलें",
     "closeTab": "टैब बंद करें",
+    "closeOtherTabs": "अन्य टैब बंद करें",
+    "closeAllTabs": "सभी टैब बंद करें",
     "nextTab": "अगला टैब",
     "previousTab": "पिछला टैब",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "ไม่ได้เปลี่ยนข้อความ: ไม่มีฟอนต์ที่ใช้ได้ใดมีอักขระเหล่านี้ จึงบันทึกไม่ได้: {{chars}}",
   "textEditMissingGlyphsLater": "ไม่มีฟอนต์ที่ใช้ได้ใดมีอักขระเหล่านี้ จึงบันทึกไม่ได้: {{chars}} โปรดเปลี่ยนข้อความนี้ ก่อนหน้านั้นจะบันทึก PDF ไม่ได้",
   "textEditMissingGlyphsSave": "ไม่ได้บันทึก PDF: ข้อความที่แก้ไขมีอักขระที่ไม่มีในฟอนต์ที่ใช้ได้ใดเลย: {{chars}} โปรดเปลี่ยนข้อความนั้นแล้วบันทึกอีกครั้ง",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "สร้างเอกสารไม่สำเร็จ: {{error}}",
   "failedToReplacePage": "แทนที่หน้าไม่สำเร็จ: {{error}}",
   "failedToMergeFile": "รวมไม่สำเร็จ: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "เปิดในมุมมองแบบแบ่ง",
     "openInNewWindow": "เปิดในหน้าต่างใหม่",
     "closeTab": "ปิดแท็บ",
+    "closeOtherTabs": "ปิดแท็บอื่น",
+    "closeAllTabs": "ปิดแท็บทั้งหมด",
     "nextTab": "แท็บถัดไป",
     "previousTab": "แท็บก่อนหน้า",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

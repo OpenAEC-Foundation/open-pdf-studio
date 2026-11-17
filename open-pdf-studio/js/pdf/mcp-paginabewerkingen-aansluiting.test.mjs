@@ -77,7 +77,7 @@ test('de manifest en de README van de stdio-brug noemen ze', () => {
 
 test('de dialogen gebruiken dezelfde functies als de MCP-opdrachten', () => {
   const pad = 'open-pdf-studio/js/';
-  assert.match(lees(`${pad}ui/panels/bookmarks.js`), /voegBladwijzerToe\(doc, \{ \.\.\.result, parentId: null \}\)/);
+  assert.match(lees(`${pad}ui/panels/bookmarks.js`), /voegBladwijzerToe\(doc, \{ \.\.\.result, /);
   assert.match(lees(`${pad}ui/panels/bookmarks.js`), /return verplaatsBladwijzersIn\(getActiveDocument\(\), ids, doelId, positie\)/);
   assert.match(lees(`${pad}ui/panels/bookmarks.js`), /await verwijderBladwijzersUit\(doc, ids\)/);
   assert.match(lees(`${pad}solid/components/dialogs/WatermarkDialog.jsx`), /await voegWatermerkToe\(doc, wm\)/);

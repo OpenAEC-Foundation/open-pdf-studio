@@ -9,6 +9,7 @@ import PrefSelect from './PrefSelect.jsx';
 import { normalizeStartupTool } from '../../../core/startup-tool.js';
 import { UI_SCALES, normalizeUiScale } from '../../../core/ui-scale.js';
 import LanguageSelect from './LanguageSelect.jsx';
+import UnitSystemRow from './UnitSystemRow.jsx';
 
 export default function GeneralTab(props) {
   const { t } = useTranslation('preferences');
@@ -53,6 +54,11 @@ export default function GeneralTab(props) {
           <label>{t('general.interfaceLanguage')}</label>
           <LanguageSelect value={p.language[0]} setValue={p.language[1]} options={languageOptions} style={{ width: '220px' }} />
         </div>
+      </fieldset>
+      {/* Eenheden (#1158): metrisch of voet en inch, voor de hele app. */}
+      <fieldset class="pref-fieldset">
+        <legend>{t('measurement.units')}</legend>
+        <UnitSystemRow prefs={p} id="pref-units" />
       </fieldset>
       <fieldset class="pref-fieldset">
         <legend>{t('general.theme')}</legend>

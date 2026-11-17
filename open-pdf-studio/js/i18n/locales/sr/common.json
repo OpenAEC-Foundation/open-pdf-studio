@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Текст није промењен: ниједан доступан фонт нема ове знакове, па не могу да се сачувају: {{chars}}",
   "textEditMissingGlyphsLater": "Ниједан доступан фонт нема ове знакове, па не могу да се сачувају: {{chars}}. Промените овај текст; до тада PDF не може да се сачува.",
   "textEditMissingGlyphsSave": "PDF није сачуван: измењени текст садржи знакове које нема ниједан доступан фонт: {{chars}}. Промените тај текст и сачувајте поново.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Прављење документа није успело: {{error}}",
   "failedToReplacePage": "Замена странице није успела: {{error}}",
   "failedToMergeFile": "Спајање није успело: {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Отвори у подељеном приказу",
     "openInNewWindow": "Отвори у новом прозору",
     "closeTab": "Затвори картицу",
+    "closeOtherTabs": "Затвори остале картице",
+    "closeAllTabs": "Затвори све картице",
     "nextTab": "Следећа картица",
     "previousTab": "Претходна картица",
     "newTabForDocument": "New Tab for This Document"
@@ -379,5 +382,6 @@
     "scanFailed": "The photo could not be turned into a page: {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)"
+  "xfdfImportMerged": "Imported {{count}} annotations from XFDF ({{duplicates}} already present, {{replies}} new replies)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

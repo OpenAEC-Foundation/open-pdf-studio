@@ -15,6 +15,7 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { leesLengte, isImperialeLengte, VOET_INCH_VOORBEELD } from '../../../core/voet-inch.js';
+import { standaardLengteEenheid } from '../../../annotations/eenhedenstelsel.js';
 import { IMPERIAL_SCALE_PRESETS, isImperialScalePreset, filterScaleOptions } from '../../../annotations/scale-presets.js';
 
 const PRESET_SCALES = [
@@ -66,7 +67,7 @@ export default function ViewportScaleDialog(props) {
   const [presetRatio, setPresetRatio] = createSignal(initialRatio);
   const hasCustomScale = !!initialAnnotation && !initialAnnotation.scaleRatio && initialAnnotation.pixelsPerUnit > 0;
   const [customValue, setCustomValue] = createSignal(hasCustomScale ? '1' : '');
-  const [customUnit, setCustomUnit] = createSignal(initialAnnotation?.unit || 'mm');
+  const [customUnit, setCustomUnit] = createSignal(initialAnnotation?.unit || standaardLengteEenheid());
   const [refPixels, setRefPixels] = createSignal(hasCustomScale ? String(initialAnnotation.pixelsPerUnit) : '');
   const [viewportName, setViewportName] = createSignal(initialAnnotation?.name || '');
 

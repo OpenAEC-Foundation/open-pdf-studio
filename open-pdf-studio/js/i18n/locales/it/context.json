@@ -114,6 +114,8 @@
     "nestUnderNew": "Annida sotto un nuovo segnalibro...",
     "indent": "Aumenta rientro",
     "outdent": "Riduci rientro",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Elimina {{count}} segnalibri"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Barra selezione",
     "underlineSelection": "Sottolinea selezione",
     "curvedLeaderSelection": "Aggiungi callout curvo",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Inserisci collegamento..."
   },
   "deleteAnnotation": {

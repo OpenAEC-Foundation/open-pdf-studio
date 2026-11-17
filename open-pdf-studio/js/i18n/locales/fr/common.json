@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Le texte n'a pas été modifié : aucune police disponible ne contient ces caractères, ils ne peuvent donc pas être enregistrés : {{chars}}",
   "textEditMissingGlyphsLater": "Aucune police disponible ne contient ces caractères, ils ne peuvent donc pas être enregistrés : {{chars}}. Modifiez ce texte ; d'ici là, le PDF ne peut pas être enregistré.",
   "textEditMissingGlyphsSave": "Le PDF n'a pas été enregistré : un texte modifié contient des caractères qu'aucune police disponible ne contient : {{chars}}. Modifiez ce texte et enregistrez à nouveau.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Impossible de créer le document : {{error}}",
   "failedToReplacePage": "Impossible de remplacer la page : {{error}}",
   "failedToMergeFile": "Échec de la fusion : {{file}}\n{{error}}",
@@ -258,6 +259,8 @@
     "openInSplitView": "Ouvrir en vue fractionnée",
     "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
     "closeTab": "Fermer l'onglet",
+    "closeOtherTabs": "Fermer les autres onglets",
+    "closeAllTabs": "Fermer tous les onglets",
     "nextTab": "Onglet suivant",
     "previousTab": "Onglet précédent",
     "newTabForDocument": "Nouvel onglet pour ce document"
@@ -379,5 +382,6 @@
     "scanFailed": "Impossible de créer une page à partir de la photo : {{error}}",
     "insertLink": "Insert link"
   },
-  "xfdfImportMerged": "{{count}} annotations importées depuis XFDF ({{duplicates}} déjà présentes, {{replies}} nouvelles réponses)"
+  "xfdfImportMerged": "{{count}} annotations importées depuis XFDF ({{duplicates}} déjà présentes, {{replies}} nouvelles réponses)",
+  "measureNoScale": "No scale set: this measurement is not the real size. Set the scale with Drawing > Calibrate."
 }

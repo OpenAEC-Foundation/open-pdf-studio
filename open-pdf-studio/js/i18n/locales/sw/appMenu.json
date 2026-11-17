@@ -12,6 +12,7 @@
   "preferences": "Mapendeleo",
   "about": "Kuhusu",
   "exit": "Toka",
+  "closeAll": "Funga vyote",
   "aboutPanel": {
     "title": "Kuhusu",
     "appName": "Open PDF Studio",

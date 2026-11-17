@@ -6,6 +6,7 @@ import { invoke } from '../../core/platform.js';
 import { laadDesktopDragPlugin } from '../../core/desktop-drag-plugin.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 import { tabItems, isActiefTabItem, heeftMeerWeergaven } from '../../ui/chrome/weergave-tabs-model.js';
+import { kanAllesSluiten, kanAndereSluiten } from '../../ui/chrome/tabs-sluiten-model.js';
 import {
   revealInFileManager,
   revealInFileManagerLabelKey,
@@ -122,6 +123,17 @@ function handleTabClick(index, weergave = null) {
 
 function sluitTab(index, weergave = null) {
   import('../../ui/chrome/weergave-tabs.js').then(m => m.sluitTabItem(index, weergave));
+}
+
+// Andere / alle tabbladen sluiten (#1156): per document het gewone sluiten.
+function sluitAndere(index, weergave = null) {
+  import('../../ui/chrome/tabs-sluiten.js').then(m => m.sluitAndereTabs(index, weergave))
+    .catch(e => console.warn('[tabs] andere tabbladen sluiten mislukt:', e));
+}
+
+function sluitAlle() {
+  import('../../ui/chrome/tabs-sluiten.js').then(m => m.sluitAlleTabs())
+    .catch(e => console.warn('[tabs] alle tabbladen sluiten mislukt:', e));
 }
 
 function handleCloseTab(e, index, weergave = null) {
@@ -507,6 +519,11 @@ export default function DocumentTabs() {
   const { t: tCommon } = useTranslation('common');
   const { t: tDialogs } = useTranslation('dialogs');
 
+  // Aan/uit van "Andere tabbladen sluiten" en "Alle tabbladen sluiten" (#1156).
+  const tabToestand = () => ({ aantalTabItems: tabItems(state.documents).length, vergelijkActief: compareActive() });
+  const andereSluitenAan = () => kanAndereSluiten(tabToestand());
+  const allesSluitenAan = () => kanAllesSluiten(tabToestand());
+
   const baseName = (p) => ((p || '').split(/[\\/]/).pop() || '').replace(/\.pdf$/i, '');
   const compareTabTip = () => {
     const a = baseName(compareOldPath());
@@ -667,6 +684,23 @@ export default function DocumentTabs() {
             onMouseLeave={(e) => e.currentTarget.style.background = ''}
             onClick={() => { const { index: idx, weergave } = ctxMenu(); hideCtxMenu(); sluitTab(idx, weergave); }}
           >{tCommon('tabs.closeTab')}</div>
+          {/* Andere / alle tabbladen sluiten (#1156); uit als het niets zou doen. */}
+          <div
+            class="document-tab-ctxmenu-close-others"
+            aria-disabled={!andereSluitenAan()}
+            style={{ padding: '6px 14px', cursor: 'default', color: andereSluitenAan() ? '' : '#a0a0a0' }}
+            onMouseEnter={(e) => { if (andereSluitenAan()) e.currentTarget.style.background = '#cce4f7'; }}
+            onMouseLeave={(e) => e.currentTarget.style.background = ''}
+            onClick={() => { if (!andereSluitenAan()) return; const { index: idx, weergave } = ctxMenu(); hideCtxMenu(); sluitAndere(idx, weergave); }}
+          >{tCommon('tabs.closeOtherTabs')}</div>
+          <div
+            class="document-tab-ctxmenu-close-all"
+            aria-disabled={!allesSluitenAan()}
+            style={{ padding: '6px 14px', cursor: 'default', color: allesSluitenAan() ? '' : '#a0a0a0' }}
+            onMouseEnter={(e) => { if (allesSluitenAan()) e.currentTarget.style.background = '#cce4f7'; }}
+            onMouseLeave={(e) => e.currentTarget.style.background = ''}
+            onClick={() => { if (!allesSluitenAan()) return; hideCtxMenu(); sluitAlle(); }}
+          >{tCommon('tabs.closeAllTabs')}</div>
         </div>
       </Show>
     </div>
