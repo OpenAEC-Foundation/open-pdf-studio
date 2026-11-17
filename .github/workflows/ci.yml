@@ -242,6 +242,11 @@ jobs:
         working-directory: .
         run: cargo test --release -p open-pdf-studio --lib duplex_reaches_ipp_and_portal_settings
 
+      - name: Test HTTP MCP notification responses (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        working-directory: .
+        run: cargo test --release --locked -p open-pdf-studio --lib mcp_server::http_notification_tests
+
       - name: Test interactive form background ownership (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         working-directory: .
