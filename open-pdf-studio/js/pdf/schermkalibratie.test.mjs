@@ -112,6 +112,9 @@ test('de kalibratie raakt print, export en meetschaal niet', () => {
   const toegestaan = new Set([
     'pdf/schermkalibratie.js', 'pdf/renderer.js', 'pdf/pdf-viewport.js',
     'solid/components/dialogs/ScreenCalibrationDialog.jsx',
+    // Een koppeling volgen zet de weergavezoom: /XYZ-zoom is relatief aan de
+    // 100% van de app (#1146).
+    'pdf/link-layer.js',
   ]);
   const js = new URL('../', import.meta.url);
   const gevonden = [];
