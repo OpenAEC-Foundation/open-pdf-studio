@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "El texto no se ha modificado: ninguna fuente disponible tiene estos caracteres, así que no se pueden guardar: {{chars}}",
   "textEditMissingGlyphsLater": "Ninguna fuente disponible tiene estos caracteres, así que no se pueden guardar: {{chars}}. Cambie este texto; hasta entonces no se puede guardar el PDF.",
   "textEditMissingGlyphsSave": "El PDF no se ha guardado: un texto editado contiene caracteres que no tiene ninguna fuente disponible: {{chars}}. Cambie ese texto y vuelva a guardar.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "No se pudo crear el documento: {{error}}",
   "failedToReplacePage": "No se pudo reemplazar la página: {{error}}",
   "failedToMergeFile": "Error al combinar: {{file}}\n{{error}}",

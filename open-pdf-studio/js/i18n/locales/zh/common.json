@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "文本未更改：没有可用字体包含这些字符，因此无法保存：{{chars}}",
   "textEditMissingGlyphsLater": "没有可用字体包含这些字符，因此无法保存：{{chars}}。请修改此文本；在此之前无法保存 PDF。",
   "textEditMissingGlyphsSave": "PDF 未保存：编辑后的文本包含没有任何可用字体支持的字符：{{chars}}。请修改该文本后重新保存。",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "创建文档失败：{{error}}",
   "failedToReplacePage": "替换页面失败：{{error}}",
   "failedToMergeFile": "合并失败：{{file}}\n{{error}}",

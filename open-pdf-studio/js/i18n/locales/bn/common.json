@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "লেখা পরিবর্তন হয়নি: কোনো উপলব্ধ ফন্টে এই অক্ষরগুলো নেই, তাই এগুলো সংরক্ষণ করা যাবে না: {{chars}}",
   "textEditMissingGlyphsLater": "কোনো উপলব্ধ ফন্টে এই অক্ষরগুলো নেই, তাই এগুলো সংরক্ষণ করা যাবে না: {{chars}}। এই লেখাটি বদলান; ততক্ষণ PDF সংরক্ষণ করা যাবে না।",
   "textEditMissingGlyphsSave": "PDF সংরক্ষণ করা হয়নি: সম্পাদিত লেখায় এমন অক্ষর আছে যা কোনো উপলব্ধ ফন্টে নেই: {{chars}}। লেখাটি বদলে আবার সংরক্ষণ করুন।",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "নথি তৈরি করতে ব্যর্থ: {{error}}",
   "failedToReplacePage": "পৃষ্ঠা প্রতিস্থাপন করতে ব্যর্থ: {{error}}",
   "failedToMergeFile": "একত্রিত করতে ব্যর্থ: {{file}}\n{{error}}",

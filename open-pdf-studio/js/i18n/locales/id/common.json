@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Teks tidak diubah: tidak ada font yang tersedia yang memiliki karakter ini, jadi karakter tersebut tidak dapat disimpan: {{chars}}",
   "textEditMissingGlyphsLater": "Tidak ada font yang tersedia yang memiliki karakter ini, jadi karakter tersebut tidak dapat disimpan: {{chars}}. Ubah teks ini; sampai saat itu PDF tidak dapat disimpan.",
   "textEditMissingGlyphsSave": "PDF tidak disimpan: teks yang diedit berisi karakter yang tidak dimiliki font mana pun yang tersedia: {{chars}}. Ubah teks itu lalu simpan lagi.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Gagal membuat dokumen: {{error}}",
   "failedToReplacePage": "Gagal mengganti halaman: {{error}}",
   "failedToMergeFile": "Gagal menggabungkan: {{file}}\n{{error}}",

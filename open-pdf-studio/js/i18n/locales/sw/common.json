@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Maandishi hayakubadilishwa: hakuna fonti inayopatikana yenye herufi hizi, kwa hiyo haziwezi kuhifadhiwa: {{chars}}",
   "textEditMissingGlyphsLater": "Hakuna fonti inayopatikana yenye herufi hizi, kwa hiyo haziwezi kuhifadhiwa: {{chars}}. Badilisha maandishi haya; hadi hapo PDF haiwezi kuhifadhiwa.",
   "textEditMissingGlyphsSave": "PDF haikuhifadhiwa: maandishi yaliyohaririwa yana herufi ambazo hakuna fonti inayopatikana iliyo nazo: {{chars}}. Badilisha maandishi hayo na uhifadhi tena.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Imeshindwa kuunda hati: {{error}}",
   "failedToReplacePage": "Imeshindwa kubadilisha ukurasa: {{error}}",
   "failedToMergeFile": "Imeshindwa kuunganisha: {{file}}\n{{error}}",

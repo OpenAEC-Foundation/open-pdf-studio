@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Текст не изменён: ни в одном доступном шрифте нет этих символов, поэтому их нельзя сохранить: {{chars}}",
   "textEditMissingGlyphsLater": "Ни в одном доступном шрифте нет этих символов, поэтому их нельзя сохранить: {{chars}}. Измените этот текст; до тех пор PDF нельзя сохранить.",
   "textEditMissingGlyphsSave": "PDF не сохранён: изменённый текст содержит символы, которых нет ни в одном доступном шрифте: {{chars}}. Измените этот текст и сохраните снова.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Не удалось создать документ: {{error}}",
   "failedToReplacePage": "Не удалось заменить страницу: {{error}}",
   "failedToMergeFile": "Не удалось объединить: {{file}}\n{{error}}",

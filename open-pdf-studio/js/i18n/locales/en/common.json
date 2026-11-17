@@ -159,6 +159,7 @@
   "textEditMissingGlyphs": "The text was not changed: no available font has these characters, so they cannot be saved: {{chars}}",
   "textEditMissingGlyphsLater": "No available font has these characters, so they cannot be saved: {{chars}}. Change this text; until then the PDF cannot be saved.",
   "textEditMissingGlyphsSave": "The PDF was not saved: edited text contains characters that no available font has: {{chars}}. Change that text and save again.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Failed to create document: {{error}}",
   "failedToReplacePage": "Failed to replace page: {{error}}",
   "failedToMergeFile": "Failed to merge: {{file}}\n{{error}}",

@@ -1,6 +1,6 @@
 import { pdfjsRecord } from './pdfjs-record.js';
 import { state, getActiveDocument } from '../core/state.js';
-import { AnnotationLayer } from 'pdfjs-dist';
+import { AnnotationLayer, AnnotationMode, OPS } from 'pdfjs-dist';
 import { showFormFieldsBar as showBar, hideFormFieldsBar as hideBar } from '../bridge.js';
 import { meldWijziging } from '../herstel/haken.js';
 
@@ -10,6 +10,7 @@ import {
   showValidationDialog, validateBSN, validateDatePart, detectDatePartByName,
   detectKeystrokeRestriction, parseAFNumberDecimals, parseAFSpecialType, parseAFRangeValidate
 } from './form-layer/validation-ui.js';
+import { pasVeldLettertypenToe } from './form-layer/veld-lettertype.js';
 
 // Map of annotation ID → field name (for saving)
 const fieldNamesByPdf = new WeakMap();
@@ -141,6 +142,11 @@ export async function createFormLayer(page, viewport, container, pageNum) {
   }
 
   applyFieldRestrictions(formLayerDiv, widgetAnnotations.map(ann => ({ ...ann, actions: pdfjsRecord(ann.actions) })));
+
+  // Velden in een ingebed lettertype tonen dat lettertype ook in het
+  // invoervak (#1154). Niet afwachten: de laag is al bruikbaar.
+  pasVeldLettertypenToe(page, formLayerDiv, widgetAnnotations, { OPS, AnnotationMode })
+    .catch((e) => console.warn('[form-layer] field fonts not applied:', e));
 
   formLayers.set(pageNum, formLayerDiv);
 

@@ -158,6 +158,7 @@
   "textEditMissingGlyphs": "Der Text wurde nicht geändert: Keine verfügbare Schriftart enthält diese Zeichen, daher können sie nicht gespeichert werden: {{chars}}",
   "textEditMissingGlyphsLater": "Keine verfügbare Schriftart enthält diese Zeichen, daher können sie nicht gespeichert werden: {{chars}}. Ändern Sie diesen Text; bis dahin kann die PDF nicht gespeichert werden.",
   "textEditMissingGlyphsSave": "Die PDF wurde nicht gespeichert: Bearbeiteter Text enthält Zeichen, die keine verfügbare Schriftart enthält: {{chars}}. Ändern Sie diesen Text und speichern Sie erneut.",
+  "formFieldMissingGlyphsSave": "The PDF was not saved: form field \"{{field}}\" contains characters that its embedded font does not have: {{chars}}. Change that text and save again.",
   "failedToCreateDocument": "Dokument konnte nicht erstellt werden: {{error}}",
   "failedToReplacePage": "Seite konnte nicht ersetzt werden: {{error}}",
   "failedToMergeFile": "Zusammenführen fehlgeschlagen: {{file}}\n{{error}}",
