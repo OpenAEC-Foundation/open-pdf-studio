@@ -17,10 +17,6 @@ export const ONDERDRUKT_IN_BEHEERDE_MODUS = Object.freeze([
   'update-controle',
   // "Vorige versie installeren": idem.
   'vorige-versie',
-  // De eenmalige uitleg voor nieuwe gebruikers over een waarschuwing van een
-  // virusscanner (help/virusscanner-melding.js): de omgeving regelt de
-  // installatie. Via Help blijft hij te openen.
-  'virusscanner-melding',
 ]);
 
 /**

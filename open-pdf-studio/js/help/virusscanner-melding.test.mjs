@@ -1,16 +1,14 @@
-// Eenmalige melding voor nieuwe gebruikers over een waarschuwing van een
-// virusscanner (#761): wanneer hij vanzelf verschijnt en wanneer niet, met
-// de opslag als nepper. Daarnaast: de bedrading in de app en de teksten.
+// Uitleg over een waarschuwing van een virusscanner (#761): één keer in de
+// release-notes, met de opslag als nepper. Daarnaast: de bedrading in de app
+// en de teksten.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync, readdirSync } from 'node:fs';
 import {
-  OPSLAG_NAAM, NIEUW, GEZIEN, DIALOOG,
-  statusNaStart, registreerStart, isAutomatisering, meldingBeleid,
-  toonBijEersteStart, feedbackVoorinvulling,
+  OPSLAG_NAAM, GEZIEN, DIALOOG,
+  hoortInReleasenotes, neemInReleasenotes, feedbackVoorinvulling,
 } from './virusscanner-melding.js';
-import { zetBeheerdVoorTest } from '../core/beheerd.js';
 
 /** Een opslag in het geheugen, met een logboek van wat erin geschreven is. */
 function nepOpslag(begin = {}) {
@@ -20,180 +18,36 @@ function nepOpslag(begin = {}) {
     lees: (naam) => (inhoud.has(naam) ? inhoud.get(naam) : null),
     schrijf: (naam, waarde) => { inhoud.set(naam, String(waarde)); geschreven.push([naam, String(waarde)]); },
     geschreven,
-    status: () => (inhoud.has(OPSLAG_NAAM) ? inhoud.get(OPSLAG_NAAM) : null),
   };
 }
 
-/** Eén start van de app: registreren en daarna de melding proberen. */
-async function start(opslag, { voorkeurenBestonden, ...omgeving }) {
-  const geopend = [];
-  registreerStart({ inTauri: omgeving.inTauri ?? true, voorkeurenBestonden, lees: opslag.lees, schrijf: opslag.schrijf });
-  const beleid = await toonBijEersteStart({
-    inTauri: true, gehost: false, headless: false,
-    ...omgeving,
-    lees: opslag.lees, schrijf: opslag.schrijf,
-    open: async () => { geopend.push(DIALOOG); },
-  });
-  return { beleid, getoond: geopend.length };
-}
-
-test.beforeEach(() => zetBeheerdVoorTest(false));
-test.after(() => zetBeheerdVoorTest(null));
-
-test('nieuwe installatie: zonder voorkeuren is de status nieuw, met voorkeuren gezien', () => {
-  assert.equal(statusNaStart({ opgeslagen: null, voorkeurenBestonden: false }), NIEUW);
-  assert.equal(statusNaStart({ opgeslagen: null, voorkeurenBestonden: true }), GEZIEN);
-  // Niet te zeggen (laden mislukt): geen melding.
-  assert.equal(statusNaStart({ opgeslagen: null, voorkeurenBestonden: null }), GEZIEN);
-  assert.equal(statusNaStart({ opgeslagen: null, voorkeurenBestonden: undefined }), GEZIEN);
+test('de eerste keer dat de release-notes openen staat de uitleg erbij, daarna niet meer', () => {
+  const o = nepOpslag();
+  assert.equal(neemInReleasenotes({ inTauri: true, gehost: false, lees: o.lees, schrijf: o.schrijf }), true);
+  assert.deepEqual(o.geschreven, [[OPSLAG_NAAM, GEZIEN]]);
+  assert.equal(neemInReleasenotes({ inTauri: true, gehost: false, lees: o.lees, schrijf: o.schrijf }), false);
+  assert.equal(o.geschreven.length, 1);
 });
 
-test('een bekende status blijft, wat de voorkeuren ook zeggen', () => {
-  assert.equal(statusNaStart({ opgeslagen: GEZIEN, voorkeurenBestonden: false }), GEZIEN);
-  assert.equal(statusNaStart({ opgeslagen: NIEUW, voorkeurenBestonden: true }), NIEUW);
-  // Een onbekende waarde telt niet als status.
-  assert.equal(statusNaStart({ opgeslagen: 'iets', voorkeurenBestonden: true }), GEZIEN);
+test('webversie en gastbouw: geen uitleg en niets in de opslag', () => {
+  const o = nepOpslag();
+  assert.equal(neemInReleasenotes({ inTauri: false, gehost: false, lees: o.lees, schrijf: o.schrijf }), false);
+  assert.equal(neemInReleasenotes({ inTauri: true, gehost: true, lees: o.lees, schrijf: o.schrijf }), false);
+  assert.equal(o.geschreven.length, 0);
 });
 
-test('registreerStart schrijft de status één keer, en in de webversie nooit', () => {
-  const opslag = nepOpslag();
-  assert.equal(registreerStart({ inTauri: true, voorkeurenBestonden: false, ...opslag }), NIEUW);
-  assert.equal(registreerStart({ inTauri: true, voorkeurenBestonden: true, ...opslag }), NIEUW);
-  assert.deepEqual(opslag.geschreven, [[OPSLAG_NAAM, NIEUW]]);
-
-  const web = nepOpslag();
-  assert.equal(registreerStart({ inTauri: false, voorkeurenBestonden: false, ...web }), null);
-  assert.deepEqual(web.geschreven, []);
+test('de beslisregel: alleen in de app en alleen als hij er nog niet gestaan heeft', () => {
+  assert.equal(hoortInReleasenotes({ inTauri: true, opgeslagen: null }), true);
+  assert.equal(hoortInReleasenotes({ inTauri: true, opgeslagen: 'nieuw' }), true);
+  assert.equal(hoortInReleasenotes({ inTauri: true, opgeslagen: GEZIEN }), false);
+  assert.equal(hoortInReleasenotes({ inTauri: false, opgeslagen: null }), false);
+  assert.equal(hoortInReleasenotes({ inTauri: true, gehost: true, opgeslagen: null }), false);
 });
 
-test('een volle opslag breekt de start niet', () => {
-  const lees = () => null;
-  const schrijf = () => { throw new Error('QuotaExceededError'); };
-  assert.equal(registreerStart({ inTauri: true, voorkeurenBestonden: false, lees, schrijf }), NIEUW);
-});
-
-test('eerste start van een nieuwe installatie: de melding komt, één keer', async () => {
-  const opslag = nepOpslag();
-  const eerste = await start(opslag, { voorkeurenBestonden: false });
-  assert.deepEqual(eerste, { beleid: { tonen: true, reden: 'eerste-start' }, getoond: 1 });
-  assert.equal(opslag.status(), GEZIEN);
-  // Tweede start: de voorkeuren staan er nu, en de status is gezien.
-  const tweede = await start(opslag, { voorkeurenBestonden: true });
-  assert.deepEqual(tweede, { beleid: { tonen: false, reden: 'geen-nieuwe-installatie' }, getoond: 0 });
-});
-
-test('bestaande gebruiker (had al voorkeuren): geen melding, ook niet na een update', async () => {
-  const opslag = nepOpslag();
-  for (let keer = 0; keer < 3; keer++) {
-    const r = await start(opslag, { voorkeurenBestonden: true });
-    assert.deepEqual(r, { beleid: { tonen: false, reden: 'geen-nieuwe-installatie' }, getoond: 0 });
-  }
-  assert.equal(opslag.status(), GEZIEN);
-});
-
-test('de app meteen gesloten bij de eerste start: de melding komt de keer daarna', async () => {
-  const opslag = nepOpslag();
-  registreerStart({ inTauri: true, voorkeurenBestonden: false, ...opslag });
-  // Tweede start: de voorkeuren staan er inmiddels, de status is nog nieuw.
-  const r = await start(opslag, { voorkeurenBestonden: true });
-  assert.equal(r.getoond, 1);
-  assert.equal(opslag.status(), GEZIEN);
-});
-
-test('beheerde modus: geen melding, en de status blijft staan', async () => {
-  zetBeheerdVoorTest(true);
-  const opslag = nepOpslag();
-  const r = await start(opslag, { voorkeurenBestonden: false });
-  assert.deepEqual(r, { beleid: { tonen: false, reden: 'beheerd' }, getoond: 0 });
-  assert.equal(opslag.status(), NIEUW);
-});
-
-test('headless testinstantie: geen melding', async () => {
-  const opslag = nepOpslag();
-  const r = await start(opslag, { voorkeurenBestonden: false, headless: true });
-  assert.deepEqual(r, { beleid: { tonen: false, reden: 'headless' }, getoond: 0 });
-  assert.equal(opslag.status(), NIEUW);
-});
-
-test('headless volgt het teken dat de Rust-kant in het venster zet', async () => {
-  const opslag = nepOpslag({ [OPSLAG_NAAM]: NIEUW });
-  globalThis.__OPDS_HEADLESS__ = true;
-  try {
-    const r = await toonBijEersteStart({
-      inTauri: true, gehost: false, lees: opslag.lees, schrijf: opslag.schrijf,
-      open: async () => { throw new Error('mag niet openen'); },
-    });
-    assert.equal(r.reden, 'headless');
-  } finally {
-    delete globalThis.__OPDS_HEADLESS__;
-  }
-});
-
-test('gestart voor automatisering (startvlag of omgeving): geen melding', async () => {
-  for (const bron of ['startvlag', 'omgeving']) {
-    const opslag = nepOpslag();
-    const r = await start(opslag, { voorkeurenBestonden: false, mcpStatus: async () => ({ actief: true, poort: 9223, bron }) });
-    assert.deepEqual(r, { beleid: { tonen: false, reden: 'automatisering' }, getoond: 0 }, bron);
-  }
-  assert.equal(isAutomatisering({ actief: true, bron: 'startvlag' }), true);
-  assert.equal(isAutomatisering({ actief: true, bron: 'omgeving' }), true);
-});
-
-test('de AI-koppeling via de instelling is een gewone gebruiker: de melding komt', async () => {
-  assert.equal(isAutomatisering({ actief: true, bron: 'instelling' }), false);
-  assert.equal(isAutomatisering({ actief: false, bron: null }), false);
-  assert.equal(isAutomatisering(null), false);
-  const opslag = nepOpslag();
-  const r = await start(opslag, { voorkeurenBestonden: false, mcpStatus: async () => ({ actief: true, poort: 9223, bron: 'instelling' }) });
-  assert.equal(r.getoond, 1);
-});
-
-test('webversie en gastbouw: geen melding en niets in de opslag', async () => {
-  const web = nepOpslag();
-  const r = await start(web, { voorkeurenBestonden: false, inTauri: false });
-  assert.deepEqual(r, { beleid: { tonen: false, reden: 'webversie' }, getoond: 0 });
-  assert.deepEqual(web.geschreven, []);
-
-  const gast = nepOpslag({ [OPSLAG_NAAM]: NIEUW });
-  const g = await start(gast, { voorkeurenBestonden: false, gehost: true });
-  assert.deepEqual(g.beleid, { tonen: false, reden: 'webversie' });
-  assert.equal(g.getoond, 0);
-});
-
-test('mobiel en een tweede instantie (losgemaakt tabblad): geen melding', async () => {
-  const mobiel = await start(nepOpslag(), { voorkeurenBestonden: false, mobiel: true });
-  assert.deepEqual(mobiel, { beleid: { tonen: false, reden: 'mobiel' }, getoond: 0 });
-  const tweede = await start(nepOpslag(), { voorkeurenBestonden: false, tweedeInstantie: true });
-  assert.deepEqual(tweede, { beleid: { tonen: false, reden: 'tweede-instantie' }, getoond: 0 });
-});
-
-test('de beslisregel: alleen de eerste start op het bureaublad', () => {
-  const goed = { status: NIEUW, inTauri: true };
-  assert.deepEqual(meldingBeleid(goed), { tonen: true, reden: 'eerste-start' });
-  const nee = [
-    [{ inTauri: false }, 'webversie'],
-    [{ gehost: true }, 'webversie'],
-    [{ mobiel: true }, 'mobiel'],
-    [{ headless: true }, 'headless'],
-    [{ automatisering: true }, 'automatisering'],
-    [{ beheerdToegestaan: false }, 'beheerd'],
-    [{ tweedeInstantie: true }, 'tweede-instantie'],
-    [{ status: GEZIEN }, 'geen-nieuwe-installatie'],
-    [{ status: null }, 'geen-nieuwe-installatie'],
-  ];
-  for (const [anders, reden] of nee) {
-    assert.deepEqual(meldingBeleid({ ...goed, ...anders }), { tonen: false, reden }, reden);
-  }
-});
-
-test('de status is weggeschreven vóór het venster opent', async () => {
-  const opslag = nepOpslag({ [OPSLAG_NAAM]: NIEUW });
-  let statusBijOpenen = null;
-  await toonBijEersteStart({
-    inTauri: true, gehost: false, headless: false, lees: opslag.lees, schrijf: opslag.schrijf,
-    open: async () => { statusBijOpenen = opslag.status(); },
-  });
-  assert.equal(statusBijOpenen, GEZIEN);
+test('een volle opslag breekt het venster niet: de uitleg komt dan nog een keer', () => {
+  const o = nepOpslag();
+  const vol = () => { throw new Error('vol'); };
+  assert.equal(neemInReleasenotes({ inTauri: true, gehost: false, lees: o.lees, schrijf: vol }), true);
 });
 
 test('het feedbackvenster krijgt het onderwerp en de drie gevraagde gegevens', () => {
@@ -222,17 +76,18 @@ const SLEUTELS = [
   'feedbackSubject', 'feedbackScanner', 'feedbackDetection', 'feedbackFile', 'feedbackHint',
 ];
 
-test('de app registreert de start na het laden van de voorkeuren en toont de melding daarna', () => {
+test('de app toont bij de start geen eigen venster meer; de uitleg staat in de release-notes', () => {
   const main = bron('../main.js');
-  const laden = main.indexOf('  await loadPreferences();\n  // In de werkplek');
-  const registreren = main.indexOf('  registreerStart({ inTauri: isTauri(), voorkeurenBestonden: voorkeurenBestondenBijStart() });');
-  const tonen = main.indexOf('toonBijEersteStart({');
-  assert.ok(laden >= 0 && registreren > laden, 'registreerStart komt na loadPreferences');
-  assert.ok(registreren - laden < 900, 'en meteen, niet pas na de start');
-  assert.ok(tonen > registreren, 'de melding komt daarna');
-  assert.match(main, /toonBijEersteStart\(\{\s*inTauri: true,\s*mobiel: mobile,\s*tweedeInstantie: !!rol\.tweede,\s*mcpStatus: mcp\.mcpStatus,/);
-  // De voorkeuren onthouden alleen wat de eerste keer laden vond.
-  assert.match(bron('../core/preferences.js'), /if \(_bestondenBijStart === null\) _bestondenBijStart = !!loaded;/);
+  assert.doesNotMatch(main, /virusscanner-melding|toonBijEersteStart|registreerStart/);
+  const wn = bron('../solid/components/dialogs/WhatsNewDialog.jsx');
+  assert.match(wn, /const virusUitleg = neemInReleasenotes\(\{ inTauri: isTauri\(\) \}\);/);
+  assert.match(wn, /<Show when=\{virusUitleg\}>\s*<section class="wn-virus-notice"/);
+  for (const k of ['title', 'intro', 'signed', 'action', 'include', 'report']) {
+    assert.ok(wn.includes(`tDialogs('virusNotice.${k}')`), k);
+  }
+  assert.match(wn, /openDialog\('feedback', feedbackVoorinvulling\(tDialogs\)\)/);
+  // Het blok staat boven de releases.
+  assert.ok(wn.indexOf('wn-virus-notice') < wn.indexOf('<For each={parsed()}>'));
 });
 
 test('de status gaat via de opslagmodule, niet rechtstreeks naar localStorage', () => {

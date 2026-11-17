@@ -34,9 +34,8 @@ import './core/oude-webview-start.js';
 // split-haken.js. Zonder afhankelijkheden.
 import './pdf/split-view/split-haken.js';
 import { state } from './core/state.js';
-import { loadPreferences, savePreferences, voorkeurenBestondenBijStart } from './core/preferences.js';
+import { loadPreferences, savePreferences } from './core/preferences.js';
 import { verwijderOpslag } from './core/opslag.js';
-import { registreerStart, toonBijEersteStart } from './help/virusscanner-melding.js';
 import { initDomElements } from './ui/dom-elements.js';
 import { revealStartupWindow } from './core/startup-window.js';
 import { initPropertiesPanel } from './ui/panels/properties-panel.js';
@@ -287,11 +286,6 @@ async function init() {
   // In de werkplek: taal en thema van de host (`openaecHost.taal`/`thema`,
   // en `openaec-host-preferences` bij een wijziging) winnen van de opslag.
   if (import.meta.env.MODE === 'hosted') startHostVoorkeuren();
-  // Nieuwe installatie of bestaande gebruiker? Meteen vastleggen, zodat ook
-  // wie de app direct weer sluit de melding voor nieuwe gebruikers de keer
-  // daarna krijgt; de melding zelf komt pas na de start
-  // (help/virusscanner-melding.js, #761).
-  registreerStart({ inTauri: isTauri(), voorkeurenBestonden: voorkeurenBestondenBijStart() });
   // De ingebouwde assistent is verwijderd. Een persoonlijke sleutel die hij
   // ooit in de browseropslag zette, wordt hier opgeruimd; staat er niets, dan
   // doet dit niets.
@@ -551,21 +545,6 @@ async function init() {
         .then(m => m.checkForNewReleaseOnStartup())
         .catch(() => { /* offline / network error — silently skip */ });
     }, 1500);
-    // Nieuwe installatie: één keer uitleg over een waarschuwing van een
-    // virusscanner (#761). Na de start, en nooit samen met "Wat is er nieuw":
-    // dat venster komt alleen bij wie de app al had.
-    if (isTauri()) {
-      setTimeout(() => {
-        import('./core/mcp-koppeling.js')
-          .then((mcp) => toonBijEersteStart({
-            inTauri: true,
-            mobiel: mobile,
-            tweedeInstantie: !!rol.tweede,
-            mcpStatus: mcp.mcpStatus,
-          }))
-          .catch(() => { /* de melding is nooit een reden om de start te storen */ });
-      }, 2000);
-    }
   }
 
   recordStartupDiagnostic('frontend-ready');

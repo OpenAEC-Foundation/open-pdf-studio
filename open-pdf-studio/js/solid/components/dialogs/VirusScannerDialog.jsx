@@ -3,9 +3,9 @@ import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { DIALOOG, feedbackVoorinvulling } from '../../../help/virusscanner-melding.js';
 
-// Melding over een waarschuwing van een virusscanner (#761): bij de eerste
-// start van een nieuwe installatie, en later via Help en het app-menu.
-// De regels staan in help/virusscanner-melding.js.
+// Uitleg over een waarschuwing van een virusscanner (#761), als los venster
+// via Help en het app-menu. Dezelfde tekst staat één keer in de release-notes
+// (WhatsNewDialog.jsx, help/virusscanner-melding.js).
 export default function VirusScannerDialog() {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
