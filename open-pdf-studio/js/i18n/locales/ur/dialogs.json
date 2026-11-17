@@ -1570,6 +1570,20 @@
     "found": "{{count}} امیدوار ملے",
     "created": "{{count}} گنتیاں بنائی گئیں؛ {{skipped}} پہلے سے موجود ہیں",
     "truncated": "نتائج کی حد پوری ہو گئی۔ کم صفحات میں تلاش کریں یا مشابہت بڑھائیں۔",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "دستاویز تبدیل ہو گئی۔ علامت کی تلاش بند کر کے دوبارہ کھولیں۔",
       "INVALID_PAGES": "1–20 درست صفحات منتخب کریں۔",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "مشابہت 0.5–1 ہونی چاہیے؛ اسکیل 0.5–2 اور گردش چوتھائی چکر۔",
       "READ_ONLY": "یہ دستاویز یا مارک اپ پرت صرف پڑھنے کے لیے ہے۔",
       "SEARCH_EXPIRED": "تلاش کے نتائج کی میعاد ختم ہو گئی۔ دوبارہ تلاش کریں۔",
-      "CATEGORY_REQUIRED": "گنتی کا زمرہ منتخب کریں۔"
+      "CATEGORY_REQUIRED": "گنتی کا زمرہ منتخب کریں۔",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

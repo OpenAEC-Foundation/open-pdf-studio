@@ -1570,6 +1570,20 @@
     "found": "{{count}} kandidater hittades",
     "created": "{{count}} räkningar skapade; {{skipped}} fanns redan",
     "truncated": "Resultatgränsen har nåtts. Sök i färre sidor eller öka likheten.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Dokumentet har ändrats. Stäng och öppna symbolsökningen igen.",
       "INVALID_PAGES": "Välj 1–20 giltiga sidor.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Likheten måste vara 0,5–1; skala 0,5–2 och rotation ett kvarts varv.",
       "READ_ONLY": "Dokumentet eller markeringslagret är skrivskyddat.",
       "SEARCH_EXPIRED": "Sökresultaten har upphört att gälla. Sök igen.",
-      "CATEGORY_REQUIRED": "Välj en räkningskategori."
+      "CATEGORY_REQUIRED": "Välj en räkningskategori.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

@@ -1570,6 +1570,20 @@
     "found": "{{count}} نامزد یافت شد",
     "created": "{{count}} شمارش ایجاد شد؛ {{skipped}} از قبل وجود داشت",
     "truncated": "به سقف نتایج رسیدید. در صفحات کمتری جستجو کنید یا شباهت را افزایش دهید.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "سند تغییر کرد. جستجوی نماد را ببندید و دوباره باز کنید.",
       "INVALID_PAGES": "1 تا 20 صفحه معتبر انتخاب کنید.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "شباهت باید 0.5–1، مقیاس 0.5–2 و چرخش یک ربع دور باشد.",
       "READ_ONLY": "این سند یا لایه نشانه‌گذاری فقط‌خواندنی است.",
       "SEARCH_EXPIRED": "نتایج جستجو منقضی شد. دوباره جستجو کنید.",
-      "CATEGORY_REQUIRED": "یک دسته شمارش انتخاب کنید."
+      "CATEGORY_REQUIRED": "یک دسته شمارش انتخاب کنید.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

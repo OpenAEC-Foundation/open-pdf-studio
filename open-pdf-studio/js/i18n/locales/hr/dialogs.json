@@ -1570,6 +1570,20 @@
     "found": "Pronađeno kandidata: {{count}}",
     "created": "Stvoreno brojanja: {{count}}; već postoji: {{skipped}}",
     "truncated": "Dosegnuto je ograničenje rezultata. Pretražite manje stranica ili povećajte sličnost.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Dokument je promijenjen. Zatvorite i ponovno otvorite pretraživanje simbola.",
       "INVALID_PAGES": "Odaberite 1–20 valjanih stranica.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Sličnost mora biti 0,5–1; mjerilo 0,5–2, a rotacija četvrtina okreta.",
       "READ_ONLY": "Ovaj dokument ili sloj oznaka samo je za čitanje.",
       "SEARCH_EXPIRED": "Rezultati pretraživanja su istekli. Pretražite ponovno.",
-      "CATEGORY_REQUIRED": "Odaberite kategoriju brojanja."
+      "CATEGORY_REQUIRED": "Odaberite kategoriju brojanja.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

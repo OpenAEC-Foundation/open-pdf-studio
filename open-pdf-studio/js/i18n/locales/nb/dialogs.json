@@ -1570,6 +1570,20 @@
     "found": "{{count}} kandidater funnet",
     "created": "{{count}} opptellinger opprettet; {{skipped}} fantes allerede",
     "truncated": "Resultatgrensen er nådd. Søk i færre sider eller øk likheten.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Dokumentet er endret. Lukk og åpne symbolsøket på nytt.",
       "INVALID_PAGES": "Velg 1–20 gyldige sider.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Likheten må være 0,5–1; skala 0,5–2 og rotasjon en kvart omdreining.",
       "READ_ONLY": "Dette dokumentet eller markeringslaget er skrivebeskyttet.",
       "SEARCH_EXPIRED": "Søkeresultatene er utløpt. Søk på nytt.",
-      "CATEGORY_REQUIRED": "Velg en opptellingskategori."
+      "CATEGORY_REQUIRED": "Velg en opptellingskategori.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

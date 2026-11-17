@@ -592,6 +592,7 @@ js/watermark/watermerken-mcp.test.mjs
 js/core/nieuwe-kopie-schrijven.test.mjs
 js/pdf/form-recognition.test.mjs
 js/search/symbol-matcher.test.mjs
+js/search/symbol-review.test.mjs
 js/quantities/workbook-bindings.test.mjs
 js/quantities/location-fields.test.mjs
 js/quantities/workbook-refresh.test.mjs

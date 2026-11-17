@@ -1570,6 +1570,20 @@
     "found": "Đã tìm thấy {{count}} ứng viên",
     "created": "Đã tạo {{count}} số đếm; {{skipped}} đã có sẵn",
     "truncated": "Đã đạt giới hạn kết quả. Hãy tìm trên ít trang hơn hoặc tăng độ tương đồng.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Tài liệu đã thay đổi. Hãy đóng và mở lại tìm kiếm ký hiệu.",
       "INVALID_PAGES": "Hãy chọn 1–20 trang hợp lệ.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Độ tương đồng phải từ 0,5–1; tỷ lệ 0,5–2 và góc xoay là một phần tư vòng.",
       "READ_ONLY": "Tài liệu hoặc lớp đánh dấu này là chỉ đọc.",
       "SEARCH_EXPIRED": "Kết quả tìm kiếm đã hết hạn. Hãy tìm lại.",
-      "CATEGORY_REQUIRED": "Hãy chọn danh mục số đếm."
+      "CATEGORY_REQUIRED": "Hãy chọn danh mục số đếm.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

@@ -1570,6 +1570,20 @@
     "found": "พบตัวเลือก {{count}} รายการ",
     "created": "สร้างการนับ {{count}} รายการ มีอยู่แล้ว {{skipped}} รายการ",
     "truncated": "ถึงขีดจำกัดผลลัพธ์แล้ว โปรดค้นหาในหน้าที่น้อยลงหรือเพิ่มความคล้ายคลึง",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "เอกสารมีการเปลี่ยนแปลง โปรดปิดและเปิดการค้นหาสัญลักษณ์อีกครั้ง",
       "INVALID_PAGES": "โปรดเลือกหน้าที่ถูกต้อง 1–20 หน้า",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "ความคล้ายคลึงต้องอยู่ระหว่าง 0.5–1 มาตราส่วน 0.5–2 และการหมุนเป็นทีละหนึ่งในสี่รอบ",
       "READ_ONLY": "เอกสารหรือเลเยอร์มาร์กอัปนี้เป็นแบบอ่านอย่างเดียว",
       "SEARCH_EXPIRED": "ผลการค้นหาหมดอายุแล้ว โปรดค้นหาอีกครั้ง",
-      "CATEGORY_REQUIRED": "โปรดเลือกหมวดหมู่การนับ"
+      "CATEGORY_REQUIRED": "โปรดเลือกหมวดหมู่การนับ",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {

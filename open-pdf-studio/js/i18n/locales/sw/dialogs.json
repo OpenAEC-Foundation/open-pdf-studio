@@ -1570,6 +1570,20 @@
     "found": "Wagombea {{count}} wamepatikana",
     "created": "Hesabu {{count}} zimeundwa; {{skipped}} tayari zipo",
     "truncated": "Kikomo cha matokeo kimefikiwa. Tafuta kurasa chache au ongeza ufanano.",
+    "minScore": "Check below score (0.5–1, optional)",
+    "excludeArea": "Exclude this rectangle",
+    "clearExcluded": "Clear excluded areas ({{count}})",
+    "excludedAdded": "{{count}} excluded areas. Search again to apply them.",
+    "acceptSafe": "Accept all without a check mark ({{count}})",
+    "resultReview": "Page {{page}} · {{score}}% · check",
+    "foundReview": "{{count}} candidates found; {{review}} to check, {{excluded}} left out by excluded areas",
+    "reviewWhy": "Check this match: {{reasons}}",
+    "reasons": {
+      "belowMinScore": "score below the check limit",
+      "legend": "inside the legend",
+      "titleBlock": "inside the title block"
+    },
+    "reviewInfo": "To leave out a legend or title block, draw a rectangle around it and choose Exclude this rectangle (dashed red), then search again. A legend or title block found in the page text is outlined in dashed blue; matches there are marked for checking, not removed.",
     "errors": {
       "DOCUMENT_CHANGED": "Hati imebadilika. Funga na ufungue utafutaji wa alama tena.",
       "INVALID_PAGES": "Chagua kurasa halali 1–20.",
@@ -1578,7 +1592,9 @@
       "INVALID_TOLERANCE": "Ufanano lazima uwe 0.5–1; kipimo 0.5–2 na mzunguko robo zamu.",
       "READ_ONLY": "Hati hii au tabaka hili la alama ni la kusoma tu.",
       "SEARCH_EXPIRED": "Matokeo ya utafutaji yamepitwa na muda. Tafuta tena.",
-      "CATEGORY_REQUIRED": "Chagua kategoria ya hesabu."
+      "CATEGORY_REQUIRED": "Chagua kategoria ya hesabu.",
+      "INVALID_REGIONS": "Draw a rectangle with a width and a height first.",
+      "INVALID_MIN_SCORE": "The check limit must be 0.5–1."
     }
   },
   "workbookBindings": {
