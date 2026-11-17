@@ -12,6 +12,7 @@
   "preferences": "Keutamaan",
   "about": "Perihal",
   "exit": "Keluar",
+  "closeAll": "Tutup semua",
   "aboutPanel": {
     "title": "Perihal",
     "appName": "Open PDF Studio",

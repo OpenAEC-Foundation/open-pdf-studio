@@ -258,6 +258,8 @@
     "openInSplitView": "বিভক্ত দৃশ্যে খুলুন",
     "openInNewWindow": "নতুন উইন্ডোতে খুলুন",
     "closeTab": "ট্যাব বন্ধ করুন",
+    "closeOtherTabs": "অন্যান্য ট্যাব বন্ধ করুন",
+    "closeAllTabs": "সব ট্যাব বন্ধ করুন",
     "nextTab": "পরবর্তী ট্যাব",
     "previousTab": "পূর্ববর্তী ট্যাব",
     "newTabForDocument": "New Tab for This Document"

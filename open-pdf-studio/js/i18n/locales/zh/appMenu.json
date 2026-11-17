@@ -12,6 +12,7 @@
   "preferences": "首选项",
   "about": "关于",
   "exit": "退出",
+  "closeAll": "全部关闭",
   "aboutPanel": {
     "title": "关于",
     "appName": "Open PDF Studio",

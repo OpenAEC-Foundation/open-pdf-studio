@@ -258,6 +258,8 @@
     "openInSplitView": "Otevřít v rozděleném zobrazení",
     "openInNewWindow": "Otevřít v novém okně",
     "closeTab": "Zavřít kartu",
+    "closeOtherTabs": "Zavřít ostatní karty",
+    "closeAllTabs": "Zavřít všechny karty",
     "nextTab": "Další karta",
     "previousTab": "Předchozí karta",
     "newTabForDocument": "Nová karta pro tento dokument"

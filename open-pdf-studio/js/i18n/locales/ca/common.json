@@ -258,6 +258,8 @@
     "openInSplitView": "Obre en vista dividida",
     "openInNewWindow": "Obre en una finestra nova",
     "closeTab": "Tanca la pestanya",
+    "closeOtherTabs": "Tanca les altres pestanyes",
+    "closeAllTabs": "Tanca totes les pestanyes",
     "nextTab": "Pestanya següent",
     "previousTab": "Pestanya anterior",
     "newTabForDocument": "New Tab for This Document"

@@ -12,6 +12,7 @@
   "preferences": "Tùy chọn",
   "about": "Giới thiệu",
   "exit": "Thoát",
+  "closeAll": "Đóng tất cả",
   "aboutPanel": {
     "title": "Giới thiệu",
     "appName": "Open PDF Studio",

@@ -258,6 +258,8 @@
     "openInSplitView": "Abrir em vista dividida",
     "openInNewWindow": "Abrir em nova janela",
     "closeTab": "Fechar aba",
+    "closeOtherTabs": "Fechar outras abas",
+    "closeAllTabs": "Fechar todas as abas",
     "nextTab": "Separador seguinte",
     "previousTab": "Separador anterior",
     "newTabForDocument": "Nova guia para este documento"

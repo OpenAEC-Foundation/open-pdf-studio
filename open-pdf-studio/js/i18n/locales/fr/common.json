@@ -258,6 +258,8 @@
     "openInSplitView": "Ouvrir en vue fractionnée",
     "openInNewWindow": "Ouvrir dans une nouvelle fenêtre",
     "closeTab": "Fermer l'onglet",
+    "closeOtherTabs": "Fermer les autres onglets",
+    "closeAllTabs": "Fermer tous les onglets",
     "nextTab": "Onglet suivant",
     "previousTab": "Onglet précédent",
     "newTabForDocument": "Nouvel onglet pour ce document"

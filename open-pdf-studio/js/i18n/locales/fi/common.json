@@ -258,6 +258,8 @@
     "openInSplitView": "Avaa jaetussa näkymässä",
     "openInNewWindow": "Avaa uudessa ikkunassa",
     "closeTab": "Sulje välilehti",
+    "closeOtherTabs": "Sulje muut välilehdet",
+    "closeAllTabs": "Sulje kaikki välilehdet",
     "nextTab": "Seuraava välilehti",
     "previousTab": "Edellinen välilehti",
     "newTabForDocument": "New Tab for This Document"

@@ -258,6 +258,8 @@
     "openInSplitView": "تقسیم شدہ منظر میں کھولیں",
     "openInNewWindow": "نئی ونڈو میں کھولیں",
     "closeTab": "ٹیب بند کریں",
+    "closeOtherTabs": "دیگر ٹیب بند کریں",
+    "closeAllTabs": "تمام ٹیب بند کریں",
     "nextTab": "اگلا ٹیب",
     "previousTab": "پچھلا ٹیب",
     "newTabForDocument": "New Tab for This Document"

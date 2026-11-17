@@ -258,6 +258,8 @@
     "openInSplitView": "פתיחה בתצוגה מפוצלת",
     "openInNewWindow": "פתיחה בחלון חדש",
     "closeTab": "סגירת לשונית",
+    "closeOtherTabs": "סגירת הלשוניות האחרות",
+    "closeAllTabs": "סגירת כל הלשוניות",
     "nextTab": "הכרטיסייה הבאה",
     "previousTab": "הכרטיסייה הקודמת",
     "newTabForDocument": "New Tab for This Document"

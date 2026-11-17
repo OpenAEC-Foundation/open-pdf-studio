@@ -12,6 +12,7 @@
   "preferences": "प्राथमिकताएं",
   "about": "परिचय",
   "exit": "बाहर निकलें",
+  "closeAll": "सभी बंद करें",
   "aboutPanel": {
     "title": "परिचय",
     "appName": "Open PDF Studio",

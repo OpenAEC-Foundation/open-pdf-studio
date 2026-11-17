@@ -258,6 +258,8 @@
     "openInSplitView": "Öppna i delad vy",
     "openInNewWindow": "Öppna i nytt fönster",
     "closeTab": "Stäng flik",
+    "closeOtherTabs": "Stäng andra flikar",
+    "closeAllTabs": "Stäng alla flikar",
     "nextTab": "Nästa flik",
     "previousTab": "Föregående flik",
     "newTabForDocument": "Ny flik för det här dokumentet"

@@ -258,6 +258,8 @@
     "openInSplitView": "Apri in vista divisa",
     "openInNewWindow": "Apri in una nuova finestra",
     "closeTab": "Chiudi scheda",
+    "closeOtherTabs": "Chiudi le altre schede",
+    "closeAllTabs": "Chiudi tutte le schede",
     "nextTab": "Scheda successiva",
     "previousTab": "Scheda precedente",
     "newTabForDocument": "Nuova scheda per questo documento"

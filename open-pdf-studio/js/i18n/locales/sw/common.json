@@ -258,6 +258,8 @@
     "openInSplitView": "Fungua katika Mwonekano Uliogawanywa",
     "openInNewWindow": "Fungua kwenye dirisha jipya",
     "closeTab": "Funga kichupo",
+    "closeOtherTabs": "Funga vichupo vingine",
+    "closeAllTabs": "Funga vichupo vyote",
     "nextTab": "Kichupo Kinachofuata",
     "previousTab": "Kichupo Kilichotangulia",
     "newTabForDocument": "New Tab for This Document"

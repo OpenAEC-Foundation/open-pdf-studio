@@ -258,6 +258,8 @@
     "openInSplitView": "विभाजित दृश्य में खोलें",
     "openInNewWindow": "नई विंडो में खोलें",
     "closeTab": "टैब बंद करें",
+    "closeOtherTabs": "अन्य टैब बंद करें",
+    "closeAllTabs": "सभी टैब बंद करें",
     "nextTab": "अगला टैब",
     "previousTab": "पिछला टैब",
     "newTabForDocument": "New Tab for This Document"

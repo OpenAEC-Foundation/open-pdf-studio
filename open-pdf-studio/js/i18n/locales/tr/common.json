@@ -258,6 +258,8 @@
     "openInSplitView": "Bölünmüş Görünümde Aç",
     "openInNewWindow": "Yeni pencerede aç",
     "closeTab": "Sekmeyi kapat",
+    "closeOtherTabs": "Diğer sekmeleri kapat",
+    "closeAllTabs": "Tüm sekmeleri kapat",
     "nextTab": "Sonraki Sekme",
     "previousTab": "Önceki Sekme",
     "newTabForDocument": "Bu belge için yeni sekme"

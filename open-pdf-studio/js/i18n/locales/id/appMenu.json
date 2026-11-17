@@ -12,6 +12,7 @@
   "preferences": "Preferensi",
   "about": "Tentang",
   "exit": "Keluar",
+  "closeAll": "Tutup semua",
   "aboutPanel": {
     "title": "Tentang",
     "appName": "Open PDF Studio",

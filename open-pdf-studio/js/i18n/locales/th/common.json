@@ -258,6 +258,8 @@
     "openInSplitView": "เปิดในมุมมองแบบแบ่ง",
     "openInNewWindow": "เปิดในหน้าต่างใหม่",
     "closeTab": "ปิดแท็บ",
+    "closeOtherTabs": "ปิดแท็บอื่น",
+    "closeAllTabs": "ปิดแท็บทั้งหมด",
     "nextTab": "แท็บถัดไป",
     "previousTab": "แท็บก่อนหน้า",
     "newTabForDocument": "New Tab for This Document"

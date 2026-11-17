@@ -25,6 +25,8 @@ export const CORE_COMMANDS = Object.freeze([
   { id: 'file.saveAs', category: 'file', labelKey: 'appMenu:saveAs', label: 'Save As...', defaults: ['Ctrl+Shift+S'] },
   { id: 'file.print', category: 'file', labelKey: 'appMenu:print', label: 'Print', defaults: ['Ctrl+P'] },
   { id: 'file.close', category: 'file', labelKey: 'common:tabs.closeTab', label: 'Close tab', defaults: ['Ctrl+W'] },
+  // Close all tabs (#1156): deliberately no default key.
+  { id: 'file.closeAll', category: 'file', labelKey: 'common:tabs.closeAllTabs', label: 'Close all tabs' },
   { id: 'file.properties', category: 'file', labelKey: 'appMenu:docProperties', label: 'Document Properties', defaults: ['Ctrl+D'] },
   { id: 'app.preferences', category: 'file', labelKey: 'appMenu:preferences', label: 'Preferences', defaults: ['Ctrl+,'] },
 

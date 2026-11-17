@@ -258,6 +258,8 @@
     "openInSplitView": "Megnyitás osztott nézetben",
     "openInNewWindow": "Megnyitás új ablakban",
     "closeTab": "Lap bezárása",
+    "closeOtherTabs": "Többi lap bezárása",
+    "closeAllTabs": "Összes lap bezárása",
     "nextTab": "Következő lap",
     "previousTab": "Előző lap",
     "newTabForDocument": "New Tab for This Document"

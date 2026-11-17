@@ -12,6 +12,7 @@
   "preferences": "環境設定",
   "about": "バージョン情報",
   "exit": "終了",
+  "closeAll": "すべて閉じる",
   "aboutPanel": {
     "title": "バージョン情報",
     "appName": "Open PDF Studio",

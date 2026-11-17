@@ -354,6 +354,7 @@ js/ui/chrome/tab-sneltoets.test.mjs
 js/pdf/weergave-per-document.test.mjs
 js/ui/chrome/tab-sneltoets-koppeling.test.mjs
 js/ui/chrome/weergave-tabs-model.test.mjs
+js/ui/chrome/tabs-sluiten-model.test.mjs
 js/pdf/pagina-sneltoets.test.mjs
 scripts/nix-flake-bijwerken.test.mjs
 scripts/flatpak-flathub.test.mjs

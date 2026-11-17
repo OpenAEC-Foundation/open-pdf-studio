@@ -258,6 +258,8 @@
     "openInSplitView": "In geteilter Ansicht öffnen",
     "openInNewWindow": "In neuem Fenster öffnen",
     "closeTab": "Tab schließen",
+    "closeOtherTabs": "Andere Tabs schließen",
+    "closeAllTabs": "Alle Tabs schließen",
     "nextTab": "Nächster Tab",
     "previousTab": "Vorheriger Tab",
     "newTabForDocument": "Neuer Tab für dieses Dokument"

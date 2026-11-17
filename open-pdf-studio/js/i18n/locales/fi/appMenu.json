@@ -12,6 +12,7 @@
   "preferences": "Asetukset",
   "about": "Tietoja",
   "exit": "Poistu",
+  "closeAll": "Sulje kaikki",
   "aboutPanel": {
     "title": "Tietoja",
     "appName": "Open PDF Studio",

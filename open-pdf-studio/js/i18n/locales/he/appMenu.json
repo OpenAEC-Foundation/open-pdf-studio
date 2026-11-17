@@ -12,6 +12,7 @@
   "preferences": "העדפות",
   "about": "אודות",
   "exit": "יציאה",
+  "closeAll": "סגירת הכול",
   "aboutPanel": {
     "title": "אודות",
     "appName": "Open PDF Studio",

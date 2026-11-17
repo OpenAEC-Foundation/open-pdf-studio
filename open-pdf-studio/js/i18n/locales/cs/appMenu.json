@@ -12,6 +12,7 @@
   "preferences": "Předvolby",
   "about": "O aplikaci",
   "exit": "Ukončit",
+  "closeAll": "Zavřít vše",
   "aboutPanel": {
     "title": "O aplikaci",
     "appName": "Open PDF Studio",

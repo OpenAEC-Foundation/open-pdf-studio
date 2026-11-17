@@ -258,6 +258,8 @@
     "openInSplitView": "باز کردن در نمای تقسیم‌شده",
     "openInNewWindow": "باز کردن در پنجره جدید",
     "closeTab": "بستن زبانه",
+    "closeOtherTabs": "بستن زبانه‌های دیگر",
+    "closeAllTabs": "بستن همه زبانه‌ها",
     "nextTab": "زبانه بعدی",
     "previousTab": "زبانه قبلی",
     "newTabForDocument": "New Tab for This Document"

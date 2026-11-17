@@ -12,6 +12,7 @@
   "preferences": "Preferinte",
   "about": "Despre",
   "exit": "Iesire",
+  "closeAll": "Închide tot",
   "aboutPanel": {
     "title": "Despre",
     "appName": "Open PDF Studio",

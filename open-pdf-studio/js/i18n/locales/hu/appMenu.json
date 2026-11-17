@@ -12,6 +12,7 @@
   "preferences": "Beállítások",
   "about": "Névjegy",
   "exit": "Kilépés",
+  "closeAll": "Összes bezárása",
   "aboutPanel": {
     "title": "Névjegy",
     "appName": "Open PDF Studio",

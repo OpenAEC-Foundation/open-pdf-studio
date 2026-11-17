@@ -12,6 +12,7 @@
   "preferences": "การตั้งค่า",
   "about": "เกี่ยวกับ",
   "exit": "ออก",
+  "closeAll": "ปิดทั้งหมด",
   "aboutPanel": {
     "title": "เกี่ยวกับ",
     "appName": "Open PDF Studio",

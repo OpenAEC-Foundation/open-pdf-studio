@@ -258,6 +258,8 @@
     "openInSplitView": "Abrir en vista dividida",
     "openInNewWindow": "Abrir en una ventana nueva",
     "closeTab": "Cerrar pestaña",
+    "closeOtherTabs": "Cerrar las demás pestañas",
+    "closeAllTabs": "Cerrar todas las pestañas",
     "nextTab": "Pestaña siguiente",
     "previousTab": "Pestaña anterior",
     "newTabForDocument": "Nueva pestaña para este documento"
