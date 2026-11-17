@@ -40,6 +40,7 @@ import { alignmentMatrix, multiply, scaling, normalizeAlignment, measureScaleRat
 import { extractSheetNumber, pageTokens, pairPages, thumbFromDensity } from './page-pairing.js';
 import { createRustCompare, buildRustRequest } from './rust-compare.js';
 import { isTauri, isMobile, invoke } from '../core/platform.js';
+import { cappedRenderScale } from './pane-geometry.js';
 
 let _detectTimer = null;
 let _detectSeq = 0;
@@ -176,33 +177,50 @@ export async function getDocPageCount(filePath) {
   }
 }
 
-async function _renderPageToCanvas(filePath, pageNum, scale, targetCanvas, fillWhite = true) {
-  const doc = await _getDoc(filePath);
-  const page = await doc.getPage(Math.max(1, Math.min(doc.numPages, pageNum)));
+// Rendering a page for display goes in two steps (#1149): first every canvas
+// of the view gets its new size, then the pages are painted. Between the two
+// the caller hears the scale that was used (opts.onSized), so that it can
+// change the on-screen scaling of the canvases in the same breath. A canvas
+// that had its new size while the view still scaled it for the previous one
+// showed the page far too large or too small for as long as the render took.
+function _sizeCanvas(page, scale, canvas) {
   const viewport = page.getViewport({ scale });
-  targetCanvas.width = Math.ceil(viewport.width);
-  targetCanvas.height = Math.ceil(viewport.height);
-  const ctx = targetCanvas.getContext('2d');
-  if (fillWhite) {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
-  }
-  await page.render({ canvasContext: ctx, viewport, intent: 'display' }).promise;
-  return { width: targetCanvas.width, height: targetCanvas.height, viewport };
+  canvas.width = Math.ceil(viewport.width);
+  canvas.height = Math.ceil(viewport.height);
+  return viewport;
 }
 
+async function _paintPage(page, viewport, canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport, intent: 'display' }).promise;
+}
+
+function _pagePt(page) {
+  const v = page.getViewport({ scale: 1 });
+  return { width: v.width, height: v.height };
+}
+
+/**
+ * Render both pages at one scale. The scale is lowered where a page bitmap
+ * would exceed what a canvas holds (pane-geometry.js); the answer carries the
+ * scale that was used and whether it was limited.
+ */
 export async function renderCompareSideBySide(canvasOld, canvasNew, opts) {
-  const { oldPath, newPath, oldPage, newPage, scale = 1.5, skipDetection = false } = opts;
-  await Promise.all([
-    _renderPageToCanvas(oldPath, oldPage, scale, canvasOld),
-    _renderPageToCanvas(newPath, newPage, scale, canvasNew),
-  ]);
+  const { oldPath, newPath, oldPage, newPage, skipDetection = false } = opts;
+  const [po, pn] = await Promise.all([_getPage(oldPath, oldPage), _getPage(newPath, newPage)]);
+  const { scale, capped } = cappedRenderScale(opts.scale > 0 ? opts.scale : 1.5, [_pagePt(po), _pagePt(pn)]);
+  const vo = _sizeCanvas(po, scale, canvasOld);
+  const vn = _sizeCanvas(pn, scale, canvasNew);
+  opts.onSized?.({ scale, capped });
+  await Promise.all([_paintPage(po, vo, canvasOld), _paintPage(pn, vn, canvasNew)]);
   // Change detection is mode-independent: bboxes live in a fixed detection-px
   // space regardless of whether the pages are shown overlaid or side-by-side.
   // Kick it off here too so side-by-side gets the same red/green/yellow diff
   // highlights and the change list. Skipped on zoom-only re-renders.
   if (!skipDetection) scheduleChangeDetection(opts);
-  return { width: canvasNew.width, height: canvasNew.height };
+  return { width: canvasNew.width, height: canvasNew.height, scale, capped };
 }
 
 /**
@@ -218,13 +236,15 @@ export async function renderCompareSideBySide(canvasOld, canvasNew, opts) {
  * its DOM containers.
  */
 export async function renderCompareOverlay(canvasOld, canvasNew, opts, canvasHighlights = null) {
-  const { newPath, newPage, scale = 1.5, skipDetection = false } = opts;
+  const { newPath, newPage, skipDetection = false } = opts;
 
   // Render NEW normally — this is the visible base layer. The OLD page is
   // never drawn into a visible canvas in overlay mode (only rasterized for
   // change detection below). This avoids one full PDF.js render pass on
   // every zoom step, which was the dominant cost.
-  await _renderPageToCanvas(newPath, newPage, scale, canvasNew);
+  const page = await _getPage(newPath, newPage);
+  const { scale, capped } = cappedRenderScale(opts.scale > 0 ? opts.scale : 1.5, [_pagePt(page)]);
+  const viewport = _sizeCanvas(page, scale, canvasNew);
 
   // Size the highlights canvas to match NEW; the actual rectangles are drawn
   // separately by paintHighlights() once changes are detected.
@@ -234,13 +254,15 @@ export async function renderCompareOverlay(canvasOld, canvasNew, opts, canvasHig
     const ctx = canvasHighlights.getContext('2d');
     ctx.clearRect(0, 0, canvasHighlights.width, canvasHighlights.height);
   }
+  opts.onSized?.({ scale, capped });
+  await _paintPage(page, viewport, canvasNew);
 
   // Kick off async, debounced change detection on a separately rasterized copy
   // of both pages. Visual rendering is not blocked. Skipped when the caller
   // knows only zoom (which doesn't affect detection results) has changed.
   if (!skipDetection) scheduleChangeDetection(opts);
 
-  return { width: canvasNew.width, height: canvasNew.height };
+  return { width: canvasNew.width, height: canvasNew.height, scale, capped };
 }
 
 /**
