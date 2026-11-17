@@ -50,7 +50,7 @@ import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
 import { getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { getSelectedText, clearTextSelection } from '../../text/text-selection.js';
 import { isPdfAReadOnly } from '../../pdf/loader.js';
-import { showCalibrationDialog } from '../../annotations/measurement.js';
+import { showCalibrationDialog, herberekenVlakMaat } from '../../annotations/measurement.js';
 import { openDialog } from '../stores/dialogStore.js';
 import { getSelectedPagesArray, formatPageRangeString, selectAllPages, clearPageSelection } from '../stores/panels/thumbnailStore.js';
 import { hiddenStatuses, toggleHiddenStatus } from '../stores/panels/annotationsStore.js';
@@ -851,7 +851,12 @@ function AnnotationMenuContent() {
         <MenuItem label={t('annotation.applyDefaultStyle')} onClick={() => {
           const a = ann();
           if (a) {
-            commitAnnotationMutation(a, annotation => applyDefaultStyle(annotation));
+            commitAnnotationMutation(a, annotation => {
+              applyDefaultStyle(annotation);
+              // De weergave-eenheid van de oppervlakte hoort bij de stijl
+              // (#1129): het label volgt hem meteen.
+              if (annotation.type === 'measureArea') herberekenVlakMaat(annotation);
+            });
             redraw();
           }
         }} />

@@ -30,6 +30,8 @@ function tauriInvoke() {
 
 // Console ring buffer: js/core/console-ring.js (loaded at start by main.js).
 import { CONSOLE_RING, CONSOLE_RING_MAX } from './core/console-ring.js';
+// Eenheden van metingen en schalen (#1129): klein en puur, daarom vast geladen.
+import * as eenheden from './annotations/oppervlakte-eenheid.js';
 
 /** Send the response payload back to the awaiting Rust task. */
 async function respond(requestId, result) {
@@ -1133,6 +1135,16 @@ function _sanitizeAnnotation(ann) {
   }));
 }
 
+/** De oppervlakte van een meetvlak als getal in de eenheid waarin het blad
+ *  hem toont (acres, hectares, ... of het kwadraat van de schaal-eenheid,
+ *  #1129), zodat een aanroeper niet zelf hoeft om te rekenen. Null voor een
+ *  andere annotatie of een vlak zonder gemeten waarde. */
+function _vlakUitkomst(ann) {
+  if (ann?.type !== 'measureArea') return null;
+  const u = eenheden.vlakUitkomst(ann);
+  return u && u.unit ? { value: u.value, unit: u.unit } : null;
+}
+
 /** Compact one-line summary used by app_list_annotations. */
 function _summarizeAnnotation(a) {
   const s = { id: a.id, type: a.type, page: a.page ?? 1 };
@@ -1150,6 +1162,8 @@ function _summarizeAnnotation(a) {
     s.text = a.text.length > 200 ? a.text.slice(0, 200) + '…' : a.text;
   }
   if (a.measureText) s.measureText = a.measureText;
+  const area = _vlakUitkomst(a);
+  if (area) s.area = area;
   if (a.scaleString) s.scaleString = a.scaleString;
   if (a.locked) s.locked = true;
   return s;
@@ -1176,10 +1190,12 @@ function _recomputeMeasureFields(ann, meas, userProps = {}) {
     if (!keepText) ann.measureText = meas.maatlijnTekst(ann, d);
   } else if (ann.type === 'measureArea') {
     // Met de eigen schaal van het vlak als die er is (#536).
+    // Waarde en eenheid blijven in het kwadraat van de schaal-eenheid; de
+    // tekst volgt de weergave-eenheid van het vlak (measureAreaUnit, #1129).
     const a = meas.vlakMeting(ann);
     ann.measureValue = a.value;
     ann.measureUnit = a.unit;
-    if (!keepText) ann.measureText = meas.formatMeasurement(a);
+    if (!keepText) ann.measureText = meas.vlakTekst(ann, a);
   } else if (ann.type === 'measurePerimeter') {
     const p = meas.calculatePerimeter(ann.points, ann.page);
     ann.measureValue = p.value;
@@ -1655,6 +1671,26 @@ async function handleCreateAnnotation(params) {
 
   // Caller props win over tool defaults; type and the page param are pinned.
   const merged = { ...built.base, ...props, type, page };
+  // Eenheden (#1129). Een meetvlak kan zijn oppervlakte in acres, hectares of
+  // een andere oppervlakte-eenheid tonen (`units` of `measureAreaUnit`); een
+  // schaalgebied rekent in een lengte-eenheid. Een eenheid die niet kan wordt
+  // geweigerd in plaats van stil te vervallen.
+  let vlakEenheid = null;
+  if (type === 'measureArea') {
+    vlakEenheid = eenheden.vlakEenheidUitProps(props);
+    if (!vlakEenheid.ok) return { ok: false, error: vlakEenheid.error };
+    delete merged.units;
+    // Zonder eigen keuze: de standaard van het gereedschap, zoals getekend.
+    const eenheid = vlakEenheid.heeft
+      ? vlakEenheid.unit
+      : eenheden.oppervlakteEenheid(stateMod.state.preferences?.measureAreaDisplayUnit);
+    if (eenheid) merged.measureAreaUnit = eenheid;
+    else delete merged.measureAreaUnit;
+  } else if (type === 'scaleRegion' && props.units != null) {
+    const gelezen = eenheden.leesSchaalEenheid(props.units, eenheden.SCHAALGEBIED_EENHEDEN);
+    if (!gelezen.ok) return { ok: false, error: `scaleRegion: ${gelezen.error}` };
+    merged.units = gelezen.unit;
+  }
   // Veelhoek: de geometrie (punten, vak, zijden) komt uit de bouwer — een
   // meegegeven vak of zijdenaantal beschreef alleen waar de punten liggen.
   if (built.veelhoekPunten) {
@@ -1698,6 +1734,13 @@ async function handleCreateAnnotation(params) {
     // Compute measureText/value from geometry + the scale at the target page
     // BEFORE the undo snapshot so redo restores a complete annotation.
     _recomputeMeasureFields(ann, meas, props);
+    // Kan de gevraagde eenheid hier? Een vlak zonder echte schaal is niet in
+    // acres uit te drukken; een lengte volgt altijd de eenheid van de schaal.
+    const eenheidFout = type === 'measureArea'
+      ? (vlakEenheid?.heeft ? eenheden.vlakEenheidFout(ann.measureUnit, ann.measureAreaUnit) : null)
+      : eenheden.lengteEenheidFout(props.units, ann.measureUnit, type);
+    if (eenheidFout) return { ok: false, error: eenheidFout };
+    if (type !== 'measureArea') delete ann.units;
   }
 
   doc.annotations.push(ann);
@@ -1753,6 +1796,8 @@ async function handleGetAnnotation(params) {
   const ann = (doc.annotations || []).find(a => a.id === id);
   if (!ann) return { ok: false, error: `annotation not found: ${id}` };
   const uit = { ok: true, annotation: _sanitizeAnnotation(ann) };
+  const area = _vlakUitkomst(ann);
+  if (area) uit.area = area;
   // Stramienlijn (#486): per uiteinde de koppeling met de andere uiteinden.
   const koppelMod = await import('./annotations/stramien-koppeling.js');
   if (koppelMod.isStramien(ann)) uit.gridAlignment = koppelMod.koppelingOverzicht(doc.annotations || [], ann);
@@ -1887,8 +1932,35 @@ async function handleUpdateAnnotation(params) {
     const vh = await import('./annotations/veelhoek-punten.js');
     patch = { ...patch, ...vh.veelhoekUitPunten(patch.points) };
   }
+  // Eenheden (#1129): `units` / `measureAreaUnit` op een meetvlak is de
+  // weergave-eenheid van de oppervlakte (ac, ha, m², ...; "auto" volgt weer
+  // de schaal). Een lengte of omtrek volgt de schaal, een schaalgebied rekent
+  // in een lengte-eenheid. Gecontroleerd vóór er iets aan de annotatie wijzigt.
+  const meas = await import('./annotations/measurement.js');
+  let vlakEenheid = null;
+  if (ann.type === 'measureArea' && ('units' in patch || 'measureAreaUnit' in patch)) {
+    vlakEenheid = eenheden.vlakEenheidUitProps(patch);
+    if (!vlakEenheid.ok) return { ok: false, error: vlakEenheid.error };
+    const fout = eenheden.vlakEenheidFout(meas.vlakMeting(ann).unit, vlakEenheid.unit);
+    if (fout) return { ok: false, error: fout };
+    const { units: _u, measureAreaUnit: _m, ...rest } = patch;
+    patch = rest;
+  } else if ((ann.type === 'measureDistance' || ann.type === 'measurePerimeter') && 'units' in patch) {
+    const fout = eenheden.lengteEenheidFout(patch.units, ann.measureUnit || 'mm', ann.type);
+    if (fout) return { ok: false, error: fout };
+    const { units: _u, ...rest } = patch;
+    patch = rest;
+  } else if (ann.type === 'scaleRegion' && 'units' in patch) {
+    const gelezen = eenheden.leesSchaalEenheid(patch.units, eenheden.SCHAALGEBIED_EENHEDEN);
+    if (!gelezen.ok) return { ok: false, error: `scaleRegion: ${gelezen.error}` };
+    patch = { ...patch, units: gelezen.unit };
+  }
   const andereDikte = 'lineWidth' in patch && patch.lineWidth !== ann.lineWidth;
   Object.assign(ann, patch);
+  if (vlakEenheid) {
+    if (vlakEenheid.unit) ann.measureAreaUnit = vlakEenheid.unit;
+    else delete ann.measureAreaUnit;
+  }
   // Een andere randdikte laat een tekstinzet uit het bestand vallen (zie zetRanddikte).
   if (andereDikte && !('textPadding' in patch)) delete ann.textPadding;
   if (psParams && !('width' in patch) && !('height' in patch)) {
@@ -1911,11 +1983,10 @@ async function handleUpdateAnnotation(params) {
   }
 
   const geometryTouched = _GEOMETRY_KEYS.some(k => k in patch);
-  const meas = await import('./annotations/measurement.js');
   const isMeasure = ann.type === 'measureDistance' ||
                     ann.type === 'measureArea' ||
                     ann.type === 'measurePerimeter';
-  if (isMeasure && geometryTouched) {
+  if (isMeasure && (geometryTouched || vlakEenheid)) {
     _recomputeMeasureFields(ann, meas, patch);
   }
 
@@ -1953,6 +2024,8 @@ async function handleUpdateAnnotation(params) {
     await lagen.brug.annotationLayersChanged({ modified: false });
   }
   const resultaat = { ok: true, id: ann.id, annotation: _sanitizeAnnotation(ann) };
+  const area = _vlakUitkomst(ann);
+  if (area) resultaat.area = area;
   if (uitlijning.length) {
     resultaat.gridAlignment = koppelMod.koppelingOverzicht(doc.annotations || [], ann);
     if (uitlijnFouten.length) resultaat.warning = uitlijnFouten.join('; ');
@@ -2278,13 +2351,14 @@ async function handleTranslatePage(params) {
 
 async function handleSetMeasureScale(params) {
   const pixelsPerUnit = Number(params?.pixelsPerUnit);
-  const unit = params?.unit;
   if (!Number.isFinite(pixelsPerUnit) || pixelsPerUnit <= 0) {
     return { ok: false, error: 'missing or invalid params.pixelsPerUnit (> 0)' };
   }
-  if (typeof unit !== 'string' || !unit) {
-    return { ok: false, error: 'missing or invalid params.unit' };
-  }
+  // Een schaal staat in een lengte-eenheid; acres en hectares zijn eenheden
+  // van alleen oppervlakte en horen bij het meetvlak zelf (#1129).
+  const gelezen = eenheden.leesSchaalEenheid(params?.unit);
+  if (!gelezen.ok) return { ok: false, error: `params.unit: ${gelezen.error}` };
+  const unit = gelezen.unit;
   const stateMod = await import('./core/state.js');
   const doc = stateMod.getActiveDocument();
   if (!doc) return { ok: false, error: 'no active document' };
@@ -2424,12 +2498,23 @@ async function handleAccountsFetch() {
  *  columns are summed into grand totals and per-group subtotals; image
  *  columns are reported as counts, never as data-URLs. */
 async function handleGetTakeoff(params) {
+  // Oppervlaktekolommen in een gevraagde eenheid (#1129): ac, ha, m², ...
+  // De staat zelf verandert niet; alleen dit antwoord rekent om.
+  let areaUnit = null;
+  if (params?.areaUnit != null) {
+    const gelezen = eenheden.leesVlakEenheid(params.areaUnit);
+    if (!gelezen.ok) return { ok: false, error: `params.areaUnit: ${gelezen.error}` };
+    areaUnit = gelezen.unit;
+  }
+  const { configMetOppervlakteEenheid } = await import('./quantities/staat-oppervlakte-eenheid.js');
+
   const store = await import('./solid/stores/schedulesStore.js');
   const all = store.schedules();
   if (!all.length) return { ok: true, schedules: [], note: 'no schedules defined' };
 
   const wanted = (s) => {
-    const r = store.buildResultForSchedule(s);
+    const r = store.buildResultForSchedule(
+      areaUnit ? { ...s, config: configMetOppervlakteEenheid(s.config, areaUnit) } : s);
     const numCols = r.columns.filter(c => c.kind === 'number');
     return {
       id: s.id,

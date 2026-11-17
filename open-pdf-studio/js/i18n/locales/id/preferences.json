@@ -315,6 +315,8 @@
     "scalePrecision": "Skala & Presisi",
     "scale": "Skala (px ke satuan)",
     "unit": "Satuan",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Presisi",
     "showEdgeLengths": "Tampilkan panjang sisi",
     "lineEndings": "Ujung Garis (Jarak / Keliling)",

@@ -1226,7 +1226,7 @@ fn handle_tools_list() -> Value {
             agent_task_result_tool(),
             {
                 "name": "app_create_annotation",
-                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/textbox/callout/scaleRegion need x/y/width/height (highlight is an area highlight; optional rotation in degrees turns it about its centre); textHighlight is a real text highlight and needs quads:[[ul,ur,ll,lr],...], one quad per piece of text with {x,y} corners in the order upper left, upper right, lower left, lower right, turned along angled text (the same object as a text highlight made by selecting text; default color #FFFF00, opacity 0.3; its box comes from the quads, a passed x/y/width/height is ignored; invalid quads give an error and create nothing); polygon takes its corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional sides, default 6) for a regular polygon in that box; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y; link makes the same hyperlink as the Link tool and needs a target, either uri (web or e-mail address: http, https, mailto, tel or ftp) or page (target page in this document, 1-based; then the annotation itself goes on the top-level page) with optional view \"XYZ\" (default, top of the page), \"Fit\" or {type:\"XYZ\",left,top,zoom} (left/top in PDF points), plus x/y/width/height for the click box or quads:[[ul,ur,ll,lr],...] for one box per text line (written as /QuadPoints), optional border \"none\" (default) | \"solid\" | \"underline\" with color and lineWidth; a link to a page follows that page when pages are moved, inserted or deleted, and becomes broken when its target page is deleted. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
+                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/textbox/callout/scaleRegion need x/y/width/height (highlight is an area highlight; optional rotation in degrees turns it about its centre); textHighlight is a real text highlight and needs quads:[[ul,ur,ll,lr],...], one quad per piece of text with {x,y} corners in the order upper left, upper right, lower left, lower right, turned along angled text (the same object as a text highlight made by selecting text; default color #FFFF00, opacity 0.3; its box comes from the quads, a passed x/y/width/height is ignored; invalid quads give an error and create nothing); polygon takes its corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional sides, default 6) for a regular polygon in that box; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y; link makes the same hyperlink as the Link tool and needs a target, either uri (web or e-mail address: http, https, mailto, tel or ftp) or page (target page in this document, 1-based; then the annotation itself goes on the top-level page) with optional view \"XYZ\" (default, top of the page), \"Fit\" or {type:\"XYZ\",left,top,zoom} (left/top in PDF points), plus x/y/width/height for the click box or quads:[[ul,ur,ll,lr],...] for one box per text line (written as /QuadPoints), optional border \"none\" (default) | \"solid\" | \"underline\" with color and lineWidth; a link to a page follows that page when pages are moved, inserted or deleted, and becomes broken when its target page is deleted. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically; the app does every unit conversion. measureArea: `units` (or `measureAreaUnit`) sets the unit its area is reported in: ac (acres, 1 ac = 43,560 ft2), ha (hectares, 1 ha = 10,000 m2), m2, ft2, yd2, ... (\"acres\", \"sq ft\" and the superscript forms are understood, a length unit such as ft means ft2, \"auto\" follows the scale again). measureText then reads e.g. \"2.296 ac\" and the result carries `area: {value, unit}` with the number in that unit; measureValue / measureUnit stay in the square of the scale unit, as the lengths, edge lengths and perimeter do. Without `units` the area is in the square of the scale unit (mm2 is shown as m2). An unknown unit, or an area unit on a sheet without a real-world scale, is an error and nothing is created. measureDistance / measurePerimeter are reported in the unit of the scale; a different `units` is an error instead of being ignored. scaleRegion `units` is mm, cm, m, in or ft. Returns the new annotation id.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1244,7 +1244,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_list_annotations",
-                "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText, and the markup layer when it is not the default layer). Optionally filter to one page or one layer.",
+                "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText, for a measureArea `area: {value, unit}` with the area as a number in the unit it is shown in (acres, hectares, m2, ft2, ...), and the markup layer when it is not the default layer). Optionally filter to one page or one layer.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1256,7 +1256,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_get_annotation",
-                "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped). A grid line also reports `gridAlignment`: per end its group, whether it is locked, the number of linked ends and whether it can be locked.",
+                "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped). A measureArea also reports `area: {value, unit}`: its area as a number in the unit it is shown in (`measureAreaUnit`: ac, ha, m2, ft2, ...; otherwise the square of the scale unit), computed by the app. A grid line also reports `gridAlignment`: per end its group, whether it is locked, the number of linked ends and whether it can be locked.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1268,7 +1268,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_update_annotation",
-                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty. Grid line (parametricSymbol `stramien`): `alignStart` / `alignEnd` true couples that end with the aligned ends of the other grid lines (dragging one end then moves them all), false unlocks it.",
+                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. measureArea: `units` (or `measureAreaUnit`) changes the unit its area is reported in (ac, ha, m2, ft2, yd2, ...; `auto` follows the scale again), the app converts and the result carries `area: {value, unit}`; an unknown unit, or an area unit on a sheet without a real-world scale, is an error and changes nothing. measureDistance / measurePerimeter keep the unit of the scale: a different `units` is an error. scaleRegion `units` is mm, cm, m, in or ft. `layer` moves the annotation to another markup layer; `props` may then be empty. Grid line (parametricSymbol `stramien`): `alignStart` / `alignEnd` true couples that end with the aligned ends of the other grid lines (dragging one end then moves them all), false unlocks it.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -2430,12 +2430,12 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_set_measure_scale",
-                "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every measurement annotation.",
+                "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every measurement annotation. The unit is a LENGTH unit (mm, cm, dm, m, km, in, ft, yd, pt, px); anything else is an error. Acres and hectares are area units: set them per measureArea with `units` in app_create_annotation / app_update_annotation, or per schedule column.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "pixelsPerUnit": { "type": "number", "exclusiveMinimum": 0 },
-                        "unit":          { "type": "string", "description": "Unit name, e.g. mm, cm, m, in, ft." }
+                        "unit":          { "type": "string", "description": "Length unit: mm, cm, dm, m, km, in, ft, yd, pt or px. An area unit (ac, ha) or an unknown unit is rejected." }
                     },
                     "required": ["pixelsPerUnit", "unit"],
                     "additionalProperties": false
@@ -2443,19 +2443,20 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_get_takeoff",
-                "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g. area m2, length m, count), and per-group subtotals. Optionally target one schedule by id or name; otherwise all schedules are returned. Image/thumbnail columns are reported as counts, never as data-URLs.",
+                "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g. area m2, length m, count), and per-group subtotals. Optionally target one schedule by id or name; otherwise all schedules are returned. `areaUnit` reports every area column in that unit (ac, ha, m2, ft2, ...), converted by the app without changing the schedule; each column states its unit. Image/thumbnail columns are reported as counts, never as data-URLs.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "scheduleId": { "type": "string", "description": "Target one schedule by its id." },
-                        "name":       { "type": "string", "description": "Target one schedule by its display name." }
+                        "name":       { "type": "string", "description": "Target one schedule by its display name." },
+                        "areaUnit":   { "type": "string", "description": "Report the area columns in this unit: ac (acres), ha (hectares), m2, ft2, yd2, ... An unknown unit is an error." }
                     },
                     "additionalProperties": false
                 }
             },
             {
                 "name": "app_place_schedule",
-                "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
+                "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. A column converts its rows to one unit: `config.format.<field>.unit`, e.g. {\"format\": {\"area\": {\"unit\": \"ac\"}}} totals the areas in acres (ha, m2, ft2, ... work the same way). The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

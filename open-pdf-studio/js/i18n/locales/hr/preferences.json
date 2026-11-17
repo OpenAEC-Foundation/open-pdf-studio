@@ -315,6 +315,8 @@
     "scalePrecision": "Mjerilo i preciznost",
     "scale": "Mjerilo (px po jedinici)",
     "unit": "Jedinica",
+    "areaUnit": "Area unit",
+    "areaUnitAuto": "Follows scale",
     "precision": "Preciznost",
     "showEdgeLengths": "Prikaži duljine stranica",
     "lineEndings": "Završeci linija (udaljenost / opseg)",

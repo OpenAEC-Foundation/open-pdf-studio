@@ -11,6 +11,9 @@
 //                          staan in de appearance
 //   OPS_Depth       getal  diepte van een maat, omtrek of meetvlak (#311), in
 //                          de eenheid van de meting (measureDepth)
+//   OPS_AreaUnit    tekst  eenheid waarin een meetvlak zijn oppervlakte toont
+//                          (measureAreaUnit, #1129): ac, ha, m², ft²; zonder
+//                          sleutel het kwadraat van de lengte-eenheid
 //   OPS_RuimteZaad  [x y]  zaadpunt van een ruimte, in PDF-coördinaten
 //   OPS_RuimteNaam  tekst  de naam van die ruimte
 //   OPS_RuimteNummer tekst het nummer van die ruimte
@@ -21,6 +24,7 @@
 
 import { PDFName } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
+import { oppervlakteEenheid } from '../../annotations/oppervlakte-eenheid.js';
 
 /** Getalvelden van een maat en hun sleutel (papiermillimeters). */
 export const MAAT_GETALLEN = Object.freeze([
@@ -66,6 +70,8 @@ export function schrijfPlattegrondMeta(annotDict, ann, context, X, Y) {
   if (ann.type === 'measureArea') {
     if (ann.measureShowLabel === false) zet('OPS_NoLabel', context.obj(true));
     if (ann.measureShowEdgeLengths === true) zet('OPS_EdgeLengths', context.obj(true));
+    const vlakEenheid = oppervlakteEenheid(ann.measureAreaUnit);
+    if (vlakEenheid) zet('OPS_AreaUnit', pdfTextString(vlakEenheid));
     const z = ann.opsRuimteZaad;
     if (z && Number.isFinite(z.x) && Number.isFinite(z.y)) {
       zet('OPS_RuimteZaad', context.obj([X(z.x), Y(z.y)]));

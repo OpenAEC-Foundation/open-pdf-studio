@@ -50,7 +50,7 @@ export function getStyleMapping(type) {
     // hoort bij dat ene vlak en mag niet via de standaardstijl naar een
     // ander vlak (#536).
     case 'measureArea':
-      return { prefix: 'measureArea', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'LineWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', dimension: true, noDimScale: true, edgeLengths: 'ShowEdgeLengths' };
+      return { prefix: 'measureArea', stroke: 'StrokeColor', fill: 'FillColor', fillNone: 'FillNone', width: 'LineWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', dimension: true, noDimScale: true, edgeLengths: 'ShowEdgeLengths', areaUnit: 'DisplayUnit' };
     case 'measurePerimeter':
       return { prefix: 'measurePerim', stroke: 'StrokeColor', width: 'LineWidth', borderStyle: 'BorderStyle', opacity: 'Opacity', startHead: 'StartHead', endHead: 'EndHead', headSize: 'HeadSize', dimension: true };
     default:
