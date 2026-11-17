@@ -3,7 +3,6 @@
 // The ONLY render path for PDF pages. No fallback, no CSS-scale, no debounce.
 
 import { nextScaleStep } from '../core/zoom-display.js';
-import { renderVectorPage } from './vector-renderer.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { findAnnotationAt as _findAnnotationAt } from '../annotations/geometry.js';
 import { getTextLayerCssMatrix, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
@@ -934,23 +933,6 @@ function _tekenViewport() {
     const destH = m.regionHpt * pxPerPt;
     const _tileSnap = _snapDrawSize(destW, destH, viewport.currentTile);
     _ctx.drawImage(viewport.currentTile, destX, destY, _tileSnap.w, _tileSnap.h);
-    _ctx.restore();
-  }
-
-  // VECTOR CONTENT — only run when this is NOT a raster-only page. Hybrid
-  // (mixed-content) pages can have both: raster background + vector overlay.
-  // Until pageType='hybrid' exists we treat pageType==='raster' as
-  // raster-only and skip the vector pass.
-  if (viewport.pageType !== 'raster') {
-    _ctx.save();
-    renderVectorPage(_ctx, viewport.filePath, viewport.pageNum, {
-      a: paginaNaarDevice[0],
-      b: paginaNaarDevice[1],
-      c: paginaNaarDevice[2],
-      d: paginaNaarDevice[3],
-      e: paginaNaarDevice[4],
-      f: paginaNaarDevice[5],
-    }, viewport.rotation);
     _ctx.restore();
   }
 

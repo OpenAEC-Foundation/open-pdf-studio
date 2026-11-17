@@ -12,7 +12,6 @@
 
 const STUBS = {
   'js/core/state.js': ['getActiveDocument'],
-  'js/pdf/vector-renderer.js': ['renderVectorPage'],
   'js/annotations/geometry.js': ['findAnnotationAt'],
   'js/pdf/page-bitmap-cache.js': [
     'computeZoomBucket', 'getBestAvailableBitmap', 'ensureBitmap', 'getCachedBitmap',

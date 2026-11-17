@@ -402,7 +402,7 @@ export function pauseThumbnails() {
 }
 
 // Resume thumbnail rendering immediately. Called by the page renderer once
-// its IPC-heavy work (extract_draw_commands / prepareImages) has finished,
+// its IPC-heavy work has finished,
 // so thumbnails don't have to wait the full pause window on initial load.
 export function resumeThumbnails() {
   if (!_thumbnailsPaused) return;
@@ -618,10 +618,7 @@ async function overlayAnnotationsOnDataURL(dataURL, pageNum, width, height, scal
   }
 }
 
-// Render a single page thumbnail — prefers replaying JS-cached vector commands
-// (already extracted by the main viewer) for ~3-6× speedup; falls back to the
-// Rust backend, then PDF.js. Reusing the cache avoids re-parsing the PDF
-// content stream + IPC + JPEG encode + base64 round-trip.
+// Render a single page thumbnail: from the Rust backend (PDFium), then PDF.js.
 async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
   // De breedte bij de START van de render: verandert het paneel intussen, dan
   // ziet isScherpGenoeg() dat deze miniatuur te klein is en volgt een nieuwe.
@@ -642,71 +639,6 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
   // several documents were open. Only fall back to the active doc for legacy
   // direct callers that don't pass one.
   if (!doc) doc = getActiveDocument();
-
-  // ── Fast path: JS replay of cached vector commands ────────────────────────
-  // Only viable if the main viewer has already populated the cache for this
-  // page (e.g. user navigated to it once, or it was prefetched).
-  try {
-    if (doc?.filePath) {
-      const vr = await import('../../pdf/vector-renderer.js');
-      const rotation = (typeof getPageRotation === 'function' ? getPageRotation(pageNum) : 0) || 0;
-      // De opgeslagen tekenopdrachten bevatten alleen de pagina-inhoud, geen
-      // formuliervelden: een pagina met velden gaat via PDFium (#1101).
-      const { heeftVeldWidgets } = await import('../../pdf/formulierlaag-scherm.js');
-      if (vr.hasCachedCommands(doc.filePath, pageNum, rotation)
-          && !(await heeftVeldWidgets(pdfDoc, pageNum).catch(() => false))) {
-        const dims = vr.getCachedPageDimensions(doc.filePath, pageNum, rotation);
-        console.log(`[thumb] p${pageNum} JS-replay: dims=`, dims, `rotation=${rotation}`);
-        if (dims && dims.w > 0 && dims.h > 0) {
-          // Breedte-gericht, net als het Rust-pad: elke miniatuur is `doel`
-          // px breed, staand of liggend; het paneel schaalt hem naar de kolom.
-          const targetW = doel;
-          const scale = targetW / dims.w;
-          const w = Math.max(1, Math.round(dims.w * scale));
-          const h = Math.max(1, Math.round(dims.h * scale));
-          const canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          // Paint white background so transparency doesn't bleed to JPEG.
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, w, h);
-          // Replay the cached vector commands at the thumbnail scale.
-          // renderVectorPage applies its own Y-flip + MediaBox-origin shift
-          // — caller transform is just (scale, scale) with zero translation.
-          vr.renderVectorPage(ctx, doc.filePath, pageNum, { a: scale, b: 0, c: 0, d: scale, e: 0, f: 0 }, rotation);
-          console.log(`[thumb] p${pageNum} JS-replay rendered: canvas=${w}x${h} scale=${scale.toFixed(4)}`);
-          // Blanco-vangnet: op pagina's met een gecentreerde MediaBox
-          // (x0/y0 negatief, AutoCAD/InDesign-export) plaatst de replay de
-          // content buiten het canvas — de hoofdweergave maskeert dat met een
-          // PDFium-bitmap eronder, maar de thumbnail blijft dan wit. Sample de
-          // canvas; is hij (vrijwel) leeg terwijl er wél commando's waren, val
-          // dan door naar het Rust-pad dat via PDFium correct rendert.
-          let _blank = true;
-          try {
-            const _d = ctx.getImageData(0, 0, w, h).data;
-            let _ink = 0;
-            for (let k = 0; k < _d.length; k += 4 * 7) {
-              if (!(_d[k] > 245 && _d[k + 1] > 245 && _d[k + 2] > 245)) { _ink++; if (_ink > 8) break; }
-            }
-            _blank = _ink <= 8;
-          } catch { _blank = false; /* sampling faalt → vertrouw de replay */ }
-          if (_blank) {
-            console.log(`[thumb] p${pageNum} JS-replay leeg → val terug op Rust-pad`);
-          } else {
-            const dataURL = canvas.toDataURL('image/jpeg', 0.7);
-            // Overlay annotations on top (same as Rust path).
-            try {
-              const composited = await overlayAnnotationsOnDataURL(dataURL, pageNum, w, h, scale, doc);
-              return { dataURL: composited, width: w, height: h };
-            } catch {
-              return { dataURL, width: w, height: h };
-            }
-          }
-        }
-      }
-    }
-  } catch (_) { /* fall through to Rust path */ }
 
   // ── Zware pagina's: thumbnail uit de progressieve whole-page-bitmap ──────
   // render_thumbnail is een SYNC in-proc command: op een zwaar CAD-blad

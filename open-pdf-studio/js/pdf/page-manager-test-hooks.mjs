@@ -15,7 +15,6 @@ const STUBS = {
   'js/core/undo-manager.js': ['recordPageStructure'],
   'js/pdf/loader.js': ['getCachedPdfBytes', 'setCachedPdfBytes', 'clearCachedPdfBytes', 'cancelAnnotationLoading', 'markAllAnnotationPagesLoaded', 'laadAnnotatiesVoorPaginas', 'loadPDF'],
   // Wat document-release.js per pad vrijgeeft voordat een werkbestand weg mag.
-  'js/pdf/vector-renderer.js': ['invalidateDocumentCache'],
   'js/pdf/page-bitmap-cache.js': ['invalidateDocumentBitmaps'],
   'js/pdf/progressive-render.js': ['forgetContentBytes'],
   'js/pdf/tile-cache.js': ['tileCacheClearForFile'],
