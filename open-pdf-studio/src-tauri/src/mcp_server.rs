@@ -3382,7 +3382,7 @@ async fn mcp_handler(
     State(state): State<AppState>,
     headers: axum::http::HeaderMap,
     Json(body): Json<Value>,
-) -> impl IntoResponse {
+) -> axum::response::Response {
     // Pull out the request id; default to null so error responses are still
     // well-formed if the client omitted it.
     let id = body.get("id").cloned().unwrap_or(Value::Null);
@@ -3395,7 +3395,8 @@ async fn mcp_handler(
         return (
             StatusCode::FORBIDDEN,
             Json(rpc_error(id, jsonrpc_error::INVALID_REQUEST, melding)),
-        );
+        )
+        .into_response();
     }
 
     let method = match body.get("method").and_then(|v| v.as_str()) {
@@ -3408,7 +3409,8 @@ async fn mcp_handler(
                     jsonrpc_error::INVALID_REQUEST,
                     "missing 'method' field",
                 )),
-            );
+            )
+            .into_response();
         }
     };
 
@@ -3469,9 +3471,7 @@ async fn mcp_handler(
                 }
             }
         }
-        // `notifications/initialized` and other notification methods carry no
-        // id and expect no response. We still send back an empty result for
-        // robustness; the harness ignores unknown ids.
+        // Acknowledge initialization; notification responses are suppressed below.
         "notifications/initialized" | "initialized" => rpc_result(id, json!({})),
         // Een client breekt een lopende aanroep af (#575): alleen opdrachten
         // van extensies zijn af te breken; die krijgen hun AbortSignal.
@@ -3492,7 +3492,14 @@ async fn mcp_handler(
         ),
     };
 
-    (StatusCode::OK, Json(response))
+    // JSON-RPC notifications omit the id member (an explicit null id is
+    // still a request). Dispatch first so cancellation keeps its side effect.
+    // Streamable HTTP requires accepted notifications to have no JSON body.
+    if body.get("id").is_none() {
+        StatusCode::ACCEPTED.into_response()
+    } else {
+        (StatusCode::OK, Json(response)).into_response()
+    }
 }
 
 /// Start the MCP server. This is an async function that runs forever (until
@@ -4362,5 +4369,214 @@ mod tests {
                 "{name} message should explain missing AppHandle, got: {msg}"
             );
         }
+    }
+}
+
+#[cfg(test)]
+mod http_notification_tests {
+    use super::*;
+
+    struct Server {
+        url: String,
+        task: tokio::task::JoinHandle<()>,
+    }
+
+    impl Drop for Server {
+        fn drop(&mut self) {
+            self.task.abort();
+        }
+    }
+
+    async fn server(access: Toegang) -> Server {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let mut state = AppState::nieuw(Profiel::Publiek, address.port(), None);
+        state.toegang = access;
+        let app = Router::new()
+            .route("/mcp", post(mcp_handler))
+            .with_state(state);
+        let task = tokio::spawn(async move { axum::serve(listener, app).await.unwrap() });
+        Server {
+            url: format!("http://{address}/mcp"),
+            task,
+        }
+    }
+
+    async fn assert_empty_accepted(response: reqwest::Response) {
+        assert_eq!(response.status(), StatusCode::ACCEPTED);
+        assert!(response.headers().get("content-type").is_none());
+        assert!(response.bytes().await.unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn strict_client_can_initialize_then_list_tools() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        let initialized = client
+            .post(&server.url)
+            .json(&json!({
+                "jsonrpc": "2.0", "id": 1, "method": "initialize",
+                "params": { "protocolVersion": "2025-03-26", "capabilities": {},
+                    "clientInfo": { "name": "strict-regression-client", "version": "1" } }
+            }))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(initialized.status(), StatusCode::OK);
+        let initialized: Value = initialized.json().await.unwrap();
+        assert_eq!(initialized["id"], 1);
+        assert!(initialized["result"]["capabilities"]["tools"].is_object());
+        assert_empty_accepted(
+            client
+                .post(&server.url)
+                .json(&json!({
+                    "jsonrpc": "2.0", "method": "notifications/initialized"
+                }))
+                .send()
+                .await
+                .unwrap(),
+        )
+        .await;
+        let tools = client
+            .post(&server.url)
+            .json(&json!({
+                "jsonrpc": "2.0", "id": "tools-after-notification", "method": "tools/list"
+            }))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(tools.status(), StatusCode::OK);
+        assert_eq!(tools.headers()["content-type"], "application/json");
+        let tools: Value = tools.json().await.unwrap();
+        assert_eq!(tools["id"], "tools-after-notification");
+        assert!(!tools["result"]["tools"].as_array().unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn all_notifications_are_bodyless_including_unknown_methods() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        for method in [
+            "notifications/initialized",
+            "initialized",
+            "notifications/cancelled",
+            "notifications/progress",
+            "notifications/future-extension",
+            "tools/list",
+        ] {
+            assert_empty_accepted(
+                client
+                    .post(&server.url)
+                    .json(&json!({
+                        "jsonrpc": "2.0", "method": method, "params": { "requestId": "cancel-me" }
+                    }))
+                    .send()
+                    .await
+                    .unwrap(),
+            )
+            .await;
+        }
+    }
+
+    #[tokio::test]
+    async fn explicit_ids_keep_json_results_and_errors() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        for id in [json!(0), json!(""), json!("request"), Value::Null] {
+            for method in ["tools/list", "notifications/initialized", "unknown/method"] {
+                let response = client
+                    .post(&server.url)
+                    .json(&json!({
+                        "jsonrpc": "2.0", "id": id, "method": method
+                    }))
+                    .send()
+                    .await
+                    .unwrap();
+                assert_eq!(response.status(), StatusCode::OK);
+                assert_eq!(response.headers()["content-type"], "application/json");
+                let response: Value = response.json().await.unwrap();
+                assert_eq!(response["id"], id);
+                if method == "unknown/method" {
+                    assert_eq!(response["error"]["code"], jsonrpc_error::METHOD_NOT_FOUND);
+                } else {
+                    assert!(response.get("result").is_some());
+                }
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn notifications_still_require_local_origin_or_bearer_access() {
+        let local = server(Toegang::Lokaal).await;
+        let managed = server(Toegang::Geheim(Arc::from("test-secret"))).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        let body = json!({ "jsonrpc": "2.0", "method": "notifications/initialized" });
+        for request in [
+            client
+                .post(&local.url)
+                .header("Origin", "https://untrusted.example"),
+            client.post(&local.url).header("Host", "untrusted.example"),
+            client.post(&managed.url),
+            client.post(&managed.url).bearer_auth("wrong-secret"),
+            client
+                .post(&managed.url)
+                .bearer_auth("test-secret")
+                .header("Origin", "http://localhost"),
+        ] {
+            assert_eq!(
+                request.json(&body).send().await.unwrap().status(),
+                StatusCode::FORBIDDEN
+            );
+        }
+        assert_empty_accepted(
+            client
+                .post(&managed.url)
+                .bearer_auth("test-secret")
+                .json(&body)
+                .send()
+                .await
+                .unwrap(),
+        )
+        .await;
+    }
+
+    #[tokio::test]
+    async fn malformed_messages_are_not_accepted_as_notifications() {
+        let server = server(Toegang::Lokaal).await;
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_secs(10))
+            .build()
+            .unwrap();
+        for body in [json!({}), json!({ "method": 1 }), json!([])] {
+            let response = client.post(&server.url).json(&body).send().await.unwrap();
+            assert_ne!(response.status(), StatusCode::ACCEPTED);
+            let response: Value = response.json().await.unwrap();
+            assert_eq!(response["error"]["code"], jsonrpc_error::INVALID_REQUEST);
+        }
+        let response = client
+            .post(&server.url)
+            .header("content-type", "application/json")
+            .body("{")
+            .send()
+            .await
+            .unwrap();
+        assert!(response.status().is_client_error());
     }
 }
