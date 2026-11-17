@@ -6,6 +6,7 @@ import PrefSelect from './PrefSelect.jsx';
 import MarkupStatusesEditor from './MarkupStatusesEditor.jsx';
 import { PAPIER_EENHEDEN } from '../../../annotations/papiermaat-eenheid.js';
 import { BREUK_PRECISIES } from '../../../core/voet-inch.js';
+import { OPPERVLAKTE_KEUZES } from '../../../annotations/oppervlakte-eenheid.js';
 
 const SUB_TABS = [
   { id: 'general', key: 'annotations.subtabGeneral' },
@@ -76,6 +77,13 @@ export default function AnnotationsTab(props) {
   const unitOpts = [
     { value: 'mm', label: 'mm' }, { value: 'cm', label: 'cm' }, { value: 'm', label: 'm' },
     { value: 'in', label: 'in' }, { value: 'ft', label: 'ft' }, { value: 'pt', label: 'pt' }, { value: 'px', label: 'px' },
+  ];
+
+  // Weergave-eenheid van de oppervlakte van nieuwe meetvlakken (#1129):
+  // leeg volgt de schaal, anders m², hectares, ft² of acres.
+  const areaUnitOpts = [
+    { value: '', label: t('measurement.areaUnitAuto') },
+    ...OPPERVLAKTE_KEUZES.map(u => ({ value: u, label: u })),
   ];
 
   const precisionOpts = [
@@ -667,6 +675,10 @@ export default function AnnotationsTab(props) {
                 <div class="pref-row">
                   <label>{t('measurement.unit')}</label>
                   <PrefSelect value={p.measureAreaDimUnit[0]} setValue={p.measureAreaDimUnit[1]} options={unitOpts} />
+                </div>
+                <div class="pref-row">
+                  <label>{t('measurement.areaUnit')}</label>
+                  <PrefSelect value={p.measureAreaDisplayUnit[0]} setValue={p.measureAreaDisplayUnit[1]} options={areaUnitOpts} />
                 </div>
                 <div class="pref-row">
                   <label>{t('measurement.precision')}</label>

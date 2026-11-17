@@ -186,3 +186,6 @@ gelijk (18 603 → 18 620 KiB, 541 → 556 chunks).
 Budget in `scripts/bundel-grootte.test.mjs` verlaagd naar 4120 KiB (gzip
 1340 KiB), net boven de gehoste bouw.
 
+## 17-11-2026: budget naar 4145 KiB
+
+`main` stond op 4112,8 KiB (desktop). Acres en hectares in meetlabels en de beslislogica van de eerste-start-melding horen in de opstartbundel en brengen hem op 4121,9 KiB (gehost 4139,2 KiB). Het budget in `scripts/bundel-grootte.test.mjs` is daarom 4145 KiB; het gzip-budget blijft 1340 KiB.

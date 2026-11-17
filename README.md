@@ -10,7 +10,7 @@
 [![CI](https://github.com/OpenAEC-Foundation/open-pdf-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenAEC-Foundation/open-pdf-studio/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-LGPL--3.0--or--later-blue)](#license)
 [![Languages](https://img.shields.io/badge/languages-40-informational)](open-pdf-studio/js/i18n/locales/)
-[![MCP tools](https://img.shields.io/badge/MCP%20tools-94-informational)](mcp-stdio/tools.json)
+[![MCP tools](https://img.shields.io/badge/MCP%20tools-96-informational)](mcp-stdio/tools.json)
 
 ### [Try in your browser](https://open-pdf-studio.open-aec.com/) &nbsp;·&nbsp; [Download](https://github.com/OpenAEC-Foundation/open-pdf-studio/releases/latest)
 
@@ -49,7 +49,7 @@ Every release is on the [releases page](https://github.com/OpenAEC-Foundation/op
 - **Measure to scale at once.** A drawing that carries its own scale, such as a CAD plot or an imported DWG, measures correctly without calibrating.
 - **See what changed.** Compare two revisions side by side or on top of each other, with a list of every change.
 - **CAD in and out.** Import DWG and DXF as a vector PDF with layers and a measuring scale, and export a page back to DXF or DWG (desktop).
-- **Works with an AI assistant.** A local MCP server with 94 tools lets an assistant open, mark up, measure and save documents for you (desktop).
+- **Works with an AI assistant.** A local MCP server with 96 tools lets an assistant open, mark up, measure and save documents for you (desktop).
 - **Everywhere.** Windows, macOS, Linux, Android and the browser, in 40 languages.
 
 ## Screenshots
@@ -125,7 +125,7 @@ The same unit works as a `<open-pdf-studio src="…" scale="1:100">` element and
 
 ## MCP
 
-The desktop app has a built-in MCP server, so an AI assistant can work with your documents: open and save files, navigate, create and edit annotations, set the measuring scale, take off quantities, import and export CAD and print to a PDF file. It has 94 public tools.
+The desktop app has a built-in MCP server, so an AI assistant can work with your documents: open and save files, navigate, create and edit annotations, set the measuring scale, take off quantities, import and export CAD and print to a PDF file. It has 96 public tools.
 
 You stay in control. The server is on for a new installation and listens only on your own computer (`127.0.0.1`, port 9223); switch it off or change the port under Settings > General. The status bar shows when an assistant is connected and which tool it used last. `open-pdf-studio.mcpb` from the release installs the connection in MCP clients that support `.mcpb` bundles; [mcp-stdio/README.md](mcp-stdio/README.md) explains the bridge for other clients. A [Python library](docs/python-library.md) drives the same tools from a script.
 

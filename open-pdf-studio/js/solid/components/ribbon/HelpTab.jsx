@@ -1,7 +1,9 @@
 import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
-import { aboutIcon, shortcutsIcon, updatesIcon, fileAssocIcon, extensionsIcon } from '../../data/ribbonIcons.js';
+import { aboutIcon, shortcutsIcon, updatesIcon, fileAssocIcon, extensionsIcon, virusWarningIcon } from '../../data/ribbonIcons.js';
+import { isTauri } from '../../../core/platform.js';
+import { openVirusscannerMelding } from '../../../help/virusscanner-melding.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
@@ -58,6 +60,16 @@ export default function HelpTab() {
             label={t('help.whatsNew')}
             onClick={() => import('../../../help/whats-new-trigger.js').then(m => m.openWhatsNewManual())}
           />
+          {/* Alleen in de app: de webversie heeft geen installatieprogramma (#761). */}
+          {isTauri() && (
+            <RibbonButton
+              id="ribbon-virus-warning"
+              title={t('help.virusWarningTitle')}
+              icon={virusWarningIcon}
+              label={t('help.virusWarning')}
+              onClick={() => openVirusscannerMelding()}
+            />
+          )}
           <RibbonButton
             id="ribbon-check-updates"
             title={t('help.checkForUpdates')}

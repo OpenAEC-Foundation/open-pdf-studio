@@ -4,7 +4,8 @@ import { createAnnotation } from '../../annotations/factory.js';
 import { generateImageId } from '../../utils/helpers.js';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, maatlijnTekst } from '../../annotations/measurement.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, maatlijnTekst, vlakTekst } from '../../annotations/measurement.js';
+import { oppervlakteEenheid, isAlleenOppervlakte } from '../../annotations/oppervlakte-eenheid.js';
 import { formatGetal } from '../../core/maat-notatie.js';
 import { findImageForAnnotation, findImageEntryForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
@@ -1171,14 +1172,20 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               extraColors.opsSubtype === 'measureArea' && extraColors.measureUnit
                 ? `${extraColors.measureUnit}²` : extraColors.measureAreaUnit)
             : null;
+          // Weergave-eenheid van de oppervlakte (#1129): de eigen sleutel van
+          // de app (OPS_AreaUnit), anders /A van een ander programma als dat
+          // een eenheid van alleen oppervlakte is (schaal in voet, /A in acres).
+          const maAEenheid = oppervlakteEenheid(extraColors.measureAreaUnit);
+          const maVlakEenheid = oppervlakteEenheid(extraColors.opsAreaUnit)
+            || (maAEenheid && isAlleenOppervlakte(maAEenheid) ? maAEenheid : null);
           if (!maText) {
             // Zonder opgeslagen tekst zelf rekenen - inclusief de extra ringen,
             // anders staat er de oppervlakte van alleen de buitenring (#457).
             const area = calculateArea(polyPoints, maHoles || undefined, pageNum);
             const s = maSchaal?.measureScale;
-            maText = s > 0
-              ? formatMeasurement({ value: area.pixels * s * s, unit: maSchaal.measureUnit })
-              : formatMeasurement(area);
+            maText = vlakTekst({ measureAreaUnit: maVlakEenheid }, s > 0
+              ? { value: area.pixels * s * s, unit: maSchaal.measureUnit }
+              : area);
           }
           const maProps = {
             ...baseProps,
@@ -1205,6 +1212,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           }
           if (extraColors.opsPrecision != null) maProps.measurePrecision = extraColors.opsPrecision;
           if (maHoles) maProps.holes = maHoles;
+          if (maVlakEenheid) maProps.measureAreaUnit = maVlakEenheid;
           Object.assign(maProps, randloosUitExtra(extraColors)); // zonder rand (#431)
           // Ruimtevlak van een plattegrond: verborgen label, zaadpunt en naam.
           Object.assign(maProps, plattegrondUitExtra(extraColors, convertPoint));

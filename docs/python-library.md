@@ -296,7 +296,7 @@ Legend: **yes** = an existing MCP tool does it (so Python has it today);
 | Pages: merge, insert from file | yes | `app_merge_pdf` (`doc.pages.merge`, position start/end/after current page) |
 | Pages: insert blank, delete, rotate, reorder, extract, shift | no | app functions exist (`js/pdf/page-manager.js`: `insertBlankPages`, `deletePages`, `extractPages`, `reorderPages`; `js/pdf/renderer.js`: `rotatePage`; `js/pdf/shift-page.js`: `shiftPages`) but no MCP tool |
 | Annotations, all types | yes | `app_create_annotation` (28 types: line, arrow, wall, box, mask, redaction, viewport, circle, highlight, cloud, polygon, polyline, cloudPolyline, spline, draw, filledArea, textbox, callout, comment, stamp, signature, image, parametricSymbol, measureDistance, measureArea, measurePerimeter, scaleRegion, count), `app_list/get/update/delete_annotation`, `app_undo/redo` |
-| Measurements, dimensions | yes | measure* types, `app_set_measure_scale`, `app_get_takeoff`, `app_place_schedule` |
+| Measurements, dimensions | yes | measure* types, `app_set_measure_scale`, `app_get_takeoff`, `app_place_schedule`, `app_update_schedule`, `app_delete_schedule` |
 | Symbols | yes | `parametricSymbol` type, `app_symbol_scale`, `app_search_symbols` |
 | Walls, floor plans, facades, structural grids | yes | `app_floorplan`, `app_facade_element`, `app_structural_layout`, wall type |
 | Hatches | partial | `filledArea` and wall/floor-plan hatches through their tools; no tool to edit hatch patterns directly |

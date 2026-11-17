@@ -2162,7 +2162,7 @@
   font-size: 12px;
   line-height: 1.4;
   padding: 4px 6px;
-  border: 1px solid #d4d4d4;
+  border: 1px solid var(--theme-border, #d4d4d4);
   background: var(--theme-bg-secondary, #fafafa);
 }
 
@@ -2174,7 +2174,7 @@
   align-self: flex-start;
   max-width: 200px;
   max-height: 48px;
-  border: 1px solid #d4d4d4;
+  border: 1px solid var(--theme-border, #d4d4d4);
   background: #ffffff;
 }
 
@@ -4062,6 +4062,25 @@
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+/* ===== Melding over een waarschuwing van een virusscanner (#761) ===== */
+.virus-notice-dialog {
+  width: 440px;
+  max-width: calc(100vw - 24px);
+}
+.virus-notice-body p + p {
+  margin-top: 10px;
+}
+.virus-notice-dialog .modal-footer {
+  justify-content: flex-end;
+}
+.virus-notice-dialog .pref-btn {
+  cursor: default;
+  border-radius: 0;
+}
+[dir="rtl"] .virus-notice-dialog .modal-footer {
+  justify-content: flex-start;
 }
 
 /* ===== Sticky Note Popup ===== */
@@ -7130,3 +7149,17 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 /* Kalibratie: een referentielijn tekenen (#1090). */
 .calibration-row .calibration-draw { white-space: nowrap; }
 .calibration-row .calibration-hint { font-size: 11px; color: var(--theme-text-secondary, #666); margin-inline-start: 6px; }
+
+/* Uitleg over een virusscanner-waarschuwing, één keer bovenaan de release-notes (#761). */
+.wn-virus-notice {
+  border: 1px solid var(--theme-border, #d4d4d4);
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+.wn-virus-notice h3 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+.wn-virus-notice p {
+  margin: 0 0 6px;
+}

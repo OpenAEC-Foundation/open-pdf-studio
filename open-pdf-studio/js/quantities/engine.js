@@ -13,6 +13,9 @@ const OPS = {
   'none': (a) => a == null || a === '',
 };
 
+/** De vergelijkingen die een filter kent (`filters[].op`). */
+export const FILTER_OPS = Object.keys(OPS);
+
 function cmp(a, b) {
   const na = typeof a === 'number', nb = typeof b === 'number';
   if (na && nb) return a - b;

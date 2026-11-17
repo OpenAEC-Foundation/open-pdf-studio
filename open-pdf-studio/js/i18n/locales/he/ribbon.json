@@ -479,7 +479,9 @@
     "setDefaultPdf": "הגדרת יישום PDF ברירת מחדל",
     "fileAssociations": "שיוך קבצים",
     "previousVersionTitle": "התקנת הגרסה הקודמת של Open PDF Studio",
-    "previousVersion": "גרסה קודמת"
+    "previousVersion": "גרסה קודמת",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "אדום",

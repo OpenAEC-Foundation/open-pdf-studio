@@ -71,6 +71,8 @@ export function writeStylePrefs(annotation, prefs, touched = null) {
 
   // Zijdematen van een meetvlak (#536): aan of uit, standaard uit.
   if (m.edgeLengths) prefs[p + m.edgeLengths] = annotation.measureShowEdgeLengths === true;
+  // Weergave-eenheid van de oppervlakte (#1129): '' volgt de schaal.
+  if (m.areaUnit) prefs[p + m.areaUnit] = annotation.measureAreaUnit || '';
 
   // Vrije hand (#385): pendruk, minimale breedte en gladheid.
   if (m.ink) {

@@ -479,7 +479,9 @@
     "setDefaultPdf": "Weka Programu Chaguo-msingi ya PDF",
     "fileAssociations": "Ushirikiano wa Faili",
     "previousVersionTitle": "Sakinisha toleo lililotangulia la Open PDF Studio",
-    "previousVersion": "Toleo lililotangulia"
+    "previousVersion": "Toleo lililotangulia",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Nyekundu",

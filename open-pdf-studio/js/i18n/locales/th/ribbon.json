@@ -479,7 +479,9 @@
     "setDefaultPdf": "ตั้งเป็นแอปพลิเคชัน PDF เริ่มต้น",
     "fileAssociations": "การเชื่อมโยงไฟล์",
     "previousVersionTitle": "ติดตั้ง Open PDF Studio เวอร์ชันก่อนหน้า",
-    "previousVersion": "เวอร์ชันก่อนหน้า"
+    "previousVersion": "เวอร์ชันก่อนหน้า",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "แดง",

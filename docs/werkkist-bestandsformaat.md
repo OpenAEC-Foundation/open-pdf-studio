@@ -81,7 +81,7 @@ punten op schaal 1 (onafhankelijk van de zoomstand).
 | Lijnkoppen | `startHead`, `endHead`, `headSize`, `lineTail` |
 | Arcering en vorm | `hatchPattern`, `hatchColor`, `hatchScale`, `hatchAngle`, `cloudIntensity`, `boxShape` |
 | Tekst van het label | `fontSize`, `fontFamily`, `fontBold`, `fontItalic`, `fontUnderline`, `fontStrikethrough`, `textColor`, `textFontSize`, `textAlign`, `textVAlign`, `textPadding`, `labelColor` |
-| Meten | `measureUnit`, `measurePrecision`, `measureDepth`, `measureName`, `measureShowLabel`, `measureShowEdgeLengths` |
+| Meten | `measureUnit`, `measurePrecision`, `measureDepth`, `measureName`, `measureShowLabel`, `measureShowEdgeLengths`, `measureAreaUnit` |
 | Maatvoering | `dimType`, `dimExtension`, `dimShowUnit`, `dimExtOvershootMm`, `dimExtGapMm`, `dimLineOvershootMm`, `dimOvershootEnds` |
 | Omschrijving en classificatie | `subject`, `ifcCategory` |
 | Wand | `dikteMm`, `isolatieType` |

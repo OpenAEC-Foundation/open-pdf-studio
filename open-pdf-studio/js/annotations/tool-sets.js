@@ -18,6 +18,7 @@ import { writeStylePrefs } from '../core/style-prefs.js';
 import { getLayers, addLayer, DEFAULT_LAYER_ID } from './annotatie-lagen.js';
 import { lengteEenheid, eenheidFactor } from './vlak-zijden.js';
 import { nettoVlakOppervlak } from './vlak-ringen.js';
+import { vlakWeergave } from './oppervlakte-eenheid.js';
 
 export const TOOL_SET_FORMAT = 'open-pdf-studio/tool-set';
 export const TOOL_SET_VERSION = 1;
@@ -94,7 +95,7 @@ const SAVED_KEYS = new Set([
   'textColor', 'textFontSize', 'textAlign', 'textVAlign', 'textPadding', 'labelColor',
   // measurement
   'measureUnit', 'measurePrecision', 'measureDepth', 'measureName', 'measureShowLabel',
-  'measureShowEdgeLengths', 'dimType', 'dimExtension', 'dimShowUnit',
+  'measureShowEdgeLengths', 'measureAreaUnit', 'dimType', 'dimExtension', 'dimShowUnit',
   'dimExtOvershootMm', 'dimExtGapMm', 'dimLineOvershootMm', 'dimOvershootEnds',
   // description and classification
   'subject', 'ifcCategory',
@@ -218,6 +219,7 @@ export function prefKeyToAnnKeys(type) {
     add('DimExtension', ['dimExtension']);
   }
   add(m.edgeLengths, ['measureShowEdgeLengths']);
+  add(m.areaUnit, ['measureAreaUnit']);
   return map;
 }
 
@@ -310,9 +312,12 @@ export function applyMeasureUnit(ann, unit, precision, { formatMeasurement } = {
   ann.measureValue = value;
   if (ann.type === 'measureArea') {
     ann.measureUnit = unitOut + '²';
+    // The label follows the area's display unit (acres, hectares, ...);
+    // the value and unit above stay in the square of the length unit.
+    const shown = vlakWeergave({ value, unit: ann.measureUnit }, ann.measureAreaUnit);
     ann.measureText = typeof formatMeasurement === 'function'
-      ? formatMeasurement({ value, unit: ann.measureUnit })
-      : `${fixed(value, ann.measurePrecision)} ${ann.measureUnit}`;
+      ? formatMeasurement(shown)
+      : `${fixed(shown.value, ann.measurePrecision)} ${shown.unit}`;
   } else if (ann.type === 'measureDistance') {
     ann.measureUnit = unitOut;
     // mm is the implied drawing unit on dimensions: whole numbers, no suffix.
