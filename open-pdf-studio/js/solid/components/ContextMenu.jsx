@@ -75,7 +75,7 @@ import {
 import { sneltoetsVoor } from '../stores/keybindingStore.js';
 import { plaatsSubmenuVan } from './contextmenu-plaatsen.js';
 import { setStatusWithHistory } from '../../review/status-history.js';
-import { alleStatussen, statusNaam } from '../../review/status-sets.js';
+import { kiesbareStatussen, filterStatussen, statusNaam, statusLijst } from '../../review/status-sets.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -197,9 +197,18 @@ function AnnotationMenuContent() {
 
   // De vaste en de eigen statussen (#1076, review/status-sets.js), opnieuw
   // opgebouwd bij elk openen van het menu.
-  const statusItems = () => alleStatussen(state.preferences?.markupStatuses).map((s) => ({
-    key: s.key, label: () => statusNaam(s.key, state.preferences?.markupStatuses, t),
+  const statusItems = () => kiesbareStatussen(statusLijst(state.preferences)).map((s) => ({
+    key: s.key, label: () => statusNaam(s.key, statusLijst(state.preferences), t),
   }));
+  // Het filter kent ook wat er verder in het document staat: een andere set,
+  // een verwijderde status of een status uit een ander programma.
+  const statusFilterItems = () => {
+    const anns = getActiveDocument()?.annotations || [];
+    const labels = new Map(anns.filter((a) => a?.statusLabel).map((a) => [String(a.status).toLowerCase(), a.statusLabel]));
+    return filterStatussen(statusLijst(state.preferences), anns.map((a) => a?.status)).map((key) => ({
+      key, label: () => statusNaam(key, statusLijst(state.preferences), t, labels.get(key)),
+    }));
+  };
 
   // Edit-contour vertex actions — only shown when right-clicking a vertex/edge
   // handle of the annotation that's currently in edit-contour mode.
@@ -659,7 +668,7 @@ function AnnotationMenuContent() {
           updateAnnotationsList. Sleutels zijn kleine letters — zelfde
           afspraak als het paneelmenu (#236). */}
       <Submenu icon={statusIcon} label={t('annotation.showByStatus')}>
-        <For each={statusItems()}>
+        <For each={statusFilterItems()}>
           {(s) => (
             <MenuItem label={s.label()} checkbox={true} checked={!hiddenStatuses().has(s.key.toLowerCase())} onClick={() => {
               toggleHiddenStatus(s.key.toLowerCase());

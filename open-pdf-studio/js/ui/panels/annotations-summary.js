@@ -20,13 +20,13 @@ import { bouwOpmerkingenRapport } from '../../annotations/opmerkingen-rapport.js
 import { recordBulkModify } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { StandardFonts } from 'pdf-lib';
-import { statusNaam } from '../../review/status-sets.js';
+import { statusNaam, statusLijst } from '../../review/status-sets.js';
 
 const tp = (key, opties) => i18next.t(key, { ns: 'properties', ...(opties || {}) });
 
 // De naam van een status, ook van een eigen status (#1076).
-export function statusLabel(status) {
-  return statusNaam(status, state.preferences?.markupStatuses, (sleutel) => i18next.t(sleutel, { ns: 'context' }));
+export function statusLabel(status, label) {
+  return statusNaam(status, statusLijst(state.preferences), (sleutel) => i18next.t(sleutel, { ns: 'context' }), label);
 }
 
 async function paginaMaat(doc, pageNum, cache) {
@@ -109,7 +109,7 @@ export async function exportAnnotationsSummaryPdf(annotations) {
       } catch (err) {
         console.warn(`[Summary] crop failed for ${ann.id}:`, err);
       }
-      const status = ann.status && String(ann.status).toLowerCase() !== 'none' ? statusLabel(ann.status) : '';
+      const status = ann.status && String(ann.status).toLowerCase() !== 'none' ? statusLabel(ann.status, ann.statusLabel) : '';
       ingangen.push({
         pagina: ann.page,
         type: getAnnotationDisplayName(ann, byId),

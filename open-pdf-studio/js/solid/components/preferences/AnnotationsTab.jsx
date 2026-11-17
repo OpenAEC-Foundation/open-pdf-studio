@@ -257,7 +257,13 @@ export default function AnnotationsTab(props) {
             {/* Eigen reviewstatussen van markeringen (#1076). */}
             <fieldset class="pref-fieldset">
               <legend>{t('annotations.markupStatuses')}</legend>
-              <MarkupStatusesEditor value={p.markupStatuses} />
+              <MarkupStatusesEditor sets={p.markupStatusSets} active={p.activeMarkupStatusSet} legacy={p.markupStatuses} />
+              <div class="pref-row pref-checkbox-row">
+                <label class="pref-checkbox-label" title={t('annotations.showStatusBadgesHint')}>
+                  <input type="checkbox" checked={p.showStatusBadges[0]()} onChange={e => p.showStatusBadges[1](e.target.checked)} />
+                  <span>{t('annotations.showStatusBadges')}</span>
+                </label>
+              </div>
             </fieldset>
 
             {/* Stempelkiezer: ingebouwde stempels verbergen (#998). */}

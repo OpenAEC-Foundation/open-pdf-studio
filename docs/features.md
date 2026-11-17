@@ -20,6 +20,12 @@ app and are not available in the [browser version](https://open-pdf-studio.open-
 - **Review status with history:** every status change (accepted, rejected,
   completed, ...) is kept with who set it and when, shown in the properties
   panel and saved as standard PDF status replies, one per step.
+- **Own status sets:** next to the standard review statuses a team can define
+  named status sets (name, colour and open/closed per status), pick the active
+  set and share a set as a file. The markups list has a status column, filters,
+  groups and sorts on status and has a "show only open items" button; an
+  optional coloured badge marks the status on the page. Own statuses are saved
+  as status replies under a state model named after the set.
 - **Redaction:** mark areas and apply them to remove the text, images, vector
   graphics, annotations and form fields under them from the file. Saving then
   rewrites the whole file without earlier versions.

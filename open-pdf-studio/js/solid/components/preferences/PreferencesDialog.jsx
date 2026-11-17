@@ -104,6 +104,9 @@ export default function PreferencesDialog(props) {
     const prevPageSharpen = state.preferences.pageSharpen;
     const prevLayout = leesLayout(state.preferences);
     const prevLengte = `${state.preferences.imperialLengthFormat}|${state.preferences.imperialFractionPrecision}`;
+    const statusVoorkeuren = () => JSON.stringify([state.preferences.markupStatusSets, state.preferences.activeMarkupStatusSet,
+      state.preferences.markupStatuses, state.preferences.showStatusBadges]);
+    const prevStatus = statusVoorkeuren();
     for (const key of Object.keys(DEFAULT_PREFERENCES)) {
       state.preferences[key] = prefs[key][0]();
     }
@@ -122,6 +125,14 @@ export default function PreferencesDialog(props) {
     // Voet-inch of decimale voet gewijzigd (#996): maatteksten opnieuw opbouwen.
     if (`${state.preferences.imperialLengthFormat}|${state.preferences.imperialFractionPrecision}` !== prevLengte) {
       import('../../../annotations/measurement.js').then(m => m.recalculateAllMeasurements());
+    }
+    // Statussets of de statusbadge gewijzigd (#1076): lijst en tekening volgen.
+    if (statusVoorkeuren() !== prevStatus) {
+      import('../../../annotations/rendering.js').then(m => {
+        if (getActiveDocument()?.viewMode === 'continuous') m.redrawContinuous();
+        else m.redrawAnnotations();
+      });
+      import('../../../ui/panels/annotations-list.js').then(m => m.updateAnnotationsList());
     }
     // Thin Lines changed (#595): re-render the page view in the new line mode.
     if (state.preferences.thinLines !== prevThinLines) {
@@ -158,7 +169,7 @@ export default function PreferencesDialog(props) {
         // Werkruimten met een naam zijn eigen werk, geen instelling (#932).
         if (key === 'workspaces') continue;
         // Net zo de eigen statuslijst van het team (#1076).
-        if (key === 'markupStatuses') continue;
+        if (key === 'markupStatuses' || key === 'markupStatusSets' || key === 'activeMarkupStatusSet') continue;
         // Net zo wat de gebruiker al eens heeft uitgesteld bij het herstellen.
         if (key === 'recoveryPostponed') continue;
         prefs[key][1](DEFAULT_PREFERENCES[key]);

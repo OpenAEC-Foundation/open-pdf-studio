@@ -290,6 +290,31 @@
   overflow: hidden;
 }
 
+/* Statuskolom in de lijst met markeringen (#1076). */
+.annotation-list-status {
+  flex: 0 0 76px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--theme-panel-header-text);
+}
+
+.annotation-list-status-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--theme-panel-border);
+}
+
+.annotation-list-status-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .annotation-list-info .annotation-list-type {
   font-size: 12px;
   font-weight: 500;
