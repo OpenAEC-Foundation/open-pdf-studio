@@ -479,7 +479,9 @@
     "setDefaultPdf": "Ange standard-PDF-program",
     "fileAssociations": "Filassociationer",
     "previousVersionTitle": "Installera föregående version av Open PDF Studio",
-    "previousVersion": "Föregående version"
+    "previousVersion": "Föregående version",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Röd",

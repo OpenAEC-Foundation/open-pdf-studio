@@ -479,7 +479,9 @@
     "setDefaultPdf": "Varsayılan PDF Uygulamasını Ayarla",
     "fileAssociations": "Dosya İlişkilendirmeleri",
     "previousVersionTitle": "Open PDF Studio'nun önceki sürümünü yükle",
-    "previousVersion": "Önceki sürüm"
+    "previousVersion": "Önceki sürüm",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Kırmızı",

@@ -16,7 +16,7 @@ test('zonder beheerde modus mag elke melding', () => {
 
 test('in de beheerde modus blijven de opstartvragen weg, de rest niet', () => {
   assert.deepEqual([...ONDERDRUKT_IN_BEHEERDE_MODUS].sort(),
-    ['standaard-app', 'update-controle', 'vorige-versie', 'wat-is-nieuw']);
+    ['standaard-app', 'update-controle', 'virusscanner-melding', 'vorige-versie', 'wat-is-nieuw']);
   for (const m of ONDERDRUKT_IN_BEHEERDE_MODUS) assert.equal(meldingToegestaan(m, true), false, m);
   // Het herstelaanbod na een onverwachte afsluiting beschermt werk: blijft.
   assert.equal(meldingToegestaan('herstel-aanbieden', true), true);
@@ -85,6 +85,11 @@ test('update-controle: geen controle en geen updatevenster', () => {
 test('vorige-versie: geen download', () => {
   const voor = vraagtEerst(lees('../help/previous-version.js'), 'export async function installPreviousVersion', 'vorige-versie');
   assert.doesNotMatch(voor, /fetchPreviousRelease|openExtern\(/);
+});
+
+test('virusscanner-melding: geen venster bij de start', () => {
+  const voor = vraagtEerst(lees('../help/virusscanner-melding.js'), 'export async function toonBijEersteStart', 'virusscanner-melding');
+  assert.doesNotMatch(voor, /openDialog|openVirusscannerMelding|schrijf\(/);
 });
 
 test('standaard-app: de vraag gaat vóór het tonen', () => {

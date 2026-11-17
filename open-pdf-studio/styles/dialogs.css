@@ -4064,6 +4064,25 @@
   gap: 8px;
 }
 
+/* ===== Melding over een waarschuwing van een virusscanner (#761) ===== */
+.virus-notice-dialog {
+  width: 440px;
+  max-width: calc(100vw - 24px);
+}
+.virus-notice-body p + p {
+  margin-top: 10px;
+}
+.virus-notice-dialog .modal-footer {
+  justify-content: flex-end;
+}
+.virus-notice-dialog .pref-btn {
+  cursor: default;
+  border-radius: 0;
+}
+[dir="rtl"] .virus-notice-dialog .modal-footer {
+  justify-content: flex-start;
+}
+
 /* ===== Sticky Note Popup ===== */
 .sticky-popup {
   position: fixed;

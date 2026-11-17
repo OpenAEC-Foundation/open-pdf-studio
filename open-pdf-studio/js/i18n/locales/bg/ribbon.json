@@ -479,7 +479,9 @@
     "setDefaultPdf": "Задаване като програма по подразбиране за PDF",
     "fileAssociations": "Асоциации на файлове",
     "previousVersionTitle": "Инсталиране на предишната версия на Open PDF Studio",
-    "previousVersion": "Предишна версия"
+    "previousVersion": "Предишна версия",
+    "virusWarningTitle": "Did your virus scanner give a warning? Read what to do and report it",
+    "virusWarning": "Virus scanner"
   },
   "format": {
     "styleRed": "Червен",

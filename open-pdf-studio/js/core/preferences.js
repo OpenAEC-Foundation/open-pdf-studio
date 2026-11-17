@@ -25,6 +25,16 @@ import { zetVloeiendScrollen } from './vloeiend-scrollen.js';
 setZoomDpiSource(() => kalibratieVoor(state.preferences?.screenCalibration, globalThis.devicePixelRatio || 1)
   ?? normalizeZoomDpi(state.preferences?.zoomDpi));
 
+// Stonden er bij deze start al opgeslagen voorkeuren? `null` = niet te zeggen
+// (nog niet geladen, of het laden mislukte). Een nieuwe installatie heeft er
+// geen; daar hangt de eenmalige melding voor nieuwe gebruikers aan
+// (help/virusscanner-melding.js). Alleen de eerste keer laden telt: daarna
+// staan ze er altijd, want het laden schrijft ze meteen weg.
+let _bestondenBijStart = null;
+export function voorkeurenBestondenBijStart() {
+  return _bestondenBijStart;
+}
+
 // Load preferences from Rust file storage, with localStorage migration fallback
 export async function loadPreferences() {
   try {
@@ -38,6 +48,7 @@ export async function loadPreferences() {
         loaded = JSON.parse(saved);
       }
     }
+    if (_bestondenBijStart === null) _bestondenBijStart = !!loaded;
 
     if (loaded) {
       // Migrate renamed themes
