@@ -16,36 +16,40 @@ export default function WallSection() {
   // Checked = join allowed (the default). The model only carries the
   // exception: noJoinStart / noJoinEnd === true; switching back removes it.
   const zetJoin = (sleutel, toegestaan) => updateAnnotProp(sleutel, toegestaan ? undefined : true);
+  // Display name of a material in the app language; the stored value stays
+  // the id. Without a translation (PIR, EPS, PUR and trade names are proper
+  // names) the name from the material table is used.
+  const naam = (groep, m) => t(`wall.${groep}.${m.id}`, m.label);
   return (
     <Show when={annotProps.annotationType === 'wall'}>
-      <CollapsibleSection title="Wand" name="wall" id="prop-wall-section">
+      <CollapsibleSection title={t('wall.title')} name="wall" id="prop-wall-section">
         <div class="property-group">
-          <label>Dikte (mm)</label>
+          <label>{t('wall.thickness')}</label>
           <input type="text" inputmode="decimal" data-getal min="10" max="1000" step="5"
             value={annotProps.dikteMm ?? 100}
             onChange={(e) => updateAnnotProp('dikteMm', Math.max(10, parseFloat(e.target.value) || 100))}
           />
         </div>
         <div class="property-group">
-          <label>Materiaal</label>
+          <label>{t('wall.material')}</label>
           <select
             value={(annotProps.hatchPattern || '').startsWith('iso-') ? 'isolatie' : (annotProps.hatchPattern || 'nen47-metselwerk-baksteen')}
             onChange={(e) => updateAnnotProp('hatchPattern', e.target.value)}
           >
             <For each={WALL_MATERIALS}>{(m) => (
-              <option value={m.id}>{m.label}</option>
+              <option value={m.id}>{naam('materials', m)}</option>
             )}</For>
           </select>
         </div>
         <Show when={annotProps.hatchPattern === 'isolatie' || (annotProps.hatchPattern || '').startsWith('iso-')}>
           <div class="property-group">
-            <label>Isolatiemateriaal</label>
+            <label>{t('wall.insulationMaterial')}</label>
             <select
               value={annotProps.isolatieType || ((annotProps.hatchPattern || '').startsWith('iso-') ? annotProps.hatchPattern.slice(4) : 'steenwol')}
               onChange={(e) => updateAnnotProp('isolatieType', e.target.value)}
             >
               <For each={ISOLATIE_MATERIALEN}>{(m) => (
-                <option value={m.id}>{m.label}</option>
+                <option value={m.id}>{naam('insulation', m)}</option>
               )}</For>
             </select>
           </div>

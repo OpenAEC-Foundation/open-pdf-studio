@@ -2,11 +2,12 @@
 // doorsneden + "Aangepast…"), breedte/hoogte in mm, lijnstijl, hartlijn-
 // schakelaar en optionele tag. Schrijft terug via updateAnnotProp, zodat
 // undo/redo en redraw exact als elke andere eigenschap-bewerking lopen.
-// NL-labels hardgecodeerd, zoals bij de wand. De gekozen doorsnede wordt als
+// Teksten lopen via i18n (properties:betonbalk). De gekozen doorsnede wordt als
 // voorinstelling onthouden (betonbalkStore) voor de volgende geplaatste balk.
 import { Show, For, createMemo } from 'solid-js';
 import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 import {
   BETONBALK_PROFIELEN,
   BETONBALK_BREEDTE_RANGE,
@@ -16,6 +17,7 @@ import {
 } from '../../../annotations/betonbalk.js';
 
 export default function BetonbalkSection() {
+  const { t } = useTranslation('properties');
   const locked = () => annotProps.locked === true || annotProps.locked === 'mixed';
   const breedte = () => annotProps.breedteMm ?? BETONBALK_DEFAULTS.breedteMm;
   const hoogte = () => annotProps.hoogteMm ?? BETONBALK_DEFAULTS.hoogteMm;
@@ -38,9 +40,9 @@ export default function BetonbalkSection() {
 
   return (
     <Show when={annotProps.annotationType === 'betonbalk'}>
-      <CollapsibleSection title="Betonbalk" name="betonbalk" id="prop-betonbalk-section">
+      <CollapsibleSection title={t('betonbalk.title')} name="betonbalk" id="prop-betonbalk-section">
         <div class="property-group">
-          <label>Profiel (b×h)</label>
+          <label>{t('betonbalk.profile')}</label>
           <select id="prop-bb-profiel"
             value={profielWaarde()}
             disabled={locked()}
@@ -51,12 +53,12 @@ export default function BetonbalkSection() {
                 {betonbalkProfielNaam(p.breedteMm, p.hoogteMm)}
               </option>
             )}</For>
-            <option value="aangepast">Aangepast…</option>
+            <option value="aangepast">{t('betonbalk.custom')}</option>
           </select>
         </div>
 
         <div class="property-group">
-          <label>Breedte (mm)</label>
+          <label>{t('betonbalk.width')}</label>
           <input type="text" inputmode="decimal" data-getal id="prop-bb-breedte"
             min={BETONBALK_BREEDTE_RANGE.min} max={BETONBALK_BREEDTE_RANGE.max} step="10"
             value={breedte()}
@@ -66,7 +68,7 @@ export default function BetonbalkSection() {
         </div>
 
         <div class="property-group">
-          <label>Hoogte (mm)</label>
+          <label>{t('betonbalk.height')}</label>
           <input type="text" inputmode="decimal" data-getal id="prop-bb-hoogte"
             min={BETONBALK_HOOGTE_RANGE.min} max={BETONBALK_HOOGTE_RANGE.max} step="10"
             value={hoogte()}
@@ -76,14 +78,14 @@ export default function BetonbalkSection() {
         </div>
 
         <div class="property-group">
-          <label>Lijnstijl</label>
+          <label>{t('betonbalk.lineStyle')}</label>
           <select id="prop-bb-lijnstijl"
             value={annotProps.lijnstijl || BETONBALK_DEFAULTS.lijnstijl}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('lijnstijl', e.target.value)}
           >
-            <option value="doorgetrokken">Doorgetrokken</option>
-            <option value="gestippeld">Gestippeld (boven aanzichtvlak)</option>
+            <option value="doorgetrokken">{t('betonbalk.lineSolid')}</option>
+            <option value="gestippeld">{t('betonbalk.lineDashed')}</option>
           </select>
         </div>
 
@@ -93,7 +95,7 @@ export default function BetonbalkSection() {
               checked={annotProps.toonHartlijn === true}
               disabled={locked()}
               onChange={(e) => updateAnnotProp('toonHartlijn', e.target.checked)}
-            /> Hartlijn tonen
+            /> {t('betonbalk.showCentreline')}
           </label>
         </div>
 
@@ -103,12 +105,12 @@ export default function BetonbalkSection() {
               checked={annotProps.tagTonen === true}
               disabled={locked()}
               onChange={(e) => updateAnnotProp('tagTonen', e.target.checked)}
-            /> Tag tonen
+            /> {t('betonbalk.showTag')}
           </label>
         </div>
         <Show when={annotProps.tagTonen === true}>
           <div class="property-group">
-            <label>Tagtekst</label>
+            <label>{t('betonbalk.tagText')}</label>
             <input type="text" id="prop-bb-tagtekst"
               placeholder={betonbalkProfielNaam(breedte(), hoogte())}
               value={annotProps.tagTekst || ''}

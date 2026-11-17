@@ -154,7 +154,7 @@ function ScaleRegionSection() {
           <button class="pref-btn" style="width:100%"
             disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
             onClick={measureScaleOnDrawing}>
-            {t('scaleRegion.measure') || 'Meet op tekening'}
+            {t('scaleRegion.measure')}
           </button>
         </div>
         <div class="property-group">
@@ -174,7 +174,7 @@ function ScaleRegionSection() {
         {/* Real-world size of the region itself, in its own scale +
             units — editable, resizes the region (top-left anchored). */}
         <div class="property-group">
-          <label>Breedte ({annotProps.scaleRegionUnits || 'mm'})</label>
+          <label>{t('scaleRegion.width', { unit: annotProps.scaleRegionUnits || 'mm' })}</label>
           <input type="text" inputmode={isImperialeLengte(annotProps.scaleRegionUnits) ? 'text' : 'decimal'} data-getal="lengte" step="1" min="1"
             title={isImperialeLengte(annotProps.scaleRegionUnits) ? tDialogs('calibration.feetInchHint') : undefined}
             value={annotProps.scaleRegionWidth ?? ''}
@@ -183,7 +183,7 @@ function ScaleRegionSection() {
           />
         </div>
         <div class="property-group">
-          <label>Hoogte ({annotProps.scaleRegionUnits || 'mm'})</label>
+          <label>{t('scaleRegion.height', { unit: annotProps.scaleRegionUnits || 'mm' })}</label>
           <input type="text" inputmode={isImperialeLengte(annotProps.scaleRegionUnits) ? 'text' : 'decimal'} data-getal="lengte" step="1" min="1"
             title={isImperialeLengte(annotProps.scaleRegionUnits) ? tDialogs('calibration.feetInchHint') : undefined}
             value={annotProps.scaleRegionHeight ?? ''}
