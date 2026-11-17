@@ -85,6 +85,9 @@ pub mod window_mgmt;
 pub mod startup_diagnostics;
 mod startup_visibility;
 mod startup_window;
+// Vensterstand onthouden tussen sessies (#1025, #1126).
+#[cfg(desktop)]
+mod venstertoestand;
 // Vensteropname voor app_screenshot_view (#583); buiten Windows een nette fout.
 pub mod webview_opname;
 pub mod worker_pool;
@@ -3400,20 +3403,6 @@ pub fn run(opts: StartupOpts) {
     {
         builder = builder.plugin(linux_runtime::webview_plugin());
     }
-    // Remember the main window's size, position and maximised state between
-    // sessions (#1025). Only the first instance saves and restores it: a
-    // torn-off tab is a second instance with its own "main" window, and a
-    // headless test instance keeps its off-screen window. Visibility and
-    // decorations are left to the app.
-    #[cfg(desktop)]
-    if !tweede_instantie && !headless::actief() {
-        use tauri_plugin_window_state::StateFlags;
-        builder = builder.plugin(
-            tauri_plugin_window_state::Builder::default()
-                .with_state_flags(StateFlags::SIZE | StateFlags::POSITION | StateFlags::MAXIMIZED)
-                .build(),
-        );
-    }
     // Drag-out window detach is desktop-only (no mobile backend in the crate).
     #[cfg(not(target_os = "android"))]
     {
@@ -3533,6 +3522,20 @@ pub fn run(opts: StartupOpts) {
     startup_window::prepare(&mut context);
     if let Some(browser_args) = &headless_browser_args {
         headless::pas_context_aan(&mut context, browser_args);
+    }
+
+    // Remember the main window's size, position and maximised state between
+    // sessions (#1025, #1126; venstertoestand.rs). Only the first instance
+    // saves and restores it: a torn-off tab is a second instance with its own
+    // "main" window, and a headless test instance keeps its off-screen
+    // window. Registered here because the state file location needs the
+    // identifier from the context.
+    #[cfg(desktop)]
+    if !tweede_instantie && !headless::actief() {
+        let identifier = draagbaar::basis_identifier(&context.config().identifier);
+        builder = builder
+            .plugin(venstertoestand::herstel_plugin(&identifier))
+            .plugin(venstertoestand::bewaak_plugin());
     }
 
     builder

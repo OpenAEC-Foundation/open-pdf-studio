@@ -254,6 +254,7 @@ js/annotations/rendering/vlak-vulling.test.mjs
 js/pdf/saver/vlak-delen.test.mjs
 js/core/app-data-dir.test.mjs
 js/core/headless.test.mjs
+js/core/venstertoestand.test.mjs
 js/ui/setup/gesleept-bestand.test.mjs
 js/pdf/pagina-getekend.test.mjs
 js/core/sessie-herstel.test.mjs

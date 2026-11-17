@@ -1,0 +1,28 @@
+name: Window state regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/src-tauri/src/venstertoestand*.rs'
+      - 'open-pdf-studio/src-tauri/src/venstertoestand/**'
+      - 'open-pdf-studio/js/core/venstertoestand.test.mjs'
+      - 'open-pdf-studio/js/core/platform.js'
+      - '.github/workflows/window-state-regression.yml'
+permissions:
+  contents: read
+jobs:
+  window-state:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.99.1' # 1.100 breaks tauri-build 2.6.2 (build-dir layout)
+      - run: rustc --edition 2021 --test src-tauri/src/venstertoestand/regels.rs -o /tmp/venstertoestand-tests && /tmp/venstertoestand-tests
+      - run: node --test js/core/venstertoestand.test.mjs
