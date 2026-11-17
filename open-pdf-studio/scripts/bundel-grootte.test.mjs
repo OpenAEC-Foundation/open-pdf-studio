@@ -24,7 +24,9 @@ const DIST = path.join(app, 'dist');
 // Na #454 (tweede stap, 9-11-2026): desktop 4020 KiB, gehost 4037 KiB (gzip
 // 1300/1305 KiB; KiB = 1024 bytes, Vite meldt kB van 1000 tekens). Eerste
 // stap: 4532/4549 KiB. Het budget ligt daar net boven, voor beide bouwvormen.
-export const BUDGET_KB = 4120;
+// 17-11-2026: main stond op 4113 KiB (desktop); de oppervlakte-eenheid in
+// meetlabels en de eerste-start-melding brengen dat op 4122 KiB, gehost 4139.
+export const BUDGET_KB = 4145;
 export const BUDGET_GZIP_KB = 1340;
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
