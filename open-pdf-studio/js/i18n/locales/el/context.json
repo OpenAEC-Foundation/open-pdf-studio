@@ -114,6 +114,8 @@
     "nestUnderNew": "Ένθεση κάτω από νέο σελιδοδείκτη...",
     "indent": "Αύξηση εσοχής",
     "outdent": "Μείωση εσοχής",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Διαγραφή {{count}} σελιδοδεικτών"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Διαγράμμιση επιλογής",
     "underlineSelection": "Υπογράμμιση επιλογής",
     "curvedLeaderSelection": "Προσθήκη καμπύλης επεξήγησης",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

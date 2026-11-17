@@ -114,6 +114,8 @@
     "nestUnderNew": "嵌套到新书签下...",
     "indent": "增加缩进",
     "outdent": "减少缩进",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "删除 {{count}} 个书签"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "删除线选择",
     "underlineSelection": "下划线选择",
     "curvedLeaderSelection": "添加曲线标注",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

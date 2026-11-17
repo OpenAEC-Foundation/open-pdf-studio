@@ -114,6 +114,8 @@
     "nestUnderNew": "Вкласти в нову закладку...",
     "indent": "Збільшити відступ",
     "outdent": "Зменшити відступ",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Видалити закладки: {{count}}"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Закреслити виділене",
     "underlineSelection": "Підкреслити виділене",
     "curvedLeaderSelection": "Додати криволінійну виноску",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

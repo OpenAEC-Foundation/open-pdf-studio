@@ -114,6 +114,8 @@
     "nestUnderNew": "Lồng vào dấu trang mới...",
     "indent": "Thụt lề",
     "outdent": "Giảm thụt lề",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Xóa {{count}} dấu trang"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Gạch ngang Vùng chọn",
     "underlineSelection": "Gạch chân Vùng chọn",
     "curvedLeaderSelection": "Thêm chú thích cong",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

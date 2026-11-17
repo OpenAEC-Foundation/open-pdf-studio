@@ -114,6 +114,8 @@
     "nestUnderNew": "Vnořit pod novou záložku...",
     "indent": "Zvětšit odsazení",
     "outdent": "Zmenšit odsazení",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Odstranit záložky ({{count}})"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Přeškrtnout výběr",
     "underlineSelection": "Podtrhnout výběr",
     "curvedLeaderSelection": "Přidat zakřivený popisek",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

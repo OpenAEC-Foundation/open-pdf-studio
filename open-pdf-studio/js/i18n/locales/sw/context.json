@@ -114,6 +114,8 @@
     "nestUnderNew": "Weka chini ya alamisho jipya...",
     "indent": "Ongeza ujongezaji",
     "outdent": "Punguza ujongezaji",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Futa alamisho {{count}}"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Piga Mstari Katikati ya Chaguo",
     "underlineSelection": "Piga Mstari Chini ya Chaguo",
     "curvedLeaderSelection": "Ongeza Tangazo la Mkunjo",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

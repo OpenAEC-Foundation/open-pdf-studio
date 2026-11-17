@@ -9,6 +9,7 @@
 // `o` is de app (undo, tabbladen, paneel); de tests geven een nagebootste.
 
 import { plaatsBladwijzers, verplaatsBladwijzers, verwijderBladwijzers } from './bladwijzer-boom.js';
+import { doelVelden } from '../../pdf/bladwijzer-doel.js';
 
 export function nieuweBladwijzerId() {
   return 'bm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
@@ -33,20 +34,22 @@ async function appOmgeving() {
 /**
  * Een nieuwe bladwijzer achteraan onder `parentId` (null: de wortel).
  * @param {object} doc
- * @param {{title: string, page: number, parentId?: string|null, bold?: boolean,
- *   italic?: boolean, color?: string|null}} velden
+ * @param {{title: string, page: number, left?: number|null, top?: number|null,
+ *   parentId?: string|null, bold?: boolean, italic?: boolean, color?: string|null}} velden
+ *   `left`/`top`: de plek op de pagina (PDF-punten, #1157); zonder: de pagina.
  * @returns {Promise<object>} de bladwijzer zoals hij in het document staat
  */
 export async function voegBladwijzerToe(doc, velden, o) {
   o = o || await appOmgeving();
   if (!doc.bookmarks) doc.bookmarks = [];
   const parentId = velden.parentId ?? null;
+  const doel = doelVelden({ page: velden.page, left: velden.left, top: velden.top });
   const bm = {
     id: nieuweBladwijzerId(),
     title: velden.title,
     page: velden.page,
-    top: null,
-    left: null,
+    top: doel.top,
+    left: doel.left,
     zoom: null,
     parentId,
     expanded: true,
@@ -68,15 +71,33 @@ export async function voegBladwijzerToe(doc, velden, o) {
   return doc.bookmarks.find((b) => b.id === bm.id) || bm;
 }
 
+const DOEL_VELDEN = ['left', 'top', 'zoom', 'destType', 'destArgs'];
+
 /**
- * Titel, pagina en stijl van één bladwijzer wijzigen; alleen de velden die in
- * `wijziging` staan. Geeft de bladwijzer terug, of null als hij niet bestaat.
+ * Titel, pagina, plek en stijl van één bladwijzer wijzigen; alleen de velden
+ * die in `wijziging` staan. Geeft de bladwijzer terug, of null als hij niet
+ * bestaat.
+ *
+ * De plek (#1157) hoort bij de pagina: een andere pagina zonder nieuwe plek
+ * wijst naar de bovenkant van die pagina, niet naar de oude hoogte op een
+ * ander blad. Een nieuwe plek (`left`/`top`, zie doelVelden) vervangt het hele
+ * doel, ook de vorm die een ander programma schreef.
  */
 export async function wijzigBladwijzer(doc, id, wijziging, o) {
   o = o || await appOmgeving();
   const bm = (doc.bookmarks || []).find((b) => b.id === id);
   if (!bm) return null;
-  const oud = { ...bm };
+  // Alle doelvelden in de oude toestand: ongedaan maken zet ze dan ook terug
+  // als de bladwijzer ze eerst niet had.
+  const oud = { destType: null, destArgs: null, ...bm };
+  const nieuwePlek = DOEL_VELDEN.some((veld) => veld in wijziging);
+  if (nieuwePlek || ('page' in wijziging && wijziging.page !== bm.page)) {
+    Object.assign(bm, doelVelden({
+      page: 'page' in wijziging ? wijziging.page : bm.page,
+      left: nieuwePlek ? wijziging.left : null,
+      top: nieuwePlek ? wijziging.top : null,
+    }));
+  }
   for (const veld of ['title', 'page', 'bold', 'italic', 'color']) {
     if (!(veld in wijziging)) continue;
     if (veld === 'bold' || veld === 'italic') bm[veld] = !!wijziging[veld];

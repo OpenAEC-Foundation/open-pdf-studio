@@ -114,6 +114,8 @@
     "nestUnderNew": "Unter neuem Lesezeichen verschachteln...",
     "indent": "Einrücken",
     "outdent": "Ausrücken",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} Lesezeichen löschen"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Auswahl durchstreichen",
     "underlineSelection": "Auswahl unterstreichen",
     "curvedLeaderSelection": "Geschwungene Sprechblase hinzufügen",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Link einfügen..."
   },
   "deleteAnnotation": {

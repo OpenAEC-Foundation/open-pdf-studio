@@ -772,6 +772,24 @@
   margin-bottom: 12px;
 }
 
+/* Bestemming van de bladwijzer (#1157) */
+.bookmark-dialog-body select.bookmark-dialog-dest {
+  width: 100%;
+  padding: 3px 4px;
+  font-size: 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 0;
+  background: #fff;
+  color: #333;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.bookmark-dialog-body select.bookmark-dialog-dest:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
 .bookmark-dialog-body input[type="text"]:focus,
 .bookmark-dialog-body input[data-getal]:focus {
   outline: none;

@@ -114,6 +114,8 @@
     "nestUnderNew": "புதிய புத்தகக்குறியின் கீழ் வை...",
     "indent": "உள்தள்ளு",
     "outdent": "வெளித்தள்ளு",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} புத்தகக்குறிகளை நீக்கு"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "தேர்வுக்கு நடுக்கோடு இடு",
     "underlineSelection": "தேர்வுக்கு அடிக்கோடு இடு",
     "curvedLeaderSelection": "வளைந்த அழைப்புக்குறிப்பைச் சேர்",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

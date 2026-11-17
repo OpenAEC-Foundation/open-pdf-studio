@@ -820,11 +820,18 @@ function doelVan(ctx, item) {
     if (a instanceof PDFDict && naamVan(ctx.lookup(a.get(N('S')))) === 'GoTo') dest = ctx.lookup(a.get(N('D')));
   }
   if (!(dest instanceof PDFArray) || !(dest.get(0) instanceof PDFRef)) return null;
-  if (naamVan(dest.get(1)) !== 'XYZ') return null;
-  const num = (i) => { const v = ctx.lookup(dest.get(i)); return v instanceof PDFNumber ? v.asNumber() : null; };
-  const zoom = num(4);
-  return { pagina: dest.get(0).toString(), left: num(2), top: num(3), zoom: zoom === 0 ? null : zoom };
+  // Elke vorm van bestemming (#1157): de naam en de getallen erna.
+  const vorm = naamVan(dest.get(1));
+  const aantal = DOEL_GETALLEN[vorm];
+  if (aantal === undefined) return null;
+  const num = (i) => { const v = i < dest.size() ? ctx.lookup(dest.get(i)) : null; return v instanceof PDFNumber ? v.asNumber() : null; };
+  const args = Array.from({ length: aantal }, (_, i) => num(2 + i));
+  // Bij /XYZ betekent zoom 0 hetzelfde als geen zoom.
+  if (vorm === 'XYZ' && args[2] === 0) args[2] = null;
+  return { pagina: dest.get(0).toString(), vorm, args };
 }
+
+const DOEL_GETALLEN = { XYZ: 3, Fit: 0, FitB: 0, FitH: 1, FitBH: 1, FitV: 1, FitBV: 1, FitR: 4 };
 
 function kleurVan(ctx, item) {
   const c = ctx.lookup(item.get(N('C')));
@@ -862,7 +869,7 @@ function itemsGelijk(ctx, a, b, diepte = 0) {
     const x = ka[i]; const y = kb[i];
     if (tekstVan(ctx, x) !== tekstVan(ctx, y)) return false;
     const dx = doelVan(ctx, x); const dy = doelVan(ctx, y);
-    if (!dx || !dy || dx.pagina !== dy.pagina || dx.left !== dy.left || dx.top !== dy.top || dx.zoom !== dy.zoom) return false;
+    if (!dx || !dy || dx.pagina !== dy.pagina || dx.vorm !== dy.vorm || dx.args.some((v, j) => v !== dy.args[j])) return false;
     const fx = ctx.lookup(x.get(N('F'))); const fy = ctx.lookup(y.get(N('F')));
     if ((fx instanceof PDFNumber ? fx.asNumber() & 3 : 0) !== (fy instanceof PDFNumber ? fy.asNumber() & 3 : 0)) return false;
     const cx = kleurVan(ctx, x); const cy = kleurVan(ctx, y);

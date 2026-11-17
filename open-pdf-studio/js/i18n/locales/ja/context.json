@@ -114,6 +114,8 @@
     "nestUnderNew": "新しいしおりの下に入れる...",
     "indent": "インデント",
     "outdent": "インデント解除",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "{{count}} 件のしおりを削除"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "選択範囲に取り消し線",
     "underlineSelection": "選択範囲に下線",
     "curvedLeaderSelection": "曲線の吹き出しを追加",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

@@ -114,6 +114,8 @@
     "nestUnderNew": "قرار دادن زیر نشانک جدید...",
     "indent": "افزایش تورفتگی",
     "outdent": "کاهش تورفتگی",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "حذف {{count}} نشانک"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "خط‌خوردگی انتخاب",
     "underlineSelection": "زیرخط انتخاب",
     "curvedLeaderSelection": "افزودن فراخوان منحنی",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

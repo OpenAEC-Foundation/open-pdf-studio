@@ -114,6 +114,8 @@
     "nestUnderNew": "새 책갈피 아래에 넣기...",
     "indent": "들여쓰기",
     "outdent": "내어쓰기",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "책갈피 {{count}}개 삭제"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "선택 영역 취소선",
     "underlineSelection": "선택 영역 밑줄",
     "curvedLeaderSelection": "곡선 설명선 추가",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

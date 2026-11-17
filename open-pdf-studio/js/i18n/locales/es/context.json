@@ -114,6 +114,8 @@
     "nestUnderNew": "Anidar bajo un marcador nuevo...",
     "indent": "Aumentar sangría",
     "outdent": "Disminuir sangría",
+    "setDestView": "Establecer destino en la vista actual",
+    "setDestSelection": "Establecer destino en la selección",
     "deleteBookmarks": "Eliminar {{count}} marcadores"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Tachar selección",
     "underlineSelection": "Subrayar selección",
     "curvedLeaderSelection": "Añadir llamada curva",
+    "bookmarkSelection": "Agregar marcador a la selección...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

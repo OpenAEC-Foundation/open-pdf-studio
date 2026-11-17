@@ -120,6 +120,8 @@
     "nestUnderNew": "Onder nieuwe bladwijzer nesten...",
     "indent": "Inspringen",
     "outdent": "Uitspringen",
+    "setDestView": "Bestemming instellen op huidige weergave",
+    "setDestSelection": "Bestemming instellen op selectie",
     "deleteBookmarks": "{{count}} bladwijzers verwijderen"
   },
   "thumbnail": {
@@ -166,6 +168,7 @@
     "strikethroughSelection": "Selectie doorhalen",
     "underlineSelection": "Selectie onderstrepen",
     "curvedLeaderSelection": "Ronde aanhaallijn toevoegen",
+    "bookmarkSelection": "Bladwijzer naar selectie toevoegen...",
     "linkSelection": "Link invoegen..."
   },
   "deleteAnnotation": {

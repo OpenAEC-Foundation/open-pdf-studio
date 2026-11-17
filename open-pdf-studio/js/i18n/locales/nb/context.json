@@ -114,6 +114,8 @@
     "nestUnderNew": "Legg under nytt bokmerke...",
     "indent": "Øk innrykk",
     "outdent": "Reduser innrykk",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "Slett {{count}} bokmerker"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "Gjennomstrek utvalg",
     "underlineSelection": "Understrek utvalg",
     "curvedLeaderSelection": "Legg til buet callout",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

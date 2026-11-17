@@ -114,6 +114,8 @@
     "nestUnderNew": "קינון תחת סימנייה חדשה...",
     "indent": "הגדלת כניסה",
     "outdent": "הקטנת כניסה",
+    "setDestView": "Set Destination to Current View",
+    "setDestSelection": "Set Destination to Selection",
     "deleteBookmarks": "מחיקת {{count}} סימניות"
   },
   "thumbnail": {
@@ -160,6 +162,7 @@
     "strikethroughSelection": "קו חוצה על הבחירה",
     "underlineSelection": "קו תחתון לבחירה",
     "curvedLeaderSelection": "הוספת הסבר מעוקל",
+    "bookmarkSelection": "Add Bookmark to Selection...",
     "linkSelection": "Insert link..."
   },
   "deleteAnnotation": {

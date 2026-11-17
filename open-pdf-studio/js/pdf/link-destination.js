@@ -126,6 +126,37 @@ export function pdfNaarWeergave(view, rotatie, x, y) {
   }
 }
 
+/**
+ * Het omgekeerde van pdfNaarWeergave: een punt van de pagina zoals hij op het
+ * scherm ligt (oorsprong linksboven) terug naar de PDF-gebruikersruimte.
+ * @returns {{x: number, y: number}}
+ */
+export function weergaveNaarPdf(view, rotatie, x, y) {
+  const [x0, y0, x1, y1] = view;
+  switch ((((Number(rotatie) || 0) % 360) + 360) % 360) {
+    case 90: return { x: x0 + y, y: y0 + x };
+    case 180: return { x: x1 - x, y: y0 + y };
+    case 270: return { x: x1 - y, y: y1 - x };
+    default: return { x: x0 + x, y: y1 - y };
+  }
+}
+
+/**
+ * De /XYZ-bestemming die het punt (x, y) van de getoonde pagina linksboven in
+ * het venster zet: het omgekeerde van destDoelbeeld voor /XYZ. Een punt buiten
+ * de pagina schuift naar haar rand. Null bij een onbruikbare pagina.
+ * @param {{view: number[], rotatie?: number}} pagina
+ * @returns {{left: number, top: number}|null}
+ */
+export function xyzVoorWeergavepunt(pagina, x, y) {
+  if (!Array.isArray(pagina?.view) || pagina.view.length < 4 || !pagina.view.every(isGetal)) return null;
+  const maat = weergaveMaatVan(pagina.view, pagina.rotatie);
+  if (!(maat.breedte > 0 && maat.hoogte > 0)) return null;
+  const klem = (v, max) => Math.min(max, Math.max(0, isGetal(v) ? v : 0));
+  const p = weergaveNaarPdf(pagina.view, pagina.rotatie, klem(x, maat.breedte), klem(y, maat.hoogte));
+  return { left: p.x, top: p.y };
+}
+
 /** Maat van de pagina zoals hij op het scherm ligt, in pagina-eenheden. */
 export function weergaveMaatVan(view, rotatie) {
   const b = Math.abs(view[2] - view[0]);
