@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Les tampons intégrés sont configurés pour être masqués, mais vous n'avez pas encore de tampons personnels. Créez-en un via Gérer les modèles de tampon."
   },
   "calibration": {
+    "overridePdfScale": "Remplacer les échelles intégrées au PDF",
     "title": "Calibration de l'échelle",
     "helpText": "Tracez une ligne de mesure de longueur connue, puis entrez la distance réelle ici.",
     "knownDistance": "Distance connue :",

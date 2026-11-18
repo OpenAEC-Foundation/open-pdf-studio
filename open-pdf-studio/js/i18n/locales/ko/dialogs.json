@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "기본 제공 스탬프가 숨김으로 설정되어 있지만 아직 내 스탬프가 없습니다. 스탬프 템플릿 관리에서 하나 만드세요."
   },
   "calibration": {
+    "overridePdfScale": "PDF에 포함된 축척 재정의",
     "title": "배율 보정",
     "helpText": "알려진 길이의 측정선을 그린 다음 여기에 실제 거리를 입력하십시오.",
     "knownDistance": "알려진 거리:",

@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Os carimbos integrados estão definidos como ocultos, mas ainda não tem carimbos próprios. Crie um em Gerenciar modelos de carimbo."
   },
   "calibration": {
+    "overridePdfScale": "Substituir escalas incorporadas no PDF",
     "title": "Calibração de escala",
     "helpText": "Desenhe uma linha de medição de comprimento conhecido, depois insira a distância real aqui.",
     "knownDistance": "Distância conhecida:",

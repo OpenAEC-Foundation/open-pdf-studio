@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Integrierte Stempel sind auf Ausblenden gesetzt, aber Sie haben noch keine eigenen Stempel. Erstellen Sie einen über Stempelvorlagen verwalten."
   },
   "calibration": {
+    "overridePdfScale": "Eingebettete PDF-Maßstäbe überschreiben",
     "title": "Skalenkalibrierung",
     "helpText": "Zeichnen Sie eine Messlinie bekannter Länge und geben Sie dann die tatsächliche Entfernung hier ein.",
     "knownDistance": "Bekannte Entfernung:",

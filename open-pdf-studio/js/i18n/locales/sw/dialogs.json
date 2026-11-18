@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Mihuri iliyojengewa ndani imewekwa kufichwa, lakini bado huna mihuri yako. Unda mmoja kupitia Dhibiti violezo vya muhuri."
   },
   "calibration": {
+    "overridePdfScale": "Batilisha vipimo vilivyopachikwa kwenye PDF",
     "title": "Urekebishaji wa Kipimo",
     "helpText": "Chora mstari wa kipimo wa urefu unaojulikana, kisha ingiza umbali halisi hapa.",
     "knownDistance": "Umbali unaojulikana:",

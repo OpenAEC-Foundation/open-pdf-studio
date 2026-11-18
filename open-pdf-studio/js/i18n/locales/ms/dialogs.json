@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Setem terbina dalam ditetapkan untuk disembunyikan, tetapi anda belum mempunyai setem sendiri. Cipta satu melalui Urus templat setem."
   },
   "calibration": {
+    "overridePdfScale": "Gantikan skala PDF terbenam",
     "title": "Penentukuran Skala",
     "helpText": "Lukis garisan ukuran dengan panjang yang diketahui, kemudian masukkan jarak dunia sebenar di sini.",
     "knownDistance": "Jarak diketahui:",

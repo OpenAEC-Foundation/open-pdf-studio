@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Indbyggede stempler er sat til skjult, men du har endnu ingen egne stempler. Opret et via Administrer stempelskabeloner."
   },
   "calibration": {
+    "overridePdfScale": "Tilsidesæt indlejrede PDF-målestokke",
     "title": "Skalakalibrering",
     "helpText": "Tegn en målelinje med en kendt længde, og indtast derefter den virkelige afstand her.",
     "knownDistance": "Kendt afstand:",

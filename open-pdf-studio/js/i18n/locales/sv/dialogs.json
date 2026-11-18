@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Inbyggda stämplar är inställda på att döljas, men du har inga egna stämplar ännu. Skapa en via Hantera stämpelmallar."
   },
   "calibration": {
+    "overridePdfScale": "Åsidosätt inbäddade PDF-skalor",
     "title": "Skalakalibrering",
     "helpText": "Rita en mätlinje med känd längd och ange sedan det verkliga avståndet här.",
     "knownDistance": "Känt avstånd:",

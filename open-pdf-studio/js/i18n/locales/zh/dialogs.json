@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "内置图章已设置为隐藏，但您还没有自己的图章。请通过“管理图章模板”创建一个。"
   },
   "calibration": {
+    "overridePdfScale": "覆盖 PDF 内嵌比例尺",
     "title": "比例校准",
     "helpText": "绘制已知长度的测量线，然后在此处输入实际距离。",
     "knownDistance": "已知距离：",

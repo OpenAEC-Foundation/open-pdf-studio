@@ -4,6 +4,7 @@ import {
   schaalOpPunt, schaalOpPuntUitBronnen, schaalgebiedenOpPagina, verzamelSchaalBronnen,
   documentHeeftSchaal,
 } from "./schaal-op-punt.js";
+import { pixelsPerUnitFor } from './scale-region-scale.js';
 import { viewportOp } from "../pdf/pdf-viewports.js";
 
 // De schaal op een punt komt uit één vaste volgorde van bronnen (#400):
@@ -244,4 +245,25 @@ test("without a scale source no point of the document has a scale", () => {
     }
   }
   assert.ok(zonder > 0, "er zitten documenten zonder bron tussen");
+});
+
+test('explicit PDF scale override agrees with scale-check source and keeps local app scales', async () => {
+  const { schaalBronOpPunt } = await import('./schaal-op-punt.js');
+  const doc = { annotations: [], pdfViewports: { 1: [detail] },
+    measureScale: { pixelsPerUnit: PPU(100), unit: 'mm', overridePdfScale: true } };
+  for (const resolve of [schaalOpPunt, (d, p, x, y) => schaalBronOpPunt(d, p, x, y, pixelsPerUnitFor)]) {
+    assert.equal(resolve(doc, 1, 600, 200).pixelsPerUnit, PPU(100));
+    assert.equal(resolve(doc, 1, 600, 200).method, 'document');
+    doc.pageScales = { 1: { scaleRatio: '1:50', unit: 'cm' } };
+    assert.equal(resolve(doc, 1, 600, 200).pixelsPerUnit, pixelsPerUnitFor('1:50', 'cm'));
+    delete doc.pageScales;
+    doc.annotations = [{ type: 'viewport', page: 1, x: 500, y: 100, width: 200, height: 200, pixelsPerUnit: PPU(10), unit: 'mm' }];
+    assert.equal(resolve(doc, 1, 600, 200).pixelsPerUnit, PPU(10));
+    doc.annotations = [];
+    doc.measureScale.overridePdfScale = false;
+    assert.equal(resolve(doc, 1, 600, 200).method, 'pdfViewport');
+    doc.measureScale.overridePdfScale = true;
+  }
+  doc.measureScale.pixelsPerUnit = 0;
+  assert.equal(schaalOpPunt(doc, 1, 600, 200).method, 'pdfViewport', 'invalid calibration cannot suppress a valid embedded scale');
 });
