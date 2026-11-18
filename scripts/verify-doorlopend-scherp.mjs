@@ -16,7 +16,9 @@
 //     achtergrond (geen verschuiving, geen verkeerde draaiing);
 //   - uitzoomen tot onder de cap geeft weer het gewone hele-paginacanvas;
 //   - dezelfde zoom in de enkelpagina-weergave heeft vergelijkbare inkt;
-//   - een gedraaide pagina (90/180/270) en een document met meer pagina's.
+//   - een gedraaide pagina (90/180/270) en een document met meer pagina's;
+//   - een gedraaide pagina ONDER de cap (de gewone hele-paginarender) is niet
+//     wit: de vensteropname heeft de inkt van dezelfde pagina ongedraaid.
 //
 // De originelen worden nooit geopend: elk bestand wordt eerst naar de
 // uitvoermap gekopieerd. Vensteropnamen komen als PNG in die map.
@@ -42,6 +44,8 @@ const BESTANDEN = process.argv.length > 3 ? process.argv.slice(3) : [
   MAP + 'VO Constructie.pdf',
 ];
 const GEDRAAID = process.env.GEDRAAID ?? MAP + '3131-CLT-Set.pdf';
+// Een tweede bestand, alleen voor de gedraaide pagina onder de cap.
+const GEDRAAID2 = process.env.GEDRAAID2 ?? MAP + 'VO Constructie.pdf';
 const MEERDERE = process.env.MEERDERE ?? MAP + '3131-CLT-Set.pdf';
 const ZOOMS = [1, 2, 4];
 const MAX_MS = Number(process.env.MAX_MS) || 2000;
@@ -123,14 +127,17 @@ const STAAT = `(() => {
 
 // Helderheidsrasters (N x N) van het zichtbare deel van de grootste pagina in
 // beeld: uit het paginacanvas en uit het achtergrondbeeld; plus waar dat deel
-// in #pdf-container ligt (voor de uitsnede uit de vensteropname).
+// in #pdf-container ligt (voor de uitsnede uit de vensteropname). Met een
+// paginanummer: die pagina, ook als een andere groter in beeld staat.
 const N = 64;
-const RASTERS = `(async () => {
+const rasters = (pagina = null) => `(async () => {
   const N = ${N};
+  const alleen = ${pagina == null ? 'null' : Number(pagina)};
   const cont = document.getElementById('pdf-container');
   const cr = cont.getBoundingClientRect();
   let best = null;
   document.querySelectorAll('#continuous-container .page-wrapper').forEach((w) => {
+    if (alleen != null && +w.dataset.page !== alleen) return;
     const cc = w.querySelector('.canvas-container-cont');
     if (!cc) return;
     const r = cc.getBoundingClientRect();
@@ -256,10 +263,10 @@ async function opname(naam, breedte = 4000) {
 }
 
 /** Meet en beoordeel de weergave zoals ze nu staat. */
-async function beoordeel(waar, naamOpname, { ms, staat: s }, { eisMs = true } = {}) {
+async function beoordeel(waar, naamOpname, { ms, staat: s }, { eisMs = true, pagina = null } = {}) {
   const p0 = s?.paginas?.[0];
   const samen = s?.paginas?.map((p) => `p${p.pagina} ${p.modus || 'pagina'} ${p.bitmap ? p.bitmap.join('x') : '-'} ${p.pxPerCss}px/css${p.dekt ? '' : ' DEKT NIET'}`).join('; ');
-  const r = JSON.parse(await evalJs(RASTERS));
+  const r = JSON.parse(await evalJs(rasters(pagina)));
   let b64 = null;
   try { b64 = await opname(naamOpname); } catch (e) { fout(waar, String(e.message || e)); }
   const scherm = b64 && r.deel ? JSON.parse(await evalJs(opnameRaster(b64, r.deel))) : null;
@@ -362,11 +369,51 @@ async function rondeBestand(bron) {
   await sluit();
 }
 
-async function rondeGedraaid(bron) {
+// Een zoom waarop pagina 1 in elke stand helemaal in beeld past en onder de
+// cap blijft: daar tekent de gewone hele-paginarender, en de inkt van de
+// pagina is in elke stand dezelfde.
+async function zoomOnderDeCap() {
+  const m = JSON.parse(await evalJs(`(() => {
+    const w = document.querySelector('#continuous-container .page-wrapper[data-page="1"]');
+    const c = document.getElementById('pdf-container');
+    return JSON.stringify({ b: parseFloat(w.dataset.baseW) || 0, h: parseFloat(w.dataset.baseH) || 0, cb: c.clientWidth, ch: c.clientHeight, dpr: window.devicePixelRatio || 1 });
+  })()`));
+  const lang = Math.max(m.b, m.h);
+  const past = (Math.min(m.cb, m.ch) * 0.8) / lang;
+  const cap = (CAP * 0.85) / (lang * m.dpr);
+  return Math.max(0.1, Math.floor(Math.min(1, past, cap) * 100) / 100);
+}
+
+/**
+ * Pagina 1 onder de cap, zoals ze nu gedraaid staat: het gewone canvas van de
+ * hele pagina, en op een echte vensteropname de inkt van `basis` (dezelfde
+ * pagina ongedraaid op dezelfde zoom). Een witte pagina heeft die niet.
+ */
+async function beoordeelOnderDeCap(waar, naamOpname, zoom, basis) {
+  await mcp('app_go_to_page', { page: 1 });
+  await sleep(600);
+  const uit = await zoomNaar(zoom);
+  const m = await beoordeel(waar, naamOpname, uit, { eisMs: false, pagina: 1 });
+  if (OUD) return m;
+  const p = uit.staat?.paginas?.find((q) => q.pagina === 1);
+  if (!p) fout(waar, 'pagina 1 staat niet in beeld');
+  else if (p.modus === 'uitsnede' || p.gecapt) fout(waar, `niet de hele-paginarender (modus ${p.modus}, gecapt ${p.gecapt})`);
+  if (basis) {
+    if (m.inktCanvas < basis.inktCanvas * 0.5) fout(waar, `canvas (inkt ${m.inktCanvas}) veel lichter dan ongedraaid (${basis.inktCanvas}): witte pagina?`);
+    if (m.inktScherm < basis.inktScherm * 0.5) fout(waar, `scherm (inkt ${m.inktScherm}) veel lichter dan ongedraaid (${basis.inktScherm}): witte pagina?`);
+  } else if (m.inktScherm < 0.002) {
+    fout(waar, `ongedraaide pagina heeft geen inkt op het scherm (${m.inktScherm}): ongeschikt als maatstaf`);
+  }
+  return m;
+}
+
+async function rondeGedraaid(bron, { alleenOnderDeCap = false } = {}) {
   if (!bron) return;
   const naam = kort(bron) + '-draai';
-  console.log(`\n== gedraaid: ${path.basename(bron)}`);
+  console.log(`\n== gedraaid${alleenOnderDeCap ? ' (alleen onder de cap)' : ''}: ${path.basename(bron)}`);
   await openKopie(bron, naam);
+  const onder = await zoomOnderDeCap();
+  const basis = await beoordeelOnderDeCap(`${naam} 0 graden ${Math.round(onder * 100)}% (onder de cap)`, `${naam}-0-onder`, onder, null);
   // 90 graden door de pagina te draaien, 180 door daarbovenop de weergave te
   // draaien, 270 door de pagina nog een kwartslag te draaien.
   const stappen = [[90, 'pagina'], [180, 'weergave'], [270, 'pagina']];
@@ -374,6 +421,10 @@ async function rondeGedraaid(bron) {
     if (soort === 'pagina') await mcp('app_rotate_pages', { angle: 90, pages: [1] });
     else await mcp('app_run_command', { command: 'ribbon:#view-rotate-right' });
     await sleep(2500);
+    // Onder de cap: de hele-paginarender mag de gedraaide pagina niet wit
+    // laten (kwartslagen kwamen buiten de bitmap terecht).
+    await beoordeelOnderDeCap(`${naam} ${hoek} graden (${soort}) ${Math.round(onder * 100)}% (onder de cap)`, `${naam}-${hoek}-onder`, onder, basis);
+    if (alleenOnderDeCap) continue;
     await mcp('app_go_to_page', { page: 1 });
     await sleep(800);
     const uit = await zoomNaar(hoek === 180 ? 2.5 : 2);
@@ -450,6 +501,7 @@ console.log(`uitvoer: ${UIT}${OUD ? ' (OUD=1: alleen meten)' : ''}`);
 console.log('venster:', await evalJs(`(() => { const c = document.getElementById('pdf-container'); return JSON.stringify({ dpr: window.devicePixelRatio, venster: [innerWidth, innerHeight], documentvlak: [c.clientWidth, c.clientHeight] }); })()`));
 for (const bron of BESTANDEN) await rondeBestand(bron);
 await rondeGedraaid(GEDRAAID);
+if (process.argv.length <= 3) await rondeGedraaid(GEDRAAID2, { alleenOnderDeCap: true });
 await rondeMeerdere(MEERDERE);
 if (process.argv.length <= 3) await rondeUserUnit();
 ws.close();
