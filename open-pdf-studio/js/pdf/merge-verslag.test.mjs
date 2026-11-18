@@ -2,7 +2,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { nieuwMergeVerslag, mergeAntwoord, REDEN_VOORBEELD, REDEN_GEEN_PAGINAS } from "./merge-verslag.js";
+import { nieuwMergeVerslag, mergeAntwoord, REDEN_VOORBEELD, REDEN_GEEN_PAGINAS, REDEN_BEVEILIGD } from "./merge-verslag.js";
 
 const omgeving = (extra = {}) => ({
   filePaths: ["C:/t/plan.pdf"], position: "end", pagesBefore: 3, pagesAfter: 3, filePath: "C:/t/doc.pdf", ...extra,
@@ -68,4 +68,16 @@ test("without a report the page count decides", () => {
   const verslag = nieuwMergeVerslag();
   verslag.merged.push("C:/t/plan.pdf");
   assert.equal(mergeAntwoord(verslag, omgeving()).ok, false);
+});
+
+test("a protected file that was not unlocked is reported as refused, the rest as merged", () => {
+  const verslag = nieuwMergeVerslag();
+  verslag.refused.push({ path: "C:/t/beveiligd.pdf", reason: REDEN_BEVEILIGD });
+  verslag.merged.push("C:/t/a.pdf");
+  verslag.pagesInserted = 2;
+  const antwoord = mergeAntwoord(verslag, omgeving({ filePaths: ["C:/t/beveiligd.pdf", "C:/t/a.pdf"], pagesAfter: 5 }));
+  assert.equal(antwoord.ok, false);
+  assert.equal(antwoord.mergedFiles, 1);
+  assert.deepEqual(antwoord.refused, [{ file: "C:/t/beveiligd.pdf", reason: "protected" }]);
+  assert.match(antwoord.error, /1 of 2 files not merged: beveiligd\.pdf refused: the file is protected/);
 });

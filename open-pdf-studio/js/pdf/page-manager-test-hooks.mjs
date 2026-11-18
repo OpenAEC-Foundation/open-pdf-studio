@@ -66,6 +66,15 @@ export const kiesBronPaginas = async (bytes, naam, aantal, doel) => {
       shortCircuit: true,
     };
   }
+  // Het wachtwoordvenster voor een beveiligd bronbestand (#1134): zonder eigen
+  // impl annuleert de test, zoals een gebruiker die geen wachtwoord heeft.
+  if (doel.endsWith('/js/solid/stores/wachtwoordDialoogStore.js')) {
+    return {
+      url: dataUrl(`export const metWachtwoordDialoog = (fn) => fn();
+export const vraagWachtwoord = async (v) => (await globalThis.__pmTest?.impl?.vraagWachtwoord?.(v)) ?? null;`),
+      shortCircuit: true,
+    };
+  }
   for (const [pad, namen] of Object.entries(STUBS)) {
     if (!doel.endsWith(`/${pad}`)) continue;
     const extra = pad === 'js/core/state.js' ? 'export const state = { get documents() { return globalThis.__pmTest?.documents ?? []; } };' : '';
