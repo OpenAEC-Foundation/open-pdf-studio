@@ -1166,6 +1166,9 @@ body.pdf-cursor-override #canvas-container * {
      from the broad `.continuous-container canvas` rule above and covers the
      page — a full white screen in continuous/book view. */
   background: transparent;
+  /* Het canvas dekt alleen het zichtbare deel van de pagina: de schaduw van
+     de pagina hoort bij de paginacontainer, niet midden in het blad. */
+  box-shadow: none;
 }
 
 /* PDF Text Edit Tool */
