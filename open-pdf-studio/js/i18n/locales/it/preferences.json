@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
     "reverseWheelZoom": "Inverti la direzione dello zoom con la rotellina del mouse",
     "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
+    "handClickZoom": "Fare clic con lo strumento Mano per ingrandire",
+    "handClickZoomHint": "Un clic con lo strumento Mano ingrandisce di un passo nel punto cliccato; Maiusc+clic riduce. Il trascinamento continua a spostare la vista. Ctrl+clic e Ctrl+trascinamento (rettangolo di zoom) eseguono sempre lo zoom, anche se questa opzione è disattivata.",
     "ribbonWheelSwitchesTabs": "Cambia scheda della barra multifunzione con la rotellina del mouse",
     "smoothScrolling": "Scorrimento fluido",
     "smoothScrollingHint": "Anima lo scorrimento con la rotellina e i salti a una pagina, che continua a scorrere per un attimo. Disattivato: la pagina si ferma quando si ferma la rotellina. Su Linux può essere necessario un riavvio.",

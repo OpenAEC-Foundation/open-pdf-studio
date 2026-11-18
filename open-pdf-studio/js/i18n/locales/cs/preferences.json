@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
     "reverseWheelZoom": "Obrátit směr přiblížení kolečkem myši",
     "middleDoubleClickFit": "Dvojklik prostředním tlačítkem myši přizpůsobí stránku",
+    "handClickZoom": "Kliknutí nástrojem Ruka přiblíží",
+    "handClickZoomHint": "Kliknutí nástrojem Ruka přiblíží o jeden krok v místě kliknutí; Shift+kliknutí oddálí. Tažení dál posouvá zobrazení. Ctrl+kliknutí a Ctrl+tažení (obdélník přiblížení) fungují vždy, i když je tato volba vypnutá.",
     "ribbonWheelSwitchesTabs": "Přepínat karty pásu karet kolečkem myši",
     "smoothScrolling": "Plynulé posouvání",
     "smoothScrollingHint": "Animuje posouvání kolečkem myši a skoky na stránku, která pak chvíli dojíždí. Vypnuto: stránka se zastaví, jakmile se zastaví kolečko. V Linuxu může být nutný restart.",

@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
     "reverseWheelZoom": "Geuza mwelekeo wa kukuza kwa gurudumu la kipanya",
     "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",
+    "handClickZoom": "Kubofya kwa zana ya Mkono kunakuza",
+    "handClickZoomHint": "Kubofya kwa zana ya Mkono kunakuza hatua moja mahali palipobofywa; Shift+bofya hupunguza. Kuburuta bado kunasogeza mwonekano. Ctrl+bofya na Ctrl+buruta (mstatili wa kukuza) hufanya kazi kila wakati, hata chaguo hili likizimwa.",
     "ribbonWheelSwitchesTabs": "Badilisha vichupo vya utepe kwa gurudumu la kipanya",
     "smoothScrolling": "Kusogeza kwa ulaini",
     "smoothScrollingHint": "Huhuisha kusogeza kwa gurudumu la kipanya na kurukia ukurasa, hivyo ukurasa huteleza kidogo zaidi. Imezimwa: ukurasa husimama gurudumu likisimama. Kwenye Linux huenda ukahitaji kuanzisha upya.",

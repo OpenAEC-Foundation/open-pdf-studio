@@ -139,6 +139,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-presentation-browser.mjs
 
+      - name: Test Hand tool click and rectangle zoom (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-hand-zoom-browser.mjs
+
       - name: Test tab switch across view modes (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-tab-view-mode-browser.mjs

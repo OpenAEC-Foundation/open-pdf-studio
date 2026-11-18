@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
     "reverseWheelZoom": "反转鼠标滚轮缩放方向",
     "middleDoubleClickFit": "双击鼠标中键以适合页面",
+    "handClickZoom": "使用手形工具单击可放大",
+    "handClickZoomHint": "使用手形工具单击会在单击位置放大一级；Shift+单击缩小。拖动仍然平移视图。Ctrl+单击和 Ctrl+拖动（缩放框）始终可用，即使关闭此选项。",
     "ribbonWheelSwitchesTabs": "使用鼠标滚轮切换功能区选项卡",
     "smoothScrolling": "平滑滚动",
     "smoothScrollingHint": "为鼠标滚轮滚动和跳转到页面添加动画，页面会继续滑动片刻。关闭：滚轮停止时页面立即停止。在 Linux 上可能需要重新启动。",

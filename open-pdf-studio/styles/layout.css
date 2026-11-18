@@ -1283,3 +1283,14 @@ body.pdf-cursor-override #canvas-container * {
   min-width: 56px;
   text-align: center;
 }
+
+/* Zoomrechthoek van het hand-gereedschap (#1161): Ctrl + slepen. */
+#hand-zoom-rechthoek {
+  position: fixed;
+  display: none;
+  z-index: 900;
+  box-sizing: border-box;
+  pointer-events: none;
+  border: 1px solid var(--theme-accent, #0078d7);
+  background: color-mix(in srgb, var(--theme-accent, #0078d7) 16%, transparent);
+}

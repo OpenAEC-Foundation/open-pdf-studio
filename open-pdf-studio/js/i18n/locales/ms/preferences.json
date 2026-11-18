@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
     "reverseWheelZoom": "Songsangkan arah zum roda tetikus",
     "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
+    "handClickZoom": "Klik dengan alat Tangan untuk zum masuk",
+    "handClickZoomHint": "Klik dengan alat Tangan mengezum masuk satu langkah pada titik yang diklik; Shift+klik mengezum keluar. Menyeret masih menganjak paparan. Ctrl+klik dan Ctrl+seret (segi empat zum) sentiasa berfungsi, walaupun pilihan ini dimatikan.",
     "ribbonWheelSwitchesTabs": "Tukar tab reben dengan roda tetikus",
     "smoothScrolling": "Tatal lancar",
     "smoothScrollingHint": "Menganimasikan tatal dengan roda tetikus dan lompatan ke halaman, supaya halaman masih meluncur seketika. Mati: halaman berhenti apabila roda berhenti. Di Linux mungkin perlu dimulakan semula.",

@@ -335,6 +335,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   reverseWheelZoom: false,
   // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
   middleDoubleClickFit: true,
+  // Klikken met het hand-gereedschap zoomt in (#1161). Standaard uit: een
+  // klik met de hand deed tot nu toe niets dan deselecteren. Ctrl + klik en
+  // Ctrl + slepen zoomen altijd.
+  handClickZoom: false,
   // Muiswiel boven het lint wisselt van tabblad (#852).
   ribbonWheelSwitchesTabs: true,
   // Vloeiend (geanimeerd) scrollen, standaard uit (#1007, core/vloeiend-scrollen.js).
