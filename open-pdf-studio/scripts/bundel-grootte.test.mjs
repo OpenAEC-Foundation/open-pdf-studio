@@ -40,8 +40,11 @@ const DIST = path.join(app, 'dist');
 // krommen op een polylijn en een veelhoek. Tekenen, raken, snappen en de
 // grepen hebben dat rekenwerk bij elke hertekening nodig, dus het kan niet
 // achter een dynamische import.
-export const BUDGET_KB = 4205;
-export const BUDGET_GZIP_KB = 1365; // gehost 1355 KiB op 18-11-2026
+// 18-11-2026, ronde 20 als geheel: gehost 4221,5 KiB (gzip 1370,6). Erbij: de
+// scherpe uitsnede in de doorlopende weergave (#1163), die in het renderpad
+// zelf zit, en het slepen op getalvelden (#1168).
+export const BUDGET_KB = 4230;
+export const BUDGET_GZIP_KB = 1378; // gehost 1370,6 KiB op 18-11-2026
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {
