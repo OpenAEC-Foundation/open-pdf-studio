@@ -276,14 +276,15 @@ export function sprongNogGeldig(beurt, laatste, doc, actief) {
 export async function handleInternalLink(dest) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
+  const pdf = doc.pdfDoc;
   const beurt = ++_sprongBeurt;
-  const geldig = () => sprongNogGeldig(beurt, _sprongBeurt, doc, getActiveDocument());
+  const geldig = () => sprongNogGeldig(beurt, _sprongBeurt, doc, getActiveDocument()) && doc.pdfDoc === pdf;
 
   try {
     // Benoemde bestemming eerst oplossen naar de expliciete array.
     let explicit = dest;
     if (typeof dest === 'string') {
-      explicit = await doc.pdfDoc.getDestination(dest);
+      explicit = await pdf.getDestination(dest);
       if (!geldig()) return;
     }
 
@@ -293,7 +294,7 @@ export async function handleInternalLink(dest) {
     const ref = destInfo.pageRef;
     let pageIndex;
     if (ref && typeof ref === 'object') {
-      pageIndex = await doc.pdfDoc.getPageIndex(ref);
+      pageIndex = await pdf.getPageIndex(ref);
       if (!geldig()) return;
     } else if (typeof ref === 'number') {
       pageIndex = ref;
@@ -310,7 +311,7 @@ export async function handleInternalLink(dest) {
     if (!geldig()) return;
     let getoond = false;
     try {
-      getoond = await toonDoelbeeld(doc, targetPage, destInfo);
+      getoond = await toonDoelbeeld(doc, targetPage, destInfo, geldig);
     } catch (e) {
       console.warn('[link-layer] beeld van de bestemming niet gezet:', e);
     }
@@ -347,8 +348,9 @@ function zoomBijHonderd() {
  * @param {number} pageNum
  * @param {ReturnType<typeof parseDestinationArray>} destInfo
  */
-async function toonDoelbeeld(doc, pageNum, destInfo) {
+async function toonDoelbeeld(doc, pageNum, destInfo, geldig) {
   const pdfPage = await doc.pdfDoc.getPage(pageNum);
+  if (!geldig()) return false;
   const rotatie = (pdfPage.rotate || 0) + (getPageRotation(pageNum) || 0) + weergaveRotatie(doc);
   const pagina = { view: Array.from(pdfPage.view), rotatie };
   const honderd = zoomBijHonderd();
@@ -358,6 +360,7 @@ async function toonDoelbeeld(doc, pageNum, destInfo) {
   const vp = window.__pdfViewport;
   if (vp && vp.active && doc.filePath) {
     const m = await import('./pdf-viewport.js');
+    if (!geldig()) return false;
     const { cssW, cssH } = m.viewportCanvasMaat();
     const venster = { breedte: cssW, hoogte: cssH, honderd };
     const beeld = destDoelbeeld(destInfo, pagina, venster);
@@ -391,6 +394,7 @@ async function toonDoelbeeld(doc, pageNum, destInfo) {
   if (beeld.zoom) {
     const zoom = Math.min(DEST_ZOOM_MAX, Math.max(DEST_ZOOM_MIN, beeld.zoom));
     if (Math.abs(zoom - (Number(doc.scale) || 0)) > 1e-6) await setZoom(zoom);
+    if (!geldig()) return false;
   }
 
   const paginaEl = doc.viewMode === 'continuous' || doc.facingSpread
