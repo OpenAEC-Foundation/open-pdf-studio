@@ -123,6 +123,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-mcp-screenshot-browser.mjs
 
+      - name: Test new document from a blank page and from a template (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-blank-template-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs

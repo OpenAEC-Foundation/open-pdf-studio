@@ -262,15 +262,29 @@ function openExternalLink(url) {
  * Handles internal PDF link navigation
  * @param {string|Array} dest - Destination (named or explicit)
  */
+// Elke sprong krijgt een volgnummer. Een bestemming opzoeken duurt even
+// (benoemde bestemming, paginanummer, de pagina tonen); klikt de gebruiker
+// intussen een andere koppeling aan of wisselt hij van document, dan mag de
+// oude sprong de nieuwe plek niet meer overschrijven.
+let _sprongBeurt = 0;
+
+/** Is dit nog de laatste sprong, in hetzelfde document? */
+export function sprongNogGeldig(beurt, laatste, doc, actief) {
+  return beurt === laatste && !!doc && doc === actief;
+}
+
 export async function handleInternalLink(dest) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
+  const beurt = ++_sprongBeurt;
+  const geldig = () => sprongNogGeldig(beurt, _sprongBeurt, doc, getActiveDocument());
 
   try {
     // Benoemde bestemming eerst oplossen naar de expliciete array.
     let explicit = dest;
     if (typeof dest === 'string') {
       explicit = await doc.pdfDoc.getDestination(dest);
+      if (!geldig()) return;
     }
 
     const destInfo = parseDestinationArray(explicit);
@@ -280,6 +294,7 @@ export async function handleInternalLink(dest) {
     let pageIndex;
     if (ref && typeof ref === 'object') {
       pageIndex = await doc.pdfDoc.getPageIndex(ref);
+      if (!geldig()) return;
     } else if (typeof ref === 'number') {
       pageIndex = ref;
     }
@@ -292,6 +307,7 @@ export async function handleInternalLink(dest) {
     // zelf. Zonder skipScroll loopt de vloeiende scroll van goToPage ná deze
     // aanroep nog door en zou die de plek weer overschrijven.
     await goToPage(targetPage, { skipScroll: true });
+    if (!geldig()) return;
     let getoond = false;
     try {
       getoond = await toonDoelbeeld(doc, targetPage, destInfo);
@@ -299,7 +315,7 @@ export async function handleInternalLink(dest) {
       console.warn('[link-layer] beeld van de bestemming niet gezet:', e);
     }
     // Een bestemming waarvan het beeld niet te lezen is: alleen de pagina.
-    if (!getoond) await goToPage(targetPage);
+    if (!getoond && geldig()) await goToPage(targetPage);
   } catch (e) {
     console.warn('Failed to navigate to internal link:', e);
   }

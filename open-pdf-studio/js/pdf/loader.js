@@ -1064,11 +1064,14 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
     doc.selectedAnnotations = [];
     doc.currentPage = 1;
 
-    // Een nieuw leeg document heeft geen annotaties om te laden: alle pagina's
-    // zijn meteen gereed. Zonder dit bleef de markering uit in de doorlopende
-    // weergave (alleen renderPage zette haar), en weigerde de saver het
-    // document zodra er iets op getekend was.
-    markAllAnnotationPagesLoaded(numPages, doc);
+    // Een zelf gemaakt leeg document heeft geen annotaties om te laden: alle
+    // pagina's zijn meteen gereed. Zonder dit bleef de markering uit in de
+    // doorlopende weergave (alleen renderPage zette haar), en weigerde de
+    // saver het document zodra er iets op getekend was. Een meegegeven
+    // sjabloon (`bytes`) kan wel annotaties hebben: dat krijgt de markering
+    // pas als ze echt geladen zijn (hieronder), anders zou de saver ze bij
+    // het opslaan weglaten.
+    if (!bytes) markAllAnnotationPagesLoaded(numPages, doc);
 
     // Show PDF container, hide placeholder
     const placeholder = document.getElementById('placeholder');
@@ -1091,6 +1094,20 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
     }
 
     await setViewMode(doc.viewMode);
+    if (bytes) {
+      // Zoals bij een geopend bestand: de annotaties van elke pagina laden;
+      // dat zet ook de markering per pagina. Mislukt het, dan blijft de
+      // markering uit en weigert de saver, in plaats van iets weg te laten.
+      try {
+        doc._annotationCompletion = loadExistingAnnotations(doc);
+        await doc._annotationCompletion;
+        const { redrawAnnotations, redrawContinuous } = await import('../annotations/rendering.js');
+        if (doc.viewMode === 'continuous') redrawContinuous();
+        else redrawAnnotations();
+      } catch (e) {
+        console.error('[createBlankPDF] annotaties van het sjabloon niet geladen:', e);
+      }
+    }
     generateThumbnails();
     refreshActiveTab();
     updateAllStatus();
