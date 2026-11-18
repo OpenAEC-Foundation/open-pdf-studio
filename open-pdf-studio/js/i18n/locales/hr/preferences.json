@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
     "reverseWheelZoom": "Obrni smjer zumiranja kotačićem miša",
     "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
+    "handClickZoom": "Klik alatom Ruka povećava prikaz",
+    "handClickZoomHint": "Klik alatom Ruka povećava prikaz za jedan korak na kliknutom mjestu; Shift+klik smanjuje. Povlačenje i dalje pomiče prikaz. Ctrl+klik i Ctrl+povlačenje (pravokutnik zumiranja) rade uvijek, i kada je ova opcija isključena.",
     "ribbonWheelSwitchesTabs": "Mijenjaj kartice vrpce kotačićem miša",
     "smoothScrolling": "Glatko pomicanje",
     "smoothScrollingHint": "Animira pomicanje kotačićem miša i skokove na stranicu, koja još malo klizi. Isključeno: stranica staje kad stane kotačić. Na Linuxu može biti potrebno ponovno pokretanje.",

@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
     "reverseWheelZoom": "Zoomrichtung des Mausrads umkehren",
     "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
+    "handClickZoom": "Klicken mit dem Hand-Werkzeug vergrößert",
+    "handClickZoomHint": "Ein Klick mit dem Hand-Werkzeug vergrößert um eine Stufe an der angeklickten Stelle; Umschalt+Klick verkleinert. Ziehen verschiebt weiterhin. Strg+Klick und Strg+Ziehen (Zoomrechteck) zoomen immer, auch wenn dies aus ist.",
     "ribbonWheelSwitchesTabs": "Menüband-Registerkarten mit dem Mausrad wechseln",
     "smoothScrolling": "Weiches Scrollen",
     "smoothScrollingHint": "Scrollen mit dem Mausrad und Sprünge zu einer Seite animieren, sodass die Seite kurz nachgleitet. Aus: Die Seite stoppt, sobald das Rad stoppt. Unter Linux kann ein Neustart nötig sein.",

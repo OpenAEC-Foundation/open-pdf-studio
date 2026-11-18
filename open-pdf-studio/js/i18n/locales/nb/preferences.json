@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uten å holde inne Ctrl)",
     "reverseWheelZoom": "Snu zoomretningen for musehjulet",
     "middleDoubleClickFit": "Dobbeltklikk med den midterste museknappen for å tilpasse siden",
+    "handClickZoom": "Klikk med håndverktøyet for å zoome inn",
+    "handClickZoomHint": "Et klikk med håndverktøyet zoomer inn ett trinn på punktet du klikker; Skift+klikk zoomer ut. Dra panorerer fortsatt. Ctrl+klikk og Ctrl+dra (zoomrektangel) zoomer alltid, også når dette er av.",
     "ribbonWheelSwitchesTabs": "Bytt fane i båndet med musehjulet",
     "smoothScrolling": "Myk rulling",
     "smoothScrollingHint": "Animerer rulling med musehjulet og hopp til en side, slik at siden glir litt videre. Av: siden stopper når hjulet stopper. På Linux kan en omstart være nødvendig.",

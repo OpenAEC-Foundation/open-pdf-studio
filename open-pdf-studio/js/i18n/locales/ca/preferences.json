@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
     "reverseWheelZoom": "Inverteix la direcció del zoom amb la roda del ratolí",
     "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",
+    "handClickZoom": "Fer clic amb l’eina Mà per ampliar",
+    "handClickZoomHint": "Un clic amb l’eina Mà amplia un pas al punt clicat; Maj+clic redueix. Arrossegar continua desplaçant la vista. Ctrl+clic i Ctrl+arrossegar (rectangle de zoom) sempre fan zoom, encara que aquesta opció estigui desactivada.",
     "ribbonWheelSwitchesTabs": "Canvia les pestanyes de la cinta amb la roda del ratolí",
     "smoothScrolling": "Desplaçament suau",
     "smoothScrollingHint": "Anima el desplaçament amb la roda del ratolí i els salts a una pàgina, que continua lliscant un moment. Desactivat: la pàgina s'atura quan s'atura la roda. A Linux pot caldre reiniciar.",

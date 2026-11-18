@@ -213,6 +213,12 @@ export default function BehaviorTab(props) {
           </label>
         </div>
         <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label" title={t('behavior.handClickZoomHint')}>
+            <input type="checkbox" id="pref-hand-click-zoom" checked={p.handClickZoom[0]()} onChange={e => p.handClickZoom[1](e.target.checked)} />
+            <span>{t('behavior.handClickZoom')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
             <input type="checkbox" id="pref-ribbon-wheel-tabs" checked={p.ribbonWheelSwitchesTabs[0]()} onChange={e => p.ribbonWheelSwitchesTabs[1](e.target.checked)} />
             <span>{t('behavior.ribbonWheelSwitchesTabs')}</span>
