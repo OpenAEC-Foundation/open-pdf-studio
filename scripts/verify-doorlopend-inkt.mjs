@@ -62,6 +62,15 @@ const INKT = `(() => {
     if (r.top >= cr.bottom || r.bottom <= cr.top) return;
     const pc = w.querySelector('.pdf-canvas');
     if (!pc || !pc.width) { uit.push({ p: w.dataset.page, inkt: null }); return; }
+    // Boven de bitmap-cap is het paginacanvas een uitsnede van het zichtbare
+    // deel (#1163). Een pagina waarvan alleen een randje in beeld staat heeft
+    // dan geen beeld om te tellen (of alleen een strook marge): overslaan.
+    if (pc.dataset.beeld === 'uitsnede') {
+      const cc = w.querySelector('.canvas-container-cont').getBoundingClientRect();
+      const zichtbaar = Math.min(cc.bottom, cr.bottom) - Math.max(cc.top, cr.top);
+      if (zichtbaar < 120) return;
+      if (pc.width <= 1) { uit.push({ p: w.dataset.page, inkt: 0 }); return; }
+    }
     try {
       const mini = document.createElement('canvas'); mini.width = 48; mini.height = 48;
       const mc = mini.getContext('2d'); mc.fillStyle = '#f0f'; mc.fillRect(0, 0, 48, 48);
