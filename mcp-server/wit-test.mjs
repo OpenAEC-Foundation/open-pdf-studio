@@ -18,7 +18,7 @@ async function tool(name, args) {
   page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text().slice(0, 160)); });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await new Promise((r) => setTimeout(r, 9000));
-  await tool('app_open_pdf', { path: 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/Technische tekening.pdf' });
+  await tool('app_open_pdf', { path: 'C:/Users/rickd/Documents/GitHub/verification-files/PDF-tests-open-pdf-studio/Technische tekening (origineel).pdf' });
   await new Promise((r) => setTimeout(r, 8000));
   const r = await page.evaluate(() => {
     const c = document.getElementById('pdf-canvas');

@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const proef = fileURLToPath(new URL('./oude-webview-pdfjs-proef.mjs', import.meta.url));
-const pdf = fileURLToPath(new URL('../../test pdf-bestanden/Originele bestanden/Tekst.pdf', import.meta.url));
+const pdf = fileURLToPath(new URL('../../fixtures/pdf/Tekst.pdf', import.meta.url));
 
 function draai(...extra) {
   const r = spawnSync(process.execPath, [proef, pdf, ...extra],

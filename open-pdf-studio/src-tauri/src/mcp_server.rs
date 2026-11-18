@@ -103,8 +103,8 @@ pub fn resolve_test_pdfs_dir(override_dir: Option<PathBuf>) -> PathBuf {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
-            .join("test pdf-bestanden")
-            .join("Originele bestanden")
+            .join("fixtures")
+            .join("pdf")
     })
 }
 
@@ -4110,15 +4110,15 @@ mod tests {
         let expected = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
-            .join("test pdf-bestanden")
-            .join("Originele bestanden");
+            .join("fixtures")
+            .join("pdf");
 
         assert_eq!(resolve_test_pdfs_dir(None), expected);
     }
 
     /// Exercises the real `tool_list_test_pdfs` over a fixture directory.
     /// We point `AppState.test_pdfs_dir` at the repo's actual test corpus
-    /// (`../../test pdf-bestanden/Originele bestanden`) so this also serves
+    /// (`../../fixtures/pdf`) so this also serves
     /// as a smoke test when the GUI binary cannot be launched.
     #[test]
     fn tool_list_test_pdfs_returns_corpus_entries() {
@@ -4127,8 +4127,8 @@ mod tests {
         let corpus = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
-            .join("test pdf-bestanden")
-            .join("Originele bestanden");
+            .join("fixtures")
+            .join("pdf");
         if !corpus.is_dir() {
             // Skip gracefully if the corpus isn't checked in on this clone.
             eprintln!("skipping: corpus dir not found at {:?}", corpus);
@@ -4195,13 +4195,13 @@ mod tests {
         use std::path::PathBuf;
         let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         // CARGO_MANIFEST_DIR is `<repo>/open-pdf-studio/src-tauri`. The corpus
-        // sits at `<repo>/test pdf-bestanden/Originele bestanden/`.
+        // sits at `<repo>/fixtures/pdf/`.
         let corpus = manifest_dir
             .ancestors()
             .nth(2)
             .unwrap()
-            .join("test pdf-bestanden")
-            .join("Originele bestanden");
+            .join("fixtures")
+            .join("pdf");
         if !corpus.exists() {
             eprintln!("[skip] corpus dir missing at {:?}", corpus);
             return;
@@ -4250,8 +4250,8 @@ mod tests {
             .ancestors()
             .nth(2)
             .unwrap()
-            .join("test pdf-bestanden")
-            .join("Originele bestanden");
+            .join("fixtures")
+            .join("pdf");
         if !corpus.exists() {
             eprintln!("[skip] corpus dir missing at {:?}", corpus);
             return;
@@ -4304,8 +4304,8 @@ mod tests {
             .ancestors()
             .nth(2)
             .unwrap()
-            .join("test pdf-bestanden")
-            .join("Originele bestanden");
+            .join("fixtures")
+            .join("pdf");
         if !corpus.exists() {
             eprintln!("[skip] corpus dir missing");
             return;

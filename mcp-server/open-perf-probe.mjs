@@ -3,7 +3,7 @@
 
 const MCP = 'http://127.0.0.1:9223/mcp';
 const PDF_PATH = process.argv[2] ||
-  'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf';
+  'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden/NKD1a_opm_aw.pdf';
 
 let id = 1;
 async function rpc(method, params) {

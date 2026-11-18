@@ -20,7 +20,7 @@ const playwright = require(process.env.OPDS_NODE_MODULES
 const MCP = `http://127.0.0.1:${process.env.MCP_PORT || '9223'}/mcp`;
 const DEFAULT_DIRS = [
   'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
-  'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden',
+  'C:/Users/rickd/Documents/GitHub/verification-files/PDF-tests-open-pdf-studio',
 ];
 const OUT = process.argv[2];
 if (!OUT) { console.error('gebruik: node scripts/verify-rotation-sweep.mjs <output-dir> [dirs...]'); process.exit(2); }
