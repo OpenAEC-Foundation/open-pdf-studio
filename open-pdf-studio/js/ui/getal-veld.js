@@ -257,6 +257,82 @@ export function verwerkVerlaten(el) {
   }
 }
 
+// A vertical mouse drag previews a value; release commits once through the
+// existing field handlers. Horizontal dragging remains native text selection.
+function installNumberDragging(doc) {
+  const win = doc.defaultView;
+  let drag = null;
+  function finish(commit = false) {
+    const current = drag;
+    drag = null;
+    if (!current) return;
+    const { el, st } = current;
+    const unchanged = st.nat.get.call(el) === current.preview;
+    if (current.active && unchanged) {
+      if (commit && el.isConnected && !el.disabled && !el.readOnly) {
+        st.bewerkt = false;
+        st.wachtend = null;
+        if (el.value !== current.value) stuurInvoer(el);
+      } else {
+        st.nat.set.call(el, current.raw);
+        st.bewerkt = current.editing;
+        st.wachtend = current.pending;
+      }
+    }
+    if (el.hasPointerCapture?.(current.id)) el.releasePointerCapture(current.id);
+  }
+  doc.addEventListener('pointerdown', (e) => {
+    finish();
+    const el = e.target;
+    if (e.defaultPrevented || e.button !== 0 || e.pointerType !== 'mouse'
+      || e.ctrlKey || e.metaKey || e.altKey || !el?.matches?.(GETAL_SELECTOR)
+      || el.disabled || el.readOnly) return;
+    maakGetalVeld(el);
+    const st = velden.get(el);
+    const raw = st?.nat.get.call(el);
+    if (!st || !Number.isFinite(leesGetal(raw)) || voetInchTekst(el, raw) != null) return;
+    drag = { el, st, id: e.pointerId, x: e.clientX, y: e.clientY,
+      raw, preview: raw, value: el.value, editing: st.bewerkt, pending: st.wachtend, active: false };
+  });
+  doc.addEventListener('pointermove', (e) => {
+    const current = drag;
+    if (!current || e.pointerId !== current.id) return;
+    const { el, st } = current;
+    if (!el.isConnected || el.disabled || el.readOnly || !(e.buttons & 1)
+      || st.nat.get.call(el) !== current.preview) { finish(); return; }
+    const dx = Math.abs(e.clientX - current.x), dy = current.y - e.clientY;
+    if (!current.active) {
+      if (dx >= 6 && dx >= Math.abs(dy)) { finish(); return; }
+      if (Math.abs(dy) < 6) return;
+      current.active = true;
+      el.setPointerCapture(e.pointerId);
+    }
+    e.preventDefault();
+    const steps = Math.trunc(dy / 6);
+    let value = current.value;
+    const bounds = { min: el.getAttribute('min'), max: el.getAttribute('max'), step: el.getAttribute('step') };
+    for (let i = 0; i < Math.abs(steps); i++) value = String(stapWaarde(value, steps > 0 ? 1 : -1, bounds));
+    current.preview = steps === 0 ? current.raw : toonGetal(value, taalBron());
+    st.nat.set.call(el, current.preview);
+    el.setSelectionRange(0, 0);
+  }, { passive: false });
+  doc.addEventListener('pointerup', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (drag.active) e.preventDefault();
+    finish(true);
+  });
+  for (const event of ['pointercancel', 'lostpointercapture']) {
+    doc.addEventListener(event, (e) => { if (drag?.id === e.pointerId) finish(); });
+  }
+  doc.addEventListener('keydown', (e) => {
+    if (drag?.active && e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); }
+    finish();
+  }, true);
+  doc.addEventListener('focusout', (e) => { if (drag?.el === e.target) finish(); }, true);
+  doc.addEventListener('dragstart', (e) => { if (drag?.active) e.preventDefault(); });
+  win.addEventListener('blur', () => finish());
+}
+
 function waardeerOp(knoop) {
   if (!knoop || knoop.nodeType !== 1) return;
   if (knoop.matches?.(GETAL_SELECTOR)) maakGetalVeld(knoop);
@@ -287,6 +363,7 @@ export function installeerGetalVelden({ taal } = {}) {
   if (geinstalleerd || !doc) return;
   geinstalleerd = true;
   installeerGetalStappen(doc);
+  installNumberDragging(doc);
   waardeerOp(doc.documentElement);
   new MutationObserver((mutaties) => {
     for (const m of mutaties) {
