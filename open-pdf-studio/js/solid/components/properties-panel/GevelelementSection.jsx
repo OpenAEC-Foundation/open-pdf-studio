@@ -279,7 +279,7 @@ export default function GevelelementSection() {
         <div class="property-group">
           <label>{t('gevelelement.divide')}</label>
           <div style={{ display: 'flex', gap: '4px' }}>
-            <input type="text" inputmode="decimal" data-getal min="1" max="50" step="1" id="prop-gevel-verdeel"
+            <input type="text" inputmode="decimal" data-getal data-geheel min="1" max="50" step="1" id="prop-gevel-verdeel"
               value={lay().velden.length} disabled={locked()}
               onChange={(e) => {
                 const n = Math.round(getal(e) || 0);

@@ -136,6 +136,7 @@
   },
   "collapse": "Inklappen",
   "mixed": "Gemengd",
+  "dragToChange": "Sleep om te wijzigen",
   "crop": "Bijsnijden",
   "noPdfLoaded": "Geen PDF geladen.",
   "saveRequiresTauri": "Opslaan vereist de Tauri-omgeving.",

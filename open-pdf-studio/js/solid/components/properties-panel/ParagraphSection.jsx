@@ -77,7 +77,7 @@ export default function ParagraphSection() {
             value={() => annotProps.lineSpacing}
             setValue={(val) => updateAnnotProp('lineSpacing', val)}
             options={[1, 1.15, 1.5, 2, 2.5, 3]}
-            min={0.5} max={5} fallback={1.5} suffix="x"
+            min={0.5} max={5} fallback={1.5} suffix="x" dragStep={0.1}
             disabled={isLocked}
           />
         </div>

@@ -4,11 +4,14 @@ import { cloneAnnotation } from '../annotations/factory.js';
 import { stampRasterStale } from '../annotations/stamp-appearance-sync.js';
 import { applyOcrShift } from '../pdf/shift-page-geometry.js';
 import { toonOrigineelInTekstlaag, toonBewerkingInTekstlaag } from '../text/tekstlaag-bewerking.js';
+import { voegWijzigingenSamen } from './undo-samenvoegen.js';
 const MAX_UNDO_STACK = 100;
 let undoTransactionDepth = 0;
 let undoTransactionCommands = null;
 let undoTransactionDocumentId = null;
 let undoTransactionBeforeSelectionIds = null;
+// Een getal wordt gesleept (#1168): alles tot het loslaten is één stap.
+let waardeSleepActief = false;
 
 function clonePlainValue(value) {
   if (value == null) return value;
@@ -1064,6 +1067,52 @@ export function endUndoTransaction() {
   else execute({ type: 'compound', commands, beforeSelectionIds, afterSelectionIds });
 }
 
+/**
+ * Een getal wordt gesleept (ui/getal-slepen.js): tot eindeWaardeSleep komt
+ * elke wijziging in één ongedaan-stap, hoe lang de sleep ook duurt.
+ */
+export function beginWaardeSleep() {
+  if (waardeSleepActief) return;
+  flushPropertyChange();
+  beginUndoTransaction();
+  waardeSleepActief = true;
+}
+
+/**
+ * Sluit de sleep af als één stap. Met `annuleer` (Escape) gaat alles terug
+ * naar de toestand van vóór de sleep en blijft de geschiedenis zoals ze was.
+ * @param {{annuleer?: boolean}} [opties]
+ */
+export async function eindeWaardeSleep({ annuleer = false } = {}) {
+  if (!waardeSleepActief) return;
+  flushPropertyChange();
+  waardeSleepActief = false;
+  const buitenste = undoTransactionDepth === 1;
+  if (buitenste && undoTransactionCommands) {
+    undoTransactionCommands = voegWijzigingenSamen(undoTransactionCommands);
+  }
+  const doc = getActiveDocument();
+  const isDoc = !!doc && doc.id === undoTransactionDocumentId;
+  const stappen = (undoTransactionCommands || []).length;
+  const redo = doc?.redoStack;
+  const bewaard = doc?.savedUndoStackLength;
+  const lengte = (doc?.undoStack || []).length;
+  const top = (doc?.undoStack || [])[lengte - 1];
+  endUndoTransaction();
+  if (!annuleer || !buitenste || !isDoc || stappen === 0) return;
+  const nu = doc.undoStack || [];
+  if (nu.length === 0 || nu[nu.length - 1] === top) return;
+  // Een volle geschiedenis schoof één stap op: dan klopt het oude bewaarpunt niet meer.
+  const verschoven = nu.length !== lengte + 1;
+  // Terug via dezelfde weg als Ongedaan maken (paneel, tekenen, stempels),
+  // maar zonder spoor: de stap verdwijnt en Opnieuw blijft wat het was.
+  await undo();
+  if (getActiveDocument() !== doc && getActiveDocument()?.id !== doc.id) return;
+  doc.redoStack = redo || [];
+  if (!verschoven) doc.savedUndoStackLength = bewaard;
+  syncModifiedState();
+}
+
 // Debounced property change recording (for rapid slider/input changes)
 let propertyChangeTimer = null;
 let pendingPropertyChange = null;
@@ -1117,6 +1166,13 @@ export function flushPropertyChange() {
       oldState: pendingPropertyChange.oldState,
       newState: pendingPropertyChange.newState || cloneAnnotation(current)
     };
+    if (waardeSleepActief && undoTransactionDepth > 0) {
+      // Tijdens het slepen van een getal hoort ook deze stap bij de sleep.
+      undoTransactionCommands.push(cmd);
+      pendingPropertyChange = null;
+      clearTimeout(propertyChangeTimer);
+      return;
+    }
     if (!targetDoc.undoStack) targetDoc.undoStack = [];
     // If clean point was beyond current position, it's now unreachable
     if (targetDoc.savedUndoStackLength > targetDoc.undoStack.length) {
