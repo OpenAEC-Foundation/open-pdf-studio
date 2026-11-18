@@ -43,9 +43,19 @@ const safe = (f) => f.replace(/\.pdf$/i, '').replace(/[^A-Za-z0-9._-]+/g, '_').s
   const browser = await playwright.chromium.connectOverCDP(`http://127.0.0.1:${process.env.CDP_PORT || '9345'}`);
   const page = browser.contexts()[0].pages()[0];
   // Ink-percentage van het zichtbare pdf-canvas (niet-witte, niet-transparante pixels).
+  // Enkele pagina: #pdf-canvas. Doorlopend (de standaard): het paginacanvas dat
+  // het grootste deel van het venster vult; #pdf-canvas is dan verborgen.
   const ink = () => page.evaluate(() => {
-    const c = document.getElementById('pdf-canvas');
-    if (!c || !c.width) return { i: 0 };
+    const zichtbaar = (el) => {
+      const r = el.getBoundingClientRect();
+      const b = Math.max(0, Math.min(r.right, window.innerWidth) - Math.max(r.left, 0));
+      const h = Math.max(0, Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0));
+      return b * h;
+    };
+    const kandidaten = [document.getElementById('pdf-canvas'),
+      ...document.querySelectorAll('#continuous-container canvas.pdf-canvas')].filter((el) => el && el.width > 0);
+    const c = kandidaten.map((el) => ({ el, opp: zichtbaar(el) })).sort((a, b) => b.opp - a.opp)[0]?.el;
+    if (!c || !c.width || zichtbaar(c) === 0) return { i: 0 };
     const x = c.getContext('2d');
     let d; try { d = x.getImageData(0, 0, c.width, c.height).data; } catch { return { i: -1 }; }
     let n = 0, t = 0;
@@ -88,6 +98,11 @@ const safe = (f) => f.replace(/\.pdf$/i, '').replace(/[^A-Za-z0-9._-]+/g, '_').s
         rows.push({ dir, file: f, status: 'OPEN-FAIL' });
         continue;
       }
+      // De sweep beoordeelt de enkelpagina-weergave, zoals bij eerdere releases;
+      // documenten openen standaard doorlopend (die weergave heeft haar eigen
+      // poort, verify-doorlopend-inkt.mjs).
+      await tool('app_set_view_mode', { mode: 'single' });
+      await sleep(600);
       const p1 = await waitInk();
       const vp = await tool('app_get_viewport_state', {});
       const engine = vp?.engine || '?';

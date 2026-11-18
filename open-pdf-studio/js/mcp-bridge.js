@@ -82,9 +82,25 @@ async function compositeCurrentView(maxWidth = 2000) {
     if (doc.viewMode === 'continuous') rendering.redrawContinuous();
     else rendering.redrawAnnotations();
   }
-  const pdfCanvas = document.getElementById('pdf-canvas');
-  const annCanvas = document.getElementById('annotation-canvas');
-  const hlCanvas  = document.getElementById('text-highlight-canvas');
+  // Het paginabeeld en de lagen erboven. Enkele pagina: de vaste canvassen. In
+  // de doorlopende weergave (de standaard) zijn die verborgen en heeft elke
+  // pagina haar eigen canvassen; dan telt de huidige pagina. Zonder dit
+  // onderscheid gaf een opname in de doorlopende weergave een leeg beeld.
+  const { laagVolgorde, laagPlek } = await import('./core/mcp-schermafdruk.js');
+  let pdfCanvas;
+  let lagen;
+  if (doc?.viewMode === 'continuous') {
+    const blad = document.querySelector(`#continuous-container .page-wrapper[data-page="${pagina}"]`);
+    pdfCanvas = blad?.querySelector('canvas.pdf-canvas') || null;
+    if (!pdfCanvas || pdfCanvas.width === 0 || pdfCanvas.height === 0) {
+      throw new Error(`page ${pagina} is not drawn yet in the continuous view`);
+    }
+    lagen = [...blad.querySelectorAll('canvas')].filter((c) => c !== pdfCanvas);
+  } else {
+    pdfCanvas = document.getElementById('pdf-canvas');
+    lagen = [document.getElementById('text-highlight-canvas'), document.getElementById('annotation-canvas')];
+  }
+  lagen = lagen.filter((c) => c && c.width > 0 && c.height > 0);
   if (!pdfCanvas || pdfCanvas.width === 0 || pdfCanvas.height === 0) {
     throw new Error('pdf-canvas not visible');
   }
@@ -104,17 +120,19 @@ async function compositeCurrentView(maxWidth = 2000) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, outW, outH);
   ctx.drawImage(pdfCanvas, 0, 0, outW, outH);
-  if (hlCanvas && hlCanvas.width > 0 && hlCanvas.height > 0) {
-    // Zoals het scherm: de markeerlaag vermenigvuldigt met de pagina (CSS
-    // mix-blend-mode). Met source-over zag een controle hier een andere
-    // pagina dan de gebruiker (#614). Gemengde annotaties staan al gemengd
-    // op de annotatielaag (rendering/mengen-tegen-pagina.js).
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.drawImage(hlCanvas, 0, 0, outW, outH);
+  // Zoals het scherm: de markeerlaag vermenigvuldigt met de pagina (CSS
+  // mix-blend-mode). Met source-over zag een controle hier een andere
+  // pagina dan de gebruiker (#614). Gemengde annotaties staan al gemengd
+  // op de annotatielaag (rendering/mengen-tegen-pagina.js). Een scherpe
+  // tegel dekt maar een deel van de pagina en komt op zijn eigen plek.
+  const basisVak = pdfCanvas.getBoundingClientRect();
+  for (const { index, mengen } of laagVolgorde(lagen.map((c) => ({ id: c.id, klasse: String(c.className || '') })))) {
+    const laag = lagen[index];
+    const plek = laagPlek(laag.getBoundingClientRect(), basisVak, { width: outW, height: outH });
+    if (!(plek.w > 0) || !(plek.h > 0)) continue;
+    ctx.globalCompositeOperation = mengen;
+    ctx.drawImage(laag, plek.x, plek.y, plek.w, plek.h);
     ctx.globalCompositeOperation = 'source-over';
-  }
-  if (annCanvas && annCanvas.width > 0 && annCanvas.height > 0) {
-    ctx.drawImage(annCanvas, 0, 0, outW, outH);
   }
   const dataURL = out.toDataURL('image/png');
   // Strip the `data:image/png;base64,` prefix so the returned string is
@@ -123,7 +141,7 @@ async function compositeCurrentView(maxWidth = 2000) {
   const { rechthoek } = await import('./core/mcp-schermafdruk.js');
   return {
     png_base64: b64, width: outW, height: outH,
-    bounds: rechthoek(pdfCanvas.getBoundingClientRect()),
+    bounds: rechthoek(basisVak),
     devicePixelRatio: window.devicePixelRatio || 1,
   };
 }
