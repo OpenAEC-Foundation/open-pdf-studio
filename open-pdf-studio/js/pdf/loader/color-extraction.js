@@ -853,6 +853,24 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (ar !== null) colors.opsArcRadius = ar;
       }
 
+      // Krommen van een polylijn of veelhoek (#1169, pdf/curve-pdf.js): de
+      // knopen en de stuurpunten per krom segment, als platte getallenlijsten.
+      for (const [sleutel, veld] of [['OPS_CurveNodes', 'opsCurveNodes'], ['OPS_Curves', 'opsCurves']]) {
+        const ruw = annotDict.get(PDFName.of(sleutel));
+        if (!ruw) continue;
+        const lijst = context.lookup(ruw) || ruw;
+        if (!lijst || typeof lijst.size !== 'function') continue;
+        const getallen = [];
+        let geldig = true;
+        for (let pi = 0; pi < lijst.size(); pi++) {
+          const val = lijst.get(pi);
+          const num = pdfNum(context.lookup(val) || val);
+          if (num === null) { geldig = false; break; }
+          getallen.push(num);
+        }
+        if (geldig && getallen.length) colors[veld] = getallen;
+      }
+
       // Read /OPS_Points (our custom control points for spline annotations)
       const opsPointsRaw = annotDict.get(PDFName.of('OPS_Points'));
       if (opsPointsRaw) {
