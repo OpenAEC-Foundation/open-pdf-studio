@@ -2272,6 +2272,7 @@
     "deleted": "uklonjeno",
     "errorRead": "Mapu pregleda nije moguće pročitati.",
     "errorWrite": "Vaše promjene nije moguće upisati u mapu pregleda.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Najprije spremite PDF kako biste započeli zajednički pregled.",
     "errorGeneric": "Zajednički pregled nije moguće pokrenuti.",
     "close": "Zatvori"

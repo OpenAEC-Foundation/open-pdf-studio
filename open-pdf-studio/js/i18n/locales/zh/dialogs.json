@@ -2272,6 +2272,7 @@
     "deleted": "已删除",
     "errorRead": "无法读取审阅文件夹。",
     "errorWrite": "无法将你的更改写入审阅文件夹。",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "请先保存 PDF 再开始共享审阅。",
     "errorGeneric": "无法启动共享审阅。",
     "close": "关闭"

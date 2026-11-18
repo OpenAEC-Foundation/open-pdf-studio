@@ -2272,6 +2272,7 @@
     "deleted": "সরানো",
     "errorRead": "পর্যালোচনা ফোল্ডার পড়া যায়নি।",
     "errorWrite": "আপনার পরিবর্তন পর্যালোচনা ফোল্ডারে লেখা যায়নি।",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "যৌথ পর্যালোচনা শুরু করতে আগে PDF সংরক্ষণ করুন।",
     "errorGeneric": "যৌথ পর্যালোচনা শুরু করা যায়নি।",
     "close": "বন্ধ করুন"

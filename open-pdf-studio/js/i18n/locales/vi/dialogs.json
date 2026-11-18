@@ -2272,6 +2272,7 @@
     "deleted": "đã xóa",
     "errorRead": "Không thể đọc thư mục xem xét.",
     "errorWrite": "Không thể ghi thay đổi của bạn vào thư mục xem xét.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Hãy lưu PDF trước để bắt đầu xem xét chung.",
     "errorGeneric": "Không thể bắt đầu xem xét chung.",
     "close": "Đóng"

@@ -22,7 +22,7 @@ const DIALOOG = {
   refresh: [], importIntoPdf: [], importDone: [], lastUpdate: ['{{time}}'], lastPublished: ['{{time}}'], never: [],
   pending: ['{{n}}'], participants: [], participant: [], changes: [], lastChange: [], time: [], conflictedCopies: ['{{n}}'],
   you: [], history: [], conflictRule: [], annotation: [], noHistory: [], action: [], opCreate: [], opEdit: [], opDelete: [],
-  concurrent: [], deleted: [], errorRead: [], errorWrite: [], errorSaveFirst: [], errorGeneric: [], close: [],
+  concurrent: [], deleted: [], errorRead: [], errorWrite: [], errorWriteBusy: [], errorSaveFirst: [], errorGeneric: [], close: [],
 };
 const STATUS = { sharedReviewActive: [], sharedReviewUpdates: ['{{n}}'], sharedReviewTitle: ['{{folder}}'], sharedReviewError: [] };
 // Sentences must really be translated; short words may match English.
@@ -114,4 +114,48 @@ test('the Rust commands are registered and the service only writes its own files
   assert.deepEqual(writes.sort(), ['logName', 'name']);
   assert.match(service, /const logName = logFileName\(s\.base, s\.user\);/);
   assert.match(service, /const name = xfdfFileName\(s\.base, s\.user\);/);
+});
+
+// A review folder in a synchronised folder (#1115).
+test('review files: shared handles, no write in place, and a failed publish is kept, reported and tried again', () => {
+  const rust = bron('src-tauri/src/shared_review.rs');
+  assert.match(rust, /crate::atomic_file::read_shared\(&path\)/);
+  assert.match(rust, /crate::atomic_file::write_shared\(&dir\.join\(name\), text\.as_bytes\(\)\)/);
+  assert.doesNotMatch(rust, /atomic_file::write\(/, 'the ordinary write falls back to writing in place');
+  assert.match(rust, /pub const IN_USE: &str = "REVIEW_FILE_IN_USE";/);
+  // Nothing in the review module keeps a file or a watcher open.
+  assert.doesNotMatch(rust.slice(0, rust.indexOf('#[cfg(test)]')), /File::open|OpenOptions|notify|static |Mutex/);
+
+  const atomic = bron('src-tauri/src/atomic_file.rs');
+  const shared = atomic.slice(atomic.indexOf('fn write_shared_with('), atomic.indexOf('pub fn read_shared('));
+  assert.match(shared, /fs::rename\(&staged\.0, &target\)/);
+  assert.doesNotMatch(shared, /fs::copy|fs::write\(/, 'never in place');
+
+  const service = bron('js/review/shared-review-service.js');
+  const publish = service.slice(service.indexOf('export function publishSharedReview('), service.indexOf('async function reportPublishFailure('));
+  assert.match(publish, /s\.writeError = writeErrorCode\(e\);/);
+  assert.match(publish, /s\.retryTimer = setTimeout\(/);
+  assert.match(publish, /publishRetryDelayMs\(s\.retries\+\+\)/);
+  assert.match(publish, /throw new Error\(s\.writeError\);/, 'the dialog shows the text of this code');
+  // Reading again must not wipe the report of an unpublished change.
+  const rebuild = service.slice(service.indexOf('async function rebuild('), service.indexOf('async function waitForPdfAnnotations('));
+  assert.match(rebuild, /s\.readError = false;/);
+  assert.doesNotMatch(rebuild, /writeError/);
+  assert.doesNotMatch(service, /s\.error\b/, 'one status, from reviewErrorCode');
+  // Stopping the review stops the retry.
+  assert.match(service, /s\.poller\.stop\(\);\n    if \(s\.retryTimer !== null\) clearTimeout\(s\.retryTimer\);/);
+  // A snapshot whose write failed is written at the next publish, also without new changes.
+  assert.match(service, /if \(s\.snapshotStale\) await writeSnapshot\(s\);/);
+  // After a save nobody looks at the dialog: the failure is shown once.
+  assert.match(service, /if \(s\?\.autoPublish\) publishSharedReview\(doc\)\.catch\(\(\) => reportPublishFailure\(s\)\);/);
+  assert.match(service, /'dialogs:sharedReview\.errorWriteBusy' : 'dialogs:sharedReview\.errorWrite'/);
+  assert.match(bron('js/solid/components/dialogs/SharedReviewDialog.jsx'), /WRITE_BUSY: t\('sharedReview\.errorWriteBusy'\)/);
+});
+
+test('the new text is translated where the rules ask for it and names no product', () => {
+  const en = lees('en', 'dialogs').sharedReview.errorWriteBusy;
+  const nl = lees('nl', 'dialogs').sharedReview.errorWriteBusy;
+  assert.notEqual(nl, en);
+  assert.match(nl, /synchronisatie-app/);
+  assert.match(en, /cloud sync client/);
 });

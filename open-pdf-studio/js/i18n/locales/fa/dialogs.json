@@ -2272,6 +2272,7 @@
     "deleted": "حذف‌شده",
     "errorRead": "پوشهٔ بازبینی خوانده نشد.",
     "errorWrite": "تغییرات شما در پوشهٔ بازبینی نوشته نشد.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "برای شروع بازبینی مشترک ابتدا PDF را ذخیره کنید.",
     "errorGeneric": "بازبینی مشترک آغاز نشد.",
     "close": "بستن"

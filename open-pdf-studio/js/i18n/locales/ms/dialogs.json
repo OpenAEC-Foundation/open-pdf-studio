@@ -2272,6 +2272,7 @@
     "deleted": "dialih keluar",
     "errorRead": "Folder semakan tidak dapat dibaca.",
     "errorWrite": "Perubahan anda tidak dapat ditulis ke folder semakan.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Simpan PDF dahulu untuk memulakan semakan bersama.",
     "errorGeneric": "Semakan bersama tidak dapat dimulakan.",
     "close": "Tutup"

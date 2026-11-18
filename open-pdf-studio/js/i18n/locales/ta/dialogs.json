@@ -2272,6 +2272,7 @@
     "deleted": "நீக்கப்பட்டது",
     "errorRead": "மதிப்பாய்வுக் கோப்புறையைப் படிக்க முடியவில்லை.",
     "errorWrite": "உங்கள் மாற்றங்களை மதிப்பாய்வுக் கோப்புறையில் எழுத முடியவில்லை.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "பகிர்ந்த மதிப்பாய்வைத் தொடங்க முதலில் PDF-ஐச் சேமியுங்கள்.",
     "errorGeneric": "பகிர்ந்த மதிப்பாய்வைத் தொடங்க முடியவில்லை.",
     "close": "மூடு"

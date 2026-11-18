@@ -2272,6 +2272,7 @@
     "deleted": "fjernet",
     "errorRead": "Gennemgangsmappen kunne ikke læses.",
     "errorWrite": "Dine ændringer kunne ikke skrives til gennemgangsmappen.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Gem PDF-filen først for at starte en delt gennemgang.",
     "errorGeneric": "Den delte gennemgang kunne ikke startes.",
     "close": "Luk"

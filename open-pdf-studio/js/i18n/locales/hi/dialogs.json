@@ -2272,6 +2272,7 @@
     "deleted": "हटाया गया",
     "errorRead": "समीक्षा फ़ोल्डर पढ़ा नहीं जा सका।",
     "errorWrite": "आपके बदलाव समीक्षा फ़ोल्डर में नहीं लिखे जा सके।",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "साझा समीक्षा शुरू करने के लिए पहले PDF सहेजें।",
     "errorGeneric": "साझा समीक्षा शुरू नहीं हो सकी।",
     "close": "बंद करें"
