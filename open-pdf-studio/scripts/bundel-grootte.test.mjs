@@ -36,7 +36,11 @@ const DIST = path.join(app, 'dist');
 // 18-11-2026, ronde 18: desktop 4149 KiB, gehost 4166 KiB. Erbij: het
 // eenhedenstelsel, de tekststijl per gereedschap, de vertaalde wand-,
 // betonbalk- en systeemrasterteksten (Engels zit in de opstartbundel).
-export const BUDGET_KB = 4180;
+// 18-11-2026, #1169: desktop 4180,2 KiB (gehost ongeveer 17 KiB meer). Erbij:
+// krommen op een polylijn en een veelhoek. Tekenen, raken, snappen en de
+// grepen hebben dat rekenwerk bij elke hertekening nodig, dus het kan niet
+// achter een dynamische import.
+export const BUDGET_KB = 4205;
 export const BUDGET_GZIP_KB = 1365; // gehost 1355 KiB op 18-11-2026
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */

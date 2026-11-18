@@ -16,6 +16,7 @@
 
 import { state, getActiveDocument } from '../core/state.js';
 import { cloneAnnotation } from './factory.js';
+import { heeftKrommen, vlakPadOpScherm } from './curve-shape.js';
 import {
   recordBulkModify, recordBulkDelete, recordBulkAdd,
   beginUndoTransaction, endUndoTransaction,
@@ -80,9 +81,17 @@ function _pointsOf(ann) {
     return [{ x: ann.startX, y: ann.startY }, { x: ann.endX, y: ann.endY }];
   }
   if (Array.isArray(ann.points) && ann.points.length >= 2) {
-    return ann.points.map(p => ({ x: p.x, y: p.y }));
+    return _rechtePunten(ann).map(p => ({ x: p.x, y: p.y }));
   }
   return null;
+}
+
+// De punten waarmee uiteenhalen en samenvoegen rekenen. Een polylijn of
+// veelhoek met krommen (#1169) gaat als vlakgemaakt pad mee: de losse lijnen
+// en de samengevoegde polylijn kennen geen krommen, maar volgen zo wel de
+// vorm.
+function _rechtePunten(ann) {
+  return (heeftKrommen(ann) && vlakPadOpScherm(ann, 0.5)) || ann.points;
 }
 
 /**
@@ -101,7 +110,7 @@ export function explodeSelection() {
   const created = [];
   const exploded = [];
   for (const ann of sel) {
-    const pts = ann.points && ann.points.length >= 2 ? ann.points : null;
+    const pts = ann.points && ann.points.length >= 2 ? _rechtePunten(ann) : null;
     if (!pts) continue;
     const segCount = CLOSED_POLY_TYPES.has(ann.type) ? pts.length : pts.length - 1;
     for (let i = 0; i < segCount; i++) {

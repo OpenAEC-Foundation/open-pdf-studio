@@ -172,6 +172,9 @@
   "contextMenu": {
     "deleteVertex": "Poista kärkipiste",
     "insertVertex": "Lisää kärkipiste tähän",
+    "convertToCurve": "Convert to curve",
+    "convertToStraight": "Convert to straight segment",
+    "curveHint": "Drag the round handles to shape the curve. Alt+drag a handle to move it on its own or line it up again; Alt+drag a segment to bend it.",
     "convertToArc": "Muunna kaareksi",
     "convertToLine": "Muunna viivaksi"
   },

@@ -3,6 +3,21 @@ import { getPdfSnapPointsNear, getPdfEdgeSegmentsNear } from './pdf-snap-extract
 import { snapPointToGrid } from '../annotations/rendering/ui-state.js';
 import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm } from '../annotations/veelhoek-punten.js';
+import { heeftKrommen, vlakPadOpScherm, padOpScherm } from '../annotations/curve-shape.js';
+import { segmentCubic, cubicPoint } from '../annotations/curve-path.js';
+
+// Tolerantie (pt) waarmee een kromme (#1169) voor het snappen tot lijnstukjes
+// wordt gemaakt.
+const SNAP_KROMME_TOL = 0.1;
+
+// Het midden van kromme zijde `i` van een polylijn of veelhoek, of null als
+// die zijde recht is.
+function kromMidden(ann, i) {
+  if (!heeftKrommen(ann)) return null;
+  const pad = padOpScherm(ann);
+  const bez = pad ? segmentCubic(pad.points, pad.curves, i, pad.closed) : null;
+  return bez ? cubicPoint(bez, 0.5) : null;
+}
 
 // ─── Polar tracking ────────────────────────────────────────────────────
 // A "polar anchor" is a point set by a tool when a draw operation has a
@@ -227,7 +242,11 @@ function extractSnapPoints(ann, points, prefs, annotations) {
           // Zelfde redenering als de polylijn: vertex-modus en eindpunten-modus
           // zijn onafhankelijk; het label volgt wat aan staat.
           if (doVertices || doEndpoints) points.push({ x: p.x, y: p.y, type: doVertices ? 'vertex' : 'endpoint', annotation: ann });
-          if (doMidpoints) points.push({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2, type: 'midpoint', annotation: ann });
+          if (doMidpoints) {
+            // Een kromme zijde (#1169): het midden van de kromme zelf.
+            const km = kromMidden(ann, i);
+            points.push({ x: km ? km.x : (p.x + q.x) / 2, y: km ? km.y : (p.y + q.y) / 2, type: 'midpoint', annotation: ann });
+          }
         });
         if (doCenters) points.push({ x: ann.x + ann.width / 2, y: ann.y + ann.height / 2, type: 'center', annotation: ann });
         break;
@@ -251,9 +270,11 @@ function extractSnapPoints(ann, points, prefs, annotations) {
           points.push({ x: pts[i].x, y: pts[i].y, type: doVertices ? 'vertex' : 'endpoint', annotation: ann });
         }
         if (doMidpoints && i < pts.length - 1) {
+          // Een krom segment (#1169): het midden van de kromme zelf.
+          const km = ann.type === 'polyline' ? kromMidden(ann, i) : null;
           points.push({
-            x: (pts[i].x + pts[i + 1].x) / 2,
-            y: (pts[i].y + pts[i + 1].y) / 2,
+            x: km ? km.x : (pts[i].x + pts[i + 1].x) / 2,
+            y: km ? km.y : (pts[i].y + pts[i + 1].y) / 2,
             type: 'midpoint',
             annotation: ann
           });
@@ -452,7 +473,8 @@ export function getEdgeSegments(ann) {
     case 'cloud':
       // Getekende veelhoek (#622): zijn eigen zijden, ook de sluitende.
       if (ann.type === 'polygon' && isBewerkbareVeelhoek(ann)) {
-        const vp = veelhoekPuntenOpScherm(ann);
+        // Met krommen (#1169): de zijden van het vlakgemaakte pad.
+        const vp = (heeftKrommen(ann) && vlakPadOpScherm(ann, SNAP_KROMME_TOL)) || veelhoekPuntenOpScherm(ann);
         vp.forEach((p, i) => {
           const q = vp[(i + 1) % vp.length];
           segments.push({ x1: p.x, y1: p.y, x2: q.x, y2: q.y });
@@ -481,7 +503,8 @@ export function getEdgeSegments(ann) {
     case 'polyline':
     case 'measureArea':
     case 'measurePerimeter': {
-      const pts = ann.points;
+      // Polylijn met krommen (#1169): de segmenten van het vlakgemaakte pad.
+      const pts = (ann.type === 'polyline' && heeftKrommen(ann) && vlakPadOpScherm(ann, SNAP_KROMME_TOL)) || ann.points;
       if (!pts || pts.length < 2) break;
       for (let i = 0; i < pts.length - 1; i++) {
         segments.push({ x1: pts[i].x, y1: pts[i].y, x2: pts[i + 1].x, y2: pts[i + 1].y });

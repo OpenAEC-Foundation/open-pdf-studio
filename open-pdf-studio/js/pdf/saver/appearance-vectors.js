@@ -1092,11 +1092,13 @@ export function lijnOmhullende({ x1, y1, x2, y2, lineWidth, headSize, heeftKoppe
 
 // polyline (and a spline or arc, as its sampled curve): open path, butt caps
 // and mitred corners with the canvas miter limit of 10, like the screen.
-export function buildPolylineAP({ points, X, Y, strokeColorHex, lineWidth, borderStyle }) {
+export function buildPolylineAP({ points, X, Y, strokeColorHex, lineWidth, borderStyle, padOps }) {
   if (!points || points.length < 2) return null;
   const stroke = hexToRgb(strokeColorHex || '#000000');
   let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lineWidth ?? 1)} w\n0 J 0 j 10 M\n${dashOp(borderStyle)}`;
-  s += pathOps(points, X, Y, false) + 'S\n';
+  // `padOps`: een kant-en-klaar pad in PDF-coördinaten, voor een polylijn met
+  // krommen (#1169, pdf/curve-pdf.js); anders de rechte lijn door de punten.
+  s += (padOps || pathOps(points, X, Y, false)) + 'S\n';
   return { content: s, needsFont: false };
 }
 

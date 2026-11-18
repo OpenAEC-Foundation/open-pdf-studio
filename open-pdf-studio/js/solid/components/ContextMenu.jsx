@@ -24,7 +24,10 @@ import { selecteerRuimteVanTag } from '../../plattegrond/ruimte-selectie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { copyAnnotation, copyAnnotations, pasteFromClipboard, pasteAnnotationsInPlace, duplicateAnnotation } from '../../annotations/clipboard.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
-import { verwijderVeelhoekHoekpunt, voegVeelhoekHoekpuntIn, VEELHOEK_MIN_PUNTEN } from '../../annotations/veelhoek-punten.js';
+import { voegVeelhoekHoekpuntIn } from '../../annotations/veelhoek-punten.js';
+import {
+  pasPadToe, isKrommeZijde, zetZijdeKrom, voegKnoopIn, verwijderKnoop, minKnopen,
+} from '../../annotations/curve-shape.js';
 import { commitAnnotationMutation, deleteAnnotationsWithUndo } from '../../annotations/mutations.js';
 import { expandCorrectionGroups } from '../../annotations/corrections/model.js';
 import { recordModify, recordBulkModify } from '../../core/undo-manager.js';
@@ -234,28 +237,37 @@ function AnnotationMenuContent() {
     // er minstens drie), op een zijde komt er een hoekpunt bij, op de plek
     // van de klik.
     if (v.kind === 'veelhoekHoek' || v.kind === 'veelhoekZijde') {
-      const pasToe = (nieuw) => {
+      // Ook de polylijn (#1169); een zijde kan daarnaast een kromme worden
+      // (en terug). De bewerkingen staan in curve-shape.js.
+      const pasToe = (nieuw, hint = false) => {
         if (nieuw) {
           const before = cloneAnnotation(a);
-          Object.assign(a, nieuw);
+          pasPadToe(a, nieuw);
           a.modifiedAt = new Date().toISOString();
           recordModify(a.id, before, cloneAnnotation(a));
           redraw();
           showProperties(a);
+          if (hint) updateStatusMessage(t('contextMenu.curveHint'), 8000);
         }
         hideMenu();
       };
+      const krom = v.kind === 'veelhoekZijde' && isKrommeZijde(a, v.edgeIndex);
       return (
         <>
           <Show when={v.kind === 'veelhoekHoek'}>
             <MenuItem icon={deleteIcon} label={t('contextMenu.deleteVertex') || 'Delete vertex'}
-              disabled={isLocked() || !((a.points?.length || 0) > VEELHOEK_MIN_PUNTEN)}
-              onClick={() => pasToe(verwijderVeelhoekHoekpunt(a, v.nodeIndex))} />
+              disabled={isLocked() || !((a.points?.length || 0) > minKnopen(a))}
+              onClick={() => pasToe(verwijderKnoop(a, v.nodeIndex))} />
           </Show>
           <Show when={v.kind === 'veelhoekZijde'}>
             <MenuItem label={t('contextMenu.insertVertex') || 'Insert vertex here'}
               disabled={isLocked()}
-              onClick={() => pasToe(voegVeelhoekHoekpuntIn(a, v.edgeIndex, v.punt))} />
+              onClick={() => pasToe(a.type === 'polygon'
+                ? voegVeelhoekHoekpuntIn(a, v.edgeIndex, v.punt)
+                : voegKnoopIn(a, v.edgeIndex, v.t))} />
+            <MenuItem label={t(krom ? 'contextMenu.convertToStraight' : 'contextMenu.convertToCurve')}
+              disabled={isLocked()}
+              onClick={() => pasToe(zetZijdeKrom(a, v.edgeIndex, !krom), !krom)} />
           </Show>
           <Separator />
         </>

@@ -92,6 +92,9 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP, buildLineAP, calloutLeiderOps, buildPolylineAP, polylijnOmhullende, lijnOmhullende, buildLeiderAP, leiderOmhullende, apLijndikte,
   cloudRectOutlinePts, cloudPolyOutlinePts, hatchFillOps } from './saver/appearance-vectors.js';
 import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
+import { krommenNaarPdf, VERTICES_TOLERANTIE } from './curve-pdf.js';
+import { flattenPath } from '../annotations/curve-path.js';
+import { heeftKrommen, padOpScherm, padOngedraaid } from '../annotations/curve-shape.js';
 import { draaiPunt, draaiMidden, draaiCm } from './saver/vorm-draaiing.js';
 import { schrijfAlgemeneSleutels, antwoordAnnotaties, schrijfKoppelingen } from './saver/annotatie-algemeen.js';
 import { statusLijst } from '../review/status-sets.js';
@@ -1313,8 +1316,18 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // PolyLine annotation
             if (!ann.points || ann.points.length < 2) continue;
 
-            const vertices = [];
+            let vertices = [];
             for (const pt of ann.points) vertices.push(convertX(pt.x), convertY(pt.y));
+            // Krommen (#1169): /Vertices wordt het vlakgemaakte pad, de
+            // appearance tekent de echte krommen en de eigen sleutels houden
+            // ze bewerkbaar (pdf/curve-pdf.js). Het pad komt uit `annVak` (de
+            // getoonde pagina) en elk punt, ook een stuurpunt, gaat daarna
+            // naar de ongedraaide pagina.
+            const plPad = heeftKrommen(annVak) ? padOpScherm(annVak) : null;
+            const plNaarPagina = pageRot ? _rotVisualMapper(pageRot, cropBox.width, cropBox.height) : (x, y) => ({ x, y });
+            const plKrommen = plPad ? krommenNaarPdf(plPad,
+              (p) => { const q = plNaarPagina(p.x, p.y); return [convertX(q.x), convertY(q.y)]; }) : null;
+            if (plKrommen) vertices = plKrommen.vertices;
 
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
@@ -1333,11 +1346,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             };
 
             polylineDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
+            if (plKrommen) {
+              polylineDict.OPS_CurveNodes = plKrommen.nodes;
+              polylineDict.OPS_Curves = plKrommen.curves;
+            }
 
             annotDict = context.obj(polylineDict);
             attachVectorAP(context, annotDict, buildPolylineAP({
               points: ann.points, X: convertX, Y: convertY,
               strokeColorHex: ann.strokeColor || ann.color, lineWidth: apLijndikte(borderWidth, { heeftVulling: false }), borderStyle: ann.borderStyle,
+              padOps: plKrommen ? plKrommen.padOps : undefined,
             }), polylineDict.Rect);
             break;
           }
@@ -1375,6 +1393,21 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               polyMinX = Math.min(polyMinX, px); polyMaxX = Math.max(polyMaxX, px);
               polyMinY = Math.min(polyMinY, py); polyMaxY = Math.max(polyMaxY, py);
             }
+            // Veelhoek met krommen (#1169): het pad zoals het scherm het
+            // toont (vak, spiegeling en draaiing verwerkt) naar het bestand.
+            // /Vertices wordt het vlakgemaakte pad; de knopen en stuurpunten
+            // gaan in eigen sleutels (pdf/curve-pdf.js).
+            const pgKrommen = ann.type === 'polygon' && heeftKrommen(annVak) ? krommenNaarPdf(
+              padOpScherm(annVak),
+              (p) => { const q = naarPagina(p.x, p.y); return [convertX(q.x), convertY(q.y)]; }) : null;
+            if (pgKrommen) {
+              polyVertices = pgKrommen.vertices;
+              polyMinX = Infinity; polyMinY = Infinity; polyMaxX = -Infinity; polyMaxY = -Infinity;
+              for (let vi = 0; vi < polyVertices.length; vi += 2) {
+                polyMinX = Math.min(polyMinX, polyVertices[vi]); polyMaxX = Math.max(polyMaxX, polyVertices[vi]);
+                polyMinY = Math.min(polyMinY, polyVertices[vi + 1]); polyMaxY = Math.max(polyMaxY, polyVertices[vi + 1]);
+              }
+            }
 
             const polyStrokeColor = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
@@ -1404,6 +1437,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               polygonDict.OPS_Subtype = PDFString.of('cloudPolyline');
             }
             if (polyRotatie) polygonDict.OPS_Rotation = polyRotatie;
+            if (pgKrommen) {
+              polygonDict.OPS_CurveNodes = pgKrommen.nodes;
+              polygonDict.OPS_Curves = pgKrommen.curves;
+            }
 
             annotDict = context.obj(polygonDict);
             // Arcering (#621): de sleutels voor de rondgang; de appearance
@@ -1448,10 +1485,15 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               const pgFill = hasFill(ann.fillColor);
               const pgStroke = borderWidth > 0 && hasStroke(ann.strokeColor);
               let pad = '';
-              for (let vi = 0; vi < polyVertices.length; vi += 2) {
-                pad += `${polyVertices[vi]} ${polyVertices[vi + 1]} ${vi === 0 ? 'm' : 'l'}\n`;
+              if (pgKrommen) {
+                // Echte kromme-operatoren, zodat elke lezer de kromme toont.
+                pad = pgKrommen.padOps;
+              } else {
+                for (let vi = 0; vi < polyVertices.length; vi += 2) {
+                  pad += `${polyVertices[vi]} ${polyVertices[vi + 1]} ${vi === 0 ? 'm' : 'l'}\n`;
+                }
+                pad += 'h\n';
               }
-              pad += 'h\n';
               const pgFillAlpha = (fillOpacity !== undefined && fillOpacity !== null) ? fillOpacity : 1;
               let pgContent = '';
               if (pgFill) {
@@ -1462,7 +1504,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               if (polyArcering) {
                 // Ongedraaid berekend en met één cm om het midden gedraaid,
                 // zoals het scherm de arcering met de vorm meedraait.
-                const ongedraaid = grondvorm.map((pt) => naarPagina(pt.x, pt.y));
+                // Met krommen: het vlakgemaakte pad begrenst de arcering.
+                const ongedraaidPad = pgKrommen ? padOngedraaid(annVak) : null;
+                const ongedraaid = (ongedraaidPad
+                  ? flattenPath(ongedraaidPad.points, ongedraaidPad.curves, { closed: true, tolerance: VERTICES_TOLERANTIE })
+                  : grondvorm).map((pt) => naarPagina(pt.x, pt.y));
                 const ops = hatchFillOps({ points: ongedraaid, holes: null, ...polyArcering,
                   hatchColorRgb: hexToRgb(polyArcering.hatchColorHex), X: convertX, Y: convertY });
                 // Bij een eigen vul-dekking onder /GSv, zoals de vulling (#685).

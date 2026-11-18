@@ -19,6 +19,7 @@
  */
 
 import { isBewerkbareVeelhoek, veelhoekPunten } from './veelhoek-punten.js';
+import { hasCurves } from './curve-path.js';
 
 // Types die we veilig kunnen offsetten. Met bewust een korte lijst: types met
 // extra betekenis (maatlijnen, gemeten oppervlakken, wolkjes met bumps) zijn
@@ -47,6 +48,8 @@ export function isRectAnnotation(ann) {
  * zonder waarschuwing een rechte rand van worden. Zulke vormen weigeren we.
  */
 function _heeftBogen(ann) {
+  // Ook een kromme (#1169, curve-path.js) is geen rechte rand.
+  if (hasCurves(ann?.curves)) return true;
   return Array.isArray(ann?.points) && ann.points.some((p) => p && p.arc === true);
 }
 
@@ -69,6 +72,7 @@ export function canOffset(ann) {
 export function offsetProps(ann, dist, side) {
   if (!ann || !_fin(dist) || dist <= 0) return null;
   if (!ONDERSTEUND.has(ann.type)) return null;
+  if (hasCurves(ann.curves)) return null;
   // Veelhoek met hoekpunten (#622): verschuiven in zijn eigen (ongedraaide)
   // ruimte, op de punten zoals het scherm ze in het vak tekent; de kant-klik
   // gaat mee terug door de draaiing. De kopie houdt de hoek.

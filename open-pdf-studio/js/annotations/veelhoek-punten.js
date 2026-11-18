@@ -23,6 +23,10 @@
 
 import { ontdraaiVorm } from '../pdf/saver/vorm-draaiing.js';
 import { isVreemdeTelling } from './telling.js';
+import {
+  hasCurves, normalizeCurves, transformCurves, rotateCurves, nearestOnPath,
+  insertNode, deleteNode,
+} from './curve-path.js';
 
 /** Minimaal aantal hoekpunten van een veelhoek. */
 export const VEELHOEK_MIN_PUNTEN = 3;
@@ -105,6 +109,34 @@ export function veelhoekPunten(ann) {
   return pts.map((p) => ({ x: ann.x + (p.x - g.minX) * sx, y: ann.y + (p.y - g.minY) * sy }));
 }
 
+/**
+ * De krommen (#1169, zie curve-path.js) bij veelhoekPunten(): de stuurpunten
+ * rekken mee met het vak, net als de hoekpunten. Undefined zonder krommen.
+ */
+export function veelhoekKrommen(ann) {
+  if (!heeftVeelhoekPunten(ann) || !hasCurves(ann.curves)) return undefined;
+  const schoon = normalizeCurves(ann.curves, ann.points.length);
+  if (!schoon || !heeftVak(ann)) return schoon;
+  const g = omhullende(ann.points);
+  const spanX = g.maxX - g.minX;
+  const spanY = g.maxY - g.minY;
+  const sx = spanX > 1e-6 ? ann.width / spanX : 1;
+  const sy = spanY > 1e-6 ? ann.height / spanY : 1;
+  return (sx === 1 && sy === 1) ? schoon : transformCurves(schoon, sx, 0, 0, sy);
+}
+
+/** De krommen bij veelhoekPuntenOpScherm(): gespiegeld en gedraaid. */
+export function veelhoekKrommenOpScherm(ann) {
+  let krommen = veelhoekKrommen(ann);
+  if (!krommen) return undefined;
+  const graden = Number(ann.rotation) || 0;
+  const fx = ann.flipX ? -1 : 1;
+  const fy = ann.flipY ? -1 : 1;
+  if (fx !== 1 || fy !== 1) krommen = transformCurves(krommen, fx, 0, 0, fy);
+  if (graden) krommen = rotateCurves(krommen, graden);
+  return krommen;
+}
+
 /** Het draaipunt: het midden van het vak, zonder vak dat van de punten. */
 function midden(ann, punten) {
   if (heeftVak(ann)) return { x: ann.x + ann.width / 2, y: ann.y + ann.height / 2 };
@@ -138,13 +170,32 @@ export function veelhoekPuntenOpScherm(ann) {
  * `scherm` moeten staan, met de hoek van `ann`. Een spiegeling gaat daarbij
  * in de punten op.
  */
-export function zetVeelhoekOpScherm(ann, scherm) {
+export function zetVeelhoekOpScherm(ann, scherm, krommenOpScherm) {
   const graden = Number(ann?.rotation) || 0;
   const punten = graden ? ontdraaiVorm(scherm.map(kaal), graden) : scherm.map(kaal);
   const uit = veelhoekUitPunten(punten);
   if (ann?.flipX) uit.flipX = false;
   if (ann?.flipY) uit.flipY = false;
+  // Krommen (#1169): zonder opgave blijven die van de veelhoek staan waar ze
+  // op het scherm stonden (alleen een hoekpunt verschoof). Het veld komt er
+  // alleen bij als de veelhoek krommen had of krijgt; undefined = geen meer.
+  const hadKrommen = hasCurves(ann?.curves);
+  const opScherm = arguments.length >= 3 ? krommenOpScherm : (hadKrommen ? veelhoekKrommenOpScherm(ann) : undefined);
+  const krommen = normalizeCurves(graden && opScherm ? rotateCurves(opScherm, -graden) : opScherm, punten.length);
+  if (krommen || hadKrommen) uit.curves = krommen;
   return uit;
+}
+
+/**
+ * Een patch van de functies hier op de veelhoek zetten: de velden overnemen
+ * en een leeg `curves`-veld weghalen, zodat een veelhoek zonder krommen het
+ * model van voorheen houdt.
+ */
+export function pasVeelhoekToe(ann, patch) {
+  if (!ann || !patch) return ann;
+  Object.assign(ann, patch);
+  if (!hasCurves(ann.curves)) delete ann.curves;
+  return ann;
 }
 
 /**
@@ -187,6 +238,11 @@ export function verwijderVeelhoekHoekpunt(ann, index) {
   const scherm = veelhoekPuntenOpScherm(ann);
   if (!scherm || scherm.length <= VEELHOEK_MIN_PUNTEN) return null;
   if (!(index >= 0 && index < scherm.length)) return null;
+  const krommen = veelhoekKrommenOpScherm(ann);
+  if (krommen) {
+    const uit = deleteNode(scherm, krommen, index, true, VEELHOEK_MIN_PUNTEN);
+    return uit ? zetVeelhoekOpScherm(ann, uit.points, uit.curves) : null;
+  }
   const nieuw = scherm.slice();
   nieuw.splice(index, 1);
   return zetVeelhoekOpScherm(ann, nieuw);
@@ -202,6 +258,20 @@ export function voegVeelhoekHoekpuntIn(ann, zijde, punt = null) {
   if (!scherm || !(zijde >= 0 && zijde < scherm.length)) return null;
   const a = scherm[zijde];
   const b = scherm[(zijde + 1) % scherm.length];
+  const krommen = veelhoekKrommenOpScherm(ann);
+  if (krommen) {
+    // Met krommen: de knoop komt OP de zijde (een kromme wordt daar exact
+    // gedeeld), op de plek het dichtst bij het opgegeven punt.
+    let t = 0.5;
+    if (isPunt(punt)) {
+      // Alleen deze zijde: als open pad van twee knopen (de stuurpunten zijn
+      // relatief aan hun knoop).
+      const r = nearestOnPath([a, b], [krommen[zijde]], punt.x, punt.y);
+      if (r) t = r.t;
+    }
+    const uit = insertNode(scherm, krommen, zijde, Math.max(0.02, Math.min(0.98, t)), true);
+    return uit ? zetVeelhoekOpScherm(ann, uit.points, uit.curves) : null;
+  }
   const p = isPunt(punt) ? kaal(punt) : { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
   const nieuw = scherm.slice();
   nieuw.splice(zijde + 1, 0, p);
@@ -218,7 +288,10 @@ export function spiegelVeelhoek(ann, as) {
   if (!pts) return null;
   const c = midden(ann, pts);
   const gespiegeld = pts.map((p) => (as === 'y' ? { x: p.x, y: 2 * c.y - p.y } : { x: 2 * c.x - p.x, y: p.y }));
-  return veelhoekUitPunten(gespiegeld);
+  const uit = veelhoekUitPunten(gespiegeld);
+  const krommen = veelhoekKrommen(ann);
+  if (krommen) uit.curves = as === 'y' ? transformCurves(krommen, 1, 0, 0, -1) : transformCurves(krommen, -1, 0, 0, 1);
+  return uit;
 }
 
 function projectieOpZijde(px, py, a, b) {
@@ -243,6 +316,12 @@ export function veelhoekDeelBij(ann, x, y, tol) {
     if (d <= tol && d < besteHoekAfstand) { besteHoek = i; besteHoekAfstand = d; }
   });
   if (besteHoek >= 0) return { kind: 'vertex', nodeIndex: besteHoek };
+  const krommen = veelhoekKrommenOpScherm(ann);
+  if (krommen) {
+    const r = nearestOnPath(scherm, krommen, x, y, { closed: true });
+    return r && r.distance <= tol
+      ? { kind: 'edge', edgeIndex: r.segment, punt: { x: r.x, y: r.y }, t: r.t, curve: r.curve } : null;
+  }
   let besteZijde = -1, besteAfstand = Infinity, bestePunt = null;
   for (let i = 0; i < scherm.length; i++) {
     const q = projectieOpZijde(x, y, scherm[i], scherm[(i + 1) % scherm.length]);
