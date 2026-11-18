@@ -173,3 +173,35 @@ test('het native commando staat in de invoke_handler; Windows-afhankelijkheden o
   assert.match(lock, /name = "webview2-com"\nversion = "0\.38\.2"/);
   assert.match(lock, /name = "windows"\nversion = "0\.61\.3"/);
 });
+
+test('lagen van een pagina: scherpe tegels, markeerlaag (vermenigvuldigen), annotaties', async () => {
+  const { laagVolgorde } = await import('./mcp-schermafdruk.js');
+  const lagen = [
+    { klasse: 'annotation-canvas' }, { klasse: 'pdf-canvas-sharp' },
+    { id: 'text-highlight-canvas' }, { klasse: 'annotation-canvas-sharp' }, { klasse: 'iets-anders' },
+  ];
+  assert.deepEqual(laagVolgorde(lagen), [
+    { index: 1, mengen: 'source-over' }, { index: 2, mengen: 'multiply' },
+    { index: 0, mengen: 'source-over' }, { index: 3, mengen: 'source-over' }, { index: 4, mengen: 'source-over' },
+  ]);
+  assert.deepEqual(laagVolgorde([]), []);
+  assert.deepEqual(laagVolgorde(null), []);
+});
+
+test('een laag komt op haar eigen plek ten opzichte van het paginabeeld', async () => {
+  const { laagPlek } = await import('./mcp-schermafdruk.js');
+  const basis = { left: 10, top: 20, width: 200, height: 400 };
+  const uit = { width: 100, height: 200 };
+  assert.deepEqual(laagPlek(basis, basis, uit), { x: 0, y: 0, w: 100, h: 200 });
+  assert.deepEqual(laagPlek({ left: 110, top: 220, width: 50, height: 40 }, basis, uit), { x: 50, y: 100, w: 25, h: 20 });
+  assert.deepEqual(laagPlek(basis, { left: 0, top: 0, width: 0, height: 0 }, uit), { x: 0, y: 0, w: 100, h: 200 });
+});
+
+test('de opname kiest in de doorlopende weergave de canvassen van de huidige pagina', () => {
+  const brug = lees('../mcp-bridge.js');
+  const fn = brug.slice(brug.indexOf('async function compositeCurrentView'), brug.indexOf('async function captureWindowView'));
+  assert.ok(fn.includes("doc?.viewMode === 'continuous'"));
+  assert.ok(fn.includes('#continuous-container .page-wrapper[data-page="${pagina}"]'));
+  assert.ok(fn.includes("document.getElementById('pdf-canvas')"));
+  assert.ok(fn.includes('laagVolgorde(') && fn.includes('laagPlek('));
+});

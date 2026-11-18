@@ -103,3 +103,45 @@ export function rechthoek(r) {
     height: rond(Number(r?.height ?? 0)),
   };
 }
+
+/**
+ * De lagen van één pagina in de volgorde waarin ze over het paginabeeld
+ * getekend worden, met hun mengwijze. `lagen` beschrijft elk canvas met zijn
+ * `id` en `klasse` (className). Het paginabeeld zelf (`pdf-canvas`) hoort er
+ * niet bij. Volgorde: scherpe paginategels, de markeerlaag (vermenigvuldigen,
+ * zoals op het scherm), de annotatielaag en haar scherpe tegels; onbekende
+ * lagen komen erna, in de volgorde waarin ze stonden.
+ * @param {Array<{id?:string, klasse?:string}>} lagen
+ * @returns {Array<{index:number, mengen:'multiply'|'source-over'}>}
+ */
+export function laagVolgorde(lagen) {
+  const rang = (l) => {
+    const naam = `${l?.id || ''} ${l?.klasse || ''}`;
+    if (naam.includes('pdf-canvas-sharp')) return 0;
+    if (naam.includes('highlight')) return 1;
+    if (naam.includes('annotation-canvas-sharp')) return 3;
+    if (naam.includes('annotation-canvas')) return 2;
+    return 4;
+  };
+  return (lagen || [])
+    .map((l, index) => ({ index, rang: rang(l), mengen: rang(l) === 1 ? 'multiply' : 'source-over' }))
+    .sort((a, b) => a.rang - b.rang || a.index - b.index)
+    .map(({ index, mengen }) => ({ index, mengen }));
+}
+
+/**
+ * Waar een laag in de uitvoer komt: haar plek ten opzichte van het
+ * paginabeeld, geschaald naar de uitvoermaat. Een scherpe tegel dekt maar een
+ * deel van de pagina; een volledige laag valt precies over het geheel.
+ */
+export function laagPlek(laag, basis, uit) {
+  if (!laag || !basis || !(basis.width > 0) || !(basis.height > 0)) return { x: 0, y: 0, w: uit.width, h: uit.height };
+  const sx = uit.width / basis.width;
+  const sy = uit.height / basis.height;
+  return {
+    x: (laag.left - basis.left) * sx,
+    y: (laag.top - basis.top) * sy,
+    w: laag.width * sx,
+    h: laag.height * sy,
+  };
+}
