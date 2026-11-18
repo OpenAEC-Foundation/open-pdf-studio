@@ -40,6 +40,21 @@ async function wachtTot(voorwaarde) {
 }
 const rust = () => new Promise((r) => setTimeout(r, 30));
 
+// Wacht tot het naijlende werk van de voorbereiding (uitgesteld opslaan en
+// hertekenen) binnen is: de tellers staan drie metingen achter elkaar stil.
+// Een vaste wachttijd is onder belasting te kort; dan telde dat werk mee in
+// de meting erna.
+async function totStil() {
+  let vorige = '';
+  let gelijk = 0;
+  for (let i = 0; i < 200 && gelijk < 3; i++) {
+    await new Promise((r) => setTimeout(r, 40));
+    const nu = JSON.stringify(tellers());
+    gelijk = nu === vorige ? gelijk + 1 : 0;
+    vorige = nu;
+  }
+}
+
 function luister() {
   const events = [];
   const stop = reg.onSysteemTypenGewijzigd((e) => events.push(e));
@@ -97,7 +112,7 @@ test('registreren: commit met revisie, opslaan, hertekenen en precies één meld
 test('geen melding en geen opslag bij unchanged, kept-user-edit en een afwijzing', async () => {
   reg.registreerSysteemType(EXT, 'mineraal', DEF);
   reg.updateSysteemType(ID, { celXMm: 650 }); // gebruikersbewerking via het paneel
-  await rust();
+  await totStil();
   globalThis.__stubCalls = {};
   const revisie = reg.getSysteemTypenData().revisie;
   const { events, stop } = luister();
