@@ -21,6 +21,7 @@
 // invulvelden, zodat je ze in Open PDF Studio meteen kunt invullen.
 
 import { PDFDocument, PDFHexString, PDFName, StandardFonts } from 'pdf-lib';
+import { embedPngSnel } from './embed-png-rust.js';
 import { gastObject } from '../core/gehost.js';
 
 const PT_PER_MM = 72 / 25.4;
@@ -126,7 +127,7 @@ export async function maakKaderPdf(kader) {
   if (sjabloon?.bytes && sjabloon.soort === 'svg') {
     try {
       const px = (mm) => (mm / 25.4) * SJABLOON_DPI;
-      const png = await pdf.embedPng(await alsPng(sjabloon.bytes, 'svg', px(breedteMm), px(hoogteMm)));
+      const png = await embedPngSnel(pdf, await alsPng(sjabloon.bytes, 'svg', px(breedteMm), px(hoogteMm)));
       pagina.drawImage(png, { x: 0, y: 0, width: widthPt, height: heightPt });
     } catch (e) {
       console.warn('[huisstijl] sjabloon niet geplaatst:', e?.message ?? e);
@@ -137,7 +138,7 @@ export async function maakKaderPdf(kader) {
   if (logo?.bytes && (logo.soort === 'svg' || logo.soort === 'png')) {
     try {
       const breedte = (Number(logo.breedte_mm) || 40) * PT_PER_MM;
-      const png = await pdf.embedPng(await alsPng(logo.bytes, logo.soort, (breedte / 72) * SJABLOON_DPI * 2, 0));
+      const png = await embedPngSnel(pdf, await alsPng(logo.bytes, logo.soort, (breedte / 72) * SJABLOON_DPI * 2, 0));
       const hoogte = breedte * (png.height / png.width);
       pagina.drawImage(png, {
         x: (Number(logo.x_mm) || 0) * PT_PER_MM,

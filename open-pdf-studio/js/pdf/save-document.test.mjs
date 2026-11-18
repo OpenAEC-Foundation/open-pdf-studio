@@ -62,6 +62,8 @@ function harness() {
     saveBookmarksToOutline: (_pdf, doc) => owners.push(doc), saveStylePresetsToCatalog() {},
     slaPaginaLabelsOp: (_pdf, doc) => owners.push(doc),
     schrijfDocumentgegevens() {},
+    // De Rust-route voor PNG insluiten valt hier terug op pdf-lib.
+    embedPngSnel: (pdf, bytes) => pdf.embedPng(bytes),
     pasBijlagenToe: (_pdf, wijzigingen) => attachmentEdits.push(wijzigingen),
     // Structuurbewerkingen van het tagspaneel (#384): het schrijven is een stub,
     // de keuze wat na opslaan blijft staan is echt (struct-edits.js).

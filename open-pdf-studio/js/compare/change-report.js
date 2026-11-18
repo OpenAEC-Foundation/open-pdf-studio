@@ -10,6 +10,7 @@
 // crops and writes the files. Unit tested in compare-report.test.mjs.
 
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { embedPngSnel } from '../pdf/embed-png-rust.js';
 import { bouwCsv } from '../annotations/opmerkingen-export.js';
 import { toWinAnsiText, heeftNietWinAnsi } from '../pdf/saver/pdf-text.js';
 import { MM_PER_PT } from './detect-plan.js';
@@ -198,7 +199,7 @@ export async function buildReportPdf({ rows, labels, typeNames = {}, meta, crops
         if (!bytes) continue;
         let img = null;
         try {
-          img = bytes[0] === 0x89 ? await pdf.embedPng(bytes) : await pdf.embedJpg(bytes);
+          img = bytes[0] === 0x89 ? await embedPngSnel(pdf, bytes) : await pdf.embedJpg(bytes);
         } catch (_) { img = null; }
         if (!img) continue;
         const s = Math.min(CROP_H / img.height, 300 / img.width);

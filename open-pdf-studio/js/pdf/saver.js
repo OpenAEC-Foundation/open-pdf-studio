@@ -17,7 +17,9 @@ import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import { getCachedPdfBytes, setCachedPdfBytes, clearCachedPdfBytes, rememberPreviousPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFDict, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
+import { embedPngSnel } from './embed-png-rust.js';
 import { insluitBytes } from '../annotations/afbeelding-bron.js';
+import { bytesUitBase64 } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
@@ -2111,7 +2113,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 context, annotDict, ds: ann.dynamicStamp, placement: stPlaatsing,
                 embedImage: async (dataUrl) => {
                   const { bytes, isJpeg } = await imageBytesFromDataUrl(dataUrl);
-                  return (isJpeg ? await pdfDocLib.embedJpg(bytes) : await pdfDocLib.embedPng(bytes)).ref;
+                  return (isJpeg ? await pdfDocLib.embedJpg(bytes) : await embedPngSnel(pdfDocLib, bytes)).ref;
                 },
               });
               annotDict.set(PDFName.of('C'), context.obj(hexToColorArray(ann.dynamicStamp.template.color || ann.color || '#c00000')));
@@ -2162,7 +2164,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 const { bytes, isJpeg } = await imageBytesFromDataUrl(ann.imageData);
                 const embeddedImage = isJpeg
                   ? await pdfDocLib.embedJpg(bytes)
-                  : await pdfDocLib.embedPng(bytes);
+                  : await embedPngSnel(pdfDocLib, bytes);
 
                 const imageRef = embeddedImage.ref;
                 // Draaiing en pagina-/Rotate in één cm om het midden; rauwe
@@ -2280,7 +2282,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 const { bytes, isJpeg } = await imageBytesFromDataUrl(ann.imageData);
                 const embeddedImage = isJpeg
                   ? await pdfDocLib.embedJpg(bytes)
-                  : await pdfDocLib.embedPng(bytes);
+                  : await embedPngSnel(pdfDocLib, bytes);
 
                 const imageRef = embeddedImage.ref;
 
@@ -3246,8 +3248,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               const png = renderParametricSymbolToPng(psAnn, 4);
               if (png && png.dataUrl) {
                 const base64 = png.dataUrl.split(',')[1];
-                const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                const embeddedImage = await pdfDocLib.embedPng(bytes);
+                const bytes = bytesUitBase64(base64);
+                const embeddedImage = await embedPngSnel(pdfDocLib, bytes);
                 const rectW = Math.abs(psx2 - psx1);
                 const rectH = Math.abs(psy2 - psy1);
                 const alpha = opacity != null ? opacity : 1;

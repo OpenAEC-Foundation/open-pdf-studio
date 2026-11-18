@@ -25,6 +25,7 @@ import {
   PDFDocument, PDFName, PDFRef, PDFDict, PDFArray, PDFStream,
   pushGraphicsState, popGraphicsState, concatTransformationMatrix, drawObject,
 } from 'pdf-lib';
+import { embedPngSnel } from './embed-png-rust.js';
 import { berekenPlaatsing, printPaginaMaat } from './print-plaatsing.js';
 import { knipselMatrix, metInhoud } from './vector-embed.js';
 
@@ -415,7 +416,7 @@ export async function bouwVectorPrintPdf({
 
     const k = maat[0] / plaatsing.vel.breedteMm;
     for (const beeld of await beelden({ index, volgnummer: i, plaatsing })) {
-      const png = await pdf.embedPng(beeld.png);
+      const png = await embedPngSnel(pdf, beeld.png);
       const r = beeld.opVel;
       const beeldNaam = pagina.node.newXObject('OPSMarkering', png.ref);
       pagina.pushOperators(

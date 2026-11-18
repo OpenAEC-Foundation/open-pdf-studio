@@ -36,8 +36,9 @@ export async function searchWorkspace(request, callbacks) {
       let task;
       let contentDigest;
       let pdf = doc?.pdfDoc;
-      // Bestand op schijf en de bytes die de app ervan heeft: daarmee leest de
-      // PDFium-worker de tekst op de desktop (rust-zoektekst.js).
+      // Bestand op schijf en de bytes die de app ervan heeft: daarmee kan de
+      // PDFium-worker de tekst op de desktop lezen als die route aan staat
+      // (rust-zoektekst.js; standaard leest pdf.js).
       let bytesOpSchijf = null;
       if (doc && !pdf) throw new Error('DOCUMENT_NOT_READY');
       if (doc?.filePath) {

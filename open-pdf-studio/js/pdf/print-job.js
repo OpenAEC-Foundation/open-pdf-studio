@@ -3,6 +3,7 @@
 // dialog can close immediately and the user keeps working.
 
 import { PDFDocument } from 'pdf-lib';
+import { embedPngSnel } from './embed-png-rust.js';
 import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile, writeTempPdf, opgeslagenPad, leesHostPad, leesHostNieuwPad, extractFileName } from '../core/platform.js';
@@ -163,7 +164,7 @@ export async function bouwPrintPdf({
     const deel = renderDeel(plaatsing, pxPerPt);
     const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, uitsnede });
     const beeld = beeldFormaatVoor(kleur) === 'png'
-      ? await pdf.embedPng(await canvasToBytes(canvas, 'png'))
+      ? await embedPngSnel(pdf, await canvasToBytes(canvas, 'png'))
       : await pdf.embedJpg(await canvasToBytes(canvas, 'jpeg', 0.92));
     voegPrintPaginaToe(pdf, plaatsing, deel, beeld);
   }

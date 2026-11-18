@@ -10,6 +10,7 @@ members = [
   "open-pdf-signatures",
   "open-pdf-security",
   "open-pdf-monochrome",
+  "open-pdf-image",
   "open-pdf-scan",
 ]
 
@@ -28,6 +29,11 @@ tesseract-rs = { git = "https://github.com/philip-tam/tesseract-rs", rev = "aa90
 # geoptimaliseerde codegen voor de engine en zijn hete dependencies.
 # De app-crate zelf blijft snel compileren.
 [profile.dev.package.open-pdf-render]
+opt-level = 3
+
+# Beeldwerk per pixel (PNG naar XObject): ook in een dev-build
+# geoptimaliseerd, anders is de Rust-route trager dan JavaScript.
+[profile.dev.package.open-pdf-image]
 opt-level = 3
 
 # Alle externe dependencies geoptimaliseerd (eenmalige extra compile, daarna

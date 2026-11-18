@@ -5,7 +5,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { decodeerZoektekst, paginaDataUitRust, maakRustZoektekst, VLAG_RTL, STUK } from './rust-zoektekst.js';
+import { decodeerZoektekst, paginaDataUitRust, maakRustZoektekst, rustZoekenAan, VLAG_RTL, STUK } from './rust-zoektekst.js';
 import { matchFractionsUitVakken } from './match-rect.js';
 
 /** OPT1 van pagina's: [{ index, items: [{ str, transform, width, height, font, eol, vakken? }], vlaggen }] */
@@ -60,6 +60,10 @@ function nepWorker({ paginaAantal, budget = Infinity, fout = null, vlaggen = () 
     },
   };
 }
+
+// De route staat standaard uit; de tests van de bron zetten de
+// ontwikkelschakelaar aan. De schakelaar zelf: zie de laatste tests.
+globalThis.__opdsRustZoeken = true;
 
 function route(w, extra = {}) {
   const meldingen = [];
@@ -176,11 +180,28 @@ test('no source without a desktop, a file path or known bytes', () => {
   const { r } = route(w);
   assert.equal(r.bron({ path: 'relatief.pdf', expectLen: 1, paginaAantal: 1 }), null);
   assert.equal(r.bron({ path: '/x.pdf', expectLen: 0, paginaAantal: 1 }), null);
-  globalThis.__opdsRustZoeken = false;
+});
+
+test('the worker route is off unless the developer switch is exactly true', () => {
+  const w = nepWorker({ paginaAantal: 1 });
+  const { r } = route(w);
+  const doc = { path: '/x.pdf', expectLen: 1, paginaAantal: 1 };
+  const was = globalThis.__opdsRustZoeken;
   try {
-    assert.equal(r.bron({ path: '/x.pdf', expectLen: 1, paginaAantal: 1 }), null);
+    for (const waarde of [undefined, false, null, 0, 1, 'true']) {
+      if (waarde === undefined) delete globalThis.__opdsRustZoeken;
+      else globalThis.__opdsRustZoeken = waarde;
+      assert.equal(rustZoekenAan(), false, String(waarde));
+      assert.equal(r.bruikbaar(), false, String(waarde));
+      assert.equal(r.bron(doc), null, String(waarde));
+    }
+    assert.deepEqual(w.aanroepen, []);
+    globalThis.__opdsRustZoeken = true;
+    assert.ok(rustZoekenAan());
+    assert.ok(r.bruikbaar());
+    assert.ok(r.bron(doc));
   } finally {
-    delete globalThis.__opdsRustZoeken;
+    globalThis.__opdsRustZoeken = was;
   }
 });
 

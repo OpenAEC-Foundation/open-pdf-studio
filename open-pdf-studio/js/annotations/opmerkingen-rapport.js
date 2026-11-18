@@ -7,6 +7,7 @@
 // ui/panels/annotations-summary.js); vertalingen komen als labels binnen.
 
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { embedPngSnel } from '../pdf/embed-png-rust.js';
 
 const A4 = Object.freeze({ breedte: 595.28, hoogte: 841.89 });
 const MARGE = 40;
@@ -98,7 +99,7 @@ async function standaardFonts(pdf) {
 async function plaatjeVan(pdf, uitsnede) {
   if (!uitsnede || !uitsnede.bytes) return null;
   try {
-    return uitsnede.soort === 'jpeg' ? await pdf.embedJpg(uitsnede.bytes) : await pdf.embedPng(uitsnede.bytes);
+    return uitsnede.soort === 'jpeg' ? await pdf.embedJpg(uitsnede.bytes) : await embedPngSnel(pdf, uitsnede.bytes);
   } catch {
     return null;
   }

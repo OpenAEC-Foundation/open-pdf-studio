@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   beeldSoort, mimeVoorPad, mimeVoorBytes, kanPdfInsluiten, insluitBytes,
-  bytesUitDataUrl, dataUrlVan, rasterMaat, laadAfbeeldingBytes,
+  bytesUitDataUrl, bytesUitBase64, dataUrlVan, rasterMaat, laadAfbeeldingBytes,
 } from './afbeelding-bron.js';
 
 const PNG_KOP = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -51,6 +51,62 @@ test('data:-URL heen en terug', () => {
   assert.match(url, /^data:image\/gif;base64,/);
   assert.deepEqual([...bytesUitDataUrl(url)], [...GIF]);
   assert.deepEqual([...bytesUitDataUrl('data:image/svg+xml,%3Csvg%3E')], [...new TextEncoder().encode('<svg>')]);
+});
+
+// De vorige vorm, als referentie: één functieaanroep per byte.
+const oud = (tekst) => Uint8Array.from(atob(tekst), (c) => c.charCodeAt(0));
+
+// Draait `fn` met en zonder Uint8Array.fromBase64. Waar node die niet heeft,
+// staat er een vervanger die hetzelfde leest of strenger is (Buffer slaat
+// ongeldige tekens over, dus die weigert de vervanger zelf).
+function metEnZonderFromBase64(fn) {
+  const eigen = Object.getOwnPropertyDescriptor(Uint8Array, 'fromBase64');
+  const zet = (waarde) => Object.defineProperty(Uint8Array, 'fromBase64', { value: waarde, configurable: true, writable: true });
+  try {
+    zet(undefined);
+    fn('atob');
+    zet(eigen?.value ?? ((tekst) => {
+      const kaal = tekst.replace(/[\t\n\f\r ]/g, '');
+      if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}(?:==)?|[A-Za-z0-9+/]{3}=?)?$/.test(kaal)) throw new SyntaxError('invalid base64');
+      return new Uint8Array(Buffer.from(kaal, 'base64'));
+    }));
+    fn('fromBase64');
+  } finally {
+    if (eigen) Object.defineProperty(Uint8Array, 'fromBase64', eigen);
+    else delete Uint8Array.fromBase64;
+  }
+}
+
+test('base64 naar bytes: dezelfde bytes als de vorige vorm, voor elke lengte', () => {
+  metEnZonderFromBase64((route) => {
+    // Leeg, lengtes rond een veelvoud van drie, rond de stapgrootte van
+    // dataUrlVan, en een paar MB.
+    for (const n of [0, 1, 2, 3, 4, 5, 255, 256, 257, 0x8000 - 1, 0x8000, 0x8000 + 1, 100003, 3 * 1024 * 1024 + 1]) {
+      const bytes = new Uint8Array(n);
+      for (let i = 0; i < n; i++) bytes[i] = (i * 131 + (i >> 8) * 17 + 7) & 255;
+      const b64 = Buffer.from(bytes).toString('base64');
+      const uit = bytesUitBase64(b64);
+      assert.ok(uit instanceof Uint8Array, `${route} ${n}`);
+      assert.equal(uit.length, n, `${route} ${n}: lengte`);
+      assert.equal(Buffer.compare(Buffer.from(uit), Buffer.from(bytes)), 0, `${route} ${n}: bytes`);
+      if (n <= 100003) assert.deepEqual(uit, oud(b64), `${route} ${n}: gelijk aan de vorige vorm`);
+      assert.equal(Buffer.compare(Buffer.from(bytesUitDataUrl(`data:image/png;base64,${b64}`)), Buffer.from(bytes)), 0, `${route} ${n}: data-URL`);
+    }
+    // Alle 256 bytewaarden op elke plek in een groep van drie.
+    const alle = Uint8Array.from({ length: 768 }, (_, i) => (i * 85 + (i % 3) * 3) & 255);
+    assert.deepEqual(bytesUitBase64(Buffer.from(alle).toString('base64')), alle, route);
+    // Wat atob ook leest: zonder opvulling, en met witruimte ertussen.
+    for (const tekst of ['QQ', 'QUI', 'QUJD', 'QUJDRA', ' QUJD\nRA==\r\n', 'QU JD']) {
+      assert.deepEqual(bytesUitBase64(tekst), oud(tekst), `${route} ${JSON.stringify(tekst)}`);
+    }
+    // Ongeldige invoer: de fout van atob, zoals voorheen.
+    for (const tekst of ['Q', 'QUJDR', 'QUJ*', 'QQ=', 'QQ==QQ==', 'QUJD-_']) {
+      assert.throws(() => oud(tekst), undefined, `referentie ${JSON.stringify(tekst)}`);
+      let fout = null;
+      try { atob(tekst); } catch (e) { fout = e; }
+      assert.throws(() => bytesUitBase64(tekst), { name: fout.name }, `${route} ${JSON.stringify(tekst)}`);
+    }
+  });
 });
 
 test('insluiten: PNG en JPEG ongewijzigd, aan de bytes herkend', async () => {
