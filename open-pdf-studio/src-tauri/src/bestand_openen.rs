@@ -395,6 +395,18 @@ pub fn is_pdf_inhoud(data: &[u8]) -> bool {
 
 /// Vergrendel: open om te lezen, anderen mogen alleen lezen (niet schrijven
 /// of verwijderen) zolang de handle bestaat.
+///
+/// Wat een ander programma dan nog kan (#1115, gemeten op Windows; zie
+/// scripts/review-native-tests/src/sharing.rs): het bestand lezen met elke
+/// deelmodus waar lezen in zit, de kenmerken lezen en zetten, en de map
+/// doorlopen. Een synchronisatie-app kan een vergrendelde PDF dus lezen,
+/// scannen en uploaden. Wat niet kan: schrijven, hernoemen, verwijderen en
+/// vervangen. Dat houdt ook een nieuwere versie tegen die de
+/// synchronisatie-app binnenhaalt terwijl het document hier open staat; die
+/// wacht tot het tabblad dicht is. Verwijderen delen zou die versie
+/// doorlaten, maar dan vervangt ook elk ander programma het bestand
+/// ongemerkt onder het open document en schrijft de volgende keer opslaan
+/// hier over die versie heen. Daarom blijft de vergrendeling zo.
 pub fn vergrendel(pad: &str) -> io::Result<File> {
     let mut o = OpenOptions::new();
     o.read(true);

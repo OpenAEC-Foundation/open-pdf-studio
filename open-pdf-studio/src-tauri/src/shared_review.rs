@@ -1,7 +1,15 @@
 //! Shared review folder (#237): list, read and atomically write the per-user
 //! review files next to a PDF. Each user only writes his own files; the JS
-//! side (js/review/) decides which. Writes go through `atomic_file`, so a sync
-//! drive or another reader never sees a half-written file.
+//! side (js/review/) decides which.
+//!
+//! The folder is often a synchronised one (#1115): a cloud sync client, a
+//! virus scanner and the other reviewers read these files at any moment. So
+//! no file stays open longer than one read or write, every handle shares
+//! reading, writing and deleting, a write is staged beside the file and
+//! renamed over it (never written in place), and a file that is briefly in
+//! use is tried again (`atomic_file::write_shared`, `read_shared`). A write
+//! that still fails says so with `IN_USE`, and JS keeps the changes and
+//! publishes them again later.
 use std::fs;
 use std::path::Path;
 
@@ -55,7 +63,7 @@ fn checked_name(name: &str) -> Result<&str, String> {
 
 pub fn read(dir: &Path, name: &str) -> Result<String, String> {
     let path = dir.join(checked_name(name)?);
-    match fs::read(&path) {
+    match crate::atomic_file::read_shared(&path) {
         Ok(bytes) => Ok(String::from_utf8_lossy(&bytes).into_owned()),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
         Err(e) => Err(format!("Failed to read review file: {e}")),
@@ -65,7 +73,19 @@ pub fn read(dir: &Path, name: &str) -> Result<String, String> {
 pub fn write(dir: &Path, name: &str, text: &str) -> Result<(), String> {
     let name = checked_name(name)?;
     fs::create_dir_all(dir).map_err(|e| format!("Failed to create review folder: {e}"))?;
-    crate::atomic_file::write(&dir.join(name), text.as_bytes()).map_err(|e| format!("Failed to write review file: {e}"))
+    crate::atomic_file::write_shared(&dir.join(name), text.as_bytes()).map_err(|e| write_error(e.in_use, &e.error))
+}
+
+/// Marks a write that failed because another program had the file in use.
+/// JS (js/review/shared-review-core.js, `writeErrorCode`) looks for it.
+pub const IN_USE: &str = "REVIEW_FILE_IN_USE";
+
+fn write_error(in_use: bool, e: &std::io::Error) -> String {
+    if in_use {
+        format!("{IN_USE}: review file is in use by another program: {e}")
+    } else {
+        format!("Failed to write review file: {e}")
+    }
 }
 
 #[tauri::command]
@@ -118,6 +138,13 @@ mod tests {
         fs::write(sub.join(".opds-save-1-1.tmp"), b"x").unwrap();
         let names: Vec<String> = list(&sub).unwrap().into_iter().map(|f| f.name).collect();
         assert_eq!(names, vec!["PRJ2026-Drawings_Annotation_Alice.jsonl".to_string()]);
+    }
+
+    #[test]
+    fn a_file_in_use_is_named_as_such() {
+        let e = std::io::Error::from_raw_os_error(32);
+        assert!(write_error(true, &e).starts_with("REVIEW_FILE_IN_USE: "));
+        assert!(!write_error(false, &e).contains(IN_USE));
     }
 
     #[test]
