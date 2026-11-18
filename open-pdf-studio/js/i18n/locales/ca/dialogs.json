@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Els segells integrats estan configurats com a amagats, però encara no teniu segells propis. Creeu-ne un amb Gestiona les plantilles de segell."
   },
   "calibration": {
+    "overridePdfScale": "Substitueix les escales incrustades del PDF",
     "title": "Calibratge d'escala",
     "helpText": "Dibuixeu una línia de mesura d'una longitud coneguda i després introduïu la distància real aquí.",
     "knownDistance": "Distància coneguda:",

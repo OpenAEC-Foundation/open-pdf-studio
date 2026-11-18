@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Vestavěná razítka jsou nastavena jako skrytá, ale zatím nemáte žádná vlastní razítka. Vytvořte je přes Spravovat šablony razítek."
   },
   "calibration": {
+    "overridePdfScale": "Přepsat vložená měřítka PDF",
     "title": "Kalibrace měřítka",
     "helpText": "Nakreslete měřicí čáru o známé délce a poté sem zadejte skutečnou vzdálenost.",
     "knownDistance": "Známá vzdálenost:",

@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Yerleşik damgalar gizli olarak ayarlı, ancak henüz kendi damganız yok. Damga şablonlarını yönet bölümünden bir tane oluşturun."
   },
   "calibration": {
+    "overridePdfScale": "Gömülü PDF ölçeklerini geçersiz kıl",
     "title": "Ölçek Kalibrasyonu",
     "helpText": "Bilinen uzunlukta bir ölçüm çizgisi çizin, ardından gerçek mesafeyi buraya girin.",
     "knownDistance": "Bilinen mesafe:",

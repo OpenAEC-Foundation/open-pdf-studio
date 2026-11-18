@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Vstavané pečiatky sú nastavené ako skryté, ale zatiaľ nemáte žiadne vlastné pečiatky. Vytvorte ich cez Spravovať šablóny pečiatok."
   },
   "calibration": {
+    "overridePdfScale": "Prepísať vložené mierky PDF",
     "title": "Kalibrácia mierky",
     "helpText": "Nakreslite meraciu čiaru známej dĺžky a potom sem zadajte skutočnú vzdialenosť.",
     "knownDistance": "Známa vzdialenosť:",

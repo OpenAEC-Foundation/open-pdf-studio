@@ -374,7 +374,8 @@ export function setScaleFromLine(pixelLength, realValue, unit, sourceAnnotation)
     ? doc.measureScale
     : JSON.parse(JSON.stringify(doc.measureScale));
   const sourceOriginal = sourceAnnotation ? cloneAnnotation(sourceAnnotation) : null;
-  doc.measureScale = { pixelsPerUnit, unit, method: 'quick-scale', scaleRatio: 0 };
+  doc.measureScale = { pixelsPerUnit, unit, method: 'quick-scale', scaleRatio: 0,
+    ...(oldMeasureScale?.overridePdfScale === true ? { overridePdfScale: true } : {}) };
   saveDocumentScale();
 
   // Update default preferences so future measurements use this scale/unit

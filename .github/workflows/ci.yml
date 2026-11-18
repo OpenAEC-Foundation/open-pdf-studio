@@ -103,6 +103,10 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:hosted-bridge
 
+      - name: Test embedded PDF scale override (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-pdf-scale-override-browser.mjs
+
       - name: Test pdf-lib XRef rejection and save recovery (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/pdf-lib-xref-browser.mjs

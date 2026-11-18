@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "A beépített bélyegzők elrejtésre vannak állítva, de még nincs saját bélyegzője. Hozzon létre egyet a Bélyegzősablonok kezelése menüben."
   },
   "calibration": {
+    "overridePdfScale": "Beágyazott PDF-méretarányok felülbírálása",
     "title": "Lépték kalibrálás",
     "helpText": "Rajzoljon egy ismert hosszúságú mérési vonalat, majd adja meg a valós távolságot itt.",
     "knownDistance": "Ismert távolság:",

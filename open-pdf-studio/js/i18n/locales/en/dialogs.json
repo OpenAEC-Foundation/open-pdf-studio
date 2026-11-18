@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Built-in stamps are set to hidden, but you have no own stamps yet. Create one with Manage stamp templates."
   },
   "calibration": {
+    "overridePdfScale": "Override embedded PDF scales",
     "title": "Scale Calibration",
     "methodReference": "Reference Line",
     "methodRatio": "Scale Ratio",

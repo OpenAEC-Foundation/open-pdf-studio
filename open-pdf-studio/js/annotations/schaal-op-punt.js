@@ -7,6 +7,7 @@
 // Volgorde:
 //   1. viewport-annotatie van de app die het punt bevat
 //   2. schaalbalk-annotatie op dezelfde pagina
+//   Bij expliciete overridePdfScale wint de document-/paginaschaal van 3.
 //   3. viewport uit de PDF zelf (/VP + /Measure: CAD-plots, de DWG/DXF-import)
 //   4. documentschaal (doc.measureScale)
 //   5. schaalbalk op een andere pagina
@@ -118,10 +119,14 @@ export function schaalOpPuntUitBronnen(bronnen, doc, pageNum, x, y) {
   const balk = opPagina(bronnen.balkOpPagina, pageNum);
   if (balk) return { pixelsPerUnit: balk.pixelsPerUnit, unit: balk.unit, method: 'scaleBar' };
 
+  const docSchaal = documentSchaalOpPagina(doc, pageNum);
+  // Explicit opt-in: imported CAD detail scales remain authoritative by default.
+  if (doc.measureScale?.overridePdfScale === true && docSchaal) {
+    return { pixelsPerUnit: docSchaal.pixelsPerUnit, unit: docSchaal.unit || 'mm', method: 'document' };
+  }
   const vp = viewportOp(doc.pdfViewports?.[pageNum], x, y);
   if (vp) return { pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'pdfViewport', ...(vp.opmaak ? { opmaak: vp.opmaak } : {}) };
 
-  const docSchaal = documentSchaalOpPagina(doc, pageNum);
   if (docSchaal) {
     return { pixelsPerUnit: docSchaal.pixelsPerUnit, unit: docSchaal.unit || 'mm', method: 'document' };
   }
@@ -203,6 +208,10 @@ export function schaalBronOpPunt(doc, pageNum, x, y, ppuVoorGebied) {
   }
   const balk = opPagina(bronnen.balkOpPagina, pageNum);
   if (balk) return { pixelsPerUnit: balk.pixelsPerUnit, unit: balk.unit, method: 'scaleBar', bron: balk, sleutel: `scaleBar:${balk.id}` };
+  const docSchaal = documentSchaalOpPagina(doc, pageNum);
+  if (doc.measureScale?.overridePdfScale === true && docSchaal) {
+    return { pixelsPerUnit: docSchaal.pixelsPerUnit, unit: docSchaal.unit || 'mm', method: 'document', bron: docSchaal, sleutel: 'document' };
+  }
   const lijst = doc.pdfViewports?.[pageNum];
   const vp = viewportOp(lijst, x, y);
   if (vp) {
@@ -211,7 +220,6 @@ export function schaalBronOpPunt(doc, pageNum, x, y, ppuVoorGebied) {
       sleutel: `pdfViewport:${pageNum}:${lijst.indexOf(vp)}`,
     };
   }
-  const docSchaal = doc.measureScale;
   if (docSchaal && docSchaal.pixelsPerUnit > 0) {
     return { pixelsPerUnit: docSchaal.pixelsPerUnit, unit: docSchaal.unit || 'mm', method: 'document', bron: docSchaal, sleutel: 'document' };
   }

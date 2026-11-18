@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Con dấu tích hợp được đặt là ẩn, nhưng bạn chưa có con dấu riêng nào. Hãy tạo một con dấu trong Quản lý mẫu con dấu."
   },
   "calibration": {
+    "overridePdfScale": "Ghi đè tỷ lệ được nhúng trong PDF",
     "title": "Hiệu chuẩn Tỷ lệ",
     "helpText": "Vẽ một đường đo có chiều dài đã biết, sau đó nhập khoảng cách thực tế tại đây.",
     "knownDistance": "Khoảng cách đã biết:",

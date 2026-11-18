@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Los sellos integrados están configurados como ocultos, pero todavía no tiene sellos propios. Cree uno con Administrar plantillas de sello."
   },
   "calibration": {
+    "overridePdfScale": "Anular las escalas incrustadas del PDF",
     "title": "Calibración de escala",
     "helpText": "Dibuje una línea de medición de longitud conocida, luego ingrese la distancia real aquí.",
     "knownDistance": "Distancia conocida:",
