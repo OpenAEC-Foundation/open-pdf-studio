@@ -17,6 +17,7 @@ import { isQuad, markeringUitQuads } from './markering-quads.js';
 import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
 import { isBewerkbareVeelhoek, verplaatsVeelhoekHoekpunt, pasVeelhoekToe } from './veelhoek-punten.js';
 import { hasCurves, rotateCurves } from './curve-path.js';
+import { kanKrommen, stuurpunten, isVloeiendeKnoop, verzetStuurpunt, buigZijde, pasPadToe } from './curve-shape.js';
 import {
   MIN_GEBIED_PX, schaalRechthoekMetGreep, schermPxNaarPt, veiligeVerhouding,
   tekstvakMinimum, nietNul,
@@ -179,6 +180,39 @@ const _MAATGREPEN = new Set([
 // ondergrenzen die in schermpixels staan (schaalgebied, viewport, schaalbalk).
 export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn, shiftKey = false, ctrlKey = false, opties = {}) {
   if (annotation.locked) return;
+
+  // Krommen op een polylijn of veelhoek (#1169).
+  if (typeof handleType === 'string' && handleType.startsWith('curve_')) {
+    // Een stuurpunt verslepen. De knoop blijft vloeiend als hij dat was (het
+    // stuurpunt aan de overkant draait mee) en een hoek als hij dat was; Alt
+    // wisselt dat om. Shift: de richting in stappen van 45 graden.
+    const greep = handleType.match(/^curve_handle_(\d+)_([12])$/);
+    if (greep && kanKrommen(originalAnn)) {
+      const segment = parseInt(greep[1], 10), welke = parseInt(greep[2], 10);
+      const oud = stuurpunten(originalAnn).find((s) => s.segment === segment && s.which === welke);
+      if (oud) {
+        const vloeiend = isVloeiendeKnoop(originalAnn, oud.node) !== !!opties?.alt;
+        const nieuw = verzetStuurpunt(originalAnn, segment, welke, oud.x + deltaX, oud.y + deltaY,
+          { vloeiend, shift: shiftKey });
+        if (nieuw) {
+          pasPadToe(annotation, nieuw);
+          annotation.modifiedAt = new Date().toISOString();
+        }
+      }
+      return;
+    }
+    // Een segment buigen: het gegrepen punt volgt de muis. Een recht segment
+    // wordt daarbij een kromme.
+    const buig = handleType.match(/^curve_bend_(\d+)_(\d+)$/);
+    if (buig && kanKrommen(originalAnn)) {
+      const nieuw = buigZijde(originalAnn, parseInt(buig[1], 10), parseInt(buig[2], 10) / 10000, deltaX, deltaY);
+      if (nieuw) {
+        pasPadToe(annotation, nieuw);
+        annotation.modifiedAt = new Date().toISOString();
+      }
+    }
+    return;
+  }
   // Ondergrens in schermpixels -> paginapunten bij de huidige zoom. Zonder
   // bekende zoom geldt alleen de technische ondergrens.
   const gebiedMinPt = (Number.isFinite(opties?.schaal) && opties.schaal > 0)

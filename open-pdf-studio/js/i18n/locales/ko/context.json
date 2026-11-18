@@ -172,6 +172,9 @@
   "contextMenu": {
     "deleteVertex": "꼭짓점 삭제",
     "insertVertex": "여기에 꼭짓점 삽입",
+    "convertToCurve": "Convert to curve",
+    "convertToStraight": "Convert to straight segment",
+    "curveHint": "Drag the round handles to shape the curve. Alt+drag a handle to move it on its own or line it up again; Alt+drag a segment to bend it.",
     "convertToArc": "호로 변환",
     "convertToLine": "선으로 변환"
   },

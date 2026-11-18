@@ -14,6 +14,22 @@ import { systeemrasterBuildOpts } from './systeemraster-scale.js';
 import { spreidMaatgrepen, kiesGreep, MIN_GREEPKADER_PX } from './greep-keuze.js';
 import { RECHTHOEK_VORMEN } from './minimummaat.js';
 import { isBewerkbareVeelhoek, veelhoekPunten } from './veelhoek-punten.js';
+import { padOngedraaid } from './curve-shape.js';
+
+// Stuurpunten van de krommen van een polylijn of veelhoek (#1169): een greep
+// per krom uiteinde, in de ongedraaide ruimte van de vorm (de draaiing van
+// een veelhoek komt er aan het eind van getAnnotationHandles overheen).
+function _stuurpuntGrepen(annotation, hs, handles) {
+  const pad = padOngedraaid(annotation);
+  if (!pad || !pad.curves) return;
+  const n = pad.points.length;
+  pad.curves.forEach((s, i) => {
+    if (!s) return;
+    const a = pad.points[i], b = pad.points[(i + 1) % n];
+    handles.push({ type: `${HANDLE_TYPES.CURVE_HANDLE}_${i}_1`, x: a.x + s.c1x - hs / 2, y: a.y + s.c1y - hs / 2, isCurveHandle: true });
+    handles.push({ type: `${HANDLE_TYPES.CURVE_HANDLE}_${i}_2`, x: b.x + s.c2x - hs / 2, y: b.y + s.c2y - hs / 2, isCurveHandle: true });
+  });
+}
 
 // Het vak waar de acht maatgrepen omheen staan (lokale, ongedraaide ruimte),
 // of null voor vormen zonder zo'n vak. Dient voor het uitwijken van de grepen
@@ -198,6 +214,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
     veelhoekPunten(annotation).forEach((p, i) => {
       handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i });
     });
+    _stuurpuntGrepen(annotation, hs, handles);
     handles.push({
       type: HANDLE_TYPES.RECT_CENTER,
       x: annotation.x + annotation.width/2 - hs/2,
@@ -530,6 +547,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
           handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i });
         });
       }
+      // Stuurpunten van krommen (#1169).
+      if (annotation.type === 'polyline') _stuurpuntGrepen(annotation, hs, handles);
       // Free-angle rotate handle above closed area polygons (drag to rotate)
       if (isPointPolygon(annotation) && annotation.height != null) {
         handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
@@ -919,6 +938,11 @@ function createRotatedResizeCursor(angleDeg) {
 export function getCursorForHandle(handleType, rotation, annotation) {
   // Polyline node handles
   if (typeof handleType === 'string' && handleType.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_')) {
+    return 'crosshair';
+  }
+  // Stuurpunt van een kromme of het buigen van een segment (#1169).
+  if (typeof handleType === 'string'
+      && (handleType.startsWith(HANDLE_TYPES.CURVE_HANDLE + '_') || handleType.startsWith(HANDLE_TYPES.CURVE_BEND + '_'))) {
     return 'crosshair';
   }
 

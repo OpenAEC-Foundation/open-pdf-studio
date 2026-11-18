@@ -143,6 +143,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-hand-zoom-browser.mjs
 
+      - name: Test Bezier segments on polylines and polygons (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-bezier-editing-browser.mjs
+
       - name: Test tab switch across view modes (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-tab-view-mode-browser.mjs

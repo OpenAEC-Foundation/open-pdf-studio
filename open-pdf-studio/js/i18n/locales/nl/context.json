@@ -2,6 +2,9 @@
   "contextMenu": {
     "deleteVertex": "Hoekpunt verwijderen",
     "insertVertex": "Hoekpunt hier invoegen",
+    "convertToCurve": "Omzetten naar kromme",
+    "convertToStraight": "Omzetten naar recht segment",
+    "curveHint": "Sleep de ronde grepen om de kromme te vormen. Alt+slepen aan een greep verzet hem los of zet hem weer in lijn; Alt+slepen aan een segment buigt het.",
     "convertToArc": "Omzetten naar boog",
     "convertToLine": "Omzetten naar lijn"
   },

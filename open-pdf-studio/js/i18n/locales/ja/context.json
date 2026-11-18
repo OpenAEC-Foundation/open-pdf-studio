@@ -172,6 +172,9 @@
   "contextMenu": {
     "deleteVertex": "頂点を削除",
     "insertVertex": "ここに頂点を挿入",
+    "convertToCurve": "Convert to curve",
+    "convertToStraight": "Convert to straight segment",
+    "curveHint": "Drag the round handles to shape the curve. Alt+drag a handle to move it on its own or line it up again; Alt+drag a segment to bend it.",
     "convertToArc": "円弧に変換",
     "convertToLine": "直線に変換"
   },

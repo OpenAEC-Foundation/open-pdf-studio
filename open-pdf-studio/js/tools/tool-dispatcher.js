@@ -52,7 +52,7 @@ import {
   isGripLengteStartToets,
 } from './grip-lengte.js';
 import { greepOorsprong, strekBasispunt, strekLengteTekst } from './greep-strek.js';
-import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm, veelhoekDeelBij, voegVeelhoekHoekpuntIn } from '../annotations/veelhoek-punten.js';
+import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm, veelhoekDeelBij, voegVeelhoekHoekpuntIn, pasVeelhoekToe } from '../annotations/veelhoek-punten.js';
 import {
   isStramien, startMeeslepen, sleepMee, meesleepWijzigingen, herstelMeeslepen,
 } from '../annotations/stramien-koppeling.js';
@@ -609,7 +609,7 @@ export function handleDblClick(e) {
       const nieuw = deel?.kind === 'edge' ? voegVeelhoekHoekpuntIn(clicked, deel.edgeIndex, deel.punt) : null;
       if (nieuw) {
         const voor = cloneAnnotation(clicked);
-        Object.assign(clicked, nieuw);
+        pasVeelhoekToe(clicked, nieuw);
         clicked.modifiedAt = new Date().toISOString();
         recordModify(clicked.id, voor, cloneAnnotation(clicked));
         showProperties(clicked);
@@ -710,8 +710,11 @@ function _handleResize(ctx, e, coords) {
   const resizeDoc = getActiveDocument();
   const resizeScale = getEffectiveScale();
   const RECT_RESIZE_HANDLES = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'];
-  const skipResizeSnap = (ann.type === 'textbox' || ann.type === 'callout') &&
-    RECT_RESIZE_HANDLES.includes(state.activeHandle);
+  // Ook een stuurpunt of het buigen van een kromme (#1169) snapt niet: die
+  // bepalen de vorm van de kromme, niet een punt op de tekening.
+  const skipResizeSnap = ((ann.type === 'textbox' || ann.type === 'callout') &&
+    RECT_RESIZE_HANDLES.includes(state.activeHandle))
+    || (typeof state.activeHandle === 'string' && state.activeHandle.startsWith('curve_'));
   // Meeschuivende stramienuiteinden zijn geen snapdoel: ze bewegen zelf met
   // de sleep mee en zouden de greep op hun vorige positie vasthouden.
   const _meeSessie = _stramienMeeSessie();
@@ -773,7 +776,7 @@ function _handleResize(ctx, e, coords) {
   // De zoom gaat mee: ondergrenzen die over het scherm gaan (schaalgebied,
   // viewport, schaalbalk) rekenen in schermpixels, niet in paginapunten.
   applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey,
-    { schaal: resizeScale });
+    { schaal: resizeScale, alt: !!e.altKey });
   _pasGripLengteToe(ann);
   _sleepStramienMee(ann);
 

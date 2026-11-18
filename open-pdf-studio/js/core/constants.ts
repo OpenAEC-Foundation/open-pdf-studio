@@ -25,6 +25,11 @@ export const HANDLE_TYPES = {
   CALLOUT_MOVE: 'callout_move',
   POLYLINE_NODE: 'polyline_node',
   POLYLINE_EDGE: 'polyline_edge',
+  // Krommen op een polylijn of veelhoek (#1169): een stuurpunt
+  // (curve_handle_<segment>_<1|2>) en het buigen van een segment
+  // (curve_bend_<segment>_<t maal 10000>).
+  CURVE_HANDLE: 'curve_handle',
+  CURVE_BEND: 'curve_bend',
   LEADER_START: 'leader_start',
   LEADER_END: 'leader_end',
   LABEL_MOVE: 'label_move',
