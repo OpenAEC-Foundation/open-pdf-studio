@@ -89,12 +89,20 @@ async function compositeCurrentView(maxWidth = 2000) {
   const { laagVolgorde, laagPlek } = await import('./core/mcp-schermafdruk.js');
   let pdfCanvas;
   let lagen;
+  // Boven de bitmap-cap is het paginacanvas een scherpe uitsnede van het
+  // zichtbare deel (#1163): dan is de paginacontainer het vak van de pagina,
+  // met de hele pagina op lage resolutie als achtergrond en de uitsnede op
+  // haar plek erover.
+  let uitsnede = null;
   if (doc?.viewMode === 'continuous') {
     const blad = document.querySelector(`#continuous-container .page-wrapper[data-page="${pagina}"]`);
-    pdfCanvas = blad?.querySelector('canvas.pdf-canvas') || null;
+    const { doorlopendPaginaBeeld } = await import('./pdf/renderer.js');
+    const beeld = blad ? await doorlopendPaginaBeeld(pagina) : null;
+    pdfCanvas = beeld?.canvas || null;
     if (!pdfCanvas || pdfCanvas.width === 0 || pdfCanvas.height === 0) {
       throw new Error(`page ${pagina} is not drawn yet in the continuous view`);
     }
+    if (beeld.uitsnede) uitsnede = beeld;
     lagen = [...blad.querySelectorAll('canvas')].filter((c) => c !== pdfCanvas);
   } else {
     pdfCanvas = document.getElementById('pdf-canvas');
@@ -107,10 +115,14 @@ async function compositeCurrentView(maxWidth = 2000) {
 
   // Scale the composite so the longer side fits within maxWidth (avoids
   // multi-megabyte payloads on 4K displays at 800% zoom).
-  const longest = Math.max(pdfCanvas.width, pdfCanvas.height);
+  const dpr = window.devicePixelRatio || 1;
+  const basisVak = uitsnede ? uitsnede.vak : pdfCanvas.getBoundingClientRect();
+  const basisB = uitsnede ? basisVak.width * dpr : pdfCanvas.width;
+  const basisH = uitsnede ? basisVak.height * dpr : pdfCanvas.height;
+  const longest = Math.max(basisB, basisH);
   const scale = longest > maxWidth ? maxWidth / longest : 1;
-  const outW = Math.max(1, Math.round(pdfCanvas.width * scale));
-  const outH = Math.max(1, Math.round(pdfCanvas.height * scale));
+  const outW = Math.max(1, Math.round(basisB * scale));
+  const outH = Math.max(1, Math.round(basisH * scale));
 
   const out = document.createElement('canvas');
   out.width = outW;
@@ -119,13 +131,20 @@ async function compositeCurrentView(maxWidth = 2000) {
   // White background so transparent regions don't read as black.
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, outW, outH);
-  ctx.drawImage(pdfCanvas, 0, 0, outW, outH);
+  if (uitsnede) {
+    if (uitsnede.achtergrond) ctx.drawImage(uitsnede.achtergrond, 0, 0, outW, outH);
+    if (pdfCanvas.width > 1 && pdfCanvas.height > 1) {
+      const plek = laagPlek(pdfCanvas.getBoundingClientRect(), basisVak, { width: outW, height: outH });
+      if (plek.w > 0 && plek.h > 0) ctx.drawImage(pdfCanvas, plek.x, plek.y, plek.w, plek.h);
+    }
+  } else {
+    ctx.drawImage(pdfCanvas, 0, 0, outW, outH);
+  }
   // Zoals het scherm: de markeerlaag vermenigvuldigt met de pagina (CSS
   // mix-blend-mode). Met source-over zag een controle hier een andere
   // pagina dan de gebruiker (#614). Gemengde annotaties staan al gemengd
   // op de annotatielaag (rendering/mengen-tegen-pagina.js). Een scherpe
   // tegel dekt maar een deel van de pagina en komt op zijn eigen plek.
-  const basisVak = pdfCanvas.getBoundingClientRect();
   for (const { index, mengen } of laagVolgorde(lagen.map((c) => ({ id: c.id, klasse: String(c.className || '') })))) {
     const laag = lagen[index];
     const plek = laagPlek(laag.getBoundingClientRect(), basisVak, { width: outW, height: outH });
@@ -142,7 +161,7 @@ async function compositeCurrentView(maxWidth = 2000) {
   return {
     png_base64: b64, width: outW, height: outH,
     bounds: rechthoek(basisVak),
-    devicePixelRatio: window.devicePixelRatio || 1,
+    devicePixelRatio: dpr,
   };
 }
 

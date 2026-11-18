@@ -108,16 +108,16 @@ export function rechthoek(r) {
  * De lagen van één pagina in de volgorde waarin ze over het paginabeeld
  * getekend worden, met hun mengwijze. `lagen` beschrijft elk canvas met zijn
  * `id` en `klasse` (className). Het paginabeeld zelf (`pdf-canvas`) hoort er
- * niet bij. Volgorde: scherpe paginategels, de markeerlaag (vermenigvuldigen,
- * zoals op het scherm), de annotatielaag en haar scherpe tegels; onbekende
- * lagen komen erna, in de volgorde waarin ze stonden.
+ * niet bij (ook niet als het een uitsnede van de pagina is: dat tekent de
+ * aanroeper zelf, op de achtergrond van de pagina). Volgorde: de markeerlaag
+ * (vermenigvuldigen, zoals op het scherm), de annotatielaag en haar scherpe
+ * tegels; onbekende lagen komen erna, in de volgorde waarin ze stonden.
  * @param {Array<{id?:string, klasse?:string}>} lagen
  * @returns {Array<{index:number, mengen:'multiply'|'source-over'}>}
  */
 export function laagVolgorde(lagen) {
   const rang = (l) => {
     const naam = `${l?.id || ''} ${l?.klasse || ''}`;
-    if (naam.includes('pdf-canvas-sharp')) return 0;
     if (naam.includes('highlight')) return 1;
     if (naam.includes('annotation-canvas-sharp')) return 3;
     if (naam.includes('annotation-canvas')) return 2;
