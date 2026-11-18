@@ -143,4 +143,3 @@ try {
     await page.close();
   }
 } finally { await browser?.close(); await server.close(); await rm(temp, { recursive: true, force: true }); }
-
