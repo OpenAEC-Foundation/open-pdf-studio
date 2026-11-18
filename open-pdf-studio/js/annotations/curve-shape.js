@@ -256,3 +256,28 @@ export function draaiKrommen(ann, graden) {
   ann.curves = rotateCurves(ann.curves, graden);
   return ann;
 }
+
+/**
+ * Krommen uit een opgave van buiten (de MCP-brug): een lijst met een plek per
+ * segment, elk null (recht) of { c1x, c1y, c2x, c2y }. Geeft
+ * { ok: true, curves } (undefined zonder kromme) of { ok: false, error }.
+ * Een kortere lijst mag: de ontbrekende segmenten zijn recht.
+ */
+export function leesKrommenOpgave(curves, aantalKnopen, closed) {
+  if (curves === null || curves === undefined) return { ok: true, curves: undefined };
+  const segs = segmentCount(aantalKnopen, closed);
+  if (!Array.isArray(curves)) {
+    return { ok: false, error: 'curves must be an array with one entry per segment: null or {c1x, c1y, c2x, c2y}' };
+  }
+  if (curves.length > segs) {
+    return { ok: false, error: `curves has ${curves.length} entries but the shape has ${segs} segments` };
+  }
+  for (let i = 0; i < curves.length; i++) {
+    const s = curves[i];
+    if (s === null || s === undefined) continue;
+    const goed = typeof s === 'object'
+      && [s.c1x, s.c1y, s.c2x, s.c2y].every((v) => typeof v === 'number' && Number.isFinite(v));
+    if (!goed) return { ok: false, error: `curves[${i}] must be null or {c1x, c1y, c2x, c2y} with finite numbers` };
+  }
+  return { ok: true, curves: normalizeCurves(curves, segs) };
+}

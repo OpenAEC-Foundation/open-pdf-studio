@@ -3,11 +3,12 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import {
   kanKrommen, heeftKrommen, padOpScherm, padOngedraaid, padNaarModel, pasPadToe,
   vlakPadOpScherm, padOmhullende, padDeelBij, isKrommeZijde, zetZijdeKrom,
   buigZijde, voegKnoopIn, verwijderKnoop, stuurpunten, knoopVanStuurpunt,
-  isVloeiendeKnoop, verzetStuurpunt,
+  isVloeiendeKnoop, verzetStuurpunt, leesKrommenOpgave,
 } from './curve-shape.js';
 import {
   veelhoekUitPunten, veelhoekPuntenOpScherm, veelhoekKrommen, veelhoekKrommenOpScherm,
@@ -257,4 +258,45 @@ test('vlakPadOpScherm en padOngedraaid', () => {
   assert.ok(bijna(on.points[0].x, 0) && bijna(on.points[0].y, 0));
   assert.equal(vlakPadOpScherm({ type: 'box' }), null);
   assert.deepEqual(padOngedraaid(polylijn()).points, polylijn().points);
+});
+
+// ── MCP ────────────────────────────────────────────────────────────────────
+
+test('leesKrommenOpgave: een opgave van buiten nagekeken en in vaste vorm', () => {
+  const k = { c1x: 1, c1y: 2, c2x: 3, c2y: 4 };
+  assert.deepEqual(leesKrommenOpgave(undefined, 3, false), { ok: true, curves: undefined });
+  assert.deepEqual(leesKrommenOpgave(null, 3, false), { ok: true, curves: undefined });
+  assert.deepEqual(leesKrommenOpgave([null, null], 3, false), { ok: true, curves: undefined });
+  assert.deepEqual(leesKrommenOpgave([k], 3, false), { ok: true, curves: [k, null] }, 'korter mag: de rest is recht');
+  assert.deepEqual(leesKrommenOpgave([null, null, { ...k, extra: 1 }], 3, true), { ok: true, curves: [null, null, k] });
+  assert.equal(leesKrommenOpgave([null, null, k], 3, false).ok, false, 'een open pad heeft geen sluitend segment');
+  assert.equal(leesKrommenOpgave('krom', 3, false).ok, false);
+  assert.equal(leesKrommenOpgave([{ c1x: 1 }], 3, false).ok, false);
+  assert.equal(leesKrommenOpgave([{ c1x: 1, c1y: 2, c2x: 3, c2y: 'vier' }], 3, false).ok, false);
+  assert.equal(leesKrommenOpgave([7], 3, false).ok, false);
+});
+
+test('de MCP-brug neemt krommen aan bij maken en bijwerken, en de beschrijvingen noemen ze', () => {
+  const bron = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
+  const brug = bron('../mcp-bridge.js');
+  assert.ok(brug.includes('await _krommenInOpgave(type, props, merged)'), 'app_create_annotation');
+  assert.ok(brug.includes("vorm.leesKrommenOpgave('curves' in patch ? patch.curves : null"), 'app_update_annotation');
+  assert.ok(brug.includes("'points', 'holes', 'path', 'controlPoints', 'curves',"), 'krommen tellen als geometrie');
+  const zin = 'polyline and polygon (given as points) also take optional curves';
+  assert.ok(bron('../../src-tauri/src/mcp_server.rs').includes(zin), 'mcp_server.rs');
+  assert.ok(bron('../../../mcp-stdio/tools.json').includes(zin), 'tools.json');
+});
+
+test('meetvormen bieden geen krommen aan', () => {
+  // Omtrek en oppervlakte meten rekenen (nog) met rechte zijden en de eigen
+  // boogsegmenten van het vlak; een kromme zou een verkeerde maat geven.
+  const punten = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }];
+  for (const type of ['measurePerimeter', 'measureArea', 'cloudPolyline', 'filledArea', 'splineArrow']) {
+    const vorm = { type, points: punten };
+    assert.equal(kanKrommen(vorm), false, type);
+    assert.equal(zetZijdeKrom(vorm, 0, true), null, type);
+    assert.equal(buigZijde(vorm, 0, 0.5, 1, 1), null, type);
+    assert.equal(padDeelBij(vorm, 5, 0, 2), null, type);
+    assert.deepEqual(stuurpunten({ ...vorm, curves: [{ c1x: 1, c1y: 1, c2x: 1, c2y: 1 }] }), [], type);
+  }
 });

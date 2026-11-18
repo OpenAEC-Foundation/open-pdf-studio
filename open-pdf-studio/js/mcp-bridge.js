@@ -1130,6 +1130,25 @@ function _isNum(v) {
   return typeof v === 'number' && Number.isFinite(v);
 }
 
+/**
+ * Krommen (#1169) in een opgave voor een polylijn of veelhoek: nagekeken en
+ * in vaste vorm op `merged` gezet (of weggehaald als er geen kromme is).
+ * Geeft een foutmelding, of null als het goed is. Andere soorten blijven
+ * ongemoeid.
+ */
+async function _krommenInOpgave(type, props, merged) {
+  if (!('curves' in props) || (type !== 'polyline' && type !== 'polygon')) return null;
+  if (type === 'polygon' && props.points === undefined) {
+    return "polygon: curves need the corners as points:[{x,y}, ...]";
+  }
+  const vorm = await import('./annotations/curve-shape.js');
+  const k = vorm.leesKrommenOpgave(props.curves, merged.points.length, type === 'polygon');
+  if (!k.ok) return `${type}: ${k.error}`;
+  if (k.curves) merged.curves = k.curves;
+  else delete merged.curves;
+  return null;
+}
+
 /** True when `arr` is an array of at least `min` {x, y} points. */
 function _validPoints(arr, min) {
   return Array.isArray(arr) && arr.length >= min &&
@@ -1727,6 +1746,10 @@ async function handleCreateAnnotation(params) {
   if (built.veelhoekPunten) {
     for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
   }
+  {
+    const krommenFout = await _krommenInOpgave(type, props, merged);
+    if (krommenFout) return { ok: false, error: krommenFout };
+  }
   // Tekstmarkering (#946): vak, rects en quads komen uit de quads; een
   // meegegeven x/y/width/height wordt genegeerd.
   if (built.vasteGeometrie) {
@@ -1863,7 +1886,7 @@ async function _pasUitlijningToe(doc, ann, uitlijning) {
 const _GEOMETRY_KEYS = [
   'x', 'y', 'width', 'height',
   'startX', 'startY', 'endX', 'endY',
-  'points', 'holes', 'path', 'controlPoints',
+  'points', 'holes', 'path', 'controlPoints', 'curves',
 ];
 
 async function handleUpdateAnnotation(params) {
@@ -1963,6 +1986,20 @@ async function handleUpdateAnnotation(params) {
     const vh = await import('./annotations/veelhoek-punten.js');
     patch = { ...patch, ...vh.veelhoekUitPunten(patch.points) };
   }
+  // Krommen van een polylijn of veelhoek (#1169): `curves` zet ze (null =
+  // alles recht), in de coördinaten van `points`. Nieuwe punten zonder
+  // krommen geven rechte segmenten: de oude krommen hoorden bij de oude punten.
+  const metKrommen = (ann.type === 'polyline' || ann.type === 'polygon') && ('curves' in patch || 'points' in patch);
+  if (metKrommen) {
+    const punten = 'points' in patch ? patch.points : ann.points;
+    if (!_validPoints(punten, ann.type === 'polygon' ? 3 : 2)) {
+      return { ok: false, error: `${ann.type} points must be [{x,y}, ...]` };
+    }
+    const vorm = await import('./annotations/curve-shape.js');
+    const k = vorm.leesKrommenOpgave('curves' in patch ? patch.curves : null, punten.length, ann.type === 'polygon');
+    if (!k.ok) return { ok: false, error: `${ann.type}: ${k.error}` };
+    patch = { ...patch, curves: k.curves };
+  }
   // Eenheden (#1129): `units` / `measureAreaUnit` op een meetvlak is de
   // weergave-eenheid van de oppervlakte (ac, ha, m², ...; "auto" volgt weer
   // de schaal). Een lengte of omtrek volgt de schaal, een schaalgebied rekent
@@ -1988,6 +2025,8 @@ async function handleUpdateAnnotation(params) {
   }
   const andereDikte = 'lineWidth' in patch && patch.lineWidth !== ann.lineWidth;
   Object.assign(ann, patch);
+  // Zonder krommen geen veld: het model van een vorm zonder krommen.
+  if (metKrommen && !patch.curves) delete ann.curves;
   if (vlakEenheid) {
     if (vlakEenheid.unit) ann.measureAreaUnit = vlakEenheid.unit;
     else delete ann.measureAreaUnit;
