@@ -60,13 +60,39 @@ export function kanPdfInsluiten(soort) {
   return soort === 'png' || soort === 'jpeg';
 }
 
+/**
+ * Base64 naar bytes: dezelfde bytes (en bij ongeldige invoer dezelfde fout)
+ * als `Uint8Array.from(atob(tekst), (c) => c.charCodeAt(0))`, maar zonder een
+ * functieaanroep per byte. Die vorm kostte bij een afbeelding van 4 megapixel
+ * 0,4 tot 0,7 s op de interface-thread, meer dan het insluiten zelf.
+ *
+ * Eerst `Uint8Array.fromBase64` waar de WebView die heeft (leest dezelfde
+ * invoer als atob of strenger: weigert hij iets, dan beslist atob hieronder),
+ * anders atob met een lus in een vooraf aangemaakte reeks.
+ * @param {string} tekst
+ * @returns {Uint8Array}
+ */
+export function bytesUitBase64(tekst) {
+  if (typeof tekst === 'string' && typeof Uint8Array.fromBase64 === 'function') {
+    try {
+      return Uint8Array.fromBase64(tekst);
+    } catch {
+      // atob beslist, en geeft bij ongeldige invoer zijn eigen fout.
+    }
+  }
+  const bin = atob(tekst);
+  const uit = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) uit[i] = bin.charCodeAt(i);
+  return uit;
+}
+
 /** De bytes uit een data:-URL (base64 of procent-gecodeerd). */
 export function bytesUitDataUrl(dataUrl) {
   const s = String(dataUrl);
   const komma = s.indexOf(',');
   const kop = s.slice(0, komma);
   const inhoud = s.slice(komma + 1);
-  if (/;base64$/i.test(kop)) return Uint8Array.from(atob(inhoud), (c) => c.charCodeAt(0));
+  if (/;base64$/i.test(kop)) return bytesUitBase64(inhoud);
   return new TextEncoder().encode(decodeURIComponent(inhoud));
 }
 

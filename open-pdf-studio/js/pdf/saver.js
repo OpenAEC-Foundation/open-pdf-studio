@@ -18,6 +18,7 @@ import { getCachedPdfBytes, setCachedPdfBytes, clearCachedPdfBytes, rememberPrev
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFDict, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { insluitBytes } from '../annotations/afbeelding-bron.js';
+import { bytesUitBase64 } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
@@ -3246,7 +3247,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               const png = renderParametricSymbolToPng(psAnn, 4);
               if (png && png.dataUrl) {
                 const base64 = png.dataUrl.split(',')[1];
-                const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+                const bytes = bytesUitBase64(base64);
                 const embeddedImage = await pdfDocLib.embedPng(bytes);
                 const rectW = Math.abs(psx2 - psx1);
                 const rectH = Math.abs(psy2 - psy1);
