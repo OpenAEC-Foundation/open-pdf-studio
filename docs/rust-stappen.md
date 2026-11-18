@@ -335,6 +335,23 @@ ophoudt (beide lopen via de request-lock van die worker).
 
 ## Zoeken: tekst uit de PDFium-worker
 
+**Stand (18 november 2026): standaard uit, pdf.js leest de tekst.** De route
+was van 2026.46.0 tot en met 2026.47.1 de standaard op het bureaublad. Een
+vergelijking in de draaiende app op de 35 bestanden van de verificatieset gaf
+op 4 bestanden andere tekst dan pdf.js, op twee soorten pagina's:
+- tekst die een halve slag gedraaid staat op grote tekeningen;
+- woordspaties bij fonts die als deelverzameling zijn ingesloten.
+
+Het zoeken kon daardoor treffers missen (432 tegen 435 op één bestand). De
+pariteit op de PDF's in de repo was volledig, dus de tests hieronder vangen
+dit niet. De route gaat nu alleen aan met `window.__opdsRustZoeken = true` in
+de ontwikkelconsole; de worker, het commando en de code blijven staan. Om
+haar weer standaard aan te zetten moet de worker die twee soorten pagina's
+markeren (zoals nu bij verticaal schrift), zodat pdf.js ze leest, en moet de
+vergelijking op de verificatieset in de draaiende app gelijk uitkomen.
+
+De rest van deze sectie beschrijft de route zoals ze gebouwd is.
+
 **Wat is verplaatst.** Het lezen van de paginatekst voor het zoeken (zoekbalk,
 zoeken in open documenten en in een map, MCP `app_search_documents`). Voorheen
 haalde `extractPageText` (`js/search/find-controller.js`) per pagina pdf.js
@@ -390,9 +407,10 @@ pagina's als pdf.js. Anders, of bij een fout, pdf.js zoals voorheen (één
 waarschuwing in de console; een gewijzigd bestand of een pool die nog opstart
 zwijgend). Een worker die `page_text` niet in zijn `caps` noemt (oudere
 sidecar) krijgt de aanvraag nooit; de app zet de route dan voor de sessie uit.
-pdf.js afdwingen: `OPDS_RUST_SEARCH=0` bij het starten van de app, of
-`window.__opdsRustZoeken = false` in de ontwikkelconsole. Webversie en
-Android/iOS: ongewijzigd (pdf.js).
+De route aanzetten: `window.__opdsRustZoeken = true` in de ontwikkelconsole
+(geldt voor zoekopdrachten daarna; al gelezen tekst blijft in de tekstcache).
+`OPDS_RUST_SEARCH=0` bij het starten van de app dwingt pdf.js af, ook met de
+schakelaar aan. Webversie en Android/iOS: ongewijzigd (pdf.js).
 
 **Pagina's die pdf.js blijft lezen** (de worker markeert ze en de app leest die
 pagina met pdf.js; de rest van het document gaat gewoon via de worker):

@@ -1,24 +1,32 @@
-// Zoektekst uit de PDFium-worker (desktop).
+// Zoektekst uit de PDFium-worker (desktop). STAAT STANDAARD UIT.
 //
 // Het zoeken (zoekbalk, zoeken in documenten en mappen, MCP) haalt de tekst
-// van een pagina voorheen altijd met pdf.js `getTextContent()` op. Op de
-// desktop leest de PDFium-worker de pagina's nu zelf (Tauri-commando
-// extract_search_text, pdfium-worker/src/page_text/) en geeft hij de
-// tekstitems die pdf.js zou maken: dezelfde tekst, dezelfde spaties en
-// itemgrenzen, en per teken zijn plek op de basislijn, zodat de markering
-// precies op de tekens valt in plaats van op een geschatte breedte.
+// van een pagina met pdf.js `getTextContent()` op. Op de desktop kan de
+// PDFium-worker de pagina's ook zelf lezen (Tauri-commando
+// extract_search_text, pdfium-worker/src/page_text/); hij geeft dan de
+// tekstitems die pdf.js zou maken, en per teken zijn plek op de basislijn,
+// zodat de markering precies op de tekens valt in plaats van op een geschatte
+// breedte.
+//
+// Die route was van 2026.46.0 tot en met 2026.47.1 de standaard. Op de
+// verificatieset gaf ze op 4 van de 35 bestanden andere tekst dan pdf.js (een
+// halve slag gedraaide tekst op grote tekeningen, woordspaties bij
+// subsetfonts), waardoor het zoeken treffers kon missen. Tot die pagina's
+// herkend en aan pdf.js gelaten worden, leest pdf.js alle tekst en gaat de
+// worker-route alleen aan met `window.__opdsRustZoeken = true` in de
+// ontwikkelconsole (zie docs/rust-stappen.md).
 // Het zoeken zelf (hoofdletters, hele woorden, de reguliere expressie) blijft
 // in JavaScript (find-controller.js), net als de nog niet opgeslagen
 // OCR-woorden (ocr-laag.js) en de tekst van annotaties.
 //
-// JavaScript (pdf.js) blijft de terugval: in de webversie en op Android/iOS,
-// voor documenten zonder bestand op schijf of waarvan het bestand op schijf
-// niet meer is wat de app heeft (andere lengte of ander aantal pagina's),
-// voor pagina's met verticaal schrift of schrift van rechts naar links (daar
-// wijkt PDFium af, zie docs/rust-stappen.md), als de worker het commando niet
-// kent en bij elke fout (één waarschuwing in de console, dan pdf.js).
-// OPDS_RUST_SEARCH=0 in de omgeving van de app, of
-// `window.__opdsRustZoeken = false` in de ontwikkelconsole, dwingt pdf.js af.
+// Ook met de route aan blijft JavaScript (pdf.js) de terugval: in de
+// webversie en op Android/iOS, voor documenten zonder bestand op schijf of
+// waarvan het bestand op schijf niet meer is wat de app heeft (andere lengte
+// of ander aantal pagina's), voor pagina's met verticaal schrift of schrift
+// van rechts naar links (daar wijkt PDFium af, zie docs/rust-stappen.md), als
+// de worker het commando niet kent en bij elke fout (één waarschuwing in de
+// console, dan pdf.js). OPDS_RUST_SEARCH=0 in de omgeving van de app dwingt
+// pdf.js af, ook als de schakelaar aan staat.
 //
 // Puur, op de afhankelijkheden van maakRustZoektekst() na, zodat het onder
 // node getest kan worden (rust-zoektekst.test.mjs).
@@ -128,6 +136,11 @@ export function paginaDataUitRust(pagina) {
 
 const _absoluut = (p) => typeof p === 'string' && (/^[A-Za-z]:[\\/]/.test(p) || p.startsWith('/') || p.startsWith('\\\\'));
 
+/** De worker-route staat alleen aan als de ontwikkelschakelaar dat zegt. */
+export function rustZoekenAan() {
+  return globalThis.__opdsRustZoeken === true;
+}
+
 /**
  * De worker-route met haar toestand. Na een fout die niet overgaat (uitgezet,
  * een app of worker zonder het commando) blijft hij de rest van de sessie
@@ -155,7 +168,7 @@ export function maakRustZoektekst(deps) {
 
   return {
     bruikbaar() {
-      return !uit && globalThis.__opdsRustZoeken !== false && !!inTauri() && !mobile();
+      return !uit && rustZoekenAan() && !!inTauri() && !mobile();
     },
 
     /**
