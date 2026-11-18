@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { register } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { PDFDocument, PDFName, PDFString, PDFNull } from 'pdf-lib';
 
 register('../core/app-test-hooks.mjs', import.meta.url);
@@ -302,4 +303,23 @@ test('opslaan zonder wijziging laat bestemming en stijl van elke link staan', as
   assert.equal(dest(na, na.context.lookup(boom[1])), 'p2 /FitR 300 500 500 700');
   const oud = na.catalog.lookup(N('Dests')).lookup(N('DetailB')).lookup(N('D'));
   assert.equal(dest(na, oud), 'p3 /FitH 350');
+});
+
+test('een trage sprong overschrijft geen nieuwere sprong en geen ander document', async () => {
+  const bron = readFileSync(new URL('./link-layer.js', import.meta.url), 'utf8');
+  // De regel zelf, los van de app (link-layer.js laadt de DOM-kant).
+  const m = bron.match(/export function sprongNogGeldig\(beurt, laatste, doc, actief\) \{([^}]*)\}/);
+  assert.ok(m, 'sprongNogGeldig staat in link-layer.js');
+  const sprongNogGeldig = new Function('beurt', 'laatste', 'doc', 'actief', m[1]);
+  const a = { naam: 'a' };
+  const b = { naam: 'b' };
+  assert.equal(sprongNogGeldig(3, 3, a, a), true);
+  assert.equal(sprongNogGeldig(2, 3, a, a), false, 'er is intussen een nieuwere sprong');
+  assert.equal(sprongNogGeldig(3, 3, a, b), false, 'er is intussen een ander document actief');
+  assert.equal(sprongNogGeldig(3, 3, null, null), false);
+  // Na elke wachtstap in handleInternalLink wordt de sprong opnieuw getoetst.
+  const fn = bron.slice(bron.indexOf('export async function handleInternalLink'), bron.indexOf('const DEST_SCROLL_MARGIN_PX'));
+  assert.ok(fn.includes('const beurt = ++_sprongBeurt;'));
+  assert.equal(fn.split('if (!geldig()) return;').length - 1, 3, 'na getDestination, getPageIndex en goToPage');
+  assert.ok(fn.includes('if (!getoond && geldig()) await goToPage(targetPage);'));
 });
