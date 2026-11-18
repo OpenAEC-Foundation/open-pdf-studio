@@ -6,7 +6,7 @@ import { generateThumbnails, clearThumbnailCache } from '../ui/panels/left-panel
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
-import { saveFileDialog, writeBinaryFile, writeBinaryFileNew, readBinaryFile, isTauri, unlockFile } from '../core/platform.js';
+import { saveFileDialog, writeBinaryFile, writeBinaryFileNew, readBinaryFile, isTauri, unlockFile, invoke, openFileDialog } from '../core/platform.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { recordPageStructure } from '../core/undo-manager.js';
 import { PDFDocument, degrees } from 'pdf-lib';
@@ -21,7 +21,8 @@ import { clearTextCache } from '../search/find-controller.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 import { onthoudWerkbestand, losgelatenWerkbestanden, ruimWerkbestandenOp } from './document-release.js';
-import { nieuwMergeVerslag, REDEN_VOORBEELD, REDEN_GEEN_PAGINAS } from './merge-verslag.js';
+import { nieuwMergeVerslag, REDEN_VOORBEELD, REDEN_GEEN_PAGINAS, REDEN_BEVEILIGD } from './merge-verslag.js';
+import { laadBronPdf, isBeveiligdFout } from './beveiligde-bron.js';
 import { pdfjsBronnen } from '../core/basis-url.js';
 import { zonderKopVoetStromen } from './saver/kopvoet.js';
 import { labelsNaHerladen } from './pagina-labels-app.js';
@@ -184,6 +185,54 @@ function relinkCopiedPageZones(destDoc, copiedPages, doc) {
     ...zoneIdsInPages(destDoc.context, others),
   ]);
   relinkZonesInPages(destDoc.context, copiedPages, taken);
+}
+
+// Het bronbestand voor invoegen/vervangen kiezen. In de browser via een
+// bestandsveld; de bytes staan daarna onder de bestandsnaam klaar voor
+// readBinaryFile (#1134: daar deed de opdracht niets).
+async function kiesBronbestand() {
+  if (isTauri()) {
+    return window.__TAURI__.dialog.open({
+      multiple: false,
+      filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+    });
+  }
+  return openFileDialog(null);
+}
+
+// Een bronbestand in pdf-lib, ontsleuteld als het beveiligd is
+// (beveiligde-bron.js, #1134). Gooit een fout met code 'protected' als dat
+// niet lukt; `bezig` is de tekst van de wachtbalk, die voor de vraag om het
+// wachtwoord wijkt en daarna terugkomt.
+async function laadBron(filePath, srcBytes, bezig) {
+  let gevraagd = false;
+  try {
+    return await laadBronPdf(filePath, srcBytes, {
+      laad: (b) => PDFDocument.load(b, { ignoreEncryption: true }),
+      desktop: isTauri(),
+      invoke,
+      lees: readBinaryFile,
+      metVraag: async (fn) => {
+        const { metWachtwoordDialoog } = await import('../solid/stores/wachtwoordDialoogStore.js');
+        return metWachtwoordDialoog(fn);
+      },
+      vraag: async (v) => {
+        const { vraagWachtwoord } = await import('../solid/stores/wachtwoordDialoogStore.js');
+        gevraagd = true;
+        hideLoading();
+        return vraagWachtwoord(v);
+      },
+    });
+  } finally {
+    if (gevraagd && bezig) showLoading(bezig);
+  }
+}
+
+// De melding bij een beveiligd bronbestand dat niet ontsleuteld kon worden.
+// Wie zelf annuleerde bij het wachtwoord, krijgt geen melding.
+function meldBeveiligdeBron(fout, filePath) {
+  if (fout?.geannuleerd) return;
+  showMessage(i18next.t('protectedPdfNotAdded', { file: String(filePath || '').split(/[\\/]/).pop() }));
 }
 
 // Get the cache key for the current document's bytes
@@ -596,7 +645,6 @@ export async function insertBlankPages(position, refPage, count, widthPt, height
 export async function insertPagesFromFile(refPage, position, sourcePath = null, { stil = false } = {}) {
   const activeDoc = getActiveDocument();
   if (!activeDoc?.pdfDoc) return false;
-  if (!isTauri()) return false;
 
   const numPages = activeDoc.pdfDoc.numPages;
   if (refPage < 1 || refPage > numPages) return false;
@@ -605,10 +653,7 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
   let filePath = sourcePath;
   if (!filePath) {
     try {
-      filePath = await window.__TAURI__.dialog.open({
-        multiple: false,
-        filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
-      });
+      filePath = await kiesBronbestand();
     } catch (e) {
       return false;
     }
@@ -630,8 +675,17 @@ export async function insertPagesFromFile(refPage, position, sourcePath = null, 
     // Ensure the picked source file is inside the fs allowlist scope.
     try { await window.__TAURI__?.core?.invoke?.('allow_fs_scope', { path: filePath }); } catch {}
     const fileData = await readBinaryFile(filePath);
-    const srcBytes = new Uint8Array(fileData);
-    const srcDoc = await PDFDocument.load(srcBytes, { ignoreEncryption: true });
+    // Een beveiligd bestand eerst ontsleutelen: anders komen de pagina's er
+    // leeg in (#1134).
+    let srcBytes;
+    let srcDoc;
+    try {
+      ({ doc: srcDoc, bytes: srcBytes } = await laadBron(filePath, new Uint8Array(fileData), 'Inserting pages...'));
+    } catch (fout) {
+      if (!isBeveiligdFout(fout)) throw fout;
+      if (!stil) meldBeveiligdeBron(fout, filePath);
+      return false;
+    }
     const srcPageCount = srcDoc.getPageCount();
 
     if (srcPageCount === 0) {
@@ -1200,7 +1254,6 @@ export async function restorePageState(bytes, annotations, rotations, currentPag
 export async function replacePages(pageNumber) {
   const activeDoc = getActiveDocument();
   if (!activeDoc?.pdfDoc) return;
-  if (!isTauri()) return;
 
   const numPages = activeDoc.pdfDoc.numPages;
   if (pageNumber < 1 || pageNumber > numPages) return;
@@ -1208,10 +1261,7 @@ export async function replacePages(pageNumber) {
   // Open file dialog to pick replacement PDF
   let filePath;
   try {
-    filePath = await window.__TAURI__.dialog.open({
-      multiple: false,
-      filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
-    });
+    filePath = await kiesBronbestand();
   } catch (e) {
     return;
   }
@@ -1230,8 +1280,16 @@ export async function replacePages(pageNumber) {
   try {
     // Read replacement file
     const fileData = await readBinaryFile(filePath);
-    const srcBytes = new Uint8Array(fileData);
-    const srcDoc = await PDFDocument.load(srcBytes, { ignoreEncryption: true });
+    // Een beveiligd bestand eerst ontsleutelen (#1134).
+    let srcBytes;
+    let srcDoc;
+    try {
+      ({ doc: srcDoc, bytes: srcBytes } = await laadBron(filePath, new Uint8Array(fileData), 'Replacing page...'));
+    } catch (fout) {
+      if (!isBeveiligdFout(fout)) throw fout;
+      meldBeveiligdeBron(fout, filePath);
+      return;
+    }
     const srcPageCount = srcDoc.getPageCount();
 
     if (srcPageCount === 0) {
@@ -1299,8 +1357,11 @@ export async function replacePages(pageNumber) {
  * nooit.
  */
 async function bronBytesVoorSamenvoegen(filePath) {
+  // In de browser is een "pad" alleen een bestandsnaam: een ander bestand
+  // met dezelfde naam als een open document is daar niet van te
+  // onderscheiden. Dan telt wat de gebruiker net koos.
   const { openDocumentVoorPad } = await import('./samenvoegen-model.js');
-  const open = openDocumentVoorPad(state.documents, filePath);
+  const open = isTauri() ? openDocumentVoorPad(state.documents, filePath) : null;
   if (open) {
     try {
       const { bouwMomentopname } = await import('./saver.js');
@@ -1312,7 +1373,9 @@ async function bronBytesVoorSamenvoegen(filePath) {
   }
   // Ensure the picked source file is inside the fs allowlist scope.
   try { await window.__TAURI__?.core?.invoke?.('allow_fs_scope', { path: filePath }); } catch {}
-  return { bytes: new Uint8Array(await readBinaryFile(filePath)), uitApp: false };
+  const data = await readBinaryFile(filePath);
+  if (!data) throw new Error('the file could not be read');
+  return { bytes: new Uint8Array(data), uitApp: false };
 }
 
 /**
@@ -1331,7 +1394,6 @@ async function bronBytesVoorSamenvoegen(filePath) {
  */
 export async function mergeFiles(filePaths, position) {
   if (!filePaths || filePaths.length === 0) return nieuwMergeVerslag('no-files');
-  if (!isTauri()) return nieuwMergeVerslag('not-desktop');
 
   // Must have a document open
   const doc = getActiveDocument();
@@ -1345,7 +1407,11 @@ export async function mergeFiles(filePaths, position) {
     // them from disk like savePDF does, so merge never silently no-ops.
     try { currentBytes = new Uint8Array(await readBinaryFile(doc.filePath)); } catch {}
   }
-  if (!currentBytes) return nieuwMergeVerslag('no-bytes');
+  if (!currentBytes) {
+    // Nooit stil niets doen (#1134).
+    showMessage(i18next.t('mergeFailed', { error: 'the document could not be read' }));
+    return nieuwMergeVerslag('no-bytes');
+  }
   const oldAnnotations = doc.annotations.map(a => ({ ...a }));
   const oldRotations = { ...doc.pageRotations };
   const oldPage = doc.currentPage;
@@ -1354,6 +1420,13 @@ export async function mergeFiles(filePaths, position) {
   showLoading('Merging PDFs...');
   try {
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
+    // De bytes van het document zelf zijn nog versleuteld (in de browser, of
+    // er kon geen werkkopie gemaakt worden): wat erbij komt zou onversleuteld
+    // in een versleuteld bestand staan en leeg tonen. Dan niet samenvoegen.
+    if (destDoc.isEncrypted) {
+      showMessage(i18next.t('mergeDocumentProtected'));
+      return nieuwMergeVerslag('document-protected');
+    }
     const oldNumPages = destDoc.getPageCount();
     // Ingevulde velden van dit document staan alleen in pdf.js; dat document
     // gaat bij het herladen weg.
@@ -1381,7 +1454,9 @@ export async function mergeFiles(filePaths, position) {
       const gekozen = typeof invoer === 'object' && Array.isArray(invoer?.pages) ? invoer.pages : null;
       try {
         const { bytes: srcBytes, uitApp } = await bronBytesVoorSamenvoegen(filePath);
-        const srcDoc = await PDFDocument.load(srcBytes, { ignoreEncryption: true });
+        // Een beveiligd bestand eerst ontsleutelen: anders komen de pagina's
+        // er leeg in en meldt het samenvoegen toch dat het gelukt is (#1134).
+        const { doc: srcDoc } = await laadBron(filePath, srcBytes, 'Merging PDFs...');
         const srcPageCount = srcDoc.getPageCount();
 
         if (srcPageCount === 0) {
@@ -1406,8 +1481,13 @@ export async function mergeFiles(filePaths, position) {
         }
         bronnen.push({ doc: srcDoc, naam: filePath.split(/[\\/]/).pop(), pad: filePath, uitApp, paginas });
       } catch (err) {
+        if (isBeveiligdFout(err)) {
+          verslag.refused.push({ path: filePath, reason: REDEN_BEVEILIGD });
+          meldBeveiligdeBron(err, filePath);
+          continue;
+        }
         console.error(`Failed to merge file: ${filePath}`, err);
-        const fileName = filePath.split(/[\\/]/).pop();
+        const fileName = String(filePath).split(/[\\/]/).pop();
         const detail = err?.message || String(err);
         verslag.failed.push({ path: filePath, error: detail });
         showMessage(`${i18next.t('failedToMergeFile', { file: fileName, error: detail })}\n(${detail})`);
@@ -1475,6 +1555,14 @@ export async function mergeFiles(filePaths, position) {
         updateBookmarksList();
       }
     } catch { /* paneel niet open */ }
+    return verslag;
+  } catch (err) {
+    // Een fout na het inlezen (samenvoegen, schrijven, herladen) ging stil
+    // verloren: het venster was al dicht en er gebeurde niets (#1134).
+    console.error('Failed to merge PDFs:', err);
+    const detail = err?.message || String(err);
+    showMessage(i18next.t('mergeFailed', { error: detail }));
+    verslag.error = detail;
     return verslag;
   } finally {
     hideLoading();

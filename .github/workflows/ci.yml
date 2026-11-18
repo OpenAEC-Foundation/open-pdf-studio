@@ -131,6 +131,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-blank-template-browser.mjs
 
+      - name: Test merging PDFs through the Merge dialog (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-merge-pdfs-browser.mjs
+
       - name: Test parametric symbol picker (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-parametric-picker-browser.mjs

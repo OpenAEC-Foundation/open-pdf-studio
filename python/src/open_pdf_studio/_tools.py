@@ -1125,7 +1125,8 @@ class ToolMethods:
         mergedFiles, pagesInserted, pagesBefore, pagesAfter, filePath };
         mergedFiles counts the files that really went in. A file that stays out
         makes ok false: a preview PDF of the CAD import is refused (reason
-        preview-pdf), a file without pages is refused (no-pages), an unreadable
+        preview-pdf), a file without pages is refused (no-pages), a protected
+        file that could not be unlocked is refused (protected), an unreadable
         file fails. Then error names the files, refused [{ file, reason }] and
         failed [{ file, error }] list them, and mergedFiles and pagesAfter show
         what did go in.
