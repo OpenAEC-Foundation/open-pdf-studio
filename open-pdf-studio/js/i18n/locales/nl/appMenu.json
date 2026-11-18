@@ -37,7 +37,7 @@
     "loading": "Notities laden...",
     "error": "Kon release-notes niet laden",
     "empty": "Geen nieuwe release-notes",
-    "noDutchFallback": "Nog geen Nederlandse notities voor deze release — de Engelse versie wordt getoond."
+    "noDutchFallback": "De notities van deze release zijn in het Engels."
   },
   "openPanel": {
     "title": "Openen",
