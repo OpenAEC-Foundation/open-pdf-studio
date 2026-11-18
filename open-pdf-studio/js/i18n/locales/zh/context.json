@@ -173,7 +173,9 @@
     "deleteVertex": "删除顶点",
     "insertVertex": "在此处插入顶点",
     "convertToArc": "转换为圆弧",
-    "convertToLine": "转换为直线"
+    "convertToLine": "转换为直线",
+    "makeSegmentCurved": "将线段转为曲线",
+    "makeSegmentStraight": "将线段变直"
   },
   "revealInFileManager": {
     "windows": "在资源管理器中显示",

@@ -173,7 +173,9 @@
     "deleteVertex": "முனையை நீக்கு",
     "insertVertex": "இங்கே முனையைச் செருகு",
     "convertToArc": "வில்லாக மாற்று",
-    "convertToLine": "கோடாக மாற்று"
+    "convertToLine": "கோடாக மாற்று",
+    "makeSegmentCurved": "பகுதியை வளைவாக்கு",
+    "makeSegmentStraight": "பகுதியை நேராக்கு"
   },
   "revealInFileManager": {
     "windows": "Explorer-இல் காட்டு",

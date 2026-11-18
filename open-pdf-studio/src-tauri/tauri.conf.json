@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Open PDF Studio",
-  "version": "2026.47.25",
+  "version": "2026.47.27",
   "identifier": "org.openaec.openpdfstudio",
   "build": {
     "frontendDist": "../dist",

@@ -41,10 +41,10 @@ export default function LocationSection() {
             <input
               type="text"
               value={ann().locationOverride ?? ''}
-              disabled={ann().locked}
+              disabled={!ann() || ann().locked}
               onChange={(e) => edit({ action: 'override', value: e.currentTarget.value })}
             />
-            <button disabled={ann().locked} onClick={() => edit({ action: 'automatic' })}>{t('location.automatic')}</button>
+            <button disabled={!ann() || ann().locked} onClick={() => edit({ action: 'automatic' })}>{t('location.automatic')}</button>
           </div>
           <Show when={zonePolygon(ann())}>
             <div class="property-group">
@@ -52,7 +52,7 @@ export default function LocationSection() {
               <input
                 type="text"
                 value={ann().spatialZone?.name || ''}
-                disabled={ann().locked}
+                disabled={!ann() || ann().locked}
                 onChange={(e) => edit({
                   action: 'zone', name: e.currentTarget.value, parentId: ann().spatialZone?.parentId || '',
                 })}
@@ -63,7 +63,7 @@ export default function LocationSection() {
                 <label>{t('location.parent')}</label>
                 <select
                   value={ann().spatialZone?.parentId || ''}
-                  disabled={ann().locked}
+                  disabled={!ann() || ann().locked}
                   onChange={(e) => edit({ action: 'zone', name: ann().spatialZone.name, parentId: e.currentTarget.value })}
                 >
                   <option value="">{t('location.none')}</option>
@@ -71,7 +71,7 @@ export default function LocationSection() {
                     {(z) => <option value={z.zone.id}>{z.path}</option>}
                   </For>
                 </select>
-                <button disabled={ann().locked} onClick={() => edit({ action: 'removeZone' })}>{t('location.removeZone')}</button>
+                <button disabled={!ann() || ann().locked} onClick={() => edit({ action: 'removeZone' })}>{t('location.removeZone')}</button>
               </div>
             </Show>
           </Show>

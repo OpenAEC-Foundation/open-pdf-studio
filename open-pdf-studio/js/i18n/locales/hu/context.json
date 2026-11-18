@@ -173,7 +173,9 @@
     "deleteVertex": "Csúcspont törlése",
     "insertVertex": "Csúcspont beszúrása ide",
     "convertToArc": "Átalakítás ívvé",
-    "convertToLine": "Átalakítás vonallá"
+    "convertToLine": "Átalakítás vonallá",
+    "makeSegmentCurved": "Szakasz görbítése",
+    "makeSegmentStraight": "Szakasz kiegyenesítése"
   },
   "revealInFileManager": {
     "windows": "Megjelenítés az Intézőben",

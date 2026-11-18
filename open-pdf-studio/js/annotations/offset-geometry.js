@@ -47,7 +47,7 @@ export function isRectAnnotation(ann) {
  * zonder waarschuwing een rechte rand van worden. Zulke vormen weigeren we.
  */
 function _heeftBogen(ann) {
-  return Array.isArray(ann?.points) && ann.points.some((p) => p && p.arc === true);
+  return Array.isArray(ann?.points) && ann.points.some((p) => p && (p.arc === true || p.incoming || p.outgoing));
 }
 
 /** Of dit type object in principe geoffzet kan worden (los van afstand). */

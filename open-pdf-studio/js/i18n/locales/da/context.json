@@ -173,7 +173,9 @@
     "deleteVertex": "Slet knudepunkt",
     "insertVertex": "Indsæt knudepunkt her",
     "convertToArc": "Konvertér til bue",
-    "convertToLine": "Konvertér til linje"
+    "convertToLine": "Konvertér til linje",
+    "makeSegmentCurved": "Gør segmentet buet",
+    "makeSegmentStraight": "Gør segmentet lige"
   },
   "revealInFileManager": {
     "windows": "Vis i Stifinder",

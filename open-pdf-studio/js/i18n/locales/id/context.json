@@ -173,7 +173,9 @@
     "deleteVertex": "Hapus verteks",
     "insertVertex": "Sisipkan verteks di sini",
     "convertToArc": "Ubah menjadi busur",
-    "convertToLine": "Ubah menjadi garis"
+    "convertToLine": "Ubah menjadi garis",
+    "makeSegmentCurved": "Lengkungkan segmen",
+    "makeSegmentStraight": "Luruskan segmen"
   },
   "revealInFileManager": {
     "windows": "Tampilkan di Explorer",

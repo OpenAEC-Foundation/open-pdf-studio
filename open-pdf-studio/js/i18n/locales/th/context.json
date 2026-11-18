@@ -173,7 +173,9 @@
     "deleteVertex": "ลบจุดยอด",
     "insertVertex": "แทรกจุดยอดที่นี่",
     "convertToArc": "แปลงเป็นส่วนโค้ง",
-    "convertToLine": "แปลงเป็นเส้นตรง"
+    "convertToLine": "แปลงเป็นเส้นตรง",
+    "makeSegmentCurved": "ทำส่วนเส้นให้โค้ง",
+    "makeSegmentStraight": "ทำส่วนเส้นให้ตรง"
   },
   "revealInFileManager": {
     "windows": "แสดงใน Explorer",

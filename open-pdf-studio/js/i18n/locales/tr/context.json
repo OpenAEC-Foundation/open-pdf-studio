@@ -173,7 +173,9 @@
     "deleteVertex": "Köşe noktasını sil",
     "insertVertex": "Buraya köşe noktası ekle",
     "convertToArc": "Yaya dönüştür",
-    "convertToLine": "Çizgiye dönüştür"
+    "convertToLine": "Çizgiye dönüştür",
+    "makeSegmentCurved": "Parçayı eğri yap",
+    "makeSegmentStraight": "Parçayı düzleştir"
   },
   "revealInFileManager": {
     "windows": "Gezgin'de Göster",

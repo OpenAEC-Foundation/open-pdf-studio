@@ -173,7 +173,9 @@
     "deleteVertex": "Обриши теме",
     "insertVertex": "Уметни теме овде",
     "convertToArc": "Претвори у лук",
-    "convertToLine": "Претвори у линију"
+    "convertToLine": "Претвори у линију",
+    "makeSegmentCurved": "Закриви сегмент",
+    "makeSegmentStraight": "Исправи сегмент"
   },
   "revealInFileManager": {
     "windows": "Прикажи у Истраживачу",

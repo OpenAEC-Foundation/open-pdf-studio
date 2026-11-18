@@ -3,7 +3,9 @@
     "deleteVertex": "ລຶບຈຸດຍອດ",
     "insertVertex": "ແຊກຈຸດຍອດບ່ອນນີ້",
     "convertToArc": "ປ່ຽນເປັນເສັ້ນໂຄ້ງ",
-    "convertToLine": "ປ່ຽນເປັນເສັ້ນຊື່"
+    "convertToLine": "ປ່ຽນເປັນເສັ້ນຊື່",
+    "makeSegmentCurved": "ເຮັດໃຫ້ສ່ວນເສັ້ນໂຄ້ງ",
+    "makeSegmentStraight": "ເຮັດໃຫ້ສ່ວນເສັ້ນຊື່"
   },
   "annotation": {
     "openPopUpNote": "ເປີດບັນທຶກປັອບອັບ",

@@ -173,7 +173,9 @@
     "deleteVertex": "Xóa đỉnh",
     "insertVertex": "Chèn đỉnh tại đây",
     "convertToArc": "Chuyển thành cung tròn",
-    "convertToLine": "Chuyển thành đường thẳng"
+    "convertToLine": "Chuyển thành đường thẳng",
+    "makeSegmentCurved": "Uốn cong đoạn",
+    "makeSegmentStraight": "Làm thẳng đoạn"
   },
   "revealInFileManager": {
     "windows": "Hiển thị trong Explorer",

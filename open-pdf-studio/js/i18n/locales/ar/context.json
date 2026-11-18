@@ -173,7 +173,9 @@
     "deleteVertex": "حذف الرأس",
     "insertVertex": "إدراج رأس هنا",
     "convertToArc": "تحويل إلى قوس",
-    "convertToLine": "تحويل إلى خط"
+    "convertToLine": "تحويل إلى خط",
+    "makeSegmentCurved": "تحويل المقطع إلى منحنى",
+    "makeSegmentStraight": "جعل المقطع مستقيمًا"
   },
   "revealInFileManager": {
     "windows": "إظهار في المستكشف",

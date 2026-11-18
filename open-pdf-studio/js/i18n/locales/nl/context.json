@@ -3,7 +3,9 @@
     "deleteVertex": "Hoekpunt verwijderen",
     "insertVertex": "Hoekpunt hier invoegen",
     "convertToArc": "Omzetten naar boog",
-    "convertToLine": "Omzetten naar lijn"
+    "convertToLine": "Omzetten naar lijn",
+    "makeSegmentCurved": "Segment krom maken",
+    "makeSegmentStraight": "Segment recht maken"
   },
   "annotation": {
     "openPopUpNote": "Pop-upnotitie openen",

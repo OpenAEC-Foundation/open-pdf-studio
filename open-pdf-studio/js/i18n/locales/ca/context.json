@@ -173,7 +173,9 @@
     "deleteVertex": "Suprimeix el vèrtex",
     "insertVertex": "Insereix un vèrtex aquí",
     "convertToArc": "Converteix en arc",
-    "convertToLine": "Converteix en línia"
+    "convertToLine": "Converteix en línia",
+    "makeSegmentCurved": "Corba el segment",
+    "makeSegmentStraight": "Redreça el segment"
   },
   "revealInFileManager": {
     "windows": "Mostra a l'Explorador",

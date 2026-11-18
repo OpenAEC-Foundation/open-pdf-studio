@@ -173,7 +173,9 @@
     "deleteVertex": "Poista kärkipiste",
     "insertVertex": "Lisää kärkipiste tähän",
     "convertToArc": "Muunna kaareksi",
-    "convertToLine": "Muunna viivaksi"
+    "convertToLine": "Muunna viivaksi",
+    "makeSegmentCurved": "Muuta segmentti kaarevaksi",
+    "makeSegmentStraight": "Suorista segmentti"
   },
   "revealInFileManager": {
     "windows": "Näytä Resurssienhallinnassa",

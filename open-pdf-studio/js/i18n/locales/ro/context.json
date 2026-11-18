@@ -173,7 +173,9 @@
     "deleteVertex": "Ștergere vârf",
     "insertVertex": "Inserare vârf aici",
     "convertToArc": "Conversie în arc",
-    "convertToLine": "Conversie în linie"
+    "convertToLine": "Conversie în linie",
+    "makeSegmentCurved": "Curbează segmentul",
+    "makeSegmentStraight": "Îndreaptă segmentul"
   },
   "revealInFileManager": {
     "windows": "Afișare în Explorer",

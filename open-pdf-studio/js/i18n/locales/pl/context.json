@@ -173,7 +173,9 @@
     "deleteVertex": "Usuń wierzchołek",
     "insertVertex": "Wstaw wierzchołek tutaj",
     "convertToArc": "Konwertuj na łuk",
-    "convertToLine": "Konwertuj na linię"
+    "convertToLine": "Konwertuj na linię",
+    "makeSegmentCurved": "Zamień segment na krzywą",
+    "makeSegmentStraight": "Wyprostuj segment"
   },
   "revealInFileManager": {
     "windows": "Pokaż w Eksploratorze",

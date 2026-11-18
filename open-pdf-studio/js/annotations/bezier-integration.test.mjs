@@ -129,3 +129,90 @@ test('CAD stretch selects world-space polygon nodes and moves their handles', ()
     sameNodes(original.type === 'polygon' ? veelhoekPuntenOpScherm(changed) : changed.points, expected);
   }
 });
+
+const { editBezierSegment, moveBezierControl, bezierEditNodes, bezierPartAt, deleteBezierNode } = await import('./bezier-edit.js');
+const { getAnnotationHandles, findHandleAt } = await import('./handles.js');
+const { voegVeelhoekHoekpuntIn, veelhoekDeelBij } = await import('./veelhoek-punten.js');
+
+test('curve action adds independent controls; straight action keeps neighbouring segment', () => {
+  const ann = { type: 'polyline', points: [{ x: 0, y: 0 }, { x: 90, y: 0 }, { x: 90, y: 90 }] };
+  Object.assign(ann, editBezierSegment(ann, 0, 'curve'));
+  assert.deepEqual(ann.points[0].outgoing, { x: 30, y: 0 });
+  Object.assign(ann, editBezierSegment(ann, 1, 'curve'));
+  const incoming = copy(ann.points[1].incoming);
+  Object.assign(ann, moveBezierControl(ann, 'bezier_outgoing_1', 20, 15));
+  assert.deepEqual(ann.points[1].incoming, incoming);
+  Object.assign(ann, editBezierSegment(ann, 0, 'straight'));
+  assert.equal(ann.points[0].outgoing, undefined);
+  assert.equal(ann.points[1].incoming, undefined);
+  assert.deepEqual(ann.points[1].outgoing, { x: 110, y: 45 });
+});
+
+test('rotated reflected polygon control drag uses world delta and keeps all other points', () => {
+  const ann = { ...polygon(37), flipX: true, width: 320, height: 90 };
+  open(ann);
+  const before = bezierEditNodes(ann), expected = copy(before);
+  expected[0].outgoing.x += 35; expected[0].outgoing.y -= 20;
+  const handles = getAnnotationHandles(ann, 2), h = handles.find(h => h.type === 'bezier_outgoing_0');
+  assert.equal(findHandleAt(h.x + 1.5, h.y + 1.5, ann, 2), 'bezier_outgoing_0');
+  near(h.anchor.x, before[0].x); near(h.anchor.y, before[0].y);
+  applyResize(ann, 'bezier_outgoing_0', 35, -20, copy(ann));
+  sameNodes(bezierEditNodes(ann), expected);
+});
+
+test('regular polygon materializes without moving its world vertices', () => {
+  const ann = { type: 'polygon', x: 20, y: 40, width: 120, height: 80, sides: 5, rotation: 35, flipY: true };
+  const before = bezierEditNodes(ann);
+  // Top vertex of the renderer's inscribed pentagon, reflected then rotated
+  // about the original rectangle centre (80, 80), not the vertex-bounds centre.
+  const angle = 35 * Math.PI / 180;
+  near(before[0].x, 80 - 40 * Math.sin(angle));
+  near(before[0].y, 80 + 40 * Math.cos(angle));
+  Object.assign(ann, editBezierSegment(ann, 4, 'curve'));
+  const after = bezierEditNodes(ann);
+  after.forEach((p, i) => { near(p.x, before[i].x); near(p.y, before[i].y); });
+  assert.equal(after.length, 5); assert.ok(after[4].outgoing); assert.ok(after[0].incoming);
+});
+
+test('curved context and insertion follow the bow and preserve the exact curve', () => {
+  const ann = polyline();
+  const hit = bezierPartAt(ann, 50, 76, 2);
+  assert.equal(hit.kind, 'bezierEdge'); near(hit.t, 0.5);
+  assert.equal(bezierPartAt(ann, 50, 0, 2), null);
+  const split = editBezierSegment(ann, 0, 'insert', hit.t), before = contourSegments(ann.points)[0], after = contourSegments(split.points);
+  for (let i = 0; i <= 20; i++) {
+    const t = i / 20, a = contourPoint(before, t), b = contourPoint(after[t <= hit.t ? 0 : 1], t <= hit.t ? t / hit.t : (t - hit.t) / (1 - hit.t));
+    near(a.x, b.x); near(a.y, b.y);
+  }
+  const pg = polygon();
+  assert.equal(veelhoekDeelBij(pg, 50, 75, 1).edgeIndex, 0);
+  const result = voegVeelhoekHoekpuntIn(pg, 0, { x: 50, y: 75 });
+  near(result.points[1].x, 50); near(result.points[1].y, 75);
+});
+
+test('delete node straightens the joined edge only; locked geometry rejects all edits', () => {
+  const ann = polyline();
+  const result = deleteBezierNode(ann, 1);
+  assert.equal(contourSegments(result.points)[0].kind, 'line');
+  assert.equal(deleteBezierNode({ ...ann, points: ann.points.slice(0, 2) }, 0), null);
+  ann.locked = true;
+  assert.equal(editBezierSegment(ann, 0, 'straight'), null);
+  assert.equal(deleteBezierNode(ann, 1), null);
+  assert.equal(moveBezierControl(ann, 'bezier_outgoing_0', 1, 2), null);
+  const before = copy(ann); applyResize(ann, 'bezier_outgoing_0', 10, 20, before); assert.deepEqual(ann, before);
+});
+
+const { collectSnapPoints, nearestPointOnEdge } = await import('../tools/snap-engine.js');
+const { canOffset, offsetProps } = await import('./offset-geometry.js');
+test('snaps use the cubic midpoint and bow; offset refuses unsupported cubic geometry', () => {
+  const ann = polyline(); open(ann);
+  Object.assign(state.preferences, { enableObjectSnap: true, snapToEdges: true, snapToMidpoints: true, snapToEndpoints: false, snapToVertices: false, snapToStartPoints: false, snapToCenters: false });
+  const mids = collectSnapPoints([ann], 1);
+  assert.ok(mids.some(p => p.x === 50 && p.y === 75));
+  assert.ok(!mids.some(p => p.x === 50 && p.y === 0));
+  const hit = nearestPointOnEdge(50, 76, [ann], 1, 2);
+  assert.ok(hit); near(hit.x, 50); near(hit.y, 75);
+  assert.equal(nearestPointOnEdge(50, 0, [ann], 1, 2), null);
+  assert.equal(canOffset(ann), false);
+  assert.equal(offsetProps(ann, 5, { x: 50, y: 90 }), null);
+});

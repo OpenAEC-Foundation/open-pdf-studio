@@ -173,7 +173,9 @@
     "deleteVertex": "Radera hörnpunkt",
     "insertVertex": "Infoga hörnpunkt här",
     "convertToArc": "Konvertera till båge",
-    "convertToLine": "Konvertera till linje"
+    "convertToLine": "Konvertera till linje",
+    "makeSegmentCurved": "Gör segmentet böjt",
+    "makeSegmentStraight": "Gör segmentet rakt"
   },
   "revealInFileManager": {
     "windows": "Visa i Utforskaren",

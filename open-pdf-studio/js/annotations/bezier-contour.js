@@ -223,3 +223,27 @@ export function traceContour(ctx, nodes, closed = false) {
   }
   if (closed) ctx.closePath();
 }
+
+/** Nearest point on a segment, including its cubic bow rather than its chord. */
+export function nearestContourPoint(segment, x, y) {
+  const distance = t => { const p = contourPoint(segment, t); return (p.x - x) ** 2 + (p.y - y) ** 2; };
+  if (segment.kind === 'line') {
+    const a = segment.start, b = segment.end, dx = b.x - a.x, dy = b.y - a.y;
+    const t = dx * dx + dy * dy ? Math.max(0, Math.min(1, ((x - a.x) * dx + (y - a.y) * dy) / (dx * dx + dy * dy))) : 0;
+    return { ...contourPoint(segment, t), t, distance: Math.sqrt(distance(t)) };
+  }
+  // Bracket every sampled local minimum, including loops and endpoint minima.
+  const n = 64, values = Array.from({ length: n + 1 }, (_, i) => distance(i / n));
+  let t = values[0] <= values[n] ? 0 : 1, best = distance(t);
+  for (let i = 0; i <= n; i++) {
+    if ((i > 0 && values[i] > values[i - 1]) || (i < n && values[i] > values[i + 1])) continue;
+    let lo = Math.max(0, (i - 1) / n), hi = Math.min(1, (i + 1) / n);
+    for (let j = 0; j < 36; j++) {
+      const a = lo + (hi - lo) / 3, b = hi - (hi - lo) / 3;
+      if (distance(a) < distance(b)) hi = b; else lo = a;
+    }
+    const candidate = (lo + hi) / 2, d = distance(candidate);
+    if (d < best) { t = candidate; best = d; }
+  }
+  return { ...contourPoint(segment, t), t, distance: Math.sqrt(best) };
+}

@@ -173,7 +173,9 @@
     "deleteVertex": "Excluir vértice",
     "insertVertex": "Inserir vértice aqui",
     "convertToArc": "Converter em arco",
-    "convertToLine": "Converter em linha"
+    "convertToLine": "Converter em linha",
+    "makeSegmentCurved": "Curvar segmento",
+    "makeSegmentStraight": "Endireitar segmento"
   },
   "revealInFileManager": {
     "windows": "Mostrar no Explorer",

@@ -131,6 +131,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-bezier-render-browser.mjs
 
+      - name: Test Bezier editing and save/reopen (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-bezier-edit-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs

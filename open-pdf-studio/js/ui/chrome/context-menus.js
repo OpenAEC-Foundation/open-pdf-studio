@@ -1,3 +1,4 @@
+import { bezierEditable, bezierPartAt } from '../../annotations/bezier-edit.js';
 import { areaVertexHit, AREA_VERTEX_HIT_PX } from '../../annotations/area-vertices.js';
 import { state, getActiveDocument, isSelected } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
@@ -151,6 +152,10 @@ export function initContextMenus() {
         {
           const _sel = getActiveDocument()?.selectedAnnotations || [];
           const pg = _sel.length === 1 ? _sel[0] : null;
+          if (pg && bezierEditable(pg)) {
+            const hit = bezierPartAt(pg, x, y, (HANDLE_SIZE / 2 + 4) / scale);
+            if (hit) { showContextMenu(e, pg, hit); return; }
+          }
           if (pg && isBewerkbareVeelhoek(pg)) {
             const deel = veelhoekDeelBij(pg, x, y, (HANDLE_SIZE / 2 + 4) / scale);
             if (deel) {

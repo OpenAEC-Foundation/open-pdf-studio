@@ -173,7 +173,9 @@
     "deleteVertex": "Supprimer le sommet",
     "insertVertex": "Insérer un sommet ici",
     "convertToArc": "Convertir en arc",
-    "convertToLine": "Convertir en ligne"
+    "convertToLine": "Convertir en ligne",
+    "makeSegmentCurved": "Courber le segment",
+    "makeSegmentStraight": "Redresser le segment"
   },
   "revealInFileManager": {
     "windows": "Afficher dans l'Explorateur",

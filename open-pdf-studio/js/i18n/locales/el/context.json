@@ -173,7 +173,9 @@
     "deleteVertex": "Διαγραφή κορυφής",
     "insertVertex": "Εισαγωγή κορυφής εδώ",
     "convertToArc": "Μετατροπή σε τόξο",
-    "convertToLine": "Μετατροπή σε γραμμή"
+    "convertToLine": "Μετατροπή σε γραμμή",
+    "makeSegmentCurved": "Μετατροπή τμήματος σε καμπύλη",
+    "makeSegmentStraight": "Ευθυγράμμιση τμήματος"
   },
   "revealInFileManager": {
     "windows": "Εμφάνιση στην Εξερεύνηση",

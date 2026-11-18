@@ -173,7 +173,9 @@
     "deleteVertex": "Удалить вершину",
     "insertVertex": "Вставить вершину здесь",
     "convertToArc": "Преобразовать в дугу",
-    "convertToLine": "Преобразовать в линию"
+    "convertToLine": "Преобразовать в линию",
+    "makeSegmentCurved": "Сделать сегмент кривым",
+    "makeSegmentStraight": "Выпрямить сегмент"
   },
   "revealInFileManager": {
     "windows": "Показать в Проводнике",

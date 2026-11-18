@@ -1,13 +1,15 @@
 # Gemengde rechte en Bézier-contouren (#1169)
 
-## Status: tekenen, transformaties en PDF-opslag aangesloten; bediening nog open
+## Status: tekenen, transformaties, PDF-opslag en segmentbediening aangesloten
 
 `js/annotations/bezier-contour.js` wordt nu gebruikt door de echte renderer,
 raaktest en polygoongeometrie. Expliciete `incoming`/`outgoing`-handvatten
 activeren de kubische route. Gewone punten zonder handvatten houden hun
-bestaande tekenroute. De app biedt nog geen actie om deze handvatten aan te
-maken: **deze concept-PR sluit #1169 niet** en mag niet als volledige functie
-worden uitgebracht. PDF-opslag bewaart nu de exacte curve en de bewerkbare handvatten.
+bestaande tekenroute. Rechtsklik op een segment van één geselecteerde polylijn of polygoon biedt
+**Segment krom maken** en **Segment recht maken**. Krom maken plaatst twee
+controlehandvatten op de rechte lijn; sleep de ronde grepen afzonderlijk om de
+kromming te bepalen. Hulplijnen verbinden ze met hun knopen. Deze concept-PR
+blijft open tot de volledige kwalificatie is afgerond. PDF-opslag bewaart nu de exacte curve en de bewerkbare handvatten.
 
 Polylijnen en polygonen tekenen de exacte kubische curve. Raken gebruikt een
 adaptieve benadering; selectie en viewport-culling omvatten de boog. Het
@@ -64,17 +66,34 @@ subdivisielimiet. Voor 80 deterministische curves worden exacte grenzen
 vergeleken met dichte onafhankelijke monsters. Afvlakken wordt tegen de
 gevraagde afstandstolerantie getoetst. De tests staan in de volledige suite.
 
-## Nog te integreren vóór beoordeling als volledige functie
+## Nog te kwalificeren vóór oplevering
 
-1. Segmentacties recht/krom, afzonderlijke controlehandvatten met hulplijnen,
-   slepen, shape-preserving invoegen/verwijderen, undo/redo en alle locks/read-only
-   routes. Impliciete regelmatige polygonen materialiseren bij de eerste bewerking.
-2. Contextmenu `veelhoekDeelBij` en toevoegen werken nog met rechte zijden;
-   snappen, offset, fillet/chamfer, plakken/groepsbewerkingen verder auditen.
-   Huidige testen kwalificeren geen willekeurige combinatie van alle gereedschappen.
-3. Browser- en PDF-rondgangtests voor de volledige bediening toevoegen:
-   tekenen, controlehandvat bewerken, undo/redo, transformeren, opslaan/heropenen
-   en opnieuw bewerken. Installerworkflow en geïnstalleerde Tauri-app kwalificeren.
+1. Geïnstalleerde Tauri-app en installerworkflow kwalificeren; fork Actions
+   zijn momenteel uitgeschakeld. CI-bouwresultaten vervangen deze stap niet.
+2. Native rooktest van tekenen, grepen, undo/redo, transformeren en
+   opslaan/heropenen. Chromium dekt enkelpagina- en doorlopende weergave,
+   inclusief een gedraaide/gespiegelde regelmatige polygoon. Dit vervangt
+   geen test in de geïnstalleerde Tauri-webview.
+
+## Segmentbediening
+
+Een rechtsklik op een zijde biedt krom/recht en invoegen. Invoegen splitst de
+kubische curve exact met de Casteljau. Een knoop verwijderen verbindt zijn
+buren met een rechte lijn en behoudt de controlehandvatten van hun overige
+segmenten; het minimum is twee knopen voor een polylijn, drie voor een polygoon.
+Een regelmatige polygoon krijgt expliciete knopen bij de eerste bewerking.
+Controlehandvatten bewegen in paginaruimte, ook bij spiegeling/draaiing.
+
+Midden-snaps liggen op de curve (parameter 0,5); rand-, snijpunt- en loodrechte
+snaps gebruiken een adaptieve benadering met maximaal 0,1 paginapunt afwijking.
+Offset weigert een contour met kubische handvatten, zoals de bestaande weigering
+voor boogsegmenten. Fillet/chamfer accepteren alleen losse lijnobjecten.
+Klembordverplaatsing gebruikt de eerder geteste `applyMoveRigid`-route.
+
+`node scripts/test-bezier-edit-browser.mjs` controleert echte contextmenu's en
+muisbewegingen in enkelpagina- en doorlopende weergave, beide onafhankelijke
+handvatten, regelmatige/gedraaide/gespiegelde polygonen, undo/redo, invoegen,
+opslaan/heropenen/opnieuw bewerken, recht maken en locked/read-only acties.
 
 ## Integratiecontrole
 

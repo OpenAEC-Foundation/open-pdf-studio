@@ -1,3 +1,4 @@
+import { hasBezierHandles, contourSegments, contourPoint, flattenContour } from '../annotations/bezier-contour.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { getPdfSnapPointsNear, getPdfEdgeSegmentsNear } from './pdf-snap-extractor.js';
 import { snapPointToGrid } from '../annotations/rendering/ui-state.js';
@@ -99,6 +100,18 @@ function _pushStartPoint(points, ann, x, y) {
 }
 
 function extractSnapPoints(ann, points, prefs, annotations) {
+  if ((ann.type === 'polyline' || isBewerkbareVeelhoek(ann)) && hasBezierHandles(ann.points)) {
+    const nodes = ann.type === 'polygon' ? veelhoekPuntenOpScherm(ann) : ann.points;
+    if (prefs.snapToStartPoints) _pushStartPoint(points, ann, nodes[0].x, nodes[0].y);
+    if (prefs.snapToVertices || prefs.snapToEndpoints) for (const p of nodes) {
+      points.push({ x: p.x, y: p.y, type: prefs.snapToVertices ? 'vertex' : 'endpoint', annotation: ann });
+    }
+    if (prefs.snapToMidpoints) for (const segment of contourSegments(nodes, ann.type === 'polygon')) {
+      points.push({ ...contourPoint(segment, 0.5), type: 'midpoint', annotation: ann });
+    }
+    if (prefs.snapToCenters && ann.type === 'polygon') points.push({ x: ann.x + ann.width / 2, y: ann.y + ann.height / 2, type: 'center', annotation: ann });
+    return;
+  }
   const doEndpoints = prefs.snapToEndpoints;
   const doMidpoints = prefs.snapToMidpoints;
   const doCenters = prefs.snapToCenters;
@@ -421,6 +434,16 @@ export function nearestPointOnEdge(cursorX, cursorY, annotations, currentPage, s
 
 export function getEdgeSegments(ann) {
   const segments = [];
+  if ((ann.type === 'polyline' || isBewerkbareVeelhoek(ann)) && hasBezierHandles(ann.points)) {
+    const nodes = ann.type === 'polygon' ? veelhoekPuntenOpScherm(ann) : ann.points;
+    const flat = flattenContour(nodes, ann.type === 'polygon', 0.1, 16);
+    if (flat.truncated) return segments;
+    for (let i = 1; i < flat.points.length; i++) {
+      const a = flat.points[i - 1], b = flat.points[i];
+      segments.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+    }
+    return segments;
+  }
 
   switch (ann.type) {
     case 'line':

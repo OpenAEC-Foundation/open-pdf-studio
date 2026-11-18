@@ -1,4 +1,4 @@
-// Real renderer and saved PDF appearances; control-handle UI is tested separately when implemented.
+// Real renderer and saved PDF appearances; editing is covered by test-bezier-edit-browser.mjs.
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -9,7 +9,7 @@ import { createServer } from 'vite';
 const root = fileURLToPath(new URL('../', import.meta.url));
 process.chdir(root);
 const cache = await mkdtemp(path.join(tmpdir(), 'opds-bezier-render-'));
-const server = await createServer({ root, cacheDir: cache, logLevel: 'error', server: { host: '127.0.0.1', port: 0, hmr: false } });
+const server = await createServer({ root, cacheDir: cache, logLevel: 'error', server: { host: '127.0.0.1', port: 18470, strictPort: false, hmr: false } });
 let browser;
 try {
   await server.listen(); browser = await chromium.launch({ headless: true });

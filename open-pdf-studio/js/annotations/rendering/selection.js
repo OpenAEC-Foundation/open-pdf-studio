@@ -296,10 +296,25 @@ export function drawSelectionHandles(ctx, annotation) {
     ...(enkel ? alleGrepen.filter(h => h.type === HANDLE_TYPES.PIVOT) : []),
   ];
 
+  // Helper lines behind all node/control grips, fixed screen width.
+  ctx.save();
+  ctx.strokeStyle = '#0066cc'; ctx.lineWidth = lw; ctx.setLineDash([]);
+  for (const handle of handles) {
+    if (!handle.isBezierControl) continue;
+    ctx.beginPath(); ctx.moveTo(handle.anchor.x, handle.anchor.y);
+    ctx.lineTo(handle.x + hs / 2, handle.y + hs / 2); ctx.stroke();
+  }
+  ctx.restore();
   handles.forEach(handle => {
     const cx = handle.x + hs / 2;
     const cy = handle.y + hs / 2;
 
+    if (handle.isBezierControl) {
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, hs / 2, 0, 2 * Math.PI);
+      ctx.fillStyle = state.isResizing && state.activeHandle === handle.type ? '#e81123' : '#ffffff';
+      ctx.strokeStyle = '#0066cc'; ctx.lineWidth = lw; ctx.fill(); ctx.stroke(); ctx.restore();
+      return;
+    }
     // Eigen draaipunt (#826): een vizier. Blauw op het midden, oranje als
     // het verplaatst is, rood tijdens het slepen. Wit eronder voor contrast.
     if (handle.type === HANDLE_TYPES.PIVOT) {

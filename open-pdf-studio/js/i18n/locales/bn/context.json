@@ -173,7 +173,9 @@
     "deleteVertex": "শীর্ষবিন্দু মুছুন",
     "insertVertex": "এখানে শীর্ষবিন্দু সন্নিবেশ করুন",
     "convertToArc": "চাপে রূপান্তর করুন",
-    "convertToLine": "রেখায় রূপান্তর করুন"
+    "convertToLine": "রেখায় রূপান্তর করুন",
+    "makeSegmentCurved": "অংশ বাঁকান",
+    "makeSegmentStraight": "অংশ সোজা করুন"
   },
   "revealInFileManager": {
     "windows": "Explorer-এ দেখান",

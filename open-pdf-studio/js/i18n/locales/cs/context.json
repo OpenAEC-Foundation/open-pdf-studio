@@ -173,7 +173,9 @@
     "deleteVertex": "Smazat vrchol",
     "insertVertex": "Vložit vrchol sem",
     "convertToArc": "Převést na oblouk",
-    "convertToLine": "Převést na čáru"
+    "convertToLine": "Převést na čáru",
+    "makeSegmentCurved": "Zakřivit úsek",
+    "makeSegmentStraight": "Narovnat úsek"
   },
   "revealInFileManager": {
     "windows": "Zobrazit v Průzkumníkovi",

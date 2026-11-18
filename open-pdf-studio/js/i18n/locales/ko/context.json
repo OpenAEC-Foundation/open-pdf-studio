@@ -173,7 +173,9 @@
     "deleteVertex": "꼭짓점 삭제",
     "insertVertex": "여기에 꼭짓점 삽입",
     "convertToArc": "호로 변환",
-    "convertToLine": "선으로 변환"
+    "convertToLine": "선으로 변환",
+    "makeSegmentCurved": "구간을 곡선으로 변경",
+    "makeSegmentStraight": "구간을 직선으로 변경"
   },
   "revealInFileManager": {
     "windows": "탐색기에서 보기",

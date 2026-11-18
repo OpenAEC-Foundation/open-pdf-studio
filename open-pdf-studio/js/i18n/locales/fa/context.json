@@ -173,7 +173,9 @@
     "deleteVertex": "حذف رأس",
     "insertVertex": "درج رأس در اینجا",
     "convertToArc": "تبدیل به کمان",
-    "convertToLine": "تبدیل به خط"
+    "convertToLine": "تبدیل به خط",
+    "makeSegmentCurved": "خمیده کردن پاره‌خط",
+    "makeSegmentStraight": "مستقیم کردن پاره‌خط"
   },
   "revealInFileManager": {
     "windows": "نمایش در Explorer",

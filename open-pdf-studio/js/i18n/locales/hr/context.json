@@ -173,7 +173,9 @@
     "deleteVertex": "Obriši vrh",
     "insertVertex": "Umetni vrh ovdje",
     "convertToArc": "Pretvori u luk",
-    "convertToLine": "Pretvori u liniju"
+    "convertToLine": "Pretvori u liniju",
+    "makeSegmentCurved": "Zakrivi segment",
+    "makeSegmentStraight": "Izravnaj segment"
   },
   "revealInFileManager": {
     "windows": "Prikaži u Eksploreru",

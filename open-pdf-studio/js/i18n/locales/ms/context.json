@@ -173,7 +173,9 @@
     "deleteVertex": "Padam bucu",
     "insertVertex": "Sisipkan bucu di sini",
     "convertToArc": "Tukar kepada lengkok",
-    "convertToLine": "Tukar kepada garisan"
+    "convertToLine": "Tukar kepada garisan",
+    "makeSegmentCurved": "Lengkungkan segmen",
+    "makeSegmentStraight": "Luruskan segmen"
   },
   "revealInFileManager": {
     "windows": "Tunjukkan dalam Explorer",

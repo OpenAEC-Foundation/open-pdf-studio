@@ -173,7 +173,9 @@
     "deleteVertex": "Scheitelpunkt löschen",
     "insertVertex": "Scheitelpunkt hier einfügen",
     "convertToArc": "In Bogen umwandeln",
-    "convertToLine": "In Linie umwandeln"
+    "convertToLine": "In Linie umwandeln",
+    "makeSegmentCurved": "Segment in Kurve umwandeln",
+    "makeSegmentStraight": "Segment begradigen"
   },
   "revealInFileManager": {
     "windows": "Im Explorer anzeigen",

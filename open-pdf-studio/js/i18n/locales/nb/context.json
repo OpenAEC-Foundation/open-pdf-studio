@@ -173,7 +173,9 @@
     "deleteVertex": "Slett node",
     "insertVertex": "Sett inn node her",
     "convertToArc": "Konverter til bue",
-    "convertToLine": "Konverter til linje"
+    "convertToLine": "Konverter til linje",
+    "makeSegmentCurved": "Gjør segmentet buet",
+    "makeSegmentStraight": "Gjør segmentet rett"
   },
   "revealInFileManager": {
     "windows": "Vis i Utforsker",

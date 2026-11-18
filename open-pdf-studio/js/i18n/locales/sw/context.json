@@ -173,7 +173,9 @@
     "deleteVertex": "Futa kipeo",
     "insertVertex": "Ingiza kipeo hapa",
     "convertToArc": "Geuza kuwa tao",
-    "convertToLine": "Geuza kuwa mstari"
+    "convertToLine": "Geuza kuwa mstari",
+    "makeSegmentCurved": "Pinda sehemu",
+    "makeSegmentStraight": "Nyoosha sehemu"
   },
   "revealInFileManager": {
     "windows": "Onyesha kwenye Explorer",

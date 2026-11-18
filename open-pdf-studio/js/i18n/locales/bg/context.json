@@ -173,7 +173,9 @@
     "deleteVertex": "Изтриване на връх",
     "insertVertex": "Вмъкване на връх тук",
     "convertToArc": "Преобразуване в дъга",
-    "convertToLine": "Преобразуване в линия"
+    "convertToLine": "Преобразуване в линия",
+    "makeSegmentCurved": "Извиване на сегмента",
+    "makeSegmentStraight": "Изправяне на сегмента"
   },
   "revealInFileManager": {
     "windows": "Показване във Файловия мениджър",

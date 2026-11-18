@@ -1,3 +1,4 @@
+import { moveBezierControl } from './bezier-edit.js';
 import { mapContourNode, hasBezierHandles, contourBounds } from './bezier-contour.js';
 import { HANDLE_TYPES } from '../core/constants.js';
 import { state } from '../core/state.js';
@@ -179,6 +180,11 @@ const _MAATGREPEN = new Set([
 // ondergrenzen die in schermpixels staan (schaalgebied, viewport, schaalbalk).
 export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn, shiftKey = false, ctrlKey = false, opties = {}) {
   if (annotation.locked) return;
+  if (typeof handleType === 'string' && handleType.startsWith('bezier_')) {
+    const change = moveBezierControl(originalAnn, handleType, deltaX, deltaY);
+    if (change) Object.assign(annotation, change);
+    return;
+  }
   // Ondergrens in schermpixels -> paginapunten bij de huidige zoom. Zonder
   // bekende zoom geldt alleen de technische ondergrens.
   const gebiedMinPt = (Number.isFinite(opties?.schaal) && opties.schaal > 0)

@@ -173,7 +173,9 @@
     "deleteVertex": "頂点を削除",
     "insertVertex": "ここに頂点を挿入",
     "convertToArc": "円弧に変換",
-    "convertToLine": "直線に変換"
+    "convertToLine": "直線に変換",
+    "makeSegmentCurved": "セグメントを曲線にする",
+    "makeSegmentStraight": "セグメントを直線にする"
   },
   "revealInFileManager": {
     "windows": "エクスプローラーで表示",

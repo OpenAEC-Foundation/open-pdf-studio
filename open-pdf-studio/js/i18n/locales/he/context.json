@@ -173,7 +173,9 @@
     "deleteVertex": "מחיקת קודקוד",
     "insertVertex": "הוספת קודקוד כאן",
     "convertToArc": "המרה לקשת",
-    "convertToLine": "המרה לקו"
+    "convertToLine": "המרה לקו",
+    "makeSegmentCurved": "הפוך מקטע למעוקל",
+    "makeSegmentStraight": "יישר מקטע"
   },
   "revealInFileManager": {
     "windows": "הצגה בסייר",

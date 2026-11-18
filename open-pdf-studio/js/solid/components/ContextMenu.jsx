@@ -1,3 +1,5 @@
+import { bezierEditNodes, editBezierSegment, deleteBezierNode } from '../../annotations/bezier-edit.js';
+import { contourSegments } from '../../annotations/bezier-contour.js';
 import { canEditAreaVertex, applyAreaVertexEdit } from '../../tools/area-vertex-editing.js';
 import { createEffect, createMemo, onMount, onCleanup, Show, Switch, Match, For } from 'solid-js';
 import { showConfirm } from '../../ui/chrome/confirm-dialog.js';
@@ -217,6 +219,29 @@ function AnnotationMenuContent() {
     const v = vertexContext();
     const a = ann();
     if (!v || !a || a.id !== v.annotationId) return null;
+    if (v.kind === 'bezierEdge' || v.kind === 'bezierVertex') {
+      const blocked = () => isLocked() || isPdfAReadOnly() || !getActiveDocument()?.annotations.includes(a);
+      const apply = (change) => {
+        if (!blocked() && change) {
+          const before = cloneAnnotation(a);
+          Object.assign(a, change); a.modifiedAt = new Date().toISOString();
+          recordModify(a.id, before, cloneAnnotation(a)); redraw(); showProperties(a);
+        }
+        hideMenu();
+      };
+      if (v.kind === 'bezierVertex') return <>
+        <MenuItem icon={deleteIcon} label={t('contextMenu.deleteVertex')}
+          disabled={blocked() || !deleteBezierNode(a, v.nodeIndex)}
+          onClick={() => apply(deleteBezierNode(a, v.nodeIndex))} /><Separator />
+      </>;
+      const curved = contourSegments(bezierEditNodes(a), a.type === 'polygon')[v.edgeIndex]?.kind === 'cubic';
+      return <>
+        <MenuItem label={t(curved ? 'contextMenu.makeSegmentStraight' : 'contextMenu.makeSegmentCurved')}
+          disabled={blocked()} onClick={() => apply(editBezierSegment(a, v.edgeIndex, curved ? 'straight' : 'curve'))} />
+        <MenuItem label={t('contextMenu.insertVertex')} disabled={blocked() || !(v.t > 0 && v.t < 1)}
+          onClick={() => apply(editBezierSegment(a, v.edgeIndex, 'insert', v.t))} /><Separator />
+      </>;
+    }
     if (v.kind === 'areaVertex' || v.kind === 'areaEdge') {
       return <>
         <MenuItem icon={v.kind === 'areaVertex' ? deleteIcon : undefined}

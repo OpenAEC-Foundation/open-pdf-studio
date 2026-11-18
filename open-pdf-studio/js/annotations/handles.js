@@ -1,3 +1,4 @@
+import { bezierEditNodes } from './bezier-edit.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
 import { kanDraaipunt, heeftEigenDraaipunt, draaipuntLokaal } from './draaipunt.js';
 import { annotationCtx } from '../ui/dom-elements.js';
@@ -13,7 +14,7 @@ import { buildSysteemraster, segmentPoint, rotToWorld } from './systeemraster.js
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
 import { spreidMaatgrepen, kiesGreep, MIN_GREEPKADER_PX } from './greep-keuze.js';
 import { RECHTHOEK_VORMEN } from './minimummaat.js';
-import { isBewerkbareVeelhoek, veelhoekPunten } from './veelhoek-punten.js';
+import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm } from './veelhoek-punten.js';
 
 // Het vak waar de acht maatgrepen omheen staan (lokale, ongedraaide ruimte),
 // of null voor vormen zonder zo'n vak. Dient voor het uitwijken van de grepen
@@ -192,11 +193,11 @@ export function getAnnotationHandles(annotation, scale = 1) {
   // Veelhoek met eigen hoekpunten (#622): een greep op elk hoekpunt (slepen
   // verschuift dat hoekpunt), de verplaatsgreep in het midden en de
   // draaigreep. Geen maatgrepen op het vak: die zouden op de hoekpunten
-  // vallen die op de rand van het vak liggen. Ongedraaid geplaatst; de
-  // draaiing hieronder zet ze waar het scherm de hoekpunten tekent.
+  // vallen die op de rand van het vak liggen. Knopen staan direct in
+  // paginaruimte, met spiegeling en draaiing verwerkt.
   if (isBewerkbareVeelhoek(annotation)) {
-    veelhoekPunten(annotation).forEach((p, i) => {
-      handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i });
+    veelhoekPuntenOpScherm(annotation).forEach((p, i) => {
+      handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i, isPageSpace: true });
     });
     handles.push({
       type: HANDLE_TYPES.RECT_CENTER,
@@ -772,7 +773,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
       for (const handle of handles) {
         // Leader UI / handles live in absolute (unrotated) document space
         // Het stramienslotje is al in paginaruimte geplaatst (draaiing verwerkt).
-        if (handle.isLeaderUI || handle.isLeaderHandle || handle.isTwoPoint || handle.isSlotUI) continue;
+        if (handle.isPageSpace || handle.isLeaderUI || handle.isLeaderHandle || handle.isTwoPoint || handle.isSlotUI) continue;
         const handleCenterX = handle.x + hs / 2;
         const handleCenterY = handle.y + hs / 2;
         const rotated = rotatePoint(handleCenterX, handleCenterY, center.x, center.y, annotation.rotation);
@@ -782,6 +783,16 @@ export function getAnnotationHandles(annotation, scale = 1) {
     }
   }
 
+  // Cubic controls already live in page space, after polygon reflection /
+  // rotation. Append after the generic handle rotation to avoid a second turn.
+  const curveNodes = bezierEditNodes(annotation);
+  curveNodes?.forEach((node, index) => {
+    for (const side of ['incoming', 'outgoing']) {
+      if (!node[side]) continue;
+      handles.push({ type: `bezier_${side}_${index}`, x: node[side].x - hs / 2,
+        y: node[side].y - hs / 2, isBezierControl: true, anchor: { x: node.x, y: node.y } });
+    }
+  });
   return handles;
 }
 
@@ -917,6 +928,7 @@ function createRotatedResizeCursor(angleDeg) {
 
 // Get cursor style for handle type, accounting for annotation rotation
 export function getCursorForHandle(handleType, rotation, annotation) {
+  if (typeof handleType === 'string' && handleType.startsWith('bezier_')) return 'crosshair';
   // Polyline node handles
   if (typeof handleType === 'string' && handleType.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_')) {
     return 'crosshair';

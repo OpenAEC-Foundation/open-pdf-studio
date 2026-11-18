@@ -173,7 +173,9 @@
     "deleteVertex": "ورٹیکس حذف کریں",
     "insertVertex": "یہاں ورٹیکس داخل کریں",
     "convertToArc": "آرک میں تبدیل کریں",
-    "convertToLine": "لکیر میں تبدیل کریں"
+    "convertToLine": "لکیر میں تبدیل کریں",
+    "makeSegmentCurved": "حصے کو خمیدہ بنائیں",
+    "makeSegmentStraight": "حصے کو سیدھا کریں"
   },
   "revealInFileManager": {
     "windows": "Explorer میں دکھائیں",

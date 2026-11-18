@@ -21,7 +21,7 @@
 //
 // Puur: geen DOM, geen state.
 
-import { hasBezierHandles, mapContourNode, contourBounds, transformContour, moveContourNode } from './bezier-contour.js';
+import { hasBezierHandles, mapContourNode, contourBounds, transformContour, moveContourNode, contourSegments, nearestContourPoint, splitContourSegment } from './bezier-contour.js';
 import { ontdraaiVorm } from '../pdf/saver/vorm-draaiing.js';
 import { isVreemdeTelling } from './telling.js';
 
@@ -210,6 +210,12 @@ export function verwijderVeelhoekHoekpunt(ann, index) {
 export function voegVeelhoekHoekpuntIn(ann, zijde, punt = null) {
   const scherm = veelhoekPuntenOpScherm(ann);
   if (!scherm || !(zijde >= 0 && zijde < scherm.length)) return null;
+  const segment = contourSegments(scherm, true)[zijde];
+  if (segment.kind === 'cubic') {
+    const t = isPunt(punt) ? nearestContourPoint(segment, punt.x, punt.y).t : 0.5;
+    if (!(t > 0 && t < 1)) return null;
+    return zetVeelhoekOpScherm(ann, splitContourSegment(scherm, zijde, t, true));
+  }
   const a = scherm[zijde];
   const b = scherm[(zijde + 1) % scherm.length];
   const p = isPunt(punt) ? kaal(punt) : { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
@@ -254,8 +260,11 @@ export function veelhoekDeelBij(ann, x, y, tol) {
   });
   if (besteHoek >= 0) return { kind: 'vertex', nodeIndex: besteHoek };
   let besteZijde = -1, besteAfstand = Infinity, bestePunt = null;
+  const segments = contourSegments(scherm, true);
   for (let i = 0; i < scherm.length; i++) {
-    const q = projectieOpZijde(x, y, scherm[i], scherm[(i + 1) % scherm.length]);
+    const segment = segments[i];
+    const q = segment.kind === 'cubic' ? nearestContourPoint(segment, x, y)
+      : projectieOpZijde(x, y, scherm[i], scherm[(i + 1) % scherm.length]);
     const d = Math.hypot(q.x - x, q.y - y);
     if (d <= tol && d < besteAfstand) { besteZijde = i; besteAfstand = d; bestePunt = q; }
   }

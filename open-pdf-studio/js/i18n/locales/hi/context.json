@@ -173,7 +173,9 @@
     "deleteVertex": "शीर्ष हटाएं",
     "insertVertex": "यहां शीर्ष डालें",
     "convertToArc": "चाप में बदलें",
-    "convertToLine": "रेखा में बदलें"
+    "convertToLine": "रेखा में बदलें",
+    "makeSegmentCurved": "खंड को वक्र बनाएँ",
+    "makeSegmentStraight": "खंड को सीधा करें"
   },
   "revealInFileManager": {
     "windows": "Explorer में दिखाएं",
