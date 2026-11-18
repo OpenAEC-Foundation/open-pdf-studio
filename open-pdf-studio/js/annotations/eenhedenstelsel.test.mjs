@@ -135,6 +135,11 @@ test('de oude standaard both wordt eenmalig metrisch; een eigen keuze blijft', (
   assert.equal(na.unitsDefaultMetric, true);
   na.scaleUnitSystem = 'both';
   assert.equal(migreerStelselStandaard(na).scaleUnitSystem, 'both');
+  // Papiermaten gaan mee van punten naar millimeters; een andere keuze blijft.
+  assert.equal(migreerStelselStandaard({ paperSizeUnit: 'pt' }).paperSizeUnit, 'mm');
+  assert.equal(migreerStelselStandaard({}).paperSizeUnit, 'mm');
+  assert.equal(migreerStelselStandaard({ paperSizeUnit: 'in' }).paperSizeUnit, 'in');
+  assert.equal(migreerStelselStandaard({ paperSizeUnit: 'pt', unitsDefaultMetric: true }).paperSizeUnit, 'pt');
   assert.equal(migreerStelselStandaard(null), null);
 });
 
@@ -143,6 +148,7 @@ test('nieuwe installatie: metrisch, zonder imperiale schalen of inches', () => {
   const bron = readFileSync(new URL('../core/constants.ts', import.meta.url), 'utf8');
   assert.ok(bron.includes("scaleUnitSystem: 'metric',"));
   assert.ok(bron.includes('unitsDefaultMetric: true,'));
+  assert.ok(bron.includes("paperSizeUnit: 'mm',"));
   assert.ok(bron.includes("measureDistDimUnit: 'mm',"));
   assert.ok(bron.includes("measureAreaDimUnit: 'mm',"));
   assert.ok(bron.includes("measurePerimDimUnit: 'mm',"));

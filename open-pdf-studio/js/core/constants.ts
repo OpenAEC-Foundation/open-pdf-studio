@@ -419,7 +419,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Unit for paper sizes in the properties panel (image width/height, scale
   // bar height): 'mm' | 'cm' | 'in' | 'pt' (#598). Display only — the model
   // stays in page points.
-  paperSizeUnit: 'pt',
+  paperSizeUnit: 'mm',
   // Keyboard shortcuts changed by the user (#714): only the commands whose
   // shortcuts differ from the defaults, { 'view.fitPage': ['Ctrl+K'] }.
   // See core/keybindings/registry.js.

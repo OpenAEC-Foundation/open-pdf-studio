@@ -70,6 +70,10 @@ export function migreerStelselStandaard(opgeslagen) {
   if (opgeslagen.scaleUnitSystem === undefined || opgeslagen.scaleUnitSystem === 'both') {
     opgeslagen.scaleUnitSystem = 'metric';
   }
+  // Papiermaten: de oude standaard (punten) wordt millimeters.
+  if (opgeslagen.paperSizeUnit === undefined || opgeslagen.paperSizeUnit === 'pt') {
+    opgeslagen.paperSizeUnit = 'mm';
+  }
   opgeslagen.unitsDefaultMetric = true;
   return opgeslagen;
 }

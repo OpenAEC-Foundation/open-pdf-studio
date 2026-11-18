@@ -28,7 +28,7 @@ const STANDAARD = Object.freeze({
   scaleUnitSystem: 'metric',
   imperialLengthFormat: 'decimal',
   imperialFractionPrecision: 16,
-  paperSizeUnit: 'pt',
+  paperSizeUnit: 'mm',
 });
 
 /** Wat het voorkeurenvenster doet bij Opslaan in de browser (savePreferences). */
