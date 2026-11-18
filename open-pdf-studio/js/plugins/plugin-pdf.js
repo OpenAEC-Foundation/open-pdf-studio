@@ -1,4 +1,5 @@
 import { PDFName, PDFString } from 'pdf-lib';
+import { embedPngSnel } from '../pdf/embed-png-rust.js';
 import { pdfTextString, decodePdfTextObject } from '../pdf/saver/pdf-text.js';
 
 const MAX_METADATA_LENGTH = 2_000_000;
@@ -54,7 +55,7 @@ export async function createPluginPdfAnnotation(pdfDoc, annotation, rect, pngByt
   // Zonder afbeelding (de extensie kon niet tekenen, #621) alleen de gegevens:
   // de lader maakt er weer dezelfde annotatie van.
   if (!pngBytes) return dict;
-  const image = await pdfDoc.embedPng(pngBytes);
+  const image = await embedPngSnel(pdfDoc, pngBytes);
   const width = rect[2] - rect[0];
   const height = rect[3] - rect[1];
   const stream = context.stream(`q\n${width} 0 0 ${height} 0 0 cm\n/Img Do\nQ\n`, {

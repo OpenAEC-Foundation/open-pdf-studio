@@ -36,8 +36,11 @@ const DIST = path.join(app, 'dist');
 // 18-11-2026, ronde 18: desktop 4149 KiB, gehost 4166 KiB. Erbij: het
 // eenhedenstelsel, de tekststijl per gereedschap, de vertaalde wand-,
 // betonbalk- en systeemrasterteksten (Engels zit in de opstartbundel).
-export const BUDGET_KB = 4180;
-export const BUDGET_GZIP_KB = 1365; // gehost 1355 KiB op 18-11-2026
+// 18-11-2026, PNG insluiten via Rust: main stond op 4161 KiB (desktop) en
+// 4178 KiB (gehost); de naad (embed-png-rust.js) brengt dat op 4164 en
+// 4181 KiB, gzip 1355 en 1361 KiB.
+export const BUDGET_KB = 4185;
+export const BUDGET_GZIP_KB = 1365; // gehost 1361 KiB op 18-11-2026
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {

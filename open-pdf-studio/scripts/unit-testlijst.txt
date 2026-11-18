@@ -851,6 +851,9 @@ js/review/status-lijst-filter.test.mjs
 js/review/status-badge.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
+js/pdf/rust-routes.test.mjs
+js/pdf/embed-png-rust.test.mjs
+js/pdf/beeld-gevallen.test.mjs
 js/pdf/raster-scan-rust.test.mjs
 js/tools/snap-geometrie-binair.test.mjs
 js/pdf/documentgegevens.test.mjs

@@ -3783,6 +3783,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-image"
+version = "2026.47.1"
+dependencies = [
+ "png 0.18.1",
+ "zlib-rs",
+]
+
+[[package]]
 name = "open-pdf-monochrome"
 version = "2026.47.1"
 dependencies = [
@@ -3893,6 +3901,7 @@ dependencies = [
  "open",
  "open-pdf-cad",
  "open-pdf-cmyk",
+ "open-pdf-image",
  "open-pdf-monochrome",
  "open-pdf-render",
  "open-pdf-scan",

@@ -33,6 +33,7 @@ pub mod mcp_server;
 pub mod mcp_signaal;
 pub mod mcp_tool_meta;
 pub mod monochroom;
+pub mod beeld;
 pub mod verscherpen;
 pub mod symbool_zoeken;
 pub mod openaec_omgeving;
@@ -3972,6 +3973,8 @@ pub fn run(opts: StartupOpts) {
             herstel::herstel_schrijf,
             monochroom::monochroom_rust_beschikbaar,
             monochroom::monochroom_beeld,
+            beeld::beeld_rust_beschikbaar,
+            beeld::png_naar_xobject,
             herstel::herstel_lees,
             herstel::herstel_lees_tekst,
             herstel::herstel_lijst,

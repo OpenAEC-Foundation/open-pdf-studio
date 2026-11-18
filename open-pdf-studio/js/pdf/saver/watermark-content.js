@@ -5,6 +5,7 @@ import {
   degrees, rgb, drawText, drawImage, pushGraphicsState, popGraphicsState,
   concatTransformationMatrix, pdfDocEncodingDecode,
 } from 'pdf-lib';
+import { embedPngSnel } from '../embed-png-rust.js';
 import { bytesUitBase64 } from '../../annotations/afbeelding-bron.js';
 import { watermarkFont, watermarkPosition, watermarkTextPlacement, watermarkPageMatrix } from '../../watermark/watermark-layout.js';
 
@@ -75,7 +76,7 @@ export function removeWatermarkStreams(pdf, ids = null) {
 async function embedImage(pdf, imageData) {
   try {
     const bytes = bytesUitBase64(imageData.split(',')[1]);
-    return /^data:image\/jpe?g/i.test(imageData) ? await pdf.embedJpg(bytes) : await pdf.embedPng(bytes);
+    return /^data:image\/jpe?g/i.test(imageData) ? await pdf.embedJpg(bytes) : await embedPngSnel(pdf, bytes);
   } catch (e) {
     console.warn('Failed to embed watermark image:', e);
     return null;
