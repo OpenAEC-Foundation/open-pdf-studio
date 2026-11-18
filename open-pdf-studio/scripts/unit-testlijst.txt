@@ -2,6 +2,7 @@
 # Eén pad per regel, relatief aan open-pdf-studio/. Nieuwe tests hier toevoegen,
 # niet in package.json. Regels met # zijn commentaar.
 js/pdf/loader/extern-tekstvak-laden.test.mjs
+js/annotations/bezier-contour.test.mjs
 js/pdf/saver/typemachine.test.mjs
 js/pdf/typemachine-rondgang.test.mjs
 js/annotations/rendering/decorations.test.mjs
