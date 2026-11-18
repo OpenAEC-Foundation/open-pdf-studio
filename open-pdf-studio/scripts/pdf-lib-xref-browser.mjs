@@ -22,8 +22,11 @@ try {
   await page.waitForSelector('#tool-select', { timeout: 120000 });
   const pdf = await PDFDocument.create(); pdf.addPage([100, 100]);
   const valid = await pdf.save({ useObjectStreams: false });
-  const bad = Buffer.concat([Buffer.from(valid), Buffer.from('\n999 0 obj\n<< /Type /XRef /Size 1000 /Index [0 1] /W [100000 100000 100000] /Length 0 >>\nstream\n\nendstream\nendobj\n')]);
-  const result = await page.evaluate(async ({ valid, bad }) => {
+  // Los achter een bestand met xref-tabel hoort de stroom niet bij de xref-keten.
+  const orphan = Buffer.concat([Buffer.from(valid), Buffer.from('\n999 0 obj\n<< /Type /XRef /Size 1000 /Index [0 1] /W [100000 100000 100000] /Length 0 >>\nstream\n\nendstream\nendobj\n')]);
+  // Met een eigen startxref is hij de kruisverwijzing van het bestand.
+  const bad = Buffer.concat([orphan, Buffer.from(`startxref\n${valid.length + 1}\n%%EOF\n`)]);
+  const result = await page.evaluate(async ({ valid, bad, orphan }) => {
     const { createTab } = await import('/js/ui/chrome/tabs.js');
     const { loadPDF, setCachedPdfBytes, getCachedPdfBytes } = await import('/js/pdf/loader.js');
     const { getActiveDocument } = await import('/js/core/state.ts');
@@ -53,8 +56,9 @@ try {
     let directRejected = false;
     try { await PDFDocument.load(original, { parseSpeed: 5000 }); }
     catch (e) { directRejected = e.name === 'InvalidXRefStreamError'; }
+    const orphanPages = (await PDFDocument.load(new Uint8Array(orphan), { parseSpeed: 5000 })).getPageCount();
     const failed = await savePDF(null, { zonderHandtekeningVraag: true });
-    const failure = { failed, directRejected, writes, modified: doc.modified,
+    const failure = { failed, directRejected, orphanPages, writes, modified: doc.modified,
       cacheIntact: getCachedPdfBytes(doc.filePath) === original,
       sourceIntact: files.get('/xref.pdf').every((v, i) => v === bad[i]) };
     setCachedPdfBytes(doc.filePath, new Uint8Array(valid));
@@ -64,8 +68,8 @@ try {
     const success = await savePDF(null, { zonderHandtekeningVraag: true });
     const pages = (await PDFDocument.load(saved)).getPageCount();
     return { failure, cancelled, writesAfterCancel, success, pages, writes };
-  }, { valid: [...valid], bad: [...bad] });
-  assert.deepEqual(result.failure, { failed: false, directRejected: true, writes: 0, modified: true, cacheIntact: true, sourceIntact: true });
+  }, { valid: [...valid], bad: [...bad], orphan: [...orphan] });
+  assert.deepEqual(result.failure, { failed: false, directRejected: true, orphanPages: 1, writes: 0, modified: true, cacheIntact: true, sourceIntact: true });
   assert.equal(result.cancelled, false); assert.equal(result.writesAfterCancel, 0);
   assert.equal(result.success, true); assert.equal(result.pages, 1); assert.ok(result.writes > 0);
   console.log(JSON.stringify({ browser: browser.version(), ...result }));
