@@ -816,15 +816,28 @@ let _continuousObserver = null;
 /** Langste as van het achtergrondbeeld: het beeld van de gecapte render. */
 const SCHERP_BG_AS_PX = CONT_MAX_AXIS_PX;
 /** Langste as van een voorlopige achtergrond (uit wat er al op het scherm stond). */
-const SCHERP_BG_VOORLOPIG_AS_PX = 1536;
+const SCHERP_BG_VOORLOPIG_AS_PX = 2048;
+/**
+ * Een voorlopige achtergrond van minstens deze maat blijft: de render van de
+ * hele pagina op de cap kost op een zwaar blad seconden waarin de volgende
+ * scherpe uitsnede van die pagina moet wachten, voor een beeld dat alleen
+ * even te zien is aan de rand tijdens het scrollen.
+ */
+const SCHERP_BG_GENOEG_AS_PX = 1536;
+/**
+ * Zo lang na een scherpe uitsnede wacht de render van de achtergrond: wie
+ * meteen verder zoomt of scrolt, krijgt eerst zijn volgende uitsnede (op een
+ * zwaar blad delen ze één worker en is een begonnen render niet af te breken).
+ */
+const SCHERP_BG_WACHT_MS = 1200;
 /** Zoveel achtergrondbeelden blijven bewaard (JPEG, enkele MB per stuk). */
 const SCHERP_BG_BEWAARD = 24;
 
-// pageNum -> { gen, uitsnede, sleutel, bezig, opnieuw, herkanst } van de
+// pageNum -> { gen, uitsnede, sleutel, bezig, opnieuw, herkanst, bgTimer } van de
 // pagina's die nu in de DOM in uitsnede-modus staan. Wordt bij elke herbouw
 // geleegd.
 const _scherpStaat = new Map();
-// sleutel -> { url, mini, voorlopig }: achtergrondbeelden, LRU.
+// sleutel -> { url, mini, voorlopig, as }: achtergrondbeelden, LRU.
 const _scherpAchtergronden = new Map();
 // sleutel -> { definitief }: lopende achtergrondtaken.
 const _scherpBgBezig = new Map();
@@ -943,7 +956,7 @@ async function _bewaarAchtergrond(sleutel, bron, bronB, bronH, voorlopig, draai 
     URL.revokeObjectURL(url);
     return;
   }
-  const entry = { url, mini, voorlopig };
+  const entry = { url, mini, voorlopig, as: Math.max(maat.breedte, maat.hoogte) };
   _scherpAchtergronden.delete(sleutel);
   _scherpAchtergronden.set(sleutel, entry);
   document.querySelectorAll('#continuous-container .canvas-container-cont').forEach((cc) => {
@@ -973,7 +986,9 @@ function _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, b
     _scherpAchtergronden.delete(sleutel);
     _scherpAchtergronden.set(sleutel, entry);
     _zetAchtergrondOp(cc, sleutel, entry);
-    if (!entry.voorlopig) return;
+    // (Een gedraaide pagina krijgt altijd het hier gedraaide beeld: dat staat
+    // gegarandeerd in dezelfde stand als de uitsnede.)
+    if (!entry.voorlopig || (!rotatie && entry.as >= SCHERP_BG_GENOEG_AS_PX)) return;
   } else {
     // Een achtergrond van een andere stand (gedraaid, lijnstand) hoort hier niet.
     if (cc.dataset.scherpBg && cc.dataset.scherpBg !== sleutel) _haalAchtergrondWeg(cc);
@@ -1002,6 +1017,7 @@ function _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, b
         }
       }
       if (!taak.definitief) return;
+      if (!rotatie && (_scherpAchtergronden.get(sleutel)?.as || 0) >= SCHERP_BG_GENOEG_AS_PX) return;
       // Definitief: de gecapte hele-paginarender, ONGEDRAAID gevraagd en hier
       // gedraaid, net als de uitsnede (zo staan ze altijd in dezelfde stand).
       // Staat hij nog in de JS-cache (dezelfde sleutel als het hele-paginapad
@@ -1141,7 +1157,7 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
   if (!_scherpVoorPagina(doc, pageNum, breedte, hoogte)) return;
   let staat = _scherpStaat.get(pageNum);
   if (!staat) {
-    staat = { gen: 0, uitsnede: null, sleutel: '', bezig: false, opnieuw: false, herkanst: false };
+    staat = { gen: 0, uitsnede: null, sleutel: '', bezig: false, opnieuw: false, herkanst: false, bgTimer: null };
     _scherpStaat.set(pageNum, staat);
   }
   const rotatie = beeldRotatie(pageNum);
@@ -1157,12 +1173,13 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
     staat.sleutel = '';
     staat.opnieuw = false;
     if (canvas.dataset.beeld === 'uitsnede') _maakUitsnedeLeeg(canvas);
-    _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, baseH });
+    // Alleen wat er al is (voorvertoning): renderen doet de pagina in beeld.
+    _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, baseH, definitief: false });
     return;
   }
   const sleutel = uitsnedeSleutel({ schaal, dpr, rotatie, dunneLijnen: dun });
   if (staat.sleutel === sleutel && uitsnedeVolstaat(staat.uitsnede, zichtbaar)) {
-    _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, baseH });
+    if (!staat.bgTimer) _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, baseH });
     return;
   }
   // Eerst wat er al is als achtergrond; de render daarvan volgt na de uitsnede.
@@ -1176,6 +1193,10 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
   const gen = staat.gen;
   staat.bezig = true;
   staat.opnieuw = false;
+  if (staat.bgTimer) {
+    clearTimeout(staat.bgTimer);
+    staat.bgTimer = null;
+  }
   const actueel = () => _scherpStaat.get(pageNum) === staat && staat.gen === gen
     && doc.scale === schaal && !_isStaleDoc(doc) && canvas.isConnected;
   const terugval = (reden) => {
@@ -1274,8 +1295,13 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
         staat.opnieuw = false;
         werkScherpeUitsnedeBij(pageWrapper, pageNum);
       } else if (staat.sleutel) {
-        // De uitsnede staat er: nu de achtergrond van de hele pagina.
-        _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, baseH });
+        // De uitsnede staat er: straks de achtergrond van de hele pagina.
+        if (staat.bgTimer) clearTimeout(staat.bgTimer);
+        staat.bgTimer = setTimeout(() => {
+          staat.bgTimer = null;
+          if (_scherpStaat.get(pageNum) !== staat || staat.bezig || !canvas.isConnected || _isStaleDoc(doc)) return;
+          _zorgVoorAchtergrond(doc, pageNum, cc, canvas, { rotatie, dun, baseW, baseH });
+        }, SCHERP_BG_WACHT_MS);
       }
     }
   }
