@@ -37,6 +37,7 @@ export default function SharedReviewDialog() {
   const errorText = (code) => ({
     READ_FAILED: t('sharedReview.errorRead'),
     WRITE_FAILED: t('sharedReview.errorWrite'),
+    WRITE_BUSY: t('sharedReview.errorWriteBusy'),
     SAVE_FIRST: t('sharedReview.errorSaveFirst'),
   })[code] || t('sharedReview.errorGeneric');
 

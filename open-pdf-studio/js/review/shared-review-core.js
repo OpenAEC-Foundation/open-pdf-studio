@@ -472,11 +472,31 @@ export function folderSignature(files) {
   return files.map((f) => `${f.name}|${f.size ?? ''}|${f.mtimeMs ?? ''}`).sort().join('\n');
 }
 
+// A quiet folder is listed less often (#1115): one listing per interval is
+// little, but in a synchronised folder every listing is one more program
+// walking the folder next to the sync client. After a minute without changes
+// (at the default interval) the wait doubles, after five minutes it is four
+// times as long, never more than a minute unless the user chose a longer
+// interval. A folder that cannot be listed is tried at the normal interval
+// once, then with a doubling wait up to five minutes.
+const IDLE_POLLS_SLOW = 12;
+const IDLE_POLLS_SLOWEST = 36;
+const MAX_IDLE_DELAY_MS = 60000;
+const MAX_ERROR_DELAY_MS = 300000;
+
+/** The wait before the next listing. */
+export function pollDelayMs(intervalMs, { idle = 0, failures = 0 } = {}) {
+  if (failures > 1) return Math.max(intervalMs, Math.min(intervalMs * 2 ** Math.min(failures - 1, 10), MAX_ERROR_DELAY_MS));
+  const factor = idle >= IDLE_POLLS_SLOWEST ? 4 : idle >= IDLE_POLLS_SLOW ? 2 : 1;
+  return Math.max(intervalMs, Math.min(intervalMs * factor, MAX_IDLE_DELAY_MS));
+}
+
 /**
  * Polls `list()` and calls `onChange(files)` when the listing changed (name,
  * size or modification time). Timer and clock are injected so tests and the
  * app agree on behaviour without waiting. Polling instead of a file watcher:
  * network shares and sync drives often deliver no change events at all.
+ * A listing only reads the folder; no file is opened unless it changed.
  */
 export function createFolderPoller({ list, onChange, onError = () => {}, intervalMs = 5000, setTimer = setTimeout, clearTimer = clearTimeout }) {
   let timer = null;
@@ -484,17 +504,28 @@ export function createFolderPoller({ list, onChange, onError = () => {}, interva
   let running = null;
   let last = null;
   let interval = intervalMs;
+  let idle = 0;
+  let failures = 0;
   const schedule = () => {
     if (stopped) return;
     if (timer !== null) clearTimer(timer);
-    timer = setTimer(() => { timer = null; pollNow(); }, interval);
+    timer = setTimer(() => { timer = null; pollNow(); }, pollDelayMs(interval, { idle, failures }));
   };
   async function poll(force) {
+    let files;
     try {
-      const files = await list();
+      files = await list();
+    } catch (e) {
+      failures++;
+      onError(e);
+      return false;
+    }
+    failures = 0;
+    try {
       if (stopped) return false;
       const sig = folderSignature(files);
-      if (!force && sig === last) return false;
+      if (!force && sig === last) { idle++; return false; }
+      idle = 0;
       last = sig;
       await onChange(files);
       return true;
@@ -512,7 +543,33 @@ export function createFolderPoller({ list, onChange, onError = () => {}, interva
     start() { if (!stopped) return running || Promise.resolve(false); stopped = false; return pollNow(true); },
     stop() { stopped = true; if (timer !== null) clearTimer(timer); timer = null; },
     pollNow,
-    setInterval(ms) { interval = Math.max(1000, Number(ms) || intervalMs); schedule(); },
+    setInterval(ms) { interval = Math.max(1000, Number(ms) || intervalMs); idle = 0; schedule(); },
+    /** Something happened here (I published): poll at the normal pace again. */
+    touch() { if (idle) { idle = 0; if (!running) schedule(); } },
     get running() { return !stopped; },
   };
+}
+
+// ── Publishing again after a failed write (#1115) ───────────────────────────
+
+/**
+ * What a failed write of a review file means. `WRITE_BUSY`: another program
+ * (a cloud sync client, a virus scanner) kept the file in use, also after the
+ * waits of the Rust side (src-tauri/src/shared_review.rs, `IN_USE`).
+ */
+export function writeErrorCode(error) {
+  return String(error?.message ?? error ?? '').includes('REVIEW_FILE_IN_USE') ? 'WRITE_BUSY' : 'WRITE_FAILED';
+}
+
+const PUBLISH_RETRY_S = [5, 15, 30, 60];
+
+/** The wait before publish attempt `attempt` (0 = the first one after a failure); then once a minute. */
+export function publishRetryDelayMs(attempt) {
+  const i = Math.max(0, Math.min(PUBLISH_RETRY_S.length - 1, Math.floor(Number(attempt) || 0)));
+  return PUBLISH_RETRY_S[i] * 1000;
+}
+
+/** The status of a session: an unpublished change weighs heavier than a failed read. */
+export function reviewErrorCode({ writeError = null, readError = false } = {}) {
+  return writeError || (readError ? 'READ_FAILED' : null);
 }

@@ -2272,6 +2272,7 @@
     "deleted": "премахнато",
     "errorRead": "Папката за преглед не може да бъде прочетена.",
     "errorWrite": "Промените ви не могат да бъдат записани в папката за преглед.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Първо запишете PDF, за да започнете споделен преглед.",
     "errorGeneric": "Споделеният преглед не може да бъде стартиран.",
     "close": "Затваряне"

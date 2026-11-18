@@ -2272,6 +2272,7 @@
     "deleted": "削除済み",
     "errorRead": "レビューフォルダーを読み込めませんでした。",
     "errorWrite": "変更をレビューフォルダーに書き込めませんでした。",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "共有レビューを開始するには、まず PDF を保存してください。",
     "errorGeneric": "共有レビューを開始できませんでした。",
     "close": "閉じる"

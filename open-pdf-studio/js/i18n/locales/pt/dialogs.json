@@ -2272,6 +2272,7 @@
     "deleted": "removida",
     "errorRead": "Não foi possível ler a pasta de revisão.",
     "errorWrite": "Não foi possível escrever as suas alterações na pasta de revisão.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Guarde primeiro o PDF para iniciar uma revisão partilhada.",
     "errorGeneric": "Não foi possível iniciar a revisão partilhada.",
     "close": "Fechar"

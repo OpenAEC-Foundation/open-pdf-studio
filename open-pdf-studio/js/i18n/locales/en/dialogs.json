@@ -2271,6 +2271,7 @@
     "deleted": "removed",
     "errorRead": "The review folder could not be read.",
     "errorWrite": "Your changes could not be written to the review folder.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Save the PDF first to start a shared review.",
     "errorGeneric": "The shared review could not be started.",
     "close": "Close"
