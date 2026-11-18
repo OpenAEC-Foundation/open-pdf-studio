@@ -5,6 +5,7 @@ import { state, getAnnotationBounds } from '../../core/state.js';
 import { getAnnotationHandles } from '../handles.js';
 import { schermSchaal } from '../../pdf/split-view/paneel-weergave.js';
 import { getTemplate } from '../../symbols/registry.js';
+import { hasCurves, tracePath } from '../curve-path.js';
 
 // Draw selection highlight and handles
 export function drawSelectionHandles(ctx, annotation) {
@@ -207,9 +208,14 @@ export function drawSelectionHandles(ctx, annotation) {
     ctx.lineWidth = (isEditingContour ? 1.5 : 1) / sc;
     ctx.setLineDash([3 / sc, 3 / sc]);
     ctx.beginPath();
-    ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
-    for (let i = 1; i < annotation.points.length; i++) {
-      ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
+    if (annotation.type === 'polyline' && hasCurves(annotation.curves)) {
+      // Het selectiekader volgt de krommen (#1169).
+      tracePath(ctx, annotation.points, annotation.curves, false);
+    } else {
+      ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
+      for (let i = 1; i < annotation.points.length; i++) {
+        ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
+      }
     }
     if (annotation.type === 'measureArea' || annotation.type === 'filledArea') ctx.closePath();
     ctx.stroke();

@@ -4,7 +4,8 @@
 
 import { totalBarLengthM } from '../annotations/stavenreeks.js';
 import { nettoVlakOppervlak } from '../annotations/vlak-ringen.js';
-import { veelhoekPunten } from '../annotations/veelhoek-punten.js';
+import { veelhoekPunten, veelhoekKrommen } from '../annotations/veelhoek-punten.js';
+import { hasCurves, pathLength, pathArea } from '../annotations/curve-path.js';
 import { expandArcPoints, hasArcPoints } from '../annotations/arc-points.js';
 import { vlakUitkomst } from '../annotations/oppervlakte-eenheid.js';
 
@@ -163,6 +164,10 @@ const GEOMETRISCHE_VLAKKEN = new Set([
 function pixelArea(el) {
   // Een veelhoek (#622): de hoekpunten zoals het scherm ze in zijn vak tekent.
   const pts = (el.type === 'polygon' && veelhoekPunten(el)) || (Array.isArray(el.points) ? el.points : null);
+  // Veelhoek met krommen (#1169): de oppervlakte onder de krommen, exact.
+  if (el.type === 'polygon' && pts && pts.length >= 3 && hasCurves(el.curves)) {
+    return pathArea(pts, veelhoekKrommen(el));
+  }
   if (pts && pts.length >= 3) return nettoVlakOppervlak(pts, el.holes);
   const w = Math.abs(el.width || 0), h = Math.abs(el.height || 0);
   if (w > 0 && h > 0) {
@@ -212,6 +217,10 @@ function pixelLength(el) {
   }
   const pts = Array.isArray(el.points) ? el.points
     : (Array.isArray(el.path) ? el.path : null);
+  // Polylijn met krommen (#1169): de lengte van de krommen zelf.
+  if (el.type === 'polyline' && pts && pts.length >= 2 && hasCurves(el.curves)) {
+    return pathLength(pts, el.curves);
+  }
   if (pts && pts.length >= 2) {
     let total = 0;
     for (let i = 0; i < pts.length - 1; i++) {
@@ -243,6 +252,10 @@ function ringOmtrek(ring) {
 // cirkel/ellips met de benadering van Ramanujan. Null zonder geometrie.
 function pixelOmtrek(el) {
   const pts = (el.type === 'polygon' && veelhoekPunten(el)) || (Array.isArray(el.points) ? el.points : null);
+  // Veelhoek met krommen (#1169): de lengte van de krommen zelf.
+  if (el.type === 'polygon' && pts && pts.length >= 3 && hasCurves(el.curves)) {
+    return pathLength(pts, veelhoekKrommen(el), { closed: true });
+  }
   if (pts && pts.length >= 3) {
     let total = ringOmtrek(pts);
     if (Array.isArray(el.holes)) {

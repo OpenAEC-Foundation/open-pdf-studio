@@ -1,5 +1,6 @@
 import { layoutTextboxLines, textboxTekstInzet, verticaleVerschuiving } from './textbox-layout.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../minimummaat.js';
+import { hasCurves, tracePath, transformCurves } from '../curve-path.js';
 // First strong-directional character decides the base direction of a text run,
 // mirroring CSS `dir="auto"` (which the free-text/callout editors use, issue #61).
 // Returns true when the first strongly-typed character is RTL (Hebrew, Arabic,
@@ -48,7 +49,9 @@ export function drawPolygonShape(ctx, x, y, width, height, sides = 6) {
 // that buildPolygonPath synthesises. Mapping through the box keeps bbox-based
 // resize handles working (the box is the vertices' own bounds on import, so it
 // is an identity mapping until the user resizes). Issue #286.
-export function buildPolygonPointsPath(ctx, points, x, y, width, height) {
+// `curves` (#1169, curve-path.js): een zijde met een kromme wordt een
+// bezierCurveTo; de stuurpunten rekken mee met het vak.
+export function buildPolygonPointsPath(ctx, points, x, y, width, height, curves) {
   if (!points || points.length < 2) return;
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of points) {
@@ -62,6 +65,11 @@ export function buildPolygonPointsPath(ctx, points, x, y, width, height) {
   const sx = spanX > 1e-6 ? width / spanX : 1;
   const sy = spanY > 1e-6 ? height / spanY : 1;
   ctx.beginPath();
+  if (hasCurves(curves)) {
+    const pts = points.map((p) => ({ x: x + (p.x - minX) * sx, y: y + (p.y - minY) * sy }));
+    tracePath(ctx, pts, transformCurves(curves, sx, 0, 0, sy), true);
+    return;
+  }
   points.forEach((p, i) => {
     const px = x + (p.x - minX) * sx;
     const py = y + (p.y - minY) * sy;

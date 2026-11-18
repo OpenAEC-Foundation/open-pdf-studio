@@ -579,7 +579,15 @@ export function deleteNode(points, curves, index, closed, min = closed ? 3 : 2) 
       const lv = bv ? cubicLength(bv, 1e-3) : Math.hypot(midden.x - begin.x, midden.y - begin.y);
       const ln = bn ? cubicLength(bn, 1e-3) : Math.hypot(eind.x - midden.x, eind.y - midden.y);
       const tot = lv + ln;
-      const tv = tot > 0 ? Math.max(0.05, Math.min(0.95, lv / tot)) : 0.5;
+      let tv = tot > 0 ? lv / tot : 0.5;
+      // Een vloeiende knoop tussen twee krommen is (zo goed als zeker) een
+      // deelpunt van een kromme: daar verhouden de twee stuurpunten zich als
+      // t : (1 − t), en geeft terugrekenen exact de oude kromme.
+      if (voor && na) {
+        const li = Math.hypot(voor.c2x, voor.c2y), lo = Math.hypot(na.c1x, na.c1y);
+        if (li + lo > 1e-9 && isSmoothNode(points, curves, index, closed)) tv = li / (li + lo);
+      }
+      tv = Math.max(0.05, Math.min(0.95, tv));
       const c1 = voor
         ? { x: voor.c1x / tv, y: voor.c1y / tv }
         : { x: (midden.x - begin.x) / 3 / tv, y: (midden.y - begin.y) / 3 / tv };

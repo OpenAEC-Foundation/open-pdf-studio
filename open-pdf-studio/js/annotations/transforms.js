@@ -15,7 +15,8 @@ import {
 } from '../symbols/two-point.js';
 import { isQuad, markeringUitQuads } from './markering-quads.js';
 import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
-import { isBewerkbareVeelhoek, verplaatsVeelhoekHoekpunt } from './veelhoek-punten.js';
+import { isBewerkbareVeelhoek, verplaatsVeelhoekHoekpunt, pasVeelhoekToe } from './veelhoek-punten.js';
+import { hasCurves, rotateCurves } from './curve-path.js';
 import {
   MIN_GEBIED_PX, schaalRechthoekMetGreep, schermPxNaarPt, veiligeVerhouding,
   tekstvakMinimum, nietNul,
@@ -314,7 +315,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         const nieuw = verplaatsVeelhoekHoekpunt(originalAnn, hoekIdx, deltaX, deltaY,
           { shift: shiftKey, uitlijnTol: 3 / zoom });
         if (nieuw) {
-          Object.assign(annotation, nieuw);
+          pasVeelhoekToe(annotation, nieuw);
           annotation.modifiedAt = new Date().toISOString();
         }
         return;
@@ -1278,6 +1279,12 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
     if (Array.isArray(annotation[k])) {
       annotation[k] = annotation[k].map(rotPoint);
     }
+  }
+  // Krommen van een polylijn (#1169): de stuurpunten staan relatief aan hun
+  // knoop en draaien dus mee over dezelfde hoek. (Een veelhoek draait via
+  // zijn hoek; zijn ongedraaide krommen blijven staan.)
+  if (annotation.type === 'polyline' && hasCurves(annotation.curves)) {
+    annotation.curves = rotateCurves(annotation.curves, deg);
   }
   if (Array.isArray(annotation.holes)) {
     annotation.holes = annotation.holes.map(h => (Array.isArray(h) ? h.map(rotPoint) : h));

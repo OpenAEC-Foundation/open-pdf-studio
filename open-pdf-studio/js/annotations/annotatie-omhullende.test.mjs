@@ -20,7 +20,9 @@ const rotatedRectAabb = (r) => {
   const w = r.width * c + r.height * s;
   const h = r.width * s + r.height * c;
   return { x: r.x + r.width / 2 - w / 2, y: r.y + r.height / 2 - h / 2, width: w, height: h };
-};`);
+};`)
+  // Een data:-module kent geen relatieve imports; curve-shape.js is puur.
+  .replace("from './curve-shape.js'", `from '${new URL('./curve-shape.js', import.meta.url).href}'`);
 
 const { annotationBounds, SpatialIndex } =
   await import('data:text/javascript;base64,' + Buffer.from(bron, 'utf8').toString('base64'));
@@ -137,4 +139,26 @@ test('vlak met een tweede deel: dat deel valt binnen de omhullende (#457)', () =
     assert.ok(omvat(b, [[0, 0], [100, 100], [300, 0], [400, 100]]),
       `${type}: het tweede deel valt buiten de omhullende: ${JSON.stringify(b)}`);
   }
+});
+
+test('polylijn en veelhoek met krommen: de buik van de kromme valt binnen de omhullende (#1169)', () => {
+  // Een kromme steekt buiten zijn knopen (en buiten het vak van de veelhoek)
+  // uit; zonder die buik liet de viewport-culling de vorm te vroeg weg.
+  const lijn = annotationBounds({
+    type: 'polyline', page: 1, lineWidth: 2,
+    points: [{ x: 0, y: 0 }, { x: 100, y: 0 }],
+    curves: [{ c1x: 0, c1y: 100, c2x: 0, c2y: 100 }],
+  });
+  assert.ok(omvat(lijn, [[0, 0], [100, 0], [50, 75]]), JSON.stringify(lijn));
+  const vlak = annotationBounds({
+    type: 'polygon', page: 1, x: 0, y: 0, width: 100, height: 60, sides: 4,
+    points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 60 }, { x: 0, y: 60 }],
+    curves: [{ c1x: 0, c1y: -80, c2x: 0, c2y: -80 }, null, null, null],
+  });
+  assert.ok(omvat(vlak, [[50, -60], [0, 60], [100, 60]]), JSON.stringify(vlak));
+  // Zonder krommen blijft de omhullende wat hij was.
+  assert.deepEqual(
+    annotationBounds({ type: 'polygon', page: 1, x: 0, y: 0, width: 100, height: 60, sides: 4,
+      points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 60 }, { x: 0, y: 60 }] }),
+    { x: 0, y: 0, width: 100, height: 60 });
 });

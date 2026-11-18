@@ -536,6 +536,7 @@ js/pdf/schaalgebied-rondgang.test.mjs
 js/solid/stores/schaalgebied-paneel.test.mjs
 js/annotations/veelhoek-punten.test.mjs
 js/annotations/curve-path.test.mjs
+js/annotations/curve-shape.test.mjs
 js/annotations/veelhoek-bewerken.test.mjs
 js/annotations/veelhoek-raak.test.mjs
 js/annotations/kale-lijst.test.mjs
