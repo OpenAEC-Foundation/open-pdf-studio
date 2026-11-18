@@ -21,6 +21,8 @@ try {
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/`, { timeout: 120000 });
   await page.waitForSelector('[data-tab="view"]', { timeout: 120000 });
+  // Open the documents in continuous view (the default is single-page).
+  await page.evaluate(async () => { (await import('/js/core/state.ts')).state.preferences.defaultViewMode = 'continuous'; });
   const kleuren = { rood: [1,0,0], groen: [0,1,0], blauw: [0,0,1] };
   for (const [naam, k] of Object.entries(kleuren)) {
     const pdf = await PDFDocument.create();
@@ -52,7 +54,7 @@ try {
   const modus = (m) => page.evaluate(async (m) => (await import('/js/pdf/renderer.js')).setViewMode(m), m);
   const info = () => page.evaluate(async () => { const { state } = await import('/js/core/state.ts'); return state.documents.map(d => d.fileName + ':' + d.viewMode).join(' '); });
   await zie('after loading');
-  // A new document opens in continuous view (the default).
+  // A new document opens in the preferred view, continuous here.
   assert.equal(await page.evaluate(async () => (await import('/js/core/state.ts')).getActiveDocument().viewMode), 'continuous');
   assert.ok(await page.evaluate(() => getComputedStyle(document.getElementById('continuous-container')).display !== 'none'), 'continuous area shown after loading');
   for (const i of [0, 1]) { await sw(i); await modus('single'); await zie('tab ' + i + ' single'); }

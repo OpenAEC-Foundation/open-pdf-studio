@@ -27,6 +27,8 @@ try {
   const result = await page.evaluate(async () => {
     const { runAppEvent } = await import('/js/mcp-bridge.js');
     const { getActiveDocument } = await import('/js/core/state.ts');
+    // Begin in de doorlopende weergave (de standaard is enkele pagina).
+    (await import('/js/core/state.ts')).state.preferences.defaultViewMode = 'continuous';
     await (await import('/js/pdf/loader.js')).createBlankPDF(600, 400, 2);
     const doc = getActiveDocument();
     const wacht = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -78,7 +80,7 @@ try {
     return uit;
   });
 
-  assert.equal(result.begin, 'continuous', 'a new document opens in continuous view');
+  assert.equal(result.begin, 'continuous', 'the document opens in the preferred (continuous) view');
   for (const naam of ['doorlopend', 'enkel', 'weerDoorlopend']) {
     const o = result[naam];
     assert.equal(o.ok, true, `${naam}: ${o.error || ''}`);
