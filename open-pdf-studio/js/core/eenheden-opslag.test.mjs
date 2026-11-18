@@ -25,7 +25,7 @@ const { voorkeurenBijStelsel, standaardenVoorStelsel } = await import('../annota
 // De standaarden van de betrokken voorkeuren (core/constants.ts).
 const STANDAARD = Object.freeze({
   theme: 'default',
-  scaleUnitSystem: 'both',
+  scaleUnitSystem: 'metric',
   imperialLengthFormat: 'decimal',
   imperialFractionPrecision: 16,
   paperSizeUnit: 'pt',
@@ -83,7 +83,7 @@ test('terug naar metrisch overschrijft de bewaarde keuze', () => {
 
 test('zonder bewaarde voorkeuren geldt de standaard', () => {
   winkel.clear();
-  assert.equal(laad().scaleUnitSystem, 'both');
+  assert.equal(laad().scaleUnitSystem, 'metric');
 });
 
 test('zonder bruikbare browseropslag: de keuze werkt, maar is niet blijvend', () => {

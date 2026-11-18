@@ -278,8 +278,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
   imperialLengthFormat: 'decimal',
   imperialFractionPrecision: 16,
   // Welke standaardschalen de schaallijsten tonen (#996): 'metric',
-  // 'imperial' of 'both'.
-  scaleUnitSystem: 'both',
+  // 'imperial' of 'both'. Standaard metrisch: imperiale schalen en inches
+  // verschijnen pas als de gebruiker daarvoor kiest.
+  scaleUnitSystem: 'metric',
+  // Eenmalige overgang van de oude standaard 'both' naar 'metric' is gedaan
+  // (eenhedenstelsel.js, migreerStelselStandaard).
+  unitsDefaultMetric: true,
 
   // Measure Distance defaults
   measureDistStrokeColor: '#FF0000',

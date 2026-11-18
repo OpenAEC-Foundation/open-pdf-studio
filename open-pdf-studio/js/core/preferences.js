@@ -17,6 +17,7 @@ import { kalibratieVoor } from '../pdf/schermkalibratie.js';
 import { pasSneltoetsVoorkeurToe } from './keybindings/app-shortcuts.js';
 import { zetPaginaAchtergrond } from '../pdf/pagina-achtergrond.js';
 import { zetVloeiendScrollen } from './vloeiend-scrollen.js';
+import { migreerStelselStandaard } from '../annotations/eenhedenstelsel.js';
 
 // What 100% zoom means (#523), read live so a new calibration, a changed
 // preference or a move to a screen with another scale applies at once: on a
@@ -65,6 +66,8 @@ export async function loadPreferences() {
       if (loaded.defaultViewMode !== 'continuous') {
         loaded.defaultViewMode = 'continuous';
       }
+      // Eenheden: de oude standaard 'both' wordt eenmalig 'metric'.
+      migreerStelselStandaard(loaded);
       // Merge with defaults to ensure all keys exist
       state.preferences = voegSamenMetStandaarden(DEFAULT_PREFERENCES, loaded);
     }
