@@ -9,6 +9,12 @@ export default function PrefComboBox(props) {
   const max = props.max ?? 100;
   const suffix = props.suffix !== undefined ? props.suffix : '%';
 
+  // Voor het slepen op het veld (ui/getal-slepen.js): de grenzen, de stap
+  // (dragStep) en of het veld alleen hele getallen kent. De keuzevelden van
+  // het eigenschappenpaneel slaan hele getallen op (punten, procenten,
+  // graden), behalve waar een fijnere sleepstap is opgegeven.
+  const geheel = props.integer ?? !(props.dragStep < 1);
+
   const { open, setOpen, dropdownStyle, setWrapperRef, setDropdownRef, toggleDropdown } =
     useDropdown(options.length);
 
@@ -65,6 +71,10 @@ export default function PrefComboBox(props) {
         inputmode="decimal"
         data-getal
         class="pref-combo-input"
+        data-min={min}
+        data-max={max}
+        data-step={props.dragStep}
+        data-geheel={geheel ? '' : undefined}
         value={props.value() === 'mixed' ? 'Mixed' : props.value()}
         placeholder={props.value() === 'mixed' ? 'Mixed' : undefined}
         disabled={isDisabled()}

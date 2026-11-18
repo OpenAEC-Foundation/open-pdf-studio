@@ -95,6 +95,7 @@ import './core/console-ring.js';
 import i18next from './i18n/config.js';
 import { language } from './i18n/useTranslation.js';
 import { installeerGetalVelden, herformatteerGetalVelden } from './ui/getal-veld.js';
+import { beginWaardeSleep, eindeWaardeSleep } from './core/undo-manager.js';
 import { stelNotatieBronIn } from './core/maat-notatie.js';
 import { stelVoetInchBronIn } from './core/voet-inch.js';
 import { stelSchaalSysteemBronIn } from './annotations/scale-presets.js';
@@ -234,7 +235,14 @@ async function init() {
   installeerWerkmapDialogen(window);
   // Getalvelden accepteren komma én punt; ze tonen het decimaalteken van de
   // app-taal en schakelen mee bij een taalwissel (ui/getal-veld.js).
-  installeerGetalVelden({ taal: () => language() });
+  // Op de getalvelden van het eigenschappenpaneel kan gesleept worden (#1168):
+  // de hele sleep is één ongedaan-stap, Escape zet de beginwaarde terug.
+  installeerGetalVelden({
+    taal: () => language(),
+    sleepHint: () => i18next.t('common:dragToChange'),
+    sleepBegin: () => beginWaardeSleep(),
+    sleepEinde: ({ geannuleerd }) => { eindeWaardeSleep({ annuleer: geannuleerd }).catch((e) => console.error(e)); },
+  });
   // Maten tonen hetzelfde decimaalteken (of de voorkeur measureDecimalNotation)
   // en eventueel duizendtalscheiding: "15,60 m²" in het Nederlands (#629).
   stelNotatieBronIn(() => ({

@@ -203,7 +203,7 @@ export default function AppearanceSection() {
               value={() => annotProps.lineWidth}
               setValue={(val) => updateAnnotProp('lineWidth', val)}
               options={[0, 0.5, 1, 2, 3, 4, 6, 8, 10, 12]}
-              min={0} max={20} fallback={1} suffix="pt"
+              min={0} max={20} fallback={1} suffix="pt" dragStep={0.1}
               disabled={isLocked}
             />
           </div>

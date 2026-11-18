@@ -81,6 +81,7 @@ js/tools/snap-geometrie-cache.test.mjs
 js/annotations/schaal-bronnen.test.mjs
 js/solid/stores/quantitiesStore.test.mjs
 js/core/undo-manager.test.mjs
+js/core/undo-waarde-sleep.test.mjs
 js/core/undo-tekstlaag.test.mjs
 js/utils/date-formatter.test.mjs
 js/pdf/loader/annotaties-toevoegen.test.mjs
@@ -560,6 +561,8 @@ js/core/getal-invoer.test.mjs
 js/core/getal-invoer-velden.test.mjs
 js/ui/getal-veld.test.mjs
 js/ui/getal-stappen.test.mjs
+js/ui/getal-slepen.test.mjs
+js/core/getal-slepen.test.mjs
 js/getal-velden-bron.test.mjs
 scripts/versievelden.test.mjs
 js/tools/gereedschap-opmaak.test.mjs

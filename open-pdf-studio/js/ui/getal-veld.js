@@ -22,9 +22,12 @@
 //   aan (12'-6 3/8", 6", 1.5'; #1145): `value` geeft die tekst dan zoals ze
 //   getypt is, en de aanroeper leest haar met leesLengte (core/voet-inch.js),
 //   dezelfde parser als overal. Een kaal getal blijft een gewoon getal.
+// - op een veld in een gebied met data-getal-sleep (het eigenschappenpaneel)
+//   kan gesleept worden om de waarde te veranderen (#1168, getal-slepen.js).
 
 import { normaliseerGetalTekst, leesGetal, toonGetal } from '../core/getal-invoer.js';
 import { installeerGetalStappen } from './getal-stappen.js';
+import { installeerGetalSlepen } from './getal-slepen.js';
 import { leesVoetInch, VOET_INCH_TEKENS } from '../core/voet-inch.js';
 
 export const GETAL_SELECTOR = 'input[data-getal]';
@@ -59,6 +62,15 @@ export function isGetalVeld(el) {
 export function zichtbareTekst(el) {
   const st = velden.get(el);
   return st ? st.nat.get.call(el) : el?.value;
+}
+
+/** Zet de zichtbare tekst zonder omweg (voor het slepen van een waarde). */
+function zetZichtbareTekst(el, tekst) {
+  maakGetalVeld(el);
+  const st = velden.get(el);
+  if (!st) { el.value = tekst; return; }
+  st.wachtend = null;
+  st.nat.set.call(el, tekst);
 }
 
 /** Is dit een lengteveld (data-getal="lengte")? */
@@ -279,14 +291,26 @@ export function herformatteerGetalVelden(root = globalThis.document) {
 
 /**
  * Eenmalig bij de start: waardeert elk getalveld op zodra het in de DOM komt.
- * @param {{taal?: () => string}} [opties] taal: de huidige app-taal
+ * @param {object} [opties]
+ * @param {() => string} [opties.taal] de huidige app-taal
+ * @param {() => string} [opties.sleepHint] tooltip voor het label van een veld waarop gesleept kan worden
+ * @param {(veld: Element) => void} [opties.sleepBegin] een waarde wordt gesleept
+ * @param {(info: {veld: Element, geannuleerd: boolean}) => void} [opties.sleepEinde] de sleep is klaar
  */
-export function installeerGetalVelden({ taal } = {}) {
+export function installeerGetalVelden({ taal, sleepHint, sleepBegin, sleepEinde } = {}) {
   if (typeof taal === 'function') taalBron = taal;
   const doc = globalThis.document;
   if (geinstalleerd || !doc) return;
   geinstalleerd = true;
   installeerGetalStappen(doc);
+  installeerGetalSlepen(doc, {
+    leesTekst: zichtbareTekst,
+    schrijfTekst: zetZichtbareTekst,
+    taal: () => taalBron(),
+    hint: sleepHint,
+    begin: sleepBegin,
+    einde: sleepEinde,
+  });
   waardeerOp(doc.documentElement);
   new MutationObserver((mutaties) => {
     for (const m of mutaties) {

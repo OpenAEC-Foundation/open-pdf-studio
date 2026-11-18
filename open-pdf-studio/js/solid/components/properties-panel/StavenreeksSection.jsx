@@ -36,7 +36,7 @@ export default function StavenreeksSection() {
 
         <div class="property-group">
           <label>{t('stavenreeks.count')}</label>
-          <input type="text" inputmode="decimal" data-getal id="prop-sr-count" step="1" min="1" max="999"
+          <input type="text" inputmode="decimal" data-getal data-geheel id="prop-sr-count" step="1" min="1" max="999"
             value={annotProps.srCount}
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srCount', e.target.value)}
