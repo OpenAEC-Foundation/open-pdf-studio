@@ -1,4 +1,4 @@
-// Real app renderer/geometry boundary; no handle-UI or PDF-roundtrip claim.
+// Real renderer and saved PDF appearances; control-handle UI is tested separately when implemented.
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -46,10 +46,27 @@ try {
     const poly = createAnnotation({ type: 'polygon', page: 1, ...veelhoekUitPunten(pts), strokeColor: '#000000', fillColor: '#00ff00', lineWidth: 4, opacity: 1 });
     drawAnnotation(ctx, poly);
     const area = { bow: pixels(90, 115), interior: pixels(90, 80), outside: pixels(90, 140) };
-    return { line, area, selectionCurve };
+    async function saveAndRender(annotation) {
+      getActiveDocument().annotations = [annotation];
+      const { pdfDocLib } = await (await import('/js/pdf/saver.js')).bouwAnnotatieDocument(getActiveDocument());
+      const bytes = await pdfDocLib.save();
+      await (await import('/js/pdf/loader.js')).createBlankPDF(595, 842, 1, bytes.slice());
+      const loaded = getActiveDocument();
+      const pdfPage = await loaded.pdfDoc.getPage(1);
+      const viewport = pdfPage.getViewport({scale:1});
+      const output = document.createElement('canvas');output.width=viewport.width;output.height=viewport.height;
+      const context=output.getContext('2d');
+      await pdfPage.render({canvasContext:context,viewport,annotationMode:1}).promise;
+      const ink=(x,y)=>{const d=context.getImageData(x-2,y-2,5,5).data;for(let i=0;i<d.length;i+=4)if(Math.min(d[i],d[i+1],d[i+2])<100)return true;return false;};
+      return {bow:ink(90,115),chord:ink(90,40),straight:ink(165,40),interior:ink(90,80),
+        nodes:loaded.annotations[0]?.points?.length,handle:!!loaded.annotations[0]?.points?.[0]?.outgoing};
+    }
+    const savedLine=await saveAndRender(ann);
+    const savedArea=await saveAndRender(poly);
+    return { line, area, selectionCurve, savedLine, savedArea };
   });
-  assert.deepEqual(results, { line: { bow: true, chord: false, straight: true, hit: true }, area: { bow: true, interior: true, outside: false }, selectionCurve: true });
-  console.log('PASS: actual polyline/polygon renderer draws and hits cubic curves, retains straight segments and fills the curved polygon');
+  assert.deepEqual(results, { line: { bow: true, chord: false, straight: true, hit: true }, area: { bow: true, interior: true, outside: false }, selectionCurve: true, savedLine:{bow:true,chord:false,straight:true,interior:false,nodes:3,handle:true}, savedArea:{bow:true,chord:true,straight:true,interior:true,nodes:3,handle:true} });
+  console.log('PASS: actual polyline/polygon renderer draws and hits cubic curves, retains straight segments and fills the curved polygon; saved PDF appearances render correctly and editable handles reopen');
 } finally {
   await browser?.close(); await server.close(); await rm(cache, { recursive: true, force: true });
 }

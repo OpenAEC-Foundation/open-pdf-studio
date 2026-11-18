@@ -1,3 +1,5 @@
+import { hasBezierHandles, contourBounds } from '../../annotations/bezier-contour.js';
+import { bezierPDFPath } from '../bezier-pdf.js';
 // Vector appearance-stream (/AP /N) builders for annotation types that OPDS
 // previously wrote WITHOUT an appearance stream. Those types render correctly
 // inside OPDS (own overlay canvas) but were INVISIBLE — or showed only a bare
@@ -67,6 +69,7 @@ function dashOp(borderStyle) {
 // PDF coordinates via X()/Y(). Optionally close.
 function pathOps(pts, X, Y, close) {
   if (!pts || pts.length === 0) return '';
+  if (hasBezierHandles(pts)) return bezierPDFPath(pts, close, X, Y);
   let s = `${f(X(pts[0].x))} ${f(Y(pts[0].y))} m\n`;
   for (let i = 1; i < pts.length; i++) s += `${f(X(pts[i].x))} ${f(Y(pts[i].y))} l\n`;
   if (close) s += 'h\n';
@@ -208,8 +211,9 @@ export function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatch
 
   // Over álle ringen: een deel naast de buitenring hoort ook arcering te
   // krijgen (#457).
+  const cb = hasBezierHandles(points) && !holes?.length ? contourBounds(points, true) : null;
   const { minX, minY, maxX, maxY } =
-    vlakOmhullende(points, holes) || { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+    (cb ? {minX:cb.x,minY:cb.y,maxX:cb.x+cb.width,maxY:cb.y+cb.height} : vlakOmhullende(points, holes)) || { minX: 0, minY: 0, maxX: 0, maxY: 0 };
   const bw = maxX - minX, bh = maxY - minY;
   const pad = Math.max(Math.hypot(bw, bh), bw, bh) * 0.6;
   const bounds = { left: minX - pad, top: minY - pad, right: maxX + pad, bottom: maxY + pad };
@@ -239,6 +243,7 @@ export function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatch
 // plaats van een hap uit het eerste te nemen, en blijft de overlap van twee
 // delen gevuld — precies zoals het scherm het tekent (#457).
 function ringPathOps(points, holes, X, Y) {
+  if (hasBezierHandles(points) && !holes?.length) return pathOps(points, X, Y, true);
   let s = '';
   for (const ring of ringenRichten(points, holes)) s += pathOps(ring.points, X, Y, true);
   return s;

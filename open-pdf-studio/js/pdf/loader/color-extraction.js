@@ -1,3 +1,4 @@
+import { BEZIER_META_LIMIT } from '../bezier-pdf.js';
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString, PDFRef } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype, lijnstijlUitStreep } from './pdf-helpers.js';
@@ -851,6 +852,11 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (opsArRaw) {
         const ar = pdfNum(context.lookup(opsArRaw) || opsArRaw);
         if (ar !== null) colors.opsArcRadius = ar;
+      }
+
+      const bezierRaw = context.lookup(annotDict.get(PDFName.of('OPS_BezierContour')));
+      if (bezierRaw instanceof PDFString || bezierRaw instanceof PDFHexString) {
+        if (bezierRaw.asBytes().length <= BEZIER_META_LIMIT) colors.bezierContour = bezierRaw.decodeText();
       }
 
       // Read /OPS_Points (our custom control points for spline annotations)

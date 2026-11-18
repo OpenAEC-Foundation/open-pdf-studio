@@ -1,3 +1,6 @@
+import { prepareBezierPDF, bezierPDFPath } from './bezier-pdf.js';
+import { mapContourNode, hasBezierHandles } from '../annotations/bezier-contour.js';
+import { veelhoekPuntenOpScherm } from '../annotations/veelhoek-punten.js';
 import { hasPageRotations, rotationRenderCopy } from './saver/rotation-render-copy.js';
 import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
@@ -185,7 +188,7 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
   }
   // Arrays of {x,y} points.
   for (const k of ['points', 'path', 'controlPoints', 'vertices']) {
-    if (Array.isArray(ann[k])) ann[k] = ann[k].map(p => ({ ...p, ...m(p.x, p.y) }));
+    if (Array.isArray(ann[k])) ann[k] = ann[k].map(p => mapContourNode(p, q => m(q.x, q.y)));
   }
   // Holes: array of point rings.
   if (Array.isArray(ann.holes)) {
@@ -1313,8 +1316,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // PolyLine annotation
             if (!ann.points || ann.points.length < 2) continue;
 
-            const vertices = [];
-            for (const pt of ann.points) vertices.push(convertX(pt.x), convertY(pt.y));
+            const curve = prepareBezierPDF(ann.points, false, convertX, convertY, apLijndikte(borderWidth, { heeftVulling: false }));
+            const vertices = curve?.vertices || ann.points.flatMap(pt => [convertX(pt.x), convertY(pt.y)]);
 
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
@@ -1322,7 +1325,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               Type: 'Annot',
               Subtype: 'PolyLine',
               // Met de verstekpunten van scherpe hoeken: de appearance wordt op de Rect geknipt.
-              Rect: polylijnOmhullende(vertices, apLijndikte(borderWidth, { heeftVulling: false })),
+              Rect: curve?.rect || polylijnOmhullende(vertices, apLijndikte(borderWidth, { heeftVulling: false })),
               Vertices: vertices,
               C: strokeColorArr,
               CA: opacity,
@@ -1332,6 +1335,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               F: computeAnnotFlags(ann)
             };
 
+            if (curve) polylineDict.OPS_BezierContour = PDFString.of(curve.metadata);
             polylineDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
             annotDict = context.obj(polylineDict);
@@ -1365,9 +1369,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const polyMidden = naarPagina(zichtMidden.x, zichtMidden.y);
             // Punt in de ruimte van `ann` (ongedraaide pagina) om het midden draaien.
             const draai = (pt) => (polyRotatie ? draaiPunt(pt, polyMidden, polyRotatie) : pt);
-            const hoekpunten = grondvorm
-              .map((pt) => (polyRotatie ? draaiPunt(pt, zichtMidden, polyRotatie) : pt))
-              .map((pt) => naarPagina(pt.x, pt.y));
+            const hoekpunten = ann.type === 'polygon' && hasBezierHandles(annVak.points)
+              ? veelhoekPuntenOpScherm(annVak).map(pt => mapContourNode(pt, q => naarPagina(q.x,q.y)))
+              : grondvorm.map(pt => polyRotatie ? draaiPunt(pt, zichtMidden, polyRotatie) : pt).map(pt => naarPagina(pt.x,pt.y));
+            const curve = ann.type === 'polygon' ? prepareBezierPDF(hoekpunten, true, convertX, convertY, borderWidth) : null;
             for (const pt of hoekpunten) {
               const px = convertX(pt.x);
               const py = convertY(pt.y);
@@ -1376,12 +1381,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               polyMinY = Math.min(polyMinY, py); polyMaxY = Math.max(polyMaxY, py);
             }
 
+            if (curve) polyVertices = curve.vertices;
             const polyStrokeColor = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
             const polygonDict = {
               Type: 'Annot',
               Subtype: 'Polygon',
-              Rect: [polyMinX - borderWidth, polyMinY - borderWidth, polyMaxX + borderWidth, polyMaxY + borderWidth],
+              Rect: curve?.rect || [polyMinX - borderWidth, polyMinY - borderWidth, polyMaxX + borderWidth, polyMaxY + borderWidth],
               Vertices: polyVertices,
               C: polyStrokeColor,
               CA: opacity,
@@ -1391,6 +1397,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               F: computeAnnotFlags(ann)
             };
 
+            if (curve) polygonDict.OPS_BezierContour = PDFString.of(curve.metadata);
             polygonDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
             if (hasFill(ann.fillColor)) {
@@ -1452,6 +1459,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 pad += `${polyVertices[vi]} ${polyVertices[vi + 1]} ${vi === 0 ? 'm' : 'l'}\n`;
               }
               pad += 'h\n';
+              if (curve) pad = bezierPDFPath(curve.nodes, true);
               const pgFillAlpha = (fillOpacity !== undefined && fillOpacity !== null) ? fillOpacity : 1;
               let pgContent = '';
               if (pgFill) {
@@ -1462,7 +1470,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               if (polyArcering) {
                 // Ongedraaid berekend en met één cm om het midden gedraaid,
                 // zoals het scherm de arcering met de vorm meedraait.
-                const ongedraaid = grondvorm.map((pt) => naarPagina(pt.x, pt.y));
+                const hatchGrondvorm = curve ? veelhoekPuntenOpScherm({ ...annVak, rotation: 0 }) : grondvorm;
+                const ongedraaid = hatchGrondvorm.map(pt => mapContourNode(pt, q => naarPagina(q.x, q.y)));
                 const ops = hatchFillOps({ points: ongedraaid, holes: null, ...polyArcering,
                   hatchColorRgb: hexToRgb(polyArcering.hatchColorHex), X: convertX, Y: convertY });
                 // Bij een eigen vul-dekking onder /GSv, zoals de vulling (#685).

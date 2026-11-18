@@ -131,8 +131,10 @@ export function transformContour(nodes, matrix, closed = false) {
   // its exact cubic handles before mapping; never silently straighten it.
   for (const s of segments) {
     if (s.kind !== 'cubic') continue;
-    copy[s.index].outgoing = point(s.c1);
-    copy[s.endIndex].incoming = point(s.c2);
+    if (!nodes[s.index].outgoing && !nodes[s.endIndex].incoming) {
+      copy[s.index].outgoing = point(s.c1);
+      copy[s.endIndex].incoming = point(s.c2);
+    }
     delete copy[s.endIndex].arc;
     delete copy[s.endIndex].bulge;
   }

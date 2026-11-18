@@ -1,3 +1,5 @@
+import { readBezierPDF } from '../bezier-pdf.js';
+import { zetVeelhoekOpScherm } from '../../annotations/veelhoek-punten.js';
 import { isShxTextAnnotation } from '../shx-text.js';
 import { state, imageCache } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
@@ -934,7 +936,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         return createAnnotation({
           ...baseProps,
           type: 'polyline',
-          points: plPoints,
+          points: readBezierPDF(extraColors.bezierContour, annot.vertices, false, convertPoint) || plPoints,
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
@@ -1264,6 +1266,10 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {}),
           ...(polyRotatie ? { rotation: polyRotatie } : {}),
         };
+        if (polyType === 'polygon') {
+          const bezier = readBezierPDF(extraColors.bezierContour, annot.vertices, true, convertPoint);
+          if (bezier) Object.assign(polyProps, zetVeelhoekOpScherm(polyProps, bezier));
+        }
         Object.assign(polyProps, randloosUitExtra(extraColors)); // zonder rand (#431)
         // Arcering (#621); een vrije wolk biedt het paneel niet aan.
         if (polyType !== 'cloudPolyline') Object.assign(polyProps, vormHatchUitExtra(extraColors));

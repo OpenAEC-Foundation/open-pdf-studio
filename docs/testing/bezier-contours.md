@@ -1,13 +1,13 @@
 # Gemengde rechte en Bézier-contouren (#1169)
 
-## Status: tekenen, raken en transformaties aangesloten; bediening/opslag nog open
+## Status: tekenen, transformaties en PDF-opslag aangesloten; bediening nog open
 
 `js/annotations/bezier-contour.js` wordt nu gebruikt door de echte renderer,
 raaktest en polygoongeometrie. Expliciete `incoming`/`outgoing`-handvatten
 activeren de kubische route. Gewone punten zonder handvatten houden hun
 bestaande tekenroute. De app biedt nog geen actie om deze handvatten aan te
 maken: **deze concept-PR sluit #1169 niet** en mag niet als volledige functie
-worden uitgebracht. PDF-opslag zou de handvatten op dit moment verliezen.
+worden uitgebracht. PDF-opslag bewaart nu de exacte curve en de bewerkbare handvatten.
 
 Polylijnen en polygonen tekenen de exacte kubische curve. Raken gebruikt een
 adaptieve benadering; selectie en viewport-culling omvatten de boog. Het
@@ -72,11 +72,7 @@ gevraagde afstandstolerantie getoetst. De tests staan in de volledige suite.
 2. Contextmenu `veelhoekDeelBij` en toevoegen werken nog met rechte zijden;
    snappen, offset, fillet/chamfer, plakken/groepsbewerkingen verder auditen.
    Huidige testen kwalificeren geen willekeurige combinatie van alle gereedschappen.
-3. Exacte kubische PDF-appearance, standaard terugvalvertices en gevalideerde
-   private metadata. De saver/lader zijn nog niet aangepast: **niet opslaan als
-   bewijs van een bruikbare feature**. Ruwe sleutels/vingerafdrukken, CropBox,
-   paginarotatie en incrementeel opslaan moeten dezelfde curve bewaren.
-4. Browser- en PDF-rondgangtests voor de volledige bediening toevoegen:
+3. Browser- en PDF-rondgangtests voor de volledige bediening toevoegen:
    tekenen, controlehandvat bewerken, undo/redo, transformeren, opslaan/heropenen
    en opnieuw bewerken. Installerworkflow en geïnstalleerde Tauri-app kwalificeren.
 
@@ -92,7 +88,7 @@ Dezelfde tests falen op de voorafgaande basiscommit zonder deze integratie.
 controleert echte canvaspixels voor een boog, het rechte vervolgsegment en
 vulling. Ook de echte raaktest en het selectiepad worden aangeroepen. De
 geometrie wordt als fixture geïnjecteerd: dit is nadrukkelijk **geen test van
-nog ontbrekende handvatbediening of PDF-opslag**. De test draait ook in Linux CI.
+nog ontbrekende handvatbediening**. Hij slaat de fixtures ook op, heropent ze via de echte lader en toetst de pixels van de PDF-appearances met PDF.js. De test draait ook in Linux CI.
 
 De bestaande `filledArea`/meetcontouren en Catmull-Rom-splines zijn apart;
 hun semantiek mag niet onbedoeld door dit contract worden vervangen.
@@ -104,3 +100,30 @@ Voor opslag zijn `pdf/saver.js`, `pdf/saver/appearance-vectors.js`,
 `pdf/loader/color-extraction.js` en `pdf/loader/annotation-converter.js` relevant.
 De polygon-route verwerkt eerst het vormvak en daarna rotatie/flip;
 `veelhoekPuntenOpScherm` levert nu ook de correcte handvatten.
+
+## PDF-opslag en teruglezen
+
+`pdf/bezier-pdf.js` schrijft exacte kubische padoperatoren in de appearance,
+een adaptieve benadering met tolerantie 0,1 PDF-punt in standaard `/Vertices`,
+en versie 1 van `/OPS_BezierContour` met absolute PDF-knopen/grepen. De standaard
+vertices blijven bruikbaar in editors zonder kennis van onze metadata. Een
+bewerkte curve krijgt een nieuw appearance; alleen een greep veranderen telt
+mee voor de bronvingerafdruk. De omhullende gebruikt echte extrema en ruimte
+voor verstekken. Arcering wordt op het kubische contour geknipt.
+
+Metadata wordt begrensd op 2 MB, 4096 knopen en 131072 vertexcoördinaten.
+Niet-eindige/onbruikbare coördinaten, onbekende versies, foutieve geslotenheid,
+of standaardvertices die intussen extern veranderd zijn, vallen terug op de
+standaardgeometrie. Afvlakken heeft een vaste diepte en uitvoerlimiet; overschrijden
+breekt opslag af in plaats van een te grove benadering stilzwijgend te bewaren.
+
+`js/pdf/bezier-rondgang.test.mjs` test twee rondgangen met CropBox en 0/90/180/270°,
+open en gesloten contouren, knoop/handvatidentiteit, een wijziging van alleen
+een handvat, spiegeling en arcering, ongeldige metadata en incrementele opslag
+met behoud van oorspronkelijke bytes en onbekende bronvelden. De acht initiële
+rondganggevallen faalden vóór deze opslagintegratie. De echte browsertest toetst
+ook de opgeslagen curve, het rechte vervolg en de vulling als PDF-pixels.
+
+De browserroute voor meegegeven sjabloonbytes gebruikt bij het uitlezen van
+metadata nu dezelfde `__memory__<doc.id>`-sleutel als de saver. De desktoproute
+blijft zijn bestandspad gebruiken.

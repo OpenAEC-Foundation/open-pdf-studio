@@ -1158,7 +1158,9 @@ export async function getSharedPdfLibDoc(doc) {
   if (!doc) return null;
   if (doc._sharedPdfLibDoc) return doc._sharedPdfLibDoc;
   if (doc._sharedPdfLibDocPromise) return doc._sharedPdfLibDocPromise;
-  const pdfBytes = originalBytesCache.get(doc.filePath);
+  // Browser-created templates live under the same memory key used by the saver.
+  // Their private geometry/style metadata is just as necessary as for files.
+  const pdfBytes = originalBytesCache.get(doc.filePath || `__memory__${doc.id}`);
   if (!pdfBytes) return null;
   const _pll0 = performance.now();
   console.log(`[PERF] PDFDocument.load START (${(pdfBytes.length / 1024 / 1024).toFixed(1)} MB)`);
