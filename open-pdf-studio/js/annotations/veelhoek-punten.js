@@ -21,6 +21,7 @@
 //
 // Puur: geen DOM, geen state.
 
+import { hasBezierHandles, mapContourNode, contourBounds, transformContour, moveContourNode } from './bezier-contour.js';
 import { ontdraaiVorm } from '../pdf/saver/vorm-draaiing.js';
 import { isVreemdeTelling } from './telling.js';
 
@@ -28,9 +29,13 @@ import { isVreemdeTelling } from './telling.js';
 export const VEELHOEK_MIN_PUNTEN = 3;
 
 const isPunt = (p) => !!p && Number.isFinite(p.x) && Number.isFinite(p.y);
-const kaal = (p) => ({ x: p.x, y: p.y });
+const kaal = (p) => mapContourNode(p, q => ({ x: q.x, y: q.y }));
 
 function omhullende(punten) {
+  if (hasBezierHandles(punten)) {
+    const b = contourBounds(punten, true);
+    return { minX: b.x, minY: b.y, maxX: b.x + b.width, maxY: b.y + b.height };
+  }
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of punten) {
     if (p.x < minX) minX = p.x;
@@ -102,7 +107,7 @@ export function veelhoekPunten(ann) {
   const spanY = g.maxY - g.minY;
   const sx = spanX > 1e-6 ? ann.width / spanX : 1;
   const sy = spanY > 1e-6 ? ann.height / spanY : 1;
-  return pts.map((p) => ({ x: ann.x + (p.x - g.minX) * sx, y: ann.y + (p.y - g.minY) * sy }));
+  return pts.map(p => mapContourNode(p, q => ({ x: ann.x + (q.x - g.minX) * sx, y: ann.y + (q.y - g.minY) * sy })));
 }
 
 /** Het draaipunt: het midden van het vak, zonder vak dat van de punten. */
@@ -126,11 +131,11 @@ export function veelhoekPuntenOpScherm(ann) {
   const c = midden(ann, pts);
   const a = graden * Math.PI / 180;
   const cos = Math.cos(a), sin = Math.sin(a);
-  return pts.map((p) => {
+  return pts.map(node => mapContourNode(node, (p) => {
     const dx = (p.x - c.x) * fx;
     const dy = (p.y - c.y) * fy;
     return { x: c.x + dx * cos - dy * sin, y: c.y + dx * sin + dy * cos };
-  });
+  }));
 }
 
 /**
@@ -140,7 +145,13 @@ export function veelhoekPuntenOpScherm(ann) {
  */
 export function zetVeelhoekOpScherm(ann, scherm) {
   const graden = Number(ann?.rotation) || 0;
-  const punten = graden ? ontdraaiVorm(scherm.map(kaal), graden) : scherm.map(kaal);
+  let punten;
+  if (graden && hasBezierHandles(scherm)) {
+    const a = graden * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+    const q = transformContour(scherm, [c, -s, s, c, 0, 0], true);
+    const b = contourBounds(q, true), mx = b.x + b.width / 2, my = b.y + b.height / 2;
+    punten = transformContour(q, [1, 0, 0, 1, mx * c - my * s - mx, mx * s + my * c - my], true);
+  } else punten = graden ? ontdraaiVorm(scherm.map(kaal), graden) : scherm.map(kaal);
   const uit = veelhoekUitPunten(punten);
   if (ann?.flipX) uit.flipX = false;
   if (ann?.flipY) uit.flipY = false;
@@ -177,8 +188,7 @@ export function verplaatsVeelhoekHoekpunt(ann, index, dx, dy, opties = {}) {
       if (Math.abs(ny - scherm[i].y) < tol) ny = scherm[i].y;
     }
   }
-  const nieuw = scherm.slice();
-  nieuw[index] = { x: nx, y: ny };
+  const nieuw = moveContourNode(scherm, index, nx - p.x, ny - p.y);
   return zetVeelhoekOpScherm(ann, nieuw);
 }
 
@@ -217,7 +227,7 @@ export function spiegelVeelhoek(ann, as) {
   const pts = veelhoekPunten(ann);
   if (!pts) return null;
   const c = midden(ann, pts);
-  const gespiegeld = pts.map((p) => (as === 'y' ? { x: p.x, y: 2 * c.y - p.y } : { x: 2 * c.x - p.x, y: p.y }));
+  const gespiegeld = pts.map(node => mapContourNode(node, p => (as === 'y' ? { x: p.x, y: 2 * c.y - p.y } : { x: 2 * c.x - p.x, y: p.y })));
   return veelhoekUitPunten(gespiegeld);
 }
 

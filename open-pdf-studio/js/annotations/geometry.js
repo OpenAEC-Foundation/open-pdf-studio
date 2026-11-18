@@ -1,3 +1,4 @@
+import { hasBezierHandles, flattenContour, contourBounds } from './bezier-contour.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { distanceToLine, isPointNearRect, isPointNearEllipse } from '../utils/math.js';
@@ -312,15 +313,17 @@ function raakInLijst(annotations, x, y, pageNum) {
         }
         break;
       }
-      case 'polyline':
+      case 'polyline': {
+        const points = hasBezierHandles(ann.points) ? flattenContour(ann.points, false, Math.max(0.001, tol / 8)).points : ann.points;
         // Check if point is near any segment of the polyline
-        if (ann.points && ann.points.length >= 2) {
-          for (let i = 0; i < ann.points.length - 1; i++) {
-            const segDist = distanceToLine(x, y, ann.points[i].x, ann.points[i].y, ann.points[i+1].x, ann.points[i+1].y);
+        if (points && points.length >= 2) {
+          for (let i = 0; i < points.length - 1; i++) {
+            const segDist = distanceToLine(x, y, points[i].x, points[i].y, points[i+1].x, points[i+1].y);
             if (segDist < tol) return ann;
           }
         }
         break;
+      }
       case 'cloudPolyline':
         // Check if point is near any segment of the closed cloud polyline
         if (ann.points && ann.points.length >= 3) {
@@ -481,7 +484,8 @@ function raakInLijst(annotations, x, y, pageNum) {
         // een klik in het vak maar naast de vorm (de hoek van een driehoek)
         // niet.
         if (ann.type === 'polygon' && isBewerkbareVeelhoek(ann)) {
-          const vp = veelhoekPuntenOpScherm(ann);
+          const nodes = veelhoekPuntenOpScherm(ann);
+          const vp = hasBezierHandles(nodes) ? flattenContour(nodes, true, Math.max(0.001, tol / 8)).points : nodes;
           for (let i = 0; i < vp.length; i++) {
             const j = (i + 1) % vp.length;
             if (distanceToLine(x, y, vp[i].x, vp[i].y, vp[j].x, vp[j].y) < tol) return ann;
@@ -706,6 +710,10 @@ function raakInLijst(annotations, x, y, pageNum) {
 
 // Check if point is inside annotation (for moving)
 export function isPointInsideAnnotation(x, y, annotation) {
+  if (annotation.type === 'polyline' && hasBezierHandles(annotation.points)) {
+    const b = contourBounds(annotation.points);
+    return !!b && x >= b.x && y >= b.y && x <= b.x + b.width && y <= b.y + b.height;
+  }
   // For shapes that support rotation, transform the point first
   const sizeInfo = getAnnotationCenterAndSize(annotation);
   let localX = x, localY = y;

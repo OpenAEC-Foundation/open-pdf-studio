@@ -1,3 +1,4 @@
+import { hasBezierHandles, traceContour } from '../bezier-contour.js';
 import { tekenDocument as getActiveDocument } from './document-context.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { heeftEigenDraaipunt } from '../draaipunt.js';
@@ -207,9 +208,13 @@ export function drawSelectionHandles(ctx, annotation) {
     ctx.lineWidth = (isEditingContour ? 1.5 : 1) / sc;
     ctx.setLineDash([3 / sc, 3 / sc]);
     ctx.beginPath();
-    ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
-    for (let i = 1; i < annotation.points.length; i++) {
-      ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
+    if (annotation.type === 'polyline' && hasBezierHandles(annotation.points)) {
+      traceContour(ctx, annotation.points);
+    } else {
+      ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
+      for (let i = 1; i < annotation.points.length; i++) {
+        ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
+      }
     }
     if (annotation.type === 'measureArea' || annotation.type === 'filledArea') ctx.closePath();
     ctx.stroke();

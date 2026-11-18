@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 // De echte bron laden met alleen de parametrische imports gestubd; die trekken
 // via de schaalgebieden de TypeScript-state en SolidJS mee.
 const bron = readFileSync(new URL('./spatial-index.js', import.meta.url), 'utf8')
+  .replace(/from '(\.\/bezier-contour\.js|\.\/veelhoek-punten\.js)'/g, (_, pad) => `from '${new URL(pad, import.meta.url).href}'`)
   .replace(/^import \{ buildStavenreeks \}.*$/m,
     'const buildStavenreeks = () => ({ aabb: { x: 0, y: 0, width: 10, height: 10 } });')
   .replace(/^import \{ stavenreeksPxPerMm \}.*$/m, 'const stavenreeksPxPerMm = () => 1;')

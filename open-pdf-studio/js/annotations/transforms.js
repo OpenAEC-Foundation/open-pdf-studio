@@ -1,3 +1,4 @@
+import { mapContourNode, hasBezierHandles, contourBounds } from './bezier-contour.js';
 import { HANDLE_TYPES } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { snapAngle } from '../utils/helpers.js';
@@ -762,7 +763,10 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
       // Punt-kopie die de boogvelden (arc/bulge — filledArea én
       // systeemraster) BEHOUDT: de node-sleep herbouwde points[] eerder met
       // kale {x,y}, waardoor een eerder gebogen segment weer recht werd.
-      const keepArc = copyPointKeepArc;
+      const cubicPolyline = annotation.type === 'polyline' && hasBezierHandles(originalAnn.points);
+      const keepArc = (p, x, y) => cubicPolyline
+        ? mapContourNode(p, q => ({ x: q.x + x - p.x, y: q.y + y - p.y }))
+        : copyPointKeepArc(p, x, y);
       if (typeof handleType === 'string' && handleType.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_')) {
         // Check if this is a hole node: polyline_node_hole_<holeIdx>_<nodeIdx>
         const holeMatch = handleType.match(/^polyline_node_hole_(\d+)_(\d+)$/);
@@ -840,6 +844,9 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
             annotation.y = Math.min(...ys);
             annotation.width = Math.max(...xs) - annotation.x;
             annotation.height = Math.max(...ys) - annotation.y;
+            if (annotation.type === 'polyline' && hasBezierHandles(annotation.points)) {
+              Object.assign(annotation, contourBounds(annotation.points));
+            }
             // Recalculate measurement text (with holes if present)
             if (annotation.type === 'measureArea') {
               // Tekst, waarde en eenheid, met de eigen schaal als die er is (#536).
@@ -1099,11 +1106,10 @@ const _MOVE_POINT_OBJECTS = ['at', 'vertex', 'point1', 'point2'];
 const _MOVE_POINT_ARRAYS = ['points', 'path', 'controlPoints', 'vertices'];
 
 function _movePoint(p, dx, dy) {
-  return {
-    ...p,
+  return mapContourNode(p, p => ({
     x: typeof p.x === 'number' ? p.x + dx : p.x,
     y: typeof p.y === 'number' ? p.y + dy : p.y,
-  };
+  }));
 }
 
 export function applyMoveGeneric(annotation, dx, dy) {
@@ -1221,7 +1227,7 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
   const rotY = (px, py) => pivotY + (px - pivotX) * sin + (py - pivotY) * cos;
   const rotPoint = (p) => {
     if (!p || typeof p.x !== 'number' || typeof p.y !== 'number') return p;
-    return { ...p, x: rotX(p.x, p.y), y: rotY(p.x, p.y) };
+    return mapContourNode(p, q => ({ x: rotX(q.x, q.y), y: rotY(q.x, q.y) }));
   };
 
   // Een veelhoek met eigen hoekpunten (#622) draait zoals een rechthoek: via
@@ -1272,7 +1278,7 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
   for (const k of _MOVE_POINT_ARRAYS) {
     if (veelhoekPuntenMee && k === 'points') {
       const sx = annotation.x - oudVakX, sy = annotation.y - oudVakY;
-      annotation.points = annotation.points.map(p => ({ ...p, x: p.x + sx, y: p.y + sy }));
+      annotation.points = annotation.points.map(p => _movePoint(p, sx, sy));
       continue;
     }
     if (Array.isArray(annotation[k])) {
@@ -1336,6 +1342,10 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
       }
     }
     recalcCalloutLeader(annotation);
+  }
+
+  if (annotation.type === 'polyline' && hasBezierHandles(annotation.points)) {
+    Object.assign(annotation, contourBounds(annotation.points));
   }
 
   annotation.modifiedAt = new Date().toISOString();

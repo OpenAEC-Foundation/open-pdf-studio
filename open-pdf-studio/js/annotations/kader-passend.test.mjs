@@ -201,7 +201,7 @@ const handleTypesLiteral = constantsBron.match(/export const HANDLE_TYPES = (\{[
 const stubs = `const HANDLE_TYPES = ${handleTypesLiteral};\nconst state = { preferences: {}, shiftKeyPressed: false };\n`;
 const bron = readFileSync(new URL('./transforms.js', import.meta.url), 'utf8')
   .replace(/^import\s[\s\S]*?from\s+'([^']+)';[ \t]*\r?$/gm, (hele, pad) => {
-    if (pad === './minimummaat.js' || pad === './polygon-transform.js' || pad === './veelhoek-punten.js') {
+    if (pad === './bezier-contour.js' || pad === './minimummaat.js' || pad === './polygon-transform.js' || pad === './veelhoek-punten.js') {
       return hele.replace(`'${pad}'`, `'${new URL(pad, import.meta.url).href}'`);
     }
     return '';

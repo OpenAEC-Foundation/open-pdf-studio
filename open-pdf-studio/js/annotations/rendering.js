@@ -1,3 +1,4 @@
+import { hasBezierHandles, traceContour } from './bezier-contour.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { kaleLijst } from './kale-lijst.js';
 import { state, imageCache, getAnnotationBounds } from '../core/state.js';
@@ -825,7 +826,8 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         ctx.lineJoin = 'miter';
         applyBorderStyle(ctx, annotation.borderStyle);
         ctx.beginPath();
-        annotation.points.forEach((point, index) => {
+        if (hasBezierHandles(annotation.points)) traceContour(ctx, annotation.points);
+        else annotation.points.forEach((point, index) => {
           if (index === 0) {
             ctx.moveTo(point.x, point.y);
           } else {

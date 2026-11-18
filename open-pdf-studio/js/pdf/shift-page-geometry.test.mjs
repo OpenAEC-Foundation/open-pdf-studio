@@ -1,3 +1,4 @@
+import { mapContourNode } from "../annotations/bezier-contour.js";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -111,13 +112,14 @@ function loadApplyMoveGeneric() {
   assert.ok(start > 0 && end > start,
     "transforms.js layout changed: update the markers around applyMoveGeneric in this test");
   const block = source.slice(start, end).replace("export function applyMoveGeneric", "function applyMoveGeneric");
-  return new Function(`${block}; return applyMoveGeneric;`)();
+  return new Function("mapContourNode", `${block}; return applyMoveGeneric;`)(mapContourNode);
 }
 
 test("every position-bearing field of an annotation moves with the page", () => {
   const applyMoveGeneric = loadApplyMoveGeneric();
   const dx = 28.35, dy = 14.17;
   const samples = {
+    bezier: { type: "polyline", points: [{ x: 1, y: 2, outgoing: { x: 3, y: 4 } }, { x: 5, y: 6, incoming: { x: 7, y: 8 } }] },
     box: { type: "box", x: 100, y: 100, width: 50, height: 20 },
     measureAngle: { type: "measureAngle", point1: { x: 10, y: 10 }, vertex: { x: 20, y: 20 }, point2: { x: 30, y: 10 } },
     spline: { type: "spline", controlPoints: [{ x: 1, y: 2 }, { x: 3, y: 4 }] },

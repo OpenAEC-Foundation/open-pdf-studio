@@ -1,3 +1,4 @@
+import { hasBezierHandles, mapContourNode, contourBounds } from './bezier-contour.js';
 // Pure maatgelijk-geometrie voor de Schikken-groep "Grootte"
 // (arr-same-size / arr-same-width / arr-same-height, issue #313).
 //
@@ -66,8 +67,11 @@ export function resizeAnnotationToBounds(ann, bounds, targetW, targetH) {
     case 'measurePerimeter':
     case 'filledArea': {
       if (!ann.points || ann.points.length === 0 || (sx == null && sy == null)) return false;
-      ann.points.forEach(p => { p.x = mapX(p.x); p.y = mapY(p.y); });
-      if (ann.x !== undefined) updateBoundsFromPoints(ann, ann.points);
+      ann.points = ann.points.map(p => mapContourNode(p, q => ({ x: mapX(q.x), y: mapY(q.y) })));
+      if (ann.x !== undefined) {
+        if (ann.type === 'polyline' && hasBezierHandles(ann.points)) Object.assign(ann, contourBounds(ann.points));
+        else updateBoundsFromPoints(ann, ann.points);
+      }
       return true;
     }
     case 'spline': {

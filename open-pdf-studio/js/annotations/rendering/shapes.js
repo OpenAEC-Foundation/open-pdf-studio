@@ -1,3 +1,5 @@
+import { hasBezierHandles, traceContour } from '../bezier-contour.js';
+import { veelhoekPunten } from '../veelhoek-punten.js';
 import { layoutTextboxLines, textboxTekstInzet, verticaleVerschuiving } from './textbox-layout.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../minimummaat.js';
 // First strong-directional character decides the base direction of a text run,
@@ -50,6 +52,11 @@ export function drawPolygonShape(ctx, x, y, width, height, sides = 6) {
 // is an identity mapping until the user resizes). Issue #286.
 export function buildPolygonPointsPath(ctx, points, x, y, width, height) {
   if (!points || points.length < 2) return;
+  if (points.length >= 3 && hasBezierHandles(points)) {
+    ctx.beginPath();
+    traceContour(ctx, veelhoekPunten({ type: 'polygon', points, x, y, width, height }), true);
+    return;
+  }
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of points) {
     if (p.x < minX) minX = p.x;

@@ -1,3 +1,5 @@
+import { mapContourNode, hasBezierHandles, contourBounds } from './bezier-contour.js';
+import { veelhoekPuntenOpScherm, zetVeelhoekOpScherm } from './veelhoek-punten.js';
 /**
  * Stretch-geometrie (CAD-stijl stretch) — puur, zonder state/DOM.
  *
@@ -38,7 +40,7 @@ function _leiders(ann) {
 }
 
 /** Een punt verplaatst; overige velden (boog: arc/bulge) blijven staan. */
-const _verschuif = (p, dx, dy) => ({ ...p, x: p.x + dx, y: p.y + dy });
+const _verschuif = (p, dx, dy) => mapContourNode(p, q => ({ x: q.x + dx, y: q.y + dy }));
 
 /**
  * Alle tikbare punten van een annotatie (in tekenvolgorde).
@@ -46,6 +48,7 @@ const _verschuif = (p, dx, dy) => ({ ...p, x: p.x + dx, y: p.y + dy });
  */
 export function verticesOf(ann) {
   if (!ann) return [];
+  if (ann.type === 'polygon' && hasBezierHandles(ann.points)) return veelhoekPuntenOpScherm(ann);
   if (isLineAnnotation(ann)) {
     const { begin, eind } = _leiders(ann);
     return [{ x: ann.startX, y: ann.startY }, { x: ann.endX, y: ann.endY }, begin, eind].filter(Boolean);
@@ -107,6 +110,10 @@ export function stretchAnnotation(orig, doel, dx, dy, inRuit) {
 
   const rek = (p) => (inRuit(p) ? _verschuif(p, dx, dy) : { ...p });
 
+  if (orig.type === 'polygon' && hasBezierHandles(orig.points)) {
+    Object.assign(doel, zetVeelhoekOpScherm(orig, veelhoekPuntenOpScherm(orig).map(rek)));
+    return true;
+  }
   if (Array.isArray(orig.points) && orig.points.length > 0) {
     doel.points = orig.points.map(rek);
     // Gaten volgen dezelfde regel: hun hoekpunten in de ruit gaan mee.
@@ -164,6 +171,10 @@ export function stretchAnnotation(orig, doel, dx, dy, inRuit) {
 /** Omtrek-velden (x/y/width/height) opnieuw afleiden uit de puntenreeks. */
 function _updateBbox(doel, punten = doel.points) {
   if (!Array.isArray(punten)) return;
+  if (doel.type === 'polyline' && hasBezierHandles(punten)) {
+    Object.assign(doel, contourBounds(punten));
+    return;
+  }
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const p of punten) {
     minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);

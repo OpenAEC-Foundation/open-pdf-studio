@@ -1,3 +1,4 @@
+import { mapContourNode } from './bezier-contour.js';
 /**
  * Vergroten/verkleinen (CAD-stijl schalen) — puur, zonder state/DOM.
  *
@@ -63,7 +64,7 @@ export function scaleAnnotation(ann, bx, by, f) {
 
   // Overige puntvelden (boog: arc/bulge) blijven op het punt staan; een
   // bulge is relatief tot de koorde en klopt dus ook na uniform schalen.
-  const schaalPunt = (p) => ({ ...p, x: bx + (p.x - bx) * f, y: by + (p.y - by) * f });
+  const schaalPunt = p => mapContourNode(p, q => ({ x: bx + (q.x - bx) * f, y: by + (q.y - by) * f }));
   if (Array.isArray(ann.points)) {
     ann.points = ann.points.map(schaalPunt);
     geschaald = true;

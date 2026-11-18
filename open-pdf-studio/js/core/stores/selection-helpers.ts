@@ -1,3 +1,4 @@
+import { hasBezierHandles, contourBounds } from '../../annotations/bezier-contour.js';
 import type { Annotation, AnnotationBounds } from '../../types/annotation.js';
 import { state, getActiveDocument } from '../state.js';
 import { buildStavenreeks } from '../../annotations/stavenreeks.js';
@@ -57,6 +58,7 @@ export function selectAllOnPage(): void {
 }
 
 export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
+  if (ann.type === 'polyline' && hasBezierHandles(ann.points)) return contourBounds(ann.points);
   switch (ann.type) {
     case 'draw':
       if (!ann.path || ann.path.length === 0) return null;

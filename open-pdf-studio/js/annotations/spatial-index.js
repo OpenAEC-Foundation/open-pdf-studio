@@ -1,3 +1,5 @@
+import { hasBezierHandles, contourBounds } from './bezier-contour.js';
+import { veelhoekPuntenOpScherm } from './veelhoek-punten.js';
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
@@ -279,6 +281,16 @@ export function annotationBounds(annotation, opties) {
     if (!annotation) return null;
     const goedkoop = !!(opties && opties.goedkoop);
     const type = annotation.type;
+    if ((type === 'polyline' || type === 'polygon') && hasBezierHandles(annotation.points)) {
+      const nodes = type === 'polygon' ? veelhoekPuntenOpScherm(annotation) : annotation.points;
+      if (nodes) {
+        const b = contourBounds(nodes, type === 'polygon');
+        if (b) {
+          const pad = Math.max(annotation.lineWidth || 2, 4);
+          return { x: b.x - pad, y: b.y - pad, width: b.width + 2 * pad, height: b.height + 2 * pad };
+        }
+      }
+    }
 
     // Stavenreeks: the legs, dots and label extend well beyond the series
     // line, so the generic line-based branch below (4 px padding) would make

@@ -66,6 +66,8 @@ function moveAnnotation(ann, dx, dy) {
       if (ann.path) ann.path.forEach(p => { p.x += dx; p.y += dy; });
       break;
     case 'polyline':
+      applyMoveRigid(ann, dx, dy);
+      break;
     case 'measureArea':
     case 'measurePerimeter':
       if (ann.points) ann.points.forEach(p => { p.x += dx; p.y += dy; });

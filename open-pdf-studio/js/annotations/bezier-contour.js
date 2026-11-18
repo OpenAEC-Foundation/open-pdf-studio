@@ -12,6 +12,20 @@ const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t 
 // unwrap reactive array/node proxies; structuredClone cannot clone a Proxy.
 const copyNodes = (nodes) => JSON.parse(JSON.stringify(nodes));
 
+/** Only explicit cubic handles opt existing annotations into the new model. */
+export function hasBezierHandles(nodes) {
+  return Array.isArray(nodes) && nodes.some(p => p?.incoming || p?.outgoing);
+}
+
+/** Map a node and its absolute handles together, retaining other point data. */
+export function mapContourNode(node, mapPoint) {
+  const result = { ...node, ...mapPoint(node) };
+  for (const key of ['incoming', 'outgoing']) {
+    if (node[key]) result[key] = { ...node[key], ...mapPoint(node[key]) };
+  }
+  return result;
+}
+
 function validateNodes(nodes) {
   if (!Array.isArray(nodes)) throw new TypeError('Expected contour nodes');
   for (const p of nodes) {

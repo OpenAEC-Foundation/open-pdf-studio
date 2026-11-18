@@ -1,3 +1,4 @@
+import { hasBezierHandles, mapContourNode, contourBounds } from './bezier-contour.js';
 import { getActiveDocument } from '../core/state.js';
 import {
   recordAnnotationOrder,
@@ -117,6 +118,10 @@ function rotatePoint(px, py, cx, cy, deg) {
 
 // Get center of polyline points
 function polylineCenter(points) {
+  if (hasBezierHandles(points)) {
+    const b = contourBounds(points);
+    return { cx: b.x + b.width / 2, cy: b.y + b.height / 2 };
+  }
   const xs = points.map(p => p.x);
   const ys = points.map(p => p.y);
   const minX = Math.min(...xs), maxX = Math.max(...xs);
@@ -126,6 +131,10 @@ function polylineCenter(points) {
 
 // Update polyline bounding box from points
 function updatePolylineBounds(annotation) {
+  if (hasBezierHandles(annotation.points)) {
+    Object.assign(annotation, contourBounds(annotation.points));
+    return;
+  }
   const xs = annotation.points.map(p => p.x);
   const ys = annotation.points.map(p => p.y);
   annotation.x = Math.min(...xs);
@@ -150,7 +159,7 @@ export function rotateAnnotation(annotation, degrees) {
     annotation.endY = e.y;
   } else if (annotation.type === 'polyline' && annotation.points && annotation.points.length >= 2) {
     const { cx, cy } = polylineCenter(annotation.points);
-    annotation.points = annotation.points.map(p => rotatePoint(p.x, p.y, cx, cy, degrees));
+    annotation.points = annotation.points.map(p => mapContourNode(p, q => rotatePoint(q.x, q.y, cx, cy, degrees)));
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     rotatePointPolygon(annotation, degrees);
@@ -172,7 +181,7 @@ export function flipHorizontal(annotation) {
     annotation.endX = 2 * cx - annotation.endX;
   } else if (annotation.type === 'polyline' && annotation.points && annotation.points.length >= 2) {
     const { cx } = polylineCenter(annotation.points);
-    annotation.points = annotation.points.map(p => ({ x: 2 * cx - p.x, y: p.y }));
+    annotation.points = annotation.points.map(p => mapContourNode(p, q => ({ x: 2 * cx - q.x, y: q.y })));
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     flipPointPolygon(annotation, 'x');
@@ -198,7 +207,7 @@ export function flipVertical(annotation) {
     annotation.endY = 2 * cy - annotation.endY;
   } else if (annotation.type === 'polyline' && annotation.points && annotation.points.length >= 2) {
     const { cy } = polylineCenter(annotation.points);
-    annotation.points = annotation.points.map(p => ({ x: p.x, y: 2 * cy - p.y }));
+    annotation.points = annotation.points.map(p => mapContourNode(p, q => ({ x: q.x, y: 2 * cy - q.y })));
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     flipPointPolygon(annotation, 'y');
