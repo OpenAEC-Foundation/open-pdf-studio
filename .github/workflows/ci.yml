@@ -127,6 +127,11 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-blank-template-browser.mjs
 
+      - name: Test PDF link views and delayed navigation (Linux)
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: node scripts/test-link-view-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs
