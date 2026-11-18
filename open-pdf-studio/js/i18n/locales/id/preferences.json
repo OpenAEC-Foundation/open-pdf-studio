@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
     "reverseWheelZoom": "Balik arah zoom roda mouse",
     "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
+    "handClickZoom": "Klik dengan alat Tangan untuk memperbesar",
+    "handClickZoomHint": "Klik dengan alat Tangan memperbesar satu langkah di titik yang diklik; Shift+klik memperkecil. Menyeret tetap menggeser tampilan. Ctrl+klik dan Ctrl+seret (persegi zoom) selalu berfungsi, juga saat opsi ini mati.",
     "ribbonWheelSwitchesTabs": "Ganti tab ribbon dengan roda mouse",
     "smoothScrolling": "Gulir halus",
     "smoothScrollingHint": "Menganimasikan pengguliran dengan roda tetikus dan lompatan ke halaman, sehingga halaman masih meluncur sebentar. Mati: halaman berhenti saat roda berhenti. Di Linux mungkin perlu memulai ulang.",

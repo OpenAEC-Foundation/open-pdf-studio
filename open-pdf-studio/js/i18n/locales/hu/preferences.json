@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
     "reverseWheelZoom": "Az egérgörgős nagyítás irányának megfordítása",
     "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",
+    "handClickZoom": "Kattintás a Kéz eszközzel nagyít",
+    "handClickZoomHint": "A Kéz eszközzel végzett kattintás egy lépést nagyít a kattintott ponton; a Shift+kattintás kicsinyít. A húzás továbbra is a nézetet mozgatja. A Ctrl+kattintás és a Ctrl+húzás (nagyítási téglalap) mindig nagyít, akkor is, ha ez ki van kapcsolva.",
     "ribbonWheelSwitchesTabs": "Menüszalag lapjainak váltása egérgörgővel",
     "smoothScrolling": "Finom görgetés",
     "smoothScrollingHint": "Animálja az egérgörgős görgetést és az oldalra ugrást, így az oldal még egy kicsit tovább csúszik. Ki: az oldal megáll, amikor a görgő megáll. Linuxon újraindítás lehet szükséges.",

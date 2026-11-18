@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
     "reverseWheelZoom": "Odwróć kierunek powiększania kółkiem myszy",
     "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
+    "handClickZoom": "Kliknięcie narzędziem Rączka powiększa",
+    "handClickZoomHint": "Kliknięcie narzędziem Rączka powiększa o jeden krok w klikniętym punkcie; Shift+kliknięcie pomniejsza. Przeciąganie nadal przesuwa widok. Ctrl+kliknięcie i Ctrl+przeciąganie (prostokąt powiększenia) działają zawsze, także gdy ta opcja jest wyłączona.",
     "ribbonWheelSwitchesTabs": "Przełączaj karty wstążki kółkiem myszy",
     "smoothScrolling": "Płynne przewijanie",
     "smoothScrollingHint": "Animuje przewijanie kółkiem myszy i skoki do strony, która jeszcze chwilę się przesuwa. Wyłączone: strona zatrzymuje się, gdy kółko się zatrzyma. W systemie Linux może być potrzebne ponowne uruchomienie.",

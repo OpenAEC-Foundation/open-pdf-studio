@@ -219,6 +219,8 @@
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "reverseWheelZoom": "Zoomrichting van het muiswiel omkeren",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
+    "handClickZoom": "Klikken met het handgereedschap zoomt in",
+    "handClickZoomHint": "Een klik met het handgereedschap zoomt één stap in op het aangeklikte punt; Shift+klik zoomt uit. Slepen blijft pannen. Ctrl+klik en Ctrl+slepen (zoomrechthoek) zoomen altijd, ook als dit uit staat.",
     "ribbonWheelSwitchesTabs": "Linttabbladen wisselen met het muiswiel",
     "smoothScrolling": "Vloeiend scrollen",
     "smoothScrollingHint": "Scrollen met het muiswiel en sprongen naar een pagina animeren, zodat de pagina nog even doorglijdt. Uit: de pagina staat stil zodra het wiel stilstaat. Op Linux kan een herstart nodig zijn.",

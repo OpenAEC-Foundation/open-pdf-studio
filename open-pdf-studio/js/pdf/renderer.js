@@ -2067,6 +2067,19 @@ export async function zoomOut(point = null) {
   }
 }
 
+// Zoom de PDF.js-weergave van één pagina naar een vaste schaal, met het punt
+// `point` (client-coördinaten) als vast punt. Voor de zoomrechthoek van het
+// hand-gereedschap (#1161); de vector-viewport en de doorlopende weergave
+// hebben hun eigen route.
+export async function zoomEnkelePaginaNaar(nieuweSchaal, point = null) {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (!doc || !(nieuweSchaal > 0)) return;
+  const schaal = Math.min(24, Math.max(0.05, nieuweSchaal));
+  if (schaal === doc.scale) return;
+  doc.scale = schaal;
+  await renderPage(doc.currentPage, singlePageZoomAnchor(doc, point));
+}
+
 export async function setZoom(newScale) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;

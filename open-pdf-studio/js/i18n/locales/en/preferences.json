@@ -273,6 +273,8 @@
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "reverseWheelZoom": "Reverse mouse wheel zoom direction",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
+    "handClickZoom": "Click with the Hand tool to zoom in",
+    "handClickZoomHint": "A click with the Hand tool zooms in one step at the clicked point; Shift+click zooms out. Dragging still pans. Ctrl+click and Ctrl+drag (zoom rectangle) always zoom, also when this is off.",
     "ribbonWheelSwitchesTabs": "Switch ribbon tabs with the mouse wheel",
     "smoothScrolling": "Smooth scrolling",
     "smoothScrollingHint": "Animate mouse-wheel scrolling and jumps to a page, so the page glides on briefly. Off: the page stops when the wheel stops. On Linux a restart may be needed.",

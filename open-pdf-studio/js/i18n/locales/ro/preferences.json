@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoom cu rotița mouse-ului (fără a ține apăsat Ctrl)",
     "reverseWheelZoom": "Inversează direcția zoomului cu rotița mouse-ului",
     "middleDoubleClickFit": "Dublu clic cu butonul din mijloc al mouse-ului pentru încadrarea paginii",
+    "handClickZoom": "Clic cu instrumentul Mână pentru a mări",
+    "handClickZoomHint": "Un clic cu instrumentul Mână mărește cu un pas în punctul apăsat; Shift+clic micșorează. Tragerea deplasează în continuare vizualizarea. Ctrl+clic și Ctrl+tragere (dreptunghi de zoom) funcționează mereu, chiar dacă această opțiune este dezactivată.",
     "ribbonWheelSwitchesTabs": "Comută filele panglicii cu rotița mouse-ului",
     "smoothScrolling": "Derulare lină",
     "smoothScrollingHint": "Animează derularea cu rotița mouse-ului și salturile la o pagină, care mai alunecă puțin. Dezactivat: pagina se oprește când se oprește rotița. Pe Linux poate fi necesară o repornire.",

@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
     "reverseWheelZoom": "Käännä hiiren rullan zoomaussuunta",
     "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
+    "handClickZoom": "Napsautus käsityökalulla lähentää",
+    "handClickZoomHint": "Napsautus käsityökalulla lähentää yhden askeleen napsautettuun kohtaan; Vaihto+napsautus loitontaa. Vetäminen panoroi edelleen. Ctrl+napsautus ja Ctrl+veto (zoomaussuorakulmio) zoomaavat aina, vaikka tämä olisi pois päältä.",
     "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
     "smoothScrolling": "Pehmeä vieritys",
     "smoothScrollingHint": "Animoi hiiren rullalla vierittämisen ja hypyt sivulle, jolloin sivu liukuu vielä hetken. Pois: sivu pysähtyy, kun rulla pysähtyy. Linuxissa uudelleenkäynnistys voi olla tarpeen.",

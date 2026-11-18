@@ -245,6 +245,7 @@ export interface Preferences {
   wheelZoomWithoutCtrl: boolean;
   reverseWheelZoom: boolean;
   middleDoubleClickFit: boolean;
+  handClickZoom: boolean;
   ribbonWheelSwitchesTabs: boolean;
   smoothScrolling: boolean;
 

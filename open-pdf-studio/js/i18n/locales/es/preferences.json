@@ -215,6 +215,8 @@
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
     "reverseWheelZoom": "Invertir la dirección del zoom con la rueda del ratón",
     "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
+    "handClickZoom": "Hacer clic con la herramienta Mano para acercar",
+    "handClickZoomHint": "Un clic con la herramienta Mano acerca un paso en el punto pulsado; Mayús+clic aleja. Arrastrar sigue desplazando la vista. Ctrl+clic y Ctrl+arrastrar (rectángulo de zoom) siempre hacen zoom, aunque esta opción esté desactivada.",
     "ribbonWheelSwitchesTabs": "Cambiar las pestañas de la cinta con la rueda del ratón",
     "smoothScrolling": "Desplazamiento suave",
     "smoothScrollingHint": "Anima el desplazamiento con la rueda del ratón y los saltos a una página, que sigue deslizándose un momento. Desactivado: la página se detiene cuando se detiene la rueda. En Linux puede ser necesario reiniciar.",

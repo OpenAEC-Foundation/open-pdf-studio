@@ -5,6 +5,7 @@ import { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCan
 import { registerAllTools } from '../tools/tools/index.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
 import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
+import { installeerHandZoom } from '../tools/hand-zoom.js';
 import { installeerScrollPanVangnet } from '../tools/pan-handler.js';
 import { loadPDFIfNeeded } from '../pdf/loader.js';
 import { cacheWebFile, isTauri } from '../core/platform.js';
@@ -225,6 +226,8 @@ export function setupEventListeners() {
   // Middelmuis-slepen pant bij elk gereedschap en overal in de weergave
   installSpacePan();
   installeerMiddelmuisPan();
+  // Klik en Ctrl + sleep met de hand zoomen (#1161)
+  installeerHandZoom();
   // Een pan die zijn loslaten mist (venster kwijt) breekt af (#1013)
   installeerScrollPanVangnet();
 
