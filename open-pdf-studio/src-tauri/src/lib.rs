@@ -2521,6 +2521,15 @@ async fn raster_scan_page(
     Ok(resp)
 }
 
+/// Doorlopende weergave boven de bitmap-cap (#1163): de pagina als scherpe
+/// uitsnede via `render_pdf_page_region` in plaats van een opgerekte
+/// hele-paginabitmap (js/pdf/doorlopend-scherp.js). `OPDS_CONT_SHARP=0` dwingt
+/// de oude, gecapte hele-paginarender af (ter vergelijking of als noodrem).
+#[tauri::command]
+fn doorlopend_scherp_beschikbaar() -> bool {
+    std::env::var("OPDS_CONT_SHARP").map(|v| v.trim() != "0").unwrap_or(true)
+}
+
 #[tauri::command]
 async fn render_pdf_page_region(
     path: String,
@@ -3880,6 +3889,7 @@ pub fn run(opts: StartupOpts) {
             ocr_talen_app::ocr_language_download,
             worker_pool_ready,
             render_pdf_page_region,
+            doorlopend_scherp_beschikbaar,
             compare_pixel_pair,
             verscherpen::sharpen_rust_beschikbaar,
             raster_scan_page,

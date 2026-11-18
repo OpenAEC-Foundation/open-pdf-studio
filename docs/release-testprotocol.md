@@ -56,6 +56,7 @@ blokkeert de release.
 | Tekstrotatie | `node scripts/verify-tekstrotatie.mjs` | referentie-fixture, extern aangemaakt bestand, eigen opslag-rondgang |
 | Plaatsing onder cursor | `node scripts/verify-plaatsing-cursor.mjs` | maatlijn op zoom 1/2/3.52, afwijking ≤ 1,5 pt |
 | Doorlopende weergave | `node scripts/verify-doorlopend-inkt.mjs` | zichtbaar beeld op zoom 75/100/150/250% |
+| Doorlopend scherp | `node scripts/verify-doorlopend-scherp.mjs` | boven de bitmap-cap (#1163): apparaatresolutie op 100/200/400%, ook na scrollen, gedraaid, met meer pagina's en met /UserUnit; vensteropname komt overeen met de canvassen (niet wit); onder de cap het gewone canvas. `OUD=1` meet alleen (met `OPDS_CONT_SHARP=0`) |
 | Snelzoom | `node scripts/verify-snelzoom.mjs` | anker houdt bij snelle zoomreeksen |
 | Opslag-rondgang | `node scripts/verify-opslag-rondgang.mjs` | opslaan → heropenen zonder verlies |
 | Opslag-duplicaten | `node scripts/verify-opslag-duplicaten.mjs` | geen verdubbeling bij opslaan of sluiten-met-opslaan |

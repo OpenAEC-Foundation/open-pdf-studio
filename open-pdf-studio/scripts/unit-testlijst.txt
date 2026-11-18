@@ -928,3 +928,5 @@ js/solid/components/left-panel/panels/paneel-schuift.test.mjs
 js/annotations/eenhedenstelsel.test.mjs
 js/core/eenheden-opslag.test.mjs
 js/tools/hand-zoom-beleid.test.mjs
+js/pdf/doorlopend-scherp.test.mjs
+js/pdf/pagina-vak.test.mjs
