@@ -25,6 +25,7 @@ import { onPageRendered, clearHighlights } from '../search/find-bar.js';
 import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-anchor.js';
 import { createRerenderGate } from './continuous-rerender-gate.js';
 import { continuousRenderScale } from './continuous-render-scale.js';
+import { eenmaalPerElement } from './doorlopend-pagina-events.js';
 import { weergaveRotatie, weergaveTransform } from './weergave-ruimte.js';
 import { normaliseerRotatie, isKwartslag } from './weergave-rotatie.js';
 import { voorvertoningSleutel, voorvertoningRotatie, maakVoorvertoningLus } from './voorvertoning-sleutel.js';
@@ -1520,6 +1521,13 @@ async function renderContinuousPage(pageNum) {
     annotationCanvasEl.style.left = '0';
     canvasContainer.appendChild(annotationCanvasEl);
   }
+  // Muis-events koppelen zodra de pagina haar canvassen heeft, niet pas aan
+  // het einde van een geslaagde render (#1174). Een eerste render die door een
+  // nieuwere werd ingehaald (fitPage vlak na het openen van een nieuw
+  // document), mislukte of werd afgebroken, keerde vóór dat einde terug; de
+  // volgende vond de canvassen al en sloeg het koppelen over. De pagina nam
+  // dan geen enkel gereedschap meer aan.
+  setupContinuousPageEvents(annotationCanvasEl, pageNum);
 
   // Update canvas dimensions for new scale. A REUSED pdf-canvas keeps its old
   // bitmap as a CSS-stretched placeholder until the new render lands: resizing
@@ -1737,11 +1745,8 @@ async function renderContinuousPage(pageNum) {
   // gestretcht dan oud beeld), maar de tekst-/link-/formlagen zouden op de
   // verouderde viewport gepositioneerd worden. Overslaan: de aankomende
   // debounced re-render (reRenderVisibleContinuousPages cleart _renderedPages)
-  // herbouwt deze pagina op de juiste schaal. De muis-events moeten bij een
-  // nieuwe pagina wél nu al gekoppeld worden: bij de herkansing is isNewPage
-  // false en zou setupContinuousPageEvents anders nooit draaien.
+  // herbouwt deze pagina op de juiste schaal.
   if (doc.scale !== vpOpts.scale) {
-    if (isNewPage) setupContinuousPageEvents(annotationCanvasEl, pageNum);
     // De laatste debounced re-render kan al gedraaid zijn terwijl deze render
     // nog liep — zonder herplanning blijft de pagina dan permanent op de
     // (gestretchte) oude bitmap staan. Zelf een verse render inplannen.
@@ -1805,11 +1810,6 @@ async function renderContinuousPage(pageNum) {
 
   // Scherpe annotatie-overlay bij hoge zoom (staat uit, zie rendering.js).
   updateContinuousSharpOverlay(pageWrapper, pageNum);
-
-  // Setup mouse events only for new pages (not re-renders)
-  if (isNewPage) {
-    setupContinuousPageEvents(annotationCanvasEl, pageNum);
-  }
 }
 
 // Re-render only visible pages at new scale (keeps existing DOM structure)
@@ -2272,9 +2272,13 @@ export async function renderContinuous(forceRebuild) {
 }
 
 // Setup pointer events for continuous mode pages
+const _paginaEventsGekoppeld = new WeakSet();
 function setupContinuousPageEvents(canvas, pageNum) {
   // Store pageNum in dataset for the dispatcher's resolvePointerCoords
   canvas.dataset.page = pageNum;
+  const cc0 = canvas.closest('.canvas-container-cont') || canvas;
+  // Eén keer per paginacontainer: elke render roept dit aan.
+  if (!eenmaalPerElement(_paginaEventsGekoppeld, cc0)) return;
   // Bind op de paginacontainer, niet op het annotatiecanvas: dat canvas is
   // een viewport-uitsnede en dekt de pagina niet volledig — buiten de
   // uitsnede zou een klik anders in een dode zone vallen. Het filter

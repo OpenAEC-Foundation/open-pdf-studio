@@ -1,6 +1,6 @@
 #[path = "render_budget.rs"]
 mod render_budget;
-use render_budget::{dimensions, SCREEN_RGBA_BYTES};
+use render_budget::{dimensions, turned_page, SCREEN_RGBA_BYTES};
 #[path = "screen_widgets.rs"]
 mod screen_widgets;
 use screen_widgets::ScreenWidgets;
@@ -391,14 +391,28 @@ impl Renderer {
             // form pass stays for signatures and push buttons, which that
             // layer cannot draw; the editable widgets are hidden meanwhile.
             let widgets = (!all_forms).then(|| ScreenWidgets::prepare(page));
-            let config = PdfRenderConfig::new()
-                .set_target_width(target_w)
-                .set_maximum_height(target_h)
-                .rotate(rot, true)
-                .render_form_data(widgets.as_ref().is_none_or(|w| w.render_form_data()))
-                .render_annotations(false)
-                .use_lcd_text_rendering(true)
-                .set_format(PdfBitmapFormat::BGRA);
+            let form_pass = widgets.as_ref().is_none_or(|w| w.render_form_data());
+            // Without the form pass the binding renders through a matrix, and
+            // its own rotation puts a quarter-turned page outside the bitmap
+            // (a white page): the turn then goes into our matrix.
+            let config = if form_pass || rot == PdfPageRenderRotation::None {
+                PdfRenderConfig::new()
+                    .set_target_width(target_w)
+                    .set_maximum_height(target_h)
+                    .rotate(rot, true)
+                    .render_form_data(form_pass)
+            } else {
+                let ((w, h), m) = turned_page(rotation, w_pt, h_pt, (target_w, target_h))
+                    .ok_or_else(|| anyhow!("unsupported rotation {}", rotation))?;
+                PdfRenderConfig::new()
+                    .set_fixed_size(w, h)
+                    .transform(m[0], m[1], m[2], m[3], m[4], m[5])
+                    .map_err(|e| anyhow!("invalid transform: {}", e))?
+                    .render_form_data(false)
+            }
+            .render_annotations(false)
+            .use_lcd_text_rendering(true)
+            .set_format(PdfBitmapFormat::BGRA);
 
             let bitmap = page.render_with_config(&config)
                 .map_err(|e| anyhow!("PDFium render: {}", e))?;
@@ -789,6 +803,35 @@ mod tests {
             assert!(dark(&tiles, 400, x, y), "text field must stay visible outside the screen render: /Rotate {rotate}");
             drop(renderer);
             std::fs::remove_file(all).unwrap();
+        }
+    }
+
+    /// A page without signature or button faces has no form pass and renders
+    /// through a matrix. Turned a quarter it came out white: the turn must
+    /// show the same picture as PDFium's own rotation on the form-pass route.
+    #[test]
+    fn screen_render_turns_a_page_without_form_pass() {
+        for rotate in [0, 90] {
+            let bytes = form_page(false, rotate);
+            let plain = temp_pdf(&format!("turn-{rotate}"), &bytes);
+            let mut renderer = Renderer::new().unwrap();
+            for rotation in [0, 90, 180, 270] {
+                for scale in [1.0, 2.0] {
+                    let screen = renderer.render(plain.to_str().unwrap(), 0, scale, rotation, false).unwrap();
+                    let expected = render_with_forms(&bytes, scale, rotation);
+                    assert_eq!((screen.width, screen.height), (expected.0, expected.1), "/Rotate {rotate}, rotation {rotation}, scale {scale}");
+                    let w = screen.width as usize;
+                    let n = w * screen.height as usize;
+                    let inked = (0..n).filter(|&i| dark(&screen.rgba, w, i % w, i / w)).count();
+                    let wanted = (0..n).filter(|&i| dark(&expected.2, w, i % w, i / w)).count();
+                    let differing = (0..n).filter(|&i| dark(&screen.rgba, w, i % w, i / w) != dark(&expected.2, w, i % w, i / w)).count();
+                    assert!(wanted > 200, "the reference shows the drawing ({wanted} dark px)");
+                    assert!(inked * 2 > wanted, "white page: /Rotate {rotate}, rotation {rotation}, scale {scale} ({inked} of {wanted} dark px)");
+                    assert!(differing * 4 < wanted, "drawing in another place: /Rotate {rotate}, rotation {rotation}, scale {scale} ({differing} of {wanted} px differ)");
+                }
+            }
+            drop(renderer);
+            std::fs::remove_file(plain).unwrap();
         }
     }
 
