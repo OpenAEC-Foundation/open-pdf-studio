@@ -796,6 +796,10 @@ export function bouwIncrementeleUpdate(plan, pdfDocLib) {
 export function vereistVolledigeHerschrijving(doc) {
   if (!doc) return null;
   if (doc.vereistVolledigeHerschrijving) return String(doc.vereistVolledigeHerschrijving);
+  // Beveiligd, of de beveiliging is net verwijderd: de bron is de ontsleutelde
+  // werkkopie en de versleutelende schrijver herschrijft het hele bestand. Een
+  // toevoeging zou de losse xref-stroom van de bron in het resultaat laten staan.
+  if (doc.beveiliging?.versleuteld || doc.beveiliging?.inAfwachting) return 'beveiliging';
   if ((doc.annotations || []).some((a) => a?.type === 'redaction' || a?.redacted === true)) return 'redactie';
   const bijlagen = doc.bijlagenWijzigingen;
   if (bijlagen && Array.isArray(bijlagen.verwijderd) && bijlagen.verwijderd.length) return 'bijlage-verwijderd';
