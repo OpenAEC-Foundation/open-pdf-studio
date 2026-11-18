@@ -138,6 +138,7 @@ js/pdf/tile-coverage.test.mjs
 js/pdf/continuous-zoom-anchor.test.mjs
 js/pdf/continuous-rerender-gate.test.mjs
 js/pdf/continuous-render-scale.test.mjs
+js/pdf/doorlopend-pagina-events.test.mjs
 js/pdf/link-destination.test.mjs
 js/pdf/link-rondgang.test.mjs
 js/pdf/link-doelbeeld.test.mjs
