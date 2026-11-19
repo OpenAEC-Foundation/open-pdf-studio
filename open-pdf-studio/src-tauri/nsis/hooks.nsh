@@ -193,9 +193,12 @@ Var VPrinterState
 
 ; _OP: WRITE or REMOVE.
 !macro OPDS_SHELL_VERBS _OP
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".pdf" "OpenPDFStudio.CombineHere" "$(opdsVerbCombineHere)" "--combine-here"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".pdf" "OpenPDFStudio.Combine" "$(opdsVerbCombine)" "--combine"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".jpg" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".jpeg" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jpe" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jfif" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".png" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".bmp" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".gif" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
@@ -204,6 +207,8 @@ Var VPrinterState
   !insertmacro OPDS_SHELL_VERB_${_OP} ".dxf" "OpenPDFStudio.ConvertToPdf" "$(opdsVerbConvert)" "--convert-to-pdf"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".jpg" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".jpeg" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jpe" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
+  !insertmacro OPDS_SHELL_VERB_${_OP} ".jfif" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".png" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".bmp" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"
   !insertmacro OPDS_SHELL_VERB_${_OP} ".gif" "OpenPDFStudio.Combine" "$(opdsVerbConvertCombine)" "--convert-combine"

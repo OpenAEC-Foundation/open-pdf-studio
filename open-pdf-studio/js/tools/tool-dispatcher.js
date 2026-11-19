@@ -1000,16 +1000,14 @@ function _handleDrag(ctx, e, coords) {
   if (_dSel2.length > 1 && state.originalAnnotations.length > 0) {
     for (let i = 0; i < _dSel2.length; i++) {
       if (state.originalAnnotations[i]) {
-        Object.assign(_dSel2[i], cloneAnnotation(state.originalAnnotations[i]));
-        applyMove(_dSel2[i], adjDX, adjDY);
+        applyMove(_dSel2[i], adjDX, adjDY, state.originalAnnotations[i]);
       }
     }
   } else if (_dSel2.length === 1) {
     const ann = _dSel2[0];
     const orig = state.originalAnnotation || state.originalAnnotations[0];
     if (ann && orig) {
-      Object.assign(ann, cloneAnnotation(orig));
-      applyMove(ann, adjDX, adjDY);
+      applyMove(ann, adjDX, adjDY, orig);
     }
   }
 

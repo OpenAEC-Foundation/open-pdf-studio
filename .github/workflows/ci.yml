@@ -103,6 +103,15 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:hosted-bridge
 
+      - name: Install Chromium for PDF regression tests (Windows and macOS)
+        if: runner.os != 'Linux'
+        run: npx playwright install chromium
+
+      - name: Test overlapping zoom renders and saved annotation dates
+        run: |
+          node scripts/test-pdfjs-zoom-browser.mjs
+          node scripts/test-annotation-dates-browser.mjs
+
       - name: Test embedded PDF scale override (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-pdf-scale-override-browser.mjs

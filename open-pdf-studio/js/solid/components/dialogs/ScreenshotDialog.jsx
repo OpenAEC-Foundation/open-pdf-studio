@@ -1,4 +1,5 @@
-import { createSignal, createMemo, onMount, Show, For } from 'solid-js';
+import { createSignal, createMemo, createEffect, onMount, Show, For } from 'solid-js';
+import { kleurOpname } from '../../../tools/screenshot-lijnkleur.js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -26,7 +27,18 @@ export default function ScreenshotDialog(props) {
   const [standaardActie, setStandaardActie] = createSignal(start.actie);
   const [bezig, setBezig] = createSignal(false);
   const [fout, setFout] = createSignal('');
+  const [kleurAan, setKleurAan] = createSignal(false);
+  const [kleur, setKleur] = createSignal('#c00000');
+  const lijnkleur = () => kleurAan() ? kleur() : null;
+  const [voorbeeldBron, setVoorbeeldBron] = createSignal(null);
   let voorbeeldRef;
+  createEffect(() => {
+    const bron = voorbeeldBron();
+    const inkt = lijnkleur();
+    if (!bron) return;
+    voorbeeldRef.getContext('2d').drawImage(bron, 0, 0);
+    kleurOpname(voorbeeldRef, inkt);
+  });
 
   const keuze = () => ({ resolutie: resolutie(), eigenDpi: eigenDpi(), formaat: formaat(), kwaliteit: kwaliteit(), actie: standaardActie() });
   const dpi = createMemo(() => gekozenDpi(keuze(), gebied?.schermDpi));
@@ -55,10 +67,10 @@ export default function ScreenshotDialog(props) {
     try {
       const m = await import('../../../tools/screenshot.js');
       if (actie === 'save') {
-        const pad = await m.bewaarSchermafbeelding(gebied, dpi(), formaat(), kwaliteit());
+        const pad = await m.bewaarSchermafbeelding(gebied, dpi(), formaat(), kwaliteit(), lijnkleur());
         if (!pad) { setBezig(false); return; } // save dialog cancelled: stay open
       } else {
-        await m.kopieerSchermafbeelding(gebied, dpi());
+        await m.kopieerSchermafbeelding(gebied, dpi(), lijnkleur());
       }
       bewaarKeuze(actie);
       close();
@@ -103,10 +115,14 @@ export default function ScreenshotDialog(props) {
       c.height = kwartslag() ? pagina.width : pagina.height;
       c.style.width = `${c.width / dpr}px`;
       c.style.height = `${c.height / dpr}px`;
-      const ctx = c.getContext('2d');
+      const bron = document.createElement('canvas');
+      bron.width = c.width;
+      bron.height = c.height;
+      const ctx = bron.getContext('2d');
       ctx.translate(c.width / 2, c.height / 2);
       ctx.rotate((r * Math.PI) / 180);
       ctx.drawImage(pagina, -pagina.width / 2, -pagina.height / 2);
+      setVoorbeeldBron(bron);
       c.dataset.klaar = '1';
     } catch (e) {
       console.warn('[screenshot] preview failed:', e);
@@ -216,6 +232,10 @@ export default function ScreenshotDialog(props) {
         <Show when={maat()?.beperkt}>
           <div class="crop-margins-info screenshot-warning">{t('screenshot.limited', { dpi: maat().dpi })}</div>
         </Show>
+        <div class="crop-margins-row">
+          <label class="crop-margins-label"><input type="checkbox" checked={kleurAan()} onChange={e => setKleurAan(e.currentTarget.checked)} /> {t('properties:appearance.lineworkColor')}</label>
+          <input id="screenshot-line-color" type="color" aria-label={t('properties:appearance.lineworkColor')} value={kleur()} disabled={!kleurAan()} onInput={e => setKleur(e.currentTarget.value)} />
+        </div>
         <div class="crop-margins-row">
           <label class="crop-margins-label" for="screenshot-format">{t('screenshot.format')}</label>
           <select id="screenshot-format" class="crop-margins-select" value={formaat()}

@@ -37,24 +37,29 @@ export function maakSnapGeometrieCache({ isOpen = () => true } = {}) {
     return d ? `${d}:${pagina}` : null;
   };
 
+  // De punten liggen in geroteerde paginacoordinaten. Bewaar per pagina
+  // alleen de laatste stand, ook als een oudere extractie nog loopt.
+  const rotatie = (doc, pagina) => doc?.pageRotations?.[pagina] || 0;
+  const passend = (map, doc, pagina) => {
+    const item = map.get(sleutel(doc, pagina));
+    return item?.rotatie === rotatie(doc, pagina) ? item : null;
+  };
+
   return {
     sleutel,
 
     /** Het resultaat voor deze pagina van dit document, of null. */
     get(doc, pagina) {
-      const k = sleutel(doc, pagina);
-      return k ? klaar.get(k) || null : null;
+      return passend(klaar, doc, pagina)?.resultaat ?? null;
     },
 
     heeft(doc, pagina) {
-      const k = sleutel(doc, pagina);
-      return !!k && klaar.has(k);
+      return !!passend(klaar, doc, pagina);
     },
 
     /** De lopende extractie voor deze pagina van dit document, of null. */
     lopend(doc, pagina) {
-      const k = sleutel(doc, pagina);
-      return k ? bezig.get(k) || null : null;
+      return passend(bezig, doc, pagina)?.belofte ?? null;
     },
 
     /**
@@ -67,18 +72,23 @@ export function maakSnapGeometrieCache({ isOpen = () => true } = {}) {
     laad(doc, pagina, extraheer) {
       const k = sleutel(doc, pagina);
       if (!k) return null;
-      if (klaar.has(k)) return Promise.resolve();
-      if (bezig.has(k)) return bezig.get(k);
+      if (passend(klaar, doc, pagina)) return Promise.resolve();
+      const lopend = passend(bezig, doc, pagina);
+      if (lopend) return lopend.belofte;
+      klaar.delete(k);
+      const stand = rotatie(doc, pagina);
       const belofte = Promise.resolve()
         .then(extraheer)
         .then((resultaat) => {
-          if (bezig.get(k) === belofte && isOpen(doc)) klaar.set(k, resultaat);
+          if (bezig.get(k)?.belofte === belofte && rotatie(doc, pagina) === stand && isOpen(doc)) {
+            klaar.set(k, { rotatie: stand, resultaat });
+          }
         })
         .catch(() => { /* afgebroken of mislukt: niets bewaren */ })
         .finally(() => {
-          if (bezig.get(k) === belofte) bezig.delete(k);
+          if (bezig.get(k)?.belofte === belofte) bezig.delete(k);
         });
-      bezig.set(k, belofte);
+      bezig.set(k, { rotatie: stand, belofte });
       return belofte;
     },
 

@@ -24,9 +24,9 @@
 // van de linkerbovenhoek van de pagina zoals die op het scherm ligt.
 
 /** Marge rond het zichtbare deel, als deel van de vensterafmeting. */
-export const SCHERP_MARGE_DEEL = 0.25;
-/** Ondergrens van de marge (CSS-px): de uitsnede van het annotatiecanvas. */
-export const SCHERP_MARGE_MIN_PX = 256;
+export const SCHERP_MARGE_DEEL = 0.10;
+/** Ondergrens van de marge voor kleine zichtbare paginadelen (CSS-px). */
+export const SCHERP_MARGE_MIN_PX = 64;
 /** Bovengrens op het aantal pixels van één uitsnede (48 MB RGBA). */
 export const SCHERP_MAX_PIXELS = 12_000_000;
 
