@@ -63,7 +63,8 @@ export function schrijfLinks(pdfLibDoc, links, naarPdf) {
 
 /** Annotation-space rectangle of a pdf.js annotation rect. */
 function vakVan(viewport, rect) {
-  const [x1, y1, x2, y2] = viewport.convertToViewportRectangle(rect);
+  const [x1, y1] = viewport.convertToViewportPoint(rect[0], rect[1]);
+  const [x2, y2] = viewport.convertToViewportPoint(rect[2], rect[3]);
   return { x: Math.min(x1, x2), y: Math.min(y1, y2), width: Math.abs(x2 - x1), height: Math.abs(y2 - y1) };
 }
 
