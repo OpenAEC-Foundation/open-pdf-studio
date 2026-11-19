@@ -41,8 +41,8 @@ const lijst = [...macro('OPDS_SHELL_VERBS').matchAll(
 test('de lijst dekt alle bestandstypen van het voorstel', () => {
   const combineren = lijst.filter((v) => v.key === 'OpenPDFStudio.Combine').map((v) => v.ext).sort();
   const omzetten = lijst.filter((v) => v.key === 'OpenPDFStudio.ConvertToPdf').map((v) => v.ext).sort();
-  assert.deepEqual(omzetten, ['.bmp', '.dwg', '.dxf', '.gif', '.jpeg', '.jpg', '.png', '.webp']);
-  assert.deepEqual(combineren, ['.bmp', '.gif', '.jpeg', '.jpg', '.pdf', '.png', '.webp']);
+  assert.deepEqual(omzetten, ['.bmp', '.dwg', '.dxf', '.gif', '.jfif', '.jpe', '.jpeg', '.jpg', '.png', '.webp']);
+  assert.deepEqual(combineren, ['.bmp', '.gif', '.jfif', '.jpe', '.jpeg', '.jpg', '.pdf', '.png', '.webp']);
   // De app herkent precies dezelfde typen.
   for (const { ext } of lijst) {
     assert.ok(ext === '.pdf' || AFBEELDING.test(`x${ext}`) || CAD.test(`x${ext}`), ext);
@@ -54,6 +54,10 @@ test('de lijst dekt alle bestandstypen van het voorstel', () => {
 test('elke vlag in de installer kent de app (verkenner_acties.rs)', () => {
   for (const { flag, key } of lijst) {
     assert.ok(rust.includes(`"${flag}"`), flag);
+    if (key === 'OpenPDFStudio.CombineHere') {
+      assert.equal(flag, '--combine-here');
+      continue;
+    }
     const groep = key === 'OpenPDFStudio.Combine' ? 'COMBINEER_VLAGGEN' : 'OMZET_VLAGGEN';
     assert.match(rust, new RegExp(`${groep}[^\\n]*"${flag}"`), `${flag} in ${groep}`);
   }
@@ -94,7 +98,7 @@ test('installeren schrijft, verwijderen ruimt op (beide installer-varianten)', (
 });
 
 test('de drie menunamen bestaan in elke installertaal', () => {
-  for (const naam of ['opdsVerbCombine', 'opdsVerbConvert', 'opdsVerbConvertCombine']) {
+  for (const naam of ['opdsVerbCombineHere', 'opdsVerbCombine', 'opdsVerbConvert', 'opdsVerbConvertCombine']) {
     assert.ok(lijst.some((v) => v.label === `$(${naam})`), `${naam} gebruikt`);
     for (const taal of ['LANG_ENGLISH', 'LANG_DUTCH']) {
       assert.match(strings, new RegExp(`LangString ${naam} \\$\\{${taal}\\} "[^"]+\\(\\$\\{PRODUCTNAME\\}\\)"`), `${naam} ${taal}`);

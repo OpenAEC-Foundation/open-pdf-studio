@@ -1940,7 +1940,7 @@
     "manage": "Manage",
     "exportAudit": "Export audit package (ZIP)",
     "exported": "Audit package saved: {{path}}",
-    "exportedWithoutPdf": "Audit package saved without the sent PDF (not available on this computer): {{path}}",
+    "exportedWithoutPdf": "Incomplete audit package saved. See audit-summary.json for the missing PDF files. {{path}}",
     "history": "History",
     "when": "When",
     "what": "What",

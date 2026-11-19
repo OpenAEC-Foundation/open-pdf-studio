@@ -24,7 +24,7 @@ import { statusAntwoordStappen } from '../../review/status-history.js';
 
 const N = (naam) => PDFName.of(naam);
 
-function pdfDatum(iso) {
+export function pdfDatum(iso) {
   const d = iso ? new Date(iso) : new Date();
   return PDFString.fromDate(Number.isNaN(d.getTime()) ? new Date() : d);
 }
@@ -37,6 +37,13 @@ function pdfDatum(iso) {
 export function schrijfAlgemeneSleutels(dict, ann, gebruikteNm) {
   if (!dict || typeof dict.set !== 'function' || !ann) return;
   const heeft = (sleutel) => dict.get(N(sleutel)) !== undefined;
+  // Nieuwe annotaties krijgen hun aanmaakdatum mee (#1189). Bij een
+  // geïmporteerde annotatie bewaart bron-behoud de oorspronkelijke waarde,
+  // inclusief tijdzone en precisie; geen ontbrekende datum erbij verzinnen.
+  if (!ann.pdfBron && !heeft('CreationDate') && ann.createdAt
+      && Number.isFinite(new Date(ann.createdAt).getTime())) {
+    dict.set(N('CreationDate'), pdfDatum(ann.createdAt));
+  }
   const nm = ann.nm != null ? String(ann.nm) : '';
   if (nm && !heeft('NM') && !gebruikteNm?.has(nm)) {
     gebruikteNm?.add(nm);

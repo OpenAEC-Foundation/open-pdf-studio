@@ -4,7 +4,7 @@
 // src-tauri/nsis/hooks.nsh en de opdrachtregel in src-tauri/src/verkenner_acties.rs.
 
 /** Afbeeldingen die "Omzetten naar PDF" kent (zelfde lijst als de installer). */
-export const AFBEELDING = /\.(jpe?g|png|bmp|gif|webp)$/i;
+export const AFBEELDING = /\.(jpe?g|jpe|jfif|png|bmp|gif|webp)$/i;
 /** Tekeningen: die gaan door het bestaande CAD-importvenster. */
 export const CAD = /\.(dwg|dxf)$/i;
 export const PDF = /\.pdf$/i;
@@ -38,15 +38,17 @@ export function natuurlijkGesorteerd(paden) {
 export function verdeelActies(acties) {
   const combine = [];
   const convert = [];
+  const combineHere = [];
   for (const a of acties || []) {
     if (!a || !Array.isArray(a.files)) continue;
     for (const f of a.files) {
       if (typeof f !== 'string' || !f) continue;
-      if (a.mode === 'combine' && (PDF.test(f) || AFBEELDING.test(f))) combine.push(f);
+      if (a.mode === 'combineHere' && PDF.test(f)) combineHere.push(f);
+      else if (a.mode === 'combine' && (PDF.test(f) || AFBEELDING.test(f))) combine.push(f);
       else if (a.mode === 'convert' && (AFBEELDING.test(f) || CAD.test(f))) convert.push(f);
     }
   }
-  return { combine, convert };
+  return { combine, convert, combineHere };
 }
 
 /** Het PDF-pad naast een bron: `naam.pdf`, en bij `n` > 1 `naam (n).pdf`. */

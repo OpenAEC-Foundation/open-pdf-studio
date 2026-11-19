@@ -198,24 +198,9 @@ pub fn get_or_load_pdfium_doc(
     path: &str,
     cache: &PdfiumDocCache,
 ) -> Result<Arc<PdfiumDocumentHandle>, String> {
-    {
-        let map = cache.0.lock().map_err(|e| format!("Pdfium doc cache lock: {}", e))?;
-        if let Some(h) = map.get(path) {
-            return Ok(h.clone());
-        }
-    }
-
-    let bytes = std::fs::read(path).map_err(|e| format!("Read {}: {}", path, e))?;
-    let arc_bytes = Arc::new(bytes);
-    let handle = Arc::new(PdfiumDocumentHandle::load_from_bytes(arc_bytes)?);
-
-    let mut map = cache.0.lock().map_err(|e| format!("Pdfium doc cache lock: {}", e))?;
-    // Double-check after parse to avoid race-double-load.
-    if let Some(existing) = map.get(path) {
-        return Ok(existing.clone());
-    }
-    map.insert(path.to_string(), handle.clone());
-    Ok(handle)
+    get_or_load_pdfium_doc_with(path, cache, || {
+        std::fs::read(path).map(Arc::new).map_err(|e| format!("Read {}: {}", path, e))
+    })
 }
 
 /// Same as above but bytes are supplied directly. Used by Tauri commands
@@ -225,6 +210,15 @@ pub fn get_or_load_pdfium_doc_with_bytes(
     bytes: Arc<Vec<u8>>,
     cache: &PdfiumDocCache,
 ) -> Result<Arc<PdfiumDocumentHandle>, String> {
+    get_or_load_pdfium_doc_with(path, cache, || Ok(bytes))
+}
+
+/// Acquire the source bytes only if the parsed document is missing.
+pub fn get_or_load_pdfium_doc_with(
+    path: &str,
+    cache: &PdfiumDocCache,
+    load_bytes: impl FnOnce() -> Result<Arc<Vec<u8>>, String>,
+) -> Result<Arc<PdfiumDocumentHandle>, String> {
     {
         let map = cache.0.lock().map_err(|e| format!("Pdfium doc cache lock: {}", e))?;
         if let Some(h) = map.get(path) {
@@ -232,7 +226,7 @@ pub fn get_or_load_pdfium_doc_with_bytes(
         }
     }
 
-    let handle = Arc::new(PdfiumDocumentHandle::load_from_bytes(bytes)?);
+    let handle = Arc::new(PdfiumDocumentHandle::load_from_bytes(load_bytes()?)?);
 
     let mut map = cache.0.lock().map_err(|e| format!("Pdfium doc cache lock: {}", e))?;
     if let Some(existing) = map.get(path) {

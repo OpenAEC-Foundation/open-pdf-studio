@@ -29,14 +29,15 @@ import { DockedToolPalette, FloatingToolPalette, DockTargets, PaletteContextMenu
 import { DockedExtPalette, FloatingExtPalette, ExtDockTargets } from './components/ExtensionToolPalette.jsx';
 import { DockedSymbolPalette, FloatingSymbolPalette, SymbolSettingsDialog } from './components/SymbolPalette.jsx';
 import SchedulePanel from './components/SchedulePanel.jsx';
-import SymbolTypeEditor from './components/symbol-edit/SymbolTypeEditor.jsx';
+import { editorOpen } from './stores/symbolEditStore.js';
+const SymbolTypeEditor = lazy(() => import('./components/symbol-edit/SymbolTypeEditor.jsx'));
 import MiniLog from './components/MiniLog.jsx';
 import { getRegisteredPalettes } from '../plugins/palette-registry.js';
 import { leftOrder, rightOrder, topOrder, bottomOrder } from './stores/paletteOrder.js';
 import { useTranslation } from '../i18n/useTranslation.js';
 import { isTauri } from '../core/platform.js';
 import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../core/sessie-herstel.js';
-import { For, ErrorBoundary, Show, createEffect, onCleanup } from 'solid-js';
+import { lazy, createMemo, For, ErrorBoundary, Show, createEffect, onCleanup } from 'solid-js';
 import { state } from '../core/state.js';
 import { pasUiSchaalToe, haalUiSchaalWeg } from '../core/ui-scale.js';
 
@@ -72,6 +73,7 @@ function OrderedDockedPalettes(props) {
 }
 
 function DesktopApp() {
+  const editorGebruikt = createMemo(eerder => eerder || editorOpen(), false);
   // Interface size for low vision (#883): stylesheet sizes follow --ui-scale.
   createEffect(() => pasUiSchaalToe(state.preferences.uiScale));
   onCleanup(() => haalUiSchaalWeg());
@@ -168,7 +170,7 @@ function DesktopApp() {
       </For>
       <PaletteContextMenu />
       <SymbolSettingsDialog />
-      <SymbolTypeEditor />
+      <Show when={editorGebruikt()}><SymbolTypeEditor /></Show>
       <SchedulePanel />
       {/* MiniLog floating engine-log overlay removed per user request. */}
       <LoadingOverlay />

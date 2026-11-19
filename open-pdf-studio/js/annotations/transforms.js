@@ -1141,50 +1141,52 @@ function _movePoint(p, dx, dy) {
   };
 }
 
-export function applyMoveGeneric(annotation, dx, dy) {
+export function applyMoveGeneric(annotation, dx, dy, source = annotation) {
   for (const [kx, ky] of _MOVE_SCALAR_PAIRS) {
-    if (typeof annotation[kx] === 'number') annotation[kx] += dx;
-    if (typeof annotation[ky] === 'number') annotation[ky] += dy;
+    if (typeof source[kx] === 'number') annotation[kx] = source[kx] + dx;
+    if (typeof source[ky] === 'number') annotation[ky] = source[ky] + dy;
   }
   // Het middelpunt van een boog (centerX/centerY, #629): zonder dit bleef
   // een boog bij verplaatsen staan. Niet in de tabel hierboven: de
   // draaiwandeling draait een boog (nog) niet.
-  if (typeof annotation.centerX === 'number') annotation.centerX += dx;
-  if (typeof annotation.centerY === 'number') annotation.centerY += dy;
+  if (typeof source.centerX === 'number') annotation.centerX = source.centerX + dx;
+  if (typeof source.centerY === 'number') annotation.centerY = source.centerY + dy;
   for (const k of _MOVE_POINT_OBJECTS) {
-    const o = annotation[k];
+    const o = source[k];
     if (o && typeof o === 'object') {
-      if (typeof o.x === 'number') o.x += dx;
-      if (typeof o.y === 'number') o.y += dy;
+      const point = annotation === source ? o : { ...o };
+      if (typeof o.x === 'number') point.x = o.x + dx;
+      if (typeof o.y === 'number') point.y = o.y + dy;
+      if (annotation !== source) annotation[k] = point;
     }
   }
   for (const k of _MOVE_POINT_ARRAYS) {
-    if (Array.isArray(annotation[k])) {
-      annotation[k] = annotation[k].map(p => _movePoint(p, dx, dy));
+    if (Array.isArray(source[k])) {
+      annotation[k] = source[k].map(p => _movePoint(p, dx, dy));
     }
   }
   // Hole contours move rigidly with the outer polygon (donuts).
-  if (Array.isArray(annotation.holes)) {
-    annotation.holes = annotation.holes.map(h =>
+  if (Array.isArray(source.holes)) {
+    annotation.holes = source.holes.map(h =>
       Array.isArray(h) ? h.map(p => _movePoint(p, dx, dy)) : h
     );
   }
   // Text-markup rects + PDF quadPoints ([x1,y1,...,x4,y4] flat arrays).
   // Gedraaide quads van een markering op schuine tekst (#927) schuiven mee.
-  if (Array.isArray(annotation.quads)) {
-    annotation.quads = annotation.quads.map(q => Array.isArray(q) ? q.map(p => _movePoint(p, dx, dy)) : q);
+  if (Array.isArray(source.quads)) {
+    annotation.quads = source.quads.map(q => Array.isArray(q) ? q.map(p => _movePoint(p, dx, dy)) : q);
   }
-  if (Array.isArray(annotation.rects)) {
-    annotation.rects = annotation.rects.map(r => ({ ...r, x: r.x + dx, y: r.y + dy }));
+  if (Array.isArray(source.rects)) {
+    annotation.rects = source.rects.map(r => ({ ...r, x: r.x + dx, y: r.y + dy }));
   }
-  if (Array.isArray(annotation.quadPoints)) {
-    annotation.quadPoints = annotation.quadPoints.map(quad =>
+  if (Array.isArray(source.quadPoints)) {
+    annotation.quadPoints = source.quadPoints.map(quad =>
       Array.isArray(quad) ? quad.map((v, i) => v + (i % 2 === 0 ? dx : dy)) : quad
     );
   }
   // Textbox leader arrows (tip/knee) move rigidly with the box.
-  if (Array.isArray(annotation.leaders)) {
-    annotation.leaders = annotation.leaders.map(l => ({
+  if (Array.isArray(source.leaders)) {
+    annotation.leaders = source.leaders.map(l => ({
       ...l,
       tipX: typeof l.tipX === 'number' ? l.tipX + dx : l.tipX,
       tipY: typeof l.tipY === 'number' ? l.tipY + dy : l.tipY,
@@ -1195,17 +1197,17 @@ export function applyMoveGeneric(annotation, dx, dy) {
 }
 
 // Apply move to annotation
-export function applyMove(annotation, deltaX, deltaY) {
+export function applyMove(annotation, deltaX, deltaY, source = annotation) {
   if (annotation.locked) return;
 
   if (annotation.type === 'callout') {
     // Special semantics: moving a callout moves only the TEXT BOX — the
     // arrow tip stays anchored and the leader is recomputed.
-    annotation.x += deltaX;
-    annotation.y += deltaY;
+    annotation.x = source.x + deltaX;
+    annotation.y = source.y + deltaY;
     recalcCalloutLeader(annotation);
   } else {
-    applyMoveGeneric(annotation, deltaX, deltaY);
+    applyMoveGeneric(annotation, deltaX, deltaY, source);
   }
 
   annotation.modifiedAt = new Date().toISOString();

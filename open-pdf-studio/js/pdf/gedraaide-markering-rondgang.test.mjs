@@ -154,5 +154,5 @@ test('de lader, de weergave en het verplaatsen gebruiken de gedraaide quads', as
   assert.match(weergave, /case 'highlight':[\s\S]{0,600}ctx\.rotate\(annotation\.rotation \* Math\.PI \/ 180\)/);
   assert.match(weergave, /case 'textHighlight':[\s\S]{0,600}Array\.isArray\(annotation\.quads\)/);
   const transforms = bron('../annotations/transforms.js');
-  assert.match(transforms, /annotation\.quads = annotation\.quads\.map\(q => Array\.isArray\(q\) \? q\.map\(p => _movePoint\(p, dx, dy\)\) : q\)/);
+  assert.match(transforms, /annotation\.quads = source\.quads\.map\(q => Array\.isArray\(q\) \? q\.map\(p => _movePoint\(p, dx, dy\)\) : q\)/);
 });
