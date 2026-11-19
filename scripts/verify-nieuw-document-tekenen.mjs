@@ -1,9 +1,13 @@
 // Poorttest #1174: op een NIEUW document kun je meteen tekenen.
 //
-// Een nieuw document opent in de doorlopende weergave en past zich direct
-// daarna in het venster (fitPage). Die tweede render haalde de eerste in, en
+// Een nieuw document in de doorlopende weergave past zich direct daarna in het
+// venster (fitPage). Die tweede render haalde de eerste in, en
 // de pagina kreeg haar muis-events dan nooit: geen enkel gereedschap deed nog
 // iets op het blad, tot de weergave opnieuw werd opgebouwd.
+//
+// Een nieuw document opent nu in de enkele-paginaweergave (de standaard);
+// de race wordt nagebootst door meteen naar doorlopend te schakelen en
+// passend te maken: twee renders vlak na elkaar op een nieuw document.
 //
 // Per ronde: een nieuw leeg document (zonder de weergave aan te raken), dan
 // met ECHTE muisgebeurtenissen (CDP Input.dispatchMouseEvent) een rechthoek en
@@ -114,7 +118,7 @@ async function luisteraars() {
 async function tekenRonde(waar, rij) {
   const v = await vlak();
   const p = (fx, fy) => [v.l + v.b * fx, v.t + v.h * fy];
-  const y = 0.15 + rij * 0.2;
+  const y = 0.08 + rij * 0.17;
   const stappen = [
     ['box', () => sleep2(...p(0.1, y), ...p(0.25, y + 0.12))],
     ['draw', () => sleep2(...p(0.35, y), ...p(0.5, y + 0.12))],
@@ -146,8 +150,14 @@ for (let n = 0; n < RONDES; n++) {
   if (!nieuw?.ok) { fout(`ronde ${n + 1}`, 'nieuw document mislukt: ' + JSON.stringify(nieuw).slice(0, 200)); continue; }
   await sleep(wacht);
   const v = await vlak();
-  if (!v.doorlopend) fout(`ronde ${n + 1}`, 'het nieuwe document staat niet in de doorlopende weergave');
-  await tekenRonde(`ronde ${n + 1} doorlopend`, 0);
+  if (v.doorlopend) fout(`ronde ${n + 1}`, 'het nieuwe document opent doorlopend; de standaard is enkele pagina');
+  await tekenRonde(`ronde ${n + 1} enkele pagina (standaard)`, 0);
+  // Naar doorlopend met direct een tweede render erachteraan: de race van #1174.
+  await mcp('app_set_view_mode', { mode: 'continuous' });
+  await mcp('app_fit_page', {});
+  await sleep(wacht);
+  if (!(await vlak()).doorlopend) fout(`ronde ${n + 1}`, 'het nieuwe document is niet in de doorlopende weergave te krijgen');
+  await tekenRonde(`ronde ${n + 1} doorlopend`, 1);
   const l1 = await luisteraars();
   console.log('  luisteraars:', JSON.stringify(l1));
   if (!l1 || l1.pointerdown !== 1 || l1.pointerup !== 1 || l1.pointermove !== 1) fout(`ronde ${n + 1}`, `paginacontainer heeft niet precies één stel luisteraars: ${JSON.stringify(l1)}`);
@@ -161,15 +171,15 @@ for (let n = 0; n < RONDES; n++) {
   const l2 = await luisteraars();
   if (!l2 || l2.pointerdown !== 1) fout(`ronde ${n + 1}`, `na zoomen ${JSON.stringify(l2)} luisteraars (zoom was ${zoom})`);
   const voor = await aantal();
-  await tekenRonde(`ronde ${n + 1} doorlopend na zoomen`, 1);
+  await tekenRonde(`ronde ${n + 1} doorlopend na zoomen`, 2);
   const erbij = (await aantal()) - voor;
   if (erbij !== 3) fout(`ronde ${n + 1}`, `na zoomen kwamen er ${erbij} annotaties bij in plaats van 3`);
   await mcp('app_set_view_mode', { mode: 'single' });
   await sleep(1500);
-  await tekenRonde(`ronde ${n + 1} enkele pagina`, 2);
+  await tekenRonde(`ronde ${n + 1} enkele pagina`, 3);
   await mcp('app_set_view_mode', { mode: 'continuous' });
   await sleep(1500);
-  await tekenRonde(`ronde ${n + 1} terug doorlopend`, 3);
+  await tekenRonde(`ronde ${n + 1} terug doorlopend`, 4);
   try { await mcp('app_close_tab', { force: true }); } catch { /* geen tab */ }
   await sleep(700);
 }

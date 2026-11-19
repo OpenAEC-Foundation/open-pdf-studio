@@ -93,7 +93,15 @@ const INKT = `(async () => {
         const uitsnede = telInkt((mc) => mc.drawImage(pc, 0, 0, 48, 48));
         const eronder = bg ? telInkt((mc) => mc.drawImage(bg, (c.left - vak.left) / vak.width * bg.naturalWidth, (c.top - vak.top) / vak.height * bg.naturalHeight,
           c.width / vak.width * bg.naturalWidth, c.height / vak.height * bg.naturalHeight, 0, 0, 48, 48)) : 0;
-        uit.push({ p: w.dataset.page, inkt: uitsnede === 0 && eronder >= 10 ? 0 : (bg ? pagina : uitsnede) });
+        // Een uitsnede van een dun stuk tekening (een kaderlijn onderaan het
+        // blad) verdwijnt bij verkleinen naar 48x48: tel daarom ook op volle
+        // resolutie, omgerekend naar hetzelfde raster van 48x48.
+        const vol = pc.getContext('2d').getImageData(0, 0, pc.width, pc.height).data;
+        let donker = 0;
+        for (let i = 0; i < vol.length; i += 4) if (vol[i + 3] > 10 && (vol[i] < 200 || vol[i+1] < 200 || vol[i+2] < 200)) donker++;
+        const uitsnedeVol = donker > 0 ? Math.max(1, Math.round(donker / (vol.length / 4) * 48 * 48)) : 0;
+        const eigen = Math.max(uitsnede, uitsnedeVol);
+        uit.push({ p: w.dataset.page, inkt: eigen === 0 && eronder >= 10 ? 0 : Math.max(bg ? pagina : 0, eigen) });
       } catch { uit.push({ p: w.dataset.page, inkt: 'fout' }); }
       continue;
     }
