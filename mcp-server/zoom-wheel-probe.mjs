@@ -12,7 +12,7 @@ import http from 'http';
 const require = createRequire(import.meta.url);
 const { WebSocket } = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules/ws');
 
-const BARN = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf';
+const BARN = 'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf';
 
 async function main() {
   const targets = await fetchJson('http://localhost:9222/json/list');

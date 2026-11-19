@@ -19,7 +19,7 @@ async fn pool_render_matches_inproc_for_nkd1a_p4() {
         panic!("build pdfium-worker first: cargo build -p pdfium-worker");
     }
 
-    let path = "C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf";
+    let path = "C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden/NKD1a_opm_aw.pdf";
     let page = 3; // p4 (0-indexed)
     let scale = 0.25_f32;
 

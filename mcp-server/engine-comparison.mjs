@@ -5,7 +5,7 @@
 // Reports a single table per PDF + a summary.
 
 const MCP = 'http://127.0.0.1:9223/mcp';
-const TEST_DIR = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/';
+const TEST_DIR = 'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden/';
 
 const PDFS = [
   { name: 'Tekst.pdf',                          path: TEST_DIR + 'Tekst.pdf',                                                       sizeMB:  0.2 },

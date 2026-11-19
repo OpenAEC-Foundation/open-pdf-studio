@@ -372,7 +372,7 @@ test('ontdubbel voegt alleen echt gelijke objecten samen', async () => {
 
 // --- een echte tekening -----------------------------------------------------
 
-const ECHT = new URL('../../../test pdf-bestanden/Originele bestanden/NKE2D2_opm_aw.pdf', import.meta.url);
+const ECHT = new URL('../../../../verification-files/PDF-bestanden/NKE2D2_opm_aw.pdf', import.meta.url);
 
 test('echte zware tekening: veel kleiner en beeldpunt voor beeldpunt gelijk', { skip: !existsSync(ECHT) }, async () => {
   const bytes = new Uint8Array(readFileSync(ECHT));

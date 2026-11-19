@@ -29,7 +29,7 @@ const HELPER = path.join(REPO, 'scripts', 'mupdf_compare_helper.py');
 const MCP = 'http://127.0.0.1:9223/mcp';
 const DEFAULT_DIRS = [
   'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
-  `${REPO}/test pdf-bestanden/Originele bestanden`,
+  'C:/Users/rickd/Documents/GitHub/verification-files/PDF-tests-open-pdf-studio',
 ];
 const RECOMPARE = process.argv[2] === '--recompare';
 const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
