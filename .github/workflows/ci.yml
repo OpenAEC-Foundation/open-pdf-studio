@@ -184,6 +184,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-comment-popup-browser.mjs
 
+      - name: Test exported annotation dates (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-annotation-dates-browser.mjs
+
       - name: Test compact save and print controls (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-save-print-ui-browser.mjs
