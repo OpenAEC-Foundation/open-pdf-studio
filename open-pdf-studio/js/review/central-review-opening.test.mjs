@@ -68,3 +68,10 @@ test('detaching a complete snapshot releases its connection but preserves the us
  const{opening,state}=rig();await assert.rejects(opening.detach(),/NOT_READY/);
  await opening.open();await opening.detach();await opening.close();assert.equal(state.disposes,0);assert.equal(state.active,false);
 });
+
+test('live handoff retains the lease after manager cancellation without owning the user tab', async () => {
+  const {opening,state,resource}=rig();await opening.open();const live=opening.connect();
+  await opening.close();assert.equal(state.disposes,0);assert.equal(state.releases,0);assert.equal(live.resource,resource);
+  assert.equal(live.isCurrent(),true);assert.throws(()=>opening.connect(),/NOT_READY/);
+  await live.disconnect();assert.equal(state.releases,1);assert.equal(state.disposes,0);assert.equal(live.isCurrent(),false);
+});

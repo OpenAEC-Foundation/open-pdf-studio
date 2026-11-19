@@ -473,6 +473,9 @@ jobs:
 
       - name: Central PDF snapshot and PDF/XFDF export
         run: node scripts/test-central-review-pdf-browser.mjs
+      - name: Test live central review in two PDF tabs
+        working-directory: open-pdf-studio
+        run: node scripts/test-central-review-live-browser.mjs
 
   # De Python-bibliotheek (#518): de gegenereerde laag loopt gelijk met
   # mcp-stdio/tools.json, de tests (tegen een nep-MCP-server, zonder app) slagen

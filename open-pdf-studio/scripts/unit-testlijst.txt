@@ -933,3 +933,5 @@ js/core/standaard-weergave.test.mjs
 js/tools/hand-zoom-beleid.test.mjs
 js/pdf/doorlopend-scherp.test.mjs
 js/pdf/pagina-vak.test.mjs
+
+js/review/central-review-live.test.mjs

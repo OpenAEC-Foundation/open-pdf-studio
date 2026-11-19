@@ -17,10 +17,10 @@ export function createCentralReviewSync(client, document, makeId = () => crypto.
     active();
     if (!ready) throw new Error('NOT_READY');
   }
-  function mutation(ann, data) {
-    const head = heads.get(ann);
+  function mutation(ann, data, base = heads.get(ann)?.base ?? null) {
+    const head = base !== null;
     if (data === null && !head) throw new Error('INVALID_REQUEST');
-    return validateRequest({ id: makeId(), ann, base: head?.base ?? null,
+    return validateRequest({ id: makeId(), ann, base,
       op: data === null ? 'delete' : head ? 'edit' : 'create', data });
   }
   function apply(page) {
@@ -56,10 +56,10 @@ export function createCentralReviewSync(client, document, makeId = () => crypto.
         ready = true;
       });
     },
-    stage(ann, data) {
+    stage(ann, data, base = heads.get(ann)?.base ?? null) {
       checkReady();
       if (pending.has(ann)) throw new Error('PENDING_CHANGE');
-      const event = mutation(ann, data);
+      const event = mutation(ann, data, base);
       pending.set(ann, { event, status: 'pending' });
       return event.id;
     },
