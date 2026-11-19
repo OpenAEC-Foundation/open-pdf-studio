@@ -168,6 +168,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-bezier-editing-browser.mjs
 
+      - name: Test overlapping PDF.js zoom renders (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-pdfjs-zoom-browser.mjs
+
       - name: Test compare wheel isolation (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-compare-wheel-browser.mjs
