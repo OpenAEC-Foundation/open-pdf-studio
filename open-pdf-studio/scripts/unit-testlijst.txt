@@ -802,11 +802,13 @@ js/pdf/saver/incrementeel.test.mjs
 js/pdf/incrementeel-opslaan-rondgang.test.mjs
 js/review/shared-review-core.test.mjs
 js/review/shared-review-xfdf.test.mjs
+js/review/shared-review-session.test.mjs
 js/review/shared-review-wiring.test.mjs
 js/pdf/pdfa/pdfa.test.mjs
 js/core/shell-acties-logica.test.mjs
 js/core/shell-acties-installer.test.mjs
 js/core/shell-acties-bedrading.test.mjs
+js/core/shell-acties-uitvoering.test.mjs
 js/core/werkruimte.test.mjs
 js/plugins/extension-catalog.test.mjs
 js/pdf/delen-keuze.test.mjs
@@ -933,3 +935,6 @@ js/core/standaard-weergave.test.mjs
 js/tools/hand-zoom-beleid.test.mjs
 js/pdf/doorlopend-scherp.test.mjs
 js/pdf/pagina-vak.test.mjs
+js/pdf/annotatie-datums-rondgang.test.mjs
+js/pdf/bitmap-orchestrator-race.test.mjs
+js/pdf/pdfjs-canvas-render.test.mjs

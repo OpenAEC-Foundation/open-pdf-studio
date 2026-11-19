@@ -99,3 +99,21 @@ test('documentsleutel: pad, anders het id van een document zonder pad', () => {
   assert.equal(documentSleutel({ id: 4 }), '__memory__4');
   assert.equal(documentSleutel(null), null);
 });
+
+test('na een paginadraai worden oude snappunten en een lopende extractie vervangen', async () => {
+  const cache = maakSnapGeometrieCache();
+  const doc = { id: 1, pageRotations: {} };
+  await cache.laad(doc, 1, () => geometrie('origineel'));
+  doc.pageRotations[1] = 90;
+  assert.equal(cache.get(doc, 1), null);
+  assert.equal(cache.heeft(doc, 1), false);
+  const traag = uitgesteld();
+  const kwartslag = cache.laad(doc, 1, () => traag.belofte);
+  doc.pageRotations[1] = 180;
+  assert.equal(cache.lopend(doc, 1), null);
+  await cache.laad(doc, 1, () => geometrie('halve slag'));
+  traag.klaar(geometrie('kwartslag'));
+  await kwartslag;
+  assert.deepEqual(cache.get(doc, 1).points, ['halve slag']);
+  assert.equal(cache.grootte, 1);
+});

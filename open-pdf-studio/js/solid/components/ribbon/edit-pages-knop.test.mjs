@@ -101,7 +101,8 @@ test('an external PDF dropped on the grid is inserted at the drop position', () 
   // Browser: HTML drop with files.
   const drop = dlg.slice(dlg.indexOf('const handleDrop'), dlg.indexOf('const handleDragLeave'));
   assert.match(drop, /gapAtPoint\(layout\(\), x, y\)/);
-  assert.match(drop, /addSource\(f\.name, new Uint8Array\(await f\.arrayBuffer\(\)\), at\)/);
+  assert.match(drop, /addFromBrowserFiles\(files, g\)/);
+  assert.match(dlg, /addSource\(file\.name, new Uint8Array\(await file\.arrayBuffer\(\)\), at\)/);
   assert.match(dlg, /insertSource\(plan\(\), gap, id, pdf\.numPages\)/);
   // Desktop: setup.js routes the webview's file drop to the organizer.
   assert.match(dlg, /setPageDropTarget\(\{/);

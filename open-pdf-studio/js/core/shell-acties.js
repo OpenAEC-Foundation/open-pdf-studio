@@ -16,7 +16,7 @@ import {
   schrijfNaastBron, paginaMaatVoorAfbeelding,
 } from './shell-acties-logica.js';
 
-const wachtrij = { combine: [], convert: [] };
+const wachtrij = { combine: [], convert: [], combineHere: [] };
 let klaar = false;
 let openBestanden = null;
 
@@ -37,15 +37,25 @@ async function haalOp() {
     console.warn('[shell-action] queue unavailable', e);
     return;
   }
-  const { combine, convert } = verdeelActies(acties);
+  const { combine, convert, combineHere } = verdeelActies(acties);
+  for (const f of combineHere) if (!wachtrij.combineHere.includes(f)) wachtrij.combineHere.push(f);
   for (const f of combine) if (!wachtrij.combine.includes(f)) wachtrij.combine.push(f);
   for (const f of convert) if (!wachtrij.convert.includes(f)) wachtrij.convert.push(f);
-  if (combine.length || convert.length) verzamelaar.seintje();
+  if (combine.length || convert.length || combineHere.length) verzamelaar.seintje();
 }
 
 async function verwerk() {
   const combineren = natuurlijkGesorteerd(wachtrij.combine.splice(0));
   const omzetten = natuurlijkGesorteerd(wachtrij.convert.splice(0));
+  const naastElkaar = natuurlijkGesorteerd(wachtrij.combineHere.splice(0));
+  if (naastElkaar.length) {
+    try {
+      const { combineerNaastBron } = await import('./shell-combineer-hier.js');
+      await combineerNaastBron(naastElkaar);
+    } catch (e) {
+      await meldBestandsfout(naastElkaar[0], e);
+    }
+  }
   if (combineren.length) {
     // Afbeeldingen in de selectie ("Omzetten en combineren") worden een PDF
     // in een tijdelijke map, onder hun eigen naam: naast de afbeelding komt
@@ -53,7 +63,7 @@ async function verwerk() {
     const files = [];
     for (const pad of combineren) {
       try { files.push(AFBEELDING.test(pad) ? await afbeeldingNaarTijdelijkePdf(pad) : pad); }
-      catch (e) { console.error('[combine] image skipped', pad, e); }
+      catch (e) { await meldBestandsfout(pad, e); files.length = 0; break; }
     }
     if (files.length) {
       const { openDialog, closeDialog, getDialogs } = await import('../solid/stores/dialogStore.js');
@@ -73,10 +83,15 @@ async function verwerk() {
       }
       geschreven.push(await afbeeldingNaarPdfNaastBron(pad));
     } catch (e) {
-      console.error('[convert-to-pdf]', pad, e);
+      await meldBestandsfout(pad, e);
     }
   }
   if (geschreven.length && openBestanden) openBestanden(geschreven);
+}
+
+async function meldBestandsfout(pad, fout) {
+  const [{ showMessage }, { default: i18next }] = await Promise.all([import('../bridge.js'), import('../i18n/config.js')]);
+  showMessage(i18next.t('dialogs:shellActionFailed', { name: naamVan(pad), error: fout?.message || String(fout) }));
 }
 
 // Een afbeelding wordt een PDF ernaast: zelfde naam, `.pdf`, en `naam (2).pdf`
@@ -122,7 +137,7 @@ async function afbeeldingNaarPdf(bytes, pad) {
   const pdf = await PDFDocument.create();
   let beeld = null;
   try {
-    if (/\.jpe?g$/i.test(pad)) beeld = await pdf.embedJpg(bytes);
+    if (/\.(?:jpe?g|jpe|jfif)$/i.test(pad)) beeld = await pdf.embedJpg(bytes);
     else if (/\.png$/i.test(pad)) beeld = await pdf.embedPng(bytes);
   } catch (e) {
     console.warn('[convert-to-pdf] direct embed failed, via canvas', pad, e);

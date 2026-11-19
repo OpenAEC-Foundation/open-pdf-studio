@@ -96,7 +96,7 @@ import { krommenNaarPdf, VERTICES_TOLERANTIE } from './curve-pdf.js';
 import { flattenPath } from '../annotations/curve-path.js';
 import { heeftKrommen, padOpScherm, padOngedraaid } from '../annotations/curve-shape.js';
 import { draaiPunt, draaiMidden, draaiCm } from './saver/vorm-draaiing.js';
-import { schrijfAlgemeneSleutels, antwoordAnnotaties, schrijfKoppelingen } from './saver/annotatie-algemeen.js';
+import { pdfDatum, schrijfAlgemeneSleutels, antwoordAnnotaties, schrijfKoppelingen } from './saver/annotatie-algemeen.js';
 import { statusLijst } from '../review/status-sets.js';
 import { schrijfRuweSleutels } from './saver/ruwe-sleutels.js';
 import {
@@ -847,7 +847,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -951,7 +951,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.srcLabel || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('vectorSnippet'),
               OPS_SnippetKey: pdfTextString(String(ann.snippetKey)),
@@ -1002,7 +1002,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -1060,7 +1060,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -1130,7 +1130,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -1186,7 +1186,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('arc'),
               OPS_CenterX: ann.centerX,
@@ -1232,7 +1232,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('spline'),
               OPS_Points: context.obj(opsPointsArr),
@@ -1290,7 +1290,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               ...(koppenSleutel(ann.startHead, ann.endHead || 'open') ? { OPS_LineHeads: pdfTextString(koppenSleutel(ann.startHead, ann.endHead || 'open')) } : {}),
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('splineArrow'),
               OPS_Points: context.obj(saOpsPoints),
@@ -1341,7 +1341,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -1420,7 +1420,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -1643,7 +1643,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               DS: pdfTextString(dsStr),
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -2035,7 +2035,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               C: hexToColorArray(ann.color || '#FFFF00'),
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               Name: pdfIconName,
               Open: ann.popupOpen || false,
               F: computeAnnotFlags(ann)
@@ -2128,7 +2128,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               C: colorArr,
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               // De naam uit het bestand blijft (#629); een nieuw stempel krijgt er een.
               NM: ann.nm && !gebruikteNm.has(String(ann.nm)) ? pdfTextString(String(ann.nm))
                 : PDFString.of('stamp_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
@@ -2274,7 +2274,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               C: colorArr,
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann)
             };
 
@@ -2418,7 +2418,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.label || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               OPS_Subtype: PDFString.of('scaleRegion'),
               OPS_ScaleString: pdfTextString(ann.scaleString || '1:100'),
               OPS_Units: pdfTextString(ann.units || 'mm'),
@@ -2471,7 +2471,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.name || 'Viewport'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               OPS_Subtype: PDFString.of('viewport'),
               F: computeAnnotFlags(ann)
             };
@@ -2497,7 +2497,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: PDFString.of('Scale Bar'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               OPS_Subtype: PDFString.of('scaleBar'),
               F: computeAnnotFlags(ann)
             };
@@ -2524,7 +2524,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: PDFString.of('Schedule Table'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               OPS_Subtype: PDFString.of('scheduleTable'),
               F: computeAnnotFlags(ann)
             };
@@ -2588,7 +2588,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               // Leesbare tekst voor de annotatielijst van andere editors.
               // Hex-string zodat het ⌀-teken (U+2300) als Unicode overleeft.
               Contents: PDFHexString.fromText(labelText(ann.count, ann.diameter)),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               // Eigen parameters, zodat wij het parametrische object exact
               // kunnen herstellen. Ontbreken ze (andere editor heeft de
@@ -2696,7 +2696,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               // Eigen parameters voor het herstellen als bewerkbare balk.
               // Ontbreken ze (extern PDF-programma heeft de annotatie
@@ -2777,7 +2777,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               // Eigen parameters voor het herstellen als bewerkbaar raster.
               // Ontbreken ze (extern herschreven), dan laadt hij als gewone
@@ -2867,7 +2867,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.measureText || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               OPS_Subtype: PDFString.of('measureAngle'),
               F: computeAnnotFlags(ann)
             };
@@ -2920,7 +2920,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.measureText || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               IT: PDFName.of('PolygonDimension'),
               OPS_Subtype: PDFString.of('measureArea'),
               F: computeAnnotFlags(ann)
@@ -3002,7 +3002,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               OPS_Subtype: PDFString.of('filledArea'),
               F: computeAnnotFlags(ann),
             };
@@ -3092,7 +3092,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.measureText || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               IT: PDFName.of('PolyLineDimension'),
               OPS_Subtype: PDFString.of('measurePerimeter'),
               F: computeAnnotFlags(ann)
@@ -3158,7 +3158,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('wall'),
               OPS_DikteMm: ann.dikteMm ?? 100,
@@ -3256,7 +3256,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('parametricSymbol'),
               OPS_SymbolId: pdfTextString(ann.symbolId || ''),
@@ -3542,7 +3542,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               C: _strokeArr,
               CA: ann.opacity !== undefined ? ann.opacity : 1,
               T: pdfTextString(ann.author || 'User'),
-              M: PDFString.of(new Date().toISOString()),
+              M: pdfDatum(ann.modifiedAt),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('textboxLeader'),
               OPS_LeaderId: pdfTextString(leader.id || ''),

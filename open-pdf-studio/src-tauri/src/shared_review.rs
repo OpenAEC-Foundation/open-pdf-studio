@@ -35,12 +35,14 @@ pub fn list(dir: &Path) -> Result<Vec<ReviewFile>, String> {
         Err(e) => return Err(format!("Failed to read folder: {e}")),
     };
     let mut files = Vec::new();
-    for entry in entries.flatten() {
+    // A partial listing must not make a temporarily locked file look deleted.
+    for entry in entries {
+        let entry = entry.map_err(|e| format!("Failed to list review folder: {e}"))?;
         let name = entry.file_name().to_string_lossy().to_string();
         if !is_review_file(&name) {
             continue;
         }
-        let Ok(meta) = entry.metadata() else { continue };
+        let meta = entry.metadata().map_err(|e| format!("Failed to inspect review file {name}: {e}"))?;
         if !meta.is_file() {
             continue;
         }

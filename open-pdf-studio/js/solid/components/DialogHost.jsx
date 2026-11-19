@@ -1,4 +1,4 @@
-import { For, lazy } from 'solid-js';
+import { For, Show, createMemo, lazy } from 'solid-js';
 import { getDialogs } from '../stores/dialogStore.js';
 import MessageDialog from './dialogs/MessageDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
@@ -10,7 +10,8 @@ import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
 import ParametricLabelInlineEditor from './ParametricLabelInlineEditor.jsx';
 import PdfTextEditOverlay from './PdfTextEditOverlay.jsx';
 import StickyNotePopupHost from './StickyNotePopup.jsx';
-import ParametricSymbolPicker from './dialogs/ParametricSymbolPicker.jsx';
+import { pickerOpen } from '../stores/parametricSymbolStore.js';
+const ParametricSymbolPicker = lazy(() => import('./dialogs/ParametricSymbolPicker.jsx'));
 import PrintProgressToast from './PrintProgressToast.jsx';
 
 // Dialogen die pas op verzoek openen, laden bij het eerste gebruik als eigen
@@ -195,6 +196,7 @@ const DIALOG_MAP = {
 };
 
 export default function DialogHost() {
+  const kiezerGebruikt = createMemo(eerder => eerder || pickerOpen(), false);
   return (
     <>
       <For each={getDialogs()}>
@@ -209,7 +211,7 @@ export default function DialogHost() {
       <ParametricLabelInlineEditor />
       <PdfTextEditOverlay />
       <StickyNotePopupHost />
-      <ParametricSymbolPicker />
+      <Show when={kiezerGebruikt()}><ParametricSymbolPicker /></Show>
       <PrintProgressToast />
     </>
   );

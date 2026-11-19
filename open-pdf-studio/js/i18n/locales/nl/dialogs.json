@@ -1,4 +1,9 @@
 {
+  "shellActionFailed": "De actie voor {{name}} is mislukt: {{error}}",
+  "shellCombinedName": "Samengevoegd",
+  "shellCombineEmpty": "Dit document bevat geen pagina's.",
+  "shellCombineMinimum": "Selecteer minstens twee PDF-bestanden.",
+  "shellCombineInteractive": "Gebruik het samenvoegvenster voor ondertekende documenten of importvoorbeelden.",
   "newDoc": {
     "frameStyles": {
       "grootformaat": "Grootformaat",
@@ -1940,7 +1945,7 @@
     "manage": "Beheren",
     "exportAudit": "Auditpakket exporteren (ZIP)",
     "exported": "Auditpakket opgeslagen: {{path}}",
-    "exportedWithoutPdf": "Auditpakket opgeslagen zonder de verzonden PDF (niet op deze computer beschikbaar): {{path}}",
+    "exportedWithoutPdf": "Onvolledig auditpakket opgeslagen. De ontbrekende PDF-bestanden staan in audit-summary.json. {{path}}",
     "history": "Geschiedenis",
     "when": "Wanneer",
     "what": "Wat",

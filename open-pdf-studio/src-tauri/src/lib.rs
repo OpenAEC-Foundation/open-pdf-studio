@@ -2913,22 +2913,16 @@ fn render_thumbnail(
         }
     }
 
-    let bytes = {
+    let handle = pdfium_renderer::get_or_load_pdfium_doc_with(&path, &pdfium_cache, || {
         let mut bm = bytes_cache.0.lock().map_err(|e| format!("Bytes cache lock: {}", e))?;
-        if let Some(cached) = bm.get(&path) {
-            cached.clone()
-        } else {
-            let read = std::fs::read(&path).map_err(|e| format!("Read: {}", e))?;
-            bm.insert(path.clone(), read.clone());
-            read
-        }
-    };
-
-    let handle = pdfium_renderer::get_or_load_pdfium_doc_with_bytes(
-        &path,
-        std::sync::Arc::new(bytes),
-        &pdfium_cache,
-    )?;
+        let bytes = match bm.entry(path.clone()) {
+            std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(std::fs::read(&path).map_err(|e| format!("Read: {}", e))?)
+            }
+        };
+        Ok(std::sync::Arc::new(bytes.clone()))
+    })?;
 
     let data_url = pdfium_renderer::render_thumbnail_to_json(
         handle.document(),
@@ -3307,6 +3301,7 @@ pub fn run(opts: StartupOpts) {
                 println!("  -h, --help       Print this help and exit");
                 println!("  -V, --version    Print version and exit");
                 println!();
+                println!("  --combine-here FILE...    Save a combined PDF next to the selection");
                 println!("  --combine FILE...         Combine the files into one new PDF (File Explorer action)");
                 println!("  --convert-combine FILE... Same as --combine; images are converted first");
                 println!("  --convert-to-pdf FILE...  Convert each image to a PDF next to it (alias --convert)");

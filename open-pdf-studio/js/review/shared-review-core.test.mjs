@@ -572,3 +572,29 @@ test('status: an unpublished change stays reported while reading works', () => {
   assert.equal(reviewErrorCode({ writeError: 'WRITE_BUSY' }), 'WRITE_BUSY');
   assert.equal(reviewErrorCode({ writeError: 'WRITE_FAILED', readError: true }), 'WRITE_FAILED');
 });
+
+test('a temporary read failure retries the same listing and clears the read error after recovery', async () => {
+  const clock = fakeTimers();
+  let attempts = 0;
+  let offline = false;
+  const poller = createFolderPoller({
+    list: async () => {
+      if (offline) throw new Error('offline');
+      return [{ name: 'review.jsonl', size: 100, mtimeMs: 1 }];
+    },
+    onChange: async () => {
+      if (++attempts === 1) throw new Error('temporarily locked');
+    },
+    setTimer: clock.setTimer, clearTimer: clock.clearTimer,
+  });
+  try {
+    assert.equal(await poller.start(), false);
+    assert.equal(await poller.pollNow(), true);
+    assert.equal(await poller.pollNow(), false);
+    offline = true;
+    assert.equal(await poller.pollNow(), false);
+    offline = false;
+    assert.equal(await poller.pollNow(), true);
+    assert.equal(attempts, 3);
+  } finally { poller.stop(); }
+});
