@@ -120,3 +120,27 @@ test('watermark preview reverses only wheel zoom and ignores a horizontal-only e
     assert.deepEqual(results, reverse ? [.9, 1.1] : [1.1, .9]);
   }
 });
+
+for (const gesture of [
+  { name: 'Ctrl+wheel', ctrlKey: true },
+  { name: 'Meta+wheel', ctrlKey: false, metaKey: true },
+  { name: 'preference wheel', ctrlKey: false, preference: true },
+  { name: 'ordinary wheel', ctrlKey: false },
+  { name: 'Shift+wheel', ctrlKey: false, shiftKey: true, preference: true },
+]) {
+  test(`compare ${gesture.name} never reaches main zoom or tools`, async () => {
+    const h = nativeWheel('\n');
+    h.preferences.wheelZoomWithoutCtrl = !!gesture.preference;
+    let prevented = false;
+    await h.wheel(-100, { ...gesture,
+      target: { closest: selector => selector === '.compare-view' ? {} : null },
+      preventDefault() { prevented = true; },
+    });
+    assert.deepEqual(h.steps, [], 'hidden main document must not zoom');
+    assert.deepEqual(h.toolDeltas, [], 'hidden main tool must not receive compare wheel');
+    assert.equal(prevented, false, 'compare view owns prevention and native scrolling');
+    // Leaving compare must immediately restore ordinary main-view zoom.
+    await h.wheel(-100, { target: { closest: () => null } });
+    assert.equal(h.steps.length, 1);
+  });
+}

@@ -74,6 +74,10 @@ let _contZoomRaf = 0;
 
 export function setupWheelZoom() {
   document.querySelector('.main-view')?.addEventListener('wheel', async (e) => {
+    // Compare is nested inside the main container but owns all wheel input,
+    // including zoom, Shift-scroll and page navigation (#1180).
+    if (e.target?.closest?.('.compare-view')) return;
+
     const activeDoc = getActiveDocument();
     if (!activeDoc?.pdfDoc) return;
 
@@ -306,9 +310,8 @@ export function setupWheelZoom() {
     // traagheid van het OS), en buiten de hoofdthread, ook als er net een
     // zware pagina rendert.
     const doel = e.target;
-    // Alleen wielen binnen het documentgebied; de vergelijkingsweergave (ook
-    // binnen #pdf-container) heeft haar eigen wielafhandeling.
-    if (!(doel instanceof Element) || !pdfContainer.contains(doel) || doel.closest('.compare-view')) return;
+    // Alleen wielen binnen het documentgebied.
+    if (!(doel instanceof Element) || !pdfContainer.contains(doel)) return;
     const delta = leesWielDelta(e, pdfContainer.clientHeight);
     if (!_wielHerkenning.isStap(e, delta.dx, delta.dy, performance.now())) return;
     // De browser houdt een scrollreeks vast: was het eerste event niet
