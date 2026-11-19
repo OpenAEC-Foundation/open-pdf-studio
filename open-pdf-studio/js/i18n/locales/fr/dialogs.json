@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Les tampons intégrés sont configurés pour être masqués, mais vous n'avez pas encore de tampons personnels. Créez-en un via Gérer les modèles de tampon."
   },
   "calibration": {
+    "overridePdfScale": "Remplacer les échelles intégrées au PDF",
     "title": "Calibration de l'échelle",
     "helpText": "Tracez une ligne de mesure de longueur connue, puis entrez la distance réelle ici.",
     "knownDistance": "Distance connue :",
@@ -2271,6 +2272,7 @@
     "deleted": "supprimée",
     "errorRead": "Le dossier de révision n’a pas pu être lu.",
     "errorWrite": "Vos modifications n’ont pas pu être écrites dans le dossier de révision.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Enregistrez d’abord le PDF pour démarrer une révision partagée.",
     "errorGeneric": "La révision partagée n’a pas pu démarrer.",
     "close": "Fermer"

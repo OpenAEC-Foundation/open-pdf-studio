@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Wbudowane pieczątki są ustawione jako ukryte, ale nie masz jeszcze własnych pieczątek. Utwórz ją w Zarządzaj szablonami pieczątek."
   },
   "calibration": {
+    "overridePdfScale": "Zastąp skale osadzone w PDF",
     "title": "Kalibracja skali",
     "helpText": "Narysuj linię pomiarową o znanej długości, a następnie wpisz tutaj rzeczywistą odległość.",
     "knownDistance": "Znana odległość:",
@@ -2271,6 +2272,7 @@
     "deleted": "usunięta",
     "errorRead": "Nie można odczytać folderu recenzji.",
     "errorWrite": "Nie można zapisać twoich zmian w folderze recenzji.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Najpierw zapisz PDF, aby rozpocząć wspólną recenzję.",
     "errorGeneric": "Nie można uruchomić wspólnej recenzji.",
     "close": "Zamknij"

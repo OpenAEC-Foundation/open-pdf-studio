@@ -1,7 +1,7 @@
 // Modal listing available parametric symbol templates.
 // Selecting one stores the symbolId in the parametricSymbolStore and
 // switches the active tool to 'parametricSymbol' for drag-bbox placement.
-import { Show, For } from 'solid-js';
+import { Show, For, createSignal, onMount } from 'solid-js';
 import {
   pickerOpen, setPickerOpen,
   setPendingSymbolId, getAvailableTemplates,
@@ -9,8 +9,34 @@ import {
 import { setTool } from '../../../tools/manager.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
+import { defaultParams } from '../../../symbols/registry.js';
+import { renderParametricSymbolToPng } from '../../../annotations/rendering.js';
+
+function SymbolPreview(props) {
+  const [source, setSource] = createSignal('');
+  onMount(() => {
+    const template = props.template;
+    const width = template.defaultSize?.width || 90;
+    const height = template.defaultSize?.height || 90;
+    const preview = renderParametricSymbolToPng({
+      type: 'parametricSymbol', symbolId: template.id,
+      params: defaultParams(template), x: 0, y: 0, width, height,
+      strokeColor: '#222222', strokeWidth: 1, opacity: 1,
+    }, 128 / Math.max(width, height));
+    if (preview) setSource(preview.dataUrl);
+  });
+  return <Show when={source()}>
+    <img src={source()} alt="" style="width:100%;height:56px;object-fit:contain;background:#fff" />
+  </Show>;
+}
+
 export default function ParametricSymbolPicker() {
-  const { t } = useTranslation('dialogs');
+  const { t, language } = useTranslation('dialogs');
+  // Built-in templates provide Dutch and English names; use English as
+  // the fallback for other UI languages. Custom templates may have one name.
+  const symbolName = (template) => /^nl(?:[-_]|$)/i.test(language())
+    ? template.name || template.nameEn || template.id
+    : template.nameEn || template.name || template.id;
 
   function pick(id) {
     setPendingSymbolId(id);
@@ -35,15 +61,15 @@ export default function ParametricSymbolPicker() {
               onClick={() => setPickerOpen(false)}>x</button>
           </div>
           <div style="overflow:auto;padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <For each={getAvailableTemplates()}>{(t) => (
+            <For each={getAvailableTemplates()}>{(template) => (
               <button type="button"
                 style="border:1px solid #d4d4d4;background:#fafafa;padding:10px;text-align:left;cursor:pointer;font-size:12px;display:flex;flex-direction:column;gap:4px"
                 onMouseEnter={(e) => e.currentTarget.style.background = '#eef5ff'}
                 onMouseLeave={(e) => e.currentTarget.style.background = '#fafafa'}
-                onClick={() => pick(t.id)}>
-                <strong>{t.name}</strong>
-                <Show when={t.nameEn}><small style="color:#666">{t.nameEn}</small></Show>
-                <small style="color:#888">{t.category}</small>
+                onClick={() => pick(template.id)}>
+                <SymbolPreview template={template} />
+                <strong>{symbolName(template)}</strong>
+                <small style="color:#666">{template.category}</small>
               </button>
             )}</For>
           </div>

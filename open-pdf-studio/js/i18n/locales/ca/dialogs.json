@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Els segells integrats estan configurats com a amagats, però encara no teniu segells propis. Creeu-ne un amb Gestiona les plantilles de segell."
   },
   "calibration": {
+    "overridePdfScale": "Substitueix les escales incrustades del PDF",
     "title": "Calibratge d'escala",
     "helpText": "Dibuixeu una línia de mesura d'una longitud coneguda i després introduïu la distància real aquí.",
     "knownDistance": "Distància coneguda:",
@@ -2271,6 +2272,7 @@
     "deleted": "eliminada",
     "errorRead": "No s’ha pogut llegir la carpeta de revisió.",
     "errorWrite": "No s’han pogut escriure els vostres canvis a la carpeta de revisió.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Deseu primer el PDF per començar una revisió compartida.",
     "errorGeneric": "No s’ha pogut iniciar la revisió compartida.",
     "close": "Tanca"

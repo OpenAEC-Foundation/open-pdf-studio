@@ -1125,7 +1125,8 @@ class ToolMethods:
         mergedFiles, pagesInserted, pagesBefore, pagesAfter, filePath };
         mergedFiles counts the files that really went in. A file that stays out
         makes ok false: a preview PDF of the CAD import is refused (reason
-        preview-pdf), a file without pages is refused (no-pages), an unreadable
+        preview-pdf), a file without pages is refused (no-pages), a protected
+        file that could not be unlocked is refused (protected), an unreadable
         file fails. Then error names the files, refused [{ file, reason }] and
         failed [{ file, error }] list them, and mergedFiles and pagesAfter show
         what did go in.
@@ -1452,10 +1453,17 @@ class ToolMethods:
         corners as points:[{x,y},...] (>= 3), or x/y/width/height (+ optional
         sides, default 6) for a regular polygon in that box;
         polyline/filledArea/measureArea/measurePerimeter need
-        points:[{x,y},...]; measurePerimeter follows the supplied open point
-        sequence by default; on creation, optional closed:true (boolean, >= 3
-        points) appends the first point if needed and includes the closing edge
-        in the measurement; already repeated endpoints are not duplicated, and
+        points:[{x,y},...]; polyline and polygon (given as points) also take
+        optional curves: one entry per segment (segment i runs from point i to
+        point i+1; a polygon has one more, back to the first point), null for a
+        straight segment or {c1x,c1y,c2x,c2y} for a cubic Bezier curve, with the
+        first control point relative to the start point of the segment and the
+        second relative to its end point (app_get_annotation returns the same
+        field; a shape without curves has none; the measure tools do not take
+        curves); measurePerimeter follows the supplied open point sequence by
+        default; on creation, optional closed:true (boolean, >= 3 points)
+        appends the first point if needed and includes the closing edge in the
+        measurement; already repeated endpoints are not duplicated, and
         closed:false or omission leaves the supplied sequence unchanged; spline
         needs controlPoints; draw needs path; comment needs x/y; link makes the
         same hyperlink as the Link tool and needs a target, either uri (web or
@@ -1553,17 +1561,21 @@ class ToolMethods:
         Merge `props` onto an existing annotation (geometry, color, lineWidth,
         text, ...). Records a modify-undo step, recomputes measureText when
         measurement geometry changed, and redraws. `id` and `type` are
-        immutable. measureArea: `units` (or `measureAreaUnit`) changes the unit
-        its area is reported in (ac, ha, m2, ft2, yd2, ...; `auto` follows the
-        scale again), the app converts and the result carries `area: {value,
-        unit}`; an unknown unit, or an area unit on a sheet without a real-world
-        scale, is an error and changes nothing. measureDistance /
-        measurePerimeter keep the unit of the scale: a different `units` is an
-        error. scaleRegion `units` is mm, cm, m, in or ft. `layer` moves the
-        annotation to another markup layer; `props` may then be empty. Grid line
-        (parametricSymbol `stramien`): `alignStart` / `alignEnd` true couples
-        that end with the aligned ends of the other grid lines (dragging one end
-        then moves them all), false unlocks it.
+        immutable. polyline / polygon: `curves` (one entry per segment, null or
+        {c1x,c1y,c2x,c2y}, see app_create_annotation) sets the Bezier segments,
+        in the coordinates of `points`; `curves: null` makes every segment
+        straight, and new `points` without `curves` also give straight segments.
+        measureArea: `units` (or `measureAreaUnit`) changes the unit its area is
+        reported in (ac, ha, m2, ft2, yd2, ...; `auto` follows the scale again),
+        the app converts and the result carries `area: {value, unit}`; an
+        unknown unit, or an area unit on a sheet without a real-world scale, is
+        an error and changes nothing. measureDistance / measurePerimeter keep
+        the unit of the scale: a different `units` is an error. scaleRegion
+        `units` is mm, cm, m, in or ft. `layer` moves the annotation to another
+        markup layer; `props` may then be empty. Grid line (parametricSymbol
+        `stramien`): `alignStart` / `alignEnd` true couples that end with the
+        aligned ends of the other grid lines (dragging one end then moves them
+        all), false unlocks it.
 
         Args:
             id (string, required)

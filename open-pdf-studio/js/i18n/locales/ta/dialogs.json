@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "உள்ளமைந்த முத்திரைகள் மறைக்க அமைக்கப்பட்டுள்ளன, ஆனால் உங்களிடம் இன்னும் சொந்த முத்திரை இல்லை. முத்திரை வார்ப்புருக்களை நிர்வகி மூலம் ஒன்றை உருவாக்கவும்."
   },
   "calibration": {
+    "overridePdfScale": "PDF இல் உட்பொதிக்கப்பட்ட அளவுகோல்களை மாற்றவும்",
     "title": "அளவீட்டு அளவுத்திருத்தம்",
     "helpText": "அறியப்பட்ட நீளத்தின் அளவீட்டுக் கோட்டை வரையவும், பின்னர் உண்மையான தூரத்தை இங்கே உள்ளிடவும்.",
     "knownDistance": "தெரிந்த தூரம்:",
@@ -2271,6 +2272,7 @@
     "deleted": "நீக்கப்பட்டது",
     "errorRead": "மதிப்பாய்வுக் கோப்புறையைப் படிக்க முடியவில்லை.",
     "errorWrite": "உங்கள் மாற்றங்களை மதிப்பாய்வுக் கோப்புறையில் எழுத முடியவில்லை.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "பகிர்ந்த மதிப்பாய்வைத் தொடங்க முதலில் PDF-ஐச் சேமியுங்கள்.",
     "errorGeneric": "பகிர்ந்த மதிப்பாய்வைத் தொடங்க முடியவில்லை.",
     "close": "மூடு"

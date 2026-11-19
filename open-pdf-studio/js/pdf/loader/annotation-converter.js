@@ -47,6 +47,8 @@ import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/render
 import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
 import { algemeneEigenschappen } from './annotatie-algemeen.js';
 import { ontdraaiVorm } from '../saver/vorm-draaiing.js';
+import { krommenUitPdf } from '../curve-pdf.js';
+import { rotateCurves } from '../../annotations/curve-path.js';
 import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
 import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
@@ -931,10 +933,20 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           }
         }
 
+        // Krommen (#1169): /Vertices is het vlakgemaakte pad; de knopen en
+        // stuurpunten staan in eigen sleutels. Zonder die sleutels (een
+        // bestand van een ander programma) blijft het de polylijn door
+        // /Vertices, zoals voorheen.
+        const plKrommen = extraColors.opsCurveNodes && extraColors.opsCurves
+          ? krommenUitPdf({ nodes: extraColors.opsCurveNodes, curves: extraColors.opsCurves,
+            vertices: Array.from(annot.vertices), closed: false, convertPoint })
+          : null;
+
         return createAnnotation({
           ...baseProps,
           type: 'polyline',
-          points: plPoints,
+          points: plKrommen ? plKrommen.points : plPoints,
+          ...(plKrommen ? { curves: plKrommen.curves } : {}),
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
@@ -1237,11 +1249,27 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         // vorm met de hoek ernaast, zoals het scherm hem tekent (zie
         // saver/vorm-draaiing.js). Een vrije wolk draait de app niet.
         const polyRotatie = polyType !== 'cloudPolyline' && extraColors.rotation ? extraColors.rotation : 0;
+        // Krommen (#1169): /Vertices is het vlakgemaakte pad; de knopen en
+        // stuurpunten staan in eigen sleutels. De knopen nemen de plaats in
+        // van de punten uit /Vertices; de rest van deze tak (draaiing, vak)
+        // rekent er net zo mee. Zonder die sleutels: zoals voorheen.
+        let polyKrommen = polyType === 'polygon' && extraColors.opsCurveNodes && extraColors.opsCurves
+          ? krommenUitPdf({ nodes: extraColors.opsCurveNodes, curves: extraColors.opsCurves,
+            vertices: Array.from(annot.vertices), closed: true, convertPoint })
+          : null;
+        if (polyKrommen) {
+          polyPoints.splice(0, polyPoints.length, ...polyKrommen.points);
+          minX = Math.min(...polyPoints.map((p) => p.x)); maxX = Math.max(...polyPoints.map((p) => p.x));
+          minY = Math.min(...polyPoints.map((p) => p.y)); maxY = Math.max(...polyPoints.map((p) => p.y));
+          polyKrommen = polyKrommen.curves;
+        }
         if (polyRotatie) {
           const terug = ontdraaiVorm(polyPoints, polyRotatie);
           polyPoints.splice(0, polyPoints.length, ...terug);
           minX = Math.min(...terug.map((p) => p.x)); maxX = Math.max(...terug.map((p) => p.x));
           minY = Math.min(...terug.map((p) => p.y)); maxY = Math.max(...terug.map((p) => p.y));
+          // De stuurpunten staan relatief aan hun knoop: alleen terugdraaien.
+          if (polyKrommen) polyKrommen = rotateCurves(polyKrommen, -polyRotatie);
         }
 
         const polyProps = {
@@ -1251,11 +1279,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           y: minY,
           width: maxX - minX,
           height: maxY - minY,
-          sides: Math.floor(annot.vertices.length / 2),
+          sides: polyKrommen ? polyPoints.length : Math.floor(annot.vertices.length / 2),
           // Preserve the real vertices so a generic /Polygon renders its actual
           // shape instead of a regular N-gon synthesised from the bounding box
           // (issue #286). cloud/cloudPolyline already relied on these points.
           points: polyPoints,
+          ...(polyKrommen ? { curves: polyKrommen } : {}),
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           fillColor: extraColors.ic || null,

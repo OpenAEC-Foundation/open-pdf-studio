@@ -51,17 +51,60 @@ async function cdpVerbind() {
   });
 }
 const cdp = (method, params = {}) => new Promise((res) => { const i = ++cdpId; wachters.set(i, res); ws.send(JSON.stringify({ id: i, method, params })); });
-const evalJs = async (expr) => (await cdp('Runtime.evaluate', { expression: expr, returnByValue: true })).result?.result?.value;
+const evalJs = async (expr) => (await cdp('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true })).result?.result?.value;
 
-const INKT = `(() => {
+const INKT = `(async () => {
   const cont = document.getElementById('pdf-container');
   const cr = cont.getBoundingClientRect();
   const uit = [];
-  document.querySelectorAll('#continuous-container .page-wrapper').forEach((w) => {
+  const telInkt = (teken) => {
+    const mini = document.createElement('canvas'); mini.width = 48; mini.height = 48;
+    const mc = mini.getContext('2d'); mc.fillStyle = '#f0f'; mc.fillRect(0, 0, 48, 48);
+    teken(mc);
+    const d = mc.getImageData(0, 0, 48, 48).data;
+    let inkt = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      if (!(d[i] === 255 && d[i+1] === 0 && d[i+2] === 255) && (d[i] < 245 || d[i+1] < 245 || d[i+2] < 245)) inkt++;
+    }
+    return inkt;
+  };
+  for (const w of document.querySelectorAll('#continuous-container .page-wrapper')) {
     const r = w.getBoundingClientRect();
-    if (r.top >= cr.bottom || r.bottom <= cr.top) return;
+    if (r.top >= cr.bottom || r.bottom <= cr.top) continue;
     const pc = w.querySelector('.pdf-canvas');
-    if (!pc || !pc.width) { uit.push({ p: w.dataset.page, inkt: null }); return; }
+    if (!pc || !pc.width) { uit.push({ p: w.dataset.page, inkt: null }); continue; }
+    // Boven de bitmap-cap is het paginacanvas een uitsnede van het zichtbare
+    // deel (#1163), met de hele pagina als achtergrondbeeld van de
+    // paginacontainer. De inkt van de pagina is dan die van achtergrond plus
+    // uitsnede; en de uitsnede mag niet leeg zijn waar de achtergrond beeld
+    // heeft (een wit gerasterde uitsnede over een goede pagina).
+    if (pc.dataset.beeld === 'uitsnede') {
+      const cc = w.querySelector('.canvas-container-cont');
+      const vak = cc.getBoundingClientRect();
+      if (Math.min(vak.bottom, cr.bottom) - Math.max(vak.top, cr.top) < 120) continue;
+      if (pc.width <= 1) { uit.push({ p: w.dataset.page, inkt: 0 }); continue; }
+      try {
+        let bg = null;
+        if (cc.dataset.scherpBgUrl) { try { bg = new Image(); bg.src = cc.dataset.scherpBgUrl; await bg.decode(); } catch { bg = null; } }
+        const c = pc.getBoundingClientRect();
+        const fx = 48 / vak.width, fy = 48 / vak.height;
+        const plek = [(c.left - vak.left) * fx, (c.top - vak.top) * fy, c.width * fx, c.height * fy];
+        const pagina = telInkt((mc) => { if (bg) mc.drawImage(bg, 0, 0, 48, 48); mc.drawImage(pc, ...plek); });
+        const uitsnede = telInkt((mc) => mc.drawImage(pc, 0, 0, 48, 48));
+        const eronder = bg ? telInkt((mc) => mc.drawImage(bg, (c.left - vak.left) / vak.width * bg.naturalWidth, (c.top - vak.top) / vak.height * bg.naturalHeight,
+          c.width / vak.width * bg.naturalWidth, c.height / vak.height * bg.naturalHeight, 0, 0, 48, 48)) : 0;
+        // Een uitsnede van een dun stuk tekening (een kaderlijn onderaan het
+        // blad) verdwijnt bij verkleinen naar 48x48: tel daarom ook op volle
+        // resolutie, omgerekend naar hetzelfde raster van 48x48.
+        const vol = pc.getContext('2d').getImageData(0, 0, pc.width, pc.height).data;
+        let donker = 0;
+        for (let i = 0; i < vol.length; i += 4) if (vol[i + 3] > 10 && (vol[i] < 200 || vol[i+1] < 200 || vol[i+2] < 200)) donker++;
+        const uitsnedeVol = donker > 0 ? Math.max(1, Math.round(donker / (vol.length / 4) * 48 * 48)) : 0;
+        const eigen = Math.max(uitsnede, uitsnedeVol);
+        uit.push({ p: w.dataset.page, inkt: eigen === 0 && eronder >= 10 ? 0 : Math.max(bg ? pagina : 0, eigen) });
+      } catch { uit.push({ p: w.dataset.page, inkt: 'fout' }); }
+      continue;
+    }
     try {
       const mini = document.createElement('canvas'); mini.width = 48; mini.height = 48;
       const mc = mini.getContext('2d'); mc.fillStyle = '#f0f'; mc.fillRect(0, 0, 48, 48);
@@ -73,7 +116,7 @@ const INKT = `(() => {
       }
       uit.push({ p: w.dataset.page, inkt });
     } catch { uit.push({ p: w.dataset.page, inkt: 'fout' }); }
-  });
+  }
   return JSON.stringify(uit);
 })()`;
 

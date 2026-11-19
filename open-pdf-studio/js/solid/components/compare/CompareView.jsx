@@ -1193,7 +1193,7 @@ export default function CompareView() {
             onPointerDown={(e) => { if (compareMode() !== 'side') startPanDrag(e, bodyRef); }}
             style={compareMode() === 'side'
               ? 'flex:1; overflow:hidden; display:flex; align-items:stretch; padding:0; gap:0;'
-              : `flex:1; overflow:auto; display:flex; align-items:flex-start; padding:${PANE_PADDING}px;`}
+              : `flex:1; overflow:auto; overscroll-behavior:contain; display:flex; align-items:flex-start; padding:${PANE_PADDING}px;`}
           >
             <Show
               when={compareMode() === 'side'}
@@ -1273,7 +1273,7 @@ export default function CompareView() {
                   onScroll={() => syncScroll(oldPaneRef, newPaneRef)}
                   on:mousedown={killMiddleAutoscroll}
                   onPointerDown={(e) => startPanDrag(e, oldPaneRef)}
-                  style="flex:1; overflow:auto;"
+                  style="flex:1; overflow:auto; overscroll-behavior:contain;"
                 >
                   <div style={`padding:${PANE_PADDING}px; margin:0 auto; width:max-content; line-height:0;`}>
                     {/* Page box (page size x zoom); inside it the page and its
@@ -1307,7 +1307,7 @@ export default function CompareView() {
                   onScroll={() => syncScroll(newPaneRef, oldPaneRef)}
                   on:mousedown={killMiddleAutoscroll}
                   onPointerDown={(e) => startPanDrag(e, newPaneRef)}
-                  style="flex:1; overflow:auto;"
+                  style="flex:1; overflow:auto; overscroll-behavior:contain;"
                 >
                   <div style={`padding:${PANE_PADDING}px; margin:0 auto; width:max-content; line-height:0;`}>
                     <div style={`position:relative; ${boxStyle(natural().new)}`}>
@@ -1554,7 +1554,7 @@ function ChangeListPanel(props) {
           {`${props.t('compare.cloudsButton') || 'Place clouds'} (${selectedCount()})`}
         </button>
       </div>
-      <div style="flex:1; overflow:auto;">
+      <div style="flex:1; overflow:auto; overscroll-behavior:contain;">
         <Show
           when={total() > 0}
           fallback={
@@ -1700,7 +1700,7 @@ function TextDiffList(props) {
           )}
         </For>
       </div>
-      <div style="flex:1; overflow:auto;">
+      <div style="flex:1; overflow:auto; overscroll-behavior:contain;">
       <Show
         when={!compareTextComparing()}
         fallback={<div style="padding:14px; color:#666; font-style:italic;">…</div>}
@@ -1795,7 +1795,7 @@ function PairingList(props) {
     </select>
   );
   return (
-    <div style="flex:1; overflow:auto;">
+    <div style="flex:1; overflow:auto; overscroll-behavior:contain;">
       <Show when={comparePairing()}>
         <div style="padding:6px 10px; color:#666; font-style:italic;">{props.t('compare.pairing') || 'Matching pages…'}</div>
       </Show>

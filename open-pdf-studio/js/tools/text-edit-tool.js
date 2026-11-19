@@ -1,4 +1,5 @@
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
+import { paginaBitmapMaat, paginaVakRect } from '../pdf/pagina-vak.js';
 import { execute } from '../core/undo-manager.js';
 import { verwijderTextEditRecord } from './text-edit-verwijderen.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
@@ -370,8 +371,10 @@ function reRenderAddedText(pageNum) {
     const vp = window.__pdfViewport;
     const useViewport = vp?.active && doc?.filePath && vp.pageW > 0 && vp.pageH > 0;
     const sc = doc?.scale || 1.5;
-    const pw = useViewport ? vp.pageW : canvasEl.width / sc;
-    const ph = useViewport ? vp.pageH : canvasEl.height / sc;
+    // (Doorlopend boven de bitmap-cap is het canvas een uitsnede, #1163.)
+    const beeldMaat = paginaBitmapMaat(canvasEl);
+    const pw = useViewport ? vp.pageW : beeldMaat.width / sc;
+    const ph = useViewport ? vp.pageH : beeldMaat.height / sc;
     injectSyntheticTextSpans(textLayer, pageNum, pw, ph);
   }
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -445,8 +448,10 @@ function getTextEditGeometry(pageNum, canvasEl) {
   const doc = getActiveDocument();
   const scale = doc?.scale || 1;
   const dpr = window.devicePixelRatio || 1;
-  const displayWidth = canvasEl?.width ? canvasEl.width / (scale * dpr) : 0;
-  const displayHeight = canvasEl?.height ? canvasEl.height / (scale * dpr) : 0;
+  // De maat van de hele pagina, ook als het canvas een uitsnede is (#1163).
+  const beeldMaat = paginaBitmapMaat(canvasEl, dpr);
+  const displayWidth = beeldMaat.width ? beeldMaat.width / (scale * dpr) : 0;
+  const displayHeight = beeldMaat.height ? beeldMaat.height / (scale * dpr) : 0;
   return resolveTextEditPageGeometry(
     doc?.pageDims?.[pageNum],
     displayWidth,
@@ -1541,7 +1546,7 @@ function getTextEditViewGeometry(canvasEl, doc) {
   const dpr = window.devicePixelRatio || 1;
   const visualScale = doc?.scale || 1.5;
   return {
-    pageHeight: canvasEl.height / (visualScale * dpr),
+    pageHeight: paginaBitmapMaat(canvasEl, dpr).height / (visualScale * dpr),
     visualScale,
     offsetX: 0,
     offsetY: 0,
@@ -1610,7 +1615,8 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const container = canvasEl.parentElement;
   if (!container) return;
   const containerRect = container.getBoundingClientRect();
-  const canvasRect = canvasEl.getBoundingClientRect();
+  // Het vak van de pagina: bij een uitsnede (#1163) de container zelf.
+  const canvasRect = paginaVakRect(canvasEl);
   const offsetX = canvasRect.left - containerRect.left;
   const offsetY = canvasRect.top - containerRect.top;
 

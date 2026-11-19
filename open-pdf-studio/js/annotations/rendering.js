@@ -23,6 +23,7 @@ import { formatGetal, formatMaat } from '../core/maat-notatie.js';
 import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
+import { hasCurves, tracePath } from './curve-path.js';
 import { isVreemdeTelling, tellingStraal } from './telling.js';
 import { drawWall } from './rendering/walls.js';
 import { tekenBijlageIcoon } from './bijlage-iconen.js';
@@ -825,7 +826,10 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         ctx.lineJoin = 'miter';
         applyBorderStyle(ctx, annotation.borderStyle);
         ctx.beginPath();
-        annotation.points.forEach((point, index) => {
+        if (hasCurves(annotation.curves)) {
+          // Segmenten met een kromme (#1169, curve-path.js).
+          tracePath(ctx, annotation.points, annotation.curves, false);
+        } else annotation.points.forEach((point, index) => {
           if (index === 0) {
             ctx.moveTo(point.x, point.y);
           } else {
@@ -1031,7 +1035,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       const polyHasPoints = Array.isArray(annotation.points) && annotation.points.length >= 3;
       const buildPolyPath = () => {
         if (polyHasPoints) {
-          buildPolygonPointsPath(ctx, annotation.points, annotation.x, annotation.y, annotation.width, annotation.height);
+          buildPolygonPointsPath(ctx, annotation.points, annotation.x, annotation.y, annotation.width, annotation.height, annotation.curves);
         } else {
           buildPolygonPath(ctx, annotation.x, annotation.y, annotation.width, annotation.height, annotation.sides || 6);
         }

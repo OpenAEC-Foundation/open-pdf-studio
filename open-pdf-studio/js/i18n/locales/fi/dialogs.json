@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Sisäänrakennetut leimat on asetettu piiloon, mutta sinulla ei ole vielä omia leimoja. Luo sellainen kohdassa Hallitse leimamalleja."
   },
   "calibration": {
+    "overridePdfScale": "Ohita PDF:n upotetut mittakaavat",
     "title": "Asteikon kalibrointi",
     "helpText": "Piirrä mittaviiva, jonka pituus on tunnettu, ja syötä sitten todellinen etäisyys tähän.",
     "knownDistance": "Tunnettu etäisyys:",
@@ -2271,6 +2272,7 @@
     "deleted": "poistettu",
     "errorRead": "Tarkistuskansiota ei voitu lukea.",
     "errorWrite": "Muutoksiasi ei voitu kirjoittaa tarkistuskansioon.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Tallenna PDF ensin aloittaaksesi jaetun tarkistuksen.",
     "errorGeneric": "Jaettua tarkistusta ei voitu aloittaa.",
     "close": "Sulje"

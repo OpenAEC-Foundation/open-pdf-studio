@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Встроенные штампы настроены как скрытые, но у вас ещё нет своих штампов. Создайте штамп через «Управление шаблонами штампов»."
   },
   "calibration": {
+    "overridePdfScale": "Переопределить встроенные масштабы PDF",
     "title": "Калибровка масштаба",
     "helpText": "Проведите линию измерения известной длины, затем введите реальное расстояние здесь.",
     "knownDistance": "Известное расстояние:",
@@ -2271,6 +2272,7 @@
     "deleted": "удалено",
     "errorRead": "Не удалось прочитать папку проверки.",
     "errorWrite": "Не удалось записать ваши изменения в папку проверки.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Сначала сохраните PDF, чтобы начать совместную проверку.",
     "errorGeneric": "Не удалось запустить совместную проверку.",
     "close": "Закрыть"

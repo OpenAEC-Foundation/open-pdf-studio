@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "I timbri integrati sono impostati come nascosti, ma non hai ancora timbri personali. Creane uno con Gestisci modelli di timbro."
   },
   "calibration": {
+    "overridePdfScale": "Sostituisci le scale incorporate nel PDF",
     "title": "Calibrazione scala",
     "helpText": "Disegnare una linea di misurazione di lunghezza nota, quindi inserire la distanza reale qui.",
     "knownDistance": "Distanza nota:",
@@ -2271,6 +2272,7 @@
     "deleted": "rimossa",
     "errorRead": "Impossibile leggere la cartella di revisione.",
     "errorWrite": "Impossibile scrivere le tue modifiche nella cartella di revisione.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Salva prima il PDF per avviare una revisione condivisa.",
     "errorGeneric": "Impossibile avviare la revisione condivisa.",
     "close": "Chiudi"

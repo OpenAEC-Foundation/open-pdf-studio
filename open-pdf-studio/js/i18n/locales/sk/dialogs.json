@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Vstavané pečiatky sú nastavené ako skryté, ale zatiaľ nemáte žiadne vlastné pečiatky. Vytvorte ich cez Spravovať šablóny pečiatok."
   },
   "calibration": {
+    "overridePdfScale": "Prepísať vložené mierky PDF",
     "title": "Kalibrácia mierky",
     "helpText": "Nakreslite meraciu čiaru známej dĺžky a potom sem zadajte skutočnú vzdialenosť.",
     "knownDistance": "Známa vzdialenosť:",
@@ -2271,6 +2272,7 @@
     "deleted": "odstránené",
     "errorRead": "Priečinok revízie sa nepodarilo prečítať.",
     "errorWrite": "Vaše zmeny sa nepodarilo zapísať do priečinka revízie.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Najprv uložte PDF, aby ste mohli začať zdieľanú revíziu.",
     "errorGeneric": "Zdieľanú revíziu sa nepodarilo spustiť.",
     "close": "Zavrieť"

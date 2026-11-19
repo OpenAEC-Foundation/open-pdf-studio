@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Ștampilele integrate sunt setate ca ascunse, dar nu aveți încă ștampile proprii. Creați una din Gestionare sabloane de stampila."
   },
   "calibration": {
+    "overridePdfScale": "Înlocuiește scările încorporate în PDF",
     "title": "Calibrare scara",
     "helpText": "Desenati o linie de masurare de lungime cunoscuta, apoi introduceti distanta reala aici.",
     "knownDistance": "Distanță cunoscută:",
@@ -2271,6 +2272,7 @@
     "deleted": "eliminată",
     "errorRead": "Folderul de revizuire nu a putut fi citit.",
     "errorWrite": "Modificările dvs. nu au putut fi scrise în folderul de revizuire.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Salvați mai întâi PDF-ul pentru a începe o revizuire partajată.",
     "errorGeneric": "Revizuirea partajată nu a putut fi pornită.",
     "close": "Închide"

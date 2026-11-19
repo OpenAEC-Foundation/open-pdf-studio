@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "組み込みスタンプは非表示に設定されていますが、自分のスタンプがまだありません。「スタンプテンプレートの管理」から作成してください。"
   },
   "calibration": {
+    "overridePdfScale": "PDFに埋め込まれた縮尺を上書き",
     "title": "スケール校正",
     "helpText": "既知の長さの測定線を描画し、実際の距離をここに入力してください。",
     "knownDistance": "既知の距離：",
@@ -2271,6 +2272,7 @@
     "deleted": "削除済み",
     "errorRead": "レビューフォルダーを読み込めませんでした。",
     "errorWrite": "変更をレビューフォルダーに書き込めませんでした。",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "共有レビューを開始するには、まず PDF を保存してください。",
     "errorGeneric": "共有レビューを開始できませんでした。",
     "close": "閉じる"

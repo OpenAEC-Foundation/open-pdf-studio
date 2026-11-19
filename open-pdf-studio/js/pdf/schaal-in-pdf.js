@@ -15,6 +15,8 @@
 //   (viewports van anderen, zonder /OPS_Bron: die blijven staan)
 //   /Viewport     een viewport-annotatie
 //   /ScaleRegion  een schaalgebied, grootste eerst (het binnenste wint)
+// Bij overridePdfScale komen Document/Page na de vreemde viewports; hun
+// woordenboeken blijven behouden zodat de gebruiker terug kan schakelen.
 // Zo kiest een andere lezer op elk punt dezelfde schaal als de app.
 //
 // Bij het lezen slaat pdf-viewports.js de eigen viewports over: hun
@@ -133,6 +135,7 @@ export function eigenSchalen(annotaties, docSchaal, blad, paginaSchaal = null) {
       ratio: typeof docSchaal.scaleRatio === 'string' ? docSchaal.scaleRatio : '',
       naam: '',
       method: typeof docSchaal.method === 'string' ? docSchaal.method : '',
+      ...(docSchaal.overridePdfScale === true ? { overridePdfScale: true } : {}),
     });
   }
   // The page scale (pagina-schalen.js) holds on its page instead of the
@@ -208,6 +211,7 @@ function viewportDict(context, ruimte, s) {
   if (s.naam) velden.Name = pdfTextString(s.naam);
   if (s.id) velden.OPS_Id = pdfTextString(String(s.id));
   if (s.method) velden.OPS_Method = pdfTextString(s.method);
+  if (s.overridePdfScale === true) velden.OPS_OverridePdfScale = true;
   return context.obj(velden);
 }
 
@@ -243,20 +247,21 @@ export function schrijfEigenViewports(pagina, schalen) {
     if (!(s.pixelsPerUnit > 0) || !Number.isFinite(s.pixelsPerUnit)) continue;
     (s.bron === BRONNEN.document || s.bron === BRONNEN.page ? eerst : eigen).push(viewportDict(context, ruimte, s));
   }
-  zetVp(node, [...eerst, ...vreemd, ...eigen]);
+  const override = (schalen || []).some(s => s.bron === BRONNEN.document && s.overridePdfScale === true);
+  zetVp(node, override ? [...vreemd, ...eerst, ...eigen] : [...eerst, ...vreemd, ...eigen]);
   return eerst.length + eigen.length;
 }
 
 /**
- * Only the page scale viewport of one page, for a page whose annotations are
- * not loaded: its other own viewports (scale regions, viewport annotations,
- * the document scale) stay as they are in the file. The page scale goes
- * after the document scale, or is removed when `schaal` is null.
+ * Update page calibration without loading annotations. Existing scale regions
+ * and viewport annotations remain intact. An optional document calibration
+ * replaces (or clears) stale calibration on unloaded pages too.
  * @param {import('pdf-lib').PDFPage} pagina
  * @param {ReturnType<typeof eigenSchalen>[number] | null} schaal
+ * @param {ReturnType<typeof eigenSchalen>[number] | null | undefined} documentschaal
  * @returns {number} 1 when a page viewport was written
  */
-export function schrijfPaginaSchaalViewport(pagina, schaal) {
+export function schrijfPaginaSchaalViewport(pagina, schaal, documentschaal = undefined) {
   const node = pagina.node;
   const ruimte = paginaRuimte(node);
   if (!ruimte) return 0;
@@ -267,13 +272,17 @@ export function schrijfPaginaSchaalViewport(pagina, schaal) {
   if (oud instanceof PDFArray) {
     for (let i = 0; i < oud.size(); i++) {
       const bron = bronVan(oud.lookup(i));
-      if (bron === BRONNEN.page) continue;
+      if (bron === BRONNEN.page || (bron === BRONNEN.document && documentschaal !== undefined)) continue;
       (bron === null ? vreemd : bron === BRONNEN.document ? documentVp : overig).push(oud.get(i));
     }
   }
   const nieuw = schaal && schaal.pixelsPerUnit > 0 && Number.isFinite(schaal.pixelsPerUnit)
     ? [viewportDict(node.context, ruimte, schaal)] : [];
-  zetVp(node, [...documentVp, ...nieuw, ...vreemd, ...overig]);
+  if (documentschaal?.pixelsPerUnit > 0 && Number.isFinite(documentschaal.pixelsPerUnit)) {
+    documentVp.push(viewportDict(node.context, ruimte, documentschaal));
+  }
+  const override = documentVp.some(d => String(node.context.lookup(d).get(N('OPS_OverridePdfScale'))) === 'true');
+  zetVp(node, override ? [...vreemd, ...documentVp, ...nieuw, ...overig] : [...documentVp, ...nieuw, ...vreemd, ...overig]);
   return nieuw.length;
 }
 
@@ -309,6 +318,7 @@ export function leesDocumentSchaal(pdfLibDoc) {
           unit: schaal.unit,
           method: tekst(d.lookup(N('OPS_Method'))) || 'file',
           scaleRatio: /^1\s*:\s*\d/.test(ratio) ? ratio : 0,
+          ...(String(d.lookup(N('OPS_OverridePdfScale'))) === 'true' ? { overridePdfScale: true } : {}),
         };
       }
     } catch {
@@ -379,11 +389,16 @@ export function schrijfSchalenInPdf(paginas, doc, geladen = () => true) {
     const ps = doc?.pageScales?.[pageNum];
     const paginaSchaal = ps && /^1:\d/.test(ps.scaleRatio || '')
       ? { ...ps, pixelsPerUnit: pixelsPerUnitFor(ps.scaleRatio, ps.unit || 'mm', userUnitVanPagina(doc, pageNum)) } : null;
+    // A document ratio must also reflect this page's /UserUnit on disk.
+    const ms = doc?.measureScale;
+    const documentSchaal = ms && /^1:\d/.test(ms.scaleRatio || '')
+      ? { ...ms, pixelsPerUnit: pixelsPerUnitFor(ms.scaleRatio, ms.unit || 'mm', userUnitVanPagina(doc, pageNum)) } : ms;
     if (!geladen(pageNum)) {
-      viewports += schrijfPaginaSchaalViewport(pagina, paginaViewport(paginaSchaal, blad));
+      viewports += schrijfPaginaSchaalViewport(pagina, paginaViewport(paginaSchaal, blad),
+        eigenSchalen([], documentSchaal, blad).find(s => s.bron === BRONNEN.document) || null);
       return;
     }
-    viewports += schrijfEigenViewports(pagina, eigenSchalen(perPagina.get(pageNum), doc?.measureScale, blad, paginaSchaal));
+    viewports += schrijfEigenViewports(pagina, eigenSchalen(perPagina.get(pageNum), documentSchaal, blad, paginaSchaal));
     // Geen regel in het model: de sleutel van het bestand blijft staan (een
     // ingevoegde pagina neemt haar geschiedenis mee). Een lege lijst wist.
     const controles = doc?.scaleChecks?.[pageNum];

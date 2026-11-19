@@ -89,12 +89,20 @@ async function compositeCurrentView(maxWidth = 2000) {
   const { laagVolgorde, laagPlek } = await import('./core/mcp-schermafdruk.js');
   let pdfCanvas;
   let lagen;
+  // Boven de bitmap-cap is het paginacanvas een scherpe uitsnede van het
+  // zichtbare deel (#1163): dan is de paginacontainer het vak van de pagina,
+  // met de hele pagina op lage resolutie als achtergrond en de uitsnede op
+  // haar plek erover.
+  let uitsnede = null;
   if (doc?.viewMode === 'continuous') {
     const blad = document.querySelector(`#continuous-container .page-wrapper[data-page="${pagina}"]`);
-    pdfCanvas = blad?.querySelector('canvas.pdf-canvas') || null;
+    const { doorlopendPaginaBeeld } = await import('./pdf/renderer.js');
+    const beeld = blad ? await doorlopendPaginaBeeld(pagina) : null;
+    pdfCanvas = beeld?.canvas || null;
     if (!pdfCanvas || pdfCanvas.width === 0 || pdfCanvas.height === 0) {
       throw new Error(`page ${pagina} is not drawn yet in the continuous view`);
     }
+    if (beeld.uitsnede) uitsnede = beeld;
     lagen = [...blad.querySelectorAll('canvas')].filter((c) => c !== pdfCanvas);
   } else {
     pdfCanvas = document.getElementById('pdf-canvas');
@@ -107,10 +115,14 @@ async function compositeCurrentView(maxWidth = 2000) {
 
   // Scale the composite so the longer side fits within maxWidth (avoids
   // multi-megabyte payloads on 4K displays at 800% zoom).
-  const longest = Math.max(pdfCanvas.width, pdfCanvas.height);
+  const dpr = window.devicePixelRatio || 1;
+  const basisVak = uitsnede ? uitsnede.vak : pdfCanvas.getBoundingClientRect();
+  const basisB = uitsnede ? basisVak.width * dpr : pdfCanvas.width;
+  const basisH = uitsnede ? basisVak.height * dpr : pdfCanvas.height;
+  const longest = Math.max(basisB, basisH);
   const scale = longest > maxWidth ? maxWidth / longest : 1;
-  const outW = Math.max(1, Math.round(pdfCanvas.width * scale));
-  const outH = Math.max(1, Math.round(pdfCanvas.height * scale));
+  const outW = Math.max(1, Math.round(basisB * scale));
+  const outH = Math.max(1, Math.round(basisH * scale));
 
   const out = document.createElement('canvas');
   out.width = outW;
@@ -119,13 +131,20 @@ async function compositeCurrentView(maxWidth = 2000) {
   // White background so transparent regions don't read as black.
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, outW, outH);
-  ctx.drawImage(pdfCanvas, 0, 0, outW, outH);
+  if (uitsnede) {
+    if (uitsnede.achtergrond) ctx.drawImage(uitsnede.achtergrond, 0, 0, outW, outH);
+    if (pdfCanvas.width > 1 && pdfCanvas.height > 1) {
+      const plek = laagPlek(pdfCanvas.getBoundingClientRect(), basisVak, { width: outW, height: outH });
+      if (plek.w > 0 && plek.h > 0) ctx.drawImage(pdfCanvas, plek.x, plek.y, plek.w, plek.h);
+    }
+  } else {
+    ctx.drawImage(pdfCanvas, 0, 0, outW, outH);
+  }
   // Zoals het scherm: de markeerlaag vermenigvuldigt met de pagina (CSS
   // mix-blend-mode). Met source-over zag een controle hier een andere
   // pagina dan de gebruiker (#614). Gemengde annotaties staan al gemengd
   // op de annotatielaag (rendering/mengen-tegen-pagina.js). Een scherpe
   // tegel dekt maar een deel van de pagina en komt op zijn eigen plek.
-  const basisVak = pdfCanvas.getBoundingClientRect();
   for (const { index, mengen } of laagVolgorde(lagen.map((c) => ({ id: c.id, klasse: String(c.className || '') })))) {
     const laag = lagen[index];
     const plek = laagPlek(laag.getBoundingClientRect(), basisVak, { width: outW, height: outH });
@@ -142,7 +161,7 @@ async function compositeCurrentView(maxWidth = 2000) {
   return {
     png_base64: b64, width: outW, height: outH,
     bounds: rechthoek(basisVak),
-    devicePixelRatio: window.devicePixelRatio || 1,
+    devicePixelRatio: dpr,
   };
 }
 
@@ -1130,6 +1149,25 @@ function _isNum(v) {
   return typeof v === 'number' && Number.isFinite(v);
 }
 
+/**
+ * Krommen (#1169) in een opgave voor een polylijn of veelhoek: nagekeken en
+ * in vaste vorm op `merged` gezet (of weggehaald als er geen kromme is).
+ * Geeft een foutmelding, of null als het goed is. Andere soorten blijven
+ * ongemoeid.
+ */
+async function _krommenInOpgave(type, props, merged) {
+  if (!('curves' in props) || (type !== 'polyline' && type !== 'polygon')) return null;
+  if (type === 'polygon' && props.points === undefined) {
+    return "polygon: curves need the corners as points:[{x,y}, ...]";
+  }
+  const vorm = await import('./annotations/curve-shape.js');
+  const k = vorm.leesKrommenOpgave(props.curves, merged.points.length, type === 'polygon');
+  if (!k.ok) return `${type}: ${k.error}`;
+  if (k.curves) merged.curves = k.curves;
+  else delete merged.curves;
+  return null;
+}
+
 /** True when `arr` is an array of at least `min` {x, y} points. */
 function _validPoints(arr, min) {
   return Array.isArray(arr) && arr.length >= min &&
@@ -1727,6 +1765,10 @@ async function handleCreateAnnotation(params) {
   if (built.veelhoekPunten) {
     for (const k of ['points', 'x', 'y', 'width', 'height', 'sides']) merged[k] = built.base[k];
   }
+  {
+    const krommenFout = await _krommenInOpgave(type, props, merged);
+    if (krommenFout) return { ok: false, error: krommenFout };
+  }
   // Tekstmarkering (#946): vak, rects en quads komen uit de quads; een
   // meegegeven x/y/width/height wordt genegeerd.
   if (built.vasteGeometrie) {
@@ -1863,7 +1905,7 @@ async function _pasUitlijningToe(doc, ann, uitlijning) {
 const _GEOMETRY_KEYS = [
   'x', 'y', 'width', 'height',
   'startX', 'startY', 'endX', 'endY',
-  'points', 'holes', 'path', 'controlPoints',
+  'points', 'holes', 'path', 'controlPoints', 'curves',
 ];
 
 async function handleUpdateAnnotation(params) {
@@ -1963,6 +2005,20 @@ async function handleUpdateAnnotation(params) {
     const vh = await import('./annotations/veelhoek-punten.js');
     patch = { ...patch, ...vh.veelhoekUitPunten(patch.points) };
   }
+  // Krommen van een polylijn of veelhoek (#1169): `curves` zet ze (null =
+  // alles recht), in de coördinaten van `points`. Nieuwe punten zonder
+  // krommen geven rechte segmenten: de oude krommen hoorden bij de oude punten.
+  const metKrommen = (ann.type === 'polyline' || ann.type === 'polygon') && ('curves' in patch || 'points' in patch);
+  if (metKrommen) {
+    const punten = 'points' in patch ? patch.points : ann.points;
+    if (!_validPoints(punten, ann.type === 'polygon' ? 3 : 2)) {
+      return { ok: false, error: `${ann.type} points must be [{x,y}, ...]` };
+    }
+    const vorm = await import('./annotations/curve-shape.js');
+    const k = vorm.leesKrommenOpgave('curves' in patch ? patch.curves : null, punten.length, ann.type === 'polygon');
+    if (!k.ok) return { ok: false, error: `${ann.type}: ${k.error}` };
+    patch = { ...patch, curves: k.curves };
+  }
   // Eenheden (#1129): `units` / `measureAreaUnit` op een meetvlak is de
   // weergave-eenheid van de oppervlakte (ac, ha, m², ...; "auto" volgt weer
   // de schaal). Een lengte of omtrek volgt de schaal, een schaalgebied rekent
@@ -1988,6 +2044,8 @@ async function handleUpdateAnnotation(params) {
   }
   const andereDikte = 'lineWidth' in patch && patch.lineWidth !== ann.lineWidth;
   Object.assign(ann, patch);
+  // Zonder krommen geen veld: het model van een vorm zonder krommen.
+  if (metKrommen && !patch.curves) delete ann.curves;
   if (vlakEenheid) {
     if (vlakEenheid.unit) ann.measureAreaUnit = vlakEenheid.unit;
     else delete ann.measureAreaUnit;

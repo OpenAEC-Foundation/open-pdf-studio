@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "החותמות המובנות מוגדרות כמוסתרות, אבל עדיין אין לך חותמות משלך. צור אחת דרך ניהול תבניות חותמת."
   },
   "calibration": {
+    "overridePdfScale": "עקיפת קני המידה המוטמעים ב-PDF",
     "title": "כיול קנה מידה",
     "helpText": "צייר קו מדידה באורך ידוע, ולאחר מכן הזן כאן את המרחק האמיתי.",
     "knownDistance": "מרחק ידוע:",
@@ -2271,6 +2272,7 @@
     "deleted": "הוסר",
     "errorRead": "לא ניתן לקרוא את תיקיית הסקירה.",
     "errorWrite": "לא ניתן לכתוב את השינויים שלך לתיקיית הסקירה.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "שמרו תחילה את ה-PDF כדי להתחיל סקירה משותפת.",
     "errorGeneric": "לא ניתן להתחיל את הסקירה המשותפת.",
     "close": "סגור"

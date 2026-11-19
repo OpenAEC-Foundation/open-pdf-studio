@@ -44,9 +44,9 @@ test('the current scale stays in a filtered list', () => {
   assert.deepEqual(imp.map(o => o.value), ['1:100', '1:48']);
 });
 
-test('the preference exists with default both, and every scale list follows it', () => {
+test('the preference exists with default metric, and every scale list follows it', () => {
   // Bron gelezen: CI draait Node 20, dat geen .ts importeert.
-  assert.match(bron('../core/constants.ts'), /\n\s*scaleUnitSystem: 'both',/);
+  assert.match(bron('../core/constants.ts'), /\n\s*scaleUnitSystem: 'metric',/);
   assert.match(bron('../main.js'), /stelSchaalSysteemBronIn\(\(\) => state\.preferences\?\.scaleUnitSystem\)/);
   assert.match(bron('../solid/components/dialogs/ViewportScaleDialog.jsx'), /filterScaleOptions\(/);
   assert.match(bron('../solid/components/dialogs/ScaleRegionDialog.jsx'), /scaleSelectOptions\(METRIC_REGION_SCALES, \{ current: scaleString\(\) \}\)/);

@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Οι ενσωματωμένες σφραγίδες έχουν οριστεί ως κρυφές, αλλά δεν έχετε ακόμη δικές σας σφραγίδες. Δημιουργήστε μία από τη Διαχείριση προτύπων σφραγίδας."
   },
   "calibration": {
+    "overridePdfScale": "Παράκαμψη ενσωματωμένων κλιμάκων PDF",
     "title": "Βαθμονόμηση κλίμακας",
     "helpText": "Σχεδιάστε μια γραμμή μέτρησης γνωστού μήκους και μετά εισάγετε την πραγματική απόσταση εδώ.",
     "knownDistance": "Γνωστή απόσταση:",
@@ -2271,6 +2272,7 @@
     "deleted": "αφαιρέθηκε",
     "errorRead": "Δεν ήταν δυνατή η ανάγνωση του φακέλου αναθεώρησης.",
     "errorWrite": "Δεν ήταν δυνατή η εγγραφή των αλλαγών σας στον φάκελο αναθεώρησης.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Αποθηκεύστε πρώτα το PDF για να ξεκινήσετε κοινή αναθεώρηση.",
     "errorGeneric": "Δεν ήταν δυνατή η έναρξη της κοινής αναθεώρησης.",
     "close": "Κλείσιμο"

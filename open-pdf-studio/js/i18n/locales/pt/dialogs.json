@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Os carimbos integrados estão definidos como ocultos, mas ainda não tem carimbos próprios. Crie um em Gerenciar modelos de carimbo."
   },
   "calibration": {
+    "overridePdfScale": "Substituir escalas incorporadas no PDF",
     "title": "Calibração de escala",
     "helpText": "Desenhe uma linha de medição de comprimento conhecido, depois insira a distância real aqui.",
     "knownDistance": "Distância conhecida:",
@@ -2271,6 +2272,7 @@
     "deleted": "removida",
     "errorRead": "Não foi possível ler a pasta de revisão.",
     "errorWrite": "Não foi possível escrever as suas alterações na pasta de revisão.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Guarde primeiro o PDF para iniciar uma revisão partilhada.",
     "errorGeneric": "Não foi possível iniciar a revisão partilhada.",
     "close": "Fechar"

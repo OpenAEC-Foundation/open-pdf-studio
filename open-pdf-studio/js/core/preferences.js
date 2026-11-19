@@ -17,6 +17,7 @@ import { kalibratieVoor } from '../pdf/schermkalibratie.js';
 import { pasSneltoetsVoorkeurToe } from './keybindings/app-shortcuts.js';
 import { zetPaginaAchtergrond } from '../pdf/pagina-achtergrond.js';
 import { zetVloeiendScrollen } from './vloeiend-scrollen.js';
+import { migreerStelselStandaard } from '../annotations/eenhedenstelsel.js';
 
 // What 100% zoom means (#523), read live so a new calibration, a changed
 // preference or a move to a screen with another scale applies at once: on a
@@ -59,12 +60,15 @@ export async function loadPreferences() {
       // Tekstvak: oude standaard-tekstgrootte 14 → 8 (alleen de onaangeroerde
       // oude default; een zelfgekozen grootte blijft staan).
       if (loaded.textboxFontSize === 14) loaded.textboxFontSize = 8;
-      // Doorlopend is de standaard-weergavemodus. Deze voorkeur is nergens
-      // in de UI instelbaar, dus een opgeslagen 'single' is altijd de oude
-      // standaard en geen gebruikerskeuze: meenemen naar de nieuwe.
-      if (loaded.defaultViewMode !== 'continuous') {
-        loaded.defaultViewMode = 'continuous';
+      // Enkele pagina is weer de standaard-weergavemodus (doorlopend was dat
+      // kort, in 2026.47.1). Deze voorkeur is nergens in de UI instelbaar,
+      // dus een opgeslagen 'continuous' is altijd die oude standaard en geen
+      // gebruikerskeuze: meenemen naar de nieuwe.
+      if (loaded.defaultViewMode !== 'single') {
+        loaded.defaultViewMode = 'single';
       }
+      // Eenheden: de oude standaard 'both' wordt eenmalig 'metric'.
+      migreerStelselStandaard(loaded);
       // Merge with defaults to ensure all keys exist
       state.preferences = voegSamenMetStandaarden(DEFAULT_PREFERENCES, loaded);
     }

@@ -4,10 +4,11 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import {
   normaliseerStelsel, isImperiaalStelsel, standaardenVoorStelsel, standaardLengteEenheid,
-  voorkeurenBijStelsel, handmatigeSchaal, meetZonderSchaal,
+  voorkeurenBijStelsel, handmatigeSchaal, meetZonderSchaal, migreerStelselStandaard,
 } from './eenhedenstelsel.js';
 import { stelSchaalSysteemBronIn, scaleSelectOptions, isImperialScalePreset } from './scale-presets.js';
 import { measureScaleFromTitleBlock } from './document-scale.js';
@@ -121,4 +122,37 @@ test('een kale 1:N uit het titelblok krijgt de eenheid van de instelling', () =>
   assert.equal(measureScaleFromTitleBlock({ ratio: 96, unit: 'ft' }).unit, 'ft');
   assert.equal(measureScaleFromTitleBlock({ ratio: 1, unit: 'in' }, 'ft').unit, 'in');
   assert.equal(measureScaleFromTitleBlock({ ratio: 50 }, 'onzin').unit, 'mm');
+});
+
+test('de oude standaard both wordt eenmalig metrisch; een eigen keuze blijft', () => {
+  // Opgeslagen voorkeuren van voor de overgang: geen vlaggetje.
+  assert.equal(migreerStelselStandaard({ scaleUnitSystem: 'both' }).scaleUnitSystem, 'metric');
+  assert.equal(migreerStelselStandaard({}).scaleUnitSystem, 'metric');
+  assert.equal(migreerStelselStandaard({ scaleUnitSystem: 'imperial' }).scaleUnitSystem, 'imperial');
+  assert.equal(migreerStelselStandaard({ scaleUnitSystem: 'metric' }).scaleUnitSystem, 'metric');
+  // Daarna staat het vlaggetje: wie zelf weer both kiest, houdt dat.
+  const na = migreerStelselStandaard({ scaleUnitSystem: 'both' });
+  assert.equal(na.unitsDefaultMetric, true);
+  na.scaleUnitSystem = 'both';
+  assert.equal(migreerStelselStandaard(na).scaleUnitSystem, 'both');
+  // Papiermaten gaan mee van punten naar millimeters; een andere keuze blijft.
+  assert.equal(migreerStelselStandaard({ paperSizeUnit: 'pt' }).paperSizeUnit, 'mm');
+  assert.equal(migreerStelselStandaard({}).paperSizeUnit, 'mm');
+  assert.equal(migreerStelselStandaard({ paperSizeUnit: 'in' }).paperSizeUnit, 'in');
+  assert.equal(migreerStelselStandaard({ paperSizeUnit: 'pt', unitsDefaultMetric: true }).paperSizeUnit, 'pt');
+  assert.equal(migreerStelselStandaard(null), null);
+});
+
+test('nieuwe installatie: metrisch, zonder imperiale schalen of inches', () => {
+  // Bron gelezen: CI draait Node 20, dat geen .ts importeert.
+  const bron = readFileSync(new URL('../core/constants.ts', import.meta.url), 'utf8');
+  assert.ok(bron.includes("scaleUnitSystem: 'metric',"));
+  assert.ok(bron.includes('unitsDefaultMetric: true,'));
+  assert.ok(bron.includes("paperSizeUnit: 'mm',"));
+  assert.ok(bron.includes("measureDistDimUnit: 'mm',"));
+  assert.ok(bron.includes("measureAreaDimUnit: 'mm',"));
+  assert.ok(bron.includes("measurePerimDimUnit: 'mm',"));
+  const lader = readFileSync(new URL('../core/preferences.js', import.meta.url), 'utf8');
+  assert.ok(lader.includes('migreerStelselStandaard(loaded);'));
+  assert.equal(scaleSelectOptions(undefined, { system: 'metric' }).some((o) => isImperialScalePreset(o.value)), false);
 });

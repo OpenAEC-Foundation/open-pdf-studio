@@ -174,15 +174,15 @@ test('het native commando staat in de invoke_handler; Windows-afhankelijkheden o
   assert.match(lock, /name = "windows"\nversion = "0\.61\.3"/);
 });
 
-test('lagen van een pagina: scherpe tegels, markeerlaag (vermenigvuldigen), annotaties', async () => {
+test('lagen van een pagina: markeerlaag (vermenigvuldigen), annotaties, scherpe annotatietegels', async () => {
   const { laagVolgorde } = await import('./mcp-schermafdruk.js');
   const lagen = [
-    { klasse: 'annotation-canvas' }, { klasse: 'pdf-canvas-sharp' },
-    { id: 'text-highlight-canvas' }, { klasse: 'annotation-canvas-sharp' }, { klasse: 'iets-anders' },
+    { klasse: 'annotation-canvas' }, { klasse: 'iets-anders' },
+    { id: 'text-highlight-canvas' }, { klasse: 'annotation-canvas-sharp' },
   ];
   assert.deepEqual(laagVolgorde(lagen), [
-    { index: 1, mengen: 'source-over' }, { index: 2, mengen: 'multiply' },
-    { index: 0, mengen: 'source-over' }, { index: 3, mengen: 'source-over' }, { index: 4, mengen: 'source-over' },
+    { index: 2, mengen: 'multiply' }, { index: 0, mengen: 'source-over' },
+    { index: 3, mengen: 'source-over' }, { index: 1, mengen: 'source-over' },
   ]);
   assert.deepEqual(laagVolgorde([]), []);
   assert.deepEqual(laagVolgorde(null), []);

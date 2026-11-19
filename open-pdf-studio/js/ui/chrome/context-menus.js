@@ -3,7 +3,7 @@ import { state, getActiveDocument, isSelected } from '../../core/state.js';
 import { setTool } from '../../tools/manager.js';
 import { resolvePointerCoords, getEffectiveScale } from '../../tools/tool-context.js';
 import { recordAdd } from '../../core/undo-manager.js';
-import { isBewerkbareVeelhoek, veelhoekDeelBij } from '../../annotations/veelhoek-punten.js';
+import { kanKrommen, padDeelBij } from '../../annotations/curve-shape.js';
 import { HANDLE_SIZE } from '../../core/constants.js';
 import {
   showAnnotationMenu, showMultiAnnotationMenu, showPageMenu,
@@ -146,17 +146,18 @@ export function initContextMenus() {
             }
           }
         }
-        // Geselecteerde veelhoek (#622): rechtsklik op een hoekpunt of zijde
-        // geeft de hoekpunt-acties (weghalen / hier toevoegen).
+        // Geselecteerde veelhoek (#622) of polylijn (#1169): rechtsklik op
+        // een hoekpunt of zijde geeft de acties voor dat deel (hoekpunt
+        // weghalen / hier toevoegen, zijde omzetten naar een kromme of terug).
         {
           const _sel = getActiveDocument()?.selectedAnnotations || [];
           const pg = _sel.length === 1 ? _sel[0] : null;
-          if (pg && isBewerkbareVeelhoek(pg)) {
-            const deel = veelhoekDeelBij(pg, x, y, (HANDLE_SIZE / 2 + 4) / scale);
+          if (pg && pg.page === doc?.currentPage && kanKrommen(pg)) {
+            const deel = padDeelBij(pg, x, y, (HANDLE_SIZE / 2 + 4) / scale);
             if (deel) {
               showContextMenu(e, pg, deel.kind === 'vertex'
                 ? { kind: 'veelhoekHoek', nodeIndex: deel.nodeIndex, annotationId: pg.id }
-                : { kind: 'veelhoekZijde', edgeIndex: deel.edgeIndex, punt: deel.punt, annotationId: pg.id });
+                : { kind: 'veelhoekZijde', edgeIndex: deel.edgeIndex, punt: deel.punt, t: deel.t, annotationId: pg.id });
               return;
             }
           }

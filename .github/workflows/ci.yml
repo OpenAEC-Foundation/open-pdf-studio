@@ -103,6 +103,10 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:hosted-bridge
 
+      - name: Test embedded PDF scale override (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-pdf-scale-override-browser.mjs
+
       - name: Test pdf-lib XRef rejection and save recovery (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/pdf-lib-xref-browser.mjs
@@ -127,6 +131,19 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-blank-template-browser.mjs
 
+      - name: Test merging PDFs through the Merge dialog (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-merge-pdfs-browser.mjs
+
+      - name: Test parametric symbol picker (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-parametric-picker-browser.mjs
+
+      - name: Test PDF link views and delayed navigation (Linux)
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: node scripts/test-link-view-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs
@@ -142,6 +159,18 @@ jobs:
       - name: Test Hand tool click and rectangle zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-hand-zoom-browser.mjs
+
+      - name: Test dragging on a number field (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-drag-number-browser.mjs
+
+      - name: Test Bezier segments on polylines and polygons (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-bezier-editing-browser.mjs
+
+      - name: Test compare wheel isolation (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-compare-wheel-browser.mjs
 
       - name: Test tab switch across view modes (Linux)
         if: matrix.platform == 'ubuntu-22.04'

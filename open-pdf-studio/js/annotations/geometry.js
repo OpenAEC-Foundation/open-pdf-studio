@@ -20,7 +20,8 @@ import { puntInVlak } from './vlak-ringen.js';
 import { raakbaarBijKlik } from '../plattegrond/ruimte-koppeling.js';
 import { caretHit } from './corrections/geometry.js';
 import { raaktLink } from './link/link-model.js';
-import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm } from './veelhoek-punten.js';
+import { isBewerkbareVeelhoek, veelhoekPuntenOpScherm, veelhoekKrommenOpScherm } from './veelhoek-punten.js';
+import { hasCurves, nearestOnPath, pointInPath, pathBounds } from './curve-path.js';
 
 // Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
 // het scherm kleiner is dan het minimale raakvlak krijgt een marge in
@@ -315,6 +316,12 @@ function raakInLijst(annotations, x, y, pageNum) {
       case 'polyline':
         // Check if point is near any segment of the polyline
         if (ann.points && ann.points.length >= 2) {
+          // Met krommen (#1169): de afstand tot het echte pad.
+          if (hasCurves(ann.curves)) {
+            const kr = nearestOnPath(ann.points, ann.curves, x, y);
+            if (kr && kr.distance < tol) return ann;
+            break;
+          }
           for (let i = 0; i < ann.points.length - 1; i++) {
             const segDist = distanceToLine(x, y, ann.points[i].x, ann.points[i].y, ann.points[i+1].x, ann.points[i+1].y);
             if (segDist < tol) return ann;
@@ -482,6 +489,13 @@ function raakInLijst(annotations, x, y, pageNum) {
         // niet.
         if (ann.type === 'polygon' && isBewerkbareVeelhoek(ann)) {
           const vp = veelhoekPuntenOpScherm(ann);
+          const vk = veelhoekKrommenOpScherm(ann);
+          if (vk) {
+            // Met krommen (#1169): raken op het echte pad of erbinnen.
+            const kr = nearestOnPath(vp, vk, x, y, { closed: true });
+            if ((kr && kr.distance < tol) || pointInPath(vp, vk, x, y)) return ann;
+            break;
+          }
           for (let i = 0; i < vp.length; i++) {
             const j = (i + 1) % vp.length;
             if (distanceToLine(x, y, vp[i].x, vp[i].y, vp[j].x, vp[j].y) < tol) return ann;
@@ -818,6 +832,10 @@ export function isPointInsideAnnotation(x, y, annotation) {
     case 'polyline':
     case 'cloudPolyline':
       if (annotation.points && annotation.points.length > 0) {
+        if (annotation.type === 'polyline' && hasCurves(annotation.curves)) {
+          const kg = pathBounds(annotation.points, annotation.curves);
+          return x >= kg.minX && x <= kg.maxX && y >= kg.minY && y <= kg.maxY;
+        }
         const plMinX = Math.min(...annotation.points.map(p => p.x));
         const plMinY = Math.min(...annotation.points.map(p => p.y));
         const plMaxX = Math.max(...annotation.points.map(p => p.x));

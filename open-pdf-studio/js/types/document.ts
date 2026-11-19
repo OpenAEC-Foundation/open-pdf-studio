@@ -19,6 +19,7 @@ export interface MeasureScale {
   pixelsPerUnit: number;
   unit: string;
   method: string;
+  overridePdfScale?: boolean;
   scaleRatio: number;
 }
 

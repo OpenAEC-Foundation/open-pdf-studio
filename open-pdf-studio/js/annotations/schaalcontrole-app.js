@@ -100,6 +100,7 @@ function pasBronAan(doc, bron, ppu, eenheid) {
     pixelsPerUnit: ppu,
     unit: eenheid || 'mm',
     method: 'scale-check',
+    ...(oud?.overridePdfScale === true ? { overridePdfScale: true } : {}),
     scaleRatio: schaalTekstVoorPpu(ppu, eenheid || 'mm') || 0,
   };
   recordMeasureScale(oud, doc.measureScale);

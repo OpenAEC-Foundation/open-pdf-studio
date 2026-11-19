@@ -7,6 +7,7 @@
 // js/annotations/alignment.js.
 
 import { klemMaat } from './minimummaat.js';
+import { hasCurves, transformCurves } from './curve-path.js';
 
 // Herbereken de opgeslagen bounding box van een punt-gebaseerde annotatie.
 function updateBoundsFromPoints(ann, points) {
@@ -67,6 +68,10 @@ export function resizeAnnotationToBounds(ann, bounds, targetW, targetH) {
     case 'filledArea': {
       if (!ann.points || ann.points.length === 0 || (sx == null && sy == null)) return false;
       ann.points.forEach(p => { p.x = mapX(p.x); p.y = mapY(p.y); });
+      // Krommen van een polylijn (#1169) rekken mee.
+      if (ann.type === 'polyline' && hasCurves(ann.curves)) {
+        ann.curves = transformCurves(ann.curves, sx == null ? 1 : sx, 0, 0, sy == null ? 1 : sy);
+      }
       if (ann.x !== undefined) updateBoundsFromPoints(ann, ann.points);
       return true;
     }

@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "A beépített bélyegzők elrejtésre vannak állítva, de még nincs saját bélyegzője. Hozzon létre egyet a Bélyegzősablonok kezelése menüben."
   },
   "calibration": {
+    "overridePdfScale": "Beágyazott PDF-méretarányok felülbírálása",
     "title": "Lépték kalibrálás",
     "helpText": "Rajzoljon egy ismert hosszúságú mérési vonalat, majd adja meg a valós távolságot itt.",
     "knownDistance": "Ismert távolság:",
@@ -2271,6 +2272,7 @@
     "deleted": "eltávolítva",
     "errorRead": "A véleményezési mappa nem olvasható.",
     "errorWrite": "A módosításait nem sikerült a véleményezési mappába írni.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Először mentse a PDF-et a közös véleményezés indításához.",
     "errorGeneric": "A közös véleményezést nem sikerült elindítani.",
     "close": "Bezárás"

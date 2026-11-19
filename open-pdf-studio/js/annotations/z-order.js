@@ -9,7 +9,8 @@ import { cloneAnnotation } from './factory.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 import { isPointPolygon, rotatePointPolygon, flipPointPolygon } from './polygon-transform.js';
-import { isBewerkbareVeelhoek, spiegelVeelhoek } from './veelhoek-punten.js';
+import { isBewerkbareVeelhoek, spiegelVeelhoek, pasVeelhoekToe } from './veelhoek-punten.js';
+import { hasCurves, rotateCurves, transformCurves } from './curve-path.js';
 
 function normalizeTargets(annotationOrAnnotations, doc) {
   const requested = Array.isArray(annotationOrAnnotations)
@@ -151,6 +152,8 @@ export function rotateAnnotation(annotation, degrees) {
   } else if (annotation.type === 'polyline' && annotation.points && annotation.points.length >= 2) {
     const { cx, cy } = polylineCenter(annotation.points);
     annotation.points = annotation.points.map(p => rotatePoint(p.x, p.y, cx, cy, degrees));
+    // Krommen (#1169) draaien mee.
+    if (hasCurves(annotation.curves)) annotation.curves = rotateCurves(annotation.curves, degrees);
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     rotatePointPolygon(annotation, degrees);
@@ -173,13 +176,14 @@ export function flipHorizontal(annotation) {
   } else if (annotation.type === 'polyline' && annotation.points && annotation.points.length >= 2) {
     const { cx } = polylineCenter(annotation.points);
     annotation.points = annotation.points.map(p => ({ x: 2 * cx - p.x, y: p.y }));
+    if (hasCurves(annotation.curves)) annotation.curves = transformCurves(annotation.curves, -1, 0, 0, 1);
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     flipPointPolygon(annotation, 'x');
   } else if (isBewerkbareVeelhoek(annotation)) {
     // Veelhoek met hoekpunten (#622): de punten spiegelen, zodat de
     // spiegeling ook in /Vertices komt.
-    Object.assign(annotation, spiegelVeelhoek(annotation, 'x'));
+    pasVeelhoekToe(annotation, spiegelVeelhoek(annotation, 'x'));
   } else {
     annotation.flipX = !annotation.flipX;
   }
@@ -199,11 +203,12 @@ export function flipVertical(annotation) {
   } else if (annotation.type === 'polyline' && annotation.points && annotation.points.length >= 2) {
     const { cy } = polylineCenter(annotation.points);
     annotation.points = annotation.points.map(p => ({ x: p.x, y: 2 * cy - p.y }));
+    if (hasCurves(annotation.curves)) annotation.curves = transformCurves(annotation.curves, 1, 0, 0, -1);
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     flipPointPolygon(annotation, 'y');
   } else if (isBewerkbareVeelhoek(annotation)) {
-    Object.assign(annotation, spiegelVeelhoek(annotation, 'y'));
+    pasVeelhoekToe(annotation, spiegelVeelhoek(annotation, 'y'));
   } else {
     annotation.flipY = !annotation.flipY;
   }

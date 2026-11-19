@@ -81,6 +81,7 @@ js/tools/snap-geometrie-cache.test.mjs
 js/annotations/schaal-bronnen.test.mjs
 js/solid/stores/quantitiesStore.test.mjs
 js/core/undo-manager.test.mjs
+js/core/undo-waarde-sleep.test.mjs
 js/core/undo-tekstlaag.test.mjs
 js/utils/date-formatter.test.mjs
 js/pdf/loader/annotaties-toevoegen.test.mjs
@@ -137,6 +138,7 @@ js/pdf/tile-coverage.test.mjs
 js/pdf/continuous-zoom-anchor.test.mjs
 js/pdf/continuous-rerender-gate.test.mjs
 js/pdf/continuous-render-scale.test.mjs
+js/pdf/doorlopend-pagina-events.test.mjs
 js/pdf/link-destination.test.mjs
 js/pdf/link-rondgang.test.mjs
 js/pdf/link-doelbeeld.test.mjs
@@ -239,6 +241,7 @@ js/pdf/merge-verslag.test.mjs
 js/pdf/samenvoegen.test.mjs
 js/pdf/samenvoegen-deel.test.mjs
 js/pdf/page-manager-samenvoegen.test.mjs
+js/pdf/page-manager-samenvoegen-invoer.test.mjs
 js/i18n/cad-i18n-interpolatie.test.mjs
 js/i18n/initial-language.test.mjs
 js/pdf/print-opdracht.test.mjs
@@ -535,6 +538,8 @@ js/annotations/xfdf-schaalgebied.test.mjs
 js/pdf/schaalgebied-rondgang.test.mjs
 js/solid/stores/schaalgebied-paneel.test.mjs
 js/annotations/veelhoek-punten.test.mjs
+js/annotations/curve-path.test.mjs
+js/annotations/curve-shape.test.mjs
 js/annotations/veelhoek-bewerken.test.mjs
 js/annotations/veelhoek-raak.test.mjs
 js/annotations/kale-lijst.test.mjs
@@ -542,6 +547,7 @@ js/tools/tekstlaag-doorval.test.mjs
 js/pdf/loader/stempel-beeld-rust.test.mjs
 js/tools/tools/polygon-tool.test.mjs
 js/pdf/veelhoek-rondgang.test.mjs
+js/pdf/bezier-rondgang.test.mjs
 js/pdf/loader/stempel-geometrie.test.mjs
 js/pdf/stempel-draaiing-rondgang.test.mjs
 js/annotations/dynamic-stamp.test.mjs
@@ -560,6 +566,8 @@ js/core/getal-invoer.test.mjs
 js/core/getal-invoer-velden.test.mjs
 js/ui/getal-veld.test.mjs
 js/ui/getal-stappen.test.mjs
+js/ui/getal-slepen.test.mjs
+js/core/getal-slepen.test.mjs
 js/getal-velden-bron.test.mjs
 scripts/versievelden.test.mjs
 js/tools/gereedschap-opmaak.test.mjs
@@ -921,4 +929,7 @@ js/solid/components/properties-panel/geen-vaste-nl-labels.test.mjs
 js/solid/components/left-panel/panels/paneel-schuift.test.mjs
 js/annotations/eenhedenstelsel.test.mjs
 js/core/eenheden-opslag.test.mjs
+js/core/standaard-weergave.test.mjs
 js/tools/hand-zoom-beleid.test.mjs
+js/pdf/doorlopend-scherp.test.mjs
+js/pdf/pagina-vak.test.mjs

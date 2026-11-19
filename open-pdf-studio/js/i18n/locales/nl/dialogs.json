@@ -496,6 +496,7 @@
     "hideBuiltInNoOwn": "Ingebouwde stempels staan op verbergen, maar u hebt nog geen eigen stempels. Maak er een via Stempelsjablonen beheren."
   },
   "calibration": {
+    "overridePdfScale": "Ingebouwde PDF-schalen overrulen",
     "title": "Schaalcalibratie",
     "helpText": "Teken een meetlijn van bekende lengte en voer vervolgens de werkelijke afstand hier in.",
     "knownDistance": "Bekende afstand:",
@@ -2271,6 +2272,7 @@
     "deleted": "verwijderd",
     "errorRead": "De beoordelingsmap kon niet worden gelezen.",
     "errorWrite": "Uw wijzigingen konden niet naar de beoordelingsmap worden geschreven.",
+    "errorWriteBusy": "Uw wijzigingen staan nog niet in de beoordelingsmap: een ander programma, bijvoorbeeld een synchronisatie-app, heeft uw beoordelingsbestand in gebruik. Er gaat niets verloren. Ze blijven in dit document staan en de app publiceert ze vanzelf opnieuw.",
     "errorSaveFirst": "Sla het PDF eerst op om een gedeelde beoordeling te starten.",
     "errorGeneric": "De gedeelde beoordeling kon niet worden gestart.",
     "close": "Sluiten"

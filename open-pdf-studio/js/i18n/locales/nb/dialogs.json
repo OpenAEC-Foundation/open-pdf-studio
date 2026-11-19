@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Innebygde stempler er satt til skjult, men du har ingen egne stempler ennå. Opprett et via Administrer stempelmaler."
   },
   "calibration": {
+    "overridePdfScale": "Overstyr innebygde PDF-målestokker",
     "title": "Skalakalibrering",
     "helpText": "Tegn en målelinje med kjent lengde, og skriv deretter inn den virkelige avstanden her.",
     "knownDistance": "Kjent avstand:",
@@ -2271,6 +2272,7 @@
     "deleted": "fjernet",
     "errorRead": "Gjennomgangsmappen kunne ikke leses.",
     "errorWrite": "Endringene dine kunne ikke skrives til gjennomgangsmappen.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Lagre PDF-filen først for å starte en delt gjennomgang.",
     "errorGeneric": "Den delte gjennomgangen kunne ikke startes.",
     "close": "Lukk"

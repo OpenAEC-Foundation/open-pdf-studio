@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "بلٹ اِن مہریں چھپانے پر سیٹ ہیں، لیکن ابھی آپ کی کوئی اپنی مہر نہیں ہے۔ مہر کے سانچوں کا انتظام سے ایک بنائیں۔"
   },
   "calibration": {
+    "overridePdfScale": "PDF میں شامل پیمانوں کو تبدیل کریں",
     "title": "اسکیل کیلیبریشن",
     "helpText": "معلوم لمبائی کی پیمائش کی لکیر کھینچیں، پھر یہاں حقیقی دنیا کا فاصلہ درج کریں۔",
     "knownDistance": "معلوم فاصلہ:",
@@ -2271,6 +2272,7 @@
     "deleted": "ہٹائی گئی",
     "errorRead": "جائزہ فولڈر پڑھا نہیں جا سکا۔",
     "errorWrite": "آپ کی تبدیلیاں جائزہ فولڈر میں نہیں لکھی جا سکیں۔",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "مشترکہ جائزہ شروع کرنے کے لیے پہلے PDF محفوظ کریں۔",
     "errorGeneric": "مشترکہ جائزہ شروع نہیں ہو سکا۔",
     "close": "بند کریں"

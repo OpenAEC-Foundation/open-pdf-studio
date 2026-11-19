@@ -62,6 +62,7 @@ export default function CalibrationDialog(props) {
 
   // Method tab: 'reference' or 'ratio'
   const [method, setMethod] = createSignal('reference');
+  const [overridePdfScale, setOverridePdfScale] = createSignal(getActiveDocument()?.measureScale?.overridePdfScale === true);
 
   // Zonder schaal op het document volgen de eenheid en de standaardschaal de
   // voorkeur Eenheden (#1158): imperiaal opent in voet met 1/4" = 1'-0".
@@ -108,7 +109,7 @@ export default function CalibrationDialog(props) {
   };
 
   function tekenReferentielijn() {
-    const restore = { unit: unit(), distance: distance() };
+    const restore = { unit: unit(), distance: distance(), overridePdfScale: overridePdfScale() };
     const huidig = Number(pixels()) || null;
     closeDialog('calibration');
     startScaleMeasureFlow({
@@ -144,6 +145,7 @@ export default function CalibrationDialog(props) {
     }
 
     if (terug) {
+      setOverridePdfScale(terug.overridePdfScale === true);
       if (terug.unit) setUnit(terug.unit);
       if (terug.distance != null) setDistance(terug.distance);
       setMethod('reference');
@@ -210,6 +212,7 @@ export default function CalibrationDialog(props) {
       : schaalUitKalibratie({ method: 'ratio', denominator: getScaleDenominator(), unit: ratioUnit(), userUnit: userUnit() });
 
     if (scaleData) {
+      if (overridePdfScale()) scaleData.overridePdfScale = true;
       const doc = getActiveDocument();
       if (doc) {
         const oldMeasureScale = doc.measureScale == null
@@ -276,6 +279,12 @@ export default function CalibrationDialog(props) {
       onClose={cancel}
       footer={footer}
     >
+      <Show when={overridePdfScale() || Object.values(getActiveDocument()?.pdfViewports || {}).some(list => list?.length)}>
+        <label class="pref-checkbox-label">
+          <input type="checkbox" checked={overridePdfScale()} onChange={e => setOverridePdfScale(e.currentTarget.checked)} />
+          {t('calibration.overridePdfScale')}
+        </label>
+      </Show>
       {/* Method tabs */}
       <div class="calibration-tabs">
         <button

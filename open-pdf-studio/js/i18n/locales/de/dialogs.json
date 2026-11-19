@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Integrierte Stempel sind auf Ausblenden gesetzt, aber Sie haben noch keine eigenen Stempel. Erstellen Sie einen über Stempelvorlagen verwalten."
   },
   "calibration": {
+    "overridePdfScale": "Eingebettete PDF-Maßstäbe überschreiben",
     "title": "Skalenkalibrierung",
     "helpText": "Zeichnen Sie eine Messlinie bekannter Länge und geben Sie dann die tatsächliche Entfernung hier ein.",
     "knownDistance": "Bekannte Entfernung:",
@@ -2271,6 +2272,7 @@
     "deleted": "entfernt",
     "errorRead": "Der Prüfungsordner konnte nicht gelesen werden.",
     "errorWrite": "Ihre Änderungen konnten nicht in den Prüfungsordner geschrieben werden.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Speichern Sie die PDF zuerst, um eine gemeinsame Prüfung zu starten.",
     "errorGeneric": "Die gemeinsame Prüfung konnte nicht gestartet werden.",
     "close": "Schließen"

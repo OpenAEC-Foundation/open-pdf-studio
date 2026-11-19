@@ -9,6 +9,7 @@ import {
   classifyReviewFile, parseEventLog, serializeEvents, replayEvents, mergeReviewFiles, uniqueEvents,
   applyDerived, diffForPublish, makeEvents, markPublished, annotationsForPdfSave, makeBaseline,
   fingerprint, snapshotAnnotation, createFolderPoller, folderSignature, stablePdfIds, withPdfNames,
+  pollDelayMs, writeErrorCode, publishRetryDelayMs, reviewErrorCode,
 } from './shared-review-core.js';
 
 // ── helpers ────────────────────────────────────────────────────────────────
@@ -454,4 +455,120 @@ test('poller: a failing listing reports and keeps polling; polls never overlap',
 test('folder signature ignores listing order', () => {
   assert.equal(folderSignature([{ name: 'b', size: 1, mtimeMs: 2 }, { name: 'a', size: 1, mtimeMs: 2 }]),
     folderSignature([{ name: 'a', size: 1, mtimeMs: 2 }, { name: 'b', size: 1, mtimeMs: 2 }]));
+});
+
+// ── a synchronised folder (#1115) ──────────────────────────────────────────
+
+test('poll delay: a quiet folder is listed less often, within bounds', () => {
+  assert.equal(pollDelayMs(5000), 5000);
+  assert.equal(pollDelayMs(5000, { idle: 11 }), 5000, 'the first minute at the chosen pace');
+  assert.equal(pollDelayMs(5000, { idle: 12 }), 10000);
+  assert.equal(pollDelayMs(5000, { idle: 36 }), 20000);
+  assert.equal(pollDelayMs(5000, { idle: 100000 }), 20000, 'never more than four times');
+  assert.equal(pollDelayMs(30000, { idle: 36 }), 60000, 'never more than a minute by slowing down');
+  assert.equal(pollDelayMs(600000, { idle: 36 }), 600000, 'a longer interval of the user stays as chosen');
+  assert.equal(pollDelayMs(2000, { idle: 36 }), 8000);
+});
+
+test('poll delay: an unreachable folder is tried once at the normal pace, then ever slower up to five minutes', () => {
+  assert.equal(pollDelayMs(5000, { failures: 1 }), 5000);
+  assert.equal(pollDelayMs(5000, { failures: 2 }), 10000);
+  assert.equal(pollDelayMs(5000, { failures: 3 }), 20000);
+  assert.equal(pollDelayMs(5000, { failures: 9 }), 300000);
+  assert.equal(pollDelayMs(5000, { failures: 5000 }), 300000);
+  assert.equal(pollDelayMs(600000, { failures: 4 }), 600000);
+  assert.equal(pollDelayMs(5000, { failures: 3, idle: 100 }), 20000, 'failures decide');
+});
+
+test('poller: slows down while nothing changes and is back at pace after a change, a publish or a manual refresh', async () => {
+  const clock = fakeTimers();
+  let listing = [{ name: 'Plan_Annotation_A.jsonl', size: 10, mtimeMs: 1 }];
+  let calls = 0;
+  const seen = [];
+  const poller = createFolderPoller({
+    list: async () => { calls++; return listing.map((f) => ({ ...f })); },
+    onChange: async (files) => { seen.push(files.length); },
+    intervalMs: 5000, setTimer: clock.setTimer, clearTimer: clock.clearTimer,
+  });
+  await poller.start();
+  assert.equal(calls, 1);
+  await clock.advance(60000);
+  assert.equal(calls, 13, 'a minute: one listing per interval');
+  await clock.advance(60000);
+  assert.equal(calls, 19, 'the next minute: half as many');
+  await clock.advance(180000);
+  assert.equal(calls, 37, 'three more minutes at the doubled wait: now 36 quiet listings');
+  await clock.advance(60000);
+  assert.equal(calls, 40, 'after five quiet minutes: one listing per twenty seconds');
+  // Somebody else writes: seen at the next (slow) listing, then back at pace.
+  listing = [...listing, { name: 'Plan_Annotation_B.jsonl', size: 5, mtimeMs: 2 }];
+  await clock.advance(20000);
+  assert.deepEqual(seen, [1, 2]);
+  const before = calls;
+  await clock.advance(15000);
+  assert.equal(calls, before + 3);
+  // Quiet again, until I publish.
+  await clock.advance(120000);
+  const slow = calls;
+  await clock.advance(10000);
+  assert.equal(calls, slow + 1);
+  poller.touch();
+  await clock.advance(10000);
+  assert.equal(calls, slow + 3, 'touch: the normal pace again');
+  // Quiet again, until a manual refresh.
+  await clock.advance(120000);
+  await poller.pollNow(true);
+  const fresh = calls;
+  await clock.advance(10000);
+  assert.equal(calls, fresh + 2);
+  poller.stop();
+  assert.equal(clock.pending(), 0);
+});
+
+test('poller: an unreachable folder is not hammered, and is back at pace once it lists again', async () => {
+  const clock = fakeTimers();
+  let fail = true;
+  let calls = 0;
+  const errors = [];
+  const poller = createFolderPoller({
+    list: async () => { calls++; if (fail) throw new Error('offline'); return []; },
+    onChange: async () => {},
+    onError: (e) => errors.push(e.message),
+    intervalMs: 5000, setTimer: clock.setTimer, clearTimer: clock.clearTimer,
+  });
+  await poller.start();
+  assert.equal(calls, 1);
+  await clock.advance(5000);
+  assert.equal(calls, 2, 'tried again at the normal pace once');
+  await clock.advance(10000);
+  assert.equal(calls, 3);
+  await clock.advance(20000);
+  assert.equal(calls, 4);
+  await clock.advance(600000);
+  assert.ok(calls <= 4 + 6, `at most ${4 + 6} listings in the next ten minutes, got ${calls}`);
+  assert.equal(errors.length, calls, 'every failure is reported');
+  fail = false;
+  await clock.advance(300000);
+  const back = calls;
+  await clock.advance(15000);
+  assert.equal(calls, back + 3);
+  poller.stop();
+});
+
+test('a failed write: in use by another program or not, and when to publish again', () => {
+  assert.equal(writeErrorCode('REVIEW_FILE_IN_USE: review file is in use by another program: os error 5'), 'WRITE_BUSY');
+  assert.equal(writeErrorCode(new Error('REVIEW_FILE_IN_USE: x')), 'WRITE_BUSY');
+  assert.equal(writeErrorCode('Failed to write review file: The system cannot find the path specified.'), 'WRITE_FAILED');
+  assert.equal(writeErrorCode('Failed to create review folder: denied'), 'WRITE_FAILED');
+  assert.equal(writeErrorCode(null), 'WRITE_FAILED');
+  assert.deepEqual([0, 1, 2, 3, 4, 50].map(publishRetryDelayMs), [5000, 15000, 30000, 60000, 60000, 60000]);
+  assert.equal(publishRetryDelayMs(-1), 5000);
+  assert.equal(publishRetryDelayMs(undefined), 5000);
+});
+
+test('status: an unpublished change stays reported while reading works', () => {
+  assert.equal(reviewErrorCode({}), null);
+  assert.equal(reviewErrorCode({ readError: true }), 'READ_FAILED');
+  assert.equal(reviewErrorCode({ writeError: 'WRITE_BUSY' }), 'WRITE_BUSY');
+  assert.equal(reviewErrorCode({ writeError: 'WRITE_FAILED', readError: true }), 'WRITE_FAILED');
 });

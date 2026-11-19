@@ -57,6 +57,27 @@ export function standaardenVoorStelsel(stelsel = schaalSysteem()) {
   };
 }
 
+/**
+ * Eenmalige overgang voor opgeslagen voorkeuren: de oude standaard 'both'
+ * (metrisch met imperiale schalen in de lijsten en inches achter de
+ * papiermaat) wordt 'metric'. Een bewuste keuze voor imperiaal blijft staan,
+ * en wie daarna zelf 'both' kiest houdt dat: het vlaggetje unitsDefaultMetric
+ * zorgt dat dit maar een keer gebeurt. Wijzigt en geeft `opgeslagen` terug.
+ * @param {Record<string, unknown>} opgeslagen  de geladen voorkeuren
+ */
+export function migreerStelselStandaard(opgeslagen) {
+  if (!opgeslagen || opgeslagen.unitsDefaultMetric === true) return opgeslagen;
+  if (opgeslagen.scaleUnitSystem === undefined || opgeslagen.scaleUnitSystem === 'both') {
+    opgeslagen.scaleUnitSystem = 'metric';
+  }
+  // Papiermaten: de oude standaard (punten) wordt millimeters.
+  if (opgeslagen.paperSizeUnit === undefined || opgeslagen.paperSizeUnit === 'pt') {
+    opgeslagen.paperSizeUnit = 'mm';
+  }
+  opgeslagen.unitsDefaultMetric = true;
+  return opgeslagen;
+}
+
 /** De eenheid van een nieuwe kalibratie of schaal: 'ft' of 'mm'. */
 export function standaardLengteEenheid(stelsel = schaalSysteem()) {
   return standaardenVoorStelsel(stelsel).lengteEenheid;

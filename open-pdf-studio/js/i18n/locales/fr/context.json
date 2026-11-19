@@ -172,6 +172,9 @@
   "contextMenu": {
     "deleteVertex": "Supprimer le sommet",
     "insertVertex": "Insérer un sommet ici",
+    "convertToCurve": "Convert to curve",
+    "convertToStraight": "Convert to straight segment",
+    "curveHint": "Drag the round handles to shape the curve. Alt+drag a handle to move it on its own or line it up again; Alt+drag a segment to bend it.",
     "convertToArc": "Convertir en arc",
     "convertToLine": "Convertir en ligne"
   },

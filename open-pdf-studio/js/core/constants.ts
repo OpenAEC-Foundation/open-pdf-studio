@@ -25,6 +25,11 @@ export const HANDLE_TYPES = {
   CALLOUT_MOVE: 'callout_move',
   POLYLINE_NODE: 'polyline_node',
   POLYLINE_EDGE: 'polyline_edge',
+  // Krommen op een polylijn of veelhoek (#1169): een stuurpunt
+  // (curve_handle_<segment>_<1|2>) en het buigen van een segment
+  // (curve_bend_<segment>_<t maal 10000>).
+  CURVE_HANDLE: 'curve_handle',
+  CURVE_BEND: 'curve_bend',
   LEADER_START: 'leader_start',
   LEADER_END: 'leader_end',
   LABEL_MOVE: 'label_move',
@@ -52,7 +57,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Enkelpagina is de standaard-weergavemodus; opgeslagen 'continuous'
   // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
   // het laden teruggezet (zie preferences.js).
-  defaultViewMode: 'continuous',
+  defaultViewMode: 'single',
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
@@ -273,8 +278,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
   imperialLengthFormat: 'decimal',
   imperialFractionPrecision: 16,
   // Welke standaardschalen de schaallijsten tonen (#996): 'metric',
-  // 'imperial' of 'both'.
-  scaleUnitSystem: 'both',
+  // 'imperial' of 'both'. Standaard metrisch: imperiale schalen en inches
+  // verschijnen pas als de gebruiker daarvoor kiest.
+  scaleUnitSystem: 'metric',
+  // Eenmalige overgang van de oude standaard 'both' naar 'metric' is gedaan
+  // (eenhedenstelsel.js, migreerStelselStandaard).
+  unitsDefaultMetric: true,
 
   // Measure Distance defaults
   measureDistStrokeColor: '#FF0000',
@@ -410,7 +419,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Unit for paper sizes in the properties panel (image width/height, scale
   // bar height): 'mm' | 'cm' | 'in' | 'pt' (#598). Display only — the model
   // stays in page points.
-  paperSizeUnit: 'pt',
+  paperSizeUnit: 'mm',
   // Keyboard shortcuts changed by the user (#714): only the commands whose
   // shortcuts differ from the defaults, { 'view.fitPage': ['Ctrl+K'] }.
   // See core/keybindings/registry.js.

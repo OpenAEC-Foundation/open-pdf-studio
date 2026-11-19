@@ -314,3 +314,70 @@ test('page scales: written and cleared also on pages whose annotations are not l
   schrijfSchalenInPdf(doc.getPages(), { ...model, pageScales: null }, nietGeladen);
   assert.deepEqual(bronnen(2), ['/ScaleRegion']);
 });
+
+for (const loaded of [true, false]) {
+  test(`PDF scale override survives reopen/reset and preserves foreign metadata (loaded=${loaded})`, async () => {
+    const lib = await PDFDocument.create();
+    const page = lib.addPage([595, 842]);
+    const foreign = lib.context.obj({ Type: 'Viewport', BBox: [0, 0, 595, 842], Name: PDFString.of('CAD detail'),
+      VendorData: PDFString.of('keep me'), Measure: { Type: 'Measure', Subtype: 'RL', X: [{ U: PDFString.of('mm'), C: 1 / PPU(20) }] } });
+    page.node.set(N('VP'), lib.context.obj([lib.context.register(foreign)]));
+    const doc = { annotations: annotaties, measureScale: { pixelsPerUnit: PPU(100), unit: 'mm', scaleRatio: '1:100', method: 'ratio' } };
+    schrijfSchalenInPdf(lib.getPages(), doc);
+    doc.annotations = loaded ? annotaties : [];
+    doc.measureScale = { ...doc.measureScale, pixelsPerUnit: PPU(50), scaleRatio: '1:50', overridePdfScale: true };
+    schrijfSchalenInPdf(lib.getPages(), doc, () => loaded);
+    const reopened = await PDFDocument.load(await lib.save());
+    const result = leesDocumentSchaal(reopened);
+    assert.equal(result.overridePdfScale, true);
+    assert.equal(result.scaleRatio, '1:50');
+    const list = vpLijst(reopened.getPages()[0]);
+    assert.deepEqual(list.map(d => String(d.get(N(BRON_SLEUTEL)) || '')), ['', '/Document', '/Viewport', '/ScaleRegion', '/ScaleRegion']);
+    assert.equal(list[0].lookup(N('VendorData')).decodeText(), 'keep me');
+    assert.equal(leesViewportsVanPagina(reopened.getPages()[0]).length, 1, 'external metadata is still available');
+    const { schaalOpPunt, schaalBronOpPunt } = await import('../annotations/schaal-op-punt.js');
+    const app = { annotations: [], measureScale: result, pdfViewports: leesPdfViewports(reopened) };
+    dicht(schaalOpPunt(app, 1, 20, 20).pixelsPerUnit, PPU(50));
+    assert.equal(schaalBronOpPunt(app, 1, 20, 20, pixelsPerUnitFor).method, 'document');
+    doc.measureScale.overridePdfScale = false;
+    schrijfSchalenInPdf(reopened.getPages(), doc, () => loaded);
+    assert.equal(leesDocumentSchaal(reopened).overridePdfScale, undefined);
+    assert.equal(String(vpLijst(reopened.getPages()[0])[0].get(N(BRON_SLEUTEL))), '/Document', 'embedded scale priority restored');
+    doc.measureScale = null;
+    schrijfSchalenInPdf(reopened.getPages(), doc, () => loaded);
+    assert.equal(leesDocumentSchaal(reopened), null, 'reset also clears stale unloaded-page calibration');
+    assert.equal(leesViewportsVanPagina(reopened.getPages()[0])[0].name, 'CAD detail');
+  });
+}
+
+test('override ratio follows each page UserUnit, including unloaded rotated CropBox pages', async () => {
+  const lib = await PDFDocument.create();
+  for (const u of [1, 2]) {
+    const page = lib.addPage([700, 900]); page.setCropBox(20, 30, 595, 842);
+    page.node.set(N('UserUnit'), lib.context.obj(u)); page.node.set(N('Rotate'), lib.context.obj(90));
+  }
+  const doc = { annotations: [], pageUserUnits: { 1: 1, 2: 2 },
+    measureScale: { pixelsPerUnit: PPU(50), unit: 'mm', method: 'ratio', scaleRatio: '1:50', overridePdfScale: true } };
+  schrijfSchalenInPdf(lib.getPages(), doc, n => n === 1);
+  const reopened = await PDFDocument.load(await lib.save());
+  for (const [i, page] of reopened.getPages().entries()) {
+    const vp = vpLijst(page)[0];
+    dicht(1 / vp.lookup(N('Measure')).lookup(N('X')).lookup(0).lookup(N('C')).asNumber(), PPU(50) / (i + 1));
+    assert.deepEqual(vp.lookup(N('BBox')).asArray().map(n => n.asNumber()), [20, 30, 615, 872]);
+  }
+});
+
+test('real savePDF writes the override and keeps the original CAD viewport', async () => {
+  const { opslaan } = await import('./rondgang.testhulp.mjs');
+  const lib = await PDFDocument.create();
+  const page = lib.addPage([595, 842]);
+  page.node.set(N('VP'), lib.context.obj([{ Type: 'Viewport', BBox: [0, 0, 595, 842],
+    Name: PDFString.of('original'), Measure: { Type: 'Measure', Subtype: 'RL', X: [{ U: PDFString.of('mm'), C: 10 }] } }]));
+  const bytes = await opslaan(await lib.save(), [], { document: {
+    measureScale: { pixelsPerUnit: .2, unit: 'mm', method: 'reference', scaleRatio: 0, overridePdfScale: true },
+  } });
+  const reopened = await PDFDocument.load(bytes);
+  assert.equal(leesDocumentSchaal(reopened).overridePdfScale, true);
+  assert.equal(leesDocumentSchaal(reopened).pixelsPerUnit, .2);
+  assert.equal(leesViewportsVanPagina(reopened.getPages()[0])[0].name, 'original');
+});

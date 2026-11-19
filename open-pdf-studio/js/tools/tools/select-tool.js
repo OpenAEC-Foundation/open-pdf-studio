@@ -11,6 +11,7 @@ function kruisSelectie(state, x, y) {
 }
 import { applyToolTransform, getEffectiveScale } from '../tool-context.js';
 import { HANDLE_TYPES } from '../../core/constants.js';
+import { kanKrommen, padDeelBij } from '../../annotations/curve-shape.js';
 import { recordModify } from '../../core/undo-manager.js';
 import { tryStartInlineNumberEdit } from '../inline-number-editing.js';
 import { buildSysteemraster, subElementAt } from '../../annotations/systeemraster.js';
@@ -191,6 +192,21 @@ export const selectTool = {
         if (isNagebootsteDubbelklik(e)) return;
         state.isResizing = true;
         state.activeHandle = handleType;
+        state.originalAnnotation = ctx.cloneAnnotation(selAnn);
+        return;
+      }
+    }
+
+    // Alt+slepen aan een zijde van de geselecteerde polylijn of veelhoek
+    // (#1169): de zijde buigen. Een rechte zijde wordt daarbij een kromme;
+    // zonder Alt blijft slepen aan de lijn de vorm verplaatsen.
+    if (!pdfaLocked && selAnn && e.altKey && e.button === 0 && !e.ctrlKey && !e.metaKey
+        && !selAnn.locked && !isNagebootsteDubbelklik(e)
+        && selAnn.page === doc?.currentPage && kanKrommen(selAnn)) {
+      const deel = padDeelBij(selAnn, x, y, 6 / (getEffectiveScale() || 1));
+      if (deel?.kind === 'edge') {
+        state.isResizing = true;
+        state.activeHandle = `${HANDLE_TYPES.CURVE_BEND}_${deel.edgeIndex}_${Math.round(deel.t * 10000)}`;
         state.originalAnnotation = ctx.cloneAnnotation(selAnn);
         return;
       }

@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Stempel bawaan diatur untuk disembunyikan, tetapi Anda belum punya stempel sendiri. Buat satu melalui Kelola templat stempel."
   },
   "calibration": {
+    "overridePdfScale": "Timpa skala PDF yang tertanam",
     "title": "Kalibrasi Skala",
     "helpText": "Gambar garis pengukuran dengan panjang yang diketahui, lalu masukkan jarak sebenarnya di sini.",
     "knownDistance": "Jarak yang diketahui:",
@@ -2271,6 +2272,7 @@
     "deleted": "dihapus",
     "errorRead": "Folder tinjauan tidak dapat dibaca.",
     "errorWrite": "Perubahan Anda tidak dapat ditulis ke folder tinjauan.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Simpan PDF terlebih dahulu untuk memulai tinjauan bersama.",
     "errorGeneric": "Tinjauan bersama tidak dapat dimulai.",
     "close": "Tutup"

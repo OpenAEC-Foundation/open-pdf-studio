@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "ຕັ້ງຄ່າໃຫ້ເຊື່ອງກາປະທັບໃນຕົວແລ້ວ ແຕ່ທ່ານຍັງບໍ່ມີກາປະທັບຂອງຕົນເອງ. ສ້າງໄດ້ທີ່ ຈັດການແມ່ແບບກາປະທັບ."
   },
   "calibration": {
+    "overridePdfScale": "ແທນທີ່ມາດຕາສ່ວນທີ່ຝັງໃນ PDF",
     "title": "ການປັບທຽບມາດຕາສ່ວນ",
     "methodReference": "ເສັ້ນອ້າງອີງ",
     "methodRatio": "ອັດຕາສ່ວນມາດຕາສ່ວນ",
@@ -2270,6 +2271,7 @@
     "deleted": "ຖືກລຶບ",
     "errorRead": "ບໍ່ສາມາດອ່ານໂຟນເດີກວດທານໄດ້.",
     "errorWrite": "ບໍ່ສາມາດຂຽນການປ່ຽນແປງຂອງທ່ານໃສ່ໂຟນເດີກວດທານໄດ້.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "ບັນທຶກ PDF ກ່ອນເພື່ອເລີ່ມການກວດທານຮ່ວມກັນ.",
     "errorGeneric": "ບໍ່ສາມາດເລີ່ມການກວດທານຮ່ວມກັນໄດ້.",
     "close": "ປິດ"

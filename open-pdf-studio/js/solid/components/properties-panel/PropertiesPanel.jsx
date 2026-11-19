@@ -224,7 +224,7 @@ function ScaleBarSection() {
         </div>
         <div class="property-group">
           <label>{t('scaleBar.divisions')}</label>
-          <input type="text" inputmode="decimal" data-getal step="1" min="1" max="20"
+          <input type="text" inputmode="decimal" data-getal data-geheel step="1" min="1" max="20"
             value={annotProps.scaleBarDivisions}
             disabled={annotProps.locked === true || annotProps.locked === 'mixed'}
             onChange={(e) => updateAnnotProp('scaleBarDivisions', e.target.value)}
@@ -316,7 +316,9 @@ export default function PropertiesPanel() {
           </div>
         </Show>
         <Show when={!panelCollapsed()}>
-          <div class="properties-panel visible" id="properties-panel">
+          {/* data-getal-sleep: op de getalvelden en hun labels kan gesleept
+              worden om de waarde te veranderen (#1168, ui/getal-slepen.js). */}
+          <div class="properties-panel visible" id="properties-panel" data-getal-sleep>
             <PanelHeader />
             <DocInfoView />
             {/* Dimension type selector pinned at the very top for maatlijnen */}

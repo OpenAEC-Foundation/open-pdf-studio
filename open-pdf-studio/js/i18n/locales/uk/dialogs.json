@@ -515,6 +515,7 @@
     "hideBuiltInNoOwn": "Вбудовані штампи налаштовано як приховані, але у вас ще немає власних штампів. Створіть штамп через «Керування шаблонами штампів»."
   },
   "calibration": {
+    "overridePdfScale": "Перевизначити вбудовані масштаби PDF",
     "title": "Калібрування масштабу",
     "helpText": "Проведіть лінію вимірювання відомої довжини, потім введіть реальну відстань тут.",
     "knownDistance": "Відома відстань:",
@@ -2271,6 +2272,7 @@
     "deleted": "вилучено",
     "errorRead": "Не вдалося прочитати папку перевірки.",
     "errorWrite": "Не вдалося записати ваші зміни в папку перевірки.",
+    "errorWriteBusy": "Your changes are not in the review folder yet: another program, for example a cloud sync client, has your review file in use. Nothing is lost. They stay in this document and the app publishes them again by itself.",
     "errorSaveFirst": "Спершу збережіть PDF, щоб почати спільну перевірку.",
     "errorGeneric": "Не вдалося запустити спільну перевірку.",
     "close": "Закрити"

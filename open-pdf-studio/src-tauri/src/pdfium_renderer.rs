@@ -360,11 +360,26 @@ fn render_page_with_form_data(
     };
 
     let widgets = (!all_forms).then(|| screen_widgets::ScreenWidgets::prepare(&page));
-    let config = PdfRenderConfig::new()
-        .set_target_width(target_w)
-        .set_maximum_height(target_h)
-        .rotate(rot, true)
-        .render_form_data(widgets.as_ref().is_none_or(|w| w.render_form_data()))
+    let form_pass = widgets.as_ref().is_none_or(|w| w.render_form_data());
+    // Without the form pass the binding renders through a matrix, and its
+    // own rotation puts a quarter-turned page outside the bitmap (a white
+    // page): the turn then goes into our matrix, see turned_page.
+    let config = if form_pass || rot == PdfPageRenderRotation::None {
+        PdfRenderConfig::new()
+            .set_target_width(target_w)
+            .set_maximum_height(target_h)
+            .rotate(rot, true)
+            .render_form_data(form_pass)
+    } else {
+        let ((w, h), m) = render_budget::turned_page(rotation, width_pt, height_pt, (target_w, target_h))
+            .ok_or_else(|| format!("Unsupported rotation: {}", rotation))?;
+        PdfRenderConfig::new()
+            .set_fixed_size(w, h)
+            .transform(m[0], m[1], m[2], m[3], m[4], m[5])
+            .map_err(|e| format!("invalid transform: {}", e))?
+            .render_form_data(false)
+    };
+    let config = config
         // ANNOTATION OWNERSHIP: PDFium does NOT render /Annot entries; our
         // own annotation-converter.js reads them into state.documents[]
         // and the annotation-canvas overlay draws them on top. This means
@@ -855,6 +870,32 @@ mod form_display_tests {
                 assert!(screen.2 == content.2, "screen bitmap must not retain old widget appearance");
                 let output = render_page_to_rgba(form.document(), 0, scale, rotation).unwrap();
                 assert!(output.2 != content.2, "print/export must still contain the stored form appearance");
+            }
+        }
+    }
+
+    /// A page without widget faces renders through a matrix; turned a quarter
+    /// it came out white. It must show what PDFium's own rotation shows on
+    /// the output route.
+    #[test]
+    fn screen_turns_a_page_without_form_pass() {
+        init();
+        let dark = |px: &[u8], i: usize| px[i * 4] < 100 && px[i * 4 + 1] < 100 && px[i * 4 + 2] < 100;
+        for rotate in [0, 90] {
+            let plain = PdfiumDocumentHandle::load_from_bytes(Arc::new(fixture::form_page(false, rotate))).unwrap();
+            for rotation in [0, 90, 180, 270] {
+                for scale in [1.0, 2.0] {
+                    let screen = render_page_to_rgba_opts(plain.document(), 0, scale, rotation, false, INPROC_SCREEN_RGBA_BYTES).unwrap();
+                    let output = render_page_to_rgba(plain.document(), 0, scale, rotation).unwrap();
+                    assert_eq!((screen.0, screen.1), (output.0, output.1), "/Rotate {rotate}, rotation {rotation}, scale {scale}");
+                    let n = (screen.0 * screen.1) as usize;
+                    let wanted = (0..n).filter(|&i| dark(&output.2, i)).count();
+                    let inked = (0..n).filter(|&i| dark(&screen.2, i)).count();
+                    let differing = (0..n).filter(|&i| dark(&screen.2, i) != dark(&output.2, i)).count();
+                    assert!(wanted > 200, "the reference shows the drawing ({wanted} dark px)");
+                    assert!(inked * 2 > wanted, "white page: /Rotate {rotate}, rotation {rotation}, scale {scale} ({inked} of {wanted} dark px)");
+                    assert!(differing * 4 < wanted, "drawing in another place: /Rotate {rotate}, rotation {rotation}, scale {scale} ({differing} of {wanted} px differ)");
+                }
             }
         }
     }

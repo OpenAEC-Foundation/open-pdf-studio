@@ -12,6 +12,7 @@ import {
   reviewFolderFor, splitPdfPath, logFileName, xfdfFileName, classifyReviewFile, userKey, sanitizeUserName,
   mergeReviewFiles, applyDerived, diffForPublish, makeEvents, markPublished, serializeEvents,
   annotationsForPdfSave, makeBaseline, createFolderPoller, stablePdfIds, withPdfNames, fingerprint,
+  writeErrorCode, publishRetryDelayMs, reviewErrorCode,
 } from './shared-review-core.js';
 import { registerSharedReviewHooks } from './shared-review-hooks.js';
 import { setReviewStatus } from './shared-review-status.js';
@@ -73,7 +74,7 @@ function publishStatus(s) {
     unseen: s.unseen,
     lastUpdate: s.lastUpdate,
     lastPublished: s.lastPublished,
-    error: s.error,
+    error: reviewErrorCode(s),
     pending: diffForPublish(s.doc.annotations || [], s.applied, s.baseline, s.idOf).length,
   });
 }
@@ -113,7 +114,8 @@ async function rebuild(s, { countUnseen }) {
     await redraw(s.doc);
   }
   s.lastUpdate = new Date().toISOString();
-  s.error = null;
+  // Reading works again. A failed publish stays reported until one succeeds.
+  s.readError = false;
   publishStatus(s);
 }
 
@@ -149,12 +151,13 @@ export async function startSharedReview(doc, { folder = '', autoPublish = true }
     doc, path: doc.filePath, folder: reviewFolderFor(doc.filePath, folder), customFolder: folder || '',
     base: splitPdfPath(doc.filePath).base, user, uk: userKey(user), autoPublish: !!autoPublish, idOf,
     cache: new Map(), ownWrites: new Set(), merged: null, applied: new Map(), baseline: makeBaseline(doc.annotations || [], idOf),
-    lastSeq: 0, unseen: 0, lastUpdate: null, lastPublished: null, error: null, firstRead: true, queue: Promise.resolve(),
+    lastSeq: 0, unseen: 0, lastUpdate: null, lastPublished: null, readError: false, writeError: null, firstRead: true, queue: Promise.resolve(),
+    snapshotStale: false, retries: 0, retryTimer: null, failureShown: false,
   };
   s.poller = createFolderPoller({
     list: () => io.list(s.folder),
     onChange: (files) => enqueue(s, () => refresh(s, files)),
-    onError: () => { s.error = 'READ_FAILED'; publishStatus(s); },
+    onError: () => { s.readError = true; publishStatus(s); },
     intervalMs: reviewIntervalSeconds() * 1000,
   });
   sessions.set(doc, s);
@@ -168,6 +171,8 @@ export function stopSharedReview(doc, { forget = true } = {}) {
   const s = sessions.get(doc);
   if (s) {
     s.poller.stop();
+    if (s.retryTimer !== null) clearTimeout(s.retryTimer);
+    s.retryTimer = null;
     sessions.delete(doc);
     setReviewStatus(s.path, null);
   }
@@ -182,15 +187,50 @@ export function setAutoPublish(doc, value) {
   publishStatus(s);
 }
 
-/** Writes my changes since the last sync to my own files. */
+/**
+ * Writes my changes since the last sync to my own files. A write that fails
+ * (the review file is in use by another program, the folder is unreachable)
+ * loses nothing: the changes stay in the document, the status says so, and
+ * the app publishes again by itself, first after a few seconds, then once a
+ * minute, until it succeeds or the review stops (#1115). Rejects with the
+ * error code (`WRITE_BUSY` or `WRITE_FAILED`).
+ */
 export function publishSharedReview(doc) {
   const s = sessions.get(doc);
   if (!s) return Promise.resolve(0);
-  return enqueue(s, () => publishNow(s)).catch((e) => {
-    s.error = 'WRITE_FAILED';
+  if (s.retryTimer !== null) clearTimeout(s.retryTimer);
+  s.retryTimer = null;
+  return enqueue(s, () => publishNow(s)).then((n) => {
+    s.writeError = null;
+    s.retries = 0;
+    s.failureShown = false;
     publishStatus(s);
-    throw e;
+    return n;
+  }, (e) => {
+    console.warn('[shared-review] publish failed:', e);
+    s.writeError = writeErrorCode(e);
+    publishStatus(s);
+    if (sessions.get(doc) === s) {
+      s.retryTimer = setTimeout(() => {
+        s.retryTimer = null;
+        if (sessions.get(doc) === s) publishSharedReview(doc).catch(() => {});
+      }, publishRetryDelayMs(s.retries++));
+    }
+    throw new Error(s.writeError);
   });
+}
+
+// Published after a save, so nobody is looking at the dialog: say once per
+// failure that the changes are not in the review folder yet.
+async function reportPublishFailure(s) {
+  if (s.failureShown || !s.writeError) return;
+  s.failureShown = true;
+  try {
+    const [{ showMessage }, { default: i18next }] = await Promise.all([import('../bridge.js'), import('../i18n/config.js')]);
+    showMessage(i18next.t(s.writeError === 'WRITE_BUSY' ? 'dialogs:sharedReview.errorWriteBusy' : 'dialogs:sharedReview.errorWrite'));
+  } catch (e) {
+    console.warn('[shared-review] could not report the failed publish:', e);
+  }
 }
 
 // Reading and publishing one after another; a failure does not block the next.
@@ -206,13 +246,20 @@ async function publishNow(s) {
   await refresh(s, files);
   const changes = diffForPublish(s.doc.annotations || [], s.applied, s.baseline, s.idOf);
   const logName = logFileName(s.base, s.user);
-  if (!changes.length && s.cache.has(logName)) return 0;
+  if (!changes.length && s.cache.has(logName)) {
+    // Nothing new for the log. A snapshot whose write failed last time is
+    // still the old one: write it now.
+    if (s.snapshotStale) await writeSnapshot(s);
+    return 0;
+  }
   const events = makeEvents(changes, { user: s.user, lastSeq: s.lastSeq, maxClock: s.merged?.maxClock || 0 });
   // My log: every event of mine from every copy (a conflicted copy of my own
   // file included) plus the new ones; written whole, atomically.
   const mine = [...(s.merged?.events || []).filter((e) => e.uk === s.uk), ...events];
   const text = serializeEvents(mine);
   await io.write(s.folder, logName, text);
+  s.snapshotStale = true;
+  s.poller.touch();
   s.ownWrites.add(logName);
   s.cache.set(logName, { size: -1, mtimeMs: -1, text });
   s.applied = markPublished(s.applied, events);
@@ -231,6 +278,7 @@ async function writeSnapshot(s) {
   const name = xfdfFileName(s.base, s.user);
   const xml = annotationsToXfdf(mine, { fileName: `${s.base}.pdf`, doc: s.doc, names: true });
   await io.write(s.folder, name, xml);
+  s.snapshotStale = false;
   s.ownWrites.add(name);
   s.cache.set(name, { size: -1, mtimeMs: -1, text: xml });
 }
@@ -280,7 +328,7 @@ export function sharedReviewInfo(doc) {
   });
   return {
     folder: s.folder, customFolder: s.customFolder, user: s.user, autoPublish: s.autoPublish,
-    unseen: s.unseen, lastUpdate: s.lastUpdate, lastPublished: s.lastPublished, error: s.error,
+    unseen: s.unseen, lastUpdate: s.lastUpdate, lastPublished: s.lastPublished, error: reviewErrorCode(s),
     pending: diffForPublish(doc.annotations || [], s.applied, s.baseline, s.idOf).length,
     participants, annotations,
   };
@@ -297,7 +345,7 @@ registerSharedReviewHooks({
   },
   afterPdfSaved(doc) {
     const s = sessions.get(doc);
-    if (s?.autoPublish) publishSharedReview(doc).catch((e) => console.warn('[shared-review] publish failed:', e));
+    if (s?.autoPublish) publishSharedReview(doc).catch(() => reportPublishFailure(s));
   },
 });
 

@@ -22,14 +22,12 @@ export default function MergePdfsDialog(props) {
   const close = () => closeDialog('merge-pdfs');
 
   async function addFiles() {
-    const { isTauri } = await import('../../../core/platform.js');
-    if (!isTauri() || !window.__TAURI__?.dialog) return;
+    // Ook in de browser (#1134): daar deed deze knop niets. openFileDialog
+    // zet de gekozen bestanden onder hun naam klaar voor readBinaryFile.
+    const { openFileDialog } = await import('../../../core/platform.js');
 
     try {
-      const result = await window.__TAURI__.dialog.open({
-        multiple: true,
-        filters: [{ name: 'PDF Files', extensions: ['pdf'] }]
-      });
+      const result = await openFileDialog(null, { multiple: true });
 
       if (!result) return;
       await addPaths(Array.isArray(result) ? result : [result]);

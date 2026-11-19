@@ -2,6 +2,7 @@ import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import { rotatedRectAabb } from '../utils/math.js';
+import { heeftKrommen, vlakPadOpScherm } from './curve-shape.js';
 
 const CELL_SIZE = 200; // pixels per grid cell
 
@@ -326,6 +327,14 @@ export function annotationBounds(annotation, opties) {
       const alle = annotation.points.slice();
       for (const ring of annotation.holes) if (Array.isArray(ring)) alle.push(...ring);
       return boundsFromPoints(alle, annotation.lineWidth);
+    }
+
+    // Polylijn of veelhoek met krommen (#1169): de buik van een kromme steekt
+    // buiten de knopen (en buiten het vak van de veelhoek) uit. Zonder deze
+    // tak liet de viewport-culling zo'n vorm te vroeg weg.
+    if ((type === 'polyline' || type === 'polygon') && heeftKrommen(annotation)) {
+      const vlak = vlakPadOpScherm(annotation, 0.5);
+      if (vlak && vlak.length) return boundsFromPoints(vlak, annotation.lineWidth);
     }
 
     // Rect-based annotations (most common)

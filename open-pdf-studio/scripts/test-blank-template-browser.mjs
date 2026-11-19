@@ -42,6 +42,8 @@ try {
   const result = await page.evaluate(async (sjabloon) => {
     const { runAppEvent } = await import('/js/mcp-bridge.js');
     const { getActiveDocument } = await import('/js/core/state.ts');
+    // De doorlopende weergave is het pad dat hier getest wordt (de standaard is enkele pagina).
+    (await import('/js/core/state.ts')).state.preferences.defaultViewMode = 'continuous';
     const loader = await import('/js/pdf/loader.js');
     const saver = await import('/js/pdf/saver.js');
 
