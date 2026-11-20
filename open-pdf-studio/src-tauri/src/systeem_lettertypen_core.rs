@@ -16,6 +16,7 @@ struct Gezicht {
     pad: PathBuf,
     gezicht: u32,
     familie: String,
+    familie_aliases: Vec<String>,
     vet: bool,
     cursief: bool,
     gewicht: u16,
@@ -129,32 +130,40 @@ fn lees_insluitbaar(pad: &Path, bytes: &[u8], gezicht: u32) -> Result<Vec<u8>, S
     los_gezicht(bytes, gezicht).ok_or_else(|| "invalid font tables".into())
 }
 
-/// A name from the 'name' table: Windows Unicode first, then Mac Roman.
-fn naam(t: &[u8], id: u16) -> Option<String> {
-    let aantal = be16(t, 2)? as usize;
-    let opslag = be16(t, 4)? as usize;
-    let mut mac = None;
-    for i in 0..aantal {
+/// All supported names for an ID, preferring English Windows names for the
+/// canonical value while retaining localized names for OS family lookup.
+fn namen(t: &[u8], id: u16) -> Vec<String> {
+    let Some(aantal) = be16(t, 2) else { return vec![] };
+    let Some(opslag) = be16(t, 4) else { return vec![] };
+    let mut uit = Vec::new();
+    for i in 0..aantal as usize {
         let r = 6 + i * 12;
-        let platform = be16(t, r)?;
-        let codering = be16(t, r + 2)?;
-        let taal = be16(t, r + 4)?;
-        let nid = be16(t, r + 6)?;
-        if nid != id { continue; }
-        let len = be16(t, r + 8)? as usize;
-        let off = opslag + be16(t, r + 10)? as usize;
-        let ruw = t.get(off..off + len)?;
-        if platform == 3 && (codering == 1 || codering == 0) {
+        let Some(record) = t.get(r..r + 12) else { break };
+        if be16(record, 6) != Some(id) { continue; }
+        let platform = be16(record, 0).unwrap();
+        let codering = be16(record, 2).unwrap();
+        let taal = be16(record, 4).unwrap();
+        let len = be16(record, 8).unwrap() as usize;
+        let off = opslag as usize + be16(record, 10).unwrap() as usize;
+        let Some(ruw) = t.get(off..off + len) else { continue };
+        let tekst = if platform == 0 || (platform == 3 && matches!(codering, 0 | 1 | 10)) {
+            if ruw.len() % 2 != 0 { continue; }
             let eenheden: Vec<u16> = ruw.chunks_exact(2).map(|c| u16::from_be_bytes([c[0], c[1]])).collect();
-            let s = String::from_utf16_lossy(&eenheden);
-            // English (US) wins; any Windows name will do otherwise.
-            if taal == 0x0409 { return Some(s); }
-            mac.get_or_insert(s);
-        } else if platform == 1 && codering == 0 && mac.is_none() {
-            mac = Some(ruw.iter().map(|&c| c as char).collect());
-        }
+            let Ok(s) = String::from_utf16(&eenheden) else { continue };
+            s
+        } else if platform == 1 && codering == 0 {
+            ruw.iter().map(|&c| c as char).collect()
+        } else { continue };
+        if tekst.trim().is_empty() { continue; }
+        let voorkeur = if platform == 3 && taal == 0x0409 { 0 } else if platform == 3 { 1 } else if platform == 0 { 2 } else { 3 };
+        uit.push((voorkeur, tekst));
     }
-    mac
+    uit.sort_by_key(|(voorkeur, _)| *voorkeur);
+    uit.into_iter().map(|(_, tekst)| tekst).collect()
+}
+
+fn naam(t: &[u8], id: u16) -> Option<String> {
+    namen(t, id).into_iter().next()
 }
 
 fn lees_gezicht(pad: &Path, b: &[u8], gezicht: u32) -> Option<Gezicht> {
@@ -163,6 +172,12 @@ fn lees_gezicht(pad: &Path, b: &[u8], gezicht: u32) -> Option<Gezicht> {
     if tag != [0, 1, 0, 0] && tag != b"OTTO" && tag != b"true" { return None; }
     let n = tabel(b, off, b"name")?;
     let familie = naam(n, 16).or_else(|| naam(n, 1))?;
+    // DirectWrite can expose a localized or legacy family name. Match only
+    // family IDs, never full/PostScript names that may designate another style.
+    let mut familie_aliases = namen(n, 16);
+    familie_aliases.extend(namen(n, 1));
+    familie_aliases.sort();
+    familie_aliases.dedup();
     let sub = naam(n, 17).or_else(|| naam(n, 2)).unwrap_or_default().to_lowercase();
     let os2 = tabel(b, off, b"OS/2");
     let fs_type = os2.and_then(|t| be16(t, 8)).unwrap_or(0);
@@ -172,7 +187,7 @@ fn lees_gezicht(pad: &Path, b: &[u8], gezicht: u32) -> Option<Gezicht> {
     let vet = selectie & 0x20 != 0 || mac_stijl & 1 != 0 || sub.contains("bold");
     let cursief = selectie & 0x01 != 0 || mac_stijl & 2 != 0 || sub.contains("italic") || sub.contains("oblique");
     let contouren = tabel(b, off, b"glyf").is_some() || tabel(b, off, b"CFF ").is_some();
-    Some(Gezicht { pad: pad.to_path_buf(), gezicht, familie, vet, cursief, gewicht, fs_type, contouren })
+    Some(Gezicht { pad: pad.to_path_buf(), gezicht, familie, familie_aliases, vet, cursief, gewicht, fs_type, contouren })
 }
 
 fn lettertype_mappen() -> Vec<PathBuf> {
@@ -238,10 +253,14 @@ fn schoon(f: &str) -> String {
     f.trim().trim_matches(|c| c == '"' || c == '\'').trim().to_lowercase()
 }
 
+fn familie_past(g: &Gezicht, doel: &str) -> bool {
+    schoon(&g.familie) == doel || g.familie_aliases.iter().any(|naam| schoon(naam) == doel)
+}
+
 /// Pick the face for family + style from a list of faces.
 fn kies(gezichten: &[Gezicht], familie: &str, vet: bool, cursief: bool) -> Option<(Gezicht, bool)> {
     let doel = schoon(familie);
-    let mut kandidaten: Vec<&Gezicht> = gezichten.iter().filter(|g| schoon(&g.familie) == doel).collect();
+    let mut kandidaten: Vec<&Gezicht> = gezichten.iter().filter(|g| familie_past(g, &doel)).collect();
     if kandidaten.is_empty() { return None; }
     // Exact style first; among those the weight nearest 400 (regular) or 700 (bold).
     let doelgewicht: i32 = if vet { 700 } else { 400 };
@@ -253,7 +272,7 @@ fn kies(gezichten: &[Gezicht], familie: &str, vet: bool, cursief: bool) -> Optio
     let exact = g.vet == vet && g.cursief == cursief;
     // Not the style asked for: the regular face stands in, not a random one.
     if !exact {
-        if let Some(r) = gezichten.iter().filter(|g| schoon(&g.familie) == doel && !g.vet && !g.cursief).min_by_key(|g| (g.gewicht as i32 - 400).abs()) {
+        if let Some(r) = gezichten.iter().filter(|g| familie_past(g, &doel) && !g.vet && !g.cursief).min_by_key(|g| (g.gewicht as i32 - 400).abs()) {
             return Some((r.clone(), false));
         }
     }
@@ -298,6 +317,100 @@ mod tests {
 
     const TTC: &[u8] = include_bytes!("../../scripts/font-native-tests/fixtures/collection.ttc");
     const TTF: &[u8] = include_bytes!("../../scripts/font-native-tests/fixtures/installed.ttf");
+
+    // Replace only the fixture name table, keeping its real outlines/rights.
+    fn met_namen(bron: &[u8], gezicht: u32, namen: &[(u16, u16, u16, u16, &str)]) -> Vec<u8> {
+        let mut tabel = vec![0u8; 6 + namen.len() * 12];
+        tabel[2..4].copy_from_slice(&(namen.len() as u16).to_be_bytes());
+        let opslag = tabel.len();
+        tabel[4..6].copy_from_slice(&(opslag as u16).to_be_bytes());
+        for (i, &(platform, codering, taal, id, tekst)) in namen.iter().enumerate() {
+            let bytes: Vec<u8> = tekst.encode_utf16().flat_map(u16::to_be_bytes).collect();
+            let waarden = [platform, codering, taal, id, bytes.len() as u16, (tabel.len() - opslag) as u16];
+            for (j, waarde) in waarden.iter().enumerate() {
+                tabel[6 + i * 12 + j * 2..8 + i * 12 + j * 2].copy_from_slice(&waarde.to_be_bytes());
+            }
+            tabel.extend(bytes);
+        }
+        let mut b = bron.to_vec();
+        let off = gezicht_offset(&b, gezicht).unwrap();
+        let n = be16(&b, off + 4).unwrap() as usize;
+        let start = b.len() as u32;
+        for i in 0..n {
+            let r = off + 12 + i * 16;
+            if &b[r..r + 4] == b"name" {
+                b[r + 8..r + 12].copy_from_slice(&start.to_be_bytes());
+                b[r + 12..r + 16].copy_from_slice(&(tabel.len() as u32).to_be_bytes());
+                b.extend(tabel);
+                return b;
+            }
+        }
+        panic!("fixture has no name table");
+    }
+
+    #[test]
+    fn gelokaliseerde_familie_vindt_hetzelfde_collectiegezicht() {
+        let b = met_namen(TTC, 1, &[
+            (3, 1, 0x0409, 1, "BIZ UDGothic"),
+            (3, 1, 0x0411, 1, "BIZ UDゴシック"),
+            (3, 1, 0x0409, 16, "BIZ UDGothic"),
+            (3, 1, 0x0411, 16, "BIZ UDゴシック"),
+            (3, 1, 0x0409, 4, "Not a family"),
+        ]);
+        let lijst = vec![lees_gezicht(Path::new("fixture.ttc"), &b, 0).unwrap(),
+                         lees_gezicht(Path::new("fixture.ttc"), &b, 1).unwrap()];
+        let (engels, _) = kies(&lijst, "BIZ UDGothic", false, false).unwrap();
+        let (japans, exact) = kies(&lijst, " 'BIZ UDゴシック' ", false, false).unwrap();
+        assert_eq!((japans.pad, japans.gezicht), (engels.pad, 1));
+        assert!(exact);
+        assert!(kies(&lijst, "Not a family", false, false).is_none());
+    }
+
+    #[test]
+    fn unicode_en_legacy_familienamen_behouden_stijlkeuze() {
+        let b = met_namen(TTF, 0, &[
+            (3, 10, 0x0409, 16, "Unicode Family"),
+            (0, 4, 0, 16, "ユニコード家族"),
+            (3, 1, 0x0409, 1, "Legacy Family"),
+        ]);
+        let normaal = lees_gezicht(Path::new("regular.ttf"), &b, 0).unwrap();
+        let mut vet = normaal.clone(); vet.pad = PathBuf::from("bold.ttf"); vet.vet = true; vet.gewicht = 700;
+        let lijst = [normaal, vet];
+        for naam in ["Unicode Family", "ユニコード家族", "Legacy Family"] {
+            let (g, exact) = kies(&lijst, naam, true, false).unwrap();
+            assert!(g.vet && exact);
+            let (g, exact) = kies(&lijst, naam, false, true).unwrap();
+            assert!(!g.vet && !g.cursief && !exact);
+        }
+    }
+
+    #[test]
+    fn ongeldige_naamrecords_verbergen_geen_geldige_alias() {
+        let b = met_namen(TTF, 0, &[(3, 1, 0x0409, 1, "English"), (3, 1, 0x0411, 1, "日本語")]);
+        let origineel = tabel(&b, 0, b"name").unwrap();
+        for soort in 0..3 {
+            let mut t = origineel.to_vec();
+            match soort {
+                0 => t[14..16].copy_from_slice(&u16::MAX.to_be_bytes()), // invalid length
+                1 => t[14..16].copy_from_slice(&1u16.to_be_bytes()), // odd UTF-16 length
+                _ => {
+                    let off = be16(&t, 4).unwrap() as usize;
+                    t[off..off + 2].copy_from_slice(&0xD800u16.to_be_bytes()); // unpaired surrogate
+                }
+            }
+            assert_eq!(namen(&t, 1), vec!["日本語"]);
+        }
+        assert!(namen(&[0, 0], 1).is_empty());
+    }
+
+    #[test]
+    fn gelokaliseerde_naam_omzeilt_geen_insluitrechten() {
+        let b = met_namen(TTF, 0, &[(3, 1, 0x0409, 1, "English"), (3, 1, 0x0411, 1, "日本語")]);
+        let mut g = lees_gezicht(Path::new("restricted.ttf"), &b, 0).unwrap();
+        g.fs_type = 0x0002;
+        let (gevonden, _) = kies(&[g], "日本語", false, false).unwrap();
+        assert_eq!(reden_voor(&gevonden), Some("licence"));
+    }
 
     #[test]
     fn alle_collectie_gezichten_worden_gevonden() {
@@ -371,7 +484,7 @@ mod tests {
     }
 
     fn g(f: &str, vet: bool, cursief: bool, gewicht: u16, fs: u16) -> Gezicht {
-        Gezicht { pad: PathBuf::from(format!("{f}-{vet}-{cursief}.ttf")), gezicht: 0, familie: f.into(), vet, cursief, gewicht, fs_type: fs, contouren: true }
+        Gezicht { pad: PathBuf::from(format!("{f}-{vet}-{cursief}.ttf")), gezicht: 0, familie: f.into(), familie_aliases: vec![], vet, cursief, gewicht, fs_type: fs, contouren: true }
     }
 
     #[test]

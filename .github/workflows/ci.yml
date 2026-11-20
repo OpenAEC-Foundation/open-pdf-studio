@@ -85,6 +85,9 @@ jobs:
           OPS_UNICODE_FONT_DIR: ${{ runner.temp }}/ops-unicode-fonts
         run: node scripts/prepare-unicode-fonts.mjs
 
+      - name: Test native PNG embedding
+        run: cargo test --locked -p open-pdf-image
+
       - name: Run unit tests
         env:
           OPS_UNICODE_FONT_DIR: ${{ runner.temp }}/ops-unicode-fonts

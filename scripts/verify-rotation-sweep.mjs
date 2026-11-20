@@ -1,3 +1,4 @@
+import { verificationPath } from './verification-path.mjs';
 // Rotatie/weergave-sweep over alle verificatie-PDF's: opent elk bestand in de
 // live rig (--mcp-server, poort MCP_PORT, standaard 9223), wacht tot de pagina daadwerkelijk inkt
 // bevat, schrijft een screenshot-PNG van pagina 1 (en een middenpagina bij
@@ -19,8 +20,8 @@ const playwright = require(process.env.OPDS_NODE_MODULES
 
 const MCP = `http://127.0.0.1:${process.env.MCP_PORT || '9223'}/mcp`;
 const DEFAULT_DIRS = [
-  'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
-  'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden',
+  verificationPath('PDF-bestanden'),
+  verificationPath('PDF-tests-open-pdf-studio'),
 ];
 const OUT = process.argv[2];
 if (!OUT) { console.error('gebruik: node scripts/verify-rotation-sweep.mjs <output-dir> [dirs...]'); process.exit(2); }

@@ -201,7 +201,7 @@ test('actual PDF text extraction reconstructs a schedule table', async () => {
 
 test('ODT export of a real text PDF retains flowing paragraphs and the budget table', async () => {
   const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const source = Uint8Array.from(readFileSync(new URL('../../../test pdf-bestanden/Originele bestanden/Tekst.pdf', import.meta.url)));
+  const source = Uint8Array.from(readFileSync(new URL('../../../fixtures/pdf/Tekst.pdf', import.meta.url)));
   const pdf = await getDocument({ data: source, isEvalSupported: false, useSystemFonts: true }).promise;
   try {
     const page = await pdf.getPage(1);
@@ -219,7 +219,7 @@ test('ODT export of a real text PDF retains flowing paragraphs and the budget ta
 
 test('XLSX isolates a ten-row schedule from unrelated text on a real drawing', async () => {
   const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const source = Uint8Array.from(readFileSync(new URL('../../../test pdf-bestanden/Originele bestanden/Technische tekening.pdf', import.meta.url)));
+  const source = Uint8Array.from(readFileSync(new URL('../../../fixtures/pdf/Technische tekening.pdf', import.meta.url)));
   const pdf = await getDocument({ data: source, isEvalSupported: false, useSystemFonts: true }).promise;
   try {
     const page = await pdf.getPage(1);
@@ -297,7 +297,7 @@ test('DOCX unpacks to a package with paragraphs, runs, tables, page breaks and p
 
 test('DOCX export of a real text PDF contains its paragraphs', async () => {
   const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const source = Uint8Array.from(readFileSync(new URL('../../../test pdf-bestanden/Originele bestanden/Tekst.pdf', import.meta.url)));
+  const source = Uint8Array.from(readFileSync(new URL('../../../fixtures/pdf/Tekst.pdf', import.meta.url)));
   const pdf = await getDocument({ data: source, isEvalSupported: false, useSystemFonts: true }).promise;
   try {
     const page = await pdf.getPage(1);

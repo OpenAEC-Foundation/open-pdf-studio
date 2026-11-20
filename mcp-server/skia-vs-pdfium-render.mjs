@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Speed comparison: our open-pdf-render Skia kernel vs PDFium for raw
 // page-render. Both go through the same Rust DocHandleCache so the
 // document parse cost is shared — only the per-page render is timed.
@@ -20,11 +21,11 @@ const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open
 const MCP = 'http://127.0.0.1:9223/mcp';
 
 const PDFS = [
-  { name: 'Tekst.pdf',                  path: 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/Tekst.pdf',                  pages: [1, 2] },
-  { name: 'rapport-constructie.pdf',    path: 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/rapport-constructie.pdf',    pages: [1, 5] },
-  { name: 'NKE2D2_opm_aw.pdf',          path: 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKE2D2_opm_aw.pdf',          pages: [1, 2] },
-  { name: 'NKD1a_opm_aw.pdf',           path: 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf',           pages: [1, 2, 4] },
-  { name: 'BARN Relocation',            path: 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf', pages: [1, 4] },
+  { name: 'Tekst.pdf',                  path: verificationPath('PDF-bestanden/Tekst.pdf'),                  pages: [1, 2] },
+  { name: 'rapport-constructie.pdf',    path: verificationPath('PDF-bestanden/rapport-constructie.pdf'),    pages: [1, 5] },
+  { name: 'NKE2D2_opm_aw.pdf',          path: verificationPath('PDF-bestanden/NKE2D2_opm_aw.pdf'),          pages: [1, 2] },
+  { name: 'NKD1a_opm_aw.pdf',           path: verificationPath('PDF-bestanden/NKD1a_opm_aw.pdf'),           pages: [1, 2, 4] },
+  { name: 'BARN Relocation',            path: verificationPath('PDF-bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf'), pages: [1, 4] },
 ];
 
 let id = 1;

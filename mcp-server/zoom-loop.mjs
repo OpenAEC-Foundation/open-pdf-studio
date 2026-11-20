@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // AI-driven zoom-anchor test loop.
 //
 // Connects to the local MCP server (started by `npm run tauri:dev:debug`)
@@ -22,7 +23,7 @@ import path from 'node:path';
 
 const MCP_URL = 'http://127.0.0.1:9223/mcp';
 const LOG_PATH = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/mcp-server/anchor-test.log';
-const BARN = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf';
+const BARN = verificationPath('PDF-bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf');
 
 const log = fs.createWriteStream(LOG_PATH, { flags: 'w' });
 const out = (s) => { const t = new Date().toISOString().slice(11, 23); log.write(`[${t}] ${s}\n`); process.stdout.write(`[${t}] ${s}\n`); };

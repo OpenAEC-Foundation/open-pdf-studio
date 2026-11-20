@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Complete NKD1a performance measurement.
 //
 // Phases:
@@ -13,7 +14,7 @@ const require = createRequire(import.meta.url);
 const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules/playwright');
 
 const MCP = 'http://127.0.0.1:9223/mcp';
-const PDF = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf';
+const PDF = verificationPath('PDF-bestanden/NKD1a_opm_aw.pdf');
 
 async function tool(name, args) {
   const r = await fetch(MCP, {

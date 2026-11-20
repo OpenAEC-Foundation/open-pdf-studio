@@ -8,6 +8,7 @@
 // onder Node.
 
 import { PDFName } from 'pdf-lib';
+import { embedPngSnel } from '../pdf/embed-png-rust.js';
 import {
   parsePageImages, bboxFromCtm, getInherited,
 } from './embedded-image-parser.js';
@@ -163,7 +164,7 @@ export async function vervangAfbeelding(pdfLibDoc, pageNum, index, vt, bytes, so
   const { text, images } = parsePageImages(pdfLibDoc, pageNum);
   const image = images[index];
   if (!image) return false;
-  const nieuw = soort === 'png' ? await pdfLibDoc.embedPng(bytes) : await pdfLibDoc.embedJpg(bytes);
+  const nieuw = soort === 'png' ? await embedPngSnel(pdfLibDoc, bytes) : await pdfLibDoc.embedJpg(bytes);
   const xo = eigenXObjects(pdfLibDoc, pageNum);
   const naam = vrijeNaam(xo);
   xo.set(PDFName.of(naam), nieuw.ref);

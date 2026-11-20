@@ -23,7 +23,7 @@ fn render_via_worker_subprocess_matches_in_proc() {
     assert!(ready_line.contains("\"op\":\"ready\""));
 
     // 3. Send a render request — use a known test PDF
-    let req = r#"{"op":"render","id":1,"path":"C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/Tekst.pdf","page_index":0,"scale":1.0,"rotation":0}"#;
+    let req = r#"{"op":"render","id":1,"path":"C:/Users/rickd/Documents/GitHub/open-pdf-studio/fixtures/pdf/Tekst.pdf","page_index":0,"scale":1.0,"rotation":0}"#;
     writeln!(stdin, "{}", req).expect("write request");
 
     // 4. Read response

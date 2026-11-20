@@ -16,7 +16,7 @@
 //    Pagina's die de Rust-route bewust aan pdf.js laat (verticaal schrift,
 //    rechts naar links) moeten in de app via pdf.js lopen: dat wordt ook
 //    gecontroleerd.
-// 2. De echte PDF's in 'test pdf-bestanden/Originele bestanden' (alleen
+// 2. De echte PDF's in 'PDF-bestanden' van verification-files (alleen
 //    lezen): hoeveel pagina's dezelfde tekst geven, en de treffers voor een
 //    paar zoekvragen.
 // 3. Meting: een gemaakt document van 500 pagina's en een zware tekenset:
@@ -57,13 +57,15 @@ const PDFIUM_MAP = join(app, 'src-tauri', 'binaries', platformMap);
 const ALLEEN = optie('alleen', null);
 const PAGINAS = Number(optie('paginas', 500));
 const RUNS = Number(optie('runs', 3));
-const ECHT = resolve(optie('map', join(app, '..', 'test pdf-bestanden', 'Originele bestanden')));
+const ECHT = resolve(optie('map', join(app, '..', '..', 'verification-files', 'PDF-bestanden')));
 const TOL = 0.5;
 
 // ── App-modules onder node ────────────────────────────────────────────────
 register(pathToFileURL(join(app, 'js/core/app-test-hooks.mjs')).href, import.meta.url);
 const { installeerBrowserStubs } = await import(pathToFileURL(join(app, 'js/core/app-test-hooks.mjs')).href);
 installeerBrowserStubs();
+// This comparison exercises the optional worker alongside the default PDF.js route.
+globalThis.__opdsRustZoeken = true;
 const fc = await import(pathToFileURL(join(app, 'js/search/find-controller.js')).href);
 const { maakRustZoektekst, decodeerZoektekst } = await import(pathToFileURL(join(app, 'js/search/rust-zoektekst.js')).href);
 const mr = await import(pathToFileURL(join(app, 'js/search/match-rect.js')).href);

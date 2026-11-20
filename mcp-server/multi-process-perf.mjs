@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Multi-process PDFium perf probe — compares v1.59 (pool) vs v1.58.3
 // (single proc) on NKD1a's 4-page sequential cold browse.
 //
@@ -5,7 +6,7 @@
 // probe prints a per-page TOTAL plus the sum across all 4 pages.
 
 const MCP = 'http://127.0.0.1:9223/mcp';
-const PDF = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf';
+const PDF = verificationPath('PDF-bestanden/NKD1a_opm_aw.pdf');
 
 let id = 1;
 async function tool(name, args) {

@@ -466,6 +466,7 @@ scripts/pdfjs-knockout-bounds.test.mjs
 scripts/pdfium-runtime.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
+scripts/android-signing.test.mjs
 js/core/fout-bericht.test.mjs
 js/core/bestandsnaam.test.mjs
 js/mobile/ipc-wekker.test.mjs
@@ -861,6 +862,9 @@ js/review/status-lijst-filter.test.mjs
 js/review/status-badge.test.mjs
 js/annotations/tool-sets-xfdf.test.mjs
 js/pdf/monochrome-rust.test.mjs
+js/pdf/rust-routes.test.mjs
+js/pdf/embed-png-rust.test.mjs
+js/pdf/beeld-gevallen.test.mjs
 js/pdf/raster-scan-rust.test.mjs
 js/tools/snap-geometrie-binair.test.mjs
 js/pdf/documentgegevens.test.mjs
@@ -938,3 +942,4 @@ js/pdf/pagina-vak.test.mjs
 js/pdf/annotatie-datums-rondgang.test.mjs
 js/pdf/bitmap-orchestrator-race.test.mjs
 js/pdf/pdfjs-canvas-render.test.mjs
+

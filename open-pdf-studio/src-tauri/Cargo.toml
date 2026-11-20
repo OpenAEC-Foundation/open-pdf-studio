@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2026.48.0"
+version = "2026.48.1"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -60,6 +60,9 @@ open-pdf-security = { path = "../../open-pdf-security" }
 # Verliesloze monochroom-hercompressie per beeld (#902): pakken, Flate, CCITT G4.
 # De app-crate bevat alleen de commando-schil in src/monochroom.rs.
 open-pdf-monochrome = { path = "../../open-pdf-monochrome" }
+# PNG naar de streams van een beeld-XObject; de app-crate bevat alleen de
+# commando-schil in src/beeld.rs.
+open-pdf-image = { path = "../../open-pdf-image" }
 open-pdf-scan = { path = "../../open-pdf-scan" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 # Bindings voor PDFium 7881: de nieuwste binding die niet nieuwer is dan de
@@ -193,7 +196,7 @@ webkit2gtk = "2"
 dwrote = { version = "=0.11.5", default-features = false }
 webview2-com = "0.38.2"
 windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
-windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading"] }
+windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading"] }
 
 # Use each desktop OS font catalogue; no application-private directory scan.
 [target.'cfg(any(target_os = "macos", target_os = "linux"))'.dependencies]

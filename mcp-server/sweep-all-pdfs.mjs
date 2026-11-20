@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Sweep all test PDFs through the live app via MCP and report:
 //   • engine label (Raster/Vector/Hybrid?) per page
 //   • renderPage TOTAL timing per page
@@ -11,7 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const MCP_URL = 'http://127.0.0.1:9223/mcp';
-const TEST_DIR = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden';
+const TEST_DIR = verificationPath('PDF-bestanden');
 const LOG_PATH = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/mcp-server/sweep-results.log';
 
 const log = fs.createWriteStream(LOG_PATH, { flags: 'w' });
