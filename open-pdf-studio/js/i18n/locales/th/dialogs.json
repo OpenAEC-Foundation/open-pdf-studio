@@ -2544,21 +2544,7 @@
     "documentTitle": "ชื่อเอกสาร",
     "createDocument": "สร้างเอกสาร",
     "uploadPdf": "อัปโหลด PDF",
-    "uploadHelp": "สร้างเอกสารแล้วอัปโหลด PDF หนึ่งไฟล์ (สูงสุด 32 MiB) ไม่สามารถแทนที่ PDF ได้ หากคำขอล้มเหลว ให้รีเฟรชก่อนลองอีกครั้ง",
-    "liveTitle": "Live central review",
-    "openLive": "Open live review",
-    "liveHelp": "Open a connected copy. Editors automatically share annotation changes; incoming changes appear every few seconds. The PDF itself stays unchanged on the server.",
-    "liveConnected": "Connected",
-    "livePending": "Changes waiting to sync",
-    "liveDisconnected": "Disconnected — local copy",
-    "liveError": "Sync needs attention",
-    "liveDisconnect": "Disconnect and keep local copy",
-    "liveReader": "Read-only access: your local edits are not shared.",
-    "liveSaveHelp": "Save As or export XFDF to keep a local copy, including unsent edits. Disconnecting stops sync; reopening starts a new copy. Incoming changes clear undo history to protect colleagues’ edits.",
-    "liveConflict": "Another participant changed annotation {{id}}. Your local version is preserved. Choose which version to share.",
-    "liveRemote": "Inspect server version",
-    "liveKeepMine": "Share my current version",
-    "liveUseRemote": "Use server version"
+    "uploadHelp": "สร้างเอกสารแล้วอัปโหลด PDF หนึ่งไฟล์ (สูงสุด 32 MiB) ไม่สามารถแทนที่ PDF ได้ หากคำขอล้มเหลว ให้รีเฟรชก่อนลองอีกครั้ง"
   },
   "virusNotice": {
     "title": "About virus scanner warnings",

@@ -943,4 +943,3 @@ js/pdf/annotatie-datums-rondgang.test.mjs
 js/pdf/bitmap-orchestrator-race.test.mjs
 js/pdf/pdfjs-canvas-render.test.mjs
 
-js/review/central-review-live.test.mjs

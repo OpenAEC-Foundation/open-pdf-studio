@@ -12,6 +12,3 @@
 
 .central-review-dialog .crop-margins-content { overflow: auto; min-height: 0; }
 .central-review-error { border-inline-start: 3px solid currentColor; padding-inline-start: 8px; }
-
-.central-review-conflict { border-block-start: 1px solid var(--theme-border); padding-block: 8px; }
-.central-review-conflict pre { max-height: 160px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }

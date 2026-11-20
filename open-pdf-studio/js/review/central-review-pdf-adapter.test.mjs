@@ -38,23 +38,3 @@ test('partial annotation loading and out-of-document server pages cannot produce
  assert.throws(()=>complete.install({annotations:[{id:'x',base:'e',data:{...ann('x'),page:2}}]}),/INVALID_RESPONSE/);
  assert.equal(good.doc.annotations[0].text,'original');await complete.dispose();
 });
-
-test('live adapter keeps original stable IDs, clears stale selection/undo and never publishes PDF names',async()=>{
- const{adapter,doc,state}=rig();const r=await adapter.open(bytes);await r.ready();r.install({annotations:[]});
- const original=doc.annotations[0];doc.selectedAnnotation=doc.annotations[1];doc.selectedAnnotations=[doc.selectedAnnotation];doc.undoStack=[{}];
- r.write(new Map([['pdf:1:0',ann('pdf:1:0','remote')],['pdf:1:1',null],['new',ann('new')]]));
- assert.equal(doc.annotations[0],original);assert.equal(original.id,'local-a');assert.equal(r.read().get('pdf:1:0').text,'remote');
- assert.equal(r.read().get('pdf:1:0').nm,undefined);assert.equal(doc.selectedAnnotation,null);assert.deepEqual(doc.selectedAnnotations,[]);assert.deepEqual(doc.undoStack,[]);
- assert.equal(state.redraw,2);assert.throws(()=>r.write(new Map([['bad',{...ann('bad'),page:2}]])),/INVALID_RESPONSE/);assert.equal(doc.annotations.length,2);
- await r.dispose();assert.throws(()=>r.read(),/STALE/);
-});
-
-test('a server ID equal to an original local PDF ID cannot alias its stable review ID',async()=>{
- const{adapter,doc}=rig();const r=await adapter.open(bytes);await r.ready();
- r.install({annotations:[{id:'local-a',base:'e1',data:ann('local-a','shared')}]});
- assert.equal(r.read().size,3);assert.equal(r.read().get('pdf:1:0').text,'original');assert.equal(r.read().get('local-a').text,'shared');
- assert.equal(new Set(doc.annotations.map(a=>a.id)).size,3);
- r.write(new Map([['local-b',ann('local-b','another')]]));
- assert.equal(r.read().get('pdf:1:1').text,'original');assert.equal(r.read().get('local-b').text,'another');
- await r.dispose();
-});

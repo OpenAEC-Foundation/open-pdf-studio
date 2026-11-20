@@ -88,8 +88,6 @@ export interface ScrollPosition {
 }
 
 export interface DocumentState {
-  centralReview?: { connected: boolean; busy: boolean; writable: boolean; error: string;
-    pending: number; conflicts: { id: string; ready: boolean; remote: unknown }[] };
   id: string;
   filePath: string | null;
   fileName: string;

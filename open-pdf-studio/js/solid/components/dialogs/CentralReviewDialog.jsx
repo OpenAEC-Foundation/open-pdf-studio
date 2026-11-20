@@ -8,9 +8,6 @@ import { createCentralReviewSession } from '../../../review/central-review-sessi
 import { createCentralReviewOpening } from '../../../review/central-review-opening.js';
 import { uploadCentralPdf } from '../../../review/central-review-upload.js';
 import '../../../../styles/central-review.css';
-import { getActiveDocument } from '../../../core/state.js';
-import { centralReviewConnections } from '../../../review/central-review-registry.js';
-import { startCentralReview } from '../../../review/central-review-service.js';
 
 export default function CentralReviewDialog() {
   const { t } = useTranslation('dialogs');
@@ -76,7 +73,7 @@ export default function CentralReviewDialog() {
     void activeOpening?.close().catch(() => showMessage(t('centralReview.requestFailed'), t('centralReview.title')));
     void client.dispose();
   });
-  const openSnapshot = (live = false) => {
+  const openSnapshot = () => {
     const row = selected();
     if (!row?.hasPdf) return;
     void act(async valid => {
@@ -87,8 +84,7 @@ export default function CentralReviewDialog() {
       try {
         await activeOpening.open();
         if (!valid()) { await activeOpening.close(); return; }
-        if (live) startCentralReview(activeOpening.connect(), row.role);
-        else await activeOpening.detach();
+        await activeOpening.detach();
         if (valid()) close();
       } finally { if (opening === activeOpening) opening = null; }
     });
@@ -117,35 +113,12 @@ export default function CentralReviewDialog() {
       if (uploaded && valid()) row.hasPdf = true;
     });
   };
-  const currentReview = () => getActiveDocument()?.centralReview;
-  const reviewAction = (method, ...args) => {
-    const service = centralReviewConnections.get(getActiveDocument());
-    void act(async () => { await service?.[method](...args); });
-  };
   const selected = () => view.rows.find((row) => row.id === view.selected);
   const close = () => closeDialog('central-review');
   return <Dialog title={t('centralReview.title')} onClose={close}
     overlayClass="crop-margins-overlay" dialogClass="crop-margins-dialog central-review-dialog"
     headerClass="crop-margins-header" bodyClass="crop-margins-content" footerClass="crop-margins-footer"
     footer={<button class="pref-btn" onClick={close}>{t('common:close')}</button>}>
-    <Show when={currentReview()}>
-      <fieldset class="central-review-live-status">
-        <legend>{t('centralReview.liveTitle')}</legend>
-        <p role="status">{t(`centralReview.${!currentReview()?.connected ? 'liveDisconnected' : currentReview()?.error ? 'liveError' : currentReview()?.pending ? 'livePending' : 'liveConnected'}`)}</p>
-        <Show when={!currentReview()?.writable}><p>{t('centralReview.liveReader')}</p></Show>
-        <Show when={currentReview()?.connected}>
-          <button class="pref-btn" disabled={view.busy || currentReview()?.busy} onClick={() => reviewAction('retry')}>{t('approvalRouting.refresh')}</button>
-          <button class="pref-btn" onClick={() => reviewAction('stop')}>{t('centralReview.liveDisconnect')}</button>
-        </Show>
-        <For each={currentReview()?.conflicts || []}>{conflict => <div class="central-review-conflict">
-          <p>{t('centralReview.liveConflict', { id: conflict.id })}</p>
-          <details><summary>{t('centralReview.liveRemote')}</summary><pre>{JSON.stringify(conflict.remote, null, 2)}</pre></details>
-          <button class="pref-btn" disabled={view.busy || currentReview()?.busy || !conflict.ready} onClick={() => reviewAction('resolve', conflict.id, 'replace')}>{t('centralReview.liveKeepMine')}</button>
-          <button class="pref-btn" disabled={view.busy || currentReview()?.busy || !conflict.ready} onClick={() => reviewAction('resolve', conflict.id, 'discard')}>{t('centralReview.liveUseRemote')}</button>
-        </div>}</For>
-        <p>{t('centralReview.liveSaveHelp')}</p>
-      </fieldset>
-    </Show>
     <Show when={isTauri()} fallback={<p>{t('sharedReview.desktopOnly')}</p>}>
       <Show when={!view.connected} fallback={<>
         <div class="central-review-actions">
@@ -173,10 +146,8 @@ export default function CentralReviewDialog() {
         <Show when={selected()?.role === 'owner' && !selected()?.hasPdf && selected()?.revision === 0}>
           <button class="pref-btn" disabled={view.busy} onClick={upload}>{t('centralReview.uploadPdf')}</button>
         </Show>
-        <p>{t('centralReview.liveHelp')}</p>
-        <button class="pref-btn" disabled={view.busy || !selected()?.hasPdf} onClick={() => openSnapshot(true)}>{t('centralReview.openLive')}</button>
         <p>{t('centralReview.snapshotHelp')}</p>
-        <button class="pref-btn" disabled={view.busy || !selected()?.hasPdf} onClick={() => openSnapshot(false)}>{t('centralReview.openSnapshot')}</button>
+        <button class="pref-btn" disabled={view.busy || !selected()?.hasPdf} onClick={openSnapshot}>{t('centralReview.openSnapshot')}</button>
         <Show when={selected()?.role === 'owner'}>
           <form onSubmit={(e) => { e.preventDefault(); const document = view.selected, name = recipientInput.value, role = roleInput.value;
             void act(async (valid) => { await client.share(document, name, role === 'revoke' ? null : role); if (valid()) view.notice = t('centralReview.saved'); }); }}>

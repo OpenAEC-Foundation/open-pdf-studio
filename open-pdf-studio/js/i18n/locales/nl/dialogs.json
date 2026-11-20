@@ -2549,21 +2549,7 @@
     "documentTitle": "Documenttitel",
     "createDocument": "Document aanmaken",
     "uploadPdf": "PDF uploaden",
-    "uploadHelp": "Maak een document aan en upload één PDF (max. 32 MiB). De PDF kan niet worden vervangen. Vernieuw na een mislukt verzoek voordat je opnieuw probeert.",
-    "liveTitle": "Live centraal samenwerken",
-    "openLive": "Live samenwerking openen",
-    "liveHelp": "Open een verbonden kopie. Bewerkers delen annotatiewijzigingen automatisch; wijzigingen van anderen verschijnen om de paar seconden. De PDF zelf blijft ongewijzigd op de server.",
-    "liveConnected": "Verbonden",
-    "livePending": "Wijzigingen wachten op synchronisatie",
-    "liveDisconnected": "Verbinding verbroken — lokale kopie",
-    "liveError": "Synchronisatie heeft aandacht nodig",
-    "liveDisconnect": "Verbinding verbreken en lokale kopie behouden",
-    "liveReader": "Alleen-lezen toegang: jouw lokale bewerkingen worden niet gedeeld.",
-    "liveSaveHelp": "Gebruik Opslaan als of exporteer XFDF voor een lokale kopie, inclusief niet-verzonden bewerkingen. Verbreken stopt de synchronisatie; opnieuw openen maakt een nieuwe kopie. Binnenkomende wijzigingen wissen de ongedaan-maakgeschiedenis om bewerkingen van anderen te beschermen.",
-    "liveConflict": "Een andere deelnemer wijzigde annotatie {{id}}. Jouw lokale versie is behouden. Kies welke versie je wilt delen.",
-    "liveRemote": "Serverversie bekijken",
-    "liveKeepMine": "Mijn huidige versie delen",
-    "liveUseRemote": "Serverversie gebruiken"
+    "uploadHelp": "Maak een document aan en upload één PDF (max. 32 MiB). De PDF kan niet worden vervangen. Vernieuw na een mislukt verzoek voordat je opnieuw probeert."
   },
   "virusNotice": {
     "title": "Over meldingen van virusscanners",

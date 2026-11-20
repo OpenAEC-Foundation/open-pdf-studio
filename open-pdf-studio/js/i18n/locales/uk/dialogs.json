@@ -2544,21 +2544,7 @@
     "documentTitle": "Назва документа",
     "createDocument": "Створити документ",
     "uploadPdf": "Завантажити PDF",
-    "uploadHelp": "Створіть документ і завантажте один PDF (до 32 МіБ). Замінити PDF неможливо. Після невдалого запиту оновіть список перед повторною спробою.",
-    "liveTitle": "Live central review",
-    "openLive": "Open live review",
-    "liveHelp": "Open a connected copy. Editors automatically share annotation changes; incoming changes appear every few seconds. The PDF itself stays unchanged on the server.",
-    "liveConnected": "Connected",
-    "livePending": "Changes waiting to sync",
-    "liveDisconnected": "Disconnected — local copy",
-    "liveError": "Sync needs attention",
-    "liveDisconnect": "Disconnect and keep local copy",
-    "liveReader": "Read-only access: your local edits are not shared.",
-    "liveSaveHelp": "Save As or export XFDF to keep a local copy, including unsent edits. Disconnecting stops sync; reopening starts a new copy. Incoming changes clear undo history to protect colleagues’ edits.",
-    "liveConflict": "Another participant changed annotation {{id}}. Your local version is preserved. Choose which version to share.",
-    "liveRemote": "Inspect server version",
-    "liveKeepMine": "Share my current version",
-    "liveUseRemote": "Use server version"
+    "uploadHelp": "Створіть документ і завантажте один PDF (до 32 МіБ). Замінити PDF неможливо. Після невдалого запиту оновіть список перед повторною спробою."
   },
   "virusNotice": {
     "title": "About virus scanner warnings",
