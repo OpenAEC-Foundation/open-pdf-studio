@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.47.30'
+        default: 'v2026.48.2'
 
 jobs:
   create-release:
@@ -551,9 +551,25 @@ jobs:
             Write-Output ("{0}: {1} ({2})" -f $exe, $sig.Status, $sig.SignerCertificate.Subject)
             if ($sig.Status -ne 'Valid') { $unsigned = $true }
           }
-          $uninstaller = Join-Path $dir 'uninstall.exe'
-          if (Test-Path $uninstaller) { Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait }
           if ($unsigned) { Write-Error 'Installed binaries are not signed'; exit 1 }
+          $uninstaller = (Get-Item -LiteralPath (Join-Path $dir 'uninstall.exe')).FullName
+          $hash = (Get-FileHash -LiteralPath $uninstaller -Algorithm SHA256).Hash
+          "Uninstaller SHA-256 ($($setup.Name)): $hash" >> $env:GITHUB_STEP_SUMMARY
+          $status = Get-MpComputerStatus
+          if ($status.AntivirusEnabled) {
+            $scanner = Get-ChildItem "$env:ProgramData/Microsoft/Windows Defender/Platform/*/MpCmdRun.exe" |
+              Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            if (-not $scanner) { throw 'Defender scanner not found' }
+            $output = & $scanner.FullName -Scan -ScanType 3 -File $uninstaller -DisableRemediation
+            $exitCode = $LASTEXITCODE
+            $output | Write-Output
+            "Defender $($status.AntivirusSignatureVersion): $($output -join ' ')" >> $env:GITHUB_STEP_SUMMARY
+            if ($exitCode -ne 0 -or ($output -match 'was skipped')) { throw 'Uninstaller scan failed or was skipped' }
+          } else {
+            Write-Warning 'Defender is inactive on this runner; the uninstaller was not scanned.'
+            'Defender scan unavailable on this runner.' >> $env:GITHUB_STEP_SUMMARY
+          }
+          Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait
 
       # Portable zip (#881): the files the installer puts next to the exe
       # (resource_dir() is the exe folder on Windows), plus portable.ini,

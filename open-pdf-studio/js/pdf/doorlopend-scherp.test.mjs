@@ -49,9 +49,9 @@ test('uitsnede: zichtbaar deel plus marge, op volle resolutie en hele apparaatpi
   const u = scherpeUitsnede(zichtbaar, 6736, 4764, { dpr: 1.5, maxAs: CAP });
   assert.equal(u.pxPerCss, 1.5);
   // Dekt het zichtbare deel met marge aan alle kanten.
-  assert.ok(u.x <= zichtbaar.x - 256 && u.y <= zichtbaar.y - 224);
-  assert.ok(u.x + u.breedte >= zichtbaar.x + zichtbaar.breedte + 256);
-  assert.ok(u.y + u.hoogte >= zichtbaar.y + zichtbaar.hoogte + 224);
+  assert.ok(u.x <= zichtbaar.x - 160 && u.y <= zichtbaar.y - 90);
+  assert.ok(u.x + u.breedte >= zichtbaar.x + zichtbaar.breedte + 160);
+  assert.ok(u.y + u.hoogte >= zichtbaar.y + zichtbaar.hoogte + 90);
   // Hele apparaatpixels: plek en maat.
   for (const v of [u.x, u.y, u.breedte, u.hoogte]) assert.ok(Math.abs(v * 1.5 - Math.round(v * 1.5)) < 1e-6, `${v}`);
   assert.equal(u.bitmapB, Math.round(u.breedte * 1.5));

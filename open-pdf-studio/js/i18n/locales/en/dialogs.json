@@ -1,4 +1,9 @@
 {
+  "shellActionFailed": "Could not complete the action for {{name}}: {{error}}",
+  "shellCombinedName": "Combined",
+  "shellCombineEmpty": "This document has no pages.",
+  "shellCombineMinimum": "Select at least two PDF files.",
+  "shellCombineInteractive": "Use the merge dialog for signed documents or import previews.",
   "newDoc": {
     "frameStyles": {
       "grootformaat": "Large format",
@@ -1939,7 +1944,7 @@
     "manage": "Manage",
     "exportAudit": "Export audit package (ZIP)",
     "exported": "Audit package saved: {{path}}",
-    "exportedWithoutPdf": "Audit package saved without the sent PDF (not available on this computer): {{path}}",
+    "exportedWithoutPdf": "Incomplete audit package saved. See audit-summary.json for the missing PDF files. {{path}}",
     "history": "History",
     "when": "When",
     "what": "What",

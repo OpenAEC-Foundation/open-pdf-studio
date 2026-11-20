@@ -1,5 +1,7 @@
+import { openDialog, getDialogs } from '../solid/stores/dialogStore.js';
+import { dropDoelBijPunt } from './panels/miniatuur-slepen.js';
 import { installSpacePan } from '../tools/space-pan.js';
-import { state } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
 import { annotationCanvas } from './dom-elements.js';
 import { handlePointerDown, handlePointerMove, handlePointerUp, handlePointerCancel, handleDblClick } from '../tools/tool-dispatcher.js';
 import { registerAllTools } from '../tools/tools/index.js';
@@ -7,7 +9,7 @@ import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
 import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
 import { installeerHandZoom } from '../tools/hand-zoom.js';
 import { installeerScrollPanVangnet } from '../tools/pan-handler.js';
-import { loadPDFIfNeeded } from '../pdf/loader.js';
+import { loadPDFIfNeeded, isPdfAReadOnly } from '../pdf/loader.js';
 import { cacheWebFile, isTauri } from '../core/platform.js';
 import { openGesleepteBestanden } from './setup/gesleept-bestand.js';
 import { createTab } from './chrome/tabs.js';
@@ -38,6 +40,23 @@ function setupDragDrop() {
   } else {
     setupHtmlDragDrop();
   }
+}
+
+// Stage the insertion in Edit Pages so dropping a file can still be cancelled.
+function stageThumbnailDrop(items, x, y) {
+  const panel = document.elementFromPoint(x, y)?.closest('#thumbnails-container');
+  if (!panel || !items.length || !getActiveDocument()?.pdfDoc || getDialogs().length || isPdfAReadOnly()) return false;
+  if (!items.every(item => getFileExtension(typeof item === 'string' ? item : item.name) === '.pdf')) return false;
+  const tiles = Array.from(panel.querySelectorAll('.thumbnail-item[data-page]'), tile => {
+    const { left, top, right, bottom } = tile.getBoundingClientRect();
+    return { page: Number(tile.dataset.page), left, top, right, bottom };
+  });
+  const columns = getComputedStyle(panel).gridTemplateColumns.trim().split(/\s+/).length;
+  const target = dropDoelBijPunt(tiles, x, y, columns > 1);
+  if (!target) return false;
+  const gap = target.page - (target.position === 'before' ? 1 : 0);
+  openDialog('page-organizer', { items, gap, documentId: getActiveDocument().id });
+  return true;
 }
 
 // Tauri v2: use onDragDropEvent for reliable file paths.
@@ -91,6 +110,10 @@ function setupTauriDragDrop() {
       const paths = event.payload.paths;
       if (!paths || paths.length === 0) return;
 
+      const point = event.payload.position;
+      const dpr = window.devicePixelRatio || 1;
+      if (point && stageThumbnailDrop(paths, point.x / dpr, point.y / dpr)) return;
+
       for (const filePath of paths) {
         const ext = getFileExtension(filePath);
         if (ext === '.pdf') {
@@ -141,6 +164,8 @@ function setupHtmlDragDrop() {
     e.stopPropagation();
     const files = e.dataTransfer?.files;
     if (!files || files.length === 0) return;
+
+    if (stageThumbnailDrop(Array.from(files), e.clientX, e.clientY)) return;
 
     await openGesleepteBestanden(files, {
       openPdf: async (naam, bytes) => {

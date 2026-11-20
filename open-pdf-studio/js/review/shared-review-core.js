@@ -512,24 +512,18 @@ export function createFolderPoller({ list, onChange, onError = () => {}, interva
     timer = setTimer(() => { timer = null; pollNow(); }, pollDelayMs(interval, { idle, failures }));
   };
   async function poll(force) {
-    let files;
     try {
-      files = await list();
-    } catch (e) {
-      failures++;
-      onError(e);
-      return false;
-    }
-    failures = 0;
-    try {
+      const files = await list();
       if (stopped) return false;
       const sig = folderSignature(files);
-      if (!force && sig === last) { idle++; return false; }
+      if (!force && failures === 0 && sig === last) { idle++; return false; }
       idle = 0;
-      last = sig;
       await onChange(files);
+      last = sig;
+      failures = 0;
       return true;
     } catch (e) {
+      failures++;
       onError(e);
       return false;
     }

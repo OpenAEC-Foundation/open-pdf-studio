@@ -34,10 +34,11 @@ test('verdeelActies: combineren neemt PDF + afbeelding, omzetten afbeelding + te
     { mode: 'combine', files: ['a.pdf', 'b.jpg', 'c.dwg', 'd.txt'] },
     { mode: 'convert', files: ['e.png', 'f.dxf', 'g.pdf'] },
     { mode: 'iets', files: ['h.pdf'] },
+    { mode: 'combineHere', files: ['i.pdf', 'j.jpg'] },
     null,
     { mode: 'combine' },
   ]);
-  assert.deepEqual(r, { combine: ['a.pdf', 'b.jpg'], convert: ['e.png', 'f.dxf'] });
+  assert.deepEqual(r, { combine: ['a.pdf', 'b.jpg'], convert: ['e.png', 'f.dxf'], combineHere: ['i.pdf'] });
 });
 
 test('pdfPadNaast: zelfde naam, en (n) als die bezet is', () => {

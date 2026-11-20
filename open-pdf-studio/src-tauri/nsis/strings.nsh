@@ -32,6 +32,7 @@
   LangString opdsUnFinishText ${LANG_ENGLISH} "${PRODUCTNAME} has been uninstalled from this computer."
 
   ; File Explorer right-click (hooks.nsh, #945)
+  LangString opdsVerbCombineHere ${LANG_ENGLISH} "Combine here into one PDF (${PRODUCTNAME})"
   LangString opdsVerbCombine ${LANG_ENGLISH} "Combine into one PDF (${PRODUCTNAME})"
   LangString opdsVerbConvert ${LANG_ENGLISH} "Convert to PDF (${PRODUCTNAME})"
   LangString opdsVerbConvertCombine ${LANG_ENGLISH} "Convert and combine into one PDF (${PRODUCTNAME})"
@@ -65,6 +66,7 @@
   LangString opdsUnFinishText ${LANG_DUTCH} "${PRODUCTNAME} is van deze computer verwijderd."
 
   ; File Explorer right-click (hooks.nsh, #945)
+  LangString opdsVerbCombineHere ${LANG_DUTCH} "Hier samenvoegen tot één PDF (${PRODUCTNAME})"
   LangString opdsVerbCombine ${LANG_DUTCH} "Combineren tot één PDF (${PRODUCTNAME})"
   LangString opdsVerbConvert ${LANG_DUTCH} "Omzetten naar PDF (${PRODUCTNAME})"
   LangString opdsVerbConvertCombine ${LANG_DUTCH} "Omzetten en combineren tot één PDF (${PRODUCTNAME})"

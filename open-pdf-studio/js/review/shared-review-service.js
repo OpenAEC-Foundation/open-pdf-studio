@@ -66,7 +66,7 @@ async function xfdfReader() {
 }
 
 function publishStatus(s) {
-  if (!sessions.has(s.doc)) { setReviewStatus(s.path, null); return; }
+  if (sessions.get(s.doc) !== s) return;
   setReviewStatus(s.path, {
     folder: s.folder,
     user: s.user,
@@ -80,8 +80,8 @@ function publishStatus(s) {
 }
 
 async function refresh(s, files) {
+  if (sessions.get(s.doc) !== s) return;
   if (!state.documents.includes(s.doc)) { stopSharedReview(s.doc, { forget: false }); return; }
-  if (!sessions.has(s.doc) || sessions.get(s.doc) !== s) return;
   const seen = new Set();
   for (const f of files) {
     if (!classifyReviewFile(f.name, s.base)) continue;
@@ -89,7 +89,10 @@ async function refresh(s, files) {
     const cached = s.cache.get(f.name);
     if (cached && cached.size === f.size && cached.mtimeMs === f.mtimeMs) continue;
     const text = await io.read(s.folder, f.name);
-    if (!sessions.has(s.doc)) return;
+    if (sessions.get(s.doc) !== s) return;
+    // The native reader returns empty text if the listed file disappeared
+    // during a cloud rename. Retry the listing before applying removals.
+    if (f.size > 0 && !text) throw new Error('Review file changed during refresh');
     s.cache.set(f.name, { size: f.size, mtimeMs: f.mtimeMs, text });
   }
   for (const name of [...s.cache.keys()]) if (!seen.has(name) && !s.ownWrites.has(name)) s.cache.delete(name);
@@ -99,7 +102,9 @@ async function refresh(s, files) {
 
 async function rebuild(s, { countUnseen }) {
   const files = [...s.cache].map(([name, c]) => ({ name, text: c.text }));
-  s.merged = mergeReviewFiles(files, s.base, { parseXfdf: await xfdfReader() });
+  const parseXfdf = await xfdfReader();
+  if (sessions.get(s.doc) !== s) return;
+  s.merged = mergeReviewFiles(files, s.base, { parseXfdf });
   s.lastSeq = s.merged.events.filter((e) => e.uk === s.uk).reduce((m, e) => Math.max(m, e.seq), 0);
   const res = applyDerived(s.doc.annotations || [], s.merged, s.applied, s.baseline, s.idOf);
   s.applied = res.applied;
@@ -242,8 +247,10 @@ function enqueue(s, fn) {
 
 async function publishNow(s) {
   // The latest state of the others first, so my edits build on it.
+  if (sessions.get(s.doc) !== s) return 0;
   const files = await io.list(s.folder);
   await refresh(s, files);
+  if (sessions.get(s.doc) !== s) return 0;
   const changes = diffForPublish(s.doc.annotations || [], s.applied, s.baseline, s.idOf);
   const logName = logFileName(s.base, s.user);
   if (!changes.length && s.cache.has(logName)) {
@@ -258,6 +265,7 @@ async function publishNow(s) {
   const mine = [...(s.merged?.events || []).filter((e) => e.uk === s.uk), ...events];
   const text = serializeEvents(mine);
   await io.write(s.folder, logName, text);
+  if (sessions.get(s.doc) !== s) return events.length;
   s.snapshotStale = true;
   s.poller.touch();
   s.ownWrites.add(logName);
@@ -273,6 +281,7 @@ async function publishNow(s) {
 // For other programs: my current annotations (the ones I created) as XFDF.
 async function writeSnapshot(s) {
   const { annotationsToXfdf } = await import('../annotations/xfdf.js');
+  if (sessions.get(s.doc) !== s) return;
   const ids = new Set([...s.merged.annotations.values()].filter((a) => !a.deleted && userKey(a.createdBy || '') === s.uk).map((a) => a.id));
   const mine = (s.doc.annotations || []).filter((a) => ids.has(s.idOf(a)));
   const name = xfdfFileName(s.base, s.user);

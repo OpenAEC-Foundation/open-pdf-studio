@@ -258,23 +258,6 @@ export async function extractPageGeometry(pageNum, options = {}) {
   };
   checkActive();
 
-  // Rasterblad zonder vectorinhoud (gescande tekening: één grote JPEG)?
-  // Dan niets uitlezen: getOperatorList() zou de hele afbeelding in
-  // JavaScript decoderen (seconden per pagina) voor een lege snap-set.
-  // Zie snap-extractie-beleid.js voor de smalle regel.
-  if (doc.filePath) {
-    const [{ getCachedPageType }, { pageContentBytes }] = await Promise.all([
-      import('../pdf/page-type-cache.js'),
-      import('../pdf/progressive-render.js'),
-    ]);
-    const pageType = getCachedPageType(doc.filePath, pageNum - 1);
-    const contentBytes = pageType === 'tile' ? await pageContentBytes(doc.filePath, pageNum) : 0;
-    if (slaSnapExtractieOver({ pageType, contentBytes })) {
-      console.log(`[snap] p${pageNum}: rasterblad zonder vectorinhoud (${contentBytes} B) → geometrie-extractie overgeslagen`);
-      return { points: [], edges: [] };
-    }
-  }
-
   const page = await pdfDoc.getPage(pageNum);
   checkActive();
 
@@ -295,6 +278,25 @@ export async function extractPageGeometry(pageNum, options = {}) {
     // De worker levert de index meestal mee (zelfde cellen); anders hier.
     if (!uitWorker.index) uitWorker.index = await buildSpatialIndex(uitWorker.points, uitWorker.edges, checkActive);
     return uitWorker;
+  }
+
+  // Een korte content-stream kan ook een formulier met lijnwerk plaatsen.
+  // Gebruik de rasterheuristiek alleen voor de tragere PDF.js-terugval.
+  // Rasterblad zonder vectorinhoud (gescande tekening: één grote JPEG)?
+  // Dan niets uitlezen: getOperatorList() zou de hele afbeelding in
+  // JavaScript decoderen (seconden per pagina) voor een lege snap-set.
+  // Zie snap-extractie-beleid.js voor de smalle regel.
+  if (doc.filePath) {
+    const [{ getCachedPageType }, { pageContentBytes }] = await Promise.all([
+      import('../pdf/page-type-cache.js'),
+      import('../pdf/progressive-render.js'),
+    ]);
+    const pageType = getCachedPageType(doc.filePath, pageNum - 1);
+    const contentBytes = pageType === 'tile' ? await pageContentBytes(doc.filePath, pageNum) : 0;
+    if (slaSnapExtractieOver({ pageType, contentBytes })) {
+      console.log(`[snap] p${pageNum}: rasterblad zonder vectorinhoud (${contentBytes} B) → geometrie-extractie overgeslagen`);
+      return { points: [], edges: [] };
+    }
   }
 
   const opList = await page.getOperatorList();

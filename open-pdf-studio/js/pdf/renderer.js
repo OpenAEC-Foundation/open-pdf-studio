@@ -1,3 +1,4 @@
+import { renderPdfJsCanvas } from './pdfjs-canvas-render.js';
 import { paginaViewport } from './pagina-viewport.js';
 import { meld as meldSplit } from './split-view/split-haken.js';
 import { cssPxPerPtAt100, nextScaleStep } from '../core/zoom-display.js';
@@ -477,7 +478,7 @@ async function _renderPageImpl(pageNum, onPageResize) {
       }
 
       if (_isStaleGen() || _isStaleDoc(doc)) return;
-      await tekenPaginaMetPdfJs(page, beeldViewport, pdfCanvas, onPageResize);
+      if (!await tekenPaginaMetPdfJs(page, beeldViewport, pdfCanvas, onPageResize)) return;
       if (_isStaleDoc(doc)) return;
       state.renderEngine = 'Raster (PDF.js)';
       // De pagina staat er. Wat hierna komt (tekst-, link- en formulierlaag,
@@ -650,21 +651,13 @@ async function _renderPageImpl(pageNum, onPageResize) {
 // PDFium niet kan aanroepen: de webversie (geen Tauri) en lege documenten
 // zonder bestandspad. Zie render-route.js voor wanneer dit pad geldt.
 async function tekenPaginaMetPdfJs(page, viewport, canvas, onResize = null) {
-  const dpr = getCanvasDPR();
-  canvas.width = Math.floor(viewport.width * dpr);
-  canvas.height = Math.floor(viewport.height * dpr);
-  canvas.style.width = Math.floor(viewport.width) + 'px';
-  canvas.style.height = Math.floor(viewport.height) + 'px';
-  // Keep the zoom anchor in the same layout frame as the canvas resize,
-  // before asynchronous painting/layer work or a subsequent wheel event.
-  onResize?.();
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, viewport.width, viewport.height);
-  // Geschakelde lagen (#684): de stand uit het paneel.
-  const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
-  await page.render({ canvasContext: ctx, viewport, annotationMode: 0, ...pdfjsLaagOpties() }).promise;
+  return renderPdfJsCanvas({
+    page, viewport, canvas, dpr: getCanvasDPR(), onResize,
+    renderOptions: async () => {
+      const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
+      return pdfjsLaagOpties();
+    },
+  });
 }
 
 // Render page offscreen and swap canvases atomically to avoid zoom flicker.
@@ -703,7 +696,7 @@ export async function renderPageOffscreen(pageNum) {
   // falen hieronder, zodat een rasterbug zichtbaar blijft.
   if (pdfjsFallbackNodig({ inTauri: isTauri(), mobiel: isMobile(), hasFilePath: !!doc.filePath })) {
     try {
-      await tekenPaginaMetPdfJs(page, viewport, pdfCanvas);
+      if (!await tekenPaginaMetPdfJs(page, viewport, pdfCanvas)) return;
       if (_isStaleDoc(doc)) return;
       setupCanvasHiDPI(annotationCanvas, viewport.width, viewport.height);
       redrawAnnotations();
@@ -1224,7 +1217,11 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
     // Intussen verder gescrold? Een uitsnede die minder van het zichtbare
     // deel dekt dan wat er al scherp staat, komt niet op het scherm.
     const nu = zichtbaarNu();
-    if (nu && staat.sleutel === sleutel && staat.uitsnede
+    if (!nu || overlapOppervlak(uitsnede, nu) === 0) {
+      staat.opnieuw = true;
+      return;
+    }
+    if (staat.sleutel === sleutel && staat.uitsnede
       && overlapOppervlak(staat.uitsnede, nu) > overlapOppervlak(uitsnede, nu)) return;
     const bytes = ruw instanceof Uint8Array ? ruw : new Uint8Array(ruw);
     if (!bytes || bytes.length <= 8) { terugval('leeg antwoord'); return; }
@@ -1252,8 +1249,8 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
     staat.herkanst = false;
     // Bitmap en plaatsing in één synchroon blok: geen frame met de nieuwe
     // maat en het oude beeld.
-    canvas.width = plek.breedte;
-    canvas.height = plek.hoogte;
+    if (canvas.width !== plek.breedte) canvas.width = plek.breedte;
+    if (canvas.height !== plek.hoogte) canvas.height = plek.hoogte;
     const ctx = canvas.getContext('2d');
     const beeld = new ImageData(rgba, rb, rh);
     if (!rotatie) {
@@ -1647,7 +1644,7 @@ async function renderContinuousPage(pageNum) {
   } else if (_pdfjsPad) {
     try {
       _verlaatUitsnedeModus(pdfCanvasEl, canvasContainer, pageNum);
-      await tekenPaginaMetPdfJs(page, viewport, pdfCanvasEl);
+      if (!await tekenPaginaMetPdfJs(page, viewport, pdfCanvasEl)) { console.timeEnd(label); return; }
       pdfCanvasEl.dataset.beeld = 'pagina';
       state.renderEngine = 'Raster (PDF.js)';
     } catch (e) {

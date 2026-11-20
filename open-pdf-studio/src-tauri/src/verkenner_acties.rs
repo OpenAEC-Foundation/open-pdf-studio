@@ -84,7 +84,9 @@ fn bestand_uit_argument(arg: &str) -> Option<String> {
 pub fn actie_uit_args(args: &[String], basis: Option<&Path>) -> Option<ShellActie> {
     let rest = args.get(1..).unwrap_or(&[]);
     let heeft = |vlaggen: &[&str]| rest.iter().any(|a| vlaggen.contains(&a.as_str()));
-    let mode = if heeft(&COMBINEER_VLAGGEN) {
+    let mode = if heeft(&["--combine-here"]) {
+        "combineHere"
+    } else if heeft(&COMBINEER_VLAGGEN) {
         "combine"
     } else if heeft(&OMZET_VLAGGEN) {
         "convert"

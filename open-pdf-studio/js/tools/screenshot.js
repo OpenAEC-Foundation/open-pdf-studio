@@ -5,6 +5,7 @@ import { render } from 'solid-js/web';
 import ScreenshotOverlay from '../solid/components/ScreenshotOverlay.jsx';
 import { startScreenshot, endScreenshot } from '../bridge.js';
 import { setLastCaptureAvailable } from '../solid/stores/screenshotStore.js';
+import { kleurOpname } from './screenshot-lijnkleur.js';
 import { openDialog } from '../solid/stores/dialogStore.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { generateImageId } from '../utils/helpers.js';
@@ -275,10 +276,11 @@ export async function renderGebied(gebied, schaal, breedte, hoogte) {
  * @returns {Promise<{canvas: HTMLCanvasElement, paginaCanvas: HTMLCanvasElement,
  *                    maat: ReturnType<typeof uitvoerMaat>}>}
  */
-export async function renderSchermafbeelding(gebied, dpi) {
+export async function renderSchermafbeelding(gebied, dpi, lijnkleur) {
   const maat = uitvoerMaat(gebied.rect.width, gebied.rect.height, dpi);
   if (!maat) throw new Error('empty capture area');
   const paginaCanvas = await renderGebied(gebied, maat.schaal, maat.breedte, maat.hoogte);
+  kleurOpname(paginaCanvas, lijnkleur);
   return { canvas: draaiCanvas(paginaCanvas, weergaveRotatie(gebied.doc)), paginaCanvas, maat };
 }
 
@@ -299,8 +301,8 @@ function _blob(canvas, type, kwaliteit) {
  * the format choice is for files. Desktop writes it from the Rust side, see
  * screenshot-klembord.js (#925).
  */
-export async function kopieerSchermafbeelding(gebied, dpi) {
-  const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
+export async function kopieerSchermafbeelding(gebied, dpi, lijnkleur) {
+  const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi, lijnkleur);
   const blob = await _blob(canvas, 'image/png');
   await kopieerPngNaarKlembord(blob, {
     desktop: isTauri() && !isMobile(),
@@ -326,7 +328,7 @@ function _voorstelPad(doc, naam) {
  * .jpg) wins over the format choice. Resolves to the path, or null when the
  * dialog was cancelled.
  */
-export async function bewaarSchermafbeelding(gebied, dpi, formaat = 'png', kwaliteit = 90) {
+export async function bewaarSchermafbeelding(gebied, dpi, formaat = 'png', kwaliteit = 90, lijnkleur) {
   const doc = gebied.doc;
   const effectief = uitvoerMaat(gebied.rect.width, gebied.rect.height, dpi)?.dpi || dpi;
   const naam = bestandsnaam(doc?.fileName || doc?.filePath, gebied.pageNum, effectief, formaat);
@@ -340,7 +342,7 @@ export async function bewaarSchermafbeelding(gebied, dpi, formaat = 'png', kwali
   else if (ext === 'png') formaat = 'png';
   else pad += formaat === 'jpeg' ? '.jpg' : '.png';
 
-  const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi);
+  const { canvas, paginaCanvas, maat } = await renderSchermafbeelding(gebied, dpi, lijnkleur);
   const { canvasToBytes } = await import('../pdf/exporter.js');
   const { imageWithDpi } = await import('../pdf/image-dpi.js');
   const ruw = await canvasToBytes(canvas, formaat, Math.max(0.01, Math.min(1, kwaliteit / 100)));

@@ -298,3 +298,20 @@ test("the preview fits both ways, is never enlarged, and follows the display den
   assert.equal(previewLayout(595.28, 841.89, 260, 400, 99).scale, 3 * (260 / 595.28), "density is bounded");
   assert.deepEqual(previewLayout(0, NaN, 260, 400), { width: 260, height: 400, scale: 1 });
 });
+
+test("dragging twice uses the initial geometry and keeps the undo snapshot intact", () => {
+  const move = loadApplyMoveGeneric();
+  const original = {
+    x: 14, y: 6, vertex: { x: 3, y: 2 }, holes: [[{ x: 8, y: 9 }]],
+    controlPoints: [{ x: 4, y: 5 }], quads: [[{ x: 2, y: 3 }]], quadPoints: [[1, 2, 3, 4]],
+    leaders: [{ tipX: 2, tipY: 3 }], imageData: "payload",
+  };
+  const snapshot = structuredClone(original);
+  const live = structuredClone(original);
+  const expected = structuredClone(original);
+  move(live, 150, 270, original);
+  move(live, -5, 3, original);
+  move(expected, -5, 3);
+  assert.deepEqual(live, expected);
+  assert.deepEqual(original, snapshot);
+});

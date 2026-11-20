@@ -481,6 +481,16 @@ async function processNextThumbnail() {
 }
 
 // Process a priority (visible) thumbnail first
+function retryMissingThumbnail(docId, docState, pageNum, gen) {
+  const retries = docState.thumbnailRetries ??= new Map();
+  if (retries.get(pageNum) === gen) return;
+  retries.set(pageNum, gen);
+  setTimeout(() => {
+    if (documentState.get(docId) !== docState || !pageGenMatches(docId, pageNum, gen)) return;
+    if (getActiveDocument()?.id === docId) prioritizeThumbnails([pageNum]);
+  }, 500);
+}
+
 async function processPriorityThumbnail(docId) {
   const docState = documentState.get(docId);
   const docCache = thumbnailCache.get(docId);
@@ -501,7 +511,9 @@ async function processPriorityThumbnail(docId) {
   const gen = getPageGen(docId, pageNum);
   try {
     const imageData = await renderThumbnailToDataURL(pdfDoc, pageNum, docState.doc);
-    if (imageData) {
+    if (!imageData) {
+      retryMissingThumbnail(docId, docState, pageNum, gen);
+    } else {
       // Drop result if a newer invalidate raced past us — prevents stale
       // overlay (e.g. old annotation snapshot) from overwriting fresh cache.
       if (!pageGenMatches(docId, pageNum, gen)) {
@@ -517,6 +529,7 @@ async function processPriorityThumbnail(docId) {
     }
     return true;
   } catch (err) {
+    retryMissingThumbnail(docId, docState, pageNum, gen);
     console.warn(`[Thumbnails] Error rendering priority page ${pageNum}:`, err);
     return true;
   }
@@ -556,7 +569,9 @@ async function processDocumentThumbnail(docId) {
     const gen = getPageGen(docId, pageNum);
     try {
       const imageData = await renderThumbnailToDataURL(pdfDoc, pageNum, docState.doc);
-      if (imageData) {
+      if (!imageData) {
+        retryMissingThumbnail(docId, docState, pageNum, gen);
+      } else {
         if (!pageGenMatches(docId, pageNum, gen)) {
           return true;
         }
@@ -570,6 +585,7 @@ async function processDocumentThumbnail(docId) {
       }
       return true;
     } catch (err) {
+      retryMissingThumbnail(docId, docState, pageNum, gen);
       console.warn(`[Thumbnails] Error rendering page ${pageNum} of doc ${docId}:`, err);
       return true;
     }
@@ -661,7 +677,7 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
       const _isTile = ptc.getCachedPageType(doc.filePath, pageNum - 1) === 'tile';
       if (_isTile || await prog.isHeavyPage(doc.filePath, pageNum)) {
         const pbc = await import('../../pdf/page-bitmap-cache.js');
-        const rotation = (typeof getPageRotation === 'function' ? getPageRotation(pageNum) : 0) || 0;
+        const rotation = doc.pageRotations?.[pageNum] || 0;
         // De schermbitmap mist de bewerkbare formuliervelden (die staan in de
         // HTML-formulierlaag, #1101); een pagina met zulke velden krijgt een
         // eigen render met alle velden hieronder.
@@ -765,7 +781,7 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
       // view. Without it, a rotated page's thumbnail stayed unrotated until the
       // rotation was baked into the PDF (save + reload) — the other thumbnail
       // paths (vector replay, prog-bitmap, PDF.js fallback) already rotate.
-      const extraRot = getPageRotation(pageNum);
+      const extraRot = doc?.pageRotations?.[pageNum] || 0;
       // maxWidth geldt voor de breedte van het blad zonder de extra draaiing;
       // bij een kwartslag de breedte zo kiezen dat het gedraaide beeld `doel`
       // px breed wordt (anders wordt het in de kolom opgeblazen).
@@ -810,14 +826,22 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
 
   // Fallback: PDF.js rendering
   console.log(`[PERF-THUMB] page ${pageNum}: PDF.js fallback START`);
+  let renderTask;
+  let timedOut = false;
+  let timer;
   const timeoutPromise = new Promise((_, reject) => {
-    setTimeout(() => reject(new Error('Render timeout')), 10000);
+    timer = setTimeout(() => {
+      timedOut = true;
+      reject(new Error('Render timeout'));
+      renderTask?.cancel();
+    }, 10000);
   });
 
   try {
     const renderPromise = (async () => {
       const page = await pdfDoc.getPage(pageNum);
-      const extraRot = getPageRotation(pageNum);
+      if (timedOut) return null;
+      const extraRot = doc?.pageRotations?.[pageNum] || 0;
       const trOpts = { scale: 1 };
       if (extraRot) trOpts.rotation = (page.rotate + extraRot) % 360;
       // Schaal zo dat de (eventueel gedraaide) pagina `doel` px breed wordt.
@@ -831,12 +855,14 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
       const ctx = canvas.getContext('2d');
 
       const { pdfjsLaagOpties } = await import('../../pdf/lagen-schakelen.js');
-      await page.render({
+      if (timedOut) return null;
+      renderTask = page.render({
         canvasContext: ctx,
         viewport: viewport,
         annotationMode: 0,
         ...pdfjsLaagOpties(doc),
-      }).promise;
+      });
+      await renderTask.promise;
 
       // Overlay plugin/Solid-store annotations op dezelfde ctx vóór toDataURL.
       // viewport.width = pdfPtWidth * thumbScale, dus scale-factor naar
@@ -874,6 +900,8 @@ async function renderMiniatuur(pdfDoc, pageNum, doc, doel) {
   } catch (err) {
     console.warn(`[PERF-THUMB] page ${pageNum}: PDF.js fallback FAILED (${(performance.now() - _th0).toFixed(0)}ms):`, err.message);
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

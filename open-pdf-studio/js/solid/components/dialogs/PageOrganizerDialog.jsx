@@ -42,7 +42,7 @@ let bronTeller = 0;
 // own undo inside the organizer) until Apply, which carries it out as one
 // undo step of the document (applyPageEdits) and then writes the parts of
 // the split marks. Cancel discards everything.
-export default function PageOrganizerDialog() {
+export default function PageOrganizerDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
@@ -383,6 +383,19 @@ export default function PageOrganizerDialog() {
     gridRef?.focus();
   };
 
+  const addFromBrowserFiles = async (files, gap) => {
+    let at = gap;
+    for (const file of files) {
+      if (closed) return;
+      try {
+        at = await addSource(file.name, new Uint8Array(await file.arrayBuffer()), at);
+      } catch (error) {
+        showMessage(t('pageOrganizer.fileFailed', { name: file.name, error: String(error) }));
+      }
+    }
+    gridRef?.focus();
+  };
+
   const addFromFile = async (gap) => {
     setInsertMenu(null);
     const { openFileDialog } = await import('../../../core/platform.js');
@@ -503,9 +516,7 @@ export default function PageOrganizerDialog() {
     endDrag();
     // An external PDF (browser): its pages go in at the drop position.
     const files = Array.from(e.dataTransfer?.files || []).filter((f) => isPdfName(f.name));
-    let at = g;
-    for (const f of files) at = await addSource(f.name, new Uint8Array(await f.arrayBuffer()), at);
-    gridRef?.focus();
+    await addFromBrowserFiles(files, g);
   };
 
   const handleDragLeave = (e) => {
@@ -633,6 +644,12 @@ export default function PageOrganizerDialog() {
         }
       },
     });
+    const drop = props.data;
+    if (drop?.items?.length && drop.documentId === doc?.id) {
+      setBusy(true);
+      const insert = typeof drop.items[0] === 'string' ? addFromPaths : addFromBrowserFiles;
+      insert(drop.items, drop.gap).finally(() => setBusy(false));
+    }
     const unregister = setPageDropTarget({
       over(x, y) {
         if (!gridRef || pointerDrag.isDragging()) return;
