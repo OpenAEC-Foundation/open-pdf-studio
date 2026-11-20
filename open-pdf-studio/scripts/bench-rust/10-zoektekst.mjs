@@ -64,6 +64,8 @@ const TOL = 0.5;
 register(pathToFileURL(join(app, 'js/core/app-test-hooks.mjs')).href, import.meta.url);
 const { installeerBrowserStubs } = await import(pathToFileURL(join(app, 'js/core/app-test-hooks.mjs')).href);
 installeerBrowserStubs();
+// This comparison exercises the optional worker alongside the default PDF.js route.
+globalThis.__opdsRustZoeken = true;
 const fc = await import(pathToFileURL(join(app, 'js/search/find-controller.js')).href);
 const { maakRustZoektekst, decodeerZoektekst } = await import(pathToFileURL(join(app, 'js/search/rust-zoektekst.js')).href);
 const mr = await import(pathToFileURL(join(app, 'js/search/match-rect.js')).href);
