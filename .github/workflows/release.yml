@@ -79,6 +79,12 @@ jobs:
               } catch (error) {
                 if (error.status !== 404) throw error;
               }
+              if (hergebruik.target_commitish !== context.sha) {
+                await github.rest.repos.updateRelease({
+                  ...context.repo, release_id: hergebruik.id,
+                  tag_name: version, target_commitish: context.sha,
+                });
+              }
               core.info(`Release voor ${version} bestaat al (id ${hergebruik.id}) — hergebruiken.`);
               return hergebruik.id;
             }
@@ -86,6 +92,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: version,
+              target_commitish: context.sha,
               name: `Open PDF Studio ${version}`,
               // Release-notes zijn alleen in het Engels. De in-app
               // "Wat is nieuw"-dialog (js/help/release-notes.js) toont een body

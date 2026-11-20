@@ -615,16 +615,21 @@ test('release builds preserve published releases and tagged drafts', async () =>
     [{ draft: false }, 'workflow_dispatch', true, ''],
     [{ draft: true, published_at: '2026-01-01' }, 'workflow_dispatch', false, ''],
   ]) {
+    const writes = [];
     const github = {
       paginate: async () => existing ? [{ id: 11, tag_name: 'v1', ...existing }] : [],
       rest: {
-        repos: { createRelease: async () => ({ data: { id: 22 } }) },
+        repos: {
+          createRelease: async options => { writes.push(options); return { data: { id: 22 } }; },
+          updateRelease: async options => { writes.push(options); },
+        },
         git: { getRef: async () => {
           if (!tagged) throw Object.assign(new Error('Missing ref'), { status: 404 });
         } },
       },
     };
-    assert.equal(await run(github, { repo: {}, eventName }, { info() {} }, { env: { RELEASE_VERSION: 'v1' } }), expected);
+    assert.equal(await run(github, { repo: {}, eventName, sha: 'tested' }, { info() {} }, { env: { RELEASE_VERSION: 'v1' } }), expected);
+    assert.deepEqual(writes.map(write => [write.tag_name, write.target_commitish]), expected ? [['v1', 'tested']] : []);
   }
   for (const match of workflow.matchAll(/^    needs: create-release\n(.*)$/gm)) {
     assert.match(match[1], /if: needs\.create-release\.outputs\.release_id != ''/);
