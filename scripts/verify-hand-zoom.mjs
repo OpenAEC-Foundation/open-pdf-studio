@@ -17,7 +17,7 @@ import path from 'node:path';
 const MCP = 'http://127.0.0.1:' + (process.env.MCP_PORT || '9223') + '/mcp';
 const CDP = process.env.CDP_PORT || '9345';
 const BRON = process.argv[2]
-  || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/Tekst.pdf';
+  || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/fixtures/pdf/Tekst.pdf';
 const WERKKOPIE = path.join(os.tmpdir(), 'hand-zoom-test.pdf').split(path.sep).join('/');
 const CTRL = 2;
 const SHIFT = 8;

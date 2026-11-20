@@ -392,6 +392,12 @@ export default function StatusBar() {
             {t('renderDiagnostics.count', { count: findings().length })}
           </button>
         </Show>
+        <Show when={getActiveDocument()?.centralReview}>
+          <button class="status-view-rotation status-watch" classList={{ 'status-watch-error': !!getActiveDocument()?.centralReview?.error }}
+            onClick={async () => { const { openDialog } = await import('../stores/dialogStore.js'); openDialog('central-review'); }}>
+            {t('dialogs:centralReview.liveTitle')}: {t(`dialogs:centralReview.${!getActiveDocument()?.centralReview?.connected ? 'liveDisconnected' : getActiveDocument()?.centralReview?.error ? 'liveError' : getActiveDocument()?.centralReview?.pending ? 'livePending' : 'liveConnected'}`)}
+          </button>
+        </Show>
         <Show when={review()}>
           <button class="status-view-rotation status-watch status-review" classList={{ 'status-watch-error': !!review()?.error, 'status-review-new': review()?.unseen > 0 }} tabIndex={-1}
             title={t('sharedReviewTitle', { folder: review()?.folder })}

@@ -134,16 +134,17 @@ async function afbeeldingNaarTijdelijkePdf(pad) {
 // pdf-lib niet leest) worden eerst via een canvas een PNG.
 async function afbeeldingNaarPdf(bytes, pad) {
   const { PDFDocument } = await import('pdf-lib');
+  const { embedPngSnel } = await import('../pdf/embed-png-rust.js');
   const pdf = await PDFDocument.create();
   let beeld = null;
   try {
     if (/\.(?:jpe?g|jpe|jfif)$/i.test(pad)) beeld = await pdf.embedJpg(bytes);
-    else if (/\.png$/i.test(pad)) beeld = await pdf.embedPng(bytes);
+    else if (/\.png$/i.test(pad)) beeld = await embedPngSnel(pdf, bytes);
   } catch (e) {
     console.warn('[convert-to-pdf] direct embed failed, via canvas', pad, e);
     beeld = null;
   }
-  if (!beeld) beeld = await pdf.embedPng(await naarPng(bytes));
+  if (!beeld) beeld = await embedPngSnel(pdf, await naarPng(bytes));
   const { breedte, hoogte } = paginaMaatVoorAfbeelding(beeld.width, beeld.height);
   const pagina = pdf.addPage([breedte, hoogte]);
   pagina.drawImage(beeld, { x: 0, y: 0, width: breedte, height: hoogte });

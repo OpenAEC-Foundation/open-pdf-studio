@@ -1,0 +1,16 @@
+[package]
+name = "open-pdf-image"
+version = "2026.48.1"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Image work off the interface thread: PNG to image XObject streams"
+publish = false
+
+# Pure logica zonder Tauri: `cargo test -p open-pdf-image` draait gewoon.
+# De app-crate roept dit aan vanuit het commando in src-tauri/src/beeld.rs.
+
+[dependencies]
+# PNG lezen; staat al in Cargo.lock (via image).
+png = "0.18"
+# Flate inpakken, zoals open-pdf-monochrome (licentie Zlib).
+zlib-rs = "0.6"

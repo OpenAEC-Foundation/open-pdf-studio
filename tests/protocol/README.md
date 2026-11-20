@@ -44,7 +44,7 @@ math, view-mode auto-fallback, tool dispatcher wiring, etc.).
   "name": "short-id",
   "description": "what this validates and why",
   "setup": {
-    "pdfPath": "test pdf-bestanden/...pdf",
+    "pdfPath": "../verification-files/PDF-bestanden/...pdf",
     "scale": 1.0,
     "page": 2
   },

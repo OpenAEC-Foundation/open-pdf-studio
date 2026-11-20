@@ -19,6 +19,8 @@ let _searchGeneration = 0;
 
 // Zoektekst uit de PDFium-worker op de desktop (rust-zoektekst.js); null =
 // nog niet bepaald, false = niet beschikbaar (webversie, Android, tests).
+// De route staat standaard uit (pdf.js leest de tekst) en gaat alleen aan met
+// de ontwikkelschakelaar `window.__opdsRustZoeken = true`.
 let _rustZoektekst = null;
 
 async function rustZoekRoute() {
@@ -38,7 +40,8 @@ async function rustZoekRoute() {
 
 /**
  * Een bron voor de tekst van `pdf` uit de PDFium-worker, of null (dan leest
- * pdf.js de tekst). `filePath` + `bytes`: het bestand op schijf en de bytes
+ * pdf.js de tekst; dat is de standaard, zie rust-zoektekst.js).
+ * `filePath` + `bytes`: het bestand op schijf en de bytes
  * die de app ervan heeft; de worker weigert als het bestand anders is.
  */
 export async function rustTekstBron(pdf, filePath, bytes) {

@@ -19,7 +19,10 @@ async fn pool_render_matches_inproc_for_nkd1a_p4() {
         panic!("build pdfium-worker first: cargo build -p pdfium-worker");
     }
 
-    let path = "C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf";
+    let root = std::env::var_os("OPDS_VERIFICATION_ROOT").map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../verification-files"));
+    let input = root.join("PDF-bestanden/NKD1a_opm_aw.pdf");
+    let path = input.to_str().expect("UTF-8 verification path");
     let page = 3; // p4 (0-indexed)
     let scale = 0.25_f32;
 
@@ -29,7 +32,7 @@ async fn pool_render_matches_inproc_for_nkd1a_p4() {
     let pool = app_lib::worker_pool::WorkerPool::new(workers);
     assert!(pool.is_ready(), "pool not ready");
 
-    let (pw, ph, prgba) = pool.render(path, page, scale, 0, false).await.expect("pool render");
+    let (pw, ph, prgba) = pool.render(path, page, scale, 0, false, true).await.expect("pool render");
 
     // 2. Render in-proc. PDFium must be initialised first; idempotent.
     let dll_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))

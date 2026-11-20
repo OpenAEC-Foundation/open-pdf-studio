@@ -5,6 +5,7 @@
 // its commands in `deps` (scanner.js); tests pass a stubbed OCR.
 
 import { PDFDocument } from 'pdf-lib';
+import { embedPngSnel } from './embed-png-rust.js';
 import { applyOcrLayer } from './batch-ocr-runner.js';
 
 /** Resolutions outside this range in an image file are not believed. */
@@ -96,7 +97,7 @@ export async function imagesToPdf(images, meta = {}) {
     let info = null;
     if (isPng(bytes)) {
       info = pngInfo(bytes);
-      embedded = await pdf.embedPng(bytes);
+      embedded = await embedPngSnel(pdf, bytes);
     } else if (isJpeg(bytes)) {
       embedded = await pdf.embedJpg(bytes);
     } else {

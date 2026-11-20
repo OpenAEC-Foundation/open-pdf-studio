@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { getDocument, OPS } from 'pdfjs-dist/legacy/build/pdf.mjs';
 
-const source = resolve('../test pdf-bestanden/Originele bestanden/Tekst.pdf');
+const source = resolve('../fixtures/pdf/Tekst.pdf');
 const target = join(tmpdir(), `opds-mcp-real-${process.pid}.pdf`);
 const endpoint = `http://127.0.0.1:${process.argv[2] || 9323}/mcp`;
 let id = 0;

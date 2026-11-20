@@ -2,7 +2,7 @@
   "name": "03-tools-draw-shortcuts",
   "description": "Each keyboard-shortcut drawing tool (box, circle, draw/freehand, line, textbox, comment) must (a) activate via its hotkey and (b) produce an annotation when used. Verifies the chord-eats-T fix and the pointer-event dual-dispatch fix. Click/drag coordinates are probe-relative so the test works regardless of side-panel state.",
   "setup": {
-    "pdfPath": "test pdf-bestanden/Originele bestanden/Text pdf gecombineerd.pdf",
+    "pdfPath": "../verification-files/PDF-bestanden/Text pdf gecombineerd.pdf",
     "scale": 1.0,
     "page": 2
   },

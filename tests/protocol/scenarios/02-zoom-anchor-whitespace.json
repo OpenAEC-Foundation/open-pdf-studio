@@ -2,7 +2,7 @@
   "name": "02-zoom-anchor-whitespace",
   "description": "Regression for 'zoom snaps page sideways when cursor is on white margin'. At scale 1.0 the A4 page is narrower than the container — white margins on both sides. Ctrl+wheel zoom-in with the cursor parked on the RIGHT white margin must NOT shift scrollLeft, because the anchor block is intentionally skipped when the cursor is off-page. Uses probe-relative coordinates so the test works regardless of side-panel state.",
   "setup": {
-    "pdfPath": "test pdf-bestanden/Originele bestanden/Text pdf gecombineerd.pdf",
+    "pdfPath": "../verification-files/PDF-bestanden/Text pdf gecombineerd.pdf",
     "scale": 1.0,
     "page": 2
   },

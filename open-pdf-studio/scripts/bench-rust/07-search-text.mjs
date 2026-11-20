@@ -16,7 +16,7 @@ import { bench, report, median } from './lib.mjs';
 
 const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
-const dir = process.argv[2] ?? join(process.cwd(), '..', 'test pdf-bestanden', 'Originele bestanden');
+const dir = process.argv[2] ?? join(process.cwd(), '..', '..', 'verification-files', 'PDF-bestanden');
 const files = readdirSync(dir).filter((f) => f.toLowerCase().endsWith('.pdf'));
 
 console.log(`node ${process.version} | pdfjs-dist ${pdfjs.version}`);
