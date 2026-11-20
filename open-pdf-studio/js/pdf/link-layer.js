@@ -10,7 +10,7 @@ import { cssPxPerPtAt100 } from '../core/zoom-display.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import i18next from '../i18n/config.js';
 import { viewportRectangle } from './pdfjs-record.js';
-import { markeerLinkDoel, wisLinkDoelMarkering } from './link-doelmarkering.js';
+import { kiesLinkDoel, markeerOpPagina, wisLinkDoelMarkering } from './link-doelmarkering.js';
 
 /**
  * Link Layer Management Module
@@ -211,7 +211,7 @@ function createLinkElement(ann, viewport, pageNum) {
     linkEl.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await handleInternalLink(ann.dest, { page: pageNum, rect: ann.rect });
+      await handleInternalLink(ann.dest, { page: pageNum, rect: ann.rect, x: e.clientX, y: e.clientY });
     });
     return linkEl;
   }
@@ -307,7 +307,28 @@ export async function handleInternalLink(dest, bron = null) {
     if (pageIndex === undefined || pageIndex === null || !Number.isFinite(pageIndex)) return;
 
     // PDF.js uses 0-based index, our app uses 1-based page numbers
-    const targetPage = pageIndex + 1;
+    let targetPage = pageIndex + 1;
+    let doelInfo = destInfo;
+
+    // Where the clicked mark is found (link-doelmarkering.js): the link's own
+    // page, or another page picked from a list at the pointer; null: cancelled.
+    let keuze;
+    if (bron) {
+      try {
+        keuze = await kiesLinkDoel(doc, bron, targetPage);
+      } catch (e) {
+        console.warn('[link-layer] bestemming niet gezocht:', e);
+      }
+      if (keuze === null || !geldig()) return;
+      if (keuze && keuze.page !== targetPage) {
+        // Another page: open at its first mark.
+        const v = keuze.view, b = keuze.vakken[0];
+        targetPage = keuze.page;
+        doelInfo = { ...destInfo, type: 'XYZ', left: v[0] + Math.max(0, b.x - 6 * b.h), top: v[3] - Math.max(0, b.y - 6 * b.h), zoom: null };
+      }
+    } else {
+      wisLinkDoelMarkering();
+    }
 
     // De doelpagina tonen; het beeld (zoom en plek) zet deze module daarna
     // zelf. Zonder skipScroll loopt de vloeiende scroll van goToPage ná deze
@@ -316,17 +337,15 @@ export async function handleInternalLink(dest, bron = null) {
     if (!geldig()) return;
     let getoond = false;
     try {
-      getoond = await toonDoelbeeld(doc, targetPage, destInfo, geldig);
+      getoond = await toonDoelbeeld(doc, targetPage, doelInfo, geldig);
     } catch (e) {
       console.warn('[link-layer] beeld van de bestemming niet gezet:', e);
     }
     // Een bestemming waarvan het beeld niet te lezen is: alleen de pagina.
     if (!getoond && geldig()) await goToPage(targetPage);
-    if (bron && geldig()) {
-      markeerLinkDoel(doc, bron, targetPage, destInfo, { tekstlaag: (n) => tekstlaagVan(doc, n), geldig })
+    if (keuze && geldig()) {
+      markeerOpPagina(targetPage, keuze.vakken, keuze.view, { tekstlaag: (n) => tekstlaagVan(doc, n), geldig })
         .catch((e) => console.warn('[link-layer] bestemming niet gemarkeerd:', e));
-    } else {
-      wisLinkDoelMarkering();
     }
   } catch (e) {
     console.warn('Failed to navigate to internal link:', e);
@@ -462,7 +481,7 @@ function setupActionLink(linkEl, action, pageNum, rect = null) {
       linkEl.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        await handleInternalLink(action.dest, rect ? { page: pageNum, rect } : null);
+        await handleInternalLink(action.dest, rect ? { page: pageNum, rect, x: e.clientX, y: e.clientY } : null);
       });
       return true;
 

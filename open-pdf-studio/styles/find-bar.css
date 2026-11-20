@@ -591,3 +591,35 @@
   mix-blend-mode: multiply;
   border-radius: 1px;
 }
+
+/* The page list when a followed link's mark is on more than one page. */
+.link-doel-keuze {
+  position: fixed;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 4px;
+  border-radius: 6px;
+  background: var(--theme-surface, #2b2d31);
+  color: var(--theme-text, #e8e8e8);
+  border: 1px solid var(--theme-border, #444);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  font: 12.5px/1.4 system-ui, Segoe UI, sans-serif;
+}
+.link-doel-keuze button {
+  text-align: left;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.link-doel-keuze button:hover,
+.link-doel-keuze button:focus {
+  outline: none;
+  background: color-mix(in srgb, var(--theme-accent, #d97706) 25%, transparent);
+}
