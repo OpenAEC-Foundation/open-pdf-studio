@@ -581,3 +581,13 @@
   color: #c42b1c;
   white-space: normal;
 }
+
+/* Where a followed link landed (pdf/link-doelmarkering.js): the matching text
+   in red until the next click on the page. */
+.link-doel-markering {
+  position: absolute;
+  background-color: rgba(255, 0, 0, 0.32);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  border-radius: 1px;
+}
