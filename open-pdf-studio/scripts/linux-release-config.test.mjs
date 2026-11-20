@@ -599,3 +599,40 @@ test('sign-linux-release.sh signs, verifies, refuses a wrong key and skips witho
   assert.match(log, /BAD signature/);
   assert.match(result.stdout, /== done/);
 });
+
+test('release builds preserve published releases and tagged drafts', async () => {
+  const workflow = (await readFile(new URL('.github/workflows/release.yml', repoRoot), 'utf8')).replace(/\r\n/g, '\n');
+  const job = workflow.split('      - name: Create release\n')[1].split('\n  build:')[0];
+  const script = job.split('          script: |\n')[1];
+  const AsyncFunction = Object.getPrototypeOf(async () => {}).constructor;
+  const run = new AsyncFunction('github', 'context', 'core', 'process', script);
+  for (const [existing, eventName, tagged, expected] of [
+    [undefined, 'push', true, 22],
+    [{ draft: true }, 'workflow_dispatch', false, 11],
+    [{ draft: true }, 'workflow_dispatch', true, ''],
+    [{ draft: true }, 'push', true, ''],
+    [{ draft: false }, 'push', true, ''],
+    [{ draft: false }, 'workflow_dispatch', true, ''],
+    [{ draft: true, published_at: '2026-01-01' }, 'workflow_dispatch', false, ''],
+  ]) {
+    const writes = [];
+    const github = {
+      paginate: async () => existing ? [{ id: 11, tag_name: 'v1', ...existing }] : [],
+      rest: {
+        repos: {
+          createRelease: async options => { writes.push(options); return { data: { id: 22 } }; },
+          updateRelease: async options => { writes.push(options); },
+        },
+        git: { getRef: async () => {
+          if (!tagged) throw Object.assign(new Error('Missing ref'), { status: 404 });
+        } },
+      },
+    };
+    assert.equal(await run(github, { repo: {}, eventName, sha: 'tested' }, { info() {} }, { env: { RELEASE_VERSION: 'v1' } }), expected);
+    assert.deepEqual(writes.map(write => [write.tag_name, write.target_commitish]), expected ? [['v1', 'tested']] : []);
+  }
+  for (const match of workflow.matchAll(/^    needs: create-release\n(.*)$/gm)) {
+    assert.match(match[1], /if: needs\.create-release\.outputs\.release_id != ''/);
+  }
+  assert.doesNotMatch(workflow, /- name: Finalize release/);
+});
