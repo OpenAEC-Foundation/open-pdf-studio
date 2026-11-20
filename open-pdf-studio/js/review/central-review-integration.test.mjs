@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { once } from 'node:events';
 import { createCentralReviewSession } from './central-review-session.js';
 import { createCentralReviewSync } from './central-review-sync.js';
+import { createCentralReviewLive } from './central-review-live.js';
 
 test('two production JS clients against real SQLite: retry, reconnect, conflict, restore and revocation', {timeout:30000}, async () => {
   const child = spawn(process.env.PYTHON || (process.platform === 'win32' ? 'python' : 'python3'),
@@ -60,7 +61,29 @@ test('two production JS clients against real SQLite: retry, reconnect, conflict,
     await reconnected.initialize(); assert.equal(reconnected.view().cursor,4);
     reconnected.stage('note',annotation('restored')); await reconnected.flush(); await reconnected.pull();
     assert.equal(reconnected.view().cursor,5);
+    // Exercise the live document controller against the same production
+    // SQLite transport, not only the protocol's explicit stage/pull calls.
+    async function liveClient(lease, prefix) {
+      const sync = createCentralReviewSync(lease,document,()=>`${prefix}-${++n}`);
+      await sync.initialize();
+      const local = new Map(sync.view().annotations.filter(row=>row.data).map(row=>[row.id,row.data]));
+      let status;
+      const resource = {isCurrent:()=>true,read:()=>structuredClone(local),write:changes=>{
+        for(const [id,data] of changes) {if(data===null)local.delete(id);else local.set(id,structuredClone(data));}
+      }};
+      const live = createCentralReviewLive({sync,resource,isCurrent:()=>lease.isCurrent(),disconnect:async()=>sync.close()}, {onStatus:value=>status=value});
+      return {live,local,status:()=>status};
+    }
+    const liveAlice=await liveClient(alice,'live-a'),liveBob=await liveClient(bob,'live-b');
+    liveAlice.local.set('note',annotation('Alice live'));liveBob.local.set('note',annotation('Bob live'));
+    await liveAlice.live.step();await liveBob.live.step();
+    assert.equal(liveBob.status().conflicts[0].remote.text,'Alice live');
+    liveBob.live.resolve('note','replace');loseBobReply=true;await liveBob.live.step();await liveAlice.live.step();
+    assert.equal(liveAlice.local.get('note').text,'Bob live');assert.equal(liveBob.status().pending,0);
     await invoke('revoke-bob',{});
+    liveBob.local.set('note',annotation('revoked local'));await liveBob.live.step();
+    assert.equal(liveBob.status().error,'ACCESS_DENIED');assert.equal(liveBob.local.get('note').text,'revoked local');
+    await liveAlice.live.stop();await liveBob.live.stop();
     b.stage('note',annotation('unsent')); await assert.rejects(b.flush(),/ACCESS_DENIED/);
     await assert.rejects(b.pull(),/ACCESS_DENIED/);
     assert.equal(b.view().pending.length,1); assert.equal(b.view().cursor,4);
