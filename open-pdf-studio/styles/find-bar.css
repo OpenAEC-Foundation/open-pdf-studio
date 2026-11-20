@@ -619,7 +619,7 @@
   white-space: nowrap;
 }
 .link-doel-keuze button:hover,
-.link-doel-keuze button:focus {
+.link-doel-keuze button:focus-visible {
   outline: none;
   background: color-mix(in srgb, var(--theme-accent, #d97706) 25%, transparent);
 }
