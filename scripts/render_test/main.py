@@ -50,7 +50,7 @@ def main() -> int:
     ap.add_argument("--page-range", help="e.g. 0 or 0-2 (applied to each PDF)")
     ap.add_argument(
         "--out-root",
-        default="test pdf-bestanden/render-regression-runs",
+        default="target/render-regression-runs",
     )
     args = ap.parse_args()
 

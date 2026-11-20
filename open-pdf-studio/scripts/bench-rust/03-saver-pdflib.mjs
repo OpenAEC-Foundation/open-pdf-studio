@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { median } from './lib.mjs';
 import { PDFDocument, PDFName, PDFString, PDFArray } from 'pdf-lib';
 
-const dir = process.argv[2] ?? join(process.cwd(), '..', 'test pdf-bestanden', 'Originele bestanden');
+const dir = process.argv[2] ?? join(process.cwd(), '..', '..', 'verification-files', 'PDF-bestanden');
 const files = readdirSync(dir).filter((f) => f.toLowerCase().endsWith('.pdf'));
 
 console.log(`node ${process.version}  pdf-lib from node_modules`);

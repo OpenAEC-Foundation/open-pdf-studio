@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Zoom-debounce test: dispatch 8 rapid zoom-in steps and measure total
 // CPU spent on rendering. Compares with-freeze vs without-freeze conceptually
 // by observing how many _render() executions actually do the heavy vector
@@ -8,7 +9,7 @@ const require = createRequire(import.meta.url);
 const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules/playwright');
 
 const MCP = 'http://127.0.0.1:9223/mcp';
-const PDF = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf';
+const PDF = verificationPath('PDF-bestanden/NKD1a_opm_aw.pdf');
 
 async function tool(name, args) {
   const r = await fetch(MCP, {
@@ -26,7 +27,7 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const page = browser.contexts()[0].pages()[0];
 
   await tool('app_clear_caches', {});
-  const TEST_PDF = process.argv[2] || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKE2D2_opm_aw.pdf';
+  const TEST_PDF = process.argv[2] || verificationPath('PDF-bestanden/NKE2D2_opm_aw.pdf');
   const TEST_PAGE = Number(process.argv[3] || 1);
   await tool('app_open_pdf', { path: TEST_PDF });
   await tool('app_go_to_page', { page: TEST_PAGE });

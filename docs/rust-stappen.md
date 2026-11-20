@@ -335,6 +335,23 @@ ophoudt (beide lopen via de request-lock van die worker).
 
 ## Zoeken: tekst uit de PDFium-worker
 
+**Stand (18 november 2026): standaard uit, pdf.js leest de tekst.** De route
+was van 2026.46.0 tot en met 2026.47.1 de standaard op het bureaublad. Een
+vergelijking in de draaiende app op de 35 bestanden van de verificatieset gaf
+op 4 bestanden andere tekst dan pdf.js, op twee soorten pagina's:
+- tekst die een halve slag gedraaid staat op grote tekeningen;
+- woordspaties bij fonts die als deelverzameling zijn ingesloten.
+
+Het zoeken kon daardoor treffers missen (432 tegen 435 op één bestand). De
+pariteit op de PDF's in de repo was volledig, dus de tests hieronder vangen
+dit niet. De route gaat nu alleen aan met `window.__opdsRustZoeken = true` in
+de ontwikkelconsole; de worker, het commando en de code blijven staan. Om
+haar weer standaard aan te zetten moet de worker die twee soorten pagina's
+markeren (zoals nu bij verticaal schrift), zodat pdf.js ze leest, en moet de
+vergelijking op de verificatieset in de draaiende app gelijk uitkomen.
+
+De rest van deze sectie beschrijft de route zoals ze gebouwd is.
+
 **Wat is verplaatst.** Het lezen van de paginatekst voor het zoeken (zoekbalk,
 zoeken in open documenten en in een map, MCP `app_search_documents`). Voorheen
 haalde `extractPageText` (`js/search/find-controller.js`) per pagina pdf.js
@@ -390,9 +407,10 @@ pagina's als pdf.js. Anders, of bij een fout, pdf.js zoals voorheen (één
 waarschuwing in de console; een gewijzigd bestand of een pool die nog opstart
 zwijgend). Een worker die `page_text` niet in zijn `caps` noemt (oudere
 sidecar) krijgt de aanvraag nooit; de app zet de route dan voor de sessie uit.
-pdf.js afdwingen: `OPDS_RUST_SEARCH=0` bij het starten van de app, of
-`window.__opdsRustZoeken = false` in de ontwikkelconsole. Webversie en
-Android/iOS: ongewijzigd (pdf.js).
+De route aanzetten: `window.__opdsRustZoeken = true` in de ontwikkelconsole
+(geldt voor zoekopdrachten daarna; al gelezen tekst blijft in de tekstcache).
+`OPDS_RUST_SEARCH=0` bij het starten van de app dwingt pdf.js af, ook met de
+schakelaar aan. Webversie en Android/iOS: ongewijzigd (pdf.js).
 
 **Pagina's die pdf.js blijft lezen** (de worker markeert ze en de app leest die
 pagina met pdf.js; de rest van het document gaat gewoon via de worker):
@@ -1095,3 +1113,171 @@ stilstaan: 2,5 → 1,4 s, 11,2 → 9,7 s, 17,0 → 16,3 s, 0,9 → 1,1 s en
 
 De Rust-commando's `extract_draw_commands` en `analyze_page_type` staan er
 nog; het eerste heeft geen aanroeper meer in de app.
+
+## PNG insluiten in Rust, en wat de echte app verder liet zien
+
+Rust fase 3 bestond uit vier stukken die samen gebouwd zijn: paginatekst uit
+de PDFium-worker voor meer lezers, beeldwerk (PNG insluiten en stempelbeelden
+decoderen), objectstromen inpakken bij het opslaan, en de JPEG van
+rasteruitvoer in de worker. Daarna is alles in de echte app nagemeten (18-11,
+debug-build van de app; de beeldcrate is daarin geoptimaliseerd gebouwd). De
+regel: Rust is alleen de route waar het in de echte app, met de echte
+oversteek erbij, ongeveer 1,3 keer sneller is én hetzelfde resultaat geeft.
+
+Eén stuk haalde die lijn: het insluiten van een PNG. Dat staat hieronder, met
+een verbetering in gewoon JavaScript die uit hetzelfde profiel kwam (base64
+naar bytes). De rest is niet meegenomen; waarom staat onderaan.
+
+### PNG insluiten (`png_naar_xobject`)
+
+**Wat.** `embedPng` van de PDF-bibliotheek pakt de PNG in JavaScript uit,
+splitst in RGB en alfa en pakt beide bij het opslaan opnieuw in. Dat gebeurt
+op zestien plekken (opslaan van stempels en afbeeldingen, afdrukken,
+watermerk, huisstijlkaders, rapporten, scan naar PDF). Die plekken roepen nu
+`embedPngSnel(pdfDoc, bytes)` aan (`js/pdf/embed-png-rust.js`). Het commando
+`png_naar_xobject` (crate `open-pdf-image`, schil in `src-tauri/src/beeld.rs`,
+rauwe body heen en terug) geeft de twee Flate-streams terug; JavaScript bouwt
+alleen de woordenboeken en hangt ze als gewone `PDFImage` in het document,
+zodat de aanroepers verder gelijk blijven. Het inpakken (niveau 6, zoals de
+JS-route) is over een paar draden verdeeld: stukken van minstens 1 MB, elk een
+eigen Deflate-reeks, samen één gewone zlib-stroom.
+
+**Pariteit.** Zelfde sleutels en waarden in beide woordenboeken (alleen
+`/Length` verschilt), zelfde objectnummers, en na uitpakken dezelfde RGB- en
+alfabytes. Een alfastream komt er, net als in JS, alleen als ergens alfa
+onder 255 ligt. Getoetst op 41 vaste PNG's (grijs 1/2/4/8 bit, RGB, palet
+1/2/4/8 bit, grijs met alfa, RGBA; alle vijf de rijfilters; te kort palet); acht
+andere moeten juist teruggaan naar JS. `cargo test -p open-pdf-image` eist
+dat van Rust, `js/pdf/beeld-gevallen.test.mjs` houdt het bestand met gevallen
+gelijk aan de JS-route van vandaag, en `js/pdf/embed-png-rust.test.mjs` toetst
+de JS-kant en de terugval. De meting hieronder vergelijkt daarnaast twaalf
+beelden tot 35 megapixel, uitgepakt met de zlib van node.
+
+**Blijft in JavaScript:** de webversie, de gehoste versie en Android/iOS, een
+backend zonder het commando, zestien bit, geïnterlinieerd, elk `tRNS`-blok
+(dus ook een palet met transparantie: Rust stuurt dat terug), animatie, een
+PNG die de strenge decoder afkeurt (Rust kijkt de controlesommen na), een
+tekenreeks als invoer, en wat `kiesPngRoute()` niet naar Rust stuurt (zie de
+keuze hieronder). Een fout van de aanroep zelf geeft één waarschuwing, daarna
+JavaScript voor de rest van de sessie.
+
+**Meting in de echte app** (18-11, opslaan van een document met afbeeldingen;
+de XObjects zijn in beide routes gelijk). Winst van Rust tegenover `embedPng`,
+met de echte oversteek:
+
+| PNG | pixels | winst |
+|---|---:|---:|
+| elke soort | 32.768 | 0,69× (Rust 1,45 keer trager) |
+| elke soort | 60.000 – 131.072 | ongeveer gelijk |
+| foto-achtig (1,6 – 2,5 PNG-bytes per pixel) | 0,26 – 0,31 MP | 1,05 – 1,14× |
+| foto-achtig | 0,52 MP | 1,23× |
+| foto-achtig | 1,05 MP | 2,0× |
+| foto-achtig | 4 – 20 MP | 2,4 – 2,8× |
+| weinig bytes (grijs, palet, vlakke tekening; hooguit 0,5 PNG-bytes per pixel) | 0,31 MP | 1,8 – 2,4× |
+| weinig bytes | 4 – 20 MP | 4,8 – 6,8× |
+
+Onder 0,3 MP is een PNG met weinig bytes per pixel niet gemeten.
+
+**Keuze per beeld** (`kiesPngRoute({ pixels, pngBytes })`):
+
+- **Rust:** elke PNG vanaf 1.000.000 pixels (`MIN_PIXELS`): 2,0× bij 1,05 MP
+  en meer daarboven. Geen bovengrens: de winst groeit met de maat (boven
+  250 MP stuurt Rust het beeld zelf terug).
+- **Rust:** een PNG vanaf 300.000 pixels (`MIN_PIXELS_KLEINE_PNG`) met hooguit
+  0,5 PNG-bytes per pixel (`MAX_BYTES_PER_PIXEL_KLEINE_PNG`): er gaat dan
+  weinig over de grens en het uitpakken is het werk.
+- **JavaScript:** al het andere. Een foto-achtige PNG onder 1 MP haalt de lijn
+  niet (1,23× bij 0,52 MP), en bij kleine beelden is Rust gelijk of trager.
+- **JavaScript:** een PNG van meer dan 64 bytes per pixel. Niet gemeten; dat
+  komt alleen voor bij een PNG met grote blokken die geen beeld zijn.
+
+**Standaard.** Aan op de desktop, per beeld volgens de keuze hierboven
+(`RUST_STANDAARD.png` in `js/pdf/rust-routes.js`). `OPDS_RUST_PNG_EMBED=0` in
+de omgeving van de app dwingt JavaScript af: de backend biedt de route dan niet
+aan. In de ontwikkelconsole doet `window.__opdsRustPng = false` dat ook, en
+`'altijd'` laat de gemeten grenzen vallen om te vergelijken; de schakelaar
+wordt bij elke aanroep gelezen.
+
+**Zonder oversteek** (`scripts/bench-rust/12-beeld.mjs`, 18-11, RGBA-PNG's
+zoals een canvas ze geeft; JS = `embedPng` plus het inpakken bij opslaan, Rust
+in-proces): 1 MP 109–122 ms tegen 18–25 ms, 8 MP 1,0–1,3 s tegen 0,10–0,12 s,
+35 MP 5,0–5,1 s tegen 0,41–0,56 s. De streams zijn even groot (35 MP: 19 MB in
+beide routes). Het script rekent er een model van de oversteek bij; dat model
+geldt niet voor de app (zie hieronder).
+
+**Niet gemeten.** Een release-build van de app, macOS en Linux.
+
+### Base64 naar bytes (`bytesUitBase64`)
+
+Het CPU-profiel van het opslaan liet zien dat bij een afbeeldingsannotatie het
+omzetten van de data-URL naar bytes (`bytesUitDataUrl` in
+`js/annotations/afbeelding-bron.js`, met
+`Uint8Array.from(atob(..), c => c.charCodeAt(0))`: één functieaanroep per
+byte) 408 tot 699 ms op de interface-thread kostte voor een beeld van 4 MP,
+meer dan het insluiten zelf. Dat is nu `bytesUitBase64()`:
+`Uint8Array.fromBase64` waar de WebView die heeft, anders `atob` met een lus in
+een vooraf aangemaakte reeks; weigert `fromBase64` de invoer, dan beslist
+`atob`, zodat ongeldige invoer dezelfde fout geeft als voorheen. Dezelfde
+functie staat ook op de twee andere plekken in de saver waar een beeld uit een
+data-URL komt (de appearance van een parametrisch symbool, het
+watermerkbeeld). Gewoon JavaScript, dus ook voor de webversie en mobiel.
+
+Zelfde bytes: `js/annotations/afbeelding-bron.test.mjs` (lengtes van 0 tot
+3 MB, ook geen veelvoud van drie, zonder opvulling, met witruimte, ongeldige
+invoer; met en zonder `fromBase64`), en 200.000 willekeurige tekenreeksen in
+headless Chromium 147 tegen de oude vorm zonder één verschil. Gemeten
+(mediaan van 5):
+
+| base64 van | oude vorm | `atob` + lus | nu (Chromium 147, `fromBase64`) | nu (node 24, `atob` + lus) |
+|---|---:|---:|---:|---:|
+| 0,1 MB | 8,2 ms | 0,5 ms | 0,1 ms | 0,9 ms (oud: 25 ms) |
+| 1 MB | 105 ms | 5,2 ms | 1,0 ms | 6,4 ms (oud: 161 ms) |
+| 5 MB | 386 ms | 17 ms | 3,3 ms | 27 ms (oud: 752 ms) |
+| 20 MB | 1243 ms | 65 ms | 15 ms | 64 ms (oud: 2123 ms) |
+
+### De les: het model van de oversteek klopte niet
+
+De metingen van fase 3 buiten de app rekenden voor de oversteek tussen de
+WebView en Rust ongeveer 1 ms per aanroep plus een paar kopieën van de bytes.
+In de app gemeten kost zij 23 tot 31 ms voor 1 MB, 100 tot 180 ms voor 5 MB en
+370 tot 685 ms voor 20 MB heen, en ongeveer hetzelfde terug; een kleine
+tekstaanvraag kost vast ongeveer 4 ms. De tijden van JavaScript en van Rust
+zelf klopten, de oversteek en daarmee de voorspelde winst niet: met het model
+leek Rust voor een PNG vanaf 32.768 pixels 2 tot 12 keer sneller, in de app is
+het juist daar trager. Een route gaat dus pas aan na een meting in de echte
+app, en zo'n meting hoort bij elke volgende stap.
+
+### Niet meegenomen
+
+Het volledige werk van fase 3 staat op de lokale tak `integratie/rust3`, met
+de code, de pariteitstoetsen en de metingen, om later opnieuw te meten.
+
+**Paginatekst uit de worker voor de elf lezers.** Niet hetzelfde resultaat: op
+4 van de 35 echte bestanden (12 van de 214 pagina's) gaf de worker andere
+tekstitems dan pdf.js. Bij drie A0-tekeningen met tekst die 180 graden
+gedraaid is getekend kwamen er extra items van één spatie en werden reeksen
+cijfers op andere plekken gesplitst; bij een tekstdocument met ingesloten
+deelfonts stonden er spaties binnen een reeks. Daardoor verschilden
+paginalabels, herkende woorden, bladverwijzingen, formulierherkenning en de
+woordenverzamelingen van de vergelijkweergave. Sneller was het ook niet: een
+aanvraag kost vast ongeveer 4 ms, pdf.js leest een lichte pagina in 2 tot
+3 ms. Het zoeken zelf gebruikt de tekst uit de worker al langer en is niet
+gewijzigd.
+
+**Stempelbeelden decoderen.** De gedecodeerde pixels zijn gelijk, maar voor
+grijs, RGB en CMYK is Rust bij elke gemeten maat trager dan het canvas (0,4
+tot 0,8 keer zo snel), en de data-URL is voor een dekkend beeld 36 tot 62 %
+groter. Bij enkele grote stempels verschilde bovendien de schermopname van de
+pagina licht tussen de routes, hoewel de pixels gelijk zijn; de oorzaak is niet
+gevonden. Elk van de twee is reden genoeg.
+
+**Objectstromen inpakken bij het opslaan.** Zelfde objecten, maar in de
+debug-build tot 100.000 objecten trager dan pdf-lib (0,5 tot 0,9 keer zo
+snel): de overdracht van het tussenbestand weegt zwaarder dan gedacht. De
+inpakker is in die build niet geoptimaliseerd gebouwd; de schatting voor een
+release-build is 1,05 tot 1,1 keer, onder de lijn van 1,3. Dat moet eerst in
+een release-build van de app gemeten worden.
+
+**De JPEG van rasteruitvoer in de worker.** Geen winst, in de app bevestigd:
+geen paginaklasse waarin de worker-route duidelijk sneller is, en het geheugen
+dat de WebView minder vasthoudt verhuist naar de worker.

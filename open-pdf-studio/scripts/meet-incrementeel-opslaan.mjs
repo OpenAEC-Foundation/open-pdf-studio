@@ -4,7 +4,7 @@
 //
 // Gebruik (vanuit open-pdf-studio/):
 //   node scripts/meet-incrementeel-opslaan.mjs [map-of-bestand ...] [--keer=3]
-// Zonder argumenten: "../test pdf-bestanden" (de originele bestanden).
+// Zonder argumenten: "../../verification-files/PDF-bestanden".
 // Uitvoer: een Markdown-tabel op stdout (docs/incrementeel-opslaan.md).
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
@@ -33,8 +33,8 @@ const argv = process.argv.slice(2);
 const keer = Number((argv.find((a) => a.startsWith('--keer=')) || '--keer=3').slice(7));
 let paden = argv.filter((a) => !a.startsWith('--'));
 if (!paden.length) {
-  const basis = path.resolve(app, '..', 'test pdf-bestanden');
-  paden = [path.join(basis, 'Originele bestanden'), basis];
+  const basis = path.resolve(app, '..', '..', 'verification-files', 'PDF-bestanden');
+  paden = [basis];
 }
 const bestanden = [];
 for (const p of paden) {
@@ -83,7 +83,7 @@ console.log('| Bestand | Bron | Annotaties blad 1 | Volledig: grootte | Volledig
 console.log('|---|---:|---:|---:|---:|---:|---:|---|');
 for (const f of bestanden) {
   const bron = new Uint8Array(readFileSync(f));
-  const naam = path.relative(path.resolve(app, '..'), f).replace(/^test pdf-bestanden\//, '');
+  const naam = path.basename(f);
   try {
     const bm = await bladwijzers(bron);
     // Blad 1 zoals de lader het model maakt, plus één nieuw vak: de saver

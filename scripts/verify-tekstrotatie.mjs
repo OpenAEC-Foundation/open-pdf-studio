@@ -1,9 +1,10 @@
+import { verificationPath } from './verification-path.mjs';
 // Verplichte release-poorttest: tekstrotatie overleeft de opslag-rondgang.
 //
 // Achtergrond: geroteerde tekstvakken zijn meermaals stukgegaan rond releases
 // (tekst plat in een AABB-doos na heropenen). Deze test borgt twee dingen:
 //   1. REFERENTIE: een door een eerdere generatie opgeslagen bestand
-//      ("test pdf-bestanden/tekstrotatie-referentie.pdf", tekstvakken op
+//      ("PDF-tests-open-pdf-studio/tekstrotatie-referentie.pdf" in verification-files, tekstvakken op
 //      0/90/-90/45/-55 graden) laadt met de juiste rotaties.
 //   2. RONDGANG: de huidige build maakt zelf geroteerde tekstvakken, slaat op,
 //      heropent, en de rotaties (en afmetingen) zijn intact.
@@ -16,9 +17,9 @@
 const POORT = process.env.MCP_PORT || '9223';
 const MCP = `http://127.0.0.1:${POORT}/mcp`;
 const REFERENTIE = (process.env.ROTATIE_REF
-  || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/tekstrotatie-referentie.pdf').replace(/\\/g, '/');
+  || verificationPath('PDF-tests-open-pdf-studio/tekstrotatie-referentie.pdf')).replace(/\\/g, '/');
 const EXTERN = (process.env.ROTATIE_EXTERN
-  || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/tekstrotatie-extern.pdf').replace(/\\/g, '/');
+  || verificationPath('PDF-tests-open-pdf-studio/tekstrotatie-extern.pdf')).replace(/\\/g, '/');
 const RONDGANG_UIT = 'C:/Users/rickd/AppData/Local/Temp/tekstrotatie-rondgang-uit.pdf';
 const HOEKEN = [0, 90, -90, 45, -55];
 const TOLERANTIE = 1; // graden

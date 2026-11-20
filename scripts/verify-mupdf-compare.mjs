@@ -1,3 +1,4 @@
+import { verificationPath } from './verification-path.mjs';
 // Vergelijkings-sweep: rendert per verificatie-PDF een paginaselectie zowel in
 // de live rig (--mcp-server, poort 9223) als via een onafhankelijke externe
 // render-engine (MuPDF, via scripts/mupdf_compare_helper.py) en vergelijkt
@@ -28,8 +29,8 @@ const REPO = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio';
 const HELPER = path.join(REPO, 'scripts', 'mupdf_compare_helper.py');
 const MCP = 'http://127.0.0.1:9223/mcp';
 const DEFAULT_DIRS = [
-  'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
-  `${REPO}/test pdf-bestanden/Originele bestanden`,
+  verificationPath('PDF-bestanden'),
+  verificationPath('PDF-tests-open-pdf-studio'),
 ];
 const RECOMPARE = process.argv[2] === '--recompare';
 const ts = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);

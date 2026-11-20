@@ -1,9 +1,10 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Wall-clock open-time probe for NKD1a (or any path passed as argv[2]).
 // Calls the live app via MCP JSON-RPC and captures the in-app [PERF] log.
 
 const MCP = 'http://127.0.0.1:9223/mcp';
 const PDF_PATH = process.argv[2] ||
-  'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/NKD1a_opm_aw.pdf';
+  verificationPath('PDF-bestanden/NKD1a_opm_aw.pdf');
 
 let id = 1;
 async function rpc(method, params) {

@@ -2,7 +2,7 @@
   "name": "01-open-a4-booklet",
   "description": "Opening a uniform-A4 multi-page PDF must (a) open in the current default viewMode ('single' — sinds de continuous-disable-fase is de default niet teruggezet bij de heractivering van doorlopende weergave; zie testprotocol-eindrapport), (b) settle on a sane scale (not the 0.0012 race), (c) pick the Raster (PDFium) render engine. Page number + annotation count are NOT asserted here because they reflect user-session state from prior scenarios, not load behaviour.",
   "setup": {
-    "pdfPath": "test pdf-bestanden/Originele bestanden/Text pdf gecombineerd.pdf"
+    "pdfPath": "../verification-files/PDF-bestanden/Text pdf gecombineerd.pdf"
   },
   "steps": [
     { "action": "wait", "ms": 1200 },

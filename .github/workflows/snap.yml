@@ -108,6 +108,7 @@ jobs:
           echo "Built snap: $SNAP_FILE"
 
       - name: Upload snap to GitHub release
+        id: attach
         run: |
           SNAP_FILE="${{ steps.snapcraft.outputs.snap }}"
           echo "Uploading $SNAP_FILE to release ${{ steps.get-version.outputs.version }}"
@@ -122,7 +123,13 @@ jobs:
             sleep 30
           done
 
+          version="${{ steps.get-version.outputs.version }}"
+          state=$(gh release view "$version" --json isDraft,assets)
+          if ! jq -e '.isDraft' <<< "$state" >/dev/null; then exit 0; fi
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && git ls-remote --exit-code --tags origin "refs/tags/$version" >/dev/null; then exit 0; fi
+          if [ "$GITHUB_EVENT_NAME" = push ] && jq -e 'any(.assets[]; .name | endswith(".snap"))' <<< "$state" >/dev/null; then exit 0; fi
           gh release upload "${{ steps.get-version.outputs.version }}" "$SNAP_FILE" --clobber
+          echo "uploaded=true" >> "$GITHUB_OUTPUT"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -144,6 +151,7 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: Sign the Linux assets again (OpenPGP)
+        if: steps.attach.outputs.uploaded == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -155,6 +163,7 @@ jobs:
           OPENAEC_GPG_EXPECTED_FINGERPRINT: 13F6D414ADEE4ED4CD09AC60601D86C93C504D29
         run: |
           set -euo pipefail
+          [ "$(gh release view "$VERSION" --json isDraft -q .isDraft)" = true ] || exit 0
           names=$(gh release view "$VERSION" --json assets -q '.assets[].name')
           if [ "${{ github.event_name }}" != "workflow_dispatch" ] && ! grep -qx 'SHA256SUMS' <<< "$names"; then
             echo "The sign-linux job of release.yml signs this snap."

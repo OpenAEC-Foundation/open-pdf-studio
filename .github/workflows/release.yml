@@ -9,7 +9,11 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.48.2'
+        default: 'v2026.48.3'
+
+concurrency:
+  group: release-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
 
 jobs:
   create-release:
@@ -51,21 +55,36 @@ jobs:
       - name: Create release
         id: create-release
         uses: actions/github-script@v8
+        env:
+          RELEASE_VERSION: ${{ steps.get-version.outputs.version }}
         with:
+          result-encoding: string
           script: |
-            const version = '${{ steps.get-version.outputs.version }}';
-            // Idempotent: een tag-push nadat de release al bestaat (bv. na
-            // handmatige publicatie van een eerder concept) mag geen tweede
-            // concept-release + dubbele buildrun veroorzaken. Bestaande
-            // release op deze tag (concept of gepubliceerd) wordt hergebruikt;
-            // de artefact-uploads verderop overschrijven met --clobber.
+            const version = process.env.RELEASE_VERSION;
             const bestaande = await github.paginate(github.rest.repos.listReleases, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               per_page: 100,
             });
             const hergebruik = bestaande.find((r) => r.tag_name === version);
+            if (hergebruik && (!hergebruik.draft || hergebruik.published_at || context.eventName !== 'workflow_dispatch')) {
+              core.info(`Preserving existing release for ${version}.`);
+              return '';
+            }
             if (hergebruik) {
+              try {
+                await github.rest.git.getRef({ ...context.repo, ref: `tags/${version}` });
+                core.info(`Preserving the tagged draft for ${version}.`);
+                return '';
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+              if (hergebruik.target_commitish !== context.sha) {
+                await github.rest.repos.updateRelease({
+                  ...context.repo, release_id: hergebruik.id,
+                  tag_name: version, target_commitish: context.sha,
+                });
+              }
               core.info(`Release voor ${version} bestaat al (id ${hergebruik.id}) — hergebruiken.`);
               return hergebruik.id;
             }
@@ -73,6 +92,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: version,
+              target_commitish: context.sha,
               name: `Open PDF Studio ${version}`,
               // Release-notes zijn alleen in het Engels. De in-app
               // "Wat is nieuw"-dialog (js/help/release-notes.js) toont een body
@@ -86,6 +106,7 @@ jobs:
 
   build:
     needs: create-release
+    if: needs.create-release.outputs.release_id != ''
     permissions:
       contents: write
     strategy:
@@ -420,6 +441,7 @@ jobs:
             const { owner, repo } = context.repo;
             const release_id = process.env.release_id;
             const { data } = await github.rest.repos.getRelease({ owner, repo, release_id });
+            if (!data.draft) return;
             const marker = '<!-- openaec-memory-at-rest -->';
             const body = (data.body || '').split(marker)[0].trimEnd()
               + `\n\n${marker}\n### OpenAEC Linux\n\n${line}\n`;
@@ -651,6 +673,7 @@ jobs:
 
   build-android:
     needs: create-release
+    if: needs.create-release.outputs.release_id != ''
     # Non-blocking: a failed Android build must NOT hold back the desktop
     # release (Windows/Linux/macOS). It uploads its APK independently.
     continue-on-error: true
@@ -732,8 +755,8 @@ jobs:
       # secrets: ANDROID_KEYSTORE_BASE64 (the keystore file, base64),
       # ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD
       # (alias and key password are optional: "open-pdf-studio" and the
-      # keystore password). Without them the build still produces an APK,
-      # signed with a one-off key, and says so loudly.
+      # keystore password). Missing credentials stop signing and upload: a
+      # one-off fallback key would break updates for installed apps (#842).
       - name: Sign APK
         id: sign-apk
         env:
@@ -751,30 +774,21 @@ jobs:
           echo "Found unsigned APK: $UNSIGNED_APK"
           APK_DIR=$(dirname "$UNSIGNED_APK")
 
-          # The keystore stays outside the build tree and is removed afterwards.
-          KEYSTORE="$RUNNER_TEMP/open-pdf-studio-release.keystore"
-          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
-            if [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
-              echo "::error title=Android signing::ANDROID_KEYSTORE_BASE64 is set but ANDROID_KEYSTORE_PASSWORD is not"
-              exit 1
-            fi
-            printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$KEYSTORE"
-            export KS_PASS="$ANDROID_KEYSTORE_PASSWORD"
-            export KEY_PASS="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
-            KEY_ALIAS="${ANDROID_KEY_ALIAS:-open-pdf-studio}"
-            echo "Signing with the fixed release key from the repository secrets (alias $KEY_ALIAS)"
-          else
-            echo "::warning title=Android signing::ANDROID_KEYSTORE_BASE64 is not set. This APK is signed with a one-off key and cannot be installed over an earlier version (INSTALL_FAILED_UPDATE_INCOMPATIBLE). Add the ANDROID_KEYSTORE_* signing secrets to the repository."
-            export KS_PASS=openpdfstudio
-            export KEY_PASS=openpdfstudio
-            KEY_ALIAS=release
-            keytool -genkeypair -v \
-              -keystore "$KEYSTORE" \
-              -alias "$KEY_ALIAS" \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass "$KS_PASS" -keypass "$KEY_PASS" \
-              -dname "CN=Open PDF Studio, O=OpenAEC Foundation, L=Unknown, ST=Unknown, C=US"
+          # Never create a replacement identity when release credentials are missing.
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
+            echo "::error title=Android signing::A fixed release key is required. Configure ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD (see issue #601). No APK will be uploaded."
+            exit 1
           fi
+
+          # Keep the key outside the build tree; clean it on failure as well.
+          KEYSTORE="$RUNNER_TEMP/open-pdf-studio-release.keystore"
+          trap 'rm -f "$KEYSTORE"' EXIT
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$KEYSTORE"
+          export KS_PASS="$ANDROID_KEYSTORE_PASSWORD"
+          export KEY_PASS="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+          KEY_ALIAS="${ANDROID_KEY_ALIAS:-open-pdf-studio}"
+          echo "Signing with the fixed release key from the repository secrets (alias $KEY_ALIAS)"
 
           # Find the build-tools for zipalign and apksigner
           BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -1)
@@ -825,6 +839,7 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     needs: create-release
+    if: needs.create-release.outputs.release_id != ''
 
     steps:
       - uses: actions/checkout@v6
@@ -846,6 +861,7 @@ jobs:
 
   python-library:
     needs: create-release
+    if: needs.create-release.outputs.release_id != ''
     # Python-bibliotheek (#518): sdist + wheel van python/, aan de concept-
     # release gehangen. Puur Python (py3-none-any): een wheel voor alle
     # platforms. Publiceren op PyPI is een aparte, handmatige stap (zie
@@ -899,6 +915,7 @@ jobs:
     # Vast op 24.04: Playwright 1.59 kent het nieuwere ubuntu-latest (26.04) niet.
     runs-on: ubuntu-24.04
     needs: create-release
+    if: needs.create-release.outputs.release_id != ''
     defaults:
       run:
         working-directory: open-pdf-studio
@@ -1007,6 +1024,7 @@ jobs:
     # only a workflow artifact for testing, not a release asset, and this job
     # does not gate the release.
     needs: create-release
+    if: needs.create-release.outputs.release_id != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 150
 
@@ -1133,25 +1151,3 @@ jobs:
             echo "::warning::$msg"
           fi
           echo "$msg" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Finalize release
-        id: publish-release
-        uses: actions/github-script@v8
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-          release_tag: ${{ needs.create-release.outputs.version }}
-          release_sha: ${{ github.sha }}
-        with:
-          script: |
-            // Keep the verified tag when updating a draft. Omitting it can
-            // turn the release into an untagged draft and break later uploads.
-            // Publication remains an explicit maintainer action.
-            await github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              tag_name: process.env.release_tag,
-              target_commitish: process.env.release_sha,
-              draft: true,
-              prerelease: false
-            });

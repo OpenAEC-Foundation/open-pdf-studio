@@ -1,3 +1,4 @@
+import { verificationPath } from '../scripts/verification-path.mjs';
 // Verify compare-view sync: side-by-side panes mirror scroll (programmatic +
 // drag-pan) and shared zoom keeps the view anchored. Also checks overlay
 // drag-pan. Drives the rig (MCP :9223 + CDP :9222) and writes screenshots
@@ -10,8 +11,8 @@ const require = createRequire(import.meta.url);
 const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules/playwright');
 
 const MCP = 'http://127.0.0.1:9223/mcp';
-const OLD_PDF = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/Technische tekening.pdf';
-const NEW_PDF = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Testbestanden/Technische tekening.pdf';
+const OLD_PDF = verificationPath('PDF-tests-open-pdf-studio/Technische tekening (origineel).pdf');
+const NEW_PDF = verificationPath('PDF-tests-open-pdf-studio/Technische tekening (testversie).pdf');
 const SHOTS = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/mcp-server';
 
 async function tool(name, args) {
