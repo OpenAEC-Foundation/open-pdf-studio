@@ -549,7 +549,7 @@ export default function DocumentTabs() {
   });
 
   return (
-    <div class="document-tabs" id="document-tabs">
+    <div class="document-tabs" id="document-tabs" data-dock-label={t('dropHereToDock')}>
       <Show when={state.documents.length === 0}>
         <div class="document-tabs-empty">{t('noDocumentsOpen')}</div>
       </Show>

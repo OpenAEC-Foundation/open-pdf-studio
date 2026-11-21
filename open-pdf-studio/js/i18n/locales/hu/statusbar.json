@@ -43,6 +43,7 @@
   "page": "Oldal",
   "zoomOut": "Kicsinyítés",
   "zoomIn": "Nagyítás",
+  "dropHereToDock": "A lap dokkolásához ejtse ide",
   "noDocumentsOpen": "Nincs megnyitott dokumentum",
   "closeTab": "Bezárás",
   "openPdfFile": "PDF fájl megnyitása",

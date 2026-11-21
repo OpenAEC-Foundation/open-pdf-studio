@@ -43,6 +43,7 @@
   "page": "Page",
   "zoomOut": "Zoom Out",
   "zoomIn": "Zoom In",
+  "dropHereToDock": "Drop here to dock",
   "noDocumentsOpen": "No documents open",
   "closeTab": "Close",
   "openPdfFile": "Open PDF file",

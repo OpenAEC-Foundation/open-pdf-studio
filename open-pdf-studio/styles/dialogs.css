@@ -2843,6 +2843,9 @@
 }
 
 /* Page range toggle buttons */
+.print-pages-row .print-page-btns { flex-wrap: wrap; }
+.print-pages-row .print-page-btn { cursor: default; }
+.print-pages-row .print-page-btn:disabled { color: var(--theme-text-disabled, #777); }
 .print-page-btns,
 .print-subset-btns {
   display: flex;

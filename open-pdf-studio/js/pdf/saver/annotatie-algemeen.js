@@ -52,7 +52,7 @@ export function schrijfAlgemeneSleutels(dict, ann, gebruikteNm) {
   if (!heeft('Subj')) {
     const plek = onderwerpPlek(ann.type);
     const onderwerp = plek === 'subj' ? ann.subject : plek === 'contents' ? ann.pdfSubject : '';
-    if (onderwerp) dict.set(N('Subj'), pdfTextString(String(onderwerp)));
+    if (onderwerp || (plek === 'contents' && onderwerp === '')) dict.set(N('Subj'), pdfTextString(String(onderwerp)));
   }
   const zone = zoneDefinition(ann.spatialZone);
   if (zone) dict.set(N('OPS_SpatialZone'), pdfTextString(JSON.stringify(zone)));

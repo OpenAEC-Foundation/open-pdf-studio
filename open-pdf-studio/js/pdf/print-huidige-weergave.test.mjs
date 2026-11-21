@@ -150,10 +150,10 @@ test('de dialoog biedt Huidige weergave aan en geeft de uitsneden aan beide doel
   const dlg = readFileSync(new URL('../solid/components/dialogs/PrintDialog.jsx', import.meta.url), 'utf8');
   assert.match(dlg, /onClick=\{\(\) => onRangeChange\('view'\)\}/);
   assert.match(dlg, /t\('print\.currentView'\)/);
-  assert.match(dlg, /range: activeRange\(\) === 'view' \? bewaard\.range : activeRange\(\)/);
+  assert.match(dlg, /range: \['view', 'area'\]\.includes\(activeRange\(\)\) \? bewaard\.range : activeRange\(\)/);
   assert.equal((dlg.match(/^\s+uitsneden,\r?$/gm) || []).length, 2, 'printer en Opslaan als PDF');
   const job = readFileSync(new URL('./print-job.js', import.meta.url), 'utf8');
-  assert.match(job, /if \(uitsneden\?\.size\) throw new Error\('current view prints page images'\)/);
+  assert.match(job, /if \(uitsneden\?\.size && !vectorArea\) throw new Error\('current view prints page images'\)/);
   assert.match(job, /uitsnede \? uitsnedePxPerPt\(plaatsing, uitsnede\) : printPxPerPt\(plaatsing\)/);
   for (const taal of ['en', 'nl']) {
     const t = JSON.parse(readFileSync(new URL(`../i18n/locales/${taal}/dialogs.json`, import.meta.url), 'utf8'));

@@ -64,6 +64,7 @@ export function findImageAnnotationSources(pageNum, pdfDoc) {
 
     sources.push({
       annotationId: annotationIdOf(annotationRaw),
+      editableTint: annotation.has(PDFName.of('OPS_TintColor')),
       kind: isSquareImage ? 'square-image' : 'stamp',
       rectKey: key,
       stream,

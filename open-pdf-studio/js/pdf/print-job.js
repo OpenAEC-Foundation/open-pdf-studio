@@ -2,7 +2,8 @@
 // to the printer, reporting progress through printProgressStore so the print
 // dialog can close immediately and the user keeps working.
 
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName } from 'pdf-lib';
+import { isAnnotationHiddenInOutput } from '../annotations/view-filters.js';
 import { embedPngSnel } from './embed-png-rust.js';
 import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
@@ -21,7 +22,7 @@ import { maakPoster } from './print-poster.js';
 import { maakBoekje } from './print-boekje.js';
 import { zetCanvasOm, beeldFormaatVoor, vectorMogelijk } from './print-kleur.js';
 import { uitsnedePxPerPt, uitsnedeRenderVak } from './print-huidige-weergave.js';
-import { heeftFormulierVelden } from './print-formulieren.js';
+import { heeftFormulierVelden, vlakAfdrukbareVelden } from './print-formulieren.js';
 
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
@@ -77,10 +78,22 @@ function knip(canvas, px) {
  * de markeringen, en gedraaid over de weergaverotatie. Voor de plaatsing is
  * dit beeld de hele pagina.
  */
-async function renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen) {
-  const canvas = await renderUitvoerPagina(pageNum, pxPerPt, {
-    deel: uitsnedeRenderVak(uitsnede, pxPerPt), markeringen,
+async function renderPrintLaag(pageNum, pxPerPt, deel, markeringen, alleenMarkeringen) {
+  if (!alleenMarkeringen) return renderUitvoerPagina(pageNum, pxPerPt, { deel, markeringen });
+  const page = await getActiveDocument().pdfDoc.getPage(pageNum);
+  const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum), pxPerPt));
+  const canvas = await renderMarkeringenOffscreen(pageNum, pxPerPt, viewport, {
+    deel, markeringen, watermerken: false, tekstbewerkingen: false,
   });
+  const ctx = canvas.getContext('2d');
+  ctx.globalCompositeOperation = 'destination-over';
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+async function renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen, alleenMarkeringen) {
+  const canvas = await renderPrintLaag(pageNum, pxPerPt, uitsnedeRenderVak(uitsnede, pxPerPt), markeringen, alleenMarkeringen);
   return draaiRechtsom(canvas, uitsnede.rotatie);
 }
 
@@ -95,15 +108,13 @@ async function renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen) {
  * uitsnede in plaats van bij de hele pagina.
  * @returns {Promise<HTMLCanvasElement>}
  */
-export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true, kleur = 'color', uitsnede = null } = {}) {
+export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true, kleur = 'color', uitsnede = null, alleenMarkeringen = false } = {}) {
   if (uitsnede) {
-    const beeld = await renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen);
+    const beeld = await renderUitsnede(pageNum, pxPerPt, uitsnede, markeringen, alleenMarkeringen);
     const stuk = knip(beeld, ongedraaidDeel(plaatsing, pxPerPt, deel.px));
     return zetCanvasOm(plaatsing.gedraaid ? kwartslagLinksom(stuk) : stuk, kleur);
   }
-  const canvas = await renderUitvoerPagina(pageNum, pxPerPt, {
-    deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
-  });
+  const canvas = await renderPrintLaag(pageNum, pxPerPt, ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen, alleenMarkeringen);
   return zetCanvasOm(plaatsing.gedraaid ? kwartslagLinksom(canvas) : canvas, kleur);
 }
 
@@ -162,7 +173,7 @@ export async function bouwPrintPdf({
 
     const pxPerPt = uitsnede ? uitsnedePxPerPt(plaatsing, uitsnede) : printPxPerPt(plaatsing);
     const deel = renderDeel(plaatsing, pxPerPt);
-    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, uitsnede });
+    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, uitsnede, alleenMarkeringen: inhoud === 'markups-only' });
     const beeld = beeldFormaatVoor(kleur) === 'png'
       ? await embedPngSnel(pdf, await canvasToBytes(canvas, 'png'))
       : await pdf.embedJpg(await canvasToBytes(canvas, 'jpeg', 0.92));
@@ -180,15 +191,17 @@ export async function bouwPrintPdf({
  * 300 dpi past niet in één keer in het geheugen.
  * @returns {Promise<{ png: Uint8Array, opVel: object }[]>}
  */
-async function markeringBeelden(pageNum, plaatsing, markeringen) {
-  const pxPerPt = printPxPerPt(plaatsing);
+async function markeringBeelden(pageNum, plaatsing, markeringen, uitsnede, alleenMarkeringen) {
+  const pxPerPt = uitsnede ? uitsnedePxPerPt(plaatsing, uitsnede) : printPxPerPt(plaatsing);
   const deel = renderDeel(plaatsing, pxPerPt);
   if (!deel) return [];
   const page = await getActiveDocument().pdfDoc.getPage(pageNum);
   const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum), pxPerPt));
   let canvas = await renderMarkeringenOffscreen(pageNum, pxPerPt, viewport, {
-    deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
+    deel: uitsnede ? uitsnedeRenderVak(uitsnede, pxPerPt) : ongedraaidDeel(plaatsing, pxPerPt, deel.px),
+    markeringen, watermerken: !alleenMarkeringen, tekstbewerkingen: !alleenMarkeringen,
   });
+  if (uitsnede) canvas = knip(draaiRechtsom(canvas, uitsnede.rotatie), ongedraaidDeel(plaatsing, pxPerPt, deel.px));
   if (plaatsing.gedraaid) canvas = kwartslagLinksom(canvas);
 
   const raster = maakTegelRaster(canvas.width, canvas.height);
@@ -215,6 +228,72 @@ async function bronBytesVan(doc) {
   if (!bytes && doc.filePath) bytes = await readBinaryFile(doc.filePath);
   if (!bytes) throw new Error('no source bytes');
   return bytes;
+}
+
+/** Bouw de afdrukbare appearances op een lege kopie van de gekozen pagina. */
+async function vectorMarkeringen(doc, pageNum) {
+  const zichtbaar = doc.annotations.filter(a => a.page === pageNum && !isAnnotationHiddenInOutput(a));
+  if (!zichtbaar.length) return null;
+  const ids = new Set(zichtbaar.map(a => String(a.id)));
+  const { bouwAnnotatieDocument } = await import('./saver.js');
+  const { vlakDocument, MODEL_ID_SLEUTEL } = await import('./flatten-bytes.js');
+  const { pdfDocLib } = await bouwAnnotatieDocument(doc);
+  const page = pdfDocLib.getPage(pageNum - 1);
+  page.node.delete(PDFName.of('Contents'));
+  page.node.set(PDFName.of('Resources'), pdfDocLib.context.obj({}));
+  const { gebakkenIds } = vlakDocument(pdfDocLib, {
+    herstelbaar: false,
+    isTeVlakken: (_ref, dict) => ids.has(dict.get(PDFName.of(MODEL_ID_SLEUTEL))?.decodeText?.()),
+  });
+  // Sommige markeringen hebben alleen een schermweergave. Behoud dan de
+  // tekenvolgorde van de hele laag via de bestaande uitvoerrenderer.
+  if (gebakkenIds.length !== ids.size || !page.node.Contents()) return null;
+  page.node.delete(PDFName.of('Annots'));
+  return page;
+}
+
+/** Dezelfde ingekaderde vectorpagina voor de PDF-uitvoer en de spooler. */
+async function vectorOpdracht({ doc, pages, orientatie, vel, schaling, zoom, centreren, inhoud, voortgang, uitsneden }) {
+  const originalPdf = doc.pdfDoc;
+  function checkDocument() {
+    if (getActiveDocument() !== doc || doc.pdfDoc !== originalPdf) throw new Error(i18next.t('dialogs:screenshot.documentChanged'));
+  }
+  const alleenMarkeringen = inhoud === 'markups-only';
+  let bytes = await bronBytesVan(doc);
+  if (uitsneden?.size && !alleenMarkeringen && await heeftFormulierVelden(doc.pdfDoc, pages)) {
+    const bron = await PDFDocument.load(bytes);
+    const { schrijfFormulierWaarden } = await import('./saver.js');
+    schrijfFormulierWaarden(bron, doc, { weigerOntbrekend: true });
+    vlakAfdrukbareVelden(bron.getForm());
+    bytes = await bron.save();
+  }
+  const areaPage = uitsneden?.size === 1 ? pages[0] : null;
+  const hasDocumentOverlay = !alleenMarkeringen && (doc.watermarks?.length || doc.textEdits?.length);
+  let vectorLayer = null;
+  if (areaPage && markeringenVoorInhoud(inhoud) && !hasDocumentOverlay) {
+    try {
+      vectorLayer = await vectorMarkeringen(doc, areaPage);
+    } catch (error) {
+      console.warn('[print] using the rendered markup layer:', error);
+    }
+  }
+  checkDocument();
+  const { bytesMetLaagstand } = await import('./lagen-schakelen.js');
+  return bouwVectorPrintPdf({
+    bronBytes: await bytesMetLaagstand(doc, bytes), toonDocument: !alleenMarkeringen,
+    vectorLayer,
+    paginas: pages.map(n => ({ index: n - 1, extraRotatie: doc.pageRotations?.[n] || 0, uitsnede: uitsneden?.get(n) })),
+    keuzes: { papier: vel, orientatie, schaling, zoom, centreren },
+    beelden: async ({ index, plaatsing }) => {
+      checkDocument();
+      if (vectorLayer || (areaPage && !hasDocumentOverlay && !markeringenVoorInhoud(inhoud))) return [];
+      const beelden = await markeringBeelden(index + 1, plaatsing, markeringenVoorInhoud(inhoud),
+        uitsneden?.get(index + 1), alleenMarkeringen);
+      checkDocument();
+      return beelden;
+    },
+    voortgang: (i, index) => voortgang(i, index + 1),
+  });
 }
 
 /**
@@ -251,7 +330,7 @@ async function bronBytesVan(doc) {
 export async function slaPrintOpAlsPdf({
   pages, pad, orientatie = 'auto', vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100,
   centreren: centrerenKeuze = true, meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false,
-  inhoud = 'doc-and-markups', kleur = 'color', openen = null, afgebroken = () => false, uitsneden = null,
+  inhoud = 'doc-and-markups', kleur = 'color', openen = null, afgebroken = () => false, uitsneden = null, vectorArea = false, asImage = false,
 }) {
   // `orientatie` is de stand van het vel; de printpagina's krijgen bij
   // pagina's per vel en een boekje hun eigen stand (bronOrientatie, #623).
@@ -270,28 +349,22 @@ export async function slaPrintOpAlsPdf({
       i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
       i / total,
     );
-    const markeringen = markeringenVoorInhoud(inhoud);
-
     let pdf;
     let gerasterd = false;
     try {
-      if (!vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
+      if (asImage || !vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
       // Huidige weergave (#947): de uitsneden bestaan alleen als paginabeeld.
-      if (uitsneden?.size) throw new Error('current view prints page images');
+      if (uitsneden?.size && !vectorArea) throw new Error('current view prints page images');
       // Formuliervelden: de vectorvorm neemt de bronpagina zonder annotaties
       // over, dus zonder de velden en hun waarden. Het paginabeeld tekent ze
       // wel (print-formulieren.js).
-      if (await heeftFormulierVelden(doc.pdfDoc, pages)) throw new Error(FORMULIER_ALS_BEELD);
-      ({ pdf } = await bouwVectorPrintPdf({
-        // Met de geschakelde laagstand (#377): de afdruk toont wat in beeld is.
-        bronBytes: await (await import('./lagen-schakelen.js')).bytesMetLaagstand(doc, await bronBytesVan(doc)),
-        paginas: pages.map((pageNum) => ({ index: pageNum - 1, extraRotatie: getPageRotation(pageNum) })),
-        keuzes: { papier: bronVel, orientatie: bronOrientatie, schaling, zoom, centreren },
-        beelden: ({ index, plaatsing }) => markeringBeelden(index + 1, plaatsing, markeringen),
-        voortgang: (i, index) => voortgang(i, index + 1),
+      if (!vectorArea && await heeftFormulierVelden(doc.pdfDoc, pages)) throw new Error(FORMULIER_ALS_BEELD);
+      ({ pdf } = await vectorOpdracht({
+        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, voortgang, uitsneden,
       }));
     } catch (e) {
-      if (vectorMogelijk(kleur) && !uitsneden?.size && e?.message !== FORMULIER_ALS_BEELD) {
+      if (vectorArea) throw e;
+      if (!asImage && vectorMogelijk(kleur) && !uitsneden?.size && e?.message !== FORMULIER_ALS_BEELD) {
         console.warn('[print] vector print PDF failed; falling back to page images:', e);
       }
       gerasterd = true;
@@ -415,7 +488,7 @@ export async function runPrintJob({
   pages, copies, printer, orientatie = 'auto', papier = 'printer', duplex = 'printer',
   vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100, centreren: centrerenKeuze = true,
   meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false, inhoud = 'doc-and-markups',
-  kleur = 'color', afgebroken = () => false, uitsneden = null,
+  kleur = 'color', afgebroken = () => false, uitsneden = null, vectorArea = false,
 }) {
   // `orientatie` is de stand van het vel (en gaat zo naar print_pdf); de
   // printpagina's krijgen bij pagina's per vel en een boekje hun eigen stand
@@ -432,7 +505,8 @@ export async function runPrintJob({
     if (!doc?.pdfDoc) throw new Error(i18next.t('dialogs:print.progress.errNoDocument'));
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
-    const { pdf: pagePdf, opVel: paginasOpVel } = await bouwPrintPdf({
+    const bouw = vectorArea ? vectorOpdracht : bouwPrintPdf;
+    const { pdf: pagePdf, opVel: paginasOpVel } = await bouw({
       doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, uitsneden,
       voortgang: (i, pageNum) => updatePrintProgress(
         i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
@@ -470,7 +544,7 @@ export async function runPrintJob({
         (pages.length + c / numCopies) / total
       );
       await invoke('print_pdf', {
-        path: tempPath, printer, orientatie, papier, ...(opVel ? { plaatsing: 'vel' } : {}),
+        path: tempPath, printer, orientatie, papier, ...(vectorArea ? { vector: true } : {}), ...(opVel ? { plaatsing: 'vel' } : {}),
         ...(duplex !== 'printer' ? { duplex } : {}),
       });
     }

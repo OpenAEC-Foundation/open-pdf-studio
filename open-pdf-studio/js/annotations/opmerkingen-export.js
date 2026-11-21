@@ -1,3 +1,4 @@
+import { annotatieOnderwerp, onderwerpVeld } from './onderwerp.js';
 // Exporteren vanuit het opmerkingenpaneel (#383).
 //
 // - De lijst zoals het paneel haar toont (filter, groepering, sortering) als
@@ -53,6 +54,7 @@ export function inhoudVan(ann) {
   for (const veld of [ann.text, ann.stampText, ann.contents]) {
     if (typeof veld === 'string' && veld !== '') return veld;
   }
+  if (onderwerpVeld(ann.type) === 'pdfSubject' && ann.pdfSubject !== undefined) return ann.subject || '';
   return '';
 }
 
@@ -93,7 +95,7 @@ export function opmerkingRij(ann, namen = {}) {
     status && namen.statusNaam ? namen.statusNaam(status) : status,
     status ? (ann.statusBy || '') : '',
     status ? csvDatum(ann.statusAt) : '',
-    ann.subject || '',
+    annotatieOnderwerp(ann),
     inhoudVan(ann),
     replies.length,
     reactiesTekst(replies),

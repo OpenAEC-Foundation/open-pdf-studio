@@ -67,6 +67,7 @@ import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
 import { leesLengte } from '../../core/voet-inch.js';
 import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 import { setStatusWithHistory, statusHistory } from '../../review/status-history.js';
+import { annotatieOnderwerp, onderwerpVeld } from '../../annotations/onderwerp.js';
 import { isLabelVeld, zetLabelVooraf, labelVooraf } from '../../annotations/label-vooraf.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
@@ -459,7 +460,7 @@ export function storeShowProperties(annotation) {
     id: annotation.id || '',
     type: annotation.type,
     typeDisplay: getAnnotationDisplayName(annotation, getActiveDocument()?.annotations),
-    subject: annotation.subject || '',
+    subject: annotatieOnderwerp(annotation),
     author: annotation.author || state.defaultAuthor,
     created: formatDate(annotation.createdAt),
     modified: formatDate(annotation.modifiedAt),
@@ -776,7 +777,7 @@ export function storeShowMultiSelection(selected) {
 
   const sharedType = sharedValue(selected, a => a.type, '');
   const sharedAuthor = sharedValue(selected, a => a.author || state.defaultAuthor, '');
-  const sharedSubject = sharedValue(selected, a => a.subject || '', '');
+  const sharedSubject = sharedValue(selected, annotatieOnderwerp, '');
   const sharedStatus = sharedValue(selected, a => a.status || 'none', 'mixed');
   const sharedIfc = sharedValue(selected, a => a.ifcCategory || '', 'mixed');
   const sharedAltText = sharedValue(selected, a => a.altText || '', '');
@@ -1279,7 +1280,7 @@ function _syncSparingSub(ann) {
 function applyPropToAnnotation(ann, key, value) {
   ann.modifiedAt = new Date().toISOString();
   switch (key) {
-    case 'subject': ann.subject = value; break;
+    case 'subject': ann[onderwerpVeld(ann.type)] = value; break;
     case 'author': ann.author = value; break;
     case 'locked': ann.locked = value; break;
     case 'printable': ann.printable = value; break;
@@ -1675,8 +1676,7 @@ function applyAnnotProp(key, value) {
     // Apply to synthetic for immediate panel feedback.
     applyPropToAnnotation(currentAnnotation, key, value);
     setAnnotProps(key, value);
-    // Het label van een meting (#1055) gaat mee naar de volgende metingen van
-    // deze sessie; het is geen opgeslagen stijl.
+    // Onderwerp en meetnaam gelden voor de volgende annotaties van deze sessie.
     if (isLabelVeld(currentAnnotation.type, key)) {
       zetLabelVooraf(currentAnnotation.type, key, value);
       return;
@@ -1781,7 +1781,7 @@ function applyAnnotProp(key, value) {
 
   // Write to annotation object
   switch (key) {
-    case 'subject': currentAnnotation.subject = value; break;
+    case 'subject': currentAnnotation[onderwerpVeld(currentAnnotation.type)] = value; break;
     case 'author': currentAnnotation.author = value; break;
     case 'locked': currentAnnotation.locked = value; break;
     case 'printable': currentAnnotation.printable = value; break;

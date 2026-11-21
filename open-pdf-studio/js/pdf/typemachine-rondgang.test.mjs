@@ -38,7 +38,7 @@ const AP = '750.002 971.704 17.675 103.334 re n\n0 1 -1 0 0 0 cm 971.704 -767.67
 
 const DS = 'font-family:Swis721 Cn BT,sans-serif;font-size:14pt;color:#000000;';
 
-async function typemachineBlad({ it = 'FreeTextTypewriter', ds = DS } = {}) {
+async function typemachineBlad({ it = 'FreeTextTypewriter', ds = DS, cl } = {}) {
   const doc = await PDFDocument.create();
   const pagina = doc.addPage([842, 1191]);
   pagina.node.set(PDFName.of('Rotate'), doc.context.obj(90));
@@ -50,6 +50,7 @@ async function typemachineBlad({ it = 'FreeTextTypewriter', ds = DS } = {}) {
     DS: PDFString.of(ds),
     F: 4, Rotate: 90, BS: ctx.obj({ W: 0 }), AP: ctx.obj({ N: ctx.register(stroom) }),
     ...(it ? { IT: PDFName.of(it) } : {}),
+    ...(cl ? { CL: cl } : {}),
   });
   pagina.node.set(PDFName.of('Annots'), ctx.obj([ctx.register(annot)]));
   return doc.save();
@@ -295,6 +296,19 @@ test('eigen tekstvak zonder noWrap: geen /IT en dezelfde maat na opslaan en hero
     for (const k of ['x', 'y', 'width', 'height']) bij(terug[k], model[k], 0.001, `blad ${rotatie}: ${k}`);
     assert.equal(terug.textPadding, 5.5, `blad ${rotatie}: binnenmarge uit /DS`);
     assert.ok(regels(terug).length > 1, `blad ${rotatie}: breekt nog af`);
+  }
+});
+
+test('een losse /CL maakt een tekstvak ook na opslaan geen callout', async () => {
+  for (const it of [null, 'FreeText', 'FreeTextTypeWriter']) {
+    const bron = await typemachineBlad({ it, cl: [0, 792, 750, 970] });
+    const [model] = await laad(bron);
+    assert.equal(model.type, 'textbox');
+    assert.equal(model.arrowX, undefined);
+    const bytes = await opslaan(bron, [model]);
+    const [ft] = await freeTexts(bytes);
+    assert.notEqual(ft.it, '/FreeTextCallout');
+    assert.equal((await laad(bytes))[0].type, 'textbox');
   }
 });
 

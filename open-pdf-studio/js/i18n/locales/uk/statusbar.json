@@ -43,6 +43,7 @@
   "page": "Сторінка",
   "zoomOut": "Зменшити",
   "zoomIn": "Збільшити",
+  "dropHereToDock": "Відпустіть тут, щоб закріпити вкладку",
   "noDocumentsOpen": "Документи не відкрито",
   "closeTab": "Закрити",
   "openPdfFile": "Відкрити файл PDF",

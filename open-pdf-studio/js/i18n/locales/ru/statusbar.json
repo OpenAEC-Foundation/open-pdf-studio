@@ -43,6 +43,7 @@
   "page": "Страница",
   "zoomOut": "Уменьшить",
   "zoomIn": "Увеличить",
+  "dropHereToDock": "Отпустите здесь, чтобы закрепить вкладку",
   "noDocumentsOpen": "Документы не открыты",
   "closeTab": "Закрыть",
   "openPdfFile": "Открыть PDF-файл",

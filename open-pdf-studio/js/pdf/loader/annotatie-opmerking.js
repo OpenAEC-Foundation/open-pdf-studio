@@ -57,14 +57,13 @@ export function zonderDubbeleOpmerking(ann) {
 const EIGEN_SUBJ = new Set(['stamp', 'caret']);
 
 /**
- * Waar het onderwerp (`subject`, het veld Onderwerp in het eigenschappen-
- * paneel) in het bestand staat (#619).
+ * Welke PDF-sleutel bij het modelveld subject hoort (#619).
  *
  * - Soorten met een eigen tekstveld schrijven hun tekst al in /Contents: hun
  *   onderwerp gaat naar /Subj, het onderwerp-veld van de PDF-specificatie.
  *   Anders ging het bij elke save verloren.
- * - Alle andere soorten houden hun onderwerp in /Contents, zoals altijd; een
- *   /Subj uit het bestand reist daar ongewijzigd mee in `pdfSubject`.
+ * - Bij andere soorten hoort subject bij /Contents en pdfSubject bij /Subj.
+ *   Het eigenschappenpaneel bewerkt bij tekenobjecten pdfSubject.
  * - Stempels en invoegtekens schrijven /Subj zelf: 'eigen'.
  * @param {string} type
  * @returns {'subj'|'contents'|'eigen'}

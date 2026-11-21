@@ -114,7 +114,7 @@ test('startprinter: laatst gebruikte, anders systeemstandaard, anders de eerste'
 // --- Afdrukken: Document, of Document en markeringen --------------------------
 
 test('elke waarde van de keuzelijst Afdrukken bepaalt of de markeringen meegaan', () => {
-  assert.deepEqual([...PRINT_KEUZES.content], ['doc-and-markups', 'doc-only']);
+  assert.deepEqual([...PRINT_KEUZES.content], ['doc-and-markups', 'doc-only', 'markups-only']);
   assert.equal(markeringenVoorInhoud('doc-and-markups'), true);
   assert.equal(markeringenVoorInhoud('doc-only'), false);
   // Elke toegestane waarde heeft een antwoord; alleen 'doc-only' laat ze weg.

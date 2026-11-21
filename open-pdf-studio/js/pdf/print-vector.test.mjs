@@ -489,3 +489,65 @@ test('herhaalde pagina\'s (#606): elke herhaling wordt een eigen printpagina, in
   assert.deepEqual(maten, ['595x842', '595x842', '842x595', '595x842']);
   for (const p of herladen.getPages()) assert.equal(xobjecten(p).filter((x) => x.subtype === 'Form').length, 1);
 });
+
+test('print area retains vectors, physical scale and bounds across all page rotations', async () => {
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const { createCanvas } = await import('@napi-rs/canvas');
+  const { maakUitsnede } = await import('./print-huidige-weergave.js');
+  for (const rotation of [0, 90, 180, 270]) {
+    const src = await PDFDocument.create();
+    const page = src.addPage([320, 280]);
+    page.setMediaBox(10, 20, 320, 280);
+    page.setCropBox(30, 50, 250, 180);
+    page.setRotation(degrees(rotation));
+    page.node.set(PDFName.of('UserUnit'), src.context.obj(2));
+    page.drawRectangle({ x: 30, y: 50, width: 250, height: 180, color: rgb(0, 0, 1) });
+    page.drawRectangle({ x: 65, y: 90, width: 50, height: 30, color: rgb(1, 0, 0) });
+    const bytes = await src.save();
+    const sourceTask = pdfjs.getDocument({ data: bytes.slice(), verbosity: 0 });
+    const display = await sourceTask.promise;
+    const viewport = (await display.getPage(1)).getViewport({ scale: 1, rotation: (rotation + 90) % 360 });
+    const [a, b] = viewport.convertToViewportPoint(65, 90);
+    const [c, d] = viewport.convertToViewportPoint(115, 120);
+    const uitsnede = maakUitsnede({ x: Math.min(a, c), y: Math.min(b, d), width: Math.abs(a-c), height: Math.abs(b-d) },
+      { breedte: viewport.width, hoogte: viewport.height }, 90);
+    const { pdf } = await bouwVectorPrintPdf({
+      bronBytes: bytes, paginas: [{ index: 0, extraRotatie: 90, uitsnede }],
+      keuzes: { ...KEUZES, papier: vel('a4'), schaling: 'actual' },
+    });
+    const [form] = xobjecten(pdf.getPage(0));
+    assert.equal(form.subtype, 'Form');
+    assert.deepEqual(form.stroom.dict.lookup(PDFName.of('BBox')).asArray().map(n => n.asNumber()), [65, 90, 115, 120]);
+    const outputTask = pdfjs.getDocument({ data: await pdf.save(), verbosity: 0 });
+    const out = await outputTask.promise;
+    const sheet = await out.getPage(1);
+    const vp = sheet.getViewport({ scale: 1 });
+    const canvas = createCanvas(Math.ceil(vp.width), Math.ceil(vp.height));
+    const ctx = canvas.getContext('2d');
+    await sheet.render({ canvas, canvasContext: ctx, viewport: vp }).promise;
+    const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let left = canvas.width, right = -1, top = canvas.height, bottom = -1;
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        const i = (y * canvas.width + x) * 4;
+        if (data[i] > 220 && data[i + 1] < 40 && data[i + 2] < 40) {
+          left = Math.min(left, x); right = Math.max(right, x);
+          top = Math.min(top, y); bottom = Math.max(bottom, y);
+        }
+        assert.ok(!(data[i] < 40 && data[i + 2] > 220), 'outside artwork is clipped');
+      }
+    }
+    bijna(right - left + 1, uitsnede.breedtePt, 1);
+    bijna(bottom - top + 1, uitsnede.hoogtePt, 1);
+    bijna((right + left + 1) / 2, vp.width / 2, 1);
+    bijna((top + bottom + 1) / 2, vp.height / 2, 1);
+    await sourceTask.destroy();
+    await outputTask.destroy();
+  }
+});
+
+test('markups-only output omits the source form and its artwork', async () => {
+  const { pdf } = await bouwVectorPrintPdf({ bronBytes: await bron([[300, 200]]),
+    paginas: [{ index: 0 }], keuzes: KEUZES, toonDocument: false });
+  assert.deepEqual(xobjecten(pdf.getPage(0)), []);
+});

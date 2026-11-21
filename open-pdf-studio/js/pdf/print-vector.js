@@ -27,7 +27,7 @@ import {
 } from 'pdf-lib';
 import { embedPngSnel } from './embed-png-rust.js';
 import { berekenPlaatsing, printPaginaMaat } from './print-plaatsing.js';
-import { knipselMatrix, metInhoud } from './vector-embed.js';
+import { appVakNaarPdfVak, knipselMatrix, metInhoud } from './vector-embed.js';
 
 const PT_PER_MM = 72 / 25.4;
 
@@ -69,8 +69,9 @@ function bronVak(page) {
 export function weergaveMaat(page, extraRotatie = 0) {
   const vak = bronVak(page);
   const rotatie = kwartslag(kwartslag(page.getRotation()?.angle ?? 0) + kwartslag(extraRotatie));
-  const b = vak.right - vak.left;
-  const h = vak.top - vak.bottom;
+  const unit = page.node.lookup(PDFName.of('UserUnit'))?.asNumber?.() || 1;
+  const b = (vak.right - vak.left) * unit;
+  const h = (vak.top - vak.bottom) * unit;
   const gewisseld = rotatie === 90 || rotatie === 270;
   return { breedtePt: gewisseld ? h : b, hoogtePt: gewisseld ? b : h, rotatie };
 }
@@ -345,7 +346,8 @@ export function verwijderOnbereikbaar(pdf) {
  *
  * @param {{
  *   bronBytes: Uint8Array,
- *   paginas: { index:number, extraRotatie?:number }[],
+ *   paginas: { index:number, extraRotatie?:number, uitsnede?:object }[],
+ *   toonDocument?: boolean, vectorLayer?: import('pdf-lib').PDFPage,
  *     index = 0-gebaseerd in de bron; extraRotatie = draaiing die alleen in de
  *     app bestaat (0/90/180/270);
  *   keuzes: { papier: {breedteMm:number, hoogteMm:number, bedrukbaar?:object}|null,
@@ -362,14 +364,14 @@ export function verwijderOnbereikbaar(pdf) {
  * @returns {Promise<{ pdf: PDFDocument, opVel: boolean }>}
  */
 export async function bouwVectorPrintPdf({
-  bronBytes, paginas, keuzes, beelden = async () => [], voortgang = () => {},
+  bronBytes, paginas, keuzes, toonDocument = true, vectorLayer = null, beelden = async () => [], voortgang = () => {},
 }) {
   const bron = await PDFDocument.load(bronBytes);
   const pdf = await PDFDocument.create();
   const aantal = bron.getPageCount();
 
   // Per pagina: het vak, de draaiing en de plaatsing op het vel.
-  const werk = paginas.map(({ index, extraRotatie = 0 }) => {
+  const werk = paginas.map(({ index, extraRotatie = 0, uitsnede = null }) => {
     if (!Number.isInteger(index) || index < 0 || index >= aantal) {
       throw new Error(`page ${index + 1} does not exist in the source document`);
     }
@@ -377,22 +379,30 @@ export async function bouwVectorPrintPdf({
     const maat = weergaveMaat(page, extraRotatie);
     const plaatsing = berekenPlaatsing({
       ...keuzes,
-      pagina: { breedtePt: maat.breedtePt, hoogtePt: maat.hoogtePt },
+      pagina: uitsnede || maat,
     });
     if (!plaatsing) throw new Error(`page ${index + 1} has no usable size`);
     // De annotaties van de bron horen niet in de vorm (de app tekent haar eigen
     // markeringen) en zouden bij het kopiëren andere pagina's meeslepen.
     page.node.delete(PDFName.of('Annots'));
-    const vak = bronVak(page);
+    const unit = page.node.lookup(PDFName.of('UserUnit'))?.asNumber?.() || 1;
+    let vak = bronVak(page);
+    if (uitsnede) {
+      const r = uitsnede.pagina;
+      vak = appVakNaarPdfVak({ x: r.x / unit, y: r.y / unit, width: r.breedte / unit, height: r.hoogte / unit }, {
+        x: vak.left, y: vak.bottom, width: vak.right - vak.left, height: vak.top - vak.bottom,
+      }, maat.rotatie);
+      if (!vak) throw new Error('Invalid print area');
+    }
     // Rechtop zetten: de draaiing van de getoonde pagina plus de kwartslag
     // voor een pagina die haaks op het vel staat.
-    const { matrix } = knipselMatrix(vak, kwartslag(maat.rotatie + plaatsing.draaiing));
-    return { index, page, vak, matrix, plaatsing };
+    const { matrix } = knipselMatrix(vak, kwartslag(maat.rotatie + (uitsnede?.rotatie || 0) + plaatsing.draaiing));
+    return { index, page, vak, matrix: matrix.map(n => n * unit), plaatsing };
   });
 
   // Eén aanroep voor alle pagina's: zo deelt pdf-lib één kopieerder en komt
   // een lettertype of beeld dat op meer pagina's staat maar één keer mee.
-  const vormen = werk.length
+  const vormen = toonDocument && werk.length
     ? await pdf.embedPages(werk.map((w) => w.page), werk.map((w) => w.vak), werk.map((w) => w.matrix))
     : [];
 
@@ -406,13 +416,17 @@ export async function bouwVectorPrintPdf({
 
     // Niet via page.drawPage: die schaalt met de maat van het ongedraaide vak
     // en vervormt dus een gedraaide pagina (zie saver/vector-snippet.js).
-    const naam = pagina.node.newXObject('OPSPagina', vormen[i].ref);
-    pagina.pushOperators(
-      pushGraphicsState(),
-      concatTransformationMatrix(...paginaOpVelMatrix(plaatsing, maat[1])),
-      drawObject(naam),
-      popGraphicsState(),
-    );
+    const lagen = toonDocument ? [vormen[i]] : [];
+    if (vectorLayer) lagen.push(await pdf.embedPage(vectorLayer, werk[i].vak, werk[i].matrix));
+    for (const vorm of lagen) {
+      const naam = pagina.node.newXObject('OPSPagina', vorm.ref);
+      pagina.pushOperators(
+        pushGraphicsState(),
+        concatTransformationMatrix(...paginaOpVelMatrix(plaatsing, maat[1])),
+        drawObject(naam),
+        popGraphicsState(),
+      );
+    }
 
     const k = maat[0] / plaatsing.vel.breedteMm;
     for (const beeld of await beelden({ index, volgnummer: i, plaatsing })) {
@@ -431,7 +445,7 @@ export async function bouwVectorPrintPdf({
   // Pas na flush staan de vormen in de context; dan de lagen van de bron
   // erbij en daarna de wezen weg.
   await pdf.flush();
-  neemLagenMee(bron, pdf, werk, vormen);
+  if (toonDocument) neemLagenMee(bron, pdf, werk, vormen);
   verwijderOnbereikbaar(pdf);
   return { pdf, opVel };
 }

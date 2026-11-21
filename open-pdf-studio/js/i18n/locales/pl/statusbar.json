@@ -43,6 +43,7 @@
   "page": "Strona",
   "zoomOut": "Pomniejsz",
   "zoomIn": "Powiększ",
+  "dropHereToDock": "Upuść tutaj, aby zadokować kartę",
   "noDocumentsOpen": "Brak otwartych dokumentów",
   "closeTab": "Zamknij",
   "openPdfFile": "Otwórz plik PDF",

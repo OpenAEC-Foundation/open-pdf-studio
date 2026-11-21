@@ -26,7 +26,7 @@ export function algemeneEigenschappen(extra, model) {
   if (zone) uit.spatialZone = zone;
   if (typeof e.locationOverride === 'string') uit.locationOverride = e.locationOverride;
   if (e.nm && m.nm === undefined) uit.nm = e.nm;
-  if (e.subj) {
+  if (typeof e.subj === 'string') {
     const plek = onderwerpPlek(m.type);
     if (plek === 'subj' && !m.subject) uit.subject = e.subj;
     else if (plek === 'contents' && m.pdfSubject === undefined) uit.pdfSubject = e.subj;
