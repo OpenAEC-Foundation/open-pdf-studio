@@ -39,6 +39,13 @@ test('zonder markeringen blijft de inhoud van het document staan', () => {
   assert.equal(weergaveLagen({ markeringen: false }).selectie, true);
 });
 
+test('alleen markeringen onderdrukt tekstbewerkingen en watermerken', () => {
+  const lagen = weergaveLagen({ uitvoer: true, tekstbewerkingen: false, watermerken: false });
+  assert.equal(lagen.markeringen, true);
+  assert.equal(lagen.tekstbewerkingen, false);
+  assert.equal(lagen.watermerken, false);
+});
+
 test('inactief documentpaneel houdt scherminhoud en lijndiktes, zonder actieve bewerking', () => {
   const lagen = weergaveLagen({ inactief:true });
   assert.deepEqual(lagen, {

@@ -43,6 +43,7 @@
   "page": "페이지",
   "zoomOut": "축소",
   "zoomIn": "확대",
+  "dropHereToDock": "여기에 놓아 탭 고정",
   "noDocumentsOpen": "열린 문서 없음",
   "closeTab": "닫기",
   "openPdfFile": "PDF 파일 열기",

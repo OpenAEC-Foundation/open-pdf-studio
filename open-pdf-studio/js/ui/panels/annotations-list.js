@@ -1,3 +1,4 @@
+import { annotatieOnderwerp } from '../../annotations/onderwerp.js';
 import { state, getActiveDocument, isSelected, getAnnotationBounds, addToSelection, removeFromSelection } from '../../core/state.js';
 import i18next from '../../i18n/config.js';
 import { statusKleur, statusNaam, statusLijst, vergelijkStatus, statusSleutelVan } from '../../review/status-sets.js';
@@ -191,7 +192,7 @@ export function updateAnnotationsList(filterValue) {
     } else if (currentSort === 'color') {
       groupKey = ann.color || ann.strokeColor || '#000';
     } else if (currentSort === 'subject') {
-      groupKey = ann.subject || '(No Subject)';
+      groupKey = annotatieOnderwerp(ann) || '(No Subject)';
     } else if (currentSort === 'status') {
       groupKey = statusSleutelVan(ann.status);
     } else if (currentSort === 'statusAndAuthor') {

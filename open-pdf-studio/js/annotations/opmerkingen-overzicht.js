@@ -1,3 +1,4 @@
+import { annotatieOnderwerp } from './onderwerp.js';
 // Het opmerkingenoverzicht (#383): filteren, sorteren en de status van veel
 // opmerkingen tegelijk zetten, plus de uitsnede van een opmerking voor het
 // PDF-rapport.
@@ -161,7 +162,7 @@ export function vergelijkerVoor(wijze, opties = {}) {
     case 'creationDate': return (a, b) => tijd(b.createdAt) - tijd(a.createdAt);
     case 'author': return opTekst((a) => auteurVan(a).toLowerCase());
     case 'color': return opTekst((a) => String(a.color || a.strokeColor || '#000').toLowerCase());
-    case 'subject': return opTekst((a) => String(a.subject || '').toLowerCase());
+    case 'subject': return opTekst((a) => annotatieOnderwerp(a).toLowerCase());
     case 'status': return (a, b) => {
       const sa = statusSleutel(a);
       const sb = statusSleutel(b);

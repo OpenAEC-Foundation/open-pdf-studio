@@ -43,6 +43,7 @@
   "page": "Sayfa",
   "zoomOut": "Uzaklaştır",
   "zoomIn": "Yakınlaştır",
+  "dropHereToDock": "Sekmeyi sabitlemek için buraya bırakın",
   "noDocumentsOpen": "Açık belge yok",
   "closeTab": "Kapat",
   "openPdfFile": "PDF dosyası aç",

@@ -896,6 +896,7 @@ async fn print_pdf(
     plaatsing: Option<String>,
     kleur: Option<String>,
     duplex: Option<String>,
+    vector: Option<bool>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<bool, String> {
     // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
@@ -904,6 +905,8 @@ async fn print_pdf(
     let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
     let plaatsing = print_plaatsing::Plaatsing::uit_keuze(plaatsing.as_deref());
     let duplex = print_duplex::Duplex::parse(duplex.as_deref())?;
+    #[cfg(not(target_os = "windows"))]
+    let _ = vector;
     #[cfg(target_os = "windows")]
     {
         // De kleurmodus zit op Windows al in de paginabeelden.
@@ -918,6 +921,7 @@ async fn print_pdf(
                 papier,
                 plaatsing,
                 duplex,
+                vector.unwrap_or(false),
                 opgeslagen.as_deref(),
                 None,
             )

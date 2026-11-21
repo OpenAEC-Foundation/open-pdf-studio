@@ -84,6 +84,7 @@ async function inBestand(bytes) {
       ca: getal(d.get(PDFName.of('ca'))),
       opsVul: getal(d.get(PDFName.of('OPS_FillOpacity'))),
       gso: gs('GSo'),
+      gsbox: gs('GSbox'),
       gsv: gs('GSv'),
       inhoud: n ? tekst(n) : '',
     };
@@ -181,4 +182,43 @@ test('een ouder bestand met één dekking krijgt beide velden op die waarde', as
   assert.equal(ann.fillOpacity, undefined);
   assert.equal(vd.lijnDekking(ann), 0.5);
   assert.equal(vd.vulDekking(ann), 0.5);
+});
+
+test('doorschijnende CSS-vullingen houden kleur en dekking na twee opslagrondes', async () => {
+  const vak = { ...basis, x: 60, y: 60, width: 90, height: 45, text: 'Controle', textColor: '#112233', opacity: 1 };
+  const modellen = [
+    { ...vak, type: 'textbox', id: 'tekst', fillColor: 'rgba(123,104,238,0.15)' },
+    { ...vak, x: 220, type: 'callout', id: 'aanhaal', fillColor: '#ee883344', arrowX: 180, arrowY: 55 },
+    { ...vak, x: 330, type: 'box', id: 'vorm', fillColor: 'rgba(255,0,0,0.08)', opacity: 0.5 },
+  ];
+  let bytes = await leegBlad(), huidige = modellen;
+  for (let ronde = 0; ronde < 2; ronde++) {
+    bytes = await opslaan(bytes, huidige);
+    huidige = await laad(bytes);
+    assert.deepEqual(huidige.map(m => m.fillColor.toLowerCase()), ['#7b68ee', '#ee8833', '#ff0000']);
+    const verwacht = [0.15, 68 / 255, 0.04];
+    huidige.forEach((m, i) => assert.ok(Math.abs(m.fillOpacity - verwacht[i]) < 1e-6));
+    const annotaties = await inBestand(bytes);
+    for (const [i, a] of annotaties.slice(0, 2).entries()) {
+      assert.ok(Math.abs(a.gsbox.ca - verwacht[i]) < 1e-6);
+      assert.match(a.inhoud, /q\n\/GSbox gs\n[\s\S]*?\nB\nQ\n[\s\S]*?BT/);
+    }
+  }
+});
+
+test('een grijze of CMYK-vulling behoudt haar kleur en eigen dekking na heropenen', async () => {
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([200, 200]);
+  for (const [i, kleur] of [[0, [0.8]], [1, [0, 0, 0, 0]]]) {
+    const rect = [20, 20 + i * 50, 70, 45 + i * 50];
+    page.node.addAnnot(doc.context.register(doc.context.obj({
+      Type: 'Annot', Subtype: 'Square', Rect: rect, C: [1, 0, 0], IC: kleur, CA: 1, ca: 0.25,
+    })));
+  }
+  const bron = await doc.save();
+  const modellen = await laad(bron);
+  const kleuren = modellen => modellen.map(m => [m.fillColor, m.fillOpacity]);
+  const verwacht = [['#cccccc', 0.25], ['#ffffff', 0.25]];
+  assert.deepEqual(kleuren(modellen), verwacht);
+  assert.deepEqual(kleuren(await laad(await opslaan(bron, modellen))), verwacht);
 });

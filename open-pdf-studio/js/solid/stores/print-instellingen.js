@@ -61,7 +61,7 @@ export const PRINT_KEUZES = Object.freeze({
   range: ['all', 'current', 'custom'],
   subset: ['all', 'odd', 'even'],
   scaling: ['fit', 'actual', 'shrink', 'custom-scale', 'poster'],
-  content: ['doc-and-markups', 'doc-only'],
+  content: ['doc-and-markups', 'doc-only', 'markups-only'],
   colorMode: [...KLEUR_MODI],
   perSheet: ['1', '2', '4', '6', '9', '16', 'custom', 'flyer', 'booklet'],
   flyerCount: ['2', '4', '6', '8', '9', '16'],

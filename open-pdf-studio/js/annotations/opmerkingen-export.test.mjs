@@ -10,6 +10,12 @@ import {
   opmerkingenInLijstvolgorde, geselecteerdVoorExport,
 } from './opmerkingen-export.js';
 
+test('een vorm met apart onderwerp en opmerking exporteert beide kolommen', () => {
+  const rij = opmerkingRij({ type: 'box', subject: 'Controleer de maat', pdfSubject: 'Kozijn' });
+  assert.equal(rij[CSV_KOLOMMEN.indexOf('subject')], 'Kozijn');
+  assert.equal(rij[CSV_KOLOMMEN.indexOf('contents')], 'Controleer de maat');
+});
+
 test('csvVeld: gewone tekst blijft zoals hij is', () => {
   assert.equal(csvVeld('Kozijn aanpassen'), 'Kozijn aanpassen');
   assert.equal(csvVeld(12), '12');

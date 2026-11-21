@@ -1505,7 +1505,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       });
       // pdf.js doesn't expose calloutLine; use pdf-lib extracted CL from extraColors
       const calloutLine = extraColors.calloutLine || annot.calloutLine;
-      const isCallout = calloutLine && calloutLine.length >= 4;
+      const intent = extraColors.intent || annot.it;
+      const isCallout = intent === 'FreeTextCallout' && calloutLine?.length >= 4;
 
       // Rotation-aware viewport rect — its width/height already account for the
       // page /Rotate (they SWAP vs the raw PDF Rect on 90/270 pages).
@@ -1618,7 +1619,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       // verschil in de tekstmeting liet hem anders naar twee regels groeien.
       // De specificatie spelt de waarde FreeTextTypeWriter, veel producers
       // FreeTextTypewriter: beide tellen.
-      const typemachine = /^FreeTextTypewriter$/i.test(annot.it || extraColors.intent || '');
+      const typemachine = /^FreeTextTypewriter$/i.test(intent || '');
 
       // Same grow-to-fit as the callout branch above: don't silently drop
       // lines other editors show in full just because the authored Rect is tight.

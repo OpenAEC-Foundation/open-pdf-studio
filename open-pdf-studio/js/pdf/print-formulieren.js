@@ -17,6 +17,19 @@ const MET_OPSLAG = 3;
 
 const isVeld = (annotatie) => annotatie?.subtype === 'Widget';
 
+/** Zet alleen de afdrukbare widgets van de werkkopie om in pagina-inhoud. */
+export function vlakAfdrukbareVelden(form) {
+  for (const field of form.getFields()) {
+    const widgets = field.acroField.getWidgets();
+    for (let i = widgets.length - 1; i >= 0; i--) {
+      const flags = widgets[i].getFlags();
+      // PDF-annotatievlaggen Print (4), Invisible (1) en Hidden (2).
+      if (!(flags & 4) || (flags & 3)) field.acroField.removeWidget(i);
+    }
+  }
+  form.flatten();
+}
+
 /** Heeft één van deze pagina's (1-gebaseerd) een formulierveld dat wordt afgedrukt? */
 export async function heeftFormulierVelden(pdfDoc, paginas) {
   for (const nummer of paginas) {

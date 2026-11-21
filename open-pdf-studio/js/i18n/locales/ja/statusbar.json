@@ -43,6 +43,7 @@
   "page": "ページ",
   "zoomOut": "縮小",
   "zoomIn": "拡大",
+  "dropHereToDock": "ここにドロップしてタブをドッキング",
   "noDocumentsOpen": "ドキュメントが開かれていません",
   "closeTab": "閉じる",
   "openPdfFile": "PDF ファイルを開く",

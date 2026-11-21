@@ -113,7 +113,7 @@ test('bedrading: opslaan, afdrukken, exporteren en het paneel volgen de laagstan
   const exporter = lees('../pdf/exporter.js');
   assert.match(exporter, /: pdfjsLaagOpties\(doc\)\)/);
   assert.match(exporter, /formulierRenderOpties\(page, pdf, eigenLaagConfig\(doc\)\)/);
-  assert.match(lees('../pdf/print-job.js'), /bytesMetLaagstand\(doc, await bronBytesVan\(doc\)\)/);
+  assert.match(lees('../pdf/print-job.js'), /bytesMetLaagstand\(doc, bytes\)/);
   const lagen = lees('../ui/panels/layers.js');
   assert.match(lagen, /lagenLijst\(ocConfig, \{ overslaan: [^}]*boom \}\)/);
   assert.match(lagen, /if \(boom\?\.locked\?\.has\(id\)\)/);

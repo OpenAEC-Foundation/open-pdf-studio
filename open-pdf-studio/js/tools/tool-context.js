@@ -184,7 +184,7 @@ export function buildToolContext(e, coords) {
     // De cursor volgt de richting op het scherm: annotatierotatie plus de
     // weergaverotatie (#200).
     getCursorForHandle: (handle, rotation, ann) => getCursorForHandle(handle, (rotation || 0) + weergaveRotatie(ctxDoc), ann),
-    // Een nieuwe meting neemt het vooraf ingestelde label mee (#1055).
+    // Neem het onderwerp of de meetnaam van het actieve gereedschap mee.
     createAnnotation: (props) => createAnnotation(metLabelVooraf(props)),
     cloneAnnotation,
     applyResize,

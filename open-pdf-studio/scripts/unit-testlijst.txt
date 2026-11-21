@@ -35,6 +35,7 @@ js/pdf/loader/tekstvak-tekst.test.mjs
 js/pdf/loader/tekstvak-marge.test.mjs
 js/pdf/lijnkoppen.test.mjs
 js/pdf/loader/stempel-tekst.test.mjs
+js/pdf/loader/samengestelde-stempel.test.mjs
 js/pdf/saver/tekstfont.test.mjs
 js/pdf/saver/doorzichtigheid-ap.test.mjs
 js/pdf/saver/lijn-uiterlijk.test.mjs

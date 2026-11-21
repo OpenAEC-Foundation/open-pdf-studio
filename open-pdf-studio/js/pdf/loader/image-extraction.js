@@ -1,4 +1,5 @@
-import { PDFName, PDFArray } from 'pdf-lib';
+import { pdfjsBronnen } from '../../core/basis-url.js';
+import { PDFName, PDFArray, PDFDocument, PDFObjectCopier, PDFRawStream, decodePDFRawStream } from 'pdf-lib';
 import { pdfNum, inflateBytes } from './pdf-helpers.js';
 import { findImageAnnotationSources, findImageForAnnotation } from './annotation-image-sources.mjs';
 import { stempelUitsnede } from './stempel-beeld-rust.js';
@@ -195,11 +196,18 @@ export async function extractStampImages(pageNum, pdfDoc, { decodeer = extractIm
   try {
     const context = pdfDoc.context;
     for (const source of findImageAnnotationSources(pageNum, pdfDoc)) {
+      const key = source.annotationId ? `id:${source.annotationId}` : `rect:${source.rectKey}`;
+      if (source.kind === 'stamp' && samengesteldeStempel(context, source)) {
+        try {
+          const dataUrl = await renderStempel(pdfDoc, pageNum, source);
+          imageMap.set(key, { kind: source.kind, dataUrl, space: 'visual', source: 'render' });
+        } catch (e) {
+          console.warn('[image-extraction] Stamp appearance render failed:', e);
+        }
+        continue;
+      }
       const dataUrl = await decodeer(context, source.stream);
       if (dataUrl) {
-        const key = source.annotationId
-          ? `id:${source.annotationId}`
-          : `rect:${source.rectKey}`;
         // In welke ruimte staan deze rauwe XObject-pixels?
         // - Appearance ZONDER rotatie-cm: de pixels liggen zoals de AP ze in
         //   ongedraaide PDF-ruimte tekent → space:'pdf'. De saver schrijft ze
@@ -221,6 +229,73 @@ export async function extractStampImages(pageNum, pdfDoc, { decodeer = extractIm
   }
 
   return imageMap;
+}
+
+// A bitmap is the editable source only when the form paints that image alone.
+// App tint is deliberately editable and is applied over the source on screen.
+function samengesteldeStempel(context, source) {
+  const form = source.stream;
+  const resources = form.dict?.lookup(PDFName.of('Resources'));
+  const xobjects = resources?.lookup?.(PDFName.of('XObject'));
+  const entries = xobjects?.entries?.() ?? [];
+  if (!entries.length) return false;
+  if (entries.length !== 1) return true;
+  const [name, ref] = entries[0];
+  if (String(context.lookup(ref)?.dict?.get(PDFName.of('Subtype'))) !== '/Image') return true;
+  if (source.editableTint) return false;
+  try {
+    const bytes = form instanceof PDFRawStream ? decodePDFRawStream(form).decode() : form.getContents();
+    const tokens = new TextDecoder().decode(bytes).replace(/%[^\r\n]*/g, '').trim().split(/\s+/);
+    let draws = 0;
+    for (const [i, token] of tokens.entries()) {
+      if (token === 'Do') {
+        if (tokens[i - 1] !== String(name) || ++draws > 1) return true;
+      } else if (!/^(?:[+-]?[\d.]+|q|Q|cm|re|W\*?|n|gs|\/[^\s]+)$/.test(token)) {
+        return true;
+      }
+    }
+    return draws !== 1;
+  } catch {
+    return true;
+  }
+}
+
+// Give the PDF renderer the complete form and all its reachable resources.
+// A blank stamp-sized page preserves transparent areas even over other marks.
+async function stempelPagina(pdfDoc, pageNum, source) {
+  const [x1, y1, x2, y2] = source.rectKey.split(',').map(Number);
+  const width = Math.abs(x2 - x1), height = Math.abs(y2 - y1);
+  if (!(width > 0 && height > 0)) throw new Error('Empty stamp rectangle');
+  const isolated = await PDFDocument.create();
+  const page = isolated.addPage([width, height]);
+  page.setRotation(pdfDoc.getPage(pageNum - 1).getRotation());
+  const ctx = isolated.context;
+  const form = PDFObjectCopier.for(pdfDoc.context, ctx).copy(source.stream);
+  const annotation = ctx.obj({
+    Type: 'Annot', Subtype: 'Stamp', Rect: [0, 0, width, height],
+    AP: { N: ctx.register(form) }, F: 4,
+  });
+  page.node.addAnnot(ctx.register(annotation));
+  return isolated.save();
+}
+
+async function renderStempel(pdfDoc, pageNum, source) {
+  const { getDocument } = await import('pdfjs-dist');
+  const task = getDocument({ data: await stempelPagina(pdfDoc, pageNum, source), ...pdfjsBronnen(), isEvalSupported: false });
+  try {
+    const page = await (await task.promise).getPage(1);
+    const base = page.getViewport({ scale: 1 });
+    const scale = Math.min(2, 8192 / Math.max(base.width, base.height), Math.sqrt(20000000 / (base.width * base.height)));
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.ceil(viewport.width));
+    canvas.height = Math.max(1, Math.ceil(viewport.height));
+    // Passing the context explicitly keeps PDF.js from requesting an opaque canvas.
+    await page.render({ canvas: null, canvasContext: canvas.getContext('2d'), viewport, background: 'rgba(0,0,0,0)' }).promise;
+    return canvas.toDataURL('image/png');
+  } finally {
+    await task.destroy();
+  }
 }
 
 // Extract the first image from a Form XObject's resources

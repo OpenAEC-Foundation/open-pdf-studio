@@ -43,6 +43,7 @@
   "page": "Página",
   "zoomOut": "Reduzir",
   "zoomIn": "Ampliar",
+  "dropHereToDock": "Solte aqui para acoplar a aba",
   "noDocumentsOpen": "Nenhum documento aberto",
   "closeTab": "Fechar",
   "openPdfFile": "Abrir arquivo PDF",
