@@ -10,7 +10,7 @@ import { openPDFFile } from '../../../pdf/loader.js';
 import { savePDF, savePDFAs } from '../../../pdf/saver.js';
 import { ifcxOpslaanLabel, opslaanAlsIfcx } from '../../../pdf/ifcx-opslaan.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
-import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../../../ui/chrome/dialogs.js';
+import { showDocPropertiesDialog, showNewDocDialog, selectPrintArea, showPrintDialog } from '../../../ui/chrome/dialogs.js';
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../../../ui/chrome/tabs.js';
 import { closeWindow, isTauri } from '../../../core/platform.js';
 import { meldSchoonAfsluiten } from '../../../herstel/haken.js';
@@ -148,6 +148,7 @@ export default function AppMenu() {
             <MenuItem id="menu-save-as-ifcx" icon={ICONS.saveAs} label={ifcxOpslaanLabel(t('saveAs'))} disabled={!state.documents[state.activeDocumentIndex]} onClick={() => actionAndClose(opslaanAlsIfcx)} />
             <MenuItem id="menu-pdfa" icon={ICONS.pdfa} label={t('pdfa')} disabled={!state.documents[state.activeDocumentIndex]} onClick={() => actionAndClose(() => openDialog('pdfa'))} />
             <MenuItem id="menu-print" icon={ICONS.print} label={t('print')} shortcut={sneltoetsVoor('file.print')} onClick={() => actionAndClose(showPrintDialog)} />
+            <Show when={isTauri()}><MenuItem id="menu-print-area" icon={ICONS.print} label={t('dialogs:print.selectArea')} disabled={!state.documents[state.activeDocumentIndex]?.pdfDoc} onClick={() => actionAndClose(selectPrintArea)} /></Show>
             <Divider />
             <MenuItem icon={ICONS.annotateScreenshot} label={t('annotateScreenshot')} onClick={() => actionAndClose(() => import('../../../tools/screenshot-annotate.js').then((m) => m.annotateClipboardScreenshot()))} />
             <Divider />

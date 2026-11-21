@@ -315,7 +315,7 @@ pub fn print_pdf_bestand(
     uitvoer: Option<&Path>,
 ) -> Result<(), String> {
     print_pdf_bestand_met_duplex(pad, printer, orientatie, papier, plaatsing,
-        crate::print_duplex::Duplex::Printer, opgeslagen, uitvoer)
+        crate::print_duplex::Duplex::Printer, false, opgeslagen, uitvoer)
 }
 
 pub fn print_pdf_bestand_met_duplex(
@@ -325,6 +325,7 @@ pub fn print_pdf_bestand_met_duplex(
     papier: Papier,
     plaatsing: Plaatsing,
     duplex: crate::print_duplex::Duplex,
+    vector: bool,
     opgeslagen: Option<&[u8]>,
     uitvoer: Option<&Path>,
 ) -> Result<(), String> {
@@ -348,7 +349,7 @@ pub fn print_pdf_bestand_met_duplex(
             None
         }
     };
-    print_met_devmodes(pad, printer, orientatie, papier, plaatsing, devmodes.as_ref(), uitvoer)
+    print_met_devmodes(pad, printer, orientatie, papier, plaatsing, vector, devmodes.as_ref(), uitvoer)
 }
 
 /// De printkern. `devmodes` `None` = de noodweg: DC zonder DEVMODE, papier en
@@ -359,6 +360,7 @@ fn print_met_devmodes(
     orientatie: Orientatie,
     papier: Papier,
     plaatsing: Plaatsing,
+    vector: bool,
     devmodes: Option<&OpdrachtDevmodes>,
     uitvoer: Option<&Path>,
 ) -> Result<(), String> {
@@ -371,6 +373,18 @@ fn print_met_devmodes(
     let bytes = std::fs::read(pad).map_err(|e| format!("Read PDF: {e}"))?;
     let handle = pdfium_renderer::PdfiumDocumentHandle::load_from_bytes(Arc::new(bytes))?;
     let doc = handle.document();
+    // The vector job already contains the selected content laid out on physical sheets.
+    // Use the same PDFium module that owns the document and its page handles.
+    type RenderPage = unsafe extern "system" fn(HDC, *mut std::ffi::c_void, i32, i32, i32, i32, i32, i32) -> i32;
+    let vector_library = if vector {
+        let path = pdfium_renderer::bibliotheek_pad().ok_or("PDFium is unavailable")?;
+        Some(unsafe { libloading::Library::new(path) }.map_err(|e| e.to_string())?)
+    } else {
+        None
+    };
+    let render_vector = vector_library.as_ref().map(|lib| unsafe {
+        lib.get::<RenderPage>(b"FPDF_RenderPage\0")
+    }).transpose().map_err(|e| e.to_string())?;
     let page_count = {
         let _guard = pdfium_renderer::inproc_guard();
         doc.pages().len() as u32
@@ -486,6 +500,30 @@ fn print_met_devmodes(
         }
         // Het vel na een eventuele ResetDC opnieuw lezen.
         let vel = dc_vel(hdc);
+
+        if let Some(render) = &render_vector {
+            use pdfium_render::prelude::PdfiumLibraryBindingsAccessor;
+            let _guard = pdfium_renderer::inproc_guard();
+            let page = doc.pages().get(i as i32).map_err(|e| e.to_string())?;
+            let size = (page.width().value as f64, page.height().value as f64);
+            let rotation = draaiing_voor_vel(size, &vel);
+            let paper = if rotation == 0 { size } else { (size.1, size.0) };
+            let full = PaginaDeel { x: 0.0, y: 0.0, breedte: paper.0, hoogte: paper.1 };
+            let dest = deel_op_vel(paper, full, &vel);
+            let page_handle = page.bindings().get_handle_from_page(&page);
+            const FPDF_PRINTING: i32 = 0x800;
+            if unsafe { StartPage(hdc) } <= 0 {
+                return Err(format!("StartPage failed (page {})", i + 1));
+            }
+            if unsafe { render(hdc, page_handle.cast(), dest.x, dest.y, dest.breedte,
+                dest.hoogte, rotation / 90, FPDF_PRINTING) } == 0 {
+                return Err(format!("Vector printing failed (page {})", i + 1));
+            }
+            if unsafe { EndPage(hdc) } <= 0 {
+                return Err(format!("EndPage failed (page {})", i + 1));
+            }
+            continue;
+        }
 
         let beeld = match plaatsing {
             Plaatsing::Passend => {
@@ -1100,6 +1138,38 @@ mod proef {
         (m.0 - verwacht.0).abs() <= 3.0 && (m.1 - verwacht.1).abs() <= 3.0
     }
 
+    /// Print only to a file through a virtual PDF driver. A vector-only input
+    /// must still contain vector drawing operators after the Windows spooler.
+    #[test]
+    #[ignore = "requires a local virtual PDF printer"]
+    fn selected_area_spools_vector_paths() {
+        let queue = alle_printers().into_iter()
+            .find(|name| drivernaam(name).is_some_and(|d| d.eq_ignore_ascii_case(PROEF_DRIVER)))
+            .expect("virtual PDF printer");
+        init_pdfium();
+        std::fs::create_dir_all(proefmap()).unwrap();
+        let source = uitvoerpad("vector-area-source.pdf");
+        let output = uitvoerpad("vector-area-output.pdf");
+        maak_pdf(&source, &[(595, 842)]);
+        let mut drawing = lopdf::Document::load(&source).unwrap();
+        let source_page = drawing.get_pages()[&1];
+        // A 100 mm reference segment, in points, for scale measurement in the spool output.
+        drawing.add_page_contents(source_page, b"q 1 0 0 RG 1 w 30 300 m 313.46457 300 l S Q".to_vec()).unwrap();
+        drawing.save(&source).unwrap();
+        print_pdf_bestand_met_duplex(&source, &queue, Orientatie::Staand, Papier::A4,
+            Plaatsing::Vel, crate::print_duplex::Duplex::Printer, true, None, Some(&output))
+            .expect("spool vector drawing");
+        wacht_op_pdf(&output);
+        let pdf = lopdf::Document::load(&output).unwrap();
+        assert!(pdf.objects.values().all(|obj| {
+            obj.as_stream().ok().and_then(|s| s.dict.get(b"Subtype").ok())
+                .and_then(|v| v.as_name().ok()) != Some(b"Image")
+        }), "the vector sheet was rasterized");
+        let page = *pdf.get_pages().get(&1).expect("printed page");
+        let ops = lopdf::content::Content::decode(&pdf.get_page_content(page).unwrap()).unwrap();
+        assert!(ops.operations.iter().any(|op| matches!(op.operator.as_str(), "l" | "re" | "Do")));
+    }
+
     /// (b) Eind-tot-eind op de virtuele PDF-printer, met uitvoerbestand.
     #[test]
     #[ignore]
@@ -1212,7 +1282,7 @@ mod proef {
         println!("\nNOODWEG (print_met_devmodes zonder DEVMODE) naar {}", proefmap().display());
         let nood = |naam: &str, bron: &Path, orientatie: Orientatie, papier: Papier| {
             let uit = uitvoerpad(naam);
-            print_met_devmodes(bron, PROEF_PRINTER, orientatie, papier, Plaatsing::Passend, None, Some(&uit)).expect("printen");
+            print_met_devmodes(bron, PROEF_PRINTER, orientatie, papier, Plaatsing::Passend, false, None, Some(&uit)).expect("printen");
             wacht_op_pdf(&uit)
         };
         controleer(

@@ -40,13 +40,39 @@ test('een leeggemaakt label vervalt', () => {
   assert.deepEqual(labelVooraf('measureDistance'), {});
 });
 
-test('alleen metingen en alleen labelvelden doen mee', () => {
+test('de meetnaam blijft voorbehouden aan metingen', () => {
   wisLabelVooraf();
   assert.equal(isLabelVeld('measureDistance', 'subject'), true);
   assert.equal(isLabelVeld('measureArea', 'measureName'), true);
   assert.equal(isLabelVeld('measureDistance', 'color'), false);
-  assert.equal(isLabelVeld('box', 'subject'), false);
-  zetLabelVooraf('box', 'subject', 'x');
+  assert.equal(isLabelVeld('box', 'measureName'), false);
+  zetLabelVooraf('box', 'measureName', 'x');
   const p = { type: 'box' };
   assert.equal(metLabelVooraf(p), p);
+});
+
+test('onderwerp uit de eigenschappen van een tekengereedschap gaat mee naar nieuwe objecten', async () => {
+  const { register } = await import('node:module');
+  register('../core/app-test-hooks.mjs', import.meta.url);
+  const { installeerBrowserStubs } = await import('../core/app-test-hooks.mjs');
+  installeerBrowserStubs();
+  window.matchMedia ??= () => ({ matches: false, addEventListener() {} });
+  const { state } = await import('../core/state.js');
+  const { showToolDefaults, updateAnnotProp, annotProps } = await import('../solid/stores/propertiesStore.js');
+  const { createAnnotationFromTool } = await import('../tools/annotation-creators.js');
+  state.documents = [{ id: 'blad', scale: 1, currentPage: 1, annotations: [] }];
+  state.activeDocumentIndex = 0;
+  wisLabelVooraf();
+  const maken = type => createAnnotationFromTool(type === 'polyline' ? 'lshape' : type, 10, 10, 50, 30, null);
+  for (const type of ['line', 'arrow', 'polyline', 'box']) {
+    await showToolDefaults(type);
+    assert.equal(annotProps.subject, '');
+    updateAnnotProp('subject', 'Wand ' + type);
+    assert.equal(maken(type).pdfSubject, 'Wand ' + type);
+  }
+  await showToolDefaults('line');
+  assert.equal(annotProps.subject, 'Wand line');
+  updateAnnotProp('subject', '');
+  assert.equal(maken('line').subject, '');
+  assert.equal(maken('arrow').pdfSubject, 'Wand arrow');
 });

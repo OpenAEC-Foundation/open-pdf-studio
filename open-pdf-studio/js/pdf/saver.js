@@ -61,7 +61,7 @@ import { opslaanNaarOpslaanAls } from './bestand-openen.js';
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream, zetDoorzichtigheidInAp, tekstvakFontDict, boogHoekenNaRotatie,
   randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs, streepOperator } from './saver/utils.js';
-import { eigenVulDekking } from '../annotations/vul-dekking.js';
+import { eigenVulDekking, normaliseerVulkleur } from '../annotations/vul-dekking.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
 import { tekstOngewijzigd, werkVeldWeergavenBij } from './saver/veld-lettertype.js';
@@ -739,7 +739,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         // returns the annotation unchanged (non-rotated pages untouched).
         // Het vak van een typemachine-tekst eerst op zijn regels (in de
         // weergave, vóór het omrekenen); al het andere blijft hetzelfde object.
-        const annVak = typemachineVoorOpslag(annRaw);
+        const annVak = normaliseerVulkleur(typemachineVoorOpslag(annRaw));
         const ann = pageRot ? remapAnnotationForRotatedPage(annVak, pageRot, cropBox.width, cropBox.height) : annVak;
         const colorArr = hexToColorArray(ann.color || '#000000');
         // Een wipeout-masker tekent de app altijd dekkend; zijn doorzichtigheid
@@ -1807,7 +1807,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               const pageSwapsDims = pageRot === 90 || pageRot === 270;
               const visW = pageSwapsDims ? ftH : ftW;
               const visH = pageSwapsDims ? ftW : ftH;
+              const aparteVakDekking = ftFill && fillOpacity != null && fillOpacity !== opacity;
               const emitFtBox = (bx, by) => {
+                if (aparteVakDekking) ftStreamContent += 'q\n/GSbox gs\n';
                 if (ftFill) {
                   const [fr, fg, fb] = hexToRgb(ann.fillColor);
                   ftStreamContent += `${fr} ${fg} ${fb} rg\n`;
@@ -1816,6 +1818,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                   ftStreamContent += `${ftBorderWidth} w\n${ftDashOp}${sr} ${sg} ${sb} RG\n`;
                 }
                 ftStreamContent += `${vakPadPdf(bx, by, visW, visH, vormVan(ann))}\n${ftRectOp}\n`;
+                if (aparteVakDekking) ftStreamContent += 'Q\n';
               };
               // Wrap in a transform whenever the content is rotated in PDF
               // space OR the page itself is rotated (then the visual box dims
@@ -1991,7 +1994,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 BBox: [x1, y1, x2, y2],
                 Matrix: [1, 0, 0, 1, -x1, -y1],
                 Resources: context.obj({
-                  Font: context.obj(ftFontResources)
+                  Font: context.obj(ftFontResources),
+                  ...(aparteVakDekking ? { ExtGState: context.obj({ GSbox: { ca: fillOpacity } }) } : {}),
                 })
               };
 

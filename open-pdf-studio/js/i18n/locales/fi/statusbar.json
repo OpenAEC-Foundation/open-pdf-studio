@@ -43,6 +43,7 @@
   "page": "Sivu",
   "zoomOut": "Loitonna",
   "zoomIn": "Lähennä",
+  "dropHereToDock": "Telakoi välilehti pudottamalla tähän",
   "noDocumentsOpen": "Asiakirjoja ei ole avattu",
   "closeTab": "Sulje",
   "openPdfFile": "Avaa PDF-tiedosto",

@@ -3566,7 +3566,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   if (lagen.watermerken) renderWatermarksBehind(ctx, pageNum, wmW, wmH);
 
   // Draw text edits (cover-and-replace)
-  drawTextEdits(ctx, pageNum);
+  if (lagen.tekstbewerkingen) drawTextEdits(ctx, pageNum);
 
   // Viewport-culling. Dit canvas dekt alleen de zichtbare uitsnede van de
   // pagina (zie setupContinuousAnnotationCanvas); alles daarbuiten kostte tot

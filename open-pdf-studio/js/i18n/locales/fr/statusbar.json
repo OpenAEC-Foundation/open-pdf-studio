@@ -43,6 +43,7 @@
   "page": "Page",
   "zoomOut": "Zoom arrière",
   "zoomIn": "Zoom avant",
+  "dropHereToDock": "Déposez ici pour ancrer l’onglet",
   "noDocumentsOpen": "Aucun document ouvert",
   "closeTab": "Fermer",
   "openPdfFile": "Ouvrir un fichier PDF",

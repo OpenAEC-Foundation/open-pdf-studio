@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PDFDocument, PDFName, PDFString, StandardFonts } from 'pdf-lib';
-import { formulierRenderOpties, heeftFormulierVelden } from './print-formulieren.js';
+import { formulierRenderOpties, heeftFormulierVelden, vlakAfdrukbareVelden } from './print-formulieren.js';
 
 async function laad(bytes) {
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
@@ -97,6 +97,22 @@ test('het opslaan van de waarden in het document blijft onaangeroerd', async () 
   await formulierRenderOpties(page, pdf);
   assert.equal(JSON.stringify([...pdf.annotationStorage.serializable.map]), voor);
   assert.equal(pdf.annotationStorage.getValue(veld.id, {}).value, 'Jansen');
+});
+
+test('vectorafdruk neemt alleen printbare, zichtbare widgets op in de inhoud', async () => {
+  const doc = await PDFDocument.create();
+  const page = doc.addPage([300, 200]);
+  const form = doc.getForm();
+  for (const [index, flags] of [4, 0, 6, 5].entries()) {
+    const field = form.createTextField('veld' + index);
+    field.setText('waarde' + index);
+    field.addToPage(page);
+    field.acroField.getWidgets()[0].setFlags(flags);
+  }
+  vlakAfdrukbareVelden(form);
+  const { pdf } = await laad(await doc.save());
+  const { items } = await (await pdf.getPage(1)).getTextContent();
+  assert.deepEqual(items.map(item => item.str).filter(Boolean), ['waarde0']);
 });
 
 test('heeftFormulierVelden kijkt alleen naar de gekozen pagina\'s', async () => {

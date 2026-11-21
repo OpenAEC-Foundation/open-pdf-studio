@@ -1,3 +1,4 @@
+import { annotatieOnderwerp } from '../../annotations/onderwerp.js';
 import { createSignal, createMemo } from 'solid-js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { formatMeasurement } from '../../annotations/measurement.js';
@@ -46,7 +47,7 @@ const scheduleEntries = createMemo(() => {
     type: a.type,
     typeName: getTypeName(a.type),
     label: a.label || '',
-    subject: a.subject || '',
+    subject: annotatieOnderwerp(a),
     value: a.measureValue || 0,
     unit: getDefaultUnit(a),
     text: a.measureText || '-',

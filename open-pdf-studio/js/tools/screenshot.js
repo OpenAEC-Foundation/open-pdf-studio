@@ -367,7 +367,7 @@ function _ruimOverlayOp() {
  * @param {{ snelKopieren?: boolean }} [opties]
  *   snelKopieren: copy at screen resolution straight away, without the dialog.
  */
-export function startRegionScreenshot({ snelKopieren = false } = {}) {
+export function startRegionScreenshot({ snelKopieren = false, onSelect = null } = {}) {
   const doc = getActiveDocument();
   const kader = document.getElementById('pdf-container');
   if (!doc?.pdfDoc || !kader) {
@@ -391,6 +391,11 @@ export function startRegionScreenshot({ snelKopieren = false } = {}) {
       const gebied = gebiedVanSelectie(selectie, doc);
       if (!gebied) {
         updateStatusMessage(i18next.t('dialogs:screenshot.notOnPage'));
+        return;
+      }
+      if (getActiveDocument() !== doc) return;
+      if (onSelect) {
+        onSelect(gebied);
         return;
       }
       if (snelKopieren) {

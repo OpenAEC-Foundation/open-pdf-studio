@@ -43,6 +43,7 @@
   "page": "Halaman",
   "zoomOut": "Perkecil",
   "zoomIn": "Perbesar",
+  "dropHereToDock": "Lepaskan di sini untuk menambatkan tab",
   "noDocumentsOpen": "Tidak ada dokumen terbuka",
   "closeTab": "Tutup",
   "openPdfFile": "Buka file PDF",

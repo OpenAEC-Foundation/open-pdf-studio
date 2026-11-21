@@ -348,6 +348,47 @@ test('naam (/NM) en PDF-onderwerp (/Subj) van een vorm komen terug, naast de opm
   assert.equal(modellen[0].subject, 'kijk hier');
 });
 
+test('Onderwerp bij een nieuwe en bestaande tekening schrijft /Subj naast de eigen /Contents', async () => {
+  const paneel = await import('../solid/stores/propertiesStore.js');
+  const { createAnnotationFromTool } = await import('../tools/annotation-creators.js');
+  const bron = await PDFDocument.create();
+  const blad = bron.addPage([595, 842]);
+  blad.node.addAnnot(bron.context.register(bron.context.obj({
+    Type: 'Annot', Subtype: 'Square', Rect: [80, 400, 160, 460],
+    Contents: PDFString.of('Controleer de aansluiting'), Subj: PDFString.of('Oud onderwerp'),
+  })));
+  let bytes = await bron.save();
+  const [vorm] = await laad(bytes);
+  state.documents = [{ id: 'blad', currentPage: 1, scale: 1, annotations: [vorm], undoStack: [], redoStack: [] }];
+  state.activeDocumentIndex = 0;
+  paneel.storeShowProperties(vorm);
+  assert.equal(paneel.annotProps.subject, 'Oud onderwerp');
+  paneel.updateAnnotProp('subject', 'Gewijzigde vorm');
+  await paneel.showToolDefaults('line');
+  paneel.updateAnnotProp('subject', 'Nieuwe lijn');
+  const lijn = createAnnotationFromTool('line', 10, 10, 60, 40, null);
+  paneel.updateAnnotProp('subject', '');
+
+  bytes = await opslaan(bytes, [vorm, lijn]);
+  const dicts = (await woordenboeken(bytes)).map(a => a.dict);
+  const vierkant = dicts.find(d => subtype(d) === '/Square');
+  const lijnDict = dicts.find(d => subtype(d) === '/Line');
+  assert.equal(tekst(vierkant, 'Subj'), 'Gewijzigde vorm');
+  assert.equal(tekst(vierkant, 'Contents'), 'Controleer de aansluiting');
+  assert.equal(tekst(lijnDict, 'Subj'), 'Nieuwe lijn');
+  assert.equal(tekst(lijnDict, 'Contents') || '', '');
+  const heropend = await laad(bytes);
+  const terug = heropend.find(a => a.type === 'box');
+  paneel.storeShowProperties(terug);
+  assert.equal(paneel.annotProps.subject, 'Gewijzigde vorm');
+  paneel.updateAnnotProp('subject', '');
+  bytes = await opslaan(bytes, heropend);
+  const leeg = (await woordenboeken(bytes)).find(a => subtype(a.dict) === '/Square').dict;
+  assert.equal(tekst(leeg, 'Contents'), 'Controleer de aansluiting');
+  paneel.storeShowProperties((await laad(bytes)).find(a => a.type === 'box'));
+  assert.equal(paneel.annotProps.subject, '');
+});
+
 test('het onderwerp van een tekstvak of notitie gaat naar /Subj (hun tekst staat in /Contents)', async () => {
   const notitie = { ...basis, id: 'cm', type: 'comment', x: 400, y: 400, width: 24, height: 24, text: 'notitietekst', icon: 'comment', subject: 'Vraag', color: '#ffff00' };
   const { modellen, bytes } = await rondgang([tekstvak({ subject: 'Kop' }), notitie], { keer: 2 });

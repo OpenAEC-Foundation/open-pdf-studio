@@ -43,6 +43,7 @@
   "page": "Stranica",
   "zoomOut": "Smanji",
   "zoomIn": "Povećaj",
+  "dropHereToDock": "Ispustite ovdje za usidravanje kartice",
   "noDocumentsOpen": "Nema otvorenih dokumenata",
   "closeTab": "Zatvori",
   "openPdfFile": "Otvori PDF datoteku",

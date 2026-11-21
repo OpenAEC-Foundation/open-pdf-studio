@@ -186,8 +186,15 @@ export async function inflateBytes(compressed) {
 
 // Convert pdf-lib color array to hex
 export function pdfColorToHex(colorArray, context) {
-  if (!colorArray || typeof colorArray.size !== 'function' || colorArray.size() < 3) return null;
-  const r = pdfNum(colorArray.get(0)), g = pdfNum(colorArray.get(1)), b = pdfNum(colorArray.get(2));
-  if (r === null || g === null || b === null) return null;
-  return `#${Math.round(r * 255).toString(16).padStart(2, '0')}${Math.round(g * 255).toString(16).padStart(2, '0')}${Math.round(b * 255).toString(16).padStart(2, '0')}`;
+  const count = typeof colorArray?.size === 'function' ? colorArray.size() : 0;
+  if (![1, 3, 4].includes(count)) return null;
+  const components = Array.from({ length: count }, (_, index) => {
+    const value = colorArray.get(index);
+    return pdfNum(context?.lookup(value) || value);
+  });
+  if (!components.every(Number.isFinite)) return null;
+  let rgb = components;
+  if (count === 1) rgb = Array(3).fill(components[0]);
+  if (count === 4) rgb = components.slice(0, 3).map(ink => (1 - ink) * (1 - components[3]));
+  return '#' + rgb.map(v => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, '0')).join('');
 }

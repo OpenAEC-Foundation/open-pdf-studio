@@ -465,7 +465,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       const nm = leesTekstString(context, annotDict.get(PDFName.of('NM')));
       if (nm) colors.nm = nm;
       const subj = leesTekstString(context, annotDict.get(PDFName.of('Subj')));
-      if (subj) colors.subj = subj;
+      if (subj !== undefined) colors.subj = subj;
       const altTekst = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_AltText')));
       if (altTekst) colors.opsAltText = altTekst;
       const zoneText = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_SpatialZone')));

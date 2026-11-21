@@ -1,3 +1,4 @@
+import { annotatieOnderwerp } from '../../annotations/onderwerp.js';
 // "Opmerkingen samenvatten" in het opmerkingenpaneel (#383): de opmerkingen
 // zoals de lijst ze toont (filter en volgorde) als PDF-rapport, elk met een
 // uitsnede van haar plek op de pagina, en de status van veel opmerkingen
@@ -116,7 +117,7 @@ export async function exportAnnotationsSummaryPdf(annotations) {
         auteur: ann.author || 'User',
         datum: csvDatum(ann.modifiedAt || ann.createdAt),
         status,
-        onderwerp: ann.subject || '',
+        onderwerp: annotatieOnderwerp(ann),
         inhoud: inhoudVan(ann),
         reacties: (ann.replies || []).filter(Boolean).map((r) => ({
           auteur: r.author || 'User', datum: csvDatum(r.createdAt), tekst: r.text || '',

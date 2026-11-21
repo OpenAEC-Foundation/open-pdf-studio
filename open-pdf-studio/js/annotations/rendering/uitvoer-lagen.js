@@ -17,11 +17,11 @@
  * @returns {{ watermerken: boolean, tekstbewerkingen: boolean, markeringen: boolean,
  *             selectie: boolean, bewerkhulp: boolean, schermlijndikte: boolean }}
  */
-export function weergaveLagen({ uitvoer = false, markeringen = true, watermerken = true, inactief = false } = {}) {
+export function weergaveLagen({ uitvoer = false, markeringen = true, watermerken = true, tekstbewerkingen = true, inactief = false } = {}) {
   const scherm = !uitvoer;
   return {
     watermerken: watermerken !== false,
-    tekstbewerkingen: true,
+    tekstbewerkingen,
     markeringen: markeringen !== false,
     selectie: scherm && !inactief,
     bewerkhulp: scherm && !inactief,

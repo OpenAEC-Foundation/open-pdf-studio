@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName } from 'pdf-lib';
 const root = fileURLToPath(new URL('../', import.meta.url));
 process.chdir(root);
 for (const language of await readdir(path.join(root, 'js/i18n/locales'))) {
@@ -84,6 +84,7 @@ try {
     (await import('/js/bridge.ts')).openDialog('print');
   });
   await page.waitForSelector('.print-dialog');
+  assert.equal(await page.locator('#print-range-area').isDisabled(), true);
   assert.equal(await menu.count(), 0, 'opening a modal dismisses save menu');
   assert.equal(await arrow.isDisabled(), true);
   const layout = () => page.evaluate(() => {
@@ -127,6 +128,64 @@ try {
   await page.locator('.print-footer-right .pref-btn-secondary').click();
   await page.evaluate(() => document.documentElement.setAttribute('dir', 'ltr'));
 
+  // Drag over a real page and reopen the ordinary dialog after cancellation.
+  const start = await page.evaluate(async () => {
+    window.__TAURI__ = { core: { invoke: async () => null } };
+    const { selectPrintArea } = await import('/js/ui/chrome/dialogs.js');
+    const { paginasOpScherm } = await import('/js/tools/screenshot.js');
+    const { getActiveDocument } = await import('/js/core/state.ts');
+    const { rect } = paginasOpScherm(getActiveDocument())[0];
+    const viewport = document.querySelector('#pdf-container').getBoundingClientRect();
+    await selectPrintArea();
+    return { x: Math.max(viewport.left, rect.left) + 15, y: Math.max(viewport.top, rect.top) + 15 };
+  });
+  await page.locator('.screenshot-overlay').waitFor();
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x + 100, start.y + 55, { steps: 4 });
+  await page.mouse.up();
+  await page.locator('#print-range-area.active').waitFor();
+  const jobs = await page.evaluate(async () => {
+    const { getDialogs } = await import('/js/solid/stores/dialogStore.js');
+    const { getActiveDocument } = await import('/js/core/state.ts');
+    const { runPrintJob } = await import('/js/pdf/print-job.js');
+    const { selectedArea } = getDialogs().find(d => d.name === 'print').data;
+    const { pageNum, uitsnede } = selectedArea;
+    getActiveDocument().annotations.push({ type: 'box', id: 'print-fixture', page: pageNum,
+      x: uitsnede.pagina.x + 5, y: uitsnede.pagina.y + 5, width: 20, height: 12, strokeColor: '#ff0000', lineWidth: 2 });
+    const output = [];
+    window.__TAURI__.core.invoke = async (cmd, args) => {
+      if (cmd === 'write_temp_pdf') { output.push({ bytes: Array.from(args) }); return 'test-output.pdf'; }
+      if (cmd === 'print_pdf') output.at(-1).vector = args.vector === true;
+      return null;
+    };
+    for (const [inhoud, vectorArea] of [['doc-only', true], ['markups-only', true], ['doc-and-markups', true], ['doc-and-markups', false]]) {
+      const job = await runPrintJob({ printer: 'test', copies: 1, pages: [pageNum], vectorArea,
+        vel: 'pagina', inhoud, uitsneden: new Map([[pageNum, uitsnede]]) });
+      if (!job.ok) throw Error(job.error);
+    }
+    return output;
+  });
+  assert.deepEqual(jobs.map(job => job.vector), [true, true, true, false]);
+  const forms = [];
+  for (const job of jobs) {
+    const document = await PDFDocument.load(Uint8Array.from(job.bytes));
+    const xobjects = document.getPage(0).node.Resources().lookup(PDFName.of('XObject'));
+    forms.push(xobjects.entries().map(([, ref]) => document.context.lookup(ref).dict.get(PDFName.of('Subtype')).toString()));
+  }
+  assert.deepEqual(forms, [['/Form'], ['/Form'], ['/Form', '/Form'], ['/Image']]);
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector('.print-preview-panel canvas');
+    return canvas?.width > 0 && canvas.height > 0;
+  });
+  await page.locator('.print-footer-right .pref-btn-secondary').click();
+  await page.evaluate(async () => {
+    delete window.__TAURI__;
+    (await import('/js/bridge.ts')).openDialog('print');
+  });
+  assert.equal(await page.locator('#print-range-area').isDisabled(), true);
+  await page.locator('.print-footer-right .pref-btn-secondary').click();
+
   // Exercise the actual reusable component's callbacks without writing user files.
   await page.evaluate(async () => (await import('/save-test-fixture.js')).mount());
   const host = page.locator('#save-test-host');
@@ -137,5 +196,5 @@ try {
   await host.locator('[role="menuitem"]').last().click();
   assert.deepEqual(await page.evaluate(() => window.saveCalls), ['save', 'saveAs', 'export']);
   assert.deepEqual(errors, [], 'no uncaught browser errors');
-  console.log('PASS: save/menu callbacks, keyboard, dismissal, read-only/modal state, print alignment, compact selects, custom grid, RTL');
+  console.log('PASS: save/menu callbacks, keyboard, dismissal, read-only/modal state, print alignment, compact selects, custom grid, RTL, print area selection, vector/image output and cancellation');
 } finally { await browser?.close(); await server.close(); await rm(cache, { recursive: true, force: true }); }

@@ -146,7 +146,7 @@
 }
 
 .document-tabs.drag-dock-target::after {
-  content: 'Sleep hier om te koppelen';
+  content: attr(data-dock-label);
   position: absolute;
   left: 50%;
   transform: translateX(-50%);

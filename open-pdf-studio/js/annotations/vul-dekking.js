@@ -70,3 +70,15 @@ export function zetLijnDekking(ann, waarde) {
   }
   ann.opacity = waarde;
 }
+
+/** PDF bewaart RGB en dekking apart; bestaande stijlen bevatten beide in de CSS-kleur. */
+export function normaliseerVulkleur(ann) {
+  const kleur = ann.fillColor;
+  if (typeof kleur !== 'string') return ann;
+  const hex = /^#([a-f\d]{6})([a-f\d]{2})$/i.exec(kleur);
+  const rgba = /^rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d*\.?\d+)\s*\)$/i.exec(kleur);
+  if (!hex && !rgba) return ann;
+  const rgb = hex ? hex[1] : rgba.slice(1, 4).map(v => Math.min(255, Number(v)).toString(16).padStart(2, '0')).join('');
+  const alpha = hex ? parseInt(hex[2], 16) / 255 : Math.min(1, Number(rgba[4]));
+  return { ...ann, fillColor: '#' + rgb, fillOpacity: vulDekking(ann) * alpha };
+}

@@ -216,7 +216,17 @@ export function hideMergePdfsDialog() {
 // Print Dialog (Solid.js)
 // ============================================
 
-export function showPrintDialog() {
+export async function selectPrintArea() {
+  const { startRegionScreenshot } = await import('../../tools/screenshot.js');
+  const { maakUitsnede } = await import('../../pdf/print-huidige-weergave.js');
+  const { weergaveRotatie } = await import('../../pdf/weergave-ruimte.js');
+  startRegionScreenshot({ onSelect: ({ doc, pageNum, rect, pageW, pageH }) => {
+    const uitsnede = maakUitsnede(rect, { breedte: pageW, hoogte: pageH }, weergaveRotatie(doc));
+    if (uitsnede) showPrintDialog({ pageNum, uitsnede });
+  } });
+}
+
+export function showPrintDialog(selectedArea = null) {
   // De webversie heeft geen spooler. De menu-ingang staat er uit, maar Ctrl+P
   // en het snelmenu komen hier ook langs: dan de ene melding in plaats van een
   // venster met een lege printerlijst (#456).
@@ -233,7 +243,7 @@ export function showPrintDialog() {
     showMessage(i18next.t('protectedPdfNoPrint'));
     return;
   }
-  openDialog('print', { currentPage: getActiveDocument()?.currentPage || 1 });
+  openDialog('print', { selectedArea, currentPage: getActiveDocument()?.currentPage || 1 });
 }
 
 // Documentbeveiliging (#378): wachtwoorden en rechten, alleen op het bureaublad

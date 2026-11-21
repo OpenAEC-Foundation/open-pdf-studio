@@ -115,7 +115,9 @@ export default function PrintDialog(props) {
   const [copies, setCopies] = createSignal(bewaard.copies);
   const [duplex, setDuplex] = createSignal(bewaard.duplex);
   const [collate, setCollate] = createSignal(bewaard.collate);
-  const [activeRange, setActiveRange] = createSignal(bewaard.range);
+  const selectedArea = props.data?.selectedArea?.uitsnede ? props.data.selectedArea : null;
+  const area = uitsnedenPerPagina(selectedArea ? [selectedArea] : []);
+  const [activeRange, setActiveRange] = createSignal(area.paginas.length ? 'area' : bewaard.range);
   // Huidige weergave (#947): wat in het documentvenster te zien was toen de
   // dialoog openging, per pagina het zichtbare deel. De dialoog ligt over het
   // venster heen, maar verschuift het niet.
@@ -128,7 +130,8 @@ export default function PrintDialog(props) {
     .catch((e) => console.warn('[print] reading the current view failed:', e));
   const heeftWeergave = () => weergave().paginas.length > 0;
   /** De uitsnede van `pageNum` als Huidige weergave gekozen is, anders null. */
-  const uitsnedeVan = (pageNum) => (activeRange() === 'view' ? weergave().uitsneden.get(pageNum) || null : null);
+  const activeCrops = () => activeRange() === 'area' ? area.uitsneden : activeRange() === 'view' ? weergave().uitsneden : null;
+  const uitsnedeVan = (pageNum) => activeCrops()?.get(pageNum) || null;
   /** De maat van wat van `pageNum` wordt afgedrukt (getoond, met draaiing). */
   async function printMaat(doc, pageNum) {
     const u = uitsnedeVan(pageNum);
@@ -140,15 +143,15 @@ export default function PrintDialog(props) {
   const [customPages, setCustomPages] = createSignal(bewaard.customPages);
   const [activeSubset, setActiveSubset] = createSignal(bewaard.subset);
   const [reverseOrder, setReverseOrder] = createSignal(bewaard.reverseOrder);
-  const [scaling, setScaling] = createSignal(bewaard.scaling);
+  const [scaling, setScaling] = createSignal(selectedArea && bewaard.scaling === 'poster' ? 'actual' : bewaard.scaling);
   const [zoom, setZoom] = createSignal(bewaard.zoom);
-  const [autoRotate, setAutoRotate] = createSignal(bewaard.autoRotate);
-  const [autoCenter, setAutoCenter] = createSignal(bewaard.autoCenter);
+  const [autoRotate, setAutoRotate] = createSignal(selectedArea ? true : bewaard.autoRotate);
+  const [autoCenter, setAutoCenter] = createSignal(selectedArea ? true : bewaard.autoCenter);
   const [printContent, setPrintContent] = createSignal(bewaard.content);
   const [printAsImage, setPrintAsImage] = createSignal(bewaard.asImage);
   // Kleur, grijswaarden of zwart-wit (#754): voorbeeld en afdruk gelijk.
-  const [colorMode, setColorMode] = createSignal(bewaard.colorMode);
-  const [perSheet, setPerSheet] = createSignal(bewaard.perSheet);
+  const [colorMode, setColorMode] = createSignal(selectedArea && !bewaard.asImage ? 'color' : bewaard.colorMode);
+  const [perSheet, setPerSheet] = createSignal(selectedArea ? '1' : bewaard.perSheet);
   const [sheetCols, setSheetCols] = createSignal(bewaard.sheetCols);
   const [sheetRows, setSheetRows] = createSignal(bewaard.sheetRows);
   const [sheetOrder, setSheetOrder] = createSignal(bewaard.sheetOrder);
@@ -190,6 +193,7 @@ export default function PrintDialog(props) {
   }
   // Posterafdruk (Type "Poster", print-poster.js): de tegelkeuzes, of null.
   // De poster vervangt de schaalkeuze én het aantal pagina's per vel.
+  const [tilePrintArea, setTilePrintArea] = createSignal(false);
   const poster = createMemo(() => (scaling() === 'poster'
     ? posterOpties({
       schaal: posterScale(),
@@ -199,7 +203,9 @@ export default function PrintDialog(props) {
       alleenGroot: posterOnlyLarge(),
       randAfsnijden: posterEdgeCrop(),
     })
-    : null), undefined, { equals: zelfdeKeuzes });
+    : tilePrintArea()
+      ? posterOpties({ schaal: 100, overlap: 0, alleenGroot: false, labels: false, snijtekens: false, randAfsnijden: false })
+      : null), undefined, { equals: zelfdeKeuzes });
   // Boekje (print-boekje.js): twee pagina's per liggend vel in genietvolgorde.
   // Een keuze in "Pagina's per vel", dus nooit samen met meer per vel; de
   // poster gaat voor.
@@ -306,6 +312,7 @@ export default function PrintDialog(props) {
     const totalPages = doc.pdfDoc.numPages;
     let pages = [];
 
+    if (activeRange() === 'area') return [...area.paginas];
     if (activeRange() === 'all') {
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else if (activeRange() === 'current') {
@@ -382,7 +389,7 @@ export default function PrintDialog(props) {
     }
 
     const keuzes = plaatsingKeuzes();
-    const markeringen = printContent() === 'doc-and-markups';
+    const markeringen = printContent() !== 'doc-only';
     const kleur = colorMode();
     if (poster()) {
       setMeerVoorbeeld(null);
@@ -416,7 +423,7 @@ export default function PrintDialog(props) {
       // pagina die haaks op het vel staat.
       const deel = renderDeel(plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur, uitsnede: uitsnedeVan(pageNum) })
+        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { alleenMarkeringen: printContent() === 'markups-only', markeringen, kleur, uitsnede: uitsnedeVan(pageNum) })
         : null;
       if (beurt !== voorbeeldBeurt) return;
 
@@ -513,7 +520,7 @@ export default function PrintDialog(props) {
       let beeld = sleutel ? gerenderd.get(sleutel) : null;
       if (deel && !beeld) {
         beeld = await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, {
-          markeringen, kleur, uitsnede: uitsnedeVan(paginaVan(cel)),
+          alleenMarkeringen: printContent() === 'markups-only', markeringen, kleur, uitsnede: uitsnedeVan(paginaVan(cel)),
         });
         gerenderd.set(sleutel, beeld);
       }
@@ -657,7 +664,7 @@ export default function PrintDialog(props) {
       const pxPerPt = v.plaatsing.schaal * MM_PER_PT * vak.pxPerMm;
       const deel = renderDeel(v.plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { markeringen, kleur, uitsnede: uitsnedeVan(pageNum) })
+        ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { alleenMarkeringen: printContent() === 'markups-only', markeringen, kleur, uitsnede: uitsnedeVan(pageNum) })
         : null;
       if (beurt !== voorbeeldBeurt || doc !== getActiveDocument() || doc?.isClosed?.()) return;
 
@@ -782,6 +789,7 @@ export default function PrintDialog(props) {
 
   function onRangeChange(range) {
     setActiveRange(range);
+    if (range === 'area' && !printAsImage()) setColorMode('color');
     updatePreviewPages();
   }
 
@@ -1020,7 +1028,7 @@ export default function PrintDialog(props) {
       collate: collate(),
       // Huidige weergave geldt voor dit ene moment: bewaard blijft de keuze
       // van daarvoor, anders drukt de volgende Ctrl+P ongemerkt een uitsnede af.
-      range: activeRange() === 'view' ? bewaard.range : activeRange(),
+      range: ['view', 'area'].includes(activeRange()) ? bewaard.range : activeRange(),
       customPages: customPages(),
       subset: activeSubset(),
       reverseOrder: reverseOrder(),
@@ -1067,7 +1075,8 @@ export default function PrintDialog(props) {
     // De stand zoals het voorbeeld hem toont (plaatsingKeuzes): bij meerdere
     // pagina's per vel of een folder geldt de gekozen stand (#606).
     const orientatie = keuzes.orientatie;
-    const uitsneden = activeRange() === 'view' ? weergave().uitsneden : null;
+    const uitsneden = activeCrops();
+    const vectorArea = activeRange() === 'area' && !printAsImage();
     savePreferences();
     close();
     // Papier: de Pagina-instelling bereikt nu echt de printer (zie
@@ -1092,6 +1101,7 @@ export default function PrintDialog(props) {
         inhoud: printContent(),
         kleur: geldigeKleurModus(colorMode()),
         openen: openOpgeslagen,
+        vectorArea, asImage: printAsImage(),
         uitsneden,
       });
       return;
@@ -1113,6 +1123,7 @@ export default function PrintDialog(props) {
       // "Afdrukken: Document" laat de markeringen ook echt weg.
       inhoud: printContent(),
       kleur: geldigeKleurModus(colorMode()),
+      vectorArea,
       uitsneden,
     });
   }
@@ -1186,7 +1197,8 @@ export default function PrintDialog(props) {
     const vel = bekendVel(effectief());
     const marges = printerMarges().get(papierVerzoekSleutel(selectedPrinter(), gevraagdPapier())) || null;
     return {
-      papier: vel ? { ...vel, bedrukbaar: marges } : (pdfDoel() ? 'pagina' : null),
+      papier: vel ? { ...vel, bedrukbaar: marges } : (pdfDoel() ? 'pagina'
+        : activeRange() === 'area' && scaling() === 'actual' ? { breedteMm: 210, hoogteMm: 297 } : null),
       // Bij meerdere pagina's per vel of een folder geldt de in de
       // Pagina-instelling gekozen stand, ook met Automatisch draaien (#606).
       orientatie: vellenStand({
@@ -1200,6 +1212,12 @@ export default function PrintDialog(props) {
       centreren: autoCenter(),
     };
   }, undefined, { equals: zelfdeKeuzes });
+
+  createEffect(() => {
+    const actualArea = activeRange() === 'area' && scaling() === 'actual' && perSheet() === '1';
+    const placement = actualArea && berekenPlaatsing({ ...plaatsingKeuzes(), pagina: selectedArea.uitsnede });
+    setTilePrintArea(!!placement && (placement.afgesneden || placement.buitenBedrukbaar));
+  });
 
   // De posterindeling van elke af te drukken pagina (print-poster.js) en de
   // vellen van de hele afdruk; leeg zonder poster of zolang de maten nog
@@ -1559,6 +1577,9 @@ export default function PrintDialog(props) {
                 title={t('print.currentViewTitle')}
                 onClick={() => onRangeChange('view')}
               >{t('print.currentView')}</button>
+              <button id="print-range-area" class="print-page-btn" classList={{ active: activeRange() === 'area' }}
+                disabled={!area.paginas.length} onClick={() => onRangeChange('area')}
+              >{t('print.selectedArea')}</button>
               <button
                 class="print-page-btn"
                 classList={{ active: activeRange() === 'custom' }}
@@ -1658,7 +1679,7 @@ export default function PrintDialog(props) {
             </div>
           </Show>
 
-          <Show when={poster()}>
+          <Show when={scaling() === 'poster'}>
             <div class="print-row print-zoom-row">
               <label class="print-label">{t('print.posterScale')}</label>
               <NumberStepper label={t('print.posterScale')} value={posterScale()} min={POSTER_SCHAAL_MIN} max={POSTER_SCHAAL_MAX}
@@ -1887,7 +1908,7 @@ export default function PrintDialog(props) {
               </label>
             </div>
           </Show>
-          <Show when={poster()}>
+          <Show when={scaling() === 'poster'}>
             <div class="print-row print-checkbox-row">
               <label class="print-checkbox-label">
                 <input type="checkbox" id="print-poster-edge-crop"
@@ -1938,6 +1959,7 @@ export default function PrintDialog(props) {
             >
               <option value="doc-and-markups">{t('print.documentAndMarkups')}</option>
               <option value="doc-only">{t('print.document')}</option>
+              <option value="markups-only">{t('print.markupsOnly')}</option>
             </select>
           </div>
           <div class="print-row">
@@ -1945,6 +1967,7 @@ export default function PrintDialog(props) {
             <select
               class="print-select"
               value={colorMode()}
+              disabled={activeRange() === 'area' && !printAsImage()}
               onChange={(e) => setColorMode(geldigeKleurModus(e.target.value))}
             >
               <For each={KLEUR_MODI}>
@@ -1959,7 +1982,10 @@ export default function PrintDialog(props) {
               <input
                 type="checkbox"
                 checked={printAsImage()}
-                onChange={(e) => setPrintAsImage(e.target.checked)}
+                onChange={(e) => {
+                  setPrintAsImage(e.target.checked);
+                  if (!e.target.checked && activeRange() === 'area') setColorMode('color');
+                }}
               /> {t('print.printAsImage')}
             </label>
           </div>

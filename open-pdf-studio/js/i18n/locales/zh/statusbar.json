@@ -43,6 +43,7 @@
   "page": "页",
   "zoomOut": "缩小",
   "zoomIn": "放大",
+  "dropHereToDock": "拖放到此处以停靠标签页",
   "noDocumentsOpen": "没有打开的文档",
   "closeTab": "关闭",
   "openPdfFile": "打开 PDF 文件",
