@@ -1,3 +1,4 @@
+import { geometricLinePaths } from './geometric-line-styles.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { distanceToLine, isPointNearRect, isPointNearEllipse } from '../utils/math.js';
@@ -236,6 +237,13 @@ function raakInLijst(annotations, x, y, pageNum) {
     // dus nooit; je bereikt haar via haar ruimtetag (ruimte-koppeling.js).
     if (raakbaarBijKlik(ann) === false) continue;
 
+    const patternPaths = geometricLinePaths(ann);
+    if (patternPaths) {
+      for (const path of patternPaths) for (let j = 1; j < path.length; j++) {
+        if (distanceToLine(x, y, path[j - 1].x, path[j - 1].y, path[j].x, path[j].y) < tol) return ann;
+      }
+      continue;
+    }
     switch (ann.type) {
       case 'draw':
         // Check if point is near the path
@@ -720,6 +728,9 @@ function raakInLijst(annotations, x, y, pageNum) {
 
 // Check if point is inside annotation (for moving)
 export function isPointInsideAnnotation(x, y, annotation) {
+  const patternPaths = geometricLinePaths(annotation);
+  if (patternPaths) return patternPaths.some(path => path.some((p, i) => i > 0
+    && distanceToLine(x, y, path[i - 1].x, path[i - 1].y, p.x, p.y) < 15));
   // For shapes that support rotation, transform the point first
   const sizeInfo = getAnnotationCenterAndSize(annotation);
   let localX = x, localY = y;

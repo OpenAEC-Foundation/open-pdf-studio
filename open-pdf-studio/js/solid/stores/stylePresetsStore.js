@@ -1,3 +1,4 @@
+import { canApplyLineStyle } from '../../annotations/geometric-line-styles.js';
 import { createSignal } from 'solid-js';
 import { zetRanddikte } from '../../annotations/rendering/textbox-layout.js';
 import { getActiveDocument } from '../../core/state.js';
@@ -147,7 +148,7 @@ function _applyPropsToAnnotation(ann, props) {
     const lw = parseFloat(props.lineWidth);
     if (!isNaN(lw)) zetRanddikte(ann, lw);
   }
-  if (props.borderStyle !== undefined) ann.borderStyle = props.borderStyle;
+  if (props.borderStyle !== undefined && canApplyLineStyle(ann.type, props.borderStyle)) ann.borderStyle = props.borderStyle;
   // Line endings: only where they make sense.
   const takesHeads = _HEAD_TYPES.has(ann.type) ||
     ann.startHead !== undefined || ann.endHead !== undefined;

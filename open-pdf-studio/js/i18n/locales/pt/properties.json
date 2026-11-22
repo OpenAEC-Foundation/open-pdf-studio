@@ -1079,5 +1079,16 @@
   "sectionOrder": {
     "reset": "Repor a ordem das secções",
     "dragHint": "Clique para recolher ou expandir. Arraste para mover a secção (ou Alt+Cima/Baixo)."
+  },
+  "linePatterns": {
+    "fence-circle": "Cerca (círculo)",
+    "fence-square": "Cerca (quadrado)",
+    "gas": "Gás",
+    "hot-water": "Água quente",
+    "zigzag": "Ziguezague",
+    "insulation": "Isolamento",
+    "double": "Dupla",
+    "tracks": "Trilhos",
+    "road": "Estrada"
   }
 }

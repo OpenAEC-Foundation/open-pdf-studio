@@ -1086,5 +1086,16 @@
   "sectionOrder": {
     "reset": "Sectievolgorde herstellen",
     "dragHint": "Klik om in of uit te klappen. Sleep om de sectie te verplaatsen (of Alt+pijl omhoog/omlaag)."
+  },
+  "linePatterns": {
+    "fence-circle": "Hekwerk (cirkel)",
+    "fence-square": "Hekwerk (vierkant)",
+    "gas": "Gas",
+    "hot-water": "Warm water",
+    "zigzag": "Zigzag",
+    "insulation": "Isolatie",
+    "double": "Dubbel",
+    "tracks": "Spoor",
+    "road": "Weg"
   }
 }

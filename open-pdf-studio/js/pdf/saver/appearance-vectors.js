@@ -1,3 +1,4 @@
+import { geometricLinePaths, geometricPathsBounds } from '../../annotations/geometric-line-styles.js';
 // Vector appearance-stream (/AP /N) builders for annotation types that OPDS
 // previously wrote WITHOUT an appearance stream. Those types render correctly
 // inside OPDS (own overlay canvas) but were INVISIBLE — or showed only a bare
@@ -1241,3 +1242,16 @@ export function buildStavenreeksAP({ geom, local, strokeColorHex, lineWidth }) {
 
 // Exposed for the caller to build the font resource dict only when needed.
 export const HELV_FONT_NAME = 'Helv';
+
+/** Shared screen geometry, transformed point by point (including CropBox/Rotate). */
+export function buildGeometricLineAP({ annotation, toPdf, strokeColorHex, lineWidth }) {
+  const paths = geometricLinePaths(annotation, lineWidth);
+  if (!paths?.length) return null;
+  const pdfPaths = paths.map(path => path.map(toPdf));
+  const bounds = geometricPathsBounds(pdfPaths, lineWidth);
+  const rgb = hexToRgb(strokeColorHex || '#000000');
+  let content = `${rgb.map(f).join(' ')} RG\n${f(lineWidth)} w\n0 J 1 j\n[] 0 d\n`;
+  for (const path of pdfPaths) content += path.map((p, i) => `${f(p.x)} ${f(p.y)} ${i ? 'l' : 'm'}`).join(' ') + '\n';
+  content += 'S\n';
+  return { content, needsFont: false, rect: [bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height] };
+}

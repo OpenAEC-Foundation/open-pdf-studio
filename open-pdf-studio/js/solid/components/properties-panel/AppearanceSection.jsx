@@ -1,3 +1,5 @@
+import { GEOMETRIC_LINE_STYLES, supportsGeometricLineStyle } from '../../../annotations/geometric-line-styles.js';
+import { getActiveDocument } from '../../../core/state.js';
 import { Show, For, createSignal, createEffect } from 'solid-js';
 import { annotProps, sectionVis, updateAnnotProp, getLineWidthLabel, cycleSelectNext } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
@@ -15,6 +17,9 @@ import {
 export default function AppearanceSection() {
   const { t } = useTranslation('properties');
   const { t: tCommon } = useTranslation('common');
+  const geometricStylesAvailable = () => annotProps.multiCount > 0
+    ? (getActiveDocument()?.selectedAnnotations || []).every(a => supportsGeometricLineStyle(a.type))
+    : supportsGeometricLineStyle(annotProps.type);
   const isLocked = () => annotProps.locked === true || annotProps.locked === 'mixed';
   // Aparte dekking voor lijn en vulling (#685): zonder vulling of zonder rand
   // heeft die dekking niets om op te werken; het veld blijft zichtbaar maar
@@ -228,7 +233,7 @@ export default function AppearanceSection() {
         <Show when={sectionVis.borderStyleGroup}>
           <div class="property-group">
             <label>{t('appearance.borderStyle')}</label>
-            <select value={annotProps.borderStyle} disabled={isLocked()}
+            <select id="prop-border-style" value={annotProps.borderStyle} disabled={isLocked()}
               onDblClick={cycleSelectNext}
               onChange={(e) => updateAnnotProp('borderStyle', e.target.value)}>
               <Show when={annotProps.borderStyle === 'mixed'}>
@@ -242,6 +247,9 @@ export default function AppearanceSection() {
               <option value="long-dash">{tCommon('longDash')}</option>
               <option value="long-dash-dot">{tCommon('longDashDot')}</option>
               <option value="long-dash-dot-dot">{tCommon('longDashDotDot')}</option>
+                <Show when={geometricStylesAvailable()}><For each={GEOMETRIC_LINE_STYLES}>{style =>
+                  <option value={style}>{t(`linePatterns.${style}`)}</option>
+                }</For></Show>
             </select>
           </div>
         </Show>
