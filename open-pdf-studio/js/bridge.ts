@@ -313,4 +313,4 @@ export {
 
 
 // Shared style clipboard for keyboard commands and the existing UI.
-export { copyStyleFromSelection, pasteStyleToSelection } from './solid/stores/stylePresetsStore.js';
+export { copyStyleFromSelection, pasteStyleToSelection, applyStyleToSelection } from './solid/stores/stylePresetsStore.js';

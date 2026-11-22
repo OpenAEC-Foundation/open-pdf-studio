@@ -175,6 +175,8 @@
     "iconTag": "Etichetta"
   },
   "stylePresets": {
+    "stylePainter": "Pennello stile",
+    "stylePainterHint": "Passa sulle annotazioni per applicare lo stile copiato. Esc o il clic destro interrompe il pennello.",
     "label": "Stile di linea",
     "applyPlaceholder": "Applica stile…",
     "noPresets": "Nessuno stile salvato",

@@ -175,6 +175,8 @@
     "iconTag": "Oznaka"
   },
   "stylePresets": {
+    "stylePainter": "Kist stila",
+    "stylePainterHint": "Prijeđite preko bilješki za primjenu kopiranog stila. Esc ili desni klik zaustavlja kist.",
     "label": "Stil linije",
     "applyPlaceholder": "Primijeni stil…",
     "noPresets": "Nema spremljenih stilova",

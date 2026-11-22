@@ -175,6 +175,8 @@
     "iconTag": "Etichetă"
   },
   "stylePresets": {
+    "stylePainter": "Pensulă de stil",
+    "stylePainterHint": "Treceți peste adnotări pentru a aplica stilul copiat. Esc sau clic dreapta oprește pensula.",
     "label": "Stil de linie",
     "applyPlaceholder": "Aplicare stil…",
     "noPresets": "Niciun stil salvat",

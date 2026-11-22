@@ -152,6 +152,8 @@
     "iconTag": "Tag"
   },
   "stylePresets": {
+    "stylePainter": "Style painter",
+    "stylePainterHint": "Move over annotations to apply the captured style. Esc or right-click stops painting.",
     "label": "Line style",
     "applyPlaceholder": "Apply style…",
     "noPresets": "No saved styles",

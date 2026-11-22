@@ -175,6 +175,8 @@
     "iconTag": "תגית"
   },
   "stylePresets": {
+    "stylePainter": "מברשת סגנון",
+    "stylePainterHint": "העבר את המצביע מעל ההערות כדי להחיל את הסגנון שהועתק. Esc או לחיצה ימנית מפסיקים את המברשת.",
     "label": "סגנון קו",
     "applyPlaceholder": "החלת סגנון…",
     "noPresets": "אין סגנונות שמורים",

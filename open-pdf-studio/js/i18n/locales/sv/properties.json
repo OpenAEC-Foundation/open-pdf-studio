@@ -175,6 +175,8 @@
     "iconTag": "Etikett"
   },
   "stylePresets": {
+    "stylePainter": "Formatpensel",
+    "stylePainterHint": "För pekaren över anteckningar för att använda den kopierade stilen. Esc eller högerklick avslutar penseln.",
     "label": "Linjestil",
     "applyPlaceholder": "Tillämpa stil…",
     "noPresets": "Inga sparade stilar",

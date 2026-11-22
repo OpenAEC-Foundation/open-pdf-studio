@@ -175,6 +175,8 @@
     "iconTag": "Lebo"
   },
   "stylePresets": {
+    "stylePainter": "Brashi ya mtindo",
+    "stylePainterHint": "Sogeza kielekezi juu ya maelezo ili kutumia mtindo ulionakiliwa. Esc au kubofya kulia husimamisha brashi.",
     "label": "Mtindo wa mstari",
     "applyPlaceholder": "Tumia mtindo…",
     "noPresets": "Hakuna mitindo iliyohifadhiwa",

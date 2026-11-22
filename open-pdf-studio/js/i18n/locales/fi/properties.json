@@ -175,6 +175,8 @@
     "iconTag": "Tunniste"
   },
   "stylePresets": {
+    "stylePainter": "Muotoilusivellin",
+    "stylePainterHint": "Vie osoitin merkintöjen päälle käyttääksesi kopioitua tyyliä. Esc tai hiiren oikea painike lopettaa siveltimen.",
     "label": "Viivatyyli",
     "applyPlaceholder": "Käytä tyyliä…",
     "noPresets": "Ei tallennettuja tyylejä",

@@ -175,6 +175,8 @@
     "iconTag": "ٹیگ"
   },
   "stylePresets": {
+    "stylePainter": "انداز کا برش",
+    "stylePainterHint": "نقل شدہ انداز لگانے کے لیے تبصروں پر ماؤس لے جائیں۔ Esc یا دایاں کلک برش روک دیتا ہے۔",
     "label": "لکیر کا انداز",
     "applyPlaceholder": "انداز لاگو کریں…",
     "noPresets": "کوئی محفوظ انداز نہیں",

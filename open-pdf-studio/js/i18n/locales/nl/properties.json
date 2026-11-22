@@ -152,6 +152,8 @@
     "iconTag": "Label"
   },
   "stylePresets": {
+    "stylePainter": "Stijlkwast",
+    "stylePainterHint": "Beweeg over annotaties om de gekopieerde stijl toe te passen. Esc of rechtsklikken stopt de stijlkwast.",
     "label": "Lijnstijl",
     "applyPlaceholder": "Stijl toepassen…",
     "noPresets": "Geen opgeslagen stijlen",

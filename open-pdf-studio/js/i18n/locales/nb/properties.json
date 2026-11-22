@@ -175,6 +175,8 @@
     "iconTag": "Merkelapp"
   },
   "stylePresets": {
+    "stylePainter": "Formatpensel",
+    "stylePainterHint": "Før pekeren over merknader for å bruke den kopierte stilen. Esc eller høyreklikk stopper penselen.",
     "label": "Linjestil",
     "applyPlaceholder": "Bruk stil…",
     "noPresets": "Ingen lagrede stiler",

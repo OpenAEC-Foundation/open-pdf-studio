@@ -175,6 +175,8 @@
     "iconTag": "Etiqueta"
   },
   "stylePresets": {
+    "stylePainter": "Pinzell d’estil",
+    "stylePainterHint": "Passeu per sobre de les anotacions per aplicar l’estil copiat. Esc o el clic dret atura el pinzell.",
     "label": "Estil de línia",
     "applyPlaceholder": "Aplica un estil…",
     "noPresets": "No hi ha estils desats",

@@ -175,6 +175,8 @@
     "iconTag": "Štítek"
   },
   "stylePresets": {
+    "stylePainter": "Štětec stylu",
+    "stylePainterHint": "Přejeďte přes anotace a použijte zkopírovaný styl. Esc nebo pravé tlačítko myši ukončí štětec.",
     "label": "Styl čáry",
     "applyPlaceholder": "Použít styl…",
     "noPresets": "Žádné uložené styly",

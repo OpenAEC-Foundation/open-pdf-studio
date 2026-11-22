@@ -175,6 +175,8 @@
     "iconTag": "Tag"
   },
   "stylePresets": {
+    "stylePainter": "Berus gaya",
+    "stylePainterHint": "Gerakkan penuding ke atas anotasi untuk menggunakan gaya yang disalin. Esc atau klik kanan menghentikan berus.",
     "label": "Gaya garisan",
     "applyPlaceholder": "Guna gaya…",
     "noPresets": "Tiada gaya disimpan",
