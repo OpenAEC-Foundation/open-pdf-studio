@@ -18,6 +18,10 @@ import { findAnnotationAt } from '../annotations/geometry.js';
 import { handlePanEnd, handleMiddleButtonPanEnd } from './pan-handler.js';
 import { performSnap, drawSnapIndicator, drawAlignmentGuides, setPolarAnchor, clearPolarAnchor } from './snap-engine.js';
 import { collectImageAlignRefs, snapImageMove, snapImageResize, drawImageAlignGuides } from './image-align-snap.js';
+import { createAnnotationDragSnap } from './annotation-drag-snap.js';
+import { buildInferenceOverlay, publishInferenceOverlay } from './move-inference.js';
+import { weergaveRotatie } from '../pdf/weergave-ruimte.js';
+import { isKwartslag } from '../pdf/weergave-rotatie.js';
 import {
   recordAdd,
   recordModify,
@@ -220,6 +224,7 @@ export function handlePointerDown(e) {
 
   // Dismiss context menu on any canvas click (left or right)
   hideMenu();
+  _clearDragSnap();
 
   // Reclaim focus from a non-canvas text input (a properties
   // field, the OpenAEC controls, etc.) when the user clicks the page. Without
@@ -932,6 +937,12 @@ function _handleResize(ctx, e, coords) {
   }
 }
 
+let _dragSnap = null;
+function _clearDragSnap() {
+  _dragSnap?.dispose();
+  _dragSnap = null;
+}
+
 function _handleDrag(ctx, e, coords) {
   const deltaX = coords.x - state.dragStartX;
   const deltaY = coords.y - state.dragStartY;
@@ -965,6 +976,8 @@ function _handleDrag(ctx, e, coords) {
   // edges/centres. Purely additive to the raw drag delta; falls through to the
   // unmodified delta when nothing is within tolerance.
   let adjDX = deltaX, adjDY = deltaY;
+  state.lastSnapResult = null;
+  publishInferenceOverlay(null);
   state._imageAlignGuides = null;
   if (state.preferences.enableImageAlignSnap && _dSel2.length > 0 &&
       _dSel2.every(a => a.type === 'image') && !e.shiftKey) {
@@ -993,6 +1006,25 @@ function _handleDrag(ctx, e, coords) {
         state._imageAlignGuides = snap.guides;
         state._imageAlignGuidesPage = coords.pageNum;
       }
+    }
+  } else if (!e.shiftKey && state.preferences.enableObjectSnap && _dSel2.length > 0) {
+    const originals = _dSel2.length === 1
+      ? [state.originalAnnotation || state.originalAnnotations[0]]
+      : state.originalAnnotations;
+    const page = _dSel2[0].page;
+    // Do not infer across pages, including when a continuous-view drag leaves
+    // the original canvas. The selection still belongs to its starting page.
+    if (originals.every(Boolean) && originals.length === _dSel2.length &&
+        _dSel2.every(a => a.page === page)) {
+      const start = { x: state.dragStartX, y: state.dragStartY };
+      _dragSnap ??= createAnnotationDragSnap({ annotations: _dDoc.annotations, originals, page, start });
+      const snap = _dragSnap.snap(deltaX, deltaY, dragScale);
+      adjDX = snap.dx;
+      adjDY = snap.dy;
+      state.lastSnapResult = snap.indicator;
+      publishInferenceOverlay(buildInferenceOverlay(snap.inferred, {
+        page, start, scale: dragScale, quarterTurn: isKwartslag(weergaveRotatie(_dDoc)),
+      }));
     }
   }
 
@@ -1154,6 +1186,7 @@ function _finishDragResize(ctx, e, coords) {
   state.isResizing = false;
   state.activeHandle = null;
   state._dragExitedDeadzone = false;
+  _clearDragSnap();
   _stramienMee = null;
   state.originalAnnotation = null;
   state.originalAnnotations = [];

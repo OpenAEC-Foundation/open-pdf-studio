@@ -944,3 +944,5 @@ js/pdf/annotatie-datums-rondgang.test.mjs
 js/pdf/bitmap-orchestrator-race.test.mjs
 js/pdf/pdfjs-canvas-render.test.mjs
 
+
+js/tools/annotation-drag-snap.test.mjs
