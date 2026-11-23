@@ -6,6 +6,8 @@ import { stampPxPerMm, stampPtPerPapierMm } from '../../annotations/stamp-scale.
 import { getActiveDocument } from '../../core/state.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { blendCanvasWaarde } from '../../annotations/blend-modes.js';
+import { stempelKeuze, wisStempelKeuze, stempelKeuzeMaat, stempelKeuzeNaam } from '../../annotations/stamp-keuze.js';
+import { naturalStampSize } from '../../annotations/dynamic-stamp-layout.js';
 
 /**
  * Text tools — comment, text, stamp, signature, editText
@@ -53,9 +55,54 @@ export const textTool = {
   },
 };
 
+// Preview of the stamp chosen in the picker, under the cursor: the size and
+// place it gets with a click.
+function tekenStempelKeuze(ctx, keuze) {
+  const maat = stempelKeuzeMaat(keuze, (template) => naturalStampSize(template, {}));
+  if (!maat) return;
+  const { width: w, height: h } = maat;
+  ctx.redraw();
+  const c = ctx.canvasCtx;
+  c.save();
+  applyToolTransform(c);
+  zetRechtopRond(c, ctx.x, ctx.y);
+  c.globalAlpha = 0.6;
+  if (keuze.soort === 'afbeelding' && keuze.img) {
+    c.drawImage(keuze.img, ctx.x - w / 2, ctx.y - h / 2, w, h);
+  } else {
+    const kleur = keuze.stamp?.color || '#3b82f6';
+    c.strokeStyle = kleur;
+    c.fillStyle = kleur;
+    // Same frame and text size as the placed text stamp (rendering.js).
+    c.lineWidth = 2;
+    c.beginPath();
+    c.roundRect(ctx.x - w / 2, ctx.y - h / 2, w, h, Math.min(w, h) * 0.15);
+    c.stroke();
+    const naam = stempelKeuzeNaam(keuze);
+    if (naam) {
+      c.font = `bold ${Math.min(h * 0.5, 24)}px Arial`;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(naam, ctx.x, ctx.y, w * 0.9);
+    }
+  }
+  c.restore();
+}
+
 export const stampTool = {
   name: 'stamp',
   cursor: 'crosshair',
+
+  // Choosing the tool opens the picker straight away: first choose a stamp,
+  // then place it with a click. A symbol from the library already is a choice.
+  onActivate(ctx) {
+    wisStempelKeuze();
+    const ov = ctx?.state?.toolOverrides;
+    if (ov?.stampSvg || ov?.stampImage) return;
+    import('../../annotations/stamps.js')
+      .then((m) => m.kiesStempelVooraf())
+      .catch((err) => console.error('[stamp] picker failed', err));
+  },
 
   onPointerDown(ctx, e) {
     if (e && e.button === 2) return;
@@ -64,7 +111,12 @@ export const stampTool = {
       ctx.placeOverrideStamp(ctx.x, ctx.y, ctx.pageNum);
       // Auto-reset to select tool
       import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
+    } else if (stempelKeuze()) {
+      // De aangeklikte pagina reist mee (#1006).
+      ctx.plaatsGekozenStempel(ctx.x, ctx.y, ctx.pageNum);
+      import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
     } else {
+      // Nothing chosen (the picker was closed): choose at the clicked point.
       // De aangeklikte pagina reist mee met het keuzevenster (#1006).
       ctx.showStampPicker(ctx.x, ctx.y, ctx.pageNum);
     }
@@ -73,6 +125,10 @@ export const stampTool = {
   onPointerMove(ctx) {
     const { state } = ctx;
     const previewImg = state.toolOverrides?._previewImg;
+    if (!previewImg && ctx.canvasCtx && stempelKeuze()) {
+      tekenStempelKeuze(ctx, stempelKeuze());
+      return;
+    }
     if (!previewImg || !ctx.canvasCtx) return;
 
     // Zelfde maatbepaling als placeOverrideStamp, zodat de spookafbeelding
@@ -105,6 +161,7 @@ export const stampTool = {
   },
 
   onDeactivate(ctx) {
+    wisStempelKeuze();
     // Clear preview when switching away from stamp tool
     ctx.redraw();
   },

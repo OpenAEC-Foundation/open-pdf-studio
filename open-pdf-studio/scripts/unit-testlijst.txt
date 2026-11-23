@@ -555,6 +555,7 @@ js/pdf/stempel-draaiing-rondgang.test.mjs
 js/annotations/dynamic-stamp.test.mjs
 js/annotations/stamp-template-store.test.mjs
 js/annotations/stamp-picker-filter.test.mjs
+js/annotations/stamp-keuze.test.mjs
 js/pdf/dynamic-stamp-rondgang.test.mjs
 js/i18n/dynamic-stamp-i18n.test.mjs
 js/herstel/planning.test.mjs
@@ -942,5 +943,6 @@ js/pdf/doorlopend-scherp.test.mjs
 js/pdf/pagina-vak.test.mjs
 js/pdf/annotatie-datums-rondgang.test.mjs
 js/pdf/bitmap-orchestrator-race.test.mjs
+js/pdf/bitmap-orchestrator-tile-pan.test.mjs
 js/pdf/pdfjs-canvas-render.test.mjs
 
