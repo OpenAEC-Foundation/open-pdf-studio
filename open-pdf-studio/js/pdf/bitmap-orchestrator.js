@@ -485,10 +485,12 @@ export async function ensureTileForCurrentView(canvas) {
         regionHpt: visRegion.h,
         requiredScale: requestedZoom * dpr,
     }, thin);
-    const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
-    const candidate = covering?.bitmap
-        ? covering
-        : (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr) ? hit : null);
+    // Only a tile that covers the visible region counts. The cache key's
+    // region cell is a quarter of the page, far larger than one tile on a big
+    // sheet at high zoom: the tile stored under this key may lie elsewhere in
+    // the cell, and reusing it left the view on the stretched whole-page
+    // bitmap after every pan.
+    const candidate = covering?.bitmap ? covering : null;
     if (candidate) {
         viewport.currentTile = candidate.bitmap;
         viewport.currentTileMeta = candidate.regionMeta;
