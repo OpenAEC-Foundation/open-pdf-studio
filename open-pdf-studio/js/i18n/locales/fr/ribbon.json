@@ -813,6 +813,7 @@
     "countGroupColorTip": "Couleur de tout le groupe, y compris les repères déjà placés",
     "countGroupNew": "Nouveau groupe",
     "countGroupAdd": "Ajouter un groupe",
+    "countGroupRename": "Donner ce nom au groupe actif",
     "countGroupSize": "Taille",
     "countGroupDelete": "Supprimer le groupe",
     "countGroupDeleteConfirm": "Supprimer le groupe \"{{name}}\" et ses {{count}} marqueurs ?",

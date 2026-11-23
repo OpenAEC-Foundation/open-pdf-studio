@@ -775,6 +775,7 @@
     "countGroupColorTip": "Color of the whole group, including the markers already placed",
     "countGroupNew": "New group",
     "countGroupAdd": "Add group",
+    "countGroupRename": "Rename the active group to this name",
     "countGroupSize": "Size",
     "countGroupDelete": "Delete group",
     "countGroupDeleteConfirm": "Delete the group \"{{name}}\" and its {{count}} markers?",

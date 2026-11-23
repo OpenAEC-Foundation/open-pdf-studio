@@ -9,7 +9,9 @@ import { leesGetal } from '../../../core/getal-invoer.js';
 import { bewaarLinkKeuze, LINK_DIALOOG } from '../../../annotations/link/link-maken.js';
 import {
   normaliseerDoel, linkRand, linkRanddikte, isGebrokenDoel, LINK_STANDAARD_KLEUR, linkGebied,
+  linkDoelVanBladwijzer, bladwijzerKeuzes,
 } from '../../../annotations/link/link-model.js';
+import { boomVolgorde } from '../../../ui/panels/bladwijzer-boom.js';
 import { kiesLinkGebied } from '../../../annotations/link/link-gebied.js';
 
 // Hyperlink invoegen of bewerken (#953). Het doel: een webadres, een pagina in
@@ -36,6 +38,10 @@ export default function LinkDialog(props) {
   const [pagina, setPagina] = createSignal(gebroken ? ''
     : String(doel?.kind === 'page' ? doel.page : Math.min(aantal, (doc?.currentPage || 1))));
   const [weergave, setWeergave] = createSignal(doel?.kind === 'page' && (doel.fit === 'fit' || doel.fit === 'rect') ? doel.fit : 'xyz');
+  // Benoemde plekken (#1226): de bladwijzers van het document.
+  const bladwijzers = doc?.bookmarks || [];
+  const plekken = bladwijzerKeuzes(bladwijzers, boomVolgorde(bladwijzers));
+  const [plek, setPlek] = createSignal(plekken[0]?.id || '');
   // Het gekozen gebied op de doelpagina (#1226), in PDF-eenheden.
   const [gebied, setGebied] = createSignal(doel?.kind === 'page' && doel.fit === 'rect' ? linkGebied(doel) : null);
   const [bestand, setBestand] = createSignal(doel?.kind === 'file' ? doel.file : '');
@@ -51,6 +57,8 @@ export default function LinkDialog(props) {
   function gekozenDoel() {
     if (soort() === 'uri') return { kind: 'uri', uri: uri() };
     if (soort() === 'file') return { kind: 'file', file: bestand() };
+    // Een bladwijzer: zijn bestemming zoals die nu is.
+    if (weergave() === 'bookmark') return linkDoelVanBladwijzer(bladwijzers.find((b) => b.id === plek()), aantal);
     const page = Number(pagina());
     if (weergave() === 'rect') return { kind: 'page', page, fit: 'rect', ...(gebied() || {}) };
     const zelfde = doel?.kind === 'page' && doel.fit !== 'rect' && doel.page === page && (doel.fit === 'fit') === (weergave() === 'fit');
@@ -75,6 +83,10 @@ export default function LinkDialog(props) {
     const kandidaat = gekozenDoel();
     if (soort() === 'page' && weergave() === 'rect' && !gebied()) {
       setFout(t('link.areaMissing'));
+      return;
+    }
+    if (soort() === 'page' && weergave() === 'bookmark' && !kandidaat) {
+      setFout(t('link.bookmarkMissing'));
       return;
     }
     if (!normaliseerDoel(kandidaat, aantal)) {
@@ -135,7 +147,7 @@ export default function LinkDialog(props) {
             <div class="link-dialog-row link-dialog-indent">
               <label for="link-dialog-page">{t('link.page')}</label>
               <input id="link-dialog-page" type="text" inputmode="numeric" class="link-dialog-field link-dialog-number"
-                value={pagina()} onInput={(e) => { setPagina(e.currentTarget.value); setFout(''); }} />
+                value={pagina()} disabled={weergave() === 'bookmark'} onInput={(e) => { setPagina(e.currentTarget.value); setFout(''); }} />
               <span class="link-dialog-note">{t('link.pageOf', { count: aantal })}</span>
             </div>
             <Show when={gebroken}>
@@ -148,8 +160,18 @@ export default function LinkDialog(props) {
                   { value: 'xyz', label: t('link.viewTop') },
                   { value: 'fit', label: t('link.viewFit') },
                   { value: 'rect', label: t('link.viewArea') },
+                  { value: 'bookmark', label: t('link.viewBookmark') },
                 ]} />
             </div>
+            <Show when={weergave() === 'bookmark'}>
+              <div class="link-dialog-row link-dialog-indent">
+                <Show when={plekken.length > 0} fallback={<span class="link-dialog-note" id="link-dialog-no-bookmarks">{t('link.noBookmarks')}</span>}>
+                  <label>{t('link.bookmark')}</label>
+                  <PrefSelect id="link-dialog-bookmark" value={plek} setValue={setPlek} style={{ flex: '1' }}
+                    options={plekken.map((p) => ({ value: p.id, label: p.label }))} />
+                </Show>
+              </div>
+            </Show>
             <Show when={weergave() === 'rect'}>
               <div class="link-dialog-row link-dialog-indent">
                 <button class="pref-btn pref-btn-secondary" id="link-dialog-pick-area" onClick={kiesGebied}>{t('link.pickArea')}</button>

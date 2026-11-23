@@ -813,6 +813,7 @@
     "countGroupColorTip": "Farbe der ganzen Gruppe, auch der bereits gesetzten Markierungen",
     "countGroupNew": "Neue Gruppe",
     "countGroupAdd": "Gruppe hinzufügen",
+    "countGroupRename": "Die aktive Gruppe so benennen",
     "countGroupSize": "Größe",
     "countGroupDelete": "Gruppe löschen",
     "countGroupDeleteConfirm": "Die Gruppe \"{{name}}\" und ihre {{count}} Markierungen löschen?",

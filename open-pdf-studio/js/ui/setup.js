@@ -251,6 +251,11 @@ export function setupEventListeners() {
   // Middelmuis-slepen pant bij elk gereedschap en overal in de weergave
   installSpacePan();
   installeerMiddelmuisPan();
+  // De rechterknop (#1241) staat standaard uit en hoort niet in de
+  // startbundel: als eigen stukje, direct na het starten.
+  import('../tools/rechtermuis-pan.js')
+    .then(({ installeerRechtermuisPan }) => installeerRechtermuisPan())
+    .catch((e) => console.warn('[setup] right button pan not installed:', e));
   // Klik en Ctrl + sleep met de hand zoomen (#1161)
   installeerHandZoom();
   // Een pan die zijn loslaten mist (venster kwijt) breekt af (#1013)

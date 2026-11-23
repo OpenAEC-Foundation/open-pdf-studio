@@ -136,6 +136,45 @@ export function linkGebied(doel) {
   return { left, bottom, right, top };
 }
 
+/**
+ * Het doel van een link naar een benoemde plek (#1226): een bladwijzer van
+ * het document. De link krijgt de bestemming van de bladwijzer zoals die nu
+ * is (pagina, plek en zoom); in het bestand is het een gewone bestemming, die
+ * elke lezer volgt. Geeft null als de bladwijzer geen bruikbare pagina heeft.
+ * @param {{page?: number, left?: number|null, top?: number|null, zoom?: number|null}} bladwijzer
+ * @param {number} [aantalPaginas]
+ */
+export function linkDoelVanBladwijzer(bladwijzer, aantalPaginas = Infinity) {
+  if (!bladwijzer) return null;
+  const getal = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  return normaliseerDoel({
+    kind: 'page', page: bladwijzer.page, fit: 'xyz',
+    left: getal(bladwijzer.left), top: getal(bladwijzer.top), zoom: getal(bladwijzer.zoom),
+  }, aantalPaginas);
+}
+
+/**
+ * De bladwijzers als keuzelijst, in de volgorde van de boom en ingesprongen
+ * naar hun diepte.
+ * @param {object[]} bladwijzers
+ * @param {string[]} volgorde  ids in boomvolgorde (boomVolgorde)
+ * @returns {{id: string, label: string}[]}
+ */
+export function bladwijzerKeuzes(bladwijzers, volgorde) {
+  const opId = new Map((bladwijzers || []).map((b) => [b.id, b]));
+  const diepte = (b) => {
+    let d = 0;
+    const gezien = new Set([b.id]);
+    let ouder = opId.get(b.parentId);
+    while (ouder && !gezien.has(ouder.id)) { gezien.add(ouder.id); d++; ouder = opId.get(ouder.parentId); }
+    return d;
+  };
+  return (volgorde || []).map((id) => opId.get(id)).filter(Boolean).map((b) => ({
+    id: b.id,
+    label: `${'\u00A0\u00A0'.repeat(diepte(b))}${String(b.title ?? '').trim() || '\u2014'}`,
+  }));
+}
+
 /** Wijst dit paginadoel nergens meer heen (doelpagina verwijderd)? */
 export function isGebrokenDoel(doel) {
   return !!doel && doel.kind === 'page' && (doel.broken === true || doel.page == null);

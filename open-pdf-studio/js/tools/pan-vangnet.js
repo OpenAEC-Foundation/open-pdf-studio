@@ -12,17 +12,21 @@
 // Het gereedschap zelf blijft staan; alleen de tijdelijke sleepstatus gaat weg.
 
 const LINKS = 1;
+const RECHTS = 2;
 const MIDDEN = 4;
 
 /**
  * Is er bij deze beweging geen pan-knop (links of midden) meer ingedrukt?
  * Een event zonder `buttons` (oude of synthetische events) telt niet als
  * losgelaten: liever een pan te veel dan een die halverwege afbreekt.
+ * Een pan met de rechterknop (voorkeur rightButtonDrag, #1241) telt ook die
+ * knop mee: `rechts`.
  * @param {{buttons?: number} | null | undefined} e
+ * @param {{rechts?: boolean}} [o]
  */
-export function geenPanKnopMeer(e) {
+export function geenPanKnopMeer(e, { rechts = false } = {}) {
   if (!e || typeof e.buttons !== 'number') return false;
-  return (e.buttons & (LINKS | MIDDEN)) === 0;
+  return (e.buttons & (LINKS | MIDDEN | (rechts ? RECHTS : 0))) === 0;
 }
 
 /**

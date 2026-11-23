@@ -37,6 +37,17 @@ export default function CountGroupRibbonControls() {
     setNieuweNaam('');
   }
 
+  // De actieve groep de getypte naam geven (#1235); ook een lege groep, die
+  // in het eigenschappenpaneel niet te bereiken is.
+  function hernoem() {
+    const naam = nieuweNaam().trim();
+    const groep = activeCountCategory();
+    if (!naam || !groep) return;
+    updateCountGroup(groep.id, { name: naam });
+    setNieuweNaam('');
+    redraw();
+  }
+
   const maatOpties = () => TELSCHAAL_KEUZES.map(p => ({ value: String(p), label: `${p}%` }));
   const maat = () => String(Math.round(telSchaal(activeCountCategory()) * 100));
 
@@ -100,7 +111,7 @@ export default function CountGroupRibbonControls() {
         />
       </div>
       <div class="ribbon-input-row">
-        <input type="text" id="count-group-new" class="ribbon-input" style={{ width: '112px' }}
+        <input type="text" id="count-group-new" class="ribbon-input" style={{ width: '92px' }}
           placeholder={t('drawing.countGroupNew')}
           value={nieuweNaam()}
           onInput={(e) => setNieuweNaam(e.currentTarget.value)}
@@ -113,6 +124,10 @@ export default function CountGroupRibbonControls() {
           title={t('drawing.countGroupAdd')}
           disabled={!nieuweNaam().trim()}
           onClick={voegToe}>+</button>
+        <button type="button" class="ribbon-row-btn" id="count-group-rename"
+          title={t('drawing.countGroupRename')} aria-label={t('drawing.countGroupRename')}
+          disabled={!nieuweNaam().trim() || !activeCountCategory()}
+          onClick={hernoem}>✎</button>
       </div>
     </RibbonButtonStack>
   );

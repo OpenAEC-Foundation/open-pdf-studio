@@ -245,6 +245,8 @@ export interface Preferences {
   wheelZoomWithoutCtrl: boolean;
   reverseWheelZoom: boolean;
   middleDoubleClickFit: boolean;
+  /** Slepen met de rechtermuisknop: alleen het snelmenu, of het blad verschuiven (#1241). */
+  rightButtonDrag: 'menu' | 'pan';
   handClickZoom: boolean;
   ribbonWheelSwitchesTabs: boolean;
   smoothScrolling: boolean;

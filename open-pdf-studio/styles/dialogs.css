@@ -175,7 +175,18 @@
 /* Preferences Dialog */
 .preferences-overlay { }
 
-.preferences-dialog { width: 600px; height: 520px; }
+.preferences-dialog {
+  width: 600px;
+  height: 520px;
+  /* In grootte aanpasbaar met de greep rechtsonder (#1239): de lijsten en
+     tabbladen krijgen dan meer ruimte. Niet kleiner dan de vaste maat. */
+  resize: both;
+  overflow: hidden;
+  min-width: 600px;
+  min-height: 520px;
+  max-width: 96vw;
+  max-height: 94vh;
+}
 
 .preferences-body-wrapper {
   padding: 0;
@@ -4327,6 +4338,8 @@
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
+  min-height: 100%;
+  box-sizing: border-box;
   /* De lijst en de regels hebben geen eigen tekstkleur: zonder deze regel
      erfden ze zwart, onleesbaar in een donker thema (#1239). */
   color: var(--theme-text, #333);
@@ -4344,7 +4357,9 @@
 }
 
 .ks-list {
-  height: 190px;
+  /* Groeit mee met een groter venster (#1239); 190px is de ondergrens. */
+  flex: 1 1 190px;
+  min-height: 190px;
   overflow-y: auto;
   border: 1px solid var(--theme-border, #d4d4d4);
   background: var(--theme-surface, #fff);
