@@ -175,6 +175,8 @@
     "iconTag": "टैग"
   },
   "stylePresets": {
+    "stylePainter": "शैली ब्रश",
+    "stylePainterHint": "कॉपी की गई शैली लागू करने के लिए टिप्पणियों पर पॉइंटर ले जाएँ। Esc या दायाँ क्लिक ब्रश रोकता है।",
     "label": "रेखा शैली",
     "applyPlaceholder": "शैली लागू करें…",
     "noPresets": "कोई सहेजी गई शैली नहीं",

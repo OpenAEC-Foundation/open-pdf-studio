@@ -175,6 +175,8 @@
     "iconTag": "タグ"
   },
   "stylePresets": {
+    "stylePainter": "書式ブラシ",
+    "stylePainterHint": "注釈にポインターを合わせると、コピーしたスタイルを適用します。Esc または右クリックで終了します。",
     "label": "線スタイル",
     "applyPlaceholder": "スタイルを適用…",
     "noPresets": "保存されたスタイルはありません",

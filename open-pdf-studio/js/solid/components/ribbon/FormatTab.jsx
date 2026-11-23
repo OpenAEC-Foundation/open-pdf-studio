@@ -17,6 +17,7 @@ import {
   applyStylePresetById, copyStyleFromSelection, pasteStyleToSelection, copiedStyle,
 } from '../../stores/stylePresetsStore.js';
 import { openSymbolTypeEditor } from '../../stores/symbolEditStore.js';
+import { startStylePainter } from '../../../tools/tools/style-painter-tool.js';
 import { setAsDefaultStyle } from '../../../core/preferences.js';
 import { state, getActiveDocument } from '../../../core/state.js';
 import { showProperties, showMultiSelectionProperties, closePropertiesPanel } from '../../../ui/panels/properties-panel.js';
@@ -445,6 +446,11 @@ export default function FormatTab() {
                 <svg class="dropdown-arrow" viewBox="0 0 8 5"><path d="M0 0l4 4 4-4z" fill="currentColor"/></svg>
               </button>
               <div class={`ribbon-menu-dropdown${toolsOpen() ? ' show' : ''}`} id="fmt-style-tools-menu" ref={toolsMenuRef}>
+                <button class="ribbon-menu-item" title={tp('stylePresets.stylePainterHint')}
+                  disabled={!getActiveDocument()?.selectedAnnotations?.length}
+                  onClick={() => { startStylePainter(); setToolsOpen(false); }}>
+                  {tp('stylePresets.stylePainter')}
+                </button>
                 <button class="ribbon-menu-item"
                   onClick={() => { copyStyleFromSelection(); setToolsOpen(false); }}>
                   {tp('stylePresets.copyStyle')}

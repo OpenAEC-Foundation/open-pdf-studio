@@ -175,6 +175,8 @@
     "iconTag": "Thẻ"
   },
   "stylePresets": {
+    "stylePainter": "Cọ định dạng",
+    "stylePainterHint": "Di chuyển con trỏ qua các chú thích để áp dụng kiểu đã sao chép. Esc hoặc nhấp chuột phải để dừng.",
     "label": "Kiểu đường",
     "applyPlaceholder": "Áp dụng kiểu…",
     "noPresets": "Không có kiểu đã lưu",

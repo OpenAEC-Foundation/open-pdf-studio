@@ -3,6 +3,7 @@
  */
 import { registerTool } from '../tool-registry.js';
 import { handTool } from './hand-tool.js';
+import { stylePainterTool } from './style-painter-tool.js';
 import { selectTool } from './select-tool.js';
 import { drawTool } from './draw-tool.js';
 import { eraserTool } from './eraser-tool.js';
@@ -47,6 +48,7 @@ export function registerAllTools() {
   // Navigation / selection
   registerTool('hand', handTool);
   registerTool('select', selectTool);
+  registerTool('stylePainter', stylePainterTool);
 
 
   // Freehand

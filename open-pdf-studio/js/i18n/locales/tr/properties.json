@@ -175,6 +175,8 @@
     "iconTag": "Etiket"
   },
   "stylePresets": {
+    "stylePainter": "Stil fırçası",
+    "stylePainterHint": "Kopyalanan stili uygulamak için açıklamaların üzerine gelin. Esc veya sağ tıklama fırçayı durdurur.",
     "label": "Çizgi stili",
     "applyPlaceholder": "Stil uygula…",
     "noPresets": "Kayıtlı stil yok",

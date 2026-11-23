@@ -175,6 +175,8 @@
     "iconTag": "标签"
   },
   "stylePresets": {
+    "stylePainter": "格式刷",
+    "stylePainterHint": "将指针移到批注上以应用复制的样式。按 Esc 或右键单击可停止格式刷。",
     "label": "线条样式",
     "applyPlaceholder": "应用样式…",
     "noPresets": "没有已保存的样式",

@@ -175,6 +175,8 @@
     "iconTag": "Etiqueta"
   },
   "stylePresets": {
+    "stylePainter": "Pincel de estilo",
+    "stylePainterHint": "Pase sobre las anotaciones para aplicar el estilo copiado. Esc o clic derecho detiene el pincel.",
     "label": "Estilo de línea",
     "applyPlaceholder": "Aplicar estilo…",
     "noPresets": "No hay estilos guardados",

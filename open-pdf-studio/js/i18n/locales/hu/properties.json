@@ -175,6 +175,8 @@
     "iconTag": "Címke"
   },
   "stylePresets": {
+    "stylePainter": "Stílusecset",
+    "stylePainterHint": "Vigye a mutatót a megjegyzések fölé a másolt stílus alkalmazásához. Az Esc vagy a jobb kattintás leállítja az ecsetet.",
     "label": "Vonalstílus",
     "applyPlaceholder": "Stílus alkalmazása…",
     "noPresets": "Nincsenek mentett stílusok",

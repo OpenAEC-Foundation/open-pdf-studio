@@ -175,6 +175,8 @@
     "iconTag": "태그"
   },
   "stylePresets": {
+    "stylePainter": "스타일 브러시",
+    "stylePainterHint": "주석 위로 포인터를 이동하여 복사한 스타일을 적용합니다. Esc 또는 마우스 오른쪽 버튼으로 중지합니다.",
     "label": "선 스타일",
     "applyPlaceholder": "스타일 적용…",
     "noPresets": "저장된 스타일 없음",

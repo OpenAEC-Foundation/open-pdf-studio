@@ -175,6 +175,8 @@
     "iconTag": "Etykieta"
   },
   "stylePresets": {
+    "stylePainter": "Malarz stylu",
+    "stylePainterHint": "Najedź na adnotacje, aby zastosować skopiowany styl. Esc lub prawy przycisk myszy kończy malowanie.",
     "label": "Styl linii",
     "applyPlaceholder": "Zastosuj styl…",
     "noPresets": "Brak zapisanych stylów",

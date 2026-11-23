@@ -175,6 +175,8 @@
     "iconTag": "Etikett"
   },
   "stylePresets": {
+    "stylePainter": "Formatpinsel",
+    "stylePainterHint": "Bewegen Sie den Zeiger über Anmerkungen, um das kopierte Format anzuwenden. Esc oder Rechtsklick beendet den Formatpinsel.",
     "label": "Linienstil",
     "applyPlaceholder": "Stil anwenden…",
     "noPresets": "Keine gespeicherten Stile",

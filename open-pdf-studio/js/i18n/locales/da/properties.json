@@ -175,6 +175,8 @@
     "iconTag": "Mærkat"
   },
   "stylePresets": {
+    "stylePainter": "Formatpensel",
+    "stylePainterHint": "Hold markøren over annotationer for at anvende den kopierede stil. Esc eller højreklik stopper penslen.",
     "label": "Linjestil",
     "applyPlaceholder": "Anvend stil…",
     "noPresets": "Ingen gemte stilarter",
