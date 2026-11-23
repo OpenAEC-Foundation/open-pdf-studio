@@ -946,3 +946,6 @@ js/pdf/bitmap-orchestrator-race.test.mjs
 js/pdf/bitmap-orchestrator-tile-pan.test.mjs
 js/pdf/pdfjs-canvas-render.test.mjs
 
+
+js/annotations/geometric-line-styles.test.mjs
+js/pdf/geometric-line-styles-roundtrip.test.mjs

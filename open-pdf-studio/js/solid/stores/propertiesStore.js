@@ -1,3 +1,4 @@
+import { canApplyLineStyle } from '../../annotations/geometric-line-styles.js';
 import { laagKeuzeWaarde, leesLaagKeuze } from '../../annotations/laag-keuze.js';
 import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
@@ -1316,7 +1317,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'inkPressure': case 'inkMinWidth': case 'inkSmoothing':
       Object.assign(ann, inktPropWaarde(key, value));
       break;
-    case 'borderStyle': ann.borderStyle = value; break;
+    case 'borderStyle': if (canApplyLineStyle(ann.type, value)) ann.borderStyle = value; break;
     case 'boxShape': ann.boxShape = value === 'rect' ? undefined : value; break;
     case 'cross': ann.cross = value === true || undefined; break;
     case 'hatchPattern': ann.hatchPattern = value; break;
@@ -1658,6 +1659,7 @@ function applyAnnotProp(key, value) {
   }
 
   if (!currentAnnotation) return;
+  if (key === 'borderStyle' && !canApplyLineStyle(currentAnnotation.type, value)) return;
 
   if (currentAnnotation.id === '__tool-defaults__'
       && currentAnnotation.type === 'parametricSymbol'
@@ -1825,7 +1827,7 @@ function applyAnnotProp(key, value) {
       zetLijnDekking(currentAnnotation, leesGeheelGetal(value) / 100);
       break;
     case 'icon': currentAnnotation.icon = value; break;
-    case 'borderStyle': currentAnnotation.borderStyle = value; break;
+    case 'borderStyle': if (canApplyLineStyle(currentAnnotation.type, value)) currentAnnotation.borderStyle = value; break;
     case 'boxShape': currentAnnotation.boxShape = value === 'rect' ? undefined : value; break;
     case 'cross': currentAnnotation.cross = value === true || undefined; break;
     case 'hatchPattern': currentAnnotation.hatchPattern = value; break;

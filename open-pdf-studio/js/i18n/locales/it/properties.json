@@ -1081,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Ripristina l'ordine delle sezioni",
     "dragHint": "Fai clic per comprimere o espandere. Trascina per spostare la sezione (o Alt+Su/Giù)."
+  },
+  "linePatterns": {
+    "fence-circle": "Recinzione (cerchio)",
+    "fence-square": "Recinzione (quadrato)",
+    "gas": "Gas",
+    "hot-water": "Acqua calda",
+    "zigzag": "Zigzag",
+    "insulation": "Isolamento",
+    "double": "Doppia",
+    "tracks": "Binari",
+    "road": "Strada"
   }
 }

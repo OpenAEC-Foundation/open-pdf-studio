@@ -1,3 +1,4 @@
+import { isGeometricLineStyle } from '../../annotations/geometric-line-styles.js';
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString, PDFRef } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype, lijnstijlUitStreep } from './pdf-helpers.js';
@@ -1211,6 +1212,13 @@ const result = {};
             }
           }
         }
+      }
+
+      // Standard /BS cannot encode these symbols; /AP carries portable vector
+      // geometry, this validated key restores the editable pattern in OPDS.
+      if (subtypeName === '/Line' || subtypeName === '/PolyLine') {
+        const pattern = decodePdfTextObject(context.lookup(annotDict.get(PDFName.of('OPS_LinePattern'))));
+        if (isGeometricLineStyle(pattern)) colors.borderStyle = pattern;
       }
 
       // IC and type-specific extraction only for shape/text annotations

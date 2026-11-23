@@ -1,3 +1,4 @@
+import { drawGeometricLine } from './geometric-line-styles.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { kaleLijst } from './kale-lijst.js';
 import { state, imageCache, getAnnotationBounds } from '../core/state.js';
@@ -687,6 +688,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 
     case 'line':
       ctx.strokeStyle = strokeColor;
+      if (drawGeometricLine(ctx, annotation)) break;
       ctx.lineCap = 'butt';
       applyBorderStyle(ctx, annotation.borderStyle);
       ctx.beginPath();
@@ -820,6 +822,8 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
     }
 
     case 'polyline':
+      ctx.strokeStyle = strokeColor;
+      if (drawGeometricLine(ctx, annotation)) break;
       if (annotation.points && annotation.points.length >= 2) {
         ctx.strokeStyle = strokeColor;
         ctx.lineCap = 'butt';

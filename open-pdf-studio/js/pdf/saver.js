@@ -1,3 +1,4 @@
+import { buildGeometricLineAP } from './saver/appearance-vectors.js';
 import { hasPageRotations, rotationRenderCopy } from './saver/rotation-render-copy.js';
 import { isShxTextDictionary } from './shx-text.js';
 import { state, getActiveDocument } from '../core/state.js';
@@ -752,6 +753,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         // OPS_StampName elders in deze saver.
         const fillOpacity = ann.fillOpacity;
         const borderWidth = ann.lineWidth ?? 2;
+        const geometricAP = buildGeometricLineAP({
+          annotation: annVak, lineWidth: apLijndikte(borderWidth, { heeftVulling: false }),
+          strokeColorHex: ann.strokeColor || ann.color,
+          toPdf: p => {
+            const q = pageRot ? _rotVisualMapper(pageRot, cropBox.width, cropBox.height)(p.x, p.y) : p;
+            return { x: convertX(q.x), y: convertY(q.y) };
+          },
+        });
 
         let annotDict;
         // Een origineel dat ongewijzigd blijft staan in plaats van een nieuwe dict.
@@ -1056,7 +1065,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const lineDict = {
               Type: 'Annot',
               Subtype: 'Line',
-              Rect: [rectX1, rectY1, rectX2, rectY2],
+              Rect: geometricAP?.rect || [rectX1, rectY1, rectX2, rectY2],
               L: [x1, y1, x2, y2],
               C: strokeColorArr,
               CA: opacity,
@@ -1068,6 +1077,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
             // Border style
             lineDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
+            if (geometricAP) lineDict.OPS_LinePattern = PDFString.of(ann.borderStyle);
 
             // Arrow line endings (LE)
             if (ann.type === 'arrow') {
@@ -1088,7 +1098,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
             annotDict = context.obj(lineDict);
             // Other viewers do not draw a /Line from /L and /LE themselves.
-            attachVectorAP(context, annotDict, buildLineAP({
+            attachVectorAP(context, annotDict, geometricAP || buildLineAP({
               startX: ann.startX, startY: ann.startY, endX: ann.endX, endY: ann.endY,
               X: convertX, Y: convertY, strokeColorHex: ann.strokeColor || ann.color,
               fillColorHex: isArrow ? (ann.fillColor || ann.strokeColor || ann.color) : null,
@@ -1337,7 +1347,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               Type: 'Annot',
               Subtype: 'PolyLine',
               // Met de verstekpunten van scherpe hoeken: de appearance wordt op de Rect geknipt.
-              Rect: polylijnOmhullende(vertices, apLijndikte(borderWidth, { heeftVulling: false })),
+              Rect: geometricAP?.rect || polylijnOmhullende(vertices, apLijndikte(borderWidth, { heeftVulling: false })),
               Vertices: vertices,
               C: strokeColorArr,
               CA: opacity,
@@ -1348,13 +1358,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             };
 
             polylineDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
+            if (geometricAP) polylineDict.OPS_LinePattern = PDFString.of(ann.borderStyle);
             if (plKrommen) {
               polylineDict.OPS_CurveNodes = plKrommen.nodes;
               polylineDict.OPS_Curves = plKrommen.curves;
             }
 
             annotDict = context.obj(polylineDict);
-            attachVectorAP(context, annotDict, buildPolylineAP({
+            attachVectorAP(context, annotDict, geometricAP || buildPolylineAP({
               points: ann.points, X: convertX, Y: convertY,
               strokeColorHex: ann.strokeColor || ann.color, lineWidth: apLijndikte(borderWidth, { heeftVulling: false }), borderStyle: ann.borderStyle,
               padOps: plKrommen ? plKrommen.padOps : undefined,
