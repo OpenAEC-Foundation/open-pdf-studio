@@ -89,8 +89,13 @@ export function maakRechtermuisHandlers(d) {
     d.startPan({ clientX: start.x, clientY: start.y, pointerId: start.pointerId, preventDefault() {} });
   }
 
+  /** @returns {boolean} whether this release ends a pan */
   function onPointerUp(e) {
-    if (e.button === 2) { start = null; gepand = false; }
+    if (e.button !== 2) return false;
+    const was = gepand;
+    start = null;
+    gepand = false;
+    return was;
   }
 
   function onCancel() { start = null; gepand = false; }

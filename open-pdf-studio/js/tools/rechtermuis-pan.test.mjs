@@ -46,6 +46,9 @@ test('with the choice on, dragging pans from the place of the press and swallows
   assert.deepEqual(log, [['sluit'], ['slik'], ['pan', 100, 100]]);
   h.onPointerMove(beweeg(160, 100));
   assert.equal(log.length, 3, 'the pan starts once');
+  assert.equal(h.onPointerUp({ button: 2 }), true, 'the release ends a pan');
+  assert.equal(h.onPointerUp({ button: 2 }), false);
+  assert.equal(h.onPointerUp({ button: 0 }), false);
 });
 
 test('a click without a drag keeps its meaning: nothing is swallowed', () => {

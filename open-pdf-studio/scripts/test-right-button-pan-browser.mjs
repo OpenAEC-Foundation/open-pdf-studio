@@ -56,6 +56,9 @@ try {
     const m = await midden();
     await page.mouse.move(m.x, m.y);
     await page.mouse.down({ button: 'right' });
+    // Linux opens the context menu on the press, Windows on the release:
+    // send it at the press too, so both orders are covered everywhere.
+    await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 2 })), [m.x, m.y]);
     await page.mouse.move(m.x + dx / 2, m.y + dy / 2, { steps: 4 });
     await page.mouse.move(m.x + dx, m.y + dy, { steps: 4 });
     await page.mouse.up({ button: 'right' });

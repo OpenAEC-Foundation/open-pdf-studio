@@ -40,7 +40,13 @@ export function installeerRechtermuisPan() {
     e.stopImmediatePropagation();
   }, { capture: true });
   window.addEventListener('pointermove', h.onPointerMove, { capture: true, passive: true });
-  window.addEventListener('pointerup', (e) => { h.onPointerUp(e); if (e.button === 2) klaar(); }, { capture: true });
+  window.addEventListener('pointerup', (e) => {
+    const wasPan = h.onPointerUp(e);
+    if (e.button === 2) klaar();
+    // Op Linux komt het snelmenu al bij het indrukken, soms net na het begin
+    // van het slepen: na een pan staat er nooit een menu open.
+    if (wasPan) { hideMenu(); setTimeout(hideMenu, 60); }
+  }, { capture: true });
   window.addEventListener('pointercancel', () => { h.onCancel(); klaar(); }, { capture: true });
   window.addEventListener('blur', () => { h.onCancel(); klaar(); });
 }
