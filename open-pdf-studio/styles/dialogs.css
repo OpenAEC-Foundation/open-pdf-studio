@@ -3970,6 +3970,7 @@
 
 .feedback-sentiment { display: flex; gap: 8px; margin-top: 4px; }
 .feedback-sentiment-btn {
+  color: var(--theme-text, #333);
   padding: 6px 12px;
   border: 1px solid var(--theme-border, #d4d4d4);
   background: var(--theme-surface, #fff);
@@ -3977,6 +3978,7 @@
   font-size: 16px;
   border-radius: 0;
 }
+.feedback-sentiment-btn svg { display: block; }
 .feedback-sentiment-btn:hover { background: var(--theme-bg, #f5f5f5); }
 .feedback-sentiment-btn.active {
   border-color: var(--theme-active, #0078d7);
