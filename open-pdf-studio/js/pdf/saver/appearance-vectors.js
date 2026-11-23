@@ -173,9 +173,13 @@ function hatchFamilyOps(fam, bounds, scale, rot, center, colorRgb, clip) {
     return s;
   }
 
-  const dash = (fam.dashPattern && fam.dashPattern.length > 0)
-    ? `[${fam.dashPattern.map(d => f(Math.abs(d) * scale)).join(' ')}] 0 d\n`
-    : '[] 0 d\n';
+  const lengths = (fam.dashPattern || []).map(d => Math.abs(d) * scale);
+  const period = lengths.reduce((sum, length) => sum + length, 0) * (lengths.length % 2 ? 2 : 1);
+  // The first endpoint is -halfDiag from the family origin. Compensate for
+  // that distance, just like Canvas lineDashOffset, so joints meet courses
+  // regardless of the different canvas/PDF bounding-box padding.
+  const phase = period > 0 ? ((-halfDiag % period) + period) % period : 0;
+  const dash = `[${lengths.map(f).join(' ')}] ${f(phase)} d\n`;
 
   let s = `${f(colorRgb[0])} ${f(colorRgb[1])} ${f(colorRgb[2])} RG\n${f(lw)} w\n${dash}`;
   for (let i = -numLines; i <= numLines; i++) {

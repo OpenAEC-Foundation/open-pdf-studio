@@ -75,11 +75,11 @@ export const BUILTIN_HATCH_PATTERNS = [
   ]},
   { id: 'brick-running',  category: 'material', lineFamilies: [
     { angle: 0,  originX: 0, originY: 0, deltaX: 0,  deltaY: 10 },
-    { angle: 90, originX: 0, originY: 0, deltaX: 20, deltaY: 20, dashPattern: [10, -10] },
+    { angle: 90, originX: 0, originY: 0, deltaX: 10, deltaY: 10, dashPattern: [10, -10] },
   ]},
   { id: 'brick-stack',    category: 'material', lineFamilies: [
     { angle: 0,  originX: 0, originY: 0, deltaX: 0, deltaY: 10 },
-    { angle: 90, originX: 0, originY: 0, deltaX: 0, deltaY: 20, dashPattern: [10, -10] },
+    { angle: 90, originX: 0, originY: 0, deltaX: 0, deltaY: 20 },
   ]},
   { id: 'insulation',     category: 'material', lineFamilies: [
     { angle: 60,  originX: 0, originY: 0, deltaX: 0, deltaY: 6 },
@@ -166,12 +166,12 @@ export const BUILTIN_HATCH_PATTERNS = [
   ]},
   // Earth: alternating blocks of 3 short vertical / 3 short horizontal lines.
   { id: 'grond-blokjes',  category: 'material', lineFamilies: [
-    { angle: 90, originX: 0, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 90, originX: 2, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 90, originX: 4, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 0,  originX: 6, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 0,  originX: 6, originY: 2, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 0,  originX: 6, originY: 4, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
+    { angle: 90, originX: 0, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 90, originX: 2, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 90, originX: 4, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 0,  originX: 6, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 0,  originX: 6, originY: 2, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 0,  originX: 6, originY: 4, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
   ]},
   // Sparse short 45-degree ticks of varying length (elevation glass).
   { id: 'glas-strepen',   category: 'material', lineFamilies: [
@@ -417,8 +417,8 @@ function drawLineFamily(ctx, family, anker, gebied, scale, baseStrokeColor) {
   ctx.fillStyle   = kleur;
   ctx.lineWidth   = _hatchLineWidth(family.strokeWidth);
 
-  // Identiek aan de oude berekening — bepaalt de lengte (en daarmee de
-  // streepfase) van gestreepte lijnen.
+  // Lengte van gestreepte lijnen; de streepfase wordt aan de familie-oorsprong
+  // verankerd, onafhankelijk van de afmetingen van het vlak.
   const halfDiag = diagonal / 2 + spacing * 2;
 
   // Ankerpunt inclusief de vaste offset van deze familie; alle posities
@@ -472,9 +472,13 @@ function drawLineFamily(ctx, family, anker, gebied, scale, baseStrokeColor) {
 
   const gestreept = !!(family.dashPattern && family.dashPattern.length > 0);
   if (gestreept) {
-    ctx.setLineDash(family.dashPattern.map(d => Math.abs(d) * scale));
+    const dash = family.dashPattern.map(d => Math.abs(d) * scale);
+    const period = dash.reduce((sum, length) => sum + length, 0) * (dash.length % 2 ? 2 : 1);
+    ctx.setLineDash(dash);
+    ctx.lineDashOffset = period > 0 ? ((-halfDiag % period) + period) % period : 0;
   } else {
     ctx.setLineDash([]);
+    ctx.lineDashOffset = 0;
   }
 
   ctx.beginPath();
@@ -483,9 +487,9 @@ function drawLineFamily(ctx, family, anker, gebied, scale, baseStrokeColor) {
     const stagger = deltaX !== 0 ? i * deltaX : 0;
     const ox = ax + perp * (-sinA) + stagger * cosA;
     const oy = ay + perp * cosA + stagger * sinA;
-    // Ononderbroken lijnen mogen tot precies het zichtbare stuk ingekort
-    // worden. Gestreepte niet: de streepfase begint bij het startpunt, dus
-    // die houden hun oorspronkelijke lengte en daarmee hun streepverdeling.
+    // Ononderbroken lijnen mogen tot het zichtbare stuk ingekort worden.
+    // Gestreepte lijnen beginnen bij -halfDiag; lineDashOffset compenseert
+    // deze afstand zodat elke streep op de familie-oorsprong aansluit.
     let van, tot;
     if (gestreept) {
       van = -halfDiag;
@@ -500,6 +504,7 @@ function drawLineFamily(ctx, family, anker, gebied, scale, baseStrokeColor) {
   }
   ctx.stroke();
   ctx.setLineDash([]);
+  ctx.lineDashOffset = 0;
 }
 
 function renderPattern(ctx, patternId, left, top, right, bottom, scale, color) {
