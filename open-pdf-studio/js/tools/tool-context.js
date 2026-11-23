@@ -12,7 +12,7 @@ import { openStickyPopup } from '../bridge.js';
 import { findTextEditAtPosition, startTextEditEditing } from './text-edit-tool.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { recordAdd, recordModify, recordBulkModify } from '../core/undo-manager.js';
-import { showStampPicker, placeOverrideStamp } from '../annotations/stamps.js';
+import { showStampPicker, placeOverrideStamp, plaatsGekozenStempel } from '../annotations/stamps.js';
 import { showSignatureDialog } from '../annotations/signature.js';
 import { startPan, startContinuousPan } from './pan-handler.js';
 import { snapAngle } from '../utils/helpers.js';
@@ -230,6 +230,7 @@ export function buildToolContext(e, coords) {
     // Stamps and signatures
     showStampPicker,
     placeOverrideStamp,
+    plaatsGekozenStempel,
     showSignatureDialog,
 
     // Pan
