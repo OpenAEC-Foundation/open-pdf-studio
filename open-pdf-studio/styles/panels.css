@@ -1812,8 +1812,27 @@
   gap: 6px;
   padding: 4px 8px 4px 6px;
   font-size: 11px;
-  cursor: grab;
+  cursor: default;
+  user-select: none;
+  position: relative;
   border-top: 1px solid var(--theme-panel-border);
+}
+
+.schedules-drag-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100000;
+  max-width: 240px;
+  padding: 3px 8px;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--theme-text, #333);
+  background: var(--theme-panel-bg, #fff);
+  border: 1px solid var(--theme-border, #d4d4d4);
+  pointer-events: none;
 }
 
 .schedules-item:hover {
@@ -1858,8 +1877,30 @@
   opacity: 0;
 }
 
-.schedules-item:hover .schedules-item-btn {
+.schedules-item:hover .schedules-item-btn,
+.schedules-item:focus-within .schedules-item-btn {
   opacity: 1;
+}
+
+.schedules-actions {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 4px;
+  background: var(--theme-panel-tab-hover, #e8e8e8);
+}
+
+.schedules-item:hover .schedules-actions,
+.schedules-item:focus-within .schedules-actions {
+  display: flex;
+}
+
+.schedules-item.schedules-editing .schedules-actions {
+  display: none;
 }
 
 .schedules-item-btn:hover {
