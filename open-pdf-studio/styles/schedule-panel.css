@@ -313,3 +313,12 @@
   text-align: right;
   flex-shrink: 0;
 }
+
+/* Een kleur in de staat als vlakje (#1242); de rand houdt wit en lichtgeel zichtbaar. */
+.schedule-color-swatch {
+  display: inline-block;
+  width: 28px;
+  height: 10px;
+  border: 1px solid #888;
+  vertical-align: middle;
+}

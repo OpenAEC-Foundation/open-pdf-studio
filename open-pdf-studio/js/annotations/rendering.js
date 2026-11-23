@@ -1,3 +1,4 @@
+import { isKleurCel } from '../quantities/kleur-cel.js';
 import { drawGeometricLine } from './geometric-line-styles.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { kaleLijst } from './kale-lijst.js';
@@ -25,7 +26,7 @@ import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { hasCurves, tracePath } from './curve-path.js';
-import { isVreemdeTelling, tellingStraal } from './telling.js';
+import { isVreemdeTelling, tellingStraal, telSchaal } from './telling.js';
 import { drawWall } from './rendering/walls.js';
 import { tekenBijlageIcoon } from './bijlage-iconen.js';
 import { buildStavenreeks } from './stavenreeks.js';
@@ -1221,23 +1222,25 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
     case 'count': {
       const cx = annotation.x, cy = annotation.y;
       const col = annotation.color || annotation.strokeColor || '#e11d48';
+      // Grootte van de groep (#1235): 1 = de gewone maat.
+      const telMaat = telSchaal(annotation);
       ctx.save();
       ctx.globalAlpha = annotation.opacity ?? 1;
       if (annotation.markerStyle === 'symbol' && annotation.symbolId) {
         const tpl = getTemplate(annotation.symbolId);
         if (tpl && typeof tpl.draw === 'function') {
-          const s = 22;
+          const s = 22 * telMaat;
           ctx.translate(cx - s / 2, cy - s / 2);
           ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1;
           try { tpl.draw(ctx, { width: s, height: s, color: col }, {}); } catch (_) { /* symbol draw signature mismatch */ }
         } else {
-          ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
+          ctx.beginPath(); ctx.arc(cx, cy, 9 * telMaat, 0, Math.PI * 2); ctx.fillStyle = col; ctx.fill();
         }
       } else {
-        const r = 9;
+        const r = 9 * telMaat;
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
         ctx.fillStyle = col; ctx.fill();
-        ctx.lineWidth = 1.5; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+        ctx.lineWidth = 1.5 * telMaat; ctx.strokeStyle = '#ffffff'; ctx.stroke();
         ctx.fillStyle = '#ffffff';
         ctx.font = `bold ${Math.round(r * 1.3)}px sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -2688,6 +2691,21 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
                 continue;
               }
               const val = raw != null ? String(raw) : '';
+              if (!row.total && isKleurCel(val)) {
+                // Een kleur als vlakje (#1242), met een dunne rand zodat ook
+                // wit en lichtgeel te zien zijn.
+                const vlakH = Math.min(10, rowH - 6);
+                const vlakB = Math.min(28, colW - pad * 2);
+                const vx = annotation.x + i * colW + pad;
+                const vy = ry + (rowH - vlakH) / 2;
+                ctx.fillStyle = val.trim();
+                ctx.fillRect(vx, vy, vlakB, vlakH);
+                ctx.strokeStyle = '#888'; ctx.lineWidth = 0.5;
+                ctx.strokeRect(vx, vy, vlakB, vlakH);
+                ctx.strokeStyle = '#ddd';
+                ctx.fillStyle = '#000';
+                continue;
+              }
               ctx.fillText(clip(val, colW - pad * 2), annotation.x + i * colW + pad, ry + rowH / 2);
             }
           }

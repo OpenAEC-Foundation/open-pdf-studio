@@ -10,6 +10,11 @@
 //     { kind: 'page', page, fit, left, top, zoom }  pagina in dit document
 //                                                   (/Dest [pagina /XYZ ...]
 //                                                   of [pagina /Fit])
+//     { kind: 'page', page, fit: 'rect', left, bottom, right, top }
+//                                                   een gebied op die pagina,
+//                                                   passend in beeld (#1226,
+//                                                   /Dest [pagina /FitR ...]);
+//                                                   in PDF-eenheden van de pagina
 //     { kind: 'file', file }                        bestand (/A /S /Launch),
 //                                                   alleen op het bureaublad
 //     { kind: 'page', page: null, broken: true, fit, ... }
@@ -91,8 +96,13 @@ export function normaliseerDoel(doel, aantalPaginas = Infinity) {
     case 'page': {
       const page = Math.round(Number(doel.page));
       if (!Number.isFinite(page) || page < 1 || page > aantalPaginas) return null;
-      const fit = doel.fit === 'fit' ? 'fit' : 'xyz';
       const getal = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+      if (doel.fit === 'rect') {
+        // Een gebied: vier getallen, met breedte en hoogte.
+        const gebied = linkGebied(doel);
+        return gebied ? { kind: 'page', page, fit: 'rect', ...gebied } : null;
+      }
+      const fit = doel.fit === 'fit' ? 'fit' : 'xyz';
       const uit = { kind: 'page', page, fit };
       if (fit === 'xyz') {
         uit.left = getal(doel.left);
@@ -108,6 +118,61 @@ export function normaliseerDoel(doel, aantalPaginas = Infinity) {
     default:
       return null;
   }
+}
+
+/**
+ * Het gebied van een doel (#1226) als { left, bottom, right, top } in
+ * PDF-eenheden, of null als het geen bruikbaar gebied is. De hoeken mogen in
+ * elke volgorde staan.
+ */
+export function linkGebied(doel) {
+  const n = ['left', 'bottom', 'right', 'top'].map((k) => doel?.[k]);
+  if (!n.every((v) => typeof v === 'number' && Number.isFinite(v))) return null;
+  const left = Math.min(n[0], n[2]);
+  const right = Math.max(n[0], n[2]);
+  const bottom = Math.min(n[1], n[3]);
+  const top = Math.max(n[1], n[3]);
+  if (!(right - left > 0.5) || !(top - bottom > 0.5)) return null;
+  return { left, bottom, right, top };
+}
+
+/**
+ * Het doel van een link naar een benoemde plek (#1226): een bladwijzer van
+ * het document. De link krijgt de bestemming van de bladwijzer zoals die nu
+ * is (pagina, plek en zoom); in het bestand is het een gewone bestemming, die
+ * elke lezer volgt. Geeft null als de bladwijzer geen bruikbare pagina heeft.
+ * @param {{page?: number, left?: number|null, top?: number|null, zoom?: number|null}} bladwijzer
+ * @param {number} [aantalPaginas]
+ */
+export function linkDoelVanBladwijzer(bladwijzer, aantalPaginas = Infinity) {
+  if (!bladwijzer) return null;
+  const getal = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  return normaliseerDoel({
+    kind: 'page', page: bladwijzer.page, fit: 'xyz',
+    left: getal(bladwijzer.left), top: getal(bladwijzer.top), zoom: getal(bladwijzer.zoom),
+  }, aantalPaginas);
+}
+
+/**
+ * De bladwijzers als keuzelijst, in de volgorde van de boom en ingesprongen
+ * naar hun diepte.
+ * @param {object[]} bladwijzers
+ * @param {string[]} volgorde  ids in boomvolgorde (boomVolgorde)
+ * @returns {{id: string, label: string}[]}
+ */
+export function bladwijzerKeuzes(bladwijzers, volgorde) {
+  const opId = new Map((bladwijzers || []).map((b) => [b.id, b]));
+  const diepte = (b) => {
+    let d = 0;
+    const gezien = new Set([b.id]);
+    let ouder = opId.get(b.parentId);
+    while (ouder && !gezien.has(ouder.id)) { gezien.add(ouder.id); d++; ouder = opId.get(ouder.parentId); }
+    return d;
+  };
+  return (volgorde || []).map((id) => opId.get(id)).filter(Boolean).map((b) => ({
+    id: b.id,
+    label: `${'\u00A0\u00A0'.repeat(diepte(b))}${String(b.title ?? '').trim() || '\u2014'}`,
+  }));
 }
 
 /** Wijst dit paginadoel nergens meer heen (doelpagina verwijderd)? */

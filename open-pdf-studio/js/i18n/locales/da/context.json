@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Før denne side...",
     "insertFromFileAfter": "Efter denne side...",
     "pageLabels": "Sideetiketter (navnegenerator)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

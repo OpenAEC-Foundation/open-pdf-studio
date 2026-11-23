@@ -150,6 +150,8 @@
     "insertFromFileBefore": "ກ່ອນໜ້ານີ້...",
     "insertFromFileAfter": "ຫຼັງໜ້ານີ້...",
     "pageLabels": "ປ້າຍຊື່ໜ້າ (ຕົວສ້າງຊື່)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

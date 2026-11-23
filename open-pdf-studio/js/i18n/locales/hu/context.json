@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Ezen oldal elé...",
     "insertFromFileAfter": "Ezen oldal után...",
     "pageLabels": "Oldalcímkék (névkészítő)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

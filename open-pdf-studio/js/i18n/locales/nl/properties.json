@@ -1083,7 +1083,8 @@
     "total": "In deze groep",
     "pieces": "{{count}} st.",
     "color": "Groepskleur",
-    "name": "Groepsnaam"
+    "name": "Groepsnaam",
+    "size": "Grootte markering"
   },
   "sectionOrder": {
     "reset": "Sectievolgorde herstellen",

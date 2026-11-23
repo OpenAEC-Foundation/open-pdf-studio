@@ -1,3 +1,4 @@
+import { zetCalloutLeider, zetCalloutRotatie } from './callout-draaien.js';
 import { HANDLE_TYPES } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { snapAngle } from '../utils/helpers.js';
@@ -81,52 +82,9 @@ export function syncMeasurementAfterEdit(ann) {
 //   - Arrow to the side → horizontal arm from left/right edge at vertical center
 //   - Arrow above/below → vertical arm from top/bottom edge at horizontal center
 export function recalcCalloutLeader(annotation) {
-  const boxW = annotation.width || 150;
-  const boxH = annotation.height || 50;
-  const arrowX = annotation.arrowX !== undefined ? annotation.arrowX : annotation.x - 60;
-  const arrowY = annotation.arrowY !== undefined ? annotation.arrowY : annotation.y + boxH;
-
-  const boxCenterX = annotation.x + boxW / 2;
-  const boxCenterY = annotation.y + boxH / 2;
-
-  // How far the arrow is outside the box span in each axis
-  const hDist = arrowX < annotation.x ? annotation.x - arrowX :
-                arrowX > annotation.x + boxW ? arrowX - (annotation.x + boxW) : 0;
-  const vDist = arrowY < annotation.y ? annotation.y - arrowY :
-                arrowY > annotation.y + boxH ? arrowY - (annotation.y + boxH) : 0;
-
-  // Determine current mode, with hysteresis to prevent flickering
-  const wasVertical = annotation._leaderVertical;
-  const threshold = 20;
-  let useVertical;
-  if (wasVertical) {
-    // Currently vertical — only switch to horizontal if hDist exceeds vDist by threshold
-    useVertical = !(hDist > vDist + threshold);
-  } else {
-    // Currently horizontal — only switch to vertical if vDist exceeds hDist by threshold
-    useVertical = vDist > hDist + threshold;
-  }
-  annotation._leaderVertical = useVertical;
-
-  if (!useVertical) {
-    // Arrow is more to the side → horizontal arm from left/right edge, vertical center
-    const isLeft = arrowX < boxCenterX;
-    annotation.armOriginX = isLeft ? annotation.x : annotation.x + boxW;
-    annotation.armOriginY = boxCenterY;
-
-    const armLen = Math.min(30, Math.abs(arrowX - annotation.armOriginX) * 0.4);
-    annotation.kneeX = isLeft ? annotation.armOriginX - armLen : annotation.armOriginX + armLen;
-    annotation.kneeY = annotation.armOriginY;
-  } else {
-    // Arrow is more above/below → vertical arm from top/bottom edge, horizontal center
-    const isAbove = arrowY < boxCenterY;
-    annotation.armOriginX = boxCenterX;
-    annotation.armOriginY = isAbove ? annotation.y : annotation.y + boxH;
-
-    const armLen = Math.min(30, Math.abs(arrowY - annotation.armOriginY) * 0.4);
-    annotation.kneeX = annotation.armOriginX;
-    annotation.kneeY = isAbove ? annotation.armOriginY - armLen : annotation.armOriginY + armLen;
-  }
+  // In het stelsel van de doos, zodat de lijn ook op een gedraaide doos
+  // aan de rand begint (callout-draaien.js, #1240).
+  zetCalloutLeider(annotation);
 }
 
 // Schaal een rechthoek-vorm met een maatgreep via de gedeelde regel uit
@@ -1428,6 +1386,10 @@ export function applyRotation(annotation, mouseX, mouseY, originalAnn) {
 
   if (pointPolygon) {
     rotatePointPolygon(annotation, degrees);
+  } else if (annotation.type === 'callout') {
+    // De draaigreep: doos, knie en pijl samen (#1240). `annotation` is hier
+    // telkens de stand van vóór het slepen, dus de pijl draait één keer mee.
+    zetCalloutRotatie(annotation, degrees);
   } else {
     annotation.rotation = degrees;
   }

@@ -1654,7 +1654,7 @@ export function wireEvents(canvas) {
   mainView.addEventListener('pointermove', (e) => {
     if (!_isPanning) return;
     // Beweging zonder ingedrukte knop: het loslaten is gemist (#1013).
-    if (geenPanKnopMeer(e)) { breekViewportPanAf(); return; }
+    if (geenPanKnopMeer(e, { rechts: !!state.isRightButtonPanning })) { breekViewportPanAf(); return; }
     const rect = canvas.getBoundingClientRect();
     updatePan(e.clientX - rect.left, e.clientY - rect.top);
   });

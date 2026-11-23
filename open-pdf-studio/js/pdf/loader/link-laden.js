@@ -12,7 +12,7 @@
 
 import { PDFName, PDFArray, PDFBool, PDFDict, PDFNumber, PDFRef, PDFString, PDFHexString } from 'pdf-lib';
 import { colorArrayToHex } from '../../utils/colors.js';
-import { LINK_STANDAARD_KLEUR } from '../../annotations/link/link-model.js';
+import { LINK_STANDAARD_KLEUR, linkGebied } from '../../annotations/link/link-model.js';
 
 const N = (n) => PDFName.of(n);
 const naam = (v) => (v instanceof PDFName ? v.toString().replace(/^\//, '') : null);
@@ -65,8 +65,16 @@ function doelUitDest(context, pdfDoc, destRaw) {
   const eerste = dest.get(0);
   const pagina = paginaVan(pdfDoc, eerste);
   const soort = naam(dest.get(1));
-  const fit = soort === 'XYZ' ? 'xyz' : 'fit';
-  if (!pagina) return eerste instanceof PDFRef ? gebrokenDoel(fit) : null;
+  const fit = soort === 'XYZ' ? 'xyz' : soort === 'FitR' ? 'rect' : 'fit';
+  if (!pagina) return eerste instanceof PDFRef ? gebrokenDoel(fit === 'rect' ? 'fit' : fit) : null;
+  if (soort === 'FitR') {
+    // Een gebied (#1226); zonder vier bruikbare getallen de hele pagina.
+    const gebied = linkGebied({
+      left: getal(context, dest.get(2)), bottom: getal(context, dest.get(3)),
+      right: getal(context, dest.get(4)), top: getal(context, dest.get(5)),
+    });
+    return gebied ? { kind: 'page', page: pagina, fit: 'rect', ...gebied } : { kind: 'page', page: pagina, fit: 'fit' };
+  }
   if (soort === 'XYZ') {
     return {
       kind: 'page', page: pagina, fit: 'xyz',

@@ -1076,7 +1076,8 @@
     "total": "In dieser Gruppe",
     "pieces": "{{count}} Stk.",
     "color": "Gruppenfarbe",
-    "name": "Gruppenname"
+    "name": "Gruppenname",
+    "size": "Markierungsgröße"
   },
   "sectionOrder": {
     "reset": "Abschnittsreihenfolge zurücksetzen",

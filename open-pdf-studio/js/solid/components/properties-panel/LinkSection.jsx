@@ -61,7 +61,8 @@ export default function LinkSection() {
             <input type="text" inputmode="numeric" value={doel()?.page ?? ''} disabled={uit()}
               onChange={(e) => {
                 const page = Number(e.currentTarget.value);
-                if (!wijzigLink(ann(), { doel: { kind: 'page', page, fit: doel()?.fit || 'xyz' } })) {
+                // Een gebied (#1226) hoort bij het doel: het blijft bij een andere pagina staan.
+                if (!wijzigLink(ann(), { doel: doel()?.fit === 'rect' ? { ...doel(), page } : { kind: 'page', page, fit: doel()?.fit || 'xyz' } })) {
                   e.currentTarget.value = doel()?.page ?? '';
                 }
               }} />
@@ -73,10 +74,14 @@ export default function LinkSection() {
           </Show>
           <div class="property-group">
             <label>{t('link.view')}</label>
-            <select value={doel()?.fit === 'fit' ? 'fit' : 'xyz'} disabled={uit() || gebroken()}
-              onChange={(e) => wijzigLink(ann(), { doel: { kind: 'page', page: doel()?.page || 1, fit: e.currentTarget.value } })}>
+            <select value={doel()?.fit === 'fit' || doel()?.fit === 'rect' ? doel().fit : 'xyz'} disabled={uit() || gebroken()}
+              onChange={(e) => { if (e.currentTarget.value !== 'rect') wijzigLink(ann(), { doel: { kind: 'page', page: doel()?.page || 1, fit: e.currentTarget.value } }); }}>
               <option value="xyz">{t('link.viewTop')}</option>
               <option value="fit">{t('link.viewFit')}</option>
+              {/* Een gebied kies je in het venster Link bewerken (#1226); hier staat het alleen als het er is. */}
+              <Show when={doel()?.fit === 'rect'}>
+                <option value="rect">{t('link.viewArea')}</option>
+              </Show>
             </select>
           </div>
         </Show>

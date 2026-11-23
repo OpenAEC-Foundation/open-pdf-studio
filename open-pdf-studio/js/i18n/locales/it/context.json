@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Prima di questa pagina...",
     "insertFromFileAfter": "Dopo questa pagina...",
     "pageLabels": "Etichette di pagina (generatore di nomi)...",
+    "addBookmarks": "Aggiungi segnalibro per questa pagina",
+    "addBookmarksMulti": "Aggiungi segnalibri per {{count}} pagine",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

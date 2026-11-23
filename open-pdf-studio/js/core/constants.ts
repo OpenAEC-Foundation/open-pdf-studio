@@ -344,6 +344,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   reverseWheelZoom: false,
   // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
   middleDoubleClickFit: true,
+  // Slepen met de rechtermuisknop (#1241): 'menu' = zoals altijd (alleen het
+  // snelmenu), 'pan' = slepen verschuift het blad en een klik houdt het menu.
+  rightButtonDrag: 'menu',
   // Klikken met het hand-gereedschap zoomt in (#1161). Standaard uit: een
   // klik met de hand deed tot nu toe niets dan deselecteren. Ctrl + klik en
   // Ctrl + slepen zoomen altijd.

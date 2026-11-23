@@ -12,7 +12,7 @@ export function getScrollContainer() {
 export function handlePanMove(e) {
   if (!state.isPanning) return;
   // Beweging zonder ingedrukte knop: het loslaten is gemist (#1013).
-  if (geenPanKnopMeer(e)) { breekPanAf(); return; }
+  if (geenPanKnopMeer(e, { rechts: !!state.isRightButtonPanning })) { breekPanAf(); return; }
   const scrollContainer = getScrollContainer();
   if (!scrollContainer) return;
   const deltaX = e.clientX - state.panStartX;

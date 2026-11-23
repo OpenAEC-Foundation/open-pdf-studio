@@ -78,6 +78,7 @@ test('groups: definitions first, then groups found only on markers, then markers
 test('joining a group takes its name and format; leaving all groups keeps the format', () => {
   assert.deepEqual(telGroepVelden({ id: 'd', name: 'Doors', color: '#ff0000', markerStyle: 'dot' }), {
     categoryId: 'd', categoryName: 'Doors', color: '#ff0000', strokeColor: '#ff0000', markerStyle: 'dot', symbolId: undefined,
+    markerScale: undefined,
   });
   assert.equal(telGroepVelden({ id: 's', name: 'S', color: '#000000', markerStyle: 'symbol' }).markerStyle, 'dot',
     'a symbol style without a symbol falls back to a dot');

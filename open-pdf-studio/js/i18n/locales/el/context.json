@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Πριν από αυτήν τη σελίδα...",
     "insertFromFileAfter": "Μετά από αυτήν τη σελίδα...",
     "pageLabels": "Ετικέτες σελίδων (δημιουργία ονομάτων)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",
