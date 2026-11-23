@@ -112,6 +112,8 @@ export function bewaarPaginaInstelling({ start, gekozen, docId }) {
  * Argumenten voor print_pdf. Alleen een Pagina-instelling die voor dít
  * document is bevestigd telt; anders geen verzonnen A4-standaard maar het
  * gedrag van vóór deze wijziging (per pagina draaien, papier van de printer).
+ * Of een pagina op het vel een kwartslag draait, beslist de plaatsing
+ * (`draaien` in print-plaatsing.js): met Automatisch draaien uit niet (#1234).
  */
 export function printArgumenten({ autoRotate, paginaInstelling, docId }) {
   const voorDitDocument = Boolean(paginaInstelling) && paginaInstelling.docId === docId;

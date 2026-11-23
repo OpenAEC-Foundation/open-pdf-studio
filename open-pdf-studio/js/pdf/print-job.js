@@ -142,7 +142,7 @@ export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { mark
  */
 export async function bouwPrintPdf({
   doc, pages, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
-  inhoud = 'doc-and-markups', kleur = 'color', voortgang = () => {}, uitsneden = null,
+  inhoud = 'doc-and-markups', kleur = 'color', voortgang = () => {}, uitsneden = null, draaien = true,
 }) {
   const markeringen = markeringenVoorInhoud(inhoud);
   const pdf = await PDFDocument.create();
@@ -167,6 +167,7 @@ export async function bouwPrintPdf({
       schaling,
       zoom,
       centreren,
+      draaien,
     });
     if (!plaatsing) throw new Error(`page ${pageNum} has no usable size`);
     opVel = plaatsing.bekend;
@@ -253,7 +254,8 @@ async function vectorMarkeringen(doc, pageNum) {
 }
 
 /** Dezelfde ingekaderde vectorpagina voor de PDF-uitvoer en de spooler. */
-async function vectorOpdracht({ doc, pages, orientatie, vel, schaling, zoom, centreren, inhoud, voortgang, uitsneden }) {
+async function vectorOpdracht({ doc, pages, orientatie, vel, schaling, zoom, centreren, inhoud, voortgang, uitsneden, draaien = true,
+}) {
   const originalPdf = doc.pdfDoc;
   function checkDocument() {
     if (getActiveDocument() !== doc || doc.pdfDoc !== originalPdf) throw new Error(i18next.t('dialogs:screenshot.documentChanged'));
@@ -283,7 +285,7 @@ async function vectorOpdracht({ doc, pages, orientatie, vel, schaling, zoom, cen
     bronBytes: await bytesMetLaagstand(doc, bytes), toonDocument: !alleenMarkeringen,
     vectorLayer,
     paginas: pages.map(n => ({ index: n - 1, extraRotatie: doc.pageRotations?.[n] || 0, uitsnede: uitsneden?.get(n) })),
-    keuzes: { papier: vel, orientatie, schaling, zoom, centreren },
+    keuzes: { papier: vel, orientatie, schaling, zoom, centreren, draaien },
     beelden: async ({ index, plaatsing }) => {
       checkDocument();
       if (vectorLayer || (areaPage && !hasDocumentOverlay && !markeringenVoorInhoud(inhoud))) return [];
@@ -331,6 +333,7 @@ export async function slaPrintOpAlsPdf({
   pages, pad, orientatie = 'auto', vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100,
   centreren: centrerenKeuze = true, meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false,
   inhoud = 'doc-and-markups', kleur = 'color', openen = null, afgebroken = () => false, uitsneden = null, vectorArea = false, asImage = false,
+  draaien = true,
 }) {
   // `orientatie` is de stand van het vel; de printpagina's krijgen bij
   // pagina's per vel en een boekje hun eigen stand (bronOrientatie, #623).
@@ -340,6 +343,9 @@ export async function slaPrintOpAlsPdf({
     poster, vel, meerPerBlad: meerPerBladKeuze, schaling: schalingKeuze, zoom: zoomKeuze,
     centreren: centrerenKeuze, boekje, orientatie,
   });
+  // Automatisch draaien uit geldt voor één pagina per vel; in een raster, een
+  // boekje of een poster heeft elke printpagina haar eigen stand.
+  const bronDraaien = poster || boekje || meerPerBlad ? true : draaien;
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
@@ -360,7 +366,7 @@ export async function slaPrintOpAlsPdf({
       // wel (print-formulieren.js).
       if (!vectorArea && await heeftFormulierVelden(doc.pdfDoc, pages)) throw new Error(FORMULIER_ALS_BEELD);
       ({ pdf } = await vectorOpdracht({
-        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, voortgang, uitsneden,
+        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, draaien: bronDraaien, inhoud, voortgang, uitsneden,
       }));
     } catch (e) {
       if (vectorArea) throw e;
@@ -369,7 +375,7 @@ export async function slaPrintOpAlsPdf({
       }
       gerasterd = true;
       ({ pdf } = await bouwPrintPdf({
-        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, voortgang, uitsneden,
+        doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, draaien: bronDraaien, inhoud, kleur, voortgang, uitsneden,
       }));
     }
 
@@ -489,6 +495,7 @@ export async function runPrintJob({
   vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100, centreren: centrerenKeuze = true,
   meerPerBlad: meerPerBladKeuze = null, poster = null, boekje = false, inhoud = 'doc-and-markups',
   kleur = 'color', afgebroken = () => false, uitsneden = null, vectorArea = false,
+  draaien = true,
 }) {
   // `orientatie` is de stand van het vel (en gaat zo naar print_pdf); de
   // printpagina's krijgen bij pagina's per vel en een boekje hun eigen stand
@@ -499,6 +506,9 @@ export async function runPrintJob({
     poster, vel, meerPerBlad: meerPerBladKeuze, schaling: schalingKeuze, zoom: zoomKeuze,
     centreren: centrerenKeuze, boekje, orientatie,
   });
+  // Automatisch draaien uit geldt voor één pagina per vel; in een raster, een
+  // boekje of een poster heeft elke printpagina haar eigen stand.
+  const bronDraaien = poster || boekje || meerPerBlad ? true : draaien;
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
@@ -507,7 +517,7 @@ export async function runPrintJob({
     const total = pages.length + 1;
     const bouw = vectorArea ? vectorOpdracht : bouwPrintPdf;
     const { pdf: pagePdf, opVel: paginasOpVel } = await bouw({
-      doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, inhoud, kleur, uitsneden,
+      doc, pages, orientatie: bronOrientatie, vel: bronVel, schaling, zoom, centreren, draaien: bronDraaien, inhoud, kleur, uitsneden,
       voortgang: (i, pageNum) => updatePrintProgress(
         i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
         i / total,

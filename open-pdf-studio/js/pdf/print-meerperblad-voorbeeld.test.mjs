@@ -229,7 +229,7 @@ test('voorbeeld = afdruk: elke cel ligt waar maakMeerPerBlad de pagina tekent', 
       vel: A4_VEL, meerPerBlad: raster, schaling: 'fit', zoom: 100, centreren: true, orientatie: g.orientatie,
     });
     const keuzes = {
-      ...KEUZES, orientatie: bron.orientatie, schaling: bron.schaling, zoom: bron.zoom, centreren: bron.centreren,
+      ...KEUZES, papier: bron.vel, orientatie: bron.orientatie, schaling: bron.schaling, zoom: bron.zoom, centreren: bron.centreren,
     };
     const { doc, maten } = await printPdf(paginas, keuzes);
     const uit = await maakMeerPerBlad(doc, {
