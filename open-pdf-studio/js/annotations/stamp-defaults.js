@@ -19,10 +19,15 @@
 // SVG die zelf een echte maat declareert; die volgen wel de tekeningschaal.
 export const SYMBOL_PAPER_HEIGHT_MM = 10;
 
-// Ingebouwde tekst-stempels (APPROVED, DRAFT, ...) via de stamp-picker.
-// Was 160x50, nu 10x = 1600x500.
-export const BUILTIN_STAMP_DEFAULT_WIDTH = 1600;
-export const BUILTIN_STAMP_DEFAULT_HEIGHT = 500;
+// Ingebouwde tekst-stempels (APPROVED, DRAFT, ...) via de stamp-picker, in
+// paginapunten: 78 x 18 mm op papier. De tekst wordt op de halve kaderhoogte
+// getekend met een bovengrens van 24 punten (rendering.js; 22 in saver.js);
+// de hoogte past daarbij, de breedte bij de langste tekst (CONFIDENTIAL).
+// Een tijd lang was dit 1600x500: een kader van 56 cm met een woord van
+// 24 punten erin, een overblijfsel van de tienvoudige vergroting die voor de
+// symbolen uit het palet al is teruggedraaid (#983).
+export const BUILTIN_STAMP_DEFAULT_WIDTH = 220;
+export const BUILTIN_STAMP_DEFAULT_HEIGHT = 50;
 
 // Fallback-hoogte voor override-stempels zonder expliciete grootte
 // (bv. extensie-stempels). Was 80, nu 10x = 800. Breedte volgt uit aspect.
