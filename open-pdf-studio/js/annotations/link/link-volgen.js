@@ -63,8 +63,14 @@ export async function volgLink(ann) {
     // De doelpagina bestaat niet meer: nergens heen springen.
     if (isGebrokenDoel(doel)) return false;
     const { handleInternalLink } = await import('../../pdf/link-layer.js');
+    const pagina = Math.max(0, (doel.page || 1) - 1);
+    if (doel.fit === 'rect') {
+      // Een gebied (#1226): dat stuk van de pagina passend in beeld.
+      await handleInternalLink([pagina, { name: 'FitR' }, doel.left, doel.bottom, doel.right, doel.top]);
+      return true;
+    }
     const naam = doel.fit === 'fit' ? 'Fit' : 'XYZ';
-    await handleInternalLink([Math.max(0, (doel.page || 1) - 1), { name: naam },
+    await handleInternalLink([pagina, { name: naam },
       doel.left ?? null, doel.top ?? null, doel.zoom ?? null]);
     return true;
   }

@@ -23,8 +23,7 @@
 import { PDFName, PDFNumber, PDFNull, PDFString, PDFHexString } from 'pdf-lib';
 import { hexToColorArray } from '../../utils/colors.js';
 import {
-  linkRand, linkRanddikte, linkMarkering, linkVakken, isGebrokenDoel, LINK_STANDAARD_KLEUR,
-} from '../../annotations/link/link-model.js';
+  linkRand, linkRanddikte, linkMarkering, linkVakken, isGebrokenDoel, LINK_STANDAARD_KLEUR, linkGebied } from '../../annotations/link/link-model.js';
 
 const N = (n) => PDFName.of(n);
 const rond = (v) => (Math.round(v * 1e4) / 1e4) || 0;
@@ -118,6 +117,14 @@ export function linkDoelVoorPdf(context, doel, paginas) {
     const pagina = paginas[nr - 1];
     const getal = (v) => (typeof v === 'number' && Number.isFinite(v) ? PDFNumber.of(rond(v)) : PDFNull);
     if (doel.fit === 'fit') return { Dest: context.obj([pagina.ref, N('Fit')]) };
+    if (doel.fit === 'rect') {
+      // Een gebied (#1226): [pagina /FitR links onder rechts boven].
+      const gebied = linkGebied(doel);
+      if (gebied) {
+        return { Dest: context.obj([pagina.ref, N('FitR'), getal(gebied.left), getal(gebied.bottom), getal(gebied.right), getal(gebied.top)]) };
+      }
+      return { Dest: context.obj([pagina.ref, N('Fit')]) };
+    }
     // Zonder eigen positie: de bovenkant van de zichtbare pagina.
     const crop = pagina.getCropBox();
     const top = typeof doel.top === 'number' && Number.isFinite(doel.top) ? doel.top : crop.y + crop.height;

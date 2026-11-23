@@ -10,6 +10,11 @@
 //     { kind: 'page', page, fit, left, top, zoom }  pagina in dit document
 //                                                   (/Dest [pagina /XYZ ...]
 //                                                   of [pagina /Fit])
+//     { kind: 'page', page, fit: 'rect', left, bottom, right, top }
+//                                                   een gebied op die pagina,
+//                                                   passend in beeld (#1226,
+//                                                   /Dest [pagina /FitR ...]);
+//                                                   in PDF-eenheden van de pagina
 //     { kind: 'file', file }                        bestand (/A /S /Launch),
 //                                                   alleen op het bureaublad
 //     { kind: 'page', page: null, broken: true, fit, ... }
@@ -91,8 +96,13 @@ export function normaliseerDoel(doel, aantalPaginas = Infinity) {
     case 'page': {
       const page = Math.round(Number(doel.page));
       if (!Number.isFinite(page) || page < 1 || page > aantalPaginas) return null;
-      const fit = doel.fit === 'fit' ? 'fit' : 'xyz';
       const getal = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+      if (doel.fit === 'rect') {
+        // Een gebied: vier getallen, met breedte en hoogte.
+        const gebied = linkGebied(doel);
+        return gebied ? { kind: 'page', page, fit: 'rect', ...gebied } : null;
+      }
+      const fit = doel.fit === 'fit' ? 'fit' : 'xyz';
       const uit = { kind: 'page', page, fit };
       if (fit === 'xyz') {
         uit.left = getal(doel.left);
@@ -108,6 +118,22 @@ export function normaliseerDoel(doel, aantalPaginas = Infinity) {
     default:
       return null;
   }
+}
+
+/**
+ * Het gebied van een doel (#1226) als { left, bottom, right, top } in
+ * PDF-eenheden, of null als het geen bruikbaar gebied is. De hoeken mogen in
+ * elke volgorde staan.
+ */
+export function linkGebied(doel) {
+  const n = ['left', 'bottom', 'right', 'top'].map((k) => doel?.[k]);
+  if (!n.every((v) => typeof v === 'number' && Number.isFinite(v))) return null;
+  const left = Math.min(n[0], n[2]);
+  const right = Math.max(n[0], n[2]);
+  const bottom = Math.min(n[1], n[3]);
+  const top = Math.max(n[1], n[3]);
+  if (!(right - left > 0.5) || !(top - bottom > 0.5)) return null;
+  return { left, bottom, right, top };
 }
 
 /** Wijst dit paginadoel nergens meer heen (doelpagina verwijderd)? */

@@ -1,15 +1,16 @@
 import { createSignal, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import PrefSelect from '../preferences/PrefSelect.jsx';
-import { closeDialog } from '../../stores/dialogStore.js';
+import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { isTauri } from '../../../core/platform.js';
 import { leesGetal } from '../../../core/getal-invoer.js';
 import { bewaarLinkKeuze, LINK_DIALOOG } from '../../../annotations/link/link-maken.js';
 import {
-  normaliseerDoel, linkRand, linkRanddikte, isGebrokenDoel, LINK_STANDAARD_KLEUR,
+  normaliseerDoel, linkRand, linkRanddikte, isGebrokenDoel, LINK_STANDAARD_KLEUR, linkGebied,
 } from '../../../annotations/link/link-model.js';
+import { kiesLinkGebied } from '../../../annotations/link/link-gebied.js';
 
 // Hyperlink invoegen of bewerken (#953). Het doel: een webadres, een pagina in
 // dit document of (alleen op het bureaublad) een bestand; daarnaast de rand.
@@ -21,7 +22,10 @@ export default function LinkDialog(props) {
   const doc = getActiveDocument();
   const bestaand = data.annotationId ? doc?.annotations.find((a) => a.id === data.annotationId) : null;
   const aantal = doc?.pdfDoc?.numPages || 1;
-  const doel = bestaand?.linkTarget || null;
+  // Terug van "Gebied kiezen" (#1226): de keuzes van vóór het kiezen, met het
+  // gekozen gebied als doel.
+  const terug = data.terug || null;
+  const doel = terug?.doel || bestaand?.linkTarget || null;
   const opBureaublad = isTauri();
 
   const [soort, setSoort] = createSignal(doel?.kind || 'uri');
@@ -31,11 +35,13 @@ export default function LinkDialog(props) {
   const gebroken = isGebrokenDoel(doel);
   const [pagina, setPagina] = createSignal(gebroken ? ''
     : String(doel?.kind === 'page' ? doel.page : Math.min(aantal, (doc?.currentPage || 1))));
-  const [weergave, setWeergave] = createSignal(doel?.kind === 'page' && doel.fit === 'fit' ? 'fit' : 'xyz');
+  const [weergave, setWeergave] = createSignal(doel?.kind === 'page' && (doel.fit === 'fit' || doel.fit === 'rect') ? doel.fit : 'xyz');
+  // Het gekozen gebied op de doelpagina (#1226), in PDF-eenheden.
+  const [gebied, setGebied] = createSignal(doel?.kind === 'page' && doel.fit === 'rect' ? linkGebied(doel) : null);
   const [bestand, setBestand] = createSignal(doel?.kind === 'file' ? doel.file : '');
-  const [rand, setRand] = createSignal(bestaand ? linkRand(bestaand) : 'none');
-  const [kleur, setKleur] = createSignal(bestaand?.color || LINK_STANDAARD_KLEUR);
-  const [dikte, setDikte] = createSignal(String(bestaand ? linkRanddikte(bestaand) : 1));
+  const [rand, setRand] = createSignal(terug?.rand ?? (bestaand ? linkRand(bestaand) : 'none'));
+  const [kleur, setKleur] = createSignal(terug?.kleur ?? (bestaand?.color || LINK_STANDAARD_KLEUR));
+  const [dikte, setDikte] = createSignal(terug?.dikte ?? String(bestaand ? linkRanddikte(bestaand) : 1));
   const [fout, setFout] = createSignal('');
 
   const sluit = () => closeDialog(LINK_DIALOOG);
@@ -46,12 +52,31 @@ export default function LinkDialog(props) {
     if (soort() === 'uri') return { kind: 'uri', uri: uri() };
     if (soort() === 'file') return { kind: 'file', file: bestand() };
     const page = Number(pagina());
-    const zelfde = doel?.kind === 'page' && doel.page === page && (doel.fit === 'fit') === (weergave() === 'fit');
+    if (weergave() === 'rect') return { kind: 'page', page, fit: 'rect', ...(gebied() || {}) };
+    const zelfde = doel?.kind === 'page' && doel.fit !== 'rect' && doel.page === page && (doel.fit === 'fit') === (weergave() === 'fit');
     return zelfde ? { ...doel } : { kind: 'page', page, fit: weergave() };
+  }
+
+  // Gebied kiezen (#1226): het venster gaat even dicht, de gebruiker bladert
+  // naar de doelpagina en sleept een vak, en het venster komt terug met dat
+  // gebied. Afbreken (Esc) brengt het venster terug zoals het was.
+  async function kiesGebied() {
+    const stand = { rand: rand(), kleur: kleur(), dikte: dikte() };
+    const vorig = gekozenDoel();
+    sluit();
+    const gekozen = await kiesLinkGebied(t('link.pickAreaHint'));
+    const nieuwDoel = gekozen
+      ? { kind: 'page', page: gekozen.page, fit: 'rect', ...gekozen.gebied }
+      : vorig;
+    openDialog(LINK_DIALOOG, { ...data, terug: { ...stand, doel: nieuwDoel } });
   }
 
   function bevestig() {
     const kandidaat = gekozenDoel();
+    if (soort() === 'page' && weergave() === 'rect' && !gebied()) {
+      setFout(t('link.areaMissing'));
+      return;
+    }
     if (!normaliseerDoel(kandidaat, aantal)) {
       setFout(soort() === 'uri' ? t('link.invalidUri')
         : soort() === 'page' ? t('link.invalidPage', { count: aantal }) : t('link.invalidFile'));
@@ -122,8 +147,17 @@ export default function LinkDialog(props) {
                 options={[
                   { value: 'xyz', label: t('link.viewTop') },
                   { value: 'fit', label: t('link.viewFit') },
+                  { value: 'rect', label: t('link.viewArea') },
                 ]} />
             </div>
+            <Show when={weergave() === 'rect'}>
+              <div class="link-dialog-row link-dialog-indent">
+                <button class="pref-btn pref-btn-secondary" id="link-dialog-pick-area" onClick={kiesGebied}>{t('link.pickArea')}</button>
+                <span class="link-dialog-note" id="link-dialog-area-note">
+                  {gebied() ? t('link.areaChosen', { page: pagina() }) : t('link.areaNone')}
+                </span>
+              </div>
+            </Show>
           </Show>
           {keuze('file', t('link.targetFile'), !opBureaublad)}
           <Show when={soort() === 'file'}>
