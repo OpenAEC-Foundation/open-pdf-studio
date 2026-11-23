@@ -173,7 +173,7 @@ function snijding(a, b) {
  *   null als de paginamaat onbruikbaar is.
  */
 export function berekenPlaatsing({
-  papier, orientatie = 'auto', pagina, schaling = 'fit', zoom = 100, centreren = true,
+  papier, orientatie = 'auto', pagina, schaling = 'fit', zoom = 100, centreren = true, draaien = true,
 }) {
   if (!pagina || !geldig(pagina.breedtePt) || !geldig(pagina.hoogtePt)) return null;
 
@@ -187,7 +187,8 @@ export function berekenPlaatsing({
   // krijgt Rust `plaatsing: 'vel'` (1:1, niet opnieuw passend maken).
   const onbekendMaarSchaalGekozen = schaling === 'custom-scale'
     && (!papier || !geldig(papier.breedteMm) || !geldig(papier.hoogteMm));
-  if (papier === 'pagina' || onbekendMaarSchaalGekozen) {
+  const eigenVel = papier === 'pagina' || onbekendMaarSchaalGekozen;
+  if (eigenVel) {
     papier = {
       breedteMm: Math.min(pagina.breedtePt, pagina.hoogtePt) * MM_PER_PT,
       hoogteMm: Math.max(pagina.breedtePt, pagina.hoogtePt) * MM_PER_PT,
@@ -220,13 +221,21 @@ export function berekenPlaatsing({
 
   const kort = Math.min(papier.breedteMm, papier.hoogteMm);
   const lang = Math.max(papier.breedteMm, papier.hoogteMm);
-  const or = velOrientatie(orientatie, pagina.breedtePt, pagina.hoogtePt);
+  // Automatisch draaien uit (`draaien` false, #1234): op een echt vel volgt de
+  // stand bij 'auto' niet de pagina, want een liggend vel is op een staand
+  // ingevoerd blad hetzelfde als de pagina draaien. Het vel blijft staand.
+  // Een pagina op haar eigen vel houdt haar eigen stand.
+  const or = draaien === false && orientatie === 'auto' && !eigenVel
+    ? 'portrait'
+    : velOrientatie(orientatie, pagina.breedtePt, pagina.hoogtePt);
   const velB = or === 'landscape' ? lang : kort;
   const velH = or === 'landscape' ? kort : lang;
 
   // Haaks op het vel: de pagina komt een kwartslag linksom te liggen. Vanaf
   // hier is "de pagina" de pagina zoals ze op het vel ligt.
-  const gedraaid = haaksOpVel(pagina.breedtePt, pagina.hoogtePt, velB, velH);
+  // Met `draaien` uit (Automatisch draaien uit, #1234) blijft ze rechtop en
+  // wordt ze kleiner passend gemaakt.
+  const gedraaid = draaien !== false && haaksOpVel(pagina.breedtePt, pagina.hoogtePt, velB, velH);
   const paginaPt = gedraaid
     ? { breedtePt: pagina.hoogtePt, hoogtePt: pagina.breedtePt }
     : { breedtePt: pagina.breedtePt, hoogtePt: pagina.hoogtePt };

@@ -175,6 +175,8 @@
     "iconTag": "Etikett"
   },
   "stylePresets": {
+    "stylePainter": "Formatpinsel",
+    "stylePainterHint": "Bewegen Sie den Zeiger über Anmerkungen, um das kopierte Format anzuwenden. Esc oder Rechtsklick beendet den Formatpinsel.",
     "label": "Linienstil",
     "applyPlaceholder": "Stil anwenden…",
     "noPresets": "Keine gespeicherten Stile",
@@ -1079,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Abschnittsreihenfolge zurücksetzen",
     "dragHint": "Klicken zum Ein- oder Ausklappen. Ziehen, um den Abschnitt zu verschieben (oder Alt+Pfeil auf/ab)."
+  },
+  "linePatterns": {
+    "fence-circle": "Zaun (Kreis)",
+    "fence-square": "Zaun (Quadrat)",
+    "gas": "Gas",
+    "hot-water": "Warmwasser",
+    "zigzag": "Zickzack",
+    "insulation": "Dämmung",
+    "double": "Doppellinie",
+    "tracks": "Gleise",
+    "road": "Straße"
   }
 }

@@ -43,6 +43,7 @@ export const CORE_COMMANDS = Object.freeze([
 
   // Style commands are deliberately unassigned (#1082).
   { id: 'edit.copyStyle', category: 'edit', labelKey: 'properties:stylePresets.copyStyle', label: 'Copy style' },
+  { id: 'edit.stylePainter', category: 'edit', labelKey: 'properties:stylePresets.stylePainter', label: 'Style painter' },
   { id: 'edit.pasteStyle', category: 'edit', labelKey: 'properties:stylePresets.pasteStyle', label: 'Paste style' },
   { id: 'edit.setDefaultStyle', category: 'edit', labelKey: 'context:annotation.setAsDefaultStyle', label: 'Set as default style' },
 

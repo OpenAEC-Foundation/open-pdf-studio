@@ -1,3 +1,4 @@
+import { geometricLinePaths, geometricPathsBounds } from '../../annotations/geometric-line-styles.js';
 // Vector appearance-stream (/AP /N) builders for annotation types that OPDS
 // previously wrote WITHOUT an appearance stream. Those types render correctly
 // inside OPDS (own overlay canvas) but were INVISIBLE — or showed only a bare
@@ -173,9 +174,13 @@ function hatchFamilyOps(fam, bounds, scale, rot, center, colorRgb, clip) {
     return s;
   }
 
-  const dash = (fam.dashPattern && fam.dashPattern.length > 0)
-    ? `[${fam.dashPattern.map(d => f(Math.abs(d) * scale)).join(' ')}] 0 d\n`
-    : '[] 0 d\n';
+  const lengths = (fam.dashPattern || []).map(d => Math.abs(d) * scale);
+  const period = lengths.reduce((sum, length) => sum + length, 0) * (lengths.length % 2 ? 2 : 1);
+  // The first endpoint is -halfDiag from the family origin. Compensate for
+  // that distance, just like Canvas lineDashOffset, so joints meet courses
+  // regardless of the different canvas/PDF bounding-box padding.
+  const phase = period > 0 ? ((-halfDiag % period) + period) % period : 0;
+  const dash = `[${lengths.map(f).join(' ')}] ${f(phase)} d\n`;
 
   let s = `${f(colorRgb[0])} ${f(colorRgb[1])} ${f(colorRgb[2])} RG\n${f(lw)} w\n${dash}`;
   for (let i = -numLines; i <= numLines; i++) {
@@ -1241,3 +1246,16 @@ export function buildStavenreeksAP({ geom, local, strokeColorHex, lineWidth }) {
 
 // Exposed for the caller to build the font resource dict only when needed.
 export const HELV_FONT_NAME = 'Helv';
+
+/** Shared screen geometry, transformed point by point (including CropBox/Rotate). */
+export function buildGeometricLineAP({ annotation, toPdf, strokeColorHex, lineWidth }) {
+  const paths = geometricLinePaths(annotation, lineWidth);
+  if (!paths?.length) return null;
+  const pdfPaths = paths.map(path => path.map(toPdf));
+  const bounds = geometricPathsBounds(pdfPaths, lineWidth);
+  const rgb = hexToRgb(strokeColorHex || '#000000');
+  let content = `${rgb.map(f).join(' ')} RG\n${f(lineWidth)} w\n0 J 1 j\n[] 0 d\n`;
+  for (const path of pdfPaths) content += path.map((p, i) => `${f(p.x)} ${f(p.y)} ${i ? 'l' : 'm'}`).join(' ') + '\n';
+  content += 'S\n';
+  return { content, needsFont: false, rect: [bounds.x, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height] };
+}

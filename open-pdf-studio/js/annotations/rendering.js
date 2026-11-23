@@ -1,3 +1,4 @@
+import { drawGeometricLine } from './geometric-line-styles.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { kaleLijst } from './kale-lijst.js';
 import { state, imageCache, getAnnotationBounds } from '../core/state.js';
@@ -687,6 +688,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 
     case 'line':
       ctx.strokeStyle = strokeColor;
+      if (drawGeometricLine(ctx, annotation)) break;
       ctx.lineCap = 'butt';
       applyBorderStyle(ctx, annotation.borderStyle);
       ctx.beginPath();
@@ -820,6 +822,8 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
     }
 
     case 'polyline':
+      ctx.strokeStyle = strokeColor;
+      if (drawGeometricLine(ctx, annotation)) break;
       if (annotation.points && annotation.points.length >= 2) {
         ctx.strokeStyle = strokeColor;
         ctx.lineCap = 'butt';
@@ -3402,14 +3406,14 @@ export function redrawAnnotations(lightweight = false) {
   // Snap indicator during interactive G-move/G-rotate sessions. Drawing
   // tools render theirs via the shape-preview pass, which never runs for
   // the select-tool — without this the session snaps invisibly.
-  if ((state.gMoveMode || state.gRotateMode) &&
+  if ((state.gMoveMode || state.gRotateMode || state.isDragging) &&
       state.lastSnapResult && state.lastSnapResult.snapped &&
       state.lastSnapResult.type !== 'polar') {
     drawSnapIndicator(annotationCtx, state.lastSnapResult, effectiveScale);
   }
   // Inference guides of a move session (#519): tracking/extension/parallel/
   // polar lines, acquired points and the tooltip naming the inference.
-  if (state.gMoveMode) drawMoveInferenceOverlay(annotationCtx, curPage, effectiveScale);
+  if (state.gMoveMode || state.isDragging) drawMoveInferenceOverlay(annotationCtx, curPage, effectiveScale);
 
   // Image alignment guides (edge/centre snap while moving, equal-width/height
   // while resizing). State-driven — same principle as the rubber-band and the
@@ -3621,7 +3625,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
 
   // Move session (continuous): snap indicator and inference guides (#519) on
   // the page of the moved selection — this path never drew them before.
-  if (lagen.bewerkhulp && state.gMoveMode) {
+  if (lagen.bewerkhulp && (state.gMoveMode || state.isDragging)) {
     const snap = state.lastSnapResult;
     if (snap && snap.snapped && snap.type !== 'polar' && snap.page === pageNum) {
       drawSnapIndicator(ctx, snap, effectiveScale);

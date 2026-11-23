@@ -1,3 +1,5 @@
+import { lijnkleurUitAp } from './ap-lijnkleur.js';
+import { isGeometricLineStyle } from '../../annotations/geometric-line-styles.js';
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString, PDFRef } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype, lijnstijlUitStreep } from './pdf-helpers.js';
@@ -1213,6 +1215,13 @@ const result = {};
         }
       }
 
+      // Standard /BS cannot encode these symbols; /AP carries portable vector
+      // geometry, this validated key restores the editable pattern in OPDS.
+      if (subtypeName === '/Line' || subtypeName === '/PolyLine') {
+        const pattern = decodePdfTextObject(context.lookup(annotDict.get(PDFName.of('OPS_LinePattern'))));
+        if (isGeometricLineStyle(pattern)) colors.borderStyle = pattern;
+      }
+
       // IC and type-specific extraction only for shape/text annotations
       const needsIcTypes = ['/FreeText', '/Square', '/Circle', '/Line', '/PolyLine', '/Polygon'];
       if (needsIcTypes.includes(subtypeName)) {
@@ -1825,10 +1834,11 @@ const result = {};
 
                 // Extract stroke color from content stream (or referenced XObjects)
                 if (!colors.ic) {
-                  let rgMatch = content ? content.match(/([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+RG/) : null;
+                  // Elke vorm waarin een programma de lijnkleur schrijft (ap-lijnkleur.js).
+                  let lijnkleur = lijnkleurUitAp(content);
 
                   // If not found, follow XObject form references (e.g. /Fm0 Do)
-                  if (!rgMatch && content) {
+                  if (!lijnkleur && content) {
                     const xobjMatch = content.match(/\/(\S+)\s+Do/);
                     if (xobjMatch) {
                       try {
@@ -1841,17 +1851,14 @@ const result = {};
                         if (fmStream) {
                           const fmContent = await decodeStream(fmStream);
                           if (fmContent) {
-                            rgMatch = fmContent.match(/([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+RG/);
+                            lijnkleur = lijnkleurUitAp(fmContent);
                           }
                         }
                       } catch (e) { /* ignore XObject extraction errors */ }
                     }
                   }
 
-                  if (rgMatch) {
-                    const r = parseFloat(rgMatch[1]), g = parseFloat(rgMatch[2]), b = parseFloat(rgMatch[3]);
-                    colors.apStrokeColor = `#${Math.round(r * 255).toString(16).padStart(2, '0')}${Math.round(g * 255).toString(16).padStart(2, '0')}${Math.round(b * 255).toString(16).padStart(2, '0')}`;
-                  }
+                  if (lijnkleur) colors.apStrokeColor = lijnkleur;
                 }
               }
             }

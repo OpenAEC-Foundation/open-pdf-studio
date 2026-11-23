@@ -7,6 +7,9 @@ on:
       - 'open-pdf-studio/js/bridge.ts'
       - 'open-pdf-studio/js/solid/stores/*Store.js'
       - 'open-pdf-studio/scripts/test-style-shortcuts-browser.mjs'
+      - 'open-pdf-studio/scripts/test-style-painter.mjs'
+      - 'open-pdf-studio/js/tools/tools/style-painter-tool.js'
+      - 'open-pdf-studio/js/solid/components/ribbon/FormatTab.jsx'
       - '.github/workflows/style-shortcuts.yml'
 permissions:
   contents: read
@@ -26,3 +29,4 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: node --test js/tools/sneltoetsen-aanpasbaar.test.mjs
       - run: node scripts/test-style-shortcuts-browser.mjs
+      - run: node scripts/test-style-painter.mjs

@@ -175,6 +175,8 @@
     "iconTag": "Etikett"
   },
   "stylePresets": {
+    "stylePainter": "Formatpensel",
+    "stylePainterHint": "För pekaren över anteckningar för att använda den kopierade stilen. Esc eller högerklick avslutar penseln.",
     "label": "Linjestil",
     "applyPlaceholder": "Tillämpa stil…",
     "noPresets": "Inga sparade stilar",
@@ -1079,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Reset section order",
     "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
+  },
+  "linePatterns": {
+    "fence-circle": "Staket (cirkel)",
+    "fence-square": "Staket (kvadrat)",
+    "gas": "Gas",
+    "hot-water": "Varmvatten",
+    "zigzag": "Sicksack",
+    "insulation": "Isolering",
+    "double": "Dubbel",
+    "tracks": "Spår",
+    "road": "Väg"
   }
 }

@@ -36,11 +36,11 @@ export const HATCH_LINE_FAMILIES = {
   ],
   'brick-running': [
     { angle: 0, originX: 0, originY: 0, deltaX: 0, deltaY: 10 },
-    { angle: 90, originX: 0, originY: 0, deltaX: 20, deltaY: 20, dashPattern: [10, -10] },
+    { angle: 90, originX: 0, originY: 0, deltaX: 10, deltaY: 10, dashPattern: [10, -10] },
   ],
   'brick-stack': [
     { angle: 0, originX: 0, originY: 0, deltaX: 0, deltaY: 10 },
-    { angle: 90, originX: 0, originY: 0, deltaX: 0, deltaY: 20, dashPattern: [10, -10] },
+    { angle: 90, originX: 0, originY: 0, deltaX: 0, deltaY: 20 },
   ],
   'insulation': [
     { angle: 60, originX: 0, originY: 0, deltaX: 0, deltaY: 6 },
@@ -115,12 +115,12 @@ export const HATCH_LINE_FAMILIES = {
     { angle: 90, originX: 0, originY: 0, deltaX: 10, deltaY: 20, dashPattern: [10, -10] },
   ],
   'grond-blokjes': [
-    { angle: 90, originX: 0, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 90, originX: 2, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 90, originX: 4, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 0, originX: 6, originY: 0, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 0, originX: 6, originY: 2, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
-    { angle: 0, originX: 6, originY: 4, deltaX: 0, deltaY: 12, dashPattern: [4, -8] },
+    { angle: 90, originX: 0, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 90, originX: 2, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 90, originX: 4, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 0, originX: 6, originY: 0, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 0, originX: 6, originY: 2, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
+    { angle: 0, originX: 6, originY: 4, deltaX: 6, deltaY: 6, dashPattern: [4, -8] },
   ],
   'glas-strepen': [
     { angle: 45, originX: 0, originY: 2, deltaX: 0, deltaY: 20, dashPattern: [4, -16] },

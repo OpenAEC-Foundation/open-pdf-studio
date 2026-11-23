@@ -212,6 +212,7 @@ export default function StatusBar() {
   const review = () => { reviewTick(); return reviewStatus(state.documents[state.activeDocumentIndex]?.filePath); };
 
   const toolName = () => {
+    if (state.currentTool === 'stylePainter') return t('properties:stylePresets.stylePainter');
     const key = `tools.${state.currentTool}`;
     const translated = t(key);
     return translated !== key ? translated : state.currentTool;

@@ -121,6 +121,14 @@ export function celGeometrie({ bladB, bladH, kolommen, rijen }) {
  */
 export const CEL_PAGINA_STAND = 'auto';
 
+/**
+ * Het papier van de printpagina van een cel bij meerdere pagina's per vel:
+ * de pagina zelf. Voorheen was dat het hele vel; een pagina met een andere
+ * verhouding dan het papier (een dia op A4) kwam dan met de witruimte van dat
+ * vel in haar cel en bleef veel kleiner dan de cel toeliet (#1234).
+ */
+export const CEL_PAPIER = 'pagina';
+
 /** Hoeveel groter een gedraaide pagina moet worden voordat de kwartslag wint (relatief). */
 const DRAAI_WINST = 1e-6;
 
@@ -410,7 +418,7 @@ export function bronKeuzes({
   }
   if (isMeerPerBlad(meerPerBlad)) {
     return {
-      vel, meerPerBlad, ...schaalVoorMeerPerBlad(meerPerBlad, schaling, zoom, centreren), orientatie: CEL_PAGINA_STAND,
+      vel: CEL_PAPIER, meerPerBlad, ...schaalVoorMeerPerBlad(meerPerBlad, schaling, zoom, centreren), orientatie: CEL_PAGINA_STAND,
     };
   }
   return { vel, meerPerBlad, schaling, zoom, centreren, orientatie };
@@ -456,7 +464,7 @@ export function voorbeeldMeerPerBlad({ meerPerBlad, keuzes, eerstePagina, pagina
   const { papier: vel = null, orientatie = 'auto', schaling, zoom, centreren } = keuzes;
   // Zoals bronKeuzes: de printpagina in de stand van de pagina zelf.
   const celKeuzes = {
-    papier: vel, orientatie: CEL_PAGINA_STAND, ...schaalVoorMeerPerBlad(meerPerBlad, schaling, zoom, centreren),
+    papier: CEL_PAPIER, orientatie: CEL_PAGINA_STAND, ...schaalVoorMeerPerBlad(meerPerBlad, schaling, zoom, centreren),
   };
   const plaats = (pagina) => berekenPlaatsing({ ...celKeuzes, pagina });
   const maat = (plaatsing) => {
@@ -498,7 +506,8 @@ export function voorbeeldMeerPerBlad({ meerPerBlad, keuzes, eerstePagina, pagina
 
   const marges = margesVoor(papier && papier.bedrukbaar, stand, velB, velH);
   return {
-    bekend: eerste.bekend,
+    // Het vel is bekend als de dialoog papier heeft (een maat, of de pagina zelf).
+    bekend: vel != null,
     vel: { breedteMm: velB, hoogteMm: velH, orientatie: stand },
     marges,
     bedrukbaar: {

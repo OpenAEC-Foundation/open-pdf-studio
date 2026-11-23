@@ -34,6 +34,7 @@ import {
 import {
   berekenPlaatsing, renderDeel, geldigeZoom, ZOOM_MIN, ZOOM_MAX,
 } from '../../../pdf/print-plaatsing.js';
+import { bedrukbaarMetMarges } from '../../../pdf/print-marges.js';
 import {
   DOEL_PDF, isPdfDoel, doelIsGeopend, standaardDoelPad, isBestandsPrinter,
 } from '../../../pdf/print-doel.js';
@@ -1095,6 +1096,7 @@ export default function PrintDialog(props) {
         schaling: keuzes.schaling,
         zoom: keuzes.zoom,
         centreren: keuzes.centreren,
+        draaien: keuzes.draaien,
         meerPerBlad: meerBlad,
         poster: posterKeuze,
         boekje: boekjeKeuze,
@@ -1117,6 +1119,7 @@ export default function PrintDialog(props) {
       schaling: keuzes.schaling,
       zoom: keuzes.zoom,
       centreren: keuzes.centreren,
+      draaien: keuzes.draaien,
       meerPerBlad: meerBlad,
       poster: posterKeuze,
       boekje: boekjeKeuze,
@@ -1197,7 +1200,7 @@ export default function PrintDialog(props) {
     const vel = bekendVel(effectief());
     const marges = printerMarges().get(papierVerzoekSleutel(selectedPrinter(), gevraagdPapier())) || null;
     return {
-      papier: vel ? { ...vel, bedrukbaar: marges } : (pdfDoel() ? 'pagina'
+      papier: vel ? { ...vel, bedrukbaar: bedrukbaarMetMarges(marges, getPageSetupSettings()) } : (pdfDoel() ? 'pagina'
         : activeRange() === 'area' && scaling() === 'actual' ? { breedteMm: 210, hoogteMm: 297 } : null),
       // Bij meerdere pagina's per vel of een folder geldt de in de
       // Pagina-instelling gekozen stand, ook met Automatisch draaien (#606).
@@ -1210,6 +1213,8 @@ export default function PrintDialog(props) {
       schaling: scaling(),
       zoom: geldigeZoom(zoom()),
       centreren: autoCenter(),
+      // Automatisch draaien uit: een pagina die dwars op het vel staat blijft rechtop (#1234).
+      draaien: autoRotate(),
     };
   }, undefined, { equals: zelfdeKeuzes });
 

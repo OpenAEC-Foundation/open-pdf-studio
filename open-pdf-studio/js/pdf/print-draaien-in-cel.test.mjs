@@ -16,7 +16,7 @@ import { PDFDocument, PDFArray, PDFRawStream, decodePDFRawStream } from 'pdf-lib
 
 import {
   plaatsInCel, kiesBlad, velIndeling, voorbeeldMeerPerBlad, maakMeerPerBlad, rasterVan,
-  flyerRaster, paginasOpVel, bronKeuzes, beeldInCel, celGeometrie, CEL_PAGINA_STAND,
+  flyerRaster, paginasOpVel, bronKeuzes, beeldInCel, celGeometrie, CEL_PAGINA_STAND, CEL_PAPIER,
 } from './print-meerperblad.js';
 import { voorbeeldBoekje } from './print-boekje.js';
 import { berekenPlaatsing, printPaginaMaat } from './print-plaatsing.js';
@@ -201,7 +201,9 @@ test('#623 (het issue) met Automatisch draaien aan: alleen gedraaid waar dat ech
   const vier = per('4');
   const uit = voorbeeld({ raster: { ...rasterVan({ perBlad: '4' }), draaibaar: true }, orientatie: 'portrait', paginaDraaien: false });
   assert.ok(vier.cellen.every((c) => c.kwartslag));
-  assert.ok(vier.schaal > uit.schaal * 1.2);
+  // De pagina zelf vult haar cel (#1234), dus rechtop verliest ze minder dan
+  // toen een heel vel in de cel kwam: 0,452 gedraaid tegen 0,388 rechtop.
+  assert.ok(vier.schaal > uit.schaal * 1.1);
 });
 
 test('#623: Automatisch draaien aan, staand vel, eigen raster 2 x 1, liggende pagina\'s: gedraaid in de smalle cel', () => {
@@ -330,7 +332,7 @@ test('voorbeeld = afdruk: maakMeerPerBlad draait en plaatst elke pagina zoals he
   for (const g of gevallen) {
     const wat = `${g.raster.kolommen}x${g.raster.rijen}/${g.orientatie}/${g.paginaDraaien}`;
     // Zoals bouwPrintPdf: elke pagina op haar printpagina, in haar eigen stand.
-    const keuzes = { ...KEUZES, orientatie: CEL_PAGINA_STAND };
+    const keuzes = { ...KEUZES, papier: CEL_PAPIER, orientatie: CEL_PAGINA_STAND };
     const doc = await PDFDocument.create();
     for (const p of paginas) {
       doc.addPage(printPaginaMaat(berekenPlaatsing({ ...keuzes, pagina: p }))).drawRectangle({ x: 1, y: 1, width: 2, height: 2 });

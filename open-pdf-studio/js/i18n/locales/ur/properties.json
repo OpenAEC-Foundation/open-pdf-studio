@@ -175,6 +175,8 @@
     "iconTag": "ٹیگ"
   },
   "stylePresets": {
+    "stylePainter": "انداز کا برش",
+    "stylePainterHint": "نقل شدہ انداز لگانے کے لیے تبصروں پر ماؤس لے جائیں۔ Esc یا دایاں کلک برش روک دیتا ہے۔",
     "label": "لکیر کا انداز",
     "applyPlaceholder": "انداز لاگو کریں…",
     "noPresets": "کوئی محفوظ انداز نہیں",
@@ -1079,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Reset section order",
     "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
+  },
+  "linePatterns": {
+    "fence-circle": "باڑ (دائرہ)",
+    "fence-square": "باڑ (مربع)",
+    "gas": "گیس",
+    "hot-water": "گرم پانی",
+    "zigzag": "ٹیڑھی میڑھی",
+    "insulation": "موصلیت",
+    "double": "دوہری",
+    "tracks": "پٹریاں",
+    "road": "سڑک"
   }
 }

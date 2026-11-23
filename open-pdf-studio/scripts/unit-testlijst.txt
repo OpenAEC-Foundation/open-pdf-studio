@@ -946,3 +946,11 @@ js/pdf/bitmap-orchestrator-race.test.mjs
 js/pdf/bitmap-orchestrator-tile-pan.test.mjs
 js/pdf/pdfjs-canvas-render.test.mjs
 
+
+js/annotations/geometric-line-styles.test.mjs
+js/pdf/geometric-line-styles-roundtrip.test.mjs
+js/tools/annotation-drag-snap.test.mjs
+js/pdf/loader/ap-lijnkleur.test.mjs
+js/pdf/loader/tekstvak-randkleur-laden.test.mjs
+js/pdf/print-marges.test.mjs
+js/pdf/print-niet-draaien.test.mjs

@@ -1,0 +1,30 @@
+name: Geometric line styles
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/annotations/**'
+      - 'open-pdf-studio/js/pdf/**'
+      - 'open-pdf-studio/js/core/stores/selection-helpers.ts'
+      - 'open-pdf-studio/js/solid/stores/*Store.js'
+      - 'open-pdf-studio/js/solid/components/properties-panel/AppearanceSection.jsx'
+      - 'open-pdf-studio/js/solid/components/ribbon/FormatTab.jsx'
+      - 'open-pdf-studio/scripts/test-geometric-line-styles.mjs'
+      - '.github/workflows/geometric-line-styles.yml'
+permissions:
+  contents: read
+jobs:
+  patterns:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --test js/annotations/geometric-line-styles.test.mjs js/pdf/geometric-line-styles-roundtrip.test.mjs
+      - run: node scripts/test-geometric-line-styles.mjs
