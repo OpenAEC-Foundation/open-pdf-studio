@@ -11,7 +11,12 @@ import { state } from '../../../core/state.js';
 export default function StampPickerDialog(props) {
   const { t } = useTranslation('dialogs');
 
-  const cancel = () => { closeDialog('stamp-picker'); };
+  // Closed without a choice: the opener may want to know (the Stamp tool
+  // then goes back to Select).
+  const cancel = () => {
+    closeDialog('stamp-picker');
+    props.data?.onCancel?.();
+  };
 
   // Dynamic templates (#629): built-in, personal and shared.
   const [templates, setTemplates] = createSignal([]);

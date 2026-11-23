@@ -14,6 +14,7 @@ import { rasterizeSvg } from './svg-raster.js';
 import { AFBEELDING_EXTENSIES } from './afbeelding-bron.js';
 import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 import { plaatsingsPagina } from './plaatsingspagina.js';
+import { zetStempelKeuze, stempelKeuze, wisStempelKeuze, afbeeldingStempelMaat } from './stamp-keuze.js';
 
 // Built-in stamp definitions
 // (in stamp-defaults.js, zodat ook de loader ze kan lezen)
@@ -32,6 +33,51 @@ export function showStampPicker(x, y, page) {
       .catch((err) => console.error('Failed to place dynamic stamp:', err)),
     onManage: () => openDialog('stamp-templates', {})
   });
+}
+
+// The Stamp tool was chosen: open the picker straight away. The choice is
+// kept (stamp-keuze.js) and placed with a click on the page; closing the
+// picker without a choice leaves the tool.
+export function kiesStempelVooraf() {
+  wisStempelKeuze();
+  const kies = (keuze) => {
+    zetStempelKeuze(keuze);
+    updateStatusMessage('Click on the page to place the stamp');
+  };
+  const stop = () => {
+    import('../tools/manager.js')
+      .then((m) => { if (state.currentTool === 'stamp' && !stempelKeuze()) m.setTool('select'); })
+      .catch(() => {});
+  };
+  openDialog('stamp-picker', {
+    onSelect: (stamp) => kies({ soort: 'vast', stamp }),
+    onCustom: async () => {
+      const beeld = await kiesStempelAfbeelding();
+      if (beeld) kies({ soort: 'afbeelding', ...beeld });
+      else stop();
+    },
+    onDynamic: (template) => kies({ soort: 'sjabloon', template }),
+    onManage: () => openDialog('stamp-templates', {}),
+    onCancel: stop,
+  });
+}
+
+// Place the stamp chosen in the picker at (x, y) on the clicked page.
+// Returns false when nothing is chosen.
+export function plaatsGekozenStempel(x, y, page) {
+  const keuze = stempelKeuze();
+  if (!keuze) return false;
+  if (keuze.soort === 'vast') {
+    placeStamp(keuze.stamp, x, y, page);
+  } else if (keuze.soort === 'sjabloon') {
+    import('./dynamic-stamp-place.js')
+      .then((m) => m.placeDynamicStamp(keuze.template, x, y, page))
+      .catch((err) => console.error('Failed to place dynamic stamp:', err));
+  } else if (keuze.soort === 'afbeelding') {
+    plaatsAfbeeldingStempel(keuze, x, y, plaatsingsPagina(page, getActiveDocument()))
+      .catch((err) => console.error('Failed to place image stamp:', err));
+  }
+  return true;
 }
 
 // Place a built-in stamp
@@ -253,26 +299,34 @@ export async function updateStampImage(ann, svgString) {
 async function loadCustomStamp(x, y, klikPagina) {
   // Vóór de bestandskeuze vastleggen (#1006).
   const pagina = plaatsingsPagina(klikPagina, getActiveDocument());
+  const beeld = await kiesStempelAfbeelding();
+  if (beeld) await plaatsAfbeeldingStempel(beeld, x, y, pagina);
+}
+
+// Let the user choose an image file for a stamp. Null when cancelled or when
+// the image could not be loaded.
+async function kiesStempelAfbeelding() {
   try {
     const { openFileDialog } = await import('../core/platform.js');
     const filePath = await openFileDialog(AFBEELDING_EXTENSIES);
-    if (!filePath || typeof filePath !== 'string') return;
-
+    if (!filePath || typeof filePath !== 'string') return null;
     const { laadAfbeeldingUitPad } = await import('./image-drop.js');
     const { img, dataUrl } = await laadAfbeeldingUitPad(filePath);
+    return { img, dataUrl };
+  } catch (err) {
+    console.error('Failed to load custom stamp:', err);
+    updateStatusMessage('Could not load the image for the stamp');
+    return null;
+  }
+}
 
+async function plaatsAfbeeldingStempel({ img, dataUrl }, x, y, pagina) {
+  try {
     const { generateImageId } = await import('../utils/helpers.js');
     const imageId = generateImageId();
     imageCache.set(imageId, img);
 
-    let width = img.naturalWidth;
-    let height = img.naturalHeight;
-    const maxSize = 200;
-    if (width > maxSize || height > maxSize) {
-      const ratio = Math.min(maxSize / width, maxSize / height);
-      width *= ratio;
-      height *= ratio;
-    }
+    const { width, height } = afbeeldingStempelMaat(img.naturalWidth, img.naturalHeight);
 
     const ann = createAnnotation({
       type: 'stamp',
@@ -312,7 +366,7 @@ async function loadCustomStamp(x, y, klikPagina) {
 
     updateStatusMessage('Custom stamp placed');
   } catch (err) {
-    console.error('Failed to load custom stamp:', err);
+    console.error('Failed to place custom stamp:', err);
     updateStatusMessage('Could not load the image for the stamp');
   }
 }
