@@ -961,3 +961,4 @@ js/pdf/bladwijzers-van-paginas.test.mjs
 js/quantities/kleur-cel.test.mjs
 js/tools/rechtermuis-pan.test.mjs
 js/annotations/link/link-bladwijzer.test.mjs
+js/plugins/pdf-links.test.mjs

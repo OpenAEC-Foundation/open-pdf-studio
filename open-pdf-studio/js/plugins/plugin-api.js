@@ -335,6 +335,7 @@ export function createPluginApi(pluginId) {
       documentWorkflows: true,
       drawingSets: true,
       sheetLinks: true,
+      pdfLinks: true,
       approvalRouting: true,
       ribbonTabs: true,
       structuredCommands: true,
@@ -561,6 +562,41 @@ export function createPluginApi(pluginId) {
           !Number.isFinite(x) || !Number.isFinite(y)) return null;
       const scale = getScaleFromRegion(pageNum, x, y) || schaalOpPunt(doc, pageNum, x, y);
       return scale && Number.isFinite(scale.pixelsPerUnit) && scale.pixelsPerUnit > 0 ? { ...scale } : null;
+    },
+
+    /**
+     * The links a page already has in the file (any program's), in annotation
+     * space: [{ x, y, width, height, kind: 'page'|'uri'|'other', app }].
+     * `app` marks links the app edits itself (also in getAnnotations()).
+     */
+    async getPageLinks(pageNum) {
+      const doc = getActiveDocument();
+      if (!doc?.pdfDoc || !Number.isInteger(pageNum) || pageNum < 1 || pageNum > doc.pdfDoc.numPages) return [];
+      const { leesPaginaLinks } = await import('./pdf-links.js');
+      return leesPaginaLinks(doc, pageNum, getPageRotation(pageNum));
+    },
+
+    /**
+     * Add plain PDF links (standard /Link with /Dest, no app editing), like
+     * those other programs export: [{ page, rect: { x, y, width, height },
+     * target: { page, x?, y? } }] in annotation space. One undo step.
+     * Resolves to { added }.
+     */
+    async addPdfLinks(links) {
+      const doc = getActiveDocument();
+      const [{ voegPdfLinksToe }, pm, loader, { recordPageStructure }, wachtwoord] = await Promise.all([
+        import('./pdf-links.js'), import('../pdf/page-manager.js'), import('../pdf/loader.js'), import('../core/undo-manager.js'),
+        import('../pdf/wachtwoord-pdf.js'),
+      ]);
+      const { getCachedPdfBytes } = loader;
+      // Zoals elke bewerking van het document: niet in een alleen-lezen PDF/A
+      // en niet in een beveiligd document (#378).
+      if (loader.isPdfAReadOnly()) throw new Error('The document is read-only (PDF/A)');
+      if (doc && wachtwoord.heeftBeveiligdeInhoud(doc)) throw new Error('The document is protected');
+      return voegPdfLinksToe(links, {
+        doc, getCachedPdfBytes, getCacheKey: pm.getCacheKey, reloadFromBytes: pm.reloadFromBytes,
+        recordPageStructure, rotatieVan: getPageRotation,
+      });
     },
 
     readPageContent(pageNum, options = {}) {
