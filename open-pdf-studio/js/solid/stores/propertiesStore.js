@@ -1,3 +1,4 @@
+import { zetCalloutRotatie } from '../../annotations/callout-draaien.js';
 import { canApplyLineStyle } from '../../annotations/geometric-line-styles.js';
 import { laagKeuzeWaarde, leesLaagKeuze } from '../../annotations/laag-keuze.js';
 import { createSignal, batch } from 'solid-js';
@@ -1345,7 +1346,13 @@ function applyPropToAnnotation(ann, key, value) {
       }
       break;
     }
-    case 'rotation': ann.rotation = Math.max(-360, Math.min(360, leesGeheelGetal(value) || 0)); break;
+    case 'rotation': {
+      const graden = Math.max(-360, Math.min(360, leesGeheelGetal(value) || 0));
+      // Een callout draait met knie en pijl mee (#1240).
+      if (ann.type === 'callout') zetCalloutRotatie(ann, graden);
+      else ann.rotation = graden;
+      break;
+    }
     case 'measureScale': ann.measureScale = leesGetalBegin(value) || 0; recomputeMeasureText(ann); break;
     case 'measureUnit': zetMeetEenheid(ann, value); break;
     case 'measureAreaUnit': zetVlakEenheid(ann, value); break;
@@ -1856,7 +1863,13 @@ function applyAnnotProp(key, value) {
       }
       break;
     }
-    case 'rotation': currentAnnotation.rotation = Math.max(-360, Math.min(360, leesGeheelGetal(value) || 0)); break;
+    case 'rotation': {
+      const graden = Math.max(-360, Math.min(360, leesGeheelGetal(value) || 0));
+      // Een callout draait met knie en pijl mee (#1240).
+      if (currentAnnotation.type === 'callout') zetCalloutRotatie(currentAnnotation, graden);
+      else currentAnnotation.rotation = graden;
+      break;
+    }
     // Breedte/hoogte van een afbeelding: de getypte waarde staat in de
     // gekozen papiereenheid (mm, cm, in of pt, #598) en wordt paginapunten.
     // ELKE positieve waarde mag, met decimalen. Een tussenstand tijdens het

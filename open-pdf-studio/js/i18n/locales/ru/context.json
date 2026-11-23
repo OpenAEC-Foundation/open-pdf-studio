@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Перед этой страницей...",
     "insertFromFileAfter": "После этой страницы...",
     "pageLabels": "Метки страниц (конструктор имён)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

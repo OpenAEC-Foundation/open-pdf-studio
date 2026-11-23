@@ -30,7 +30,7 @@ const pxPerMmAt = () => 1;
 const syncTwoPointGeometry = () => {}, syncTwoPointLengthParam = () => {}, twoPointEndpoints = () => ({});
 `;
 
-const HOUDEN = new Set(['./minimummaat.js', './polygon-transform.js', './veelhoek-punten.js']);
+const HOUDEN = new Set(['./minimummaat.js', './polygon-transform.js', './veelhoek-punten.js', './callout-draaien.js']);
 const bron = readFileSync(new URL('./transforms.js', import.meta.url), 'utf8')
   .replace(/^import\s[\s\S]*?from\s+'([^']+)';[ \t]*\r?$/gm, (hele, pad) => (
     HOUDEN.has(pad) ? hele.replace(`'${pad}'`, `'${new URL(pad, import.meta.url).href}'`) : ''));

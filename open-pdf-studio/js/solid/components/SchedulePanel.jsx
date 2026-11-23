@@ -16,6 +16,7 @@ import QuantitiesProperties from './QuantitiesProperties.jsx';
 // Dezelfde celopmaak als de geplaatste staat en de CSV (schedule-templates.js),
 // met het decimaalteken van de taal (#629).
 import { formatRowCell, fmtTotal } from '../../quantities/schedule-templates.js';
+import { isKleurCel } from '../../quantities/kleur-cel.js';
 
 export default function SchedulePanel() {
   const { t } = useTranslation('properties');
@@ -160,7 +161,17 @@ export default function SchedulePanel() {
                           {(row, i) => (
                             <tr classList={{ 'q-stripe': appearance().stripe && i % 2 === 1 }}>
                               <Index each={scheduleResult().columns}>
-                                {(col) => <td class={col().align === 'right' ? 'schedule-val' : ''}>{formatRowCell(row(), col())}</td>}
+                                {(col) => {
+                                  const tekst = () => formatRowCell(row(), col());
+                                  return (
+                                    <td class={col().align === 'right' ? 'schedule-val' : ''}>
+                                      {/* Een kleur als vlakje, de code als tooltip (#1242). */}
+                                      <Show when={isKleurCel(tekst())} fallback={tekst()}>
+                                        <span class="schedule-color-swatch" title={tekst()} style={{ background: tekst().trim() }}></span>
+                                      </Show>
+                                    </td>
+                                  );
+                                }}
                               </Index>
                             </tr>
                           )}

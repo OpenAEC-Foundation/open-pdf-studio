@@ -141,6 +141,8 @@
     "insertFromFileBefore": "이 페이지 앞에...",
     "insertFromFileAfter": "이 페이지 뒤에...",
     "pageLabels": "페이지 레이블(이름 작성기)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

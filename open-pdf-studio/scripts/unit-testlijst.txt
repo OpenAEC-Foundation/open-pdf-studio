@@ -956,3 +956,6 @@ js/pdf/print-marges.test.mjs
 js/pdf/print-niet-draaien.test.mjs
 js/solid/stores/telgroep-grootte-verwijderen.test.mjs
 js/annotations/link/link-gebied.test.mjs
+js/annotations/callout-draaien.test.mjs
+js/pdf/bladwijzers-van-paginas.test.mjs
+js/quantities/kleur-cel.test.mjs

@@ -1,3 +1,4 @@
+import { zetCalloutRotatie } from './callout-draaien.js';
 import { getActiveDocument } from '../core/state.js';
 import {
   recordAnnotationOrder,
@@ -157,6 +158,9 @@ export function rotateAnnotation(annotation, degrees) {
     updatePolylineBounds(annotation);
   } else if (isPointPolygon(annotation)) {
     rotatePointPolygon(annotation, degrees);
+  } else if (annotation.type === 'callout') {
+    // Doos, knie en pijl draaien samen (#1240).
+    zetCalloutRotatie(annotation, ((annotation.rotation || 0) + degrees) % 360);
   } else {
     annotation.rotation = ((annotation.rotation || 0) + degrees) % 360;
   }

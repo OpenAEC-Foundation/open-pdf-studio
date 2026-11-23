@@ -141,6 +141,8 @@
     "insertFromFileBefore": "在此页之前...",
     "insertFromFileAfter": "在此页之后...",
     "pageLabels": "页面标签（名称生成器）...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

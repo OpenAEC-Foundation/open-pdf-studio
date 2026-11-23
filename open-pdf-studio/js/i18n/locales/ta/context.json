@@ -141,6 +141,8 @@
     "insertFromFileBefore": "இந்தப் பக்கத்திற்கு முன்...",
     "insertFromFileAfter": "இந்தப் பக்கத்திற்குப் பின்...",
     "pageLabels": "பக்க லேபிள்கள் (பெயர் உருவாக்கி)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

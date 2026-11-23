@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Kabla ya Ukurasa Huu...",
     "insertFromFileAfter": "Baada ya Ukurasa Huu...",
     "pageLabels": "Lebo za Kurasa (Kiunda Majina)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

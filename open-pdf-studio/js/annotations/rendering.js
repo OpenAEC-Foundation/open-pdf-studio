@@ -1,3 +1,4 @@
+import { isKleurCel } from '../quantities/kleur-cel.js';
 import { drawGeometricLine } from './geometric-line-styles.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
 import { kaleLijst } from './kale-lijst.js';
@@ -2690,6 +2691,21 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
                 continue;
               }
               const val = raw != null ? String(raw) : '';
+              if (!row.total && isKleurCel(val)) {
+                // Een kleur als vlakje (#1242), met een dunne rand zodat ook
+                // wit en lichtgeel te zien zijn.
+                const vlakH = Math.min(10, rowH - 6);
+                const vlakB = Math.min(28, colW - pad * 2);
+                const vx = annotation.x + i * colW + pad;
+                const vy = ry + (rowH - vlakH) / 2;
+                ctx.fillStyle = val.trim();
+                ctx.fillRect(vx, vy, vlakB, vlakH);
+                ctx.strokeStyle = '#888'; ctx.lineWidth = 0.5;
+                ctx.strokeRect(vx, vy, vlakB, vlakH);
+                ctx.strokeStyle = '#ddd';
+                ctx.fillStyle = '#000';
+                continue;
+              }
               ctx.fillText(clip(val, colW - pad * 2), annotation.x + i * colW + pad, ry + rowH / 2);
             }
           }

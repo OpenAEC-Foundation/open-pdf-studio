@@ -150,6 +150,8 @@
     "insertFromFileBefore": "Vóór deze pagina...",
     "insertFromFileAfter": "Na deze pagina...",
     "pageLabels": "Paginalabels (naambouwer)...",
+    "addBookmarks": "Bladwijzer voor deze pagina toevoegen",
+    "addBookmarksMulti": "Bladwijzers voor {{count}} pagina's toevoegen",
     "setPageScale": "Paginaschaal instellen...",
     "setPageScaleMulti": "Schaal van {{count}} pagina’s instellen...",
     "detectPageScales": "Paginaschalen herkennen (alle pagina’s)",

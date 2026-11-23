@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Trước trang này...",
     "insertFromFileAfter": "Sau trang này...",
     "pageLabels": "Nhãn trang (trình tạo tên)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

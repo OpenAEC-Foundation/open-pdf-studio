@@ -4327,6 +4327,9 @@
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
+  /* De lijst en de regels hebben geen eigen tekstkleur: zonder deze regel
+     erfden ze zwart, onleesbaar in een donker thema (#1239). */
+  color: var(--theme-text, #333);
 }
 
 .ks-search {
@@ -4494,15 +4497,20 @@
 
 .ks-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
 }
 
+/* De toelichting op een eigen regel onder de knoppen: tussen de knoppen
+   bleef er zo weinig breedte over dat ze per woord afbrak (#1239). */
 .ks-footer-hint {
-  flex: 1;
+  flex: 1 1 100%;
+  order: 1;
   font-size: 11px;
   color: var(--theme-text-secondary, #666);
-  text-align: center;
+  text-align: start;
 }
 
 /* Extensions Panel */

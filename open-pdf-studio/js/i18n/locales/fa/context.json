@@ -141,6 +141,8 @@
     "insertFromFileBefore": "پیش از این صفحه...",
     "insertFromFileAfter": "پس از این صفحه...",
     "pageLabels": "برچسب‌های صفحه (سازنده نام)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Vor dieser Seite...",
     "insertFromFileAfter": "Nach dieser Seite...",
     "pageLabels": "Seitenbeschriftungen (Namensgenerator)...",
+    "addBookmarks": "Lesezeichen für diese Seite hinzufügen",
+    "addBookmarksMulti": "Lesezeichen für {{count}} Seiten hinzufügen",
     "setPageScale": "Seitenmaßstab festlegen...",
     "setPageScaleMulti": "Maßstab von {{count}} Seiten festlegen...",
     "detectPageScales": "Seitenmaßstäbe erkennen (alle Seiten)",
