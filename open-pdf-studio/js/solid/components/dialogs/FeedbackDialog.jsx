@@ -190,9 +190,9 @@ export default function FeedbackDialog(props) {
   const SENTIMENT_LABELS = { 1: 'Frustrated', 2: 'Neutral', 3: 'Happy' };
 
   const sentiments = [
-    { value: 1, emoji: '\u{1F61E}', label: () => t('feedback.sentimentFrustrated') },
-    { value: 2, emoji: '\u{1F610}', label: () => t('feedback.sentimentNeutral') },
-    { value: 3, emoji: '\u{1F60A}', label: () => t('feedback.sentimentHappy') },
+    { value: 1, mouth: 'M 6 14 Q 10 9 14 14', label: () => t('feedback.sentimentFrustrated') },
+    { value: 2, mouth: 'M 6 12 H 14', label: () => t('feedback.sentimentNeutral') },
+    { value: 3, mouth: 'M 6 11 Q 10 17 14 11', label: () => t('feedback.sentimentHappy') },
   ];
 
   return (
@@ -300,8 +300,17 @@ export default function FeedbackDialog(props) {
                     class={`feedback-sentiment-btn${sentiment() === s.value ? ' active' : ''}`}
                     onClick={() => setSentiment(sentiment() === s.value ? null : s.value)}
                     title={s.label()}
+                    aria-label={s.label()}
+                    aria-pressed={sentiment() === s.value}
                   >
-                    {s.emoji}
+                    {/* Keep faces independent of the COLRv1 color-font path reported in #1214. */}
+                    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false"
+                      fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                      <circle cx="10" cy="10" r="8.5" />
+                      <circle cx="7" cy="7" r="0.8" fill="currentColor" stroke="none" />
+                      <circle cx="13" cy="7" r="0.8" fill="currentColor" stroke="none" />
+                      <path d={s.mouth} />
+                    </svg>
                   </button>
                 )}
               </For>

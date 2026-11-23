@@ -1,3 +1,4 @@
+import { geometricLinePaths, geometricPathsBounds } from '../../annotations/geometric-line-styles.js';
 import type { Annotation, AnnotationBounds } from '../../types/annotation.js';
 import { state, getActiveDocument } from '../state.js';
 import { buildStavenreeks } from '../../annotations/stavenreeks.js';
@@ -59,6 +60,8 @@ export function selectAllOnPage(): void {
 }
 
 export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
+  const patternBounds = geometricPathsBounds(geometricLinePaths(ann), ann.lineWidth ?? 1);
+  if (patternBounds) return patternBounds;
   switch (ann.type) {
     case 'draw':
       if (!ann.path || ann.path.length === 0) return null;

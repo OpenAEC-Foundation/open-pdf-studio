@@ -2,6 +2,7 @@ import { state, getActiveDocument, selectAllOnPage, clearSelection } from '../co
 import { isVerwijderToets } from './verwijder-toets.js';
 import { undo, redo, recordAdd, recordModify, recordBulkModify, recordClearPage } from '../core/undo-manager.js';
 import { setTool } from './manager.js';
+import { startStylePainter } from './tools/style-painter-tool.js';
 import { heeftGekozenAfbeelding, wisAfbeeldingSelectie, deleteSelectedEmbeddedImage } from './tools/remove-image-tool.js';
 import { showPreferencesDialog, setAsDefaultStyle } from '../core/preferences.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -80,12 +81,16 @@ function wisselObjectSnap() {
 
 // Een ingebouwde opdracht uitvoeren voor een zelf gekozen toets.
 async function voerIngebouwdeOpdrachtUit(id, e) {
-  if (['edit.copyStyle', 'edit.pasteStyle', 'edit.setDefaultStyle'].includes(id)) {
+  if (['edit.copyStyle', 'edit.pasteStyle', 'edit.stylePainter', 'edit.setDefaultStyle'].includes(id)) {
     const doc = getActiveDocument();
     if (!doc?.pdfDoc || modaalOpen() || isTextEntryTarget(e?.target)
         || state.isEditingText || state.pdfTextEditState) return;
     const selected = doc.selectedAnnotations?.[0] || doc.selectedAnnotation;
-    if (id === 'edit.copyStyle') {
+    if (id === 'edit.stylePainter') {
+      if (selected && !isPdfAReadOnly()) {
+        startStylePainter();
+      }
+    } else if (id === 'edit.copyStyle') {
       if (selected) copyStyleFromSelection();
     } else if (id === 'edit.pasteStyle') {
       if (!isPdfAReadOnly()) pasteStyleToSelection();

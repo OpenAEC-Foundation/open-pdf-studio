@@ -175,6 +175,8 @@
     "iconTag": "Étiquette"
   },
   "stylePresets": {
+    "stylePainter": "Pinceau de style",
+    "stylePainterHint": "Survolez les annotations pour appliquer le style copié. Échap ou un clic droit arrête le pinceau.",
     "label": "Style de ligne",
     "applyPlaceholder": "Appliquer un style…",
     "noPresets": "Aucun style enregistré",
@@ -1079,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Rétablir l'ordre des sections",
     "dragHint": "Cliquez pour réduire ou développer. Faites glisser pour déplacer la section (ou Alt+Haut/Bas)."
+  },
+  "linePatterns": {
+    "fence-circle": "Clôture (cercle)",
+    "fence-square": "Clôture (carré)",
+    "gas": "Gaz",
+    "hot-water": "Eau chaude",
+    "zigzag": "Zigzag",
+    "insulation": "Isolation",
+    "double": "Double",
+    "tracks": "Voie ferrée",
+    "road": "Route"
   }
 }

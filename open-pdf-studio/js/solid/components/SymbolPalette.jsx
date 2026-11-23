@@ -595,7 +595,7 @@ export function SymbolSettingsDialog() {
               <span>{t('symbolPalette.country')}</span>
               <select value={selectedCountry()} onChange={(e) => setSelectedCountry(e.target.value)}>
                 <For each={libraryCountries()}>
-                  {(c) => <option value={c.id} selected={c.id === selectedCountry()}>{c.flag ? c.flag + ' ' : ''}{c.name}</option>}
+                  {(c) => <option value={c.id} selected={c.id === selectedCountry()}>{c.name}</option>}
                 </For>
               </select>
             </label>

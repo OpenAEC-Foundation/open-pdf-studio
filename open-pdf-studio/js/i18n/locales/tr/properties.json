@@ -175,6 +175,8 @@
     "iconTag": "Etiket"
   },
   "stylePresets": {
+    "stylePainter": "Stil fırçası",
+    "stylePainterHint": "Kopyalanan stili uygulamak için açıklamaların üzerine gelin. Esc veya sağ tıklama fırçayı durdurur.",
     "label": "Çizgi stili",
     "applyPlaceholder": "Stil uygula…",
     "noPresets": "Kayıtlı stil yok",
@@ -1079,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Reset section order",
     "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
+  },
+  "linePatterns": {
+    "fence-circle": "Çit (daire)",
+    "fence-square": "Çit (kare)",
+    "gas": "Gaz",
+    "hot-water": "Sıcak su",
+    "zigzag": "Zikzak",
+    "insulation": "Yalıtım",
+    "double": "Çift",
+    "tracks": "Raylar",
+    "road": "Yol"
   }
 }

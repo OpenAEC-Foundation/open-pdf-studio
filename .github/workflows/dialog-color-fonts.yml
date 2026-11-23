@@ -1,0 +1,27 @@
+name: Dialog color-font regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/solid/components/dialogs/FeedbackDialog.jsx'
+      - 'open-pdf-studio/js/solid/components/SymbolPalette.jsx'
+      - 'open-pdf-studio/styles/dialogs.css'
+      - 'open-pdf-studio/scripts/test-dialog-color-fonts.mjs'
+      - '.github/workflows/dialog-color-fonts.yml'
+permissions:
+  contents: read
+jobs:
+  dialog-color-fonts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node scripts/test-dialog-color-fonts.mjs
+      - run: PROBE_ENGINE=webkit node scripts/test-dialog-color-fonts.mjs

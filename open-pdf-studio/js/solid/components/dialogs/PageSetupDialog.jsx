@@ -7,19 +7,22 @@ import {
   PAPIERFORMATEN, formaatTekst, startPaginaInstelling, bewaarPaginaInstelling,
 } from '../../../pdf/print-pagina-instelling.js';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
+import { leesMarge } from '../../../pdf/print-marges.js';
 
 // docId + handmatig: een zelf gekozen oriëntatie/formaat blijft staan zolang
 // je in hetzelfde document werkt (zie print-pagina-instelling.js).
+// Marges in mm (decimaal); 0 = alleen de onbedrukbare rand van de printer.
+// Ze gelden bij het afdrukken (print-marges.js, #1236).
 export let pageSetupSettings = {
   docId: null,
   handmatig: false,
   size: 'a4',
   source: 'auto',
   orientation: 'portrait',
-  marginLeft: 25,
-  marginRight: 25,
-  marginTop: 25,
-  marginBottom: 25,
+  marginLeft: 0,
+  marginRight: 0,
+  marginTop: 0,
+  marginBottom: 0,
 };
 
 export function getPageSetupSettings() {
@@ -87,10 +90,10 @@ export default function PageSetupDialog() {
     let paperH = sizeData.hoogte;
     if (orient === 'landscape') [paperW, paperH] = [paperH, paperW];
 
-    const mL = parseInt(marginLeft()) || 0;
-    const mR = parseInt(marginRight()) || 0;
-    const mT = parseInt(marginTop()) || 0;
-    const mB = parseInt(marginBottom()) || 0;
+    const mL = leesMarge(marginLeft());
+    const mR = leesMarge(marginRight());
+    const mT = leesMarge(marginTop());
+    const mB = leesMarge(marginBottom());
 
     const maxW = 160, maxH = 200;
     const scale = Math.min(maxW / paperW, maxH / paperH) * 0.85;
@@ -192,10 +195,10 @@ export default function PageSetupDialog() {
     pageSetupSettings.size = bewaard.size;
     pageSetupSettings.source = source();
     pageSetupSettings.orientation = bewaard.orientation;
-    pageSetupSettings.marginLeft = parseInt(marginLeft()) || 0;
-    pageSetupSettings.marginRight = parseInt(marginRight()) || 0;
-    pageSetupSettings.marginTop = parseInt(marginTop()) || 0;
-    pageSetupSettings.marginBottom = parseInt(marginBottom()) || 0;
+    pageSetupSettings.marginLeft = leesMarge(marginLeft());
+    pageSetupSettings.marginRight = leesMarge(marginRight());
+    pageSetupSettings.marginTop = leesMarge(marginTop());
+    pageSetupSettings.marginBottom = leesMarge(marginBottom());
     setVersie((v) => v + 1);
     close();
   };

@@ -175,6 +175,8 @@
     "iconTag": "Merkelapp"
   },
   "stylePresets": {
+    "stylePainter": "Formatpensel",
+    "stylePainterHint": "Før pekeren over merknader for å bruke den kopierte stilen. Esc eller høyreklikk stopper penselen.",
     "label": "Linjestil",
     "applyPlaceholder": "Bruk stil…",
     "noPresets": "Ingen lagrede stiler",
@@ -1079,5 +1081,16 @@
   "sectionOrder": {
     "reset": "Reset section order",
     "dragHint": "Click to collapse or expand. Drag to move the section (or Alt+Up/Down)."
+  },
+  "linePatterns": {
+    "fence-circle": "Gjerde (sirkel)",
+    "fence-square": "Gjerde (kvadrat)",
+    "gas": "Gass",
+    "hot-water": "Varmtvann",
+    "zigzag": "Sikksakk",
+    "insulation": "Isolasjon",
+    "double": "Dobbel",
+    "tracks": "Spor",
+    "road": "Vei"
   }
 }
