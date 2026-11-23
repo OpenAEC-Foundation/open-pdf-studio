@@ -43,8 +43,13 @@ const DIST = path.join(app, 'dist');
 // 18-11-2026, ronde 20 als geheel: gehost 4221,5 KiB (gzip 1370,6). Erbij: de
 // scherpe uitsnede in de doorlopende weergave (#1163), die in het renderpad
 // zelf zit, en het slepen op getalvelden (#1168).
+// 23-11-2026, rondes 24 en 25: desktop gzip 1378,3 KiB. Erbij: de grootte en
+// het verwijderen van telgroepen in het lint, de draaiende aanhaallijn van
+// een toelichting (zit in het tekenpad), de marges bij afdrukken en twee
+// aanroepen in de plugin-API. De rechtermuisknop en de presentatieweergave
+// laden apart, na het starten.
 export const BUDGET_KB = 4230;
-export const BUDGET_GZIP_KB = 1378; // gehost 1370,6 KiB op 18-11-2026
+export const BUDGET_GZIP_KB = 1386;
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {
