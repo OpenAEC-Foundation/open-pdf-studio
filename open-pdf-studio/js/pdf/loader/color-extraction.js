@@ -919,6 +919,10 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const nr = annotDict.get(PDFName.of('OPS_CountNumber'));
         const nv = nr !== undefined ? pdfNum(context.lookup(nr) || nr) : null;
         if (nv !== null) colors.opsCountNumber = nv;
+        // Grootte van de markering (#1235).
+        const ms = annotDict.get(PDFName.of('OPS_MarkerScale'));
+        const mv = ms !== undefined ? pdfNum(context.lookup(ms) || ms) : null;
+        if (mv !== null) colors.opsMarkerScale = mv;
         for (const [sleutel, veld] of [['OPS_CountCategory', 'opsCountCategory'],
           ['OPS_CountCategoryName', 'opsCountCategoryName'],
           ['OPS_MarkerStyle', 'opsMarkerStyle'], ['OPS_SymbolId', 'opsSymbolId']]) {

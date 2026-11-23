@@ -8,7 +8,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../../../ui/panels/properties-panel.js';
-import { telGroepSleutel } from '../../../annotations/telling.js';
+import { telGroepSleutel, telSchaal, TELSCHAAL_KEUZES } from '../../../annotations/telling.js';
 import {
   countTallies, countGroups, assignCountGroup, updateCountGroup, GEEN_TELGROEP,
 } from '../../stores/countStore.js';
@@ -93,6 +93,18 @@ export default function CountGroupSection() {
                 updateCountGroup(groep().id, { color: e.target.value });
                 verversPaneel();
               }} />
+          </div>
+          <div class="property-group">
+            <label>{t('countGroup.size')}</label>
+            <select id="prop-count-group-size"
+              value={String(Math.round(telSchaal(groep()) * 100))}
+              disabled={vergrendeld()}
+              onChange={(e) => {
+                updateCountGroup(groep().id, { markerScale: Number(e.target.value) / 100 });
+                verversPaneel();
+              }}>
+              <For each={TELSCHAAL_KEUZES}>{(p) => <option value={String(p)}>{`${p}%`}</option>}</For>
+            </select>
           </div>
         </Show>
       </CollapsibleSection>

@@ -954,3 +954,4 @@ js/pdf/loader/ap-lijnkleur.test.mjs
 js/pdf/loader/tekstvak-randkleur-laden.test.mjs
 js/pdf/print-marges.test.mjs
 js/pdf/print-niet-draaien.test.mjs
+js/solid/stores/telgroep-grootte-verwijderen.test.mjs

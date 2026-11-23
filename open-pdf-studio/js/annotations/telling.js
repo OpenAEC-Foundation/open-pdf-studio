@@ -15,6 +15,19 @@ export const TELSTIP_STRAAL = 9;
 /** Halve maat van het kader van een telmarkering: stip (straal 9) of symbool (22 pt). */
 export const TELMARKERING_HALF = 11;
 
+/** De grootte van een telmarkering waaruit je kiest, in procenten (#1235). */
+export const TELSCHAAL_KEUZES = Object.freeze([50, 75, 100, 125, 150, 200, 300]);
+
+/**
+ * Hoe groot een telmarkering getekend wordt ten opzichte van de gewone maat
+ * (#1235): `markerScale`, 1 = 100 %. Zonder of met een onbruikbare waarde 1;
+ * begrensd, zodat een vreemde waarde geen vlakvullende stip wordt.
+ */
+export function telSchaal(ann) {
+  const s = Number(ann?.markerScale);
+  return Number.isFinite(s) && s > 0 ? Math.min(4, Math.max(0.25, s)) : 1;
+}
+
 /**
  * Kader van de eigen telmarkering (type 'count'), gecentreerd op (x, y).
  * Het selectiekader van het selecteergereedschap, uitlijnen en de omhullende
@@ -25,7 +38,7 @@ export const TELMARKERING_HALF = 11;
 export function tellingKader(ann) {
   const x = Number(ann?.x), y = Number(ann?.y);
   if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
-  const h = TELMARKERING_HALF;
+  const h = TELMARKERING_HALF * telSchaal(ann);
   return { x: x - h, y: y - h, width: 2 * h, height: 2 * h };
 }
 
@@ -120,6 +133,7 @@ export function telGroepen(definities, annotaties) {
         color: a.color || a.strokeColor || '#e11d48',
         markerStyle: a.markerStyle === 'symbol' ? 'symbol' : 'dot',
         ...(a.symbolId ? { symbolId: a.symbolId } : {}),
+        ...(telSchaal(a) !== 1 ? { markerScale: telSchaal(a) } : {}),
       });
     }
   }
@@ -153,6 +167,8 @@ export function telGroepVelden(groep) {
     strokeColor: groep.color,
     markerStyle: groep.markerStyle === 'symbol' && groep.symbolId ? 'symbol' : 'dot',
     symbolId: groep.symbolId,
+    // Alleen een afwijkende grootte staat op de markering (#1235).
+    markerScale: telSchaal(groep) !== 1 ? telSchaal(groep) : undefined,
   };
 }
 
