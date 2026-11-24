@@ -8,6 +8,7 @@ import {
 import { embedPngSnel } from '../embed-png-rust.js';
 import { bytesUitBase64 } from '../../annotations/afbeelding-bron.js';
 import { watermarkFont, watermarkPosition, watermarkTextPlacement, watermarkPageMatrix } from '../../watermark/watermark-layout.js';
+import { vasteResourceSleutel, zetPaginaResource, deelResourcesWeer } from './gedeelde-resources.js';
 
 const KEY = 'OPS_Watermark';
 const RESOURCES = 'OPS_WatermarkResources';
@@ -106,6 +107,12 @@ export async function writeWatermarkContent(pdf, watermarks, { known = [], pageR
       // An image that cannot be embedded is skipped; its definition stays editable.
       if (!img) continue;
     } else continue;
+    // One graphics state and fixed resource names per watermark: pages that
+    // share one /Resources dictionary (drawing sets) get each name once
+    // instead of a new random one per page, which grew the file quadratically.
+    const gsRef = pdf.context.register(pdf.context.obj({ Type: 'ExtGState', ca: wm.opacity ?? (img ? 0.2 : 0.3) }));
+    const gsKey = vasteResourceSleutel('OPSWMGS', wm.id);
+    const contentKey = vasteResourceSleutel(font ? 'OPSWMF' : 'OPSWMX', wm.id);
     const chosen = wm.pageRange === 'first' ? [1] : wm.pageRange === 'custom' && wm.customPages
       ? pageRange(wm.customPages, pages.length) : pages.map((_, i) => i + 1);
     for (const number of chosen) {
@@ -122,17 +129,17 @@ export async function writeWatermarkContent(pdf, watermarks, { known = [], pageR
       const ops = [pushGraphicsState(), concatTransformationMatrix(...watermarkPageMatrix(rotation, crop)),
         concatTransformationMatrix(Math.cos(radians), Math.sin(radians), -Math.sin(radians), Math.cos(radians), pos.x, ph - pos.y)];
       const keys = {};
-      const gs = page.node.newExtGState('WM', pdf.context.obj({ Type: 'ExtGState', ca: wm.opacity ?? (img ? 0.2 : 0.3) }));
+      const gs = zetPaginaResource(page, 'ExtGState', gsKey, gsRef);
       keys.ExtGState = gs;
       if (font) {
         const color = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(wm.color || '#ff0000');
-        keys.Font = page.node.newFontDictionary(font.name, font.ref);
+        keys.Font = zetPaginaResource(page, 'Font', contentKey, font.ref);
         // The unkerned advance: a plain Tj does not kern (watermark-layout.js).
         ops.push(...drawText(font.encodeText(placed.text), { font: keys.Font, size: placed.size, color: color ? rgb(...color.slice(1).map(v => parseInt(v, 16) / 255)) : rgb(0, 0, 0),
           x: -placed.width / 2, y: -placed.baseline,
           rotate: degrees(0), xSkew: degrees(0), ySkew: degrees(0), graphicsState: gs }));
       } else {
-        keys.XObject = page.node.newXObject('WM', img.ref);
+        keys.XObject = zetPaginaResource(page, 'XObject', contentKey, img.ref);
         ops.push(...drawImage(keys.XObject, { x: -width / 2, y: -height / 2, width, height,
           rotate: degrees(0), xSkew: degrees(0), ySkew: degrees(0), graphicsState: gs }));
       }
@@ -144,6 +151,8 @@ export async function writeWatermarkContent(pdf, watermarks, { known = [], pageR
       written.add(wm.id);
     }
   }
+  // normalize() put shared /Resources on every page as a copy.
+  deelResourcesWeer(pdf);
   const definitions = [...unknown, ...current].map(w => Object.fromEntries(FIELDS.filter(k => w[k] !== undefined).map(k => [k, w[k]])));
   if (definitions.length) pdf.catalog.set(PDFName.of(KEY), PDFHexString.fromText(JSON.stringify(definitions)));
   else pdf.catalog.delete(PDFName.of(KEY));

@@ -24,6 +24,7 @@ import { bytesUitBase64 } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
+import { deelResourcesWeer } from './saver/gedeelde-resources.js';
 import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
 import { bereidIncrementeelVoor, bouwIncrementeleUpdate, vereistVolledigeHerschrijving, herstelOngewijzigdeOutline } from './saver/incrementeel.js';
 import { schrijfDocumentgegevens } from './saver/documentgegevens-opslaan.js';
@@ -3707,6 +3708,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         console.warn('[saver] knipsel-resten opruimen overgeslagen:', err?.message || err);
       }
     }
+
+    // Elke pagina die pdf-lib aanraakte (annotaties, stempels, kop-/voetteksten)
+    // draagt een gedeeld /Resources-woordenboek nu als eigen kopie; zonder dit
+    // schrijft een tekeningenset het één keer per pagina weg.
+    deelResourcesWeer(pdfDocLib);
 
     // Alles vlakken (#615): het document zoals het opgeslagen zou worden,
     // zonder het weg te schrijven.

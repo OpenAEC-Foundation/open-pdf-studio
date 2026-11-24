@@ -966,3 +966,4 @@ js/tools/rechtermuis-pan.test.mjs
 js/annotations/link/link-bladwijzer.test.mjs
 js/plugins/pdf-links.test.mjs
 js/pdf/bitmap-orchestrator-cap.test.mjs
+js/pdf/saver/gedeelde-resources.test.mjs

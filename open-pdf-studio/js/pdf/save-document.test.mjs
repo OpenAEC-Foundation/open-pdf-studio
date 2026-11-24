@@ -39,6 +39,8 @@ function harness() {
     PDFDocument: { load: async bytes => ({ context: { largestObjectNumber: 1 }, getPages: () => [], catalog: { get: () => null },
       formCache: { getValue: () => undefined }, flush: async () => {}, save: async () => bytes }) },
     ruimOngebruikteObjectenOp() {}, ruimOngebruikteObjectenOpMetPauzes: async () => {},
+    // Geen pagina's, dus geen gedeelde /Resources (saver/gedeelde-resources.js).
+    deelResourcesWeer: () => 0,
     // Annuleren (#766, echt).
     maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING, updateStatusMessage() {},
     // Geen pagina's, dus geen annotaties om pdfBron van bij te werken (saver/bron-behoud.js).
