@@ -1,4 +1,4 @@
-import { For, Show, onMount, createSignal, createMemo } from 'solid-js';
+import { For, Show, onMount, onCleanup, createSignal, createMemo } from 'solid-js';
 import { openDialog, showMessage } from '../../../stores/dialogStore.js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
@@ -7,7 +7,6 @@ import {
   buildResultForSchedule, setConfiguringId, applyScheduleTagUpdates,
   STANDARD_SCHEDULE_TEMPLATES,
 } from '../../../stores/schedulesStore.js';
-import { initScheduleDrop, SCHEDULE_DND_MIME } from '../../../../quantities/schedule-drop.js';
 import { formatRowCell, fmtTotal, isImageCell } from '../../../../quantities/schedule-templates.js';
 import { scheduleResultToCsv } from '../../../../quantities/schedule-csv.js';
 import { saveFileDialog, writeBinaryFile, openFileDialog, readBinaryFile } from '../../../../core/platform.js';
@@ -20,8 +19,22 @@ export default function SchedulesPanel() {
   const [editingId, setEditingId] = createSignal(null);
   const [expandedId, setExpandedId] = createSignal(null);
 
-  // De drop-handler op de viewer is globaal; één keer ophangen bij mount.
-  onMount(() => initScheduleDrop());
+  // Apart geladen: het slepen en plaatsen hoort niet in de opstartbundel.
+  let lijstEl;
+  let losmaken = null;
+  let weg = false;
+  onMount(async () => {
+    const { koppelStaatSlepen } = await import('../../../../quantities/schedule-pointer-drag.js');
+    if (weg) return;
+    losmaken = koppelStaatSlepen(lijstEl, {
+      naam: (id) => schedules().find(x => x.id === id)?.name,
+      plaats: async (id, x, y) => {
+        const { placeScheduleAtPoint } = await import('../../../../quantities/schedule-drop.js');
+        placeScheduleAtPoint(id, x, y);
+      },
+    });
+  });
+  onCleanup(() => { weg = true; losmaken?.(); });
 
   // Reactief resultaat van de uitgeklapte staat: leest de (mutable) annotaties
   // en telcategorieën, dus werkt live bij toevoegen/wijzigen/verwijderen.
@@ -41,13 +54,6 @@ export default function SchedulesPanel() {
   function addBlankAndConfigure() {
     const item = addBlankSchedule(t('schedules.newName'));
     if (item) { setExpandedId(item.id); setConfiguringId(item.id); }
-  }
-
-  function onDragStart(e, s) {
-    if (!e.dataTransfer) return;
-    e.dataTransfer.effectAllowed = 'copy';
-    e.dataTransfer.setData(SCHEDULE_DND_MIME, s.id);
-    e.dataTransfer.setData('text/plain', s.name);
   }
 
   function commitRename(s, value) {
@@ -127,7 +133,7 @@ export default function SchedulesPanel() {
       </div>
 
       {/* De lijst schuift als geheel; kop en toevoegbalk blijven staan (#1155). */}
-      <div class="schedules-container">
+      <div class="schedules-container" ref={lijstEl}>
         {/* Lijst van staten */}
         <Show when={schedules().length > 0}
           fallback={<div class="measurements-empty">{t('schedules.empty')}</div>}>
@@ -135,7 +141,7 @@ export default function SchedulesPanel() {
           <For each={schedules()}>
             {(s) => (
               <div class="schedules-entry">
-                <div class="schedules-item" draggable={editingId() !== s.id} onDragStart={(e) => onDragStart(e, s)} title={t('schedules.dragHint')}>
+                <div class="schedules-item" classList={{ 'schedules-editing': editingId() === s.id }} data-schedule-id={s.id} title={t('schedules.dragHint')}>
                   <span class="schedules-grip" innerHTML={gripIcon}></span>
                   <button class="schedules-item-btn schedules-expand" title={t('schedules.preview')}
                     onClick={() => toggleExpand(s.id)}>{expandedId() === s.id ? '▾' : '▸'}</button>
@@ -154,6 +160,8 @@ export default function SchedulesPanel() {
                       }}
                     />
                   </Show>
+                  {/* Liggen over de naam: in het standaardbrede paneel laten ze anders geen ruimte over. */}
+                  <span class="schedules-actions">
                   <button class="schedules-item-btn" title={t('wizard.configure')}
                     onClick={() => setConfiguringId(s.id)}>⚙</button>
                   <button class="schedules-item-btn" title={t('schedules.exportCsv')}
@@ -164,6 +172,7 @@ export default function SchedulesPanel() {
                     onClick={() => setEditingId(s.id)}>{renameIcon}</button>
                   <button class="schedules-item-btn schedules-item-del" title={t('schedules.delete')}
                     onClick={() => { if (expandedId() === s.id) setExpandedId(null); removeSchedule(s.id); }}>&times;</button>
+                  </span>
                 </div>
 
                 {/* Inline voorbeeld-tabel met thumbnails, live bijgewerkt */}
