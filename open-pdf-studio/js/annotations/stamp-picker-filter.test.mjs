@@ -158,6 +158,8 @@ test('lintknop en gereedschapspalet komen bij dezelfde kiezer uit', () => {
     'js/annotations/stamp-template-backend.js',
     'js/solid/components/dialogs/StampPickerDialog.jsx',
     'js/solid/components/dialogs/StampTemplatesDialog.jsx',
+    // Het stempelpalet (linkerpaneel) toont dezelfde inhoud via stempelKiezerInhoud.
+    'js/solid/components/left-panel/panels/StampsPanel.jsx',
   ]);
 });
 
