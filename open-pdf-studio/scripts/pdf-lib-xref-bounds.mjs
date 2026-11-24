@@ -131,6 +131,56 @@ function actieveXRefStromen(bytes) {
   return actief;
 }
 
+// #1246: herstel alleen een lege generatie bij een in-use tabelregel.
+// De objectkop én het al gelezen object moeten de generatie bevestigen.
+// Geen algemene catch: onleesbare objecten en xref-stromen blijven fouten.
+function classicObjectGeneration(parser, objectNumber, offset) {
+  const bytes = parser.bytes.bytes;
+  if (!Number.isSafeInteger(objectNumber) || objectNumber < 0
+      || !Number.isSafeInteger(offset) || offset < 0 || offset >= bytes.length) {
+    throw new Error('Cannot recover classic XRef object');
+  }
+  let header = '';
+  for (let i = offset; i < Math.min(offset + 64, bytes.length); i++) header += String.fromCharCode(bytes[i]);
+  const match = /^(\d{1,10})[ \t\r\n]+(\d{1,5})[ \t\r\n]+obj(?=[\s<[/()%])/.exec(header);
+  if (!match || Number(match[1]) !== objectNumber || Number(match[2]) > 65535) {
+    throw new Error('Cannot recover classic XRef object header');
+  }
+  const generation = Number(match[2]);
+  const object = parser.context.lookup(PDFRef.of(objectNumber, generation));
+  if (!object || object instanceof PDFInvalidObject) throw new Error('Cannot recover unreadable classic XRef object');
+  return generation;
+}
+function recoverClassicGeneration(parser, objectNumber, offset, fieldStart) {
+  const end = parser.bytes.offset();
+  const bytes = parser.bytes.bytes;
+  // Alleen horizontale lege ruimte, gevolgd door n en het regeleinde.
+  if (end <= fieldStart || end - fieldStart > 32 || bytes[end] !== 110) {
+    throw new Error('Invalid classic XRef generation');
+  }
+  for (let i = fieldStart; i < end; i++) {
+    if (bytes[i] !== 32 && bytes[i] !== 9) throw new Error('Invalid classic XRef generation');
+  }
+  let next = end + 1;
+  while (next < end + 33 && (bytes[next] === 32 || bytes[next] === 9)) next++;
+  if (bytes[next] !== 10 && bytes[next] !== 13) throw new Error('Truncated classic XRef entry');
+  return classicObjectGeneration(parser, objectNumber, offset);
+}
+function validateRecoveredClassicXRef(parser, xref, remaining, invalidCount) {
+  if (remaining !== 0 || invalidCount) throw new Error('Incomplete recovered classic XRef table');
+  const bytes = parser.bytes.bytes;
+  const offset = parser.bytes.offset();
+  const marker = String.fromCharCode(...bytes.subarray(offset, offset + 8));
+  if (!/^trailer[\s<]/.test(marker)) throw new Error('Missing recovered classic XRef trailer');
+  for (const section of xref.subsections) {
+    for (const entry of section) {
+      if (!entry.deleted && classicObjectGeneration(parser, entry.ref.objectNumber, entry.offset) !== entry.ref.generationNumber) {
+        throw new Error('Inconsistent recovered classic XRef generation');
+      }
+    }
+  }
+}
+
 const hashes = {'PDFParser': '9b5f5cca51c6ed6456c2743229fee2961a5108585073d4779bf75de137feba88', 'PDFXRefStreamParser': 'da4193954e502cf67d3c82adf311714453ef66f73775c4a5ceeef225c5d3b9ba'};
 const pattern = /[\\/]pdf-lib[\\/]es[\\/]core[\\/]parser[\\/](PDFParser|PDFXRefStreamParser)\.js$/;
 export function patchXRefBounds(source, name) {
@@ -166,7 +216,27 @@ export function patchXRefBounds(source, name) {
       }`);
     code = vervang(code, 'e_1 = _a.sent();', `e_1 = _a.sent();
     if (e_1 && e_1.name === 'InvalidXRefStreamError') throw e_1;`);
-    return `${actieveXRefStromen.toString()}\n${code}`;
+    code = vervang(code, 'var xref = PDFCrossRefSection.createEmpty();', `var xref = PDFCrossRefSection.createEmpty();
+        var opdsRecovered = false, opdsRemaining = 0, opdsInvalidCount = false;`);
+    code = vervang(code, `var firstInt = this.parseRawInt();
+            this.skipWhitespaceAndComments();
+            var secondInt = this.parseRawInt();`, `var firstInt = this.parseRawInt();
+            var opdsFieldStart = this.bytes.offset();
+            this.skipWhitespaceAndComments();
+            var secondInt;
+            if (!IsDigit[this.bytes.peek()]) {
+                secondInt = recoverClassicGeneration(this, objectNumber, firstInt, opdsFieldStart);
+                opdsRecovered = true;
+            } else secondInt = this.parseRawInt();`);
+    code = vervang(code, 'objectNumber += 1;', `objectNumber += 1;
+                opdsRemaining -= 1;
+                if (opdsRemaining < 0) opdsInvalidCount = true;`);
+    code = vervang(code, 'objectNumber = firstInt;', `objectNumber = firstInt;
+                if (opdsRemaining !== 0 || !Number.isSafeInteger(secondInt) || secondInt < 0) opdsInvalidCount = true;
+                opdsRemaining = secondInt;`);
+    code = vervang(code, 'return xref;', `if (opdsRecovered) validateRecoveredClassicXRef(this, xref, opdsRemaining, opdsInvalidCount);
+        return xref;`);
+    return `${classicObjectGeneration.toString()}\n${recoverClassicGeneration.toString()}\n${validateRecoveredClassicXRef.toString()}\n${actieveXRefStromen.toString()}\n${code}`;
   }
   const start = source.indexOf('        this.alreadyParsed = false;');
   const end = source.indexOf('    PDFXRefStreamParser.prototype.parseIntoContext');

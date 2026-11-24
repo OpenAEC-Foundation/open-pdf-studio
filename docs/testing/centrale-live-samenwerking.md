@@ -60,3 +60,11 @@ concept zolang die kwalificatie en de installerworkflow ontbreken. Nieuwe
 labels zijn aanwezig in alle 40 talen; buiten Nederlands en Engels zijn de
 nieuwe teksten voorlopig Engels. Dit is vervolgwerk op de al gemergede
 serverbasis en momentopnamefunctie, geen volledige afronding van #1067.
+
+### Bundelcontrole bij synchronisatie op 24 november 2026
+
+De verse productiebouw op upstream `2cabd87ed` overschrijdt zelf het bestaande
+budget van 4230 KiB: 4240,7 KiB. De gesynchroniseerde live-reviewbranch meet
+4241,5 KiB. De controle blijft ongewijzigd en faalt terecht; dit is een
+aanvullende blokkade voor gereedmelding, ook wanneer de compilatie slaagt.
+De reviewdialoog en zijn services worden al bij het eerste gebruik geladen.

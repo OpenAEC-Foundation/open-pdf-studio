@@ -911,6 +911,7 @@ js/pdf/ocr-talen.test.mjs
 js/pdf/ocr-talen-i18n.test.mjs
 
 scripts/pdf-lib-xref-bounds.test.mjs
+scripts/pdf-lib-classic-xref.test.mjs
 # Xref-stroom buiten de xref-keten (werkkopie van een beveiligde PDF)
 scripts/pdf-lib-xref-wees.test.mjs
 
