@@ -125,8 +125,9 @@ export function ruimUitgesteldOp() {
 // resolution.
 //
 // For WHOLE-PAGE bitmaps the caller caps targetScale at MAX_BITMAP_AXIS_PX
-// / maxAxisPt before invoking (see bitmap-orchestrator.js:51), so this can
-// never produce a bucket large enough to blow the 4096 px PDFium cap.
+// / maxAxisPt before invoking. Rounding up can still land above that cap
+// (cap 1.22 -> bucket 2); bitmap-orchestrator.js then renders at the capped
+// scale itself instead of using the bucket.
 //
 // For TILE bitmaps the caller passes viewport.zoom * dpr unbounded. Here
 // the bucket can grow with zoom — but the tile bitmap pixel size is bounded
