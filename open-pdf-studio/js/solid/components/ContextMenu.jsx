@@ -1373,6 +1373,15 @@ function ThumbnailMenuContent() {
       <Separator />
 
       <MenuItem label={t('thumbnail.pageLabels')} onClick={() => openDialog('page-labels')} />
+      {/* Bladwijzers voor de geselecteerde pagina's, met de paginanaam als titel (#1243). */}
+      <MenuItem
+        label={isMulti() ? t('thumbnail.addBookmarksMulti', { count: count() }) : t('thumbnail.addBookmarks')}
+        disabled={isPdfAReadOnly()}
+        onClick={async () => {
+          const kies = isMulti() ? pages() : [pageNum()];
+          const { voegBladwijzersVanPaginasToe } = await import('../../pdf/bladwijzers-van-paginas.js');
+          await voegBladwijzersVanPaginasToe(kies);
+        }} />
       <MenuItem
         label={isMulti() ? t('thumbnail.setPageScaleMulti', { count: count() }) : t('thumbnail.setPageScale')}
         onClick={() => window.dispatchEvent(new CustomEvent('ops-paginaschaal-bewerk', { detail: { pageNum: pageNum() } }))} />

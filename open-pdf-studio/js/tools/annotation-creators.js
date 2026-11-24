@@ -605,6 +605,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         number: n,
         markerStyle: cat?.markerStyle || 'dot',
         symbolId: cat?.symbolId,
+        ...(cat?.markerScale && cat.markerScale !== 1 ? { markerScale: cat.markerScale } : {}),
         color: cat?.color || '#e11d48',
         strokeColor: cat?.color || '#e11d48',
         opacity: 1,

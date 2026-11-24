@@ -188,6 +188,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-tab-view-mode-browser.mjs
 
+      - name: Test right mouse button pan preference (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-right-button-pan-browser.mjs
+
       - name: Text highlight blending regression
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-highlight-blending-browser.mjs

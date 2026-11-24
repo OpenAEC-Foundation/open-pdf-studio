@@ -4,8 +4,9 @@ import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordBulkModify } from '../../core/undo-manager.js';
 import {
   telGroepen, telGroepSleutel, hernummerTellingen, volgendTelNummer, telGroepVelden, GEEN_TELGROEP,
-  volgendeTelGroepKleur, volgendeTelGroepNaam,
+  volgendeTelGroepKleur, volgendeTelGroepNaam, telSchaal,
 } from '../../annotations/telling.js';
+import { deleteAnnotationsWithUndo } from '../../annotations/mutations.js';
 import i18next from '../../i18n/config.js';
 import { language } from '../../i18n/useTranslation.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
@@ -102,6 +103,29 @@ export function removeCountCategory(id) {
   return true;
 }
 
+/**
+ * Een groep verwijderen met haar markeringen (#1235): de markeringen gaan in
+ * één ongedaan-stap weg, daarna de definitie. Vergrendelde markeringen houden
+ * de groep in stand: dan gebeurt er niets.
+ * @returns {{ok: boolean, verwijderd: number, vergrendeld: number}}
+ */
+export function deleteCountGroup(id) {
+  if (!id || id === GEEN_TELGROEP) return { ok: false, verwijderd: 0, vergrendeld: 0 };
+  const doc = getActiveDocument();
+  const leden = (doc?.annotations || []).filter(a => a.type === 'count' && a.categoryId === id);
+  const vergrendeld = leden.filter(a => a.locked).length;
+  if (vergrendeld > 0) return { ok: false, verwijderd: 0, vergrendeld };
+  if (leden.length > 0) {
+    const set = new Set(leden);
+    doc.selectedAnnotations = (doc.selectedAnnotations || []).filter(a => !set.has(a));
+    if (set.has(doc.selectedAnnotation)) doc.selectedAnnotation = null;
+    deleteAnnotationsWithUndo(doc, leden);
+  }
+  setCategories(categories().filter(c => c.id !== id));
+  if (activeCategoryId() === id) setActiveCategoryId(countGroups()[0]?.id || '');
+  return { ok: true, verwijderd: leden.length, vergrendeld: 0 };
+}
+
 /** Volgnummer voor de volgende markering in een categorie. */
 export function nextCountNumber(categoryId) {
   return volgendTelNummer(getActiveDocument()?.annotations || [], categoryId);
@@ -147,10 +171,12 @@ export function assignCountGroup(markeringen, groupId) {
  * Opmaak of naam van een hele groep wijzigen (#935): de definitie en elke
  * markering van de groep in het document, in één ongedaan-stap.
  * @param {string} groupId
- * @param {{name?: string, color?: string}} patch
+ * @param {{name?: string, color?: string, markerScale?: number}} patch
+ *   markerScale: grootte van de markering, 1 = 100 % (#1235)
  */
 export function updateCountGroup(groupId, patch) {
   if (!groupId || groupId === GEEN_TELGROEP || !patch) return;
+  if (patch.markerScale !== undefined) patch = { ...patch, markerScale: telSchaal(patch) };
   updateCountCategory(groupId, patch);
   const doc = getActiveDocument();
   const leden = (doc?.annotations || []).filter(a => a.type === 'count' && a.categoryId === groupId && !a.locked);
@@ -160,6 +186,10 @@ export function updateCountGroup(groupId, patch) {
   for (const a of leden) {
     if (patch.color) { a.color = patch.color; a.strokeColor = patch.color; }
     if (patch.name) a.categoryName = patch.name;
+    if (patch.markerScale !== undefined) {
+      if (telSchaal(patch) === 1) delete a.markerScale;
+      else a.markerScale = telSchaal(patch);
+    }
     a.modifiedAt = nu;
   }
   recordBulkModify(leden, voor);

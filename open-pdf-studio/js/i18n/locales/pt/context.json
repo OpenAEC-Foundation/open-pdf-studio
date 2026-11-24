@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Antes desta página...",
     "insertFromFileAfter": "Depois desta página...",
     "pageLabels": "Rótulos de página (gerador de nomes)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

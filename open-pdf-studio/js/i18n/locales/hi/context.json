@@ -141,6 +141,8 @@
     "insertFromFileBefore": "इस पृष्ठ से पहले...",
     "insertFromFileAfter": "इस पृष्ठ के बाद...",
     "pageLabels": "पृष्ठ लेबल (नाम निर्माता)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

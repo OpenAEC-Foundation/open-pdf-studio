@@ -1,3 +1,4 @@
+import { telSchaal } from './telling.js';
 import { geometricLinePaths } from './geometric-line-styles.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { annotationCtx } from '../ui/dom-elements.js';
@@ -179,7 +180,7 @@ function getAnnotationCenterAndSize(ann) {
       };
     case 'count':
       // Telelement: marker gecentreerd op (x, y), vaste maat.
-      return { centerX: ann.x, centerY: ann.y, width: 22, height: 22 };
+      return { centerX: ann.x, centerY: ann.y, width: 22 * telSchaal(ann), height: 22 * telSchaal(ann) };
     default: {
       const typeHandler = getAnnotationType(ann.type);
       if (typeHandler && typeHandler.getBounds) {
@@ -427,7 +428,7 @@ function raakInLijst(annotations, x, y, pageNum) {
       case 'count': {
         // Telelement: cirkelmarker (straal 9) of symbool (22 pt) rond (x, y).
         const dcx = x - ann.x, dcy = y - ann.y;
-        if (Math.sqrt(dcx * dcx + dcy * dcy) <= 11 + tol / 2) return ann;
+        if (Math.sqrt(dcx * dcx + dcy * dcy) <= 11 * telSchaal(ann) + tol / 2) return ann;
         break;
       }
       case 'comment':
@@ -801,7 +802,7 @@ export function isPointInsideAnnotation(x, y, annotation) {
 
     case 'count': {
       const dcx = x - annotation.x, dcy = y - annotation.y;
-      return Math.sqrt(dcx * dcx + dcy * dcy) <= 11;
+      return Math.sqrt(dcx * dcx + dcy * dcy) <= 11 * telSchaal(annotation);
     }
     case 'comment':
     case 'fileAttachment':

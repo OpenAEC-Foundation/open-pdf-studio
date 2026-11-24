@@ -12,7 +12,7 @@
 import { PDFName, PDFString } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
 import { hexToRgb } from './utils.js';
-import { TELSTIP_STRAAL } from '../../annotations/telling.js';
+import { TELSTIP_STRAAL, telSchaal } from '../../annotations/telling.js';
 
 const getal = (v) => String(Math.round(v * 1e4) / 1e4 || 0);
 
@@ -24,7 +24,9 @@ const getal = (v) => String(Math.round(v * 1e4) / 1e4 || 0);
  * @param {{ opacity?: number, flags?: number }} opties
  */
 export function bouwTellingDict(context, ann, X, Y, { opacity = 1, flags = 4 } = {}) {
-  const r = TELSTIP_STRAAL;
+  // De grootte van de groep (#1235) schaalt de hele markering.
+  const maat = telSchaal(ann);
+  const r = TELSTIP_STRAAL * maat;
   const cx = X(ann.x);
   const cy = Y(ann.y);
   const rect = [cx - r - 1, cy - r - 1, cx + r + 1, cy + r + 1];
@@ -40,7 +42,7 @@ export function bouwTellingDict(context, ann, X, Y, { opacity = 1, flags = 4 } =
     Contents: pdfTextString(ann.subject || ''),
     M: PDFString.fromDate(new Date()),
     F: flags,
-    BS: context.obj({ W: 1.5, S: PDFName.of('S') }),
+    BS: context.obj({ W: 1.5 * maat, S: PDFName.of('S') }),
     OPS_Subtype: PDFString.of('count'),
   });
   if (Number.isFinite(ann.number)) dict.set(PDFName.of('OPS_CountNumber'), context.obj(ann.number));
@@ -49,6 +51,7 @@ export function bouwTellingDict(context, ann, X, Y, { opacity = 1, flags = 4 } =
   if (ann.categoryId && ann.categoryName) dict.set(PDFName.of('OPS_CountCategoryName'), pdfTextString(String(ann.categoryName)));
   if (ann.markerStyle) dict.set(PDFName.of('OPS_MarkerStyle'), pdfTextString(String(ann.markerStyle)));
   if (ann.symbolId) dict.set(PDFName.of('OPS_SymbolId'), pdfTextString(String(ann.symbolId)));
+  if (maat !== 1) dict.set(PDFName.of('OPS_MarkerScale'), context.obj(maat));
 
   // Appearance in de eigen ruimte: oorsprong linksonder van /Rect.
   const k = 0.5522847498;
@@ -62,7 +65,7 @@ export function bouwTellingDict(context, ann, X, Y, { opacity = 1, flags = 4 } =
   let inhoud = `q ${kr} ${kg} ${kb} rg ${cirkel(r)}f Q\n`;
   const resources = {};
   if (ann.markerStyle !== 'symbol') {
-    inhoud += `q 1 1 1 RG 1.5 w ${cirkel(r)}S Q\n`;
+    inhoud += `q 1 1 1 RG ${getal(1.5 * maat)} w ${cirkel(r)}S Q\n`;
     const tekst = String(ann.number ?? '');
     if (tekst) {
       // Helvetica-cijfers zijn 0,556 em breed.
@@ -94,5 +97,6 @@ export function tellingUitExtra(extra, rect) {
     ...(e.opsCountCategory && e.opsCountCategoryName ? { categoryName: e.opsCountCategoryName } : {}),
     markerStyle: e.opsMarkerStyle === 'symbol' ? 'symbol' : 'dot',
     ...(e.opsSymbolId ? { symbolId: e.opsSymbolId } : {}),
+    ...(telSchaal({ markerScale: e.opsMarkerScale }) !== 1 ? { markerScale: telSchaal({ markerScale: e.opsMarkerScale }) } : {}),
   };
 }

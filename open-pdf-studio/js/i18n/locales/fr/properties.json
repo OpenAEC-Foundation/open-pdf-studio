@@ -1076,7 +1076,8 @@
     "total": "Dans ce groupe",
     "pieces": "{{count}} pcs",
     "color": "Couleur du groupe",
-    "name": "Nom du groupe"
+    "name": "Nom du groupe",
+    "size": "Taille du marqueur"
   },
   "sectionOrder": {
     "reset": "Rétablir l'ordre des sections",

@@ -141,6 +141,8 @@
     "insertFromFileBefore": "Abans d'aquesta pàgina...",
     "insertFromFileAfter": "Després d'aquesta pàgina...",
     "pageLabels": "Etiquetes de pàgina (generador de noms)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

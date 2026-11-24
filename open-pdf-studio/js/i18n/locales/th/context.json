@@ -141,6 +141,8 @@
     "insertFromFileBefore": "ก่อนหน้านี้...",
     "insertFromFileAfter": "หลังหน้านี้...",
     "pageLabels": "ป้ายชื่อหน้า (ตัวสร้างชื่อ)...",
+    "addBookmarks": "Add Bookmark for This Page",
+    "addBookmarksMulti": "Add Bookmarks for {{count}} Pages",
     "setPageScale": "Set Page Scale...",
     "setPageScaleMulti": "Set Scale of {{count}} Pages...",
     "detectPageScales": "Detect Page Scales (All Pages)",

@@ -6,9 +6,11 @@ import { getActiveDocument } from '../../../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import {
   countGroups, activeCountCategory, activeCountCategoryId, setActiveCountCategory,
-  addCountCategory, updateCountGroup,
+  addCountCategory, updateCountGroup, deleteCountGroup,
 } from '../../stores/countStore.js';
-import { volgendeTelGroepKleur } from '../../../annotations/telling.js';
+import { volgendeTelGroepKleur, TELSCHAAL_KEUZES, telSchaal } from '../../../annotations/telling.js';
+import { showConfirm } from '../../../ui/chrome/confirm-dialog.js';
+import { showMessage } from '../../stores/dialogStore.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -35,6 +37,37 @@ export default function CountGroupRibbonControls() {
     setNieuweNaam('');
   }
 
+  // De actieve groep de getypte naam geven (#1235); ook een lege groep, die
+  // in het eigenschappenpaneel niet te bereiken is.
+  function hernoem() {
+    const naam = nieuweNaam().trim();
+    const groep = activeCountCategory();
+    if (!naam || !groep) return;
+    updateCountGroup(groep.id, { name: naam });
+    setNieuweNaam('');
+    redraw();
+  }
+
+  const maatOpties = () => TELSCHAAL_KEUZES.map(p => ({ value: String(p), label: `${p}%` }));
+  const maat = () => String(Math.round(telSchaal(activeCountCategory()) * 100));
+
+  // De groep met haar markeringen verwijderen (#1235); eerst vragen als er
+  // markeringen in staan.
+  async function verwijder() {
+    const groep = activeCountCategory();
+    if (!groep) return;
+    if (groep.count > 0) {
+      const ja = await showConfirm({
+        title: t('drawing.countGroupDelete'),
+        message: t('drawing.countGroupDeleteConfirm', { name: groep.name, count: groep.count }),
+      });
+      if (!ja) return;
+    }
+    const uit = deleteCountGroup(groep.id);
+    if (!uit.ok && uit.vergrendeld > 0) showMessage(t('drawing.countGroupDeleteLocked', { name: groep.name }));
+    redraw();
+  }
+
   return (
     <RibbonButtonStack>
       <div class="ribbon-input-row" title={t('drawing.countGroupTip')}>
@@ -44,8 +77,12 @@ export default function CountGroupRibbonControls() {
           value={() => activeCountCategory()?.id || activeCountCategoryId()}
           setValue={setActiveCountCategory}
           options={opties()}
-          style={{ width: '150px' }}
+          style={{ width: '128px' }}
         />
+        <button type="button" class="ribbon-row-btn" id="count-group-delete"
+          title={t('drawing.countGroupDelete')} aria-label={t('drawing.countGroupDelete')}
+          disabled={!activeCountCategory()}
+          onClick={verwijder}>×</button>
       </div>
       <div class="ribbon-input-row">
         <label class="ribbon-input-label">{t('drawing.countGroupColor')}</label>
@@ -59,9 +96,22 @@ export default function CountGroupRibbonControls() {
             updateCountGroup(groep.id, { color: e.currentTarget.value });
             redraw();
           }} />
+        <label class="ribbon-input-label">{t('drawing.countGroupSize')}</label>
+        <PrefSelect
+          id="count-group-size"
+          value={maat}
+          setValue={(v) => {
+            const groep = activeCountCategory();
+            if (!groep) return;
+            updateCountGroup(groep.id, { markerScale: Number(v) / 100 });
+            redraw();
+          }}
+          options={maatOpties()}
+          style={{ width: '64px' }}
+        />
       </div>
       <div class="ribbon-input-row">
-        <input type="text" id="count-group-new" class="ribbon-input" style={{ width: '112px' }}
+        <input type="text" id="count-group-new" class="ribbon-input" style={{ width: '92px' }}
           placeholder={t('drawing.countGroupNew')}
           value={nieuweNaam()}
           onInput={(e) => setNieuweNaam(e.currentTarget.value)}
@@ -74,6 +124,10 @@ export default function CountGroupRibbonControls() {
           title={t('drawing.countGroupAdd')}
           disabled={!nieuweNaam().trim()}
           onClick={voegToe}>+</button>
+        <button type="button" class="ribbon-row-btn" id="count-group-rename"
+          title={t('drawing.countGroupRename')} aria-label={t('drawing.countGroupRename')}
+          disabled={!nieuweNaam().trim() || !activeCountCategory()}
+          onClick={hernoem}>✎</button>
       </div>
     </RibbonButtonStack>
   );

@@ -212,6 +212,16 @@ export default function BehaviorTab(props) {
             <span>{t('behavior.middleDoubleClickFit')}</span>
           </label>
         </div>
+        {/* De rechtermuisknop (#1241): standaard zoals altijd; wie wil, laat
+            slepen het blad verschuiven. Een klik houdt het snelmenu. */}
+        <div class="pref-row">
+          <label for="pref-right-button-drag">{t('behavior.rightButtonDrag')}</label>
+          <select id="pref-right-button-drag" value={p.rightButtonDrag[0]() === 'pan' ? 'pan' : 'menu'}
+            onChange={e => p.rightButtonDrag[1](e.target.value === 'pan' ? 'pan' : 'menu')}>
+            <option value="menu">{t('behavior.rightButtonDragMenu')}</option>
+            <option value="pan">{t('behavior.rightButtonDragPan')}</option>
+          </select>
+        </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label" title={t('behavior.handClickZoomHint')}>
             <input type="checkbox" id="pref-hand-click-zoom" checked={p.handClickZoom[0]()} onChange={e => p.handClickZoom[1](e.target.checked)} />

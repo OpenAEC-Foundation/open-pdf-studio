@@ -1,3 +1,4 @@
+import { telSchaal } from '../telling.js';
 import { tekenDocument as getActiveDocument } from './document-context.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { heeftEigenDraaipunt } from '../draaipunt.js';
@@ -114,7 +115,7 @@ export function drawSelectionHandles(ctx, annotation) {
       ctx.setLineDash([3 / sc, 3 / sc]);
       ctx.lineWidth = 1 / sc;
       ctx.beginPath();
-      ctx.arc(annotation.x, annotation.y, 14, 0, Math.PI * 2);
+      ctx.arc(annotation.x, annotation.y, 14 * telSchaal(annotation), 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
       break;
