@@ -38,6 +38,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"ribbon-annotations-list","tab":"view","labelKey":"ribbon:view.annotationsLabel"},
   {"id":"ribbon-element-visibility","tab":"view","labelKey":"ribbon:elementVisibility.buttonLabel"},
   {"id":"ribbon-annotation-layers","tab":"view","labelKey":"ribbon:annotationLayers.buttonLabel"},
+  {"id":"ribbon-drawing-toolbar","tab":"view","labelKey":"ribbon:view.drawingToolbar"},
   {"id":"ribbon-symbol-palette","tab":"view","labelKey":"ribbon:view.toolPaletteLabel"},
   {"id":"ribbon-read-aloud","tab":"view","labelKey":"ribbon:view.readAloudPause"},
   {"id":"ribbon-tags-panel","tab":"view","labelKey":"ribbon:view.tagsPanel"},
