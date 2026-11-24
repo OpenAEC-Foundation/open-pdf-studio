@@ -123,6 +123,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/pdf-lib-xref-browser.mjs
 
+      - name: Test drawing toolbar recovery (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-drawing-toolbar-browser.mjs
+
       - name: Test textbox colour and defaults (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-text-color-browser.mjs

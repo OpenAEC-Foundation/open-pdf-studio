@@ -204,6 +204,7 @@
     "annotationsList": "注釈一覧 (F11)",
     "annotationsLabel": "注釈",
     "toolPalette": "ツールパレット",
+    "drawingToolbar": "描画ツールバー",
     "toolPaletteLabel": "ツールパレット",
     "movePaletteRight": "右側に移動",
     "movePaletteLeft": "左側に移動",
