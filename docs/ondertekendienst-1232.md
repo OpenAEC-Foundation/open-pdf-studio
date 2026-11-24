@@ -1,6 +1,7 @@
 # Ter ondertekening versturen via een eigen ondertekendienst (#1232)
 
-Status: **ontwerp**, nog niets gebouwd. Dit document legt vast wat de
+Status: **ontwerp, in de wacht** (24-11-2026): er is meer informatie nodig
+voordat er gebouwd wordt. Nog niets gebouwd. Dit document legt vast wat de
 koppeling moet doen, hoe ze in de bestaande app past, wat de API van de
 dienst wel en niet toelaat, en welke beslissingen de producteigenaar moet
 nemen voordat er gebouwd wordt.
@@ -204,6 +205,19 @@ Een mislukte verzending laat de aanvraag als concept staan. Door de
 `Idempotency-Key` is opnieuw proberen veilig.
 
 ## 9. Beslissingen voor de producteigenaar
+
+**Genomen op 24-11-2026:**
+
+- A: de sleutel staat niet in de app maar bij een losse dienst op een
+  server (keuze A2). Hoe die dienst eruitziet en wie hem beheert, is nog
+  open.
+- B: alleen het bureaublad.
+- C: markeringen gaan als afgevlakte kopie mee.
+- Er is geen testinstallatie. Stap 0 (de proef) en alles vanaf stap 3
+  wachten daarop; ook stap 1 verandert door keuze A2, want de app bewaart
+  dan zelf geen sleutel.
+
+De afwegingen hieronder blijven staan als achtergrond.
 
 **A. Van wie is de verbinding?**
 De sleutel van de dienst is een beheerderssleutel: hij handelt als de
