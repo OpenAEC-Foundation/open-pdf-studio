@@ -17,6 +17,8 @@ export const LAYOUT_SLEUTELS = Object.freeze([
   'leftPanelWidth',
   'propertiesPanelVisible',
   'propertiesPanelCollapsed',
+  'propertiesPanelWidth',
+  'symbolPaletteWidth',
   'toolPaletteVisible',
   'toolPaletteMode',
   'toolPaletteFloatX',
@@ -34,6 +36,8 @@ const EXT_SLEUTEL = /^ext_[\w.-]{1,80}_(visible|mode|floatX|floatY)$/;
 
 export const PALET_MODI = Object.freeze(['docked-left', 'docked-right', 'docked-top', 'docked-bottom', 'float']);
 export const LINKER_PANEEL_MIN = 120;
+/** Smalste breedte van het eigenschappenpaneel en het symbolenpalet. */
+export const PANEEL_MIN = 160;
 export const LINKER_PANEEL_MAX = 4000;
 export const MAX_WERKRUIMTEN = 30;
 export const MAX_NAAM_LENGTE = 60;
@@ -53,6 +57,9 @@ const CONTROLE = {
   leftPanelWidth: (v) => v === null || (isGetal(v) && v >= LINKER_PANEEL_MIN && v <= LINKER_PANEEL_MAX),
   propertiesPanelVisible: isBool,
   propertiesPanelCollapsed: isBool,
+  // Versleepte breedtes (paneel-breedte.js); null = uit het stijlblad.
+  propertiesPanelWidth: (v) => v === null || (isGetal(v) && v >= PANEEL_MIN && v <= LINKER_PANEEL_MAX),
+  symbolPaletteWidth: (v) => v === null || (isGetal(v) && v >= PANEEL_MIN && v <= LINKER_PANEEL_MAX),
   toolPaletteVisible: isBool,
   toolPaletteMode: isModus,
   toolPaletteFloatX: isGetal,

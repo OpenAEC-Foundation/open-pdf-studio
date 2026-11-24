@@ -577,9 +577,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (opsLidRaw) {
         const lv = leesPdfTekst(context, opsLidRaw);
         if (lv !== undefined) colors.opsLeaderId = lv;
+        const anchor = annotDict.get(PDFName.of('OPS_LeaderAnchor'));
+        if (anchor) colors.opsLeaderAnchor = leesPdfTekst(context, anchor);
       }
       const irtRaw = annotDict.get(PDFName.of('IRT'));
       if (irtRaw) {
+        if (Number.isInteger(irtRaw.objectNumber)) colors.irtId = `${irtRaw.objectNumber}R${irtRaw.generationNumber || ''}`;
         const irt = context.lookup(irtRaw);
         if (irt && typeof irt.get === 'function') {
           const irtRectRaw = irt.get(PDFName.of('Rect'));

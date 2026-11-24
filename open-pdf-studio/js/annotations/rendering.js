@@ -1,3 +1,6 @@
+import { leaderAnchor } from './linked-leaders.js';
+export { pickAnchorSide } from './linked-leaders.js';
+import { drawInk } from './rendering/ink.js';
 import { isKleurCel } from '../quantities/kleur-cel.js';
 import { drawGeometricLine } from './geometric-line-styles.js';
 import { tekenDocument as getActiveDocument } from './rendering/document-context.js';
@@ -13,7 +16,6 @@ import { drawPolygonShape, drawCloudShape, buildPolygonPath, buildPolygonPointsP
 import { tekstvakKnipvlak } from './rendering/textbox-layout.js';
 import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from './rendering/decorations.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
-import { isGladdeInkt, inktGeometrie } from './pressure-ink.js';
 import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geometry.js';
 import { calloutLeiderKoppen } from './callout-koppen.js';
 import { koppenVan } from '../pdf/lijnkoppen.js';
@@ -311,26 +313,6 @@ function thinLw(width) {
   });
 }
 
-// Pick the textbox edge whose midpoint is closest to (kx, ky).
-// Returns { x, y, side } where side is 'top'|'right'|'bottom'|'left'.
-export function pickAnchorSide(box, kx, ky) {
-  const bx = box.x, by = box.y;
-  const bw = box.width || 150, bh = box.height || 50;
-  const candidates = [
-    { side: 'top',    x: bx + bw / 2, y: by },
-    { side: 'right',  x: bx + bw,     y: by + bh / 2 },
-    { side: 'bottom', x: bx + bw / 2, y: by + bh },
-    { side: 'left',   x: bx,          y: by + bh / 2 },
-  ];
-  let best = candidates[0];
-  let bestD = Infinity;
-  for (const c of candidates) {
-    const d = (c.x - kx) * (c.x - kx) + (c.y - ky) * (c.y - ky);
-    if (d < bestD) { bestD = d; best = c; }
-  }
-  return best;
-}
-
 // Draw a single leader on a textbox: anchor (auto-picked) -> knee -> tip,
 // with arrow or circle endpoint.
 function drawTextboxLeader(ctx, annotation, leader, strokeColor, lineWidth) {
@@ -338,7 +320,7 @@ function drawTextboxLeader(ctx, annotation, leader, strokeColor, lineWidth) {
   const tipY = leader.tipY;
   const kneeX = leader.kneeX;
   const kneeY = leader.kneeY;
-  const anchor = pickAnchorSide(annotation, kneeX, kneeY);
+  const anchor = leaderAnchor(annotation, leader);
 
   ctx.save();
   ctx.strokeStyle = strokeColor;
@@ -628,47 +610,19 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   // Alle zestien modi, met de canvasnamen (color-dodge, …) — #614.
   ctx.globalCompositeOperation = _zonderMengmodus ? 'source-over' : blendCanvasWaarde(effectiveBlendMode(annotation));
 
+  function drawLinkedLeaders() {
+    if (Array.isArray(annotation.leaders) && annotation.leaders.length > 0) {
+      const _ldrStroke = rawStrokeColor || strokeColor || '#000000';
+      const _ldrLw = thinLw(annotation.lineWidth !== undefined ? annotation.lineWidth : 1) || 1;
+      for (const leader of annotation.leaders) {
+        drawTextboxLeader(ctx, annotation, leader, _ldrStroke, _ldrLw);
+      }
+    }
+  }
+
   switch (annotation.type) {
     case 'draw':
-      ctx.strokeStyle = strokeColor;
-      // Drukgevoelige / gladde inkt (#385): gevulde omtrek bij variabele
-      // breedte, anders de gladde middellijn. De schermlijndikte (thinLw)
-      // schaalt de hele streek mee.
-      if (isGladdeInkt(annotation)) {
-        const eigen = annotation.lineWidth > 0 ? annotation.lineWidth : 0;
-        const geo = inktGeometrie(annotation, { breedteFactor: eigen ? lw / eigen : 1 });
-        if (geo.variabel) {
-          ctx.fillStyle = strokeColor;
-          ctx.beginPath();
-          for (const ring of geo.ringen) {
-            ring.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-            ctx.closePath();
-          }
-          ctx.fill('nonzero');
-        } else if (geo.punten.length > 1) {
-          applyBorderStyle(ctx, annotation.borderStyle);
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          ctx.beginPath();
-          geo.punten.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
-          ctx.stroke();
-          ctx.setLineDash([]);
-        }
-        break;
-      }
-      applyBorderStyle(ctx, annotation.borderStyle);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      annotation.path.forEach((point, index) => {
-        if (index === 0) {
-          ctx.moveTo(point.x, point.y);
-        } else {
-          ctx.lineTo(point.x, point.y);
-        }
-      });
-      ctx.stroke();
-      ctx.setLineDash([]);
+      drawInk(ctx, annotation, strokeColor, lw);
       break;
 
     case 'highlight':
@@ -1356,17 +1310,11 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       if (!tekstInEditor(annotation)) drawTextboxContent(ctx, annotation);
       ctx.restore();
 
-      // Draw leaders (multi-leader generalisation of callout)
-      if (Array.isArray(annotation.leaders) && annotation.leaders.length > 0) {
-        const _ldrStroke = rawStrokeColor || strokeColor || '#000000';
-        const _ldrLw = thinLw(annotation.lineWidth !== undefined ? annotation.lineWidth : 1) || 1;
-        for (const leader of annotation.leaders) {
-          drawTextboxLeader(ctx, annotation, leader, _ldrStroke, _ldrLw);
-        }
-      }
+      drawLinkedLeaders();
       break;
 
     case 'callout':
+      drawLinkedLeaders();
       // Draw callout annotation (text box with two-segment leader line)
       const coWidth = annotation.width || 150;
       const coHeight = annotation.height || 50;

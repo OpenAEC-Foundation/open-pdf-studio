@@ -3696,7 +3696,9 @@
   cursor: pointer;
   font-size: 12px;
   font-weight: 400;
-  color: inherit;
+  /* Not `inherit`: the dialog sets no text colour, so the inactive tab took
+     the page's default black and was unreadable on a dark theme. */
+  color: var(--theme-text, #333);
 }
 
 .calibration-tab.active {
@@ -3747,11 +3749,29 @@
 }
 
 .calibration-select {
-  padding: 4px;
+  padding: 4px 24px 4px 6px;
   border: 1px solid var(--theme-border, #acacac);
   border-radius: 0;
   font-size: 12px;
-  background: var(--theme-surface, #fff);
+  background-color: var(--theme-surface, #fff);
+  color: var(--theme-text, #333);
+  cursor: pointer;
+  /* WebKitGTK draws a native <select> with its own light background but
+     keeps the theme's text colour: light text on white on a dark theme.
+     Same fix as .new-doc-select: custom rendering with a drawn arrow. */
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--theme-text, #333) 50%),
+    linear-gradient(135deg, var(--theme-text, #333) 50%, transparent 50%);
+  background-position: calc(100% - 14px) center, calc(100% - 9px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.calibration-select option,
+.calibration-select optgroup {
+  background-color: var(--theme-surface, #fff);
   color: var(--theme-text, #333);
 }
 

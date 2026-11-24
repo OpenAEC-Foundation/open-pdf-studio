@@ -1,3 +1,5 @@
+import { leaderAnchor } from '../annotations/linked-leaders.js';
+import { inkStrokes } from '../annotations/ink-strokes.js';
 import { buildGeometricLineAP } from './saver/appearance-vectors.js';
 import { hasPageRotations, rotationRenderCopy } from './saver/rotation-render-copy.js';
 import { isShxTextDictionary } from './shx-text.js';
@@ -24,6 +26,7 @@ import { bytesUitBase64 } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
+import { deelResourcesWeer } from './saver/gedeelde-resources.js';
 import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
 import { bereidIncrementeelVoor, bouwIncrementeleUpdate, vereistVolledigeHerschrijving, herstelOngewijzigdeOutline } from './saver/incrementeel.js';
 import { schrijfDocumentgegevens } from './saver/documentgegevens-opslaan.js';
@@ -1110,23 +1113,22 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
           case 'draw': {
             // Ink annotation (freehand drawing)
-            if (!ann.path || ann.path.length < 2) continue;
+            if (!ann.path?.length) continue;
 
-            const inkList = [];
-            for (const pt of ann.path) {
-              inkList.push(convertX(pt.x));
-              inkList.push(convertY(pt.y));
-            }
-
-            // Calculate bounding rect
+            const strokes = inkStrokes(ann);
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-            for (let i = 0; i < inkList.length; i += 2) {
-              minX = Math.min(minX, inkList[i]);
-              maxX = Math.max(maxX, inkList[i]);
-              minY = Math.min(minY, inkList[i + 1]);
-              maxY = Math.max(maxY, inkList[i + 1]);
-            }
-
+            const inkLists = strokes.map(stroke => {
+              const coords = [];
+              for (const pt of stroke.path) {
+                const x = convertX(pt.x), y = convertY(pt.y);
+                coords.push(x, y);
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+              }
+              return coords;
+            });
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
             const inkDict = {
@@ -1137,7 +1139,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 const pad = borderWidth + (isGladdeInkt(ann) ? 1 : 0);
                 return [minX - pad, minY - pad, maxX + pad, maxY + pad];
               })(),
-              InkList: [inkList],
+              InkList: inkLists,
               C: strokeColorArr,
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
@@ -1153,12 +1155,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // tekent de gladde streek met variabele breedte als gevuld vlak.
             // De druk per punt, de minimale breedte en de gladheid gaan in
             // eigen sleutels mee, zodat de streek na heropenen bewerkbaar blijft.
-            Object.assign(inkDict, inktSleutels(ann));
+            Object.assign(inkDict, inktSleutels(strokes[0]));
 
             annotDict = context.obj(inkDict);
-            if (isGladdeInkt(ann)) {
+            if (strokes.length > 1 || ann.path.length === 1 || isGladdeInkt(ann)) {
+              const rgb = hexToRgb(ann.strokeColor || ann.color || '#000000');
               attachVectorAP(context, annotDict, {
-                content: inktAppearanceInhoud(ann, convertX, convertY, hexToRgb(ann.strokeColor || ann.color || '#000000')),
+                content: strokes.map(stroke => inktAppearanceInhoud(stroke, convertX, convertY, rgb)).join(''),
               }, inkDict.Rect);
             }
             break;
@@ -3520,28 +3523,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
         // Textbox leaders: emit one PolyLine annotation per leader, linked
         // back to the textbox via /IRT for round-trip support.
-        if (parentAnnotRef && ann.type === 'textbox' &&
+        if (parentAnnotRef && (ann.type === 'textbox' || ann.type === 'callout') &&
             Array.isArray(ann.leaders) && ann.leaders.length > 0) {
-          const _bw = ann.width || 150;
-          const _bh = ann.height || 50;
-          const _box = { x: ann.x, y: ann.y, width: _bw, height: _bh };
           const _lwLdr = (ann.lineWidth !== undefined ? ann.lineWidth : 1) || 1; // zoals het scherm (drawTextboxLeader)
           const _strokeArr = ann.strokeColor && hasStroke(ann.strokeColor)
             ? hexToColorArray(ann.strokeColor)
             : (ann.color ? hexToColorArray(ann.color) : [0, 0, 0]);
           for (const leader of ann.leaders) {
-            // Pick anchor side (top/right/bottom/left midpoint nearest knee) — same as renderer
-            const cs = [
-              { x: _box.x + _bw / 2, y: _box.y },
-              { x: _box.x + _bw,     y: _box.y + _bh / 2 },
-              { x: _box.x + _bw / 2, y: _box.y + _bh },
-              { x: _box.x,           y: _box.y + _bh / 2 },
-            ];
-            let aBest = cs[0], bestD = Infinity;
-            for (const c of cs) {
-              const d = (c.x - leader.kneeX) * (c.x - leader.kneeX) + (c.y - leader.kneeY) * (c.y - leader.kneeY);
-              if (d < bestD) { bestD = d; aBest = c; }
-            }
+            const aBest = leaderAnchor(ann, leader);
             const aPdf = [convertX(aBest.x), convertY(aBest.y)];
             const kPdf = [convertX(leader.kneeX), convertY(leader.kneeY)];
             const tPdf = [convertX(leader.tipX), convertY(leader.tipY)];
@@ -3563,6 +3552,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('textboxLeader'),
               OPS_LeaderId: pdfTextString(leader.id || ''),
+              ...(leader.anchorNode && { OPS_LeaderAnchor: pdfTextString(leader.anchorNode) }),
             });
             ldrDict.set(PDFName.of('LE'), context.obj([PDFName.of('None'), PDFName.of(endStyle)]));
             ldrDict.set(PDFName.of('IRT'), parentAnnotRef);
@@ -3707,6 +3697,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         console.warn('[saver] knipsel-resten opruimen overgeslagen:', err?.message || err);
       }
     }
+
+    // Elke pagina die pdf-lib aanraakte (annotaties, stempels, kop-/voetteksten)
+    // draagt een gedeeld /Resources-woordenboek nu als eigen kopie; zonder dit
+    // schrijft een tekeningenset het één keer per pagina weg.
+    deelResourcesWeer(pdfDocLib);
 
     // Alles vlakken (#615): het document zoals het opgeslagen zou worden,
     // zonder het weg te schrijven.

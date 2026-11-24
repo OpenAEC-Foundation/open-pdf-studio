@@ -90,7 +90,9 @@ export interface LineAnnotation extends AnnotationBase {
 
 export interface DrawAnnotation extends AnnotationBase {
   path: Point[];
-  /** Pen pressure 0..1 per point of path (pen strokes only, #385). */
+  /** Offsets in path of the second and subsequent strokes of compound ink. */
+  strokeStarts?: number[];
+  /** Pen pressure 0..1 per point of the first stroke (pen strokes only, #385). */
   pressures?: number[];
   /** Width at pressure 0, in percent of lineWidth (5..100). */
   inkMinWidth?: number;
@@ -116,6 +118,7 @@ export interface TextAnnotation extends AnnotationBase {
 }
 
 export interface Leader {
+  anchorNode?: string;
   id: string;
   tipX: number;
   tipY: number;
@@ -133,10 +136,7 @@ export interface TextboxAnnotation extends RectAnnotation {
   leaders?: Leader[];
 }
 
-export interface CalloutAnnotation extends RectAnnotation {
-  text?: string;
-  fontSize?: number;
-  fontFamily?: string;
+export interface CalloutAnnotation extends TextboxAnnotation {
   arrowX?: number;
   arrowY?: number;
   kneeX?: number;

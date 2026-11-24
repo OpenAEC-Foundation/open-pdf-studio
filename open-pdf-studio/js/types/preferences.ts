@@ -306,6 +306,8 @@ export interface Preferences {
   leftPanelTab: string;
   leftPanelWidth: number | null;
   propertiesPanelCollapsed: boolean;
+  propertiesPanelWidth: number | null;
+  symbolPaletteWidth: number | null;
   workspaces: Array<{ naam: string; layout: Record<string, unknown> }>;
   activeWorkspace: string;
   propertiesPanelVisible: boolean;

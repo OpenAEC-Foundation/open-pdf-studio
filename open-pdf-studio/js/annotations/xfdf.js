@@ -1,3 +1,6 @@
+import { leaderAnchor } from './linked-leaders.js';
+import { calloutLeider, calloutPunt } from './callout-draaien.js';
+import { inkStrokes, inkPathFromStrokes } from './ink-strokes.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { createAnnotation, cloneAnnotation } from './factory.js';
 import { recordBulkAdd, recordBulkModify, beginUndoTransaction, endUndoTransaction } from '../core/undo-manager.js';
@@ -209,7 +212,7 @@ export function parseXfdfDocument(xml) {
       const xfdfName = el.getAttribute('name');
       if (xfdfName) {
         ann.id = xfdfName;
-        if (ann.type === 'textbox') textboxByName.set(xfdfName, ann);
+        if (ann.type === 'textbox' || ann.type === 'callout') textboxByName.set(xfdfName, ann);
       }
       items.push({ ann, layer: el.getAttribute('opslayer'), naam: xfdfName || null });
     }
@@ -230,6 +233,7 @@ export function parseXfdfDocument(xml) {
     if (!Array.isArray(parent.leaders)) parent.leaders = [];
     parent.leaders.push({
       id: el.getAttribute('leaderid') || (Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
+      ...(el.getAttribute('opsanchor') && { anchorNode: el.getAttribute('opsanchor') }),
       kneeX: pts[Math.max(0, pts.length - 2)].x,
       kneeY: pts[Math.max(0, pts.length - 2)].y,
       tipX: pts[pts.length - 1].x,
@@ -309,9 +313,12 @@ function annotationToXFDF(ann, doc = getActiveDocument(), names = false) {
 
     case 'draw':
       if (!ann.path || ann.path.length < 2) return '';
-      const inkPoints = ann.path.map(p => `${p.x},${p.y}`).join(';');
+      const gestures = inkStrokes(ann).map(({ path }) => {
+        const points = path.map(p => `${p.x},${p.y}`).join(';');
+        return `<gesture>${points}</gesture>`;
+      }).join('');
       return `    <ink ${attrs} color="${colorToXFDF(ann.strokeColor || ann.color)}" width="${ann.lineWidth ?? 2}">\n` +
-             `      <inklist><gesture>${inkPoints}</gesture></inklist>\n` +
+             `      <inklist>${gestures}</inklist>\n` +
              `      <contents>${escapeXml(ann.subject || '')}</contents>\n` +
              `    </ink>\n`;
 
@@ -323,20 +330,29 @@ function annotationToXFDF(ann, doc = getActiveDocument(), names = false) {
 
     case 'textbox':
     case 'callout': {
-      let out = `    <freetext ${attrs}${randkleurAttribuut(ann)}` +
+      let callout = '';
+      if (ann.type === 'callout') {
+        const tip = calloutPunt(ann);
+        const line = calloutLeider(ann, ann._leaderVertical);
+        const coords = [tip.x, tip.y, ann.kneeX ?? line.kneeX, ann.kneeY ?? line.kneeY,
+          ann.armOriginX ?? line.armOriginX, ann.armOriginY ?? line.armOriginY];
+        callout = ` intent="FreeTextCallout" callout="${coords.join(',')}" rotation="${Number(ann.rotation) || 0}"`;
+      }
+      let out = `    <freetext ${attrs}${callout}${randkleurAttribuut(ann)}` +
              (ann.fillColor ? ` interior-color="${colorToXFDF(ann.fillColor)}"` : '') +
              ` fontsize="${ann.fontSize || 14}"${names ? '' : ` name="${escapeXml(ann.id)}"`}>\n` +
              `      <contents>${escapeXml(ann.text || '')}</contents>\n` +
              `    </freetext>\n`;
-      if (ann.type === 'textbox' && Array.isArray(ann.leaders)) {
+      if (Array.isArray(ann.leaders)) {
         for (const l of ann.leaders) {
-          // Approximate anchor at knee (renderer recomputes side on load anyway)
-          const verts = `${l.kneeX},${l.kneeY};${l.kneeX},${l.kneeY};${l.tipX},${l.tipY}`;
-          const xs = [l.kneeX, l.tipX]; const ys = [l.kneeY, l.tipY];
+          const anchor = leaderAnchor(ann, l);
+          const verts = `${anchor.x},${anchor.y};${l.kneeX},${l.kneeY};${l.tipX},${l.tipY}`;
+          const xs = [anchor.x, l.kneeX, l.tipX]; const ys = [anchor.y, l.kneeY, l.tipY];
           const r = `${Math.min(...xs)},${Math.min(...ys)},${Math.max(...xs)},${Math.max(...ys)}`;
           out += `    <polyline page="${ann.page - 1}" rect="${r}" inreplyto="${escapeXml(ann.id)}"` +
                  ` color="${colorToXFDF(colorWithoutStroke(ann))}"` +
                  ` width="${ann.lineWidth ?? 1}" head="None" tail="${l.endStyle === 'circle' ? 'Circle' : 'OpenArrow'}"` +
+                 (l.anchorNode ? ` opsanchor="${escapeXml(l.anchorNode)}"` : '') +
                  ` opstype="textboxLeader" leaderid="${escapeXml(l.id)}">\n` +
                  `      <vertices>${verts}</vertices>\n` +
                  `    </polyline>\n`;
@@ -482,15 +498,24 @@ function xfdfElementToAnnotation(el) {
       return createAnnotation({ ...baseProps, type: isArrow ? 'arrow' : 'line', startX: start[0], startY: start[1], endX: end[0], endY: end[1], color, strokeColor: color, lineWidth: width, startHead: head, endHead: tail, subject: contents, replies: replies.length > 0 ? replies : undefined });
     }
     case 'ink': {
-      const gesture = el.querySelector('gesture')?.textContent || '';
-      const path = gesture.split(';').map(p => { const [x, y] = p.split(',').map(Number); return { x, y }; }).filter(p => !isNaN(p.x));
-      if (path.length < 2) return null;
-      return createAnnotation({ ...baseProps, type: 'draw', path, color, strokeColor: color, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
+      const strokes = Array.from(el.querySelectorAll('gesture'), gesture =>
+        gesture.textContent.split(';').map(pair => {
+          const [x, y] = pair.split(',').map(Number);
+          return { x, y };
+        }).filter(p => Number.isFinite(p.x) && Number.isFinite(p.y)));
+      const ink = inkPathFromStrokes(strokes);
+      if (ink.path.length < 2) return null;
+      return createAnnotation({ ...baseProps, type: 'draw', ...ink, color, strokeColor: color, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
     }
     case 'text':
       return createAnnotation({ ...baseProps, type: 'comment', x: rect.x, y: rect.y, width: 24, height: 24, text: contents, color, fillColor: color, icon: el.getAttribute('icon') || 'comment', replies: replies.length > 0 ? replies : undefined });
-    case 'freetext':
-      return createAnnotation({ ...baseProps, type: 'textbox', x: rect.x, y: rect.y, width: rect.w, height: rect.h, text: contents, color, strokeColor: randkleur('textbox'), fillColor: interiorColor || '#FFFFD0', fontSize: parseInt(el.getAttribute('fontsize')) || 14, textColor: '#000000', replies: replies.length > 0 ? replies : undefined });
+    case 'freetext': {
+      const coords = (el.getAttribute('callout') || '').split(',').map(Number);
+      const callout = el.getAttribute('intent') === 'FreeTextCallout' && coords.length === 6 && coords.every(Number.isFinite);
+      const [arrowX, arrowY, kneeX, kneeY, armOriginX, armOriginY] = coords;
+      return createAnnotation({ ...baseProps, type: callout ? 'callout' : 'textbox',
+        ...(callout && { arrowX, arrowY, kneeX, kneeY, armOriginX, armOriginY, rotation: Number(el.getAttribute('rotation')) || 0 }), x: rect.x, y: rect.y, width: rect.w, height: rect.h, text: contents, color, strokeColor: randkleur('textbox'), fillColor: interiorColor || '#FFFFD0', fontSize: parseInt(el.getAttribute('fontsize')) || 14, textColor: '#000000', replies: replies.length > 0 ? replies : undefined });
+    }
     case 'stamp':
       return createAnnotation({ ...baseProps, type: 'stamp', x: rect.x, y: rect.y, width: rect.w, height: rect.h, stampName: el.getAttribute('icon') || 'Draft', stampText: contents, color: color || '#ef4444', stampColor: color || '#ef4444', replies: replies.length > 0 ? replies : undefined });
     default:

@@ -435,6 +435,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   leftPanelTab: 'thumbnails',
   leftPanelWidth: null,
   propertiesPanelCollapsed: false,
+  // Versleepte breedte van het eigenschappenpaneel en het symbolenpalet;
+  // null = de breedte uit het stijlblad (ui/panels/paneel-breedte.js).
+  propertiesPanelWidth: null,
+  symbolPaletteWidth: null,
   // Werkruimten met een naam: [{ naam, layout }], en de laatst gekozen.
   workspaces: [],
   activeWorkspace: '',

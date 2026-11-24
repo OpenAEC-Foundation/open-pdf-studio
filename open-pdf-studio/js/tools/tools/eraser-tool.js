@@ -1,3 +1,4 @@
+import { inkStrokes } from '../../annotations/ink-strokes.js';
 import { getActiveDocument } from '../../core/state.js';
 import { execute } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
@@ -38,7 +39,7 @@ function _eraseHitsAt(ctx, x0, y0, x1, y1) {
     // NOTE: like findAnnotationAt's 'draw' case, the raw path is tested
     // (rotation-parity with the existing selection hit-test).
     const tol = baseTol + (ann.lineWidth || 2) / 2;
-    if (!eraserHitsPath(x0, y0, x1, y1, ann.path, tol)) continue;
+    if (!inkStrokes(ann).some(stroke => eraserHitsPath(x0, y0, x1, y1, stroke.path, tol))) continue;
 
     _stroke.items.push({
       annotation: cloneAnnotation(ann),

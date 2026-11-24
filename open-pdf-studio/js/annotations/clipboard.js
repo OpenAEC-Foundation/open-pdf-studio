@@ -288,17 +288,7 @@ export function pasteAnnotation({ bijMuis = true } = {}) {
   // met 20 pt (1280 px bij 6400 %) buiten beeld.
   state._pasteSeq = (state._pasteSeq || 0) + 1;
   const off = plakVerschuivingPt(state._pasteSeq, getEffectiveScale());
-  if (newAnnotation.x !== undefined) newAnnotation.x += off;
-  if (newAnnotation.y !== undefined) newAnnotation.y += off;
-  if (newAnnotation.startX !== undefined) newAnnotation.startX += off;
-  if (newAnnotation.startY !== undefined) newAnnotation.startY += off;
-  if (newAnnotation.endX !== undefined) newAnnotation.endX += off;
-  if (newAnnotation.endY !== undefined) newAnnotation.endY += off;
-  if (newAnnotation.centerX !== undefined) newAnnotation.centerX += off;
-  if (newAnnotation.centerY !== undefined) newAnnotation.centerY += off;
-  if (newAnnotation.path) {
-    newAnnotation.path = newAnnotation.path.map(p => ({ x: p.x + off, y: p.y + off }));
-  }
+  applyMoveRigid(newAnnotation, off, off);
 
   // Update page, id, and timestamps
   newAnnotation.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
@@ -379,18 +369,7 @@ export function pasteAnnotations() {
   for (const source of state.clipboardAnnotations) {
     const newAnn = cloneAnnotation(source);
 
-    // Offset position
-    if (newAnn.x !== undefined) newAnn.x += off;
-    if (newAnn.y !== undefined) newAnn.y += off;
-    if (newAnn.startX !== undefined) newAnn.startX += off;
-    if (newAnn.startY !== undefined) newAnn.startY += off;
-    if (newAnn.endX !== undefined) newAnn.endX += off;
-    if (newAnn.endY !== undefined) newAnn.endY += off;
-    if (newAnn.centerX !== undefined) newAnn.centerX += off;
-    if (newAnn.centerY !== undefined) newAnn.centerY += off;
-    if (newAnn.path) {
-      newAnn.path = newAnn.path.map(p => ({ x: p.x + off, y: p.y + off }));
-    }
+    applyMoveRigid(newAnn, off, off);
 
     newAnn.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
     newAnn.page = getActiveDocument()?.currentPage || 1;
