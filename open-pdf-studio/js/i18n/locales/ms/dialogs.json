@@ -528,6 +528,8 @@
     "lowerLeft": "Sudut kiri bawah halaman",
     "underlay": "Ambil daripada lukisan asas",
     "clear": "Kosongkan titik sifar",
+    "valuesTitle": "Nilai titik sifar (dalam unit ukuran)",
+    "apply": "Gunakan nilai",
     "hint": "Label koordinat sedia ada pada halaman ini dikemas kini; yang baharu menggunakan titik sifar."
   },
   "calibration": {

@@ -21,7 +21,7 @@ test('yUp uit: y blijft omlaag vanaf het nulpunt', () => {
 });
 
 test('linksonder van een pagina van 800 hoog', () => {
-  assert.deepEqual(nulpuntLinksonder(800), { x: 0, y: 800, yUp: true });
+  assert.deepEqual(nulpuntLinksonder(800), { x: 0, y: 800, yUp: true, wx: 0, wy: 0 });
   assert.equal(nulpuntLinksonder(0), null);
 });
 
@@ -29,11 +29,11 @@ test('ongeldige nulpunten worden genegeerd', () => {
   assert.equal(normaliseerNulpunt({ x: NaN, y: 1 }), null);
   assert.equal(normaliseerNulpunt(null), null);
   assert.equal(paginaNulpunt({ coordOrigins: { 2: { x: 1, y: 2 } } }, 1), null);
-  assert.deepEqual(paginaNulpunt({ coordOrigins: { 2: { x: 1, y: 2 } } }, 2), { x: 1, y: 2, yUp: true });
+  assert.deepEqual(paginaNulpunt({ coordOrigins: { 2: { x: 1, y: 2 } } }, 2), { x: 1, y: 2, yUp: true, wx: 0, wy: 0 });
 });
 
 test('JSON in het bestand en terug', () => {
-  const n = { x: 12.5, y: 700, yUp: true };
+  const n = { x: 12.5, y: 700, yUp: true, wx: 0, wy: 0 };
   assert.deepEqual(nulpuntUitJson(nulpuntNaarJson(n)), n);
   assert.equal(nulpuntUitJson('kapot'), null);
   assert.equal(nulpuntNaarJson(null), null);
@@ -41,7 +41,7 @@ test('JSON in het bestand en terug', () => {
 
 test('het nulpunt van de onderlegger komt uit de eerste viewport met een model', () => {
   const n = nulpuntUitOnderlegger([{}, { modelNulpunt: { x: 5, y: 6 } }]);
-  assert.deepEqual(n, { x: 5, y: 6, yUp: true });
+  assert.deepEqual(n, { x: 5, y: 6, yUp: true, wx: 0, wy: 0 });
   assert.equal(nulpuntUitOnderlegger([{ heeftModelMatrix: true }]), null);
   assert.equal(nulpuntUitOnderlegger(undefined), null);
 });
@@ -69,7 +69,29 @@ test('het nulpunt reist mee in het bestand', async () => {
   schrijfNulpunt(doc.getPage(1), { x: 10, y: 790, yUp: true });
   const bytes = await doc.save();
   const terug = leesNulpunten(await PDFDocument.load(bytes));
-  assert.deepEqual(terug, { 2: { x: 10, y: 790, yUp: true } });
+  assert.deepEqual(terug, { 2: { x: 10, y: 790, yUp: true, wx: 0, wy: 0 } });
   schrijfNulpunt(doc.getPage(1), null);
   assert.deepEqual(leesNulpunten(await PDFDocument.load(await doc.save())), {});
+});
+
+test('het nulpunt kan een eigen waarde hebben, zoals een RD-coördinaat', async () => {
+  const { spotCoordTekst } = await import('./spot-coord.js');
+  const schaal = { pixelsPerUnit: 1, unit: 'mm' };
+  const n = normaliseerNulpunt({ x: 10, y: 200, yUp: true, wx: 150000, wy: 450000 });
+  assert.equal(n.wx, 150000);
+  // Het punt zelf krijgt de waarde van het nulpunt, 100 pt verder is 100 mm meer.
+  assert.match(spotCoordTekst(10, 200, schaal, n), /X 150000.*Y 450000 mm/);
+  assert.match(spotCoordTekst(110, 150, schaal, n), /X 150100.*Y 450050 mm/);
+  // Zonder waarden is het (0, 0), zoals voorheen.
+  assert.equal(normaliseerNulpunt({ x: 1, y: 2 }).wy, 0);
+  assert.deepEqual(nulpuntUitJson(nulpuntNaarJson(n)), n);
+});
+
+test('grote waarden behouden hun decimalen', async () => {
+  const { spotCoordTekst } = await import('./spot-coord.js');
+  const n = normaliseerNulpunt({ x: 0, y: 100, yUp: true, wx: 150000.5, wy: 450000 });
+  // 457.077 mm verder dan 150000.5: 150457.58, niet 150458.
+  assert.match(spotCoordTekst(457.0773, 100, { pixelsPerUnit: 1, unit: 'mm' }, n), /X 150457[.,]58/);
+  // Kleine waarden blijven op zes significante cijfers.
+  assert.match(spotCoordTekst(457.0773286, 282.6397, { pixelsPerUnit: 1, unit: 'mm' }), /X 457[.,]077/);
 });

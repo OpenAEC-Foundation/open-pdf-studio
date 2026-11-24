@@ -528,6 +528,8 @@
     "lowerLeft": "Levý dolní roh stránky",
     "underlay": "Převzít z podkladu",
     "clear": "Zrušit počátek",
+    "valuesTitle": "Hodnota počátku (v měrných jednotkách)",
+    "apply": "Použít hodnoty",
     "hint": "Stávající popisky souřadnic na stránce se aktualizují; nové použijí počátek."
   },
   "calibration": {

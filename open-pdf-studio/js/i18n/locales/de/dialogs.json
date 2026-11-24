@@ -528,6 +528,8 @@
     "lowerLeft": "Linke untere Ecke der Seite",
     "underlay": "Von der Unterlage übernehmen",
     "clear": "Nullpunkt löschen",
+    "valuesTitle": "Wert des Nullpunkts (in Maßeinheiten)",
+    "apply": "Werte anwenden",
     "hint": "Vorhandene Koordinatenbeschriftungen dieser Seite werden aktualisiert; neue nutzen den Nullpunkt."
   },
   "calibration": {

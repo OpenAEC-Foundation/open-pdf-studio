@@ -528,6 +528,8 @@
     "lowerLeft": "Sudut kiri bawah halaman",
     "underlay": "Ambil dari gambar dasar",
     "clear": "Hapus titik nol",
+    "valuesTitle": "Nilai titik nol (dalam satuan ukur)",
+    "apply": "Terapkan nilai",
     "hint": "Label koordinat yang ada di halaman ini diperbarui; yang baru memakai titik nol."
   },
   "calibration": {

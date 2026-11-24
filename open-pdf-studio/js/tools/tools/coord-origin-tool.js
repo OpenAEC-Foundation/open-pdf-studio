@@ -4,7 +4,7 @@
  * worden bijgewerkt en nieuwe labels tellen er meteen vanaf.
  */
 import { getActiveDocument } from '../../core/state.js';
-import { zetPaginaNulpunt } from '../../annotations/coord-nulpunt-app.js';
+import { zetPaginaNulpunt, volgendeNulpuntWaarde } from '../../annotations/coord-nulpunt-app.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import i18next from '../../i18n/config.js';
 
@@ -23,7 +23,7 @@ export const coordOriginTool = {
     const py = snap.snapped ? snap.y : ctx.y;
     const doc = getActiveDocument();
     const page = ctx.pageNum || doc?.currentPage || 1;
-    zetPaginaNulpunt(page, { x: px, y: py, yUp: true });
+    zetPaginaNulpunt(page, { x: px, y: py, yUp: true, ...volgendeNulpuntWaarde() });
     ctx.redraw();
     import('../manager.js').then((m) => m.setTool('select'));
   },

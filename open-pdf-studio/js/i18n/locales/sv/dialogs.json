@@ -528,6 +528,8 @@
     "lowerLeft": "Nedre vänstra hörnet av sidan",
     "underlay": "Ta över från underlaget",
     "clear": "Ta bort nollpunkt",
+    "valuesTitle": "Nollpunktens värde (i måttenheter)",
+    "apply": "Använd värden",
     "hint": "Befintliga koordinatetiketter på sidan uppdateras; nya använder nollpunkten."
   },
   "calibration": {

@@ -514,6 +514,8 @@
     "lowerLeft": "Linkeronderhoek van de pagina",
     "underlay": "Overnemen van de onderlegger",
     "clear": "Nulpunt wissen",
+    "valuesTitle": "Waarde van het nulpunt (in meeteenheden)",
+    "apply": "Waarden toepassen",
     "hint": "Bestaande coördinaatlabels op dit blad worden bijgewerkt; nieuwe gebruiken het nulpunt."
   },
   "calibration": {

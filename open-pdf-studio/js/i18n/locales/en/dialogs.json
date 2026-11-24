@@ -533,6 +533,8 @@
     "lowerLeft": "Lower-left corner of the page",
     "underlay": "Take over from the underlay",
     "clear": "Clear origin",
+    "valuesTitle": "Value of the origin (in measuring units)",
+    "apply": "Apply values",
     "hint": "Existing coordinate labels on this page are updated; new ones use the origin."
   },
   "calibration": {

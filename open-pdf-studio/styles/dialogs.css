@@ -7208,3 +7208,6 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .coord-origin-state { font-size: 12px; }
 .coord-origin-actions { display: flex; flex-direction: column; gap: 6px; }
 .coord-origin-hint { font-size: 11px; color: var(--theme-text-secondary, #666); }
+.coord-origin-values { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; }
+.coord-origin-values > span { flex: 1 0 100%; }
+.coord-origin-values input { width: 90px; }
