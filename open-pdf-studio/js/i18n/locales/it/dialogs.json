@@ -509,6 +509,9 @@
     "sampleText": "Testo di esempio",
     "characters": "caratteri"
   },
+  "stampPalette": {
+    "hint": "Scegli un timbro, poi fai clic sulla pagina per inserirlo."
+  },
   "stampPicker": {
     "title": "Seleziona timbro",
     "customFromImage": "Timbro personalizzato da immagine...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Negli appunti va sempre un'immagine PNG; il formato file vale per Salva con nome.",
     "copy": "Copia negli appunti",
     "saveAs": "Salva con nome…",
+    "paste": "Incolla nel documento",
     "busy": "Rendering in corso…",
     "copied": "Schermata copiata negli appunti ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Schermata salvata in {{path}}",
     "copyFailed": "Impossibile copiare la schermata negli appunti",
     "saveFailed": "Impossibile salvare la schermata",
+    "pasteFailed": "Impossibile inserire lo screenshot nel documento",
     "cancelled": "Cattura annullata",
     "noPage": "Nessuna pagina PDF da catturare",
     "notOnPage": "La selezione non è su una pagina",

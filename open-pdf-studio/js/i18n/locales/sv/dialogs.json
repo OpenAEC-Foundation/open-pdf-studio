@@ -509,6 +509,9 @@
     "sampleText": "Exempeltext",
     "characters": "tecken"
   },
+  "stampPalette": {
+    "hint": "Välj en stämpel och klicka på sidan för att placera den."
+  },
   "stampPicker": {
     "title": "Välj stämpel",
     "customFromImage": "Anpassad stämpel från bild...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Urklipp får alltid en PNG-bild; filformatet gäller för Spara som.",
     "copy": "Kopiera till Urklipp",
     "saveAs": "Spara som…",
+    "paste": "Klistra in i dokumentet",
     "busy": "Renderar…",
     "copied": "Skärmbilden kopierades till Urklipp ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Skärmbilden sparades i {{path}}",
     "copyFailed": "Det gick inte att kopiera skärmbilden till Urklipp",
     "saveFailed": "Det gick inte att spara skärmbilden",
+    "pasteFailed": "Skärmbilden kunde inte placeras i dokumentet",
     "cancelled": "Skärmbilden avbröts",
     "noPage": "Ingen PDF-sida att avbilda",
     "notOnPage": "Markeringen ligger inte på en sida",

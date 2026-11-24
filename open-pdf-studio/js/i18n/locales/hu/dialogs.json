@@ -509,6 +509,9 @@
     "sampleText": "Mintászöveg",
     "characters": "karakter"
   },
+  "stampPalette": {
+    "hint": "Válasszon bélyegzőt, majd kattintson az oldalra az elhelyezéséhez."
+  },
   "stampPicker": {
     "title": "Bélyegző választása",
     "customFromImage": "Egyedi bélyegző képből...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "A vágólapra mindig PNG-kép kerül; a fájlformátum a Mentés másként parancsra vonatkozik.",
     "copy": "Másolás a vágólapra",
     "saveAs": "Mentés másként…",
+    "paste": "Beillesztés a dokumentumba",
     "busy": "Megjelenítés…",
     "copied": "Képernyőkép a vágólapra másolva ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Képernyőkép mentve ide: {{path}}",
     "copyFailed": "A képernyőképet nem sikerült a vágólapra másolni",
     "saveFailed": "A képernyőképet nem sikerült menteni",
+    "pasteFailed": "A képernyőkép nem helyezhető el a dokumentumban",
     "cancelled": "Képernyőkép megszakítva",
     "noPage": "Nincs rögzíthető PDF-oldal",
     "notOnPage": "A kijelölés nem egy oldalon van",

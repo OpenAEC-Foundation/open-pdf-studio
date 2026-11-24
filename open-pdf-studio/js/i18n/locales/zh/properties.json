@@ -443,6 +443,7 @@
     "portfolio": "PDF 文件包",
     "recognizeForm": "识别表单域",
     "toolSets": "工具集",
+    "stamps": "图章",
     "layersSetDefault": "设为默认",
     "layersSetDefaultTitle": "将当前图层的可见性保存为文档的默认状态。下次保存时写入文件。",
     "layersDefaultPending": "保存时将成为默认",

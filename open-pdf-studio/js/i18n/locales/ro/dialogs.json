@@ -509,6 +509,9 @@
     "sampleText": "Text exemplu",
     "characters": "caractere"
   },
+  "stampPalette": {
+    "hint": "Alegeți o ștampilă, apoi faceți clic pe pagină pentru a o plasa."
+  },
   "stampPicker": {
     "title": "Selectare stampila",
     "customFromImage": "Stampila personalizata din imagine...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Clipboardul primește întotdeauna o imagine PNG; formatul fișierului se aplică la Salvare ca.",
     "copy": "Copiere în clipboard",
     "saveAs": "Salvare ca…",
+    "paste": "Lipește în document",
     "busy": "Se randează…",
     "copied": "Captură copiată în clipboard ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Captură salvată în {{path}}",
     "copyFailed": "Captura nu a putut fi copiată în clipboard",
     "saveFailed": "Captura nu a putut fi salvată",
+    "pasteFailed": "Captura de ecran nu a putut fi plasată în document",
     "cancelled": "Captură anulată",
     "noPage": "Nicio pagină PDF de capturat",
     "notOnPage": "Selecția nu se află pe o pagină",

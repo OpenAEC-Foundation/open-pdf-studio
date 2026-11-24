@@ -62,6 +62,21 @@ export function kiesStempelVooraf() {
   });
 }
 
+// A stamp clicked in the palette: make the Stamp tool active (without the
+// picker dialog) and keep the choice for the next click(s) on the page.
+export async function kiesUitPalet(keuze) {
+  try {
+    if (state.currentTool !== 'stamp') {
+      const m = await import('../tools/manager.js');
+      await m.setTool('stamp');
+    }
+  } catch (err) {
+    console.error('[stamp] palette could not activate the tool', err);
+  }
+  zetStempelKeuze(keuze);
+  updateStatusMessage('Click on the page to place the stamp');
+}
+
 // Place the stamp chosen in the picker at (x, y) on the clicked page.
 // Returns false when nothing is chosen.
 export function plaatsGekozenStempel(x, y, page) {
@@ -305,7 +320,7 @@ async function loadCustomStamp(x, y, klikPagina) {
 
 // Let the user choose an image file for a stamp. Null when cancelled or when
 // the image could not be loaded.
-async function kiesStempelAfbeelding() {
+export async function kiesStempelAfbeelding() {
   try {
     const { openFileDialog } = await import('../core/platform.js');
     const filePath = await openFileDialog(AFBEELDING_EXTENSIES);

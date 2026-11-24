@@ -509,6 +509,9 @@
     "sampleText": "Texto de ejemplo",
     "characters": "caracteres"
   },
+  "stampPalette": {
+    "hint": "Elija un sello y haga clic en la página para colocarlo."
+  },
   "stampPicker": {
     "title": "Seleccionar sello",
     "customFromImage": "Sello personalizado desde imagen...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "El portapapeles siempre recibe una imagen PNG; el formato de archivo se aplica a Guardar como.",
     "copy": "Copiar al portapapeles",
     "saveAs": "Guardar como…",
+    "paste": "Pegar en el documento",
     "busy": "Renderizando…",
     "copied": "Captura copiada al portapapeles ({{width}} × {{height}} px, {{dpi}} ppp)",
     "saved": "Captura guardada en {{path}}",
     "copyFailed": "No se pudo copiar la captura al portapapeles",
     "saveFailed": "No se pudo guardar la captura",
+    "pasteFailed": "No se pudo colocar la captura en el documento",
     "cancelled": "Captura cancelada",
     "noPage": "No hay ninguna página PDF que capturar",
     "notOnPage": "La selección no está sobre una página",

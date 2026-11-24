@@ -68,6 +68,13 @@ export const toggleIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentC
   <polyline points="15 18 9 12 15 6"/>
 </svg>`;
 
+// Stamp palette: a stamp.
+export const stampsIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M9 3h6v6l2 3H7l2-3z"/>
+  <rect x="5" y="12" width="14" height="4" rx="0"/>
+  <line x1="4" y1="21" x2="20" y2="21"/>
+</svg>`;
+
 // Tool Sets (#311): a toolbox.
 export const toolSetsIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
   <rect x="2" y="8" width="20" height="12" rx="0"/>

@@ -509,6 +509,9 @@
     "sampleText": "Texte exemple",
     "characters": "caractères"
   },
+  "stampPalette": {
+    "hint": "Choisissez un tampon, puis cliquez sur la page pour le placer."
+  },
   "stampPicker": {
     "title": "Sélectionner un tampon",
     "customFromImage": "Tampon personnalisé à partir d'une image...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Le presse-papiers reçoit toujours une image PNG ; le format de fichier s'applique à Enregistrer sous.",
     "copy": "Copier dans le presse-papiers",
     "saveAs": "Enregistrer sous…",
+    "paste": "Coller dans le document",
     "busy": "Rendu en cours…",
     "copied": "Capture d'écran copiée dans le presse-papiers ({{width}} × {{height}} px, {{dpi}} ppp)",
     "saved": "Capture d'écran enregistrée dans {{path}}",
     "copyFailed": "Impossible de copier la capture d'écran dans le presse-papiers",
     "saveFailed": "Impossible d'enregistrer la capture d'écran",
+    "pasteFailed": "Impossible de placer la capture dans le document",
     "cancelled": "Capture d'écran annulée",
     "noPage": "Aucune page PDF à capturer",
     "notOnPage": "La sélection n'est pas sur une page",

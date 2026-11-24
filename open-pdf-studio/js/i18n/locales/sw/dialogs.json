@@ -509,6 +509,9 @@
     "sampleText": "Maandishi ya mfano",
     "characters": "herufi"
   },
+  "stampPalette": {
+    "hint": "Chagua muhuri, kisha bofya ukurasa ili kuuweka."
+  },
   "stampPicker": {
     "title": "Chagua Muhuri",
     "customFromImage": "Muhuri wa Desturi kutoka Picha...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Ubao wa kunakili hupokea picha ya PNG kila wakati; muundo wa faili unatumika kwa Hifadhi kama.",
     "copy": "Nakili kwenye ubao wa kunakili",
     "saveAs": "Hifadhi kama…",
+    "paste": "Bandika kwenye hati",
     "busy": "Inachora…",
     "copied": "Picha ya skrini imenakiliwa kwenye ubao wa kunakili ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Picha ya skrini imehifadhiwa kwenye {{path}}",
     "copyFailed": "Imeshindwa kunakili picha ya skrini kwenye ubao wa kunakili",
     "saveFailed": "Imeshindwa kuhifadhi picha ya skrini",
+    "pasteFailed": "Haikuweza kuweka picha ya skrini kwenye hati",
     "cancelled": "Picha ya skrini imeghairiwa",
     "noPage": "Hakuna ukurasa wa PDF wa kunasa",
     "notOnPage": "Uteuzi haupo kwenye ukurasa",

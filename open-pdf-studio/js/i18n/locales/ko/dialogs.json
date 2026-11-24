@@ -509,6 +509,9 @@
     "sampleText": "샘플 텍스트",
     "characters": "문자"
   },
+  "stampPalette": {
+    "hint": "스탬프를 선택한 다음 페이지를 클릭하여 배치하세요."
+  },
   "stampPicker": {
     "title": "스탬프 선택",
     "customFromImage": "이미지에서 사용자 지정 스탬프 만들기...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "클립보드에는 항상 PNG 이미지가 들어갑니다. 파일 형식은 다른 이름으로 저장에 적용됩니다.",
     "copy": "클립보드에 복사",
     "saveAs": "다른 이름으로 저장…",
+    "paste": "문서에 붙여넣기",
     "busy": "렌더링 중…",
     "copied": "스크린샷을 클립보드에 복사했습니다 ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "스크린샷을 {{path}}에 저장했습니다",
     "copyFailed": "스크린샷을 클립보드에 복사할 수 없습니다",
     "saveFailed": "스크린샷을 저장할 수 없습니다",
+    "pasteFailed": "스크린샷을 문서에 배치할 수 없습니다",
     "cancelled": "스크린샷이 취소되었습니다",
     "noPage": "캡처할 PDF 페이지가 없습니다",
     "notOnPage": "선택 영역이 페이지 위에 있지 않습니다",

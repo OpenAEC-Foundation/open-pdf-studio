@@ -509,6 +509,9 @@
     "sampleText": "Ukázkový text",
     "characters": "znaků"
   },
+  "stampPalette": {
+    "hint": "Vyberte razítko a kliknutím na stránku ho umístěte."
+  },
   "stampPicker": {
     "title": "Vybrat razítko",
     "customFromImage": "Vlastní razítko z obrázku...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Do schránky jde vždy obrázek PNG; formát souboru platí pro Uložit jako.",
     "copy": "Kopírovat do schránky",
     "saveAs": "Uložit jako…",
+    "paste": "Vložit do dokumentu",
     "busy": "Vykreslování…",
     "copied": "Snímek zkopírován do schránky ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Snímek uložen do {{path}}",
     "copyFailed": "Snímek se nepodařilo zkopírovat do schránky",
     "saveFailed": "Snímek se nepodařilo uložit",
+    "pasteFailed": "Snímek obrazovky se nepodařilo vložit do dokumentu",
     "cancelled": "Snímek zrušen",
     "noPage": "Žádná stránka PDF k zachycení",
     "notOnPage": "Výběr neleží na stránce",

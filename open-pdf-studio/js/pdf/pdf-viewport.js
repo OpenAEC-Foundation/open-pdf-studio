@@ -480,15 +480,27 @@ function _scheduleZoomFreezeRelease() {
   }, 150);
 }
 
+// Naast de wachttijd na de laatste beweging kijkt een lange, doorlopende
+// beweging ook tussendoor (elke PAN_TEGEL_MAX_WACHT ms): anders komt er pas een
+// nieuwe tegel als de gebruiker stilstaat en ligt de wazige pagina onder de
+// rand van de oude tegel zolang het schuiven duurt.
+const PAN_TEGEL_WACHT = 100;
+const PAN_TEGEL_MAX_WACHT = 300;
+let _panTileMaxTimer = null;
+
+function _controleerTegelNaPan() {
+  if (_panTileTimer) { clearTimeout(_panTileTimer); _panTileTimer = null; }
+  if (_panTileMaxTimer) { clearTimeout(_panTileMaxTimer); _panTileMaxTimer = null; }
+  import('./bitmap-orchestrator.js').then(orch => {
+    orch.ensureTileForCurrentView(_canvas);
+  }).catch(() => {});
+}
+
 function _scheduleTileRecheckAfterPan() {
   if (viewport.pageType !== 'raster' || !_canvas) return;
   if (_panTileTimer) clearTimeout(_panTileTimer);
-  _panTileTimer = setTimeout(() => {
-    _panTileTimer = null;
-    import('./bitmap-orchestrator.js').then(orch => {
-      orch.ensureTileForCurrentView(_canvas);
-    }).catch(() => {});
-  }, 100);
+  _panTileTimer = setTimeout(_controleerTegelNaPan, PAN_TEGEL_WACHT);
+  if (!_panTileMaxTimer) _panTileMaxTimer = setTimeout(_controleerTegelNaPan, PAN_TEGEL_MAX_WACHT);
 }
 
 /**

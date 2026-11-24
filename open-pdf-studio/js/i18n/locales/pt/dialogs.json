@@ -509,6 +509,9 @@
     "sampleText": "Texto de exemplo",
     "characters": "caracteres"
   },
+  "stampPalette": {
+    "hint": "Escolha um carimbo e clique na página para o colocar."
+  },
   "stampPicker": {
     "title": "Selecionar carimbo",
     "customFromImage": "Carimbo personalizado a partir de imagem...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "A área de transferência sempre recebe uma imagem PNG; o formato do arquivo vale para Salvar como.",
     "copy": "Copiar para a área de transferência",
     "saveAs": "Salvar como…",
+    "paste": "Colar no documento",
     "busy": "Renderizando…",
     "copied": "Captura copiada para a área de transferência ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Captura salva em {{path}}",
     "copyFailed": "Não foi possível copiar a captura para a área de transferência",
     "saveFailed": "Não foi possível salvar a captura",
+    "pasteFailed": "Não foi possível colocar a captura de ecrã no documento",
     "cancelled": "Captura cancelada",
     "noPage": "Nenhuma página PDF para capturar",
     "notOnPage": "A seleção não está sobre uma página",

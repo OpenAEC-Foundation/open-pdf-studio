@@ -514,6 +514,9 @@
     "sampleText": "Sample text",
     "characters": "characters"
   },
+  "stampPalette": {
+    "hint": "Choose a stamp, then click on the page to place it."
+  },
   "stampPicker": {
     "title": "Select Stamp",
     "customFromImage": "Custom Stamp from Image...",
@@ -1341,11 +1344,13 @@
     "clipboardNote": "The clipboard always receives a PNG image; the file format applies to Save as.",
     "copy": "Copy to clipboard",
     "saveAs": "Save as…",
+    "paste": "Paste into document",
     "busy": "Rendering…",
     "copied": "Screenshot copied to the clipboard ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Screenshot saved to {{path}}",
     "copyFailed": "Could not copy the screenshot to the clipboard",
     "saveFailed": "Could not save the screenshot",
+    "pasteFailed": "Could not place the screenshot in the document",
     "cancelled": "Screenshot cancelled",
     "noPage": "No PDF page to capture",
     "notOnPage": "The selection is not on a page",

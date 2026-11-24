@@ -509,6 +509,9 @@
     "sampleText": "Text de mostra",
     "characters": "caràcters"
   },
+  "stampPalette": {
+    "hint": "Trieu un segell i feu clic a la pàgina per col·locar-lo."
+  },
   "stampPicker": {
     "title": "Selecciona segell",
     "customFromImage": "Segell personalitzat des d'una imatge...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "El porta-retalls sempre rep una imatge PNG; el format de fitxer s'aplica a Desa com a.",
     "copy": "Copia al porta-retalls",
     "saveAs": "Desa com a…",
+    "paste": "Enganxa al document",
     "busy": "S'està renderitzant…",
     "copied": "Captura copiada al porta-retalls ({{width}} × {{height}} px, {{dpi}} ppp)",
     "saved": "Captura desada a {{path}}",
     "copyFailed": "No s'ha pogut copiar la captura al porta-retalls",
     "saveFailed": "No s'ha pogut desar la captura",
+    "pasteFailed": "No s'ha pogut col·locar la captura al document",
     "cancelled": "Captura cancel·lada",
     "noPage": "No hi ha cap pàgina PDF per capturar",
     "notOnPage": "La selecció no és sobre una pàgina",

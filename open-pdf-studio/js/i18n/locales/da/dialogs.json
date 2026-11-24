@@ -509,6 +509,9 @@
     "sampleText": "Eksempeltekst",
     "characters": "tegn"
   },
+  "stampPalette": {
+    "hint": "Vælg et stempel, og klik på siden for at placere det."
+  },
   "stampPicker": {
     "title": "Vælg stempel",
     "customFromImage": "Brugerdefineret stempel fra billede...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Udklipsholderen får altid et PNG-billede; filformatet gælder for Gem som.",
     "copy": "Kopiér til udklipsholder",
     "saveAs": "Gem som…",
+    "paste": "Indsæt i dokumentet",
     "busy": "Gengiver…",
     "copied": "Skærmbillede kopieret til udklipsholderen ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Skærmbillede gemt i {{path}}",
     "copyFailed": "Skærmbilledet kunne ikke kopieres til udklipsholderen",
     "saveFailed": "Skærmbilledet kunne ikke gemmes",
+    "pasteFailed": "Skærmbilledet kunne ikke placeres i dokumentet",
     "cancelled": "Skærmbillede annulleret",
     "noPage": "Ingen PDF-side at optage",
     "notOnPage": "Markeringen ligger ikke på en side",

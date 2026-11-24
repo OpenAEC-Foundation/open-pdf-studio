@@ -17,7 +17,7 @@
 import { viewport } from './pdf-viewport.js';
 import { computeZoomBucket, ensureBitmap, ensureExactBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
 import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.js';
-import { tileCoversViewport, visiblePdfRegion } from './tile-coverage.js';
+import { tileCoversViewport, tileCoversWithMargin, visiblePdfRegion } from './tile-coverage.js';
 import { rectNaarPagina, viewportGeometrie } from './weergave-rotatie.js';
 import { state } from '../core/state.js';
 import { sharpenPageRgba } from './render-sharpen-pref.js';
@@ -48,6 +48,17 @@ const MAX_BITMAP_AXIS_PX = 4096;
 // side, and snap region origin to a grid of this step. Small pans within
 // the buffer stay cache-hits.
 const TILE_BUFFER_FRACTION = 0.25;
+
+// A tile on screen is replaced in the background when it leaves less than this
+// fraction of the visible region free on any side (see margeOk). Well below
+// TILE_BUFFER_FRACTION, so a fresh tile always satisfies it.
+const TILE_MIN_MARGE = 0.1;
+
+// Where the view is: zoom, offset and rotation. If it differs when a tile
+// lands from when the tile was requested, the user has panned on.
+function viewHandtekening() {
+    return `${viewport.zoom}|${Math.round(viewport.offsetX)}|${Math.round(viewport.offsetY)}|${viewport.rotation || 0}|${viewport.viewRotation || 0}`;
+}
 
 let _bitmapGen = 0;
 const _tileRequests = createInflightKeyGate();
@@ -433,6 +444,15 @@ export async function ensureTileForCurrentView(canvas) {
         return;
     }
 
+    // Alles in de paginaruimte (visiblePdfRegion draait een weergaverotatie al
+    // terug).
+    const pag = paginaMaatPt();
+    // Dekt de tegel het beeld met wat marge eromheen? Een tegel die het beeld
+    // net dekt, wordt op de achtergrond vervangen door een gecentreerde, nog
+    // voordat de volgende stap van het verschuiven de wazige pagina onder zijn
+    // rand laat zien.
+    const margeOk = (meta) => tileCoversWithMargin(meta, visRegion, pag.w, pag.h, TILE_MIN_MARGE);
+
     // Houd een al zichtbare scherpe tegel vast. De algemene cache-selector
     // kiest terecht de minst oversamplede kandidaat, maar tijdens herhaald
     // zoomen zou dat een brede 300%-coverage bij 150% vervangen door een
@@ -442,15 +462,14 @@ export async function ensureTileForCurrentView(canvas) {
         && !!viewport.currentTileMeta?.thinLines === thin
         && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr)
         && !tileNeedsExactRender(viewport.currentTileMeta?.renderScale, viewport.zoom, dpr)
+        && margeOk(viewport.currentTileMeta)
     ) {
         _tileRequests.cancel();
         viewport.dirty = true;
         return;
     }
 
-    // Add buffer for pan-within-buffer cache hits. Alles in de paginaruimte
-    // (visiblePdfRegion draait een weergaverotatie al terug).
-    const pag = paginaMaatPt();
+    // Add buffer for pan-within-buffer cache hits.
     const bufW = visRegion.w * TILE_BUFFER_FRACTION;
     const bufH = visRegion.h * TILE_BUFFER_FRACTION;
     const bufferedRegion = {
@@ -495,9 +514,11 @@ export async function ensureTileForCurrentView(canvas) {
         viewport.currentTile = candidate.bitmap;
         viewport.currentTileMeta = candidate.regionMeta;
         viewport.dirty = true;
-        // Sharp already (1:1)? Done. An oversampled coverage tile stays on
-        // screen while an exact-resolution one is rendered below.
-        if (!tileNeedsExactRender(candidate.regionMeta?.renderScale, requestedZoom, dpr)) {
+        // Sharp already (1:1) with room around the view? Done. An oversampled
+        // coverage tile, or one that covers the view only just, stays on
+        // screen while a new one is rendered below.
+        if (!tileNeedsExactRender(candidate.regionMeta?.renderScale, requestedZoom, dpr)
+            && margeOk(candidate.regionMeta)) {
             _tileRequests.cancel();
             return;
         }
@@ -506,6 +527,8 @@ export async function ensureTileForCurrentView(canvas) {
     // Cache miss: async Rust render of the region at the requested zoom.
     const requestToken = _tileRequests.begin(requestKey);
     if (!requestToken) return;
+    const handtekeningBijAanvraag = viewHandtekening();
+    let verversNa = false;
     try {
         const { invokeTileRegion } = await import('./progressive-render.js');
         // This runs once the view has settled: render the exact screen
@@ -548,11 +571,23 @@ export async function ensureTileForCurrentView(canvas) {
         if (!_tileRequests.isCurrent(requestToken)) return;
         const cached = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
         if (cached && cached.bitmap) {
-            viewport.currentTile = cached.bitmap;
-            viewport.currentTileMeta = cached.regionMeta;
-            viewport.dirty = true;
+            // Een tegel die landt nadat de gebruiker verder is geschoven mag
+            // een tegel die het beeld wel dekt niet vervangen door een die het
+            // niet dekt.
+            const nieuwDekt = tileCoversViewport(cached.regionMeta, viewport, cssW, cssH, dpr);
+            const huidigDekt = !!viewport.currentTile
+                && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr);
+            if (nieuwDekt || !huidigDekt) {
+                viewport.currentTile = cached.bitmap;
+                viewport.currentTileMeta = cached.regionMeta;
+                viewport.dirty = true;
+            }
             console.log(`[tile-orch] cached p${pageNum} @ z=${requestedZoom.toFixed(2)} reg=${regionBucket}`);
         }
+        // Verder geschoven tijdens het renderen? Een aanvraag voor dezelfde
+        // cel is dan genegeerd (zie de poort), en niets anders kijkt nog:
+        // zonder dit bleef de wazige pagina staan tot de volgende beweging.
+        if (viewHandtekening() !== handtekeningBijAanvraag) verversNa = true;
     } catch (e) {
         // Dropped because the document closed or is no longer shown (#506).
         if (!isRenderCancelled(e)) {
@@ -576,5 +611,6 @@ export async function ensureTileForCurrentView(canvas) {
         }
     } finally {
         _tileRequests.finish(requestToken);
+        if (verversNa) setTimeout(() => { ensureTileForCurrentView(canvas).catch(() => {}); }, 0);
     }
 }

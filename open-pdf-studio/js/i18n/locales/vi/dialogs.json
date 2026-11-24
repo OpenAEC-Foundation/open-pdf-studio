@@ -509,6 +509,9 @@
     "sampleText": "Văn bản mẫu",
     "characters": "ký tự"
   },
+  "stampPalette": {
+    "hint": "Chọn một con dấu, rồi nhấp vào trang để đặt."
+  },
   "stampPicker": {
     "title": "Chọn Con dấu",
     "customFromImage": "Con dấu Tùy chỉnh từ Hình ảnh...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Bộ nhớ tạm luôn nhận ảnh PNG; định dạng tệp áp dụng cho Lưu thành.",
     "copy": "Sao chép vào bộ nhớ tạm",
     "saveAs": "Lưu thành…",
+    "paste": "Dán vào tài liệu",
     "busy": "Đang kết xuất…",
     "copied": "Đã sao chép ảnh chụp vào bộ nhớ tạm ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Đã lưu ảnh chụp vào {{path}}",
     "copyFailed": "Không thể sao chép ảnh chụp vào bộ nhớ tạm",
     "saveFailed": "Không thể lưu ảnh chụp",
+    "pasteFailed": "Không thể đặt ảnh chụp màn hình vào tài liệu",
     "cancelled": "Đã hủy chụp màn hình",
     "noPage": "Không có trang PDF để chụp",
     "notOnPage": "Vùng chọn không nằm trên trang nào",

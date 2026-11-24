@@ -509,6 +509,9 @@
     "sampleText": "Beispieltext",
     "characters": "Zeichen"
   },
+  "stampPalette": {
+    "hint": "Stempel wählen, dann auf die Seite klicken, um ihn zu platzieren."
+  },
   "stampPicker": {
     "title": "Stempel auswählen",
     "customFromImage": "Benutzerdefinierter Stempel aus Bild...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "In die Zwischenablage kommt immer ein PNG-Bild; das Dateiformat gilt für Speichern unter.",
     "copy": "In die Zwischenablage kopieren",
     "saveAs": "Speichern unter…",
+    "paste": "In Dokument einfügen",
     "busy": "Wird gerendert…",
     "copied": "Bildschirmfoto in die Zwischenablage kopiert ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Bildschirmfoto gespeichert unter {{path}}",
     "copyFailed": "Das Bildschirmfoto konnte nicht in die Zwischenablage kopiert werden",
     "saveFailed": "Das Bildschirmfoto konnte nicht gespeichert werden",
+    "pasteFailed": "Der Screenshot konnte nicht im Dokument platziert werden",
     "cancelled": "Bildschirmfoto abgebrochen",
     "noPage": "Keine PDF-Seite zum Erfassen",
     "notOnPage": "Die Auswahl liegt nicht auf einer Seite",

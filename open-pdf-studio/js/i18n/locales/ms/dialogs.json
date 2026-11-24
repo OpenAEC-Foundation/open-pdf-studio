@@ -509,6 +509,9 @@
     "sampleText": "Teks contoh",
     "characters": "aksara"
   },
+  "stampPalette": {
+    "hint": "Pilih setem, kemudian klik pada halaman untuk meletakkannya."
+  },
   "stampPicker": {
     "title": "Pilih Setem",
     "customFromImage": "Setem Tersuai dari Imej...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Papan keratan sentiasa menerima imej PNG; format fail digunakan untuk Simpan sebagai.",
     "copy": "Salin ke papan keratan",
     "saveAs": "Simpan sebagai…",
+    "paste": "Tampal ke dokumen",
     "busy": "Sedang memapar…",
     "copied": "Tangkapan skrin disalin ke papan keratan ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Tangkapan skrin disimpan ke {{path}}",
     "copyFailed": "Tidak dapat menyalin tangkapan skrin ke papan keratan",
     "saveFailed": "Tidak dapat menyimpan tangkapan skrin",
+    "pasteFailed": "Tidak dapat meletakkan tangkapan skrin dalam dokumen",
     "cancelled": "Tangkapan skrin dibatalkan",
     "noPage": "Tiada halaman PDF untuk ditangkap",
     "notOnPage": "Pilihan tidak berada pada halaman",

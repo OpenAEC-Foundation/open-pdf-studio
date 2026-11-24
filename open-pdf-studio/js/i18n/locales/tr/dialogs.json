@@ -509,6 +509,9 @@
     "sampleText": "Örnek metin",
     "characters": "karakter"
   },
+  "stampPalette": {
+    "hint": "Bir damga seçin, ardından yerleştirmek için sayfaya tıklayın."
+  },
   "stampPicker": {
     "title": "Damga Seç",
     "customFromImage": "Görüntüden Özel Damga...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Panoya her zaman PNG görüntüsü gider; dosya biçimi Farklı kaydet için geçerlidir.",
     "copy": "Panoya kopyala",
     "saveAs": "Farklı kaydet…",
+    "paste": "Belgeye yapıştır",
     "busy": "İşleniyor…",
     "copied": "Ekran görüntüsü panoya kopyalandı ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Ekran görüntüsü kaydedildi: {{path}}",
     "copyFailed": "Ekran görüntüsü panoya kopyalanamadı",
     "saveFailed": "Ekran görüntüsü kaydedilemedi",
+    "pasteFailed": "Ekran görüntüsü belgeye yerleştirilemedi",
     "cancelled": "Ekran görüntüsü iptal edildi",
     "noPage": "Yakalanacak PDF sayfası yok",
     "notOnPage": "Seçim bir sayfanın üzerinde değil",

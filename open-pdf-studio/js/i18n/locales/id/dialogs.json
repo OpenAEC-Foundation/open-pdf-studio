@@ -509,6 +509,9 @@
     "sampleText": "Teks contoh",
     "characters": "karakter"
   },
+  "stampPalette": {
+    "hint": "Pilih stempel, lalu klik pada halaman untuk menempatkannya."
+  },
   "stampPicker": {
     "title": "Pilih Stempel",
     "customFromImage": "Stempel Kustom dari Gambar...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Papan klip selalu menerima gambar PNG; format file berlaku untuk Simpan sebagai.",
     "copy": "Salin ke papan klip",
     "saveAs": "Simpan sebagai…",
+    "paste": "Tempel ke dokumen",
     "busy": "Merender…",
     "copied": "Tangkapan layar disalin ke papan klip ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Tangkapan layar disimpan ke {{path}}",
     "copyFailed": "Tidak dapat menyalin tangkapan layar ke papan klip",
     "saveFailed": "Tidak dapat menyimpan tangkapan layar",
+    "pasteFailed": "Tidak dapat menempatkan tangkapan layar di dokumen",
     "cancelled": "Tangkapan layar dibatalkan",
     "noPage": "Tidak ada halaman PDF untuk ditangkap",
     "notOnPage": "Pilihan tidak berada di halaman",

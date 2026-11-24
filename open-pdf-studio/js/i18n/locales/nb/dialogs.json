@@ -509,6 +509,9 @@
     "sampleText": "Eksempeltekst",
     "characters": "tegn"
   },
+  "stampPalette": {
+    "hint": "Velg et stempel, og klikk på siden for å plassere det."
+  },
   "stampPicker": {
     "title": "Velg stempel",
     "customFromImage": "Egendefinert stempel fra bilde...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "Utklippstavlen får alltid et PNG-bilde; filformatet gjelder for Lagre som.",
     "copy": "Kopier til utklippstavlen",
     "saveAs": "Lagre som…",
+    "paste": "Lim inn i dokumentet",
     "busy": "Gjengir…",
     "copied": "Skjermbilde kopiert til utklippstavlen ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Skjermbilde lagret i {{path}}",
     "copyFailed": "Kunne ikke kopiere skjermbildet til utklippstavlen",
     "saveFailed": "Kunne ikke lagre skjermbildet",
+    "pasteFailed": "Kunne ikke plassere skjermbildet i dokumentet",
     "cancelled": "Skjermbilde avbrutt",
     "noPage": "Ingen PDF-side å ta bilde av",
     "notOnPage": "Merkingen ligger ikke på en side",

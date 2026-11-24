@@ -509,6 +509,9 @@
     "sampleText": "示例文本",
     "characters": "字符"
   },
+  "stampPalette": {
+    "hint": "选择图章，然后单击页面放置。"
+  },
   "stampPicker": {
     "title": "选择图章",
     "customFromImage": "从图像创建自定义图章...",
@@ -1337,11 +1340,13 @@
     "clipboardNote": "剪贴板始终接收 PNG 图像；文件格式用于“另存为”。",
     "copy": "复制到剪贴板",
     "saveAs": "另存为…",
+    "paste": "粘贴到文档",
     "busy": "正在渲染…",
     "copied": "截图已复制到剪贴板（{{width}} × {{height}} 像素，{{dpi}} dpi）",
     "saved": "截图已保存到 {{path}}",
     "copyFailed": "无法将截图复制到剪贴板",
     "saveFailed": "无法保存截图",
+    "pasteFailed": "无法将截图放入文档",
     "cancelled": "已取消截图",
     "noPage": "没有可截取的 PDF 页面",
     "notOnPage": "选区不在页面上",

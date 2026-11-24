@@ -43,6 +43,27 @@ export function visiblePdfRegion(viewport, cssWidth, cssHeight) {
   return { x: zicht.x, y: zicht.y, w: zicht.width, h: zicht.height };
 }
 
+/**
+ * Does the tile cover the visible region AND a margin around it (a fraction of
+ * the region on each side, clamped to the page)? A tile that covers the view
+ * only just is replaced in the background before the next step of a pan shows
+ * the stretched whole-page bitmap under its edge.
+ * `region` is {x, y, w, h} in page points, as visiblePdfRegion returns it.
+ */
+export function tileCoversWithMargin(tileMeta, region, pageW, pageH, fraction = 0.1) {
+  if (!tileMeta || !region) return false;
+  const mx = region.w * fraction;
+  const my = region.h * fraction;
+  const x0 = Math.max(0, region.x - mx);
+  const y0 = Math.max(0, region.y - my);
+  const x1 = Math.min(pageW, region.x + region.w + mx);
+  const y1 = Math.min(pageH, region.y + region.h + my);
+  return tileMeta.regionXpt <= x0 + BOUNDS_EPSILON_PT
+    && tileMeta.regionYpt <= y0 + BOUNDS_EPSILON_PT
+    && tileMeta.regionXpt + tileMeta.regionWpt >= x1 - BOUNDS_EPSILON_PT
+    && tileMeta.regionYpt + tileMeta.regionHpt >= y1 - BOUNDS_EPSILON_PT;
+}
+
 export function tileCoversViewport(
   tileMeta,
   viewport,

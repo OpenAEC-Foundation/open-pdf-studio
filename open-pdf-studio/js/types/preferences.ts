@@ -272,7 +272,7 @@ export interface Preferences {
   screenshotCustomDpi: number;
   screenshotFormat: 'png' | 'jpeg';
   screenshotJpegQuality: number;
-  screenshotDefaultAction: 'copy' | 'save';
+  screenshotDefaultAction: 'copy' | 'paste' | 'save';
 
   // AI-koppeling: lokale MCP-server voor AI-assistenten (Claude Desktop e.d.)
   mcpEnabled: boolean;

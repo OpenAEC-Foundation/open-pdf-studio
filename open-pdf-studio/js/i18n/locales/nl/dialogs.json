@@ -495,6 +495,9 @@
     "sampleText": "Voorbeeldtekst",
     "characters": "tekens"
   },
+  "stampPalette": {
+    "hint": "Kies een stempel en klik daarna op de pagina om hem te plaatsen."
+  },
   "stampPicker": {
     "title": "Stempel selecteren",
     "customFromImage": "Aangepaste stempel van afbeelding...",
@@ -1342,11 +1345,13 @@
     "clipboardNote": "Het klembord krijgt altijd een PNG-afbeelding; het bestandsformaat geldt voor Opslaan als.",
     "copy": "Naar klembord kopiëren",
     "saveAs": "Opslaan als…",
+    "paste": "Plakken in document",
     "busy": "Bezig met renderen…",
     "copied": "Schermafbeelding naar het klembord gekopieerd ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Schermafbeelding opgeslagen in {{path}}",
     "copyFailed": "Kan de schermafbeelding niet naar het klembord kopiëren",
     "saveFailed": "Kan de schermafbeelding niet opslaan",
+    "pasteFailed": "Kan de schermafbeelding niet in het document plaatsen",
     "cancelled": "Schermafbeelding geannuleerd",
     "noPage": "Geen PDF-pagina om vast te leggen",
     "notOnPage": "De selectie ligt niet op een pagina",
