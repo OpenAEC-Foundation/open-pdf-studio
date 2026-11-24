@@ -528,6 +528,8 @@
     "lowerLeft": "Sayfanın sol alt köşesi",
     "underlay": "Alt çizimden al",
     "clear": "Sıfır noktasını temizle",
+    "valuesTitle": "Sıfır noktasının değeri (ölçü biriminde)",
+    "apply": "Değerleri uygula",
     "hint": "Bu sayfadaki mevcut koordinat etiketleri güncellenir; yenileri sıfır noktasını kullanır."
   },
   "calibration": {

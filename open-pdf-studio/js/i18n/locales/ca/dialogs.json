@@ -528,6 +528,8 @@
     "lowerLeft": "Cantonada inferior esquerra de la pàgina",
     "underlay": "Pren del plànol base",
     "clear": "Esborra l'origen",
+    "valuesTitle": "Valor de l'origen (en unitats de mesura)",
+    "apply": "Aplica els valors",
     "hint": "Les etiquetes de coordenades existents d'aquesta pàgina s'actualitzen; les noves usen l'origen."
   },
   "calibration": {

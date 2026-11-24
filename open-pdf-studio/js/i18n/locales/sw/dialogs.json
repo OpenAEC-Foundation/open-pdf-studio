@@ -528,6 +528,8 @@
     "lowerLeft": "Kona ya chini kushoto ya ukurasa",
     "underlay": "Chukua kutoka mchoro msingi",
     "clear": "Futa asili",
+    "valuesTitle": "Thamani ya asili (kwa vipimo)",
+    "apply": "Tumia thamani",
     "hint": "Lebo za viwianishi zilizopo kwenye ukurasa huu husasishwa; mpya hutumia asili."
   },
   "calibration": {

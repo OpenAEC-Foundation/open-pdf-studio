@@ -528,6 +528,8 @@
     "lowerLeft": "Az oldal bal alsó sarka",
     "underlay": "Átvétel az alaprajzból",
     "clear": "Origó törlése",
+    "valuesTitle": "Az origó értéke (mértékegységben)",
+    "apply": "Értékek alkalmazása",
     "hint": "Az oldal meglévő koordinátacímkéi frissülnek; az újak az origót használják."
   },
   "calibration": {

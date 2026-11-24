@@ -528,6 +528,8 @@
     "lowerLeft": "Sivun vasen alakulma",
     "underlay": "Ota pohjakuvasta",
     "clear": "Poista nollapiste",
+    "valuesTitle": "Nollapisteen arvo (mittayksiköissä)",
+    "apply": "Käytä arvoja",
     "hint": "Sivun olemassa olevat koordinaattitunnisteet päivittyvät; uudet käyttävät nollapistettä."
   },
   "calibration": {

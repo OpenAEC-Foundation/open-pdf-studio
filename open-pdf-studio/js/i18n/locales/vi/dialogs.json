@@ -528,6 +528,8 @@
     "lowerLeft": "Góc dưới bên trái của trang",
     "underlay": "Lấy từ bản vẽ nền",
     "clear": "Xóa gốc tọa độ",
+    "valuesTitle": "Giá trị của gốc (theo đơn vị đo)",
+    "apply": "Áp dụng giá trị",
     "hint": "Các nhãn tọa độ hiện có trên trang được cập nhật; nhãn mới dùng gốc này."
   },
   "calibration": {

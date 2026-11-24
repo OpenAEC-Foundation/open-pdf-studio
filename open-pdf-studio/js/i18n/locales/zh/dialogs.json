@@ -528,6 +528,8 @@
     "lowerLeft": "页面左下角",
     "underlay": "从底图获取",
     "clear": "清除原点",
+    "valuesTitle": "原点的值（测量单位）",
+    "apply": "应用数值",
     "hint": "此页上已有的坐标标签会更新；新标签使用该原点。"
   },
   "calibration": {

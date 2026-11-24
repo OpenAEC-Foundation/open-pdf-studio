@@ -528,6 +528,8 @@
     "lowerLeft": "Coin inférieur gauche de la page",
     "underlay": "Reprendre depuis le fond de plan",
     "clear": "Effacer l'origine",
+    "valuesTitle": "Valeur de l'origine (en unités de mesure)",
+    "apply": "Appliquer les valeurs",
     "hint": "Les étiquettes de coordonnées existantes de cette page sont mises à jour ; les nouvelles utilisent l'origine."
   },
   "calibration": {

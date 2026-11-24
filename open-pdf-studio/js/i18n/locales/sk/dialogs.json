@@ -528,6 +528,8 @@
     "lowerLeft": "Ľavý dolný roh strany",
     "underlay": "Prevziať z podkladu",
     "clear": "Zrušiť začiatok",
+    "valuesTitle": "Hodnota začiatku (v merných jednotkách)",
+    "apply": "Použiť hodnoty",
     "hint": "Existujúce popisy súradníc na strane sa aktualizujú; nové použijú začiatok."
   },
   "calibration": {

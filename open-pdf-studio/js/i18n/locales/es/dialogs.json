@@ -528,6 +528,8 @@
     "lowerLeft": "Esquina inferior izquierda de la página",
     "underlay": "Tomar del plano base",
     "clear": "Borrar origen",
+    "valuesTitle": "Valor del origen (en unidades de medida)",
+    "apply": "Aplicar valores",
     "hint": "Las etiquetas de coordenadas existentes de esta página se actualizan; las nuevas usan el origen."
   },
   "calibration": {

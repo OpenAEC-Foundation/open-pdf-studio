@@ -528,6 +528,8 @@
     "lowerLeft": "Colțul stânga-jos al paginii",
     "underlay": "Preia din fundal",
     "clear": "Șterge originea",
+    "valuesTitle": "Valoarea originii (în unități de măsură)",
+    "apply": "Aplică valorile",
     "hint": "Etichetele de coordonate existente din această pagină se actualizează; cele noi folosesc originea."
   },
   "calibration": {
