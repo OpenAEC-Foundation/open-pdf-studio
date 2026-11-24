@@ -14,9 +14,9 @@ onderdeel van de teruggegeven promise.
 
 ## Bewijs
 
-De desktopmeting met `node scripts/meet-bundel.mjs` op upstream `2cabd87ed`
-is 4248,0 KiB voor de opstartchunk. Met alleen de importwijziging is dat
-4099,6 KiB: 148,3 KiB minder. De bestaande limieten van 4230 KiB en 1386 KiB
+De desktopmeting met `node scripts/meet-bundel.mjs` op upstream `b2e0e51ca`
+is 4248,1 KiB voor de opstartchunk. Met alleen de importwijziging is dat
+4099,7 KiB: 148,3 KiB minder. De bestaande limieten van 4230 KiB en 1386 KiB
 gzip blijven ongewijzigd. De opslagmodule wordt een afzonderlijke chunk;
 de winst betreft de eerste lading, niet het totaal van alle functies.
 
@@ -28,7 +28,7 @@ de winst betreft de eerste lading, niet het totaal van alle functies.
   moduleaanvraag na Ctrl+S tegen, wisselt naar de tweede PDF en laat de
   aanvraag doorgaan. Alleen de eerste PDF wordt geschreven; de tweede
   blijft actief en gewijzigd. De geschreven bytes openen als twee pagina's.
-  Alleen native bestands-I/O is nagebootst.
+  Tauri-aanroepen zijn nagebootst; de browserlader, interface en saver zijn echt.
 - Bestaande annotatierondgangen en de klassieke-xref-browserproef blijven
   de echte opslagcode en heropening controleren.
 - CI bouwt de frontend vóór de bundelgroottetest, zodat die test niet wegens
@@ -37,3 +37,11 @@ de winst betreft de eerste lading, niet het totaal van alle functies.
 Dit sluit de brede opsplitsings- en onderhoudsopgave van #454 niet af.
 Een native installerproef en het volledige release-testprotocol blijven
 vereist vóór een release; de browserproef vervangt die niet.
+
+## Open controlepunt
+
+De gehoste Opslaan-als-proef had één wisselende uitkomst: na het openen van
+de opgeslagen kopie ontbrak de tweede rechthoek in de volgende opslag. Een
+diagnostische uitvoering met alleen extra browserfoutlogging slaagde wel,
+zonder CSP-, console- of paginafouten. De oorzaak is nog niet vastgesteld;
+dit resultaat blijft een kwalificatieblokkade. De test is niet versoepeld.

@@ -9,6 +9,7 @@ import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigati
 import { isFullscreen } from '../../stores/ribbonStore.js';
 import { toggleFullscreen } from '../../../ui/chrome/fullscreen.js';
 import { toggleSymbolPalette } from '../SymbolPalette.jsx';
+import { paletteVisible, toggleToolPalette } from '../ToolPalette.jsx';
 import { symbolPaletteVisible } from '../../stores/symbolStore.js';
 import { toggleKeystrokeOverlay, keystrokeOverlayVisible } from '../KeystrokeOverlay.jsx';
 import { setViewMode } from '../../../pdf/renderer.js';
@@ -168,11 +169,8 @@ export default function ViewTab() {
             disabled={noPdf()} active={elementVisibilityPanelVisible()} onClick={toggleElementVisibilityPanel} />
           <RibbonButton id="ribbon-annotation-layers" title={t('annotationLayers.buttonTitle')} icon={annotationLayersIcon} label={t('annotationLayers.buttonLabel')}
             disabled={noPdf()} active={annotationLayersPanelVisible()} onClick={toggleAnnotationLayersPanel} />
-          {/* The symbol library IS the tool palette for the user — single
-              button, named accordingly. The old generic Tool Palette button
-              and the plugin extension-palette buttons were removed from this
-              tab on request (the palettes themselves still exist and can be
-              re-exposed later if needed). */}
+          <RibbonButton id="ribbon-drawing-toolbar" title={t('view.drawingToolbar')} icon={toolPaletteIcon} label={t('view.drawingToolbar')}
+            active={paletteVisible()} pressed={paletteVisible()} onClick={toggleToolPalette} />
           <RibbonButton id="ribbon-symbol-palette" title={t('view.toolPalette')} icon={toolPaletteIcon} label={t('view.toolPaletteLabel')}
             active={symbolPaletteVisible()} onClick={toggleSymbolPalette} />
           {/* Werkruimten en interfacegrootte (#932). */}

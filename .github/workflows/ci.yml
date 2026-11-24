@@ -125,6 +125,10 @@ jobs:
           node scripts/pdf-lib-xref-browser.mjs
           node scripts/test-classic-xref-browser.mjs
 
+      - name: Test drawing toolbar recovery (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-drawing-toolbar-browser.mjs
+
       - name: Check startup bundle budget after building (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
