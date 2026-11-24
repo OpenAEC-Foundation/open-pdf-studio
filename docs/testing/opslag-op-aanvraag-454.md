@@ -40,6 +40,15 @@ vereist vóór een release; de browserproef vervangt die niet.
 
 ## Open controlepunt
 
+De eerste Linux-CI-run liep vast op de onderschepping van de opslagmodule.
+Een aanvraag met Vite-queryparameters reproduceert die timeout: de oude
+URL-glob onderschepte die niet. De proef gebruikt nu dezelfde padnaamcontrole
+als de aanvraagregistratie, geeft de actieve tab focus en controleert vóór de
+tabwissel dat nog niets geschreven is. CI draait zowel gewone module-URL's
+als `--vite-query`. Bij een timeout meldt de proef aanvragen, toetsafhandeling,
+focus, schrijfacties en paginafouten. De oorspronkelijke CI-log bevatte deze
+gegevens niet; dezelfde hoofdoorzaak in CI is daarom nog niet bewezen.
+
 De gehoste Opslaan-als-proef had één wisselende uitkomst: na het openen van
 de opgeslagen kopie ontbrak de tweede rechthoek in de volgende opslag. Een
 diagnostische uitvoering met alleen extra browserfoutlogging slaagde wel,

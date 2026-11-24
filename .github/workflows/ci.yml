@@ -137,7 +137,9 @@ jobs:
 
       - name: Test first lazy save and tab switching (Linux)
         if: matrix.platform == 'ubuntu-22.04'
-        run: node scripts/test-lazy-save-browser.mjs
+        run: |
+          node scripts/test-lazy-save-browser.mjs
+          node scripts/test-lazy-save-browser.mjs --vite-query
 
       - name: Test textbox colour and defaults (Linux)
         if: matrix.platform == 'ubuntu-22.04'
