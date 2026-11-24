@@ -528,6 +528,8 @@
     "lowerLeft": "Nederste venstre hjørne af siden",
     "underlay": "Overtag fra underlaget",
     "clear": "Ryd nulpunkt",
+    "valuesTitle": "Nulpunktets værdi (i måleenheder)",
+    "apply": "Anvend værdier",
     "hint": "Eksisterende koordinatmærker på siden opdateres; nye bruger nulpunktet."
   },
   "calibration": {

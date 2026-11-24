@@ -1,6 +1,6 @@
 [package]
 name = "print-native-tests"
-version = "2026.48.7"
+version = "2026.48.8"
 edition = "2021"
 publish = false
 

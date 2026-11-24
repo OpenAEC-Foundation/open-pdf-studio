@@ -43,11 +43,34 @@ export function zetPaginaNulpunt(pageNum, nulpunt) {
   return labels.length;
 }
 
+// De waarden die het volgende nulpunt krijgt (het venster en het klik-gereedschap
+// delen ze): het punt hoeft niet (0, 0) te zijn, maar kan bijv. een RD-coördinaat zijn.
+let volgendeWaarde = { wx: 0, wy: 0 };
+
+/** Onthoud de waarden voor het volgende nulpunt (meeteenheden). */
+export function zetVolgendeWaarde(wx, wy) {
+  volgendeWaarde = {
+    wx: Number.isFinite(wx) ? wx : 0,
+    wy: Number.isFinite(wy) ? wy : 0,
+  };
+}
+
+export function volgendeNulpuntWaarde() {
+  return { ...volgendeWaarde };
+}
+
 /** Het nulpunt linksonder van het blad (CAD-gewijs, y omhoog). */
 export function zetNulpuntLinksonder(pageNum) {
   const maat = paginaMaat(pageNum);
   const n = nulpuntLinksonder(maat?.hoogte);
-  return n ? zetPaginaNulpunt(pageNum, n) : -1;
+  return n ? zetPaginaNulpunt(pageNum, { ...n, ...volgendeWaarde }) : -1;
+}
+
+/** Verander alleen de waarden van het bestaande nulpunt van het blad. */
+export function zetNulpuntWaarden(pageNum, wx, wy) {
+  const n = huidigNulpunt(pageNum);
+  if (!n) return -1;
+  return zetPaginaNulpunt(pageNum, { ...n, wx, wy });
 }
 
 /** Het nulpunt van de onderlegger (modelmatrix), als die er is. */
@@ -58,7 +81,7 @@ export function onderleggerNulpunt(pageNum, doc = getActiveDocument()) {
 /** Neem het nulpunt van de onderlegger over; -1 als die er niet is. */
 export function neemNulpuntOverVanOnderlegger(pageNum) {
   const n = onderleggerNulpunt(pageNum);
-  return n ? zetPaginaNulpunt(pageNum, n) : -1;
+  return n ? zetPaginaNulpunt(pageNum, { ...n, ...volgendeWaarde }) : -1;
 }
 
 /** Het huidige nulpunt van het blad (of null). */

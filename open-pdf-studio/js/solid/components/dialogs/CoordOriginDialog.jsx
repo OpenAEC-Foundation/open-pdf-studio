@@ -6,8 +6,9 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { startCoordOriginTool } from '../../../tools/tools/coord-origin-tool.js';
 import {
   zetPaginaNulpunt, zetNulpuntLinksonder, neemNulpuntOverVanOnderlegger,
-  onderleggerNulpunt, huidigNulpunt,
+  onderleggerNulpunt, huidigNulpunt, zetVolgendeWaarde, zetNulpuntWaarden, volgendeNulpuntWaarde,
 } from '../../../annotations/coord-nulpunt-app.js';
+import { leesGetalOfNull, toonGetal } from '../../../core/getal-invoer.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 
 function redraw() {
@@ -25,6 +26,14 @@ export default function CoordOriginDialog() {
   const huidig = () => { versie(); return huidigNulpunt(pagina()); };
   const onderlegger = () => { versie(); return onderleggerNulpunt(pagina()); };
 
+  // Waarden van het nulpunt (meeteenheden): standaard (0, 0), maar het punt kan
+  // bijv. een RD-coördinaat zijn. Gevuld met de waarden van het huidige nulpunt.
+  const start = huidigNulpunt(pagina()) || volgendeNulpuntWaarde();
+  const [wx, setWx] = createSignal(toonGetal(start.wx ?? 0));
+  const [wy, setWy] = createSignal(toonGetal(start.wy ?? 0));
+  const waarden = () => ({ wx: leesGetalOfNull(wx()) ?? 0, wy: leesGetalOfNull(wy()) ?? 0 });
+  const onthoud = () => { const w = waarden(); zetVolgendeWaarde(w.wx, w.wy); };
+
   const klaar = () => {
     redraw();
     setVersie(versie() + 1);
@@ -38,15 +47,24 @@ export default function CoordOriginDialog() {
             {t('coordOrigin.current', { page: pagina() })}
           </Show>
         </div>
+        <div class="coord-origin-values">
+          <span>{t('coordOrigin.valuesTitle')}</span>
+          <label>X <input type="text" value={wx()} onInput={(e) => setWx(e.currentTarget.value)} /></label>
+          <label>Y <input type="text" value={wy()} onInput={(e) => setWy(e.currentTarget.value)} /></label>
+          <button class="pref-btn" disabled={!huidig()}
+            onClick={() => { const w = waarden(); onthoud(); zetNulpuntWaarden(pagina(), w.wx, w.wy); klaar(); }}>
+            {t('coordOrigin.apply')}
+          </button>
+        </div>
         <div class="coord-origin-actions">
-          <button class="pref-btn" onClick={() => { closeDialog('coord-origin'); startCoordOriginTool(); }}>
+          <button class="pref-btn" onClick={() => { onthoud(); closeDialog('coord-origin'); startCoordOriginTool(); }}>
             {t('coordOrigin.pick')}
           </button>
-          <button class="pref-btn" onClick={() => { zetNulpuntLinksonder(pagina()); klaar(); }}>
+          <button class="pref-btn" onClick={() => { onthoud(); zetNulpuntLinksonder(pagina()); klaar(); }}>
             {t('coordOrigin.lowerLeft')}
           </button>
           <button class="pref-btn" disabled={!onderlegger()}
-            onClick={() => { neemNulpuntOverVanOnderlegger(pagina()); klaar(); }}>
+            onClick={() => { onthoud(); neemNulpuntOverVanOnderlegger(pagina()); klaar(); }}>
             {t('coordOrigin.underlay')}
           </button>
           <button class="pref-btn" disabled={!huidig()} onClick={() => { zetPaginaNulpunt(pagina(), null); klaar(); }}>

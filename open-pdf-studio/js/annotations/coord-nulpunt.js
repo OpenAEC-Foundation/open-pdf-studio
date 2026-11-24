@@ -2,18 +2,22 @@
 //
 // Zonder nulpunt tellen de labels vanaf de linkerbovenhoek van het blad met
 // y naar beneden. Met een nulpunt (een punt op het blad, in app-ruimte) tellen
-// ze vanaf dat punt, met y naar boven zoals in CAD. Puur: geen app-state.
-
-/** Het nulpunt dat een pagina krijgt als de gebruiker linksonder kiest is { x: 0, y: paginahoogte, yUp: true }. */
+// ze vanaf dat punt, met y naar boven zoals in CAD. Het punt hoeft geen (0, 0)
+// te zijn: `wx` en `wy` zijn de waarden van dat punt in meeteenheden (bijv.
+// een RD-coördinaat); de labels tellen daar vanaf. Puur: geen app-state.
 
 /**
  * Een geldig nulpunt of null.
  * @param {*} v
- * @returns {{x:number, y:number, yUp:boolean} | null}
+ * @returns {{x:number, y:number, yUp:boolean, wx:number, wy:number} | null}
  */
 export function normaliseerNulpunt(v) {
   if (!v || !Number.isFinite(v.x) || !Number.isFinite(v.y)) return null;
-  return { x: Number(v.x), y: Number(v.y), yUp: v.yUp !== false };
+  return {
+    x: Number(v.x), y: Number(v.y), yUp: v.yUp !== false,
+    wx: Number.isFinite(v.wx) ? Number(v.wx) : 0,
+    wy: Number.isFinite(v.wy) ? Number(v.wy) : 0,
+  };
 }
 
 /** Het nulpunt van een pagina uit `doc.coordOrigins`, of null (dan telt de oude regel). */
@@ -36,7 +40,7 @@ export function coordinaatTovNulpunt(x, y, nulpunt) {
 
 /** Nulpunt linksonder van een pagina met deze hoogte (app-ruimte). */
 export function nulpuntLinksonder(paginaHoogte) {
-  return Number.isFinite(paginaHoogte) && paginaHoogte > 0 ? { x: 0, y: paginaHoogte, yUp: true } : null;
+  return Number.isFinite(paginaHoogte) && paginaHoogte > 0 ? normaliseerNulpunt({ x: 0, y: paginaHoogte, yUp: true }) : null;
 }
 
 /**
@@ -48,20 +52,20 @@ export function nulpuntLinksonder(paginaHoogte) {
 export function nulpuntUitOnderlegger(viewports) {
   const v = (viewports || []).find((vp) => vp?.modelNulpunt
     && Number.isFinite(vp.modelNulpunt.x) && Number.isFinite(vp.modelNulpunt.y));
-  return v ? { x: v.modelNulpunt.x, y: v.modelNulpunt.y, yUp: true } : null;
+  return v ? normaliseerNulpunt({ x: v.modelNulpunt.x, y: v.modelNulpunt.y, yUp: true }) : null;
 }
 
-/** Nulpunten per pagina in JSON voor het bestand; null als er geen is. */
+/** Nulpunt in JSON `[x, y, yUp, wx, wy]` voor het bestand; null als er geen is. */
 export function nulpuntNaarJson(nulpunt) {
   const n = normaliseerNulpunt(nulpunt);
-  return n ? JSON.stringify([n.x, n.y, n.yUp ? 1 : 0]) : null;
+  return n ? JSON.stringify([n.x, n.y, n.yUp ? 1 : 0, n.wx, n.wy]) : null;
 }
 
 /** Het omgekeerde van nulpuntNaarJson; null bij onleesbare tekst. */
 export function nulpuntUitJson(tekst) {
   try {
     const a = JSON.parse(String(tekst ?? ''));
-    return Array.isArray(a) && a.length >= 2 ? normaliseerNulpunt({ x: a[0], y: a[1], yUp: a[2] !== 0 }) : null;
+    return Array.isArray(a) && a.length >= 2 ? normaliseerNulpunt({ x: a[0], y: a[1], yUp: a[2] !== 0, wx: a[3], wy: a[4] }) : null;
   } catch {
     return null;
   }

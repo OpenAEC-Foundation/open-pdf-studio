@@ -528,6 +528,8 @@
     "lowerLeft": "Lewy dolny róg strony",
     "underlay": "Przejmij z podkładu",
     "clear": "Usuń punkt zero",
+    "valuesTitle": "Wartość punktu zero (w jednostkach miary)",
+    "apply": "Zastosuj wartości",
     "hint": "Istniejące etykiety współrzędnych na tej stronie zostaną zaktualizowane; nowe użyją punktu zero."
   },
   "calibration": {

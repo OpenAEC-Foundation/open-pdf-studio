@@ -528,6 +528,8 @@
     "lowerLeft": "Donji lijevi kut stranice",
     "underlay": "Preuzmi iz podloge",
     "clear": "Ukloni ishodište",
+    "valuesTitle": "Vrijednost ishodišta (u mjernim jedinicama)",
+    "apply": "Primijeni vrijednosti",
     "hint": "Postojeće oznake koordinata na stranici se ažuriraju; nove koriste ishodište."
   },
   "calibration": {
