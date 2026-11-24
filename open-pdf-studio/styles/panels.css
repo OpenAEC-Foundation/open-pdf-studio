@@ -1812,8 +1812,27 @@
   gap: 6px;
   padding: 4px 8px 4px 6px;
   font-size: 11px;
-  cursor: grab;
+  cursor: default;
+  user-select: none;
+  position: relative;
   border-top: 1px solid var(--theme-panel-border);
+}
+
+.schedules-drag-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100000;
+  max-width: 240px;
+  padding: 3px 8px;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--theme-text, #333);
+  background: var(--theme-panel-bg, #fff);
+  border: 1px solid var(--theme-border, #d4d4d4);
+  pointer-events: none;
 }
 
 .schedules-item:hover {
@@ -1858,8 +1877,30 @@
   opacity: 0;
 }
 
-.schedules-item:hover .schedules-item-btn {
+.schedules-item:hover .schedules-item-btn,
+.schedules-item:focus-within .schedules-item-btn {
   opacity: 1;
+}
+
+.schedules-actions {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 0;
+  bottom: 0;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 4px;
+  background: var(--theme-panel-tab-hover, #e8e8e8);
+}
+
+.schedules-item:hover .schedules-actions,
+.schedules-item:focus-within .schedules-actions {
+  display: flex;
+}
+
+.schedules-item.schedules-editing .schedules-actions {
+  display: none;
 }
 
 .schedules-item-btn:hover {
@@ -2237,3 +2278,49 @@
   font: inherit;
   cursor: default;
 }
+
+/* Stamp palette (left panel): stays open while stamps are placed. */
+.stamps-palette {
+  padding: 6px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.stamps-palette-hint {
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: var(--theme-text-secondary, #666);
+}
+.stamps-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px;
+}
+.stamps-palette-builtin {
+  border: 2px solid;
+  background: transparent;
+  padding: 6px 4px;
+  font-weight: bold;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+  border-radius: 0;
+}
+.stamps-palette-builtin:hover { background: var(--theme-hover, #e5f1fb); }
+.stamps-palette-section {
+  margin: 10px 0 4px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+  font-weight: 600;
+  font-size: 12px;
+}
+.stamps-palette-templates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px;
+}
+.stamps-palette-chosen {
+  outline: 2px solid var(--theme-accent, #0078d4);
+  outline-offset: -2px;
+}
+.stamps-palette-btn { margin-top: 8px; width: 100%; }

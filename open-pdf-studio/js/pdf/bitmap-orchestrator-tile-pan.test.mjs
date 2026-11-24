@@ -60,3 +60,70 @@ test('panning within one cache cell renders a tile for the new view', async () =
     'the tile on screen covers the visible part of the page',
   );
 });
+
+test('panning while a tile is still being rendered gets a fresh tile once it lands', async () => {
+  tileCacheClearAll();
+  const rendered = [];
+  let release;
+  globalThis.__nep = {
+    computeZoomBucket: (scale) => 2 ** Math.ceil(Math.log2(scale)),
+    invokeTileRegion: (args) => {
+      rendered.push(args);
+      // The first render is slow; later ones answer at once.
+      return rendered.length === 1 ? new Promise((r) => { release = () => r(tileBytes()); }) : tileBytes();
+    },
+    sharpenPageRgba: (rgba) => rgba,
+    isRenderCancelled: () => false,
+  };
+  Object.assign(viewport, {
+    active: true, pageType: 'raster', filePath: 'sheet.pdf', pageNum: 3, rotation: 0, viewRotation: 0,
+    ...PAGE, zoom: ZOOM, offsetX: -2200 * ZOOM, offsetY: -660 * ZOOM,
+    currentBitmap: null, currentTile: null, currentTileMeta: null, dirty: false,
+  });
+
+  const first = ensureTileForCurrentView(canvas);
+  await new Promise((r) => setTimeout(r, 10)); // the render has started
+  // The user pans on, inside the same cache cell: the new request is dropped
+  // because one for that cell is still running.
+  viewport.offsetY = -1000 * ZOOM;
+  await ensureTileForCurrentView(canvas);
+  assert.equal(rendered.length, 1);
+
+  release();
+  await first;
+  await new Promise((r) => setTimeout(r, 20));
+
+  assert.equal(rendered.length, 2, 'a second tile is rendered for where the view is now');
+  assert.ok(
+    tileCoversViewport(viewport.currentTileMeta, viewport, canvas.width, canvas.height, 1),
+    'the tile on screen covers the visible part of the page',
+  );
+});
+
+test('a tile that barely covers the view is replaced by a centred one in the background', async () => {
+  tileCacheClearAll();
+  const rendered = [];
+  globalThis.__nep = {
+    computeZoomBucket: (scale) => 2 ** Math.ceil(Math.log2(scale)),
+    invokeTileRegion: (args) => { rendered.push(args); return tileBytes(); },
+    sharpenPageRgba: (rgba) => rgba,
+    isRenderCancelled: () => false,
+  };
+  Object.assign(viewport, {
+    active: true, pageType: 'raster', filePath: 'sheet.pdf', pageNum: 3, rotation: 0, viewRotation: 0,
+    ...PAGE, zoom: ZOOM, offsetX: -2200 * ZOOM, offsetY: -660 * ZOOM,
+    currentBitmap: null, currentTile: null, currentTileMeta: null, dirty: false,
+  });
+  await ensureTileForCurrentView(canvas);
+  assert.equal(rendered.length, 1);
+
+  // Pan until the view sits right against the tile's edge: still covered, but
+  // the next step would show the stretched page underneath.
+  const meta = viewport.currentTileMeta;
+  const zichtbaarH = canvas.height / ZOOM;
+  viewport.offsetY = -(meta.regionYpt + meta.regionHpt - zichtbaarH - 2) * ZOOM;
+  assert.ok(tileCoversViewport(meta, viewport, canvas.width, canvas.height, 1), 'still covered');
+  await ensureTileForCurrentView(canvas);
+
+  assert.equal(rendered.length, 2, 'a centred tile is prepared before the edge shows');
+});

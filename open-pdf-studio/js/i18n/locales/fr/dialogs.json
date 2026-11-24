@@ -509,6 +509,9 @@
     "sampleText": "Texte exemple",
     "characters": "caractères"
   },
+  "stampPalette": {
+    "hint": "Choisissez un tampon, puis cliquez sur la page pour le placer."
+  },
   "stampPicker": {
     "title": "Sélectionner un tampon",
     "customFromImage": "Tampon personnalisé à partir d'une image...",
@@ -516,6 +519,16 @@
     "manage": "Gérer les modèles de tampon...",
     "builtInHidden": "Les tampons intégrés sont masqués (Préférences > Annotations > Commentaires).",
     "hideBuiltInNoOwn": "Les tampons intégrés sont configurés pour être masqués, mais vous n'avez pas encore de tampons personnels. Créez-en un via Gérer les modèles de tampon."
+  },
+  "coordOrigin": {
+    "title": "Origine des coordonnées",
+    "none": "La page {{page}} n'a pas d'origine : les coordonnées partent du coin supérieur gauche.",
+    "current": "La page {{page}} a une origine : les coordonnées en partent, y vers le haut.",
+    "pick": "Choisir un point du dessin…",
+    "lowerLeft": "Coin inférieur gauche de la page",
+    "underlay": "Reprendre depuis le fond de plan",
+    "clear": "Effacer l'origine",
+    "hint": "Les étiquettes de coordonnées existantes de cette page sont mises à jour ; les nouvelles utilisent l'origine."
   },
   "calibration": {
     "overridePdfScale": "Remplacer les échelles intégrées au PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Le presse-papiers reçoit toujours une image PNG ; le format de fichier s'applique à Enregistrer sous.",
     "copy": "Copier dans le presse-papiers",
     "saveAs": "Enregistrer sous…",
+    "paste": "Coller dans le document",
     "busy": "Rendu en cours…",
     "copied": "Capture d'écran copiée dans le presse-papiers ({{width}} × {{height}} px, {{dpi}} ppp)",
     "saved": "Capture d'écran enregistrée dans {{path}}",
     "copyFailed": "Impossible de copier la capture d'écran dans le presse-papiers",
     "saveFailed": "Impossible d'enregistrer la capture d'écran",
+    "pasteFailed": "Impossible de placer la capture dans le document",
     "cancelled": "Capture d'écran annulée",
     "noPage": "Aucune page PDF à capturer",
     "notOnPage": "La sélection n'est pas sur une page",

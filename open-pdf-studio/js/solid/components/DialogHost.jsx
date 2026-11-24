@@ -46,6 +46,7 @@ const StampTemplatesDialog = lazy(() => import('./dialogs/StampTemplatesDialog.j
 const DynamicStampFieldsDialog = lazy(() => import('./dialogs/DynamicStampFieldsDialog.jsx'));
 const CalibrationDialog = lazy(() => import('./dialogs/CalibrationDialog.jsx'));
 const ScaleCheckDialog = lazy(() => import('./dialogs/ScaleCheckDialog.jsx'));
+const CoordOriginDialog = lazy(() => import('./dialogs/CoordOriginDialog.jsx'));
 const ScaleDialog = lazy(() => import('./dialogs/ScaleDialog.jsx'));
 const CropMarginsDialog = lazy(() => import('./dialogs/CropMarginsDialog.jsx'));
 const StraightenDialog = lazy(() => import('./dialogs/StraightenDialog.jsx'));
@@ -149,6 +150,7 @@ const DIALOG_MAP = {
   'dynamic-stamp-fields': DynamicStampFieldsDialog,
   'calibration': CalibrationDialog,
   'scale-check': ScaleCheckDialog,
+  'coord-origin': CoordOriginDialog,
   'scale': ScaleDialog,
   'crop-margins': CropMarginsDialog,
   'straighten-page': StraightenDialog,

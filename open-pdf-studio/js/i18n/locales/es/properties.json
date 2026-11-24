@@ -443,6 +443,7 @@
     "portfolio": "Portafolio PDF",
     "recognizeForm": "Reconocer campos de formulario",
     "toolSets": "Conjuntos de herramientas",
+    "stamps": "Sellos",
     "layersSetDefault": "Establecer como predeterminado",
     "layersSetDefaultTitle": "Guardar la visibilidad actual de las capas como estado predeterminado del documento. Se escribe en el archivo la próxima vez que guarde.",
     "layersDefaultPending": "Será el predeterminado al guardar",

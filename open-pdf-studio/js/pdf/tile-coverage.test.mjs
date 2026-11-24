@@ -225,3 +225,17 @@ test('tileNeedsExactRender: een 300%-dekkingstegel op 200% is te groot, 1:1 niet
   assert.equal(tileNeedsExactRender(2.03, 2, 1), false);
   assert.equal(tileNeedsExactRender(undefined, 2, 1), false);
 });
+
+test('tileCoversWithMargin: needs room around the view, clamped to the page', async () => {
+  const { tileCoversWithMargin } = await import('./tile-coverage.js');
+  const tegel = { regionXpt: 100, regionYpt: 100, regionWpt: 300, regionHpt: 300 };
+  const midden = { x: 180, y: 180, w: 140, h: 140 };
+  assert.equal(tileCoversWithMargin(tegel, midden, 1000, 1000, 0.1), true);
+  // Covered, but flush against the top edge: no room left.
+  assert.equal(tileCoversWithMargin(tegel, { x: 180, y: 101, w: 140, h: 140 }, 1000, 1000, 0.1), false);
+  // At the page edge the margin stops at the page: nothing more to show.
+  const rand = { regionXpt: 0, regionYpt: 0, regionWpt: 300, regionHpt: 300 };
+  assert.equal(tileCoversWithMargin(rand, { x: 0, y: 0, w: 280, h: 280 }, 1000, 1000, 0.1), false);
+  assert.equal(tileCoversWithMargin(rand, { x: 0, y: 0, w: 280, h: 280 }, 300, 300, 0.1), true);
+  assert.equal(tileCoversWithMargin(null, midden, 1000, 1000), false);
+});

@@ -509,6 +509,9 @@
     "sampleText": "Mintászöveg",
     "characters": "karakter"
   },
+  "stampPalette": {
+    "hint": "Válasszon bélyegzőt, majd kattintson az oldalra az elhelyezéséhez."
+  },
   "stampPicker": {
     "title": "Bélyegző választása",
     "customFromImage": "Egyedi bélyegző képből...",
@@ -516,6 +519,16 @@
     "manage": "Bélyegzősablonok kezelése...",
     "builtInHidden": "A beépített bélyegzők el vannak rejtve (Beállítások > Annotációk > Megjegyzések).",
     "hideBuiltInNoOwn": "A beépített bélyegzők elrejtésre vannak állítva, de még nincs saját bélyegzője. Hozzon létre egyet a Bélyegzősablonok kezelése menüben."
+  },
+  "coordOrigin": {
+    "title": "Koordináták origója",
+    "none": "A(z) {{page}}. oldalnak nincs origója: a koordináták a bal felső saroktól számítanak.",
+    "current": "A(z) {{page}}. oldalnak van origója: a koordináták onnan számítanak, y felfelé.",
+    "pick": "Pont kiválasztása a rajzon…",
+    "lowerLeft": "Az oldal bal alsó sarka",
+    "underlay": "Átvétel az alaprajzból",
+    "clear": "Origó törlése",
+    "hint": "Az oldal meglévő koordinátacímkéi frissülnek; az újak az origót használják."
   },
   "calibration": {
     "overridePdfScale": "Beágyazott PDF-méretarányok felülbírálása",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "A vágólapra mindig PNG-kép kerül; a fájlformátum a Mentés másként parancsra vonatkozik.",
     "copy": "Másolás a vágólapra",
     "saveAs": "Mentés másként…",
+    "paste": "Beillesztés a dokumentumba",
     "busy": "Megjelenítés…",
     "copied": "Képernyőkép a vágólapra másolva ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Képernyőkép mentve ide: {{path}}",
     "copyFailed": "A képernyőképet nem sikerült a vágólapra másolni",
     "saveFailed": "A képernyőképet nem sikerült menteni",
+    "pasteFailed": "A képernyőkép nem helyezhető el a dokumentumban",
     "cancelled": "Képernyőkép megszakítva",
     "noPage": "Nincs rögzíthető PDF-oldal",
     "notOnPage": "A kijelölés nem egy oldalon van",

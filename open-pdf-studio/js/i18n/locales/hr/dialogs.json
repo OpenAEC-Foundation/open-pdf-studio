@@ -509,6 +509,9 @@
     "sampleText": "Primjer teksta",
     "characters": "znakova"
   },
+  "stampPalette": {
+    "hint": "Odaberite pečat, zatim kliknite na stranicu da biste ga postavili."
+  },
   "stampPicker": {
     "title": "Odaberite pečat",
     "customFromImage": "Prilagođeni pečat iz slike...",
@@ -516,6 +519,16 @@
     "manage": "Upravljanje predlošcima pečata...",
     "builtInHidden": "Ugrađeni pečati su skriveni (Postavke > Oznake > Komentari).",
     "hideBuiltInNoOwn": "Ugrađeni pečati postavljeni su kao skriveni, ali još nemate vlastitih pečata. Izradite jedan putem Upravljanje predlošcima pečata."
+  },
+  "coordOrigin": {
+    "title": "Ishodište koordinata",
+    "none": "Stranica {{page}} nema ishodište: koordinate se broje od gornjeg lijevog kuta.",
+    "current": "Stranica {{page}} ima ishodište: koordinate se broje od njega, y prema gore.",
+    "pick": "Odaberite točku na crtežu…",
+    "lowerLeft": "Donji lijevi kut stranice",
+    "underlay": "Preuzmi iz podloge",
+    "clear": "Ukloni ishodište",
+    "hint": "Postojeće oznake koordinata na stranici se ažuriraju; nove koriste ishodište."
   },
   "calibration": {
     "overridePdfScale": "Nadjačaj ugrađena PDF mjerila",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "U međuspremnik uvijek ide PNG slika; format datoteke vrijedi za Spremi kao.",
     "copy": "Kopiraj u međuspremnik",
     "saveAs": "Spremi kao…",
+    "paste": "Zalijepi u dokument",
     "busy": "Iscrtavanje…",
     "copied": "Snimka kopirana u međuspremnik ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Snimka spremljena u {{path}}",
     "copyFailed": "Snimku nije moguće kopirati u međuspremnik",
     "saveFailed": "Snimku nije moguće spremiti",
+    "pasteFailed": "Snimku zaslona nije moguće postaviti u dokument",
     "cancelled": "Snimka poništena",
     "noPage": "Nema PDF stranice za snimanje",
     "notOnPage": "Odabir nije na stranici",

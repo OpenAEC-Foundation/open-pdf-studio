@@ -173,3 +173,8 @@ test('MCP-opname: Windows-, UNC- en Unix-paden zijn absoluut', () => {
   }
   assert.match(leesOpnameArgumenten({ path: String.raw`uit\a.png` }, ctx).error, /absolute/);
 });
+
+test('de actie Plakken wordt onthouden en onbekende acties vallen terug op kopiëren', () => {
+  assert.equal(normaliseerKeuze({ actie: 'paste' }).actie, 'paste');
+  assert.equal(normaliseerKeuze({ actie: 'plakken' }).actie, 'copy');
+});

@@ -443,6 +443,7 @@
     "portfolio": "PDF ポートフォリオ",
     "recognizeForm": "フォームフィールドの認識",
     "toolSets": "ツールセット",
+    "stamps": "スタンプ",
     "layersSetDefault": "既定に設定",
     "layersSetDefaultTitle": "現在のレイヤーの表示状態を文書の既定の状態として保存します。次回の保存時にファイルに書き込まれます。",
     "layersDefaultPending": "保存時に既定になります",

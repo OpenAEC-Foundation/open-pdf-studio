@@ -495,6 +495,9 @@
     "sampleText": "Voorbeeldtekst",
     "characters": "tekens"
   },
+  "stampPalette": {
+    "hint": "Kies een stempel en klik daarna op de pagina om hem te plaatsen."
+  },
   "stampPicker": {
     "title": "Stempel selecteren",
     "customFromImage": "Aangepaste stempel van afbeelding...",
@@ -502,6 +505,16 @@
     "manage": "Stempelsjablonen beheren...",
     "builtInHidden": "Ingebouwde stempels zijn verborgen (Voorkeuren > Annotaties > Opmerkingen).",
     "hideBuiltInNoOwn": "Ingebouwde stempels staan op verbergen, maar u hebt nog geen eigen stempels. Maak er een via Stempelsjablonen beheren."
+  },
+  "coordOrigin": {
+    "title": "Nulpunt van de coördinaten",
+    "none": "Pagina {{page}} heeft geen nulpunt: coördinaten tellen vanaf de linkerbovenhoek.",
+    "current": "Pagina {{page}} heeft een nulpunt: coördinaten tellen daarvandaan, y omhoog.",
+    "pick": "Punt op de tekening kiezen…",
+    "lowerLeft": "Linkeronderhoek van de pagina",
+    "underlay": "Overnemen van de onderlegger",
+    "clear": "Nulpunt wissen",
+    "hint": "Bestaande coördinaatlabels op dit blad worden bijgewerkt; nieuwe gebruiken het nulpunt."
   },
   "calibration": {
     "overridePdfScale": "Ingebouwde PDF-schalen overrulen",
@@ -1342,11 +1355,13 @@
     "clipboardNote": "Het klembord krijgt altijd een PNG-afbeelding; het bestandsformaat geldt voor Opslaan als.",
     "copy": "Naar klembord kopiëren",
     "saveAs": "Opslaan als…",
+    "paste": "Plakken in document",
     "busy": "Bezig met renderen…",
     "copied": "Schermafbeelding naar het klembord gekopieerd ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Schermafbeelding opgeslagen in {{path}}",
     "copyFailed": "Kan de schermafbeelding niet naar het klembord kopiëren",
     "saveFailed": "Kan de schermafbeelding niet opslaan",
+    "pasteFailed": "Kan de schermafbeelding niet in het document plaatsen",
     "cancelled": "Schermafbeelding geannuleerd",
     "noPage": "Geen PDF-pagina om vast te leggen",
     "notOnPage": "De selectie ligt niet op een pagina",

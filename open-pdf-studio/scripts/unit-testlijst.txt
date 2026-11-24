@@ -396,6 +396,7 @@ js/annotations/offset-geometry.test.mjs
 js/annotations/stretch-geometry.test.mjs
 js/annotations/scale-geometry.test.mjs
 js/annotations/spot-coord.test.mjs
+js/annotations/coord-nulpunt.test.mjs
 js/tools/maat-vorm-eindpunt.test.mjs
 js/tools/embedded-image-edit.test.mjs
 js/tools/embedded-image-drag.test.mjs
@@ -735,6 +736,7 @@ js/solid/stores/toolSetsStore.test.mjs
 js/solid/stores/toolSetsStore-opslag.test.mjs
 js/core/standaardstijl-gereedschapsset.test.mjs
 js/pdf/organizer-pointer-drag.test.mjs
+js/quantities/schedule-pointer-drag.test.mjs
 js/pdf/blank-page-setup.test.mjs
 js/pdf/frame-labels.test.mjs
 js/solid/components/ribbon/ribbon-wiel.test.mjs

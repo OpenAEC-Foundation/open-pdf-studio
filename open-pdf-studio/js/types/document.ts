@@ -164,6 +164,9 @@ export interface DocumentState {
   /** Schaalcontroles per blad (#629, annotations/schaalcontrole.js); reist mee als
    *  /OPS_ScaleChecks op de pagina (pdf/schaal-in-pdf.js). */
   scaleChecks?: Record<number, Array<Record<string, unknown>>> | null;
+  /** Nulpunt van de coördinaatlabels per blad (annotations/coord-nulpunt.js); reist mee als
+   *  /OPS_CoordOrigin op de pagina (pdf/schaal-in-pdf.js). */
+  coordOrigins?: Record<number, { x: number; y: number; yUp: boolean }> | null;
   /** Paginaschalen (#1065, pdf/pagina-schalen.js) per 1-gebaseerd paginanummer;
    *  reizen mee als /VP-viewport met /OPS_Bron /Page (pdf/schaal-in-pdf.js). */
   pageScales?: Record<number, { scaleRatio: string; unit: string; method: string; alternatives?: string[] }> | null;

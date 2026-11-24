@@ -509,6 +509,9 @@
     "sampleText": "Esimerkkiteksti",
     "characters": "merkkiä"
   },
+  "stampPalette": {
+    "hint": "Valitse leimasin ja sijoita se napsauttamalla sivua."
+  },
   "stampPicker": {
     "title": "Valitse leima",
     "customFromImage": "Mukautettu leima kuvasta...",
@@ -516,6 +519,16 @@
     "manage": "Hallitse leimamalleja...",
     "builtInHidden": "Sisäänrakennetut leimat on piilotettu (Asetukset > Merkinnät > Kommentit).",
     "hideBuiltInNoOwn": "Sisäänrakennetut leimat on asetettu piiloon, mutta sinulla ei ole vielä omia leimoja. Luo sellainen kohdassa Hallitse leimamalleja."
+  },
+  "coordOrigin": {
+    "title": "Koordinaattien nollapiste",
+    "none": "Sivulla {{page}} ei ole nollapistettä: koordinaatit lasketaan vasemmasta yläkulmasta.",
+    "current": "Sivulla {{page}} on nollapiste: koordinaatit lasketaan siitä, y ylöspäin.",
+    "pick": "Valitse piste piirustuksesta…",
+    "lowerLeft": "Sivun vasen alakulma",
+    "underlay": "Ota pohjakuvasta",
+    "clear": "Poista nollapiste",
+    "hint": "Sivun olemassa olevat koordinaattitunnisteet päivittyvät; uudet käyttävät nollapistettä."
   },
   "calibration": {
     "overridePdfScale": "Ohita PDF:n upotetut mittakaavat",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Leikepöydälle menee aina PNG-kuva; tiedostomuoto koskee Tallenna nimellä -toimintoa.",
     "copy": "Kopioi leikepöydälle",
     "saveAs": "Tallenna nimellä…",
+    "paste": "Liitä asiakirjaan",
     "busy": "Hahmonnetaan…",
     "copied": "Kuvakaappaus kopioitu leikepöydälle ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Kuvakaappaus tallennettu: {{path}}",
     "copyFailed": "Kuvakaappausta ei voitu kopioida leikepöydälle",
     "saveFailed": "Kuvakaappausta ei voitu tallentaa",
+    "pasteFailed": "Kuvakaappausta ei voitu sijoittaa asiakirjaan",
     "cancelled": "Kuvakaappaus peruutettu",
     "noPage": "Ei kaapattavaa PDF-sivua",
     "notOnPage": "Valinta ei ole sivulla",

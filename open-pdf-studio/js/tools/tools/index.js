@@ -42,6 +42,7 @@ import { dimChainAddTool, dimChainRemoveTool } from './dimension-chain-tool.js';
 import { radiusTool, diameterTool } from './dimension-radius-tool.js';
 import { filletTool, chamferTool } from './corner-tools.js';
 import { spotCoordTool } from './spot-coord-tool.js';
+import { coordOriginTool } from './coord-origin-tool.js';
 import { linkTool } from './link-tool.js';
 
 export function registerAllTools() {
@@ -175,4 +176,5 @@ export function registerAllTools() {
   registerTool('fillet', filletTool);
   registerTool('chamfer', chamferTool);
   registerTool('spotCoord', spotCoordTool);
+  registerTool('coordOrigin', coordOriginTool);
 }

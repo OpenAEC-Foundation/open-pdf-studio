@@ -15,6 +15,7 @@ import { nettoVlakOppervlak } from './vlak-ringen.js';
 import { vlakZijden, lengteEenheid } from './vlak-zijden.js';
 import { vlakWeergave, isAlleenOppervlakte, decimalenAlleenOppervlakte } from './oppervlakte-eenheid.js';
 import { isSpotCoord, spotCoordTekst } from './spot-coord.js';
+import { paginaNulpunt } from './coord-nulpunt.js';
 import { formatGetal, eenheidNotatie } from '../core/maat-notatie.js';
 import { toontVoetInch, formatVoetInch, lengteNotatie } from '../core/voet-inch.js';
 import { maatTekst, opmaakVanMaat, maatEenheid } from '../core/maat-opmaak.js';
@@ -458,7 +459,7 @@ export function recalculateAllMeasurements() {
  */
 export function syncSpotCoord(ann) {
   const scale = getMeasureScale(ann.page, ann.startX, ann.startY);
-  ann.measureText = spotCoordTekst(ann.startX, ann.startY, scale);
+  ann.measureText = spotCoordTekst(ann.startX, ann.startY, scale, paginaNulpunt(getActiveDocument(), ann.page));
   ann.measureUnit = scale.unit;
 }
 

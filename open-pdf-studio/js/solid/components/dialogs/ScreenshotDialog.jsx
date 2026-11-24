@@ -4,6 +4,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { state } from '../../../core/state.js';
+import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import {
   RESOLUTIES, MIN_DPI, MAX_DPI,
   keuzeUitVoorkeuren, keuzeNaarVoorkeuren, gekozenDpi, uitvoerMaat, dpiVoorBreedte,
@@ -69,6 +70,8 @@ export default function ScreenshotDialog(props) {
       if (actie === 'save') {
         const pad = await m.bewaarSchermafbeelding(gebied, dpi(), formaat(), kwaliteit(), lijnkleur());
         if (!pad) { setBezig(false); return; } // save dialog cancelled: stay open
+      } else if (actie === 'paste') {
+        await m.plakSchermafbeelding(gebied, dpi(), lijnkleur());
       } else {
         await m.kopieerSchermafbeelding(gebied, dpi(), lijnkleur());
       }
@@ -76,7 +79,8 @@ export default function ScreenshotDialog(props) {
       close();
     } catch (e) {
       console.error('[screenshot]', e);
-      setFout(t(actie === 'save' ? 'screenshot.saveFailed' : 'screenshot.copyFailed') + (e?.message ? ` (${e.message})` : ''));
+      const foutSleutel = actie === 'save' ? 'screenshot.saveFailed' : actie === 'paste' ? 'screenshot.pasteFailed' : 'screenshot.copyFailed';
+      setFout(t(foutSleutel) + (e?.message ? ` (${e.message})` : ''));
       setBezig(false);
     }
   };
@@ -135,11 +139,11 @@ export default function ScreenshotDialog(props) {
     return `${r} dpi`;
   };
 
-  const knop = (actie, label, id) => (
+  const knop = (actie, label, id, uit = false) => (
     <button
       id={id}
       class={`pref-btn ${standaardActie() === actie ? 'pref-btn-primary' : 'pref-btn-secondary'}`}
-      disabled={bezig() || !gebied}
+      disabled={bezig() || !gebied || uit}
       onClick={() => voerUit(actie)}
     >{label}</button>
   );
@@ -149,6 +153,7 @@ export default function ScreenshotDialog(props) {
       <div class="screenshot-status">{bezig() ? t('screenshot.busy') : ''}</div>
       <div class="crop-margins-footer-right">
         {knop('copy', t('screenshot.copy'), 'screenshot-copy')}
+        {knop('paste', t('screenshot.paste'), 'screenshot-paste', isPdfAReadOnly())}
         {knop('save', t('screenshot.saveAs'), 'screenshot-save')}
         <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>
       </div>

@@ -33,6 +33,7 @@ import { pdfTextString } from './saver/pdf-text.js';
 import { pixelsPerUnitFor, userUnitVanPagina } from '../annotations/scale-region-scale.js';
 import { schaalUitMeasure } from './pdf-viewports.js';
 import { leesControlesJson, schrijfControlesJson } from '../annotations/schaalcontrole.js';
+import { nulpuntNaarJson, nulpuntUitJson } from '../annotations/coord-nulpunt.js';
 
 const N = (s) => PDFName.of(s);
 
@@ -40,6 +41,9 @@ const N = (s) => PDFName.of(s);
 export const BRON_SLEUTEL = 'OPS_Bron';
 /** De paginasleutel met de schaalcontroles. */
 export const CONTROLES_SLEUTEL = 'OPS_ScaleChecks';
+
+/** Het nulpunt van de coördinaatlabels van een pagina (JSON [x, y, yUp]). */
+export const NULPUNT_SLEUTEL = 'OPS_CoordOrigin';
 
 const BRONNEN = Object.freeze({ document: 'Document', page: 'Page', scaleRegion: 'ScaleRegion', viewport: 'Viewport' });
 
@@ -343,6 +347,33 @@ export function schrijfControles(pagina, controles) {
 }
 
 /**
+ * Zet het nulpunt van de coördinaatlabels van één pagina; null haalt de sleutel weg.
+ */
+export function schrijfNulpunt(pagina, nulpunt) {
+  const node = pagina.node;
+  const json = nulpuntNaarJson(nulpunt);
+  if (json) node.set(N(NULPUNT_SLEUTEL), pdfTextString(json));
+  else if (node.get(N(NULPUNT_SLEUTEL)) !== undefined) node.delete(N(NULPUNT_SLEUTEL));
+}
+
+/**
+ * De nulpunten van alle pagina's.
+ * @returns {Record<number, {x:number,y:number,yUp:boolean}>} per 1-gebaseerd paginanummer
+ */
+export function leesNulpunten(pdfLibDoc) {
+  const uit = {};
+  let paginas;
+  try { paginas = pdfLibDoc.getPages(); } catch { return uit; }
+  paginas.forEach((pagina, i) => {
+    try {
+      const n = nulpuntUitJson(tekst(pagina.node.lookup(N(NULPUNT_SLEUTEL))));
+      if (n) uit[i + 1] = n;
+    } catch { /* optioneel */ }
+  });
+  return uit;
+}
+
+/**
  * De schaalcontroles van alle pagina's.
  * @param {import('pdf-lib').PDFDocument} pdfLibDoc
  * @returns {Record<number, object[]>} per 1-gebaseerd paginanummer; pagina's zonder ontbreken
@@ -403,6 +434,8 @@ export function schrijfSchalenInPdf(paginas, doc, geladen = () => true) {
     // ingevoegde pagina neemt haar geschiedenis mee). Een lege lijst wist.
     const controles = doc?.scaleChecks?.[pageNum];
     if (Array.isArray(controles)) schrijfControles(pagina, controles);
+    // Het nulpunt volgt het model: geen nulpunt (meer) haalt de sleutel weg.
+    if (doc?.coordOrigins) schrijfNulpunt(pagina, doc.coordOrigins[pageNum] || null);
   });
   return viewports;
 }
@@ -456,6 +489,8 @@ export function pasSchalenUitBestandToe(doc, pdfLibDoc) {
     doc.scaleChecks = controles;
     uit.controles = aantal;
   }
+  const nulpunten = leesNulpunten(pdfLibDoc);
+  if (Object.keys(nulpunten).length && !doc.coordOrigins) doc.coordOrigins = nulpunten;
   const schaal = leesDocumentSchaal(pdfLibDoc);
   const ongewijzigd = !(Array.isArray(doc.undoStack) && doc.undoStack.length > 0);
   const paginas = leesPaginaSchalen(pdfLibDoc);

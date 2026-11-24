@@ -443,6 +443,7 @@
     "portfolio": "PDF-portfölj",
     "recognizeForm": "Identifiera formulärfält",
     "toolSets": "Verktygsuppsättningar",
+    "stamps": "Stämplar",
     "layersSetDefault": "Ange som standard",
     "layersSetDefaultTitle": "Spara lagrens aktuella synlighet som dokumentets standardläge. Det skrivs till filen nästa gång du sparar.",
     "layersDefaultPending": "Blir standard när du sparar",

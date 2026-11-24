@@ -509,6 +509,9 @@
     "sampleText": "Przykładowy tekst",
     "characters": "znaków"
   },
+  "stampPalette": {
+    "hint": "Wybierz pieczątkę, a następnie kliknij stronę, aby ją umieścić."
+  },
   "stampPicker": {
     "title": "Wybierz pieczątkę",
     "customFromImage": "Niestandardowa pieczątka z obrazu...",
@@ -516,6 +519,16 @@
     "manage": "Zarządzaj szablonami pieczątek...",
     "builtInHidden": "Wbudowane pieczątki są ukryte (Preferencje > Adnotacje > Komentarze).",
     "hideBuiltInNoOwn": "Wbudowane pieczątki są ustawione jako ukryte, ale nie masz jeszcze własnych pieczątek. Utwórz ją w Zarządzaj szablonami pieczątek."
+  },
+  "coordOrigin": {
+    "title": "Punkt zero współrzędnych",
+    "none": "Strona {{page}} nie ma punktu zero: współrzędne liczone są od lewego górnego rogu.",
+    "current": "Strona {{page}} ma punkt zero: współrzędne liczone są od niego, y w górę.",
+    "pick": "Wybierz punkt na rysunku…",
+    "lowerLeft": "Lewy dolny róg strony",
+    "underlay": "Przejmij z podkładu",
+    "clear": "Usuń punkt zero",
+    "hint": "Istniejące etykiety współrzędnych na tej stronie zostaną zaktualizowane; nowe użyją punktu zero."
   },
   "calibration": {
     "overridePdfScale": "Zastąp skale osadzone w PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Do schowka trafia zawsze obraz PNG; format pliku dotyczy polecenia Zapisz jako.",
     "copy": "Kopiuj do schowka",
     "saveAs": "Zapisz jako…",
+    "paste": "Wklej do dokumentu",
     "busy": "Renderowanie…",
     "copied": "Zrzut ekranu skopiowano do schowka ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Zrzut ekranu zapisano w {{path}}",
     "copyFailed": "Nie można skopiować zrzutu ekranu do schowka",
     "saveFailed": "Nie można zapisać zrzutu ekranu",
+    "pasteFailed": "Nie można umieścić zrzutu ekranu w dokumencie",
     "cancelled": "Zrzut ekranu anulowany",
     "noPage": "Brak strony PDF do przechwycenia",
     "notOnPage": "Zaznaczenie nie leży na stronie",

@@ -168,7 +168,7 @@ function commandPreservesSelection(cmd) {
   if (!cmd) return false;
   if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify' ||
       cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale' || cmd.type === 'modifyPageScales' ||
-      cmd.type === 'modifyScaleChecks') {
+      cmd.type === 'modifyScaleChecks' || cmd.type === 'modifyCoordOrigins') {
     return true;
   }
   if (cmd.type !== 'compound') return false;
@@ -547,6 +547,10 @@ function applyUndo(cmd, lookup) {
       doc.scaleChecks = clonePlainValue(cmd.oldState);
       break;
     }
+    case 'modifyCoordOrigins': {
+      doc.coordOrigins = clonePlainValue(cmd.oldState);
+      break;
+    }
     case 'bulkModify': {
       for (const item of cmd.items) restoreById(lookup, item.id, item.oldState);
       break;
@@ -716,6 +720,10 @@ function applyRedo(cmd, lookup) {
     }
     case 'modifyScaleChecks': {
       doc.scaleChecks = clonePlainValue(cmd.newState);
+      break;
+    }
+    case 'modifyCoordOrigins': {
+      doc.coordOrigins = clonePlainValue(cmd.newState);
       break;
     }
     case 'bulkModify': {
@@ -1034,6 +1042,15 @@ export function recordScaleChecks(oldState, newState) {
   if (JSON.stringify(oldState) === JSON.stringify(newState)) return;
   execute({
     type: 'modifyScaleChecks',
+    oldState: clonePlainValue(oldState),
+    newState: clonePlainValue(newState),
+  });
+}
+
+export function recordCoordOrigins(oldState, newState) {
+  if (JSON.stringify(oldState) === JSON.stringify(newState)) return;
+  execute({
+    type: 'modifyCoordOrigins',
     oldState: clonePlainValue(oldState),
     newState: clonePlainValue(newState),
   });

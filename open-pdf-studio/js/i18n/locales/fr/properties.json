@@ -443,6 +443,7 @@
     "portfolio": "Portfolio PDF",
     "recognizeForm": "Reconnaître les champs de formulaire",
     "toolSets": "Jeux d'outils",
+    "stamps": "Tampons",
     "layersSetDefault": "Définir par défaut",
     "layersSetDefaultTitle": "Enregistrer la visibilité actuelle des calques comme état par défaut du document. Elle est écrite dans le fichier au prochain enregistrement.",
     "layersDefaultPending": "Deviendra l'état par défaut à l'enregistrement",

@@ -509,6 +509,9 @@
     "sampleText": "Exempeltext",
     "characters": "tecken"
   },
+  "stampPalette": {
+    "hint": "Välj en stämpel och klicka på sidan för att placera den."
+  },
   "stampPicker": {
     "title": "Välj stämpel",
     "customFromImage": "Anpassad stämpel från bild...",
@@ -516,6 +519,16 @@
     "manage": "Hantera stämpelmallar...",
     "builtInHidden": "Inbyggda stämplar är dolda (Inställningar > Anteckningar > Kommentarer).",
     "hideBuiltInNoOwn": "Inbyggda stämplar är inställda på att döljas, men du har inga egna stämplar ännu. Skapa en via Hantera stämpelmallar."
+  },
+  "coordOrigin": {
+    "title": "Koordinatnollpunkt",
+    "none": "Sida {{page}} har ingen nollpunkt: koordinater räknas från övre vänstra hörnet.",
+    "current": "Sida {{page}} har en nollpunkt: koordinater räknas därifrån, y uppåt.",
+    "pick": "Välj en punkt i ritningen…",
+    "lowerLeft": "Nedre vänstra hörnet av sidan",
+    "underlay": "Ta över från underlaget",
+    "clear": "Ta bort nollpunkt",
+    "hint": "Befintliga koordinatetiketter på sidan uppdateras; nya använder nollpunkten."
   },
   "calibration": {
     "overridePdfScale": "Åsidosätt inbäddade PDF-skalor",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Urklipp får alltid en PNG-bild; filformatet gäller för Spara som.",
     "copy": "Kopiera till Urklipp",
     "saveAs": "Spara som…",
+    "paste": "Klistra in i dokumentet",
     "busy": "Renderar…",
     "copied": "Skärmbilden kopierades till Urklipp ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Skärmbilden sparades i {{path}}",
     "copyFailed": "Det gick inte att kopiera skärmbilden till Urklipp",
     "saveFailed": "Det gick inte att spara skärmbilden",
+    "pasteFailed": "Skärmbilden kunde inte placeras i dokumentet",
     "cancelled": "Skärmbilden avbröts",
     "noPage": "Ingen PDF-sida att avbilda",
     "notOnPage": "Markeringen ligger inte på en sida",

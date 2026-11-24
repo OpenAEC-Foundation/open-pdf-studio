@@ -493,6 +493,7 @@
     "portfolio": "PDF portfolio",
     "recognizeForm": "Recognize form fields",
     "toolSets": "Tool Sets",
+    "stamps": "Stamps",
     "layersSetDefault": "Set as default",
     "layersSetDefaultTitle": "Store the current layer visibility as the document's default state. It is written to the file the next time you save.",
     "layersDefaultPending": "Saved as default on next save",

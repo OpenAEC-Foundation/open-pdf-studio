@@ -509,6 +509,9 @@
     "sampleText": "Văn bản mẫu",
     "characters": "ký tự"
   },
+  "stampPalette": {
+    "hint": "Chọn một con dấu, rồi nhấp vào trang để đặt."
+  },
   "stampPicker": {
     "title": "Chọn Con dấu",
     "customFromImage": "Con dấu Tùy chỉnh từ Hình ảnh...",
@@ -516,6 +519,16 @@
     "manage": "Quản lý mẫu con dấu...",
     "builtInHidden": "Con dấu tích hợp đang bị ẩn (Tùy chọn > Chú thích > Nhận xét).",
     "hideBuiltInNoOwn": "Con dấu tích hợp được đặt là ẩn, nhưng bạn chưa có con dấu riêng nào. Hãy tạo một con dấu trong Quản lý mẫu con dấu."
+  },
+  "coordOrigin": {
+    "title": "Gốc tọa độ",
+    "none": "Trang {{page}} chưa có gốc: tọa độ tính từ góc trên bên trái.",
+    "current": "Trang {{page}} có gốc: tọa độ tính từ đó, y hướng lên.",
+    "pick": "Chọn một điểm trên bản vẽ…",
+    "lowerLeft": "Góc dưới bên trái của trang",
+    "underlay": "Lấy từ bản vẽ nền",
+    "clear": "Xóa gốc tọa độ",
+    "hint": "Các nhãn tọa độ hiện có trên trang được cập nhật; nhãn mới dùng gốc này."
   },
   "calibration": {
     "overridePdfScale": "Ghi đè tỷ lệ được nhúng trong PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Bộ nhớ tạm luôn nhận ảnh PNG; định dạng tệp áp dụng cho Lưu thành.",
     "copy": "Sao chép vào bộ nhớ tạm",
     "saveAs": "Lưu thành…",
+    "paste": "Dán vào tài liệu",
     "busy": "Đang kết xuất…",
     "copied": "Đã sao chép ảnh chụp vào bộ nhớ tạm ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Đã lưu ảnh chụp vào {{path}}",
     "copyFailed": "Không thể sao chép ảnh chụp vào bộ nhớ tạm",
     "saveFailed": "Không thể lưu ảnh chụp",
+    "pasteFailed": "Không thể đặt ảnh chụp màn hình vào tài liệu",
     "cancelled": "Đã hủy chụp màn hình",
     "noPage": "Không có trang PDF để chụp",
     "notOnPage": "Vùng chọn không nằm trên trang nào",

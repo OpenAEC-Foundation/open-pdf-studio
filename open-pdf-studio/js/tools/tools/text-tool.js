@@ -6,6 +6,7 @@ import { stampPxPerMm, stampPtPerPapierMm } from '../../annotations/stamp-scale.
 import { getActiveDocument } from '../../core/state.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { blendCanvasWaarde } from '../../annotations/blend-modes.js';
+import { paletZichtbaar } from '../../annotations/stamp-palet-status.js';
 import { stempelKeuze, wisStempelKeuze, stempelKeuzeMaat, stempelKeuzeNaam } from '../../annotations/stamp-keuze.js';
 import { naturalStampSize } from '../../annotations/dynamic-stamp-layout.js';
 
@@ -99,6 +100,8 @@ export const stampTool = {
     wisStempelKeuze();
     const ov = ctx?.state?.toolOverrides;
     if (ov?.stampSvg || ov?.stampImage) return;
+    // The palette is open: the stamp is chosen there, no dialog.
+    if (paletZichtbaar()) return;
     import('../../annotations/stamps.js')
       .then((m) => m.kiesStempelVooraf())
       .catch((err) => console.error('[stamp] picker failed', err));
@@ -115,6 +118,9 @@ export const stampTool = {
       // De aangeklikte pagina reist mee (#1006).
       ctx.plaatsGekozenStempel(ctx.x, ctx.y, ctx.pageNum);
       import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
+    } else if (paletZichtbaar()) {
+      // Nothing chosen yet: the palette shows the stamps.
+      return;
     } else {
       // Nothing chosen (the picker was closed): choose at the clicked point.
       // De aangeklikte pagina reist mee met het keuzevenster (#1006).

@@ -313,7 +313,7 @@ export default function CalibrationDialog(props) {
         {/* Een lijn op de tekening tekenen (#1090): twee klikken, Shift houdt
             hem horizontaal of verticaal. Het venster komt daarna terug met de
             gemeten lengte ingevuld. */}
-        <div class="calibration-row">
+        <div class="calibration-row calibration-row-draw">
           <button type="button" class="pref-btn calibration-draw" disabled={!getActiveDocument()?.pdfDoc}
             onClick={tekenReferentielijn}>{t('calibration.drawLine')}</button>
           <span class="calibration-hint">{t('calibration.drawLineHint')}</span>

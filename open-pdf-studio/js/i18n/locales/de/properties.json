@@ -443,6 +443,7 @@
     "portfolio": "PDF-Portfolio",
     "recognizeForm": "Formularfelder erkennen",
     "toolSets": "Werkzeugsätze",
+    "stamps": "Stempel",
     "layersSetDefault": "Als Standard festlegen",
     "layersSetDefaultTitle": "Die aktuelle Sichtbarkeit der Ebenen als Standardzustand des Dokuments speichern. Sie wird beim nächsten Speichern in die Datei geschrieben.",
     "layersDefaultPending": "Wird beim Speichern zum Standard",

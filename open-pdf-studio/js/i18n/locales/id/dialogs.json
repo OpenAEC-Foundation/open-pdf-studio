@@ -509,6 +509,9 @@
     "sampleText": "Teks contoh",
     "characters": "karakter"
   },
+  "stampPalette": {
+    "hint": "Pilih stempel, lalu klik pada halaman untuk menempatkannya."
+  },
   "stampPicker": {
     "title": "Pilih Stempel",
     "customFromImage": "Stempel Kustom dari Gambar...",
@@ -516,6 +519,16 @@
     "manage": "Kelola templat stempel...",
     "builtInHidden": "Stempel bawaan disembunyikan (Preferensi > Anotasi > Komentar).",
     "hideBuiltInNoOwn": "Stempel bawaan diatur untuk disembunyikan, tetapi Anda belum punya stempel sendiri. Buat satu melalui Kelola templat stempel."
+  },
+  "coordOrigin": {
+    "title": "Titik nol koordinat",
+    "none": "Halaman {{page}} tidak punya titik nol: koordinat dihitung dari sudut kiri atas.",
+    "current": "Halaman {{page}} punya titik nol: koordinat dihitung darinya, y ke atas.",
+    "pick": "Pilih titik pada gambar…",
+    "lowerLeft": "Sudut kiri bawah halaman",
+    "underlay": "Ambil dari gambar dasar",
+    "clear": "Hapus titik nol",
+    "hint": "Label koordinat yang ada di halaman ini diperbarui; yang baru memakai titik nol."
   },
   "calibration": {
     "overridePdfScale": "Timpa skala PDF yang tertanam",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Papan klip selalu menerima gambar PNG; format file berlaku untuk Simpan sebagai.",
     "copy": "Salin ke papan klip",
     "saveAs": "Simpan sebagai…",
+    "paste": "Tempel ke dokumen",
     "busy": "Merender…",
     "copied": "Tangkapan layar disalin ke papan klip ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Tangkapan layar disimpan ke {{path}}",
     "copyFailed": "Tidak dapat menyalin tangkapan layar ke papan klip",
     "saveFailed": "Tidak dapat menyimpan tangkapan layar",
+    "pasteFailed": "Tidak dapat menempatkan tangkapan layar di dokumen",
     "cancelled": "Tangkapan layar dibatalkan",
     "noPage": "Tidak ada halaman PDF untuk ditangkap",
     "notOnPage": "Pilihan tidak berada di halaman",

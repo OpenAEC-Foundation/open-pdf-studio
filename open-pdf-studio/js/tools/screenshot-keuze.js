@@ -11,7 +11,7 @@
 /** Resolution choices in the dialog, in menu order. */
 export const RESOLUTIES = Object.freeze(['screen', 96, 150, 300, 600, 'custom']);
 export const FORMATEN = Object.freeze(['png', 'jpeg']);
-export const ACTIES = Object.freeze(['copy', 'save']);
+export const ACTIES = Object.freeze(['copy', 'paste', 'save']);
 
 export const MIN_DPI = 10;
 export const MAX_DPI = 2400;

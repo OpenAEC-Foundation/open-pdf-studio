@@ -14,7 +14,8 @@ import fs from 'fs';
 
 const MCP = 'http://127.0.0.1:' + (process.env.MCP_PORT || '9223') + '/mcp';
 const CDP = process.env.CDP_PORT || '9345';
-const BRONFIXTURE = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/fixtures/pdf/Tekst.pdf';
+// Naast dit script, zodat het ook vanuit een andere werkmap dan de hoofdmap werkt.
+const BRONFIXTURE = new URL('../fixtures/pdf/Tekst.pdf', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const WERKKOPIE = 'C:/Users/rickd/AppData/Local/Temp/plaatsing-cursor-test.pdf';
 const ZOOMS = [1.0, 2.0, 3.52];
 const TOLERANTIE = 1.5; // app-punten (pt)

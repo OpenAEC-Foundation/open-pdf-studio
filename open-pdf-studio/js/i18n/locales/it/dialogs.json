@@ -509,6 +509,9 @@
     "sampleText": "Testo di esempio",
     "characters": "caratteri"
   },
+  "stampPalette": {
+    "hint": "Scegli un timbro, poi fai clic sulla pagina per inserirlo."
+  },
   "stampPicker": {
     "title": "Seleziona timbro",
     "customFromImage": "Timbro personalizzato da immagine...",
@@ -516,6 +519,16 @@
     "manage": "Gestisci modelli di timbro...",
     "builtInHidden": "I timbri integrati sono nascosti (Preferenze > Annotazioni > Commenti).",
     "hideBuiltInNoOwn": "I timbri integrati sono impostati come nascosti, ma non hai ancora timbri personali. Creane uno con Gestisci modelli di timbro."
+  },
+  "coordOrigin": {
+    "title": "Origine delle coordinate",
+    "none": "La pagina {{page}} non ha un'origine: le coordinate partono dall'angolo in alto a sinistra.",
+    "current": "La pagina {{page}} ha un'origine: le coordinate partono da lì, y verso l'alto.",
+    "pick": "Scegli un punto del disegno…",
+    "lowerLeft": "Angolo in basso a sinistra della pagina",
+    "underlay": "Prendi dalla base",
+    "clear": "Cancella origine",
+    "hint": "Le etichette di coordinate esistenti in questa pagina vengono aggiornate; le nuove usano l'origine."
   },
   "calibration": {
     "overridePdfScale": "Sostituisci le scale incorporate nel PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Negli appunti va sempre un'immagine PNG; il formato file vale per Salva con nome.",
     "copy": "Copia negli appunti",
     "saveAs": "Salva con nome…",
+    "paste": "Incolla nel documento",
     "busy": "Rendering in corso…",
     "copied": "Schermata copiata negli appunti ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Schermata salvata in {{path}}",
     "copyFailed": "Impossibile copiare la schermata negli appunti",
     "saveFailed": "Impossibile salvare la schermata",
+    "pasteFailed": "Impossibile inserire lo screenshot nel documento",
     "cancelled": "Cattura annullata",
     "noPage": "Nessuna pagina PDF da catturare",
     "notOnPage": "La selezione non è su una pagina",

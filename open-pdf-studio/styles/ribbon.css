@@ -1310,10 +1310,13 @@
   z-index: 1000;
   min-width: 170px;
   border: 1px solid var(--theme-ribbon-input-border, #d4d4d4);
-  background: var(--theme-ribbon-input-bg, #ffffff);
-  /* Solid fallback color so the dropdown is never transparent regardless of
-     theme variable availability. */
-  background-color: var(--theme-ribbon-input-bg, #ffffff);
+  /* De lijst zweeft boven het lint en moet dekkend zijn. --theme-ribbon-
+     input-bg is in het standaardthema, Amber donker en Warme gloed een kleur
+     met 5% dekking: de lijst was doorzichtig en de tekst eronder schemerde
+     door de opties. De dekkende inhoudskleur van het lint eronder, de
+     invoerkleur er licht overheen. */
+  background-color: var(--theme-ribbon-content-bg, #ffffff);
+  background-image: linear-gradient(var(--theme-ribbon-input-bg, transparent), var(--theme-ribbon-input-bg, transparent));
   padding: 2px 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }

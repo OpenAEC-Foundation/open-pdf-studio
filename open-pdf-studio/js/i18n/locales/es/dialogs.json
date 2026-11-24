@@ -509,6 +509,9 @@
     "sampleText": "Texto de ejemplo",
     "characters": "caracteres"
   },
+  "stampPalette": {
+    "hint": "Elija un sello y haga clic en la página para colocarlo."
+  },
   "stampPicker": {
     "title": "Seleccionar sello",
     "customFromImage": "Sello personalizado desde imagen...",
@@ -516,6 +519,16 @@
     "manage": "Administrar plantillas de sello...",
     "builtInHidden": "Los sellos integrados están ocultos (Preferencias > Anotaciones > Comentarios).",
     "hideBuiltInNoOwn": "Los sellos integrados están configurados como ocultos, pero todavía no tiene sellos propios. Cree uno con Administrar plantillas de sello."
+  },
+  "coordOrigin": {
+    "title": "Origen de coordenadas",
+    "none": "La página {{page}} no tiene origen: las coordenadas cuentan desde la esquina superior izquierda.",
+    "current": "La página {{page}} tiene origen: las coordenadas cuentan desde él, y hacia arriba.",
+    "pick": "Elegir un punto del dibujo…",
+    "lowerLeft": "Esquina inferior izquierda de la página",
+    "underlay": "Tomar del plano base",
+    "clear": "Borrar origen",
+    "hint": "Las etiquetas de coordenadas existentes de esta página se actualizan; las nuevas usan el origen."
   },
   "calibration": {
     "overridePdfScale": "Anular las escalas incrustadas del PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "El portapapeles siempre recibe una imagen PNG; el formato de archivo se aplica a Guardar como.",
     "copy": "Copiar al portapapeles",
     "saveAs": "Guardar como…",
+    "paste": "Pegar en el documento",
     "busy": "Renderizando…",
     "copied": "Captura copiada al portapapeles ({{width}} × {{height}} px, {{dpi}} ppp)",
     "saved": "Captura guardada en {{path}}",
     "copyFailed": "No se pudo copiar la captura al portapapeles",
     "saveFailed": "No se pudo guardar la captura",
+    "pasteFailed": "No se pudo colocar la captura en el documento",
     "cancelled": "Captura cancelada",
     "noPage": "No hay ninguna página PDF que capturar",
     "notOnPage": "La selección no está sobre una página",

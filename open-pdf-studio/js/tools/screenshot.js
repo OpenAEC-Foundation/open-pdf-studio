@@ -316,6 +316,22 @@ export async function kopieerSchermafbeelding(gebied, dpi, lijnkleur) {
   return maat;
 }
 
+/**
+ * Place a capture straight on the page as an image, the same as copying it and
+ * pasting it with Ctrl+V, but without the detour over the clipboard (which is
+ * left alone). The image keeps the size of the area it was taken from.
+ */
+export async function plakSchermafbeelding(gebied, dpi, lijnkleur) {
+  const { canvas, maat } = await renderSchermafbeelding(gebied, dpi, lijnkleur);
+  const blob = await _blob(canvas, 'image/png');
+  const draai = isKwartslag(weergaveRotatie(gebied.doc));
+  const breedte = draai ? gebied.rect.height : gebied.rect.width;
+  const hoogte = draai ? gebied.rect.width : gebied.rect.height;
+  const { pasteImageFromBlob } = await import('../annotations/clipboard.js');
+  await pasteImageFromBlob(blob, { maat: { width: breedte, height: hoogte } });
+  return maat;
+}
+
 /** Suggested save path: the document's folder (desktop) plus the file name. */
 function _voorstelPad(doc, naam) {
   const pad = isTauri() ? doc?.filePath : null;

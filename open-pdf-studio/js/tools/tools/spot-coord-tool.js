@@ -10,6 +10,7 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { SPOT_COORD, spotCoordTekst } from '../../annotations/spot-coord.js';
+import { paginaNulpunt } from '../../annotations/coord-nulpunt.js';
 import { schermPxNaarPt } from '../../annotations/minimummaat.js';
 import { getEffectiveScale } from '../effective-scale.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
@@ -23,7 +24,7 @@ function _bericht(def, key) {
 /** X,Y in meeteenheden (schaalgebied-bewust), zes significante cijfers. */
 function _coordinaten(page, x, y) {
   const ms = getMeasureScale(page, x, y);
-  return { text: spotCoordTekst(x, y, ms), unit: ms.unit || 'mm' };
+  return { text: spotCoordTekst(x, y, ms, paginaNulpunt(getActiveDocument(), page)), unit: ms.unit || 'mm' };
 }
 
 /** Vaste leidraadlengte in schermpixels → paginapunten (zoom-onafhankelijk). */

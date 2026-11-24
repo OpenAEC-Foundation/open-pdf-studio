@@ -509,6 +509,9 @@
     "sampleText": "示例文本",
     "characters": "字符"
   },
+  "stampPalette": {
+    "hint": "选择图章，然后单击页面放置。"
+  },
   "stampPicker": {
     "title": "选择图章",
     "customFromImage": "从图像创建自定义图章...",
@@ -516,6 +519,16 @@
     "manage": "管理图章模板...",
     "builtInHidden": "内置图章已隐藏（首选项 > 批注 > 批注）。",
     "hideBuiltInNoOwn": "内置图章已设置为隐藏，但您还没有自己的图章。请通过“管理图章模板”创建一个。"
+  },
+  "coordOrigin": {
+    "title": "坐标原点",
+    "none": "第 {{page}} 页没有原点：坐标从左上角开始计算。",
+    "current": "第 {{page}} 页有原点：坐标从原点开始计算，y 向上。",
+    "pick": "在图纸上选取一点…",
+    "lowerLeft": "页面左下角",
+    "underlay": "从底图获取",
+    "clear": "清除原点",
+    "hint": "此页上已有的坐标标签会更新；新标签使用该原点。"
   },
   "calibration": {
     "overridePdfScale": "覆盖 PDF 内嵌比例尺",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "剪贴板始终接收 PNG 图像；文件格式用于“另存为”。",
     "copy": "复制到剪贴板",
     "saveAs": "另存为…",
+    "paste": "粘贴到文档",
     "busy": "正在渲染…",
     "copied": "截图已复制到剪贴板（{{width}} × {{height}} 像素，{{dpi}} dpi）",
     "saved": "截图已保存到 {{path}}",
     "copyFailed": "无法将截图复制到剪贴板",
     "saveFailed": "无法保存截图",
+    "pasteFailed": "无法将截图放入文档",
     "cancelled": "已取消截图",
     "noPage": "没有可截取的 PDF 页面",
     "notOnPage": "选区不在页面上",

@@ -509,6 +509,9 @@
     "sampleText": "Beispieltext",
     "characters": "Zeichen"
   },
+  "stampPalette": {
+    "hint": "Stempel wählen, dann auf die Seite klicken, um ihn zu platzieren."
+  },
   "stampPicker": {
     "title": "Stempel auswählen",
     "customFromImage": "Benutzerdefinierter Stempel aus Bild...",
@@ -516,6 +519,16 @@
     "manage": "Stempelvorlagen verwalten...",
     "builtInHidden": "Integrierte Stempel sind ausgeblendet (Einstellungen > Anmerkungen > Kommentare).",
     "hideBuiltInNoOwn": "Integrierte Stempel sind auf Ausblenden gesetzt, aber Sie haben noch keine eigenen Stempel. Erstellen Sie einen über Stempelvorlagen verwalten."
+  },
+  "coordOrigin": {
+    "title": "Koordinatennullpunkt",
+    "none": "Seite {{page}} hat keinen Nullpunkt: Koordinaten zählen ab der linken oberen Ecke.",
+    "current": "Seite {{page}} hat einen Nullpunkt: Koordinaten zählen von dort, y nach oben.",
+    "pick": "Punkt in der Zeichnung wählen…",
+    "lowerLeft": "Linke untere Ecke der Seite",
+    "underlay": "Von der Unterlage übernehmen",
+    "clear": "Nullpunkt löschen",
+    "hint": "Vorhandene Koordinatenbeschriftungen dieser Seite werden aktualisiert; neue nutzen den Nullpunkt."
   },
   "calibration": {
     "overridePdfScale": "Eingebettete PDF-Maßstäbe überschreiben",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "In die Zwischenablage kommt immer ein PNG-Bild; das Dateiformat gilt für Speichern unter.",
     "copy": "In die Zwischenablage kopieren",
     "saveAs": "Speichern unter…",
+    "paste": "In Dokument einfügen",
     "busy": "Wird gerendert…",
     "copied": "Bildschirmfoto in die Zwischenablage kopiert ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Bildschirmfoto gespeichert unter {{path}}",
     "copyFailed": "Das Bildschirmfoto konnte nicht in die Zwischenablage kopiert werden",
     "saveFailed": "Das Bildschirmfoto konnte nicht gespeichert werden",
+    "pasteFailed": "Der Screenshot konnte nicht im Dokument platziert werden",
     "cancelled": "Bildschirmfoto abgebrochen",
     "noPage": "Keine PDF-Seite zum Erfassen",
     "notOnPage": "Die Auswahl liegt nicht auf einer Seite",

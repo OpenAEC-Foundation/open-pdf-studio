@@ -176,7 +176,12 @@ export function visibleCenterOnPage(pageNum) {
 }
 
 // Paste image from blob
-export async function pasteImageFromBlob(blob) {
+/**
+ * Place an image on the page the user is looking at (under the mouse, else the
+ * centre of the view). `maat` {width, height} gives the size in page units;
+ * without it the image's own pixel size counts, capped for huge images.
+ */
+export async function pasteImageFromBlob(blob, { maat = null } = {}) {
   const imageId = generateImageId();
   const url = URL.createObjectURL(blob);
 
@@ -210,7 +215,11 @@ export async function pasteImageFromBlob(blob) {
   let height = img.naturalHeight;
   const maxSize = 1500;
 
-  if (width > maxSize || height > maxSize) {
+  if (maat && maat.width > 0 && maat.height > 0) {
+    // A screenshot keeps the size of the area it was taken from.
+    width = maat.width;
+    height = maat.height;
+  } else if (width > maxSize || height > maxSize) {
     const ratio = Math.min(maxSize / width, maxSize / height);
     width *= ratio;
     height *= ratio;

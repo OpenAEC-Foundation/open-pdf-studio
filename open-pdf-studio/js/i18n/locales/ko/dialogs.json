@@ -509,6 +509,9 @@
     "sampleText": "샘플 텍스트",
     "characters": "문자"
   },
+  "stampPalette": {
+    "hint": "스탬프를 선택한 다음 페이지를 클릭하여 배치하세요."
+  },
   "stampPicker": {
     "title": "스탬프 선택",
     "customFromImage": "이미지에서 사용자 지정 스탬프 만들기...",
@@ -516,6 +519,16 @@
     "manage": "스탬프 템플릿 관리...",
     "builtInHidden": "기본 제공 스탬프가 숨겨져 있습니다(환경 설정 > 주석 > 댓글).",
     "hideBuiltInNoOwn": "기본 제공 스탬프가 숨김으로 설정되어 있지만 아직 내 스탬프가 없습니다. 스탬프 템플릿 관리에서 하나 만드세요."
+  },
+  "coordOrigin": {
+    "title": "좌표 원점",
+    "none": "페이지 {{page}}에는 원점이 없습니다. 좌표는 왼쪽 위 모서리부터 계산됩니다.",
+    "current": "페이지 {{page}}에는 원점이 있습니다. 좌표는 원점부터 계산되며 y는 위쪽입니다.",
+    "pick": "도면에서 점 선택…",
+    "lowerLeft": "페이지의 왼쪽 아래 모서리",
+    "underlay": "밑그림에서 가져오기",
+    "clear": "원점 지우기",
+    "hint": "이 페이지의 기존 좌표 레이블이 업데이트되며 새 레이블은 원점을 사용합니다."
   },
   "calibration": {
     "overridePdfScale": "PDF에 포함된 축척 재정의",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "클립보드에는 항상 PNG 이미지가 들어갑니다. 파일 형식은 다른 이름으로 저장에 적용됩니다.",
     "copy": "클립보드에 복사",
     "saveAs": "다른 이름으로 저장…",
+    "paste": "문서에 붙여넣기",
     "busy": "렌더링 중…",
     "copied": "스크린샷을 클립보드에 복사했습니다 ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "스크린샷을 {{path}}에 저장했습니다",
     "copyFailed": "스크린샷을 클립보드에 복사할 수 없습니다",
     "saveFailed": "스크린샷을 저장할 수 없습니다",
+    "pasteFailed": "스크린샷을 문서에 배치할 수 없습니다",
     "cancelled": "스크린샷이 취소되었습니다",
     "noPage": "캡처할 PDF 페이지가 없습니다",
     "notOnPage": "선택 영역이 페이지 위에 있지 않습니다",

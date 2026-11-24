@@ -443,6 +443,7 @@
     "portfolio": "PDF-portefølje",
     "recognizeForm": "Gjenkjenn skjemafelt",
     "toolSets": "Verktøysett",
+    "stamps": "Stempler",
     "layersSetDefault": "Angi som standard",
     "layersSetDefaultTitle": "Lagre lagenes gjeldende synlighet som dokumentets standardtilstand. Den skrives til filen neste gang du lagrer.",
     "layersDefaultPending": "Blir standard ved neste lagring",

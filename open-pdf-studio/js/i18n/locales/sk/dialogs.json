@@ -509,6 +509,9 @@
     "sampleText": "Ukážkový text",
     "characters": "znakov"
   },
+  "stampPalette": {
+    "hint": "Vyberte pečiatku a kliknutím na stránku ju umiestnite."
+  },
   "stampPicker": {
     "title": "Vybrať pečiatku",
     "customFromImage": "Vlastná pečiatka z obrázka...",
@@ -516,6 +519,16 @@
     "manage": "Spravovať šablóny pečiatok...",
     "builtInHidden": "Vstavané pečiatky sú skryté (Predvoľby > Anotácie > Komentáre).",
     "hideBuiltInNoOwn": "Vstavané pečiatky sú nastavené ako skryté, ale zatiaľ nemáte žiadne vlastné pečiatky. Vytvorte ich cez Spravovať šablóny pečiatok."
+  },
+  "coordOrigin": {
+    "title": "Začiatok súradníc",
+    "none": "Strana {{page}} nemá začiatok: súradnice sa počítajú od ľavého horného rohu.",
+    "current": "Strana {{page}} má začiatok: súradnice sa počítajú od neho, y nahor.",
+    "pick": "Vybrať bod vo výkrese…",
+    "lowerLeft": "Ľavý dolný roh strany",
+    "underlay": "Prevziať z podkladu",
+    "clear": "Zrušiť začiatok",
+    "hint": "Existujúce popisy súradníc na strane sa aktualizujú; nové použijú začiatok."
   },
   "calibration": {
     "overridePdfScale": "Prepísať vložené mierky PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "Do schránky ide vždy obrázok PNG; formát súboru platí pre Uložiť ako.",
     "copy": "Kopírovať do schránky",
     "saveAs": "Uložiť ako…",
+    "paste": "Vložiť do dokumentu",
     "busy": "Vykresľovanie…",
     "copied": "Snímka skopírovaná do schránky ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Snímka uložená do {{path}}",
     "copyFailed": "Snímku sa nepodarilo skopírovať do schránky",
     "saveFailed": "Snímku sa nepodarilo uložiť",
+    "pasteFailed": "Snímku obrazovky sa nepodarilo vložiť do dokumentu",
     "cancelled": "Snímka zrušená",
     "noPage": "Žiadna strana PDF na zachytenie",
     "notOnPage": "Výber neleží na strane",

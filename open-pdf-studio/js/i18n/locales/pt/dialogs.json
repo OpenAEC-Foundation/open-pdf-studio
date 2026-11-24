@@ -509,6 +509,9 @@
     "sampleText": "Texto de exemplo",
     "characters": "caracteres"
   },
+  "stampPalette": {
+    "hint": "Escolha um carimbo e clique na página para o colocar."
+  },
   "stampPicker": {
     "title": "Selecionar carimbo",
     "customFromImage": "Carimbo personalizado a partir de imagem...",
@@ -516,6 +519,16 @@
     "manage": "Gerenciar modelos de carimbo...",
     "builtInHidden": "Os carimbos integrados estão ocultos (Preferências > Anotações > Comentários).",
     "hideBuiltInNoOwn": "Os carimbos integrados estão definidos como ocultos, mas ainda não tem carimbos próprios. Crie um em Gerenciar modelos de carimbo."
+  },
+  "coordOrigin": {
+    "title": "Origem das coordenadas",
+    "none": "A página {{page}} não tem origem: as coordenadas contam a partir do canto superior esquerdo.",
+    "current": "A página {{page}} tem origem: as coordenadas contam a partir dela, y para cima.",
+    "pick": "Escolher um ponto do desenho…",
+    "lowerLeft": "Canto inferior esquerdo da página",
+    "underlay": "Assumir do desenho de base",
+    "clear": "Limpar origem",
+    "hint": "As etiquetas de coordenadas existentes nesta página são atualizadas; as novas usam a origem."
   },
   "calibration": {
     "overridePdfScale": "Substituir escalas incorporadas no PDF",
@@ -1337,11 +1350,13 @@
     "clipboardNote": "A área de transferência sempre recebe uma imagem PNG; o formato do arquivo vale para Salvar como.",
     "copy": "Copiar para a área de transferência",
     "saveAs": "Salvar como…",
+    "paste": "Colar no documento",
     "busy": "Renderizando…",
     "copied": "Captura copiada para a área de transferência ({{width}} × {{height}} px, {{dpi}} dpi)",
     "saved": "Captura salva em {{path}}",
     "copyFailed": "Não foi possível copiar a captura para a área de transferência",
     "saveFailed": "Não foi possível salvar a captura",
+    "pasteFailed": "Não foi possível colocar a captura de ecrã no documento",
     "cancelled": "Captura cancelada",
     "noPage": "Nenhuma página PDF para capturar",
     "notOnPage": "A seleção não está sobre uma página",
