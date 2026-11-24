@@ -6,7 +6,7 @@ import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '.
 import { updateAllStatus } from './status-bar.js';
 import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActiveTab, refreshAllTabs, saveThumbnailScrollPosition } from '../panels/left-panel.js';
 import { cancelAnnotationLoading, hidePdfABar } from '../../pdf/loader.js';
-import { savePDF } from '../../pdf/saver.js';
+import { savePDF } from '../../pdf/save-commands.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';

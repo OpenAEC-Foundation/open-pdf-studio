@@ -18,7 +18,7 @@ import LoadingOverlay from './components/LoadingOverlay.jsx';
 import DialogHost from './components/DialogHost.jsx';
 import { openDialog } from './stores/dialogStore.js';
 import { setTool } from '../tools/manager.js';
-import { savePDF, savePDFAs } from '../pdf/saver.js';
+import { savePDF, savePDFAs } from '../pdf/save-commands.js';
 import { MOBIELE_GEREEDSCHAPPEN } from '../mobile/mobiele-gereedschappen.js';
 import { MOBIELE_ACTIES, actieUit, geselecteerdeMarkeringen } from '../mobile/mobiele-acties.js';
 import { showMessage } from './stores/dialogStore.js';
