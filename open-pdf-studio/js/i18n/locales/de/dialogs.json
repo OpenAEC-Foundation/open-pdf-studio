@@ -520,6 +520,16 @@
     "builtInHidden": "Integrierte Stempel sind ausgeblendet (Einstellungen > Anmerkungen > Kommentare).",
     "hideBuiltInNoOwn": "Integrierte Stempel sind auf Ausblenden gesetzt, aber Sie haben noch keine eigenen Stempel. Erstellen Sie einen über Stempelvorlagen verwalten."
   },
+  "coordOrigin": {
+    "title": "Koordinatennullpunkt",
+    "none": "Seite {{page}} hat keinen Nullpunkt: Koordinaten zählen ab der linken oberen Ecke.",
+    "current": "Seite {{page}} hat einen Nullpunkt: Koordinaten zählen von dort, y nach oben.",
+    "pick": "Punkt in der Zeichnung wählen…",
+    "lowerLeft": "Linke untere Ecke der Seite",
+    "underlay": "Von der Unterlage übernehmen",
+    "clear": "Nullpunkt löschen",
+    "hint": "Vorhandene Koordinatenbeschriftungen dieser Seite werden aktualisiert; neue nutzen den Nullpunkt."
+  },
   "calibration": {
     "overridePdfScale": "Eingebettete PDF-Maßstäbe überschreiben",
     "title": "Skalenkalibrierung",

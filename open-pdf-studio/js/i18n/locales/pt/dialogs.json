@@ -520,6 +520,16 @@
     "builtInHidden": "Os carimbos integrados estão ocultos (Preferências > Anotações > Comentários).",
     "hideBuiltInNoOwn": "Os carimbos integrados estão definidos como ocultos, mas ainda não tem carimbos próprios. Crie um em Gerenciar modelos de carimbo."
   },
+  "coordOrigin": {
+    "title": "Origem das coordenadas",
+    "none": "A página {{page}} não tem origem: as coordenadas contam a partir do canto superior esquerdo.",
+    "current": "A página {{page}} tem origem: as coordenadas contam a partir dela, y para cima.",
+    "pick": "Escolher um ponto do desenho…",
+    "lowerLeft": "Canto inferior esquerdo da página",
+    "underlay": "Assumir do desenho de base",
+    "clear": "Limpar origem",
+    "hint": "As etiquetas de coordenadas existentes nesta página são atualizadas; as novas usam a origem."
+  },
   "calibration": {
     "overridePdfScale": "Substituir escalas incorporadas no PDF",
     "title": "Calibração de escala",

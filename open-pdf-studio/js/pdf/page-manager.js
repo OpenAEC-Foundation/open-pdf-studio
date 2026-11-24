@@ -34,6 +34,7 @@ import {
   remapBookmarksForPlan, blankSizeNeighbour, blankSizeFor, shownSize,
 } from './page-edit-plan.js';
 import { herschikControles } from '../annotations/schaalcontrole.js';
+import { herschikNulpunten } from '../annotations/coord-nulpunt.js';
 import { herschikLinkDoel } from '../annotations/link/link-model.js';
 
 // Page clipboard for cut/copy/paste
@@ -390,6 +391,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     if (lezingStondOpen || heeftNieuwe) leesViewportsOpnieuw(doc, newBytes);
     // De schaalcontroles per blad verhuizen mee (#629).
     if (doc.scaleChecks) doc.scaleChecks = herschikControles(doc.scaleChecks, viewportUpdate.pageMapping);
+    if (doc.coordOrigins) doc.coordOrigins = herschikNulpunten(doc.coordOrigins, viewportUpdate.pageMapping);
   } else {
     doc.pdfViewports = undefined;
     leesViewportsOpnieuw(doc, newBytes);

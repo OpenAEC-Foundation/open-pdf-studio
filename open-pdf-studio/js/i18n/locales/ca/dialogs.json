@@ -520,6 +520,16 @@
     "builtInHidden": "Els segells integrats estan amagats (Preferències > Anotacions > Comentaris).",
     "hideBuiltInNoOwn": "Els segells integrats estan configurats com a amagats, però encara no teniu segells propis. Creeu-ne un amb Gestiona les plantilles de segell."
   },
+  "coordOrigin": {
+    "title": "Origen de coordenades",
+    "none": "La pàgina {{page}} no té origen: les coordenades compten des de la cantonada superior esquerra.",
+    "current": "La pàgina {{page}} té origen: les coordenades compten des d'ell, y cap amunt.",
+    "pick": "Tria un punt del dibuix…",
+    "lowerLeft": "Cantonada inferior esquerra de la pàgina",
+    "underlay": "Pren del plànol base",
+    "clear": "Esborra l'origen",
+    "hint": "Les etiquetes de coordenades existents d'aquesta pàgina s'actualitzen; les noves usen l'origen."
+  },
   "calibration": {
     "overridePdfScale": "Substitueix les escales incrustades del PDF",
     "title": "Calibratge d'escala",

@@ -520,6 +520,16 @@
     "builtInHidden": "I timbri integrati sono nascosti (Preferenze > Annotazioni > Commenti).",
     "hideBuiltInNoOwn": "I timbri integrati sono impostati come nascosti, ma non hai ancora timbri personali. Creane uno con Gestisci modelli di timbro."
   },
+  "coordOrigin": {
+    "title": "Origine delle coordinate",
+    "none": "La pagina {{page}} non ha un'origine: le coordinate partono dall'angolo in alto a sinistra.",
+    "current": "La pagina {{page}} ha un'origine: le coordinate partono da lì, y verso l'alto.",
+    "pick": "Scegli un punto del disegno…",
+    "lowerLeft": "Angolo in basso a sinistra della pagina",
+    "underlay": "Prendi dalla base",
+    "clear": "Cancella origine",
+    "hint": "Le etichette di coordinate esistenti in questa pagina vengono aggiornate; le nuove usano l'origine."
+  },
   "calibration": {
     "overridePdfScale": "Sostituisci le scale incorporate nel PDF",
     "title": "Calibrazione scala",

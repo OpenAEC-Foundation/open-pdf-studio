@@ -41,6 +41,8 @@ export function createDocument(filePath: string | null = null): DocumentState {
     measureScale: null,
     // Schaalcontroles per blad (#629): uit het bestand of nieuw gemeten.
     scaleChecks: null,
+    // Nulpunt van de coördinaatlabels per blad (coord-nulpunt.js).
+    coordOrigins: null,
     // Paginaschalen (#1065): uit het bestand, ingesteld of herkend.
     pageScales: null,
     stylePresets: [],

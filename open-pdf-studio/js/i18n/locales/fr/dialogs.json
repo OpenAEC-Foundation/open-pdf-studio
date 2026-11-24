@@ -520,6 +520,16 @@
     "builtInHidden": "Les tampons intégrés sont masqués (Préférences > Annotations > Commentaires).",
     "hideBuiltInNoOwn": "Les tampons intégrés sont configurés pour être masqués, mais vous n'avez pas encore de tampons personnels. Créez-en un via Gérer les modèles de tampon."
   },
+  "coordOrigin": {
+    "title": "Origine des coordonnées",
+    "none": "La page {{page}} n'a pas d'origine : les coordonnées partent du coin supérieur gauche.",
+    "current": "La page {{page}} a une origine : les coordonnées en partent, y vers le haut.",
+    "pick": "Choisir un point du dessin…",
+    "lowerLeft": "Coin inférieur gauche de la page",
+    "underlay": "Reprendre depuis le fond de plan",
+    "clear": "Effacer l'origine",
+    "hint": "Les étiquettes de coordonnées existantes de cette page sont mises à jour ; les nouvelles utilisent l'origine."
+  },
   "calibration": {
     "overridePdfScale": "Remplacer les échelles intégrées au PDF",
     "title": "Calibration de l'échelle",

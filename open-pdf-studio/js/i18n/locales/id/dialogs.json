@@ -520,6 +520,16 @@
     "builtInHidden": "Stempel bawaan disembunyikan (Preferensi > Anotasi > Komentar).",
     "hideBuiltInNoOwn": "Stempel bawaan diatur untuk disembunyikan, tetapi Anda belum punya stempel sendiri. Buat satu melalui Kelola templat stempel."
   },
+  "coordOrigin": {
+    "title": "Titik nol koordinat",
+    "none": "Halaman {{page}} tidak punya titik nol: koordinat dihitung dari sudut kiri atas.",
+    "current": "Halaman {{page}} punya titik nol: koordinat dihitung darinya, y ke atas.",
+    "pick": "Pilih titik pada gambar…",
+    "lowerLeft": "Sudut kiri bawah halaman",
+    "underlay": "Ambil dari gambar dasar",
+    "clear": "Hapus titik nol",
+    "hint": "Label koordinat yang ada di halaman ini diperbarui; yang baru memakai titik nol."
+  },
   "calibration": {
     "overridePdfScale": "Timpa skala PDF yang tertanam",
     "title": "Kalibrasi Skala",

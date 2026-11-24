@@ -520,6 +520,16 @@
     "builtInHidden": "Vstavané pečiatky sú skryté (Predvoľby > Anotácie > Komentáre).",
     "hideBuiltInNoOwn": "Vstavané pečiatky sú nastavené ako skryté, ale zatiaľ nemáte žiadne vlastné pečiatky. Vytvorte ich cez Spravovať šablóny pečiatok."
   },
+  "coordOrigin": {
+    "title": "Začiatok súradníc",
+    "none": "Strana {{page}} nemá začiatok: súradnice sa počítajú od ľavého horného rohu.",
+    "current": "Strana {{page}} má začiatok: súradnice sa počítajú od neho, y nahor.",
+    "pick": "Vybrať bod vo výkrese…",
+    "lowerLeft": "Ľavý dolný roh strany",
+    "underlay": "Prevziať z podkladu",
+    "clear": "Zrušiť začiatok",
+    "hint": "Existujúce popisy súradníc na strane sa aktualizujú; nové použijú začiatok."
+  },
   "calibration": {
     "overridePdfScale": "Prepísať vložené mierky PDF",
     "title": "Kalibrácia mierky",

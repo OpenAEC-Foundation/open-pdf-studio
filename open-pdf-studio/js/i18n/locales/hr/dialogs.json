@@ -520,6 +520,16 @@
     "builtInHidden": "Ugrađeni pečati su skriveni (Postavke > Oznake > Komentari).",
     "hideBuiltInNoOwn": "Ugrađeni pečati postavljeni su kao skriveni, ali još nemate vlastitih pečata. Izradite jedan putem Upravljanje predlošcima pečata."
   },
+  "coordOrigin": {
+    "title": "Ishodište koordinata",
+    "none": "Stranica {{page}} nema ishodište: koordinate se broje od gornjeg lijevog kuta.",
+    "current": "Stranica {{page}} ima ishodište: koordinate se broje od njega, y prema gore.",
+    "pick": "Odaberite točku na crtežu…",
+    "lowerLeft": "Donji lijevi kut stranice",
+    "underlay": "Preuzmi iz podloge",
+    "clear": "Ukloni ishodište",
+    "hint": "Postojeće oznake koordinata na stranici se ažuriraju; nove koriste ishodište."
+  },
   "calibration": {
     "overridePdfScale": "Nadjačaj ugrađena PDF mjerila",
     "title": "Kalibracija mjerila",

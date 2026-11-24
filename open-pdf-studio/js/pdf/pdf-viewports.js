@@ -203,6 +203,21 @@ function geerfd(node, naam) {
 }
 
 /**
+ * Het punt in de PDF-gebruikersruimte dat de modelmatrix naar (0, 0) brengt.
+ * Matrix `[a b c d e f]` (pagina naar model); null als hij niet recht is
+ * (b of c niet nul, a of d niet positief) of niet geldig.
+ * @param {Array<number|null>} m
+ * @returns {{x:number, y:number} | null}
+ */
+export function modelNulpuntInPagina(m) {
+  if (!Array.isArray(m) || m.length !== 6 || !m.every((v) => Number.isFinite(v))) return null;
+  const [a, b, c, d, e, f] = m;
+  const EPS = 1e-9;
+  if (Math.abs(b) > EPS || Math.abs(c) > EPS || !(a > EPS) || !(d > EPS)) return null;
+  return { x: -e / a, y: -f / d };
+}
+
+/**
  * Viewports met een meetschaal van één pdf-lib-pagina, in app-ruimte.
  * @param {import('pdf-lib').PDFPage} pagina
  * @returns {Array<{x:number,y:number,width:number,height:number,
@@ -260,7 +275,19 @@ export function leesViewportsVanPagina(pagina) {
       // Alleen een viewport met een modelmatrix draagt een terugweg naar CAD;
       // het exportvenster biedt de oorsprong "model" alleen dan aan.
       const matrix = d.lookup(PDFName.of('OPS_ModelMatrix'));
-      if (matrix instanceof PDFArray && matrix.size() === 6) viewport.heeftModelMatrix = true;
+      if (matrix instanceof PDFArray && matrix.size() === 6) {
+        viewport.heeftModelMatrix = true;
+        // Waar het nulpunt van het model op het blad ligt (app-ruimte): het
+        // punt dat naar model (0, 0) gaat. Alleen bij een rechte matrix
+        // (geen draaiing of spiegeling), want dan is het een nulpunt.
+        const m = [];
+        for (let k = 0; k < 6; k++) m.push(getal(matrix.lookup(k)));
+        const o = modelNulpuntInPagina(m);
+        if (o) {
+          const [ax, ay] = puntNaarAppRuimte(o.x, o.y, view, rot);
+          viewport.modelNulpunt = { x: ax, y: ay };
+        }
+      }
       lijst.push(viewport);
     }
   } catch {

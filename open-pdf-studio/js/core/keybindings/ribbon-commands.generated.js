@@ -84,6 +84,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"dr-spot-coord","tab":"drawing","labelKey":"ribbon:drawing.spotCoord"},
   {"id":"dr-radius","tab":"drawing","labelKey":"ribbon:drawing.radius"},
   {"id":"dr-diameter","tab":"drawing","labelKey":"ribbon:drawing.diameter"},
+  {"id":"dr-coord-origin","tab":"drawing","labelKey":"ribbon:drawing.coordOrigin"},
   {"id":"dr-leader","tab":"drawing","labelKey":"ribbon:drawing.leader"},
   {"id":"dr-label","tab":"drawing","labelKey":"ribbon:drawing.label"},
   {"id":"dr-table","tab":"drawing","labelKey":"ribbon:drawing.table"},

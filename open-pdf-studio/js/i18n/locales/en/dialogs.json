@@ -525,6 +525,16 @@
     "builtInHidden": "Built-in stamps are hidden (Preferences > Annotations > Comments).",
     "hideBuiltInNoOwn": "Built-in stamps are set to hidden, but you have no own stamps yet. Create one with Manage stamp templates."
   },
+  "coordOrigin": {
+    "title": "Coordinate origin",
+    "none": "Page {{page}} has no origin: coordinates count from the top-left corner.",
+    "current": "Page {{page}} has an origin: coordinates count from it, y upwards.",
+    "pick": "Pick a point on the drawing…",
+    "lowerLeft": "Lower-left corner of the page",
+    "underlay": "Take over from the underlay",
+    "clear": "Clear origin",
+    "hint": "Existing coordinate labels on this page are updated; new ones use the origin."
+  },
   "calibration": {
     "overridePdfScale": "Override embedded PDF scales",
     "title": "Scale Calibration",

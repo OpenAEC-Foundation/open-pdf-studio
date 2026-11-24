@@ -520,6 +520,16 @@
     "builtInHidden": "Yerleşik damgalar gizli (Tercihler > Açıklamalar > Yorumlar).",
     "hideBuiltInNoOwn": "Yerleşik damgalar gizli olarak ayarlı, ancak henüz kendi damganız yok. Damga şablonlarını yönet bölümünden bir tane oluşturun."
   },
+  "coordOrigin": {
+    "title": "Koordinat sıfır noktası",
+    "none": "{{page}}. sayfanın sıfır noktası yok: koordinatlar sol üst köşeden sayılır.",
+    "current": "{{page}}. sayfanın sıfır noktası var: koordinatlar ondan sayılır, y yukarı.",
+    "pick": "Çizimde bir nokta seçin…",
+    "lowerLeft": "Sayfanın sol alt köşesi",
+    "underlay": "Alt çizimden al",
+    "clear": "Sıfır noktasını temizle",
+    "hint": "Bu sayfadaki mevcut koordinat etiketleri güncellenir; yenileri sıfır noktasını kullanır."
+  },
   "calibration": {
     "overridePdfScale": "Gömülü PDF ölçeklerini geçersiz kıl",
     "title": "Ölçek Kalibrasyonu",

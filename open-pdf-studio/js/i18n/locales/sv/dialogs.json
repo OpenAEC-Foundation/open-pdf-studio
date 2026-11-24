@@ -520,6 +520,16 @@
     "builtInHidden": "Inbyggda stämplar är dolda (Inställningar > Anteckningar > Kommentarer).",
     "hideBuiltInNoOwn": "Inbyggda stämplar är inställda på att döljas, men du har inga egna stämplar ännu. Skapa en via Hantera stämpelmallar."
   },
+  "coordOrigin": {
+    "title": "Koordinatnollpunkt",
+    "none": "Sida {{page}} har ingen nollpunkt: koordinater räknas från övre vänstra hörnet.",
+    "current": "Sida {{page}} har en nollpunkt: koordinater räknas därifrån, y uppåt.",
+    "pick": "Välj en punkt i ritningen…",
+    "lowerLeft": "Nedre vänstra hörnet av sidan",
+    "underlay": "Ta över från underlaget",
+    "clear": "Ta bort nollpunkt",
+    "hint": "Befintliga koordinatetiketter på sidan uppdateras; nya använder nollpunkten."
+  },
   "calibration": {
     "overridePdfScale": "Åsidosätt inbäddade PDF-skalor",
     "title": "Skalakalibrering",

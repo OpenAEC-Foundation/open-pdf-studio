@@ -440,6 +440,11 @@ export function DrawingGroups() {
               disabled={ro()} active={state.currentTool === 'diameter'} onClick={() => setTool('diameter')} />
           </RibbonButtonStack>
           <RibbonButtonStack>
+            {/* Nulpunt van de coördinaatlabels van dit blad */}
+            <RibbonButton size="small" id="dr-coord-origin" title={t('drawing.coordOrigin')} icon={spotCoordIcon} label={t('drawing.coordOrigin')}
+              disabled={ro()} active={state.currentTool === 'coordOrigin'} onClick={() => openDialog('coord-origin', {})} />
+          </RibbonButtonStack>
+          <RibbonButtonStack>
             <RibbonButton size="small" id="dr-leader" title={t('comment.callout')} icon={calloutIcon} label={t('drawing.leader')}
               disabled={ro()} active={state.currentTool === 'callout'} onClick={() => setTool('callout')} />
             <RibbonButton size="small" id="dr-label" title={t('drawing.label')} icon={labelIcon} label={t('drawing.label')}

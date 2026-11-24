@@ -520,6 +520,16 @@
     "builtInHidden": "内置图章已隐藏（首选项 > 批注 > 批注）。",
     "hideBuiltInNoOwn": "内置图章已设置为隐藏，但您还没有自己的图章。请通过“管理图章模板”创建一个。"
   },
+  "coordOrigin": {
+    "title": "坐标原点",
+    "none": "第 {{page}} 页没有原点：坐标从左上角开始计算。",
+    "current": "第 {{page}} 页有原点：坐标从原点开始计算，y 向上。",
+    "pick": "在图纸上选取一点…",
+    "lowerLeft": "页面左下角",
+    "underlay": "从底图获取",
+    "clear": "清除原点",
+    "hint": "此页上已有的坐标标签会更新；新标签使用该原点。"
+  },
   "calibration": {
     "overridePdfScale": "覆盖 PDF 内嵌比例尺",
     "title": "比例校准",

@@ -520,6 +520,16 @@
     "builtInHidden": "Mihuri iliyojengewa ndani imefichwa (Mapendeleo > Maoni > Maoni).",
     "hideBuiltInNoOwn": "Mihuri iliyojengewa ndani imewekwa kufichwa, lakini bado huna mihuri yako. Unda mmoja kupitia Dhibiti violezo vya muhuri."
   },
+  "coordOrigin": {
+    "title": "Asili ya viwianishi",
+    "none": "Ukurasa {{page}} hauna asili: viwianishi vinahesabiwa kutoka kona ya juu kushoto.",
+    "current": "Ukurasa {{page}} una asili: viwianishi vinahesabiwa kutoka hapo, y kwenda juu.",
+    "pick": "Chagua nukta kwenye mchoro…",
+    "lowerLeft": "Kona ya chini kushoto ya ukurasa",
+    "underlay": "Chukua kutoka mchoro msingi",
+    "clear": "Futa asili",
+    "hint": "Lebo za viwianishi zilizopo kwenye ukurasa huu husasishwa; mpya hutumia asili."
+  },
   "calibration": {
     "overridePdfScale": "Batilisha vipimo vilivyopachikwa kwenye PDF",
     "title": "Urekebishaji wa Kipimo",

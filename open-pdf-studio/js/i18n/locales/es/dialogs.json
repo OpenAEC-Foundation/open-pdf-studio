@@ -520,6 +520,16 @@
     "builtInHidden": "Los sellos integrados están ocultos (Preferencias > Anotaciones > Comentarios).",
     "hideBuiltInNoOwn": "Los sellos integrados están configurados como ocultos, pero todavía no tiene sellos propios. Cree uno con Administrar plantillas de sello."
   },
+  "coordOrigin": {
+    "title": "Origen de coordenadas",
+    "none": "La página {{page}} no tiene origen: las coordenadas cuentan desde la esquina superior izquierda.",
+    "current": "La página {{page}} tiene origen: las coordenadas cuentan desde él, y hacia arriba.",
+    "pick": "Elegir un punto del dibujo…",
+    "lowerLeft": "Esquina inferior izquierda de la página",
+    "underlay": "Tomar del plano base",
+    "clear": "Borrar origen",
+    "hint": "Las etiquetas de coordenadas existentes de esta página se actualizan; las nuevas usan el origen."
+  },
   "calibration": {
     "overridePdfScale": "Anular las escalas incrustadas del PDF",
     "title": "Calibración de escala",

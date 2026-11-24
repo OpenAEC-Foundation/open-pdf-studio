@@ -396,6 +396,7 @@ js/annotations/offset-geometry.test.mjs
 js/annotations/stretch-geometry.test.mjs
 js/annotations/scale-geometry.test.mjs
 js/annotations/spot-coord.test.mjs
+js/annotations/coord-nulpunt.test.mjs
 js/tools/maat-vorm-eindpunt.test.mjs
 js/tools/embedded-image-edit.test.mjs
 js/tools/embedded-image-drag.test.mjs

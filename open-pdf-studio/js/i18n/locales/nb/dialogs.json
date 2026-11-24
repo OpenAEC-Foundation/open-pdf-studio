@@ -520,6 +520,16 @@
     "builtInHidden": "Innebygde stempler er skjult (Innstillinger > Merknader > Kommentarer).",
     "hideBuiltInNoOwn": "Innebygde stempler er satt til skjult, men du har ingen egne stempler ennå. Opprett et via Administrer stempelmaler."
   },
+  "coordOrigin": {
+    "title": "Koordinatnullpunkt",
+    "none": "Side {{page}} har ikke noe nullpunkt: koordinater telles fra øvre venstre hjørne.",
+    "current": "Side {{page}} har et nullpunkt: koordinater telles herfra, y oppover.",
+    "pick": "Velg et punkt på tegningen…",
+    "lowerLeft": "Nedre venstre hjørne av siden",
+    "underlay": "Overta fra underlaget",
+    "clear": "Fjern nullpunkt",
+    "hint": "Eksisterende koordinatmerker på siden oppdateres; nye bruker nullpunktet."
+  },
   "calibration": {
     "overridePdfScale": "Overstyr innebygde PDF-målestokker",
     "title": "Skalakalibrering",

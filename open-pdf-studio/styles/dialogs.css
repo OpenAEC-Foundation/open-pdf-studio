@@ -7201,3 +7201,10 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .wn-virus-notice p {
   margin: 0 0 6px;
 }
+
+/* Nulpunt van de coördinaatlabels. */
+.coord-origin-dialog { min-width: 360px; }
+.coord-origin-body { padding: 8px 4px; display: flex; flex-direction: column; gap: 8px; }
+.coord-origin-state { font-size: 12px; }
+.coord-origin-actions { display: flex; flex-direction: column; gap: 6px; }
+.coord-origin-hint { font-size: 11px; color: var(--theme-text-secondary, #666); }

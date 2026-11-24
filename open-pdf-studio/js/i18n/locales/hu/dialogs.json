@@ -520,6 +520,16 @@
     "builtInHidden": "A beépített bélyegzők el vannak rejtve (Beállítások > Annotációk > Megjegyzések).",
     "hideBuiltInNoOwn": "A beépített bélyegzők elrejtésre vannak állítva, de még nincs saját bélyegzője. Hozzon létre egyet a Bélyegzősablonok kezelése menüben."
   },
+  "coordOrigin": {
+    "title": "Koordináták origója",
+    "none": "A(z) {{page}}. oldalnak nincs origója: a koordináták a bal felső saroktól számítanak.",
+    "current": "A(z) {{page}}. oldalnak van origója: a koordináták onnan számítanak, y felfelé.",
+    "pick": "Pont kiválasztása a rajzon…",
+    "lowerLeft": "Az oldal bal alsó sarka",
+    "underlay": "Átvétel az alaprajzból",
+    "clear": "Origó törlése",
+    "hint": "Az oldal meglévő koordinátacímkéi frissülnek; az újak az origót használják."
+  },
   "calibration": {
     "overridePdfScale": "Beágyazott PDF-méretarányok felülbírálása",
     "title": "Lépték kalibrálás",

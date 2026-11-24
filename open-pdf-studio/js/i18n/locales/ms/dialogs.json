@@ -520,6 +520,16 @@
     "builtInHidden": "Setem terbina dalam disembunyikan (Keutamaan > Anotasi > Komen).",
     "hideBuiltInNoOwn": "Setem terbina dalam ditetapkan untuk disembunyikan, tetapi anda belum mempunyai setem sendiri. Cipta satu melalui Urus templat setem."
   },
+  "coordOrigin": {
+    "title": "Titik sifar koordinat",
+    "none": "Halaman {{page}} tiada titik sifar: koordinat dikira dari sudut kiri atas.",
+    "current": "Halaman {{page}} mempunyai titik sifar: koordinat dikira dari situ, y ke atas.",
+    "pick": "Pilih satu titik pada lukisan…",
+    "lowerLeft": "Sudut kiri bawah halaman",
+    "underlay": "Ambil daripada lukisan asas",
+    "clear": "Kosongkan titik sifar",
+    "hint": "Label koordinat sedia ada pada halaman ini dikemas kini; yang baharu menggunakan titik sifar."
+  },
   "calibration": {
     "overridePdfScale": "Gantikan skala PDF terbenam",
     "title": "Penentukuran Skala",

@@ -520,6 +520,16 @@
     "builtInHidden": "Vestavěná razítka jsou skrytá (Předvolby > Anotace > Komentáře).",
     "hideBuiltInNoOwn": "Vestavěná razítka jsou nastavena jako skrytá, ale zatím nemáte žádná vlastní razítka. Vytvořte je přes Spravovat šablony razítek."
   },
+  "coordOrigin": {
+    "title": "Počátek souřadnic",
+    "none": "Stránka {{page}} nemá počátek: souřadnice se počítají od levého horního rohu.",
+    "current": "Stránka {{page}} má počátek: souřadnice se počítají od něj, y nahoru.",
+    "pick": "Vybrat bod na výkresu…",
+    "lowerLeft": "Levý dolní roh stránky",
+    "underlay": "Převzít z podkladu",
+    "clear": "Zrušit počátek",
+    "hint": "Stávající popisky souřadnic na stránce se aktualizují; nové použijí počátek."
+  },
   "calibration": {
     "overridePdfScale": "Přepsat vložená měřítka PDF",
     "title": "Kalibrace měřítka",

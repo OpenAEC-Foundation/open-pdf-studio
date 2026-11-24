@@ -520,6 +520,16 @@
     "builtInHidden": "Ștampilele integrate sunt ascunse (Preferinte > Adnotari > Comentarii).",
     "hideBuiltInNoOwn": "Ștampilele integrate sunt setate ca ascunse, dar nu aveți încă ștampile proprii. Creați una din Gestionare sabloane de stampila."
   },
+  "coordOrigin": {
+    "title": "Originea coordonatelor",
+    "none": "Pagina {{page}} nu are origine: coordonatele se numără din colțul stânga-sus.",
+    "current": "Pagina {{page}} are origine: coordonatele se numără de la ea, y în sus.",
+    "pick": "Alegeți un punct din desen…",
+    "lowerLeft": "Colțul stânga-jos al paginii",
+    "underlay": "Preia din fundal",
+    "clear": "Șterge originea",
+    "hint": "Etichetele de coordonate existente din această pagină se actualizează; cele noi folosesc originea."
+  },
   "calibration": {
     "overridePdfScale": "Înlocuiește scările încorporate în PDF",
     "title": "Calibrare scara",

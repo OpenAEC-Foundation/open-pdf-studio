@@ -520,6 +520,16 @@
     "builtInHidden": "Con dấu tích hợp đang bị ẩn (Tùy chọn > Chú thích > Nhận xét).",
     "hideBuiltInNoOwn": "Con dấu tích hợp được đặt là ẩn, nhưng bạn chưa có con dấu riêng nào. Hãy tạo một con dấu trong Quản lý mẫu con dấu."
   },
+  "coordOrigin": {
+    "title": "Gốc tọa độ",
+    "none": "Trang {{page}} chưa có gốc: tọa độ tính từ góc trên bên trái.",
+    "current": "Trang {{page}} có gốc: tọa độ tính từ đó, y hướng lên.",
+    "pick": "Chọn một điểm trên bản vẽ…",
+    "lowerLeft": "Góc dưới bên trái của trang",
+    "underlay": "Lấy từ bản vẽ nền",
+    "clear": "Xóa gốc tọa độ",
+    "hint": "Các nhãn tọa độ hiện có trên trang được cập nhật; nhãn mới dùng gốc này."
+  },
   "calibration": {
     "overridePdfScale": "Ghi đè tỷ lệ được nhúng trong PDF",
     "title": "Hiệu chuẩn Tỷ lệ",
