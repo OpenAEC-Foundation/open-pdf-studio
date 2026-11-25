@@ -16,6 +16,12 @@ import { annotationBounds } from './spatial-index.js';
 import { applyMoveRigid } from './transforms.js';
 import { omhullendKader, centreerVerschuiving, puntOpPagina } from './plak-bij-muis.js';
 import { addToClipboardHistory } from './clipboard-history.js';
+import { shareAnnotationClipboard, refreshAnnotationClipboard } from './window-clipboard.js';
+import { isAlleenLezen } from '../pdf/wachtwoord-pdf.js';
+
+function pasteTargetUnchanged(doc) {
+  return doc && getActiveDocument() === doc && !isAlleenLezen(doc);
+}
 
 // ── Plakken bij de muis (#928) ───────────────────────────────────────────
 // Ctrl+V legt wat geplakt wordt gecentreerd op de muis wanneer de muis boven
@@ -72,7 +78,10 @@ export function copyAnnotation(annotation, { geschiedenis = true } = {}) {
   state._internalCopyAt = Date.now();
   state.clipboardAnnotation = cloneAnnotation(annotation);
   state.clipboardAnnotations = null;
-  if (geschiedenis) addToClipboardHistory([annotation]);
+  if (geschiedenis) {
+    addToClipboardHistory([annotation]);
+    shareAnnotationClipboard([state.clipboardAnnotation]);
+  }
   // Reset the paste cascade so the first paste lands one step from the source
   // and each subsequent paste steps a further step (instead of every paste
   // stacking on the exact same spot, which made repeated Ctrl+V look like it
@@ -104,7 +113,14 @@ export function copyAnnotation(annotation, { geschiedenis = true } = {}) {
 // Paste from clipboard (handles both images and annotations)
 // Triggers a native paste so the 'paste' event handler in keyboard-handlers.js
 // can read clipboardData without requiring the async Clipboard API permission.
-export function pasteFromClipboard() {
+export function pasteFromClipboard({ _synced = false } = {}) {
+  if (!_synced) {
+    const doc=getActiveDocument(), pending=refreshAnnotationClipboard();
+    if (pending) return pending.then(()=>{ if (pasteTargetUnchanged(doc)) pasteFromClipboard({_synced:true}); });
+  } else if (state._internalCopyAt && !(state._appBlurAt > state._internalCopyAt)) {
+    if (state.clipboardAnnotations?.length>1) return pasteAnnotations({_synced:true});
+    if (state.clipboardAnnotation) return pasteAnnotation({_synced:true});
+  }
   if (!getActiveDocument()?.pdfDoc) return;
 
   // Try triggering a native paste event which the handlePaste listener will pick up.
@@ -277,7 +293,14 @@ export async function pasteImageFromBlob(blob, { maat = null } = {}) {
 }
 
 // Paste annotation from internal clipboard
-export function pasteAnnotation({ bijMuis = true } = {}) {
+export function pasteAnnotation({ bijMuis = true, _synced = false } = {}) {
+  if (!_synced) {
+    const doc=getActiveDocument(), pending=refreshAnnotationClipboard();
+    if (pending) return pending.then(()=>{
+      if (!pasteTargetUnchanged(doc)) return;
+      return state.clipboardAnnotations?.length>1 ? pasteAnnotations({_synced:true}) : pasteAnnotation({bijMuis,_synced:true});
+    });
+  }
   if (!state.clipboardAnnotation || !getActiveDocument()?.pdfDoc) return;
 
   const newAnnotation = cloneAnnotation(state.clipboardAnnotation);
@@ -346,7 +369,7 @@ export function duplicateAnnotation() {
   // Dupliceren is geen kopieeractie van de gebruiker: niet in de
   // klembordgeschiedenis, en de kopie volgt de cascade, niet de muis.
   copyAnnotation(_dupDoc.selectedAnnotation, { geschiedenis: false });
-  pasteAnnotation({ bijMuis: false });
+  pasteAnnotation({ bijMuis: false, _synced: true });
 }
 
 // Copy multiple annotations to internal clipboard
@@ -358,12 +381,17 @@ export function copyAnnotations(annotations) {
   state.clipboardAnnotations = annotations.map(a => cloneAnnotation(a));
   state.clipboardAnnotation = state.clipboardAnnotations[0]; // backward compat
   addToClipboardHistory(annotations);
+  shareAnnotationClipboard(state.clipboardAnnotations);
   state._pasteSeq = 0; // reset paste cascade (see copyAnnotation)
   updateStatusMessage(`${annotations.length} annotations copied`);
 }
 
 // Paste multiple annotations from internal clipboard
-export function pasteAnnotations() {
+export function pasteAnnotations({ _synced = false } = {}) {
+  if (!_synced) {
+    const doc=getActiveDocument(), pending=refreshAnnotationClipboard();
+    if (pending) return pending.then(()=>{ if (pasteTargetUnchanged(doc)) return pasteAnnotations({_synced:true}); });
+  }
   if (!state.clipboardAnnotations || state.clipboardAnnotations.length === 0) {
     if (state.clipboardAnnotation) {
       pasteAnnotation();
@@ -443,7 +471,11 @@ export function pasteAnnotations() {
 // markeringen van de ene verdiepings-pagina op de volgende te stempelen.
 // Herhaalbaar: navigeer naar de volgende pagina en plak opnieuw. De gewone
 // Plakken (Ctrl+V, met stap-cascade) blijft onaangetast.
-export function pasteAnnotationsInPlace() {
+export function pasteAnnotationsInPlace({ _synced = false } = {}) {
+  if (!_synced) {
+    const doc=getActiveDocument(), pending=refreshAnnotationClipboard();
+    if (pending) return pending.then(()=>{ if (pasteTargetUnchanged(doc)) return pasteAnnotationsInPlace({_synced:true}); });
+  }
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
 

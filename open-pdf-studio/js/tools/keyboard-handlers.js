@@ -9,6 +9,7 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { copyAndMove } from './edit-ops.js';
 import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../ui/chrome/dialogs.js';
 import { copyAnnotation, copyAnnotations, pasteAnnotation, pasteAnnotations } from '../annotations/clipboard.js';
+import { refreshAnnotationClipboard } from '../annotations/window-clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
 import { cloneAnnotation } from '../annotations/factory.js';
@@ -948,6 +949,13 @@ async function voerStandaardToetsUit(e) {
       if (afterMark > beforeMark) return; // native paste already handled
       if (!getActiveDocument()?.pdfDoc) return;
       if (isPdfAReadOnly()) return;
+      const pasteDoc=getActiveDocument();
+      await refreshAnnotationClipboard();
+      if (getActiveDocument()!==pasteDoc || isPdfAReadOnly()) return;
+      if (state._internalCopyAt && !(state._appBlurAt > state._internalCopyAt)) {
+        if (state.clipboardAnnotations?.length>1) { pasteAnnotations({_synced:true}); return; }
+        if (state.clipboardAnnotation) { pasteAnnotation({_synced:true}); return; }
+      }
       // Try async Clipboard API for image data
       let handledImage = false;
       try {
@@ -1264,7 +1272,7 @@ async function voerStandaardToetsUit(e) {
 }
 
 // Handle native paste event — works reliably on all platforms including Linux/WebKitGTK
-function handlePaste(e) {
+async function handlePaste(e) {
   if (!getActiveDocument()?.pdfDoc) return;
   if (isPdfAReadOnly()) return;
   const isInInput = isTextEntryTarget(e.target);
@@ -1275,6 +1283,16 @@ function handlePaste(e) {
 
   // Must preventDefault synchronously before any async work
   e.preventDefault();
+
+  const pasteDoc=getActiveDocument(), pending=refreshAnnotationClipboard();
+  if (pending) {
+    await pending;
+    if (getActiveDocument()!==pasteDoc || isPdfAReadOnly()) return;
+    if (state._internalCopyAt && !(state._appBlurAt > state._internalCopyAt)) {
+      if (state.clipboardAnnotations?.length>1) { pasteAnnotations({_synced:true}); return; }
+      if (state.clipboardAnnotation) { pasteAnnotation({_synced:true}); return; }
+    }
+  }
 
   // Check for image data in the native clipboard event
   const items = e.clipboardData?.items;

@@ -85,6 +85,7 @@ pub mod central_review;
 pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
+mod annotation_clipboard;
 pub mod startup_diagnostics;
 mod startup_visibility;
 mod startup_window;
@@ -3164,6 +3165,19 @@ fn get_page_dimensions(
         .collect()
 }
 
+// Uses the inherited, authenticated session broker across detached processes.
+#[tauri::command]
+async fn exchange_annotation_clipboard(
+    broker: tauri::State<'_, Option<annotation_clipboard::Broker>>,
+    candidate: Option<serde_json::Value>,
+    known: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let broker = broker.inner().clone().ok_or("annotation clipboard unavailable")?;
+    tauri::async_runtime::spawn_blocking(move || broker.exchange(candidate, known))
+        .await
+        .map_err(|_| "annotation clipboard task failed".to_string())?
+}
+
 // ─── Screenshot-annotate feature ────────────────────────────────────────────
 // Read the current clipboard bitmap and return it as PNG bytes. Used by the
 // "annotate clipboard screenshot" flow: Windows PrtScn (and the Snipping Tool)
@@ -3589,6 +3603,24 @@ pub fn run(opts: StartupOpts) {
 
     builder
         .setup(move |app| {
+            // Set before any detached process is launched: children inherit the
+            // private loopback endpoint. No document data is put in the environment.
+            let clipboard = match (
+                std::env::var("OPDS_CLIPBOARD_ADDR"),
+                std::env::var("OPDS_CLIPBOARD_TOKEN"),
+            ) {
+                (Ok(address), Ok(token)) => annotation_clipboard::Broker::inherited(&address, token),
+                _ => annotation_clipboard::Broker::start(format!(
+                    "{:032x}{:032x}", rand::random::<u128>(), rand::random::<u128>()
+                )),
+            };
+            if let Ok(ref broker) = clipboard {
+                std::env::set_var("OPDS_CLIPBOARD_ADDR", broker.address.to_string());
+                // Broker exposes only the environment capability, never to JS.
+                std::env::set_var("OPDS_CLIPBOARD_TOKEN", broker.capability());
+            }
+            app.manage(clipboard.ok());
+
             // Mobiel (#596): voorkeuren, sessie en catalogi in de schrijfbare
             // app-datamap, vóór er een commando draait dat ze leest.
             #[cfg(mobile)]
@@ -3999,6 +4031,7 @@ pub fn run(opts: StartupOpts) {
             herstel::herstel_schoon_afsluiten,
             herstel::herstel_nood_klaar,
             herstel::herstel_test_paniek,
+            exchange_annotation_clipboard,
             read_clipboard_image_png,
             write_clipboard_image_png,
             set_prtscn_hotkey,
