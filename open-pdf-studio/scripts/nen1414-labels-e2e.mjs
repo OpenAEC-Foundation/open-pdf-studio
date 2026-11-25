@@ -30,6 +30,9 @@ try {
     ['Vluchtwegen','Verzamelplaats','Tn06'], ['Waarschuwingen','Elektrische spanning','Tw02'],
   ]) {
     const header = page.locator('.sp-cat-header').filter({ hasText: `NL NEN 1414 — ${group}` });
+    // The library promise can settle before the palette's deferred store/DOM
+    // update. Assert the rendered result after it becomes visible, also on CI.
+    await header.waitFor({ state: 'visible', timeout: 30000 });
     assert.equal(await header.count(),1,group); await header.click();
     // The tooltip belongs to the button itself, not the nested SVG.
     const item = page.locator(`.sp-symbol-btn[title="${title}"]`);
@@ -47,10 +50,13 @@ try {
   // Search follows corrected names. Persistent ids and exact SVG bytes remain
   // the same keys used by custom type overrides and saved stamp appearances.
   await page.evaluate(() => window.nenTest.store.setSearchQuery('Eerste hulp'));
+  await page.locator('.sp-symbol-btn[title="Eerste hulp"]').waitFor();
   assert.equal(await page.locator('.sp-symbol-btn[title="Eerste hulp"]').count(),1);
   await page.evaluate(async () => { window.nenTest.store.setSearchQuery(''); await window.nenTest.i18n.changeLanguage('en'); });
   for (const name of ['Escape routes','First aid and rescue','Prohibition signs','Warnings']) {
-    assert.equal(await page.locator('.sp-cat-header').filter({ hasText: `NL NEN 1414 — ${name}` }).count(),1);
+    const header = page.locator('.sp-cat-header').filter({ hasText: `NL NEN 1414 — ${name}` });
+    await header.waitFor({ state: 'visible', timeout: 30000 });
+    assert.equal(await header.count(),1);
   }
   assert.equal(await page.evaluate(() => window.nenTest.cats.flatMap(c => c.symbols).every(s => /<svg viewBox="0 0 64 64"/.test(s.svg) && s.id.startsWith('nen1414-'))), true);
   console.log('PASS search, English categories and stable symbol identities');
