@@ -52,6 +52,7 @@ build-options:
     # tesseract-rs keeps its Leptonica/Tesseract sources and build cache under
     # $HOME/.tesseract-rs; keep that inside the build directory.
     HOME: /run/build/open-pdf-studio/flatpak-home
+    CMAKE_TOOLCHAIN_FILE: /run/build/open-pdf-studio/flatpak/native-toolchain.cmake
 
 modules:
   - name: open-pdf-studio
@@ -78,14 +79,16 @@ modules:
       # only needs vite and its prebuilt platform packages.
       - cd open-pdf-studio && npm ci --offline --ignore-scripts --no-audit --no-fund
       # Frontend. --ignore-scripts skips the prebuild hook, which fetches the
-      # OCR assets (declared as sources below) and builds the Windows/macOS
-      # sidecars that Linux does not use.
+      # OCR assets (declared as sources below). Build the Linux sidecar
+      # explicitly and offline below, before Tauri validates externalBin.
       - cd open-pdf-studio && npm run build --ignore-scripts
+      - cargo build --release --offline --locked -p pdfium-worker
       # Tauri/Rust backend from the workspace root (one Cargo.lock, one
       # target/). custom-protocol makes it serve the embedded frontend instead
       # of the dev server, like `tauri build` does.
       - cargo build --release --offline --locked -p open-pdf-studio --features tauri/custom-protocol
       - install -Dm755 target/release/open-pdf-studio ${FLATPAK_DEST}/bin/open-pdf-studio
+      - install -Dm755 target/release/pdfium-worker ${FLATPAK_DEST}/bin/pdfium-worker
       # Bundle resources where Tauri's resource_dir() looks on Linux:
       # <prefix>/lib/<productName>.
       - |

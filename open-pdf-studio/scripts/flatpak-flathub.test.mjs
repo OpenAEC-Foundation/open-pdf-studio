@@ -233,6 +233,16 @@ test('the resources land where Tauri looks for them on Linux', () => {
   assert.match(read('open-pdf-studio/js/ui/chrome/updater.js'), /updates_managed_externally/);
 });
 
+test('native dependencies use the library layout and sidecar required at runtime', () => {
+  assert.match(manifest, /CMAKE_TOOLCHAIN_FILE: \/run\/build\/open-pdf-studio\/flatpak\/native-toolchain.cmake/);
+  assert.match(read('flatpak/native-toolchain.cmake'), /set\(CMAKE_INSTALL_LIBDIR lib CACHE PATH [^\n]+ FORCE\)/);
+  const workerBuild = manifest.indexOf('cargo build --release --offline --locked -p pdfium-worker');
+  const appBuild = manifest.indexOf('cargo build --release --offline --locked -p open-pdf-studio');
+  assert.ok(workerBuild >= 0 && workerBuild < appBuild, 'sidecar exists before tauri-build validates externalBin');
+  assert.ok(manifest.includes('install -Dm755 target/release/pdfium-worker ${FLATPAK_DEST}/bin/pdfium-worker'),
+    'the worker must be installed next to the main executable');
+});
+
 test('the metainfo has what Flathub requires and matches the app', () => {
   assert.equal(xml('id')[0].text, APP_ID);
   assert.equal(xml('launchable')[0].text, `${APP_ID}.desktop`);
