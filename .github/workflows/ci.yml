@@ -202,6 +202,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-highlight-blending-browser.mjs
 
+      - name: Test RTL currency consumers (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-bidi-currency-browser.mjs
+
       - name: Test deleted comment popup lifecycle (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-comment-popup-browser.mjs
