@@ -126,7 +126,7 @@ test('Dutch category names match the names in the data files', () => {
     gevonden++;
   }
   assert.equal(gevonden, 5);
-  const nen = lees('../data/nen1414Library.js');
+  const nen = lees('../data/nen1414-metadata.js');
   for (const [, prefix, naam] of nen.matchAll(/'(T[a-z]+)': \{ name: '([^']+)'/g)) {
     assert.equal(nl[`nen1414-${prefix.toLowerCase()}`], naam, prefix);
     gevonden++;
