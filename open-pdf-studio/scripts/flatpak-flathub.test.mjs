@@ -18,6 +18,7 @@ import {
   parseCargoLock,
 } from '../../flatpak/generate-sources.mjs';
 import { flathubManifest } from '../../flatpak/flathub-manifest.mjs';
+import { localManifest } from '../../flatpak/local-manifest.mjs';
 import { OCR_RUNTIME_ASSETS } from './ocr-runtime.mjs';
 
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -293,10 +294,32 @@ test('the Flathub manifest replaces the local checkout with the release tag', ()
   assert.throws(() => flathubManifest(manifest, { tag: `v${pkg.version}`, commit: 'abc1234' }), /40-character/);
 });
 
+test('the local build source and dependency includes stay inside the root manifest directory', () => {
+  const local = localManifest(manifest);
+  const source = /^        path: (.+)$/m.exec(local)?.[1];
+  assert.equal(source, '.');
+  assert.equal(path.resolve(repoDir, source), repoDir, 'build the complete checkout');
+  const generated = generate(repoDir);
+  for (const file of [NPM_SOURCES_FILE, CARGO_SOURCES_FILE]) {
+    assert.ok(local.includes(`      - flatpak/${file}\n`));
+    assert.equal(path.dirname(path.resolve(repoDir, 'flatpak', file)), path.join(repoDir, 'flatpak'));
+    assert.ok(JSON.parse(generated[file]).length > 0, 'include has generated sources');
+  }
+  const restored = local.replace('        path: .\n', '        path: ..\n')
+    .replaceAll('      - flatpak/generated-sources-', '      - generated-sources-');
+  assert.equal(restored, manifest, 'build commands, checksums and source exclusions are preserved');
+  assert.equal(localManifest(manifest.replaceAll('\n', '\r\n')), local);
+  assert.throws(() => localManifest(manifest.replace('path: ..', 'path: /tmp')), /local directory/);
+  assert.throws(() => localManifest(manifest.replace(`      - ${NPM_SOURCES_FILE}\n`, '')), /include/);
+  const script = read('flatpak/ci-check.sh');
+  assert.match(script, /node flatpak\/local-manifest\.mjs\n\s+flatpak run --command=flathub-build org.flatpak.Builder --install "\$app_id.yml"/);
+});
+
 test('CI lints the Flatpak on changes and builds it on release', () => {
   const ci = read('.github/workflows/ci.yml');
   const release = read('.github/workflows/release.yml');
   assert.match(ci, /bash flatpak\/ci-check\.sh lint/);
+  assert.match(ci, /bash flatpak\/ci-check\.sh build/);
   const job = ci.slice(ci.indexOf('\n  flatpak-lint:\n'), ci.indexOf('\n  hosted-csp:\n'));
   assert.match(job, /Detect Flatpak changes/);
   assert.match(job, /\^\(flatpak\/\|Cargo\\\.lock\$\|open-pdf-studio\/package-lock\\\.json\$/, 'the lint job looks at changes under flatpak/ and the lockfiles');

@@ -13,14 +13,23 @@ itself happens in the Flathub organisation on GitHub and needs a maintainer.
 | `flatpak/flathub.json` | Flathub build options: x86_64 only (see below). |
 | `flatpak/generate-sources.mjs` | Writes `generated-sources-npm.json` and `generated-sources-cargo.json` from `open-pdf-studio/package-lock.json` and `Cargo.lock`. No network needed; the output is not committed. |
 | `flatpak/flathub-manifest.mjs` | Writes the files for the Flathub repository for one release tag. |
+| `flatpak/local-manifest.mjs` | Writes a local build manifest at the checkout root, keeping the source and dependency includes inside the sandbox's manifest directory. |
 | `flatpak/ci-check.sh` | `lint` and `build` steps used by CI. |
 
 `open-pdf-studio/scripts/flatpak-flathub.test.mjs` checks the static
 requirements (permissions, offline sources, metainfo fields, version, icons).
-CI runs `ci-check.sh lint` when the Flatpak or a lockfile changes (`ci.yml`,
-job `flatpak-lint`), and on every release tag `release.yml` (job `flatpak`)
-also builds the Flatpak the way Flathub does and lints the result. The bundle
+CI runs `ci-check.sh lint` and `ci-check.sh build` when the Flatpak or a
+lockfile changes (`ci.yml`, job `flatpak-lint`). On every release tag,
+`release.yml` (job `flatpak`) also builds the Flatpak the way Flathub does
+and lints the result. The bundle
 it builds is a workflow artifact for testing; it is not a release asset.
+
+Run local builds with `bash flatpak/ci-check.sh build`. This generates the
+ignored root manifest `org.openaec.OpenPdfStudio.yml`, with `path: .` and
+dependency includes under `flatpak/`. Passing the template in `flatpak/`
+directly to `flathub-build` fails because its `path: ..` source lies outside
+the manifest directory. The release-tag manifest for Flathub still uses the
+pinned Git source.
 
 ## How the build stays offline
 
