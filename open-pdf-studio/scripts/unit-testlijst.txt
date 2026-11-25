@@ -970,3 +970,4 @@ js/plugins/pdf-links.test.mjs
 js/ui/panels/paneel-breedte.test.mjs
 js/pdf/saver/gedeelde-resources.test.mjs
 js/pdf/bitmap-orchestrator-cap.test.mjs
+js/core/android-document-save.test.mjs

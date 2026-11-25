@@ -171,8 +171,8 @@ async function extractApAlphas(context, nStream) {
 function leesBlendMode(context, raw) {
   if (raw === undefined || raw === null) return null;
   const v = context.lookup(raw) || raw;
-  if (v instanceof PDFArray) return blendUitPdf(v.asArray().map((x) => String(context.lookup(x) || x)));
-  return blendUitPdf(String(v));
+  if (v instanceof PDFArray) return blendUitPdf(v.asArray().map((x) => String(context.lookup(x) || x)), 'normal');
+  return blendUitPdf(String(v), 'normal');
 }
 
 const TEKSTCORRECTIE_SOORTEN = new Set(['/Caret', '/Highlight', '/Underline', '/StrikeOut', '/Squiggly']);
@@ -314,7 +314,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const bmDict = leesBlendMode(context, annotDict.get(PDFName.of('BM')));
         if (bmDict) colors.blendMode = bmDict;
       }
-      if (colors.blendMode === 'multiply' && TEKSTCORRECTIE_SOORTEN.has(subtypeName)) delete colors.blendMode;
+      if (colors.blendMode === (subtypeName === '/Highlight' ? 'multiply' : 'normal')) delete colors.blendMode;
 
       // /FillOpacity: niet-standaard sleutel die externe tekenpakketten naast de
       // appearance zetten. Alleen terugval: de appearance hierboven is wat andere

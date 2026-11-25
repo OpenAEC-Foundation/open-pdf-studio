@@ -100,22 +100,21 @@ const LIJN_PER_SOORT = {
  *   die pdf.js als terugval tekent;
  * - Underline: de onderrand, 1 pt naar boven, zoals het scherm (#527);
  * - Squiggly: een zigzag langs de onderrand (#527);
- * - Highlight: alle quads in één vulling met /BM /Multiply, zoals de
- *   markeerlaag op het scherm (mix-blend-mode: multiply) (#527).
+ * - Highlight: alle quads in één vulling met de gekozen mengmodus (standaard Multiply).
  * /Rect is de omhullende van alle quads, bij een lijn plus een halve
  * lijndikte. De doorzichtigheid zet de saver er daarna in
  * (zetDoorzichtigheidInAp).
  * @param {'Highlight'|'Underline'|'StrikeOut'|'Squiggly'} subtype
  * @returns {{ rect: number[], apRef: PDFRef }}
  */
-export function buildMarkupAppearance(context, quads, subtype, rgb, lw = 1) {
+export function buildMarkupAppearance(context, quads, subtype, rgb, lw = 1, highlightBlend = 'Multiply') {
   if (subtype === 'Highlight') {
     const rect = omhullende(quads.flat(), 0);
     const [llx, lly] = rect;
     const vlakken = quads.map((q) => `${pad([q[0], q[1], q[3], q[2]], llx, lly)} h`);
     const inhoud = `q /GSm gs ${kleur(rgb)} rg ${vlakken.join(' ')} f Q`;
     const resources = context.obj({
-      ExtGState: context.obj({ GSm: context.obj({ Type: 'ExtGState', BM: 'Multiply' }) }),
+      ExtGState: context.obj({ GSm: context.obj({ Type: 'ExtGState', BM: highlightBlend }) }),
     });
     return { rect, apRef: vormStream(context, rect, inhoud, resources) };
   }

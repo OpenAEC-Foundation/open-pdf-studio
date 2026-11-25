@@ -158,5 +158,9 @@ export async function vergrendelDocument(pad, { invoke, vergrendelTerugval }) {
 
 /** Gaat Opslaan bij dit document naar Opslaan als (alleen-lezen geopend)? */
 export function opslaanNaarOpslaanAls(doc) {
-  return !!doc && !!doc.bestandAlleenLezen;
+  if (doc?.bestandAlleenLezen) return true;
+  const pad = doc?.saveTargetPath || doc?.filePath;
+  // A picker or another app can grant read access only. Ask for a writable
+  // destination before serializing. The grant can change between two saves.
+  return !!pad?.startsWith('content://') && !globalThis.OpdsAndroid?.canWrite?.(pad);
 }

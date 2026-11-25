@@ -56,7 +56,7 @@ import { drawCommentIcon } from './rendering/comment-icons.js';
 import { drawCaret, drawMarkupLines, replaceStrikeColor } from './rendering/caret.js';
 import { drawLink } from './rendering/link.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
-import { blendCanvasWaarde, isGemengd } from './blend-modes.js';
+import { blendCanvasWaarde, effectiveBlendMode, isGemengd } from './blend-modes.js';
 
 import { tekenGemengdTegenPagina } from './rendering/mengen-tegen-pagina.js';
 import { bitmapVoor, tekenSchermPreview, bijNieuweTegel, KNIPSEL_UITVOER_FOUT, gekleurdeTegel } from './vector-snippet-preview.js';
@@ -98,13 +98,6 @@ import { schaalgebiedStijl } from './scale-region-style.js';
 import { scaleDisplayLabel } from './scale-presets.js';
 import { meld as meldSplit } from '../pdf/split-view/split-haken.js';
 import { schermSchaal, weergaveRotatieVan } from '../pdf/split-view/paneel-weergave.js';
-
-// Text highlights inherently multiply, including imported highlights whose
-// default /BM was omitted from the editable model. Keep that default local
-// to rendering so drawing never changes the stored annotation.
-function effectiveBlendMode(annotation) {
-  return annotation.blendMode || (annotation.type === 'textHighlight' ? 'multiply' : 'normal');
-}
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -3344,7 +3337,7 @@ export function redrawAnnotations(lightweight = false) {
         textHighlightCanvas ? [{ canvas: textHighlightCanvas, op: 'multiply' }] : []);
       return;
     }
-    const targetCtx = (kandidaat.type === 'textHighlight' && textHighlightCtx)
+    const targetCtx = (kandidaat.type === 'textHighlight' && blendMode === 'multiply' && textHighlightCtx)
       ? textHighlightCtx
       : annotationCtx;
     // Wrap each annotation in save/restore to prevent clip leaks between annotations

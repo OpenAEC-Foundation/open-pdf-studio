@@ -1,3 +1,4 @@
+import { effectiveBlendMode } from '../../annotations/blend-modes.js';
 import { zetCalloutRotatie } from '../../annotations/callout-draaien.js';
 import { canApplyLineStyle } from '../../annotations/geometric-line-styles.js';
 import { laagKeuzeWaarde, leesLaagKeuze } from '../../annotations/laag-keuze.js';
@@ -141,6 +142,7 @@ const [annotProps, setAnnotProps] = createStore({
   textColor: '#000000',
   lineWidth: 3,
   opacity: 100,
+  blendMode: 'normal',
   fillOpacity: 100,
   icon: 'comment',
   attachmentName: '',
@@ -494,6 +496,7 @@ export function storeShowProperties(annotation) {
       : (annotation.type === 'stamp' ? (stampLineWidthOf(annotation) ?? 3)
         : DRAFTING_RULE_TYPES.has(annotation.type)
           ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
+    blendMode: effectiveBlendMode(annotation),
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
     icon: annotation.icon || (annotation.type === 'fileAttachment' ? 'paperclip' : 'comment'),
     attachmentName: annotation.attachment?.name || '',
@@ -837,6 +840,7 @@ export function storeShowMultiSelection(selected) {
     strokeColor: sharedStrokeColor,
     textColor: sharedTextColor,
     lineWidth: sharedLineWidth,
+    blendMode: sharedValue(selected, effectiveBlendMode, 'mixed'),
     opacity: sharedOpacity,
     fillOpacity: sharedFillOpacity,
     icon: sharedValue(selected, a => a.icon || 'comment', 'mixed'),

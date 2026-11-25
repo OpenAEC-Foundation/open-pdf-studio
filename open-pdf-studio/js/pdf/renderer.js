@@ -43,7 +43,7 @@ import {
   scherpeUitsnedeNodig, zichtbaarDeel, scherpeUitsnede, uitsnedeVolstaat, uitsnedeAanvraag,
   draaiTransform, schaalUitsnede, beeldPastBijAanvraag, uitsnedeSleutel, achtergrondMaat, overlapOppervlak,
 } from './doorlopend-scherp.js';
-import { isGemengd } from '../annotations/blend-modes.js';
+import { effectiveBlendMode, isGemengd } from '../annotations/blend-modes.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -1278,7 +1278,7 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
     staat.sleutel = sleutel;
     // Een annotatie met mengmodus mengt met het paginabeeld eronder: nu dat
     // er scherp staat (en op een andere plek), opnieuw mengen.
-    if (doc.annotations?.some((a) => a.page === pageNum && (a.blendMode ? isGemengd(a.blendMode) : a.type === 'textHighlight'))) {
+    if (doc.annotations?.some((a) => a.page === pageNum && isGemengd(effectiveBlendMode(a)))) {
       reclipContinuousAnnotationCanvas(pageWrapper, pageNum);
     }
   } catch (e) {

@@ -3406,7 +3406,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
           // Een vorm met aparte dekking voor lijn en vulling (#685) krijgt /ca
           // op de vul-dekking in dezelfde graphics-state.
           zetDoorzichtigheidInAp(context, annotDict, opacity, {
-            alsGroep: ann.type === 'arrow', blendMode: ann.blendMode, vulOpacity: eigenVulDekking(ann),
+            alsGroep: ann.type === 'arrow',
+            // De Highlight-appearance stelt de mengmodus al bij het vullen in.
+            blendMode: ann.type === 'textHighlight' || ann.type === 'highlight' ? null : ann.blendMode,
+            vulOpacity: eigenVulDekking(ann),
           });
         }
 

@@ -380,6 +380,28 @@ fn cancel_file_write(id: String) {
     lijst.entry(id).or_default().store(true, std::sync::atomic::Ordering::SeqCst);
 }
 
+// A SAF grant names one document. Its provider controls the final write and
+// need not support a sibling, a rename, seeking, or fsync (e.g. a pipe).
+fn write_provider_document(app: &tauri::AppHandle, path: &str, data: &[u8]) -> Result<(), String> {
+    use std::io::Write;
+    use tauri_plugin_fs::{FilePath, FsExt, OpenOptions};
+
+    let uri = url::Url::parse(path).map_err(|e| e.to_string())?;
+    if uri.scheme() != "content" {
+        return Err("Expected a document provider URI".into());
+    }
+    let mut options = OpenOptions::new();
+    options.write(true).truncate(true);
+    let mut file = app.fs().open(FilePath::Url(uri), options).map_err(|e| e.to_string())?;
+    file.write_all(data).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn write_android_document(app: tauri::AppHandle, path: String, data: Vec<u8>) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || write_provider_document(&app, &path, &data))
+        .await.map_err(|e| e.to_string())?
+}
+
 #[tauri::command]
 async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), String> {
     let header = request.headers().get("x-opds-path")
@@ -3812,6 +3834,7 @@ pub fn run(opts: StartupOpts) {
             get_username,
             write_file,
             write_file_atomic,
+            write_android_document,
             cancel_file_write,
             write_file_new,
             central_review::central_review_login,
