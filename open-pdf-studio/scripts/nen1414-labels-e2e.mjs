@@ -11,7 +11,8 @@ const server = await createServer({ cacheDir, server: { host: '127.0.0.1', port:
 let browser;
 try {
   await server.listen(); browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ viewport: { width: 1400, height: 1100 } });
+  // Start in English like hosted CI: Dutch resources must be loaded explicitly.
+  const page = await browser.newPage({ locale: 'en-US', viewport: { width: 1400, height: 1100 } });
   await page.goto(server.resolvedUrls.local[0]);
   await page.locator('[data-tab="drawing"]').waitFor({ timeout: 90000 });
   const pdf = await PDFDocument.create(); pdf.addPage([600,800]);
@@ -20,10 +21,15 @@ try {
     const { createTab } = await import('/js/ui/chrome/tabs.js');
     const { loadPDFIfNeeded } = await import('/js/pdf/loader.js');
     cacheWebFile('nen-labels.pdf', new Uint8Array(bytes)); const { index } = createTab('nen-labels.pdf'); await loadPDFIfNeeded('nen-labels.pdf', index);
-    const i18n = (await import('/js/i18n/config.js')).default; await i18n.changeLanguage('nl');
+    const i18n = (await import('/js/i18n/config.js')).default;
+    const { changeLanguage } = await import('/js/i18n/useTranslation.js');
+    const { state } = await import('/js/core/state.ts');
+    // Palette actions save/apply preferences, including language. Use the app
+    // setting and loader, not a temporary i18next-only override of "auto".
+    state.preferences.language = 'nl'; await changeLanguage('nl');
     const store = await import('/js/solid/stores/symbolStore.js'); store.setSymbolPaletteVisible(true); store.setSearchQuery('');
     const cats = await (await import('/js/solid/data/nen1414-laden.js')).laadNen1414();
-    window.nenTest = { store, cats, i18n, state: (await import('/js/core/state.ts')).state };
+    window.nenTest = { store, cats, i18n, state, changeLanguage };
   }, [...await pdf.save()]);
   for (const [group,title,id] of [
     ['Eerste hulp en redding','Eerste hulp','Tr01'], ['Verbodstekens','Lift niet gebruiken','Tv017'],
@@ -32,7 +38,18 @@ try {
     const header = page.locator('.sp-cat-header').filter({ hasText: `NL NEN 1414 — ${group}` });
     // The library promise can settle before the palette's deferred store/DOM
     // update. Assert the rendered result after it becomes visible, also on CI.
-    await header.waitFor({ state: 'visible', timeout: 30000 });
+    try { await header.waitFor({ state: 'visible', timeout: 30000 }); }
+    catch (error) {
+      console.error('Palette diagnostic', await page.evaluate(() => ({
+        language: window.nenTest.i18n.language,
+        translated: window.nenTest.i18n.t('symbolPalette.categories.nen1414-tr', { ns: 'ribbon' }),
+        visible: window.nenTest.store.symbolPaletteVisible(),
+        mode: window.nenTest.store.symbolPaletteMode(),
+        groups: window.nenTest.store.filteredCategories().map(c => c.id),
+        headers: [...document.querySelectorAll('.sp-cat-header')].map(h => h.textContent),
+      })));
+      throw error;
+    }
     assert.equal(await header.count(),1,group); await header.click();
     // The tooltip belongs to the button itself, not the nested SVG.
     const item = page.locator(`.sp-symbol-btn[title="${title}"]`);
@@ -52,7 +69,10 @@ try {
   await page.evaluate(() => window.nenTest.store.setSearchQuery('Eerste hulp'));
   await page.locator('.sp-symbol-btn[title="Eerste hulp"]').waitFor();
   assert.equal(await page.locator('.sp-symbol-btn[title="Eerste hulp"]').count(),1);
-  await page.evaluate(async () => { window.nenTest.store.setSearchQuery(''); await window.nenTest.i18n.changeLanguage('en'); });
+  await page.evaluate(async () => {
+    window.nenTest.store.setSearchQuery(''); window.nenTest.state.preferences.language = 'en';
+    await window.nenTest.changeLanguage('en');
+  });
   for (const name of ['Escape routes','First aid and rescue','Prohibition signs','Warnings']) {
     const header = page.locator('.sp-cat-header').filter({ hasText: `NL NEN 1414 — ${name}` });
     await header.waitFor({ state: 'visible', timeout: 30000 });
