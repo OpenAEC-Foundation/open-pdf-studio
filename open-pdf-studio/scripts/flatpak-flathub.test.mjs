@@ -205,6 +205,19 @@ test('the manifest pins the same PDFium and OCR assets as the release builds', (
   assert.deepEqual(flathub['only-arches'], pdfium['only-arches'], 'Flathub builds only the arches PDFium is declared for');
 });
 
+test('tesseract-rs has both build-time languages available before the offline Cargo build', () => {
+  const sources = manifestSources().filter((source) => source.dest === 'tesseract-src/tessdata');
+  assert.deepEqual(sources.map((source) => source['dest-filename']).sort(), ['eng.traineddata', 'tur.traineddata']);
+  for (const source of sources) {
+    assert.match(source.url, /\/tessdata_best\/[0-9a-f]{40}\//);
+    assert.match(source.sha256, /^[0-9a-f]{64}$/);
+  }
+  const preparation = manifest.slice(manifest.indexOf('    build-commands:'), manifest.indexOf('      - cargo build'));
+  assert.ok(preparation.includes('cache="$HOME/.tesseract-rs/$(rustc -vV | sed -n \'s/^host: //p\')"'));
+  assert.match(preparation, /for language in eng tur; do/);
+  assert.ok(preparation.includes('install -Dm644 "tesseract-src/tessdata/$language.traineddata" "$cache/tessdata/$language.traineddata"'));
+});
+
 test('the resources land where Tauri looks for them on Linux', () => {
   const res = `\${FLATPAK_DEST}/lib/${tauriConf.productName}`;
   assert.ok(manifest.includes(`res="${res}"`), 'resource_dir() is <prefix>/lib/<productName>');
