@@ -965,3 +965,6 @@ js/quantities/kleur-cel.test.mjs
 js/tools/rechtermuis-pan.test.mjs
 js/annotations/link/link-bladwijzer.test.mjs
 js/plugins/pdf-links.test.mjs
+
+js/annotations/signature-storage.test.mjs
+js/annotations/signature-image.test.mjs

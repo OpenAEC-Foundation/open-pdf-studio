@@ -9,6 +9,8 @@
 // verandert niet. Later gewoon opslaan herschrijft het bestand en maakt de
 // handtekening ongeldig; daarvoor waarschuwt verificatie.js al.
 
+export { getSavedSignatures as opgeslagenAfbeeldingen } from '../../annotations/signature-storage.js';
+import { getSavedSignatures as opgeslagenAfbeeldingen } from '../../annotations/signature-storage.js';
 import { getActiveDocument, state } from '../../core/state.js';
 import { invoke, isTauri, openFileDialog, saveFileDialog } from '../../core/platform.js';
 import { leesOpslagJson, schrijfOpslagJson } from '../../core/opslag.js';
@@ -20,8 +22,7 @@ import {
 } from './ondertekenen-regels.js';
 
 const OPSLAG = 'digitalSignOptions';
-/** Opgeslagen handtekeningafbeeldingen van de knop Handtekening (SignatureDialog.jsx). */
-const AFBEELDINGEN = 'pdfEditorSignatures';
+
 export const ONDERTEKEND_ACHTERVOEGSEL = ' (signed)';
 
 const t = (sleutel, opties) => i18next.t(`dialogs:digitalSign.${sleutel}`, opties);
@@ -50,12 +51,6 @@ export function leesKeuzes() {
 
 export function bewaarKeuzes(keuzes) {
   schrijfOpslagJson(OPSLAG, normaliseerKeuzes(keuzes));
-}
-
-/** De opgeslagen handtekeningafbeeldingen (data-URL's), voor de keuzelijst. */
-export function opgeslagenAfbeeldingen() {
-  const lijst = leesOpslagJson(AFBEELDINGEN, []);
-  return Array.isArray(lijst) ? lijst.filter((s) => typeof s?.dataUrl === 'string') : [];
 }
 
 /**

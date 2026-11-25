@@ -10,36 +10,13 @@ import { updateStatusMessage } from '../../../ui/chrome/status-bar.js';
 import { generateImageId } from '../../../utils/helpers.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { createSignaturePad } from '../../../annotations/signature-pad.js';
-import { leesOpslagJson, schrijfOpslagJson } from '../../../core/opslag.js';
+import { getSavedSignatures, saveSignatureToStorage, deleteSavedSignature } from '../../../annotations/signature-storage.js';
+import SignatureImageImport from '../SignatureImageImport.jsx';
 import { plaatsingsPagina } from '../../../annotations/plaatsingspagina.js';
 
-const STORAGE_KEY = 'pdfEditorSignatures';
-const MAX_SAVED = 5;
 const CANVAS_WIDTH = 430;
 const CANVAS_HEIGHT = 150;
 const MAX_PLACE_WIDTH = 200;
-
-function getSavedSignatures() {
-  try {
-    const saved = leesOpslagJson(STORAGE_KEY, []);
-    return Array.isArray(saved) ? saved : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveSignatureToStorage(dataUrl) {
-  const signatures = getSavedSignatures();
-  signatures.push({ dataUrl, createdAt: new Date().toISOString() });
-  while (signatures.length > MAX_SAVED) signatures.shift();
-  schrijfOpslagJson(STORAGE_KEY, signatures);
-}
-
-function deleteSavedSignature(index) {
-  const signatures = getSavedSignatures();
-  signatures.splice(index, 1);
-  schrijfOpslagJson(STORAGE_KEY, signatures);
-}
 
 function getCroppedDataUrl(canvas) {
   const ctx = canvas.getContext('2d');
@@ -277,6 +254,7 @@ export default function SignatureDialog(props) {
       onClose={close}
       footer={footer}
     >
+      <SignatureImageImport onImported={(saved) => { setSavedSigs(saved); setActiveTab('saved'); }} />
       <div class="sig-tabs">
         <button
           class={`sig-tab${activeTab() === 'draw' ? ' active' : ''}`}
