@@ -1253,8 +1253,9 @@ function _recomputeMeasureFields(ann, meas, userProps = {}) {
     ann.measureUnit = a.unit;
     if (!keepText) ann.measureText = meas.vlakTekst(ann, a);
   } else if (ann.type === 'measurePerimeter') {
-    const p = meas.calculatePerimeter(ann.points, ann.page);
+    const p = meas.calculatePerimeter(ann.points, ann.page, ann);
     ann.measureValue = p.value;
+    ann.measurePixels = p.pixels;
     ann.measureUnit = p.unit;
     if (!keepText) ann.measureText = meas.formatMeasurement(p);
   }

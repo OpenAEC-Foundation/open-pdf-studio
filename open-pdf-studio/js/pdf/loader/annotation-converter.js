@@ -868,6 +868,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               mpProps.measurePrecision = extraColors.measurePrecision;
             }
           }
+          // /Measure also carries an inherited unit. Expose its saved value in
+          // Properties, but keep measureScale unset so it still follows the page.
+          const mpMeasurement = calculatePerimeter(plPoints, pageNum, extraColors);
+          mpProps.measureUnit = mpMeasurement.unit;
+          mpProps.measureValue = mpMeasurement.value;
+          mpProps.measurePixels = mpMeasurement.pixels;
           if (extraColors.opsPrecision != null) mpProps.measurePrecision = extraColors.opsPrecision;
           // Diepte (#311) en andere eigen sleutels van een maat.
           Object.assign(mpProps, plattegrondUitExtra(extraColors, convertPoint));

@@ -1478,7 +1478,7 @@ function applyPropToAnnotation(ann, key, value) {
 // (anders zette het herberekenen de eenheid meteen terug). Pixels hebben geen
 // vaste maat; daar blijft het schaalgetal staan.
 function zetMeetEenheid(ann, eenheid) {
-  if (ann?.type === 'measureArea' && eenheid) {
+  if (['measureArea', 'measurePerimeter'].includes(ann?.type) && eenheid) {
     const huidig = vlakLengteSchaal(ann);
     ann.measureScale = schaalInEenheid(huidig.perPt, huidig.unit, eenheid);
   } else if (ann?.type === 'measureDistance' && eenheid) {
@@ -1590,9 +1590,10 @@ function recomputeMeasureText(ann) {
     // Met de eigen schaal (measureScale) als die er is (#536).
     herberekenVlakMaat(ann);
   } else if (ann.type === 'measurePerimeter' && ann.points && ann.points.length >= 2) {
-    const perim = calculatePerimeter(ann.points, ann.page);
+    const perim = calculatePerimeter(ann.points, ann.page, ann);
     ann.measureText = formatMeasurement(perim);
     ann.measureValue = perim.value;
+    ann.measurePixels = perim.pixels;
     ann.measureUnit = perim.unit;
   }
 }
@@ -1925,14 +1926,14 @@ function applyAnnotProp(key, value) {
     case 'measureScale':
       currentAnnotation.measureScale = leesGetalBegin(value) || 0;
       recomputeMeasureText(currentAnnotation);
-      // Zonder eigen schaal volgt een meetvlak de eenheid van het document.
-      if (currentAnnotation.type === 'measureArea') {
+      // Zonder eigen schaal volgt de meting de eenheid van het document.
+      if (['measureArea', 'measurePerimeter'].includes(currentAnnotation.type)) {
         setAnnotProps('measureUnit', lengteEenheid(currentAnnotation.measureUnit) || '');
       }
       break;
     case 'measureUnit':
       zetMeetEenheid(currentAnnotation, value);
-      if (currentAnnotation.type === 'measureArea') setAnnotProps('measureScale', currentAnnotation.measureScale || 0);
+      if (['measureArea', 'measurePerimeter'].includes(currentAnnotation.type)) setAnnotProps('measureScale', currentAnnotation.measureScale || 0);
       break;
     case 'measureAreaUnit':
       zetVlakEenheid(currentAnnotation, value);
