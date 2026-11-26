@@ -291,6 +291,7 @@
     "panels": "Panelen",
     "showPropertiesPanel": "Eigenschappenpaneel standaard tonen",
     "showToolPalette": "Gereedschapspalet standaard tonen",
+    "initialZoom": "Zoom bij het openen van een document",
     "zoomDpi": "Schermresolutie voor 100% zoom (dpi; hoger = grotere pagina's, 96 = browsergrootte)",
     "pageSharpen": "Pagina scherper maken (scherpere, donkerdere tekst)",
     "pageSharpenLevel0": "Uit (zoals gerenderd)",

@@ -519,8 +519,8 @@
 
 /* Thumbnails Panel */
 /* De miniaturen vullen de paneelbreedte en lopen in extra kolommen over zodra
-   er twee (of meer) van minstens 150 px naast elkaar passen (#579). Houd
-   150 px en de gap gelijk aan js/ui/panels/miniatuur-maat.js. De vaste
+   er twee (of meer) van minstens 64 px naast elkaar passen (#579). Houd
+   64 px en de gap gelijk aan js/ui/panels/miniatuur-maat.js. De vaste
    scrollbalkgoot voorkomt dat het aantal kolommen verspringt als de
    scrollbalk verschijnt. */
 .thumbnails-container {
@@ -528,7 +528,7 @@
   overflow-y: auto;
   padding: 4px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
   align-content: start;
   gap: 4px;
   scrollbar-gutter: stable;
@@ -536,6 +536,7 @@
 }
 
 .thumbnail-item {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -564,6 +565,8 @@
 }
 
 .thumbnail-item.active {
+  outline: 2px solid var(--theme-thumbnail-active-border);
+  outline-offset: -2px;
   border-color: var(--theme-thumbnail-active-border);
   background: var(--theme-thumbnail-active-bg);
 }
@@ -609,6 +612,7 @@
 }
 
 .thumbnail-item.active .thumbnail-label {
+  font-weight: 700;
   color: var(--theme-thumbnail-active-label);
 }
 

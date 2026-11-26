@@ -1,3 +1,4 @@
+import { syncCloudNote } from '../annotations/cloud-note.js';
 import { leaderAnchor } from '../annotations/linked-leaders.js';
 import { inkStrokes } from '../annotations/ink-strokes.js';
 import { buildGeometricLineAP } from './saver/appearance-vectors.js';
@@ -592,6 +593,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       const pageRot = (((page.getRotation().angle) % 360) + 360) % 360;
 
       const pageAnnotations = annotationsByPage[pageNum] || [];
+      for (const ann of pageAnnotations) {
+        if (ann.cloudVertex != null) syncCloudNote(ann, pageAnnotations);
+      }
 
       // DATAVERLIES-WACHTER: annotaties laden lui per pagina, en bij zware
       // bestanden (stempel-extractie) kan dat tientallen seconden duren. Het

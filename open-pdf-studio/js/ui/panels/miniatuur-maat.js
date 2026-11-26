@@ -1,10 +1,10 @@
 // Maat van de paginaminiaturen (#579). De miniaturen vullen de paneelbreedte
 // en lopen bij een breed paneel over in kolommen (CSS-grid in layout.css:
-// repeat(auto-fill, minmax(150px, 1fr)) met 4 px tussenruimte). Ze worden
+// repeat(auto-fill, minmax(64px, 1fr)) met 4 px tussenruimte). Ze worden
 // gerenderd op de getoonde breedte maal devicePixelRatio, zodat ze ook groter
 // en op een hoge-dpi-scherm scherp blijven. Pure functies, los te testen.
 
-export const MIN_KOLOM = 150;      // px, gelijk aan minmax() in layout.css
+export const MIN_KOLOM = 64;      // px, gelijk aan minmax() in layout.css
 export const KOLOM_GAP = 4;        // px, gelijk aan gap in layout.css
 export const ITEM_RAND = 12;       // padding 2x4 + rand 2x2 van .thumbnail-item
 export const MIN_RENDER = 280;     // ondergrens renderbreedte (apparaatpixels)

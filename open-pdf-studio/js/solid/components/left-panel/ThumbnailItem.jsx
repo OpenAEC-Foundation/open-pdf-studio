@@ -143,6 +143,7 @@ export default function ThumbnailItem(props) {
         'drop-after': isDropAfter(),
         'drop-side': isDropNaast()
       }}
+      aria-current={isActive() ? "page" : undefined}
       data-page={props.pageNum}
       draggable={false}
       onDragStart={(e) => e.preventDefault()}

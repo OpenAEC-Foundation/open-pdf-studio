@@ -2,7 +2,7 @@ import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { state, getNextUntitledName, getActiveDocument } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
-import { setViewMode, fitPage } from './renderer.js';
+import { setViewMode } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -21,7 +21,6 @@ import { showMessage, refreshAnnotationLayers } from '../bridge.js';
 import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 
 // Sub-module imports
-import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
 import { createStempelRender } from './loader/stempel-beeld-rust.js';
 import { paginaViewport } from './pagina-viewport.js';
@@ -966,7 +965,6 @@ export async function createDocFromTemplate(templatePath, titleBlockPath = null)
     await loadPDF(tempPath, index, typedArray);
     if (doc) doc.fileName = displayName;
     markDocumentModified();
-    try { await fitPage(); } catch (e) { console.warn('[template-pdf] fitPage failed:', e); }
     updateWindowTitle();
   } catch (e) {
     console.error('[template-pdf] failed:', e);
@@ -1026,7 +1024,6 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
       if (doc) doc.fileName = displayName;
       // Mark as modified so Ctrl+S triggers Save As right away
       markDocumentModified();
-      try { await fitPage(); } catch (e) { console.warn('[blank-pdf] fitPage failed:', e); }
       updateWindowTitle();
       return;
     }
@@ -1081,17 +1078,6 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
 
     // Mark as modified so Ctrl+S will trigger Save As
     markDocumentModified();
-
-    // Manual fit: the in-memory path bypasses the viewport, so fitPage() is
-    // a no-op — compute a fit-zoom from the container directly.
-    if (pdfContainer) {
-      const r = pdfContainer.getBoundingClientRect();
-      const padding = 20; // small breathing room around the page
-      const availW = Math.max(100, r.width - padding * 2);
-      const availH = Math.max(100, r.height - padding * 2);
-      const fitScale = Math.min(availW / widthPt, availH / heightPt);
-      doc.scale = Math.max(0.05, Math.min(1.5, fitScale));
-    }
 
     await setViewMode(doc.viewMode);
     if (bytes) {
@@ -1194,6 +1180,11 @@ function stempelWorkerRender(doc) {
     }
   } catch { render = null; }
   return (doc._stempelWorkerRender = render);
+}
+
+async function extractAnnotationColors(pageNum, pdfLibDoc) {
+  const colors = await import('./loader/color-extraction.js');
+  return colors.extractAnnotationColors(pageNum, pdfLibDoc);
 }
 
 // Load annotations for a single page on-demand (called when user navigates to a page)

@@ -58,6 +58,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
   // het laden teruggezet (zie preferences.js).
   defaultViewMode: 'single',
+  initialZoom: 'page',
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
@@ -249,6 +250,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   cloudPolylineStrokeColor: '#FF0000',
   cloudPolylineLineWidth: 2,
   cloudPolylineOpacity: 100,
+  cloudAttachNote: false,
 
   // Comment/Note defaults
   commentColor: '#FFFF00',

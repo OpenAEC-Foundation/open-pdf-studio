@@ -635,6 +635,7 @@
     "extensionTabFailed": "Dit tabblad van de extensie kon niet worden weergegeven."
   },
   "drawing": {
+    "cloudAttachNote": "Notitie koppelen",
     "selection": "Selectie",
     "draw": "Tekenen",
     "eraser": "Gum (verwijdert vrije-handlijnen)",

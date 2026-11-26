@@ -633,6 +633,7 @@
     "extensionTabFailed": "This extension tab could not be displayed."
   },
   "drawing": {
+    "cloudAttachNote": "Attach a note",
     "selection": "Selection",
     "draw": "Draw",
     "eraser": "Eraser (removes freehand ink)",

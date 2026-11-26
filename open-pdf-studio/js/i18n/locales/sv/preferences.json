@@ -284,6 +284,7 @@
     "rendering": "Rendering",
     "thinLines": "Tunna linjer (visa alla linjer med 1px bredd)",
     "progressiveRender": "Progressiv rendering (fyll tunga ritningar ruta för ruta)",
+    "initialZoom": "Zoom när ett dokument öppnas",
     "zoomDpi": "Skärmupplösning för 100% zoom (dpi; högre = större sidor, 96 = webbläsarstorlek)",
     "pageSharpen": "Sidskärpning (skarpare, mörkare text)",
     "pageSharpenLevel0": "Av (som renderad)",

@@ -5,6 +5,7 @@ export interface Preferences {
 
   // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
   // de standaard voor nieuwe installaties) of 'single' (één pagina).
+  initialZoom: 'page' | 'width' | number;
   defaultViewMode: 'continuous' | 'single';
   // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
   ocrEngine?: string | null;
@@ -162,6 +163,7 @@ export interface Preferences {
   cloudPolylineStrokeColor: string;
   cloudPolylineLineWidth: number;
   cloudPolylineOpacity: number;
+  cloudAttachNote: boolean;
 
   // Comment/Note defaults
   commentColor: string;

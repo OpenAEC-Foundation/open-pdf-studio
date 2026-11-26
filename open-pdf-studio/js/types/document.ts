@@ -93,6 +93,7 @@ export interface DocumentState {
   fileName: string;
   pdfDoc: any; // pdfjs-dist PDFDocumentProxy
   currentPage: number;
+  pendingInitialZoom?: 'page' | 'width' | number;
   scale: number;
   viewMode: 'single' | 'continuous';
   /** Boekweergave (issue #201): continuous met 2-pagina-spreads, pagina 1 rechts. */

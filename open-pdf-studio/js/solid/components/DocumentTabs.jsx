@@ -1,9 +1,9 @@
 import { For, Show, createSignal, onCleanup } from 'solid-js';
-import { state } from '../../core/state.js';
+import { state, findDocumentByPath } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import i18next from '../../i18n/config.js';
 import { invoke } from '../../core/platform.js';
-import { laadDesktopDragPlugin } from '../../core/desktop-drag-plugin.js';
+import { previewDock, receiveDock, requestDock } from '../../ui/chrome/tab-dock.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 import { tabItems, isActiefTabItem, heeftMeerWeergaven } from '../../ui/chrome/weergave-tabs-model.js';
 import { kanAllesSluiten, kanAndereSluiten } from '../../ui/chrome/tabs-sluiten-model.js';
@@ -23,27 +23,11 @@ import {
 } from '../../compare/compare-store.js';
 
 import {
-  buitenTabbalk,
-  buitenVenster,
+  losmaakPositie,
   besluitBijLoslaten,
-  moetOsSleepStarten,
-  besluitNaOsSleep,
   padVoorNieuweInstantie,
   losmaakBlokkade,
 } from '../../ui/chrome/tab-losmaken.js';
-
-// Cached current-window label (set once on first mount). All windows ask
-// Rust for their own label so cross-window dock IPC can identify the source.
-let _currentWindowLabel = null;
-async function getCurrentWindowLabel() {
-  if (_currentWindowLabel !== null) return _currentWindowLabel;
-  try {
-    _currentWindowLabel = await invoke('current_window_label');
-  } catch {
-    _currentWindowLabel = 'main';
-  }
-  return _currentWindowLabel;
-}
 
 // Right-click context menu (Chrome-style "Open in new window" etc.)
 const [ctxMenu, setCtxMenu] = createSignal(null);
@@ -90,19 +74,19 @@ async function detachTabToNewWindow(index) {
   }
 }
 
-// Close a tab in the current window. If this empties out a NON-main window
-// (i.e. a previously detached one) destroy the window too — the detached
-// window has no reason to keep hanging around as an empty shell.
-async function closeTabAndMaybeCloseWindow(index) {
-  const { closeTab } = await import('../../ui/chrome/tabs.js');
-  closeTab(index);
-  const label = await getCurrentWindowLabel();
-  if (label && label !== 'main' && state.documents.length === 0) {
-    try {
-      await invoke('close_window_by_label', { label });
-    } catch (e) {
-      console.warn('close_window_by_label failed:', e);
-    }
+// Only acknowledge a transfer once the receiver has a loaded document.
+async function openDockedPdf(path) {
+  const { createTab, closeTab } = await import('../../ui/chrome/tabs.js');
+  const { loadPDFIfNeeded } = await import('../../pdf/loader.js');
+  const existing = findDocumentByPath(path) >= 0;
+  const { index } = createTab(path);
+  const doc = state.documents[index];
+  try {
+    await loadPDFIfNeeded(path, index);
+    return !!doc.pdfDoc && state.documents.includes(doc);
+  } finally {
+    const current = state.documents.indexOf(doc);
+    if (!existing && !doc.pdfDoc && current >= 0) await closeTab(current);
   }
 }
 
@@ -207,15 +191,11 @@ function handleMouseDown(e, index) {
 
   dragState = {
     fromIndex: index,
+    document: state.documents[index],
     startX: e.clientX,
     startY: e.clientY,
     started: false,
   };
-
-  // Alvast laden zodat er straks geen asynchroon gat zit tussen "cursor
-  // verlaat de tabbalk" en het daadwerkelijk starten van de OS-drag — zie
-  // preloadDragDeps().
-  preloadDragDeps();
 
   document.addEventListener('mousemove', onDocMouseMove);
   document.addEventListener('mouseup', onDocMouseUp);
@@ -244,8 +224,11 @@ function onDocMouseMove(e) {
   const tabBarRect = tabsContainer.getBoundingClientRect();
   // Een document in meer tabbladen (#919) gaat niet los naar een ander
   // venster: dat zou de andere tabbladen ervan meenemen.
-  dragState.losGewapend = buitenTabbalk(e.clientY, tabBarRect)
-    && !heeftMeerWeergaven(state.documents[dragState.fromIndex]);
+  const { buiten, losGewapend } = losmaakPositie(e.clientX, e.clientY,
+    window.innerWidth, window.innerHeight, tabBarRect,
+    heeftMeerWeergaven(state.documents[dragState.fromIndex]));
+  dragState.buiten = buiten;
+  dragState.losGewapend = losGewapend;
 
   // Find which tab the mouse is over (reorder)
   let targetIndex = -1;
@@ -265,201 +248,36 @@ function onDocMouseMove(e) {
   }
   setDropTargetIndex(targetIndex !== -1 && targetIndex !== dragState.fromIndex ? targetIndex : -1);
 
-  // Re-dock: only while the cursor hangs over ANOTHER instance of this app do
-  // we hand off to a native OS file drag, so that instance can take the tab
-  // (its onDragDropEvent opens it). Asked at most every 120 ms.
-  const buiten = buitenVenster(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
-  if (dragState.losGewapend && buiten && !dragState.doelVraag) {
-    const nu = Date.now();
-    if (!dragState.laatsteDoelVraag || nu - dragState.laatsteDoelVraag > 120) {
-      dragState.laatsteDoelVraag = nu;
-      const vraag = dragState;
-      vraag.doelVraag = dropTargetKind().then((doelSoort) => {
-        vraag.doelVraag = null;
-        // The gesture may have ended (or moved back) while we were asking.
-        if (dragState !== vraag || vraag.nativeDragStarted) return;
-        if (!moetOsSleepStarten({ losGewapend: vraag.losGewapend, buitenVenster: true, doelSoort })) return;
-        vraag.nativeDragStarted = true;
-        const from = vraag.fromIndex;
-        endMouseDrag();
-        startNativeTabDrag(from);
-      });
-    }
+  dragState.x = e.clientX;
+  dragState.y = e.clientY;
+  if (losGewapend && buiten) checkDockTarget(dragState);
+}
+
+async function checkDockTarget(gesture) {
+  if (gesture.checking || gesture.timer) return;
+  gesture.checking = true;
+  try {
+    const target = await invoke('tab_drop_target', { x: gesture.x, y: gesture.y });
+    if (dragState === gesture && gesture.buiten && target) previewDock(target);
+  } catch { /* No desktop hit test in the browser. */ }
+  gesture.checking = false;
+  if (dragState === gesture && gesture.buiten && gesture.losGewapend) {
+    gesture.timer = setTimeout(() => {
+      gesture.timer = null;
+      if (dragState === gesture && gesture.buiten) checkDockTarget(gesture);
+    }, 80);
   }
 }
 
 // Stop the in-WebView drag tracking and clear its visual state.
 function endMouseDrag() {
+  clearTimeout(dragState?.timer);
   document.removeEventListener('mousemove', onDocMouseMove);
   document.removeEventListener('mouseup', onDocMouseUp);
   document.body.style.userSelect = '';
   dragState = null;
   setDraggingIndex(-1);
   setDropTargetIndex(-1);
-}
-
-// What lies under the mouse cursor right now: 'zelf' | 'instantie' | 'geen'.
-async function dropTargetKind() {
-  try {
-    const r = await invoke('tab_drop_target');
-    return r?.kind || 'geen';
-  } catch {
-    return 'geen';
-  }
-}
-
-// Voorladen van alles wat `startNativeTabDrag` nodig heeft.
-//
-// WAAROM (issue #335): de OS-drag moet starten TERWIJL de muisknop nog
-// ingedrukt is. Werd `startDrag` pas aangeroepen na een dynamische import en
-// een `invoke`, dan zat daar een asynchroon gat van tientallen ms tot (in dev,
-// bij een koude module-load) veel langer. Liet de gebruiker in dat gat de knop
-// los, dan startte `DoDragDrop` zonder ingedrukte knop en liep zijn modale lus
-// nooit af — de complete event-loop van de app stond dan permanent stil.
-// Daarom laden we module en drag-icoon één keer voor, zodra de gebruiker een
-// tab aanraakt (handleMouseDown) — ruim voordat ze nodig zijn.
-let _dragModulePromise = null;
-let _dragIconPromise = null;
-function preloadDragDeps() {
-  if (!_dragModulePromise) {
-    // Tab naar buiten slepen kan alleen op het bureaublad. In elke webbouw
-    // zet Vite hier een lege vervanger neer, zodat de plugin niet in de
-    // webbundel komt (#692, #776; scripts/web-bouw.mjs).
-    _dragModulePromise = laadDesktopDragPlugin();
-  }
-  if (!_dragIconPromise) {
-    _dragIconPromise = invoke('drag_icon_path').catch(() => '');
-  }
-}
-
-// Synchrone spiegel van de primaire-muisknopstatus. De Rust-preflight kost een
-// IPC-rondgang; deze check kost niets en dekt het laatste stukje van het gat
-// tussen "preflight zegt ok" en "startDrag is aangeroepen".
-let _primaryDown = false;
-if (typeof document !== 'undefined') {
-  const down = (e) => { if (e.button === 0 || e.buttons & 1) _primaryDown = true; };
-  const up = () => { _primaryDown = false; };
-  document.addEventListener('pointerdown', down, true);
-  document.addEventListener('mousedown', down, true);
-  document.addEventListener('pointerup', up, true);
-  document.addEventListener('mouseup', up, true);
-  document.addEventListener('pointercancel', up, true);
-  window.addEventListener('blur', up, true);
-}
-
-// Nette melding wanneer de tab-overdracht niet veilig gestart kan worden.
-// Liever een uitleg dan een bevroren of verdwenen venster.
-function explainDragUnavailable(reason) {
-  const key = reason === 'missing-file' ? 'tabs.dragFileGone' : 'tabs.dragNotStarted';
-  const msg = i18next.t(key, { defaultValue: reason === 'missing-file'
-    ? 'Dit bestand bestaat niet meer op schijf — de tab kan niet verplaatst worden.'
-    : 'De tab kon niet naar een ander venster gesleept worden. Probeer het opnieuw, of gebruik rechtsklik → openen in nieuw venster.' });
-  alert(msg);
-}
-
-// Native OS file drag of a tab's PDF, ONLY started while the cursor is over
-// another instance of this app (re-dock). Where it lands decides the rest:
-//   * on another instance → that instance opens it as a tab; we close ours;
-//   * back on ourselves    → nothing changes;
-//   * anywhere else        → the tab is torn off into a new instance.
-// The OS result alone is not enough: on Windows it reports "Dropped" even when
-// the window under the cursor accepted nothing (and "Cancel", not
-// "Cancelled", for Escape), so we look at what is under the cursor once the
-// drag is over.
-async function startNativeTabDrag(index) {
-  const doc = state.documents[index];
-  if (!doc) return;
-  const pdfPath = padVoorNieuweInstantie(doc);
-  if (!pdfPath || losmaakBlokkade(doc)) {
-    alert(i18next.t('tabs.saveBeforeDetach'));
-    return;
-  }
-
-  preloadDragDeps();
-  const mod = await _dragModulePromise;
-  const icon = await _dragIconPromise;
-  if (!mod?.startDrag) {
-    // Geen drag-backend beschikbaar → losmaken naar een nieuwe instantie.
-    detachTabToNewWindow(index);
-    return;
-  }
-
-  // Laatste controle vlak vóór we de OS-drag starten: bestaat het bestand nog
-  // en houdt de gebruiker de muisknop nog vast? Zonder ingedrukte knop hangt
-  // `DoDragDrop` de hele app op; zonder bestaand bestand paniekt de OS-laag en
-  // wordt het proces hard afgebroken. Zie window_mgmt::tab_drag_preflight.
-  let pre = { ok: false, reason: 'preflight-failed' };
-  try {
-    pre = await invoke('tab_drag_preflight', { pdfPath });
-  } catch (e) {
-    console.warn('[tab-drag] preflight faalde:', e);
-  }
-  if (!pre?.ok) {
-    if (pre?.reason === 'button-released') {
-      // Knop al losgelaten: niet meer over te dragen, dus losmaken naar een
-      // nieuwe instantie.
-      detachTabToNewWindow(index);
-    } else {
-      explainDragUnavailable(pre?.reason);
-    }
-    return;
-  }
-
-  // Allerlaatste synchrone check: knop in de tussentijd toch losgelaten?
-  if (!_primaryDown) {
-    detachTabToNewWindow(index);
-    return;
-  }
-
-  // Mark THIS instance as the drag source so our own drop handler ignores a
-  // drop that lands back on us (no duplicate tab).
-  window.__OPDS_DRAGGING_OUT__ = pdfPath;
-  window.__OPDS_SELF_DROP__ = false;
-  // De callback mag maar één keer werk doen: de OS-laag kan hem in theorie
-  // vaker afvuren, en dubbel sluiten zou een al gesloten tab-index raken.
-  let settled = false;
-  try {
-    await mod.startDrag({ item: [pdfPath], icon }, (payload) => {
-      // DEFENSIEF: deze callback loopt vanuit Rust terwijl de OS-drag nog
-      // wordt afgerond. Alles in een try/catch, en het echte werk pas ná een
-      // korte pauze, zodat de OS-drag eerst netjes afloopt en de eigen
-      // drop-afhandeling een terugzetten op dit venster kan melden.
-      try {
-        if (settled) return;
-        settled = true;
-        const resultaat = payload?.result;
-        setTimeout(async () => {
-          try {
-            const zelfDrop = !!window.__OPDS_SELF_DROP__;
-            window.__OPDS_DRAGGING_OUT__ = null;
-            window.__OPDS_SELF_DROP__ = false;
-            const doelSoort = await dropTargetKind();
-            const besluit = besluitNaOsSleep({ resultaat, doelSoort, zelfDrop });
-            // The index may have shifted meanwhile; find the document again.
-            const nu = state.documents.indexOf(doc);
-            if (nu === -1) return;
-            if (besluit === 'sluiten') {
-              closeTabAndMaybeCloseWindow(nu);
-            } else if (besluit === 'losmaken') {
-              detachTabToNewWindow(nu);
-            }
-          } catch (err) {
-            console.error('[tab-drag] afhandeling na drop faalde:', err);
-          }
-        }, 50);
-      } catch (err) {
-        console.error('[tab-drag] drop-callback faalde:', err);
-      }
-    });
-  } catch (e) {
-    window.__OPDS_DRAGGING_OUT__ = null;
-    window.__OPDS_SELF_DROP__ = false;
-    console.warn('native tab drag failed, tearing off instead:', e);
-    if (!settled) {
-      settled = true;
-      detachTabToNewWindow(index);
-    }
-  }
 }
 
 // Hide the context menu when clicking anywhere else / pressing Escape.
@@ -471,25 +289,47 @@ function handleTabContextMenu(e, index, weergave = null) {
   setCtxMenu({ x: e.clientX, y: e.clientY, index, weergave });
 }
 
-function onDocMouseUp() {
+async function onDocMouseUp(event) {
   if (!dragState) {
     endMouseDrag();
     return;
   }
 
-  const from = dragState.fromIndex;
+  const doc = dragState.document;
+  const from = state.documents.indexOf(doc);
   const wasStarted = dragState.started;
   const losGewapend = !!dragState.losGewapend;
+  const buiten = dragState.buiten;
   const target = dropTargetIndex();
   endMouseDrag();
 
-  if (!wasStarted) return;
+  if (!wasStarted || from < 0) return;
 
-  const besluit = besluitBijLoslaten({ losGewapend, aantalTabs: state.documents.length });
+  const besluit = besluitBijLoslaten({ losGewapend, aantalTabs: state.documents.length, buiten });
   if (besluit === 'losmaken') {
-    // Released away from the tab bar (and not over another instance, or the
-    // OS drag would have taken over): open it in a second instance.
-    detachTabToNewWindow(from);
+    let destination;
+    try {
+      if (buiten && window.__TAURI__) destination = await invoke('tab_drop_target', { x: event.clientX, y: event.clientY });
+      if (destination) {
+        const path = padVoorNieuweInstantie(doc);
+        if (!path || losmaakBlokkade(doc) || doc.modified) {
+          alert(i18next.t('tabs.saveBeforeDetach'));
+          return;
+        }
+        if (!await requestDock(destination, path)) throw new Error(i18next.t('tabs.dragNotStarted'));
+        const index = state.documents.indexOf(doc);
+        if (index >= 0 && !doc.modified && path === padVoorNieuweInstantie(doc)) {
+          const { closeTab } = await import('../../ui/chrome/tabs.js');
+          await closeTab(index);
+        }
+      } else {
+        const index = state.documents.indexOf(doc);
+        if (index >= 0) await detachTabToNewWindow(index);
+      }
+    } catch (error) {
+      console.warn('[tabs] transfer failed', error);
+      alert(i18next.t('tabs.dragNotStarted'));
+    }
     return;
   }
   if (besluit !== 'herschikken') return;
@@ -541,7 +381,17 @@ export default function DocumentTabs() {
   document.addEventListener('mousedown', onDocClick, true);
   document.addEventListener('keydown', onDocKeyDown);
 
+  let disposed = false;
+  let stopDock;
+  if (window.__TAURI__ && typeof BroadcastChannel !== 'undefined') {
+    invoke('instance_role').then(({ pid }) => {
+      if (!disposed && pid) stopDock = receiveDock(pid, () => document.getElementById('document-tabs'), openDockedPdf);
+    }).catch(e => console.warn('[tabs] receiver unavailable', e));
+  }
   onCleanup(() => {
+    disposed = true;
+    stopDock?.();
+    endMouseDrag();
     document.removeEventListener('mousemove', onDocMouseMove);
     document.removeEventListener('mouseup', onDocMouseUp);
     document.removeEventListener('mousedown', onDocClick, true);

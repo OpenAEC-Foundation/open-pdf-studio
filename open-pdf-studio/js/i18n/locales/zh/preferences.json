@@ -284,6 +284,7 @@
     "rendering": "渲染",
     "thinLines": "细线（以1像素宽度显示所有线条）",
     "progressiveRender": "渐进式渲染（逐块填充复杂图纸）",
+    "initialZoom": "打开文档时的缩放比例",
     "zoomDpi": "100% 缩放时的屏幕分辨率（dpi；越高页面越大，96 = 浏览器尺寸）",
     "pageSharpen": "页面锐化（文字更清晰、颜色更深）",
     "pageSharpenLevel0": "关闭（保持渲染原样）",

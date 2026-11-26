@@ -284,6 +284,7 @@
     "rendering": "Gengivelse",
     "thinLines": "Tynde linjer (vis alle linjer med 1px bredde)",
     "progressiveRender": "Progressiv gengivelse (udfyld tunge tegninger felt for felt)",
+    "initialZoom": "Zoom ved åbning af et dokument",
     "zoomDpi": "Skærmopløsning ved 100% zoom (dpi; højere = større sider, 96 = browserstørrelse)",
     "pageSharpen": "Sideskærpning (skarpere, mørkere tekst)",
     "pageSharpenLevel0": "Fra (som gengivet)",

@@ -284,6 +284,7 @@
     "rendering": "Renderização",
     "thinLines": "Linhas finas (exibir todas as linhas com largura de 1px)",
     "progressiveRender": "Renderização progressiva (preencher desenhos pesados bloco a bloco)",
+    "initialZoom": "Zoom ao abrir um documento",
     "zoomDpi": "Resolução da tela para zoom de 100% (dpi; maior = páginas maiores, 96 = tamanho do navegador)",
     "pageSharpen": "Nitidez da página (texto mais nítido e escuro)",
     "pageSharpenLevel0": "Desativada (como renderizada)",

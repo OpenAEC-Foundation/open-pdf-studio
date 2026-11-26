@@ -1,3 +1,4 @@
+import { syncCloudNote } from './cloud-note.js';
 import { leaderAnchor } from './linked-leaders.js';
 export { pickAnchorSide } from './linked-leaders.js';
 import { drawInk } from './rendering/ink.js';
@@ -3327,6 +3328,7 @@ export function redrawAnnotations(lightweight = false) {
   const kaal = kaleLijst(annotations);
   metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
     if (kandidaat.page !== curPage) return;
+    if (kandidaat.cloudVertex != null) syncCloudNote(annotations[index], kaal);
     if (_buitenBeeld(kandidaat, vpX, vpY, vpW, vpH)) return;
     // Een tekstmarkering met een andere mengmodus dan vermenigvuldigen mengt
     // zelf met de pagina; de markeerlaag kan alleen vermenigvuldigen.
@@ -3548,6 +3550,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   const kaal = kaleLijst(annotations);
   metSchaalBronnen(() => kaal.forEach((kandidaat, index) => {
     if (kandidaat.page !== pageNum) return;
+    if (kandidaat.cloudVertex != null) syncCloudNote(annotations[index], kaal);
     if (_buitenBeeld(kandidaat, cvX, cvY, cvW, cvH)) return;
     if (isGemengd(effectiveBlendMode(kandidaat)) && _paginaOnder(ctx.canvas)) {
       _tekenGemengd(ctx, annotations[index], snippetBitmaps, []);

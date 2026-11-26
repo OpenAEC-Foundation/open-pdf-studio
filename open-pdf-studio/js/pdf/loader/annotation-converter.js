@@ -1452,6 +1452,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         appearanceTekst,
         contents: annot.contentsObj?.str || annot.contents || '',
       });
+      if (!text.trim() && annot.richText?.str) {
+        text = annot.richText.str.trimEnd();
+      }
       // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
       // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
       let textRuns;

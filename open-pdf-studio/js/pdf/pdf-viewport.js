@@ -2,6 +2,8 @@
 // Modeled after Open2D Studio's CADRenderer pattern.
 // The ONLY render path for PDF pages. No fallback, no CSS-scale, no debounce.
 
+export { computeFitZoom } from './initial-zoom.js';
+import { initialScale } from './initial-zoom.js';
 import { nextScaleStep } from '../core/zoom-display.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { findAnnotationAt as _findAnnotationAt } from '../annotations/geometry.js';
@@ -258,7 +260,7 @@ function _resizeCanvas() {
     // refits). Once the user has anchored (zoom-to-cursor or pan), preserve
     // their zoom and just re-anchor the world center.
     if ((!_anchorActive || _fitWacht) && viewport.pageW > 0) {
-      fitToViewport();
+      fitToViewport(viewport.fitMode);
     } else if (worldCenterX !== null) {
       viewport.offsetX = w / 2 - worldCenterX * viewport.zoom;
       viewport.offsetY = h / 2 - worldCenterY * viewport.zoom;
@@ -1141,7 +1143,7 @@ export function vergeetGetoondDocument() {
 // Geeft true terug als de bewaarde weergavestand van een eerder getoond
 // document is teruggezet (tabwissel, #539); de aanroeper haalt dan ook de
 // gecachte scherpe tegel erbij.
-export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotation, viewRotation = 0) {
+export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotation, viewRotation = 0, initialZoom) {
   // Detect "first time loading this document" vs "navigating to a different
   // page within the same document". The first case should fit-to-viewport
   // (initial load convention); the second must preserve the current zoom
@@ -1221,6 +1223,7 @@ export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotat
   viewport.active = true;
 
   let hersteld = false;
+  if (isNewDocument) viewport.fitMode = herstel?.fitMode ?? initialZoom ?? 'page';
   if (herstel && !herstel.opnieuwPassend) {
     // Terug naar een eerder getoond document: zoom, verschuiving en
     // ankervlaggen exact zoals de gebruiker het verliet.
@@ -1247,7 +1250,7 @@ export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotat
     // current page swaps its footprint (portrait ⇄ landscape), so re-fit as
     // well: keeping the old zoom/offset would leave the page sized/positioned
     // for the previous orientation, exposing an old-orientation gap.
-    fitToViewport();
+    fitToViewport(viewport.fitMode);
   } else {
     // Same document, different page → keep the user's zoom and let
     // clampAndCenter() (in the next _render) center the new page if it
@@ -1276,33 +1279,9 @@ export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotat
   return hersteld;
 }
 
-/// Compute the zoom factor needed to fit a page into a canvas under one of
-/// the standard fit modes. SINGLE SOURCE OF TRUTH for fit math — every
-/// fit-to-* path in the app should call this instead of computing its own
-/// `min(canvasW/pageW, canvasH/pageH)`-style expression.
-///
-/// @param {'page'|'width'|'height'} mode  How to fit
-/// @param {number} pageW    Page width in PDF user units (post-rotation)
-/// @param {number} pageH    Page height in PDF user units (post-rotation)
-/// @param {number} canvasW  Available canvas / container width in pixels
-/// @param {number} canvasH  Available canvas / container height in pixels
-/// @param {number} [padding=0]  Pixels of breathing room around the page on
-///                              each side (the canvasW/H is shrunk by 2x
-///                              this before computing). Pass 0 for edge-to-edge.
-/// @returns {number}  The zoom factor (multiplier from PDF units to pixels)
-export function computeFitZoom(mode, pageW, pageH, canvasW, canvasH, padding = 0) {
-  const availW = Math.max(1, canvasW - padding * 2);
-  const availH = Math.max(1, canvasH - padding * 2);
-  switch (mode) {
-    case 'width':  return availW / pageW;
-    case 'height': return availH / pageH;
-    case 'page':
-    default:       return Math.min(availW / pageW, availH / pageH);
-  }
-}
-
 export function fitToViewport(mode = 'page') {
   if (!_canvas || !viewport.pageW) return;
+  viewport.fitMode = mode;
   // CSS-pixel viewport (backing store is dpr-scaled)
   const dpr = _getDpr();
   const cssW = _canvas.width / dpr;
@@ -1325,13 +1304,13 @@ export function fitToViewport(mode = 'page') {
   const _scherm = schermPaginaMaat();
   const fitW = _scherm.w;
   const fitH = _scherm.h;
-  const newZoom = computeFitZoom(mode, fitW, fitH, cssW, cssH, 0);
+  const newZoom = initialScale(mode, fitW, fitH, cssW, cssH);
   const scaledW = fitW * newZoom;
   const scaledH = fitH * newZoom;
-  const newOffsetX = (cssW - scaledW) / 2;
+  const newOffsetX = typeof mode === 'number' ? Math.max(0, (cssW - scaledW) / 2) : (cssW - scaledW) / 2;
   // 'width': bovenkant in beeld als de pagina hoger is dan het canvas
   // (offset 0), anders verticaal centreren; 'page': altijd centreren.
-  const newOffsetY = mode === 'width'
+  const newOffsetY = mode === 'width' || typeof mode === 'number'
     ? Math.max(0, (cssH - scaledH) / 2)
     : (cssH - scaledH) / 2;
 
@@ -1487,7 +1466,13 @@ export function zoomAtPoint(screenX, screenY, factor) {
 export function setZoomAtPoint(screenX, screenY, newZoom) {
   const oldZoom = viewport.zoom;
   const clamped = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newZoom));
-  if (clamped === oldZoom) return;
+  // An explicit numeric zoom (including Reader Mode) supersedes a fit
+  // waiting for the hidden viewer to acquire a size.
+  _fitWacht = false;
+  if (clamped === oldZoom) {
+    _anchorActive = true;
+    return;
+  }
   _anchorAt(screenX, screenY, oldZoom, clamped, false);
 }
 
@@ -1580,7 +1565,7 @@ export function stelWeergaveRotatieIn(rotatie) {
   const midden = viewportNaarPagina(viewport, cx, cy);
   viewport.viewRotation = nieuw;
   if (!_anchorActive) {
-    fitToViewport();
+    fitToViewport(viewport.fitMode);
   } else {
     const s = viewportNaarScherm(viewport, midden.x, midden.y);
     viewport.offsetX += cx - s.x;

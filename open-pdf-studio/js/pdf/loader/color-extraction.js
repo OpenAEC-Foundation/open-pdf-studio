@@ -464,6 +464,8 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       // Naam, onderwerp en alternatieve tekst, voor ELKE soort (#619; zie
       // loader/annotatie-algemeen.js). /NM en /Subj zijn standaard; voor een
       // alternatieve tekst naast /Contents kent de specificatie geen sleutel.
+      const vertex = pdfNum(context.lookup(annotDict.get(PDFName.of('OPS_CloudVertex'))));
+      if (Number.isInteger(vertex) && vertex >= 0) colors.cloudVertex = vertex;
       const nm = leesTekstString(context, annotDict.get(PDFName.of('NM')));
       if (nm) colors.nm = nm;
       const subj = leesTekstString(context, annotDict.get(PDFName.of('Subj')));

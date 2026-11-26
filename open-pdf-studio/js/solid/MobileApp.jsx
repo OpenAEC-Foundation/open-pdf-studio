@@ -4,7 +4,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { isTauri, extractFileName } from '../core/platform.js';
 import { knopUit, meldingTekst } from '../core/webfuncties.js';
 import { loadPDF, loadPDFIfNeeded } from '../pdf/loader.js';
-import { fitWidth, fitPage, goToPage, setZoom } from '../pdf/renderer.js';
+import { goToPage, setZoom } from '../pdf/renderer.js';
 import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
 import { createTab } from '../ui/chrome/tabs.js';
 import { initDomElements } from '../ui/dom-elements.js';
@@ -123,7 +123,7 @@ export default function MobileApp() {
           initDomElements();
           // Picking a file that is already open only shows it: a reload
           // would drop its unsaved annotations and undo history.
-          if (await loadPDFIfNeeded(path, index)) await fitPage();
+          await loadPDFIfNeeded(path, index);
           addRecentFile(path, extractFileName(path));
           setRecentFiles(getRecentFiles());
           return; // Success — done
@@ -149,7 +149,6 @@ export default function MobileApp() {
       await new Promise(r => setTimeout(r, 0));
       initDomElements();
       await loadPDF(file.name, index, data);
-      await fitPage();
       addRecentFile(file.name, file.name);
       setRecentFiles(getRecentFiles());
     } catch (err) {
@@ -319,7 +318,6 @@ export default function MobileApp() {
         if (doc) { doc.isUntitled = true; doc.fileName = naam; }
         markDocumentModified();
         updateWindowTitle();
-        await fitPage();
       }
     } catch (err) {
       console.warn('Scan failed:', err);

@@ -1,3 +1,5 @@
+import { MIN_ZOOM_INVOER, MAX_ZOOM_INVOER, leesZoomInvoer } from '../../../core/zoom-display.js';
+import { normalizeInitialZoom } from '../../../pdf/initial-zoom.js';
 import { Show } from 'solid-js';
 import { useTranslation, localizeNumber } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
@@ -19,6 +21,7 @@ const SHARPEN_LEVELS = [
 export default function PageDisplayTab(props) {
   const { t } = useTranslation('preferences');
   const p = props.prefs;
+  const initialZoom = () => normalizeInitialZoom(p.initialZoom[0]());
 
   // Schermkalibratie voor Werkelijke grootte (#520), per schermschaal. De
   // wijziging gaat in het voorkeurensignaal; pas Opslaan legt hem vast.
@@ -42,6 +45,25 @@ export default function PageDisplayTab(props) {
     <>
       <fieldset class="pref-fieldset">
         <legend>{t('pageDisplay.rendering')}</legend>
+        <div class="pref-row">
+          <label for="pref-initial-zoom">{t('pageDisplay.initialZoom')}</label>
+          <select id="pref-initial-zoom" value={typeof initialZoom() === 'number' ? 'percent' : initialZoom()}
+            onChange={e => p.initialZoom[1](e.target.value === 'percent' ? 100 : e.target.value)}>
+            <option value="page">{t('ribbon:home.fitPageLabel')}</option>
+            <option value="width">{t('ribbon:home.fitWidth')}</option>
+            <option value="percent">{t('common:custom')} (%)</option>
+          </select>
+          <Show when={typeof initialZoom() === 'number'}>
+            <input id="pref-initial-zoom-percent" type="text" inputmode="decimal" data-getal
+              aria-label={`${t('pageDisplay.initialZoom')} (%)`}
+              min={MIN_ZOOM_INVOER} max={MAX_ZOOM_INVOER} value={initialZoom()}
+              onChange={e => {
+                const percent = leesZoomInvoer(e.target.value) ?? initialZoom();
+                p.initialZoom[1](percent);
+                e.target.value = String(percent);
+              }} />
+          </Show>
+        </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.thinLines[0]()} onChange={e => p.thinLines[1](e.target.checked)} />

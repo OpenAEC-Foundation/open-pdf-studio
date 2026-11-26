@@ -217,6 +217,7 @@ export type Annotation = AnnotationBase & {
   endHead?: string;
   headSize?: number;
   // Callout
+  cloudVertex?: number;
   arrowX?: number;
   arrowY?: number;
   kneeX?: number;

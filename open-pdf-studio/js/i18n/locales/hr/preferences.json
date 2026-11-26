@@ -284,6 +284,7 @@
     "rendering": "Iscrtavanje",
     "thinLines": "Tanke linije (prikaži sve linije širinom 1px)",
     "progressiveRender": "Postupno iscrtavanje (zahtjevni crteži pločicu po pločicu)",
+    "initialZoom": "Zumiranje pri otvaranju dokumenta",
     "zoomDpi": "Razlučivost zaslona za zum od 100% (dpi; više = veće stranice, 96 = veličina u pregledniku)",
     "pageSharpen": "Izoštravanje stranice (oštriji, tamniji tekst)",
     "pageSharpenLevel0": "Isključeno (kako je iscrtano)",

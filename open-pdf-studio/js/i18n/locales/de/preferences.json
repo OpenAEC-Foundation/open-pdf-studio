@@ -284,6 +284,7 @@
     "rendering": "Darstellung",
     "thinLines": "Dünne Linien (alle Linien mit 1px Breite anzeigen)",
     "progressiveRender": "Progressives Rendern (große Zeichnungen Kachel für Kachel aufbauen)",
+    "initialZoom": "Zoom beim Öffnen eines Dokuments",
     "zoomDpi": "Bildschirmauflösung bei 100% Zoom (dpi; höher = größere Seiten, 96 = Browsergröße)",
     "pageSharpen": "Seitenschärfung (schärferer, dunklerer Text)",
     "pageSharpenLevel0": "Aus (wie gerendert)",

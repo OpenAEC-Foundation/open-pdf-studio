@@ -1,3 +1,4 @@
+import { normalizeInitialZoom } from '../../pdf/initial-zoom.js';
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
 import { appVersion } from '../../core/app-version.js';
 import { renderPage, renderContinuous, clearPdfView, zetWeergaveLayout } from '../../pdf/renderer.js';
@@ -46,6 +47,7 @@ export function createTab(filePath = null, autoSwitch = true) {
   // Weergavemodus uit de voorkeuren; enkelpagina is de standaard
   // (createDocument zelf blijft een pure helper).
   doc.viewMode = state.preferences?.defaultViewMode === 'continuous' ? 'continuous' : 'single';
+  doc.pendingInitialZoom = normalizeInitialZoom(state.preferences?.initialZoom);
   state.documents.push(doc);
 
   // Switch to the new tab

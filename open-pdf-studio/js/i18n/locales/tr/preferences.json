@@ -284,6 +284,7 @@
     "rendering": "İşleme",
     "thinLines": "İnce çizgiler (tüm çizgileri 1px genişliğinde göster)",
     "progressiveRender": "Aşamalı işleme (ağır çizimleri döşeme döşeme doldur)",
+    "initialZoom": "Belge açıldığında yakınlaştırma",
     "zoomDpi": "%100 yakınlaştırma için ekran çözünürlüğü (dpi; daha yüksek = daha büyük sayfalar, 96 = tarayıcı boyutu)",
     "pageSharpen": "Sayfa keskinleştirme (daha net, daha koyu metin)",
     "pageSharpenLevel0": "Kapalı (işlendiği gibi)",
