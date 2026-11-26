@@ -54,3 +54,40 @@ test('thin-lines display changes only the pen, not the pattern geometry', () => 
     moveTo(x, y) { path = [{ x, y }]; actual.push(path); }, lineTo(x, y) { path.push({ x, y }); } }, ann);
   assert.deepEqual(actual, geometricLinePaths(ann));
 });
+
+test('batting is a continuous alternating coil, not separate tilted ellipses (#1284)', () => {
+  // Four 3.2pt pitches between the 4pt end margins, across an 8pt strip.
+  const paths = geometricLinePaths({ ...line, borderStyle: 'insulation', endX: 20.8 });
+  assert.equal(paths.length, 1, 'one continuous stroke through all lobes');
+  const p = paths[0];
+  assert.deepEqual(p[0], { x: 4, y: -4 });
+  assert.ok(Math.abs(p.at(-1).x - 16.8) < 1e-9);
+  assert.ok(Math.abs(p.at(-1).y + 4) < 1e-9);
+  const top = p.filter(q => Math.abs(q.y + 4) < 1e-9);
+  const bottom = p.filter(q => Math.abs(q.y - 4) < 1e-9);
+  assert.equal(top.length, 5);
+  assert.equal(bottom.length, 4);
+  assert.ok(Math.abs(bottom[0].x - top[0].x - 1.6) < 1e-9, 'opposite lobes offset by half a pitch');
+  // The stroke turns back longitudinally between its rounded side lobes.
+  assert.ok(p.some((q, i) => i && q.x < p[i - 1].x));
+});
+
+test('batting keeps its strip proportions when rotated, reversed and scaled', () => {
+  const ann = { ...line, borderStyle: 'insulation', endX: 20.8 };
+  const horizontal = geometricLinePaths(ann).flat();
+  for (const angle of [Math.PI / 2, Math.PI, 0.37]) {
+    const c = Math.cos(angle), s = Math.sin(angle);
+    const rotated = geometricLinePaths({ ...ann, endX: 20.8 * c, endY: 20.8 * s }).flat();
+    assert.equal(rotated.length, horizontal.length);
+    rotated.forEach((q, i) => {
+      assert.ok(Math.abs(q.x - (horizontal[i].x * c - horizontal[i].y * s)) < 1e-8);
+      assert.ok(Math.abs(q.y - (horizontal[i].x * s + horizontal[i].y * c)) < 1e-8);
+    });
+  }
+  const scaled = geometricLinePaths({ ...ann, lineWidth: 3, endX: 62.4 }).flat();
+  assert.equal(scaled.length, horizontal.length);
+  scaled.forEach((q, i) => {
+    assert.ok(Math.abs(q.x - horizontal[i].x * 3) < 1e-8);
+    assert.ok(Math.abs(q.y - horizontal[i].y * 3) < 1e-8);
+  });
+});
