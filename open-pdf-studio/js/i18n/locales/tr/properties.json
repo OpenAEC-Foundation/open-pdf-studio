@@ -856,7 +856,9 @@
       "scheduleTable": "Metraj tablosu",
       "builtinText": "Metin",
       "rebarPosition": "Donatı çubuğu"
-    }
+    },
+    "configImportFailed": "Miktar ayarları içe aktarılamadı. Geçerli ve desteklenen bir yapılandırma dosyası seçin.",
+    "configExportFailed": "Miktar ayarları dışa aktarılamadı."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrik sembol",

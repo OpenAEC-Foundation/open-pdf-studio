@@ -856,7 +856,9 @@
       "scheduleTable": "পরিমাণ সারণি",
       "builtinText": "পাঠ্য",
       "rebarPosition": "রড"
-    }
+    },
+    "configImportFailed": "পরিমাণের সেটিংস আমদানি করা যায়নি। একটি বৈধ ও সমর্থিত কনফিগারেশন ফাইল বেছে নিন।",
+    "configExportFailed": "পরিমাণের সেটিংস রপ্তানি করা যায়নি।"
   },
   "parametricSymbol": {
     "defaultTitle": "প্যারামেট্রিক প্রতীক",

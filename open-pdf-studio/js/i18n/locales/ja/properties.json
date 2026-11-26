@@ -856,7 +856,9 @@
       "scheduleTable": "数量表",
       "builtinText": "テキスト",
       "rebarPosition": "鉄筋材"
-    }
+    },
+    "configImportFailed": "数量設定をインポートできませんでした。有効でサポートされている設定ファイルを選択してください。",
+    "configExportFailed": "数量設定をエクスポートできませんでした。"
   },
   "parametricSymbol": {
     "defaultTitle": "パラメトリックシンボル",

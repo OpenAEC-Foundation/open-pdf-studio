@@ -856,7 +856,9 @@
       "scheduleTable": "جدول مقادیر",
       "builtinText": "متن",
       "rebarPosition": "میلگرد"
-    }
+    },
+    "configImportFailed": "تنظیمات مقادیر وارد نشد. یک فایل تنظیمات معتبر و پشتیبانی‌شده انتخاب کنید.",
+    "configExportFailed": "تنظیمات مقادیر صادر نشد."
   },
   "parametricSymbol": {
     "defaultTitle": "نماد پارامتریک",

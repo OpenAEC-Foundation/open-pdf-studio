@@ -863,7 +863,9 @@
       "scheduleTable": "Hoeveelheden-tabel",
       "builtinText": "Tekst",
       "rebarPosition": "Wapeningsstaaf"
-    }
+    },
+    "configImportFailed": "De hoeveelhedeninstellingen konden niet worden geïmporteerd. Kies een geldig ondersteund configuratiebestand.",
+    "configExportFailed": "De hoeveelhedeninstellingen konden niet worden geëxporteerd."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisch symbool",

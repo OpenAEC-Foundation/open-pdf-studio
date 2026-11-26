@@ -856,7 +856,9 @@
       "scheduleTable": "Tabela ilości",
       "builtinText": "Tekst",
       "rebarPosition": "Pręt zbrojeniowy"
-    }
+    },
+    "configImportFailed": "Nie można zaimportować ustawień ilości. Wybierz prawidłowy, obsługiwany plik konfiguracji.",
+    "configExportFailed": "Nie można wyeksportować ustawień ilości."
   },
   "parametricSymbol": {
     "defaultTitle": "Symbol parametryczny",

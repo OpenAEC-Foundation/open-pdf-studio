@@ -141,6 +141,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-mcp-perimeter-browser.mjs
 
+      - name: Test quantities configuration files (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-quantities-config-browser.mjs
+
       - name: Test MCP document screenshot in both views (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-mcp-screenshot-browser.mjs

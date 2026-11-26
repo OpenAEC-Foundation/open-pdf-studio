@@ -856,7 +856,9 @@
       "scheduleTable": "مقداروں کی جدول",
       "builtinText": "متن",
       "rebarPosition": "سریا"
-    }
+    },
+    "configImportFailed": "مقداروں کی ترتیبات درآمد نہیں ہو سکیں۔ ایک درست اور معاون ترتیب فائل منتخب کریں۔",
+    "configExportFailed": "مقداروں کی ترتیبات برآمد نہیں ہو سکیں۔"
   },
   "parametricSymbol": {
     "defaultTitle": "پیرامیٹرک علامت",

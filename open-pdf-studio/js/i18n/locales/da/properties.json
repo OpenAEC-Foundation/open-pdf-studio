@@ -856,7 +856,9 @@
       "scheduleTable": "Mængdetabel",
       "builtinText": "Tekst",
       "rebarPosition": "Armeringsjern"
-    }
+    },
+    "configImportFailed": "Mængdeindstillingerne kunne ikke importeres. Vælg en gyldig understøttet konfigurationsfil.",
+    "configExportFailed": "Mængdeindstillingerne kunne ikke eksporteres."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisk symbol",

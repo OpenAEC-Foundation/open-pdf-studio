@@ -856,7 +856,9 @@
       "scheduleTable": "جدول الكميات",
       "builtinText": "نص",
       "rebarPosition": "قضيب تسليح"
-    }
+    },
+    "configImportFailed": "تعذر استيراد إعدادات الكميات. اختر ملف إعدادات صالحًا ومدعومًا.",
+    "configExportFailed": "تعذر تصدير إعدادات الكميات."
   },
   "parametricSymbol": {
     "defaultTitle": "رمز بارامتري",

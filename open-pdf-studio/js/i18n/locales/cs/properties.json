@@ -856,7 +856,9 @@
       "scheduleTable": "Tabulka výměr",
       "builtinText": "Text",
       "rebarPosition": "Výztužný prut"
-    }
+    },
+    "configImportFailed": "Nastavení množství nelze importovat. Vyberte platný podporovaný konfigurační soubor.",
+    "configExportFailed": "Nastavení množství nelze exportovat."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrický symbol",

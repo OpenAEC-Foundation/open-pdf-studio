@@ -856,7 +856,9 @@
       "scheduleTable": "Mängdtabell",
       "builtinText": "Text",
       "rebarPosition": "Armeringsjärn"
-    }
+    },
+    "configImportFailed": "Kunde inte importera mängdinställningarna. Välj en giltig konfigurationsfil som stöds.",
+    "configExportFailed": "Kunde inte exportera mängdinställningarna."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisk symbol",

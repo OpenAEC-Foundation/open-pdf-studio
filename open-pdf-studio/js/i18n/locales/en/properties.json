@@ -863,7 +863,9 @@
       "scheduleTable": "Quantities table",
       "builtinText": "Text",
       "rebarPosition": "Reinforcement bar"
-    }
+    },
+    "configImportFailed": "Could not import quantities settings. Choose a valid supported configuration file.",
+    "configExportFailed": "Could not export quantities settings."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametric symbol",

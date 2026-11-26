@@ -856,7 +856,9 @@
       "scheduleTable": "मात्रा तालिका",
       "builtinText": "टेक्स्ट",
       "rebarPosition": "सरिया"
-    }
+    },
+    "configImportFailed": "मात्रा सेटिंग आयात नहीं की जा सकीं। मान्य और समर्थित कॉन्फ़िगरेशन फ़ाइल चुनें।",
+    "configExportFailed": "मात्रा सेटिंग निर्यात नहीं की जा सकीं।"
   },
   "parametricSymbol": {
     "defaultTitle": "पैरामीट्रिक प्रतीक",

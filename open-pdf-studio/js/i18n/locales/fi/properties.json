@@ -856,7 +856,9 @@
       "scheduleTable": "Määrätaulukko",
       "builtinText": "Teksti",
       "rebarPosition": "Raudoitustanko"
-    }
+    },
+    "configImportFailed": "Määräasetuksia ei voitu tuoda. Valitse kelvollinen tuettu asetustiedosto.",
+    "configExportFailed": "Määräasetuksia ei voitu viedä."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrinen symboli",
