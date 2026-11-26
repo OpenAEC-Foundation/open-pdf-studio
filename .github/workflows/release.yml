@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.48.28'
+        default: 'v2026.48.36'
 
 concurrency:
   group: release-${{ inputs.version || github.ref_name }}
@@ -98,7 +98,7 @@ jobs:
               // "Wat is nieuw"-dialog (js/help/release-notes.js) toont een body
               // zonder taalmarkering als geheel; oudere releases met een
               // Nederlandse en een Engelse helft blijven leesbaar.
-              body: `### What's New in ${version}\n\nFree, open-source PDF annotation editor built with Tauri.\n\n### Downloads\n- **Windows (System)**: Download the \`*_x64-setup.exe\` installer for system-wide installation (requires admin)\n- **Windows (User)**: Download the \`*_x64_user-setup.exe\` installer for current user only (no admin required)\n- **Windows (Portable)**: Download \`*_x64_portable.zip\`, extract it and run \`open-pdf-studio.exe\`; nothing is installed, all data stays in the \`data\` folder next to it\n- **macOS**: Download the \`.dmg\` file (universal - supports Intel and Apple Silicon)\n- **Linux**: Download the \`.deb\` package, \`.AppImage\`, or \`.snap\` (also available on the [Snap Store](https://snapcraft.io/open-pdf-studio))\n\n### Features\n- PDF viewing and navigation\n- Text selection and search\n- Annotations: highlight, underline, strikethrough\n- Drawing tools: freehand, shapes, text\n- Multi-tab document support\n- Thumbnail navigation\n- Session restore`,
+              body: `### What's New in ${version}\n\nFree, open-source PDF annotation editor built with Tauri.\n\n### Downloads\n- **Windows (System)**: Download the \`*_x64-setup.exe\` installer for system-wide installation (requires admin)\n- **Windows (User)**: Download the \`*_x64_user-setup.exe\` installer for current user only (no admin required)\n- **Windows (Portable)**: Download \`*_x64_portable.zip\`, extract it and run \`open-pdf-studio.exe\`; nothing is installed, all data stays in the \`data\` folder next to it\n- **macOS**: Download the \`.dmg\` file (universal - supports Intel and Apple Silicon)\n- **Linux**: Download the \`.deb\` package, \`.AppImage\`, or \`.snap\` (also available on the [Snap Store](https://snapcraft.io/open-pdf-studio))\n- **Android**: Install the APK manually; read the [Android migration and data-preservation guide](https://github.com/OpenAEC-Foundation/open-pdf-studio/blob/main/docs/install-android.md) before replacing an existing installation.\n\n### Features\n- PDF viewing and navigation\n- Text selection and search\n- Annotations: highlight, underline, strikethrough\n- Drawing tools: freehand, shapes, text\n- Multi-tab document support\n- Thumbnail navigation\n- Session restore`,
               draft: true,
               prerelease: false
             });
