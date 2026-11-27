@@ -50,23 +50,26 @@ try {
   const thumb = n => page.locator(`#thumbnails-container .thumbnail-item[data-page="${n}"]`);
   const count = () => page.locator('#thumbnails-container').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(/\s+/).length);
   async function choose(n) { await slider.evaluate((el, n) => { el.value = String(n); el.dispatchEvent(new Event('input', { bubbles: true })); }, n); }
-  await load(); await resize(900, 5);
-  await page.waitForFunction(() => document.getElementById('thumbnail-columns')?.max === '5');
-  await resize(730, 4); await slider.waitFor();
-  assert.equal(await slider.getAttribute('max'), '4');
+  // Thumbnails may be 64 px narrow, so a wide panel fits many columns.
+  await load(); await resize(900, 12);
+  await page.waitForFunction(() => document.getElementById('thumbnail-columns')?.max === '12');
+  await resize(730, 10); await slider.waitFor();
+  assert.equal(await slider.getAttribute('max'), '10');
   await page.waitForFunction(() => document.querySelector('.thumbnail-item[data-page="1"] img')?.naturalWidth > 0);
   const oldResolution = await thumb(1).locator('img').evaluate(el => el.naturalWidth);
   await choose(2); assert.equal(await count(), 2);
   await page.waitForFunction(old => document.querySelector('.thumbnail-item[data-page="1"] img')?.naturalWidth > old, oldResolution);
   assert.ok(await thumb(1).evaluate(el => el.getBoundingClientRect().width) > 300);
-  await resize(220, 1); await page.waitForFunction(() => !document.getElementById('thumbnail-columns')); assert.equal(await count(), 1);
-  await resize(730, 4); await slider.waitFor(); assert.equal(await slider.inputValue(), '2'); assert.equal(await count(), 2);
-  await choose(4); await resize(900, 5); await page.waitForFunction(() => document.getElementById('thumbnail-columns')?.max === '5');
-  assert.equal(await slider.inputValue(), '5'); assert.equal(await count(), 5);
+  await resize(160, 1); await page.waitForFunction(() => !document.getElementById('thumbnail-columns')); assert.equal(await count(), 1);
+  await resize(730, 10); await slider.waitFor(); assert.equal(await slider.inputValue(), '2'); assert.equal(await count(), 2);
+  await choose(10); await resize(900, 12); await page.waitForFunction(() => document.getElementById('thumbnail-columns')?.max === '12');
+  // The value follows the width in steps while the panel settles.
+  await page.waitForFunction(() => document.getElementById('thumbnail-columns')?.value === '12');
+  assert.equal(await count(), 12);
   await choose(2);
   if (process.env.OPDS_THUMBNAIL_SCREENSHOT) await page.screenshot({ path: process.env.OPDS_THUMBNAIL_SCREENSHOT });
   await page.reload(); await page.waitForSelector('#tool-select', { timeout: 120000 });
-  await load(); await resize(730, 4); await slider.waitFor(); assert.equal(await slider.inputValue(), '2'); assert.equal(await count(), 2);
+  await load(); await resize(730, 10); await slider.waitFor(); assert.equal(await slider.inputValue(), '2'); assert.equal(await count(), 2);
   // Selection, search, drag/reorder and add-page tile retain their behavior.
   await thumb(1).click(); await page.keyboard.press('Control+a');
   assert.equal(await page.evaluate(async () => (await import('/js/solid/stores/panels/thumbnailStore.js')).getSelectedPagesArray().length), 6);
@@ -83,7 +86,7 @@ try {
   await page.locator('.thumbnail-add-page').click(); await page.waitForSelector('.insert-page-dialog');
   await page.evaluate(async () => (await import('/js/solid/stores/dialogStore.js')).closeDialog('insert-page'));
   assert.deepEqual(errors.filter(e => !e.startsWith('WebSocket closed without opened')), []);
-  console.log('PASS: 4-to-2 columns increase bitmap resolution; narrow/wide restore choice; auto adds columns; reload persistence; Ctrl+A/search/drag/undo/add-page dialog.');
+  console.log('PASS: 10-to-2 columns increase bitmap resolution; narrow/wide restore choice; auto adds columns; reload persistence; Ctrl+A/search/drag/undo/add-page dialog.');
 } catch (error) {
   const page = browser?.contexts()[0]?.pages()[0];
   if (page) console.error('Thumbnail layout at failure:', await page.evaluate(() => ({

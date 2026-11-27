@@ -27,6 +27,17 @@ export default function ThumbnailsPanel() {
   const maxColumns = () => aantalKolommen(listWidth());
   const columns = () => getoondeKolommen(listWidth(), choice());
   const chooseColumns = n => zetGekozenKolommen(n >= maxColumns() ? 0 : n);
+  // A range input clamps a value above its max. When the panel widens, the
+  // value can be applied before the new max and then stays at the old max;
+  // set both here, in that order, after the attributes were updated.
+  let sliderEl;
+  createEffect(() => {
+    const max = maxColumns();
+    const value = columns();
+    if (!sliderEl) return;
+    sliderEl.max = String(max);
+    sliderEl.value = String(value);
+  });
   onCleanup(bijKolomWijziging(setChoice));
 
 
@@ -244,7 +255,7 @@ export default function ThumbnailsPanel() {
       <Show when={maxColumns() > 1}>
         <label class="thumbnail-columns-control" title={t('leftPanel.thumbnailColumns')}>
           <span>{t('leftPanel.thumbnailColumns')}</span>
-          <input id="thumbnail-columns" type="range" min="1" max={maxColumns()} step="1"
+          <input id="thumbnail-columns" type="range" min="1" max={maxColumns()} step="1" ref={el => { sliderEl = el; }}
             value={columns()} aria-label={t('leftPanel.thumbnailColumns')}
             onInput={e => chooseColumns(Number(e.currentTarget.value))} />
           <output for="thumbnail-columns">{columns()}</output>
