@@ -160,7 +160,7 @@ function zwaartepunt(points) {
 }
 
 /**
- * De lengteschaal van een meetvlak: { perPt (eenheden per punt), unit }.
+ * De lengteschaal van een meetvlak of omtrek: { perPt (eenheden per punt), unit }.
  * Een eigen schaal wint; anders de schaal op het zwaartepunt.
  */
 export function vlakLengteSchaal(ann) {
@@ -233,7 +233,7 @@ export function vlakZijdeTeksten(ann) {
 // Calculate perimeter of a polyline
 // Optionally pass pageNum to resolve the scale at the midpoint. An annotation
 // with extension lines resolves it at the measured points, before the offset.
-export function calculatePerimeter(points, pageNum) {
+export function calculatePerimeter(points, pageNum, annotation) {
   if (!points || points.length < 2) return { value: 0, unit: 'px', pixels: 0 };
 
   let totalPixels = 0;
@@ -243,17 +243,11 @@ export function calculatePerimeter(points, pageNum) {
     totalPixels += Math.sqrt(dx * dx + dy * dy);
   }
 
-  // Resolve scale using centroid of the polyline when page is provided
-  let scale;
-  if (pageNum != null && points.length > 0) {
-    const cx = points.reduce((s, p) => s + p.x, 0) / points.length;
-    const cy = points.reduce((s, p) => s + p.y, 0) / points.length;
-    scale = getMeasureScale(pageNum, cx, cy);
-  } else {
-    scale = getMeasureScale();
-  }
+  // Own scale and unit must survive Properties, grip and MCP edits (#1286).
+  // The same centroid lookup serves measuring areas and perimeters.
+  const scale = vlakLengteSchaal({ ...annotation, points, page: pageNum });
   return {
-    value: totalPixels / scale.pixelsPerUnit,
+    value: totalPixels * scale.perPt,
     unit: scale.unit,
     pixels: totalPixels
   };

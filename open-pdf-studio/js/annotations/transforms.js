@@ -70,8 +70,9 @@ export function syncMeasurementAfterEdit(ann) {
     // Same routine as a grip edit, so an area with its own scale keeps it (#536).
     herberekenVlakMaat(ann);
   } else if (ann.type === 'measurePerimeter' && Array.isArray(ann.points) && ann.points.length >= 2) {
-    const r = calculatePerimeter(ann.points, ann.page);
+    const r = calculatePerimeter(ann.points, ann.page, ann);
     ann.measureValue = r.value;
+    ann.measurePixels = r.pixels;
     ann.measureUnit = r.unit;
     ann.measureText = formatMeasurement(r);
   }
@@ -838,7 +839,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
               // Tekst, waarde en eenheid, met de eigen schaal als die er is (#536).
               herberekenVlakMaat(annotation);
             } else if (annotation.type === 'measurePerimeter') {
-              annotation.measureText = formatMeasurement(calculatePerimeter(annotation.points, annotation.page));
+              syncMeasurementAfterEdit(annotation);
             }
           }
         }
