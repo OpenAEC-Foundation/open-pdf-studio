@@ -971,3 +971,5 @@ js/pdf/saver/gedeelde-resources.test.mjs
 js/solid/data/nen1414-metadata.test.mjs
 js/annotations/rendering/pdf-only-thin-lines.test.mjs
 js/ui/panels/miniatuur-kolommen.test.mjs
+# Clipboard across document windows (#1274)
+js/annotations/window-clipboard-channel.test.mjs
