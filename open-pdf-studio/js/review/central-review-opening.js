@@ -7,7 +7,7 @@ import { createCentralReviewSync } from './central-review-sync.js';
 export function createCentralReviewOpening(session, document, adapter) {
   const lease = session.retain(document);
   const sync = createCentralReviewSync(lease, document);
-  let closed = false, started = false, installed = false, resource = null, disposing = null;
+  let closed = false, started = false, installed = false, resource = null, disposing = null, handedOff = false;
   const valid = () => !closed && lease.isCurrent() && (!resource || resource.isCurrent());
   const check = () => { if (!valid()) throw new Error('STALE'); };
   async function disposeResource() {
@@ -16,6 +16,7 @@ export function createCentralReviewOpening(session, document, adapter) {
     await disposing;
   }
   async function close() {
+    if (handedOff) return;
     closed = true; sync.close();
     // Invalidate requests immediately, before asynchronous PDF teardown.
     const released = lease.dispose();
@@ -53,9 +54,16 @@ export function createCentralReviewOpening(session, document, adapter) {
         throw error;
       }
     },
+    connect() {
+      check();
+      if (!installed || handedOff) throw new Error('NOT_READY');
+      handedOff = true;
+      return { resource, sync, isCurrent: valid,
+        async disconnect() { closed = true; sync.close(); await lease.dispose(); } };
+    },
     async detach() {
       check();
-      if (!installed) throw new Error('NOT_READY');
+      if (!installed || handedOff) throw new Error('NOT_READY');
       // Hand the complete local snapshot to the normal tab lifecycle. It is
       // no longer a connected review and cancellation may no longer close it.
       const owned = resource;

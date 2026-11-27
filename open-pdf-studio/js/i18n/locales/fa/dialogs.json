@@ -2588,7 +2588,21 @@
     "documentTitle": "عنوان سند",
     "createDocument": "ایجاد سند",
     "uploadPdf": "بارگذاری PDF",
-    "uploadHelp": "یک سند ایجاد و سپس یک PDF بارگذاری کنید (حداکثر 32 MiB). PDF قابل جایگزینی نیست. پس از درخواست ناموفق، پیش از تلاش دوباره تازه‌سازی کنید."
+    "uploadHelp": "یک سند ایجاد و سپس یک PDF بارگذاری کنید (حداکثر 32 MiB). PDF قابل جایگزینی نیست. پس از درخواست ناموفق، پیش از تلاش دوباره تازه‌سازی کنید.",
+    "liveTitle": "Live central review",
+    "openLive": "Open live review",
+    "liveHelp": "Open a connected copy. Editors automatically share annotation changes; incoming changes appear every few seconds. The PDF itself stays unchanged on the server.",
+    "liveConnected": "Connected",
+    "livePending": "Changes waiting to sync",
+    "liveDisconnected": "Disconnected — local copy",
+    "liveError": "Sync needs attention",
+    "liveDisconnect": "Disconnect and keep local copy",
+    "liveReader": "Read-only access: your local edits are not shared.",
+    "liveSaveHelp": "Save As or export XFDF to keep a local copy, including unsent edits. Disconnecting stops sync; reopening starts a new copy. Incoming changes clear undo history to protect colleagues’ edits.",
+    "liveConflict": "Another participant changed annotation {{id}}. Your local version is preserved. Choose which version to share.",
+    "liveRemote": "Inspect server version",
+    "liveKeepMine": "Share my current version",
+    "liveUseRemote": "Use server version"
   },
   "virusNotice": {
     "title": "About virus scanner warnings",

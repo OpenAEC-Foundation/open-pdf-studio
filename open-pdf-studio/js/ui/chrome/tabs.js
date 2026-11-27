@@ -1,3 +1,4 @@
+import { stopCentralReview } from '../../review/central-review-registry.js';
 import { normalizeInitialZoom } from '../../pdf/initial-zoom.js';
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
 import { appVersion } from '../../core/app-version.js';
@@ -430,6 +431,7 @@ export async function closeTab(index, force = false, dialogAction = null) {
   const actiefVoorSluiten = getActiveDocument();
   // Remove the document
   state.documents.splice(index, 1);
+  void stopCentralReview(doc);
   // Gesloten (opgeslagen of bewust niet): de herstelmomentopname kan weg.
   meldGesloten(doc);
   // Gesplitste weergave (#715): sluiten sluit beide panelen.
