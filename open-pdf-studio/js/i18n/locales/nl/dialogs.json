@@ -677,7 +677,21 @@
     "content": "Inhoud:",
     "scaleToFit": "Schalen naar het nieuwe formaat",
     "keepSize": "Formaat behouden (afsnijden of marge)",
-    "infoScale": "{{count}} pagina('s) in het document. De inhoud wordt passend geschaald en gecentreerd; aantekeningen schalen mee. Maatschalen en kalibratie worden niet aangepast. Ongedaan te maken met Undo."
+    "infoScale": "{{count}} pagina('s) in het document. De inhoud wordt passend geschaald en gecentreerd; aantekeningen schalen mee. Maatschalen en kalibratie worden niet aangepast. Ongedaan te maken met Undo.",
+    "margins": "Marges (mm):",
+    "marginsOdd": "Oneven pagina's (mm):",
+    "marginsEven": "Even pagina's (mm):",
+    "marginLeft": "Links",
+    "marginRight": "Rechts",
+    "marginTop": "Boven",
+    "marginBottom": "Onder",
+    "differentEven": "Andere marges voor even pagina's",
+    "infoMarginsScale": "Met marges wordt de inhoud passend tussen de marges geschaald en daar gecentreerd.",
+    "infoMarginsKeep": "Met marges behoudt de inhoud zijn grootte, wordt hij tussen de marges gecentreerd en tot dat gebied afgesneden.",
+    "marginsNegative": "Marges mogen niet negatief zijn.",
+    "marginsTooWide": "De marges links en rechts laten geen ruimte voor de inhoud: samen moeten ze minstens {{min}} mm kleiner zijn dan de paginabreedte ({{size}} mm).",
+    "marginsTooHigh": "De marges boven en onder laten geen ruimte voor de inhoud: samen moeten ze minstens {{min}} mm kleiner zijn dan de paginahoogte ({{size}} mm).",
+    "marginsEvenPages": "Even pagina's: {{message}}"
   },
   "compress": {
     "title": "PDF comprimeren",

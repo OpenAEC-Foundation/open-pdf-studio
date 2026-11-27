@@ -18,6 +18,7 @@ import {
   parseCargoLock,
 } from '../../flatpak/generate-sources.mjs';
 import { flathubManifest } from '../../flatpak/flathub-manifest.mjs';
+import { localManifest } from '../../flatpak/local-manifest.mjs';
 import { OCR_RUNTIME_ASSETS } from './ocr-runtime.mjs';
 
 const appDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -204,6 +205,19 @@ test('the manifest pins the same PDFium and OCR assets as the release builds', (
   assert.deepEqual(flathub['only-arches'], pdfium['only-arches'], 'Flathub builds only the arches PDFium is declared for');
 });
 
+test('tesseract-rs has both build-time languages available before the offline Cargo build', () => {
+  const sources = manifestSources().filter((source) => source.dest === 'tesseract-src/tessdata');
+  assert.deepEqual(sources.map((source) => source['dest-filename']).sort(), ['eng.traineddata', 'tur.traineddata']);
+  for (const source of sources) {
+    assert.match(source.url, /\/tessdata_best\/[0-9a-f]{40}\//);
+    assert.match(source.sha256, /^[0-9a-f]{64}$/);
+  }
+  const preparation = manifest.slice(manifest.indexOf('    build-commands:'), manifest.indexOf('      - cargo build'));
+  assert.ok(preparation.includes('cache="$HOME/.tesseract-rs/$(rustc -vV | sed -n \'s/^host: //p\')"'));
+  assert.match(preparation, /for language in eng tur; do/);
+  assert.ok(preparation.includes('install -Dm644 "tesseract-src/tessdata/$language.traineddata" "$cache/tessdata/$language.traineddata"'));
+});
+
 test('the resources land where Tauri looks for them on Linux', () => {
   const res = `\${FLATPAK_DEST}/lib/${tauriConf.productName}`;
   assert.ok(manifest.includes(`res="${res}"`), 'resource_dir() is <prefix>/lib/<productName>');
@@ -217,6 +231,16 @@ test('the resources land where Tauri looks for them on Linux', () => {
   const lib = read('open-pdf-studio/src-tauri/src/lib.rs');
   assert.match(lib, /if !linux_runtime::running_in_flatpak\(\) \{\s*builder = builder\.plugin\(tauri_plugin_updater::/);
   assert.match(read('open-pdf-studio/js/ui/chrome/updater.js'), /updates_managed_externally/);
+});
+
+test('native dependencies use the library layout and sidecar required at runtime', () => {
+  assert.match(manifest, /CMAKE_TOOLCHAIN_FILE: \/run\/build\/open-pdf-studio\/flatpak\/native-toolchain.cmake/);
+  assert.match(read('flatpak/native-toolchain.cmake'), /set\(CMAKE_INSTALL_LIBDIR lib CACHE PATH [^\n]+ FORCE\)/);
+  const workerBuild = manifest.indexOf('cargo build --release --offline --locked -p pdfium-worker');
+  const appBuild = manifest.indexOf('cargo build --release --offline --locked -p open-pdf-studio');
+  assert.ok(workerBuild >= 0 && workerBuild < appBuild, 'sidecar exists before tauri-build validates externalBin');
+  assert.ok(manifest.includes('install -Dm755 target/release/pdfium-worker ${FLATPAK_DEST}/bin/pdfium-worker'),
+    'the worker must be installed next to the main executable');
 });
 
 test('the metainfo has what Flathub requires and matches the app', () => {
@@ -293,10 +317,32 @@ test('the Flathub manifest replaces the local checkout with the release tag', ()
   assert.throws(() => flathubManifest(manifest, { tag: `v${pkg.version}`, commit: 'abc1234' }), /40-character/);
 });
 
+test('the local build source and dependency includes stay inside the root manifest directory', () => {
+  const local = localManifest(manifest);
+  const source = /^        path: (.+)$/m.exec(local)?.[1];
+  assert.equal(source, '.');
+  assert.equal(path.resolve(repoDir, source), repoDir, 'build the complete checkout');
+  const generated = generate(repoDir);
+  for (const file of [NPM_SOURCES_FILE, CARGO_SOURCES_FILE]) {
+    assert.ok(local.includes(`      - flatpak/${file}\n`));
+    assert.equal(path.dirname(path.resolve(repoDir, 'flatpak', file)), path.join(repoDir, 'flatpak'));
+    assert.ok(JSON.parse(generated[file]).length > 0, 'include has generated sources');
+  }
+  const restored = local.replace('        path: .\n', '        path: ..\n')
+    .replaceAll('      - flatpak/generated-sources-', '      - generated-sources-');
+  assert.equal(restored, manifest, 'build commands, checksums and source exclusions are preserved');
+  assert.equal(localManifest(manifest.replaceAll('\n', '\r\n')), local);
+  assert.throws(() => localManifest(manifest.replace('path: ..', 'path: /tmp')), /local directory/);
+  assert.throws(() => localManifest(manifest.replace(`      - ${NPM_SOURCES_FILE}\n`, '')), /include/);
+  const script = read('flatpak/ci-check.sh');
+  assert.match(script, /node flatpak\/local-manifest\.mjs\n\s+flatpak run --command=flathub-build org.flatpak.Builder --install "\$app_id.yml"/);
+});
+
 test('CI lints the Flatpak on changes and builds it on release', () => {
   const ci = read('.github/workflows/ci.yml');
   const release = read('.github/workflows/release.yml');
   assert.match(ci, /bash flatpak\/ci-check\.sh lint/);
+  assert.match(ci, /bash flatpak\/ci-check\.sh build/);
   const job = ci.slice(ci.indexOf('\n  flatpak-lint:\n'), ci.indexOf('\n  hosted-csp:\n'));
   assert.match(job, /Detect Flatpak changes/);
   assert.match(job, /\^\(flatpak\/\|Cargo\\\.lock\$\|open-pdf-studio\/package-lock\\\.json\$/, 'the lint job looks at changes under flatpak/ and the lockfiles');

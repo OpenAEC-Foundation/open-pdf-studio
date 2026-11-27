@@ -68,3 +68,12 @@ budget van 4230 KiB: 4240,7 KiB. De gesynchroniseerde live-reviewbranch meet
 4241,5 KiB. De controle blijft ongewijzigd en faalt terecht; dit is een
 aanvullende blokkade voor gereedmelding, ook wanneer de compilatie slaagt.
 De reviewdialoog en zijn services worden al bij het eerste gebruik geladen.
+
+### Herkwalificatie op 27 november 2026
+
+De eerdere bundelblokkade is opgelost na integratie van PR #1258 via upstream.
+De branch volgt nu main d5b9104ba. Het importconflict in tabs.js behoudt zowel
+review-opruiming als de upstream beginzoom. De volledige suite, TypeScript,
+productiebouw, bundelbudget, versie- en configuratiecontroles en browserproef
+met twee PDF-tabbladen slagen. De hierboven beschreven native/installer-
+kwalificatie blijft nodig; er is geen release gepubliceerd.

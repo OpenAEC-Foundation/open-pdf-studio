@@ -5,6 +5,9 @@ import { renderPageOffscreen, parsePageRange } from "./exporter.js";
 import { recordPageStructure } from "../core/undo-manager.js";
 import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { PDFDocument } from "pdf-lib";
+import { cropBoxFromPixels, cropOriginShift } from './crop-margins-geometrie.js';
+import { cloneAnnotation } from '../annotations/factory.js';
+import { applyMoveRigid } from '../annotations/transforms.js';
 
 const ALPHA_THRESHOLD = 10;
 const MAX_PIXELS = 20_000_000;
@@ -14,7 +17,7 @@ const MM_TO_POINTS = 72 / 25.4;
  * Detect the content bounds of a rendered page by edge-inward pixel scanning.
  * @param {number} pageNum - 1-based page number
  * @param {number} threshold - Whiteness threshold (0-255), pixels brighter are "white"
- * @returns {Promise<{minX: number, minY: number, maxX: number, maxY: number, width: number, height: number, scale: number} | null>}
+ * @returns {Promise<object | null>} Pixel bounds and the viewport used to render them.
  */
 async function detectContentBounds(pageNum, threshold) {
   // Determine render scale — reduce for very large pages
@@ -29,11 +32,16 @@ async function detectContentBounds(pageNum, threshold) {
     scale = 2;
   }
 
+  // Zelfde rotatie als renderPageOffscreen; PDF.js rekent vanuit het zichtbare
+  // CropBox en verwerkt ook /UserUnit in de transformatie.
+  const viewport = page.getViewport({ scale,
+    rotation: (page.rotate + (getActiveDocument().pageRotations?.[pageNum] || 0)) % 360 });
   const canvas = await renderPageOffscreen(pageNum, scale);
   const ctx = canvas.getContext("2d");
   const { width, height } = canvas;
   const imageData = ctx.getImageData(0, 0, width, height);
   const data = imageData.data;
+  canvas.width = 0; canvas.height = 0;
 
   /**
    * Check if a pixel at (x, y) is "content" (non-white).
@@ -104,73 +112,7 @@ async function detectContentBounds(pageNum, threshold) {
     if (found) break;
   }
 
-  return { minX, minY, maxX, maxY, width, height, scale };
-}
-
-/**
- * Compute a PDF CropBox from pixel bounds, accounting for page rotation.
- * @param {{minX: number, minY: number, maxX: number, maxY: number, width: number, height: number, scale: number}} bounds
- * @param {import('pdf-lib').PDFPage} pdfPage - The pdf-lib page
- * @param {number} paddingPt - Padding in PDF points
- * @returns {{x: number, y: number, width: number, height: number}}
- */
-function computeCropBox(bounds, pdfPage, paddingPt) {
-  const mediaBox = pdfPage.getMediaBox();
-  const rotation = pdfPage.getRotation().angle % 360;
-
-  // Convert pixel bounds to fractional positions (0..1)
-  const fracLeft = bounds.minX / bounds.width;
-  const fracRight = bounds.maxX / bounds.width;
-  const fracTop = bounds.minY / bounds.height;
-  const fracBottom = bounds.maxY / bounds.height;
-
-  let cropX, cropY, cropW, cropH;
-
-  if (rotation === 0) {
-    // Canvas: origin top-left, Y down. PDF: origin bottom-left, Y up
-    cropX = mediaBox.x + fracLeft * mediaBox.width;
-    cropY = mediaBox.y + (1 - fracBottom) * mediaBox.height;
-    cropW = (fracRight - fracLeft) * mediaBox.width;
-    cropH = (fracBottom - fracTop) * mediaBox.height;
-  } else if (rotation === 90) {
-    // 90° rotation: canvas X maps to PDF Y, canvas Y maps to PDF X (inverted)
-    cropX = mediaBox.x + fracTop * mediaBox.width;
-    cropY = mediaBox.y + fracLeft * mediaBox.height;
-    cropW = (fracBottom - fracTop) * mediaBox.width;
-    cropH = (fracRight - fracLeft) * mediaBox.height;
-  } else if (rotation === 180) {
-    // 180° rotation: both axes inverted
-    cropX = mediaBox.x + (1 - fracRight) * mediaBox.width;
-    cropY = mediaBox.y + fracTop * mediaBox.height;
-    cropW = (fracRight - fracLeft) * mediaBox.width;
-    cropH = (fracBottom - fracTop) * mediaBox.height;
-  } else if (rotation === 270) {
-    // 270° rotation: canvas X maps to PDF Y (inverted), canvas Y maps to PDF X
-    cropX = mediaBox.x + (1 - fracBottom) * mediaBox.width;
-    cropY = mediaBox.y + (1 - fracRight) * mediaBox.height;
-    cropW = (fracBottom - fracTop) * mediaBox.width;
-    cropH = (fracRight - fracLeft) * mediaBox.height;
-  } else {
-    // Fallback: treat as 0°
-    cropX = mediaBox.x + fracLeft * mediaBox.width;
-    cropY = mediaBox.y + (1 - fracBottom) * mediaBox.height;
-    cropW = (fracRight - fracLeft) * mediaBox.width;
-    cropH = (fracBottom - fracTop) * mediaBox.height;
-  }
-
-  // Apply padding
-  cropX -= paddingPt;
-  cropY -= paddingPt;
-  cropW += 2 * paddingPt;
-  cropH += 2 * paddingPt;
-
-  // Clamp to MediaBox
-  cropX = Math.max(mediaBox.x, cropX);
-  cropY = Math.max(mediaBox.y, cropY);
-  cropW = Math.min(cropW, mediaBox.x + mediaBox.width - cropX);
-  cropH = Math.min(cropH, mediaBox.y + mediaBox.height - cropY);
-
-  return { x: cropX, y: cropY, width: cropW, height: cropH };
+  return { minX, minY, maxX, maxY, viewport };
 }
 
 /**
@@ -189,7 +131,7 @@ export async function cropMargins(applyTo, rangeStr, paddingMm, threshold) {
   if (!currentBytes) return { cropped: 0, skipped: 0 };
 
   const doc = getActiveDocument();
-  const oldAnnotations = doc.annotations.map((a) => ({ ...a }));
+  const oldAnnotations = doc.annotations.map(cloneAnnotation);
   const oldRotations = { ...doc.pageRotations };
   const oldPage = doc.currentPage;
 
@@ -231,16 +173,20 @@ export async function cropMargins(applyTo, rangeStr, paddingMm, threshold) {
     });
     const pages = pdfDoc.getPages();
 
+    const newAnnotations = oldAnnotations.map(cloneAnnotation);
     for (const [pageNum, bounds] of boundsMap) {
       const pdfPage = pages[pageNum - 1];
-      const crop = computeCropBox(bounds, pdfPage, paddingPt);
+      const crop = cropBoxFromPixels(bounds, bounds.viewport, pdfPage.getMediaBox(), paddingPt);
       pdfPage.setCropBox(crop.x, crop.y, crop.width, crop.height);
+      const { dx, dy } = cropOriginShift(crop, bounds.viewport);
+      for (const annotation of newAnnotations) {
+        if (annotation.page === pageNum) applyMoveRigid(annotation, dx, dy);
+      }
     }
 
     const newBytes = new Uint8Array(await pdfDoc.save());
 
-    // Annotations and rotations stay the same — CropBox doesn't change page structure
-    const newAnnotations = oldAnnotations;
+    // Alleen de oorsprong van de annotaties verandert, niet hun grootte.
     const newRotations = { ...oldRotations };
     const targetPage = doc.currentPage;
 

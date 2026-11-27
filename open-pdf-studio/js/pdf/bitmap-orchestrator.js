@@ -140,8 +140,13 @@ export async function ensureBitmapForCurrentView() {
     // Cap so PDFium never has to render above the 4096 px axis limit.
     const exactScale = Math.min(targetScale, capScale);
     const cappedBucket = computeZoomBucket(exactScale);
-    // computeZoomBucket is monotonic, so the capped bucket is always <= the requested one
-    const useBucket = cappedBucket;
+    // computeZoomBucket rounds UP to the next power of two, so near the cap the
+    // bucket overshoots it: an A0 sheet (3370 pt) at 100% on a 2x screen has a
+    // cap of 1.22 and would get bucket 2, a 6740 x 4768 px (128 MB) bitmap that
+    // blocked the main thread for over a second, followed by a second render
+    // at the cap. Above the cap the whole-page bitmap is only the backdrop of
+    // the visible tile: render it once, at the exact capped scale.
+    const useBucket = cappedBucket > capScale ? exactScale : cappedBucket;
 
     // Synchronous: show the best already-cached bitmap immediately. Handles
     // the "zoom-in while async render is in flight" case — we never blank

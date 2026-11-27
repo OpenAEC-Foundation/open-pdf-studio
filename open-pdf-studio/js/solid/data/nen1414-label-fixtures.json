@@ -1,0 +1,242 @@
+[
+  [
+    "Tr01",
+    "Eerste hulp",
+    "4c9779a96af306bbf3afd460094f806ce3a34f12466615d4d90077d57de78e94"
+  ],
+  [
+    "Tr02",
+    "Noodtelefoon",
+    "a8e2c2800f624df2c667f0319fd692e45682c255ea81c3c1be71c8b67ef146f6"
+  ],
+  [
+    "Tr03",
+    "Brancard",
+    "d475e110e506411778de9ebffda93cea9b306fa067fe8f22e5f3378bd2b9d1ec"
+  ],
+  [
+    "Tr04",
+    "Nooddouche",
+    "26359ec79b06312a51c7130370bac9278db539380109de88cc867163ea311b10"
+  ],
+  [
+    "Tr05",
+    "Oogdouche",
+    "93df019d0c4473f3769e367419ecc3abc2df6f40cf20b6b1cdf6ef72a57e50c9"
+  ],
+  [
+    "Tr06",
+    "Richtingspijl rechts",
+    "936040bbb26206383453fa51de6de0e07d0280b7789afe2ef5255a08ed8b6e20"
+  ],
+  [
+    "Tr07",
+    "Richtingspijl rechtsboven",
+    "5c31586bdc27894e395acaa4e44338fa61bcb8f122b2ddedaed9e42d6552a70e"
+  ],
+  [
+    "Tr08",
+    "BHV",
+    "01fa254db5b26ba95740bba18a618dd20f38ea0a2d3bd47905c7596e8977d446"
+  ],
+  [
+    "Tr09",
+    "Ademluchttoestel",
+    "5f0784bc1ec030b14b29787bdf3ddefb0c6c198611f8a8749cc4ffd017f87dbf"
+  ],
+  [
+    "Tr10",
+    "Vluchtmasker",
+    "716d7a7b4798b24497451f61b2dda7bed224075e4993df4dced0ad4ab6355aee"
+  ],
+  [
+    "Tr11",
+    "Evacuatiestoel",
+    "13b89650d8f5ba665391deccda8956e90edcc934435226029f750970ab7d67eb"
+  ],
+  [
+    "Tr12",
+    "Arts",
+    "86a725b57eb0eb005c9a9674bd5834d7ac4c5c1c776bd7a0cdf1a07df6616fb3"
+  ],
+  [
+    "Tr501",
+    "Signaalhoorn",
+    "92612c57577fdc8cd674567fc12aa7f59a35604e50ae7f918ee23bc15d89adc2"
+  ],
+  [
+    "Tr502",
+    "Luidspreker",
+    "c572307d974ea040a0b78610bff848b796e758450d70c60114d23c79f5d030ce"
+  ],
+  [
+    "Tr503",
+    "Zaklamp",
+    "590278d0fd4f485d232806e739369bc04138339394d52b6c8cd6a3665c3e7ae9"
+  ],
+  [
+    "Tr504",
+    "Signaallamp",
+    "0713961a4f7a6279c38eb99268c962d8e102b9f5e2e5da7ebbd751c7439464ee"
+  ],
+  [
+    "Tv017",
+    "Lift niet gebruiken",
+    "7683611ab7cdf126d97809fcaa7e6325bb2039e2d7e129c5edde3e22b78d3c4d"
+  ],
+  [
+    "Tn01",
+    "Nooduitgang — pijl omlaag",
+    "9c926318465314f916f6ba0407be88590f81991a9905a8db6b77b0202b8b062d"
+  ],
+  [
+    "Tn02",
+    "Nooduitgang rechts",
+    "795ad46ccda771227bde2844f64d1bd82d330acb0195601b6c424b93804c8956"
+  ],
+  [
+    "Tn03",
+    "Nooduitgang links",
+    "95c0b658de8e3cbcdb6742244de6aed8ecee4cde4de1f5ac615dfa4108fae54f"
+  ],
+  [
+    "Tn04",
+    "Nooduitgang — pijl omhoog",
+    "641e4308fa181f4b8c68b3be27365088d6e43025363c53ae113e47c18612a594"
+  ],
+  [
+    "Tn05",
+    "Nooduitgang",
+    "d33d52d2e5964dc750931c52c877138bd4325258f185bbc846a2bbe695f938b7"
+  ],
+  [
+    "Tn06",
+    "Verzamelplaats",
+    "5ecea8c7d8bad3779f0172c22e847ea3f3505c39d9267d81c26237206e1cf26d"
+  ],
+  [
+    "Tn07",
+    "Vluchtweg linksonder",
+    "d23d74e0d6339a92bb65d0c5db8dffc301f4b339d3d42193711a354eaa1a598c"
+  ],
+  [
+    "Tn08",
+    "Vluchtweg rechtsonder",
+    "42825c3acc2a5a27a4d642a10506b447fa7d293a8aeca4ea8153f418400e3937"
+  ],
+  [
+    "Tn09",
+    "Vluchtweg linksboven",
+    "af4852f216b7f8bc5b8b76d9363b28e155228e85aaf754da719b0a4ff5f03c4c"
+  ],
+  [
+    "Tn10",
+    "Vluchtweg rechtsboven",
+    "259ecb232d358923826cc0b9ffe31e65cea5cbbf70495260df4ba94d488b25d9"
+  ],
+  [
+    "Tn11",
+    "Vluchtladder",
+    "c47c6de64729d7d87c47122ea45cf1e8940f341c40126e62d300edb00a4211e8"
+  ],
+  [
+    "Tn12",
+    "Drukknop om deur te openen",
+    "26f8926ec4006ecf220f93765ac1e772dc7a1d1744cf3a742c28de8962c70108"
+  ],
+  [
+    "Tw01",
+    "Algemeen gevaar",
+    "4881daf76a5166e1e4e3104972f679033703317503fa38797e84d30f623d9c63"
+  ],
+  [
+    "Tw02",
+    "Elektrische spanning",
+    "444de71ed2ecda6612a87929f47f4dd50088e39ef8f8496812d2ea5fa4d44dc6"
+  ],
+  [
+    "Tw03",
+    "Ontvlambare stoffen",
+    "56b4b1c548d655417ef28ccce18cab93dc7e01fdd658ef1e0f67b0c7ace052fa"
+  ],
+  [
+    "Tw04",
+    "Giftige stoffen",
+    "ebbb36392c3ff7c9260446f81c90bd182aef6a53078307c741cc16baae0edc55"
+  ],
+  [
+    "Tw05",
+    "Bijtende stoffen",
+    "ab19e48fc3e7a9ebed8bdd04a4dff6252a3375d732dbe1bff518668e5db690f6"
+  ],
+  [
+    "Tw07",
+    "Oxiderende stoffen",
+    "d8f9322afd6f59030a710fad9d5b58fd7dbb44f1c31eaadc87918272ca756126"
+  ],
+  [
+    "Tw08",
+    "Explosieve stoffen",
+    "02c813220121379936b2e55acbad24c8227709aa179ed235d4b09f20c0605682"
+  ],
+  [
+    "Tw09",
+    "Radioactieve stoffen",
+    "cb4e63921df9fd1485d5ad80b7eda1eaf344becfecb4e0a7e0a2ffa9d8af72f3"
+  ],
+  [
+    "Tw10",
+    "Laserstraling",
+    "ac04637756ccbf338300ae16de7fbcd7de59e6821b58fd408d37b30e3c699374"
+  ],
+  [
+    "Tw11",
+    "Niet-ioniserende straling",
+    "f0a9519167861d53c64816fb053bc9fe1feca0d39ff05d1997f0af1c273e4ddc"
+  ],
+  [
+    "Tw12",
+    "Magnetisch veld",
+    "6bd91e0359a4737aac12307279f8036eb3d3b360d1845ac89eb5352f348dbb70"
+  ],
+  [
+    "Tw14",
+    "Valgevaar",
+    "1c533e9408f829f43f9454cba6e9593830f9fa4ae20020536a5c4380e8f0f1e7"
+  ],
+  [
+    "Tw15",
+    "Biologisch gevaar",
+    "ec6606aaefea1ee9b59f856bd864f3d9e375e824579930ad8d60a4776b35fdd2"
+  ],
+  [
+    "Tw16",
+    "Lage temperatuur",
+    "6e60039fd59f52ecaeea7c7fdb04c811327908cc08f8165032687cfdc2c143cd"
+  ],
+  [
+    "Tw19",
+    "Explosieve atmosfeer",
+    "13e5f9245398e5de6c30e5808f97268787cced985ed5ac4fc99e881042bcabb8"
+  ],
+  [
+    "Tw2.001",
+    "Gevaarsidentificatienummer / VN-nummer",
+    "a42dc5ee01eeb54cadcd0abdeeeee85b3684d6ac4ca793678771291048c9e30e"
+  ],
+  [
+    "Tw2.002",
+    "Gevarendiamant",
+    "7153670cdf9886d364adc0f0be1712f5af22d265c867ca661072792a0c2e2d11"
+  ],
+  [
+    "Tw20",
+    "Schadelijke stoffen",
+    "7da3e8af1d74a80616dae6f18f3de73606c2ee3c76cab38fa789c153f87f103a"
+  ],
+  [
+    "Tw28",
+    "Accu’s",
+    "9116ac229de755ea4d22bc7fb291c9a7409a36ed6a1a2711e9a37596af41f4d0"
+  ]
+]

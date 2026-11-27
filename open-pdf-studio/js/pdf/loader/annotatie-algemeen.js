@@ -22,6 +22,7 @@ export function algemeneEigenschappen(extra, model) {
   const e = extra || {};
   const m = model || {};
   const uit = {};
+  if (m.type === 'callout' && Number.isInteger(e.cloudVertex)) uit.cloudVertex = e.cloudVertex;
   const zone = zoneDefinition(e.spatialZone);
   if (zone) uit.spatialZone = zone;
   if (typeof e.locationOverride === 'string') uit.locationOverride = e.locationOverride;

@@ -202,3 +202,17 @@ test('wachter: bij een callout zonder /RD beslist de /Rect niet over de oriënta
   bij(model.width, 60, 0.001, 'breedte');
   bij(model.height, 20, 0.001, 'hoogte');
 });
+
+test('callout leest rich text wanneer de appearance alleen lijnen tekent', async () => {
+  const rc = PDFString.of('<body xmlns="http://www.w3.org/1999/xhtml"><p>Kabel A</p><p>Kabel B</p></body>');
+  const vak = {
+    rect: [10, 10, 220, 80],
+    dict: { IT: PDFName.of('FreeTextCallout'), CL: [10, 10, 20, 20, 30, 20], RC: rc },
+    ap: { BBox: [0, 0, 210, 70], Matrix: [1, 0, 0, 1, 0, 0], inhoud: '1 0 0 RG 20 20 180 40 re S' },
+  };
+  const metContents = { ...vak, dict: { ...vak.dict, Contents: PDFString.of('Actuele tekst') } };
+  const [rijk, gewoon] = await laad(await blad([vak, metContents]));
+  assert.equal(rijk.type, 'callout');
+  assert.equal(rijk.text.trim(), 'Kabel A\nKabel B');
+  assert.equal(gewoon.text, 'Actuele tekst');
+});

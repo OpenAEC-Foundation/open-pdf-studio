@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Зберегти поточну видимість шарів як типовий стан документа. Його буде записано у файл під час наступного збереження.",
     "layersDefaultPending": "Стане типовим під час збереження",
     "layerLocked": "Заблокований шар: його не можна ввімкнути чи вимкнути",
-    "layerRadioGroup": "Група вибору: увімкнення цього шару вимикає інші шари групи"
+    "layerRadioGroup": "Група вибору: увімкнення цього шару вимикає інші шари групи",
+    "thumbnailColumns": "Стовпці мініатюр"
   },
   "scaleBar": {
     "title": "Масштабна лінійка",
@@ -601,6 +602,12 @@
     "joinHint": "Вимкнено: цей кінець стіни ніколи не з'єднується під кутом, Т-подібно чи з обрізанням по іншій стіні; він залишається прямим там, де намальований.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Таблиця обсягів",
       "builtinText": "Текст",
       "rebarPosition": "Арматурний стрижень"
-    }
+    },
+    "configImportFailed": "Не вдалося імпортувати налаштування кількостей. Виберіть дійсний підтримуваний файл конфігурації.",
+    "configExportFailed": "Не вдалося експортувати налаштування кількостей."
   },
   "parametricSymbol": {
     "defaultTitle": "Параметричний символ",

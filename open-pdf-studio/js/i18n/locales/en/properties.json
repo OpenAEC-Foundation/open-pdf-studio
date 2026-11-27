@@ -498,7 +498,8 @@
     "layersSetDefaultTitle": "Store the current layer visibility as the document's default state. It is written to the file the next time you save.",
     "layersDefaultPending": "Saved as default on next save",
     "layerLocked": "Locked layer: cannot be switched on or off",
-    "layerRadioGroup": "Choice group: switching this layer on switches the others in its group off"
+    "layerRadioGroup": "Choice group: switching this layer on switches the others in its group off",
+    "thumbnailColumns": "Thumbnail columns"
   },
   "schedules": {
     "title": "Schedules",
@@ -608,6 +609,12 @@
     "joinHint": "Off: this end of the wall is never mitred, joined as a T or trimmed against another wall; it keeps a butt end where it is drawn.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -863,7 +870,9 @@
       "scheduleTable": "Quantities table",
       "builtinText": "Text",
       "rebarPosition": "Reinforcement bar"
-    }
+    },
+    "configImportFailed": "Could not import quantities settings. Choose a valid supported configuration file.",
+    "configExportFailed": "Could not export quantities settings."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametric symbol",

@@ -589,18 +589,25 @@ export function buildInlineMaatAP({ startX, startY, endX, endY,
 // scherm hem tekent (annotations/wand-vorm.js): geen kap op een verstekt
 // uiteinde, een onderbroken vlaklijn bij een T. Zonder die lijst blijft het
 // de gesloten omtrek van de band.
-export function buildWallAP({ bandPoints, outlineSegments, X, Y, strokeColorHex, lineWidth,
+// `bandPieces` (optioneel): de solide stukken van een wand met gehoste
+// openingen (#1229). Vulling en arcering komen dan per stuk, zodat ze bij de
+// dagkanten stoppen; zonder die lijst is het de hele band.
+export function buildWallAP({ bandPoints, bandPieces, outlineSegments, X, Y, strokeColorHex, lineWidth,
   fillBgHex, hatchPattern, hatchColorHex, hatchScale, hatchAngle }) {
   if (!bandPoints || bandPoints.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#000000');
+  const stukken = (Array.isArray(bandPieces) ? bandPieces : [bandPoints])
+    .filter((stuk) => Array.isArray(stuk) && stuk.length >= 3);
   let s = '';
   if (fillBgHex && fillBgHex !== 'none' && fillBgHex !== 'transparent') {
-    s += solidFillOps(bandPoints, null, hexToRgb(fillBgHex), X, Y);
+    for (const stuk of stukken) s += solidFillOps(stuk, null, hexToRgb(fillBgHex), X, Y);
   }
   if (hatchPattern && hatchPattern !== 'none') {
-    s += hatchFillOps({ points: bandPoints, holes: null, hatchPattern,
-      hatchColorRgb: hexToRgb(hatchColorHex || strokeColorHex || '#000000'),
-      hatchScale, hatchAngle, X, Y });
+    for (const stuk of stukken) {
+      s += hatchFillOps({ points: stuk, holes: null, hatchPattern,
+        hatchColorRgb: hexToRgb(hatchColorHex || strokeColorHex || '#000000'),
+        hatchScale, hatchAngle, X, Y });
+    }
   }
   if (Array.isArray(outlineSegments)) {
     s += `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lineWidth ?? 1)} w\n${dashOp('solid')}`;

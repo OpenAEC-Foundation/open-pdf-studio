@@ -10,10 +10,9 @@ import test from 'node:test';
 import {
   LOSMAAK_DREMPEL_PX,
   buitenTabbalk,
+  losmaakPositie,
   buitenVenster,
   besluitBijLoslaten,
-  moetOsSleepStarten,
-  besluitNaOsSleep,
   padVoorNieuweInstantie,
   losmaakBlokkade,
 } from './tab-losmaken.js';
@@ -62,39 +61,6 @@ test('het enige tabblad losmaken heeft geen zin: het blijft staan', () => {
 
 // ── Wanneer de OS-sleep start ────────────────────────────────────────────────
 
-test('de OS-sleep start alleen boven een andere instantie van de app', () => {
-  assert.equal(moetOsSleepStarten({ losGewapend: true, buitenVenster: true, doelSoort: 'instantie' }), true);
-});
-
-test('geen OS-sleep boven leeg bureaublad, een ander programma of het eigen venster', () => {
-  assert.equal(moetOsSleepStarten({ losGewapend: true, buitenVenster: true, doelSoort: 'geen' }), false);
-  assert.equal(moetOsSleepStarten({ losGewapend: true, buitenVenster: true, doelSoort: 'zelf' }), false);
-  assert.equal(moetOsSleepStarten({ losGewapend: true, buitenVenster: false, doelSoort: 'instantie' }), false);
-  assert.equal(moetOsSleepStarten({ losGewapend: false, buitenVenster: true, doelSoort: 'instantie' }), false);
-  assert.equal(moetOsSleepStarten({ losGewapend: true, buitenVenster: true, doelSoort: undefined }), false);
-});
-
-// ── Uitkomst van de OS-sleep ─────────────────────────────────────────────────
-
-test('neergezet op een andere instantie: die heeft het document, hier sluiten', () => {
-  assert.equal(besluitNaOsSleep({ resultaat: 'Dropped', doelSoort: 'instantie', zelfDrop: false }), 'sluiten');
-});
-
-test('neergezet buiten elke instantie: losmaken naar een nieuwe instantie', () => {
-  // Windows meldt "Dropped" ook als het venster onder de cursor niets aannam.
-  assert.equal(besluitNaOsSleep({ resultaat: 'Dropped', doelSoort: 'geen', zelfDrop: false }), 'losmaken');
-});
-
-test('terug op het eigen venster of afgebroken: tabblad blijft', () => {
-  assert.equal(besluitNaOsSleep({ resultaat: 'Dropped', doelSoort: 'zelf', zelfDrop: false }), 'houden');
-  assert.equal(besluitNaOsSleep({ resultaat: 'Dropped', doelSoort: 'instantie', zelfDrop: true }), 'houden');
-  assert.equal(besluitNaOsSleep({ resultaat: 'Cancel', doelSoort: 'geen', zelfDrop: false }), 'houden');
-  assert.equal(besluitNaOsSleep({ resultaat: 'Cancelled', doelSoort: 'instantie', zelfDrop: false }), 'houden');
-  assert.equal(besluitNaOsSleep({ resultaat: undefined, doelSoort: 'geen', zelfDrop: false }), 'houden');
-});
-
-// ── Pad voor de nieuwe instantie ────────────────────────────────────────────
-
 test('het pad is het bestand van het document', () => {
   assert.equal(padVoorNieuweInstantie({ filePath: 'C:/a.pdf' }), 'C:/a.pdf');
 });
@@ -124,4 +90,50 @@ test('losmaakBlokkade vraagt eerst opslaan bij een naamloos document', () => {
   assert.equal(losmaakBlokkade({ filePath: '' }), 'eerst-opslaan');
   assert.equal(losmaakBlokkade({ filePath: 'C:/a.pdf' }), null);
   assert.equal(losmaakBlokkade(null), 'geen-document');
+});
+
+test('rechtstreeks zijwaarts slepen bereikt de andere tabbalk of het bureaublad', () => {
+  for (const x of [-1, 800]) {
+    const pos = losmaakPositie(x, 165, 800, 600, balk, false);
+    assert.equal(pos.losGewapend, true);
+    assert.equal(besluitBijLoslaten({ ...pos, aantalTabs: 1 }), 'losmaken');
+  }
+  assert.equal(losmaakPositie(799, 165, 800, 600, balk, false).losGewapend, false);
+  assert.equal(losmaakPositie(800, 165, 800, 600, balk, true).losGewapend, false);
+});
+import { receiveDock, requestDock } from './tab-dock.js';
+
+test('het bronvenster krijgt pas bevestiging nadat het juiste doel het document heeft geladen', async () => {
+  const orig = globalThis.window;
+  globalThis.window = { devicePixelRatio: 2 };
+  let finish, started;
+  const opened = new Promise(resolve => { started = resolve; });
+  const bar = () => ({
+    classList: { remove() {} },
+    getBoundingClientRect: () => ({ left: 0, right: 400, top: 100, bottom: 130 }),
+  });
+  const stop = receiveDock(123, bar, path => {
+    assert.equal(path, 'C:/plan.pdf');
+    started();
+    return new Promise(resolve => { finish = resolve; });
+  });
+  try {
+    assert.equal(await requestDock({ pid: 123, x: 120, y: 850 }, 'C:/plan.pdf'), false);
+    let closed = false;
+    const result = requestDock({ pid: 123, x: 120, y: 225 }, 'C:/plan.pdf').then(ok => { closed = ok; });
+    await opened;
+    assert.equal(closed, false);
+    finish(true);
+    await result;
+    assert.equal(closed, true);
+  } finally { stop(); globalThis.window = orig; }
+});
+
+test('mislukt laden in het doel laat de brontab staan', async () => {
+  const orig = globalThis.window;
+  globalThis.window = { devicePixelRatio: 1 };
+  const bar = () => ({ classList: { remove() {} }, getBoundingClientRect: () => ({ left: 0, right: 380, top: 4, bottom: 80 }) });
+  const stop = receiveDock(124, bar, async () => false);
+  try { assert.equal(await requestDock({ pid: 124, x: 20, y: 42 }, 'C:/plan.pdf'), false); }
+  finally { stop(); globalThis.window = orig; }
 });

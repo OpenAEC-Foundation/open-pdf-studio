@@ -3,12 +3,16 @@
 // (#476). Writes go through updateAnnotProp so undo/redo and redraw behave
 // exactly like every other property edit.
 import { Show, For } from 'solid-js';
-import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
+import { annotProps, updateAnnotProp, getCurrentAnnotation } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 // Single source of truth for wall materials (NEN hatches + insulation with
 // bg colour + thickness-scaled 60° zigzag) — see rendering/walls.js.
 import { WALL_MATERIALS, ISOLATIE_MATERIALEN } from '../../../annotations/rendering/walls.js';
+// Standard thicknesses follow the sheet the wall is on (#1230): US sizes on a
+// sheet in feet or inches, metric sizes otherwise.
+import { wanddikteKeuzes, wanddikteKeuze } from '../../../plattegrond/blad-conventie.js';
+import { isImperiaalBladOpPunt } from '../../../plattegrond/blad-conventie-op-punt.js';
 
 export default function WallSection() {
   const { t } = useTranslation('properties');
@@ -20,6 +24,20 @@ export default function WallSection() {
   // the id. Without a translation (PIR, EPS, PUR and trade names are proper
   // names) the name from the material table is used.
   const naam = (groep, m) => t(`wall.${groep}.${m.id}`, m.label);
+  // The convention at the wall's start point; reading the id from annotProps
+  // makes it follow the selection.
+  const imperiaal = () => {
+    void annotProps.id;
+    if (annotProps.annotationType !== 'wall') return false;
+    const w = getCurrentAnnotation();
+    return !!w && isImperiaalBladOpPunt(w.page, w.startX, w.startY);
+  };
+  const soortNaam = (soort, standaard) => t(`wall.kinds.${soort}`, standaard);
+  const dikteKeuzes = () => wanddikteKeuzes(imperiaal(), soortNaam);
+  const gekozenDikte = () => {
+    const k = wanddikteKeuze(annotProps.dikteMm ?? 100, imperiaal());
+    return k ? String(k.dikteMm) : '';
+  };
   return (
     <Show when={annotProps.annotationType === 'wall'}>
       <CollapsibleSection title={t('wall.title')} name="wall" id="prop-wall-section">
@@ -29,6 +47,22 @@ export default function WallSection() {
             value={annotProps.dikteMm ?? 100}
             onChange={(e) => updateAnnotProp('dikteMm', Math.max(10, parseFloat(e.target.value) || 100))}
           />
+        </div>
+        <div class="property-group">
+          <label>{t('wall.thicknessPreset')}</label>
+          <select id="prop-wall-thickness-preset"
+            value={gekozenDikte()}
+            disabled={locked()}
+            onChange={(e) => {
+              const mm = Number(e.target.value);
+              if (mm > 0) updateAnnotProp('dikteMm', mm);
+            }}
+          >
+            <option value="">{t('wall.thicknessCustom')}</option>
+            <For each={dikteKeuzes()}>{(k) => (
+              <option value={String(k.dikteMm)}>{k.label}</option>
+            )}</For>
+          </select>
         </div>
         <div class="property-group">
           <label>{t('wall.material')}</label>

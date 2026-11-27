@@ -7,7 +7,7 @@ const ImportPanel = lazy(() => import('./ImportPanel.jsx'));
 const ExportPanel = lazy(() => import('./ExportPanel.jsx'));
 const OpenPanel = lazy(() => import('./OpenPanel.jsx'));
 import { openPDFFile } from '../../../pdf/loader.js';
-import { savePDF, savePDFAs } from '../../../pdf/saver.js';
+import { savePDF, savePDFAs } from '../../../pdf/save-commands.js';
 import { ifcxOpslaanLabel, opslaanAlsIfcx } from '../../../pdf/ifcx-opslaan.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog, selectPrintArea, showPrintDialog } from '../../../ui/chrome/dialogs.js';
@@ -108,6 +108,12 @@ export default function AppMenu() {
     // per-tab close that normally saves the Reader Mode positions never
     // runs. Save them here, for the documents whose tracking is on.
     await persistAllReaderPositions();
+    // Likewise the last view of every open file (#1245).
+    try {
+      (await import('../../../pdf/last-view-app.js')).rememberAllLastViews();
+    } catch (e) {
+      console.warn('[last-view] not stored:', e);
+    }
     // De gebruiker koos afsluiten (en verwerpt wat niet is opgeslagen): een
     // nette afsluiting, de herstelmomentopnamen mogen weg.
     await meldSchoonAfsluiten();

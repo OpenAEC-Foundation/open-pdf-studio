@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Păstrează vizibilitatea actuală a straturilor ca stare implicită a documentului. Este scrisă în fișier la următoarea salvare.",
     "layersDefaultPending": "Devine implicit la salvare",
     "layerLocked": "Strat blocat: nu poate fi activat sau dezactivat",
-    "layerRadioGroup": "Grup de alegere: activarea acestui strat le dezactivează pe celelalte din grup"
+    "layerRadioGroup": "Grup de alegere: activarea acestui strat le dezactivează pe celelalte din grup",
+    "thumbnailColumns": "Coloane de miniaturi"
   },
   "scaleBar": {
     "title": "Bară de scară",
@@ -601,6 +602,12 @@
     "joinHint": "Dezactivat: acest capăt al peretelui nu este niciodată îmbinat pe bisectoare, racordat în T sau retezat față de alt perete; păstrează un capăt drept acolo unde este desenat.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Tabel de cantități",
       "builtinText": "Text",
       "rebarPosition": "Bară de armătură"
-    }
+    },
+    "configImportFailed": "Setările cantităților nu au putut fi importate. Alegeți un fișier de configurare valid și acceptat.",
+    "configExportFailed": "Setările cantităților nu au putut fi exportate."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbol parametric",

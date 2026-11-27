@@ -1,5 +1,6 @@
 import { createSignal, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
+import SignatureImageImport from '../SignatureImageImport.jsx';
 import { closeDialog, openDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getActiveDocument } from '../../../core/state.js';
@@ -30,7 +31,7 @@ export default function DigitaalOndertekenenDialog(props) {
   const [certificaat, setCertificaat] = createSignal(herstel?.certificaat || null);
   const [fout, setFout] = createSignal('');
   const [bezig, setBezig] = createSignal(false);
-  const afbeeldingen = opgeslagenAfbeeldingen();
+  const [afbeeldingen, setAfbeeldingen] = createSignal(opgeslagenAfbeeldingen());
 
   const zet = (veld, waarde) => setKeuzes((k) => ({ ...k, [veld]: waarde }));
   const close = () => closeDialog(NAAM);
@@ -187,17 +188,21 @@ export default function DigitaalOndertekenenDialog(props) {
           <Show when={keuzes().zichtbaar}>
             <div class="crop-margins-row">
               <label class="crop-margins-label digital-sign-label">{v('image')}</label>
-              <select class="crop-margins-input-wide" value={String(keuzes().afbeelding < afbeeldingen.length ? keuzes().afbeelding : -1)}
+              <select class="crop-margins-input-wide" value={String(keuzes().afbeelding < afbeeldingen().length ? keuzes().afbeelding : -1)}
                 onChange={(e) => zet('afbeelding', Number(e.target.value))}>
                 <option value="-1">{v('noImage')}</option>
-                <For each={afbeeldingen}>
+                <For each={afbeeldingen()}>
                   {(_a, i) => <option value={String(i())}>{v('savedImage', { number: i() + 1 })}</option>}
                 </For>
               </select>
             </div>
-            <Show when={keuzes().afbeelding >= 0 && afbeeldingen[keuzes().afbeelding]}>
-              <img class="digital-sign-voorbeeld" src={afbeeldingen[keuzes().afbeelding]?.dataUrl} alt="" />
+            <Show when={keuzes().afbeelding >= 0 && afbeeldingen()[keuzes().afbeelding]}>
+              <img class="digital-sign-voorbeeld" src={afbeeldingen()[keuzes().afbeelding]?.dataUrl} alt="" />
             </Show>
+            <SignatureImageImport disabled={bezig()} onImported={(saved) => {
+              setAfbeeldingen(saved);
+              zet('afbeelding', saved.length - 1);
+            }} />
             <div class="protect-pdf-hint">{v('visibleHint')}</div>
           </Show>
         </fieldset>

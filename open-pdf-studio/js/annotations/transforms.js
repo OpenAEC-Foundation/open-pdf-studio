@@ -70,8 +70,9 @@ export function syncMeasurementAfterEdit(ann) {
     // Same routine as a grip edit, so an area with its own scale keeps it (#536).
     herberekenVlakMaat(ann);
   } else if (ann.type === 'measurePerimeter' && Array.isArray(ann.points) && ann.points.length >= 2) {
-    const r = calculatePerimeter(ann.points, ann.page);
+    const r = calculatePerimeter(ann.points, ann.page, ann);
     ann.measureValue = r.value;
+    ann.measurePixels = r.pixels;
     ann.measureUnit = r.unit;
     ann.measureText = formatMeasurement(r);
   }
@@ -285,6 +286,35 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     return;
   }
 
+  // Textbox leader tip/knee drag: update only that point on the matching leader.
+  if ((annotation.type === 'textbox' || annotation.type === 'callout') && typeof handleType === 'string' &&
+      (handleType.startsWith(HANDLE_TYPES.LEADER_TIP + '_') ||
+       handleType.startsWith(HANDLE_TYPES.LEADER_KNEE + '_'))) {
+    const isTip = handleType.startsWith(HANDLE_TYPES.LEADER_TIP + '_');
+    const prefix = isTip ? (HANDLE_TYPES.LEADER_TIP + '_') : (HANDLE_TYPES.LEADER_KNEE + '_');
+    const leaderId = handleType.substring(prefix.length);
+    const origLeaders = Array.isArray(originalAnn.leaders) ? originalAnn.leaders : [];
+    const newLeaders = origLeaders.map(l => ({ ...l }));
+    const idx = newLeaders.findIndex(l => l.id === leaderId);
+    // Shift held → ortho-snap: constrain delta to dominant axis (horizontal or vertical)
+    let dx = deltaX, dy = deltaY;
+    if (state.shiftKeyPressed) {
+      if (Math.abs(dx) >= Math.abs(dy)) dy = 0; else dx = 0;
+    }
+    if (idx >= 0) {
+      if (isTip) {
+        newLeaders[idx].tipX = origLeaders[idx].tipX + dx;
+        newLeaders[idx].tipY = origLeaders[idx].tipY + dy;
+      } else {
+        newLeaders[idx].kneeX = origLeaders[idx].kneeX + dx;
+        newLeaders[idx].kneeY = origLeaders[idx].kneeY + dy;
+      }
+    }
+    annotation.leaders = newLeaders;
+    annotation.modifiedAt = new Date().toISOString();
+    return;
+  }
+
   switch (annotation.type) {
     case 'box':
     case 'mask':
@@ -312,34 +342,6 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         }
         return;
       }
-      // Textbox leader tip/knee drag: update only that point on the matching leader.
-      if (annotation.type === 'textbox' && typeof handleType === 'string' &&
-          (handleType.startsWith(HANDLE_TYPES.LEADER_TIP + '_') ||
-           handleType.startsWith(HANDLE_TYPES.LEADER_KNEE + '_'))) {
-        const isTip = handleType.startsWith(HANDLE_TYPES.LEADER_TIP + '_');
-        const prefix = isTip ? (HANDLE_TYPES.LEADER_TIP + '_') : (HANDLE_TYPES.LEADER_KNEE + '_');
-        const leaderId = handleType.substring(prefix.length);
-        const origLeaders = Array.isArray(originalAnn.leaders) ? originalAnn.leaders : [];
-        const newLeaders = origLeaders.map(l => ({ ...l }));
-        const idx = newLeaders.findIndex(l => l.id === leaderId);
-        // Shift held → ortho-snap: constrain delta to dominant axis (horizontal or vertical)
-        let dx = deltaX, dy = deltaY;
-        if (state.shiftKeyPressed) {
-          if (Math.abs(dx) >= Math.abs(dy)) dy = 0; else dx = 0;
-        }
-        if (idx >= 0) {
-          if (isTip) {
-            newLeaders[idx].tipX = origLeaders[idx].tipX + dx;
-            newLeaders[idx].tipY = origLeaders[idx].tipY + dy;
-          } else {
-            newLeaders[idx].kneeX = origLeaders[idx].kneeX + dx;
-            newLeaders[idx].kneeY = origLeaders[idx].kneeY + dy;
-          }
-        }
-        annotation.leaders = newLeaders;
-        annotation.modifiedAt = new Date().toISOString();
-        return;
-      }
       if (_MAATGREPEN.has(handleType)) {
         // Rechthoek, ellips, wolk, maskeer-, markerings- en redactievlak mogen
         // willekeurig klein worden (alleen de technische ondergrens; de
@@ -365,27 +367,19 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
       }
       switch (handleType) {
         case HANDLE_TYPES.CALLOUT_MOVE:
-          // Move entire callout (box + arrow + all points)
-          annotation.x = originalAnn.x + deltaX;
-          annotation.y = originalAnn.y + deltaY;
-          annotation.arrowX = (originalAnn.arrowX || originalAnn.x - 60) + deltaX;
-          annotation.arrowY = (originalAnn.arrowY || originalAnn.y + originalAnn.height) + deltaY;
-          annotation.kneeX = (originalAnn.kneeX || originalAnn.x - 30) + deltaX;
-          annotation.kneeY = (originalAnn.kneeY || originalAnn.y + originalAnn.height / 2) + deltaY;
-          annotation.armOriginX = (originalAnn.armOriginX || originalAnn.x) + deltaX;
-          annotation.armOriginY = (originalAnn.armOriginY || originalAnn.y + originalAnn.height / 2) + deltaY;
+          applyMoveRigid(annotation, deltaX, deltaY, originalAnn);
           break;
         case HANDLE_TYPES.CALLOUT_ARROW:
           // Move arrow tip
-          annotation.arrowX = (originalAnn.arrowX || originalAnn.x - 60) + deltaX;
-          annotation.arrowY = (originalAnn.arrowY || originalAnn.y + originalAnn.height) + deltaY;
+          annotation.arrowX = (originalAnn.arrowX ?? originalAnn.x - 60) + deltaX;
+          annotation.arrowY = (originalAnn.arrowY ?? originalAnn.y + originalAnn.height) + deltaY;
           break;
         case HANDLE_TYPES.CALLOUT_KNEE:
           // Constrain to the arm direction: horizontal arm → move X only, vertical arm → move Y only
           if (annotation._leaderVertical) {
-            annotation.kneeY = (originalAnn.kneeY || originalAnn.y + originalAnn.height / 2) + deltaY;
+            annotation.kneeY = (originalAnn.kneeY ?? originalAnn.y + originalAnn.height / 2) + deltaY;
           } else {
-            annotation.kneeX = (originalAnn.kneeX || originalAnn.x - 30) + deltaX;
+            annotation.kneeX = (originalAnn.kneeX ?? originalAnn.x - 30) + deltaX;
           }
           break;
       }
@@ -838,7 +832,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
               // Tekst, waarde en eenheid, met de eigen schaal als die er is (#536).
               herberekenVlakMaat(annotation);
             } else if (annotation.type === 'measurePerimeter') {
-              annotation.measureText = formatMeasurement(calculatePerimeter(annotation.points, annotation.page));
+              syncMeasurementAfterEdit(annotation);
             }
           }
         }
@@ -1158,7 +1152,9 @@ export function applyMoveGeneric(annotation, dx, dy, source = annotation) {
 export function applyMove(annotation, deltaX, deltaY, source = annotation) {
   if (annotation.locked) return;
 
-  if (annotation.type === 'callout') {
+  if (annotation.type === 'callout' && annotation.leaders?.length) {
+    applyMoveRigid(annotation, deltaX, deltaY, source);
+  } else if (annotation.type === 'callout') {
     // Special semantics: moving a callout moves only the TEXT BOX — the
     // arrow tip stays anchored and the leader is recomputed.
     annotation.x = source.x + deltaX;
@@ -1176,12 +1172,12 @@ export function applyMove(annotation, deltaX, deltaY, source = annotation) {
 // (#928) en uitlijnen op de pagina (#968): daar verhuist de hele markering,
 // niet alleen het tekstvak.
 const _MOVE_CALLOUT_PAIRS = [['arrowX', 'arrowY'], ['kneeX', 'kneeY'], ['armOriginX', 'armOriginY']];
-export function applyMoveRigid(annotation, dx, dy) {
-  if (!annotation || (dx === 0 && dy === 0)) return;
-  applyMoveGeneric(annotation, dx, dy);
+export function applyMoveRigid(annotation, dx, dy, source = annotation) {
+  if (!annotation) return;
+  applyMoveGeneric(annotation, dx, dy, source);
   for (const [kx, ky] of _MOVE_CALLOUT_PAIRS) {
-    if (typeof annotation[kx] === 'number') annotation[kx] += dx;
-    if (typeof annotation[ky] === 'number') annotation[ky] += dy;
+    if (typeof source[kx] === 'number') annotation[kx] = source[kx] + dx;
+    if (typeof source[ky] === 'number') annotation[ky] = source[ky] + dy;
   }
 }
 

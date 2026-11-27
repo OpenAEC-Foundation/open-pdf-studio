@@ -675,7 +675,7 @@ export async function saveFileDialog(defaultPath, filters) {
     if (window.__TAURI__.dialog) {
       try {
         const result = await window.__TAURI__.dialog.save({
-          defaultPath: defaultPath,
+          defaultPath: defaultPath?.startsWith('content://') ? extractFileName(defaultPath) : defaultPath,
           filters: filters
         });
         return result;
@@ -787,7 +787,23 @@ export async function writeBinaryFileAtomic(path, data, { annulering = null } = 
     return writeBinaryFile(path, data);
   }
   const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  // Android (#1260): een bestand uit de bestandskiezer of "Openen met" is een
+  // content://-URI, geen pad. Rust kan daar geen tijdelijk bestand naast maken
+  // (os error 2); alleen de fs-plugin schrijft via de ContentResolver. Dat is
+  // niet atomair en niet te annuleren, dus de annulering wordt vooraf vastgelegd.
+  if (typeof path === 'string' && path.startsWith('content://') && window.__TAURI__?.fs?.writeFile) {
+    annulering?.vastleggen?.();
+    await window.__TAURI__.fs.writeFile(path, bytes);
+    return true;
+  }
   const mobile = window.__TAURI__?.os?.type?.() === 'android';
+  if (mobile && path.startsWith('content://')) {
+    // SAF exposes a provider stream. Once opened for replacement, cancelling
+    // can no longer preserve the old contents.
+    annulering?.vastleggen?.();
+    await getTauriCore().invoke('write_android_document', { path, data: Array.from(bytes) });
+    return true;
+  }
   const headers = { 'x-opds-path': encodeURIComponent(path) };
   let afmelden = null;
   if (annulering) {

@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Simpan keterlihatan lapisan semasa sebagai keadaan lalai dokumen. Ia ditulis ke fail apabila anda menyimpan seterusnya.",
     "layersDefaultPending": "Menjadi lalai apabila disimpan",
     "layerLocked": "Lapisan dikunci: tidak boleh dihidupkan atau dimatikan",
-    "layerRadioGroup": "Kumpulan pilihan: menghidupkan lapisan ini mematikan lapisan lain dalam kumpulan"
+    "layerRadioGroup": "Kumpulan pilihan: menghidupkan lapisan ini mematikan lapisan lain dalam kumpulan",
+    "thumbnailColumns": "Lajur lakaran kecil"
   },
   "scaleBar": {
     "title": "Bar Skala",
@@ -601,6 +602,12 @@
     "joinHint": "Mati: hujung dinding ini tidak sekali-kali disambung serong, dicantum bentuk T atau dipangkas terhadap dinding lain; ia kekal berhujung rata di tempat dilukis.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Jadual kuantiti",
       "builtinText": "Teks",
       "rebarPosition": "Bar tetulang"
-    }
+    },
+    "configImportFailed": "Tidak dapat mengimport tetapan kuantiti. Pilih fail konfigurasi yang sah dan disokong.",
+    "configExportFailed": "Tidak dapat mengeksport tetapan kuantiti."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbol parametrik",

@@ -38,7 +38,8 @@ import { useTranslation } from '../i18n/useTranslation.js';
 import { isTauri } from '../core/platform.js';
 import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../core/sessie-herstel.js';
 import { lazy, createMemo, For, ErrorBoundary, Show, createEffect, onCleanup } from 'solid-js';
-import { state } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
+import { contentViewFilter } from '../pdf/content-view.js';
 import { pasUiSchaalToe, haalUiSchaalWeg } from '../core/ui-scale.js';
 
 function OrderedDockedPalettes(props) {
@@ -134,7 +135,7 @@ function DesktopApp() {
               `display: contents` en staat #pdf-container gewoon in .main-view. */}
           <div id="split-host" class="split-host">
             <div id="pdf-container">
-              <div id="canvas-wrapper">
+              <div id="canvas-wrapper" style={{ '--pdf-content-filter': contentViewFilter(getActiveDocument()?.pdfContentView) }}>
                 <div id="canvas-container" class="single-page-container">
                   <canvas id="pdf-canvas"></canvas>
                   <canvas id="text-highlight-canvas"></canvas>

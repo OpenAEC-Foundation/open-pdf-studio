@@ -1,0 +1,28 @@
+name: Callout leader culling
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/annotations/spatial-index.js'
+      - 'open-pdf-studio/js/annotations/rendering.js'
+      - 'open-pdf-studio/js/annotations/annotatie-omhullende.test.mjs'
+      - 'open-pdf-studio/scripts/callout-culling-e2e.mjs'
+      - '.github/workflows/callout-culling.yml'
+permissions:
+  contents: read
+jobs:
+  callout-culling:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: open-pdf-studio/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node --test js/annotations/annotatie-omhullende.test.mjs
+      - run: node scripts/callout-culling-e2e.mjs

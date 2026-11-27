@@ -40,6 +40,7 @@ import BetonbalkSection from './BetonbalkSection.jsx';
 import SysteemrasterSection from './SysteemrasterSection.jsx';
 import { SectieContext, sectieVolgorde, zetStandaardSectieVolgorde } from '../../stores/sectieVolgordeStore.js';
 import DynamicStampSection from './DynamicStampSection.jsx';
+import { startPaneelSlepen, herstelStandaardBreedte } from '../../../ui/panels/paneel-breedte.js';
 
 // "Meet op tekening" for an EXISTING scale region: temporary 2-click
 // distance pick → small "real length" dialog → the region's scale is
@@ -316,6 +317,11 @@ export default function PropertiesPanel() {
           </div>
         </Show>
         <Show when={!panelCollapsed()}>
+          {/* Greep op de linkerrand: breder of smaller slepen, dubbelklik =
+              standaardbreedte (ui/panels/paneel-breedte.js). */}
+          <div class="panel-resize-handle properties-resize-handle"
+            onMouseDown={(e) => startPaneelSlepen(e, { sleutel: 'propertiesPanelWidth', kant: 'links', paneel: e.currentTarget.parentElement })}
+            onDblClick={() => herstelStandaardBreedte('propertiesPanelWidth')} />
           {/* data-getal-sleep: op de getalvelden en hun labels kan gesleept
               worden om de waarde te veranderen (#1168, ui/getal-slepen.js). */}
           <div class="properties-panel visible" id="properties-panel" data-getal-sleep>

@@ -141,8 +141,12 @@ function extractSnapPoints(ann, points, prefs, annotations) {
         try {
           const shape = _computeWallShapeForSnap(ann, annotations);
           if (shape) {
-            for (const c of shape.poly) {
-              points.push({ x: c.x, y: c.y, type: 'endpoint', annotation: ann });
+            // With hosted openings (#1229) the jamb corners of each solid
+            // piece are snap targets too; without, this is the band itself.
+            for (const piece of (shape.stukken || [shape.poly])) {
+              for (const c of piece) {
+                points.push({ x: c.x, y: c.y, type: 'endpoint', annotation: ann });
+              }
             }
           }
         } catch (_) { /* snap candidates are best-effort */ }

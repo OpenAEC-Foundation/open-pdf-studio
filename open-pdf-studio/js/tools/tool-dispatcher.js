@@ -61,6 +61,7 @@ import {
   isStramien, startMeeslepen, sleepMee, meesleepWijzigingen, herstelMeeslepen,
 } from '../annotations/stramien-koppeling.js';
 import { magMeeVeranderen } from '../annotations/stramien-slot.js';
+import { hostingTijdensSleep } from '../plattegrond/hosting-haak.js';
 
 // ── Gekoppelde stramienuiteinden meeslepen ─────────────────────────────────
 // Sleep je de maatgreep aan het uiteinde van een stramienlijn waarvan dat
@@ -202,6 +203,9 @@ function redraw() {
   // lopen; beide eindigen met een volledige hertekening.
   const interactief = state.isDragging || state.isResizing
     || state.isRubberBanding || state.isDrawing;
+  // Gehoste deuren en ramen (#1229) lopen tijdens het slepen meteen mee: een
+  // kozijn blijft op zijn wand, de kozijnen van een wand volgen haar.
+  if (state.isDragging || state.isResizing) hostingTijdensSleep(getActiveDocument());
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous(interactief);
   else redrawAnnotations(interactief);
 }

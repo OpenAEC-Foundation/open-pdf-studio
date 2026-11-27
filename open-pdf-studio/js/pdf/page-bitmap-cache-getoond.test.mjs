@@ -120,3 +120,22 @@ test('afmelden: daarna telt de bron niet meer mee', () => {
   pbc.invalidateDocumentBitmaps('x.pdf');
   assert.equal(b.gesloten, true);
 });
+
+test('fallback finds the closest cached exact scale for the requested page and line mode', () => {
+  schoon();
+  zet('zoom.pdf', 1, 0.5);
+  const sharp = zet('zoom.pdf', 1, 1.5);
+  zet('zoom.pdf', 2, 2);
+  pbc.setCachedBitmapEntry('zoom.pdf', 1, 0, 2, bitmap('thin'), 100, 100, 2, true);
+  assert.equal(pbc.getBestAvailableBitmap('zoom.pdf', 1, 0, 2, false)?.bitmap, sharp);
+});
+
+test('a recently reused bitmap survives cache pressure', () => {
+  schoon();
+  const recent = zet('zoom.pdf', 1);
+  for (let page = 2; page <= 12; page++) zet('zoom.pdf', page);
+  assert.equal(pbc.getBestAvailableBitmap('zoom.pdf', 1, 0, 1)?.bitmap, recent);
+  zet('zoom.pdf', 13);
+  assert.equal(recent.gesloten, false);
+  assert.equal(pbc.getCachedBitmap('zoom.pdf', 2, 0, 1), null);
+});

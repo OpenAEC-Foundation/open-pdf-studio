@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'open-pdf-studio/js/solid/components/Dialog.jsx'
+      - 'open-pdf-studio/js/solid/data/nen1414*'
+      - 'open-pdf-studio/js/solid/data/nenIfcMap.js'
+      - 'open-pdf-studio/js/i18n/locales/*/ribbon.json'
+      - 'open-pdf-studio/scripts/nen1414-labels-e2e.mjs'
       - 'open-pdf-studio/js/solid/components/dialogs/**'
       - 'open-pdf-studio/js/solid/stores/dialogStore.js'
       - 'open-pdf-studio/styles/dialogs.css'
@@ -24,3 +28,4 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: node scripts/test-stamp-dialog-stack.mjs
+      - run: node scripts/nen1414-labels-e2e.mjs

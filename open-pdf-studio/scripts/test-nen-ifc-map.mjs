@@ -9,32 +9,16 @@
 //  4. De classificatie-keten (ifcCategoryForSymbol/ifcCategoryForAnnotation)
 //     gebruikt de expliciete mapping, en een report-telling per klasse klopt.
 //
-// nen1414Library.js gebruikt import.meta.glob (Vite) en window, dus die wordt
-// hier TEKSTUEEL geparsed in plaats van geïmporteerd.
-
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
-
+import { NAMES as LIB_NAMES } from '../js/solid/data/nen1414-metadata.js';
 import {
   NEN_IFC_MAP, NEN_IFC_ALLOWED_CLASSES, NEN_IFC_PREDEFINED_ENUMS,
   nenIfcForSymbolId, nenIfcForStamp,
 } from '../js/solid/data/nenIfcMap.js';
 import { ifcCategoryForSymbol, ifcCategoryForAnnotation } from '../js/solid/data/ifcCategoryMap.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const libSrc = readFileSync(path.join(__dirname, '../js/solid/data/nen1414Library.js'), 'utf8');
-
-// Extraheer het NAMES-object uit de bibliotheek: regels als 'Tb1.003': 'Rookmelder',
-const LIB_NAMES = {};
-const namesBlock = libSrc.slice(libSrc.indexOf('const NAMES = {'), libSrc.indexOf('};', libSrc.indexOf('const NAMES = {')));
-for (const m of namesBlock.matchAll(/'([^']+)':\s*'([^']*)'/g)) {
-  LIB_NAMES[m[1]] = m[2];
-}
-
-test('bibliotheek geparsed: ~100 NEN-symbolen gevonden', () => {
+test('bibliotheek: ~100 NEN-symbolen gevonden', () => {
   const n = Object.keys(LIB_NAMES).length;
   assert.ok(n >= 95 && n <= 120, `onverwacht aantal bibliotheek-symbolen: ${n}`);
 });
@@ -78,25 +62,24 @@ test('lookup: met en zonder nen1414-prefix, en via naam', () => {
   assert.equal(nenIfcForSymbolId('nen1414-bestaatniet'), null);
   // Naam-fallback (ouder document: alleen OPS_StampName aanwezig)
   assert.equal(nenIfcForStamp(null, 'Rookmelder').ifcPredefinedType, 'SMOKESENSOR');
-  assert.equal(nenIfcForStamp(null, 'Brandkraan (ondergronds)').ifcCategory, 'IfcFireSuppressionTerminal');
+  assert.equal(nenIfcForStamp(null, 'Brandkraan (ondergronds)').ifcCategory, 'IfcAnnotation');
   assert.equal(nenIfcForStamp(null, 'Draft'), null);
 });
 
 test('ifcCategoryForSymbol gebruikt de expliciete NEN-mapping', () => {
-  // Zonder expliciete mapping zou 'UPS' via trefwoorden nooit op
-  // IfcElectricFlowStorageDevice uitkomen.
-  assert.equal(ifcCategoryForSymbol({ id: 'nen1414-Tn12', name: 'UPS' }), 'IfcElectricFlowStorageDevice');
+  // Een historische, onjuiste naam mag de expliciete pictogram-id niet overrulen.
+  assert.equal(ifcCategoryForSymbol({ id: 'nen1414-Tn12', name: 'UPS' }), 'IfcAnnotation');
   assert.equal(ifcCategoryForSymbol({ id: 'nen1414-Tb2.041', name: 'Brandklep' }), 'IfcDamper');
-  assert.equal(ifcCategoryForSymbol({ id: 'nen1414-Tw10', name: 'Brandkraan (ondergronds)' }), 'IfcFireSuppressionTerminal');
+  assert.equal(ifcCategoryForSymbol({ id: 'nen1414-Tw10', name: 'Brandkraan (ondergronds)' }), 'IfcAnnotation');
 });
 
 test('ifcCategoryForAnnotation herclassificeert oudere NEN-stempels', () => {
   // Expliciet veld wint.
   assert.equal(ifcCategoryForAnnotation({ type: 'stamp', ifcCategory: 'IfcDoor' }), 'IfcDoor');
   // Geen veld, wel symbolId.
-  assert.equal(ifcCategoryForAnnotation({ type: 'stamp', symbolId: 'nen1414-Tr502' }), 'IfcFan');
+  assert.equal(ifcCategoryForAnnotation({ type: 'stamp', symbolId: 'nen1414-Tr502' }), 'IfcAnnotation');
   // Alleen stempelnaam (oudste bestanden).
-  assert.equal(ifcCategoryForAnnotation({ type: 'stamp', stampName: 'Vluchtwegaanduiding' }), 'IfcLightFixture');
+  assert.equal(ifcCategoryForAnnotation({ type: 'stamp', stampName: 'Vluchtwegaanduiding' }), 'IfcAnnotation');
   // Gewone tekststempel blijft annotatie.
   assert.equal(ifcCategoryForAnnotation({ type: 'stamp', stampName: 'Draft' }), 'IfcAnnotation');
 });
@@ -119,4 +102,16 @@ test('report-telling per IFC-klasse klopt met de mapping', () => {
   assert.deepEqual(counts, expected);
   const total = Object.values(counts).reduce((a, b) => a + b, 0);
   assert.equal(total, Object.keys(NEN_IFC_MAP).length);
+});
+
+test('safety pictures do not create physical MEP objects; new and legacy names resolve identically', () => {
+  for (const [id, entry] of Object.entries(NEN_IFC_MAP)) {
+    if (!/^(Tr|Tv|Tn|Tw)/.test(id)) continue;
+    assert.equal(entry.ifcCategory, 'IfcAnnotation', id);
+    assert.equal(entry.ifcPredefinedType, undefined, id);
+    assert.equal(nenIfcForStamp(null, entry.name), entry, id);
+  }
+  assert.equal(nenIfcForStamp(null, 'RWA-installatie'), nenIfcForSymbolId('Tr01'));
+  assert.equal(nenIfcForStamp(null, 'Ventilatiesysteem'), nenIfcForSymbolId('Tv017'));
+  assert.equal(nenIfcForStamp(null, 'Sprinklerkop (hangend)'), nenIfcForSymbolId('Tw02'));
 });

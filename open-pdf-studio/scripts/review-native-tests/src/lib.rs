@@ -15,3 +15,8 @@ mod bestand_openen;
 
 #[cfg(all(test, windows))]
 mod sharing;
+
+// Session clipboard transport compiles without a desktop UI or PDF engine.
+#[allow(dead_code)]
+#[path = "../../../src-tauri/src/annotation_clipboard.rs"]
+mod annotation_clipboard;

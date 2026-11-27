@@ -9,6 +9,7 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { copyAndMove } from './edit-ops.js';
 import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../ui/chrome/dialogs.js';
 import { copyAnnotation, copyAnnotations, pasteAnnotation, pasteAnnotations } from '../annotations/clipboard.js';
+import { refreshAnnotationClipboard } from '../annotations/window-clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
 import { cloneAnnotation } from '../annotations/factory.js';
@@ -19,7 +20,7 @@ import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
 import { weergaveVectorNaarPagina } from '../pdf/weergave-ruimte.js';
 import { activeTab } from '../solid/stores/leftPanelStore.js';
 import { startNewCount } from '../solid/stores/countStore.js';
-import { savePDF, savePDFAs } from '../pdf/saver.js';
+import { savePDF, savePDFAs } from '../pdf/save-commands.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
 import { toggleLeftPanel } from '../ui/panels/left-panel.js';
 import { switchRibbonTab as switchToTab, copyStyleFromSelection, pasteStyleToSelection } from '../bridge.js';
@@ -37,6 +38,7 @@ import { toggleFullscreen, exitFullscreen, getFullscreenState } from '../ui/chro
 import { typeLengthActive, consumeKey as typeLengthConsumeKey, typeLengthCursor } from './type-length-input.js';
 import { startGripLengteInvoer, stopGripLengteInvoer, herstelStramienMeeslepen } from './tool-dispatcher.js';
 import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewerking.js';
+import { hostingTijdensSleep } from '../plattegrond/hosting-haak.js';
 import { gevelPreset } from '../gevelelement/herkenning.js';
 import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../annotations/corrections/model.js';
 import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
@@ -948,6 +950,13 @@ async function voerStandaardToetsUit(e) {
       if (afterMark > beforeMark) return; // native paste already handled
       if (!getActiveDocument()?.pdfDoc) return;
       if (isPdfAReadOnly()) return;
+      const pasteDoc=getActiveDocument();
+      await refreshAnnotationClipboard();
+      if (getActiveDocument()!==pasteDoc || isPdfAReadOnly()) return;
+      if (state._internalCopyAt && !(state._appBlurAt > state._internalCopyAt)) {
+        if (state.clipboardAnnotations?.length>1) { pasteAnnotations({_synced:true}); return; }
+        if (state.clipboardAnnotation) { pasteAnnotation({_synced:true}); return; }
+      }
       // Try async Clipboard API for image data
       let handledImage = false;
       try {
@@ -1037,6 +1046,8 @@ async function voerStandaardToetsUit(e) {
       }
       // Meegeschoven stramienuiteinden gaan ook terug.
       herstelStramienMeeslepen();
+      // Meegelopen kozijnen van een wand ook (#1229).
+      hostingTijdensSleep(_doc);
       state.isResizing = false;
       state.isDragging = false;
       state.activeHandle = null;
@@ -1264,7 +1275,7 @@ async function voerStandaardToetsUit(e) {
 }
 
 // Handle native paste event — works reliably on all platforms including Linux/WebKitGTK
-function handlePaste(e) {
+async function handlePaste(e) {
   if (!getActiveDocument()?.pdfDoc) return;
   if (isPdfAReadOnly()) return;
   const isInInput = isTextEntryTarget(e.target);
@@ -1275,6 +1286,16 @@ function handlePaste(e) {
 
   // Must preventDefault synchronously before any async work
   e.preventDefault();
+
+  const pasteDoc=getActiveDocument(), pending=refreshAnnotationClipboard();
+  if (pending) {
+    await pending;
+    if (getActiveDocument()!==pasteDoc || isPdfAReadOnly()) return;
+    if (state._internalCopyAt && !(state._appBlurAt > state._internalCopyAt)) {
+      if (state.clipboardAnnotations?.length>1) { pasteAnnotations({_synced:true}); return; }
+      if (state.clipboardAnnotation) { pasteAnnotation({_synced:true}); return; }
+    }
+  }
 
   // Check for image data in the native clipboard event
   const items = e.clipboardData?.items;

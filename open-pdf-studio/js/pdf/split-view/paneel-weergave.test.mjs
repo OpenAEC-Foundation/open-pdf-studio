@@ -59,6 +59,7 @@ test('de annotatietekenaar leest schermschaal en rotatie via paneel-weergave.js'
   const start = rendering.indexOf('function tekenPaginaLagen(');
   assert.match(rendering.slice(start, start + 600), /const scale = doc \? schermSchaal\(doc\) : 1;/);
   assert.doesNotMatch(rendering, /doc\?\.viewRotation/);
-  assert.match(lees('../../annotations/rendering/hatch-patterns.js'), /schermSchaal\(doc\)/);
+  // Hatch widths no longer depend on zoom or PDF Thin Lines (#1299).
+  // Their behavior is covered in rendering/pdf-only-thin-lines.test.mjs.
   assert.match(lees('../../annotations/rendering/selection.js'), /schermSchaal\(doc\)/);
 });

@@ -50,6 +50,9 @@ function _basisPlaceholder() {
     case 'enlarge': return 'type factor e.g. 1.5 + Enter';
     case 'stretch': return 'type dx,dy e.g. 50,0 + Enter';
     case 'offset':  return 'type distance + Enter';
+    case 'wallDoor':
+    case 'wallWindow':
+      return 'type width + Enter';
     case 'line':
     case 'arrow':
     case 'polyline':

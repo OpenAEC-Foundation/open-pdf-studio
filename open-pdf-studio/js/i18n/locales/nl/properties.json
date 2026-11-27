@@ -431,7 +431,8 @@
     "layersSetDefaultTitle": "De huidige zichtbaarheid van de lagen bewaren als standaardstand van het document. Die wordt bij de volgende keer opslaan in het bestand geschreven.",
     "layersDefaultPending": "Wordt bij opslaan de standaard",
     "layerLocked": "Vergrendelde laag: kan niet aan of uit worden gezet",
-    "layerRadioGroup": "Keuzegroep: deze laag aanzetten zet de andere lagen van de groep uit"
+    "layerRadioGroup": "Keuzegroep: deze laag aanzetten zet de andere lagen van de groep uit",
+    "thumbnailColumns": "Miniatuurkolommen"
   },
   "scaleBar": {
     "title": "Schaalbalk",
@@ -608,6 +609,12 @@
     "joinHint": "Uit: dit uiteinde van de wand wordt nooit verstekt, als T aangesloten of afgekapt tegen een andere wand; het houdt een stompe kap waar het getekend is.",
     "title": "Wand",
     "thickness": "Dikte (mm)",
+    "thicknessPreset": "Standaarddikte",
+    "thicknessCustom": "Eigen maat",
+    "kinds": {
+      "partition": "scheidingswand",
+      "cmu": "betonblok (CMU)"
+    },
     "material": "Materiaal",
     "insulationMaterial": "Isolatiemateriaal",
     "materials": {
@@ -863,7 +870,9 @@
       "scheduleTable": "Hoeveelheden-tabel",
       "builtinText": "Tekst",
       "rebarPosition": "Wapeningsstaaf"
-    }
+    },
+    "configImportFailed": "De hoeveelhedeninstellingen konden niet worden geïmporteerd. Kies een geldig ondersteund configuratiebestand.",
+    "configExportFailed": "De hoeveelhedeninstellingen konden niet worden geëxporteerd."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisch symbool",

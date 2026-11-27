@@ -125,8 +125,9 @@ export function ruimUitgesteldOp() {
 // resolution.
 //
 // For WHOLE-PAGE bitmaps the caller caps targetScale at MAX_BITMAP_AXIS_PX
-// / maxAxisPt before invoking (see bitmap-orchestrator.js:51), so this can
-// never produce a bucket large enough to blow the 4096 px PDFium cap.
+// / maxAxisPt before invoking. Rounding up can still land above that cap
+// (cap 1.22 -> bucket 2); bitmap-orchestrator.js then renders at the capped
+// scale itself instead of using the bucket.
 //
 // For TILE bitmaps the caller passes viewport.zoom * dpr unbounded. Here
 // the bucket can grow with zoom — but the tile bitmap pixel size is bounded
@@ -161,8 +162,12 @@ export function computeZoomBucket(targetScale) {
 }
 
 export function getCachedBitmap(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn()) {
-  const entry = _cache.get(_key(filePath, pageNum, rotation, zoomBucket, thin));
-  return entry || null;
+  const key = _key(filePath, pageNum, rotation, zoomBucket, thin);
+  const entry = _cache.get(key);
+  if (!entry) return null;
+  _cache.delete(key);
+  _cache.set(key, entry);
+  return entry;
 }
 
 /**
@@ -178,8 +183,10 @@ export function setCachedBitmapEntry(filePath, pageNum, rotation, zoomBucket, bi
   if (prev && prev.bitmap && prev.bitmap !== bitmap) {
     _sluit(prev.bitmap, _getoond());
   }
-  _cache.set(key, { bitmap, w, h, scale });
+  const entry = { bitmap, w, h, scale, filePath, pageNum, rotation: (rotation || 0) % 360, bucket: zoomBucket, thin };
+  _cache.set(key, entry);
   _evictIfNeeded(key);
+  return entry;
 }
 
 // Find the best available cached bitmap for a target bucket: prefer exact
@@ -189,20 +196,18 @@ export function setCachedBitmapEntry(filePath, pageNum, rotation, zoomBucket, bi
 export function getBestAvailableBitmap(filePath, pageNum, rotation, targetBucket, thin = thinLinesOn()) {
   const exact = getCachedBitmap(filePath, pageNum, rotation, targetBucket, thin);
   if (exact) return exact;
-  // Search by proximity (in log space) to targetBucket. Includes the higher
-  // buckets that computeZoomBucket can now produce so a tile prefetched at
-  // scale=1.0 (bucket=1) is still findable as a fallback at zoom 16x or
-  // higher (bucket=16 or 32).
-  const buckets = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16, 32, 64, 128];
-  const sorted = buckets.slice().sort((a, b) =>
-    Math.abs(Math.log2(a) - Math.log2(targetBucket)) -
-    Math.abs(Math.log2(b) - Math.log2(targetBucket))
-  );
-  for (const b of sorted) {
-    const e = getCachedBitmap(filePath, pageNum, rotation, b, thin);
-    if (e) return e;
+  let best = null;
+  let distance = Infinity;
+  for (const entry of _cache.values()) {
+    if (entry.filePath !== filePath || entry.pageNum !== pageNum ||
+        entry.rotation !== ((rotation || 0) % 360) || entry.thin !== thin) continue;
+    const next = Math.abs(Math.log2(entry.scale / targetBucket));
+    if (!best || next < distance || (next === distance && entry.scale < best.scale)) {
+      best = entry;
+      distance = next;
+    }
   }
-  return null;
+  return best && getCachedBitmap(filePath, pageNum, rotation, best.bucket, thin);
 }
 
 // Verdring de oudste entries (Map houdt de invoegvolgorde) tot er weer
@@ -265,7 +270,8 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
   // the user switches Thin Lines while this render is in flight.
   const thin = thinLinesOn();
   const key = _key(filePath, pageNum, rotation, cacheBucket, thin);
-  if (_cache.has(key)) return Promise.resolve(_cache.get(key));
+  const cached = getCachedBitmap(filePath, pageNum, rotation, cacheBucket, thin);
+  if (cached) return Promise.resolve(cached);
   if (_pending.has(key)) return _pending.get(key);
   if (!isTauri() || !filePath) return Promise.resolve(null);
 
@@ -312,10 +318,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
       import('../solid/stores/engineStatusStore.js')
         .then((m) => m.reportActiveEngine('pdfium', filePath, pageNum))
         .catch(() => {});
-      const entry = { bitmap, w, h, scale: renderScale };
-      _cache.set(key, entry);
-      _evictIfNeeded(key);
-      return entry;
+      return setCachedBitmapEntry(filePath, pageNum, rotation, cacheBucket, bitmap, w, h, renderScale, thin);
     } catch (e) {
       // A render dropped because its document closed or is no longer shown
       // (#506) is not a failure; nothing is cached for it.

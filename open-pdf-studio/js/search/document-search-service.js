@@ -105,6 +105,8 @@ async function openSearchDocument(match) {
     const { loadPDFIfNeeded } = await import('../pdf/loader.js');
     const created = createTab(match.path);
     index = created.index;
+    // The search hit decides where the document opens, not its last view (#1245).
+    (await import('../core/last-view.js')).markExplicitTarget(state.documents[index]);
     await loadPDFIfNeeded(match.path, index);
   }
   const doc = state.documents[index];

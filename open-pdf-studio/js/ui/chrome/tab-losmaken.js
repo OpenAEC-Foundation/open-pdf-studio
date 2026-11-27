@@ -4,13 +4,8 @@
 // wordt, opent in een TWEEDE app-instantie: een eigen proces met een eigen
 // venster. De oorspronkelijke instantie sluit dat tabblad en houdt de rest.
 //
-// De sleepbeweging zelf blijft in de WebView: tijdens een ingedrukte knop
-// levert die muisgebeurtenissen ook buiten het venster. Een native OS-sleep
-// (DoDragDrop) start alleen nog als de cursor boven een ANDERE instantie van
-// de app hangt, om het tabblad daar terug te zetten. Daarbuiten nooit: die
-// modale OS-lus nam het hele proces mee als hij niet netjes afliep, en meldt
-// op Windows ook "Dropped" als het venster onder de cursor niets aannam —
-// het tabblad sloot dan zonder ergens anders te openen.
+// Het bronvenster volgt de muis tot loslaten; een ander venster bevestigt
+// via het tabkanaal dat het document is geopend.
 
 import { bronPad } from '../../pdf/wachtwoord-pdf.js';
 
@@ -32,37 +27,21 @@ export function buitenVenster(clientX, clientY, breedte, hoogte) {
   return clientX < 0 || clientY < 0 || clientX >= breedte || clientY >= hoogte;
 }
 
+/** Ook bij twee vensters naast elkaar kan de cursor op tabbalkhoogte blijven. */
+export function losmaakPositie(x, y, breedte, hoogte, balk, meerWeergaven) {
+  const buiten = buitenVenster(x, y, breedte, hoogte);
+  return { buiten, losGewapend: !meerWeergaven && (buiten || buitenTabbalk(y, balk)) };
+}
+
 /**
  * Wat er gebeurt als de muisknop loskomt zonder dat een OS-sleep liep.
  * @returns {'herschikken'|'losmaken'|'houden'}
  */
-export function besluitBijLoslaten({ losGewapend, aantalTabs }) {
+export function besluitBijLoslaten({ losGewapend, aantalTabs, buiten = false }) {
   if (!losGewapend) return 'herschikken';
   // Het enige tabblad naar een nieuwe instantie verhuizen laat hier een leeg
   // venster achter; dan gebeurt er niets.
-  if (!(aantalTabs > 1)) return 'houden';
-  return 'losmaken';
-}
-
-/**
- * Moet de native OS-sleep nu starten? Alleen boven een andere instantie van
- * dezelfde app, zodat die het tabblad kan overnemen.
- */
-export function moetOsSleepStarten({ losGewapend, buitenVenster: buiten, doelSoort }) {
-  return !!losGewapend && !!buiten && doelSoort === 'instantie';
-}
-
-/**
- * Wat er na afloop van de OS-sleep gebeurt. `doelSoort` is wat er NA het
- * loslaten onder de cursor ligt ('instantie' | 'zelf' | 'geen').
- * @returns {'sluiten'|'losmaken'|'houden'}
- */
-export function besluitNaOsSleep({ resultaat, doelSoort, zelfDrop }) {
-  if (zelfDrop) return 'houden';
-  // Escape of afgebroken: niets veranderen.
-  if (resultaat !== 'Dropped') return 'houden';
-  if (doelSoort === 'instantie') return 'sluiten';
-  if (doelSoort === 'zelf') return 'houden';
+  if (aantalTabs < 1 || (aantalTabs === 1 && !buiten)) return 'houden';
   return 'losmaken';
 }
 

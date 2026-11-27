@@ -54,10 +54,14 @@ export const DEFAULT_PREFERENCES: Preferences = {
   theme: 'default',
   uiScale: 100,
 
-  // Enkelpagina is de standaard-weergavemodus; opgeslagen 'continuous'
-  // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
-  // het laden teruggezet (zie preferences.js).
+  // Pagina-indeling waarmee een document opent (#1289): 'single',
+  // 'continuous', 'facing' of 'book' (js/core/standaard-weergave.js).
+  // Enkelpagina is de standaard. Het vlaggetje viewModeDefaultSingle hoort
+  // bij de eenmalige overgang: een opgeslagen 'continuous' van voor de
+  // instelling (de kortstondige oude standaard) gaat een keer terug.
   defaultViewMode: 'single',
+  viewModeDefaultSingle: true,
+  initialZoom: 'page',
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
@@ -134,6 +138,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Off by default. Toggled by a checkbox on the line tool. Reuses the same
   // chain mechanism as the wall tool.
   lineContinue: false,
+
+  // Wall tool location line (#1230): which line the clicks follow, seen along
+  // the drawing direction. 'center' (the centerline, as the tool always drew),
+  // 'left' (the clicks are the left face, the body lies to the right) or
+  // 'right'. The stored wall is always its centerline.
+  wallLocationLine: 'center',
 
   // Ribbon collapsed state: when true the ribbon body is hidden and only the
   // tab strip is shown (toggled by the chevron at the end of the tab strip).
@@ -249,6 +259,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   cloudPolylineStrokeColor: '#FF0000',
   cloudPolylineLineWidth: 2,
   cloudPolylineOpacity: 100,
+  cloudAttachNote: false,
 
   // Comment/Note defaults
   commentColor: '#FFFF00',
@@ -363,6 +374,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Startup
   startupTool: 'select',
   restoreLastSession: false,
+  // Reopen a document at the page, zoom and view mode it was closed with
+  // (#1245, core/last-view.js).
+  reopenAtLastView: true,
   dontAskDefaultPdf: false,
 
   // Screenshot annotate: intercept the system PrtScn key as a global hotkey
@@ -435,6 +449,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   leftPanelTab: 'thumbnails',
   leftPanelWidth: null,
   propertiesPanelCollapsed: false,
+  // Versleepte breedte van het eigenschappenpaneel en het symbolenpalet;
+  // null = de breedte uit het stijlblad (ui/panels/paneel-breedte.js).
+  propertiesPanelWidth: null,
+  symbolPaletteWidth: null,
   // Werkruimten met een naam: [{ naam, layout }], en de laatst gekozen.
   workspaces: [],
   activeWorkspace: '',

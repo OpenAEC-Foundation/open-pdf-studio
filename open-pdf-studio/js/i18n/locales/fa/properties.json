@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "نمایان بودن فعلی لایه‌ها به‌عنوان وضعیت پیش‌فرض سند نگه داشته شود. در ذخیره بعدی در فایل نوشته می‌شود.",
     "layersDefaultPending": "هنگام ذخیره پیش‌فرض می‌شود",
     "layerLocked": "لایه قفل‌شده: نمی‌توان آن را روشن یا خاموش کرد",
-    "layerRadioGroup": "گروه انتخاب: روشن کردن این لایه، لایه‌های دیگر گروه را خاموش می‌کند"
+    "layerRadioGroup": "گروه انتخاب: روشن کردن این لایه، لایه‌های دیگر گروه را خاموش می‌کند",
+    "thumbnailColumns": "ستون‌های تصاویر بندانگشتی"
   },
   "scaleBar": {
     "title": "نوار مقیاس",
@@ -601,6 +602,12 @@
     "joinHint": "خاموش: این انتهای دیوار هرگز به‌صورت فارسی‌بُر، T شکل یا با تریم در برابر دیوار دیگر متصل نمی‌شود؛ در همان جایی که رسم شده با انتهای صاف باقی می‌ماند.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "جدول مقادیر",
       "builtinText": "متن",
       "rebarPosition": "میلگرد"
-    }
+    },
+    "configImportFailed": "تنظیمات مقادیر وارد نشد. یک فایل تنظیمات معتبر و پشتیبانی‌شده انتخاب کنید.",
+    "configExportFailed": "تنظیمات مقادیر صادر نشد."
   },
   "parametricSymbol": {
     "defaultTitle": "نماد پارامتریک",

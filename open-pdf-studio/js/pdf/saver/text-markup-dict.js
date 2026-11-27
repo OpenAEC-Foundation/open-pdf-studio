@@ -31,6 +31,7 @@
 // is de omhullende en de /AP vult precies die quads.
 
 import { PDFArray, PDFDict, PDFName, PDFNumber, PDFString } from 'pdf-lib';
+import { blendPdfNaam, effectiveBlendMode } from '../../annotations/blend-modes.js';
 import { hexToColorArray } from '../../utils/colors.js';
 import { normTextDir } from '../../annotations/corrections/geometry.js';
 import { pdfTextString } from './pdf-text.js';
@@ -126,7 +127,8 @@ export function buildTextMarkupDict(context, ann, map, { opacity, pageRot = 0, r
 
   const rgb = rgbOverride || hexToColorArray(ann.fillColor || ann.color);
   const lw = ann.lineWidth > 0 ? ann.lineWidth : 1;
-  const { rect, apRef } = buildMarkupAppearance(context, quads, markupSubtype, rgb, lw);
+  const highlightBlend = blendPdfNaam(effectiveBlendMode(ann)) || 'Normal';
+  const { rect, apRef } = buildMarkupAppearance(context, quads, markupSubtype, rgb, lw, highlightBlend);
 
   const dict = context.obj({
     Type: 'Annot',

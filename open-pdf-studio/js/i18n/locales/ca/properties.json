@@ -454,7 +454,8 @@
     "layersSetDefaultTitle": "Desa la visibilitat actual de les capes com a estat predeterminat del document. S'escriu al fitxer la propera vegada que deseu.",
     "layersDefaultPending": "Serà el predeterminat en desar",
     "layerLocked": "Capa bloquejada: no es pot activar ni desactivar",
-    "layerRadioGroup": "Grup d'opcions: activar aquesta capa desactiva les altres capes del grup"
+    "layerRadioGroup": "Grup d'opcions: activar aquesta capa desactiva les altres capes del grup",
+    "thumbnailColumns": "Columnes de miniatures"
   },
   "scaleBar": {
     "title": "Barra d'escala",
@@ -607,6 +608,12 @@
     "joinHint": "Desactivat: aquest extrem del mur mai no es talla a biaix, no s'uneix en T ni es retalla contra un altre mur; manté un extrem recte on s'ha dibuixat.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -862,7 +869,9 @@
       "scheduleTable": "Taula de quantitats",
       "builtinText": "Text",
       "rebarPosition": "Barra d'armadura"
-    }
+    },
+    "configImportFailed": "No s’ha pogut importar la configuració de quantitats. Trieu un fitxer de configuració vàlid i compatible.",
+    "configExportFailed": "No s’ha pogut exportar la configuració de quantitats."
   },
   "parametricSymbol": {
     "defaultTitle": "Símbol paramètric",

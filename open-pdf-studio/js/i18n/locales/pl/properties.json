@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Zapisz bieżącą widoczność warstw jako domyślny stan dokumentu. Zostanie zapisana w pliku przy następnym zapisie.",
     "layersDefaultPending": "Stanie się domyślne po zapisaniu",
     "layerLocked": "Warstwa zablokowana: nie można jej włączyć ani wyłączyć",
-    "layerRadioGroup": "Grupa wyboru: włączenie tej warstwy wyłącza pozostałe warstwy grupy"
+    "layerRadioGroup": "Grupa wyboru: włączenie tej warstwy wyłącza pozostałe warstwy grupy",
+    "thumbnailColumns": "Kolumny miniatur"
   },
   "scaleBar": {
     "title": "Podziałka liniowa",
@@ -601,6 +602,12 @@
     "joinHint": "Wyłączone: ten koniec ściany nigdy nie jest łączony na ukos, łączony w T ani przycinany do innej ściany; zachowuje prosty koniec tam, gdzie został narysowany.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Tabela ilości",
       "builtinText": "Tekst",
       "rebarPosition": "Pręt zbrojeniowy"
-    }
+    },
+    "configImportFailed": "Nie można zaimportować ustawień ilości. Wybierz prawidłowy, obsługiwany plik konfiguracji.",
+    "configExportFailed": "Nie można wyeksportować ustawień ilości."
   },
   "parametricSymbol": {
     "defaultTitle": "Symbol parametryczny",
