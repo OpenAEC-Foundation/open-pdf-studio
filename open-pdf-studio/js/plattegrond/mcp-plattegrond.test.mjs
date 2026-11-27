@@ -219,12 +219,149 @@ test('opening: de velden mogen ook in een opening-object staan, met de kozijnarg
   assert.equal(r.openSide, 'right');
 });
 
+// ── openingen op een blad in voet of inch (#1230) ────────────────────────
+
+/** Een blad waarop de schaal in voet staat (of alleen rechts van x = 2000). */
+function voetblad(imperiaalOp = () => true) {
+  return Object.assign(omgevingMet(), { imperiaalOp });
+}
+
+test('voetblad: een deur is zonder opgave 36 inch en krijgt het Amerikaanse plansymbool', async () => {
+  const o = voetblad();
+  const w = await plattegrondOpdracht({ action: 'wall', start: { x: 0, y: 100 }, end: { x: 4000, y: 100 } }, o);
+  const wand = o.doc.annotations.find((a) => a.id === w.wallIds[0]);
+  assert.deepEqual([wand.dikteMm, wand.hatchPattern], [152.4, 'none'], 'de wand van het voetblad: 6 inch, geen arcering');
+  const r = await plattegrondOpdracht({ action: 'opening', wallId: wand.id, kind: 'door', alongMm: 3000 }, o);
+  assert.equal(r.ok, true);
+  assert.deepEqual([r.widthMm, r.symbolStyle, r.hosted], [914.4, 'us', true]);
+  const deur = o.doc.annotations.find((a) => a.id === r.openingId);
+  assert.equal(deur.symbolId, 'door');
+  assert.equal(deur.params.symboolStijl, 'us', 'de stijl staat in het symbool');
+  assert.equal(deur.params.width, 914.4);
+  assert.equal(deur.params.deurbladDikteMm, 44.45, 'een blad van 1-3/4 inch');
+  // Het vak: de opening breed, de wand plus de draaicirkel hoog.
+  bijna(deur.width, 914.4 * K, 1e-9, 'breedte van het vak');
+  bijna(deur.height, (152.4 + 914.4) * K, 1e-9, 'hoogte van het vak');
+  // De wand host de opening met dezelfde breedte: het gat is 36 inch.
+  assert.deepEqual(wand.openingen.map((x) => [x.id, x.afstandMm, x.breedteMm, x.soort]), [[deur.id, 3000, 914.4, 'deur']]);
+});
+
+test('voetblad: een raam is zonder opgave 48 inch, met het Amerikaanse plansymbool', async () => {
+  const o = voetblad();
+  const w = await plattegrondOpdracht({ action: 'wall', start: { x: 0, y: 100 }, end: { x: 4000, y: 100 } }, o);
+  const r = await plattegrondOpdracht({ action: 'opening', point: { x: 2000, y: 100 }, kind: 'window' }, o);
+  assert.equal(r.ok, true);
+  assert.deepEqual([r.wallId, r.widthMm, r.symbolStyle, r.alongMm], [w.wallIds[0], 1219.2, 'us', 4000]);
+  const raam = o.doc.annotations.find((a) => a.id === r.openingId);
+  assert.equal(raam.params.symboolStijl, 'us');
+  bijna(raam.width, 1219.2 * K, 1e-9, 'het vak is de opening breed');
+  bijna(raam.height, 152.4 * K, 1e-9, 'en de wand diep');
+  const inspect = await plattegrondOpdracht({ action: 'inspect' }, o);
+  assert.deepEqual(inspect.openings.map((x) => [x.kind, x.widthMm, x.symbolStyle, x.hosted]), [['window', 1219.2, 'us', true]]);
+});
+
+test('voetblad: een opgegeven breedte of stijl wint van de standaard', async () => {
+  const o = voetblad();
+  const w = await plattegrondOpdracht({ action: 'wall', start: { x: 0, y: 100 }, end: { x: 4000, y: 100 } }, o);
+  const wallId = w.wallIds[0];
+  // Een deur van 32 inch.
+  const smal = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', widthMm: 812.8, alongMm: 1500 }, o);
+  assert.deepEqual([smal.widthMm, smal.symbolStyle], [812.8, 'us']);
+  // Het kozijn met stijlen, ook op een voetblad.
+  const nen = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', symbolStyle: 'nen', alongMm: 4000 }, o);
+  assert.deepEqual([nen.widthMm, nen.symbolStyle], [914.4, 'nen'], 'de breedte volgt het blad, de stijl de opgave');
+  const kozijn = o.doc.annotations.find((a) => a.id === nen.openingId);
+  assert.equal(kozijn.params.symboolStijl, undefined);
+  assert.equal(kozijn.params.deurbladDikteMm, 40);
+  // Een eigen bladdikte.
+  const dik = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', leafThicknessMm: 35, alongMm: 6500 }, o);
+  assert.equal(o.doc.annotations.find((a) => a.id === dik.openingId).params.deurbladDikteMm, 35);
+});
+
+test('metrisch blad: het Amerikaanse symbool alleen op verzoek', async () => {
+  const { o, wallId } = await metWand();
+  const us = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'window', symbolStyle: 'us', alongMm: 2000 }, o);
+  assert.deepEqual([us.widthMm, us.symbolStyle], [1200, 'us'], 'de breedte blijft de metrische standaard');
+  assert.equal(o.doc.annotations.find((a) => a.id === us.openingId).params.symboolStijl, 'us');
+  const onzin = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', symbolStyle: 'iets', alongMm: 5000 }, o);
+  assert.equal(onzin.symbolStyle, 'nen', 'een onbekende stijl telt niet');
+});
+
+test('de conventie wordt beslist waar de opening komt', async () => {
+  // Links van x = 2000 een metrisch schaalgebied, rechts een in voet.
+  const o = voetblad((_page, x) => x > 2000);
+  const w = await plattegrondOpdracht({ action: 'wall', start: { x: 0, y: 100 }, end: { x: 4000, y: 100 }, thicknessMm: 200 }, o);
+  const links = await plattegrondOpdracht({ action: 'opening', wallId: w.wallIds[0], kind: 'door', alongMm: 2000 }, o);     // x = 1000
+  const rechts = await plattegrondOpdracht({ action: 'opening', wallId: w.wallIds[0], kind: 'door', alongMm: 6000 }, o);    // x = 3000
+  assert.deepEqual([links.widthMm, links.symbolStyle], [900, 'nen']);
+  assert.deepEqual([rechts.widthMm, rechts.symbolStyle], [914.4, 'us']);
+  const metPunt = await plattegrondOpdracht({ action: 'opening', point: { x: 3600, y: 100 }, kind: 'window', widthMm: 600 }, o);
+  assert.equal(metPunt.symbolStyle, 'us', 'het aangewezen punt ligt in het voetgebied');
+});
+
+test('voetblad: action wall met openingen host ze met de Amerikaanse standaarden', async () => {
+  const o = voetblad();
+  const r = await plattegrondOpdracht({
+    action: 'wall', start: { x: 0, y: 100 }, end: { x: 5000, y: 100 },
+    openings: [{ kind: 'door', alongMm: 2000 }, { kind: 'window', alongMm: 6000 }, { kind: 'door', alongMm: 8500, widthMm: 762, symbolStyle: 'nen' }],
+  }, o);
+  assert.equal(r.ok, true);
+  assert.equal(r.hosted, true);
+  assert.deepEqual(r.openings.map((x) => [x.kind, x.widthMm, x.symbolStyle]),
+    [['door', 914.4, 'us'], ['window', 1219.2, 'us'], ['door', 762, undefined]]);
+  const wand = o.doc.annotations.find((a) => a.type === 'wall');
+  assert.deepEqual([wand.dikteMm, wand.hatchPattern], [152.4, 'none']);
+  assert.deepEqual(wand.openingen.map((x) => x.breedteMm), [914.4, 1219.2, 762]);
+  const stijlen = wand.openingen.map((x) => o.doc.annotations.find((a) => a.id === x.id).params.symboolStijl);
+  assert.deepEqual(stijlen, ['us', 'us', undefined]);
+  // Ook als de wand wordt opgeknipt (hosted:false) geldt de conventie van het blad.
+  const los = voetblad();
+  const s = await plattegrondOpdracht({
+    action: 'wall', hosted: false, start: { x: 0, y: 100 }, end: { x: 5000, y: 100 }, openings: [{ kind: 'door', alongMm: 2000 }],
+  }, los);
+  assert.deepEqual(s.openings.map((x) => [x.widthMm, x.symbolStyle]), [[914.4, 'us']]);
+  assert.equal(los.doc.annotations.filter((a) => a.type === 'wall').length, 2);
+});
+
+test('metrisch blad: openingen en kozijnen precies zoals voorheen (#1230, punt 8)', async () => {
+  // Zonder imperiaalOp (oudere aanroepers) en met een blad dat metrisch is.
+  for (const o of [omgevingMet(), voetblad(() => false)]) {
+    const w = await plattegrondOpdracht({ action: 'wall', start: { x: 0, y: 100 }, end: { x: 4000, y: 100 } }, o);
+    const wand = o.doc.annotations.find((a) => a.id === w.wallIds[0]);
+    assert.deepEqual([wand.dikteMm, wand.hatchPattern], [100, 'nen47-metselwerk-baksteen']);
+    const d = await plattegrondOpdracht({ action: 'opening', wallId: wand.id, kind: 'door', alongMm: 3000 }, o);
+    const r = await plattegrondOpdracht({ action: 'opening', wallId: wand.id, kind: 'window', alongMm: 6000 }, o);
+    assert.deepEqual([d.widthMm, d.symbolStyle, r.widthMm, r.symbolStyle], [900, 'nen', 1200, 'nen']);
+    const deur = o.doc.annotations.find((a) => a.id === d.openingId);
+    const raam = o.doc.annotations.find((a) => a.id === r.openingId);
+    // Het kozijn van vóór #1230, tot op de sleutel: geen stijl in het symbool.
+    const { hostWallId: _w1, hostKey: _k1, ...deurParams } = deur.params;
+    assert.deepEqual(deurParams, {
+      hostAfstandMm: 3000, width: 900, dagmaatMm: 900, borstweringMm: 0, hoogteMm: 2315, wallThickness: 100,
+      stijlBreedteMm: 67, stijlDiepteMm: 100, kozijnPositieMm: 0, aanslagMm: 0, binnenSpelingMm: 0, swing: 'left',
+      draaiNaar: 'binnen', angle: 90, showWall: false, deurbladDikteMm: 40,
+    });
+    assert.deepEqual([deur.x, deur.y, deur.width, deur.height, deur.rotation], [1275, -323, 450, 448, 0]);
+    const { hostWallId: _w2, hostKey: _k2, ...raamParams } = raam.params;
+    assert.deepEqual(raamParams, {
+      hostAfstandMm: 6000, width: 1200, dagmaatMm: 1200, borstweringMm: 0, hoogteMm: 1500, wallThickness: 100,
+      stijlBreedteMm: 67, stijlDiepteMm: 100, kozijnPositieMm: 0, aanslagMm: 0, binnenSpelingMm: 0, swing: 'left',
+      type: 'fixed', draairichtingTonen: false,
+    });
+    assert.deepEqual([raam.x, raam.y, raam.width, raam.height, raam.rotation], [2700, 75, 600, 50, 0]);
+    const inspect = await plattegrondOpdracht({ action: 'inspect' }, o);
+    assert.deepEqual(inspect.openings.map((x) => x.symbolStyle), [undefined, undefined]);
+  }
+});
+
 test('het MCP-schema van app_floorplan kent de actie opening en haar velden (Rust en tools.json)', () => {
   const lees = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
   const server = lees('../../src-tauri/src/mcp_server.rs');
   const floorplan = server.slice(server.indexOf('fn floorplan_tool()'), server.indexOf('fn system_type_definition_schema'));
   assert.match(floorplan, /"enum": \["inspect", "wall", "opening", "rooms", "dimensions"\]/);
-  const velden = { hosted: 'boolean', point: 'object', kind: 'string', widthMm: 'number', alongMm: 'number', opening: 'object' };
+  const velden = {
+    hosted: 'boolean', point: 'object', kind: 'string', widthMm: 'number', alongMm: 'number', opening: 'object', symbolStyle: 'string',
+  };
   for (const [veld, soort] of Object.entries(velden)) {
     assert.match(floorplan, new RegExp(`"${veld}":\\s*\\{ "type": "${soort}"`), `${veld} in mcp_server.rs`);
   }
@@ -238,6 +375,14 @@ test('het MCP-schema van app_floorplan kent de actie opening en haar velden (Rus
   // vergelijkt ze volledig; hier het begin van de nieuwe tekst).
   assert.match(t.description, /Five actions\./);
   assert.ok(floorplan.includes('Five actions.'));
+  // De standaarden van een blad in voet of inch (#1230) staan in de tekst.
+  assert.deepEqual(t.inputSchema.properties.symbolStyle.enum, ['us', 'nen']);
+  for (const tekst of [t.description, t.inputSchema.properties.thicknessMm.description, t.inputSchema.properties.widthMm.description]) {
+    assert.match(tekst, /feet or inches/);
+  }
+  assert.match(t.inputSchema.properties.thicknessMm.description, /152\.4 = 6 inch/);
+  assert.match(t.inputSchema.properties.widthMm.description, /914\.4 = 36 inch and 1219\.2 = 48 inch/);
+  assert.match(t.description, /areaSqFt/);
 });
 
 test('opening in een laag van een gelaagde muur wordt geweigerd', async () => {

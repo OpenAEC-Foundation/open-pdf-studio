@@ -30,7 +30,7 @@ import { meetPunt } from '../annotations/meet-punt.js';
 // MCP-opdracht.
 
 import {
-  SPARING_SOORTEN, SPARING_SYMBOOL, SPARING_STANDAARD,
+  SPARING_SOORTEN, SPARING_SYMBOOL,
   normaliseerSparing, wandMetSparingen, controleerSparing, sparingPlaatsing,
 } from './sparing.js';
 import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel, RUIMTE_VLAKSTIJL, puntInPolygoon } from './ruimte.js';
@@ -48,7 +48,7 @@ import { wandAs, projecteer } from '../annotations/wand-geometrie.js';
 import { PRESETS as GEVEL_PRESETS } from '../gevelelement/catalogus.js';
 import { indeling as gevelIndeling } from '../gevelelement/indeling.js';
 import { twoPointEndpoints } from '../symbols/two-point.js';
-import { kozijnIndeling, kozijnMaten, vakOffsetMm } from './kozijn.js';
+import { kozijnIndeling, kozijnMaten, vakOffsetMm, SYMBOOL_STIJL_US, isUsSymbool } from './kozijn.js';
 import {
   normaliseerPakket, kozijnInPakket, laagSparingMm, laagLijnen, zoekLaagHoek,
 } from './spouwmuur.js';
@@ -57,7 +57,8 @@ import {
 } from '../symbols/templates/ruimtetag.js';
 import { nieuweOpeningSleutel, wandOpeningen, klemAfstandMm } from '../annotations/wand-openingen.js';
 import { controleerNieuweOpening, nieuweOpening, lijstMetOpening } from './gehoste-opening.js';
-import { wandStandaard } from './blad-conventie.js';
+import { wandStandaard, OPENING_STANDAARD_IMPERIAAL } from './blad-conventie.js';
+import { standaardOpeningBreedteMm } from './opening-breedte.js';
 import { rekenOm } from '../quantities/eenheid-omrekening.js';
 
 export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'opening', 'rooms', 'dimensions']);
@@ -183,8 +184,11 @@ async function actieWand(params, omgeving, page) {
   const sparingen = [];
   const klachten = [];
   const enkelPakket = normaliseerPakket([{ dikteMm, materiaal: params?.material || 'nen47-metselwerk-baksteen' }]);
+  // De conventie van het blad (#1230) geldt ook voor de openingen: op een
+  // blad in voet of inch 36 en 48 inch en het Amerikaanse plansymbool.
+  const imperiaal = imperiaalOp(omgeving, page, start);
   (params?.openings || []).forEach((o, i) => {
-    const s = leesOpening(o, i, wand, enkelPakket);
+    const s = leesOpening(o, i, wand, enkelPakket, imperiaal);
     const soort = s.soort;
     const controle = controleerSparing(wand, s, sparingen, pxPerMm, getal(params?.minPierMm) ?? 0);
     if (!controle.ok) klachten.push(`opening ${i} (${o?.kind || soort}): ${controle.reden}`);
@@ -262,6 +266,7 @@ async function actieWand(params, omgeving, page) {
     openings: plaatsingen.map((p) => ({
       kind: KIND_VAN_SOORT[p.soort], widthMm: p.dagmaatMm, alongMm: p.hartMm,
       sillMm: p.borstweringMm, heightMm: p.hoogteMm,
+      ...(sparingen.find((s) => s.id === p.id)?.symboolStijl === SYMBOOL_STIJL_US ? { symbolStyle: 'us' } : {}),
     })),
   };
 }
@@ -272,7 +277,7 @@ async function actieWand(params, omgeving, page) {
 const OPENING_VELDEN = [
   'kind', 'widthMm', 'alongMm', 'sillMm', 'heightMm', 'swing', 'openSide', 'openTo',
   'windowType', 'showSwing', 'stileWidthMm', 'frameDepthMm', 'framePositionMm',
-  'overlapMm', 'clearanceMm', 'leafThicknessMm',
+  'overlapMm', 'clearanceMm', 'leafThicknessMm', 'symbolStyle',
 ];
 
 /** De wand onder een punt: het punt ligt in de band (met wat speling). */
@@ -341,8 +346,14 @@ async function actieOpening(params, omgeving, page) {
   // Zonder opgegeven kant draait de deur naar de kant van het aangewezen punt.
   if (!o.openTo && !o.openSide && punt) o.openTo = punt;
   const pakket = normaliseerPakket([{ dikteMm: wand.dikteMm, materiaal: 'nen47-metselwerk-baksteen' }]);
-  const s = leesOpening(o, 0, wand, pakket);
+  // De conventie (#1230) wordt beslist waar de opening komt: op het
+  // aangewezen punt, of op het opgegeven hart langs de wand.
   const metPunt = getal(o.alongMm) === null;
+  const plek = metPunt ? punt : {
+    x: wand.startX + as.u.x * Number(o.alongMm) * pxPerMm,
+    y: wand.startY + as.u.y * Number(o.alongMm) * pxPerMm,
+  };
+  const s = leesOpening(o, 0, wand, pakket, imperiaalOp(omgeving, page, plek || { x: wand.startX, y: wand.startY }));
   if (metPunt) {
     if (!punt) return fout('action "opening" needs alongMm (centre, from the wall start) or a point on the wall');
     s.hartMm = klemAfstandMm(lengteMm, s.dagmaatMm, projecteer(punt, wand).t / pxPerMm);
@@ -386,6 +397,7 @@ async function actieOpening(params, omgeving, page) {
     widthMm: s.dagmaatMm,
     alongMm: Math.round(s.hartMm * 10) / 10,
     openSide: s.draaizijde === -1 ? 'right' : 'left',
+    symbolStyle: s.symboolStijl === SYMBOOL_STIJL_US ? 'us' : 'nen',
     wallLengthMm: Math.round(lengteMm * 10) / 10,
   };
 }
@@ -409,18 +421,37 @@ export function draaizijde(wand, opening) {
 
 const RAAMTYPEN = ['fixed', 'turn', 'pivot', 'tilt'];
 
+/** De waarden van `symbolStyle` in de MCP-invoer. */
+const SYMBOOL_STIJLEN = Object.freeze(['us', 'nen']);
+
+/**
+ * Welk symbool krijgt deze opening (#1230)? Een opgegeven `symbolStyle`
+ * wint; anders het Amerikaanse plansymbool op een blad in voet of inch en
+ * het kozijn op een metrisch blad.
+ */
+function symboolStijlVoor(o, imperiaal) {
+  if (SYMBOOL_STIJLEN.includes(o?.symbolStyle)) return o.symbolStyle;
+  return imperiaal ? 'us' : 'nen';
+}
+
 /**
  * Eén opening uit de MCP-invoer: de sparing (plaats langs de wand, maat)
  * plus het kozijn in het wandpakket. `widthMm` is de kozijnmaat
  * (buitenwerks); in een enkele wand is dat ook de sparing.
+ *
+ * `imperiaal`: het blad staat op de plaats van de opening in voet of inch
+ * (#1230). Dan is de breedte zonder opgave 36 inch (deur) of 48 inch (raam)
+ * en krijgt de opening het Amerikaanse plansymbool; een opgegeven breedte of
+ * `symbolStyle` wint.
  */
-function leesOpening(o, i, wand, pakket) {
+function leesOpening(o, i, wand, pakket, imperiaal = false) {
   const soort = SOORT_VAN_KIND[o?.kind] || (SPARING_SOORTEN.includes(o?.kind) ? o.kind : 'deur');
   const langs = getal(o?.alongMm);
+  const us = symboolStijlVoor(o, imperiaal) === 'us';
   const s = normaliseerSparing({
     id: `opening-${i}`,
     soort,
-    dagmaatMm: getal(o?.widthMm) ?? SPARING_STANDAARD[soort].dagmaatMm,
+    dagmaatMm: getal(o?.widthMm) ?? standaardOpeningBreedteMm(soort, imperiaal),
     hartMm: langs ?? 0,
     borstweringMm: getal(o?.sillMm),
     hoogteMm: getal(o?.heightMm),
@@ -442,8 +473,9 @@ function leesOpening(o, i, wand, pakket) {
       spelingMm: maat(o?.clearanceMm),
     }),
     stijlBreedteMm: stijl > 0 ? stijl : 67,
-    deurbladDikteMm: blad > 0 ? blad : 40,
+    deurbladDikteMm: blad > 0 ? blad : (us ? OPENING_STANDAARD_IMPERIAAL.deur.bladDikteMm : 40),
   };
+  if (us) s.symboolStijl = SYMBOOL_STIJL_US;
   return s;
 }
 
@@ -484,6 +516,8 @@ export function kozijnProps(wand, plaatsing, bron, pxPerMm, pakket = null) {
     aanslagMm: getal(kz.aanslagMm) ?? 0,
     binnenSpelingMm: getal(kz.spelingMm) ?? 0,
     swing: plaatsing.draairichting === 'rechts' ? 'right' : 'left',
+    // Het Amerikaanse plansymbool (#1230) staat in het symbool zelf.
+    ...(bron?.symboolStijl === SYMBOOL_STIJL_US ? { symboolStijl: SYMBOOL_STIJL_US } : {}),
   };
   if (deur) {
     // De deur draait naar de kant van `zijde` (-zijde langs n); is dat de
@@ -1207,6 +1241,7 @@ async function actieInspect(params, omgeving, page) {
         hostWallId: a.params?.hostWallId || null,
         hosted: !!host,
         ...(opening ? { alongMm: Math.round(opening.afstandMm * 10) / 10 } : {}),
+        ...(isUsSymbool(a.params) ? { symbolStyle: 'us' } : {}),
         ...kozijnVerslag(a),
       };
     }),

@@ -26,6 +26,9 @@ const { plattegrondOpdracht } = await import('./mcp-plattegrond.js');
 const { hartVanSymbool } = await import('./gehoste-opening.js');
 const { openingIntervallen } = await import('../annotations/wand-openingen.js');
 const { sluitVlakHoeken } = await import('./wand-tekenen.js');
+const { isImperiaalBladOpPunt } = await import('./blad-conventie-op-punt.js');
+const { pxPerMmAt } = await import('../symbols/real-size.js');
+const { getTemplate } = await import('../symbols/registry.js');
 
 const K = 0.5;                                    // paginapunten per mm
 const kloon = (x) => JSON.parse(JSON.stringify(x));
@@ -317,6 +320,80 @@ test('een wand die op een vlak wordt getekend en de hoek sluit, neemt de opening
   assert.equal(stappen(doc), voor + 1, 'alles in één ongedaan-stap');
   await undo.undo();
   assert.deepEqual(kloon(doc.annotations), inhoud, 'ongedaan: de wand, het gat en de deur zoals ze waren');
+});
+
+test('op een blad in voet (1/4" = 1\'-0") komt een deur van 36 inch en een raam van 48 inch met het Amerikaanse symbool (#1230)', async () => {
+  await haak.laadHostingKern();
+  const doc = openen();
+  // 1/4 inch op papier is 1 voet: 18 paginapunten per voet.
+  doc.measureScale = { pixelsPerUnit: 18, unit: 'ft' };
+  const k = 18 / 304.8;
+  bijna(pxPerMmAt(1, 100, 300), k, 'de schaal van het blad');
+  assert.equal(isImperiaalBladOpPunt(1, 100, 300), true);
+  // De app-kant zoals plattegrondInApp haar levert: schaal en conventie op het punt.
+  const o = {
+    ...omgeving(doc),
+    pxPerMmAt: (page, x, y) => pxPerMmAt(page, x, y),
+    imperiaalOp: (page, x, y) => isImperiaalBladOpPunt(page, x, y),
+  };
+  // Een wand van 20 voet zonder verdere opgave: 6 inch, geen arcering.
+  const w = await plattegrondOpdracht({ action: 'wall', start: { x: 100, y: 300 }, end: { x: 460, y: 300 } }, o);
+  const wand = () => doc.annotations.find((a) => a.id === w.wallIds[0]);
+  assert.deepEqual([wand().dikteMm, wand().hatchPattern], [152.4, 'none']);
+  const voor = stappen(doc);
+  // De deur: geklikt op 5 voet van het begin, net onder de hartlijn.
+  const d = await plattegrondOpdracht({ action: 'opening', wallId: wand().id, kind: 'door', point: { x: 190, y: 303 } }, o);
+  assert.equal(d.ok, true, d.error);
+  assert.deepEqual([d.widthMm, d.symbolStyle, d.openSide], [914.4, 'us', 'right']);
+  const deur = () => doc.annotations.find((a) => a.id === d.openingId);
+  assert.equal(deur().params.symboolStijl, 'us');
+  // Blad en draaicirkel, geen stijlen.
+  const tekening = getTemplate('door').render(deur().params, { x: deur().x, y: deur().y, width: deur().width, height: deur().height });
+  assert.deepEqual(tekening.map((c) => c.kind), ['polyline', 'arc']);
+  bijna(deur().width, 36 * 18 / 12, 'het vak is 36 inch breed op het blad (54 pt)');
+  // Het raam, 48 inch.
+  const r = await plattegrondOpdracht({ action: 'opening', wallId: wand().id, kind: 'window', point: { x: 370, y: 300 } }, o);
+  assert.deepEqual([r.widthMm, r.symbolStyle], [1219.2, 'us']);
+  const raam = doc.annotations.find((a) => a.id === r.openingId);
+  assert.deepEqual(getTemplate('window').render(raam.params, { x: raam.x, y: raam.y, width: raam.width, height: raam.height }).map((c) => c.kind),
+    ['line', 'line', 'line', 'line', 'line'], 'twee wandvlakken, twee dagkanten, een glaslijn');
+  bijna(raam.width, 48 * 18 / 12, 'het raam is 48 inch breed (72 pt)');
+  bijna(raam.height, 6 * 18 / 12, 'en de wand van 6 inch diep (9 pt)');
+  assert.equal(stappen(doc), voor + 2, 'elke opening een ongedaan-stap');
+  // Een getypte breedte: 32 inch (zoals het gereedschap haar doorgeeft).
+  const smal = await plattegrondOpdracht({ action: 'opening', wallId: wand().id, kind: 'door', widthMm: 812.8, point: { x: 280, y: 297 } }, o);
+  assert.deepEqual([smal.widthMm, smal.symbolStyle, smal.openSide], [812.8, 'us', 'left']);
+  // Slepen houdt de deur op de wand en het symbool Amerikaans; ongedaan maken zet haar terug.
+  const plek = wand().openingen.find((x) => x.id === d.openingId).afstandMm;
+  sleep(doc, deur(), (a) => { a.x += 18; a.y += 40; });                 // 1 voet langs de wand
+  bijna(wand().openingen.find((x) => x.id === d.openingId).afstandMm, plek + 304.8, 'het gat ging een voet mee');
+  assert.equal(deur().params.symboolStijl, 'us');
+  await undo.undo();
+  bijna(wand().openingen.find((x) => x.id === d.openingId).afstandMm, plek, 'ongedaan');
+});
+
+test('op een metrisch blad (1:50) geven dezelfde stappen de metrische uitkomst (#1230, punt 8)', async () => {
+  await haak.laadHostingKern();
+  const doc = openen();
+  doc.measureScale = { pixelsPerUnit: 2.8346 / 50, unit: 'mm' };
+  assert.equal(isImperiaalBladOpPunt(1, 100, 300), false);
+  const o = {
+    ...omgeving(doc),
+    pxPerMmAt: (page, x, y) => pxPerMmAt(page, x, y),
+    imperiaalOp: (page, x, y) => isImperiaalBladOpPunt(page, x, y),
+  };
+  const w = await plattegrondOpdracht({ action: 'wall', start: { x: 100, y: 300 }, end: { x: 460, y: 300 } }, o);
+  const wand = doc.annotations.find((a) => a.id === w.wallIds[0]);
+  assert.deepEqual([wand.dikteMm, wand.hatchPattern], [100, 'nen47-metselwerk-baksteen']);
+  const d = await plattegrondOpdracht({ action: 'opening', wallId: wand.id, kind: 'door', point: { x: 190, y: 303 } }, o);
+  const r = await plattegrondOpdracht({ action: 'opening', wallId: wand.id, kind: 'window', point: { x: 370, y: 300 } }, o);
+  assert.deepEqual([d.widthMm, d.symbolStyle, r.widthMm, r.symbolStyle], [900, 'nen', 1200, 'nen']);
+  const deur = doc.annotations.find((a) => a.id === d.openingId);
+  assert.equal(deur.params.symboolStijl, undefined);
+  assert.equal(deur.params.deurbladDikteMm, 40);
+  // Het kozijn met stijlen: twee stijlen, het blad en de draaicirkel.
+  assert.deepEqual(getTemplate('door').render(deur.params, { x: deur.x, y: deur.y, width: deur.width, height: deur.height }).map((c) => c.kind),
+    ['polyline', 'polyline', 'polyline', 'arc']);
 });
 
 test('kopiëren en plakken: wand met deur blijft een stel, een losse kopie van de deur is los', async () => {
