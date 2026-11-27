@@ -162,6 +162,11 @@ jobs:
         working-directory: open-pdf-studio
         run: node scripts/test-link-view-browser.mjs
 
+      - name: Test internal link destination marks (Linux)
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: node scripts/test-link-target-marks-browser.mjs
+
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-space-pan-browser.mjs

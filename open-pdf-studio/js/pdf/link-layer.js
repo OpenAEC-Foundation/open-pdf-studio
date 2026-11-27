@@ -10,6 +10,7 @@ import { cssPxPerPtAt100 } from '../core/zoom-display.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import i18next from '../i18n/config.js';
 import { viewportRectangle } from './pdfjs-record.js';
+import { kiesLinkDoel, markeerOpPagina, wisLinkDoelMarkering } from './link-doelmarkering.js';
 
 /**
  * Link Layer Management Module
@@ -210,12 +211,12 @@ function createLinkElement(ann, viewport, pageNum) {
     linkEl.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
-      await handleInternalLink(ann.dest);
+      await handleInternalLink(ann.dest, { page: pageNum, rect: ann.rect, x: e.clientX, y: e.clientY });
     });
     return linkEl;
   }
   if (ann.action) {
-    return setupActionLink(linkEl, ann.action, pageNum) ? linkEl : null;
+    return setupActionLink(linkEl, ann.action, pageNum, ann.rect) ? linkEl : null;
   }
   // Unknown link type, make it non-interactive
   return null;
@@ -273,7 +274,8 @@ export function sprongNogGeldig(beurt, laatste, doc, actief) {
   return beurt === laatste && !!doc && doc === actief;
 }
 
-export async function handleInternalLink(dest) {
+export async function handleInternalLink(dest, bron = null) {
+  wisLinkDoelMarkering();
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
   const pdf = doc.pdfDoc;
@@ -288,7 +290,7 @@ export async function handleInternalLink(dest) {
       if (!geldig()) return;
     }
 
-    const destInfo = parseDestinationArray(explicit);
+    let destInfo = parseDestinationArray(explicit);
     if (!destInfo) return;
 
     const ref = destInfo.pageRef;
@@ -302,7 +304,21 @@ export async function handleInternalLink(dest) {
     if (pageIndex === undefined || pageIndex === null || !Number.isFinite(pageIndex)) return;
 
     // PDF.js uses 0-based index, our app uses 1-based page numbers
-    const targetPage = pageIndex + 1;
+    let targetPage = pageIndex + 1;
+    let keuze;
+    if (bron) {
+      try {
+        keuze = await kiesLinkDoel(doc, bron, targetPage, { geldig,
+          pageLabel: page => `${i18next.t('page', { ns: 'common' })} ${page}` });
+      } catch (error) { console.warn('[link-layer] destination text unavailable:', error); }
+      if (!geldig() || keuze === null) return;
+      if (keuze && keuze.page !== targetPage) {
+        const v = keuze.view, b = keuze.vakken[0];
+        targetPage = keuze.page;
+        destInfo = { ...destInfo, type: 'XYZ', left: v[0] + Math.max(0, b.x - 6 * b.h),
+          top: v[3] - Math.max(0, b.y - 6 * b.h), zoom: null };
+      }
+    }
 
     // De doelpagina tonen; het beeld (zoom en plek) zet deze module daarna
     // zelf. Zonder skipScroll loopt de vloeiende scroll van goToPage ná deze
@@ -317,6 +333,14 @@ export async function handleInternalLink(dest) {
     }
     // Een bestemming waarvan het beeld niet te lezen is: alleen de pagina.
     if (!getoond && geldig()) await goToPage(targetPage);
+    if (keuze && geldig()) {
+      markeerOpPagina(targetPage, keuze.vakken, keuze.view, {
+        geldig, scope: keuze.scope,
+        tekstlaag: n => doc.viewMode === 'continuous' || doc.facingSpread
+          ? document.querySelector(`.page-wrapper[data-page="${n}"] .textLayer`)
+          : doc.currentPage === n ? document.querySelector('#canvas-container .textLayer') : null,
+      }).catch(error => console.warn('[link-layer] destination marking failed:', error));
+    }
   } catch (e) {
     console.warn('Failed to navigate to internal link:', e);
   }
@@ -424,7 +448,7 @@ async function toonDoelbeeld(doc, pageNum, destInfo, geldig) {
  * @param {number} pageNum - Paginanummer waarop de link staat
  * @returns {boolean} of de link bruikbaar is
  */
-function setupActionLink(linkEl, action, pageNum) {
+function setupActionLink(linkEl, action, pageNum, rect = null) {
   if (!action) return false;
 
   // PDF.js levert benoemde acties (/S /Named) als kale string.
@@ -442,7 +466,7 @@ function setupActionLink(linkEl, action, pageNum) {
       linkEl.addEventListener('click', async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        await handleInternalLink(action.dest);
+        await handleInternalLink(action.dest, rect ? { page: pageNum, rect, x: e.clientX, y: e.clientY } : null);
       });
       return true;
 
