@@ -54,5 +54,3 @@ in PR #1258; de grens wordt niet verruimd. Native installerkwalificatie en
 de releasepoorten uit `docs/release-testprotocol.md` zijn niet vervangen
 door de browsercontrole. De PR blijft concept zolang deze controles ontbreken.
 Er wordt geen release gepubliceerd.
-
-Chat-ID: `01a109f0-a849-7782-8641-0b091eb29747`.

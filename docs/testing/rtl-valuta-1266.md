@@ -53,5 +53,3 @@ De bestaande entry-bundelgrens van 4230 KiB faalt al op upstream main en
 wordt apart behandeld in PR #1258. Geen grens is verruimd. Installer-Actions
 op de persoonlijke fork zijn uitgeschakeld; zonder installerkwalificatie
 blijft de PR concept. Geen release publiceren.
-
-Chat-ID: `01a109f0-a849-7782-8641-0b091eb29747`.

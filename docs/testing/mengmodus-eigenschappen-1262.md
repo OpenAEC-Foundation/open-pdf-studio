@@ -36,6 +36,4 @@ uit die PR is niet gekopieerd.
 Een geïnstalleerde Tauri-kwalificatie is niet door de browsertest vervangen.
 De PR blijft concept zolang installer/native-controles geblokkeerd zijn.
 Een eventuele kwalificatierelease blijft een ongepubliceerd concept.
-
-Chat-ID: `01a109f0-a849-7782-8641-0b091eb29747`.
 Werkbranch: `feat/properties-blend-mode-1262`.
