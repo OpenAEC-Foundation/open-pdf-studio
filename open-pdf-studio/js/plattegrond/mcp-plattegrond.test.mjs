@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import {
   FLOORPLAN_ACTIES, plattegrondOpdracht, draaizijde, kozijnProps, ruimtenAchterBouwdelen,
@@ -59,7 +60,7 @@ const gevel = {
 };
 
 test('de actie moet bekend zijn en er moet een document zijn', async () => {
-  assert.deepEqual(FLOORPLAN_ACTIES, ['inspect', 'wall', 'rooms', 'dimensions']);
+  assert.deepEqual(FLOORPLAN_ACTIES, ['inspect', 'wall', 'opening', 'rooms', 'dimensions']);
   const o = omgevingMet();
   assert.match((await plattegrondOpdracht({ action: 'onzin' }, o)).error, /action must be one of/);
   assert.match((await plattegrondOpdracht({ action: 'inspect' }, { doc: null })).error, /no active document/);
@@ -75,10 +76,200 @@ test('zonder schaal wordt er niets getekend', async () => {
   assert.equal(o.doc.annotations.length, 0);
 });
 
-test('een gevel met een deur en een raam: drie wandstukken, twee kozijnen', async () => {
+test('een gevel met een deur en een raam: een wand die haar twee kozijnen host (#1229)', async () => {
   const o = omgevingMet();
   const r = await plattegrondOpdracht(gevel, o);
   assert.equal(r.ok, true);
+  assert.equal(r.hosted, true);
+  assert.equal(r.lengthMm, 10000);
+  assert.equal(r.wallIds.length, 1, 'de wand blijft een annotatie');
+  assert.equal(r.openingIds.length, 2);
+  // De solide stukken, ter informatie: dezelfde penanten als voorheen.
+  assert.deepEqual(r.segments, [
+    { fromMm: 0, lengthMm: 1550 },
+    { fromMm: 2450, lengthMm: 2950 },
+    { fromMm: 6600, lengthMm: 3400 },
+  ]);
+
+  const wanden = o.doc.annotations.filter((a) => a.type === 'wall');
+  assert.equal(wanden.length, 1);
+  const wand = wanden[0];
+  assert.deepEqual([wand.startX, wand.endX, wand.startY, wand.endY], [0, 5000, 100, 100]);
+  assert.equal(wand.dikteMm, 300);
+  assert.equal(wand.hatchPattern, 'nen47-metselwerk-baksteen');
+  // De wand kent haar openingen; elk kozijn wijst terug met dezelfde sleutel.
+  assert.deepEqual(wand.openingen.map((x) => [x.id, x.afstandMm, x.breedteMm, x.soort, x.zijde]), [
+    [r.openingIds[0], 2000, 900, 'deur', 1],
+    [r.openingIds[1], 6000, 1200, 'raam', 1],
+  ]);
+  for (const opening of wand.openingen) {
+    const kozijn = o.doc.annotations.find((a) => a.id === opening.id);
+    assert.equal(kozijn.params.hostWallId, wand.id);
+    assert.equal(kozijn.params.hostKey, opening.key);
+    assert.equal(kozijn.params.hostAfstandMm, opening.afstandMm);
+  }
+  assert.notEqual(wand.openingen[0].key, wand.openingen[1].key);
+  // Alles in één undo-stap.
+  assert.equal(o.log.filter((e) => e.soort === 'transactie').length, 1);
+});
+
+// ── actie "opening": een deur of raam in een bestaande wand (#1229) ───────
+
+/** Een kale wand van 8000 mm (4000 pt) langs y = 100, 200 mm dik. */
+async function metWand(extra = {}) {
+  const o = omgevingMet();
+  const r = await plattegrondOpdracht({
+    action: 'wall', start: { x: 0, y: 100 }, end: { x: 4000, y: 100 }, thicknessMm: 200, ...extra,
+  }, o);
+  return { o, wallId: r.wallIds[0], wand: () => o.doc.annotations.find((a) => a.id === r.wallIds[0]) };
+}
+
+test('opening: een deur in een bestaande wand; de wand blijft een annotatie', async () => {
+  const { o, wallId, wand } = await metWand();
+  o.log.length = 0;
+  const r = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', widthMm: 900, alongMm: 3000 }, o);
+  assert.equal(r.ok, true);
+  assert.equal(r.hosted, true);
+  assert.deepEqual([r.wallId, r.kind, r.widthMm, r.alongMm, r.openSide, r.wallLengthMm], [wallId, 'door', 900, 3000, 'left', 8000]);
+  assert.equal(o.doc.annotations.filter((a) => a.type === 'wall').length, 1, 'een wand, niet twee');
+  const deur = o.doc.annotations.find((a) => a.id === r.openingId);
+  assert.equal(deur.symbolId, 'door');
+  assert.equal(deur.params.hostWallId, wallId);
+  assert.equal(deur.params.wallThickness, 200);
+  assert.deepEqual(wand().openingen.map((x) => [x.id, x.key, x.afstandMm, x.breedteMm, x.soort, x.zijde]),
+    [[deur.id, deur.params.hostKey, 3000, 900, 'deur', 1]]);
+  // De wand zelf is niet verlegd.
+  assert.deepEqual([wand().startX, wand().endX], [0, 4000]);
+  // Een undo-stap: het kozijn erbij en de wand bijgewerkt.
+  assert.deepEqual(o.log.map((e) => e.soort), ['transactie', 'maak', 'werkBij']);
+});
+
+test('opening met een punt op de wand: de plaats en de draaikant volgen uit het punt', async () => {
+  const { o, wallId, wand } = await metWand();
+  // Net onder de hartlijn (y groter = rechts van de wandrichting), 2500 mm van het begin.
+  const r = await plattegrondOpdracht({ action: 'opening', point: { x: 1250, y: 130 }, kind: 'door' }, o);
+  assert.equal(r.ok, true);
+  assert.equal(r.wallId, wallId, 'de wand onder het punt');
+  assert.equal(r.alongMm, 2500);
+  assert.equal(r.widthMm, 900, 'standaardmaat van een deur');
+  assert.equal(r.openSide, 'right', 'de deur draait naar de aangeklikte kant');
+  assert.equal(wand().openingen[0].zijde, -1);
+  // Aan de andere kant aangewezen: de andere draaikant.
+  const boven = await plattegrondOpdracht({ action: 'opening', point: { x: 3000, y: 80 }, kind: 'door' }, o);
+  assert.equal(boven.openSide, 'left');
+  // De deur aan de onderkant ligt met zijn draaicirkel onder de wand, die aan de bovenkant erboven.
+  const [a, b] = wand().openingen.map((x) => o.doc.annotations.find((s) => s.id === x.id));
+  assert.ok(a.y + a.height / 2 > 100, 'draait naar beneden');
+  assert.ok(b.y + b.height / 2 < 100, 'draait naar boven');
+});
+
+test('opening bij het eind van de wand: een aangewezen punt schuift tot de opening past', async () => {
+  const { o, wand } = await metWand();
+  const r = await plattegrondOpdracht({ action: 'opening', point: { x: 3990, y: 100 }, kind: 'window', widthMm: 1200 }, o);
+  assert.equal(r.ok, true);
+  assert.equal(r.alongMm, 7400, '8000 - 600');
+  assert.equal(wand().openingen[0].soort, 'raam');
+  // Een opgegeven afstand die niet past wordt geweigerd, niet verschoven.
+  const fout = await plattegrondOpdracht({ action: 'opening', wallId: r.wallId, kind: 'door', widthMm: 900, alongMm: 100 }, o);
+  assert.equal(fout.ok, false);
+  assert.equal(fout.reason, 'outside');
+});
+
+test('opening die een andere opening in dezelfde wand overlapt wordt geweigerd; niets verandert', async () => {
+  const { o, wallId } = await metWand();
+  await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', widthMm: 900, alongMm: 3000 }, o);
+  const voor = JSON.stringify(o.doc.annotations);
+  o.log.length = 0;
+  const r = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', widthMm: 900, alongMm: 3500 }, o);
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'overlap');
+  assert.match(r.error, /opening refused: opening overlaps another opening in the same wall/);
+  assert.equal(JSON.stringify(o.doc.annotations), voor, 'niets gewijzigd');
+  assert.deepEqual(o.log, [], 'geen undo-stap');
+  // Ook met een punt: geen stil verschuiven naar een andere plek.
+  const metPunt = await plattegrondOpdracht({ action: 'opening', point: { x: 1700, y: 100 }, kind: 'window' }, o);
+  assert.equal(metPunt.reason, 'overlap');
+  // Ernaast past wel.
+  const naast = await plattegrondOpdracht({ action: 'opening', wallId, kind: 'window', widthMm: 1200, alongMm: 5000 }, o);
+  assert.equal(naast.ok, true);
+});
+
+test('opening: invoer die niet kan', async () => {
+  const { o, wallId } = await metWand();
+  assert.match((await plattegrondOpdracht({ action: 'opening', kind: 'door' }, o)).error, /needs wallId or point/);
+  assert.equal((await plattegrondOpdracht({ action: 'opening', wallId: 'bestaat-niet', kind: 'door', alongMm: 100 }, o)).reason, 'wall');
+  assert.equal((await plattegrondOpdracht({ action: 'opening', point: { x: 1000, y: 900 }, kind: 'door' }, o)).reason, 'wall');
+  assert.match((await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door' }, o)).error, /needs alongMm/);
+  assert.equal((await plattegrondOpdracht({ action: 'opening', wallId, kind: 'door', widthMm: 9000, alongMm: 4000 }, o)).reason, 'outside');
+  const zonderSchaal = omgevingMet([{ id: 'w', type: 'wall', page: 1, startX: 0, startY: 0, endX: 100, endY: 0, dikteMm: 100 }], 0);
+  assert.equal((await plattegrondOpdracht({ action: 'opening', wallId: 'w', kind: 'door', alongMm: 50 }, zonderSchaal)).reason, 'scale');
+  assert.equal(o.doc.annotations.length, 1, 'er is niets bijgekomen');
+});
+
+test('opening: de velden mogen ook in een opening-object staan, met de kozijnargumenten', async () => {
+  const { o, wallId } = await metWand();
+  const r = await plattegrondOpdracht({
+    action: 'opening', wallId,
+    opening: { kind: 'window', widthMm: 1500, alongMm: 4000, sillMm: 900, windowType: 'turn', stileWidthMm: 80, openSide: 'right' },
+  }, o);
+  assert.equal(r.ok, true);
+  const raam = o.doc.annotations.find((a) => a.id === r.openingId);
+  assert.equal(raam.symbolId, 'window');
+  assert.deepEqual([raam.params.width, raam.params.borstweringMm, raam.params.type, raam.params.stijlBreedteMm], [1500, 900, 'turn', 80]);
+  assert.equal(r.openSide, 'right');
+});
+
+test('het MCP-schema van app_floorplan kent de actie opening en haar velden (Rust en tools.json)', () => {
+  const lees = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
+  const server = lees('../../src-tauri/src/mcp_server.rs');
+  const floorplan = server.slice(server.indexOf('fn floorplan_tool()'), server.indexOf('fn system_type_definition_schema'));
+  assert.match(floorplan, /"enum": \["inspect", "wall", "opening", "rooms", "dimensions"\]/);
+  const velden = { hosted: 'boolean', point: 'object', kind: 'string', widthMm: 'number', alongMm: 'number', opening: 'object' };
+  for (const [veld, soort] of Object.entries(velden)) {
+    assert.match(floorplan, new RegExp(`"${veld}":\\s*\\{ "type": "${soort}"`), `${veld} in mcp_server.rs`);
+  }
+  const tools = JSON.parse(lees('../../../mcp-stdio/tools.json'));
+  const t = tools.find((x) => x.name === 'app_floorplan');
+  assert.deepEqual(t.inputSchema.properties.action.enum, [...FLOORPLAN_ACTIES], 'dezelfde acties als de JS-kant');
+  for (const [veld, soort] of Object.entries(velden)) {
+    assert.equal(t.inputSchema.properties[veld]?.type, soort, `${veld} in tools.json`);
+  }
+  // De beschrijving in tools.json is die van de Rust-bron (de Rust-test
+  // vergelijkt ze volledig; hier het begin van de nieuwe tekst).
+  assert.match(t.description, /Five actions\./);
+  assert.ok(floorplan.includes('Five actions.'));
+});
+
+test('opening in een laag van een gelaagde muur wordt geweigerd', async () => {
+  const o = omgevingMet();
+  const gelaagd = await plattegrondOpdracht({
+    action: 'wall', start: { x: 0, y: 0 }, end: { x: 4000, y: 0 },
+    layers: [{ thicknessMm: 100, material: 'nen47-metselwerk-baksteen' }, { thicknessMm: 120, material: 'isolatie' },
+      { thicknessMm: 100, material: 'nen47-metselwerk-kunststeen' }],
+  }, o);
+  const aantal = o.doc.annotations.length;
+  const r = await plattegrondOpdracht({ action: 'opening', wallId: gelaagd.layers[0].wallIds[0], kind: 'door', alongMm: 3000 }, o);
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'layered');
+  assert.equal(o.doc.annotations.length, aantal);
+});
+
+test('opening in een wand die al uit stukken bestaat (ouder bestand): alleen dat stuk host', async () => {
+  const o = omgevingMet();
+  const oud = await plattegrondOpdracht({ ...gevel, hosted: false }, o);
+  // Het middelste stuk loopt van 2450 tot 5400 mm; een raam op 1000 mm van zijn begin.
+  const r = await plattegrondOpdracht({ action: 'opening', wallId: oud.wallIds[1], kind: 'window', widthMm: 800, alongMm: 1000 }, o);
+  assert.equal(r.ok, true);
+  assert.equal(o.doc.annotations.filter((a) => a.type === 'wall').length, 3, 'de oude stukken blijven zoals ze zijn');
+  const inspect = await plattegrondOpdracht({ action: 'inspect' }, o);
+  assert.deepEqual(inspect.openings.map((x) => x.hosted), [false, false, true]);
+});
+
+test('hosted:false knipt de wand als vanouds: drie wandstukken, twee losse kozijnen', async () => {
+  const o = omgevingMet();
+  const r = await plattegrondOpdracht({ ...gevel, hosted: false }, o);
+  assert.equal(r.ok, true);
+  assert.equal(r.hosted, false);
   assert.equal(r.lengthMm, 10000);
   assert.equal(r.wallIds.length, 3, 'de wand is opgeknipt bij elke sparing');
   assert.equal(r.openingIds.length, 2);
@@ -95,6 +286,7 @@ test('een gevel met een deur en een raam: drie wandstukken, twee kozijnen', asyn
     assert.equal(w.dikteMm, 300);
     assert.equal(w.hatchPattern, 'nen47-metselwerk-baksteen');
     assert.equal(w.startY, 100);
+    assert.equal(w.openingen, undefined, 'geen gehoste openingen');
   }
   // Alles in één undo-stap.
   assert.equal(o.log.filter((e) => e.soort === 'transactie').length, 1);
@@ -382,22 +574,25 @@ test('een gat in de contour wordt gemeld in plaats van half gevuld', async () =>
 });
 
 test('een deuropening breekt de ruimte niet open', async () => {
-  const o = omgevingMet();
-  const noord = await plattegrondOpdracht({
-    action: 'wall', start: { x: 0, y: 0 }, end: { x: 5000, y: 0 }, thicknessMm: 300,
-    openings: [{ kind: 'door', widthMm: 900, alongMm: 2000 }],
-  }, o);
-  assert.equal(noord.wallIds.length, 2);
-  for (const [start, end] of [
-    [{ x: 5000, y: 0 }, { x: 5000, y: 4000 }],
-    [{ x: 5000, y: 4000 }, { x: 0, y: 4000 }],
-    [{ x: 0, y: 4000 }, { x: 0, y: 0 }],
-  ]) await plattegrondOpdracht({ action: 'wall', start, end, thicknessMm: 300 }, o);
+  // Gehost (de wand blijft heel) en als vanouds opgeknipt: dezelfde ruimte.
+  for (const hosted of [true, false]) {
+    const o = omgevingMet();
+    const noord = await plattegrondOpdracht({
+      action: 'wall', start: { x: 0, y: 0 }, end: { x: 5000, y: 0 }, thicknessMm: 300, hosted,
+      openings: [{ kind: 'door', widthMm: 900, alongMm: 2000 }],
+    }, o);
+    assert.equal(noord.wallIds.length, hosted ? 1 : 2);
+    for (const [start, end] of [
+      [{ x: 5000, y: 0 }, { x: 5000, y: 4000 }],
+      [{ x: 5000, y: 4000 }, { x: 0, y: 4000 }],
+      [{ x: 0, y: 4000 }, { x: 0, y: 0 }],
+    ]) await plattegrondOpdracht({ action: 'wall', start, end, thicknessMm: 300 }, o);
 
-  const r = await plattegrondOpdracht({ action: 'rooms' }, o);
-  assert.equal(r.rooms.length, 1, 'de deur is geen onderbreking van de omsluiting');
-  assert.equal(r.rooms[0].areaM2, 74.69);
-  assert.deepEqual(r.openEnds, []);
+    const r = await plattegrondOpdracht({ action: 'rooms' }, o);
+    assert.equal(r.rooms.length, 1, 'de deur is geen onderbreking van de omsluiting');
+    assert.equal(r.rooms[0].areaM2, 74.69);
+    assert.deepEqual(r.openEnds, []);
+  }
 });
 
 test('een vliesgevel in de wand sluit de ruimte af, ook over een breed gat (#475)', async () => {
@@ -426,9 +621,38 @@ test('een vliesgevel in de wand sluit de ruimte af, ook over een breed gat (#475
   assert.ok(!inspect.walls.some((w) => w.id === vg.id), 'een gevelelement is geen wand in het overzicht');
 });
 
-test('de maatketting hangt aan de wandstukken en volgt ze', async () => {
+test('de maatketting langs een wand met gehoste openingen: penant, dagmaat, penant (#1229)', async () => {
   const o = omgevingMet();
   const gevelR = await plattegrondOpdracht(gevel, o);
+  assert.equal(gevelR.wallIds.length, 1);
+  const r = await plattegrondOpdracht({
+    action: 'dimensions', wallIds: gevelR.wallIds, offsetMm: 500, side: 'right',
+  }, o);
+  assert.equal(r.ok, true);
+  // Dezelfde ketting als bij een opgeknipte wand: 3 penanten + 2 dagmaten + 1 totaal.
+  assert.deepEqual(r.dimensions.map((d) => d.lengthMm), [1550, 900, 2950, 1200, 3400, 10000]);
+  const maten = o.doc.annotations.filter((a) => a.type === 'measureDistance');
+  const w = gevelR.wallIds[0];
+  const [deur, raam] = gevelR.openingIds;
+  assert.deepEqual(maten[0].opsAnkerStart, { annotationId: w, punt: 'start', vlak: 1, hoek: true });
+  // De dagkanten hangen aan de opening in de wand.
+  assert.deepEqual(maten[1].opsAnkerStart, { annotationId: w, punt: 'langs', vlak: 1, openingId: deur, kant: 'van', afstandMm: 1550 });
+  assert.deepEqual(maten[1].opsAnkerEind, { annotationId: w, punt: 'langs', vlak: 1, openingId: deur, kant: 'tot', afstandMm: 2450 });
+  assert.deepEqual(maten[3].opsAnkerStart, { annotationId: w, punt: 'langs', vlak: 1, openingId: raam, kant: 'van', afstandMm: 5400 });
+  assert.deepEqual(maten[5].opsAnkerEind, { annotationId: w, punt: 'end', vlak: 1, hoek: true });
+
+  // De deur 500 mm verder langs de wand: bij verversen volgen de dagkanten.
+  const wand = o.doc.annotations.find((a) => a.id === w);
+  wand.openingen = wand.openingen.map((x) => (x.id === deur ? { ...x, afstandMm: 2500 } : x));
+  const na = await plattegrondOpdracht({ action: 'dimensions', refresh: true }, o);
+  assert.deepEqual(na.updated.map((d) => d.lengthMm), [2050, 900, 2450]);
+  assert.equal(na.unchanged, 3);
+  assert.equal(na.detached.length, 0);
+});
+
+test('de maatketting hangt aan de wandstukken en volgt ze', async () => {
+  const o = omgevingMet();
+  const gevelR = await plattegrondOpdracht({ ...gevel, hosted: false }, o);
   const r = await plattegrondOpdracht({
     action: 'dimensions', wallIds: gevelR.wallIds, offsetMm: 500, side: 'right',
   }, o);
@@ -577,7 +801,7 @@ test('een losse maat verlengen maakt er een ketting van', async () => {
 
 test('een maat waarvan de wand verdwijnt raakt los, hij gaat niet stuk', async () => {
   const o = omgevingMet();
-  const gevelR = await plattegrondOpdracht(gevel, o);
+  const gevelR = await plattegrondOpdracht({ ...gevel, hosted: false }, o);
   await plattegrondOpdracht({ action: 'dimensions', wallIds: gevelR.wallIds }, o);
   const voor = o.doc.annotations.find((a) => a.type === 'measureDistance');
   const bewaard = { ...voor };
@@ -610,15 +834,26 @@ test('inspect vertelt wat er staat en wat er niet klopt', async () => {
   const r = await plattegrondOpdracht({ action: 'inspect' }, o);
   assert.equal(r.ok, true);
   assert.equal(r.scalePxPerMm, K);
-  assert.equal(r.walls.length, 3);
-  assert.deepEqual(r.walls.map((w) => w.lengthMm), [1550, 2950, 3400]);
+  assert.equal(r.walls.length, 1, 'de wand host haar openingen en blijft heel');
+  assert.deepEqual(r.walls.map((w) => w.lengthMm), [10000]);
+  assert.deepEqual(r.walls[0].openingIds, gevelR.openingIds);
   assert.equal(r.openings.length, 2);
   assert.deepEqual(r.openings.map((x) => x.kind), ['door', 'window']);
+  assert.deepEqual(r.openings.map((x) => [x.hosted, x.hostWallId, x.alongMm]),
+    [[true, gevelR.wallIds[0], 2000], [true, gevelR.wallIds[0], 6000]]);
   assert.equal(r.openings[1].widthMm, 1200);
   assert.equal(r.openings[1].sillMm, 850);
   assert.equal(r.anchoredDimensions, 6);
   assert.equal(r.openEnds.length, 2, 'een losse gevel is nog geen ruimte');
   assert.deepEqual(r.rooms, []);
+
+  // Een opgeknipte wand (ouder bestand): drie stukken, losse kozijnen.
+  const oud = omgevingMet();
+  await plattegrondOpdracht({ ...gevel, hosted: false }, oud);
+  const ro = await plattegrondOpdracht({ action: 'inspect' }, oud);
+  assert.deepEqual(ro.walls.map((w) => w.lengthMm), [1550, 2950, 3400]);
+  assert.deepEqual(ro.openings.map((x) => x.hosted), [false, false]);
+  assert.equal(ro.walls[0].openingIds, undefined);
 
   const zonderSchaal = await plattegrondOpdracht({ action: 'inspect' }, omgevingMet([], 0));
   assert.match(zonderSchaal.warning, /no measurement scale/);

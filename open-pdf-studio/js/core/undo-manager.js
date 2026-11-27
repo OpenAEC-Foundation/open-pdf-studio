@@ -5,6 +5,7 @@ import { stampRasterStale } from '../annotations/stamp-appearance-sync.js';
 import { applyOcrShift } from '../pdf/shift-page-geometry.js';
 import { toonOrigineelInTekstlaag, toonBewerkingInTekstlaag } from '../text/tekstlaag-bewerking.js';
 import { voegWijzigingenSamen } from './undo-samenvoegen.js';
+import { hostingBijCommando } from '../plattegrond/hosting-haak.js';
 const MAX_UNDO_STACK = 100;
 let undoTransactionDepth = 0;
 let undoTransactionCommands = null;
@@ -236,10 +237,22 @@ function vergeetPaginaSchalenVoorHerladen(doc) {
 // Execute a command: push to undo, clear redo, sync modified state
 export function execute(cmd) {
   if (pendingPropertyChange) flushPropertyChange();
+  // Gehoste deuren en ramen (#1229): de wand neemt haar kozijnen mee, een
+  // kozijn schuift alleen langs zijn wand, en wat daarbij aan de andere kant
+  // verandert hoort bij dezelfde ongedaan-stap. Een samengestelde stap is al
+  // per onderdeel langsgekomen.
+  let metHosting = null;
+  if (cmd && cmd.type !== 'compound') {
+    metHosting = hostingBijCommando(cmd, getActiveDocument());
+    if (metHosting === false) return;
+  }
   if (undoTransactionDepth > 0) {
-    undoTransactionCommands.push(cmd);
+    // Binnen een transactie blijven het losse stappen van die transactie.
+    if (metHosting) undoTransactionCommands.push(...metHosting.commands);
+    else undoTransactionCommands.push(cmd);
     return;
   }
+  if (metHosting) cmd = metHosting;
   const doc = getActiveDocument();
   // If clean point was beyond current position, it's now unreachable (divergent edit)
   if (doc && doc.savedUndoStackLength > (doc.undoStack || []).length) {
@@ -1177,12 +1190,21 @@ export function flushPropertyChange() {
 
   const current = targetDoc.annotations.find(a => a.id === pendingPropertyChange.id);
   if (current) {
-    const cmd = {
+    let cmd = {
       type: 'modifyAnnotation',
       id: pendingPropertyChange.id,
       oldState: pendingPropertyChange.oldState,
       newState: pendingPropertyChange.newState || cloneAnnotation(current)
     };
+    // Gehoste deuren en ramen (#1229), zoals in execute(): een andere
+    // wanddikte of kozijnmaat uit het paneel werkt door aan de andere kant.
+    const metHosting = hostingBijCommando(cmd, targetDoc);
+    if (metHosting === false) {
+      pendingPropertyChange = null;
+      clearTimeout(propertyChangeTimer);
+      return;
+    }
+    if (metHosting) cmd = metHosting;
     if (waardeSleepActief && undoTransactionDepth > 0) {
       // Tijdens het slepen van een getal hoort ook deze stap bij de sleep.
       undoTransactionCommands.push(cmd);

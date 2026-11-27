@@ -3942,7 +3942,7 @@
       "readOnlyHint": false,
       "title": "Draw floor plan"
     },
-    "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Four actions. \"wall\" draws ONE wall run with its openings: the wall is split at every door and window, so the opening really interrupts the wall (the hatch stops at the reveal) and the frame symbol sits in the gap at the wall's own thickness and angle; it returns the wall segment ids in order. Doors and windows are drawn as real frames: timber stiles (67 x 114 mm by default) with a rebate, double glazing or a 40 mm door leaf with its swing. With layers the run is a layered (cavity) wall: start/end are its outside face, every drawn layer gets its own wall segments cut to its own opening (the outer leaf overlaps the frame, the insulation closes against it, the inner leaf keeps a reveal with clearance), the frame stands in the cavity behind the outer leaf, and runs whose outside faces meet in a corner are mitred layer by layer. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a quiet room area (thin grey outline, no hatch or fill, drawn behind the walls and frames) plus ONE movable room tag, remembering the seed point. The room itself carries the name and the optional number (kept on save and reopen); the tag shows the room's name, number and net area. Placing a room that is already on the sheet adds no second area, only a tag if it has none. A click never selects a room (walls, frames and dimensions always win); reach it through its tag. names:[{id or x,y, name, number}] sets name and number on placed rooms; rooms and inspect report id, name, number and tagIds of placed rooms. With refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates its area and its tag, and the tag keeps its place relative to the room. \"dimensions\" places a dimension chain along a wall run (pier, opening, pier, ...) plus an overall dimension, measured the way a draughtsman does: every point is ANCHORED to the wall face on the side of the chain (for a facade built from separate layers, the face of the outermost layer), and the end points sit on the outer corner of the building, also where the own segment stops short at a butt joint. The dimensions show the number only, black and thin, with extension lines that start a small gap from the wall face and run just past the dimension line, and the dimension line runs a little past the outer extension lines (sizes in paper millimetres, so they do not change with the drawing scale); the default distances grow with the drawing scale so text never runs into the lines. With refresh:true every anchored dimension on the page is recomputed the same way, and a dimension whose wall disappeared is reported as detached rather than broken. With chainOf (the id of any dimension) plus addPoints and/or removePoints an existing dimension or chain is extended or shortened in place: a point between two extension lines splits that segment, a point outside makes the chain longer, removing a point merges two segments; the overall dimension follows, the new segments copy the style of their neighbour, and a point on a wall face is anchored to that wall. A single dimension extended this way becomes a chain. \"inspect\" reads back what is on the page: walls with their length and thickness, openings with width, sill and height, the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
+    "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Five actions. \"wall\" draws ONE wall run with its openings. A single wall stays ONE annotation that hosts its doors and windows: the wall shows a gap with a jamb line at each side (outline and hatch both stop there), the frame symbol sits in the gap at the wall's own thickness and angle, sliding a frame moves it along its wall only and the gap follows, moving, stretching or rotating the wall carries its frames along (each keeps its distance from the wall's start, shifted back if the wall becomes too short), deleting a frame closes the wall and deleting the wall deletes its frames, each in one undo step, and all of it survives save and reopen; wallIds then holds that one wall and segments lists the solid piers. With hosted:false the wall is split at every door and window as in older files (one wall annotation per solid piece, loose frame symbols; wallIds lists the pieces in order). \"opening\" puts a door or window into an EXISTING wall, hosted the same way: point at the wall with wallId or with point (a point on the wall), give kind, widthMm and alongMm (centre, from the wall's start) or let the point decide the place (shifted so the opening fits; a door then swings toward the side of the wall the point is on); an opening that would overlap another opening in the same wall, or that does not fit, is refused with a reason (overlap, outside, layered, wall, scale) and nothing changes. Doors and windows are drawn as real frames: timber stiles (67 x 114 mm by default) with a rebate, double glazing or a 40 mm door leaf with its swing. With layers the run is a layered (cavity) wall: start/end are its outside face, every drawn layer gets its own wall segments cut to its own opening (the outer leaf overlaps the frame, the insulation closes against it, the inner leaf keeps a reveal with clearance), the frame stands in the cavity behind the outer leaf, and runs whose outside faces meet in a corner are mitred layer by layer. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a quiet room area (thin grey outline, no hatch or fill, drawn behind the walls and frames) plus ONE movable room tag, remembering the seed point. The room itself carries the name and the optional number (kept on save and reopen); the tag shows the room's name, number and net area. Placing a room that is already on the sheet adds no second area, only a tag if it has none. A click never selects a room (walls, frames and dimensions always win); reach it through its tag. names:[{id or x,y, name, number}] sets name and number on placed rooms; rooms and inspect report id, name, number and tagIds of placed rooms. With refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates its area and its tag, and the tag keeps its place relative to the room. \"dimensions\" places a dimension chain along a wall run (pier, opening, pier, ...) plus an overall dimension, measured the way a draughtsman does: every point is ANCHORED to the wall face on the side of the chain (for a facade built from separate layers, the face of the outermost layer), and the end points sit on the outer corner of the building, also where the own segment stops short at a butt joint. The dimensions show the number only, black and thin, with extension lines that start a small gap from the wall face and run just past the dimension line, and the dimension line runs a little past the outer extension lines (sizes in paper millimetres, so they do not change with the drawing scale); the default distances grow with the drawing scale so text never runs into the lines. With refresh:true every anchored dimension on the page is recomputed the same way, and a dimension whose wall disappeared is reported as detached rather than broken. With chainOf (the id of any dimension) plus addPoints and/or removePoints an existing dimension or chain is extended or shortened in place: a point between two extension lines splits that segment, a point outside makes the chain longer, removing a point merges two segments; the overall dimension follows, the new segments copy the style of their neighbour, and a point on a wall face is anchored to that wall. A single dimension extended this way becomes a chain. \"inspect\" reads back what is on the page: walls with their length and thickness (and openingIds when they host openings), openings with width, sill and height, whether they are hosted by a wall and where along it (alongMm), the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -3951,6 +3951,7 @@
           "enum": [
             "inspect",
             "wall",
+            "opening",
             "rooms",
             "dimensions"
           ],
@@ -3960,6 +3961,10 @@
           "description": "dimensions with chainOf: points {x, y} in page points to add as extension lines, between or outside the existing ones.",
           "type": "array"
         },
+        "alongMm": {
+          "description": "opening: centre of the opening, measured from the start of the wall along it, in mm. Must fit inside the wall.",
+          "type": "number"
+        },
         "chainOf": {
           "description": "dimensions: the id of a dimension (measureDistance) whose chain you want to extend or shorten, with addPoints and/or removePoints.",
           "type": "string"
@@ -3968,6 +3973,10 @@
           "additionalProperties": true,
           "description": "wall: end of the run as {x, y} in page points.",
           "type": "object"
+        },
+        "hosted": {
+          "description": "wall (single wall, not layers): true (default) = one wall annotation that hosts its openings; false = split the wall at every opening, as in older files.",
+          "type": "boolean"
         },
         "insideSide": {
           "description": "wall with layers: which side of start->end is inside (default right; a clockwise outline has the inside on the right).",
@@ -3988,6 +3997,14 @@
         "joinStart": {
           "description": "wall: false = the start of the run never joins another wall: no mitre, no T, no trim; the end keeps a plain butt cap exactly where it is drawn (default true). Otherwise walls that touch are joined automatically: coincident end points are mitred; ends that just pass or fall short of a wall of the same material are trimmed to a closed corner; an end that stops on a continuing wall (on its centre line, on its face, just short of it or inside it) forms a T, where the same material flows into it and another material butts against its face with a seam. Later: app_update_annotation props noJoinStart / noJoinEnd.",
           "type": "boolean"
+        },
+        "kind": {
+          "description": "opening: door (default) or window.",
+          "enum": [
+            "door",
+            "window"
+          ],
+          "type": "string"
         },
         "layers": {
           "description": "wall: build-up of a layered (cavity) wall, from outside to inside, each {thicknessMm, material, insulation}; material none is an air cavity (not drawn). The run's start/end are then the outside face, thicknessMm and material of the run are ignored. Answer: layers[i].wallIds per drawn layer, per opening frame and layerOpeningsMm, corners = layers mitred at start/end.",
@@ -4013,6 +4030,11 @@
           "description": "dimensions: distance from the wall face to the chain, in mm (default 500 at 1:50; larger at smaller scales, so the text fits).",
           "type": "number"
         },
+        "opening": {
+          "additionalProperties": true,
+          "description": "opening: the same fields as one entry of openings (kind, widthMm, alongMm, sillMm, heightMm, swing, openSide, openTo, windowType, showSwing and the frame fields), as an alternative to the loose kind/widthMm/alongMm.",
+          "type": "object"
+        },
         "openings": {
           "description": "wall: the doors and windows in this run. Each: kind (door|window), widthMm (frame size, outside dimensions; in a single wall this is also the opening), alongMm (centre, measured from start along the wall), sillMm, heightMm, swing (left|right: the hinge side seen from the side the door opens away from), openSide (left|right of the wall direction) or openTo ({x, y}: a point in the room the door opens into; for a window its inside), windowType (fixed|turn|pivot|tilt), showSwing (window: true also draws the opening direction of a turn sash as a dashed quarter circle; default false, because in a plan it reads as a door). Frame, all optional: stileWidthMm (default 67), frameDepthMm (default 114, never deeper than the wall), framePositionMm (outside face of the wall to outside face of the frame; default: behind the outer leaf in a layered wall, centred in a single wall), overlapMm (outer leaf over the frame; default 20 in a layered wall), clearanceMm (reveal of the inner leaf; default 10 in a layered wall), leafThicknessMm (door leaf, default 40).",
           "type": "array"
@@ -4024,6 +4046,11 @@
         "place": {
           "description": "rooms: also put the rooms on the sheet instead of only reporting them.",
           "type": "boolean"
+        },
+        "point": {
+          "additionalProperties": true,
+          "description": "opening: a point {x, y} in page points on the wall. Without wallId it selects the wall under it; without alongMm it sets the place along the wall (shifted so the opening fits) and, without openSide/openTo, the side a door swings to.",
+          "type": "object"
         },
         "refresh": {
           "description": "rooms/dimensions: recompute what is already on the sheet from the walls as they are now.",
@@ -4059,7 +4086,7 @@
           "type": "number"
         },
         "tolerance": {
-          "description": "dimensions with removePoints: how close (page points) a point must be to an extension line (default 6).",
+          "description": "dimensions with removePoints: how close (page points) a point must be to an extension line (default 6). opening with point: how far outside the wall band the point may lie (default 2).",
           "type": "number"
         },
         "totalOffsetMm": {
@@ -4067,12 +4094,16 @@
           "type": "number"
         },
         "wallId": {
-          "description": "dimensions: a single wall annotation to dimension.",
+          "description": "dimensions: a single wall annotation to dimension. opening: the wall that gets the opening.",
           "type": "string"
         },
         "wallIds": {
-          "description": "dimensions: the wall segments of one run, in order along the run (as returned by action \"wall\").",
+          "description": "dimensions: the wall or wall segments of one run, in order along the run (as returned by action \"wall\"). A wall that hosts openings gets the jambs of each opening as chain points (pier, opening, pier), and those points follow the opening on refresh.",
           "type": "array"
+        },
+        "widthMm": {
+          "description": "opening: frame size in mm, also the width of the gap (default 900 for a door, 1200 for a window).",
+          "type": "number"
         }
       },
       "required": [

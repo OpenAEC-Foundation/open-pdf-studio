@@ -54,6 +54,8 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"dr-line","tab":"drawing","labelKey":"ribbon:comment.line"},
   {"id":"dr-polyline","tab":"drawing","labelKey":"ribbon:comment.polylineTitle"},
   {"id":"dr-wall","tab":"drawing","labelKey":"properties:quantities.type.wall"},
+  {"id":"dr-wall-door","tab":"drawing","labelKey":"ribbon:drawing.wallDoor"},
+  {"id":"dr-wall-window","tab":"drawing","labelKey":"ribbon:drawing.wallWindow"},
   {"id":"dr-arrow","tab":"drawing","labelKey":"ribbon:comment.arrow"},
   {"id":"dr-spline-arrow","tab":"drawing","labelKey":"ribbon:comment.splineArrowTitle"},
   {"id":"dr-draw","tab":"drawing","labelKey":"ribbon:comment.freehand"},

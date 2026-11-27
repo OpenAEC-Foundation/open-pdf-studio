@@ -101,6 +101,8 @@ export function applyAnnotationBatch(doc, operations, host) {
         host.recordModify(operation.id, before, annotation);
       } else {
         const index = doc.annotations.findIndex(item => item.id === operation.id);
+        // Al weg: een gehost kozijn ging mee met zijn wand (#1229).
+        if (index < 0) continue;
         const [annotation] = doc.annotations.splice(index, 1);
         host.recordDelete(annotation, index);
       }

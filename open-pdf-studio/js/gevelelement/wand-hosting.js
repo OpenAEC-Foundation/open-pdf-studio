@@ -106,6 +106,8 @@ export function plaatsInWand(wand, plaats, pxPerMm) {
 const GEEN_KOPIE = new Set([
   'id', 'startX', 'startY', 'endX', 'endY', 'x', 'y', 'width', 'height',
   'createdAt', 'modifiedAt', 'selectedSub', '_hoverSub',
+  // Gehoste deuren en ramen (#1229) blijven bij de oorspronkelijke wand.
+  'openingen',
 ]);
 
 export function wandSnedePlan(wandAnnotatie, stukken) {

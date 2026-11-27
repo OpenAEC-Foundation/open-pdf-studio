@@ -18,6 +18,8 @@
 // hartlijn.
 //   { annotationId, punt: 'start' | 'end', vlak: +1 | -1, hoek?: true }
 //   { annotationId, punt: 'langs', vlak: +1 | -1, afstandMm }   (een punt halverwege)
+//   { ..., punt: 'langs', openingId, kant: 'van' | 'tot' }      (de dagkant van een
+//                                    gehoste opening in die wand, #1229)
 // `vlak` is de kant van de wand in haar eigen frame (n = (-u.y, u.x)). Staat
 // er aan die kant een evenwijdige laag tegen (spouwmuur uit losse wanden),
 // dan telt het vlak van de BUITENSTE laag. `hoek` maakt er een uiterste punt
@@ -31,6 +33,7 @@ import { wandAs, projecteer, lijnSnijpunt } from '../annotations/wand-geometrie.
 import { maatTekstStrook } from '../annotations/maat-label.js';
 import { dimensionTypeProps } from '../annotations/dimension-types.js';
 import { kettingEinden } from '../annotations/maatlijn-geometrie.js';
+import { pasOpeningenIn } from '../annotations/wand-openingen.js';
 
 export { kettingEinden };
 
@@ -95,7 +98,7 @@ export function ankerPunt(anker, index, extra = {}) {
     case 'langs': {
       if (!ann || !Number.isFinite(ann.startX) || (anker.vlak !== 1 && anker.vlak !== -1)) return null;
       return wandvlakPunt(ann, 'langs', anker.vlak, {
-        afstandMm: anker.afstandMm,
+        afstandMm: dagkantAfstandMm(ann, anker, extra.pxPerMm) ?? anker.afstandMm,
         wanden: extra.wanden,
         pxPerMm: extra.pxPerMm,
         tolerantie: extra.tolerantie,
@@ -113,6 +116,20 @@ export function ankerPunt(anker, index, extra = {}) {
     default:
       return null;
   }
+}
+
+/**
+ * Een anker op de dagkant van een gehoste opening (#1229): `openingId` plus
+ * `kant` ('van' of 'tot'). Zolang de wand die opening heeft, volgt het punt
+ * haar; anders null en geldt de vastgelegde afstand van het anker.
+ */
+function dagkantAfstandMm(wand, anker, pxPerMm) {
+  if (!anker.openingId || !Array.isArray(wand?.openingen)) return null;
+  const as = wandAs(wand);
+  const k = pxPerMm > 0 ? pxPerMm : 1;
+  const o = as ? pasOpeningenIn(as.len / k, wand.openingen).find((x) => x.id === anker.openingId) : null;
+  if (!o) return null;
+  return o.afstandMm + (anker.kant === 'tot' ? 1 : -1) * (o.breedteMm / 2);
 }
 
 /**
@@ -408,7 +425,9 @@ export function ankerVoorPunt(p, wanden, pxPerMm = 1, tol = 1.5) {
  * De kettingpunten langs een wandloop, op het wandvlak aan de maatzijde.
  * Elk wandstuk levert zijn twee uiteinden (op volgorde langs de loop, ook als
  * het stuk andersom getekend is); het eerste en het laatste punt worden de
- * buitenhoeken van het gebouw.
+ * buitenhoeken van het gebouw. Een wand met gehoste openingen (`openingen`,
+ * #1229) levert daartussen de twee dagkanten van elke opening, zodat de
+ * ketting penant, dagmaat, penant blijft.
  *
  * @param {Array} loop  wandstukken `{ id, startX, startY, endX, endY, dikteMm }`
  *   op volgorde langs de loop
@@ -436,6 +455,20 @@ export function kettingLangsWandvlak(loop, opties = {}) {
       if ((i === 0 && j === 0) || (i === stukken.length - 1 && j === 1)) anker.hoek = true;
       const p = ankerPunt(anker, index, extra);
       if (p) punten.push({ x: p.x, y: p.y, anker });
+      if (j !== 0 || !Array.isArray(w.openingen) || !w.openingen.length) return;
+      // Tussen de uiteinden: de dagkanten, in de richting van de loop.
+      const k = opties.pxPerMm > 0 ? opties.pxPerMm : 1;
+      const open = pasOpeningenIn(as.len / k, w.openingen);
+      for (const o of (mee ? open : open.reverse())) {
+        for (const kant of (mee ? ['van', 'tot'] : ['tot', 'van'])) {
+          const dag = {
+            annotationId: w.id, punt: 'langs', vlak, openingId: o.id, kant,
+            afstandMm: Math.round((o.afstandMm + (kant === 'tot' ? 1 : -1) * (o.breedteMm / 2)) * 10) / 10,
+          };
+          const q = ankerPunt(dag, index, extra);
+          if (q) punten.push({ x: q.x, y: q.y, anker: dag });
+        }
+      }
     });
   });
   return punten;
