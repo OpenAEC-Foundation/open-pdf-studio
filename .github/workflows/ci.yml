@@ -157,6 +157,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-merge-pdfs-browser.mjs
 
+      - name: Test resizing pages with margins through the Resize dialog (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-resize-margins-browser.mjs
+
       - name: Test parametric symbol picker (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-parametric-picker-browser.mjs

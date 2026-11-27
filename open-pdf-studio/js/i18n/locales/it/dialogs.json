@@ -724,7 +724,21 @@
     "content": "Content:",
     "scaleToFit": "Scale to fit the new size",
     "keepSize": "Keep size (crop or add margin)",
-    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo."
+    "infoScale": "{{count}} page(s) in document. The content is scaled to fit and centred; annotations scale with it. Measurement scales and calibration are not adjusted. Reversible with Undo.",
+    "margins": "Margins (mm):",
+    "marginsOdd": "Odd pages (mm):",
+    "marginsEven": "Even pages (mm):",
+    "marginLeft": "Left",
+    "marginRight": "Right",
+    "marginTop": "Top",
+    "marginBottom": "Bottom",
+    "differentEven": "Different margins for even pages",
+    "infoMarginsScale": "With margins, the content is scaled to fit between them and centred there.",
+    "infoMarginsKeep": "With margins, the content keeps its size, is centred between them and is cropped to that area.",
+    "marginsNegative": "Margins cannot be negative.",
+    "marginsTooWide": "The left and right margins leave no room for the content: together they must be at least {{min}} mm smaller than the page width ({{size}} mm).",
+    "marginsTooHigh": "The top and bottom margins leave no room for the content: together they must be at least {{min}} mm smaller than the page height ({{size}} mm).",
+    "marginsEvenPages": "Even pages: {{message}}"
   },
   "compress": {
     "title": "Comprimi PDF",
