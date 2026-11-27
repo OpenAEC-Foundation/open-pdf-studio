@@ -602,6 +602,12 @@
     "joinHint": "Aus: Dieses Wandende wird nie auf Gehrung gestoßen, als T angeschlossen oder an einer anderen Wand gestutzt; es behält einen stumpfen Abschluss dort, wo es gezeichnet ist.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

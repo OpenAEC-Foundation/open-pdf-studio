@@ -602,6 +602,12 @@
     "joinHint": "オフ：壁のこの端は留め継ぎ、T 字結合、他の壁によるトリムが一切行われず、描いた位置で突き付けの端のままになります。",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

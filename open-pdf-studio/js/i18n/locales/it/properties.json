@@ -602,6 +602,12 @@
     "joinHint": "Disattivato: questa estremità del muro non viene mai unita a quartabuono, collegata a T o tagliata contro un altro muro; mantiene un'estremità dritta dove è disegnata.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

@@ -602,6 +602,12 @@
     "joinHint": "ປິດ: ປາຍຝານີ້ຈະບໍ່ຖືກຕັດມຸມ, ຕໍ່ເປັນຮູບໂຕ T ຫຼື ຕັດຕໍ່ກັບຝາອື່ນ; ມັນຈະຮັກສາປາຍຕັດກົງຕາມບ່ອນທີ່ແຕ້ມໄວ້.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

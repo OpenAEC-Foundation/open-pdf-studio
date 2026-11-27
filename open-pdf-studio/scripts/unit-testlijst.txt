@@ -77,6 +77,7 @@ js/annotations/wand-join.test.mjs
 js/pdf/saver/wand-join-meta.test.mjs
 js/plattegrond/wand-join-mcp.test.mjs
 js/plattegrond/blad-conventie.test.mjs
+js/plattegrond/wand-locatielijn.test.mjs
 js/tools/snap-punten.test.mjs
 js/tools/snap-extractie-beleid.test.mjs
 js/tools/snap-geometrie-cache.test.mjs
@@ -759,6 +760,7 @@ js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
 js/annotations/draaipunt-vormen.test.mjs
 js/ui/chrome/fullscreen.test.mjs
 js/solid/components/ribbon/wand-knop.test.mjs
+js/tools/tools/wand-conventie.test.mjs
 # MCP-verbindingssignaal in de statusbalk
 js/core/mcp-signaal.test.mjs
 # Beheerde modus (OPENAEC_BEHEERD=1)

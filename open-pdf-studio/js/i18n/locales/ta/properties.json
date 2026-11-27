@@ -602,6 +602,12 @@
     "joinHint": "அணைவு: சுவரின் இந்த முனை ஒருபோதும் சாய்வு இணைப்பு, T இணைப்பு அல்லது வேறு சுவருடன் நறுக்குதல் மூலம் இணைக்கப்படாது; வரைந்த இடத்திலேயே நேரான முனையாக இருக்கும்.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

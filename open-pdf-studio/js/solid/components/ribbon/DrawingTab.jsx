@@ -40,6 +40,7 @@ import { createFullPageScaleRegion, invalidateScaleRegionCache } from '../../../
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { openDialog } from '../../../bridge.js';
 import CountGroupRibbonControls from './CountGroupRibbonControls.jsx';
+import WallRibbonControls from './WallRibbonControls.jsx';
 import { startNewCount } from '../../stores/countStore.js';
 
 // Nieuwe telling (#1004): het telpictogram met een plusteken.
@@ -320,6 +321,16 @@ export function DrawingGroups() {
               />
               <span>{t('drawing.lineContinue') || 'Doorlopend'}</span>
             </label>
+          </RibbonGroup>
+        </Show>
+
+        {/* WAND-OPTIES — alleen bij het wandgereedschap (#1230): de dikte van
+            de volgende wand (Amerikaanse maten op een blad in voet of inch,
+            metrische op een metrisch blad) en de locatielijn die de klikken
+            volgen: hartlijn, linkervlak of rechtervlak. */}
+        <Show when={state.currentTool === 'wall'}>
+          <RibbonGroup label={tProperties('quantities.type.wall')}>
+            <WallRibbonControls />
           </RibbonGroup>
         </Show>
 

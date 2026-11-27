@@ -602,6 +602,12 @@
     "joinHint": "Av: denne enden av veggen blir aldri gjæret, skjøtt som T eller kuttet mot en annen vegg; den beholder en rett ende der den er tegnet.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

@@ -53,6 +53,7 @@ export interface Preferences {
   moveInferenceParallel: boolean;
   keepToolActive: boolean;
   lineContinue: boolean;
+  wallLocationLine: 'center' | 'left' | 'right';
   ribbonCollapsed: boolean;
 
   // Appearance

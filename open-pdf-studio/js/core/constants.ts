@@ -135,6 +135,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // chain mechanism as the wall tool.
   lineContinue: false,
 
+  // Wall tool location line (#1230): which line the clicks follow, seen along
+  // the drawing direction. 'center' (the centerline, as the tool always drew),
+  // 'left' (the clicks are the left face, the body lies to the right) or
+  // 'right'. The stored wall is always its centerline.
+  wallLocationLine: 'center',
+
   // Ribbon collapsed state: when true the ribbon body is hidden and only the
   // tab strip is shown (toggled by the chevron at the end of the tab strip).
   ribbonCollapsed: false,

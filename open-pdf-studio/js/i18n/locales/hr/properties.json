@@ -602,6 +602,12 @@
     "joinHint": "Isključeno: ovaj kraj zida nikad se ne spaja pod kutom, ne spaja se u T niti se obrezuje uz drugi zid; zadržava ravan kraj ondje gdje je nacrtan.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

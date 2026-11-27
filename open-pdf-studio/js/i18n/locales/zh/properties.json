@@ -602,6 +602,12 @@
     "joinHint": "关闭：此墙端永远不会斜接、T 形连接或被另一面墙修剪；它在绘制位置保持平头端。",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

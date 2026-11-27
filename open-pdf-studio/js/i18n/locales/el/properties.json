@@ -602,6 +602,12 @@
     "joinHint": "Ανενεργό: αυτό το άκρο του τοίχου δεν συνδέεται ποτέ φαλτσογωνιά, σε σχήμα Τ ή με ψαλίδισμα πάνω σε άλλο τοίχο· διατηρεί ευθύ άκρο εκεί όπου σχεδιάστηκε.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
