@@ -281,6 +281,13 @@
     "openWindowTip": "캡처된 인쇄 작업 표시"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "렌더링",
     "thinLines": "가는 선 (모든 선을 1px 너비로 표시)",
     "progressiveRender": "점진적 렌더링(무거운 도면을 타일 단위로 채우기)",

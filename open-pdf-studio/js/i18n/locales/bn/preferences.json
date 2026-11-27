@@ -281,6 +281,13 @@
     "openWindowTip": "সংগৃহীত মুদ্রণ কাজগুলো দেখান"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "রেন্ডারিং",
     "thinLines": "পাতলা রেখা (সমস্ত রেখা 1px প্রস্থে প্রদর্শন)",
     "progressiveRender": "ধাপে ধাপে রেন্ডারিং (ভারী অঙ্কন টাইল বাই টাইল পূরণ)",

@@ -281,6 +281,13 @@
     "openWindowTip": "حاصل شدہ پرنٹ جابز دکھائیں"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "رینڈرنگ",
     "thinLines": "پتلی لکیریں (تمام لکیریں 1px چوڑائی میں دکھائیں)",
     "progressiveRender": "بتدریج رینڈرنگ (بھاری ڈرائنگز کو ٹائل بہ ٹائل بھریں)",

@@ -281,6 +281,13 @@
     "openWindowTip": "عرض مهام الطباعة الملتقطة"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "العرض",
     "thinLines": "خطوط رفيعة (عرض جميع الخطوط بعرض 1 بكسل)",
     "progressiveRender": "عرض تدريجي (ملء الرسومات الثقيلة مربعًا تلو الآخر)",

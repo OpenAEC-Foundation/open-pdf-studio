@@ -3,6 +3,7 @@ import { state, getNextUntitledName, getActiveDocument } from '../core/state.js'
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { setViewMode, fitPage } from './renderer.js';
+import { indelingVan } from '../core/standaard-weergave.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -628,7 +629,8 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
 
       // Render first page immediately (before annotation loading)
       console.log(`[PERF] setViewMode START: ${(performance.now() - _t0).toFixed(0)}ms`);
-      await setViewMode(doc.viewMode);
+      // The layout the tab was given (#1289), two-page layouts included.
+      await setViewMode(indelingVan(doc));
       if (isClosed()) return;
       console.log(`[PERF] setViewMode DONE: ${(performance.now() - _t0).toFixed(0)}ms`);
       hideLoading();
@@ -1105,7 +1107,7 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
       doc.scale = Math.max(0.05, Math.min(1.5, fitScale));
     }
 
-    await setViewMode(doc.viewMode);
+    await setViewMode(indelingVan(doc));
     if (bytes) {
       // Zoals bij een geopend bestand: de annotaties van elke pagina laden;
       // dat zet ook de markering per pagina. Mislukt het, dan blijft de

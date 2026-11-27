@@ -281,6 +281,13 @@
     "openWindowTip": "Показване на прихванатите задания за печат"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Изобразяване",
     "thinLines": "Тънки линии (показване на всички линии с ширина 1px)",
     "progressiveRender": "Прогресивно изобразяване (тежките чертежи се запълват плочка по плочка)",

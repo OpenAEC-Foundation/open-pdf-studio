@@ -281,6 +281,13 @@
     "openWindowTip": "نمایش کارهای چاپ دریافت‌شده"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "رندر",
     "thinLines": "خطوط نازک (نمایش تمام خطوط با عرض 1 پیکسل)",
     "progressiveRender": "رندر تدریجی (پر کردن نقشه‌های سنگین کاشی به کاشی)",

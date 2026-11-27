@@ -281,6 +281,13 @@
     "openWindowTip": "Afficher les travaux d'impression capturés"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Rendu",
     "thinLines": "Lignes fines (afficher toutes les lignes avec une largeur de 1px)",
     "progressiveRender": "Rendu progressif (remplir les dessins lourds tuile par tuile)",

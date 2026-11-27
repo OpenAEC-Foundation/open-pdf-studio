@@ -281,6 +281,13 @@
     "openWindowTip": "Az elfogott nyomtatási feladatok megjelenítése"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Megjelenítés",
     "thinLines": "Vékony vonalak (minden vonal megjelenítése 1px szélességgel)",
     "progressiveRender": "Fokozatos renderelés (nagy rajzok csempénként töltődnek)",

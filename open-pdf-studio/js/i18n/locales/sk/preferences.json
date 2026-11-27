@@ -281,6 +281,13 @@
     "openWindowTip": "Zobraziť zachytené tlačové úlohy"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Vykresľovanie",
     "thinLines": "Tenké čiary (zobraziť všetky čiary so šírkou 1px)",
     "progressiveRender": "Postupné vykresľovanie (náročné výkresy po dlaždiciach)",

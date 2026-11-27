@@ -281,6 +281,13 @@
     "openWindowTip": "பிடிக்கப்பட்ட அச்சுப் பணிகளைக் காட்டு"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "ரெண்டரிங்",
     "thinLines": "மெல்லிய கோடுகள் (அனைத்து கோடுகளையும் 1px அகலத்தில் காட்டு)",
     "progressiveRender": "படிப்படியான ரெண்டரிங் (கனமான வரைபடங்களை ஓடு ஓடாக நிரப்பு)",

@@ -5,6 +5,7 @@ import { kalibratieVoor, zetKalibratie, wisKalibratie } from '../../../pdf/scher
 import PrefSelect from './PrefSelect.jsx';
 import PrefColorPicker from './PrefColorPicker.jsx';
 import { STANDAARD_ACHTERGROND, normaliseerAchtergrond } from '../../../pdf/pagina-achtergrond.js';
+import { PAGINA_INDELINGEN, normaliseerIndeling } from '../../../core/standaard-weergave.js';
 
 // Page sharpening levels 0-4 (render-sharpen.js), written out so every key
 // used here is findable in the locale files.
@@ -15,6 +16,15 @@ const SHARPEN_LEVELS = [
   'pageDisplay.pageSharpenLevel3',
   'pageDisplay.pageSharpenLevel4',
 ];
+
+// The layouts a document can open in (#1289), written out so every key used
+// here is findable in the locale files.
+const LAYOUT_LABELS = {
+  single: 'pageDisplay.layoutSingle',
+  continuous: 'pageDisplay.layoutContinuous',
+  facing: 'pageDisplay.layoutFacing',
+  book: 'pageDisplay.layoutBook',
+};
 
 export default function PageDisplayTab(props) {
   const { t } = useTranslation('preferences');
@@ -40,6 +50,23 @@ export default function PageDisplayTab(props) {
 
   return (
     <>
+      {/* The layout a document opens in (#1289). Open documents keep theirs. */}
+      <fieldset class="pref-fieldset">
+        <legend>{t('pageDisplay.pageLayout')}</legend>
+        <div class="pref-row">
+          <label>{t('pageDisplay.defaultLayout')}</label>
+          <PrefSelect
+            id="pref-default-page-layout"
+            value={() => normaliseerIndeling(p.defaultViewMode[0]())}
+            setValue={p.defaultViewMode[1]}
+            options={PAGINA_INDELINGEN.map((naam) => ({ value: naam, label: t(LAYOUT_LABELS[naam]) }))}
+            style={{ width: '200px' }}
+          />
+        </div>
+        <div class="pref-row">
+          <span class="pref-hint">{t('pageDisplay.defaultLayoutHint')}</span>
+        </div>
+      </fieldset>
       <fieldset class="pref-fieldset">
         <legend>{t('pageDisplay.rendering')}</legend>
         <div class="pref-row pref-checkbox-row">
