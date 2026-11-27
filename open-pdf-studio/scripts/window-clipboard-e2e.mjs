@@ -70,7 +70,8 @@ try {
   await a.evaluate(()=>document.activeElement?.blur()); await a.keyboard.press('Control+v');
   await a.waitForFunction(()=>clipTest.getActiveDocument().annotations.length===2);
   const group=await a.evaluate(()=>clipTest.getActiveDocument().annotations.map(x=>({id:x.id,startX:x.startX,startY:x.startY})));
-  assert.equal(group[1].startX-group[0].startX,30);assert.equal(group[1].startY-group[0].startY,40);
+  // The paste offset is applied in floating point; compare to a millionth of a point.
+  assert.ok(Math.abs(group[1].startX-group[0].startX-30)<1e-6);assert.ok(Math.abs(group[1].startY-group[0].startY-40)<1e-6);
   assert.ok(group.every(x=>!x.id.startsWith('group-')));
   console.log('PASS group copy in reverse direction uses Ctrl+V and preserves relative positions');
   const c=await open();
