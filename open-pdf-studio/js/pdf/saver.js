@@ -4135,7 +4135,16 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
   const currentPath = doc?.filePath;
   let map = null;
   if (!explicitPath && doc?.isUntitled && !doc._voorgesteldeMap) {
-    try { map = await window.__TAURI__?.path?.documentDir?.(); } catch { map = null; }
+    // De map van de laatste keer Opslaan als (#1245), anders Documenten.
+    if (isTauri()) {
+      try {
+        const { saveAsStartFolder, readLastSaveFolder } = await import('../core/dialog-folder.js');
+        map = saveAsStartFolder({ lastSave: readLastSaveFolder() });
+      } catch { map = null; }
+    }
+    if (!map) {
+      try { map = await window.__TAURI__?.path?.documentDir?.(); } catch { map = null; }
+    }
   }
   let savePath = explicitPath;
   if (!savePath) {
@@ -4157,6 +4166,14 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
     const previousTarget = doc?.saveTargetPath || currentPath;
     const success = await savePDF(savePath, opties, doc);
+    // De map die de gebruiker in het venster koos, is de startmap van het
+    // volgende Openen en van Opslaan als voor een document zonder eigen
+    // bestand (#1245). Alleen op het bureaublad heeft een venster een map.
+    if (success && !explicitPath && isTauri()) {
+      try {
+        (await import('../core/dialog-folder.js')).rememberSaveFolder(savePath);
+      } catch (e) { console.warn('[save-as] folder not remembered:', e); }
+    }
     // Opgeslagen: het document staat nu in een bestand dat de app kon
     // schrijven, dus niet langer alleen-lezen geopend (#1005).
     if (success && doc) doc.bestandAlleenLezen = null;
