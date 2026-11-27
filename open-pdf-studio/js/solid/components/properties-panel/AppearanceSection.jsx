@@ -1,3 +1,4 @@
+import { BLEND_MODES } from '../../../annotations/blend-modes.js';
 import { GEOMETRIC_LINE_STYLES, supportsGeometricLineStyle } from '../../../annotations/geometric-line-styles.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { Show, For, createSignal, createEffect } from 'solid-js';
@@ -17,6 +18,7 @@ import {
 export default function AppearanceSection() {
   const { t } = useTranslation('properties');
   const { t: tCommon } = useTranslation('common');
+  const { t: tRibbon } = useTranslation('ribbon');
   const geometricStylesAvailable = () => annotProps.multiCount > 0
     ? (getActiveDocument()?.selectedAnnotations || []).every(a => supportsGeometricLineStyle(a.type))
     : supportsGeometricLineStyle(annotProps.type);
@@ -170,6 +172,23 @@ export default function AppearanceSection() {
             disabled={isLocked()}
             onColorChange={(color) => updateAnnotProp('lijnKleur', color || null)}
           />
+        </Show>
+
+        <Show when={sectionVis.blendModeGroup}>
+          <div class="property-group">
+            <label for="prop-blend-mode">{tRibbon('format.blendMode')}</label>
+            <select id="prop-blend-mode" value={annotProps.blendMode}
+              title={tRibbon('format.blendHint')} disabled={isLocked()}
+              onDblClick={cycleSelectNext}
+              onChange={(e) => updateAnnotProp('blendMode', e.target.value)}>
+              <Show when={annotProps.blendMode === 'mixed'}>
+                <option value="mixed" disabled hidden>{tCommon('mixed')}</option>
+              </Show>
+              <For each={BLEND_MODES}>{mode =>
+                <option value={mode}>{tRibbon(`format.blend.${mode}`)}</option>
+              }</For>
+            </select>
+          </div>
         </Show>
 
         <Show when={sectionVis.opacityGroup}>

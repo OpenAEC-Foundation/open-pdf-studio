@@ -141,6 +141,7 @@ const [annotProps, setAnnotProps] = createStore({
   textColor: '#000000',
   lineWidth: 3,
   opacity: 100,
+  blendMode: 'normal',
   fillOpacity: 100,
   icon: 'comment',
   attachmentName: '',
@@ -257,6 +258,7 @@ const [sectionVis, setSectionVis] = createStore({
   textGroup: false,
   fontSizeGroup: false,
   opacityGroup: true,
+  blendModeGroup: false,
   fillOpacityGroup: false,
   // Aparte dekking voor lijn en vulling (#685): de dekking heet dan
   // lijndekking en de vul-dekking staat ernaast.
@@ -307,6 +309,12 @@ function redraw() {
   } else {
     redrawAnnotations();
   }
+}
+
+// Zoals de weergave: tekstmarkeringen mengen zonder expliciete modus al
+// met Multiply. Het tonen van de standaard verandert het model niet.
+function paneelMengmodus(annotation) {
+  return annotation.blendMode || (annotation.type === 'textHighlight' ? 'multiply' : 'normal');
 }
 
 // Compute section visibility based on annotation type
@@ -370,6 +378,8 @@ function computeSectionVisibility(type) {
     fontSizeGroup: type === 'text',
     // Een link (#953) heeft geen doorzichtigheid in het bestand.
     opacityGroup: !isScaleBar && type !== 'link',
+    // Mengmodi worden per annotatie opgeslagen, niet in de gereedschapsvoorkeuren.
+    blendModeGroup: !isScaleBar && type !== 'link' && currentAnnotation?.id !== '__tool-defaults__',
     fillOpacityGroup: isScaleRegion || heeftVulDekking(type),
     aparteDekking: heeftVulDekking(type),
     rotationGroup: hasRotation,
@@ -495,6 +505,7 @@ export function storeShowProperties(annotation) {
         : DRAFTING_RULE_TYPES.has(annotation.type)
           ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
+    blendMode: paneelMengmodus(annotation),
     icon: annotation.icon || (annotation.type === 'fileAttachment' ? 'paperclip' : 'comment'),
     attachmentName: annotation.attachment?.name || '',
     attachmentSize: annotation.attachment?.size ?? null,
@@ -736,6 +747,7 @@ export function storeHideProperties() {
     textGroup: false,
     fontSizeGroup: false,
     opacityGroup: false,
+    blendModeGroup: false,
     fillOpacityGroup: false,
     aparteDekking: false,
     rotationGroup: false,
@@ -838,6 +850,7 @@ export function storeShowMultiSelection(selected) {
     textColor: sharedTextColor,
     lineWidth: sharedLineWidth,
     opacity: sharedOpacity,
+    blendMode: sharedValue(selected, paneelMengmodus, 'mixed'),
     fillOpacity: sharedFillOpacity,
     icon: sharedValue(selected, a => a.icon || 'comment', 'mixed'),
     borderStyle: sharedBorderStyle,
@@ -922,6 +935,7 @@ export function storeShowMultiSelection(selected) {
     textGroup: allSameType && (sharedType === 'text' || sharedType === 'comment'),
     fontSizeGroup: allSameType && sharedType === 'text',
     opacityGroup: true,
+    blendModeGroup: allMatch(t => t !== 'link' && t !== 'scaleBar'),
     fillOpacityGroup: allMatch(t => t === 'scaleRegion') || allMatch(heeftVulDekking),
     aparteDekking: allMatch(heeftVulDekking),
     rotationGroup: allMatch(t => rotationTypes.has(t)),
@@ -1035,6 +1049,7 @@ export function storeShowTextEditProperties(info) {
     textGroup: false,
     fontSizeGroup: false,
     opacityGroup: false,
+    blendModeGroup: false,
     fillOpacityGroup: false,
     aparteDekking: false,
     rotationGroup: false,
