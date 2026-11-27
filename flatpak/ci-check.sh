@@ -41,7 +41,10 @@ case "$mode" in
     # flathub-build builds the way the Flathub builders do (sandboxed, sources
     # downloaded first, no network during the build, screenshots mirrored)
     # into ./builddir and ./repo, and installs the result.
-    flatpak run --command=flathub-build org.flatpak.Builder --install "flatpak/$app_id.yml"
+    # The checkout must be inside the manifest directory in a sandboxed build.
+    # Rebase the local source and dependency includes into a root manifest.
+    node flatpak/local-manifest.mjs
+    flatpak run --command=flathub-build org.flatpak.Builder --install "$app_id.yml"
     "${lint[@]}" builddir builddir
     "${lint[@]}" repo repo
     flatpak build-bundle repo "$app_id.flatpak" "$app_id"
