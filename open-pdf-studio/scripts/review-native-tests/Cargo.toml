@@ -1,6 +1,6 @@
 [package]
 name = "opds-review-native-tests"
-version = "2026.48.39"
+version = "2026.48.28"
 edition = "2021"
 publish = false
 
