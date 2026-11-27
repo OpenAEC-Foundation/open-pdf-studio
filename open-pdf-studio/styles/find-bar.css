@@ -623,3 +623,8 @@
   outline: none;
   background: color-mix(in srgb, var(--theme-accent, #d97706) 25%, transparent);
 }
+
+/* Keep waiting feedback inside the PDF and long result lists accessible. */
+#canvas-container.link-doel-bezig, #canvas-container.link-doel-bezig * { cursor: progress !important; }
+.link-doel-keuze { max-height: 80vh; overflow-y: auto; }
+.link-doel-keuze button { text-align: start; }

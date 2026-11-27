@@ -187,10 +187,20 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-parametric-picker-browser.mjs
 
+      - name: Test comb field layout and validation (Linux)
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: node scripts/test-comb-fields-browser.mjs
+
       - name: Test PDF link views and delayed navigation (Linux)
         if: runner.os == 'Linux'
         working-directory: open-pdf-studio
         run: node scripts/test-link-view-browser.mjs
+
+      - name: Test internal link destination marks (Linux)
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: node scripts/test-link-target-marks-browser.mjs
 
       - name: Test Space pan and Ctrl-wheel zoom (Linux)
         if: matrix.platform == 'ubuntu-22.04'
@@ -559,6 +569,9 @@ jobs:
 
       - name: Central PDF snapshot and PDF/XFDF export
         run: node scripts/test-central-review-pdf-browser.mjs
+      - name: Test live central review in two PDF tabs
+        working-directory: open-pdf-studio
+        run: node scripts/test-central-review-live-browser.mjs
 
   # De Python-bibliotheek (#518): de gegenereerde laag loopt gelijk met
   # mcp-stdio/tools.json, de tests (tegen een nep-MCP-server, zonder app) slagen

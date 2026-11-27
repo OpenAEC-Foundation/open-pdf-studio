@@ -16,7 +16,7 @@ import { matchBoxInPageFrame, boxToLayerPercent } from '../search/match-rect.js'
 import { labelVan, heeftEigenLabel } from './pagina-labels.js';
 
 const KLASSE = 'link-doel-markering';
-const MAX_PER_PAGINA = 40;
+
 
 /** Text items as boxes in the unrotated page frame (y down from the top). */
 export function tekstVakken(items, view) {
@@ -53,11 +53,22 @@ export function gestapeld(v, vakken) {
 
 const zelfde = (w) => (v) => v.str === w.str && Math.abs(v.h - w.h) <= 0.35 * w.h;
 
+// A view title draws its number in a larger, different font than the cut
+// bubble does (11.5 pt against 8.5 pt), so a bubble and its title are
+// matched with room on the size, both ways; the label and sheet together
+// keep the match exact.
+const ruim = (a, b) => a.str === b.str && b.h >= 0.55 * a.h && b.h <= 1.8 * a.h;
+const boven = (v, lijst) => lijst.filter((o) => o !== v
+  && o.h >= 0.45 * v.h && o.h <= 2.2 * v.h
+  && Math.abs(o.x + o.w / 2 - (v.x + v.w / 2)) <= Math.max(v.w, o.w) / 2 + 1
+  && Math.abs(o.y - v.y) <= 1.8 * Math.max(v.h, o.h));
+
 /** The sheet number in a page name: "S3.01 - DETAILS" -> "S3.01"; no name: null. */
 export function bladVanLabel(label) {
   const s = String(label ?? '').replace(/[\x00-\x1f]/g, '').trim();
   if (!s || /^\d+$/.test(s)) return null;
-  return s.split(/\s+[-–—]\s+|\s+/)[0] || null;
+  const token = s.split(/\s+[-–—]\s+|\s+/)[0];
+  return BLAD_RE.test(token) && /[A-Z]/.test(token) ? token : null;
 }
 
 const BLAD_RE = /^[A-Z]{0,3}-?\d{1,3}(?:\.\d{1,3})?[A-Z]?$/;
@@ -80,28 +91,43 @@ export function bladVanPagina(vakken) {
  */
 export function kiesPlekken(paginas, bron, doelPagina) {
   const woorden = bron.woorden;
+  if (!woorden?.length) return [];
   const plekken = [];
   if (bron.blad) {
     for (const [p, vakken] of paginas) {
       if (p === bron.page) continue;
-      const treffers = vakken.filter((v) => v.str !== bron.blad && woorden.some((w) => zelfde(w)(v))
-        && gestapeld(v, vakken).some((g) => g.str === bron.blad));
-      if (!treffers.length || treffers.length > MAX_PER_PAGINA) continue;
+      const treffers = vakken.filter((v) => v.str !== bron.blad && woorden.some((w) => ruim(w, v))
+        && boven(v, vakken).some((g) => g.str === bron.blad));
+      if (!treffers.length) continue;
       const uit = new Set();
-      for (const t of treffers) { uit.add(t); for (const g of gestapeld(t, vakken)) uit.add(g); }
+      for (const t of treffers) { uit.add(t); for (const g of boven(t, vakken)) if (g.str === bron.blad) uit.add(g); }
       plekken.push({ page: p, aantal: treffers.length, vakken: [...uit] });
     }
   }
   if (!plekken.length) {
-    // No sheet number, or none pointing back: the rarest word, on the link's page.
+    // The words under the link as a stacked pair ("A" over "S4.01"): the
+    // same pair on the link's page, not the clicked one itself (a link to a
+    // view on the same sheet), and not a lone "S4.01" of another bubble.
     const vakken = paginas.get(doelPagina) || [];
+    const kandidaten = vakken.filter(v => bron.page !== doelPagina || !woorden.includes(v));
+    for (const w of woorden) {
+      for (const g of boven(w, woorden)) {
+        const treffers = kandidaten.filter((v) => !woorden.includes(v) && ruim(w, v)
+          && boven(v, vakken).some((o) => !woorden.includes(o) && ruim(g, o)));
+        if (!treffers.length) continue;
+        const uit = new Set();
+        for (const t of treffers) { uit.add(t); for (const o of boven(t, vakken)) if (ruim(g, o)) uit.add(o); }
+        return [{ page: doelPagina, aantal: treffers.length, vakken: [...uit] }];
+      }
+    }
+    // No pair: the rarest word, on the link's page.
     let sleutel = null, minst = Infinity;
-    for (const w of woorden.filter((x) => x.str.length >= 2)) {
-      const n = vakken.filter(zelfde(w)).length;
+    for (const w of woorden.filter((x) => x.str.length > 0)) {
+      const n = kandidaten.filter(zelfde(w)).length;
       if (n > 0 && n < minst) { minst = n; sleutel = w; }
     }
-    if (!sleutel || minst > 12) return [];
-    const treffers = vakken.filter(zelfde(sleutel));
+    if (!sleutel) return [];
+    const treffers = kandidaten.filter(zelfde(sleutel));
     const uit = new Set();
     for (const t of treffers) { uit.add(t); for (const g of gestapeld(t, vakken)) uit.add(g); }
     return [{ page: doelPagina, aantal: treffers.length, vakken: [...uit] }];
@@ -110,139 +136,153 @@ export function kiesPlekken(paginas, bron, doelPagina) {
   return plekken;
 }
 
-// ── Text of the document, once per document ─────────────────────────────────
-
-const _cache = new WeakMap();
-
-async function alleTekst(doc) {
-  let c = _cache.get(doc.pdfDoc);
-  if (!c) { c = new Map(); _cache.set(doc.pdfDoc, c); }
-  const n = doc.pdfDoc.numPages;
-  for (let p = 1; p <= n; p++) {
-    if (c.has(p)) continue;
-    const page = await doc.pdfDoc.getPage(p);
-    const tc = await page.getTextContent();
-    c.set(p, { view: Array.from(page.view), vakken: tekstVakken(tc.items, page.view) });
+// Each PDF proxy owns its text cache, including in-flight page reads.
+const caches = new WeakMap();
+export async function leesLinkTekst(pdf, geldig = () => true) {
+  let cache = caches.get(pdf);
+  if (!cache) { cache = new Map(); caches.set(pdf, cache); }
+  const result = new Map();
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    if (!geldig()) return null;
+    let read = cache.get(pageNum);
+    if (!read) {
+      read = (async () => {
+        const page = await pdf.getPage(pageNum);
+        const text = await page.getTextContent();
+        return { view: Array.from(page.view), vakken: tekstVakken(text.items, page.view) };
+      })();
+      cache.set(pageNum, read);
+    }
+    let text;
+    try { text = await read; }
+    catch (error) { if (cache.get(pageNum) === read) cache.delete(pageNum); throw error; }
+    if (!geldig()) return null;
+    result.set(pageNum, text);
   }
-  return c;
+  return result;
 }
 
-// ── Marks and the page list ─────────────────────────────────────────────────
-
-let opruimen = null;
-
+let active = null;
 export function wisLinkDoelMarkering() {
-  opruimen?.();
-  opruimen = null;
+  const previous = active;
+  active = null;
+  previous?.dispose();
 }
 
-function teken(laag, vakken, view) {
-  const els = vakken.map((v) => {
-    const pct = boxToLayerPercent(v, view);
-    const el = document.createElement('div');
-    el.className = KLASSE;
-    el.style.left = `${pct.left}%`;
-    el.style.top = `${pct.top}%`;
-    el.style.width = `${pct.width}%`;
-    el.style.height = `${pct.height}%`;
-    el.style.transformOrigin = '0 0';
-    el.style.transform = pct.angle ? `rotate(${pct.angle}rad)` : 'none';
-    laag.appendChild(el);
-    return el;
-  });
-  const weg = () => wisLinkDoelMarkering();
-  setTimeout(() => document.addEventListener('pointerdown', weg, { capture: true, once: true }), 0);
-  opruimen = () => {
-    for (const el of els) el.remove();
-    document.removeEventListener('pointerdown', weg, { capture: true });
+function beginScope(geldig) {
+  wisLinkDoelMarkering();
+  const cleanup = [];
+  const scope = { menu: null, add: fn => cleanup.push(fn),
+    valid: () => active === scope && geldig(),
+    dispose: () => { for (const fn of cleanup.splice(0)) fn(); },
   };
+  active = scope;
+  const outside = e => { if (!scope.menu?.contains(e.target)) wisLinkDoelMarkering(); };
+  const escape = e => { if (e.key === 'Escape') wisLinkDoelMarkering(); };
+  document.addEventListener('pointerdown', outside, true);
+  document.addEventListener('click', outside, true);
+  document.addEventListener('keydown', escape, true);
+  const timer = setInterval(() => { if (active === scope && !geldig()) wisLinkDoelMarkering(); }, 100);
+  scope.add(() => {
+    document.removeEventListener('pointerdown', outside, true);
+    document.removeEventListener('click', outside, true);
+    document.removeEventListener('keydown', escape, true);
+    clearInterval(timer);
+  });
+  return scope;
 }
 
-/** A small list at the pointer: pick the page. Resolves to a page or null. */
-function kiesPagina(plekken, doc, x, y) {
-  return new Promise((klaar) => {
-    document.querySelector('.link-doel-keuze')?.remove();
+function kiesPagina(plekken, doc, x, y, scope, pageLabel) {
+  return new Promise(resolve => {
     const menu = document.createElement('div');
     menu.className = 'link-doel-keuze';
     menu.setAttribute('role', 'menu');
-    const sluit = (p) => {
-      menu.remove();
-      document.removeEventListener('pointerdown', buiten, true);
-      document.removeEventListener('keydown', toets, true);
-      klaar(p);
+    const previousFocus = document.activeElement;
+    let done = false;
+    const close = page => {
+      if (done) return;
+      done = true;
+      menu.remove(); scope.menu = null;
+      menu.removeEventListener('keydown', keydown);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+      resolve(page);
     };
-    const buiten = (e) => { if (!menu.contains(e.target)) sluit(null); };
-    const toets = (e) => {
-      const knoppen = [...menu.querySelectorAll('button')];
-      const i = knoppen.indexOf(document.activeElement);
-      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); sluit(null); }
-      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault(); e.stopPropagation();
-        knoppen[(i + (e.key === 'ArrowDown' ? 1 : -1) + knoppen.length) % knoppen.length]?.focus();
-      }
+    const keydown = e => {
+      if (!['ArrowDown', 'ArrowUp', 'Home', 'End', 'Escape', 'Tab'].includes(e.key)) return;
+      e.preventDefault(); e.stopPropagation();
+      if (e.key === 'Escape' || e.key === 'Tab') { wisLinkDoelMarkering(); return; }
+      const buttons = [...menu.querySelectorAll('button')];
+      const i = buttons.indexOf(document.activeElement);
+      const next = e.key === 'Home' ? 0 : e.key === 'End' ? buttons.length - 1
+        : (i + (e.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length;
+      buttons[next]?.focus();
     };
-    for (const p of plekken) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.setAttribute('role', 'menuitem');
-      const naam = heeftEigenLabel(doc.pageLabels, p.page)
-        ? labelVan(doc.pageLabels, p.page).replace(/[\x00-\x1f]/g, '').trim() : `Page ${p.page}`;
-      b.textContent = `${naam}${p.aantal > 1 ? `  (${p.aantal})` : ''}`;
-      b.addEventListener('click', (e) => { e.stopPropagation(); sluit(p.page); });
-      // The arrow keys go on from the row under the pointer.
-      b.addEventListener('mouseenter', () => b.focus({ preventScroll: true }));
-      menu.appendChild(b);
+    for (const plek of plekken) {
+      const button = document.createElement('button');
+      button.type = 'button'; button.setAttribute('role', 'menuitem');
+      const label = heeftEigenLabel(doc.pageLabels, plek.page)
+        ? labelVan(doc.pageLabels, plek.page).replace(/[\x00-\x1f]/g, '').trim() : pageLabel(plek.page);
+      button.textContent = `${label}${plek.aantal > 1 ? ` (${plek.aantal})` : ''}`;
+      button.addEventListener('click', e => { e.stopPropagation(); close(plek.page); });
+      button.addEventListener('mouseenter', () => button.focus({ preventScroll: true }));
+      menu.appendChild(button);
     }
+    scope.menu = menu; scope.add(() => close(null));
+    menu.addEventListener('keydown', keydown);
     document.body.appendChild(menu);
-    const r = menu.getBoundingClientRect();
-    menu.style.left = `${Math.max(4, Math.min(x + 6, innerWidth - r.width - 4))}px`;
-    menu.style.top = `${Math.max(4, Math.min(y + 6, innerHeight - r.height - 4))}px`;
+    const rect = menu.getBoundingClientRect();
+    menu.style.left = `${Math.max(4, Math.min(x + 6, innerWidth - rect.width - 4))}px`;
+    menu.style.top = `${Math.max(4, Math.min(y + 6, innerHeight - rect.height - 4))}px`;
     menu.querySelector('button')?.focus();
-    setTimeout(() => {
-      document.addEventListener('pointerdown', buiten, true);
-      document.addEventListener('keydown', toets, true);
-    }, 0);
   });
 }
 
-/**
- * Before following a link: where to go. Returns { page, vakken, view } (the
- * link's own page, or the one picked from the list), null to stay put, or
- * undefined when nothing was found (follow the link as it is).
- * `bron`: { page, rect, x, y } of the clicked link (rect in PDF space,
- * x/y the pointer).
- */
-export async function kiesLinkDoel(doc, bron, doelPagina) {
-  wisLinkDoelMarkering();
+/** Resolve a clicked link's partner, without allowing a stale jump to show UI. */
+export async function kiesLinkDoel(doc, bron, doelPagina, {
+  geldig = () => true, pageLabel = n => String(n),
+} = {}) {
   if (!bron || !Array.isArray(bron.rect) || !doc?.pdfDoc) return undefined;
-  // The first time the text of every page is read: a busy pointer meanwhile.
-  const wasCursor = document.body.style.cursor;
-  document.body.style.cursor = 'progress';
+  const scope = beginScope(geldig);
+  const canvas = document.getElementById('canvas-container');
+  canvas?.classList.add('link-doel-bezig');
+  scope.add(() => canvas?.classList.remove('link-doel-bezig'));
   let tekst;
-  try { tekst = await alleTekst(doc); } finally { document.body.style.cursor = wasCursor; }
+  try { tekst = await leesLinkTekst(doc.pdfDoc, scope.valid); }
+  catch (error) { if (active === scope) wisLinkDoelMarkering(); throw error; }
+  finally { if (active === scope) canvas?.classList.remove('link-doel-bezig'); }
+  if (!tekst || !scope.valid()) return null;
   const eigen = tekst.get(bron.page);
+  if (!eigen) { wisLinkDoelMarkering(); return undefined; }
   const woorden = woordenOnder(eigen.vakken, bron.rect, eigen.view);
-  if (!woorden.length) return undefined;
   const blad = (heeftEigenLabel(doc.pageLabels, bron.page) ? bladVanLabel(labelVan(doc.pageLabels, bron.page)) : null)
     || bladVanPagina(eigen.vakken);
-  const paginas = new Map([...tekst].map(([p, t]) => [p, t.vakken]));
+  const paginas = new Map([...tekst].map(([n, t]) => [n, t.vakken]));
   const plekken = kiesPlekken(paginas, { page: bron.page, woorden, blad }, doelPagina);
-  if (!plekken.length) return undefined;
-  let page = plekken[0].page;
-  if (plekken.length > 1) {
-    page = await kiesPagina(plekken, doc, bron.x ?? innerWidth / 2, bron.y ?? innerHeight / 2);
-    if (page == null) return null;
-  }
-  const plek = plekken.find((p) => p.page === page);
-  return { page, vakken: plek.vakken, view: tekst.get(page).view };
+  if (!plekken.length) { wisLinkDoelMarkering(); return undefined; }
+  const page = plekken.length === 1 ? plekken[0].page
+    : await kiesPagina(plekken, doc, bron.x ?? innerWidth / 2, bron.y ?? innerHeight / 2, scope, pageLabel);
+  if (page == null || !scope.valid()) return null;
+  const plek = plekken.find(p => p.page === page);
+  return { page, vakken: plek.vakken, view: tekst.get(page).view, scope };
 }
 
-/** Draw the marks once the page's text layer is there. */
-export async function markeerOpPagina(page, vakken, view, { tekstlaag, geldig = () => true }) {
+/** The text layer itself supplies page rotation/zoom; boxes stay in page coordinates. */
+export async function markeerOpPagina(page, vakken, view, { tekstlaag, geldig = () => true, scope }) {
   for (let i = 0; i < 40; i++) {
-    if (!geldig()) return;
+    if (!geldig() || !scope?.valid()) return;
     const laag = tekstlaag(page);
-    if (laag) { teken(laag, vakken, view); return; }
-    await new Promise((r) => setTimeout(r, 75));
+    if (laag) {
+      const elements = vakken.map(v => {
+        const pct = boxToLayerPercent(v, view);
+        const el = document.createElement('div'); el.className = KLASSE;
+        Object.assign(el.style, { left: `${pct.left}%`, top: `${pct.top}%`, width: `${pct.width}%`,
+          height: `${pct.height}%`, transformOrigin: '0 0', transform: pct.angle ? `rotate(${pct.angle}rad)` : 'none' });
+        laag.appendChild(el); return el;
+      });
+      scope.add(() => elements.forEach(el => el.remove()));
+      return;
+    }
+    await new Promise(resolve => setTimeout(resolve, 75));
   }
+  if (active === scope) wisLinkDoelMarkering();
 }

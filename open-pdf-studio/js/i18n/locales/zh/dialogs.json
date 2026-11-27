@@ -2588,7 +2588,21 @@
     "documentTitle": "文档标题",
     "createDocument": "创建文档",
     "uploadPdf": "上传 PDF",
-    "uploadHelp": "先创建文档，再上传一个 PDF（最大 32 MiB）。PDF 无法替换。请求失败后，请先刷新再重试。"
+    "uploadHelp": "先创建文档，再上传一个 PDF（最大 32 MiB）。PDF 无法替换。请求失败后，请先刷新再重试。",
+    "liveTitle": "Live central review",
+    "openLive": "Open live review",
+    "liveHelp": "Open a connected copy. Editors automatically share annotation changes; incoming changes appear every few seconds. The PDF itself stays unchanged on the server.",
+    "liveConnected": "Connected",
+    "livePending": "Changes waiting to sync",
+    "liveDisconnected": "Disconnected — local copy",
+    "liveError": "Sync needs attention",
+    "liveDisconnect": "Disconnect and keep local copy",
+    "liveReader": "Read-only access: your local edits are not shared.",
+    "liveSaveHelp": "Save As or export XFDF to keep a local copy, including unsent edits. Disconnecting stops sync; reopening starts a new copy. Incoming changes clear undo history to protect colleagues’ edits.",
+    "liveConflict": "Another participant changed annotation {{id}}. Your local version is preserved. Choose which version to share.",
+    "liveRemote": "Inspect server version",
+    "liveKeepMine": "Share my current version",
+    "liveUseRemote": "Use server version"
   },
   "virusNotice": {
     "title": "About virus scanner warnings",

@@ -128,6 +128,8 @@ try {
 
   // 3. Drag the door 1 m along the wall and well away from it, with the mouse.
   await page.evaluate(() => window.ho.setTool('select'));
+  // Leaving the tool takes its hint and refusal out of the status bar at once.
+  assert.equal(await page.evaluate(() => window.ho.state.statusMessage), '', 'the door tool message is cleared when the tool is left');
   await moveTo(400, 400);
   await page.mouse.down();
   await moveTo(450, 430, 4);

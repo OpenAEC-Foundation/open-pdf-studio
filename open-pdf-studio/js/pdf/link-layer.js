@@ -279,6 +279,7 @@ export function sprongNogGeldig(beurt, laatste, doc, actief) {
  * clicked link, PDF space) marks the landing spot: link-doelmarkering.js.
  */
 export async function handleInternalLink(dest, bron = null) {
+  wisLinkDoelMarkering();
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
   const pdf = doc.pdfDoc;
@@ -315,7 +316,8 @@ export async function handleInternalLink(dest, bron = null) {
     let keuze;
     if (bron) {
       try {
-        keuze = await kiesLinkDoel(doc, bron, targetPage);
+        keuze = await kiesLinkDoel(doc, bron, targetPage, { geldig,
+          pageLabel: page => `${i18next.t('page', { ns: 'common' })} ${page}` });
       } catch (e) {
         console.warn('[link-layer] bestemming niet gezocht:', e);
       }
@@ -326,8 +328,6 @@ export async function handleInternalLink(dest, bron = null) {
         targetPage = keuze.page;
         doelInfo = { ...destInfo, type: 'XYZ', left: v[0] + Math.max(0, b.x - 6 * b.h), top: v[3] - Math.max(0, b.y - 6 * b.h), zoom: null };
       }
-    } else {
-      wisLinkDoelMarkering();
     }
 
     // De doelpagina tonen; het beeld (zoom en plek) zet deze module daarna
@@ -344,7 +344,7 @@ export async function handleInternalLink(dest, bron = null) {
     // Een bestemming waarvan het beeld niet te lezen is: alleen de pagina.
     if (!getoond && geldig()) await goToPage(targetPage);
     if (keuze && geldig()) {
-      markeerOpPagina(targetPage, keuze.vakken, keuze.view, { tekstlaag: (n) => tekstlaagVan(doc, n), geldig })
+      markeerOpPagina(targetPage, keuze.vakken, keuze.view, { tekstlaag: (n) => tekstlaagVan(doc, n), geldig, scope: keuze.scope })
         .catch((e) => console.warn('[link-layer] bestemming niet gemarkeerd:', e));
     }
   } catch (e) {
