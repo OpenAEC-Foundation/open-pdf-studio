@@ -798,6 +798,9 @@ js/annotations/tekstmarkering-mcp.test.mjs
 js/text/tekst-markeren.test.mjs
 js/tools/highlight-mode-bedrading.test.mjs
 js/pdf/page-scale-geometry.test.mjs
+js/pdf/resize-margins-geometry.test.mjs
+js/pdf/resize-page-content.test.mjs
+js/pdf/resize-pages-i18n.test.mjs
 scripts/winget-manifest.test.mjs
 js/core/maat-notatie.test.mjs
 js/annotations/schaalcontrole.test.mjs

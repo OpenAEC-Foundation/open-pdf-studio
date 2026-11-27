@@ -173,6 +173,33 @@ test("offsets are written in plain decimal notation and must be finite", async (
   assert.throws(() => shiftPageContent(doc, page, 1e308, 0), RangeError);
 });
 
+test("a clip rectangle is written after the transform, in the coordinates of the content", async () => {
+  const doc = await docWithPages(1);
+  const page = doc.getPages()[0];
+  assert.equal(shiftPageContent(doc, page, 20, 115, 1.5, { x: 36.5, y: -12.25, width: 200, height: 100.00004 }), true);
+  const texts = contentTexts(doc, page);
+  assert.equal(texts[0], "q 1.5 0 0 1.5 20 115 cm\n36.5 -12.25 200 100 re W n\n");
+  assert.equal(texts[texts.length - 1], "\nQ\n");
+});
+
+test("without a clip the opening stream is the transform alone, and an unusable clip is refused", async () => {
+  const doc = await docWithPages(1);
+  const page = doc.getPages()[0];
+  const before = page.node.get(name("Contents"));
+  for (const clip of [
+    { x: 0, y: 0, width: 0, height: 100 },
+    { x: 0, y: 0, width: 100, height: -5 },
+    { x: NaN, y: 0, width: 100, height: 100 },
+    { x: 0, y: 1e308, width: 100, height: 100 },
+  ]) {
+    assert.throws(() => shiftPageContent(doc, page, 0, 0, 1, clip), RangeError);
+  }
+  // Nothing was changed by the refused calls.
+  assert.equal(page.node.get(name("Contents")), before);
+  shiftPageContent(doc, page, 5, 5, 1, null);
+  assert.equal(contentTexts(doc, page)[0], "q 1 0 0 1 5 5 cm\n");
+});
+
 test("annotations stored on the page move with the content", async () => {
   const doc = await docWithPages(1);
   const page = doc.getPages()[0];
