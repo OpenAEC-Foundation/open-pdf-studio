@@ -20,6 +20,7 @@
     "startup": "Запуск",
     "startupTool": "Инструмент при следующем запуске",
     "restoreLastSession": "Восстанавливать последний сеанс при запуске приложения",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Автор",
     "defaultAuthorName": "Имя автора",
     "language": "Язык",

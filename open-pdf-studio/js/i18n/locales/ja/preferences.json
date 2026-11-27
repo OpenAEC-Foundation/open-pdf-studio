@@ -20,6 +20,7 @@
     "startup": "起動",
     "startupTool": "次回起動時のツール",
     "restoreLastSession": "アプリケーション起動時に前回のセッションを復元する",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "著者",
     "defaultAuthorName": "著者名",
     "language": "言語",

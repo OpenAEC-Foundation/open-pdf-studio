@@ -20,6 +20,7 @@
     "startup": "Käynnistys",
     "startupTool": "Työkalu seuraavalla käynnistyksellä",
     "restoreLastSession": "Palauta edellinen istunto sovelluksen käynnistyessä",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Tekijä",
     "defaultAuthorName": "Tekijän nimi",
     "language": "Kieli",

@@ -20,6 +20,7 @@
     "startup": "Spustenie",
     "startupTool": "Nástroj pri ďalšom spustení",
     "restoreLastSession": "Obnoviť posledné sedenie pri spustení aplikácie",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Autor",
     "defaultAuthorName": "Meno autora",
     "language": "Jazyk",

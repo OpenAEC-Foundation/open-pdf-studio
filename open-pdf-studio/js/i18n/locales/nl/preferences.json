@@ -20,6 +20,7 @@
     "startup": "Opstarten",
     "startupTool": "Gereedschap bij volgende start",
     "restoreLastSession": "Laatste sessie herstellen bij het starten van de toepassing",
+    "reopenAtLastView": "Documenten heropenen in de laatste weergave",
     "author": "Auteur",
     "defaultAuthorName": "Auteursnaam",
     "language": "Taal",

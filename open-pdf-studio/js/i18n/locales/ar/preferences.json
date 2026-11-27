@@ -20,6 +20,7 @@
     "startup": "بدء التشغيل",
     "startupTool": "الأداة عند بدء التشغيل التالي",
     "restoreLastSession": "استعادة الجلسة الأخيرة عند بدء التطبيق",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "المؤلف",
     "defaultAuthorName": "اسم المؤلف",
     "language": "اللغة",

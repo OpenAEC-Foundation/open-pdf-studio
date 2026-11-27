@@ -20,6 +20,7 @@
     "startup": "시작",
     "startupTool": "다음 시작 시 도구",
     "restoreLastSession": "응용 프로그램 시작 시 마지막 세션 복원",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "작성자",
     "defaultAuthorName": "작성자 이름",
     "language": "언어",

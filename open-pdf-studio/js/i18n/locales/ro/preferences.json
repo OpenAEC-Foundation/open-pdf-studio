@@ -20,6 +20,7 @@
     "startup": "Pornire",
     "startupTool": "Instrument la următoarea pornire",
     "restoreLastSession": "Restaurare ultima sesiune la pornirea aplicatiei",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Autor",
     "defaultAuthorName": "Nume autor",
     "language": "Limba",

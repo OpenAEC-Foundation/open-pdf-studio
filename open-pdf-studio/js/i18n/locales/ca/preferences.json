@@ -20,6 +20,7 @@
     "startup": "Inici",
     "startupTool": "Eina al proper inici",
     "restoreLastSession": "Restaura l'última sessió en iniciar l'aplicació",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Autor",
     "defaultAuthorName": "Nom d'autor",
     "language": "Idioma",

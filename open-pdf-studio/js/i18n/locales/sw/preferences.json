@@ -20,6 +20,7 @@
     "startup": "Kuanza",
     "startupTool": "Zana wakati wa kuanza tena",
     "restoreLastSession": "Rejesha kipindi cha mwisho programu inapoanza",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Mwandishi",
     "defaultAuthorName": "Jina la Mwandishi",
     "language": "Lugha",

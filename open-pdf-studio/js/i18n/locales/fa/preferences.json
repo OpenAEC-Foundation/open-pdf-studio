@@ -20,6 +20,7 @@
     "startup": "راه‌اندازی",
     "startupTool": "ابزار در اجرای بعدی",
     "restoreLastSession": "بازیابی آخرین نشست هنگام راه‌اندازی برنامه",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "نویسنده",
     "defaultAuthorName": "نام نویسنده",
     "language": "زبان",

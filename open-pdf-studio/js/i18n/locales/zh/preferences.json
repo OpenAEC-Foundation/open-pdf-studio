@@ -20,6 +20,7 @@
     "startup": "启动",
     "startupTool": "下次启动时的工具",
     "restoreLastSession": "启动时恢复上次会话",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "作者",
     "defaultAuthorName": "作者姓名",
     "language": "语言",

@@ -372,6 +372,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Startup
   startupTool: 'select',
   restoreLastSession: false,
+  // Reopen a document at the page, zoom and view mode it was closed with
+  // (#1245, core/last-view.js).
+  reopenAtLastView: true,
   dontAskDefaultPdf: false,
 
   // Screenshot annotate: intercept the system PrtScn key as a global hotkey

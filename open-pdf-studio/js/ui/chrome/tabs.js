@@ -93,6 +93,9 @@ function toonTab(index) {
   // Save scroll position of current document
   const currentDoc = getActiveDocument();
   if (currentDoc) {
+    // Last view (#1245): zoom and place are only known while the document is
+    // in front; kept now for a close from the background (last-view-app.js).
+    window.__OPDS_LAST_VIEW_LEAVE__?.(currentDoc);
     const container = document.getElementById('pdf-container');
     if (container) {
       currentDoc.scrollPosition = {
@@ -215,6 +218,14 @@ function toonTab(index) {
         .then(() => restoreReaderPosition(newDoc))
         .catch((e) => console.warn('[reader-mode] restore failed:', e));
     }
+    // Last view (#1245): the same for a document that still has to show the
+    // view it was closed with; and from here on the page area shows this
+    // document, so its view can be measured when it closes (core/last-view.js).
+    const lastViewPending = !!newDoc._lastViewRestore;
+    Promise.resolve(firstRender)
+      .then(() => import('../../pdf/last-view-app.js'))
+      .then((m) => m.shownInFront(newDoc))
+      .catch((e) => console.warn('[last-view] restore failed:', e));
 
     // Restore scroll position (not for a document that still has to jump to
     // its stored reading position: it has no scroll of its own yet, and this
@@ -223,7 +234,7 @@ function toonTab(index) {
     // bovenkant van het document te zien (en renderden daar pagina's voor
     // niets) voordat het beeld naar de bewaarde plek sprong, en een trage
     // opbouw kreeg een te vroege, afgekapte scrollpositie (#539).
-    if (pdfContainer && newDoc.scrollPosition && !readerRestorePending) {
+    if (pdfContainer && newDoc.scrollPosition && !readerRestorePending && !lastViewPending) {
       const { x, y } = newDoc.scrollPosition;
       Promise.resolve(firstRender)
         .catch((e) => console.warn('[tabs] render na tabwissel mislukt:', e))
@@ -352,6 +363,13 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // on, and nothing meaningful to resume. Which file, which zoom/scroll and
   // when not to write: see reader-mode-view.js / reader-mode-tracking.js.
   persistReaderPosition(doc);
+  // Last view (#1245): every file with a path, unless switched off in the
+  // preferences. Taken here for the same reason: the view is still intact.
+  try {
+    (await import('../../pdf/last-view-app.js')).rememberLastView(doc);
+  } catch (e) {
+    console.warn('[last-view] not stored:', e);
+  }
 
   // Cancel any in-progress background annotation loading for this document.
   // PAS NA de opslaan-dialoog: cancelAnnotationLoading wist de
