@@ -105,10 +105,14 @@ try {
   let s = await read();
   assert.equal(s.walls.length, 1, 'placing a door leaves one wall annotation');
   assert.equal(s.count, 2);
-  assert.deepEqual(s.walls[0].openings.map((o) => [o.alongMm, o.widthMm, o.side]), [[3000, 900, -1]], 'door at the clicked point, swinging to the clicked side');
+  // The click is a screen position: at an arbitrary zoom it lands within a
+  // fraction of a millimetre of the page point.
+  close(s.walls[0].openings[0].alongMm, 3000, 'door at the clicked point', 0.5);
+  assert.deepEqual(s.walls[0].openings.map((o) => [o.widthMm, o.side]), [[900, -1]], 'a 900 mm door swinging to the clicked side');
+  const alongPlaced = s.walls[0].openings[0].alongMm;
   assert.equal(s.frames[0].hostWallId, wallId);
   assert.equal(s.frames[0].hostKey, s.walls[0].openings[0].key);
-  close(s.frames[0].centre.x, 400, 'door centre x');
+  close(s.frames[0].centre.x, 400, 'door centre x', 0.1);
   close(s.frames[0].centre.y, 400, 'door centre on the wall line');
   const undoAfterPlace = s.undo;
 
@@ -127,20 +131,20 @@ try {
   await moveTo(500, 520, 6);                        // +100 pt = 1000 mm along, 120 pt off the wall
   await settle();
   s = await read();                                 // still dragging: the gap follows live
-  close(s.walls[0].openings[0].alongMm, 4000, 'the gap follows while dragging', 1);
+  close(s.walls[0].openings[0].alongMm, alongPlaced + 1000, 'the gap follows while dragging', 1);
   close(s.frames[0].centre.y, 400, 'the door stays on the wall line while dragging');
   await page.mouse.up();
   await settle();
   s = await read();
-  close(s.walls[0].openings[0].alongMm, 4000, 'dragging the door 1 m moves the gap 1 m', 1);
+  close(s.walls[0].openings[0].alongMm, alongPlaced + 1000, 'dragging the door 1 m moves the gap 1 m', 1);
   close(s.frames[0].centre.x, 500, 'the door is in the gap', 0.1);
   close(s.frames[0].centre.y, 400, 'dragged away from the wall, the door stays on the wall line');
   assert.equal(s.undo, undoAfterPlace + 1, 'the drag is one undo step');
   const alongAfterDrag = s.walls[0].openings[0].alongMm;
   await page.evaluate(() => window.ho.undo.undo());
   s = await read();
-  assert.equal(s.walls[0].openings[0].alongMm, 3000, 'undo moves the gap back');
-  close(s.frames[0].centre.x, 400, 'undo moves the door back');
+  assert.equal(s.walls[0].openings[0].alongMm, alongPlaced, 'undo moves the gap back');
+  close(s.frames[0].centre.x, 400, 'undo moves the door back', 0.1);
   await page.evaluate(() => window.ho.undo.redo());
   s = await read();
   assert.equal(s.walls[0].openings[0].alongMm, alongAfterDrag);
