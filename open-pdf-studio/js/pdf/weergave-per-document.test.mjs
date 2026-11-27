@@ -26,6 +26,7 @@ const viewportVan = (filePath, extra = {}) => ({
   offsetX: -400,
   offsetY: -120,
   pageType: 'raster',
+  fitMode: 'page',
   ...extra,
 });
 
@@ -35,7 +36,7 @@ test('de stand bewaart wat nodig is om het beeld exact terug te zetten', () => {
   const stand = maakWeergaveStand(viewportVan('a.pdf'), { verankerd: true, strikt: true, ...canvas });
   assert.deepEqual(stand, {
     filePath: 'a.pdf', pageNum: 3, rotation: 0, viewRotation: 0, pageW: 842, pageH: 595,
-    zoom: 2.5, offsetX: -400, offsetY: -120, pageType: 'raster',
+    fitMode: 'page', zoom: 2.5, offsetX: -400, offsetY: -120, pageType: 'raster',
     verankerd: true, strikt: true, cssW: 1200, cssH: 800,
   });
 });
@@ -67,13 +68,13 @@ test('een stand past alleen bij hetzelfde bestand, dezelfde pagina en dezelfde s
 test('bij een gelijk canvas komen zoom en verschuiving exact terug', () => {
   const stand = maakWeergaveStand(viewportVan('a.pdf'), { verankerd: true, strikt: false, ...canvas });
   assert.deepEqual(herstelWaarden(stand, canvas), {
-    zoom: 2.5, offsetX: -400, offsetY: -120, verankerd: true, strikt: false, opnieuwPassend: false,
+    fitMode: 'page', zoom: 2.5, offsetX: -400, offsetY: -120, verankerd: true, strikt: false, opnieuwPassend: false,
   });
   // Ook een passend gemaakt beeld (niet verankerd) komt exact terug, zodat
   // "breedte passend" niet in "pagina passend" verandert.
   const passend = maakWeergaveStand(viewportVan('a.pdf', { zoom: 1.4, offsetX: 0, offsetY: 12 }), canvas);
   assert.deepEqual(herstelWaarden(passend, canvas), {
-    zoom: 1.4, offsetX: 0, offsetY: 12, verankerd: false, strikt: false, opnieuwPassend: false,
+    fitMode: 'page', zoom: 1.4, offsetX: 0, offsetY: 12, verankerd: false, strikt: false, opnieuwPassend: false,
   });
 });
 
@@ -88,7 +89,7 @@ test('is het canvas intussen van maat veranderd, dan blijft het midden van het b
   // Een passend beeld wordt bij een andere maat opnieuw passend gemaakt,
   // net als bij een gewone venstermaatwijziging.
   const passend = maakWeergaveStand(viewportVan('a.pdf'), { verankerd: false, ...canvas });
-  assert.deepEqual(herstelWaarden(passend, { cssW: 1000, cssH: 700 }), { opnieuwPassend: true });
+  assert.deepEqual(herstelWaarden(passend, { cssW: 1000, cssH: 700 }), { opnieuwPassend: true, fitMode: 'page' });
 });
 
 test('het geheugen geeft een stand één keer terug, per bestand', () => {
@@ -118,7 +119,7 @@ test('tabwissel A → B → A: A komt terug zoals hij werd verlaten, B is nieuw 
   const aankomstA = { filePath: 'a.pdf', pageNum: 3, rotation: 0, viewRotation: 0, pageW: 842, pageH: 595 };
   assert.deepEqual(
     wisselWeergave(geheugen, { vertrek: vertrekB, openPaden: ['a.pdf', 'b.pdf'], aankomst: aankomstA, canvas }),
-    { zoom: 2.5, offsetX: -400, offsetY: -120, verankerd: true, strikt: false, opnieuwPassend: false },
+    { fitMode: 'page', zoom: 2.5, offsetX: -400, offsetY: -120, verankerd: true, strikt: false, opnieuwPassend: false },
   );
   // En B weer terug: ook B houdt zijn eigen zoom.
   const terugNaarB = wisselWeergave(geheugen, {

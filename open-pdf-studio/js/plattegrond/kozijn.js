@@ -31,11 +31,32 @@
 //   draaiNaar          deur: binnen | buiten
 //   angle              deur: openingshoek
 //   deurbladDikteMm    deur: 40
+//   symboolStijl       'us' = het Amerikaanse plansymbool (#1230), zie
+//                      hieronder; zonder deze sleutel het kozijn hierboven
+//
+// Het Amerikaanse plansymbool (symboolStijl 'us') heeft geen kozijnhout:
+//   deur   een blad van 1-3/4 inch, scharnierend op de dagkant aan het
+//          wandvlak waar de deur heen draait, 90 graden open getekend, met
+//          de draaicirkel terug naar de andere dagkant;
+//   raam   de twee wandvlakken doorgetrokken over de opening, een dagkant
+//          aan elk eind en één glaslijn op het hart van de wand.
+// De stijl wordt bij het plaatsen gekozen (een blad in voet of inch, zie
+// blad-conventie.js) en staat daarna in het symbool zelf: een opgeslagen
+// bestand opent met hetzelfde symbool, wat de voorkeuren ook zijn.
 
 import {
   KOZIJN_STANDAARD, kozijnstijl, deurVormen, raamVormen, kozijnDetail,
   vormenOmhullende, vormenNaarTekenopdrachten,
 } from './kozijnprofiel.js';
+import { OPENING_STANDAARD_IMPERIAAL } from './blad-conventie.js';
+
+/** De waarde van params.symboolStijl voor het Amerikaanse plansymbool. */
+export const SYMBOOL_STIJL_US = 'us';
+
+/** Tekent dit symbool het Amerikaanse plansymbool (#1230)? */
+export function isUsSymbool(params) {
+  return params?.symboolStijl === SYMBOOL_STIJL_US;
+}
 
 const STANDAARD_BREEDTE = { deur: 900, raam: 1200 };
 const STANDAARD_WAND = { deur: 100, raam: 240 };
@@ -61,6 +82,7 @@ function positief(v, standaard) {
  * @param {'deur'|'raam'} soort
  */
 export function heeftKozijnOpbouw(params, soort = 'deur') {
+  if (isUsSymbool(params)) return true;
   if ((getal(params?.stijlBreedteMm) ?? 0) > 0) return true;
   return soort === 'deur' && (getal(params?.wallThickness) ?? 0) > 0;
 }
@@ -89,8 +111,10 @@ export function kozijnMaten(soort, params = {}) {
   // het oude deursymbool het al. Draait de deur naar buiten, dan kijk je
   // vanaf de andere kant en wisselt links en rechts in het symbool.
   const rechts = (params.swing === 'right') !== (draaiNaar === 'buiten');
+  const us = isUsSymbool(params);
   return {
     soort: deur ? 'deur' : 'raam',
+    stijl: us ? SYMBOOL_STIJL_US : 'nen',
     breedteMm, wandDikteMm, stijlBreedteMm, stijlDiepteMm, positieMm, aanslagMm, spelingMm,
     // Oude ramen hebben geen borstwering in hun params: toen stond het
     // aanzicht er altijd, dus dat blijft zo.
@@ -101,7 +125,8 @@ export function kozijnMaten(soort, params = {}) {
     scharnier: rechts ? 'plus' : 'min',
     draaiNaar,
     hoekGraden: Math.max(1, Math.min(180, getal(params.angle) ?? 90)),
-    deurbladDikteMm: positief(params.deurbladDikteMm, KOZIJN_STANDAARD.deurbladDikteMm),
+    deurbladDikteMm: positief(params.deurbladDikteMm,
+      us ? OPENING_STANDAARD_IMPERIAAL.deur.bladDikteMm : KOZIJN_STANDAARD.deurbladDikteMm),
     toonWand: !!params.showWall,
   };
 }
@@ -124,7 +149,34 @@ export function kozijnIndeling(soort, params = {}, opties = {}) {
   return { maten: m, vormen, vak };
 }
 
+/**
+ * Het Amerikaanse plansymbool (zie de kop). De opening is de volle breedte
+ * `W`; de wand loopt van v = 0 tot v = T.
+ */
+function usVormen(m, detail) {
+  const { breedteMm: W, wandDikteMm: T } = m;
+  if (m.soort === 'deur') {
+    // Blad en draaicirkel uit deurVormen, zonder sponning: met een kier zo
+    // groot als de sponning ligt het scharnier precies op de dagkant en is
+    // het blad zo breed als de opening.
+    return deurVormen({
+      vanU: 0, totU: W, diepteMm: T, vVan: 0, vTot: T, detail,
+      scharnier: m.scharnier, draaiNaar: m.draaiNaar, hoekGraden: m.hoekGraden,
+      deurbladDikteMm: m.deurbladDikteMm, deurSpelingMm: KOZIJN_STANDAARD.sponningDiepteMm,
+    });
+  }
+  const lijn = (rol, u0, v0, u1, v1) => ({ soort: 'lijn', rol, van: { u: u0, v: v0 }, tot: { u: u1, v: v1 } });
+  return [
+    lijn('wandvlak', 0, 0, W, 0),
+    lijn('wandvlak', 0, T, W, T),
+    lijn('wandvlak', 0, 0, 0, T),
+    lijn('wandvlak', W, 0, W, T),
+    lijn('glas', 0, T / 2, W, T / 2),
+  ];
+}
+
 function maakVormen(m, detail) {
+  if (m.stijl === SYMBOOL_STIJL_US) return usVormen(m, detail);
   const { breedteMm: W, wandDikteMm: T, stijlBreedteMm: b, stijlDiepteMm: D, positieMm: p } = m;
   const deur = m.soort === 'deur';
   const draaiend = !deur && m.raamtype !== 'fixed';
@@ -187,7 +239,9 @@ export function kozijnTekenopdrachten(soort, params, bbox) {
   let p = params || {};
   let { vak } = kozijnIndeling(soort, p);
   let k = bw / (vak.uMax - vak.uMin);
-  if (soort === 'raam' && (p.type || 'fixed') !== 'turn') {
+  // Het Amerikaanse raam heeft nooit een draaicirkel: het vak is altijd de
+  // opening breed en de wand diep.
+  if (soort === 'raam' && (isUsSymbool(p) || (p.type || 'fixed') !== 'turn')) {
     // Het vak is zo diep als de wand: dat is de wanddikte op het blad.
     p = { ...p, wallThickness: bh / k };
     ({ vak } = kozijnIndeling(soort, p));

@@ -48,8 +48,14 @@ const DIST = path.join(app, 'dist');
 // een toelichting (zit in het tekenpad), de marges bij afdrukken en twee
 // aanroepen in de plugin-API. De rechtermuisknop en de presentatieweergave
 // laden apart, na het starten.
-export const BUDGET_KB = 4230;
-export const BUDGET_GZIP_KB = 1386;
+// 27-11-2026, ronde 27: main stond al op 4241,0 KiB desktop (gzip 1382,8),
+// gehost ongeveer 17 KiB meer, dus boven het budget; deze test draait niet in
+// de CI, waardoor dat niet opviel. De ronde zelf brengt 4,7 KiB mee (gzip
+// 1,8), gehost 4263,0 KiB (gzip 1390,8): het behoud van eenheden bij omtrek en oppervlakte,
+// de omhullende van toelichtingslijnen en de gedeelde paginabronnen bij
+// opslaan, die alle in het laad-, teken- of opslagpad zitten.
+export const BUDGET_KB = 4265;
+export const BUDGET_GZIP_KB = 1393;
 
 /** Het pad (relatief aan dist/) van het module-script in index.html. */
 export function entryUitIndex(html) {

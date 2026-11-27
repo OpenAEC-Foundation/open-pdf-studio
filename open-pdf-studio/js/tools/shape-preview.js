@@ -19,7 +19,7 @@ import { previewCtx, redrawForViewMode } from './preview-target.js';
  * het paginacanvas onder de cursor (tool-context geeft het mee), in de enkele
  * pagina de overlay. Zonder doel kiest previewCtx() het (#616).
  */
-export function drawShapePreview(currentX, currentY, e, doelCtx = null) {
+export function drawShapePreview(currentX, currentY, e, doelCtx = null, tool = state.currentTool) {
   // Het voorbeeld VOOR de basisredraw bouwen: voor de betonbalk doet het
   // voorbeeld als sibling mee (state._previewJoinAnn), zodat bestaande
   // balken hun verstek/open-T al tonen tijdens het tekenen — zie de
@@ -27,9 +27,9 @@ export function drawShapePreview(currentX, currentY, e, doelCtx = null) {
   state._isPreview = true;
   let tempAnn;
   try {
-    tempAnn = buildAnnotationProps(state.currentTool, state.startX, state.startY, currentX, currentY, e);
+    tempAnn = buildAnnotationProps(tool, state.startX, state.startY, currentX, currentY, e);
     // Zelfde opmaak als de plaatsing (invoegsessie voor symbolen, #587).
-    tempAnn = withSymbolInsertFormat(state.currentTool, tempAnn);
+    tempAnn = withSymbolInsertFormat(tool, tempAnn);
   } finally {
     state._isPreview = false;
   }
@@ -50,7 +50,6 @@ export function drawShapePreview(currentX, currentY, e, doelCtx = null) {
   // of de oude modus (schaal × dpr), met een gedraaide weergave (#200) erin.
   applyToolTransform(tekenCtx);
 
-  const tool = state.currentTool;
 
   if (tempAnn) {
     drawAnnotation(tekenCtx, tempAnn);

@@ -3,6 +3,11 @@ import { meetPunt } from '../annotations/meet-punt.js';
 // het geopende document — een sparing hoort bij een wand, een ruimte bij de
 // wanden eromheen, een maat bij wat hij meet.
 //
+// Een deur of raam in een enkele wand is GEHOST (#1229): de wand blijft één
+// annotatie en houdt de opening in haar lijst `openingen`; het kozijn is een
+// eigen annotatie die naar de wand terugwijst. Een gelaagde (spouw)muur
+// wordt nog rond het kozijn in stukken geknipt.
+//
 // Deze module raakt de app niet rechtstreeks aan. Alles wat ze nodig heeft
 // komt binnen als `omgeving`, zodat de hele opdracht met eenvoudige stubs te
 // toetsen is:
@@ -10,6 +15,9 @@ import { meetPunt } from '../annotations/meet-punt.js';
 //   {
 //     doc:          { currentPage, annotations, paginas },
 //     pxPerMmAt(page, x, y) -> number,
+//     imperiaalOp(page, x, y)  -> boolean         (blad in voet of inch op dit
+//                                                  punt, #1230; optioneel,
+//                                                  zonder is het metrisch)
 //     maak(type, page, props)  -> { ok, id }      (annotatie toevoegen)
 //     werkBij(id, props)       -> { ok }          (annotatie wijzigen)
 //     verwijder(id)            -> { ok }          (annotatie weghalen)
@@ -22,7 +30,7 @@ import { meetPunt } from '../annotations/meet-punt.js';
 // MCP-opdracht.
 
 import {
-  SPARING_SOORTEN, SPARING_SYMBOOL, SPARING_STANDAARD,
+  SPARING_SOORTEN, SPARING_SYMBOOL,
   normaliseerSparing, wandMetSparingen, controleerSparing, sparingPlaatsing,
 } from './sparing.js';
 import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel, RUIMTE_VLAKSTIJL, puntInPolygoon } from './ruimte.js';
@@ -40,15 +48,20 @@ import { wandAs, projecteer } from '../annotations/wand-geometrie.js';
 import { PRESETS as GEVEL_PRESETS } from '../gevelelement/catalogus.js';
 import { indeling as gevelIndeling } from '../gevelelement/indeling.js';
 import { twoPointEndpoints } from '../symbols/two-point.js';
-import { kozijnIndeling, kozijnMaten, vakOffsetMm } from './kozijn.js';
+import { kozijnIndeling, kozijnMaten, vakOffsetMm, SYMBOOL_STIJL_US, isUsSymbool } from './kozijn.js';
 import {
   normaliseerPakket, kozijnInPakket, laagSparingMm, laagLijnen, zoekLaagHoek,
 } from './spouwmuur.js';
 import {
   RUIMTETAG_ID, ruimteTagVak, tagVolgtRuimte, RUIMTETAG_STIJL, RUIMTETAG_TEKST_PT,
 } from '../symbols/templates/ruimtetag.js';
+import { nieuweOpeningSleutel, wandOpeningen, klemAfstandMm } from '../annotations/wand-openingen.js';
+import { controleerNieuweOpening, nieuweOpening, lijstMetOpening } from './gehoste-opening.js';
+import { wandStandaard, OPENING_STANDAARD_IMPERIAAL } from './blad-conventie.js';
+import { standaardOpeningBreedteMm } from './opening-breedte.js';
+import { rekenOm } from '../quantities/eenheid-omrekening.js';
 
-export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'rooms', 'dimensions']);
+export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'opening', 'rooms', 'dimensions']);
 
 const SOORT_VAN_KIND = { door: 'deur', window: 'raam' };
 const KIND_VAN_SOORT = { deur: 'door', raam: 'window' };
@@ -85,6 +98,8 @@ function wandenOpPagina(annotaties, page) {
       dikteMm: getal(a.dikteMm) || 100,
       // Join per uiteinde (#476), voor inspect.
       noJoinStart: a.noJoinStart === true, noJoinEnd: a.noJoinEnd === true,
+      // Gehoste openingen (#1229), voor inspect en de maatketting.
+      ...(wandOpeningen(a).length ? { openingen: wandOpeningen(a) } : {}),
     }));
 }
 
@@ -111,6 +126,13 @@ function sparingenOpPagina(annotaties, page) {
     && (a.symbolId === 'door' || a.symbolId === 'window'));
 }
 
+/** Is het blad op dit punt imperiaal (#1230)? Zonder ingang: metrisch. */
+function imperiaalOp(omgeving, page, punt) {
+  if (typeof omgeving.imperiaalOp !== 'function') return false;
+  const p = punt || { x: 0, y: 0 };
+  return omgeving.imperiaalOp(page, p.x, p.y) === true;
+}
+
 /** Schaal op een houvastpunt; zonder punt het midden van alle wanden. */
 function schaalOp(omgeving, page, punt) {
   const p = punt || { x: 0, y: 0 };
@@ -128,17 +150,21 @@ function middenVan(wanden) {
 // ── actie: wall ──────────────────────────────────────────────────────────
 
 /**
- * Eén wandloop tekenen mét zijn sparingen. De wand wordt opgeknipt: per
- * solide stuk één wand-annotatie, en in elk gat het kozijnsymbool. Daardoor
- * onderbreekt een deur of raam de wand echt — de arcering stopt bij de dag
- * en de bestaande wandrenderer zet op elk vrij einde een dagkant.
+ * Eén wandloop tekenen mét zijn sparingen. De wand is één annotatie die haar
+ * openingen HOST (#1229): de band is open waar een kozijn staat (omtrek en
+ * arcering stoppen bij de dagkanten), het kozijn schuift langs de wand en
+ * gaat met haar mee. Met `hosted: false` wordt de wand als vanouds opgeknipt:
+ * per solide stuk één wand-annotatie met het kozijnsymbool los in het gat.
  */
 async function actieWand(params, omgeving, page) {
   const start = params?.start, end = params?.end;
   if (!start || !end || ![start.x, start.y, end.x, end.y].every((v) => getal(v) !== null)) {
     return fout('action "wall" needs start:{x,y} and end:{x,y} in page points');
   }
-  const dikteMm = getal(params?.thicknessMm) || 100;
+  // Zonder opgave de wand van het blad (#1230): 100 mm metselwerk, en op een
+  // blad in voet of inch een kale wand van 6 inch zonder arcering.
+  const standaard = wandStandaard(imperiaalOp(omgeving, page, start));
+  const dikteMm = getal(params?.thicknessMm) || standaard.dikteMm;
   if (dikteMm <= 0) return fout('thicknessMm must be > 0');
   const pxPerMm = schaalOp(omgeving, page, start);
   if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
@@ -158,8 +184,11 @@ async function actieWand(params, omgeving, page) {
   const sparingen = [];
   const klachten = [];
   const enkelPakket = normaliseerPakket([{ dikteMm, materiaal: params?.material || 'nen47-metselwerk-baksteen' }]);
+  // De conventie van het blad (#1230) geldt ook voor de openingen: op een
+  // blad in voet of inch 36 en 48 inch en het Amerikaanse plansymbool.
+  const imperiaal = imperiaalOp(omgeving, page, start);
   (params?.openings || []).forEach((o, i) => {
-    const s = leesOpening(o, i, wand, enkelPakket);
+    const s = leesOpening(o, i, wand, enkelPakket, imperiaal);
     const soort = s.soort;
     const controle = controleerSparing(wand, s, sparingen, pxPerMm, getal(params?.minPierMm) ?? 0);
     if (!controle.ok) klachten.push(`opening ${i} (${o?.kind || soort}): ${controle.reden}`);
@@ -170,7 +199,7 @@ async function actieWand(params, omgeving, page) {
   const { segmenten, sparingen: plaatsingen, lengteMm } = wandMetSparingen(wand, sparingen, pxPerMm);
   const stijl = {
     dikteMm,
-    hatchPattern: params?.material || 'nen47-metselwerk-baksteen',
+    hatchPattern: params?.material || standaard.hatchPattern,
     ...(params?.insulation ? { isolatieType: params.insulation } : {}),
   };
 
@@ -183,7 +212,34 @@ async function actieWand(params, omgeving, page) {
 
   const wallIds = [];
   const openingIds = [];
+  const gehost = params?.hosted !== false;
   await omgeving.transactie(async () => {
+    if (gehost) {
+      // Eerst de wand (voor haar id), dan elk kozijn dat naar haar wijst,
+      // en als laatste de lijst op de wand: zo kloppen beide kanten.
+      const r = await omgeving.maak('wall', page, {
+        startX: start.x, startY: start.y, endX: end.x, endY: end.y, ...stijl,
+        ...joinUit({ vanPt: 0, totPt: as.len }),
+      });
+      if (!(r?.ok && r.id)) return;
+      wallIds.push(r.id);
+      const echteWand = { ...wand, id: r.id };
+      const lijst = [];
+      for (const p of plaatsingen) {
+        const bron = sparingen.find((s) => s.id === p.id) || {};
+        const key = nieuweOpeningSleutel();
+        const props = kozijnProps(echteWand, p, bron, pxPerMm);
+        props.params.hostKey = key;
+        const s = await omgeving.maak('parametricSymbol', page, props);
+        if (!(s?.ok && s.id)) continue;
+        openingIds.push(s.id);
+        lijst.push(nieuweOpening({
+          id: s.id, key, afstandMm: p.hartMm, breedteMm: p.dagmaatMm, soort: p.soort, zijde: bron.draaizijde,
+        }));
+      }
+      if (lijst.length) await omgeving.werkBij(r.id, { openingen: lijst.sort((a, b) => a.afstandMm - b.afstandMm) });
+      return;
+    }
     for (const seg of segmenten) {
       const r = await omgeving.maak('wall', page, {
         startX: seg.startX, startY: seg.startY, endX: seg.endX, endY: seg.endY, ...stijl,
@@ -204,12 +260,145 @@ async function actieWand(params, omgeving, page) {
     page,
     wallIds,
     openingIds,
+    hosted: gehost,
     lengthMm: Math.round(lengteMm * 10) / 10,
     segments: segmenten.map((s) => ({ fromMm: Math.round(s.vanPt / pxPerMm), lengthMm: Math.round(s.lengteMm) })),
     openings: plaatsingen.map((p) => ({
       kind: KIND_VAN_SOORT[p.soort], widthMm: p.dagmaatMm, alongMm: p.hartMm,
       sillMm: p.borstweringMm, heightMm: p.hoogteMm,
+      ...(sparingen.find((s) => s.id === p.id)?.symboolStijl === SYMBOOL_STIJL_US ? { symbolStyle: 'us' } : {}),
     })),
+  };
+}
+
+// ── actie: opening ───────────────────────────────────────────────────────
+
+/** Velden van één opening die ook los naast de actie mogen staan. */
+const OPENING_VELDEN = [
+  'kind', 'widthMm', 'alongMm', 'sillMm', 'heightMm', 'swing', 'openSide', 'openTo',
+  'windowType', 'showSwing', 'stileWidthMm', 'frameDepthMm', 'framePositionMm',
+  'overlapMm', 'clearanceMm', 'leafThicknessMm', 'symbolStyle',
+];
+
+/** De wand onder een punt: het punt ligt in de band (met wat speling). */
+function wandBijPunt(wanden, punt, pxPerMm, tol = 2) {
+  let beste = null;
+  for (const w of wanden) {
+    const pr = projecteer(punt, w);
+    if (!pr || pr.t < -tol || pr.t > pr.as.len + tol) continue;
+    const buiten = Math.abs(pr.d) - (w.dikteMm * pxPerMm) / 2;
+    if (buiten > tol) continue;
+    if (!beste || Math.abs(pr.d) < beste.afstand) beste = { afstand: Math.abs(pr.d), wand: w };
+  }
+  return beste ? beste.wand : null;
+}
+
+/**
+ * Ligt er over het stuk [vanMm, totMm] van `wand` een evenwijdige wand
+ * direct tegenaan? Dan is `wand` een laag van een gelaagde muur.
+ */
+function laagErnaast(wand, wanden, vanMm, totMm, pxPerMm) {
+  const as = wandAs(wand);
+  const tol = Math.max(0.5, pxPerMm);            // 1 mm, minstens een halve punt
+  return wanden.some((w) => {
+    if (w.id === wand.id) return false;
+    const bs = wandAs(w);
+    if (!bs || Math.abs(as.u.x * bs.u.y - as.u.y * bs.u.x) > 1e-3) return false;
+    const a = projecteer({ x: w.startX, y: w.startY }, wand);
+    const b = projecteer({ x: w.endX, y: w.endY }, wand);
+    const hart = Math.abs((a.d + b.d) / 2);
+    if (Math.abs(hart - ((wand.dikteMm + w.dikteMm) * pxPerMm) / 2) > tol) return false;
+    return Math.min(a.t, b.t) < totMm * pxPerMm - tol && Math.max(a.t, b.t) > vanMm * pxPerMm + tol;
+  });
+}
+
+/**
+ * Een deur of raam in een BESTAANDE wand zetten. De wand blijft één
+ * annotatie: zij krijgt de opening in haar lijst en het kozijn wijst naar
+ * haar terug. De wand wordt aangewezen met `wallId` of met een punt erop;
+ * de plaats langs de wand met `alongMm` (hart, vanaf het beginpunt) of met
+ * dat punt.
+ */
+async function actieOpening(params, omgeving, page) {
+  const annotaties = omgeving.doc?.annotations || [];
+  const wanden = wandenOpPagina(annotaties, page);
+  const o = { ...(params?.opening && typeof params.opening === 'object' ? params.opening : {}) };
+  for (const veld of OPENING_VELDEN) if (params?.[veld] !== undefined) o[veld] = params[veld];
+  const punt = params?.point && getal(params.point.x) !== null && getal(params.point.y) !== null
+    ? { x: Number(params.point.x), y: Number(params.point.y) } : null;
+  if (!params?.wallId && !punt) return fout('action "opening" needs wallId or point:{x,y} on the wall');
+
+  let wand = null;
+  if (params?.wallId) {
+    wand = wanden.find((w) => w.id === params.wallId) || null;
+    if (!wand) return { ...fout(`wallId ${params.wallId} is not a wall on page ${page}`), reason: 'wall' };
+  }
+  const pxPerMm = schaalOp(omgeving, page, wand ? { x: wand.startX, y: wand.startY } : punt);
+  if (!pxPerMm) return { ...fout('no measurement scale on this page - set it with app_set_measure_scale first'), reason: 'scale' };
+  if (!wand) {
+    wand = wandBijPunt(wanden, punt, pxPerMm, getal(params?.tolerance) ?? 2);
+    if (!wand) return { ...fout('no wall at this point'), reason: 'wall' };
+  }
+  const as = wandAs(wand);
+  if (!as) return { ...fout('the wall has no length'), reason: 'wall' };
+  const lengteMm = as.len / pxPerMm;
+
+  // Zonder opgegeven kant draait de deur naar de kant van het aangewezen punt.
+  if (!o.openTo && !o.openSide && punt) o.openTo = punt;
+  const pakket = normaliseerPakket([{ dikteMm: wand.dikteMm, materiaal: 'nen47-metselwerk-baksteen' }]);
+  // De conventie (#1230) wordt beslist waar de opening komt: op het
+  // aangewezen punt, of op het opgegeven hart langs de wand.
+  const metPunt = getal(o.alongMm) === null;
+  const plek = metPunt ? punt : {
+    x: wand.startX + as.u.x * Number(o.alongMm) * pxPerMm,
+    y: wand.startY + as.u.y * Number(o.alongMm) * pxPerMm,
+  };
+  const s = leesOpening(o, 0, wand, pakket, imperiaalOp(omgeving, page, plek || { x: wand.startX, y: wand.startY }));
+  if (metPunt) {
+    if (!punt) return fout('action "opening" needs alongMm (centre, from the wall start) or a point on the wall');
+    s.hartMm = klemAfstandMm(lengteMm, s.dagmaatMm, projecteer(punt, wand).t / pxPerMm);
+  }
+  const controle = controleerNieuweOpening(wand, { afstandMm: s.hartMm, breedteMm: s.dagmaatMm }, pxPerMm, { passend: metPunt });
+  if (!controle.ok) return { ...fout(`opening refused: ${controle.reden}`), reason: controle.code };
+  s.hartMm = controle.afstandMm;
+  if (laagErnaast(wand, wanden, s.hartMm - s.dagmaatMm / 2, s.hartMm + s.dagmaatMm / 2, pxPerMm)) {
+    return {
+      ...fout('opening refused: this wall is one layer of a layered wall; draw a layered wall with its openings using action "wall" with layers'),
+      reason: 'layered',
+    };
+  }
+
+  const plaatsing = sparingPlaatsing(wand, s, pxPerMm);
+  const key = nieuweOpeningSleutel();
+  const props = kozijnProps(wand, plaatsing, s, pxPerMm);
+  props.params.hostKey = key;
+  let openingId = null;
+  await omgeving.transactie(async () => {
+    const r = await omgeving.maak('parametricSymbol', page, props);
+    if (!(r?.ok && r.id)) return;
+    openingId = r.id;
+    // De lijst van de wand zoals ze NU is: de omgeving kan haar tussen het
+    // lezen en het schrijven hebben bijgewerkt.
+    const nu = (omgeving.doc?.annotations || []).find((a) => a.id === wand.id);
+    await omgeving.werkBij(wand.id, {
+      openingen: lijstMetOpening(nu, nieuweOpening({
+        id: r.id, key, afstandMm: s.hartMm, breedteMm: s.dagmaatMm, soort: s.soort, zijde: s.draaizijde,
+      })),
+    });
+  });
+  if (!openingId) return fout('the opening could not be created');
+  return {
+    ok: true,
+    page,
+    hosted: true,
+    wallId: wand.id,
+    openingId,
+    kind: KIND_VAN_SOORT[s.soort],
+    widthMm: s.dagmaatMm,
+    alongMm: Math.round(s.hartMm * 10) / 10,
+    openSide: s.draaizijde === -1 ? 'right' : 'left',
+    symbolStyle: s.symboolStijl === SYMBOOL_STIJL_US ? 'us' : 'nen',
+    wallLengthMm: Math.round(lengteMm * 10) / 10,
   };
 }
 
@@ -232,18 +421,37 @@ export function draaizijde(wand, opening) {
 
 const RAAMTYPEN = ['fixed', 'turn', 'pivot', 'tilt'];
 
+/** De waarden van `symbolStyle` in de MCP-invoer. */
+const SYMBOOL_STIJLEN = Object.freeze(['us', 'nen']);
+
+/**
+ * Welk symbool krijgt deze opening (#1230)? Een opgegeven `symbolStyle`
+ * wint; anders het Amerikaanse plansymbool op een blad in voet of inch en
+ * het kozijn op een metrisch blad.
+ */
+function symboolStijlVoor(o, imperiaal) {
+  if (SYMBOOL_STIJLEN.includes(o?.symbolStyle)) return o.symbolStyle;
+  return imperiaal ? 'us' : 'nen';
+}
+
 /**
  * Eén opening uit de MCP-invoer: de sparing (plaats langs de wand, maat)
  * plus het kozijn in het wandpakket. `widthMm` is de kozijnmaat
  * (buitenwerks); in een enkele wand is dat ook de sparing.
+ *
+ * `imperiaal`: het blad staat op de plaats van de opening in voet of inch
+ * (#1230). Dan is de breedte zonder opgave 36 inch (deur) of 48 inch (raam)
+ * en krijgt de opening het Amerikaanse plansymbool; een opgegeven breedte of
+ * `symbolStyle` wint.
  */
-function leesOpening(o, i, wand, pakket) {
+function leesOpening(o, i, wand, pakket, imperiaal = false) {
   const soort = SOORT_VAN_KIND[o?.kind] || (SPARING_SOORTEN.includes(o?.kind) ? o.kind : 'deur');
   const langs = getal(o?.alongMm);
+  const us = symboolStijlVoor(o, imperiaal) === 'us';
   const s = normaliseerSparing({
     id: `opening-${i}`,
     soort,
-    dagmaatMm: getal(o?.widthMm) ?? SPARING_STANDAARD[soort].dagmaatMm,
+    dagmaatMm: getal(o?.widthMm) ?? standaardOpeningBreedteMm(soort, imperiaal),
     hartMm: langs ?? 0,
     borstweringMm: getal(o?.sillMm),
     hoogteMm: getal(o?.heightMm),
@@ -265,8 +473,9 @@ function leesOpening(o, i, wand, pakket) {
       spelingMm: maat(o?.clearanceMm),
     }),
     stijlBreedteMm: stijl > 0 ? stijl : 67,
-    deurbladDikteMm: blad > 0 ? blad : 40,
+    deurbladDikteMm: blad > 0 ? blad : (us ? OPENING_STANDAARD_IMPERIAAL.deur.bladDikteMm : 40),
   };
+  if (us) s.symboolStijl = SYMBOOL_STIJL_US;
   return s;
 }
 
@@ -307,6 +516,8 @@ export function kozijnProps(wand, plaatsing, bron, pxPerMm, pakket = null) {
     aanslagMm: getal(kz.aanslagMm) ?? 0,
     binnenSpelingMm: getal(kz.spelingMm) ?? 0,
     swing: plaatsing.draairichting === 'rechts' ? 'right' : 'left',
+    // Het Amerikaanse plansymbool (#1230) staat in het symbool zelf.
+    ...(bron?.symboolStijl === SYMBOOL_STIJL_US ? { symboolStijl: SYMBOOL_STIJL_US } : {}),
   };
   if (deur) {
     // De deur draait naar de kant van `zijde` (-zijde langs n); is dat de
@@ -513,17 +724,29 @@ async function actieRuimten(params, omgeving, page) {
   // De geplaatste ruimte (het ruimtevlak) bij een gevonden ruimte: zij draagt
   // naam en nummer; haar tags tonen die (ruimte-koppeling.js).
   const vlakVoor = (r) => geplaatsteRuimte(omgeving.doc?.annotations, page, ruimten, r);
+  // Op een blad in voet of inch staat de oppervlakte in hele vierkante voet
+  // (#1230); de conventie geldt op het labelpunt van de ruimte.
+  const eenheidVoor = (r) => (imperiaalOp(omgeving, page, r.labelPunt) ? 'ft²' : 'm²');
+  // Alleen een tag in vierkante voet draagt zijn eenheid; metrisch blijft de
+  // tag zoals hij was.
+  const eenheidParam = (r) => (eenheidVoor(r) === 'ft²' ? { oppervlakteEenheid: 'ft²' } : {});
+  const zonderEenheid = (p) => {
+    const { oppervlakteEenheid: _oud, ...rest } = p || {};
+    return rest;
+  };
   const verslag = (r, naam, vlak = vlakVoor(r)) => {
     const n = vlak ? (vlak[RUIMTE_NAAM] || null) : (naam || null);
+    const eenheid = eenheidVoor(r);
     return {
       ...(vlak ? { id: vlak.id } : {}),
       name: n,
       ...(vlak?.[RUIMTE_NUMMER] ? { number: vlak[RUIMTE_NUMMER] } : {}),
       areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
+      ...(eenheid === 'ft²' ? { areaSqFt: Math.round(rekenOm(r.oppervlakteM2, 'm²', 'ft²') * 100) / 100 } : {}),
       perimeterM: Math.round(r.omtrekM * 100) / 100,
       labelPoint: r.labelPunt,
       wallIds: r.wandIds,
-      label: ruimteLabel(n, r.oppervlakteM2),
+      label: ruimteLabel(n, r.oppervlakteM2, 1, eenheid),
       ...(vlak ? { tagIds: tagsVanRuimte(vlak, omgeving.doc?.annotations).map((t) => t.id) } : {}),
     };
   };
@@ -574,9 +797,10 @@ async function actieRuimten(params, omgeving, page) {
           await omgeving.werkBij(a.id, {
             ...tagVolgtRuimte(a, r.labelPunt),
             params: {
-              ...a.params,
+              ...zonderEenheid(a.params),
               ...(eigenRuimte ? { naam: eigenRuimte[RUIMTE_NAAM] || '', nummer: eigenRuimte[RUIMTE_NUMMER] || '' } : {}),
-              oppervlakteM2: Math.round(r.oppervlakteM2 * 100) / 100,
+              oppervlakteM2: reserveOppervlakte(r.oppervlakteM2, eenheidVoor(r)),
+              ...eenheidParam(r),
               ankerX: r.labelPunt.x, ankerY: r.labelPunt.y,
             },
           });
@@ -649,7 +873,8 @@ async function actieRuimten(params, omgeving, page) {
         const tagParams = {
           naam: (vlak ? vlak[RUIMTE_NAAM] : g.naam) || '',
           nummer: (vlak ? vlak[RUIMTE_NUMMER] : g.nummer) || '',
-          oppervlakteM2: Math.round(g.ruimte.oppervlakteM2 * 100) / 100,
+          oppervlakteM2: reserveOppervlakte(g.ruimte.oppervlakteM2, eenheidVoor(g.ruimte)),
+          ...eenheidParam(g.ruimte),
           decimalen: 1,
           toonOppervlakte: true,
           zaadX: vlak?.[RUIMTE_ZAAD]?.x ?? g.zaad.x,
@@ -671,6 +896,16 @@ async function actieRuimten(params, omgeving, page) {
     if (volgorde && typeof omgeving.herorden === 'function') await omgeving.herorden(volgorde);
   });
   return { ok: true, page, placed: gemaakt, openEnds: losseEinden };
+}
+
+/**
+ * De reservekopie van de oppervlakte in een tag (m²). Metrisch op twee
+ * decimalen, zoals altijd; voor een tag in vierkante voet fijner, zodat het
+ * afronden op hele voet niet van de afgeronde m² afhangt.
+ */
+function reserveOppervlakte(oppervlakteM2, eenheid) {
+  const f = eenheid === 'ft²' ? 1e6 : 100;
+  return Math.round(oppervlakteM2 * f) / f;
 }
 
 /** Het geplaatste ruimtevlak voor een gevonden ruimte (via zijn zaadpunt). */
@@ -805,6 +1040,8 @@ async function actieMaten(params, omgeving, page) {
   if (wanden.some((w) => !w || w.type !== 'wall')) {
     return fout('wallIds must all be existing wall annotations');
   }
+  // Een opening telt in de ketting alleen als haar kozijn er nog staat.
+  const openingenVan = (w) => wandOpeningen(w).filter((o) => perId.get(o.id)?.params?.hostWallId === w.id);
   const pxPerMm = schaalOp(omgeving, page, middenVan(wanden));
   if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
   const eerste = wanden[0], laatste = wanden[wanden.length - 1];
@@ -819,6 +1056,7 @@ async function actieMaten(params, omgeving, page) {
     wanden.map((w) => ({
       id: w.id, startX: w.startX, startY: w.startY, endX: w.endX, endY: w.endY,
       dikteMm: getal(w.dikteMm) || 100,
+      openingen: openingenVan(w),
     })),
     { zijde, wanden: wandenOpPagina(annotaties, page), pxPerMm },
   );
@@ -977,6 +1215,9 @@ async function actieInspect(params, omgeving, page) {
   const kozijnen = sparingenOpPagina(annotaties, page);
   const maten = annotaties.filter((a) => (a.page ?? 1) === page && a[ANKER_START] && a[ANKER_EIND]);
 
+  // Gehost (#1229): de wand heeft het kozijn in haar lijst.
+  const gehostIn = (a) => wanden.find((w) => w.id === a.params?.hostWallId
+    && (w.openingen || []).some((o) => o.id === a.id)) || null;
   const verslag = {
     ok: true,
     page,
@@ -986,16 +1227,24 @@ async function actieInspect(params, omgeving, page) {
       lengthMm: pxPerMm ? Math.round(wandAs(w).len / pxPerMm) : null,
       start: { x: w.startX, y: w.startY }, end: { x: w.endX, y: w.endY },
       joinStart: !w.noJoinStart, joinEnd: !w.noJoinEnd,
+      ...(w.openingen ? { openingIds: w.openingen.map((o) => o.id) } : {}),
     })),
-    openings: kozijnen.map((a) => ({
-      id: a.id,
-      kind: a.symbolId,
-      widthMm: getal(a.params?.dagmaatMm) ?? getal(a.params?.width),
-      sillMm: getal(a.params?.borstweringMm),
-      heightMm: getal(a.params?.hoogteMm),
-      hostWallId: a.params?.hostWallId || null,
-      ...kozijnVerslag(a),
-    })),
+    openings: kozijnen.map((a) => {
+      const host = gehostIn(a);
+      const opening = host ? host.openingen.find((o) => o.id === a.id) : null;
+      return {
+        id: a.id,
+        kind: a.symbolId,
+        widthMm: getal(a.params?.dagmaatMm) ?? getal(a.params?.width),
+        sillMm: getal(a.params?.borstweringMm),
+        heightMm: getal(a.params?.hoogteMm),
+        hostWallId: a.params?.hostWallId || null,
+        hosted: !!host,
+        ...(opening ? { alongMm: Math.round(opening.afstandMm * 10) / 10 } : {}),
+        ...(isUsSymbool(a.params) ? { symbolStyle: 'us' } : {}),
+        ...kozijnVerslag(a),
+      };
+    }),
     anchoredDimensions: maten.length,
     facadeElements: gevelelementenOpPagina(annotaties, page).map((a) => {
       const lay = gevelIndeling(a.params, a.symbolId);
@@ -1028,6 +1277,9 @@ async function actieInspect(params, omgeving, page) {
         tagIds: tagsVanRuimte(vlak, annotaties).map((t) => t.id),
       } : {}),
       areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
+      // Op een blad in voet of inch ook in vierkante voet (#1230).
+      ...(imperiaalOp(omgeving, page, r.labelPunt)
+        ? { areaSqFt: Math.round(rekenOm(r.oppervlakteM2, 'm²', 'ft²') * 100) / 100 } : {}),
       perimeterM: Math.round(r.omtrekM * 100) / 100,
       labelPoint: r.labelPunt,
       wallIds: r.wandIds,
@@ -1053,6 +1305,7 @@ export async function plattegrondOpdracht(params, omgeving) {
 
   switch (actie) {
     case 'wall': return actieWand(params, omgeving, p.page);
+    case 'opening': return actieOpening(params, omgeving, p.page);
     case 'rooms': return actieRuimten(params, omgeving, p.page);
     case 'dimensions': return actieMaten(params, omgeving, p.page);
     default: return actieInspect(params, omgeving, p.page);

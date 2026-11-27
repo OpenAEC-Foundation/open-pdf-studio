@@ -76,6 +76,8 @@ js/annotations/wand-geometrie.test.mjs
 js/annotations/wand-join.test.mjs
 js/pdf/saver/wand-join-meta.test.mjs
 js/plattegrond/wand-join-mcp.test.mjs
+js/plattegrond/blad-conventie.test.mjs
+js/plattegrond/wand-locatielijn.test.mjs
 js/tools/snap-punten.test.mjs
 js/tools/snap-extractie-beleid.test.mjs
 js/tools/snap-geometrie-cache.test.mjs
@@ -206,6 +208,9 @@ js/annotations/document-scale.test.mjs
 js/core/reader-mode.test.mjs
 js/core/reader-mode-tracking.test.mjs
 js/core/reader-mode-i18n.test.mjs
+js/core/last-view.test.mjs
+js/pdf/last-view-wiring.test.mjs
+js/core/dialog-folder.test.mjs
 js/pdf/shift-page-geometry.test.mjs
 js/pdf/shift-page-content.test.mjs
 js/pdf/shift-page-i18n.test.mjs
@@ -294,8 +299,14 @@ js/gevelelement/element.test.mjs
 js/gevelelement/mcp-gevelelement.test.mjs
 js/plattegrond/kozijnprofiel.test.mjs
 js/plattegrond/kozijn.test.mjs
+js/plattegrond/kozijn-us.test.mjs
 js/plattegrond/spouwmuur.test.mjs
 js/annotations/wand-vorm.test.mjs
+js/annotations/wand-openingen.test.mjs
+js/annotations/wand-vorm-openingen.test.mjs
+js/plattegrond/gehoste-opening.test.mjs
+js/plattegrond/hosting-app.test.mjs
+js/pdf/saver/wand-openingen-rondgang.test.mjs
 js/plattegrond/maatvoering-wandvlak.test.mjs
 js/annotations/maat-label.test.mjs
 js/pdf/saver/plattegrond-meta.test.mjs
@@ -304,6 +315,7 @@ js/annotations/maatlijn-geometrie.test.mjs
 js/annotations/maatketting-bewerken.test.mjs
 js/annotations/rendering/symbool-uitvoer.test.mjs
 js/plattegrond/ruimte-koppeling.test.mjs
+js/plattegrond/ruimte-vierkante-voet.test.mjs
 js/annotations/stramien-koppeling.test.mjs
 js/annotations/stramien-koppeling-opslag.test.mjs
 js/annotations/stramien-koppeling-mcp.test.mjs
@@ -711,6 +723,7 @@ js/pdf/wapening-rondgang.test.mjs
 js/annotations/pressure-ink.test.mjs
 js/annotations/pressure-ink-wiring.test.mjs
 js/pdf/drukinkt-rondgang.test.mjs
+js/pdf/meerdere-inktstreken.test.mjs
 js/pdf/inkt-streep-rondgang.test.mjs
 js/pdf/lagen-opslaan-als.test.mjs
 js/pdf/pad-verhuizen.test.mjs
@@ -757,6 +770,7 @@ js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
 js/annotations/draaipunt-vormen.test.mjs
 js/ui/chrome/fullscreen.test.mjs
 js/solid/components/ribbon/wand-knop.test.mjs
+js/tools/tools/wand-conventie.test.mjs
 # MCP-verbindingssignaal in de statusbalk
 js/core/mcp-signaal.test.mjs
 # Beheerde modus (OPENAEC_BEHEERD=1)
@@ -798,6 +812,9 @@ js/annotations/tekstmarkering-mcp.test.mjs
 js/text/tekst-markeren.test.mjs
 js/tools/highlight-mode-bedrading.test.mjs
 js/pdf/page-scale-geometry.test.mjs
+js/pdf/resize-margins-geometry.test.mjs
+js/pdf/resize-page-content.test.mjs
+js/pdf/resize-pages-i18n.test.mjs
 scripts/winget-manifest.test.mjs
 js/core/maat-notatie.test.mjs
 js/annotations/schaalcontrole.test.mjs
@@ -959,9 +976,28 @@ js/pdf/print-marges.test.mjs
 js/pdf/print-niet-draaien.test.mjs
 js/solid/stores/telgroep-grootte-verwijderen.test.mjs
 js/annotations/link/link-gebied.test.mjs
+js/annotations/linked-leaders.test.mjs
 js/annotations/callout-draaien.test.mjs
 js/pdf/bladwijzers-van-paginas.test.mjs
 js/quantities/kleur-cel.test.mjs
 js/tools/rechtermuis-pan.test.mjs
 js/annotations/link/link-bladwijzer.test.mjs
 js/plugins/pdf-links.test.mjs
+js/pdf/bitmap-orchestrator-cap.test.mjs
+js/pdf/saver/gedeelde-resources.test.mjs
+
+js/solid/data/nen1414-metadata.test.mjs
+js/annotations/rendering/pdf-only-thin-lines.test.mjs
+js/ui/panels/miniatuur-kolommen.test.mjs
+# Clipboard across document windows (#1274)
+js/annotations/window-clipboard-channel.test.mjs
+js/annotations/signature-storage.test.mjs
+js/annotations/signature-image.test.mjs
+scripts/pdfjs-bidi-currency.test.mjs
+js/pdf/crop-margins-geometrie.test.mjs
+js/pdf/save-commands.test.mjs
+js/pdf/content-view.test.mjs
+js/pdf/link-doelmarkering.test.mjs
+js/ui/panels/paneel-breedte.test.mjs
+js/core/android-document-save.test.mjs
+js/pdf/cloud-note-rondgang.test.mjs

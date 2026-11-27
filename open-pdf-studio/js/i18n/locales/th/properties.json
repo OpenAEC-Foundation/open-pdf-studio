@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "เก็บการแสดงผลชั้นปัจจุบันเป็นสถานะเริ่มต้นของเอกสาร จะถูกเขียนลงไฟล์เมื่อบันทึกครั้งถัดไป",
     "layersDefaultPending": "จะเป็นค่าเริ่มต้นเมื่อบันทึก",
     "layerLocked": "ชั้นที่ล็อค: ไม่สามารถเปิดหรือปิดได้",
-    "layerRadioGroup": "กลุ่มตัวเลือก: การเปิดชั้นนี้จะปิดชั้นอื่นในกลุ่ม"
+    "layerRadioGroup": "กลุ่มตัวเลือก: การเปิดชั้นนี้จะปิดชั้นอื่นในกลุ่ม",
+    "thumbnailColumns": "คอลัมน์ภาพขนาดย่อ"
   },
   "scaleBar": {
     "title": "แถบมาตราส่วน",
@@ -601,6 +602,12 @@
     "joinHint": "ปิด: ปลายผนังด้านนี้จะไม่ถูกต่อมุมเฉียง ต่อเป็นรูปตัว T หรือตัดชนกับผนังอื่น และจะคงปลายตัดตรงตามที่วาดไว้",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "ตารางปริมาณ",
       "builtinText": "ข้อความ",
       "rebarPosition": "ท่อนเหล็กเสริม"
-    }
+    },
+    "configImportFailed": "ไม่สามารถนำเข้าการตั้งค่าปริมาณได้ โปรดเลือกไฟล์การกำหนดค่าที่ถูกต้องและรองรับ",
+    "configExportFailed": "ไม่สามารถส่งออกการตั้งค่าปริมาณได้"
   },
   "parametricSymbol": {
     "defaultTitle": "สัญลักษณ์พาราเมตริก",

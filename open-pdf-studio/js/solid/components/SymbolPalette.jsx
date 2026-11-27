@@ -47,6 +47,7 @@ import { openDialog } from '../stores/dialogStore.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import { isTauri } from '../../core/platform.js';
 import { knopUit, meldingTekst } from '../../core/webfuncties.js';
+import { startPaneelSlepen, herstelStandaardBreedte } from '../../ui/panels/paneel-breedte.js';
 
 const DOCK_SNAP = 60;
 
@@ -392,6 +393,10 @@ export function DockedSymbolPalette(props) {
   return (
     <Show when={shouldShow()}>
       <div class={`sp-panel sp-docked${side() === 'right' ? ' sp-docked-right' : ''}`}>
+        {/* Greep op de binnenrand: breder slepen, dubbelklik = standaard. */}
+        <div class={`sp-resize-handle sp-resize-${side() === 'right' ? 'links' : 'rechts'}`}
+          onMouseDown={(e) => startPaneelSlepen(e, { sleutel: 'symbolPaletteWidth', kant: side() === 'right' ? 'links' : 'rechts', paneel: e.currentTarget.parentElement })}
+          onDblClick={() => herstelStandaardBreedte('symbolPaletteWidth')} />
         <div class="sp-header">
           <div class="sp-grip" onMouseDown={(e) => startDrag(e, true)} innerHTML={gripSvg} />
           <span class="sp-title">{t('view.toolPaletteLabel')}</span>
@@ -427,6 +432,9 @@ export function FloatingSymbolPalette() {
         class="sp-panel sp-float"
         style={`left:${symbolFloatPos().x}px; top:${symbolFloatPos().y}px`}
       >
+        <div class="sp-resize-handle sp-resize-rechts"
+          onMouseDown={(e) => startPaneelSlepen(e, { sleutel: 'symbolPaletteWidth', kant: 'rechts', paneel: e.currentTarget.parentElement })}
+          onDblClick={() => herstelStandaardBreedte('symbolPaletteWidth')} />
         <div class="sp-float-header" onMouseDown={(e) => {
           if (e.target.closest('.sp-float-close')) return;
           startDrag(e, false);

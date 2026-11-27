@@ -260,7 +260,9 @@
     "toggleHalftone": "Halftoon (dimmen) aan/uit voor deze soort",
     "tint": "Kleur",
     "clearTint": "Kleur wissen",
-    "dim": "Dimmen"
+    "dim": "Dimmen",
+    "pdfContent": "PDF-inhoud",
+    "contentEnabled": "Weergavefilters inschakelen"
   },
   "annotationLayers": {
     "buttonTitle": "Markeringslagen — markeringen groeperen op benoemde lagen en ze aan- en uitzetten",
@@ -635,6 +637,7 @@
     "extensionTabFailed": "Dit tabblad van de extensie kon niet worden weergegeven."
   },
   "drawing": {
+    "cloudAttachNote": "Notitie koppelen",
     "selection": "Selectie",
     "draw": "Tekenen",
     "eraser": "Gum (verwijdert vrije-handlijnen)",
@@ -661,6 +664,13 @@
     "noEmbeddedImages": "Geen ingebedde afbeeldingen op deze pagina gevonden.",
     "lineContinue": "Doorlopend",
     "lineContinueTip": "Elke klik verbindt het volgende lijnsegment met het vorige. Escape, rechtsklik of dubbelklik beëindigt de reeks.",
+    "wallThickness": "Dikte",
+    "wallThicknessTip": "Dikte van de volgende wand. Een blad in voet of inch biedt Amerikaanse maten, een metrisch blad millimeters.",
+    "wallLocationLine": "Locatielijn",
+    "wallLocationLineTip": "De lijn die de klikken volgen, gezien langs de tekenrichting. Bij Linkervlak zijn de geklikte punten het linkervlak van de wand en ligt het wandlichaam rechts.",
+    "wallLocationCenter": "Hartlijn",
+    "wallLocationLeft": "Linkervlak",
+    "wallLocationRight": "Rechtervlak",
     "snapGroup": "Snap",
     "snapObjectSnap": "Objectsnap",
     "snapObjectSnapTip": "Hoofdschakelaar voor objectsnap (Shift+F3). De snapmodi hieronder werken alleen als deze aan staat.",
@@ -715,6 +725,15 @@
     "chamferDone": "Afkanting gemaakt — klik de volgende twee lijnen",
     "spotCoordHint": "Coördinaat: klik op een punt om de X,Y-coördinaten te labelen",
     "spotCoordDone": "Coördinaat: klik op een ander punt voor een nieuw label, of druk op Escape",
+    "wallDoor": "Deur in wand",
+    "wallWindow": "Raam in wand",
+    "wallOpeningHint": "Breedte {{width}}: klik op een wand om de opening te plaatsen; een deur draait naar de kant waar je klikt. Typ een andere breedte en druk op Enter om haar te wijzigen",
+    "wallOpeningBadWidth": "Geen breedte: {{text}}",
+    "wallOpeningNoWall": "Klik op een wand om de opening te plaatsen",
+    "wallOpeningOverlap": "Niet geplaatst: de opening zou een andere opening in deze wand overlappen",
+    "wallOpeningNoFit": "Niet geplaatst: de opening past niet in deze wand",
+    "wallOpeningLayered": "Niet geplaatst: deze wand is een laag van een gelaagde wand",
+    "wallOpeningNoScale": "Stel eerst een meetschaal in op deze pagina",
     "originHint": "Nulpunt: klik op het punt dat (0, 0) wordt",
     "stretch": "Uitrekken",
     "enlarge": "Vergroten",
@@ -914,10 +933,10 @@
       "nen1414-tb": "NL NEN 1414 — Brandbeveiliging",
       "nen1414-tbk": "NL NEN 1414 — Blussystemen",
       "nen1414-td": "NL NEN 1414 — Deuren",
-      "nen1414-tn": "NL NEN 1414 — Noodverlichting",
-      "nen1414-tr": "NL NEN 1414 — Rook/Warmteafvoer",
-      "nen1414-tv": "NL NEN 1414 — Ventilatie",
-      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler",
+      "nen1414-tn": "NL NEN 1414 — Vluchtwegen",
+      "nen1414-tr": "NL NEN 1414 — Eerste hulp en redding",
+      "nen1414-tv": "NL NEN 1414 — Verbodstekens",
+      "nen1414-tw": "NL NEN 1414 — Waarschuwingen",
       "gdt-bewerking": "GD&T en bewerking"
     },
     "sectors": {

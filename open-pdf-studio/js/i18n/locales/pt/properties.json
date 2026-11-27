@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Guardar a visibilidade atual das camadas como estado padrão do documento. É gravada no arquivo na próxima vez que salvar.",
     "layersDefaultPending": "Será o padrão ao salvar",
     "layerLocked": "Camada bloqueada: não pode ser ativada nem desativada",
-    "layerRadioGroup": "Grupo de escolha: ativar esta camada desativa as outras camadas do grupo"
+    "layerRadioGroup": "Grupo de escolha: ativar esta camada desativa as outras camadas do grupo",
+    "thumbnailColumns": "Colunas de miniaturas"
   },
   "scaleBar": {
     "title": "Barra de escala",
@@ -601,6 +602,12 @@
     "joinHint": "Desligado: esta extremidade da parede nunca é cortada em meia-esquadria, unida em T ou aparada contra outra parede; ela mantém uma extremidade reta onde foi desenhada.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Tabela de quantitativos",
       "builtinText": "Texto",
       "rebarPosition": "Barra de armadura"
-    }
+    },
+    "configImportFailed": "Não foi possível importar as configurações de quantidades. Escolha um arquivo de configuração válido e compatível.",
+    "configExportFailed": "Não foi possível exportar as configurações de quantidades."
   },
   "parametricSymbol": {
     "defaultTitle": "Símbolo paramétrico",

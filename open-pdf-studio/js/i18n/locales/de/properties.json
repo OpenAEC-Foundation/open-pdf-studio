@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Die aktuelle Sichtbarkeit der Ebenen als Standardzustand des Dokuments speichern. Sie wird beim nächsten Speichern in die Datei geschrieben.",
     "layersDefaultPending": "Wird beim Speichern zum Standard",
     "layerLocked": "Gesperrte Ebene: kann nicht ein- oder ausgeschaltet werden",
-    "layerRadioGroup": "Auswahlgruppe: Wenn diese Ebene eingeschaltet wird, werden die anderen Ebenen der Gruppe ausgeschaltet"
+    "layerRadioGroup": "Auswahlgruppe: Wenn diese Ebene eingeschaltet wird, werden die anderen Ebenen der Gruppe ausgeschaltet",
+    "thumbnailColumns": "Miniaturspalten"
   },
   "scaleBar": {
     "title": "Maßstabsleiste",
@@ -601,6 +602,12 @@
     "joinHint": "Aus: Dieses Wandende wird nie auf Gehrung gestoßen, als T angeschlossen oder an einer anderen Wand gestutzt; es behält einen stumpfen Abschluss dort, wo es gezeichnet ist.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Mengentabelle",
       "builtinText": "Text",
       "rebarPosition": "Bewehrungsstab"
-    }
+    },
+    "configImportFailed": "Die Mengeneinstellungen konnten nicht importiert werden. Wählen Sie eine gültige unterstützte Konfigurationsdatei.",
+    "configExportFailed": "Die Mengeneinstellungen konnten nicht exportiert werden."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisches Symbol",

@@ -1,3 +1,4 @@
+import { initialScale } from './initial-zoom.js';
 import { renderPdfJsCanvas } from './pdfjs-canvas-render.js';
 import { paginaViewport } from './pagina-viewport.js';
 import { meld as meldSplit } from './split-view/split-haken.js';
@@ -43,7 +44,7 @@ import {
   scherpeUitsnedeNodig, zichtbaarDeel, scherpeUitsnede, uitsnedeVolstaat, uitsnedeAanvraag,
   draaiTransform, schaalUitsnede, beeldPastBijAanvraag, uitsnedeSleutel, achtergrondMaat, overlapOppervlak,
 } from './doorlopend-scherp.js';
-import { isGemengd } from '../annotations/blend-modes.js';
+import { effectiveBlendMode, isGemengd } from '../annotations/blend-modes.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -243,6 +244,15 @@ function _startJankDetector() {
 }
 _startJankDetector();
 
+// Consume the preference only when this tab first has a measurable viewer.
+function applyInitialPageScale(doc, page, widest = 0) {
+  const container = document.getElementById('pdf-container');
+  if (doc.pendingInitialZoom == null || !(container?.clientWidth > 0 && container.clientHeight > 0)) return;
+  const size = paginaViewport(page, { scale: 1, rotation: page.rotate + beeldRotatie(doc.currentPage) });
+  doc.scale = initialScale(doc.pendingInitialZoom, widest || size.width, size.height, container.clientWidth, container.clientHeight);
+  delete doc.pendingInitialZoom;
+}
+
 // Render PDF page (single page mode)
 export async function renderPage(pageNum, onPageResize = null) {
   // In-flight counter exposed for MCP test harness — `waitForRenderIdle()`
@@ -273,7 +283,6 @@ async function _renderPageImpl(pageNum, onPageResize) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc || !doc.pdfDoc) return;
   const pdfDoc = doc.pdfDoc;
-  const scale = doc.scale;
 
   // Validate page number against THIS document's page count
   if (!Number.isInteger(pageNum) || pageNum < 1 || pageNum > pdfDoc.numPages) return;
@@ -287,6 +296,10 @@ async function _renderPageImpl(pageNum, onPageResize) {
   const page = await pdfDoc.getPage(pageNum);
   if (_isStaleDoc(doc)) return; // user switched tabs while we awaited PDF.js page
   const extraRotation = getPageRotation(pageNum);
+  if (doc.pendingInitialZoom != null && !(heeftRustRenderer() && doc.filePath)) {
+    applyInitialPageScale(doc, page);
+  }
+  const scale = doc.scale;
   const viewportOpts = { scale };
   if (extraRotation) {
     viewportOpts.rotation = (page.rotate + extraRotation) % 360;
@@ -412,8 +425,9 @@ async function _renderPageImpl(pageNum, onPageResize) {
           _pageWpt, _pageHpt,
           _x0, _y0,
           getPageRotation(pageNum) || 0,
-          weergaveRot,
+          weergaveRot, doc.pendingInitialZoom,
         );
+        delete doc.pendingInitialZoom;
 
         // Mark as raster so _render() takes the bitmap branch + skips vector
         pdfVP.pageType = 'raster';
@@ -1278,7 +1292,7 @@ async function werkScherpeUitsnedeBij(pageWrapper, pageNum) {
     staat.sleutel = sleutel;
     // Een annotatie met mengmodus mengt met het paginabeeld eronder: nu dat
     // er scherp staat (en op een andere plek), opnieuw mengen.
-    if (doc.annotations?.some((a) => a.page === pageNum && (a.blendMode ? isGemengd(a.blendMode) : a.type === 'textHighlight'))) {
+    if (doc.annotations?.some((a) => a.page === pageNum && isGemengd(effectiveBlendMode(a)))) {
       reclipContinuousAnnotationCanvas(pageWrapper, pageNum);
     }
   } catch (e) {
@@ -2012,7 +2026,7 @@ export function continuousZoomStep(direction, anchorY = null) {
   continuousZoomBy(nextScaleStep(doc.scale, direction) / doc.scale, anchorY);
 }
 
-// While the user scrolls freely, the page whose center sits closest to the
+// While the user scrolls freely, the page at the
 // viewport center becomes doc.currentPage — status bar and thumbnail
 // highlight track the scroll just like explicit navigation does.
 let _contScrollSyncBound = false;
@@ -2061,16 +2075,9 @@ function _syncCurrentPageFromScroll(container) {
   if (!doc || doc.viewMode !== 'continuous' || doc.facingSpread) return;
   const box = container.getBoundingClientRect();
   const mid = box.top + box.height / 2;
-  let bestPage = null;
-  let bestDist = Infinity;
-  document.querySelectorAll('#continuous-container .page-wrapper').forEach(w => {
-    const r = w.getBoundingClientRect();
-    const d = Math.abs((r.top + r.bottom) / 2 - mid);
-    if (d < bestDist) {
-      bestDist = d;
-      bestPage = parseInt(w.dataset.page, 10);
-    }
-  });
+  const pages = container.querySelectorAll('#continuous-container .page-wrapper');
+  const index = pickAnchorPageIndex(Array.from(pages, page => page.getBoundingClientRect()), mid);
+  const bestPage = Number(pages[index]?.dataset.page);
   if (bestPage && doc.currentPage !== bestPage) {
     doc.currentPage = bestPage;
     updateActiveThumbnail();
@@ -2095,6 +2102,12 @@ export async function renderContinuous(forceRebuild) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc || !doc.pdfDoc) return;
   const pdfDoc = doc.pdfDoc;
+  if (doc.pendingInitialZoom != null) {
+    const page = await pdfDoc.getPage(doc.currentPage);
+    const widest = doc.pendingInitialZoom === 'width' ? await _maxContinuousPageWidthPt(doc) : 0;
+    if (_isStaleDoc(doc)) return;
+    applyInitialPageScale(doc, page, widest);
+  }
   const scale = doc.scale;
 
   // Install the cross-monitor DPI watcher (issue #263) even when a document is
@@ -2561,6 +2574,7 @@ export async function zoomEnkelePaginaNaar(nieuweSchaal, point = null) {
 export async function setZoom(newScale) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
+  delete doc.pendingInitialZoom;
   const vp = window.__pdfViewport;
   // Same blank-doc guard as zoomIn() — see comment there.
   if (vp && vp.active && doc.filePath) {

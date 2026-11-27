@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Lagre lagenes gjeldende synlighet som dokumentets standardtilstand. Den skrives til filen neste gang du lagrer.",
     "layersDefaultPending": "Blir standard ved neste lagring",
     "layerLocked": "Låst lag: kan ikke slås av eller på",
-    "layerRadioGroup": "Valggruppe: når dette laget slås på, slås de andre lagene i gruppen av"
+    "layerRadioGroup": "Valggruppe: når dette laget slås på, slås de andre lagene i gruppen av",
+    "thumbnailColumns": "Miniatyrkolonner"
   },
   "scaleBar": {
     "title": "Målestokklinjal",
@@ -601,6 +602,12 @@
     "joinHint": "Av: denne enden av veggen blir aldri gjæret, skjøtt som T eller kuttet mot en annen vegg; den beholder en rett ende der den er tegnet.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Mengdetabell",
       "builtinText": "Tekst",
       "rebarPosition": "Armeringsjern"
-    }
+    },
+    "configImportFailed": "Kunne ikke importere mengdeinnstillingene. Velg en gyldig konfigurasjonsfil som støttes.",
+    "configExportFailed": "Kunne ikke eksportere mengdeinnstillingene."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisk symbol",

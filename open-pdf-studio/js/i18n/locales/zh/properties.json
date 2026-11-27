@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "将当前图层的可见性保存为文档的默认状态。下次保存时写入文件。",
     "layersDefaultPending": "保存时将成为默认",
     "layerLocked": "锁定的图层：无法打开或关闭",
-    "layerRadioGroup": "选择组：打开此图层会关闭组中的其他图层"
+    "layerRadioGroup": "选择组：打开此图层会关闭组中的其他图层",
+    "thumbnailColumns": "缩略图列数"
   },
   "scaleBar": {
     "title": "比例尺",
@@ -601,6 +602,12 @@
     "joinHint": "关闭：此墙端永远不会斜接、T 形连接或被另一面墙修剪；它在绘制位置保持平头端。",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "工程量表",
       "builtinText": "文本",
       "rebarPosition": "钢筋"
-    }
+    },
+    "configImportFailed": "无法导入工程量设置。请选择有效且受支持的配置文件。",
+    "configExportFailed": "无法导出工程量设置。"
   },
   "parametricSymbol": {
     "defaultTitle": "参数化符号",

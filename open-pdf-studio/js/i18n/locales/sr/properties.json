@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Сачувај тренутну видљивост слојева као подразумевано стање документа. Уписује се у датотеку при следећем чувању.",
     "layersDefaultPending": "Постаје подразумевано при чувању",
     "layerLocked": "Закључан слој: не може се укључити ни искључити",
-    "layerRadioGroup": "Група избора: укључивање овог слоја искључује остале слојеве групе"
+    "layerRadioGroup": "Група избора: укључивање овог слоја искључује остале слојеве групе",
+    "thumbnailColumns": "Колоне сличица"
   },
   "scaleBar": {
     "title": "Графичка размера",
@@ -601,6 +602,12 @@
     "joinHint": "Искључено: овај крај зида се никада не спаја под углом, не спаја се у T нити се одсеца уз други зид; задржава раван крај тамо где је нацртан.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Табела количина",
       "builtinText": "Текст",
       "rebarPosition": "Арматурна шипка"
-    }
+    },
+    "configImportFailed": "Није могуће увести подешавања количина. Изаберите важећу подржану конфигурациону датотеку.",
+    "configExportFailed": "Није могуће извести подешавања количина."
   },
   "parametricSymbol": {
     "defaultTitle": "Параметарски симбол",

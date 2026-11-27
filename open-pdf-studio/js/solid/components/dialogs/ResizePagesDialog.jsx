@@ -3,6 +3,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { US_PAPIERFORMATEN, usFormatenVan, usFormaatTekst, usInMm } from '../../../core/us-papierformaten.js';
+import { MIN_CONTENT_AREA_MM, hasMargins, validateResizeMargins } from '../../../pdf/resize-margins-geometry.js';
 
 // Preset sizes in millimetres (portrait: width x height).
 const PRESETS = {
@@ -15,6 +16,41 @@ const PRESETS = {
   // US-tekenvellen ARCH A–E1 en ANSI A–E (#996), uit de gedeelde lijst.
   ...Object.fromEntries(US_PAPIERFORMATEN.map((f) => { const mm = usInMm(f); return [f.sleutel, [mm.breedte, mm.hoogte]]; })),
 };
+
+const NO_MARGINS = { left: 0, right: 0, top: 0, bottom: 0 };
+// The sides in reading order of the grid: two fields per row.
+const MARGIN_SIDES = [
+  ['left', 'resizePages.marginLeft'],
+  ['right', 'resizePages.marginRight'],
+  ['top', 'resizePages.marginTop'],
+  ['bottom', 'resizePages.marginBottom'],
+];
+
+// One set of margins: left/right/top/bottom in mm.
+function MarginFields(props) {
+  return (
+    <div class="crop-margins-row resize-margins-row">
+      <label class="crop-margins-label">{props.label}</label>
+      <div class="resize-margins-grid">
+        <For each={MARGIN_SIDES}>{([side, key]) => (
+          <>
+            <span>{props.t(key)}</span>
+            <input
+              type="text" inputmode="decimal" data-getal
+              class="crop-margins-input"
+              data-margin={`${props.name}-${side}`}
+              value={props.value[side]}
+              min="0"
+              max="10000"
+              step="1"
+              onInput={(e) => props.onChange({ ...props.value, [side]: parseFloat(e.target.value) || 0 })}
+            />
+          </>
+        )}</For>
+      </div>
+    </div>
+  );
+}
 
 export default function ResizePagesDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -29,6 +65,12 @@ export default function ResizePagesDialog(props) {
   const [customW, setCustomW] = createSignal(210);
   const [customH, setCustomH] = createSignal(297);
   const [scaleContent, setScaleContent] = createSignal(true);
+  // Margins in mm, as the page is displayed (#1291). One set for all pages,
+  // or a second set for the even page numbers.
+  const [margins, setMargins] = createSignal(NO_MARGINS);
+  const [evenMargins, setEvenMargins] = createSignal(NO_MARGINS);
+  const [differentEven, setDifferentEven] = createSignal(false);
+  let evenEdited = false;
 
   // Resolve the target width/height in mm, applying orientation.
   const dims = createMemo(() => {
@@ -46,15 +88,47 @@ export default function ResizePagesDialog(props) {
 
   const close = () => closeDialog('resize-pages');
 
+  const toggleDifferentEven = (on) => {
+    // Facing pages mirror each other: start the even pages from the margins
+    // entered so far with left and right swapped, until they get their own.
+    if (on && !evenEdited) {
+      const m = margins();
+      setEvenMargins({ left: m.right, right: m.left, top: m.top, bottom: m.bottom });
+    }
+    setDifferentEven(on);
+  };
+
+  // What goes to the resize: null when no margin is set at all.
+  const marginSets = createMemo(() => {
+    const sets = { odd: margins(), even: differentEven() ? evenMargins() : null };
+    return hasMargins(sets.odd) || hasMargins(sets.even) ? sets : null;
+  });
+
+  // Why the margins cannot be used on the chosen size, as text; '' when they can.
+  const marginError = createMemo(() => {
+    const { w, h } = dims();
+    const problem = validateResizeMargins(w, h, { odd: margins(), even: differentEven() ? evenMargins() : null });
+    if (!problem) return '';
+    const mm = (value) => Math.round(value * 10) / 10;
+    let message;
+    if (problem.code === 'too-wide') message = t('resizePages.marginsTooWide', { size: mm(w), min: MIN_CONTENT_AREA_MM });
+    else if (problem.code === 'too-high') message = t('resizePages.marginsTooHigh', { size: mm(h), min: MIN_CONTENT_AREA_MM });
+    else message = t('resizePages.marginsNegative');
+    return problem.pages === 'even' ? t('resizePages.marginsEvenPages', { message }) : message;
+  });
+
   const handleResize = async () => {
+    // Margins that do not fit the page: the reason is shown in the dialog, which stays open.
+    if (marginError()) return;
     const applyToVal = applyTo();
     const rangeVal = rangeStr();
     const { w, h } = dims();
+    const marginsVal = marginSets();
 
     close();
 
     const { resizePages } = await import('../../../pdf/resize-pages.js');
-    const result = await resizePages(applyToVal, rangeVal, w, h, scaleContent());
+    const result = await resizePages(applyToVal, rangeVal, w, h, scaleContent(), marginsVal);
 
     if (!result.resized) {
       showMessage(t('resizePages.nothingResized'));
@@ -161,8 +235,34 @@ export default function ResizePagesDialog(props) {
             <option value="keep">{t('resizePages.keepSize')}</option>
           </select>
         </div>
+        <MarginFields
+          t={t}
+          name="odd"
+          label={differentEven() ? t('resizePages.marginsOdd') : t('resizePages.margins')}
+          value={margins()}
+          onChange={setMargins}
+        />
+        <label class="resize-margins-check">
+          <input type="checkbox" checked={differentEven()} onChange={(e) => toggleDifferentEven(e.target.checked)} />
+          {t('resizePages.differentEven')}
+        </label>
+        <Show when={differentEven()}>
+          <MarginFields
+            t={t}
+            name="even"
+            label={t('resizePages.marginsEven')}
+            value={evenMargins()}
+            onChange={(value) => { evenEdited = true; setEvenMargins(value); }}
+          />
+        </Show>
+        <Show when={marginError()}>
+          <div class="resize-margins-error" role="alert">{marginError()}</div>
+        </Show>
         <div class="crop-margins-info">
           {scaleContent() ? t('resizePages.infoScale', { count: totalPages }) : t('resizePages.info', { count: totalPages })}
+          <Show when={marginSets()}>
+            {' '}{scaleContent() ? t('resizePages.infoMarginsScale') : t('resizePages.infoMarginsKeep')}
+          </Show>
         </div>
       </div>
     </Dialog>

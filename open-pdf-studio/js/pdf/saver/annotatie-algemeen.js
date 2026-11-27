@@ -44,6 +44,9 @@ export function schrijfAlgemeneSleutels(dict, ann, gebruikteNm) {
       && Number.isFinite(new Date(ann.createdAt).getTime())) {
     dict.set(N('CreationDate'), pdfDatum(ann.createdAt));
   }
+  if (ann.type === 'callout' && Number.isInteger(ann.cloudVertex) && ann.cloudVertex >= 0 && ann.inReplyTo != null) {
+    dict.set(N('OPS_CloudVertex'), dict.context.obj(ann.cloudVertex));
+  }
   const nm = ann.nm != null ? String(ann.nm) : '';
   if (nm && !heeft('NM') && !gebruikteNm?.has(nm)) {
     gebruikteNm?.add(nm);

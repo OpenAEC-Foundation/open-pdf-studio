@@ -60,8 +60,8 @@ async function tempPdfPath() {
 
 /** Open a temporary PDF as a new, untitled document (Save asks where). */
 async function openAsNewDocument(path, name) {
-  const [{ loadPDF }, { onthoudWerkbestand }, { fitPage }] = await Promise.all([
-    import('./loader.js'), import('./document-release.js'), import('./renderer.js'),
+  const [{ loadPDF }, { onthoudWerkbestand }] = await Promise.all([
+    import('./loader.js'), import('./document-release.js'),
   ]);
   try { await invoke('allow_fs_scope', { path }); } catch { /* best effort */ }
   const { index } = createTab(path);
@@ -73,7 +73,6 @@ async function openAsNewDocument(path, name) {
   await loadPDF(path, index);
   if (doc) doc.fileName = name;
   markDocumentModified();
-  try { await fitPage(); } catch { /* fits itself later */ }
   updateWindowTitle();
   return doc;
 }

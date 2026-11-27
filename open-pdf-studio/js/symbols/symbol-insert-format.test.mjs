@@ -292,7 +292,9 @@ test('elke gereedschapswissel werkt de invoegsessie bij', () => {
 test('plaatsing en voorbeeld gebruiken de sessie-opmaak', () => {
   assert.match(bron('../annotations/stamps.js'), /symbolInsertStampFormat\(overrides, stampWidth\)/);
   assert.match(bron('../tools/annotation-creators.js'), /props = withSymbolInsertFormat\(tool, props\)/);
-  assert.match(bron('../tools/shape-preview.js'), /withSymbolInsertFormat\(state\.currentTool, tempAnn\)/);
+  const preview = bron('../tools/shape-preview.js');
+  assert.match(preview, /drawShapePreview\([^)]*tool = state\.currentTool\)/);
+  assert.match(preview, /withSymbolInsertFormat\(tool, tempAnn\)/);
   assert.match(bron('../tools/tools/text-tool.js'), /symbolInsertPreviewStyle\(\)/);
 });
 

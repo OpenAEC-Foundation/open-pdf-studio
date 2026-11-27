@@ -10,6 +10,9 @@ import {
   applyToEndpoint,
   typeLengthHasBuffer,
 } from '../type-length-input.js';
+import { recordBulkModify, beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
+import { sluitVlakHoeken } from '../../plattegrond/wand-tekenen.js';
+import { meldWandPunt } from '../../solid/stores/wandOptiesStore.js';
 
 // Internal state for click-click line drawing.
 // lockDirX/Y: direction anchor frozen at the moment the user STARTS typing a
@@ -73,6 +76,8 @@ export const lineTool = {
 
   onPointerMove(ctx, e) {
     const { x, y } = ctx;
+    // The wall options in the ribbon follow the sheet under the cursor (#1230).
+    if (state.currentTool === 'wall') meldWandPunt(getActiveDocument()?.currentPage || 1, x, y);
     if (!_lineState.drawing) {
       // Hover snap indicator
       _drawHoverSnap(ctx, x, y);
@@ -199,8 +204,24 @@ function _commitLineAt(ctx, e, endX, endY) {
   const ann = ctx.createAnnotationFromTool(tool, _lineState.startX, _lineState.startY, endX, endY, e);
   if (ann) {
     const doc = state.documents[state.activeDocumentIndex];
+    // A wall drawn on a face (#1230): where it starts or ends on the clicked
+    // corner of another wall, both ends move to the corner of the centerlines,
+    // so the run closes. The new wall and the adjusted ends are one undo step.
+    const hoeken = tool === 'wall' && doc
+      ? sluitVlakHoeken(ann, { x: _lineState.startX, y: _lineState.startY }, doc.annotations)
+      : null;
     if (doc) doc.annotations.push(ann);
-    ctx.recordAdd(ann);
+    if (hoeken) {
+      beginUndoTransaction();
+      try {
+        ctx.recordAdd(ann);
+        recordBulkModify(hoeken.geraakt, hoeken.voor);
+      } finally {
+        endUndoTransaction();
+      }
+    } else {
+      ctx.recordAdd(ann);
+    }
   }
   exitTypeLengthMode();
   state._typeLengthCommit = null;

@@ -68,6 +68,49 @@ try {
   assert.equal(result.vertices.length, 10);
   assert.deepEqual(result.vertices.slice(0, 2), result.vertices.slice(-2));
   assert.match(result.content, /160[.,]00\s*ft/);
+  // #1286: real Properties dropdown, undo/redo, edited geometry and PDF reload.
+  await page.evaluate(async () => {
+    const { getActiveDocument } = await import('/js/core/state.ts');
+    const { createMeasurePerimeterAnnotation } = await import('/js/tools/annotation-creators.js');
+    const props = await import('/js/solid/stores/propertiesStore.js');
+    const doc = getActiveDocument();
+    doc.annotations = []; doc.undoStack = []; doc.redoStack = [];
+    doc.measureScale = { pixelsPerUnit: 0.1, unit: 'mm' };
+    const ann = createMeasurePerimeterAnnotation([{ x: 100, y: 100 }, { x: 200, y: 100 }, { x: 200, y: 250 }]);
+    doc.annotations = [ann]; doc.selectedAnnotation = doc.annotations[0]; doc.selectedAnnotations = [doc.annotations[0]];
+    props.storeShowProperties(doc.annotations[0]);
+  });
+  const unitSelect = page.locator('#prop-measurement-section select').filter({ has: page.locator('option[value="mm"]') });
+  await unitSelect.selectOption('m');
+  const units = await page.evaluate(async () => {
+    const { getActiveDocument } = await import('/js/core/state.ts');
+    const doc = getActiveDocument();
+    const current = () => doc.annotations[0];
+    const report = () => ({ unit: current().measureUnit, value: current().measureValue, text: current().measureText });
+    const changed = report();
+    const { undo, redo } = await import('/js/core/undo-manager.js');
+    await undo(); const undone = report();
+    await redo(); const redone = report();
+    current().points[2].y += 50;
+    (await import('/js/annotations/transforms.js')).syncMeasurementAfterEdit(current());
+    const edited = report();
+    const { pdfDocLib } = await (await import('/js/pdf/saver.js')).bouwAnnotatieDocument(doc);
+    const bytes = await pdfDocLib.save();
+    const path = '/perimeter-unit-roundtrip.pdf';
+    const { index } = (await import('/js/ui/chrome/tabs.js')).createTab(path);
+    await (await import('/js/pdf/loader.js')).loadPDF(path, index, bytes.slice());
+    await getActiveDocument()._annotationCompletion;
+    const reopened = getActiveDocument().annotations.find(a => a.type === 'measurePerimeter');
+    return { changed, undone, redone, edited, reopened: reopened && {
+      unit: reopened.measureUnit, value: reopened.measureValue, scale: reopened.measureScale, text: reopened.measureText } };
+  });
+  for (const result of Object.values(units)) if (result?.text) result.text = result.text.replace(',', '.');
+  assert.deepEqual(units.changed, { unit: 'm', value: 2.5, text: '2.50 m' });
+  assert.equal(units.undone.unit, 'mm'); assert.equal(units.undone.value, 2500);
+  assert.deepEqual(units.redone, units.changed);
+  assert.deepEqual(units.edited, { unit: 'm', value: 3, text: '3.00 m' });
+  assert.deepEqual(units.reopened, { unit: 'm', value: 3, scale: 0.01, text: '3.00 m' });
+  console.log('Perimeter unit dropdown, undo/redo, geometry and PDF reload passed.', JSON.stringify(units));
   console.log(JSON.stringify({ passed: true, values: result.reports.map(r => r.value), rejected: result.invalid.length,
     savedVertices: result.vertices.length / 2, savedLabel: result.content }));
 } finally {

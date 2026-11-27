@@ -14,18 +14,10 @@
 // area fill/stroke path in rendering/measurements.js.
 import { arcControlPoint } from '../arc-points.js';
 import { ringenRichten, vlakOmhullende } from '../vlak-ringen.js';
-import { state } from '../../core/state.js';
-import { schermSchaal, paneelDocument } from '../../pdf/split-view/paneel-weergave.js';
 
-// Hatch line weight: thin by default (0.4pt — arcering is ondergeschikt
-// lijnwerk), and a TRUE HAIRLINE (1 screen pixel) when lineweight display
-// is toggled off with 'TL' — hatches follow the same rule as everything
-// else.
+// Annotation hatches keep their own family width. PDF Thin Lines only
+// changes the page underneath, not these annotation strokes.
 function _hatchLineWidth(familyWidth) {
-  const vp = window.__pdfViewport;
-  const doc = paneelDocument() || state.documents[state.activeDocumentIndex];
-  const screenScale = (vp && vp.active && doc?.filePath) ? vp.zoom : (schermSchaal(doc) || 1);
-  if (state.preferences?.thinLines) return screenScale > 0 ? 1 / screenScale : 0.5;
   return familyWidth != null ? familyWidth : 0.4;
 }
 

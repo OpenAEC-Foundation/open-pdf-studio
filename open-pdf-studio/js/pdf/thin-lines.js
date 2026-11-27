@@ -7,8 +7,8 @@
 // the tile scene), so the flag travels with every render command
 // (`thinLines`). A page rendered with and without Thin Lines is a different
 // picture, so every bitmap cache keys on the flag (thinLinesKey); switching
-// back is then a plain cache hit. The annotation overlay reads the same
-// preference itself (annotations/rendering.js).
+// back is then a plain cache hit. Annotation strokes and hatches keep their
+// configured widths; this preference only affects the PDF page.
 
 import { state, getActiveDocument } from '../core/state.js';
 

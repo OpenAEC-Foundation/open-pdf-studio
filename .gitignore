@@ -83,6 +83,7 @@ open-pdf-cad/scripts/*.local.json
 # Flatpak: offline sources are generated from the lockfiles
 # (node flatpak/generate-sources.mjs); flatpak-builder state and output.
 flatpak/generated-sources-*.json
+/org.openaec.OpenPdfStudio.yml
 .flatpak-builder/
 /builddir/
 /repo/

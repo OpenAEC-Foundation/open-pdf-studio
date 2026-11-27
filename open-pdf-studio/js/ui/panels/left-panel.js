@@ -18,7 +18,9 @@ import {
   getThumbnailContainerRef as getContainerRef,
   thumbnailSelectedPages, selectThumbnailPage,
 } from '../../bridge.js';
+import { gekozenKolommen, bijKolomWijziging } from './miniatuur-kolommen.js';
 import { renderBreedteVoorLijst, halveerStappen, MIN_RENDER } from './miniatuur-maat.js';
+import { scrollVoorItem } from './bladwijzer-zoeken.js';
 import { scrollGedrag } from '../../core/vloeiend-scrollen.js';
 
 // Renderbreedte van nieuwe miniaturen in apparaatpixels (#579): de getoonde
@@ -107,6 +109,7 @@ let lijstWaarnemer = null;
 let waargenomenLijst = null;
 let breedteTimer = null;
 let vensterLuistert = false;
+bijKolomWijziging(planBreedteCheck);
 
 // Initialize left panel
 export function initLeftPanel() {
@@ -159,7 +162,7 @@ function werkDoelBreedteBij() {
   if (!tc || !tc.clientWidth) return; // verborgen paneel of tabblad: niets te meten
   const cs = getComputedStyle(tc);
   const binnen = tc.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
-  const nieuw = renderBreedteVoorLijst(binnen, window.devicePixelRatio || 1);
+  const nieuw = renderBreedteVoorLijst(binnen, window.devicePixelRatio || 1, gekozenKolommen());
   if (nieuw === doelPx) return;
   const groter = nieuw > doelPx;
   doelPx = nieuw;
@@ -986,7 +989,8 @@ export function updateActiveThumbnail(restoreScroll = false) {
       // Scroll active thumbnail into view (page navigation)
       const activeThumbnail = container.querySelector('.thumbnail-item.active');
       if (activeThumbnail) {
-        activeThumbnail.scrollIntoView({ behavior: scrollGedrag(), block: 'nearest' });
+        const top = scrollVoorItem(container.getBoundingClientRect(), activeThumbnail.getBoundingClientRect(), container.scrollTop);
+        if (top != null) container.scrollTo({ top, behavior: scrollGedrag() });
       }
     }
   }, 0);

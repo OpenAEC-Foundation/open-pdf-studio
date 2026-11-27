@@ -1,3 +1,4 @@
+import { leaderNode, newLinkedLeader } from '../../annotations/linked-leaders.js';
 import { areaVertexHit, AREA_VERTEX_HIT_PX } from '../../annotations/area-vertices.js';
 import { getActiveDocument } from '../../core/state.js';
 import { heeftEigenDraaipunt } from '../../annotations/draaipunt.js';
@@ -142,25 +143,22 @@ export const selectTool = {
           ctx.redraw();
           return;
         }
-        // Textbox leader: + add button — append a new leader and commit undo
-        if (selAnn.type === 'textbox' && handleType === HANDLE_TYPES.LEADER_ADD) {
+        const supportsLeaders = selAnn.type === 'textbox' || selAnn.type === 'callout';
+        const canEditLeader = supportsLeaders && !selAnn.locked && e.button === 0 &&
+          selAnn.page === doc.currentPage && !isNagebootsteDubbelklik(e);
+        const branch = canEditLeader && e.shiftKey && leaderNode(selAnn, handleType);
+        if (canEditLeader && (handleType === HANDLE_TYPES.LEADER_ADD || branch)) {
           const before = ctx.cloneAnnotation(selAnn);
-          const bw = selAnn.width || 150;
-          const bh = selAnn.height || 50;
-          const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
-          const tipX = selAnn.x + bw + 80;
-          const tipY = selAnn.y + bh / 2;
-          const kneeX = selAnn.x + bw + 40;
-          const kneeY = selAnn.y + bh / 2;
-          if (!Array.isArray(selAnn.leaders)) selAnn.leaders = [];
-          selAnn.leaders.push({ id, tipX, tipY, kneeX, kneeY, endStyle: 'arrow' });
+          const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 11);
+          const leader = newLinkedLeader(selAnn, id, branch ? handleType : undefined);
+          selAnn.leaders = [...(selAnn.leaders || []), leader];
           selAnn.modifiedAt = new Date().toISOString();
           recordModify(selAnn.id, before, ctx.cloneAnnotation(selAnn));
           ctx.redraw();
           return;
         }
         // Textbox leader: × delete button — splice that leader and commit undo
-        if (selAnn.type === 'textbox' && typeof handleType === 'string' &&
+        if (canEditLeader && typeof handleType === 'string' &&
             handleType.startsWith(HANDLE_TYPES.LEADER_DELETE + '_')) {
           const leaderId = handleType.substring((HANDLE_TYPES.LEADER_DELETE + '_').length);
           const before = ctx.cloneAnnotation(selAnn);

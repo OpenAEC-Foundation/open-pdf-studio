@@ -162,10 +162,19 @@ export function onderbreekRand(p0, p1, S, u, gaten) {
 
 /**
  * De vorm van wand `ann` tussen zijn buren.
+ *
+ * `openingen` (optioneel): waar de band open is door een gehost kozijn
+ * (#1229), als intervallen [{t0, t1}] langs de as in paginapunten vanaf het
+ * beginpunt (zie wand-openingen.js). De lange randen stoppen daar, op elke
+ * dagkant komt een lijn dwars door de band, en `stukken` geeft de solide
+ * delen waar vulling en arcering komen.
+ *
  * @returns {{poly:Array<{x,y}>, joinedStart:boolean, joinedEnd:boolean,
- *   lijnen:Array<{x1,y1,x2,y2}>}|null}  null bij een wand zonder lengte.
+ *   lijnen:Array<{x1,y1,x2,y2}>, stukken:Array<Array<{x,y}>>}|null}
+ *   null bij een wand zonder lengte. `poly` is altijd de hele band;
+ *   zonder openingen is `stukken` precies die ene band.
  */
-export function wandVorm(ann, wanden, halfW) {
+export function wandVorm(ann, wanden, halfW, openingen) {
   const u = unit(ann.endX - ann.startX, ann.endY - ann.startY);
   if (!u) return null;
   const h = halfW(ann);
@@ -182,11 +191,61 @@ export function wandVorm(ann, wanden, halfW) {
   // poly[1]→poly[2] (eind) en poly[3]→poly[0] (begin), alleen waar niet
   // gejoind. (De verkeerde hoeken koppelen tekent een X door de band.)
   const gaten = tGaten(ann, lijst, halfW);
+  const len = Math.hypot(E.x - S.x, E.y - S.y);
+  const open = openDelen(openingen, len);
   const lijnen = [
-    ...onderbreekRand(poly[0], poly[1], S, u, gaten.filter((g) => g.zijde === 1)),
-    ...onderbreekRand(poly[2], poly[3], S, u, gaten.filter((g) => g.zijde === -1)),
+    ...onderbreekRand(poly[0], poly[1], S, u, [...gaten.filter((g) => g.zijde === 1), ...open]),
+    ...onderbreekRand(poly[2], poly[3], S, u, [...gaten.filter((g) => g.zijde === -1), ...open]),
   ];
-  if (!ce.joined) lijnen.push({ x1: poly[1].x, y1: poly[1].y, x2: poly[2].x, y2: poly[2].y });
-  if (!cs.joined) lijnen.push({ x1: poly[3].x, y1: poly[3].y, x2: poly[0].x, y2: poly[0].y });
-  return { poly, joinedStart: cs.joined, joinedEnd: ce.joined, lijnen };
+  // Een opening die tot het uiteinde loopt laat daar geen kap over.
+  const openBijBegin = open.length > 0 && open[0].t0 <= OPEN_EPS;
+  const openBijEind = open.length > 0 && open[open.length - 1].t1 >= len - OPEN_EPS;
+  if (!ce.joined && !openBijEind) lijnen.push({ x1: poly[1].x, y1: poly[1].y, x2: poly[2].x, y2: poly[2].y });
+  if (!cs.joined && !openBijBegin) lijnen.push({ x1: poly[3].x, y1: poly[3].y, x2: poly[0].x, y2: poly[0].y });
+  if (!open.length) return { poly, joinedStart: cs.joined, joinedEnd: ce.joined, lijnen, stukken: [poly] };
+
+  // Dagkanten en solide stukken. Een dagkant staat haaks op de as; aan de
+  // uiteinden van de wand houdt het stuk de (verstekte) hoeken van de band.
+  const n = { x: -u.y, y: u.x };
+  const dwars = (t) => [
+    { x: S.x + u.x * t + n.x * h, y: S.y + u.y * t + n.y * h },
+    { x: S.x + u.x * t - n.x * h, y: S.y + u.y * t - n.y * h },
+  ];
+  const stukken = [];
+  const stuk = (van, tot) => {
+    if (tot - van <= OPEN_EPS) return;
+    const [lp, lm] = van <= OPEN_EPS ? [poly[0], poly[3]] : dwars(van);
+    const [rp, rm] = tot >= len - OPEN_EPS ? [poly[1], poly[2]] : dwars(tot);
+    stukken.push([lp, rp, rm, lm]);
+  };
+  let cursor = 0;
+  for (const o of open) {
+    stuk(cursor, o.t0);
+    for (const t of [o.t0, o.t1]) {
+      if (t <= OPEN_EPS || t >= len - OPEN_EPS) continue;
+      const [p, m] = dwars(t);
+      lijnen.push({ x1: p.x, y1: p.y, x2: m.x, y2: m.y });
+    }
+    cursor = o.t1;
+  }
+  stuk(cursor, len);
+  return { poly, joinedStart: cs.joined, joinedEnd: ce.joined, lijnen, stukken };
+}
+
+const OPEN_EPS = 1e-6;
+
+/** De open delen binnen [0, len], op volgorde en zonder overlap. */
+function openDelen(openingen, len) {
+  if (!Array.isArray(openingen) || !openingen.length || !(len > 0)) return [];
+  const delen = openingen
+    .map((o) => ({ t0: Math.max(0, Math.min(o.t0, o.t1)), t1: Math.min(len, Math.max(o.t0, o.t1)) }))
+    .filter((o) => o.t1 - o.t0 > OPEN_EPS)
+    .sort((a, b) => a.t0 - b.t0);
+  const uit = [];
+  for (const d of delen) {
+    const vorige = uit[uit.length - 1];
+    if (vorige && d.t0 <= vorige.t1 + OPEN_EPS) vorige.t1 = Math.max(vorige.t1, d.t1);
+    else uit.push(d);
+  }
+  return uit;
 }

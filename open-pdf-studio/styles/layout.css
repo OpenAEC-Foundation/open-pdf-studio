@@ -519,8 +519,8 @@
 
 /* Thumbnails Panel */
 /* De miniaturen vullen de paneelbreedte en lopen in extra kolommen over zodra
-   er twee (of meer) van minstens 150 px naast elkaar passen (#579). Houd
-   150 px en de gap gelijk aan js/ui/panels/miniatuur-maat.js. De vaste
+   er twee (of meer) van minstens 64 px naast elkaar passen (#579). Houd
+   64 px en de gap gelijk aan js/ui/panels/miniatuur-maat.js. De vaste
    scrollbalkgoot voorkomt dat het aantal kolommen verspringt als de
    scrollbalk verschijnt. */
 .thumbnails-container {
@@ -528,7 +528,7 @@
   overflow-y: auto;
   padding: 4px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
   align-content: start;
   gap: 4px;
   scrollbar-gutter: stable;
@@ -536,6 +536,7 @@
 }
 
 .thumbnail-item {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -564,6 +565,8 @@
 }
 
 .thumbnail-item.active {
+  outline: 2px solid var(--theme-thumbnail-active-border);
+  outline-offset: -2px;
   border-color: var(--theme-thumbnail-active-border);
   background: var(--theme-thumbnail-active-bg);
 }
@@ -609,6 +612,7 @@
 }
 
 .thumbnail-item.active .thumbnail-label {
+  font-weight: 700;
   color: var(--theme-thumbnail-active-label);
 }
 
@@ -1297,3 +1301,21 @@ body.pdf-cursor-override #canvas-container * {
   border: 1px solid var(--theme-accent, #0078d7);
   background: color-mix(in srgb, var(--theme-accent, #0078d7) 16%, transparent);
 }
+
+.thumbnail-columns-control { display: flex; align-items: center; gap: 6px; padding: 4px 8px; color: var(--theme-text); font-size: 11px; }
+.thumbnail-columns-control span { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.thumbnail-columns-control input { flex: 1 0 60px; min-width: 60px; }
+.thumbnail-columns-control output { min-width: 2ch; text-align: end; }
+/* PDF content only; annotation and selection overlays retain their colours. */
+#canvas-wrapper #pdf-canvas,
+#canvas-wrapper .pdf-canvas,
+#canvas-wrapper .formLayer {
+  filter: var(--pdf-content-filter, none);
+}
+.ev-content-view { color: var(--theme-text, #222); margin: 0 0 12px; padding: 8px; border: 1px solid var(--theme-border, #999); }
+.ev-content-view > label { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+.ev-content-view input[type="range"] { min-width: 40px; flex: 1; }
+
+.ev-content-view > .ev-content-slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 6px; }
+.ev-content-slider > span:first-child { grid-column: 1 / -1; }
+.ev-content-slider input[type="range"] { width: 100%; margin: 0; }

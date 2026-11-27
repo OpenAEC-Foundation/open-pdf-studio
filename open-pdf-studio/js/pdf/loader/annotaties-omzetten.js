@@ -24,6 +24,7 @@ import { resolveGroupLinks } from './correction-load.js';
 import { koppelAntwoorden, eigenAntwoordUitAnnot } from './annotatie-algemeen.js';
 import { extraVoorAnnotatie } from './extra-sleutel.js';
 import { maakBron } from '../saver/bron-vingerafdruk.js';
+import { herkoppelOpeningen } from '../../annotations/wand-openingen.js';
 
 /**
  * @returns {Promise<object[]>} de omgezette annotaties, in paginavolgorde
@@ -94,8 +95,8 @@ export async function zetPaginaAnnotatiesOm(annots, pageNum, viewport, stampImag
     return m[soort];
   };
   for (const pl of pendingLeaders) {
-    const parent = textboxByRect.get(pl.irtRectKey);
-    if (parent) {
+    const parent = byPdfId.get(pl.irtId) || textboxByRect.get(pl.irtRectKey);
+    if (parent?.type === 'textbox' || parent?.type === 'callout') {
       if (!Array.isArray(parent.leaders)) parent.leaders = [];
       parent.leaders.push(pl.leader);
       if (leiderIds.has(pl)) meeVan(parent, 'leiders').push(leiderIds.get(pl));
@@ -123,6 +124,9 @@ export async function zetPaginaAnnotatiesOm(annots, pageNum, viewport, stampImag
   // Vervangingen (#508): invoegteken + doorhaling, in beide richtingen. Na
   // koppelAntwoorden: deze koppeling wint.
   resolveGroupLinks(groepen, byPdfId);
+  // Gehoste openingen (#1229): wand en kozijn weer aan elkaar, op hun vaste
+  // sleutel (annotatie-id's zijn na het laden nieuw).
+  herkoppelOpeningen(nieuw);
   // Waar elk model vandaan komt, als laatste: het model zoals het nu is.
   const dfps = annotColorMap?.bronnen;
   if (dfps) {

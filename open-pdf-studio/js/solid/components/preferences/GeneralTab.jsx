@@ -92,6 +92,14 @@ export default function GeneralTab(props) {
             <span>{t('general.restoreLastSession')}</span>
           </label>
         </div>
+        {/* Last view per file (#1245). */}
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" id="pref-reopen-at-last-view"
+              checked={p.reopenAtLastView[0]()} onChange={e => p.reopenAtLastView[1](e.target.checked)} />
+            <span>{t('general.reopenAtLastView')}</span>
+          </label>
+        </div>
         <Show when={meldLegeStart({ inTauri: isTauri() })}>
           <div class="pref-row"><span class="pref-hint">{tCommon(WEB_SESSIE_SLEUTEL)}</span></div>
         </Show>

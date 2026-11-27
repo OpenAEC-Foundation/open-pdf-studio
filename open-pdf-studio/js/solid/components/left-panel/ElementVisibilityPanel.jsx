@@ -1,4 +1,5 @@
 import { Show, For } from 'solid-js';
+import { contentView, canEditContentView, setContentView, resetContentView } from '../../stores/contentViewStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getTypeDisplayName } from '../../../utils/helpers.js';
 import {
@@ -11,7 +12,7 @@ import {
 } from '../../stores/elementVisibilityStore.js';
 
 // "Zichtbaarheid Elementen" — een Revit-achtig Visibility/Graphics-paneel,
-// maar V1 uitsluitend voor ANNOTATIES. Toont per annotatie-SOORT die in het
+// met documentgebonden PDF-ondergrond en per annotatie-SOORT die in het
 // actieve document voorkomt: een teller, een zichtbaarheids-toggle, en een
 // halftone-override (dimmen) met instelbare kleur + dim-factor.
 //
@@ -33,7 +34,7 @@ export default function ElementVisibilityPanel() {
           <div class="ev-panel-header-actions">
             <button type="button" class="ev-panel-reset"
               title={t('elementVisibility.reset')}
-              onClick={resetElementVisibility}>
+              onClick={() => { resetElementVisibility(); resetContentView(); }}>
               {t('elementVisibility.reset')}
             </button>
             <button type="button" class="ev-panel-close"
@@ -43,6 +44,22 @@ export default function ElementVisibilityPanel() {
         </div>
 
         <div class="ev-panel-body">
+          <fieldset class="ev-content-view" disabled={!canEditContentView()}>
+            <legend>{t('elementVisibility.pdfContent')}</legend>
+            <label><input id="pdf-content-enabled" type="checkbox" checked={contentView().enabled}
+              onChange={e => setContentView('enabled', e.currentTarget.checked)} />{t('elementVisibility.contentEnabled')}</label>
+            <For each={[
+              ['grayscale', 'image.grayscale', 0, 100],
+              ['brightness', 'image.brightness', 25, 200],
+              ['opacity', 'format.opacity', 0, 100],
+            ]}>{([key, label, min, max]) => <label class="ev-content-slider">
+              <span>{t(label)}</span>
+              <input id={`pdf-content-${key}`} type="range" min={min} max={max} step="5"
+                disabled={!contentView().enabled} value={contentView()[key]}
+                onInput={e => setContentView(key, Number(e.currentTarget.value))} />
+              <span>{contentView()[key]}%</span>
+            </label>}</For>
+          </fieldset>
           <Show when={typeSummary().length === 0}>
             <div class="ev-panel-empty">{t('elementVisibility.empty')}</div>
           </Show>

@@ -50,9 +50,19 @@ test('standaard krijgt geen enkel wandstuk een join-vlag', async () => {
   }
 });
 
-test('joinStart:false / joinEnd:false gelden voor het begin en het eind van de LOOP', async () => {
+test('joinStart:false / joinEnd:false op een wand die haar deur host (#1229): beide uiteinden van die ene wand', async () => {
   const o = omgevingMet();
   const r = await plattegrondOpdracht({ ...gevelMetDeur, joinStart: false, joinEnd: false }, o);
+  assert.equal(r.ok, true);
+  const wanden = r.wallIds.map((id) => o.doc.annotations.find((a) => a.id === id));
+  assert.equal(wanden.length, 1, 'de wand blijft heel');
+  assert.equal(wanden[0].noJoinStart, true, 'begin van de loop');
+  assert.equal(wanden[0].noJoinEnd, true, 'eind van de loop');
+});
+
+test('joinStart:false / joinEnd:false gelden voor het begin en het eind van de LOOP', async () => {
+  const o = omgevingMet();
+  const r = await plattegrondOpdracht({ ...gevelMetDeur, hosted: false, joinStart: false, joinEnd: false }, o);
   assert.equal(r.ok, true);
   const wanden = r.wallIds.map((id) => o.doc.annotations.find((a) => a.id === id));
   assert.equal(wanden.length, 2, 'de deur knipt de loop in tweeën');

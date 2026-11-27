@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "현재 레이어 표시 상태를 문서의 기본 상태로 저장합니다. 다음에 저장할 때 파일에 기록됩니다.",
     "layersDefaultPending": "저장 시 기본값이 됩니다",
     "layerLocked": "잠긴 레이어: 켜거나 끌 수 없습니다",
-    "layerRadioGroup": "선택 그룹: 이 레이어를 켜면 그룹의 다른 레이어가 꺼집니다"
+    "layerRadioGroup": "선택 그룹: 이 레이어를 켜면 그룹의 다른 레이어가 꺼집니다",
+    "thumbnailColumns": "축소판 열 수"
   },
   "scaleBar": {
     "title": "축척 막대",
@@ -601,6 +602,12 @@
     "joinHint": "끄기: 벽의 이 끝은 다른 벽과 연귀 맞춤, T자 결합 또는 자르기가 되지 않으며, 그린 위치에서 평평한 끝을 유지합니다.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "물량표",
       "builtinText": "텍스트",
       "rebarPosition": "철근 바"
-    }
+    },
+    "configImportFailed": "수량 설정을 가져올 수 없습니다. 유효하고 지원되는 구성 파일을 선택하세요.",
+    "configExportFailed": "수량 설정을 내보낼 수 없습니다."
   },
   "parametricSymbol": {
     "defaultTitle": "파라메트릭 기호",

@@ -17,7 +17,7 @@ try {
     const { drawAnnotation } = await import('/js/annotations/rendering.js');
     const { findAnnotationAt, isPointInsideAnnotation } = await import('/js/annotations/geometry.js');
     const { getAnnotationBounds } = await import('/js/core/stores/selection-helpers.ts');
-    const { GEOMETRIC_LINE_STYLES } = await import('/js/annotations/geometric-line-styles.js');
+    const { GEOMETRIC_LINE_STYLES, drawGeometricLine } = await import('/js/annotations/geometric-line-styles.js');
     const { storeShowProperties, storeShowMultiSelection, showToolDefaults, updateAnnotProp } = await import('/js/solid/stores/propertiesStore.js');
     const { applyStyleToSelection } = await import('/js/solid/stores/stylePresetsStore.js');
     const { undo, redo, flushPropertyChange } = await import('/js/core/undo-manager.js');
@@ -41,6 +41,19 @@ try {
       let ink = 0; for (let j = 0; j < data.length; j += 4) if (data[j] < 245) ink++;
       painted.push(ink);
     }
+    // Reference-sized batting sample (#1284), using the production Canvas path.
+    const batting = document.createElement('canvas'); batting.width = 400; batting.height = 371;
+    const bc = batting.getContext('2d'); bc.fillStyle = 'white'; bc.fillRect(0, 0, 400, 371);
+    bc.translate(185, -25); bc.scale(-20, 20); bc.strokeStyle = '#974545'; bc.lineWidth = 0.035;
+    drawGeometricLine(bc, { type: 'line', startX: 0, startY: 0, endX: 0, endY: 20.8,
+      lineWidth: 1, borderStyle: 'insulation' });
+    const battingImage = batting.toDataURL('image/png');
+    // Four alternating rounded side lobes at a 64px pitch, as in the report.
+    const hasInk = (x, y) => {
+      const a = bc.getImageData(x - 2, y - 2, 5, 5).data;
+      return a.some((v, i) => i % 4 === 0 && v < 245);
+    };
+    const battingAnchors = [hasInk(265, 87), hasInk(105, 119), hasInk(265, 151), hasInk(105, 183)];
     const choose = a => { doc.selectedAnnotation = a; doc.selectedAnnotations = [a]; storeShowProperties(a); };
     const options = () => [...document.querySelectorAll('#prop-border-style option')].map(o => o.value);
     choose(doc.annotations[0]); setContextualTabsVisible(true); setActiveTab('format'); await wait(); const lineOptions = options();
@@ -63,8 +76,11 @@ try {
     const mixedOptions = options();
     doc.selectedAnnotations = []; doc.selectedAnnotation = null; setTool('polyline'); showToolDefaults('polyline'); await wait();
     const defaultOptions = options(); updateAnnotProp('borderStyle', 'gas'); await wait();
-    return { image, painted, lineOptions, ribbonOptions, applied, undone, redone, picked, bounds, outerTieMovable, boxOptions, boxStyle, mixedOptions, defaultOptions };
+    return { image, battingImage, battingAnchors, painted, lineOptions, ribbonOptions, applied, undone, redone, picked, bounds, outerTieMovable, boxOptions, boxStyle, mixedOptions, defaultOptions };
   });
+  assert.ok(result.battingAnchors.every(Boolean), 'batting side lobes match reference pitch');
+  if (process.env.OPDS_BATTING_ARTIFACT) await writeFile(process.env.OPDS_BATTING_ARTIFACT, Buffer.from(result.battingImage.split(',')[1], 'base64'));
+  delete result.battingImage;
   for (const [i, ink] of result.painted.entries()) assert.ok(ink > 300, `pattern ${i} visible in real renderer`);
   for (const style of ['fence-circle','fence-square','gas','hot-water','zigzag','insulation','double','tracks','road']) {
     assert.ok(result.ribbonOptions.includes(style), `ribbon option ${style}`);

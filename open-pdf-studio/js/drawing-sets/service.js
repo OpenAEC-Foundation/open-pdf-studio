@@ -76,6 +76,8 @@ async function openVersion(sheet) {
       bytes = new Uint8Array(await readBinaryFile(path));
     if ((await hash(bytes)) !== sheet.hash) throw new Error('SOURCE_FILE_CHANGED');
     const tab = createTab(path);
+    // The sheet decides where the document opens, not its last view (#1245).
+    (await import('../core/last-view.js')).markExplicitTarget(state.documents[tab.index]);
     await (await import('../pdf/loader.js')).loadPDF(path, tab.index, bytes);
     doc = state.documents[tab.index];
   }
