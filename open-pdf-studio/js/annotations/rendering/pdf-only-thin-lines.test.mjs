@@ -5,7 +5,9 @@ import { weergaveLijndikte } from './lijndikte.js';
 
 // Exercise the production state adapters without importing the app webview.
 const rendering = readFileSync(new URL('../rendering.js', import.meta.url), 'utf8');
-const widthFunction = rendering.slice(rendering.indexOf('function thinLw('), rendering.indexOf('// Pick the textbox edge'));
+// From the function header to its closing brace: what follows it in the file moves around.
+const widthStart = rendering.indexOf('function thinLw(');
+const widthFunction = rendering.slice(widthStart, rendering.indexOf('\n}', widthStart) + 2);
 const hatches = readFileSync(new URL('./hatch-patterns.js', import.meta.url), 'utf8');
 const hatchFunction = hatches.slice(hatches.indexOf('function _hatchLineWidth('), hatches.indexOf('// ---------------------------------------------------------------------------'));
 function adapters(zoom) {

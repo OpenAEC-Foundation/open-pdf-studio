@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import { getoondeKolommen, kolomBreedte, renderBreedteVoorLijst, MIN_KOLOM } from './miniatuur-maat.js';
 test('chosen columns are an upper limit that survives narrowing and widening', () => {
   assert.equal(getoondeKolommen(620, 2), 2);
-  assert.equal(getoondeKolommen(200, 2), 1);
+  assert.equal(getoondeKolommen(100, 2), 1);
   assert.equal(getoondeKolommen(780, 2), 2);
-  assert.equal(getoondeKolommen(620, 0), 4);
-  assert.equal(getoondeKolommen(780, 0), 5);
-  for (const width of [150, 200, 620, 780]) {
+  assert.equal(getoondeKolommen(620, 0), 9);
+  assert.equal(getoondeKolommen(780, 0), 11);
+  for (const width of [64, 100, 620, 780]) {
     for (const choice of [0, 1, 2, 4, 999]) assert.ok(kolomBreedte(width, undefined, undefined, choice) >= MIN_KOLOM);
   }
 });
@@ -16,7 +16,7 @@ test('larger thumbnails request a larger bitmap, within the existing memory cap'
   assert.equal(renderBreedteVoorLijst(620, 1), 280);
   assert.equal(renderBreedteVoorLijst(620, 1, 2), 320);
   assert.equal(renderBreedteVoorLijst(620, 2, 1), 600);
-  for (const invalid of [-1, NaN, Infinity, 1.5, '2']) assert.equal(getoondeKolommen(620, invalid), 4);
+  for (const invalid of [-1, NaN, Infinity, 1.5, '2']) assert.equal(getoondeKolommen(620, invalid), 9);
 });
 let serial = 0;
 const fresh = () => import(`./miniatuur-kolommen.js?test=${++serial}`);
