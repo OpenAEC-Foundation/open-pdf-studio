@@ -299,6 +299,7 @@ js/gevelelement/element.test.mjs
 js/gevelelement/mcp-gevelelement.test.mjs
 js/plattegrond/kozijnprofiel.test.mjs
 js/plattegrond/kozijn.test.mjs
+js/plattegrond/kozijn-us.test.mjs
 js/plattegrond/spouwmuur.test.mjs
 js/annotations/wand-vorm.test.mjs
 js/annotations/wand-openingen.test.mjs

@@ -22,26 +22,33 @@ import { herkoppelOpeningen, openingIntervallen } from '../../annotations/wand-o
 import { wandVorm } from '../../annotations/wand-vorm.js';
 import { hostingNaCommando, gehosteWand, hartVanSymbool } from '../../plattegrond/gehoste-opening.js';
 import { plattegrondOpdracht } from '../../plattegrond/mcp-plattegrond.js';
+import { kozijnTekenopdrachten } from '../../plattegrond/kozijn.js';
 
 const K = 0.5;                                    // paginapunten per mm
 const WAND_RECT = [50, 480, 2060, 520];
 const KOZIJN_RECT = [900, 300, 1400, 600];
 const kloon = (x) => JSON.parse(JSON.stringify(x));
 
-/** Een wand met een deur en een raam, gemaakt zoals de app het doet. */
-async function tekening() {
+/**
+ * Een wand met een deur en een raam, gemaakt zoals de app het doet.
+ * `imperiaal`: op een blad in voet of inch (#1230).
+ */
+async function tekening(imperiaal = false) {
   const doc = { currentPage: 1, annotations: [], paginas: 1 };
   let teller = 0;
   const omgeving = {
     doc,
     pxPerMmAt: () => K,
+    imperiaalOp: () => imperiaal,
     async maak(type, page, props) { const a = { id: `oud-${++teller}`, type, page, ...props }; doc.annotations.push(a); return { ok: true, id: a.id }; },
     async werkBij(id, props) { Object.assign(doc.annotations.find((a) => a.id === id), props); return { ok: true }; },
     async transactie(fn) { await fn(); },
   };
   const r = await plattegrondOpdracht({
     action: 'wall', start: { x: 0, y: 300 }, end: { x: 2000, y: 300 }, thicknessMm: 100,
-    openings: [{ kind: 'door', widthMm: 900, alongMm: 1000, openSide: 'right' }, { kind: 'window', widthMm: 1200, alongMm: 3000 }],
+    openings: imperiaal
+      ? [{ kind: 'door', alongMm: 1000, openSide: 'right' }, { kind: 'window', alongMm: 3000 }]
+      : [{ kind: 'door', widthMm: 900, alongMm: 1000, openSide: 'right' }, { kind: 'window', widthMm: 1200, alongMm: 3000 }],
   }, omgeving);
   assert.equal(r.ok, true);
   return doc.annotations;
@@ -157,6 +164,30 @@ test('na opslaan en heropenen horen wand en kozijnen weer bij elkaar', async () 
   assert.equal(Math.round(hartVanSymbool(deur, K, 100).y), 300, 'de deur blijft op de wandlijn');
   assert.deepEqual(extra.map((c) => [c.type, c.id]), [['modifyAnnotation', wand.id]]);
   assert.deepEqual(openingIntervallen(2000, wand.openingen, K).map((i) => [i.t0, i.t1]), [[475, 925], [1200, 1800]]);
+});
+
+test('het Amerikaanse plansymbool (#1230) komt na opslaan en heropenen terug, wat het blad dan ook is', async () => {
+  const origineel = await tekening(true);
+  const geladen = await opslaanEnHeropenen(origineel);
+  const [wand, deur, raam] = geladen;
+  // De stijl en de maten staan in het symbool zelf, niet in een voorkeur.
+  assert.deepEqual([deur.params.symboolStijl, raam.params.symboolStijl], ['us', 'us']);
+  assert.deepEqual([deur.params.width, raam.params.width, deur.params.deurbladDikteMm], [914.4, 1219.2, 44.45]);
+  assert.deepEqual(wand.openingen.map((o) => [o.id, o.breedteMm]), [[deur.id, 914.4], [raam.id, 1219.2]]);
+  // Het symbool tekent hetzelfde als voor het opslaan.
+  for (const [nu, toen] of [[deur, origineel[1]], [raam, origineel[2]]]) {
+    const vak = (a) => ({ x: a.x, y: a.y, width: a.width, height: a.height });
+    const soort = nu.symbolId === 'window' ? 'raam' : 'deur';
+    assert.deepEqual(kozijnTekenopdrachten(soort, nu.params, vak(nu)), kozijnTekenopdrachten(soort, toen.params, vak(toen)));
+  }
+  assert.deepEqual(kozijnTekenopdrachten('deur', deur.params, { x: 0, y: 0, width: deur.width, height: deur.height }).map((c) => c.kind),
+    ['polyline', 'arc'], 'blad en draaicirkel, geen kozijnhout');
+  // En de hosting werkt: de deur schuift langs de wand, het gat gaat mee.
+  const oud = kloon(deur);
+  deur.x += 100; deur.y -= 60;
+  hostingNaCommando({ type: 'modifyAnnotation', id: deur.id, oldState: oud, newState: kloon(deur) }, geladen, () => K);
+  assert.equal(wand.openingen[0].afstandMm, 1200);
+  assert.equal(deur.params.symboolStijl, 'us');
 });
 
 test('een tweede keer opslaan en heropenen verandert niets meer', async () => {

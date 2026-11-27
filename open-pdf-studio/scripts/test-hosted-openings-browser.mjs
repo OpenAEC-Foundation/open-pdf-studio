@@ -3,6 +3,9 @@
 // the door along and away from its wall with the mouse, move, rotate and
 // shorten the wall, delete either side, undo each step, save, check the
 // saved appearance and reopen the file.
+// Issue #1230: a typed width on the metric sheet, and on a sheet in feet the
+// 6" wall, the 36" door and 48" window with the US plan symbol, widths typed
+// as `32` and `3'-0"`, sliding, and the symbol after save and reopen.
 //   node scripts/test-hosted-openings-browser.mjs
 import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
@@ -307,8 +310,161 @@ try {
   close(movedOpening.alongMm, alongAfterDrag - 1000, 'after reopening, dragging still slides the door along the wall', 1);
   close(movedDoor.centre.y, 400, 'and keeps it on the wall line');
 
+  // ── #1230: typed width on the metric sheet ──────────────────────────────
+  const statusText = () => page.evaluate(() => document.querySelector('.status-bar')?.textContent || '');
+  const chooseTool = async (button, tool) => {
+    // A selection may have brought a contextual tab forward.
+    await page.evaluate(() => window.ho.setActiveTab('drawing'));
+    await page.waitForSelector(button);
+    await page.locator(button).click();
+    await page.waitForFunction((t) => window.ho.state.currentTool === t, tool, { timeout: 10000 });
+    await settle();
+  };
+  // The frames of the active sheet: what they are and what their symbol draws.
+  const frames = () => page.evaluate(async () => {
+    const { getTemplate } = await import('/js/symbols/registry.js');
+    const doc = window.ho.getActiveDocument();
+    const walls = doc.annotations.filter((a) => a.type === 'wall');
+    return {
+      walls: walls.map((w) => ({
+        id: w.id, thicknessMm: w.dikteMm, hatch: w.hatchPattern,
+        openings: (w.openingen || []).map((o) => ({ id: o.id, alongMm: o.afstandMm, widthMm: o.breedteMm, side: o.zijde })),
+      })),
+      frames: doc.annotations.filter((a) => a.type === 'parametricSymbol').map((f) => ({
+        id: f.id, symbolId: f.symbolId, widthMm: f.params.width, style: f.params.symboolStijl || null,
+        leafMm: f.params.deurbladDikteMm ?? null, hostWallId: f.params.hostWallId,
+        width: f.width, height: f.height, rotation: f.rotation,
+        draws: getTemplate(f.symbolId).render(f.params, { x: f.x, y: f.y, width: f.width, height: f.height }).map((c) => c.kind),
+      })),
+    };
+  });
+  await chooseTool('#dr-wall-window', 'wallWindow');
+  assert.match(await statusText(), /1200 mm/, 'the hint shows the metric default width');
+  await moveTo(250, 400);
+  assert.equal(await page.getByText('type width + Enter').count(), 1, 'the typed-width field follows the pointer');
+  await page.keyboard.type('1000');
+  await page.keyboard.press('Enter');
+  await settle();
+  assert.match(await statusText(), /1000 mm/, 'on a metric sheet a bare number is millimetres');
+  await clickAt(250, 400);                          // 1500 mm from the wall start
+  let f = await frames();
+  let typed = f.frames.find((x) => x.widthMm === 1000);
+  assert.ok(typed, 'a window of the typed width');
+  assert.equal(typed.style, null, 'metric sheet: the frame symbol, as before');
+  assert.ok(typed.draws.filter((k) => k === 'polyline').length >= 2, 'with its timber stiles');
+  close(f.walls[0].openings.find((o) => o.id === typed.id).alongMm, 1500, 'at the clicked point', 0.5);
+  assert.equal(f.walls[0].thicknessMm, 300);
+
+  // ── #1230: a sheet in feet, 1/4" = 1'-0" (18 pt per foot) ──────────────
+  await page.evaluate(async (bytes) => {
+    const { getActiveDocument, createTab, loadPDF, runAppEvent, setTool } = window.ho;
+    setTool('select');
+    const tab = createTab('/hosted-openings-feet.pdf');
+    await loadPDF('/hosted-openings-feet.pdf', tab.index, new Uint8Array(bytes));
+    await getActiveDocument()._annotationCompletion;
+    const scale = await runAppEvent('mcp:set-measure-scale', { pixelsPerUnit: 18, unit: 'ft' });
+    if (!scale.ok) throw new Error(JSON.stringify(scale));
+  }, Array.from(await pdf.save()));
+  await settle();
+  // A wall of 40 ft without further choices: 6" thick, no hatch.
+  const feetWall = await app('mcp:floorplan', { action: 'wall', start: { x: 100, y: 400 }, end: { x: 820, y: 400 } });
+  assert.equal(feetWall.ok, true, JSON.stringify(feetWall));
+  f = await frames();
+  assert.deepEqual([f.walls[0].thicknessMm, f.walls[0].hatch], [152.4, 'none'], 'a plain 6 inch wall on a feet sheet');
+
+  // A door with the ribbon tool: 36", leaf and swing arc only.
+  await chooseTool('#dr-wall-door', 'wallDoor');
+  assert.match(await statusText(), /36"/, 'the hint shows the US default width');
+  await moveTo(180, 403);
+  await clickAt(190, 403);                          // 5 ft from the start, lower side of the wall
+  f = await frames();
+  assert.equal(f.frames.length, 1);
+  let usDoor = f.frames[0];
+  close(usDoor.widthMm, 914.4, 'a door is 36 inch wide by default', 1e-6);
+  assert.equal(usDoor.style, 'us', 'with the US plan symbol');
+  assert.deepEqual(usDoor.draws, ['polyline', 'arc'], 'a leaf and its swing arc, no frame stiles');
+  close(usDoor.leafMm, 44.45, 'a leaf of 1-3/4 inch', 1e-6);
+  close(usDoor.width, 54, 'the symbol is 36 inch wide on the sheet', 1e-6);
+  assert.deepEqual(f.walls[0].openings.map((o) => [o.widthMm, o.side]), [[914.4, -1]], 'the gap is 36 inch; the door swings to the clicked side');
+  close(f.walls[0].openings[0].alongMm, 5 * 304.8, 'at the clicked point', 2);
+
+  // Typing 32 and Enter: a bare number is inches on a feet sheet.
+  await moveTo(330, 397);
+  await page.keyboard.type('32');
+  await page.keyboard.press('Enter');
+  await settle();
+  assert.match(await statusText(), /32"/, 'the hint shows the typed width');
+  await clickAt(330, 397);
+  f = await frames();
+  assert.equal(f.frames.length, 2);
+  close(f.frames[1].widthMm, 32 * 25.4, 'typing 32 gives a 32 inch door', 1e-6);
+  assert.equal(f.frames[1].style, 'us');
+  // Typing 3'-0" and Enter: feet and inches.
+  await moveTo(470, 403);
+  await page.keyboard.type('3\'-0"');
+  await page.keyboard.press('Enter');
+  await settle();
+  assert.match(await statusText(), /36"/, 'the hint shows 3 ft as 36 inch');
+  await clickAt(470, 403);
+  f = await frames();
+  assert.equal(f.frames.length, 3);
+  close(f.frames[2].widthMm, 914.4, 'typing 3\'-0" gives a 36 inch door', 1e-6);
+
+  // A window: 48", two wall faces, two jambs and one glass line.
+  await chooseTool('#dr-wall-window', 'wallWindow');
+  assert.match(await statusText(), /48"/, 'choosing the tool again starts from the default width');
+  await moveTo(650, 400);
+  await clickAt(660, 400);
+  f = await frames();
+  const usWindow = f.frames.find((x) => x.symbolId === 'window');
+  close(usWindow.widthMm, 1219.2, 'a window is 48 inch wide by default', 1e-6);
+  assert.equal(usWindow.style, 'us');
+  assert.deepEqual(usWindow.draws, ['line', 'line', 'line', 'line', 'line'], 'two faces, two jambs, a centre glass line');
+  close(usWindow.width, 72, 'the window is 48 inch wide on the sheet', 1e-6);
+  close(usWindow.height, 9, 'and as deep as the 6 inch wall', 1e-6);
+  assert.equal(f.walls.length, 1, 'still one wall');
+  assert.equal(f.walls[0].openings.length, 4);
+
+  // The US door slides along its wall like any hosted frame and keeps its symbol.
+  await page.evaluate(() => window.ho.setTool('select'));
+  const alongUs = f.walls[0].openings.find((o) => o.id === usDoor.id).alongMm;
+  await moveTo(190, 400);
+  await page.mouse.down();
+  await moveTo(200, 430, 4);
+  await moveTo(226, 480, 6);                        // 2 ft along the wall, well off it
+  await page.mouse.up();
+  await settle();
+  f = await frames();
+  close(f.walls[0].openings.find((o) => o.id === usDoor.id).alongMm, alongUs + 2 * 304.8, 'the US door slid 2 ft along the wall', 3);
+  usDoor = f.frames.find((x) => x.id === usDoor.id);
+  assert.deepEqual([usDoor.style, usDoor.draws.join()], ['us', 'polyline,arc']);
+
+  // Save and reopen: the symbol style is stored on the frame, so the file
+  // shows the same symbols before any scale or preference is applied.
+  const feetBytes = await page.evaluate(async () => {
+    const { pdfDocLib } = await (await import('/js/pdf/saver.js')).bouwAnnotatieDocument(window.ho.getActiveDocument());
+    return Array.from(await pdfDocLib.save());
+  });
+  await page.evaluate(async (bytes) => {
+    const { getActiveDocument, createTab, loadPDF } = window.ho;
+    const tab = createTab('/hosted-openings-feet-reopened.pdf');
+    await loadPDF('/hosted-openings-feet-reopened.pdf', tab.index, new Uint8Array(bytes));
+    await getActiveDocument()._annotationCompletion;
+  }, feetBytes);
+  await settle();
+  const again = await frames();
+  assert.equal(again.walls.length, 1);
+  assert.deepEqual(again.frames.map((x) => [x.symbolId, x.style, Math.round(x.widthMm * 10) / 10]).sort(),
+    [['door', 'us', 812.8], ['door', 'us', 914.4], ['door', 'us', 914.4], ['window', 'us', 1219.2]].sort());
+  assert.deepEqual(again.frames.find((x) => x.symbolId === 'window').draws, ['line', 'line', 'line', 'line', 'line']);
+  assert.ok(again.frames.filter((x) => x.symbolId === 'door').every((x) => x.draws.join() === 'polyline,arc'));
+  assert.ok(again.frames.every((x) => x.hostWallId === again.walls[0].id), 'and they are hosted again');
+
   assert.deepEqual(errors, [], `page errors: ${errors.join(' | ')}`);
-  console.log(JSON.stringify({ passed: true, wall: 1, openings: s.walls[0].openings.map((o) => Math.round(o.alongMm)), savedPieces: fills }));
+  console.log(JSON.stringify({
+    passed: true, wall: 1, openings: s.walls[0].openings.map((o) => Math.round(o.alongMm)), savedPieces: fills,
+    feetSheet: again.frames.map((x) => `${x.symbolId} ${Math.round(x.widthMm / 25.4 * 100) / 100}"`),
+  }));
 } finally {
   await browser?.close(); await server.close(); await rm(cache, { recursive: true, force: true });
 }

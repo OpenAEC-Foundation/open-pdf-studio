@@ -8,32 +8,86 @@
  * toward the side of the wall that was clicked, and an opening that would
  * overlap another opening in the same wall is refused with a message.
  *
+ * Width (#1230): the opening starts at the default of the sheet under the
+ * pointer — 900 / 1200 mm, or 36" / 48" with the US plan symbol on a sheet
+ * measured in feet or inches (plattegrond/blad-conventie.js). Typing a width
+ * and Enter changes it for the next clicks: on a feet or inch sheet a bare
+ * number is inches and `3'-0"` reads as feet and inches, on a metric sheet a
+ * bare number is millimetres. The typing goes through the same key buffer
+ * as the typed lengths of the line tools (type-length-input.js).
+ *
  * While hovering, the tool shows where the gap will come: the opening at
- * its default width, shifted so that it fits inside the wall.
+ * its current width, shifted so that it fits inside the wall.
  */
-import { getActiveDocument } from '../../core/state.js';
+import { state, getActiveDocument } from '../../core/state.js';
 import { applyToolTransform } from '../tool-context.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import i18next from '../../i18n/config.js';
 import { wandAs, projecteer } from '../../annotations/wand-geometrie.js';
 import { wallPxPerMm } from '../../annotations/rendering/walls.js';
 import { wandOpeningen, pasOpeningenIn, klemAfstandMm, overlaptOpening } from '../../annotations/wand-openingen.js';
+import { leesBreedteMm, breedteLabel } from '../../plattegrond/blad-conventie.js';
+import { isImperiaalBladOpPunt, isImperiaalBladOpPagina } from '../../plattegrond/blad-conventie-op-punt.js';
+import { standaardOpeningBreedteMm } from '../../plattegrond/opening-breedte.js';
+import {
+  enterTypeLengthMode, exitTypeLengthMode, typeLengthActive, typeLengthBuffer, clearTypeLengthBuffer,
+} from '../type-length-input.js';
 
-/** Default opening width in mm per kind (as in plattegrond/sparing.js). */
-const DEFAULT_WIDTH_MM = { door: 900, window: 1200 };
+const KIND_OF_TOOL = { wallDoor: 'door', wallWindow: 'window' };
 
 const MESSAGES = {
-  hint: ['drawing.wallOpeningHint', 'Click a wall to place the opening; a door swings to the side you click'],
+  hint: ['drawing.wallOpeningHint', 'Width {{width}}: click a wall to place the opening; a door swings to the side you click. Type another width and press Enter to change it'],
   wall: ['drawing.wallOpeningNoWall', 'Click on a wall to place the opening'],
   overlap: ['drawing.wallOpeningOverlap', 'Not placed: the opening would overlap another opening in this wall'],
   outside: ['drawing.wallOpeningNoFit', 'Not placed: the opening does not fit in this wall'],
   layered: ['drawing.wallOpeningLayered', 'Not placed: this wall is one layer of a layered wall'],
   scale: ['drawing.wallOpeningNoScale', 'Set a measurement scale on this page first'],
+  badWidth: ['drawing.wallOpeningBadWidth', 'Not a width: {{text}}'],
 };
 
-function _message(code) {
+function _message(code, values = {}) {
   const [key, fallback] = MESSAGES[code] || MESSAGES.wall;
-  updateStatusMessage(i18next.t(key, { ns: 'ribbon', defaultValue: fallback }), 5000);
+  updateStatusMessage(i18next.t(key, { ns: 'ribbon', defaultValue: fallback, ...values }), 6000);
+}
+
+// The width the user typed (null = the default of the sheet) and where the
+// pointer last was, to know which sheet convention applies.
+const _session = { widthMm: null, page: null, x: null, y: null };
+
+/** Is the sheet at the pointer (or, before the first move, the page) imperial? */
+function _imperial() {
+  if (_session.page != null && Number.isFinite(_session.x) && Number.isFinite(_session.y)) {
+    return isImperiaalBladOpPunt(_session.page, _session.x, _session.y);
+  }
+  return isImperiaalBladOpPagina();
+}
+
+function _widthMm(kind, imperial) {
+  return _session.widthMm ?? standaardOpeningBreedteMm(kind, imperial);
+}
+
+function _showHint(kind) {
+  const imperial = _imperial();
+  _message('hint', { width: breedteLabel(_widthMm(kind, imperial), imperial) });
+}
+
+function _remember(ctx) {
+  _session.page = ctx.pageNum || getActiveDocument()?.currentPage || 1;
+  _session.x = ctx.x;
+  _session.y = ctx.y;
+}
+
+/** Enter after typing: the typed text becomes the width for the next clicks. */
+function _commitTypedWidth() {
+  const kind = KIND_OF_TOOL[state.currentTool];
+  const text = typeLengthBuffer();
+  clearTypeLengthBuffer();
+  if (!kind) return;
+  // A bare number is inches on a feet or inch sheet, millimetres otherwise.
+  const widthMm = leesBreedteMm(text, _imperial());
+  if (widthMm === null) { _message('badWidth', { text }); return; }
+  _session.widthMm = widthMm;
+  _showHint(kind);
 }
 
 /** The wall under the pointer: the point lies inside its band. */
@@ -55,10 +109,9 @@ function _wallAt(ctx) {
 }
 
 /** Where the gap would come for this pointer position, and whether it is free. */
-function _candidate(hit, kind) {
+function _candidate(hit, widthMm) {
   const { wall, pr, pxPerMm } = hit;
   const lengthMm = pr.as.len / pxPerMm;
-  const widthMm = DEFAULT_WIDTH_MM[kind];
   const alongMm = klemAfstandMm(lengthMm, widthMm, pr.t / pxPerMm);
   const others = pasOpeningenIn(lengthMm, wandOpeningen(wall));
   return {
@@ -116,6 +169,9 @@ async function _place(ctx, hit, kind) {
     const r = await plattegrondInApp({
       action: 'opening', page: hit.wall.page ?? 1, wallId: hit.wall.id, kind,
       point: { x: ctx.x, y: ctx.y },
+      // A typed width; without one the sheet under the click decides (and
+      // with it the symbol: the frame, or the US plan symbol).
+      ...(_session.widthMm != null ? { widthMm: _session.widthMm } : {}),
     });
     if (!r?.ok) { _message(r?.reason || 'wall'); return; }
     const m = await import('../manager.js');
@@ -128,37 +184,53 @@ async function _place(ctx, hit, kind) {
   }
 }
 
-function _makeTool(name, kind) {
+function _makeTool(name) {
+  const kind = KIND_OF_TOOL[name];
   return {
     name,
     cursor: 'crosshair',
 
+    // Chosen (again): start from the default width and listen for a typed one.
+    onActivate() {
+      _session.widthMm = null;
+      enterTypeLengthMode(0, 0);
+      state._typeLengthCommit = _commitTypedWidth;
+    },
+
     onPointerDown(ctx, e) {
       if (e.button !== 0) return;
+      _remember(ctx);
       const hit = _wallAt(ctx);
       if (!hit) { _message('wall'); return; }
       _place(ctx, hit, kind);
     },
 
     onPointerMove(ctx) {
+      _remember(ctx);
       ctx.redraw();
       const hit = _wallAt(ctx);
       if (!hit) return;
-      const cand = _candidate(hit, kind);
+      const cand = _candidate(hit, _widthMm(kind, _imperial()));
       if (cand.fits) _drawPreview(ctx, hit, cand);
     },
 
     onEscape() { return false; },
-    onDeactivate() { /* no session state */ },
+
+    onDeactivate() {
+      if (typeLengthActive()) exitTypeLengthMode();
+      if (state._typeLengthCommit) state._typeLengthCommit = null;
+      _session.widthMm = null;
+      _session.page = null;
+    },
   };
 }
 
-export const wallDoorTool = _makeTool('wallDoor', 'door');
-export const wallWindowTool = _makeTool('wallWindow', 'window');
+export const wallDoorTool = _makeTool('wallDoor');
+export const wallWindowTool = _makeTool('wallWindow');
 
 /** Ribbon entry point: choose the tool and show what to do. */
 export async function startWallOpeningTool(kind) {
   const m = await import('../manager.js');
   m.setTool(kind === 'window' ? 'wallWindow' : 'wallDoor');
-  _message('hint');
+  _showHint(kind === 'window' ? 'window' : 'door');
 }

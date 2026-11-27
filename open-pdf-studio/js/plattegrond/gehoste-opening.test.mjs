@@ -31,9 +31,11 @@ function maakWand(extra = {}) {
 }
 
 /** Een kozijn op de wand zetten zoals app_floorplan dat doet. */
-function plaats(annotaties, wand, { id, soort = 'deur', afstandMm, breedteMm = 900, zijde = 1 }) {
+function plaats(annotaties, wand, { id, soort = 'deur', afstandMm, breedteMm = 900, zijde = 1, us = false }) {
   const s = normaliseerSparing({ id, soort, dagmaatMm: breedteMm, hartMm: afstandMm });
   s.draaizijde = zijde;
+  // Het Amerikaanse plansymbool (#1230): de stijl staat in het symbool.
+  if (us) { s.symboolStijl = 'us'; s.kozijn = { deurbladDikteMm: 44.45 }; }
   const props = kozijnProps(wand, sparingPlaatsing(wand, s, K), s, K);
   const key = `key-${id}`;
   props.params.hostKey = key;
@@ -152,15 +154,20 @@ test('kozijnVak geeft precies het vak dat app_floorplan plaatst, voor deur en ra
   for (const wand of [maakWand(), maakWand({ endX: 1200, endY: 1700 }), maakWand({ endX: 0, endY: 2100, dikteMm: 300 })]) {
     for (const soort of ['deur', 'raam']) {
       for (const zijde of [1, -1]) {
-        const s = normaliseerSparing({ id: 'x', soort, dagmaatMm: 900, hartMm: 1500 });
-        s.draaizijde = zijde;
-        const props = kozijnProps(wand, sparingPlaatsing(wand, s, K), s, K);
-        const vak = kozijnVak(wand, { afstandMm: 1500, breedteMm: 900, zijde }, props.params, K, props.symbolId);
-        for (const k of ['x', 'y', 'width', 'height', 'rotation']) bijna(vak[k], props[k], `${soort} zijde ${zijde} ${k}`);
-        // En terug: het hart van het symbool ligt op de hartlijn, 1500 mm van het begin.
-        const { langs, dwars } = langsWandMm({ ...props }, wand);
-        bijna(langs, 1500, 'hart langs de wand');
-        bijna(dwars, 0, 'hart op de hartlijn');
+        // Het kozijn en het Amerikaanse plansymbool (#1230).
+        for (const us of [false, true]) {
+          const s = normaliseerSparing({ id: 'x', soort, dagmaatMm: 900, hartMm: 1500 });
+          s.draaizijde = zijde;
+          if (us) s.symboolStijl = 'us';
+          const props = kozijnProps(wand, sparingPlaatsing(wand, s, K), s, K);
+          assert.equal(props.params.symboolStijl, us ? 'us' : undefined);
+          const vak = kozijnVak(wand, { afstandMm: 1500, breedteMm: 900, zijde }, props.params, K, props.symbolId);
+          for (const k of ['x', 'y', 'width', 'height', 'rotation']) bijna(vak[k], props[k], `${soort} zijde ${zijde} us ${us} ${k}`);
+          // En terug: het hart van het symbool ligt op de hartlijn, 1500 mm van het begin.
+          const { langs, dwars } = langsWandMm({ ...props }, wand);
+          bijna(langs, 1500, 'hart langs de wand');
+          bijna(dwars, 0, 'hart op de hartlijn');
+        }
       }
     }
   }
@@ -177,6 +184,55 @@ test('gehost is alleen wie aan beide kanten gekoppeld is', () => {
   // Een kozijn uit een ouder bestand (wand in stukken): een los symbool.
   assert.equal(gehosteWand({ ...kloon(deur), id: 'oud', params: { ...deur.params, hostWallId: 'run:0:0' } }, perId), null);
   assert.equal(gehosteWand(wand, perId), null);
+});
+
+// ── het Amerikaanse plansymbool (#1230) ─────────────────────────────────
+
+test('een Amerikaanse deur en raam horen net zo bij hun wand: schuiven, meedraaien, en de stijl blijft', () => {
+  // Wand van 6 inch; deur van 36 inch die naar rechts van de wandrichting draait, raam van 48 inch.
+  const { wand, annotaties, kozijnen: [deur, raam] } = opstelling(
+    [{ id: 'D', afstandMm: 1200, breedteMm: 914.4, zijde: -1, us: true }, { id: 'R', soort: 'raam', afstandMm: 3000, breedteMm: 1219.2, us: true }],
+    { dikteMm: 152.4, hatchPattern: 'none' },
+  );
+  assert.deepEqual([deur.params.symboolStijl, raam.params.symboolStijl], ['us', 'us']);
+  // Het vak van de deur: de opening breed, de wand plus de draaicirkel hoog; het raam: opening x wand.
+  bijna(deur.width, 914.4 * K, 'deurvak breed');
+  bijna(deur.height, (152.4 + 914.4) * K, 'deurvak hoog');
+  bijna(raam.height, 152.4 * K, 'raamvak');
+  // De draaicirkel ligt aan de aangewezen kant: rechts van de wandrichting is onder de wand (y groter).
+  assert.ok(deur.y + deur.height / 2 > wand.startY, 'de deur draait naar de aangeklikte kant');
+  // Het gat is precies de deurbreedte.
+  assert.deepEqual(wand.openingen.map((o) => [o.id, o.breedteMm]), [['D', 914.4], ['R', 1219.2]]);
+
+  // Schuiven langs de wand: het gat gaat mee, het symbool blijft Amerikaans.
+  const cmd = wijzig(annotaties, 'D', (a) => { a.x += 200 * K; a.y += 77; });
+  assert.equal(cmd.type, 'compound');
+  bijna(wand.openingen.find((o) => o.id === 'D').afstandMm, 1400, 'het gat schoof 200 mm op');
+  bijna(langsWandMm(deur, wand).dwars, 0, 'op de wandlijn');
+  assert.equal(deur.params.symboolStijl, 'us');
+  assert.equal(deur.params.deurbladDikteMm, 44.45);
+
+  // Tegen het raam aan: de deur stopt ervoor (raam van 2390,4 tot 3609,6).
+  wijzig(annotaties, 'D', (a) => { a.x += 2000 * K; });
+  bijna(wand.openingen.find((o) => o.id === 'D').afstandMm, 3000 - 609.6 - 457.2, 'tot tegen het raam');
+
+  // De wand een kwartslag draaien: beide symbolen draaien mee en houden hun plaats en stijl.
+  const hoek = [deur.rotation, raam.rotation];
+  wijzig(annotaties, 'W', (a) => { a.endX = 0; a.endY = 2100; });
+  bijna((((deur.rotation - hoek[0]) % 360) + 360) % 360, 90, 'deur draait mee');
+  bijna((((raam.rotation - hoek[1]) % 360) + 360) % 360, 90, 'raam draait mee');
+  bijna(langsWandMm(raam, wand).langs, 3000, 'het raam houdt zijn afstand');
+  bijna(langsWandMm(raam, wand).dwars, 0, 'op de gedraaide wand');
+  assert.deepEqual([deur.params.symboolStijl, raam.params.symboolStijl], ['us', 'us']);
+
+  // Een andere breedte (32 inch): het gat volgt.
+  wijzig(annotaties, 'D', (a) => { a.params = { ...a.params, width: 812.8 }; });
+  assert.equal(wand.openingen.find((o) => o.id === 'D').breedteMm, 812.8);
+  bijna(deur.width, 812.8 * K, 'het vak volgt de breedte');
+
+  // Verwijderen sluit de wand, zoals bij elk gehost kozijn.
+  verwijder(annotaties, 'D');
+  assert.deepEqual(wand.openingen.map((o) => o.id), ['R']);
 });
 
 // ── het kozijn verslepen ────────────────────────────────────────────────
