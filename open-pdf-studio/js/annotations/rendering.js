@@ -288,9 +288,8 @@ function thinLw(width) {
   const scale = (vp && vp.active && _doc?.filePath)
     ? vp.zoom
     : (schermSchaal(_doc) || 1);
-  // Lineweight display OFF ('TL'): EVERYTHING renders as a true hairline —
-  // exactly 1 screen pixel at any zoom (CAD LWDISPLAY off). Below 100 % zoom
-  // a stroke gets at least one screen pixel.
+  // PDF Thin Lines does not change annotation widths. Below 100 % zoom
+  // a stroke still gets at least one screen pixel.
   // Interaction LOD (level-of-detail): while an annotation is being dragged,
   // resized or G-transformed, redrawAnnotations() re-strokes the whole overlay
   // on EVERY pointermove. The ONLY per-frame cost that grows with line weight
@@ -306,7 +305,6 @@ function thinLw(width) {
   return weergaveLijndikte(width, {
     scherm: true,
     zoom: scale,
-    dunneLijnen: !!state.preferences?.thinLines,
     slepen: !!(state.isDragging || state.isResizing || state.gMoveMode || state.gRotateMode),
   });
 }
