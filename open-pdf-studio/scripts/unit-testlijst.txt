@@ -969,3 +969,4 @@ js/pdf/bitmap-orchestrator-cap.test.mjs
 js/pdf/saver/gedeelde-resources.test.mjs
 
 js/solid/data/nen1414-metadata.test.mjs
+js/annotations/rendering/pdf-only-thin-lines.test.mjs
