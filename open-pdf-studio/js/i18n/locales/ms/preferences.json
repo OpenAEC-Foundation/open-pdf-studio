@@ -292,6 +292,7 @@
     "rendering": "Rendering",
     "thinLines": "Garisan nipis (paparkan semua garisan dengan lebar 1px)",
     "progressiveRender": "Render progresif (isi lukisan berat jubin demi jubin)",
+    "initialZoom": "Zum semasa membuka dokumen",
     "zoomDpi": "Resolusi skrin untuk zum 100% (dpi; lebih tinggi = halaman lebih besar, 96 = saiz pelayar)",
     "pageSharpen": "Penajaman halaman (teks lebih tajam dan lebih gelap)",
     "pageSharpenLevel0": "Mati (seperti yang dirender)",

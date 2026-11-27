@@ -292,6 +292,7 @@
     "rendering": "Rendu",
     "thinLines": "Lignes fines (afficher toutes les lignes avec une largeur de 1px)",
     "progressiveRender": "Rendu progressif (remplir les dessins lourds tuile par tuile)",
+    "initialZoom": "Zoom à l’ouverture d’un document",
     "zoomDpi": "Résolution d'écran pour le zoom à 100% (dpi ; plus élevée = pages plus grandes, 96 = taille du navigateur)",
     "pageSharpen": "Accentuation de la page (texte plus net et plus foncé)",
     "pageSharpenLevel0": "Désactivée (rendu d'origine)",

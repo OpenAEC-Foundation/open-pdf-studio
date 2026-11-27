@@ -6,7 +6,8 @@
   background: var(--theme-surface, #2a2a2a);
   user-select: none;
   overflow: hidden;
-  width: 220px;
+  /* Versleepbaar (ui/panels/paneel-breedte.js); standaard 220px. */
+  width: var(--symbol-palette-width, 220px);
   color: var(--theme-text, #e0e0e0);
 }
 
@@ -14,7 +15,23 @@
 .sp-docked {
   border-right: 1px solid var(--theme-border);
   height: 100%;
+  position: relative;
 }
+
+/* Greep op de binnenrand (aangedokt) of de rechterrand (zwevend). */
+.sp-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: default;
+  z-index: 2;
+}
+.sp-resize-handle:hover,
+.sp-resize-handle.dragging { background: var(--theme-panel-resize-hover); }
+.sp-docked .sp-resize-links { inset-inline-start: 0; }
+.sp-docked .sp-resize-rechts { inset-inline-end: 0; }
+.sp-float .sp-resize-rechts { right: 0; }
 .sp-docked-right { border-right: none; border-left: 1px solid var(--theme-border); }
 
 /* --- Floating mode --- */
@@ -23,7 +40,7 @@
   z-index: 950;
   border: 1px solid var(--theme-border);
   box-shadow: 0 4px 16px rgba(0,0,0,0.22), 0 1px 4px rgba(0,0,0,0.12);
-  width: 240px;
+  width: var(--symbol-palette-width, 240px);
   max-height: 70vh;
 }
 

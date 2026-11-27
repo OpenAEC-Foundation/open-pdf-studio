@@ -22,6 +22,8 @@ const STANDAARD = {
   leftPanelWidth: null,
   propertiesPanelVisible: true,
   propertiesPanelCollapsed: false,
+  propertiesPanelWidth: null,
+  symbolPaletteWidth: null,
   toolPaletteVisible: true,
   toolPaletteMode: 'docked-left',
   toolPaletteFloatX: 200,

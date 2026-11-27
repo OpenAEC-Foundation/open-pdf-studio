@@ -292,6 +292,7 @@
     "rendering": "Renderöinti",
     "thinLines": "Ohuet viivat (näytä kaikki viivat 1px leveydellä)",
     "progressiveRender": "Progressiivinen hahmonnus (raskaat piirustukset täytetään ruutu kerrallaan)",
+    "initialZoom": "Zoomaus asiakirjaa avattaessa",
     "zoomDpi": "Näytön tarkkuus zoomaustasolla 100% (dpi; suurempi = isommat sivut, 96 = selaimen koko)",
     "pageSharpen": "Sivun terävöinti (terävämpi, tummempi teksti)",
     "pageSharpenLevel0": "Pois (renderöity sellaisenaan)",

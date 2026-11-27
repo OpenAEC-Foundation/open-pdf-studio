@@ -20,6 +20,7 @@ import {
 } from '../../bridge.js';
 import { gekozenKolommen, bijKolomWijziging } from './miniatuur-kolommen.js';
 import { renderBreedteVoorLijst, halveerStappen, MIN_RENDER } from './miniatuur-maat.js';
+import { scrollVoorItem } from './bladwijzer-zoeken.js';
 import { scrollGedrag } from '../../core/vloeiend-scrollen.js';
 
 // Renderbreedte van nieuwe miniaturen in apparaatpixels (#579): de getoonde
@@ -988,7 +989,8 @@ export function updateActiveThumbnail(restoreScroll = false) {
       // Scroll active thumbnail into view (page navigation)
       const activeThumbnail = container.querySelector('.thumbnail-item.active');
       if (activeThumbnail) {
-        activeThumbnail.scrollIntoView({ behavior: scrollGedrag(), block: 'nearest' });
+        const top = scrollVoorItem(container.getBoundingClientRect(), activeThumbnail.getBoundingClientRect(), container.scrollTop);
+        if (top != null) container.scrollTo({ top, behavior: scrollGedrag() });
       }
     }
   }, 0);

@@ -34,6 +34,7 @@ export function maakWeergaveStand(vp, { verankerd = false, strikt = false, cssW,
     offsetX: vp.offsetX,
     offsetY: vp.offsetY,
     pageType: vp.pageType,
+    fitMode: vp.fitMode,
     verankerd: !!verankerd,
     strikt: !!strikt,
     cssW,
@@ -77,6 +78,7 @@ export function herstelWaarden(stand, { cssW, cssH }) {
   const zelfdeMaat = Math.abs(stand.cssW - cssW) < 0.5 && Math.abs(stand.cssH - cssH) < 0.5;
   if (zelfdeMaat) {
     return {
+      fitMode: stand.fitMode,
       zoom: stand.zoom,
       offsetX: stand.offsetX,
       offsetY: stand.offsetY,
@@ -85,10 +87,11 @@ export function herstelWaarden(stand, { cssW, cssH }) {
       opnieuwPassend: false,
     };
   }
-  if (!stand.verankerd) return { opnieuwPassend: true };
+  if (!stand.verankerd) return { opnieuwPassend: true, fitMode: stand.fitMode };
   const midX = (stand.cssW / 2 - stand.offsetX) / stand.zoom;
   const midY = (stand.cssH / 2 - stand.offsetY) / stand.zoom;
   return {
+    fitMode: stand.fitMode,
     zoom: stand.zoom,
     offsetX: cssW / 2 - midX * stand.zoom,
     offsetY: cssH / 2 - midY * stand.zoom,

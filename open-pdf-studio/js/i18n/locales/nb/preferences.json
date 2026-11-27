@@ -292,6 +292,7 @@
     "rendering": "Gjengivelse",
     "thinLines": "Tynne linjer (vis alle linjer med 1px bredde)",
     "progressiveRender": "Progressiv gjengivelse (fyll tunge tegninger rute for rute)",
+    "initialZoom": "Zoom ved åpning av et dokument",
     "zoomDpi": "Skjermoppløsning for 100% zoom (dpi; høyere = større sider, 96 = nettleserstørrelse)",
     "pageSharpen": "Sideskjerping (skarpere, mørkere tekst)",
     "pageSharpenLevel0": "Av (som gjengitt)",

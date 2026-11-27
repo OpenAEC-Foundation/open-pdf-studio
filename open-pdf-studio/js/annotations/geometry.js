@@ -1,3 +1,4 @@
+import { leaderAnchor } from './linked-leaders.js';
 import { telSchaal } from './telling.js';
 import { geometricLinePaths } from './geometric-line-styles.js';
 import { state, getActiveDocument } from '../core/state.js';
@@ -245,6 +246,14 @@ function raakInLijst(annotations, x, y, pageNum) {
       }
       continue;
     }
+    if ((ann.type === 'callout' || ann.type === 'textbox') && ann.leaders?.length) {
+      const hitTolerance = Math.max(4 / scale, tol);
+      for (const leader of ann.leaders) {
+        const anchor = leaderAnchor(ann, leader);
+        if (distanceToLine(x, y, anchor.x, anchor.y, leader.kneeX, leader.kneeY) < hitTolerance ||
+            distanceToLine(x, y, leader.kneeX, leader.kneeY, leader.tipX, leader.tipY) < hitTolerance) return ann;
+      }
+    }
     switch (ann.type) {
       case 'draw':
         // Check if point is near the path
@@ -455,27 +464,6 @@ function raakInLijst(annotations, x, y, pageNum) {
         const tbCenter = { x: ann.x + tbWidth / 2, y: ann.y + tbHeight / 2 };
         const tbLocal = transformPointByInverseRotation(x, y, tbCenter.x, tbCenter.y, ann.rotation);
         if (tbLocal.x >= ann.x && tbLocal.x <= ann.x + tbWidth && tbLocal.y >= ann.y && tbLocal.y <= ann.y + tbHeight) return ann;
-        // Leader segment hit-test: cursor within ~4 px of any anchor->knee->tip line
-        if (Array.isArray(ann.leaders) && ann.leaders.length > 0) {
-          const ldrTol = Math.max(4 / scale, tol);
-          const bw = tbWidth, bh = tbHeight;
-          for (const l of ann.leaders) {
-            // Pick anchor side using same logic as renderer
-            const cs = [
-              { x: ann.x + bw / 2, y: ann.y },
-              { x: ann.x + bw,     y: ann.y + bh / 2 },
-              { x: ann.x + bw / 2, y: ann.y + bh },
-              { x: ann.x,          y: ann.y + bh / 2 },
-            ];
-            let aBest = cs[0], bestD = Infinity;
-            for (const c of cs) {
-              const d = (c.x - l.kneeX) * (c.x - l.kneeX) + (c.y - l.kneeY) * (c.y - l.kneeY);
-              if (d < bestD) { bestD = d; aBest = c; }
-            }
-            if (distanceToLine(x, y, aBest.x, aBest.y, l.kneeX, l.kneeY) < ldrTol) return ann;
-            if (distanceToLine(x, y, l.kneeX, l.kneeY, l.tipX, l.tipY) < ldrTol) return ann;
-          }
-        }
         break;
       case 'callout':
         const coWidth = ann.width || 150;

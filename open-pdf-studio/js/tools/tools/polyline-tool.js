@@ -1,3 +1,4 @@
+import { beginCloudNote, cancelCloudNote, placeCloudNote, previewCloudNote } from '../cloud-note-placement.js';
 import { state as appState, getActiveDocument } from '../../core/state.js';
 import { applyToolTransform, getEffectiveScale } from '../tool-context.js';
 import { getAnnotationType } from '../../plugins/annotation-type-registry.js';
@@ -229,11 +230,13 @@ export const cloudPolylineTool = {
   cursor: 'crosshair',
 
   onPointerDown(ctx, e) {
+    if (placeCloudNote(ctx, e)) return;
     const { x, y, state, canvasCtx, scale } = ctx;
     const prefs = state.preferences;
 
     // Right-click finishes
     if (e.button === 2) {
+      if (state.isDrawingCloudPolyline) state._suppressNextContextmenu = true;
       _finishCloudPolyline(ctx);
       return;
     }
@@ -255,12 +258,7 @@ export const cloudPolylineTool = {
       const dx = ptX - first.x;
       const dy = ptY - first.y;
       if (Math.sqrt(dx * dx + dy * dy) < 10 / scale) {
-        _createCloudPolylineAnnotation(ctx, state.cloudPolylinePoints);
-        state.cloudPolylinePoints = [];
-        state.isDrawingCloudPolyline = false;
-        ctx.redraw();
-        // Auto-reset to select tool
-        import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
+        _finishCloudPolyline(ctx);
         return;
       }
     }
@@ -282,6 +280,7 @@ export const cloudPolylineTool = {
   },
 
   onPointerMove(ctx, e) {
+    if (previewCloudNote(ctx, e)) return;
     const { x, y, state, canvasCtx, scale } = ctx;
     if (!state.isDrawingCloudPolyline || state.cloudPolylinePoints.length === 0) {
       _drawHoverSnap(ctx, x, y);
@@ -335,15 +334,17 @@ export const cloudPolylineTool = {
   // Escape (GitHub #273): zelfde afronding als rechtermuisklik — wolk
   // committen (≥3 punten) of annuleren.
   onEscape(ctx) {
+    if (cancelCloudNote()) return true;
     const { state } = ctx;
     if (!state.isDrawingCloudPolyline && (!state.cloudPolylinePoints || state.cloudPolylinePoints.length === 0)) {
       return false;
     }
-    _finishCloudPolyline(ctx);
+    _finishCloudPolyline(ctx, false);
     return true;
   },
 
   onDeactivate(ctx) {
+    cancelCloudNote();
     const { state } = ctx;
     if (state.isDrawingCloudPolyline) {
       state.cloudPolylinePoints = [];
@@ -424,14 +425,16 @@ function _finishPolyline(ctx) {
   }
 }
 
-function _finishCloudPolyline(ctx) {
+function _finishCloudPolyline(ctx, attach = true) {
+  let cloud;
   const { state } = ctx;
   if (state.cloudPolylinePoints.length >= 3) {
-    _createCloudPolylineAnnotation(ctx, state.cloudPolylinePoints);
+    cloud = _createCloudPolylineAnnotation(ctx, state.cloudPolylinePoints);
   }
   state.cloudPolylinePoints = [];
   state.isDrawingCloudPolyline = false;
   ctx.redraw();
+  if (attach && beginCloudNote(ctx, cloud)) return;
 
   // Auto-reset to select tool
   import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
@@ -445,7 +448,7 @@ function _createCloudPolylineAnnotation(ctx, points) {
   const ys = pts.map(p => p.y);
   const ann = ctx.createAnnotation({
     type: 'cloudPolyline',
-    page: getActiveDocument()?.currentPage || 1,
+    page: ctx.pageNum || getActiveDocument()?.currentPage || 1,
     points: pts,
     x: Math.min(...xs),
     y: Math.min(...ys),
@@ -459,6 +462,7 @@ function _createCloudPolylineAnnotation(ctx, points) {
   const doc = getActiveDocument();
   if (doc) doc.annotations.push(ann);
   ctx.recordAdd(ann);
+  return ann;
 }
 
 function _drawHoverSnap(ctx, x, y) {

@@ -80,7 +80,7 @@ test('only the desktop module imports the drag plugin', () => {
   loop('web-unit/src');
   assert.deepEqual(treffers, ['js/core/desktop-drag-plugin.js']);
   assert.match(lees('js/core/desktop-drag-plugin.js'), new RegExp(`import\\('${DRAG.replace('/', '\\/')}'\\)`));
-  assert.match(lees('js/solid/components/DocumentTabs.jsx'), /from '\.\.\/\.\.\/core\/desktop-drag-plugin\.js'/);
+  assert.doesNotMatch(lees('js/solid/components/DocumentTabs.jsx'), /desktop-drag-plugin|startNativeTabDrag/);
 });
 
 test('the bundle check finds the drag plugin by name and by its Tauri command', () => {

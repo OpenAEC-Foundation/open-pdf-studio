@@ -295,6 +295,7 @@
     "rendering": "Rendering",
     "thinLines": "Thin Lines (display all lines at 1px width)",
     "progressiveRender": "Progressive rendering (fill heavy drawings tile by tile)",
+    "initialZoom": "Zoom when opening a document",
     "zoomDpi": "Screen resolution for 100% zoom (dpi; higher = larger pages, 96 = browser size)",
     "pageSharpen": "Page sharpening (crisper, darker text)",
     "pageSharpenLevel0": "Off (as rendered)",

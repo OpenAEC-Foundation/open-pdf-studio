@@ -1,3 +1,4 @@
+import { normalizeInitialZoom } from '../../pdf/initial-zoom.js';
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
 import { appVersion } from '../../core/app-version.js';
 import { beginWeergave } from '../../core/standaard-weergave.js';
@@ -48,6 +49,7 @@ export function createTab(filePath = null, autoSwitch = true) {
   // en ook de terugval bij een onbekende waarde (createDocument zelf blijft
   // een pure helper).
   Object.assign(doc, beginWeergave(state.preferences?.defaultViewMode));
+  doc.pendingInitialZoom = normalizeInitialZoom(state.preferences?.initialZoom);
   state.documents.push(doc);
 
   // Switch to the new tab

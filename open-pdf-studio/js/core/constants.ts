@@ -61,6 +61,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // instelling (de kortstondige oude standaard) gaat een keer terug.
   defaultViewMode: 'single',
   viewModeDefaultSingle: true,
+  initialZoom: 'page',
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,
@@ -258,6 +259,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   cloudPolylineStrokeColor: '#FF0000',
   cloudPolylineLineWidth: 2,
   cloudPolylineOpacity: 100,
+  cloudAttachNote: false,
 
   // Comment/Note defaults
   commentColor: '#FFFF00',
@@ -447,6 +449,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   leftPanelTab: 'thumbnails',
   leftPanelWidth: null,
   propertiesPanelCollapsed: false,
+  // Versleepte breedte van het eigenschappenpaneel en het symbolenpalet;
+  // null = de breedte uit het stijlblad (ui/panels/paneel-breedte.js).
+  propertiesPanelWidth: null,
+  symbolPaletteWidth: null,
   // Werkruimten met een naam: [{ naam, layout }], en de laatst gekozen.
   workspaces: [],
   activeWorkspace: '',

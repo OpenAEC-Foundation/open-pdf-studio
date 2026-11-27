@@ -292,6 +292,7 @@
     "rendering": "Kết xuất",
     "thinLines": "Đường mảnh (hiển thị tất cả đường với độ rộng 1px)",
     "progressiveRender": "Kết xuất dần (vẽ bản vẽ nặng theo từng ô)",
+    "initialZoom": "Mức thu phóng khi mở tài liệu",
     "zoomDpi": "Độ phân giải màn hình cho mức thu phóng 100% (dpi; cao hơn = trang lớn hơn, 96 = kích thước trình duyệt)",
     "pageSharpen": "Làm nét trang (chữ sắc nét và đậm hơn)",
     "pageSharpenLevel0": "Tắt (như khi kết xuất)",

@@ -292,6 +292,7 @@
     "rendering": "Renderowanie",
     "thinLines": "Cienkie linie (wyświetlaj wszystkie linie o szerokości 1px)",
     "progressiveRender": "Renderowanie progresywne (ciężkie rysunki wypełniane kafelek po kafelku)",
+    "initialZoom": "Powiększenie przy otwieraniu dokumentu",
     "zoomDpi": "Rozdzielczość ekranu dla powiększenia 100% (dpi; wyższa = większe strony, 96 = rozmiar przeglądarki)",
     "pageSharpen": "Wyostrzanie strony (wyraźniejszy, ciemniejszy tekst)",
     "pageSharpenLevel0": "Wyłączone (jak wyrenderowano)",

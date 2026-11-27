@@ -25,8 +25,10 @@ html[data-ui-scaled] .status-bar-center { order: -1; flex: 1 0 100%; width: 100%
 html[data-ui-scaled] .status-bar-left,
 html[data-ui-scaled] .status-bar-right { overflow: hidden; flex: 1 0 50%; }
 html[data-ui-scaled] .status-item { min-width: 0; white-space: nowrap; overflow: hidden; }
-html[data-ui-scaled] .left-panel:not(.collapsed) { max-width: 30vw; }
-html[data-ui-scaled] .properties-panel-outer { min-width: 0; max-width: 30vw; }
+/* Zelfde grens als het slepen (60 %, maxPaneelBreedte): met 30vw kon een
+   versleept paneel bij een vergrote interface niet breder worden. */
+html[data-ui-scaled] .left-panel:not(.collapsed) { max-width: 60vw; }
+html[data-ui-scaled] .properties-panel-outer { min-width: 0; max-width: 60vw; }
 html[data-ui-scaled] .properties-panel { width: 100%; min-width: 0; }
 html[data-ui-scaled] .left-panel-header { flex-wrap: wrap; }
 html[data-ui-scaled] .bookmarks-search { min-width: 0; max-width: 100%; }

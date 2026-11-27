@@ -284,11 +284,10 @@ test('isOpenableDocumentPath: PDF paths and content:// URIs only', () => {
   assert.equal(isOpenableDocumentPath(42), false);
 });
 
-test('mobile: a file opened from another app is fitted to the screen (#593)', () => {
-  const main = source('../main.js');
-  const start = main.indexOf('const openFiles = createFileOpenQueue({');
-  const deps = main.slice(start, main.indexOf('\n});', start));
-  assert.match(deps, /if \(isMobile\(\) && actief\?\.pdfDoc && bronPad\(actief\) === filePath\) fitPage\(\);/);
+test('mobile open routes leave the initial zoom and restored reading position intact', () => {
+  for (const route of ['../main.js', '../solid/MobileApp.jsx']) {
+    assert.doesNotMatch(source(route), /\bfitPage\(\)/);
+  }
 });
 
 test('only PDF paths get a tab', async () => {
@@ -392,7 +391,7 @@ for (const [name, file, routes] of [
 
 test('mobile: the picker and the deep link are guarded, the in-memory route is not', () => {
   const mobile = source('../solid/MobileApp.jsx');
-  assert.match(mobile, /if \(await loadPDFIfNeeded\(path, index\)\) await fitPage\(\);/);
+  assert.match(mobile, /await loadPDFIfNeeded\(path, index\);/);
   // <input type=file> has no path, only a display name and the bytes: two
   // different files may share that name, so this one always loads. A scan
   // from the camera (#953) is a new document from fresh bytes: also always.
@@ -401,7 +400,7 @@ test('mobile: the picker and the deep link are guarded, the in-memory route is n
   assert.match(mobile, /await loadPDF\(naam, index, data\);/);
 
   const main = source('../main.js');
-  assert.match(main, /if \(await loadPDFIfNeeded\(filePath, index\)\) await fitPage\(\);/);
+  assert.match(main, /await loadPDFIfNeeded\(filePath, index\);/);
 });
 
 test('main.js runs the tested queue on the live document list', () => {

@@ -292,6 +292,7 @@
     "rendering": "Uonyeshaji",
     "thinLines": "Mistari nyembamba (onyesha mistari yote kwa upana wa 1px)",
     "progressiveRender": "Uonyeshaji wa hatua kwa hatua (jaza michoro mizito kigae kwa kigae)",
+    "initialZoom": "Ukuzaji wakati wa kufungua hati",
     "zoomDpi": "Ubainishi wa skrini kwa ukuzaji wa 100% (dpi; juu zaidi = kurasa kubwa zaidi, 96 = ukubwa wa kivinjari)",
     "pageSharpen": "Kunoa ukurasa (maandishi makali na meusi zaidi)",
     "pageSharpenLevel0": "Imezimwa (kama ilivyochorwa)",

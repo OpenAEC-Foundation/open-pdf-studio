@@ -717,6 +717,7 @@ js/pdf/wapening-rondgang.test.mjs
 js/annotations/pressure-ink.test.mjs
 js/annotations/pressure-ink-wiring.test.mjs
 js/pdf/drukinkt-rondgang.test.mjs
+js/pdf/meerdere-inktstreken.test.mjs
 js/pdf/inkt-streep-rondgang.test.mjs
 js/pdf/lagen-opslaan-als.test.mjs
 js/pdf/pad-verhuizen.test.mjs
@@ -969,6 +970,7 @@ js/pdf/print-marges.test.mjs
 js/pdf/print-niet-draaien.test.mjs
 js/solid/stores/telgroep-grootte-verwijderen.test.mjs
 js/annotations/link/link-gebied.test.mjs
+js/annotations/linked-leaders.test.mjs
 js/annotations/callout-draaien.test.mjs
 js/pdf/bladwijzers-van-paginas.test.mjs
 js/quantities/kleur-cel.test.mjs
@@ -990,3 +992,6 @@ js/pdf/crop-margins-geometrie.test.mjs
 js/pdf/save-commands.test.mjs
 js/pdf/content-view.test.mjs
 js/pdf/link-doelmarkering.test.mjs
+js/ui/panels/paneel-breedte.test.mjs
+js/core/android-document-save.test.mjs
+js/pdf/cloud-note-rondgang.test.mjs

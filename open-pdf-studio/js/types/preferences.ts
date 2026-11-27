@@ -10,6 +10,8 @@ export interface Preferences {
   defaultViewMode: 'single' | 'continuous' | 'facing' | 'book';
   // Eenmalige overgang naar enkele pagina als standaard is gedaan.
   viewModeDefaultSingle: boolean;
+  // Zoom waarmee een document opent: paginavullend, breedtevullend of een vast getal.
+  initialZoom: 'page' | 'width' | number;
   // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
   ocrEngine?: string | null;
   ocrLanguage: string;
@@ -167,6 +169,7 @@ export interface Preferences {
   cloudPolylineStrokeColor: string;
   cloudPolylineLineWidth: number;
   cloudPolylineOpacity: number;
+  cloudAttachNote: boolean;
 
   // Comment/Note defaults
   commentColor: string;
@@ -313,6 +316,8 @@ export interface Preferences {
   leftPanelTab: string;
   leftPanelWidth: number | null;
   propertiesPanelCollapsed: boolean;
+  propertiesPanelWidth: number | null;
+  symbolPaletteWidth: number | null;
   workspaces: Array<{ naam: string; layout: Record<string, unknown> }>;
   activeWorkspace: string;
   propertiesPanelVisible: boolean;

@@ -94,8 +94,8 @@ export async function zetPaginaAnnotatiesOm(annots, pageNum, viewport, stampImag
     return m[soort];
   };
   for (const pl of pendingLeaders) {
-    const parent = textboxByRect.get(pl.irtRectKey);
-    if (parent) {
+    const parent = byPdfId.get(pl.irtId) || textboxByRect.get(pl.irtRectKey);
+    if (parent?.type === 'textbox' || parent?.type === 'callout') {
       if (!Array.isArray(parent.leaders)) parent.leaders = [];
       parent.leaders.push(pl.leader);
       if (leiderIds.has(pl)) meeVan(parent, 'leiders').push(leiderIds.get(pl));

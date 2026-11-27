@@ -3,6 +3,7 @@
  * (the polygon has its own corner-by-corner tool, polygon-tool.js)
  * All use the same drag-to-create pattern via buildAnnotationProps + drawShapePreview
  */
+import { beginCloudNote, cancelCloudNote, placeCloudNote, previewCloudNote } from '../cloud-note-placement.js';
 import { isKlikSleep } from '../../annotations/minimummaat.js';
 import { weergaveVectorNaarPagina } from '../../pdf/weergave-ruimte.js';
 import { state as appState, getActiveDocument } from '../../core/state.js';
@@ -109,7 +110,7 @@ export const shapeTool = {
   cursor: 'crosshair',
 
   onPointerDown(ctx, e) {
-    if (e.button !== 0) return;
+    if (placeCloudNote(ctx, e) || e.button !== 0) return;
     // Een nieuwe klik breekt een openstaande maatinvoer af (opnieuw ankeren).
     if (_dim.actief) _dimStop();
     const { state } = ctx;
@@ -130,6 +131,7 @@ export const shapeTool = {
   },
 
   onPointerMove(ctx, e) {
+    if (previewCloudNote(ctx, e)) return;
     const { x, y, state } = ctx;
 
     // Maatinvoer actief: voorbeeld van de vorm met de getypte maten.
@@ -277,6 +279,8 @@ export const shapeTool = {
     }
     ctx.redraw();
 
+    if (ann?.type === 'cloud' && beginCloudNote(ctx, ann)) return true;
+
     // Auto-start text editing for textbox/callout
     if (ann && ['textbox', 'callout'].includes(ann.type)) {
       const doc = state.documents[state.activeDocumentIndex];
@@ -294,11 +298,13 @@ export const shapeTool = {
   // Maatinvoer netjes afbreken (Escape wisselt daarna naar de selectietool;
   // wisselen van gereedschap ruimt via onDeactivate dezelfde state op).
   onEscape(ctx) {
+    cancelCloudNote();
     if (_dim.actief) _dimStop();
     _calloutStop(ctx);
   },
 
   onDeactivate(ctx) {
+    cancelCloudNote();
     if (_dim.actief) _dimStop();
     _calloutStop(ctx);
   },

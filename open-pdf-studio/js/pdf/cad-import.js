@@ -7,7 +7,6 @@ import { invoke, isTauri, openFileDialog, openFolderDialog } from '../core/platf
 import { state, getNextUntitledName, getActiveDocument } from '../core/state.js';
 import { createTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import { loadPDF } from './loader.js';
-import { fitPage } from './renderer.js';
 import { pdfNaamVoor, mapVan, isCadTekening, maakWachtrij } from './cad-import-logica.js';
 import { onthoudWerkbestand, ouderdomWerkbestand } from './document-release.js';
 import {
@@ -229,7 +228,6 @@ export async function openImportAlsNieuwDocument(pad, tekening) {
     doc.importedFrom = tekening;
   }
   markDocumentModified();
-  try { await fitPage(); } catch { /* past zich later vanzelf */ }
   updateWindowTitle();
   return doc;
 }

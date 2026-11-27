@@ -292,6 +292,7 @@
     "rendering": "Vykresľovanie",
     "thinLines": "Tenké čiary (zobraziť všetky čiary so šírkou 1px)",
     "progressiveRender": "Postupné vykresľovanie (náročné výkresy po dlaždiciach)",
+    "initialZoom": "Priblíženie pri otvorení dokumentu",
     "zoomDpi": "Rozlíšenie obrazovky pre 100% zväčšenie (dpi; vyššie = väčšie strany, 96 = veľkosť v prehliadači)",
     "pageSharpen": "Doostrenie strany (ostrejší, tmavší text)",
     "pageSharpenLevel0": "Vypnuté (ako bolo vykreslené)",

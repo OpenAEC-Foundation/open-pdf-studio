@@ -292,6 +292,7 @@
     "rendering": "Renderització",
     "thinLines": "Línies fines (mostra totes les línies amb 1px d'amplada)",
     "progressiveRender": "Renderització progressiva (omple els dibuixos pesats mosaic a mosaic)",
+    "initialZoom": "Zoom en obrir un document",
     "zoomDpi": "Resolució de pantalla per al zoom del 100% (dpi; més alta = pàgines més grans, 96 = mida del navegador)",
     "pageSharpen": "Enfocament de la pàgina (text més nítid i més fosc)",
     "pageSharpenLevel0": "Desactivat (tal com es renderitza)",

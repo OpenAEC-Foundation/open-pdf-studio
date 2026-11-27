@@ -292,6 +292,7 @@
     "rendering": "Randare",
     "thinLines": "Linii subțiri (afișează toate liniile cu lățime de 1px)",
     "progressiveRender": "Randare progresivă (umple desenele grele pe porțiuni)",
+    "initialZoom": "Zoom la deschiderea unui document",
     "zoomDpi": "Rezoluția ecranului pentru zoom 100% (dpi; mai mare = pagini mai mari, 96 = dimensiunea din browser)",
     "pageSharpen": "Accentuarea clarității paginii (text mai clar și mai închis)",
     "pageSharpenLevel0": "Dezactivată (ca la randare)",

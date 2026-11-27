@@ -118,3 +118,34 @@ test('computeFitZoom zelf blijft zuivere rekenkunde', () => {
   assert.equal(vp.computeFitZoom('width', 100, 200, 400, 100), 4);
   assert.equal(vp.computeFitZoom('height', 100, 200, 400, 100), 0.5);
 });
+
+test('de openingszoom past de breedte in en volgt de canvasmaat', () => {
+  opzet();
+  vp.setPage('breed.pdf', 1, 400, 1000, 0, 0, 0, 0, 'width');
+  assert.equal(viewport.zoom, 2);
+  assert.equal(viewport.offsetY, 0);
+  containerMaat(1000, 500);
+  assert.equal(viewport.zoom, 2.5);
+});
+
+test('vast openingspercentage gebruikt de schermresolutie, ook na verbergen', async () => {
+  const { percentToScale } = await import('../core/zoom-display.js');
+  opzet();
+  containerMaat(0, 0);
+  vp.setPage('percentage.pdf', 1, 400, 1000, 0, 0, 0, 0, 150);
+  containerMaat(1000, 500);
+  assert.equal(viewport.zoom, percentToScale(150));
+  assert.equal(viewport.offsetY, 0);
+  containerMaat(900, 450);
+  assert.equal(viewport.zoom, percentToScale(150));
+});
+
+test('een expliciete leeszoom gaat voor de wachtende openingszoom', () => {
+  opzet();
+  containerMaat(0, 0);
+  vp.setPage('lezen.pdf', 1, 400, 1000, 0, 0, 0, 0, 'width');
+  const savedZoom = viewport.zoom;
+  vp.setZoomAtPoint(0, 0, savedZoom);
+  containerMaat(1000, 500);
+  assert.equal(viewport.zoom, savedZoom);
+});
