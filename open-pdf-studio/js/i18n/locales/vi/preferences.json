@@ -20,6 +20,7 @@
     "startup": "Khởi động",
     "startupTool": "Công cụ khi khởi động lần tới",
     "restoreLastSession": "Khôi phục phiên làm việc cuối khi ứng dụng khởi động",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Tác giả",
     "defaultAuthorName": "Tên Tác giả",
     "language": "Ngôn ngữ",

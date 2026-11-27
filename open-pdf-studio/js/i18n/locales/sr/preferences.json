@@ -20,6 +20,7 @@
     "startup": "Покретање",
     "startupTool": "Алат при следећем покретању",
     "restoreLastSession": "Врати последњу сесију при покретању апликације",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Аутор",
     "defaultAuthorName": "Име аутора",
     "language": "Језик",

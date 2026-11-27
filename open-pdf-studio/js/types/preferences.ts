@@ -257,6 +257,8 @@ export interface Preferences {
   // Startup
   startupTool: 'select' | 'hand';
   restoreLastSession: boolean;
+  // Een document heropent met de pagina, zoom en weergave van het sluiten (#1245)
+  reopenAtLastView: boolean;
   dontAskDefaultPdf: boolean;
 
   // Zoeken: doorzoek de PDF-tekst en/of de tekst in annotaties

@@ -20,6 +20,7 @@
     "startup": "Uruchamianie",
     "startupTool": "Narzędzie przy następnym uruchomieniu",
     "restoreLastSession": "Przywróć ostatnią sesję przy uruchamianiu aplikacji",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Autor",
     "defaultAuthorName": "Nazwa autora",
     "language": "Język",

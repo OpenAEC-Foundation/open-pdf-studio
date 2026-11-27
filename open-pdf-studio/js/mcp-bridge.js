@@ -247,6 +247,9 @@ async function handleOpenPdf(params) {
   tabsMod.switchToTab(tabIndex);
   const doc = stateMod.state.documents[tabIndex];
   if (!doc.pdfDoc) {
+    // Automation gets the document as it opens by default (page 1, fitted),
+    // not the view a person left it with (#1245).
+    (await import('./core/last-view.js')).markExplicitTarget(doc);
     // A PDF with an open password shows the password dialog and waits for
     // the user; the bridge answers right away instead of blocking until a
     // timeout. The load continues in the app once the password is entered.

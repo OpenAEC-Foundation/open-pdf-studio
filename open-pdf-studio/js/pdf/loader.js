@@ -682,6 +682,19 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       }
     }
 
+    // Last view (#1245): a file without Reader Mode reopens with the page,
+    // zoom and view mode it was closed with, unless it was opened for a
+    // specific target or the preference is off (pdf/last-view-app.js, loaded
+    // on first use). Shown now when the document is in front, otherwise on
+    // its first activation (switchToTab). Best effort, like Reader Mode: a
+    // failure must not block the rest of the load.
+    try {
+      await (await import('./last-view-app.js')).resumeLastView(doc);
+      if (isClosed()) return;
+    } catch (e) {
+      console.warn('[last-view] restore failed:', e);
+    }
+
     // Load bookmarks from PDF outline (data-only, always run)
     console.log(`[PERF] bookmarks START: ${(performance.now() - _t0).toFixed(0)}ms`);
     {

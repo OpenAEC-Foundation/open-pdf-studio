@@ -20,6 +20,7 @@
     "startup": "Permulaan",
     "startupTool": "Alat pada permulaan seterusnya",
     "restoreLastSession": "Pulihkan sesi terakhir apabila aplikasi dimulakan",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Pengarang",
     "defaultAuthorName": "Nama Pengarang",
     "language": "Bahasa",

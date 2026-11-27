@@ -20,6 +20,7 @@
     "startup": "Εκκίνηση",
     "startupTool": "Εργαλείο στην επόμενη εκκίνηση",
     "restoreLastSession": "Επαναφορά τελευταίας συνεδρίας κατά την εκκίνηση της εφαρμογής",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Συγγραφέας",
     "defaultAuthorName": "Όνομα συγγραφέα",
     "language": "Γλώσσα",

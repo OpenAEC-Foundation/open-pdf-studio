@@ -206,6 +206,8 @@ js/annotations/document-scale.test.mjs
 js/core/reader-mode.test.mjs
 js/core/reader-mode-tracking.test.mjs
 js/core/reader-mode-i18n.test.mjs
+js/core/last-view.test.mjs
+js/pdf/last-view-wiring.test.mjs
 js/core/dialog-folder.test.mjs
 js/pdf/shift-page-geometry.test.mjs
 js/pdf/shift-page-content.test.mjs

@@ -20,6 +20,7 @@
     "startup": "Başlangıç",
     "startupTool": "Sonraki başlangıçtaki araç",
     "restoreLastSession": "Uygulama başlatıldığında son oturumu geri yükle",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Yazar",
     "defaultAuthorName": "Yazar Adı",
     "language": "Dil",

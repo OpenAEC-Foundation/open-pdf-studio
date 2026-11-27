@@ -198,6 +198,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-tab-view-mode-browser.mjs
 
+      - name: Test last view on reopen (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-last-view-browser.mjs
+
       - name: Test right mouse button pan preference (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-right-button-pan-browser.mjs

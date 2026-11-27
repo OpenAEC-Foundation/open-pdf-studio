@@ -20,6 +20,7 @@
     "startup": "Start",
     "startupTool": "Verktyg vid nästa start",
     "restoreLastSession": "Återställ senaste sessionen när programmet startar",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Författare",
     "defaultAuthorName": "Namn för författare",
     "language": "Språk",

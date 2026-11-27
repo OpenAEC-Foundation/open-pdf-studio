@@ -20,6 +20,7 @@
     "startup": "Indítás",
     "startupTool": "Eszköz a következő indításkor",
     "restoreLastSession": "Utolsó munkamenet visszaállítása az alkalmazás indításakor",
+    "reopenAtLastView": "Reopen documents at the last view",
     "author": "Szerző",
     "defaultAuthorName": "Szerzőnév",
     "language": "Nyelv",
