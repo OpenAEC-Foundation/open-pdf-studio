@@ -1179,11 +1179,20 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           // Een eigen meetvlak rekent in de lengte-eenheid van /X; /A staat
           // daar in de eenheid van het label (mm → m², dimension-measure.js).
           const maEigenSchaal = extraColors.measureScale && !extraColors.opsScaleInherited;
-          const maSchaal = maEigenSchaal
+          const maGelezenSchaal = extraColors.measureScale
             ? vlakSchaalUitMeasure(extraColors.measureScale, extraColors.measureUnit,
               extraColors.opsSubtype === 'measureArea' && extraColors.measureUnit
                 ? `${extraColors.measureUnit}²` : extraColors.measureAreaUnit)
             : null;
+          const maSchaal = maEigenSchaal ? maGelezenSchaal : null;
+          // Ook met opgeslagen tekst hebben hoeveelheden de numerieke waarde
+          // nodig (#1287). /Measure bewaart de schaal op deze plek, ook als de
+          // pagina/het schaalgebied pas later laadt. Een geërfde schaal wordt
+          // daarbij geen eigen schaal: latere kalibratie blijft mogelijk.
+          const maArea = calculateArea(polyPoints, maHoles || undefined, pageNum);
+          const maMeting = maGelezenSchaal?.measureScale > 0
+            ? { value: maArea.pixels * maGelezenSchaal.measureScale ** 2, unit: maGelezenSchaal.measureUnit }
+            : maArea;
           // Weergave-eenheid van de oppervlakte (#1129): de eigen sleutel van
           // de app (OPS_AreaUnit), anders /A van een ander programma als dat
           // een eenheid van alleen oppervlakte is (schaal in voet, /A in acres).
@@ -1193,11 +1202,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           if (!maText) {
             // Zonder opgeslagen tekst zelf rekenen - inclusief de extra ringen,
             // anders staat er de oppervlakte van alleen de buitenring (#457).
-            const area = calculateArea(polyPoints, maHoles || undefined, pageNum);
-            const s = maSchaal?.measureScale;
-            maText = vlakTekst({ measureAreaUnit: maVlakEenheid }, s > 0
-              ? { value: area.pixels * s * s, unit: maSchaal.measureUnit }
-              : area);
+            maText = vlakTekst({ measureAreaUnit: maVlakEenheid }, maMeting);
           }
           const maProps = {
             ...baseProps,
@@ -1209,6 +1214,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 1,
             borderStyle: mapBorderStyle(annot, extraColors),
             measureText: maText,
+            measureValue: maMeting.value,
+            measureUnit: maMeting.unit,
             // Arcering terug uit de eigen sleutels; zonder dit verliest een
             // gearceerd meetvlak zijn arcering bij de volgende save.
             ...hatchUitExtra(extraColors),
