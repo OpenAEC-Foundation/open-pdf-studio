@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "現在のレイヤーの表示状態を文書の既定の状態として保存します。次回の保存時にファイルに書き込まれます。",
     "layersDefaultPending": "保存時に既定になります",
     "layerLocked": "ロックされたレイヤー: オン/オフを切り替えられません",
-    "layerRadioGroup": "選択グループ: このレイヤーをオンにすると、グループ内の他のレイヤーはオフになります"
+    "layerRadioGroup": "選択グループ: このレイヤーをオンにすると、グループ内の他のレイヤーはオフになります",
+    "thumbnailColumns": "サムネイルの列数"
   },
   "scaleBar": {
     "title": "スケールバー",
@@ -601,6 +602,12 @@
     "joinHint": "オフ：壁のこの端は留め継ぎ、T 字結合、他の壁によるトリムが一切行われず、描いた位置で突き付けの端のままになります。",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "数量表",
       "builtinText": "テキスト",
       "rebarPosition": "鉄筋材"
-    }
+    },
+    "configImportFailed": "数量設定をインポートできませんでした。有効でサポートされている設定ファイルを選択してください。",
+    "configExportFailed": "数量設定をエクスポートできませんでした。"
   },
   "parametricSymbol": {
     "defaultTitle": "パラメトリックシンボル",

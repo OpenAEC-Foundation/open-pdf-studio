@@ -3,6 +3,8 @@ import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import { rotatedRectAabb } from '../utils/math.js';
 import { heeftKrommen, vlakPadOpScherm } from './curve-shape.js';
+import { catmullRomToBezier } from './spline-arrow-geometry.js';
+import { koppenVan } from '../pdf/lijnkoppen.js';
 
 const CELL_SIZE = 200; // pixels per grid cell
 
@@ -351,7 +353,7 @@ export function annotationBounds(annotation, opties) {
         : { x: annotation.x, y: annotation.y, width: annotation.width, height: annotation.height };
       // Aanhaallijnen (tekstvak/aanhaalvak) steken buiten het tekstvak uit;
       // zonder die punten zou de omhullende een deel van het object missen.
-      return metAanhaallijnen(basis, annotation);
+      return metAanhaallijnen(type === 'callout' ? metCalloutLeider(basis, annotation) : basis, annotation);
     }
 
     // Line / arrow / measureDistance: startX, startY, endX, endY
@@ -451,6 +453,34 @@ export function boundsFromPoints(points, lineWidth) {
 
 // Rekt een omhullende op tot hij ook de knik- en pijlpunten van eventuele
 // aanhaallijnen omvat.
+function metCalloutLeider(basis, a) {
+  // Match drawAnnotation's legacy defaults. A callout stores its leader on
+  // the annotation itself, unlike a textbox's leaders[] (#1278). These points
+  // stay in page coordinates when the text box rotates.
+  const tip = { x: a.arrowX ?? a.x - 60, y: a.arrowY ?? a.y + a.height };
+  const knee = { x: a.kneeX ?? a.x - 30, y: a.kneeY ?? a.y + a.height / 2 };
+  const arm = a.armOriginX != null && a.armOriginY != null
+    ? { x: a.armOriginX, y: a.armOriginY }
+    : { x: tip.x < a.x + a.width / 2 ? a.x : a.x + a.width, y: knee.y };
+  const points = [arm, knee, tip];
+  if (!points.every(p => Number.isFinite(p.x) && Number.isFinite(p.y))) return basis;
+  if (a.leaderStyle === 'curved') {
+    // The Bezier curve lies inside its control hull; including the controls
+    // also covers overshoot beyond the three stored leader points.
+    for (const s of catmullRomToBezier(points)) {
+      points.push({ x: s.c1x, y: s.c1y }, { x: s.c2x, y: s.c2y });
+    }
+  }
+  const heads = koppenVan(a);
+  const pad = Math.max(2, (a.lineWidth || 1) / 2,
+    heads.startHead !== 'none' || heads.endHead !== 'none' ? heads.headSize * 2 : 0);
+  const left = Math.min(basis.x, ...points.map(p => p.x - pad));
+  const top = Math.min(basis.y, ...points.map(p => p.y - pad));
+  const right = Math.max(basis.x + basis.width, ...points.map(p => p.x + pad));
+  const bottom = Math.max(basis.y + basis.height, ...points.map(p => p.y + pad));
+  return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
 function metAanhaallijnen(basis, annotation) {
   const leaders = annotation.leaders;
   if (!Array.isArray(leaders) || leaders.length === 0) return basis;

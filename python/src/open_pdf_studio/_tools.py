@@ -714,7 +714,7 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "title": "Draw floor plan",
         "read_only": False,
         "destructive": True,
-        "params": {"action": "action", "add_points": "addPoints", "chain_of": "chainOf", "end": "end", "inside_side": "insideSide", "insulation": "insulation", "join_end": "joinEnd", "join_start": "joinStart", "layers": "layers", "material": "material", "max_opening_mm": "maxOpeningMm", "min_pier_mm": "minPierMm", "names": "names", "offset_mm": "offsetMm", "openings": "openings", "page": "page", "place": "place", "refresh": "refresh", "remove_points": "removePoints", "seeds": "seeds", "show_unit": "showUnit", "side": "side", "start": "start", "thickness_mm": "thicknessMm", "tolerance": "tolerance", "total_offset_mm": "totalOffsetMm", "wall_id": "wallId", "wall_ids": "wallIds"},
+        "params": {"action": "action", "add_points": "addPoints", "along_mm": "alongMm", "chain_of": "chainOf", "end": "end", "hosted": "hosted", "inside_side": "insideSide", "insulation": "insulation", "join_end": "joinEnd", "join_start": "joinStart", "kind": "kind", "layers": "layers", "material": "material", "max_opening_mm": "maxOpeningMm", "min_pier_mm": "minPierMm", "names": "names", "offset_mm": "offsetMm", "opening": "opening", "openings": "openings", "page": "page", "place": "place", "point": "point", "refresh": "refresh", "remove_points": "removePoints", "seeds": "seeds", "show_unit": "showUnit", "side": "side", "start": "start", "symbol_style": "symbolStyle", "thickness_mm": "thicknessMm", "tolerance": "tolerance", "total_offset_mm": "totalOffsetMm", "wall_id": "wallId", "wall_ids": "wallIds", "width_mm": "widthMm"},
         "required": ("action",),
     },
     "app_facade_element": {
@@ -2876,25 +2876,55 @@ class ToolMethods:
         """
         return self._call_tool("app_titleblock", _pack({"fields": fields, "page": page}))
 
-    def floorplan(self, action: Literal["inspect", "wall", "rooms", "dimensions"], *, add_points: Optional[List[Any]] = None, chain_of: Optional[str] = None, end: Optional[Dict[str, Any]] = None, inside_side: Optional[Literal["left", "right"]] = None, insulation: Optional[str] = None, join_end: Optional[bool] = None, join_start: Optional[bool] = None, layers: Optional[List[Any]] = None, material: Optional[str] = None, max_opening_mm: Optional[float] = None, min_pier_mm: Optional[float] = None, names: Optional[List[Any]] = None, offset_mm: Optional[float] = None, openings: Optional[List[Any]] = None, page: Optional[float] = None, place: Optional[bool] = None, refresh: Optional[bool] = None, remove_points: Optional[List[Any]] = None, seeds: Optional[List[Any]] = None, show_unit: Optional[bool] = None, side: Optional[Literal["left", "right"]] = None, start: Optional[Dict[str, Any]] = None, thickness_mm: Optional[float] = None, tolerance: Optional[float] = None, total_offset_mm: Optional[float] = None, wall_id: Optional[str] = None, wall_ids: Optional[List[Any]] = None) -> Any:
+    def floorplan(self, action: Literal["inspect", "wall", "opening", "rooms", "dimensions"], *, add_points: Optional[List[Any]] = None, along_mm: Optional[float] = None, chain_of: Optional[str] = None, end: Optional[Dict[str, Any]] = None, hosted: Optional[bool] = None, inside_side: Optional[Literal["left", "right"]] = None, insulation: Optional[str] = None, join_end: Optional[bool] = None, join_start: Optional[bool] = None, kind: Optional[Literal["door", "window"]] = None, layers: Optional[List[Any]] = None, material: Optional[str] = None, max_opening_mm: Optional[float] = None, min_pier_mm: Optional[float] = None, names: Optional[List[Any]] = None, offset_mm: Optional[float] = None, opening: Optional[Dict[str, Any]] = None, openings: Optional[List[Any]] = None, page: Optional[float] = None, place: Optional[bool] = None, point: Optional[Dict[str, Any]] = None, refresh: Optional[bool] = None, remove_points: Optional[List[Any]] = None, seeds: Optional[List[Any]] = None, show_unit: Optional[bool] = None, side: Optional[Literal["left", "right"]] = None, start: Optional[Dict[str, Any]] = None, symbol_style: Optional[Literal["us", "nen"]] = None, thickness_mm: Optional[float] = None, tolerance: Optional[float] = None, total_offset_mm: Optional[float] = None, wall_id: Optional[str] = None, wall_ids: Optional[List[Any]] = None, width_mm: Optional[float] = None) -> Any:
         """Draw floor plan.
 
         Draw a building floor plan with the parts related to each other, instead
-        of loose shapes stacked on top of one another. Four actions. "wall"
-        draws ONE wall run with its openings: the wall is split at every door
-        and window, so the opening really interrupts the wall (the hatch stops
-        at the reveal) and the frame symbol sits in the gap at the wall's own
-        thickness and angle; it returns the wall segment ids in order. Doors and
-        windows are drawn as real frames: timber stiles (67 x 114 mm by default)
-        with a rebate, double glazing or a 40 mm door leaf with its swing. With
-        layers the run is a layered (cavity) wall: start/end are its outside
-        face, every drawn layer gets its own wall segments cut to its own
-        opening (the outer leaf overlaps the frame, the insulation closes
-        against it, the inner leaf keeps a reveal with clearance), the frame
-        stands in the cavity behind the outer leaf, and runs whose outside faces
-        meet in a corner are mitred layer by layer. "rooms" derives the enclosed
-        rooms from the walls on a page - net area (inside the wall faces),
-        perimeter and a label point that always falls inside the room - and
+        of loose shapes stacked on top of one another. Five actions. "wall"
+        draws ONE wall run with its openings. A single wall stays ONE annotation
+        that hosts its doors and windows: the wall shows a gap with a jamb line
+        at each side (outline and hatch both stop there), the frame symbol sits
+        in the gap at the wall's own thickness and angle, sliding a frame moves
+        it along its wall only and the gap follows, moving, stretching or
+        rotating the wall carries its frames along (each keeps its distance from
+        the wall's start, shifted back if the wall becomes too short), deleting
+        a frame closes the wall and deleting the wall deletes its frames, each
+        in one undo step, and all of it survives save and reopen; wallIds then
+        holds that one wall and segments lists the solid piers. With
+        hosted:false the wall is split at every door and window as in older
+        files (one wall annotation per solid piece, loose frame symbols; wallIds
+        lists the pieces in order). "opening" puts a door or window into an
+        EXISTING wall, hosted the same way: point at the wall with wallId or
+        with point (a point on the wall), give kind, widthMm and alongMm
+        (centre, from the wall's start) or let the point decide the place
+        (shifted so the opening fits; a door then swings toward the side of the
+        wall the point is on); an opening that would overlap another opening in
+        the same wall, or that does not fit, is refused with a reason (overlap,
+        outside, layered, wall, scale) and nothing changes. Doors and windows
+        are drawn as real frames: timber stiles (67 x 114 mm by default) with a
+        rebate, double glazing or a 40 mm door leaf with its swing. On a sheet
+        measured in feet or inches (the measurement scale at that point is in ft
+        or in, or the unit system preference is Imperial) the defaults follow US
+        plan conventions instead: a wall is 6 inch thick with two face lines and
+        no hatch, a door is 36 inch and a window 48 inch wide, and they get the
+        US plan symbol (symbolStyle us) - for a door a leaf of 1-3/4 inch hinged
+        at the jamb on the wall face, drawn open 90 degrees, with its swing arc
+        back to the other jamb and no frame stiles; for a window the two wall
+        faces carried across the opening, a jamb line at each end and one glass
+        line on the wall centre. The symbol style is decided where the opening
+        is placed and stored on the frame, so it stays the same when the frame
+        slides along the wall and when the file is reopened; a width, thickness,
+        material or symbolStyle you pass always wins, and sizes stay in
+        millimetres (36 inch = 914.4). With layers the run is a layered (cavity)
+        wall: start/end are its outside face, every drawn layer gets its own
+        wall segments cut to its own opening (the outer leaf overlaps the frame,
+        the insulation closes against it, the inner leaf keeps a reveal with
+        clearance), the frame stands in the cavity behind the outer leaf, and
+        runs whose outside faces meet in a corner are mitred layer by layer.
+        "rooms" derives the enclosed rooms from the walls on a page - net area
+        (inside the wall faces), perimeter and a label point that always falls
+        inside the room (areaM2, and on a sheet measured in feet or inches also
+        areaSqFt; the room tag there shows whole square feet, e.g. 264 SF) - and
         reports wall ends that leave the contour open instead of silently
         filling half an area; a door opening does not break the enclosure. With
         place:true it puts each room on the sheet as a quiet room area (thin
@@ -2930,23 +2960,32 @@ class ToolMethods:
         dimension follows, the new segments copy the style of their neighbour,
         and a point on a wall face is anchored to that wall. A single dimension
         extended this way becomes a chain. "inspect" reads back what is on the
-        page: walls with their length and thickness, openings with width, sill
-        and height, the rooms it finds, open contour ends and how many anchored
-        dimensions there are. Coordinates are page points at 100% zoom; sizes
-        are real millimetres, so the page needs a measurement scale
+        page: walls with their length and thickness (and openingIds when they
+        host openings), openings with width, sill and height, whether they are
+        hosted by a wall and where along it (alongMm) and symbolStyle us for the
+        US plan symbol, the rooms it finds (with areaSqFt on a sheet measured in
+        feet or inches), open contour ends and how many anchored dimensions
+        there are. Coordinates are page points at 100% zoom; sizes are real
+        millimetres, so the page needs a measurement scale
         (app_set_measure_scale) first. Everything one call creates or changes
         goes into a single undo step.
 
         Args:
-            action (one of "inspect", "wall", "rooms", "dimensions", required):
-                What to do.
+            action (one of "inspect", "wall", "opening", "rooms", "dimensions",
+                required): What to do.
             add_points (array) [MCP: addPoints]: dimensions with chainOf: points
                 {x, y} in page points to add as extension lines, between or outside
                 the existing ones.
+            along_mm (number) [MCP: alongMm]: opening: centre of the opening,
+                measured from the start of the wall along it, in mm. Must fit inside
+                the wall.
             chain_of (string) [MCP: chainOf]: dimensions: the id of a dimension
                 (measureDistance) whose chain you want to extend or shorten, with
                 addPoints and/or removePoints.
             end (object): wall: end of the run as {x, y} in page points.
+            hosted (boolean): wall (single wall, not layers): true (default) =
+                one wall annotation that hosts its openings; false = split the wall
+                at every opening, as in older files.
             inside_side (one of "left", "right") [MCP: insideSide]: wall with
                 layers: which side of start->end is inside (default right; a
                 clockwise outline has the inside on the right).
@@ -2964,6 +3003,7 @@ class ToolMethods:
                 it or inside it) forms a T, where the same material flows into it
                 and another material butts against its face with a seam. Later:
                 app_update_annotation props noJoinStart / noJoinEnd.
+            kind (one of "door", "window"): opening: door (default) or window.
             layers (array): wall: build-up of a layered (cavity) wall, from
                 outside to inside, each {thicknessMm, material, insulation};
                 material none is an air cavity (not drawn). The run's start/end are
@@ -2972,7 +3012,9 @@ class ToolMethods:
                 frame and layerOpeningsMm, corners = layers mitred at start/end.
             material (string): wall: hatch material id, e.g.
                 nen47-metselwerk-baksteen, nen47-metselwerk-kunststeen,
-                nen47-beton-gewapend, isolatie, none.
+                nen47-beton-gewapend, isolatie, none (default
+                nen47-metselwerk-baksteen; on a sheet measured in feet or inches
+                none).
             max_opening_mm (number) [MCP: maxOpeningMm]: rooms/inspect: widest
                 gap between two aligned wall ends that still counts as an opening
                 rather than a hole in the contour (default 3000).
@@ -2983,26 +3025,37 @@ class ToolMethods:
             offset_mm (number) [MCP: offsetMm]: dimensions: distance from the
                 wall face to the chain, in mm (default 500 at 1:50; larger at
                 smaller scales, so the text fits).
+            opening (object): opening: the same fields as one entry of openings
+                (kind, widthMm, alongMm, sillMm, heightMm, swing, openSide, openTo,
+                windowType, showSwing and the frame fields), as an alternative to
+                the loose kind/widthMm/alongMm.
             openings (array): wall: the doors and windows in this run. Each:
                 kind (door|window), widthMm (frame size, outside dimensions; in a
-                single wall this is also the opening), alongMm (centre, measured
-                from start along the wall), sillMm, heightMm, swing (left|right: the
-                hinge side seen from the side the door opens away from), openSide
-                (left|right of the wall direction) or openTo ({x, y}: a point in the
-                room the door opens into; for a window its inside), windowType
-                (fixed|turn|pivot|tilt), showSwing (window: true also draws the
-                opening direction of a turn sash as a dashed quarter circle; default
-                false, because in a plan it reads as a door). Frame, all optional:
-                stileWidthMm (default 67), frameDepthMm (default 114, never deeper
-                than the wall), framePositionMm (outside face of the wall to outside
-                face of the frame; default: behind the outer leaf in a layered wall,
-                centred in a single wall), overlapMm (outer leaf over the frame;
-                default 20 in a layered wall), clearanceMm (reveal of the inner
-                leaf; default 10 in a layered wall), leafThicknessMm (door leaf,
-                default 40).
+                single wall this is also the opening; default 900 for a door and
+                1200 for a window, on a sheet measured in feet or inches 914.4 = 36
+                inch and 1219.2 = 48 inch), symbolStyle (us|nen; default us on a
+                sheet measured in feet or inches in a single wall, otherwise nen),
+                alongMm (centre, measured from start along the wall), sillMm,
+                heightMm, swing (left|right: the hinge side seen from the side the
+                door opens away from), openSide (left|right of the wall direction)
+                or openTo ({x, y}: a point in the room the door opens into; for a
+                window its inside), windowType (fixed|turn|pivot|tilt), showSwing
+                (window: true also draws the opening direction of a turn sash as a
+                dashed quarter circle; default false, because in a plan it reads as
+                a door). Frame, all optional: stileWidthMm (default 67),
+                frameDepthMm (default 114, never deeper than the wall),
+                framePositionMm (outside face of the wall to outside face of the
+                frame; default: behind the outer leaf in a layered wall, centred in
+                a single wall), overlapMm (outer leaf over the frame; default 20 in
+                a layered wall), clearanceMm (reveal of the inner leaf; default 10
+                in a layered wall), leafThicknessMm (door leaf, default 40).
             page (number): 1-based page (default: the current page).
             place (boolean): rooms: also put the rooms on the sheet instead of
                 only reporting them.
+            point (object): opening: a point {x, y} in page points on the wall.
+                Without wallId it selects the wall under it; without alongMm it sets
+                the place along the wall (shifted so the opening fits) and, without
+                openSide/openTo, the side a door swings to.
             refresh (boolean): rooms/dimensions: recompute what is already on
                 the sheet from the walls as they are now.
             remove_points (array) [MCP: removePoints]: dimensions with chainOf:
@@ -3019,21 +3072,36 @@ class ToolMethods:
                 drawn clockwise on the sheet, left is outside.
             start (object): wall: start of the run as {x, y} in page points (the
                 wall centre line; with layers the outside face of the wall).
+            symbol_style (one of "us", "nen") [MCP: symbolStyle]: opening: us =
+                the US plan symbol (door: leaf and swing arc; window: wall faces,
+                jambs and a centre glass line), nen = the frame with timber stiles.
+                Default: us where the sheet is measured in feet or inches, otherwise
+                nen.
             thickness_mm (number) [MCP: thicknessMm]: wall: real wall thickness
-                in mm (default 100).
+                in mm (default 100; on a sheet measured in feet or inches 152.4 = 6
+                inch).
             tolerance (number): dimensions with removePoints: how close (page
-                points) a point must be to an extension line (default 6).
+                points) a point must be to an extension line (default 6). opening
+                with point: how far outside the wall band the point may lie (default
+                2).
             total_offset_mm (number) [MCP: totalOffsetMm]: dimensions: distance
                 from the wall face to the overall dimension, in mm (default offsetMm
                 plus one line of text, at least 350).
             wall_id (string) [MCP: wallId]: dimensions: a single wall annotation
-                to dimension.
-            wall_ids (array) [MCP: wallIds]: dimensions: the wall segments of
-                one run, in order along the run (as returned by action "wall").
+                to dimension. opening: the wall that gets the opening.
+            wall_ids (array) [MCP: wallIds]: dimensions: the wall or wall
+                segments of one run, in order along the run (as returned by action
+                "wall"). A wall that hosts openings gets the jambs of each opening
+                as chain points (pier, opening, pier), and those points follow the
+                opening on refresh.
+            width_mm (number) [MCP: widthMm]: opening: frame size in mm, also
+                the width of the gap (default 900 for a door, 1200 for a window; on
+                a sheet measured in feet or inches 914.4 = 36 inch and 1219.2 = 48
+                inch).
 
         MCP tool ``app_floorplan`` (modifies or discards state).
         """
-        return self._call_tool("app_floorplan", _pack({"action": action, "addPoints": add_points, "chainOf": chain_of, "end": end, "insideSide": inside_side, "insulation": insulation, "joinEnd": join_end, "joinStart": join_start, "layers": layers, "material": material, "maxOpeningMm": max_opening_mm, "minPierMm": min_pier_mm, "names": names, "offsetMm": offset_mm, "openings": openings, "page": page, "place": place, "refresh": refresh, "removePoints": remove_points, "seeds": seeds, "showUnit": show_unit, "side": side, "start": start, "thicknessMm": thickness_mm, "tolerance": tolerance, "totalOffsetMm": total_offset_mm, "wallId": wall_id, "wallIds": wall_ids}))
+        return self._call_tool("app_floorplan", _pack({"action": action, "addPoints": add_points, "alongMm": along_mm, "chainOf": chain_of, "end": end, "hosted": hosted, "insideSide": inside_side, "insulation": insulation, "joinEnd": join_end, "joinStart": join_start, "kind": kind, "layers": layers, "material": material, "maxOpeningMm": max_opening_mm, "minPierMm": min_pier_mm, "names": names, "offsetMm": offset_mm, "opening": opening, "openings": openings, "page": page, "place": place, "point": point, "refresh": refresh, "removePoints": remove_points, "seeds": seeds, "showUnit": show_unit, "side": side, "start": start, "symbolStyle": symbol_style, "thicknessMm": thickness_mm, "tolerance": tolerance, "totalOffsetMm": total_offset_mm, "wallId": wall_id, "wallIds": wall_ids, "widthMm": width_mm}))
 
     def facade_element(self, action: Literal["create", "get", "addMullion", "removeMullion", "moveMullion", "setMullionType", "setPanel", "divide"], *, along_mm: Optional[float] = None, at_mm: Optional[float] = None, by_mm: Optional[float] = None, end: Optional[Dict[str, Any]] = None, field: Optional[float] = None, field_indexes: Optional[List[float]] = None, field_widths_mm: Optional[List[float]] = None, fields: Optional[float] = None, frame_type: Optional[str] = None, from_mm: Optional[float] = None, id: Optional[str] = None, inside_side: Optional[Literal["right", "left"]] = None, length_mm: Optional[float] = None, mullion: Optional[float] = None, mullion_type: Optional[str] = None, offset_mm: Optional[float] = None, page: Optional[float] = None, panel: Optional[Union[str, Dict[str, Any]]] = None, panels: Optional[List[Any]] = None, preset: Optional[Literal["curtainWall", "windowFrame"]] = None, start: Optional[Dict[str, Any]] = None, to_mm: Optional[float] = None, wall_id: Optional[str] = None) -> Any:
         """Draw facade element.

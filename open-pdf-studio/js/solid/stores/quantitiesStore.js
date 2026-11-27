@@ -1,6 +1,7 @@
 // Hoeveelheden — config-store. Solid-signals voor de schedule-config + memo's
 // die de pure engine aanroepen. Visibility blijft in scheduleStore (re-exported).
-import { createSignal, createMemo } from 'solid-js';
+import { createSignal, createMemo, batch } from 'solid-js';
+import { validateQuantitiesConfig } from '../../quantities/config-file.js';
 import { getActiveDocument, getAnnotationBounds } from '../../core/state.js';
 import { buildSchedule } from '../../quantities/engine.js';
 import { scheduleUsesLocation, scheduleUsesLayer } from '../../quantities/categories.js';
@@ -107,6 +108,23 @@ export async function loadBuiltInText() {
 }
 
 export function clearBuiltInText() { setBuiltInText([]); }
+
+/** A detached snapshot, containing settings only. */
+export function quantitiesConfig() {
+  return JSON.parse(JSON.stringify({ categories: selectedCategories(), fields: scheduledFields(),
+    filters: filters(), sort: sortLevels(), itemize: itemize(), grandTotals: grandTotals(),
+    format: format(), appearance: appearance() }));
+}
+
+export function applyQuantitiesConfig(config) {
+  const c = validateQuantitiesConfig(config);
+  batch(() => {
+    setSelectedCategories(c.categories); setScheduledFields(c.fields);
+    setFilters(c.filters); setSortLevels(c.sort); setItemize(c.itemize);
+    setGrandTotals(c.grandTotals); setFormat(c.format); setAppearance(c.appearance);
+    clearBuiltInText();
+  });
+}
 
 export {
   selectedCategories, setSelectedCategories,

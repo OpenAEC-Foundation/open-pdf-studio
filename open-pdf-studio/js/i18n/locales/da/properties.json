@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Gem lagenes aktuelle synlighed som dokumentets standardtilstand. Den skrives til filen, næste gang du gemmer.",
     "layersDefaultPending": "Bliver standard ved næste gem",
     "layerLocked": "Låst lag: kan ikke slås til eller fra",
-    "layerRadioGroup": "Valggruppe: når dette lag slås til, slås de andre lag i gruppen fra"
+    "layerRadioGroup": "Valggruppe: når dette lag slås til, slås de andre lag i gruppen fra",
+    "thumbnailColumns": "Miniaturekolonner"
   },
   "scaleBar": {
     "title": "Skalabjælke",
@@ -601,6 +602,12 @@
     "joinHint": "Fra: denne ende af væggen bliver aldrig geringsskåret, samlet som T eller afkortet mod en anden væg; den beholder en lige ende, hvor den er tegnet.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Mængdetabel",
       "builtinText": "Tekst",
       "rebarPosition": "Armeringsjern"
-    }
+    },
+    "configImportFailed": "Mængdeindstillingerne kunne ikke importeres. Vælg en gyldig understøttet konfigurationsfil.",
+    "configExportFailed": "Mængdeindstillingerne kunne ikke eksporteres."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisk symbol",

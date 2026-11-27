@@ -19,9 +19,10 @@ test('dispatcher: ruwe pointermoves (coalesced) en palmafwijzing gaan naar het g
 });
 
 test('scherm en bestand tekenen dezelfde streek (rendering en saver gebruiken inktGeometrie)', () => {
-  assert.match(bron('./rendering.js'), /inktGeometrie\(annotation, \{ breedteFactor/);
-  assert.match(bron('../pdf/saver.js'), /inktAppearanceInhoud\(ann, convertX, convertY/);
-  assert.match(bron('../pdf/loader/annotation-converter.js'), /\.\.\.inktUitBestand\(extraColors, path\.length\)/);
+  assert.match(bron('./rendering.js'), /drawInk\(ctx, annotation, strokeColor, lw\)/);
+  assert.match(bron('./rendering/ink.js'), /inktGeometrie\(stroke,/);
+  assert.match(bron('../pdf/saver.js'), /inktAppearanceInhoud\(stroke, convertX, convertY/);
+  assert.match(bron('../pdf/loader/annotation-converter.js'), /inktUitBestand\(extraColors, strokes\[0\]\.length\)/);
 });
 
 test('paneel: waarden van een streek en wat een wijziging schrijft', () => {

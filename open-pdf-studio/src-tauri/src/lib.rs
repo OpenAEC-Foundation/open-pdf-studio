@@ -85,6 +85,7 @@ pub mod central_review;
 pub mod verkenner_acties;
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
+mod annotation_clipboard;
 pub mod startup_diagnostics;
 mod startup_visibility;
 mod startup_window;
@@ -378,6 +379,28 @@ fn cancel_file_write(id: String) {
         lijst.retain(|_, vlag| std::sync::Arc::strong_count(vlag) > 1);
     }
     lijst.entry(id).or_default().store(true, std::sync::atomic::Ordering::SeqCst);
+}
+
+// A SAF grant names one document. Its provider controls the final write and
+// need not support a sibling, a rename, seeking, or fsync (e.g. a pipe).
+fn write_provider_document(app: &tauri::AppHandle, path: &str, data: &[u8]) -> Result<(), String> {
+    use std::io::Write;
+    use tauri_plugin_fs::{FilePath, FsExt, OpenOptions};
+
+    let uri = url::Url::parse(path).map_err(|e| e.to_string())?;
+    if uri.scheme() != "content" {
+        return Err("Expected a document provider URI".into());
+    }
+    let mut options = OpenOptions::new();
+    options.write(true).truncate(true);
+    let mut file = app.fs().open(FilePath::Url(uri), options).map_err(|e| e.to_string())?;
+    file.write_all(data).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn write_android_document(app: tauri::AppHandle, path: String, data: Vec<u8>) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || write_provider_document(&app, &path, &data))
+        .await.map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -3164,6 +3187,19 @@ fn get_page_dimensions(
         .collect()
 }
 
+// Uses the inherited, authenticated session broker across detached processes.
+#[tauri::command]
+async fn exchange_annotation_clipboard(
+    broker: tauri::State<'_, Option<annotation_clipboard::Broker>>,
+    candidate: Option<serde_json::Value>,
+    known: Option<String>,
+) -> Result<serde_json::Value, String> {
+    let broker = broker.inner().clone().ok_or("annotation clipboard unavailable")?;
+    tauri::async_runtime::spawn_blocking(move || broker.exchange(candidate, known))
+        .await
+        .map_err(|_| "annotation clipboard task failed".to_string())?
+}
+
 // ─── Screenshot-annotate feature ────────────────────────────────────────────
 // Read the current clipboard bitmap and return it as PNG bytes. Used by the
 // "annotate clipboard screenshot" flow: Windows PrtScn (and the Snipping Tool)
@@ -3589,6 +3625,24 @@ pub fn run(opts: StartupOpts) {
 
     builder
         .setup(move |app| {
+            // Set before any detached process is launched: children inherit the
+            // private loopback endpoint. No document data is put in the environment.
+            let clipboard = match (
+                std::env::var("OPDS_CLIPBOARD_ADDR"),
+                std::env::var("OPDS_CLIPBOARD_TOKEN"),
+            ) {
+                (Ok(address), Ok(token)) => annotation_clipboard::Broker::inherited(&address, token),
+                _ => annotation_clipboard::Broker::start(format!(
+                    "{:032x}{:032x}", rand::random::<u128>(), rand::random::<u128>()
+                )),
+            };
+            if let Ok(ref broker) = clipboard {
+                std::env::set_var("OPDS_CLIPBOARD_ADDR", broker.address.to_string());
+                // Broker exposes only the environment capability, never to JS.
+                std::env::set_var("OPDS_CLIPBOARD_TOKEN", broker.capability());
+            }
+            app.manage(clipboard.ok());
+
             // Mobiel (#596): voorkeuren, sessie en catalogi in de schrijfbare
             // app-datamap, vóór er een commando draait dat ze leest.
             #[cfg(mobile)]
@@ -3812,6 +3866,7 @@ pub fn run(opts: StartupOpts) {
             get_username,
             write_file,
             write_file_atomic,
+            write_android_document,
             cancel_file_write,
             write_file_new,
             central_review::central_review_login,
@@ -3999,6 +4054,7 @@ pub fn run(opts: StartupOpts) {
             herstel::herstel_schoon_afsluiten,
             herstel::herstel_nood_klaar,
             herstel::herstel_test_paniek,
+            exchange_annotation_clipboard,
             read_clipboard_image_png,
             write_clipboard_image_png,
             set_prtscn_hotkey,

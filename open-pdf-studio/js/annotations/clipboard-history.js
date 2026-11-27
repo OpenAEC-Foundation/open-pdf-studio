@@ -6,6 +6,7 @@
 import { createSignal } from 'solid-js';
 import { state } from '../core/state.js';
 import { cloneAnnotation } from './factory.js';
+import { shareAnnotationClipboard } from './window-clipboard.js';
 import { annotationBounds } from './spatial-index.js';
 import { drawAnnotation } from './rendering.js';
 import { omhullendKader } from './plak-bij-muis.js';
@@ -79,6 +80,7 @@ export function useClipboardHistoryItem(id) {
   state._internalCopyAt = Date.now();
   state._pasteSeq = 0;
   setActiveId(id);
+  shareAnnotationClipboard(kopie);
   return true;
 }
 

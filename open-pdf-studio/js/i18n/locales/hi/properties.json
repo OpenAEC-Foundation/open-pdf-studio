@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "परतों की वर्तमान दृश्यता को दस्तावेज़ की डिफ़ॉल्ट स्थिति के रूप में रखें। यह अगली बार सहेजने पर फ़ाइल में लिखी जाती है।",
     "layersDefaultPending": "सहेजने पर डिफ़ॉल्ट बनेगी",
     "layerLocked": "लॉक की गई परत: इसे चालू या बंद नहीं किया जा सकता",
-    "layerRadioGroup": "विकल्प समूह: इस परत को चालू करने से समूह की अन्य परतें बंद हो जाती हैं"
+    "layerRadioGroup": "विकल्प समूह: इस परत को चालू करने से समूह की अन्य परतें बंद हो जाती हैं",
+    "thumbnailColumns": "थंबनेल स्तंभ"
   },
   "scaleBar": {
     "title": "स्केल बार",
@@ -601,6 +602,12 @@
     "joinHint": "बंद: दीवार का यह सिरा कभी भी मीटर जोड़, T जोड़ या किसी अन्य दीवार के विरुद्ध ट्रिम नहीं होता; यह जहां बनाया गया वहीं सपाट सिरा बना रहता है।",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "मात्रा तालिका",
       "builtinText": "टेक्स्ट",
       "rebarPosition": "सरिया"
-    }
+    },
+    "configImportFailed": "मात्रा सेटिंग आयात नहीं की जा सकीं। मान्य और समर्थित कॉन्फ़िगरेशन फ़ाइल चुनें।",
+    "configExportFailed": "मात्रा सेटिंग निर्यात नहीं की जा सकीं।"
   },
   "parametricSymbol": {
     "defaultTitle": "पैरामीट्रिक प्रतीक",

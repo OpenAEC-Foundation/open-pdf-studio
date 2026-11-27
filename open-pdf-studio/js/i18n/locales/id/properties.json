@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Simpan visibilitas lapisan saat ini sebagai keadaan bawaan dokumen. Ditulis ke berkas saat Anda menyimpan berikutnya.",
     "layersDefaultPending": "Menjadi bawaan saat disimpan",
     "layerLocked": "Lapisan terkunci: tidak dapat dinyalakan atau dimatikan",
-    "layerRadioGroup": "Grup pilihan: menyalakan lapisan ini mematikan lapisan lain dalam grup"
+    "layerRadioGroup": "Grup pilihan: menyalakan lapisan ini mematikan lapisan lain dalam grup",
+    "thumbnailColumns": "Kolom gambar mini"
   },
   "scaleBar": {
     "title": "Batang Skala",
@@ -601,6 +602,12 @@
     "joinHint": "Mati: ujung dinding ini tidak pernah disambung miring, disambung T, atau dipangkas terhadap dinding lain; ujungnya tetap rata di tempat digambar.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Tabel kuantitas",
       "builtinText": "Teks",
       "rebarPosition": "Batang tulangan"
-    }
+    },
+    "configImportFailed": "Tidak dapat mengimpor pengaturan kuantitas. Pilih berkas konfigurasi yang valid dan didukung.",
+    "configExportFailed": "Tidak dapat mengekspor pengaturan kuantitas."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbol parametrik",

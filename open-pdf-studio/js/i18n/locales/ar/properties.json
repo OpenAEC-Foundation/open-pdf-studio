@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "حفظ ظهور الطبقات الحالي كحالة افتراضية للمستند. يُكتب في الملف عند الحفظ التالي.",
     "layersDefaultPending": "ستصبح الافتراضية عند الحفظ",
     "layerLocked": "طبقة مقفلة: لا يمكن تشغيلها أو إيقافها",
-    "layerRadioGroup": "مجموعة اختيار: تشغيل هذه الطبقة يوقف الطبقات الأخرى في المجموعة"
+    "layerRadioGroup": "مجموعة اختيار: تشغيل هذه الطبقة يوقف الطبقات الأخرى في المجموعة",
+    "thumbnailColumns": "أعمدة الصور المصغرة"
   },
   "scaleBar": {
     "title": "شريط المقياس",
@@ -601,6 +602,12 @@
     "joinHint": "إيقاف: لا يتم أبدًا وصل هذا الطرف من الجدار بزاوية مائلة أو على شكل T أو تشذيبه مقابل جدار آخر؛ ويبقى طرفًا مستقيمًا حيث رُسم.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "جدول الكميات",
       "builtinText": "نص",
       "rebarPosition": "قضيب تسليح"
-    }
+    },
+    "configImportFailed": "تعذر استيراد إعدادات الكميات. اختر ملف إعدادات صالحًا ومدعومًا.",
+    "configExportFailed": "تعذر تصدير إعدادات الكميات."
   },
   "parametricSymbol": {
     "defaultTitle": "رمز بارامتري",

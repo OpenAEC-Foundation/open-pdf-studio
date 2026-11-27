@@ -16,6 +16,7 @@ import {
 } from 'pdf-lib';
 import { removeWatermarkStreams } from './watermark-content.js';
 import { toWinAnsiText } from './pdf-text.js';
+import { vasteResourceSleutel, zetPaginaResource, deelResourcesWeer } from './gedeelde-resources.js';
 import { KOPVOET_VAKKEN, vakPositie, vulKopVoetIn, kopVoetWaarden, toegepastePaginas } from '../../watermark/kopvoet-tekst.js';
 
 export const KOPVOET_SLEUTEL = 'OPS_KopVoet';
@@ -192,7 +193,9 @@ export async function schrijfKopVoeten(pdfDoc, kopVoeten, opties) {
       }
       if (!regels.length) continue;
 
-      const fontSleutel = page.node.newFontDictionary(font.name, font.ref);
+      // Eén vaste sleutel per kop-/voettekst: pagina's die één /Resources
+      // delen (tekeningensets) krijgen hem zo één keer, niet één per pagina.
+      const fontSleutel = zetPaginaResource(page, 'Font', vasteResourceSleutel('OPSKV', wm.id), font.ref);
       const ops = [pushGraphicsState(), concatTransformationMatrix(...weergaveMatrix(rotatie, vak))];
       for (const rij of ['kop', 'voet']) {
         const vanRij = regels.filter((r) => r.rij === rij);
@@ -218,6 +221,8 @@ export async function schrijfKopVoeten(pdfDoc, kopVoeten, opties) {
     if (opPagina) geschreven.push(wm.id);
   }
 
+  // normalize() zette gedeelde /Resources als kopie op elke pagina.
+  deelResourcesWeer(pdfDoc);
   schrijfKopVoetDefinities(pdfDoc, [...behouden, ...definities]);
   return { geschreven, streams };
 }

@@ -17,6 +17,10 @@
 //   OPS_RuimteZaad  [x y]  zaadpunt van een ruimte, in PDF-coördinaten
 //   OPS_RuimteNaam  tekst  de naam van die ruimte
 //   OPS_RuimteNummer tekst het nummer van die ruimte
+//   OPS_Openings    tekst  de gehoste openingen van een wand (#1229), als
+//                          JSON: [{ key, afstandMm, breedteMm, soort, zijde }].
+//                          `key` staat ook in het kozijnsymbool
+//                          (params.hostKey); daarmee koppelt de lader ze weer
 //
 // Het zaadpunt is hoe `app_floorplan {action:"rooms", refresh:true}` een
 // geplaatst ruimtevlak terugvindt; zonder deze sleutel was het na heropenen
@@ -25,6 +29,23 @@
 import { PDFName } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
 import { oppervlakteEenheid } from '../../annotations/oppervlakte-eenheid.js';
+import { wandOpeningen, OPENING_SOORTEN } from '../../annotations/wand-openingen.js';
+
+/**
+ * De openingen van een wand zoals ze in het bestand komen: alleen wat een
+ * opening beschrijft, zonder de annotatie-id (die verandert bij heropenen).
+ */
+export function openingenVoorBestand(wand) {
+  return wandOpeningen(wand)
+    .filter((o) => typeof o.key === 'string' && o.key)
+    .map((o) => ({
+      key: o.key,
+      afstandMm: Math.round(Number(o.afstandMm) * 1000) / 1000,
+      breedteMm: Math.round(Number(o.breedteMm) * 1000) / 1000,
+      soort: OPENING_SOORTEN.includes(o.soort) ? o.soort : 'deur',
+      zijde: Number(o.zijde) === -1 ? -1 : 1,
+    }));
+}
 
 /** Getalvelden van een maat en hun sleutel (papiermillimeters). */
 export const MAAT_GETALLEN = Object.freeze([
@@ -45,6 +66,11 @@ export function schrijfPlattegrondMeta(annotDict, ann, context, X, Y) {
   if (!annotDict || !ann) return 0;
   let n = 0;
   const zet = (sleutel, waarde) => { annotDict.set(PDFName.of(sleutel), waarde); n++; };
+  if (ann.type === 'wall') {
+    const openingen = openingenVoorBestand(ann);
+    if (openingen.length) zet('OPS_Openings', pdfTextString(JSON.stringify(openingen)));
+    return n;
+  }
   if (ann.type === 'measureDistance') {
     if (ann.dimShowUnit === false) zet('OPS_DimNoUnit', context.obj(true));
     // Uitloop en hulplijnen in papiermillimeters (maatlijn-geometrie.js).

@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Spara lagrens aktuella synlighet som dokumentets standardläge. Det skrivs till filen nästa gång du sparar.",
     "layersDefaultPending": "Blir standard när du sparar",
     "layerLocked": "Låst lager: kan inte slås på eller av",
-    "layerRadioGroup": "Valgrupp: när detta lager slås på slås de andra lagren i gruppen av"
+    "layerRadioGroup": "Valgrupp: när detta lager slås på slås de andra lagren i gruppen av",
+    "thumbnailColumns": "Miniatyrkolumner"
   },
   "scaleBar": {
     "title": "Skalstock",
@@ -601,6 +602,12 @@
     "joinHint": "Av: den här väggänden geras aldrig, ansluts aldrig som T och trimmas aldrig mot en annan vägg; den behåller en rak ände där den ritats.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Mängdtabell",
       "builtinText": "Text",
       "rebarPosition": "Armeringsjärn"
-    }
+    },
+    "configImportFailed": "Kunde inte importera mängdinställningarna. Välj en giltig konfigurationsfil som stöds.",
+    "configExportFailed": "Kunde inte exportera mängdinställningarna."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisk symbol",

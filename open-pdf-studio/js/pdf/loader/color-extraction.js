@@ -171,8 +171,8 @@ async function extractApAlphas(context, nStream) {
 function leesBlendMode(context, raw) {
   if (raw === undefined || raw === null) return null;
   const v = context.lookup(raw) || raw;
-  if (v instanceof PDFArray) return blendUitPdf(v.asArray().map((x) => String(context.lookup(x) || x)));
-  return blendUitPdf(String(v));
+  if (v instanceof PDFArray) return blendUitPdf(v.asArray().map((x) => String(context.lookup(x) || x)), 'normal');
+  return blendUitPdf(String(v), 'normal');
 }
 
 const TEKSTCORRECTIE_SOORTEN = new Set(['/Caret', '/Highlight', '/Underline', '/StrikeOut', '/Squiggly']);
@@ -314,7 +314,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const bmDict = leesBlendMode(context, annotDict.get(PDFName.of('BM')));
         if (bmDict) colors.blendMode = bmDict;
       }
-      if (colors.blendMode === 'multiply' && TEKSTCORRECTIE_SOORTEN.has(subtypeName)) delete colors.blendMode;
+      if (colors.blendMode === (subtypeName === '/Highlight' ? 'multiply' : 'normal')) delete colors.blendMode;
 
       // /FillOpacity: niet-standaard sleutel die externe tekenpakketten naast de
       // appearance zetten. Alleen terugval: de appearance hierboven is wat andere
@@ -464,6 +464,8 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       // Naam, onderwerp en alternatieve tekst, voor ELKE soort (#619; zie
       // loader/annotatie-algemeen.js). /NM en /Subj zijn standaard; voor een
       // alternatieve tekst naast /Contents kent de specificatie geen sleutel.
+      const vertex = pdfNum(context.lookup(annotDict.get(PDFName.of('OPS_CloudVertex'))));
+      if (Number.isInteger(vertex) && vertex >= 0) colors.cloudVertex = vertex;
       const nm = leesTekstString(context, annotDict.get(PDFName.of('NM')));
       if (nm) colors.nm = nm;
       const subj = leesTekstString(context, annotDict.get(PDFName.of('Subj')));
@@ -577,9 +579,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (opsLidRaw) {
         const lv = leesPdfTekst(context, opsLidRaw);
         if (lv !== undefined) colors.opsLeaderId = lv;
+        const anchor = annotDict.get(PDFName.of('OPS_LeaderAnchor'));
+        if (anchor) colors.opsLeaderAnchor = leesPdfTekst(context, anchor);
       }
       const irtRaw = annotDict.get(PDFName.of('IRT'));
       if (irtRaw) {
+        if (Number.isInteger(irtRaw.objectNumber)) colors.irtId = `${irtRaw.objectNumber}R${irtRaw.generationNumber || ''}`;
         const irt = context.lookup(irtRaw);
         if (irt && typeof irt.get === 'function') {
           const irtRectRaw = irt.get(PDFName.of('Rect'));

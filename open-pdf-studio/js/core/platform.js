@@ -675,7 +675,7 @@ export async function saveFileDialog(defaultPath, filters) {
     if (window.__TAURI__.dialog) {
       try {
         const result = await window.__TAURI__.dialog.save({
-          defaultPath: defaultPath,
+          defaultPath: defaultPath?.startsWith('content://') ? extractFileName(defaultPath) : defaultPath,
           filters: filters
         });
         return result;
@@ -797,6 +797,13 @@ export async function writeBinaryFileAtomic(path, data, { annulering = null } = 
     return true;
   }
   const mobile = window.__TAURI__?.os?.type?.() === 'android';
+  if (mobile && path.startsWith('content://')) {
+    // SAF exposes a provider stream. Once opened for replacement, cancelling
+    // can no longer preserve the old contents.
+    annulering?.vastleggen?.();
+    await getTauriCore().invoke('write_android_document', { path, data: Array.from(bytes) });
+    return true;
+  }
   const headers = { 'x-opds-path': encodeURIComponent(path) };
   let afmelden = null;
   if (annulering) {

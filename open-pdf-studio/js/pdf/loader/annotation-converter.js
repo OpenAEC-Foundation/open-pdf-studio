@@ -1,3 +1,4 @@
+import { inkPathFromStrokes } from '../../annotations/ink-strokes.js';
 import { isShxTextAnnotation } from '../shx-text.js';
 import { state, imageCache } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
@@ -35,7 +36,7 @@ import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
 import { zetLaagUitBestand } from './annotatie-laag.js';
 import { extraVoorAnnotatie } from './extra-sleutel.js';
-import { plattegrondUitExtra } from './plattegrond-meta.js';
+import { plattegrondUitExtra, wandOpeningenUitExtra } from './plattegrond-meta.js';
 import { viewportRectangle } from '../pdfjs-record.js';
 import {
   maatlijnUitBestand, lijnBreedteUitBestand, pijlKopVullingUitBestand, meetlijnKoppenUitBestand,
@@ -664,6 +665,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             isolatieType: extraColors.opsIsolatieType || undefined,
             // Join per uiteinde uit (#476); zonder sleutel geen velden.
             ...wandJoinUitExtra(extraColors),
+            // Gehoste openingen (#1229); zonder sleutel geen veld.
+            ...wandOpeningenUitExtra(extraColors),
             // Explicit category wins; older files without it are IfcWall.
             ifcCategory: extraColors.opsIfcCategory || ifcCategoryForAnnotationType('wall'),
             color: colorArrayToHex(annot.color, '#000000'),
@@ -740,22 +743,24 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
     case 'Ink':
       // Freehand drawing
       if (annot.inkLists && annot.inkLists.length > 0) {
-        const path = [];
-        const inkList = annot.inkLists[0];
-        for (let i = 0; i < inkList.length; i += 2) {
-          const [ipx, ipy] = convertPoint(inkList[i], inkList[i + 1]);
-          path.push({ x: ipx, y: ipy });
-        }
+        const strokes = annot.inkLists.map(list => {
+          const points = [];
+          for (let i = 0; i + 1 < list.length; i += 2) {
+            const [x, y] = convertPoint(list[i], list[i + 1]);
+            points.push({ x, y });
+          }
+          return points;
+        });
         return createAnnotation({
           ...baseProps,
           type: 'draw',
-          path: path,
+          ...inkPathFromStrokes(strokes),
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
           borderStyle: mapBorderStyle(annot, extraColors),
           // Drukgevoelige inkt (#385): alleen als de druk bij de punten past.
-          ...inktUitBestand(extraColors, path.length),
+          ...inktUitBestand(extraColors, strokes[0].length),
         });
       }
       break;
@@ -779,8 +784,10 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             __textboxLeader: true,
             page: pageNum,
             irtRectKey: extraColors.irtRectKey,
+            irtId: extraColors.irtId || annot.inReplyTo,
             leader: {
               id: extraColors.opsLeaderId || (Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
+              ...(extraColors.opsLeaderAnchor && { anchorNode: extraColors.opsLeaderAnchor }),
               kneeX: plPoints[1].x,
               kneeY: plPoints[1].y,
               tipX: plPoints[plPoints.length - 1].x,
@@ -868,6 +875,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               mpProps.measurePrecision = extraColors.measurePrecision;
             }
           }
+          // /Measure also carries an inherited unit. Expose its saved value in
+          // Properties, but keep measureScale unset so it still follows the page.
+          const mpMeasurement = calculatePerimeter(plPoints, pageNum, extraColors);
+          mpProps.measureUnit = mpMeasurement.unit;
+          mpProps.measureValue = mpMeasurement.value;
+          mpProps.measurePixels = mpMeasurement.pixels;
           if (extraColors.opsPrecision != null) mpProps.measurePrecision = extraColors.opsPrecision;
           // Diepte (#311) en andere eigen sleutels van een maat.
           Object.assign(mpProps, plattegrondUitExtra(extraColors, convertPoint));
@@ -1179,11 +1192,20 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           // Een eigen meetvlak rekent in de lengte-eenheid van /X; /A staat
           // daar in de eenheid van het label (mm → m², dimension-measure.js).
           const maEigenSchaal = extraColors.measureScale && !extraColors.opsScaleInherited;
-          const maSchaal = maEigenSchaal
+          const maGelezenSchaal = extraColors.measureScale
             ? vlakSchaalUitMeasure(extraColors.measureScale, extraColors.measureUnit,
               extraColors.opsSubtype === 'measureArea' && extraColors.measureUnit
                 ? `${extraColors.measureUnit}²` : extraColors.measureAreaUnit)
             : null;
+          const maSchaal = maEigenSchaal ? maGelezenSchaal : null;
+          // Ook met opgeslagen tekst hebben hoeveelheden de numerieke waarde
+          // nodig (#1287). /Measure bewaart de schaal op deze plek, ook als de
+          // pagina/het schaalgebied pas later laadt. Een geërfde schaal wordt
+          // daarbij geen eigen schaal: latere kalibratie blijft mogelijk.
+          const maArea = calculateArea(polyPoints, maHoles || undefined, pageNum);
+          const maMeting = maGelezenSchaal?.measureScale > 0
+            ? { value: maArea.pixels * maGelezenSchaal.measureScale ** 2, unit: maGelezenSchaal.measureUnit }
+            : maArea;
           // Weergave-eenheid van de oppervlakte (#1129): de eigen sleutel van
           // de app (OPS_AreaUnit), anders /A van een ander programma als dat
           // een eenheid van alleen oppervlakte is (schaal in voet, /A in acres).
@@ -1193,11 +1215,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           if (!maText) {
             // Zonder opgeslagen tekst zelf rekenen - inclusief de extra ringen,
             // anders staat er de oppervlakte van alleen de buitenring (#457).
-            const area = calculateArea(polyPoints, maHoles || undefined, pageNum);
-            const s = maSchaal?.measureScale;
-            maText = vlakTekst({ measureAreaUnit: maVlakEenheid }, s > 0
-              ? { value: area.pixels * s * s, unit: maSchaal.measureUnit }
-              : area);
+            maText = vlakTekst({ measureAreaUnit: maVlakEenheid }, maMeting);
           }
           const maProps = {
             ...baseProps,
@@ -1209,6 +1227,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 1,
             borderStyle: mapBorderStyle(annot, extraColors),
             measureText: maText,
+            measureValue: maMeting.value,
+            measureUnit: maMeting.unit,
             // Arcering terug uit de eigen sleutels; zonder dit verliest een
             // gearceerd meetvlak zijn arcering bij de volgende save.
             ...hatchUitExtra(extraColors),
@@ -1447,6 +1467,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         appearanceTekst,
         contents: annot.contentsObj?.str || annot.contents || '',
       });
+      if (!text.trim() && annot.richText?.str) {
+        text = annot.richText.str.trimEnd();
+      }
       // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
       // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
       let textRuns;

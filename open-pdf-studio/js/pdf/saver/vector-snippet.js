@@ -337,7 +337,15 @@ export function ruimKnipselRestenOp(doc, oudeStempels = [], { nieuwVanaf } = {})
   if (!kandidaten.length) return { verwijderd: 0, bronnenWeg };
 
   const t = context.trailerInfo;
-  const levend = _bereikbaar(context, [t.Root, t.Info, t.Encrypt, t.ID].filter(Boolean));
+  // embedPage normaliseert de tijdelijke bronpagina met gedeelde q/Q-streams.
+  // pdf-lib bewaart hun refs in de context en gebruikt ze later opnieuw,
+  // bijvoorbeeld bij Flatten All. Ze blijven dus in gebruik, ook wanneer
+  // alleen de inmiddels onbereikbare bronpagina er nog naar verwijst (#1259).
+  const levend = _bereikbaar(context, [
+    t.Root, t.Info, t.Encrypt, t.ID,
+    context.getPushGraphicsStateContentStream(),
+    context.getPopGraphicsStateContentStream(),
+  ].filter(Boolean));
   let verwijderd = 0;
   for (const [tag, ref] of _bereikbaar(context, kandidaten)) {
     if (levend.has(tag)) continue;

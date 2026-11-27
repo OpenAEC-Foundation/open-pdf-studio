@@ -68,7 +68,6 @@ import { initCursor } from './ui/cursor.js';
 // PDF operations (for handling file drops from command line args)
 import { loadPDF, loadPDFIfNeeded } from './pdf/loader.js';
 import { createFileOpenQueue } from './pdf/queued-load.js';
-import { fitPage } from './pdf/renderer.js';
 
 // Text selection
 import { initTextSelection } from './text/text-selection.js';
@@ -140,10 +139,6 @@ const openFiles = createFileOpenQueue({
     if (state.documents.some(d => d.pdfDoc && bronPad(d) === filePath)) {
       addRecentFile(filePath, extractFileName(filePath));
     }
-    // Op een telefoon past de pagina in het scherm, net als bij Openen in de
-    // mobiele weergave; "Openen met" uit een andere app komt hier binnen (#593).
-    const actief = state.documents[state.activeDocumentIndex];
-    if (isMobile() && actief?.pdfDoc && bronPad(actief) === filePath) fitPage();
   },
 });
 
@@ -438,7 +433,7 @@ async function init() {
               initDomElements();
               // The same file tapped again is already open: only show it. A
               // reload would drop its unsaved annotations and undo history.
-              if (await loadPDFIfNeeded(filePath, index)) await fitPage();
+              await loadPDFIfNeeded(filePath, index);
               addRecentFile(filePath, extractFileName(filePath));
             }
           }

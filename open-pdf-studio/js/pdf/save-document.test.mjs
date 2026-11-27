@@ -39,6 +39,8 @@ function harness() {
     PDFDocument: { load: async bytes => ({ context: { largestObjectNumber: 1 }, getPages: () => [], catalog: { get: () => null },
       formCache: { getValue: () => undefined }, flush: async () => {}, save: async () => bytes }) },
     ruimOngebruikteObjectenOp() {}, ruimOngebruikteObjectenOpMetPauzes: async () => {},
+    // Geen pagina's, dus geen gedeelde /Resources (saver/gedeelde-resources.js).
+    deelResourcesWeer: () => 0,
     // Annuleren (#766, echt).
     maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING, updateStatusMessage() {},
     // Geen pagina's, dus geen annotaties om pdfBron van bij te werken (saver/bron-behoud.js).
@@ -680,4 +682,38 @@ test('an alt text edited during a long save is kept and the document stays modif
   assert.deepEqual(h.a.structEdits, { alt: { '0.3': { role: 'Para', value: 'made during the save' } }, order: {} },
     'only the edit the save did not write is left');
   assert.equal(h.a.modified, true, 'the unsaved edit keeps the document modified');
+});
+
+test('saving a read-only Android attachment asks for a destination and reuses its write grant', async () => {
+  const h = harness();
+  const source = 'content://example.mail/attachments/51';
+  const destination = 'content://example.documents/document/123';
+  h.a.filePath = source;
+  h.a.fileName = 'Plan.pdf';
+  globalThis.OpdsAndroid = { canWrite: uri => uri === destination };
+  try {
+    let result = null;
+    let dialogs = 0;
+    h.deps.saveFileDialog = async () => { dialogs++; return result; };
+    assert.equal(await h.api.savePDF(), false);
+    assert.equal(h.a.modified, true);
+    assert.equal(h.a.filePath, source);
+    assert.deepEqual(h.writes, []);
+    result = destination;
+    const write = h.deps.writeBinaryFileAtomic;
+    h.deps.writeBinaryFileAtomic = async () => { throw new Error('Provider closed stream'); };
+    assert.equal(await h.api.savePDF(), false);
+    assert.equal(h.a.modified, true);
+    assert.equal(h.a.filePath, source);
+    assert.deepEqual(h.opgeslagenGemeld, []);
+    h.deps.writeBinaryFileAtomic = write;
+    assert.equal(await h.api.savePDF(), true);
+    assert.equal(h.a.filePath, destination);
+    h.a.modified = true;
+    assert.equal(await h.api.savePDF(), true);
+    assert.deepEqual(h.writes.map(write => write.path), [destination, destination]);
+    assert.equal(dialogs, 3);
+  } finally {
+    delete globalThis.OpdsAndroid;
+  }
 });

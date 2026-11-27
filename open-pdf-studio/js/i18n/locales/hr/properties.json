@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Spremi trenutačnu vidljivost slojeva kao zadano stanje dokumenta. Zapisuje se u datoteku pri sljedećem spremanju.",
     "layersDefaultPending": "Postaje zadano pri spremanju",
     "layerLocked": "Zaključani sloj: ne može se uključiti ni isključiti",
-    "layerRadioGroup": "Grupa izbora: uključivanje ovog sloja isključuje ostale slojeve grupe"
+    "layerRadioGroup": "Grupa izbora: uključivanje ovog sloja isključuje ostale slojeve grupe",
+    "thumbnailColumns": "Stupci minijatura"
   },
   "scaleBar": {
     "title": "Grafičko mjerilo",
@@ -601,6 +602,12 @@
     "joinHint": "Isključeno: ovaj kraj zida nikad se ne spaja pod kutom, ne spaja se u T niti se obrezuje uz drugi zid; zadržava ravan kraj ondje gdje je nacrtan.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Tablica količina",
       "builtinText": "Tekst",
       "rebarPosition": "Armaturna šipka"
-    }
+    },
+    "configImportFailed": "Postavke količina nije moguće uvesti. Odaberite valjanu podržanu konfiguracijsku datoteku.",
+    "configExportFailed": "Postavke količina nije moguće izvesti."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametarski simbol",

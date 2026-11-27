@@ -65,12 +65,15 @@ test('panning while a tile is still being rendered gets a fresh tile once it lan
   tileCacheClearAll();
   const rendered = [];
   let release;
+  const started = Promise.withResolvers();
   globalThis.__nep = {
     computeZoomBucket: (scale) => 2 ** Math.ceil(Math.log2(scale)),
     invokeTileRegion: (args) => {
       rendered.push(args);
       // The first render is slow; later ones answer at once.
-      return rendered.length === 1 ? new Promise((r) => { release = () => r(tileBytes()); }) : tileBytes();
+      if (rendered.length > 1) return tileBytes();
+      started.resolve();
+      return new Promise((r) => { release = () => r(tileBytes()); });
     },
     sharpenPageRgba: (rgba) => rgba,
     isRenderCancelled: () => false,
@@ -82,7 +85,7 @@ test('panning while a tile is still being rendered gets a fresh tile once it lan
   });
 
   const first = ensureTileForCurrentView(canvas);
-  await new Promise((r) => setTimeout(r, 10)); // the render has started
+  await started.promise;
   // The user pans on, inside the same cache cell: the new request is dropped
   // because one for that cell is still running.
   viewport.offsetY = -1000 * ZOOM;
@@ -91,7 +94,10 @@ test('panning while a tile is still being rendered gets a fresh tile once it lan
 
   release();
   await first;
-  await new Promise((r) => setTimeout(r, 20));
+  const deadline = performance.now() + 3000;
+  while (!tileCoversViewport(viewport.currentTileMeta, viewport, canvas.width, canvas.height, 1) && performance.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, 5));
+  }
 
   assert.equal(rendered.length, 2, 'a second tile is rendered for where the view is now');
   assert.ok(

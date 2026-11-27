@@ -106,6 +106,13 @@ export function zetCalloutRotatie(ann, nieuw) {
     const { w, h } = maat(ann);
     const tip = calloutPunt(ann);
     const gedraaid = draaiPunt(tip.x, tip.y, ann.x + w / 2, ann.y + h / 2, delta);
+    if (ann.leaders?.length) {
+      ann.leaders = ann.leaders.map(l => {
+        const tip = draaiPunt(l.tipX, l.tipY, ann.x + w / 2, ann.y + h / 2, delta);
+        const knee = draaiPunt(l.kneeX, l.kneeY, ann.x + w / 2, ann.y + h / 2, delta);
+        return { ...l, tipX: tip.x, tipY: tip.y, kneeX: knee.x, kneeY: knee.y };
+      });
+    }
     ann.arrowX = gedraaid.x;
     ann.arrowY = gedraaid.y;
   }

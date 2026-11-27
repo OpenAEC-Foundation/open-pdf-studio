@@ -419,7 +419,9 @@ test('de kopie van de bronpagina die embedPage achterlaat, gaat niet mee het bes
   assert.ok(r.verwijderd > 0, 'er bleven wezen achter na het inbedden');
   const t = doc.context.trailerInfo;
   const bekend = new Set();
-  const stapel = [t.Root, t.Info].filter(Boolean);
+  // Twee gedeelde q/Q-streams zijn nog live in de pdf-lib-context (#1259).
+  const stapel = [t.Root, t.Info, doc.context.getPushGraphicsStateContentStream(),
+    doc.context.getPopGraphicsStateContentStream()].filter(Boolean);
   while (stapel.length) {
     let o = stapel.pop();
     if (o && o.tag) { if (bekend.has(o.tag)) continue; bekend.add(o.tag); o = doc.context.lookup(o); }
@@ -433,4 +435,42 @@ test('de kopie van de bronpagina die embedPage achterlaat, gaat niet mee het bes
   // En het knipsel is er nog, heel.
   const heropend = await PDFDocument.load(await doc.save());
   assert.equal(heropend.getPage(0).node.Annots().size(), 1);
+});
+
+test('knipsel-opruimen bewaart de grafische isolatie voor later afvlakken (#1259)', async () => {
+  const { vlakDocument, ruimOnbereikbaarOp } = await import('../flatten-bytes.js');
+  const source = await PDFDocument.create();
+  for (let i = 0; i < 2; i++) {
+    const page = source.addPage([600, 400]);
+    // Geldige CAD-inhoud: de schaal blijft actief na de laatste stroom.
+    page.node.set(PDFName.of('Contents'), source.context.obj([
+      source.context.register(source.context.stream('0.12 0 0 0.12 14 48 cm\n')),
+      source.context.register(source.context.stream('0 0 100 100 re S\n')),
+    ]));
+  }
+  const doc = await PDFDocument.load(await source.save());
+  const nieuwVanaf = doc.context.largestObjectNumber;
+  await zetKnipsel(doc, await bron(), 'aaaabbbbccccdddd');
+  // Beide pagina's worden pas ná het opruimen genormaliseerd.
+  doc.getPage(1).node.set(PDFName.of('Annots'), doc.getPage(0).node.Annots().clone(doc.context));
+  await doc.flush();
+  ruimKnipselRestenOp(doc, [], { nieuwVanaf });
+  assert.equal(vlakDocument(doc, { herstelbaar: false }).gebakken, 2);
+  await doc.flush();
+  ruimOnbereikbaarOp(doc);
+  const reopened = await PDFDocument.load(await doc.save());
+  const { decodePDFRawStream } = await import('pdf-lib');
+  for (const page of reopened.getPages()) {
+    const streams = page.node.Contents().asArray().map(ref => {
+      const stream = reopened.context.lookup(ref);
+      assert.ok(stream, `inhoudsstroom ${ref} ontbreekt na opruimen`);
+      return new TextDecoder().decode(decodePDFRawStream(stream).decode()).trim();
+    });
+    assert.equal(streams[0], 'q', 'bestaande CAD-schaal isoleren');
+    assert.equal(streams[1], '0.12 0 0 0.12 14 48 cm');
+    assert.equal(streams[2], '0 0 100 100 re S');
+    assert.equal(streams[3], 'Q', 'standaardcoördinaten herstellen vóór de appearances');
+    assert.match(streams[4], /OPSFlat.*Do/);
+    assert.equal(page.node.Annots().size(), 0);
+  }
 });

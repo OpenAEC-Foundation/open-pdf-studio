@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Запазване на текущата видимост на слоевете като състояние по подразбиране на документа. Записва се във файла при следващото запазване.",
     "layersDefaultPending": "Става по подразбиране при запазване",
     "layerLocked": "Заключен слой: не може да се включва или изключва",
-    "layerRadioGroup": "Група за избор: включването на този слой изключва другите слоеве в групата"
+    "layerRadioGroup": "Група за избор: включването на този слой изключва другите слоеве в групата",
+    "thumbnailColumns": "Колони с миниатюри"
   },
   "scaleBar": {
     "title": "Линеен мащаб",
@@ -601,6 +602,12 @@
     "joinHint": "Изкл.: този край на стената никога не се съединява под ъгъл, не се свързва като Т и не се подрязва до друга стена; запазва прав край там, където е начертан.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "Таблица с количества",
       "builtinText": "Текст",
       "rebarPosition": "Армировъчен прът"
-    }
+    },
+    "configImportFailed": "Настройките за количества не могат да бъдат импортирани. Изберете валиден поддържан конфигурационен файл.",
+    "configExportFailed": "Настройките за количества не могат да бъдат експортирани."
   },
   "parametricSymbol": {
     "defaultTitle": "Параметричен символ",

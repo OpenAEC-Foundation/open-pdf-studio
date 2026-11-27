@@ -99,58 +99,65 @@ pub fn classificeer_drop(
 pub struct InstanceRole {
     /// `true` → dit proces is een tweede instantie (losgemaakt tabblad).
     pub secondary: bool,
+    pub pid: u32,
 }
 
 /// Rol van deze instantie, voor de frontend.
 #[tauri::command]
 pub fn instance_role() -> InstanceRole {
     let args: Vec<String> = std::env::args().collect();
-    InstanceRole { secondary: is_nieuwe_instantie(&args) }
+    InstanceRole { secondary: is_nieuwe_instantie(&args), pid: std::process::id() }
 }
 
-#[derive(serde::Serialize, Clone)]
+#[derive(serde::Serialize, Default)]
 pub struct TabDropTarget {
-    /// `"zelf"` | `"instantie"` | `"geen"`
-    pub kind: &'static str,
+    pub pid: u32,
+    pub x: i32,
+    pub y: i32,
 }
 
-/// Wat ligt er NU onder de muiscursor? Gebruikt tijdens en na het slepen van
-/// een tabblad om te kiezen tussen terugzetten in een andere instantie en
-/// losmaken naar een nieuwe instantie.
+/// Resolve the actual drop point instead of sampling the cursor after release.
+/// The returned position is in physical pixels relative to the receiving client.
 #[tauri::command]
-pub fn tab_drop_target() -> TabDropTarget {
-    TabDropTarget { kind: drop_doel_onder_cursor().naam() }
+pub fn tab_drop_target(window: tauri::WebviewWindow, x: f64, y: f64) -> Result<Option<TabDropTarget>, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let origin = window.inner_position().map_err(|e| e.to_string())?;
+        let scale = window.scale_factor().map_err(|e| e.to_string())?;
+        let pt = windows_sys::Win32::Foundation::POINT {
+            x: (f64::from(origin.x) + x * scale).round() as i32,
+            y: (f64::from(origin.y) + y * scale).round() as i32,
+        };
+        Ok(drop_target_at(pt))
+    }
+    #[cfg(not(target_os = "windows"))]
+    { let _ = (window, x, y); Ok(None) }
 }
 
 #[cfg(target_os = "windows")]
-fn drop_doel_onder_cursor() -> DropDoel {
-    use windows_sys::Win32::Foundation::{CloseHandle, POINT};
+fn drop_target_at(mut pt: windows_sys::Win32::Foundation::POINT) -> Option<TabDropTarget> {
+    use windows_sys::Win32::Foundation::CloseHandle;
+    use windows_sys::Win32::Graphics::Gdi::ScreenToClient;
     use windows_sys::Win32::System::Threading::{
         OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION,
     };
     use windows_sys::Win32::UI::WindowsAndMessaging::{
-        GetAncestor, GetCursorPos, GetWindowThreadProcessId, WindowFromPoint, GA_ROOT,
+        GetAncestor, GetWindowThreadProcessId, WindowFromPoint, GA_ROOT,
     };
 
     let eigen_pid = std::process::id();
-    let eigen_exe = std::env::current_exe()
-        .map(|p| p.to_string_lossy().to_string())
-        .unwrap_or_default();
-
-    let mut pt = POINT { x: 0, y: 0 };
-    if unsafe { GetCursorPos(&mut pt) } == 0 {
-        return DropDoel::Geen;
-    }
+    let eigen_exe = std::env::current_exe().ok()?;
+    let eigen_exe = eigen_exe.to_string_lossy();
     let hwnd = unsafe { WindowFromPoint(pt) };
     if hwnd.is_null() {
-        return DropDoel::Geen;
+        return None;
     }
     let root = unsafe { GetAncestor(hwnd, GA_ROOT) };
     let root = if root.is_null() { hwnd } else { root };
     let mut pid: u32 = 0;
     unsafe { GetWindowThreadProcessId(root, &mut pid) };
     if pid == 0 || pid == eigen_pid {
-        return classificeer_drop(eigen_pid, &eigen_exe, Some(pid), None);
+        return None;
     }
 
     let exe = unsafe {
@@ -169,14 +176,12 @@ fn drop_doel_onder_cursor() -> DropDoel {
             }
         }
     };
-    classificeer_drop(eigen_pid, &eigen_exe, Some(pid), exe.as_deref())
-}
-
-#[cfg(not(target_os = "windows"))]
-fn drop_doel_onder_cursor() -> DropDoel {
-    // Geen betrouwbare manier om het venster onder de cursor bij een ander
-    // proces op te vragen: altijd losmaken naar een nieuwe instantie.
-    DropDoel::Geen
+    if classificeer_drop(eigen_pid, &eigen_exe, Some(pid), exe.as_deref()) != DropDoel::Instantie
+        || unsafe { ScreenToClient(root, &mut pt) } == 0
+    {
+        return None;
+    }
+    Some(TabDropTarget { pid, x: pt.x, y: pt.y })
 }
 
 #[cfg(test)]

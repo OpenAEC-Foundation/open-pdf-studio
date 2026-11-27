@@ -240,8 +240,8 @@ export function buildToolContext(e, coords) {
     // Drawing — het voorbeeld op het canvas onder de cursor: in de
     // doorlopende weergave het paginacanvas, niet de onzichtbare overlay
     // (#616). Een eigen doel van de aanroeper blijft winnen.
-    drawShapePreview: (currentX, currentY, e, doelCtx) =>
-      drawShapePreview(currentX, currentY, e, doelCtx || coords.canvasCtx),
+    drawShapePreview: (currentX, currentY, e, doelCtx, tool) =>
+      drawShapePreview(currentX, currentY, e, doelCtx || coords.canvasCtx, tool),
     getAnnotationType,
     getColorPickerValue,
     getLineWidthValue,

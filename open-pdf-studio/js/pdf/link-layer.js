@@ -274,6 +274,10 @@ export function sprongNogGeldig(beurt, laatste, doc, actief) {
   return beurt === laatste && !!doc && doc === actief;
 }
 
+/**
+ * Follow a link to a place in this document. `bron` ({ page, rect } of the
+ * clicked link, PDF space) marks the landing spot: link-doelmarkering.js.
+ */
 export async function handleInternalLink(dest, bron = null) {
   wisLinkDoelMarkering();
   const doc = getActiveDocument();
@@ -290,7 +294,7 @@ export async function handleInternalLink(dest, bron = null) {
       if (!geldig()) return;
     }
 
-    let destInfo = parseDestinationArray(explicit);
+    const destInfo = parseDestinationArray(explicit);
     if (!destInfo) return;
 
     const ref = destInfo.pageRef;
@@ -305,18 +309,24 @@ export async function handleInternalLink(dest, bron = null) {
 
     // PDF.js uses 0-based index, our app uses 1-based page numbers
     let targetPage = pageIndex + 1;
+    let doelInfo = destInfo;
+
+    // Where the clicked mark is found (link-doelmarkering.js): the link's own
+    // page, or another page picked from a list at the pointer; null: cancelled.
     let keuze;
     if (bron) {
       try {
         keuze = await kiesLinkDoel(doc, bron, targetPage, { geldig,
           pageLabel: page => `${i18next.t('page', { ns: 'common' })} ${page}` });
-      } catch (error) { console.warn('[link-layer] destination text unavailable:', error); }
-      if (!geldig() || keuze === null) return;
+      } catch (e) {
+        console.warn('[link-layer] bestemming niet gezocht:', e);
+      }
+      if (keuze === null || !geldig()) return;
       if (keuze && keuze.page !== targetPage) {
+        // Another page: open at its first mark.
         const v = keuze.view, b = keuze.vakken[0];
         targetPage = keuze.page;
-        destInfo = { ...destInfo, type: 'XYZ', left: v[0] + Math.max(0, b.x - 6 * b.h),
-          top: v[3] - Math.max(0, b.y - 6 * b.h), zoom: null };
+        doelInfo = { ...destInfo, type: 'XYZ', left: v[0] + Math.max(0, b.x - 6 * b.h), top: v[3] - Math.max(0, b.y - 6 * b.h), zoom: null };
       }
     }
 
@@ -327,23 +337,28 @@ export async function handleInternalLink(dest, bron = null) {
     if (!geldig()) return;
     let getoond = false;
     try {
-      getoond = await toonDoelbeeld(doc, targetPage, destInfo, geldig);
+      getoond = await toonDoelbeeld(doc, targetPage, doelInfo, geldig);
     } catch (e) {
       console.warn('[link-layer] beeld van de bestemming niet gezet:', e);
     }
     // Een bestemming waarvan het beeld niet te lezen is: alleen de pagina.
     if (!getoond && geldig()) await goToPage(targetPage);
     if (keuze && geldig()) {
-      markeerOpPagina(targetPage, keuze.vakken, keuze.view, {
-        geldig, scope: keuze.scope,
-        tekstlaag: n => doc.viewMode === 'continuous' || doc.facingSpread
-          ? document.querySelector(`.page-wrapper[data-page="${n}"] .textLayer`)
-          : doc.currentPage === n ? document.querySelector('#canvas-container .textLayer') : null,
-      }).catch(error => console.warn('[link-layer] destination marking failed:', error));
+      markeerOpPagina(targetPage, keuze.vakken, keuze.view, { tekstlaag: (n) => tekstlaagVan(doc, n), geldig, scope: keuze.scope })
+        .catch((e) => console.warn('[link-layer] bestemming niet gemarkeerd:', e));
     }
   } catch (e) {
     console.warn('Failed to navigate to internal link:', e);
   }
+}
+
+/** The text layer of a page as shown (continuous or single page). */
+function tekstlaagVan(doc, pageNum) {
+  if (doc?.viewMode === 'continuous' || doc?.facingSpread) {
+    return document.querySelector(`.page-wrapper[data-page="${pageNum}"] .textLayer`);
+  }
+  if (doc && doc.currentPage !== pageNum) return null;
+  return document.querySelector('#canvas-container .textLayer');
 }
 
 // Marge boven de bestemming, zodat de aangesprongen kop niet tegen de

@@ -78,20 +78,23 @@ export function geometricLinePaths(annotation, lineWidth = annotation.lineWidth 
       for (let d = 0; d < length; d += step) along(d, Math.min(length, d + step * 0.6));
     }
   } else if (style === 'insulation') {
-    // Overlapping tilted loops: the conventional batting symbol. Each loop
-    // uses the local tangent so bends cannot shear it into an unreadable knot.
-    const spacing = Math.max(4 * u, length / 1000);
-    for (let d = half; d <= length - half; d += spacing) {
-      const { segment: s } = locate(d), centre = at(d), p = [];
-      for (let j = 0; j <= 32; j++) {
-        const phase = j * 2 * Math.PI / 32;
-        const x = u * (2 * Math.cos(phase) + 3 * Math.sin(phase));
-        const y = half * Math.sin(phase);
-        p.push({ x: centre.x + x * s.ux - y * s.uy, y: centre.y + x * s.uy + y * s.ux });
+    // Eén doorlopende isolatielus: brede afgeronde lobben wisselen van kant,
+    // met teruglopende verbindingsbogen (geen losse, afgeschuinde ellipsen).
+    // De referentie in #1284 heeft een steek van 0,4 maal de strookbreedte.
+    const usable = length - 2 * half;
+    if (usable <= 0) {
+      along(0, length);
+    } else {
+      const turns = Math.min(1000, Math.max(1, Math.floor(usable / (3.2 * u) + 1e-9)));
+      const pitch = usable / turns;
+      const p = [];
+      for (let j = 0; j <= turns * 64; j++) {
+        const phase = (j % 64) * 2 * Math.PI / 64;
+        const d = half + j * pitch / 64 + 1.2 * u * Math.sin(2 * phase);
+        p.push(at(d, -half * Math.cos(phase)));
       }
       add(p);
     }
-    if (!paths.length) along(0, length);
   } else if (style === 'zigzag') {
     const periods = Math.max(1, Math.ceil(length / (step / 2)));
     const pitch = length / periods, p = [];

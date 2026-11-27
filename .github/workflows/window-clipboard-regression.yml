@@ -1,0 +1,33 @@
+name: Window clipboard regression
+on:
+  pull_request:
+    paths:
+      - 'open-pdf-studio/js/annotations/clipboard*.js'
+      - 'open-pdf-studio/js/annotations/window-clipboard*.js'
+      - 'open-pdf-studio/js/tools/keyboard-handlers.js'
+      - 'open-pdf-studio/scripts/window-clipboard-e2e.mjs'
+      - 'open-pdf-studio/src-tauri/src/annotation_clipboard.rs'
+      - 'open-pdf-studio/scripts/review-native-tests/**'
+      - '.github/workflows/window-clipboard-regression.yml'
+permissions:
+  contents: read
+jobs:
+  clipboard:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: open-pdf-studio/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/window-clipboard-e2e.mjs
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --manifest-path scripts/review-native-tests/Cargo.toml annotation_clipboard
+      - run: cargo build --manifest-path scripts/review-native-tests/Cargo.toml --bin clipboard-probe
+      - run: NATIVE_CLIPBOARD_PROBE="$PWD/scripts/review-native-tests/target/debug/clipboard-probe" node scripts/window-clipboard-e2e.mjs

@@ -196,3 +196,40 @@ test('large legacy strings and little-endian definitions retain their encoding',
     assert.deepEqual(readWatermarkDefinitions(await PDFDocument.load(await p.save())), [definition]);
   }
 });
+
+const tinyJpeg = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAABP/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AO//Z';
+const alphaPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMIiLLRAAAC8wEPwfHM7QAAAABJRU5ErkJggg==';
+const imageObjects = p => p.context.enumerateIndirectObjects().filter(([, obj]) =>
+  obj.dict?.get(PDFName.of('Subtype')) === PDFName.of('Image'));
+
+for (const [imageData, count] of [[tinyJpeg, 1], [alphaPng, 2]]) {
+  test('editing opacity reuses the embedded image and deleting removes its unused objects: ' + imageData.slice(5, 15), async () => {
+    let p = await pdf();
+    const wm = mark({ type: 'imageWatermark', imageData });
+    await writeWatermarkContent(p, [wm]);
+    p = await PDFDocument.load(await p.save());
+    const first = imageObjects(p).map(([ref]) => ref.tag);
+    assert.equal(first.length, count);
+    const [restored] = readWatermarkDefinitions(p);
+    assert.deepEqual(restored, wm);
+    await writeWatermarkContent(p, [{ ...restored, opacity: 0.8 }]);
+    p = await PDFDocument.load(await p.save());
+    assert.deepEqual(imageObjects(p).map(([ref]) => ref.tag), first);
+    if (count === 1) assert.ok(!p.catalog.lookup(PDFName.of('OPS_Watermark')).decodeText().includes(imageData.slice(23)));
+    await writeWatermarkContent(p, [], { known: [wm.id] });
+    assert.equal(imageObjects(await PDFDocument.load(await p.save())).length, 0);
+  });
+}
+
+test('removing an image watermark preserves an image and soft mask used by another PDF object', async () => {
+  let p = await pdf();
+  const wm = mark({ type: 'imageWatermark', imageData: alphaPng });
+  await writeWatermarkContent(p, [wm]);
+  p = await PDFDocument.load(await p.save());
+  const [ref] = imageObjects(p).find(([, obj]) => obj.dict.has(PDFName.of('SMask')));
+  p.catalog.set(PDFName.of('OtherImage'), p.context.register(p.context.obj([ref])));
+  await writeWatermarkContent(p, [], { known: [wm.id] });
+  p = await PDFDocument.load(await p.save());
+  assert.equal(imageObjects(p).length, 2);
+  assert.equal(p.catalog.lookup(PDFName.of('OtherImage')).get(0).tag, ref.tag);
+});

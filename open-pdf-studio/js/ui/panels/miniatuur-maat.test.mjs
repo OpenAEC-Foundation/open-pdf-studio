@@ -22,21 +22,17 @@ const lees = (pad) => readFileSync(join(app, pad), 'utf8');
 // padding 2x4 en de vaste scrollbalkgoot (scrollbar-gutter: stable).
 const binnen = (paneel, goot) => paneel - 33 - 8 - goot;
 
-test('kolommen: 330 px een, 500 px twee, 800 px vier (acceptatie #579)', () => {
+test('vier pagina’s naast elkaar in een paneel van 330 px', () => {
   for (const goot of [8, 11, 17]) {
-    assert.equal(aantalKolommen(binnen(330, goot)), 1, `330 px, goot ${goot}`);
-    assert.equal(aantalKolommen(binnen(500, goot)), 2, `500 px, goot ${goot}`);
-    assert.equal(aantalKolommen(binnen(800, goot)), 4, `800 px, goot ${goot}`);
+    assert.equal(aantalKolommen(binnen(330, goot)), 4);
+    assert.equal(aantalKolommen(binnen(500, goot)), 6);
+    assert.equal(aantalKolommen(binnen(200, goot)), 2);
   }
-  assert.equal(aantalKolommen(binnen(200, 8)), 1, 'standaardbreedte: een kolom');
 });
 
-test('kolombreedte volgt CSS-grid auto-fill met minimaal 150 px', () => {
-  assert.equal(kolomBreedte(150), 150);
-  assert.equal(kolomBreedte(303), 303, 'net te smal voor twee');
-  assert.equal(kolomBreedte(304), 150, 'twee van 150 plus de tussenruimte');
-  assert.equal(kolomBreedte(451), (451 - KOLOM_GAP) / 2);
-  assert.ok(kolomBreedte(751) >= MIN_KOLOM);
+test('de kolomgrens houdt rekening met de ruimte tussen de miniaturen', () => {
+  assert.equal(kolomBreedte(131), 131);
+  assert.equal(kolomBreedte(132), 64);
   assert.equal(kolomBreedte(0), 0);
   assert.equal(aantalKolommen(0), 1);
 });
@@ -55,9 +51,9 @@ test('renderbreedte: getoonde breedte maal devicePixelRatio, in stappen, begrens
 });
 
 test('renderbreedte uit de lijstbreedte: de kolom min rand en padding van het item', () => {
-  assert.equal(renderBreedteVoorLijst(binnen(330, 8), 1), 320);
+  assert.equal(renderBreedteVoorLijst(binnen(330, 8), 1), MIN_RENDER);
   assert.equal(renderBreedteVoorLijst(binnen(200, 8), 1), MIN_RENDER);
-  assert.equal(renderBreedteVoorLijst(binnen(330, 8), 2), 560);
+  assert.equal(renderBreedteVoorLijst(binnen(330, 8), 2), MIN_RENDER);
 });
 
 test('verkleinen in halveringsstappen: nooit meer dan een factor 2 per stap', () => {

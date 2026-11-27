@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "پرتوں کی موجودہ نمائش کو دستاویز کی ڈیفالٹ حالت کے طور پر محفوظ کریں۔ یہ اگلی بار محفوظ کرنے پر فائل میں لکھی جاتی ہے۔",
     "layersDefaultPending": "محفوظ کرنے پر ڈیفالٹ بن جائے گی",
     "layerLocked": "مقفل پرت: اسے آن یا آف نہیں کیا جا سکتا",
-    "layerRadioGroup": "انتخابی گروپ: اس پرت کو آن کرنے سے گروپ کی دوسری پرتیں آف ہو جاتی ہیں"
+    "layerRadioGroup": "انتخابی گروپ: اس پرت کو آن کرنے سے گروپ کی دوسری پرتیں آف ہو جاتی ہیں",
+    "thumbnailColumns": "تھمب نیل کالم"
   },
   "scaleBar": {
     "title": "اسکیل بار",
@@ -601,6 +602,12 @@
     "joinHint": "بند: دیوار کا یہ سرا کبھی بھی میٹر جوڑ، T جوڑ یا کسی دوسری دیوار کے مقابل ٹرم نہیں ہوتا؛ یہ جہاں بنایا گیا وہیں سیدھا سرا رہتا ہے۔",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "مقداروں کی جدول",
       "builtinText": "متن",
       "rebarPosition": "سریا"
-    }
+    },
+    "configImportFailed": "مقداروں کی ترتیبات درآمد نہیں ہو سکیں۔ ایک درست اور معاون ترتیب فائل منتخب کریں۔",
+    "configExportFailed": "مقداروں کی ترتیبات برآمد نہیں ہو سکیں۔"
   },
   "parametricSymbol": {
     "defaultTitle": "پیرامیٹرک علامت",

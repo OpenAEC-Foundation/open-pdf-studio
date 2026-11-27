@@ -5,6 +5,7 @@ import { pdfNum } from './pdf-helpers.js';
 import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { MAAT_GETALLEN, EINDEN } from '../saver/plattegrond-meta.js';
 import { oppervlakteEenheid } from '../../annotations/oppervlakte-eenheid.js';
+import { OPENING_SOORTEN } from '../../annotations/wand-openingen.js';
 
 function waar(context, raw) {
   if (raw === undefined || raw === null) return false;
@@ -74,7 +75,48 @@ export function leesPlattegrondMeta(annotDict, context) {
     const nummer = decodePdfTextObject(context.lookup(nummerRaw) || nummerRaw);
     if (typeof nummer === 'string' && nummer) uit.opsRuimteNummer = nummer;
   }
+  const openingenRaw = annotDict.get(PDFName.of('OPS_Openings'));
+  if (openingenRaw) {
+    const openingen = leesOpeningen(decodePdfTextObject(context.lookup(openingenRaw) || openingenRaw));
+    if (openingen.length) uit.opsOpeningen = openingen;
+  }
   return uit;
+}
+
+/**
+ * De gehoste openingen van een wand (#1229) uit de JSON-tekst van
+ * OPS_Openings. Wat geen bruikbare opening is, valt weg; een onleesbare
+ * tekst geeft een lege lijst (de wand is dan gewoon dicht).
+ */
+export function leesOpeningen(tekst) {
+  if (typeof tekst !== 'string' || !tekst) return [];
+  let lijst;
+  try { lijst = JSON.parse(tekst); } catch { return []; }
+  if (!Array.isArray(lijst)) return [];
+  const uit = [];
+  for (const o of lijst) {
+    const afstandMm = Number(o?.afstandMm), breedteMm = Number(o?.breedteMm);
+    if (typeof o?.key !== 'string' || !o.key) continue;
+    if (!Number.isFinite(afstandMm) || !(breedteMm > 0)) continue;
+    uit.push({
+      key: o.key,
+      afstandMm,
+      breedteMm,
+      soort: OPENING_SOORTEN.includes(o.soort) ? o.soort : 'deur',
+      zijde: Number(o.zijde) === -1 ? -1 : 1,
+    });
+  }
+  return uit;
+}
+
+/**
+ * De openingen voor het wandmodel uit de gelezen sleutels. De annotatie-id
+ * van elk kozijn volgt na het omzetten van de hele pagina
+ * (herkoppelOpeningen in annotations/wand-openingen.js).
+ */
+export function wandOpeningenUitExtra(extra) {
+  const lijst = extra?.opsOpeningen;
+  return Array.isArray(lijst) && lijst.length ? { openingen: lijst.map((o) => ({ ...o })) } : {};
 }
 
 /**

@@ -63,6 +63,17 @@ function* bereikbaar(context) {
   return { levend, verwezen };
 }
 
+/** Verwijder alleen de opgegeven objecten die nergens meer in het document gebruikt worden. */
+export function verwijderOnbereikbareSelectie(context, kandidaten) {
+  if (!kandidaten.size) return;
+  const stappen = bereikbaar(context);
+  let stap;
+  do { stap = stappen.next(); } while (!stap.done);
+  for (const ref of kandidaten) {
+    if (!stap.value.levend.has(ref.tag)) context.delete(ref);
+  }
+}
+
 /**
  * Vervang in `o` (en zijn directe deelobjecten) de verwijzingen uit `kaart`.
  * `gezien` houdt bij welke woordenboeken en arrays al omgezet zijn: één

@@ -28,7 +28,8 @@
 // de betekenis van de `ccw`-vlag van een canvas-boog in dat vlak.
 // `rol` bepaalt de lijndikte bij het tekenen: 'stijl', 'raamhout',
 // 'glaslat', 'paneel', 'deurblad' (doorsnede), 'glas', 'draaicirkel',
-// 'aanzicht' (dun).
+// 'aanzicht' (dun), 'wandvlak' (een wandlijn die over de opening doorloopt,
+// in het Amerikaanse raamsymbool van kozijn.js).
 
 /** Standaardmaten (mm) van een Nederlands houten kozijn. */
 export const KOZIJN_STANDAARD = Object.freeze({
@@ -404,6 +405,7 @@ export const VORM_STIJL = Object.freeze({
   glas: { factor: 0.5 },
   draaicirkel: { factor: 0.35 },
   aanzicht: { factor: 0.35 },
+  wandvlak: { factor: 1 },
 });
 
 /**

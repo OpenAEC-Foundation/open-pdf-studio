@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "அடுக்குகளின் தற்போதைய தெரிவுநிலையை ஆவணத்தின் இயல்புநிலை நிலையாக வைக்கவும். அடுத்த முறை சேமிக்கும்போது இது கோப்பில் எழுதப்படும்.",
     "layersDefaultPending": "சேமிக்கும்போது இயல்புநிலையாகும்",
     "layerLocked": "பூட்டப்பட்ட அடுக்கு: இதை இயக்கவோ அணைக்கவோ முடியாது",
-    "layerRadioGroup": "தேர்வுக் குழு: இந்த அடுக்கை இயக்கினால் குழுவின் மற்ற அடுக்குகள் அணைக்கப்படும்"
+    "layerRadioGroup": "தேர்வுக் குழு: இந்த அடுக்கை இயக்கினால் குழுவின் மற்ற அடுக்குகள் அணைக்கப்படும்",
+    "thumbnailColumns": "சிறுபட நெடுவரிசைகள்"
   },
   "scaleBar": {
     "title": "அளவுகோல் பட்டை",
@@ -601,6 +602,12 @@
     "joinHint": "அணைவு: சுவரின் இந்த முனை ஒருபோதும் சாய்வு இணைப்பு, T இணைப்பு அல்லது வேறு சுவருடன் நறுக்குதல் மூலம் இணைக்கப்படாது; வரைந்த இடத்திலேயே நேரான முனையாக இருக்கும்.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {
@@ -856,7 +863,9 @@
       "scheduleTable": "அளவு அட்டவணை",
       "builtinText": "உரை",
       "rebarPosition": "வலுவூட்டல் கம்பி"
-    }
+    },
+    "configImportFailed": "அளவு அமைப்புகளை இறக்குமதி செய்ய முடியவில்லை. செல்லுபடியாகும் ஆதரிக்கப்படும் உள்ளமைவுக் கோப்பைத் தேர்ந்தெடுக்கவும்.",
+    "configExportFailed": "அளவு அமைப்புகளை ஏற்றுமதி செய்ய முடியவில்லை."
   },
   "parametricSymbol": {
     "defaultTitle": "அளவுரு குறியீடு",

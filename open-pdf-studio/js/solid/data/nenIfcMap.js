@@ -12,10 +12,13 @@
 //   PDF's — die alleen OPS_StampName (de naam) dragen, nog geen
 //   OPS_SymbolId — bij het laden alsnog geclassificeerd kunnen worden.
 //
-// Deze module is bewust puur (geen imports, geen window/import.meta) zodat
+// Deze module importeert alleen pure metadata (geen window/import.meta) zodat
 // hij ook onder node --test draait.
 
-export const NEN_IFC_MAP = {
+import { NAMES } from './nen1414-metadata.js';
+
+// Historische namen blijven uitsluitend als alias voor bestaande PDF’s bestaan.
+const LEGACY_NEN_IFC_MAP = {
   // --- Brandbeveiliging (Tb) ---
   'Tb0.003': { name: 'Brandbeveiligingsinstallatie', ifcCategory: 'IfcController' },
   'Tb01':    { name: 'Brandmeldcentrale (BMC)', ifcCategory: 'IfcController' },
@@ -132,10 +135,17 @@ export const NEN_IFC_MAP = {
   'Tw28': { name: 'Watermotor gong', ifcCategory: 'IfcAlarm', ifcPredefinedType: 'BELL' },
 };
 
+// Tr/Tv/Tn/Tw bevatten veiligheidspictogrammen, geen gemodelleerde
+// ventilatoren, verlichtingsarmaturen of sprinklers (#1271). Dezelfde
+// gecontroleerde namen als in het palet; geen verzonnen PredefinedType.
+export const NEN_IFC_MAP = Object.fromEntries(Object.entries(LEGACY_NEN_IFC_MAP).map(([id, entry]) => [
+  id, /^(Tr|Tv|Tn|Tw)/.test(id) ? { name: NAMES[id], ifcCategory: 'IfcAnnotation' } : entry,
+]));
+
 // Toegestane IFC4-entiteiten voor deze mapping (validatie in de unittest en
 // vangnet bij het uitlezen van oudere/bewerkte PDF's).
 export const NEN_IFC_ALLOWED_CLASSES = Object.freeze([
-  'IfcActuator', 'IfcAirTerminal', 'IfcAlarm', 'IfcAudioVisualAppliance',
+  'IfcAnnotation', 'IfcActuator', 'IfcAirTerminal', 'IfcAlarm', 'IfcAudioVisualAppliance',
   'IfcController', 'IfcDamper', 'IfcDoor', 'IfcElectricFlowStorageDevice',
   'IfcElectricGenerator', 'IfcFan', 'IfcFireSuppressionTerminal',
   'IfcLightFixture', 'IfcPipeSegment', 'IfcPump', 'IfcSensor', 'IfcTank',
@@ -162,7 +172,7 @@ export const NEN_IFC_PREDEFINED_ENUMS = Object.freeze({
 // Reverse index: weergavenaam → raw id (voor oudere PDF's met alleen
 // OPS_StampName).
 const NAME_TO_ID = (() => {
-  const m = new Map();
+  const m = new Map(Object.entries(LEGACY_NEN_IFC_MAP).map(([id, entry]) => [entry.name, id]));
   for (const [id, entry] of Object.entries(NEN_IFC_MAP)) {
     if (!m.has(entry.name)) m.set(entry.name, id);
   }

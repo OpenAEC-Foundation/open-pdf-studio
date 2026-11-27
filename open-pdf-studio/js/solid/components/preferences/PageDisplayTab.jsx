@@ -1,3 +1,5 @@
+import { MIN_ZOOM_INVOER, MAX_ZOOM_INVOER, leesZoomInvoer } from '../../../core/zoom-display.js';
+import { normalizeInitialZoom } from '../../../pdf/initial-zoom.js';
 import { Show } from 'solid-js';
 import { useTranslation, localizeNumber } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
@@ -5,6 +7,7 @@ import { kalibratieVoor, zetKalibratie, wisKalibratie } from '../../../pdf/scher
 import PrefSelect from './PrefSelect.jsx';
 import PrefColorPicker from './PrefColorPicker.jsx';
 import { STANDAARD_ACHTERGROND, normaliseerAchtergrond } from '../../../pdf/pagina-achtergrond.js';
+import { PAGINA_INDELINGEN, normaliseerIndeling } from '../../../core/standaard-weergave.js';
 
 // Page sharpening levels 0-4 (render-sharpen.js), written out so every key
 // used here is findable in the locale files.
@@ -16,9 +19,19 @@ const SHARPEN_LEVELS = [
   'pageDisplay.pageSharpenLevel4',
 ];
 
+// The layouts a document can open in (#1289), written out so every key used
+// here is findable in the locale files.
+const LAYOUT_LABELS = {
+  single: 'pageDisplay.layoutSingle',
+  continuous: 'pageDisplay.layoutContinuous',
+  facing: 'pageDisplay.layoutFacing',
+  book: 'pageDisplay.layoutBook',
+};
+
 export default function PageDisplayTab(props) {
   const { t } = useTranslation('preferences');
   const p = props.prefs;
+  const initialZoom = () => normalizeInitialZoom(p.initialZoom[0]());
 
   // Schermkalibratie voor Werkelijke grootte (#520), per schermschaal. De
   // wijziging gaat in het voorkeurensignaal; pas Opslaan legt hem vast.
@@ -40,8 +53,44 @@ export default function PageDisplayTab(props) {
 
   return (
     <>
+      {/* The layout a document opens in (#1289). Open documents keep theirs. */}
+      <fieldset class="pref-fieldset">
+        <legend>{t('pageDisplay.pageLayout')}</legend>
+        <div class="pref-row">
+          <label>{t('pageDisplay.defaultLayout')}</label>
+          <PrefSelect
+            id="pref-default-page-layout"
+            value={() => normaliseerIndeling(p.defaultViewMode[0]())}
+            setValue={p.defaultViewMode[1]}
+            options={PAGINA_INDELINGEN.map((naam) => ({ value: naam, label: t(LAYOUT_LABELS[naam]) }))}
+            style={{ width: '200px' }}
+          />
+        </div>
+        <div class="pref-row">
+          <span class="pref-hint">{t('pageDisplay.defaultLayoutHint')}</span>
+        </div>
+      </fieldset>
       <fieldset class="pref-fieldset">
         <legend>{t('pageDisplay.rendering')}</legend>
+        <div class="pref-row">
+          <label for="pref-initial-zoom">{t('pageDisplay.initialZoom')}</label>
+          <select id="pref-initial-zoom" value={typeof initialZoom() === 'number' ? 'percent' : initialZoom()}
+            onChange={e => p.initialZoom[1](e.target.value === 'percent' ? 100 : e.target.value)}>
+            <option value="page">{t('ribbon:home.fitPageLabel')}</option>
+            <option value="width">{t('ribbon:home.fitWidth')}</option>
+            <option value="percent">{t('common:custom')} (%)</option>
+          </select>
+          <Show when={typeof initialZoom() === 'number'}>
+            <input id="pref-initial-zoom-percent" type="text" inputmode="decimal" data-getal
+              aria-label={`${t('pageDisplay.initialZoom')} (%)`}
+              min={MIN_ZOOM_INVOER} max={MAX_ZOOM_INVOER} value={initialZoom()}
+              onChange={e => {
+                const percent = leesZoomInvoer(e.target.value) ?? initialZoom();
+                p.initialZoom[1](percent);
+                e.target.value = String(percent);
+              }} />
+          </Show>
+        </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.thinLines[0]()} onChange={e => p.thinLines[1](e.target.checked)} />
