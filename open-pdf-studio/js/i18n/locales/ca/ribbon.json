@@ -260,7 +260,9 @@
     "toggleHalftone": "Commuta el mig to (atenuació) per a aquest tipus",
     "tint": "Color",
     "clearTint": "Esborra el color",
-    "dim": "Atenua"
+    "dim": "Atenua",
+    "pdfContent": "Contingut PDF",
+    "contentEnabled": "Activa els filtres de visualització"
   },
   "annotationLayers": {
     "buttonTitle": "Capes de marques — agrupa les marques en capes amb nom i activa-les o desactiva-les",

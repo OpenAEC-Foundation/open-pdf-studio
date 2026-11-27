@@ -260,7 +260,9 @@
     "toggleHalftone": "Slå halvtone (dæmpning) til/fra for denne type",
     "tint": "Farve",
     "clearTint": "Ryd farve",
-    "dim": "Dæmp"
+    "dim": "Dæmp",
+    "pdfContent": "PDF-indhold",
+    "contentEnabled": "Aktivér visningsfiltre"
   },
   "annotationLayers": {
     "buttonTitle": "Markeringslag — gruppér markeringer på navngivne lag, og slå dem til og fra",

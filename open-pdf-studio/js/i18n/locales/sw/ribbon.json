@@ -260,7 +260,9 @@
     "toggleHalftone": "Washa/zima ufifiaji kwa aina hii",
     "tint": "Rangi",
     "clearTint": "Futa rangi",
-    "dim": "Fifisha"
+    "dim": "Fifisha",
+    "pdfContent": "Maudhui ya PDF",
+    "contentEnabled": "Washa vichujio vya mwonekano"
   },
   "annotationLayers": {
     "buttonTitle": "Tabaka za Alama — panga alama kwenye tabaka zenye majina na uziwashe au kuzizima",

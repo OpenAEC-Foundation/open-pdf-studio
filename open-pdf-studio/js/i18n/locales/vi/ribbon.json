@@ -260,7 +260,9 @@
     "toggleHalftone": "Bật/tắt nửa tông (làm mờ) cho loại này",
     "tint": "Màu",
     "clearTint": "Xóa màu",
-    "dim": "Làm mờ"
+    "dim": "Làm mờ",
+    "pdfContent": "Nội dung PDF",
+    "contentEnabled": "Bật bộ lọc hiển thị"
   },
   "annotationLayers": {
     "buttonTitle": "Lớp đánh dấu — nhóm các đánh dấu vào các lớp có tên và bật/tắt chúng",

@@ -3646,6 +3646,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Save named line-style presets into the catalog (travel with the PDF)
       saveStylePresetsToCatalog(pdfDocLib, activeDoc.stylePresets || null);
+      if (activeDoc.pdfContentView !== undefined) {
+        const { writeContentView } = await import('./saver/content-view.js');
+        writeContentView(pdfDocLib, activeDoc.pdfContentView);
+      }
 
       // Goedkeuringsaanvragen (#651) gaan mee in het bestand. Een echte save
       // van een inhoudelijk gewijzigd document vervangt de lopende aanvragen.

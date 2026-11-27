@@ -260,7 +260,9 @@
     "toggleHalftone": "Toggle halftone (dim) for this type",
     "tint": "Color",
     "clearTint": "Clear color",
-    "dim": "Dim"
+    "dim": "Dim",
+    "pdfContent": "PDF content",
+    "contentEnabled": "Enable display filters"
   },
   "annotationLayers": {
     "buttonTitle": "Markup Layers — group markups on named layers and switch them on and off",

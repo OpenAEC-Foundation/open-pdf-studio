@@ -260,7 +260,9 @@
     "toggleHalftone": "切换此类型的半色调（淡显）",
     "tint": "颜色",
     "clearTint": "清除颜色",
-    "dim": "淡显"
+    "dim": "淡显",
+    "pdfContent": "PDF内容",
+    "contentEnabled": "启用显示滤镜"
   },
   "annotationLayers": {
     "buttonTitle": "标记图层 — 将标记分组到命名图层上，并可开关显示",

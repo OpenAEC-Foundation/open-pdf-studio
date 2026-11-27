@@ -260,7 +260,9 @@
     "toggleHalftone": "Bu tür için yarım tonu (soluklaştırma) aç/kapat",
     "tint": "Renk",
     "clearTint": "Rengi temizle",
-    "dim": "Soluk"
+    "dim": "Soluk",
+    "pdfContent": "PDF içeriği",
+    "contentEnabled": "Görüntüleme filtrelerini etkinleştir"
   },
   "annotationLayers": {
     "buttonTitle": "İşaretleme Katmanları — işaretlemeleri adlandırılmış katmanlarda gruplayın ve açıp kapatın",

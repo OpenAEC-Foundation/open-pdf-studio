@@ -260,7 +260,9 @@
     "toggleHalftone": "Přepnout polotón (ztlumení) pro tento typ",
     "tint": "Barva",
     "clearTint": "Vymazat barvu",
-    "dim": "Ztlumit"
+    "dim": "Ztlumit",
+    "pdfContent": "Obsah PDF",
+    "contentEnabled": "Zapnout filtry zobrazení"
   },
   "annotationLayers": {
     "buttonTitle": "Vrstvy značek — seskupte značky do pojmenovaných vrstev a zapínejte či vypínejte je",

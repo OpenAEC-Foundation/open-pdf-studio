@@ -260,7 +260,9 @@
     "toggleHalftone": "Activar/desactivar medio tono (atenuar) para este tipo",
     "tint": "Color",
     "clearTint": "Quitar color",
-    "dim": "Atenuar"
+    "dim": "Atenuar",
+    "pdfContent": "Contenido PDF",
+    "contentEnabled": "Activar filtros de visualización"
   },
   "annotationLayers": {
     "buttonTitle": "Capas de marcas — agrupe las marcas en capas con nombre y actívelas o desactívelas",

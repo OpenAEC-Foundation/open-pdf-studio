@@ -260,7 +260,9 @@
     "toggleHalftone": "Activer/désactiver la demi-teinte (atténuation) pour ce type",
     "tint": "Couleur",
     "clearTint": "Effacer la couleur",
-    "dim": "Atténuer"
+    "dim": "Atténuer",
+    "pdfContent": "Contenu PDF",
+    "contentEnabled": "Activer les filtres d’affichage"
   },
   "annotationLayers": {
     "buttonTitle": "Calques d'annotations — regrouper les annotations sur des calques nommés et les afficher ou masquer",

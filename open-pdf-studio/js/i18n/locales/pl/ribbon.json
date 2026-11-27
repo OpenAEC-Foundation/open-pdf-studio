@@ -260,7 +260,9 @@
     "toggleHalftone": "Przełącz półton (przyciemnienie) dla tego typu",
     "tint": "Kolor",
     "clearTint": "Wyczyść kolor",
-    "dim": "Przyciemnij"
+    "dim": "Przyciemnij",
+    "pdfContent": "Zawartość PDF",
+    "contentEnabled": "Włącz filtry wyświetlania"
   },
   "annotationLayers": {
     "buttonTitle": "Warstwy adnotacji — grupuj adnotacje na nazwanych warstwach i włączaj lub wyłączaj je",

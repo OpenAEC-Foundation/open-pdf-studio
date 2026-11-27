@@ -697,6 +697,18 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     }
     console.log(`[PERF] bookmarks DONE: ${(performance.now() - _t0).toFixed(0)}ms`);
 
+    // Restore display-only PDF-content settings without overwriting a user's
+    // edits made while the optional catalog read was pending.
+    {
+      const loadedPdf = doc.pdfDoc;
+      doc._contentViewCompletion = getSharedPdfLibDoc(doc).then(async pdf => {
+        if (isClosed() || doc.pdfDoc !== loadedPdf || !pdf) return;
+        const { readContentView } = await import('./saver/content-view.js');
+        if (isClosed() || doc.pdfDoc !== loadedPdf || doc.pdfContentView !== undefined) return;
+        doc.pdfContentView = readContentView(pdf);
+      }).catch(() => {});
+    }
+
     // Load named line-style presets from the PDF catalog (data-only,
     // non-blocking — waits on the shared pdf-lib doc that is already
     // loading eagerly in the background).

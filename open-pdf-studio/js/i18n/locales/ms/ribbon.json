@@ -260,7 +260,9 @@
     "toggleHalftone": "Togol paparan malap untuk jenis ini",
     "tint": "Warna",
     "clearTint": "Kosongkan warna",
-    "dim": "Malapkan"
+    "dim": "Malapkan",
+    "pdfContent": "Kandungan PDF",
+    "contentEnabled": "Dayakan penapis paparan"
   },
   "annotationLayers": {
     "buttonTitle": "Lapisan Penanda — kumpulkan penanda pada lapisan bernama dan hidupkan atau matikannya",

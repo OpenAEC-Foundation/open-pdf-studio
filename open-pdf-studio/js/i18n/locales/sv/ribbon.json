@@ -260,7 +260,9 @@
     "toggleHalftone": "Växla halvton (dämpad) för den här typen",
     "tint": "Färg",
     "clearTint": "Rensa färg",
-    "dim": "Dämpa"
+    "dim": "Dämpa",
+    "pdfContent": "PDF-innehåll",
+    "contentEnabled": "Aktivera visningsfilter"
   },
   "annotationLayers": {
     "buttonTitle": "Markeringslager — gruppera markeringar i namngivna lager och slå på och av dem",
