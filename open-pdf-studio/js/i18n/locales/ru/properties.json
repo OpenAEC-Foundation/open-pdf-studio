@@ -602,6 +602,12 @@
     "joinHint": "Выкл.: этот конец стены никогда не соединяется под углом, не примыкает тавром и не обрезается по другой стене; он сохраняет прямой торец там, где нарисован.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

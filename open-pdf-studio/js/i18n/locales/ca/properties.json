@@ -608,6 +608,12 @@
     "joinHint": "Desactivat: aquest extrem del mur mai no es talla a biaix, no s'uneix en T ni es retalla contra un altre mur; manté un extrem recte on s'ha dibuixat.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

@@ -602,6 +602,12 @@
     "joinHint": "Вимкнено: цей кінець стіни ніколи не з'єднується під кутом, Т-подібно чи з обрізанням по іншій стіні; він залишається прямим там, де намальований.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

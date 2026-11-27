@@ -602,6 +602,12 @@
     "joinHint": "Imezimwa: ncha hii ya ukuta haiunganishwi kwa mshazari, haiungwi kwa umbo la T wala kupunguzwa dhidi ya ukuta mwingine; inabaki na ncha bapa mahali ilipochorwa.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

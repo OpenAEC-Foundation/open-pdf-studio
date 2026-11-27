@@ -602,6 +602,12 @@
     "joinHint": "बंद: दीवार का यह सिरा कभी भी मीटर जोड़, T जोड़ या किसी अन्य दीवार के विरुद्ध ट्रिम नहीं होता; यह जहां बनाया गया वहीं सपाट सिरा बना रहता है।",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

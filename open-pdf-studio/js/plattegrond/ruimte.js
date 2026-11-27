@@ -19,6 +19,8 @@
 //
 // Alle coördinaten in paginapunten; `pxPerMm` rekent om naar werkelijke maat.
 
+import { rekenOm } from '../quantities/eenheid-omrekening.js';
+
 const EPS = 1e-9;
 
 /** Shoelace-som van een gesloten ring (paginacoördinaten, y omlaag). */
@@ -454,9 +456,24 @@ export function ruimteBijZaad(ruimten, zaad) {
   return beste;
 }
 
+/**
+ * De netto oppervlakte van een ruimte als tekst. Metrisch in m² met
+ * `decimalen` decimalen (`24.5 m²`); met eenheid 'ft²' zoals een Amerikaanse
+ * plattegrond hem schrijft: hele vierkante voet, `264 SF` (#1230).
+ * @param {number} oppervlakteM2
+ * @param {number} [decimalen]  alleen voor m²
+ * @param {string} [eenheid]    'm²' (standaard) of 'ft²'
+ */
+export function ruimteOppervlakteTekst(oppervlakteM2, decimalen = 1, eenheid = 'm²') {
+  const opp = Number(oppervlakteM2);
+  const m2 = Number.isFinite(opp) ? opp : 0;
+  if (eenheid === 'ft²') return `${Math.round(rekenOm(m2, 'm²', 'ft²'))} SF`;
+  return `${m2.toFixed(decimalen)} m²`;
+}
+
 /** Labeltekst zoals op een bouwtekening: naam boven, netto oppervlakte eronder. */
-export function ruimteLabel(naam, oppervlakteM2, decimalen = 1) {
-  const opp = `${oppervlakteM2.toFixed(decimalen)} m²`;
+export function ruimteLabel(naam, oppervlakteM2, decimalen = 1, eenheid = 'm²') {
+  const opp = ruimteOppervlakteTekst(oppervlakteM2, decimalen, eenheid);
   return naam ? `${naam}\n${opp}` : opp;
 }
 

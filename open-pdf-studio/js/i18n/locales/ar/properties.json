@@ -602,6 +602,12 @@
     "joinHint": "إيقاف: لا يتم أبدًا وصل هذا الطرف من الجدار بزاوية مائلة أو على شكل T أو تشذيبه مقابل جدار آخر؛ ويبقى طرفًا مستقيمًا حيث رُسم.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

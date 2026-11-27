@@ -609,6 +609,12 @@
     "joinHint": "Uit: dit uiteinde van de wand wordt nooit verstekt, als T aangesloten of afgekapt tegen een andere wand; het houdt een stompe kap waar het getekend is.",
     "title": "Wand",
     "thickness": "Dikte (mm)",
+    "thicknessPreset": "Standaarddikte",
+    "thicknessCustom": "Eigen maat",
+    "kinds": {
+      "partition": "scheidingswand",
+      "cmu": "betonblok (CMU)"
+    },
     "material": "Materiaal",
     "insulationMaterial": "Isolatiemateriaal",
     "materials": {

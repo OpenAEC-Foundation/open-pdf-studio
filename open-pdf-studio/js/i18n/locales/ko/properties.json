@@ -602,6 +602,12 @@
     "joinHint": "끄기: 벽의 이 끝은 다른 벽과 연귀 맞춤, T자 결합 또는 자르기가 되지 않으며, 그린 위치에서 평평한 끝을 유지합니다.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

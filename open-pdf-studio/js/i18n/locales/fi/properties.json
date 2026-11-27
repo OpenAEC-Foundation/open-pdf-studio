@@ -602,6 +602,12 @@
     "joinHint": "Pois: seinän tätä päätä ei koskaan jiirata, liitetä T-liitoksella eikä trimmata toista seinää vasten; se säilyttää suoran pään piirretyssä kohdassa.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

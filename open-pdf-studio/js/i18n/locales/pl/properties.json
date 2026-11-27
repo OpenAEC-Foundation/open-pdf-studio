@@ -602,6 +602,12 @@
     "joinHint": "Wyłączone: ten koniec ściany nigdy nie jest łączony na ukos, łączony w T ani przycinany do innej ściany; zachowuje prosty koniec tam, gdzie został narysowany.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

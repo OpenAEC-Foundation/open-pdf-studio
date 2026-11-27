@@ -602,6 +602,12 @@
     "joinHint": "Mati: ujung dinding ini tidak pernah disambung miring, disambung T, atau dipangkas terhadap dinding lain; ujungnya tetap rata di tempat digambar.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

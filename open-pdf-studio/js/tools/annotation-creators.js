@@ -30,6 +30,10 @@ import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
 import { documentHeeftSchaal } from '../annotations/schaal-op-punt.js';
 import { handmatigeSchaal } from '../annotations/eenhedenstelsel.js';
 import { veelhoekUitPunten, regelmatigeVeelhoekPunten } from '../annotations/veelhoek-punten.js';
+import { wandStandaard } from '../plattegrond/blad-conventie.js';
+import { isImperiaalBladOpPunt } from '../plattegrond/blad-conventie-op-punt.js';
+import { hartlijnVanKliklijn } from '../plattegrond/wand-locatielijn.js';
+import { wallHalfWidthPx } from '../annotations/rendering/walls.js';
 
 /**
  * Opmaak van een nieuwe veelhoek uit de voorkeuren (rand, vulling,
@@ -147,13 +151,26 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
       // material hatch. Material/dikte come from the palette via
       // toolOverrides; black by default like all NL drafting components.
       const end = snap(startX, startY, endX, endY);
+      const wallPage = getActiveDocument()?.currentPage || 1;
+      // The sheet convention at the first click decides the defaults (#1230):
+      // a feet/inch sheet draws a plain 6 inch wall without hatch, a metric
+      // sheet the 100 mm masonry wall. A palette wall or a picked thickness
+      // or material (toolOverrides) still wins.
+      const wallDefault = wandStandaard(isImperiaalBladOpPunt(wallPage, startX, startY));
+      const wallDikteMm = o.wallDikteMm || wallDefault.dikteMm;
+      // Location line (#1230): the clicks follow the centerline (default) or
+      // a face; the stored wall is always its centerline.
+      const wallAxis = hartlijnVanKliklijn(
+        { startX, startY, endX: end.x, endY: end.y },
+        wallHalfWidthPx({ page: wallPage, startX, startY, dikteMm: wallDikteMm }),
+        o.wallLocationLine ?? prefs.wallLocationLine,
+      );
       return {
         type: 'wall',
-        page: getActiveDocument()?.currentPage || 1,
-        startX, startY,
-        endX: end.x, endY: end.y,
-        dikteMm: o.wallDikteMm || 100,
-        hatchPattern: o.wallPattern || 'nen47-metselwerk-baksteen',
+        page: wallPage,
+        ...wallAxis,
+        dikteMm: wallDikteMm,
+        hatchPattern: o.wallPattern || wallDefault.hatchPattern,
         isolatieType: o.wallIsolatieType || undefined,
         // Every wall is an IfcWall unless the palette entry says otherwise
         // (quantities, IFC export and the properties panel read this field).
