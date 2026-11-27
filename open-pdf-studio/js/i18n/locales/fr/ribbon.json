@@ -905,10 +905,10 @@
       "nen1414-tb": "NL NEN 1414 — Protection incendie",
       "nen1414-tbk": "NL NEN 1414 — Systèmes d'extinction",
       "nen1414-td": "NL NEN 1414 — Portes",
-      "nen1414-tn": "NL NEN 1414 — Éclairage de secours",
-      "nen1414-tr": "NL NEN 1414 — Désenfumage",
-      "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Eau/Sprinkler",
+      "nen1414-tn": "NL NEN 1414 — Voies d’évacuation",
+      "nen1414-tr": "NL NEN 1414 — Premiers secours et sauvetage",
+      "nen1414-tv": "NL NEN 1414 — Signaux d’interdiction",
+      "nen1414-tw": "NL NEN 1414 — Avertissements",
       "gdt-bewerking": "GD&T et usinage"
     },
     "sectors": {

@@ -967,3 +967,5 @@ js/annotations/link/link-bladwijzer.test.mjs
 js/plugins/pdf-links.test.mjs
 js/pdf/bitmap-orchestrator-cap.test.mjs
 js/pdf/saver/gedeelde-resources.test.mjs
+
+js/solid/data/nen1414-metadata.test.mjs

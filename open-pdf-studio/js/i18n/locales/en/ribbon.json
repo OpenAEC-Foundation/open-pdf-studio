@@ -912,10 +912,10 @@
       "nen1414-tb": "NL NEN 1414 — Fire Protection",
       "nen1414-tbk": "NL NEN 1414 — Extinguishing Systems",
       "nen1414-td": "NL NEN 1414 — Doors",
-      "nen1414-tn": "NL NEN 1414 — Emergency Lighting",
-      "nen1414-tr": "NL NEN 1414 — Smoke/Heat Extraction",
-      "nen1414-tv": "NL NEN 1414 — Ventilation",
-      "nen1414-tw": "NL NEN 1414 — Water/Sprinkler",
+      "nen1414-tn": "NL NEN 1414 — Escape routes",
+      "nen1414-tr": "NL NEN 1414 — First aid and rescue",
+      "nen1414-tv": "NL NEN 1414 — Prohibition signs",
+      "nen1414-tw": "NL NEN 1414 — Warnings",
       "gdt-bewerking": "GD&T and machining"
     },
     "sectors": {
