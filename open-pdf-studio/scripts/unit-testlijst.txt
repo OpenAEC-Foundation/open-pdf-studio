@@ -305,6 +305,7 @@ js/annotations/maatlijn-geometrie.test.mjs
 js/annotations/maatketting-bewerken.test.mjs
 js/annotations/rendering/symbool-uitvoer.test.mjs
 js/plattegrond/ruimte-koppeling.test.mjs
+js/plattegrond/ruimte-vierkante-voet.test.mjs
 js/annotations/stramien-koppeling.test.mjs
 js/annotations/stramien-koppeling-opslag.test.mjs
 js/annotations/stramien-koppeling-mcp.test.mjs

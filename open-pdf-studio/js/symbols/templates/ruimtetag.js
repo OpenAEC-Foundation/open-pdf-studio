@@ -13,6 +13,12 @@
 // de tag de waarden van zijn ruimte (plattegrond/ruimte-koppeling.js). De
 // eigen `naam`/`nummer`/`oppervlakteM2` zijn een reservekopie voor een tag
 // zonder ruimte; de oppervlakte staat daarom niet als invulveld in het paneel.
+//
+// Op een blad in voet of inch (#1230) staat de oppervlakte in hele vierkante
+// voet (`264 SF`): `oppervlakteEenheid: 'ft²'`. Ook die waarde komt van de
+// ruimte; de eigen waarde van de tag is de reservekopie.
+
+import { ruimteOppervlakteTekst } from '../../plattegrond/ruimte.js';
 
 export const RUIMTETAG_ID = 'room-tag';
 
@@ -47,9 +53,12 @@ export function tagVolgtRuimte(tag, nieuwAnker) {
 }
 
 function oppervlakteTekst(params) {
-  const opp = Number(params?.oppervlakteM2);
   const dec = Math.max(0, Math.min(3, Math.round(Number(params?.decimalen ?? 1))));
-  return `${(Number.isFinite(opp) ? opp : 0).toFixed(Number.isFinite(dec) ? dec : 1)} m²`;
+  return ruimteOppervlakteTekst(
+    params?.oppervlakteM2,
+    Number.isFinite(dec) ? dec : 1,
+    params?.oppervlakteEenheid === 'ft²' ? 'ft²' : 'm²',
+  );
 }
 
 /** De tekstregels van de tag, van boven naar onder. */

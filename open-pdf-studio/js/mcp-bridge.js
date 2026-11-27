@@ -2481,6 +2481,7 @@ export async function plattegrondInApp(params) {
   const realSize = await import('./symbols/real-size.js');
   const undoMod = await import('./core/undo-manager.js');
   const { plattegrondOpdracht } = await import('./plattegrond/mcp-plattegrond.js');
+  const conventie = await import('./plattegrond/blad-conventie-op-punt.js');
 
   let geraakt = false;
   const uit = await plattegrondOpdracht(params, {
@@ -2490,6 +2491,8 @@ export async function plattegrondInApp(params) {
       paginas: doc.pdfDoc?.numPages ?? null,
     },
     pxPerMmAt: (page, x, y) => realSize.pxPerMmAt(page, x, y),
+    // A sheet in feet or inches draws walls and room tags the US way (#1230).
+    imperiaalOp: (page, x, y) => conventie.isImperiaalBladOpPunt(page, x, y),
     maak: async (type, page, props) => {
       geraakt = true;
       return handleCreateAnnotation({ type, page, props });
