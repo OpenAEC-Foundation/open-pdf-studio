@@ -1001,3 +1001,5 @@ js/pdf/link-doelmarkering.test.mjs
 js/ui/panels/paneel-breedte.test.mjs
 js/core/android-document-save.test.mjs
 js/pdf/cloud-note-rondgang.test.mjs
+
+js/pdf/form-layer/blur-validation.test.mjs

@@ -10,6 +10,7 @@ import {
   showValidationDialog, validateBSN, validateDatePart, detectDatePartByName,
   detectKeystrokeRestriction, parseAFNumberDecimals, parseAFSpecialType, parseAFRangeValidate
 } from './form-layer/validation-ui.js';
+import { bindBlurValidation } from './form-layer/blur-validation.js';
 import { pasVeldLettertypenToe } from './form-layer/veld-lettertype.js';
 
 // Map of annotation ID → field name (for saving)
@@ -184,9 +185,9 @@ function applyFieldRestrictions(formLayerDiv, widgetAnnotations) {
       }
     }
 
-    // Auto-detect date/numeric fields by name or comb properties when no explicit keystroke restriction
+    // Date-part names may imply numeric input; comb only controls visual spacing.
     const datePartType = detectDatePartByName(ann.fieldName);
-    if (!hasKeystrokeRestriction && (datePartType || (ann.comb && ann.maxLen && ann.maxLen <= 4))) {
+    if (!hasKeystrokeRestriction && datePartType) {
       input.inputMode = 'numeric';
       input.addEventListener('beforeinput', (e) => {
         if (e.inputType === 'insertText' && e.data) {
@@ -622,16 +623,7 @@ function buildBlurValidators(ann) {
   const blurActions = ann.actions?.Blur || [];
   const validate = ann.actions?.Validate?.[0] || '';
 
-  // Comb field completeness check — use PDF message if available
-  if (ann.comb && ann.maxLen > 0) {
-    const incompleteMsg = jsConstants?.get('IDS_COMPLETE') || null;
-    validators.push((value) => {
-      if (value && value.length > 0 && value.length < ann.maxLen) {
-        return incompleteMsg || `This field requires ${ann.maxLen} characters.`;
-      }
-      return null;
-    });
-  }
+  // MaxLen limits capacity. A comb field may contain fewer characters.
 
   // Process each Blur action — extract messages from the PDF's JS functions
   for (const action of blurActions) {
@@ -655,14 +647,7 @@ function buildBlurValidators(ann) {
         }
         return null;
       });
-    } else if (pdfMessages.length > 0) {
-      validators.push((value) => {
-        if (!value || value.length === 0) return null;
-        if (ann.comb && ann.maxLen > 0 && value.length < ann.maxLen) {
-          return pdfMessages[0];
-        }
-        return null;
-      });
+
     }
   }
 
@@ -689,26 +674,16 @@ function buildBlurValidators(ann) {
 }
 
 function applyBlurValidation(input, validators, ann) {
-  input.addEventListener('blur', () => {
-    if (isTogglingFields) return;
-    if (input.disabled) return;
-
-    const value = input.value;
-
+  bindBlurValidation(input, (value) => {
     if (input.required && (!value || value.trim() === '')) {
-      const reqMsg = jsConstants?.get('IDS_REQUIRED') || jsConstants?.get('IDS_VELD') || 'This field is required.';
-      showValidationDialog(reqMsg, input);
-      return;
+      return jsConstants?.get('IDS_REQUIRED') || jsConstants?.get('IDS_VELD') || 'This field is required.';
     }
-
     for (const validate of validators) {
       const error = validate(value);
-      if (error) {
-        showValidationDialog(error, input);
-        return;
-      }
+      if (error) return error;
     }
-  });
+    return null;
+  }, showValidationDialog, () => !isTogglingFields && !state.modalDialogOpen);
 }
 
 // ─── Form fields info bar ───────────────────────────────────────────────────────

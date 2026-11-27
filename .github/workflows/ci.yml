@@ -187,6 +187,11 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-parametric-picker-browser.mjs
 
+      - name: Test comb field layout and validation (Linux)
+        if: runner.os == 'Linux'
+        working-directory: open-pdf-studio
+        run: node scripts/test-comb-fields-browser.mjs
+
       - name: Test PDF link views and delayed navigation (Linux)
         if: runner.os == 'Linux'
         working-directory: open-pdf-studio

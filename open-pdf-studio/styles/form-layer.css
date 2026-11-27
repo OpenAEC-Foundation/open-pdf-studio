@@ -162,14 +162,20 @@
   width: 50%;
 }
 
+/* PDF.js supplies --comb-width and --comb-offset in the current viewport.
+   One monospace character per cell, including partially filled aligned fields. */
 .formLayer .textWidgetAnnotation input.comb {
+  --comb-letter-spacing: calc(var(--comb-width) - 1ch);
   font-family: monospace;
-  padding-left: 2px;
-  padding-right: 0;
+  letter-spacing: var(--comb-letter-spacing);
+  text-indent: calc(var(--comb-offset, 0) * var(--comb-width) + var(--comb-letter-spacing) / 2);
+  overflow-x: hidden;
+  padding: 0;
+  border-width: 0;
 }
 
-.formLayer .textWidgetAnnotation input.comb:focus {
-  width: 103%;
+.formLayer .textWidgetAnnotation input.comb:is(:hover, :focus, :disabled) {
+  border-width: 0;
 }
 
 .formLayer .buttonWidgetAnnotation.pushButton > a {
