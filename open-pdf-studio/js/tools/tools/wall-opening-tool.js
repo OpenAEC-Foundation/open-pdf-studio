@@ -21,7 +21,7 @@
  */
 import { state, getActiveDocument } from '../../core/state.js';
 import { applyToolTransform } from '../tool-context.js';
-import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
+import { updateStatusMessage, clearStatusMessage } from '../../ui/chrome/status-bar.js';
 import i18next from '../../i18n/config.js';
 import { wandAs, projecteer } from '../../annotations/wand-geometrie.js';
 import { wallPxPerMm } from '../../annotations/rendering/walls.js';
@@ -45,9 +45,13 @@ const MESSAGES = {
   badWidth: ['drawing.wallOpeningBadWidth', 'Not a width: {{text}}'],
 };
 
+// The last text this tool put in the status bar, taken back when the tool is left.
+let _lastMessage = null;
+
 function _message(code, values = {}) {
   const [key, fallback] = MESSAGES[code] || MESSAGES.wall;
-  updateStatusMessage(i18next.t(key, { ns: 'ribbon', defaultValue: fallback, ...values }), 6000);
+  _lastMessage = i18next.t(key, { ns: 'ribbon', defaultValue: fallback, ...values });
+  updateStatusMessage(_lastMessage, 6000);
 }
 
 // The width the user typed (null = the default of the sheet) and where the
@@ -217,6 +221,9 @@ function _makeTool(name) {
     onEscape() { return false; },
 
     onDeactivate() {
+      // The hint and the last refusal belong to this tool: gone with it.
+      if (_lastMessage !== null) clearStatusMessage(_lastMessage);
+      _lastMessage = null;
       if (typeLengthActive()) exitTypeLengthMode();
       if (state._typeLengthCommit) state._typeLengthCommit = null;
       _session.widthMm = null;
