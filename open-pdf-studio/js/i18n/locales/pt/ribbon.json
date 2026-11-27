@@ -260,7 +260,9 @@
     "toggleHalftone": "Alternar meio-tom (esmaecer) para este tipo",
     "tint": "Cor",
     "clearTint": "Limpar cor",
-    "dim": "Esmaecer"
+    "dim": "Esmaecer",
+    "pdfContent": "Conteúdo PDF",
+    "contentEnabled": "Ativar filtros de visualização"
   },
   "annotationLayers": {
     "buttonTitle": "Camadas de marcação — agrupe marcações em camadas nomeadas e ative ou desative-as",

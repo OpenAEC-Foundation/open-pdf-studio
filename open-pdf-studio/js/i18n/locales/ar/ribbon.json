@@ -260,7 +260,9 @@
     "toggleHalftone": "تبديل نصف التدرج (التخفيت) لهذا النوع",
     "tint": "اللون",
     "clearTint": "مسح اللون",
-    "dim": "تخفيت"
+    "dim": "تخفيت",
+    "pdfContent": "محتوى PDF",
+    "contentEnabled": "تفعيل مرشحات العرض"
   },
   "annotationLayers": {
     "buttonTitle": "طبقات العلامات — جمّع العلامات في طبقات مسماة وشغّلها أو أوقفها",

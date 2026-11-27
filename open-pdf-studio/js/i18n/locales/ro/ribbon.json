@@ -260,7 +260,9 @@
     "toggleHalftone": "Comutare semiton (estompare) pentru acest tip",
     "tint": "Culoare",
     "clearTint": "Ștergere culoare",
-    "dim": "Estompare"
+    "dim": "Estompare",
+    "pdfContent": "Conținut PDF",
+    "contentEnabled": "Activează filtrele de afișare"
   },
   "annotationLayers": {
     "buttonTitle": "Straturi de marcaje — grupați marcajele pe straturi denumite și activați-le sau dezactivați-le",

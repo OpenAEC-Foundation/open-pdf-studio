@@ -260,7 +260,9 @@
     "toggleHalftone": "この種類のハーフトーン（淡色表示）を切り替え",
     "tint": "色",
     "clearTint": "色をクリア",
-    "dim": "淡色"
+    "dim": "淡色",
+    "pdfContent": "PDFコンテンツ",
+    "contentEnabled": "表示フィルターを有効にする"
   },
   "annotationLayers": {
     "buttonTitle": "マークアップレイヤー — マークアップを名前付きレイヤーにまとめ、表示/非表示を切り替えます",

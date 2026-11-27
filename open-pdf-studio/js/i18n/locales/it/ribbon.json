@@ -260,7 +260,9 @@
     "toggleHalftone": "Attiva/disattiva mezzitoni (attenuazione) per questo tipo",
     "tint": "Colore",
     "clearTint": "Rimuovi colore",
-    "dim": "Attenua"
+    "dim": "Attenua",
+    "pdfContent": "Contenuto PDF",
+    "contentEnabled": "Attiva filtri di visualizzazione"
   },
   "annotationLayers": {
     "buttonTitle": "Livelli di annotazione — raggruppa le annotazioni su livelli con nome e attivali o disattivali",

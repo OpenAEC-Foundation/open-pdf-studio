@@ -260,7 +260,9 @@
     "toggleHalftone": "Halftoon (dimmen) aan/uit voor deze soort",
     "tint": "Kleur",
     "clearTint": "Kleur wissen",
-    "dim": "Dimmen"
+    "dim": "Dimmen",
+    "pdfContent": "PDF-inhoud",
+    "contentEnabled": "Weergavefilters inschakelen"
   },
   "annotationLayers": {
     "buttonTitle": "Markeringslagen — markeringen groeperen op benoemde lagen en ze aan- en uitzetten",

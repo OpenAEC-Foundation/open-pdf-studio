@@ -260,7 +260,9 @@
     "toggleHalftone": "Uključi/isključi poluton (zatamnjenje) za ovu vrstu",
     "tint": "Boja",
     "clearTint": "Ukloni boju",
-    "dim": "Zatamni"
+    "dim": "Zatamni",
+    "pdfContent": "PDF sadržaj",
+    "contentEnabled": "Uključi filtre prikaza"
   },
   "annotationLayers": {
     "buttonTitle": "Slojevi oznaka — grupirajte oznake u imenovane slojeve te ih uključujte i isključujte",

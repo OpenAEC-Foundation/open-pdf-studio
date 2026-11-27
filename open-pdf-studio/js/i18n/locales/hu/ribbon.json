@@ -260,7 +260,9 @@
     "toggleHalftone": "Féltónus (halványítás) be/ki ennél a típusnál",
     "tint": "Szín",
     "clearTint": "Szín törlése",
-    "dim": "Halványítás"
+    "dim": "Halványítás",
+    "pdfContent": "PDF-tartalom",
+    "contentEnabled": "Megjelenítési szűrők engedélyezése"
   },
   "annotationLayers": {
     "buttonTitle": "Jelölésrétegek — csoportosítsa a jelöléseket elnevezett rétegekre, és kapcsolja be vagy ki őket",

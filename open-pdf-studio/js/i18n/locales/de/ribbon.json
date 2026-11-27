@@ -260,7 +260,9 @@
     "toggleHalftone": "Halbton (Dimmen) für diesen Typ umschalten",
     "tint": "Farbe",
     "clearTint": "Farbe entfernen",
-    "dim": "Dimmen"
+    "dim": "Dimmen",
+    "pdfContent": "PDF-Inhalt",
+    "contentEnabled": "Anzeigefilter aktivieren"
   },
   "annotationLayers": {
     "buttonTitle": "Markierungsebenen — Markierungen auf benannten Ebenen gruppieren und ein- oder ausblenden",

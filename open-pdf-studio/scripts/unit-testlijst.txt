@@ -979,3 +979,4 @@ scripts/pdfjs-bidi-currency.test.mjs
 js/pdf/crop-margins-geometrie.test.mjs
 js/solid/stores/mengmodus-paneel.test.mjs
 js/pdf/save-commands.test.mjs
+js/pdf/content-view.test.mjs

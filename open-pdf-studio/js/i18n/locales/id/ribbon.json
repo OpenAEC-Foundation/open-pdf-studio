@@ -260,7 +260,9 @@
     "toggleHalftone": "Alihkan tampilan samar (redup) untuk jenis ini",
     "tint": "Warna",
     "clearTint": "Hapus warna",
-    "dim": "Redupkan"
+    "dim": "Redupkan",
+    "pdfContent": "Konten PDF",
+    "contentEnabled": "Aktifkan filter tampilan"
   },
   "annotationLayers": {
     "buttonTitle": "Lapisan Markup — kelompokkan markup pada lapisan bernama dan nyalakan atau matikan",

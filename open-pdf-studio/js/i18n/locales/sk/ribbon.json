@@ -260,7 +260,9 @@
     "toggleHalftone": "Prepnúť poltón (stlmenie) pre tento typ",
     "tint": "Farba",
     "clearTint": "Vymazať farbu",
-    "dim": "Stlmiť"
+    "dim": "Stlmiť",
+    "pdfContent": "Obsah PDF",
+    "contentEnabled": "Zapnúť filtre zobrazenia"
   },
   "annotationLayers": {
     "buttonTitle": "Vrstvy označení — zoskupte označenia do pomenovaných vrstiev a zapínajte či vypínajte ich",

@@ -120,6 +120,8 @@ jobs:
         run: node scripts/test-pdf-only-thin-lines-browser.mjs
       - name: Test thumbnail column preference (Linux)
         run: node scripts/test-thumbnail-columns-browser.mjs
+      - name: Test PDF content visibility (Linux)
+        run: node scripts/test-content-view-browser.mjs
 
       - name: Test embedded PDF scale override (Linux)
         if: matrix.platform == 'ubuntu-22.04'

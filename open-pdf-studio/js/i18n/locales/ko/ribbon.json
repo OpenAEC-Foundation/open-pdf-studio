@@ -260,7 +260,9 @@
     "toggleHalftone": "이 유형의 하프톤(흐리게) 전환",
     "tint": "색상",
     "clearTint": "색 지우기",
-    "dim": "흐리게"
+    "dim": "흐리게",
+    "pdfContent": "PDF 콘텐츠",
+    "contentEnabled": "표시 필터 사용"
   },
   "annotationLayers": {
     "buttonTitle": "마크업 레이어 — 마크업을 이름이 있는 레이어로 묶고 켜고 끕니다",

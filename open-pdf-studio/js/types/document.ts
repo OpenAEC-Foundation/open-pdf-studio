@@ -178,6 +178,8 @@ export interface DocumentState {
   userUnitsGelezen?: boolean;
   /** Benoemde lijnstijl-presets — persist in de PDF (catalog /OPS_StylePresets). */
   stylePresets: StylePreset[];
+  pdfContentView?: { enabled: boolean; grayscale: number; brightness: number; opacity: number };
+  _contentViewCompletion?: Promise<void>;
   /** Annotatielagen (#468); leeg = alleen de standaardlaag (js/annotations/annotatie-lagen.js). */
   annotationLayers: AnnotationLayer[];
   /** De laag waar nieuwe markeringen op landen; null = de standaardlaag. */

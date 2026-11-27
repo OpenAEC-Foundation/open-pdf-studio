@@ -260,7 +260,9 @@
     "toggleHalftone": "החלפת חצי גוון (עמעום) עבור סוג זה",
     "tint": "צבע",
     "clearTint": "ניקוי צבע",
-    "dim": "עמעום"
+    "dim": "עמעום",
+    "pdfContent": "תוכן PDF",
+    "contentEnabled": "הפעלת מסנני תצוגה"
   },
   "annotationLayers": {
     "buttonTitle": "שכבות סימון — קבץ סימונים בשכבות בעלות שם והפעל או כבה אותן",

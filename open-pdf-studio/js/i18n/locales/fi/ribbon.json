@@ -260,7 +260,9 @@
     "toggleHalftone": "Puolisävy (himmennys) päälle/pois tälle tyypille",
     "tint": "Väri",
     "clearTint": "Poista väri",
-    "dim": "Himmennä"
+    "dim": "Himmennä",
+    "pdfContent": "PDF-sisältö",
+    "contentEnabled": "Ota näyttösuodattimet käyttöön"
   },
   "annotationLayers": {
     "buttonTitle": "Merkintätasot — ryhmittele merkinnät nimettyihin tasoihin ja kytke niitä päälle ja pois",

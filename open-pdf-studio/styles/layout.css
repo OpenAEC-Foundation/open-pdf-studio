@@ -1301,3 +1301,16 @@ body.pdf-cursor-override #canvas-container * {
 .thumbnail-columns-control { display: flex; align-items: center; gap: 6px; padding: 4px 8px; color: var(--theme-text); }
 .thumbnail-columns-control input { flex: 1; min-width: 40px; }
 .thumbnail-columns-control output { min-width: 2ch; text-align: end; }
+/* PDF content only; annotation and selection overlays retain their colours. */
+#canvas-wrapper #pdf-canvas,
+#canvas-wrapper .pdf-canvas,
+#canvas-wrapper .formLayer {
+  filter: var(--pdf-content-filter, none);
+}
+.ev-content-view { color: var(--theme-text, #222); margin: 0 0 12px; padding: 8px; border: 1px solid var(--theme-border, #999); }
+.ev-content-view > label { display: flex; align-items: center; gap: 6px; margin: 5px 0; }
+.ev-content-view input[type="range"] { min-width: 40px; flex: 1; }
+
+.ev-content-view > .ev-content-slider { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 6px; }
+.ev-content-slider > span:first-child { grid-column: 1 / -1; }
+.ev-content-slider input[type="range"] { width: 100%; margin: 0; }
