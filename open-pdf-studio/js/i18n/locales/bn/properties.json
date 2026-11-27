@@ -602,6 +602,12 @@
     "joinHint": "বন্ধ: দেয়ালের এই প্রান্ত কখনো মাইটার, T সংযোগ বা অন্য দেয়ালের বিপরীতে ট্রিম হয় না; যেখানে আঁকা হয়েছে সেখানেই সমতল প্রান্ত হিসেবে থাকে।",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

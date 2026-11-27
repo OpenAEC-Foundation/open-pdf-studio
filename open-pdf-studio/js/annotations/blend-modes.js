@@ -41,6 +41,11 @@ export function isBlendMode(mode) {
   return typeof mode === 'string' && Object.prototype.hasOwnProperty.call(MODI, mode);
 }
 
+export function effectiveBlendMode(annotation) {
+  const highlight = annotation.type === 'textHighlight' || annotation.type === 'highlight';
+  return annotation.blendMode || (highlight ? 'multiply' : 'normal');
+}
+
 /** Mengt deze modus anders dan gewoon erover tekenen? */
 export function isGemengd(mode) {
   return isBlendMode(mode) && mode !== 'normal';
@@ -53,13 +58,13 @@ export function blendPdfNaam(mode) {
 }
 
 /** De modus uit een PDF-naam (met of zonder '/', hoofdletters maken niet uit),
- *  of null voor Normal, Compatible (PDF 1.x-synoniem van Normal) en onbekend.
+ *  of de meegegeven terugval voor Normal en Compatible, en null voor onbekend.
  *  Een /BM-array (PDF 1.4) telt met zijn eerste bekende naam. */
-export function blendUitPdf(naam) {
+export function blendUitPdf(naam, normaal = null) {
   if (Array.isArray(naam)) {
     for (const n of naam) {
       const kaal = String(n ?? '').replace(/^\//, '').toLowerCase();
-      if (kaal === 'normal' || kaal === 'compatible') return null;
+      if (kaal === 'normal' || kaal === 'compatible') return normaal;
       const m = blendUitPdf(n);
       if (m) return m;
     }
@@ -67,8 +72,9 @@ export function blendUitPdf(naam) {
   }
   if (naam == null) return null;
   const kaal = String(naam).replace(/^\//, '').toLowerCase();
+  if (kaal === 'normal' || kaal === 'compatible') return normaal;
   const gevonden = BLEND_MODES.find((m) => MODI[m].toLowerCase() === kaal);
-  return gevonden && gevonden !== 'normal' ? gevonden : null;
+  return gevonden || null;
 }
 
 /** De waarde voor globalCompositeOperation. */

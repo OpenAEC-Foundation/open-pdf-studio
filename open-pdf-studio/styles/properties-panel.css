@@ -7,8 +7,10 @@
 
 /* Properties Panel Outer Wrapper (animates width) */
 .properties-panel-outer {
-  width: 300px;
-  min-width: 300px;
+  /* Versleepbaar (ui/panels/paneel-breedte.js); standaard 300px. */
+  width: var(--properties-panel-width, 300px);
+  min-width: var(--properties-panel-width, 300px);
+  position: relative;
   background: var(--theme-panel-bg);
   border-left: 1px solid var(--theme-panel-border);
   flex-shrink: 0;
@@ -23,14 +25,26 @@
   cursor: pointer;
 }
 
+/* Greep op de linkerrand van het paneel (zelfde uiterlijk als die van het
+   linkerpaneel, .panel-resize-handle in layout.css). */
+.properties-panel-outer > .properties-resize-handle {
+  position: absolute;
+  cursor: default;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+}
+[dir="rtl"] .properties-panel-outer > .properties-resize-handle { left: auto; right: 0; }
+
 .properties-panel-outer.collapsed:hover {
   background: var(--theme-hover);
 }
 
 /* Properties Panel Inner Content */
 .properties-panel {
-  width: 300px;
-  min-width: 300px;
+  width: var(--properties-panel-width, 300px);
+  min-width: var(--properties-panel-width, 300px);
   background: var(--theme-panel-bg);
   border-radius: 0;
   padding: 0;

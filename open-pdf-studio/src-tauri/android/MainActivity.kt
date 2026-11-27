@@ -27,6 +27,7 @@ package org.openaec.openpdfstudio
 import android.app.Activity
 import android.content.ClipData
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -63,6 +64,15 @@ class MainActivity : TauriActivity() {
 }
 
 class OpdsAndroidBridge(private val activity: Activity) {
+  @JavascriptInterface
+  fun canWrite(uri: String?): Boolean {
+    if (uri == null || !uri.startsWith("content://")) return false
+    return activity.checkUriPermission(
+      Uri.parse(uri), android.os.Process.myPid(), android.os.Process.myUid(),
+      Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+    ) == PackageManager.PERMISSION_GRANTED
+  }
+
   @JavascriptInterface
   fun displayName(uri: String?): String? {
     if (uri == null || !uri.startsWith("content://")) return null

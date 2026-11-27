@@ -101,3 +101,23 @@ test('resource names are valid and stable for any id', () => {
   assert.equal(vasteResourceSleutel('OPSKV', 'wm-1').asString(), '/OPSKV_wm-1');
   assert.equal(vasteResourceSleutel('OPSKV', 'a b/c#(d)').asString(), '/OPSKV_a_b_c__d_');
 });
+
+test('a watermark on the first page keeps its indirect resource dictionary shared with untouched pages', async () => {
+  const pdf = await tekeningenset(2, 'reference');
+  const original = pdf.getPage(0).node.get(RESOURCES);
+  await schrijfKopVoeten(pdf, [kopVoet({ pageRange: 'first' })], { paginaBereik: alles });
+  const result = await PDFDocument.load(await pdf.save());
+  assert.ok(result.getPages().every(p => p.node.get(RESOURCES).tag === original.tag));
+});
+
+test('colliding names in shared resources preserve the original entries', async () => {
+  const pdf = await tekeningenset(2, 'reference');
+  const fonts = pdf.getPage(0).node.Resources().lookup(PDFName.of('Font'));
+  const existing = fonts.values()[0];
+  fonts.set(PDFName.of('OPSKV_a_b'), existing);
+  await schrijfKopVoeten(pdf, [kopVoet({ id: 'a b' }), kopVoet({ id: 'a_b', fontFamily: 'Courier' })], { paginaBereik: alles });
+  const result = await PDFDocument.load(await pdf.save());
+  const entries = result.getPage(0).node.Resources().lookup(PDFName.of('Font'));
+  assert.equal(entries.get(PDFName.of('OPSKV_a_b')).tag, existing.tag);
+  assert.equal(new Set(entries.entries().filter(([name]) => name.asString().startsWith('/OPSKV')).map(([, ref]) => ref.tag)).size, 3);
+});

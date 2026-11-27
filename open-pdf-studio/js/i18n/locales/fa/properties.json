@@ -602,6 +602,12 @@
     "joinHint": "خاموش: این انتهای دیوار هرگز به‌صورت فارسی‌بُر، T شکل یا با تریم در برابر دیوار دیگر متصل نمی‌شود؛ در همان جایی که رسم شده با انتهای صاف باقی می‌ماند.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

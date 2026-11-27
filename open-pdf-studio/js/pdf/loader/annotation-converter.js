@@ -1,3 +1,4 @@
+import { inkPathFromStrokes } from '../../annotations/ink-strokes.js';
 import { isShxTextAnnotation } from '../shx-text.js';
 import { state, imageCache } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
@@ -742,22 +743,24 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
     case 'Ink':
       // Freehand drawing
       if (annot.inkLists && annot.inkLists.length > 0) {
-        const path = [];
-        const inkList = annot.inkLists[0];
-        for (let i = 0; i < inkList.length; i += 2) {
-          const [ipx, ipy] = convertPoint(inkList[i], inkList[i + 1]);
-          path.push({ x: ipx, y: ipy });
-        }
+        const strokes = annot.inkLists.map(list => {
+          const points = [];
+          for (let i = 0; i + 1 < list.length; i += 2) {
+            const [x, y] = convertPoint(list[i], list[i + 1]);
+            points.push({ x, y });
+          }
+          return points;
+        });
         return createAnnotation({
           ...baseProps,
           type: 'draw',
-          path: path,
+          ...inkPathFromStrokes(strokes),
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
           borderStyle: mapBorderStyle(annot, extraColors),
           // Drukgevoelige inkt (#385): alleen als de druk bij de punten past.
-          ...inktUitBestand(extraColors, path.length),
+          ...inktUitBestand(extraColors, strokes[0].length),
         });
       }
       break;
@@ -781,8 +784,10 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             __textboxLeader: true,
             page: pageNum,
             irtRectKey: extraColors.irtRectKey,
+            irtId: extraColors.irtId || annot.inReplyTo,
             leader: {
               id: extraColors.opsLeaderId || (Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
+              ...(extraColors.opsLeaderAnchor && { anchorNode: extraColors.opsLeaderAnchor }),
               kneeX: plPoints[1].x,
               kneeY: plPoints[1].y,
               tipX: plPoints[plPoints.length - 1].x,
@@ -1462,6 +1467,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         appearanceTekst,
         contents: annot.contentsObj?.str || annot.contents || '',
       });
+      if (!text.trim() && annot.richText?.str) {
+        text = annot.richText.str.trimEnd();
+      }
       // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
       // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
       let textRuns;

@@ -183,6 +183,7 @@ pub fn pdf_security_release(sessies: tauri::State<'_, BeveiligingsSessies>, hand
 /// en schrijft het resultaat atomair naar `x-opds-path`.
 #[tauri::command]
 pub async fn write_protected_pdf_atomic(
+    app: tauri::AppHandle,
     request: tauri::ipc::Request<'_>,
     sessies: tauri::State<'_, BeveiligingsSessies>,
 ) -> Result<(), String> {
@@ -212,6 +213,10 @@ pub async fn write_protected_pdf_atomic(
         // De ontsleutelde inhoud niet langer in het geheugen dan nodig.
         bytes.zeroize();
         let uit = resultaat?;
+        if cfg!(target_os = "android") && pad.starts_with("content://") {
+            return crate::write_provider_document(&app, &pad, &uit)
+                .map_err(|e| format!("{FOUT_SCHRIJVEN}: {e}"));
+        }
         crate::atomic_file::write(std::path::Path::new(&pad), &uit)
             .map_err(|e| format!("{FOUT_SCHRIJVEN}: {e}"))
     })

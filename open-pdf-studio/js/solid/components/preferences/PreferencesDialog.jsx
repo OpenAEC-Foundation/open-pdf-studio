@@ -134,6 +134,10 @@ export default function PreferencesDialog(props) {
       });
       import('../../../ui/panels/annotations-list.js').then(m => m.updateAnnotationsList());
     }
+    // Last view per file (#1245) switched off: the remembered views go too.
+    if (!state.preferences.reopenAtLastView) {
+      import('../../../pdf/last-view-app.js').then(m => m.forgetAllLastViews());
+    }
     // Thin Lines changed (#595): re-render the page view in the new line mode.
     if (state.preferences.thinLines !== prevThinLines) {
       import('../../../pdf/thin-lines.js').then(m => m.refreshAfterThinLinesChange());

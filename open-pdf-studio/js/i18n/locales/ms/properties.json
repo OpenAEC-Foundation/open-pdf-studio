@@ -602,6 +602,12 @@
     "joinHint": "Mati: hujung dinding ini tidak sekali-kali disambung serong, dicantum bentuk T atau dipangkas terhadap dinding lain; ia kekal berhujung rata di tempat dilukis.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

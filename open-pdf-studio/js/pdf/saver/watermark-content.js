@@ -3,13 +3,17 @@
 import {
   PDFName, PDFArray, PDFDict, PDFStream, PDFRef, PDFString, PDFHexString,
   degrees, rgb, drawText, drawImage, pushGraphicsState, popGraphicsState,
-  concatTransformationMatrix, pdfDocEncodingDecode,
+  concatTransformationMatrix, pdfDocEncodingDecode, encodeToBase64,
 } from 'pdf-lib';
 import { embedPngSnel } from '../embed-png-rust.js';
 import { bytesUitBase64 } from '../../annotations/afbeelding-bron.js';
 import { watermarkFont, watermarkPosition, watermarkTextPlacement, watermarkPageMatrix } from '../../watermark/watermark-layout.js';
 import { vasteResourceSleutel, zetPaginaResource, deelResourcesWeer } from './gedeelde-resources.js';
 
+import { verwijderOnbereikbareSelectie } from './objecten-opruimen.js';
+
+const IMAGE_REFS = PDFName.of('OPS_WatermarkImages');
+const imageKey = id => PDFName.of(PDFHexString.fromText(id).asString());
 const KEY = 'OPS_Watermark';
 const RESOURCES = 'OPS_WatermarkResources';
 const FIELDS = ['id', 'type', 'text', 'fontFamily', 'fontSize', 'autoFit', 'color', 'imageData', 'width', 'height',
@@ -47,10 +51,23 @@ export function watermarkIds(pdf) {
 export function readWatermarkDefinitions(pdf) {
   try {
     const list = JSON.parse(textOf(pdf.catalog.lookup(PDFName.of(KEY))) || '[]');
-    return Array.isArray(list) ? list.filter(supported).map(w => Object.fromEntries(FIELDS.filter(k => w[k] !== undefined).map(k => [k, w[k]]))) : [];
+    if (!Array.isArray(list)) return [];
+    const images = pdf.catalog.lookup(IMAGE_REFS);
+    const encoded = new Map();
+    return list.filter(supported).map(w => {
+      const definition = Object.fromEntries(FIELDS.filter(k => w[k] !== undefined).map(k => [k, w[k]]));
+      if (images instanceof PDFDict && /^data:image\/jpe?g;base64,$/i.test(definition.imageData)) {
+        const stream = images.lookup(imageKey(w.id));
+        if (stream instanceof PDFStream && stream.dict.get(PDFName.of('Filter')) === PDFName.of('DCTDecode')) {
+          if (!encoded.has(stream)) encoded.set(stream, encodeToBase64(stream.getContents()));
+          definition.imageData += encoded.get(stream);
+        }
+      }
+      return definition;
+    });
   } catch { return []; }
 }
-export function removeWatermarkStreams(pdf, ids = null) {
+export function removeWatermarkStreams(pdf, ids = null, onImage = null) {
   let removed = 0;
   const refs = new Set();
   for (const page of pdf.getPages()) {
@@ -63,7 +80,10 @@ export function removeWatermarkStreams(pdf, ids = null) {
       if (keys instanceof PDFDict && resources instanceof PDFDict) {
         for (const [category, key] of keys.entries()) {
           const dict = resources.lookup(category);
-          if (dict instanceof PDFDict) dict.delete(key);
+          if (dict instanceof PDFDict) {
+            if (onImage && category === PDFName.of('XObject')) onImage(id, dict.get(key));
+            dict.delete(key);
+          }
         }
       }
       list.remove(i); removed++;
@@ -87,9 +107,31 @@ async function embedImage(pdf, imageData) {
 export async function writeWatermarkContent(pdf, watermarks, { known = [], pageRange, annulering = null } = {}) {
   const current = watermarks.filter(supported);
   const replace = new Set([...known, ...current.map(w => w.id)]);
-  const unknown = readWatermarkDefinitions(pdf).filter(w => !replace.has(w.id));
-  removeWatermarkStreams(pdf, replace);
-  const pages = pdf.getPages(), written = new Set(), fonts = new Map(), images = new Map();
+  const previous = readWatermarkDefinitions(pdf);
+  const unknown = previous.filter(w => !replace.has(w.id));
+  const previousData = new Map(previous.map(w => [w.id, w.imageData]));
+  const images = new Map(), candidates = new Set();
+  function markImage(ref, keep) {
+    const stream = pdf.context.lookup(ref);
+    if (!(stream instanceof PDFStream) || stream.dict.get(PDFName.of('Subtype')) !== PDFName.of('Image')) return false;
+    for (const item of [ref, stream.dict.get(PDFName.of('SMask')), stream.dict.get(PDFName.of('Mask'))]) {
+      if (!(item instanceof PDFRef)) continue;
+      if (keep) candidates.delete(item);
+      else candidates.add(item);
+    }
+    return true;
+  }
+  const remember = (id, ref) => {
+    if (!(ref instanceof PDFRef) || !markImage(ref, false)) return;
+    const data = previousData.get(id);
+    if (data) images.set(data, { ref });
+  };
+  const oldImages = pdf.catalog.lookup(IMAGE_REFS);
+  if (oldImages instanceof PDFDict) {
+    for (const w of previous) remember(w.id, oldImages.get(imageKey(w.id)));
+  }
+  removeWatermarkStreams(pdf, replace, remember);
+  const pages = pdf.getPages(), written = new Set(), fonts = new Map();
   // Both layers are above PDF page content in the existing viewer.
   // Keep their existing order: behind overlays first, then front overlays.
   const ordered = [...current.filter(w => (w.layer || 'behind') === 'behind'),
@@ -102,7 +144,11 @@ export async function writeWatermarkContent(pdf, watermarks, { known = [], pageR
       if (!fonts.has(name)) fonts.set(name, await pdf.embedFont(name));
       font = fonts.get(name);
     } else if (wm.imageData) {
-      if (!images.has(wm.imageData)) images.set(wm.imageData, await embedImage(pdf, wm.imageData));
+      if (!images.has(wm.imageData)) {
+        const embedded = await embedImage(pdf, wm.imageData);
+        if (embedded) await embedded.embed();
+        images.set(wm.imageData, embedded);
+      }
       img = images.get(wm.imageData);
       // An image that cannot be embedded is skipped; its definition stays editable.
       if (!img) continue;
@@ -154,7 +200,19 @@ export async function writeWatermarkContent(pdf, watermarks, { known = [], pageR
   // normalize() put shared /Resources on every page as a copy.
   deelResourcesWeer(pdf);
   const definitions = [...unknown, ...current].map(w => Object.fromEntries(FIELDS.filter(k => w[k] !== undefined).map(k => [k, w[k]])));
+  const imageRefs = pdf.context.obj({});
+  for (const w of definitions) {
+    const ref = w.type === 'imageWatermark' && images.get(w.imageData)?.ref;
+    if (!ref) continue;
+    imageRefs.set(imageKey(w.id), ref);
+    markImage(ref, true);
+    // JPEG XObjects preserve the exact file bytes. PNG XObjects contain decoded pixels.
+    if (/^data:image\/jpe?g;base64,/i.test(w.imageData)) w.imageData = w.imageData.slice(0, w.imageData.indexOf(',') + 1);
+  }
+  if (imageRefs.keys().length) pdf.catalog.set(IMAGE_REFS, imageRefs);
+  else pdf.catalog.delete(IMAGE_REFS);
   if (definitions.length) pdf.catalog.set(PDFName.of(KEY), PDFHexString.fromText(JSON.stringify(definitions)));
   else pdf.catalog.delete(PDFName.of(KEY));
+  verwijderOnbereikbareSelectie(pdf.context, candidates);
   return [...written];
 }

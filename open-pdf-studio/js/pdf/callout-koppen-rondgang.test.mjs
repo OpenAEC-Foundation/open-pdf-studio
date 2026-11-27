@@ -17,7 +17,7 @@ installeerCanvas();
 
 const { state } = await import('../core/state.js');
 const { savePDF } = await import('./saver.js');
-const { convertPdfAnnotation } = await import('./loader/annotation-converter.js');
+const { zetPaginaAnnotatiesOm } = await import('./loader/annotaties-omzetten.js');
 const { extractAnnotationColors } = await import('./loader/color-extraction.js');
 
 async function leegBlad() {
@@ -32,10 +32,7 @@ async function laad(bytes) {
   const pagina = await doc.getPage(1);
   const viewport = pagina.getViewport({ scale: 1 });
   const kaart = await extractAnnotationColors(1, await PDFDocument.load(bytes.slice()));
-  const modellen = [];
-  for (const annot of await pagina.getAnnotations()) {
-    modellen.push(await convertPdfAnnotation(annot, 1, viewport, new Map(), kaart));
-  }
+  const modellen = await zetPaginaAnnotatiesOm(await pagina.getAnnotations(), 1, viewport, new Map(), kaart);
   await doc.loadingTask.destroy();
   return modellen.filter(Boolean);
 }
@@ -166,4 +163,20 @@ test('een ander programma: /LE als losse naam of als rij', async () => {
 test('een callout die de app vóór #612 opsloeg, houdt de dichte punt die het scherm toonde', async () => {
   const [oud] = await laad(await vreemdeCallout(() => ({ LE: PDFName.of('OpenArrow'), OPS_Rotation: 0 })));
   assert.deepEqual([oud.startHead, oud.endHead], ['none', 'closed']);
+});
+
+test('twee callouts op dezelfde plek behouden elk hun eigen vertakking bij opslaan en heropenen', async () => {
+  const { newLinkedLeader } = await import('../annotations/linked-leaders.js');
+  const callouts = ['eerste', 'tweede'].map(id => {
+    const ann = callout({ id, text: id });
+    ann.leaders = [newLinkedLeader(ann, id + '-tak', 'callout_knee')];
+    return ann;
+  });
+  const terug = await laad(await opslaan(await leegBlad(), callouts));
+  assert.equal(terug.length, 2);
+  for (const ann of terug) {
+    const origineel = callouts.find(a => a.text === ann.text);
+    assert.equal(ann.type, 'callout');
+    assert.deepEqual(ann.leaders, origineel.leaders);
+  }
 });

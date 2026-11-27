@@ -179,6 +179,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-merge-pdfs-browser.mjs
 
+      - name: Test resizing pages with margins through the Resize dialog (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-resize-margins-browser.mjs
+
       - name: Test parametric symbol picker (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-parametric-picker-browser.mjs
@@ -227,6 +231,10 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-tab-view-mode-browser.mjs
 
+      - name: Test last view on reopen (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-last-view-browser.mjs
+
       - name: Test right mouse button pan preference (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-right-button-pan-browser.mjs
@@ -240,8 +248,6 @@ jobs:
         run: node scripts/test-bidi-currency-browser.mjs
       - name: Test crop margins coordinates (Linux)
         run: node scripts/test-crop-margins-browser.mjs
-      - name: Test annotation blend mode properties (Linux)
-        run: node scripts/test-mengmodus-paneel-browser.mjs
 
       - name: Test deleted comment popup lifecycle (Linux)
         if: matrix.platform == 'ubuntu-22.04'

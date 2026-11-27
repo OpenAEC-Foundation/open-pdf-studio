@@ -30,7 +30,7 @@ import { explodeSelection, joinSelection, createCollection, explodeCollection } 
 import {
   handIcon, selectCommentsIcon, findIcon,
   lineIcon, arrowIcon, drawIcon, eraserIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon, countIcon,
-  calloutIcon, cloudIcon,
+  calloutIcon, cloudIcon, cloudPolylineIcon,
   measureDistanceIcon, measureAngleIcon, measurePerimeterIcon, measureAreaIcon,
   alignLeftIcon, alignTopIcon, alignBottomIcon,
   flipHIcon, flipVIcon, rotateCwIcon,
@@ -41,6 +41,7 @@ import { createFullPageScaleRegion, invalidateScaleRegionCache } from '../../../
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { openDialog } from '../../../bridge.js';
 import CountGroupRibbonControls from './CountGroupRibbonControls.jsx';
+import WallRibbonControls from './WallRibbonControls.jsx';
 import { startNewCount } from '../../stores/countStore.js';
 
 // Nieuwe telling (#1004): het telpictogram met een plusteken.
@@ -332,6 +333,26 @@ export function DrawingGroups() {
           </RibbonGroup>
         </Show>
 
+        {/* WAND-OPTIES — alleen bij het wandgereedschap (#1230): de dikte van
+            de volgende wand (Amerikaanse maten op een blad in voet of inch,
+            metrische op een metrisch blad) en de locatielijn die de klikken
+            volgen: hartlijn, linkervlak of rechtervlak. */}
+        <Show when={state.currentTool === 'wall'}>
+          <RibbonGroup label={tProperties('quantities.type.wall')}>
+            <WallRibbonControls />
+          </RibbonGroup>
+        </Show>
+
+        <Show when={state.currentTool === 'cloud' || state.currentTool === 'cloudPolyline'}>
+          <RibbonGroup label={t('comment.cloud')}>
+            <label class="ribbon-checkbox-option">
+              <input type="checkbox" checked={state.preferences.cloudAttachNote === true}
+                onChange={(e) => { state.preferences.cloudAttachNote = e.currentTarget.checked; savePreferences(); }} />
+              <span>{t('drawing.cloudAttachNote')}</span>
+            </label>
+          </RibbonGroup>
+        </Show>
+
         {/* TELGROEP — alleen bij het telgereedschap (#935): de groep waar
             nieuwe markeringen in komen, met het totaal per groep, de kleur
             van de hele groep en een nieuwe groep aanmaken. Nieuwe telling
@@ -465,6 +486,8 @@ export function DrawingGroups() {
           <RibbonButtonStack>
             <RibbonButton size="small" id="dr-cloud" title={t('comment.cloud')} icon={cloudIcon} label={t('comment.cloud')}
               disabled={ro()} active={state.currentTool === 'cloud'} onClick={() => setTool('cloud')} />
+            <RibbonButton size="small" id="dr-cloud-polyline" title={t('comment.cloudPolyline')} icon={cloudPolylineIcon} label={t('comment.cloudPolyline')}
+              disabled={ro()} active={state.currentTool === 'cloudPolyline'} onClick={() => setTool('cloudPolyline')} />
             <RibbonButton size="small" id="dr-measure" title={t('measure.measurePerimeter')} icon={measurePerimeterIcon} label={t('drawing.measure')}
               disabled={ro()} active={state.currentTool === 'measurePerimeter'} onClick={() => setTool('measurePerimeter')} />
           </RibbonButtonStack>

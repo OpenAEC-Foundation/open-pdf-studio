@@ -635,6 +635,7 @@
     "extensionTabFailed": "This extension tab could not be displayed."
   },
   "drawing": {
+    "cloudAttachNote": "Attach a note",
     "selection": "Selection",
     "draw": "Draw",
     "eraser": "Eraser (removes freehand ink)",
@@ -661,6 +662,13 @@
     "noEmbeddedImages": "No embedded images found on this page.",
     "lineContinue": "Continuous",
     "lineContinueTip": "Each click connects the next line segment to the previous one. Escape, right-click or double-click ends the run.",
+    "wallThickness": "Thickness",
+    "wallThicknessTip": "Thickness of the next wall. A sheet in feet or inches offers US sizes, a metric sheet offers millimetres.",
+    "wallLocationLine": "Location line",
+    "wallLocationLineTip": "Which line the clicks follow, seen along the drawing direction. With Left face the clicked points are the left face of the wall and the wall body lies to the right.",
+    "wallLocationCenter": "Centerline",
+    "wallLocationLeft": "Left face",
+    "wallLocationRight": "Right face",
     "snapGroup": "Snap",
     "snapObjectSnap": "Object snap",
     "snapObjectSnapTip": "Master switch for object snapping (Shift+F3). The snap modes below only apply while this is on.",

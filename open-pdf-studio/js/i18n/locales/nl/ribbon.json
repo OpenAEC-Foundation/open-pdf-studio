@@ -637,6 +637,7 @@
     "extensionTabFailed": "Dit tabblad van de extensie kon niet worden weergegeven."
   },
   "drawing": {
+    "cloudAttachNote": "Notitie koppelen",
     "selection": "Selectie",
     "draw": "Tekenen",
     "eraser": "Gum (verwijdert vrije-handlijnen)",
@@ -663,6 +664,13 @@
     "noEmbeddedImages": "Geen ingebedde afbeeldingen op deze pagina gevonden.",
     "lineContinue": "Doorlopend",
     "lineContinueTip": "Elke klik verbindt het volgende lijnsegment met het vorige. Escape, rechtsklik of dubbelklik beëindigt de reeks.",
+    "wallThickness": "Dikte",
+    "wallThicknessTip": "Dikte van de volgende wand. Een blad in voet of inch biedt Amerikaanse maten, een metrisch blad millimeters.",
+    "wallLocationLine": "Locatielijn",
+    "wallLocationLineTip": "De lijn die de klikken volgen, gezien langs de tekenrichting. Bij Linkervlak zijn de geklikte punten het linkervlak van de wand en ligt het wandlichaam rechts.",
+    "wallLocationCenter": "Hartlijn",
+    "wallLocationLeft": "Linkervlak",
+    "wallLocationRight": "Rechtervlak",
     "snapGroup": "Snap",
     "snapObjectSnap": "Objectsnap",
     "snapObjectSnapTip": "Hoofdschakelaar voor objectsnap (Shift+F3). De snapmodi hieronder werken alleen als deze aan staat.",

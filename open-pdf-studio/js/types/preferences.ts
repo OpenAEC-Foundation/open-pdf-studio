@@ -3,9 +3,15 @@ export interface Preferences {
   theme: string;
   uiScale: number;
 
-  // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
-  // de standaard voor nieuwe installaties) of 'single' (één pagina).
-  defaultViewMode: 'continuous' | 'single';
+  // Pagina-indeling waarmee een document opent (#1289): 'single' (één
+  // pagina, de standaard), 'continuous' (doorlopend), 'facing' (twee
+  // pagina's naast elkaar, per spread) of 'book' (twee pagina's naast
+  // elkaar, doorlopend). Zie js/core/standaard-weergave.js.
+  defaultViewMode: 'single' | 'continuous' | 'facing' | 'book';
+  // Eenmalige overgang naar enkele pagina als standaard is gedaan.
+  viewModeDefaultSingle: boolean;
+  // Zoom waarmee een document opent: paginavullend, breedtevullend of een vast getal.
+  initialZoom: 'page' | 'width' | number;
   // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
   ocrEngine?: string | null;
   ocrLanguage: string;
@@ -53,6 +59,7 @@ export interface Preferences {
   moveInferenceParallel: boolean;
   keepToolActive: boolean;
   lineContinue: boolean;
+  wallLocationLine: 'center' | 'left' | 'right';
   ribbonCollapsed: boolean;
 
   // Appearance
@@ -162,6 +169,7 @@ export interface Preferences {
   cloudPolylineStrokeColor: string;
   cloudPolylineLineWidth: number;
   cloudPolylineOpacity: number;
+  cloudAttachNote: boolean;
 
   // Comment/Note defaults
   commentColor: string;
@@ -257,6 +265,8 @@ export interface Preferences {
   // Startup
   startupTool: 'select' | 'hand';
   restoreLastSession: boolean;
+  // Een document heropent met de pagina, zoom en weergave van het sluiten (#1245)
+  reopenAtLastView: boolean;
   dontAskDefaultPdf: boolean;
 
   // Zoeken: doorzoek de PDF-tekst en/of de tekst in annotaties
@@ -306,6 +316,8 @@ export interface Preferences {
   leftPanelTab: string;
   leftPanelWidth: number | null;
   propertiesPanelCollapsed: boolean;
+  propertiesPanelWidth: number | null;
+  symbolPaletteWidth: number | null;
   workspaces: Array<{ naam: string; layout: Record<string, unknown> }>;
   activeWorkspace: string;
   propertiesPanelVisible: boolean;

@@ -251,61 +251,6 @@ export function getAnnotationHandles(annotation, scale = 1) {
       // Rotation handle (above the shape)
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
 
-      // Textbox leader handles + add button
-      if (annotation.type === 'textbox') {
-        // 16x16 button at top-right outside the box
-        const btnSize = 16 / scale;
-        const btnGap = 16 / scale;
-        const addX = annotation.x + annotation.width + btnGap;
-        const addY = annotation.y - btnSize - 4 / scale;
-        handles.push({
-          type: HANDLE_TYPES.LEADER_ADD,
-          x: addX,
-          y: addY,
-          w: btnSize,
-          h: btnSize,
-          isLeaderUI: true,
-        });
-
-        if (Array.isArray(annotation.leaders)) {
-          for (const leader of annotation.leaders) {
-            // Tip handle (square)
-            handles.push({
-              type: `${HANDLE_TYPES.LEADER_TIP}_${leader.id}`,
-              x: leader.tipX - hs / 2,
-              y: leader.tipY - hs / 2,
-              isLeaderHandle: true,
-              leaderId: leader.id,
-            });
-            // Knee handle (slightly smaller — same width but flagged)
-            handles.push({
-              type: `${HANDLE_TYPES.LEADER_KNEE}_${leader.id}`,
-              x: leader.kneeX - hs / 2,
-              y: leader.kneeY - hs / 2,
-              isLeaderHandle: true,
-              isLeaderKnee: true,
-              leaderId: leader.id,
-            });
-            // Delete (×) button at tip + 14 px along (tip - knee) direction
-            const dx = leader.tipX - leader.kneeX;
-            const dy = leader.tipY - leader.kneeY;
-            const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            const off = 14 / scale;
-            const dxX = leader.tipX + (dx / len) * off;
-            const dxY = leader.tipY + (dy / len) * off;
-            const delSize = 14 / scale;
-            handles.push({
-              type: `${HANDLE_TYPES.LEADER_DELETE}_${leader.id}`,
-              x: dxX - delSize / 2,
-              y: dxY - delSize / 2,
-              w: delSize,
-              h: delSize,
-              isLeaderUI: true,
-              leaderId: leader.id,
-            });
-          }
-        }
-      }
       break;
 
     case 'callout':
@@ -774,6 +719,62 @@ export function getAnnotationHandles(annotation, scale = 1) {
         handles.push({ type: HANDLE_TYPES.RIGHT, x: ax + aw - hs/2, y: ay + ah/2 - hs/2 });
       }
       break;
+  }
+
+  // Textbox leader handles + add button
+  if (annotation.type === 'textbox' || annotation.type === 'callout') {
+    // 16x16 button at top-right outside the box
+    const btnSize = 16 / scale;
+    const btnGap = 16 / scale;
+    const addX = annotation.x + (annotation.width || 150) + btnGap;
+    const addY = annotation.y - btnSize - 4 / scale;
+    handles.push({
+      type: HANDLE_TYPES.LEADER_ADD,
+      x: addX,
+      y: addY,
+      w: btnSize,
+      h: btnSize,
+      isLeaderUI: true,
+    });
+
+    if (Array.isArray(annotation.leaders)) {
+      for (const leader of annotation.leaders) {
+        // Tip handle (square)
+        handles.push({
+          type: `${HANDLE_TYPES.LEADER_TIP}_${leader.id}`,
+          x: leader.tipX - hs / 2,
+          y: leader.tipY - hs / 2,
+          isLeaderHandle: true,
+          leaderId: leader.id,
+        });
+        // Knee handle (slightly smaller — same width but flagged)
+        handles.push({
+          type: `${HANDLE_TYPES.LEADER_KNEE}_${leader.id}`,
+          x: leader.kneeX - hs / 2,
+          y: leader.kneeY - hs / 2,
+          isLeaderHandle: true,
+          isLeaderKnee: true,
+          leaderId: leader.id,
+        });
+        // Delete (×) button at tip + 14 px along (tip - knee) direction
+        const dx = leader.tipX - leader.kneeX;
+        const dy = leader.tipY - leader.kneeY;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const off = 14 / scale;
+        const dxX = leader.tipX + (dx / len) * off;
+        const dxY = leader.tipY + (dy / len) * off;
+        const delSize = 14 / scale;
+        handles.push({
+          type: `${HANDLE_TYPES.LEADER_DELETE}_${leader.id}`,
+          x: dxX - delSize / 2,
+          y: dxY - delSize / 2,
+          w: delSize,
+          h: delSize,
+          isLeaderUI: true,
+          leaderId: leader.id,
+        });
+      }
+    }
   }
 
   _draaipuntGreep(annotation, hs, handles, scale);

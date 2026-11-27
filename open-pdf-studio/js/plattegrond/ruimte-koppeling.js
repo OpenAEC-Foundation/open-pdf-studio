@@ -20,6 +20,9 @@
 
 import { RUIMTETAG_ID } from '../symbols/templates/ruimtetag.js';
 import { puntInPolygoon } from './ruimte.js';
+import { rekenOm } from '../quantities/eenheid-omrekening.js';
+import { schaalSysteem } from '../annotations/scale-presets.js';
+import { isImperiaalBlad } from './blad-conventie.js';
 
 const eindig = (...v) => v.every((n) => Number.isFinite(n));
 
@@ -104,11 +107,30 @@ export function tagsVanRuimte(ruimte, annotaties) {
 
 const NAAR_M2 = { 'mm²': 1e-6, 'cm²': 1e-4, 'dm²': 1e-2, 'm²': 1 };
 
-/** Netto oppervlakte van de ruimte in m², uit haar meting; null als onbekend. */
+/**
+ * Netto oppervlakte van de ruimte in m², uit haar meting; null als onbekend.
+ * Een ruimte op een blad in voet of inch meet in ft² of in² (#1230); die
+ * wordt exact omgerekend (1 in = 25,4 mm).
+ */
 export function oppervlakteM2Van(ruimte) {
   const v = Number(ruimte?.measureValue);
+  if (!Number.isFinite(v)) return null;
   const f = NAAR_M2[ruimte?.measureUnit];
-  return Number.isFinite(v) && f ? Math.round(v * f * 1e6) / 1e6 : null;
+  if (f) return Math.round(v * f * 1e6) / 1e6;
+  const m2 = typeof ruimte?.measureUnit === 'string' ? rekenOm(v, ruimte.measureUnit, 'm²') : null;
+  return m2 === null || !Number.isFinite(m2) ? null : Math.round(m2 * 1e6) / 1e6;
+}
+
+/**
+ * De eenheid waarin de tag van deze ruimte de oppervlakte toont: 'ft²' op een
+ * imperiaal blad (de ruimte meet in voet of inch, of de voorkeur Eenheden
+ * staat op Imperiaal), anders 'm²'. De regel is die van blad-conventie.js.
+ * @param {{measureUnit?: string}} ruimte
+ * @param {string} [stelsel]  de voorkeur scaleUnitSystem; standaard die van de app
+ */
+export function tagOppervlakteEenheid(ruimte, stelsel = schaalSysteem()) {
+  const eenheid = typeof ruimte?.measureUnit === 'string' ? ruimte.measureUnit.replace(/²$/, '') : '';
+  return isImperiaalBlad(eenheid, stelsel) ? 'ft²' : 'm²';
 }
 
 /**
@@ -116,17 +138,24 @@ export function oppervlakteM2Van(ruimte) {
  * zijn ruimte, de opmaak (decimalen, oppervlakte tonen) van de tag zelf.
  * Andere symbolen en een tag zonder ruimte: hun eigen params.
  */
-export function tagWeergaveParams(ann, annotaties) {
+export function tagWeergaveParams(ann, annotaties, stelsel = schaalSysteem()) {
   if (!isRuimteTag(ann)) return ann?.params;
   const r = ruimteVanTag(ann, annotaties);
   if (!r) return ann.params;
   const opp = oppervlakteM2Van(r);
-  return {
+  const uit = {
     ...ann.params,
     naam: r.opsRuimteNaam ?? '',
     nummer: r.opsRuimteNummer ?? '',
     ...(opp !== null ? { oppervlakteM2: opp } : {}),
   };
+  // De eenheid volgt de ruimte (#1230): vierkante voet op een imperiaal blad;
+  // metrisch draagt de tag geen eenheid, zoals altijd.
+  if (opp !== null) {
+    if (tagOppervlakteEenheid(r, stelsel) === 'ft²') uit.oppervlakteEenheid = 'ft²';
+    else delete uit.oppervlakteEenheid;
+  }
+  return uit;
 }
 
 const tekst = (v) => (v === null || v === undefined ? undefined : String(v).trim());

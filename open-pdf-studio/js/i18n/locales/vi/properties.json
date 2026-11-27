@@ -602,6 +602,12 @@
     "joinHint": "Tắt: đầu tường này không bao giờ được vát góc, nối chữ T hoặc cắt theo tường khác; nó giữ đầu bằng tại vị trí được vẽ.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

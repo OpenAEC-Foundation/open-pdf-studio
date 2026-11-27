@@ -7,11 +7,10 @@ import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
 import { applyMoveGeneric } from "../annotations/transforms.js";
 import { shiftAnnotation } from "./shift-page-geometry.js";
-import { schaalVoorPassen, scaleAnnotationGeometry } from "./page-scale-geometry.js";
-import { shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
+import { scaleAnnotationGeometry } from "./page-scale-geometry.js";
+import { MM_TO_POINTS, marginsForPage, validateResizeMargins } from "./resize-margins-geometry.js";
+import { resizePdfPage } from "./resize-page-content.js";
 import { PDFDocument } from "pdf-lib";
-
-const MM_TO_POINTS = 72 / 25.4;
 
 /**
  * Translate an annotation in place by (dx, dy) in visual PDF points, so
@@ -30,18 +29,28 @@ export function translateAnnotation(ann, dx, dy) {
  * The MediaBox and CropBox are both set to the requested size and the
  * existing content is centred inside the new box; annotations shift with it.
  *
+ * With margins, the content goes into the area between the margins of the
+ * new page instead of the whole page: scaled to fit there (scaleContent), or
+ * at its own size, centred there and cropped to that area.
+ *
  * @param {'current' | 'all' | 'range'} applyTo - Which pages to resize
  * @param {string} rangeStr - Page range string (only used when applyTo is 'range')
  * @param {number} widthMm - Target visual width in millimetres
  * @param {number} heightMm - Target visual height in millimetres
  * @param {boolean} [scaleContent=false] - Shrink or grow the content to fit the new size
  *   (one factor, centred) instead of keeping its size. Annotations scale with it.
- * @returns {Promise<{resized: number}>}
+ * @param {{odd?: object, even?: object} | null} [margins] - margins in millimetres, as
+ *   the page is displayed: `odd` and `even` each hold left/right/top/bottom. Odd pages
+ *   (by 1-based page number) take `odd`; even pages take `even` when it is given and
+ *   `odd` otherwise. Without margins (or with all of them 0) nothing changes.
+ * @returns {Promise<{resized: number, reason?: 'margins'}>} `reason` is 'margins'
+ *   when the margins leave no room on the new page size; nothing is changed then.
  */
-export async function resizePages(applyTo, rangeStr, widthMm, heightMm, scaleContent = false) {
+export async function resizePages(applyTo, rangeStr, widthMm, heightMm, scaleContent = false, margins = null) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return { resized: 0 };
   if (!(widthMm > 0) || !(heightMm > 0)) return { resized: 0 };
+  if (validateResizeMargins(widthMm, heightMm, margins)) return { resized: 0, reason: "margins" };
 
   const cacheKey = getCacheKey();
   const currentBytes = getCachedPdfBytes(cacheKey);
@@ -82,52 +91,20 @@ export async function resizePages(applyTo, rangeStr, widthMm, heightMm, scaleCon
       const pdfPage = pages[pageNum - 1];
       if (!pdfPage) continue;
 
-      const crop = pdfPage.getCropBox();
-      // Total displayed rotation = native /Rotate + any in-app rotation.
-      const nativeRot = pdfPage.getRotation().angle % 360;
-      const appRot = (oldRotations[pageNum] || 0) % 360;
-      const rot = (((nativeRot + appRot) % 360) + 360) % 360;
-      const rotated = rot === 90 || rot === 270;
+      // The new box and the place of the content on it; odd and even page
+      // numbers can have their own margins.
+      const placed = resizePdfPage(pdfDoc, pdfPage, {
+        targetW: targetWpt,
+        targetH: targetHpt,
+        appRotation: oldRotations[pageNum] || 0,
+        scaleContent,
+        marginsMm: marginsForPage(pageNum, margins),
+      }, geziene);
+      if (!placed) continue;
 
-      // Visual (as-displayed) dimensions of the current page.
-      const visualOldW = rotated ? crop.height : crop.width;
-      const visualOldH = rotated ? crop.width : crop.height;
-
-      // New box in unrotated PDF space (swap dims for quarter-turn pages so
-      // the *visual* result matches what the user typed).
-      const unrotW = rotated ? targetHpt : targetWpt;
-      const unrotH = rotated ? targetWpt : targetHpt;
-
-      // Centre the new box on the current content centre.
-      const centerX = crop.x + crop.width / 2;
-      const centerY = crop.y + crop.height / 2;
-      const newX = centerX - unrotW / 2;
-      const newY = centerY - unrotH / 2;
-
-      if (scaleContent) {
-        // Een nieuwe pagina op de oorsprong; de inhoud krimpt (of groeit) met één factor
-        // en staat gecentreerd. De schaal geldt in de ongedraaide ruimte van de pagina.
-        const { s, dx: ux, dy: uy } = schaalVoorPassen(crop.width, crop.height, unrotW, unrotH);
-        const tx = ux - s * crop.x;
-        const ty = uy - s * crop.y;
-        if (!shiftPageContent(pdfDoc, pdfPage, tx, ty, s)) continue;
-        shiftPageAnnotations(pdfDoc, pdfPage, tx, ty, geziene, s);
-        pdfPage.setMediaBox(0, 0, unrotW, unrotH);
-        pdfPage.setCropBox(0, 0, unrotW, unrotH);
-        const zichtbaar = schaalVoorPassen(visualOldW, visualOldH, targetWpt, targetHpt);
-        pageScales.set(pageNum, zichtbaar);
-        pageOffsets.set(pageNum, { dx: zichtbaar.dx, dy: zichtbaar.dy });
-        continue;
-      }
-
-      pdfPage.setMediaBox(newX, newY, unrotW, unrotH);
-      pdfPage.setCropBox(newX, newY, unrotW, unrotH);
-
-      // Content moved by half the size delta (in visual space); annotations follow.
-      pageOffsets.set(pageNum, {
-        dx: (targetWpt - visualOldW) / 2,
-        dy: (targetHpt - visualOldH) / 2,
-      });
+      // The content moved (and with scaleContent: scaled) in visual space; annotations follow.
+      if (placed.scaled) pageScales.set(pageNum, placed.visual);
+      pageOffsets.set(pageNum, { dx: placed.visual.dx, dy: placed.visual.dy });
     }
 
     if (pageOffsets.size === 0) return { resized: 0 };

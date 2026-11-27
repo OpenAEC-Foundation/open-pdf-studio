@@ -15,6 +15,9 @@ import { meetPunt } from '../annotations/meet-punt.js';
 //   {
 //     doc:          { currentPage, annotations, paginas },
 //     pxPerMmAt(page, x, y) -> number,
+//     imperiaalOp(page, x, y)  -> boolean         (blad in voet of inch op dit
+//                                                  punt, #1230; optioneel,
+//                                                  zonder is het metrisch)
 //     maak(type, page, props)  -> { ok, id }      (annotatie toevoegen)
 //     werkBij(id, props)       -> { ok }          (annotatie wijzigen)
 //     verwijder(id)            -> { ok }          (annotatie weghalen)
@@ -54,6 +57,8 @@ import {
 } from '../symbols/templates/ruimtetag.js';
 import { nieuweOpeningSleutel, wandOpeningen, klemAfstandMm } from '../annotations/wand-openingen.js';
 import { controleerNieuweOpening, nieuweOpening, lijstMetOpening } from './gehoste-opening.js';
+import { wandStandaard } from './blad-conventie.js';
+import { rekenOm } from '../quantities/eenheid-omrekening.js';
 
 export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'opening', 'rooms', 'dimensions']);
 
@@ -120,6 +125,13 @@ function sparingenOpPagina(annotaties, page) {
     && (a.symbolId === 'door' || a.symbolId === 'window'));
 }
 
+/** Is het blad op dit punt imperiaal (#1230)? Zonder ingang: metrisch. */
+function imperiaalOp(omgeving, page, punt) {
+  if (typeof omgeving.imperiaalOp !== 'function') return false;
+  const p = punt || { x: 0, y: 0 };
+  return omgeving.imperiaalOp(page, p.x, p.y) === true;
+}
+
 /** Schaal op een houvastpunt; zonder punt het midden van alle wanden. */
 function schaalOp(omgeving, page, punt) {
   const p = punt || { x: 0, y: 0 };
@@ -148,7 +160,10 @@ async function actieWand(params, omgeving, page) {
   if (!start || !end || ![start.x, start.y, end.x, end.y].every((v) => getal(v) !== null)) {
     return fout('action "wall" needs start:{x,y} and end:{x,y} in page points');
   }
-  const dikteMm = getal(params?.thicknessMm) || 100;
+  // Zonder opgave de wand van het blad (#1230): 100 mm metselwerk, en op een
+  // blad in voet of inch een kale wand van 6 inch zonder arcering.
+  const standaard = wandStandaard(imperiaalOp(omgeving, page, start));
+  const dikteMm = getal(params?.thicknessMm) || standaard.dikteMm;
   if (dikteMm <= 0) return fout('thicknessMm must be > 0');
   const pxPerMm = schaalOp(omgeving, page, start);
   if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
@@ -180,7 +195,7 @@ async function actieWand(params, omgeving, page) {
   const { segmenten, sparingen: plaatsingen, lengteMm } = wandMetSparingen(wand, sparingen, pxPerMm);
   const stijl = {
     dikteMm,
-    hatchPattern: params?.material || 'nen47-metselwerk-baksteen',
+    hatchPattern: params?.material || standaard.hatchPattern,
     ...(params?.insulation ? { isolatieType: params.insulation } : {}),
   };
 
@@ -675,17 +690,29 @@ async function actieRuimten(params, omgeving, page) {
   // De geplaatste ruimte (het ruimtevlak) bij een gevonden ruimte: zij draagt
   // naam en nummer; haar tags tonen die (ruimte-koppeling.js).
   const vlakVoor = (r) => geplaatsteRuimte(omgeving.doc?.annotations, page, ruimten, r);
+  // Op een blad in voet of inch staat de oppervlakte in hele vierkante voet
+  // (#1230); de conventie geldt op het labelpunt van de ruimte.
+  const eenheidVoor = (r) => (imperiaalOp(omgeving, page, r.labelPunt) ? 'ft²' : 'm²');
+  // Alleen een tag in vierkante voet draagt zijn eenheid; metrisch blijft de
+  // tag zoals hij was.
+  const eenheidParam = (r) => (eenheidVoor(r) === 'ft²' ? { oppervlakteEenheid: 'ft²' } : {});
+  const zonderEenheid = (p) => {
+    const { oppervlakteEenheid: _oud, ...rest } = p || {};
+    return rest;
+  };
   const verslag = (r, naam, vlak = vlakVoor(r)) => {
     const n = vlak ? (vlak[RUIMTE_NAAM] || null) : (naam || null);
+    const eenheid = eenheidVoor(r);
     return {
       ...(vlak ? { id: vlak.id } : {}),
       name: n,
       ...(vlak?.[RUIMTE_NUMMER] ? { number: vlak[RUIMTE_NUMMER] } : {}),
       areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
+      ...(eenheid === 'ft²' ? { areaSqFt: Math.round(rekenOm(r.oppervlakteM2, 'm²', 'ft²') * 100) / 100 } : {}),
       perimeterM: Math.round(r.omtrekM * 100) / 100,
       labelPoint: r.labelPunt,
       wallIds: r.wandIds,
-      label: ruimteLabel(n, r.oppervlakteM2),
+      label: ruimteLabel(n, r.oppervlakteM2, 1, eenheid),
       ...(vlak ? { tagIds: tagsVanRuimte(vlak, omgeving.doc?.annotations).map((t) => t.id) } : {}),
     };
   };
@@ -736,9 +763,10 @@ async function actieRuimten(params, omgeving, page) {
           await omgeving.werkBij(a.id, {
             ...tagVolgtRuimte(a, r.labelPunt),
             params: {
-              ...a.params,
+              ...zonderEenheid(a.params),
               ...(eigenRuimte ? { naam: eigenRuimte[RUIMTE_NAAM] || '', nummer: eigenRuimte[RUIMTE_NUMMER] || '' } : {}),
-              oppervlakteM2: Math.round(r.oppervlakteM2 * 100) / 100,
+              oppervlakteM2: reserveOppervlakte(r.oppervlakteM2, eenheidVoor(r)),
+              ...eenheidParam(r),
               ankerX: r.labelPunt.x, ankerY: r.labelPunt.y,
             },
           });
@@ -811,7 +839,8 @@ async function actieRuimten(params, omgeving, page) {
         const tagParams = {
           naam: (vlak ? vlak[RUIMTE_NAAM] : g.naam) || '',
           nummer: (vlak ? vlak[RUIMTE_NUMMER] : g.nummer) || '',
-          oppervlakteM2: Math.round(g.ruimte.oppervlakteM2 * 100) / 100,
+          oppervlakteM2: reserveOppervlakte(g.ruimte.oppervlakteM2, eenheidVoor(g.ruimte)),
+          ...eenheidParam(g.ruimte),
           decimalen: 1,
           toonOppervlakte: true,
           zaadX: vlak?.[RUIMTE_ZAAD]?.x ?? g.zaad.x,
@@ -833,6 +862,16 @@ async function actieRuimten(params, omgeving, page) {
     if (volgorde && typeof omgeving.herorden === 'function') await omgeving.herorden(volgorde);
   });
   return { ok: true, page, placed: gemaakt, openEnds: losseEinden };
+}
+
+/**
+ * De reservekopie van de oppervlakte in een tag (m²). Metrisch op twee
+ * decimalen, zoals altijd; voor een tag in vierkante voet fijner, zodat het
+ * afronden op hele voet niet van de afgeronde m² afhangt.
+ */
+function reserveOppervlakte(oppervlakteM2, eenheid) {
+  const f = eenheid === 'ft²' ? 1e6 : 100;
+  return Math.round(oppervlakteM2 * f) / f;
 }
 
 /** Het geplaatste ruimtevlak voor een gevonden ruimte (via zijn zaadpunt). */
@@ -1203,6 +1242,9 @@ async function actieInspect(params, omgeving, page) {
         tagIds: tagsVanRuimte(vlak, annotaties).map((t) => t.id),
       } : {}),
       areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
+      // Op een blad in voet of inch ook in vierkante voet (#1230).
+      ...(imperiaalOp(omgeving, page, r.labelPunt)
+        ? { areaSqFt: Math.round(rekenOm(r.oppervlakteM2, 'm²', 'ft²') * 100) / 100 } : {}),
       perimeterM: Math.round(r.omtrekM * 100) / 100,
       labelPoint: r.labelPunt,
       wallIds: r.wandIds,

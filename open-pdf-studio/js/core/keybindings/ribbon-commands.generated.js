@@ -92,6 +92,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"dr-label","tab":"drawing","labelKey":"ribbon:drawing.label"},
   {"id":"dr-table","tab":"drawing","labelKey":"ribbon:drawing.table"},
   {"id":"dr-cloud","tab":"drawing","labelKey":"ribbon:comment.cloud"},
+  {"id":"dr-cloud-polyline","tab":"drawing","labelKey":"ribbon:comment.cloudPolyline"},
   {"id":"dr-measure","tab":"drawing","labelKey":"ribbon:drawing.measure"},
   {"id":"dr-move","tab":"drawing","labelKey":"ribbon:drawing.move"},
   {"id":"dr-copy","tab":"drawing","labelKey":"ribbon:drawing.copy"},

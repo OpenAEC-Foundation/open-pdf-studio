@@ -2287,6 +2287,48 @@
   gap: 6px;
 }
 
+/* Resize Pages: margins (left/right/top/bottom; a second set for even pages) */
+.resize-margins-row {
+  align-items: flex-start;
+}
+
+.resize-margins-row .crop-margins-label {
+  padding-top: 4px;
+}
+
+.resize-margins-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto 60px auto 60px;
+  justify-content: start;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+
+.resize-margins-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+
+.resize-margins-check input {
+  margin: 0;
+}
+
+.resize-margins-error {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #c62828;
+}
+
+[data-theme]:not([data-theme="light"]) .resize-margins-error {
+  color: #ff8a80;
+}
+
 /* Screenshot Dialog (Home → Screenshot) */
 .screenshot-dialog {
   width: 420px;

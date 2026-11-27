@@ -602,6 +602,12 @@
     "joinHint": "Ki: a fal ezen vége soha nem kap gérvágást, nem csatlakozik T-kötéssel és nem vágódik le egy másik falhoz; ott marad egyenes vége, ahol megrajzolták.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

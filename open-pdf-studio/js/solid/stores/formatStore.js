@@ -1,3 +1,4 @@
+import { effectiveBlendMode } from '../../annotations/blend-modes.js';
 import { createSignal, createRoot, createEffect } from 'solid-js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { recordPropertyChange, recordBulkModify } from '../../core/undo-manager.js';
@@ -327,7 +328,7 @@ export function syncFormatStore(selectedAnnotations) {
   setAparteVulDekking(selectedAnnotations.every(a => heeftVulDekking(a.type)));
 
   setBorderStyle(ann.borderStyle || 'solid');
-  setBlendMode(ann.blendMode || 'normal');
+  setBlendMode(effectiveBlendMode(ann));
 
   // Pijl, gebogen pijl en callout (#612): de koppen zoals het scherm ze tekent.
   if (lintZetLijnkoppen(ann.type)) {

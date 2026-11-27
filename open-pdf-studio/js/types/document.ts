@@ -93,6 +93,7 @@ export interface DocumentState {
   fileName: string;
   pdfDoc: any; // pdfjs-dist PDFDocumentProxy
   currentPage: number;
+  pendingInitialZoom?: 'page' | 'width' | number;
   scale: number;
   viewMode: 'single' | 'continuous';
   /** Boekweergave (issue #201): continuous met 2-pagina-spreads, pagina 1 rechts. */
@@ -127,6 +128,15 @@ export interface DocumentState {
   readerModeActive: boolean;
   /** Reader Mode: stored position that still has to be shown; blocks saving until applied. */
   _readerRestore?: { page?: number; scale?: number; scrollTop?: number; scrollHeight?: number; viewMode?: string } | null;
+  /** Last view (#1245, js/core/last-view.js): stored view that still has to be shown. */
+  _lastViewRestore?: { page: number; mode?: string; zoom?: number; fit?: string; cx?: number; cy?: number } | null;
+  /** Last view: this document had its one chance at a stored view. */
+  _lastViewDone?: boolean;
+  /** Last view: showing the stored view has begun / is under way. */
+  _lastViewStarted?: boolean;
+  _lastViewRestoring?: boolean;
+  /** Last view: opened for a specific target, which wins over the stored view. */
+  _lastViewExplicit?: boolean;
   /** Reader Mode: a jump to the stored position is under way. */
   _readerRestoring?: boolean;
   pageRotations: Record<number, number>;

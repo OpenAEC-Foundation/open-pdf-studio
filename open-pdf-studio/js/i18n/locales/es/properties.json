@@ -602,6 +602,12 @@
     "joinHint": "Desactivado: este extremo del muro nunca se corta a inglete, ni se une en T ni se recorta contra otro muro; conserva un extremo recto donde se ha dibujado.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

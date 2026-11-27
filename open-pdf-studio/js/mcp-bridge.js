@@ -247,6 +247,9 @@ async function handleOpenPdf(params) {
   tabsMod.switchToTab(tabIndex);
   const doc = stateMod.state.documents[tabIndex];
   if (!doc.pdfDoc) {
+    // Automation gets the document as it opens by default (page 1, fitted),
+    // not the view a person left it with (#1245).
+    (await import('./core/last-view.js')).markExplicitTarget(doc);
     // A PDF with an open password shows the password dialog and waits for
     // the user; the bridge answers right away instead of blocking until a
     // timeout. The load continues in the app once the password is entered.
@@ -2484,6 +2487,7 @@ export async function plattegrondInApp(params) {
   // Gehoste deuren en ramen (#1229): het meebewegen moet geladen zijn voordat
   // een wand haar eerste opening krijgt.
   await (await import('./plattegrond/hosting-haak.js')).laadHostingKern();
+  const conventie = await import('./plattegrond/blad-conventie-op-punt.js');
 
   let geraakt = false;
   const uit = await plattegrondOpdracht(params, {
@@ -2493,6 +2497,8 @@ export async function plattegrondInApp(params) {
       paginas: doc.pdfDoc?.numPages ?? null,
     },
     pxPerMmAt: (page, x, y) => realSize.pxPerMmAt(page, x, y),
+    // A sheet in feet or inches draws walls and room tags the US way (#1230).
+    imperiaalOp: (page, x, y) => conventie.isImperiaalBladOpPunt(page, x, y),
     maak: async (type, page, props) => {
       geraakt = true;
       return handleCreateAnnotation({ type, page, props });

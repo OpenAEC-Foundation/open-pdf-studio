@@ -16,6 +16,7 @@ import { initPaletteOrder } from '../../solid/stores/paletteOrder.js';
 import { initToolPalette } from '../../solid/components/ToolPalette.jsx';
 import { initSymbolPalette } from '../../solid/stores/symbolStore.js';
 import { herlaadExtPalettes } from '../../solid/components/ExtensionToolPalette.jsx';
+import { herstelPaneelBreedtes } from './paneel-breedte.js';
 
 /** Alleen het linkerpaneel (bij de opstart; de rest heeft een eigen init). */
 export function herstelLinkerPaneel() {
@@ -25,6 +26,8 @@ export function herstelLinkerPaneel() {
     tab: p.leftPanelTab,
     breedte: begrensdeBreedte(p.leftPanelWidth, globalThis.innerWidth || 0),
   });
+  // Eigenschappenpaneel en symbolenpalet (paneel-breedte.js).
+  herstelPaneelBreedtes();
 }
 
 /** Alle panelen en paletten volgen de indeling die nu in de voorkeuren staat. */

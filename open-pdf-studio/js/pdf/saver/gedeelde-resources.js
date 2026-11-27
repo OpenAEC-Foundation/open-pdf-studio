@@ -39,8 +39,13 @@ export function vasteResourceSleutel(voorvoegsel, id) {
 export function zetPaginaResource(page, categorie, sleutel, waarde) {
   // normalizedEntries() maakt Font, XObject en ExtGState aan als ze ontbreken.
   const dict = page.node.normalizedEntries()[categorie];
-  dict.set(sleutel, waarde);
-  return sleutel;
+  let vrij = sleutel;
+  let n = 0;
+  while (dict.has(vrij) && dict.get(vrij) !== waarde) {
+    vrij = PDFName.of(sleutel.asString().slice(1) + '_' + (++n));
+  }
+  dict.set(vrij, waarde);
+  return vrij;
 }
 
 /**
@@ -56,10 +61,15 @@ export function deelResourcesWeer(pdfDoc) {
     const waarde = page.node.get(RESOURCES);
     if (waarde instanceof PDFDict) aantal.set(waarde, (aantal.get(waarde) || 0) + 1);
   }
+  if (!aantal.size) return 0;
   const verwijzingen = new Map();
+  // Ook als slechts één pagina werd aangeraakt, kan haar woordenboek nog
+  // via een verwijzing op andere pagina’s of in de paginaboom staan.
+  for (const [ref, object] of pdfDoc.context.enumerateIndirectObjects()) {
+    if (aantal.has(object)) verwijzingen.set(object, ref);
+  }
   for (const [dict, n] of aantal) {
-    if (n < 2) continue;
-    verwijzingen.set(dict, pdfDoc.context.getObjectRef(dict) ?? pdfDoc.context.register(dict));
+    if (n >= 2 && !verwijzingen.has(dict)) verwijzingen.set(dict, pdfDoc.context.register(dict));
   }
   if (!verwijzingen.size) return 0;
   let gedeeld = 0;

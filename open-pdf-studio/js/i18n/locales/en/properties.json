@@ -609,6 +609,12 @@
     "joinHint": "Off: this end of the wall is never mitred, joined as a T or trimmed against another wall; it keeps a butt end where it is drawn.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

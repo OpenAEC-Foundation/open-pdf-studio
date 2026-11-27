@@ -602,6 +602,12 @@
     "joinHint": "Désactivé : cette extrémité du mur n'est jamais coupée en onglet, raccordée en T ni ajustée contre un autre mur ; elle garde une extrémité droite là où elle est dessinée.",
     "title": "Wall",
     "thickness": "Thickness (mm)",
+    "thicknessPreset": "Standard thickness",
+    "thicknessCustom": "Custom",
+    "kinds": {
+      "partition": "partition",
+      "cmu": "CMU"
+    },
     "material": "Material",
     "insulationMaterial": "Insulation material",
     "materials": {

@@ -2,7 +2,8 @@ import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { state, getNextUntitledName, getActiveDocument } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
-import { setViewMode, fitPage } from './renderer.js';
+import { setViewMode } from './renderer.js';
+import { indelingVan } from '../core/standaard-weergave.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -21,7 +22,6 @@ import { showMessage, refreshAnnotationLayers } from '../bridge.js';
 import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 
 // Sub-module imports
-import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
 import { createStempelRender } from './loader/stempel-beeld-rust.js';
 import { paginaViewport } from './pagina-viewport.js';
@@ -635,7 +635,8 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
 
       // Render first page immediately (before annotation loading)
       console.log(`[PERF] setViewMode START: ${(performance.now() - _t0).toFixed(0)}ms`);
-      await setViewMode(doc.viewMode);
+      // The layout the tab was given (#1289), two-page layouts included.
+      await setViewMode(indelingVan(doc));
       if (isClosed()) return;
       console.log(`[PERF] setViewMode DONE: ${(performance.now() - _t0).toFixed(0)}ms`);
       hideLoading();
@@ -687,6 +688,19 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       } catch (e) {
         console.warn('[reader-mode] restore failed:', e);
       }
+    }
+
+    // Last view (#1245): a file without Reader Mode reopens with the page,
+    // zoom and view mode it was closed with, unless it was opened for a
+    // specific target or the preference is off (pdf/last-view-app.js, loaded
+    // on first use). Shown now when the document is in front, otherwise on
+    // its first activation (switchToTab). Best effort, like Reader Mode: a
+    // failure must not block the rest of the load.
+    try {
+      await (await import('./last-view-app.js')).resumeLastView(doc);
+      if (isClosed()) return;
+    } catch (e) {
+      console.warn('[last-view] restore failed:', e);
     }
 
     // Load bookmarks from PDF outline (data-only, always run)
@@ -908,17 +922,13 @@ export async function openPDFFile() {
     // dialog's starting folder. The Windows Shell caches recently-visited
     // folders, so this is materially faster than letting the OS fall back
     // to its built-in default (Documents or the install dir on cold start).
+    // A Save As that came after it wins: the dialog starts where the user
+    // last opened or saved (#1245, core/dialog-folder.js).
     let defaultPath;
     try {
-      const recents = getRecentFiles();
-      if (recents.length > 0) {
-        recents.sort((a, b) => b.timestamp - a.timestamp);
-        const last = recents[0].path;
-        // Strip the filename so the dialog opens IN that folder.
-        const i = Math.max(last.lastIndexOf('\\'), last.lastIndexOf('/'));
-        if (i > 0) defaultPath = last.slice(0, i);
-      }
-    } catch { /* recents is best-effort */ }
+      const { openStartFolder, readLastSaveFolder } = await import('../core/dialog-folder.js');
+      defaultPath = openStartFolder(getRecentFiles(), readLastSaveFolder());
+    } catch { /* the start folder is best-effort */ }
 
     // Allow selecting multiple PDFs at once; each opens in its own tab.
     // CAD-tekeningen mogen ook: die gaan via het importvenster (#400).
@@ -985,7 +995,6 @@ export async function createDocFromTemplate(templatePath, titleBlockPath = null)
     await loadPDF(tempPath, index, typedArray);
     if (doc) doc.fileName = displayName;
     markDocumentModified();
-    try { await fitPage(); } catch (e) { console.warn('[template-pdf] fitPage failed:', e); }
     updateWindowTitle();
   } catch (e) {
     console.error('[template-pdf] failed:', e);
@@ -1045,7 +1054,6 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
       if (doc) doc.fileName = displayName;
       // Mark as modified so Ctrl+S triggers Save As right away
       markDocumentModified();
-      try { await fitPage(); } catch (e) { console.warn('[blank-pdf] fitPage failed:', e); }
       updateWindowTitle();
       return;
     }
@@ -1101,18 +1109,7 @@ export async function createBlankPDF(widthPt, heightPt, numPages, bytes = null) 
     // Mark as modified so Ctrl+S will trigger Save As
     markDocumentModified();
 
-    // Manual fit: the in-memory path bypasses the viewport, so fitPage() is
-    // a no-op — compute a fit-zoom from the container directly.
-    if (pdfContainer) {
-      const r = pdfContainer.getBoundingClientRect();
-      const padding = 20; // small breathing room around the page
-      const availW = Math.max(100, r.width - padding * 2);
-      const availH = Math.max(100, r.height - padding * 2);
-      const fitScale = Math.min(availW / widthPt, availH / heightPt);
-      doc.scale = Math.max(0.05, Math.min(1.5, fitScale));
-    }
-
-    await setViewMode(doc.viewMode);
+    await setViewMode(indelingVan(doc));
     if (bytes) {
       // Zoals bij een geopend bestand: de annotaties van elke pagina laden;
       // dat zet ook de markering per pagina. Mislukt het, dan blijft de
@@ -1213,6 +1210,11 @@ function stempelWorkerRender(doc) {
     }
   } catch { render = null; }
   return (doc._stempelWorkerRender = render);
+}
+
+async function extractAnnotationColors(pageNum, pdfLibDoc) {
+  const colors = await import('./loader/color-extraction.js');
+  return colors.extractAnnotationColors(pageNum, pdfLibDoc);
 }
 
 // Load annotations for a single page on-demand (called when user navigates to a page)

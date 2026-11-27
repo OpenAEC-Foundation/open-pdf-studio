@@ -25,6 +25,7 @@ const haak = await import('./hosting-haak.js');
 const { plattegrondOpdracht } = await import('./mcp-plattegrond.js');
 const { hartVanSymbool } = await import('./gehoste-opening.js');
 const { openingIntervallen } = await import('../annotations/wand-openingen.js');
+const { sluitVlakHoeken } = await import('./wand-tekenen.js');
 
 const K = 0.5;                                    // paginapunten per mm
 const kloon = (x) => JSON.parse(JSON.stringify(x));
@@ -284,6 +285,38 @@ test('tijdens het slepen loopt het gat mee en eindigt het in één stap', async 
   await undo.undo();
   assert.deepEqual(gaten(wand()), [[2550, 3450]], 'ongedaan zet ook het gat terug');
   bijna(opWand(kozijn(), wand()).langs, 3000, 'en de deur');
+});
+
+test('een wand die op een vlak wordt getekend en de hoek sluit, neemt de openingen van de bijgestelde wand mee (#1230)', async () => {
+  // De deur staat tegen het eind van de wand: 7100..8000 mm.
+  const { doc, wand, kozijn } = await tekening([{ kind: 'door', widthMm: 900, alongMm: 7550 }]);
+  const voor = stappen(doc);
+  const inhoud = kloon(doc.annotations);
+  // Een nieuwe wand van 200 mm, getekend op haar rechtervlak vanaf de
+  // onderhoek (4000, 350) van het eind van de bestaande wand, naar beneden.
+  // Haar hartlijn ligt 50 pt links van de geklikte lijn.
+  const nieuw = createAnnotation({
+    type: 'wall', page: 1, startX: 3950, startY: 350, endX: 3950, endY: 2000, dikteMm: 200, hatchPattern: 'none',
+  });
+  const hoeken = sluitVlakHoeken(nieuw, { x: 4000, y: 350 }, doc.annotations);
+  assert.ok(hoeken, 'de hoek wordt gesloten');
+  assert.deepEqual(hoeken.geraakt.map((w) => w.id), [wand().id]);
+  // Zoals het wandgereedschap: de nieuwe wand en de bijgestelde uiteinden in één stap.
+  doc.annotations.push(nieuw);
+  undo.beginUndoTransaction();
+  try {
+    undo.recordAdd(nieuw);
+    undo.recordBulkModify(hoeken.geraakt, hoeken.voor);
+  } finally {
+    undo.endUndoTransaction();
+  }
+  assert.equal(wand().endX, 3950, 'het eind van de bestaande wand ging naar de hoek van de hartlijnen');
+  assert.deepEqual(gaten(wand()), [[7000, 7900]], 'de deur schoof mee terug: de wand is 100 mm korter');
+  bijna(opWand(kozijn(), wand()).langs, 7450, 'het kozijn staat in het gat');
+  bijna(opWand(kozijn(), wand()).dwars, 0, 'op de wand');
+  assert.equal(stappen(doc), voor + 1, 'alles in één ongedaan-stap');
+  await undo.undo();
+  assert.deepEqual(kloon(doc.annotations), inhoud, 'ongedaan: de wand, het gat en de deur zoals ze waren');
 });
 
 test('kopiëren en plakken: wand met deur blijft een stel, een losse kopie van de deur is los', async () => {

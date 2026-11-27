@@ -15,6 +15,8 @@ const { installeerCanvas } = await import('./tekstvak-canvas.testhulp.mjs');
 installeerCanvas();
 
 const { state } = await import('../core/state.js');
+const { BLEND_MODES, blendPdfNaam, effectiveBlendMode } = await import('../annotations/blend-modes.js');
+const { annotProps, storeShowProperties, storeShowMultiSelection, updateAnnotProp } = await import('../solid/stores/propertiesStore.js');
 const { savePDF } = await import('./saver.js');
 const { convertPdfAnnotation } = await import('./loader/annotation-converter.js');
 const { extractAnnotationColors } = await import('./loader/color-extraction.js');
@@ -156,4 +158,55 @@ test('een modus terug op normaal haalt /BM weer weg', async () => {
   assert.deepEqual(a.bms, []);
   const [weer] = await laad(tweede);
   assert.equal(weer.blendMode, undefined);
+});
+
+test('via Eigenschappen alle zestien modi instellen en heropenen', async () => {
+  const modellen = BLEND_MODES.flatMap((_, i) => [
+    { ...MODELLEN[0], id: `kader-${i}`, x: i * 10, blendMode: undefined },
+    { ...MODELLEN.at(-1), id: `tekst-${i}`, x: i * 10, blendMode: undefined },
+    { ...basis, type: 'textHighlight', id: `markering-${i}`, x: i * 10, y: 240, width: 20, height: 10 },
+  ]);
+  state.documents = [{
+    id: 'paneel', annotations: modellen, currentPage: 1, selectedAnnotations: [],
+    undoStack: [], redoStack: [], pageRotations: {}, textEdits: [], bookmarks: [],
+  }];
+  state.activeDocumentIndex = 0;
+  const doc = state.documents[0];
+  for (const [i, a] of doc.annotations.entries()) {
+    storeShowProperties(a);
+    assert.equal(annotProps.blendMode, a.type === 'textHighlight' ? 'multiply' : 'normal');
+    const mode = BLEND_MODES[Math.floor(i / 3)];
+    updateAnnotProp('blendMode', mode);
+    assert.equal(a.blendMode, mode);
+    assert.equal(annotProps.blendMode, mode);
+  }
+  const bytes = await opslaan(await leegBlad(), modellen);
+  const terug = await laad(bytes);
+  for (const type of ['box', 'textbox', 'textHighlight']) {
+    assert.deepEqual(terug.filter(a => a.type === type).map(effectiveBlendMode), BLEND_MODES, type);
+  }
+  const bestand = await inBestand(bytes);
+  for (const [i, a] of bestand.entries()) {
+    const mode = BLEND_MODES[Math.floor(i / 3)];
+    const naam = blendPdfNaam(mode) || (a.subtype === '/Highlight' ? 'Normal' : null);
+    assert.deepEqual(a.bms, naam ? ['/' + naam] : [], a.subtype);
+  }
+});
+
+test('de mengmodus bij meervoudige selectie en vergrendelde objecten', () => {
+  const modellen = [MODELLEN[0], MODELLEN.at(-1)].map(a => ({ ...a }));
+  state.documents = [{
+    id: 'multi', annotations: modellen, currentPage: 1, selectedAnnotations: modellen,
+    undoStack: [], redoStack: [], pageRotations: {}, textEdits: [], bookmarks: [],
+  }];
+  state.activeDocumentIndex = 0;
+  const selected = state.documents[0].selectedAnnotations;
+  storeShowMultiSelection(selected);
+  assert.equal(annotProps.blendMode, 'mixed');
+  updateAnnotProp('blendMode', 'hue');
+  assert.ok(selected.every(a => a.blendMode === 'hue'));
+  selected[0].locked = true;
+  storeShowMultiSelection(selected);
+  updateAnnotProp('blendMode', 'color');
+  assert.ok(selected.every(a => a.blendMode === 'hue'));
 });

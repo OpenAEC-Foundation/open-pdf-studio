@@ -483,11 +483,11 @@ export function inktAppearanceInhoud(ann, X, Y, rgb) {
     }
     regels.push('f');
   } else {
-    if (geo.punten.length < 2) return null;
     regels.push(`${f(geo.breedtes[0] ?? ann.lineWidth ?? 2)} w`, '1 J', '1 j', `${r} ${g} ${b} RG`);
     const streep = inktStreepPatroon(ann.borderStyle);
     if (streep) regels.push(`[${streep.join(' ')}] 0 d`);
     geo.punten.forEach((p, i) => regels.push(`${f(X(p.x))} ${f(Y(p.y))} ${i === 0 ? 'm' : 'l'}`));
+    if (geo.punten.length === 1) regels.push('h'); // A closed zero-length path with round caps is a dot.
     regels.push('S');
   }
   return regels.join('\n') + '\n';

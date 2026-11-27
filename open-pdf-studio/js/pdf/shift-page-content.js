@@ -25,6 +25,13 @@ function assertOffset(cx, cy) {
   }
 }
 
+function assertClip(clip) {
+  const values = [clip.x, clip.y, clip.width, clip.height];
+  if (!values.every((v) => Number.isFinite(v) && Math.abs(v) <= 1e6) || !(clip.width > 0) || !(clip.height > 0)) {
+    throw new RangeError(`Clip rectangle out of range: ${values.join(", ")}`);
+  }
+}
+
 /**
  * The streams of an encrypted file cannot be extended: the added transform
  * would be written unencrypted and read back as garbage, wrecking the page.
@@ -40,12 +47,17 @@ export function assertShiftable(pdfDoc) {
  * Translate a page's content by (cx, cy) in the page's own unrotated user
  * space (PDF points, y up), in place.
  *
+ * @param {{x: number, y: number, width: number, height: number} | null} [clip] -
+ *   when given, only this rectangle of the content stays visible. It is in
+ *   the coordinates the content itself is drawn in (so before the shift and
+ *   the scale), which makes it move and scale along with the content.
  * @returns {boolean} false when the page has no content to shift (a blank
  *   page without /Contents) — the page is left untouched.
  */
-export function shiftPageContent(pdfDoc, page, cx, cy, scale = 1) {
+export function shiftPageContent(pdfDoc, page, cx, cy, scale = 1, clip = null) {
   assertOffset(cx, cy);
   if (!(scale > 0) || scale > 1e4) throw new RangeError(`Scale out of range: ${scale}`);
+  if (clip) assertClip(clip);
   const context = pdfDoc.context;
   const node = page.node;
   const contentsEntry = node.get(PDFName.of("Contents"));
@@ -59,7 +71,10 @@ export function shiftPageContent(pdfDoc, page, cx, cy, scale = 1) {
 
   // The newline before Q keeps it a separate token even when the last
   // original stream does not end in whitespace.
-  const open = context.register(context.stream(`q ${formatNumber(scale)} 0 0 ${formatNumber(scale)} ${formatNumber(cx)} ${formatNumber(cy)} cm\n`));
+  const clipPath = clip
+    ? `${formatNumber(clip.x)} ${formatNumber(clip.y)} ${formatNumber(clip.width)} ${formatNumber(clip.height)} re W n\n`
+    : "";
+  const open = context.register(context.stream(`q ${formatNumber(scale)} 0 0 ${formatNumber(scale)} ${formatNumber(cx)} ${formatNumber(cy)} cm\n${clipPath}`));
   const close = context.register(context.stream("\nQ\n"));
   // A NEW array: the old one may be an indirect object shared with other pages.
   node.set(PDFName.of("Contents"), context.obj([open, ...streams, close]));
