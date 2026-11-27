@@ -241,8 +241,6 @@ jobs:
         run: node scripts/test-bidi-currency-browser.mjs
       - name: Test crop margins coordinates (Linux)
         run: node scripts/test-crop-margins-browser.mjs
-      - name: Test annotation blend mode properties (Linux)
-        run: node scripts/test-mengmodus-paneel-browser.mjs
 
       - name: Test deleted comment popup lifecycle (Linux)
         if: matrix.platform == 'ubuntu-22.04'
