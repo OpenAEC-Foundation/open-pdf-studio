@@ -217,6 +217,8 @@ jobs:
       - name: Test RTL currency consumers (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-bidi-currency-browser.mjs
+      - name: Test crop margins coordinates (Linux)
+        run: node scripts/test-crop-margins-browser.mjs
 
       - name: Test deleted comment popup lifecycle (Linux)
         if: matrix.platform == 'ubuntu-22.04'

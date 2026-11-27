@@ -976,3 +976,4 @@ js/annotations/window-clipboard-channel.test.mjs
 js/annotations/signature-storage.test.mjs
 js/annotations/signature-image.test.mjs
 scripts/pdfjs-bidi-currency.test.mjs
+js/pdf/crop-margins-geometrie.test.mjs
