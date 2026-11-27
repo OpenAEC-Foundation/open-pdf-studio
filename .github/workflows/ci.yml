@@ -118,6 +118,8 @@ jobs:
       - name: Test PDF-only Thin Lines (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-pdf-only-thin-lines-browser.mjs
+      - name: Test thumbnail column preference (Linux)
+        run: node scripts/test-thumbnail-columns-browser.mjs
 
       - name: Test embedded PDF scale override (Linux)
         if: matrix.platform == 'ubuntu-22.04'

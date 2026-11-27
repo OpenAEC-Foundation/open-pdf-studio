@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Guardar la visibilidad actual de las capas como estado predeterminado del documento. Se escribe en el archivo la próxima vez que guarde.",
     "layersDefaultPending": "Será el predeterminado al guardar",
     "layerLocked": "Capa bloqueada: no se puede activar ni desactivar",
-    "layerRadioGroup": "Grupo de opciones: al activar esta capa se desactivan las demás capas del grupo"
+    "layerRadioGroup": "Grupo de opciones: al activar esta capa se desactivan las demás capas del grupo",
+    "thumbnailColumns": "Columnas de miniaturas"
   },
   "scaleBar": {
     "title": "Barra de escala",

@@ -454,7 +454,8 @@
     "layersSetDefaultTitle": "Desa la visibilitat actual de les capes com a estat predeterminat del document. S'escriu al fitxer la propera vegada que deseu.",
     "layersDefaultPending": "Serà el predeterminat en desar",
     "layerLocked": "Capa bloquejada: no es pot activar ni desactivar",
-    "layerRadioGroup": "Grup d'opcions: activar aquesta capa desactiva les altres capes del grup"
+    "layerRadioGroup": "Grup d'opcions: activar aquesta capa desactiva les altres capes del grup",
+    "thumbnailColumns": "Columnes de miniatures"
   },
   "scaleBar": {
     "title": "Barra d'escala",

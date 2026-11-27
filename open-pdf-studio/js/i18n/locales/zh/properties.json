@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "将当前图层的可见性保存为文档的默认状态。下次保存时写入文件。",
     "layersDefaultPending": "保存时将成为默认",
     "layerLocked": "锁定的图层：无法打开或关闭",
-    "layerRadioGroup": "选择组：打开此图层会关闭组中的其他图层"
+    "layerRadioGroup": "选择组：打开此图层会关闭组中的其他图层",
+    "thumbnailColumns": "缩略图列数"
   },
   "scaleBar": {
     "title": "比例尺",

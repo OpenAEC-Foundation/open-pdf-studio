@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Lưu trạng thái hiển thị hiện tại của các lớp làm trạng thái mặc định của tài liệu. Trạng thái này được ghi vào tệp ở lần lưu tiếp theo.",
     "layersDefaultPending": "Sẽ thành mặc định khi lưu",
     "layerLocked": "Lớp bị khóa: không thể bật hoặc tắt",
-    "layerRadioGroup": "Nhóm lựa chọn: bật lớp này sẽ tắt các lớp khác trong nhóm"
+    "layerRadioGroup": "Nhóm lựa chọn: bật lớp này sẽ tắt các lớp khác trong nhóm",
+    "thumbnailColumns": "Cột hình thu nhỏ"
   },
   "scaleBar": {
     "title": "Thước tỷ lệ",

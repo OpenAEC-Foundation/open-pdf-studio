@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Die aktuelle Sichtbarkeit der Ebenen als Standardzustand des Dokuments speichern. Sie wird beim nächsten Speichern in die Datei geschrieben.",
     "layersDefaultPending": "Wird beim Speichern zum Standard",
     "layerLocked": "Gesperrte Ebene: kann nicht ein- oder ausgeschaltet werden",
-    "layerRadioGroup": "Auswahlgruppe: Wenn diese Ebene eingeschaltet wird, werden die anderen Ebenen der Gruppe ausgeschaltet"
+    "layerRadioGroup": "Auswahlgruppe: Wenn diese Ebene eingeschaltet wird, werden die anderen Ebenen der Gruppe ausgeschaltet",
+    "thumbnailColumns": "Miniaturspalten"
   },
   "scaleBar": {
     "title": "Maßstabsleiste",

@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Memorizza la visibilità attuale dei livelli come stato predefinito del documento. Viene scritta nel file al prossimo salvataggio.",
     "layersDefaultPending": "Diventerà predefinito al salvataggio",
     "layerLocked": "Livello bloccato: non può essere attivato o disattivato",
-    "layerRadioGroup": "Gruppo di scelta: attivando questo livello si disattivano gli altri livelli del gruppo"
+    "layerRadioGroup": "Gruppo di scelta: attivando questo livello si disattivano gli altri livelli del gruppo",
+    "thumbnailColumns": "Colonne delle miniature"
   },
   "scaleBar": {
     "title": "Barra di scala",

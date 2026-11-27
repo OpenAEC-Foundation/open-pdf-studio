@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Guardar a visibilidade atual das camadas como estado padrão do documento. É gravada no arquivo na próxima vez que salvar.",
     "layersDefaultPending": "Será o padrão ao salvar",
     "layerLocked": "Camada bloqueada: não pode ser ativada nem desativada",
-    "layerRadioGroup": "Grupo de escolha: ativar esta camada desativa as outras camadas do grupo"
+    "layerRadioGroup": "Grupo de escolha: ativar esta camada desativa as outras camadas do grupo",
+    "thumbnailColumns": "Colunas de miniaturas"
   },
   "scaleBar": {
     "title": "Barra de escala",

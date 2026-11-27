@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Lagre lagenes gjeldende synlighet som dokumentets standardtilstand. Den skrives til filen neste gang du lagrer.",
     "layersDefaultPending": "Blir standard ved neste lagring",
     "layerLocked": "Låst lag: kan ikke slås av eller på",
-    "layerRadioGroup": "Valggruppe: når dette laget slås på, slås de andre lagene i gruppen av"
+    "layerRadioGroup": "Valggruppe: når dette laget slås på, slås de andre lagene i gruppen av",
+    "thumbnailColumns": "Miniatyrkolonner"
   },
   "scaleBar": {
     "title": "Målestokklinjal",

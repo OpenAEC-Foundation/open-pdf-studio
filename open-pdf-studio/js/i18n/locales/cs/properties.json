@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Uložit aktuální viditelnost vrstev jako výchozí stav dokumentu. Zapíše se do souboru při příštím uložení.",
     "layersDefaultPending": "Při uložení se stane výchozím",
     "layerLocked": "Uzamčená vrstva: nelze ji zapnout ani vypnout",
-    "layerRadioGroup": "Skupina voleb: zapnutím této vrstvy se ostatní vrstvy skupiny vypnou"
+    "layerRadioGroup": "Skupina voleb: zapnutím této vrstvy se ostatní vrstvy skupiny vypnou",
+    "thumbnailColumns": "Sloupce miniatur"
   },
   "scaleBar": {
     "title": "Grafické měřítko",

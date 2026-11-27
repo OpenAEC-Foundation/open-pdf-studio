@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Gem lagenes aktuelle synlighed som dokumentets standardtilstand. Den skrives til filen, næste gang du gemmer.",
     "layersDefaultPending": "Bliver standard ved næste gem",
     "layerLocked": "Låst lag: kan ikke slås til eller fra",
-    "layerRadioGroup": "Valggruppe: når dette lag slås til, slås de andre lag i gruppen fra"
+    "layerRadioGroup": "Valggruppe: når dette lag slås til, slås de andre lag i gruppen fra",
+    "thumbnailColumns": "Miniaturekolonner"
   },
   "scaleBar": {
     "title": "Skalabjælke",
