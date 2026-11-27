@@ -31,3 +31,11 @@ Vanuit open-pdf-studio:
 Het oorspronkelijke formulier van de melder is niet beschikbaar; de regressie
 gebruikt een zelfstandig gegenereerd formulier. Geïnstalleerde Tauri/PDFium- en
 installerkwalificatie blijven apart nodig. Er wordt geen release gepubliceerd.
+
+## CI-vervolg 27 november
+
+De klembordbrowsercontrole faalde op exact vergelijken van 29,999999999999993
+met 30. Lokaal gereproduceerd. Alleen de twee relatieve groepsafstanden krijgen
+een tolerantie van 1e-9 PDF-punt; de andere controles blijven ongewijzigd. Alle
+zeven browserscenario's slagen opnieuw, ook via de echte Rust-broker (53
+uitwisselingen). Productiebuild, bundelbudget en versiecontroles opnieuw groen.
