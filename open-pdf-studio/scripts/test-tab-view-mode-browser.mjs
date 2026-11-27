@@ -81,6 +81,74 @@ try {
   await page.locator('.document-tab').nth(0).click(); await zie('click tab 0');
   await page.locator('.document-tab').nth(2).click(); await zie('click tab 2');
   await page.locator('.document-tab').nth(1).click(); await zie('click tab 1');
+  // The default page layout from Preferences (#1289): chosen in the dialog,
+  // used by the next document, not by the documents that are already open.
+  const open = async (naam) => {
+    const pdf = await PDFDocument.create();
+    for (let i = 0; i < 4; i++) pdf.addPage([595, 842]);
+    return page.evaluate(async ([naam, bytes]) => {
+      const { createTab } = await import('/js/ui/chrome/tabs.js');
+      const { loadPDF } = await import('/js/pdf/loader.js');
+      const { getActiveDocument } = await import('/js/core/state.ts');
+      const tab = createTab(`/${naam}.pdf`);
+      await loadPDF(`/${naam}.pdf`, tab.index, new Uint8Array(bytes));
+      const doc = getActiveDocument(), cc = document.getElementById('continuous-container');
+      return { naam: doc.fileName, modus: doc.viewMode, boek: !!doc.bookSpread, spread: !!doc.facingSpread,
+        vak: doc.viewMode === 'single' ? 'single' : getComputedStyle(cc).display,
+        bladen: [...cc.querySelectorAll('.page-wrapper')].map(w => Number(w.dataset.page)) };
+    }, [naam, Array.from(await pdf.save())]);
+  };
+  const voorkeur = (m) => page.evaluate(async (m) => { (await import('/js/core/state.ts')).state.preferences.defaultViewMode = m; }, m);
+  const al = await info();
+  await page.evaluate(async () => (await import('/js/core/preferences.js')).showPreferencesDialog('pageDisplay'));
+  await page.locator('#pref-default-page-layout .pref-select-display').click();
+  const keuzes = page.locator('.pref-combo-dropdown.show .pref-combo-option');
+  const namen = await keuzes.allTextContents();
+  assert.equal(new Set(namen.filter(Boolean)).size, 4, 'the four layouts in Preferences: ' + namen.join(' | '));
+  assert.equal(await keuzes.evaluateAll(els => els.findIndex(el => el.classList.contains('selected'))), 1, 'the list shows the current layout, continuous here');
+  await keuzes.nth(2).dispatchEvent('mousedown');
+  await page.locator('.preferences-footer .pref-btn-primary').click();
+  await page.waitForTimeout(500);
+  assert.equal(await page.evaluate(async () => (await import('/js/core/state.ts')).state.preferences.defaultViewMode), 'facing', 'the chosen layout is saved');
+  assert.equal(await info(), al, 'open documents keep their layout');
+  // Two pages, one spread at a time: page 1 alone, then pages 2 and 3.
+  const naast = await open('naast');
+  assert.deepEqual({ ...naast, bladen: undefined }, { naam: 'naast.pdf', modus: 'continuous', boek: false, spread: true, vak: 'grid', bladen: undefined });
+  assert.deepEqual(naast.bladen, [1], 'the first spread is page 1 alone');
+  await page.evaluate(async () => (await import('/js/pdf/renderer.js')).goToPage(2));
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#continuous-container .page-wrapper')].map(w => Number(w.dataset.page))), [2, 3], 'the next spread');
+  // Two pages, continuous: every page in the grid.
+  await voorkeur('book');
+  const boek = await open('boek');
+  assert.deepEqual(boek, { naam: 'boek.pdf', modus: 'continuous', boek: true, spread: false, vak: 'grid', bladen: [1, 2, 3, 4] });
+  // Single page, and a value the app does not know falls back to it.
+  for (const m of ['single', 'grid']) {
+    await voorkeur(m);
+    const enkel = await open('enkel-' + m);
+    assert.deepEqual({ modus: enkel.modus, boek: enkel.boek, spread: enkel.spread, vak: enkel.vak }, { modus: 'single', boek: false, spread: false, vak: 'single' }, m);
+  }
+  assert.ok((await info()).startsWith(al), 'the earlier documents still have their layout');
+  // After a restart the saved choice is still there; a stored value from
+  // before the setting existed goes back to single page, once.
+  const herstart = async () => {
+    await page.reload({ timeout: 120000 }); await page.waitForSelector('[data-tab="view"]', { timeout: 120000 });
+    // The author name is empty until the stored preferences have been loaded.
+    await page.waitForFunction(async () => !!(await import('/js/core/state.ts')).state.preferences.authorName, null, { timeout: 60000 });
+    return page.evaluate(async () => (await import('/js/core/state.ts')).state.preferences.defaultViewMode);
+  };
+  assert.equal(await herstart(), 'facing', 'the layout chosen in Preferences survives a restart');
+  await page.evaluate(async () => {
+    const { leesOpslag, schrijfOpslag, VOORKEUREN_NAAM } = await import('/js/core/opslag.js');
+    const oud = JSON.parse(leesOpslag(VOORKEUREN_NAAM));
+    delete oud.viewModeDefaultSingle; oud.defaultViewMode = 'continuous';
+    schrijfOpslag(VOORKEUREN_NAAM, JSON.stringify(oud));
+  });
+  assert.equal(await herstart(), 'single', 'a stored continuous from before the setting goes back to single page');
+  await page.evaluate(async () => {
+    const { state } = await import('/js/core/state.ts'); const { savePreferences } = await import('/js/core/preferences.js');
+    state.preferences.defaultViewMode = 'continuous'; savePreferences();
+  });
+  assert.equal(await herstart(), 'continuous', 'and a choice made after that is kept');
   assert.deepEqual(errors, [], 'no uncaught browser errors');
-  console.log('PASS: the page follows the tab across single-page, continuous and book view');
+  console.log('PASS: the page follows the tab across single-page, continuous and book view; a new document opens in the default page layout');
 } finally { await browser?.close(); await server.close(); await rm(cache, { recursive: true, force: true }); }
