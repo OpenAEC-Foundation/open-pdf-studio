@@ -17,3 +17,7 @@ De renderbreedte volgt hetzelfde gekozen kolomaantal als het raster. Grotere min
 De browsercontrole kwalificeert de Tauri-webinterface met de PDF.js-route. Een geïnstalleerde Tauri-app en native PDFium-miniaturen zijn hiermee niet opnieuw gekwalificeerd. De installerworkflow op de persoonlijke fork is uitgeschakeld. De PR blijft concept zolang bundelcontrole, installerkwalificatie of vereiste upstreamreview ontbreken. Er wordt geen release gepubliceerd.
 
 Chat-ID: `01a109f0-a849-7782-8641-0b091eb29747`.
+
+## CI-nacontrole
+
+De eerste Linux-run las na het verbreden nog de vorige slidergrens (drie in plaats van vier). De browsertest vertraagt nu expliciet de ResizeObserver en begint bij een reeds zichtbaar paneel. De oude test faalt daarmee reproduceerbaar; de aangepaste test wacht op de verwachte nieuwe kolomgrens. De controles op raster, bitmapresolutie en pagina-interacties blijven intact. De toepassing zelf verandert niet.
