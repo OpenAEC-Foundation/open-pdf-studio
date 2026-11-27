@@ -1302,8 +1302,9 @@ body.pdf-cursor-override #canvas-container * {
   background: color-mix(in srgb, var(--theme-accent, #0078d7) 16%, transparent);
 }
 
-.thumbnail-columns-control { display: flex; align-items: center; gap: 6px; padding: 4px 8px; color: var(--theme-text); }
-.thumbnail-columns-control input { flex: 1; min-width: 40px; }
+.thumbnail-columns-control { display: flex; align-items: center; gap: 6px; padding: 4px 8px; color: var(--theme-text); font-size: 11px; }
+.thumbnail-columns-control span { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.thumbnail-columns-control input { flex: 1 0 60px; min-width: 60px; }
 .thumbnail-columns-control output { min-width: 2ch; text-align: end; }
 /* PDF content only; annotation and selection overlays retain their colours. */
 #canvas-wrapper #pdf-canvas,
