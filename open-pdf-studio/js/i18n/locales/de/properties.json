@@ -857,7 +857,9 @@
       "scheduleTable": "Mengentabelle",
       "builtinText": "Text",
       "rebarPosition": "Bewehrungsstab"
-    }
+    },
+    "configImportFailed": "Die Mengeneinstellungen konnten nicht importiert werden. Wählen Sie eine gültige unterstützte Konfigurationsdatei.",
+    "configExportFailed": "Die Mengeneinstellungen konnten nicht exportiert werden."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisches Symbol",

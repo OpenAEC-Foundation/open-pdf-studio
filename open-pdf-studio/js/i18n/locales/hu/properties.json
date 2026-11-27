@@ -857,7 +857,9 @@
       "scheduleTable": "Mennyiségtáblázat",
       "builtinText": "Szöveg",
       "rebarPosition": "Betonacél rúd"
-    }
+    },
+    "configImportFailed": "A mennyiségi beállítások importálása sikertelen. Válasszon érvényes, támogatott konfigurációs fájlt.",
+    "configExportFailed": "A mennyiségi beállítások exportálása sikertelen."
   },
   "parametricSymbol": {
     "defaultTitle": "Paraméteres szimbólum",

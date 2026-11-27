@@ -857,7 +857,9 @@
       "scheduleTable": "Tabel kuantitas",
       "builtinText": "Teks",
       "rebarPosition": "Batang tulangan"
-    }
+    },
+    "configImportFailed": "Tidak dapat mengimpor pengaturan kuantitas. Pilih berkas konfigurasi yang valid dan didukung.",
+    "configExportFailed": "Tidak dapat mengekspor pengaturan kuantitas."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbol parametrik",

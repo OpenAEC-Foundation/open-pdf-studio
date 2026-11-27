@@ -857,7 +857,9 @@
       "scheduleTable": "Tabla de cantidades",
       "builtinText": "Texto",
       "rebarPosition": "Barra de armadura"
-    }
+    },
+    "configImportFailed": "No se pudo importar la configuración de cantidades. Elija un archivo de configuración válido y compatible.",
+    "configExportFailed": "No se pudo exportar la configuración de cantidades."
   },
   "parametricSymbol": {
     "defaultTitle": "Símbolo paramétrico",

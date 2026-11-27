@@ -857,7 +857,9 @@
       "scheduleTable": "Bảng khối lượng",
       "builtinText": "Văn bản",
       "rebarPosition": "Thanh cốt thép"
-    }
+    },
+    "configImportFailed": "Không thể nhập cài đặt khối lượng. Hãy chọn tệp cấu hình hợp lệ và được hỗ trợ.",
+    "configExportFailed": "Không thể xuất cài đặt khối lượng."
   },
   "parametricSymbol": {
     "defaultTitle": "Ký hiệu tham số",

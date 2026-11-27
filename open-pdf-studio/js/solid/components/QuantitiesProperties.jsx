@@ -1,6 +1,8 @@
 import { Show, For, createSignal, onMount, onCleanup } from 'solid-js';
 import { CATEGORY_ORDER, categoryLabel, fieldsForCategories } from '../../quantities/categories.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { CONFIG_EXTENSION, encodeQuantitiesConfig, decodeQuantitiesConfig } from '../../quantities/config-file.js';
+import { showMessage } from '../stores/dialogStore.js';
 import {
   propertiesVisible, setPropertiesVisible,
   selectedCategories, setSelectedCategories,
@@ -12,6 +14,7 @@ import {
   format, setFormat,
   appearance, setAppearance,
   loadBuiltInText, clearBuiltInText,
+  quantitiesConfig, applyQuantitiesConfig,
 } from '../stores/quantitiesStore.js';
 
 const TABS = [
@@ -42,6 +45,32 @@ export default function QuantitiesProperties() {
   const [activeTab, setActiveTab] = createSignal('fields');
   const [availSel, setAvailSel] = createSignal(null);
   const [schedSel, setSchedSel] = createSignal(null);
+  const [fileBusy, setFileBusy] = createSignal(false);
+
+  async function configFile(importing) {
+    if (fileBusy()) return;
+    setFileBusy(true);
+    try {
+      const io = await import('../../core/platform.js');
+      if (importing) {
+        const path = await io.openFileDialog([CONFIG_EXTENSION, 'json']);
+        if (!path || typeof path !== 'string') return;
+        const bytes = await io.readBinaryFile(path);
+        const config = decodeQuantitiesConfig(new TextDecoder().decode(bytes));
+        applyQuantitiesConfig(config);
+        setAvailSel(null); setSchedSel(null);
+        if (config.categories.includes('text-built-in')) await loadBuiltInText();
+      } else {
+        const source = encodeQuantitiesConfig(quantitiesConfig());
+        const path = await io.saveFileDialog(`quantities.${CONFIG_EXTENSION}`,
+          [{ name: t('quantities.propertiesTitle'), extensions: [CONFIG_EXTENSION] }]);
+        if (!path) return;
+        if (await io.writeBinaryFile(path, new TextEncoder().encode(source)) === false) throw new Error('Write failed');
+      }
+    } catch {
+      showMessage(t(importing ? 'quantities.configImportFailed' : 'quantities.configExportFailed'), t('quantities.propertiesTitle'));
+    } finally { setFileBusy(false); }
+  }
 
   let dialogRef;
   let isDragging = false, dragOffsetX = 0, dragOffsetY = 0;
@@ -293,6 +322,8 @@ export default function QuantitiesProperties() {
         </div>
 
         <div class="q-props-footer">
+          <button class="schedule-btn-sm" data-quantities-config="import" disabled={fileBusy()} onClick={() => configFile(true)}>{t('common:import')}</button>
+          <button class="schedule-btn-sm" data-quantities-config="export" disabled={fileBusy()} onClick={() => configFile(false)}>{t('common:export')}</button>
           <button class="schedule-btn-sm" onClick={() => setPropertiesVisible(false)}>{t('quantities.close')}</button>
         </div>
       </div>

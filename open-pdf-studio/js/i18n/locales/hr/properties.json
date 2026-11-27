@@ -857,7 +857,9 @@
       "scheduleTable": "Tablica količina",
       "builtinText": "Tekst",
       "rebarPosition": "Armaturna šipka"
-    }
+    },
+    "configImportFailed": "Postavke količina nije moguće uvesti. Odaberite valjanu podržanu konfiguracijsku datoteku.",
+    "configExportFailed": "Postavke količina nije moguće izvesti."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametarski simbol",

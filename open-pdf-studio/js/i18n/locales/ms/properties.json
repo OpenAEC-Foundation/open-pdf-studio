@@ -857,7 +857,9 @@
       "scheduleTable": "Jadual kuantiti",
       "builtinText": "Teks",
       "rebarPosition": "Bar tetulang"
-    }
+    },
+    "configImportFailed": "Tidak dapat mengimport tetapan kuantiti. Pilih fail konfigurasi yang sah dan disokong.",
+    "configExportFailed": "Tidak dapat mengeksport tetapan kuantiti."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbol parametrik",

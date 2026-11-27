@@ -857,7 +857,9 @@
       "scheduleTable": "ຕາຕະລາງປະລິມານວັດສະດຸ",
       "builtinText": "ຂໍ້ຄວາມ",
       "rebarPosition": "ທ່ອນເຫຼັກເສີມ"
-    }
+    },
+    "configImportFailed": "ບໍ່ສາມາດນຳເຂົ້າການຕັ້ງຄ່າປະລິມານໄດ້. ເລືອກໄຟລ໌ການຕັ້ງຄ່າທີ່ຖືກຕ້ອງແລະຮອງຮັບ.",
+    "configExportFailed": "ບໍ່ສາມາດສົ່ງອອກການຕັ້ງຄ່າປະລິມານໄດ້."
   },
   "parametricSymbol": {
     "defaultTitle": "ສັນຍະລັກພາຣາມິເຕີ",

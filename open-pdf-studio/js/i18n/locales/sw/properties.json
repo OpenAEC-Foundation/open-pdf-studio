@@ -857,7 +857,9 @@
       "scheduleTable": "Jedwali la viwango",
       "builtinText": "Maandishi",
       "rebarPosition": "Nondo"
-    }
+    },
+    "configImportFailed": "Imeshindwa kuingiza mipangilio ya kiasi. Chagua faili halali ya usanidi inayotumika.",
+    "configExportFailed": "Imeshindwa kuhamisha mipangilio ya kiasi."
   },
   "parametricSymbol": {
     "defaultTitle": "Ishara ya vigezo",

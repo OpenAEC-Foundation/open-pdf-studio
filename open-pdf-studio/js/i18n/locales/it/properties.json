@@ -857,7 +857,9 @@
       "scheduleTable": "Tabella delle quantità",
       "builtinText": "Testo",
       "rebarPosition": "Barra d'armatura"
-    }
+    },
+    "configImportFailed": "Impossibile importare le impostazioni delle quantità. Scegliere un file di configurazione valido e supportato.",
+    "configExportFailed": "Impossibile esportare le impostazioni delle quantità."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbolo parametrico",

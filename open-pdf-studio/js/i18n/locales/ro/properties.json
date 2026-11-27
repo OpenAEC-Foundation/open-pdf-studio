@@ -857,7 +857,9 @@
       "scheduleTable": "Tabel de cantități",
       "builtinText": "Text",
       "rebarPosition": "Bară de armătură"
-    }
+    },
+    "configImportFailed": "Setările cantităților nu au putut fi importate. Alegeți un fișier de configurare valid și acceptat.",
+    "configExportFailed": "Setările cantităților nu au putut fi exportate."
   },
   "parametricSymbol": {
     "defaultTitle": "Simbol parametric",

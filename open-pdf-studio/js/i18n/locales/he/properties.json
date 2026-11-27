@@ -857,7 +857,9 @@
       "scheduleTable": "טבלת כמויות",
       "builtinText": "טקסט",
       "rebarPosition": "מוט זיון"
-    }
+    },
+    "configImportFailed": "לא ניתן לייבא את הגדרות הכמויות. יש לבחור קובץ תצורה תקין ונתמך.",
+    "configExportFailed": "לא ניתן לייצא את הגדרות הכמויות."
   },
   "parametricSymbol": {
     "defaultTitle": "סמל פרמטרי",

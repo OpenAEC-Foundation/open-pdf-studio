@@ -857,7 +857,9 @@
       "scheduleTable": "Mengdetabell",
       "builtinText": "Tekst",
       "rebarPosition": "Armeringsjern"
-    }
+    },
+    "configImportFailed": "Kunne ikke importere mengdeinnstillingene. Velg en gyldig konfigurasjonsfil som støttes.",
+    "configExportFailed": "Kunne ikke eksportere mengdeinnstillingene."
   },
   "parametricSymbol": {
     "defaultTitle": "Parametrisk symbol",

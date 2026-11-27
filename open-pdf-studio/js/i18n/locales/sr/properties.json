@@ -857,7 +857,9 @@
       "scheduleTable": "Табела количина",
       "builtinText": "Текст",
       "rebarPosition": "Арматурна шипка"
-    }
+    },
+    "configImportFailed": "Није могуће увести подешавања количина. Изаберите важећу подржану конфигурациону датотеку.",
+    "configExportFailed": "Није могуће извести подешавања количина."
   },
   "parametricSymbol": {
     "defaultTitle": "Параметарски симбол",

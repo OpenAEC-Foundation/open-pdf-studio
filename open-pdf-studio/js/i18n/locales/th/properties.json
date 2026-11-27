@@ -857,7 +857,9 @@
       "scheduleTable": "ตารางปริมาณ",
       "builtinText": "ข้อความ",
       "rebarPosition": "ท่อนเหล็กเสริม"
-    }
+    },
+    "configImportFailed": "ไม่สามารถนำเข้าการตั้งค่าปริมาณได้ โปรดเลือกไฟล์การกำหนดค่าที่ถูกต้องและรองรับ",
+    "configExportFailed": "ไม่สามารถส่งออกการตั้งค่าปริมาณได้"
   },
   "parametricSymbol": {
     "defaultTitle": "สัญลักษณ์พาราเมตริก",

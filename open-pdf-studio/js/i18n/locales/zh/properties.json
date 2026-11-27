@@ -857,7 +857,9 @@
       "scheduleTable": "工程量表",
       "builtinText": "文本",
       "rebarPosition": "钢筋"
-    }
+    },
+    "configImportFailed": "无法导入工程量设置。请选择有效且受支持的配置文件。",
+    "configExportFailed": "无法导出工程量设置。"
   },
   "parametricSymbol": {
     "defaultTitle": "参数化符号",

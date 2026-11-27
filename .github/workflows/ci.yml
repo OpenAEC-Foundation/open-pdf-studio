@@ -150,6 +150,8 @@ jobs:
       - name: Test quantities area reload and unit formatting (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-quantities-area-browser.mjs
+      - name: Test quantities configuration files (Linux)
+        run: node scripts/test-quantities-config-browser.mjs
 
       - name: Test MCP document screenshot in both views (Linux)
         if: matrix.platform == 'ubuntu-22.04'

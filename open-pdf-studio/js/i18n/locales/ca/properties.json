@@ -863,7 +863,9 @@
       "scheduleTable": "Taula de quantitats",
       "builtinText": "Text",
       "rebarPosition": "Barra d'armadura"
-    }
+    },
+    "configImportFailed": "No s’ha pogut importar la configuració de quantitats. Trieu un fitxer de configuració vàlid i compatible.",
+    "configExportFailed": "No s’ha pogut exportar la configuració de quantitats."
   },
   "parametricSymbol": {
     "defaultTitle": "Símbol paramètric",
