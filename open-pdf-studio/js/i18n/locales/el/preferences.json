@@ -281,6 +281,13 @@
     "openWindowTip": "Εμφάνιση των εργασιών εκτύπωσης που συλλήφθηκαν"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Απόδοση",
     "thinLines": "Λεπτές γραμμές (εμφάνιση όλων των γραμμών σε πλάτος 1px)",
     "progressiveRender": "Προοδευτική απόδοση (τα βαριά σχέδια γεμίζουν πλακίδιο προς πλακίδιο)",

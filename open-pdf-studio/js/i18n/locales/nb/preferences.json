@@ -281,6 +281,13 @@
     "openWindowTip": "Vis de fangede utskriftsjobbene"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Gjengivelse",
     "thinLines": "Tynne linjer (vis alle linjer med 1px bredde)",
     "progressiveRender": "Progressiv gjengivelse (fyll tunge tegninger rute for rute)",

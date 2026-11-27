@@ -281,6 +281,13 @@
     "openWindowTip": "显示已捕获的打印作业"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "渲染",
     "thinLines": "细线（以1像素宽度显示所有线条）",
     "progressiveRender": "渐进式渲染（逐块填充复杂图纸）",

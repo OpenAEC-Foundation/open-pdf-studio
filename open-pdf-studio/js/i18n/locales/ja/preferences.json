@@ -281,6 +281,13 @@
     "openWindowTip": "キャッチした印刷ジョブを表示します"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "レンダリング",
     "thinLines": "細い線（すべての線を1pxの幅で表示）",
     "progressiveRender": "段階的レンダリング（重い図面をタイルごとに描画）",

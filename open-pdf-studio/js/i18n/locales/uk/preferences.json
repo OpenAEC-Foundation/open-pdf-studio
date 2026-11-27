@@ -281,6 +281,13 @@
     "openWindowTip": "Показати перехоплені завдання друку"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Рендеринг",
     "thinLines": "Тонкі лінії (відображати всі лінії шириною 1px)",
     "progressiveRender": "Поступова візуалізація (складні креслення заповнюються плитка за плиткою)",

@@ -54,10 +54,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   theme: 'default',
   uiScale: 100,
 
-  // Enkelpagina is de standaard-weergavemodus; opgeslagen 'continuous'
-  // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
-  // het laden teruggezet (zie preferences.js).
+  // Pagina-indeling waarmee een document opent (#1289): 'single',
+  // 'continuous', 'facing' of 'book' (js/core/standaard-weergave.js).
+  // Enkelpagina is de standaard. Het vlaggetje viewModeDefaultSingle hoort
+  // bij de eenmalige overgang: een opgeslagen 'continuous' van voor de
+  // instelling (de kortstondige oude standaard) gaat een keer terug.
   defaultViewMode: 'single',
+  viewModeDefaultSingle: true,
   // Voorkeurs-OCR-engine van een extensie (js/pdf/ocr-engines.js, #970);
   // null = de ingebouwde Tesseract.
   ocrEngine: null,

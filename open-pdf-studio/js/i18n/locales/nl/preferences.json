@@ -285,6 +285,13 @@
     "openWindowTip": "Toon de opgevangen afdrukopdrachten"
   },
   "pageDisplay": {
+    "pageLayout": "Pagina-indeling",
+    "defaultLayout": "Standaard pagina-indeling",
+    "layoutSingle": "Enkele pagina",
+    "layoutContinuous": "Enkele pagina, doorlopend",
+    "layoutFacing": "Twee pagina's",
+    "layoutBook": "Twee pagina's, doorlopend",
+    "defaultLayoutHint": "De indeling waarin een document opent. Documenten die al open zijn, houden hun indeling.",
     "rendering": "Weergave",
     "thinLines": "Dunne lijnen (alle lijnen weergeven met 1px breedte)",
     "progressiveRender": "Progressief renderen (zware tekeningen tegel voor tegel invullen)",

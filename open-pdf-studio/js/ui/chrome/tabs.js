@@ -1,5 +1,6 @@
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
 import { appVersion } from '../../core/app-version.js';
+import { beginWeergave } from '../../core/standaard-weergave.js';
 import { renderPage, renderContinuous, clearPdfView, zetWeergaveLayout } from '../../pdf/renderer.js';
 import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
@@ -43,9 +44,10 @@ export function createTab(filePath = null, autoSwitch = true) {
 
   // Create new document
   const doc = createDocument(filePath);
-  // Weergavemodus uit de voorkeuren; enkelpagina is de standaard
-  // (createDocument zelf blijft een pure helper).
-  doc.viewMode = state.preferences?.defaultViewMode === 'continuous' ? 'continuous' : 'single';
+  // Pagina-indeling uit de voorkeuren (#1289); enkelpagina is de standaard
+  // en ook de terugval bij een onbekende waarde (createDocument zelf blijft
+  // een pure helper).
+  Object.assign(doc, beginWeergave(state.preferences?.defaultViewMode));
   state.documents.push(doc);
 
   // Switch to the new tab

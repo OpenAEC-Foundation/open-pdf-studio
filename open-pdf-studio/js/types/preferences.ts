@@ -3,9 +3,13 @@ export interface Preferences {
   theme: string;
   uiScale: number;
 
-  // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
-  // de standaard voor nieuwe installaties) of 'single' (één pagina).
-  defaultViewMode: 'continuous' | 'single';
+  // Pagina-indeling waarmee een document opent (#1289): 'single' (één
+  // pagina, de standaard), 'continuous' (doorlopend), 'facing' (twee
+  // pagina's naast elkaar, per spread) of 'book' (twee pagina's naast
+  // elkaar, doorlopend). Zie js/core/standaard-weergave.js.
+  defaultViewMode: 'single' | 'continuous' | 'facing' | 'book';
+  // Eenmalige overgang naar enkele pagina als standaard is gedaan.
+  viewModeDefaultSingle: boolean;
   // Voorkeurs-OCR-engine (`<extensie-id>:<id>`), null = ingebouwd (#970).
   ocrEngine?: string | null;
   ocrLanguage: string;

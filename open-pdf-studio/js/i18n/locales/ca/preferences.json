@@ -281,6 +281,13 @@
     "openWindowTip": "Mostra les tasques d'impressió capturades"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Renderització",
     "thinLines": "Línies fines (mostra totes les línies amb 1px d'amplada)",
     "progressiveRender": "Renderització progressiva (omple els dibuixos pesats mosaic a mosaic)",

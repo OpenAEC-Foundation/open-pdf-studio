@@ -281,6 +281,13 @@
     "openWindowTip": "Prikaži uhvaćene zadatke ispisa"
   },
   "pageDisplay": {
+    "pageLayout": "Page layout",
+    "defaultLayout": "Default page layout",
+    "layoutSingle": "Single page",
+    "layoutContinuous": "Single page, continuous",
+    "layoutFacing": "Two pages",
+    "layoutBook": "Two pages, continuous",
+    "defaultLayoutHint": "The layout a document opens in. Documents that are already open keep their layout.",
     "rendering": "Iscrtavanje",
     "thinLines": "Tanke linije (prikaži sve linije širinom 1px)",
     "progressiveRender": "Postupno iscrtavanje (zahtjevni crteži pločicu po pločicu)",
