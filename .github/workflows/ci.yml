@@ -135,6 +135,18 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-drawing-toolbar-browser.mjs
 
+      - name: Check startup bundle budget after building (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          npx vite build
+          node --test scripts/bundel-grootte.test.mjs
+
+      - name: Test first lazy save and tab switching (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          node scripts/test-lazy-save-browser.mjs
+          node scripts/test-lazy-save-browser.mjs --vite-query
+
       - name: Test textbox colour and defaults (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-text-color-browser.mjs

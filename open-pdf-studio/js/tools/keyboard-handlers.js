@@ -20,7 +20,7 @@ import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
 import { weergaveVectorNaarPagina } from '../pdf/weergave-ruimte.js';
 import { activeTab } from '../solid/stores/leftPanelStore.js';
 import { startNewCount } from '../solid/stores/countStore.js';
-import { savePDF, savePDFAs } from '../pdf/saver.js';
+import { savePDF, savePDFAs } from '../pdf/save-commands.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
 import { toggleLeftPanel } from '../ui/panels/left-panel.js';
 import { switchRibbonTab as switchToTab, copyStyleFromSelection, pasteStyleToSelection } from '../bridge.js';

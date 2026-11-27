@@ -7,7 +7,7 @@ const ImportPanel = lazy(() => import('./ImportPanel.jsx'));
 const ExportPanel = lazy(() => import('./ExportPanel.jsx'));
 const OpenPanel = lazy(() => import('./OpenPanel.jsx'));
 import { openPDFFile } from '../../../pdf/loader.js';
-import { savePDF, savePDFAs } from '../../../pdf/saver.js';
+import { savePDF, savePDFAs } from '../../../pdf/save-commands.js';
 import { ifcxOpslaanLabel, opslaanAlsIfcx } from '../../../pdf/ifcx-opslaan.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog, selectPrintArea, showPrintDialog } from '../../../ui/chrome/dialogs.js';
