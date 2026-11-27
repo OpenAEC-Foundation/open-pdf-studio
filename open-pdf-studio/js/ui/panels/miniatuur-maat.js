@@ -12,9 +12,9 @@ export const MAX_RENDER = 600;     // bovengrens: geheugen bij honderden bladen
 const STAP = 80;                   // renderbreedte in stappen: niet bij elke pixel opnieuw
 
 // Breedte van één kolom bij `beschikbaar` px binnenruimte van de lijst.
-export function kolomBreedte(beschikbaar, min = MIN_KOLOM, gap = KOLOM_GAP) {
+export function kolomBreedte(beschikbaar, min = MIN_KOLOM, gap = KOLOM_GAP, keuze = 0) {
   if (!(beschikbaar > 0)) return 0;
-  const n = aantalKolommen(beschikbaar, min, gap);
+  const n = getoondeKolommen(beschikbaar, keuze, min, gap);
   return (beschikbaar - gap * (n - 1)) / n;
 }
 
@@ -34,8 +34,8 @@ export function renderBreedte(beeldCss, dpr = 1) {
 }
 
 // Renderbreedte direct uit de binnenbreedte van de miniaturenlijst.
-export function renderBreedteVoorLijst(beschikbaar, dpr = 1) {
-  return renderBreedte(kolomBreedte(beschikbaar) - ITEM_RAND, dpr);
+export function renderBreedteVoorLijst(beschikbaar, dpr = 1, keuze = 0) {
+  return renderBreedte(kolomBreedte(beschikbaar, MIN_KOLOM, KOLOM_GAP, keuze) - ITEM_RAND, dpr);
 }
 
 // Tussenmaten om een grote bitmap in halveringsstappen naar (w, h) te
@@ -69,4 +69,10 @@ export function maxPaneelBreedte(vensterBreedte) {
 export function dropPositie(rect, x, y, meerdereKolommen) {
   if (meerdereKolommen) return x < rect.left + rect.width / 2 ? 'before' : 'after';
   return y < rect.top + rect.height / 2 ? 'before' : 'after';
+}
+
+// A choice is an upper limit; zero follows the available panel width.
+export function getoondeKolommen(beschikbaar, keuze = 0, min = MIN_KOLOM, gap = KOLOM_GAP) {
+  const max = aantalKolommen(beschikbaar, min, gap);
+  return Number.isSafeInteger(keuze) && keuze > 0 ? Math.min(keuze, max) : max;
 }

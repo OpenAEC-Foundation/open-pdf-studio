@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Tallenna tasojen nykyinen näkyvyys asiakirjan oletustilaksi. Se kirjoitetaan tiedostoon seuraavan tallennuksen yhteydessä.",
     "layersDefaultPending": "Tulee oletukseksi tallennettaessa",
     "layerLocked": "Lukittu taso: ei voi kytkeä päälle tai pois",
-    "layerRadioGroup": "Valintaryhmä: tämän tason kytkeminen päälle kytkee ryhmän muut tasot pois"
+    "layerRadioGroup": "Valintaryhmä: tämän tason kytkeminen päälle kytkee ryhmän muut tasot pois",
+    "thumbnailColumns": "Pikkukuvien sarakkeet"
   },
   "scaleBar": {
     "title": "Mittakaavajana",

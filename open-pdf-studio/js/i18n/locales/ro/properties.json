@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Păstrează vizibilitatea actuală a straturilor ca stare implicită a documentului. Este scrisă în fișier la următoarea salvare.",
     "layersDefaultPending": "Devine implicit la salvare",
     "layerLocked": "Strat blocat: nu poate fi activat sau dezactivat",
-    "layerRadioGroup": "Grup de alegere: activarea acestui strat le dezactivează pe celelalte din grup"
+    "layerRadioGroup": "Grup de alegere: activarea acestui strat le dezactivează pe celelalte din grup",
+    "thumbnailColumns": "Coloane de miniaturi"
   },
   "scaleBar": {
     "title": "Bară de scară",

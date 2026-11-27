@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "A rétegek jelenlegi láthatóságának mentése a dokumentum alapértelmezett állapotaként. A következő mentéskor kerül a fájlba.",
     "layersDefaultPending": "Mentéskor ez lesz az alapértelmezett",
     "layerLocked": "Zárolt réteg: nem kapcsolható be vagy ki",
-    "layerRadioGroup": "Választócsoport: e réteg bekapcsolása kikapcsolja a csoport többi rétegét"
+    "layerRadioGroup": "Választócsoport: e réteg bekapcsolása kikapcsolja a csoport többi rétegét",
+    "thumbnailColumns": "Bélyegképoszlopok"
   },
   "scaleBar": {
     "title": "Aránymérték",

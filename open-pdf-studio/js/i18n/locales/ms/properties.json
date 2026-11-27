@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Simpan keterlihatan lapisan semasa sebagai keadaan lalai dokumen. Ia ditulis ke fail apabila anda menyimpan seterusnya.",
     "layersDefaultPending": "Menjadi lalai apabila disimpan",
     "layerLocked": "Lapisan dikunci: tidak boleh dihidupkan atau dimatikan",
-    "layerRadioGroup": "Kumpulan pilihan: menghidupkan lapisan ini mematikan lapisan lain dalam kumpulan"
+    "layerRadioGroup": "Kumpulan pilihan: menghidupkan lapisan ini mematikan lapisan lain dalam kumpulan",
+    "thumbnailColumns": "Lajur lakaran kecil"
   },
   "scaleBar": {
     "title": "Bar Skala",

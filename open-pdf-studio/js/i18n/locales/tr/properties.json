@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Katmanların geçerli görünürlüğünü belgenin varsayılan durumu olarak sakla. Bir sonraki kaydetmede dosyaya yazılır.",
     "layersDefaultPending": "Kaydedince varsayılan olacak",
     "layerLocked": "Kilitli katman: açılamaz veya kapatılamaz",
-    "layerRadioGroup": "Seçim grubu: bu katmanı açmak gruptaki diğer katmanları kapatır"
+    "layerRadioGroup": "Seçim grubu: bu katmanı açmak gruptaki diğer katmanları kapatır",
+    "thumbnailColumns": "Küçük resim sütunları"
   },
   "scaleBar": {
     "title": "Ölçek Çubuğu",

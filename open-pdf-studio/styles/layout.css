@@ -1297,3 +1297,7 @@ body.pdf-cursor-override #canvas-container * {
   border: 1px solid var(--theme-accent, #0078d7);
   background: color-mix(in srgb, var(--theme-accent, #0078d7) 16%, transparent);
 }
+
+.thumbnail-columns-control { display: flex; align-items: center; gap: 6px; padding: 4px 8px; color: var(--theme-text); }
+.thumbnail-columns-control input { flex: 1; min-width: 40px; }
+.thumbnail-columns-control output { min-width: 2ch; text-align: end; }

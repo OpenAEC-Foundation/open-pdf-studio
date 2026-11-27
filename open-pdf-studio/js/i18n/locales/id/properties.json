@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Simpan visibilitas lapisan saat ini sebagai keadaan bawaan dokumen. Ditulis ke berkas saat Anda menyimpan berikutnya.",
     "layersDefaultPending": "Menjadi bawaan saat disimpan",
     "layerLocked": "Lapisan terkunci: tidak dapat dinyalakan atau dimatikan",
-    "layerRadioGroup": "Grup pilihan: menyalakan lapisan ini mematikan lapisan lain dalam grup"
+    "layerRadioGroup": "Grup pilihan: menyalakan lapisan ini mematikan lapisan lain dalam grup",
+    "thumbnailColumns": "Kolom gambar mini"
   },
   "scaleBar": {
     "title": "Batang Skala",

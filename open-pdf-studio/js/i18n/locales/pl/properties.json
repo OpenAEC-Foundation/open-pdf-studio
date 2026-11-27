@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Zapisz bieżącą widoczność warstw jako domyślny stan dokumentu. Zostanie zapisana w pliku przy następnym zapisie.",
     "layersDefaultPending": "Stanie się domyślne po zapisaniu",
     "layerLocked": "Warstwa zablokowana: nie można jej włączyć ani wyłączyć",
-    "layerRadioGroup": "Grupa wyboru: włączenie tej warstwy wyłącza pozostałe warstwy grupy"
+    "layerRadioGroup": "Grupa wyboru: włączenie tej warstwy wyłącza pozostałe warstwy grupy",
+    "thumbnailColumns": "Kolumny miniatur"
   },
   "scaleBar": {
     "title": "Podziałka liniowa",

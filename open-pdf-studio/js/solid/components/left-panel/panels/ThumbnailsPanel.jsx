@@ -1,4 +1,4 @@
-import { For, onMount, onCleanup, createSignal, createEffect, on } from 'solid-js';
+import { For, Show, onMount, onCleanup, createSignal, createEffect, on } from 'solid-js';
 import {
   pageCount, selectAllPages, clearPageSelection, getSelectedPagesArray, formatPageRangeString, setContainerRef,
   setDraggedPage, setDropTarget, activePage,
@@ -17,8 +17,18 @@ import { isPdfAReadOnly } from '../../../../pdf/loader.js';
 import { sneltoetsActief } from '../../../../core/keybindings/app-shortcuts.js';
 import { showMessage } from '../../../stores/dialogStore.js';
 
+import { gekozenKolommen, zetGekozenKolommen, bijKolomWijziging } from '../../../../ui/panels/miniatuur-kolommen.js';
+import { aantalKolommen, getoondeKolommen, MIN_KOLOM } from '../../../../ui/panels/miniatuur-maat.js';
+
 export default function ThumbnailsPanel() {
   const { t } = useTranslation('properties');
+  const [listWidth, setListWidth] = createSignal(0);
+  const [choice, setChoice] = createSignal(gekozenKolommen());
+  const maxColumns = () => aantalKolommen(listWidth());
+  const columns = () => getoondeKolommen(listWidth(), choice());
+  const chooseColumns = n => zetGekozenKolommen(n >= maxColumns() ? 0 : n);
+  onCleanup(bijKolomWijziging(setChoice));
+
 
   const pages = () => {
     const count = pageCount();
@@ -69,6 +79,16 @@ export default function ThumbnailsPanel() {
 
   onMount(() => {
     if (!containerRef) return;
+    const measure = () => {
+      const cs = getComputedStyle(containerRef);
+      setListWidth(containerRef.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0));
+    };
+    measure();
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(measure);
+      observer.observe(containerRef);
+      onCleanup(() => observer.disconnect());
+    }
     sleep = createOrganizerPointerDrag(containerRef, {
       keyAt(target) {
         if (target.closest?.('input, button, textarea, select, a')) return null;
@@ -221,7 +241,16 @@ export default function ThumbnailsPanel() {
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M1.5 3.5h8l4.5 4.5-4.5 4.5h-8z"/><path d="M4 6.5h4M4 9.5h5"/></svg>
         </button>
       </div>
-      <div class="thumbnails-container" id="thumbnails-container" ref={(el) => { containerRef = el; setContainerRef(el); }} tabIndex={0} on:keydown={handleKeyDown}>
+      <Show when={maxColumns() > 1}>
+        <label class="thumbnail-columns-control" title={t('leftPanel.thumbnailColumns')}>
+          <span>{t('leftPanel.thumbnailColumns')}</span>
+          <input id="thumbnail-columns" type="range" min="1" max={maxColumns()} step="1"
+            value={columns()} aria-label={t('leftPanel.thumbnailColumns')}
+            onInput={e => chooseColumns(Number(e.currentTarget.value))} />
+          <output for="thumbnail-columns">{columns()}</output>
+        </label>
+      </Show>
+      <div class="thumbnails-container" id="thumbnails-container" style={{ 'grid-template-columns': `repeat(${columns()}, minmax(${MIN_KOLOM}px, 1fr))` }} ref={(el) => { containerRef = el; setContainerRef(el); }} tabIndex={0} on:keydown={handleKeyDown}>
         <For each={pages()}>
           {(pageNum) => (
             <ThumbnailItem

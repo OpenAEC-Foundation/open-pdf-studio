@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Uložiť aktuálnu viditeľnosť vrstiev ako predvolený stav dokumentu. Zapíše sa do súboru pri ďalšom uložení.",
     "layersDefaultPending": "Pri uložení sa stane predvoleným",
     "layerLocked": "Zamknutá vrstva: nedá sa zapnúť ani vypnúť",
-    "layerRadioGroup": "Skupina volieb: zapnutím tejto vrstvy sa ostatné vrstvy skupiny vypnú"
+    "layerRadioGroup": "Skupina volieb: zapnutím tejto vrstvy sa ostatné vrstvy skupiny vypnú",
+    "thumbnailColumns": "Stĺpce miniatúr"
   },
   "scaleBar": {
     "title": "Grafická mierka",

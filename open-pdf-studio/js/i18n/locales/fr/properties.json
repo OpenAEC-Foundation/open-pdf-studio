@@ -448,7 +448,8 @@
     "layersSetDefaultTitle": "Enregistrer la visibilité actuelle des calques comme état par défaut du document. Elle est écrite dans le fichier au prochain enregistrement.",
     "layersDefaultPending": "Deviendra l'état par défaut à l'enregistrement",
     "layerLocked": "Calque verrouillé : impossible de l'afficher ou de le masquer",
-    "layerRadioGroup": "Groupe de choix : afficher ce calque masque les autres calques du groupe"
+    "layerRadioGroup": "Groupe de choix : afficher ce calque masque les autres calques du groupe",
+    "thumbnailColumns": "Colonnes de miniatures"
   },
   "scaleBar": {
     "title": "Barre d'échelle",
