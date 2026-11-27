@@ -3196,6 +3196,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             }
             // Join per uiteinde uit (#476): alleen als een uiteinde afwijkt.
             schrijfWandJoinMeta(annotDict, ann);
+            // Gehoste openingen (#1229): de lijst reist mee, zodat deur en
+            // raam na heropenen weer bij de wand horen.
+            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             // Vector /AP so the wall BODY (thickness band + material fill/hatch
             // + outline) shows in other viewers instead of just the thin
             // centreline — issue #256. The band + material are resolved with the
@@ -3229,7 +3232,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 const wRect = [Math.min(...bxs) - 2, Math.min(...bys) - 2, Math.max(...bxs) + 2, Math.max(...bys) + 2];
                 annotDict.set(PDFName.of('Rect'), context.obj(wRect));
                 attachVectorAP(context, annotDict, buildWallAP({
-                  bandPoints: band, outlineSegments: wallShape.lijnen, X: convertX, Y: convertY,
+                  bandPoints: band, bandPieces: wallShape.stukken,
+                  outlineSegments: wallShape.lijnen, X: convertX, Y: convertY,
                   strokeColorHex: ann.strokeColor || ann.color || '#000000', lineWidth: borderWidth,
                   fillBgHex: fillBg, hatchPattern: wHatch, hatchColorHex: wHatchColor,
                   hatchScale: wHatchScale, hatchAngle: wHatchAngle,

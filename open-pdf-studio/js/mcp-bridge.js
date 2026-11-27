@@ -2484,6 +2484,9 @@ export async function plattegrondInApp(params) {
   const realSize = await import('./symbols/real-size.js');
   const undoMod = await import('./core/undo-manager.js');
   const { plattegrondOpdracht } = await import('./plattegrond/mcp-plattegrond.js');
+  // Gehoste deuren en ramen (#1229): het meebewegen moet geladen zijn voordat
+  // een wand haar eerste opening krijgt.
+  await (await import('./plattegrond/hosting-haak.js')).laadHostingKern();
   const conventie = await import('./plattegrond/blad-conventie-op-punt.js');
 
   let geraakt = false;

@@ -15,10 +15,15 @@
 // outline segments come from the pure module wand-vorm.js; WHICH wall is the
 // partner (per end, per layer, and whether the end allows a join at all —
 // noJoinStart/noJoinEnd) is decided by wand-join.js.
+//
+// Hosted openings (#1229): a door or window placed in a wall is listed in
+// the wall's `openingen` (wand-openingen.js). The wall stays one annotation;
+// its band is open there — outline and fill both stop at the jambs.
 
 import { getMeasureScale } from '../measurement.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
 import { wandVorm } from '../wand-vorm.js';
+import { wandOpeningen, openingIntervallen } from '../wand-openingen.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 
@@ -73,10 +78,14 @@ export function resolveWallMaterial(ann) {
   return mat;
 }
 
-export function wallHalfWidthPx(ann) {
+/** Page points per real millimetre for a wall (scale at its start point). */
+export function wallPxPerMm(ann) {
   const ms = getMeasureScale(ann.page, ann.startX, ann.startY);
-  const pxPerMm = (ms.pixelsPerUnit || 1) / (UNIT_TO_MM[ms.unit || 'mm'] || 1);
-  return Math.max(0.25, ((ann.dikteMm || 100) * pxPerMm) / 2);
+  return (ms.pixelsPerUnit || 1) / (UNIT_TO_MM[ms.unit || 'mm'] || 1);
+}
+
+export function wallHalfWidthPx(ann) {
+  return Math.max(0.25, ((ann.dikteMm || 100) * wallPxPerMm(ann)) / 2);
 }
 
 function _unit(dx, dy) {
@@ -88,10 +97,25 @@ function _unit(dx, dy) {
 // Band polygon for a wall, mitred / T-trimmed against its neighbours, plus
 // the outline as separate segments (see wand-vorm.js).
 // Returns { poly: [sPlus, ePlus, eMinus, sMinus], joinedStart, joinedEnd,
-// lijnen: [{x1,y1,x2,y2}] } or null for degenerate walls.
+// lijnen: [{x1,y1,x2,y2}], stukken: [poly, ...] } or null for degenerate
+// walls. `stukken` are the solid pieces between the hosted openings (the
+// whole band when there are none).
 export function computeWallShape(ann, annotations) {
   const walls = (annotations || []).filter(a => a.type === 'wall' && a.page === ann.page);
-  return wandVorm(ann, walls, wallHalfWidthPx);
+  const openingen = wandOpeningen(ann);
+  if (!openingen.length) return wandVorm(ann, walls, wallHalfWidthPx);
+  const len = Math.hypot(ann.endX - ann.startX, ann.endY - ann.startY);
+  return wandVorm(ann, walls, wallHalfWidthPx, openingIntervallen(len, openingen, wallPxPerMm(ann)));
+}
+
+// One path with every solid piece of the wall (the whole band without
+// hosted openings).
+function _tracePieces(ctx, shape) {
+  for (const p of (shape.stukken || [shape.poly])) {
+    ctx.moveTo(p[0].x, p[0].y);
+    for (let i = 1; i < p.length; i++) ctx.lineTo(p[i].x, p[i].y);
+    ctx.closePath();
+  }
 }
 
 // Insulation fill: solid background + 60° triangle-wave zigzag spanning the
@@ -110,10 +134,7 @@ function _drawIsolatieFill(ctx, ann, shape, mat) {
 
   ctx.save();
   ctx.beginPath();
-  const p = shape.poly;
-  ctx.moveTo(p[0].x, p[0].y);
-  for (let i = 1; i < p.length; i++) ctx.lineTo(p[i].x, p[i].y);
-  ctx.closePath();
+  _tracePieces(ctx, shape);
   ctx.clip();
 
   // Background colour
@@ -160,10 +181,7 @@ export function drawWall(ctx, ann, annotations) {
     if (mat?.bg) {
       ctx.save();
       ctx.beginPath();
-      const p = shape.poly;
-      ctx.moveTo(p[0].x, p[0].y);
-      for (let i = 1; i < p.length; i++) ctx.lineTo(p[i].x, p[i].y);
-      ctx.closePath();
+      _tracePieces(ctx, shape);
       ctx.fillStyle = mat.bg;
       ctx.fill();
       ctx.restore();
@@ -179,13 +197,16 @@ export function drawWall(ctx, ann, annotations) {
     // The pattern is ALIGNED WITH THE WALL: its 45° runs relative to the
     // wall axis, so a sloped wall keeps the same look as a horizontal one.
     const wallAngleDeg = Math.atan2(ann.endY - ann.startY, ann.endX - ann.startX) * 180 / Math.PI;
-    applyHatchFillPolygon(
-      ctx, shape.poly, null,
-      mat.pattern || mat.id,
-      ann.hatchColor || mat.fg || stroke,
-      densEff,
-      (ann.hatchAngle ?? 0) + wallAngleDeg
-    );
+    // Per solid piece: the hatch stops at the jambs of a hosted opening.
+    for (const stuk of (shape.stukken || [shape.poly])) {
+      applyHatchFillPolygon(
+        ctx, stuk, null,
+        mat.pattern || mat.id,
+        ann.hatchColor || mat.fg || stroke,
+        densEff,
+        (ann.hatchAngle ?? 0) + wallAngleDeg
+      );
+    }
   }
 
   // Outline: the segments from wand-vorm.js — long edges (interrupted

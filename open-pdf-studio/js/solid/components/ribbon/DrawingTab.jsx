@@ -11,6 +11,7 @@ import { startStretchTool } from '../../../tools/tools/stretch-tool.js';
 import { startEnlargeTool } from '../../../tools/tools/enlarge-tool.js';
 import { startFilletTool, startChamferTool } from '../../../tools/tools/corner-tools.js';
 import { startSpotCoordTool } from '../../../tools/tools/spot-coord-tool.js';
+import { startWallOpeningTool } from '../../../tools/tools/wall-opening-tool.js';
 import { tryStartGMove } from '../../../tools/g-move-mode.js';
 import { updateStatusMessage } from '../../../ui/chrome/status-bar.js';
 import i18next from '../../../i18n/config.js';
@@ -52,6 +53,10 @@ const scaleCheckIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 // Generic placeholder icons for buttons without a dedicated icon
 const placeholderIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="0" stroke-dasharray="3 2"/><path d="M9 9 L15 15 M15 9 L9 15" stroke-width="1"/></svg>`;
 const wallIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h18v8H3zM3 14l6-6M7 16l8-8M13 16l8-8M19 16l2-2"/></svg>`;
+// Door and window hosted by a wall (#1229): the wall with a gap, the door leaf
+// with its swing, the window as a frame with glass.
+const wallDoorIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 18h5M19 18h3M7 18V6M7 6a12 12 0 0 1 12 12"/></svg>`;
+const wallWindowIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4M18 12h4M6 9h12v6H6zM6 12h12"/></svg>`;
 const arcIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 Q 12 4 20 20"/></svg>`;
 const splineIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17 C 7 2, 13 2, 12 12 S 17 22 21 7"/></svg>`;
 const splineArrowIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19 C 8 9, 14 7, 19 9"/><path d="M14 6 L 20 9 L 16 13.5"/></svg>`;
@@ -254,6 +259,10 @@ export function DrawingGroups() {
               state.toolOverrides = null;
               setTool('wall');
             }} />
+          <RibbonButton size="small" id="dr-wall-door" title={t('drawing.wallDoor')} icon={wallDoorIcon}
+            disabled={ro()} active={state.currentTool === 'wallDoor'} onClick={() => startWallOpeningTool('door')} />
+          <RibbonButton size="small" id="dr-wall-window" title={t('drawing.wallWindow')} icon={wallWindowIcon}
+            disabled={ro()} active={state.currentTool === 'wallWindow'} onClick={() => startWallOpeningTool('window')} />
           <RibbonButton size="small" id="dr-arrow" title={t('comment.arrow')} icon={arrowIcon}
             disabled={ro()} active={state.currentTool === 'arrow'} onClick={() => setTool('arrow')} />
           <RibbonButton size="small" id="dr-spline-arrow" title={t('comment.splineArrowTitle')} icon={splineArrowIcon}

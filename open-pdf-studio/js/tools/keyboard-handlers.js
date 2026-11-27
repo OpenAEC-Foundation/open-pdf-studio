@@ -38,6 +38,7 @@ import { toggleFullscreen, exitFullscreen, getFullscreenState } from '../ui/chro
 import { typeLengthActive, consumeKey as typeLengthConsumeKey, typeLengthCursor } from './type-length-input.js';
 import { startGripLengteInvoer, stopGripLengteInvoer, herstelStramienMeeslepen } from './tool-dispatcher.js';
 import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewerking.js';
+import { hostingTijdensSleep } from '../plattegrond/hosting-haak.js';
 import { gevelPreset } from '../gevelelement/herkenning.js';
 import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../annotations/corrections/model.js';
 import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
@@ -1045,6 +1046,8 @@ async function voerStandaardToetsUit(e) {
       }
       // Meegeschoven stramienuiteinden gaan ook terug.
       herstelStramienMeeslepen();
+      // Meegelopen kozijnen van een wand ook (#1229).
+      hostingTijdensSleep(_doc);
       state.isResizing = false;
       state.isDragging = false;
       state.activeHandle = null;

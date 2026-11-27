@@ -29,6 +29,7 @@ import { zetPaginaAnnotatiesOm } from './loader/annotaties-omzetten.js';
 import { loadIfNeeded } from './queued-load.js';
 import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
 import { voegAnnotatiesToe } from './loader/annotaties-toevoegen.js';
+import { laadHostingKern, raaktHosting } from '../plattegrond/hosting-haak.js';
 import { pdfjsBronnen } from '../core/basis-url.js';
 import { GAST_MODUS } from '../core/gehost.js';
 import { maakBlobWorker } from '../core/blob-worker.js';
@@ -44,7 +45,13 @@ import { onthoudSessie } from './beveiliging-toepassen.js';
 // annotaties-toevoegen.js): losse pushes lieten per annotatie alles opnieuw
 // rekenen wat de lijst leest.
 async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageMap, annotColorMap, doc) {
+  const eerder = doc.annotations.length;
   voegAnnotatiesToe(doc, await zetPaginaAnnotatiesOm(annots, pageNum, viewport, stampImageMap, annotColorMap));
+  // Gehoste deuren en ramen (#1229): het meebewegen met de wand laadt pas
+  // als een document er een heeft. Alleen wat er nu bij kwam wordt bekeken.
+  for (let i = eerder; i < doc.annotations.length; i++) {
+    if (raaktHosting(doc.annotations[i])) { laadHostingKern(); break; }
+  }
   // Links van de app (#953): de linklaag van deze pagina kan al staan; haal
   // hun klikvlak uit het bestand eruit, de app volgt ze zelf.
   if (annots.some((a) => a?.subtype === 'Link') && typeof document !== 'undefined') {

@@ -216,6 +216,13 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-bezier-editing-browser.mjs
 
+      # Doors and windows hosted by their wall (#1229), in the real app: place
+      # with the ribbon tool, drag along the wall, move, rotate and shorten the
+      # wall, delete either side, undo, save and reopen.
+      - name: Test doors and windows hosted by their wall (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: node scripts/test-hosted-openings-browser.mjs
+
       - name: Test compare wheel isolation (Linux)
         if: matrix.platform == 'ubuntu-22.04'
         run: node scripts/test-compare-wheel-browser.mjs

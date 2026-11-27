@@ -36,7 +36,7 @@ import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
 import { zetLaagUitBestand } from './annotatie-laag.js';
 import { extraVoorAnnotatie } from './extra-sleutel.js';
-import { plattegrondUitExtra } from './plattegrond-meta.js';
+import { plattegrondUitExtra, wandOpeningenUitExtra } from './plattegrond-meta.js';
 import { viewportRectangle } from '../pdfjs-record.js';
 import {
   maatlijnUitBestand, lijnBreedteUitBestand, pijlKopVullingUitBestand, meetlijnKoppenUitBestand,
@@ -665,6 +665,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             isolatieType: extraColors.opsIsolatieType || undefined,
             // Join per uiteinde uit (#476); zonder sleutel geen velden.
             ...wandJoinUitExtra(extraColors),
+            // Gehoste openingen (#1229); zonder sleutel geen veld.
+            ...wandOpeningenUitExtra(extraColors),
             // Explicit category wins; older files without it are IfcWall.
             ifcCategory: extraColors.opsIfcCategory || ifcCategoryForAnnotationType('wall'),
             color: colorArrayToHex(annot.color, '#000000'),

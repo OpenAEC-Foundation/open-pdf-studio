@@ -301,6 +301,11 @@ js/plattegrond/kozijnprofiel.test.mjs
 js/plattegrond/kozijn.test.mjs
 js/plattegrond/spouwmuur.test.mjs
 js/annotations/wand-vorm.test.mjs
+js/annotations/wand-openingen.test.mjs
+js/annotations/wand-vorm-openingen.test.mjs
+js/plattegrond/gehoste-opening.test.mjs
+js/plattegrond/hosting-app.test.mjs
+js/pdf/saver/wand-openingen-rondgang.test.mjs
 js/plattegrond/maatvoering-wandvlak.test.mjs
 js/annotations/maat-label.test.mjs
 js/pdf/saver/plattegrond-meta.test.mjs

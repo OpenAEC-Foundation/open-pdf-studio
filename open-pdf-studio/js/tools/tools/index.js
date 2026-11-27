@@ -44,6 +44,7 @@ import { filletTool, chamferTool } from './corner-tools.js';
 import { spotCoordTool } from './spot-coord-tool.js';
 import { coordOriginTool } from './coord-origin-tool.js';
 import { linkTool } from './link-tool.js';
+import { wallDoorTool, wallWindowTool } from './wall-opening-tool.js';
 
 export function registerAllTools() {
   // Navigation / selection
@@ -86,6 +87,9 @@ export function registerAllTools() {
   // (type-length, Shift-hoeksnap, doortekenen); band + verstek-/T-joins in
   // annotations/betonbalk.js.
   registerTool('betonbalk', lineTool);
+  // Door / window hosted by a wall (#1229): hover a wall and click.
+  registerTool('wallDoor', wallDoorTool);
+  registerTool('wallWindow', wallWindowTool);
   registerTool('arc', arcTool);
   registerTool('spline', splineTool);
   registerTool('splineArrow', splineArrowTool);
