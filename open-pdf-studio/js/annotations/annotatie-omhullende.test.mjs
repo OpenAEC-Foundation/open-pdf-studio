@@ -22,6 +22,8 @@ const rotatedRectAabb = (r) => {
   return { x: r.x + r.width / 2 - w / 2, y: r.y + r.height / 2 - h / 2, width: w, height: h };
 };`)
   // Een data:-module kent geen relatieve imports; curve-shape.js is puur.
+  .replace("from './spline-arrow-geometry.js'", `from '${new URL('./spline-arrow-geometry.js', import.meta.url).href}'`)
+  .replace("from '../pdf/lijnkoppen.js'", `from '${new URL('../pdf/lijnkoppen.js', import.meta.url).href}'`)
   .replace("from './curve-shape.js'", `from '${new URL('./curve-shape.js', import.meta.url).href}'`);
 
 const { annotationBounds, SpatialIndex } =
@@ -161,4 +163,43 @@ test('polylijn en veelhoek met krommen: de buik van de kromme valt binnen de omh
     annotationBounds({ type: 'polygon', page: 1, x: 0, y: 0, width: 100, height: 60, sides: 4,
       points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 60 }, { x: 0, y: 60 }] }),
     { x: 0, y: 0, width: 100, height: 60 });
+});
+
+const callout1278 = (extra = {}) => ({ id: 'callout-1278', type: 'callout', page: 1,
+  x: 900, y: 300, width: 150, height: 50, arrowX: 100, arrowY: 100,
+  kneeX: 500, kneeY: 100, armOriginX: 900, armOriginY: 325, ...extra });
+
+test('callout: visible leader survives when the textbox is outside a tight viewport (#1278)', () => {
+  const a = callout1278();
+  for (const options of [undefined, { goedkoop: true }]) {
+    const b = annotationBounds(a, options);
+    assert.ok(omvat(b, [[100,100],[500,100],[900,325],[1050,350]]));
+    // Same overlap predicate as the two rendering paths, with a zoomed viewport.
+    assert.ok(!(b.x + b.width < 70 || b.x > 170 || b.y + b.height < 70 || b.y > 170));
+  }
+  const index = new SpatialIndex(); index.rebuild([a]);
+  assert.deepEqual(index.queryExact(1, 70, 70, 100, 100, [a]).map(a => a.id), [a.id]);
+  assert.equal(index.queryExact(1, 1500, 1500, 20, 20, [a]).length, 0);
+});
+
+test('callout: box rotation leaves explicit leader and locked arm in page coordinates', () => {
+  const a = callout1278({ rotation: 90, armOriginX: 1100, armOriginY: 600 });
+  const b = annotationBounds(a);
+  assert.ok(omvat(b, [[100,100],[500,100],[1100,600],[975,250],[975,400]]));
+});
+
+test('callout: absent leader coordinates follow renderer defaults, including zero coordinates', () => {
+  const a = { type:'callout', x:200, y:100, width:150, height:50 };
+  assert.ok(omvat(annotationBounds(a), [[140,150],[170,125],[200,125]]));
+  assert.ok(omvat(annotationBounds({...a,arrowX:0,arrowY:0,kneeX:0,kneeY:10}), [[0,0],[0,10]]));
+});
+
+test('callout: curved leader bulge and large heads fit inside the rendering bounds', () => {
+  const a = callout1278({ arrowX:100, arrowY:100, kneeX:500, kneeY:100,
+    armOriginX:900, armOriginY:600, leaderStyle:'curved', headSize:40 });
+  const b = annotationBounds(a, { goedkoop:true });
+  // Catmull-Rom's second segment bows above the horizontal knee-to-tip line.
+  const noHeads = annotationBounds({ ...a, startHead:'none', endHead:'none' }, { goedkoop:true });
+  assert.ok(noHeads.y < 80, JSON.stringify(noHeads));
+  assert.ok(omvat(b, [[60,100],[140,100],[900,640]]));
 });
