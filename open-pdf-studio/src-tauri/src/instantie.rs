@@ -39,6 +39,72 @@ pub fn slaat_single_instance_over(args: &[String], opds_detached: Option<&str>) 
     is_nieuwe_instantie(args) || opds_detached == Some("1")
 }
 
+/// Pure regel: wachten tot de hoofdinstantie bestanden kan ontvangen.
+///
+/// De single-instance-plugin maakt in de hoofdinstantie eerst een mutex en
+/// daarna een verborgen venster dat de bestanden van een volgende start
+/// ontvangt. Een start die de mutex al ziet maar het venster nog niet vindt,
+/// gaat als eigen app verder. Dat gebeurt als de Verkenner meerdere bestanden
+/// tegelijk opent: de processen starten even snel op en controleren op
+/// hetzelfde moment. Wacht daarom zolang de mutex er is tot het venster er
+/// ook is, met een grens. Geeft `true` als er een venster is om naar door te
+/// sturen; `false` als er geen hoofdinstantie is of het venster uitbleef.
+pub fn wacht_op_ontvanger(
+    mut mutex_bestaat: impl FnMut() -> bool,
+    mut venster_gevonden: impl FnMut() -> bool,
+    mut wacht: impl FnMut(),
+    pogingen: u32,
+) -> bool {
+    if !mutex_bestaat() {
+        return false;
+    }
+    for _ in 0..pogingen {
+        if venster_gevonden() {
+            return true;
+        }
+        wacht();
+    }
+    venster_gevonden()
+}
+
+/// Windows: wacht vóór het opbouwen van de app tot een draaiende hoofdinstantie
+/// haar ontvangstvenster heeft (zie `wacht_op_ontvanger`). De namen volgen de
+/// plugin (tauri-plugin-single-instance, zonder de semver-optie):
+/// `<identifier>-sim` (mutex), `-sic` (vensterklasse) en `-siw` (venstertitel).
+#[cfg(target_os = "windows")]
+pub fn wacht_op_hoofdinstantie(identifier: &str) {
+    use windows_sys::Win32::Foundation::CloseHandle;
+    use windows_sys::Win32::System::Threading::OpenMutexW;
+    use windows_sys::Win32::UI::WindowsAndMessaging::FindWindowW;
+    // SYNCHRONIZE: genoeg om te zien of de mutex bestaat.
+    const SYNCHRONIZE: u32 = 0x0010_0000;
+    let breed = |s: String| s.encode_utf16().chain(std::iter::once(0)).collect::<Vec<u16>>();
+    let mutex = breed(format!("{identifier}-sim"));
+    let klasse = breed(format!("{identifier}-sic"));
+    let titel = breed(format!("{identifier}-siw"));
+    let begin = std::time::Instant::now();
+    let gevonden = wacht_op_ontvanger(
+        || unsafe {
+            let h = OpenMutexW(SYNCHRONIZE, 0, mutex.as_ptr());
+            if h.is_null() {
+                false
+            } else {
+                CloseHandle(h);
+                true
+            }
+        },
+        || unsafe { !FindWindowW(klasse.as_ptr(), titel.as_ptr()).is_null() },
+        || std::thread::sleep(std::time::Duration::from_millis(50)),
+        // 10 s: een hoofdinstantie die zelf nog opstart, heeft haar venster
+        // binnen een fractie daarvan.
+        200,
+    );
+    let ms = begin.elapsed().as_millis();
+    if gevonden && ms >= 50 {
+        eprintln!("[startup] waited {ms} ms for the running instance to accept files");
+    }
+}
+
 /// De argumenten voor een tweede instantie die `pdf` opent.
 pub fn nieuwe_instantie_args(pdf: &str) -> Vec<String> {
     vec![NIEUWE_INSTANTIE_VLAG.to_string(), pdf.to_string()]
@@ -198,6 +264,27 @@ mod tests {
         assert!(!is_nieuwe_instantie(&args(&["app.exe", "C:\\a.pdf"])));
         // Het programmapad zelf telt niet mee.
         assert!(!is_nieuwe_instantie(&args(&["--new-instance"])));
+    }
+
+    #[test]
+    fn wacht_alleen_als_de_hoofdinstantie_nog_geen_ontvanger_heeft() {
+        // Geen hoofdinstantie: meteen verder, niet wachten.
+        let mut gewacht = 0;
+        assert!(!wacht_op_ontvanger(|| false, || false, || gewacht += 1, 10));
+        assert_eq!(gewacht, 0);
+        // Ontvanger er al: meteen doorsturen.
+        let mut gewacht = 0;
+        assert!(wacht_op_ontvanger(|| true, || true, || gewacht += 1, 10));
+        assert_eq!(gewacht, 0);
+        // Ontvanger verschijnt na drie keer wachten.
+        let mut keer = 0;
+        let mut gewacht = 0;
+        assert!(wacht_op_ontvanger(|| true, || { keer += 1; keer > 3 }, || gewacht += 1, 10));
+        assert_eq!(gewacht, 3);
+        // Ontvanger blijft uit: na de grens verder als eigen app.
+        let mut gewacht = 0;
+        assert!(!wacht_op_ontvanger(|| true, || false, || gewacht += 1, 10));
+        assert_eq!(gewacht, 10);
     }
 
     #[test]

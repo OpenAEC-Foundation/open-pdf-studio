@@ -157,6 +157,17 @@ fn get_opened_file(state: tauri::State<OpenedFiles>) -> Vec<String> {
     state.0.lock().unwrap().clone()
 }
 
+/// Bestanden die een volgende start (single-instance) doorgaf. Los van de
+/// eigen startbestanden: die bepalen of de vorige sessie hersteld wordt.
+struct HandedOverFiles(Mutex<Vec<String>>);
+
+/// Geeft de doorgegeven bestanden en leegt de lijst. De frontend vraagt dit
+/// bij het opstarten, voor wat binnenkwam voordat zijn luisteraar er was.
+#[tauri::command]
+fn take_handed_over_files(state: tauri::State<HandedOverFiles>) -> Vec<String> {
+    std::mem::take(&mut *state.0.lock().unwrap())
+}
+
 /// Welk document opent een `RunEvent::Opened`-URL, als het een PDF is?
 ///
 /// - `file://` (macOS Finder, iOS): het bestandspad, alleen voor een `.pdf`.
@@ -3444,6 +3455,7 @@ pub fn run(opts: StartupOpts) {
 
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
+        .manage(HandedOverFiles(Mutex::new(Vec::new())))
         .manage(central_review_transport::Transport::default())
         .manage(verkenner_acties::ShellActieWachtrij::met(start_shell_actie))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
@@ -3547,6 +3559,20 @@ pub fn run(opts: StartupOpts) {
                         let _ = app.fs_scope().allow_file(path);
                     }
                     if !files.is_empty() {
+                        // Ook bewaren: een start die binnenkomt terwijl het
+                        // venster nog laadt, vindt nog geen luisteraar; de
+                        // frontend haalt de lijst bij het opstarten op met
+                        // take_handed_over_files. Dubbel openen kan niet: een
+                        // pad dat al open is, krijgt zijn bestaande tabblad.
+                        {
+                            let state = app.state::<HandedOverFiles>();
+                            let mut bewaard = state.0.lock().unwrap();
+                            for path in &files {
+                                if !bewaard.contains(path) {
+                                    bewaard.push(path.clone());
+                                }
+                            }
+                        }
                         let _ = app.emit("open-files", &files);
                     }
                 }));
@@ -3607,6 +3633,13 @@ pub fn run(opts: StartupOpts) {
     startup_window::prepare(&mut context);
     if let Some(browser_args) = &headless_browser_args {
         headless::pas_context_aan(&mut context, browser_args);
+    }
+    // Meerdere bestanden tegelijk geopend vanuit de Verkenner: elke start
+    // wacht tot de hoofdinstantie haar bestanden kan ontvangen, anders gaat
+    // een start die net te vroeg kijkt als eigen app verder.
+    #[cfg(target_os = "windows")]
+    if !instantie::slaat_single_instance_over(&args, std::env::var("OPDS_DETACHED").ok().as_deref()) {
+        instantie::wacht_op_hoofdinstantie(&context.config().identifier);
     }
 
     // Remember the main window's size, position and maximised state between
@@ -3859,6 +3892,7 @@ pub fn run(opts: StartupOpts) {
             spraak::tts_speak,
             spraak::tts_stop,
             get_opened_file,
+            take_handed_over_files,
             verkenner_acties::get_shell_action,
             updates_managed_externally,
             save_session,
