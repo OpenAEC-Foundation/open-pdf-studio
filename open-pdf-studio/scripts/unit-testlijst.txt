@@ -585,6 +585,7 @@ js/ui/getal-stappen.test.mjs
 js/ui/getal-slepen.test.mjs
 js/core/getal-slepen.test.mjs
 js/getal-velden-bron.test.mjs
+js/open-bestanden-overdragen.test.mjs
 scripts/versievelden.test.mjs
 js/tools/gereedschap-opmaak.test.mjs
 js/text/tekstselectie-markering.test.mjs

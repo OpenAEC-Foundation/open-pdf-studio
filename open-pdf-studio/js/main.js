@@ -453,11 +453,16 @@ async function init() {
   // Check for file passed as command line argument
   const hasCommandLineFile = await checkCommandLineArgs();
 
-  // Drain any files queued by the single-instance plugin before the app was ready
-  if (pendingOpenFiles.length > 0 && !hasCommandLineFile) {
-    openFiles(pendingOpenFiles);
-  }
+  // Also open what other starts handed over while this window was loading.
+  // Several files opened at once in the file manager start one process each:
+  // the first keeps its own file, the others hand theirs over during start-up.
+  // Some reached the listener before the app was ready (pendingOpenFiles) and
+  // were dropped whenever a command-line file existed; others came before
+  // the listener existed, and the native side kept them. A path that is
+  // already open gets its existing tab, so nothing opens twice.
+  const wachtend = [...new Set([...pendingOpenFiles, ...await overgedragenBestanden()])];
   pendingOpenFiles = [];
+  if (wachtend.length > 0) openFiles(wachtend);
   appReady = true;
   startShellActies({ openFiles }).catch(e => console.warn('[shell-action] failed:', e));
 
@@ -560,6 +565,17 @@ async function init() {
 }
 
 // Check for PDF files passed as command line arguments
+// Files that later starts handed over before this window listened (desktop).
+async function overgedragenBestanden() {
+  if (!isTauri()) return [];
+  try {
+    const files = await invoke('take_handed_over_files');
+    return Array.isArray(files) ? files : [];
+  } catch {
+    return [];
+  }
+}
+
 async function checkCommandLineArgs() {
   if (!isTauri()) return false;
 
